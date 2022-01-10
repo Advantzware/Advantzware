@@ -1591,6 +1591,10 @@ PROCEDURE local-initialize :
   DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF ID EQ "" THEN DO:
+    DELETE OBJECT THIS-PROCEDURE.
+    RETURN.
+  END.
   INPUT FROM VALUE(SEARCH('{&data}/' + ID + '/config.dat')) NO-ECHO.
   IMPORT version.
   INPUT CLOSE.
@@ -1614,9 +1618,10 @@ PROCEDURE local-initialize :
 
   IF boardSize EQ 'Maximize' THEN
   ASSIGN
-    {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS = 8000
-    {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = 8000
-    {&WINDOW-NAME}:WINDOW-STATE = 1.
+    {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS  = SESSION:WIDTH-PIXELS
+    {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = SESSION:HEIGHT-PIXELS
+    {&WINDOW-NAME}:WINDOW-STATE = 1
+    .
   ELSE DO:
     IF boardSize EQ 'Minimum' THEN
     ASSIGN

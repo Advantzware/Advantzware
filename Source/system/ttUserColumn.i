@@ -11,6 +11,7 @@
         .
         
     DEFINE TEMP-TABLE ttDefaultUserColumn
+        FIELD colTable    AS CHARACTER
         FIELD colName     AS CHARACTER LABEL "Name" 
         FIELD colLabel    AS CHARACTER
         FIELD colVisible  AS LOGICAL

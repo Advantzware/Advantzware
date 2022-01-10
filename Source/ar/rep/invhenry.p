@@ -117,6 +117,13 @@ DEFINE SHARED VARIABLE lPrintQtyAll  AS LOGICAL NO-UNDO .
 DEF BUFFER bf-cust FOR cust .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dTotalAmount   AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dExchangeRate  AS DECIMAL EXTENT 3 NO-UNDO.
+DEFINE VARIABLE cCurrency      AS CHARACTER NO-UNDO.
+
+{methods/pPrintImageOnBack.i v-print-fmt "first"}
+/* v-print-fmt => ".\custfiles\Images\<FormatName>BackImage.pdf" */
+/* After which Page- Image will print  (First, All) */
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -591,6 +598,7 @@ ELSE lv-comp-color = "BLACK".
                             DO i = 1 TO v-tmp-lines:
                            
                                IF v-printline > 50 THEN DO:
+                                  RUN pPrintImageOnBack.
                                   PAGE.
                                   v-printline = 0.
                                   {ar/rep/invhenry.i}
@@ -610,6 +618,7 @@ ELSE lv-comp-color = "BLACK".
             END.
             
             IF v-printline > 50 THEN DO:
+               RUN pPrintImageOnBack.
                PAGE.
                v-printline = 0.
                {ar/rep/invhenry.i}
@@ -624,6 +633,7 @@ ELSE lv-comp-color = "BLACK".
            DO i = 1 TO 4:
                 IF v-inst[i] <> "" THEN DO:                
                    IF v-printline > 50 THEN DO:
+                      RUN pPrintImageOnBack.
                       PAGE.
                       v-printline = 0.
                       {ar/rep/invhenry.i}
@@ -636,6 +646,7 @@ ELSE lv-comp-color = "BLACK".
            DO i = 1 TO 4:
               IF ar-inv.bill-i[i] <> "" THEN DO:
                  IF v-printline > 50 THEN DO:
+                    RUN pPrintImageOnBack.
                     PAGE.
                     v-printline = 0.
                     {ar/rep/invhenry.i}
@@ -647,6 +658,7 @@ ELSE lv-comp-color = "BLACK".
         END.
 
         IF v-printline > 50 THEN DO:
+           RUN pPrintImageOnBack.
            PAGE.
            v-printline = 0.
            {ar/rep/invhenry.i}
@@ -697,15 +709,30 @@ ELSE lv-comp-color = "BLACK".
           v-t-tax[1] = v-t-tax[1] + (ar-inv.tax-amt - v-tot-tax).
       END.
     END.
+    
+    IF cust.fax-country NE "USA" AND cust.fax-country NE "" THEN
+    DO:
+        DO i = 1 TO 3:
+         IF i EQ 1 THEN 
+         cCurrency = "EUR" .
+         ELSE IF i EQ 2 THEN
+         cCurrency = "GBP".
+         RUN spCommon_CurrencyExcRate( INPUT cust.company,
+                                       INPUT cCurrency,
+                                       INPUT "USD",
+                                       INPUT ar-inv.inv-date,
+                                       OUTPUT dExchangeRate[i]).   
+        END.     
+    END.
 
     DO i = 1 TO 5:
-       v-bot-lab[i] = IF v-t-tax[i] NE 0 THEN
-                    /*  ((if avail stax then string(stax.tax-dscr[i],"x(5)")
-                        else fill(" ",5))*/ 
+       v-bot-lab[i] = IF v-t-tax[i] NE 0 THEN                      
                         ((IF AVAIL stax THEN STRING(CAPS(stax.tax-code1[i] + " TAX"),"x(7)") 
                            ELSE FILL(" ",7) ) +
-                       fill(" ",4) + ":" +
-                       string(v-t-tax[i],"->>>>,>>9.99")) ELSE "".
+                       fill(" ",4) + ":" + ( IF cust.fax-country EQ "USA" OR cust.fax-country EQ ""  THEN
+                       string(v-t-tax[i],"->>>>,>>9.99") ELSE 
+                       STRING(fill(" ",2) + string(v-t-tax[i] * dExchangeRate[1],"->>>>,>>9.99") + fill(" ",2) + string(v-t-tax[i] * dExchangeRate[2] ,"->>>>,>>9.99") 
+                       + fill(" ",2) + string(v-t-tax[i],"->>>>,>>9.99")))) ELSE "".
     END.
     v-inv-freight = IF (ar-inv.f-bill OR (cust.frt-pay = "B" AND ar-inv.ord-no = 0))
                     THEN ar-inv.freight ELSE 0.    
@@ -713,15 +740,18 @@ ELSE lv-comp-color = "BLACK".
 
     /* #101624 */
     IF ltb_print-message THEN DO:
-        PUT "<p8><R58><C3>" cInvMessage[1] FORMAT "x(40)" SKIP
-                "<R59><C3>" cInvMessage[2] FORMAT "x(40)" SKIP
-                "<R60><C3>" cInvMessage[3] FORMAT "x(40)" SKIP
-                "<R61><C3>" cInvMessage[4] FORMAT "x(40)" SKIP
-                "<R62><C3>" cInvMessage[5] FORMAT "x(40)" SKIP
+        PUT "<p8><R58><C2>" cInvMessage[1] FORMAT "x(60)" SKIP
+                "<R59><C2>" cInvMessage[2] FORMAT "x(60)" SKIP
+                "<R60><C2>" cInvMessage[3] FORMAT "x(60)" SKIP
+                "<R61><C2>" cInvMessage[4] FORMAT "x(60)" SKIP
+                "<R62><C2>" cInvMessage[5] FORMAT "x(60)" SKIP
                 "<p10>".
     END.
-  
-IF v-bot-lab[4] <> "" THEN
+    dTotalAmount = v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-t-tax[4] + v-t-tax[5] + v-inv-freight .
+    
+    
+IF v-bot-lab[4] <> "" THEN do:
+    IF cust.fax-country EQ "USA" OR cust.fax-country EQ "" THEN
     PUT "<R58><C59><#8><FROM><R+8><C+21><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "$->>>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight FORM "->>>>,>>9.99"
@@ -730,20 +760,47 @@ IF v-bot-lab[4] <> "" THEN
         "<=8><R+4> " v-bot-lab[3]
         "<=8><R+5> " v-bot-lab[4]
         "<=8><R+6> " v-bot-lab[5]
-        "<=8><R+7> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-t-tax[4] + v-t-tax[5] + v-inv-freight FORM "$->>,>>9.99" .
-ELSE
+        "<=8><R+7> Grand Total:" dTotalAmount FORM "$->>,>>9.99" .
+     ELSE
+     PUT "<R56><p9><C42><#8><FROM><R+10><C+41.4><RECT> " 
+            "<=8> Sales      :          EUR           GBP           USD"
+            "<=8><R+1> Conversion :" dExchangeRate[1] FORMAT "->>,>>9.99<<<<<" " USD" dExchangeRate[2] FORMAT "->>,>>9.99<<<<<" " USD" "      1.00 USD"
+            "<=8><R+2> Sub Total  :" (v-subtot-lines * dExchangeRate[1]) FORM "€->,>>>,>>9.99"  (v-subtot-lines * dExchangeRate[2]) FORM "£->,>>>,>>9.99" v-subtot-lines FORM "$->,>>>,>>9.99"
+            "<=8><R+3> Freight    :" (v-inv-freight * dExchangeRate[1])  FORMAT "->>,>>>,>>9.99" (v-inv-freight * dExchangeRate[2])  FORMAT "->>,>>>,>>9.99" v-inv-freight FORMAT "->>,>>>,>>9.99"
+            "<=8><R+4> " v-bot-lab[1] 
+            "<=8><R+5> " v-bot-lab[2] 
+            "<=8><R+6> " v-bot-lab[3] 
+            "<=8><R+7> " v-bot-lab[4] 
+            "<=8><R+8> " v-bot-lab[5] 
+            "<=8><R+9> Grand Total:" (dTotalAmount * dExchangeRate[1]) FORM "€->,>>>,>>9.99" (dTotalAmount * dExchangeRate[2]) FORM "£->,>>>,>>9.99" dTotalAmount FORM "$->>>,>>9.99" "<P10>" .
+     
+END.        
+ELSE do:
+    IF cust.fax-country EQ "USA" OR cust.fax-country EQ "" THEN
     PUT "<R58><C59><#8><FROM><R+6><C+21><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "$->>>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight FORM "->>>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
-        "<=8><R+5> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORM "$->>>,>>9.99" .
-
+        "<=8><R+5> Grand Total:" dTotalAmount FORM "$->>>,>>9.99" .
+    ELSE
+    PUT "<R56><p9><C42><#8><FROM><R+8><C+41.4><RECT> " 
+        "<=8> Sales      :           EUR           GBP           USD"
+        "<=8><R+1> Conversion :" dExchangeRate[1] FORMAT "->>,>>9.99<<<<<" " USD" dExchangeRate[2] FORMAT "->>,>>9.99<<<<<" " USD" "      1.00 USD"
+        "<=8><R+2> Sub Total  :" (v-subtot-lines * dExchangeRate[1]) FORM "€->,>>>,>>9.99"  (v-subtot-lines * dExchangeRate[2]) FORM "£->,>>>,>>9.99" v-subtot-lines FORM "$->,>>>,>>9.99"
+        "<=8><R+3> Freight    :" (v-inv-freight * dExchangeRate[1])  FORMAT "->>,>>>,>>9.99" (v-inv-freight * dExchangeRate[2])  FORMAT "->>,>>>,>>9.99" v-inv-freight FORMAT "->>,>>>,>>9.99"
+        "<=8><R+4> " v-bot-lab[1] 
+        "<=8><R+5> " v-bot-lab[2] 
+        "<=8><R+6> " v-bot-lab[3]
+        "<=8><R+7> Grand Total:" (dTotalAmount * dExchangeRate[1]) FORM "€->,>>>,>>9.99" (dTotalAmount * dExchangeRate[2]) FORM "£->,>>>,>>9.99" dTotalAmount FORM "$->>>,>>9.99" "<P10>" .
+    
+END.
     ASSIGN
        v-printline = v-printline + 6
        v-page-num = PAGE-NUM.
 
+    RUN pPrintImageOnBack.
     /*IF v-printline < 50 THEN PUT SKIP(60 - v-printline). */
     PAGE. 
 
@@ -800,6 +857,5 @@ FOR EACH notes WHERE notes.rec_key = reckey
 END.
 
 END PROCEDURE.
-
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

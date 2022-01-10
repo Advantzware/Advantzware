@@ -16,10 +16,6 @@
 {sharpshooter/ttReleaseItem.i}
 {sharpshooter/ttReleaseTag.i}
 
-DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
-
-oSetting = NEW system.Setting().
-
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -197,6 +193,8 @@ PROCEDURE pBuildReleaseTags PRIVATE:
     DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttReleaseTag.
     
+    DEFINE VARIABLE iSequence AS INTEGER NO-UNDO.
+    
     DEFINE BUFFER bf-ssrelbol FOR ssrelbol.
   
     MAIN-BLOCK:
@@ -204,9 +202,11 @@ PROCEDURE pBuildReleaseTags PRIVATE:
         ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
         FOR EACH bf-ssrelbol NO-LOCK
             WHERE bf-ssrelbol.company  EQ ipcCompany
-              AND bf-ssrelbol.release# EQ ipiReleaseID:
+              AND bf-ssrelbol.release# EQ ipiReleaseID
+            BY bf-ssrelbol.seq:
             CREATE ttReleaseTag.
             ASSIGN
+                iSequence                             = iSequence + 1
                 ttReleaseTag.company                  = bf-ssrelbol.company
                 ttReleaseTag.releaseID                = bf-ssrelbol.release#
                 ttReleaseTag.tag                      = bf-ssrelbol.tag
@@ -225,7 +225,7 @@ PROCEDURE pBuildReleaseTags PRIVATE:
                 ttReleaseTag.quantity                 = bf-ssrelbol.qty
                 ttReleaseTag.quantityTotal            = bf-ssrelbol.t-qty
                 ttReleaseTag.lineID                   = bf-ssrelbol.line
-                ttReleaseTag.sequenceID               = bf-ssrelbol.seq
+                ttReleaseTag.sequenceID               = iSequence
                 ttReleaseTag.custPoNo                 = bf-ssrelbol.po-no
                 ttReleaseTag.trailerID                = bf-ssrelbol.trailer#
                 ttReleaseTag.sourceRowID              = ROWID(bf-ssrelbol)
@@ -876,19 +876,5 @@ PROCEDURE pGetReleaseQuantity PRIVATE:
           AND (bf-oe-rell.po-no  EQ ipcCustomerPO OR ipcCustomerPO EQ ""):
         opdReleaseQuantity = opdReleaseQuantity + bf-oe-rell.qty.
     END.
-END PROCEDURE.
-
-PROCEDURE SetSetting:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER ipoSetting AS system.Setting NO-UNDO.
-    
-    IF VALID-OBJECT (ipoSetting) THEN DO:
-        DELETE OBJECT oSetting.
-        oSetting = ipoSetting.
-    END.
-
 END PROCEDURE.
 

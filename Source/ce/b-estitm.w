@@ -162,6 +162,7 @@ lCEGOTOCALC = LOGICAL(cNK1Value).
 DEFINE VARIABLE viEQtyPrev     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cOldFGItem     AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessCreateFG AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessClose    AS LOGICAL   NO-UNDO.
@@ -182,10 +183,13 @@ RUN methods/prgsecur.p
 DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hPrepProcs AS HANDLE NO-UNDO.
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs. 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
+RUN system/PrepProcs.p PERSISTENT SET hPrepProcs.
+
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -198,6 +202,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /
     OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN
     lQuotePriceMatrix = logical(cNK1Value) NO-ERROR.    
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCEUseNewLayoutCalc = logical(cNK1Value) NO-ERROR. 
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -651,7 +660,7 @@ DO:
            ELSE lv-ind = "".  
            IF AVAILABLE style AND style.type EQ "f" THEN DO: /* foam */
               RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
-              ef.board:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).
+              ef.board:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val).
               APPLY "ENTRY":U TO ef.board.
               RUN new-board.
            END. /* if foam */
@@ -665,6 +674,7 @@ DO:
            END.               
        END.
        WHEN "cust-no" THEN DO:
+           RUN spSetSessionParam ("CustListID", "EF").
            ls-cur-val = eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}.
            RUN system/openlookup.p (
                INPUT  "", 
@@ -929,7 +939,6 @@ END.
 ON ENTRY OF eb.cust-no IN BROWSE br-estitm /* Cust. # */
 DO:
   DEF BUFFER b-eb FOR eb.
-
 
   IF {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
     FIND FIRST b-eb
@@ -2063,7 +2072,11 @@ PROCEDURE calc-layout :
       RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
       {ce/ceroute1.i w id l en} 
     END.
-    RUN ce/calc-dim.p.
+    
+    IF lCEUseNewLayoutCalc THEN
+        RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+    ELSE
+        RUN ce/calc-dim.p.
   END.
 
 END PROCEDURE.
@@ -3815,8 +3828,8 @@ PROCEDURE local-assign-record :
        lv-hld-fctp NE ef.f-coat-p THEN DO:
       {sys/inc/flm-prep.i}
     END.
-      
-  IF NOT ll-new-record          AND
+  
+  IF (NOT ll-new-record  OR ll-copied-from-eb)   AND
      (lv-hld-icol NE eb.i-col OR
       lv-hld-icot NE eb.i-coat) THEN DO:
 
@@ -3860,6 +3873,8 @@ PROCEDURE local-assign-record :
         RUN set-yld-qty (
             INPUT ROWID(eb)
             ).
+
+  RUN Prep_ValidateAndDeletePlatePrep IN hPrepProcs (ROWID(eb)).
 
 END PROCEDURE.
 
@@ -4141,7 +4156,12 @@ PROCEDURE local-delete-record :
     IF lAllowResetType OR NOT ll-mass-del THEN
     RUN reset-est-type (OUTPUT li-est-type).
 
-    IF AVAIL eb THEN RUN dispatch ("open-query").
+    IF AVAIL eb THEN     
+    DO:      
+        RUN dispatch ("open-query").
+        RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'Record-source':U,OUTPUT char-hdl).
+        RUN pReOpenQuery IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+    END.
   END.
 
   ELSE DO:    
@@ -4162,6 +4182,37 @@ PROCEDURE local-delete-record :
       END.
     END.
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-HANDLE(hPrepProcs) THEN
+        DELETE PROCEDURE hPrepProcs.
+        
+  IF VALID-HANDLE(hdCustomerProcs) THEN
+      DELETE PROCEDURE hdCustomerProcs.
+  
+  IF VALID-HANDLE(hdSalesManProcs) THEN
+      DELETE PROCEDURE hdSalesManProcs.
+        
+  IF VALID-HANDLE(hdQuoteProcs) THEN
+      DELETE PROCEDURE hdQuoteProcs.  
+  
+      
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5275,8 +5326,8 @@ PROCEDURE reset-est-type :
   END.
   
   
- IF op-est-type EQ 4 AND li-form-no EQ 1 AND li-blank-no EQ 1 
-    AND eb.bl-qty EQ eb.yld-qty THEN do:
+ IF op-est-type EQ 4 AND li-form-no EQ 1 AND li-blank-no EQ 1 THEN 
+ DO:
   
    MESSAGE "Change this Tandem/Combo to a Single Estimate Type?" SKIP
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO

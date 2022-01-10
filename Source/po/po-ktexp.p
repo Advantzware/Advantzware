@@ -11,8 +11,6 @@ DEFINE INPUT PARAMETER v-FORMAT AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER xjob-mat FOR job-mat.
 DEFINE BUFFER xitem FOR item.
-DEFINE BUFFER b-ref1  FOR reftable.
-DEFINE BUFFER b-ref2  FOR reftable.
 
 {po/po-print.i}
 {methods/getExecutableFileName.i quoter}
@@ -38,6 +36,8 @@ DEFINE VARIABLE lv-board-vend-rm AS INTEGER NO-UNDO.
 DEFINE VARIABLE lv-board-adder-vend-rm AS INTEGER EXTENT 6 NO-UNDO.
 DEFINE VARIABLE li AS INTEGER NO-UNDO.
 
+DEFINE VARIABLE iIndex          AS INTEGER NO-UNDO.
+DEFINE VARIABLE lScoreAvailable AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-qty AS DECIMAL DECIMALS 3 EXTENT 20
@@ -267,13 +267,13 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     PUT "01"                                        FORMAT "x(2)".
     
     /* PURCHASE ORDER # */
-    PUT po-ord.po-no                                FORMAT "9999999".
+    PUT po-ord.po-no                                FORMAT "99999999".
     
     /* PURCHASE ORDER LINE # */
     PUT po-ordl.line                                FORMAT "99".
     
     /* PURCHASE ORDER # */
-    PUT po-ord.po-no                                FORMAT "9999999".
+    PUT po-ord.po-no                                FORMAT "99999999".
     
     /* PURCHASE ORDER LINE # */
     PUT po-ordl.line                                FORMAT "99".
@@ -326,11 +326,28 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                                                     FORMAT "99".
     
     /* STYLE NUMBER */
-    RUN po/po-ordls.p (RECID(po-ordl)).
+    RUN po/POProcs.p PERSISTENT SET hdPOProcs.
     
-    {po/po-ordls.i}
- 
-    li-style = IF AVAILABLE b-ref1 OR AVAILABLE b-ref2 THEN 1 ELSE 2.
+    RUN PO_GetLineScoresAndTypes IN hdPOProcs (
+        INPUT  po-ordl.company,
+        INPUT  po-ordl.po-no,
+        INPUT  po-ordl.line,
+        OUTPUT lv-val,
+        OUTPUT lv-typ
+        ).
+    
+    DELETE PROCEDURE hdPOProcs.  
+    
+    lScoreAvailable = FALSE.
+    
+    DO iIndex = 1 TO EXTENT(lv-val):
+        IF lv-val[iIndex] NE 0 OR lv-typ[iIndex] NE "" THEN DO:
+            lScoreAvailable = TRUE.
+            LEAVE.
+        END.
+    END.  
+
+    li-style = IF lScoreAvailable THEN 1 ELSE 2.
 
     PUT li-style                                    FORMAT "9999".
     
@@ -482,12 +499,12 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     
     /* SCORE */
     DO i = 1 TO 9:
-      IF AVAILABLE b-ref1 AND b-ref1.val[i] NE 0 THEN 
-        PUT TRUNC(b-ref1.val[i],0)                  FORMAT ">>>"
+      IF lScoreAvailable AND lv-val[i] NE 0 THEN 
+        PUT TRUNC(lv-val[i],0)                      FORMAT ">>>"
             ":"                                     FORMAT "x"
-            (b-ref1.val[i] - TRUNC(b-ref1.val[i],0)) * 100
+            (lv-val[i] - TRUNC(lv-val[i],0)) * 100
                                                     FORMAT "99"
-            SUBSTR(b-ref1.dscr,i,1)                 FORMAT "x".
+            lv-typ[i]                               FORMAT "x".
             
       ELSE PUT "000:00 "                            FORMAT "x(7)".
     END.
@@ -692,7 +709,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       IF po-ordl.job-no EQ "" THEN v-job-no = "".
 
       IF v-job-no EQ "-" THEN v-job-no = "".
-      v-desc-no = STRING(po-ordl.po-no,"99999") + "-" + STRING(po-ordl.LINE,"99") + "/" + v-job-no + "-" + STRING(po-ordl.s-num,"99") . 
+      v-desc-no = STRING(po-ordl.po-no,"99999999") + "-" + STRING(po-ordl.LINE,"99") + "/" + v-job-no + "-" + STRING(po-ordl.s-num,"99") . 
     END.
 
     PUT v-desc-no                                   FORMAT "x(21)".

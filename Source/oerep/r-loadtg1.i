@@ -151,8 +151,8 @@ ASSIGN
           AND oe-ord.ord-no  GE v-ford-no[1]
           AND oe-ord.ord-no  LE v-ford-no[2]
           AND (v-stat EQ "A"                         OR
-               (v-stat EQ "C" AND NOT oe-ord.opened) OR
-               (v-stat EQ "O" AND oe-ord.opened))
+               (v-stat EQ "C" AND oe-ord.opened EQ NO) OR
+               (v-stat EQ "O" AND oe-ord.opened EQ YES))
         NO-LOCK:
       RUN from-ord (ROWID(oe-ord)).
     END. /* each oe-ord */

@@ -35,6 +35,7 @@ def {1} shared TEMP-TABLE work-gl NO-UNDO
    field err-desc as char format "x(100)"
    field debits as dec
    field credits as dec
+   field cDesc as character
    INDEX actnum actnum.
 
 def {1} shared TEMP-TABLE work-gl-c NO-UNDO like work-gl.

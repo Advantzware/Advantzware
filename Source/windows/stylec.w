@@ -101,6 +101,9 @@ DEFINE VARIABLE h_v-stybx3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-score AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vstyrout AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_v-styboxaltdgn AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_q-styboxaltdgn AS HANDLE NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -328,7 +331,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Formulas|Routing|Design|3D Image' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Formulas|Routing|Design|Alt Design|3D Image' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -430,6 +433,16 @@ PROCEDURE adm-create-objects :
              OUTPUT h_q-styflt ).
        RUN set-position IN h_q-styflt ( 19.57 , 136.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.05 , 11.60 ) */
+      
+      
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'est/q-styboxaltdesign.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_q-styboxaltdgn ).
+       RUN set-position IN h_q-styboxaltdgn ( 5.57 , 137.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.86 , 10.00 ) */
+
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('3,1':U) NO-ERROR.
@@ -442,6 +455,9 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartQuery h_q-stybox. */
        RUN add-link IN adm-broker-hdl ( h_stylec , 'Record':U , h_q-stybox ).
+
+       /* Links to SmartQuery h_q-styboxaltdgn. */
+       RUN add-link IN adm-broker-hdl ( h_stylec , 'Record':U , h_q-styboxaltdgn).
 
        /* Links to SmartQuery h_q-styflt. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_q-styflt ).
@@ -583,6 +599,26 @@ PROCEDURE adm-create-objects :
     END. /* Page 5 */
     WHEN 6 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'est/v-styboxaltdesign.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_v-styboxaltdgn ).
+       RUN set-position IN h_v-styboxaltdgn ( 5.52 , 4.00 ) NO-ERROR.
+       /* Size in UIB:  ( 16.43 , 144.00 ) */
+
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+
+       /* Links to SmartViewer h_v-styboxaltdgn. */
+       RUN add-link IN adm-broker-hdl ( h_q-styboxaltdgn , 'Record':U , h_v-styboxaltdgn ).
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_v-styboxaltdgn ,
+             h_folder , 'AFTER':U ).
+    END. /* Page 6 */
+    
+    WHEN 7 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'cec/v-stybx3.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -599,7 +635,7 @@ PROCEDURE adm-create-objects :
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-stybx3 ,
              h_folder , 'AFTER':U ).
-    END. /* Page 6 */
+    END. /* Page 7 */
 
   END CASE.
   /* Select a Startup page. */

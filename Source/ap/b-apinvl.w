@@ -294,7 +294,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ap-invl.po-no FORMAT ">>>>>9":U WIDTH 13.4 LABEL-BGCOLOR 14
+      ap-invl.po-no FORMAT ">>>>>>>9":U WIDTH 13.4 LABEL-BGCOLOR 14
       display-line() @ ap-invl.line COLUMN-LABEL "Line" FORMAT "999":U
       ap-invl.actnum COLUMN-LABEL "Account Number" FORMAT "x(25)":U
             LABEL-BGCOLOR 14
@@ -662,7 +662,7 @@ DO:
    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   IF LASTKEY NE -1 OR lReselectingReceipts THEN DO:
     lReselectingReceipts = FALSE.
-    RUN valid-po-no(OUTPUT lReturnError) NO-ERROR.    
+    RUN valid-po-no(YES, OUTPUT lReturnError) NO-ERROR.    
     IF lReturnError THEN RETURN NO-APPLY.
 
     IF INT({&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
@@ -1051,6 +1051,50 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE buildTempTable B-table-Win 
+PROCEDURE buildTempTable :
+/*------------------------------------------------------------------------------
+  Purpose: Builds the temp-table of available receipts for PO    
+  Parameters:  ROWID of PO-ORD
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipriPO AS RECID NO-UNDO.
+
+
+FIND po-ord WHERE RECID(po-ord) = ipriPO NO-LOCK NO-ERROR.
+
+FOR EACH tt-pol:
+    DELETE tt-pol.
+END.
+  
+
+IF AVAILABLE po-ord THEN 
+DO:     
+    FOR EACH po-ordl 
+        WHERE po-ordl.company EQ po-ord.company 
+          AND po-ordl.po-no EQ po-ord.po-no 
+           AND (NOT CAN-FIND(FIRST ap-invl 
+                            WHERE ap-invl.i-no EQ ap-inv.i-no
+                              AND ap-invl.po-no EQ po-ordl.po-no
+                              AND {ap/invlline.i -1} EQ po-ordl.line
+                            USE-INDEX i-no))
+        USE-INDEX po-no NO-LOCK:
+        
+        IF LOOKUP(po-ordl.stat,"X,F") > 0 /* not deleted or cancelled */ THEN
+            NEXT.    
+            
+            CREATE tt-pol.
+            ASSIGN 
+                tt-pol.rec-id  = RECID(po-ordl)                
+                tt-pol.selekt  = NO.           
+    END.
+END. /*avail po-ord*/
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-amt B-table-Win 
 PROCEDURE calc-amt :
@@ -2329,7 +2373,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   /* === validation ---- */
   IF adm-adding-record THEN do:
-      RUN valid-po-no(OUTPUT lReturnError) NO-ERROR.
+      RUN valid-po-no(NO, OUTPUT lReturnError) NO-ERROR.
       IF lReturnError THEN RETURN NO-APPLY.
   END.
   
@@ -3134,6 +3178,7 @@ PROCEDURE valid-po-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplMessage AS LOGICAL NO-UNDO.
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DEF VAR lv-msg AS CHAR NO-UNDO.
   DEF VAR lv-msg2 AS CHAR NO-UNDO.
@@ -3193,7 +3238,8 @@ PROCEDURE valid-po-no :
                 UPDATE lMessage.
                 IF lMessage THEN 
                     RUN pReCalculateRecQty.
-            END.                 
+            END. 
+            IF iplMessage THEN
             RUN ap/valid-po2.p (BUFFER po-ordl, BUFFER b-ap-invl ,OUTPUT lv-msg2).
             IF lv-msg2 NE "" THEN DO:
                 MESSAGE TRIM(lv-msg2) VIEW-AS ALERT-BOX WARNING buttons yes-no UPDATE lContinue AS LOG.
@@ -3216,10 +3262,35 @@ PROCEDURE valid-po-no :
          NOT CAN-FIND(FIRST tt-ap-invl WHERE tt-ap-invl.i-no EQ ap-inv.i-no) THEN DO:
 
         RUN build-table (RECID(po-ord)).
+                
+        IF NOT apinvmsg-log OR lv-num-rec LE 0 THEN
+        DO:          
+          MESSAGE "This PO has been received and invoiced." SKIP 
+                  "Do you want to continue processing?"
+                   VIEW-AS ALERT-BOX QUESTION 
+                   BUTTONS OK-CANCEL UPDATE lcheckflg as logical.
+          IF lcheckflg THEN
+          DO:
+               EMPTY TEMP-TABLE ttInventoryStock.
+               
+               RUN buildTempTable (RECID(po-ord)).
+               
+               RUN ap/d-selpos.w (
+                    INPUT  RECID(ap-inv),
+                    INPUT-OUTPUT TABLE tt-pol BY-REFERENCE,
+                    INPUT-OUTPUT TABLE ttInventoryStock BY-REFERENCE
+                    ).
 
-        IF NOT apinvmsg-log AND lv-num-rec LE 0 THEN
-          lv-msg = "All receipts for this PO have been invoiced already".
+               IF CAN-FIND(FIRST tt-pol
+                          WHERE tt-pol.selekt
+                            AND tt-pol.qty-to-inv NE 0) THEN
+               RUN create-ap-from-po.
 
+               ELSE
+                 lv-msg = "Nothing selected for this PO".
+          END.
+          ELSE oplReturnError = YES.
+        END.
         ELSE DO:
             EMPTY TEMP-TABLE ttInventoryStock.
             

@@ -1115,7 +1115,7 @@ PROCEDURE gl-from-work :
                 period.pnum,
                 "A",
                 TODAY,
-                "",
+                (IF work-gl.job-no NE "" THEN "Job:" + STRING(work-gl.job-no) + "-" + STRING(work-gl.job-no2,"99") ELSE ""),
                 "WIP"). 
             ASSIGN
                 debits  = 0

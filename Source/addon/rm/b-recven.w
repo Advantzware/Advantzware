@@ -349,7 +349,7 @@ DEFINE BROWSE Browser-Table
       rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(13)":U LABEL-BGCOLOR 14
       rm-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       rm-rctd.rct-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      rm-rctd.po-no FORMAT "x(6)":U WIDTH 9 LABEL-BGCOLOR 14
+      rm-rctd.po-no FORMAT "x(8)":U WIDTH 11 LABEL-BGCOLOR 14
       rm-rctd.po-line FORMAT ">>9":U
       rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U LABEL-BGCOLOR 14
       rm-rctd.job-no2 FORMAT "99":U
@@ -887,10 +887,9 @@ DO:
         loadtag.misc-char[2]:SCREEN-VALUE = loadtag.misc-char[2].
 
         APPLY "leave" TO rm-rctd.i-no IN BROWSE {&browse-name}.
-        
-        IF NOT v-ssrmscan THEN do:
-          APPLY "row-leave" TO BROWSE {&browse-name}.
-          RETURN NO-APPLY.
+                 
+        IF NOT v-ssrmscan THEN do:             
+          RUN dispatch ("update-record").
         END.
     END.
 END.
@@ -1766,6 +1765,10 @@ PROCEDURE create-rec-from-vend-tag :
                  work-gl.actnum = costtype.inv-asset.
                END.
                work-gl.debits = work-gl.debits + v-ext-cost.
+               
+               work-gl.cDesc = work-gl.cDesc +  (IF rm-rctd.job-no NE "" THEN "Job: " + rm-rctd.job-no + "-" + STRING(rm-rctd.job-no2,"99") 
+                               ELSE IF rm-rctd.po-no NE "" THEN "PO: " + string(rm-rctd.po-no,"999999") + "-" + STRING(rm-rctd.po-line,"999") ELSE "")
+                               + " Cost $" + string(rm-rctd.cost) + " / " + rm-rctd.cost-uom.
 
                /* Credit RM AP Accrued */
                FIND FIRST work-gl WHERE work-gl.actnum EQ costtype.ap-accrued NO-LOCK NO-ERROR.
@@ -1774,6 +1777,10 @@ PROCEDURE create-rec-from-vend-tag :
                   work-gl.actnum = costtype.ap-accrued.
                END.
                work-gl.credits = work-gl.credits + v-ext-cost.
+               
+               work-gl.cDesc = work-gl.cDesc +  (IF rm-rctd.job-no NE "" THEN "Job: " + rm-rctd.job-no + "-" + STRING(rm-rctd.job-no2,"99") 
+                               ELSE IF rm-rctd.po-no NE "" THEN "PO: " + string(rm-rctd.po-no,"999999") + "-" + STRING(rm-rctd.po-line,"999") ELSE "")
+                               + " Cost $" + string(rm-rctd.cost) + " / " + rm-rctd.cost-uom.
            END.
          END.
 
@@ -2650,7 +2657,7 @@ PROCEDURE gl-from-work :
                           period.pnum,
                           "A",
                           v-post-date,
-                          string(IF AVAIL rm-rctd THEN rm-rctd.i-no ELSE ""),
+                          work-gl.cDesc,
                           "RM").
         ASSIGN
            debits  = 0
@@ -2785,16 +2792,16 @@ PROCEDURE LoadTag :
 /*------------------------------------------------------------------------------
   Purpose:     
   Notes:       
-------------------------------------------------------------------------------*/
-    GET FIRST {&BROWSE-NAME}.
-    DO WHILE AVAILABLE {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}:
+------------------------------------------------------------------------------*/        
+    IF AVAIL rm-rctd THEN
+    DO:
         CREATE ttLoadTag.
         ASSIGN
-            ttLoadTag.loadtag = {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}.tag
-            ttLoadTag.qty     = {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}.qty
+            ttLoadTag.loadtag = rm-rctd.tag
+            ttLoadTag.qty     = rm-rctd.qty
             .
-        GET NEXT {&BROWSE-NAME}.
-    END. /* repeat */
+    END.
+    
     IF NOT CAN-FIND(FIRST ttLoadTag) THEN RETURN.
     RUN Get_Procedure IN Persistent-Handle ("rmloadtg4a.", OUTPUT run-proc, NO).
     IF run-proc NE "" THEN
@@ -3709,12 +3716,12 @@ PROCEDURE tag-sequence :
 
       for each xrm-rctd where xrm-rctd.company eq rm-rctd.company
             and xrm-rctd.loc     eq v-locode
-            and xrm-rctd.tag     begins string(int(rm-rctd.po-no:screen-value in browse {&BROWSE-NAME}),"999999")
+            and xrm-rctd.tag     begins string(int(rm-rctd.po-no:screen-value in browse {&BROWSE-NAME}),"99999999")
             use-index tag no-lock
             by xrm-rctd.tag desc:
 
-           if int(substr(xrm-rctd.tag,7,2)) gt v-tag-seq then
-           v-tag-seq = int(substr(xrm-rctd.tag,7,2)).
+           if int(substr(xrm-rctd.tag,9,2)) gt v-tag-seq then
+           v-tag-seq = int(substr(xrm-rctd.tag,9,2)).
             leave.
       end.
     end.

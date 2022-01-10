@@ -18,9 +18,13 @@ DEFINE TEMP-TABLE ttReceipt NO-UNDO
     FIELD location     AS CHARACTER
     FIELD poID         AS INTEGER
     FIELD poLine       AS INTEGER
+    FIELD jobID        AS CHARACTER
+    FIELD jobID2       AS INTEGER
     FIELD itemID       AS CHARACTER
     FIELD itemName     AS CHARACTER
     FIELD quantity     AS DECIMAL
     FIELD quantityUOM  AS CHARACTER    
+    FIELD rcpthRowID   AS ROWID
+    INDEX poID IS PRIMARY company poID poLine
     .
 

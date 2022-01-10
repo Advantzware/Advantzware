@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE exclude-brwCustom
+&SCOPED-DEFINE xlocal-destroy
 
 /* Parameters Definitions ---                                           */
 
@@ -49,8 +50,6 @@ CREATE WIDGET-POOL.
 
 DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
        FIELD tag-no AS CHARACTER.
-
-DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
 
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
@@ -173,21 +172,21 @@ DEFINE BROWSE br_table
       ttLoadTag.jobID2 NO-LABEL FORMAT "99" WIDTH 6
       ttLoadTag.itemID COLUMN-LABEL "Item #" WIDTH 30
       ttLoadTag.itemName COLUMN-LABEL "Item!Name" WIDTH 40
-      ttLoadTag.tag COLUMN-LABEL "Tag#" WIDTH 32
-      ttLoadTag.quantityInUnit FORMAT "->,>>>,>>9" COLUMN-LABEL "Total Qty!Per Pallet" WIDTH 15
-      ttLoadTag.subUnitsPerUnit FORMAT "->>>,>>9" COLUMN-LABEL "Units/!Pallet" WIDTH 12
-      ttLoadTag.quantityInSubUnit FORMAT "->>>,>>9" COLUMN-LABEL "Unit!Count" WIDTH 12
-      ttLoadTag.quantityOfSubUnits FORMAT "->>>,>>9" COLUMN-LABEL "Total!Units" WIDTH 12
+      ttLoadTag.tag COLUMN-LABEL "Tag#" WIDTH 40
+      ttLoadTag.quantityInUnit FORMAT "->,>>>,>>9" COLUMN-LABEL "Total Qty!Per Pallet" WIDTH 20
+      ttLoadTag.subUnitsPerUnit FORMAT "->>>,>>9" COLUMN-LABEL "Units/!Pallet" WIDTH 15
+      ttLoadTag.quantityInSubUnit FORMAT "->>>,>>9" COLUMN-LABEL "Unit!Count" WIDTH 15
+      ttLoadTag.quantityOfSubUnits FORMAT "->>>,>>9" COLUMN-LABEL "Total!Units" WIDTH 15
       ttLoadTag.jobQuantity COLUMN-LABEL "Job!Quantity" WIDTH 15
       ttLoadTag.printCopies COLUMN-LABEL "Print!Copies" WIDTH 15
       ttLoadTag.ordQuantity COLUMN-LABEL "Ord Qty" WIDTH 15
       ttLoadTag.relQuantity COLUMN-LABEL "Rel Qty" WIDTH 15
       ttLoadTag.overPct FORMAT ">>9.99" COLUMN-LABEL "Overrun%" WIDTH 15
       ttLoadTag.partial COLUMN-LABEL "Partial" WIDTH 12
-      ttLoadTag.totalTags COLUMN-LABEL "No. of!Tags" WIDTH 12
-      ttLoadTag.quantityTotal FORMAT "->,>>>,>>9" COLUMN-LABEL "Total Qty"
-      ttLoadTag.unitWeight COLUMN-LABEL "Unit!Wt" WIDTH 12
-      ttLoadTag.palletWeight COLUMN-LABEL "Pallet!Wt" WIDTH 12
+      ttLoadTag.totalTags COLUMN-LABEL "No. of!Tags" WIDTH 15
+      ttLoadTag.quantityTotal FORMAT "->,>>>,>>9" COLUMN-LABEL "Total Qty" WIDTH 15
+      ttLoadTag.unitWeight COLUMN-LABEL "Unit!Wt" WIDTH 15
+      ttLoadTag.palletWeight COLUMN-LABEL "Pallet!Wt" WIDTH 15
       ttLoadTag.lotID FORMAT "X(20)" COLUMN-LABEL "FG Lot#" WIDTH 30
       ttLoadTag.custPONo COLUMN-LABEL "Customer!PO#" WIDTH 15
       ttLoadTag.poline COLUMN-LABEL "Ln" WIDTH 10
@@ -195,7 +194,8 @@ DEFINE BROWSE br_table
       ENABLE ttLoadTag.isSelected
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH SEPARATORS SIZE 150 BY 6.71 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
+    WITH SEPARATORS SIZE 150 BY 6.71
+         FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -368,6 +368,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {sharpshooter/smartobj/browseNavigate.i}
+{methods/browsers/setCellColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -497,9 +498,8 @@ PROCEDURE BuildLoadTagsFromPO :
     DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit   AS INTEGER   NO-UNDO.      
     DEFINE INPUT  PARAMETER ipcQuantityUOM       AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiCopies            AS INTEGER   NO-UNDO.
-
-    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
     
     RUN BuildLoadTagsFromPO IN hdLoadTagProcs (
         INPUT  ipcCompany,
@@ -510,18 +510,14 @@ PROCEDURE BuildLoadTagsFromPO :
         INPUT  ipiSubUnitsPerUnit,        
         INPUT  ipcQuantityUOM,
         INPUT  ipiCopies,
-        OUTPUT lError,
-        OUTPUT cMessage,
+        OUTPUT oplError,
+        OUTPUT opcMessage,
         INPUT-OUTPUT TABLE ttLoadTag
         ).
 
     RUN dispatch (
         INPUT "open-query"
         ).
-        
-    IF lError THEN
-        MESSAGE cMessage
-        VIEW-AS ALERT-BOX ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -677,25 +673,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
-PROCEDURE local-destroy :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    /* Code placed here will execute PRIOR to standard behavior. */
-    IF VALID-HANDLE(hdLoadTagProcs) THEN
-        DELETE PROCEDURE hdLoadTagProcs.
-        
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -711,6 +688,28 @@ PROCEDURE local-enable :
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pInit.
     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+    
+    RUN setCellColumns NO-ERROR.
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -750,9 +749,6 @@ PROCEDURE pInit PRIVATE :
     RUN oerep/LoadTagProcs.p PERSISTENT SET hdLoadTagProcs.
     
     {methods/run_link.i "CONTAINER-SOURCE" "GetDesignConfig" "(OUTPUT oSSLoadTagDesignConfig)"}
-    {methods/run_link.i "CONTAINER-SOURCE" "GetSetting" "(OUTPUT oSetting)"}
-    
-    RUN SetSetting IN hdLoadTagProcs (oSetting).
     
     IF VALID-OBJECT(oSSLoadTagDesignConfig) THEN DO:
         hdBrowse = BROWSE {&BROWSE-NAME}:HANDLE.
@@ -1016,6 +1012,20 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE xlocal-destroy B-table-Win 
+PROCEDURE xlocal-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF VALID-HANDLE(hdLoadTagProcs) THEN
+        DELETE PROCEDURE hdLoadTagProcs.
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

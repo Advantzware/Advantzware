@@ -788,8 +788,22 @@ PROCEDURE pViewAs :
         lShowLabel = YES
         .
     IF CAN-DO(cAction,"LIST-ITEM-PAIRS") AND cInitialItems EQ "" THEN
-    cInitialItems = ",". 
+    cInitialItems = ",".
     CASE dynParam.viewAs:
+        WHEN "BUTTON" THEN
+        RUN pButton (
+            cPoolName,
+            iphFrame,
+            cParamLabel,
+            cParamName,
+            ipdCol,
+            ipdRow,
+            dParamWidth,
+            dParamHeight,
+            lSensitive,
+            lIsVisible,
+            OUTPUT hWidget
+            ).
         WHEN "COMBO-BOX" THEN
         RUN pComboBox (
             cPoolName,

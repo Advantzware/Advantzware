@@ -69,13 +69,14 @@ CREATE WIDGET-POOL.
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
-DEFINE VARIABLE h_b-cusinq AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_printinv AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_b-cusinq  AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_exit      AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_folder    AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_options   AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_printinv  AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_smartmsg  AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export    AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_attach    AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -319,6 +320,14 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/attach.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_attach ).
+       RUN set-position IN h_attach ( 1.00 , 49.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'arinq/b-cusinq.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -334,9 +343,14 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_export ( 1.00 , 69.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
+       /* Links to SmartObject h_attach. */
+       RUN add-link IN adm-broker-hdl ( h_b-cusinq , 'attach':U , h_attach ).
+       
        RUN add-link IN adm-broker-hdl ( h_b-cusinq , 'export-xl':U , h_export ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
+             h_attach , 'AFTER':U ). 
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-cusinq ,
              h_folder , 'AFTER':U ).
     END. /* Page 1 */

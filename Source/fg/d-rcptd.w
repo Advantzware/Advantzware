@@ -960,6 +960,9 @@ DO:
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN
                 v-copy-mode = NO
+                fg-rctd.t-qty:SCREEN-VALUE = STRING(INT(fg-rctd.cases:SCREEN-VALUE) *
+                                            INT(fg-rctd.qty-case:SCREEN-VALUE) +
+                                            INT(fg-rctd.partial:SCREEN-VALUE))
                 ls-tmp-qty  = fg-rctd.t-qty:SCREEN-VALUE 
                 ls-tmp-uom  = fg-rctd.cost-uom:SCREEN-VALUE 
                 ls-tmp-cst  = fg-rctd.ext-cost:SCREEN-VALUE .

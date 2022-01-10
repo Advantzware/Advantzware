@@ -82,6 +82,7 @@ DEF TEMP-TABLE tt-report NO-UNDO LIKE report
     FIELD prntd        AS CHARACTER
     FIELD die-cut      AS CHARACTER
     FIELD glue         AS CHARACTER
+    FIELD cust-lot     LIKE oe-rel.lot-no
     INDEX row-id row-id.
 
 DEF TEMP-TABLE tt-fg-bin NO-UNDO LIKE fg-bin.
@@ -127,13 +128,13 @@ DEFINE VARIABLE cFileName   as CHARACTER          NO-UNDO .
 ASSIGN cTextListToSelect = "Rep,Cust#,Line Due Dt,Rel Due Dt,Cust Part#,Item Description,FG Item #," +
                            "Order#,CAD#,PO#,Order Qty,Qty OnHand,Qty Shippd,Qty ActRel," +
                            "Qty WIP,Qty Avail,Unit,Pallet,Order Value,Ack Date,Order Start Date,Status,CSR," +
-                           "JOB#,DIE#,DUE DATE,COMPLETION DATE,STYLE,SHEETED,PRINTED,DIE CUT,GLUED"
+                           "JOB#,DIE#,DUE DATE,COMPLETION DATE,STYLE,SHEETED,PRINTED,DIE CUT,GLUED,Last Ship,Customer Lot #"
        cFieldListToSelect = "rep,cust,l-due-dt,r-due-dt,cust-prt,itm-dscr,fg-itm," +
                             "ord,cad,po,ord-qty,qty-oh,qty-shp,qty-act," +
                             "qty-wip,qty-avl,est-unt,est-palt,ord-value,ack-date,ord-date,status,csr," +
-                            "job,die,due-dt,comp-dt,styl,sht,prntd,die-cut,glue"
-       cFieldLength = "3,8,11,10,15,30,20," + "6,14,15,10,10,10,10," + "10,10,5,6,15,8,16,20,8," + "10,20,10,15,7,7,7,7,5"
-       cFieldType = "c,c,c,c,c,c,c," + "c,c,c,i,i,i,i," + "i,i,i,i,i,c,c,c,c," + "c,c,c,c,c,c,c,c,c" 
+                            "job,die,due-dt,comp-dt,styl,sht,prntd,die-cut,glue,last-date,cust-lot"
+       cFieldLength = "3,8,11,10,15,30,20," + "6,14,15,10,10,10,10," + "10,10,5,6,15,8,16,20,8," + "10,20,10,15,7,7,7,7,5,16,15"
+       cFieldType = "c,c,c,c,c,c,c," + "c,c,c,i,i,i,i," + "i,i,i,i,i,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1117,6 +1118,9 @@ DO:
                DO:
                   OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
                END.
+           END.
+           ELSE DO:
+                  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
            END.
        END. /* WHEN 3 THEN DO: */
        
@@ -2584,8 +2588,6 @@ EMPTY TEMP-TABLE tt-fg-bin.
 IF rd-dest EQ 3 THEN
 DO:
   OUTPUT STREAM st-excel CLOSE.
-  IF tb_OpenCSV THEN
-    OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

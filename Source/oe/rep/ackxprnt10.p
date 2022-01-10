@@ -6,6 +6,7 @@
 {sys/inc/var.i shared}
 
 {oe/rep/acknowl.i}
+{custom/formtext.i NEW}
 
 def var v-salesman as char format "x(3)" NO-UNDO.
 def var v-fob as char format "x(27)" NO-UNDO.
@@ -73,6 +74,12 @@ DEFINE VARIABLE dSetItemQty AS DECIMAL NO-UNDO .
 DEFINE BUFFER bf-shipto FOR shipto .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iTotalQty      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE v-cas-cnt      AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-blank        AS INTEGER NO-UNDO.
+DEF VAR lv-text        AS CHARACTER                     NO-UNDO.
+DEF VAR li             AS INTEGER                       NO-UNDO.
+DEF VAR cShiptoAddress AS CHAR FORMAT "x(80)"  EXTENT 4 NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -295,7 +302,55 @@ find first company where company.company eq cocode no-lock no-error.
             END.
         END.
 
+        IF v-print-fmt eq "ackhead 10" THEN
+        DO:
+        
+            IF AVAILABLE oe-ordl THEN 
+            DO:
+                IF oe-ordl.pr-uom EQ "L" THEN
+                    xxx = oe-ordl.price.
+                ELSE
+                    IF oe-ordl.pr-uom EQ "CS" THEN
+                    DO:
+                        find first itemfg WHERE
+                            itemfg.company EQ quoteqty.company AND
+                            itemfg.i-no eq eb.stock-no
+                            NO-LOCK NO-ERROR.
+                            
+                        IF (AVAILABLE eb AND eb.cas-no NE "") OR AVAILABLE eb THEN
+                            RUN est/getcscnt.p ((IF AVAILABLE eb AND
+                                eb.cas-no NE "" THEN ROWID(eb) ELSE ROWID(eb)),
+                                OUTPUT v-cas-cnt,OUTPUT v-blank).
+                        ELSE
+                            v-cas-cnt = 0.
 
+                        xxx = oe-ordl.qty / (IF v-cas-cnt ne 0 then v-cas-cnt else
+                            if available itemfg and itemfg.case-count ne 0 THEN
+                            itemfg.case-count ELSE 1) * oe-ordl.price.
+                    END.
+                    ELSE
+                        IF oe-ordl.pr-uom EQ "C" THEN
+                            xxx = ((oe-ordl.qty / 100) * oe-ordl.price).
+                        ELSE
+                            IF oe-ordl.pr-uom EQ "M" THEN
+                                xxx = ((oe-ordl.qty / 1000) * oe-ordl.price).
+                            ELSE
+                                xxx = (oe-ordl.qty * oe-ordl.price).
+                                
+               END.  /* IF AVAILABLE oe-ordl THEN  */
+               
+               put v-line FORM ">>>9" SPACE(3)
+                    oe-ordl.i-no  SPACE(1)             
+                    oe-ordl.i-name  
+                    "<C45>"oe-ordl.qty /*dQty*/
+                    "<C54>" oe-ordl.price  FORM "->,>>>,>>9.99<<<<" 
+                    "<C66.5>"oe-ordl.pr-uom  
+                    "<C71.5>"XXX SKIP
+                .
+           
+        END.  /*IF v-print-fmt eq "ackhead 10" THEN*/
+        ELSE DO:
+        
         put v-line FORM ">>>9" SPACE(3)
                 oe-ordl.i-no  SPACE(2)             
                 oe-ordl.i-name SPACE(2)
@@ -303,6 +358,8 @@ find first company where company.company eq cocode no-lock no-error.
                 oe-ordl.price  FORM "->,>>>,>>9.99<<<<" SPACE(5)
                 oe-ordl.pr-uom  SKIP
             .
+         END.
+         
         v-printline = v-printline + 1.
        if v-printline ge lv-line-print then
         do:
@@ -326,6 +383,16 @@ find first company where company.company eq cocode no-lock no-error.
         end.
         if oe-ordl.part-dscr2 ne "" then do:
           put oe-ordl.part-dscr2 at 25  skip.
+          v-printline = v-printline + 1.
+        end.
+        if v-printline ge lv-line-print then
+        do:
+            PAGE .
+            {oe/rep/ackxprnt10.i}
+            assign v-printline = 20.          
+        end.
+        if oe-ordl.po-no ne "" AND oe-ordl.po-no NE oe-ord.po-no  then do:
+          PUT "Item Po#: " + oe-ordl.po-no FORMAT "x(25)" at 25  skip.
           v-printline = v-printline + 1.
         end.
         if v-printline ge lv-line-print then
@@ -557,11 +624,11 @@ PROCEDURE print-rels:
           if ip-first then do:
             lcnt = 1.
             if oe-rel.link-no eq 0 then do:
-              put "Scheduled Releases:" at 10  skip.
+              PUT SKIP(1) "Scheduled Releases:" at 10  skip.
               v-printline = v-printline + 1.
             end.
             ELSE do:
-              put "Actual Releases:" at 10 skip.
+              PUT SKIP(1) "Actual Releases:" at 10 skip.
               v-printline = v-printline + 1.
             end.
           end.
@@ -575,11 +642,15 @@ PROCEDURE print-rels:
           IF AVAIL oe-rell THEN
           FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK NO-ERROR.
           ld-date = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
-          if oe-rel.link-no eq 0 then 
-              put lcnt AT 10 oe-rel.tot-qty space(5) ld-date  SKIP.
-          ELSE
-              put lcnt AT 10 oe-rel.qty space(5) ld-date  SKIP.
-
+          iTotalQty = if oe-rel.link-no eq 0 THEN oe-rel.tot-qty ELSE oe-rel.qty.
+          
+              put lcnt AT 7 iTotalQty space(3) ld-date SPACE(1).
+              IF oe-rel.po-no NE "" AND oe-rel.po-no NE oe-ordl.po-no THEN
+              PUT "Release PO#:" oe-rel.po-no FORMAT "x(15)" .
+              IF oe-rel.lot-no NE "" THEN
+              PUT space(1) "Customer Lot#: " oe-rel.lot-no FORMAT "x(15)".
+              PUT SKIP.
+           
 
           ASSIGN 
               v-printline = v-printline + 1
@@ -602,42 +673,41 @@ PROCEDURE print-rels:
                assign v-printline = 20.          
             end.
             IF AVAIL shipto THEN DO:
-                put shipto.ship-name AT 10 SKIP .
-                v-printline = v-printline + 1.
-                if v-printline GT lv-line-print then
-                do:
-                    PAGE .
-                    {oe/rep/ackxprnt10.i}
-                    assign v-printline = 20.          
-                end.
-                IF shipto.ship-addr[1] <> "" THEN DO:
-                   PUT shipto.ship-addr[1] AT 10  SKIP.
-                   v-printline = v-printline + 1.
-                   if v-printline GT lv-line-print then
-                   do:
-                      PAGE .
-                      {oe/rep/ackxprnt10.i}
-                      assign v-printline = 20.          
-                   end.
-                END.
-                IF shipto.ship-addr[2] <> "" THEN DO:
-                    PUT shipto.ship-addr[2] AT 10  SKIP.
-                    v-printline = v-printline + 1.
-                    if v-printline GT lv-line-print then
-                    do:
-                        PAGE .
-                        {oe/rep/ackxprnt10.i}
-                        assign v-printline = 20.          
-                    end.
-                END.
-                IF v-addr4 <> "" THEN DO:
-                   PUT v-addr4 AT 10 SKIP.
-                   v-printline = v-printline + 1.
+                FOR EACH tt-formtext:
+                    DELETE tt-formtext.
                 END.
                 
-            END.
-          end.
-    END.
+                ASSIGN lv-text = trim(shipto.ship-name) + " " + trim(shipto.ship-addr[1]) + " " + trim(shipto.ship-addr[2]) + " " + v-addr4 .
+                
+                DO li = 1 TO 4:
+                  CREATE tt-formtext.
+                  ASSIGN tt-line-no = li
+                         tt-length  = 65. 
+                END.
+
+                RUN custom/formtext.p (lv-text).
+                
+                ASSIGN i = 0.
+                PUT "Deliver to:" AT 10.
+                FOR EACH tt-formtext:
+                  i = i + 1.
+                  IF  i <= 4 THEN cShiptoAddress[i] = tt-formtext.tt-text.
+                  
+                  IF cShiptoAddress[i] NE "" THEN DO:
+                    PUT cShiptoAddress[i] AT 22 SKIP.
+                    v-printline = v-printline + 1.
+                    IF v-printline GT lv-line-print THEN
+                    DO:
+                        PAGE .
+                        {oe/rep/ackxprnt10.i}
+                        ASSIGN v-printline = 20.          
+                    END. /* IF v-printline GT lv-line-print */
+                  END. /* IF cShiptoAddress[i] NE "" */
+                END. /* FOR EACH tt-formtext */
+                                 
+            END. /* IF AVAIL shipto */
+          END. /* if v-shipto then */
+    END. /* DO WITH FRAME sched-rel DOWN */
 END PROCEDURE
 
 /* end ---------------------------------- copr. 2001  Advanced Software, Inc. */

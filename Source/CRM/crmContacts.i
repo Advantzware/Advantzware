@@ -4,6 +4,8 @@
     
 {CRM/crmProcs.i}
 
+{api/ttAPIOutboundEvent.i}
+
 PROCEDURE pApplyCRM:
     DEFINE VARIABLE cPhone AS CHARACTER NO-UNDO.
 
@@ -28,6 +30,191 @@ PROCEDURE pApplyCRM:
             ttCRMContacts.xxApplyAction  = NO
             .
     END. /* each ttCRMContacts */
+END PROCEDURE.
+
+PROCEDURE pBuildContactsHubSpot PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iplcResponseData  AS LONGCHAR  NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNextPageLinkID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER lError            AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage        AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE oModelParser   AS ObjectModelParser NO-UNDO.
+    DEFINE VARIABLE oObject        AS JsonObject        NO-UNDO.
+    DEFINE VARIABLE jaResult       AS JsonArray         NO-UNDO.
+    DEFINE VARIABLE joCustomer     AS JsonObject        NO-UNDO.
+    DEFINE VARIABLE joProperties   AS JsonObject        NO-UNDO.
+    DEFINE VARIABLE joPaging       AS JsonObject        NO-UNDO.
+    DEFINE VARIABLE joNext         AS JsonObject        NO-UNDO.
+    DEFINE VARIABLE iResultLength  AS INTEGER           NO-UNDO.
+    DEFINE VARIABLE iCount         AS INTEGER           NO-UNDO.
+    DEFINE VARIABLE lcResponseData AS LONGCHAR          NO-UNDO.
+    DEFINE VARIABLE cStatus        AS CHARACTER         NO-UNDO.
+        
+    oModelParser = NEW ObjectModelParser().
+
+    FIX-CODEPAGE(lcResponseData) = 'utf-8'.
+        
+    ASSIGN
+        lcResponseData = iplcResponseData
+        oObject        = CAST(oModelParser:Parse(INPUT lcResponseData),JsonObject)
+        NO-ERROR.
+    
+    ASSIGN
+        jaResult      = oObject:GetJsonArray("results")
+        iResultLength = jaResult:LENGTH
+        NO-ERROR.
+    
+    joPaging = oObject:GetJsonObject("paging") NO-ERROR.
+    IF VALID-OBJECT(joPaging) THEN
+        joNext = joPaging:GetJsonObject("next") NO-ERROR.
+    
+    IF VALID-OBJECT(joNext) THEN
+        opcNextPageLinkID = joNext:GetJsonText("after") NO-ERROR.
+        
+    IF VALID-OBJECT(jaResult) THEN DO:
+        DO iCount = 1 TO iResultLength:
+            joCustomer = jaResult:GetJsonObject(iCount) NO-ERROR.
+            
+            IF NOT VALID-OBJECT(joCustomer) THEN
+                NEXT.
+                
+            joProperties = joCustomer:GetJsonObject("properties") NO-ERROR.
+            
+            IF NOT VALID-OBJECT(joProperties) THEN
+                NEXT.
+            
+            CREATE ttCRMContacts.
+            ttCRMContacts.crmFirstName  = joProperties:GetJsonText("firstname") NO-ERROR.
+            ttCRMContacts.crmLastName   = joProperties:GetJsonText("lastname") NO-ERROR.
+            ttCRMContacts.crmPhone      = joProperties:GetJsonText("phone") NO-ERROR.
+            ttCRMContacts.crmEmail      = joProperties:GetJsonText("email") NO-ERROR.
+            
+            RELEASE ttCRMContacts. 
+        END. 
+    END.
+    
+END PROCEDURE.
+
+PROCEDURE pHubspotCRM PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiRows    AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hdOutboundProcs  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUser            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lcResponseData   AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE cNextpageLinkID  AS CHARACTER NO-UNDO INITIAL "0".
+    
+    DEFINE BUFFER bf-APIOutboundEvent FOR APIOutboundEvent.
+    
+    RUN spGetSessionParam ("UserID", OUTPUT cUser).
+    
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    REPEAT:        
+        RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+            INPUT  ipcCompany,                             /* Company Code (Mandatory) */
+            INPUT  "",                                     /* Location Code (Mandatory) */
+            INPUT  "GetContacts",                          /* API ID (Mandatory) */
+            INPUT  "",                                     /* Scope ID */
+            INPUT  "",                                     /* Scope Type */
+            INPUT  "GetAll",                               /* Trigger ID (Mandatory) */
+            INPUT  "HubSpotNextPageLinkID",                /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  cNextpageLinkID,                        /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cUser,                                  /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  "Get Hubspot contact list",             /* Event's description (Optional) */
+            OUTPUT lSuccess,                               /* Success/Failure flag */
+            OUTPUT opcMessage                              /* Status message */
+            ) NO-ERROR.
+        
+        RUN Outbound_GetEvents IN hdOutboundProcs (
+            OUTPUT TABLE ttAPIOutboundEvent BY-REFERENCE
+            ).
+        
+        RUN Outbound_ResetContext IN hdOutboundProcs.
+        
+        IF NOT lSuccess THEN DO:
+            oplError = TRUE.
+            LEAVE.
+        END.
+        
+        IF NOT TEMP-TABLE ttAPIOutboundEvent:HAS-RECORDS THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "Failure in calling the api"
+                .
+            LEAVE.
+        END.
+    
+        FIND FIRST ttAPIOutboundEvent NO-ERROR.
+        IF AVAILABLE ttAPIOutboundEvent THEN DO:
+            FIND FIRST bf-APIOutboundEvent NO-LOCK
+                 WHERE bf-APIOutboundEvent.apiOutboundEventID EQ ttAPIOutboundEvent.apiOutboundEventID
+                 NO-ERROR.
+            IF AVAILABLE bf-APIOutboundEvent THEN DO:
+                IF NOT bf-APIOutboundEvent.success THEN DO:
+                    ASSIGN
+                        oplError   = TRUE
+                        opcMessage = "API request failed. View Outbound events for more information"
+                        .
+                    LEAVE.
+                END.
+                lcResponseData = bf-APIOutboundEvent.responseData.
+    
+                RUN pBuildContactsHubSpot (
+                    INPUT  lcResponseData,
+                    OUTPUT cNextpageLinkID,
+                    OUTPUT oplError,
+                    OUTPUT opcMessage               
+                    ).
+            END.
+        END.
+
+        IF cNextpageLinkID EQ "" OR cNextPageLinkID EQ "0" OR cNextpageLinkID EQ ? THEN
+            LEAVE.
+    END.
+    
+    DELETE PROCEDURE hdOutboundProcs. 
+
+    FOR EACH ttCRMContacts
+        WHERE ttCRMContacts.xxRow EQ 0:
+        opiRows = opiRows + 1.
+        
+        FIND FIRST phone NO-LOCK
+             WHERE phone.e_mail EQ ttCRMContacts.crmEmail
+             NO-ERROR.
+        IF NOT AVAILABLE phone THEN
+            NEXT.
+            
+        ASSIGN
+            ttCRMContacts.action         = "Update"
+            ttCRMContacts.xxApplyAction  = YES
+            ttCRMContacts.xxRow          = opiRows
+            ttCRMContacts.xxTableRecKey  = phone.table_rec_key
+            ttCRMContacts.phoneAttention = phone.attention
+            ttCRMContacts.phoneCityCode  = phone.phone_city_code
+            ttCRMContacts.phonePhone     = phone.phone
+            ttCRMContacts.phoneExt       = phone.phone_ext
+            ttCRMContacts.phoneEmail     = phone.e_mail
+            ttCRMContacts.origAttention  = phone.attention
+            ttCRMContacts.origCityCode   = phone.phone_city_code
+            ttCRMContacts.origPhone      = phone.phone
+            ttCRMContacts.origExt        = phone.phone_ext
+            ttCRMContacts.origEmail      = phone.e_mail
+            ttCRMContacts.xxPhoneRowID   = ROWID(phone)
+            .
+    END.
 END PROCEDURE.
 
 PROCEDURE pSave:
@@ -116,33 +303,33 @@ PROCEDURE pZohoCRM:
     DEFINE VARIABLE cAccessToken  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cZohoCRM      AS CHARACTER NO-UNDO.
+    
+    RUN spGetSettingByName ("ZohoCRM", OUTPUT cZohoCRM).
+    IF cZohoCRM EQ "NO" THEN DO:
+        MESSAGE "Please active setting 'ZohoCRM' from NK6"
+        VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+    
     lSuccess = YES.
     
     RUN CRM\ZohoProcs.p PERSISTENT SET hdZohoProcs.
     
-    RUN Zoho_GetRefreshToken IN hdZohoProcs (
-        INPUT  ipcCompany,
-        OUTPUT cRefreshToken
-        ).
+    RUN Zoho_GetRefreshToken IN hdZohoProcs (OUTPUT cRefreshToken).
         
     IF cRefreshToken EQ "" THEN
-        RETURN "Refresh Token value is blank. Please update the refresh token in NK1 configuration 'ZohoRefreshToken'".
+        RETURN "Refresh Token value is blank. Please update the refresh token in NK6 configuration 'ZohoRefreshToken'".
         
-    RUN Zoho_GetClientID IN hdZohoProcs (
-        INPUT  ipcCompany,
-        OUTPUT cClientID
-        ).
+    RUN Zoho_GetClientID IN hdZohoProcs (OUTPUT cClientID).
         
     IF cClientID EQ "" THEN
-        RETURN "ClientID value is blank. Please update the client id in NK1 configuration 'ZohoClientID'".
+        RETURN "ClientID value is blank. Please update the client id in NK6 configuration 'ZohoClientID'".
 
-    RUN Zoho_GetClientSecret IN hdZohoProcs (
-        INPUT  ipcCompany,
-        OUTPUT cClientSecret
-        ).
+    RUN Zoho_GetClientSecret IN hdZohoProcs (OUTPUT cClientSecret).
         
     IF cClientSecret EQ "" THEN
-        RETURN "ClientSecret value is blank. Please update the client secret in NK1 configuration 'ZohoClientSecret'".
+        RETURN "ClientSecret value is blank. Please update the client secret in NK6 configuration 'ZohoClientSecret'".
     
      RUN Zoho_GetAccessToken IN hdZohoProcs (
          INPUT  cRefreshToken,

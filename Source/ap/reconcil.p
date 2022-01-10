@@ -8,16 +8,24 @@ DEF VAR ll AS LOG NO-UNDO.
 DEF VAR v-refnum AS CHAR NO-UNDO.
 DEF BUFFER ar-mcash-ref2 FOR reftable.
 
+DEFINE TEMP-TABLE ttBank NO-UNDO
+LIKE Bank.
+
 EMPTY TEMP-TABLE reconcile.
+
+FOR EACH bank NO-LOCK WHERE bank.company EQ cocode:
+    CREATE ttBank.
+    BUFFER-COPY bank TO ttBank.
+END.
 
 FOR EACH ap-pay NO-LOCK WHERE 
     ap-pay.company    EQ cocode AND 
     ap-pay.reconciled EQ NO AND 
     ap-pay.memo       EQ NO:
         
-    IF NOT CAN-FIND (FIRST bank WHERE 
-        bank.company   EQ ap-pay.company AND 
-        bank.bank-code EQ ap-pay.bank-code) THEN NEXT.    
+    IF NOT CAN-FIND (FIRST ttBank WHERE 
+        ttBank.company   EQ ap-pay.company AND 
+        ttBank.bank-code EQ ap-pay.bank-code) THEN NEXT.    
     
     ASSIGN 
         v-refnum = "AC" + STRING(ap-pay.check-no, "999999").
@@ -73,9 +81,9 @@ FOR EACH ap-pay NO-LOCK WHERE
     ap-pay.reconciled EQ ? AND 
     ap-pay.memo       EQ NO:
         
-    IF NOT CAN-FIND (FIRST bank WHERE 
-        bank.company   EQ ap-pay.company AND 
-        bank.bank-code EQ ap-pay.bank-code) THEN NEXT.    
+    IF NOT CAN-FIND (FIRST ttBank WHERE 
+        ttBank.company   EQ ap-pay.company AND 
+        ttBank.bank-code EQ ap-pay.bank-code) THEN NEXT.    
     
     ASSIGN 
         v-refnum = "AC" + STRING(ap-pay.check-no, "999999").
@@ -160,33 +168,35 @@ FOR EACH ar-cash NO-LOCK WHERE
         ar-ledger.company  EQ ar-cash.company AND 
         ar-ledger.cust-no  EQ ar-cash.cust-no AND 
         ar-ledger.ref-date EQ ar-cash.check-date AND 
-        ar-ledger.ref-num  EQ "CHK# " + STRING(ar-cash.check-no,"999999999999")
-        BREAK BY ar-ledger.tr-num:
+        ar-ledger.ref-num  EQ "CHK# " + STRING(ar-cash.check-no,"999999999999"):
         
-        IF NOT CAN-FIND (FIRST bank WHERE 
-            bank.company   EQ ar-cash.company AND 
-            bank.bank-code EQ ar-cash.bank-code) THEN NEXT.
+        IF NOT CAN-FIND (FIRST ttBank WHERE 
+            ttBank.company   EQ ar-cash.company AND 
+            ttBank.bank-code EQ ar-cash.bank-code) THEN NEXT.
             
         CREATE tt-cash.
         ASSIGN
             tt-cash.row-id = ROWID(ar-cash)
             tt-trnum       = ar-ledger.tr-num
             ld             = ld + ar-cash.check-amt.
-    
-        IF LAST-OF(ar-ledger.tr-num) THEN DO:
-
+        
+        FIND FIRST reconcile
+             WHERE reconcile.tt-type EQ 2
+               AND reconcile.tt-number EQ "Dep" + STRING(tt-trnum,"9999999999")
+             NO-ERROR.
+        IF NOT AVAILABLE reconcile THEN DO:
             CREATE reconcile.
             ASSIGN
                 reconcile.tt-type    = 2
                 reconcile.tt-rowid   = ROWID(ar-cash)
                 reconcile.tt-number  = "Dep" + STRING(tt-trnum,"9999999999")
                 reconcile.tt-date    = ar-ledger.tr-date
-                reconcile.tt-amt     = ld
+                
                 reconcile.tt-bank    = ar-cash.bank-code
                 reconcile.tt-cleared = ar-cash.cleared.
-            ASSIGN 
-                ld = 0.
-        END.
+       END.
+       reconcile.tt-amt     = reconcile.tt-amt + ar-cash.check-amt.
+    
 END. 
 
 FOR EACH gl-jrn NO-LOCK WHERE 
@@ -194,37 +204,31 @@ FOR EACH gl-jrn NO-LOCK WHERE
     gl-jrn.reconciled EQ NO AND 
     gl-jrn.posted     EQ YES,
     EACH gl-jrnl NO-LOCK WHERE
-         gl-jrnl.j-no EQ gl-jrn.j-no
-        BREAK BY gl-jrnl.actnum 
-              BY gl-jrnl.j-no:
+         gl-jrnl.j-no EQ gl-jrn.j-no:
 
-    FIND FIRST bank NO-LOCK WHERE 
-        bank.company EQ gl-jrn.company AND 
-        bank.actnum  EQ gl-jrnl.actnum
+    FIND FIRST ttBank NO-LOCK WHERE 
+        ttBank.company EQ gl-jrn.company AND 
+        ttBank.actnum  EQ gl-jrnl.actnum
         NO-ERROR.
-    IF NOT AVAIL bank THEN NEXT.
+    IF NOT AVAIL ttBank THEN NEXT.
 
-    ASSIGN 
-        ld = ld + gl-jrnl.tr-amt.
 
-    IF gl-jrn.cleared THEN ASSIGN 
-        ll = YES.
-
-    IF LAST-OF(gl-jrnl.j-no) THEN DO:
+    FIND FIRST reconcile 
+         WHERE reconcile.tt-rowid EQ ROWID(gl-jrn)
+         NO-ERROR.
+    IF NOT AVAILABLE reconcile THEN DO:
         CREATE reconcile.
         ASSIGN
             reconcile.tt-type    = 3
             reconcile.tt-rowid   = ROWID(gl-jrn)
             reconcile.tt-number  = STRING(gl-jrn.journal)
             reconcile.tt-date    = gl-jrn.tr-date
-            reconcile.tt-amt     = ld
-            reconcile.tt-bank    = IF AVAIL bank THEN bank.bank-code ELSE ""
+            reconcile.tt-bank    = IF AVAIL ttBank THEN ttBank.bank-code ELSE ""
             reconcile.tt-name    = gl-jrnl.dscr
-            reconcile.tt-cleared = ll.
-        ASSIGN 
-            ld         = 0
-            ll         = NO.
+            reconcile.tt-cleared = gl-jrn.cleared.
     END.
+    reconcile.tt-amt     = reconcile.tt-amt + gl-jrnl.tr-amt.
+
 END.
 
 FOR EACH ar-mcash NO-LOCK WHERE 
@@ -258,9 +262,9 @@ FOR EACH ar-mcash NO-LOCK WHERE
         ar-mcash-ref2.company  EQ "ar-mcash" AND 
         ar-mcash-ref2.val[1]   EQ 0:
 
-    IF NOT CAN-FIND (FIRST bank WHERE 
-        bank.company   EQ ar-mcash.company AND 
-        bank.bank-code EQ ar-mcash.bank-code) THEN NEXT. 
+    IF NOT CAN-FIND (FIRST ttBank WHERE 
+        ttBank.company   EQ ar-mcash.company AND 
+        ttBank.bank-code EQ ar-mcash.bank-code) THEN NEXT. 
         
     CREATE reconcile.
     ASSIGN
@@ -273,3 +277,4 @@ FOR EACH ar-mcash NO-LOCK WHERE
         reconcile.tt-name    = ar-mcash.payer
         reconcile.tt-cleared = ar-mcash-ref2.val[2] EQ 1.
 END.
+

@@ -11,8 +11,6 @@ DEFINE INPUT PARAMETER v-format AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER xjob-mat FOR job-mat.
 DEFINE BUFFER xitem    FOR item.
-DEFINE BUFFER b-ref1   FOR reftable.
-DEFINE BUFFER b-ref2   FOR reftable.
 
 {po/po-print.i}
 {methods/getExecutableFileName.i quoter}
@@ -34,6 +32,8 @@ DEFINE VARIABLE v-line    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE li-style  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE v-mch-cod AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE iIndex          AS INTEGER NO-UNDO.
+DEFINE VARIABLE lScoreAvailable AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-qty AS DECIMAL DECIMALS 3 EXTENT 20
@@ -317,7 +317,7 @@ IF AVAILABLE cust AND iPaper-log AND iPaper-dir NE "" THEN
             PUT "01"                                        FORMAT "x(2)".
     
             /* PURCHASE ORDER # */
-            PUT po-ord.po-no                                FORMAT "999999".
+            PUT po-ord.po-no                                FORMAT "99999999".
 
             /* A */
             PUT "A"                                         FORMAT "x(1)".
@@ -326,7 +326,7 @@ IF AVAILABLE cust AND iPaper-log AND iPaper-dir NE "" THEN
             PUT po-ordl.line                                FORMAT "99".
     
             /* PURCHASE ORDER # */
-            PUT po-ord.po-no                                FORMAT "999999".
+            PUT po-ord.po-no                                FORMAT "99999999".
 
             /* A */
             PUT "A"                                         FORMAT "x(1)".
@@ -391,11 +391,28 @@ IF AVAILABLE cust AND iPaper-log AND iPaper-dir NE "" THEN
                 FORMAT "99".
     
             /* STYLE NUMBER */
-            RUN po/po-ordls.p (RECID(po-ordl)).
-    
-            {po/po-ordls.i}
- 
-            li-style = IF AVAILABLE b-ref1 OR AVAILABLE b-ref2 THEN 1 ELSE 2.
+            RUN po/POProcs.p PERSISTENT SET hdPOProcs.
+            
+            RUN PO_GetLineScoresAndTypes IN hdPOProcs (
+                INPUT  po-ordl.company,
+                INPUT  po-ordl.po-no,
+                INPUT  po-ordl.line,
+                OUTPUT lv-val,
+                OUTPUT lv-typ
+                ).
+            
+            DELETE PROCEDURE hdPOProcs.  
+            
+            lScoreAvailable = FALSE.
+            
+            DO iIndex = 1 TO EXTENT(lv-val):
+                IF lv-val[iIndex] NE 0 OR lv-typ[iIndex] NE "" THEN DO:
+                    lScoreAvailable = TRUE.
+                    LEAVE.
+                END.
+            END.  
+        
+            li-style = IF lScoreAvailable THEN 1 ELSE 2.
 
             PUT li-style                                    FORMAT "9999".
     
@@ -549,25 +566,17 @@ IF AVAILABLE cust AND iPaper-log AND iPaper-dir NE "" THEN
             /* D4 */
     
             /* SCORE */
-            DO i = 1 TO 12:
-                IF AVAILABLE b-ref1 AND b-ref1.val[i] NE 0 THEN 
-                    PUT trunc(b-ref1.val[i],0)                  FORMAT ">>>"
-                        ":"                                     FORMAT "x"
-                        (b-ref1.val[i] - trunc(b-ref1.val[i],0)) * 100
-                        FORMAT "99"
-                        substr(b-ref1.dscr,i,1)                 FORMAT "x".
-            
-                ELSE PUT "       "                            FORMAT "x(7)".
-            END.
-            DO i = 1 TO 12:
-                IF AVAILABLE b-ref2 AND b-ref2.val[i] NE 0 THEN 
-                    PUT trunc(b-ref2.val[i],0)                  FORMAT ">>>"
-                        ":"                                     FORMAT "x"
-                        (b-ref2.val[i] - trunc(b-ref2.val[i],0)) * 100
-                        FORMAT "99"
-                        substr(b-ref2.dscr,i,1)                 FORMAT "x".
-            
-                ELSE PUT "       "                            FORMAT "x(7)".
+            DO i = 1 TO 24:
+              IF i GT 20 THEN
+                PUT "       "                              FORMAT "x(7)".
+              ELSE IF lScoreAvailable AND lv-val[i] NE 0 THEN 
+                PUT trunc(lv-val[i],0)                      FORMAT ">>>"
+                    ":"                                     FORMAT "x"
+                    (lv-val[i] - trunc(lv-val[i],0)) * 100
+                                                            FORMAT "99"
+                    lv-typ[i]                               FORMAT "x".
+                    
+              ELSE PUT "       "                            FORMAT "x(7)".
             END.
             /* NUMBER UP */
             PUT 1                                           FORMAT "999.99".

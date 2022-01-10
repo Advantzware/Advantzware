@@ -37,6 +37,7 @@ PROCEDURE Select_{&ITEM{1}}:
         /* if current page has subject id use it, otherwise use page 0 */
         iSubjectID      = IF iSubjectID NE 0 THEN iSubjectID
                           ELSE b-prgrms.pageSubjectID[1]
+        iSubjectID      = DYNAMIC-FUNCTION("sfSubjectID",iSubjectID)
         cParamList      = ""
         cParamValue     = ""
         .    

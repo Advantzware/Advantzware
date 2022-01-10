@@ -182,7 +182,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      po-ordl.po-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      po-ordl.po-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       vend-name() @ ls-vend-name COLUMN-LABEL "Vendor" LABEL-BGCOLOR 14
       po-ordl.due-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       convert-qty(2, po-ordl.cons-qty) @ li-ord-qty COLUMN-LABEL "Qty Ordered"

@@ -97,6 +97,8 @@ DEF VAR llAutoAddItems AS LOGICAL NO-UNDO.
 DEF VAR llCreateFromEst AS LOGICAL NO-UNDO.
 DEF VAR oeDateAuto-log AS LOG NO-UNDO.
 DEF VAR oeDateAuto-char AS CHAR NO-UNDO.
+DEF VAR oeReleas-log AS LOG NO-UNDO.
+DEF VAR oeReleas-char AS CHAR NO-UNDO.
 
 DEFINE VARIABLE OEPOReqDate AS LOGICAL NO-UNDO.
 DEFINE VARIABLE prodDateChanged AS LOGICAL NO-UNDO.
@@ -188,6 +190,10 @@ DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lEDIOrderChanged         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE oSetting                  AS system.Setting NO-UNDO.
+
+oSetting = NEW system.Setting().
 
 RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
@@ -199,6 +205,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEPO#Xfer", "L" /* Logical */, NO /* check
                        OUTPUT cRtnChar, OUTPUT lRecFound).
 OEPO#Xfer-log = LOGICAL(cRtnChar) NO-ERROR.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "OERequiredField", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    OEPOReqDate = LOGICAL(cRtnChar) NO-ERROR.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -206,17 +217,23 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeDateAuto-log = LOGICAL(cRtnChar) NO-ERROR.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "OERequiredField", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound THEN
-    OEPOReqDate = LOGICAL(cRtnChar) NO-ERROR.
-
 RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeDateAuto-char = cRtnChar NO-ERROR. 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OERELEAS", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    oeReleas-log = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OERELEAS", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    oeReleas-char = cRtnChar NO-ERROR. 
 
 RUN sys/ref/nk1look.p (INPUT cocode, "OEShip", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -328,9 +345,9 @@ oe-ord.cc-auth oe-ord.approved-date oe-ord.ack-prnt-date ~
 oe-ord.spare-char-2 
 &Scoped-define DISPLAYED-TABLES oe-ord
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ord
-&Scoped-Define DISPLAYED-OBJECTS fiCustAddress fiStatDesc fiShipName ~
-fiText1 fiText2 fi_type fi_prev_order fi_sname-lbl fi_s-pct-lbl ~
-fi_s-comm-lbl fi_sman-lbl fiSoldAddress fiShipAddress 
+&Scoped-Define DISPLAYED-OBJECTS tbEdiSubmit fiCustAddress fiStatDesc ~
+fiShipName fiText1 fiText2 fi_type fi_prev_order fi_sname-lbl fi_s-pct-lbl ~
+fi_s-comm-lbl fi_sman-lbl fiSoldAddress fiShipAddress tbEdiModified 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,calendarPopup,webField,nonWebField,List-6 */
@@ -537,10 +554,21 @@ DEFINE RECTANGLE RECT-37
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 151.6 BY 6.57.
 
+DEFINE VARIABLE tbEdiModified AS LOGICAL INITIAL no 
+     LABEL "Modified Order" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 22.6 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tbEdiSubmit AS LOGICAL INITIAL no 
+     LABEL "EDI Submitted" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     tbEdiSubmit AT ROW 11.71 COL 88.4 WIDGET-ID 40
      btnTags AT ROW 9.33 COL 121.6 WIDGET-ID 34
      fiCustAddress AT ROW 3.71 COL 10.8 COLON-ALIGNED NO-LABEL WIDGET-ID 18
      fiStatDesc AT ROW 9.33 COL 87 COLON-ALIGNED NO-TAB-STOP 
@@ -623,9 +651,6 @@ DEFINE FRAME F-Main
           LABEL "Due" FORMAT "XXXXX"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     oe-ord.due-date AT ROW 3.71 COL 128.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -633,6 +658,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     oe-ord.due-date AT ROW 3.71 COL 128.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
      oe-ord.last-date AT ROW 4.76 COL 128.2 COLON-ALIGNED
           LABEL "Last Ship"
           VIEW-AS FILL-IN 
@@ -662,10 +690,10 @@ DEFINE FRAME F-Main
      oe-ord.managed AT ROW 11.38 COL 50
           VIEW-AS TOGGLE-BOX
           SIZE 26 BY 1
-     oe-ord.priceHold AT ROW 11 COL 103.2 RIGHT-ALIGNED WIDGET-ID 22
+     oe-ord.priceHold AT ROW 10.62 COL 103.2 RIGHT-ALIGNED WIDGET-ID 22
           VIEW-AS TOGGLE-BOX
           SIZE 16 BY .81
-     oe-ord.priceHoldReason AT ROW 10.91 COL 114 COLON-ALIGNED WIDGET-ID 32
+     oe-ord.priceHoldReason AT ROW 10.52 COL 114 COLON-ALIGNED WIDGET-ID 32
           LABEL "Reason"
           VIEW-AS FILL-IN 
           SIZE 35 BY 1
@@ -713,9 +741,6 @@ DEFINE FRAME F-Main
 "Bill", "B":U,
 "3rd Party", "T":U
           SIZE 50 BY .95
-     oe-ord.carrier AT ROW 13.95 COL 88 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -723,6 +748,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     oe-ord.carrier AT ROW 13.95 COL 88 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
      oe-ord.fob-code AT ROW 13.95 COL 120 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
@@ -771,11 +799,12 @@ DEFINE FRAME F-Main
      fiSoldAddress AT ROW 5.81 COL 10.8 COLON-ALIGNED NO-LABEL WIDGET-ID 24
      fiShipAddress AT ROW 7.91 COL 10.8 COLON-ALIGNED NO-LABEL WIDGET-ID 26
      btnValidate AT ROW 9.33 COL 130
-     oe-ord.spare-char-2 AT ROW 11 COL 78 COLON-ALIGNED NO-LABEL
+     oe-ord.spare-char-2 AT ROW 10.62 COL 78 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.6 BY 1 NO-TAB-STOP 
      btnTagsOverrn AT ROW 9.33 COL 29.6 WIDGET-ID 36
      btnTagsUnder AT ROW 10.38 COL 29.6 WIDGET-ID 38
+     tbEdiModified AT ROW 11.71 COL 116.2 WIDGET-ID 42
      RECT-30 AT ROW 9.1 COL 1.6
      RECT-33 AT ROW 12.67 COL 78
      RECT-35 AT ROW 15.33 COL 78
@@ -980,6 +1009,10 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN oe-ord.tax-gr IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX tbEdiModified IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX tbEdiSubmit IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.terms IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.terms-d IN FRAME F-Main
@@ -1285,7 +1318,7 @@ END.
 ON CHOOSE OF btnTagsOverrn IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT oe-ord.rec_key,
+        INPUT STRING(oe-ord.ord-no),
         INPUT "",
         INPUT "Over Percentage"
         ).
@@ -1300,9 +1333,9 @@ END.
 ON CHOOSE OF btnTagsUnder IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT oe-ord.rec_key,
+        INPUT STRING(oe-ord.ord-no),
         INPUT "",
-        INPUT "Over Percentage"
+        INPUT "Under Percentage"
         ).
 END.
 
@@ -1750,11 +1783,11 @@ DO:
             ASSIGN
                 oe-ordl.over-pct = oe-ord.over-pct:INPUT-VALUE.  
            RUN ClearTagsForGroup(
-                INPUT oe-ordl.rec_key,
+                INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
                 INPUT "Over Percentage"
                 ).
             RUN AddTagInfoForGroup(
-                INPUT oe-ordl.rec_key,
+                INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
                 INPUT "oe-ordl",
                 INPUT "Order no. - " + string(oe-ord.ord-no) ,
                 INPUT "",
@@ -2110,11 +2143,11 @@ DO:
                 ASSIGN 
                     oe-ordl.under-pct = oe-ord.under-pct:INPUT-VALUE .  
                 RUN ClearTagsForGroup(
-                    INPUT oe-ordl.rec_key,
+                    INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
                     INPUT "Under Percentage"
                     ).
                 RUN AddTagInfoForGroup(
-                    INPUT oe-ordl.rec_key,
+                    INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
                     INPUT "oe-ordl",
                     INPUT "Order no. - " + string(oe-ord.ord-no) ,
                     INPUT "",
@@ -2668,9 +2701,9 @@ PROCEDURE create-job :
   DEF VAR v-job-no LIKE job.job-no NO-UNDO.
   DEF VAR v-job-no2 LIKE job.job-no2 NO-UNDO.
   DEF VAR li-j-no AS INT NO-UNDO.
-
+  DEFINE BUFFER bf-oe-rel FOR oe-rel.
   /* === from oe/oe-ord1.p  ============= */
-
+                  
   FIND LAST job WHERE job.company EQ cocode NO-LOCK NO-ERROR.
   v-job-job = IF AVAIL job THEN job.job + 1 ELSE 1.
   ASSIGN
@@ -2693,10 +2726,11 @@ PROCEDURE create-job :
          job.job-no2    = v-job-no2
          job.stat       = "P"
          job.ordertype  = oe-ord.type
-         op-recid = RECID(job).
+         op-recid = RECID(job)
+         job.shipFromLocation = locode.
 
   FOR EACH oe-ordl WHERE oe-ordl.company EQ oe-ord.company
-                     AND oe-ordl.ord-no  EQ oe-ord.ord-no exclusive:
+                     AND oe-ordl.ord-no  EQ oe-ord.ord-no EXCLUSIVE BREAK BY oe-ordl.i-no:
       FIND FIRST job-hdr NO-LOCK
           WHERE job-hdr.company EQ cocode
             AND job-hdr.job-no  EQ oe-ord.job-no
@@ -2752,9 +2786,22 @@ PROCEDURE create-job :
             oe-ordl.j-no = job-hdr.j-no.
 
         FIND CURRENT job-hdr NO-LOCK.
+        IF FIRST(oe-ordl.i-no) THEN
+        DO:          
+            FIND FIRST bf-oe-rel NO-LOCK 
+                 WHERE bf-oe-rel.company EQ cocode
+                 AND bf-oe-rel.ord-no = oe-ordl.ord-no
+                 AND bf-oe-rel.i-no = oe-ordl.i-no
+                 AND bf-oe-rel.LINE = oe-ordl.LINE NO-ERROR.
+        
+            IF AVAILABLE bf-oe-rel AND bf-oe-rel.spare-char-1 NE "" THEN
+            ASSIGN
+            job.shipFromLocation = bf-oe-rel.spare-char-1
+            job-hdr.loc          = bf-oe-rel.spare-char-1.
+        END.
     END.
     IF oe-ord.stat EQ "H" THEN 
-      RUN oe/syncJobHold.p (INPUT oe-ord.company, INPUT oe-ord.ord-no, INPUT "Hold").
+      RUN oe/syncJobHold.p (INPUT oe-ord.company, INPUT oe-ord.ord-no, INPUT "Hold").       
   FIND CURRENT job NO-LOCK.
 
 END PROCEDURE.
@@ -3535,7 +3582,8 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
   END.
 
   FIND CURRENT itemfg NO-LOCK NO-ERROR.
-
+  IF AVAILABLE itemfg THEN
+  run fg/fg-reset.p (recid(itemfg)).
  
   FOR EACH oe-ordm
     WHERE oe-ordm.company EQ oe-ord.company
@@ -4840,6 +4888,8 @@ PROCEDURE local-assign-record :
     DEFINE VARIABLE lcheckflg AS LOGICAL NO-UNDO .
     DEFINE VARIABLE cOldCarrier AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lUpdateCarrier AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cOldCustomer AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOldCustPo AS CHARACTER NO-UNDO.
     
     DEF BUFFER b-oe-rel    FOR oe-rel.
     DEF BUFFER due-job-hdr FOR job-hdr.
@@ -4897,7 +4947,9 @@ PROCEDURE local-assign-record :
         lv-date   = oe-ord.due-date
         lv-ord-no = oe-ord.ord-no
         cOldShipTo = oe-ord.ship-id 
-        cOldCarrier =  oe-ord.carrier.
+        cOldCarrier =  oe-ord.carrier
+        cOldCustomer = oe-ord.cust-no 
+        cOldCustPo = oe-ord.po-no .
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -4908,16 +4960,19 @@ PROCEDURE local-assign-record :
            AND terms.t-code  EQ oe-ord.terms
           NO-ERROR.
     IF AVAIL terms THEN oe-ord.terms-d = terms.dscr.
+    
+    IF oe-ord.ediSubmitted EQ 1 AND (cOldCustomer NE oe-ord.cust-no OR cOldCustPo NE oe-ord.po-no OR cOldShipTo NE oe-ord.ship-id ) THEN
+    ASSIGN oe-ord.ediModified = 1.
 
-
-    IF (dueDateChanged AND OEDateAuto-char = "colonial") OR ( cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id) THEN 
+   IF (dueDateChanged AND OEDateAuto-log AND OEDateAuto-char EQ "colonial") OR
+       (cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id) THEN 
     DO:
         lcheckflg = NO .
         FOR EACH oe-ordl 
             WHERE oe-ordl.company EQ oe-ord.company
             AND oe-ordl.ord-no  EQ oe-ord.ord-no
             NO-LOCK BREAK BY oe-ordl.i-no :
-            IF dueDateChanged AND OEDateAuto-char = "colonial" THEN
+            IF dueDateChanged AND OEDateAuto-char EQ "colonial" THEN
             FOR EACH oe-rel 
                 WHERE oe-rel.company EQ oe-ordl.company
                 AND oe-rel.ord-no  EQ oe-ordl.ord-no
@@ -5102,13 +5157,12 @@ PROCEDURE local-assign-record :
 
     RUN bill_notes .
 
-    IF oe-ord.due-date NE lv-date THEN
+    IF oe-ord.due-date NE lv-date 
+    AND lv-date NE ? THEN
         FOR EACH oe-ordl OF oe-ord BREAK BY oe-ordl.line:
-            IF NOT ll-new-due THEN
-                ll-new-due = FIRST(oe-ordl.line) AND LAST(oe-ordl.line).
 
             IF NOT ll-new-due THEN
-                MESSAGE "Update all line items with this Due Date?"
+                MESSAGE "Update all line items and release dates with this Due Date?"
                     VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
                     UPDATE ll-new-due.
 
@@ -5559,6 +5613,15 @@ PROCEDURE local-display-fields :
     DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
     
   /* Code placed here will execute PRIOR to standard behavior. */
+  lEDIOrderChanged = logical(oSetting:GetByName("EDIOrderChanged")) NO-ERROR.
+  IF lEDIOrderChanged THEN
+  ASSIGN
+       tbEdiSubmit:HIDDEN IN FRAME {&FRAME-NAME} = NO 
+       tbEdiModified:HIDDEN IN FRAME {&FRAME-NAME} = NO .
+  ELSE 
+  ASSIGN
+       tbEdiSubmit:HIDDEN IN FRAME {&FRAME-NAME} = YES 
+       tbEdiModified:HIDDEN IN FRAME {&FRAME-NAME} = YES .
   IF AVAIL oe-ord AND NOT adm-new-record THEN DO:
      ASSIGN
         fi_type = oe-ord.TYPE .
@@ -5566,6 +5629,8 @@ PROCEDURE local-display-fields :
                         ELSE STRING(oe-ord.pord-no).
      IF oe-ord.TYPE EQ "T" AND oe-ord.pord-no GT 0 THEN
          fi_prev_order = STRING(oe-ord.pord-no).
+     tbEdiSubmit = IF oe-ord.ediSubmitted EQ 1 THEN YES ELSE NO .    
+     tbEdiModified = IF oe-ord.ediModified EQ 1 THEN YES ELSE NO.
   END.
 
   /* Dispatch standard ADM method.                             */
@@ -5594,7 +5659,7 @@ PROCEDURE local-display-fields :
            ELSE 
                btnTags:SENSITIVE = FALSE. 
          RUN Tag_IsTagRecordAvailableForGroup(
-             INPUT oe-ord.rec_key,
+             INPUT STRING(oe-ord.ord-no),
              INPUT "oe-ord",
              INPUT "Over Percentage",
              OUTPUT lAvailable
@@ -5605,7 +5670,7 @@ PROCEDURE local-display-fields :
            ELSE 
                btnTagsOverrn:SENSITIVE = FALSE.  
          RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT oe-ord.rec_key,
+            INPUT STRING(oe-ord.ord-no),
             INPUT "oe-ord",
             INPUT "Under Percentage",
             OUTPUT lAvailable
@@ -6326,18 +6391,18 @@ PROCEDURE pAddTag :
     DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:          
         RUN ClearTagsForGroup(
-            INPUT oe-ord.rec_key,
+            INPUT STRING(oe-ord.ord-no),
             INPUT ipcSource
             ).
         RUN AddTagInfoForGroup(
-            INPUT oe-ord.rec_key,
+            INPUT STRING(oe-ord.ord-no),
             INPUT "oe-ord",
             INPUT ipcDesc,
             INPUT "",
             INPUT ipcSource
             ). /*From TagProcs Super Proc*/ 
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT oe-ord.rec_key,
+            INPUT STRING(oe-ord.ord-no),
             INPUT "oe-ord",
             INPUT ipcSource,
             OUTPUT lAvailable
@@ -6551,7 +6616,7 @@ IF CAN-FIND(FIRST ar-invl
     WHERE ar-invl.company EQ oe-ord.company
     AND ar-invl.ord-no  EQ oe-ord.ord-no) THEN DO:
 
-  MESSAGE "Order has been Invoice, no deletion allowed..."
+  MESSAGE "This Order has been Invoiced, It cannot be deleted, but can be purged by the Administrator."
           VIEW-AS ALERT-BOX ERROR.
   RETURN ERROR.
 
@@ -7928,11 +7993,15 @@ FUNCTION get-colonial-rel-date RETURNS DATE
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEF VAR opRelDate AS DATE NO-UNDO.
-  DEF VAR rShipTo AS ROWID NO-UNDO.
+  DEFINE VARIABLE dCalcRelDate  AS DATE  NO-UNDO.
+  DEFINE VARIABLE dCalcPromDate AS DATE  NO-UNDO.
+  DEFINE VARIABLE opRelDate     AS DATE  NO-UNDO.
+  DEFINE VARIABLE rShipTo       AS ROWID NO-UNDO.
+
   DEF BUFFER bf-shipto FOR shipto.    
   DEF BUFFER bf-oe-ord FOR oe-ord.
   DEF BUFFER bf-oe-rel FOR oe-rel.
+
   opRelDate = ?.
   FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ iprRel NO-LOCK NO-ERROR.
   RUN sys/ref/shipToOfRel.p (INPUT ROWID(oe-rel), OUTPUT rShipTo).
@@ -7943,12 +8012,23 @@ FUNCTION get-colonial-rel-date RETURNS DATE
 
   /* order header due-date - dock appt days, adjusted for weekends */
   IF AVAIL bf-shipto AND AVAIL(bf-oe-ord) THEN
+     IF oeReleas-log AND oeReleas-char EQ "DueDateLessTransitDays" THEN DO:
+         RUN oe/dueDateCalc.p (
+             bf-oe-rel.cust-no,
+             bf-oe-rel.rel-date,
+             DATE(ENTRY(1,bf-oe-rel.spare-char-4)),
+             "RelDate",
+             ROWID(bf-oe-rel),
+             OUTPUT dCalcRelDate,
+             OUTPUT dCalcPromDate
+             ).    
+         opRelDate = dCalcRelDate.
+     END.
+     ELSE
      opRelDate = get-date(bf-oe-ord.due-date, bf-shipto.spare-int-2, "-").
   RETURN opRelDate.
-
 
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

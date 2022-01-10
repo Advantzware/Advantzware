@@ -34,8 +34,12 @@ ON CTRL-P HELP.
 
 ON 'CTRL-ALT-D':U ANYWHERE
 DO:
-    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN
-    RUN AOA/dynParam.w PERSISTENT.
+    DEFINE VARIABLE hDynParam AS HANDLE NO-UNDO.
+
+    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN DO:
+        RUN AOA/dynParam.w PERSISTENT SET hDynParam.
+        RUN dispatch IN hDynParam ("initialize":U).
+    END.
 END.
 
 ON 'CTRL-ALT-P':U ANYWHERE
@@ -86,7 +90,7 @@ END.
 /* System Constant Values */
 {system/sysconst.i}
 
-DEFINE VARIABLE cBitMap           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMainMenuImage    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCEMenu           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyBgColor   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDebug            AS CHARACTER NO-UNDO.
@@ -97,7 +101,6 @@ DEFINE VARIABLE cPositionMnemonic AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProfilerFile     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cShowMnemonic     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSourceMenu       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cTickerInterval   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserName         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hMenuLink         AS HANDLE    NO-UNDO EXTENT 8.
 DEFINE VARIABLE hPgmMstrSecur     AS HANDLE    NO-UNDO.
@@ -127,13 +130,14 @@ DEFINE VARIABLE lSearchOpen       AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE lSuperAdmin       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUserExit         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lViewTaskResults  AS LOGICAL   NO-UNDO INITIAL ?.
+DEFINE VARIABLE cSettingValue     AS CHARACTER NO-UNDO.
 
 ASSIGN
     g_mainmenu = THIS-PROCEDURE
     g_company  = ""
     g_loc      = ""
     .
-RUN Get_Procedure IN Persistent-Handle ("comp_loc.",OUTPUT run-proc,YES).
+RUN Get_Procedure IN Persistent-Handle ("comp_loc.", OUTPUT run-proc, YES).
 IF g_company EQ "" OR g_loc EQ "" THEN DO:
     MESSAGE "No Company and/or Location found for your login ID." SKIP
         "Please Contact System's Administrator." VIEW-AS ALERT-BOX INFORMATION.
@@ -141,12 +145,10 @@ IF g_company EQ "" OR g_loc EQ "" THEN DO:
 END.
 
 /* Set BGColor for this company */
-FIND company NO-LOCK WHERE
-    company.company EQ g_company.
+FIND FIRST company NO-LOCK
+     WHERE company.company EQ g_company.
 IF company.cBgColor NE "" THEN DO:
-    ASSIGN 
-        cCompanyBgColor = company.cBgColor.
-        
+    cCompanyBgColor = company.cBgColor.        
     COLOR-TABLE:SET-DYNAMIC(21, TRUE).
     COLOR-TABLE:SET-RED-VALUE(21, INTEGER(ENTRY(1,cCompanyBgColor))).
     COLOR-TABLE:SET-GREEN-VALUE(21, INTEGER(ENTRY(2,cCompanyBgColor))).
@@ -765,7 +767,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-USER MAINMENU
 ON HELP OF FRAME FRAME-USER
 DO:
-    RUN Get_Procedure IN Persistent-Handle ("popups.",OUTPUT run-proc,YES).
+    RUN Get_Procedure IN Persistent-Handle ("popups.", OUTPUT run-proc, YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1136,7 +1138,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Advantzware_Version MAINMENU
 ON CHOOSE OF MENU-ITEM m_Advantzware_Version /* Advantzware Version */
 DO:
-    RUN Get_Procedure IN Persistent-Handle ("about.",OUTPUT run-proc,YES).
+    RUN Get_Procedure IN Persistent-Handle ("about.", OUTPUT run-proc, YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1180,7 +1182,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_SysCtrl_Usage MAINMENU
 ON CHOOSE OF MENU-ITEM m_SysCtrl_Usage /* SysCtrl Usage */
 DO:
-    RUN Get_Procedure IN Persistent-Handle ("sysCtrlU.",OUTPUT run-proc,YES).
+    RUN Get_Procedure IN Persistent-Handle ("sysCtrlU.", OUTPUT run-proc, YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1303,18 +1305,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN pMenuSize.
     RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "{&parentName}", YES, 1).
     {system/runCueCard.i}
-    RUN sys/ref/nk1look.p (
-        g_company,"DynTaskTicker","L",NO,NO,"","",
-        OUTPUT cFound,OUTPUT lFound
-        ).
-    IF lFound AND cFound EQ "yes" THEN DO:    
-        RUN sys/ref/nk1look.p (
-            g_company,"DynTaskTicker","I",NO,NO,"","",
-            OUTPUT cTickerInterval,OUTPUT lFound
-            ).
-        IF lfound THEN
-        iTickerInterval = INTEGER(cTickerInterval).
-    END. /* if found */
+    
+    RUN spGetSettingByName ("DynTaskTicker", OUTPUT cSettingValue).
+        
+    IF cSettingValue EQ "YES" THEN DO:
+        RUN spGetSettingByName ("DynTaskTickerMinutes", OUTPUT cSettingValue).
+
+iTickerInterval = INTEGER (cSettingValue) NO-ERROR.    
+    END.
+    
 /*    IF iTickerInterval EQ 0 THEN*/
 /*    iTickerInterval = 1.        */
     RUN spGetSessionParam ("PSTimer", OUTPUT cDebug).
@@ -1337,13 +1336,11 @@ PROCEDURE CtrlFramePSTimerTick :
   Parameters:  None required for OCX.
   Notes:       Removed original per #103191
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cStatusDefault    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTaskerNotRunning AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iConfigID         AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lSaveErrStat      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lSuccess          AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lTaskerNotRunning AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStatusDefault AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iConfigID      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lSaveErrStat   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
     
     lSaveErrStat = ERROR-STATUS:ERROR.
     IF lViewTaskResults EQ YES OR lViewTaskResults EQ ? THEN DO:
@@ -1372,12 +1369,13 @@ PROCEDURE CtrlFramePSTimerTick :
     FIND FIRST config NO-LOCK.
     cStatusDefault = "Task Monitor Last Executed: " + STRING(config.taskerLastExecuted).
     IF config.taskerLastExecuted LT DATETIME(TODAY,TIME * 1000 - 15000) THEN DO:
-        cStatusDefault = "Task Monitor Currently Not Running".
-        RUN sys/ref/nk1look.p (
-            g_company,"TaskerNotRunning","I",NO,NO,"","",
-            OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
-            ).
-        iConfigID = INTEGER(cTaskerNotRunning).
+        
+        RUN spGetSettingByName ("TaskerNotRunningMinutes", OUTPUT cSettingValue).
+        
+        ASSIGN
+            cStatusDefault = "Task Monitor Currently Not Running"
+            iConfigID = INTEGER(cSettingValue)
+            .
         IF CAN-FIND(FIRST emailConfig
                     WHERE emailConfig.configID EQ iConfigID
                       AND emailConfig.isActive EQ YES
@@ -1390,11 +1388,9 @@ PROCEDURE CtrlFramePSTimerTick :
                 emailConfig.notified = YES.
             END. /* do trans */
             IF NOT LOCKED emailConfig THEN DO:
-                RUN sys/ref/nk1look.p (
-                    g_company,"TaskerNotRunning","L",NO,NO,"","",
-                    OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
-                    ).
-                IF lTaskerNotRunning AND cTaskerNotRunning EQ "Yes" THEN
+                RUN spGetSettingByName ("TaskerNotRunning", OUTPUT cSettingValue).
+                
+                IF cSettingValue EQ "YES" THEN
                 RUN spSendEmail (
                     iConfigID,       /* emailConfig.ConfigID */
                     "",              /* Override for Email RecipientsinTo */
@@ -1557,14 +1553,9 @@ PROCEDURE pCheckUpgradeAdvantzware :
     DEFINE VARIABLE lContinue     AS LOGICAL   NO-UNDO.
 
     IF lAdmin THEN DO:
-        RUN sys/ref/nk1look.p (
-            g_company,"ASIHelpService","C",NO,NO,"","",
-            OUTPUT cHelpService,OUTPUT lFound
-            ).
-        RUN sys/ref/nk1look.p (
-            g_company,"MenuLinkUpgrade","DS",NO,NO,"","",
-            OUTPUT upgradeLink, OUTPUT lFound
-            ).
+        RUN spGetSettingByName ("ASIHelpService", OUTPUT cHelpService).
+        RUN spGetSettingByName ("MenuLinkUpgrade", OUTPUT upgradeLink).
+        
         IF upgradeLink EQ "" THEN ASSIGN 
             upgradeLink = "https://helpsvr.advantzware.com/patches/asiUpdate.html".
         CREATE SERVER hWebService.
@@ -1664,8 +1655,12 @@ PROCEDURE pGetMenuSettings :
     DEFINE VARIABLE lFound        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lCanProfile   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cAccessList   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lAccessClose  AS LOGICAL   NO-UNDO. 
-       
+    DEFINE VARIABLE lAccessClose  AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE httSetting AS HANDLE NO-UNDO.
+    
+    RUN spSetSettingContext.   
+
     RUN sys/ref/nk1look.p (
         g_company,"CEMenu","C",NO,NO,"","",
         OUTPUT cCEMenu,OUTPUT lFound
@@ -1704,66 +1699,50 @@ PROCEDURE pGetMenuSettings :
         menuLink-7:LOAD-IMAGE(?).
         menuLink-8:LOAD-IMAGE(?).
         boxes:LOAD-IMAGE(?).
-        RUN sys/ref/nk1look.p (
-            g_company,"BitMap","DS",NO,NO,"","",
-            OUTPUT cBitMap,OUTPUT lFound
-            ).
-        IF lFound AND cBitMap NE ? THEN
-        boxes:LOAD-IMAGE(cBitMap) NO-ERROR.
-        RUN sys/ref/nk1look.p (
-            g_company,"MENULINKASI","C",NO,NO,"","",
-            OUTPUT cNK1Value[1],OUTPUT lFound
-            ).
-        RUN sys/ref/nk1look.p (
-            g_company,"MENULINKASI","DS",NO,NO,"","",
-            OUTPUT cNK1Value[2],OUTPUT lFound
-            ).
-        RUN sys/ref/nk1look.p (
-            g_company,"MENULINKASI","I",NO,NO,"","",
-            OUTPUT cNK1Value[3],OUTPUT lFound
-            ).
-        RUN sys/ref/nk1look.p (
-            g_company,"MENULINKASI","L",NO,NO,"","",
-            OUTPUT cNK1Value[4],OUTPUT lFound
-            ).
-        IF SEARCH(cNK1Value[1]) NE ? AND
-           cNK1Value[2] NE "" THEN DO:
-            ASSIGN
-                menuLinkASI:PRIVATE-DATA   = cNK1Value[2]
-                menuLinkASI:HIDDEN         = NO
-                menuLinkASI:SENSITIVE      = YES
-                menuLinkASI:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
-                menuLinkASI:TRANSPARENT    = cNK1Value[3] EQ "1"
-                .
-            menuLinkASI:LOAD-IMAGE(SEARCH(cNK1Value[1])).
-        END. /* if avail */
-        RUN sys/ref/nk1look.p (
-            g_company,"MENULINKZOHO","C",NO,NO,"","",
-            OUTPUT cNK1Value[1],OUTPUT lFound
-            ).
-        RUN sys/ref/nk1look.p (
-            g_company,"MENULINKZOHO","DS",NO,NO,"","",
-            OUTPUT cNK1Value[2],OUTPUT lFound
-            ).
-        RUN sys/ref/nk1look.p (
-            g_company,"MENULINKZOHO","I",NO,NO,"","",
-            OUTPUT cNK1Value[3],OUTPUT lFound
-            ).
-        RUN sys/ref/nk1look.p (
-            g_company,"MENULINKZOHO","L",NO,NO,"","",
-            OUTPUT cNK1Value[4],OUTPUT lFound
-            ).
-        IF SEARCH(cNK1Value[1]) NE ? AND
-           cNK1Value[2] NE "" THEN DO:
-            ASSIGN
-                menuLinkZoHo:PRIVATE-DATA   = cNK1Value[2]
-                menuLinkZoHo:HIDDEN         = NO
-                menuLinkZoHo:SENSITIVE      = YES
-                menuLinkZoHo:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
-                menuLinkZoHo:TRANSPARENT    = cNK1Value[3] EQ "1"
-                .
-            menuLinkZoHo:LOAD-IMAGE(SEARCH(cNK1Value[1])).
-        END. /* if avail */
+        
+        RUN spGetSettingByName ("MainMenuImage", OUTPUT cMainMenuImage).
+        boxes:LOAD-IMAGE(cMainMenuImage) NO-ERROR.
+        
+        RUN spGetSettingByName ("MenuLinkASI", OUTPUT cSettingValue).        
+        IF cSettingValue EQ "YES" THEN DO:
+            RUN spGetSettingByName ("MenuLinkASIImage", OUTPUT cNK1Value[1]).
+            RUN spGetSettingByName ("MenuLinkASIURL", OUTPUT cNK1Value[2]).
+            RUN spGetSettingByName ("MenuLinkASITransparent", OUTPUT cNK1Value[3]).
+            RUN spGetSettingByName ("MenuLinkASIStretchToFit", OUTPUT cNK1Value[4]).
+            
+            IF SEARCH(cNK1Value[1]) NE ? AND
+               cNK1Value[2] NE "" THEN DO:
+                ASSIGN
+                    menuLinkASI:PRIVATE-DATA   = cNK1Value[2]
+                    menuLinkASI:HIDDEN         = NO
+                    menuLinkASI:SENSITIVE      = YES
+                    menuLinkASI:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
+                    menuLinkASI:TRANSPARENT    = cNK1Value[3] EQ "1"
+                    .
+                menuLinkASI:LOAD-IMAGE(SEARCH(cNK1Value[1])).
+            END. /* if avail */
+        END. // MenuLinkASI
+
+        RUN spGetSettingByName ("MenuLinkZoHo", OUTPUT cSettingValue).
+        
+        IF cSettingValue EQ "YES" THEN DO:
+            RUN spGetSettingByName ("MenuLinkZoHoImage", OUTPUT cNK1Value[1]).
+            RUN spGetSettingByName ("MenuLinkZoHoURL", OUTPUT cNK1Value[2]).
+            RUN spGetSettingByName ("MenuLinkZoHoTransparent", OUTPUT cNK1Value[3]).
+            RUN spGetSettingByName ("MenuLinkZoHoStretchToFit", OUTPUT cNK1Value[4]).
+
+            IF SEARCH(cNK1Value[1]) NE ? AND
+               cNK1Value[2] NE "" THEN DO:
+                ASSIGN
+                    MenuLinkZoHo:PRIVATE-DATA   = cNK1Value[2]
+                    MenuLinkZoHo:HIDDEN         = NO
+                    MenuLinkZoHo:SENSITIVE      = YES
+                    MenuLinkZoHo:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
+                    MenuLinkZoHo:TRANSPARENT    = cNK1Value[3] EQ "1"
+                    .
+                MenuLinkZoHo:LOAD-IMAGE(SEARCH(cNK1Value[1])).
+            END. /* if avail */
+        END. // MenuLinkZoHo
 
         ASSIGN
             hMenuLink[1] = menuLink-1:HANDLE
@@ -1780,34 +1759,26 @@ PROCEDURE pGetMenuSettings :
                                   + "    Set Menu Size"
                                   .
         DO idx = 1 TO EXTENT(hMenuLink):
-            RUN sys/ref/nk1look.p (
-                g_company,"MENULINK" + STRING(idx),"C",NO,NO,"","",
-                OUTPUT cNK1Value[1],OUTPUT lFound
-                ).
-            RUN sys/ref/nk1look.p (
-                g_company,"MENULINK" + STRING(idx),"DS",NO,NO,"","",
-                OUTPUT cNK1Value[2],OUTPUT lFound
-                ).
-            RUN sys/ref/nk1look.p (
-                g_company,"MENULINK" + STRING(idx),"I",NO,NO,"","",
-                OUTPUT cNK1Value[3],OUTPUT lFound
-                ).
-            RUN sys/ref/nk1look.p (
-                g_company,"MENULINK" + STRING(idx),"L",NO,NO,"","",
-                OUTPUT cNK1Value[4],OUTPUT lFound
-                ).
-            IF SEARCH(cNK1Value[1]) NE ? AND
-               cNK1Value[2] NE "" THEN DO:
-                ASSIGN
-                    hMenuLink[idx]:PRIVATE-DATA   = cNK1Value[2]
-                    hMenuLink[idx]:HIDDEN         = NO
-                    hMenuLink[idx]:SENSITIVE      = YES
-                    hMenuLink[idx]:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
-                    hMenuLink[idx]:TOOLTIP        = cNK1Value[2]
-                    hMenuLink[idx]:TRANSPARENT    = cNK1Value[3] EQ "1"
-                    .
-                hMenuLink[idx]:LOAD-IMAGE(SEARCH(cNK1Value[1])).
-            END. /* if search */
+            RUN spGetSettingByName ("MenuLink" + STRING(idx), OUTPUT cSettingValue).
+            
+            IF cSettingValue EQ "YES" THEN DO:
+                RUN spGetSettingByName ("MenuLink" + STRING(idx) + "Image", OUTPUT cNK1Value[1]).
+                RUN spGetSettingByName ("MenuLink" + STRING(idx) + "URL", OUTPUT cNK1Value[2]).
+                RUN spGetSettingByName ("MenuLink" + STRING(idx) + "Transparent", OUTPUT cNK1Value[3]).
+                RUN spGetSettingByName ("MenuLink" + STRING(idx) + "StretchToFit", OUTPUT cNK1Value[4]).
+
+                IF SEARCH(cNK1Value[1]) NE ? AND
+                   cNK1Value[2] NE "" THEN DO:
+                    ASSIGN
+                        hMenuLink[idx]:PRIVATE-DATA   = cNK1Value[2]
+                        hMenuLink[idx]:HIDDEN         = NO
+                        hMenuLink[idx]:SENSITIVE      = YES
+                        hMenuLink[idx]:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
+                        hMenuLink[idx]:TRANSPARENT    = cNK1Value[3] EQ "1"
+                        .
+                    hMenuLink[idx]:LOAD-IMAGE(SEARCH(cNK1Value[1])).
+                END. /* if avail */
+            END. // MenuLink 1-8
         END. /* do idx */
         /* check if upgrade available */
         IF NOT VALID-HANDLE(hPgmMstrSecur) THEN
@@ -1972,7 +1943,7 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN pMenuSize.    
+    RUN pMenuSize.
     RUN pGetMenuSettings.
     {&WINDOW-NAME}:TITLE = fTranslate({&WINDOW-NAME}:PRIVATE-DATA,NO) + " "
                          + DYNAMIC-FUNCTION("sfVersion")
@@ -2658,12 +2629,6 @@ PROCEDURE Set-Comp_Loc :
     RUN spSetSessionParam ("Location", g_loc).
     DYNAMIC-FUNCTION("sfClearUsage").
     RUN pGetMenuSettings.
-/*    RUN sys/ref/nk1look.p (                 */
-/*        g_company,"BitMap","DS",NO,NO,"","",*/
-/*        OUTPUT cBitMap,OUTPUT lFound        */
-/*        ).                                  */
-/*    IF lFound AND cBitMap NE "" THEN        */
-/*    boxes:LOAD-IMAGE(cBitMap).              */
 
 END PROCEDURE.
 

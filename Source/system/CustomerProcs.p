@@ -149,6 +149,41 @@ PROCEDURE Customer_GetDefaultShipTo:
         opriShipTo = ROWID(shipto).
 END PROCEDURE.
 
+PROCEDURE Customer_getShiptoDetails:
+    
+    DEFINE INPUT  PARAMETER ip-cCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ip-cCustNo  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ip-cShipId  AS CHARACTER NO-UNDO.
+    
+    DEFINE OUTPUT PARAMETER op-cShipName  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-cShipAddr1 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-cShipAddr2 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-cCity      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-cState     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-cZip       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-cCarrier   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-cdestCode  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-Shipto FOR shipto.
+    
+    FIND FIRST bf-shipto NO-LOCK 
+        WHERE bf-shipto.Company = ip-cCompany
+          AND bf-shipto.Cust-no = ip-cCustNo
+          AND bf-shipto.Ship-Id = ip-cShipId NO-ERROR.
+    
+    IF AVAILABLE bf-shipto THEN
+        ASSIGN 
+            op-cShipName  = bf-shipto.ship-name
+            op-cShipAddr1 = bf-shipto.ship-addr[1]
+            op-cShipAddr2 = bf-shipto.ship-addr[2]
+            op-cCity      = bf-shipto.ship-city
+            op-cState     = bf-shipto.ship-state
+            op-cZip       = bf-shipto.ship-zip
+            op-cCarrier   = bf-shipto.carrier
+            op-cdestCode  = bf-shipto.dest-code.
+            
+END.
+
 PROCEDURE Customer_GetNextShipToNo:
 /*------------------------------------------------------------------------------
  Purpose: Returns the next shipto id for the given company and customer
@@ -334,39 +369,39 @@ PROCEDURE pInterCompanyTrans:
                     bf-cust.cust-no      = cCustomerValue
                     bf-cust.ACTIVE       = "A"
                     bf-cust.internal     = NO .                                                            
-            END.  
-            IF lSoldUsed AND AVAIL soldto THEN
-            ASSIGN
-                bf-cust.NAME         = soldto.sold-name
-                bf-cust.addr[1]      = soldto.sold-addr[1]
-                bf-cust.addr[2]      = soldto.sold-addr[2]
-                bf-cust.spare-char-3 = soldto.spare-char-3
-                bf-cust.city         = soldto.sold-city
-                bf-cust.state        = soldto.sold-state
-                bf-cust.zip          = soldto.sold-zip
-                bf-cust.fax-country  = shipto.country .
-            
-            ELSE IF iInterCompanyBilling EQ 1 THEN
-             ASSIGN
-                bf-cust.NAME         = shipto.ship-name
-                bf-cust.addr[1]      = shipto.ship-addr[1]
-                bf-cust.addr[2]      = shipto.ship-addr[2]
-                bf-cust.spare-char-3 = shipto.spare-char-3
-                bf-cust.city         = shipto.ship-city
-                bf-cust.state        = shipto.ship-state
-                bf-cust.zip          = shipto.ship-zip
-                bf-cust.fax-country  = shipto.country .
-            ELSE IF AVAIL bf-ori-cust THEN
-              ASSIGN
-                bf-cust.NAME         = bf-ori-cust.name
-                bf-cust.addr[1]      = bf-ori-cust.addr[1]
-                bf-cust.addr[2]      = bf-ori-cust.addr[2]
-                bf-cust.spare-char-3 = bf-ori-cust.spare-char-3
-                bf-cust.city         = bf-ori-cust.city
-                bf-cust.state        = bf-ori-cust.state
-                bf-cust.zip          = bf-ori-cust.zip
-                bf-cust.fax-country  = bf-ori-cust.fax-country .
-            
+              
+                IF lSoldUsed AND AVAIL soldto THEN
+                ASSIGN
+                    bf-cust.NAME         = soldto.sold-name
+                    bf-cust.addr[1]      = soldto.sold-addr[1]
+                    bf-cust.addr[2]      = soldto.sold-addr[2]
+                    bf-cust.spare-char-3 = soldto.spare-char-3
+                    bf-cust.city         = soldto.sold-city
+                    bf-cust.state        = soldto.sold-state
+                    bf-cust.zip          = soldto.sold-zip
+                    bf-cust.fax-country  = shipto.country .
+                
+                ELSE IF iInterCompanyBilling EQ 1 THEN
+                 ASSIGN
+                    bf-cust.NAME         = shipto.ship-name
+                    bf-cust.addr[1]      = shipto.ship-addr[1]
+                    bf-cust.addr[2]      = shipto.ship-addr[2]
+                    bf-cust.spare-char-3 = shipto.spare-char-3
+                    bf-cust.city         = shipto.ship-city
+                    bf-cust.state        = shipto.ship-state
+                    bf-cust.zip          = shipto.ship-zip
+                    bf-cust.fax-country  = shipto.country .
+                ELSE IF AVAIL bf-ori-cust THEN
+                  ASSIGN
+                    bf-cust.NAME         = bf-ori-cust.name
+                    bf-cust.addr[1]      = bf-ori-cust.addr[1]
+                    bf-cust.addr[2]      = bf-ori-cust.addr[2]
+                    bf-cust.spare-char-3 = bf-ori-cust.spare-char-3
+                    bf-cust.city         = bf-ori-cust.city
+                    bf-cust.state        = bf-ori-cust.state
+                    bf-cust.zip          = bf-ori-cust.zip
+                    bf-cust.fax-country  = bf-ori-cust.fax-country .
+            END.
             FIND FIRST bf-shipto EXCLUSIVE-LOCK
                  WHERE bf-shipto.company EQ cTransCompany
                  AND bf-shipto.cust-no EQ cCustomerValue
@@ -407,18 +442,7 @@ PROCEDURE pInterCompanyTrans:
                     bf-soldto.cust-no = cCustomerValue                     
                     bf-soldto.sold-id = ipcSoldID
                     bf-soldto.sold-no = (IF AVAIL bff-soldto THEN bff-soldto.sold-no ELSE 0) + 1.
-            END.
-            ELSE DO:
-              ASSIGN
-                    bf-shipto.ship-name    = shipto.ship-name
-                    bf-shipto.ship-addr[1] = shipto.ship-addr[1]
-                    bf-shipto.ship-addr[2] = shipto.ship-addr[2]
-                    bf-shipto.spare-char-3 = shipto.spare-char-3
-                    bf-shipto.ship-city    = shipto.ship-city
-                    bf-shipto.ship-state   = shipto.ship-state
-                    bf-shipto.ship-zip     = shipto.ship-zip
-                    bf-shipto.country      = shipto.country .
-            END.
+            END.              
         END.         
     END.   
     RELEASE bf-cust.

@@ -34,7 +34,7 @@ DEFINE VARIABLE gcNK1Master  AS CHARACTER INITIAL "CustomerList" NO-UNDO.
 DEFINE VARIABLE gcMsgReport  AS CHARACTER INITIAL "NK1 CustList - Report Specific List" NO-UNDO.
 DEFINE VARIABLE gcMsgGlobal  AS CHARACTER INITIAL "NK1 CustList - Global List" NO-UNDO.
 DEFINE VARIABLE gcMsgUser    AS CHARACTER INITIAL "User Specific List" NO-UNDO.
-DEFINE VARIABLE gcMsgDisplay AS CHARACTER INITIAL "JQ1,JU1,OU1,OQ1,EQ,EC,EF,IF1,AF1,IL3,JC,OT1,AQ1,AQ2,IQ1,IQ2,OB3" NO-UNDO.
+DEFINE VARIABLE gcMsgDisplay AS CHARACTER INITIAL ",JQ1,JU1,OU1,OQ1,EQ,EC,EF,IF1,AF1,IL3,JC,OT1,AQ1,AQ2,IQ1,IQ2,OB3" NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -100,19 +100,19 @@ FUNCTION GetCustListActive RETURNS LOGICAL
 DEFINE VARIABLE iListCount AS INTEGER NO-UNDO.
 
 IF ipcMode NE "PROMPT" THEN DO:
-    oplActive = GetCustListActive(ipcCompany,  gcNK1Master).
+    oplActive = GetCustListActive(ipcCompany, gcNK1Master).
     IF oplActive AND iplBuild THEN DO:
         EMPTY TEMP-TABLE ttCustList.
         /*Build list specific to report*/
         iListCount = 0.
-        RUN BuildCustList(
+        RUN BuildCustList (
             ipcCompany,
             gcNK1Master,
             ipcMode,
             INPUT-OUTPUT iListCount
             ).        
         /*Build list for all reports*/
-        RUN BuildCustList(
+        RUN BuildCustList (
             ipcCompany,
             gcNK1Master,
             "",

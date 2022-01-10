@@ -12,6 +12,7 @@ prgrms ~
 rate ~
 shifts ~
 shift_break ~
+sys-ctrl ~
 usercomp ~
 users ~
 vend

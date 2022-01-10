@@ -240,7 +240,7 @@ DEFINE BUTTON btnCustList
 
 DEFINE BUTTON btnInvoiceMessage 
      LABEL "Invoice Message" 
-     SIZE 18.6 BY 1.
+     SIZE 18.6 BY 1.29.
 
 DEFINE VARIABLE begin_bol AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
      LABEL "Beginning BOL#" 
@@ -534,8 +534,8 @@ DEFINE FRAME FRAME-A
      tb_office-copy AT ROW 15.29 COL 50
      tb_sman-copy AT ROW 15.29 COL 71
      lv-scr-num-copies AT ROW 16.24 COL 38 COLON-ALIGNED
-     tb_print-message AT ROW 16.24 COL 50 WIDGET-ID 40
-     btnInvoiceMessage AT ROW 16.24 COL 71
+     tb_print-message AT ROW 16.29 COL 50 WIDGET-ID 40
+     btnInvoiceMessage AT ROW 16.18 COL 71
      tb_BatchMail AT ROW 18.62 COL 46 RIGHT-ALIGNED
      tb_HideDialog AT ROW 18.62 COL 49
      tb_attachBOL AT ROW 18.62 COL 70 WIDGET-ID 16
@@ -2022,6 +2022,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             
     btn-ok:LOAD-IMAGE("Graphics/32x32/Ok.png").
     btn-cancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
+    btnInvoiceMessage:LOAD-IMAGE("Graphics/32x32/btnInvoiceMessage.png").
     RUN enable_UI.
     {sys/inc/reportsConfigNK1.i "OB3" }
     ASSIGN
@@ -2495,7 +2496,7 @@ PROCEDURE pRunFormatValueChanged :
             ASSIGN tb_qty-all:HIDDEN = NO .
         ELSE tb_qty-all:HIDDEN = YES .
          
-        IF v-print-fmt EQ "Badger" OR v-print-fmt EQ "Henry" THEN
+        IF v-print-fmt EQ "Badger" OR v-print-fmt EQ "Henry" OR v-print-fmt EQ "ColoniaX" OR v-print-fmt EQ "ColonialLot#" OR v-print-fmt EQ "PrystupExcel" THEN
             ASSIGN btnInvoiceMessage:HIDDEN    = NO
                 tb_print-message:HIDDEN     = NO
                 btnInvoiceMessage:SENSITIVE = YES

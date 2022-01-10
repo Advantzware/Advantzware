@@ -378,11 +378,11 @@ PROCEDURE pGetUserParamValue:
             ASSIGN
                 cTable = ENTRY(1,dynValueColumn.colName,".")
                 cField = ENTRY(2,dynValueColumn.colName,".")
+                cTemp = cField
                 .
-            IF dynSubject.businessLogic EQ "" THEN DO:
-                cTemp = cField.
                 IF INDEX(cTemp,"[") NE 0 THEN
                 cTemp = SUBSTRING(cTemp,1,INDEX(cTemp,"[") - 1).
+            IF dynSubject.businessLogic EQ "" THEN DO:
                 IF cTable NE "ttUDF" THEN DO:
                     CREATE BUFFER hTable FOR TABLE cTable.
                     dWidth = hTable:BUFFER-FIELD(cTemp):WIDTH.
@@ -390,7 +390,7 @@ PROCEDURE pGetUserParamValue:
             END. /* if not business logic */
             ELSE
             IF VALID-HANDLE(hTable) THEN
-            dWidth = hTable:BUFFER-FIELD(cField):WIDTH.
+            dWidth = hTable:BUFFER-FIELD(cTemp):WIDTH.
         END. /* if table.field */
         ELSE
         cField = dynValueColumn.colName.
@@ -1264,6 +1264,7 @@ PROCEDURE pJasperLastPageFooter :
                    BY dynValueParam.sortOrder
                 :
                 IF dynValueParam.paramName BEGINS "svS" THEN NEXT.
+                IF INDEX(dynValueParam.paramName,"DatePickList") NE 0 THEN NEXT.
                 ASSIGN
                     cParameter[iParameterRow] = IF dynValueParam.paramLabel EQ ? THEN REPLACE(dynValueParam.paramName,"sv","")
                                                 ELSE REPLACE(dynValueParam.paramLabel,":","")
@@ -1293,12 +1294,15 @@ PROCEDURE pJasperLastPageFooter :
                 cValue = "".
                 ASSIGN
                     cParameter[iParameterRow] = REPLACE(cParameter[iParameterRow],"@@@",cValue)
+.
                     iParameterRow = iParameterRow + 1
                     .
             END. /* each dynvalueparam */
-        END. /* dynparamvalue */
+        END. /* when dynparamvalue */
     END CASE.
     
+    IF iParameterRow GT 35 THEN
+    iParameterRow = 35.
     IF dynParamValue.pageHeight GE (iParameterRow + 3) * 14 THEN DO:
         /* last page footer band */
         PUT STREAM sJasper UNFORMATTED
@@ -1313,7 +1317,7 @@ PROCEDURE pJasperLastPageFooter :
             "x=~"" 0 "~" "
             "y=~"" 14 "~" "
             "width=~"" 560 "~" "
-            "height=~"" (iParameterRow - 1) * 14 "~"/>" SKIP
+            "height=~"" iParameterRow * 14 "~"/>" SKIP
             "            </rectangle>" SKIP
             "            <staticText>" SKIP
             "                <reportElement "
@@ -1340,7 +1344,7 @@ PROCEDURE pJasperLastPageFooter :
                 "            </staticText>" SKIP
                 .
         END. /* do idx */
-        RUN pJasperPageBottom (iParameterRow * 14).
+        RUN pJasperPageBottom ((iParameterRow + 1) * 14).
         PUT STREAM sJasper UNFORMATTED
             "        </band>" SKIP
             "    </lastPageFooter>" SKIP
@@ -1558,6 +1562,7 @@ PROCEDURE pJasperStarter :
     DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE jdx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE kdx            AS INTEGER   NO-UNDO.    
     DEFINE VARIABLE iTime          AS INTEGER   NO-UNDO.
     
     RUN pCreateDir (OUTPUT cUserFolder).
@@ -1623,15 +1628,15 @@ PROCEDURE pJasperStarter :
                            + "1>NUL 2>"
                            + cJasperFile[5]
                            .
-        DO idx = 1 TO EXTENT(cJasperFile) - 1:
-            IF cJasperFile[idx] EQ ? THEN DO:
+        DO kdx = 1 TO EXTENT(cJasperFile) - 1:
+            IF cJasperFile[kdx] EQ ? THEN DO:
                 MESSAGE 
                     "Unable to run" aoaTitle "Jasper Report" SKIP 
                     "Jasper Files .jrxml and/or .json not found!"
                 VIEW-AS ALERT-BOX ERROR.
                 RETURN.
             END. /* if ? */
-        END. /* do idx */
+        END. /* do kdx */
         
         IF NOT CAN-DO("print -d,view",ipcType) THEN DO TRANSACTION:
             CREATE TaskResult.
@@ -1657,6 +1662,7 @@ PROCEDURE pJasperStarter :
         OS-COMMAND NO-WAIT START VALUE(cJasperStarter).
         ELSE
         OS-COMMAND SILENT CALL VALUE(cJasperStarter).
+        PAUSE 1 NO-MESSAGE.
     END. /* each tttaskfile */
     opcJasperFile = TRIM(opcJasperFile,",").
 

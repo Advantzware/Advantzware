@@ -670,7 +670,13 @@ PROCEDURE addBrowseCols :
            INDEX(ip-filterList, h_colHandle:NAME) GT 0 AND 
            (h_colHandle:WIDTH-CHARS LT 20 OR
             h_colHandle:WIDTH-CHARS EQ ?) THEN
-        h_colHandle:WIDTH-CHARS = 20.           
+        h_colHandle:WIDTH-CHARS = 20.
+        IF h_colHandle:DATA-TYPE EQ "CHARACTER" THEN
+        ASSIGN
+            h_colHandle:WIDTH-CHARS = FONT-TABLE:GET-TEXT-WIDTH-CHARS(STRING(FILL("X",256),h_colHandle:FORMAT))
+            h_colHandle:WIDTH-CHARS = MAX(h_colHandle:WIDTH-CHARS,LENGTH(h_colHandle:LABEL)) + 2
+            .
+            .
         IF ip-SubjectID NE 0 THEN DO:
             hColumn[li-count] = h_colHandle.
             FIND FIRST dynValueColumn NO-LOCK
@@ -1428,6 +1434,8 @@ PROCEDURE pClose:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iBuffer AS INTEGER NO-UNDO.
+    
     IF VALID-HANDLE(h_query) THEN DO:
         IF h_query:IS-OPEN THEN
         h_query:QUERY-CLOSE().
@@ -1454,6 +1462,11 @@ PROCEDURE pClose:
     
     IF VALID-HANDLE(hDynCalcField) THEN
     DELETE OBJECT hDynCalcField.
+
+    DO iBuffer = 1 TO EXTENT(h_buffer):
+        IF VALID-HANDLE(h_buffer[iBuffer]) THEN
+            DELETE OBJECT h_buffer[iBuffer].
+    END.    
       
 END PROCEDURE.
 	

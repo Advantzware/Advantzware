@@ -48,6 +48,7 @@ DEFINE VARIABLE li-lscore-len      AS INTEGER INIT 80 NO-UNDO.
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO. 
 
+
 PROCEDURE ShellExecuteA EXTERNAL "shell32":u :
     DEFINE INPUT PARAMETER hwnd AS long.
     DEFINE INPUT PARAMETER lpOperation AS CHARACTER.
@@ -916,6 +917,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-alt-design-box V-table-Win
+PROCEDURE display-alt-design-box:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE riEBrowid AS ROWID     NO-UNDO.
+    DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+    
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+   
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+        RUN get-eb-rowid IN WIDGET-HANDLE(char-hdl) (OUTPUT riEBrowid).
+  
+    IF riEBrowid <> ? THEN
+        FIND FIRST eb NO-LOCK WHERE ROWID(eb) = riEBrowid NO-ERROR.
+    
+    IF AVAILABLE style AND AVAILABLE eb THEN 
+        RUN est/dboxAltDesign.w (ROWID(style), ROWID(eb)).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :

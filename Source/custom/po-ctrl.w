@@ -89,10 +89,14 @@ DEFINE BUTTON Btn_Update
     LABEL "&Update" 
     SIZE 16 BY 1.29.
 
-DEFINE VARIABLE fiNextPo AS CHARACTER FORMAT "X(256)":U 
-    LABEL "Next Purchase Order Number" 
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1 NO-UNDO.
+DEFINE VARIABLE fiNextPo AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Next Purchase Order Number" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE RECTANGLE RECT-15
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 33 BY 1.67.
 
 DEFINE RECTANGLE RECT-16
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -102,22 +106,23 @@ DEFINE RECTANGLE RECT-16
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME po-ctrl
-    fiNextPo AT ROW 2.14 COL 33 COLON-ALIGNED WIDGET-ID 2
-    po-ctrl.rng-po-no[1] AT ROW 3.24 COL 33 COLON-ALIGNED
-    LABEL "Range of PO Numers"
-    VIEW-AS FILL-IN 
-    SIZE 10.4 BY 1
-    BGCOLOR 15 
-    po-ctrl.rng-po-no[2] AT ROW 3.24 COL 48 COLON-ALIGNED
-    LABEL "To"
-    VIEW-AS FILL-IN 
-    SIZE 10.4 BY 1
-    BGCOLOR 15 
-    Btn_Update AT ROW 5.29 COL 14.4 HELP
-    "Update/Save System Configurations"
-    Btn_Close AT ROW 5.29 COL 35.4 HELP
-    "Cancel Update or Close Window"
-    RECT-16 AT ROW 1.48 COL 3
+     fiNextPo AT ROW 2.33 COL 29 COLON-ALIGNED WIDGET-ID 2
+     po-ctrl.rng-po-no[1] AT ROW 3.43 COL 29 COLON-ALIGNED
+          LABEL "Range of PO Numers"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+          BGCOLOR 15 
+     po-ctrl.rng-po-no[2] AT ROW 3.43 COL 48 COLON-ALIGNED
+          LABEL "To"
+          VIEW-AS FILL-IN 
+          SIZE 13.4 BY 1
+          BGCOLOR 15 
+     Btn_Update AT ROW 6 COL 32 HELP
+          "Update/Save System Configurations"
+     Btn_Close AT ROW 6 COL 48 HELP
+          "Cancel Update or Close Window"
+     RECT-15 AT ROW 5.76 COL 31
+     RECT-16 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
     SIDE-LABELS NO-UNDERLINE THREE-D 
     AT COL 1 ROW 1
@@ -228,25 +233,25 @@ ON WINDOW-CLOSE OF C-Win /* P/O Control */
 &Scoped-define SELF-NAME Btn_Close
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Close C-Win
 ON CHOOSE OF Btn_Close IN FRAME po-ctrl /* Close */
-    DO:
-        IF {&SELF-NAME}:LABEL = "&Close" THEN
-            APPLY "CLOSE" TO THIS-PROCEDURE.
-        ELSE
-        DO WITH FRAME {&FRAME-NAME}:
+DO:
+  IF {&SELF-NAME}:LABEL = "&Close" THEN
+  APPLY "CLOSE" TO THIS-PROCEDURE.
+  ELSE
+  DO WITH FRAME {&FRAME-NAME}:
 
-            DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.
-            ASSIGN
-                {&SELF-NAME}:LABEL = "&Close"
-                Btn_Update:LABEL   = "&Update".
-            RUN enable_UI.
-            fiNextPo:SENSITIVE = NO.
-            RUN sys/ref/asicurseq.p (INPUT gcompany, INPUT "po_seq", OUTPUT giCurrPO) NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN
-                MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
-                    VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-            fiNextPo:SCREEN-VALUE = STRING(giCurrPo  + 1, ">>>>>>").    
-        END.
-    END.
+    DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.
+    ASSIGN
+      {&SELF-NAME}:LABEL = "&Close"
+      Btn_Update:LABEL = "&Update".
+    RUN enable_UI.
+    fiNextPo:SENSITIVE = NO.
+    RUN sys/ref/asicurseq.p (INPUT gcompany, INPUT "po_seq", OUTPUT giCurrPO) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN
+      MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
+              VIEW-AS ALERT-BOX INFO BUTTONS OK.
+    fiNextPo:SCREEN-VALUE = STRING(giCurrPo  + 1, ">>>>>>>>").    
+  END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -255,48 +260,48 @@ ON CHOOSE OF Btn_Close IN FRAME po-ctrl /* Close */
 &Scoped-define SELF-NAME Btn_Update
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Update C-Win
 ON CHOOSE OF Btn_Update IN FRAME po-ctrl /* Update */
-    DO:
-        IF {&SELF-NAME}:LABEL = "&Update" THEN
-        DO WITH FRAME {&FRAME-NAME}:
-            fiNextPo:SENSITIVE = YES.
-            ENABLE {&LIST-1}.
-            RUN sys/ref/asicurseq.p (INPUT gcompany, INPUT "po_seq", OUTPUT giCurrPO) NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN
-                MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
-                    VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-            FIND CURRENT po-ctrl EXCLUSIVE-LOCK.
-            po-ctrl.next-po-no = giCurrPo + 1.
+DO:
+  IF {&SELF-NAME}:LABEL = "&Update" THEN
+  DO WITH FRAME {&FRAME-NAME}:
+     fiNextPo:SENSITIVE = YES.
+    ENABLE {&LIST-1}.
+    RUN sys/ref/asicurseq.p (INPUT gcompany, INPUT "po_seq", OUTPUT giCurrPO) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN
+      MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
+              VIEW-AS ALERT-BOX INFO BUTTONS OK.
+    FIND CURRENT po-ctrl EXCLUSIVE-LOCK.
+    po-ctrl.next-po-no = giCurrPo + 1.
 
-            fiNextPo:SCREEN-VALUE = STRING(giCurrPO  + 1, ">>>>>>").    
-            ASSIGN
-                {&SELF-NAME}:LABEL = "&Save"
-                Btn_Close:LABEL    = "&Cancel".
-            FIND CURRENT po-ctrl NO-LOCK.
-            APPLY "ENTRY" TO fiNextPo.
-        END.
-        ELSE
-        DO WITH FRAME {&FRAME-NAME}:
-            fiNextPo:SENSITIVE = NO.
-            DISABLE {&LIST-1}.
-            ASSIGN
-                {&SELF-NAME}:LABEL = "&Update"
-                Btn_Close:LABEL    = "&Close".
-            FIND CURRENT po-ctrl EXCLUSIVE-LOCK.
-            ASSIGN {&LIST-1}.
-            DEFINE VARIABLE liNextPo AS INTEGER NO-UNDO.
-            FIND company WHERE company.company EQ gcompany NO-LOCK NO-ERROR.
-            liNextPo = INTEGER(fiNextPo:SCREEN-VALUE).
-            /* Sequence holds the current value. They've entered the next value, so */
-            /* subtract 1 to make it the correct current value */
-            liNextPo = liNextPo - 1.
-            DYNAMIC-CURRENT-VALUE("po_seq" + company.spare-char-1, "ASI") = liNextpo.
-            fiNextPo:SCREEN-VALUE = STRING(DYNAMIC-CURRENT-VALUE("po_seq" + company.spare-char-1, "ASI") + 1, ">>>>>>").
-            FIND CURRENT po-ctrl EXCLUSIVE-LOCK.
-            po-ctrl.next-po-no = INTEGER(fiNextPo:SCREEN-VALUE).    
+    fiNextPo:SCREEN-VALUE = STRING(giCurrPO  + 1, ">>>>>>>>").    
+    ASSIGN
+      {&SELF-NAME}:LABEL = "&Save"
+      Btn_Close:LABEL = "&Cancel".
+    FIND CURRENT po-ctrl no-lock.
+    APPLY "ENTRY" TO fiNextPo.
+  END.
+  ELSE
+  DO WITH FRAME {&FRAME-NAME}:
+    fiNextPo:SENSITIVE = NO.
+    DISABLE {&LIST-1}.
+    ASSIGN
+      {&SELF-NAME}:LABEL = "&Update"
+      Btn_Close:LABEL = "&Close".
+    FIND CURRENT po-ctrl EXCLUSIVE-LOCK.
+    ASSIGN {&LIST-1}.
+    DEFINE VARIABLE liNextPo AS INTEGER NO-UNDO.
+    FIND company WHERE company.company EQ gcompany NO-LOCK NO-ERROR.
+    liNextPo = INTEGER(fiNextPo:SCREEN-VALUE).
+    /* Sequence holds the current value. They've entered the next value, so */
+    /* subtract 1 to make it the correct current value */
+     liNextPo = liNextPo - 1.
+     DYNAMIC-CURRENT-VALUE("po_seq" + company.spare-char-1, "ASI") = liNextpo.
+     fiNextPo:SCREEN-VALUE = STRING(DYNAMIC-CURRENT-VALUE("po_seq" + company.spare-char-1, "ASI") + 1, ">>>>>>>>").
+     FIND CURRENT po-ctrl EXCLUSIVE-LOCK.
+     po-ctrl.next-po-no = INTEGER(fiNextPo:SCREEN-VALUE).    
 
-            FIND CURRENT po-ctrl NO-LOCK.
-        END.  
-    END.
+    FIND CURRENT po-ctrl NO-LOCK.
+  END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -352,9 +357,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
             VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
 
-    fiNextPo:SCREEN-VALUE = STRING(giCurrPo  + 1, ">>>>>>").
-    fiNextPo:SENSITIVE = NO. 
-    DISABLE fiNextPo. 
+  fiNextPo:SCREEN-VALUE = STRING(giCurrPo  + 1, ">>>>>>>>").
+  fiNextPo:SENSITIVE = NO. 
+  DISABLE fiNextPo. 
 
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.

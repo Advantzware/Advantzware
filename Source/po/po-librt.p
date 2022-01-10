@@ -11,8 +11,6 @@ DEFINE INPUT PARAMETER v-format AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER xjob-mat FOR job-mat.
 DEFINE BUFFER xitem    FOR item.
-DEFINE BUFFER b-ref1   FOR reftable.
-DEFINE BUFFER b-ref2   FOR reftable.
 
 {po/po-print.i}
 {po/getPoAdders.i}
@@ -54,6 +52,10 @@ DEFINE VARIABLE cEDIPOHFile     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEDIPODFile     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEDIPOItemFile  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iCnt            AS INTEGER NO-UNDO.
+
+DEFINE VARIABLE iIndex          AS INTEGER NO-UNDO.
+DEFINE VARIABLE lScoreAvailable AS LOGICAL NO-UNDO.
+
 DEFINE BUFFER b-qty   FOR reftable.
 DEFINE BUFFER b-setup FOR reftable.
 DEFINE STREAM sEDIPOH.
@@ -247,7 +249,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
         fInsText("L",   357,   25, "NW"            ). /* po status */
         fInsText("L",   383,   25, "N"             ). /* po type */
         fInsText("L",   409,    6, "AMC"           ). /* sheet plant abbreviation */
-        fInsText("L",   416,   22, STRING(po-ord.po-no, "999999")).
+        fInsText("L",   416,   22, STRING(po-ord.po-no, "99999999")).
         fInsText("L",   439,   10, STRING(po-ord.po-date, "99/99/9999")).
         fInsText("L",   450,    1, "T"             ). /* process stat */
         fInsText("L",   452,   10, STRING(po-ord.due-date, "99/99/9999")).
@@ -374,31 +376,29 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
                 END.
             END.
 
-            RUN po/po-ordls.p (RECID(po-ordl)).
-    
-            {po/po-ordls.i}
+            RUN po/POProcs.p PERSISTENT SET hdPOProcs.
+            
+            RUN PO_GetLineScoresAndTypes IN hdPOProcs (
+                INPUT  po-ordl.company,
+                INPUT  po-ordl.po-no,
+                INPUT  po-ordl.line,
+                OUTPUT lv-val,
+                OUTPUT lv-typ
+                ).
+            
+            DELETE PROCEDURE hdPOProcs.  
+            
+            lScoreAvailable = FALSE.
+            
+            DO iIndex = 1 TO EXTENT(lv-val):
+                IF lv-val[iIndex] NE 0 OR lv-typ[iIndex] NE "" THEN DO:
+                    lScoreAvailable = TRUE.
+                    LEAVE.
+                END.
+            END.  
 
-
-            IF AVAIL b-ref1 OR AVAIL b-ref2 THEN 
+            IF lScoreAvailable THEN 
             DO:
-                ASSIGN
-                    lv-val = 0
-                    lv-typ = "".
-
-                IF AVAIL b-ref1 THEN
-                DO x = 1 TO 12:
-                    ASSIGN
-                        lv-val[x] = b-ref1.val[x]
-                        lv-typ[x] = SUBSTR(b-ref1.dscr,x,1).
-                END.
-
-                IF AVAIL b-ref2 THEN
-                DO x = 1 TO 8:
-                    ASSIGN
-                        lv-val[x + 12] = b-ref2.val[x]
-                        lv-typ[x + 12] = SUBSTR(b-ref2.dscr,x,1).
-                END.
-
                 DO lv-int = 0 TO 1:
                     ASSIGN
                         v-lscore-c = ""
@@ -446,7 +446,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
                 END.
             END.
 
-            li-style = IF AVAILABLE b-ref1 OR AVAILABLE b-ref2 THEN 1 ELSE 2.
+            li-style = IF lScoreAvailable THEN 1 ELSE 2.
 
             /* PUT li-style                                    FORMAT "9999". */
     
@@ -470,17 +470,17 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             /* PRICE PER MSF */
             v-ord-cst = po-ordl.cost.
              
-            IF AVAILABLE b-ref1 THEN DO:
+            IF lScoreAvailable THEN DO:
                 
-                IF b-ref1.val[3] GT 0 OR b-ref1.val[2] GT 0 OR b-ref1.val[1] GT 0 THEN DO: 
+                IF lv-val[3] GT 0 OR lv-val[2] GT 0 OR lv-val[1] GT 0 THEN DO: 
                     /* cDimensions = TRIM(STRING(b-ref1.val[1], ">>>>.99")) + " x " + TRIM(STRING(b-ref1.val[2], ">>>>.99")) + " x " + TRIM(STRING(b-ref1.val[3], ">>>>.99")). */
                     cDimensions = "".
-                    DO icnt = 1 TO EXTENT(b-ref1.val):
-                        IF b-ref1.val[iCnt] GT 0 THEN DO:
+                    DO icnt = 1 TO EXTENT(lv-val):
+                        IF lv-val[iCnt] GT 0 THEN DO:
                             IF cDimensions = "" THEN 
-                              cDimensions = TRIM(STRING(b-ref1.val[iCnt], ">>>>.99")).
+                              cDimensions = TRIM(STRING(lv-val[iCnt], ">>>>.99")).
                             ELSE
-                                cDimensions = cDimensions + " x " + TRIM(STRING(b-ref1.val[iCnt], ">>>>.99")).
+                                cDimensions = cDimensions + " x " + TRIM(STRING(lv-val[iCnt], ">>>>.99")).
                         END.
                         ELSE 
                           LEAVE.
@@ -495,20 +495,20 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
                     cDimensions = TRIM(STRING({sys/inc/k16.i po-ordl.s-wid}, ">>>>.99")).
                     
                 /* Formatted Scoring */    
-                IF b-ref1.val[2] GT 0 THEN 
+                IF lv-val[2] GT 0 THEN 
                 DO:
                     cFormattedScore = "".
-                    DO iCnt = 1 TO EXTENT(b-ref1.val):
+                    DO iCnt = 1 TO EXTENT(lv-val):
                         /* cFormattedScore = fFormScore(b-ref1.val[1]) + fFormScore(b-ref1.val[2]). */
-                        IF b-ref1.val[iCnt] GT 0 THEN 
-                            cFormattedScore =  cFormattedScore + fFormScore(b-ref1.val[iCnt]).
+                        IF lv-val[iCnt] GT 0 THEN 
+                            cFormattedScore =  cFormattedScore + fFormScore(lv-val[iCnt]).
                         ELSE 
                             LEAVE. 
                     END.
                 END.
                 ELSE
-                    IF b-ref1.val[1] GT 0 THEN 
-                      cFormattedScore =  fFormScore(b-ref1.val[1]).
+                    IF lv-val[1] GT 0 THEN 
+                      cFormattedScore =  fFormScore(lv-val[1]).
                     
                 /* If no score should just be the width */    
                 IF cFormattedScore EQ "" THEN 
@@ -716,7 +716,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             fInsText("R",   525,   11, STRING(v-ord-qty[1]) ).
             fInsText("L",   537,    9, STRING(po-ordl.ord-no) ). /* Order # for associated sales ord */
             fInsText("L",   547,    6, "AMC"         ). /* sheet plant abbreviation */
-            fInsText("L",   554,   22,  STRING(po-ordl.po-no, "999999")).
+            fInsText("L",   554,   22,  STRING(po-ordl.po-no, "99999999")).
             fInsText("L",   577,   30, ""         ). /* not used */
             fInsText("L",   608,    2, SUBSTRING(po-ordl.pr-uom, 1, 2)       ). /* Price UOM, Take the MS from MSF  */
             fInsText("L",   611,   30, ""         ). /* not used */
@@ -755,7 +755,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             fInsText("L",  360, 10, v-adder[6]    ). /* 6th board adder */
             fInsText("L",  371, 10, v-adder[7]    ). /* 7th board adder */
             fInsText("L",  382, 10, ""            ). /* 8th board adder */    
-            fInsText("L",  393, 22, STRING(po-ord.po-no, "999999") ). /* po # */
+            fInsText("L",  393, 22, STRING(po-ord.po-no, "99999999") ). /* po # */
             fInsText("L",  416, 11, STRING(po-ordl.line) ). /* po line # */
             fInsText("L",  428, 10, "0"        ). /* combo msf 3 decimals */
             fInsText("L",  439, 11, STRING(po-ordl.ord-qty - (po-ord.under-pct * po-ordl.ord-qty / 100)    )). /* PO min qty */

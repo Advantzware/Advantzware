@@ -358,7 +358,7 @@ END.
                          period.pnum,
                          "A",
                          TODAY,
-                         "",
+                         work-job.cDesc,
                          "FG").   
     end. /* each work-job */
   end.
@@ -403,7 +403,7 @@ PROCEDURE gl-from-work:
                          period.pnum,
                          "A",
                          TODAY,
-                         "",
+                         work-gl.cDesc,
                          "FG").  
 
       assign

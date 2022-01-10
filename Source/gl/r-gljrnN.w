@@ -1560,7 +1560,7 @@ PROCEDURE post-gl :
                         gl-jrn.period,
                         "A",
                         gl-jrn.tr-date,
-                        "",
+                        gl-jrnl.dscr,
                         "BR").    
 
                 END.
@@ -1576,7 +1576,7 @@ PROCEDURE post-gl :
                         gl-jrn.period,
                         "A",
                         gl-jrn.tr-date,
-                        "",
+                        gl-jrnl.dscr,
                         "BR").    
 
                     ASSIGN 

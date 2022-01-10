@@ -13,6 +13,7 @@ def input parameter v-i-no as char.
 def input parameter v-inv-no as int.
 def input parameter v-uom like itemfg.prod-uom.
 
+DEFINE INPUT PARAMETER ipDesc AS CHARACTER NO-UNDO.
 def var v-cost-ea as dec.
 
 {oe/invwork.i}
@@ -43,17 +44,15 @@ if v-actnum gt "" and v-cost ne ? then do:
 
   IF tmp-work-job.weight EQ ? THEN tmp-work-job.weight = 0.
 
-  find first work-job where work-job.actnum eq v-actnum no-error.
-  if not available work-job then do:
     create work-job.
     assign
      work-job.actnum = v-actnum
      work-job.fg     = v-fg.
-  end.
-
+  
   assign
    work-job.amt     = work-job.amt + tmp-work-job.amt
-   work-job.weight  = work-job.weight + tmp-work-job.weight.
+   work-job.weight  = work-job.weight + tmp-work-job.weight
+   work-job.cDesc   = work-job.cDesc + ipDesc.
 
   if not v-fg then v-cgs-test = v-cgs-test + tmp-work-job.amt.
 end.

@@ -44,7 +44,7 @@ DEFINE VARIABLE hdTableBuffer AS HANDLE  NO-UNDO.
 DEFINE VARIABLE hdTempTable   AS HANDLE  NO-UNDO.
 DEFINE VARIABLE iFieldsCount  AS INTEGER NO-UNDO.
 
-DEFINE VARIABLE cTableNames    AS CHARACTER INITIAL "APIInbound,APIInboundDetail,APIOutbound,APIOutboundDetail,APIOutboundTrigger".
+DEFINE VARIABLE cTableNames    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompareResult AS CHARACTER NO-UNDO.
  
 /* Temp-Table Definitions */
@@ -79,6 +79,12 @@ DEFINE TEMP-TABLE ttAPIOutboundTrigger NO-UNDO
     field differentFields AS CHARACTER
     .  
 
+DEFINE TEMP-TABLE ttSettingType NO-UNDO
+    LIKE SettingType
+    USE-INDEX rec_key     AS PRIMARY
+    FIELD differentFields AS CHARACTER
+    FIELD company         AS CHARACTER
+    .  
 
 DEFINE TEMP-TABLE ttUnmatchedData NO-UNDO
     FIELD ttTableName       AS CHARACTER FORMAT "X(32)"  LABEL "Table Name"
@@ -87,6 +93,8 @@ DEFINE TEMP-TABLE ttUnmatchedData NO-UNDO
     FIELd ttPrimaryKey      AS CHARACTER FORMAT "X(96)"  LABEL "Primary Key"
     FIELD ttUnmatchedFields AS CHARACTER FORMAT "X(256)" LABEL "Unmatched Fields"
     .
+
+cTableNames = "APIInbound,APIInboundDetail,APIOutbound,APIOutboundDetail,APIOutboundTrigger,SettingType".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -454,7 +462,12 @@ DO:
                 RUN pLoadAndCompareAPIOutboundTrigger NO-ERROR.  
                 hdTempTable = TEMP-TABLE ttAPIOutboundTrigger:HANDLE.
                 CREATE BUFFER hdTTBuffer FOR TABLE "ttAPIOutboundTrigger".
-            END.                         
+            END. 
+            WHEN "SettingType" THEN DO:
+                RUN pLoadAndCompareSettingType NO-ERROR.  
+                hdTempTable = TEMP-TABLE ttSettingType:HANDLE.
+                CREATE BUFFER hdTTBuffer FOR TABLE "ttSettingType".
+            END.                                     
         END CASE.
     
         IF ERROR-STATUS:ERROR THEN DO:
@@ -487,7 +500,7 @@ DO:
     REPEAT:
         SYSTEM-DIALOG GET-FILE cFileName
         TITLE   "Choose Procedure to Run ..."
-        FILTERS "Data Files (*.d)"   "*.d"                  
+        FILTERS "Data Files (*.d),Json Files (*.json)"   "*.d,*.json"                  
         MUST-EXIST
         USE-FILENAME
         UPDATE lOKpressed.
@@ -745,6 +758,21 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLoadAndCompareSettingType C-Win
+PROCEDURE pLoadAndCompareSettingType PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {system\loadandcompare.i &param1 = "fiFileName:SCREEN-VALUE IN FRAME {&FRAME-NAME}" &param2 = "SettingType" &param3 = "settingName" &param4 = "rec_key" &param5 = "defaultValue"}
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord C-Win 
 PROCEDURE pUpdateRecord PRIVATE :

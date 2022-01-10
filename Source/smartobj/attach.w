@@ -226,6 +226,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable-button s-object 
+PROCEDURE enable-button :
+/* -----------------------------------------------------------
+  Purpose:     Receive and process 'state-changed' methods
+               (issued by 'new-state' event).
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+ DO WITH FRAME {&FRAME-NAME}:
+  Select_att:SENSITIVE = YES.
+ END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Paper-Clip-Image s-object 
 PROCEDURE Paper-Clip-Image :
 /*------------------------------------------------------------------------------
