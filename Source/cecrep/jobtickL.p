@@ -72,9 +72,9 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cImagePath AS CHARACTER NO-UNDO .
 DEFINE BUFFER bf-itemfg         FOR itemfg .
-DO TRANSACTION:
-   {sys/inc/tspostfg.i}
-END.
+DEFINE VARIABLE cTSPostFGMachineCodes AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSPostFGMachineCodes", OUTPUT cTSPostFGMachineCodes).
+
 RUN sys/ref/nk1look.p (INPUT cocode, "JobCardPrintScores", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -710,7 +710,7 @@ do v-local-loop = 1 to v-local-copies:
              v-tmp-line = v-tmp-line + 12 .
         
              i = 0.
-             for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0:
+             for each tt-wm WHERE lookup(tt-wm.m-code,cTSPostFGMachineCodes) > 0:
                   i = i + 1.
              END.
              i = i + 2.
@@ -721,7 +721,7 @@ do v-local-loop = 1 to v-local-copies:
                  .
         
              i = 0.
-             for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0  by tt-wm.dseq:
+             for each tt-wm WHERE lookup(tt-wm.m-code,cTSPostFGMachineCodes) > 0  by tt-wm.dseq:
                i = i + 1.
                display tt-wm.dscr AT 3
                     tt-wm.s-hr when tt-wm.s-hr ne 0

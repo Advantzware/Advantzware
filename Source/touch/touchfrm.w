@@ -440,13 +440,17 @@ PROCEDURE Change_Page :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER page_no AS INTEGER NO-UNDO.
 
+  DEFINE VARIABLE lTSLogin AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cTSLogin AS CHARACTER NO-UNDO.
+  
   IF VALID-HANDLE(h_numeric)  THEN DELETE PROCEDURE h_numeric.
   IF VALID-HANDLE(h_keyboard) THEN DELETE PROCEDURE h_keyboard.
   IF VALID-HANDLE(h_w-mchtrn) THEN DELETE PROCEDURE h_w-mchtrn.
 
   IF page_no EQ 1 THEN DO:
-   {sys/inc/tslogin.i}
-   IF tslogin-log THEN RETURN NO-APPLY.   
+   RUN spGetSettingByName ("TSLogin",  OUTPUT cTSLogin).
+   ASSIGN lTSLogin = cTSLogin EQ "YES".
+   IF lTSLogin THEN RETURN NO-APPLY.   
   END.
   IF activity_status EQ 'logout' AND page_no EQ 5 THEN /* bypass machines */
   page_no = 6. /* login_logout */
@@ -882,15 +886,24 @@ PROCEDURE Login_Logout :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE machinecode AS CHARACTER NO-UNDO.
-  DEF VAR v-add-one-sec AS LOG NO-UNDO.
+  DEFINE VARIABLE machinecode   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cTSClock      AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cTSDockSec    AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lTSClock      AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE lTSDockSec    AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE v-add-one-sec AS LOGICAL   NO-UNDO.
 
 IF g_company <> company_code THEN g_company = company_code.
 
+RUN spGetSettingByName ("TSClock", OUTPUT cTSClock).
+RUN spGetSettingByName ("TSDockSec", OUTPUT cTSDockSec).
+ASSIGN 
+    lTSClock   = cTSClock   EQ "YES"
+    lTSDockSec = cTSDockSec EQ "YES"
+    .
+
 DO TRANSACTION:
-   {sys/inc/tsclock.i}
    {sys/inc/maxbreak.i}
-   {sys/inc/tsdocksec.i}
 END.
 /* 
    Maybe we can say if record locked, copy existing data from locked record
@@ -992,7 +1005,7 @@ DO:
          RUN Shift-Data(company_code,emplogin.machine,emplogin.shift,
                      OUTPUT starttime,OUTPUT endtime).
 
-         IF tsdocksec-log AND
+         IF lTSDockSec AND
             employee.dock-time GT 0 AND
             endtime NE li-time-no-dock THEN
             ASSIGN
@@ -1091,7 +1104,7 @@ DO:
                RUN Shift-Data(company_code,machinecode,machemp.shift,
                            OUTPUT starttime,OUTPUT endtime).
               
-               IF tsdocksec-log AND
+               IF lTSDockSec AND
                   employee.dock-time GT 0 AND
                   endtime NE li-time-no-dock THEN
                   ASSIGN
@@ -1171,7 +1184,7 @@ DO:
     end. /* else  start_date = end_data(today) YSK 09/20/01 */
     /* TSCLOCK mods*/
                       
-    IF tsclock-log AND machine_code <> "CLOCK" THEN do:
+    IF lTSClock AND machine_code <> "CLOCK" THEN do:
        CREATE emplogin.
        ASSIGN emplogin.company = company_code
               emplogin.employee = employee_code
@@ -1186,7 +1199,7 @@ END. /* avail emplogin - logout */
 
 IF activity_status = 'login' THEN
 DO:
-    IF tsclock-log THEN do:
+    IF lTSClock THEN do:
 
        /* check clockin first */
        FIND FIRST emplogin WHERE

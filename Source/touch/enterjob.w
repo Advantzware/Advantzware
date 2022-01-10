@@ -44,9 +44,10 @@ RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
 {touch/touchdef.i}
 {custom/globdefs.i}
 
-DO TRANSACTION:
-   {sys/inc/tskey.i}
-END.
+DEFINE VARIABLE lTSKeyboard   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cTSKeyboard   AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSKeyboard",   OUTPUT cTSKeyboard).
+ASSIGN lTSKeyboard = cTSKeyboard EQ "YES".
 
 RUN sys/ref/nk1look.p (g_company, "JobRecalc", "I", NO, NO, "", "", OUTPUT cRtnChar, OUTPUT lRecFound).
     iJobRecalc = IF lRecFound THEN integer(cRtnChar) ELSE 0. 
@@ -639,7 +640,7 @@ PROCEDURE Reset_Field_Colors :
       item_#:FGCOLOR = 15
       item_#:BGCOLOR = 0
       .
-    IF tskey-log = NO THEN
+    IF lTSKeyboard = NO THEN
        ASSIGN
           job_#:SENSITIVE = NO
           form_#:SENSITIVE = NO
@@ -668,7 +669,7 @@ PROCEDURE Set_Field_Colors :
       h_field:BGCOLOR = 4 /* dark red */
       h_field:BGCOLOR = 3 /* tiel */
       .
-    IF tskey-log EQ NO THEN DO:
+    IF lTSKeyboard EQ NO THEN DO:
        h_field:SENSITIVE = YES.
        APPLY "ENTRY":U TO h_field.
     END.

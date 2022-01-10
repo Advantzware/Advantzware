@@ -79,9 +79,6 @@ DEF BUFFER b-itemfg FOR itemfg.
 DEF VAR cha-val AS cha NO-UNDO.
 DEF VAR w-m-count AS INT NO-UNDO.
 
-DO TRANSACTION:
-   {sys/inc/tspostfg.i}
-END.
 DEF VAR ls-fgitem-img AS cha FORM "x(50)" NO-UNDO.
 DEF VAR v-po-due-date AS DATE FORM "99/99/9999" NO-UNDO.
 
@@ -90,6 +87,9 @@ DEF VAR v-po-due-date AS DATE FORM "99/99/9999" NO-UNDO.
 FIND sys-ctrl WHERE company = "001" AND NAME = "notes" NO-LOCK NO-ERROR.
  IF AVAILABLE sys-ctrl THEN 
    ASSIGN cha-val = TRIM(sys-ctrl.char-fld).
+
+DEFINE VARIABLE cTSPostFGMachineCodes AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSPostFGMachineCodes", OUTPUT cTSPostFGMachineCodes).
  
 assign
  v-line[1] = chr(95) + fill(chr(95),40) + chr(95) + "  " +
@@ -551,7 +551,7 @@ do v-local-loop = 1 to v-local-copies:
              v-tmp-line = v-tmp-line + 12 .
         
              i = 0.
-             for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0:
+             for each tt-wm WHERE lookup(tt-wm.m-code,cTSPostFGMachineCodes) > 0:
                   i = i + 1.
              END.
              i = i + 2.
@@ -561,7 +561,7 @@ do v-local-loop = 1 to v-local-copies:
                  .
         
              i = 0.
-             for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0  by tt-wm.dseq:
+             for each tt-wm WHERE lookup(tt-wm.m-code,cTSPostFGMachineCodes) > 0  by tt-wm.dseq:
                i = i + 1.
                display tt-wm.dscr AT 3
                     tt-wm.s-hr when tt-wm.s-hr ne 0

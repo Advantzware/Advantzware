@@ -139,9 +139,6 @@ DEFINE VARIABLE dMinute AS DECIMAL NO-UNDO .
 
 {custom/formtext.i NEW}
 {sys/inc/notes.i}
-DO TRANSACTION:
-   {sys/inc/tspostfg.i}
-END.
 {cecrep/jc-prem.i}
 {custom/notesdef.i}
 DEFINE VARIABLE v-dept-inst AS cha FORM "x(80)" EXTENT 15 NO-UNDO.
@@ -178,6 +175,8 @@ RUN sys/ref/nk1look.p (
     ).
 lProdAceBarScan = lProdAceBarScan AND cProdAceBarScan EQ "YES".
 
+DEFINE VARIABLE cTSPostFGMachineCodes AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSPostFGMachineCodes", OUTPUT cTSPostFGMachineCodes).
 
 
 FUNCTION display-i-name RETURNS CHARACTER
@@ -1286,7 +1285,7 @@ ASSIGN
              v-tmp-line = v-tmp-line + 12 .
         
              i = 0.
-             FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,tspostfg-char) > 0:
+             FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,cTSPostFGMachineCodes) > 0:
                   i = i + 1.
              END.
              i = i + 2.
@@ -1296,7 +1295,7 @@ ASSIGN
                  .
         
              i = 0.
-             FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,tspostfg-char) > 0  BY tt-wm.dseq:
+             FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,cTSPostFGMachineCodes) > 0  BY tt-wm.dseq:
                i = i + 1.
                DISPLAY tt-wm.dscr AT 3
                     tt-wm.s-hr WHEN tt-wm.s-hr NE 0

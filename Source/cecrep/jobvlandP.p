@@ -56,9 +56,8 @@ DEF VAR lv-over-run AS DECIMAL NO-UNDO.
 DEF VAR ls-fgitem-img AS cha FORM "x(50)" NO-UNDO.
 DEF VAR v-qa-text AS cha FORM "x(30)" INIT "6/05 Job Ticket QF-119 Rev.A" NO-UNDO.
 
-DO TRANSACTION:
-   {sys/inc/tspostfg.i}
-END.
+DEFINE VARIABLE cTSPostFGMachineCodes AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSPostFGMachineCodes", OUTPUT cTSPostFGMachineCodes).
 
    FIND FIRST sys-ctrl
        WHERE sys-ctrl.company EQ cocode
@@ -739,7 +738,7 @@ do v-local-loop = 1 to v-local-copies:
               v-tmp-line = v-tmp-line + 12
               i = 0.
 
-           for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0:
+           for each tt-wm WHERE lookup(tt-wm.m-code,cTSPostFGMachineCodes) > 0:
                 i = i + 1.
            END.
            i = i + 2.
@@ -748,7 +747,7 @@ do v-local-loop = 1 to v-local-copies:
                "<=1><R+" + string(v-tmp-line + 1) + ">" FORM "x(20)".
 
            i = 0.
-           for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0  by tt-wm.dseq:
+           for each tt-wm WHERE lookup(tt-wm.m-code,cTSPostFGMachineCodes) > 0  by tt-wm.dseq:
              i = i + 1.
              display tt-wm.dscr AT 3
                   tt-wm.s-hr when tt-wm.s-hr ne 0

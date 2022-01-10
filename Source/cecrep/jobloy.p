@@ -112,9 +112,8 @@ ASSIGN
    FILE-INFO:FILE-NAME = ls-image1
    ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 
-DO TRANSACTION:
-   {sys/inc/tspostfg.i}
-END.
+DEFINE VARIABLE cTSPostFGMachineCodes AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSPostFGMachineCodes", OUTPUT cTSPostFGMachineCodes).
 
 assign
  v-line[1] = chr(95) + fill(chr(95),40) + chr(95) + "  " +
@@ -930,7 +929,7 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
              v-tmp-line = v-tmp-line + 12 .
         
              i = 0.
-             for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0:
+             for each tt-wm WHERE lookup(tt-wm.m-code,cTSPostFGMachineCodes) > 0:
                   i = i + 1.
              END.
              i = i + 2.
@@ -938,7 +937,7 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
                  "<=1><R+" + string(v-tmp-line + 1) + "><C2><FROM><R+" + string(i) + "><C78><RECT><||3>" FORM "x(150)" SKIP
                  "<=1><R+" + string(v-tmp-line + 1) + ">" FORM "x(20)".
              i = 0.
-             for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0  by tt-wm.dseq:
+             for each tt-wm WHERE lookup(tt-wm.m-code,cTSPostFGMachineCodes) > 0  by tt-wm.dseq:
                i = i + 1.
                display tt-wm.dscr AT 3
                     tt-wm.s-hr when tt-wm.s-hr ne 0

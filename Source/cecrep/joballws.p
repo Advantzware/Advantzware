@@ -108,9 +108,8 @@ DEF VAR v-embaflag AS LOG NO-UNDO.
 
 {cecrep/jc-fibre.i }
 
-DO TRANSACTION:
-   {sys/inc/tspostfg.i}
-END.
+DEFINE VARIABLE cTSPostFGMachineCodes AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSPostFGMachineCodes", OUTPUT cTSPostFGMachineCodes).
 
 {cecrep/jc-prem.i}
 {custom/formtext.i NEW}
@@ -1059,7 +1058,7 @@ DO v-local-loop = 1 TO v-local-copies:
              ASSIGN v-tmp-line = v-tmp-line + 10
                     i = 0.
 
-             FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,tspostfg-char) > 0:
+             FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,cTSPostFGMachineCodes) > 0:
                 ASSIGN i = i + 1.
              END.
 
@@ -1073,7 +1072,7 @@ DO v-local-loop = 1 TO v-local-copies:
 
             
              ASSIGN i = 0.
-             FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,tspostfg-char) > 0  
+             FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,cTSPostFGMachineCodes) > 0  
                BY tt-wm.dsEQ:
 
                ASSIGN i = i + 1.

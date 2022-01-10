@@ -47,7 +47,7 @@
     RUN Shift-Data(company_code,emplogin.machine,emplogin.shift,
                    OUTPUT starttime,OUTPUT endtime).
     
-    IF tsdocksec-log AND
+    IF lTSDockSec AND
        employee.dock-time GT 0 AND
        endtime NE li-time-no-dock THEN
        ASSIGN
@@ -286,7 +286,7 @@
              RUN Shift-Data(company_code,machinecode,machemp.shift,
                             OUTPUT starttime,OUTPUT endtime).
              
-             IF tsdocksec-log AND
+             IF lTSDockSec AND
                 employee.dock-time GT 0 AND
                 endtime NE li-time-no-dock THEN
                 ASSIGN

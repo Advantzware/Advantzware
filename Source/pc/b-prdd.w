@@ -79,7 +79,6 @@ DEF TEMP-TABLE w-jm NO-UNDO
 DEF BUFFER bf-prdd FOR pc-prdd.
 
 DO TRANSACTION:
-   {sys/inc/tspostfg.i}
    {sys/inc/fgrecpt.i}
 END.
 

@@ -134,11 +134,11 @@ DEF BUFFER b-itemfg FOR itemfg.
 DEF VAR v-sampreq LIKE reftable.val[2] NO-UNDO.
 
 {cecrep/jc-fibre.i }
-DO TRANSACTION:
-   {sys/inc/tspostfg.i}
-END.
 {cecrep/jc-prem.i}
 {custom/formtext.i NEW}
+
+DEFINE VARIABLE cTSPostFGMachineCodes AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSPostFGMachineCodes", OUTPUT cTSPostFGMachineCodes).
 
 assign
 v-line[1] = chr(95) + fill(chr(95),40) + chr(95) + "  " +
@@ -1210,7 +1210,7 @@ do v-local-loop = 1 to v-local-copies:
         
              /*
              i = 0.
-             for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0:
+             for each tt-wm WHERE lookup(tt-wm.m-code,cTSPostFGMachineCodes) > 0:
                   i = i + 1.
              END.
              i = i + 2.
@@ -1221,7 +1221,7 @@ do v-local-loop = 1 to v-local-copies:
                  .
         
              i = 0.
-             for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0  by tt-wm.dseq:
+             for each tt-wm WHERE lookup(tt-wm.m-code,cTSPostFGMachineCodes) > 0  by tt-wm.dseq:
                i = i + 1.
                display tt-wm.dscr AT 3
                     tt-wm.s-hr when tt-wm.s-hr ne 0

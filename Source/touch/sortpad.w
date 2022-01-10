@@ -47,14 +47,16 @@ DEFINE INPUT PARAMETER lAlwaysShow AS LOGICAL NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
-DO TRANSACTION:
-   {sys/inc/tskey.i}
-END.
+
+DEFINE VARIABLE lTSKeyboard   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cTSKeyboard   AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSKeyboard",   OUTPUT cTSKeyboard).
+ASSIGN lTSKeyboard = cTSKeyboard EQ "YES".
 
 IF lAlwaysShow THEN
-tskey-log = YES.
+lTSKeyboard = YES.
 
-IF NOT tskey-log THEN
+IF NOT lTSKeyboard THEN
    RETURN.
 
 /* _UIB-CODE-BLOCK-END */

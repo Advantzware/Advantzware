@@ -38,11 +38,30 @@ CREATE WIDGET-POOL.
 {custom/emprate.i}
 {methods/defines/globdefs.i}
 
-DEFINE VARIABLE lv-timer     AS INTEGER   NO-UNDO. /* clock timer */
-DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lTsampmWarn  AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lTSBreaksQty AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lTSBreaks    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lv-timer              AS INTEGER   NO-UNDO. /* clock timer */
+DEFINE VARIABLE lRecFound             AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lTSBreaksQty          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lTSComplete           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lTSDockSec            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lTSEndWash            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lTSKeyboard           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lTSQty                AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lTSTimeB              AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lTSPostFG             AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lTSPostFGSets         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lTSAMPMWarn           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cTSQty                AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTSKeyboard           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTSDockSec            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTSBreaksQty          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTSBreaks             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTSAMPMWarn           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTSComplete           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTSEndWash            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTSTimeB              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTSPostFG             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTSPostFGSets         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTSPostFGMachineCodes AS CHARACTER NO-UNDO.
 
 {sys/inc/var.i NEW SHARED}
 
@@ -50,24 +69,35 @@ ASSIGN cocode = g_company
        locode = g_loc.
 
 DO TRANSACTION:
-   {sys/inc/tspostfg.i}
    {sys/inc/fgrecpt.i}
-   {sys/inc/tsqty.i}
    {sys/inc/tsfinish.i}
-   {sys/inc/tsdocksec.i}
-   {sys/inc/tscomplete.i}
-   {sys/inc/tstimeb.i}
-   {sys/inc/tsendwash.i}
-   {sys/inc/tskey.i}
 END.
 
+RUN spGetSettingByName ("TSAMPMWarn",           OUTPUT cTSAMPMWarn).
+RUN spGetSettingByName ("TSBREAKSQTY",          OUTPUT cTSBreaksQty).
+RUN spGetSettingByName ("TSBreaks",             OUTPUT cTSBreaks).
+RUN spGetSettingByName ("TSComplete",           OUTPUT cTSComplete).
+RUN spGetSettingByName ("TSDockSec",            OUTPUT cTSDockSec).
+RUN spGetSettingByName ("TSEndWash",            OUTPUT cTSEndWash).
+RUN spGetSettingByName ("TSKeyboard",           OUTPUT cTSKeyboard).
+RUN spGetSettingByName ("TSQty",                OUTPUT cTSQty).
+RUN spGetSettingByName ("TSTimeB",              OUTPUT cTSTimeB).
+RUN spGetSettingByName ("TSPostFGMachineCodes", OUTPUT cTSPostFGMachineCodes).
+RUN spGetSettingByName ("TSPostFGSets",         OUTPUT cTSPostFGSets).
+RUN spGetSettingByName ("TSPostFG",             OUTPUT cTSPostFG).
 
-DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
-oSetting = NEW system.Setting().
 
-lTsampmWarn  = LOGICAL(oSetting:GetByName("TSAMPMWarn")).
-lTSBreakSQty = LOGICAL(oSetting:GetByName("TSBREAKSQTY")).
-lTSBreaks    = LOGICAL(oSetting:GetByName("TSBREAKS")).
+ASSIGN 
+    lTSAMPMWarn   = cTSAMPMWarn     EQ "YES" 
+    lTSBreaksQty  = cTSBreaksQty    EQ "YES" 
+    lTSComplete   = cTSComplete     EQ "YES" 
+    lTSDockSec    = cTSDockSec      EQ "YES" 
+    lTSEndWash    = cTSEndWash      EQ "YES" 
+    lTSQty        = cTSQty          EQ "YES" 
+    lTSTimeB      = cTSTimeB        EQ "YES"
+    lTSPostFGSets = cTSPostFGSets   EQ "YES" 
+    lTSPostFG     = cTSPostFG       EQ "YES"
+    .
 
 DEF VAR v-time-clock-off AS LOG  NO-UNDO.
 
@@ -409,7 +439,7 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_AMPM s-object
 ON CHOOSE OF Btn_AMPM IN FRAME F-Main /* AM */
 DO:
-    IF lTsampmWarn THEN DO:
+    IF lTSAMPMWarn THEN DO:
         MESSAGE "Are you sure you want to change the AM/PM value?"
                      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
         IF ll-ans THEN DO:
@@ -564,7 +594,7 @@ DEF VAR v-out AS INT NO-UNDO.
 DEF VAR v-runqty AS INT NO-UNDO.
 DEF VAR v-wasteqty AS INT NO-UNDO.
 
-IF NOT v-tsqty-log THEN RETURN.
+IF NOT lTSQty THEN RETURN.
 
 {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
 {methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}
@@ -981,7 +1011,7 @@ PROCEDURE Init_Job :
                                  AND AVAILABLE jobseq
                                  AND jobseq.charge_code  NE charge_code)
                                   OR v-tsfinish-char-val EQ "NO"
-                                  OR (tsendwash-log      EQ YES
+                                  OR (lTSEndWash         EQ YES
                                  AND job_sequence    BEGINS "END WASH UP") THEN "NO"
                             ELSE "YES"
                             .
@@ -1012,7 +1042,7 @@ PROCEDURE Init_Job :
     v-time-clock-off = NO
     timerStatus:SCREEN-VALUE = setTimerStatus(NO).
 
-  IF NOT v-can-update AND tstimeb-log EQ NO THEN DO:
+  IF NOT v-can-update AND lTSTimeB EQ NO THEN DO:
       ASSIGN btn_hour:SENSITIVE IN FRAME {&FRAME-NAME} = NO
              btn_minute:SENSITIVE = NO
              btn_ampm:SENSITIVE = NO
@@ -1192,7 +1222,7 @@ PROCEDURE Job_Data_Collection :
         ELSE DO: /* close out current operation */
             {methods/run_link.i "CONTAINER" "Get_MachTran_Rowid" "(OUTPUT machtran-rowid)"}
             FIND machtran EXCLUSIVE-LOCK WHERE ROWID(machtran) EQ machtran-rowid.
-            IF lTSBreaks THEN DO:
+            IF cTSBreaks EQ "yes" THEN DO:
                 FIND FIRST shift_break NO-LOCK
                      WHERE shift_break.company   EQ machtran.company
                        AND shift_break.shift      EQ machtran.shift
@@ -1219,7 +1249,7 @@ PROCEDURE Job_Data_Collection :
             EMPTY TEMP-TABLE ttTrans.
 
             IF LOOKUP(charge_code,"MR,RUN")       GT 0 AND
-              (LOOKUP(machine_code,tspostfg-char) GT 0 OR
+              (LOOKUP(machine_code,cTSPostFGMachineCodes) GT 0 OR
                CAN-FIND(FIRST mach
                         WHERE mach.company EQ company_code
                           AND mach.m-code  EQ machine_code
@@ -1378,7 +1408,7 @@ PROCEDURE Job_Data_Collection :
             &endif
             
             /* create breaks if tsbreaks turned on */
-            IF lTSBreaks THEN DO:
+            IF cTSBreaks EQ "yes" THEN DO:
                 FOR EACH ttTrans
                     WHERE ttTrans.chargeCode EQ cChargeCode
                       AND ttTrans.done       EQ NO
@@ -1418,7 +1448,7 @@ PROCEDURE Job_Data_Collection :
                             .
                     END. /* each shift_break */
                 END. /* each ttTrans */
-            END. /* if lTSBreaks */
+            END. /* if cTSBreaks */
             
             /* remove done tttrans that have zeroed out */
             FOR EACH ttTrans
@@ -1714,8 +1744,8 @@ PROCEDURE Job_Data_Collection_2 :
                   AND job-mch.frm     EQ integer(form_number)                                 
                 USE-INDEX line-idx NO-ERROR.
             IF AVAILABLE job-mch AND
-                LOOKUP(job-mch.m-code,tspostfg-char) GT 0 AND
-                tspostfg-int EQ 1 THEN DO:
+                LOOKUP(job-mch.m-code,cTSPostFGMachineCodes) GT 0 AND
+                lTSPostFGSets THEN DO:
                 FIND PREV job-mch NO-LOCK
                     WHERE job-mch.company EQ company_code
                       AND job-mch.job-no  EQ job_number
@@ -1723,7 +1753,7 @@ PROCEDURE Job_Data_Collection_2 :
                       AND job-mch.frm     EQ INTEGER(form_number)                                 
                     USE-INDEX line-idx NO-ERROR.
                 IF AVAILABLE job-mch AND job-mch.m-code EQ machine_code THEN DO:
-                    IF tspostfg-log THEN RUN proc-form-cmplt (ipdtToday).
+                    IF lTSPostFG THEN RUN proc-form-cmplt (ipdtToday).
                 END. /* avail job-mch */
             END. /* avail / lookup */
 
@@ -1735,11 +1765,11 @@ PROCEDURE Job_Data_Collection_2 :
                   AND job-mch.frm     EQ integer(form_number)                                 
                 USE-INDEX line-idx NO-ERROR.
             IF AVAILABLE job-mch AND job-mch.m-code EQ machine_code THEN DO:
-                IF LOOKUP(machine_code,tspostfg-char) GT 0 AND tspostfg-int EQ 1 THEN DO:
-                    IF tspostfg-log THEN RUN proc-set-cmplt (ipdtToday).
+                IF LOOKUP(machine_code,cTSPostFGMachineCodes) GT 0 AND lTSPostFGSets THEN DO:
+                    IF lTSPostFG THEN RUN proc-set-cmplt (ipdtToday).
                 END. /* if lookup */
                 ELSE DO:
-                    IF tspostfg-log THEN RUN proc-form-cmplt (ipdtToday).
+                    IF lTSPostFG THEN RUN proc-form-cmplt (ipdtToday).
                 END. /* components receoipt */
             END. /* avail job-mch */
         END. /* else,  no TSPARTS*/
@@ -1763,7 +1793,7 @@ PROCEDURE Job_Data_Collection_2 :
                          ELSE bMachTran.complete.
         END. /* for each */
  
-        IF NOT lCompleted AND tscomplete-log THEN
+        IF NOT lCompleted AND lTSComplete THEN
             MESSAGE "IS OPERATION FOR MACHINE" CAPS(machine_code) "COMPLETE?" SKIP
                 "Job Qty:" iJobQty "  Total Run Qty:" iRunQty  
                 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
@@ -1840,27 +1870,6 @@ PROCEDURE Key_Stroke :
      lv-timer = INTEGER(time-hour:SCREEN-VALUE) * 3600
               + INTEGER(time-minute:SCREEN-VALUE) * 60.
   END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy s-object 
-PROCEDURE local-destroy :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  IF VALID-OBJECT(oSetting) THEN
-        DELETE OBJECT oSetting.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
 
@@ -2998,7 +3007,7 @@ PROCEDURE proc-tsparts :
                                     AND job-mch.job-no2 EQ INTEGER(job_sub)
                                     AND job-mch.frm    EQ integer(form_number)                                 
                      USE-INDEX line-idx NO-LOCK NO-ERROR.
-             IF AVAIL job-mch AND lookup(job-mch.m-code,tspostfg-char) > 0 /*AND tspostfg-int = 1 */
+             IF AVAIL job-mch AND lookup(job-mch.m-code,cTSPostFGMachineCodes) > 0 /*AND lTSPostFGSets */
              THEN DO:  /* task for setheader receipt */
                 FIND PREV job-mch WHERE job-mch.company EQ company_code
                                     /*AND job-mch.job     EQ pc-prdd.job*/
@@ -3007,7 +3016,7 @@ PROCEDURE proc-tsparts :
                                     AND job-mch.frm    EQ integer(form_number)                                 
                         USE-INDEX line-idx NO-LOCK NO-ERROR.
                 IF AVAIL job-mch AND job-mch.m-code = machine_code THEN DO:
-                   IF tspostfg-log THEN RUN proc-form-cmplt(INPUT v-today).
+                   IF lTSPostFG THEN RUN proc-form-cmplt(INPUT v-today).
                 END.
              END.
     
@@ -3019,11 +3028,11 @@ PROCEDURE proc-tsparts :
                                     AND job-mch.frm    EQ integer(form_number)                                 
                      USE-INDEX line-idx NO-LOCK NO-ERROR.
              IF AVAIL job-mch AND job-mch.m-code = machine_code THEN DO:
-                IF LOOKUP(machine_code,tspostfg-char) > 0 /*AND tspostfg-int = 1*/ THEN DO:  /* mods for set header receipts */
-                     /*IF tspostfg-log THEN run proc-set-cmplt. */
+                IF LOOKUP(machine_code,cTSPostFGMachineCodes) > 0 /*AND lTSPostFGSets*/ THEN DO:  /* mods for set header receipts */
+                     /*IF lTSPostFG THEN run proc-set-cmplt. */
                 END.
                 ELSE DO:
-                     IF tspostfg-log THEN RUN proc-form-cmplt(INPUT v-today).
+                     IF lTSPostFG THEN RUN proc-form-cmplt(INPUT v-today).
                 END.  /* components receipt */
              END.      
          END.
@@ -3055,7 +3064,7 @@ PROCEDURE Reset_Field_Colors :
       waste-qty:FGCOLOR = 15
       waste-qty:BGCOLOR = 0
       .
-/*    IF tskey-log EQ NO THEN             */
+/*    IF lTSKeyboard EQ NO THEN             */
 /*       ASSIGN time-hour:SENSITIVE = NO  */
 /*              time-minute:SENSITIVE = NO*/
 /*              run-qty:SENSITIVE = NO    */
@@ -3083,7 +3092,7 @@ PROCEDURE Set_Field_Colors :
         h_field:BGCOLOR = 3 /* tiel */
         .
     
-/*     IF tskey-log EQ NO THEN*/
+/*     IF lTSKeyboard EQ NO THEN*/
 /*     DO:                    */
         h_field:SENSITIVE = YES.
         APPLY "ENTRY":U TO h_field.
@@ -3292,7 +3301,7 @@ FUNCTION ftsDockSec RETURNS LOGICAL
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    RETURN tsdocksec-log AND SUBSTRING(STRING(ipiTime,"HH:MM:SS"),7,2) EQ "59".
+    RETURN lTSDockSec AND SUBSTRING(STRING(ipiTime,"HH:MM:SS"),7,2) EQ "59".
 
 END FUNCTION.
 

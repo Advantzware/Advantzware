@@ -71,7 +71,6 @@ DEFINE BUFFER bf-prdd FOR pc-prdd.
 DO TRANSACTION:
     {sys/inc/dcpostgl.i}
     {sys/inc/tspost.i}
-    {sys/inc/tspostfg.i}
     {sys/inc/fgrecpt.i}
 END.
 

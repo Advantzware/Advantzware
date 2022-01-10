@@ -21,7 +21,6 @@ FIND pc-prdd WHERE ROWID(pc-prdd) EQ v-rowid NO-LOCK NO-ERROR.
 IF NOT AVAIL pc-prdd THEN RETURN.    
 
 {sys/inc/autopdc.i}
-{sys/inc/tspostfg.i}
 {sys/inc/fgrecpt.i}
 
 IF fgrecpt-char EQ "AUTOPOST" THEN DO:

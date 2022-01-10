@@ -45,9 +45,6 @@ IF g_company = "" THEN DO:
    IF AVAIL company THEN g_company = company.company.
 END.
 
-DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
-oSetting = NEW system.Setting().
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -199,16 +196,13 @@ DO:
   DEFINE VARIABLE v-passwd         AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cTSClockPassword AS CHARACTER NO-UNDO.
   RUN custom/d-passwd (OUTPUT v-passwd).
-  cTSClockPassword = STRING(oSetting:GetByName("TSClockPassword")).
+  RUN spGetSettingByName ("TSClockPassword", OUTPUT cTSClockPassword).
   
   IF cTSClockPassword NE v-passwd THEN DO:
      MESSAGE "Invalid Password. " VIEW-AS ALERT-BOX ERROR.
      RETURN NO-APPLY.
   END.
 
-  IF VALID-OBJECT(oSetting) THEN
-        DELETE OBJECT oSetting.
-  
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.

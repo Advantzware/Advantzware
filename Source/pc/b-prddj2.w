@@ -80,7 +80,6 @@ DEFINE VARIABLE hdJobProcs   AS HANDLE    NO-UNDO.
 DEF TEMP-TABLE tt-prdd2 NO-UNDO LIKE tt-prdd.
 
 DO TRANSACTION:
-   {sys/inc/tspostfg.i}
    {sys/inc/fgrecpt.i}
 END.
 

@@ -2,12 +2,14 @@
 
 {methods/defines/globdefs.i}
 
+DEFINE VARIABLE cTSTime AS CHARACTER NO-UNDO.
+
 IF CONNECTED("asi") THEN DO:
-   {sys/inc/tstime.i}
+   RUN spGetSettingByName ("TSTime", OUTPUT cTSTime).
 END.
 
-SESSION:TIME-SOURCE = IF connected("asi") and
-                         tstime-cha = "Workstation" THEN "local"
+SESSION:TIME-SOURCE = IF CONNECTED("asi") 
+                      AND cTSTime EQ "Workstation" THEN "local"
                       ELSE "ASI".
 
 

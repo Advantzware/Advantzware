@@ -90,9 +90,6 @@ DEF NEW SHARED VAR v-adder-4 AS CHAR FORMAT "X(10)" NO-UNDO.
 DEF NEW SHARED VAR v-adder-5 AS CHAR FORMAT "X(10)" NO-UNDO.
 DEF NEW SHARED VAR v-adder-6 AS CHAR FORMAT "X(10)" NO-UNDO.
 
-DO TRANSACTION:
-   {sys/inc/tspostfg.i}
-END.
 DEF VAR ls-fgitem-img AS cha FORM "x(50)" NO-UNDO.
 DEF VAR v-po-due-date AS DATE FORM "99/99/9999" NO-UNDO.
 
@@ -108,6 +105,9 @@ def var v         as   INT NO-UNDO.
 def TEMP-TABLE w-rec NO-UNDO
     field w-recdate as date
     field w-rec-qty as dec.
+    
+DEFINE VARIABLE cTSPostFGMachineCodes AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSPostFGMachineCodes", OUTPUT cTSPostFGMachineCodes).
 
 /****************************************************************************/
 PROCEDURE PR-ship:
@@ -773,7 +773,7 @@ do v-local-loop = 1 to v-local-copies:
              v-tmp-line = v-tmp-line + 12 .
         
              i = 0.
-             for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0:
+             for each tt-wm WHERE lookup(tt-wm.m-code,cTSPostFGMachineCodes) > 0:
                   i = i + 1.
              END.
              i = i + 2.
@@ -783,7 +783,7 @@ do v-local-loop = 1 to v-local-copies:
                  .
         
              i = 0.
-             for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0  by tt-wm.dseq:
+             for each tt-wm WHERE lookup(tt-wm.m-code,cTSPostFGMachineCodes) > 0  by tt-wm.dseq:
                i = i + 1.
                display tt-wm.dscr AT 3
                     tt-wm.s-hr when tt-wm.s-hr ne 0

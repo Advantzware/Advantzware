@@ -416,14 +416,8 @@ ASSIGN
     locode = asiLocation
     .
 
-DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
-oSetting = NEW system.Setting().
-
-cTSTime    = STRING(oSetting:GetByName("TSTime")).
+RUN spGetSettingByName ("TSTime", OUTPUT cTSTime).
 SESSION:TIME-SOURCE = IF cTSTime EQ "WorkStation" THEN "Local" ELSE "ASI".
-
-IF VALID-OBJECT(oSetting) THEN
-  DELETE OBJECT oSetting.
 
 ASSIGN
   useDeptSort = SEARCH(findProgram('{&data}/',ID,'/useDeptSort.dat')) NE ?

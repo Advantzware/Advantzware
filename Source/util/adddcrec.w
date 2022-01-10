@@ -533,7 +533,6 @@ FOR EACH tt-job-hdr:
 END.
 
 {sys/inc/autopdc.i}
-{sys/inc/tspostfg.i}
 {sys/inc/fgrecpt.i}
 
 IF fgrecpt-char EQ "AUTOPOST" THEN DO:

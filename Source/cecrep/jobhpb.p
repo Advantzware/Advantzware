@@ -96,9 +96,6 @@ DEF VAR v-qa-text AS cha FORM "x(30)" INIT "6/05 Job Ticket QF-119 Rev.A" NO-UND
 
 {custom/formtext.i NEW}
 {sys/inc/notes.i}
-DO TRANSACTION:
-   {sys/inc/tspostfg.i}
-END.
 {cecrep/jc-prem.i}
 {custom/notesdef.i}
 DEF VAR v-dept-inst AS cha FORM "x(80)" EXTENT 15 NO-UNDO.

@@ -107,8 +107,6 @@ DEFINE STREAM excel.
 DO TRANSACTION:
     {sys/inc/dcpostgl.i}
     {sys/inc/tspost.i}
-    {sys/inc/tspostfg.i}
-    {sys/inc/tssecure.i}  
 END.
 
 DEFINE VARIABLE v-autopost AS LOG NO-UNDO.
@@ -128,6 +126,16 @@ DEFINE VARIABLE cFileName        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lInvalid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hdJobProcs       AS HANDLE    NO-UNDO. 
 RUN jc/Jobprocs.p   PERSISTENT SET hdJobProcs.
+
+DEFINE VARIABLE lTSSecure         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cTSSecure         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTSSecurePassword AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSSecure",         OUTPUT cTSSecure).
+RUN spGetSettingByName ("TSSecurePassword", OUTPUT cTSSecurePassword).
+
+ASSIGN 
+    lTSSecure = cTSSecure EQ "YES"
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -934,11 +942,11 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             RETURN.
         END. /* t-purge */
   &ELSE
-        IF t-prt-rate AND lv-tssecure THEN 
+        IF t-prt-rate AND lTSSecure THEN 
         DO:
             DEFINE VARIABLE lv-passwd AS CHARACTER NO-UNDO.
             RUN custom/d-passwd.w (OUTPUT lv-passwd).
-            IF lv-tssecure AND lv-tssecure-val <> lv-passwd THEN 
+            IF lTSSecure AND cTSSecurePassword NE lv-passwd THEN 
             DO:
                 MESSAGE "Security Error! Invalid Password. " VIEW-AS ALERT-BOX ERROR.
                 t-prt-rate = NO.

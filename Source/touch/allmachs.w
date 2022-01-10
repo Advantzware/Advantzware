@@ -33,9 +33,10 @@ CREATE WIDGET-POOL.
 {touch/touchdef.i}
 {custom/globdefs.i}
 
-DO TRANSACTION:
-   {sys/inc/tskey.i}
-END.
+DEFINE VARIABLE lTSKeyboard   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cTSKeyboard   AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSKeyboard",   OUTPUT cTSKeyboard).
+ASSIGN lTSKeyboard = cTSKeyboard EQ "YES".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -176,7 +177,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL keystroke s-object
 ON VALUE-CHANGED OF keystroke IN FRAME F-Main /* Machine Filter */
 DO:
-   IF tskey-log = NO THEN
+   IF lTSKeyboard = NO THEN
    DO:
       IF keystroke:SCREEN-VALUE NE "" THEN
          RUN key_stroke(INPUT SUBSTRING(keystroke:SCREEN-VALUE,LENGTH(keystroke:SCREEN-VALUE))).
@@ -371,7 +372,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF tskey-log EQ NO THEN
+  IF lTSKeyboard EQ NO THEN
      keystroke:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
 END PROCEDURE.
 

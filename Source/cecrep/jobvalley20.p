@@ -114,9 +114,8 @@ DEFINE NEW SHARED WORKFILE wrk-ink
     FIELD side AS CHARACTER .
 
 
-DO TRANSACTION:
-    {sys/inc/tspostfg.i}
-END.
+DEFINE VARIABLE cTSPostFGMachineCodes AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSPostFGMachineCodes", OUTPUT cTSPostFGMachineCodes).
 
 FIND FIRST sys-ctrl
     WHERE sys-ctrl.company EQ cocode
@@ -1052,7 +1051,7 @@ DO v-local-loop = 1 TO v-local-copies:
             v-tmp-line = v-tmp-line + 12 .
         
             i = 0.
-            FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,tspostfg-char) > 0:
+            FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,cTSPostFGMachineCodes) > 0:
                 i = i + 1.
             END.
             i = i + 2.
@@ -1063,7 +1062,7 @@ DO v-local-loop = 1 TO v-local-copies:
             .
         
             i = 0.
-            FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,tspostfg-char) > 0  BY tt-wm.dseq:
+            FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,cTSPostFGMachineCodes) > 0  BY tt-wm.dseq:
                 i = i + 1.
                 DISPLAY tt-wm.dscr AT 3
                     tt-wm.s-hr 

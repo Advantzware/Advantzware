@@ -31,9 +31,9 @@ DEFINE                   VARIABLE m_id            AS CHARACTER NO-UNDO.
 DEFINE                   VARIABLE ldummy          AS LOGICAL   NO-UNDO.
 DEFINE                   VARIABLE i               AS INTEGER   NO-UNDO.
 DEFINE                   VARIABLE lExit           AS LOGICAL   NO-UNDO.
-DEFINE                   VARIABLE tslogin-log     AS LOGICAL   NO-UNDO.
 DEFINE                   VARIABLE lFound          AS LOGICAL   NO-UNDO.
-DEFINE                   VARIABLE cTsLogin        AS CHARACTER NO-UNDO.
+DEFINE                   VARIABLE lTSLogin        AS LOGICAL   NO-UNDO.
+DEFINE                   VARIABLE cTSLogin        AS CHARACTER NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE cIniLoc         AS CHARACTER NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE cUsrLoc         AS CHARACTER NO-UNDO.
 
@@ -59,7 +59,8 @@ END.
 
 /* Need to obtain the nk1 value without a company # */
 IF "{&appName}" EQ "Touchscreen" THEN
-  RUN sys/inc/tslogin.p (OUTPUT tslogin-log).
+  RUN spGetSettingByName ("TSLogin",  OUTPUT cTSLogin).
+  ASSIGN lTSLogin = cTSLogin EQ "YES".
 
 /* If a login procedure is specified */
 &IF DEFINED(loginProcedure) NE 0  &THEN
@@ -248,7 +249,7 @@ END PROCEDURE.
 PROCEDURE setUserProc:
     /* Touchscreen may not prompt so check for tslogin for touch programs */
     IF "{&appName}" NE "touchscreen" OR
-      ("{&appName}" EQ "touchscreen" AND tslogin-log ) THEN DO:
+      ("{&appName}" EQ "touchscreen" AND lTSLogin ) THEN DO:
         m_id = OS-GETENV("opsysid").
 
         IF m_id = ? THEN m_id = "".

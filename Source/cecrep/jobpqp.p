@@ -11,9 +11,8 @@
 {custom/notesdef.i}
 {cecrep/jc-prem.i}
 
-DO TRANSACTION:
-   {sys/inc/tspostfg.i}
-END.
+DEFINE VARIABLE cTSPostFGMachineCodes AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSPostFGMachineCodes", OUTPUT cTSPostFGMachineCodes).
 
 &SCOPED-DEFINE PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
@@ -533,7 +532,7 @@ DO v-local-loop = 1 TO v-local-copies:
            v-tmp-line = v-tmp-line + 13 .
 
            i = 0.
-           for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0:
+           for each tt-wm WHERE lookup(tt-wm.m-code,cTSPostFGMachineCodes) > 0:
                 i = i + 1.
            END.
            i = i + 2.
@@ -542,7 +541,7 @@ DO v-local-loop = 1 TO v-local-copies:
                "<=1><R+" + string(v-tmp-line + 1) + ">" FORM "x(20)".
 
            i = 0.
-           for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0  by tt-wm.dseq:
+           for each tt-wm WHERE lookup(tt-wm.m-code,cTSPostFGMachineCodes) > 0  by tt-wm.dseq:
              i = i + 1.
              display tt-wm.dscr AT 3
                   tt-wm.s-hr when tt-wm.s-hr ne 0

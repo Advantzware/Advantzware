@@ -6,10 +6,13 @@ DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 DEFINE NEW SHARED VARIABLE quit_login AS LOGICAL NO-UNDO.
 DEFINE VARIABLE m_id LIKE NOSWEAT._user._userid NO-UNDO.
+DEFINE VARIABLE lTSLogin AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cTSLogin AS CHARACTER NO-UNDO.
 
-{sys/inc/tslogin.i}
+RUN spGetSettingByName ("TSLogin",  OUTPUT cTSLogin).
+ASSIGN lTSLogin = cTSLogin EQ "YES".
 
-IF tslogin-log THEN DO:
+IF lTSLogin THEN DO:
   m_id = OS-GETENV("OPSYSID").
   IF m_id = ? THEN m_id = "".
   IF NOT SETUSERID(m_id,"",ldbname(1)) THEN RUN nosweat/login.w.

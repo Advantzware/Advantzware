@@ -55,9 +55,8 @@ DEFINE VARIABLE lv-under-run AS DECIMAL NO-UNDO.
 DEFINE VARIABLE lv-over-run AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cContact AS CHARACTER NO-UNDO .
 
-DO TRANSACTION:
-   {sys/inc/tspostfg.i}
-END.
+DEFINE VARIABLE cTSPostFGMachineCodes AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSPostFGMachineCodes", OUTPUT cTSPostFGMachineCodes).
 FORMAT HEADER
        /*"F a c t o r y   T i c k e t"    at 2 */
        "<P7><FCourier New>JOB  TICKET" AT 2
@@ -739,7 +738,7 @@ DO v-local-loop = 1 TO v-local-copies:
               v-tmp-line = v-tmp-line + 12
               i = 0.
 
-           FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,tspostfg-char) > 0:
+           FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,cTSPostFGMachineCodes) > 0:
                 i = i + 1.
            END.
            i = i + 2.
@@ -748,7 +747,7 @@ DO v-local-loop = 1 TO v-local-copies:
                "<=1><R+" + string(v-tmp-line + 1) + ">" FORM "x(20)".
 
            i = 0.
-           FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,tspostfg-char) > 0  BY tt-wm.dseq:
+           FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,cTSPostFGMachineCodes) > 0  BY tt-wm.dseq:
              i = i + 1.
              DISPLAY tt-wm.dscr AT 3
                   tt-wm.s-hr WHEN tt-wm.s-hr NE 0

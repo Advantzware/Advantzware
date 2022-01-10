@@ -96,9 +96,6 @@ DEFINE BUFFER bf-itemfg  FOR itemfg.
 DEFINE BUFFER bf-job-mat FOR job-mat.
 DEFINE BUFFER bf-attach FOR asi.attach.
 
-DO TRANSACTION:
-   {sys/inc/tspostfg.i}
-END.
 
    FIND FIRST sys-ctrl
        WHERE sys-ctrl.company EQ cocode

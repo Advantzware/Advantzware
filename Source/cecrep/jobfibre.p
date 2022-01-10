@@ -120,9 +120,6 @@ DEF VAR v-end-note AS INT NO-UNDO.
 
 {custom/formtext.i NEW}
 {sys/inc/notes.i}
-DO TRANSACTION:
-   {sys/inc/tspostfg.i}
-END.
 {cecrep/jc-prem.i}
 {custom/notesdef.i}
 DEF VAR v-dept-inst AS cha FORM "x(80)" EXTENT 15 NO-UNDO.
@@ -136,6 +133,9 @@ DEF SHARED VAR s-prt-set-header AS LOG NO-UNDO.
 DEF VAR v-managed-order AS cha FORM "x(30)" NO-UNDO.
 DEF VAR ll-tandem AS LOG NO-UNDO.
 DEF VAR ll-jqcust AS LOG NO-UNDO.
+
+DEFINE VARIABLE cTSPostFGMachineCodes AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSPostFGMachineCodes", OUTPUT cTSPostFGMachineCodes).
 
 FIND FIRST sys-ctrl NO-LOCK
     WHERE sys-ctrl.company EQ cocode
@@ -990,7 +990,7 @@ assign
              v-tmp-line = v-tmp-line + 12 .
         
              i = 0.
-             for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0:
+             for each tt-wm WHERE lookup(tt-wm.m-code,cTSPostFGMachineCodes) > 0:
                   i = i + 1.
              END.
              i = i + 2.
@@ -1000,7 +1000,7 @@ assign
                  .
         
              i = 0.
-             for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0  by tt-wm.dseq:
+             for each tt-wm WHERE lookup(tt-wm.m-code,cTSPostFGMachineCodes) > 0  by tt-wm.dseq:
                i = i + 1.
                display tt-wm.dscr AT 3
                     tt-wm.s-hr when tt-wm.s-hr ne 0

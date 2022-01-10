@@ -151,9 +151,7 @@ DEFINE VARIABLE v-dept-inst      AS cha              FORM "x(80)" EXTENT 6 NO-UN
 DEFINE VARIABLE v-inst2          AS cha              EXTENT 6 NO-UNDO.
 DEFINE BUFFER bf-item FOR ITEM.
 DEFINE VARIABLE v-type-desc      LIKE ITEM.i-name      NO-UNDO.
-DO TRANSACTION:
-  {sys/inc/tspostfg.i}
-END.
+
 
 DEFINE VARIABLE d2-text AS CHARACTER FORMAT "X(45)" NO-UNDO.
 DEFINE VARIABLE d3-text AS CHARACTER FORMAT "X(45)" NO-UNDO.
@@ -185,6 +183,9 @@ DEF BUFFER b-eb3 FOR eb.
 {custom/formtext.i NEW}
 {sys/inc/notes.i}
 DEFINE BUFFER xshipto FOR shipto.
+
+DEFINE VARIABLE cTSPostFGMachineCodes AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSPostFGMachineCodes", OUTPUT cTSPostFGMachineCodes).
 
 /* {custom/notesdef.i} */
 FUNCTION display-cw-dim RETURNS DECIMAL
@@ -823,7 +824,7 @@ FUNCTION display-cw-dim RETURNS DECIMAL
         v-tmp-line = v-tmp-line + 12 .
         
         i = 0.
-        FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,tspostfg-char) > 0:
+        FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,cTSPostFGMachineCodes) > 0:
           i = i + 1.
         END.
         i = i + 2.
@@ -834,7 +835,7 @@ FUNCTION display-cw-dim RETURNS DECIMAL
         .
         
         i = 0.
-        FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,tspostfg-char) > 0  BY tt-wm.dseq:
+        FOR EACH tt-wm WHERE LOOKUP(tt-wm.m-code,cTSPostFGMachineCodes) > 0  BY tt-wm.dseq:
           i = i + 1.
           DISPLAY tt-wm.dscr AT 3
           tt-wm.s-hr WHEN tt-wm.s-hr NE 0

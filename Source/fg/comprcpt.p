@@ -16,11 +16,14 @@ DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
 
+DEFINE VARIABLE lTSPostFG AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cTSPostFG AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("TSPostFG", OUTPUT cTSPostFG).
+ASSIGN lTSPostFG = cTSPostFG EQ "YES".
 
 DO TRANSACTION:
   {sys/inc/autopost.i}
   {sys/inc/fgsetrec.i}
-  {sys/inc/tspostfg.i}
   {sys/inc/fgrecpt.i}
 END.
 RUN sys/ref/nk1look.p (INPUT cocode,
@@ -54,7 +57,7 @@ FIND FIRST itemfg
 
 IF AVAIL itemfg                     AND
    itemfg.isaset                    AND
-   NOT tspostfg-log                 AND
+   NOT lTSPostFG                    AND
    itemfg.alloc NE NO               AND
    (itemfg.alloc EQ ?          OR
     fgrecpt-char NE "AUTOPOST" OR
