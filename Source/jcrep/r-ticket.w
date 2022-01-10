@@ -3526,9 +3526,13 @@ PROCEDURE run-report :
     FOR EACH wrk-ink:
         DELETE wrk-ink.
     END.
-
+    
+    system.SharedConfig:Instance:SetValue("JobTicket_SpecList", spec-list).
+    
     {jcrep/tickrrpt.i}
 
+    system.SharedConfig:Instance:DeleteValue("JobTicket_SpecList").
+    
     OUTPUT CLOSE.
     
     IF lcRequestData NE "" THEN
