@@ -764,7 +764,7 @@ IF v-bot-lab[4] <> "" THEN do:
      ELSE
      PUT "<R56><p9><C42><#8><FROM><R+10><C+41.4><RECT> " 
             "<=8> Sales      :          EUR           GBP           USD"
-            "<=8><R+1> Conversion :" dExchangeRate[1] FORMAT "->>,>>9.99" " USD" dExchangeRate[2] FORMAT "->>,>>9.99" " USD" "      1.00 USD"
+            "<=8><R+1> Conversion :" dExchangeRate[1] FORMAT "->>,>>9.99<<<<<" " USD" dExchangeRate[2] FORMAT "->>,>>9.99<<<<<" " USD" "      1.00 USD"
             "<=8><R+2> Sub Total  :" (v-subtot-lines * dExchangeRate[1]) FORM "€->,>>>,>>9.99"  (v-subtot-lines * dExchangeRate[2]) FORM "£->,>>>,>>9.99" v-subtot-lines FORM "$->,>>>,>>9.99"
             "<=8><R+3> Freight    :" (v-inv-freight * dExchangeRate[1])  FORMAT "->>,>>>,>>9.99" (v-inv-freight * dExchangeRate[2])  FORMAT "->>,>>>,>>9.99" v-inv-freight FORMAT "->>,>>>,>>9.99"
             "<=8><R+4> " v-bot-lab[1] 
@@ -787,7 +787,7 @@ ELSE do:
     ELSE
     PUT "<R56><p9><C42><#8><FROM><R+8><C+41.4><RECT> " 
         "<=8> Sales      :           EUR           GBP           USD"
-        "<=8><R+1> Conversion :" dExchangeRate[1] FORMAT "->>,>>9.99" " USD" dExchangeRate[2] FORMAT "->>,>>9.99" " USD" "      1.00 USD"
+        "<=8><R+1> Conversion :" dExchangeRate[1] FORMAT "->>,>>9.99<<<<<" " USD" dExchangeRate[2] FORMAT "->>,>>9.99<<<<<" " USD" "      1.00 USD"
         "<=8><R+2> Sub Total  :" (v-subtot-lines * dExchangeRate[1]) FORM "€->,>>>,>>9.99"  (v-subtot-lines * dExchangeRate[2]) FORM "£->,>>>,>>9.99" v-subtot-lines FORM "$->,>>>,>>9.99"
         "<=8><R+3> Freight    :" (v-inv-freight * dExchangeRate[1])  FORMAT "->>,>>>,>>9.99" (v-inv-freight * dExchangeRate[2])  FORMAT "->>,>>>,>>9.99" v-inv-freight FORMAT "->>,>>>,>>9.99"
         "<=8><R+4> " v-bot-lab[1] 
