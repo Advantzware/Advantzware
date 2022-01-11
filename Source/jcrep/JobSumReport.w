@@ -28,13 +28,14 @@ DEFINE VARIABLE list-name AS cha       NO-UNDO.
 DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
-{methods/prgsecur.i}
+
 
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLoc     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cocode   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE locode   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE i        AS INTEGER   NO-UNDO.
+DEFINE VARIABLE v-prgmname AS CHARACTER INIT "JobSumReport" NO-UNDO.
 
 RUN spGetSessionParam("Company", OUTPUT cCompany).
 RUN spGetSessionParam("Location", OUTPUT cLoc).
@@ -44,75 +45,6 @@ locode =  cLoc.
 
 {jc\ttJobReport.i}
 
-DEFINE VARIABLE ll-secure AS LOG NO-UNDO.
-
-DEFINE STREAM excel.
-DEFINE VARIABLE fi_file    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cFileName2 AS CHARACTER NO-UNDO.
-
-ASSIGN
-    fi_file = "c:\tmp\r-jobsumN2.csv".
-
-
-DEFINE VARIABLE v-header-1         AS CHARACTER INIT "FG Item,FG Item Name,Selling Price,Job Quantity,Produced,On Hand" NO-UNDO .
-DEFINE VARIABLE v-header-2         AS CHARACTER INIT "F/B,Department,Std/Act,Machine,Run Qty,Setup Hours,Run Hours,Speed,Cost,Setup Waste,Run Waste,Downtime Code,Downtime Hrs" NO-UNDO .
-DEFINE VARIABLE v-header-3         AS CHARACTER INIT "Material,Std / Act,Quantity,Material Cost," NO-UNDO .
-DEFINE VARIABLE v-header-4         AS CHARACTER INIT "MISC CODE,MISC DESCRIPTION,MISC EST COST,MISC ACT COST,MISC VARI,MISC VAR%" NO-UNDO .
-DEFINE VARIABLE ldummy             AS LOG       NO-UNDO.
-DEFINE VARIABLE cTextListToSelect  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cFieldListToSelect AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cFieldLength       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cFieldType         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cColumnInit        AS LOG       INIT YES NO-UNDO.
-DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
-
-DEFINE VARIABLE fg-str-tit         AS cha       FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE fg-str-tit2        AS cha       FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE fg-str-tit3        AS cha       FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE fg-str-line        AS cha       FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE mach-str-tit       AS cha       FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE mach-str-tit2      AS cha       FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE mach-str-tit3      AS cha       FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE mach-str-line      AS cha       FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE item-str-tit       AS cha       FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE item-str-tit2      AS cha       FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE item-str-tit3      AS cha       FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE item-str-line      AS cha       FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE misc-str-tit       AS cha       FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE misc-str-tit2      AS cha       FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE misc-str-tit3      AS cha       FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE misc-str-line      AS cha       FORM "x(170)" NO-UNDO.
-DEFINE VARIABLE excelheader        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE excelheader1       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE excelheader2       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE excelheader3       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE excelheader4       AS CHARACTER NO-UNDO.
-
-ASSIGN 
-    cTextListToSelect  = "FG Item,FG Item Name,Selling Price,Job Quantity,Produced,On Hand," + 
-                           "---MACHINE HEADER------,F/B,Department,Std/Act,Machine,Run Qty,Setup Hours,Run Hours,Speed,Cost,Setup Waste,Run Waste,Downtime Code,Downtime Hrs," +
-                           "---ITEM HEADER---,Material,Std / Act,Quantity,Material Cost," +
-                           "---MISC HEADER---,MISC CODE,MISC DESCRIPTION,MISC EST COST,MISC ACT COST,MISC VARI,MISC VAR%"
-    cFieldListToSelect = "fg-item,fgitem-name,sel-price,job-qty,produced,on-hand," +
-                            "machheader,form,dept,std-act,machine,run-qty,setup-hrs,run-hrs,speed,cost,setup-waste,run-waste,downtime-code,downtime-hrs," +
-                            "itemheader,material,mat-act,mat-qty,mat-cost," +
-                            "mischeader,misc-code,misc-desc,misc-est-cost,misc-act-cost,misc-vari,misc-vari-per"
-
-    cFieldLength       = "15,30,14,12,12,12," +
-                      "15,5,10,10,10,12,11,10,11,15,12,11,13,12," +
-                      "15,15,10,12,15," +
-                      "15,11,25,10,10,10,10"   
-
-    cFieldType         = "c,c,i,i,i,i," + "c,c,c,c,c,i,i,i,i,i,i,i,c,i," + "c,c,c,i,i," + "c,c,c,i,i,i,i"    .
-
-{sys/inc/ttRptSel.i}
-ASSIGN 
-    cTextListToDefault = "FG Item,FG Item Name,Selling Price,Job Quantity,Produced,On Hand," + 
-                           "---MACHINE HEADER------,F/B,Department,Std/Act,Machine,Run Qty,Setup Hours,Run Hours,Speed,Cost,Setup Waste,Run Waste,Downtime Code,Downtime Hrs," +
-                           "---ITEM HEADER---,Material,Std / Act,Quantity,Material Cost," +
-                           "---MISC HEADER---,MISC CODE,MISC DESCRIPTION,MISC EST COST,MISC ACT COST,MISC VARI,MISC VAR%" 
-    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -445,19 +377,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.
-
-        IF rd-dest EQ 3 THEN
-        DO:
-            ASSIGN 
-                fi_file2 = SUBSTRING(fi_file2,1,INDEX(fi_file2,"_") - 1) .
-            RUN sys/ref/ExcelNameExt.p (INPUT fi_file2,OUTPUT cFileName2) .
-            fi_file2:SCREEN-VALUE =  cFileName2.
-        END.  
-  
-        RUN GetSelectionList.
-
+                
         RUN run-report. 
-        STATUS DEFAULT "Processing Complete". 
+        STATUS DEFAULT "Processing Complete Files path - C:\tmp\ttJob.csv, ttDepartment.csv, ttOperation.csv ". 
 
         CASE rd-dest:
             WHEN 1 THEN RUN output-to-printer.
@@ -473,7 +395,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                  
                         IF lChoice THEN
                         DO:
-                            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
+                            OS-COMMAND NO-WAIT VALUE(SEARCH("C:\tmp\ttJob.csv")).
                         END.
                     END.
                 END. /* WHEN 3 THEN DO: */
@@ -639,20 +561,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
     /* security check need {methods/prgsecur.i} in definition section */
-    IF access-close THEN 
-    DO:
-        APPLY "close" TO THIS-PROCEDURE.
-        RETURN .
-    END.
-
-  
+      
     btn-ok:load-image("Graphics/32x32/Ok.png").
     btn-cancel:load-image("Graphics/32x32/cancel.png").
     RUN enable_UI.
     {methods/nowait.i}
   
     DO WITH FRAME {&FRAME-NAME}:
-        {custom/usrprint.i}
+        //{custom/usrprint.i}
     
         APPLY "entry" TO begin_job-no.
     END.
@@ -788,7 +704,7 @@ PROCEDURE pChangeDest :
                 tb_OpenCSV:SENSITIVE    = NO      
                 .
         ASSIGN 
-            fi_file2:SCREEN-VALUE = "c:\tmp\r-jobsumN.csv".   
+            fi_file2:SCREEN-VALUE = "C:\tmp\ttjob.csv".   
     END.
 
 END PROCEDURE.
@@ -801,228 +717,82 @@ PROCEDURE run-report :
     /* ----------------------------------------------- jc/rep/job-sum.p 08/94 JLF */
     /* Job Summary Report                                                         */
     /* -------------------------------------------------------------------------- */
+    DEFINE VARIABLE lSuccess as logical no-undo.
+    DEFINE VARIABLE cMessage as character no-undo.
+    DEFINE VARIABLE hdOutputProcs AS HANDLE NO-UNDO.
+    
+    RUN system\OutputProcs.p PERSISTENT SET hdOutputProcs.
+    
+    EMPTY TEMP-TABLE ttJob.
+    EMPTY TEMP-TABLE ttDepartment.
+    EMPTY TEMP-TABLE ttOperation.
+    EMPTY TEMP-TABLE ttMaterial.
+    EMPTY TEMP-TABLE ttItem.     
+    DO WITH FRAME {&FRAME-NAME}:
+        RUN jc/jobSumReport.p(begin_job-no:SCREEN-VALUE, STRING(begin_job-no2:SCREEN-VALUE,"99"), end_job-no:SCREEN-VALUE, STRING(begin_job-no2,"99"),
+                              OUTPUT table ttJob,
+                              OUTPUT table ttDepartment,
+                              OUTPUT table ttOperation,
+                              OUTPUT table ttMaterial,
+                              OUTPUT table ttItem
+                              ).
+    END.                      
+                          
+    RUN Output_TempTableToCSV IN hdOutputProcs ( 
+            INPUT TEMP-TABLE ttJob:HANDLE,
+            INPUT "C:\tmp\ttjob.csv",
+            INPUT TRUE,
+            INPUT TRUE /* Auto increment File name */,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).
+                
+    RUN Output_TempTableToCSV IN hdOutputProcs ( 
+                INPUT TEMP-TABLE ttDepartment:HANDLE,
+                INPUT "C:\tmp\ttDepartment.csv",
+                INPUT TRUE,
+                INPUT TRUE /* Auto increment File name */,
+                OUTPUT lSuccess,
+                OUTPUT cMessage
+                ).
+                
+    RUN Output_TempTableToCSV IN hdOutputProcs ( 
+                INPUT TEMP-TABLE ttOperation:HANDLE,
+                INPUT "C:\tmp\ttOperation.csv",
+                INPUT TRUE,
+                INPUT TRUE /* Auto increment File name */,
+                OUTPUT lSuccess,
+                OUTPUT cMessage
+                ).
+                
+    RUN Output_TempTableToCSV IN hdOutputProcs ( 
+                INPUT TEMP-TABLE ttMaterial:HANDLE,
+                INPUT "C:\tmp\ttMaterial.csv",
+                INPUT TRUE,
+                INPUT TRUE /* Auto increment File name */,
+                OUTPUT lSuccess,
+                OUTPUT cMessage
+                ).
+                
+    RUN Output_TempTableToCSV IN hdOutputProcs ( 
+                INPUT TEMP-TABLE ttItem:HANDLE,
+                INPUT "C:\tmp\ttItem.csv",
+                INPUT TRUE,
+                INPUT TRUE /* Auto increment File name */,
+                OUTPUT lSuccess,
+                OUTPUT cMessage
+                ).                      
 
-    {sys/form/r-top3w.f} 
-    DEFINE VARIABLE cDisplay       AS cha    NO-UNDO.
-    DEFINE VARIABLE cExcelDisplay  AS cha    NO-UNDO.
-    DEFINE VARIABLE hField         AS HANDLE NO-UNDO.
-    DEFINE VARIABLE cTmpField      AS CHA    NO-UNDO.
-    DEFINE VARIABLE cVarValue      AS cha    NO-UNDO.
-    DEFINE VARIABLE cExcelVarValue AS cha    NO-UNDO.
-    DEFINE VARIABLE cSelectedList  AS cha    NO-UNDO.
-    DEFINE VARIABLE cFieldName     AS cha    NO-UNDO. 
    
-    DEFINE VARIABLE v-job-no       LIKE job.job-no EXTENT 2 INIT [" ", "zzzzzz"] NO-UNDO.
-    DEFINE VARIABLE v-job-no2      LIKE job.job-no2 EXTENT 2 INIT [00, 99] NO-UNDO.
-    
-    ASSIGN 
-        fg-str-tit    = ""
-        fg-str-tit2   = ""
-        fg-str-tit3   = ""
-        fg-str-line   = ""
-        mach-str-tit  = ""
-        mach-str-tit2 = ""
-        mach-str-tit3 = ""
-        mach-str-line = ""
-        item-str-tit  = ""
-        item-str-tit2 = ""
-        item-str-tit3 = ""
-        item-str-line = ""
-        misc-str-tit  = ""
-        misc-str-tit2 = ""
-        misc-str-tit3 = ""
-        misc-str-line = ""
-        excelheader   = ""
-        excelheader1  = ""
-        excelheader2  = ""
-        excelheader3  = ""
-        excelheader4  = "".
-
-    
-    cSelectedList = cTextListToDefault.
-
-    ASSIGN
-        str-tit2    = c-win:TITLE
-        {sys/inc/ctrtext.i str-tit2 112}
-
-  
-        v-job-no[1] = FILL(" ",6 - length(TRIM(begin_job-no))) +
-                  trim(begin_job-no) + string(int(begin_job-no2),"99")
-        v-job-no[2] = FILL(" ",6 - length(TRIM(end_job-no)))   +
-                  trim(end_job-no)   + string(int(end_job-no2),"99") 
-        . 
-
- 
-    DEFINE VARIABLE cslist AS cha NO-UNDO.
-    FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
-
-        IF LOOKUP(ttRptSelected.TextList, v-header-1) <> 0    THEN 
-        DO:
-
-            IF ttRptSelected.TextList = "SELLING PRICE/M" THEN 
-                ASSIGN fg-str-tit  = fg-str-tit +   "   SELLING" + " "
-                    fg-str-tit2 = fg-str-tit2 + "   PRICE/M" + " "
-                    fg-str-tit3 = fg-str-tit3 + FILL("-",ttRptSelected.FieldLength) + " " .         
-            ELSE 
-            DO:
-
-                IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
-                    THEN ASSIGN fg-str-tit2 = fg-str-tit2 + ttRptSelected.TextList + " "
-                        fg-str-tit  = fg-str-tit + FILL(" ",ttRptSelected.FieldLength) + " " 
-                        fg-str-tit3 = fg-str-tit3 + FILL("-",ttRptSelected.FieldLength) + " "
-                        .      
-                ELSE 
-                    ASSIGN fg-str-tit2 = fg-str-tit2 + 
-                         (IF ttRptSelected.HeadingFromLeft THEN
-                             ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
-                             ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + ttRptSelected.TextList) + " "
-                        fg-str-tit  = fg-str-tit + FILL(" ",ttRptSelected.FieldLength) + " "
-                        fg-str-tit3 = fg-str-tit3 + FILL("-",ttRptSelected.FieldLength) + " "
-                        .        
-            END.
-
-            excelheader1 = excelHeader1 + ttRptSelected.TextList + "," .  
-            cSlist = cSlist + ttRptSelected.FieldList + ",".
-
-            IF LOOKUP(ttRptSelected.TextList, "SELLING PRICE/M,ORDERED,POSTED,FINISHED,ALLOWED,ACTUAL SPOILAGE,ACT SPL%,ESTIMATE SPOILAGE,EST SPL%,OVER-RUN %") <> 0    THEN
-                ASSIGN
-                    fg-str-line = fg-str-line + FILL("-",ttRptSelected.FieldLength) + " " .
-            ELSE
-                fg-str-line = fg-str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
-        END.
-
-        IF LOOKUP(ttRptSelected.TextList, v-header-2) <> 0    THEN 
-        DO:
-
-            IF ttRptSelected.TextList = "MACH CODE" THEN 
-                ASSIGN mach-str-tit  = mach-str-tit +   "   MACH" + " "
-                    mach-str-tit2 = mach-str-tit2 +  "   CODE" + " "
-                    mach-str-tit3 = mach-str-tit3 + FILL("-",ttRptSelected.FieldLength) + " " .
-            ELSE 
-            DO:
-
-                IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
-                    THEN ASSIGN mach-str-tit2 = mach-str-tit2 + ttRptSelected.TextList + " "
-                        mach-str-tit  = mach-str-tit + FILL(" ",ttRptSelected.FieldLength) + " "
-                        mach-str-tit3 = mach-str-tit3 + FILL("-",ttRptSelected.FieldLength) + " "
-                        .        
-                ELSE 
-                    ASSIGN mach-str-tit2 = mach-str-tit2 + 
-                         (IF ttRptSelected.HeadingFromLeft THEN
-                             ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
-                             ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + ttRptSelected.TextList) + " "
-                        mach-str-tit  = mach-str-tit + FILL(" ",ttRptSelected.FieldLength) + " "
-                        mach-str-tit3 = mach-str-tit3 + FILL("-",ttRptSelected.FieldLength) + " "
-                        .   
-            END.
-
-            excelheader2 = excelHeader2 + ttRptSelected.TextList + "," .  
-            cSlist = cSlist + ttRptSelected.FieldList + ",".
-
-            IF LOOKUP(ttRptSelected.TextList, "Run Qty,Setup Hours,Run Hours,Speed,Cost,Setup Waste,Run Waste") <> 0    THEN
-                ASSIGN
-                    mach-str-line = mach-str-line + FILL("-",ttRptSelected.FieldLength) + " " .
-            ELSE
-                mach-str-line = mach-str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
-        END.
-
-        IF LOOKUP(ttRptSelected.TextList, v-header-3) <> 0    THEN 
-        DO:
-
-            IF ttRptSelected.TextList = "ITEM EST QUANTITY" THEN 
-                ASSIGN item-str-tit  = item-str-tit +  "      EST" + " "
-                    item-str-tit2 = item-str-tit2 + " QUANTITY" + " "
-                    item-str-tit3 = item-str-tit3 + FILL("-",ttRptSelected.FieldLength) + " " .
-         
-            ELSE 
-            DO:  
-
-                IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
-                    THEN ASSIGN item-str-tit2 = item-str-tit2 + ttRptSelected.TextList + " "
-                        item-str-tit  = item-str-tit + FILL(" ",ttRptSelected.FieldLength) + " "
-                        item-str-tit3 = item-str-tit3 + FILL("-",ttRptSelected.FieldLength) + " "
-                        .        
-                ELSE 
-                    ASSIGN item-str-tit2 = item-str-tit2 + 
-                         (IF ttRptSelected.HeadingFromLeft THEN
-                             ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
-                             ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + ttRptSelected.TextList) + " "
-                        item-str-tit  = item-str-tit + FILL(" ",ttRptSelected.FieldLength) + " "
-                        item-str-tit3 = item-str-tit3 + FILL("-",ttRptSelected.FieldLength) + " "
-                        .      
-            END.
-
-            excelheader3 = excelHeader3 + ttRptSelected.TextList + "," .  
-            cSlist = cSlist + ttRptSelected.FieldList + ",".
-
-            IF LOOKUP(ttRptSelected.TextList, "Quantity,Material Cost") <> 0    THEN
-                ASSIGN
-                    item-str-line = item-str-line + FILL("-",ttRptSelected.FieldLength) + " " .
-            ELSE
-                item-str-line = item-str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
-        END.
-
-        IF LOOKUP(ttRptSelected.TextList, v-header-4) <> 0    THEN 
-        DO:
-
-            IF ttRptSelected.TextList = "MISC EST COST" THEN 
-                ASSIGN misc-str-tit  = misc-str-tit +  "  EST COST" + " "
-                    misc-str-tit3 = misc-str-tit3 + "          " + " "
-                    misc-str-tit2 = misc-str-tit2 + FILL("-",ttRptSelected.FieldLength) + " " .         
-            ELSE 
-            DO:
-
-                IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
-                    THEN ASSIGN misc-str-tit  = misc-str-tit + ttRptSelected.TextList + " "
-                        misc-str-tit2 = misc-str-tit2 + FILL("-",ttRptSelected.FieldLength) + " "
-                        .        
-                ELSE 
-                    ASSIGN misc-str-tit  = misc-str-tit + 
-                     (IF ttRptSelected.HeadingFromLeft THEN
-                         ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
-                         ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + ttRptSelected.TextList) + " "
-                        misc-str-tit2 = misc-str-tit2 + FILL("-",ttRptSelected.FieldLength) + " "
-                        .        
-            END.
-
-            excelheader4 = excelHeader4 + ttRptSelected.TextList + "," .  
-            cSlist = cSlist + ttRptSelected.FieldList + ",".
-
-            IF LOOKUP(ttRptSelected.TextList, "MISC EST COST,MISC ACT COST,MISC VARI,MISC VAR%") <> 0    THEN
-                ASSIGN
-                    misc-str-line = misc-str-line + FILL("-",ttRptSelected.FieldLength) + " " .
-            ELSE
-                misc-str-line = misc-str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
-        END.
-
-    END.
-
     IF rd-dest EQ 3 THEN 
-    DO:
-        OUTPUT STREAM excel TO VALUE(cFileName2).
-    END.
-
-
-    SESSION:SET-WAIT-STATE ("general").
-    {sys/inc/print1.i}
-
-    {sys/inc/outprint.i value(lines-per-page)}   
-
-    DISPLAY "" WITH FRAME r-top.
-
-    EMPTY TEMP-TABLE ttJobReport.
-    RUN jc/jobSumReport.p(INPUT v-job-no[1], INPUT v-job-no[2], OUTPUT table ttJobReport).
-
-    RUN pPrintData.
-
-    IF rd-dest EQ 3 THEN 
-    DO:
-        OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
+    DO:           
+        IF tb_OpenCSV THEN 
+        do:
+            OS-COMMAND NO-WAIT VALUE(SEARCH("C:\tmp\ttjob.csv")).
+        END.    
     END.
       
-    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+    //RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
     SESSION:SET-WAIT-STATE ("").
 
@@ -1033,272 +803,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrintData C-Win 
-PROCEDURE pPrintData :
-    /*------------------------------------------------------------------------------
-     Purpose:    
-     Parameters:  <none>
-     Notes:      
-    ------------------------------------------------------------------------------*/
-    DEFINE BUFFER bf-ttJobReport  FOR ttJobReport.
-    DEFINE BUFFER bff-ttJobReport FOR ttJobReport.
-    
-    FOR EACH ttJobReport NO-LOCK        
-        BREAK BY ttJobReport.JobNo
-        BY ttJobReport.JobNo2: 
-              
-        IF FIRST-OF(ttJobReport.JobNo2) THEN
-        DO:
-            FIND FIRST bf-ttJobReport  NO-LOCK
-                WHERE bf-ttJobReport.typeItem EQ "Header"
-                AND bf-ttJobReport.JobNo EQ ttJobReport.JobNo
-                AND bf-ttJobReport.JobNo2 EQ ttJobReport.JobNo2 NO-ERROR. 
-                 
-            PUT "Job Number: "
-                TRIM(bf-ttJobReport.JobNo) + "-" + string(bf-ttJobReport.JobNo2,"99") +
-                "     Closing Date: " +
-                (IF bf-ttJobReport.closeDate EQ ? THEN "        " ELSE
-                STRING(bf-ttJobReport.closeDate,"99/99/99"))  FORMAT "X(36)" SKIP
-                "Customer:   "
-                bf-ttJobReport.custName FORMAT "X(36)" .  
-                 
-            IF rd-dest EQ 3 THEN
-                PUT STREAM excel UNFORMATTED                       
-                    '"' "Job Number: "                '",'           
-                    '"' STRING(TRIM(bf-ttJobReport.JobNo) + "-" + string(bf-ttJobReport.JobNo2,"99"))               '",'
-                    '"' "Closing Date: "                '",' 
-                    '"' (IF bf-ttJobReport.closeDate EQ ? THEN " " ELSE STRING(bf-ttJobReport.closeDate,"99/99/9999"))               '",'  
-                    SKIP
-                    '"' "Customer:   "               '",'  
-                    '"' bf-ttJobReport.custName      '",'
-                    SKIP(1) .   
-                    
-            IF rd-dest EQ 3 THEN 
-            DO:
-                PUT STREAM excel UNFORMATTED 
-                    '"' REPLACE(excelheader1,',','","') '"' SKIP.
-            END. 
-                 
-            PUT SKIP(1)
-                fg-str-tit SKIP
-                fg-str-tit2 SKIP
-                fg-str-tit3  SKIP.
-                 
-            FOR EACH bff-ttJobReport NO-LOCK
-                WHERE bff-ttJobReport.typeItem EQ "FGItem"
-                AND bff-ttJobReport.JobNo EQ ttJobReport.JobNo
-                AND bff-ttJobReport.JobNo2 EQ ttJobReport.JobNo2: 
-                          
-                PUT bff-ttJobReport.fgItem  FORMAT "x(15)" SPACE(1)
-                    bff-ttJobReport.fgName  FORMAT "x(30)" SPACE(1)
-                    bff-ttJobReport.fgSellingPrice FORMAT "->>,>>>,>>9.99<<<<" SPACE(1)
-                    bff-ttJobReport.fgJobQty  FORMAT "->>>,>>>,>>9" SPACE(1)
-                    bff-ttJobReport.fgProduced FORMAT "->>>,>>>,>>9"  SPACE(1)
-                    bff-ttJobReport.fgOnHand FORMAT "->>>,>>>,>>9" SKIP.
-                        
-                IF rd-dest EQ 3 THEN
-                    PUT STREAM excel UNFORMATTED                       
-                        '"' bff-ttJobReport.fgItem                      '",'           
-                        '"' bff-ttJobReport.fgName                      '",'
-                        '"' STRING(bff-ttJobReport.fgSellingPrice)      '",' 
-                        '"' STRING(bff-ttJobReport.fgJobQty)            '",'                          
-                        '"' STRING(bff-ttJobReport.fgProduced)          '",'  
-                        '"' STRING(bff-ttJobReport.fgOnHand)            '",'
-                        SKIP .                       
-            END.
-                 
-            IF rd-dest EQ 3 THEN 
-            DO:
-                PUT STREAM excel UNFORMATTED SKIP(1)
-                    '"' REPLACE(excelheader2,',','","') '"' SKIP.
-            END.
-            PUT SKIP(1)
-                mach-str-tit SKIP
-                mach-str-tit2 SKIP
-                mach-str-tit3  SKIP.
-                 
-            FOR EACH bff-ttJobReport NO-LOCK
-                WHERE bff-ttJobReport.typeItem EQ "Machine"
-                AND bff-ttJobReport.JobNo EQ ttJobReport.JobNo
-                AND bff-ttJobReport.JobNo2 EQ ttJobReport.JobNo2
-                BREAK BY bff-ttJobReport.JobNo:
-                     
-                PUT STRING(bff-ttJobReport.formNo) + "/" +  string(bff-ttJobReport.blankNo)  FORMAT "x(5)"  SPACE(1)
-                    bff-ttJobReport.mDept  FORMAT "x(10)"  SPACE(1)
-                    bff-ttJobReport.mStdAct FORMAT "x(10)"  SPACE(1)
-                    bff-ttJobReport.mMachine FORMAT "x(10)"    SPACE(1)
-                    bff-ttJobReport.mRunQty FORMAT "->>>,>>>,>>9"   SPACE(1)
-                    bff-ttJobReport.mSetupHrs FORMAT "->>>,>>9.99"  SPACE(1)
-                    bff-ttJobReport.mRunHrs FORMAT "->>,>>9.99"  SPACE(1)
-                    bff-ttJobReport.mSpeed FORMAT "->>,>>>,>>9"  SPACE(1)
-                    bff-ttJobReport.mCost   FORMAT "->>>,>>>,>>9.99"  SPACE(1)
-                    bff-ttJobReport.mSetupWaste FORMAT "->>>,>>>,>>9"  SPACE(1)
-                    bff-ttJobReport.mRunWaste  FORMAT "->>,>>>,>>9" SPACE(1)
-                    bff-ttJobReport.mDownTimeCode FORMAT "x(13)" SPACE(1)
-                    bff-ttJobReport.mDownTimeHrs  FORMAT "->>>,>>9.99" SPACE(1)
-                    SKIP.
-                        
-                IF rd-dest EQ 3 THEN
-                    PUT STREAM excel UNFORMATTED                       
-                        '"' STRING(bff-ttJobReport.formNo) + "/" +  string(bff-ttJobReport.blankNo)                      '",'           
-                        '"' bff-ttJobReport.mDept                      '",'
-                        '"' STRING(bff-ttJobReport.mStdAct)      '",' 
-                        '"' STRING(bff-ttJobReport.mMachine)            '",'                          
-                        '"' STRING(bff-ttJobReport.mRunQty)          '",'  
-                        '"' STRING(bff-ttJobReport.mSetupHrs)            '",'
-                        '"' STRING(bff-ttJobReport.mRunHrs)           '",'
-                        '"' STRING(bff-ttJobReport.mSpeed)            '",'
-                        '"' STRING(bff-ttJobReport.mCost)             '",'
-                        '"' STRING(bff-ttJobReport.mSetupWaste)       '",'
-                        '"' STRING(bff-ttJobReport.mRunWaste)         '",'
-                        '"' STRING(bff-ttJobReport.mDownTimeCode)     '",'
-                        '"' STRING(bff-ttJobReport.mDownTimeHrs)      '",'
-                        SKIP . 
-                        
-                IF LAST(bff-ttJobReport.JobNo) THEN
-                DO:
-                    PUT mach-str-line SKIP.  
-                    PUT SPACE(30)
-                        "Variance" SPACE(1)
-                        bf-ttJobReport.mRunQty  FORMAT "->>>,>>>,>>9" SPACE(1)
-                        bf-ttJobReport.mSetupHrs FORMAT "->>>,>>9.99" SPACE(1)
-                        bf-ttJobReport.mRunHrs FORMAT "->>,>>9.99" SPACE(1)
-                        bf-ttJobReport.mSpeed FORMAT "->>,>>>,>>9" SPACE(1)
-                        bf-ttJobReport.mCost  FORMAT "->>>,>>>,>>9.99" SPACE(1)
-                        bf-ttJobReport.mSetupWaste FORMAT "->>>,>>>,>>9" SPACE(1)
-                        bf-ttJobReport.mRunWaste FORMAT "->>,>>>,>>9" SKIP.
-                                
-                    IF rd-dest EQ 3 THEN
-                        PUT STREAM excel UNFORMATTED 
-                            '"' ""                                      '",,,'
-                            '"' "Variance"                              '",'
-                            '"' STRING(bf-ttJobReport.mRunQty)          '",'  
-                            '"' STRING(bf-ttJobReport.mSetupHrs)            '",'
-                            '"' STRING(bf-ttJobReport.mRunHrs)           '",'
-                            '"' STRING(bf-ttJobReport.mSpeed)            '",'
-                            '"' STRING(bf-ttJobReport.mCost)             '",'
-                            '"' STRING(bf-ttJobReport.mSetupWaste)       '",'
-                            '"' STRING(bf-ttJobReport.mRunWaste)         '",'   SKIP.
-                              
-                END.
-                     
-            END.   
-                 
-            IF rd-dest EQ 3 THEN 
-            DO:
-                PUT STREAM excel UNFORMATTED  SKIP(1)
-                    '"' REPLACE(excelheader3,',','","') '"' SKIP.
-            END.
-            PUT SKIP(1)
-                item-str-tit SKIP
-                item-str-tit2 SKIP
-                item-str-tit3  SKIP.
-                 
-            FOR EACH bff-ttJobReport NO-LOCK
-                WHERE bff-ttJobReport.typeItem EQ "Material"
-                AND bff-ttJobReport.JobNo EQ ttJobReport.JobNo
-                AND bff-ttJobReport.JobNo2 EQ ttJobReport.JobNo2
-                BREAK BY bff-ttJobReport.JobNo:
-                     
-                PUT bff-ttJobReport.itemCode FORMAT "x(15)"  SPACE(1)
-                    bff-ttJobReport.mStdAct FORMAT "x(10)"  SPACE(1)
-                    bff-ttJobReport.itemQty  FORMAT "->>>,>>>,>>9" SPACE(1)
-                    bff-ttJobReport.itemCost FORMAT "->>>,>>>,>>9.99"  SPACE(1)
-                    SKIP.
-                        
-                IF rd-dest EQ 3 THEN
-                    PUT STREAM excel UNFORMATTED                       
-                        '"' STRING(bff-ttJobReport.itemCode)              '",'           
-                        '"' bff-ttJobReport.mStdAct                       '",'
-                        '"' STRING(bff-ttJobReport.itemQty)            '",' 
-                        '"' STRING(bff-ttJobReport.itemCost)            '",' SKIP.  
-                        
-                IF LAST(bff-ttJobReport.JobNo) THEN
-                DO: 
-                    PUT item-str-line SKIP.
-                    PUT SPACE(17)
-                        "Variance" SPACE(1)                                    
-                        bf-ttJobReport.itemQty FORMAT "->>>,>>>,>>9"  SPACE(1)
-                        bf-ttJobReport.itemCost FORMAT "->>>,>>>,>>9.99"  SPACE(1)
-                        SKIP.
-                                
-                    IF rd-dest EQ 3 THEN
-                        PUT STREAM excel UNFORMATTED 
-                            '"'                                 '",'  
-                            '"' "Variance"                      '",'
-                            '"' STRING(bf-ttJobReport.itemQty)  '",'
-                            '"' STRING(bf-ttJobReport.itemCost) '",'
-                            SKIP.                                 
-                END.                     
-            END.    
-            
-            PUT SKIP(1)
-                " Total Standard Machine Cost:" bf-ttJobReport.totStdMachineCost   FORMAT "->>>,>>>,>>9.99"
-                "   Total Actual Machine Cost:" bf-ttJobReport.totActMachineCost FORMAT "->>>,>>>,>>9.99"
-                SKIP 
-                "Total Standard Material Cost:"  bf-ttJobReport.totStdMaterialCost  FORMAT "->>>,>>>,>>9.99"
-                "  Total Actual Material Cost:"  bf-ttJobReport.totActMaterialCost FORMAT "->>>,>>>,>>9.99"
-                SKIP
-                "         Total Standard Cost:" (bf-ttJobReport.totStdMachineCost + bf-ttJobReport.totStdMaterialCost) FORMAT "->>>,>>>,>>9.99"
-                "           Total Actual Cost:" bf-ttJobReport.totActMachineCost + bf-ttJobReport.totActMaterialCost FORMAT "->>>,>>>,>>9.99" SKIP(1).
-                
-            IF rd-dest EQ 3 THEN
-                PUT STREAM excel UNFORMATTED SKIP(1)
-                    '"' "Total Standard Machine Cost:" '",,,'  
-                    '"' STRING(bf-ttJobReport.totStdMachineCost)      '",'
-                    '"' "Total Actual Machine Cost:"  '",,,'  
-                    '"' STRING(bf-ttJobReport.totActMachineCost) '",' SKIP
-                    
-                    '"' "Total Standard Material Cost:" '",,,'  
-                    '"' STRING(bf-ttJobReport.totStdMaterialCost)      '",'
-                    '"' "Total Actual Material Cost:"  '",,,'  
-                    '"' STRING(bf-ttJobReport.totActMaterialCost) '",' SKIP
-                    
-                    '"' "Total Standard Cost:" '",,,'  
-                    '"' STRING(bf-ttJobReport.totStdMachineCost + bf-ttJobReport.totStdMaterialCost )      '",'
-                    '"' "Total Actual Cost:"  '",,,'  
-                    '"' STRING(bf-ttJobReport.totActMachineCost + bf-ttJobReport.totActMaterialCost) '",' SKIP(2)
-                    .                                  
-        END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetSelectionList C-Win 
-PROCEDURE GetSelectionList :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cTmpList AS cha NO-UNDO.
-
-    EMPTY TEMP-TABLE ttRptSelected.
-    cTmpList = cTextListToSelect.
-    iColumnLength = 0.
-                     
-    DO i = 1 TO NUM-ENTRIES(cTextListToSelect) /* IN FRAME {&FRAME-NAME}*/ :
-       
-
-        CREATE ttRptSelected.
-        ASSIGN 
-            ttRptSelected.TextList        = ENTRY(i,cTmpList)
-            ttRptSelected.FieldList       = ENTRY(i,cFieldListToSelect) //ttRptList.FieldList
-            ttRptSelected.FieldLength     = int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
-            ttRptSelected.DisplayOrder    = i
-            ttRptSelected.HeadingFromLeft = IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
-            iColumnLength                 = iColumnLength + ttRptSelected.FieldLength + 1.
-        .        
-
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 /* ************************  Function Implementations ***************** */
