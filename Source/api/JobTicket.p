@@ -41,6 +41,10 @@
     DEFINE VARIABLE lcBlank                    AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcSpecInstrctn             AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcDeptInstrctn             AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcDieImage                 AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcFGItemImage              AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcPlateImage               AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcCADImage                 AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcConcatJob                AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcConcatForm               AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcConcatMaterial           AS LONGCHAR NO-UNDO.
@@ -49,6 +53,10 @@
     DEFINE VARIABLE lcConcatBlank              AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcConcatSpecInstrctn       AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcConcatDeptInstrctn       AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcConcatImageFiles         AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcConcatBlankImageFiles    AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcConcatFormImageFiles     AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcConcatJobImageFiles      AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcReportFooter             AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcJobHeader                AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcJobGroupHeader           AS LONGCHAR NO-UNDO.
@@ -69,40 +77,126 @@
     DEFINE VARIABLE lcDeptInstrctnGroupFooter  AS LONGCHAR NO-UNDO.    
     DEFINE VARIABLE lcData                     AS LONGCHAR NO-UNDO.
 
-    DEFINE VARIABLE lcJobData           AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcFormData          AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcBlankData         AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcMaterialData      AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcFormMaterialData  AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcOperationData     AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcItemData          AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcSpecInstrctnData  AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcDeptInstrctnData  AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcJobData            AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcFormData           AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcBlankData          AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcMaterialData       AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcFormMaterialData   AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcOperationData      AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcItemData           AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcSpecInstrctnData   AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcDeptInstrctnData   AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcDieImageData       AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcFGItemImageData    AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcPlateImageData     AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcCADImageData       AS LONGCHAR NO-UNDO.
     
-    DEFINE VARIABLE lJobAvailable          AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lOperationAvailable    AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lFormAvailable         AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lBlankAvailable        AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lMaterialAvailable     AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lFormMaterialAvailable AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lSpecInstrctnAvailable AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lDeptInstrctnAvailable AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lJobAvailable            AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lOperationAvailable      AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lFormAvailable           AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lBlankAvailable          AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lMaterialAvailable       AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lFormMaterialAvailable   AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lSpecInstrctnAvailable   AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lDeptInstrctnAvailable   AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lDieImageAvailable       AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lFGItemImageAvailable    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lPlateImageAvailable     AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lCADImageAvailable       AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cNoteText           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSpecList           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDeptExceptionCodes AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound              AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cPlateFolder        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDieFolder          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCadFolder          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValidPlateFolder   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lValidDieFolder     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lValidCadFolder     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cImageFile          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lPrintBoxDesign     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lPrintFGItemImage   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lValid              AS LOGICAL   NO-UNDO.
     
     DEFINE VARIABLE oAttribute AS system.Attribute NO-UNDO.
     
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
     
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
-    
-    cSpecList = system.SharedConfig:Instance:GetValue("JobTicket_SpecList").
-    RUN sys/ref/nk1look.p (cCompany, "NOTES", "C", NO, NO, "", "", OUTPUT cDeptExceptionCodes, OUTPUT lFound).
 
+    /* ************************  Function Prototypes ********************** */
+    FUNCTION fGetImageFile RETURNS CHARACTER 
+        ( ipcImageFile AS CHARACTER ) FORWARD.
+    
+    
+    ASSIGN
+        cSpecList         = system.SharedConfig:Instance:GetValue("JobTicket_SpecList")
+        lPrintBoxDesign   = LOGICAL(system.SharedConfig:Instance:GetValue("JobTicket_PrintBoxDesign")) 
+        lPrintFGItemImage = LOGICAL(system.SharedConfig:Instance:GetValue("JobTicket_PrintFGItemImage"))
+        NO-ERROR.
+    
+    RUN sys/ref/nk1look.p (
+        INPUT  cCompany, 
+        INPUT  "NOTES", 
+        INPUT  "C", 
+        INPUT  NO, 
+        INPUT  NO, 
+        INPUT  "", 
+        INPUT  "", 
+        OUTPUT cDeptExceptionCodes, 
+        OUTPUT lFound
+        ).
+
+    IF lPrintBoxDesign THEN DO:
+        RUN sys/ref/nk1look.p(
+            INPUT cCompany,
+            INPUT "PlateFile",
+            INPUT "C",
+            INPUT NO,
+            INPUT NO,
+            INPUT "",
+            INPUT "",
+            OUTPUT cPlateFolder,
+            OUTPUT lFound
+            ).       
+        RUN FileSys_GetFilePath(cPlateFolder, OUTPUT cPlateFolder, OUTPUT lValidPlateFolder, OUTPUT cMessage).
+        IF SUBSTRING(cPlateFolder, LENGTH(cPlateFolder), 1) NE "\" THEN
+            cPlateFolder = cPlateFolder + "\".                         
+    
+        RUN sys/ref/nk1look.p(
+            INPUT cCompany,
+            INPUT "DieFile",
+            INPUT "C",
+            INPUT NO,
+            INPUT NO,
+            INPUT "",
+            INPUT "",
+            OUTPUT cDieFolder,
+            OUTPUT lFound
+            ).
+        RUN FileSys_GetFilePath(cDieFolder, OUTPUT cDieFolder, OUTPUT lValidDieFolder, OUTPUT cMessage).
+        IF SUBSTRING(cDieFolder, LENGTH(cDieFolder), 1) NE "\" THEN
+            cDieFolder = cDieFolder + "\".                         
+    
+        RUN sys/ref/nk1look.p(
+            INPUT cCompany,
+            INPUT "CadFile",
+            INPUT "C",
+            INPUT NO,
+            INPUT NO,
+            INPUT "",
+            INPUT "",
+            OUTPUT cCadFolder,
+            OUTPUT lFound
+            ).
+        RUN FileSys_GetFilePath(cCADFolder, OUTPUT cCADFolder, OUTPUT lValidCADFolder, OUTPUT cMessage).    
+        IF SUBSTRING(cCadFolder, LENGTH(cCadFolder), 1) NE "\" THEN
+            cCadFolder = cCadFolder + "\".                         
+    END.
+    
     RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
                  
     IF ipcRequestHandler NE "" THEN 
@@ -158,6 +252,10 @@
         RUN pGetRequestData ("Item", OUTPUT lcItemData).
         RUN pGetRequestData ("SpecialInstruction", OUTPUT lcSpecInstrctnData).
         RUN pGetRequestData ("DeptInstruction", OUTPUT lcDeptInstrctnData).
+        RUN pGetRequestData ("DieImage", OUTPUT lcDieImageData).
+        RUN pGetRequestData ("FGItemImage", OUTPUT lcFGItemImageData).
+        RUN pGetRequestData ("PlateImage", OUTPUT lcPlateImageData).
+        RUN pGetRequestData ("CADImage", OUTPUT lcCADImageData).
         
         RUN pGetRequestData ("PageHeader", OUTPUT lcPageHeader).
         RUN pGetRequestData ("PageFooter", OUTPUT lcPageFooter).
@@ -198,11 +296,9 @@
                 lJobAvailable          = TRUE
                 lFormAvailable         = FALSE
                 lSpecInstrctnAvailable = FALSE
-                .
-            
-            ASSIGN
-                lcConcatForm         = ""
-                lcConcatSpecInstrctn = ""
+                lcConcatForm           = ""
+                lcConcatSpecInstrctn   = ""
+                lcConcatJobImageFiles  = ""
                 .
             
             FOR EACH estCostForm NO-LOCK
@@ -221,18 +317,52 @@
                     lOperationAvailable = FALSE
                     .
                 
-                lcConcatBlank = "".
+                ASSIGN
+                    lcConcatBlank           = ""
+                    lcConcatFormImageFiles  = ""
+                    .
                 
                 FOR EACH estCostBlank NO-LOCK
                     WHERE estCostBlank.estCostHeaderID EQ estCostForm.estCostHeaderID
                       AND estCostBlank.estCostFormID   EQ estCostForm.estCostFormID:
+                    lcConcatBlankImageFiles = "".
+                          
                     FIND FIRST eb NO-LOCK
                          WHERE eb.company  EQ estCostBlank.company
                            AND eb.est-no   EQ estCostBlank.estimateNo
                            AND eb.form-no  EQ estCostBlank.formNo
                            AND eb.blank-no EQ estCostBlank.blankNo
                          NO-ERROR.
-
+                    IF AVAILABLE eb AND lPrintBoxDesign THEN DO:
+                        IF lValidCadFolder AND eb.cad-no NE "" THEN DO:
+                            cImageFile = fGetImageFile(cCadFolder + eb.cad-no).
+                            RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
+                            IF lValid THEN DO:
+                                lcCADImage = lcCADImageData.
+                                oAttribute:UpdateRequestData(INPUT-OUTPUT lcCADImage, "ImageFile", cImageFile).
+                                lcConcatBlankImageFiles = lcConcatBlankImageFiles + lcCADImage.
+                            END.
+                        END.
+                        IF lValidDieFolder AND eb.die-no NE "" THEN DO:
+                            cImageFile = fGetImageFile(cDieFolder + eb.die-no).
+                            RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
+                            IF lValid THEN DO:
+                                lcDieImage = lcDieImageData.
+                                oAttribute:UpdateRequestData(INPUT-OUTPUT lcDieImage, "ImageFile", cImageFile).
+                                lcConcatBlankImageFiles = lcConcatBlankImageFiles + lcDieImage.
+                            END.
+                        END.
+                        IF lValidPlateFolder AND eb.plate-no NE "" THEN DO:
+                            cImageFile = fGetImageFile(cPlateFolder + eb.plate-no).
+                            RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
+                            IF lValid THEN DO:
+                                lcPlateImage = lcPlateImageData.
+                                oAttribute:UpdateRequestData(INPUT-OUTPUT lcPlateImage, "ImageFile", cImageFile).
+                                lcConcatBlankImageFiles = lcConcatBlankImageFiles + lcPlateImage.
+                            END.
+                        END.                        
+                    END.
+                    
                     FIND FIRST bf-job-hdr NO-LOCK
                          WHERE bf-job-hdr.company  EQ estCostBlank.company 
                            AND bf-job-hdr.job-no   EQ estCostHeader.jobID
@@ -276,6 +406,15 @@
                                AND itemfg.i-no    EQ estCostItem.itemID
                                NO-ERROR.
                         IF AVAILABLE itemfg THEN DO:
+                            IF lPrintFGItemImage AND itemfg.box-image NE "" THEN DO:
+                                RUN FileSys_ValidateFile(itemfg.box-image, OUTPUT lValid, OUTPUT cMessage).
+                                IF lValid THEN DO:
+                                    lcFGItemImage = lcFGItemImageData.
+                                    oAttribute:UpdateRequestData(INPUT-OUTPUT lcFGItemImage, "ImageFile", itemfg.box-image).
+                                    
+                                    lcConcatBlankImageFiles = lcConcatBlankImageFiles + lcFGItemImage.
+                                END.
+                            END.                            
                             FOR EACH notes NO-LOCK 
                                 WHERE notes.rec_key   EQ itemfg.rec_key
                                   AND notes.note_type NE ""
@@ -305,17 +444,26 @@
                             END.
                         END.
                     END.
-                    
+
                     oAttribute:UpdateRequestData(INPUT-OUTPUT lcBlank, "MaterialAvailable", STRING(lMaterialAvailable)).
+
+                    lcBlank = REPLACE(lcBlank, "$FGItemImage$", lcFGItemImage).
+                    lcBlank = REPLACE(lcBlank, "$DieImage$", lcDieImage).
+                    lcBlank = REPLACE(lcBlank, "$CADImage$", lcCADImage).
+                    lcBlank = REPLACE(lcBlank, "$PlateImage$", lcPlateImage).
+                    lcBlank = REPLACE(lcBlank, "$BlankImages$", lcConcatBlankImageFiles).
+                    
+                    lcConcatBlankImageFiles = oAttribute:ReplaceAttributes(lcConcatBlankImageFiles, BUFFER eb:HANDLE).
 
                     lcBlank = REPLACE(lcBlank, "$Materials$", lcConcatMaterial).
                     lcBlank = REPLACE(lcBlank, "$MaterialGroupHeader$", lcMaterialGroupHeader).
                     lcBlank = REPLACE(lcBlank, "$MaterialGroupFooter$", lcMaterialGroupFooter).
-
+                    
                     lcBlank = oAttribute:ReplaceAttributes(lcBlank, BUFFER estCostBlank:HANDLE).
                     lcBlank = oAttribute:ReplaceAttributes(lcBlank, BUFFER eb:HANDLE).
                     lcBlank = oAttribute:ReplaceAttributes(lcBlank, BUFFER bf-job-hdr:HANDLE).
-                    
+
+                    lcConcatFormImageFiles = lcConcatFormImageFiles + lcConcatBlankImageFiles.                    
                     lcConcatBlank = lcConcatBlank + lcBlank.
                 END.
 
@@ -361,7 +509,8 @@
                 lcForm = REPLACE(lcForm, "$Operations$", lcConcatOperation).
                 lcForm = REPLACE(lcForm, "$OperationGroupHeader$", lcOperationGroupHeader).
                 lcForm = REPLACE(lcForm, "$OperationGroupFooter$", lcOperationGroupFooter).
-
+                lcForm = REPLACE(lcForm, "$FormImages$", lcConcatFormImageFiles).
+                
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcForm, "FormMaterialAvailable",STRING(lFormMaterialAvailable)).
 
                 lcForm = REPLACE(lcForm, "$FormMaterials$", lcConcatFormMaterial).
@@ -371,6 +520,8 @@
                 lcForm = oAttribute:ReplaceAttributes(lcForm, BUFFER estCostForm:HANDLE).
                 lcForm = oAttribute:ReplaceAttributes(lcForm, BUFFER ef:HANDLE).
 
+                lcConcatJobImageFiles = lcConcatJobImageFiles + lcConcatFormImageFiles.
+                
                 lcConcatForm = lcConcatForm + lcForm.
             END.  
             
@@ -422,12 +573,15 @@
             lcJob = REPLACE(lcJob, "$DeptInstructions$", lcConcatDeptInstrctn).
             lcJob = REPLACE(lcJob, "$DeptInstructionGroupHeader$", lcDeptInstrctnGroupHeader).
             lcJob = REPLACE(lcJob, "$DeptInstructionGroupFooter$", lcDeptInstrctnGroupFooter).
-
+            
             lcJob = oAttribute:ReplaceAttributes(lcJob, BUFFER estCostHeader:HANDLE).
             
             RUN pGetRequestData ("JobHeader", OUTPUT lcJobHeader).
             
             lcJobHeader = oAttribute:ReplaceAttributes(lcJobHeader, BUFFER estCostHeader:HANDLE).
+
+            lcConcatJobImageFiles = REPLACE(lcConcatJobImageFiles, "$JobHeader$", lcJobHeader).            
+            lcJob = REPLACE(lcJob, "$JobImages$", lcConcatJobImageFiles).
 
             RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
             
@@ -463,6 +617,8 @@
 
     END FINALLY.
     
+
+
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -581,4 +737,35 @@ PROCEDURE pReplaceNotesText:
     
     iopcNoteText = cTempNote.
 END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fGetImageFile RETURNS CHARACTER 
+	( ipcImageFile AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cImageFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValid     AS LOGICAL   NO-UNDO.
+    
+    cImageFile = ipcImageFile + ".pdf".
+    
+    RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
+    
+    IF NOT lValid THEN DO:
+        cImageFile = ipcImageFile + ".jpg".
+        RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
+    END.
+    
+    IF NOT lValid THEN 
+    DO:
+        cImageFile = ipcImageFile + ".png".
+        RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
+    END.
+    
+    RETURN cImageFile.
+END FUNCTION.
 
