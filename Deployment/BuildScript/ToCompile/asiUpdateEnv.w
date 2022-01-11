@@ -3039,6 +3039,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix210400.
     IF iCurrentVersion LT 21041500 THEN 
         RUN ipDataFix210415.
+    IF iCurrentVersion LT 22010000 THEN 
+        RUN ipDataFix220100.
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3877,6 +3879,24 @@ PROCEDURE ipDataFix210415:
     RUN ipFixLocations.
 END PROCEDURE.
     
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix220100 C-Win
+PROCEDURE ipDataFix220100:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 220100...").
+
+    RUN ipCleanEstSystemData.
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
