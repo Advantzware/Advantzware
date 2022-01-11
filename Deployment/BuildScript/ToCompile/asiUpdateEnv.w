@@ -7679,6 +7679,13 @@ PROCEDURE ipUpdateNK1s :
         DELETE sys-ctrl.
     END.
     
+    /* 52250 - Deprecated Die# */
+    RUN ipStatus ("  Die#").
+    FOR EACH  sys-ctrl WHERE
+        sys-ctrl.name EQ "Die#":
+        DELETE sys-ctrl.
+    END.
+    
     /* 44448 - EnforceUserCount */
     RUN ipStatus ("  EnforceUserCount").
     FOR EACH company:
