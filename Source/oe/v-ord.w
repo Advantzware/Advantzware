@@ -5162,9 +5162,7 @@ PROCEDURE local-assign-record :
         FOR EACH oe-ordl OF oe-ord BREAK BY oe-ordl.line:
 
             IF NOT ll-new-due THEN
-                MESSAGE "Update all line items and release dates with this Due Date?"
-                    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-                    UPDATE ll-new-due.
+                RUN displayMessageQuestion("73", OUTPUT ll-new-due).                
 
             IF ll-new-due THEN 
             DO:
