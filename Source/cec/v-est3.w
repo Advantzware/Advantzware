@@ -1765,7 +1765,7 @@ PROCEDURE local-assign-record :
      lv-cas-pal    = lv-numstack * lv-layers
      lv-tr-cnt     = IF lv-tr-cnt EQ 0 THEN (eb.cas-cnt * lv-cas-pal) ELSE lv-tr-cnt
      eb.cas-pal    = lv-cas-pal
-     eb.tr-cnt     = lv-tr-cnt
+     eb.tr-cnt     = lv-tr-cnt + INTEGER(eb.quantityPartial:SCREEN-VALUE)
      eb.tr-cas     = lv-layers
      eb.stacks     = lv-numstack
      eb.stack-code = lv-stack-code.
@@ -1796,8 +1796,9 @@ PROCEDURE local-assign-record :
     END.
 
     ASSIGN                                
-     eb.cas-pal = eb.stacks * eb.tr-cas   .
-    /* eb.tr-cnt  = eb.cas-cnt * eb.cas-pal.*/
+     eb.cas-pal = eb.stacks * eb.tr-cas  
+     eb.tr-cnt  = eb.tr-cnt + INTEGER(eb.quantityPartial:SCREEN-VALUE)
+     .
    
      RUN cec/UpdFgEc.p(INPUT eb.company, INPUT ROWID(eb)) .
 
