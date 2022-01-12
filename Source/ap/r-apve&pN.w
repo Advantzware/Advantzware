@@ -1437,7 +1437,7 @@ PROCEDURE post-gl :
                 (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999") + " PO:" + STRING(ap-invl.po-no,"999999") ,
                 "AP").
       RUN GL_SpCreateGLHist(cocode,
-                 tt-ap-invl.actnum,
+                 v-cash-acct,
                  "ACPAY",
                  vend.name  + "  " + string(ap-inv.inv-date),
                  tran-date,
@@ -1823,7 +1823,7 @@ PROCEDURE post-gl :
                 (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
                 "AP").
             RUN GL_SpCreateGLHist(cocode,
-                v-frt-acct,
+                v-cash-acct,
                 "ACPAY",
                 "ACCOUNTS PAYABLE FREIGHT",
                 tran-date,
@@ -1857,7 +1857,7 @@ PROCEDURE post-gl :
                     tt-ap-tax.cDescription,
                     "AP"). 
                 RUN GL_SpCreateGLHist(cocode,
-                    tt-ap-tax.actnum,
+                    v-cash-acct,
                     "ACPAY",
                     "ACCOUNTS PAYABLE TAX",
                     tran-date,
