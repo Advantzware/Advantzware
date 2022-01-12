@@ -584,6 +584,8 @@ PROCEDURE Outbound_PrepareAndExecuteForScope:
     DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
 
+    system.SharedConfig:Instance:SetValue("APIVariable_" + ipcAPIID + "_RequestDateTime", STRING(NOW)).
+
     RUN pPrepareAndExecuteForScope (
         INPUT  ipcCompany,
         INPUT  ipcLocation,
@@ -599,6 +601,8 @@ PROCEDURE Outbound_PrepareAndExecuteForScope:
         OUTPUT oplSuccess,
         OUTPUT opcMessage        
         ).
+    
+    system.SharedConfig:Instance:DeleteValue("APIVariable_" + ipcAPIID + "_RequestDateTime").
 END PROCEDURE.
 
 PROCEDURE Outbound_ValidateLocation:
@@ -804,6 +808,8 @@ PROCEDURE Outbound_PrepareAndExecute:
     DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
 
+    system.SharedConfig:Instance:SetValue("APIVariable_" + ipcAPIID + "_RequestDateTime", STRING(NOW)).
+    
     RUN pPrepareAndExecute (
         INPUT  ipcCompany,
         INPUT  ipcLocation,
@@ -826,6 +832,10 @@ PROCEDURE Outbound_PrepareAndExecute:
             .
         RETURN.
     END.
+    
+    FINALLY:
+        system.SharedConfig:Instance:DeleteValue("APIVariable_" + ipcAPIID + "_RequestDateTime").
+    END FINALLY.
 END PROCEDURE.
 
 PROCEDURE Outbound_PrepareRequest:
@@ -936,8 +946,10 @@ PROCEDURE Outbound_UpdateGlobalFieldValues:
     DEFINE VARIABLE cAPITransactionCounter    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cClientTransactionCounter AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCompany                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUserID                   AS CHARACTER NO-UNDO.
     
-    cCompany = system.SessionConfig:Instance:GetValue("CompanyID").
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    RUN spGetSessionParam ("UserID", OUTPUT cUserID).
     
     DEFINE BUFFER bf-cust FOR cust.
     
@@ -951,6 +963,7 @@ PROCEDURE Outbound_UpdateGlobalFieldValues:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentDate", TODAY).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentTime", TIME).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentDateTime", NOW).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "UserID", cUserID).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyID", cCompany).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyName", system.SessionConfig:Instance:GetValue("CompanyName")).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyStreet1", system.SessionConfig:Instance:GetValue("CompanyStreet1")).

@@ -169,7 +169,10 @@ IF glSaveFile THEN DO:
         RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "CurrentDate", TODAY, "").
         RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "CurrentTime", TIME, "").
         RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "CurrentDateTime", NOW, "").
-        
+
+        /* API Variable replacement using SharedConfig values */
+        gcSaveFileFolder = scInstance:ReplaceAPIVariables(gcSaveFileFolder, gcAPIID).
+
         ASSIGN 
             cFileName = ENTRY(NUM-ENTRIES(gcSaveFileFolder, "\"), gcSaveFileFolder, "\") 
             cFilePath = SUBSTRING(gcSaveFileFolder, 1, R-INDEX(gcSaveFileFolder, "\") - 1)
