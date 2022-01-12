@@ -41,6 +41,7 @@
     DEFINE VARIABLE lcBlank                    AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcSpecInstrctn             AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcDeptInstrctn             AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcBoxDesignImage           AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcDieImage                 AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcFGItemImage              AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcPlateImage               AS LONGCHAR NO-UNDO.
@@ -86,6 +87,7 @@
     DEFINE VARIABLE lcItemData           AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcSpecInstrctnData   AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcDeptInstrctnData   AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcBoxDesignImageData AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcDieImageData       AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcFGItemImageData    AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcPlateImageData     AS LONGCHAR NO-UNDO.
@@ -253,6 +255,7 @@
         RUN pGetRequestData ("SpecialInstruction", OUTPUT lcSpecInstrctnData).
         RUN pGetRequestData ("DeptInstruction", OUTPUT lcDeptInstrctnData).
         RUN pGetRequestData ("DieImage", OUTPUT lcDieImageData).
+        RUN pGetRequestData ("BoxDesignImage", OUTPUT lcBoxDesignImageData).
         RUN pGetRequestData ("FGItemImage", OUTPUT lcFGItemImageData).
         RUN pGetRequestData ("PlateImage", OUTPUT lcPlateImageData).
         RUN pGetRequestData ("CADImage", OUTPUT lcCADImageData).
@@ -334,6 +337,23 @@
                            AND eb.blank-no EQ estCostBlank.blankNo
                          NO-ERROR.
                     IF AVAILABLE eb AND lPrintBoxDesign THEN DO:
+                        FIND FIRST box-design-hdr NO-LOCK
+                             WHERE box-design-hdr.design-no EQ 0
+                               AND box-design-hdr.company   EQ eb.company
+                               AND box-design-hdr.est-no    EQ eb.est-no
+                               AND box-design-hdr.form-no   EQ eb.form-no
+                               AND box-design-hdr.blank-no  EQ eb.blank-no
+                             NO-ERROR.
+                        IF AVAILABLE box-design-hdr AND box-design-hdr.box-image NE "" THEN DO:
+                            cImageFile = box-design-hdr.box-image.
+                            RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
+                            IF lValid THEN DO:
+                                lcBoxDesignImage = lcBoxDesignImageData.
+                                oAttribute:UpdateRequestData(INPUT-OUTPUT lcBoxDesignImage, "ImageFile", cImageFile).
+                                lcConcatBlankImageFiles = lcConcatBlankImageFiles + lcBoxDesignImage.
+                            END.                        
+                        END.
+                        
                         IF lValidCadFolder AND eb.cad-no NE "" THEN DO:
                             cImageFile = fGetImageFile(cCadFolder + eb.cad-no).
                             RUN FileSys_ValidateFile(cImageFile, OUTPUT lValid, OUTPUT cMessage).
@@ -448,6 +468,7 @@
                     oAttribute:UpdateRequestData(INPUT-OUTPUT lcBlank, "MaterialAvailable", STRING(lMaterialAvailable)).
 
                     lcBlank = REPLACE(lcBlank, "$FGItemImage$", lcFGItemImage).
+                    lcBlank = REPLACE(lcBlank, "$BoxDesignImage$", lcBoxDesignImage).
                     lcBlank = REPLACE(lcBlank, "$DieImage$", lcDieImage).
                     lcBlank = REPLACE(lcBlank, "$CADImage$", lcCADImage).
                     lcBlank = REPLACE(lcBlank, "$PlateImage$", lcPlateImage).
