@@ -176,7 +176,7 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Update Order"
+         TITLE              = "Invoice Export"
          HEIGHT             = 12.62
          WIDTH              = 95.8
          MAX-HEIGHT         = 33.57
