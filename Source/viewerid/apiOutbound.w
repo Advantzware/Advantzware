@@ -4,7 +4,7 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*********************************************************************
 * Copyright (C) 2000 by Progress Software Corporation. All rights    *
 * reserved. Prior versions of this work may contain portions         *
@@ -13,9 +13,9 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: browsers/APIOutboundDetails.w
+  File:
 
-  Description: from BROWSER.W - Basic SmartBrowser Object Template
+  Description: from VIEWER.W - Template for SmartViewer Objects
 
   Input Parameters:
       <none>
@@ -49,14 +49,13 @@ CREATE WIDGET-POOL.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartBrowser
+&Scoped-define PROCEDURE-TYPE SmartViewer
 &Scoped-define DB-AWARE no
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
 /* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
-&Scoped-define BROWSE-NAME br_table
 
 /* External Tables                                                      */
 &Scoped-define EXTERNAL-TABLES APIOutbound
@@ -65,43 +64,29 @@ CREATE WIDGET-POOL.
 
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR APIOutbound.
-/* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES APIOutboundDetail
-
-/* Define KEY-PHRASE in case it is used by any query. */
-&Scoped-define KEY-PHRASE TRUE
-
-/* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table APIOutboundDetail.detailID APIOutboundDetail.parentID   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
-&Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH APIOutboundDetail WHERE     APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID     AND APIOutboundDetail.detailID MATCHES "*" + fiDetailID + "*" NO-LOCK     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundDetail WHERE     APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID     AND APIOutboundDetail.detailID MATCHES "*" + fiDetailID + "*" NO-LOCK     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-br_table APIOutboundDetail
-&Scoped-define FIRST-TABLE-IN-QUERY-br_table APIOutboundDetail
-
-
-/* Definitions for FRAME F-Main                                         */
-
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-7 btSearch fiDetailID br_table 
-&Scoped-Define DISPLAYED-OBJECTS fiDetailID 
+&Scoped-Define ENABLED-OBJECTS RECT-6 
+&Scoped-Define DISPLAYED-FIELDS APIOutbound.apiID APIOutbound.clientID ~
+APIOutbound.inActive 
+&Scoped-define DISPLAYED-TABLES APIOutbound
+&Scoped-define FIRST-DISPLAYED-TABLE APIOutbound
+
 
 /* Custom List Definitions                                              */
-/* List-1,List-2,List-3,List-4,List-5,List-6                            */
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" B-table-Win _INLINE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
 /* Actions: ? adm/support/keyedit.w ? ? ? */
 /* STRUCTURED-DATA
 <KEY-OBJECT>
-&BROWSE-NAME
+THIS-PROCEDURE
 </KEY-OBJECT>
 <FOREIGN-KEYS>
-</FOREIGN-KEYS>
+</FOREIGN-KEYS> 
 <EXECUTING-CODE>
 **************************
 * Set attributes related to FOREIGN KEYS
@@ -115,85 +100,45 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Advanced Query Options" B-table-Win _INLINE
-/* Actions: ? adm/support/advqedit.w ? ? ? */
-/* STRUCTURED-DATA
-<KEY-OBJECT>
-&BROWSE-NAME
-</KEY-OBJECT>
-<SORTBY-OPTIONS>
-</SORTBY-OPTIONS> 
-<SORTBY-RUN-CODE>
-************************
-* Set attributes related to SORTBY-OPTIONS */
-RUN set-attribute-list (
-    'SortBy-Options = ""':U).
-/************************
-</SORTBY-RUN-CODE> 
-<FILTER-ATTRIBUTES>
-</FILTER-ATTRIBUTES> */   
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btSearch 
-     IMAGE-UP FILE "Graphics/32x32/search_new.png":U
-     LABEL "Search" 
-     SIZE 8 BY 1.91.
-
-DEFINE VARIABLE fiDetailID AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Detail ID" 
-     VIEW-AS FILL-IN 
-     SIZE 38 BY 1
-     BGCOLOR 26 FONT 6 NO-UNDO.
-
-DEFINE RECTANGLE RECT-7
+DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 149 BY 13.33.
-
-/* Query definitions                                                    */
-&ANALYZE-SUSPEND
-DEFINE QUERY br_table FOR 
-      APIOutboundDetail SCROLLING.
-&ANALYZE-RESUME
-
-/* Browse definitions                                                   */
-DEFINE BROWSE br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
-  QUERY br_table NO-LOCK DISPLAY
-      APIOutboundDetail.detailID COLUMN-LABEL "Detail ID" FORMAT "x(32)":U
-      APIOutboundDetail.parentID COLUMN-LABEL "Parent ID" FORMAT "x(32)":U
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 148 BY 11.19
-         FONT 6 ROW-HEIGHT-CHARS .62 FIT-LAST-COLUMN.
+     SIZE 139.8 BY 1.91.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btSearch AT ROW 1.05 COL 53 WIDGET-ID 4
-     fiDetailID AT ROW 1.48 COL 11.4 COLON-ALIGNED WIDGET-ID 2
-     br_table AT ROW 2.91 COL 1.4
-     RECT-7 AT ROW 1 COL 1 WIDGET-ID 6
+     APIOutbound.apiID AT ROW 1.48 COL 10.2 COLON-ALIGNED WIDGET-ID 2
+          LABEL "API ID" FORMAT "x(32)"
+          VIEW-AS FILL-IN 
+          SIZE 40.4 BY 1
+     APIOutbound.clientID AT ROW 1.48 COL 64.8 COLON-ALIGNED WIDGET-ID 4
+          LABEL "Client ID" FORMAT "x(32)"
+          VIEW-AS FILL-IN 
+          SIZE 40.4 BY 1
+     APIOutbound.inActive AT ROW 1.48 COL 124 COLON-ALIGNED WIDGET-ID 6
+          LABEL "API Status" FORMAT "Inactive/Active"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     RECT-6 AT ROW 1 COL 1 WIDGET-ID 8
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15 FGCOLOR 1 FONT 6 WIDGET-ID 100.
+         BGCOLOR 26 FGCOLOR 9 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartBrowser
+   Type: SmartViewer
    External Tables: ASI.APIOutbound
-   Allow: Basic,Browse
+   Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
    Other Settings: PERSISTENT-ONLY COMPILE
@@ -213,17 +158,17 @@ END.
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
-  CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 14.52
-         WIDTH              = 150.6.
+  CREATE WINDOW V-table-Win ASSIGN
+         HEIGHT             = 6.86
+         WIDTH              = 139.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{src/adm/method/browser.i}
+{src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -234,33 +179,25 @@ END.
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR WINDOW B-table-Win
-  NOT-VISIBLE,,RUN-PERSISTENT                                           */
+/* SETTINGS FOR WINDOW V-table-Win
+  VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB br_table fiDetailID F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN APIOutbound.apiID IN FRAME F-Main
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+/* SETTINGS FOR FILL-IN APIOutbound.clientID IN FRAME F-Main
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+/* SETTINGS FOR FILL-IN APIOutbound.inActive IN FRAME F-Main
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
 
 /* Setting information for Queries and Browse Widgets fields            */
-
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
-/* Query rebuild information for BROWSE br_table
-     _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundDetail WHERE
-    APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID
-    AND APIOutboundDetail.detailID MATCHES "*" + fiDetailID + "*" NO-LOCK
-    ~{&SORTBY-PHRASE}.
-     _END_FREEFORM
-     _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _Query            is NOT OPENED
-*/  /* BROWSE br_table */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
 /* Query rebuild information for FRAME F-Main
@@ -271,91 +208,38 @@ OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundDetail WHERE
 
  
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartViewerCues" V-table-Win _INLINE
+/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
+/* SmartViewer,ab,49270
+Destroy on next read */
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define BROWSE-NAME br_table
-&Scoped-define SELF-NAME br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON ROW-ENTRY OF br_table IN FRAME F-Main
-DO:
-  /* This code displays initial values for newly added or copied rows. */
-  {src/adm/template/brsentry.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON ROW-LEAVE OF br_table IN FRAME F-Main
-DO:
-    /* Do not disable this code or no updates will take place except
-     by pressing the Save button on an Update SmartPanel. */
-   {src/adm/template/brsleave.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON VALUE-CHANGED OF br_table IN FRAME F-Main
-DO:
-  /* This ADM trigger code must be preserved in order to notify other
-     objects when the browser's current row changes. */
-  {src/adm/template/brschnge.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btSearch
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSearch B-table-Win
-ON CHOOSE OF btSearch IN FRAME F-Main /* Search */
-DO:
-    ASSIGN fiDetailID.
-    RUN dispatch("open-query").
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fiDetailID
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiDetailID B-table-Win
-ON ENTER OF fiDetailID IN FRAME F-Main /* Detail ID */
-DO:
-    APPLY "CHOOSE" to btSearch.    
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
+&Scoped-define SELF-NAME APIOutbound.inActive
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
 
 /* ***************************  Main Block  *************************** */
-{methods/ctrl-a_browser.i}
-{sys/inc/f3help.i}
-&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
-RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-&ENDIF
 
-{methods/winReSize.i}
-{methods/browsers/setCellColumns.i}
+  &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
+    RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
+  &ENDIF         
+  
+  /************************ INTERNAL PROCEDURES ********************/
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
   Purpose:     Dispatched to this procedure when the Record-
@@ -386,7 +270,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -404,30 +288,38 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win
-PROCEDURE local-initialize:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-available V-table-Win 
+PROCEDURE local-row-available :
 /*------------------------------------------------------------------------------
- Purpose:
- Notes:
+  Purpose:     Override standard ADM method
+  Notes:       
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    RUN setCellColumns.
-
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
     /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-
+    IF AVAILABLE apiOutbound THEN
+        IF apiOutbound.inActive THEN
+            ASSIGN
+                apiOutbound.inActive:BGCOLOR = 12
+                apiOutbound.inActive:FGCOLOR = 15
+                .
+        ELSE
+            ASSIGN
+                apiOutbound.inActive:BGCOLOR = 10
+                apiOutbound.inActive:FGCOLOR = 0
+                .
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
   Purpose:     Send record ROWID's for all tables used by
@@ -440,7 +332,6 @@ PROCEDURE send-records :
 
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "APIOutbound"}
-  {src/adm/template/snd-list.i "APIOutboundDetail"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -450,7 +341,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
   Purpose:     
@@ -463,7 +354,7 @@ PROCEDURE state-changed :
   CASE p-state:
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
-      {src/adm/template/bstates.i}
+      {src/adm/template/vstates.i}
   END CASE.
 END PROCEDURE.
 
