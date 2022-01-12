@@ -90,7 +90,7 @@ DO:
             ttOnOrder.warehouseID = po-ord.loc. /*when creating from Job header job.loc*/
             
         IF po-ordl.pr-qty-uom = "EA" THEN     
-            ttOnOrder.quantity    = po-ordl.ord-qty.
+            dConvQty = po-ordl.ord-qty.
         ELSE 
         DO:
             /*Convert the quantity as per Unit of Measure*/
@@ -98,9 +98,9 @@ DO:
             RUN Conv_QuantityFromUOMtoUOM(itemfg.company, 
                                          itemfg.i-no, 
                                          "FG", 
+                                         po-ordl.ord-qty,
                                          po-ordl.pr-qty-uom,
-                                         "EA",
-                                         0, 
+                                         "EA", 
                                          po-ordl.s-len, 
                                          po-ordl.s-wid, 
                                          0,
@@ -109,9 +109,11 @@ DO:
                                          OUTPUT dConvQty,
                                          OUTPUT lError,
                                          OUTPUT cMessage).
-                
-            ttOnOrder.quantity = dConvQty.
+                                         
+            
         END.
+        IF dConvQty - po-ordl.t-rec-qty GT 0 THEN    
+            ttOnOrder.quantity = dConvQty - po-ordl.t-rec-qty.
     END. /*each po-ordl*/  
     /*check for availability of job-hdr*/  
     FIND FIRST job-hdr WHERE job-hdr.company EQ itemfg.company 
@@ -137,8 +139,8 @@ DO:
                 AND ttOnOrder.formNo  = job-hdr.frm
                 AND ttOnOrder.blankNo = job-hdr.blank-no) THEN 
                 NEXT.
-                
-            /*create temp-table*/
+               
+            /*create temp-table*/ 
             CREATE ttOnOrder.
             ASSIGN
                 ttOnOrder.itemID      = job-hdr.i-no
@@ -218,14 +220,16 @@ DO:
                                      ttOnOrder.quantity = ttOnOrder.quantity + ((job-hdr.qty * tt-fg-set.part-qty-dec) - ld-qty).
               
                              END.
-                         END.
-                     END. /*each reftable*/
-                END. /*each bf-eb*/
+                         END. 
+                     END. /*each reftable*/ 
+                END. /*each bf-eb*/ 
             END. /*available eb Set record*/                
         END. /* FOR EACH job-hdr */
     END. /*available job-hdr*/    
     /*Get the quantity*/
     FOR EACH ttOnOrder:
         op-q-ono = op-q-ono + ttOnOrder.quantity.
-    END.       
+    END.  
+    IF op-q-ono LT 0 THEN op-q-ono = 0.
+  
 END. /*item*/
