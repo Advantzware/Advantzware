@@ -1434,7 +1434,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999") + " PO:" + STRING(ap-invl.po-no,"999999") ,
+                (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-invl.inv-no,"9999999") + " PO:" + STRING(ap-invl.po-no,"999999") ,
                 "AP").
       RUN GL_SpCreateGLHist(cocode,
                  v-cash-acct,
