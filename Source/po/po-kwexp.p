@@ -240,13 +240,13 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     PUT "01"                                        FORMAT "x(2)".
     
     /* PURCHASE ORDER # */
-    PUT po-ord.po-no                                FORMAT "99999999".
+    PUT po-ord.po-no                                FORMAT "999999".
     
     /* PURCHASE ORDER LINE # */
     PUT po-ordl.line                                FORMAT "99".
     
     /* PURCHASE ORDER # */
-    PUT po-ord.po-no                                FORMAT "99999999".
+    PUT po-ord.po-no                                FORMAT "999999".
     
     /* PURCHASE ORDER LINE # */
     PUT po-ordl.line                                FORMAT "99".
