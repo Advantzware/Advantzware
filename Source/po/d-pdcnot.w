@@ -759,8 +759,7 @@ PROCEDURE save-record :
     DO:
         ASSIGN 
             bf-notes.note_text  = notes.note_text:SCREEN-VALUE 
-            bf-notes.note_title = cbTitle.               
-        ASSIGN 
+            bf-notes.note_title = cbTitle + " " + rejct-cd.dscr        
             bf-notes.viewed       = NO
             bf-notes.user_id      = USERID("NOSWEAT")
             bf-notes.rec_key      = ip-note-rec-key
