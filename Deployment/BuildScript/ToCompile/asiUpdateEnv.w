@@ -4285,7 +4285,8 @@ PROCEDURE ipFixBadAPPostings:
                 v-payable-acct = ap-ctrl.payables.            
             FOR EACH glhist WHERE
                 glhist.company EQ company.company AND 
-                glhist.tr-date GE 12/01/2021 AND  
+                glhist.rec_key GE "20220103" AND  
+                glhist.sourceDate GE 01/03/2022 AND 
                 glhist.jrnl EQ "ACPAY" AND 
                 glhist.documentID NE "" AND 
                 glhist.actnum NE v-payable-acct:
