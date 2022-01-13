@@ -36,6 +36,7 @@ FIND FIRST sys-ctrl WHERE
 
 cerunc-dec = sys-ctrl.dec-fld.
 
+{sys/inc/cerun.i C}
 {sys/inc/cerun.i}
 {cec/rollfac.i}
 
@@ -45,9 +46,51 @@ assign
  voverall = round(probe.sell-price / probe.bsf,2)
  vtot-msf = probe.gshQtyInSF / 1000 .
  dFGPricePerMsf =  round(probe.sell-price * ( probe.est-qty / 1000) / vtot-msf,2) .
-        
-IF sys-ctrl.char-fld NE "PEACHTRE" THEN
+          
+IF cerunc EQ "PEACHTRE" THEN
 DO:
+   FIND FIRST CostHeader NO-LOCK 
+        WHERE CostHeader.company EQ probe.company
+          AND CostHeader.estimateNo EQ probe.est-no             
+          AND CostHeader.quantityMaster EQ probe.est-qty              
+        NO-ERROR.
+            
+   dQm =  probe.est-qty / 1000 * v-sqft-fac.     
+   dCostDirectMaterial = IF AVAIL CostHeader THEN probe.sell-price - ((costHeader.stdCostDirectMaterial / dQm )  + (costHeader.stdCostFreight / dQm)) ELSE probe.boardContributionTotal .     
+      
+   IF probe.manHoursTotal GT 0 THEN 
+        dContPerManHr =  dCostDirectMaterial / probe.manHoursTotal.
+   ELSE 
+        dContPerManHr = dCostDirectMaterial .
+   
+   IF cerunc-dec EQ 0 THEN
+      display probe.est-qty
+              probe.freight
+	          probe.boardCostPerM
+	          probe.boardCostPct
+	          dCostDirectMaterial @ probe.boardContributionTotal 
+	          dContPerManHr
+              probe.sell-price
+              dFGPricePerMsf @ voverall
+	          probe.gsh-qty format ">>>>>9"
+	          vtot-msf
+	   with frame probe-peach.
+   ELSE
+      display probe.est-qty
+           probe.freight
+	       probe.boardCostPerM
+	       probe.boardCostPct
+	       dCostDirectMaterial @ probe.boardContributionTotal 
+	       dContPerManHr
+           probe.sell-price
+           dFGPricePerMsf @ voverall
+	       probe.gsh-qty format ">>>>>9"
+	       vtot-msf
+	   with frame probe-peach-big.   
+END.          
+          
+ELSE
+DO:      
    IF ce-ctrl.sell-by EQ "F" THEN
        ASSIGN cm-disp = "[   CM$: " + STRING(probe.grossProfitPerM)
               cmah-disp = "CMAH: " + STRING(probe.grossProfitPerManhourAssemb)
@@ -99,46 +142,6 @@ DO:
              cm%-disp WHEN v-print-cm
           with frame probe-big.
 END.
-ELSE
-DO:
-   FIND FIRST CostHeader NO-LOCK 
-        WHERE CostHeader.company EQ probe.company
-          AND CostHeader.estimateNo EQ probe.est-no             
-          AND CostHeader.quantityMaster EQ probe.est-qty              
-        NO-ERROR.
-            
-   dQm =  probe.est-qty / 1000 * v-sqft-fac.     
-   dCostDirectMaterial = IF AVAIL CostHeader THEN probe.sell-price - ((costHeader.stdCostDirectMaterial / dQm )  + (costHeader.stdCostFreight / dQm)) ELSE probe.boardContributionTotal .     
-      
-   IF probe.manHoursTotal GT 0 THEN 
-        dContPerManHr =  dCostDirectMaterial / probe.manHoursTotal.
-   ELSE 
-        dContPerManHr = dCostDirectMaterial .
-   
-   IF cerunc-dec EQ 0 THEN
-      display probe.est-qty
-              probe.freight
-	          probe.boardCostPerM
-	          probe.boardCostPct
-	          dCostDirectMaterial @ probe.boardContributionTotal 
-	          dContPerManHr
-              probe.sell-price
-              dFGPricePerMsf @ voverall
-	          probe.gsh-qty format ">>>>>9"
-	          vtot-msf
-	   with frame probe-peach.
-   ELSE
-      display probe.est-qty
-           probe.freight
-	       probe.boardCostPerM
-	       probe.boardCostPct
-	       dCostDirectMaterial @ probe.boardContributionTotal 
-	       dContPerManHr
-           probe.sell-price
-           dFGPricePerMsf @ voverall
-	       probe.gsh-qty format ">>>>>9"
-	       vtot-msf
-	   with frame probe-peach-big.   
-END.
+
 
 /* end ---------------------------------- copr. 1999  advanced software, inc. */
