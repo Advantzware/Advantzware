@@ -132,6 +132,17 @@ DO:
             AND job.job-no  EQ job-hdr.job-no 
             AND job.job-no2 EQ job-hdr.job-no2)
             USE-INDEX i-no:
+                
+            IF NOT itemfg.isaset THEN
+                FIND FIRST eb WHERE 
+                    eb.company  EQ job-hdr.company AND
+                    eb.est-no   EQ job-hdr.est-no AND
+                    eb.form-no  EQ job-hdr.frm AND
+                    eb.blank-no EQ job-hdr.blank-no
+                    NO-LOCK NO-ERROR.
+     
+            IF NOT(AVAIL eb AND NOT eb.pur-man) THEN
+                NEXT.
             
             /*record with job,form and blank already exist*/
             IF CAN-FIND(FIRST ttOnOrder WHERE ttOnOrder.jobID   = job-hdr.job-no
