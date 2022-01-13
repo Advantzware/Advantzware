@@ -61,6 +61,7 @@ DEFINE VARIABLE cUrlEncodedData      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResponseCode        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFilePath            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRequestDateTime     AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE oAPIHandler          AS API.APIHandler NO-UNDO. 
 DEFINE VARIABLE scInstance           AS CLASS System.SharedConfig NO-UNDO. 
@@ -76,9 +77,13 @@ RUN spGetSessionParam(
     
 ASSIGN 
     scInstance           = SharedConfig:instance
-    lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode")) NO-ERROR
-    .
-    
+    lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode"))
+    cRequestDateTime     = scInstance:GetValue("APIVariable_RequestDateTime")
+    NO-ERROR.
+
+IF cRequestDateTime = "" THEN
+    cRequestDateTime = STRING(NOW).
+        
 ASSIGN
     gcParentProgram = ipcParentProgram
     glcRequestData  = iplcRequestData
@@ -169,6 +174,7 @@ IF glSaveFile THEN DO:
         RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "CurrentDate", TODAY, "").
         RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "CurrentTime", TIME, "").
         RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "CurrentDateTime", NOW, "").
+        RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "RequestDateTime", cRequestDateTime, "").
 
         /* API Variable replacement using SharedConfig values */
         gcSaveFileFolder = scInstance:ReplaceAPIVariables(gcSaveFileFolder, gcAPIID).

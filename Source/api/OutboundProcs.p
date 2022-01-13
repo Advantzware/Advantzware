@@ -584,7 +584,7 @@ PROCEDURE Outbound_PrepareAndExecuteForScope:
     DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
 
-    system.SharedConfig:Instance:SetValue("APIVariable_" + ipcAPIID + "_RequestDateTime", STRING(NOW)).
+    system.SharedConfig:Instance:SetValue("APIVariable_RequestDateTime", STRING(NOW)).
 
     RUN pPrepareAndExecuteForScope (
         INPUT  ipcCompany,
@@ -602,7 +602,7 @@ PROCEDURE Outbound_PrepareAndExecuteForScope:
         OUTPUT opcMessage        
         ).
     
-    system.SharedConfig:Instance:DeleteValue("APIVariable_" + ipcAPIID + "_RequestDateTime").
+    system.SharedConfig:Instance:DeleteValue("APIVariable_RequestDateTime").
 END PROCEDURE.
 
 PROCEDURE Outbound_ValidateLocation:
@@ -808,7 +808,7 @@ PROCEDURE Outbound_PrepareAndExecute:
     DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
 
-    system.SharedConfig:Instance:SetValue("APIVariable_" + ipcAPIID + "_RequestDateTime", STRING(NOW)).
+    system.SharedConfig:Instance:SetValue("APIVariable_RequestDateTime", STRING(NOW)).
     
     RUN pPrepareAndExecute (
         INPUT  ipcCompany,
@@ -834,7 +834,7 @@ PROCEDURE Outbound_PrepareAndExecute:
     END.
     
     FINALLY:
-        system.SharedConfig:Instance:DeleteValue("APIVariable_" + ipcAPIID + "_RequestDateTime").
+        system.SharedConfig:Instance:DeleteValue("APIVariable_RequestDateTime").
     END FINALLY.
 END PROCEDURE.
 
