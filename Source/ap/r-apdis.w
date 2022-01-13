@@ -1016,15 +1016,17 @@ PROCEDURE post-gl :
                     DO:
                         CREATE ap-pay.
                         ASSIGN
-                            ap-pay.company   = cocode
-                            ap-pay.check-act = bank.actnum
-                            ap-pay.check-amt = ap-dis.check-amt
-                            ap-pay.check-no  = ap-dis.check-no
-                            ap-pay.period    = tran-period
-                            ap-pay.c-no      = x + 1
-                            ap-pay.vend-no   = ap-dis.vend-no
-                            ap-pay.bank-code = ap-dis.bank-code
-                            ap-pay.d-no      = ap-dis.d-no.
+                            ap-pay.company          = cocode
+                            ap-pay.check-act        = bank.actnum
+                            ap-pay.check-amt        = ap-dis.check-amt
+                            ap-pay.check-no         = ap-dis.check-no
+                            ap-pay.period           = tran-period
+                            ap-pay.c-no             = x + 1
+                            ap-pay.vend-no          = ap-dis.vend-no
+                            ap-pay.bank-code        = ap-dis.bank-code
+                            ap-pay.d-no             = ap-dis.d-no
+                            ap-pay.transactionDate  = tran-date
+                            .
                     END.
                 END.
 
