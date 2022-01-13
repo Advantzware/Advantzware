@@ -187,6 +187,16 @@ DEFINE TEMP-TABLE ttJobMch NO-UNDO
     FIELD d-seq LIKE mach.d-seq
     FIELD rowID AS ROWID.
 
+DEF TEMP-TABLE ttPayableFix
+    FIELD company LIKE glhist.company
+    FIELD tr-date LIKE glhist.tr-date
+    FIELD jrnl LIKE glhist.tr-dscr
+    FIELD tr-amt LIKE glhist.tr-amt
+    FIELD documentID LIKE glhist.documentID
+    FIELD OLDactnum LIKE glhist.actnum
+    FIELD NEWactnum LIKE glhist.actnum
+    FIELD glhistRowid AS ROWID.
+        
 DEF BUFFER bnotes FOR notes.
 DEF BUFFER bf-usercomp FOR usercomp.
 DEF BUFFER bf-module FOR MODULE.
@@ -2942,6 +2952,9 @@ PROCEDURE ipDataFix :
         RUN ipDataFix210400.
     IF iCurrentVersion LT 21041500 THEN 
         RUN ipDataFix210415.
+    IF iCurrentVersion GE 21041500
+    AND iCurrentVersion LT 21041700 THEN 
+        RUN ipFixBadAPPostings.
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -4238,6 +4251,112 @@ PROCEDURE ipFgcatStatusActive:
         ASSIGN 
             lActive = TRUE.
     END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixBadAPPostings C-Win
+PROCEDURE ipFixBadAPPostings:
+/*------------------------------------------------------------------------------
+ Purpose:  21.04.15 and .16 posted bad glhist records in AP posting using the operating account 
+           rather than the case account. This fixes those entries
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF BUFFER bglhist FOR glhist.
+    DEF VAR v-payable-acct AS CHAR.
+    DEF VAR cFileName AS CHAR INITIAL "c:\tmp\FixBadPayablePost.csv".
+    DEF VAR lSuccess AS LOG NO-UNDO.
+    DEF VAR cMessage AS CHAR NO-UNDO.
+    DEF VAR cParse AS CHAR NO-UNDO.
+    DEF VAR cVendNo AS CHAR NO-UNDO.
+    DEF VAR cInvNo AS CHAR NO-UNDO.
+    
+    FOR EACH company NO-LOCK:
+        FIND FIRST ap-ctrl NO-LOCK WHERE 
+            ap-ctrl.company EQ company.company 
+            NO-ERROR.
+        IF AVAIL ap-ctrl THEN DO:
+            ASSIGN 
+                v-payable-acct = ap-ctrl.payables.            
+            FOR EACH glhist WHERE
+                glhist.company EQ company.company AND 
+                glhist.tr-date GE 12/01/2021 AND  
+                glhist.jrnl EQ "ACPAY" AND 
+                glhist.documentID NE "" AND 
+                glhist.actnum NE v-payable-acct:
+                ASSIGN 
+                    cParse = glhist.documentID
+                    cParse = REPLACE(cParse,"Vendor:","")
+                    cParse = REPLACE(cParse,"Inv:","")
+                    cParse = REPLACE(cParse,"PO:","")
+                    cParse = REPLACE(cParse,"  "," ")
+                    cParse = REPLACE(cParse,"  "," ")
+                    cParse = REPLACE(cParse,"  "," ")
+                    cParse = REPLACE(cParse,"  "," ")
+                    cVendNo = ENTRY(1,cParse," ")
+                    cInvNo = ENTRY(2,cParse," ")
+                    .
+                FIND ap-inv WHERE 
+                    ap-inv.company EQ glhist.company AND 
+                    ap-inv.vend-no EQ cVendNo AND 
+                    ap-inv.inv-no EQ cInvNo
+                    NO-LOCK NO-ERROR.
+                IF AVAIL ap-inv THEN DO:
+                    FIND FIRST bglhist NO-LOCK WHERE 
+                        bglhist.company EQ glhist.company AND  
+                        bglhist.tr-date GE glhist.tr-date AND   
+                        bglhist.jrnl EQ glhist.jrnl AND  
+                        bglhist.tr-amt EQ glhist.tr-amt * -1 AND
+                        bglhist.actnum EQ glhist.actnum
+                        NO-ERROR.
+                    IF AVAIL bglhist THEN DO:
+                        CREATE ttPayableFix.
+                        ASSIGN
+                            ttPayableFix.company = glhist.company 
+                            ttPayableFix.tr-date = glhist.tr-date
+                            ttPayableFix.jrnl = glhist.jrnl
+                            ttPayableFix.tr-amt = glhist.tr-amt
+                            ttPayableFix.documentID = glhist.documentID
+                            ttPayableFix.OLDactnum = glhist.actnum
+                            ttPayableFix.NEWactnum = v-payable-acct
+                            .
+                         IF ap-inv.net LT 0 
+                         AND glhist.tr-amt LT 0 THEN DO:    
+                            FIND CURRENT bglhist exclusive.
+                            ASSIGN 
+                                bglhist.actnum = v-payable-acct.
+                         END.
+                         ELSE IF ap-inv.net GE 0
+                         AND glhist.tr-amt GE 0 THEN DO:
+                            FIND CURRENT bglhist exclusive.
+                            ASSIGN 
+                                bglhist.actnum = v-payable-acct.
+                        END.
+                     END.
+                 END.
+                 ELSE ASSIGN 
+                    glhist.actnum = v-payable-acct.
+            END.
+        END.
+    END.
+    RUN Output_TempTableToCSV (TEMP-TABLE ttPayableFix:HANDLE,
+                               cFileName,
+                               YES,
+                               INPUT FALSE /* Auto increment File name */,
+                               OUTPUT lSuccess,
+                               OUTPUT cMessage).
+    FOR EACH ttPayableFix:
+        FIND glhist EXCLUSIVE WHERE
+            ROWID(glhist) EQ ttPayableFix.glhistRowid
+            NO-ERROR.
+        IF AVAIL glhist THEN ASSIGN 
+            glhist.actnum = ttPayableFix.NEWactnum.
+    END. 
 
 END PROCEDURE.
 	
