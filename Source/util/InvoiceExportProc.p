@@ -24,7 +24,7 @@ DEFINE TEMP-TABLE ttInvoiceExport
     FIELD DESCRIPTION  		    LIKE ar-invl.i-dscr LABEL "Description"
     FIELD unit_price  		    LIKE ar-invl.unit-pr LABEL "Unit Price"
     FIELD uom  		            LIKE ar-invl.pr-qty-uom LABEL "UOM"
-    FIELD extended_price  		LIKE ar-invl.ediPrice LABEL "Extended Price"
+    FIELD extended_price  		LIKE ar-invl.amt LABEL "Extended Price"
     FIELD qty_ordered  		    LIKE ar-invl.qty LABEL "Ordered Quantity"
     FIELD qty_shipped  		    LIKE ar-invl.ship-qty
     FIELD qty_invoiced  		LIKE ar-invl.inv-qty
@@ -37,9 +37,9 @@ DEFINE TEMP-TABLE ttInvoiceExport
     FIELD state  		        LIKE shipto.ship-state
     FIELD zip  		            LIKE shipto.ship-zip
     FIELD country  		        LIKE shipto.country
-    FIELD amount  		        LIKE ar-invl.amt
-    FIELD freight  		        LIKE ar-inv.freight
-    FIELD freight_adj  		    LIKE ar-inv.f-bill
+    FIELD amount  		        AS CHARACTER LABEL "Total Amount"
+    FIELD freight  		        AS CHARACTER LABEL "Freight"
+    FIELD freight_adj  		    AS CHARACTER LABEL "Freight Adj."
     .
 
 DEFINE VARIABLE hdOutput     AS HANDLE    NO-UNDO.
@@ -54,6 +54,7 @@ DEFINE BUFFER bf-ar-inv  FOR ar-inv.
 DEFINE BUFFER bf-ar-invl FOR ar-invl.
 DEFINE BUFFER bf-shipto  FOR shipto.
 DEFINE BUFFER bf-item    FOR ITEM.
+DEFINE BUFFER bf-itemfg  FOR itemfg.
 
 ASSIGN
     cocode = ipcCompany.
@@ -83,25 +84,32 @@ FOR EACH bf-ar-inv NO-LOCK WHERE
                 ttInvoiceExport.InvoiceStatus         = bf-ar-inv.stat      
                 ttInvoiceExport.Salesman1             = bf-ar-invl.sman[1]
                 ttInvoiceExport.Salesman2             = bf-ar-invl.sman[2]
-                ttInvoiceExport.salesman1_name        = bf-ar-invl.sname[2]
+                ttInvoiceExport.salesman1_name        = bf-ar-invl.sname[1]
                 ttInvoiceExport.salesman2_name        = bf-ar-invl.sname[2]
-                ttInvoiceExport.salesman1_percentage  = STRING(bf-ar-invl.s-pct[2],">>9.99")   
+                ttInvoiceExport.salesman1_percentage  = STRING(bf-ar-invl.s-pct[1],">>9.99")   
                 ttInvoiceExport.salesman2_percentage  = STRING(bf-ar-invl.s-pct[2],">>9.99")
                  
-                ttInvoiceExport.DESCRIPTION           = bf-ar-invl.i-dscr
+                ttInvoiceExport.identifier            = bf-ar-invl.i-no
                 ttInvoiceExport.unit_price            = bf-ar-invl.unit-pr  
-                ttInvoiceExport.uom                   = bf-ar-invl.pr-qty-uom
-                ttInvoiceExport.extended_price        = bf-ar-invl.ediPrice
+                ttInvoiceExport.uom                   = IF bf-ar-invl.pr-qty-uom NE "" THEN bf-ar-invl.pr-qty-uom ELSE "EA"
+                ttInvoiceExport.extended_price        = bf-ar-invl.amt
                 ttInvoiceExport.qty_ordered           = bf-ar-invl.qty       
                 ttInvoiceExport.qty_shipped           = bf-ar-invl.ship-qty
                 ttInvoiceExport.qty_invoiced          = bf-ar-invl.inv-qty
                 ttInvoiceExport.id_type               = IF bf-ar-invl.misc THEN "gen" 
                                                         ELSE IF bf-ar-invl.billable THEN "frt" 
                                                         ELSE "itm" 
-                ttInvoiceExport.amount                = bf-ar-invl.amt
-                ttInvoiceExport.freight               = bf-ar-inv.freight
-                ttInvoiceExport.freight_adj           = bf-ar-inv.f-bill
                 .
+            
+            IF FIRST-OF(bf-ar-inv.inv-no) THEN
+            DO:
+                ASSIGN
+                    ttInvoiceExport.freight           = IF bf-ar-inv.f-bill THEN STRING(bf-ar-inv.freight) ELSE ""
+                    ttInvoiceExport.freight_adj       = IF NOT bf-ar-inv.f-bill THEN STRING(bf-ar-inv.freight) ELSE ""
+                    ttInvoiceExport.amount            = STRING(bf-ar-inv.gross)
+                    .
+            END.
+                
             
             FIND FIRST bf-item NO-LOCK
                 WHERE bf-item.company EQ bf-ar-invl.company
@@ -110,13 +118,21 @@ FOR EACH bf-ar-inv NO-LOCK WHERE
             IF AVAIL bf-item THEN
             DO:
                ASSIGN
-                   ttInvoiceExport.identifier =  bf-item.i-code
                    ttInvoiceExport.prod_type  =  IF bf-item.industry EQ "1" THEN "FCI" 
                                                  ELSE IF bf-item.industry EQ "2" 
                                                      AND bf-item.procat EQ "DIE" THEN "DIE"
                                                  ELSE "".
             END.
             
+            FIND FIRST bf-itemfg
+                WHERE bf-itemfg.company EQ bf-ar-invl.company
+                AND bf-itemfg.i-no      EQ bf-ar-invl.i-no
+                NO-LOCK NO-ERROR.
+            
+            ttInvoiceExport.DESCRIPTION  = IF bf-ar-invl.i-dscr NE "" THEN bf-ar-invl.i-dscr
+                                           ELSE IF AVAIL bf-itemfg AND bf-itemfg.part-dscr1 NE "" THEN bf-itemfg.part-dscr1
+                                           ELSE IF AVAIL bf-item AND bf-item.i-dscr NE "" THEN bf-item.i-dscr
+                                           ELSE "".
             
             FIND FIRST bf-shipto NO-LOCK
                 WHERE bf-shipto.company = bf-ar-invl.company
@@ -132,7 +148,7 @@ FOR EACH bf-ar-inv NO-LOCK WHERE
                     ttInvoiceExport.city        = bf-shipto.ship-city
                     ttInvoiceExport.state       = bf-shipto.ship-state
                     ttInvoiceExport.zip         = bf-shipto.ship-zip
-                    ttInvoiceExport.country     = bf-shipto.country
+                    ttInvoiceExport.country     = IF bf-shipto.country NE "" THEN bf-shipto.country ELSE "US"
                     .
             END. /* IF AVAIL shipto */
             
