@@ -215,7 +215,7 @@ DEF VAR cDbDirOnly AS CHAR NO-UNDO.
 DEF VAR cBadDirList AS CHAR NO-UNDO.
 DEF VAR cfrom AS CHAR.
 DEF VAR cMapDrive AS CHAR FORMAT "x(2)" NO-UNDO.
-DEF VAR cMsgStr AS CHAR FORMAT "x(80)" EXTENT 100 NO-UNDO.
+DEF VAR cMsgStr AS CHAR FORMAT "x(80)" EXTENT 500 NO-UNDO.
 DEF VAR connectStatement AS CHAR NO-UNDO.
 DEF VAR cOrigPropath AS CHARACTER NO-UNDO.
 DEF VAR cNewPropath  AS CHARACTER NO-UNDO.
@@ -273,7 +273,15 @@ DEF VAR v4 LIKE lookups.prgmname NO-UNDO.
 DEF VAR v5 LIKE lookups.rec_key NO-UNDO.
 DEF VAR xDbDir AS CHAR NO-UNDO.
 DEF VAR hVendCostProcs AS HANDLE NO-UNDO.
-    
+DEF VAR lError AS LOG NO-UNDO.
+DEF VAR cMessage AS CHAR NO-UNDO.
+DEF VAR hSession AS HANDLE NO-UNDO.
+DEF VAR hTags AS HANDLE NO-UNDO.
+DEF VAR hCommonProcs AS HANDLE NO-UNDO.
+DEF VAR hCreditProcs AS HANDLE NO-UNDO.
+DEF VAR hPurgeProcs AS HANDLE NO-UNDO.
+DEF VAR hFormulaProcs AS HANDLE    NO-UNDO.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -740,6 +748,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         tbInstallFiles:CHECKED = TRUE
         tbUpdateINI:CHECKED = TRUE
         .
+
         
     IF ipiLevel LT 10 THEN DO:
         ASSIGN
@@ -2230,7 +2239,6 @@ PROCEDURE ipConvertPolScore PRIVATE:
     DEFINE VARIABLE cScoreType     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSizeFormat    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE hdFormulaProcs AS HANDLE    NO-UNDO.
 
     DEFINE BUFFER bf-reftable1   FOR reftable.
     DEFINE BUFFER bf-reftable2   FOR reftable.
@@ -2241,8 +2249,6 @@ PROCEDURE ipConvertPolScore PRIVATE:
 
     RUN ipStatus ("    Creating panelHeader and panelDetail records.").
 
-    RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
-    
     FOR EACH bf-company NO-LOCK: 
 
         FIND FIRST sys-ctrl NO-LOCK WHERE 
@@ -2330,11 +2336,11 @@ PROCEDURE ipConvertPolScore PRIVATE:
                 END.
         
                 IF cSizeFormat EQ "16th's" THEN 
-                    RUN Convert16thsToDecimal IN hdFormulaProcs (
+                    RUN Convert16thsToDecimal (
                         INPUT-OUTPUT dPanelSize
                         ).
                 ELSE IF cSizeFormat EQ "32nd's" THEN 
-                    RUN Convert32ndsToDecimal IN hdFormulaProcs (
+                    RUN Convert32ndsToDecimal (
                         INPUT-OUTPUT dPanelSize
                         ).
     
@@ -2354,8 +2360,6 @@ PROCEDURE ipConvertPolScore PRIVATE:
         END.
     END.
     
-    DELETE PROCEDURE hdFormulaProcs.
-
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -2541,34 +2545,6 @@ PROCEDURE ipConvertVendorCosts:
     RUN ipStatus ("    Converting vendor cost records").
 
     DEF VAR iVendCostItemID AS INT64 NO-UNDO.
-    DEF VAR lError AS LOG NO-UNDO.
-    DEF VAR cMessage AS CHAR NO-UNDO.
-    DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hTags AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hCommonProcs AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hCreditProcs AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hPurgeProcs AS HANDLE NO-UNDO.
-
-        IF NOT VALID-HANDLE(hSession) THEN DO:
-            RUN system/session.p PERSISTENT SET hSession.
-            SESSION:ADD-SUPER-PROCEDURE (hSession).
-        END. 
-        IF NOT VALID-HANDLE(hTags) THEN DO: 
-            RUN system/TagProcs.p PERSISTENT SET hTags.
-            SESSION:ADD-SUPER-PROCEDURE (hTags).
-        END.
-        IF NOT VALID-HANDLE(hCommonProcs) THEN DO: 
-            RUN system/commonProcs.p PERSISTENT SET hCommonProcs.
-            SESSION:ADD-SUPER-PROCEDURE (hCommonProcs).
-        END.
-        IF NOT VALID-HANDLE(hCreditProcs) THEN DO:
-            RUN system/creditProcs.p PERSISTENT SET hCreditProcs.
-            SESSION:ADD-SUPER-PROCEDURE (hCreditProcs).
-        END.
-        IF NOT VALID-HANDLE(hPurgeProcs) THEN DO:
-            RUN system/purgeProcs.p PERSISTENT SET hPurgeProcs.
-            SESSION:ADD-SUPER-PROCEDURE (hPurgeProcs).
-        END.
 
     RUN util/dev/VendorCostConvProcs PERSISTENT SET hVendCostProcs.
     FOR EACH company NO-LOCK:
@@ -2877,12 +2853,6 @@ PROCEDURE ipDataFix :
     DEF VAR iCurrentVersion AS INT NO-UNDO.
     DEF VAR cTgtEnv AS CHAR NO-UNDO.
 
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH      = cNewPropath
-        .
-
     RUN ipStatus ("Starting Data Fixes - from version " + fiFromVer:{&SV}).
 
     ASSIGN 
@@ -2963,7 +2933,7 @@ PROCEDURE ipDataFix :
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
-RUN ipStatus ("Completed Data Fixes").
+    RUN ipStatus ("Completed Data Fixes").
     
     ASSIGN 
         lSuccess = TRUE.
@@ -4275,7 +4245,7 @@ PROCEDURE ipFixBadAPPostings:
     DEF BUFFER bglhist FOR glhist.
     
     DEF VAR v-payable-acct AS CHAR.
-    DEF VAR cFileName AS CHAR INITIAL "c:\tmp\FixBadPayablePost.csv".
+    DEF VAR cFileName AS CHAR NO-UNDO.
     DEF VAR lSuccess AS LOG NO-UNDO.
     DEF VAR cMessage AS CHAR NO-UNDO.
     DEF VAR cParse AS CHAR NO-UNDO.
@@ -4284,8 +4254,12 @@ PROCEDURE ipFixBadAPPostings:
     DEF VAR iRecKey AS INT NO-UNDO.
     DEF VAR hdOutputProcs AS HANDLE NO-UNDO.
   
-    RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.  
-    
+    ASSIGN cFileName = "c:\tmp\FixBadPayablePost_" + 
+                       STRING(YEAR(TODAY),"9999") + 
+                       STRING(MONTH(TODAY),"99") + 
+                       STRING(DAY(TODAY),"99") + "_" +
+                       STRING(TIME) + ".csv".
+
     FOR EACH company NO-LOCK:
         FIND FIRST ap-ctrl NO-LOCK WHERE 
             ap-ctrl.company EQ company.company 
@@ -4349,12 +4323,25 @@ PROCEDURE ipFixBadAPPostings:
         END. /* AVAIL ap-ctrl */
     END. /* EACH company */
 
-    RUN Output_TempTableToCSV IN hdOutputProcs (TEMP-TABLE ttPayableFix:HANDLE,
-                                                cFileName,
-                                                YES,
-                                                INPUT YES /* Auto increment File name */,
-                                                OUTPUT lSuccess,
-                                                OUTPUT cMessage).
+    OUTPUT TO VALUE(cFileName).
+    PUT UNFORMATTED "Company,Run#,Vendor,Inv#,Txn Date,Dscr,Amount,DocumentID,Old ActNum,New ActNum,Rec_Key" + CHR(10).
+    FOR EACH ttPayableFix:
+        PUT UNFORMATTED 
+            ttPayableFix.company + "," +
+            STRING(ttPayableFix.tr-num,"x(9)") + "," +
+            ttPayableFix.cVendNo + "," +
+            ttPayableFix.cInvNo + "," +
+            STRING(ttPayableFix.tr-date,"99/99/9999") + "," +
+            ttPayableFix.jrnl + "," +
+            STRING(ttPayableFix.tr-amt,">>,>>>,>>9.99") + "," +
+            ttPayableFix.documentID + "," +
+            ttPayableFix.OLDactnum + "," +
+            ttPayableFix.NEWactnum + "," +
+            ttPayableFix.rec_key + "," +
+            CHR(10).
+    END.
+    OUTPUT CLOSE.
+    
                         
 END PROCEDURE.
 	
@@ -4455,13 +4442,9 @@ PROCEDURE ipFixFoldingEstimateScores PRIVATE:
 
     RUN ipStatus ("    Fix Estimate scores").
 
-    DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
-    
     DEFINE BUFFER bf-company     FOR company.
     DEFINE BUFFER bf-style       FOR style.
     DEFINE BUFFER bf-panelHeader FOR panelHeader.
-
-    RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
     FOR EACH bf-company NO-LOCK:        
         FOR EACH bf-panelheader NO-LOCK 
@@ -4471,15 +4454,13 @@ PROCEDURE ipFixFoldingEstimateScores PRIVATE:
             WHERE bf-style.company  EQ bf-panelHeader.company 
               AND bf-style.style    EQ bf-panelHeader.styleID 
               AND bf-style.industry EQ "1":                            /* Folding estimates */
-            RUN DeletePanelDetailsForPO IN hdFormulaProcs (
+            RUN DeletePanelDetailsForPO (
                 INPUT bf-panelHeader.company,
                 INPUT bf-panelHeader.poID,
                 INPUT bf-panelHeader.poLine
                 ).            
         END.   
     END.
-    
-    DELETE PROCEDURE hdFormulaProcs.
     
 END PROCEDURE.
 	
@@ -6171,10 +6152,6 @@ PROCEDURE ipLoadSettingType :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Setting Type Records").
 
-    DEFINE VARIABLE hSession AS HANDLE.
-    RUN system/session.p PERSISTENT SET hSession.
-    SESSION:ADD-SUPER-PROCEDURE(hSession).
-
     &SCOPED-DEFINE tablename settingType
     
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
@@ -6193,8 +6170,6 @@ PROCEDURE ipLoadSettingType :
     IF SEARCH("util/nk1ToSetting.r") NE ? THEN 
         RUN VALUE (SEARCH("util/nk1ToSetting.r")) (fIntVer(fiFromVer:{&SV})).
 
-    SESSION:REMOVE-SUPER-PROCEDURE(hSession).
-        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6501,7 +6476,9 @@ PROCEDURE ipProcessAll :
 
     ASSIGN
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + 
+                       cEnvDir + "\" + fiEnvironment:{&SV} + "\Resources," +
+                       PROPATH
         PROPATH      = cNewPropath
         .
     ASSIGN
@@ -6568,6 +6545,15 @@ PROCEDURE ipProcessAll :
         iopiStatus = iopiStatus + 20
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
 
+    /* Load any external procs/supers that may need to be accessed */
+    IF NOT VALID-HANDLE(hSession) THEN DO:
+        RUN system/session.p PERSISTENT SET hSession.
+        SESSION:ADD-SUPER-PROCEDURE (hSession).
+    END. 
+    IF NOT VALID-HANDLE(hFormulaProcs) THEN DO:
+        RUN system/FormulaProcs.p PERSISTENT SET hFormulaProcs.
+        SESSION:ADD-SUPER-PROCEDURE (hFormulaProcs).
+    END.
 
     IF tbRunDataFix:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipDataFix.
@@ -7300,7 +7286,7 @@ PROCEDURE ipSetDepartmentRequired:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("    Setting Dapartment isRequired Flags").
+    RUN ipStatus ("    Setting Department isRequired Flags").
 
     DEF BUFFER bdept FOR dept.
 
@@ -8272,8 +8258,6 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 
 
