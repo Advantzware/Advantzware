@@ -4314,11 +4314,6 @@ PROCEDURE ipFixBadAPPostings:
                     cVendNo = ENTRY(1,cParse," ")
                     cInvNo = ENTRY(2,cParse," ")
                     .
-                FIND ap-inv WHERE 
-                    ap-inv.company EQ glhist.company AND 
-                    ap-inv.vend-no EQ cVendNo AND 
-                    ap-inv.inv-no EQ cInvNo
-                    NO-LOCK NO-ERROR.
                 ASSIGN 
                     iRecKey = INTEGER(SUBSTRING(glhist.rec_key,15,7)) + 1.
                     
@@ -4328,18 +4323,18 @@ PROCEDURE ipFixBadAPPostings:
                     bglhist.tr-num EQ glhist.tr-num AND 
                     bglhist.tr-amt = glhist.tr-amt * -1 AND  
                     bglhist.actnum NE v-payable-acct AND  
-                    INTEGER(SUBSTRING(glhist.rec_key,15,7)) + 1 EQ iRecKey
+                    INTEGER(SUBSTRING(bglhist.rec_key,15,7)) + 1 EQ iRecKey
                     NO-ERROR.
                 IF AVAIL bglhist THEN DO:
                     CREATE ttPayableFix.
                     ASSIGN
-                        ttPayableFix.company = glhist.company 
+                        ttPayableFix.company = bglhist.company 
                         ttPayableFix.cVendNo = cVendNo
                         ttPayableFix.cInvNo = cInvNo
-                        ttPayableFix.tr-num = glhist.tr-num
-                        ttPayableFix.tr-date = glhist.tr-date
-                        ttPayableFix.jrnl = glhist.jrnl
-                        ttPayableFix.tr-amt = glhist.tr-amt
+                        ttPayableFix.tr-num = bglhist.tr-num
+                        ttPayableFix.tr-date = bglhist.tr-date
+                        ttPayableFix.jrnl = bglhist.jrnl
+                        ttPayableFix.tr-amt = bglhist.tr-amt
                         ttPayableFix.documentID = glhist.documentID
                         ttPayableFix.OLDactnum = bglhist.actnum
                         ttPayableFix.glhistRowid = ROWID(bglhist)
