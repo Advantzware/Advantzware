@@ -200,7 +200,7 @@ DEF VAR cDbDirOnly AS CHAR NO-UNDO.
 DEF VAR cBadDirList AS CHAR NO-UNDO.
 DEF VAR cfrom AS CHAR.
 DEF VAR cMapDrive AS CHAR FORMAT "x(2)" NO-UNDO.
-DEF VAR cMsgStr AS CHAR FORMAT "x(80)" EXTENT 100 NO-UNDO.
+DEF VAR cMsgStr AS CHAR FORMAT "x(80)" EXTENT 500 NO-UNDO.
 DEF VAR connectStatement AS CHAR NO-UNDO.
 DEF VAR cOrigPropath AS CHARACTER NO-UNDO.
 DEF VAR cNewPropath  AS CHARACTER NO-UNDO.
@@ -258,7 +258,15 @@ DEF VAR v4 LIKE lookups.prgmname NO-UNDO.
 DEF VAR v5 LIKE lookups.rec_key NO-UNDO.
 DEF VAR xDbDir AS CHAR NO-UNDO.
 DEF VAR hVendCostProcs AS HANDLE NO-UNDO.
-    
+DEF VAR lError AS LOG NO-UNDO.
+DEF VAR cMessage AS CHAR NO-UNDO.
+DEF VAR hSession AS HANDLE NO-UNDO.
+DEF VAR hTags AS HANDLE NO-UNDO.
+DEF VAR hCommonProcs AS HANDLE NO-UNDO.
+DEF VAR hCreditProcs AS HANDLE NO-UNDO.
+DEF VAR hPurgeProcs AS HANDLE NO-UNDO.
+DEF VAR hFormulaProcs AS HANDLE    NO-UNDO.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -725,6 +733,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         tbInstallFiles:CHECKED = TRUE
         tbUpdateINI:CHECKED = TRUE
         .
+
         
     IF ipiLevel LT 10 THEN DO:
         ASSIGN
@@ -2215,7 +2224,6 @@ PROCEDURE ipConvertPolScore PRIVATE:
     DEFINE VARIABLE cScoreType     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSizeFormat    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE hdFormulaProcs AS HANDLE    NO-UNDO.
 
     DEFINE BUFFER bf-reftable1   FOR reftable.
     DEFINE BUFFER bf-reftable2   FOR reftable.
@@ -2226,8 +2234,6 @@ PROCEDURE ipConvertPolScore PRIVATE:
 
     RUN ipStatus ("    Creating panelHeader and panelDetail records.").
 
-    RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
-    
     FOR EACH bf-company NO-LOCK: 
 
         FIND FIRST sys-ctrl NO-LOCK WHERE 
@@ -2315,11 +2321,11 @@ PROCEDURE ipConvertPolScore PRIVATE:
                 END.
         
                 IF cSizeFormat EQ "16th's" THEN 
-                    RUN Convert16thsToDecimal IN hdFormulaProcs (
+                    RUN Convert16thsToDecimal (
                         INPUT-OUTPUT dPanelSize
                         ).
                 ELSE IF cSizeFormat EQ "32nd's" THEN 
-                    RUN Convert32ndsToDecimal IN hdFormulaProcs (
+                    RUN Convert32ndsToDecimal (
                         INPUT-OUTPUT dPanelSize
                         ).
     
@@ -2339,8 +2345,6 @@ PROCEDURE ipConvertPolScore PRIVATE:
         END.
     END.
     
-    DELETE PROCEDURE hdFormulaProcs.
-
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -2526,34 +2530,6 @@ PROCEDURE ipConvertVendorCosts:
     RUN ipStatus ("    Converting vendor cost records").
 
     DEF VAR iVendCostItemID AS INT64 NO-UNDO.
-    DEF VAR lError AS LOG NO-UNDO.
-    DEF VAR cMessage AS CHAR NO-UNDO.
-    DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hTags AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hCommonProcs AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hCreditProcs AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hPurgeProcs AS HANDLE NO-UNDO.
-
-        IF NOT VALID-HANDLE(hSession) THEN DO:
-            RUN system/session.p PERSISTENT SET hSession.
-            SESSION:ADD-SUPER-PROCEDURE (hSession).
-        END. 
-        IF NOT VALID-HANDLE(hTags) THEN DO: 
-            RUN system/TagProcs.p PERSISTENT SET hTags.
-            SESSION:ADD-SUPER-PROCEDURE (hTags).
-        END.
-        IF NOT VALID-HANDLE(hCommonProcs) THEN DO: 
-            RUN system/commonProcs.p PERSISTENT SET hCommonProcs.
-            SESSION:ADD-SUPER-PROCEDURE (hCommonProcs).
-        END.
-        IF NOT VALID-HANDLE(hCreditProcs) THEN DO:
-            RUN system/creditProcs.p PERSISTENT SET hCreditProcs.
-            SESSION:ADD-SUPER-PROCEDURE (hCreditProcs).
-        END.
-        IF NOT VALID-HANDLE(hPurgeProcs) THEN DO:
-            RUN system/purgeProcs.p PERSISTENT SET hPurgeProcs.
-            SESSION:ADD-SUPER-PROCEDURE (hPurgeProcs).
-        END.
 
     RUN util/dev/VendorCostConvProcs PERSISTENT SET hVendCostProcs.
     FOR EACH company NO-LOCK:
@@ -2862,12 +2838,6 @@ PROCEDURE ipDataFix :
     DEF VAR iCurrentVersion AS INT NO-UNDO.
     DEF VAR cTgtEnv AS CHAR NO-UNDO.
 
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH      = cNewPropath
-        .
-
     RUN ipStatus ("Starting Data Fixes - from version " + fiFromVer:{&SV}).
 
     ASSIGN 
@@ -2945,7 +2915,7 @@ PROCEDURE ipDataFix :
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
-RUN ipStatus ("Completed Data Fixes").
+    RUN ipStatus ("Completed Data Fixes").
     
     ASSIGN 
         lSuccess = TRUE.
@@ -4246,6 +4216,122 @@ END PROCEDURE.
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixBadAPPostings C-Win
+PROCEDURE ipFixBadAPPostings:
+/*------------------------------------------------------------------------------
+ Purpose:  21.04.15 and .16 posted bad glhist records in AP posting using the operating account 
+           rather than the case account. This fixes those entries
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF BUFFER bglhist FOR glhist.
+    
+    DEF VAR v-payable-acct AS CHAR.
+    DEF VAR cFileName AS CHAR NO-UNDO.
+    DEF VAR lSuccess AS LOG NO-UNDO.
+    DEF VAR cMessage AS CHAR NO-UNDO.
+    DEF VAR cParse AS CHAR NO-UNDO.
+    DEF VAR cVendNo AS CHAR NO-UNDO.
+    DEF VAR cInvNo AS CHAR NO-UNDO.
+    DEF VAR iRecKey AS INT NO-UNDO.
+    DEF VAR hdOutputProcs AS HANDLE NO-UNDO.
+  
+    ASSIGN cFileName = "c:\tmp\FixBadPayablePost_" + 
+                       STRING(YEAR(TODAY),"9999") + 
+                       STRING(MONTH(TODAY),"99") + 
+                       STRING(DAY(TODAY),"99") + "_" +
+                       STRING(TIME) + ".csv".
+
+    FOR EACH company NO-LOCK:
+        FIND FIRST ap-ctrl NO-LOCK WHERE 
+            ap-ctrl.company EQ company.company 
+            NO-ERROR.
+        IF AVAIL ap-ctrl THEN DO:
+            ASSIGN 
+                v-payable-acct = ap-ctrl.payables.
+            /* Create a master list of record candidates for acctnum change */            
+            FOR EACH glhist WHERE
+                glhist.company EQ company.company AND 
+                glhist.rec_key GE "20220103" AND  
+                glhist.jrnl EQ "ACPAY" AND 
+                glhist.documentID NE "" AND 
+                glhist.actnum NE v-payable-acct:
+                    
+                ASSIGN 
+                    cParse = glhist.documentID
+                    cParse = REPLACE(cParse,"Vendor:","")
+                    cParse = REPLACE(cParse,"Inv:","")
+                    cParse = REPLACE(cParse,"PO:","")
+                    cParse = REPLACE(cParse,"  "," ")
+                    cParse = REPLACE(cParse,"  "," ")
+                    cParse = REPLACE(cParse,"  "," ")
+                    cParse = REPLACE(cParse,"  "," ")
+                    cVendNo = ENTRY(1,cParse," ")
+                    cInvNo = ENTRY(2,cParse," ")
+                    .
+                ASSIGN 
+                    iRecKey = INTEGER(SUBSTRING(glhist.rec_key,15,7)) + 1.
+                    
+                FIND FIRST bglhist exclusive WHERE 
+                    bglhist.company EQ glhist.company AND 
+                    bglhist.tr-date EQ glhist.tr-date AND 
+                    bglhist.tr-num EQ glhist.tr-num AND 
+                    bglhist.tr-amt = glhist.tr-amt * -1 AND  
+                    bglhist.actnum NE v-payable-acct AND  
+                    INTEGER(SUBSTRING(bglhist.rec_key,15,7)) EQ iRecKey
+                    NO-ERROR.
+                IF AVAIL bglhist THEN DO:
+                    CREATE ttPayableFix.
+                    ASSIGN
+                        ttPayableFix.company = bglhist.company 
+                        ttPayableFix.cVendNo = cVendNo
+                        ttPayableFix.cInvNo = cInvNo
+                        ttPayableFix.tr-num = bglhist.tr-num
+                        ttPayableFix.tr-date = bglhist.tr-date
+                        ttPayableFix.jrnl = bglhist.jrnl
+                        ttPayableFix.tr-amt = bglhist.tr-amt
+                        ttPayableFix.documentID = glhist.documentID
+                        ttPayableFix.OLDactnum = bglhist.actnum
+                        ttPayableFix.glhistRowid = ROWID(bglhist)
+                        ttPayableFix.NEWactnum = v-payable-acct
+                        ttPayableFix.rec_key = bglhist.rec_key 
+                        .
+                    
+                    ASSIGN 
+                        bglhist.actnum = v-payable-acct.    
+                    
+                END.  /* AVAIL bglhist */
+            END. /*  EACH glhist */
+        END. /* AVAIL ap-ctrl */
+    END. /* EACH company */
+
+    OUTPUT TO VALUE(cFileName).
+    PUT UNFORMATTED "Company,Run#,Vendor,Inv#,Txn Date,Dscr,Amount,DocumentID,Old ActNum,New ActNum,Rec_Key" + CHR(10).
+    FOR EACH ttPayableFix:
+        PUT UNFORMATTED 
+            ttPayableFix.company + "," +
+            STRING(ttPayableFix.tr-num,"x(9)") + "," +
+            ttPayableFix.cVendNo + "," +
+            ttPayableFix.cInvNo + "," +
+            STRING(ttPayableFix.tr-date,"99/99/9999") + "," +
+            ttPayableFix.jrnl + "," +
+            STRING(ttPayableFix.tr-amt,">>,>>>,>>9.99") + "," +
+            ttPayableFix.documentID + "," +
+            ttPayableFix.OLDactnum + "," +
+            ttPayableFix.NEWactnum + "," +
+            ttPayableFix.rec_key + "," +
+            CHR(10).
+    END.
+    OUTPUT CLOSE.
+    
+                        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixBadYears C-Win 
 PROCEDURE ipFixBadYears :
 /*------------------------------------------------------------------------------
@@ -4338,13 +4424,9 @@ PROCEDURE ipFixFoldingEstimateScores PRIVATE:
 
     RUN ipStatus ("    Fix Estimate scores").
 
-    DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
-    
     DEFINE BUFFER bf-company     FOR company.
     DEFINE BUFFER bf-style       FOR style.
     DEFINE BUFFER bf-panelHeader FOR panelHeader.
-
-    RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
     FOR EACH bf-company NO-LOCK:        
         FOR EACH bf-panelheader NO-LOCK 
@@ -4354,15 +4436,13 @@ PROCEDURE ipFixFoldingEstimateScores PRIVATE:
             WHERE bf-style.company  EQ bf-panelHeader.company 
               AND bf-style.style    EQ bf-panelHeader.styleID 
               AND bf-style.industry EQ "1":                            /* Folding estimates */
-            RUN DeletePanelDetailsForPO IN hdFormulaProcs (
+            RUN DeletePanelDetailsForPO (
                 INPUT bf-panelHeader.company,
                 INPUT bf-panelHeader.poID,
                 INPUT bf-panelHeader.poLine
                 ).            
         END.   
     END.
-    
-    DELETE PROCEDURE hdFormulaProcs.
     
 END PROCEDURE.
 	
@@ -6054,10 +6134,6 @@ PROCEDURE ipLoadSettingType :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Setting Type Records").
 
-    DEFINE VARIABLE hSession AS HANDLE.
-    RUN system/session.p PERSISTENT SET hSession.
-    SESSION:ADD-SUPER-PROCEDURE(hSession).
-
     &SCOPED-DEFINE tablename settingType
     
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
@@ -6076,8 +6152,6 @@ PROCEDURE ipLoadSettingType :
     IF SEARCH("util/nk1ToSetting.r") NE ? THEN 
         RUN VALUE (SEARCH("util/nk1ToSetting.r")) (fIntVer(fiFromVer:{&SV})).
 
-    SESSION:REMOVE-SUPER-PROCEDURE(hSession).
-        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6384,7 +6458,9 @@ PROCEDURE ipProcessAll :
 
     ASSIGN
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + 
+                       cEnvDir + "\" + fiEnvironment:{&SV} + "\Resources," +
+                       PROPATH
         PROPATH      = cNewPropath
         .
     ASSIGN
@@ -6451,6 +6527,15 @@ PROCEDURE ipProcessAll :
         iopiStatus = iopiStatus + 20
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
 
+    /* Load any external procs/supers that may need to be accessed */
+    IF NOT VALID-HANDLE(hSession) THEN DO:
+        RUN system/session.p PERSISTENT SET hSession.
+        SESSION:ADD-SUPER-PROCEDURE (hSession).
+    END. 
+    IF NOT VALID-HANDLE(hFormulaProcs) THEN DO:
+        RUN system/FormulaProcs.p PERSISTENT SET hFormulaProcs.
+        SESSION:ADD-SUPER-PROCEDURE (hFormulaProcs).
+    END.
 
     IF tbRunDataFix:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipDataFix.
@@ -7183,7 +7268,7 @@ PROCEDURE ipSetDepartmentRequired:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("    Setting Dapartment isRequired Flags").
+    RUN ipStatus ("    Setting Department isRequired Flags").
 
     DEF BUFFER bdept FOR dept.
 
@@ -8148,8 +8233,6 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 
 
