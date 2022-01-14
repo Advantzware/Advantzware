@@ -199,7 +199,7 @@ DEF TEMP-TABLE ttPayableFix
     FIELD OLDactnum AS CHAR LABEL "Old ActNum"
     FIELD NEWactnum AS CHAR LABEL "New ActNum"
     FIELD glhistRowid AS ROWID
-    FIELD recordChanged AS LOG LABEL "Changed" 
+    FIELD rec_key AS CHAR LABEL "RecKey" 
     .
         
 DEF BUFFER bnotes FOR notes.
@@ -4297,7 +4297,6 @@ PROCEDURE ipFixBadAPPostings:
             FOR EACH glhist WHERE
                 glhist.company EQ company.company AND 
                 glhist.rec_key GE "20220103" AND  
-                glhist.sourceDate GE 01/03/2022 AND 
                 glhist.jrnl EQ "ACPAY" AND 
                 glhist.documentID NE "" AND 
                 glhist.actnum NE v-payable-acct:
@@ -4323,7 +4322,7 @@ PROCEDURE ipFixBadAPPostings:
                     bglhist.tr-num EQ glhist.tr-num AND 
                     bglhist.tr-amt = glhist.tr-amt * -1 AND  
                     bglhist.actnum NE v-payable-acct AND  
-                    INTEGER(SUBSTRING(bglhist.rec_key,15,7)) + 1 EQ iRecKey
+                    INTEGER(SUBSTRING(bglhist.rec_key,15,7)) EQ iRecKey
                     NO-ERROR.
                 IF AVAIL bglhist THEN DO:
                     CREATE ttPayableFix.
@@ -4339,10 +4338,12 @@ PROCEDURE ipFixBadAPPostings:
                         ttPayableFix.OLDactnum = bglhist.actnum
                         ttPayableFix.glhistRowid = ROWID(bglhist)
                         ttPayableFix.NEWactnum = v-payable-acct
-                        ttPayableFix.recordChanged = YES 
+                        ttPayableFix.rec_key = bglhist.rec_key 
                         .
+                    
                     ASSIGN 
                         bglhist.actnum = v-payable-acct.    
+                    
                 END.  /* AVAIL bglhist */
             END. /*  EACH glhist */
         END. /* AVAIL ap-ctrl */
@@ -4351,7 +4352,7 @@ PROCEDURE ipFixBadAPPostings:
     RUN Output_TempTableToCSV IN hdOutputProcs (TEMP-TABLE ttPayableFix:HANDLE,
                                                 cFileName,
                                                 YES,
-                                                INPUT FALSE /* Auto increment File name */,
+                                                INPUT YES /* Auto increment File name */,
                                                 OUTPUT lSuccess,
                                                 OUTPUT cMessage).
                         
