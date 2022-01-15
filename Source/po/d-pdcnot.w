@@ -71,8 +71,8 @@ DEFINE VARIABLE cCalcNoteType    AS CHARACTER NO-UNDO.
 
 /* Definitions for DIALOG-BOX dialog-Frame                              */
 &Scoped-define FIELDS-IN-QUERY-dialog-Frame notes.note_date notes.note_time ~
-notes.user_id notes.viewed notes.note_code notes.note_text 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-dialog-Frame notes.note_code ~
+notes.user_id notes.viewed notes.note_text 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-dialog-Frame ~
 notes.note_text 
 &Scoped-define ENABLED-TABLES-IN-QUERY-dialog-Frame notes
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-dialog-Frame notes
@@ -85,12 +85,12 @@ notes.note_text
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS notes.note_code notes.note_text 
+&Scoped-Define ENABLED-FIELDS  notes.note_text 
 &Scoped-define ENABLED-TABLES notes
 &Scoped-define FIRST-ENABLED-TABLE notes
 &Scoped-Define ENABLED-OBJECTS cbTitle btAddNote btOk 
 &Scoped-Define DISPLAYED-FIELDS notes.note_date notes.note_time ~
-notes.user_id notes.viewed notes.note_code notes.note_text 
+notes.user_id notes.viewed notes.note_text 
 &Scoped-define DISPLAYED-TABLES notes
 &Scoped-define FIRST-DISPLAYED-TABLE notes
 &Scoped-Define DISPLAYED-OBJECTS spec-desc cbTitle 
@@ -204,7 +204,7 @@ ASSIGN
     btCancel:HIDDEN IN FRAME dialog-Frame = TRUE.
 
 /* SETTINGS FOR FILL-IN notes.note_code IN FRAME dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                 */
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
     notes.note_code:HIDDEN IN FRAME dialog-Frame = TRUE.
 
@@ -446,57 +446,6 @@ ON VALUE-CHANGED OF cbTitle IN FRAME dialog-Frame
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME notes.note_code
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_code dialog-Frame
-ON ENTRY OF notes.note_code IN FRAME dialog-Frame /* Spec */
-    DO:
-    /*   saveNoteCode = {&self-name}:SCREEN-VALUE. */
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_code dialog-Frame
-ON HELP OF notes.note_code IN FRAME dialog-Frame /* Spec */
-    DO:
-    /*   DEF VAR char-val AS CHAR NO-UNDO.                                             */
-    /*                                                                                 */
-    /*                                                                                 */
-    /*   RUN cec/l-itspec.w (g_company, {&self-name}:SCREEN-VALUE, OUTPUT char-val).   */
-    /*   IF char-val NE "" AND {&self-name}:SCREEN-VALUE NE ENTRY(1,char-val) THEN DO: */
-    /*     {&self-name}:SCREEN-VALUE = ENTRY(1,char-val).                              */
-    /*     RUN new-note_code.                                                          */
-    /*   END.                                                                          */
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_code dialog-Frame
-ON LEAVE OF notes.note_code IN FRAME dialog-Frame /* Spec */
-    DO:
-    /*   IF LASTKEY NE -1 THEN DO:                     */
-    /*     RUN valid-note_code (FOCUS) NO-ERROR.       */
-    /*     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. */
-    /*   END.                                          */
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_code dialog-Frame
-ON VALUE-CHANGED OF notes.note_code IN FRAME dialog-Frame /* Spec */
-    DO:
-    /*   RUN new-note_code. */
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK dialog-Frame 
@@ -568,10 +517,9 @@ PROCEDURE asi-initialize :
         WHERE rejct-cd.TYPE    EQ "R"
         NO-LOCK WITH FRAME {&FRAME-NAME}.
         cbTitle:ADD-LAST(rejct-cd.CODE + " " + rejct-cd.dscr, rejct-cd.CODE).        
-    END.
-    notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "PDC".
+    END.       
     FRAME dialog-Frame:TITLE = "Po Date Reason Selection".
-    DISABLE notes.note_code.
+    
 
 END PROCEDURE.
 
@@ -613,9 +561,9 @@ PROCEDURE enable_UI :
         WITH FRAME dialog-Frame.
     IF AVAILABLE notes THEN 
         DISPLAY notes.note_date notes.note_time notes.user_id notes.viewed 
-            notes.note_code notes.note_text 
+            notes.note_text 
             WITH FRAME dialog-Frame.
-    ENABLE notes.note_code cbTitle btAddNote notes.note_text btOk 
+    ENABLE cbTitle btAddNote notes.note_text btOk 
         WITH FRAME dialog-Frame.
     VIEW FRAME dialog-Frame.
     {&OPEN-BROWSERS-IN-QUERY-dialog-Frame}
@@ -648,11 +596,9 @@ PROCEDURE request-date-init :
         NO-LOCK WITH FRAME {&FRAME-NAME}.
         cbTitle:ADD-LAST(rejct-cd.CODE + " " + rejct-cd.dscr, rejct-cd.CODE).        
     END.
-    ASSIGN 
-        notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "RDC"
-        .
+    
     FRAME dialog-Frame:TITLE = "Required Date Reason Selection".
-    DISABLE notes.note_code.
+    
 
 END PROCEDURE.
 
@@ -680,11 +626,9 @@ PROCEDURE due-date-init :
         NO-LOCK WITH FRAME {&FRAME-NAME}.
         cbTitle:ADD-LAST(rejct-cd.CODE + " " + rejct-cd.dscr, rejct-cd.CODE).        
     END.
-    ASSIGN 
-        notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "DDC"
-        .
+    
     FRAME dialog-Frame:TITLE = "Due Date Reason Selection".
-    DISABLE notes.note_code.
+    
 
 END PROCEDURE.
 
@@ -712,12 +656,9 @@ PROCEDURE pLastShipDate:
         NO-LOCK WITH FRAME {&FRAME-NAME}.
         cbTitle:ADD-LAST(rejct-cd.CODE + " " + rejct-cd.dscr, rejct-cd.CODE).        
     END.
-    ASSIGN 
-        notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "LDC"
-        .
+    
     FRAME dialog-Frame:TITLE = "Last Ship Date Reason Selection".       
-    DISABLE notes.note_code. 
-
+   
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -769,7 +710,7 @@ PROCEDURE save-record :
             bf-notes.note_group   = ip-note-group
             bf-notes.note_form_no = ip-note-form-no
             bf-notes.note_date    = TODAY
-            bf-notes.note_code    = notes.note_code:SCREEN-VALUE.
+            bf-notes.note_code    = ip-note-code.
     END.
     FIND CURRENT bf-notes NO-LOCK NO-ERROR.
     op-added-rowid = ROWID(bf-notes).
