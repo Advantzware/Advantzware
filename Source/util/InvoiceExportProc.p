@@ -14,6 +14,7 @@ DEFINE TEMP-TABLE ttInvoiceExport
     FIELD line_no  		        LIKE ar-invl.LINE
     FIELD invoice_date  		AS CHARACTER LABEL "Invoice Date"
     FIELD InvoiceStatus  		AS CHARACTER  LABEL "Status"
+    FIELD part-no  		        LIKE ar-invl.part-no
     FIELD Salesman1  		    AS CHARACTER FORMAT "x(3)" 
     FIELD Salesman2  		    AS CHARACTER FORMAT "x(3)" 
     FIELD salesman1_name  		AS CHARACTER LABEL "Salesman1 Name" FORMAT "x(20)" 
@@ -40,6 +41,14 @@ DEFINE TEMP-TABLE ttInvoiceExport
     FIELD amount  		        AS CHARACTER LABEL "Total Amount"
     FIELD freight  		        AS CHARACTER LABEL "Freight"
     FIELD freight_adj  		    AS CHARACTER LABEL "Freight Adj."
+    FIELD tax-code  		    LIKE ar-inv.tax-code  LABEL "Sales Tax Code"
+    FIELD tax-amt  		        AS CHARACTER LABEL "Sales Tax Amount"
+    FIELD accountType  		    LIKE cust.accountType
+    FIELD splitType  		    LIKE cust.splitType
+    FIELD parentCust  		    LIKE cust.parentCust
+    FIELD marketSegment  		LIKE cust.marketSegment
+    FIELD naicsCode  		    LIKE cust.naicsCode
+    FIELD industryID  		    LIKE cust.industryID
     .
 
 DEFINE VARIABLE hdOutput     AS HANDLE    NO-UNDO.
@@ -55,6 +64,7 @@ DEFINE BUFFER bf-ar-invl FOR ar-invl.
 DEFINE BUFFER bf-shipto  FOR shipto.
 DEFINE BUFFER bf-item    FOR ITEM.
 DEFINE BUFFER bf-itemfg  FOR itemfg.
+DEFINE BUFFER bf-cust    FOR cust .
 
 ASSIGN
     cocode = ipcCompany.
@@ -81,7 +91,12 @@ FOR EACH bf-ar-inv NO-LOCK WHERE
                 ttInvoiceExport.invoice_no            = bf-ar-invl.inv-no
                 ttInvoiceExport.line_no               = bf-ar-invl.LINE
                 ttInvoiceExport.invoice_date          = IF bf-ar-invl.inv-date NE ? THEN STRING(bf-ar-invl.inv-date) ELSE ""
-                ttInvoiceExport.InvoiceStatus         = bf-ar-inv.stat      
+                ttInvoiceExport.InvoiceStatus         = IF bf-ar-inv.stat EQ "H" THEN "On Hold"
+                                                        ELSE IF bf-ar-inv.stat EQ "X" OR bf-ar-inv.stat EQ "" THEN "Released"
+                                                        ELSE IF bf-ar-inv.stat EQ "W" THEN "Wait/App"
+                                                        ELSE IF bf-ar-inv.stat EQ "N" THEN "New"
+                                                        ELSE ""
+                ttInvoiceExport.part-no               = bf-ar-invl.part-no      
                 ttInvoiceExport.Salesman1             = bf-ar-invl.sman[1]
                 ttInvoiceExport.Salesman2             = bf-ar-invl.sman[2]
                 ttInvoiceExport.salesman1_name        = bf-ar-invl.sname[1]
@@ -90,6 +105,10 @@ FOR EACH bf-ar-inv NO-LOCK WHERE
                 ttInvoiceExport.salesman2_percentage  = STRING(bf-ar-invl.s-pct[2],">>9.99")
                  
                 ttInvoiceExport.identifier            = bf-ar-invl.i-no
+                ttInvoiceExport.DESCRIPTION           = bf-ar-invl.i-name + " " + ( 
+                                                        IF bf-ar-invl.i-dscr NE "" THEN bf-ar-invl.i-dscr
+                                                        ELSE IF bf-ar-invl.part-dscr1 NE "" THEN bf-ar-invl.part-dscr1
+                                                        ELSE bf-ar-invl.part-dscr2)
                 ttInvoiceExport.unit_price            = bf-ar-invl.unit-pr  
                 ttInvoiceExport.uom                   = IF bf-ar-invl.pr-qty-uom NE "" THEN bf-ar-invl.pr-qty-uom ELSE "EA"
                 ttInvoiceExport.extended_price        = bf-ar-invl.amt
@@ -107,6 +126,8 @@ FOR EACH bf-ar-inv NO-LOCK WHERE
                     ttInvoiceExport.freight           = IF bf-ar-inv.f-bill THEN STRING(bf-ar-inv.freight) ELSE ""
                     ttInvoiceExport.freight_adj       = IF NOT bf-ar-inv.f-bill THEN STRING(bf-ar-inv.freight) ELSE ""
                     ttInvoiceExport.amount            = STRING(bf-ar-inv.gross)
+                    ttInvoiceExport.tax-code          = bf-ar-inv.tax-code
+                    ttInvoiceExport.tax-amt           = STRING(bf-ar-inv.tax-amt)
                     .
             END.
                 
@@ -124,16 +145,6 @@ FOR EACH bf-ar-inv NO-LOCK WHERE
                                                  ELSE "".
             END.
             
-            FIND FIRST bf-itemfg
-                WHERE bf-itemfg.company EQ bf-ar-invl.company
-                AND bf-itemfg.i-no      EQ bf-ar-invl.i-no
-                NO-LOCK NO-ERROR.
-            
-            ttInvoiceExport.DESCRIPTION  = IF bf-ar-invl.i-dscr NE "" THEN bf-ar-invl.i-dscr
-                                           ELSE IF AVAIL bf-itemfg AND bf-itemfg.part-dscr1 NE "" THEN bf-itemfg.part-dscr1
-                                           ELSE IF AVAIL bf-item AND bf-item.i-dscr NE "" THEN bf-item.i-dscr
-                                           ELSE "".
-            
             FIND FIRST bf-shipto NO-LOCK
                 WHERE bf-shipto.company = bf-ar-invl.company
                 AND bf-shipto.cust-no   = bf-ar-invl.cust-no
@@ -149,6 +160,22 @@ FOR EACH bf-ar-inv NO-LOCK WHERE
                     ttInvoiceExport.state       = bf-shipto.ship-state
                     ttInvoiceExport.zip         = bf-shipto.ship-zip
                     ttInvoiceExport.country     = IF bf-shipto.country NE "" THEN bf-shipto.country ELSE "US"
+                    .
+            END. /* IF AVAIL shipto */
+            
+            FIND FIRST bf-cust NO-LOCK
+               WHERE bf-cust.company EQ bf-ar-invl.company
+                 AND bf-cust.cust-no EQ bf-ar-invl.cust-no
+                 NO-ERROR.
+            IF AVAIL bf-cust THEN
+            DO:
+                ASSIGN
+                    ttInvoiceExport.accountType   = bf-cust.accountType
+                    ttInvoiceExport.splitType     = bf-cust.splitType
+                    ttInvoiceExport.parentCust    = bf-cust.parentCust
+                    ttInvoiceExport.marketSegment = bf-cust.marketSegment
+                    ttInvoiceExport.naicsCode     = bf-cust.naicsCode
+                    ttInvoiceExport.industryID    = bf-cust.industryID
                     .
             END. /* IF AVAIL shipto */
             
