@@ -369,8 +369,9 @@ DO:
     ELSE 
     DO:
         ASSIGN 
-            ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnWidth
-            ttLayoutSize.iBlankNumOnLength = iCalcNumOnLength.   
+            ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnLength
+            ttLayoutSize.iBlankNumOnLength = iCalcNumOnWidth 
+            .   
         
               
         IF bf-eb.t-len * ttLayoutSize.iBlankNumOnLength GT dCalcTotalLength THEN  
