@@ -28,6 +28,10 @@ DEFINE TEMP-TABLE ttRMToProcess NO-UNDO
     FIELD quantity        AS DECIMAL 
     FIELD quantityUOM     AS CHARACTER
     FIELD transactionType AS CHARACTER 
+    FIELD costPerUOM      AS DECIMAL 
+    FIELD costUOM         AS CHARACTER
+    FIELD totalCost       AS DECIMAL
+    FIELD isAdditional    AS LOGICAL
     .
     
 DEFINE TEMP-TABLE ttRMTransaction NO-UNDO
@@ -216,9 +220,12 @@ PROCEDURE pBuildRMAddMaterialToProcess PRIVATE:
     DEFINE BUFFER bf-ttRMToProcess FOR ttRMToProcess.
     DEFINE BUFFER bf-estMaterial FOR estMaterial.
         
-    DEFINE VARIABLE dMasterQty AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dSpecQty   AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iMultiplier AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dMasterQty  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSpecQty    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iMultiplier AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dQuantity   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lErrorUom   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessageUom AS CHARACTER NO-UNDO.
     
     FIND FIRST bf-est NO-LOCK
          WHERE bf-est.company EQ ipcCompany
@@ -256,15 +263,9 @@ PROCEDURE pBuildRMAddMaterialToProcess PRIVATE:
                     iMultiplier = dMasterQty.
             END CASE.
             
-            IF iMultiplier EQ ? THEN iMultiplier = 0.
+            IF iMultiplier EQ ? THEN iMultiplier = 0.   
             dSpecQty = bf-estMaterial.quantity * iMultiplier.         
-               
-            RUN custom/extradec.p (
-                INPUT  0.0001,
-                INPUT dSpecQty,
-                OUTPUT dSpecQty
-                ).
-                
+                      
             RUN pAddRMToProcess(
                 INPUT  ipcCompany, 
                 INPUT  bf-estMaterial.itemID, 
@@ -284,7 +285,21 @@ PROCEDURE pBuildRMAddMaterialToProcess PRIVATE:
                  NO-ERROR.  
                  
             IF AVAILABLE bf-ttRMToProcess THEN
-            bf-ttRMToProcess.quantityUOM = bf-estMaterial.quantityUOM.
+            DO:
+            ASSIGN
+                 bf-ttRMToProcess.quantityUOM  = bf-estMaterial.quantityUOM
+                 bf-ttRMToProcess.costPerUOM   = bf-estMaterial.costOverridePerUOM
+                 bf-ttRMToProcess.costUom      = bf-estMaterial.costOverrideUOM
+                 bf-ttRMToProcess.isAdditional = YES
+                 .
+                                                                 
+                 IF bf-ttRMToProcess.quantityUOM NE  bf-ttRMToProcess.costUom THEN
+                 RUN Conv_QuantityFromUOMtoUOM(bf-est.company, bf-estMaterial.itemID, "RM",
+                                               bf-ttRMToProcess.quantity, bf-ttRMToProcess.quantityUOM, bf-ttRMToProcess.costUom, 
+                                               0, bf-estMaterial.dimLength, bf-estMaterial.dimWidth, bf-estMaterial.dimDepth, 
+                                               0, OUTPUT dQuantity, OUTPUT lErrorUom, OUTPUT cMessageUom).                       
+                 bf-ttRMToProcess.totalCost   =  bf-estMaterial.costOverridePerUOM * dQuantity.
+            END.     
         END.    
     END. /* AVAILABLE bf-est */
     ELSE 
@@ -371,15 +386,15 @@ PROCEDURE pBuildRMTransactions PRIVATE:
                 ttRMTransaction.transactionType   = ttRMToProcess.transactionType
                 ttRMTransaction.quantity          = dQuantity
                 ttRMTransaction.tag               = bf-rm-bin.tag
-                ttRMTransaction.quantityUOM       = bf-item.cons-uom
-                ttRMTransaction.costPerUOM        = bf-rm-bin.cost
-                ttRMTransaction.costTotal         = bf-rm-bin.cost * ttRMTransaction.quantity
+                ttRMTransaction.quantityUOM       = ttRMToProcess.quantityUOM
+                ttRMTransaction.costPerUOM        = IF ttRMToProcess.isAdditional THEN ttRMToProcess.costPerUom ELSE bf-rm-bin.cost
+                ttRMTransaction.costTotal         = IF ttRMToProcess.isAdditional THEN ttRMToProcess.totalCost ELSE (bf-rm-bin.cost * ttRMTransaction.quantity)
                 ttRMTransaction.transactionStatus = "Created"
-                ttRMTransaction.costUOM           = "EA"
+                ttRMTransaction.costUOM           = IF ttRMToProcess.isAdditional THEN ttRMToProcess.costUom ELSE "EA"
                 ttRMTransaction.rmBinRowID        = ROWID(bf-rm-bin)
                 dQuantity                         = dQuantity - ttRMTransaction.quantity
                 dCostTotal                        = dCostTotal + ttRMTransaction.costTotal
-                .
+                .    
         END.  
         
     END.
@@ -554,8 +569,10 @@ PROCEDURE pProcessTransactions PRIVATE:
                     INPUT  cLocation, 
                     INPUT  "",  /* Bin */ 
                     INPUT  ttRMTransaction.transactionType, 
-                    INPUT  ttRMTransaction.quantity, 
+                    INPUT  ttRMTransaction.quantity,
+                    INPUT  ttRMTransaction.quantityUom,                    
                     INPUT  ttRMTransaction.costPerUOM, 
+                    INPUT  ttRMTransaction.costUOM, 
                     INPUT  "",  /* Reason Code */ 
                     OUTPUT ttRMTransaction.rmRctdRowID, 
                     OUTPUT oplError, 
@@ -567,6 +584,9 @@ PROCEDURE pProcessTransactions PRIVATE:
                     INPUT  ttRMTransaction.rmBInRowID, 
                     INPUT  ttRMTransaction.transactionType, 
                     INPUT  ttRMTransaction.quantity, 
+                    INPUT  ttRMTransaction.quantityUom,                    
+                    INPUT  ttRMTransaction.costPerUOM, 
+                    INPUT  ttRMTransaction.costUOM,
                     INPUT  "",  /* Reason Code */ 
                     INPUT  FALSE,  /* Update Job Details */
                     OUTPUT ttRMTransaction.rmRctdRowID, 
