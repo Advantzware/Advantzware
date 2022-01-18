@@ -629,7 +629,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 15.4
       get-wip() @ li-wip COLUMN-LABEL "Production!Balance" FORMAT "->>,>>>,>>>":U
             WIDTH 14.2
-      get-pct(li-bal) @ li-pct COLUMN-LABEL "O/U%" FORMAT "->>>>>>>%":U
+      get-pct(li-bal) @ li-pct COLUMN-LABEL "O/U%" FORMAT "->>>>>%":U
       get-fgitem() @ lc-fgitem COLUMN-LABEL "FG Item#" FORMAT "X(15)":U
             WIDTH 21
       oe-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
@@ -871,7 +871,7 @@ oe-ordl.ord-no eq 999999999"
      _FldNameList[25]   > "_<CALC>"
 "get-wip() @ li-wip" "Production!Balance" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[26]   > "_<CALC>"
-"get-pct(li-bal) @ li-pct" "O/U%" "->>>>>>>%" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-pct(li-bal) @ li-pct" "O/U%" "->>>>>%" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[27]   > "_<CALC>"
 "get-fgitem() @ lc-fgitem" "FG Item#" "X(15)" ? ? ? ? ? ? ? no ? no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[28]   > ASI.oe-ordl.i-name
@@ -3700,6 +3700,8 @@ FUNCTION get-pct RETURNS INTEGER
     rtnValue = ((ipBal / oe-ordl.qty) - 1) * 100.
     IF rtnValue EQ 0 THEN rtnValue = 100.
     IF rtnValue EQ -100 THEN rtnValue = 0.
+    IF rtnValue GT 999 THEN rtnValue = 999.
+    ELSE IF rtnValue LT -999 THEN rtnValue = -999.
   END.
 
   RETURN rtnValue.

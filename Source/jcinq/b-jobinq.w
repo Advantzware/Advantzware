@@ -396,7 +396,7 @@ DEFINE BROWSE Browser-Table
       shipQty() @ shipQty COLUMN-LABEL "Shipped Qty" FORMAT "->>,>>>,>>>":U
       invoiceQty() @ invoiceQty COLUMN-LABEL "Invoice Qty" FORMAT "->>,>>>,>>>":U
       wipQty() @ wipQty COLUMN-LABEL "WIP Qty" FORMAT "->>,>>>,>>>":U
-      overUnderPct(onHandQty) @ overUnderPct COLUMN-LABEL "O/U%" FORMAT "->>>>>>>%":U
+      overUnderPct(onHandQty) @ overUnderPct COLUMN-LABEL "O/U%" FORMAT "->>>>>%":U
       fgItemNo() @ fgItemNo COLUMN-LABEL "FG Item" FORMAT "X(15)":U
   ENABLE
       job-hdr.job-no
@@ -576,7 +576,7 @@ ASSIGN
      _FldNameList[17]   > "_<CALC>"
 "wipQty() @ wipQty" "WIP Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
-"overUnderPct(onHandQty) @ overUnderPct" "O/U%" "->>>>>>>%" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"overUnderPct(onHandQty) @ overUnderPct" "O/U%" "->>>>>%" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > "_<CALC>"
 "fgItemNo() @ fgItemNo" "FG Item" "X(15)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
@@ -2061,6 +2061,9 @@ FUNCTION overUnderPct RETURNS INTEGER
     rtnValue = ((ipBalance / oe-ordl.qty) - 1) * 100.
     IF rtnValue EQ 0 THEN rtnValue = 100.
     IF rtnValue EQ -100 THEN rtnValue = 0.
+    
+    IF rtnValue GT 999 THEN rtnValue = 999.
+    ELSE IF rtnValue LT -999 THEN rtnValue = -999.
     END. /* avail oe-ordl */
   END. /* avail job-hdr */
   RETURN rtnValue.

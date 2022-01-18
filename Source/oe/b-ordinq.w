@@ -677,7 +677,7 @@ DEFINE BROWSE Browser-Table
       get-inv-qty() @ iInvQty COLUMN-LABEL "Invoice Qty" FORMAT "->>,>>>,>>>":U
       get-act-rel-qty() @ li-act-rel-qty COLUMN-LABEL "Act. Rel.!Quantity" FORMAT "->>,>>>,>>>":U
             WIDTH 12.4
-      get-pct(li-bal) @ li-pct COLUMN-LABEL "O/U%" FORMAT "->>>>>>>%":U
+      get-pct(li-bal) @ li-pct COLUMN-LABEL "O/U%" FORMAT "->>>>>%":U
       oe-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
       oe-ordl.line FORMAT ">>99":U
@@ -908,7 +908,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[21]   > "_<CALC>"
 "get-act-rel-qty() @ li-act-rel-qty" "Act. Rel.!Quantity" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"
-"get-pct(li-bal) @ li-pct" "O/U%" "->>>>>>>%" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-pct(li-bal) @ li-pct" "O/U%" "->>>>>%" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > ASI.oe-ordl.i-name
 "oe-ordl.i-name" "Item Name" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > ASI.oe-ordl.line
@@ -3061,6 +3061,8 @@ FUNCTION get-pct RETURNS INTEGER
     rtnValue = ((ipBal / oe-ordl.qty) - 1) * 100.
     IF rtnValue EQ 0 THEN rtnValue = 100.
     IF rtnValue EQ -100 THEN rtnValue = 0.
+    IF rtnValue GT 999 THEN rtnValue = 999.
+    ELSE IF rtnValue LT -999 THEN rtnValue = -999.
   END.
 
   RETURN rtnValue.
