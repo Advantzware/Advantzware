@@ -325,6 +325,7 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
     DEFINE VARIABLE iCount         AS INTEGER NO-UNDO.
     DEFINE VARIABLE lAvailVendItem AS LOGICAL NO-UNDO.
     DEFINE VARIABLE dCost          AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTotalCost     AS DECIMAL NO-UNDO.
     
     DO iCount = 1 TO EXTENT(ipcAdderList):
         IF ipcAdderList[iCount] <> "" THEN 
@@ -455,9 +456,12 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
                     END.
             END. /*not blank adderlist*/
         END. /*Do iCount end*/
+
         VendItemCostBlk:
         FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid AND ttVendItemCost.ItemID = ipcItemID:
-            dCost = 0.
+            ASSIGN 
+                dCost = 0
+                dtotalCost = 0.
             DO iCount = 1 TO EXTENT(ipcAdderList):
                 IF ipcAdderList[iCount] <> "" THEN
                 DO:
@@ -470,8 +474,11 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
                             WHERE bf-ttVendItemCost.isValid 
                             AND bf-ttVendItemCost.VendorID = venditemcost.vendorid
                             AND bf-ttVendItemCost.ItemID = venditemcost.itemid:
-                            dCost = dCost + bf-ttVendItemCost.costPerVendorUOM.
-                        END.                   
+                            ASSIGN 
+                            dCost = dCost + bf-ttVendItemCost.costPerVendorUOM
+                            dtotalCost = dtotalCost + bf-ttVendItemCost.Costtotal.
+                             .
+                        END.              
                     END.
                     ELSE
                     DO: 
@@ -483,8 +490,11 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
                 END.
             END.
             //Add the cost adder cost to the itemCost here
-            ttVendItemCost.costPerVendorUOM = ttVendItemCost.costPerVendorUOM + dCost.
+            ASSIGN
+            ttVendItemCost.costPerVendorUOM = ttVendItemCost.costPerVendorUOM + dCost
+            ttVendItemCost.Costtotal = ttVendItemCost.Costtotal + dtotalCost.
         END.
+
         /*Delete vendors related to adders as they are added to the item adders*/
         FOR EACH ttVendItemCost WHERE ttVendItemCost.ItemID <> ipcItemID:
             DELETE ttVendItemCost.
