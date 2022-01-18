@@ -199,6 +199,102 @@ PROCEDURE pBuildRMToProcess PRIVATE:
 
 END PROCEDURE.
 
+
+PROCEDURE pBuildRMAddMaterialToProcess PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate, this builds the necessary RMs that need to be processed
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-est     FOR est.
+    DEFINE BUFFER bf-item    FOR item.
+    DEFINE BUFFER bf-est-qty FOR est-qty.
+    DEFINE BUFFER bf-ttRMToProcess FOR ttRMToProcess.
+    DEFINE BUFFER bf-estMaterial FOR estMaterial.
+        
+    DEFINE VARIABLE dMasterQty AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dSpecQty   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iMultiplier AS INTEGER NO-UNDO.
+    
+    FIND FIRST bf-est NO-LOCK
+         WHERE bf-est.company EQ ipcCompany
+           AND bf-est.est-no  EQ ipcEstimateID
+         NO-ERROR.
+    IF AVAILABLE bf-est THEN DO:
+        FIND FIRST bf-est-qty NO-LOCK 
+             WHERE bf-est-qty.company EQ bf-est.company
+               AND bf-est-qty.est-no  EQ bf-est.est-no
+             NO-ERROR.
+        IF AVAILABLE bf-est-qty THEN
+            dMasterQty = bf-est-qty.eqty.
+        ELSE
+            dMasterQty = 1200.  /*Refactor - pull from estimate quantity if not always 1200 lbs*/              
+        
+        FOR EACH bf-estMaterial NO-LOCK 
+            WHERE bf-estMaterial.company EQ bf-est.company
+            AND bf-estMaterial.estimateNo EQ bf-est.est-no:
+            
+            FIND FIRST bf-item NO-LOCK 
+                 WHERE bf-item.company EQ  bf-est.company
+                 AND bf-item.i-no EQ bf-estMaterial.itemID
+                 NO-ERROR.
+            
+            CASE bf-estMaterial.quantityPer:
+                WHEN "L" THEN 
+                    iMultiplier = 1.
+                WHEN "C" THEN 
+                    iMultiplier = IF AVAILABLE bf-item THEN bf-item.box-case ELSE 1.
+                WHEN "P" THEN 
+                    iMultiplier = IF AVAILABLE bf-item THEN bf-item.case-pall ELSE 1.
+                WHEN "E" THEN 
+                    iMultiplier = dMasterQty.
+                WHEN "S" THEN 
+                    iMultiplier = dMasterQty.
+            END CASE.
+            
+            IF iMultiplier EQ ? THEN iMultiplier = 0.
+            dSpecQty = bf-estMaterial.quantity * iMultiplier.         
+               
+            RUN custom/extradec.p (
+                INPUT  0.0001,
+                INPUT dSpecQty,
+                OUTPUT dSpecQty
+                ).
+                
+            RUN pAddRMToProcess(
+                INPUT  ipcCompany, 
+                INPUT  bf-estMaterial.itemID, 
+                INPUT  dSpecQty, 
+                INPUT  "I", 
+                OUTPUT oplError, 
+                OUTPUT opcMessage
+                ).
+                
+            IF oplError THEN 
+                RETURN.  
+                
+            FIND FIRST bf-ttRMToProcess
+                 WHERE bf-ttRMToProcess.company         EQ bf-est.company
+                   AND bf-ttRMToProcess.itemID          EQ bf-estMaterial.itemID
+                   AND bf-ttRMToProcess.transactionType EQ "I"
+                 NO-ERROR.  
+                 
+            IF AVAILABLE bf-ttRMToProcess THEN
+            bf-ttRMToProcess.quantityUOM = bf-estMaterial.quantityUOM.
+        END.    
+    END. /* AVAILABLE bf-est */
+    ELSE 
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Invalid estimate: " + ipcEstimateID
+            .
+
+END PROCEDURE.
+
 PROCEDURE pBuildRMTransactions PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Process the ttRMToProcess set to create the transactions required.
@@ -397,6 +493,16 @@ PROCEDURE pProcessFurnishBatch PRIVATE:
 
     IF oplError THEN
         RETURN.
+        
+    RUN pBuildRMAddMaterialToProcess(
+        INPUT  ipcCompany, 
+        INPUT  ipcEstimateID, 
+        OUTPUT oplError, 
+        OUTPUT opcMessage
+        ).  
+
+    IF oplError THEN
+        RETURN.    
 
     /*This is the framework for processing the ttRMToProcess temp-table between these two procedures.
     Note if legacy auto issue logic is used, it may not be practical to generate the pending inventory and GL transactions.

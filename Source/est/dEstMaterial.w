@@ -81,18 +81,19 @@ RUN sys/ref/nk1look.p (
 &Scoped-define INTERNAL-TABLES estMaterial
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
-&Scoped-define FIELDS-IN-QUERY-Dialog-Frame estMaterial.wastePercent ~
-estMaterial.formNo estMaterial.blankNo estMaterial.itemID ~
+&Scoped-define FIELDS-IN-QUERY-Dialog-Frame estMaterial.itemID ~
 estMaterial.materialTypeID estMaterial.quantity estMaterial.quantityUOM ~
-estMaterial.quantityPer estMaterial.costOverridePerUOM ~
-estMaterial.costOverrideUOM estMaterial.noCharge estMaterial.dimLength ~
-estMaterial.dimWidth estMaterial.dimDepth estMaterial.weightPerEA 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame ~
-estMaterial.wastePercent estMaterial.formNo estMaterial.blankNo ~
-estMaterial.itemID estMaterial.quantity estMaterial.quantityPer ~
+estMaterial.quantityPer estMaterial.wastePercent ~
 estMaterial.costOverridePerUOM estMaterial.costOverrideUOM ~
 estMaterial.noCharge estMaterial.dimLength estMaterial.dimWidth ~
-estMaterial.dimDepth estMaterial.weightPerEA 
+estMaterial.dimDepth estMaterial.weightPerEA estMaterial.formNo ~
+estMaterial.blankNo 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame estMaterial.itemID ~
+estMaterial.quantity estMaterial.quantityUOM estMaterial.quantityPer ~
+estMaterial.wastePercent estMaterial.costOverridePerUOM ~
+estMaterial.costOverrideUOM estMaterial.noCharge estMaterial.dimLength ~
+estMaterial.dimWidth estMaterial.dimDepth estMaterial.weightPerEA ~
+estMaterial.formNo estMaterial.blankNo 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame estMaterial
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame estMaterial
 &Scoped-define TABLES-IN-QUERY-Dialog-Frame estMaterial
@@ -100,24 +101,26 @@ estMaterial.dimDepth estMaterial.weightPerEA
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS estMaterial.wastePercent estMaterial.formNo ~
-estMaterial.blankNo estMaterial.itemID estMaterial.quantity ~
-estMaterial.quantityPer estMaterial.costOverridePerUOM ~
-estMaterial.costOverrideUOM estMaterial.noCharge estMaterial.dimLength ~
-estMaterial.dimWidth estMaterial.dimDepth estMaterial.weightPerEA 
+&Scoped-Define ENABLED-FIELDS estMaterial.itemID estMaterial.quantity ~
+estMaterial.quantityUOM estMaterial.quantityPer estMaterial.wastePercent ~
+estMaterial.costOverridePerUOM estMaterial.costOverrideUOM ~
+estMaterial.noCharge estMaterial.dimLength estMaterial.dimWidth ~
+estMaterial.dimDepth estMaterial.weightPerEA estMaterial.formNo ~
+estMaterial.blankNo 
 &Scoped-define ENABLED-TABLES estMaterial
 &Scoped-define FIRST-ENABLED-TABLE estMaterial
 &Scoped-Define ENABLED-OBJECTS OverrideExist Btn_OK Btn_Done Btn_Cancel ~
 RECT-21 RECT-38 RECT-39 
-&Scoped-Define DISPLAYED-FIELDS estMaterial.wastePercent estMaterial.formNo ~
-estMaterial.blankNo estMaterial.itemID estMaterial.materialTypeID ~
-estMaterial.quantity estMaterial.quantityUOM estMaterial.quantityPer ~
+&Scoped-Define DISPLAYED-FIELDS estMaterial.itemID ~
+estMaterial.materialTypeID estMaterial.quantity estMaterial.quantityUOM ~
+estMaterial.quantityPer estMaterial.wastePercent ~
 estMaterial.costOverridePerUOM estMaterial.costOverrideUOM ~
 estMaterial.noCharge estMaterial.dimLength estMaterial.dimWidth ~
-estMaterial.dimDepth estMaterial.weightPerEA 
+estMaterial.dimDepth estMaterial.weightPerEA estMaterial.formNo ~
+estMaterial.blankNo 
 &Scoped-define DISPLAYED-TABLES estMaterial
 &Scoped-define FIRST-DISPLAYED-TABLE estMaterial
-&Scoped-Define DISPLAYED-OBJECTS est-no fi_mat-name fi_type-name 
+&Scoped-Define DISPLAYED-OBJECTS fi_mat-name fi_type-name est-no 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -217,7 +220,6 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     
      estMaterial.itemID AT ROW 2.91 COL 13.6 COLON-ALIGNED
           LABEL "Item ID" FORMAT "x(10)"
           VIEW-AS FILL-IN 
@@ -304,7 +306,7 @@ DEFINE FRAME Dialog-Frame
           LABEL "Blank#" FORMAT "9"
           VIEW-AS FILL-IN 
           SIZE 5.8 BY 1
-          BGCOLOR 15 FONT 1          
+          BGCOLOR 15 FONT 1
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6.
@@ -384,8 +386,6 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR COMBO-BOX estMaterial.quantityPer IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN estMaterial.quantityUOM IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
 ASSIGN 
        RECT-39:HIDDEN IN FRAME Dialog-Frame           = TRUE.
 
@@ -573,8 +573,7 @@ DO:
 
             DO WITH FRAME {&FRAME-NAME}:
                 ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
-            END.
-            estMaterial.quantityUOM     = "EA".
+            END.             
         END.
         
         FIND CURRENT estMaterial NO-LOCK NO-ERROR .
@@ -826,7 +825,7 @@ PROCEDURE display-item :
         IF AVAILABLE eb THEN
             ASSIGN
                 est-no                  = eb.est-no 
-                estMaterial.quantityUOM = "EA".
+                .
 
         DISPLAY estMaterial.FormNo estMaterial.BlankNo estMaterial.quantity  
             estMaterial.quantityPer estMaterial.itemID estMaterial.quantity
@@ -862,22 +861,22 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY est-no fi_mat-name fi_type-name 
+  DISPLAY fi_mat-name fi_type-name est-no 
       WITH FRAME Dialog-Frame.
   IF AVAILABLE estMaterial THEN 
-    DISPLAY estMaterial.wastePercent estMaterial.formNo estMaterial.blankNo 
-          estMaterial.itemID estMaterial.materialTypeID estMaterial.quantity 
+    DISPLAY estMaterial.itemID estMaterial.materialTypeID estMaterial.quantity 
           estMaterial.quantityUOM estMaterial.quantityPer 
-          estMaterial.costOverridePerUOM estMaterial.costOverrideUOM 
-          estMaterial.noCharge estMaterial.dimLength estMaterial.dimWidth 
-          estMaterial.dimDepth estMaterial.weightPerEA 
+          estMaterial.wastePercent estMaterial.costOverridePerUOM 
+          estMaterial.costOverrideUOM estMaterial.noCharge estMaterial.dimLength 
+          estMaterial.dimWidth estMaterial.dimDepth estMaterial.weightPerEA 
+          estMaterial.formNo estMaterial.blankNo 
       WITH FRAME Dialog-Frame.
-  ENABLE estMaterial.wastePercent estMaterial.formNo estMaterial.blankNo 
-         estMaterial.itemID estMaterial.quantity estMaterial.quantityPer 
-         OverrideExist Btn_OK Btn_Done Btn_Cancel 
-         estMaterial.costOverridePerUOM estMaterial.costOverrideUOM 
-         estMaterial.noCharge estMaterial.dimLength estMaterial.dimWidth 
-         estMaterial.dimDepth estMaterial.weightPerEA RECT-21 RECT-38 RECT-39 
+  ENABLE estMaterial.itemID estMaterial.quantity estMaterial.quantityUOM 
+         estMaterial.quantityPer estMaterial.wastePercent OverrideExist Btn_OK 
+         Btn_Done Btn_Cancel estMaterial.costOverridePerUOM 
+         estMaterial.costOverrideUOM estMaterial.noCharge estMaterial.dimLength 
+         estMaterial.dimWidth estMaterial.dimDepth estMaterial.weightPerEA 
+         estMaterial.formNo estMaterial.blankNo RECT-21 RECT-38 RECT-39 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
