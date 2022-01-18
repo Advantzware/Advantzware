@@ -91,11 +91,7 @@ FOR EACH bf-ar-inv NO-LOCK WHERE
                 ttInvoiceExport.invoice_no            = bf-ar-invl.inv-no
                 ttInvoiceExport.line_no               = bf-ar-invl.LINE
                 ttInvoiceExport.invoice_date          = IF bf-ar-invl.inv-date NE ? THEN STRING(bf-ar-invl.inv-date) ELSE ""
-                ttInvoiceExport.InvoiceStatus         = IF bf-ar-inv.stat EQ "H" THEN "On Hold"
-                                                        ELSE IF bf-ar-inv.stat EQ "X" OR bf-ar-inv.stat EQ "" THEN "Released"
-                                                        ELSE IF bf-ar-inv.stat EQ "W" THEN "Wait/App"
-                                                        ELSE IF bf-ar-inv.stat EQ "N" THEN "New"
-                                                        ELSE ""
+                ttInvoiceExport.InvoiceStatus         = "T"
                 ttInvoiceExport.part-no               = bf-ar-invl.part-no      
                 ttInvoiceExport.Salesman1             = bf-ar-invl.sman[1]
                 ttInvoiceExport.Salesman2             = bf-ar-invl.sman[2]
