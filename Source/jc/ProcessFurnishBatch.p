@@ -357,10 +357,10 @@ PROCEDURE pBuildRMTransactions PRIVATE:
                 ttRMTransaction.transactionType   = ttRMToProcess.transactionType
                 ttRMTransaction.quantity          = MINIMUM(dQuantity, bf-rm-bin.qty)
                 ttRMTransaction.tag               = bf-rm-bin.tag
-                ttRMTransaction.quantityUOM       = bf-item.cons-uom
-                ttRMTransaction.costPerUOM        = bf-rm-bin.cost
-                ttRMTransaction.costTotal         = bf-rm-bin.cost * ttRMTransaction.quantity
-                ttRMTransaction.costUOM           = "EA"
+                ttRMTransaction.quantityUOM       = ttRMToProcess.quantityUOM
+                ttRMTransaction.costPerUOM        = IF ttRMToProcess.isAdditional THEN ttRMToProcess.costPerUom ELSE bf-rm-bin.cost
+                ttRMTransaction.costTotal         = IF ttRMToProcess.isAdditional THEN ttRMToProcess.totalCost ELSE (bf-rm-bin.cost * ttRMTransaction.quantity)
+                ttRMTransaction.costUOM           = IF ttRMToProcess.isAdditional THEN ttRMToProcess.costUom ELSE "EA"
                 ttRMTransaction.rmBInRowID        = ROWID(bf-rm-bin)
                 ttRMTransaction.transactionStatus = "Created"
                 dQuantity                         = dQuantity - ttRMTransaction.quantity
