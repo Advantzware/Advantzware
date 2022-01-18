@@ -140,8 +140,8 @@ DO:
                     eb.form-no  EQ job-hdr.frm AND
                     eb.blank-no EQ job-hdr.blank-no
                     NO-LOCK NO-ERROR.
-     
-            IF NOT(AVAIL eb AND NOT eb.pur-man) THEN
+
+            IF NOT(itemfg.isaset OR (AVAIL eb AND NOT eb.pur-man)) THEN
                 NEXT.
             
             /*record with job,form and blank already exist*/
@@ -150,7 +150,15 @@ DO:
                 AND ttOnOrder.formNo  = job-hdr.frm
                 AND ttOnOrder.blankNo = job-hdr.blank-no) THEN 
                 NEXT.
-               
+                
+            ld-qty = 0.
+            RUN fg/GetProductionQty.p (INPUT job-hdr.company,
+                INPUT job-hdr.job-no,
+                INPUT job-hdr.job-no2,
+                INPUT job-hdr.i-no,
+                INPUT NO,
+                OUTPUT ld-qty).
+            
             /*create temp-table*/ 
             CREATE ttOnOrder.
             ASSIGN
@@ -163,11 +171,11 @@ DO:
                 ttOnOrder.jobID2      = job-hdr.job-no2
                 ttOnOrder.formNo      = job-hdr.frm
                 ttOnOrder.blankNo     = job-hdr.blank-no
-                ttOnOrder.quantity    = job-hdr.qty
                 //ttOnOrder.quantityUOM = /*qunatity UOM field not available in job-hdr*/
                 ttOnOrder.warehouseID = job-hdr.loc. /*when creating from Job header job.loc*/
-            
-           // check if job-hdr.e-num in eb
+            IF ld-qty LT job-hdr.qty THEN
+                ttOnOrder.quantity = job-hdr.qty - ld-qty.
+           // check if job-hdr.est-num in eb
             FIND FIRST eb WHERE eb.company = job-hdr.company 
                 AND eb.est-no = job-hdr.est-no NO-LOCK NO-ERROR.
             IF AVAILABLE eb AND (eb.est-type = 2 OR eb.est-type = 6) THEN /*Set record*/
