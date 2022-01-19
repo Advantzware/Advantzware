@@ -13,7 +13,7 @@ DEFINE TEMP-TABLE ttInvoiceExport
     FIELD invoice_no  		    LIKE ar-invl.inv-no
     FIELD line_no  		        LIKE ar-invl.LINE
     FIELD invoice_date  		AS CHARACTER LABEL "Invoice Date"
-    FIELD InvoiceStatus  		AS CHARACTER  LABEL "Status"
+    FIELD InvoiceStatus  		AS CHARACTER  LABEL "Type"
     FIELD part-no  		        LIKE ar-invl.part-no
     FIELD Salesman1  		    AS CHARACTER FORMAT "x(3)" 
     FIELD Salesman2  		    AS CHARACTER FORMAT "x(3)" 
