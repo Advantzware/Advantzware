@@ -56,7 +56,7 @@ DO:
         NO-ERROR.
             
    dQm =  probe.est-qty / 1000 * v-sqft-fac.     
-   dCostDirectMaterial = IF AVAIL CostHeader THEN probe.sell-price * dQm - (costHeader.stdCostDirectMaterial  + costHeader.stdCostFreight + costHeader.stdCostMiscMaterial) ELSE probe.boardContributionTotal .     
+   dCostDirectMaterial = IF AVAIL CostHeader THEN probe.sell-price * dQm - (costHeader.stdCostDirectMaterial  + costHeader.stdCostFreight + costHeader.stdCostMiscMaterial + costHeader.stdCostPrepMaterial) ELSE probe.boardContributionTotal .     
       
    IF probe.manHoursTotal GT 0 THEN 
         dContPerManHr =  dCostDirectMaterial / probe.manHoursTotal.
