@@ -93,10 +93,10 @@ DEFINE BUTTON btSplit
      LABEL "SPLIT TAG" 
      SIZE 22 BY 1.62.
 
-DEFINE VARIABLE fiQuantity AS DECIMAL FORMAT "->,>>>,>>>,>>9.99<<<<":U INITIAL 0 
+DEFINE VARIABLE fiQuantity AS INT64 FORMAT ">,>>>,>>9":U INITIAL 0 
      LABEL "QUANTITY" 
      VIEW-AS FILL-IN 
-     SIZE 36 BY 1.38
+     SIZE 36 BY 1.38 TOOLTIP "Enter Quantity to Split"
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 
