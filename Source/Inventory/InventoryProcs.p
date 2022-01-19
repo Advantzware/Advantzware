@@ -1116,9 +1116,9 @@ PROCEDURE Inventory_CreateRMTransaction:
     DEFINE INPUT  PARAMETER ipcBin        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTransType  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdQtyUom     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcQtyUom     AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdCost       AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdCostUom    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCostUom    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
@@ -1132,9 +1132,9 @@ PROCEDURE Inventory_CreateRMTransaction:
         INPUT  ipcBin, 
         INPUT  ipcTransType, 
         INPUT  ipdQty,
-        INPUT  ipdQtyUom,
+        INPUT  ipcQtyUom,
         INPUT  ipdCost, 
-        INPUT  ipdCostUom,
+        INPUT  ipcCostUom,
         INPUT  ipcReasonCode, 
         OUTPUT opriRMRctd, 
         OUTPUT oplError, 
@@ -1154,9 +1154,9 @@ PROCEDURE pCreateRMTransaction PRIVATE:
     DEFINE INPUT  PARAMETER ipcBin        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTransType  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdQtyUom     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcQtyUom     AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdCost       AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdCostUom    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCostUom    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
@@ -1208,8 +1208,8 @@ PROCEDURE pCreateRMTransaction PRIVATE:
             bf-rm-rctd.loc-bin        = ipcBin
             bf-rm-rctd.qty            = ipdQty             
             bf-rm-rctd.cost           = ipdCost             
-            bf-rm-rctd.pur-uom        = ipdQtyUom
-            bf-rm-rctd.cost-uom       = ipdCostUom
+            bf-rm-rctd.pur-uom        = ipcQtyUom
+            bf-rm-rctd.cost-uom       = ipcCostUom
             bf-rm-rctd.adjustmentCode = ipcReasonCode
             bf-rm-rctd.enteredBy      = USERID("ASI")
             bf-rm-rctd.enteredDT      = NOW
@@ -1226,9 +1226,9 @@ PROCEDURE Inventory_CreateRMTransactionFromRMBin:
     DEFINE INPUT  PARAMETER ipriRMBin     AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTransType  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdQtyUom     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcQtyUom     AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdCost       AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdCostUom    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCostUom    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplUpdateJob  AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
@@ -1241,9 +1241,9 @@ PROCEDURE Inventory_CreateRMTransactionFromRMBin:
         INPUT  ipriRMBin,
         INPUT  ipcTransType,
         INPUT  ipdQty,
-        INPUT  ipdQtyUom,
+        INPUT  ipcQtyUom,
         INPUT  ipdCost,
-        INPUT  ipdCostUom,
+        INPUT  ipcCostUom,
         INPUT  ipcReasonCode,
         INPUT  iplUpdateJob,
         INPUT  FALSE,
@@ -1263,9 +1263,9 @@ PROCEDURE pCreateRMTransactionFromRMBin PRIVATE:
     DEFINE INPUT  PARAMETER ipriRMBin     AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTransType  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdQtyUom     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcQtyUom     AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdCost       AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdCostUom    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCostUom    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplUpdateJob  AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER iplUseItemUom AS LOGICAL   NO-UNDO.
@@ -1314,9 +1314,9 @@ PROCEDURE pCreateRMTransactionFromRMBin PRIVATE:
             INPUT  bf-rm-bin.loc-bin, 
             INPUT  ipcTransType, 
             INPUT  ipdQty, 
-            INPUT  (IF iplUseItemUom THEN bf-item.cons-uom ELSE ipdQtyUom),
+            INPUT  (IF iplUseItemUom THEN bf-item.cons-uom ELSE ipcQtyUom),
             INPUT  (IF iplUseItemUom THEN bf-rm-bin.cost ELSE ipdCost),
-            INPUT  (IF iplUseItemUom THEN bf-item.cons-uom ELSE ipdCostUom),
+            INPUT  (IF iplUseItemUom THEN bf-item.cons-uom ELSE ipcCostUom),
             INPUT  ipcReasonCode, 
             OUTPUT opriRMRctd, 
             OUTPUT lError, 

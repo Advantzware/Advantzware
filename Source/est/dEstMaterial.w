@@ -421,7 +421,7 @@ DO:
         DEFINE VARIABLE char-val   AS cha    NO-UNDO.
         DEFINE VARIABLE lv-handle  AS HANDLE NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID  NO-UNDO .
-        
+        DEFINE VARIABLE cUomList   AS CHARACTER NO-UNDO.
         CASE FOCUS:NAME :
             WHEN "itemID" THEN 
                 DO:
@@ -439,7 +439,34 @@ DO:
                     END.
                     RETURN NO-APPLY.   
                 END.
-            
+            WHEN "quantityUOM" THEN 
+                DO:
+                   FIND FIRST ITEM
+                        WHERE item.company EQ eb.company
+                        AND item.i-no    EQ estMaterial.itemID:SCREEN-VALUE 
+                        NO-LOCK NO-ERROR.
+                   IF AVAILABLE ITEM THEN
+                   RUN sys/ref/uom-rm.p  (item.mat-type, output cUomList).
+                   RUN windows/l-stduom.w (eb.company,cUomList, estMaterial.quantityUOM:SCREEN-VALUE in frame {&frame-name}, output char-val).
+         
+                   if char-val <> "" then 
+                   assign estMaterial.quantityUOM:screen-value in frame {&frame-name} = entry(1,char-val).
+                   RETURN NO-APPLY.   
+                END.    
+            WHEN "costOverrideUOM" THEN 
+                DO:
+                   FIND FIRST ITEM NO-LOCK
+                        WHERE item.company EQ eb.company
+                        AND item.i-no    EQ estMaterial.itemID:SCREEN-VALUE 
+                        NO-ERROR.
+                   IF AVAILABLE ITEM THEN
+                   RUN sys/ref/uom-rm.p  (item.mat-type, output cUomList).
+                   RUN windows/l-stduom.w (eb.company,cUomList, estMaterial.costOverrideUOM:SCREEN-VALUE in frame {&frame-name}, output char-val).
+         
+                   if char-val <> "" then 
+                   assign estMaterial.costOverrideUOM:screen-value in frame {&frame-name} = entry(1,char-val).
+                   RETURN NO-APPLY.   
+                END.    
         END CASE.
     END.
 
@@ -566,6 +593,12 @@ DO:
         IF lValidateResult THEN RETURN NO-APPLY.
        
         RUN valid-material(OUTPUT lValidateResult) NO-ERROR.
+        IF lValidateResult THEN RETURN NO-APPLY.
+        
+        RUN valid-uom(INPUT "qty", estMaterial.quantityUom:SCREEN-VALUE, OUTPUT lValidateResult) NO-ERROR.
+        IF lValidateResult THEN RETURN NO-APPLY.
+        
+        RUN valid-uom(INPUT "cost", estMaterial.costOverrideUOM:SCREEN-VALUE, OUTPUT lValidateResult) NO-ERROR.
         IF lValidateResult THEN RETURN NO-APPLY.
         
         DO TRANSACTION:
@@ -1012,6 +1045,46 @@ PROCEDURE valid-material :
             MESSAGE "Invalid Item Id, try help..." VIEW-AS ALERT-BOX.
             APPLY "entry" TO estMaterial.itemID .
             opcValidError = YES .
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-uom Dialog-Frame 
+PROCEDURE valid-uom :
+/*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcType AS CHARACTER NO-UNDO .
+    DEFINE INPUT  PARAMETER ipcUom AS CHARACTER NO-UNDO .
+    DEFINE OUTPUT PARAMETER oplValidError AS LOGICAL NO-UNDO .
+    DEFINE VARIABLE cUomList AS CHARACTER NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST item NO-LOCK
+            WHERE item.company EQ cocode
+            AND item.i-no    EQ estMaterial.itemID:SCREEN-VALUE 
+            NO-ERROR.
+        IF AVAILABLE ITEM THEN
+        RUN sys/ref/uom-rm.p  (item.mat-type, output cUomList).
+       
+        IF LOOKUP(ipcUom,cUomList) EQ 0 THEN 
+        DO:
+            IF ipcType EQ "qty" THEN
+            DO:             
+                MESSAGE "Invalid quantity UOM, try help..." VIEW-AS ALERT-BOX.
+                APPLY "entry" TO estMaterial.quantityUom .
+                oplValidError = YES .
+            END.
+            ELSE DO:
+               MESSAGE "Invalid cost UOM, try help..." VIEW-AS ALERT-BOX.
+                APPLY "entry" TO estMaterial.costOverrideUOM .
+                oplValidError = YES .
+            END.
         END.
     END.
 

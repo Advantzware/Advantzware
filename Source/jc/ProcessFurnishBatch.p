@@ -97,6 +97,7 @@ PROCEDURE pAddRMToProcess PRIVATE:
     DEFINE INPUT  PARAMETER ipcTransactionType AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER opbf-ttRMToProcess FOR ttRMToProcess.
     
     DEFINE BUFFER bf-item FOR ITEM.
     
@@ -112,22 +113,22 @@ PROCEDURE pAddRMToProcess PRIVATE:
         RETURN.
     END.
     
-    FIND FIRST ttRMToProcess
-         WHERE ttRMToProcess.company         EQ ipcCompany
-           AND ttRMToProcess.itemID          EQ ipcItemID
-           AND ttRMToProcess.transactionType EQ ipcTransactionType
+    FIND FIRST opbf-ttRMToProcess
+         WHERE opbf-ttRMToProcess.company         EQ ipcCompany
+           AND opbf-ttRMToProcess.itemID          EQ ipcItemID
+           AND opbf-ttRMToProcess.transactionType EQ ipcTransactionType
          NO-ERROR.
-    IF NOT AVAILABLE ttRMToProcess THEN DO:
-        CREATE ttRMToProcess.
+    IF NOT AVAILABLE opbf-ttRMToProcess THEN DO:
+        CREATE opbf-ttRMToProcess.
         ASSIGN 
-            ttRMToProcess.company         = ipcCompany
-            ttRMToProcess.itemID          = ipcItemID
-            ttRMToProcess.quantityUOM     = bf-item.cons-uom
-            ttRMToProcess.transactionType = ipcTransactionType
+            opbf-ttRMToProcess.company         = ipcCompany
+            opbf-ttRMToProcess.itemID          = ipcItemID
+            opbf-ttRMToProcess.quantityUOM     = bf-item.cons-uom
+            opbf-ttRMToProcess.transactionType = ipcTransactionType
             .
     END.
     
-    ttRMToProcess.quantity = ttRMToProcess.quantity + ipdQty.
+    opbf-ttRMToProcess.quantity = opbf-ttRMToProcess.quantity + ipdQty.
 
 END PROCEDURE.
 
@@ -136,34 +137,26 @@ PROCEDURE pBuildRMToProcess PRIVATE:
      Purpose:  Given an estimate, this builds the necessary RMs that need to be processed
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcEstimateID AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-est      FOR est.
+    DEFINE PARAMETER BUFFER ipbf-est-qty  FOR est-qty.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.        
     
-    DEFINE BUFFER bf-est     FOR est.
-    DEFINE BUFFER bf-ef      FOR ef.
-    DEFINE BUFFER bf-est-qty FOR est-qty.
+    DEFINE BUFFER bf-ef      FOR ef.     
+    DEFINE BUFFER bf-ttRMToProcess FOR ttRMToProcess.
     
     DEFINE VARIABLE iIndex     AS INTEGER NO-UNDO.
     DEFINE VARIABLE dMasterQty AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dSpecQty   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dSpecQty   AS DECIMAL NO-UNDO.    
     
-    FIND FIRST bf-est NO-LOCK
-         WHERE bf-est.company EQ ipcCompany
-           AND bf-est.est-no  EQ ipcEstimateID
-         NO-ERROR.
-    IF AVAILABLE bf-est THEN DO:
-        FIND FIRST bf-est-qty NO-LOCK 
-             WHERE bf-est-qty.company EQ bf-est.company
-               AND bf-est-qty.est-no  EQ bf-est.est-no
-             NO-ERROR.
-        IF AVAILABLE bf-est-qty THEN
-            dMasterQty = bf-est-qty.eqty.
+    IF AVAILABLE ipbf-est THEN DO:
+        
+        IF AVAILABLE ipbf-est-qty THEN
+            dMasterQty = ipbf-est-qty.eqty.
         ELSE
             dMasterQty = 1200.  /*Refactor - pull from estimate quantity if not always 1200 lbs*/
             
-        FIND FIRST bf-ef OF bf-est NO-LOCK NO-ERROR.
+        FIND FIRST bf-ef OF ipbf-est NO-LOCK NO-ERROR.
         IF AVAILABLE bf-ef THEN DO:
             DO iIndex = 1 TO EXTENT(bf-ef.spec-no):
                 IF bf-ef.spec-no[iIndex] NE "" THEN DO:
@@ -179,7 +172,8 @@ PROCEDURE pBuildRMToProcess PRIVATE:
                         INPUT  dSpecQty, 
                         INPUT  "I", 
                         OUTPUT oplError, 
-                        OUTPUT opcMessage
+                        OUTPUT opcMessage,
+                        BUFFER bf-ttRMToProcess
                         ).
                     IF oplError THEN 
                         RETURN.
@@ -191,10 +185,11 @@ PROCEDURE pBuildRMToProcess PRIVATE:
                 INPUT  dMasterQty, 
                 INPUT  "R", 
                 OUTPUT oplError, 
-                OUTPUT opcMessage
+                OUTPUT opcMessage,
+                BUFFER bf-ttRMToProcess
                 ).        
         END. /* AVAILABLE bf-ef */
-    END. /* AVAILABLE bf-est */
+    END. /* AVAILABLE ipbf-est */
     ELSE 
         ASSIGN 
             oplError   = YES
@@ -209,14 +204,12 @@ PROCEDURE pBuildRMAddMaterialToProcess PRIVATE:
      Purpose:  Given an estimate, this builds the necessary RMs that need to be processed
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcEstimateID AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-est      FOR est.
+    DEFINE PARAMETER BUFFER ipbf-est-qty  FOR est-qty.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.        
     
-    DEFINE BUFFER bf-est     FOR est.
-    DEFINE BUFFER bf-item    FOR item.
-    DEFINE BUFFER bf-est-qty FOR est-qty.
+    DEFINE BUFFER bf-item    FOR item.     
     DEFINE BUFFER bf-ttRMToProcess FOR ttRMToProcess.
     DEFINE BUFFER bf-estMaterial FOR estMaterial.
         
@@ -226,27 +219,20 @@ PROCEDURE pBuildRMAddMaterialToProcess PRIVATE:
     DEFINE VARIABLE dQuantity   AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lErrorUom   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessageUom AS CHARACTER NO-UNDO.
-    
-    FIND FIRST bf-est NO-LOCK
-         WHERE bf-est.company EQ ipcCompany
-           AND bf-est.est-no  EQ ipcEstimateID
-         NO-ERROR.
-    IF AVAILABLE bf-est THEN DO:
-        FIND FIRST bf-est-qty NO-LOCK 
-             WHERE bf-est-qty.company EQ bf-est.company
-               AND bf-est-qty.est-no  EQ bf-est.est-no
-             NO-ERROR.
-        IF AVAILABLE bf-est-qty THEN
-            dMasterQty = bf-est-qty.eqty.
+        
+    IF AVAILABLE ipbf-est THEN DO:
+        
+        IF AVAILABLE ipbf-est-qty THEN
+            dMasterQty = ipbf-est-qty.eqty.
         ELSE
             dMasterQty = 1200.  /*Refactor - pull from estimate quantity if not always 1200 lbs*/              
         
         FOR EACH bf-estMaterial NO-LOCK 
-            WHERE bf-estMaterial.company EQ bf-est.company
-            AND bf-estMaterial.estimateNo EQ bf-est.est-no:
+            WHERE bf-estMaterial.company EQ ipbf-est.company
+            AND bf-estMaterial.estimateNo EQ ipbf-est.est-no:
             
             FIND FIRST bf-item NO-LOCK 
-                 WHERE bf-item.company EQ  bf-est.company
+                 WHERE bf-item.company EQ  ipbf-est.company
                  AND bf-item.i-no EQ bf-estMaterial.itemID
                  NO-ERROR.
             
@@ -272,18 +258,13 @@ PROCEDURE pBuildRMAddMaterialToProcess PRIVATE:
                 INPUT  dSpecQty, 
                 INPUT  "I", 
                 OUTPUT oplError, 
-                OUTPUT opcMessage
+                OUTPUT opcMessage,
+                BUFFER bf-ttRMToProcess
                 ).
                 
             IF oplError THEN 
-                RETURN.  
-                
-            FIND FIRST bf-ttRMToProcess
-                 WHERE bf-ttRMToProcess.company         EQ bf-est.company
-                   AND bf-ttRMToProcess.itemID          EQ bf-estMaterial.itemID
-                   AND bf-ttRMToProcess.transactionType EQ "I"
-                 NO-ERROR.  
-                 
+                RETURN.                   
+                             
             IF AVAILABLE bf-ttRMToProcess THEN
             DO:
             ASSIGN
@@ -294,14 +275,14 @@ PROCEDURE pBuildRMAddMaterialToProcess PRIVATE:
                  .
                                                                  
                  IF bf-ttRMToProcess.quantityUOM NE  bf-ttRMToProcess.costUom THEN
-                 RUN Conv_QuantityFromUOMtoUOM(bf-est.company, bf-estMaterial.itemID, "RM",
+                 RUN Conv_QuantityFromUOMtoUOM(ipbf-est.company, bf-estMaterial.itemID, "RM",
                                                bf-ttRMToProcess.quantity, bf-ttRMToProcess.quantityUOM, bf-ttRMToProcess.costUom, 
                                                0, bf-estMaterial.dimLength, bf-estMaterial.dimWidth, bf-estMaterial.dimDepth, 
                                                0, OUTPUT dQuantity, OUTPUT lErrorUom, OUTPUT cMessageUom).                       
                  bf-ttRMToProcess.totalCost   =  bf-estMaterial.costOverridePerUOM * dQuantity.
             END.     
         END.    
-    END. /* AVAILABLE bf-est */
+    END. /* AVAILABLE ipbf-est */
     ELSE 
         ASSIGN 
             oplError   = YES
@@ -482,6 +463,36 @@ PROCEDURE pExportTempTables PRIVATE:
         
 END PROCEDURE.
 
+PROCEDURE pGetBuffer PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate, this builds the necessary RMs that need to be processed
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-est      FOR est.
+    DEFINE PARAMETER BUFFER ipbf-est-qty  FOR est-qty.
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+            
+    FIND FIRST ipbf-est NO-LOCK
+         WHERE ipbf-est.company EQ ipcCompany
+           AND ipbf-est.est-no  EQ ipcEstimateID
+         NO-ERROR.
+    IF AVAILABLE ipbf-est THEN DO:
+        FIND FIRST ipbf-est-qty NO-LOCK 
+             WHERE ipbf-est-qty.company EQ ipbf-est.company
+               AND ipbf-est-qty.est-no  EQ ipbf-est.est-no
+             NO-ERROR.          
+    END. /* AVAILABLE ipbf-est */
+    ELSE 
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Invalid estimate: " + ipcEstimateID
+            .
+
+END PROCEDURE.
+
 PROCEDURE pProcessFurnishBatch PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -494,14 +505,29 @@ PROCEDURE pProcessFurnishBatch PRIVATE:
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
 
+    DEFINE BUFFER bf-est FOR est.
+    DEFINE BUFFER bf-est-qty FOR est-qty.
+    
     EMPTY TEMP-TABLE ttRMToProcess.
     EMPTY TEMP-TABLE ttRMTransaction.
 
     /*This procedure builds the ttRMToProcess temp-table based on the estimate passed in.
     It will create one "Board" to receive and an a list of Special Materials that will need to be consumed/issued*/
-    RUN pBuildRMToProcess(
+    RUN pGetBuffer(
+        BUFFER bf-est,
+        BUFFER bf-est-qty,
         INPUT  ipcCompany, 
         INPUT  ipcEstimateID, 
+        OUTPUT oplError, 
+        OUTPUT opcMessage
+        ). 
+        
+    IF oplError THEN
+        RETURN.    
+    
+    RUN pBuildRMToProcess(
+        BUFFER bf-est, 
+        BUFFER bf-est-qty, 
         OUTPUT oplError, 
         OUTPUT opcMessage
         ).  
@@ -510,8 +536,8 @@ PROCEDURE pProcessFurnishBatch PRIVATE:
         RETURN.
         
     RUN pBuildRMAddMaterialToProcess(
-        INPUT  ipcCompany, 
-        INPUT  ipcEstimateID, 
+        BUFFER bf-est, 
+        BUFFER bf-est-qty, 
         OUTPUT oplError, 
         OUTPUT opcMessage
         ).  
