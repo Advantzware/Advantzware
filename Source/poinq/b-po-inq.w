@@ -1061,7 +1061,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
  DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}  /* task 07101525 */
     fi_due-date = DATE(fi_due-date:SCREEN-VALUE)  .
-    IF fi_due-date LT TODAY - 365  THEN
+    IF fi_due-date LT TODAY - 365 OR fi_due-date EQ ? THEN
         ASSIGN
            fi_due-date:SCREEN-VALUE = STRING(TODAY - 180) 
            fi_due-date = TODAY - 180 .
