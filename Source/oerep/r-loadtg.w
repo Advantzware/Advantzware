@@ -3750,7 +3750,7 @@ PROCEDURE create-loadtag :
                 fg-rctd.qty-case   = loadtag.qty-case
                 fg-rctd.partial    = loadtag.partial
                 fg-rctd.cases      = IF loadtag.qty-case NE 0 THEN TRUNC(fg-rctd.t-qty / loadtag.qty-case,0) ELSE 0
-                fg-rctd.cases-unit = loadtag.case-bundle
+                fg-rctd.cases-unit = loadtag.case-bundle  + (IF loadtag.partial GT 0 THEN 1 ELSE 0)
                 fg-rctd.loc        = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE loadtag.loc
                 fg-rctd.loc-bin    = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE loadtag.loc-bin
                 fg-rctd.tag        = loadtag.tag-no
@@ -7985,7 +7985,7 @@ PROCEDURE post-return :
 
         bf-fg-rctd.partial    = loadtag.partial
         bf-fg-rctd.cases      = TRUNC(bf-fg-rctd.t-qty / bf-fg-rctd.qty-case,0)
-        bf-fg-rctd.cases-unit = loadtag.case-bundle
+        bf-fg-rctd.cases-unit = loadtag.case-bundle + (IF loadtag.partial GT 0 THEN 1 ELSE 0)
         bf-fg-rctd.loc        = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE loadtag.loc
         bf-fg-rctd.loc-bin    = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE loadtag.loc-bin
         bf-fg-rctd.tag        = loadtag.tag-no
