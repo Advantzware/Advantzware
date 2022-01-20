@@ -575,7 +575,8 @@ PROCEDURE Inventory_GetQuantityOfUnitsForOEBoll:
     RUN pGetQuantityOfSubUnitsPerUnitFromBinAndOrder(bf-oe-boll.company, bf-oe-boll.i-no, bf-oe-boll.job-no, bf-oe-boll.job-no2, bf-oe-boll.loc, bf-oe-boll.loc-bin, bf-oe-boll.tag, bf-oe-boll.ord-no,
         OUTPUT iQuantitySubUnitsPerUnit).  //Get the QuantitySubUnitsPerUnit (cases per pallet)
     
-    iQuantityPerSubUnit = bf-oe-boll.qty-case. 
+    iQuantityPerSubUnit = bf-oe-boll.qty-case.
+    iQuantitySubUnitsPerUnit = iQuantitySubUnitsPerUnit +  (IF bf-oe-boll.partial GT 0 THEN 1 ELSE 0).
     
     RUN RecalcQuantityUnits (bf-oe-boll.qty, INPUT-OUTPUT iQuantityPerSubUnit, INPUT-OUTPUT iQuantitySubUnitsPerUnit,
                                              OUTPUT dQuantityOfSubUnits, OUTPUT opiQuantityOfUnits, OUTPUT dQuantityPartial).
