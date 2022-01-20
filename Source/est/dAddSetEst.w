@@ -1465,8 +1465,11 @@ PROCEDURE pDefaultValue :
         ------------------------------------------------------------------------------*/
     
     DO WITH FRAME {&FRAME-NAME}:
-
-           
+      FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR. 
+      IF AVAILABLE ce-ctrl THEN
+      cType:SCREEN-VALUE = ce-ctrl.spare-char-1. 
+      ELSE
+      cType:SCREEN-VALUE = "No".
     END.
 
 END PROCEDURE.

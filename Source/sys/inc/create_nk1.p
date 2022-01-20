@@ -50,7 +50,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,POPriceHold,SearchLimits,SSIssueDefaultRM,PlateFile,APInvoiceLength,DeleteBinsAllowed,InvoiceApprovalOrderlineChange,QuotePriceMatrix,"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,CEVendorDefault"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,PriceMatrixPricingMethod,CaseLabel,InterCompanyBilling,"
-           + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST"
+           + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST,CENewLayoutCalc"
            .
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -1661,6 +1661,17 @@ CASE ip-nk1-value:
             INPUT NO,                                                               /* Logical value */ 
             INPUT 0                                                                 /* Dec value*/
             ).           
+    WHEN "CENewLayoutCalc" THEN     
+    RUN sys/inc/addnk1.p (
+        INPUT cocode, 
+        INPUT ip-nk1-value, 
+        INPUT NO,           
+        INPUT "Use new Layout calculation routine?", /* Description */
+        INPUT "",                                   /* Char Value */
+        INPUT 0,                                    /* Int value */
+        INPUT NO,                                   /* Logical value */ 
+        INPUT 0                                     /* Dec value*/
+        ).
 END CASE.
 ELSE
 CASE ip-nk1-value:

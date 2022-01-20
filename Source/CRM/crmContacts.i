@@ -303,33 +303,33 @@ PROCEDURE pZohoCRM:
     DEFINE VARIABLE cAccessToken  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cZohoCRM      AS CHARACTER NO-UNDO.
+    
+    RUN spGetSettingByName ("ZohoCRM", OUTPUT cZohoCRM).
+    IF cZohoCRM EQ "NO" THEN DO:
+        MESSAGE "Please active setting 'ZohoCRM' from NK6"
+        VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+    
     lSuccess = YES.
     
     RUN CRM\ZohoProcs.p PERSISTENT SET hdZohoProcs.
     
-    RUN Zoho_GetRefreshToken IN hdZohoProcs (
-        INPUT  ipcCompany,
-        OUTPUT cRefreshToken
-        ).
+    RUN Zoho_GetRefreshToken IN hdZohoProcs (OUTPUT cRefreshToken).
         
     IF cRefreshToken EQ "" THEN
-        RETURN "Refresh Token value is blank. Please update the refresh token in NK1 configuration 'ZohoRefreshToken'".
+        RETURN "Refresh Token value is blank. Please update the refresh token in NK6 configuration 'ZohoRefreshToken'".
         
-    RUN Zoho_GetClientID IN hdZohoProcs (
-        INPUT  ipcCompany,
-        OUTPUT cClientID
-        ).
+    RUN Zoho_GetClientID IN hdZohoProcs (OUTPUT cClientID).
         
     IF cClientID EQ "" THEN
-        RETURN "ClientID value is blank. Please update the client id in NK1 configuration 'ZohoClientID'".
+        RETURN "ClientID value is blank. Please update the client id in NK6 configuration 'ZohoClientID'".
 
-    RUN Zoho_GetClientSecret IN hdZohoProcs (
-        INPUT  ipcCompany,
-        OUTPUT cClientSecret
-        ).
+    RUN Zoho_GetClientSecret IN hdZohoProcs (OUTPUT cClientSecret).
         
     IF cClientSecret EQ "" THEN
-        RETURN "ClientSecret value is blank. Please update the client secret in NK1 configuration 'ZohoClientSecret'".
+        RETURN "ClientSecret value is blank. Please update the client secret in NK6 configuration 'ZohoClientSecret'".
     
      RUN Zoho_GetAccessToken IN hdZohoProcs (
          INPUT  cRefreshToken,

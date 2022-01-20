@@ -317,7 +317,7 @@ IF AVAILABLE cust AND iPaper-log AND iPaper-dir NE "" THEN
             PUT "01"                                        FORMAT "x(2)".
     
             /* PURCHASE ORDER # */
-            PUT po-ord.po-no                                FORMAT "99999999".
+            PUT po-ord.po-no                                FORMAT "999999".
 
             /* A */
             PUT "A"                                         FORMAT "x(1)".
@@ -326,7 +326,7 @@ IF AVAILABLE cust AND iPaper-log AND iPaper-dir NE "" THEN
             PUT po-ordl.line                                FORMAT "99".
     
             /* PURCHASE ORDER # */
-            PUT po-ord.po-no                                FORMAT "99999999".
+            PUT po-ord.po-no                                FORMAT "999999".
 
             /* A */
             PUT "A"                                         FORMAT "x(1)".

@@ -1172,7 +1172,7 @@ RUN GL_SpCreateGLHist(cocode,
                    tran-period,
                    "A",
                    tran-date,
-                   work-job.cDesc,
+                   "",
                    "AR"). 
 
 FOR EACH work-job BREAK BY work-job.actnum:
@@ -1187,7 +1187,7 @@ FOR EACH work-job BREAK BY work-job.actnum:
                      tran-period,
                      "A",
                      tran-date,
-                     "",
+                     work-job.cDesc,
                      "AR"). 
   
 END. /* each work-job */

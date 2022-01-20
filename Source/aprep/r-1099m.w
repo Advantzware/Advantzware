@@ -57,6 +57,8 @@ DEFINE VARIABLE cRtnChar        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lBussFormModle  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE d-print-fmt-dec AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE c1099Misc       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE c1099MiscLeftMargin AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -572,25 +574,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         begin_date = ?
         end_date   = ?.
 
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.company EQ cocode AND
-        sys-ctrl.name    EQ "1099MISC"
-        NO-LOCK NO-ERROR.
-
-    IF NOT AVAILABLE sys-ctrl THEN 
-    DO TRANSACTION:
-        CREATE sys-ctrl.
-        ASSIGN
-            sys-ctrl.company  = cocode
-            sys-ctrl.name     = "1099MISC"
-            sys-ctrl.log-fld  = NO
-            sys-ctrl.char-fld = ""
-            sys-ctrl.descrip  = "1099-MISC Print Format".
-    END.
-
-    v-print-fmt = sys-ctrl.char-fld.
-    d-print-fmt-dec = sys-ctrl.dec-fld.
-
+    RUN spGetSettingByName ("1099Misc", OUTPUT c1099Misc).
+    RUN spGetSettingByName ("1099MiscLeftMargin", OUTPUT c1099MiscLeftMargin).
+    
+    ASSIGN
+        v-print-fmt = c1099Misc
+        d-print-fmt-dec = DECIMAL(c1099MiscLeftMargin).
+    
     CASE v-print-fmt:
         WHEN "Fibre" THEN
             ASSIGN 

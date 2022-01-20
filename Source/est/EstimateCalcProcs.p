@@ -970,6 +970,44 @@ PROCEDURE pAddEstMiscForForm PRIVATE:
     END.
 END PROCEDURE.
 
+PROCEDURE pAddEstMiscForHandling PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: given the RM or FG Hanling charges, add EstMisc records
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-estCostForm FOR estCostForm.
+    DEFINE INPUT  PARAMETER ipcCostType      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCostDesc      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdCostperUOM    AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCostUOM       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdCostTotal     AS DECIMAL NO-UNDO.
+    
+    DEFINE           BUFFER bf-estCostMisc   FOR estCostMisc.
+    
+    IF ipdCostTotal GT 0 THEN 
+    DO:
+        RUN pAddEstMisc(BUFFER ipbf-estCostForm, BUFFER bf-estCostMisc).
+       
+        ASSIGN 
+            bf-estCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/
+            bf-estCostMisc.formNo                = ipbf-estCostForm.formNo  
+            bf-estCostMisc.blankNo               = 0  
+            bf-estCostMisc.costDescription       = ipcCostDesc
+            bf-estCostMisc.costType              = ipcCostType
+            bf-estCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")
+            bf-estCostMisc.SIMON                 = "I"
+            bf-estCostMisc.costUOM               = ipcCostUOM
+            bf-estCostMisc.costPerUOM            = ipdCostperUOM
+            bf-estCostMisc.costSetup             = 0
+            bf-estCostMisc.costTotalBeforeProfit = ipdCostTotal
+            .
+            
+        RUN pCalcEstMisc(BUFFER bf-estCostMisc, BUFFER ipbf-estCostForm).
+    END.
+
+END PROCEDURE.
+
+
 PROCEDURE pAddEstMiscForPrep PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: given a est-prep buffer and quantity, add an EstMisc record
@@ -1436,10 +1474,14 @@ PROCEDURE pAddLeaf PRIVATE:
             
             IF ttLeaf.lIsWax AND bf-item.shrink NE 0 THEN 
                 ASSIGN 
-                    ttLeaf.dAreaInSQIn   = ((ttLeaf.dAreaInSQIn / 144000) * ipbf-estCostForm.basisWeight) * bf-item.shrink
-                    ttLeaf.dCoverageRate = 1
+                    ttLeaf.dAreaInSqIn  = ((ttLeaf.dAreaInSQIn / 144000) * ipbf-estCostForm.basisWeight) * bf-item.shrink
+                    ttLeaf.dQtyRequiredPerLeaf = ttLeaf.dAreaInSqIn
+                    ttLeaf.dCoverageRate = 1                    
                     .
-            ttLeaf.dQtyRequiredPerLeaf = ttLeaf.dAreaInSQIn / ttLeaf.dCoverageRate.
+            ELSE 
+                RUN pConvertQuantityFromUOMToUOM(ipbf-estCostForm.company, ttLeaf.cItemID, "RM", "EA", ttLeaf.cQtyUOM, 
+                144000 / ttLeaf.dCoverageRate, ttLeaf.dDimLength, ttLeaf.dDimWidth, 0, 
+                1, OUTPUT ttLeaf.dQtyRequiredPerLeaf).                
                 
             FIND FIRST bf-estCostBlank EXCLUSIVE-LOCK 
                 WHERE bf-estCostBlank.estCostHeaderID EQ ttLeaf.estHeaderID
@@ -1726,7 +1768,9 @@ PROCEDURE pBuildCostDetailForMisc PRIVATE:
                     ipbf-estCostMisc.profitTotal,0).                    
             END.
         WHEN "MMatI" OR
-        WHEN "MFrtBrdI" THEN  
+        WHEN "MFrtBrdI" OR
+        WHEN "MRMI" OR
+        WHEN "MFGI" THEN  
             DO:  /*MiscMatIncluded*/
                 RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "mMatCost","Misc Material - Cost - COGS",
                     ipbf-estCostMisc.costTotalBeforeProfit,0).
@@ -1765,6 +1809,152 @@ PROCEDURE pBuildCostDetailForMisc PRIVATE:
             END. 
     END.
    
+        
+END PROCEDURE.
+
+PROCEDURE pBuildEstHandlingCharges PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes: Calculate the RM and FG handling chg per cwt
+    ------------------------------------------------------------------------------*/
+  
+    DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
+    
+    DEFINE BUFFER bf-estCostForm          FOR estCostForm.
+    DEFINE BUFFER bf-estCostHeader        FOR estCostHeader.
+    DEFINE BUFFER bf-ef                   FOR ef.
+    DEFINE BUFFER bf-estCostBlank         FOR estCostBlank.
+    DEFINE BUFFER bf-estCostItem          FOR estCostItem.
+    DEFINE BUFFER bf-estCostMaterial      FOR estCostMaterial.
+    DEFINE BUFFER bf-estCostMisc          FOR estCostMisc.
+    
+    
+    DEFINE VARIABLE dRMHandlingCost           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dFGHandlingCost           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dHandlingCost             AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dApplicableRMHandlingRate AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dApplicableFGHandlingRate AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dApplicableHandlingPct    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dBoardWeightInCUOM        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dWeightInSrcUOM           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostTotalMaterial        AS DECIMAL   NO-UNDO. 
+    DEFINE VARIABLE cSrcUOM                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dNetWeightInCUOM          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lFirstBlank               AS LOGICAL   NO-UNDO.
+    
+    
+    FOR FIRST bf-estCostHeader NO-LOCK 
+        WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID,
+        EACH bf-estCostForm NO-LOCK 
+        WHERE bf-estCostForm.estCostHeaderID EQ ipiEstCostHeaderID,
+        FIRST bf-ef NO-LOCK
+        WHERE bf-ef.company = bf-estCostForm.company
+        AND bf-ef.est-no  = bf-estCostForm.estimateNo
+        AND bf-ef.form-no = bf-estCostForm.formNo:
+        
+        ASSIGN
+            dFGHandlingCost           = 0
+            dRMHandlingCost           = 0 
+            dHandlingCost             = 0 
+            dCostTotalMaterial        = 0
+            lFirstBlank               = Yes
+            dApplicableFGHandlingRate = 0
+            dApplicableRMHandlingRate = 0
+            dApplicableHandlingPct    = 0.
+            
+        
+        FOR EACH bf-estCostBlank NO-LOCK 
+            WHERE bf-estCostBlank.estCostFormID EQ bf-estCostForm.estCostFormID,
+            FIRST bf-estCostItem NO-LOCK 
+            WHERE bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID:
+                
+            IF bf-estCostBlank.isPurchased THEN
+                dApplicableFGHandlingRate = bf-estCostHeader.handlingRateFGFarmPerCWT.
+            ELSE
+                dApplicableFGHandlingRate = bf-estCostHeader.handlingRateFGPerCWT.
+                
+            
+            ASSIGN
+                dWeightInSrcUOM = bf-estCostItem.weightTotal
+                cSrcUOM         = bf-estCostItem.weightUOM.
+                
+            RUN pConvertQuantityFromUOMToUOM(bf-estCostItem.company, bf-estCostItem.itemID, "RM", cSrcUOM, "CWT", 
+                0, bf-estCostItem.dimLength, bf-estCostItem.dimWidth, bf-estCostItem.dimDepth, 
+                dWeightInSrcUOM, OUTPUT dNetWeightInCUOM).
+                
+            
+            /* calculate the FG handling charge using Net weight. From the blank item, we can get FG Net weights by form. */
+            IF dApplicableFGHandlingRate NE 0 THEN 
+                dFGHandlingCost = dFGHandlingCost + (dNetWeightInCUOM * dApplicableFGHandlingRate).    
+            
+            /* Set Form Level fields based upon first blank values. is there a more accurate way to find find primary Blank */
+            IF lFirstBlank = YES THEN
+            DO:
+                lFirstBlank = NO.
+                
+                IF bf-estCostBlank.isPurchased THEN
+                    ASSIGN 
+                        dApplicableRMHandlingRate = bf-estCostHeader.handlingRateRMFarmPerCWT 
+                        dApplicableHandlingPct    = bf-estCostHeader.handlingChargeFarmPct
+                        .
+                ELSE
+                    ASSIGN 
+                        dApplicableRMHandlingRate = bf-estCostHeader.handlingRateRMPerCWT
+                        dApplicableHandlingPct    = bf-estCostHeader.handlingChargePct.
+            END.
+                
+        END. /* FOR EACH bf-estCostBlank NO-LOCK */ 
+        
+        ASSIGN
+            dWeightInSrcUOM = bf-estCostForm.grossQtyRequiredTotalWeight 
+            cSrcUOM     = bf-estCostForm.grossQtyRequiredTotalWeightUOM.
+                
+            
+        RUN pConvertQuantityFromUOMToUOM(bf-estCostForm.company, bf-ef.board, "RM", cSrcUOM, "CWT", 0, 0, 0, 0, 
+            dWeightInSrcUOM, OUTPUT dBoardWeightInCUOM).
+         
+        /* calculate the RM handling charge, per form based on form Gross Weight */
+        IF dApplicableRMHandlingRate NE 0 THEN
+        DO:    
+            dRMHandlingCost = (dBoardWeightInCUOM * dApplicableRMHandlingRate).
+            
+            IF dRMHandlingCost NE 0 THEN
+                RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "RM", "Raw Mat'l Handling",dApplicableRMHandlingRate,"CWT", dRMHandlingCost).
+        END.
+        
+        /* Calculate the Handling percentage as a percentage of all material based costs and Prep and Misc */
+        FOR EACH bf-estCostMaterial NO-LOCK 
+            WHERE bf-estCostMaterial.estCostHeaderID EQ bf-estCostForm.estCostHeaderID
+              AND bf-estCostMaterial.estCostFormID   EQ bf-estCostForm.estCostFormID:
+                
+                dCostTotalMaterial = dCostTotalMaterial + bf-estCostMaterial.costTotal.
+                 
+        END.
+        
+        /* Include cost for Prep and any Material misc cost which is not Labour */
+        FOR EACH bf-estCostMisc NO-LOCK 
+            WHERE bf-estCostMisc.estCostHeaderID EQ bf-estCostForm.estCostHeaderID
+              AND bf-estCostMisc.estCostFormID   EQ bf-estCostForm.estCostFormID:
+                
+            IF bf-estCostMisc.isPrep = YES 
+            OR (bf-estCostMisc.isPrep = NO AND bf-estCostMisc.costType = "Mat") THEN
+                dCostTotalMaterial = dCostTotalMaterial + bf-estCostMisc.costTotal.
+                
+        END. /*Each estCostMaterial for estHeader*/
+        
+        IF dApplicableHandlingPct NE 0 THEN
+        DO:
+            dHandlingCost = (dCostTotalMaterial * dApplicableHandlingPct).
+            
+            IF dHandlingCost NE 0 THEN
+                RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "RM", "Handling Charge",dApplicableHandlingPct,"%", dHandlingCost). 
+        END.
+        
+        IF dFGHandlingCost NE 0 THEN 
+            RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "FG", "Finished Goods Handling",dApplicableFGHandlingRate,"CWT", dFGHandlingCost).
+        
+        
+    END.
         
 END PROCEDURE.
 
@@ -2296,7 +2486,6 @@ PROCEDURE pCalcHeader PRIVATE:
             
             RUN pProcessMiscPrep(BUFFER ef, BUFFER bf-estCostForm).
             RUN pProcessMiscNonPrep(BUFFER ef, BUFFER bf-estCostForm).
-
                       
         END.  /*Each ef of est*/  
         /* if combo, update the master quantity for per M calculations*/
@@ -2310,6 +2499,7 @@ PROCEDURE pCalcHeader PRIVATE:
         RUN pProcessPacking(BUFFER bf-estCostHeader).
         RUN pProcessEstMaterial(BUFFER bf-estCostHeader).
         RUN pBuildFreightForBoardCost(bf-estCostHeader.estCostHeaderID).
+        RUN pBuildEstHandlingCharges(bf-estCostHeader.estCostHeaderID).
         RUN pBuildFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildNonFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildFreightCostDetails(bf-estCostHeader.estCostHeaderID).
@@ -2486,6 +2676,7 @@ PROCEDURE pBuildFactoryCostDetails PRIVATE:
         RUN pBuildCostDetailForMaterial(BUFFER estCostMaterial).                  
                     
     END. /*Each estCostMaterial for estHeader*/
+    
     FOR EACH estCostMisc NO-LOCK 
         WHERE estCostMisc.estCostHeaderID EQ ipiEstCostHeaderID:
         RUN pBuildCostDetailForMisc(BUFFER estCostMisc).                  
