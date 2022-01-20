@@ -1313,7 +1313,8 @@ PROCEDURE pPost PRIVATE :
     END.
     
     FOR EACH ttBrowseInventory NO-LOCK
-        WHERE ttBrowseInventory.inventoryStatus = "Created":
+        WHERE ttBrowseInventory.inventoryStatus EQ "Created"
+           OR ttBrowseInventory.inventoryStatus EQ "Moved":
         RUN PostFinishedGoodsForFGRctd IN hdInventoryProcs (
             INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),
             INPUT  glSSCloseJob,
