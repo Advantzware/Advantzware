@@ -1061,7 +1061,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
  DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}  /* task 07101525 */
     fi_due-date = DATE(fi_due-date:SCREEN-VALUE)  .
-    IF fi_due-date LT TODAY - 365 OR fi_due-date EQ ? THEN
+    IF fi_due-date LT TODAY - 365  THEN
         ASSIGN
            fi_due-date:SCREEN-VALUE = STRING(TODAY - 180) 
            fi_due-date = TODAY - 180 .
@@ -1827,6 +1827,7 @@ PROCEDURE pPrepareAndExecuteQuery :
         cBrowseWhereClause = ""
         cSortPhrase        = " BREAK BY po-ordl.po-no DESCENDING"
                            .                
+    RUN setStartDueDate.
     RUN pQueryString (cBrowseWhereClause, cSortPhrase, OUTPUT cLimitingQuery).             
     /* Limit the query if order no is 0 or cadd No is Blank */                    
     IF fi_po-no EQ 0 THEN
@@ -2162,6 +2163,26 @@ PROCEDURE send-records :
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setStartDueDate B-table-Win 
+PROCEDURE setStartDueDate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+DO WITH FRAME {&FRAME-NAME}:
+    IF fi_due-date:SCREEN-VALUE EQ "" OR fi_due-date EQ ? THEN
+        ASSIGN
+        fi_due-date:SCREEN-VALUE = STRING(TODAY - 180) 
+        fi_due-date = TODAY - 180 .
+END.
 
 END PROCEDURE.
 

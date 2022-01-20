@@ -370,7 +370,8 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       inv-head.multi-inv-no COLUMN-LABEL "Group #" FORMAT ">>>>>9":U
             LABEL-BGCOLOR 14
-      inv-head.ediInvoice FORMAT "yes/no":U LABEL-BGCOLOR 14
+      inv-head.ediInvoice COLUMN-LABEL "No EDI" FORMAT "yes/no":U
+            WIDTH 50 LABEL-BGCOLOR 14
       inv-head.spare-char-5 COLUMN-LABEL "Comment" FORMAT "x(60)":U
             LABEL-BGCOLOR 14
       pGetMargin() @ dMargin COLUMN-LABEL "Margin%" LABEL-BGCOLOR 14
@@ -564,7 +565,7 @@ ASI.inv-head.multi-invoice = no"
      _FldNameList[19]   > ASI.inv-head.multi-inv-no
 "inv-head.multi-inv-no" "Group #" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "FILL-IN" "," ? ? 5 no 0 no no
      _FldNameList[20]   > ASI.inv-head.ediInvoice
-"inv-head.ediInvoice" ? ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ediInvoice" "No EDI" ? "logical" ? ? ? 14 ? ? no ? no no "50" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > ASI.inv-head.spare-char-5
 "inv-head.spare-char-5" "Comment" "x(60)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"
