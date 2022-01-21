@@ -44,14 +44,14 @@ DEFINE TEMP-TABLE ttOnOrder
     FIELD quantityUOM AS CHARACTER
     FIELD warehouseID AS CHARACTER.
 
-DEFINE BUFFER b-itemfg   FOR itemfg.
+DEFINE BUFFER bf-set-itemfg   FOR itemfg.
 DEFINE BUFFER bf-eb      FOR eb.
 DEFINE BUFFER bf-itemfg  FOR itemfg.
 DEFINE BUFFER bf-est     FOR est.
 DEFINE BUFFER bf-po-ordl FOR po-ordl.
 DEFINE BUFFER bf-job-hdr FOR job-hdr.
 DEFINE BUFFER bf-job     FOR job.
-DEFINE BUFFER bf1-job-hdr FOR job-hdr.
+DEFINE BUFFER bf-set-job-hdr FOR job-hdr.
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -75,45 +75,22 @@ DO:
             AND job.job-no  EQ po-ordl.job-no) THEN 
             NEXT.    
         /*craete temp table data*/
-        CREATE ttOnOrder.
-        ASSIGN
-            ttOnOrder.itemID      = po-ordl.i-no
-            ttOnOrder.itemType    = po-ordl.item-type
-            ttOnOrder.source        = "PO" /*Initial creation from PO, if created from Job then "Job"*/
-            ttOnOrder.poID        = STRING(po-ordl.po-no)
-            ttOnOrder.poLine      = po-ordl.line
-            ttOnOrder.jobID       = po-ordl.job-no
-            ttOnOrder.jobID2      = po-ordl.job-no2
-            ttOnOrder.formNo      = po-ordl.s-num
-            ttOnOrder.blankNo     = po-ordl.b-num
-            ttOnOrder.quantityUOM = po-ordl.pr-qty-uom
-            ttOnOrder.warehouseID = po-ord.loc. /*when creating from Job header job.loc*/
-            
-        IF po-ordl.pr-qty-uom = "EA" THEN     
-            dConvQty = po-ordl.ord-qty.
-        ELSE 
-        DO:
-            /*Convert the quantity as per Unit of Measure*/
-            dConvQty = 0.
-            RUN Conv_QuantityFromUOMtoUOM(itemfg.company, 
-                                         itemfg.i-no, 
-                                         "FG", 
-                                         po-ordl.ord-qty,
-                                         po-ordl.pr-qty-uom,
-                                         "EA", 
-                                         po-ordl.s-len, 
-                                         po-ordl.s-wid, 
-                                         0,
-                                         po-ordl.ord-qty,
-                                         0, 
-                                         OUTPUT dConvQty,
-                                         OUTPUT lError,
-                                         OUTPUT cMessage).
-                                         
-            
-        END.
-        IF dConvQty - po-ordl.t-rec-qty GT 0 THEN    
-            ttOnOrder.quantity = dConvQty - po-ordl.t-rec-qty.
+        RUN pCreatettOnOrder(INPUT po-ordl.i-no,
+        INPUT po-ordl.item-type,
+        INPUT "PO",
+        INPUT STRING(po-ordl.po-no),
+        INPUT po-ordl.line,
+        INPUT po-ordl.job-no,
+        INPUT po-ordl.job-no2,
+        INPUT po-ordl.s-num,
+        INPUT po-ordl.b-num,
+        INPUT po-ordl.pr-qty-uom,
+        INPUT po-ord.loc,
+        INPUT po-ordl.ord-qty,
+        INPUT po-ordl.s-len,
+        INPUT po-ordl.s-wid,
+        INPUT po-ordl.t-rec-qty
+        ).
     END. /*each po-ordl*/  
     /*check for availability of job-hdr*/  
     FIND FIRST job-hdr WHERE job-hdr.company EQ itemfg.company 
@@ -160,91 +137,73 @@ DO:
                 OUTPUT ld-qty).
             
             /*create temp-table*/ 
-            CREATE ttOnOrder.
-            ASSIGN
-                ttOnOrder.itemID      = job-hdr.i-no
-                //ttOnOrder.itemType    = po-ordl.item-type
-                ttOnOrder.source        = "Job"  /*Initial creation from PO, if created from Job then "Job"*/
-                ttOnOrder.poID        = job-hdr.po-no
-                //ttOnOrder.poLine      = po-ordl.line
-                ttOnOrder.jobID       = job-hdr.job-no
-                ttOnOrder.jobID2      = job-hdr.job-no2
-                ttOnOrder.formNo      = job-hdr.frm
-                ttOnOrder.blankNo     = job-hdr.blank-no
-                //ttOnOrder.quantityUOM = /*qunatity UOM field not available in job-hdr*/
-                ttOnOrder.warehouseID = job-hdr.loc. /*when creating from Job header job.loc*/
-            IF ld-qty LT job-hdr.qty THEN
-                ttOnOrder.quantity = job-hdr.qty - ld-qty.
-           // check if job-hdr.est-num in eb
-            FIND FIRST eb WHERE eb.company = job-hdr.company 
-                AND eb.est-no = job-hdr.est-no NO-LOCK NO-ERROR.
-            IF AVAILABLE eb AND (eb.est-type = 2 OR eb.est-type = 6) THEN /*Set record*/
-            DO:
-                FOR EACH bf-eb NO-LOCK
-                   WHERE bf-eb.company = job-hdr.company 
-                     AND bf-eb.est-no = job-hdr.est-no:
-                         /*set component not available in job-hdr - check the reftable in that case*/
-                     IF NOT CAN-FIND(FIRST bf-job-hdr WHERE bf-job-hdr.company = bf-eb.company
-                                                        AND bf-job-hdr.est-no = bf-eb.est-no
-                                                        AND bf-job-hdr.frm = bf-eb.form-no) THEN
-                     DO:
-                         /*Used the existing logic to for reftable search*/
-                         FOR EACH reftable NO-LOCK
-                             WHERE reftable.reftable EQ "jc/jc-calc.p"
-                             AND reftable.company  EQ itemfg.company
-                             AND reftable.loc      EQ ""
-                             AND reftable.code2    EQ itemfg.i-no
-                             USE-INDEX code2,
-                             FIRST bf-job NO-LOCK /*each removed as company and job is part of unique index and the combination will have only one record*/
-                             WHERE bf-job.company EQ itemfg.company
-                             AND bf-job.job EQ INTEGER(reftable.CODE)
-                             AND bf-job.opened  EQ YES 
-                             USE-INDEX job,
-                             FIRST bf1-job-hdr NO-LOCK
-                             WHERE bf1-job-hdr.company EQ bf-job.company
-                             AND bf1-job-hdr.job     EQ bf-job.job
-                             AND bf1-job-hdr.job-no  EQ bf-job.job-no
-                             AND bf1-job-hdr.job-no2 EQ bf-job.job-no2
-                             USE-INDEX job-no,
-                             FIRST b-itemfg NO-LOCK
-                             WHERE b-itemfg.company EQ job-hdr.company
-                             AND b-itemfg.i-no    EQ job-hdr.i-no
-                             AND b-itemfg.isaset  EQ YES:
-                             CREATE ttOnOrder.
-                             ASSIGN
-                                 ttOnOrder.itemID      = job-hdr.i-no
-                //ttOnOrder.itemType    = po-ordl.item-type
-                                 ttOnOrder.source        = "Job"  /*Initial creation from PO, if created from Job then "Job"*/
-                                 ttOnOrder.poID        = job-hdr.po-no
-                //ttOnOrder.poLine      = po-ordl.line
-                                 ttOnOrder.jobID       = job-hdr.job-no
-                                 ttOnOrder.jobID2      = job-hdr.job-no2
-                                 ttOnOrder.formNo      = job-hdr.frm
-                                 ttOnOrder.blankNo     = job-hdr.blank-no
-/*                                 ttOnOrder.quantity    = job-hdr.qty*/
-                //ttOnOrder.quantityUOM = /*qunatity UOM field not available in job-hdr*/
-                                 ttOnOrder.warehouseID = job-hdr.loc.
-                                 
-                             RUN fg/fullset.p (ROWID(b-itemfg)).
-          
-                             FOR EACH tt-fg-set WHERE tt-fg-set.part-no EQ reftable.code2:
-                                 ld-qty = 0.
-                                 RUN fg/GetProductionQty.p (INPUT job-hdr.company,
-                                     INPUT job-hdr.job-no,
-                                     INPUT job-hdr.job-no2,
-                                     INPUT job-hdr.i-no,
-                                     INPUT NO,
-                                     OUTPUT ld-qty).
-                                 IF ld-qty LT job-hdr.qty * tt-fg-set.part-qty-dec THEN
-                                     ttOnOrder.quantity = ttOnOrder.quantity + ((job-hdr.qty * tt-fg-set.part-qty-dec) - ld-qty).
-              
-                             END.
-                         END. 
-                     END. /*each reftable*/ 
-                END. /*each bf-eb*/ 
-            END. /*available eb Set record*/                
+            RUN pCreatettOnOrder(INPUT job-hdr.i-no,
+                NO,
+                INPUT "Job",
+                INPUT job-hdr.po-no,
+                0,
+                INPUT job-hdr.job-no,
+                INPUT job-hdr.job-no2,
+                INPUT job-hdr.frm,
+                INPUT job-hdr.blank-no,
+                INPUT "EA",
+                INPUT job-hdr.loc,
+                INPUT job-hdr.qty,
+                INPUT 0,
+                INPUT 0,
+                INPUT 0
+                ).              
         END. /* FOR EACH job-hdr */
-    END. /*available job-hdr*/    
+    END. /*available job-hdr*/
+    FOR EACH reftable NO-LOCK
+        WHERE reftable.reftable EQ "jc/jc-calc.p"
+        AND reftable.company  EQ itemfg.company
+        AND reftable.loc      EQ ""
+        AND reftable.code2    EQ itemfg.i-no
+        USE-INDEX code2,
+        FIRST bf-job NO-LOCK /*each removed as company and job is part of unique index and the combination will have only one record*/
+        WHERE bf-job.company EQ itemfg.company
+        AND bf-job.job EQ INTEGER(reftable.CODE)
+        AND bf-job.opened  EQ YES 
+        USE-INDEX job,
+        FIRST bf-set-job-hdr NO-LOCK
+        WHERE bf-set-job-hdr.company EQ bf-job.company
+        AND bf-set-job-hdr.job     EQ bf-job.job
+        AND bf-set-job-hdr.job-no  EQ bf-job.job-no
+        AND bf-set-job-hdr.job-no2 EQ bf-job.job-no2
+        USE-INDEX job-no,
+        FIRST bf-set-itemfg NO-LOCK
+        WHERE bf-set-itemfg.company EQ bf-set-job-hdr.company
+        AND bf-set-itemfg.i-no    EQ bf-set-job-hdr.i-no
+        AND bf-set-itemfg.isaset  EQ YES:
+            
+        IF CAN-FIND(FIRST ttOnOrder WHERE ttOnOrder.jobID   = bf-set-job-hdr.job-no
+            AND ttOnOrder.jobID2  = bf-set-job-hdr.job-no2
+            AND ttOnOrder.formNo  = bf-set-job-hdr.frm
+            AND ttOnOrder.blankNo = bf-set-job-hdr.blank-no) THEN 
+            NEXT.
+            
+        RUN fg/fullset.p (ROWID(bf-set-itemfg)).
+            
+        /*create temp-table*/ 
+        RUN pCreatettOnOrder(INPUT bf-set-job-hdr.i-no,
+            NO,
+            INPUT "SetJob",
+            INPUT bf-set-job-hdr.po-no,
+            0,
+            INPUT bf-set-job-hdr.job-no,
+            INPUT bf-set-job-hdr.job-no2,
+            INPUT bf-set-job-hdr.frm,
+            INPUT bf-set-job-hdr.blank-no,
+            INPUT "EA",
+            INPUT bf-set-job-hdr.loc,
+            INPUT bf-set-job-hdr.qty,
+            INPUT 0,
+            INPUT 0,
+            INPUT 0
+            ).
+    END. /*reftable*/
+
     /*Get the quantity*/
     FOR EACH ttOnOrder:
         op-q-ono = op-q-ono + ttOnOrder.quantity.
@@ -252,3 +211,90 @@ DO:
     IF op-q-ono LT 0 THEN op-q-ono = 0.
   
 END. /*item*/
+
+PROCEDURE pCreatettOnOrder PRIVATE:
+    DEFINE INPUT PARAMETER cItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER lItemType    AS LOGICAL   NO-UNDO.  
+    DEFINE INPUT PARAMETER cSource      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER cPoID        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iPoLine      AS INTEGER   NO-UNDO.  
+    DEFINE INPUT PARAMETER cJobID       AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER iJobID2      AS INTEGER   NO-UNDO.  
+    DEFINE INPUT PARAMETER iFormNo      AS INTEGER   NO-UNDO.  
+    DEFINE INPUT PARAMETER iBlankNo     AS INTEGER   NO-UNDO.  
+    DEFINE INPUT PARAMETER cQuantityUOM AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER cWarehouseID AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER dQty         AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iSlen         AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iSWid         AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER drec-qty    AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE dJobQty AS DECIMAL NO-UNDO.
+    
+    CREATE ttOnOrder.
+    ASSIGN
+        ttOnOrder.itemID      = cItemID
+        ttOnOrder.itemType    = lItemType
+        ttOnOrder.source      = cSource /*Initial creation from PO, if created from Job then "Job"*/
+        ttOnOrder.poID        = cPoID
+        ttOnOrder.poLine      = iPoLine
+        ttOnOrder.jobID       = cJobID
+        ttOnOrder.jobID2      = iJobID2
+        ttOnOrder.formNo      = iFormNo
+        ttOnOrder.blankNo     = iBlankNo
+        ttOnOrder.quantityUOM = cQuantityUOM
+        ttOnOrder.warehouseID = cWarehouseID. /*when creating from Job header job.loc*/
+    IF cSource = "PO" THEN 
+    DO: 
+        IF cQuantityUOM = "EA" THEN     
+            dJobQty = dQty.
+        ELSE 
+        DO:
+            /*Convert the quantity as per Unit of Measure*/
+            dJobQty = 0.
+            RUN Conv_QuantityFromUOMtoUOM(itemfg.company, 
+                cItemID, 
+                "FG", 
+                dQty,
+                cQuantityUOM,
+                "EA", 
+                iSlen, 
+                iSWid, 
+                0,
+                dQty,
+                0, 
+                OUTPUT dJobQty,
+                OUTPUT lError,
+                OUTPUT cMessage).  
+        END.
+        IF dJobQty - drec-qty GT 0 THEN    
+            ttOnOrder.quantity = dJobQty - drec-qty.
+    END. /*if PO*/
+    IF cSource = "JOB" THEN 
+    DO:
+        dJobQty = 0.
+        RUN fg/GetProductionQty.p (INPUT itemfg.company,
+            INPUT cJobID,
+            INPUT iJobID2,
+            INPUT cItemID,
+            INPUT NO,
+            OUTPUT dJobQty).
+        IF dJobQty LT dqty THEN
+            ttOnOrder.quantity = dqty - dJobQty.
+    END.
+    IF cSource = "SetJob" THEN 
+    DO:
+        FOR EACH tt-fg-set WHERE tt-fg-set.part-no EQ itemfg.i-no:
+            ld-qty = 0.
+            RUN fg/GetProductionQty.p (INPUT bf-set-job-hdr.company,
+                INPUT cJobID,
+                INPUT iJobID2,
+                INPUT cItemID,
+                INPUT NO,
+                OUTPUT dJobQty).
+            IF dJobQty LT dqty * tt-fg-set.part-qty-dec THEN
+                        ttOnOrder.quantity = ttOnOrder.quantity + ((dqty * tt-fg-set.part-qty-dec) - dJobQty).
+              
+        END. 
+    END.
+END.
