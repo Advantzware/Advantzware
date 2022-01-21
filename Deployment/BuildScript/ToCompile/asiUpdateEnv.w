@@ -1795,6 +1795,103 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCleanEstSystemData C-Win
+PROCEDURE ipCleanEstSystemData PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Check if any est cost system data record is redundant and delete it
+     Notes: If same record exist in system table then no need to redundant user level record
+    ------------------------------------------------------------------------------*/
+    
+    DEFINE VARIABLE lRecMatch  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lDuplicate AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-estCostCategory         FOR estCostCategory.
+    DEFINE BUFFER bf-estCostCategorySystem   FOR estCostCategorySystem.
+    DEFINE BUFFER bf-estCostGroup            FOR estCostGroup.
+    DEFINE BUFFER bf-estCostGroupSystem      FOR estCostGroupSystem.
+    DEFINE BUFFER bf-estCostGroupLevel       FOR estCostGroupLevel.
+    DEFINE BUFFER bf-estCostGroupLevelSystem FOR estCostGroupLevelSystem.
+    DEFINE BUFFER bfExcl-estCostGroup        FOR estCostGroup.
+    DEFINE BUFFER bfExcl-estCostGroupLevel   FOR estCostGroupLevel.
+    DEFINE BUFFER bfExcl-estCostCategory     FOR estCostCategory.
+    
+    
+    FOR EACH bf-estCostGroup NO-LOCK:
+        
+        /* If same record exist in system table then no need to duplicate user level record */
+        IF CAN-FIND(FIRST bf-estCostGroupSystem 
+            WHERE bf-estCostGroupSystem.estCostGroupID      = bf-estCostGroup.estCostGroupID
+              AND bf-estCostGroupSystem.estCostGroupLevelID = bf-estCostGroup.estCostGroupLevelID
+              AND bf-estCostGroupSystem.estCostGroupDesc    = bf-estCostGroup.estCostGroupDesc
+              AND bf-estCostGroupSystem.costGroupLabel      = bf-estCostGroup.costGroupLabel
+              AND bf-estCostGroupSystem.costGroupSequence   = bf-estCostGroup.costGroupSequence) THEN
+        DO TRANSACTION:
+            
+            FIND FIRST bfExcl-estCostGroup EXCLUSIVE-LOCK
+                WHERE ROWID(bfExcl-estCostGroup) = ROWID(bf-estCostGroup) NO-ERROR.
+                
+            IF AVAILABLE bfExcl-estCostGroup THEN
+                DELETE bfExcl-estCostGroup.
+        END. /* DO TRANSACTION */
+        
+    END. /* FOR EACH bf-estCostGroup */
+    
+    FOR EACH bf-estCostGroupLevel NO-LOCK:
+        
+        /* If same record exist in system table then no need to duplicate user level record */
+        IF CAN-FIND(FIRST bf-estCostGroupLevelSystem 
+            WHERE bf-estCostGroupLevelSystem.estCostGroupLevelID   = bf-estCostGroupLevel.estCostGroupLevelID
+              AND bf-estCostGroupLevelSystem.estCostGroupLevelDesc = bf-estCostGroupLevel.estCostGroupLevelDesc) THEN
+        DO TRANSACTION:
+            
+            FIND FIRST bfExcl-estCostGroupLevel EXCLUSIVE-LOCK
+                WHERE ROWID(bfExcl-estCostGroupLevel) = ROWID(bf-estCostGroupLevel) NO-ERROR.
+                
+            IF AVAILABLE bfExcl-estCostGroupLevel THEN
+                DELETE bfExcl-estCostGroupLevel.
+        END. /* DO TRANSACTION */
+        
+    END. /* FOR EACH bf-estCostGroup */
+
+    FOR EACH bf-estCostCategory NO-LOCK:
+        
+        lDuplicate = NO.
+        
+        FOR EACH bf-estCostCategorySystem NO-LOCK
+            WHERE bf-estCostCategorySystem.estCostCategoryID = bf-estCostCategory.estCostCategoryID: 
+            
+            BUFFER-COMPARE bf-estCostCategory EXCEPT rec_key Company TO bf-estCostCategorySystem 
+                SAVE RESULT IN lRecMatch.
+                
+            /* If all fields matches */
+            IF lRecMatch = YES THEN
+            DO:
+                lDuplicate = YES.
+                LEAVE.
+            END.
+        END.
+        
+        /* If same record exist in system table then no need to duplicate user level record */
+        IF lDuplicate = YES THEN
+        DO TRANSACTION:
+            
+            FIND FIRST bfExcl-estCostCategory EXCLUSIVE-LOCK
+                WHERE ROWID(bfExcl-estCostCategory) = ROWID(bf-estCostCategory) NO-ERROR.
+                
+            IF AVAILABLE bfExcl-estCostCategory THEN
+                DELETE bfExcl-estCostCategory.
+        END. /* DO TRANSACTION */
+        
+    END. /* FOR EACH bf-estCostCategory */
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCleanTemplates C-Win
 PROCEDURE ipCleanTemplates:
     /*------------------------------------------------------------------------------
@@ -2930,6 +3027,8 @@ PROCEDURE ipDataFix :
     IF iCurrentVersion GE 21041500
     AND iCurrentVersion LT 21041700 THEN 
         RUN ipFixBadAPPostings.
+    IF iCurrentVersion LT 22010000 THEN 
+        RUN ipDataFix220100.
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3768,6 +3867,24 @@ PROCEDURE ipDataFix210415:
     RUN ipFixLocations.
 END PROCEDURE.
     
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix220100 C-Win
+PROCEDURE ipDataFix220100:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 220100...").
+
+    RUN ipCleanEstSystemData.
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
