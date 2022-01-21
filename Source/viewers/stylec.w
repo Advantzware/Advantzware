@@ -1315,6 +1315,9 @@ PROCEDURE copy-scores :
   IF AVAIL style AND AVAIL flute THEN
     RUN windows/d-cpscor.w (style.style, flute.code).
 
+    RUN dispatch IN THIS-PROCEDURE ('display-fields').
+    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
