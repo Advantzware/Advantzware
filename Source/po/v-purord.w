@@ -74,6 +74,7 @@ DEF SHARED VAR lNewOrd AS LOG NO-UNDO.
 DEFINE VARIABLE lUpdateMode AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdPOProcs   AS HANDLE  NO-UNDO.
 DEFINE VARIABLE scInstance  AS CLASS system.SharedConfig NO-UNDO.
+DEFINE VARIABLE cPODateChangeRequiresReason AS CHARACTER NO-UNDO.
 
 DEFINE TEMP-TABLE tt-ei NO-UNDO
 FIELD std-uom AS CHARACTER.
@@ -140,6 +141,8 @@ RUN methods/prgsecur.p
      OUTPUT llUpdatePrcHld, /* Allowed? Yes/NO */
      OUTPUT lAccessClose, /* used in template/windows.i  */
      OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+     
+RUN spGetSettingByName ("PODateChangeRequiresReason", OUTPUT cPODateChangeRequiresReason).     
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1712,6 +1715,10 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE cOldLoc      AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cPoStatus    AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lPriceHold   AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE dtOldShipDate AS DATE     NO-UNDO.
+  DEFINE VARIABLE dtOldPoDate   AS DATE     NO-UNDO.
+  DEFINE VARIABLE rwRowid       AS ROWID    NO-UNDO.
+  DEFINE VARIABLE cDateChangeReason AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   EMPTY TEMP-TABLE tt-ord-no.
@@ -1719,9 +1726,12 @@ PROCEDURE local-assign-record :
   iv-copy-from-rec = IF AVAILABLE po-ord THEN RECID(po-ord) ELSE ?
   lv-prev-vend-no  = IF AVAILABLE po-ord THEN po-ord.vend-no ELSE ""
   lv-due-date      = po-ord.due-date
+  dtOldShipDate    = po-ord.last-ship-date
+  dtOldPoDate      = po-ord.po-date
   cOldLoc          = po-ord.loc 
   cPoStatus        = po-ord.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME}
   lPriceHold       = po-ord.PriceHold.
+  
      FIND bx-poord WHERE RECID(bx-poord) = iv-copy-from-rec NO-LOCK NO-ERROR.
      IF AVAILABLE bx-poord THEN DO:
          ASSIGN ip-company    = bx-poord.company
@@ -1891,6 +1901,28 @@ PROCEDURE local-assign-record :
          po-ordl.po-no = po-ord.po-no:
          po-ordl.vend-no = po-ord.vend-no.
      END.
+     
+  IF NOT adm-new-record AND cPODateChangeRequiresReason EQ "Yes" THEN
+  DO:
+      IF lv-due-date NE po-ord.due-date THEN
+      DO:         
+        RUN po/d-pdcnot.w /* PERSISTENT SET h_reasonWin */
+        (INPUT po-ord.rec_key, INPUT "R", INPUT "", INPUT "", INPUT 0, INPUT "RDC", INPUT "",
+        OUTPUT cDateChangeReason, OUTPUT rwRowid)  .
+      END. 
+      IF dtOldPoDate NE po-ord.po-date  THEN
+      DO:         
+        RUN po/d-pdcnot.w /* PERSISTENT SET h_reasonWin */
+        (INPUT po-ord.rec_key, INPUT "P", INPUT "", INPUT "", INPUT 0, INPUT "PDC", INPUT "",
+        OUTPUT cDateChangeReason, OUTPUT rwRowid)  .
+      END.
+      IF dtOldShipDate NE po-ord.last-ship-date  THEN
+      DO:         
+        RUN po/d-pdcnot.w /* PERSISTENT SET h_reasonWin */
+        (INPUT po-ord.rec_key, INPUT "L", INPUT "", INPUT "", INPUT 0, INPUT "LDC", INPUT "",
+        OUTPUT cDateChangeReason, OUTPUT rwRowid)  .
+      END.
+  END.
 
   IF lPOChangeDueDate AND NOT adm-new-record AND lv-due-date <> po-ord.due-date THEN DO:
      MESSAGE "Do you want to update the due date for all line items?"

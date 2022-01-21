@@ -153,6 +153,7 @@ DEFINE            VARIABLE ld-dim-charge      AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE v-index            AS INTEGER   NO-UNDO.
 DEFINE            VARIABLE lCheckFGCustHold   AS LOGICAL NO-UNDO.
 DEFINE            VARIABLE scInstance         AS CLASS system.SharedConfig NO-UNDO.
+DEFINE            VARIABLE cPODateChangeRequiresReason AS CHARACTER NO-UNDO.
 
 /* gdm - 06040918 */
 DEFINE BUFFER bf-itemfg        FOR itemfg.  
@@ -176,6 +177,7 @@ FIND FIRST uom NO-LOCK WHERE uom.uom EQ "ROLL" NO-ERROR.
 IF AVAILABLE uom THEN ld-roll-len = uom.mult.
 
 RUN po/POProcs.p PERSISTENT SET hdPOProcs.
+RUN spGetSettingByName ("PODateChangeRequiresReason", OUTPUT cPODateChangeRequiresReason).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1029,6 +1031,9 @@ DO:
   DEFINE VARIABLE dPurchaseLimit AS DECIMAL NO-UNDO.
   DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cPriceHoldMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE dtOldDueDate AS DATE NO-UNDO.
+  DEFINE VARIABLE rwRowid      AS ROWID NO-UNDO.
+  DEFINE VARIABLE cDateChangeReason AS CHARACTER NO-UNDO.
 
   DEFINE BUFFER b-po-ordl FOR po-ordl.
 
@@ -1095,6 +1100,7 @@ DO:
   RUN po/poordlup.p (RECID(po-ordl), -1, YES).
 
   lv-save-ord-no = po-ordl.ord-no.
+  dtOldDueDate   = po-ordl.due-date.
 
   DO WITH FRAME {&FRAME-NAME}:
     IF po-ordl.vend-i-no:SCREEN-VALUE EQ "?" THEN
@@ -1153,6 +1159,14 @@ FIND CURRENT po-ordl NO-LOCK NO-ERROR.
 END.
 FIND CURRENT po-ord NO-LOCK NO-ERROR.
 FIND CURRENT po-ordl NO-LOCK NO-ERROR.
+
+IF ip-type EQ "Update" AND cPODateChangeRequiresReason EQ "Yes"
+   AND dtOldDueDate NE po-ordl.due-date THEN 
+DO:
+    RUN po/d-pdcnot.w /* PERSISTENT SET h_reasonWin */
+       (INPUT po-ordl.rec_key, INPUT "D", INPUT "", INPUT "", INPUT 0, INPUT "DDC", INPUT "",
+       OUTPUT cDateChangeReason, OUTPUT rwRowid)  .
+END.
       
 ll = NO.
 

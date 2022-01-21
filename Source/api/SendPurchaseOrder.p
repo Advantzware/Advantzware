@@ -522,6 +522,9 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             cMinUnderPct       = STRING(100 - po-ord.under-pct)
             .
         
+        system.SharedConfig:Instance:SetValue("APIVariable_SendPurchaseOrder_Buyer", cBuyer).
+        system.SharedConfig:Instance:SetValue("APIVariable_SendPurchaseOrder_PODate", cPoDate).
+        
         IF cBuyer NE "" THEN DO:
             FIND FIRST bf-users NO-LOCK
                  WHERE bf-users.user_id EQ cBuyer
