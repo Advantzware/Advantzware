@@ -105,7 +105,7 @@ form
      "                              "
      space(10)
      "              Board              Total   Contb/      Sell FG Price  Total   Total" skip
-     "   Qty  R       $/M Board %      Contb   Man Hr     Price    / MSF Sheets Sht MSF"
+     "   Qty  R       $/M Board %      Contb   Hr         Price    / MSF Sheets Sht MSF"
      /*skip*/
      with width 90 stream-io frame probe-peach down no-labels no-underline no-attr-space no-box.
       
@@ -127,7 +127,7 @@ form
      "                              "
      space(10)
      "                                     Total    Contb/        Sell  FG Price  Total   Total" skip
-     "    Qty  R     Board $/M Board %     Contb    Man Hr       Price     / MSF Sheets Sht MSF" 
+     "    Qty  R     Board $/M Board %     Contb    Hr           Price     / MSF Sheets Sht MSF" 
      /*skip*/
      with width 110 stream-io frame probe-peach-big down no-labels no-underline no-attr-space no-box.
            
