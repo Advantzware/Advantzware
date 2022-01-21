@@ -46,8 +46,9 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
 
-DEFINE VARIABLE oKeyboard AS system.Keyboard NO-UNDO.
-
+DEFINE VARIABLE oKeyboard AS system.Keyboard   NO-UNDO.
+DEFINE VARIABLE oLoadtag  AS inventory.Loadtag NO-UNDO.
+DEFINE VARIABLE oFGBin    AS fg.FGBin          NO-UNDO.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -92,10 +93,10 @@ DEFINE BUTTON btSplit
      LABEL "SPLIT TAG" 
      SIZE 22 BY 1.62.
 
-DEFINE VARIABLE fiQuantity AS DECIMAL FORMAT "->,>>>,>>>,>>9.99<<<<":U INITIAL 0 
+DEFINE VARIABLE fiQuantity AS INT64 FORMAT ">,>>>,>>9":U INITIAL 0 
      LABEL "QUANTITY" 
      VIEW-AS FILL-IN 
-     SIZE 36 BY 1.38
+     SIZE 36 BY 1.38 TOOLTIP "Enter Quantity to Split"
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 
@@ -403,6 +404,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy F-Frame-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    
+    IF VALID-OBJECT (oFGBin) THEN
+        DELETE OBJECT oFGBin.
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable F-Frame-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -550,6 +574,19 @@ PROCEDURE state-changed :
         
     CASE p-state:
         WHEN "tag-valid" THEN DO:
+            {methods/run_link.i "SPLIT-SOURCE" "GetTag" "(OUTPUT oLoadtag)"}
+            
+            fiQuantity:SCREEN-VALUE = "0".
+            
+            IF VALID-OBJECT(oLoadtag) AND NOT LOGICAL(oLoadTag:GetValue("ItemType")) THEN DO:
+                IF NOT VALID-OBJECT(oFGBin) THEN
+                    oFGBin = NEW fg.FGBin().
+                    
+                oFGBin:SetContext(oLoadTag:GetValue("Company"), oLoadtag:GetValue("ItemID"), oLoadtag:GetValue("Tag")).
+                IF oFGBin:IsAvailable() THEN
+                    fiQuantity:SCREEN-VALUE = oFGBin:GetValue("Quantity").
+            END.
+            
             btSplit:SENSITIVE = TRUE.
         END.
         WHEN "tag-invalid" THEN DO:
