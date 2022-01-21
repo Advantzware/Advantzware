@@ -49,7 +49,7 @@ def var ls-item-dscr as cha no-undo.
 def var k_frac as dec init 6.25 no-undo.
 DEF VAR lv-sort-by AS CHAR INIT "key-01" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "Wst MSF" NO-UNDO.
-DEF VAR ll-sort-asc AS LOG INIT NO NO-UNDO.
+DEF VAR ll-sort-asc AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lShtcalcWarm-log AS LOGICAL NO-UNDO .
