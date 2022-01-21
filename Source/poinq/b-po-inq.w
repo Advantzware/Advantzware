@@ -1827,7 +1827,6 @@ PROCEDURE pPrepareAndExecuteQuery :
         cBrowseWhereClause = ""
         cSortPhrase        = " BREAK BY po-ordl.po-no DESCENDING"
                            .                
-    RUN setStartDueDate.
     RUN pQueryString (cBrowseWhereClause, cSortPhrase, OUTPUT cLimitingQuery).             
     /* Limit the query if order no is 0 or cadd No is Blank */                    
     IF fi_po-no EQ 0 THEN
@@ -2163,26 +2162,6 @@ PROCEDURE send-records :
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setStartDueDate B-table-Win 
-PROCEDURE setStartDueDate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-DO WITH FRAME {&FRAME-NAME}:
-    IF fi_due-date:SCREEN-VALUE EQ "" OR fi_due-date EQ ? THEN
-        ASSIGN
-        fi_due-date:SCREEN-VALUE = STRING(TODAY - 180) 
-        fi_due-date = TODAY - 180 .
-END.
 
 END PROCEDURE.
 
@@ -2904,9 +2883,10 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
     ELSE DO:         
         IF tb_open NE tb_closed THEN
         cWhereCriteria = cWhereCriteria + " AND po-ordl.opened EQ " + STRING(tb_open).
-                       
-        ASSIGN
-            cWhereCriteria = cWhereCriteria + " AND po-ordl.due-date GE " + STRING(fi_due-date,"99/99/9999")   
+        IF fi_due-date NE ? THEN
+        cWhereCriteria = cWhereCriteria + " AND po-ordl.due-date GE " + STRING(fi_due-date,"99/99/9999").  
+        
+        ASSIGN            
             cWhereCriteria = cWhereCriteria  
                            + (IF fi_po-no NE 0 THEN " AND po-ordl.po-no EQ " + STRING(fi_po-no) ELSE "")
                            + (IF INDEX(fi_vend-no,"*") GT 0 THEN " AND po-ordl.vend-no MATCHES " + QUOTER(fi_vend-no + "*") ELSE IF fi_vend-no NE "" THEN " AND po-ordl.vend-no BEGINS " + QUOTER(fi_vend-no) ELSE "")
