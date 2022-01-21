@@ -1265,6 +1265,9 @@ PROCEDURE pMoveReceipt:
         END.
     END.
     
+    IF glSSFGPost THEN
+        RUN pPost.
+        
     lIsMoveReceipt = FALSE.
     
     {&OPEN-QUERY-{&BROWSE-NAME}}
@@ -1407,8 +1410,7 @@ PROCEDURE pTagScan PRIVATE :
     
     oplIsTransfer = oFGBin:SetContext (cCompany, cItemID, ipcTag).
 
-    IF NOT glSSFGPost THEN
-        RUN Inventory_GetFGReceiptTransaction IN hdInventoryProcs (cCompany, ipcTag, OUTPUT riFGRctdMove).
+    RUN Inventory_GetFGReceiptTransaction IN hdInventoryProcs (cCompany, ipcTag, OUTPUT riFGRctdMove).
         
     IF riFGRctdMove NE ? THEN DO:
         FIND FIRST bf-fg-rctd NO-LOCK
