@@ -3355,7 +3355,7 @@ PROCEDURE new-tag :
                 IF INTEGER(fg-rctd.partial:SCREEN-VALUE ) = 0 THEN
                     fg-rctd.partial:SCREEN-VALUE  = STRING(loadtag.partial).    
                 IF INTEGER(fg-rctd.cases-unit:SCREEN-VALUE ) = 1  THEN
-                    fg-rctd.cases-unit:SCREEN-VALUE  = STRING(loadtag.case-bundle + (IF loadtag.partial GT 0 THEN 1 ELSE 0)).
+                    fg-rctd.cases-unit:SCREEN-VALUE  = STRING(loadtag.case-bundle + INTEGER(DYNAMIC-FUNCTION("fGetOverageQuantitySubUnitsPerUnit" IN hInventoryProcs,INTEGER(loadtag.partial)))) .
                 /* Task 12061305 */  
                 IF loadtag.job-no <> "" THEN 
                 DO:
