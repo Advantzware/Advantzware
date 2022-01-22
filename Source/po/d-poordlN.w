@@ -1135,6 +1135,9 @@ DO:
 
   RUN valid-max-po-cost(OUTPUT op-error).
   IF op-error THEN RETURN NO-APPLY.
+  
+  RUN valid-due-date(OUTPUT op-error) NO-ERROR.
+  IF op-error THEN RETURN NO-APPLY.
 
   RUN update-shipto.
 
@@ -6135,6 +6138,31 @@ PROCEDURE valid-max-po-cost :
         FIND CURRENT xpo-ord.
         RELEASE xpo-ord.
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-due-date V-table-Win 
+PROCEDURE valid-due-date :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+ 
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+        IF DATE(po-ordl.due-date:SCREEN-VALUE) EQ ? THEN DO:        
+               MESSAGE "A due date is required for Purchase Orders." SKIP
+               "Please enter due Date." VIEW-AS ALERT-BOX INFO.
+               APPLY "entry" TO po-ordl.due-date.
+               oplReturnError = YES.                               
+        END.            
+  END.
+  {methods/lValidateError.i NO}
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
