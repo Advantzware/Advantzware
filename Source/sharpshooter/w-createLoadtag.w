@@ -1057,6 +1057,8 @@ PROCEDURE pInit :
     
     IF INDEX(gcShowSettings, "Icon") EQ 0 THEN
         {methods/run_link.i "Setting-SOURCE" "HideSettings"}        
+        
+    {methods/run_link.i "JOB-SOURCE" "ValidateSameJobScan" "(FALSE)"}    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

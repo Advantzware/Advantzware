@@ -3061,6 +3061,8 @@ FUNCTION get-pct RETURNS INTEGER
     rtnValue = ((ipBal / oe-ordl.qty) - 1) * 100.
     IF rtnValue EQ 0 THEN rtnValue = 100.
     IF rtnValue EQ -100 THEN rtnValue = 0.
+    IF rtnValue GT 999 THEN rtnValue = 999.
+    ELSE IF rtnValue LT -999 THEN rtnValue = -999.
   END.
 
   RETURN rtnValue.

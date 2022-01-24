@@ -5,3 +5,4 @@
 TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
 
 {methods/triggers/write.i}
+

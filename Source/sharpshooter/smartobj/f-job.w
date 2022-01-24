@@ -765,3 +765,18 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ValidateSameJobScan F-Frame-Win
+PROCEDURE ValidateSameJobScan:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplValidateSameJobScan AS LOGICAL NO-UNDO.
+    
+    {methods/run_link.i "JOB-SOURCE" "ValidateSameJobScan" "(iplValidateSameJobScan)"}
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+

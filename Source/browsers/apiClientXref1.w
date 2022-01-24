@@ -39,6 +39,8 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i}
 
+&SCOPED-DEFINE xlocal-destroy
+
 ASSIGN
     cocode = g_company
     locode = g_loc
@@ -163,12 +165,12 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btGo 
      LABEL "Go" 
-     SIZE 15 BY 1.14.
+     SIZE 15 BY 1.15.
 
 DEFINE VARIABLE cbScopeType AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      DROP-DOWN-LIST
-     SIZE 28.2 BY 1 NO-UNDO.
+     SIZE 28.17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cbTriggerID AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -177,11 +179,12 @@ DEFINE VARIABLE cbTriggerID AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE fiScopeID AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 29.8 BY 1 NO-UNDO.
+     SIZE 29.83 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 123 BY 12.86.
+     SIZE 123 BY 12.85
+     FGCOLOR 9 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -199,26 +202,26 @@ DEFINE BROWSE br_table
       apiClientXref.inactive COLUMN-LABEL "Status" FORMAT "Inactive/Active":U WIDTH 16.4
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 122 BY 10.62
+    WITH NO-ASSIGN SEPARATORS SIZE 121 BY 10.62
          FONT 6 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     cbTriggerID AT ROW 1.86 COL 58.6 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-     fiScopeID AT ROW 1.86 COL 30.6 NO-LABEL WIDGET-ID 2
-     cbScopeType AT ROW 1.86 COL 2.2 NO-LABEL WIDGET-ID 8
-     btGo AT ROW 1.76 COL 104.8 WIDGET-ID 12
-     br_table AT ROW 2.95 COL 2
+     cbTriggerID AT ROW 1.85 COL 58.67 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     fiScopeID AT ROW 1.85 COL 30.67 NO-LABEL WIDGET-ID 2
+     cbScopeType AT ROW 1.85 COL 2.17 NO-LABEL WIDGET-ID 8
+     btGo AT ROW 1.77 COL 104.83 WIDGET-ID 12
+     br_table AT ROW 2.96 COL 2
      "Trigger ID" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.14 COL 61 WIDGET-ID 16
+          SIZE 13 BY .62 AT ROW 1.15 COL 61 WIDGET-ID 16
           FGCOLOR 1 
      "Scope Type" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 1.14 COL 2.6 WIDGET-ID 10
+          SIZE 14 BY .62 AT ROW 1.15 COL 2.67 WIDGET-ID 10
           FGCOLOR 1 
      "Scope ID" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 1.14 COL 31 WIDGET-ID 4
+          SIZE 11 BY .62 AT ROW 1.15 COL 31 WIDGET-ID 4
           FGCOLOR 1 FONT 6
      RECT-4 AT ROW 1 COL 1 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -254,8 +257,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 12.86
-         WIDTH              = 123.4.
+         HEIGHT             = 12.85
+         WIDTH              = 123.33.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -474,6 +477,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
+{methods/browsers/setCellColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -584,28 +588,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
-PROCEDURE local-destroy:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    /* Code placed here will execute PRIOR to standard behavior. */
-    IF VALID-HANDLE (hdOutboundProcs) THEN
-        DELETE PROCEDURE hdOutboundProcs.
-        
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -620,6 +602,26 @@ PROCEDURE local-enable :
 
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pInit.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN setCellColumns.
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -799,6 +801,19 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE xlocal-destroy B-table-Win 
+PROCEDURE xlocal-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF VALID-HANDLE (hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

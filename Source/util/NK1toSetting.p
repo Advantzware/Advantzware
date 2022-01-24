@@ -1,5 +1,7 @@
 /* NK1toSetting.p - rstark - 11.4.2021 */
 
+DISABLE TRIGGERS FOR LOAD OF settingType.
+
 DEFINE INPUT  PARAMETER ipiCurrentVersion AS INTEGER NO-UNDO.
 
 DEFINE VARIABLE companyContext      AS LOGICAL   NO-UNDO.
@@ -57,7 +59,11 @@ REPEAT:
             settingType.defaultValue  = REPLACE(settingDefaultValue,"|",",")
             settingType.categoryTags  = REPLACE(settingCategoryTags,"|",",")
             settingType.isPassword    = settingPassword EQ "Yes"
-            .
+            settingType.rec_key       = STRING(YEAR(TODAY),"9999") + 
+                                        STRING(MONTH(TODAY),"99") + 
+                                        STRING(DAY(TODAY),"99") + 
+                                        STRING(TIME,"99999") + 
+                                        STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999").
     END. // not can-find
     FOR EACH sys-ctrl EXCLUSIVE-LOCK
         WHERE sys-ctrl.name EQ nk1Name
