@@ -2188,6 +2188,9 @@ PROCEDURE local-update-record :
     RUN valid-po-date(OUTPUT lReturnError) NO-ERROR.
     IF lReturnError THEN RETURN NO-APPLY.
     
+    RUN valid-due-date(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
+    
     IF po-ord.stat:MODIFIED THEN DO:
       RUN valid-po-status(OUTPUT lReturnError) NO-ERROR.
       IF lReturnError THEN RETURN NO-APPLY.
@@ -3045,6 +3048,31 @@ PROCEDURE valid-carrier :
       APPLY "entry" TO po-ord.carrier.
     END.
     
+  END.
+  {methods/lValidateError.i NO}
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-due-date V-table-Win 
+PROCEDURE valid-due-date :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+ 
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+        IF DATE(po-ord.due-date:SCREEN-VALUE) EQ ? THEN DO:        
+               MESSAGE "A due date is required for Purchase Orders." SKIP
+               "Please enter Required Date." VIEW-AS ALERT-BOX INFO.
+               APPLY "entry" TO po-ord.due-date.
+               oplReturnError = YES.                               
+        END.            
   END.
   {methods/lValidateError.i NO}
     
