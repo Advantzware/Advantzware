@@ -62,6 +62,7 @@ DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lIsMoveReceipt   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE riFGRctdMove     AS ROWID     NO-UNDO.
+DEFINE VARIABLE cUserID          AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE gcSSLocationSource    AS CHARACTER NO-UNDO INITIAL "LoadTag".
 DEFINE VARIABLE glSSCloseJob          AS LOGICAL   NO-UNDO.
@@ -79,6 +80,7 @@ ASSIGN
     .
 
 RUN spSetSettingContext.
+RUN spGetSessionParam ("UserID", OUTPUT cUserID).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -104,8 +106,8 @@ RUN spSetSettingContext.
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttBrowseInventory.fgItemID fGetConcatLocationID() @ ttBrowseInventory.warehouseID ttBrowseInventory.tag ttBrowseInventory.quantity fGetInventoryStatus() @ ttBrowseInventory.inventoryStatus ttBrowseInventory.emptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttBrowseInventory
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH ttBrowseInventory.
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttBrowseInventory BY ttBrowseInventory.lastTransTime DESCENDING
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH ttBrowseInventory BY ttBrowseInventory.lastTransTime DESCENDING.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 ttBrowseInventory
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 ttBrowseInventory
 
@@ -396,7 +398,7 @@ THEN W-Win:HIDDEN = yes.
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttBrowseInventory.
+OPEN QUERY {&SELF-NAME} FOR EACH ttBrowseInventory BY ttBrowseInventory.lastTransTime DESCENDING.
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
@@ -1067,8 +1069,16 @@ PROCEDURE pInit PRIVATE :
         INPUT  cCompany,
         OUTPUT iWarehouseLength
         ).
+
+    RUN Inventory_GetFGReceiptTransactions IN hdInventoryProcs (
+        INPUT  cCompany,
+        INPUT  cUserID,
+        OUTPUT TABLE ttBrowseInventory
+        ).
+                
     RUN pStatusMessage ("", 0).
 
+    {&OPEN-QUERY-{&BROWSE-NAME}}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1173,7 +1183,7 @@ PROCEDURE pLocationScan PRIVATE :
             INPUT  ipcTag,
             INPUT  cItemID,
             INPUT  "FG",  /* Item Type */
-            INPUT  USERID("ASI"), 
+            INPUT  cUserID, 
             INPUT  FALSE, /* Post */
             OUTPUT riFGRctd,
             OUTPUT lSuccess,
@@ -1196,6 +1206,8 @@ PROCEDURE pLocationScan PRIVATE :
         
         IF lLocationConfirm THEN
             ttBrowseInventory.inventoryStatus = "Confirmed".
+        
+        ttBrowseInventory.lastTransTime = NOW.
     END.
     ELSE DO:
         oplError = TRUE.
@@ -1215,9 +1227,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMoveReceipt W-Win
-PROCEDURE pMoveReceipt:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMoveReceipt W-Win 
+PROCEDURE pMoveReceipt :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1259,6 +1270,7 @@ PROCEDURE pMoveReceipt:
                 ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-fg-rctd))
                 ttBrowseInventory.transactionType  = "Receipt"
                 ttBrowseInventory.inventoryStatus  = "Moved"
+                ttBrowseInventory.lastTransTime    = NOW
                 .
                 
             RUN pStatusMessage (CAPS("Tag # '" + bf-fg-rctd.tag + "' moved successfull"), 1).
@@ -1272,11 +1284,9 @@ PROCEDURE pMoveReceipt:
     
     {&OPEN-QUERY-{&BROWSE-NAME}}
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pNavigate W-Win 
 PROCEDURE pNavigate :
@@ -1317,7 +1327,8 @@ PROCEDURE pPost PRIVATE :
     
     FOR EACH ttBrowseInventory NO-LOCK
         WHERE ttBrowseInventory.inventoryStatus EQ "Created"
-           OR ttBrowseInventory.inventoryStatus EQ "Moved":
+           OR ttBrowseInventory.inventoryStatus EQ "Moved"
+           OR ttBrowseInventory.inventoryStatus EQ "Unposted":
         RUN PostFinishedGoodsForFGRctd IN hdInventoryProcs (
             INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),
             INPUT  glSSCloseJob,
@@ -1333,7 +1344,14 @@ PROCEDURE pPost PRIVATE :
             RUN pStatusMessage ("Transaction posted successfully", 1).
         END.
     END.
-
+    
+    ASSIGN
+        fiTag:SCREEN-VALUE      = ""
+        fiLocation:SCREEN-VALUE = ""
+        .
+    
+    APPLY "ENTRY" TO fiTag.
+        
     {&OPEN-QUERY-{&BROWSE-NAME}}
 END PROCEDURE.
 
@@ -1502,7 +1520,7 @@ PROCEDURE pTagScan PRIVATE :
             INPUT        cLocation,
             INPUT        gcCreateFGCompReceiptForSetHeader EQ "YES", 
             INPUT        "no", /* Post */            
-            INPUT        USERID("ASI"),
+            INPUT        cUserID,
             OUTPUT       riFGRctd,
             OUTPUT       dNewQuantity,
             OUTPUT       lSuccess,
@@ -1525,6 +1543,7 @@ PROCEDURE pTagScan PRIVATE :
             ttBrowseInventory.inventoryStockID = STRING(riFGRctd)
             ttBrowseInventory.transactionType  = "Receipt"
             ttBrowseInventory.inventoryStatus  = "Created"
+            ttBrowseInventory.lastTransTime    = NOW
             .
         
         FIND FIRST bf-fg-rctd NO-LOCK
@@ -1546,6 +1565,7 @@ PROCEDURE pTagScan PRIVATE :
                     ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-comp-fg-rctd))
                     ttBrowseInventory.transactionType  = "Receipt"
                     ttBrowseInventory.inventoryStatus  = "Created"
+                    ttBrowseInventory.lastTransTime    = NOW
                     .            
             END.            
         END.
@@ -1683,3 +1703,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
