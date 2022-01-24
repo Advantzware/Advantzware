@@ -61,7 +61,10 @@ FUNCTION fGetNextTransactionID RETURNS INTEGER
 FUNCTION fGetNumberSuffix RETURNS INTEGER PRIVATE
     (ipcFullText AS CHARACTER,
     ipiStartChar AS INTEGER) FORWARD.
-
+        
+FUNCTION fGetOverageQuantitySubUnitsPerUnit RETURNS INTEGER 
+    (ipiQuantitySubUnitsPerUnit AS INTEGER) FORWARD.
+    
 FUNCTION fGetSnapshotCompareStatus RETURNS CHARACTER PRIVATE
     (ipcCompany AS CHARACTER,
      ipcTag AS CHARACTER,
@@ -575,7 +578,8 @@ PROCEDURE Inventory_GetQuantityOfUnitsForOEBoll:
     RUN pGetQuantityOfSubUnitsPerUnitFromBinAndOrder(bf-oe-boll.company, bf-oe-boll.i-no, bf-oe-boll.job-no, bf-oe-boll.job-no2, bf-oe-boll.loc, bf-oe-boll.loc-bin, bf-oe-boll.tag, bf-oe-boll.ord-no,
         OUTPUT iQuantitySubUnitsPerUnit).  //Get the QuantitySubUnitsPerUnit (cases per pallet)
     
-    iQuantityPerSubUnit = bf-oe-boll.qty-case. 
+    iQuantityPerSubUnit = bf-oe-boll.qty-case.
+    iQuantitySubUnitsPerUnit = iQuantitySubUnitsPerUnit + fGetOverageQuantitySubUnitsPerUnit(INTEGER(bf-oe-boll.partial)) .
     
     RUN RecalcQuantityUnits (bf-oe-boll.qty, INPUT-OUTPUT iQuantityPerSubUnit, INPUT-OUTPUT iQuantitySubUnitsPerUnit,
                                              OUTPUT dQuantityOfSubUnits, OUTPUT opiQuantityOfUnits, OUTPUT dQuantityPartial).
@@ -9145,6 +9149,19 @@ FUNCTION fGetNumberSuffix RETURNS INTEGER PRIVATE
         iNumberSuffix = 0.
     
     RETURN iNumberSuffix.
+END FUNCTION.
+
+FUNCTION fGetOverageQuantitySubUnitsPerUnit RETURNS INTEGER 
+    (ipiQuantitySubUnitsPerUnit AS INTEGER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns an integer number 
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE iNumberSubUnit        AS INTEGER.
+    
+    iNumberSubUnit = IF ipiQuantitySubUnitsPerUnit GT 0 THEN 1 ELSE 0 .
+            
+    RETURN iNumberSubUnit.
 END FUNCTION.
 
 FUNCTION fGetSnapshotCompareStatus RETURNS CHARACTER
