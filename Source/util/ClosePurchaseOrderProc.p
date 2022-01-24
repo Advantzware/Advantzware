@@ -55,7 +55,8 @@ FOR EACH bf-po-ord NO-LOCK
         END.
         ELSE IF ipcQtyUsed EQ "I" THEN
         DO:
-            IF bf-po-ordl.t-rec-qty LT bf-po-ordl.ord-qty OR bf-po-ordl.t-inv-qty LT bf-po-ordl.t-rec-qty THEN NEXT MAIN-LOOP.          
+            IF bf-po-ordl.t-rec-qty LT (bf-po-ordl.ord-qty * (1 - bf-po-ordl.under-pct / 100))
+            OR bf-po-ordl.t-inv-qty LT bf-po-ordl.t-rec-qty THEN NEXT MAIN-LOOP.          
         END.
                   
                   
