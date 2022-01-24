@@ -14,6 +14,20 @@
     "rec_key": "202201057376708435960"
   },
   {
+    "dbFieldName": "cust-no",
+    "dbFieldExtent": 0,
+    "attributeName": "CustomerID",
+    "dbTableName": "cust",
+    "rec_key": "202201204375008475662"
+  },
+  {
+    "dbFieldName": "name",
+    "dbFieldExtent": 0,
+    "attributeName": "CustomerName",
+    "dbTableName": "cust",
+    "rec_key": "202201204375908475663"
+  },
+  {
     "dbFieldName": "code",
     "dbFieldExtent": 0,
     "attributeName": "DepartmentCode",
@@ -3171,6 +3185,13 @@
     "rec_key": "202111190040508130731"
   },
   {
+    "dbFieldName": "est-dscr",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemEstimateDescription",
+    "dbTableName": "item",
+    "rec_key": "202201204383508475665"
+  },
+  {
     "dbFieldName": "i-code",
     "dbFieldExtent": 0,
     "attributeName": "ItemCode",
@@ -3358,5 +3379,26 @@
     "attributeName": "UnderrunPercent",
     "dbTableName": "oe-ordl",
     "rec_key": "202111190040508130750"
+  },
+  {
+    "dbFieldName": "buyer",
+    "dbFieldExtent": 0,
+    "attributeName": "POBuyer",
+    "dbTableName": "po-ord",
+    "rec_key": "202201114188908455004"
+  },
+  {
+    "dbFieldName": "po-no",
+    "dbFieldExtent": 0,
+    "attributeName": "POID",
+    "dbTableName": "po-ordl",
+    "rec_key": "202201208270508475752"
+  },
+  {
+    "dbFieldName": "vend-no",
+    "dbFieldExtent": 0,
+    "attributeName": "VendorID",
+    "dbTableName": "po-ordl",
+    "rec_key": "202201208271808475753"
   }
 ]
