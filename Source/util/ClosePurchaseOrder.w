@@ -109,6 +109,7 @@ DEFINE VARIABLE fiQuantityToUse AS CHARACTER FORMAT "X(19)":U
      VIEW-AS COMBO-BOX INNER-LINES 4
      LIST-ITEM-PAIRS "None","N",
                      "Fully Received","F",
+                     "Received Enough","R",
                      "Invoiced","I"
      DROP-DOWN-LIST
      SIZE 24 BY 1

@@ -47,8 +47,13 @@ FOR EACH bf-po-ord NO-LOCK
     FOR EACH bf-po-ordl NO-LOCK 
         WHERE bf-po-ordl.company EQ bf-po-ord.company 
         AND bf-po-ordl.po-no   EQ bf-po-ord.po-no:  
-                     
+        
         IF ipcQtyUsed EQ "F" THEN
+        DO:
+           IF bf-po-ordl.t-rec-qty LT bf-po-ordl.ord-qty THEN NEXT MAIN-LOOP.
+              
+        END.             
+        ELSE IF ipcQtyUsed EQ "R" THEN
         DO:
            IF bf-po-ordl.t-rec-qty LT (bf-po-ordl.ord-qty * (1 - bf-po-ordl.under-pct / 100)) THEN NEXT MAIN-LOOP.
               
