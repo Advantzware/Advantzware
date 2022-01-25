@@ -451,6 +451,97 @@ PROCEDURE Inventory_GetFGSetComponents:
                
 END PROCEDURE.
 
+PROCEDURE Inventory_GetFGReceiptTransaction:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opriFGRctd AS ROWID     NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+       
+    FIND FIRST bf-fg-rctd NO-LOCK  
+         WHERE bf-fg-rctd.company   EQ ipcCompany
+           AND bf-fg-rctd.tag       EQ ipcTag
+           AND bf-fg-rctd.rita-code EQ gcTransactionTypeReceive
+           AND bf-fg-rctd.qty       GT 0
+         NO-ERROR.
+    IF AVAILABLE bf-fg-rctd THEN
+        opriFGRctd = ROWID(bf-fg-rctd).
+
+END PROCEDURE.
+
+PROCEDURE Inventory_MoveFGTransaction:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriFGRctd  AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE lValidLoc AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lValidBin AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cUserID   AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+       
+    FIND FIRST bf-fg-rctd NO-LOCK  
+         WHERE ROWID(bf-fg-rctd) EQ ipriFGRctd
+         NO-ERROR.
+    IF NOT AVAILABLE bf-fg-rctd THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid FG Receipt passed as input"
+            .
+        
+        RETURN. 
+    END.
+    
+    RUN ValidateLoc ( bf-fg-rctd.company, ipcLocation, OUTPUT lValidLoc).
+    
+    IF NOT lValidLoc THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid Location " + ipcLocation                 
+            oplError   = TRUE
+            .
+        RETURN.
+    END.
+    
+    /* Validate location */
+    RUN ValidateBin (bf-fg-rctd.company, ipcLocation, ipcBin, OUTPUT lValidBin).
+    
+    IF ipcBin EQ "" OR NOT lValidBin THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid Bin " + ipcBin
+            oplError   = TRUE 
+            .
+        RETURN.
+    END.
+    
+    FIND CURRENT bf-fg-rctd EXCLUSIVE-LOCK NO-ERROR.
+    IF NOT AVAILABLE bf-fg-rctd THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "FG Receipt is locked. Please try again later"
+            .
+        
+        RETURN.     
+    END.
+    
+    RUN spGetSessionParam ("UserID", OUTPUT cUserID).
+    
+    ASSIGN
+        bf-fg-rctd.loc        = ipcLocation
+        bf-fg-rctd.loc-bin    = ipcBin
+        bf-fg-rctd.created-by = cUserID
+        .
+END PROCEDURE.
+
 PROCEDURE pCreateFGSetComponents PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -2673,6 +2764,61 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
         oplSuccess = TRUE
         opcMessage = "Success"
         .
+END PROCEDURE.
+
+PROCEDURE Inventory_GetFGReceiptTransactions:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the temp-table of FG transactions
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUser            AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+    
+    RUN pGetFGTransactions (
+        INPUT  ipcCompany,
+        INPUT  ipcUser,
+        INPUT  gcTransactionTypeReceive,
+        OUTPUT TABLE ttBrowseInventory
+        ).
+END PROCEDURE.
+    
+PROCEDURE pGetFGTransactions PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the temp-table of FG transactions
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUser            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTransactionType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+    
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+    
+    EMPTY TEMP-TABLE ttBrowseInventory.
+    
+    FOR EACH bf-fg-rctd NO-LOCK
+        WHERE bf-fg-rctd.company     EQ ipcCompany
+          AND (bf-fg-rctd.rita-code  EQ ipcTransactionType OR ipcTransactionType EQ "")
+          AND (bf-fg-rctd.created-by EQ ipcUser OR ipcUser EQ ""):
+        CREATE ttBrowseInventory.
+        ASSIGN
+            ttBrowseInventory.company          = bf-fg-rctd.company
+            ttBrowseInventory.fgItemID         = bf-fg-rctd.i-no
+            ttBrowseInventory.tag              = bf-fg-rctd.tag
+            ttBrowseInventory.warehouse        = bf-fg-rctd.loc
+            ttBrowseInventory.location         = bf-fg-rctd.loc-bin
+            ttBrowseInventory.quantity         = bf-fg-rctd.qty
+            ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-fg-rctd))
+            ttBrowseInventory.inventoryStatus  = "Unposted"
+            ttBrowseInventory.lastTransTime    = NOW
+            .
+        
+        IF ipcTransactionType EQ gcTransactionTypeReceive THEN
+            ttBrowseInventory.transactionType  = "Receipt".
+        ELSE IF ipcTransactionType EQ gcTransactionTypeTransfer THEN
+            ttBrowseInventory.transactionType  = "Transfer".
+    END.
 END PROCEDURE.
 
 PROCEDURE pGetLastIssue PRIVATE:
