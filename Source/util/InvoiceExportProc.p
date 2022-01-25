@@ -13,7 +13,7 @@ DEFINE TEMP-TABLE ttInvoiceExport
     FIELD invoice_no  		    LIKE ar-invl.inv-no
     FIELD line_no  		        LIKE ar-invl.LINE
     FIELD invoice_date  		AS CHARACTER LABEL "Invoice Date"
-    FIELD InvoiceStatus  		AS CHARACTER  LABEL "Type"
+    FIELD InvoiceStatus  		AS CHARACTER  LABEL "Status"
     FIELD part-no  		        LIKE ar-invl.part-no
     FIELD Salesman1  		    AS CHARACTER FORMAT "x(3)" 
     FIELD Salesman2  		    AS CHARACTER FORMAT "x(3)" 
@@ -111,9 +111,9 @@ FOR EACH bf-ar-inv NO-LOCK WHERE
                 ttInvoiceExport.qty_ordered           = bf-ar-invl.qty       
                 ttInvoiceExport.qty_shipped           = bf-ar-invl.ship-qty
                 ttInvoiceExport.qty_invoiced          = bf-ar-invl.inv-qty
-                ttInvoiceExport.id_type               = IF bf-ar-invl.misc THEN "gen" 
-                                                        ELSE IF bf-ar-invl.billable THEN "frt" 
-                                                        ELSE "itm" 
+                ttInvoiceExport.id_type               = IF bf-ar-invl.misc THEN "GEN" 
+                                                        ELSE IF bf-ar-invl.billable THEN "FRT" 
+                                                        ELSE "ITM" 
                 .
             
             IF FIRST-OF(bf-ar-inv.inv-no) THEN
