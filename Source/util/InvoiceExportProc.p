@@ -65,6 +65,7 @@ DEFINE BUFFER bf-shipto  FOR shipto.
 DEFINE BUFFER bf-item    FOR ITEM.
 DEFINE BUFFER bf-itemfg  FOR itemfg.
 DEFINE BUFFER bf-cust    FOR cust .
+DEFINE BUFFER bf-ttInvoiceExport FOR ttInvoiceExport.
 
 ASSIGN
     cocode = ipcCompany.
@@ -112,14 +113,12 @@ FOR EACH bf-ar-inv NO-LOCK WHERE
                 ttInvoiceExport.qty_shipped           = bf-ar-invl.ship-qty
                 ttInvoiceExport.qty_invoiced          = bf-ar-invl.inv-qty
                 ttInvoiceExport.id_type               = IF bf-ar-invl.misc THEN "GEN" 
-                                                        ELSE IF bf-ar-invl.billable THEN "FRT" 
                                                         ELSE "ITM" 
                 .
             
             IF FIRST-OF(bf-ar-inv.inv-no) THEN
             DO:
-                ASSIGN
-                    ttInvoiceExport.freight           = IF bf-ar-inv.f-bill THEN STRING(bf-ar-inv.freight) ELSE ""
+                ASSIGN                    
                     ttInvoiceExport.freight_adj       = IF NOT bf-ar-inv.f-bill THEN STRING(bf-ar-inv.freight) ELSE ""
                     ttInvoiceExport.amount            = STRING(bf-ar-inv.gross)
                     ttInvoiceExport.tax-code          = bf-ar-inv.tax-code
@@ -174,6 +173,20 @@ FOR EACH bf-ar-inv NO-LOCK WHERE
                     ttInvoiceExport.industryID    = bf-cust.industryID
                     .
             END. /* IF AVAIL shipto */
+            
+            IF LAST-OF(bf-ar-inv.inv-no) AND bf-ar-inv.f-bill THEN
+            DO:
+                FIND CURRENT ttInvoiceExport NO-LOCK NO-ERROR.
+                CREATE bf-ttInvoiceExport.
+                BUFFER-COPY ttInvoiceExport TO bf-ttInvoiceExport.
+                ASSIGN
+                 bf-ttInvoiceExport.id_type  = "FRT"
+                 bf-ttInvoiceExport.freight  = STRING(bf-ar-inv.freight)
+                 bf-ttInvoiceExport.amount   = ""
+                 bf-ttInvoiceExport.tax-code = ""
+                 bf-ttInvoiceExport.tax-amt  = ""
+                 bf-ttInvoiceExport.line_no  = bf-ttInvoiceExport.line_no + 1.
+            END.
             
 END. /*  FOR EACH bf-ar-inv */
 
