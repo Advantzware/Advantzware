@@ -147,8 +147,8 @@ IF AVAILABLE bf-item THEN
         ttLayoutSize.dGrossSheetLength = (bf-item.s-len)
         ttLayoutSize.dGrossSheetWidth  = (bf-item.s-wid)
         ttLayoutSize.dGrossSheetDepth  = IF isFoamStyle THEN (bf-item.s-dep) ELSE 0.
-
-IF ttLayoutSize.dGrossSheetLength = 0 OR ttLayoutSize.dGrossSheetWidth = 0 THEN 
+        
+ELSE
     ASSIGN
         ttLayoutSize.dGrossSheetLength = bf-eb.t-len
         ttLayoutSize.dGrossSheetWidth  = bf-eb.t-wid.
@@ -374,10 +374,10 @@ DO:
             .   
         
               
-        IF bf-eb.t-len * ttLayoutSize.iBlankNumOnLength GT dCalcTotalLength THEN  
-            dCalcTotalLength = bf-eb.t-len * ttLayoutSize.iBlankNumOnLength.
-        IF bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth GT dCalcTotalWidth THEN  
-            dCalcTotalWidth = bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth.
+        IF bf-eb.t-len * ttLayoutSize.iBlankNumOnWidth GT dCalcTotalLength THEN  
+            dCalcTotalLength = bf-eb.t-len * ttLayoutSize.iBlankNumOnWidth.
+        IF bf-eb.t-wid * ttLayoutSize.iBlankNumOnLength GT dCalcTotalWidth THEN  
+            dCalcTotalWidth = bf-eb.t-wid * ttLayoutSize.iBlankNumOnLength.
     END.  
 END.
 
