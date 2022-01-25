@@ -369,7 +369,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {sys/inc/f3helpw.i}     
     RUN enable_UI.
     pfSetDirectory().
-    fiQuantityToUse:SCREEN-VALUE = "N".
+    fiQuantityToUse:SCREEN-VALUE = "I".
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
