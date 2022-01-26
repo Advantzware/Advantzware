@@ -962,7 +962,7 @@ PROCEDURE post-gl :
 
                 RELEASE glhist.
             END.
-
+/*
             CREATE ar-ledger.
             ASSIGN
              glhist.company = cocode
@@ -984,7 +984,7 @@ PROCEDURE post-gl :
           glhist.tr-amt = glhist.tr-amt + t1.
 
           RELEASE glhist.
-      
+*/      
 
        create ar-ledger.
        assign
