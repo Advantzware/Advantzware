@@ -53,7 +53,7 @@ REPEAT:
             settingDescription        = REPLACE(settingDescription,","," ")
             settingType.settingTypeID = iSettingTypeID
             settingType.settingName   = settingName
-            settingType.description   = REPLACE(settingDescription,"|",",")
+            settingType.description   = REPLACE(settingDescription,"|",",") + CHR(10) + "NK1=" + nk1Name
             settingType.dataType      = settingDataType
             settingType.validValues   = REPLACE(settingValidValues,"|",",")
             settingType.defaultValue  = REPLACE(settingDefaultValue,"|",",")
@@ -65,6 +65,10 @@ REPEAT:
                                         STRING(TIME,"99999") + 
                                         STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999").
     END. // not can-find
+    ELSE ASSIGN 
+        settingType.description = SUBSTRING(settingType.description,1,INDEX(settingType.description,chr(10)) - 1)
+        settingType.description = settingType.description + chr(10) + "NK1=" + nk1Name. 
+        
     FOR EACH sys-ctrl EXCLUSIVE-LOCK
         WHERE sys-ctrl.name EQ nk1Name
         :
