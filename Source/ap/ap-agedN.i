@@ -6,7 +6,9 @@ FOR EACH ap-inv NO-LOCK
     WHERE ap-inv.company   EQ vend.company
       AND ap-inv.vend-no   EQ vend.vend-no
       AND ap-inv.posted    EQ YES 
-      AND (ap-inv.inv-date LE as_of_date OR NOT v-idate)
+      AND ((ap-inv.inv-date LE as_of_date AND cAsOfDate EQ "Invoice") OR cAsOfDate NE "Invoice")
+      AND ((ap-inv.glPostDate LE as_of_date AND cAsOfDate EQ "GLPosting") OR cAsOfDate NE "GLPosting" OR 
+          (ap-inv.glPostDate EQ ? AND ap-inv.inv-date LE as_of_date AND cAsOfDate EQ "GLPosting"))
     USE-INDEX ap-inv ,
     
     FIRST ap-ledger NO-LOCK 
@@ -14,11 +16,11 @@ FOR EACH ap-inv NO-LOCK
       AND ap-ledger.vend-no  EQ ap-inv.vend-no
       AND ap-ledger.ref-date EQ ap-inv.inv-date
       AND ap-ledger.refnum   EQ ("INV# " + ap-inv.inv-no)
-      AND (ap-ledger.tr-date LE as_of_date OR v-idate)
+      AND ((ap-ledger.tr-date LE as_of_date AND cAsOfDate EQ "Posting") OR cAsOfDate NE "Posting")
     USE-INDEX ap-ledger
     
     BREAK BY ap-inv.vend-no
-          BY (IF v-idate THEN ap-inv.inv-date ELSE ap-ledger.tr-date)
+          BY (IF cAsOfDate EQ "Invoice" THEN ap-inv.inv-date ELSE IF cAsOfDate EQ "Posting" THEN ap-ledger.tr-date ELSE IF ap-inv.glPostDate NE ? THEN ap-inv.glPostDate ELSE ap-inv.inv-date)
           BY ap-inv.inv-no:
   
   IF FIRST(ap-inv.vend-no) THEN DO:
@@ -37,7 +39,7 @@ FOR EACH ap-inv NO-LOCK
 
   ASSIGN 
    v-amt  = 0
-   v-date = IF v-idate THEN ap-inv.inv-date ELSE ap-ledger.tr-date.
+   v-date = IF cAsOfDate EQ "Invoice" THEN ap-inv.inv-date ELSE IF cAsOfDate EQ "Posting" THEN ap-ledger.tr-date ELSE IF ap-inv.glPostDate NE ? THEN ap-inv.glPostDate ELSE ap-inv.inv-date.
    
   FOR EACH ap-payl NO-LOCK
       WHERE ap-payl.inv-no   EQ ap-inv.inv-no

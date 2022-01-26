@@ -942,6 +942,7 @@ PROCEDURE pPostGL:
             ap-inv.postedDate = dtPostDate
             ap-inv.runNumber  = iTransNum
             ap-inv.glYear     = YEAR(dtPostDate)
+            ap-inv.glPostDate = dtPostDate
             .
             FIND FIRST vend NO-LOCK
                 WHERE vend.company EQ cCompany

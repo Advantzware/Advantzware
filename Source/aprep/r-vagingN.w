@@ -59,7 +59,6 @@ FIND FIRST company NO-LOCK WHERE company.company EQ cocode NO-ERROR.
 
 DEFINE NEW SHARED VARIABLE v-s-vend       LIKE vend.vend-no.
 DEFINE NEW SHARED VARIABLE v-e-vend       LIKE vend.vend-no.
-DEFINE NEW SHARED VARIABLE v-idate        AS LOGICAL   FORMAT "Invoice/Posting" INITIAL YES.
 DEFINE NEW SHARED VARIABLE v-sort         AS LOGICAL   FORMAT "Code/Name" INITIAL YES.
 DEFINE NEW SHARED VARIABLE v-dtl          AS LOGICAL   FORMAT "Detail/Summary" INITIAL YES.
 DEFINE NEW SHARED VARIABLE v-s-type       AS CHARACTER NO-UNDO.
@@ -308,8 +307,9 @@ DEFINE VARIABLE rd_date        AS CHARACTER INITIAL "Invoice"
     VIEW-AS RADIO-SET HORIZONTAL
     RADIO-BUTTONS 
     "Invoice", "Invoice",
-    "Posting", "Posting"
-    SIZE 25 BY 1 NO-UNDO.
+    "Posting", "Posting",
+    "G/L Posting", "GlPosting"
+    SIZE 37 BY 1 NO-UNDO.
 
 DEFINE VARIABLE rd_sort        AS CHARACTER INITIAL "Code" 
     VIEW-AS RADIO-SET HORIZONTAL
@@ -396,8 +396,8 @@ DEFINE FRAME FRAME-A
     tb_non-elect AT ROW 6.71 COL 52.4 WIDGET-ID 16
     as_of_date AT ROW 7.91 COL 23 COLON-ALIGNED HELP
     "Enter As od date"
-    lbl_date AT ROW 7.91 COL 47 COLON-ALIGNED NO-LABELS
-    rd_date AT ROW 7.91 COL 64 NO-LABELS
+    lbl_date AT ROW 7.91 COL 41 COLON-ALIGNED NO-LABELS
+    rd_date AT ROW 7.91 COL 56 NO-LABELS
     period-days-1 AT ROW 9.24 COL 23 COLON-ALIGNED WIDGET-ID 2
     period-days-2 AT ROW 9.24 COL 35 COLON-ALIGNED WIDGET-ID 4
     period-days-3 AT ROW 9.24 COL 48 COLON-ALIGNED WIDGET-ID 6
@@ -1733,7 +1733,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE cVendHeader   AS CHARACTER NO-UNDO .
     DEFINE VARIABLE cVendHeadLine AS CHARACTER NO-UNDO .
     DEFINE VARIABLE lPutHeader    AS LOGICAL   NO-UNDO .
-
+    DEFINE VARIABLE cAsOfDate     AS CHARACTER NO-UNDO . 
 
     FORM HEADER SKIP(1)
         lv-page-break FORMAT "x(200)"
@@ -1788,7 +1788,6 @@ PROCEDURE run-report :
         v-e-vend   = end_vend
         v-s-type   = begin_type
         v-e-type   = end_type
-        v-idate    = rd_date EQ "Invoice"
         v-sort     = rd_sort EQ "Name"
         v-dtl      = tb_detailed
         v-date     = as_of_date
@@ -1797,6 +1796,7 @@ PROCEDURE run-report :
         v-days[3]  = period-days-3
         v-days[4]  = period-days-4
         lPrintHead = tb_print-head
+        cAsOfDate  = rd_date
 
         str-tit3   = "Company From: " + STRING(begin_comp) + " To: " + STRING(end_comp) + "      " + "As of Date: " + STRING(v-date)
         {sys/inc/ctrtext.i str-tit3 132}.
@@ -1945,15 +1945,17 @@ PROCEDURE run-report :
             WHERE ap-inv.company   EQ company.company
             AND ap-inv.vend-no   EQ vend.vend-no
             AND ap-inv.posted    EQ YES
-            AND (ap-inv.inv-date LE as_of_date OR NOT v-idate)
+            AND ((ap-inv.inv-date LE as_of_date AND cAsOfDate EQ "Invoice") OR cAsOfDate NE "Invoice")
+            AND ((ap-inv.glPostDate LE as_of_date AND cAsOfDate EQ "GLPosting") OR cAsOfDate NE "GLPosting" OR 
+            (ap-inv.glPostDate EQ ? AND ap-inv.inv-date LE as_of_date AND cAsOfDate EQ "GLPosting"))
             USE-INDEX ap-inv ,
 
             FIRST ap-ledger NO-LOCK
             WHERE ap-ledger.company  EQ company.company
             AND ap-ledger.vend-no  EQ ap-inv.vend-no
             AND ap-ledger.ref-date EQ ap-inv.inv-date
-            AND ap-ledger.refnum   EQ ("INV# " + ap-inv.inv-no)
-            AND (ap-ledger.tr-date LE as_of_date OR v-idate)
+            AND ap-ledger.refnum   EQ ("INV# " + ap-inv.inv-no)            
+            AND ((ap-ledger.tr-date LE as_of_date AND cAsOfDate EQ "Posting") OR cAsOfDate NE "Posting")
             USE-INDEX ap-ledger :
 
             CREATE tt-vend.
