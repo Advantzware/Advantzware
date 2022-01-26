@@ -391,8 +391,7 @@ PROCEDURE dynValPostInvDate:
     FIND FIRST period NO-LOCK
          WHERE period.company EQ cCompany
            AND period.pst     LE dtDate
-           AND period.pend    GE dtDate
-           AND period.pnum    EQ MONTH(dtDate)
+           AND period.pend    GE dtDate           
            AND ((period.pnum  EQ MONTH(TODAY) AND cAPPostingPeriodRules EQ "CurrentPeriodOnly")
            OR cAPPostingPeriodRules EQ "OpenPeriodOnly")
            AND ((period.yr     EQ YEAR(TODAY) AND cAPPostingPeriodRules EQ "CurrentPeriodOnly")
