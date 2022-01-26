@@ -87,6 +87,9 @@ DEFINE VARIABLE cCompanyState   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyZip     AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cLineLocation AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lMatchFound   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMatchDetail  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iTaxBasis     AS INTEGER   NO-UNDO.
 
 DEFINE BUFFER bf-APIOutboundDetail1 FOR APIOutboundDetail.
 DEFINE BUFFER bf-APIOutboundDetail2 FOR APIOutboundDetail.    
@@ -425,7 +428,25 @@ ELSE DO:
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", TRIM(STRING(inv-line.tax,"TAXABLE/EXEMPT"))).
                     
                     lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
-                    
+
+                    RUN Price_GetPriceMatrixTaxBasis (
+                        INPUT  cCompany,
+                        INPUT  IF AVAILABLE itemfg THEN itemfg.i-no ELSE "",
+                        INPUT  IF AVAILABLE cust THEN cust.cust-no ELSE "",
+                        INPUT  IF AVAILABLE shipto THEN shipto.ship-id ELSE "",
+                        OUTPUT lMatchFound,
+                        OUTPUT cMatchDetail,
+                        OUTPUT iTaxBasis
+                        ).
+                    IF lMatchFound THEN DO:
+                        /* Send Price Matrix taxable flag in flexible field 11 */
+                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "11").
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", IF iTaxbasis EQ 2 THEN "NONTAXABLE" ELSE IF iTaxBasis EQ 1 THEN "TAXABLE" ELSE "NOTUSED").
+    
+                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    END.                    
                 END.
                 
                 RUN pUpdateDelimiter(
@@ -581,7 +602,25 @@ ELSE DO:
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", TRIM(STRING(inv-misc.tax,"TAXABLE/EXEMPT"))).
                     
                     lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+
+                    RUN Price_GetPriceMatrixTaxBasis (
+                        INPUT  cCompany,
+                        INPUT  IF AVAILABLE itemfg THEN itemfg.i-no ELSE "",
+                        INPUT  IF AVAILABLE cust THEN cust.cust-no ELSE "",
+                        INPUT  IF AVAILABLE shipto THEN shipto.ship-id ELSE "",
+                        OUTPUT lMatchFound,
+                        OUTPUT cMatchDetail,
+                        OUTPUT iTaxBasis
+                        ).
+                    IF lMatchFound THEN DO:
+                        /* Send Price Matrix taxable flag in flexible field 11 */
+                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "11").
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", IF iTaxbasis EQ 2 THEN "NONTAXABLE" ELSE IF iTaxBasis EQ 1 THEN "TAXABLE" ELSE "NOTUSED").
                     
+                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    END.                    
                 END.
 
                 RUN pUpdateDelimiter(
@@ -929,7 +968,25 @@ ELSE DO:
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", TRIM(STRING(ar-invl.tax,"TAXABLE/EXEMPT"))).
                     
                     lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
-                    
+
+                    RUN Price_GetPriceMatrixTaxBasis (
+                        INPUT  cCompany,
+                        INPUT  IF AVAILABLE itemfg THEN itemfg.i-no ELSE "",
+                        INPUT  IF AVAILABLE cust THEN cust.cust-no ELSE "",
+                        INPUT  IF AVAILABLE shipto THEN shipto.ship-id ELSE "",
+                        OUTPUT lMatchFound,
+                        OUTPUT cMatchDetail,
+                        OUTPUT iTaxBasis
+                        ).
+                    IF lMatchFound THEN DO:
+                        /* Send Price Matrix taxable flag in flexible field 11 */
+                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "11").
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", IF iTaxbasis EQ 2 THEN "NONTAXABLE" ELSE IF iTaxBasis EQ 1 THEN "TAXABLE" ELSE "NOTUSED").
+
+                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    END.
                 END.
 
                 RUN pUpdateDelimiter(
