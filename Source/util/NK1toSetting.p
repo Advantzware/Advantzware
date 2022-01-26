@@ -38,7 +38,7 @@ REPEAT:
         settingCategoryTags
         settingPassword
         .
-    FIND FIRST settingType NO-LOCK
+    FIND FIRST settingType EXCLUSIVE
          WHERE settingType.settingName EQ settingName
          NO-ERROR.
     IF NOT AVAILABLE settingType THEN DO:
