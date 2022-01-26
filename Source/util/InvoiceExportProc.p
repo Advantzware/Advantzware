@@ -54,6 +54,7 @@ DEFINE TEMP-TABLE ttInvoiceExport
 DEFINE VARIABLE hdOutput     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lError       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iLine        AS INTEGER   NO-UNDO.
 
 RUN system\OutputProcs.p PERSISTENT SET hdOutput.
 
@@ -119,10 +120,8 @@ FOR EACH bf-ar-inv NO-LOCK WHERE
             IF FIRST-OF(bf-ar-inv.inv-no) THEN
             DO:
                 ASSIGN                    
-                    ttInvoiceExport.freight_adj       = IF NOT bf-ar-inv.f-bill THEN STRING(bf-ar-inv.freight) ELSE ""
                     ttInvoiceExport.amount            = STRING(bf-ar-inv.gross)
-                    ttInvoiceExport.tax-code          = bf-ar-inv.tax-code
-                    ttInvoiceExport.tax-amt           = STRING(bf-ar-inv.tax-amt)
+                    ttInvoiceExport.tax-code          = bf-ar-inv.tax-code                     
                     .
             END.
                 
@@ -174,18 +173,35 @@ FOR EACH bf-ar-inv NO-LOCK WHERE
                     .
             END. /* IF AVAIL shipto */
             
-            IF LAST-OF(bf-ar-inv.inv-no) AND bf-ar-inv.f-bill THEN
+            IF LAST-OF(bf-ar-inv.inv-no) THEN
             DO:
-                FIND CURRENT ttInvoiceExport NO-LOCK NO-ERROR.
-                CREATE bf-ttInvoiceExport.
-                BUFFER-COPY ttInvoiceExport TO bf-ttInvoiceExport.
-                ASSIGN
-                 bf-ttInvoiceExport.id_type  = "FRT"
-                 bf-ttInvoiceExport.freight  = STRING(bf-ar-inv.freight)
-                 bf-ttInvoiceExport.amount   = ""
-                 bf-ttInvoiceExport.tax-code = ""
-                 bf-ttInvoiceExport.tax-amt  = ""
-                 bf-ttInvoiceExport.line_no  = bf-ttInvoiceExport.line_no + 1.
+                iLine = integer(ttInvoiceExport.line_no).
+                IF bf-ar-inv.freight NE 0 THEN
+                DO:               
+                    FIND CURRENT ttInvoiceExport NO-LOCK NO-ERROR.
+                    CREATE bf-ttInvoiceExport.
+                    BUFFER-COPY ttInvoiceExport TO bf-ttInvoiceExport.
+                    ASSIGN
+                     bf-ttInvoiceExport.id_type     = "FRT"
+                     bf-ttInvoiceExport.freight     = IF bf-ar-inv.f-bill THEN STRING(bf-ar-inv.freight) ELSE ""
+                     bf-ttInvoiceExport.freight_adj = IF NOT bf-ar-inv.f-bill THEN STRING(bf-ar-inv.freight) ELSE ""
+                     bf-ttInvoiceExport.amount      = ""
+                     bf-ttInvoiceExport.tax-code    = ""
+                     bf-ttInvoiceExport.tax-amt     = ""
+                     bf-ttInvoiceExport.line_no     = iLine + 1
+                     iLine                          = iLine + 1.
+                END.     
+                IF bf-ar-inv.tax-amt NE 0 THEN
+                DO:      
+                    CREATE bf-ttInvoiceExport.
+                    BUFFER-COPY ttInvoiceExport TO bf-ttInvoiceExport.
+                    ASSIGN
+                     bf-ttInvoiceExport.id_type  = "TAX"
+                     bf-ttInvoiceExport.tax-code = bf-ar-inv.tax-code
+                     bf-ttInvoiceExport.tax-amt  = STRING(bf-ar-inv.tax-amt)
+                     bf-ttInvoiceExport.amount   = ""                     
+                     bf-ttInvoiceExport.line_no  = iLine + 1. 
+                END.                 
             END.
             
 END. /*  FOR EACH bf-ar-inv */
