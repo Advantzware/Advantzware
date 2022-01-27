@@ -69,7 +69,7 @@ DEFINE TEMP-TABLE ttImportPriceMatrix
     FIELD cOnline      AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Online" HELP "Optional - Yes or N0" 
     FIELD minOrderQty  AS CHARACTER FORMAT "->>>,>>>,>>9.<<<" COLUMN-LABEL "Minimum Order Qty" HELP "Optional - Decimal" 
     FIELD quoteID      AS INTEGER   FORMAT ">>>>>>9" COLUMN-LABEL "Quote" HELP "Optional - Integer"
-    FIELD taxBasis     AS INTEGER   FORMAT ">9" COLUMN-LABEL "Tax Basis" HELP "Optional - Integer"
+    FIELD taxBasis     AS INTEGER   FORMAT ">9" COLUMN-LABEL "Tax Basis" HELP "Optional - Integer (0 - Default, 1 = Force Tax, 2 = Force No Tax)"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
