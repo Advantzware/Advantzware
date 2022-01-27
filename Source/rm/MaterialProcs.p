@@ -13,7 +13,7 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE VARIABLE gcMaterialCalculationTypeList AS CHARACTER NO-UNDO INITIAL "ByFGWeight,ByDefault".
+DEFINE VARIABLE gcMaterialCalculationTypeList AS CHARACTER NO-UNDO INITIAL "ByFGWeight,ByDefault,ByBlankTotalSize,ByBlankNetSize,ByFormTotalSize,ByFormNetSize,ByFormLength".
 
 /* ********************  Preprocessor Definitions  ******************** */
 

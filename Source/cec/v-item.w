@@ -1447,9 +1447,11 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-mat-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    FIND mat WHERE mat.mat EQ fi_mat-type:SCREEN-VALUE NO-LOCK NO-ERROR.
-    IF AVAIL mat THEN
-    mat_dscr:SCREEN-VALUE = mat.dscr.
+    FIND FIRST materialType NO-LOCK
+         WHERE materialType.company EQ cocode 
+         AND materialType.materialType EQ fi_mat-type:SCREEN-VALUE NO-ERROR.
+    IF AVAIL materialType THEN
+    mat_dscr:SCREEN-VALUE = materialType.materialDescription.
     IF LOOKUP(fi_mat-type:SCREEN-VALUE IN FRAME {&frame-name},"B,P") = 0 THEN
       asi.item.spare-char-1:HIDDEN = TRUE.
     ELSE
@@ -1466,10 +1468,12 @@ ON VALUE-CHANGED OF fi_mat-type IN FRAME F-Main /* Mat'l Type */
 DO:
   &Scoped-define mat-types-enable NO
 
-  FIND mat WHERE mat.mat EQ fi_mat-type:SCREEN-VALUE NO-LOCK NO-ERROR.
+  FIND FIRST materialType NO-LOCK
+       WHERE materialType.company EQ cocode 
+       AND materialType.materialType EQ fi_mat-type:SCREEN-VALUE NO-ERROR.
 
-  IF AVAIL mat THEN DO:
-    mat_dscr:SCREEN-VALUE = mat.dscr.
+  IF AVAIL materialType THEN DO:
+    mat_dscr:SCREEN-VALUE = materialType.materialDescription.
 
     &Scoped-define mat-types-enable YES
     DO WITH FRAME {&FRAME-NAME}:
@@ -1920,7 +1924,13 @@ PROCEDURE local-assign-record :
          locode = gloc
          fi_mat-type = lv-mat-type
          item.mat-type = lv-mat-type.
-
+         
+  FIND FIRST materialType NO-LOCK
+         WHERE materialType.company EQ cocode 
+         AND materialType.materialType EQ item.mat-type NO-ERROR.
+  IF AVAIL materialType THEN       
+  ITEM.spare-char-3 = materialType.materialTypeGroup.
+     
   IF adm-new-record AND item.mat-type = "D" THEN DO:  /* from rm/cpall.i */
      FIND FIRST bf-item WHERE bf-item.company = gcompany AND
                               bf-item.mat-type = "D" AND
@@ -2767,7 +2777,8 @@ PROCEDURE valid-mat-type :
   DO WITH FRAME {&FRAME-NAME}:
     fi_mat-type:SCREEN-VALUE = CAPS(fi_mat-type:SCREEN-VALUE).
 
-    IF NOT CAN-FIND(FIRST mat WHERE mat.mat EQ fi_mat-type:SCREEN-VALUE) THEN DO:
+    IF NOT CAN-FIND(FIRST materialType WHERE materialType.company EQ cocode
+                    AND materialType.materialType EQ fi_mat-type:SCREEN-VALUE) THEN DO:
       MESSAGE "Invalid Material Type. Try Help."  VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO fi_mat-type IN FRAME {&FRAME-NAME}.
       RETURN ERROR.

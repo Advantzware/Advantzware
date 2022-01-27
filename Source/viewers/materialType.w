@@ -40,7 +40,10 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+&scoped-def proc-enable proc-enable
+
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJobBuildVersion     AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -55,7 +58,7 @@ DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -67,13 +70,15 @@ DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 DEFINE QUERY external_tables FOR materialType.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS materialType.materialType ~
-materialType.materialDescription materialType.calculationType ~
+materialType.materialDescription materialType.materialTypeGroup ~
+materialType.consumedByDept materialType.calculationType ~
 materialType.autoIssue 
 &Scoped-define ENABLED-TABLES materialType
 &Scoped-define FIRST-ENABLED-TABLE materialType
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS materialType.materialType ~
-materialType.materialDescription materialType.calculationType ~
+materialType.materialDescription materialType.materialTypeGroup ~
+materialType.consumedByDept materialType.calculationType ~
 materialType.autoIssue 
 &Scoped-define DISPLAYED-TABLES materialType
 &Scoped-define FIRST-DISPLAYED-TABLE materialType
@@ -114,7 +119,7 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 71 BY 5.24.
+     SIZE 71 BY 7.62.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -126,11 +131,19 @@ DEFINE FRAME F-Main
      materialType.materialDescription AT ROW 2.62 COL 26 COLON-ALIGNED WIDGET-ID 6
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
-     materialType.calculationType AT ROW 3.81 COL 26 COLON-ALIGNED WIDGET-ID 10
-          VIEW-AS COMBO-BOX INNER-LINES 5
+     materialType.materialTypeGroup AT ROW 3.81 COL 26 COLON-ALIGNED WIDGET-ID 16
+          LABEL "System Type"
+          VIEW-AS FILL-IN 
+          SIZE 14.2 BY 1
+     materialType.consumedByDept AT ROW 5 COL 26 COLON-ALIGNED WIDGET-ID 14
+          LABEL "Department"
+          VIEW-AS FILL-IN 
+          SIZE 14.2 BY 1
+     materialType.calculationType AT ROW 6.14 COL 26 COLON-ALIGNED WIDGET-ID 10
+          VIEW-AS COMBO-BOX INNER-LINES 8
           DROP-DOWN-LIST
           SIZE 26 BY 1
-     materialType.autoIssue AT ROW 5 COL 28 WIDGET-ID 2
+     materialType.autoIssue AT ROW 7.33 COL 28 WIDGET-ID 2
           VIEW-AS TOGGLE-BOX
           SIZE 15.4 BY .81
      RECT-1 AT ROW 1 COL 1 WIDGET-ID 12
@@ -191,10 +204,15 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+       
+/* SETTINGS FOR FILL-IN materialType.materialTypeGroup IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN materialType.consumedByDept IN FRAME F-Main
+   EXP-LABEL                                                            */   
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -342,7 +360,9 @@ PROCEDURE pInit :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cCalculationTypeList AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdMaterialProcs      AS HANDLE    NO-UNDO.
-    
+    DEFINE VARIABLE cRtnChar             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound            AS LOGICAL   NO-UNDO.
+        
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
@@ -360,6 +380,29 @@ PROCEDURE pInit :
     DELETE PROCEDURE hdMaterialProcs.
     
     materialType.calculationType:LIST-ITEMS = cCalculationTypeList.
+    
+    RUN sys/ref/nk1look.p (INPUT cCompany, "JobBuildVersion", "C" /* Logical */, NO /* check by cust */, 
+                           INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                           OUTPUT cRtnChar, OUTPUT lRecFound).
+    IF lRecFound THEN
+    cJobBuildVersion = cRtnChar NO-ERROR.
+         
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
+PROCEDURE proc-enable :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    
+    IF cJobBuildVersion NE "New" THEN
+    DISABLE materialType.calculationType WITH FRAME {&FRAME-NAME} .
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
