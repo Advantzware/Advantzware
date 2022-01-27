@@ -1,0 +1,7 @@
+DRIVER=SQL Server;~
+UID=sysadm;~
+PWD=sumamt;~
+Address=192.69.5.238,1433;~
+Network=DBMSSOCN;~
+DATABASE=SUMTER;~
+SERVER=SPSQL2017;~

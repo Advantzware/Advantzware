@@ -584,7 +584,7 @@ LOOKUP(oe-rel.stat,"S,A,L,B,Z") NE 0 NO-LOCK INDEXED-REPOSITION.
 
 /* Definitions for DIALOG-BOX d-oeitem                                  */
 &Scoped-define FIELDS-IN-QUERY-d-oeitem oe-ordl.est-no ~
-oe-ordl.SourceEstimateID oe-ordl.job-no oe-ordl.job-no2 oe-ordl.qty ~
+oe-ordl.sourceEstimateID oe-ordl.job-no oe-ordl.job-no2 oe-ordl.qty ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 ~
 oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num ~
 oe-ordl.po-no-po oe-ordl.vend-no oe-ordl.price oe-ordl.pr-uom oe-ordl.tax ~
@@ -597,7 +597,7 @@ oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
 oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 ~
 oe-ordl.ediPrice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-d-oeitem oe-ordl.est-no ~
-oe-ordl.SourceEstimateID oe-ordl.qty oe-ordl.i-no oe-ordl.part-no ~
+oe-ordl.sourceEstimateID oe-ordl.qty oe-ordl.i-no oe-ordl.part-no ~
 oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 ~
 oe-ordl.po-no oe-ordl.e-num oe-ordl.po-no-po oe-ordl.price oe-ordl.pr-uom ~
 oe-ordl.tax oe-ordl.disc oe-ordl.cas-cnt oe-ordl.partial oe-ordl.cases-unit ~
@@ -622,7 +622,7 @@ oe-ordl.spare-dec-1 oe-ordl.spare-char-2
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS oe-ordl.est-no oe-ordl.SourceEstimateID ~
+&Scoped-Define ENABLED-FIELDS oe-ordl.est-no oe-ordl.sourceEstimateID ~
 oe-ordl.qty oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 ~
 oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num ~
 oe-ordl.po-no-po oe-ordl.price oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc ~
@@ -636,8 +636,8 @@ oe-ordl.spare-char-2
 &Scoped-define ENABLED-TABLES oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE oe-ordl
 &Scoped-Define ENABLED-OBJECTS fi_qty-uom Btn_OK Btn_Done Btn_Cancel ~
-Btn_hist fi_jobStartDate btn-quotes btnTagsUnder 
-&Scoped-Define DISPLAYED-FIELDS oe-ordl.est-no oe-ordl.SourceEstimateID ~
+Btn_hist fi_jobStartDate btn-quotes 
+&Scoped-Define DISPLAYED-FIELDS oe-ordl.est-no oe-ordl.sourceEstimateID ~
 oe-ordl.job-no oe-ordl.job-no2 oe-ordl.qty oe-ordl.i-no oe-ordl.part-no ~
 oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 ~
 oe-ordl.po-no oe-ordl.e-num oe-ordl.po-no-po oe-ordl.vend-no oe-ordl.price ~
@@ -913,6 +913,12 @@ DEFINE VARIABLE fiPromDtLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Promise Da
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fi_edi-price-uom AS CHARACTER FORMAT "x(4)" INITIAL "EA" 
+     LABEL "UOM" 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY .81
+     BGCOLOR 15 FGCOLOR 1  NO-UNDO.
+
 DEFINE VARIABLE fi_jobStartDate AS DATE FORMAT "99/99/9999":U 
      LABEL "Job Start Date" 
      VIEW-AS FILL-IN 
@@ -922,12 +928,6 @@ DEFINE VARIABLE fi_jobStartDate AS DATE FORMAT "99/99/9999":U
 DEFINE VARIABLE fi_qty-uom AS CHARACTER FORMAT "x(4)" INITIAL "EA" 
      VIEW-AS FILL-IN 
      SIZE 10 BY 1
-     BGCOLOR 15 FGCOLOR 1  NO-UNDO.
-
-DEFINE VARIABLE fi_edi-price-uom AS CHARACTER FORMAT "x(4)" INITIAL "EA" 
-     LABEL "UOM" 
-     VIEW-AS FILL-IN 
-     SIZE 8 BY .80
      BGCOLOR 15 FGCOLOR 1  NO-UNDO.
 
 DEFINE VARIABLE fi_s-comm-lbl AS CHARACTER FORMAT "X(256)":U INITIAL "Comm.%" 
@@ -1164,7 +1164,7 @@ DEFINE FRAME d-oeitem
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.SourceEstimateID AT ROW 1.48 COL 60.8 COLON-ALIGNED
+     oe-ordl.sourceEstimateID AT ROW 1.48 COL 60.8 COLON-ALIGNED
           LABEL "Pricing Est ID" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -1407,9 +1407,11 @@ DEFINE FRAME d-oeitem
      btnPOs AT ROW 17.43 COL 177
      btnAllocated AT ROW 17.43 COL 193
      btnReleases AT ROW 17.43 COL 209
-     browsePOs AT ROW 1.24 COL 145
-     browseAllocated AT ROW 1.24 COL 145
-     browseReleases AT ROW 1.24 COL 145
+     oe-ordl.ediPrice AT ROW 2.48 COL 93.2 COLON-ALIGNED WIDGET-ID 42
+          LABEL "Edi Price"
+          VIEW-AS FILL-IN 
+          SIZE 17.8 BY .81
+          BGCOLOR 15 FGCOLOR 1 
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -1417,13 +1419,11 @@ DEFINE FRAME d-oeitem
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME d-oeitem
-     oe-ordl.ediPrice AT ROW 2.48 COL 93.2 COLON-ALIGNED WIDGET-ID 42
-          LABEL "Edi Price"
-          VIEW-AS FILL-IN 
-          SIZE 17.8 BY .80
-          BGCOLOR 15 FGCOLOR 1
      fi_edi-price-uom AT ROW 2.48 COL 122 COLON-ALIGNED HELP
           "Enter Unit of Measure for Purchasing this Raw Material" WIDGET-ID 44
+     browsePOs AT ROW 1.24 COL 145
+     browseAllocated AT ROW 1.24 COL 145
+     browseReleases AT ROW 1.24 COL 145
      RECT-31 AT ROW 12.33 COL 2
      RECT-39 AT ROW 1.24 COL 2
      RECT-40 AT ROW 1.24 COL 80.2 WIDGET-ID 8
@@ -1516,7 +1516,7 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnTagsOverrn IN FRAME d-oeitem
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnTagsUnder IN FRAME d-oeitem
-   NO-ENABLE                                                            */   
+   NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnViewDetail IN FRAME d-oeitem
    NO-ENABLE                                                            */
 ASSIGN 
@@ -1537,6 +1537,8 @@ ASSIGN
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-ordl.e-num IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
+/* SETTINGS FOR FILL-IN oe-ordl.ediPrice IN FRAME d-oeitem
+   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN oe-ordl.est-no IN FRAME d-oeitem
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN fiPrevOrder IN FRAME d-oeitem
@@ -1613,18 +1615,16 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.req-date IN FRAME d-oeitem
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN oe-ordl.SourceEstimateID IN FRAME d-oeitem
+/* SETTINGS FOR FILL-IN oe-ordl.sourceEstimateID IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-1 IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-2 IN FRAME d-oeitem
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
-   NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN oe-ordl.ediPrice IN FRAME d-oeitem
-   NO-ENABLE EXP-LABEL                                                           */
+/* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
+   NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
 /* SETTINGS FOR FILL-IN oe-ordl.t-price IN FRAME d-oeitem
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ordl.tax IN FRAME d-oeitem
@@ -6864,7 +6864,7 @@ PROCEDURE enable_UI :
           fi_sname-3 fi_sname-lbl fi_jobStartDate fi_edi-price-uom 
       WITH FRAME d-oeitem.
   IF AVAILABLE oe-ordl THEN 
-    DISPLAY oe-ordl.est-no oe-ordl.SourceEstimateID oe-ordl.job-no oe-ordl.job-no2 
+    DISPLAY oe-ordl.est-no oe-ordl.sourceEstimateID oe-ordl.job-no oe-ordl.job-no2 
           oe-ordl.qty oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name 
           oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no 
           oe-ordl.e-num oe-ordl.po-no-po oe-ordl.vend-no oe-ordl.price 
@@ -6878,7 +6878,7 @@ PROCEDURE enable_UI :
           oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
           oe-ordl.ediPrice 
       WITH FRAME d-oeitem.
-  ENABLE oe-ordl.est-no oe-ordl.SourceEstimateID oe-ordl.qty fi_qty-uom 
+  ENABLE oe-ordl.est-no oe-ordl.sourceEstimateID oe-ordl.qty fi_qty-uom 
          oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 
          oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num 
          oe-ordl.po-no-po oe-ordl.price oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc 
@@ -6889,7 +6889,7 @@ PROCEDURE enable_UI :
          oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code 
          oe-ordl.req-date oe-ordl.prom-date Btn_OK Btn_Done Btn_Cancel Btn_hist 
          oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
-         fi_jobStartDate btn-quotes  
+         fi_jobStartDate btn-quotes 
       WITH FRAME d-oeitem.
   {&OPEN-BROWSERS-IN-QUERY-d-oeitem}
 END PROCEDURE.
