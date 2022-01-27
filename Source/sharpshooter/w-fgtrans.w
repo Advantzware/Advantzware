@@ -996,6 +996,7 @@ PROCEDURE OpenSetting :
   Notes:       
 ------------------------------------------------------------------------------*/
     RUN windows/setting-dialog.w.
+    {sharpshooter/settingChangeDialog.i}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
