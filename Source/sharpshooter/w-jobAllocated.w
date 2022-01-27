@@ -1038,7 +1038,6 @@ PROCEDURE local-enable :
     {methods/run_link.i "JOB-SOURCE" "AllowEmptyFormAndBlank"}
 
     RUN spGetSettingByName ("ScheduleBoardNotes", OUTPUT cScheduleBoardNotes).
-    cScheduleBoardNotes = "YES".
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             btnSBNotes:HIDDEN    = cScheduleBoardNotes EQ "NO"
