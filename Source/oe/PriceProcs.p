@@ -1629,7 +1629,7 @@ PROCEDURE pGetPriceMatrix PRIVATE:
         /*Must be effecitve*/
         AND (opbf-oe-prmtx.eff-date LE TODAY)
         /*must not be expired*/
-        AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ? OR opbf-oe-prmtx.exp-date EQ 01/01/0001)
+        AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ?)
         /* Can't be all blank */
         AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
         AND opbf-oe-prmtx.custShipID EQ "")
@@ -1665,7 +1665,7 @@ PROCEDURE pGetPriceMatrix PRIVATE:
             /*Must be effecitve*/
             AND (opbf-oe-prmtx.eff-date LE TODAY)
             /*must not be expired*/
-            AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ? OR opbf-oe-prmtx.exp-date EQ 01/01/0001)
+            AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ?)
             /* Can't be all blank */
             AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
             AND opbf-oe-prmtx.custShipID EQ "")
