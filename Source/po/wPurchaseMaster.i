@@ -11,20 +11,16 @@
     Notes       :
   ----------------------------------------------------------------------*/
 
-&Scoped-define additionalRunProc ~
-IF run-proc EQ "po/wPurchaseMaster.w" THEN ~ 
-RUN ChangePanelState IN phandle ( ~
-    INPUT 1, ~
-    INPUT '{1}' ~
-    ) NO-ERROR.
-
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
+
+&Scoped-define additionalRunProc ~
+IF run-proc EQ "po/wPurchaseMaster.w" THEN RUN ChangePanelState IN phandle (1, '{1}').
 
 IF access-close THEN 
 RETURN.
 
-run-proc = "po/wPurchaseMaster.w".
+run-proc = 'po/wPurchaseMaster.w'.
 {methods/smartrun.i "('{1}')"}
 
 IF VALID-HANDLE(THIS-PROCEDURE) THEN
