@@ -491,8 +491,7 @@ FOR EACH inv-head
       AND inv-head.inv-no   GE fi_finv
       AND inv-head.inv-no   LE fi_tinv
       AND inv-head.inv-date GE begin_date
-      AND inv-head.inv-date LE end_date
-    USE-INDEX inv-no,
+      AND inv-head.inv-date LE end_date,
 
     EACH inv-line
     WHERE inv-line.r-no EQ inv-head.r-no
