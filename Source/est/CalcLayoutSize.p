@@ -119,12 +119,17 @@ DO:
             ttLayoutSize.dLayoutSheetWidth  = bf-mach.max-len
             ttLayoutSize.IsRollMaterial     = bf-mach.p-type = "R". 
               
-        IF bf-item.i-code EQ "E" THEN
+        IF AVAILABLE bf-item AND bf-item.i-code EQ "E" THEN
             ASSIGN 
                 ttLayoutSize.dGrossSheetWidth  = ( trunc(bf-mach.max-len / bf-eb.t-len,0) * bf-eb.t-len + dTrimWidth)
                 ttLayoutSize.dGrossSheetLength = (trunc(bf-mach.max-wid / bf-eb.t-wid,0) * bf-eb.t-wid + dTrimLength )
                 ttLayoutSize.dGrossSheetDepth  = IF isFoamStyle THEN (trunc(bf-mach.max-dep / bf-eb.t-dep,0) * bf-eb.t-dep ) ELSE 0.
         
+        ELSE IF AVAILABLE bf-item THEN
+            ASSIGN 
+                ttLayoutSize.dGrossSheetWidth  = (bf-item.s-wid)
+                ttLayoutSize.dGrossSheetLength = (bf-item.s-len)
+                ttLayoutSize.dGrossSheetDepth  = IF isFoamStyle THEN (bf-item.s-dep) ELSE 0.
     END.
 END. /* IF bf-ef.m-code NE "" THEN */
 
