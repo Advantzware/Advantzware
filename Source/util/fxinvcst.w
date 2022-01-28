@@ -51,9 +51,10 @@ def var v-process as log no-undo.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 fi_finv fi_tinv begin_date end_date ~
-btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fi_finv fi_tinv begin_date end_date 
+&Scoped-Define ENABLED-OBJECTS fi_finv fi_tinv begin_i-no end_i-no ~
+begin_date end_date btn-process btn-cancel RECT-17 
+&Scoped-Define DISPLAYED-OBJECTS fi_finv fi_tinv begin_i-no end_i-no ~
+begin_date end_date 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -82,8 +83,18 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
+DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U 
+     LABEL "From Item#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "To Invoice Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz" 
+     LABEL "To Item#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -98,7 +109,7 @@ DEFINE VARIABLE fi_tinv AS INTEGER FORMAT ">>>>>>>>":U INITIAL 99999999
      SIZE 17 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
      SIZE 89 BY 6.67.
 
 
@@ -107,17 +118,21 @@ DEFINE RECTANGLE RECT-17
 DEFINE FRAME FRAME-A
      fi_finv AT ROW 6.71 COL 23 COLON-ALIGNED
      fi_tinv AT ROW 6.71 COL 63 COLON-ALIGNED
-     begin_date AT ROW 8.38 COL 23 COLON-ALIGNED
-     end_date AT ROW 8.38 COL 63 COLON-ALIGNED HELP
+     begin_i-no AT ROW 7.91 COL 23 COLON-ALIGNED HELP
+          "Enter Beginning Order Number"
+     end_i-no AT ROW 7.91 COL 63 COLON-ALIGNED HELP
+          "Enter Ending Item Number"
+     begin_date AT ROW 9.1 COL 23 COLON-ALIGNED
+     end_date AT ROW 9.1 COL 63 COLON-ALIGNED HELP
           "Enter Ending Due Date"
      btn-process AT ROW 11.95 COL 22
      btn-cancel AT ROW 11.95 COL 52
+     RECT-17 AT ROW 4.81 COL 1
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 5.29 COL 5
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
-     RECT-17 AT ROW 4.57 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -191,20 +206,30 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-ASSIGN 
-       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
+       begin_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
        end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR FRAME FRAME-B
@@ -215,7 +240,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -258,6 +283,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_i-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_i-no C-Win
+ON LEAVE OF begin_i-no IN FRAME FRAME-A /* From Item# */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
@@ -289,6 +325,17 @@ END.
 &Scoped-define SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* To Invoice Date */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_i-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_i-no C-Win
+ON LEAVE OF end_i-no IN FRAME FRAME-A /* To Item# */
 DO:
   assign {&self-name}.
 END.
@@ -372,9 +419,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fi_finv fi_tinv begin_date end_date 
+  DISPLAY fi_finv fi_tinv begin_i-no end_i-no begin_date end_date 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 fi_finv fi_tinv begin_date end_date btn-process btn-cancel 
+  ENABLE fi_finv fi_tinv begin_i-no end_i-no begin_date end_date btn-process 
+         btn-cancel RECT-17 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -387,12 +435,12 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-
+    
 DISABLE TRIGGERS FOR LOAD OF ar-inv.
 DISABLE TRIGGERS FOR LOAD OF ar-invl.
 DISABLE TRIGGERS FOR LOAD OF inv-head.
 DISABLE TRIGGERS FOR LOAD OF inv-line.
-
+    
 DEF VAR v-cost LIKE ar-invl.cost EXTENT 5 NO-UNDO.
 
 DO WITH FRAME {&FRAME-NAME}:
@@ -403,76 +451,68 @@ END.
 
 SESSION:SET-WAIT-STATE("General").
 
-
 FOR EACH ar-inv
     WHERE ar-inv.company  EQ cocode
+      AND ar-inv.inv-no   GE fi_finv
+      AND ar-inv.inv-no   LE fi_tinv
       AND ar-inv.inv-date GE begin_date
-      AND ar-inv.inv-date LE end_date
-      BY ar-inv.inv-no:
-    
-    IF ar-inv.inv-no LT fi_finv
-    OR ar-inv.inv-no GT fi_tinv THEN NEXT.
+      AND ar-inv.inv-date LE end_date,
 
-    STATUS DEFAULT "Processing AR Invoice#: " +
+    EACH ar-invl
+    WHERE ar-invl.x-no EQ ar-inv.x-no
+      AND ar-invl.i-no GE begin_i-no
+      AND ar-invl.i-no LE end_i-no:
+
+  STATUS DEFAULT "Processing Invoice#: " +
                  TRIM(STRING(ar-inv.inv-no,">>>>>>>>>>")).
 
-    FOR EACH ar-invl
-        WHERE ar-invl.x-no EQ ar-inv.x-no:
+  ar-inv.t-cost = ar-inv.t-cost - ar-invl.t-cost.
 
-        /* Reduce inv t-cost by current amount on this line */
-        ar-inv.t-cost = ar-inv.t-cost - ar-invl.t-cost.
-    
-        /* Recost the line */
-        run oe/GetCostInvl.p (ROWID(ar-invl),
-                         OUTPUT v-cost[1], OUTPUT v-cost[2],
-                         OUTPUT v-cost[3], OUTPUT v-cost[4],
-                         OUTPUT ar-invl.cost, OUTPUT ar-invl.spare-char-2, 
-                         OUTPUT ar-invl.t-cost, OUTPUT ar-invl.spare-char-1,
-                         OUTPUT ar-invl.costStdFreight, OUTPUT ar-invl.costStdWarehouse, OUTPUT ar-invl.costStdDeviation, OUTPUT ar-invl.costStdManufacture).
-        
-        /* Increment the inv t-cost by the new value */
-        ASSIGN
-            ar-inv.t-cost = ar-inv.t-cost + ar-invl.t-cost.
-    
-        ASSIGN 
-            ar-invl.dscr[1] = "M"
-            ar-invl.std-tot-cost = ar-invl.cost
-            ar-invl.std-lab-cost = v-cost[1]
-            ar-invl.std-fix-cost = v-cost[2]
-            ar-invl.std-var-cost = v-cost[3]
-            ar-invl.std-mat-cost = v-cost[4].
-    END.
+  run oe/GetCostInvl.p (ROWID(ar-invl),
+                     OUTPUT v-cost[1], OUTPUT v-cost[2],
+                     OUTPUT v-cost[3], OUTPUT v-cost[4],
+                     OUTPUT ar-invl.cost, OUTPUT ar-invl.spare-char-2, 
+                     OUTPUT ar-invl.t-cost, OUTPUT ar-invl.spare-char-1,
+                     OUTPUT ar-invl.costStdFreight, OUTPUT ar-invl.costStdWarehouse, OUTPUT ar-invl.costStdDeviation, OUTPUT ar-invl.costStdManufacture).
+
+  ASSIGN
+   ar-invl.dscr[1] = "M"
+   ar-inv.t-cost = ar-inv.t-cost + ar-invl.t-cost
+
+   ar-invl.std-tot-cost = ar-invl.cost
+   ar-invl.std-lab-cost = v-cost[1]
+   ar-invl.std-fix-cost = v-cost[2]
+   ar-invl.std-var-cost = v-cost[3]
+   ar-invl.std-mat-cost = v-cost[4].
 END.
 
 FOR EACH inv-head
     WHERE inv-head.company  EQ cocode
-    AND inv-head.inv-no   GE fi_finv
-    AND inv-head.inv-no   LE fi_tinv
-    BY inv-head.inv-no:
-          
-    IF inv-head.inv-date LT begin_date
-    OR inv-head.inv-date GT end_date THEN NEXT.
-    
-    STATUS DEFAULT "Processing OE Invoice#: " +
-                 TRIM(STRING(inv-head.inv-no,">>>>>>>>>>")).
-    FOR EACH inv-line
-        WHERE inv-line.r-no EQ inv-head.r-no:
+      AND inv-head.inv-no   GE fi_finv
+      AND inv-head.inv-no   LE fi_tinv
+      AND inv-head.inv-date GE begin_date
+      AND inv-head.inv-date LE end_date
+    USE-INDEX inv-no,
 
-        /* Reduce inv t-cost by current amount on this line */
-        inv-head.t-inv-cost = inv-head.t-inv-cost - inv-line.t-cost.
-    
-        /* Recost the line */
-        RUN oe/GetCostInvl.p (ROWID(inv-line),
-                         OUTPUT v-cost[1], OUTPUT v-cost[2],
-                         OUTPUT v-cost[3], OUTPUT v-cost[4],
-                         OUTPUT inv-line.cost, OUTPUT inv-line.spare-char-2, 
-                         OUTPUT inv-line.t-cost, OUTPUT inv-line.spare-char-1,
-                         OUTPUT inv-line.costStdFreight, OUTPUT inv-line.costStdWarehouse, OUTPUT inv-line.costStdDeviation, OUTPUT inv-line.costStdManufacture).
-    
-        /* Increment the inv t-cost by the new value */
-        inv-head.t-inv-cost = inv-head.t-inv-cost + inv-line.t-cost.
-    END.
-END. 
+    EACH inv-line
+    WHERE inv-line.r-no EQ inv-head.r-no
+      AND inv-line.i-no GE begin_i-no
+      AND inv-line.i-no LE end_i-no:
+
+  STATUS DEFAULT "Processing Invoice#: " +
+                 TRIM(STRING(inv-head.inv-no,">>>>>>>>>>")).
+
+  inv-head.t-inv-cost = inv-head.t-inv-cost - inv-line.t-cost.
+
+  RUN oe/GetCostInvl.p (ROWID(inv-line),
+                     OUTPUT v-cost[1], OUTPUT v-cost[2],
+                     OUTPUT v-cost[3], OUTPUT v-cost[4],
+                     OUTPUT inv-line.cost, OUTPUT inv-line.spare-char-2, 
+                     OUTPUT inv-line.t-cost, OUTPUT inv-line.spare-char-1,
+                     OUTPUT inv-line.costStdFreight, OUTPUT inv-line.costStdWarehouse, OUTPUT inv-line.costStdDeviation, OUTPUT inv-line.costStdManufacture).
+
+  inv-head.t-inv-cost = inv-head.t-inv-cost + inv-line.t-cost.
+END.
 
 STATUS DEFAULT "".
 
