@@ -331,7 +331,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 22 LABEL-BGCOLOR 14
       rm-rctd.pur-uom COLUMN-LABEL "PUOM" FORMAT "x(4)":U WIDTH 7
             LABEL-BGCOLOR 14
-      rm-rctd.cost COLUMN-LABEL "Cost" FORMAT "->,>>>,>>9.99<<<<":U
+      rm-rctd.cost COLUMN-LABEL "Cost" FORMAT "->,>>>,>>9.99<":U
             LABEL-BGCOLOR 14
       rm-rctd.cost-uom COLUMN-LABEL "CUOM" FORMAT "x(4)":U WIDTH 7
             LABEL-BGCOLOR 14
@@ -502,7 +502,7 @@ rm-rctd.rita-code = ""R"""
      _FldNameList[15]   > asi.rm-rctd.pur-uom
 "pur-uom" "PUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > asi.rm-rctd.cost
-"cost" "Cost" "->,>>>,>>9.99<<<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cost" "Cost" "->,>>>,>>9.99<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > asi.rm-rctd.cost-uom
 "cost-uom" "CUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
