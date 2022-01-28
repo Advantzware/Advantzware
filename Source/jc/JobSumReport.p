@@ -117,7 +117,8 @@ PROCEDURE pBuildFGItems PRIVATE:
             ttItem.iBlankNo      = job-hdr.blank-no
             ttItem.cFGItem       = job-hdr.i-no
             ttItem.cFGName       = itemfg.i-name
-            ttItem.cSellingPrice = itemfg.sell-price
+            ttItem.dSellingPrice = itemfg.sell-price
+            ttItem.cSellingUom   = itemfg.sell-uom
             ttItem.dJobQty       = job-hdr.qty 
             .
          
@@ -357,8 +358,7 @@ PROCEDURE pBuildMaterials PRIVATE:
                 WHERE ttMaterial.cJobNo EQ ipbf-job.job-no
                 AND ttMaterial.iJobNo2 EQ ipbf-job.job-no2
                 AND ttMaterial.cMaterial EQ estCostMaterial.itemID
-                AND ttMaterial.iFormNo EQ estCostMaterial.formNo
-                AND ttMaterial.iBlankNo EQ estCostMaterial.blankNo NO-ERROR.
+                NO-ERROR.
                 
             IF NOT AVAILABLE ttMaterial THEN
             DO:
@@ -368,7 +368,8 @@ PROCEDURE pBuildMaterials PRIVATE:
                     ttMaterial.iJobNo2   = ipbf-job.job-no2 
                     ttMaterial.iFormNo   = estCostMaterial.formNo
                     ttMaterial.iBlankNo  = estCostMaterial.blankNo                             
-                    ttMaterial.cMaterial = estCostMaterial.itemID.
+                    ttMaterial.cMaterial = estCostMaterial.itemID
+                    ttMaterial.cStdUom   = estCostMaterial.quantityUOM .
             END.
             ASSIGN 
                 ttMaterial.dQtyStd  = ttMaterial.dQtyStd + estCostMaterial.quantityRequiredTotal
@@ -389,8 +390,7 @@ PROCEDURE pBuildMaterials PRIVATE:
             WHERE ttMaterial.cJobNo EQ ipbf-job.job-no
             AND ttMaterial.iJobNo2 EQ ipbf-job.job-no2
             AND ttMaterial.cMaterial EQ mat-act.i-no
-            AND ttMaterial.iFormNo EQ mat-act.s-num
-            AND ttMaterial.iBlankNo EQ mat-act.b-num NO-ERROR.
+            NO-ERROR.
                 
         IF NOT AVAILABLE ttMaterial THEN
         DO:
@@ -400,7 +400,8 @@ PROCEDURE pBuildMaterials PRIVATE:
                 ttMaterial.iJobNo2   = ipbf-job.job-no2 
                 ttMaterial.iFormNo   = mat-act.s-num
                 ttMaterial.iBlankNo  = mat-act.b-num                             
-                ttMaterial.cMaterial = mat-act.i-no.
+                ttMaterial.cMaterial = mat-act.i-no
+                ttMaterial.cActUom   = mat-act.qty-uom.
         END.
         ASSIGN 
             ttMaterial.dQtyAct  = ttMaterial.dQtyAct + mat-act.qty

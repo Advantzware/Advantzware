@@ -73,11 +73,13 @@ DEFINE TEMP-TABLE ttMaterial NO-UNDO
     FIELD iBlankNo     AS INTEGER   FORMAT ">>9" LABEL "Blank"
     FIELD cMaterial    AS CHARACTER FORMAT "x(15)" LABEL "Material"
     FIELD dQtyStd      AS DECIMAL   FORMAT "->>>,>>9.99<<" LABEL "Std Qty"
-    FIELD dQtyAct      AS DECIMAL   FORMAT "->>>,>>9.99<<" LABEL "Act Qty"  
-    FIELD dQtyVar  AS DECIMAL   FORMAT "->>>,>>9.99<<" LABEL "Var Item Qty" 
+    FIELD cStdUom      AS CHARACTER FORMAT "x(3)" LABEL "Std Qty UOM"
+    FIELD dQtyAct      AS DECIMAL   FORMAT "->>>,>>9.99<<" LABEL "Act Qty" 
+    FIELD cActUom      AS CHARACTER FORMAT "x(3)" LABEL "Act Qty UOM" 
+    FIELD dQtyVar      AS DECIMAL   FORMAT "->>>,>>9.99<<" LABEL "Var Item Qty" 
     FIELD dCostStd     AS DECIMAL   FORMAT "->,>>>,>>>,>>9.99" LABEL "Std Cost"
     FIELD dCostAct     AS DECIMAL   FORMAT "->,>>>,>>>,>>9.99" LABEL "Act Cost"
-    FIELD dCostVar AS DECIMAL   FORMAT "->,>>>,>>>,>>9.99" LABEL "Var Item Cost".
+    FIELD dCostVar     AS DECIMAL   FORMAT "->,>>>,>>>,>>9.99" LABEL "Var Item Cost".
 
 
 DEFINE TEMP-TABLE ttItem NO-UNDO 
@@ -87,7 +89,8 @@ DEFINE TEMP-TABLE ttItem NO-UNDO
     FIELD iBlankNo      AS INTEGER   FORMAT ">>9" LABEL "Blank"
     FIELD cFGItem       AS CHARACTER FORMAT "x(15)" LABEL "FG Item"
     FIELD cFGName       AS CHARACTER FORMAT "x(30)" LABEL "FG Item Name"
-    FIELD cSellingPrice AS DECIMAL   FORMAT "->>,>>>,>>9.99<<<<" LABEL "Selling Price"
+    FIELD dSellingPrice AS DECIMAL   FORMAT "->>,>>>,>>9.99<<<<" LABEL "Selling Price"
+    FIELD cSellingUom   AS CHARACTER FORMAT "x(3)" LABEL "Selling UOM"
     FIELD dJobQty       AS DECIMAL   FORMAT "->>>,>>>,>>9" LABEL "Job Quantity"
     FIELD dProduced     AS DECIMAL   FORMAT "->>>,>>>,>>9" LABEL "Produced"
     FIELD dOnHand       AS DECIMAL   FORMAT "->>>,>>>,>>9" LABEL "On Hand".
