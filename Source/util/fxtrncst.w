@@ -507,8 +507,8 @@ PROCEDURE pUpdateHistoryRecord :
         RETURN.
             
     ASSIGN 
-        bf-fg-rdtlh.spare-dec-1  = fg-rdtlh.cost /*store old cost before NY12*/
-        bf-fg-rdtlh.spare-char-2 = fg-rcpth.pur-uom /*store old cost uom before NY12*/
+        bf-fg-rdtlh.spare-dec-1  = bf-fg-rdtlh.cost /*store old cost before NY12*/
+        bf-fg-rdtlh.spare-char-2 = bf-fg-rcpth.pur-uom /*store old cost uom before NY12*/
         bf-fg-rdtlh.cost         = ipdCost[5]
         bf-fg-rcpth.pur-uom      = ipcUOM
         bf-fg-rdtlh.std-tot-cost = ipdCost[5]
