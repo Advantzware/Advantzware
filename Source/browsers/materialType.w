@@ -171,6 +171,7 @@ DEFINE VARIABLE cbAutoIssue AS CHARACTER FORMAT "X(256)":U INITIAL "All"
 
 DEFINE VARIABLE cbCalculationType AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 9
+     LIST-ITEM-PAIRS "Item 1"," Item 1"
      DROP-DOWN-LIST
      SIZE 19 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -208,7 +209,7 @@ DEFINE BROWSE materialType
       
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 12.62.
+    WITH NO-ASSIGN SEPARATORS SIZE 165 BY 15.62.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -262,8 +263,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 15.19
-         WIDTH              = 145.2.
+         HEIGHT             = 18.19
+         WIDTH              = 170.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -584,7 +585,7 @@ PROCEDURE pInit :
         
     DELETE PROCEDURE hdMaterialProcs.
     
-    cbCalculationType:LIST-ITEMS = "ALL," + cCalculationTypeList.
+    cbCalculationType:LIST-ITEM-PAIRS = "ALL,ALL," + cCalculationTypeList.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

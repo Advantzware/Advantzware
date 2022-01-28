@@ -1505,7 +1505,7 @@ PROCEDURE local-assign-record :
          WHERE materialType.company EQ cocode 
          AND materialType.materialType EQ item.mat-type NO-ERROR.
   IF AVAIL materialType THEN       
-  ITEM.spare-char-3 = materialType.materialTypeGroup.       
+  ITEM.materialType = materialType.materialTypeGroup.       
 
   if adm-new-record and item.mat-type = "D" then do:  /* from rm/cpall.i */
      find first bf-item where bf-item.company = gcompany and

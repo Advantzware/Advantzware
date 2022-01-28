@@ -88,14 +88,14 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 150 BY 19.52
+         SIZE 170 BY 19.52
          BGCOLOR 15  WIDGET-ID 100.
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 150 BY 2
+         SIZE 170 BY 2
          BGCOLOR 21  WIDGET-ID 200.
 
 DEFINE FRAME message-frame
@@ -123,12 +123,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Material Type Maintenance"
-         HEIGHT             = 19.52
-         WIDTH              = 150
+         HEIGHT             = 22.52
+         WIDTH              = 170
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 23.33
-         VIRTUAL-WIDTH      = 150.6
+         VIRTUAL-WIDTH      = 170.6
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -276,7 +276,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.00 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 17.52 , 150.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 17.52 , 170.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/movecol.w':U ,
@@ -314,7 +314,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_materialtype ).
        RUN set-position IN h_materialtype ( 4.48 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_materialtype ( 14.95 , 150.00 ) NO-ERROR.
+       RUN set-size IN h_materialtype ( 18.95 , 170.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
