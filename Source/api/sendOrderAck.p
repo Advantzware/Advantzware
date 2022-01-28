@@ -300,6 +300,13 @@ DEFINE VARIABLE cEstPrepEqty          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEstPrepLine          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMiscType             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMiscInd              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iDueOnMonth           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iDueOnDay             AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iNetDays              AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dDiscPct              AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE iDiscDays             AS DECIMAL   NO-UNDO. 
+DEFINE VARIABLE cTermsDesc            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lError                AS LOGICAL   NO-UNDO.
    
 /* Order Address Variables */
 DEFINE VARIABLE cState                LIKE shipto.ship-state NO-UNDO.
@@ -310,7 +317,8 @@ DEFINE VARIABLE cQtyPerPack           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPurchaseUnit         AS CHARACTER NO-UNDO.
     
 DEFINE VARIABLE cRequestDataType      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cClientID          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cClientID             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dFreight              AS DECIMAL   NO-UNDO.
     
 DEFINE BUFFER bf-APIOutboundDetail2 FOR APIOutboundDetail. 
 
@@ -528,7 +536,7 @@ DO:
             cSpareChar4    = STRING(oe-ordl.spare-char-4)
             cSpareChar5    = STRING(oe-ordl.spare-char-5)
             cSpareDec1     = STRING(oe-ordl.spare-dec-1)
-            cSpareDec2     = STRING(oe-ordl.spare-dec-2)
+            cSpareDec2     = STRING(oe-ordl.ediPrice)
             cSpareDec3     = STRING(oe-ordl.spare-dec-3)
             cSpareDec4     = STRING(oe-ordl.spare-dec-4)
             cSpareDec5     = STRING(oe-ordl.spare-dec-5)
@@ -568,8 +576,14 @@ DO:
             cWScore        = STRING(oe-ordl.w-score[1]) 
             cWhsItem       = STRING(oe-ordl.whs-item)
             cWhsed         = STRING(oe-ordl.whsed)
+            cOrdDate       = STRING(oe-ord.ord-date)
             .
-
+            
+        FIND FIRST po-ord NO-LOCK
+             WHERE po-ord.company EQ oe-ordl.company
+               AND po-ord.po-no   EQ oe-ordl.po-no-po
+             NO-ERROR.   
+        dFreight = IF AVAIL po-ord THEN po-ord.t-freight ELSE 0.
              
         RUN updateRequestData(INPUT-OUTPUT lcLineData, "LineNum", cLineNum).
         RUN updateRequestData(INPUT-OUTPUT lcLineData, "QtyUOM", cQtyUOM).
@@ -704,7 +718,9 @@ DO:
         RUN updateRequestData(INPUT-OUTPUT lcLineData,"VendNo", cVendNo).   
         RUN updateRequestData(INPUT-OUTPUT lcLineData,"WScore", cWScore).   
         RUN updateRequestData(INPUT-OUTPUT lcLineData,"WhsItem", cWhsItem).   
-        RUN updateRequestData(INPUT-OUTPUT lcLineData,"Whsed", cWhsed).  
+        RUN updateRequestData(INPUT-OUTPUT lcLineData,"Whsed", cWhsed). 
+        RUN updateRequestData(INPUT-OUTPUT lcLineData,"Freight", dFreight).
+        RUN updateRequestData(INPUT-OUTPUT lcLineData, "OrdDate", cOrdDate).
        
         // RUN pUpdateDelimiter (INPUT-OUTPUT lcLineData, cRequestDataType).  
         lcConcatLineData = lcConcatLineData +  lcLineData . 
@@ -982,8 +998,8 @@ ASSIGN
     cSpareDec3       = STRING(oe-ord.spare-dec-3)
     cSpareDec4       = STRING(oe-ord.spare-dec-4)
     cSpareDec5       = STRING(oe-ord.spare-dec-5)
-    cSpareInt1       = STRING(oe-ord.spare-int-1)
-    cSpareInt2       = STRING(oe-ord.spare-int-2)
+    cSpareInt1       = STRING(oe-ord.ediSubmitted)
+    cSpareInt2       = STRING(oe-ord.ediModified)
     cSpareInt3       = STRING(oe-ord.spare-int-3)
     cSpareInt4       = STRING(oe-ord.spare-int-4)
     cSpareInt5       = STRING(oe-ord.spare-int-5)
@@ -1015,7 +1031,19 @@ ASSIGN
     cWhsRder         = STRING(oe-ord.whs-order)
     cWhsed           = STRING(oe-ord.whsed)
     cZip             = STRING(oe-ord.zip ) 
-    .       
+    .  
+    
+   RUN Credit_GetTerms (
+        INPUT  oe-ord.company,
+        INPUT  oe-ord.terms,
+        OUTPUT iDueOnMonth,
+        OUTPUT iDueOnDay,
+        OUTPUT iNetDays, 
+        OUTPUT dDiscPct,  
+        OUTPUT iDiscDays,
+        OUTPUT cTermsDesc,
+        OUTPUT lError         
+        ).
 
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "AckPrnt", cAckPrnt). 
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "AckPrntDate", cAckPrntDate). 
@@ -1156,7 +1184,10 @@ RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Currency", "USD").
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalAmount", cTotalAmount).
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "OrderDateYMD", cEdiOrdDate).
 
-
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermNetDays", string(iNetDays)).  
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermDiscountDays", string(iDiscDays)).
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermDiscountPercent", string(dDiscPct)).
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermsDescription", cTermsDesc).
           
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "invNotes", cInvNotes).
     

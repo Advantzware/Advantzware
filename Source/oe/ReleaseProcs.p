@@ -193,6 +193,8 @@ PROCEDURE pBuildReleaseTags PRIVATE:
     DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttReleaseTag.
     
+    DEFINE VARIABLE iSequence AS INTEGER NO-UNDO.
+    
     DEFINE BUFFER bf-ssrelbol FOR ssrelbol.
   
     MAIN-BLOCK:
@@ -200,9 +202,11 @@ PROCEDURE pBuildReleaseTags PRIVATE:
         ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
         FOR EACH bf-ssrelbol NO-LOCK
             WHERE bf-ssrelbol.company  EQ ipcCompany
-              AND bf-ssrelbol.release# EQ ipiReleaseID:
+              AND bf-ssrelbol.release# EQ ipiReleaseID
+            BY bf-ssrelbol.seq:
             CREATE ttReleaseTag.
             ASSIGN
+                iSequence                             = iSequence + 1
                 ttReleaseTag.company                  = bf-ssrelbol.company
                 ttReleaseTag.releaseID                = bf-ssrelbol.release#
                 ttReleaseTag.tag                      = bf-ssrelbol.tag
@@ -221,7 +225,7 @@ PROCEDURE pBuildReleaseTags PRIVATE:
                 ttReleaseTag.quantity                 = bf-ssrelbol.qty
                 ttReleaseTag.quantityTotal            = bf-ssrelbol.t-qty
                 ttReleaseTag.lineID                   = bf-ssrelbol.line
-                ttReleaseTag.sequenceID               = bf-ssrelbol.seq
+                ttReleaseTag.sequenceID               = iSequence
                 ttReleaseTag.custPoNo                 = bf-ssrelbol.po-no
                 ttReleaseTag.trailerID                = bf-ssrelbol.trailer#
                 ttReleaseTag.sourceRowID              = ROWID(bf-ssrelbol)
@@ -337,6 +341,7 @@ PROCEDURE pCreateReleaseTag PRIVATE:
     DEFINE VARIABLE dQuantityToScan       AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dScannedQuantityCheck AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dReleaseQuantityCheck AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTagQuantityScanned   AS DECIMAL NO-UNDO.
     
     DEFINE VARIABLE iQuantityOfSubUnits AS INTEGER NO-UNDO.
     DEFINE VARIABLE iPartial            AS INTEGER NO-UNDO.
@@ -408,20 +413,6 @@ PROCEDURE pCreateReleaseTag PRIVATE:
                 opcMessage = "Release has no item matching Tag # '" + ipcTag + "' item '" + bf-loadtag.i-no + "'"
                 .
                     
-            RETURN.        
-        END.    
-
-        FIND FIRST bf-ssrelbol NO-LOCK
-             WHERE bf-ssrelbol.company  EQ bf-oe-relh.company
-               AND bf-ssrelbol.release# EQ bf-oe-relh.release#
-               AND bf-ssrelbol.tag#     EQ ipcTag
-             NO-ERROR.
-        IF AVAILABLE bf-ssrelbol THEN DO:
-            ASSIGN
-                 oplError   = TRUE
-                 opcMessage = "Tag # '" + ipcTag + "' is already scanned for Release # '" + STRING(bf-oe-relh.release#) + "'"
-                 .
-                     
             RETURN.        
         END.
 
@@ -526,7 +517,37 @@ PROCEDURE pCreateReleaseTag PRIVATE:
             dScannedQuantity = bf-fg-bin.qty.       
         ELSE
             dScannedQuantity = bf-loadtag.pallet-count.
+        
+        dTagQuantityScanned = 0.
+        
+        /* Verify if the tag is already scanned before for any release */        
+        FIND FIRST bf-ssrelbol NO-LOCK
+             WHERE bf-ssrelbol.company EQ bf-oe-relh.company
+               AND bf-ssrelbol.tag#    EQ ipcTag
+               AND bf-ssrelbol.i-no    EQ bf-loadtag.i-no
+             NO-ERROR.
+        IF AVAILABLE bf-ssrelbol THEN DO:
+            /* Fetch the total scanned quantity for the tag for all releases */
+            FOR EACH bf-ssrelbol NO-LOCK
+                WHERE bf-ssrelbol.company EQ ipcCompany
+                  AND bf-ssrelbol.tag#    EQ ipcTag
+                  AND bf-ssrelbol.i-no    EQ bf-loadtag.i-no:
+                dTagQuantityScanned = dTagQuantityScanned + bf-ssrelbol.qty.
+            END.
 
+            IF dTagQuantityScanned GE dScannedQuantity THEN DO:            
+                ASSIGN
+                     oplError   = TRUE
+                     opcMessage = "Tag # '" + ipcTag + "' is already scanned for Release # '" + STRING(bf-oe-relh.release#) + "'"
+                     .
+    
+                RETURN.
+            END.
+            
+            /* Negate the partial tag quantity from the tag quantity */            
+            dScannedQuantity = dScannedQuantity - dTagQuantityScanned.
+        END.
+                
         /* Code to find the release line that, tag quantity needs to be applied to */
         RUN pGetReleaseLineForTag (
             INPUT  bf-oe-relh.company,
@@ -591,13 +612,18 @@ PROCEDURE pCreateReleaseTag PRIVATE:
             RETURN.
         END.
         
-        FOR LAST bf-ssrelbol NO-LOCK
+        /* Fetching last record's seq using FOR LAST does not seem to work, hence using FOR EACH with LEAVE statement */
+        /* Source https://stackoverflow.com/questions/14234893/for-last-query-giving-wrong-result */
+        FOR EACH bf-ssrelbol NO-LOCK
             WHERE bf-ssrelbol.company  EQ bf-oe-relh.company
               AND bf-ssrelbol.release# EQ bf-oe-relh.release#
-            BY bf-ssrelbol.seq:
-            iNextSequenceID = bf-ssrelbol.seq.
+            BY bf-ssrelbol.seq DESCENDING:
+            LEAVE.
         END.
         
+        IF AVAILABLE bf-ssrelbol THEN
+            iNextSequenceID = bf-ssrelbol.seq.
+
         CREATE bf-ssrelbol.
         ASSIGN
             bf-ssrelbol.seq        = iNextSequenceID + 1
@@ -717,16 +743,22 @@ PROCEDURE pGetReleaseLineForTag PRIVATE:
 
     IF NOT AVAILABLE ttReleaseItem THEN         
         FIND FIRST ttReleaseItem
-             WHERE ttReleaseItem.itemID          EQ ipcItemID
-               AND ttReleaseItem.quantityScanned EQ 0
+             WHERE ttReleaseItem.itemID EQ ipcItemID 
+               AND ttReleaseItem.quantityScanned + ipdQuantity LE ttReleaseItem.quantityRelease + (ttReleaseItem.quantityRelease * (ttReleaseItem.overRunPercent / 100))
              NO-ERROR.
 
     IF NOT AVAILABLE ttReleaseItem THEN         
         FIND FIRST ttReleaseItem
              WHERE ttReleaseItem.itemID EQ ipcItemID 
-               AND ttReleaseItem.quantityScanned + ipdQuantity LE ttReleaseItem.quantityRelease + (ttReleaseItem.quantityRelease * (ttReleaseItem.overRunPercent / 100))
+               AND ttReleaseItem.quantityScanned LT ttReleaseItem.quantityRelease
              NO-ERROR.
 
+    IF NOT AVAILABLE ttReleaseItem THEN         
+        FIND FIRST ttReleaseItem
+             WHERE ttReleaseItem.itemID          EQ ipcItemID
+               AND ttReleaseItem.quantityScanned EQ 0
+             NO-ERROR.
+             
     IF NOT AVAILABLE ttReleaseItem THEN         
         FIND FIRST ttReleaseItem 
              WHERE ttReleaseItem.itemID EQ ipcItemID

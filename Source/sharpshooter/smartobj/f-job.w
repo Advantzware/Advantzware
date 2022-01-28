@@ -38,8 +38,10 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cUser    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUser              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
 
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
@@ -103,11 +105,11 @@ DEFINE BUTTON btCreate
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btCreate AT ROW 1 COL 188 WIDGET-ID 60
+     btCreate AT ROW 1 COL 205 WIDGET-ID 60
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 203.8 BY 15.24
+         SIZE 221.8 BY 15.24
          BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
@@ -136,7 +138,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW F-Frame-Win ASSIGN
          HEIGHT             = 15.24
-         WIDTH              = 203.8.
+         WIDTH              = 222.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -243,15 +245,15 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_jobfilter ).
        RUN set-position IN h_jobfilter ( 1.24 , 8.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.05 , 131.00 ) */
+       /* Size in UIB:  ( 2.05 , 143.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/printcopies.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_printcopies ).
-       RUN set-position IN h_printcopies ( 1.24 , 138.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.05 , 49.00 ) */
+       RUN set-position IN h_printcopies ( 1.24 , 151.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.05 , 52.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/fgfilter.w':U ,
@@ -435,6 +437,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType F-Frame-Win 
+PROCEDURE GetMessageAndType :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiStatusMessageType AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        opcStatusMessage     = cStatusMessage
+        opiStatusMessageType = iStatusMessageType
+        .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable F-Frame-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -461,20 +481,32 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturnValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lShowKeyboard AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE oKeyboard AS system.Keyboard NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
 
     RUN spGetSettingByName ("AutoCreateLoadtagOnJobScan", OUTPUT cSettingValue).
     glAutoCreateLoadtagOnJobScan = LOGICAL (cSettingValue).
-    
+
     RUN spGetSettingByName ("AutoPrintLoadtagOnJobScan", OUTPUT cSettingValue).
     glAutoPrintLoadtagOnJobScan = LOGICAL (cSettingValue).
-    
+
     RUN spGetSettingByName ("DefaultPrintCopies", OUTPUT cSettingValue).
     giDefaultPrintCopies = INTEGER (cSettingValue).
+    
+    {methods/run_link.i "CONTAINER-SOURCE" "GetKeyboard" "(OUTPUT oKeyboard)"}
+    {methods/run_link.i "CONTAINER-SOURCE" "ShowKeyboard" "(OUTPUT lShowKeyboard)"}
+    
+    IF lShowKeyboard THEN
+        RUN ShowKeyboard.
+        
+    {methods/run_link.i "JOB-SOURCE" "SetKeyboard" "(INPUT oKeyboard)"}
+    {methods/run_link.i "COPIES-SOURCE" "SetKeyboard" "(INPUT oKeyboard)"}
         
     btCreate:HIDDEN = glAutoCreateLoadtagOnJobScan.
     
@@ -495,7 +527,60 @@ PROCEDURE pInit :
     IF giNK1PrintCopies GT 0 THEN
         {methods/run_link.i "COPIES-SOURCE" "SetCopies" "(INPUT giNK1PrintCopies)"}.  
 
-    {methods/run_link.i "JOB-SOURCE" "ValidateJobClosed" "(TRUE)"}        
+    {methods/run_link.i "JOB-SOURCE" "ValidateJobClosed" "(TRUE)"}
+    {methods/run_link.i "JOB-SOURCE" "DisableErrorAlerts"}        
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJobError F-Frame-Win 
+PROCEDURE pJobError PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "JOB-SOURCE" "GetMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
+    
+    RUN pSendError.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError F-Frame-Win 
+PROCEDURE pSendError PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN new-state (
+        "job-error"
+        ).
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset F-Frame-Win 
+PROCEDURE Reset :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "JOB-SOURCE" "Reset"}
+    {methods/run_link.i "FGItem-SOURCE" "Reset"}
+    {methods/run_link.i "QTY-SOURCE" "SetQuantities" "(0,0,0,0)"}
+    {methods/run_link.i "COPIES-SOURCE" "SetCopies" "(1)"}
+    {methods/run_link.i "USERFIELD-SOURCE" "SetUserFields" "("","","","","","")"}
+    {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -525,6 +610,21 @@ PROCEDURE Set-Focus :
  Notes:
 ------------------------------------------------------------------------------*/
     {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard F-Frame-Win 
+PROCEDURE ShowKeyboard :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    {methods/run_link.i "JOB-SOURCE" "ShowKeyboard"}
+    {methods/run_link.i "COPIES-SOURCE" "ShowKeyboard"}
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -563,6 +663,8 @@ PROCEDURE state-changed :
     
     DO WITH FRAME {&FRAME-NAME}:
     END.    
+    
+    RUN new-state ("empty-message").
     
     CASE p-state:
         WHEN "job-invalid" THEN DO:
@@ -654,9 +756,27 @@ PROCEDURE state-changed :
             
             {methods/run_link.i "QTY-SOURCE" "SetOvers" "(INPUT dOvers)"}
         END.
+        WHEN "job-error" THEN DO:
+            RUN pJobError.
+        END.
     END CASE.    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ValidateSameJobScan F-Frame-Win
+PROCEDURE ValidateSameJobScan:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplValidateSameJobScan AS LOGICAL NO-UNDO.
+    
+    {methods/run_link.i "JOB-SOURCE" "ValidateSameJobScan" "(iplValidateSameJobScan)"}
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

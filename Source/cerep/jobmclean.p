@@ -639,7 +639,8 @@ FOR EACH job-hdr NO-LOCK
                                          "<C2><B>Blank | </B>" STRING(bff-eb.blank-no,"99")  
                                          "<P10><C20><b>Size: </B>" (string(bff-eb.len,">9.9999") + " x " + STRING(bff-eb.wid,">9.9999") + " x " + STRING(bff-eb.dep,">9.9999")) FORMAT "x(40)" 
                                           "<C45>" bff-eb.spc-no FORMAT "x(30)" SKIP 
-                                        "<P10><C20><b>Blank Size: </B>" (string(bff-eb.t-len,">9.9999") + " x " + STRING(bff-eb.t-wid,">9.9999") ) FORMAT "x(40)" SKIP.
+                                         "<C2><FROM><C+13><R+2><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE=" + string((job-hdr.job-no) + "-" + STRING(job-hdr.job-no2) + "-" + STRING(bff-eb.form-no)) + "><R-2>" FORMAT "x(250)"
+                                        "<P10><C20><b>Blank Size: </B>" (STRING(bff-eb.t-len,">9.9999") + " x " + STRING(bff-eb.t-wid,">9.9999") ) FORMAT "x(40)" SKIP.
                                          IF LINE-COUNTER > 70 THEN DO: 
                                              PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
                                              PAGE.

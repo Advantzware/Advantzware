@@ -92,6 +92,14 @@ XCOPY C:\asigui\Repositories\Advantzware\Deployment\Patch\* C:%patchDir% /E /S /
 DEL /S /Q C:%patchDir%\Documentation\DBDict\* >> %vlog%
 RMDIR /S /Q C:%patchDir%\Documentation\DBDict >> %vlog%
 MKDIR C:%patchDir%\Documentation\DBDict >> %vlog%
+
+:: Update User Manual
+RMDIR /S /Q C:%patchDir%\Documentation\UserManual >> %vlog%
+MKDIR C:%patchDir%\Documentation\UserManual >> %vlog%
+CALL C:\asigui\Admin\EnvAdmin\7z.exe a -r C:\asigui\upgrades\PATCH%cNewVer%\Documentation\UserManual\UserManual.7z C:\asigui\Documentation\UserManual\*.* >> %vlog%
+ECHO Test to ensure UserManul.7z is in Doc directory
+pause 
+
 DEL /S /Q C:%patchDir%\DataFiles\* >> %vlog%
 DEL /S /Q C:%patchDir%\Structure\DFFiles\* >> %vlog%
 XCOPY C:\Asigui\Repositories\Advantzware\Deployment\Patch\Structure\DFFiles\audEmp* C:%patchDir%\Structure\DFFiles /E /S /H /C /I >> %vlog%
@@ -321,7 +329,7 @@ ECHO Compiling source programs in ENV directory
 ECHO Compiling source programs in ENV directory >> %blog%
 ECHO Compiling source programs in ENV directory >> %vlog%
 CD /asigui/build/fsinstaller
-CALL %DLCBIN%\prowin.exe -basekey "INI" -ininame progress11.ini -zn -pf client2.pf -p fsInstallerAuto.w -param "C:\asigui\build\fsInstaller\AW%cCompVer%.cfg" 
+CALL %DLCBIN%\prowin.exe -basekey "INI" -ininame progress.ini -zn -pf client2.pf -p fsInstallerAuto.w -param "C:\asigui\build\fsInstaller\AW%cCompVer%.cfg" 
 ECHO   Source compile complete
 ECHO   Source compile complete >> %blog%
 ECHO   Source compile complete >> %vlog%
@@ -381,8 +389,8 @@ MKDIR C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Override
 XCOPY C:\asigui\Environments\%cNewVer%\Programs\*.* C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Programs /E /S /H /C /I >> %vlog%
 XCOPY C:\asigui\Environments\%cNewVer%\Resources\*.* C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Resources /E /S /H /C /I >> %vlog%
 XCOPY C:\asigui\Environments\%cNewVer%\Override\*.* C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles\Override /E /S /H /C /I >> %vlog%
-COPY /Y C:\asigui\Environments\Devel\*.pl C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles >> %vlog%
-COPY /Y C:\asigui\Environments\Devel\*.pl C:\asigui\Environments\%cNewVer% >> %vlog%
+COPY /Y C:\asigui\Build\PLBuild\*.pl C:\asigui\upgrades\PATCH%cNewVer%\ProgramFiles >> %vlog%
+COPY /Y C:\asigui\Build\PLBuild\*.pl C:\asigui\Environments\%cNewVer% >> %vlog%
 ECHO   Copy complete
 ECHO   Copy complete >> %blog%
 ECHO   Copy complete >> %vlog%

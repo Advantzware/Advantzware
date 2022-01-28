@@ -67,8 +67,8 @@ DEFINE BUFFER bf-quo FOR quotehd.
 DEFINE VARIABLE lv-comp-color  AS cha NO-UNDO.
 DEFINE VARIABLE lv-other-color AS cha INIT "BLACK" NO-UNDO.
 {custom/notesdef.i}
-DEFINE VARIABLE v-inst2         AS cha       EXTENT 20 NO-UNDO.    
-DEFINE VARIABLE v-dept-inst     AS cha       FORM "x(80)" EXTENT 20 NO-UNDO.
+DEFINE VARIABLE v-inst2         AS cha       EXTENT 40 NO-UNDO.    
+DEFINE VARIABLE v-dept-inst     AS cha       FORM "x(80)" EXTENT 40 NO-UNDO.
 DEFINE VARIABLE v-note-length   AS INTEGER   INIT 80 NO-UNDO.
 DEFINE VARIABLE li-cline        AS INTEGER   NO-UNDO.
 

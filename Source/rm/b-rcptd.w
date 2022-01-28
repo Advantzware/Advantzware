@@ -2947,7 +2947,7 @@ PROCEDURE local-create-record :
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lv-rno LIKE fg-rctd.r-no NO-UNDO.
     DEFINE BUFFER b-rm-rctd FOR rm-rctd.
- 
+    DEFINE BUFFER bff-item FOR ITEM .
     /* Code placed here will execute PRIOR to standard behavior. */
   
     FIND LAST b-rm-rctd USE-INDEX rm-rctd NO-LOCK NO-ERROR.
@@ -2967,13 +2967,21 @@ PROCEDURE local-create-record :
     IF ERROR-STATUS:ERROR THEN
         MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
             VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-
+       
     FIND FIRST tt-rm-rctd NO-ERROR.
 
     IF AVAILABLE tt-rm-rctd THEN 
     DO:
         BUFFER-COPY tt-rm-rctd EXCEPT rec_key TO rm-rctd.
         tt-rm-rctd.tt-rowid = ROWID(rm-rctd).
+        FIND FIRST bff-item NO-LOCK
+             WHERE bff-item.company EQ cocode 
+               AND bff-item.i-no EQ tt-rm-rctd.i-no 
+             NO-ERROR.
+        IF v-bin NE "user entered" AND v-bin EQ "RMITEM" AND AVAIL bff-item THEN
+        ASSIGN 
+             rm-rctd.loc     = bff-item.loc
+             rm-rctd.loc-bin = bff-item.loc-bin.
         IF rm-rctd.loc EQ "" THEN 
            rm-rctd.loc = locode .
     END.
@@ -3856,7 +3864,7 @@ PROCEDURE valid-b-num :
 
         IF ERROR-STATUS:ERROR THEN 
         DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Invalid Blank #, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO rm-rctd.b-num IN BROWSE {&browse-name}.
             RETURN ERROR.
         END.
@@ -3893,10 +3901,10 @@ PROCEDURE valid-i-no :
                        NEXT.
                    END.
                    ELSE 
-                       v-msg = "Invalid entry, try help".
+                       v-msg = "Invalid Item No, try help".
                END.
              ELSE DO:
-                  v-msg = "Invalid entry, try help".
+                  v-msg = "Invalid Item No, try help".
              END.
            END.
         END.
@@ -4077,7 +4085,7 @@ PROCEDURE valid-job-no :
 
         IF ERROR-STATUS:ERROR THEN 
         DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Invalid Job No, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO rm-rctd.job-no IN BROWSE {&browse-name}.
             RETURN ERROR.
         END.
@@ -4126,7 +4134,7 @@ PROCEDURE valid-job-no2 :
 
         IF ERROR-STATUS:ERROR THEN 
         DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Invalid Job No2, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO rm-rctd.job-no2 IN BROWSE {&browse-name}.
             RETURN ERROR.
         END.
@@ -4222,7 +4230,7 @@ PROCEDURE valid-po-no :
                 NO-LOCK NO-ERROR.
             IF NOT AVAILABLE po-ordl THEN 
             DO:
-                MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+                MESSAGE "Invalid PO No, try help..." VIEW-AS ALERT-BOX ERROR.
                 APPLY "entry" TO rm-rctd.po-no IN BROWSE {&browse-name}.
                 RETURN ERROR.
             END.
@@ -4326,7 +4334,7 @@ PROCEDURE valid-s-num :
 
         IF ERROR-STATUS:ERROR THEN 
         DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Invalid Sheet #, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO rm-rctd.s-num IN BROWSE {&browse-name}.
             RETURN ERROR.
         END.

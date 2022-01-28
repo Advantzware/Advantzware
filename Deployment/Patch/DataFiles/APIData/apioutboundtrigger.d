@@ -236,3 +236,16 @@
 "" "202111245332908288093" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default7" 241 24
 "" "202111245332908288094" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default8" 242 25
 "" "202111245332908288095" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default9" 243 26
+"001" "202112020346508308454" "GetExchangeRate" "GetExchangeRate" "Trigger to fetch the exchange rates" no 2021-12-02T00:57:45.500 "asi" "_default" 244 54
+"" "202112070723908335684" "SendInvoice" "PrintInvoice" "Send EDI invoice on print of invoice" no 2021-12-07T02:00:39.309 "asi" "_default4" 245 55
+"" "202112070726308335685" "SendInvoice" "RePrintInvoice" "Send EDI invoice on re-print of invoice" no 2021-12-07T02:01:03.586 "asi" "_default4" 246 55
+"" "202112070728308335686" "SendInvoice" "PostInvoice" "Send EDI invoice on post of invoice" no 2021-12-07T02:01:23.344 "asi" "_default4" 247 55
+"" "202112164712208315856" "SendInvoice" "PrintInvoice" "Send EDI invoice on print of invoice" no 2021-12-16T13:05:22.802 "asi" "_default5" 248 56
+"" "202112164713708315857" "SendInvoice" "RePrintInvoice" "Send EDI invoice on re-print of invoice" no 2021-12-16T13:05:37.095 "asi" "_default5" 249 56
+"" "202112164715208315858" "SendInvoice" "PostInvoice" "Send EDI invoice on post of invoice" no 2021-12-16T13:05:52.625 "asi" "_default5" 250 56
+"" "202112165648708316201" "SendJobAMS" "UpdateJobMachine" "Triggers when a machine record is updated" no 2021-12-16T15:41:27.011 "asi" "_default" 251 38
+"" "202112165651008316202" "SendJobAMS" "DeleteJobMachine" "Triggers when a machine record is deleted" no 2021-12-16T15:41:50.983 "asi" "_default" 252 38
+"" "202112170530608378260" "SendJobAMS" "UpdateJobHeader" "Triggers when job header is updated" no 2021-12-17T01:28:26.047 "asi" "_default" 253 38
+"" "202112170532708378261" "SendJobAMS" "UpdateJobMaterial" "Triggers when job material is updated" no 2021-12-17T01:28:47.842 "asi" "_default" 254 38
+"" "202112225550008385920" "SendOrderAck" "PrintOrderAck" "Print Order Acknowledgement" yes 2021-12-22T15:25:00.037 "asi" "_default1" 255 57
+"" "202112225550008385921" "SendOrderAck" "RePrintOrderAck" "Reprint of Order Acknowledgement" yes 2021-12-22T15:25:00.058 "asi" "_default1" 256 57

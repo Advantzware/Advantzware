@@ -885,10 +885,11 @@ PROCEDURE post-gl :
             BREAK BY ap-pay.bank-code:
 
             ASSIGN 
-                ap-pay.cleared    = NO
-                ap-pay.reconciled = ?
-                v-tot-amt-paid    = v-tot-amt-paid + ap-pay.check-amt
-                v-bank-amt        = v-bank-amt + ap-pay.check-amt.
+                ap-pay.cleared          = NO
+                ap-pay.reconciled       = ?
+                ap-pay.transactionDate  = udate
+                v-tot-amt-paid          = v-tot-amt-paid + ap-pay.check-amt
+                v-bank-amt              = v-bank-amt + ap-pay.check-amt.
 
             FIND FIRST bank WHERE bank.company = cocode AND
                 bank.bank-code = ap-pay.bank-code NO-ERROR.

@@ -354,8 +354,7 @@ PROCEDURE pGetVendorCostList PRIVATE:
     DEFINE VARIABLE dBasisWeight        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lError              AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lIncludeBlankVendor AS LOGICAL   NO-UNDO.
-    
+    DEFINE VARIABLE lIncludeBlankVendor AS LOGICAL   NO-UNDO.    
         
     cValidScopes = DYNAMIC-FUNCTION("VendCost_GetValidScopes","").
     cScope = ENTRY(iScopeEntry, cValidScopes).
