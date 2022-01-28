@@ -102,9 +102,6 @@ IF llRecFound THEN
 oeDateAuto-chr = lcNk1Value NO-ERROR.
 
 IF oeDateAuto-log AND oeDateAuto-chr EQ "Colonial" THEN DO:
-    MESSAGE 
-    "ipcDateChanged:" ipcDateChanged
-    VIEW-AS ALERT-BOX.
     FIND FIRST shipto NO-LOCK
          WHERE shipto.company EQ oe-rel.company
            AND shipto.cust-no EQ oe-rel.cust-no
