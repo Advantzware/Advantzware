@@ -3445,7 +3445,7 @@ PROCEDURE po-cost :
                 ll-add-setup = IF AVAILABLE po-ord AND po-ord.type NE "S" THEN YES
                          ELSE NO.
 
-        rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = po-ordl.pr-uom.
+        rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.pr-uom,">,>>>,>>9.999").
 
         RUN rm/getpocst.p (BUFFER po-ordl,
             rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name},
