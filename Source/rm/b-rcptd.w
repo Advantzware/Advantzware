@@ -3445,7 +3445,7 @@ PROCEDURE po-cost :
                 ll-add-setup = IF AVAILABLE po-ord AND po-ord.type NE "S" THEN YES
                          ELSE NO.
 
-        rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.pr-uom,">,>>>,>>9.999").
+        rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = po-ordl.pr-uom.
 
         RUN rm/getpocst.p (BUFFER po-ordl,
             rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name},
@@ -3453,7 +3453,7 @@ PROCEDURE po-cost :
 
         RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).
         ASSIGN lv-cost = ABSOLUTE(lv-cost) .
-        rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-cost).
+        rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-cost,">,>>>,>>9.999").
     END.
 
 END PROCEDURE.
