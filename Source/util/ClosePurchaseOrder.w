@@ -109,6 +109,7 @@ DEFINE VARIABLE fiQuantityToUse AS CHARACTER FORMAT "X(19)":U
      VIEW-AS COMBO-BOX INNER-LINES 4
      LIST-ITEM-PAIRS "None","N",
                      "Fully Received","F",
+                     "Received Enough","R",
                      "Invoiced","I"
      DROP-DOWN-LIST
      SIZE 24 BY 1
@@ -368,7 +369,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {sys/inc/f3helpw.i}     
     RUN enable_UI.
     pfSetDirectory().
-    fiQuantityToUse:SCREEN-VALUE = "N".
+    fiQuantityToUse:SCREEN-VALUE = "I".
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

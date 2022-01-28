@@ -94,7 +94,7 @@ ASSIGN
                 "RUDDX,APC,Imperial,Indiana,Fibrex,PPI,HPB,Albert,ContSvc,Triad,Packrite,Dee," +
                 "Allwest,Simkins,HOPX,PremierCX,Accord,Soule,ACPI,Hughes,Carded,SouleUOM,Badger,Axis," +
                 "3CPack,3CPackSD,Perform,ackhead 1,ackhead 2,ackhead 10,ackhead 20,ackhead10-CAN,Shamrock-Ack,AckHead-Mex," +
-                "AllPackaing" 
+                "AllPackaing,Henry" 
  str-init[14] = "10 Pitch,17 Pitch,Boxtech,Phoenix,TriState,Triad,RFC,HOP," +
                 "Brick,Hartford"
  str-init[15] = "Inches,MM,Both"
@@ -112,7 +112,7 @@ ASSIGN
  str-init[28] = "Penny,Dollar"
  str-init[29] = ",Brick,Xprint,Unipak-XL,PremierPkg,ACPI,PremierPkgU,PremierPkgM,PremierBroker,CCC,LoyLang,CCCWPP,Prystup," +
                 "bolcert 1,bolcert 2,BOLCERT10,CCC2,LancoYork,CCC3,CCC4,CCC5,BOLCERT-Mex,Soule,PackSlip,PrystupXLS,CCCEss,CCCRev"
- str-init[30] = "ASI,Clevelnd,McLean,Suthrlnd,Brick,Fibre,Protagon,cerunc 1,cerunc 2,cerunc 3,Atlantic"
+ str-init[30] = "ASI,Clevelnd,McLean,Suthrlnd,Brick,Fibre,Protagon,cerunc 1,cerunc 2,cerunc 3,Atlantic,Peachtre"
  str-init[31] = "ASI,McLean,HOP,Dee,Fibre,cerunf 1,cerunf 2"
  str-init[32] = "XPRINT,Pacific,RFC,Hughes,HPB,MWFIBRE,ARTIOS,P&,MWBox," +
                 "CSC,CSC-GA,PREMIER,Suthrlnd,United,MulticellGA,MCPartitions," +

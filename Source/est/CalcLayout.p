@@ -25,6 +25,10 @@ DEFINE BUFFER bf-eb FOR eb.
 DEFINE VARIABLE lNew AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cDefaultMachine AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iMaxWidth AS INTEGER NO-UNDO.
+DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL NO-UNDO.
+
+DEFINE VARIABLE cNK1Value AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
 /*Refactor*/
 DEFINE SHARED BUFFER xef FOR ef.
@@ -37,6 +41,10 @@ DEFINE SHARED BUFFER xest FOR est.
 /* ***************************  Main Block  *************************** */
 FIND ef WHERE ROWID(ef) EQ ipriEf NO-ERROR.
 FIND eb WHERE ROWID(eb) EQ ipriEb NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT eb.company, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCEUseNewLayoutCalc = logical(cNK1Value) NO-ERROR. 
 
 
 RUN pGetCEROUTESettings(eb.company, ipcIndustry,
@@ -110,7 +118,11 @@ DO:
         /*Refactor*/
         FIND xeb WHERE ROWID(xeb) EQ ROWID(eb).
         FIND xef WHERE ROWID(xef) EQ ROWID(ef).
-        RUN cec/calc-dim.p.
+        
+        IF lCEUseNewLayoutCalc THEN
+            RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+        ELSE
+            RUN cec/calc-dim.p.
     END.
 END.
 
@@ -131,7 +143,11 @@ DO:
             eb.num-len  = 1.
         
         /*Refactor*/
-        RUN cec/calc-dim1.p NO-ERROR.
+        
+        IF lCEUseNewLayoutCalc THEN
+            RUN Estimate_UpdateEfFormLayout (BUFFER ef, BUFFER eb).
+        ELSE
+            RUN cec/calc-dim1.p NO-ERROR.
 
         ASSIGN
             ef.gsh-len = ef.gsh-len - (ef.nsh-len * ef.n-out-l)

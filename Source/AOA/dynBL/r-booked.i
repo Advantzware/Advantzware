@@ -194,15 +194,18 @@ PROCEDURE pBusinessLogic:
                              oe-ord.ord-date GE period.pst AND
                              oe-ord.ord-date LE period.pend THEN 2 ELSE 1
                     .
-               IF jdx LE kdx THEN DO ii = jdx TO kdx:
+               IF jdx LE kdx THEN
+               DO ii = jdx TO kdx:
                    IF ii EQ 1 THEN
                    ASSIGN
                        ttRecapProductCategory.sqFtCurrent   = ttRecapProductCategory.sqFtCurrent   + dTotalSqft
+                       ttRecapProductCategory.tonsCurrent   = ttRecapProductCategory.tonsCurrent   + dTotTons
                        ttRecapProductCategory.amountCurrent = ttRecapProductCategory.amountCurrent + dPriceAmount
                        .
                    IF ii EQ 2 THEN
                    ASSIGN
                        ttRecapProductCategory.sqFtPeriod   = ttRecapProductCategory.sqFtPeriod   + dTotalSqft
+                       ttRecapProductCategory.tonsPeriod   = ttRecapProductCategory.tonsPeriod   + dTotTons
                        ttRecapProductCategory.amountPeriod = ttRecapProductCategory.amountPeriod + dPriceAmount
                        .
                END.  /* if jdx le kdx then */
@@ -331,6 +334,80 @@ PROCEDURE pBusinessLogic:
         iUnderValue,
         iOverValue
         ).
+    FOR EACH ttRecapProductCategory
+        WHERE ttRecapProductCategory.proCat LT "|"
+        BREAK BY ttRecapProductCategory.proCat
+        :
+        ASSIGN 
+            ttRecapProductCategory.priceMSFCurrent = ttRecapProductCategory.amountCurrent / ttRecapProductCategory.sqFtCurrent
+            ttRecapProductCategory.priceTonCurrent = ttRecapProductCategory.amountCurrent / ttRecapProductCategory.sqFtCurrent
+            ttRecapProductCategory.priceMSFPeriod  = ttRecapProductCategory.amountPeriod  / ttRecapProductCategory.sqFtPeriod
+            ttRecapProductCategory.priceTonPeriod  = ttRecapProductCategory.amountPeriod  / ttRecapProductCategory.tonsPeriod
+            .        
+        IF ttRecapProductCategory.priceMSFCurrent EQ ? THEN
+        ttRecapProductCategory.priceMSFCurrent = 0.
+        IF ttRecapProductCategory.priceTonCurrent EQ ? THEN
+        ttRecapProductCategory.priceTonCurrent = 0.
+        IF ttRecapProductCategory.priceMSFPeriod EQ ? THEN
+        ttRecapProductCategory.priceMSFPeriod = 0.
+        IF ttRecapProductCategory.priceTonPeriod EQ ? THEN
+        ttRecapProductCategory.priceTonPeriod = 0.
+
+        &IF "{&ttTempTable}" EQ "ttOrdersBooked" &THEN
+        ACCUMULATE 
+            ttRecapProductCategory.amountCurrent (TOTAL)
+            ttRecapProductCategory.sqFtCurrent   (TOTAL)
+            ttRecapProductCategory.tonsCurrent   (TOTAL)
+            ttRecapProductCategory.amountPeriod  (TOTAL)
+            ttRecapProductCategory.sqFtPeriod    (TOTAL)
+            ttRecapProductCategory.tonsPeriod    (TOTAL)
+            .
+        IF LAST(ttRecapProductCategory.proCat) THEN DO:
+            CREATE bttRecapProductCategory.
+            ASSIGN
+                bttRecapProductCategory.proCat          = "|"
+                bttRecapProductCategory.catDscr         = "Totals"
+                bttRecapProductCategory.amountCurrent   = (ACCUM TOTAL ttRecapProductCategory.amountCurrent)
+                bttRecapProductCategory.sqFtCurrent     = (ACCUM TOTAL ttRecapProductCategory.sqFtCurrent)
+                bttRecapProductCategory.tonsCurrent     = (ACCUM TOTAL ttRecapProductCategory.tonsCurrent)
+                bttRecapProductCategory.priceMSFCurrent = (ACCUM TOTAL ttRecapProductCategory.amountCurrent)
+                                                        / (ACCUM TOTAL ttRecapProductCategory.sqFtCurrent)
+                bttRecapProductCategory.priceTonCurrent = (ACCUM TOTAL ttRecapProductCategory.amountCurrent)
+                                                        / (ACCUM TOTAL ttRecapProductCategory.tonsCurrent)
+                bttRecapProductCategory.amountPeriod    = (ACCUM TOTAL ttRecapProductCategory.amountPeriod)
+                bttRecapProductCategory.sqFtPeriod      = (ACCUM TOTAL ttRecapProductCategory.sqFtPeriod)
+                bttRecapProductCategory.tonsPeriod      = (ACCUM TOTAL ttRecapProductCategory.tonsPeriod)
+                bttRecapProductCategory.priceMSFPeriod  = (ACCUM TOTAL ttRecapProductCategory.amountPeriod)
+                                                        / (ACCUM TOTAL ttRecapProductCategory.sqFtPeriod)
+                bttRecapProductCategory.priceTonPeriod  = (ACCUM TOTAL ttRecapProductCategory.amountPeriod)
+                                                        / (ACCUM TOTAL ttRecapProductCategory.tonsPeriod)
+                .
+            IF bttRecapProductCategory.priceMSFCurrent EQ ? THEN
+            bttRecapProductCategory.priceMSFCurrent = 0.
+            IF bttRecapProductCategory.priceTonCurrent EQ ? THEN
+            bttRecapProductCategory.priceTonCurrent = 0.
+            IF bttRecapProductCategory.priceMSFPeriod EQ ? THEN
+            bttRecapProductCategory.priceMSFPeriod = 0.
+            IF bttRecapProductCategory.priceTonPeriod EQ ? THEN
+            bttRecapProductCategory.priceTonPeriod = 0.
+            CREATE bttRecapProductCategory.
+            ASSIGN
+                bttRecapProductCategory.proCat         = "||"
+                bttRecapProductCategory.catDscr        = "Average"
+                bttRecapProductCategory.numDaysCurrent = iPerDays[1]
+                bttRecapProductCategory.amountCurrent  = (ACCUM TOTAL ttRecapProductCategory.amountCurrent)
+                                                       / bttRecapProductCategory.numDaysCurrent
+                bttRecapProductCategory.numDaysPeriod  = iPerDays[2]
+                bttRecapProductCategory.amountPeriod   = (ACCUM TOTAL ttRecapProductCategory.amountPeriod)
+                                                       / bttRecapProductCategory.numDaysPeriod
+                .
+            IF bttRecapProductCategory.amountCurrent EQ ? THEN
+            bttRecapProductCategory.amountCurrent = 0.
+            IF bttRecapProductCategory.amountPeriod EQ ? THEN
+            bttRecapProductCategory.amountPeriod = 0.
+        END. // if last
+        &ENDIF
+    END. // each ttRecapProductCategory
 END PROCEDURE.
 
 PROCEDURE pOrdersBooked1:

@@ -72,11 +72,11 @@ DEFINE QUERY external_tables FOR APIOutbound.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table APIOutboundDetail.apiID APIOutboundDetail.clientID APIOutboundDetail.detailID APIOutboundDetail.parentID   
+&Scoped-define FIELDS-IN-QUERY-br_table APIOutboundDetail.detailID APIOutboundDetail.parentID   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH APIOutboundDetail WHERE     APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID NO-LOCK     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundDetail WHERE     APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID NO-LOCK     ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-br_table FOR EACH APIOutboundDetail WHERE     APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID     AND APIOutboundDetail.detailID MATCHES "*" + fiDetailID + "*" NO-LOCK     ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundDetail WHERE     APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID     AND APIOutboundDetail.detailID MATCHES "*" + fiDetailID + "*" NO-LOCK     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table APIOutboundDetail
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table APIOutboundDetail
 
@@ -84,7 +84,8 @@ DEFINE QUERY external_tables FOR APIOutbound.
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS br_table 
+&Scoped-Define ENABLED-OBJECTS RECT-7 btSearch fiDetailID br_table 
+&Scoped-Define DISPLAYED-OBJECTS fiDetailID 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -140,6 +141,21 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btSearch 
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U
+     LABEL "Search" 
+     SIZE 8 BY 1.91.
+
+DEFINE VARIABLE fiDetailID AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Detail ID" 
+     VIEW-AS FILL-IN 
+     SIZE 38 BY 1
+     BGCOLOR 26 FONT 6 NO-UNDO.
+
+DEFINE RECTANGLE RECT-7
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 149 BY 13.33.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
@@ -150,23 +166,25 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      APIOutboundDetail.apiID COLUMN-LABEL "API ID" FORMAT "x(32)":U
-      APIOutboundDetail.clientID COLUMN-LABEL "Client ID" FORMAT "x(32)":U
       APIOutboundDetail.detailID COLUMN-LABEL "Detail ID" FORMAT "x(32)":U
       APIOutboundDetail.parentID COLUMN-LABEL "Parent ID" FORMAT "x(32)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 125 BY 6.71 FIT-LAST-COLUMN.
+    WITH NO-ASSIGN SEPARATORS SIZE 148 BY 11.19
+         FONT 6 ROW-HEIGHT-CHARS .62 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     br_table AT ROW 1 COL 1
+     btSearch AT ROW 1.05 COL 53 WIDGET-ID 4
+     fiDetailID AT ROW 1.48 COL 11.4 COLON-ALIGNED WIDGET-ID 2
+     br_table AT ROW 2.91 COL 1.4
+     RECT-7 AT ROW 1 COL 1 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
+         BGCOLOR 15 FGCOLOR 1 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -196,8 +214,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 6.71
-         WIDTH              = 125.
+         HEIGHT             = 14.52
+         WIDTH              = 150.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -220,7 +238,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB br_table 1 F-Main */
+/* BROWSE-TAB br_table fiDetailID F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -235,7 +253,8 @@ ASSIGN
 /* Query rebuild information for BROWSE br_table
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundDetail WHERE
-    APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID NO-LOCK
+    APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID
+    AND APIOutboundDetail.detailID MATCHES "*" + fiDetailID + "*" NO-LOCK
     ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
@@ -287,6 +306,29 @@ DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btSearch
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSearch B-table-Win
+ON CHOOSE OF btSearch IN FRAME F-Main /* Search */
+DO:
+    ASSIGN fiDetailID.
+    RUN dispatch("open-query").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiDetailID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiDetailID B-table-Win
+ON ENTER OF fiDetailID IN FRAME F-Main /* Detail ID */
+DO:
+    APPLY "CHOOSE" to btSearch.    
 END.
 
 /* _UIB-CODE-BLOCK-END */

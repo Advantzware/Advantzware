@@ -52,12 +52,10 @@ PROCEDURE Zoho_UpdateRefreshToken:
     DEFINE VARIABLE cResponse      AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE cResponseFile  AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-sys-ctrl FOR sys-ctrl.
-    
     ASSIGN
         cResponseFile            = cTempDir + "\zoho_refresh" + STRING(MTIME) + ".txt"
         FIX-CODEPAGE (cResponse) = 'utf-8'
-        cCommand                 = SEARCH("curl.exe") + ' -X POST "'
+        cCommand                 = SEARCH("curl.exe") + ' --insecure -X POST "'
                                  + cAPIURL + '?code=' + ipcGrantToken 
                                  + '^&client_id=' + ipcClientID 
                                  + '^&client_secret=' + ipcClientSecret 
@@ -95,16 +93,9 @@ PROCEDURE Zoho_UpdateRefreshToken:
         NO-ERROR.
 
     IF opcRefreshToken NE "" THEN DO:
-        FIND FIRST bf-sys-ctrl EXCLUSIVE-LOCK
-             WHERE bf-sys-ctrl.company EQ ipcCompany
-               AND bf-sys-ctrl.name    EQ "ZohoRefreshToken"
-             NO-ERROR.
-        IF AVAILABLE bf-sys-ctrl THEN
-            ASSIGN
-                bf-sys-ctrl.char-fld = opcRefreshToken
-                opcMessage           = "Success"
-                oplSuccess           = TRUE
-                .    
+        RUN spSetSettingByName ("ZohoRefreshToken", opcRefreshToken).
+
+        oplSuccess = RETURN-VALUE EQ "".  
     END.
     ELSE
         ASSIGN
@@ -118,49 +109,23 @@ END PROCEDURE.
 PROCEDURE Zoho_GetRefreshToken:
     /*------------------------------------------------------------------------------
       Purpose:     
-      Parameters:  input company, output refresh token
+      Parameters:  output refresh token
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcRefreshToken AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-
-    RUN sys/ref/nk1look.p (
-        INPUT ipcCompany, 
-        INPUT "ZohoRefreshToken", 
-        INPUT "C", 
-        INPUT NO, 
-        INPUT NO, 
-        INPUT "", 
-        INPUT "",
-        OUTPUT opcRefreshToken, 
-        OUTPUT lFound
-        ).
+    RUN spGetSettingByName ("ZohoRefreshToken", OUTPUT opcRefreshToken).
 END.
 
 PROCEDURE Zoho_GetClientID:
     /*------------------------------------------------------------------------------
       Purpose:     
-      Parameters:  input company, output clientid
+      Parameters:  output clientid
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcClientID AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-
-    RUN sys/ref/nk1look.p (
-        INPUT ipcCompany, 
-        INPUT "ZohoClientID", 
-        INPUT "C", 
-        INPUT NO, 
-        INPUT NO, 
-        INPUT "", 
-        INPUT "",
-        OUTPUT opcClientID, 
-        OUTPUT lFound
-        ).
+    RUN spGetSettingByName ("ZohoClientID", OUTPUT opcClientID).
 END.
 
 PROCEDURE Zoho_GetClientSecret:
@@ -169,22 +134,9 @@ PROCEDURE Zoho_GetClientSecret:
       Parameters:  input company, output clientsecret
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcClientSecret AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-
-    RUN sys/ref/nk1look.p (
-        INPUT ipcCompany, 
-        INPUT "ZohoClientSecret", 
-        INPUT "C", 
-        INPUT NO, 
-        INPUT NO, 
-        INPUT "", 
-        INPUT "",
-        OUTPUT opcClientSecret, 
-        OUTPUT lFound
-        ).        
+    RUN spGetSettingByName ("ZohoClientSecret", OUTPUT opcClientSecret).
 END.
 
 PROCEDURE Zoho_GetAccessToken:
@@ -212,7 +164,7 @@ PROCEDURE Zoho_GetAccessToken:
         oplSuccess               = YES
         cResponseFile            = cTempDir + "\zoho_access" + STRING(MTIME) + ".txt"
         FIX-CODEPAGE (cResponse) = 'utf-8'
-        cCommand                 = SEARCH("curl.exe") + ' -X POST "' 
+        cCommand                 = SEARCH("curl.exe") + ' --insecure -X POST "' 
                                  + cAPIURL + '?refresh_token=' + ipcRefreshToken 
                                  + '^&client_id=' + ipcClientID 
                                  + '^&client_secret=' + ipcClientSecret 
@@ -281,7 +233,7 @@ PROCEDURE Zoho_GetCustomers:
         FIX-CODEPAGE (cResponseCustomers)= 'utf-8'
         cResponseCustomersFile           = cTempDir + "\zoho_customers" + STRING(MTIME) + ".txt"
         cCommand                         = SEARCH("curl.exe") + ' "' 
-                                         + cAPIURL + '" -X GET -H "Authorization: Zoho-oauthtoken ' 
+                                         + cAPIURL + '" --insecure -X GET -H "Authorization: Zoho-oauthtoken ' 
                                          + ipcAccessToken + '"'
         .
 
@@ -385,7 +337,7 @@ PROCEDURE Zoho_GetContacts:
         ipcAccountName                   = REPLACE(ipcAccountName,")","")
         cCommand                         = SEARCH("curl.exe") + ' "' 
                                          + cAPIURL + '/search?criteria=Account_Name:equals:' + ipcAccountName + '"' 
-                                         + ' -X GET -H "Authorization: Zoho-oauthtoken ' 
+                                         + ' --insecure -X GET -H "Authorization: Zoho-oauthtoken ' 
                                          + ipcAccessToken + '"'
         .
 
@@ -481,10 +433,10 @@ PROCEDURE Zoho_GetAccounts:
     IF ipcCustNo NE "" THEN
         cCommand = SEARCH("curl.exe") + ' "' 
                  + cAPIURL + '/search?criteria=Ticker_Symbol:equals:' + ipcCustNo + '"' 
-                 + ' -X GET -H "Authorization: Zoho-oauthtoken ' + ipcAccessToken + '"'.
+                 + ' --insecure -X GET -H "Authorization: Zoho-oauthtoken ' + ipcAccessToken + '"'.
     ELSE
         cCommand = SEARCH("curl.exe") + ' "' 
-                 + cAPIURL + '" -X GET -H "Authorization: Zoho-oauthtoken ' 
+                 + cAPIURL + '" --insecure -X GET -H "Authorization: Zoho-oauthtoken ' 
                  + ipcAccessToken + '"'.
         
     /* execute CURL command with required parameters to call the API */

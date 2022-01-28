@@ -3745,6 +3745,11 @@ PROCEDURE SetOEAckForm :
                 v-program      = "oe/rep/ackallpack.p" 
                 is-xprint-form = YES 
                 lines-per-page = 65.
+        WHEN "Henry" THEN 
+            ASSIGN 
+                v-program      = "oe/rep/ackhenry.p" 
+                is-xprint-form = YES 
+                lines-per-page = 65.
         OTHERWISE 
         ASSIGN 
             v-program      = "oe/rep/ackasi.p" 

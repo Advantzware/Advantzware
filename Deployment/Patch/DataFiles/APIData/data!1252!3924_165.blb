@@ -1,0 +1,1 @@
+             <Material Action="$JobMaterialAction$" Part="$JobHeaderPart$" MaterialCode="$Item$" SeqNo="$MaterialSequence$" PlannedQuantity="$TotMRP|>>>>>>>>>9.99|DEC|$" UsedQuantity="0"/>

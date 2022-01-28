@@ -1914,58 +1914,58 @@
 127 "_default" "dynSubjct." 0 5 yes "cust.zip" "Zip Code" "x(10)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202109306676408092596" no "" "" 0 0 "" no no "" "" no
 127 "_default" "dynSubjct." 0 6 yes "cust.type" "Customer Type" "x(8)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202109306676408092597" no "" "" 0 0 "" no no "" "" no
 127 "_default" "dynSubjct." 0 7 yes "cust.sman" "Salesman" "x(3)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202109306676408092598" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 1 yes "po-ord.vend-no" "Vendor" "x(8)" 8 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250892" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 2 yes "po-ord.po-no" "PO Number" ">>>>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202105067683907250893" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 3 yes "po-ordl.line" "Line" "99" 3.8 "integer" 0 no no "" "" no "" "" no no no "" "202105067683907250894" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 4 yes "po-ordl.due-date" "Due Date" "99/99/9999" 11.2 "date" 0 no no "" "" no "" "" no no no "" "202105067683907250895" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 5 yes "po-ord.ship-id" "Ship To" "x(8)" 10.6 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250896" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 6 yes "po-ord.ship-name" "Shipping Name" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250897" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 7 yes "po-ord.ship-addr[1]" "Shipping Address[1]" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250898" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 8 yes "po-ord.ship-addr[2]" "Shipping Address[2]" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250899" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 9 yes "po-ord.ship-city" "Shipping City" "x(16)" 16 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250900" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 10 yes "po-ord.ship-state" "Shipping State" "x(2)" 9.8 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250901" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 11 yes "po-ord.ship-zip" "Shipping Zip" "xxxxx-xxxx" 14 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250902" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 12 yes "po-ord.tax-gr" "Sales Tax Group" "x(3)" 15.6 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250903" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 13 yes "po-ord.tax" "Tax" "->,>>9.99" 9.6 "decimal" 0 no no "" "" no "" "" no no no "" "202105067683907250904" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 14 yes "po-ordl.tax" "Taxable" "Y/N" 7.6 "logical" 0 no no "" "" no "" "" no no no "" "202105067683907250905" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 15 yes "po-ord.terms" "Payment Terms" "x(5)" 14.8 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250906" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 16 yes "po-ord.t-cost" "Total Cost" "->,>>>,>>9.99<<" 14 "decimal" 0 no no "" "" no "" "" no no no "" "202105067683907250907" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 17 yes "po-ordl.job-no" "Job Number" "x(6)" 11.4 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250908" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 18 yes "po-ordl.job-no2" "Run #" ">9" 6 "integer" 0 no no "" "" no "" "" no no no "" "202105067683907250909" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 19 yes "po-ordl.item-type" "Item Type" "R/F" 9.8 "logical" 0 no no "" "" no "" "" no no no "" "202105067683907250910" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 20 yes "po-ordl.i-no" "Item#" "x(15)" 15 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250911" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 21 yes "po-ordl.i-name" "Name" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250912" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 22 yes "po-ordl.s-wid" "Sheet Wid" ">>>>9.9999" 9.8 "decimal" 0 no no "" "" no "" "" no no no "" "202105067683907250913" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 23 yes "po-ordl.s-len" "Sheet Len" ">>>>9.9999" 9.6 "decimal" 0 no no "" "" no "" "" no no no "" "202105067683907250914" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 24 yes "po-ordl.s-num" "Sheet #" ">9" 7.8 "integer" 0 no no "" "" no "" "" no no no "" "202105067683907250915" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 25 yes "po-ordl.b-num" "Blank #" ">9" 7.2 "integer" 0 no no "" "" no "" "" no no no "" "202105067683907250916" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 26 yes "po-ordl.dscr[1]" "Description[1]" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250917" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 27 yes "po-ordl.dscr[2]" "Description[2]" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250918" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 28 yes "po-ordl.vend-i-no" "Vendor Item #" "x(15)" 15 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250919" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 29 yes "po-ordl.ord-qty" "Quantity" "->>>,>>>,>>9.9<<<<<" 15.2 "decimal" 0 no no "" "" no "" "" no no no "" "202105067683907250920" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 30 yes "po-ordl.pr-qty-uom" "Purchase Quantity Uom" "x(4)" 22.6 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250921" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 31 yes "po-ordl.t-rec-qty" "Total Received" "->>>,>>>,>>9.9<<<<<" 15.2 "decimal" 0 no no "" "" no "" "" no no no "" "202105067683907250922" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 32 yes "po-ordl.cons-uom" "Unit of Measure" "x(4)" 15.2 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250923" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 33 yes "po-ordl.cost" "Unit Cost" "->,>>>,>>9.99<<<<" 14 "decimal" 0 no no "" "" no "" "" no no no "" "202105067683907250924" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 34 yes "po-ordl.pr-uom" "Purchased UOM" "x(4)" 15.2 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250925" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 35 yes "po-ord.buyer" "Buyer" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250926" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 36 yes "po-ord.stat" "Status" "x" 6.2 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250927" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 37 yes "po-ordl.stat" "Order Line Status" "x" 16.8 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250928" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 38 yes "po-ord.printed" "Printed?" "Y/N" 7.8 "logical" 0 no no "" "" no "" "" no no no "" "202105067683907250929" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 39 yes "po-ordl.opened" "opened" "Open/Closed" 7.2 "logical" 0 no no "" "" no "" "" no no no "" "202105067683907250930" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 40 yes "po-ord.type" "Type" "x" 4.8 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250931" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 41 yes "po-ord.contact" "Contact" "x(25)" 25 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250932" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 42 yes "po-ord.po-date" "PO Date" "99/99/9999" 11.2 "date" 0 no no "" "" no "" "" no no no "" "202105067683907250933" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 43 yes "po-ord.last-ship-date" "Last Ship Date" "99/99/9999" 13.8 "date" 0 no no "" "" no "" "" no no no "" "202105067683907250934" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 44 yes "po-ordl.setup" "Setup Charge" ">>,>>9.99" 13.2 "decimal" 0 no no "" "" no "" "" no no no "" "202105067683907250935" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 45 yes "po-ordl.disc" "Discount" "->>>,>>9.99" 12 "decimal" 0 no no "" "" no "" "" no no no "" "202105067683907250936" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 46 yes "po-ordl.actnum" "Account No" "x(25)" 25 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250937" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 47 yes "po-ordl.over-pct" "Overrun %" ">>>>9.99%" 10.8 "decimal" 0 no no "" "" no "" "" no no no "" "202105067683907250938" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 48 yes "po-ordl.under-pct" "Underrun %" ">>>>9.99%" 11.8 "decimal" 0 no no "" "" no "" "" no no no "" "202105067683907250939" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 49 yes "po-ordl.cust-no" "Cust No" "x(8)" 8 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250940" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 50 yes "po-ordl.ord-no" "Customer Order Number" ">>>>>9" 23.4 "integer" 0 no no "" "" no "" "" no no no "" "202105067683907250941" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 51 yes "po-ord.cust-no" "ShipTo Customer" "x(8)" 17.2 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250942" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 52 yes "CalcDropShipType" "Drop Shipment Type" "x(10)" 0 "Character" 0 no no "" "" yes "calcDropShipment" "po-ord.type|po-ord.cust-no" no no no "" "202105067683907250943" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 1 yes "po-ord.vend-no" "Vendor" "x(8)" 8 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374229" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 2 yes "po-ord.po-no" "PO Number" ">>>>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202112147157908374230" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 3 yes "po-ordl.line" "Line" "99" 3.8 "integer" 0 no no "" "" no "" "" no no no "" "202112147157908374231" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 4 yes "po-ordl.due-date" "Due Date" "99/99/9999" 11.2 "date" 0 no no "" "" no "" "" no no no "" "202112147157908374232" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 5 yes "po-ord.ship-id" "Ship To" "x(8)" 10.6 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374233" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 6 yes "po-ord.ship-name" "Shipping Name" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374234" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 7 yes "po-ord.ship-addr[1]" "Shipping Address[1]" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374235" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 8 yes "po-ord.ship-addr[2]" "Shipping Address[2]" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374236" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 9 yes "po-ord.ship-city" "Shipping City" "x(16)" 16 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374237" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 10 yes "po-ord.ship-state" "Shipping State" "x(2)" 9.8 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374238" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 11 yes "po-ord.ship-zip" "Shipping Zip" "xxxxx-xxxx" 14 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374239" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 12 yes "po-ord.tax-gr" "Sales Tax Group" "x(3)" 15.6 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374240" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 13 yes "po-ord.tax" "Tax" "->,>>9.99" 9.6 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374241" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 14 yes "po-ordl.tax" "Taxable" "Y/N" 7.6 "logical" 0 no no "" "" no "" "" no no no "" "202112147157908374242" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 15 yes "po-ord.terms" "Payment Terms" "x(5)" 14.8 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374243" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 16 yes "po-ord.t-cost" "Total Cost" "->,>>>,>>9.99<<" 14 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374244" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 17 yes "po-ordl.job-no" "Job Number" "x(6)" 11.4 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374245" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 18 yes "po-ordl.job-no2" "Run #" ">9" 6 "integer" 0 no no "" "" no "" "" no no no "" "202112147157908374246" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 19 yes "po-ordl.item-type" "Item Type" "R/F" 9.8 "logical" 0 no no "" "" no "" "" no no no "" "202112147157908374247" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 20 yes "po-ordl.i-no" "Item#" "x(15)" 15 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374248" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 21 yes "po-ordl.i-name" "Name" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374249" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 22 yes "po-ordl.s-wid" "Sheet Wid" ">>>>9.9999" 9.8 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374250" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 23 yes "po-ordl.s-len" "Sheet Len" ">>>>9.9999" 9.6 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374251" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 24 yes "po-ordl.s-num" "Sheet #" ">9" 7.8 "integer" 0 no no "" "" no "" "" no no no "" "202112147157908374252" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 25 yes "po-ordl.b-num" "Blank #" ">9" 7.2 "integer" 0 no no "" "" no "" "" no no no "" "202112147157908374253" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 26 yes "po-ordl.dscr[1]" "Description[1]" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374254" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 27 yes "po-ordl.dscr[2]" "Description[2]" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374255" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 28 yes "po-ordl.vend-i-no" "Vendor Item #" "x(15)" 15 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374256" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 29 yes "po-ordl.ord-qty" "Quantity" "->>>,>>>,>>9.9<<<<<" 15.2 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374257" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 30 yes "po-ordl.pr-qty-uom" "Purchase Quantity Uom" "x(4)" 22.6 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374258" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 31 yes "po-ordl.t-rec-qty" "Total Received" "->>>,>>>,>>9.9<<<<<" 15.2 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374259" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 32 yes "po-ordl.cons-uom" "Unit of Measure" "x(4)" 15.2 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374260" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 33 yes "po-ordl.cost" "Unit Cost" "->,>>>,>>9.99<<<<" 14 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374261" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 34 yes "po-ordl.pr-uom" "Purchased UOM" "x(4)" 15.2 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374262" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 35 yes "po-ord.buyer" "Buyer" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374263" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 36 yes "po-ord.stat" "Status" "x" 6.2 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374264" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 37 yes "po-ordl.stat" "Order Line Status" "x" 16.8 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374265" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 38 yes "po-ord.printed" "Printed?" "Y/N" 7.8 "logical" 0 no no "" "" no "" "" no no no "" "202112147157908374266" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 39 yes "po-ordl.opened" "opened" "Open/Closed" 7.2 "logical" 0 no no "" "" no "" "" no no no "" "202112147157908374267" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 40 yes "po-ord.type" "Type" "x" 4.8 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374268" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 41 yes "po-ord.contact" "Contact" "x(25)" 25 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374269" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 42 yes "po-ord.po-date" "PO Date" "99/99/9999" 11.2 "date" 0 no no "" "" no "" "" no no no "" "202112147157908374270" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 43 yes "po-ord.last-ship-date" "Last Ship Date" "99/99/9999" 13.8 "date" 0 no no "" "" no "" "" no no no "" "202112147157908374271" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 44 yes "po-ordl.setup" "Setup Charge" ">>,>>9.99" 13.2 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374272" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 45 yes "po-ordl.disc" "Discount" "->>>,>>9.99" 12 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374273" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 46 yes "po-ordl.actnum" "Account No" "x(25)" 25 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374274" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 47 yes "po-ordl.over-pct" "Overrun %" ">>>>9.99%" 10.8 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374275" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 48 yes "po-ordl.under-pct" "Underrun %" ">>>>9.99%" 11.8 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374276" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 49 yes "po-ordl.cust-no" "Cust No" "x(8)" 8 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374277" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 50 yes "po-ordl.ord-no" "Customer Order Number" ">>>>>9" 23.4 "integer" 0 no no "" "" no "" "" no no no "" "202112147157908374278" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 51 yes "po-ord.cust-no" "ShipTo Customer" "x(8)" 17.2 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374279" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 52 yes "CalcDropShipType" "Drop Shipment Type" "x(10)" 0 "Character" 0 no no "" "" yes "calcDropShipment" "po-ord.type|po-ord.cust-no" no no no "" "202112147157908374280" no "" "" 0 0 "" no no "" "" no
 130 "_default" "dynSubjct." 0 1 yes "ttJobCosting.job" "Job#" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202105067687107251068" no "" "" 0 0 "" no no "" "" no
 130 "_default" "dynSubjct." 0 2 yes "ttJobCosting.i-no" "FG Item#" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202105067687107251069" no "" "" 0 0 "" no no "" "" no
 130 "_default" "dynSubjct." 0 3 yes "ttJobCosting.est-no" "Estimate#" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202105067687107251070" no "" "" 0 0 "" no no "" "" no
@@ -2649,54 +2649,55 @@
 177 "_default" "dynSubjct." 0 1 yes "ap-inv.inv-no" "Invoice No." "x(20)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202108175825207912291" no "" "" 0 0 "" no no "" "" no
 177 "_default" "dynSubjct." 0 2 yes "ap-inv.inv-date" "Invoice Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" yes yes yes "" "202108175825207912292" no "" "" 0 0 "" no no "" "" no
 177 "_default" "dynSubjct." 0 3 yes "ap-inv.posted" "Posted" "y/n" 0 "logical" 0 no no "" "" no "" "" yes yes yes "" "202108175825207912293" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 1 yes "ttWIPStandards.machine" "Machine" "x(8)" 0 "character" 1 no no "" "" no "" "" no no no "" "202108237900507934208" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 2 yes "ttWIPStandards.frm" "Form" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202108237900507934209" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 3 yes "ttWIPStandards.blank-no" "Blank" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202108237900507934210" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 4 yes "ttWIPStandards.code" "Charge Code" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202108237900507934211" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 5 yes "ttWIPStandards.job-code" "Charge Cat" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202108237900507934212" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 6 yes "ttWIPStandards.op-date" "Date" "99/99/9999" 0 "date" 2 no no "" "" no "" "" no no no "" "202108237900607934213" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 7 yes "ttWIPStandards.job-no" "Job" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202108237900607934214" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 8 yes "ttWIPStandards.shift" "Shift" ">9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202108237900607934215" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 9 yes "ttWIPStandards.hours" "Hours" "->>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934216" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 10 yes "ttWIPStandards.qty" "Quantity" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202108237900607934217" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 11 yes "ttWIPStandards.waste" "Waste" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202108237900607934218" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 12 yes "ttWIPStandards.stock-no" "FG Item" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202108237900607934219" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 13 yes "ttWIPStandards.style" "Style" "x(6)" 0 "character" 0 no no "" "" no "" "" no no no "" "202108237900607934220" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 14 yes "ttWIPStandards.len" "Length" ">>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934221" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 15 yes "ttWIPStandards.wid" "Width" ">>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934222" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 16 yes "ttWIPStandards.dep" "Depth" ">>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934223" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 17 yes "ttWIPStandards.t-len" "Blank Length" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934224" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 18 yes "ttWIPStandards.t-wid" "Blank Width" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934225" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 19 yes "ttWIPStandards.t-sqin" "Blank Sq Inches" ">>>>>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934226" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 20 yes "ttWIPStandards.board" "Board" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202108237900607934227" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 21 yes "ttWIPStandards.cal" "Caliper" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934228" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 22 yes "ttWIPStandards.ld-msf" "MSF" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934229" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 23 yes "ttWIPStandards.weight" "Wgt/MSF" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934230" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 24 yes "ttWIPStandards.roll-wid" "Roll Width" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934231" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 25 yes "ttWIPStandards.gsh-wid" "Gross Sheet Width" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934232" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 26 yes "ttWIPStandards.gsh-len" "Gross Sheet Length" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934233" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 27 yes "ttWIPStandards.nsh-wid" "Net Sheet Width" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934234" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 28 yes "ttWIPStandards.nsh-len" "Net Sheet Length" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934235" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 29 yes "ttWIPStandards.flm-wid" "Film Width" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934236" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 30 yes "ttWIPStandards.flm-len" "Film Length" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900607934237" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 31 yes "ttWIPStandards.inkc" "Colors" ">9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202108237900607934238" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 32 yes "ttWIPStandards.die-in" "Die Inches" ">>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202108237900607934239" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 33 yes "ttWIPStandards.li-up" "Up" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202108237900607934240" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 34 yes "ttWIPStandards.n-out" "Out" ">>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202108237900707934241" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 35 yes "ttWIPStandards.lin-in" "Glue Inches" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900707934242" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 36 yes "ttWIPStandards.deprt" "DP" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202108237900707934243" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 37 yes "ttWIPStandards.pass" "Pass" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202108237900707934244" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 38 yes "ttWIPStandards.start" "Start" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202108237900707934245" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 39 yes "ttWIPStandards.stop" "Stop" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202108237900707934246" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 40 yes "ttWIPStandards.crew" "Crew" ">9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202108237900707934247" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 41 yes "ttWIPStandards.comp" "Complete" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "202108237900707934248" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 42 yes "ttWIPStandards.tot-job-qty" "Total Run Qty" "->>,>>>,>>>,>>9" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900707934249" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 43 yes "ttWIPStandards.cust-no" "Customer" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202108237900707934250" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 44 yes "ttWIPStandards.name" "Customer Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202108237900707934251" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 45 yes "ttWIPStandards.price" "Price" ">>,>>>,>>9.99<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900707934252" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 46 yes "ttWIPStandards.uom" "UOM" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202108237900707934253" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 47 yes "ttWIPStandards.sale-value" "Sales Value" ">,>>>,>>>,>>9.99<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202108237900707934254" no "" "" 0 0 "" no no "" "" no
-178 "_default" "dynSubjct." 0 48 yes "ttWIPStandards.user-id" "User ID" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202108237900707934255" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 1 yes "ttWIPStandards.machine" "Machine" "x(8)" 0 "character" 1 no no "" "" no "" "" no no no "" "202112091119108355931" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 2 yes "ttWIPStandards.frm" "Form" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202112091119108355932" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 3 yes "ttWIPStandards.blank-no" "Blank" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202112091119108355933" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 4 yes "ttWIPStandards.code" "Charge Code" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202112091119108355934" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 5 yes "ttWIPStandards.job-code" "Charge Cat" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202112091119108355935" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 6 yes "ttWIPStandards.op-date" "Date" "99/99/9999" 0 "date" 2 no no "" "" no "" "" no no no "" "202112091119108355936" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 7 yes "ttWIPStandards.job-no" "Job" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202112091119108355937" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 8 yes "ttWIPStandards.shift" "Shift" ">9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202112091119108355938" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 9 yes "ttWIPStandards.hours" "Hours" "->>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119108355939" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 10 yes "ttWIPStandards.qty" "Quantity" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202112091119108355940" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 11 yes "ttWIPStandards.waste" "Waste" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202112091119108355941" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 12 yes "ttWIPStandards.stock-no" "FG Item" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202112091119108355942" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 13 yes "ttWIPStandards.style" "Style" "x(6)" 0 "character" 0 no no "" "" no "" "" no no no "" "202112091119108355943" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 14 yes "ttWIPStandards.len" "Length" ">>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119108355944" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 15 yes "ttWIPStandards.wid" "Width" ">>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355945" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 16 yes "ttWIPStandards.dep" "Depth" ">>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355946" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 17 yes "ttWIPStandards.t-len" "Blank Length" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355947" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 18 yes "ttWIPStandards.t-wid" "Blank Width" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355948" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 19 yes "ttWIPStandards.t-sqin" "Blank Sq Inches" ">>>>>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355949" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 20 yes "ttWIPStandards.board" "Board" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202112091119208355950" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 21 yes "ttWIPStandards.cal" "Caliper" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355951" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 22 yes "ttWIPStandards.ld-msf" "MSF" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355952" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 23 yes "ttWIPStandards.weight" "Wgt/MSF" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355953" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 24 yes "ttWIPStandards.roll-wid" "Roll Width" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355954" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 25 yes "ttWIPStandards.gsh-wid" "Gross Sheet Width" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355955" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 26 yes "ttWIPStandards.gsh-len" "Gross Sheet Length" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355956" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 27 yes "ttWIPStandards.nsh-wid" "Net Sheet Width" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355957" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 28 yes "ttWIPStandards.nsh-len" "Net Sheet Length" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355958" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 29 yes "ttWIPStandards.flm-wid" "Film Width" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355959" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 30 yes "ttWIPStandards.flm-len" "Film Length" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355960" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 31 yes "ttWIPStandards.inkc" "Colors" ">9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202112091119208355961" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 32 yes "ttWIPStandards.die-in" "Die Inches" ">>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202112091119208355962" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 33 yes "ttWIPStandards.li-up" "Up" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202112091119208355963" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 34 yes "ttWIPStandards.n-out" "Out" ">>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202112091119208355964" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 35 yes "ttWIPStandards.lin-in" "Glue Inches" ">>>>9.9<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355965" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 36 yes "ttWIPStandards.deprt" "DP" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202112091119208355966" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 37 yes "ttWIPStandards.pass" "Pass" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202112091119208355967" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 38 yes "ttWIPStandards.start" "Start" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202112091119208355968" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 39 yes "ttWIPStandards.stop" "Stop" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202112091119208355969" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 40 yes "ttWIPStandards.crew" "Crew" ">9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202112091119208355970" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 41 yes "ttWIPStandards.comp" "Complete" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "202112091119208355971" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 42 yes "ttWIPStandards.tot-job-qty" "Total Run Qty" "->>,>>>,>>>,>>9" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355972" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 43 yes "ttWIPStandards.cust-no" "Customer" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202112091119208355973" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 44 yes "ttWIPStandards.name" "Customer Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202112091119208355974" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 45 yes "ttWIPStandards.price" "Price" ">>,>>>,>>9.99<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355975" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 46 yes "ttWIPStandards.uom" "UOM" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202112091119208355976" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 47 yes "ttWIPStandards.sale-value" "Sales Value" ">,>>>,>>>,>>9.99<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112091119208355977" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 48 yes "ttWIPStandards.user-id" "User ID" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202112091119208355978" no "" "" 0 0 "" no no "" "" no
+178 "_default" "dynSubjct." 0 49 yes "ttWIPStandards.cuts" "Cuts" ">>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202112091119208355979" no "" "" 0 0 "" no no "" "" no
 180 "_default" "dynSubjct." 0 1 yes "settingType.settingName" "Name" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202109038634007964966" no "" "" 0 0 "" no no "" "" no
 180 "_default" "dynSubjct." 0 2 yes "settingType.description" "Description" "x(50)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202109038634007964967" no "" "" 0 0 "" no no "" "" no
 180 "_default" "dynSubjct." 0 3 yes "settingType.dataType" "Data Type" "x(15)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202109038634007964968" no "" "" 0 0 "" no no "" "" no
@@ -2914,3 +2915,8 @@
 196 "_default" "dynSubjct." 0 201 yes "ttImportData.cData[198]" "Column[198]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947208256990" no "" "" 0 0 "" no no "" "" no
 196 "_default" "dynSubjct." 0 202 yes "ttImportData.cData[199]" "Column[199]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947208256991" no "" "" 0 0 "" no no "" "" no
 196 "_default" "dynSubjct." 0 203 yes "ttImportData.cData[200]" "Column[200]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947208256992" no "" "" 0 0 "" no no "" "" no
+198 "_default" "dynSubjct." 0 1 yes "ttExchangeRate.company" "Company" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202112111002208365642" no "" "" 0 0 "" no no "" "" no
+198 "_default" "dynSubjct." 0 2 yes "ttExchangeRate.asOfDate" "As Of Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202112111002308365643" no "" "" 0 0 "" no no "" "" no
+198 "_default" "dynSubjct." 0 3 yes "ttExchangeRate.baseCurrencyCode" "Base Currency" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202112111002308365644" no "" "" 0 0 "" no no "" "" no
+198 "_default" "dynSubjct." 0 4 yes "ttExchangeRate.rateCurrencyCode" "Rate Currency" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202112111002308365645" no "" "" 0 0 "" no no "" "" no
+198 "_default" "dynSubjct." 0 5 yes "ttExchangeRate.exchangeRate" "Exchange Rate" "->>,>>9.99<<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202112111002308365646" no "" "" 0 0 "" no no "" "" no

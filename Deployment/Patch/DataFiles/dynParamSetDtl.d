@@ -489,3 +489,5 @@
 173 12 "ProcessImport" "Process Import" "" "" "" "" "no" 1 19 17 14.33 yes ? "" "202111030169408187363"
 173 13 "ImportType" "Import Type" "dynInitImportType" "dynValImportType" "" "Empty,Empty" "Empty" 1 74 17 1.95 yes "LIST-ITEM-PAIRS,SORT" "" "202111030067308187351"
 173 60 "GenerateTemplate" "Generate Template" "" "dynValGenerateTemplate" "" "" "" 1.19 21 17 3.14 yes ? "" "202111108526708194144"
+174 9 "CurrencyDscr" "" "" "" "dynDescripCurrency" "" "" 1 40 23 1.71 yes "START DESCRIPTION" "Currency" "202112110709208312466"
+174 43 "Currency" "Currency" "" "dynValCurrency" "" "" "" 1 8 14 1.71 yes ? "" "202112110702908312465"

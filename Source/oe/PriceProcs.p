@@ -1629,7 +1629,7 @@ PROCEDURE pGetPriceMatrix PRIVATE:
         /*Must be effecitve*/
         AND (opbf-oe-prmtx.eff-date LE TODAY)
         /*must not be expired*/
-        AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ? OR opbf-oe-prmtx.exp-date EQ 01/01/0001)
+        AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ?)
         /* Can't be all blank */
         AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
         AND opbf-oe-prmtx.custShipID EQ "")
@@ -1665,7 +1665,7 @@ PROCEDURE pGetPriceMatrix PRIVATE:
             /*Must be effecitve*/
             AND (opbf-oe-prmtx.eff-date LE TODAY)
             /*must not be expired*/
-            AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ? OR opbf-oe-prmtx.exp-date EQ 01/01/0001)
+            AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ?)
             /* Can't be all blank */
             AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
             AND opbf-oe-prmtx.custShipID EQ "")
@@ -1843,6 +1843,36 @@ PROCEDURE Price_ExpireQuotesByItem:
                 bf-quotehd.expiredate = TODAY.
         END.                         
      END.        
+END PROCEDURE.
+
+PROCEDURE Price_GetPriceMatrixTaxBasis:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns a Rowid of a valid price matrix, given 3 key inputs
+     Notes: Returns the tax basis of the available oe-prmtx record
+     Syntax Example:
+    RUN Price_GetPriceMatrixTaxBasis (cocode, oe-ordl.i-no, oe-ord.cust-no, oe-ord.ship-id,
+                                        OUTPUT opiTaxBasis, OUTPUT lFound, OUTPUT cMessage).
+        
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.  /*Company*/
+    DEFINE INPUT  PARAMETER ipcFGItemID    AS CHARACTER NO-UNDO.  /*FG Item ID*/
+    DEFINE INPUT  PARAMETER ipcCustID      AS CHARACTER NO-UNDO.  /*Customer Scope of FG Item*/
+    DEFINE INPUT  PARAMETER ipcShipID      AS CHARACTER NO-UNDO.  /*Ship to Scope of Customer  - optional*/
+    DEFINE OUTPUT PARAMETER oplMatchFound  AS LOGICAL   NO-UNDO.  /*Logical that can determine if find on rowid should be done*/
+    DEFINE OUTPUT PARAMETER opcMatchDetail AS CHARACTER NO-UNDO.  /*Clarifies the match criteria or failure to match*/
+    DEFINE OUTPUT PARAMETER opiTaxBasis    AS INTEGER   NO-UNDO.  /* Return oe-prmtx.taxBasis */
+
+    DEFINE BUFFER bf-itemfg   FOR itemfg.
+    DEFINE BUFFER bf-cust     FOR cust.
+    DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
+
+    RUN pSetBuffers(ipcCompany, ipcFGItemId, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).
+
+    /*Find match given buffers */  
+    RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, OUTPUT oplMatchFound, OUTPUT opcMatchDetail).
+    
+    IF AVAILABLE bf-oe-prmtx THEN
+        opiTaxBasis = bf-oe-prmtx.taxBasis.
 END PROCEDURE.
 
 PROCEDURE pSetBuffers PRIVATE:
