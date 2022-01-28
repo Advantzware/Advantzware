@@ -1001,7 +1001,7 @@ PROCEDURE run-report :
     
     
     DO WITH FRAME {&FRAME-NAME}:
-        RUN jc/jobSumReport.p(begin_job-no:SCREEN-VALUE, STRING(begin_job-no2:SCREEN-VALUE,"99"), end_job-no:SCREEN-VALUE, STRING(begin_job-no2,"99"),
+        RUN jc/jobSumReport.p(cocode, begin_job-no:SCREEN-VALUE, STRING(begin_job-no2:SCREEN-VALUE,"99"), end_job-no:SCREEN-VALUE, STRING(begin_job-no2,"99"),
             OUTPUT table ttJob,
             OUTPUT table ttDepartment,
             OUTPUT table ttOperation,
@@ -1308,20 +1308,24 @@ PROCEDURE pPrintMaterial :
 
         PUT STRING(ttMaterial.iFormNo) + "|" +  string(ttMaterial.iBlankNo)  FORMAT "x(5)"  SPACE(1)
             ttMaterial.cMaterial FORMAT "x(15)"  SPACE(1)                    
-            ttMaterial.dItemQty  FORMAT "->>>,>>>,>>9" SPACE(1)
-            ttMaterial.dItemQtyVar  FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
-            ttMaterial.dItemCost  FORMAT "->>>,>>>,>>9.99"  SPACE(1)
-            ttMaterial.dItemCostVar  FORMAT "->>>,>>>,>>9.99"  SPACE(1)
+            ttMaterial.dQtyStd  FORMAT "->>>,>>>,>>9" SPACE(1)
+            ttMaterial.dQtyAct  FORMAT "->>>,>>>,>>9" SPACE(1)
+            ttMaterial.dQtyVar  FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+            ttMaterial.dCostStd  FORMAT "->>>,>>>,>>9.99"  SPACE(1)
+            ttMaterial.dCostAct  FORMAT "->>>,>>>,>>9.99"  SPACE(1)
+            ttMaterial.dCostVar  FORMAT "->>>,>>>,>>9.99"  SPACE(1)
             SKIP.
 
         IF rd-dest EQ 3 THEN
             PUT STREAM excel UNFORMATTED  
                 '"' STRING(ttMaterial.iFormNo) + "/" +  string(ttMaterial.iBlankNo)              '",'
                 '"' STRING(ttMaterial.cMaterial)              '",'           
-                '"' STRING(ttMaterial.dItemQty)                       '",'
-                '"' STRING(ttMaterial.dItemQtyVar)            '",' 
-                '"' STRING(ttMaterial.dItemCost )            '",'
-                '"' STRING(ttMaterial.dItemCostVar )            '",' SKIP.                     
+                '"' STRING(ttMaterial.dQtyStd)                       '",'
+                '"' STRING(ttMaterial.dQtyAct)                       '",'
+                '"' STRING(ttMaterial.dQtyVar)            '",' 
+                '"' STRING(ttMaterial.dCostStd )            '",'
+                '"' STRING(ttMaterial.dCostAct )            '",'
+                '"' STRING(ttMaterial.dCostVar )            '",' SKIP.                     
     END. 
 
 END PROCEDURE.
