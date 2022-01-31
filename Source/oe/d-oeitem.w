@@ -12979,7 +12979,7 @@ FUNCTION get-colonial-rel-date RETURNS DATE
                         RUN oe/dueDateCalc.p (
                             bf-oe-ord.cust-no,
                             bf-oe-rel.rel-date,
-                            oe-ordl.prom-date, // DATE(ENTRY(1,bf-oe-rel.spare-char-4)),
+                            DATE(ENTRY(1,bf-oe-rel.spare-char-4)),
                             "RelDate",
                             ROWID(bf-oe-rel),
                             OUTPUT dCalcRelDate,
