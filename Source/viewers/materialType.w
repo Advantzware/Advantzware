@@ -40,7 +40,10 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+&scoped-def proc-enable proc-enable
+
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJobBuildVersion     AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -55,7 +58,7 @@ DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -67,17 +70,19 @@ DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 DEFINE QUERY external_tables FOR materialType.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS materialType.materialType ~
-materialType.materialDescription materialType.calculationType ~
+materialType.materialDescription materialType.materialTypeGroup ~
+materialType.consumedByDept materialType.calculationType ~
 materialType.autoIssue 
 &Scoped-define ENABLED-TABLES materialType
 &Scoped-define FIRST-ENABLED-TABLE materialType
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS materialType.materialType ~
-materialType.materialDescription materialType.calculationType ~
+materialType.materialDescription materialType.materialTypeGroup ~
+materialType.consumedByDept materialType.calculationType ~
 materialType.autoIssue 
 &Scoped-define DISPLAYED-TABLES materialType
 &Scoped-define FIRST-DISPLAYED-TABLE materialType
-
+&Scoped-Define DISPLAYED-OBJECTS fiDeptDesc
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -112,9 +117,13 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE fiDeptDesc AS CHARACTER FORMAT "X(32)":U      
+     VIEW-AS FILL-IN 
+     SIZE 31 BY 1 NO-UNDO.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 71 BY 5.24.
+     SIZE 71 BY 7.62.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -126,11 +135,22 @@ DEFINE FRAME F-Main
      materialType.materialDescription AT ROW 2.62 COL 26 COLON-ALIGNED WIDGET-ID 6
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
-     materialType.calculationType AT ROW 3.81 COL 26 COLON-ALIGNED WIDGET-ID 10
-          VIEW-AS COMBO-BOX INNER-LINES 5
+     materialType.materialTypeGroup AT ROW 3.81 COL 26 COLON-ALIGNED WIDGET-ID 16
+          LABEL "System Type"
+          VIEW-AS COMBO-BOX INNER-LINES 15           
+          DROP-DOWN-LIST 
+          SIZE 18.2 BY 1
+     materialType.consumedByDept AT ROW 5 COL 26 COLON-ALIGNED WIDGET-ID 14
+          LABEL "Department"
+          VIEW-AS FILL-IN 
+          SIZE 8.2 BY 1
+     fiDeptDesc AT ROW 5 COL 36.8 COLON-ALIGNED NO-LABEL WIDGET-ID 28     
+     materialType.calculationType AT ROW 6.14 COL 26 COLON-ALIGNED WIDGET-ID 10
+          VIEW-AS COMBO-BOX INNER-LINES 8
+          LIST-ITEM-PAIRS "Item 1"," Item 1"
           DROP-DOWN-LIST
           SIZE 26 BY 1
-     materialType.autoIssue AT ROW 5 COL 28 WIDGET-ID 2
+     materialType.autoIssue AT ROW 7.33 COL 28 WIDGET-ID 2
           VIEW-AS TOGGLE-BOX
           SIZE 15.4 BY .81
      RECT-1 AT ROW 1 COL 1 WIDGET-ID 12
@@ -191,11 +211,17 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
-
+       
+/* SETTINGS FOR FILL-IN materialType.materialTypeGroup IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN materialType.consumedByDept IN FRAME F-Main
+   EXP-LABEL                                                            */   
+/* SETTINGS FOR FILL-IN fiDeptDesc IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -209,8 +235,25 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+/* ************************  Control Triggers  ************************ */ 
+&Scoped-define SELF-NAME F-Main
+&Scoped-define SELF-NAME materialType.consumedByDept
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL materialType.consumedByDept V-table-Win
+ON LEAVE OF materialType.consumedByDept IN FRAME F-Main /* Dept */
+DO:
+    IF LASTKEY = -1 THEN RETURN.
+    {&methods/lValidateError.i YES}
+    IF materialType.consumedByDept:screen-value <> "" THEN        
+    DO:
+      RUN pGetDeptDesc.   
+    END.
+    {&methods/lValidateError.i NO}
+END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -333,6 +376,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+PROCEDURE local-display-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pGetDeptDesc.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit V-table-Win 
 PROCEDURE pInit :
 /*------------------------------------------------------------------------------
@@ -342,7 +404,10 @@ PROCEDURE pInit :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cCalculationTypeList AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdMaterialProcs      AS HANDLE    NO-UNDO.
-    
+    DEFINE VARIABLE cRtnChar             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMaterialTypeGroup   AS CHARACTER NO-UNDO.
+        
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
@@ -357,9 +422,69 @@ PROCEDURE pInit :
         OUTPUT cCalculationTypeList
         ).
         
+    RUN Material_GetSystemTypeList IN hdMaterialProcs (
+        OUTPUT cMaterialTypeGroup
+        ).    
+        
     DELETE PROCEDURE hdMaterialProcs.
+                            
+    materialType.calculationType:LIST-ITEM-PAIRS = cCalculationTypeList.
     
-    materialType.calculationType:LIST-ITEMS = cCalculationTypeList.
+    materialType.materialTypeGroup:LIST-ITEMS = cMaterialTypeGroup.
+    
+    RUN sys/ref/nk1look.p (INPUT cCompany, "JobBuildVersion", "C" /* Logical */, NO /* check by cust */, 
+                           INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                           OUTPUT cRtnChar, OUTPUT lRecFound).
+    IF lRecFound THEN
+    cJobBuildVersion = cRtnChar NO-ERROR.
+         
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
+PROCEDURE proc-enable :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF adm-new-record THEN
+        DO:
+            ASSIGN
+                materialType.calculationType:SCREEN-VALUE = "Default"
+                materialType.materialTypeGroup:SCREEN-VALUE = "Board"
+                materialType.consumedByDept:SCREEN-VALUE = "PR".
+                RUN pGetDeptDesc.            
+        END.
+    END.
+    IF cJobBuildVersion NE "New" THEN
+    DISABLE materialType.calculationType WITH FRAME {&FRAME-NAME} .
+     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDeptDesc V-table-Win 
+PROCEDURE pGetDeptDesc :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+   
+      FIND FIRST dept NO-LOCK
+           WHERE dept.code EQ materialType.consumedByDept:SCREEN-VALUE
+           NO-ERROR.
+      IF AVAIL dept THEN     
+      fiDeptDesc:SCREEN-VALUE = dept.dscr .
+      materialType.consumedByDept:SCREEN-VALUE = CAPS(materialType.consumedByDept:SCREEN-VALUE).
+    END.                                                  
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

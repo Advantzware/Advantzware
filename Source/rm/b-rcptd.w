@@ -331,7 +331,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 22 LABEL-BGCOLOR 14
       rm-rctd.pur-uom COLUMN-LABEL "PUOM" FORMAT "x(4)":U WIDTH 7
             LABEL-BGCOLOR 14
-      rm-rctd.cost COLUMN-LABEL "Cost" FORMAT "->,>>>,>>9.99<<<<":U
+      rm-rctd.cost COLUMN-LABEL "Cost" FORMAT "->,>>>,>>9.99<":U
             LABEL-BGCOLOR 14
       rm-rctd.cost-uom COLUMN-LABEL "CUOM" FORMAT "x(4)":U WIDTH 7
             LABEL-BGCOLOR 14
@@ -502,7 +502,7 @@ rm-rctd.rita-code = ""R"""
      _FldNameList[15]   > asi.rm-rctd.pur-uom
 "pur-uom" "PUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > asi.rm-rctd.cost
-"cost" "Cost" "->,>>>,>>9.99<<<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cost" "Cost" "->,>>>,>>9.99<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > asi.rm-rctd.cost-uom
 "cost-uom" "CUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
@@ -2947,7 +2947,7 @@ PROCEDURE local-create-record :
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lv-rno LIKE fg-rctd.r-no NO-UNDO.
     DEFINE BUFFER b-rm-rctd FOR rm-rctd.
- 
+    DEFINE BUFFER bff-item FOR ITEM .
     /* Code placed here will execute PRIOR to standard behavior. */
   
     FIND LAST b-rm-rctd USE-INDEX rm-rctd NO-LOCK NO-ERROR.
@@ -2967,13 +2967,21 @@ PROCEDURE local-create-record :
     IF ERROR-STATUS:ERROR THEN
         MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
             VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-
+       
     FIND FIRST tt-rm-rctd NO-ERROR.
 
     IF AVAILABLE tt-rm-rctd THEN 
     DO:
         BUFFER-COPY tt-rm-rctd EXCEPT rec_key TO rm-rctd.
         tt-rm-rctd.tt-rowid = ROWID(rm-rctd).
+        FIND FIRST bff-item NO-LOCK
+             WHERE bff-item.company EQ cocode 
+               AND bff-item.i-no EQ tt-rm-rctd.i-no 
+             NO-ERROR.
+        IF v-bin NE "user entered" AND v-bin EQ "RMITEM" AND AVAIL bff-item THEN
+        ASSIGN 
+             rm-rctd.loc     = bff-item.loc
+             rm-rctd.loc-bin = bff-item.loc-bin.
         IF rm-rctd.loc EQ "" THEN 
            rm-rctd.loc = locode .
     END.
@@ -3445,7 +3453,7 @@ PROCEDURE po-cost :
 
         RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).
         ASSIGN lv-cost = ABSOLUTE(lv-cost) .
-        rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-cost).
+        rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-cost,">,>>>,>>9.999").
     END.
 
 END PROCEDURE.
