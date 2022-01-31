@@ -119,12 +119,17 @@ DO:
             ttLayoutSize.dLayoutSheetWidth  = bf-mach.max-len
             ttLayoutSize.IsRollMaterial     = bf-mach.p-type = "R". 
               
-        IF bf-item.i-code EQ "E" THEN
+        IF AVAILABLE bf-item AND bf-item.i-code EQ "E" THEN
             ASSIGN 
                 ttLayoutSize.dGrossSheetWidth  = ( trunc(bf-mach.max-len / bf-eb.t-len,0) * bf-eb.t-len + dTrimWidth)
                 ttLayoutSize.dGrossSheetLength = (trunc(bf-mach.max-wid / bf-eb.t-wid,0) * bf-eb.t-wid + dTrimLength )
                 ttLayoutSize.dGrossSheetDepth  = IF isFoamStyle THEN (trunc(bf-mach.max-dep / bf-eb.t-dep,0) * bf-eb.t-dep ) ELSE 0.
         
+        ELSE IF AVAILABLE bf-item THEN
+            ASSIGN 
+                ttLayoutSize.dGrossSheetWidth  = (bf-item.s-wid)
+                ttLayoutSize.dGrossSheetLength = (bf-item.s-len)
+                ttLayoutSize.dGrossSheetDepth  = IF isFoamStyle THEN (bf-item.s-dep) ELSE 0.
     END.
 END. /* IF bf-ef.m-code NE "" THEN */
 
@@ -147,8 +152,8 @@ IF AVAILABLE bf-item THEN
         ttLayoutSize.dGrossSheetLength = (bf-item.s-len)
         ttLayoutSize.dGrossSheetWidth  = (bf-item.s-wid)
         ttLayoutSize.dGrossSheetDepth  = IF isFoamStyle THEN (bf-item.s-dep) ELSE 0.
-
-IF ttLayoutSize.dGrossSheetLength = 0 OR ttLayoutSize.dGrossSheetWidth = 0 THEN 
+        
+ELSE
     ASSIGN
         ttLayoutSize.dGrossSheetLength = bf-eb.t-len
         ttLayoutSize.dGrossSheetWidth  = bf-eb.t-wid.
@@ -222,6 +227,13 @@ IF bf-ef.lam-dscr EQ "R" THEN
         dSwapDim    = dTempLength
         dTempLength = dTempWidth
         dTempWidth  = dSwapDim.
+ 
+ 
+RUN pGetDecimalSettings(bf-eb.company,  /*Get NK1 CECSCRN settings*/
+    OUTPUT lDecimal,
+    OUTPUT dDecimalFactor,
+    OUTPUT dDecimalMax, 
+    OUTPUT dConversionFactor). 
         
 IF bf-eb.sty-lock OR ceroute-dec EQ 1 THEN 
 DO:
@@ -244,12 +256,7 @@ ELSE
 DO:
     /*Get Rounding Settings*/
     lRound = fRound( bf-eb.company ).  /*Get NK1 Round logical*/
-    RUN pGetDecimalSettings(bf-eb.company,  /*Get NK1 CECSCRN settings*/
-        OUTPUT lDecimal,
-        OUTPUT dDecimalFactor,
-        OUTPUT dDecimalMax, 
-        OUTPUT dConversionFactor).
-
+   
     /*Calculate Style formulas and scoring*/        
     RUN est/CalcStyleFormulae.p (ROWID(bf-eb),
         lRound,
@@ -369,14 +376,15 @@ DO:
     ELSE 
     DO:
         ASSIGN 
-            ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnWidth
-            ttLayoutSize.iBlankNumOnLength = iCalcNumOnLength.   
+            ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnLength
+            ttLayoutSize.iBlankNumOnLength = iCalcNumOnWidth 
+            .   
         
               
-        IF bf-eb.t-len * ttLayoutSize.iBlankNumOnLength GT dCalcTotalLength THEN  
-            dCalcTotalLength = bf-eb.t-len * ttLayoutSize.iBlankNumOnLength.
-        IF bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth GT dCalcTotalWidth THEN  
-            dCalcTotalWidth = bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth.
+        IF bf-eb.t-len * ttLayoutSize.iBlankNumOnWidth GT dCalcTotalLength THEN  
+            dCalcTotalLength = bf-eb.t-len * ttLayoutSize.iBlankNumOnWidth.
+        IF bf-eb.t-wid * ttLayoutSize.iBlankNumOnLength GT dCalcTotalWidth THEN  
+            dCalcTotalWidth = bf-eb.t-wid * ttLayoutSize.iBlankNumOnLength.
     END.  
 END.
 
