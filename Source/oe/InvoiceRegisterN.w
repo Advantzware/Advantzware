@@ -2407,7 +2407,7 @@ PROCEDURE run-report :
         v-e-date,
         begin_cust,
         end_cust,
-        TODAY,
+        DATE(tran-date),
         "",
         OUTPUT iProcessed,
         OUTPUT iValid,

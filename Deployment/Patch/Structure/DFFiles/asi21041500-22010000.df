@@ -1,0 +1,50 @@
+ADD FIELD "glPostDate" OF "ap-inv" AS date
+  FORMAT "99/99/99"
+  POSITION 62
+  INITIAL ?
+  LABEL "G/L Transaction Date"
+  ORDER 600
+  MAX-WIDTH 4
+
+ADD FIELD "materialType" OF "item" AS character
+  FORMAT "x(8)"
+  POSITION 108
+  INITIAL ""
+  LABEL "Item Material Type"
+  ORDER 1070
+  MAX-WIDTH 16
+
+ADD FIELD "consumedByDept" OF "materialType" AS character
+  FORMAT "x(2)"
+  POSITION 9
+  INITIAL ""
+  LABEL "Consumed By Department"
+  ORDER 80
+  MAX-WIDTH 4
+
+ADD FIELD "materialTypeGroup" OF "materialType" AS character
+  FORMAT "x(8)"
+  POSITION 10
+  INITIAL ""
+  LABEL "Material Group"
+  ORDER 90
+  MAX-WIDTH 16
+
+ADD FIELD "taxBasis" OF "oe-prmtx" AS integer
+  FORMAT ">9"
+  POSITION 28
+  INITIAL "0"
+  LABEL "Tax Basis"
+  ORDER 480
+  MAX-WIDTH 4
+
+UPDATE TABLE "ssrelbol"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\ssrelbol.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\ssrelbol.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\ssrelbol.p" CRC "?"
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000001046

@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 {custom/persist.i}
 {est/ttInputEst.i NEW}
+
     
 DEF VAR ls-add-what AS cha NO-UNDO.
 DEF VAR ll-add-set AS LOG NO-UNDO INIT NO.
@@ -154,6 +155,7 @@ DEFINE VARIABLE lv-hld-wid   LIKE eb.wid       NO-UNDO.
 DEFINE VARIABLE lv-hld-len   LIKE eb.len       NO-UNDO.
 DEFINE VARIABLE lv-hld-dep   LIKE eb.dep       NO-UNDO.
 DEFINE VARIABLE lv-hld-style LIKE eb.style     NO-UNDO.
+DEFINE VARIABLE lCEUseNewLayoutCalc  AS LOGICAL NO-UNDO.
 
 DEF NEW SHARED TEMP-TABLE tt-eb-set NO-UNDO LIKE eb.
 
@@ -264,6 +266,12 @@ IF lRecFound THEN
     OUTPUT cRecValue, OUTPUT lRecFound).
 IF lRecFound THEN
     lQuotePriceMatrix = logical(cRecValue) NO-ERROR.    
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cRecValue, OUTPUT lRecFound).
+
+IF lRecFound THEN
+    lCEUseNewLayoutCalc = logical(cRecValue) NO-ERROR. 
+    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2839,7 +2847,10 @@ PROCEDURE calc-layout :
       {sys/inc/ceroute1.i w id l en}
     END.
 
-    RUN cec/calc-dim.p.
+    IF lCEUseNewLayoutCalc THEN
+        RUN pCalcDimensions.
+    ELSE
+       RUN cec/calc-dim.p.
   END.
 
   IF ceroute-chr NE "" THEN DO:
@@ -2856,7 +2867,10 @@ PROCEDURE calc-layout :
        xeb.num-wid  = 1
        xeb.num-len  = 1.
 
-      RUN cec/calc-dim1.p NO-ERROR.
+        IF lCEUseNewLayoutCalc THEN
+            RUN pCalcDimensions.
+        ELSE
+            RUN cec/calc-dim1.p NO-ERROR.
 
       ASSIGN
        xef.gsh-len = xef.gsh-len - (xef.nsh-len * xef.n-out-l)
@@ -2899,7 +2913,10 @@ PROCEDURE calc-layout4Artios :
       RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
       {sys/inc/ceroute1.i w id l en}
 
-      RUN cec/calc-dim.p.
+        IF lCEUseNewLayoutCalc THEN
+            RUN pCalcDimensions.
+        ELSE
+            RUN cec/calc-dim.p.
 
       /*
       IF xef.m-code EQ "" THEN xef.m-code = ceroute-chr.
@@ -4863,7 +4880,10 @@ DEF VAR li AS INT NO-UNDO.
                   eb.num-len = 1
                   eb.num-up = 1.
                
-               RUN cec/calc-dim.p .
+                IF lCEUseNewLayoutCalc THEN
+                    RUN pCalcDimensions.
+                ELSE
+                    RUN cec/calc-dim.p .
             END.
          END.
         
@@ -4910,7 +4930,11 @@ DEF VAR li AS INT NO-UNDO.
                   FIND xef WHERE RECID(xef) = recid(ef).
                   FIND xeb WHERE RECID(xeb) = recid(eb).
               /* END.*/
-               RUN cec/calc-dim.p .
+               
+                IF lCEUseNewLayoutCalc THEN
+                    RUN pCalcDimensions.
+                ELSE
+                    RUN cec/calc-dim.p .
             END.
          END.
         
@@ -4955,7 +4979,11 @@ DEF VAR li AS INT NO-UNDO.
                eb.num-wid = 1
                eb.num-len = 1
                eb.num-up = 1.
-            RUN cec/calc-dim.p.
+            
+             IF lCEUseNewLayoutCalc THEN
+                 RUN pCalcDimensions.
+             ELSE
+                 RUN cec/calc-dim.p.
          END.
       END.
 
@@ -5081,6 +5109,23 @@ PROCEDURE getEstQtyRowID :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalcDimensions B-table-Win
+PROCEDURE pCalcDimensions PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Calculate and Update Form's size values
+     Notes: calculate EF Gross, net, die size and other dimension fields
+    ------------------------------------------------------------------------------*/
+    
+    RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+        
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

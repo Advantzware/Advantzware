@@ -77,6 +77,9 @@ DEF VAR cRtnChar AS CHARACTER NO-UNDO.
 DEF VAR lRecFound AS LOGICAL NO-UNDO .
 DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
 
+DEFINE VARIABLE cNK1Value           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL   NO-UNDO.
+
 {cec/bestfitc.i NEW SHARED}
 
 assign cocode = g_company
@@ -1198,8 +1201,12 @@ DO:
                 xef.board = ef.board:screen-value
                 xef.roll   = ef.roll:screen-value in frame {&frame-name} EQ "Y"
                 .
-
-         run cec/calc-dim.p .
+         
+           IF lCEUseNewLayoutCalc THEN
+               RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+           ELSE
+               run cec/calc-dim.p .
+               
          find xef where recid(xef) = recid(ef).
          find xeb where recid(xeb) = recid(eb).
          assign ef.lsh-len:screen-value = string({sys/inc/k16.i xef.lsh-len} )
@@ -1812,7 +1819,11 @@ DO:
               xef.n-out-d = 0.
        {sys/inc/k16bb.i xef.lsh-len }
        {sys/inc/k16bb.i xef.lsh-wid }
-       run cec/calc-dim.p .
+       
+        IF lCEUseNewLayoutCalc THEN
+            RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+        ELSE
+            run cec/calc-dim.p .
 
        find xef where recid(xef) = recid(ef).
        find xeb where recid(xeb) = recid(eb).
@@ -2570,7 +2581,12 @@ DO:
      assign
       xef.xgrain = ef.xgrain:screen-value in frame {&frame-name}
       xef.roll   = ef.roll:screen-value in frame {&frame-name} EQ "Y".
-     run cec/calc-dim.p .
+     
+      IF lCEUseNewLayoutCalc THEN
+          RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+      ELSE
+          run cec/calc-dim.p .
+          
      find xef where recid(xef) = recid(ef).
      find xeb where recid(xeb) = recid(eb).
      assign ef.lsh-len:screen-value = string({sys/inc/k16.i xef.lsh-len} )
@@ -2627,6 +2643,11 @@ ASSIGN
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF         
+
+RUN sys/ref/nk1look.p (INPUT gcompany, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCEUseNewLayoutCalc = logical(cNK1Value) NO-ERROR. 
+
 
 /************************ INTERNAL PROCEDURES ********************/
 

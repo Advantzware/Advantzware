@@ -4964,7 +4964,7 @@ PROCEDURE local-assign-record :
     IF oe-ord.ediSubmitted EQ 1 AND (cOldCustomer NE oe-ord.cust-no OR cOldCustPo NE oe-ord.po-no OR cOldShipTo NE oe-ord.ship-id ) THEN
     ASSIGN oe-ord.ediModified = 1.
 
-   IF (dueDateChanged AND OEDateAuto-log AND OEDateAuto-char EQ "colonial") OR
+    IF (dueDateChanged AND OEDateAuto-log AND OEDateAuto-char EQ "colonial") OR
        (cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id) THEN 
     DO:
         lcheckflg = NO .
@@ -5162,9 +5162,7 @@ PROCEDURE local-assign-record :
         FOR EACH oe-ordl OF oe-ord BREAK BY oe-ordl.line:
 
             IF NOT ll-new-due THEN
-                MESSAGE "Update all line items and release dates with this Due Date?"
-                    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-                    UPDATE ll-new-due.
+                RUN displayMessageQuestion("73", OUTPUT ll-new-due).                
 
             IF ll-new-due THEN 
             DO:

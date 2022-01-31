@@ -1077,7 +1077,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DO WITH FRAME {&FRAME-NAME}:
         /*IF ip-type EQ "update" THEN DISABLE est-op.s-num est-op.b-num.*/
 
-        IF ip-type EQ "add"  OR ip-type EQ "copy" THEN 
+
+        IF ip-type EQ "add" OR ip-type EQ "Addstd" OR ip-type EQ "copy" THEN 
         DO:
             adm-new-record = YES. 
             APPLY "entry" TO est-op.s-num  .

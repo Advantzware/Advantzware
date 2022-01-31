@@ -956,67 +956,61 @@ PROCEDURE post-gl :
                         glhist.module    = "AR"
                         glhist.posted    = NO
                         glhist.entryType = "A"
+                        glhist.documentID = "Void Payment Check#:" + STRING(ar-cash.check-no,"999999999999") + " Date: " + STRING(tran-date)
+                        glhist.sourceDate = tran-date
                         lv-rowid         = ROWID(glhist).
                 END.
+                ELSE ASSIGN 
+                    glhist.company = cocode
+                    glhist.actnum  = xar-acct
+                    glhist.jrnl    = "CASHRVD"
+                    glhist.tr-dscr = "CASH RECEIPTS VOID"
+                    glhist.tr-date = tran-date
+                    glhist.period  = tran-period
+                    glhist.tr-num  = v-trnum   
+                    glhist.glYear  = IF AVAIL period THEN period.yr ELSE YEAR(tran-date)
+                    glhist.yr      = YEAR(tran-date)
+                    glhist.module  = "AR"
+                    glhist.posted  = NO
+                    glhist.entryType = "A"
+                    glhist.documentID = "Void Payment Check#:" + STRING(ar-cash.check-no,"999999999999") + " Date: " + STRING(tran-date)
+                    glhist.sourceDate = tran-date
+                    lv-rowid       = ROWID(glhist).
+                
                 glhist.tr-amt = glhist.tr-amt + t1.
 
                 RELEASE glhist.
             END.
 
-            CREATE ar-ledger.
-            ASSIGN
-             glhist.company = cocode
-             glhist.actnum  = xar-acct
-             glhist.jrnl    = "CASHRVD"
-             glhist.tr-dscr = "CASH RECEIPTS VOID"
-             glhist.tr-date = tran-date
-             glhist.period  = tran-period
-             glhist.tr-num  = v-trnum   
-             glhist.glYear  = IF AVAIL period THEN period.yr ELSE YEAR(tran-date)
-             glhist.yr      = YEAR(tran-date)
-             glhist.module  = "AR"
-             glhist.posted  = NO
-             glhist.entryType = "A"
-             glhist.documentID = "Void Payment Check#:" + STRING(ar-cash.check-no,"999999999999") + " Date: " + STRING(tran-date)
-             glhist.sourceDate = tran-date
-             lv-rowid       = ROWID(glhist).
-         
-          glhist.tr-amt = glhist.tr-amt + t1.
+            create ar-ledger.
+            assign
+                ar-ledger.company = cocode
+                ar-ledger.cust-no = ar-cash.cust-no
+                ar-ledger.amt = -1 * ar-cash.check-amt
+                ar-ledger.ref-num = "VOIDED CHK# " + STRING(ar-cash.check-no,"999999999999")
+                ar-ledger.ref-date = ar-cash.check-date
+                ar-ledger.tr-date = tran-date
+                ar-ledger.tr-num = v-trnum.
 
-          RELEASE glhist.
-      
+            RELEASE ar-ledger.
 
-       create ar-ledger.
-       assign
-        ar-ledger.company = cocode
-        ar-ledger.cust-no = ar-cash.cust-no
-        ar-ledger.amt = -1 * ar-cash.check-amt
-        ar-ledger.ref-num = "VOIDED CHK# " + STRING(ar-cash.check-no,"999999999999")
-        ar-ledger.ref-date = ar-cash.check-date
-        ar-ledger.tr-date = tran-date
-        ar-ledger.tr-num = v-trnum.
+            for each xcashl,
+            first ar-cashl where recid(ar-cashl) eq xcashl.recnum
+            no-lock:
 
-       RELEASE ar-ledger.
+                find last xar-cashl where xar-cashl.c-no eq ar-cashl.c-no
+                use-index c-no no-lock no-error.
+                x = if avail xar-cashl then xar-cashl.line else 0.
 
-       for each xcashl,
-           first ar-cashl where recid(ar-cashl) eq xcashl.recnum
-           no-lock:
+                create xar-cashl.
 
-          find last xar-cashl where xar-cashl.c-no eq ar-cashl.c-no
-              use-index c-no no-lock no-error.
-          x = if avail xar-cashl then xar-cashl.line else 0.
-
-          create xar-cashl.
-
-          BUFFER-COPY ar-cashl EXCEPT LINE amt-disc amt-due amt-paid rec_key
+                BUFFER-COPY ar-cashl EXCEPT LINE amt-disc amt-due amt-paid rec_key
                    TO xar-cashl 
-             assign
-              xar-cashl.line       = x + 1
-              xar-cashl.amt-due    = -(ar-cashl.amt-due)
-              xar-cashl.amt-disc   = -(ar-cashl.amt-disc)
-
-              xar-cashl.amt-paid   = -(ar-cashl.amt-paid).
-          
+                assign
+                    xar-cashl.line       = x + 1
+                    xar-cashl.amt-due    = -(ar-cashl.amt-due)
+                    xar-cashl.amt-disc   = -(ar-cashl.amt-disc)
+                    xar-cashl.amt-paid   = -(ar-cashl.amt-paid).
                 ASSIGN
                     xar-cashl.voided = YES.
                 xar-cashl.voidDate = tran-date.
@@ -1024,7 +1018,6 @@ PROCEDURE post-gl :
                 RELEASE xar-cashl.
             END.  /* for each xcashl */
         END. /* for each ar-cash record */
-
     END. /* postit */
 
     FIND CURRENT cust NO-LOCK NO-ERROR.

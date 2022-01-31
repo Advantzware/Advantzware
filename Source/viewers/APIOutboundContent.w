@@ -120,9 +120,9 @@ DEFINE FRAME F-Main
      APIOutboundContent.contentType AT ROW 1.67 COL 16.2 NO-LABEL WIDGET-ID 10
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
-                    "Headers", "Headers",
-"x-www-form-urlencoded", "x-www-form-urlencoded",
-"form-data", "form-data"
+                    "Headers", "Headers":U,
+"x-www-form-urlencoded", "x-www-form-urlencoded":U,
+"form-data", "form-data":U
           SIZE 78 BY 1.19
           BGCOLOR 15 
      APIOutboundContent.contentKey AT ROW 3.14 COL 14 COLON-ALIGNED WIDGET-ID 4
@@ -140,7 +140,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6 WIDGET-ID 100.
+         BGCOLOR 15 FGCOLOR 9 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -216,13 +216,6 @@ ASSIGN
 &ANALYZE-RESUME
 
  
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartViewerCues" V-table-Win _INLINE
-/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
-/* SmartViewer,ab,49270
-Destroy on next read */
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 

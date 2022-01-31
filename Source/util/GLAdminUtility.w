@@ -735,7 +735,15 @@ PROCEDURE do-ap-ledger :
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
 
+    ap-ledger.period = fi_to-period.
 
+    IF begin_run-no EQ ap-ledger.trnum THEN ap-ledger.tr-date = new_date.
+    ELSE
+    IF AVAIL b-period THEN
+      IF ap-ledger.tr-date LT b-period.pst THEN ap-ledger.tr-date = b-period.pst.
+      ELSE
+      IF ap-ledger.tr-date GT b-period.pend THEN ap-ledger.tr-date = b-period.pend.
+  
     IF ap-ledger.refnum BEGINS "INV# " THEN
     FOR EACH ap-inv
         WHERE ap-inv.company EQ ap-ledger.company
@@ -758,8 +766,10 @@ PROCEDURE do-ap-ledger :
           AND ap-pay.check-date EQ ap-ledger.ref-date
           AND ap-pay.posted     EQ YES
           AND ap-pay.memo       EQ YES:
-
-      ap-pay.period = fi_to-period.
+      ASSIGN
+          ap-pay.period           = fi_to-period
+          ap-pay.transactionDate  = ap-ledger.tr-date
+          .
     END.
 
     ELSE
@@ -780,18 +790,12 @@ PROCEDURE do-ap-ledger :
         OR ap-pay.bank-code NE bank.bank-code
         OR NOT CAN-FIND(FIRST ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no) THEN NEXT.
 
-        ap-pay.period = fi_to-period.
+        ASSIGN
+          ap-pay.period           = fi_to-period
+          ap-pay.transactionDate  = ap-ledger.tr-date
+          .
       END.
     END.
-
-    ap-ledger.period = fi_to-period.
-
-    IF begin_run-no EQ ap-ledger.trnum THEN ap-ledger.tr-date = new_date.
-    ELSE
-    IF AVAIL b-period THEN
-      IF ap-ledger.tr-date LT b-period.pst THEN ap-ledger.tr-date = b-period.pst.
-      ELSE
-      IF ap-ledger.tr-date GT b-period.pend THEN ap-ledger.tr-date = b-period.pend.
 
 END PROCEDURE.
 

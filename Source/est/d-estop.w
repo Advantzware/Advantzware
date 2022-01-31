@@ -1253,6 +1253,9 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
+    IF NOT VALID-HANDLE(hdOpProcs) THEN
+        RUN est\OperationProcs.p PERSISTENT SET hdOpProcs.
+        
     FIND FIRST est NO-LOCK 
         WHERE est.company EQ cocode 
         AND RECID(est) EQ ip-recid2 NO-ERROR .
@@ -1940,12 +1943,27 @@ PROCEDURE valid-mach :
             int(est-op.b-num:screen-value ) EQ 0)
             NO-LOCK NO-ERROR.
             
-        IF LOOKUP(lv-dept,"RC,GU") NE 0 AND AVAILABLE xef                     AND
+        /*IF LOOKUP(lv-dept,"RC,GU") NE 0 AND AVAILABLE xef                     AND
                 (adm-adding-record OR
                 INTEGER(est-op.n-out:SCREEN-VALUE ) EQ 0) THEN
                 est-op.n-out:SCREEN-VALUE  =
-                    IF lv-dept EQ "RC" THEN STRING(xef.n-out) ELSE STRING(xef.n-out-l).              
+                    IF lv-dept EQ "RC" THEN STRING(xef.n-out) ELSE STRING(xef.n-out-l).  */            
 
+
+        IF AVAILABLE xef AND (adm-adding-record OR INTEGER(est-op.n-out:SCREEN-VALUE ) EQ 0) THEN
+        DO:
+            RUN Operations_GetNumout IN hdOpProcs ( INPUT xef.company,
+                INPUT xef.est-no,
+                INPUT est-op.s-num,
+                INPUT est-op.b-num,
+                INPUT mach.m-code,
+                INPUT est-op.qty,
+                INPUT est-op.line,
+                OUTPUT iNumOut).
+
+            est-op.n-out:SCREEN-VALUE = STRING(iNumOut).
+        END.
+        
         FIND FIRST style
             {sys/ref/styleW.i}
             AND style.style EQ xeb.style

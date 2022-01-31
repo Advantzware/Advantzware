@@ -164,6 +164,7 @@ DEFINE BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.
 DEFINE VARIABLE ghVendorCost AS HANDLE no-undo.
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 DEFINE VARIABLE hGLProcs  AS HANDLE NO-UNDO.
+DEFINE VARIABLE cPODateChangeRequiresReason AS CHARACTER NO-UNDO.
 
 {windows/l-jobmt1.i}
 
@@ -184,6 +185,8 @@ IF AVAILABLE uom THEN ld-roll-len = uom.mult.
 RUN Po/POProcs.p PERSISTENT SET hdPOProcs.
 
 RUN system/GLProcs.p PERSISTENT SET hGLProcs.
+
+RUN spGetSettingByName ("PODateChangeRequiresReason", OUTPUT cPODateChangeRequiresReason).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1069,6 +1072,9 @@ DO:
   DEFINE VARIABLE dPurchaseLimit AS DECIMAL NO-UNDO.
   DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cPriceHoldMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE dtOldDueDate AS DATE NO-UNDO.
+  DEFINE VARIABLE rwRowid      AS ROWID NO-UNDO.
+  DEFINE VARIABLE cDateChangeReason AS CHARACTER NO-UNDO.
 
   DEFINE BUFFER b-po-ordl FOR po-ordl.
 
@@ -1129,12 +1135,16 @@ DO:
 
   RUN valid-max-po-cost(OUTPUT op-error).
   IF op-error THEN RETURN NO-APPLY.
+  
+  RUN valid-due-date(OUTPUT op-error) NO-ERROR.
+  IF op-error THEN RETURN NO-APPLY.
 
   RUN update-shipto.
 
   RUN po/poordlup.p (RECID(po-ordl), -1, YES).
 
   lv-save-ord-no = po-ordl.ord-no.
+  dtOldDueDate   = po-ordl.due-date.
 
   DO WITH FRAME {&FRAME-NAME}:
     IF po-ordl.vend-i-no:SCREEN-VALUE EQ "?" THEN
@@ -1193,6 +1203,14 @@ FIND CURRENT po-ordl NO-LOCK NO-ERROR.
 END.
 FIND CURRENT po-ord NO-LOCK NO-ERROR.
 FIND CURRENT po-ordl NO-LOCK NO-ERROR.
+
+IF ip-type EQ "Update" AND cPODateChangeRequiresReason EQ "Yes"
+   AND dtOldDueDate NE po-ordl.due-date THEN 
+DO:
+    RUN po/d-pdcnot.w /* PERSISTENT SET h_reasonWin */
+       (INPUT po-ordl.rec_key, INPUT "D", INPUT "", INPUT "", INPUT 0, INPUT "DDC", INPUT "",
+       OUTPUT cDateChangeReason, OUTPUT rwRowid)  .
+END.
       
 ll = NO.
 
@@ -1762,6 +1780,8 @@ DO:
                         AND vendItemCost.ItemType EQ "RM"    
                         AND vendItemCost.customerID EQ po-ordl.cust-no:screen-value
                         AND vendItemCost.estimateNo EQ ""
+                        AND vendItemCost.effectiveDate LE TODAY
+                        AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
                         NO-ERROR.
     IF AVAIL vendItemCost THEN 
 /*                                                                                 */
@@ -3782,6 +3802,8 @@ PROCEDURE display-rmitem :
             WHERE vendItemCost.company EQ ITEM.company
             AND vendItemCost.itemID    EQ item.i-no
             AND vendItemCost.itemType EQ "RM"
+            AND vendItemCost.effectiveDate LE TODAY
+            AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
             NO-ERROR.
       
         IF AVAILABLE vendItemCost then
@@ -4250,6 +4272,8 @@ PROCEDURE GetVendItem :
         WHERE vendItemCost.company EQ ipcCompany
         AND vendItemCost.itemID EQ ipcItemID /*itemfg.i-no*/
         AND vendItemCost.itemType EQ ipcItemType  /* "FG" "RM" */ 
+        AND vendItemCost.effectiveDate LE TODAY
+        AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
         NO-ERROR.
         
    IF AVAIL vendItemCost then
@@ -6125,6 +6149,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-due-date V-table-Win 
+PROCEDURE valid-due-date :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+ 
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+        IF DATE(po-ordl.due-date:SCREEN-VALUE) EQ ? THEN DO:        
+               MESSAGE "A due date is required for Purchase Orders." SKIP
+               "Please enter due Date." VIEW-AS ALERT-BOX INFO.
+               APPLY "entry" TO po-ordl.due-date.
+               oplReturnError = YES.                               
+        END.            
+  END.
+  {methods/lValidateError.i NO}
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-min-len Dialog-Frame 
 PROCEDURE valid-min-len :
 /*------------------------------------------------------------------------------
@@ -6151,6 +6200,8 @@ PROCEDURE valid-min-len :
             AND vendItemCost.itemID    EQ po-ordl.i-no:screen-value
             AND vendItemCost.itemType EQ "RM"
             AND vendItemCost.vendorID EQ po-ord.vend-no
+            AND vendItemCost.effectiveDate LE TODAY
+            AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
             NO-ERROR.
       
         IF AVAILABLE vendItemCost then
@@ -6199,6 +6250,8 @@ PROCEDURE valid-min-wid :
             AND vendItemCost.itemID    EQ po-ordl.i-no:screen-value
             AND vendItemCost.itemType EQ "RM"
             AND vendItemCost.vendorID EQ po-ord.vend-no
+            AND vendItemCost.effectiveDate LE TODAY
+            AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
                 NO-ERROR.
       
         IF AVAILABLE vendItemCost then

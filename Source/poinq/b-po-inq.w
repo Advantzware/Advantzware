@@ -2883,9 +2883,10 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
     ELSE DO:         
         IF tb_open NE tb_closed THEN
         cWhereCriteria = cWhereCriteria + " AND po-ordl.opened EQ " + STRING(tb_open).
-                       
-        ASSIGN
-            cWhereCriteria = cWhereCriteria + " AND po-ordl.due-date GE " + STRING(fi_due-date,"99/99/9999")   
+        IF fi_due-date NE ? THEN
+        cWhereCriteria = cWhereCriteria + " AND po-ordl.due-date GE " + STRING(fi_due-date,"99/99/9999").  
+        
+        ASSIGN            
             cWhereCriteria = cWhereCriteria  
                            + (IF fi_po-no NE 0 THEN " AND po-ordl.po-no EQ " + STRING(fi_po-no) ELSE "")
                            + (IF INDEX(fi_vend-no,"*") GT 0 THEN " AND po-ordl.vend-no MATCHES " + QUOTER(fi_vend-no + "*") ELSE IF fi_vend-no NE "" THEN " AND po-ordl.vend-no BEGINS " + QUOTER(fi_vend-no) ELSE "")

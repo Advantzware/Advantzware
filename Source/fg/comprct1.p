@@ -404,7 +404,7 @@ PROCEDURE processComponent:
                     AND fg-bin.loc     EQ fg-rctd.loc
                     AND fg-bin.loc-bin EQ cFGSetAssembly
                     AND fg-bin.qty     GT 0
-                    NO-LOCK BY fg-bin.qty DESCENDING:     
+                    NO-LOCK BY fg-bin.rec_key:     
 
                     RUN bin-qty-used (INPUT ROWID(fg-bin), OUTPUT ldQty).
                     IF NOT ldQty GT 0 THEN
@@ -421,7 +421,7 @@ PROCEDURE processComponent:
                     AND fg-bin.job-no  EQ fg-rctd.job-no
                     AND fg-bin.job-no2 EQ fg-rctd.job-no2
                     AND fg-bin.qty     GT 0
-                    NO-LOCK BY fg-bin.qty DESCENDING:           
+                    NO-LOCK BY fg-bin.rec_key:           
                     RUN bin-qty-used (INPUT ROWID(fg-bin), OUTPUT ldQty).
                     
                     IF NOT ldQty GT 0 THEN
@@ -446,7 +446,7 @@ PROCEDURE processComponent:
                     AND fg-bin.qty     GT 0
                     AND fg-bin.loc     EQ fg-rctd.loc
                     AND fg-bin.loc-bin EQ cFGSetAssembly
-                    NO-LOCK BY fg-bin.qty DESCENDING:     
+                    NO-LOCK BY fg-bin.rec_key:     
                     RUN bin-qty-used (INPUT ROWID(fg-bin), OUTPUT ldQty).
                     IF NOT ldQty GT 0 THEN
                         NEXT.
@@ -462,7 +462,7 @@ PROCEDURE processComponent:
                     AND fg-bin.qty     GT 0
                     AND fg-bin.loc     EQ fg-rctd.loc
                     AND fg-bin.loc-bin EQ cFGSetAssembly
-                    NO-LOCK BY fg-bin.qty DESCENDING:                  
+                    NO-LOCK BY fg-bin.rec_key:                  
                     RUN bin-qty-used (INPUT ROWID(fg-bin), OUTPUT ldQty).
 
                     IF NOT ldQty GT 0 THEN
@@ -479,7 +479,7 @@ PROCEDURE processComponent:
                 AND fg-bin.i-no    EQ b-itemfg.i-no
                 AND fg-bin.job-no  NE ""
                 AND fg-bin.qty     GT 0
-                NO-LOCK BY fg-bin.qty DESCENDING:
+                NO-LOCK BY fg-bin.rec_key:
 
                 RUN bin-qty-used (INPUT ROWID(fg-bin), OUTPUT ldQty).
 
@@ -494,7 +494,7 @@ PROCEDURE processComponent:
                 AND fg-bin.i-no    EQ b-itemfg.i-no
                 AND fg-bin.job-no  EQ ""
                 AND fg-bin.qty     GT 0
-                NO-LOCK BY fg-bin.qty DESCENDING:
+                NO-LOCK BY fg-bin.rec_key:
                 RUN bin-qty-used (INPUT ROWID(fg-bin), OUTPUT ldQty).
 
                 IF NOT ldQty GT 0 THEN
@@ -507,7 +507,7 @@ PROCEDURE processComponent:
             FOR EACH fg-bin
                 WHERE fg-bin.company EQ cocode
                 AND fg-bin.i-no    EQ b-itemfg.i-no
-                NO-LOCK BY fg-bin.qty DESCENDING:     
+                NO-LOCK BY fg-bin.rec_key:     
                 RUN bin-qty-used (INPUT ROWID(fg-bin), OUTPUT ldQty).
                 
                 IF NOT ldQty GT 0 THEN
