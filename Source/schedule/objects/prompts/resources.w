@@ -5,85 +5,37 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
-  File: pendingReturn.w
+  File: resources.w
 
-  Description: List of Resources to Return to Pending
+  Description: Resource List for Selection
 
-  Input Parameters: Job ID
+  Input Parameters: Company, Job Number
 
   Output Parameters: Continue Logical
 
   Author: Ron Stark
 
-  Created: 5.14.2004
+  Created: 1.24.2022
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
 
-{schedule/scopDir.i}
-{{&includes}/defBoard.i}
-
 /* Parameters Definitions ---                                           */
  
 &IF DEFINED(UIB_is_Running) EQ 0 &THEN
-DEFINE INPUT  PARAMETER ipJob AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opContinue AS LOGICAL NO-UNDO.
-
-{{&includes}/sharedVars.i}
-{{&includes}/ttblJob.i}
+DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcJobNo     AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipiJobNo2    AS INTEGER   NO-UNDO.
+DEFINE INPUT  PARAMETER ipiForm      AS INTEGER   NO-UNDO.
+DEFINE OUTPUT PARAMETER opcResources AS CHARACTER NO-UNDO.
 &ELSE
-DEFINE VARIABLE ipJob AS CHARACTER NO-UNDO INIT '1502-0.1'.
-DEFINE VARIABLE opContinue AS LOGICAL NO-UNDO.
-
-{{&includes}/sharedVars.i NEW}
-{{&includes}/ttblJob.i NEW}
-CREATE ttblJob.
-ASSIGN
-  ttblJob.resource = '100'
-  ttblJob.job = ipJob
-  ttblJob.startDate = TODAY
-  ttblJob.startTime = 0
-  ttblJob.endDate = TODAY
-  ttblJob.endTime = 43200
-  .
-CREATE ttblJob.
-ASSIGN
-  ttblJob.resource = '200'
-  ttblJob.job = ipJob
-  ttblJob.startDate = TODAY
-  ttblJob.startTime = 43200
-  ttblJob.endDate = TODAY
-  ttblJob.endTime = 86340
-  .
-CREATE ttblJob.
-ASSIGN
-  ttblJob.resource = '300'
-  ttblJob.job = ipJob
-  ttblJob.startDate = TODAY + 1
-  ttblJob.startTime = 0
-  ttblJob.endDate = TODAY + 1
-  ttblJob.endTime = 43200
-  .
-CREATE ttblJob.
-ASSIGN
-  ttblJob.resource = '400'
-  ttblJob.job = ipJob
-  ttblJob.startDate = TODAY + 1
-  ttblJob.startTime = 43200
-  ttblJob.endDate = TODAY + 1
-  ttblJob.endTime = 86340
-  .
-CREATE ttblJob.
-ASSIGN
-  ttblJob.resource = '500'
-  ttblJob.job = ipJob
-  ttblJob.startDate = TODAY + 2
-  ttblJob.startTime = 0
-  ttblJob.endDate = TODAY + 2
-  ttblJob.endTime = 43200
-  .
+DEFINE VARIABLE ipcCompany   AS CHARACTER NO-UNDO INIT "001".
+DEFINE VARIABLE ipcJobNo     AS CHARACTER NO-UNDO INIT "W14349".
+DEFINE VARIABLE ipiJobNo2    AS INTEGER   NO-UNDO INIT 0.
+DEFINE VARIABLE ipiForm      AS INTEGER   NO-UNDO INIT 1.
+DEFINE VARIABLE opcResources AS CHARACTER NO-UNDO.
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
@@ -99,7 +51,7 @@ ASSIGN
 &Scoped-define PROCEDURE-TYPE Dialog-Box
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
@@ -139,7 +91,7 @@ DEFINE FRAME Dialog-Frame
      SPACE(63.99) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Return to Pending".
+         TITLE "Job Routing(s)".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -158,7 +110,7 @@ DEFINE FRAME Dialog-Frame
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -174,7 +126,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Return to Pending */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Job Routing(s) */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.
@@ -187,7 +139,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel Dialog-Frame
 ON CHOOSE OF btnCancel IN FRAME Dialog-Frame /* Cancel Move */
 DO:
-  opContinue = FALSE.
+    opcResources = "".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -198,7 +150,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK Dialog-Frame
 ON CHOOSE OF btnOK IN FRAME Dialog-Frame /* OK */
 DO:
-  RUN moveToPending.
+    RUN pResourceList.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -213,9 +165,8 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
-IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
-
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
@@ -223,7 +174,12 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
-  FRAME {&FRAME-NAME}:TITLE = 'Return Job ' + ipJob + ' to Pending?'.
+  FRAME {&FRAME-NAME}:TITLE = 'Job '
+                            + ipcJobNo + '-'
+                            + STRING(ipiJobNo2) + '.'
+                            + STRING(ipiForm)
+                            + ' Routing(s)'
+                            .
   RUN createJobsToggleBoxes.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -254,10 +210,16 @@ PROCEDURE createJobsToggleBoxes :
     btnOK:HIDDEN = YES
     btnCancel:HIDDEN = YES
     .
-  FOR EACH ttblJob EXCLUSIVE-LOCK
-      WHERE ttblJob.job EQ ipJob
-         BY ttblJob.startDate
-         BY ttblJob.startTime:
+  FOR EACH job-mch NO-LOCK
+      WHERE job-mch.company EQ ipcCompany 
+        AND job-mch.job-no  EQ ipcJobNo
+        AND job-mch.job-no2 EQ ipiJobNo2
+        AND job-mch.frm     EQ ipiForm,
+      FIRST mach NO-LOCK
+      WHERE mach.company EQ job-mch.company
+        AND mach.m-code  EQ job-mch.m-code
+         BY job-mch.seq
+      :
     CREATE TOGGLE-BOX jobWidget IN WIDGET-POOL 'jobs'
         ASSIGN
           FRAME = FRAME {&FRAME-NAME}:HANDLE
@@ -268,12 +230,8 @@ PROCEDURE createJobsToggleBoxes :
           HEIGHT-PIXELS = 17
           SENSITIVE = NO
           HIDDEN = YES
-          PRIVATE-DATA = ttblJob.resource + ',' + ttblJob.job
-          LABEL = '[ ' + ttblJob.resource + ' ] @ '
-                + STRING(ttblJob.startDate) + ' '
-                + STRING(ttblJob.startTime,'hh:mm:ss am') + ' - '
-                + STRING(ttblJob.endDate) + ' '
-                + STRING(ttblJob.endTime,'hh:mm:ss am')
+          PRIVATE-DATA = job-mch.m-code
+          LABEL = '[ ' + job-mch.m-code + ' - ' + mach.m-dscr + ' ]'
           .
     ASSIGN
       yPos = yPos + jobWidget:HEIGHT-PIXELS + 5
@@ -284,7 +242,7 @@ PROCEDURE createJobsToggleBoxes :
       jobWidget:SENSITIVE = YES
       jobWidget:CHECKED = YES
       .
-  END. /* each ttbljob */
+  END. /* each job-mch */
   ENABLE btnOk btnCancel WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
@@ -329,46 +287,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE moveToPending Dialog-Frame 
-PROCEDURE moveToPending :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResourceList Dialog-Frame
+PROCEDURE pResourceList:
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE currentWidget AS WIDGET-HANDLE NO-UNDO.
-  DEFINE VARIABLE lvResource AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lvJob AS CHARACTER NO-UNDO.
-
-  ASSIGN
-    currentWidget = FRAME {&FRAME-NAME}:HANDLE
-    currentWidget = currentWidget:FIRST-CHILD
-    currentWidget = currentWidget:FIRST-CHILD
-    .
-  DO WHILE currentWidget NE ?:
-    IF currentWidget:TYPE EQ 'TOGGLE-BOX' AND
-       currentWidget:CHECKED THEN DO:
-      ASSIGN
-        lvResource = ENTRY(1,currentWidget:PRIVATE-DATA)
-        lvJob = ENTRY(2,currentWidget:PRIVATE-DATA)
+    DEFINE VARIABLE hWidget AS HANDLE NO-UNDO.
+    
+    ASSIGN
+        hWidget = FRAME {&FRAME-NAME}:HANDLE
+        hWidget = hWidget:FIRST-CHILD
+        hWidget = hWidget:FIRST-CHILD
         .
-      FIND FIRST ttblJob EXCLUSIVE-LOCK
-           WHERE ttblJob.resource EQ lvResource
-             AND ttblJob.job EQ lvJob
-           NO-ERROR.
-      IF AVAILABLE ttblJob THEN DO:
-        CREATE pendingJob.
-        BUFFER-COPY ttblJob TO pendingJob
-          ASSIGN pendingJob.origStartTime = ttblJob.timeSpan.
-        DELETE ttblJob.
-      END. /* if avail */
-    END. /* toggle-box */
-    currentWidget = currentWidget:NEXT-SIBLING.
-  END. /* do while */
-  opContinue = YES.
+    DO WHILE VALID-HANDLE(hWidget):
+        IF hWidget:TYPE EQ "TOGGLE-BOX" AND
+           hWidget:CHECKED THEN
+        opcResources = opcResources + hWidget:PRIVATE-DATA + ",".
+        hWidget = hWidget:NEXT-SIBLING.
+    END. // do while
 
 END PROCEDURE.
-
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
