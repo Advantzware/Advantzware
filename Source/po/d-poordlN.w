@@ -1780,6 +1780,8 @@ DO:
                         AND vendItemCost.ItemType EQ "RM"    
                         AND vendItemCost.customerID EQ po-ordl.cust-no:screen-value
                         AND vendItemCost.estimateNo EQ ""
+                        AND vendItemCost.effectiveDate LE TODAY
+                        AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
                         NO-ERROR.
     IF AVAIL vendItemCost THEN 
 /*                                                                                 */
@@ -3800,6 +3802,8 @@ PROCEDURE display-rmitem :
             WHERE vendItemCost.company EQ ITEM.company
             AND vendItemCost.itemID    EQ item.i-no
             AND vendItemCost.itemType EQ "RM"
+            AND vendItemCost.effectiveDate LE TODAY
+            AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
             NO-ERROR.
       
         IF AVAILABLE vendItemCost then
@@ -4268,6 +4272,8 @@ PROCEDURE GetVendItem :
         WHERE vendItemCost.company EQ ipcCompany
         AND vendItemCost.itemID EQ ipcItemID /*itemfg.i-no*/
         AND vendItemCost.itemType EQ ipcItemType  /* "FG" "RM" */ 
+        AND vendItemCost.effectiveDate LE TODAY
+        AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
         NO-ERROR.
         
    IF AVAIL vendItemCost then
@@ -6194,6 +6200,8 @@ PROCEDURE valid-min-len :
             AND vendItemCost.itemID    EQ po-ordl.i-no:screen-value
             AND vendItemCost.itemType EQ "RM"
             AND vendItemCost.vendorID EQ po-ord.vend-no
+            AND vendItemCost.effectiveDate LE TODAY
+            AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
             NO-ERROR.
       
         IF AVAILABLE vendItemCost then
@@ -6242,6 +6250,8 @@ PROCEDURE valid-min-wid :
             AND vendItemCost.itemID    EQ po-ordl.i-no:screen-value
             AND vendItemCost.itemType EQ "RM"
             AND vendItemCost.vendorID EQ po-ord.vend-no
+            AND vendItemCost.effectiveDate LE TODAY
+            AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
                 NO-ERROR.
       
         IF AVAILABLE vendItemCost then
