@@ -340,14 +340,14 @@ PROCEDURE Formula_ParseDesignScores:
     IF iplPrintMetric AND NOT bf-est.metric THEN
         RUN pConvertIntoMetricSizeForttPanel (INPUT-OUTPUT TABLE ttPanel).
        
-    RUN pCreateScoreLine (bf-box-design-hdr.lscore, "L", NO,1).
+    RUN pCreateScoreLine (bf-box-design-hdr.lscore, "L", NO,1, cCurrentSizeFormat, cSizeFormat).
     
-    RUN pCreateScoreLine (bf-box-design-hdr.lcum-score, "L", YES,1).
+    RUN pCreateScoreLine (bf-box-design-hdr.lcum-score, "L", YES,1, cCurrentSizeFormat, cSizeFormat).
     
     FOR EACH bf-box-design-line OF bf-box-design-hdr NO-LOCK:
 
-        RUN pCreateScoreLine (bf-box-design-line.wscore, "W", NO, bf-box-design-line.line-no).
-        RUN pCreateScoreLine (bf-box-design-line.wcum-score, "W", YES, bf-box-design-line.line-no).
+        RUN pCreateScoreLine (bf-box-design-line.wscore, "W", NO, bf-box-design-line.line-no, cCurrentSizeFormat, cSizeFormat).
+        RUN pCreateScoreLine (bf-box-design-line.wcum-score, "W", YES, bf-box-design-line.line-no, cCurrentSizeFormat, cSizeFormat).
 
     END.
 
@@ -1309,6 +1309,7 @@ PROCEDURE pBuildttPanel PRIVATE:
             ttPanel.cScoreType            = bf-panelDetail.scoreType
             ttPanel.dPanelSize            = bf-panelDetail.panelSize
             ttPanel.dPanelSizeFromFormula = bf-panelDetail.panelSizeFromFormula
+            ttPanel.dPanelSizeDecimal     = bf-panelDetail.panelSize
             .            
     END.    
     
@@ -1540,6 +1541,8 @@ PROCEDURE pCreateScoreLine PRIVATE:
     DEFINE INPUT  PARAMETER ipcPanelType        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplTotal            AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER ipiLineNo           AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcOriginalFormat   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcNewFormat        AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE iCnt         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cTempVal     AS CHARACTER NO-UNDO. 
@@ -1553,6 +1556,7 @@ PROCEDURE pCreateScoreLine PRIVATE:
     DEFINE VARIABLE cNewText     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iNum         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE deFinalScore AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE deCumulScore AS DECIMAL   NO-UNDO.
 
 
     ASSIGN 
@@ -1582,7 +1586,7 @@ PROCEDURE pCreateScoreLine PRIVATE:
 
 
                         IF iplTotal THEN
-                            deFinalScore = deFinalScore + dTmpScore.
+                            deCumulScore = deCumulScore + ttPanel.dPanelSizeDecimal.
                     END.
 
                 FIND FIRST ttPanel 
@@ -1595,11 +1599,19 @@ PROCEDURE pCreateScoreLine PRIVATE:
                     ASSIGN 
                         dTmpScore   = ttPanel.dPanelSize.
 
-                     IF iplTotal THEN
-                        deFinalScore = deFinalScore + dTmpScore.
+                     IF iplTotal THEN DO:
+                        deCumulScore = deCumulScore + ttPanel.dPanelSizeDecimal.
+                        IF ipcOriginalFormat NE ipcNewFormat THEN 
+                            RUN SwitchPanelSizeFormat (
+                                INPUT  ipcOriginalFormat,
+                                INPUT  ipcNewFormat,
+                                INPUT  deCumulScore,
+                                OUTPUT deFinalScore
+                                ).                           
+                     END.
                     ELSE
                         deFinalScore  = dTmpScore.
-                        
+                     
                     cNewText = REPLACE(cNewText, cRepChar, string(deFinalScore)) . 
                 END.                        
 

@@ -636,10 +636,16 @@ PROCEDURE pGetTaxable PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-itemfg FOR itemfg.
     DEFINE OUTPUT PARAMETER oplTaxable AS LOGICAL NO-UNDO.
     
+    DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lTaxableCust   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lTaxableShipTo AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lTaxableFGItem AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cTaxGroup      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lMatchFound    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMatchDetail   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iTaxBasis      AS INTEGER   NO-UNDO.
+    
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
     
     IF AVAILABLE ipbf-cust THEN
         ASSIGN 
@@ -655,6 +661,17 @@ PROCEDURE pGetTaxable PRIVATE:
         ASSIGN 
             lTaxableFGItem = ipbf-itemfg.taxable
             .
+            
+    RUN Price_GetPriceMatrixTaxBasis (
+        INPUT  cCompany,
+        INPUT  IF AVAILABLE ipbf-itemfg THEN ipbf-itemfg.i-no ELSE "",
+        INPUT  IF AVAILABLE ipbf-cust THEN ipbf-cust.cust-no ELSE "",
+        INPUT  IF AVAILABLE ipbf-shipto THEN ipbf-shipto.ship-id ELSE "",
+        OUTPUT lMatchFound,
+        OUTPUT cMatchDetail,
+        OUTPUT iTaxBasis
+        ).
+                    
     RUN pGetTaxGroup(BUFFER ipbf-cust, BUFFER ipbf-shipto, OUTPUT cTaxGroup).
     
     /*old logic*/    
@@ -663,14 +680,26 @@ PROCEDURE pGetTaxable PRIVATE:
     /*        oplTaxable = lTaxableShipTo.                                 */
     
     /*new logic - 35645*/
-    IF AVAILABLE ipbf-itemfg AND AVAILABLE ipbf-shipto THEN 
+    IF lMatchFound AND iTaxBasis NE 0 THEN /* 0 - Default tax */ DO:
+        oplTaxable = iTaxBasis EQ 1. /* 1 - Force Tax, 2 - Force No Tax */
+        system.SharedConfig:Instance:SetValue("Tax-Source", IF opltaxable THEN "Price Matrix Tax Forced" ELSE "Price Matrix No Tax (Forced)").
+    END.
+    ELSE IF AVAILABLE ipbf-itemfg AND AVAILABLE ipbf-shipto THEN DO:
         oplTaxable = lTaxableFGItem AND lTaxableShipTo.
-    ELSE IF AVAILABLE ipbf-itemfg AND NOT AVAILABLE ipbf-shipto THEN
-            oplTaxable = lTaxableFGItem AND lTaxableCust.
-        ELSE IF AVAILABLE ipbf-shipto AND NOT AVAILABLE ipbf-itemfg THEN  
-                oplTaxable = lTaxableShipto.
-            ELSE 
-                oplTaxable = lTaxableCust.
+        system.SharedConfig:Instance:SetValue("Tax-Source", "FGItem and Shipto Tax").
+    END.
+    ELSE IF AVAILABLE ipbf-itemfg AND NOT AVAILABLE ipbf-shipto THEN DO:
+        oplTaxable = lTaxableFGItem AND lTaxableCust.
+        system.SharedConfig:Instance:SetValue("Tax-Source", "FGItem and Customer Tax").
+    END.
+    ELSE IF AVAILABLE ipbf-shipto AND NOT AVAILABLE ipbf-itemfg THEN DO:
+        oplTaxable = lTaxableShipto.
+        system.SharedConfig:Instance:SetValue("Tax-Source", "Shipto Tax").
+    END.
+    ELSE DO:
+        oplTaxable = lTaxableCust.
+        system.SharedConfig:Instance:SetValue("Tax-Source", "Customer Tax").
+    END.
                     
 
 END PROCEDURE.

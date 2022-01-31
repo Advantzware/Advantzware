@@ -873,6 +873,11 @@ DEFINE BUTTON btnTagsOverrn
      LABEL "" 
      SIZE 4.2 BY .95 TOOLTIP "Show Details".
 
+DEFINE BUTTON btnTagsTax 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
+
 DEFINE BUTTON btnTagsUnder 
      IMAGE-UP FILE "Graphics/16x16/question.png":U
      LABEL "" 
@@ -1240,7 +1245,7 @@ DEFINE FRAME d-oeitem
      oe-ordl.pr-uom AT ROW 3.43 COL 121.8 COLON-ALIGNED
           LABEL "UOM" FORMAT "XXX"
           VIEW-AS FILL-IN 
-          SIZE 8.4 BY 1
+          SIZE 7.2 BY 1
           BGCOLOR 15 FGCOLOR 1 
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -1248,10 +1253,10 @@ DEFINE FRAME d-oeitem
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME d-oeitem
-     oe-ordl.tax AT ROW 3.43 COL 133
+     oe-ordl.tax AT ROW 3.43 COL 131.8
           LABEL "Tax"
           VIEW-AS TOGGLE-BOX
-          SIZE 9 BY .81
+          SIZE 8.2 BY .81
      oe-ordl.disc AT ROW 4.38 COL 93.2 COLON-ALIGNED FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
@@ -1424,6 +1429,7 @@ DEFINE FRAME d-oeitem
      browsePOs AT ROW 1.24 COL 145
      browseAllocated AT ROW 1.24 COL 145
      browseReleases AT ROW 1.24 COL 145
+     btnTagsTax AT ROW 3.38 COL 139.8 WIDGET-ID 46
      RECT-31 AT ROW 12.33 COL 2
      RECT-39 AT ROW 1.24 COL 2
      RECT-40 AT ROW 1.24 COL 80.2 WIDGET-ID 8
@@ -1514,6 +1520,8 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnTags IN FRAME d-oeitem
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnTagsOverrn IN FRAME d-oeitem
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnTagsTax IN FRAME d-oeitem
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnTagsUnder IN FRAME d-oeitem
    NO-ENABLE                                                            */
@@ -2164,11 +2172,26 @@ DO:
 ON CHOOSE OF btnTagsOverrn IN FRAME d-oeitem
 DO:
         RUN system/d-TagViewer.w (
-            INPUT string(oe-ordl.ord-no + oe-ordl.LINE),
+            INPUT string(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "",
             INPUT "Over Percentage"
             ).
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTagsTax
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTagsTax d-oeitem
+ON CHOOSE OF btnTagsTax IN FRAME d-oeitem
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+        INPUT "",
+        INPUT "Tax-Source"
+        ).
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2179,7 +2202,7 @@ DO:
 ON CHOOSE OF btnTagsUnder IN FRAME d-oeitem
 DO:
         RUN system/d-TagViewer.w (
-            INPUT string(oe-ordl.ord-no + oe-ordl.LINE),
+            INPUT string(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "",
             INPUT "Under Percentage"
             ).
@@ -2210,11 +2233,15 @@ DO:
             INPUT "Price-Source"
             ).
         RUN ClearTagsForGroup(
-            INPUT string(oe-ordl.ord-no + oe-ordl.LINE),
+            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT "Tax-Source"
+            ).
+        RUN ClearTagsForGroup(
+            INPUT string(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "Under Percentage"
             ).
         RUN ClearTagsForGroup(
-            INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
+            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "Over Percentage"
             ).
         IF ip-type EQ  'Update' THEN       
@@ -2382,6 +2409,7 @@ DO:
                                     RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
                                 RUN pAddTagInfoForGroup(
                                     oe-ordl.rec_key,
+                                    INPUT "Price-Source",
                                     INPUT "History Price"
                                     ).
                             END.
@@ -3449,6 +3477,7 @@ DO:
                     RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
                 RUN pAddTagInfoForGroup(
                     INPUT oe-ordl.rec_key,
+                    INPUT "Price-Source",
                     INPUT "Price was manually entered"
                     ).
             END.
@@ -3775,14 +3804,12 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.tax d-oeitem
 ON VALUE-CHANGED OF oe-ordl.tax IN FRAME d-oeitem /* Tax */
 DO:
-        IF NOT AVAILABLE oe-ord THEN FIND oe-ord WHERE oe-ord.company = g_company AND
-                oe-ord.ord-no = oe-ordl.ord-no NO-LOCK NO-ERROR. 
-        IF SELF:screen-value = "yes" AND oe-ord.tax-gr = "" THEN 
-        DO:
-            MESSAGE "Invalid tax code on order header. " VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
-        END.
-    END.
+    RUN pAddTagInfoForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "Tax-Source",
+        INPUT "Manually adjusted"
+        ).
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -4719,6 +4746,7 @@ PROCEDURE chooseQuotedPrice :
                         .
                     RUN pAddTagInfoForGroup(
                         INPUT oe-ordl.rec_key,
+                        INPUT "Price-Source",
                         INPUT "Quoted Price - Quote Number:" + string(iQutNo) + " Quantity:" + string(lxQty)
                         ).
                 END.
@@ -4731,6 +4759,7 @@ PROCEDURE chooseQuotedPrice :
                         .
                     RUN pAddTagInfoForGroup(
                         INPUT oe-ordl.rec_key,
+                        INPUT "Price-Source",
                         INPUT "Quoted Price - Quote Number:" + string(iQutNo) + " Quantity:" + string(lxQty)
                         ).
                 END.
@@ -5551,7 +5580,13 @@ PROCEDURE crt-itemfg :
         itemfg.sell-uom   = oe-ordl.pr-uom:SCREEN-VALUE
         itemfg.alloc      = IF AVAILABLE xeb AND xeb.est-type LE 4 THEN v-allocf ELSE v-alloc
         .
-   
+
+    IF system.SharedConfig:Instance:GetValue("Tax-Source") NE "" THEN   
+        RUN pAddTagInfoForGroup(
+            INPUT oe-ordl.rec_key,
+            INPUT "Tax-Source",
+            INPUT system.SharedConfig:Instance:ConsumeValue("Tax-Source")
+            ).
 
     IF v-graphic-char NE "" THEN 
     DO:
@@ -5756,6 +5791,14 @@ PROCEDURE display-est-detail :
                 /*35645 - Taxable set by FG item flag only*/
                 oe-ordl.tax:SCREEN-VALUE        = STRING(fGetTaxable(itemfg.company, eb.cust-no, eb.ship-id, itemfg.i-no),"Y/N")
                 .
+
+            IF system.SharedConfig:Instance:GetValue("Tax-Source") NE "" THEN   
+                RUN pAddTagInfoForGroup(
+                    INPUT oe-ordl.rec_key,
+                    INPUT "Tax-Source",
+                    INPUT system.SharedConfig:Instance:ConsumeValue("Tax-Source")
+                    ).
+                            
             IF DECIMAL(oe-ordl.price:SCREEN-VALUE) = 0 THEN
             DO:
                 ASSIGN
@@ -5765,6 +5808,7 @@ PROCEDURE display-est-detail :
             
                 RUN pAddTagInfoForGroup(
                     INPUT oe-ordl.rec_key,
+                    INPUT "Price-Source",
                     INPUT "Item fg sell price Item-No:" + string(itemfg.i-no)
                     ).
             END.
@@ -5927,6 +5971,7 @@ PROCEDURE display-est-detail :
                     v-rel                       = lv-rel.
                 RUN pAddTagInfoForGroup(
                     INPUT oe-ordl.rec_key,
+                    INPUT "Price-Source",
                     INPUT "EST - Detail Quote EST No: " + STRING(quotehd.est-no) + " Quantity:" + string(lv-qty) + "Expiration Date: " + string(quotehd.expireDate)
                     ). 
             END.
@@ -5955,6 +6000,7 @@ PROCEDURE display-est-detail :
                     ll-got-qtprice              = YES.
                 RUN pAddTagInfoForGroup(
                     INPUT oe-ordl.rec_key,
+                    INPUT "Price-Source",
                     INPUT "Item Qty Price"  + " Quantity:" + string(lv-qty)
                     ).
             END.
@@ -6022,6 +6068,7 @@ PROCEDURE display-est-detail :
         oe-ordl.qty:SCREEN-VALUE  = STRING(lv-qty).
         RUN pAddTagInfoForGroup(
             INPUT oe-ordl.rec_key,
+            INPUT "Price-Source",
             INPUT "Quoted Price Quote Est:" + STRING(cQuoteEst) + " Quote No:" + STRING(lv-q-no) + " Quantity:" + string(lv-qty)
             ).
     END.
@@ -6052,6 +6099,7 @@ PROCEDURE display-est-detail :
                 lv-q-no        = tt-item-qty-price.q-no.
         RUN pAddTagInfoForGroup(
             INPUT oe-ordl.rec_key,
+            INPUT "Price-Source",
             INPUT "Item Qty Price Quote No:" + STRING(lv-q-no)  + " Quantity:" + string(lv-qty)
             ).
     END.
@@ -6292,6 +6340,7 @@ PROCEDURE display-fgitem :
                             oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
                             RUN pAddTagInfoForGroup(
                                 INPUT oe-ordl.rec_key,
+                                INPUT "Price-Source",
                                 INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity:" + string(lv-qty)
                                 ).
                         END.
@@ -6311,6 +6360,7 @@ PROCEDURE display-fgitem :
                                     lv-q-no   = tt-item-qty-price.q-no.
                                 RUN pAddTagInfoForGroup(
                                     INPUT oe-ordl.rec_key,
+                                    INPUT "Price-Source",
                                     INPUT "Item Qty Price Quote No:" + string(lv-q-no) + " Quantity:" + string(lv-qty)
                                     ).
                             END.
@@ -6353,6 +6403,13 @@ PROCEDURE display-fgitem :
         /*35645 - Taxable set by FG item flag only*/
         oe-ordl.tax:SCREEN-VALUE = STRING(fGetTaxable(itemfg.company, oe-ord.cust-no, oe-ord.ship-id, itemfg.i-no),"Y/N").
 
+        IF system.SharedConfig:Instance:GetValue("Tax-Source") NE "" THEN   
+            RUN pAddTagInfoForGroup(
+                INPUT oe-ordl.rec_key,
+                INPUT "Tax-Source",
+                INPUT system.SharedConfig:Instance:ConsumeValue("Tax-Source")
+                ).
+                
         RUN default-type (BUFFER itemfg).
 
         IF NOT AVAILABLE oe-ord THEN FIND oe-ord WHERE oe-ord.company = g_company AND
@@ -6390,11 +6447,13 @@ PROCEDURE display-fgitem :
             IF setFromHistory THEN 
                 RUN pAddTagInfoForGroup(
                     INPUT oe-ordl.rec_key,
+                    INPUT "Price-Source",
                     INPUT "History Price"
                     ).
             ELSE IF itemfg.sell-price <> 0 THEN 
                     RUN pAddTagInfoForGroup(
                         INPUT oe-ordl.rec_key,
+                        INPUT "Price-Source",
                         INPUT "Item Sell Price"
                         ).
         END.
@@ -6598,11 +6657,13 @@ PROCEDURE display-fgpart :
             IF setFromHistory THEN 
                 RUN pAddTagInfoForGroup(
                     INPUT oe-ordl.rec_key,
+                    INPUT "Price-Source",
                     INPUT "History Price "
                     ). 
             ELSE IF itemfg.sell-price <> 0 THEN 
                     RUN pAddTagInfoForGroup(
                         INPUT oe-ordl.rec_key,
+                        INPUT "Price-Source",
                         INPUT "Item Sell Price"
                         ). 
         END.
@@ -7528,6 +7589,7 @@ PROCEDURE get-price :
 
                     RUN pAddTagInfoForGroup(
                         INPUT oe-ordl.rec_key,
+                        INPUT "Price-Source",
                         INPUT "Price Matrix " + matrixTag
                         ). 
                 END.
@@ -7879,9 +7941,32 @@ PROCEDURE getTagsToReset :
     END.
     ELSE     
         btnTags:SENSITIVE IN FRAME {&frame-name}  = FALSE.
-        
+
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
+        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+        INPUT "oe-ordl",
+        INPUT "Tax-Source",
+        OUTPUT lAvailable
+        ).
+    IF lAvailable THEN DO:
+        EMPTY TEMP-TABLE ttTempTag.
+        RUN GetTags(
+            INPUT  STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE), 
+            INPUT  "oe-ordl", 
+            INPUT  "Tax-Source",   
+            OUTPUT  TABLE  ttTempTag
+            ).
+        FOR EACH ttTempTag:
+            CREATE ttTag.
+            BUFFER-COPY ttTempTag TO ttTag.
+        END.      
+        btnTagsTax:SENSITIVE IN FRAME {&frame-name} = TRUE.
+    END.
+    ELSE     
+        btnTagsTax:SENSITIVE IN FRAME {&frame-name} = FALSE.
+                
+    RUN Tag_IsTagRecordAvailableForGroup(
+        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "oe-ordl",
         INPUT "Over Percentage",
         OUTPUT lAvailable
@@ -7890,7 +7975,7 @@ PROCEDURE getTagsToReset :
     DO:
         EMPTY TEMP-TABLE ttTempTag.
         RUN GetTags(
-            INPUT  STRING(oe-ordl.ord-no + oe-ordl.LINE), 
+            INPUT  STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE), 
             INPUT  "oe-ordl", 
             INPUT  "Over Percentage",   
             OUTPUT  TABLE  ttTempTag
@@ -7905,7 +7990,7 @@ PROCEDURE getTagsToReset :
         btnTagsOverrn:SENSITIVE IN FRAME {&frame-name} = FALSE.
         
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
+        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "oe-ordl",
         INPUT "Under Percentage",
         OUTPUT lAvailable
@@ -7914,7 +7999,7 @@ PROCEDURE getTagsToReset :
     DO:
         EMPTY TEMP-TABLE ttTempTag.
         RUN GetTags(
-            INPUT  STRING(oe-ordl.ord-no + oe-ordl.LINE), 
+            INPUT  STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE), 
             INPUT  "oe-ordl", 
             INPUT  "Under Percentage",   
             OUTPUT  TABLE  ttTempTag
@@ -8199,6 +8284,7 @@ PROCEDURE leave-qty :
               
                     RUN pAddTagInfoForGroup(
                         INPUT oe-ordl.rec_key,
+                        INPUT "Price-Source",
                         INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity: " + string(lv-qty) 
                         ).
                 END.
@@ -8218,6 +8304,7 @@ PROCEDURE leave-qty :
                             DELETE tt-item-qty-price.
                             RUN pAddTagInfoForGroup(
                                 INPUT oe-ordl.rec_key,
+                                INPUT "Price-Source",
                                 INPUT "Item Qty Price Quote No:" + string(lv-q-no)
                                 ).
                         END.
@@ -9230,18 +9317,18 @@ PROCEDURE pAddTag :
    
     DO WITH FRAME {&frame-name}:   
         RUN ClearTagsForGroup(
-            INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
+            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT ipcSource
             ).
         RUN AddTagInfoForGroup(
-            INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
+            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT ipcDesc,
             INPUT "",
             INPUT ipcSource
             ). /*From TagProcs Super Proc*/ 
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
+            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT ipcSource,
             OUTPUT lAvailable
@@ -9274,7 +9361,8 @@ PROCEDURE pAddTagInfoForGroup PRIVATE :
           Parameters:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRecKey  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroup   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcMessage AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
@@ -9285,31 +9373,29 @@ PROCEDURE pAddTagInfoForGroup PRIVATE :
     END.
     
     FIND FIRST bf-oe-ordl NO-LOCK 
-        WHERE bf-oe-ordl.rec_key EQ ipcRecKey NO-ERROR .
-    IF AVAILABLE bf-oe-ordl THEN
-    DO:
-        
+         WHERE bf-oe-ordl.rec_key EQ ipcRecKey NO-ERROR .
+    IF AVAILABLE bf-oe-ordl THEN DO:
         RUN ClearTagsForGroup(
-            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
-            INPUT "Price-Source"
+            INPUT STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.LINE),
+            INPUT ipcGroup
             ).
         RUN AddTagInfoForGroup(
-            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT ipcMessage,
             INPUT "",
-            INPUT "Price-Source"
+            INPUT ipcGroup
             ). /*From TagProcs Super Proc*/ 
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
-            INPUT "oe-ordl",
-            INPUT "Price-Source",
+            INPUT  STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.LINE),
+            INPUT  "oe-ordl",
+            INPUT  ipcGroup,
             OUTPUT lAvailable
             ).
-        IF lAvailable THEN  
-            btnTags:SENSITIVE = TRUE.
-        ELSE 
-            btnTags:SENSITIVE = FALSE.
+        IF ipcGroup EQ "Price-Source" THEN
+            btnTags:SENSITIVE = lAvailable.
+        ELSE IF ipcGroup EQ "Tax-Source" THEN
+            btnTagsTax:SENSITIVE = lAvailable.
     END.
 END PROCEDURE.
 
@@ -9628,6 +9714,7 @@ PROCEDURE prev-quote-proc :
                                 lv-pruom                    = lxUom.
                             RUN pAddTagInfoForGroup(
                                 INPUT oe-ordl.rec_key,
+                                INPUT "Price-Source",
                                 INPUT "Quoted Price Quote No:" + string(lxQno) + " Quantity: " + string(lxQty)
                                 ).
                         END.
