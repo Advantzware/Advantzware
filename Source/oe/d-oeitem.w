@@ -8842,7 +8842,7 @@ PROCEDURE OnSaveButton :
 
         IF oeDateChange-log 
             AND  NOT ll-new-record
-            AND  LOOKUP("promise Date", oeDateChange-chr) GT 0
+            AND  LOOKUP("Promise Date", oeDateChange-chr) GT 0
             AND  oe-ordl.prom-date NE ld-prev-prom-date 
             AND  ld-prev-prom-date NE ?
             AND  gcLastDateChange EQ "prom-date" THEN 
@@ -8930,14 +8930,17 @@ PROCEDURE OnSaveButton :
         
         IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN 
         DO:             
-            RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                INPUT oe-ordl.req-date,
-                INPUT oe-ordl.prom-date,
-                INPUT "DueDate",
-                INPUT ROWID(oe-ordl),
-                OUTPUT dCalcDueDate,
-                OUTPUT dCalcPromDate).
-            oe-ordl.prom-date = dCalcPromDate.
+            IF cDueManualChanged AND NOT cPromManualChanged THEN 
+            DO:
+                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                    INPUT oe-ordl.req-date,
+                    INPUT oe-ordl.prom-date,
+                    INPUT "DueDate",
+                    INPUT ROWID(oe-ordl),
+                    OUTPUT dCalcDueDate,
+                    OUTPUT dCalcPromDate).
+                oe-ordl.prom-date = dCalcPromDate.
+            END.
             
             IF NOT cDueManualChanged AND cPromManualChanged THEN 
             DO:
@@ -8950,18 +8953,18 @@ PROCEDURE OnSaveButton :
                     OUTPUT dCalcPromDate).
                 oe-ordl.req-date = dCalcDueDate.
             END.
-            ELSE
-                IF NOT cPromManualChanged AND NOT cDueManualChanged THEN 
-                DO:
-                    RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                        INPUT oe-ordl.req-date,
-                        INPUT oe-ordl.prom-date,
-                        INPUT "DueDate",
-                        INPUT ROWID(oe-ordl),
-                        OUTPUT dCalcDueDate,
-                        OUTPUT dCalcPromDate).
-                    oe-ordl.prom-date = dCalcPromDate.
-                END.
+
+            IF NOT cPromManualChanged AND NOT cDueManualChanged THEN 
+            DO:
+                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                    INPUT oe-ordl.req-date,
+                    INPUT oe-ordl.prom-date,
+                    INPUT "DueDate",
+                    INPUT ROWID(oe-ordl),
+                    OUTPUT dCalcDueDate,
+                    OUTPUT dCalcPromDate).
+                oe-ordl.prom-date = dCalcPromDate.
+            END.
         END.
     
         RUN final-steps.
@@ -12985,7 +12988,7 @@ FUNCTION get-colonial-rel-date RETURNS DATE
                          opRelDate = dCalcRelDate.
                          IF opRelDate EQ oe-ordl.prom-date THEN
                          DO TRANSACTION:
-                             dCalcPromDate = get-date (oe-ordl.prom-date, 1, "-").
+                             dCalcPromDate = get-date (oe-ordl.prom-date, -1, "-").
                              FIND CURRENT oe-ordl EXCLUSIVE-LOCK.
                              oe-ordl.prom-date = dCalcPromDate.
                              FIND CURRENT oe-ordl NO-LOCK.
