@@ -227,6 +227,13 @@ IF bf-ef.lam-dscr EQ "R" THEN
         dSwapDim    = dTempLength
         dTempLength = dTempWidth
         dTempWidth  = dSwapDim.
+ 
+ 
+RUN pGetDecimalSettings(bf-eb.company,  /*Get NK1 CECSCRN settings*/
+    OUTPUT lDecimal,
+    OUTPUT dDecimalFactor,
+    OUTPUT dDecimalMax, 
+    OUTPUT dConversionFactor). 
         
 IF bf-eb.sty-lock OR ceroute-dec EQ 1 THEN 
 DO:
@@ -249,12 +256,7 @@ ELSE
 DO:
     /*Get Rounding Settings*/
     lRound = fRound( bf-eb.company ).  /*Get NK1 Round logical*/
-    RUN pGetDecimalSettings(bf-eb.company,  /*Get NK1 CECSCRN settings*/
-        OUTPUT lDecimal,
-        OUTPUT dDecimalFactor,
-        OUTPUT dDecimalMax, 
-        OUTPUT dConversionFactor).
-
+   
     /*Calculate Style formulas and scoring*/        
     RUN est/CalcStyleFormulae.p (ROWID(bf-eb),
         lRound,
