@@ -732,8 +732,6 @@ PROCEDURE pReturnToPending :
         EACH job OF job-hdr NO-LOCK
         :
         IF INDEX(ipID,"Amtech") EQ 0 AND
-           INDEX(ipID,"Statesville") EQ 0 AND
-           INDEX(ipID,"Sumter") EQ 0 AND
            NOT CAN-FIND(FIRST est OF job
                         WHERE est.est-type GE beginEstType
                           AND est.est-type LE endEstType) THEN

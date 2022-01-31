@@ -2807,7 +2807,7 @@ PROCEDURE createResource :
     pWidget:PRIVATE-DATA = ipResource
     pWidget:TOOLTIP = (IF ipResourceDescription EQ '' THEN ?
                        ELSE ipResourceDescription) +
-                      (IF ipDmiID NE 0 THEN ' (DMI ID: ' + STRING(ipDmiID,'>999') + ')'
+                      (IF ipDmiID NE 0 THEN ' (DMI ID: ' + STRING(ipDmiID,'999') + ')'
                        ELSE '')
     ldummy = pWidget:MOVE-TO-TOP()
     resourceWidget[ipIdx] = pWidget:HANDLE
