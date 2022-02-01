@@ -4566,14 +4566,12 @@ PROCEDURE pProcessImportedOrderLine:
     
     IF bf-oe-ordl.pr-uom NE "EA" THEN DO:  /*This assumes the qty uom is the same as the price uom on imported orders*/
         ASSIGN 
-            bf-oe-ordl.spare-dec-1  = bf-oe-ordl.qty
-            bf-oe-ordl.spare-char-2 = bf-oe-ordl.pr-uom
-            bf-oe-ordl.t-price      = bf-oe-ordl.spare-dec-1 * bf-oe-ordl.price
+            bf-oe-ordl.t-price      = bf-oe-ordl.qty * bf-oe-ordl.price
             bf-oe-ordl.pr-uom       = IF LOOKUP(bf-oe-ordl.pr-uom, gcCaseUOMList) GT 0 THEN 
                                           "CS" 
                                       ELSE 
                                           bf-oe-ordl.pr-uom
-            bf-oe-ordl.ediPriceUOM = (IF LOOKUP(bf-oe-ordl.ediPriceUOM, gcCaseUOMList) GT 0 THEN "CS" ELSE bf-oe-ordl.ediPriceUOM).                              
+            bf-oe-ordl.ediPriceUOM = bf-oe-ordl.pr-uom                              
             .
             
         RUN Conv_QtyToEA (

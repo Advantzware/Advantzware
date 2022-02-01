@@ -632,7 +632,9 @@ PROCEDURE genOrderLines:
         oe-ordl.line      = INT(itemLineNumber)
         oe-ordl.i-no      = itemManufacturerPartID
         oe-ordl.part-no   = TRIM(itemSupplierPartID)
-        oe-ordl.qty       = DEC(itemQuantity)         
+        oe-ordl.qty       = DEC(itemQuantity)
+        oe-ordl.pr-uom    = TRIM(itemUnitOfMeasure)
+        oe-ordl.price     = DEC(itemMoney)       
         oe-ordl.est-no    = oe-ord.est-no
         oe-ordl.q-qty     = oe-ord.t-fuel
         oe-ordl.whsed     = oe-ordl.est-no NE ''
@@ -643,10 +645,16 @@ PROCEDURE genOrderLines:
         oe-ordl.ediPrice    = DEC(itemMoney)
         .
         
-      IF itemUnitOfMeasure NE "EA" THEN DO:  
-        RUN Conv_QtyToEA(oe-ordl.company, oe-ordl.i-no, oe-ordl.qty, oe-ordl.pr-uom, itemfg.case-count, OUTPUT oe-ordl.qty).
-        oe-ordl.ediPriceUOM = (IF LOOKUP(oe-ordl.ediPriceUOM, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.ediPriceUOM).
+      IF oe-ordl.pr-uom NE "EA" THEN DO:
+          ASSIGN 
+              oe-ordl.t-price     = oe-ordl.spare-dec-1 * oe-ordl.price
+              oe-ordl.pr-uom      = (IF LOOKUP(oe-ordl.pr-uom, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.pr-uom)
+              oe-ordl.ediPriceUOM = oe-ordl.pr-uom
+              .
+          RUN Conv_QtyToEA(oe-ordl.company, oe-ordl.i-no, oe-ordl.qty, oe-ordl.pr-uom, itemfg.case-count, OUTPUT oe-ordl.qty).
       END.
+      ELSE 
+          oe-ordl.t-price = oe-ordl.qty * oe-ordl.price.
     
       IF oe-ordl.price EQ 0 THEN DO:                      
         FIND FIRST xoe-ord OF oe-ord NO-LOCK.
