@@ -647,9 +647,10 @@ PROCEDURE genOrderLines:
         
       IF oe-ordl.pr-uom NE "EA" THEN DO:
           ASSIGN 
-              oe-ordl.t-price     = oe-ordl.spare-dec-1 * oe-ordl.price
-              oe-ordl.pr-uom      = (IF LOOKUP(oe-ordl.pr-uom, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.pr-uom)
-              oe-ordl.ediPriceUOM = oe-ordl.pr-uom
+              oe-ordl.spare-dec-1  = oe-ordl.qty
+              oe-ordl.spare-char-2 = oe-ordl.pr-uom          
+              oe-ordl.t-price      = oe-ordl.qty * oe-ordl.price
+              oe-ordl.pr-uom       = (IF LOOKUP(oe-ordl.pr-uom, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.pr-uom)
               .
           RUN Conv_QtyToEA(oe-ordl.company, oe-ordl.i-no, oe-ordl.qty, oe-ordl.pr-uom, itemfg.case-count, OUTPUT oe-ordl.qty).
       END.
