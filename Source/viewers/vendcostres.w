@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+&Scoped-define proc-enable proc-enable
 {custom/globdefs.i}
 
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
@@ -104,6 +105,7 @@ vendItemCost.validWidth[18] vendItemCost.validWidth[19] ~
 vendItemCost.validWidth[20] 
 &Scoped-define ENABLED-TABLES vendItemCost
 &Scoped-define FIRST-ENABLED-TABLE vendItemCost
+&Scoped-Define ENABLED-OBJECTS MaxQty maxL maxW
 &Scoped-Define DISPLAYED-FIELDS vendItemCost.itemType vendItemCost.itemID ~
 vendItemCost.vendorID vendItemCost.customerID vendItemCost.estimateNo ~
 vendItemCost.formNo vendItemCost.blankNo vendItemCost.vendorItemID ~
@@ -838,15 +840,34 @@ DO:
   {&methods/lValidateError.i NO}
 END.
 
-ON VALUE-CHANGED OF maxL 
+&Scoped-define SELF-NAME maxL
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL maxL V-table-Win
+ON VALUE-CHANGED OF maxL IN FRAME F-Main /* MaxL */
 DO:
-    /*maxL = NOT maxL.
-    
-    IF maxL THEN 
-    DISABLE vendItemCost.dimLengthMaximum  WITH FRAME {&FRAME-NAME}.
-    ELSE 
-    ENABLE vendItemCost.dimLengthMaximum WITH FRAME {&FRAME-NAME}.*/
+   IF LOGICAL(maxL:SCREEN-VALUE) EQ TRUE THEN
+   vendItemCost.dimLengthMaximum:SCREEN-VALUE = STRING(dMaxLenWid) .
+END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME maxW
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL maxW V-table-Win
+ON VALUE-CHANGED OF maxW IN FRAME F-Main /* MaxL */
+DO:
+   IF LOGICAL(maxW:SCREEN-VALUE) EQ TRUE THEN
+   vendItemCost.dimWidthMaximum:SCREEN-VALUE = STRING(dMaxLenWid) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME MaxQty
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL MaxQty V-table-Win
+ON VALUE-CHANGED OF MaxQty IN FRAME F-Main /* MaxQty */
+DO:
+   IF LOGICAL(MaxQty:SCREEN-VALUE) EQ TRUE THEN
+   vendItemCost.quantityMaximumOrder:SCREEN-VALUE = STRING(dMaxQty) .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1075,7 +1096,7 @@ PROCEDURE local-display-fields :
       IF (vendItemCost.quantityMaximumOrder = dMaxQty OR vendItemCost.dimWidthMaximum = 0) THEN
         MaxQty = TRUE.
       ELSE maxQty = FALSE.
-
+      DISABLE MaxL MaxW maxQty.
   END.
   
   /* Dispatch standard ADM method.                             */
@@ -1125,6 +1146,21 @@ PROCEDURE local-update-record :
   adm-adding-record = NO .
   RUN local-display-fields.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
+PROCEDURE proc-enable :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+      ENABLE MaxL MaxW maxQty.
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
