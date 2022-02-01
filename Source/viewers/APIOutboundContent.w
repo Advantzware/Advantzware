@@ -111,32 +111,33 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 111 BY 4.52.
+     SIZE 111 BY 4.54.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     APIOutboundContent.contentType AT ROW 1.67 COL 16.2 NO-LABEL WIDGET-ID 10
+     APIOutboundContent.contentType AT ROW 1.65 COL 16.17 NO-LABEL WIDGET-ID 10
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "Headers", "Headers":U,
 "x-www-form-urlencoded", "x-www-form-urlencoded":U,
-"form-data", "form-data":U
-          SIZE 78 BY 1.19
+"form-data", "form-data":U,
+"User", "User":U
+          SIZE 87.83 BY 1.19
           BGCOLOR 15 
-     APIOutboundContent.contentKey AT ROW 3.14 COL 14 COLON-ALIGNED WIDGET-ID 4
+     APIOutboundContent.contentKey AT ROW 3.15 COL 14 COLON-ALIGNED WIDGET-ID 4
           LABEL "Key"
           VIEW-AS FILL-IN 
           SIZE 34 BY 1
           BGCOLOR 15 FONT 6
-     APIOutboundContent.contentValue AT ROW 4.33 COL 8.6 HELP
+     APIOutboundContent.contentValue AT ROW 4.35 COL 8.67 HELP
           "" WIDGET-ID 8
           LABEL "Value" FORMAT "x(100)"
           VIEW-AS FILL-IN 
           SIZE 92 BY 1
           BGCOLOR 15 FONT 6
-     RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 2
+     RECT-1 AT ROW 1.23 COL 2 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
