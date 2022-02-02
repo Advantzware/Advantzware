@@ -182,7 +182,9 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
                 ttOperation.dSetupWaste   = estCostOperation.quantityInSetupWaste                 
                 ttOperation.dRunWaste     = estCostOperation.quantityInRunWaste                   
                 ttOperation.cDownTimeCode = ""
-                ttOperation.dDownTimeHrs  = estCostOperation.hoursSetup + estCostOperation.hoursRun.
+                ttOperation.dDownTimeHrs  = estCostOperation.hoursSetup + estCostOperation.hoursRun
+                ttOperation.iSeq          = estCostOperation.sequence
+                .
         END.           
     END.
      
@@ -264,14 +266,20 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
         FIND FIRST ttDepartment NO-LOCK
             WHERE ttDepartment.cJobNo EQ ipbf-job.job-no
             AND ttDepartment.iJobNo2 EQ ipbf-job.job-no2
-            AND ttDepartment.cDept EQ ttOperation.cDept NO-ERROR.
+            AND ttDepartment.cDept EQ ttOperation.cDept 
+            AND ttDepartment.iFormNo EQ ttOperation.iFormNo
+            AND ttDepartment.iBlankNo EQ ttOperation.iBlankNo
+            NO-ERROR.
         IF NOT AVAIL ttDepartment THEN
         DO:
             CREATE ttDepartment.
             ASSIGN
                 ttDepartment.cJobNo  = ipbf-job.job-no
                 ttDepartment.iJobNo2 = ipbf-job.job-no2
-                ttDepartment.cDept   = ttOperation.cDept.            
+                ttDepartment.cDept   = ttOperation.cDept
+                ttDepartment.iFormNo = ttOperation.iFormNo
+                ttDepartment.iBlankNo = ttOperation.iBlankNo
+                ttDepartment.iSeq     = ttOperation.iSeq.            
         END.          
         ASSIGN            
             ttDepartment.dRunQty       = ttDepartment.dRunQty + ttOperation.dRunQty            
