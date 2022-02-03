@@ -84,8 +84,8 @@ PUT
     oe-ord.fob-code FORMAT "x(11)" SPACE(2) 
     v-shipvia       FORMAT "x(20)" SPACE(1)
     oe-ord.terms-d  FORMAT "x(15)" SPACE(4) 
-    v-salesman                     SPACE(8) 
-    oe-ord.ord-no                  SPACE(2) 
+    v-salesman                      
+    "<C63.5>"oe-ord.ord-no                  SPACE(2) 
     v-q-no SKIP
     .
 
