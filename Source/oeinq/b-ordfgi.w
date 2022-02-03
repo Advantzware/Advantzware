@@ -123,7 +123,7 @@ ll-sort-asc = NOT oeinq.
     IF lv-sort-by EQ "cost"        THEN STRING(fg-rdtlh.cost,"-9999999999.99999")                      ELSE ~
     IF lv-sort-by EQ "partial"     THEN STRING(fg-rdtlh.partial,"-9999999999.99999")                   ELSE ~
     IF lv-sort-by EQ "stacks-unit" THEN STRING(fg-rdtlh.stacks-unit,"-9999999999.99999")               ELSE ~
-    IF lv-sort-by EQ "job-no"      THEN STRING(fg-rcpth.job-no,"x(6)") + STRING(fg-rcpth.job-no2,"99") ELSE ~
+    IF lv-sort-by EQ "job-no"      THEN STRING(fg-rcpth.job-no,"x(9)") + STRING(fg-rcpth.job-no2,"999") ELSE ~
     IF lv-sort-by EQ "po-no"       THEN STRING(INT(fg-rcpth.po-no),"9999999999")                       ELSE ~
     IF lv-sort-by EQ "po-line"     THEN STRING(INT(fg-rcpth.po-line),"999")                            ELSE ~
     IF lv-sort-by EQ "stack-code"  THEN fg-rdtlh.stack-code                                            ELSE ~
@@ -318,16 +318,16 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 39 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1
+     SIZE 12 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1
+     SIZE 6.2 BY 1
      BGCOLOR 15  NO-UNDO.
 
 /*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
@@ -409,8 +409,8 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       fg-rcpth.po-line COLUMN-LABEL "PO Ln" FORMAT ">99":U
             LABEL-BGCOLOR 14
-      fg-rcpth.job-no FORMAT "x(6)":U WIDTH 8 LABEL-BGCOLOR 14
-      fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
+      fg-rcpth.job-no FORMAT "x(9)":U WIDTH 14 LABEL-BGCOLOR 14
+      fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">>9":U LABEL-BGCOLOR 14
       display-bol() @ bol-no COLUMN-LABEL "BOL #" FORMAT ">>>>>>>9":U
       fg-rcpth.trans-date COLUMN-LABEL "TR Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
@@ -504,7 +504,7 @@ DEFINE FRAME F-Main
      btCompress AT ROW 4.81 COL 139.4 WIDGET-ID 12
      BTN-updt-trans-time AT ROW 3.57 COL 135.4 WIDGET-ID 8
      fi_i-no AT ROW 1.24 COL 12 COLON-ALIGNED
-     fi_job-no AT ROW 1.24 COL 62 COLON-ALIGNED
+     fi_job-no AT ROW 1.24 COL 60 COLON-ALIGNED
      fi_job-no2 AT ROW 1.24 COL 75 COLON-ALIGNED
      fi_rita-code AT ROW 1.24 COL 94 COLON-ALIGNED
      fi_date AT ROW 1.24 COL 116 COLON-ALIGNED
@@ -632,7 +632,7 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
      _FldNameList[2]   > ASI.fg-rcpth.po-no
 "fg-rcpth.po-no" "Vendor PO#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.fg-rcpth.job-no
-"fg-rcpth.job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rcpth.job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fg-rcpth.job-no2
 "fg-rcpth.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
@@ -1433,7 +1433,7 @@ PROCEDURE display-itemfg :
   IF AVAIL fg-rcpth THEN
   DO WITH FRAME {&FRAME-NAME}:
     /*ASSIGN fi_job-no:SCREEN-VALUE = fg-rcpth.job-no
-           fi_job-no2:SCREEN-VALUE = STRING(fg-rcpth.job-no2,"99"). */
+           fi_job-no2:SCREEN-VALUE = STRING(fg-rcpth.job-no2,"999"). */
     FIND FIRST b-itemfg
         WHERE b-itemfg.company EQ cocode
           AND b-itemfg.i-no    EQ fg-rcpth.i-no

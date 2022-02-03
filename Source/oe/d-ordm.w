@@ -218,11 +218,11 @@ DEFINE FRAME Dialog-Frame
     SIZE 23.6 BY 1
     BGCOLOR 15 FONT 1
     oe-ordm.ord-i-no AT ROW 4.81 COL 29.8 COLON-ALIGNED
-    LABEL "Job Number" FORMAT "x(6)"
+    LABEL "Job Number" FORMAT "x(9)"
     VIEW-AS FILL-IN 
     SIZE 19.2 BY 1
     BGCOLOR 15 FONT 1
-    oe-ordm.ord-line AT ROW 4.81 COL 50.2 COLON-ALIGNED NO-LABELS FORMAT "99"
+    oe-ordm.ord-line AT ROW 4.81 COL 50.2 COLON-ALIGNED NO-LABELS FORMAT "999"
     VIEW-AS FILL-IN 
     SIZE 5 BY 1
     BGCOLOR 15 FONT 1
@@ -1917,7 +1917,7 @@ PROCEDURE valid-ord-i-no :
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             lv-job-no                     = oe-ordm.ord-i-no:SCREEN-VALUE
-            lv-job-no                     = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
+            lv-job-no                     = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no))
             oe-ordm.ord-i-no:SCREEN-VALUE = lv-job-no.
 
         IF lv-job-no NE "" THEN 
@@ -1955,7 +1955,7 @@ PROCEDURE valid-ord-line :
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             lv-job-no                     = oe-ordm.ord-i-no:SCREEN-VALUE
-            lv-job-no                     = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
+            lv-job-no                     = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no))
             oe-ordm.ord-i-no:SCREEN-VALUE = lv-job-no.
 
         IF lv-job-no NE "" THEN 

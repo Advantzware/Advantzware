@@ -576,21 +576,21 @@ DEFINE FRAME F-Main
      fiText1 AT ROW 12.91 COL 79 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      oe-ord.ord-no AT ROW 1.24 COL 10 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
+          SIZE 14 BY 1
      fiText2 AT ROW 13.95 COL 109 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     fi_type AT ROW 1.24 COL 29 COLON-ALIGNED HELP
+     fi_type AT ROW 1.24 COL 31.4 COLON-ALIGNED HELP
           "Enter Order Type (O)riginal, (R)epeat, repeat with (C)hange"
-     oe-ord.est-no AT ROW 1.24 COL 47.2 COLON-ALIGNED FORMAT "x(8)"
+     oe-ord.est-no AT ROW 1.24 COL 49 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     oe-ord.job-no AT ROW 1.24 COL 76.8 COLON-ALIGNED
-          LABEL "Job Number" FORMAT "x(6)"
+     oe-ord.job-no AT ROW 1.24 COL 78 COLON-ALIGNED
+          LABEL "Job Number" FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 16.6 BY 1
-     oe-ord.job-no2 AT ROW 1.24 COL 93.8 COLON-ALIGNED NO-LABEL
+     oe-ord.job-no2 AT ROW 1.24 COL 95 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 4.8 BY 1
-     oe-ord.priority AT ROW 1.24 COL 111 COLON-ALIGNED
+          SIZE 7 BY 1
+     oe-ord.priority AT ROW 1.24 COL 112 COLON-ALIGNED
           LABEL "Priority" FORMAT "9"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
@@ -4147,8 +4147,8 @@ IF AVAIL xest THEN DO:
       FIND xoe-ord WHERE RECID(xoe-ord) = recid(oe-ord) NO-LOCK.
 
       IF ll-do-job THEN DO:
-          cEstNo = FILL(" ",6 - length(TRIM(oe-ord.est-no:screen-value))) + trim(oe-ord.est-no:screen-value).
-        v-job-no = FILL(" ",6 - length(TRIM(oe-ord.ord-no:screen-value))) + oe-ord.ord-no:screen-value.
+          cEstNo = FILL(" ",8 - length(TRIM(oe-ord.est-no:screen-value))) + trim(oe-ord.est-no:screen-value).
+        v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ord.ord-no:screen-value)).
         RUN jc/job-no.p (INPUT-OUTPUT v-job-no, INPUT-OUTPUT v-job-no2,INPUT v-prod-cat,
                          INPUT cEstNo).
 
@@ -6685,8 +6685,7 @@ FOR EACH oe-ordl OF oe-ord NO-LOCK:
         FIND FIRST fg-rcpts USE-INDEX cust-no
             WHERE fg-rcpts.company EQ oe-ord.company
                 AND fg-rcpts.cust-no EQ oe-ord.cust-no
-                AND fg-rcpts.job-no  EQ FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
-                TRIM(oe-ordl.job-no)
+                AND fg-rcpts.job-no  EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.job-no))
                 AND fg-rcpts.job-no2 EQ oe-ordl.job-no2
                 AND fg-rcpts.i-no    EQ oe-ordl.i-no
             NO-LOCK NO-ERROR.
@@ -6694,8 +6693,7 @@ FOR EACH oe-ordl OF oe-ord NO-LOCK:
         IF NOT AVAIL fg-rcpts THEN
         FIND FIRST fg-rcpth USE-INDEX job
             WHERE fg-rcpth.company EQ oe-ord.company
-                AND fg-rcpth.job-no  EQ FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
-                TRIM(oe-ordl.job-no)
+                AND fg-rcpth.job-no  EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.job-no))
                 AND fg-rcpth.job-no2 EQ oe-ordl.job-no2
                 AND fg-rcpth.i-no    EQ oe-ordl.i-no
             NO-LOCK NO-ERROR.
@@ -7632,8 +7630,7 @@ PROCEDURE valid-job-no :
 
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-    oe-ord.job-no:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(oe-ord.job-no:SCREEN-VALUE))) +
-                                 TRIM(oe-ord.job-no:SCREEN-VALUE).
+    oe-ord.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ord.job-no:SCREEN-VALUE)).
   END.
 
   {methods/lValidateError.i NO}

@@ -308,7 +308,7 @@ DEFINE FRAME Dialog-Frame
     inv-misc.ord-no AT ROW 11.67 COL 65.8 COLON-ALIGNED
     LABEL "Order/Line# " FORMAT ">>>>>>>>"
     VIEW-AS FILL-IN 
-    SIZE 11 BY 1
+    SIZE 12 BY 1
     BGCOLOR 15 FONT 1
     inv-misc.spare-int-3 AT ROW 11.67 COL 77.8 COLON-ALIGNED NO-LABELS FORMAT "->,>>>,>>9"
     VIEW-AS FILL-IN 
@@ -1789,7 +1789,7 @@ PROCEDURE valid-inv-i-no :
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             lv-job-no                      = inv-misc.inv-i-no:SCREEN-VALUE
-            lv-job-no                      = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
+            lv-job-no                      = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no))
             inv-misc.inv-i-no:SCREEN-VALUE = lv-job-no.
 
         IF lv-job-no NE "" THEN 
@@ -1827,7 +1827,7 @@ PROCEDURE valid-inv-line :
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             lv-job-no                      = inv-misc.inv-i-no:SCREEN-VALUE
-            lv-job-no                      = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
+            lv-job-no                      = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no))
             inv-misc.inv-i-no:SCREEN-VALUE = lv-job-no.
 
         IF lv-job-no NE "" THEN 

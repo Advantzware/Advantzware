@@ -253,7 +253,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-   op-char-val = string(oe-rell.ord-no,">>>>>9") + "," + oe-rell.i-no
+   op-char-val = string(oe-rell.ord-no,">>>>>>>9") + "," + oe-rell.i-no
                  .
    op-rec-id = recid(oe-rell).
 
@@ -284,7 +284,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
-   op-char-val = string(oe-rell.ord-no,">>>>>9") + "," + oe-rell.i-no
+   op-char-val = string(oe-rell.ord-no,">>>>>>>9") + "," + oe-rell.i-no
                  .
    op-rec-id = recid(oe-rell).
 

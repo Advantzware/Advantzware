@@ -158,25 +158,25 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.1.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-wipaud.csv" 
      LABEL "Name" 
@@ -271,11 +271,11 @@ DEFINE FRAME FRAME-A
      rd_jstat AT ROW 2.43 COL 43 NO-LABELS
      begin_job-no AT ROW 3.81 COL 24 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 3.81 COL 37 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 3.81 COL 38 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 3.81 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 3.81 COL 79 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 3.81 COL 80 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      tb_wip AT ROW 5.48 COL 62 RIGHT-ALIGNED
      sl_avail AT ROW 7.67 COL 4 NO-LABELS WIDGET-ID 26
@@ -1314,12 +1314,9 @@ ASSIGN
  {sys/inc/ctrtext.i str-tit2 112}
 
   v-stat        = SUBSTR(rd_jstat,1,1)
-  v-job-no[1]   = FILL(" ",6 - length(TRIM(begin_job-no))) +
-                  trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-job-no[2]   = FILL(" ",6 - length(TRIM(end_job-no)))   +
-                  trim(end_job-no)   + string(int(end_job-no2),"99") 
-  v-only-opn    = tb_wip
-     
+  v-job-no[1]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2))                     
+  v-job-no[2]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2))    
+  v-only-opn    = tb_wip       
    .
 
 
@@ -1368,13 +1365,11 @@ DISPLAY "" WITH FRAME r-top.
 
 
     FOR EACH job
-          WHERE job.company EQ cocode
-            AND job.job-no  GE SUBSTR(v-job-no[1],1,6)
-            AND job.job-no  LE SUBSTR(v-job-no[2],1,6)
-            AND fill(" ",6 - length(TRIM(job.job-no))) +
-                trim(job.job-no) + string(int(job.job-no2),"99") GE v-job-no[1] 
-            AND fill(" ",6 - length(TRIM(job.job-no))) +
-                trim(job.job-no) + string(int(job.job-no2),"99") LE v-job-no[2]
+          WHERE job.company EQ cocode             
+            AND fill(" ",9 - length(TRIM(job.job-no))) +
+                trim(job.job-no) + string(int(job.job-no2),"999") GE v-job-no[1] 
+            AND fill(" ",9 - length(TRIM(job.job-no))) +
+                trim(job.job-no) + string(int(job.job-no2),"999") LE v-job-no[2]
             AND (v-stat  EQ "A"  OR
                  (v-stat EQ "O" AND job.opened) OR
                  (v-stat EQ "C" AND NOT job.opened))
