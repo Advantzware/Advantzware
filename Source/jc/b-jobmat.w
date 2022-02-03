@@ -969,6 +969,9 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
   
   /* Code placed here will execute PRIOR to standard behavior. */
+  system.SharedConfig:Instance:SetValue("JobMaterialUpdateSource", "UI").
+  system.SharedConfig:Instance:SetValue("IsJobMaterialAllocated", STRING(job-mat.all-flg, "YES/NO")).
+  
   IF ll-commit THEN RUN jc/jc-all2.p (ROWID(job-mat), -1).
 
   /* Dispatch standard ADM method.                             */
@@ -983,6 +986,9 @@ PROCEDURE local-assign-record :
   END.
 
   ELSE job-mat.all-flg = NO. 
+
+  system.SharedConfig:Instance:DeleteValue("JobMaterialUpdateSource").
+  system.SharedConfig:Instance:DeleteValue("IsJobMaterialAllocated").
 
 END PROCEDURE.
 
