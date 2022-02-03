@@ -2632,17 +2632,18 @@ PROCEDURE pReselectReceipts PRIVATE:
         FIND CURRENT ap-invl EXCLUSIVE-LOCK NO-ERROR.
         IF AVAILABLE ap-invl THEN DO:
             DELETE ap-invl.
-
+                 
+            ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = "".     
             RUN dispatch (
                 INPUT "open-query"
-                ).            
-            {methods/run_link.i "TableIO-Source" "auto-line-add"}
-
-            IF AVAILABLE ap-invl THEN DO:
-                APPLY "ENTRY" TO ap-invl.po-no IN BROWSE {&BROWSE-NAME}.
-
-                ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(ipiPOID).
+                ).           
                 
+            {methods/run_link.i "TableIO-Source" "auto-line-add"}
+                             
+            APPLY "ENTRY" TO ap-invl.po-no IN BROWSE {&BROWSE-NAME}.                  
+            IF AVAILABLE ap-invl THEN DO:                           
+
+                ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(ipiPOID).                                         
                 lReselectingReceipts = TRUE.
                 
                 APPLY "LEAVE" TO ap-invl.po-no IN BROWSE {&BROWSE-NAME}.
@@ -3370,6 +3371,7 @@ PROCEDURE valid-qty :
     DEFINE VARIABLE lError                      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage                    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lResponse                   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iPurchaseOrder              AS INTEGER   NO-UNDO.
     
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ap-invl.qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
@@ -3399,13 +3401,15 @@ PROCEDURE valid-qty :
               RETURN.
           END.
           ELSE DO:
+              iPurchaseOrder = INTEGER(ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
               RUN dispatch (
                   INPUT "cancel-record"
                   ).
                 
               RUN pReselectReceipts(
-                  INPUT INTEGER(ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+                  INPUT iPurchaseOrder
                   ).
+              RETURN.    
           END.
       END.
       ELSE IF lRecordsFound AND DECIMAL(ap-invl.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT dQuantityAvailableToInvoice AND NOT lQuantityExceededWarned AND NOT lHasNegativeReceipts THEN DO:

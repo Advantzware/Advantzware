@@ -44,18 +44,18 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 /* Required for run_link.i */
-DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
-
-DEFINE VARIABLE hdJobProcs        AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cJobNo2ListItems  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iCount            AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cFormattedJobno   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cLocation         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE giFormNo          AS INTEGER   NO-UNDO.
-DEFINE VARIABLE giBlankNo         AS INTEGER   NO-UNDO.
-DEFINE VARIABLE gcEstNo           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE char-hdl            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle             AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdJobProcs          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cJobNo2ListItems    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iCount              AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cFormattedJobno     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE giFormNo            AS INTEGER   NO-UNDO.
+DEFINE VARIABLE giBlankNo           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE gcEstNo             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cScheduleBoardNotes AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 DEFINE VARIABLE oJobHeader AS jc.JobHeader NO-UNDO.
@@ -119,12 +119,12 @@ DEFINE VARIABLE h_viewrminquiry AS HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btAdd  NO-FOCUS
      LABEL "Add New Material" 
-     SIZE 35 BY 1.52
+     SIZE 27 BY 1.52
      FONT 17.
 
 DEFINE BUTTON btAllocate  NO-FOCUS
      LABEL "Allocate" 
-     SIZE 20 BY 1.52
+     SIZE 13 BY 1.52
      FONT 17.
 
 DEFINE BUTTON btClear 
@@ -140,7 +140,7 @@ DEFINE BUTTON btCopy  NO-FOCUS
 
 DEFINE BUTTON btDelete  NO-FOCUS
      LABEL "Delete" 
-     SIZE 20 BY 1.52
+     SIZE 13 BY 1.52
      FONT 17.
 
 DEFINE BUTTON btExit 
@@ -168,9 +168,15 @@ DEFINE BUTTON btnPrevious
      LABEL "Prev" 
      SIZE 8 BY 1.91 TOOLTIP "Previous".
 
+DEFINE BUTTON btnSBNotes 
+     IMAGE-UP FILE "Graphics/32x32/book_open.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "SB Notes" 
+     SIZE 8 BY 1.91 TOOLTIP "Schedule Board Notes"
+     BGCOLOR 8 .
+
 DEFINE BUTTON btUpdate  NO-FOCUS
      LABEL "Update" 
-     SIZE 20 BY 1.52
+     SIZE 13 BY 1.52
      FONT 17.
 
 DEFINE VARIABLE btnClearText AS CHARACTER FORMAT "X(256)":U INITIAL "RESET" 
@@ -300,15 +306,16 @@ DEFINE FRAME F-Main
      fiJobQtyLabel AT ROW 19.71 COL 122 NO-LABEL
      fiJobQty AT ROW 19.71 COL 136 COLON-ALIGNED NO-LABEL
      btCopy AT ROW 7.33 COL 125 WIDGET-ID 118
-     btDelete AT ROW 32.33 COL 142
-     btAdd AT ROW 32.33 COL 170
-     btUpdate AT ROW 32.33 COL 185.8
-     btAllocate AT ROW 32.33 COL 185.8
+     btDelete AT ROW 32.67 COL 150
+     btAdd AT ROW 32.67 COL 164
+     btUpdate AT ROW 32.67 COL 192
+     btAllocate AT ROW 32.67 COL 192
      btnExitText AT ROW 1.24 COL 187 NO-LABEL WIDGET-ID 24
      statusMessage AT ROW 30.76 COL 3 NO-LABEL WIDGET-ID 28
      btnViewRM AT ROW 2.91 COL 138.2 COLON-ALIGNED NO-LABEL WIDGET-ID 138
      btClear AT ROW 3.14 COL 197 WIDGET-ID 146
      btnClearText AT ROW 3.33 COL 184.2 NO-LABEL WIDGET-ID 148
+     btnSBNotes AT ROW 32.67 COL 135
      imJobLookup AT ROW 7.52 COL 94.6 WIDGET-ID 182
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -324,6 +331,7 @@ DEFINE FRAME F-Main
    Type: SmartWindow
    External Tables: ASI.job
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
+   Design Page: 1
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -377,6 +385,11 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN btnExitText IN FRAME F-Main
    ALIGN-L                                                              */
+/* SETTINGS FOR BUTTON btnSBNotes IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       btnSBNotes:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN fiAllocatedLabel IN FRAME F-Main
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN fiCreated IN FRAME F-Main
@@ -475,11 +488,10 @@ DO:
      
      IF AVAIL job THEN
      DO:      
-         RUN jc/dJobMat.w("Add", cCompany, ROWID(job), INPUT-OUTPUT iForm, INPUT-OUTPUT iBlank, INPUT-OUTPUT cRmItem, INPUT-OUTPUT cRmItemDesc, INPUT-OUTPUT dAllocation, INPUT-OUTPUT dAvailQty, OUTPUT lCreated). 
+         RUN jc/dJobMat.w ("Add", cCompany, ROWID(job), INPUT-OUTPUT iForm, INPUT-OUTPUT iBlank, INPUT-OUTPUT cRmItem, INPUT-OUTPUT cRmItemDesc, INPUT-OUTPUT dAllocation, INPUT-OUTPUT dAvailQty, OUTPUT lCreated). 
          IF lCreated THEN
          DO:        
-            RUN job_AllocationJobMaterial IN hdJobProcs("Add", cCompany, rowid(job), iForm, iBlank, cRmItem, dAllocation, INPUT-OUTPUT rwRowid). 
-            
+            RUN job_AllocationJobMaterial IN hdJobProcs ("Add", cCompany, rowid(job), iForm, iBlank, cRmItem, dAllocation, INPUT-OUTPUT rwRowid).            
             RUN pReOpenQuery IN h_b-job-mat(rwRowid). 
          END.
      END.
@@ -670,6 +682,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnSBNotes
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSBNotes W-Win
+ON CHOOSE OF btnSBNotes IN FRAME F-Main /* SB Notes */
+DO:
+    RUN pSBNotes.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnViewRM
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnViewRM W-Win
 ON MOUSE-SELECT-CLICK OF btnViewRM IN FRAME F-Main
@@ -798,10 +821,10 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_jobfilter ).
-       RUN set-position IN h_jobfilter ( 2.76 , 4.40 ) NO-ERROR.
+       /* Position in AB:  ( 2.76 , 4.40 ) */
        /* Size in UIB:  ( 2.05 , 143.40 ) */
 
-       /* Links to SmartObject h_jobfilter. */
+       /* Links to  h_jobfilter. */
        RUN add-link IN adm-broker-hdl ( h_jobfilter , 'JOB':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_jobfilter , 'State':U , THIS-PROCEDURE ).
 
@@ -1013,6 +1036,15 @@ PROCEDURE local-enable :
     {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
     {methods/run_link.i "JOB-SOURCE" "ValidateSameJobScan" "(FALSE)"}    
     {methods/run_link.i "JOB-SOURCE" "AllowEmptyFormAndBlank"}
+
+    RUN spGetSettingByName ("ScheduleBoardNotes", OUTPUT cScheduleBoardNotes).
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            btnSBNotes:HIDDEN    = cScheduleBoardNotes EQ "NO"
+            btnSBNotes:SENSITIVE = cScheduleBoardNotes EQ "YES"
+            . 
+    END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1229,6 +1261,50 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSBNotes W-Win 
+PROCEDURE pSBNotes :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iForm       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iBlank      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cRmItem     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRmItemDesc AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dAllocation AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dAvailQty   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lUpdated    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE rwRowid     AS ROWID     NO-UNDO. 
+
+    IF AVAILABLE job THEN DO:   
+        RUN pGetMaterial IN h_b-job-mat (
+            OUTPUT rwRowid,
+            OUTPUT iForm,
+            OUTPUT iBlank,
+            OUTPUT cRmItem,
+            OUTPUT cRmItemDesc,
+            OUTPUT dAllocation,
+            OUTPUT dAvailQty
+            ).   
+        IF rwRowID NE ? THEN DO:
+            FIND FIRST job-mat NO-LOCK
+                 WHERE ROWID(job-mat) EQ rwRowID
+                 NO-ERROR.
+            IF AVAILABLE job-mat THEN
+            RUN schedule/objects/prompts/externalNotes.w (
+                job-mat.company,
+                job-mat.job-no,
+                job-mat.job-no2,
+                job-mat.frm
+                ).
+        END. // if rwrowid ne ?
+    END. // if avail job
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pStatusClear W-Win 
 PROCEDURE pStatusClear :
 /* -----------------------------------------------------------
@@ -1334,21 +1410,23 @@ PROCEDURE pWinReSize :
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
-            dCol                               = {&WINDOW-NAME}:WIDTH  - 8
-            btExit:COL                         = dCol
-            btnFirst:COL                       = dCol - 1
-            btnPrevious:COL                    = dCol - 1
-            btnNext:COL                        = dCol - 1
-            btnLast:COL                        = dCol - 1
-            btnExitText:COL                    = dCol - 9
-            btnClearText:COL                   = dCol - 13
-            btClear:COL                        = dCol - 1           
-            //btnPrintJobText:COL                = dCol - btnPrintJobText:WIDTH - 1
-            btDelete:ROW                       = {&WINDOW-NAME}:HEIGHT - .96
-            btAllocate:ROW                     = {&WINDOW-NAME}:HEIGHT - .96
-            btAdd:ROW                          = {&WINDOW-NAME}:HEIGHT - .96
-            btUpdate:ROW                       = {&WINDOW-NAME}:HEIGHT - .96
+            statusMessage:ROW    = {&WINDOW-NAME}:HEIGHT - .86
+            statusMessage:SCREEN-VALUE = "test"
+            dCol                 = {&WINDOW-NAME}:WIDTH  - 8
+            btExit:COL           = dCol
+            btnFirst:COL         = dCol - 1
+            btnPrevious:COL      = dCol - 1
+            btnNext:COL          = dCol - 1
+            btnLast:COL          = dCol - 1
+            btnExitText:COL      = dCol - 9
+            btnClearText:COL     = dCol - 13
+            btClear:COL          = dCol - 1           
+            //btnPrintJobText:COL  = dCol - btnPrintJobText:WIDTH - 1
+            btDelete:ROW         = {&WINDOW-NAME}:HEIGHT - .96
+            btAllocate:ROW       = {&WINDOW-NAME}:HEIGHT - .96
+            btAdd:ROW            = {&WINDOW-NAME}:HEIGHT - .96
+            btUpdate:ROW         = {&WINDOW-NAME}:HEIGHT - .96
+            btnSBnotes:ROW       = {&WINDOW-NAME}:HEIGHT - .96
             .
         dRow = {&WINDOW-NAME}:HEIGHT - 1. 
         

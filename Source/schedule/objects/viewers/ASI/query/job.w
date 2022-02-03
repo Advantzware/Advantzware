@@ -61,7 +61,7 @@ DEFINE VARIABLE jobMchRowID AS ROWID NO-UNDO.
       WHERE ROWID(job) EQ jobRowID NO-LOCK, ~
       FIRST job-mch WHERE TRUE /* Join to job incomplete */ ~
       AND ROWID(job-mch) EQ jobMchRowID NO-LOCK, ~
-      FIRST est OF job NO-LOCK, ~
+      FIRST est OF job OUTER-JOIN NO-LOCK, ~
       FIRST mach WHERE TRUE /* Join to job-mch incomplete */ ~
       AND mach.company EQ job-mch.company ~
 AND mach.m-code EQ job-mch.m-code NO-LOCK
@@ -69,7 +69,7 @@ AND mach.m-code EQ job-mch.m-code NO-LOCK
       WHERE ROWID(job) EQ jobRowID NO-LOCK, ~
       FIRST job-mch WHERE TRUE /* Join to job incomplete */ ~
       AND ROWID(job-mch) EQ jobMchRowID NO-LOCK, ~
-      FIRST est OF job NO-LOCK, ~
+      FIRST est OF job OUTER-JOIN NO-LOCK, ~
       FIRST mach WHERE TRUE /* Join to job-mch incomplete */ ~
       AND mach.company EQ job-mch.company ~
 AND mach.m-code EQ job-mch.m-code NO-LOCK.
@@ -205,7 +205,7 @@ END.
 /* Query rebuild information for QUERY Query-Main
      _TblList          = "asi.job,asi.job-mch WHERE asi.job  ...,asi.est OF asi.job,asi.mach WHERE asi.job-mch ..."
      _Options          = "NO-LOCK"
-     _TblOptList       = ", FIRST, FIRST, FIRST"
+     _TblOptList       = ", FIRST, FIRST OUTER, FIRST"
      _Where[1]         = "ROWID(job) EQ jobRowID"
      _Where[2]         = "ROWID(job-mch) EQ jobMchRowID"
      _Where[4]         = "mach.company EQ job-mch.company
