@@ -114,6 +114,7 @@ DEFINE VARIABLE h_runbtn AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE v_mach-part AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -383,6 +384,14 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_mach ( 4.81 , 4.00 ) NO-ERROR.
        RUN set-size IN h_mach ( 19.52 , 145.00 ) NO-ERROR.
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_movecol ).
+       RUN set-position IN h_movecol ( 1.00 , 27.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
        
@@ -392,6 +401,9 @@ PROCEDURE adm-create-objects :
        /* Links to SmartNavBrowser h_mach. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_mach ).
        RUN add-link IN adm-broker-hdl ( h_mach , 'Record':U , THIS-PROCEDURE ).
+       
+       /* Links to SmartObject h_movecol-3. */
+       RUN add-link IN adm-broker-hdl ( h_mach , 'move-columns':U , h_movecol ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_mach ,
