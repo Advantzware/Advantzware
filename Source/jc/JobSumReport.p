@@ -159,6 +159,7 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
     DEFINE VARIABLE dActSetupWaste AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dActRunWaste   AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dActCost       AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iBlankNo       AS INTEGER NO-UNDO.
          
     IF AVAILABLE ipbf-estCostHeader THEN
     DO:
@@ -178,11 +179,9 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
                 ttOperation.dSetupHrs     = estCostOperation.hoursSetup                   
                 ttOperation.dRunHrs       = estCostOperation.hoursRun                  
                 ttOperation.dSpeed        = estCostOperation.speed
-                ttOperation.dCost         = estCostOperation.hoursRun * estCostOperation.costPerHourTotalRun
+                ttOperation.dCost         = estCostOperation.costTotal
                 ttOperation.dSetupWaste   = estCostOperation.quantityInSetupWaste                 
                 ttOperation.dRunWaste     = estCostOperation.quantityInRunWaste                   
-                ttOperation.cDownTimeCode = ""
-                ttOperation.dDownTimeHrs  = estCostOperation.hoursSetup + estCostOperation.hoursRun
                 ttOperation.iSeq          = estCostOperation.sequence
                 .
         END.           
@@ -197,45 +196,52 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
         AND mach.m-code  EQ mch-act.m-code,
         FIRST job-code NO-LOCK 
         WHERE job-code.code EQ mch-act.code:
-           
-        CREATE ttOperation.
-        ASSIGN
-            ttOperation.cJobNo        = ipbf-job.job-no
-            ttOperation.iJobNo2       = ipbf-job.job-no2                                              
-            ttOperation.iFormNo       = mch-act.frm
-            ttOperation.iBlankNo      = IF mach.p-type EQ "B"    AND
-                                               mch-act.blank-no EQ 0 THEN 1
-                                                                      ELSE mch-act.blank-no
-            ttOperation.cDept         = mch-act.dept
-            ttOperation.cMachine      = mch-act.m-code
-            ttOperation.cStdAct       = "Actual"
-            ttOperation.dRunQty       = mch-act.qty                     
-            ttOperation.dSetupHrs     = mch-act.hours                   
-            ttOperation.dRunHrs       = mch-act.hours                  
-            ttOperation.dSpeed        = mch-act.qty / mch-act.hours
-            ttOperation.dSetupWaste   = mch-act.waste                 
-            ttOperation.dRunWaste     = mch-act.waste                   
-            ttOperation.cDownTimeCode = mch-act.d-type
-            ttOperation.dDownTimeHrs  = mch-act.hours
-            ttOperation.dCost         = (mch-act.hours *  mach.mr-rate).    
-                
-        IF job-code.cat EQ "RUN" OR job-code.cat EQ "DT" THEN 
-        DO:
+        iBlankNo = IF mach.p-type EQ "B" AND mch-act.blank-no EQ 0 THEN 1 ELSE mch-act.blank-no.
+        FIND FIRST ttOperation
+            WHERE ttOperation.cJobNo EQ ipbf-job.job-no
+            AND ttOperation.iJobNo2 EQ ipbf-job.job-no2
+            AND ttOperation.cMachine EQ mch-act.m-code
+            AND ttOperation.iFormNo EQ mch-act.frm
+            AND ttOperation.iBlankNo EQ iBlankNo
+            AND ttOperation.cStdAct EQ "Actual"
+            NO-ERROR.
+        IF NOT AVAILABLE ttOperation THEN DO:  
+            CREATE ttOperation.
             ASSIGN
-                ttOperation.dRunQty      = mch-act.qty                     
-                ttOperation.dSetupHrs    = mch-act.hours                  
-                ttOperation.dRunHrs      = mch-act.hours                                                       
-                ttOperation.dDownTimeHrs = mch-act.hours .    
-                
+                ttOperation.cJobNo        = ipbf-job.job-no
+                ttOperation.iJobNo2       = ipbf-job.job-no2                                              
+                ttOperation.iFormNo       = mch-act.frm
+                ttOperation.iBlankNo      = iBlankNo
+                ttOperation.cDept         = mch-act.dept
+                ttOperation.cMachine      = mch-act.m-code
+                ttOperation.cStdAct       = "Actual"
+                .
         END.
-        ELSE
-            IF job-code.cat EQ "MR" THEN 
-            DO:               
-                ASSIGN                
-                    ttOperation.dRunQty = mch-act.qty + mch-act.waste
-                    ttOperation.dRunHrs = mch-act.hours                       
+        CASE job-code.cat:
+            WHEN "RUN" THEN DO:
+                ASSIGN             
+                    ttOperation.dRunQty       = ttOperation.dRunQty + mch-act.qty
+                    ttOperation.dRunHrs       = ttOperation.dRunHrs + mch-act.hours
+                    ttOperation.dRunWaste     = ttOperation.dRunWaste + mch-act.waste
+                    ttOperation.dSpeed        = ttOperation.dRunQty / ttOperation.dRunHrs          
+                    ttOperation.dCost         = ttOperation.dCost + (mch-act.hours *  mach.run-rate).          
                     .
-            END. /* else if job-code... */
+            END.
+            WHEN "MR" THEN DO:
+                ASSIGN 
+                    ttOperation.dSetupHrs     = ttOperation.dSetupHrs + mch-act.hours                   
+                    ttOperation.dSetupWaste   = ttOperation.dSetupWaste + mch-act.waste
+                    ttOperation.dCost         = ttOperation.dCost + (mch-act.hours *  mach.mr-rate)
+                    .
+            END.
+            OTHERWISE DO:
+                ASSIGN 
+                    ttOperation.cDownTimeCode = ttOperation.cDownTimeCode + mch-act.d-type + ","
+                    ttOperation.dDownTimeHrs  = ttOperation.dDowntimeHrs + mch-act.hours
+                    .    
+            END.
+        END CASE.
+                
     END.  
     
     FOR EACH ttOperation NO-LOCK

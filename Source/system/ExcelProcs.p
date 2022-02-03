@@ -47,7 +47,7 @@ PROCEDURE Excel_Initialize:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
-    RUN pInitialize (YES, NO, OUTPUT oplError, OUTPUT opcMessage). 
+    RUN pInitialize (NO, OUTPUT oplError, OUTPUT opcMessage). 
 
 END PROCEDURE.
 
@@ -60,7 +60,7 @@ PROCEDURE Excel_InitializeTemplate:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
-    RUN pInitialize (YES, NO, OUTPUT oplError, OUTPUT opcMessage).
+    RUN pInitialize (NO, OUTPUT oplError, OUTPUT opcMessage).
     IF NOT oplError THEN 
         RUN pOpenTemplate(ipcTemplateFile, OUTPUT oplError, OUTPUT opcMessage).
         
@@ -112,20 +112,12 @@ PROCEDURE pInitialize PRIVATE:
      Purpose:  Initializes the Excel Application Object
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iplCloseRunning AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplHideExcel AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
         
     /* Connect to the running Excel session. */
     CREATE "Excel.Application" gchExcelApplication CONNECT NO-ERROR.
-
-    /* If Excel is running close it. */
-    IF  iplCloseRunning AND VALID-HANDLE (gchExcelApplication) THEN
-    DO:
-        gchExcelApplication:QUIT()         NO-ERROR.
-        RUN pCleanUp.
-    END.
   
     /* Start a new session of Excel. */
     IF NOT VALID-HANDLE(gchExcelApplication) THEN
@@ -147,7 +139,7 @@ PROCEDURE pInitialize PRIVATE:
        /* Do not display Excel error messages. */
        gchExcelApplication:DisplayAlerts  = FALSE NO-ERROR.  
        /* Disable screen updating so it will go faster */
-//       gchExcelApplication:ScreenUpdating = FALSE NO-ERROR.      
+       gchExcelApplication:ScreenUpdating = FALSE NO-ERROR.      
     END.
     
 END PROCEDURE.
