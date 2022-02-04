@@ -1914,58 +1914,58 @@
 127 "_default" "dynSubjct." 0 5 yes "cust.zip" "Zip Code" "x(10)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202109306676408092596" no "" "" 0 0 "" no no "" "" no
 127 "_default" "dynSubjct." 0 6 yes "cust.type" "Customer Type" "x(8)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202109306676408092597" no "" "" 0 0 "" no no "" "" no
 127 "_default" "dynSubjct." 0 7 yes "cust.sman" "Salesman" "x(3)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202109306676408092598" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 1 yes "po-ord.vend-no" "Vendor" "x(8)" 8 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374229" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 2 yes "po-ord.po-no" "PO Number" ">>>>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202112147157908374230" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 3 yes "po-ordl.line" "Line" "99" 3.8 "integer" 0 no no "" "" no "" "" no no no "" "202112147157908374231" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 4 yes "po-ordl.due-date" "Due Date" "99/99/9999" 11.2 "date" 0 no no "" "" no "" "" no no no "" "202112147157908374232" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 5 yes "po-ord.ship-id" "Ship To" "x(8)" 10.6 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374233" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 6 yes "po-ord.ship-name" "Shipping Name" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374234" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 7 yes "po-ord.ship-addr[1]" "Shipping Address[1]" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374235" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 8 yes "po-ord.ship-addr[2]" "Shipping Address[2]" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374236" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 9 yes "po-ord.ship-city" "Shipping City" "x(16)" 16 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374237" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 10 yes "po-ord.ship-state" "Shipping State" "x(2)" 9.8 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374238" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 11 yes "po-ord.ship-zip" "Shipping Zip" "xxxxx-xxxx" 14 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374239" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 12 yes "po-ord.tax-gr" "Sales Tax Group" "x(3)" 15.6 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374240" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 13 yes "po-ord.tax" "Tax" "->,>>9.99" 9.6 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374241" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 14 yes "po-ordl.tax" "Taxable" "Y/N" 7.6 "logical" 0 no no "" "" no "" "" no no no "" "202112147157908374242" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 15 yes "po-ord.terms" "Payment Terms" "x(5)" 14.8 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374243" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 16 yes "po-ord.t-cost" "Total Cost" "->,>>>,>>9.99<<" 14 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374244" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 17 yes "po-ordl.job-no" "Job Number" "x(6)" 11.4 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374245" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 18 yes "po-ordl.job-no2" "Run #" ">9" 6 "integer" 0 no no "" "" no "" "" no no no "" "202112147157908374246" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 19 yes "po-ordl.item-type" "Item Type" "R/F" 9.8 "logical" 0 no no "" "" no "" "" no no no "" "202112147157908374247" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 20 yes "po-ordl.i-no" "Item#" "x(15)" 15 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374248" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 21 yes "po-ordl.i-name" "Name" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374249" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 22 yes "po-ordl.s-wid" "Sheet Wid" ">>>>9.9999" 9.8 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374250" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 23 yes "po-ordl.s-len" "Sheet Len" ">>>>9.9999" 9.6 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374251" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 24 yes "po-ordl.s-num" "Sheet #" ">9" 7.8 "integer" 0 no no "" "" no "" "" no no no "" "202112147157908374252" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 25 yes "po-ordl.b-num" "Blank #" ">9" 7.2 "integer" 0 no no "" "" no "" "" no no no "" "202112147157908374253" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 26 yes "po-ordl.dscr[1]" "Description[1]" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374254" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 27 yes "po-ordl.dscr[2]" "Description[2]" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374255" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 28 yes "po-ordl.vend-i-no" "Vendor Item #" "x(15)" 15 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374256" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 29 yes "po-ordl.ord-qty" "Quantity" "->>>,>>>,>>9.9<<<<<" 15.2 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374257" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 30 yes "po-ordl.pr-qty-uom" "Purchase Quantity Uom" "x(4)" 22.6 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374258" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 31 yes "po-ordl.t-rec-qty" "Total Received" "->>>,>>>,>>9.9<<<<<" 15.2 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374259" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 32 yes "po-ordl.cons-uom" "Unit of Measure" "x(4)" 15.2 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374260" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 33 yes "po-ordl.cost" "Unit Cost" "->,>>>,>>9.99<<<<" 14 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374261" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 34 yes "po-ordl.pr-uom" "Purchased UOM" "x(4)" 15.2 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374262" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 35 yes "po-ord.buyer" "Buyer" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374263" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 36 yes "po-ord.stat" "Status" "x" 6.2 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374264" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 37 yes "po-ordl.stat" "Order Line Status" "x" 16.8 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374265" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 38 yes "po-ord.printed" "Printed?" "Y/N" 7.8 "logical" 0 no no "" "" no "" "" no no no "" "202112147157908374266" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 39 yes "po-ordl.opened" "opened" "Open/Closed" 7.2 "logical" 0 no no "" "" no "" "" no no no "" "202112147157908374267" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 40 yes "po-ord.type" "Type" "x" 4.8 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374268" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 41 yes "po-ord.contact" "Contact" "x(25)" 25 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374269" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 42 yes "po-ord.po-date" "PO Date" "99/99/9999" 11.2 "date" 0 no no "" "" no "" "" no no no "" "202112147157908374270" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 43 yes "po-ord.last-ship-date" "Last Ship Date" "99/99/9999" 13.8 "date" 0 no no "" "" no "" "" no no no "" "202112147157908374271" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 44 yes "po-ordl.setup" "Setup Charge" ">>,>>9.99" 13.2 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374272" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 45 yes "po-ordl.disc" "Discount" "->>>,>>9.99" 12 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374273" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 46 yes "po-ordl.actnum" "Account No" "x(25)" 25 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374274" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 47 yes "po-ordl.over-pct" "Overrun %" ">>>>9.99%" 10.8 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374275" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 48 yes "po-ordl.under-pct" "Underrun %" ">>>>9.99%" 11.8 "decimal" 0 no no "" "" no "" "" no no no "" "202112147157908374276" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 49 yes "po-ordl.cust-no" "Cust No" "x(8)" 8 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374277" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 50 yes "po-ordl.ord-no" "Customer Order Number" ">>>>>9" 23.4 "integer" 0 no no "" "" no "" "" no no no "" "202112147157908374278" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 51 yes "po-ord.cust-no" "ShipTo Customer" "x(8)" 17.2 "STRING" 0 no no "" "" no "" "" no no no "" "202112147157908374279" no "" "" 0 0 "" no no "" "" no
-129 "_default" "dynSubjct." 0 52 yes "CalcDropShipType" "Drop Shipment Type" "x(10)" 0 "Character" 0 no no "" "" yes "calcDropShipment" "po-ord.type|po-ord.cust-no" no no no "" "202112147157908374280" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 1 yes "po-ord.vend-no" "Vendor" "x(8)" 8 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533905" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 2 yes "po-ord.po-no" "PO Number" ">>>>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202202033308408533906" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 3 yes "po-ordl.line" "Line" "99" 3.8 "integer" 0 no no "" "" no "" "" no no no "" "202202033308408533907" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 4 yes "po-ordl.due-date" "Due Date" "99/99/9999" 11.2 "date" 0 no no "" "" no "" "" no no no "" "202202033308408533908" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 5 yes "po-ord.ship-id" "Ship To" "x(8)" 10.6 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533909" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 6 yes "po-ord.ship-name" "Shipping Name" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533910" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 7 yes "po-ord.ship-addr[1]" "Shipping Address[1]" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533911" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 8 yes "po-ord.ship-addr[2]" "Shipping Address[2]" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533912" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 9 yes "po-ord.ship-city" "Shipping City" "x(16)" 16 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533913" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 10 yes "po-ord.ship-state" "Shipping State" "x(2)" 9.8 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533914" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 11 yes "po-ord.ship-zip" "Shipping Zip" "xxxxx-xxxx" 14 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533915" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 12 yes "po-ord.tax-gr" "Sales Tax Group" "x(3)" 15.6 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533916" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 13 yes "po-ord.tax" "Tax" "->,>>9.99" 9.6 "decimal" 0 no no "" "" no "" "" no no no "" "202202033308408533917" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 14 yes "po-ordl.tax" "Taxable" "Y/N" 7.6 "logical" 0 no no "" "" no "" "" no no no "" "202202033308408533918" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 15 yes "po-ord.terms" "Payment Terms" "x(5)" 14.8 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533919" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 16 yes "po-ord.t-cost" "Total Cost" "->,>>>,>>9.99<<" 14 "decimal" 0 no no "" "" no "" "" no no no "" "202202033308408533920" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 17 yes "po-ordl.job-no" "Job Number" "x(6)" 11.4 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533921" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 18 yes "po-ordl.job-no2" "Run #" ">9" 6 "integer" 0 no no "" "" no "" "" no no no "" "202202033308408533922" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 19 yes "po-ordl.item-type" "Item Type" "R/F" 9.8 "logical" 0 no no "" "" no "" "" no no no "" "202202033308408533923" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 20 yes "po-ordl.i-no" "Item#" "x(15)" 15 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533924" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 21 yes "po-ordl.i-name" "Name" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533925" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 22 yes "po-ordl.s-wid" "Sheet Wid" ">>>>9.9999" 9.8 "decimal" 0 no no "" "" no "" "" no no no "" "202202033308408533926" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 23 yes "po-ordl.s-len" "Sheet Len" ">>>>9.9999" 9.6 "decimal" 0 no no "" "" no "" "" no no no "" "202202033308408533927" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 24 yes "po-ordl.s-num" "Sheet #" ">9" 7.8 "integer" 0 no no "" "" no "" "" no no no "" "202202033308408533928" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 25 yes "po-ordl.b-num" "Blank #" ">9" 7.2 "integer" 0 no no "" "" no "" "" no no no "" "202202033308408533929" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 26 yes "po-ordl.dscr[1]" "Description[1]" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533930" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 27 yes "po-ordl.dscr[2]" "Description[2]" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533931" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 28 yes "po-ordl.vend-i-no" "Vendor Item #" "x(15)" 15 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533932" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 29 yes "po-ordl.ord-qty" "Quantity" "->>>,>>>,>>9.9<<<<<" 15.2 "decimal" 0 no no "" "" no "" "" no no no "" "202202033308408533933" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 30 yes "po-ordl.pr-qty-uom" "Purchase Quantity Uom" "x(4)" 22.6 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533934" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 31 yes "po-ordl.t-rec-qty" "Total Received" "->>>,>>>,>>9.9<<<<<" 15.2 "decimal" 0 no no "" "" no "" "" no no no "" "202202033308408533935" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 32 yes "po-ordl.cons-uom" "Unit of Measure" "x(4)" 15.2 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533936" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 33 yes "po-ordl.cost" "Unit Cost" "->,>>>,>>9.99<<<<" 14 "decimal" 0 no no "" "" no "" "" no no no "" "202202033308408533937" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 34 yes "po-ordl.pr-uom" "Purchased UOM" "x(4)" 15.2 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533938" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 35 yes "po-ord.buyer" "Buyer" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533939" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 36 yes "po-ord.stat" "Status" "x" 6.2 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533940" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 37 yes "po-ordl.stat" "Order Line Status" "x" 16.8 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533941" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 38 yes "po-ord.printed" "Printed?" "Y/N" 7.8 "logical" 0 no no "" "" no "" "" no no no "" "202202033308408533942" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 39 yes "po-ordl.opened" "opened" "Open/Closed" 7.2 "logical" 0 no no "" "" no "" "" no no no "" "202202033308408533943" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 40 yes "po-ord.type" "Type" "x" 4.8 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533944" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 41 yes "po-ord.contact" "Contact" "x(25)" 25 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533945" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 42 yes "po-ord.po-date" "PO Date" "99/99/9999" 11.2 "date" 0 no no "" "" no "" "" no no no "" "202202033308408533946" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 43 yes "po-ord.last-ship-date" "Last Ship Date" "99/99/9999" 13.8 "date" 0 no no "" "" no "" "" no no no "" "202202033308408533947" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 44 yes "po-ordl.setup" "Setup Charge" ">>,>>9.99" 13.2 "decimal" 0 no no "" "" no "" "" no no no "" "202202033308408533948" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 45 yes "po-ordl.disc" "Discount" "->>>,>>9.99" 12 "decimal" 0 no no "" "" no "" "" no no no "" "202202033308408533949" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 46 yes "po-ordl.actnum" "Account No" "x(25)" 25 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533950" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 47 yes "po-ordl.over-pct" "Overrun %" ">>>>9.99%" 10.8 "decimal" 0 no no "" "" no "" "" no no no "" "202202033308408533951" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 48 yes "po-ordl.under-pct" "Underrun %" ">>>>9.99%" 11.8 "decimal" 0 no no "" "" no "" "" no no no "" "202202033308408533952" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 49 yes "po-ordl.cust-no" "Cust No" "x(8)" 8 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533953" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 50 yes "po-ordl.ord-no" "Customer Order Number" ">>>>>9" 23.4 "integer" 0 no no "" "" no "" "" no no no "" "202202033308408533954" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 51 yes "po-ord.cust-no" "ShipTo Customer" "x(8)" 17.2 "STRING" 0 no no "" "" no "" "" no no no "" "202202033308408533955" no "" "" 0 0 "" no no "" "" no
+129 "_default" "dynSubjct." 0 52 yes "CalcDropShipType" "Drop Shipment Type" "x(10)" 0 "Character" 0 no no "" "" yes "calcDropShipment" "po-ord.type|po-ord.cust-no" no no no "" "202202033308408533956" no "" "" 0 0 "" no no "" "" no
 130 "_default" "dynSubjct." 0 1 yes "ttJobCosting.job" "Job#" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202105067687107251068" no "" "" 0 0 "" no no "" "" no
 130 "_default" "dynSubjct." 0 2 yes "ttJobCosting.i-no" "FG Item#" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202105067687107251069" no "" "" 0 0 "" no no "" "" no
 130 "_default" "dynSubjct." 0 3 yes "ttJobCosting.est-no" "Estimate#" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202105067687107251070" no "" "" 0 0 "" no no "" "" no

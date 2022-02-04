@@ -30,7 +30,7 @@
 30 1 "EACH" "mach" "Machine Master" "" "ASI" "201911064565904356502"
 31 1 "EACH" "shifts" "Shift Master" "" "ASI" "201911064565904356503"
 32 1 "EACH" "vend" "AP Vendor Master" "" "ASI" "201911064565904356504"
-33 1 "EACH" "mat" "RM Material Type Master" "" "ASI" "201911064565904356505"
+33 1 "EACH" "materialType" "Material Type" "" "ASI" "202201271571508511220"
 34 1 "EACH" "procat" "Product Category Master" "" "ASI" "201911064565904356506"
 36 1 "EACH" "po-ordl" "PO Lines" "" "ASI" "201911064565904356507"
 37 1 "EACH" "itemfg" "FG Item Master" "cad-no" "ASI" "201911064565904356508"

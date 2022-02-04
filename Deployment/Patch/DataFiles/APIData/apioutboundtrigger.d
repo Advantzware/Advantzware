@@ -236,7 +236,7 @@
 "" "202111245332908288093" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default7" 241 24
 "" "202111245332908288094" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default8" 242 25
 "" "202111245332908288095" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default9" 243 26
-"001" "202112020346508308454" "GetExchangeRate" "GetExchangeRate" "Trigger to fetch the exchange rates" no 2021-12-02T00:57:45.500 "asi" "_default" 244 54
+"" "202112020346508308454" "GetExchangeRate" "GetExchangeRate" "Trigger to fetch the exchange rates" no 2021-12-02T00:57:45.500 "asi" "_default" 244 54
 "" "202112070723908335684" "SendInvoice" "PrintInvoice" "Send EDI invoice on print of invoice" no 2021-12-07T02:00:39.309 "asi" "_default4" 245 55
 "" "202112070726308335685" "SendInvoice" "RePrintInvoice" "Send EDI invoice on re-print of invoice" no 2021-12-07T02:01:03.586 "asi" "_default4" 246 55
 "" "202112070728308335686" "SendInvoice" "PostInvoice" "Send EDI invoice on post of invoice" no 2021-12-07T02:01:23.344 "asi" "_default4" 247 55
