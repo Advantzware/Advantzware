@@ -46,7 +46,11 @@ DEFINE TEMP-TABLE ttDepartment NO-UNDO
     FIELD dRunWaste      AS DECIMAL   FORMAT ">>>>9" LABEL "Run Waste"
     FIELD dRunWasteVar   AS DECIMAL   FORMAT ">>>>9" LABEL "Var Run Waste"
     FIELD cDownTimeCode  AS CHARACTER FORMAT "x(5)" LABEL "DownTime Code"
-    FIELD dDownTimeHrs   AS DECIMAL   FORMAT ">>>>9.99" LABEL "DownTime Hrs" .
+    FIELD dDownTimeHrs   AS DECIMAL   FORMAT ">>>>9.99" LABEL "DownTime Hrs" 
+    FIELD iFormNo        AS INTEGER   FORMAT ">>9" LABEL "Form"
+    FIELD iBlankNo       AS INTEGER   FORMAT ">>9" LABEL "Blank"
+    FIELD iSeq           AS INTEGER   FORMAT ">>9" LABEL "Sequence"
+ .
 
 DEFINE TEMP-TABLE ttOperation NO-UNDO
     FIELD cJobNo        AS CHARACTER FORMAT "x(8)" LABEL "Job Number"
@@ -64,7 +68,9 @@ DEFINE TEMP-TABLE ttOperation NO-UNDO
     FIELD dSetupWaste   AS DECIMAL   FORMAT ">>>>>>9.99" LABEL "Setup Waste"
     FIELD dRunWaste     AS DECIMAL   FORMAT ">>>>9" LABEL "Run Waste"
     FIELD cDownTimeCode AS CHARACTER FORMAT "x(5)" LABEL "DownTime Code"
-    FIELD dDownTimeHrs  AS DECIMAL   FORMAT ">>>>9.99" LABEL "DownTime Hrs" .
+    FIELD dDownTimeHrs  AS DECIMAL   FORMAT ">>>>9.99" LABEL "DownTime Hrs" 
+    FIELD iSeq           AS INTEGER   FORMAT ">>9" LABEL "Sequence"
+    .
 
 DEFINE TEMP-TABLE ttMaterial NO-UNDO 
     FIELD cJobNo       AS CHARACTER FORMAT "x(8)" LABEL "Job Number"
