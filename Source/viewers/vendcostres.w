@@ -323,7 +323,7 @@ DEFINE FRAME F-Main
           SIZE 14 BY 1
           BGCOLOR 15 
      vendItemCost.quantityMaximumOrder AT ROW 13.38 COL 68 COLON-ALIGNED WIDGET-ID 44
-          LABEL "Max Order Qty" FORMAT ">>>>>>>9.999999"
+          LABEL "Max Order Qty" FORMAT ">>>>>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 
@@ -1093,7 +1093,7 @@ PROCEDURE local-display-fields :
           MaxW = TRUE. 
       ELSE MaxW = FALSE.
           
-      IF (vendItemCost.quantityMaximumOrder = dMaxQty OR vendItemCost.quantityMaximumOrder = 10000000) THEN
+      IF (vendItemCost.quantityMaximumOrder = dMaxQty OR vendItemCost.quantityMaximumOrder = 0) THEN
         MaxQty = TRUE.
       ELSE maxQty = FALSE.
       DISABLE MaxL MaxW maxQty.
