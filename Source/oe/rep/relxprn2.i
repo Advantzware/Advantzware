@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.             */
 /* oe/rep/relxprn2.i */   
    
    PUT "<FArial>" SKIP
@@ -48,14 +49,14 @@
                    "<FArial><=4><R+1>    Pallets/Bags              Weight                    FOB               Ship Via                                                    Freight Terms" SKIP
                    "<FCourier New><=4><R+3> " space(2) v-pallets FORM ">>>>>9" SPACE(7) v-weight FORM "->>>>>>9" space(8) oe-ord.fob-code SPACE(5) v-carrier space(10) v-frt-terms   SKIP
                    "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
-                   "<R24><C7><FROM><R26><C7><LINE>" SKIP
-                   "<R24><C18><FROM><R26><C18><LINE>" SKIP
-                   "<R24><C27><FROM><R26><C27><LINE>" SKIP
-                   "<R24><C39><FROM><R26><C39><LINE>" SKIP                   
+                   "<R24><C8.5><FROM><R26><C8.5><LINE>" SKIP
+                   "<R24><C20.5><FROM><R26><C20.5><LINE>" SKIP
+                   "<R24><C26><FROM><R26><C26><LINE>" SKIP
+                   "<R24><C41><FROM><R26><C41><LINE>" SKIP                   
                    /*"<R24><C57><FROM><R26><C57><LINE>" SKIP*/
                    "<R24><C64><FROM><R26><C64><LINE>" SKIP 
                    "<R24><C72><FROM><R26><C72><LINE>" SKIP                                                                                                     /*job#*/
-               "<FArial><=5><R+1> Order#            PO#                Bin#                FG#                       Description                                               Order Qty.   Release Qty" SKIP(1)
+               "<FArial><=5><R+1> Order#                 PO#                  Bin#                FG#                               Description                                Order Qty.   Release Qty" SKIP(1)
                "<FCourier New>"          
            .
                v-printline = v-printline + 16.

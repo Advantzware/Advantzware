@@ -13,6 +13,8 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
 /*------------------------------------------------------------------------
 
   File:  oe\b-ordinq.w
+  
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -722,7 +724,7 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 4.33 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     cbType AT ROW 1.95 COL 146.2 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     cbType AT ROW 1.95 COL 150 COLON-ALIGNED NO-LABEL WIDGET-ID 32
      fiItemPo AT ROW 3.14 COL 68.2 COLON-ALIGNED NO-LABEL WIDGET-ID 36
      tbOther AT ROW 3.14 COL 154.6 WIDGET-ID 28
      tbHold AT ROW 3.14 COL 146.4 WIDGET-ID 26

@@ -1,5 +1,6 @@
 /* ------------------------------------------- oe/rep/relallws.p GDM 04200906*/
 /* REALSE TICKET PRINT for N-K-1-RELPRINT = Allwest                          */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.             */
 /* ------------------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i}
@@ -112,19 +113,19 @@ END.
 
 FORMAT
   tt-rell.ord-no
-  tt-rell.po-no  AT 8
-  locbin[1]      AT 23
-  tt-rell.i-no   AT 29  
+  tt-rell.po-no  AT 10
+  locbin[1]      AT 25
+  tt-rell.i-no   AT 31  
   oe-ordl.i-name AT 44 FORMAT "x(22)"
   v-UntCnt       AT 75
   tt-rell.qty    AT 85 FORMAT "->>>>>>>9"  
  SKIP
-  locbin[2]       AT 23     
+  locbin[2]       AT 25     
   oe-ordl.part-no
-  locbin[3]       AT 23
+  locbin[3]       AT 25
   oe-ordl.part-dscr1 AT 44 FORMAT "x(30)" 
  SKIP
-  locbin[4]          AT 23
+  locbin[4]          AT 25
   oe-ordl.part-dscr2 AT 44 FORMAT "x(30)"
   with down frame relprint no-box no-label STREAM-IO width 110.
 
@@ -385,8 +386,8 @@ IF v-zone-p THEN ASSIGN v-zone-hdr = "Route No.:".
        
       DISPLAY
         tt-rell.ord-no                                  
-        tt-rell.po-no  AT 8                             
-        tt-rell.i-no   AT 29
+        tt-rell.po-no  AT 10                             
+        tt-rell.i-no   AT 31
         v-UntCnt       TO 83
         tt-rell.qty                                     
       WITH FRAME ln-s-comp STREAM-IO NO-BOX NO-LABELS WIDTH 120.
@@ -407,7 +408,7 @@ IF v-zone-p THEN ASSIGN v-zone-hdr = "Route No.:".
                                 ELSE oe-ordl.part-dscr2.
 
 
-         IF i = 1 AND s-print-part-no THEN PUT oe-ordl.part-no AT 29.
+         IF i = 1 AND s-print-part-no THEN PUT oe-ordl.part-no AT 31.
 
          IF v-part-dscr NE "" THEN DO:
            PUT v-part-dscr at 44 SKIP.
@@ -422,9 +423,9 @@ IF v-zone-p THEN ASSIGN v-zone-hdr = "Route No.:".
 
       DISPLAY
             tt-rell.ord-no
-            tt-rell.po-no       AT 8
-            tt-rell.loc-bin     AT 23 FORMAT "x(5)"   WHEN v-p-bin
-            tt-rell.i-no        AT 29
+            tt-rell.po-no       AT 10
+            tt-rell.loc-bin     AT 25 FORMAT "x(5)"   WHEN v-p-bin
+            tt-rell.i-no        AT 31
             v-UntCnt       TO 83
             tt-rell.qty
       WITH FRAME ln-s.
@@ -445,7 +446,7 @@ IF v-zone-p THEN ASSIGN v-zone-hdr = "Route No.:".
          IF i = 1 AND s-print-part-no THEN PUT oe-ordl.part-no AT 13.
 
          IF v-part-dscr NE "" THEN DO:
-             PUT v-part-dscr AT 28 SKIP.
+             PUT v-part-dscr AT 31 SKIP.
              ASSIGN v-printline = v-printline + 1.
          END.
          ELSE IF s-print-part-no THEN PUT SKIP.
@@ -502,8 +503,8 @@ IF v-zone-p THEN ASSIGN v-zone-hdr = "Route No.:".
            IF AVAIL fg-bin THEN DO:
 
              PUT lv-comp-unit      AT 8  FORMAT "->>9" " "
-                 fg-bin.case-count AT 23  FORMAT ">>>>9"
-                 v-part-dscr       AT 29  FORMAT "x(40)"
+                 fg-bin.case-count AT 25  FORMAT ">>>>9"
+                 v-part-dscr       AT 31  FORMAT "x(40)"
                  fg-bin.qty        TO 85  FORMAT "->>>>>>>9"
                SKIP.
 
@@ -515,7 +516,7 @@ IF v-zone-p THEN ASSIGN v-zone-hdr = "Route No.:".
                END.
            END.
            ELSE do:
-             PUT v-part-dscr AT 29 FORMAT "x(40)" SKIP.
+             PUT v-part-dscr AT 31 FORMAT "x(40)" SKIP.
 
              ASSIGN v-printline = v-printline + 1.
            END.
