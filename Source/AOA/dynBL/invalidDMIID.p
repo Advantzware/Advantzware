@@ -73,6 +73,7 @@ PROCEDURE pBusinessLogic:
                         cCompany,
                         cEstimateID,
                         cTag,
+                        TODAY,
                         lExportOnly,
                         OUTPUT lError,
                         OUTPUT cMessage

@@ -49,9 +49,9 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fiEstimate fiTag tgExportOnly btn-process ~
-btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiEstimate fiTag tgExportOnly 
+&Scoped-Define ENABLED-OBJECTS cbFormula fiTransDate fiTag tgExportOnly ~
+btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS cbFormula fiTransDate fiTag tgExportOnly 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -59,6 +59,15 @@ btn-cancel
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetXRef C-Win 
+FUNCTION fGetXRef RETURNS CHARACTER PRIVATE
+    (ipcCompany AS CHARACTER, ipcLookup AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -75,17 +84,23 @@ DEFINE BUTTON btn-process
      LABEL "&Start Process" 
      SIZE 18 BY 1.14.
 
-DEFINE VARIABLE fiEstimate AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Estimate" 
-     VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+DEFINE VARIABLE cbFormula AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Formula" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     DROP-DOWN-LIST
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U 
      LABEL "Tag" 
      VIEW-AS FILL-IN 
      SIZE 38.2 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tgExportOnly AS LOGICAL INITIAL yes 
+DEFINE VARIABLE fiTransDate AS DATE FORMAT "99/99/99":U 
+     LABEL "Transaction Date" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tgExportOnly AS LOGICAL INITIAL no 
      LABEL "Export csv only?" 
      VIEW-AS TOGGLE-BOX
      SIZE 45 BY 1.05 NO-UNDO.
@@ -94,11 +109,12 @@ DEFINE VARIABLE tgExportOnly AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     fiEstimate AT ROW 3.71 COL 20 COLON-ALIGNED WIDGET-ID 42
-     fiTag AT ROW 5.1 COL 19.8 COLON-ALIGNED WIDGET-ID 44
-     tgExportOnly AT ROW 8.14 COL 20.2 WIDGET-ID 14
-     btn-process AT ROW 11.95 COL 36
-     btn-cancel AT ROW 11.95 COL 74
+     cbFormula AT ROW 2 COL 20 COLON-ALIGNED WIDGET-ID 48
+     fiTransDate AT ROW 3.52 COL 20 COLON-ALIGNED WIDGET-ID 46
+     fiTag AT ROW 5 COL 20 COLON-ALIGNED WIDGET-ID 44
+     tgExportOnly AT ROW 6.52 COL 20 WIDGET-ID 14
+     btn-process AT ROW 9 COL 20
+     btn-cancel AT ROW 9 COL 45
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -121,9 +137,9 @@ DEFINE FRAME FRAME-A
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Process Furnish Batch Tester"
-         HEIGHT             = 13.71
-         WIDTH              = 127.2
+         TITLE              = "Process Batch of Furnish"
+         HEIGHT             = 10.14
+         WIDTH              = 93.6
          MAX-HEIGHT         = 19.76
          MAX-WIDTH          = 127.2
          VIRTUAL-HEIGHT     = 19.76
@@ -178,7 +194,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Process Furnish Batch Tester */
+ON END-ERROR OF C-Win /* Process Batch of Furnish */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
@@ -192,7 +208,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Process Furnish Batch Tester */
+ON WINDOW-CLOSE OF C-Win /* Process Batch of Furnish */
 DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -262,10 +278,11 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
    
-  
+    fiTransDate = TODAY.
     RUN enable_UI.
     DO WITH FRAME {&FRAME-NAME}:
-  
+        RUN pBuildFormulaList.
+        fiTransDate = TODAY.
     END.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -307,12 +324,32 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiEstimate fiTag tgExportOnly 
+  DISPLAY cbFormula fiTransDate fiTag tgExportOnly 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE fiEstimate fiTag tgExportOnly btn-process btn-cancel 
+  ENABLE cbFormula fiTransDate fiTag tgExportOnly btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildFormulaList C-Win 
+PROCEDURE pBuildFormulaList PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DO WITH FRAME {&FRAME-NAME}: 
+    FOR EACH reftable NO-LOCK 
+    WHERE reftable.company EQ g_company
+      AND reftable.reftable EQ 'Xref'
+      AND reftable.loc EQ "Formula":
+    
+        cbFormula:ADD-LAST(reftable.code).
+    END.
+END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -353,18 +390,36 @@ PROCEDURE run-process :
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cSuccess AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEstimate AS CHARACTER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN 
-            fiEstimate
+            cbFormula
             fiTag
+            fiTransDate
             tgExportOnly  
             .
     END.
-    
-    RUN util/rjust.p (INPUT-OUTPUT fiEstimate,8).    
-    RUN jc/ProcessFurnishBatch.p (g_company, fiEstimate, fiTag, tgExportOnly, OUTPUT lError, OUTPUT cMessage).
-       
+    cEstimate = fGetXRef(g_company, cbFormula).
+    IF NOT CAN-FIND(FIRST est WHERE est.company EQ g_company AND est.est-no EQ cEstimate) THEN 
+        ASSIGN 
+            lError = YES
+            cMessage = "Invalid formula/estimate " + cbFormula
+            .
+    IF fiTag EQ "" THEN
+        ASSIGN 
+            lError = YES
+            cMessage = "Tag cannot be blank"
+            .
+    IF fiTransDate EQ ? THEN 
+        ASSIGN 
+            lError = YES
+            cMessage = "Date cannot be blank"
+            .        
+    IF NOT lError THEN DO:
+        RUN util/rjust.p (INPUT-OUTPUT cEstimate, 8).    
+        RUN jc/ProcessFurnishBatch.p (g_company, cEstimate, fiTag, fiTransDate, tgExportOnly, OUTPUT lError, OUTPUT cMessage).
+    END.   
     IF lError THEN 
         cSuccess = " with failures".
     MESSAGE "Process completed" cSuccess SKIP(1) 
@@ -376,3 +431,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetXRef C-Win 
+FUNCTION fGetXRef RETURNS CHARACTER PRIVATE
+    (ipcCompany AS CHARACTER, ipcLookup AS CHARACTER ) :
+    /*------------------------------------------------------------------------------
+      Purpose: Lookup a xref value  
+        Notes:  
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+
+    RUN sys/ref/getXref.p (INPUT ipcCompany,
+        INPUT "Formula", 
+        INPUT ipcLookup, 
+        OUTPUT cReturn).
+
+    RETURN cReturn.   /* Function return value. */
+        
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+

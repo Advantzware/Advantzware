@@ -16,6 +16,7 @@
 DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcEstimateID AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcTag        AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipdtTransDate AS DATETIME  NO-UNDO.
 DEFINE INPUT  PARAMETER iplExportOnly AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
@@ -45,6 +46,7 @@ DEFINE TEMP-TABLE ttRMTransaction NO-UNDO
     FIELD errorMessage      AS CHARACTER
     FIELD transactionStatus AS CHARACTER
     FIELD transactionType   AS CHARACTER  
+    FIELD transactionDate   AS DATETIME
     .
 
 DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
@@ -74,6 +76,7 @@ RUN pProcessFurnishBatch(
     INPUT  ipcCompany, 
     INPUT  ipcEstimateID, 
     INPUT  ipcTag, 
+    INPUT  ipdtTransDate,
     INPUT  iplExportOnly, 
     OUTPUT oplError, 
     OUTPUT opcMessage
@@ -209,6 +212,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcTag AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtTransDate AS DATETIME NO-UNDO.
     
     DEFINE VARIABLE dCostTotal  AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
@@ -246,6 +250,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
                 ttRMTransaction.transactionType   = ttRMToProcess.transactionType
                 ttRMTransaction.quantity          = MINIMUM(dQuantity, bf-rm-bin.qty)
                 ttRMTransaction.tag               = bf-rm-bin.tag
+                ttRMTransaction.transactionDate   = ipdtTransDate
                 ttRMTransaction.quantityUOM       = bf-item.cons-uom
                 ttRMTransaction.costPerUOM        = bf-rm-bin.cost
                 ttRMTransaction.costTotal         = bf-rm-bin.cost * ttRMTransaction.quantity
@@ -275,6 +280,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
                 ttRMTransaction.transactionType   = ttRMToProcess.transactionType
                 ttRMTransaction.quantity          = dQuantity
                 ttRMTransaction.tag               = bf-rm-bin.tag
+                ttRMTransaction.transactionDate   = ipdtTransDate
                 ttRMTransaction.quantityUOM       = bf-item.cons-uom
                 ttRMTransaction.costPerUOM        = bf-rm-bin.cost
                 ttRMTransaction.costTotal         = bf-rm-bin.cost * ttRMTransaction.quantity
@@ -305,6 +311,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
             ttRMTransaction.transactionType   = ttRMToProcess.transactionType
             ttRMTransaction.quantity          = IF ttRMToProcess.quantity GT 0 THEN ttRMToProcess.quantity ELSE 1
             ttRMTransaction.tag               = ipcTag
+            ttRMTransaction.transactionDate   = ipdtTransDate
             ttRMTransaction.quantityUOM       = bf-item.cons-uom
             ttRMTransaction.costPerUOM        = dCostTotal / ttRMTransaction.quantity
             ttRMTransaction.costTotal         = dCostTotal
@@ -379,6 +386,7 @@ PROCEDURE pProcessFurnishBatch PRIVATE:
     DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcEstimateID AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTag        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtTransDate AS DATETIME  NO-UNDO.
     DEFINE INPUT  PARAMETER iplExportOnly AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
@@ -403,7 +411,8 @@ PROCEDURE pProcessFurnishBatch PRIVATE:
     This is the desired model that is similar to process of PostInvoices.p that builds up a "work list" that will then be processed
     at the very end in one transaction that does the DB creates and writes. */
     RUN pBuildRMTransactions(
-        INPUT ipcTag
+        INPUT ipcTag,
+        INPUT ipdtTransDate
         ).
 
     RUN pProcessTransactions (
@@ -441,8 +450,9 @@ PROCEDURE pProcessTransactions PRIVATE:
             This can either be the legacy procedures or a scaled-down rewrite*/
            
             IF ttRMTransaction.transactionType EQ "R" THEN DO:
-                RUN Inventory_CreateRMTransaction IN hdInventoryProcs (
+                RUN Inventory_CreateRMTransactionForDate IN hdInventoryProcs (
                     INPUT  ttRMTransaction.company, 
+                    INPUT  ttRMTransaction.transactionDate, 
                     INPUT  ttRMTransaction.itemID, 
                     INPUT  ttRMTransaction.tag, 
                     INPUT  cLocation, 
@@ -457,8 +467,9 @@ PROCEDURE pProcessTransactions PRIVATE:
                     ).        
             END.
             ELSE IF ttRMTransaction.transactionType EQ "I" THEN DO:
-                RUN Inventory_CreateRMTransactionFromRMBin IN hdInventoryProcs (
+                RUN Inventory_CreateRMTransactionFromRMBinForDate IN hdInventoryProcs (
                     INPUT  ttRMTransaction.rmBInRowID, 
+                    INPUT  ttRMTransaction.transactionDate,
                     INPUT  ttRMTransaction.transactionType, 
                     INPUT  ttRMTransaction.quantity, 
                     INPUT  "",  /* Reason Code */ 
@@ -492,7 +503,7 @@ PROCEDURE pProcessTransactions PRIVATE:
         
         RUN Inventory_PostRawMaterials IN hdInventoryProcs (
             INPUT  cCompany,
-            INPUT  TODAY,
+            INPUT  ipdtTransDate,
             OUTPUT lSuccess,
             OUTPUT opcMessage,
             INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
