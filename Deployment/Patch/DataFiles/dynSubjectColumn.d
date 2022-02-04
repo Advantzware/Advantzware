@@ -343,8 +343,8 @@
 31 yes 1 "shifts.shift" "Shift" "X" "shifts" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355977" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 32 yes 2 "vend.name" "Name" "x(30)" "vend" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355978" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 32 yes 1 "vend.vend-no" "Vend.#" "x(30)" "vend" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355979" yes yes yes "" no "" "" 0 0 "" no no "" "" no
-33 yes 2 "mat.dscr" "Description" "x(30)" "mat" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355980" yes yes yes "" no "" "" 0 0 "" no no "" "" no
-33 yes 1 "mat.mat" "Type" "x(5)" "mat" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355981" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+33 yes 2 "materialType.materialDescription" "Material Description" "x(40)" "materialType" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202201271571508511225" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+33 yes 1 "materialType.materialType" "Material Type" "x(8)" "materialType" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202201271571508511226" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 34 yes 2 "procat.dscr" "Description" "x(20)" "procat" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355982" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 34 yes 1 "procat.procat" "Category" "x(5)" "procat" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355983" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 35 yes 2 "ttTempTable.exportDate" "exportDate" "99/99/9999" "ttTempTable" 0 "date" "ASI" 0 no no "" "" no "" "" "201911064565804355984" no no no "" no "" "" 0 0 "" no no "" "" no

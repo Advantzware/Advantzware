@@ -1,5 +1,0 @@
-<B><C2>Burt Rigid Box. </B><P10><C30><B><P11>Factory Order: <P11>Burt<C65>Report Date: $CurrentDate$</B><P10><R+0.20>
-<||3><C1><FROM><C83><LINE><||3>
-<C2><B>Customer:<P10>$CustomerID$<P10><B><C39>Delivery Date: $DueDate$<C68>Order # :$OrderID|INT|>>>>>>9|$
-<C68>Job #: </B>$JobID$-$JobID2|INT|99|$
-<||3><C1><FROM><C83><LINE><||3>
