@@ -3910,8 +3910,9 @@ PROCEDURE ipDataFix999999 :
     RUN ipChangeCostMethod.
     RUN ipSetDepartmentRequired.
     RUN ipAddDbmsFonts.
-    RUN ipDeleteAudit.
     RUN ipRefTableConv.
+    RUN util/dAOAFormatUpate.
+    RUN ipDeleteAudit.
 
     
 END PROCEDURE.
