@@ -1,17 +1,12 @@
     
 for each {1}fg-rctd
-    where {1}fg-rctd.company   eq cocode
-    and {1}fg-rctd.rita-code eq "C"
-    AND ("{1}" EQ "w-" OR
-    (fg-rctd.created-by GE begin_userid  AND
-    fg-rctd.created-by LE end_userid))
+    WHERE "{1}" EQ "w-" 
+       OR ROWID(fg-rctd) EQ ipriFgRctd
     break by {1}fg-rctd.i-no 
     by {1}fg-rctd.loc
     by {1}fg-rctd.loc-bin
     by {1}fg-rctd.tag     desc:
         
-    IF iPosted GE iPostLimit THEN LEAVE.    
-                      
     FIND FIRST itemfg WHERE
         itemfg.company eq cocode AND
         itemfg.i-no    eq {1}fg-rctd.i-no
@@ -266,8 +261,6 @@ for each {1}fg-rctd
     END.
 
     delete {1}fg-rctd.
-    
-    iPosted = iPosted + 1.
     
 end. /* each {1}fg-rctd */
 

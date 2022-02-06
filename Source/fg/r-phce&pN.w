@@ -74,6 +74,7 @@ DEFINE NEW SHARED VARIABLE v-trnum       AS INTEGER.
 DEFINE TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd.
 
 DEFINE TEMP-TABLE tt-fg-bin NO-UNDO
+    FIELD fgRctdRowID AS ROWID
     FIELD rct-date    AS DATE
     FIELD i-no        AS CHARACTER    
     FIELD i-name      AS CHARACTER
@@ -91,9 +92,12 @@ DEFINE TEMP-TABLE tt-fg-bin NO-UNDO
     FIELD tot-value   AS DECIMAL   FORMAT "->>>,>>>,>>9.99"
     FIELD seq-no      AS INTEGER
     FIELD count-trans AS LOG
+    FIELD createGL    AS LOGICAL
+    FIELD glDscr      AS CHARACTER
     FIELD v-cost      LIKE itemfg.std-tot-cost EXTENT 4
     FIELD v-uom       AS CHARACTER
     FIELD v-adj-qty   AS INTEGER
+    INDEX fgRctdRowID fgRctdRowID
     INDEX i-no   i-no   job-no job-no2 loc loc-bin tag
     INDEX seq-no seq-no.
 
@@ -186,13 +190,13 @@ display tt-fg-bin.rct-date when first-of(tt-fg-bin.i-no)
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 post-date fiPostLimit ~
-begin_userid end_userid tg_ShowOHCounted tg_ShowOHNotCounted tg_TotalByItem ~
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 post-date begin_userid ~
+end_userid tg_ShowOHCounted tg_ShowOHNotCounted tg_TotalByItem ~
 tg_PrintSubTotal sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up ~
 btn_down rd-dest tbAutoClose btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS post-date fiPostLimit begin_userid ~
-end_userid tg_ShowOHCounted tg_ShowOHNotCounted tg_TotalByItem ~
-tg_PrintSubTotal sl_avail sl_selected rd-dest tbAutoClose 
+&Scoped-Define DISPLAYED-OBJECTS post-date begin_userid end_userid ~
+tg_ShowOHCounted tg_ShowOHNotCounted tg_TotalByItem tg_PrintSubTotal ~
+sl_avail sl_selected rd-dest tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -254,11 +258,6 @@ DEFINE VARIABLE end_userid AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz"
      LABEL "Ending User ID" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiPostLimit AS INTEGER FORMAT ">>,>>9":U INITIAL 0 
-     LABEL "Post Limit" 
-     VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -355,7 +354,6 @@ DEFINE VARIABLE tg_TotalByItem AS LOGICAL INITIAL no
 
 DEFINE FRAME FRAME-A
      post-date AT ROW 3.38 COL 25 COLON-ALIGNED
-     fiPostLimit AT ROW 3.38 COL 66 COLON-ALIGNED WIDGET-ID 66
      begin_userid AT ROW 5.05 COL 25.2 COLON-ALIGNED HELP
           "Enter the Beginning User ID"
      end_userid AT ROW 5.05 COL 66.2 COLON-ALIGNED HELP
@@ -387,15 +385,15 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 23 COL 51.2
      "Selected Columns(In Display Order)" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 11.52 COL 60.4 WIDGET-ID 44
-     " Output Destination" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 17.24 COL 4
-     " Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.05 COL 4
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 11.48 COL 3 WIDGET-ID 38
      "This procedure will post all finished goods physical count transactions." VIEW-AS TEXT
           SIZE 82 BY .95 AT ROW 2.14 COL 8
           FONT 6
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 11.48 COL 3 WIDGET-ID 38
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.05 COL 4
+     " Output Destination" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 17.24 COL 4
      RECT-6 AT ROW 17.67 COL 3
      RECT-7 AT ROW 1.52 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -1017,134 +1015,29 @@ PROCEDURE cpost :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    SESSION:SET-WAIT-STATE("general").
-
-    DEFINE BUFFER b2-fg-bin FOR fg-bin.
+    DEFINE VARIABLE lCreateGL AS LOGICAL NO-UNDO.
     
-    DEFINE VARIABLE iPostLimit AS INT NO-UNDO.
-    DEFINE VARIABLE iPosted AS INT NO-UNDO.
-    ASSIGN 
-        iPostLimit = INTEGER(fiPostLimit:SCREEN-VALUE IN FRAME frame-a)
-        iPosted = 0.
+    SESSION:SET-WAIT-STATE("general").
+    
+    EMPTY TEMP-TABLE work-job.
 
-    EMPTY TEMP-TABLE w-fg-rctd.
-
-    postit:
-    DO TRANSACTION ON ERROR UNDO postit, LEAVE postit:
-        FOR EACH fg-rctd
-            WHERE fg-rctd.company   EQ cocode
-            AND fg-rctd.rita-code EQ "C"
-            AND ((begin_userid    LE "" AND
-            end_userid      GE "") OR
-            (fg-rctd.created-by GE begin_userid 
-            AND fg-rctd.created-by LE end_userid))      
-            NO-LOCK,  
-            FIRST itemfg
-            WHERE itemfg.company EQ cocode
-            AND itemfg.i-no    EQ fg-rctd.i-no
-            AND itemfg.isaset
-            AND itemfg.alloc   
-            NO-LOCK:
-
-            RUN fg/fullset.p (ROWID(itemfg)).
-
-            FOR EACH tt-fg-set,
-                FIRST b-itemfg
-                WHERE b-itemfg.company EQ cocode
-                AND b-itemfg.i-no    EQ tt-fg-set.part-no
-                NO-LOCK:
-
-                x = 1.
-                FOR EACH w-fg-rctd BY w-fg-rctd.r-no DESCENDING:
-                    LEAVE.
-                END.
-                IF AVAILABLE w-fg-rctd THEN x = w-fg-rctd.r-no + 1.
-                FOR EACH b-fg-rctd NO-LOCK BY b-fg-rctd.r-no DESCENDING:
-                    IF b-fg-rctd.r-no GE X THEN X = b-fg-rctd.r-no + 1.
-                    LEAVE.
-                END.
-
-                FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
-                IF AVAILABLE fg-rcpth AND fg-rcpth.r-no GE x THEN x = fg-rcpth.r-no + 1.
-
-                CREATE w-fg-rctd.
-                BUFFER-COPY fg-rctd TO w-fg-rctd
-                    ASSIGN
-                    w-fg-rctd.i-no   = b-itemfg.i-no
-                    w-fg-rctd.i-name = b-itemfg.i-name
-                    w-fg-rctd.r-no   = x.
-
-                FIND FIRST fg-bin
-                    WHERE fg-bin.company EQ cocode
-                    AND fg-bin.i-no    EQ itemfg.i-no
-                    AND fg-bin.loc     EQ fg-rctd.loc
-                    AND fg-bin.loc-bin EQ fg-rctd.loc-bin
-                    AND fg-bin.tag     EQ fg-rctd.tag
-                    AND fg-bin.job-no  EQ fg-rctd.job-no
-                    AND fg-bin.job-no2 EQ fg-rctd.job-no2
-                    AND fg-bin.cust-no EQ fg-rctd.cust-no
-                    USE-INDEX co-ino NO-ERROR.
-                v-adj-qty = (IF AVAILABLE fg-bin THEN fg-bin.qty ELSE 0) * tt-fg-set.part-qty-dec.
-
-                FIND FIRST fg-bin
-                    WHERE fg-bin.company EQ cocode
-                    AND fg-bin.i-no    EQ b-itemfg.i-no
-                    AND fg-bin.loc     EQ fg-rctd.loc
-                    AND fg-bin.loc-bin EQ fg-rctd.loc-bin
-                    AND fg-bin.tag     EQ fg-rctd.tag
-                    AND fg-bin.job-no  EQ fg-rctd.job-no
-                    AND fg-bin.job-no2 EQ fg-rctd.job-no2
-                    AND fg-bin.cust-no EQ fg-rctd.cust-no
-                    USE-INDEX co-ino NO-ERROR.
-                v-adj-qty = (IF AVAILABLE fg-bin THEN fg-bin.qty ELSE 0) - v-adj-qty.
-
-                IF v-adj-qty LT 0 THEN v-adj-qty = 0.
-
-                ASSIGN 
-                    w-fg-rctd.t-qty = (fg-rctd.t-qty * tt-fg-set.part-qty-dec) + v-adj-qty.
-            END.
-        END.
-
-        {fg/fg-cpostLimit.i w-}
-
-        {fg/fg-cpostLimit.i}
-
-        IF v-gl AND uperiod GT 0 THEN 
-        DO:
-            /** GET next G/L TRANS. POSTING # **/
-            /* gdm - 11050906 */
-            REPEAT:
-                FIND FIRST gl-ctrl EXCLUSIVE-LOCK
-                    WHERE gl-ctrl.company EQ cocode NO-ERROR NO-WAIT.
-                IF AVAILABLE gl-ctrl THEN 
-                DO:
-                    ASSIGN 
-                        v-trnum       = gl-ctrl.trnum + 1
-                        gl-ctrl.trnum = v-trnum.
-                    FIND CURRENT gl-ctrl NO-LOCK NO-ERROR.
-                    LEAVE.
-                END. /* IF AVAIL gl-ctrl */
-            END. /* REPEAT */
-            /* gdm - 11050906 */
-
-            FOR EACH work-job BREAK BY work-job.actnum:
-                RUN GL_SpCreateGLHist(cocode,
-                    work-job.actnum,
-                    "ADJUST",
-                    (IF work-job.fg THEN "FG Adjustment entries FG"
-                    ELSE "FG Adjustment entries COGS"),
-                    udate,
-                    (IF work-job.fg THEN - work-job.amt
-                    ELSE work-job.amt),
-                    v-trnum,
-                    uperiod,
-                    "A",
-                    udate,
-                    work-job.cDesc,
-                    "FG").
-            END. /* each work-job */
-        END.
-    END. /* postit */
+    IF v-gl AND uperiod GT 0 THEN DO:
+        RUN pGetNextGLTransactionNo (OUTPUT v-trnum).
+        lCreateGL = TRUE.
+    END.
+            
+    FOR EACH fg-rctd NO-LOCK
+        WHERE fg-rctd.company   EQ cocode
+          AND fg-rctd.rita-code EQ "C"
+          AND ((begin_userid    LE "" AND
+                end_userid      GE "") OR
+               (fg-rctd.created-by GE begin_userid AND  
+                fg-rctd.created-by LE end_userid)),  
+        FIRST itemfg NO-LOCK
+        WHERE itemfg.company EQ cocode
+          AND itemfg.i-no    EQ fg-rctd.i-no:  
+        RUN pPostCount(ROWID(fg-rctd), v-trnum, lCreateGL).
+    END.
 
     SESSION:SET-WAIT-STATE("").
 
@@ -1298,14 +1191,14 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY post-date fiPostLimit begin_userid end_userid tg_ShowOHCounted 
-          tg_ShowOHNotCounted tg_TotalByItem tg_PrintSubTotal sl_avail 
-          sl_selected rd-dest tbAutoClose 
+  DISPLAY post-date begin_userid end_userid tg_ShowOHCounted tg_ShowOHNotCounted 
+          tg_TotalByItem tg_PrintSubTotal sl_avail sl_selected rd-dest 
+          tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 post-date fiPostLimit begin_userid end_userid 
-         tg_ShowOHCounted tg_ShowOHNotCounted tg_TotalByItem tg_PrintSubTotal 
-         sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down 
-         rd-dest tbAutoClose btn-ok btn-cancel 
+  ENABLE RECT-6 RECT-7 post-date begin_userid end_userid tg_ShowOHCounted 
+         tg_ShowOHNotCounted tg_TotalByItem tg_PrintSubTotal sl_avail 
+         sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down rd-dest 
+         tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1472,6 +1365,165 @@ PROCEDURE pCheckDate :
             v-invalid = YES.
         END.       
     
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetNextGLTransactionNo C-Win 
+PROCEDURE pGetNextGLTransactionNo :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opiTransactionNo AS INTEGER NO-UNDO.
+    /** GET next G/L TRANS. POSTING # **/
+    /* gdm - 11050906 */
+    REPEAT:
+        FIND FIRST gl-ctrl EXCLUSIVE-LOCK
+             WHERE gl-ctrl.company EQ cocode 
+             NO-ERROR NO-WAIT.
+        IF AVAILABLE gl-ctrl THEN DO:
+            ASSIGN 
+                opiTransactionNo = gl-ctrl.trnum + 1
+                gl-ctrl.trnum    = opiTransactionNo
+                .
+            FIND CURRENT gl-ctrl NO-LOCK NO-ERROR.
+            LEAVE.
+        END. /* IF AVAIL gl-ctrl */
+    END. /* REPEAT */
+    /* gdm - 11050906 */
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPostCount C-Win 
+PROCEDURE pPostCount :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriFGRctd         AS ROWID   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiGLTransactionNo AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplCreateGL        AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER b2-fg-bin FOR fg-bin.
+
+    EMPTY TEMP-TABLE w-fg-rctd.
+    EMPTY TEMP-TABLE work-job.
+    
+    MAIN-BLOCK:
+    DO TRANSACTION ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+        FOR FIRST fg-rctd NO-LOCK
+            WHERE ROWID(fg-rctd) EQ ipriFGRctd,  
+            FIRST itemfg NO-LOCK
+            WHERE itemfg.company EQ cocode
+              AND itemfg.i-no    EQ fg-rctd.i-no
+              AND itemfg.isaset
+              AND itemfg.alloc:
+    
+            RUN fg/fullset.p (ROWID(itemfg)).
+    
+            FOR EACH tt-fg-set,
+                FIRST b-itemfg
+                WHERE b-itemfg.company EQ cocode
+                  AND b-itemfg.i-no    EQ tt-fg-set.part-no
+                NO-LOCK:
+    
+                x = 1.
+                FOR EACH w-fg-rctd BY w-fg-rctd.r-no DESCENDING:
+                    LEAVE.
+                END.
+                IF AVAILABLE w-fg-rctd THEN x = w-fg-rctd.r-no + 1.
+                FOR EACH b-fg-rctd NO-LOCK BY b-fg-rctd.r-no DESCENDING:
+                    IF b-fg-rctd.r-no GE X THEN X = b-fg-rctd.r-no + 1.
+                    LEAVE.
+                END.
+    
+                FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
+                IF AVAILABLE fg-rcpth AND fg-rcpth.r-no GE x THEN x = fg-rcpth.r-no + 1.
+    
+                CREATE w-fg-rctd.
+                BUFFER-COPY fg-rctd TO w-fg-rctd
+                    ASSIGN
+                    w-fg-rctd.i-no   = b-itemfg.i-no
+                    w-fg-rctd.i-name = b-itemfg.i-name
+                    w-fg-rctd.r-no   = x.
+    
+                FIND FIRST fg-bin
+                    WHERE fg-bin.company EQ cocode
+                    AND fg-bin.i-no    EQ itemfg.i-no
+                    AND fg-bin.loc     EQ fg-rctd.loc
+                    AND fg-bin.loc-bin EQ fg-rctd.loc-bin
+                    AND fg-bin.tag     EQ fg-rctd.tag
+                    AND fg-bin.job-no  EQ fg-rctd.job-no
+                    AND fg-bin.job-no2 EQ fg-rctd.job-no2
+                    AND fg-bin.cust-no EQ fg-rctd.cust-no
+                    USE-INDEX co-ino NO-ERROR.
+                v-adj-qty = (IF AVAILABLE fg-bin THEN fg-bin.qty ELSE 0) * tt-fg-set.part-qty-dec.
+    
+                FIND FIRST fg-bin
+                    WHERE fg-bin.company EQ cocode
+                    AND fg-bin.i-no    EQ b-itemfg.i-no
+                    AND fg-bin.loc     EQ fg-rctd.loc
+                    AND fg-bin.loc-bin EQ fg-rctd.loc-bin
+                    AND fg-bin.tag     EQ fg-rctd.tag
+                    AND fg-bin.job-no  EQ fg-rctd.job-no
+                    AND fg-bin.job-no2 EQ fg-rctd.job-no2
+                    AND fg-bin.cust-no EQ fg-rctd.cust-no
+                    USE-INDEX co-ino NO-ERROR.
+                v-adj-qty = (IF AVAILABLE fg-bin THEN fg-bin.qty ELSE 0) - v-adj-qty.
+    
+                IF v-adj-qty LT 0 THEN v-adj-qty = 0.
+    
+                ASSIGN 
+                    w-fg-rctd.t-qty = (fg-rctd.t-qty * tt-fg-set.part-qty-dec) + v-adj-qty.
+            END.
+        END.
+    
+        {fg/fg-cpostLimit.i w-}
+    
+        {fg/fg-cpostLimit.i}
+        
+        FIND FIRST tt-fg-bin
+             WHERE tt-fg-bin.fgRctdRowID EQ ipriFGRctd
+             NO-ERROR.
+        IF AVAILABLE tt-fg-bin THEN DO:
+            IF tt-fg-bin.createGL AND tt-fg-bin.count-trans THEN
+                RUN oe/invposty.p (
+                    INPUT 0, 
+                    INPUT tt-fg-bin.i-no, 
+                    INPUT tt-fg-bin.v-adj-qty, 
+                    INPUT tt-fg-bin.v-uom,
+                    INPUT tt-fg-bin.v-cost[1], 
+                    INPUT tt-fg-bin.v-cost[2], 
+                    INPUT tt-fg-bin.v-cost[3], 
+                    INPUT tt-fg-bin.v-cost[4], 
+                    INPUT tt-fg-bin.glDscr
+                    ).
+        END. 
+    
+        IF iplCreateGL THEN DO:
+            FOR EACH work-job BREAK BY work-job.actnum:
+                RUN GL_SpCreateGLHist(
+                    INPUT cocode,
+                    INPUT work-job.actnum,
+                    INPUT "ADJUST",
+                    INPUT IF work-job.fg THEN "FG Adjustment entries FG" ELSE "FG Adjustment entries COGS",
+                    INPUT udate,
+                    INPUT IF work-job.fg THEN - work-job.amt ELSE work-job.amt,
+                    INPUT ipiGLTransactionNo,
+                    INPUT uperiod,
+                    INPUT "A",
+                    INPUT udate,
+                    INPUT work-job.cDesc,
+                    INPUT "FG"
+                    ).
+            END. /* each work-job */
+        END.
     END.
 END PROCEDURE.
 
@@ -1896,6 +1948,7 @@ PROCEDURE run-report-inv :
 
         CREATE tt-fg-bin.
         ASSIGN 
+            tt-fg-bin.fgRctdRowID = ROWID(fg-rctd)
             tt-fg-bin.rct-date    = fg-rctd.rct-date
             tt-fg-bin.i-no        = fg-rctd.i-no
             tt-fg-bin.i-name      = fg-rctd.i-name
@@ -1908,6 +1961,7 @@ PROCEDURE run-report-inv :
             tt-fg-bin.pur-uom     = fg-rctd.pur-uom
             tt-fg-bin.seq-no      = v-seq-no
             tt-fg-bin.count-trans = YES
+            tt-fg-bin.createGL    = YES
             tt-fg-bin.part-no     = itemfg.part-no
             tt-fg-bin.sell-price  = itemfg.sell-price
             v-seq-no              = v-seq-no + 1.
@@ -2039,7 +2093,7 @@ PROCEDURE run-report-inv :
 
     END. /*for each fg-rctd*/
 
-    FOR EACH tt-fg-bin NO-LOCK 
+    FOR EACH tt-fg-bin 
         BREAK BY tt-fg-bin.i-no
         BY tt-fg-bin.seq-no:
 
@@ -2132,8 +2186,14 @@ PROCEDURE run-report-inv :
         IF tg_showOHCounted AND tg_showOHNotCounted THEN .
         ELSE 
         DO:
-            IF tg_showOHCounted AND v-variance <> 0 THEN NEXT.
-            IF tg_showOHNotCounted AND v-variance = 0 THEN NEXT.
+            IF tg_showOHCounted AND v-variance <> 0 THEN DO:
+                tt-fg-bin.createGL = NO.
+                NEXT.
+            END.
+            IF tg_showOHNotCounted AND v-variance = 0 THEN DO:
+                tt-fg-bin.createGL = NO.
+                NEXT.
+            END.
         END.
         v-postable = YES.
 
@@ -2150,7 +2210,9 @@ PROCEDURE run-report-inv :
                 
             cDescription = IF fg-rctd.job-no NE "" THEN "Job: " + fg-rctd.job-no + "-" + STRING(fg-rctd.job-no2,"99") 
             ELSE IF fg-rctd.po-no NE "" THEN "PO: " + string(fg-rctd.po-no,"999999") + "-" + STRING(fg-rctd.po-line,"999") ELSE "" NO-ERROR. 
-
+            
+            tt-fg-bin.glDscr = cDescription.
+            
             /*Invoicing  - Post Invoicing Transactions - Job Costing*/
             RUN oe/invposty.p (0, tt-fg-bin.i-no, tt-fg-bin.v-adj-qty, tt-fg-bin.v-uom,
                 tt-fg-bin.v-cost[1], tt-fg-bin.v-cost[2], tt-fg-bin.v-cost[3], tt-fg-bin.v-cost[4], cDescription).
