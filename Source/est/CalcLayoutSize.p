@@ -182,22 +182,30 @@ DO:
         IF bf-item.i-code EQ "R" THEN 
         DO:
             IF bf-item.r-wid GT 0  THEN 
+            DO: 
                 ASSIGN 
                     ttLayoutSize.dRollWidth         = bf-item.r-wid
                     ttLayoutSize.dGrossSheetWidth   = bf-item.r-wid
-                    ttLayoutSize.dLayoutSheetLength = bf-item.r-wid
                     ttLayoutSize.IsRollMaterial     = YES
                     .
+                IF cIndustryType = "Folding" THEN    
+                    ttLayoutSize.dGrossSheetLength  = IF bf-ef.xgrain EQ "S" THEN ttLayoutSize.dLayoutSheetWidth ELSE ttLayoutSize.dLayoutSheetLength.
+                ELSE
+                    ttLayoutSize.dLayoutSheetLength = bf-item.r-wid.
+                    
+            END.
             ELSE 
             DO:
                 ASSIGN 
                     ttLayoutSize.dGrossSheetWidth   = bf-item.s-wid
                     ttLayoutSize.dGrossSheetLength  = bf-item.s-len
-                    ttLayoutSize.dLayoutSheetLength = bf-item.s-len
-                    ttLayoutSize.dLayoutSheetWidth  = bf-item.s-wid
                     ttLayoutSize.IsRollMaterial     = NO
                     ttLayoutSize.dRollWidth         = 0
                     .
+                IF cIndustryType NE "Folding" THEN    
+                    ASSIGN
+                        ttLayoutSize.dLayoutSheetLength = bf-item.s-len
+                        ttLayoutSize.dLayoutSheetWidth  = bf-item.s-wid.
             END.
             
             IF cIndustryType = "Folding" THEN
@@ -212,7 +220,7 @@ DO:
                     ASSIGN 
                         ttLayoutSize.dNetSheetLength    = ttLayoutSize.dGrossSheetLength
                         ttLayoutSize.dNetSheetWidth     = ttLayoutSize.dGrossSheetWidth
-                        ttLayoutSize.dLayoutSheetLength = ttLayoutSize.dGrossSheetLength
+                        ttLayoutSize.dLayoutSheetWidth   = ttLayoutSize.dGrossSheetLength
                         .
             END.
        
@@ -275,12 +283,27 @@ DO:
             dTempWidth  = dSwapDim.
 END.        
  
- 
-RUN pGetDecimalSettings(bf-eb.company,  /*Get NK1 CECSCRN settings*/
-    OUTPUT lDecimal,
-    OUTPUT dDecimalFactor,
-    OUTPUT dDecimalMax, 
-    OUTPUT dConversionFactor). 
+IF cIndustryType = "Folding" THEN
+DO:
+    RUN pGetDecimalSettingsFold(bf-eb.company,  /*Get NK1 CECSCRN settings*/
+        OUTPUT lDecimal,
+        OUTPUT dDecimalFactor,
+        OUTPUT dDecimalMax, 
+        OUTPUT dConversionFactor).
+        
+END.
+ELSE
+DO: 
+    RUN pGetDecimalSettingsCorr(bf-eb.company,  /*Get NK1 CECSCRN settings*/
+        OUTPUT lDecimal,
+        OUTPUT dDecimalFactor,
+        OUTPUT dDecimalMax, 
+        OUTPUT dConversionFactor). 
+    
+    /*Get Rounding Settings*/
+    lRound = fRound( bf-eb.company ).  /*Get NK1 Round logical*/
+   
+END.        
         
 IF bf-eb.sty-lock OR ceroute-dec EQ 1 THEN 
 DO:
@@ -301,9 +324,6 @@ END.
           
 ELSE 
 DO:
-    /*Get Rounding Settings*/
-    lRound = fRound( bf-eb.company ).  /*Get NK1 Round logical*/
-   
     /*Calculate Style formulas and scoring*/        
     RUN est/CalcStyleFormulae.p (ROWID(bf-eb),
         lRound,
@@ -537,18 +557,17 @@ IF ttLayoutSize.dLayoutSheetWidth LT ttLayoutSize.dNetSheetWidth THEN
 IF ttLayoutSize.dLayoutSheetLength LT ttLayoutSize.dNetSheetLength THEN 
     ttLayoutSize.dLayoutSheetLength = ttLayoutSize.dNetSheetLength.
 
-
-IF INDEX("B",bf-ef.xgrain) EQ 0 AND bf-item.i-code NE "R"  THEN 
-DO:
-
-    IF ttLayoutSize.dGrossSheetWidth LT ttLayoutSize.dNetSheetWidth THEN 
-        ttLayoutSize.dGrossSheetWidth = ttLayoutSize.dNetSheetWidth.
-    IF ttLayoutSize.dGrossSheetLength LT ttLayoutSize.dNetSheetLength THEN 
-        ttLayoutSize.dGrossSheetLength = ttLayoutSize.dNetSheetLength.
-END.
-
 IF bf-item.i-code EQ "E" THEN 
 DO:
+    IF INDEX("B",bf-ef.xgrain) EQ 0 THEN 
+    DO:
+        IF ttLayoutSize.dGrossSheetWidth LT ttLayoutSize.dNetSheetWidth THEN 
+            ttLayoutSize.dGrossSheetWidth = ttLayoutSize.dNetSheetWidth.
+        IF ttLayoutSize.dGrossSheetLength LT ttLayoutSize.dNetSheetLength THEN 
+            ttLayoutSize.dGrossSheetLength = ttLayoutSize.dNetSheetLength.
+    END.
+    
+    
     IF AVAILABLE bf-mach AND bf-mach.dept[1] EQ "RC" THEN
         ASSIGN  
             ttLayoutSize.dNetSheetWidth  = ttLayoutSize.dNetSheetWidth - dTrimWidth
@@ -598,10 +617,12 @@ DO:
             
         IF bf-ef.xgrain EQ "S" THEN 
             ASSIGN
+                ttLayoutSize.dGrossSheetLength = IF ttLayoutSize.IsRollMaterial = YES THEN ttLayoutSize.dNetSheetWidth ELSE ttLayoutSize.dGrossSheetLength
                 ttLayoutSize.dLayoutSheetLength = ttLayoutSize.dGrossSheetWidth
                 ttLayoutSize.dLayoutSheetWidth  = ttLayoutSize.dGrossSheetLength.
         ELSE
             ASSIGN
+                ttLayoutSize.dGrossSheetLength = IF ttLayoutSize.IsRollMaterial = YES THEN ttLayoutSize.dNetSheetLength ELSE ttLayoutSize.dGrossSheetLength
                 dLayoutSheetLength             = ttLayoutSize.dGrossSheetLength
                 ttLayoutSize.dLayoutSheetWidth = ttLayoutSize.dGrossSheetWidth.
     END. /* IF cIndustryType = "Folding" THEN */
@@ -643,7 +664,24 @@ IF isFoamStyle THEN
         ttLayoutSize.iNumOutDepth     = IF ttLayoutSize.dNetSheetDepth NE 0 THEN TRUNCATE(ttLayoutSize.dGrossSheetDepth / ttLayoutSize.dNetSheetDepth,0) ELSE 1
         ttLayoutSize.iBlankNumOnDepth = 1. 
 
-IF lDecimal = NO THEN
+IF cIndustryType = "Folding" AND lDecimal = NO THEN
+DO:
+    IF AVAILABLE bf-item AND bf-item.i-code EQ "E" THEN
+    ASSIGN
+        ttLayoutSize.dGrossSheetLength = ROUND(ttLayoutSize.dGrossSheetLength * dDecimalFactor,0)
+        ttLayoutSize.dGrossSheetLength = ttLayoutSize.dGrossSheetLength / dDecimalFactor
+        ttLayoutSize.dGrossSheetWidth  = ROUND(ttLayoutSize.dGrossSheetWidth * dDecimalFactor,0)
+        ttLayoutSize.dGrossSheetWidth  = ttLayoutSize.dGrossSheetWidth / dDecimalFactor.
+    ELSE
+        ASSIGN
+            ttLayoutSize.dNetSheetLength = ROUND(ttLayoutSize.dNetSheetLength * dDecimalFactor,0)
+            ttLayoutSize.dNetSheetLength = ttLayoutSize.dNetSheetLength / dDecimalFactor
+            ttLayoutSize.dNetSheetWidth  = ROUND(ttLayoutSize.dNetSheetWidth * dDecimalFactor,0)
+            ttLayoutSize.dNetSheetWidth  = ttLayoutSize.dNetSheetWidth / dDecimalFactor.
+END.      
+
+/* Corrugated Version */  
+ELSE IF lDecimal = NO THEN
     ASSIGN
         ttLayoutSize.dGrossSheetLength = ROUND(ttLayoutSize.dGrossSheetLength * dDecimalFactor,0)
         ttLayoutSize.dGrossSheetLength = ttLayoutSize.dGrossSheetLength / dDecimalFactor
@@ -704,7 +742,7 @@ PROCEDURE pCalcLeafDieInchs PRIVATE:
     opdDieInch = opdDieInch + dCalcVal.
 END PROCEDURE.
 
-PROCEDURE pGetDecimalSettings:
+PROCEDURE pGetDecimalSettingsCorr:
     /*------------------------------------------------------------------------------
      Purpose: Returns values from CECSCRN N-K-1
      Notes:  For how decimals appear in dimensions.  .08, .16, .50 (for 16ths, 32nds, and Dec respectively)
@@ -751,6 +789,74 @@ PROCEDURE pGetDecimalSettings:
                     opdDecimalFactor    = 16
                     opdDecimalMax       = 0.16
                     .
+    END.
+
+END PROCEDURE.
+
+PROCEDURE pGetDecimalSettingsFold:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns values from CECSCRN N-K-1
+     Notes:  For how decimals appear in dimensions.  .08, .16, .50 (for 16ths, 32nds, and Dec respectively)
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplDecimal AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdDecimalFactor AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdDecimalMax AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdConversionFactor AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO. 
+    
+    RUN sys\ref\nk1look.p (ipcCompany,
+        'CELAYOUT',
+        'C',
+        NO,
+        NO,
+        '',
+        '', 
+        OUTPUT cReturn,
+        OUTPUT lFound).
+    
+    IF cReturn = "None" THEN
+    DO:
+        ASSIGN 
+            oplDecimal          = YES
+            opdConversionFactor = 1
+            opdDecimalFactor    = 1
+            opdDecimalMax       = 1
+            .
+        RETURN.
+    END.
+    IF lFound THEN 
+    DO:
+        IF cReturn EQ '1' OR cReturn EQ '1UP' THEN
+            ASSIGN 
+                oplDecimal          = YES
+                opdConversionFactor = 1
+                opdDecimalFactor    = 1
+                opdDecimalMax       = 1
+                .
+        ELSE IF cReturn = "1/8" OR cReturn EQ '1/8UP' THEN
+            ASSIGN 
+                oplDecimal          = YES
+                opdConversionFactor = 1
+                opdDecimalFactor    = 8
+                opdDecimalMax       = 8
+                . 
+        ELSE IF cReturn = "1/4" OR cReturn EQ '1/4UP' THEN
+            ASSIGN 
+                oplDecimal          = YES
+                opdConversionFactor = 1
+                opdDecimalFactor    = 4
+                opdDecimalMax       = 4
+                .
+        ELSE IF cReturn = "1/2" OR cReturn EQ '1/2UP' THEN
+            ASSIGN 
+                oplDecimal          = YES
+                opdConversionFactor = 1
+                opdDecimalFactor    = 2
+                opdDecimalMax       = 2
+                .  
     END.
 
 END PROCEDURE.
