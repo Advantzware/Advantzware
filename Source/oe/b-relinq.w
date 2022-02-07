@@ -91,7 +91,7 @@ END.
           AND oe-rell.i-no      BEGINS fi_i-no      ~
           AND (oe-rell.ord-no   EQ fi_ord-no OR fi_ord-no EQ 0) ~
           AND oe-rell.po-no     BEGINS fi_po-no     ~
-          AND oe-rell.job-no    BEGINS fi_job-no    ~
+          AND fill(" ",9 - length(TRIM(oe-rell.job-no))) + trim(oe-rell.job-no) BEGINS fi_job-no    ~
           AND (oe-rell.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ ""), ~
        FIRST itemfg OF oe-rell NO-LOCK
 
@@ -122,7 +122,7 @@ END.
     IF lv-sort-by EQ "i-no"      THEN oe-rell.i-no                                                                                                      ELSE ~
     IF lv-sort-by EQ "po-no"     THEN oe-rell.po-no                                                                                                     ELSE ~
     IF lv-sort-by EQ "rel-date"  THEN STRING(YEAR(oe-relh.rel-date),"9999") + STRING(MONTH(oe-relh.rel-date),"99") + STRING(DAY(oe-relh.rel-date),"99") ELSE ~
-    IF lv-sort-by EQ "job-no"    THEN STRING(oe-rell.job-no,"x(9)") + STRING(oe-rell.job-no2,"999")                                                      ELSE ~
+    IF lv-sort-by EQ "job-no"    THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', oe-rell.job-no, oe-rell.job-no2))                                   ELSE ~
     IF lv-sort-by EQ "qty"       THEN STRING(oe-rell.qty,"9999999999")                                                                                  ELSE ~
     IF lv-sort-by EQ "q-onh"     THEN STRING(itemfg.q-onh,"9999999999")                                                                                 ELSE ~
     IF lv-sort-by EQ "v-shipto-zone"  THEN get-shipto-zone()                                                                                            ELSE ~

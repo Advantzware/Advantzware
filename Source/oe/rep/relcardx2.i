@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* oe/rep/relcardx2.i */   
    
    PUT "<FArial>" SKIP
@@ -62,8 +63,8 @@
       PUT             
                     "<FArial><R+0.5> <C41>  ON HAND INVENTORY       <C64> RELEASE QUANTITY" SKIP
                    "<FCourier New><|10><R24.5><C1><#5><FROM><R26><C80><RECT>" SKIP    
-                   "<R24.5><C7><FROM><R26><C7><LINE>" SKIP
-                   "<R24.5><C23.5><FROM><R26><C23.5><LINE>" SKIP
+                   "<R24.5><C8.5><FROM><R26><C8.5><LINE>" SKIP
+                   "<R24.5><C25><FROM><R26><C25><LINE>" SKIP
                    "<R24.5><C36><FROM><R26><C36><LINE>" SKIP                   
                    "<R24.5><C41><FROM><R26><C41><LINE>" SKIP
                    "<R24.5><C46><FROM><R26><C46><LINE>" SKIP 

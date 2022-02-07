@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* oe/rep/relfibx2.i */   
    
    PUT "<FArial>" SKIP
@@ -45,8 +46,8 @@
                    "<FArial><=4><R+1>    Delivery Zone             Weight                    FOB                              Ship Via                                            Freight Terms" SKIP
                    "<FCourier New><=4><R+3> " v-zone space(9) v-weight FORM ">>>>>>9" space(7) v-fob-code SPACE(1) v-carrier space(8) v-frt-terms   SKIP
                    "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
-                   "<R24><C7><FROM><R26><C7><LINE>" SKIP
-                   "<R24><C33><FROM><R26><C33><LINE>" SKIP
+                   "<R24><C8.5><FROM><R26><C8.5><LINE>" SKIP
+                   "<R24><C34><FROM><R26><C34><LINE>" SKIP
                    "<R24><C51><FROM><R26><C51><LINE>" SKIP
                    "<R24><C57><FROM><R26><C57><LINE>" SKIP 
                    "<R24><C62.5><FROM><R26><C62.5><LINE>" SKIP   

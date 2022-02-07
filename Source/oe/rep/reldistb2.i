@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* oe/rep/relpremx2.i */   
 
       IF ll-display-comp THEN DO:
@@ -76,8 +77,8 @@
          "<FArial><=4><R+1>    Delivery Zone             Weight                    FOB                           Ship Via                                        Freight Terms" SKIP
          "<FCourier New><=4><R+3> " v-zone space(10) v-weight FORMAT "->>>>>9" space(10) oe-ord.fob-code SPACE(5) v-carrier space(10) v-frt-terms   SKIP
          "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
-         "<R24><C7><FROM><R26><C7><LINE>" SKIP
-         "<R24><C23><FROM><R26><C23><LINE>" SKIP
+         "<R24><C8.3><FROM><R26><C8.3><LINE>" SKIP
+         "<R24><C25><FROM><R26><C25><LINE>" SKIP
          "<R24><C56><FROM><R26><C56><LINE>" SKIP 
          "<R24><C65><FROM><R26><C65><LINE>" SKIP   
          "<R24><C70><FROM><R26><C70><LINE>" SKIP
