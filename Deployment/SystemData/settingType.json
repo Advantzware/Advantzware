@@ -1,5 +1,170 @@
 [
   {
+    "rec_key": "202202074618808553143",
+    "settingTypeID": 702,
+    "description": "Allow user to override the status id of on hold tag\nLogical = YES\nThis allows the user to scan a tag that is already on hold.\nIf the pallet tag that is scanned has a status of On Hold, the user will be prompted to enter a status update\n\nLogical = NO\nThis will not allow the user to scan a tag that is already on hold and will show them a message that this tag is on hold and cannot be used.  If the pallet tag that was scanned has a status of On Hold, then the user will be prompted with zMessage(55) indicating the tag is on hold and will display the tag status in the zMessage.  We want to include the Status id and status description - using the new zMessage framework) and return to the tag field (in focus) to enter a different tag.\n",
+    "dataType": "Logical",
+    "validValues": "YES,NO",
+    "defaultValue": "NO",
+    "validValueMin": "",
+    "validValueMax": "",
+    "isPassword": false,
+    "categoryTags": "",
+    "settingName": "AllowOnHoldTagScan",
+    "securityLevel": 0,
+    "hasContext": false
+  },
+  {
+    "rec_key": "202202074613408553113",
+    "settingTypeID": 701,
+    "description": "This can be defaulted so that the user cannot enter any tag status and\nthe default here forces the tag to be updated with this status\nautomatically.  If left blank, then the user will be prompted for the\ntag status to apply.  For example, if the tag status is forced to be\n'001' - Quarantine, then the user will not be prompted or permitted to\nchange the status.\n",
+    "dataType": "Character",
+    "validValues": "",
+    "defaultValue": "",
+    "validValueMin": "",
+    "validValueMax": "",
+    "isPassword": false,
+    "categoryTags": "SSTagStatus",
+    "settingName": "DefaultTagScanStatusID",
+    "securityLevel": 0,
+    "hasContext": false
+  },
+  {
+    "rec_key": "202201274048108513598",
+    "settingTypeID": 700,
+    "description": "Vertex Client Secret\nNK1=VertexClientSecret",
+    "dataType": "Character",
+    "validValues": "",
+    "defaultValue": "",
+    "validValueMin": "",
+    "validValueMax": "",
+    "isPassword": false,
+    "categoryTags": "Vertex",
+    "settingName": "VertexClientSecret",
+    "securityLevel": 0,
+    "hasContext": false
+  },
+  {
+    "rec_key": "202201274048108513595",
+    "settingTypeID": 699,
+    "description": "Vertex Client ID\nNK1=VertexClientID",
+    "dataType": "Character",
+    "validValues": "",
+    "defaultValue": "",
+    "validValueMin": "",
+    "validValueMax": "",
+    "isPassword": false,
+    "categoryTags": "Vertex",
+    "settingName": "VertexClientID",
+    "securityLevel": 0,
+    "hasContext": false
+  },
+  {
+    "rec_key": "202201274048108513592",
+    "settingTypeID": 698,
+    "description": "Vertex API Password\nNK1=VertexAPIPassword",
+    "dataType": "Character",
+    "validValues": "",
+    "defaultValue": "",
+    "validValueMin": "",
+    "validValueMax": "",
+    "isPassword": false,
+    "categoryTags": "Vertex",
+    "settingName": "VertexAPIPassword",
+    "securityLevel": 0,
+    "hasContext": false
+  },
+  {
+    "rec_key": "202201274048108513589",
+    "settingTypeID": 697,
+    "description": "Vertex API Key\nNK1=VertexAPIKey",
+    "dataType": "Character",
+    "validValues": "",
+    "defaultValue": "",
+    "validValueMin": "",
+    "validValueMax": "",
+    "isPassword": false,
+    "categoryTags": "Vertex",
+    "settingName": "VertexAPIKey",
+    "securityLevel": 0,
+    "hasContext": false
+  },
+  {
+    "rec_key": "202201274048108513586",
+    "settingTypeID": 696,
+    "description": "Vertex API Access Token Time\nNK1=VertexAccessToken",
+    "dataType": "Integer",
+    "validValues": "",
+    "defaultValue": "",
+    "validValueMin": "",
+    "validValueMax": "",
+    "isPassword": false,
+    "categoryTags": "Vertex",
+    "settingName": "VertexAccessTokenTime",
+    "securityLevel": 0,
+    "hasContext": false
+  },
+  {
+    "rec_key": "202201274048108513583",
+    "settingTypeID": 695,
+    "description": "Vertex API Access Token Date\nNK1=VertexAccessToken",
+    "dataType": "Date",
+    "validValues": "",
+    "defaultValue": "",
+    "validValueMin": "",
+    "validValueMax": "",
+    "isPassword": false,
+    "categoryTags": "Vertex",
+    "settingName": "VertexAccessTokenDate",
+    "securityLevel": 0,
+    "hasContext": false
+  },
+  {
+    "rec_key": "202201260234908504662",
+    "settingTypeID": 694,
+    "description": "AP Posting UserId",
+    "dataType": "Logical",
+    "validValues": "Yes,No",
+    "defaultValue": "No",
+    "validValueMin": "",
+    "validValueMax": "",
+    "isPassword": false,
+    "categoryTags": "APPosting",
+    "settingName": "APPostingUserId",
+    "securityLevel": 0,
+    "hasContext": false
+  },
+  {
+    "rec_key": "202201260227508504660",
+    "settingTypeID": 693,
+    "description": "AP Posting Period Rules",
+    "dataType": "Character",
+    "validValues": "CurrentPeriodOnly,OpenPeriodOnly",
+    "defaultValue": "CurrentPeriodOnly",
+    "validValueMin": "",
+    "validValueMax": "",
+    "isPassword": false,
+    "categoryTags": "APPosting",
+    "settingName": "APPostingPeriodRules",
+    "securityLevel": 0,
+    "hasContext": false
+  },
+  {
+    "rec_key": "202201260215608504658",
+    "settingTypeID": 692,
+    "description": "",
+    "dataType": "Character",
+    "validValues": "",
+    "defaultValue": "",
+    "validValueMin": "",
+    "validValueMax": "",
+    "isPassword": false,
+    "categoryTags": "APPosting",
+    "settingName": "APPostingPassword",
+    "securityLevel": 0,
+    "hasContext": false
+  },
+  {
     "rec_key": "202201183834308473427",
     "settingTypeID": 691,
     "description": "ADO Client",
@@ -47,7 +212,7 @@
   {
     "rec_key": "202112234873608386358",
     "settingTypeID": 677,
-    "description": "Verify that the freight terms are valid",
+    "description": "Verify that the freight terms are valid\nNK1=InvoiceApprovalFreightTerms",
     "dataType": "Character",
     "validValues": "Off,On,On Also During Post",
     "defaultValue": "Off",
@@ -62,7 +227,7 @@
   {
     "rec_key": "202112234873608386360",
     "settingTypeID": 676,
-    "description": "Do not auto approve if invoice has a misc item",
+    "description": "Do not auto approve if invoice has a misc item\nNK1=InvoiceApprovalMiscCharge",
     "dataType": "Character",
     "validValues": "Off,On,On Also During Post",
     "defaultValue": "Off",
@@ -77,7 +242,7 @@
   {
     "rec_key": "202112234873608386364",
     "settingTypeID": 675,
-    "description": "Unable to calculate tax",
+    "description": "Unable to calculate tax\nNK1=InvoiceApprovalTaxCalc",
     "dataType": "Character",
     "validValues": "Off,On,On Also During Post",
     "defaultValue": "Off",
@@ -92,7 +257,7 @@
   {
     "rec_key": "202112234873608386363",
     "settingTypeID": 674,
-    "description": "Ship to is taxable and any line is not set as taxable",
+    "description": "Ship to is taxable and any line is not set as taxable\nNK1=InvoiceApprovalTaxableCheck",
     "dataType": "Character",
     "validValues": "Off,On,On Also During Post",
     "defaultValue": "Off",
@@ -107,7 +272,7 @@
   {
     "rec_key": "202112234873608386362",
     "settingTypeID": 673,
-    "description": "Item Price is greater than the cost of the item",
+    "description": "Item Price is greater than the cost of the item\nNK1=InvoiceApprovalPriceGTCost",
     "dataType": "Character",
     "validValues": "Off,On,On Also During Post",
     "defaultValue": "Off",
@@ -122,7 +287,7 @@
   {
     "rec_key": "202112234873608386361",
     "settingTypeID": 672,
-    "description": "Order line manually overridden",
+    "description": "Order line manually overridden\nNK1=InvoiceApprovalOrderlineChange",
     "dataType": "Character",
     "validValues": "Off,On,On Also During Post",
     "defaultValue": "Off",
@@ -152,7 +317,7 @@
   {
     "rec_key": "202112234873608386359",
     "settingTypeID": 670,
-    "description": "Invoice status is not on Hold",
+    "description": "Invoice status is not on Hold\nNK1=InvoiceApprovalInvoiceStatus",
     "dataType": "Character",
     "validValues": "Off,On,On Also During Post",
     "defaultValue": "Off",
@@ -182,7 +347,7 @@
   {
     "rec_key": "202112234873608386357",
     "settingTypeID": 668,
-    "description": "If freight is billable, that freight amount is not zero",
+    "description": "If freight is billable, that freight amount is not zero\nNK1=InvoiceApprovalFreightAmount",
     "dataType": "Character",
     "validValues": "Off,On,On Also During Post",
     "defaultValue": "Off",
@@ -197,7 +362,7 @@
   {
     "rec_key": "202112234873608386356",
     "settingTypeID": 667,
-    "description": "Expected revenue is zero for invoice in total",
+    "description": "Expected revenue is zero for invoice in total\nNK1=InvoiceApprovalExpectZero",
     "dataType": "Character",
     "validValues": "Off,On,On Also During Post",
     "defaultValue": "Off",
@@ -212,7 +377,7 @@
   {
     "rec_key": "202112234873608386355",
     "settingTypeID": 666,
-    "description": "Invoice Approval Bill Notes",
+    "description": "Invoice Approval Bill Notes\nNK1=InvoiceApprovalBillNotes",
     "dataType": "Character",
     "validValues": "Off,On,On Also During Post",
     "defaultValue": "Off",
@@ -227,7 +392,7 @@
   {
     "rec_key": "202112234873608386353",
     "settingTypeID": 665,
-    "description": "Utilize auto approval of invoices",
+    "description": "Utilize auto approval of invoices\nNK1=ApplyInvoiceApprovals",
     "dataType": "Character",
     "validValues": "Off,On,On Also During Post",
     "defaultValue": "Off",
@@ -392,7 +557,7 @@
   {
     "rec_key": "202112155474508377724",
     "settingTypeID": 643,
-    "description": "Vertex Active",
+    "description": "Vertex Active\nNK1=VertexAccessToken",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -797,7 +962,7 @@
   {
     "rec_key": "202112075982208341605",
     "settingTypeID": 594,
-    "description": "ZoHo Refresh Token",
+    "description": "ZoHo Refresh Token\nNK1=ZohoRefreshToken",
     "dataType": "Character",
     "validValues": "1000.9d3c98f80d53e7b27dcef14b80bb3e20.f08610cd5b76f5b3a4ade67f17a6c956",
     "defaultValue": "1000.9d3c98f80d53e7b27dcef14b80bb3e20.f08610cd5b76f5b3a4ade67f17a6c956",
@@ -812,7 +977,7 @@
   {
     "rec_key": "202112075982208341604",
     "settingTypeID": 592,
-    "description": "ZoHo Client Secret",
+    "description": "ZoHo Client Secret\nNK1=ZohoClientSecret",
     "dataType": "Character",
     "validValues": "a54de56bc72f068a546b25c539f5f0b01858a4ac8b",
     "defaultValue": "a54de56bc72f068a546b25c539f5f0b01858a4ac8b",
@@ -827,7 +992,7 @@
   {
     "rec_key": "202112075982208341603",
     "settingTypeID": 590,
-    "description": "ZoHo Client ID",
+    "description": "ZoHo Client ID\nNK1=ZohoClientID",
     "dataType": "Character",
     "validValues": "1000.JZ0PMBMAND7RPQ1LZP1QQHPG0KWMLZ",
     "defaultValue": "1000.JZ0PMBMAND7RPQ1LZP1QQHPG0KWMLZ",
@@ -842,7 +1007,7 @@
   {
     "rec_key": "202112075982208341602",
     "settingTypeID": 588,
-    "description": "ZoHo CRM Active",
+    "description": "ZoHo CRM Active\nNK1=ZohoClientID",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -857,7 +1022,7 @@
   {
     "rec_key": "202112075982208341601",
     "settingTypeID": 586,
-    "description": "Vertex Tax Class Default",
+    "description": "Vertex Tax Class Default\nNK1=VertexTaxClassDefault",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -872,7 +1037,7 @@
   {
     "rec_key": "202112075982208341600",
     "settingTypeID": 584,
-    "description": "Vertex Freight Tax Class",
+    "description": "Vertex Freight Tax Class\nNK1=VertexFreightTaxClass",
     "dataType": "Character",
     "validValues": "Freight",
     "defaultValue": "Freight",
@@ -887,7 +1052,7 @@
   {
     "rec_key": "202112075982108341584",
     "settingTypeID": 568,
-    "description": "Tasker Not Running Time Limit",
+    "description": "Tasker Not Running Time Limit\nNK1=TaskerNotRunning",
     "dataType": "Integer",
     "validValues": "",
     "defaultValue": "0",
@@ -902,7 +1067,7 @@
   {
     "rec_key": "202112075982108341583",
     "settingTypeID": 566,
-    "description": "Tasker Not Running Email Configuration ID",
+    "description": "Tasker Not Running Email Configuration ID\nNK1=TaskerNotRunning",
     "dataType": "Integer",
     "validValues": "",
     "defaultValue": "0",
@@ -917,7 +1082,7 @@
   {
     "rec_key": "202112075982108341582",
     "settingTypeID": 564,
-    "description": "Tasker Not Running Active",
+    "description": "Tasker Not Running Active\nNK1=TaskerNotRunning",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -932,7 +1097,7 @@
   {
     "rec_key": "202112075982108341581",
     "settingTypeID": 562,
-    "description": "Main Menu Link to ASI ZoHo URL",
+    "description": "Main Menu Link to ASI ZoHo URL\nNK1=MenuLinkZoHo",
     "dataType": "Character",
     "validValues": "https:\/\/desk.zoho.com\/portal\/advantzware\/signin",
     "defaultValue": "https:\/\/desk.zoho.com\/portal\/advantzware\/signin",
@@ -947,7 +1112,7 @@
   {
     "rec_key": "202112075982108341580",
     "settingTypeID": 560,
-    "description": "Main Menu Link to ASI ZoHo Transparent Attribute",
+    "description": "Main Menu Link to ASI ZoHo Transparent Attribute\nNK1=MenuLinkZoHo",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "YES",
@@ -962,7 +1127,7 @@
   {
     "rec_key": "202112075982108341579",
     "settingTypeID": 558,
-    "description": "Main Menu Link to ASI ZoHo Image",
+    "description": "Main Menu Link to ASI ZoHo Image\nNK1=MenuLinkZoHo",
     "dataType": "Character",
     "validValues": "Graphics\\32x32\\question.ico",
     "defaultValue": "Graphics\\32x32\\question.ico",
@@ -977,7 +1142,7 @@
   {
     "rec_key": "202112075982108341578",
     "settingTypeID": 556,
-    "description": "Main Menu Link to ASI ZoHo Active",
+    "description": "Main Menu Link to ASI ZoHo Active\nNK1=MenuLinkZoHo",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "YES",
@@ -992,7 +1157,7 @@
   {
     "rec_key": "202112075982108341577",
     "settingTypeID": 554,
-    "description": "Menu Link Upgrade URL",
+    "description": "Menu Link Upgrade URL\nNK1=MenuLinkUpgrade",
     "dataType": "Character",
     "validValues": "https:\/\/helpsvr.advantzware.com\/patches\/asiUpdate.html",
     "defaultValue": "https:\/\/helpsvr.advantzware.com\/patches\/asiUpdate.html",
@@ -1007,7 +1172,7 @@
   {
     "rec_key": "202112075982108341576",
     "settingTypeID": 552,
-    "description": "Main Menu ASI URL",
+    "description": "Main Menu ASI URL\nNK1=MenuLinkASI",
     "dataType": "Character",
     "validValues": "http:\/\/www.advantzware.com",
     "defaultValue": "http:\/\/www.advantzware.com",
@@ -1022,7 +1187,7 @@
   {
     "rec_key": "202112075982108341575",
     "settingTypeID": 550,
-    "description": "Main Menu ASI Transparent Attribute",
+    "description": "Main Menu ASI Transparent Attribute\nNK1=MenuLinkASI",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "YES",
@@ -1037,7 +1202,7 @@
   {
     "rec_key": "202112075982108341574",
     "settingTypeID": 548,
-    "description": "Main Menu ASI Image",
+    "description": "Main Menu ASI Image\nNK1=MenuLinkASI",
     "dataType": "Character",
     "validValues": "Graphics\\asiicon.ico",
     "defaultValue": "Graphics\\asiicon.ico",
@@ -1052,7 +1217,7 @@
   {
     "rec_key": "202112075982108341573",
     "settingTypeID": 546,
-    "description": "Main Menu ASI Active",
+    "description": "Main Menu ASI Active\nNK1=MenuLinkASI",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "YES",
@@ -1067,7 +1232,7 @@
   {
     "rec_key": "202112075982108341572",
     "settingTypeID": 544,
-    "description": "Menu Line #8 URL",
+    "description": "Menu Line #8 URL\nNK1=MenuLink8",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1082,7 +1247,7 @@
   {
     "rec_key": "202112075982108341571",
     "settingTypeID": 542,
-    "description": "Menu Line #8 Stretch To Fit Attribute",
+    "description": "Menu Line #8 Stretch To Fit Attribute\nNK1=MenuLink8",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1097,7 +1262,7 @@
   {
     "rec_key": "202112075982108341570",
     "settingTypeID": 540,
-    "description": "Menu Line #8 Transparent Attribute",
+    "description": "Menu Line #8 Transparent Attribute\nNK1=MenuLink8",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1112,7 +1277,7 @@
   {
     "rec_key": "202112075982108341569",
     "settingTypeID": 538,
-    "description": "Menu Line #8 Image",
+    "description": "Menu Line #8 Image\nNK1=MenuLink8",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1127,7 +1292,7 @@
   {
     "rec_key": "202112075982108341565",
     "settingTypeID": 536,
-    "description": "Menu Line #8 Active",
+    "description": "Menu Line #8 Active\nNK1=MenuLink8",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1142,7 +1307,7 @@
   {
     "rec_key": "202112075982108341564",
     "settingTypeID": 534,
-    "description": "Menu Line #7 URL",
+    "description": "Menu Line #7 URL\nNK1=MenuLink7",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1157,7 +1322,7 @@
   {
     "rec_key": "202112075982108341563",
     "settingTypeID": 532,
-    "description": "Menu Line #7 Stretch To Fit Attribute",
+    "description": "Menu Line #7 Stretch To Fit Attribute\nNK1=MenuLink7",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1172,7 +1337,7 @@
   {
     "rec_key": "202112075982108341562",
     "settingTypeID": 530,
-    "description": "Menu Line #7 Transparent Attribute",
+    "description": "Menu Line #7 Transparent Attribute\nNK1=MenuLink7",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1187,7 +1352,7 @@
   {
     "rec_key": "202112075982108341561",
     "settingTypeID": 528,
-    "description": "Menu Line #7 Image",
+    "description": "Menu Line #7 Image\nNK1=MenuLink7",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1202,7 +1367,7 @@
   {
     "rec_key": "202112075982008341557",
     "settingTypeID": 526,
-    "description": "Menu Line #7 Active",
+    "description": "Menu Line #7 Active\nNK1=MenuLink7",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1217,7 +1382,7 @@
   {
     "rec_key": "202112075982008341556",
     "settingTypeID": 524,
-    "description": "Menu Line #6 URL",
+    "description": "Menu Line #6 URL\nNK1=MenuLink6",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1232,7 +1397,7 @@
   {
     "rec_key": "202112075982008341555",
     "settingTypeID": 522,
-    "description": "Menu Line #6 Stretch To Fit Attribute",
+    "description": "Menu Line #6 Stretch To Fit Attribute\nNK1=MenuLink6",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1247,7 +1412,7 @@
   {
     "rec_key": "202112075982008341554",
     "settingTypeID": 520,
-    "description": "Menu Line #6 Transparent Attribute",
+    "description": "Menu Line #6 Transparent Attribute\nNK1=MenuLink6",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1262,7 +1427,7 @@
   {
     "rec_key": "202112075982008341553",
     "settingTypeID": 518,
-    "description": "Menu Line #6 Image",
+    "description": "Menu Line #6 Image\nNK1=MenuLink6",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1277,7 +1442,7 @@
   {
     "rec_key": "202112075982008341549",
     "settingTypeID": 516,
-    "description": "Menu Line #6 Active",
+    "description": "Menu Line #6 Active\nNK1=MenuLink6",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1292,7 +1457,7 @@
   {
     "rec_key": "202112075982008341548",
     "settingTypeID": 514,
-    "description": "Menu Line #5 URL",
+    "description": "Menu Line #5 URL\nNK1=MenuLink5",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1307,7 +1472,7 @@
   {
     "rec_key": "202112075982008341547",
     "settingTypeID": 512,
-    "description": "Menu Line #5 Stretch To Fit Attribute",
+    "description": "Menu Line #5 Stretch To Fit Attribute\nNK1=MenuLink5",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1322,7 +1487,7 @@
   {
     "rec_key": "202112075982008341546",
     "settingTypeID": 510,
-    "description": "Menu Line #5 Transparent Attribute",
+    "description": "Menu Line #5 Transparent Attribute\nNK1=MenuLink5",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1337,7 +1502,7 @@
   {
     "rec_key": "202112075982008341545",
     "settingTypeID": 508,
-    "description": "Menu Line #5 Image",
+    "description": "Menu Line #5 Image\nNK1=MenuLink5",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1352,7 +1517,7 @@
   {
     "rec_key": "202112075982008341528",
     "settingTypeID": 506,
-    "description": "Menu Line #5 Active",
+    "description": "Menu Line #5 Active\nNK1=MenuLink5",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1367,7 +1532,7 @@
   {
     "rec_key": "202112075982008341523",
     "settingTypeID": 504,
-    "description": "Menu Line #4 URL",
+    "description": "Menu Line #4 URL\nNK1=MenuLink4",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1382,7 +1547,7 @@
   {
     "rec_key": "202112075982008341517",
     "settingTypeID": 502,
-    "description": "Menu Line #4 Stretch To Fit Attribute",
+    "description": "Menu Line #4 Stretch To Fit Attribute\nNK1=MenuLink4",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1397,7 +1562,7 @@
   {
     "rec_key": "202112075982008341511",
     "settingTypeID": 500,
-    "description": "Menu Line #4 Transparent Attribute",
+    "description": "Menu Line #4 Transparent Attribute\nNK1=MenuLink4",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1412,7 +1577,7 @@
   {
     "rec_key": "202112075982008341506",
     "settingTypeID": 498,
-    "description": "Menu Line #4 Image",
+    "description": "Menu Line #4 Image\nNK1=MenuLink4",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1427,7 +1592,7 @@
   {
     "rec_key": "202112075981908341492",
     "settingTypeID": 496,
-    "description": "Menu Line #4 Active",
+    "description": "Menu Line #4 Active\nNK1=MenuLink4",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1442,7 +1607,7 @@
   {
     "rec_key": "202112075981908341491",
     "settingTypeID": 494,
-    "description": "Menu Line #3 URL",
+    "description": "Menu Line #3 URL\nNK1=MenuLink3",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1457,7 +1622,7 @@
   {
     "rec_key": "202112075981908341490",
     "settingTypeID": 492,
-    "description": "Menu Line #3 Stretch To Fit Attribute",
+    "description": "Menu Line #3 Stretch To Fit Attribute\nNK1=MenuLink3",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1472,7 +1637,7 @@
   {
     "rec_key": "202112075981908341489",
     "settingTypeID": 490,
-    "description": "Menu Line #3 Transparent Attribute",
+    "description": "Menu Line #3 Transparent Attribute\nNK1=MenuLink3",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1487,7 +1652,7 @@
   {
     "rec_key": "202112075981908341488",
     "settingTypeID": 488,
-    "description": "Menu Line #3 Image",
+    "description": "Menu Line #3 Image\nNK1=MenuLink3",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1502,7 +1667,7 @@
   {
     "rec_key": "202112075981908341484",
     "settingTypeID": 486,
-    "description": "Menu Line #3 Active",
+    "description": "Menu Line #3 Active\nNK1=MenuLink3",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1517,7 +1682,7 @@
   {
     "rec_key": "202112075981908341483",
     "settingTypeID": 484,
-    "description": "Menu Line #2 URL",
+    "description": "Menu Line #2 URL\nNK1=MenuLink2",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1532,7 +1697,7 @@
   {
     "rec_key": "202112075981908341482",
     "settingTypeID": 482,
-    "description": "Menu Line #2 Stretch To Fit Attribute",
+    "description": "Menu Line #2 Stretch To Fit Attribute\nNK1=MenuLink2",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1547,7 +1712,7 @@
   {
     "rec_key": "202112075981908341481",
     "settingTypeID": 480,
-    "description": "Menu Line #2 Transparent Attribute",
+    "description": "Menu Line #2 Transparent Attribute\nNK1=MenuLink2",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1562,7 +1727,7 @@
   {
     "rec_key": "202112075981908341480",
     "settingTypeID": 478,
-    "description": "Menu Line #2 Image",
+    "description": "Menu Line #2 Image\nNK1=MenuLink2",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1577,7 +1742,7 @@
   {
     "rec_key": "202112075981808341476",
     "settingTypeID": 476,
-    "description": "Menu Line #2 Active",
+    "description": "Menu Line #2 Active\nNK1=MenuLink2",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1592,7 +1757,7 @@
   {
     "rec_key": "202112075981808341475",
     "settingTypeID": 474,
-    "description": "Menu Line #1 URL",
+    "description": "Menu Line #1 URL\nNK1=MenuLink1",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1607,7 +1772,7 @@
   {
     "rec_key": "202112075981808341474",
     "settingTypeID": 472,
-    "description": "Menu Line #1 Stretch To Fit Attribute",
+    "description": "Menu Line #1 Stretch To Fit Attribute\nNK1=MenuLink1",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1622,7 +1787,7 @@
   {
     "rec_key": "202112075981808341473",
     "settingTypeID": 470,
-    "description": "Menu Line #1 Transparent Attribute",
+    "description": "Menu Line #1 Transparent Attribute\nNK1=MenuLink1",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1637,7 +1802,7 @@
   {
     "rec_key": "202112075981808341472",
     "settingTypeID": 468,
-    "description": "Menu Line #1 Image",
+    "description": "Menu Line #1 Image\nNK1=MenuLink1",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1652,7 +1817,7 @@
   {
     "rec_key": "202112075981808341468",
     "settingTypeID": 466,
-    "description": "Menu Line #1 Active",
+    "description": "Menu Line #1 Active\nNK1=MenuLink1",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1667,7 +1832,7 @@
   {
     "rec_key": "202112075981808341467",
     "settingTypeID": 464,
-    "description": "Dynamic Task Ticker Minutes",
+    "description": "Dynamic Task Ticker Minutes\nNK1=DynTaskTicker",
     "dataType": "Integer",
     "validValues": "",
     "defaultValue": "0",
@@ -1682,7 +1847,7 @@
   {
     "rec_key": "202112075981808341466",
     "settingTypeID": 462,
-    "description": "Dynamic Task Ticker Active",
+    "description": "Dynamic Task Ticker Active\nNK1=DynTaskTicker",
     "dataType": "Logical",
     "validValues": "YES,NO",
     "defaultValue": "NO",
@@ -1697,7 +1862,7 @@
   {
     "rec_key": "202112075981708341437",
     "settingTypeID": 460,
-    "description": "Main Menu Default Image",
+    "description": "Main Menu Default Image\nNK1=BitMap",
     "dataType": "Character",
     "validValues": "",
     "defaultValue": "",
@@ -1712,7 +1877,7 @@
   {
     "rec_key": "202112075981708341436",
     "settingTypeID": 458,
-    "description": "ASI Help Service URL",
+    "description": "ASI Help Service URL \nNK1=ASIHelpService",
     "dataType": "Character",
     "validValues": "-WSDL 'http:\\\\34.203.15.64\/asihelpServices\/helpmaintenance.asmx?WSDL'",
     "defaultValue": "-WSDL 'http:\\\\34.203.15.64\/asihelpServices\/helpmaintenance.asmx?WSDL'",
