@@ -1032,11 +1032,19 @@ PROCEDURE cpost :
           AND ((begin_userid    LE "" AND
                 end_userid      GE "") OR
                (fg-rctd.created-by GE begin_userid AND  
-                fg-rctd.created-by LE end_userid)),  
-        FIRST itemfg NO-LOCK
-        WHERE itemfg.company EQ cocode
-          AND itemfg.i-no    EQ fg-rctd.i-no:  
-        RUN pPostCount(ROWID(fg-rctd), v-trnum, lCreateGL).
+                fg-rctd.created-by LE end_userid))
+        BREAK BY fg-rctd.i-no 
+              BY fg-rctd.loc
+              BY fg-rctd.loc-bin
+              BY fg-rctd.tag DESCENDING:  
+        FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company EQ cocode
+               AND itemfg.i-no    EQ fg-rctd.i-no
+             NO-ERROR.
+        IF NOT AVAILABLE itemfg THEN 
+            NEXT.                    
+
+        RUN pPostCount(ROWID(fg-rctd), v-trnum, lCreateGL, LAST-OF(fg-rctd.i-no), LAST-OF(fg-rctd.loc-bin)).
     END.
 
     SESSION:SET-WAIT-STATE("").
@@ -1408,6 +1416,11 @@ PROCEDURE pPostCount :
     DEFINE INPUT  PARAMETER ipriFGRctd         AS ROWID   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiGLTransactionNo AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER iplCreateGL        AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER iplLastItem        AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER iplLastLocBin      AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE lLastItem AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lLastBin  AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER b2-fg-bin FOR fg-bin.
 
@@ -1484,9 +1497,27 @@ PROCEDURE pPostCount :
             END.
         END.
     
-        {fg/fg-cpostLimit.i w-}
-    
-        {fg/fg-cpostLimit.i}
+        FOR EACH w-fg-rctd
+            BREAK BY w-fg-rctd.i-no 
+            BY w-fg-rctd.loc
+            BY w-fg-rctd.loc-bin
+            BY w-fg-rctd.tag DESCENDING:
+            ASSIGN
+                lLastBin  = LAST-OF(w-fg-rctd.loc-bin)
+                lLastItem = LAST-OF(w-fg-rctd.i-no)
+                .            
+            {fg/fg-cpostLimit.i w-}
+        END.
+        
+        ASSIGN
+            lLastBin  = iplLastLocBin
+            lLastItem = iplLastItem
+            .
+            
+        FOR FIRST fg-rctd
+            WHERE ROWID(fg-rctd) EQ ipriFGRctd:             
+            {fg/fg-cpostLimit.i}
+        END.
         
         FIND FIRST tt-fg-bin
              WHERE tt-fg-bin.fgRctdRowID EQ ipriFGRctd

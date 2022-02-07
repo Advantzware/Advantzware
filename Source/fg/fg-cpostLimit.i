@@ -1,12 +1,4 @@
-    
-for each {1}fg-rctd
-    WHERE "{1}" EQ "w-" 
-       OR ROWID(fg-rctd) EQ ipriFgRctd
-    break by {1}fg-rctd.i-no 
-    by {1}fg-rctd.loc
-    by {1}fg-rctd.loc-bin
-    by {1}fg-rctd.tag     desc:
-        
+           
     FIND FIRST itemfg WHERE
         itemfg.company eq cocode AND
         itemfg.i-no    eq {1}fg-rctd.i-no
@@ -138,7 +130,7 @@ for each {1}fg-rctd
     create fg-rdtlh.
     {fg/fg-rdtl.i fg-rdtlh {1}fg-rctd}
     
-    if last-of({1}fg-rctd.loc-bin) and avail b2-fg-bin then 
+    if lLastBin and avail b2-fg-bin then 
     do:
         /* Transfer/Count */
         assign
@@ -155,7 +147,7 @@ for each {1}fg-rctd
     {fg/fg-rcpts.i fg-rcpth {1}fg-rctd}   /* Create History Record */
 
     /* update cost for non-job order lines for item */
-    if last-of({1}fg-rctd.i-no) then 
+    if lLastItem then 
     do:
 
         assign
@@ -262,5 +254,4 @@ for each {1}fg-rctd
 
     delete {1}fg-rctd.
     
-end. /* each {1}fg-rctd */
 
