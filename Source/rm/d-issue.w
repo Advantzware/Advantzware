@@ -3252,7 +3252,7 @@ PROCEDURE valid-qty2 :
             AND rm-bin.loc-bin EQ rm-rctd.loc-bin:SCREEN-VALUE 
             AND rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE 
             NO-ERROR.
-        IF NOT AVAILABLE rm-bin AND integer(rm-rctd.tag:SCREEN-VALUE ) GE 0  THEN 
+        IF NOT AVAILABLE rm-bin AND rm-rctd.tag:SCREEN-VALUE NE ""  THEN 
         DO:
             /* ticket 22650 - Tag does not have to exist for a negative issue */
             MESSAGE "Tag # does not exist in the Bin File..."
@@ -3265,10 +3265,10 @@ PROCEDURE valid-qty2 :
             FOR EACH bf-rm-rctd 
                 WHERE bf-rm-rctd.company EQ cocode
                 AND bf-rm-rctd.rita-code EQ "I"                    
-                AND bf-rm-rctd.i-no      EQ rm-bin.i-no
-                AND bf-rm-rctd.loc       EQ rm-bin.loc
-                AND bf-rm-rctd.loc-bin   EQ rm-bin.loc-bin     
-                AND bf-rm-rctd.tag       EQ rm-bin.tag  
+                AND bf-rm-rctd.i-no      EQ rm-rctd.i-no:SCREEN-VALUE
+                AND bf-rm-rctd.loc       EQ rm-rctd.loc:SCREEN-VALUE
+                AND bf-rm-rctd.loc-bin   EQ rm-rctd.loc-bin:SCREEN-VALUE     
+                AND bf-rm-rctd.tag       EQ rm-rctd.tag:SCREEN-VALUE  
                 AND NOT (AVAIL(rm-rctd) AND ROWID(rm-rctd) EQ ROWID(bf-rm-rctd))
                 NO-LOCK USE-INDEX rita-code:
                 dTotalI = dTotalI + bf-rm-rctd.qty.    
@@ -3278,10 +3278,10 @@ PROCEDURE valid-qty2 :
             FOR EACH bf-rm-rctd 
                 WHERE bf-rm-rctd.company EQ cocode
                 AND bf-rm-rctd.rita-code EQ "I"                    
-                AND bf-rm-rctd.i-no      EQ rm-bin.i-no
-                AND bf-rm-rctd.loc       EQ rm-bin.loc
-                AND bf-rm-rctd.loc-bin   EQ rm-bin.loc-bin     
-                AND bf-rm-rctd.tag       EQ rm-bin.tag  
+                AND bf-rm-rctd.i-no      EQ rm-rctd.i-no:SCREEN-VALUE
+                AND bf-rm-rctd.loc       EQ rm-rctd.loc:SCREEN-VALUE
+                AND bf-rm-rctd.loc-bin   EQ rm-rctd.loc-bin:SCREEN-VALUE     
+                AND bf-rm-rctd.tag       EQ rm-rctd.tag:SCREEN-VALUE  
                 NO-LOCK USE-INDEX rita-code:
                 dTotalI = dTotalI + bf-rm-rctd.qty.    
             END.
@@ -3290,7 +3290,7 @@ PROCEDURE valid-qty2 :
 
     
     
-        IF DEC(rm-rctd.qty:SCREEN-VALUE ) > 0 AND
+        IF AVAILABLE rm-bin AND DEC(rm-rctd.qty:SCREEN-VALUE ) > 0 AND
             rm-bin.qty LT DEC(rm-rctd.qty:SCREEN-VALUE ) THEN 
         DO:
             MESSAGE "Issue Quantity exceeds Quantity on Hand for this Warehouse/Bin/Tag Location..."
@@ -3300,11 +3300,11 @@ PROCEDURE valid-qty2 :
         END.
         ELSE 
         DO:
-            FIND ITEM WHERE ITEM.company EQ rm-bin.company
-                AND ITEM.i-no EQ rm-bin.i-no
+            FIND ITEM WHERE ITEM.company EQ cocode
+                AND ITEM.i-no EQ rm-rctd.i-no:SCREEN-VALUE
                 NO-LOCK NO-ERROR.
 
-            IF DEC(rm-rctd.qty:SCREEN-VALUE ) > 0 AND
+            IF AVAILABLE rm-bin AND DEC(rm-rctd.qty:SCREEN-VALUE ) > 0 AND
                 rm-bin.qty LT (DEC(rm-rctd.qty:SCREEN-VALUE ) + dTotalI) 
                 AND AVAIL(item) AND item.stocked THEN 
             DO:

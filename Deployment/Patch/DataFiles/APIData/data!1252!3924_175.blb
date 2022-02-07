@@ -1,8 +1,0 @@
-     {
-         "lineNumber": $LineNumber$,
-         "itemDesc": "$ItemDescription$",
-         "itemUm": "$ItemUOM$",
-         "itemQty": $ItemQuantity|->>>>>>>9.9|DEC|$,
-         "poNumber": "$POID$",
-         "poLineNumber": "$POLineNumber$"      
-     }$comma$

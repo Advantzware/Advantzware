@@ -39,6 +39,37 @@ PROCEDURE FileSys_FileNameCleanup:
         ).
 END PROCEDURE.
 
+PROCEDURE FileSys_GetFullFilePath:
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the fully qualified path name of any file located
+                        somewhere in the propath, or -if provided with a fully
+                        qualified OPSYS filename - returns that filename (if found)
+        Syntax      :   RUN getFileFullPathName (INPUT file-to-locate, OUTPUT fully-qualified-name)
+     Notes:  From getFileFullPathName.p by MYT
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcFileShortName AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFileFullPathName AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.   
+
+    DEFINE VARIABLE cTestFileName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTestLongName AS CHARACTER NO-UNDO.
+    
+    ASSIGN 
+        cTestFileName       = SEARCH(ipcFileShortName)
+        FILE-INFO:FILE-NAME = cTestFileName
+        cTestLongName       = FILE-INFO:FULL-PATHNAME
+        opcFileFullPathName = cTestLongName.    
+
+    IF cTestLongName EQ ? THEN 
+        ASSIGN 
+            oplError = YES
+            opcMessage = "The file " + cTestFileName + " cannot be found."
+            .
+                
+
+END PROCEDURE.
+
 PROCEDURE pFileNameCleanup PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Replaces forbidden characters in file name with underscore
@@ -123,13 +154,13 @@ PROCEDURE FileSys_GetDiskSpace :
     DEFINE OUTPUT PARAMETER opdDiskFreeSpace    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdDiskTotalSpace   AS DECIMAL   NO-UNDO.
     
-    DEF VAR cDivisor AS INT NO-UNDO.
-    DEF VAR iMem1 AS MEMPTR NO-UNDO.
-    DEF VAR iMem2 AS MEMPTR NO-UNDO.
-    DEF VAR iMem3 AS MEMPTR NO-UNDO.
-    DEF VAR iReturnVal AS INT NO-UNDO.
-    DEF VAR iDiskFreeSpace AS DECIMAL NO-UNDO.
-    DEF VAR iDiskTotalSpace AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cDivisor AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iMem1 AS MEMPTR NO-UNDO.
+    DEFINE VARIABLE iMem2 AS MEMPTR NO-UNDO.
+    DEFINE VARIABLE iMem3 AS MEMPTR NO-UNDO.
+    DEFINE VARIABLE iReturnVal AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iDiskFreeSpace AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iDiskTotalSpace AS DECIMAL NO-UNDO.
 
     IF CAN-DO("KB,Kilo,Kilobyte,Kilobytes", ipcUnit)
         THEN cDivisor = 1024.
