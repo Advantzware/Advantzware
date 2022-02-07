@@ -41,6 +41,7 @@ DEFINE VARIABLE lValidJobNo      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValidPONo       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValidBOLNo      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE rifgbin          AS ROWID     NO-UNDO.
+DEFINE VARIABLE lValidStatusID   AS LOGICAL   NO-UNDO.
 
 RUN Inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs. 
 
@@ -65,13 +66,16 @@ IF NOT CAN-FIND(FIRST company NO-LOCK
 END.
 
 /* Validate StatusID */
-IF NOT CAN-FIND(FIRST inventoryStatusType NO-LOCK
-            WHERE inventoryStatusType.statusID EQ ipcStatusID
-              AND NOT inventoryStatusType.inActive) THEN DO:
-    ASSIGN 
-        opcMessage = "Invalid StatusID (" + ipcStatusID + ")"
+RUN Inventory_ValidateStatusID IN hdInventoryProcs(
+    INPUT  ipcStatusID,
+    OUTPUT lValidStatusID
+    ).
+IF NOT lValidStatusID THEN DO:
+    ASSIGN
         oplSuccess = NO
+        opcMessage = "Invalid Status ID '" + ipcStatusID + "'"
         .
+ 
     RETURN.
 END.
 
