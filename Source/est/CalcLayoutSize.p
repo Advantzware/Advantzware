@@ -817,6 +817,8 @@ PROCEDURE pGetDecimalSettingsFold:
         OUTPUT cReturn,
         OUTPUT lFound).
     
+    oplDecimal = YES.
+    
     IF cReturn = "None" THEN
     DO:
         ASSIGN 

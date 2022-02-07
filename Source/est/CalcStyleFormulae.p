@@ -268,6 +268,7 @@ PROCEDURE pCalcFormula:
     END.
     
     /*Process NK1 ROUND*/
+    IF NOT iplDecimal OR iplRound THEN
     DO iIndex = 1 TO EXTENT(dCalculations):
         dCalculations[iIndex] = dCalculations[iIndex] * ipdDecimalFactor /*16 or 32*/.
         IF iplRound THEN
