@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -345,7 +346,7 @@ DEFINE VARIABLE begin_i-no     AS CHARACTER FORMAT "X(15)":U
     VIEW-AS FILL-IN 
     SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "From Job#" 
     VIEW-AS FILL-IN 
     SIZE 20 BY 1 NO-UNDO.
@@ -375,7 +376,7 @@ DEFINE VARIABLE end_i-no       AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzz
     VIEW-AS FILL-IN 
     SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "To Job#" 
     VIEW-AS FILL-IN 
     SIZE 20 BY 1 NO-UNDO.
@@ -4014,10 +4015,10 @@ PROCEDURE run-report PRIVATE :
 
     SESSION:SET-WAIT-STATE ("general").
 
-    IF LENGTH(begin_job-no) < 6 THEN
-        begin_job-no = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) + TRIM(begin_job-no).
-    IF LENGTH(end_job-no) < 6 THEN
-        end_job-no = FILL(" ",6 - LENGTH(TRIM(end_job-no))) + TRIM(end_job-no).
+    IF LENGTH(begin_job-no) < 9 THEN
+        begin_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job-no)).
+    IF LENGTH(end_job-no) < 9 THEN
+        end_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job-no)).
 
     IF ip-run-what EQ "" THEN
         DISPLAY begin_job-no END_job-no WITH FRAME {&FRAME-NAME}.

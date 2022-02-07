@@ -466,7 +466,7 @@ DEF BUFFER b-tt-rctd FOR tt-rctd.
             work-gl.actnum = costtype.inv-asset.
           END.
           work-gl.debits = work-gl.debits + v-ext-cost.
-          work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
+          work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"999") ELSE IF 
                             tt-rctd.po-no NE "" THEN "PO:" + string(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
                             + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
           /* Credit RM AP Accrued */
@@ -476,7 +476,7 @@ DEF BUFFER b-tt-rctd FOR tt-rctd.
             work-gl.actnum = costtype.ap-accrued.
           END.
           work-gl.credits = work-gl.credits + v-ext-cost.
-          work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
+          work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"999") ELSE IF 
                             tt-rctd.po-no NE "" THEN "PO:" + string(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
                             + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
         END.
@@ -544,7 +544,7 @@ DEF BUFFER b-tt-rctd FOR tt-rctd.
                work-gl.actnum  = prod.wip-mat.
             END.
             work-gl.debits = work-gl.debits + ld.
-            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
+            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"999") ELSE IF 
                             tt-rctd.po-no NE "" THEN "PO:" + string(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
                             + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR .
             /* Credit RM Asset */
@@ -563,7 +563,7 @@ DEF BUFFER b-tt-rctd FOR tt-rctd.
                work-gl.actnum  = costtype.inv-asset.
             END.
             work-gl.credits = work-gl.credits + ld.
-            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
+            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"999") ELSE IF 
                             tt-rctd.po-no NE "" THEN "PO:" + string(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
                             + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
           END.

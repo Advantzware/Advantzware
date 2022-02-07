@@ -3997,7 +3997,7 @@ PROCEDURE pPostRawMaterials PRIVATE:
         
         FIND FIRST bf-job NO-LOCK
              WHERE bf-job.company EQ bf-rm-rctd.company
-               AND bf-job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(bf-rm-rctd.job-no))) + TRIM(bf-rm-rctd.job-no)
+               AND bf-job.job-no  EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', bf-rm-rctd.job-no)) 
                AND bf-job.job-no2 EQ bf-rm-rctd.job-no2
              NO-ERROR.
 
@@ -5960,7 +5960,7 @@ PROCEDURE CreatePrintInventory:
 
         ASSIGN
             ttPrintInventoryStock.jobNumber    = LEFT-TRIM(TRIM(inventoryStock.jobID))
-            ttPrintInventoryStock.jobNumber    = FILL(" ",6 - LENGTH(ttPrintInventoryStock.jobNumber)) + ttPrintInventoryStock.jobNumber
+            ttPrintInventoryStock.jobNumber    = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ttPrintInventoryStock.jobNumber)) 
             ttPrintInventoryStock.jobRunNumber = inventoryStock.jobID2
             ttPrintInventoryStock.jobID        = ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"99")
             ttPrintInventoryStock.jobIDTrimmed = LEFT-TRIM(ttPrintInventoryStock.jobID)
@@ -6376,11 +6376,11 @@ PROCEDURE CreatePrintInventoryForFG:
                                                          ELSE
                                                              ""
             cJobNumber                                 = IF inventoryStock.jobID NE "" THEN
-                                                             FILL(" ",6 - LENGTH(cJobNumber)) + cJobNumber
+                                                             STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNumber))                                                             
                                                          ELSE
                                                              ""
             ttPrintInventoryStockFG.jobID              = IF inventoryStock.jobID NE "" THEN
-                                                             cJobNumber + "-" + STRING(inventoryStock.jobID2,"99")
+                                                             cJobNumber + "-" + STRING(inventoryStock.jobID2,"999")
                                                          ELSE
                                                              ""
             ttPrintInventoryStockFG.fgItemID           = inventoryStock.fgItemID

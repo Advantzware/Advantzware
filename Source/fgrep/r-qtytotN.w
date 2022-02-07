@@ -11,6 +11,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */          
 
 CREATE WIDGET-POOL.
 
@@ -66,7 +67,7 @@ ASSIGN
     cFieldListToSelect = "cust,i-no,name,dscr,sell-pr," +
                             "qty-oh,in-prg,job,opn-ord,cust-po," + 
                             "ptd,ytd,lst-yr,ord"
-    cFieldLength       = "8,15,30,30,10," + "10,11,10,10,15," + "11,11,11,7"
+    cFieldLength       = "8,15,30,30,10," + "10,11,13,10,15," + "11,11,11,7"
     cFieldType         = "c,c,c,c,i," + "i,i,c,i,c," + "i,i,i,c" 
     .
 
@@ -1593,7 +1594,7 @@ PROCEDURE run-report :
                     v-price = oe-ordl.price.
 
                 IF oe-ordl.job-no <> "" THEN
-                    ASSIGN v-job-no = oe-ordl.job-no + "-" + string(oe-ordl.job-no2).
+                    ASSIGN v-job-no = oe-ordl.job-no + "-" + string(oe-ordl.job-no2,"999").
                 ELSE
                     ASSIGN v-job-no = "".
 

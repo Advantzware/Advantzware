@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */          
 
 CREATE WIDGET-POOL.
 
@@ -73,7 +74,7 @@ ASSIGN
                            "ON-HAND QTY,RECEIPT DATE,SELL PRICE,TOTAL VALUE"
     cFieldListToSelect = "cust,fgitem,cust-part,desc,cust-po,job,ord-qty,ship-qty," +
                             "oh-hand-qty,rec-date,sell-pr,tot-val"
-    cFieldLength       = "8,15,15,30,15,10,12,12," + "12,12,12,15"
+    cFieldLength       = "8,15,15,30,15,13,12,12," + "12,12,12,15"
     cFieldType         = "c,c,c,c,c,c,i,i," + "i,c,i,i" 
     .
 
@@ -1719,10 +1720,9 @@ PROCEDURE run-report :
                 v-price   = itemfg.sell-price
                 v-uom     = itemfg.sell-uom
                 v-cas-cnt = itemfg.case-count
-                v-job     = FILL(" ",6 - LENGTH(TRIM(fg-bin.job-no))) +
-                     TRIM(fg-bin.job-no) + "-" + STRING(fg-bin.job-no2,"99").
+                v-job     = TRIM(fg-bin.job-no) + "-" + STRING(fg-bin.job-no2,"999").
 
-            IF TRIM(v-job) EQ "-00" THEN v-job = "".
+            IF TRIM(v-job) EQ "-000" THEN v-job = "".
 
             FOR EACH oe-ordl
                 WHERE oe-ordl.company EQ cocode
@@ -1805,7 +1805,7 @@ PROCEDURE run-report :
                                 WHEN "cust-po"   THEN 
                                     cVarValue = STRING(oe-ordl.po-no,"x(15)") .
                                 WHEN "job"  THEN 
-                                    cVarValue = IF FIRST(oe-ordl.company) THEN STRING(v-job,"x(10)") ELSE "" .
+                                    cVarValue = IF FIRST(oe-ordl.company) THEN STRING(v-job,"x(13)") ELSE "" .
                                 WHEN "ord-qty"   THEN 
                                     cVarValue = STRING(oe-ordl.qty,"->>>,>>>,>>9") .
                                 WHEN "ship-qty"  THEN 
@@ -1875,7 +1875,7 @@ PROCEDURE run-report :
                             WHEN "cust-po"   THEN 
                                 cVarValue = /*STRING(oe-ordl.po-no,"x(15)")*/ "" .
                             WHEN "job"  THEN 
-                                cVarValue = STRING(v-job,"x(10)")  .
+                                cVarValue = STRING(v-job,"x(13)")  .
                             WHEN "ord-qty"   THEN 
                                 cVarValue = STRING(v-ord[1],"->>>,>>>,>>9") .
                             WHEN "ship-qty"  THEN 
