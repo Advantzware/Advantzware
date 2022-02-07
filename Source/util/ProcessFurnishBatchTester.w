@@ -49,9 +49,10 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS cbFormula fiTransDate fiTag tgExportOnly ~
-btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS cbFormula fiTransDate fiTag tgExportOnly 
+&Scoped-Define ENABLED-OBJECTS cbFormula fiTransDate fiTag fiCount ~
+tgExportOnly btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS cbFormula fiTransDate fiTag fiCount ~
+tgExportOnly 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -90,6 +91,11 @@ DEFINE VARIABLE cbFormula AS CHARACTER FORMAT "X(256)":U
      DROP-DOWN-LIST
      SIZE 16 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fiCount AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 1 
+     LABEL "Batches" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U 
      LABEL "Tag" 
      VIEW-AS FILL-IN 
@@ -112,9 +118,10 @@ DEFINE FRAME FRAME-A
      cbFormula AT ROW 2 COL 20 COLON-ALIGNED WIDGET-ID 48
      fiTransDate AT ROW 3.52 COL 20 COLON-ALIGNED WIDGET-ID 46
      fiTag AT ROW 5 COL 20 COLON-ALIGNED WIDGET-ID 44
-     tgExportOnly AT ROW 6.52 COL 20 WIDGET-ID 14
-     btn-process AT ROW 9 COL 20
-     btn-cancel AT ROW 9 COL 45
+     fiCount AT ROW 6.52 COL 20 COLON-ALIGNED WIDGET-ID 50
+     tgExportOnly AT ROW 8.29 COL 19 WIDGET-ID 14
+     btn-process AT ROW 10.52 COL 20
+     btn-cancel AT ROW 10.52 COL 45
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -138,8 +145,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Process Batch of Furnish"
-         HEIGHT             = 10.14
-         WIDTH              = 93.6
+         HEIGHT             = 10.86
+         WIDTH              = 91.2
          MAX-HEIGHT         = 19.76
          MAX-WIDTH          = 127.2
          VIRTUAL-HEIGHT     = 19.76
@@ -324,9 +331,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY cbFormula fiTransDate fiTag tgExportOnly 
+  DISPLAY cbFormula fiTransDate fiTag fiCount tgExportOnly 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE cbFormula fiTransDate fiTag tgExportOnly btn-process btn-cancel 
+  ENABLE cbFormula fiTransDate fiTag fiCount tgExportOnly btn-process 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -391,6 +399,8 @@ PROCEDURE run-process :
     DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cSuccess AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEstimate AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cTag AS CHARACTER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN 
@@ -398,9 +408,11 @@ PROCEDURE run-process :
             fiTag
             fiTransDate
             tgExportOnly  
+            fiCount
             .
     END.
     cEstimate = fGetXRef(g_company, cbFormula).
+    
     IF NOT CAN-FIND(FIRST est WHERE est.company EQ g_company AND est.est-no EQ cEstimate) THEN 
         ASSIGN 
             lError = YES
@@ -416,13 +428,21 @@ PROCEDURE run-process :
             lError = YES
             cMessage = "Date cannot be blank"
             .        
+    IF fiCount LE 0 THEN  
+        ASSIGN 
+            lError = YES
+            cMessage = "Batch count must be greater than 0"
+            .
     IF NOT lError THEN DO:
         RUN util/rjust.p (INPUT-OUTPUT cEstimate, 8).    
-        RUN jc/ProcessFurnishBatch.p (g_company, cEstimate, fiTag, fiTransDate, tgExportOnly, OUTPUT lError, OUTPUT cMessage).
+        DO iCount = 1 TO fiCount:
+            cTag = fiTag + "-" + STRING(iCount,"999").            
+            RUN jc/ProcessFurnishBatch.p (g_company, cEstimate, cTag, fiTransDate, tgExportOnly, OUTPUT lError, OUTPUT cMessage).
+        END.
     END.   
     IF lError THEN 
         cSuccess = " with failures".
-    MESSAGE "Process completed" cSuccess SKIP(1) 
+    MESSAGE STRING(fiCount,">>9") + " Batch process(es) completed" cSuccess SKIP(1) 
         cMessage
         VIEW-AS ALERT-BOX.
     
