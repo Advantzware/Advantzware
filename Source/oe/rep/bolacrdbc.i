@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolacrdbc.i 12/99 FWK */
 /* PRINT Empire BOL                                                           */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 assign
@@ -88,8 +89,7 @@ for each report where report.term-id eq v-term-id,
 
   v-job-no = "".
   if avail oe-ordl and oe-ordl.job-no ne "" then
-     v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-                trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
+     v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)).
 
   ASSIGN v-ship-qty = v-ship-qty + oe-boll.qty
          v-weight   = v-weight + oe-boll.weight
@@ -105,7 +105,7 @@ for each report where report.term-id eq v-term-id,
         ELSE
         if i eq 2 THEN ASSIGN v-part-dscr = oe-ordl.part-dscr1 /*i-name*/
                               v-job-po    = if oe-ordl.job-no eq "" then "" else
-                                (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+                                (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"999")).
         ELSE
         if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
         ELSE
@@ -129,8 +129,7 @@ for each report where report.term-id eq v-term-id,
         ELSE DO:
             PUT {1}
                  oe-boll.ord-no.
-            IF NOT v-print-binstags THEN PUT {1} oe-boll.job-no AT 17.
-            IF NOT v-print-binstags THEN PUT {1} "-" oe-boll.job-no2.
+            IF NOT v-print-binstags THEN PUT {1} STRING(oe-boll.job-no) + "-" + STRING(oe-boll.job-no2,"999") AT 19.
             PUT {1}
                  oe-ordl.part-dscr1 FORM "x(30)" AT 33 
                  w2.cases  AT 71 FORM "->>>9" " @"
@@ -140,8 +139,7 @@ for each report where report.term-id eq v-term-id,
         IF LAST(w2.cases * w2.cas-cnt) THEN DO:
           IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
             PUT {1} oe-boll.ord-no.
-            IF NOT v-print-binstags THEN PUT {1} oe-boll.job-no AT 17.
-            IF NOT v-print-binstags THEN PUT {1} "-" oe-boll.job-no2.
+            IF NOT v-print-binstags THEN PUT {1} STRING(oe-boll.job-no) + "-" + STRING(oe-boll.job-no2,"999") AT 19.
             PUT {1} oe-ordl.part-dscr1 FORM "x(30)" AT 33 SKIP.
             v-printline = v-printline + 1.
           END.
@@ -155,8 +153,8 @@ for each report where report.term-id eq v-term-id,
                     AND loadtag.i-no = oe-boll.i-no  NO-LOCK NO-ERROR.
 
                 PUT {1}
-                    tt-boll-bintag.job-no AT 17
-                    tt-boll-bintag.job-no2
+                    STRING(tt-boll-bintag.job-no) AT 17
+                    STRING(tt-boll-bintag.job-no2,"999")
                     tt-boll-bintag.loc-bin AT 33
                     tt-boll-bintag.tag FORMAT "x(24)".
                 IF AVAIL loadtag THEN
@@ -226,7 +224,7 @@ for each report where report.term-id eq v-term-id,
           oe-boll.cases FORM "->>,>>>" "@" SPACE(0)
           oe-boll.qty-case FORM "->>>>>Z" SKIP 
           oe-boll.ord-no 
-          oe-boll.job-no AT 17 SPACE(0) "-" SPACE(0) oe-boll.job-no2 
+          STRING(oe-boll.job-no) AT 17 SPACE(0) "-" SPACE(0) (STRING(oe-boll.job-no2,"999") 
           oe-ordl.part-dscr1 AT 33 FORM "x(25)" SPACE(11)
           v-1    FORM "->>,>>9"  when oe-boll.partial gt 0 "@" SPACE(0)
           oe-boll.partial   when oe-boll.partial gt 0 FORM "->>>>>z"  SKIP

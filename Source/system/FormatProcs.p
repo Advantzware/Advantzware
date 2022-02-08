@@ -61,7 +61,10 @@ FUNCTION sfFormat_JobFormat RETURNS CHARACTER
   ( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ) FORWARD.
   
 FUNCTION sfFormat_SingleJob RETURNS CHARACTER
-  ( ipcJobNo AS CHARACTER ) FORWARD.  
+  ( ipcJobNo AS CHARACTER ) FORWARD.
+  
+FUNCTION sfFormat_JobFormatWithHyphen RETURNS CHARACTER
+  ( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ) FORWARD.  
   
 
 
@@ -1013,4 +1016,19 @@ FUNCTION sfFormat_SingleJob RETURNS CHARACTER
      
     RETURN STRING(cBeginJob) .
 
-END FUNCTION.     
+END FUNCTION.
+
+FUNCTION sfFormat_JobFormatWithHyphen RETURNS CHARACTER
+  ( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cBeginJob  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBeginJob2 AS CHARACTER NO-UNDO.
+    
+    RUN pJobFormat(INPUT ipcJobNo, INPUT ipiJobNo2, OUTPUT cBeginJob, OUTPUT cBeginJob2).
+     
+     RETURN STRING(cBeginJob + "-" + cBeginJob2) .
+
+END FUNCTION.
