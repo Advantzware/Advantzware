@@ -36,221 +36,116 @@ PROCEDURE pBusinessLogic:
     DEFINE BUFFER bOEOrdl FOR oe-ordl.
     DEFINE BUFFER bOERel  FOR oe-rel.
 
-    FIND FIRST ce-ctrl NO-LOCK 
-         WHERE ce-ctrl.company EQ cCompany.
-    FIND FIRST period NO-LOCK
-         WHERE period.company EQ cCompany
-           AND period.pst     LE dtEndOrderDate
-           AND period.pend    GE dtEndOrderDate
-         NO-ERROR.
-    dtTrandate = IF AVAILABLE period THEN MINIMUM(dtStartOrderDate,period.pst)
-                                             ELSE dtStartOrderDate.
-    FOR EACH oe-ord NO-LOCK
-        WHERE oe-ord.company  EQ cCompany
-          AND oe-ord.cust-no  GE cStartCustNo
-          AND oe-ord.cust-no  LE cEndCustNo
-          AND oe-ord.ord-date GE dtTrandate
-          AND oe-ord.ord-date LE dtEndOrderDate
-          AND oe-ord.due-date GE dtStartDueDate
-          AND oe-ord.due-date LE dtEndDueDate
-          AND oe-ord.type     NE "T"
-          AND oe-ord.stat     NE "D"
-        BY oe-ord.company 
-        BY oe-ord.ord-date 
-        BY oe-ord.ord-no
+    FOR EACH ce-ctrl NO-LOCK 
+        WHERE ce-ctrl.company GE cStartCompany
+          AND ce-ctrl.company LE cEndCompany
         :
-        IF lCustList AND
-           NOT CAN-FIND(FIRST ttCustList
-                        WHERE ttCustList.cust-no EQ oe-ord.cust-no
-                          AND ttCustList.log-fld EQ TRUE) THEN
-        NEXT.
-        IF lExcludeTransferReleasesOrders THEN DO:
-            IF oe-ord.type EQ "T" THEN NEXT.
-            cCode = "".
-            FOR EACH oe-rel FIELDS(r-no) NO-LOCK 
-               WHERE oe-rel.company EQ oe-ord.company 
-                 AND oe-rel.ord-no  EQ oe-ord.ord-no
-                 AND oe-rel.s-code EQ "T"
+        FIND FIRST period NO-LOCK
+             WHERE period.company EQ ce-ctrl.company
+               AND period.pst     LE dtEndOrderDate
+               AND period.pend    GE dtEndOrderDate
+             NO-ERROR.
+        dtTrandate = IF AVAILABLE period THEN MINIMUM(dtStartOrderDate,period.pst)
+                                                 ELSE dtStartOrderDate.
+        FOR EACH oe-ord NO-LOCK
+            WHERE oe-ord.company  EQ ce-ctrl.company
+              AND oe-ord.cust-no  GE cStartCustNo
+              AND oe-ord.cust-no  LE cEndCustNo
+              AND oe-ord.ord-date GE dtTrandate
+              AND oe-ord.ord-date LE dtEndOrderDate
+              AND oe-ord.due-date GE dtStartDueDate
+              AND oe-ord.due-date LE dtEndDueDate
+              AND oe-ord.type     NE "T"
+              AND oe-ord.stat     NE "D"
+            BY oe-ord.company 
+            BY oe-ord.ord-date 
+            BY oe-ord.ord-no
+            :
+            IF lCustList AND
+               NOT CAN-FIND(FIRST ttCustList
+                            WHERE ttCustList.cust-no EQ oe-ord.cust-no
+                              AND ttCustList.log-fld EQ TRUE) THEN
+            NEXT.
+            IF lExcludeTransferReleasesOrders THEN DO:
+                IF oe-ord.type EQ "T" THEN NEXT.
+                cCode = "".
+                FOR EACH oe-rel FIELDS(r-no) NO-LOCK 
+                   WHERE oe-rel.company EQ oe-ord.company 
+                     AND oe-rel.ord-no  EQ oe-ord.ord-no
+                     AND oe-rel.s-code EQ "T"
+                    :
+                    cCode = "T".
+                    LEAVE.
+                END. /* each oe-rel */
+                IF cCode EQ "T" THEN NEXT.
+            END.  /* if lExcludeTransferReleasesOrders */
+            FOR EACH oe-ordl NO-LOCK
+                WHERE oe-ordl.company EQ oe-ord.company
+                  AND oe-ordl.ord-no  EQ oe-ord.ord-no
+                  AND oe-ordl.part-no GE cStartCustPart
+                  AND oe-ordl.part-no LE cEndCustPart
+                  AND (oe-ordl.is-a-component EQ NO
+                   OR lExcludeSetComponents EQ NO),
+                FIRST itemfg NO-LOCK
+                WHERE itemfg.company EQ oe-ordl.company
+                  AND itemfg.i-no    EQ oe-ordl.i-no
+                  AND itemfg.proCat  GE cStartProCat
+                  AND itemfg.proCat  LE cEndProCat
+                BREAK BY oe-ordl.line
                 :
-                cCode = "T".
-                LEAVE.
-            END. /* each oe-rel */
-            IF cCode EQ "T" THEN NEXT.
-        END.  /* if lExcludeTransferReleasesOrders */
-        FOR EACH oe-ordl NO-LOCK
-            WHERE oe-ordl.company EQ cCompany
-              AND oe-ordl.ord-no  EQ oe-ord.ord-no
-              AND oe-ordl.part-no GE cStartCustPart
-              AND oe-ordl.part-no LE cEndCustPart
-              AND (oe-ordl.is-a-component EQ NO
-               OR lExcludeSetComponents EQ NO),
-            FIRST itemfg NO-LOCK
-            WHERE itemfg.company EQ cCompany
-              AND itemfg.i-no    EQ oe-ordl.i-no
-              AND itemfg.proCat  GE cStartProCat
-              AND itemfg.proCat  LE cEndProCat
-            BREAK BY oe-ordl.line
-            :
-            FIND FIRST oe-rel NO-LOCK
-                 WHERE oe-rel.company EQ cCompany
-                   AND oe-rel.ord-no  EQ oe-ordl.ord-no
-                   AND oe-rel.i-no    EQ oe-ordl.i-no
-                   AND oe-rel.line    EQ oe-ordl.line
-                 NO-ERROR.    
-            IF NOT AVAILABLE oe-rel THEN DO:
-                FIND FIRST bOEOrdl NO-LOCK
-                     WHERE bOEOrdl.company EQ oe-ordl.company
-                       AND bOEOrdl.ord-no  EQ oe-ordl.ord-no
-                       AND bOEOrdl.is-a-component EQ YES
-                     NO-ERROR.                
-                IF AVAILABLE bOEOrdl THEN
-                FIND FIRST bOERel NO-LOCK
-                     WHERE bOERel.company EQ bOEOrdl.company
-                       AND bOERel.ord-no  EQ bOEOrdl.ord-no
-                       AND bOERel.i-no    EQ bOEOrdl.i-no
-                       AND bOERel.line    EQ bOEOrdl.line
+                FIND FIRST oe-rel NO-LOCK
+                     WHERE oe-rel.company EQ oe-ordl.company
+                       AND oe-rel.ord-no  EQ oe-ordl.ord-no
+                       AND oe-rel.i-no    EQ oe-ordl.i-no
+                       AND oe-rel.line    EQ oe-ordl.line
                      NO-ERROR.    
-                IF AVAILABLE bOERel AND
-                   NOT(bOERel.spare-char-1 GE cStartShipFromNo
-                   AND bOERel.spare-char-1 LE cEndShipFromNo) THEN NEXT.
-                ELSE IF NOT AVAILABLE bOERel AND NOT lLOrdWithNoRel THEN NEXT.                
-            END.
-            ELSE DO:   
-                IF AVAILABLE oe-rel AND
-                   NOT (oe-rel.spare-char-1 GE cStartShipFromNo
-                   AND oe-rel.spare-char-1  LE cEndShipFromNo) THEN NEXT.
-                ELSE IF NOT AVAILABLE oe-rel AND NOT lLOrdWithNoRel THEN NEXT.    
-            END. /* else */
-            lExclude = YES.
-            DO idx = 1 TO 3:
-                IF lExclude AND
-                   oe-ordl.s-man[idx] GE cStartSalesRep AND
-                   oe-ordl.s-man[idx] LE cEndSalesRep THEN
-                lExclude = NO.
-            END.  /* do idx */
-            IF lExclude THEN NEXT.
-            lMisc = FALSE.
-            DO idx = 1 TO 3:
-                IF lMisc THEN LEAVE.
-                IF oe-ordl.s-man[idx] LT cStartSalesRep OR
-                   oe-ordl.s-man[idx] GT cEndSalesRep THEN NEXT.
-                /* if no salesman number then assign to misc, ie, blank no */
-                IF idx EQ 1 AND
-                   oe-ordl.s-man[1] EQ "" AND
-                   oe-ordl.s-man[2] EQ "" AND
-                   oe-ordl.s-man[3] EQ "" THEN
-                cSalesRep = "MISC".
-                ELSE   /* if blank salesman # then ignore */
-                    IF oe-ordl.s-man[idx] EQ "" THEN NEXT.
-                    /* There must be at least 1 salesman in either pos'n 1, 2 or 3 */
-                    ELSE cSalesRep = oe-ordl.s-man[idx].
-                IF oe-ord.ord-date GE dtStartOrderDate AND
-                   oe-ord.ord-date LE dtEndOrderDate THEN DO:
-                    CREATE tt-report.
-                    ASSIGN
-                        tt-report.term-id = ""
-                        tt-report.key-01  = cSalesRep
-                        tt-report.key-02  = STRING(oe-ord.ord-no,">>>>>>>>>>")
-                        tt-report.key-03  = STRING(idx,"9")
-                        tt-report.key-04  = IF AVAILABLE oe-rel THEN STRING(oe-rel.spare-char-1)
-                                       ELSE IF AVAILABLE bOERel THEN STRING(bOERel.spare-char-1)
-                                       ELSE ""
-                        tt-report.rec-id  = RECID(oe-ordl)
-                        iTotal            = iTotal + 1
-                        .           
-                    IF lProgressBar THEN
-                    RUN spProgressBar (cProgressBar, iTotal, ?).
-                END.  /* if oe-ord.ord-date */
-                RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT dTotalSqft).
-                
-                ASSIGN
-                    dPct         = oe-ordl.s-pct[idx] / 100
-                    dOrdQty      = oe-ordl.qty * dPct
-                    dTotalSqft   = dTotalSqft * dOrdQty / 1000
-                    dTotTons     = itemfg.weight-100 * dOrdQty / 100 / 2000
-                    dPriceAmount = oe-ordl.t-price * dPct
-                    .
-                FIND FIRST ttRecapProductCategory NO-LOCK
-                     WHERE ttRecapProductCategory.proCat EQ IF AVAILABLE itemfg THEN itemfg.proCat ELSE ""
-                     NO-ERROR.
-                IF NOT AVAILABLE ttRecapProductCategory THEN DO:
-                    CREATE ttRecapProductCategory.
-                    ASSIGN
-                        ttRecapProductCategory.proCat    = IF AVAILABLE itemfg THEN itemfg.proCat ELSE ""
-                        ttRecapProductCategory.numOrders = ttRecapProductCategory.numOrders + 1
-                        .
-                    FIND FIRST fgcat NO-LOCK
-                         WHERE fgcat.company EQ cCompany
-                           AND fgcat.procat  EQ ttRecapProductCategory.proCat
-                         NO-ERROR.
-                    IF AVAILABLE fgcat THEN
-                    ttRecapProductCategory.catDscr = fgcat.dscr.
-                END. /* not avail ttRecapProductCategory */
-                ELSE ttRecapProductCategory.numOrders = ttRecapProductCategory.numOrders + 1.
-                ASSIGN
-                    jdx = IF oe-ord.ord-date GE dtStartOrderDate AND
-                             oe-ord.ord-date LE dtEndOrderDate THEN 1 ELSE 2
-                    kdx = IF AVAILABLE period AND
-                             oe-ord.ord-date GE period.pst AND
-                             oe-ord.ord-date LE period.pend THEN 2 ELSE 1
-                    .
-               IF jdx LE kdx THEN
-               DO ii = jdx TO kdx:
-                   IF ii EQ 1 THEN
-                   ASSIGN
-                       ttRecapProductCategory.sqFtCurrent   = ttRecapProductCategory.sqFtCurrent   + dTotalSqft
-                       ttRecapProductCategory.tonsCurrent   = ttRecapProductCategory.tonsCurrent   + dTotTons
-                       ttRecapProductCategory.amountCurrent = ttRecapProductCategory.amountCurrent + dPriceAmount
-                       .
-                   IF ii EQ 2 THEN
-                   ASSIGN
-                       ttRecapProductCategory.sqFtPeriod   = ttRecapProductCategory.sqFtPeriod   + dTotalSqft
-                       ttRecapProductCategory.tonsPeriod   = ttRecapProductCategory.tonsPeriod   + dTotTons
-                       ttRecapProductCategory.amountPeriod = ttRecapProductCategory.amountPeriod + dPriceAmount
-                       .
-               END.  /* if jdx le kdx then */
-            END.  /* do idx = 1 to 3... */
-            IF oe-ord.ord-date NE dtMDate THEN DO:
-                dtMDate = oe-ord.ord-date.
-                IF oe-ord.ord-date GE dtStartOrderDate AND
-                   oe-ord.ord-date LE dtEndOrderDate THEN
-                iPerDays[1] = iPerDays[1] + 1.
-                IF AVAILABLE period AND
-                   oe-ord.ord-date GE period.pst AND
-                   oe-ord.ord-date LE period.pend THEN
-                iPerDays[2] = iPerDays[2] + 1.
-            END.  /*if oe-ord.ord-date ne dtMDate then do:*/
-        END.  /*for each oe-ordl no-lock*/
-        IF lIncludePrepMiscChg THEN
-        FOR EACH oe-ordm NO-LOCK
-            WHERE oe-ordm.company EQ cCompany
-              AND oe-ordm.ord-no  EQ oe-ord.ord-no
-            :
-            lExclude = YES.
-            DO idx = 1 TO 3:
-                IF lExclude AND
-                    oe-ordm.s-man[idx] GE cStartSalesRep AND
-                    oe-ordm.s-man[idx] LE cEndSalesRep THEN
-                lExclude = NO.
-            END.  /* do i.. */
-    
-            IF lExclude THEN NEXT.
-            /* At this point we have either 1, 2 or 3 valid salesman, in any  */
-            /* combination of the array. */
-            lMisc = FALSE.
-            DO idx = 1 TO 3:
-                IF lMisc THEN LEAVE.
-                IF oe-ordm.s-man[idx] LT cStartSalesRep OR
-                   oe-ordm.s-man[idx] GT cEndSalesRep THEN NEXT.
-                /* if no salesman number then assign to misc, ie, blank no */
-                IF idx EQ 1 AND
-                    oe-ordm.s-man[1] EQ "" AND
-                    oe-ordm.s-man[2] EQ "" AND
-                    oe-ordm.s-man[3] EQ "" THEN cSalesRep = "MISC".
-                ELSE /* if blank salesman # then ignore */
-                    IF oe-ordm.s-man[idx] EQ "" THEN NEXT.
-                    /* There must be at least 1 salesman in either pos'n 1, 2 or 3 */
-                    ELSE cSalesRep = oe-ordm.s-man[idx].
+                IF NOT AVAILABLE oe-rel THEN DO:
+                    FIND FIRST bOEOrdl NO-LOCK
+                         WHERE bOEOrdl.company EQ oe-ordl.company
+                           AND bOEOrdl.ord-no  EQ oe-ordl.ord-no
+                           AND bOEOrdl.is-a-component EQ YES
+                         NO-ERROR.                
+                    IF AVAILABLE bOEOrdl THEN
+                    FIND FIRST bOERel NO-LOCK
+                         WHERE bOERel.company EQ bOEOrdl.company
+                           AND bOERel.ord-no  EQ bOEOrdl.ord-no
+                           AND bOERel.i-no    EQ bOEOrdl.i-no
+                           AND bOERel.line    EQ bOEOrdl.line
+                         NO-ERROR.    
+                    IF AVAILABLE bOERel AND
+                       NOT(bOERel.spare-char-1 GE cStartShipFromNo
+                       AND bOERel.spare-char-1 LE cEndShipFromNo) THEN NEXT.
+                    ELSE IF NOT AVAILABLE bOERel AND NOT lLOrdWithNoRel THEN NEXT.                
+                END.
+                ELSE DO:   
+                    IF AVAILABLE oe-rel AND
+                       NOT (oe-rel.spare-char-1 GE cStartShipFromNo
+                       AND oe-rel.spare-char-1  LE cEndShipFromNo) THEN NEXT.
+                    ELSE IF NOT AVAILABLE oe-rel AND NOT lLOrdWithNoRel THEN NEXT.    
+                END. /* else */
+                lExclude = YES.
+                DO idx = 1 TO 3:
+                    IF lExclude AND
+                       oe-ordl.s-man[idx] GE cStartSalesRep AND
+                       oe-ordl.s-man[idx] LE cEndSalesRep THEN
+                    lExclude = NO.
+                END.  /* do idx */
+                IF lExclude THEN NEXT.
+                lMisc = FALSE.
+                DO idx = 1 TO 3:
+                    IF lMisc THEN LEAVE.
+                    IF oe-ordl.s-man[idx] LT cStartSalesRep OR
+                       oe-ordl.s-man[idx] GT cEndSalesRep THEN NEXT.
+                    /* if no salesman number then assign to misc, ie, blank no */
+                    IF idx EQ 1 AND
+                       oe-ordl.s-man[1] EQ "" AND
+                       oe-ordl.s-man[2] EQ "" AND
+                       oe-ordl.s-man[3] EQ "" THEN
+                    cSalesRep = "MISC".
+                    ELSE   /* if blank salesman # then ignore */
+                        IF oe-ordl.s-man[idx] EQ "" THEN NEXT.
+                        /* There must be at least 1 salesman in either pos'n 1, 2 or 3 */
+                        ELSE cSalesRep = oe-ordl.s-man[idx].
                     IF oe-ord.ord-date GE dtStartOrderDate AND
                        oe-ord.ord-date LE dtEndOrderDate THEN DO:
                         CREATE tt-report.
@@ -262,33 +157,37 @@ PROCEDURE pBusinessLogic:
                             tt-report.key-04  = IF AVAILABLE oe-rel THEN STRING(oe-rel.spare-char-1)
                                            ELSE IF AVAILABLE bOERel THEN STRING(bOERel.spare-char-1)
                                            ELSE ""
-                            tt-report.rec-id  = RECID(oe-ordm)
+                            tt-report.rec-id  = RECID(oe-ordl)
                             iTotal            = iTotal + 1
                             .           
                         IF lProgressBar THEN
                         RUN spProgressBar (cProgressBar, iTotal, ?).
                     END.  /* if oe-ord.ord-date */
+                    RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT dTotalSqft).
+                    
                     ASSIGN
-                        dPct = oe-ordm.s-pct[idx] / 100
-                        dPriceAmount = oe-ordm.amt * dPct
+                        dPct         = oe-ordl.s-pct[idx] / 100
+                        dOrdQty      = oe-ordl.qty * dPct
+                        dTotalSqft   = dTotalSqft * dOrdQty / 1000
+                        dTotTons     = itemfg.weight-100 * dOrdQty / 100 / 2000
+                        dPriceAmount = oe-ordl.t-price * dPct
                         .
                     FIND FIRST ttRecapProductCategory NO-LOCK
-                         WHERE ttRecapProductCategory.proCat EQ "P/M"
+                         WHERE ttRecapProductCategory.proCat EQ IF AVAILABLE itemfg THEN itemfg.proCat ELSE ""
                          NO-ERROR.
                     IF NOT AVAILABLE ttRecapProductCategory THEN DO:
                         CREATE ttRecapProductCategory.
                         ASSIGN
-                            ttRecapProductCategory.proCat    = "P/M"
+                            ttRecapProductCategory.proCat    = IF AVAILABLE itemfg THEN itemfg.proCat ELSE ""
                             ttRecapProductCategory.numOrders = ttRecapProductCategory.numOrders + 1
-                            ttRecapProductCategory.dscr      = "Prep/Misc"
                             .
                         FIND FIRST fgcat NO-LOCK
-                             WHERE fgcat.company EQ cCompany
+                             WHERE fgcat.company EQ oe-ordl.company
                                AND fgcat.procat  EQ ttRecapProductCategory.proCat
                              NO-ERROR.
                         IF AVAILABLE fgcat THEN
                         ttRecapProductCategory.catDscr = fgcat.dscr.
-                    END.  /* not avail ttRecapProductCategory */ 
+                    END. /* not avail ttRecapProductCategory */
                     ELSE ttRecapProductCategory.numOrders = ttRecapProductCategory.numOrders + 1.
                     ASSIGN
                         jdx = IF oe-ord.ord-date GE dtStartOrderDate AND
@@ -297,17 +196,121 @@ PROCEDURE pBusinessLogic:
                                  oe-ord.ord-date GE period.pst AND
                                  oe-ord.ord-date LE period.pend THEN 2 ELSE 1
                         .
-                    /* We cannot disturb loop variable idx from within loop,so use ii: */
-                    IF jdx LE kdx THEN DO ii = jdx TO kdx:
-                        IF ii EQ 1 THEN
-                        ttRecapProductCategory.amountCurrent = ttRecapProductCategory.amountCurrent + dPriceAmount.
-                        IF ii EQ 2 THEN
-                        ttRecapProductCategory.amountPeriod  = ttRecapProductCategory.amountPeriod  + dPriceAmount.
-                    END.  /* IF jdx LE kdx */
-            END. /* do idx = 1 to 3: */
-        END. /* each oe-ordm */   
-    END. /* each oe-ord */
-    
+                   IF jdx LE kdx THEN
+                   DO ii = jdx TO kdx:
+                       IF ii EQ 1 THEN
+                       ASSIGN
+                           ttRecapProductCategory.sqFtCurrent   = ttRecapProductCategory.sqFtCurrent   + dTotalSqft
+                           ttRecapProductCategory.tonsCurrent   = ttRecapProductCategory.tonsCurrent   + dTotTons
+                           ttRecapProductCategory.amountCurrent = ttRecapProductCategory.amountCurrent + dPriceAmount
+                           .
+                       IF ii EQ 2 THEN
+                       ASSIGN
+                           ttRecapProductCategory.sqFtPeriod   = ttRecapProductCategory.sqFtPeriod   + dTotalSqft
+                           ttRecapProductCategory.tonsPeriod   = ttRecapProductCategory.tonsPeriod   + dTotTons
+                           ttRecapProductCategory.amountPeriod = ttRecapProductCategory.amountPeriod + dPriceAmount
+                           .
+                   END.  /* if jdx le kdx then */
+                END.  /* do idx = 1 to 3... */
+                IF oe-ord.ord-date NE dtMDate THEN DO:
+                    dtMDate = oe-ord.ord-date.
+                    IF oe-ord.ord-date GE dtStartOrderDate AND
+                       oe-ord.ord-date LE dtEndOrderDate THEN
+                    iPerDays[1] = iPerDays[1] + 1.
+                    IF AVAILABLE period AND
+                       oe-ord.ord-date GE period.pst AND
+                       oe-ord.ord-date LE period.pend THEN
+                    iPerDays[2] = iPerDays[2] + 1.
+                END.  /*if oe-ord.ord-date ne dtMDate then do:*/
+            END.  /*for each oe-ordl no-lock*/
+            IF lIncludePrepMiscChg THEN
+            FOR EACH oe-ordm NO-LOCK
+                WHERE oe-ordm.company EQ oe-ord.company
+                  AND oe-ordm.ord-no  EQ oe-ord.ord-no
+                :
+                lExclude = YES.
+                DO idx = 1 TO 3:
+                    IF lExclude AND
+                        oe-ordm.s-man[idx] GE cStartSalesRep AND
+                        oe-ordm.s-man[idx] LE cEndSalesRep THEN
+                    lExclude = NO.
+                END.  /* do i.. */
+        
+                IF lExclude THEN NEXT.
+                /* At this point we have either 1, 2 or 3 valid salesman, in any  */
+                /* combination of the array. */
+                lMisc = FALSE.
+                DO idx = 1 TO 3:
+                    IF lMisc THEN LEAVE.
+                    IF oe-ordm.s-man[idx] LT cStartSalesRep OR
+                       oe-ordm.s-man[idx] GT cEndSalesRep THEN NEXT.
+                    /* if no salesman number then assign to misc, ie, blank no */
+                    IF idx EQ 1 AND
+                        oe-ordm.s-man[1] EQ "" AND
+                        oe-ordm.s-man[2] EQ "" AND
+                        oe-ordm.s-man[3] EQ "" THEN cSalesRep = "MISC".
+                    ELSE /* if blank salesman # then ignore */
+                        IF oe-ordm.s-man[idx] EQ "" THEN NEXT.
+                        /* There must be at least 1 salesman in either pos'n 1, 2 or 3 */
+                        ELSE cSalesRep = oe-ordm.s-man[idx].
+                        IF oe-ord.ord-date GE dtStartOrderDate AND
+                           oe-ord.ord-date LE dtEndOrderDate THEN DO:
+                            CREATE tt-report.
+                            ASSIGN
+                                tt-report.term-id = ""
+                                tt-report.key-01  = cSalesRep
+                                tt-report.key-02  = STRING(oe-ord.ord-no,">>>>>>>>>>")
+                                tt-report.key-03  = STRING(idx,"9")
+                                tt-report.key-04  = IF AVAILABLE oe-rel THEN STRING(oe-rel.spare-char-1)
+                                               ELSE IF AVAILABLE bOERel THEN STRING(bOERel.spare-char-1)
+                                               ELSE ""
+                                tt-report.rec-id  = RECID(oe-ordm)
+                                iTotal            = iTotal + 1
+                                .           
+                            IF lProgressBar THEN
+                            RUN spProgressBar (cProgressBar, iTotal, ?).
+                        END.  /* if oe-ord.ord-date */
+                        ASSIGN
+                            dPct = oe-ordm.s-pct[idx] / 100
+                            dPriceAmount = oe-ordm.amt * dPct
+                            .
+                        FIND FIRST ttRecapProductCategory NO-LOCK
+                             WHERE ttRecapProductCategory.proCat EQ "P/M"
+                             NO-ERROR.
+                        IF NOT AVAILABLE ttRecapProductCategory THEN DO:
+                            CREATE ttRecapProductCategory.
+                            ASSIGN
+                                ttRecapProductCategory.proCat    = "P/M"
+                                ttRecapProductCategory.numOrders = ttRecapProductCategory.numOrders + 1
+                                ttRecapProductCategory.dscr      = "Prep/Misc"
+                                .
+                            FIND FIRST fgcat NO-LOCK
+                                 WHERE fgcat.company EQ oe-ord.company
+                                   AND fgcat.procat  EQ ttRecapProductCategory.proCat
+                                 NO-ERROR.
+                            IF AVAILABLE fgcat THEN
+                            ttRecapProductCategory.catDscr = fgcat.dscr.
+                        END.  /* not avail ttRecapProductCategory */ 
+                        ELSE ttRecapProductCategory.numOrders = ttRecapProductCategory.numOrders + 1.
+                        ASSIGN
+                            jdx = IF oe-ord.ord-date GE dtStartOrderDate AND
+                                     oe-ord.ord-date LE dtEndOrderDate THEN 1 ELSE 2
+                            kdx = IF AVAILABLE period AND
+                                     oe-ord.ord-date GE period.pst AND
+                                     oe-ord.ord-date LE period.pend THEN 2 ELSE 1
+                            .
+                        /* We cannot disturb loop variable idx from within loop,so use ii: */
+                        IF jdx LE kdx THEN DO ii = jdx TO kdx:
+                            IF ii EQ 1 THEN
+                            ttRecapProductCategory.amountCurrent = ttRecapProductCategory.amountCurrent + dPriceAmount.
+                            IF ii EQ 2 THEN
+                            ttRecapProductCategory.amountPeriod  = ttRecapProductCategory.amountPeriod  + dPriceAmount.
+                        END.  /* IF jdx LE kdx */
+                END. /* do idx = 1 to 3: */
+            END. /* each oe-ordm */   
+        END. /* each oe-ord */
+    END. /* each oe-ctrl */
+
     &IF DEFINED(subjectID) NE 0 &THEN
     lPrtSqft = CAN-FIND(FIRST dynValueColumn
                         WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
@@ -319,7 +322,6 @@ PROCEDURE pBusinessLogic:
     lPrtSqft = CAN-DO(cSelectedColumns,"sqFt").
     &ENDIF
     RUN pOrdersBooked1 (
-        cCompany,
         lPrtSqft,
         lPrintOrderUnderPct,
         lPrintOrderOverPct,
@@ -327,7 +329,6 @@ PROCEDURE pBusinessLogic:
         iOverValue
         ).
     RUN pOrdersBooked2 (
-        cCompany,
         lPrtSqft,
         lPrintOrderUnderPct,
         lPrintOrderOverPct,
@@ -408,10 +409,10 @@ PROCEDURE pBusinessLogic:
         END. // if last
         &ENDIF
     END. // each ttRecapProductCategory
+
 END PROCEDURE.
 
 PROCEDURE pOrdersBooked1:
-    DEFINE INPUT PARAMETER cCompany            AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplPrtSqft            AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER iplPrintOrderUnderPct AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER iplPrintOrderOverPct  AS LOGICAL   NO-UNDO.
@@ -477,7 +478,6 @@ PROCEDURE pOrdersBooked1:
 END PROCEDURE.
 
 PROCEDURE pOrdersBooked2:
-    DEFINE INPUT PARAMETER cCompany            AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplPrtSqft            AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER iplPrintOrderUnderPct AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER iplPrintOrderOverPct  AS LOGICAL   NO-UNDO.
@@ -555,7 +555,7 @@ PROCEDURE pOrdersBooked2:
             IF AVAILABLE oe-ordl THEN DO:
                 FIND FIRST oe-ord OF oe-ordl NO-LOCK.
                 FIND FIRST itemfg NO-LOCK
-                     WHERE itemfg.company EQ cCompany
+                     WHERE itemfg.company EQ oe-ordl.company
                        AND itemfg.i-no    EQ oe-ordl.i-no
                      NO-ERROR.
                 ASSIGN
@@ -604,7 +604,7 @@ PROCEDURE pOrdersBooked2:
              NO-ERROR.
         
         FIND FIRST oe-ord NO-LOCK
-             WHERE oe-ord.company EQ cCompany
+             WHERE oe-ord.company EQ oe-ordl.company
                AND oe-ord.ord-no  EQ w-data.ord-no
              NO-ERROR.
         FIND cust OF oe-ord NO-LOCK NO-ERROR.
@@ -630,12 +630,12 @@ PROCEDURE pOrdersBooked2:
         IF AVAILABLE oe-ordl THEN DO:
             RELEASE eb.
             FIND FIRST itemfg NO-LOCK
-                 WHERE itemfg.company EQ cCompany
+                 WHERE itemfg.company EQ oe-ordl.company
                    AND itemfg.i-no    EQ oe-ordl.i-no
                  NO-ERROR.
             IF NOT AVAILABLE itemfg OR itemfg.die-no EQ "" THEN
             FIND FIRST eb NO-LOCK
-                 WHERE eb.company  EQ cCompany
+                 WHERE eb.company  EQ oe-ordl.company
                    AND eb.est-no   EQ oe-ordl.est-no
                    AND eb.stock-no EQ oe-ordl.i-no
                  NO-ERROR.
@@ -648,7 +648,7 @@ PROCEDURE pOrdersBooked2:
             cPrevOrder = IF oe-ord.po-no2 NE "" THEN oe-ord.po-no2
                          ELSE STRING(oe-ord.pord-no).
             FIND FIRST job NO-LOCK
-                 WHERE job.company EQ cCompany
+                 WHERE job.company EQ oe-ord.company
                    AND job.job-no  EQ oe-ord.job-no
                    AND job.job-no2 EQ oe-ord.job-no2
                  NO-ERROR.
@@ -665,7 +665,7 @@ PROCEDURE pOrdersBooked2:
         END.
 
         FIND FIRST sman NO-LOCK
-             WHERE sman.company EQ cCompany
+             WHERE sman.company EQ oe-ord.company
                AND sman.sman    EQ w-data.sman
              NO-ERROR.
 
