@@ -3620,7 +3620,7 @@ PROCEDURE validate-jobmat :
                             job-mat.qty                = job-mat.qty * IF job-mat.n-up EQ 0 THEN 1 ELSE job-mat.n-up
                             job-mat.n-up               = v-job-up * v-out                 
                             job-mat.qty                = job-mat.qty / IF job-mat.n-up EQ 0 THEN 1 ELSE job-mat.n-up
-                            job-mat.qty-all            = 0
+                            job-mat.all-flg            = NO
                             .
                      
                         {sys/inc/roundup.i job-mat.qty}

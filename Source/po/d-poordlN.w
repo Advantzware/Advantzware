@@ -1285,7 +1285,8 @@ FOR EACH tt-job-mat:
             ASSIGN
             job-mat.blank-no = po-ordl.b-num
             job-mat.j-no     = 1
-            job-mat.qty-all  = 0.
+            job-mat.all-flg  = NO
+            .
         IF po-ordl.s-num NE ? THEN job-mat.frm = po-ordl.s-num.
         FIND CURRENT job-mat NO-LOCK NO-ERROR.
     END.
