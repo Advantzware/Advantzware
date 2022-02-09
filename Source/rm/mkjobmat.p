@@ -80,7 +80,7 @@ if not avail job-mat then do:
   if avail b-job-mat then do:
     create job-mat.
     
-    buffer-copy b-job-mat to job-mat
+    buffer-copy b-job-mat EXCEPT rec_key to job-mat
       assign
        job-mat.i-no    = rm-rctd.i-no
        job-mat.rm-i-no = rm-rctd.i-no
