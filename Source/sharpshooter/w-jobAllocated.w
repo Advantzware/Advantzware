@@ -34,6 +34,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 USING system.SharedConfig.
 
 CREATE WIDGET-POOL.
@@ -1206,10 +1207,10 @@ PROCEDURE pJobScan :
                                      ELSE
                                          STRING(job.due-date)
             fiCSR:SCREEN-VALUE     = csrUser_id
-            fiJob:SCREEN-VALUE     = job.job-no + "-" + STRING(job.job-no2,"99").              
+            fiJob:SCREEN-VALUE     = job.job-no + "-" + STRING(job.job-no2,"999").              
        END.
        ELSE DO:
-            fiJob:SCREEN-VALUE     = cJobNo + "-" + STRING(iJobNo2,"99").
+            fiJob:SCREEN-VALUE     = cJobNo + "-" + STRING(iJobNo2,"999").
             fiStatus:SCREEN-VALUE  = "".
        END.
        
@@ -1350,7 +1351,7 @@ PROCEDURE pUpdateBrowse :
     IF cPerJob NE "" THEN
     ASSIGN
         fiLastRun:SCREEN-VALUE = string(dLastRun)
-        fiLastJob:SCREEN-VALUE = cPerJob + "-" + STRING(iPreJob2,"99") .
+        fiLastJob:SCREEN-VALUE = cPerJob + "-" + STRING(iPreJob2,"999") .
      ELSE 
      ASSIGN
      fiLastRun:SCREEN-VALUE = ""

@@ -1,4 +1,5 @@
 /* oe/rep/invxprnt.i */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 DEFINE VARIABLE cCustName AS CHARACTER NO-UNDO.
 ASSIGN cTagno = tt-po-print.tag-no 
        cVendorTagno = tt-po-print.vend-tag 
@@ -7,14 +8,14 @@ cCustName = "".
 RELEASE cust.
 FIND FIRST job-hdr NO-LOCK
      WHERE job-hdr.company EQ cocode
-     AND job-hdr.job-no  EQ tt-po-print.job-no
+     AND trim(job-hdr.job-no)  EQ trim(tt-po-print.job-no)
      AND job-hdr.job-no2 EQ tt-po-print.job-no2     
      AND job-hdr.i-no    EQ tt-po-print.i-no
      NO-ERROR.
 IF NOT AVAILABLE job-hdr THEN
 FIND FIRST job-hdr NO-LOCK
      WHERE job-hdr.company EQ cocode
-     AND job-hdr.job-no  EQ tt-po-print.job-no
+     AND trim(job-hdr.job-no)  EQ trim(tt-po-print.job-no)
      AND job-hdr.job-no2 EQ tt-po-print.job-no2     
      NO-ERROR.
 IF AVAIL job-hdr THEN 

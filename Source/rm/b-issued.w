@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -246,8 +247,8 @@ DEFINE BROWSE Browser-Table
       rm-rctd.rct-date COLUMN-LABEL "Issue Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
       rm-rctd.po-no FORMAT "x(6)":U LABEL-BGCOLOR 14
-      rm-rctd.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U LABEL-BGCOLOR 14
-      rm-rctd.job-no2 FORMAT "99":U
+      rm-rctd.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U LABEL-BGCOLOR 14
+      rm-rctd.job-no2 FORMAT "999":U
       rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U LABEL-BGCOLOR 14
       rm-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
