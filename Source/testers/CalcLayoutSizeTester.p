@@ -21,9 +21,9 @@ DEFINE VARIABLE hdSession AS HANDLE.
 
 {est/ttCalcLayoutSize.i}
 
-//RUN CalcLayoutSize.
+RUN CalcLayoutSize.
 //RUN pCompareLayoutSize.
-RUN pCompareRangeLayoutSize.
+//RUN pCompareRangeLayoutSize.
 
 PROCEDURE pCompareLayoutSize:
     
@@ -86,7 +86,7 @@ ENd.
 PROCEDURE CalcLayoutSize:
     
     DEFINE VARIABLE gcCompany    AS CHARACTER NO-UNDO INITIAL "001".
-    DEFINE VARIABLE gcEstimateID AS CHARACTER NO-UNDO INITIAL "  103334".
+    DEFINE VARIABLE gcEstimateID AS CHARACTER NO-UNDO INITIAL "  103391".
     
      
     FIND FIRST est NO-LOCK
@@ -107,6 +107,7 @@ PROCEDURE CalcLayoutSize:
 
     RUN est/CalcLayoutSize.p (INPUT ROWID(ef),
         INPUT ROWID(eb),
+        YEs,
         OUTPUT TABLE ttLayoutSize).
         
         

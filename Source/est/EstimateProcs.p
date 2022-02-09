@@ -935,6 +935,7 @@ PROCEDURE pUpdateEfFormLayout PRIVATE:
 
     RUN est/CalcLayoutSize.p (INPUT ROWID(ipbf-ef),
         INPUT ROWID(ipbf-eb),
+        INPUT iplCalcSizeOnly,
         OUTPUT TABLE ttLayoutSize).
     
         
