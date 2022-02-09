@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -79,11 +81,11 @@ job-hdr.i-no job-hdr.est-no job-hdr.ord-no job-hdr.cust-no
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH job-hdr WHERE ~{&KEY-PHRASE} ~
       AND job-hdr.company = ip-company ~
-and job-hdr.job-no = ip-job-no NO-LOCK ~
+and TRIM(job-hdr.job-no) = TRIM(ip-job-no) NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH job-hdr WHERE ~{&KEY-PHRASE} ~
       AND job-hdr.company = ip-company ~
-and job-hdr.job-no = ip-job-no NO-LOCK ~
+and TRIM(job-hdr.job-no) = TRIM(ip-job-no) NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 job-hdr
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 job-hdr
@@ -152,11 +154,11 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      job-hdr.job-no FORMAT "x(6)":U
-      job-hdr.job-no2 COLUMN-LABEL "#" FORMAT ">9":U
+      job-hdr.job-no FORMAT "x(9)":U
+      job-hdr.job-no2 COLUMN-LABEL "#" FORMAT ">>9":U
       job-hdr.i-no FORMAT "x(15)":U WIDTH 19
       job-hdr.est-no FORMAT "x(8)":U WIDTH 14
-      job-hdr.ord-no FORMAT ">>>>>9":U
+      job-hdr.ord-no FORMAT ">>>>>>>9":U
       job-hdr.cust-no FORMAT "x(8)":U WIDTH 12
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -215,7 +217,7 @@ ASSIGN
      _TblList          = "ASI.job-hdr"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.job-hdr.company = ip-company
-and job-hdr.job-no = ip-job-no"
+and TRIM(job-hdr.job-no) = TRIM(ip-job-no)"
      _FldNameList[1]   = ASI.job-hdr.job-no
      _FldNameList[2]   > ASI.job-hdr.job-no2
 "job-no2" "#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
