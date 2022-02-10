@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 
 CREATE WIDGET-POOL.
 
@@ -875,8 +876,8 @@ PROCEDURE run-report :
 
     DEFINE BUFFER b-oe-ordl FOR oe-ordl.
 
-    DEFINE VARIABLE v-ord       LIKE oe-ord.ord-no FORMAT ">>>>>>"
-        EXTENT 2 INIT [0,999999].
+    DEFINE VARIABLE v-ord       LIKE oe-ord.ord-no FORMAT ">>>>>>>>"
+        EXTENT 2 INIT [0,99999999].
     DEFINE VARIABLE v-cust      LIKE oe-ord.cust-no EXTENT 2 INIT ["","zzzzzzzz"].
     DEFINE VARIABLE v-item      LIKE oe-ordl.i-no EXTENT 2 INIT ["","zzzzzzzzzzzzzzz"].
     DEFINE VARIABLE v-odate     LIKE oe-ord.ord-date FORMAT "99/99/9999"

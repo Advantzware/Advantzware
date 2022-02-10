@@ -17,7 +17,9 @@
 
   Author: 
 
-  Created: 
+  Created:
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No).
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
@@ -197,7 +199,7 @@ DEFINE VARIABLE begin_item    AS CHARACTER FORMAT "X(15)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_order   AS INTEGER   FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE begin_order   AS INTEGER   FORMAT ">>>>>>>9" INITIAL 0 
     LABEL "From Order#" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
@@ -227,7 +229,7 @@ DEFINE VARIABLE end_item      AS CHARACTER FORMAT "X(15)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_order     AS INTEGER   FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE end_order     AS INTEGER   FORMAT ">>>>>>>9" INITIAL 99999999 
     LABEL "To Order#" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.

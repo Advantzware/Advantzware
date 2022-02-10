@@ -14,6 +14,8 @@
   Author: Eric Panchenko
 
   Created: April 3, 2007
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No).
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -148,7 +150,7 @@ DEFINE BROWSE BROWSE-2
       tt-report.carrier COLUMN-LABEL "Carrier" WIDTH 10 LABEL-BGCOLOR 14
    tt-report.truck-code COLUMN-LABEL "Trailer#" WIDTH 20 LABEL-BGCOLOR 14
    tt-report.truck-dscr COLUMN-LABEL "Descrp" WIDTH 23 LABEL-BGCOLOR 14
-   tt-report.order-no COLUMN-LABEL "Order #" LABEL-BGCOLOR 14
+   tt-report.order-no COLUMN-LABEL "Order #" WIDTH 12 LABEL-BGCOLOR 14
    tt-report.load-no     COLUMN-LABEL "Load #" WIDTH 10 LABEL-BGCOLOR 14
    tt-report.ship-date COLUMN-LABEL "Ship Date" FORMAT "99/99/99" LABEL-BGCOLOR 14 WIDTH 13
    tt-report.stop-no COLUMN-LABEL "Stop" LABEL-BGCOLOR 14 WIDTH 7

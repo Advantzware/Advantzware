@@ -17,6 +17,7 @@
   Output Parameters:
       <none>
 
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -162,7 +163,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       oe-retl.i-no FORMAT "x(15)":U
       oe-retl.i-name FORMAT "x(30)":U
-      oe-retl.ord-no COLUMN-LABEL "Order#" FORMAT ">>>>>9":U
+      oe-retl.ord-no COLUMN-LABEL "Order#" FORMAT ">>>>>>>9":U
       oe-retl.tag FORMAT "x(20)":U
       oe-retl.tot-qty-return COLUMN-LABEL "Cr Memo Qty" FORMAT "->,>>>,>>9.99":U
             WIDTH 18.2
