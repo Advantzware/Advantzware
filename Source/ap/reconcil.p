@@ -198,7 +198,7 @@ FOR EACH ar-cash NO-LOCK WHERE
        reconcile.tt-amt     = reconcile.tt-amt + ar-cash.check-amt.
     
 END. 
-
+ld = 0.
 FOR EACH gl-jrn NO-LOCK WHERE 
     gl-jrn.company    EQ cocode AND 
     gl-jrn.reconciled EQ NO AND 
