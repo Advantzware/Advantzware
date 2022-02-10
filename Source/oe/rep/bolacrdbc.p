@@ -291,7 +291,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
         if substr(v-salesman,length(trim(v-salesman)),1) eq "," then
           substr(v-salesman,length(trim(v-salesman)),1) = "".
 
-      v-fob = if oe-ord.fob-code begins "ORIG" then "Origin" else "Destestination".
+      v-fob = if oe-ord.fob-code begins "ORIG" then "Origin" else "Destination".
       IF AVAIL oe-boll THEN do:
           IF oe-boll.s-code = "T" THEN
                 v-transfer = "<P14>TRANSFER<FGCOLOR=BLACK><P10>".
