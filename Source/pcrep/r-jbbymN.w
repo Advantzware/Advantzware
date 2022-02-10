@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -62,7 +63,7 @@ ASSIGN
                    + "TOTAL KICKS,KICKS REMAINING,MSF BALANCE,SHEET SIZE,BOARD RECE."
     cFieldListToSelect = "mch,pro-jdt,cust,cust-part,job," +
                                         "ttl-kck,kck-remn,msf-bal,shet-siz,brd-rec"
-    cFieldLength       = "7,17,8,15,10," + "12,15,12,21,12"
+    cFieldLength       = "7,17,8,15,13," + "12,15,12,21,12"
     cFieldType         = "c,c,c,c,c," + "i,i,i,c,i" 
     .
 
@@ -148,37 +149,37 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
     LABEL "Thru Date" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY .95 NO-UNDO.
+    SIZE 18 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+    SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_mach     AS CHARACTER FORMAT "X(6)" 
     LABEL "Beginning Machine" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+    SIZE 18 BY 1.
 
-DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+    SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_mach       AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
     LABEL "Ending Machine" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+    SIZE 18 BY 1.
 
 DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\MachineBacklog.csv" 
     LABEL "Name" 
@@ -1291,7 +1292,7 @@ PROCEDURE run-report :
 
     DEFINE VARIABLE v-mach         LIKE job-mch.m-code NO-UNDO.
     DEFINE VARIABLE v-date         AS DATE      FORMAT "99/99/99" NO-UNDO.
-    DEFINE VARIABLE v-job          AS CHARACTER FORMAT "x(9)" NO-UNDO.
+    DEFINE VARIABLE v-job          AS CHARACTER FORMAT "x(13)" NO-UNDO.
     DEFINE VARIABLE v-sheet        AS CHARACTER FORMAT "x(21)" NO-UNDO.
     DEFINE VARIABLE v-qty          AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE v-pct          AS DECIMAL   NO-UNDO.
@@ -1369,10 +1370,8 @@ PROCEDURE run-report :
         v-fdate  = begin_date
         v-fmach  = begin_mach
         v-tmach  = end_mach
-        v-fjob   = FILL(" ",6 - length(TRIM(begin_job-no))) +
-             trim(begin_job-no) + string(int(begin_job-no2),"99")
-        v-tjob   = FILL(" ",6 - length(TRIM(end_job-no)))   +
-             trim(end_job-no)   + string(int(end_job-no2),"99")
+        v-fjob   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+        v-tjob   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
         /*v-cust   = rd_print EQ "Customer#"
         v-part   = rd_print2 EQ "Customer Part#"*/
 
@@ -1433,7 +1432,7 @@ PROCEDURE run-report :
     FOR EACH tt-report:
         DELETE tt-report.
     END.
-
+       
     FOR EACH job
         WHERE job.company EQ cocode
           AND job.opened  EQ YES
@@ -1524,8 +1523,7 @@ PROCEDURE run-report :
         END.
 
         ASSIGN
-            v-job    = FILL(" ",6 - length(TRIM(job-hdr.job-no))) +
-                  trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99")
+            v-job    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)) 
             v-date   = DATE(int(substr(tt-report.key-02,5,2)),
                        int(substr(tt-report.key-02,7,2)),
                        int(substr(tt-report.key-02,1,4)))

@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -84,7 +85,7 @@ ASSIGN
                            "dntme-chrg,dntme-no-chrg,ttl-act-hrs," +
                            "est-run-hrs,est-mr-hrs,ttl-est-hrs," +
                            "labr-varnc,est-no,clpr,run-qty,ord-qty,itm-nam"
-    cFieldLength       = "4,6,9,2,2,11,11," + "11,10,11," + "11,11,11," + "12,8,7,11,13,15"
+    cFieldLength       = "4,6,13,2,2,11,11," + "11,10,11," + "11,11,11," + "12,8,7,11,13,15"
     cFieldType         = "c,c,c,c,c,i,i," + "i,i,i," + "i,i,i," + "i,c,i,i,i,c"
     .
 
@@ -1643,7 +1644,7 @@ PROCEDURE run-report :
                     WHEN "mach-code" THEN 
                         cVarValue = STRING(work-rep.m-code,"x(6)").
                     WHEN "job" THEN 
-                        cVarValue = STRING(work-rep.job-no + "-" + STRING(work-rep.job-no2)).
+                        cVarValue = STRING(work-rep.job-no + "-" + STRING(work-rep.job-no2,"999")).
                     WHEN "s" THEN 
                         cVarValue = STRING(work-rep.form-no).
                     WHEN "b" THEN 

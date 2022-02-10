@@ -23,6 +23,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -99,7 +100,7 @@ END.
           AND {system/brMatches.i  job-hdr.cust-no fi_cust-no}   ~
           AND {system/brMatches.i  job-hdr.i-no fi_i-no}   ~
           AND job-hdr.est-no    BEGINS fi_est-no    ~
-          AND job-hdr.job-no    BEGINS fi_job-no    ~
+          AND fill(" ",9 - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) BEGINS fi_job-no    ~
           AND (job-hdr.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "") ~
           AND (job-hdr.due-date GE fiBeginDate OR fiBeginDate EQ ?) ~
           AND (job-hdr.due-date LE fiEndDate OR fiEndDate EQ ?)
@@ -125,7 +126,7 @@ END.
     IF lv-sort-by EQ "cust-no"    THEN job-hdr.cust-no                                                                                                  ELSE ~
     IF lv-sort-by EQ "i-no"       THEN job-hdr.i-no                                                                                                     ELSE ~
     IF lv-sort-by EQ "est-no"     THEN job-hdr.est-no                                                                                                   ELSE ~
-    IF lv-sort-by EQ "job-no"     THEN STRING(job-hdr.job-no,"x(6)") + STRING(job-hdr.job-no2,"99")                                                     ELSE ~
+    IF lv-sort-by EQ "job-no"     THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', job-hdr.job-no, job-hdr.job-no2))                                  ELSE ~
     IF lv-sort-by EQ "close-date" THEN STRING(YEAR(job.close-date),"9999") + STRING(MONTH(job.close-date),"99") + STRING(DAY(job.close-date),"99")      ELSE ~
                                        STRING(YEAR(job.start-date),"9999") + STRING(MONTH(job.start-date),"99") + STRING(DAY(job.start-date),"99")
 
@@ -321,12 +322,12 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 25 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1
@@ -375,13 +376,13 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(7)":U COLUMN-BGCOLOR 8
+      job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U COLUMN-BGCOLOR 8
             LABEL-BGCOLOR 14
       job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
       job-hdr.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       job-hdr.est-no COLUMN-LABEL "Estimate#" FORMAT "x(8)":U WIDTH 14
             LABEL-BGCOLOR 14
-      job-hdr.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      job-hdr.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       job-hdr.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
       job.start-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
@@ -760,7 +761,7 @@ DO:
          ELSE do:
              FIND FIRST bf-job-hdr NO-LOCK WHERE bf-job-hdr.company = cocode 
                  AND (bf-job-hdr.cust-no BEGINS fi_cust-no OR fi_cust-no = "")
-                 AND (bf-job-hdr.job-no BEGINS fi_job-no OR fi_job-no = "")
+                 AND (trim(bf-job-hdr.job-no) BEGINS trim(fi_job-no) OR fi_job-no = "")
                  AND (bf-job-hdr.i-no BEGINS fi_i-no OR fi_i-no = "")
                  AND (bf-job-hdr.est-no BEGINS fi_est-no OR fi_est-no = "")
                  AND (bf-job-hdr.ord-no = fi_ord-no OR fi_ord-no = 0)  NO-ERROR. 
@@ -1533,7 +1534,7 @@ PROCEDURE reopen-query :
              fi_est-no:SCREEN-VALUE  = ""
              fi_i-no:SCREEN-VALUE    = ""
              fi_job-no:SCREEN-VALUE  = bf-job-hdr.job-no
-             fi_job-no2:SCREEN-VALUE = STRING(bf-job-hdr.job-no2, "99")
+             fi_job-no2:SCREEN-VALUE = STRING(bf-job-hdr.job-no2, "999")
              fi_ord-no:SCREEN-VALUE  = ""
              fi_sort-by:SCREEN-VALUE = "".
     ASSIGN

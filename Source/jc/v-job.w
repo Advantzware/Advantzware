@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -272,7 +273,7 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE FRAME F-Main
      job.job-no AT ROW 1.24 COL 19 COLON-ALIGNED
-          LABEL "Job Number" FORMAT "x(6)"
+          LABEL "Job Number" FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
           BGCOLOR 15 
@@ -1904,7 +1905,7 @@ PROCEDURE local-update-record :
              INPUT  "AddJob",                                        /* Trigger ID (Mandatory) */
              INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
              INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-             INPUT  job.job-no + "-" + STRING(job.job-no2, "99"),      /* Primary ID for which API is called for (Mandatory) */   
+             INPUT  job.job-no + "-" + STRING(job.job-no2, "999"),      /* Primary ID for which API is called for (Mandatory) */   
              INPUT  "Job add triggered from " + PROGRAM-NAME(1)    /* Event's description (Optional) */
              ) NO-ERROR.
       
@@ -2659,9 +2660,8 @@ PROCEDURE valid-job-no :
   ll-valid = YES.
 
   DO WITH FRAME {&frame-name}:
-    job.job-no:SCREEN-VALUE =
-        FILL(" ",6 - LENGTH(TRIM(job.job-no:SCREEN-VALUE))) +
-        TRIM(job.job-no:SCREEN-VALUE).
+    job.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', job.job-no:SCREEN-VALUE))
+        .
 
     IF TRIM(job.job-no:SCREEN-VALUE) EQ "" THEN DO:
       MESSAGE "Job# Cannot be BLANK..."
@@ -2889,7 +2889,7 @@ PROCEDURE validate-est :
              v-bld-job = SUBSTR(sys-ctrl.char-fld,1,1) + TRIM(v-bld-job).
 
            ASSIGN
-              v-bld-job = FILL(" ",6 - LENGTH(TRIM(v-bld-job))) + TRIM(v-bld-job)
+              v-bld-job = FILL(" ",9 - LENGTH(TRIM(v-bld-job))) + TRIM(v-bld-job)
               ll = NO.
 
            IF CAN-FIND(FIRST xjob WHERE
@@ -2937,7 +2937,7 @@ PROCEDURE validate-est :
 
       ASSIGN
        job.job-no:SCREEN-VALUE  = v-bld-job
-       job.job-no2:SCREEN-VALUE = STRING(li,"99").
+       job.job-no2:SCREEN-VALUE = STRING(li,"999").
     END.
 
     /*FIND FIRST job-hdr OF job NO-LOCK NO-ERROR.

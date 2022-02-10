@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -197,8 +198,8 @@ DEFINE BROWSE Browser-Table
       job-hdr.std-var-cost COLUMN-LABEL "Var OH" FORMAT "->>>,>>9.99<<":U
       get-total-cost () @ ld-total-cost COLUMN-LABEL "Total Cost" FORMAT "->,>>>,>>>,>>9.99<<":U
       job-hdr.j-no COLUMN-LABEL "" FORMAT ">>>>>>9":U
-      job-hdr.job-no COLUMN-LABEL "" FORMAT "x(6)":U
-      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      job-hdr.job-no COLUMN-LABEL "" FORMAT "x(9)":U
+      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
       job-hdr.keyItem COLUMN-LABEL "Key Item" FORMAT "Yes/No":U
   ENABLE
       job-hdr.frm

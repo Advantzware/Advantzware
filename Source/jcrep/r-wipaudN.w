@@ -16,6 +16,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -77,7 +78,7 @@ ASSIGN cTextListToSelect = "Trans Type,Trans Date,Job No.,S,B,Item Number,"
        cFieldListToSelect = "trns-typ,trns-dt,job-no,frm,blnk,i-no," +
                                         "dscr,qty-pstd,wst-qty,mch-hrs," +
                                         "mch-cd,job-cd,vc,trns-tym"
-       cFieldLength = "10,10,10,1,1,15," + "30,11,7,7," + "11,11,3,10" 
+       cFieldLength = "10,10,13,1,1,15," + "30,11,7,7," + "11,11,3,10" 
        cFieldType = "c,c,c,c,c,c," + "c,i,i,i," + "c,c,c,c"
     .
 
@@ -1370,6 +1371,8 @@ DISPLAY "" WITH FRAME r-top.
                 trim(job.job-no) + string(int(job.job-no2),"999") GE v-job-no[1] 
             AND fill(" ",9 - length(TRIM(job.job-no))) +
                 trim(job.job-no) + string(int(job.job-no2),"999") LE v-job-no[2]
+            AND job.job-no2 GE int(begin_job-no2)
+            AND job.job-no2 LE int(end_job-no2)    
             AND (v-stat  EQ "A"  OR
                  (v-stat EQ "O" AND job.opened) OR
                  (v-stat EQ "C" AND NOT job.opened))
@@ -1506,7 +1509,7 @@ DISPLAY "" WITH FRAME r-top.
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING(work-aud.procat) .
                                     WHEN "trns-dt"      THEN cVarValue =  STRING(work-aud.tran-date) .
-                                    WHEN "job-no"           THEN cVarValue =  STRING(work-aud.job-no + "-" + STRING(work-aud.job-no2,"99")) .
+                                    WHEN "job-no"           THEN cVarValue =  STRING(work-aud.job-no + "-" + STRING(work-aud.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(work-aud.frm) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(work-aud.blank-no) .
                                     WHEN "i-no"             THEN cVarValue =  "" .
@@ -1556,7 +1559,7 @@ DISPLAY "" WITH FRAME r-top.
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING(work-aud.procat) .
                                     WHEN "trns-dt"      THEN cVarValue =  STRING(work-aud.tran-date) .
-                                    WHEN "job-no"           THEN cVarValue =  STRING(work-aud.job-no + "-" + STRING(work-aud.job-no2,"99")) .
+                                    WHEN "job-no"           THEN cVarValue =  STRING(work-aud.job-no + "-" + STRING(work-aud.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(work-aud.frm) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(work-aud.blank-no) .
                                     WHEN "i-no"             THEN cVarValue =  work-aud.i-no .
@@ -1600,7 +1603,7 @@ DISPLAY "" WITH FRAME r-top.
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING(work-aud.procat) .
                                     WHEN "trns-dt"      THEN cVarValue =  STRING(work-aud.tran-date) .
-                                    WHEN "job-no"           THEN cVarValue =  STRING(work-aud.job-no + "-" + STRING(work-aud.job-no2,"99")) .
+                                    WHEN "job-no"           THEN cVarValue =  STRING(work-aud.job-no + "-" + STRING(work-aud.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(work-aud.frm) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(work-aud.blank-no) .
                                     WHEN "i-no"             THEN cVarValue =  work-aud.i-no .
@@ -1691,11 +1694,11 @@ DISPLAY "" WITH FRAME r-top.
                                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                        END.
 
-                       PUT UNFORMATTED "JOB TOTALS - " + job.job-no + "-" + string(job.job-no2,"99") + "         BOARD TOTALS: "
-                           SUBSTRING(cDisplay,45,300) SKIP.
+                       PUT UNFORMATTED "JOB TOTALS - " + job.job-no + "-" + string(job.job-no2,"999") + "         BOARD TOTALS: "
+                           SUBSTRING(cDisplay,44,300) SKIP.
                        IF rd-dest EQ 3 THEN DO:
                             PUT STREAM excel UNFORMATTED  
-                                  " JOB TOTALS    " job.job-no + "-" + string(job.job-no2,"99") + "         BOARD TOTALS: " SUBSTRING(cExcelDisplay,3,300) SKIP.
+                                  " JOB TOTALS    " job.job-no + "-" + string(job.job-no2,"999") + "         BOARD TOTALS: " SUBSTRING(cExcelDisplay,3,300) SKIP.
                        END. 
 
                        PUT SKIP str-line SKIP .
