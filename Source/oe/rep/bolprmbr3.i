@@ -1,5 +1,5 @@
 /* bolprem3.i */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 ASSIGN
    v-tot-cases = 0
    v-total-weight = 0
@@ -70,7 +70,7 @@ FOR EACH tt-boll,
             ASSIGN
                v-part-dscr = oe-ordl.i-name
                v-job-po    = IF oe-ordl.job-no EQ "" THEN "" 
-                             ELSE (TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99"))
+                             ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
                v-ord-po-no = STRING(tt-boll.ord-no)
                v-item-part-no = oe-ordl.i-no.
          ELSE
@@ -114,7 +114,7 @@ FOR EACH tt-boll,
          ASSIGN
             v-part-dscr = oe-ordl.part-no
             v-ord-po-no = IF oe-ordl.job-no EQ "" THEN "" 
-                          ELSE (TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99"))
+                          ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
             v-item-part-no = STRING(tt-boll.ord-no).
          ELSE IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr1.
          ELSE IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr2.
@@ -180,7 +180,7 @@ FOR EACH tt-boll,
             ASSIGN
                v-part-dscr = oe-ordl.part-no
                v-ord-po-no = IF oe-ordl.job-no EQ "" THEN "" 
-                             ELSE (TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99"))
+                             ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
                v-item-part-no = STRING(tt-boll.ord-no).
             ELSE IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr1.
             ELSE IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr2.
