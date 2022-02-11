@@ -15,6 +15,7 @@
 /* ***************************  Definitions  ************************** */
 {est\dsEstimateTT.i}
 
+/*
 DEFINE DATASET dsEstimate FOR 
     ttEstimate,
     ttEstimateQuantity,
@@ -36,6 +37,7 @@ DEFINE DATASET dsEstimate FOR
     DATA-RELATION estMaterial FOR ttEstimate, ttEstimateMaterial
         RELATION-FIELDS (estimateID, estimateID) NESTED
     . 
+*/
 
 /* ********************  Preprocessor Definitions  ******************** */
 

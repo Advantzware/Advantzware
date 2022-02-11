@@ -13,7 +13,8 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE TEMP-TABLE ttEstimate NO-UNDO
+
+/*DEFINE TEMP-TABLE ttEstimate NO-UNDO
     FIELD estimateID       AS INT64
     FIELD company          AS CHARACTER 
     FIELD estimateNo       AS CHARACTER
@@ -57,23 +58,11 @@ DEFINE TEMP-TABLE ttEstimateItemQuantityRelease NO-UNDO
     FIELD estimateItemQuantityID LIKE ttEstimateItem.estimateItemID
     FIELD quantityReleased AS DECIMAL
     .    
-    
-DEFINE TEMP-TABLE ttEstimateForm NO-UNDO
-    FIELD estimateID     LIKE ttEstimate.estimateID
-    FIELD estimateFormID LIKE ttEstimateForm.estimateID
-    FIELD formNo         AS INTEGER
-    FIELD dimLengthGross AS DECIMAL
-    FIELD dimWidthGross  AS DECIMAL 
-    FIELD dimDepthGross  AS DECIMAL
-    FIELD dimLengthNet   AS DECIMAL
-    FIELD dimWidthNet    AS DECIMAL 
-    FIELD dimDepthNet    AS DECIMAL
-    FIELD dimLengthDie   AS DECIMAL
-    FIELD dimWidthDie    AS DECIMAL 
-    FIELD dimDepthDie    AS DECIMAL
-    FIELD dimUOM         AS CHARACTER
+    */
+DEFINE TEMP-TABLE ttEstCostForm NO-UNDO
+    LIKE estCostForm
     .
-
+/*
 DEFINE TEMP-TABLE ttEstimateFormQuantity NO-UNDO
     FIELD estimateFormID LIKE ttEstimateForm.estimateID
     FIELD estimateQuantityID LIKE ttEstimateQuantity.estimateQuantityID
@@ -138,7 +127,7 @@ DEFINE TEMP-TABLE ttEstimateError NO-UNDO
     FIELD estimateBlankID    LIKE ttEstimateBlank.estimateBlankID
     FIELD errorType AS CHARACTER
     FIELD errorMessage AS CHARACTER
-    .
+    .*/
 /* ********************  Preprocessor Definitions  ******************** */
 
 
