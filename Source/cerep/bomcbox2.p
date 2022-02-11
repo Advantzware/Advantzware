@@ -1,6 +1,7 @@
 /* cerep/bomcbox.p  copied from cerep/jobcbox.p               05/05 YSK     */
 /* Bill of Materials for folding Century Box                                   */
 /* -------------------------------------------------------------------------- */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 {sys/inc/var.i shared}
 {sys/form/s-top.f}
@@ -267,7 +268,7 @@ find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
 FIND FIRST job-hdr NO-LOCK NO-ERROR.
 
 FORM header "<#1><P14> <C30><B>Bill of Materials<P9>" skip(1)
-          "<C3>JOB NUMBER:</B> " trim(v-job-no) + "-" + string(v-job-no2,"99") format "x(9)" 
+          "<C3>JOB NUMBER:</B> " trim(v-job-no) + "-" + string(v-job-no2,"999") format "x(13)" 
           "<C40><B>Customer Name:</B> <C53>" v-cust-name SKIP
           "<C3><B>Due Date:</B>   " v-due-date  "<C40><B>Ship To:</B><C53>" v-shipto[1] SKIP
           "<C3><B>Estimate:</B>   " trim(job-hdr.est-no) FORM "x(8)" "<C53>" v-shipto[2] SKIP
@@ -288,15 +289,15 @@ ASSIGN
 PUT "<FCourier New>".
 
 for each job-hdr
-        where job-hdr.company               eq cocode
-          and job-hdr.job-no                ge substr(fjob-no,1,6)
-          and job-hdr.job-no                le substr(tjob-no,1,6)
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
+        where job-hdr.company               eq cocode          
+          and fill(" ",9 - length(trim(job-hdr.job-no))) +
               trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  ge fjob-no
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
+              string(job-hdr.job-no2,"999")  ge fjob-no
+          and fill(" ",9 - length(trim(job-hdr.job-no))) +
               trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  le tjob-no
+              string(job-hdr.job-no2,"999")  le tjob-no
+          AND job.job-no2 GE int(fjob-no2)
+          AND job.job-no2 LE int(tjob-no2)    
           /*and job-hdr.ftick-prnt            eq v-reprint
           and can-find(first job where job.company eq cocode
                                    and job.job     eq job-hdr.job
@@ -389,7 +390,7 @@ for each job-hdr
        
          if first(job-hdr.job-no) then 
             PUT "<#1><P14> <C30><B>Bill of Materials<P9>" skip(1)
-              "<C3>JOB NUMBER:</B> " trim(v-job-no) + "-" + string(v-job-no2,"99") format "x(9)" 
+              "<C3>JOB NUMBER:</B> " trim(v-job-no) + "-" + string(v-job-no2,"999") format "x(13)" 
               "<C40><B>Customer Name:</B> <C53>" v-cust-name SKIP
               "<C3><B>Due Date:</B>   " v-due-date  "<C40><B>Ship To:</B><C53>" v-shipto[1] SKIP
               "<C3><B>Estimate:</B>   " trim(job-hdr.est-no) FORM "x(8)" "<C53>" v-shipto[2] SKIP
@@ -405,7 +406,7 @@ for each job-hdr
             PUT STREAM s-temp UNFORMATTED
             ',,'
             '"' "Bill of Materials"  '",' SKIP
-            '"' "JOB NUMBER:  " string(v-job-no) + "-" + string(v-job-no2,"99")   '",,,,'
+            '"' "JOB NUMBER:  " string(v-job-no) + "-" + string(v-job-no2,"999")   '",,,,'
             '"' "Customer Name:  " v-cust-name  '",' SKIP
             '"' "Due Date:  " string(v-due-date) '",,,,'
             '"' "Ship To:  " v-shipto[1]  '",' SKIP

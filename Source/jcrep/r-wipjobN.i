@@ -109,7 +109,7 @@ FOR EACH job FIELDS(job job-no job-no2 est-no) WHERE
             ELSE DO: 
               cVarValue = "".
               CASE cTmpField:               
-                 WHEN "v-job-no" THEN cVarValue = string(job.job-no + "-" + string(job.job-no2,"99")).
+                 WHEN "v-job-no" THEN cVarValue = string(job.job-no + "-" + string(job.job-no2,"999")).
                  WHEN "v-vendor" THEN cVarValue = STRING(v-vendor,"X(20)").
                  WHEN "v-wgt" THEN cVarValue = STRING(v-wgt,"->>,>>9.99").
                  WHEN "v-shtWid" THEN cVarValue = STRING(v-shtWid,"->>,>>9.99<<").

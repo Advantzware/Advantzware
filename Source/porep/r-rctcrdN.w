@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -60,7 +61,7 @@ DEFINE VARIABLE v-fg        LIKE po-ordl.i-no.
 
 DEFINE VARIABLE v-cust-vend AS CHARACTER FORMAT "x(26)" INIT "--------- VENDOR ---------".
 
-DEFINE VARIABLE v-job-no    AS CHARACTER FORMAT "x(9)".
+DEFINE VARIABLE v-job-no    AS CHARACTER FORMAT "x(13)".
 
 DEFINE TEMP-TABLE wk-sh-ord NO-UNDO
     FIELD due-date LIKE po-ordl.due-date
@@ -111,7 +112,7 @@ ASSIGN
                            "Vendor Item#,Due Date,PO#,Mach,Schedule#,Customer Name,Pieces Over,Overrun" 
     cFieldListToSelect = "vend,job,qty-ord,rece,unit,sht-w,sht-l,rm-ino," +
                             "vend-ino,du-dt,po,mch,schd,cust-nam,pec-ovr,ovrrn"
-    cFieldLength       = "8,10,11,11,11,9,9,15," + "15,10,6,6,10,30,13,13" 
+    cFieldLength       = "8,13,11,11,11,9,9,15," + "15,10,6,6,10,30,13,13" 
     cFieldType         = "c,c,i,i,i,i,i,c," + "c,c,c,c,c,c,i,i"  
     .
 
@@ -1304,7 +1305,7 @@ PROCEDURE run-report :
 
     DEFINE VARIABLE v-cust-vend    AS CHARACTER FORMAT "x(26)" INIT "--------- VENDOR ---------".
 
-    DEFINE VARIABLE v-job-no       AS CHARACTER FORMAT "x(9)".
+    DEFINE VARIABLE v-job-no       AS CHARACTER FORMAT "x(13)".
     DEFINE VARIABLE v-overpcs      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE v-schedule     AS cha       FORM "X(9)" NO-UNDO.
     DEFINE VARIABLE v-over-allow   AS DECIMAL   NO-UNDO.
@@ -1499,12 +1500,12 @@ PROCEDURE run-report :
             RELEASE oe-ordl.
 
             ASSIGN
-                v-job-no    = TRIM(po-ordl.job-no) + "-" + string(po-ordl.job-no2,"99")
+                v-job-no    = TRIM(po-ordl.job-no) + "-" + string(po-ordl.job-no2,"999")
                 v-raw       = ""
                 v-fg        = ""
                 v-cust-name = "".
 
-            IF TRIM(v-job-no) EQ "-00" THEN v-job-no = "".
+            IF TRIM(v-job-no) BEGINS "-" THEN v-job-no = "".
 
             IF po-ordl.item-type THEN 
             DO:

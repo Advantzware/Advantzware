@@ -11,6 +11,7 @@
     Created     : Thur Jan 06 2022
     Notes       :
   ----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */  
 
 /* ***************************  Definitions  ************************** */
 {jc\ttJobReport.i}
@@ -52,23 +53,21 @@ PROCEDURE pBuildTempTables PRIVATE:
     DEFINE INPUT PARAMETER ipcToJobNo AS CHARACTER  NO-UNDO.    
     DEFINE INPUT PARAMETER ipiToJobNo2 AS INTEGER  NO-UNDO.
     
-    DEFINE VARIABLE cJobNo LIKE job.job-no EXTENT 2 INIT [" ", "zzzzzz"] NO-UNDO.
+    DEFINE VARIABLE cJobNo LIKE job.job-no EXTENT 2 INIT [" ", "zzzzzzzzz"] NO-UNDO.
     
     ASSIGN
-        cJobNo[1] = FILL(" ",6 - length(TRIM(ipcFromJobNo))) +
-                  trim(ipcFromJobNo) + string(int(ipiFromJobNo2),"99")
-        cJobNo[2] = FILL(" ",6 - length(TRIM(ipcToJobNo)))   +
-                  trim(ipcToJobNo)   + string(int(ipiToJobNo2),"99")
+        cJobNo[1] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', ipcFromJobNo, ipiFromJobNo2)) 
+        cJobNo[2] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', ipcToJobNo, ipiToJobNo2)) 
         . 
     
     FOR EACH job NO-LOCK 
-        WHERE job.company EQ ipcCompany        
-        AND job.job-no  ge SUBSTR(cJobNo[1],1,6)
-        AND job.job-no  le SUBSTR(cJobNo[2],1,6)
-        AND fill(" ",6 - length(trim(job.job-no))) +
-        trim(job.job-no) + string(int(job.job-no2),"99") GE cJobNo[1]
-        AND fill(" ",6 - length(trim(job.job-no))) +
-        trim(job.job-no) + string(int(job.job-no2),"99") LE cJobNo[2]
+        WHERE job.company EQ ipcCompany         
+        AND fill(" ",9 - length(trim(job.job-no))) +
+        trim(job.job-no) + string(int(job.job-no2),"999") GE cJobNo[1]
+        AND fill(" ",9 - length(trim(job.job-no))) +
+        trim(job.job-no) + string(int(job.job-no2),"999") LE cJobNo[2]
+        AND job.job-no2 GE int(ipiFromJobNo2)
+        AND job.job-no2 LE int(ipiToJobNo2)
         ,  
         FIRST estCostHeader NO-LOCK 
         WHERE estCostHeader.company EQ job.company
