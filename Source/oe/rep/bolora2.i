@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/bolorax.i YSK     */
 /* PRINT Oracle BOL                                                           */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No. */
 
 assign
  /*v-tot-wt = 0*/
@@ -133,9 +133,8 @@ for each report where report.term-id eq v-term-id,
 
     v-job-no = "".
   /*  if avail oe-ordl and oe-ordl.job-no ne "" then*/
-    v-job-no = fill(" ",6 - length(trim(oe-boll.job-no))) +
-               trim(oe-boll.job-no) + "-" + trim(string(oe-boll.job-no2,"99")).
-    IF trim(v-job-no) = "-00" THEN v-job-no = "".
+    v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
+    IF trim(v-job-no) = "-000" THEN v-job-no = "".
 
     lv-cases = lv-cases-tot.
     
@@ -175,7 +174,7 @@ for each report where report.term-id eq v-term-id,
        /*here is problem*/
 
        PUT {1}
-          v-job-no AT 16
+          v-job-no AT 17
           oe-ordl.part-dscr1 AT 33 
          /* v-1    FORM ">>9"           when /*oe-boll.partial*/ lv-partial-tot gt 0 AT 79
           "@" when lv-partial-tot gt 0
