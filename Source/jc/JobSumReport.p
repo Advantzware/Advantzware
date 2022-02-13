@@ -20,6 +20,9 @@ DEFINE INPUT PARAMETER ipcFromJobNo AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipiFromJobNo2 AS INTEGER NO-UNDO.
 DEFINE INPUT PARAMETER ipcToJobNo AS CHARACTER NO-UNDO.   
 DEFINE INPUT PARAMETER ipiToJobNo2 AS INTEGER NO-UNDO.  
+DEFINE INPUT PARAMETER ipcStatus AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipdtCloseStart AS DATE NO-UNDO.
+DEFINE INPUT PARAMETER ipdtCloseEnd AS DATE NO-UNDO.
 DEFINE OUTPUT PARAMETER TABLE FOR ttJob.
 DEFINE OUTPUT PARAMETER TABLE FOR ttDepartment.
 DEFINE OUTPUT PARAMETER TABLE FOR ttOperation.
@@ -38,7 +41,7 @@ FUNCTION fGetOnHandQty RETURNS INTEGER PRIVATE
     
 /* ***************************  Main Block  *************************** */
           
-RUN pBuildTempTables(ipcCompany, ipcFromJobNo, ipiFromJobNo2, ipcToJobNo, ipiToJobNo2).
+RUN pBuildTempTables(ipcCompany, ipcFromJobNo, ipiFromJobNo2, ipcToJobNo, ipiToJobNo2, ipcStatus, ipdtCloseStart, ipdtCloseEnd).
 
 /* **********************  Internal Procedures  *********************** */
 PROCEDURE pBuildTempTables PRIVATE:
@@ -51,25 +54,31 @@ PROCEDURE pBuildTempTables PRIVATE:
     DEFINE INPUT PARAMETER ipiFromJobNo2 AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipcToJobNo AS CHARACTER  NO-UNDO.    
     DEFINE INPUT PARAMETER ipiToJobNo2 AS INTEGER  NO-UNDO.
+    DEFINE INPUT PARAMETER ipcStatus AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtCloseStart AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtCloseEnd AS DATE NO-UNDO.
     
     DEFINE VARIABLE cJobNo LIKE job.job-no EXTENT 2 INIT [" ", "zzzzzz"] NO-UNDO.
-    
+    DEFINE VARIABLE lClosedOnly AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lOpenOnly AS LOGICAL NO-UNDO.
     ASSIGN
         cJobNo[1] = FILL(" ",6 - length(TRIM(ipcFromJobNo))) +
                   trim(ipcFromJobNo) + string(int(ipiFromJobNo2),"99")
         cJobNo[2] = FILL(" ",6 - length(TRIM(ipcToJobNo)))   +
                   trim(ipcToJobNo)   + string(int(ipiToJobNo2),"99")
+        lClosedOnly = ipcStatus EQ "C"
+        lOpenOnly = ipcStatus EQ "O"
         . 
     
     FOR EACH job NO-LOCK 
         WHERE job.company EQ ipcCompany        
-        AND job.job-no  ge SUBSTR(cJobNo[1],1,6)
-        AND job.job-no  le SUBSTR(cJobNo[2],1,6)
-        AND fill(" ",6 - length(trim(job.job-no))) +
-        trim(job.job-no) + string(int(job.job-no2),"99") GE cJobNo[1]
-        AND fill(" ",6 - length(trim(job.job-no))) +
-        trim(job.job-no) + string(int(job.job-no2),"99") LE cJobNo[2]
-        ,  
+        AND job.job-no  GE SUBSTR(cJobNo[1],1,6)
+        AND job.job-no  LE SUBSTR(cJobNo[2],1,6)
+        AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(INTEGER(job.job-no2),"99") GE cJobNo[1]
+        AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(INTEGER(job.job-no2),"99") LE cJobNo[2]
+        AND ((lClosedOnly AND job.stat EQ 'C' AND job.close-date GE ipdtCloseStart AND job.close-date LE ipdtCloseEnd) 
+            OR (lOpenOnly AND job.stat NE 'C')
+            OR (NOT lClosedOnly AND NOT lOpenOnly)),  
         FIRST estCostHeader NO-LOCK 
         WHERE estCostHeader.company EQ job.company
         AND estCostHeader.jobID EQ job.job-no

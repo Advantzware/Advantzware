@@ -63,9 +63,10 @@ DEFINE VARIABLE ghExcelProcs      AS HANDLE        NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-7 begin_job-no begin_job-no2 end_job-no ~
-end_job-no2 btn-ok btn-cancel 
+end_job-no2 RADIO-SET-1 begin_job-closeDate end_close-date btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_job-no begin_job-no2 end_job-no ~
-end_job-no2 
+end_job-no2 RADIO-SET-1 begin_job-closeDate end_close-date 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -78,63 +79,88 @@ end_job-no2
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR      C-Win             AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
-    LABEL "&Cancel" 
-    SIZE 16 BY 1.29.
+     LABEL "&Cancel" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
-    LABEL "&OK" 
-    SIZE 16 BY 1.29.
+     LABEL "&OK" 
+     SIZE 16 BY 1.29.
 
-DEFINE VARIABLE begin_job-no  AS CHARACTER FORMAT "X(6)":U 
-    LABEL "Beginning Job#" 
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_job-closeDate AS DATE FORMAT "99/99/99":U 
+     LABEL "Beginning Close Date" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1 NO-UNDO.
+
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+     LABEL "Beginning Job#" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
-    LABEL "" 
-    VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+     LABEL "" 
+     VIEW-AS FILL-IN 
+     SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no    AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
-    LABEL "Ending Job#" 
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+DEFINE VARIABLE end_close-date AS DATE FORMAT "99/99/99":U 
+     LABEL "Ending Close Date" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2   AS CHARACTER FORMAT "-99":U INITIAL "99" 
-    LABEL "" 
-    VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+     LABEL "Ending Job#" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+     LABEL "" 
+     VIEW-AS FILL-IN 
+     SIZE 5 BY 1 NO-UNDO.
+
+DEFINE VARIABLE RADIO-SET-1 AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Open", 1,
+"Closed", 2,
+"All", 3
+     SIZE 50 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-7
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 90 BY 8.29.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 94 BY 8.29.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    begin_job-no AT ROW 4.43 COL 29.2 COLON-ALIGNED HELP
-    "Enter Beginning Job Number"
-    begin_job-no2 AT ROW 4.43 COL 41.2 COLON-ALIGNED HELP
-    "Enter Beginning Job Number"
-    end_job-no AT ROW 4.43 COL 64.2 COLON-ALIGNED HELP
-    "Enter Ending Job Number"
-    end_job-no2 AT ROW 4.43 COL 76.2 COLON-ALIGNED HELP
-    "Enter Ending Job Number"
-    btn-ok AT ROW 10.57 COL 31
-    btn-cancel AT ROW 10.57 COL 51
-    " Selection Parameters" VIEW-AS TEXT
-    SIZE 21.2 BY .71 AT ROW 1.14 COL 5
-    RECT-7 AT ROW 1.52 COL 4
+     begin_job-no AT ROW 2.67 COL 24 COLON-ALIGNED HELP
+          "Enter Beginning Job Number"
+     begin_job-no2 AT ROW 2.67 COL 36 COLON-ALIGNED HELP
+          "Enter Beginning Job Number"
+     end_job-no AT ROW 2.67 COL 59 COLON-ALIGNED HELP
+          "Enter Ending Job Number"
+     end_job-no2 AT ROW 2.67 COL 71 COLON-ALIGNED HELP
+          "Enter Ending Job Number"
+     RADIO-SET-1 AT ROW 4.48 COL 26 NO-LABEL WIDGET-ID 2
+     begin_job-closeDate AT ROW 6 COL 23.8 COLON-ALIGNED HELP
+          "Enter Beginning Job Number" WIDGET-ID 8
+     end_close-date AT ROW 6 COL 58 COLON-ALIGNED HELP
+          "Enter Ending Job Number" WIDGET-ID 10
+     btn-ok AT ROW 10.57 COL 31
+     btn-cancel AT ROW 10.57 COL 51
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21.2 BY .71 AT ROW 1.14 COL 5
+     "Job Status:" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 4.62 COL 13 WIDGET-ID 6
+     RECT-7 AT ROW 1.52 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 96 BY 15.19
-    BGCOLOR 15 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 96 BY 15.19
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -151,30 +177,30 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "Job Summary Analysis Report New"
-        HEIGHT             = 11.81
-        WIDTH              = 96
-        MAX-HEIGHT         = 33.29
-        MAX-WIDTH          = 204.8
-        VIRTUAL-HEIGHT     = 33.29
-        VIRTUAL-WIDTH      = 204.8
-        RESIZE             = yes
-        SCROLL-BARS        = no
-        STATUS-AREA        = yes
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = yes
-        THREE-D            = yes
-        MESSAGE-AREA       = no
-        SENSITIVE          = yes.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Job Summary Analysis Report New"
+         HEIGHT             = 11.81
+         WIDTH              = 96
+         MAX-HEIGHT         = 33.29
+         MAX-WIDTH          = 204.8
+         VIRTUAL-HEIGHT     = 33.29
+         VIRTUAL-WIDTH      = 204.8
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -189,25 +215,39 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 ASSIGN 
-    begin_job-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_job-closeDate:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_job-no2:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_job-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       begin_job-no2:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    btn-ok:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    end_job-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    end_job-no2:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_close-date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_job-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_job-no2:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-    THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -221,7 +261,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Job Summary Analysis Report New */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -235,7 +275,7 @@ ON END-ERROR OF C-Win /* Job Summary Analysis Report New */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Job Summary Analysis Report New */
-    DO:
+DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -245,10 +285,21 @@ ON WINDOW-CLOSE OF C-Win /* Job Summary Analysis Report New */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_job-closeDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-closeDate C-Win
+ON LEAVE OF begin_job-closeDate IN FRAME FRAME-A /* Beginning Close Date */
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME begin_job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no C-Win
 ON LEAVE OF begin_job-no IN FRAME FRAME-A /* Beginning Job# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -259,7 +310,7 @@ ON LEAVE OF begin_job-no IN FRAME FRAME-A /* Beginning Job# */
 &Scoped-define SELF-NAME begin_job-no2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no2 C-Win
 ON LEAVE OF begin_job-no2 IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -270,7 +321,7 @@ ON LEAVE OF begin_job-no2 IN FRAME FRAME-A
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-    DO:
+DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -281,7 +332,7 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
-    DO:
+DO:
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.                   
@@ -295,10 +346,21 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_close-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_close-date C-Win
+ON LEAVE OF end_close-date IN FRAME FRAME-A /* Ending Close Date */
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME end_job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no C-Win
 ON LEAVE OF end_job-no IN FRAME FRAME-A /* Ending Job# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -309,7 +371,7 @@ ON LEAVE OF end_job-no IN FRAME FRAME-A /* Ending Job# */
 &Scoped-define SELF-NAME end_job-no2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no2 C-Win
 ON LEAVE OF end_job-no2 IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -367,18 +429,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -386,22 +448,23 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY begin_job-no begin_job-no2 end_job-no end_job-no2 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-7 begin_job-no begin_job-no2 end_job-no end_job-no2 btn-ok 
-        btn-cancel 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-    VIEW C-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY begin_job-no begin_job-no2 end_job-no end_job-no2 RADIO-SET-1 
+          begin_job-closeDate end_close-date 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  ENABLE RECT-7 begin_job-no begin_job-no2 end_job-no end_job-no2 RADIO-SET-1 
+         begin_job-closeDate end_close-date btn-ok btn-cancel 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -423,7 +486,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildXlt C-Win 
 PROCEDURE pBuildXlt PRIVATE :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
          Purpose:  Outputs the data from the temptables to the report
          Notes:
         ------------------------------------------------------------------------------*/
@@ -432,7 +495,11 @@ PROCEDURE pBuildXlt PRIVATE :
     
     RUN system\ExcelProcs.p PERSISTENT SET ghExcelProcs.        
     RUN Excel_InitializeTemplate IN ghExcelProcs ("Template\JobSummaryN.xltx", OUTPUT lError, OUTPUT cMessage).
-    
+    IF lError THEN DO:
+        MESSAGE cMessage
+        VIEW-AS ALERT-BOX.
+        RETURN.
+    END.
     RUN pFillData.
     
     RUN Excel_Cleanup IN ghExcelProcs.
@@ -446,7 +513,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFillData C-Win 
 PROCEDURE pFillData :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
              Purpose:    
              Parameters:  <none>
              Notes:      
@@ -499,7 +566,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrintDepartment C-Win 
 PROCEDURE pPrintDepartment :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -542,7 +609,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrintFGItem C-Win 
 PROCEDURE pPrintFGItem :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -575,7 +642,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrintMaterial C-Win 
 PROCEDURE pPrintMaterial :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -611,7 +678,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrintOperation C-Win 
 PROCEDURE pPrintOperation :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -644,7 +711,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-    /* ----------------------------------------------- jc/rep/job-sum.p 08/94 JLF */
+/* ----------------------------------------------- jc/rep/job-sum.p 08/94 JLF */
     /* Job Summary Report                                                         */
     /* -------------------------------------------------------------------------- */        
    
