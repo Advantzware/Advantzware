@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -68,7 +69,7 @@ ASSIGN
                            "JOB HOLD REASON,ORDER STATUS"
     cFieldListToSelect = "job,sn,bn,date,cust,board,s-wid,s-len,sheet,lbs,lf,job-rson,ord-sts" 
 
-    cFieldLength       = "9,3,3,10,11,14,11,12,11,11,11,15,12" 
+    cFieldLength       = "13,3,3,10,11,14,11,12,11,11,11,15,12" 
     cFieldType         = "c,i,i,c,c,c,i,i,i,i,i,c,c"  
     .
 
@@ -158,30 +159,30 @@ DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/
     VIEW-AS FILL-IN 
     SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
-    SIZE 10 BY 1 NO-UNDO.
+    SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
     LABEL "Ending Date" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
-    SIZE 10 BY 1 NO-UNDO.
+    SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-brdpord.csv" 
     LABEL "Name" 
@@ -300,11 +301,11 @@ DEFINE VARIABLE td-show-parm AS LOGICAL   INITIAL NO
 DEFINE FRAME FRAME-A
     begin_job-no AT ROW 2.67 COL 26 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    begin_job-no2 AT ROW 2.67 COL 38 COLON-ALIGNED HELP
+    begin_job-no2 AT ROW 2.67 COL 39 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
     end_job-no AT ROW 2.67 COL 61 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    end_job-no2 AT ROW 2.67 COL 73 COLON-ALIGNED HELP
+    end_job-no2 AT ROW 2.67 COL 74 COLON-ALIGNED HELP
     "Enter Ending Job Number"
     begin_date AT ROW 3.76 COL 26 COLON-ALIGNED
     end_date AT ROW 3.76 COL 61 COLON-ALIGNED HELP
@@ -1371,10 +1372,8 @@ PROCEDURE run-report :
                     IF tb_corr THEN "B" ELSE "F"
                   ELSE
                     IF tb_corr THEN "C" ELSE ""
-        v-job-no[1] = FILL(" ",6 - length(TRIM(begin_job-no))) +
-                  trim(begin_job-no) + string(int(begin_job-no2),"99")
-        v-job-no[2] = FILL(" ",6 - length(TRIM(end_job-no)))   +
-                  trim(end_job-no)   + string(int(end_job-no2),"99") 
+        v-job-no[1] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2))
+        v-job-no[2] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
 
         v-date[1]   = begin_date
         v-date[2]   = END_date

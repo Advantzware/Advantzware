@@ -30,6 +30,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -166,10 +167,10 @@ DEFINE VARIABLE ld-cust-no AS CHARACTER FORMAT "x(8)"
      SIZE 11.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE ld-job AS CHARACTER FORMAT "X(9)":U 
+DEFINE VARIABLE ld-job AS CHARACTER FORMAT "X(13)":U 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1
+     SIZE 18 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE ld-po AS CHARACTER FORMAT "X(9)":U 

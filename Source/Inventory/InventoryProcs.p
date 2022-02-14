@@ -11,6 +11,7 @@
     Created     : Sun Mar 03 18:31:30 EST 2019
     Notes       :
   ----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 {Inventory/ttInventory.i}
@@ -750,7 +751,7 @@ PROCEDURE pBuildRMHistory PRIVATE:
         WHERE bf-rm-rcpth.company    EQ ipcCompany
           AND bf-rm-rcpth.i-no       EQ ipcItemID
           AND (bf-rm-rcpth.rita-code EQ ipcTransactionType OR ipcTransactionType EQ "" OR (ipcTransactionType EQ "R" AND bf-rm-rcpth.rita-code = "A"))
-          AND (bf-rm-rcpth.job-no    EQ ipcJobNo OR ipcJobNo EQ "")
+          AND (trim(bf-rm-rcpth.job-no) EQ ipcJobNo OR ipcJobNo EQ "")
           AND (bf-rm-rcpth.job-no2   EQ ipiJobNo2 OR ipiJobNo2 EQ 0 OR ipcJobNo EQ ""),
         EACH bf-rm-rdtlh NO-LOCK
         WHERE bf-rm-rdtlh.r-no      EQ bf-rm-rcpth.r-no
@@ -910,7 +911,7 @@ PROCEDURE pFGQuantityAdjust PRIVATE:
             WHERE bf-fg-bin.company EQ ipcCompany
               AND bf-fg-bin.i-no    EQ ipcItemID
               AND bf-fg-bin.onHold  EQ NO
-              AND bf-fg-bin.job-no  EQ ipcJobNo
+              AND trim(bf-fg-bin.job-no)  EQ trim(ipcJobNo)
               AND bf-fg-bin.job-no2 EQ ipiJobNo2
               AND bf-fg-bin.qty     GT 0
             USE-INDEX i-no
@@ -1783,7 +1784,7 @@ PROCEDURE pBuildFGBinForItem PRIVATE:
           AND bf-fg-bin.i-no    EQ bf-itemfg.i-no
           AND ((bf-fg-bin.loc     EQ ipcWarehouseID) OR lIsWarehouseEmpty)
           AND ((bf-fg-bin.loc-bin EQ ipcLocationID)  OR lIsLocationEmpty)
-          AND ((bf-fg-bin.job-no  EQ ipcJobNo AND bf-fg-bin.job-no2 EQ ipiJobNo2) OR lIsJobNoEmpty)
+          AND ((trim(bf-fg-bin.job-no)  EQ trim(ipcJobNo) AND bf-fg-bin.job-no2 EQ ipiJobNo2) OR lIsJobNoEmpty)
           AND (((bf-fg-bin.qty NE 0)  AND NOT iplZeroQtyBins) OR iplZeroQtyBins)
           AND (((bf-fg-bin.tag NE "") AND NOT iplEmptyTags)   OR iplEmptyTags):        
         CREATE ttBrowseInventory.
@@ -3292,7 +3293,7 @@ PROCEDURE Inventory_CheckPOUnderOver:
           AND po-ordl.po-no     EQ INTEGER(ipcPoNo)
           AND po-ordl.LINE      EQ ipiPoLine
           AND po-ordl.i-no      EQ ipcItem
-          AND po-ordl.job-no    EQ ipcJobNo
+          AND trim(po-ordl.job-no) EQ ipcJobNo
           AND po-ordl.job-no2   EQ ipiJobNo2
           AND po-ordl.item-type EQ NO
         NO-ERROR.
@@ -3384,7 +3385,7 @@ PROCEDURE Inventory_CheckJobUnderOver:
     FIND FIRST job-hdr NO-LOCK
          WHERE job-hdr.company EQ ipcCompany                       
            AND job-hdr.i-no    EQ ipcItem
-           AND job-hdr.job-no  EQ ipcJobNo
+           AND trim(job-hdr.job-no) EQ ipcJobNo
            AND job-hdr.job-no2 EQ ipiJobNo2
         NO-ERROR.
     IF AVAILABLE job-hdr THEN DO: 
@@ -3524,7 +3525,7 @@ PROCEDURE Inventory_GetReceivedQuantityPO:
     
    FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK 
        WHERE fg-rcpth.company   EQ ipcCompany
-         AND fg-rcpth.job-no    EQ ipcJobNo
+         AND trim(fg-rcpth.job-no) EQ trim(ipcJobNo)
          AND fg-rcpth.job-no2   EQ ipiJobNo2
          AND fg-rcpth.po-no     EQ ipcPoNo
          AND fg-rcpth.po-line   EQ ipiPoLine
@@ -6484,7 +6485,7 @@ PROCEDURE CreateTransactionInitializedFromJob:
 
     FIND FIRST job-hdr NO-LOCK
          WHERE job-hdr.company  EQ ipcCompany
-           AND job-hdr.job-no   EQ ipcJobno
+           AND trim(job-hdr.job-no)   EQ trim(ipcJobno)
            AND job-hdr.job-no2  EQ ipiJobno2
     NO-ERROR.
     IF NOT AVAILABLE job-hdr THEN DO:
@@ -7684,7 +7685,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
     IF iplUseInventoryTables THEN DO:
         FOR EACH inventoryStock NO-LOCK
            WHERE inventoryStock.company   EQ ipcCompany
-             AND inventoryStock.jobID     EQ ipcJobno
+             AND trim(inventoryStock.jobID) EQ trim(ipcJobno)
              AND inventoryStock.jobID2    EQ ipiJobno2   
              AND (IF ipcMachine           EQ "" THEN TRUE 
                   ELSE inventoryStock.MachineID EQ ipcMachine)
@@ -7703,7 +7704,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
               AND bf-rm-rctd.rita-code EQ ipcTransactionType
               AND bf-rm-rctd.qty       GT 0
               AND bf-rm-rctd.tag       NE ''
-              AND bf-rm-rctd.job-no    EQ ipcJobNo
+              AND trim(bf-rm-rctd.job-no) EQ trim(ipcJobNo)
               AND bf-rm-rctd.job-no2   EQ ipiJobNo2
               AND bf-rm-rctd.s-num     EQ ipiFormNo
               AND bf-rm-rctd.b-num     EQ ipiBlankNo
@@ -7804,7 +7805,7 @@ PROCEDURE RebuildWIPBrowseTT:
     
     FOR EACH inventoryStock NO-LOCK
        WHERE inventoryStock.company   EQ ipcCompany
-         AND inventoryStock.jobID     EQ ipcJobno
+         AND trim(inventoryStock.jobID) EQ trim(ipcJobno)
          AND inventoryStock.jobID2    EQ ipiJobno2   
          AND (IF ipcMachine           EQ "" THEN TRUE 
               ELSE inventoryStock.MachineID EQ ipcMachine)

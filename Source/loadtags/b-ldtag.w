@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -76,7 +77,7 @@ AND loadtag.is-case-tag EQ NO            ~
 AND loadtag.tag-no BEGINS tb_tag-no       ~
 AND loadtag.loc BEGINS tb_loc             ~
 AND loadtag.loc-bin BEGINS tb_loc-bin      ~
-AND (loadtag.job-no EQ tb_job-no OR tb_job-no EQ '')  ~
+AND (trim(loadtag.job-no) EQ trim(tb_job-no) OR tb_job-no EQ '')  ~
 AND (loadtag.job-no2 EQ tb_job-no2 OR tb_job-no EQ '')  ~
 AND (loadtag.po-no EQ tb_po-no OR tb_po-no EQ 0)       ~
 AND (loadtag.ord-no EQ tb_ord-no OR tb_ord-no EQ 0)    ~
@@ -91,7 +92,7 @@ AND loadtag.is-case-tag EQ NO            ~
 AND loadtag.tag-no BEGINS tb_tag-no       ~
 AND loadtag.loc BEGINS tb_loc             ~
 AND loadtag.loc-bin BEGINS tb_loc-bin      ~
-AND (loadtag.job-no EQ tb_job-no OR tb_job-no EQ '')  ~
+AND (trim(loadtag.job-no) EQ trim(tb_job-no) OR tb_job-no EQ '')  ~
 AND (loadtag.job-no2 EQ tb_job-no2 OR tb_job-no EQ '')  ~
 AND (loadtag.po-no EQ tb_po-no OR tb_po-no EQ 0)       ~
 AND (loadtag.ord-no EQ tb_ord-no OR tb_ord-no EQ 0)    ~
@@ -105,7 +106,7 @@ AND loadtag.i-name BEGINS tb_i-name USE-INDEX tag  NO-LOCK, ~
     IF lv-sort-by EQ "loc-bin"    THEN loadtag.loc-bin         ELSE ~
     IF lv-sort-by EQ "i-no"       THEN loadtag.i-no            ELSE ~
     IF lv-sort-by EQ "i-name"     THEN loadtag.i-name          ELSE ~
-    IF lv-sort-by EQ "job-no"     THEN STRING(loadtag.job-no,"x(6)") + STRING(loadtag.job-no2,"99")   ELSE ~
+    IF lv-sort-by EQ "job-no"     THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', loadtag.job-no, loadtag.job-no2)) ELSE ~
     IF lv-sort-by EQ "po-no" THEN STRING(loadtag.po-no)   ELSE ~
     IF lv-sort-by EQ "rfidtag" THEN STRING(rfidtag.rfidtag)   ELSE ~
         loadtag.tag-no
@@ -162,7 +163,7 @@ AND loadtag.is-case-tag EQ NO ~
 AND loadtag.tag-no BEGINS tb_tag-no ~
 AND loadtag.loc BEGINS tb_loc ~
 AND loadtag.loc-bin BEGINS tb_loc-bin ~
-AND (loadtag.job-no EQ tb_job-no OR tb_job-no EQ '') ~
+AND (trim(loadtag.job-no) EQ trim(tb_job-no) OR tb_job-no EQ '') ~
 AND (loadtag.job-no2 EQ tb_job-no2 OR tb_job-no EQ '') ~
 AND (loadtag.po-no EQ tb_po-no OR tb_po-no EQ 0) ~
 AND (loadtag.ord-no EQ tb_ord-no OR tb_ord-no EQ 0) ~
@@ -178,7 +179,7 @@ AND loadtag.is-case-tag EQ NO ~
 AND loadtag.tag-no BEGINS tb_tag-no ~
 AND loadtag.loc BEGINS tb_loc ~
 AND loadtag.loc-bin BEGINS tb_loc-bin ~
-AND (loadtag.job-no EQ tb_job-no OR tb_job-no EQ '') ~
+AND (trim(loadtag.job-no) EQ trim(tb_job-no) OR tb_job-no EQ '') ~
 AND (loadtag.job-no2 EQ tb_job-no2 OR tb_job-no EQ '') ~
 AND (loadtag.po-no EQ tb_po-no OR tb_po-no EQ 0) ~
 AND (loadtag.ord-no EQ tb_ord-no OR tb_ord-no EQ 0) ~
@@ -254,12 +255,12 @@ DEFINE VARIABLE tb_i-no AS CHARACTER FORMAT "x(15)"
      SIZE 19 BY 1
      BGCOLOR 15 .
 
-DEFINE VARIABLE tb_job-no AS CHARACTER FORMAT "x(6)" 
+DEFINE VARIABLE tb_job-no AS CHARACTER FORMAT "x(9)" 
      VIEW-AS FILL-IN 
      SIZE 8.6 BY 1
      BGCOLOR 15 .
 
-DEFINE VARIABLE tb_job-no2 AS INTEGER FORMAT ">9" INITIAL 0 
+DEFINE VARIABLE tb_job-no2 AS INTEGER FORMAT ">>9" INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 3.8 BY 1
      BGCOLOR 15 .
@@ -316,10 +317,10 @@ DEFINE BROWSE Browser-Table
       loadtag.tag-no COLUMN-LABEL "Tag" FORMAT "X(23)":U LABEL-BGCOLOR 14
       loadtag.loc FORMAT "x(5)":U LABEL-BGCOLOR 14
       loadtag.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U LABEL-BGCOLOR 14
-      loadtag.job-no2 COLUMN-LABEL "#" FORMAT ">9":U
+      loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U LABEL-BGCOLOR 14
+      loadtag.job-no2 COLUMN-LABEL "#" FORMAT ">>9":U
       loadtag.po-no COLUMN-LABEL "PO" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
-      loadtag.ord-no COLUMN-LABEL "Order" FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      loadtag.ord-no COLUMN-LABEL "Order" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       loadtag.i-no COLUMN-LABEL "Item" FORMAT "x(15)":U LABEL-BGCOLOR 14
       loadtag.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       loadtag.qty-case COLUMN-LABEL "Unit!Count" FORMAT "->,>>>,>>9":U
@@ -507,7 +508,7 @@ AND loadtag.is-case-tag EQ NO
 AND loadtag.tag-no BEGINS tb_tag-no
 AND loadtag.loc BEGINS tb_loc
 AND loadtag.loc-bin BEGINS tb_loc-bin
-AND (loadtag.job-no EQ tb_job-no OR tb_job-no EQ '')
+AND (trim(loadtag.job-no) EQ trim(tb_job-no) OR tb_job-no EQ '')
 AND (loadtag.job-no2 EQ tb_job-no2 OR tb_job-no EQ '')
 AND (loadtag.po-no EQ tb_po-no OR tb_po-no EQ 0)
 AND (loadtag.ord-no EQ tb_ord-no OR tb_ord-no EQ 0)
@@ -708,7 +709,7 @@ ON LEAVE OF tb_job-no IN FRAME F-Main
 DO:
   DEF VAR lv-job-no AS CHAR NO-UNDO.
   lv-job-no = SELF:SCREEN-VALUE.
-  lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + lv-job-no.
+  lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no)) .
   SELF:SCREEN-VALUE = lv-job-no.
 END.
 

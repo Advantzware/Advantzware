@@ -296,8 +296,8 @@ for each job-hdr
           and fill(" ",9 - length(trim(job-hdr.job-no))) +
               trim(job-hdr.job-no) +
               string(job-hdr.job-no2,"999")  le tjob-no
-          AND job.job-no2 GE int(fjob-no2)
-          AND job.job-no2 LE int(tjob-no2)    
+          AND job-hdr.job-no2 GE int(fjob-no2)
+          AND job-hdr.job-no2 LE int(tjob-no2)    
           /*and job-hdr.ftick-prnt            eq v-reprint
           and can-find(first job where job.company eq cocode
                                    and job.job     eq job-hdr.job
@@ -385,7 +385,7 @@ for each job-hdr
                       AND eb.est-no      eq job-hdr.est-no
                       and eb.form-no     eq job-hdr.frm
                       AND eb.blank-no > 0 NO-LOCK NO-ERROR.
-         v-bar-no = IF AVAIL eb THEN eb.spc-no ELSE trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99").
+         v-bar-no = IF AVAIL eb THEN eb.spc-no ELSE trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"999").
          
        
          if first(job-hdr.job-no) then 
