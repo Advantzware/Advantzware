@@ -2243,9 +2243,11 @@ PROCEDURE pBuildPriceRelatedCostDetails PRIVATE:
     FOR EACH bf-ttEstCostForm NO-LOCK
         WHERE bf-ttEstCostForm.estCostHeaderID EQ ipiEstCostHeaderID,
         FIRST estCostBlank NO-LOCK 
-        WHERE estCostBlank.estCostFormID EQ bf-ttEstCostForm.estCostFormID,
+        WHERE estCostBlank.estCostHeaderID EQ bf-ttEstCostForm.estCostHeaderID
+          AND estCostBlank.estCostFormID EQ bf-ttEstCostForm.estCostFormID,
         FIRST estCostItem NO-LOCK 
-        WHERE estCostItem.estCostItemID EQ estCostBlank.estCostItemID:
+        WHERE estCostItem.estCostHeaderID EQ bf-ttEstCostForm.estCostHeaderID 
+          AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID:
         
         RUN pGetPriceProfitAndCommissionForForm(BUFFER bf-ttEstCostForm, BUFFER estCostItem, OUTPUT dNetProfitForForm, OUTPUT dCommission, OUTPUT dPriceForForm).
         RUN pAddCostDetail(bf-ttEstCostForm.estCostHeaderID, bf-ttEstCostForm.estCostFormID, "", bf-ttEstCostForm.estCostFormID, 
@@ -5667,7 +5669,7 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
     DEFINE BUFFER bfChild-estCostMaterial  FOR estCostMaterial.
     DEFINE BUFFER bfChild-estCostMisc      FOR estCostMisc.
     DEFINE BUFFER bfChild-estCostDetail    FOR estCostDetail.
-    
+    DEFINE BUFFER bfChild-estCostSummary   FOR estCostSummary.
 
     FOR EACH ttEstCostForm
         TRANSACTION:
@@ -5677,38 +5679,43 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
         /* Update parent key in child Tables */
         
         FOR EACH bfChild-estCostBlank EXCLUSIVE-LOCK
-            WHERE bfChild-estCostBlank.estCostHeaderID = ttEstCostForm.estCostHeaderID
-            AND bfChild-estCostBlank.estCostFormID = ttEstCostForm.estCostFormID:
+            WHERE bfChild-estCostBlank.estCostHeaderID = ttEstCostForm.estCostHeaderID:
               
-            bfChild-estCostBlank.estCostFormID = bfEx-estCostForm.estCostFormID.
+            IF bfChild-estCostBlank.estCostFormID = ttEstCostForm.estCostFormID THEN
+                bfChild-estCostBlank.estCostFormID = bfEx-estCostForm.estCostFormID.
         END.
         
         FOR EACH bfChild-estCostDetail EXCLUSIVE-LOCK
-            WHERE bfChild-estCostDetail.estCostHeaderID = ttEstCostForm.estCostHeaderID
-            AND bfChild-estCostDetail.estCostFormID = ttEstCostForm.estCostFormID:
-              
-            bfChild-estCostDetail.estCostFormID = bfEx-estCostForm.estCostFormID.
+            WHERE bfChild-estCostDetail.estCostHeaderID = ttEstCostForm.estCostHeaderID:              
+            IF bfChild-estCostDetail.estCostFormID = ttEstCostForm.estCostFormID THEN
+                bfChild-estCostDetail.estCostFormID = bfEx-estCostForm.estCostFormID.
         END.
         
         FOR EACH bfChild-estCostOperation EXCLUSIVE-LOCK
-            WHERE bfChild-estCostOperation.estCostHeaderID = ttEstCostForm.estCostHeaderID
-            AND bfChild-estCostOperation.estCostFormID = ttEstCostForm.estCostFormID:
-              
+            WHERE bfChild-estCostOperation.estCostHeaderID = ttEstCostForm.estCostHeaderID:
+                
+            IF bfChild-estCostOperation.estCostFormID = ttEstCostForm.estCostFormID THEN  
             bfChild-estCostOperation.estCostFormID = bfEx-estCostForm.estCostFormID.
         END.
         
         FOR EACH bfChild-estCostMaterial EXCLUSIVE-LOCK
-            WHERE bfChild-estCostMaterial.estCostHeaderID = ttEstCostForm.estCostHeaderID
-            AND bfChild-estCostMaterial.estCostFormID = ttEstCostForm.estCostFormID:
-              
-            bfChild-estCostMaterial.estCostFormID = bfEx-estCostForm.estCostFormID.
+            WHERE bfChild-estCostMaterial.estCostHeaderID = ttEstCostForm.estCostHeaderID:
+            IF bfChild-estCostMaterial.estCostFormID = ttEstCostForm.estCostFormID THEN  
+                bfChild-estCostMaterial.estCostFormID = bfEx-estCostForm.estCostFormID.
         END.
         
         FOR EACH bfChild-estCostMisc EXCLUSIVE-LOCK
-            WHERE bfChild-estCostMisc.estCostHeaderID = ttEstCostForm.estCostHeaderID
-            AND bfChild-estCostMisc.estCostFormID = ttEstCostForm.estCostFormID:
-              
+            WHERE bfChild-estCostMisc.estCostHeaderID = ttEstCostForm.estCostHeaderID:
+                
+            IF bfChild-estCostMisc.estCostFormID = ttEstCostForm.estCostFormID THEN  
             bfChild-estCostMisc.estCostFormID = bfEx-estCostForm.estCostFormID.
+        END.
+        
+        FOR EACH bfChild-estCostSummary EXCLUSIVE-LOCK
+            WHERE bfChild-estCostSummary.estCostHeaderID = ttEstCostForm.estCostHeaderID:
+            
+            IF bfChild-estCostSummary.scopeRecKey = ttEstCostForm.rec_key THEN      
+                bfChild-estCostSummary.scopeRecKey = bfEx-estCostForm.rec_key.
         END.
         
     END. /* ttEstCostForm */
