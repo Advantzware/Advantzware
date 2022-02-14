@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/bolprem.p  01/98 FWK */
 /* Print Premier BOL                                                          */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
 
@@ -26,7 +26,7 @@ def var v-ship-addr  like shipto.ship-addr.
 def var v-ship-city  like shipto.ship-city.
 def var v-ship-state like shipto.ship-state.
 def var v-ship-zip   like shipto.ship-zip.
-def var v-job-no   as char format "x(9)" no-undo.
+def var v-job-no   as char format "x(13)" no-undo.
 def var v-partial  as char format "x" no-undo.
 def var v-line-tot as int format ">>>>>9" no-undo.
 
@@ -72,7 +72,7 @@ form
   with frame ln-s down no-box no-labels stream-io width 90.
 
 form
-  v-job-no format "x(9)" at 21
+  v-job-no format "x(13)" at 21
   oe-ordl.part-dscr1 format "x(28)" at 37
   v-partial format "x" at 65
   oe-boll.partial format ">>>>>>" to 72
@@ -169,7 +169,7 @@ for each xreport  where xreport.term-id eq v-term-id,
     assign
      report.term-id  = v-term-id
      report.key-01   = oe-boll.i-no
-     report.key-02   = string(oe-boll.ord-no,"999999")
+     report.key-02   = string(oe-boll.ord-no,"99999999")
      report.rec-id   = recid(oe-boll)
      oe-boll.printed = yes
      v-tot-pkgs      = v-tot-pkgs + oe-boll.cases
@@ -242,8 +242,7 @@ for each xreport  where xreport.term-id eq v-term-id,
       down with frame ln-s.
 
       v-job-no = if oe-ordl.job-no eq "" then ""
-                 else (trim(oe-ordl.job-no) + "-" +
-                       string(oe-ordl.job-no2,"99")).
+                 else TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
       if oe-boll.partial ne 0 then do:
         v-line-tot = v-line-tot + oe-boll.partial.

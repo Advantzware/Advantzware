@@ -1,7 +1,7 @@
 /* --------------------------------------------- oe/rep/bolsuper.p  01/98 FWK */
 /* PRINT Superior BOL                                                         */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
 
@@ -196,7 +196,7 @@ do:     /* production mode */
 		 v-ship-state
 		 v-ship-zip
 		 skip(1)
-		 "ORDER#" v-ord-no skip
+		 "ORDER#" STRING(v-ord-no) skip
 		 "BOL#" oe-bolh.bol-no format "9999999"
 		 "TO SHIP VIA" at 14 v-carrier format "x(30)"
 		 "DUE ON" at 56 oe-bolh.bol-date at 64 skip
