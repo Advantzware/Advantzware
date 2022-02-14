@@ -1,6 +1,5 @@
-/* ---------------------------------------------- oe/rep/bolccc.p 01/07 RDR   */
-/* PRINT Colonial Carton                                                      */
-/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
+/* ---------------------------------------------- oe/rep/bolccc.p 01/07 RDR */
+/* PRINT Colonial Carton                                                         */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}

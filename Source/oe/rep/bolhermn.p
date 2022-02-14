@@ -1,5 +1,6 @@
-/* ---------------------------------------------- oe/rep/bolhermn.p     */
+/* ---------------------------------------------- oe/rep/bolhermn.p           */
 /* PRINT Herman BOL                                                           */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -27,7 +28,7 @@ def var v-part-comp         as   char format "x".
 def var v-part-qty          as   dec.
 def var v-ord-no            like oe-boll.ord-no.
 def var v-po-no             like oe-bolh.po-no.
-def var v-job-no            as   char format "x(9)" no-undo.
+def var v-job-no            as   char format "x(13)" no-undo.
 def var v-phone-num         as   char format "x(13)" no-undo.
 
 def var v-ship-name  like shipto.ship-name.
