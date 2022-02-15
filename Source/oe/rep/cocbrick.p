@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/cocbrick.p 11/99 JLF */
 /* Print Brick COC (Certificate of Compliance)                                */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -184,7 +185,7 @@ for each report   where report.term-id eq v-term-id no-lock,
 
     assign
      v-fob      = ""
-     v-ord-bol  = trim(string(oe-bolh.ord-no,">>>>>9")) + " / " +
+     v-ord-bol  = trim(string(oe-bolh.ord-no,">>>>>>>9")) + " / " +
                   trim(string(oe-bolh.bol-no,">>>>>>9"))
      v-ord-date = oe-bolh.bol-date.
 

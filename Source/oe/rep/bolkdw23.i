@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* oe/rep/bolkdw23.i*/
 IF FIRST-OF(tt-boll.LINE) THEN DO:
   FOR EACH w2.
@@ -44,8 +45,8 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
             w2.qty = oe-ordl.qty.
       ELSE IF i = 2 THEN 
           ASSIGN w2.i-no = string(oe-ordl.ord-no)
-                 w2.ord-po-no = if oe-ordl.job-no eq "" then "" else
-                                (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
+                 w2.ord-po-no = if oe-ordl.job-no eq "" then "" ELSE 
+                                TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
                  w2.dscr = oe-ordl.part-no.                          
             
       else if i eq 3 then ASSIGN w2.dscr = oe-ordl.part-dscr1.
@@ -69,8 +70,8 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
           ASSIGN 
             w2.i-no = string(oe-ordl.ord-no)
             w2.dscr = oe-ordl.part-dscr1
-            w2.ord-po-no = IF oe-ordl.job-no EQ "" THEN "" 
-                           ELSE (TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")).
+            w2.ord-po-no = IF oe-ordl.job-no EQ "" THEN "" ELSE
+                           TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
        ELSE if i eq 3 then ASSIGN w2.dscr = oe-ordl.part-dscr2.
        ELSE if i eq 4 then ASSIGN w2.dscr = "".
     END.
@@ -94,8 +95,8 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
           ASSIGN 
             w2.i-no = string(oe-ordl.ord-no)
             w2.dscr = oe-ordl.part-dscr1
-            w2.ord-po-no = /*STRING(tt-boll.po-no)*/ IF oe-ordl.job-no EQ "" THEN "" 
-                                ELSE (TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")).
+            w2.ord-po-no = /*STRING(tt-boll.po-no)*/ IF oe-ordl.job-no EQ "" THEN "" ELSE 
+                           TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
        ELSE if i eq 3 then ASSIGN w2.dscr = oe-ordl.part-dscr2.
        ELSE if i eq 4 then ASSIGN w2.dscr = "".
     END.
