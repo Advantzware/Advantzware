@@ -1,7 +1,7 @@
 /* -------------------------------------------- oe/rep/invallpkg.p  03/00 EKW */
 /* PRINT ALL PACKAGING INVOICE - O/E MODULE                                   */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -32,7 +32,7 @@ def var v-tax-code like stax.tax-code.
 def var v-tx-rate like stax.tax-rate.
 def var v-ans as log init no.
 def var v-date-ship as date init today.
-def var v-del-no as int format ">>>>>>".
+def var v-del-no as int format ">>>>>>>>".
 def var v-bol-cases like oe-boll.cases.
 def var v-set-qty as DECIMAL.
 def var v-part-qty as dec format "999.9999".

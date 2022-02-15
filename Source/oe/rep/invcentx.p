@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invcentx.p  */
 /* PRINT INVOICE   Xprint Standard Form  for Century Box           */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -490,7 +490,7 @@ find first company where company.company eq cocode NO-LOCK.
 
             PUT v-po-no
                 v-ship-qty  format "->>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>9" SPACE(5)
+                STRING(inv-line.ord-no) FORMAT "x(8)" SPACE(3)
                 v-i-no  format "x(15)" SPACE(3)
                 v-i-dscr  format "x(30)" SPACE(1)
                 v-price  format "$->>,>>9.99<" SPACE(1)
