@@ -69,6 +69,8 @@ DEFINE VARIABLE cMode            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalledProgram   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lProgramEdit     AS LOGICAL   NO-UNDO.
 
+DEFINE VARIABLE lIsUserSuperAdmin AS LOGICAL NO-UNDO.
+
 DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
 
 /* Required for run_link.i */
@@ -590,7 +592,7 @@ DO:
         WHEN "Vendor" THEN
             iSubjectID = 32.            
     END CASE.
-    
+    iSubjectID = DYNAMIC-FUNCTION("sfSubjectID",iSubjectID).
     RUN system/openlookup.p (
         cCompany,  /* company */ 
         "",  /* lookup field */
@@ -631,7 +633,7 @@ DO:
         WHEN "ShipTo" THEN
             iSubjectID = 122.
     END CASE.
-    
+    iSubjectID = DYNAMIC-FUNCTION("sfSubjectID",iSubjectID).
     RUN system/openlookup.p (
         cCompany,  /* company */ 
         "",  /* lookup field */
@@ -846,9 +848,11 @@ PROCEDURE pCRUD :
                     {methods/run_link.i "RECORD-SOURCE" "AddSetting" "(OUTPUT lError)"}
                     IF lError THEN
                         RETURN NO-APPLY.
+                    
+                    IF lIsUserSuperAdmin THEN    
+                        ENABLE tbCurrentUser.
                         
-                    ENABLE tbCurrentUser.
-                    IF lProgramEdit THEN
+                    IF lProgramEdit AND lIsUserSuperAdmin THEN
                         ENABLE tbCurrentProgram.
                         
                     DISABLE btnReset-2.
@@ -861,9 +865,11 @@ PROCEDURE pCRUD :
                     {methods/run_link.i "RECORD-SOURCE" "CopySetting" "(OUTPUT lError)"}
                     IF lError THEN
                         RETURN NO-APPLY.
+                    
+                    IF lIsUserSuperAdmin THEN    
+                        ENABLE tbCurrentUser.
                         
-                    ENABLE tbCurrentUser.
-                    IF lProgramEdit THEN
+                    IF lProgramEdit AND lIsUserSuperAdmin THEN
                         ENABLE tbCurrentProgram.
                     
                     DISABLE btnReset-2.
@@ -897,6 +903,7 @@ PROCEDURE pCRUD :
             WHEN "Save" THEN DO:
                 IF iphMode:LABEL EQ "Save" THEN DO:
                     IF cMode EQ "Add" OR cMode EQ "Copy" OR cMode EQ  "Update" THEN DO:
+                        system.SharedConfig:Instance:SetValue("IsSettingUpdated", "YES").
                         {methods/run_link.i "RECORD-SOURCE" "UpdateSetting" 
                             "(INPUT  edSettingDesc:SCREEN-VALUE,
                               INPUT  IF cValidValues EQ '' THEN fiSettingValue:SCREEN-VALUE ELSE cbSettingValue:SCREEN-VALUE,
@@ -991,7 +998,10 @@ PROCEDURE pInit :
     IF NOT VALID-OBJECT (oSetting) THEN
         oSetting = NEW system.Setting().     
     
-    cCalledProgram = oSetting:CurrentProgramHotkey.
+    ASSIGN
+        cCalledProgram    = oSetting:CurrentProgramHotkey
+        lIsUserSuperAdmin = DYNAMIC-FUNCTION("sfIsUserSuperAdmin")
+        .
     
     RUN pUpdateFields.
         

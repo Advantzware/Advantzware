@@ -35,6 +35,9 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i NEW SHARED}
 
 &SCOPED-DEFINE browse2 ar/j-cash.i
+DEFINE VARIABLE iPeriod AS INTEGER NO-UNDO.
+DEFINE VARIABLE iTrNo AS INTEGER NO-UNDO.
+DEFINE VARIABLE cGLDate AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -49,7 +52,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
@@ -207,7 +210,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -230,13 +233,13 @@ ASSIGN
      _TblOptList       = "USED"
      _Where[1]         = "ASI.ar-cash.company = g_company"
      _FldNameList[1]   > ASI.ar-cash.cust-no
-"ar-cash.cust-no" ? ? "character" ? ? ? ? ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-no" ? ? "character" ? ? ? ? ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.ar-cash.check-no
-"ar-cash.check-no" ? "999999999999" "integer" ? ? ? ? ? ? no ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"check-no" ? "999999999999" "integer" ? ? ? ? ? ? no ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.ar-cash.check-date
-"ar-cash.check-date" ? ? "date" ? ? ? ? ? ? no ? no no "17.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"check-date" ? ? "date" ? ? ? ? ? ? no ? no no "17.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.ar-cash.check-amt
-"ar-cash.check-amt" ? ? "decimal" ? ? ? ? ? ? no ? no no "21.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"check-amt" ? ? "decimal" ? ? ? ? ? ? no ? no no "21.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

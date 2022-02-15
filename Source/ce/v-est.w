@@ -84,6 +84,10 @@ DEFINE VARIABLE lRecFound   AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cArtiosCAD   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lArtiosCAD   AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL NO-UNDO.
+
+
+
 {custom/framechk.i NEW}
 
 DO TRANSACTION:
@@ -146,7 +150,7 @@ eb.t-sqin eb.bl-qty
 &Scoped-define SECOND-ENABLED-TABLE est
 &Scoped-define THIRD-ENABLED-TABLE ef
 &Scoped-Define ENABLED-OBJECTS btn_fgitem btn_from btn_style btn_board ~
-btn_cust btn_spclist RECT-18 RECT-19 RECT-23 RECT-24 
+btn_cust RECT-18 RECT-19 RECT-23 RECT-24 
 &Scoped-Define DISPLAYED-FIELDS est.est-no eb.form-no est.form-qty ~
 eb.blank-no est.mod-date est.ord-date eb.cust-no eb.ship-id eb.ship-name ~
 eb.ship-addr[1] eb.ship-addr[2] eb.ship-city eb.ship-state eb.ship-zip ~
@@ -237,10 +241,6 @@ DEFINE BUTTON btn_fgitem
 DEFINE BUTTON btn_from 
      LABEL "From:" 
      SIZE 8 BY 1.
-
-DEFINE BUTTON btn_spclist 
-     LABEL "" 
-     SIZE 14 BY 1.
 
 DEFINE BUTTON btn_style 
      LABEL "" 
@@ -511,8 +511,7 @@ DEFINE FRAME fold
      btn_from AT ROW 1.19 COL 24.8 WIDGET-ID 16
      btn_style AT ROW 10.52 COL 11 WIDGET-ID 16
      btn_board AT ROW 11.71 COL 16 WIDGET-ID 16
-     btn_cust AT ROW 2.67 COL 12 WIDGET-ID 16
-     btn_spclist AT ROW 8.91 COL 74 WIDGET-ID 18
+     btn_cust AT ROW 2.67 COL 12 WIDGET-ID 16     
      btnPlateLookup AT ROW 7.95 COL 115.4 WIDGET-ID 20
      "of" VIEW-AS TEXT
           SIZE 3 BY .95 AT ROW 1.24 COL 72.6
@@ -742,7 +741,7 @@ DO:
                 OUTPUT recFoundRecID
                 ).
              IF cFoundValue <> "" and cFoundValue NE lw-focus:SCREEN-VALUE THEN DO:
-                lw-focus:SCREEN-VALUE = cFoundValue.
+                eb.sman:SCREEN-VALUE = cFoundValue.
                 RUN new-sman.
              end.          
         end.
@@ -777,7 +776,7 @@ DO:
            ls-cur-val = lw-focus:screen-value.
            run windows/l-stylef.w (cocode,ls-cur-val, output char-val).
            if char-val <> "" AND lw-focus:SCREEN-VALUE NE entry(1,char-val) then do:
-              lw-focus:screen-value =  entry(1,char-val).
+              eb.style:screen-value =  entry(1,char-val).
               RUN new-style.        
            end.
       end.
@@ -800,8 +799,8 @@ DO:
            IF AVAILABLE style AND style.type EQ "f" THEN DO: /* foam */
               RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
               ASSIGN
-                ef.board:SCREEN-VALUE    IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no",   char-val)
-                ef.brd-dscr:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-name", char-val)
+                ef.board:SCREEN-VALUE    IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no",   char-val)
+                ef.brd-dscr:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-name", char-val)
                 .
               RUN new-board.
               APPLY "ENTRY":U TO ef.board.
@@ -821,7 +820,7 @@ DO:
            ls-cur-val = lw-focus:screen-value.
            run windows/l-cust.w (cocode,ls-cur-val, output char-val).
            if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
+              eb.cust-no:screen-value =  ENTRY(1,char-val).
               RUN csr-display .
               find first shipto where shipto.company = cocode
                                   and shipto.cust-no = lw-focus:screen-value
@@ -844,19 +843,19 @@ DO:
        when "cad-no" then do:
            run windows/l-itemfc.w  (cocode,lw-focus:screen-value, output char-val). 
            if char-val <> "" then 
-              lw-focus:screen-value = entry(1,char-val).
+              eb.cad-no:screen-value = entry(1,char-val).
        end.
        when "upc-no" then do:     
            run windows/l-itemfu.w  (cocode,lw-focus:screen-value, output char-val). 
            if char-val <> "" then 
-              lw-focus:screen-value = entry(1,char-val).
+              eb.upc-no:screen-value = entry(1,char-val).
        end.
 
        when "ship-id" then do:
            ls-cur-val = lw-focus:screen-value.
            run windows/l-shipto.w (cocode,locode,eb.cust-no:screen-value,ls-cur-val, output char-val).
            if char-val <> "" then DO:
-              lw-focus:screen-value =  ENTRY(1,char-val).
+              eb.ship-id:screen-value =  ENTRY(1,char-val).
               RUN display-shipto.
               find first shipto where shipto.company = cocode
                                   and shipto.cust-no = eb.cust-no:screen-value
@@ -873,11 +872,11 @@ DO:
        when "spc-no" then do:
            run windows/l-itemfs.w  (cocode,lw-focus:screen-value, output char-val). 
            if char-val <> "" then 
-              lw-focus:screen-value = entry(1,char-val).
+              eb.spc-no:screen-value = entry(1,char-val).
        end.  
        WHEN "adhesive" THEN DO:
            RUN windows/l-item.w (cocode,"","G,T",lw-focus:SCREEN-VALUE,OUTPUT char-val).
-           IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+           IF char-val <> "" THEN eb.adhesive:SCREEN-VALUE = ENTRY(1,char-val).
        END.
        WHEN "cad-image"THEN DO:
            APPLY "choose" TO btnDieLookup.
@@ -1167,19 +1166,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn_spclist
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_spclist V-table-Win
-ON CHOOSE OF btn_spclist IN FRAME fold
-DO:
-  IF AVAIL eb THEN
-   RUN pExportXls.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME btn_style
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_style V-table-Win
@@ -1633,6 +1619,11 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cRecValue, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCEUseNewLayoutCalc = logical(cRecValue) NO-ERROR. 
+
 
   /************************ INTERNAL PROCEDURES ********************/
 
@@ -2461,9 +2452,7 @@ PROCEDURE local-display-fields :
          btn_fgitem:HIDDEN  = FALSE .
 
     btn_from:LABEL = TRIM(fi_from-est-no:LABEL) + ": " /*+ TRIM(eb.stock)*/ .
-    
-    btn_spclist:LABEL = TRIM(eb.spc-no:LABEL) + ": ".
-    btn_spclist:HIDDEN = FALSE.
+        
     btn_style:LABEL = TRIM(eb.style:LABEL) + ": " /*+ TRIM(eb.style) */ .
     IF eb.style = "" THEN
             btn_style:HIDDEN  = TRUE .
@@ -2601,7 +2590,7 @@ PROCEDURE local-update-record :
             find xest where recid(xest) = recid(est) no-lock no-error.
             find xeb where recid(xeb) = recid(eb) no-lock no-error.
             find xef where recid(xef) = recid(ef) no-lock no-error.
-            run crt-itemfg (input self:screen-value).
+            run crt-itemfg (input eb.stock-no:screen-value).
          end.   
          return no-apply.        
       end.  
@@ -2917,21 +2906,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExportXls V-table-Win 
-PROCEDURE pExportXls :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
- RUN ce/ProductListXls.p(INPUT ROWID(eb)).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
 /*------------------------------------------------------------------------------
@@ -2955,7 +2929,7 @@ PROCEDURE proc-enable :
           btn_style:HIDDEN = TRUE 
           btn_board:HIDDEN = TRUE 
           btn_cust:HIDDEN = TRUE 
-          btn_spclist:HIDDEN = TRUE.
+          .
 
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ eb.company
@@ -3153,7 +3127,10 @@ PROCEDURE update-sheet :
     {ce/ceroute1.i w id l en}
   END.
 
-  RUN ce/calc-dim.p.
+    IF lCEUseNewLayoutCalc THEN
+        RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+    ELSE
+        RUN ce/calc-dim.p.
 
   find xef where recid(xef) = recid(ef) no-lock.
   find xeb where recid(xeb) = recid(eb) no-lock.

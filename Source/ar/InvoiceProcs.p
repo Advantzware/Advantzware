@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : InvoiceProcs.p
     Purpose     : 
@@ -23,6 +22,22 @@ FUNCTION fGetNewInvoice RETURNS INTEGER
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* **********************  Internal Procedures  *********************** */
+
+FUNCTION fAddressBlock RETURNS CHARACTER PRIVATE (
+    ipcAddress1   AS CHARACTER,
+    ipcAddress2   AS CHARACTER,
+    ipcCity       AS CHARACTER,
+    ipcState      AS CHARACTER,
+    ipcPostalCode AS CHARACTER
+    ): 
+    RETURN (IF ipcAddress1 NE "" THEN ipcAddress1 + CHR(10) ELSE "")
+         + (IF ipcAddress2 NE "" THEN ipcAddress2 + CHR(10) ELSE "")
+         + (IF ipcCity NE "" THEN ipcCity + ", " ELSE "")
+         + (IF ipcState NE "" THEN ipcState + " " ELSE "")
+         + (IF ipcPostalCode NE "" THEN ipcPostalCode ELSE "")
+         .
+
+END FUNCTION.
 
 PROCEDURE BuildData:
     /*------------------------------------------------------------------------------
@@ -73,7 +88,6 @@ PROCEDURE invoice_pCreateInvoiceLineTax:
                   ).
 END PROCEDURE.
 
-
 PROCEDURE pAssignCommonHeaderData PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: given primary inputs, assign common fields to temp-table header
@@ -81,23 +95,39 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttInv FOR ttInv.
 
-    DEFINE VARIABLE iDueOnMonth AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iDueOnDay   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iNetDays    AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dDiscPct    AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iDiscDays   AS DECIMAL NO-UNDO. 
-    DEFINE VARIABLE lError      AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iDueOnMonth AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iDueOnDay   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iNetDays    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dDiscPct    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iDiscDays   AS DECIMAL   NO-UNDO. 
+    DEFINE VARIABLE cTermsDesc  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
     
     DEFINE BUFFER bf-cust    FOR cust.
     DEFINE BUFFER bf-shipto  FOR shipto.
     DEFINE BUFFER bf-notes   FOR notes.
+    DEFINE BUFFER bf-country FOR country.
+    
+    FIND FIRST company NO-LOCK
+         WHERE company.company EQ ipbf-ttInv.company
+         NO-ERROR.
+    IF AVAILABLE company THEN
+         ASSIGN 
+             ipbf-ttInv.country  = company.countryCode
+             ipbf-ttInv.currency = company.curr-code.    
 
     FIND FIRST bf-cust NO-LOCK 
         WHERE bf-cust.company EQ ipbf-ttInv.company
           AND bf-cust.cust-no EQ ipbf-ttInv.customerID
         NO-ERROR.
-    IF AVAILABLE bf-cust THEN 
-        ipbf-ttInv.customerEmail = bf-cust.email.
+    IF AVAILABLE bf-cust THEN
+        ASSIGN
+            ipbf-ttInv.customerEmail = bf-cust.email
+            ipbf-ttInv.areaCode      = bf-cust.area-code
+            ipbf-ttInv.phone         = bf-cust.phone 
+            ipbf-ttInv.fax           = bf-cust.fax
+            ipbf-ttInv.country       = IF bf-cust.fax-country NE "" THEN bf-cust.fax-country ELSE ipbf-ttInv.country
+            ipbf-ttInv.currency      = IF bf-cust.curr-code NE "" THEN bf-cust.curr-code ELSE ipbf-ttInv.currency.
         
     FIND FIRST bf-shipto NO-LOCK 
          WHERE bf-shipto.company EQ ipbf-ttInv.company
@@ -106,16 +136,30 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
          NO-ERROR.
     IF AVAILABLE bf-shipto THEN 
         ASSIGN 
-            ipbf-ttInv.shipToID         = bf-shipto.ship-id
-            ipbf-ttInv.shiptoName       = bf-shipto.ship-name
-            ipbf-ttInv.shiptoAddress1   = bf-shipto.ship-addr[1]
-            ipbf-ttInv.shiptoAddress2   = bf-shipto.ship-addr[2]
-            ipbf-ttInv.shiptoCity       = bf-shipto.ship-city
-            ipbf-ttInv.shiptoState      = bf-shipto.ship-state
-            ipbf-ttInv.shiptoPostalCode = bf-shipto.ship-zip
-            ipbf-ttInv.siteID           =  bf-shipto.siteId
+            ipbf-ttInv.shipToID           = bf-shipto.ship-id
+            ipbf-ttInv.shiptoName         = bf-shipto.ship-name
+            ipbf-ttInv.shiptoAddress1     = bf-shipto.ship-addr[1]
+            ipbf-ttInv.shiptoAddress2     = bf-shipto.ship-addr[2]
+            ipbf-ttInv.shiptoCity         = bf-shipto.ship-city
+            ipbf-ttInv.shiptoState        = bf-shipto.ship-state
+            ipbf-ttInv.shiptoPostalCode   = bf-shipto.ship-zip
+            ipbf-ttInv.shiptoAddressBlock = fAddressBlock (
+                                                ipbf-ttInv.shiptoAddress1,
+                                                ipbf-ttInv.shiptoAddress2,
+                                                ipbf-ttInv.shiptoCity,
+                                                ipbf-ttInv.shiptoState,
+                                                ipbf-ttInv.shiptoPostalCode
+                                                )
+            ipbf-ttInv.siteID             = bf-shipto.siteId
             .
-
+    
+    FIND FIRST bf-country NO-LOCK
+         WHERE bf-country.countryCode EQ ipbf-ttInv.country
+         NO-ERROR.
+    IF AVAILABLE bf-country THEN
+        ASSIGN
+            ipbf-ttInv.countryName = bf-country.Description.
+            
     RUN Credit_GetTerms (
         INPUT  ipbf-ttInv.company,
         INPUT  ipbf-ttInv.terms,
@@ -123,7 +167,8 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
         OUTPUT iDueOnDay,
         OUTPUT iNetDays, 
         OUTPUT dDiscPct,  
-        OUTPUT iDiscDays, 
+        OUTPUT iDiscDays,
+        OUTPUT cTermsDesc,
         OUTPUT lError         
         ).
     IF NOT lError THEN
@@ -134,7 +179,8 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
             ipbf-ttInv.termDiscountDueDate = ipbf-ttInv.invoiceDate + ipbf-ttInv.termDiscountDays
             ipbf-ttInv.termDiscountPercent = dDiscPct
             ipbf-ttInv.termDiscountAmount  = ipbf-ttInv.amountTotal * (ipbf-ttInv.termDiscountPercent / 100)
-            .
+            ipbf-ttInv.termsDesc           = cTermsDesc
+            .     
     
     FOR EACH bf-notes NO-LOCK
         WHERE bf-notes.rec_key EQ ipbf-ttInv.invoiceRecKey:
@@ -286,28 +332,42 @@ PROCEDURE pBuildDataForPosted PRIVATE:
     DEFINE VARIABLE lFirstLine       AS LOGICAL   NO-UNDO.
     
     IF AVAILABLE ipbf-ar-inv THEN DO:
+        FIND FIRST carrier NO-LOCK
+             WHERE carrier.company EQ ipbf-ar-inv.company
+               AND carrier.carrier EQ ipbf-ar-inv.carrier
+             NO-ERROR.
         CREATE ttInv.
         ASSIGN             
-            ttInv.invoiceRecKey      = ipbf-ar-inv.rec_key
-            ttInv.invoiceDate        = ipbf-ar-inv.inv-date 
-            ttInv.invoiceID          = ipbf-ar-inv.inv-no
-            ttInv.customerID         = ipbf-ar-inv.cust-no
-            ttInv.customerName       = ipbf-ar-inv.cust-name
-            ttInv.customerAddress1   = ipbf-ar-inv.addr[1]
-            ttInv.customerAddress2   = ipbf-ar-inv.addr[2]
-            ttInv.customerCity       = ipbf-ar-inv.city
-            ttInv.customerState      = ipbf-ar-inv.state
-            ttInv.customerPostalCode = ipbf-ar-inv.zip
-            ttInv.company            = ipbf-ar-inv.company
-            ttInv.taxGroup           = ipbf-ar-inv.tax-code
-            ttInv.amountTotal        = ipbf-ar-inv.t-sales 
-            ttInv.billFreight        = ipbf-ar-inv.f-bill
-            ttInv.amountTotalFreight = ipbf-ar-inv.freight 
-            ttInv.amountTotalTax     = ipbf-ar-inv.tax-amt
-            ttInv.shiptoID           = ipbf-ar-inv.ship-id
-            ttInv.terms              = ipbf-ar-inv.terms            
-            ttInv.invoiceDueDate     = ipbf-ar-inv.due-date
-            ttInv.customerPONo       = ipbf-ar-inv.po-no
+            ttInv.invoiceRecKey        = ipbf-ar-inv.rec_key
+            ttInv.invoiceDate          = ipbf-ar-inv.inv-date 
+            ttInv.invoiceID            = ipbf-ar-inv.inv-no
+            ttInv.customerID           = ipbf-ar-inv.cust-no
+            ttInv.customerName         = ipbf-ar-inv.cust-name
+            ttInv.customerAddress1     = ipbf-ar-inv.addr[1]
+            ttInv.customerAddress2     = ipbf-ar-inv.addr[2]
+            ttInv.customerCity         = ipbf-ar-inv.city
+            ttInv.customerState        = ipbf-ar-inv.state
+            ttInv.customerPostalCode   = ipbf-ar-inv.zip
+            ttInv.customerAddressBlock = fAddressBlock (
+                                             ttInv.customerAddress1,
+                                             ttInv.customerAddress2,
+                                             ttInv.customerCity,
+                                             ttInv.customerState,
+                                             ttInv.customerPostalCode
+                                             )
+            ttInv.company              = ipbf-ar-inv.company
+            ttInv.taxGroup             = ipbf-ar-inv.tax-code
+            ttInv.amountTotal          = ipbf-ar-inv.t-sales 
+            ttInv.billFreight          = ipbf-ar-inv.f-bill
+            ttInv.amountTotalFreight   = ipbf-ar-inv.freight 
+            ttInv.amountTotalTax       = ipbf-ar-inv.tax-amt
+            ttInv.shiptoID             = ipbf-ar-inv.ship-id
+            ttInv.terms                = ipbf-ar-inv.terms            
+            ttInv.invoiceDueDate       = ipbf-ar-inv.due-date
+            ttInv.customerPONo         = ipbf-ar-inv.po-no
+            ttInv.fob                  = IF ipbf-ar-inv.fob BEGINS "ORIG" THEN "Origin" ELSE "Destination"
+            ttInv.carrier              = IF AVAILABLE carrier THEN carrier.dscr ELSE "" 
+            ttInv.frtPay               = ipbf-ar-inv.frt-pay
             . 
 
         RUN Tax_CalculateForARInvWithDetail(
@@ -510,27 +570,41 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
     DEFINE VARIABLE lFirst           AS LOGICAL   NO-UNDO.
     
     IF AVAILABLE ipbf-inv-head THEN DO:
+        FIND FIRST carrier NO-LOCK
+             WHERE carrier.company EQ inv-head.company
+               AND carrier.carrier EQ inv-head.carrier
+             NO-ERROR.
         CREATE ttInv.
         ASSIGN             
-            ttInv.invoiceRecKey      = ipbf-inv-head.rec_key
-            ttInv.invoiceDate        = ipbf-inv-head.inv-date 
-            ttInv.invoiceID          = ipbf-inv-head.inv-no
-            ttInv.customerID         = ipbf-inv-head.cust-no
-            ttInv.customerName       = ipbf-inv-head.cust-name
-            ttInv.customerAddress1   = ipbf-inv-head.addr[1]
-            ttInv.customerAddress2   = ipbf-inv-head.addr[2]
-            ttInv.customerCity       = ipbf-inv-head.city
-            ttInv.customerState      = ipbf-inv-head.state
-            ttInv.customerPostalCode = ipbf-inv-head.zip
-            ttInv.company            = ipbf-inv-head.company
-            ttInv.taxGroup           = ipbf-inv-head.tax-gr
-            ttInv.amountTotal        = ipbf-inv-head.t-inv-rev
-            ttInv.billFreight        = ipbf-inv-head.f-bill
-            ttInv.amountTotalFreight = ipbf-inv-head.t-inv-freight 
-            ttInv.amountTotalTax     = ipbf-inv-head.t-inv-tax
-            ttInv.shiptoID           = ipbf-inv-head.sold-no
-            ttInv.terms              = ipbf-inv-head.terms            
-            ttInv.invoiceDueDate     = DYNAMIC-FUNCTION("GetInvDueDate", ttInv.invoiceDate, ttInv.company ,ttInv.terms).            
+            ttInv.invoiceRecKey        = ipbf-inv-head.rec_key
+            ttInv.invoiceDate          = ipbf-inv-head.inv-date 
+            ttInv.invoiceID            = ipbf-inv-head.inv-no
+            ttInv.customerID           = ipbf-inv-head.cust-no
+            ttInv.customerName         = ipbf-inv-head.cust-name
+            ttInv.customerAddress1     = ipbf-inv-head.addr[1]
+            ttInv.customerAddress2     = ipbf-inv-head.addr[2]
+            ttInv.customerCity         = ipbf-inv-head.city
+            ttInv.customerState        = ipbf-inv-head.state
+            ttInv.customerPostalCode   = ipbf-inv-head.zip
+            ttInv.customerAddressBlock = fAddressBlock (
+                                             ttInv.customerAddress1,
+                                             ttInv.customerAddress2,
+                                             ttInv.customerCity,
+                                             ttInv.customerState,
+                                             ttInv.customerPostalCode
+                                             )
+            ttInv.company              = ipbf-inv-head.company
+            ttInv.taxGroup             = ipbf-inv-head.tax-gr
+            ttInv.amountTotal          = ipbf-inv-head.t-inv-rev
+            ttInv.billFreight          = ipbf-inv-head.f-bill
+            ttInv.amountTotalFreight   = ipbf-inv-head.t-inv-freight 
+            ttInv.amountTotalTax       = ipbf-inv-head.t-inv-tax
+            ttInv.shiptoID             = ipbf-inv-head.sold-no
+            ttInv.terms                = ipbf-inv-head.terms            
+            ttInv.invoiceDueDate       = DYNAMIC-FUNCTION("GetInvDueDate", ttInv.invoiceDate, ttInv.company ,ttInv.terms)
+            ttInv.fob                  = IF ipbf-inv-head.fob BEGINS "ORIG" THEN "Origin" ELSE "Destination"
+            ttInv.carrier              = IF AVAILABLE carrier THEN carrier.dscr ELSE ""
+            ttInv.frtPay               = ipbf-inv-head.frt-pay
             . 
 
         RUN Tax_CalculateForInvHeadWithDetail(
@@ -741,7 +815,6 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
     
 END PROCEDURE.
 
-
 PROCEDURE pCreateInterCompanyBilling PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -774,9 +847,9 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
     DEFINE VARIABLE cCustomer     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipto       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iInterCompanyBilling AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iAsc AS INTEGER NO-UNDO.
-    DEFINE VARIABLE cChar AS CHARACTER NO-UNDO.     
-    DEFINE VARIABLE lSoldUsed AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iAsc          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cChar         AS CHARACTER NO-UNDO.     
+    DEFINE VARIABLE lSoldUsed     AS LOGICAL NO-UNDO.
     
     FIND FIRST oe-bolh NO-LOCK 
         WHERE ROWID(oe-bolh) EQ ipriOeBolh NO-ERROR.
@@ -792,14 +865,18 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
     IF iInterCompanyBilling EQ 1 THEN
     DO:
         lSoldUsed = NO.
-        cChar =  substring(oe-bolh.ship-id,1,1).
+        cChar =  SUBSTRING(oe-bolh.ship-id,1,1).
         iAsc = ASC(cChar).
         IF iAsc GE 65 AND iAsc LE 122 THEN
         lSoldUsed = YES.         
     END.    
         
-    cCustomer = IF iInterCompanyBilling EQ 1 AND lSoldUsed THEN ipcSoldID ELSE IF iInterCompanyBilling EQ 1 THEN oe-bolh.ship-id ELSE oe-bolh.cust-no .   
-    cShipto   = oe-bolh.ship-id .    
+    ASSIGN
+        cCustomer = IF iInterCompanyBilling EQ 1 AND lSoldUsed THEN ipcSoldID
+               ELSE IF iInterCompanyBilling EQ 1 THEN oe-bolh.ship-id
+               ELSE oe-bolh.cust-no   
+        cShipto   = oe-bolh.ship-id
+        .
      
     FIND FIRST bf-period NO-LOCK 
         WHERE bf-period.company EQ oe-bolh.company
@@ -1029,7 +1106,8 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
                 bf-ar-invl.posted         = NO
                 bf-ar-invl.inv-date       = bf-inv-head.inv-date
                 bf-ar-invl.e-num          = bf-inv-misc.spare-int-4
-                bf-ar-invl.taxGroup       = bf-inv-misc.spare-char-1.
+                bf-ar-invl.taxGroup       = bf-inv-misc.spare-char-1
+                .
 
             IF NOT bf-ar-invl.billable THEN bf-ar-invl.amt = 0. 
             iLine = iLine + 1.
@@ -1118,7 +1196,6 @@ PROCEDURE pGetNk1TransCompany:
     opiInterCompanyBilling = INTEGER(cReturnValue) NO-ERROR.     
     
 END PROCEDURE.
-
 
 FUNCTION fGetNewInvoice RETURNS INTEGER 
      (ipcCompany AS CHARACTER  ):

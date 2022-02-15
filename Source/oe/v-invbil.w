@@ -387,7 +387,7 @@ PROCEDURE local-display-fields :
          WHERE cust.company EQ inv-head.company
          AND cust.cust-no EQ inv-head.cust-no NO-ERROR .
          
-    IF AVAIL inv-head AND AVAIL cust AND cust.inv-meth EQ ? THEN do:        
+    IF AVAIL inv-head AND inv-head.multi-invoice AND AVAIL cust AND cust.inv-meth EQ ? THEN do:        
      FIND FIRST bf-inv-head  NO-LOCK
          WHERE bf-inv-head.company EQ inv-head.company
          AND bf-inv-head.bol-no EQ inv-head.bol-no

@@ -91,6 +91,8 @@ CLASS Inventory.Loadtag:
                 RETURN STRING(bf-loadtag.partial).       
             WHEN "Tag" THEN
                 RETURN bf-loadtag.tag-no.
+            WHEN "ItemName" THEN
+                RETURN bf-loadtag.i-name.     
             OTHERWISE
                 RETURN "".
         END.

@@ -77,12 +77,8 @@ for each report where report.term-id eq v-term-id,
        and oe-ordl.ord-no  eq int(report.key-02)
        and oe-ordl.i-no    eq report.key-01
        no-lock no-error.
-
-  IF v-printline >= 36 THEN DO:
-     v-printline = 0.
-     PAGE {1}.
-     {oe/rep/bolsoule2.i}
-  END.
+    
+  RUN pCheckPageBreak(INPUT 0, LAST(report.key-01)).
 
   v-job-no = "".
   if avail oe-ordl and oe-ordl.job-no ne "" then
@@ -108,13 +104,9 @@ for each report where report.term-id eq v-term-id,
         if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
         ELSE
         if i eq 4 then v-part-dscr = oe-ordl.part-dscr2.
-             
-        IF v-printline >= 38 THEN DO:
-          v-printline = 0.
-          PAGE {1}.
-          {oe/rep/bolsoule2.i}
-        END.
-
+                
+        RUN pCheckPageBreak(INPUT 0, LAST(report.key-01)).
+        
         IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
             PUT {1} oe-ordl.LINE SPACE(3)
                     oe-ordl.part-no SPACE                /* x(15) */
@@ -124,9 +116,11 @@ for each report where report.term-id eq v-term-id,
                     w2.cases    AT 71 FORM "->>>9" " @"
                     w2.cas-cnt    FORM "->>>>>9"
                     SKIP.
+            ASSIGN v-printline = v-printline + 1.
+            RUN pCheckPageBreak(INPUT 1, LAST(report.key-01)).        
         END.
         ELSE DO: 
-          IF i EQ 2 THEN
+          IF i EQ 2 THEN do:
             PUT {1} 
                  oe-ordl.ord-no AT 6 
 /*                  oe-ord.ord-no AT 17 */
@@ -134,19 +128,26 @@ for each report where report.term-id eq v-term-id,
                  w2.cases  AT 71 FORM "->>>9" " @"
                  w2.cas-cnt FORM "->>>>>9" SKIP.
                  
-          IF i EQ 3 THEN
+            ASSIGN v-printline = v-printline + 1.
+            RUN pCheckPageBreak(INPUT 1, LAST(report.key-01)).            
+          END.  
+          IF i EQ 3 THEN do:
             PUT {1} 
                  oe-boll.i-no AT 6 
                  w2.cases  AT 71 FORM "->>>9" " @"
-                 w2.cas-cnt FORM "->>>>>9" SKIP. 
-                 
-           IF i GT 3 THEN
+                 w2.cas-cnt FORM "->>>>>9" SKIP.
+             ASSIGN v-printline = v-printline + 1.
+            RUN pCheckPageBreak(INPUT 1, LAST(report.key-01)).    
+          END.       
+          IF i GT 3 THEN do:
             PUT {1} 
                  w2.cases  AT 71 FORM "->>>9" " @"
-                 w2.cas-cnt FORM "->>>>>9" SKIP.        
+                 w2.cas-cnt FORM "->>>>>9" SKIP.
+            ASSIGN v-printline = v-printline + 1.
+            RUN pCheckPageBreak(INPUT 1, LAST(report.key-01)).     
+          END.       
         END.
-
-        ASSIGN v-printline = v-printline + 2.
+        
         
         IF LAST(w2.cases * w2.cas-cnt) THEN DO:
           IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
@@ -156,6 +157,7 @@ for each report where report.term-id eq v-term-id,
                 oe-ordl.part-dscr1 FORM "x(30)" AT 38 
                 SKIP.
             v-printline = v-printline + 1.
+            RUN pCheckPageBreak(INPUT 1, LAST(report.key-01)).
           END.
 
           PUT {1}
@@ -168,6 +170,7 @@ for each report where report.term-id eq v-term-id,
           ASSIGN
              v-printline = v-printline + 2
              v-tot-pkgs  = 0.
+          RUN pCheckPageBreak(INPUT 2, LAST(report.key-01)).   
 
           IF v-print-dept THEN
           DO:
@@ -183,11 +186,7 @@ for each report where report.term-id eq v-term-id,
                  IF notes.note_text <> "" THEN
                     DO i = 1 TO v-tmp-lines:
 
-                       IF v-printline >= 38 THEN DO:
-                          v-printline = 0.
-                          PAGE {1}.
-                          {oe/rep/bolsoule2.i}
-                       END.
+                       RUN pCheckPageBreak(INPUT 1, LAST(report.key-01)). 
 
                        PUT substring(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80) FORM "x(80)" SKIP.              
                        v-printline = v-printline + 1.
@@ -198,12 +197,17 @@ for each report where report.term-id eq v-term-id,
         v-tot-cases = v-tot-cases + w2.cases.
         DELETE w2.
       END.
-      PUT {1}.
+      PUT {1} skip(1).
       v-printline = v-printline + 1.
+      RUN pCheckPageBreak(INPUT 1, LAST(report.key-01)). 
     END.
   END.
   /* end of summary mods */
   ELSE DO:
+  
+     v-printline = v-printline + 4.
+     RUN pCheckPageBreak(INPUT 4, LAST(report.key-01)).
+     
      DISPLAY  {1}
           oe-ordl.LINE SPACE(3)
           oe-ordl.part-no   WHEN AVAIL oe-ordl /* 15 */
@@ -227,9 +231,7 @@ for each report where report.term-id eq v-term-id,
          oe-boll.weight FORM "->>>,>>9"  SKIP
          with frame bol-mid2 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
      down {1} with frame bol-mid2.
-
-     v-printline = v-printline + 5.
-
+          
      IF v-print-dept THEN
      DO:
         FOR EACH notes WHERE
@@ -242,11 +244,8 @@ for each report where report.term-id eq v-term-id,
             {SYS/INC/ROUNDUP.I v-tmp-lines}
             IF notes.note_text <> "" THEN
                DO i = 1 TO v-tmp-lines:
-                  IF v-printline >= 38 THEN DO:
-                     v-printline = 0.
-                     PAGE {1}.
-                     {oe/rep/bolsoule2.i}
-                  END.
+               
+                  RUN pCheckPageBreak(INPUT 1, LAST(report.key-01)).
 
                   PUT substring(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80) FORM "x(80)" SKIP.              
                   v-printline = v-printline + 1.
@@ -255,6 +254,7 @@ for each report where report.term-id eq v-term-id,
      END.
 
      put {1} skip(1).
+     RUN pCheckPageBreak(INPUT 1, LAST(report.key-01)).
      ASSIGN
         v-tot-cases = v-tot-cases + v-tot-pkgs
         v-tot-pkgs  = 0.
@@ -275,11 +275,7 @@ for each report where report.term-id eq v-term-id,
       
     {sys/inc/part-qty.i v-part-qty fg-set}
 
-       IF v-printline >= 38 THEN DO:
-          v-printline = 0.
-          PAGE {1}.
-          {oe/rep/bolsoule2.i}
-      END.
+    RUN pCheckPageBreak(INPUT 3, LAST(report.key-01)).   
     
     put {1}
         xitemfg.part-no AT 6
@@ -296,5 +292,32 @@ for each report where report.term-id eq v-term-id,
   if oe-boll.weight eq 0 then
     v-tot-wt = v-tot-wt + (oe-boll.qty / 100 * itemfg.weight-100).
 end. /* for each report */
+
+PROCEDURE pCheckPageBreak:
+    DEFINE INPUT PARAMETER ipiLineCount AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplLastRecord AS LOGICAL NO-UNDO.
+   
+    iPageLineCount = iPageLineCount + ipiLineCount.
+   
+    IF iplLastRecord THEN
+    DO:
+       IF iPageLineCount >= 38 THEN DO:
+          iPageLineCount = 0.
+          v-printline = 0.
+          PAGE {1}.
+          {oe/rep/bolsoule2.i}
+       END.
+        
+    END.
+    ELSE do:
+        IF iPageLineCount >= 51 THEN DO:
+          iPageLineCount = 0.
+          v-printline = 0.
+          PAGE {1}.
+          {oe/rep/bolsoule2.i}
+        END.
+    END.
+
+END PROCEDURE.
 
 /* end ---------------------------------- copr. 1998  Advanced Software, Inc. */

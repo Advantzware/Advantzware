@@ -87,6 +87,9 @@ DEFINE VARIABLE cCompanyState   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyZip     AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cLineLocation AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lMatchFound   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMatchDetail  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iTaxBasis     AS INTEGER   NO-UNDO.
 
 DEFINE BUFFER bf-APIOutboundDetail1 FOR APIOutboundDetail.
 DEFINE BUFFER bf-APIOutboundDetail2 FOR APIOutboundDetail.    
@@ -200,12 +203,10 @@ ELSE DO:
          NO-ERROR.
 
     RUN pGetDefaultTaxClass (
-        INPUT  cCompany,
         OUTPUT cDefaultTaxClass
         ).
 
     RUN pGetFreightTaxClass (
-        INPUT  cCompany,
         OUTPUT cFreightTaxClass
         ).
     
@@ -427,7 +428,25 @@ ELSE DO:
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", TRIM(STRING(inv-line.tax,"TAXABLE/EXEMPT"))).
                     
                     lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
-                    
+
+                    RUN Price_GetPriceMatrixTaxBasis (
+                        INPUT  cCompany,
+                        INPUT  IF AVAILABLE itemfg THEN itemfg.i-no ELSE "",
+                        INPUT  IF AVAILABLE cust THEN cust.cust-no ELSE "",
+                        INPUT  IF AVAILABLE shipto THEN shipto.ship-id ELSE "",
+                        OUTPUT lMatchFound,
+                        OUTPUT cMatchDetail,
+                        OUTPUT iTaxBasis
+                        ).
+                    IF lMatchFound THEN DO:
+                        /* Send Price Matrix taxable flag in flexible field 11 */
+                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "11").
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", IF iTaxbasis EQ 2 THEN "NONTAXABLE" ELSE IF iTaxBasis EQ 1 THEN "TAXABLE" ELSE "NOTUSED").
+    
+                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    END.                    
                 END.
                 
                 RUN pUpdateDelimiter(
@@ -583,7 +602,25 @@ ELSE DO:
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", TRIM(STRING(inv-misc.tax,"TAXABLE/EXEMPT"))).
                     
                     lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+
+                    RUN Price_GetPriceMatrixTaxBasis (
+                        INPUT  cCompany,
+                        INPUT  IF AVAILABLE itemfg THEN itemfg.i-no ELSE "",
+                        INPUT  IF AVAILABLE cust THEN cust.cust-no ELSE "",
+                        INPUT  IF AVAILABLE shipto THEN shipto.ship-id ELSE "",
+                        OUTPUT lMatchFound,
+                        OUTPUT cMatchDetail,
+                        OUTPUT iTaxBasis
+                        ).
+                    IF lMatchFound THEN DO:
+                        /* Send Price Matrix taxable flag in flexible field 11 */
+                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "11").
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", IF iTaxbasis EQ 2 THEN "NONTAXABLE" ELSE IF iTaxBasis EQ 1 THEN "TAXABLE" ELSE "NOTUSED").
                     
+                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    END.                    
                 END.
 
                 RUN pUpdateDelimiter(
@@ -931,7 +968,25 @@ ELSE DO:
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", TRIM(STRING(ar-invl.tax,"TAXABLE/EXEMPT"))).
                     
                     lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
-                    
+
+                    RUN Price_GetPriceMatrixTaxBasis (
+                        INPUT  cCompany,
+                        INPUT  IF AVAILABLE itemfg THEN itemfg.i-no ELSE "",
+                        INPUT  IF AVAILABLE cust THEN cust.cust-no ELSE "",
+                        INPUT  IF AVAILABLE shipto THEN shipto.ship-id ELSE "",
+                        OUTPUT lMatchFound,
+                        OUTPUT cMatchDetail,
+                        OUTPUT iTaxBasis
+                        ).
+                    IF lMatchFound THEN DO:
+                        /* Send Price Matrix taxable flag in flexible field 11 */
+                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "11").
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", IF iTaxbasis EQ 2 THEN "NONTAXABLE" ELSE IF iTaxBasis EQ 1 THEN "TAXABLE" ELSE "NOTUSED").
+
+                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    END.
                 END.
 
                 RUN pUpdateDelimiter(
@@ -1346,53 +1401,27 @@ END PROCEDURE.
 
 PROCEDURE pGetDefaultTaxClass PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: Returns the default tax class from NK1 setting VertexTaxClass
+     Purpose: Returns the default tax class from NK6 setting VertexTaxClass
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcDefaultTaxClass AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
     
     IF cDefaultTaxClass NE "" THEN DO:
         opcDefaultTaxClass = cDefaultTaxClass.
         RETURN.
     END.
     
-    RUN sys/ref/nk1look.p (
-        INPUT  ipcCompany,                  /* Company Code */
-        INPUT  "VertexTaxClassDefault",     /* sys-ctrl name */
-        INPUT  "C",                         /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
-        INPUT  FALSE,                       /* Use ship-to */
-        INPUT  FALSE,                       /* ship-to vendor */
-        INPUT  "",                          /* ship-to vendor value */
-        INPUT  "",                          /* shi-id value */
-        OUTPUT cDefaultTaxClass,
-        OUTPUT lRecFound
-        ). 
-
+    RUN spGetSettingByName ("VertexTaxClassDefault", OUTPUT cDefaultTaxClass).
+    
     opcDefaultTaxClass = cDefaultTaxClass.  
 END PROCEDURE.
 
 PROCEDURE pGetFreightTaxClass PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: Returns the freight tax class from NK1 setting VertexFreightTaxClass
+     Purpose: Returns the freight tax class from NK6 setting VertexFreightTaxClass
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcFreightTaxClass AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
-        
-    RUN sys/ref/nk1look.p (
-        INPUT  ipcCompany,                  /* Company Code */
-        INPUT  "VertexFreightTaxClass",     /* sys-ctrl name */
-        INPUT  "C",                         /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
-        INPUT  FALSE,                       /* Use ship-to */
-        INPUT  FALSE,                       /* ship-to vendor */
-        INPUT  "",                          /* ship-to vendor value */
-        INPUT  "",                          /* shi-id value */
-        OUTPUT opcFreightTaxClass,
-        OUTPUT lRecFound
-        ). 
+    RUN spGetSettingByName ("VertexFreightTaxClass", OUTPUT opcFreightTaxClass).
 END PROCEDURE.

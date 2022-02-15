@@ -408,7 +408,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      po-ordl.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>>>":U LABEL-BGCOLOR 14
+      po-ordl.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>>>>":U LABEL-BGCOLOR 14
       po-ord.vend-no COLUMN-LABEL "Vendor#" FORMAT "x(8)":U LABEL-BGCOLOR 14
       po-ordl.due-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       po-ord.ship-id FORMAT "x(8)":U LABEL-BGCOLOR 14
@@ -2883,9 +2883,10 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
     ELSE DO:         
         IF tb_open NE tb_closed THEN
         cWhereCriteria = cWhereCriteria + " AND po-ordl.opened EQ " + STRING(tb_open).
-                       
-        ASSIGN
-            cWhereCriteria = cWhereCriteria + " AND po-ordl.due-date GE " + STRING(fi_due-date,"99/99/9999")   
+        IF fi_due-date NE ? THEN
+        cWhereCriteria = cWhereCriteria + " AND po-ordl.due-date GE " + STRING(fi_due-date,"99/99/9999").  
+        
+        ASSIGN            
             cWhereCriteria = cWhereCriteria  
                            + (IF fi_po-no NE 0 THEN " AND po-ordl.po-no EQ " + STRING(fi_po-no) ELSE "")
                            + (IF INDEX(fi_vend-no,"*") GT 0 THEN " AND po-ordl.vend-no MATCHES " + QUOTER(fi_vend-no + "*") ELSE IF fi_vend-no NE "" THEN " AND po-ordl.vend-no BEGINS " + QUOTER(fi_vend-no) ELSE "")

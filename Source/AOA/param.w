@@ -208,7 +208,7 @@ DEFINE FRAME viewFrame
           BGCOLOR 15 
      dynParam.action AT ROW 4.81 COL 45 NO-LABEL WIDGET-ID 186
           VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-          LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL","START DESCRIPTION","END DESCRIPTION","LIST-ITEM-PAIRS","SORT" 
+          LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL","START DESCRIPTION","END DESCRIPTION","LIST-ITEM-PAIRS","SORT","SESSION PARAMETER" 
           SIZE 27 BY 11.43
      dynParam.paramType AT ROW 5.76 COL 20 COLON-ALIGNED WIDGET-ID 180
           VIEW-AS COMBO-BOX INNER-LINES 5
@@ -230,8 +230,8 @@ DEFINE FRAME viewFrame
           SIZE 22 BY 1
           BGCOLOR 15 
      dynParam.viewAs AT ROW 10.52 COL 20 COLON-ALIGNED WIDGET-ID 184
-          VIEW-AS COMBO-BOX INNER-LINES 6
-          LIST-ITEMS "Combo-Box","Editor","Fill-In","Radio-Set","Selection-List","Toggle-Box" 
+          VIEW-AS COMBO-BOX INNER-LINES 7
+          LIST-ITEMS "Combo-Box","Editor","Fill-In","Radio-Set","Selection-List","Toggle-Box","Button" 
           DROP-DOWN-LIST
           SIZE 22 BY 1
      dynParam.innerLines AT ROW 11.71 COL 20 COLON-ALIGNED WIDGET-ID 160
@@ -264,12 +264,6 @@ DEFINE FRAME viewFrame
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
-     dynParam.descriptionProc AT ROW 20.05 COL 20 COLON-ALIGNED WIDGET-ID 300
-          LABEL "Descript Procedure"
-          VIEW-AS COMBO-BOX SORT INNER-LINES 100
-          LIST-ITEMS "Item 1" 
-          DROP-DOWN-LIST
-          SIZE 50 BY 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 76 ROW 1
@@ -278,6 +272,12 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     dynParam.descriptionProc AT ROW 20.05 COL 20 COLON-ALIGNED WIDGET-ID 300
+          LABEL "Descript Procedure"
+          VIEW-AS COMBO-BOX SORT INNER-LINES 100
+          LIST-ITEMS "Item 1" 
+          DROP-DOWN-LIST
+          SIZE 50 BY 1
      btnFill-In AT ROW 22.19 COL 40 HELP
           "Create New FILL-IN" WIDGET-ID 194
      btnRadio-Set AT ROW 22.19 COL 47 HELP
@@ -635,9 +635,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy s-object
-PROCEDURE local-destroy:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy s-object 
+PROCEDURE local-destroy :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -657,11 +656,9 @@ PROCEDURE local-destroy:
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize s-object 
 PROCEDURE local-initialize :

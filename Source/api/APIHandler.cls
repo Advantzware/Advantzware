@@ -125,6 +125,8 @@ CLASS API.APIHandler:
                 
         DEFINE VARIABLE lcResponseData AS LONGCHAR NO-UNDO. 
         
+        ipcURL = pReplaceExceptionalCharacters(ipcURL).
+        
         oClient:BaseAddress = NEW System.Uri(ipcURL).
         oClient:DefaultRequestHeaders:Accept:Add(NEW System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(ContentType)).
 
@@ -147,6 +149,8 @@ CLASS API.APIHandler:
         DEFINE VARIABLE oContent AS HttpContent NO-UNDO.
                 
         DEFINE VARIABLE lcResponseData AS LONGCHAR NO-UNDO. 
+        
+        ipcURL = pReplaceExceptionalCharacters(ipcURL).
         
         oClient:BaseAddress = NEW System.Uri(ipcURL).
 
@@ -177,7 +181,11 @@ CLASS API.APIHandler:
 	METHOD PRIVATE LONGCHAR pPost( ipcURL AS CHARACTER, iplcRequestData AS LONGCHAR ):
         DEFINE VARIABLE oContent         AS HttpContent          NO-UNDO.
         
+        DEFINE VARIABLE oBytes  AS "System.Byte[]":U NO-UNDO.
+        
 		DEFINE VARIABLE lcResponseData AS LONGCHAR NO-UNDO.	
+		
+		ipcURL = pReplaceExceptionalCharacters(ipcURL).
 		
 		oClient:BaseAddress = NEW System.Uri(ipcURL).
 		oClient:DefaultRequestHeaders:Accept:Add(NEW System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(ContentType)).       
@@ -195,10 +203,28 @@ CLASS API.APIHandler:
         
         FIX-CODEPAGE(lcResponseData) = 'utf-8'.
         
-        IF VALID-OBJECT(ResponseMessage) THEN
-            lcResponseData = ResponseMessage:Content:ReadAsStringAsync():RESULT.
-        		
+        IF VALID-OBJECT(ResponseMessage) THEN DO:
+            /* Looks like ReadAsStringAsync returns data in UTF-8 encoded format and replaces right/left double quotations with normal double quotation.
+               As these are not escaped by server JSON parsing throws an error. Reading as byte array and later converting to ISO8859-1 fixed the issue */
+            /* The current encoding for INPUT/OUTPUT files is ISO8859-1, hence we didn't have this error when API request went through cURL */
+            oBytes = ResponseMessage:Content:ReadAsByteArrayAsync():RESULT.
+
+            lcResponseData = Encoding:GetEncoding("ISO8859-1"):GetString(oBytes).
+        END.
+        
 		RETURN lcResponseData.
+	END METHOD.
+
+	/*------------------------------------------------------------------------------
+	 Purpose: cURL fails when there are & in URL. Escaping with ^ can fix this issue. But fails with HttpClient method. 
+	          Removing carats in URL should fix this. 
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PRIVATE CHARACTER pReplaceExceptionalCharacters( ipcURL AS CHARACTER ):
+		
+		RETURN REPLACE(ipcURL, "^&", "&").
+
 	END METHOD.
 
 	/*------------------------------------------------------------------------------

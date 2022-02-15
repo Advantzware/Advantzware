@@ -85,10 +85,11 @@ DEFINE QUERY external_tables FOR job.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btFGItems btMaterials btRoutings btExit ~
 btnFirst btnLast btnNext btnPrevious btnExitText btnPrintJobText ~
-btnAdjustQtyText btnIssueQtyText btnViewRM btnViewFG 
+btnAdjustQtyText btnIssueQtyText btnViewRM btnViewFG btClear btnClearText 
 &Scoped-Define DISPLAYED-OBJECTS fiStatusLabel fiStatus fiCreatedLabel ~
 fiCreated fiDueLabel fiDue fiCSRLabel fiCSR btnExitText statusMessage ~
-btnPrintJobText btnAdjustQtyText btnIssueQtyText btnViewRM btnViewFG 
+btnPrintJobText btnAdjustQtyText btnIssueQtyText btnViewRM btnViewFG ~
+btnClearText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -105,6 +106,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_adjustqty AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_adjustwindowsize AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-hdr AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-mat AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-mch AS HANDLE NO-UNDO.
@@ -115,6 +117,12 @@ DEFINE VARIABLE h_viewfginquiry AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_viewrminquiry AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btClear 
+     IMAGE-UP FILE "Graphics/32x32/back_white.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/back_white.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Reset" 
+     SIZE 8 BY 1.91.
+
 DEFINE BUTTON btExit 
      IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
@@ -158,6 +166,11 @@ DEFINE BUTTON btRoutings  NO-FOCUS
 DEFINE VARIABLE btnAdjustQtyText AS CHARACTER FORMAT "X(256)":U INITIAL "ADJUST QTY" 
       VIEW-AS TEXT 
      SIZE 23 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
+DEFINE VARIABLE btnClearText AS CHARACTER FORMAT "X(256)":U INITIAL "RESET" 
+      VIEW-AS TEXT 
+     SIZE 12 BY 1.43
      BGCOLOR 21  NO-UNDO.
 
 DEFINE VARIABLE btnExitText AS CHARACTER FORMAT "X(256)":U INITIAL "EXIT" 
@@ -252,6 +265,8 @@ DEFINE FRAME F-Main
      btnIssueQtyText AT ROW 30.76 COL 147 COLON-ALIGNED NO-LABEL WIDGET-ID 136
      btnViewRM AT ROW 7.91 COL 98.2 COLON-ALIGNED NO-LABEL WIDGET-ID 138
      btnViewFG AT ROW 7.91 COL 98.2 COLON-ALIGNED NO-LABEL WIDGET-ID 140
+     btClear AT ROW 3.14 COL 197 WIDGET-ID 146
+     btnClearText AT ROW 3.33 COL 184.2 NO-LABEL WIDGET-ID 148
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -266,7 +281,6 @@ DEFINE FRAME F-Main
    Type: SmartWindow
    External Tables: ASI.job
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 2
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -316,6 +330,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME Custom                                                    */
+/* SETTINGS FOR FILL-IN btnClearText IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN btnExitText IN FRAME F-Main
    ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN fiCreated IN FRAME F-Main
@@ -377,6 +393,25 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btClear
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btClear W-Win
+ON CHOOSE OF btClear IN FRAME F-Main /* Reset */
+DO:
+    {methods/run_link.i "JOB-SOURCE" "SetJob" "(?,?,?,?)"}
+    RUN pJobScan.
+
+    {methods/run_link.i "JOB-SOURCE" "Reset"}
+    
+    {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
+    
+    RUN pStatusMessage ("", 0).
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btExit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExit W-Win
 ON CHOOSE OF btExit IN FRAME F-Main
@@ -425,6 +460,18 @@ END.
 ON MOUSE-SELECT-CLICK OF btnAdjustQtyText IN FRAME F-Main
 DO:
     RUN AdjustQuantity IN h_b-job-hdr.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnClearText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearText W-Win
+ON MOUSE-SELECT-CLICK OF btnClearText IN FRAME F-Main
+DO:
+    APPLY "CHOOSE" TO btClear.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -558,6 +605,7 @@ END.
 {src/adm/template/windowmn.i}
 
 {sharpshooter/pStatusMessage.i}
+{sharpshooter/ChangeWindowSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -581,12 +629,20 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/adjustwindowsize.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_adjustwindowsize ).
+       RUN set-position IN h_adjustwindowsize ( 1.00 , 155.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 32.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/jobfilter.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_jobfilter ).
        RUN set-position IN h_jobfilter ( 2.76 , 4.40 ) NO-ERROR.
-       /* Size in UIB:  ( 2.62 , 126.00 ) */
+       /* Size in UIB:  ( 2.05 , 143.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/printjob.w':U ,
@@ -658,7 +714,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_issueqty ).
-       RUN set-position IN h_issueqty ( 30.52 , 169.00 ) NO-ERROR.
+       RUN set-position IN h_issueqty ( 31.24 , 169.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -781,11 +837,11 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiStatusLabel fiStatus fiCreatedLabel fiCreated fiDueLabel fiDue 
           fiCSRLabel fiCSR btnExitText statusMessage btnPrintJobText 
-          btnAdjustQtyText btnIssueQtyText btnViewRM btnViewFG 
+          btnAdjustQtyText btnIssueQtyText btnViewRM btnViewFG btnClearText 
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE btFGItems btMaterials btRoutings btExit btnFirst btnLast btnNext 
          btnPrevious btnExitText btnPrintJobText btnAdjustQtyText 
-         btnIssueQtyText btnViewRM btnViewFG 
+         btnIssueQtyText btnViewRM btnViewFG btClear btnClearText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -835,7 +891,7 @@ PROCEDURE local-change-page :
                 .
             RUN set-size IN h_b-job-mat ( dHeight , dWidth ) NO-ERROR.
             ASSIGN
-                dRow = {&WINDOW-NAME}:HEIGHT - 1.62
+                dRow = {&WINDOW-NAME}:HEIGHT - 1
                 btnAdjustQtyText:HIDDEN = YES
                 btnIssueQtyText:HIDDEN  = NO
                 btnViewRM:VISIBLE       = TRUE
@@ -867,9 +923,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy W-Win
-PROCEDURE local-destroy:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy W-Win 
+PROCEDURE local-destroy :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -885,11 +940,9 @@ PROCEDURE local-destroy:
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
 PROCEDURE local-enable :
@@ -921,6 +974,9 @@ PROCEDURE local-enable :
     {methods/run_link.i "JOB-SOURCE" "HideJobDetails"}
     {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
     {methods/run_link.i "JOB-SOURCE" "ValidateSameJobScan" "(FALSE)"}    
+    {methods/run_link.i "JOB-SOURCE" "AllowEmptyFormAndBlank"}
+    {methods/run_link.i "JOB-SOURCE" "DisableErrorAlerts"}
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1096,6 +1152,8 @@ PROCEDURE pUpdateBrowse :
    
     {methods\run_link.i "Record-SOURCE" "OpenQuery" "(ipcCompany,ipcJobNo,ipiJobNo2,ipiFormNo,ipiBlankNo)"}
 
+    RUN pStatusMessage ("", 0).
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1116,24 +1174,16 @@ PROCEDURE pWinReSize :
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            {&WINDOW-NAME}:ROW                 = 1
-            {&WINDOW-NAME}:COL                 = 1
-            {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
-            {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
-            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT
-            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
-            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
             statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
             dCol                               = {&WINDOW-NAME}:WIDTH  - 8
-            btExit:COL                         = dCol - 1
+            btExit:COL                         = dCol
             btnFirst:COL                       = dCol - 1
             btnPrevious:COL                    = dCol - 1
             btnNext:COL                        = dCol - 1
             btnLast:COL                        = dCol - 1
             btnExitText:COL                    = dCol - 9
+            btnClearText:COL                   = dCol - 13
+            btClear:COL                        = dCol - 1           
             btnPrintJobText:COL                = dCol - btnPrintJobText:WIDTH - 1
             btnPrintJobText:ROW                = {&WINDOW-NAME}:HEIGHT - .86
             btnAdjustQtyText:ROW               = {&WINDOW-NAME}:HEIGHT - .86
@@ -1150,6 +1200,7 @@ PROCEDURE pWinReSize :
             dWidth  = dCol - 3
             .
         RUN set-size IN h_b-job-hdr ( dHeight , dWidth ) NO-ERROR.
+        RUN set-position IN h_adjustwindowsize ( 1.00 , dCol - 45 ) NO-ERROR.
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 

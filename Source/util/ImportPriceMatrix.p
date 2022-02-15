@@ -68,7 +68,9 @@ DEFINE TEMP-TABLE ttImportPriceMatrix
     FIELD ShipTo       AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "ShipTo" HELP "Optional - Size:8"
     FIELD cOnline      AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Online" HELP "Optional - Yes or N0" 
     FIELD minOrderQty  AS CHARACTER FORMAT "->>>,>>>,>>9.<<<" COLUMN-LABEL "Minimum Order Qty" HELP "Optional - Decimal" 
-    FIELD quoteID      AS INTEGER   FORMAT ">>>>>>9" COLUMN-LABEL "Quote" HELP "Optional - Integer".
+    FIELD quoteID      AS INTEGER   FORMAT ">>>>>>9" COLUMN-LABEL "Quote" HELP "Optional - Integer"
+    FIELD taxBasis     AS INTEGER   FORMAT ">9" COLUMN-LABEL "Tax Basis" HELP "Optional - Integer (0 - Default, 1 = Force Tax, 2 = Force No Tax)"
+    .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
@@ -372,6 +374,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportPriceMatrix.cOnline, YES, INPUT-OUTPUT bf-oe-prmtx.online).
     RUN pAssignValueD (ipbf-ttImportPriceMatrix.minOrderQty, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.minOrderQty). 
     RUN pAssignValueI (ipbf-ttImportPriceMatrix.quoteID, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.quoteID). 
+    RUN pAssignValueI (ipbf-ttImportPriceMatrix.taxBasis, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.taxBasis). 
       
     FIND CURRENT bf-oe-prmtx NO-LOCK NO-ERROR.  
     RUN Price_ExpireOldPrice(

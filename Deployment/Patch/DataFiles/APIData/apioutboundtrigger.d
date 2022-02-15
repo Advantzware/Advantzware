@@ -198,8 +198,8 @@
 "" "202106213872407443265" "SendPurchaseOrder" "TriggerGetPurchaseOrder" "Trigger to fetch purchase order details" yes 2021-06-21T10:45:24.968 "asi" "_default15" 203 40
 "" "202106221155007443291" "SendVendor" "AddVendor" "Trigger to process the request when vendor is created" no 2021-06-23T15:28:26.254 "asi" "_default1" 204 41
 "" "202106221157007443292" "SendVendor" "UpdateVendor" "Trigger to process the request when vendor is updated" no 2021-06-23T15:28:36.207 "asi" "_default1" 205 41
-"" "202106212061807443212" "SendReceipt" "CreateReceipt" "Trigger to process the request when receipt is created" no 2021-06-23T15:26:25.592 "asi" "_default" 206 39
-"" "202106235557407443565" "SendReceipt" "UpdateReceipt" "Trigger to process the request when receipt is updated" no 2021-06-23T15:26:14.248 "asi" "_default" 207 39
+"" "202106212061807443212" "SendReceipts" "FGPost" "Trigger to process the request on FG Post" no 2021-10-04T23:22:08.300 "asi" "_default" 206 39
+"" "202106235557407443565" "SendReceipts" "RMPost" "Trigger to process the request on RMPost" no 2021-10-04T23:22:27.104 "asi" "_default" 207 39
 "" "202106284869307444552" "CalculateTaxToken" "GetRefreshToken" "Trigger to fetch the Vertex access token" no 2021-06-28T13:31:33.649 "asi" "_default" 208 42
 "" "202107062593307682615" "SendBankCheck" "PrintCheck" "Generate cXML file on print of check" no 2021-07-06T07:12:13.463 "asi" "_default" 209 43
 "" "202107232927407771461" "SendJobAMS" "CloseJob" "Trigger to send job close command" no 2021-07-23T08:11:58.304 "asi" "_default1" 210 44
@@ -211,3 +211,41 @@
 "" "202109126301207978057" "SendJobAMS" "AddJob" "Trigger when job is added" no 2021-09-12T17:30:12.928 "asi" "_default" 216 38
 "" "202109156372007978948" "SendJobAMS" "PostDataCollection" "Triggers from Transfer WIP to Job cost" no 2021-09-15T17:42:00.169 "asi" "_default" 217 38
 "" "202109204479407979233" "SendPurchaseOrder" "QuantityReceived" "Trigger to send PO on quantity receive" no 2021-09-20T12:26:34.288 "asi" "_default15" 218 40
+"" "202110050339608069927" "SendReceipt" "RMPost" "Trigger to send request on RM Post" no 2021-10-05T00:56:36.708 "asi" "_default" 219 50
+"" "202110016163308068474" "SendReceipt" "JobFGPost" "Trigger to send job information on FG post" no 2021-10-05T00:56:08.815 "asi" "_default" 220 50
+"" "202110016165008068475" "SendReceipt" "JobRMPost" "Trigger to send job information on RM post" no 2021-10-05T00:56:17.007 "asi" "_default" 221 50
+"" "202110050341108069928" "SendReceipt" "FGPost" "Trigger to send request on FG post" no 2021-10-05T00:56:51.328 "asi" "_default" 222 50
+"" "202110048419108069378" "SendReceipts" "POReceipt" "Trigger to send the request on PO receipts not vouchered report" no 2021-10-04T23:23:34.041 "asi" "_default" 223 39
+"" "202110057643308070194" "SendJobAMS" "CreateJobMolded" "Triggers when job is created for molded" no 2021-10-05T21:13:53.922 "asi" "_default" 224 38
+"" "202110238635108077366" "JobTicket" "PrintJob" "Print job card" no 2021-10-25T11:14:01.533 "rajesh" "_default" 225 51
+"" "202108161116807860396" "GetContacts" "GetAll" "Trigger to get the customer list" no 2021-08-16T03:06:08.710 "asi" "_default" 226 52
+"" "202108122106307858041" "GetCustomers" "GetAll" "Trigger to get the customer list" no 2021-08-12T13:27:03.811 "asi" "_default" 227 53
+"" "202111245332908288086" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default" 228 4
+"" "202111245332908288087" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default1" 229 12
+"" "202111245332908288096" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default10" 230 27
+"" "202111245332908288097" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default11" 231 28
+"" "202111245332908288098" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default12" 232 29
+"" "202111245332908288099" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default13" 233 30
+"" "202111245332908288100" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default14" 234 31
+"" "202111245332908288101" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default15" 235 40
+"" "202111245332908288088" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default2" 236 18
+"" "202111245332908288089" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default3" 237 20
+"" "202111245332908288090" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default4" 238 21
+"" "202111245332908288091" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default5" 239 22
+"" "202111245332908288092" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default6" 240 23
+"" "202111245332908288093" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default7" 241 24
+"" "202111245332908288094" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default8" 242 25
+"" "202111245332908288095" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default9" 243 26
+"" "202112020346508308454" "GetExchangeRate" "GetExchangeRate" "Trigger to fetch the exchange rates" no 2021-12-02T00:57:45.500 "asi" "_default" 244 54
+"" "202112070723908335684" "SendInvoice" "PrintInvoice" "Send EDI invoice on print of invoice" no 2021-12-07T02:00:39.309 "asi" "_default4" 245 55
+"" "202112070726308335685" "SendInvoice" "RePrintInvoice" "Send EDI invoice on re-print of invoice" no 2021-12-07T02:01:03.586 "asi" "_default4" 246 55
+"" "202112070728308335686" "SendInvoice" "PostInvoice" "Send EDI invoice on post of invoice" no 2021-12-07T02:01:23.344 "asi" "_default4" 247 55
+"" "202112164712208315856" "SendInvoice" "PrintInvoice" "Send EDI invoice on print of invoice" no 2021-12-16T13:05:22.802 "asi" "_default5" 248 56
+"" "202112164713708315857" "SendInvoice" "RePrintInvoice" "Send EDI invoice on re-print of invoice" no 2021-12-16T13:05:37.095 "asi" "_default5" 249 56
+"" "202112164715208315858" "SendInvoice" "PostInvoice" "Send EDI invoice on post of invoice" no 2021-12-16T13:05:52.625 "asi" "_default5" 250 56
+"" "202112165648708316201" "SendJobAMS" "UpdateJobMachine" "Triggers when a machine record is updated" no 2021-12-16T15:41:27.011 "asi" "_default" 251 38
+"" "202112165651008316202" "SendJobAMS" "DeleteJobMachine" "Triggers when a machine record is deleted" no 2021-12-16T15:41:50.983 "asi" "_default" 252 38
+"" "202112170530608378260" "SendJobAMS" "UpdateJobHeader" "Triggers when job header is updated" no 2021-12-17T01:28:26.047 "asi" "_default" 253 38
+"" "202112170532708378261" "SendJobAMS" "UpdateJobMaterial" "Triggers when job material is updated" no 2021-12-17T01:28:47.842 "asi" "_default" 254 38
+"" "202112225550008385920" "SendOrderAck" "PrintOrderAck" "Print Order Acknowledgement" yes 2021-12-22T15:25:00.037 "asi" "_default1" 255 57
+"" "202112225550008385921" "SendOrderAck" "RePrintOrderAck" "Reprint of Order Acknowledgement" yes 2021-12-22T15:25:00.058 "asi" "_default1" 256 57

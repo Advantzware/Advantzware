@@ -690,7 +690,7 @@ PROCEDURE build-table :
             AND job-hdr.i-no    EQ itemfg.i-no
             AND job-hdr.opened  EQ YES
             USE-INDEX i-no,
-            FIRST  job FIELDS(job-no job-no2 loc) NO-LOCK
+            FIRST  job FIELDS(job-no job-no2 loc shipFromLocation) NO-LOCK
                 WHERE job.company EQ job-hdr.company
                 AND job.job     EQ job-hdr.job
                 AND job.job-no  EQ job-hdr.job-no
@@ -711,7 +711,7 @@ PROCEDURE build-table :
             AND reftable.company  EQ itemfg.company
             AND reftable.loc      EQ ""
             USE-INDEX code2,
-            FIRST job FIELDS(job-no job-no2 loc) NO-LOCK
+            FIRST job FIELDS(job-no job-no2 loc shipFromLocation) NO-LOCK
             WHERE job.company EQ reftable.company
             AND job.job     EQ INT(reftable.code)
             AND job.opened  EQ YES
@@ -882,7 +882,7 @@ PROCEDURE create-table :
             w-jobs.job-no       = job.job-no
             w-jobs.job-no2      = job.job-no2
             w-jobs.i-no         = itemfg.i-no
-            w-jobs.loc          = job.loc
+            w-jobs.loc          = IF job.shipFromLocation NE "" THEN job.shipFromLocation ELSE job.loc
             w-jobs.std-lab-cost = ip-lab
             w-jobs.std-mat-cost = ip-mat
             w-jobs.std-var-cost = ip-var

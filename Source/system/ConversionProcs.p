@@ -858,6 +858,8 @@ PROCEDURE pAddUOMsFromWeight PRIVATE:
             DO: 
                 RUN pAddUOM("LB", YES, "EA","Pounds", 1 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost", ipiSourceLevel).
                 RUN pAddUOM("TON", YES, "EA","Tons", 2000 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost", ipiSourceLevel).
+                RUN pAddUOM("CWT", YES, "EA","CWT", 100 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost", ipiSourceLevel).
+               
             END.
     END CASE.
     

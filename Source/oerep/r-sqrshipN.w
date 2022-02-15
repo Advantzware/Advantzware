@@ -23,7 +23,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE list-name AS cha       NO-UNDO.
+DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}    
@@ -40,18 +40,19 @@ ASSIGN
     cocode = gcompany
     locode = gloc.
 
-DEFINE VARIABLE is-xprint-form AS LOG NO-UNDO.
-DEFINE VARIABLE ls-fax-file    AS cha NO-UNDO.
+DEFINE VARIABLE is-xprint-form AS LOG       NO-UNDO.
+DEFINE VARIABLE ls-fax-file    AS CHARACTER NO-UNDO.
 
 DEFINE STREAM excel.
 
-DEFINE VARIABLE ldummy             AS LOG     NO-UNDO.
-DEFINE VARIABLE cTextListToSelect  AS cha     NO-UNDO.
-DEFINE VARIABLE cFieldListToSelect AS cha     NO-UNDO.
-DEFINE VARIABLE cFieldLength       AS cha     NO-UNDO.
-DEFINE VARIABLE cFieldType         AS cha     NO-UNDO.
-DEFINE VARIABLE iColumnLength      AS INTEGER NO-UNDO.
-DEFINE VARIABLE cTextListToDefault AS cha     NO-UNDO.
+DEFINE VARIABLE ldummy             AS LOG       NO-UNDO.
+DEFINE VARIABLE cTextListToSelect  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldLength       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldType         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
 
 /* 10 + 6 + 8 = 24 columns */
 ASSIGN 
@@ -87,12 +88,10 @@ ASSIGN
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 from_date to_date ~
 begin_trailer end_trailer begin_ord-no end_ord-no begin_bol-no end_bol-no ~
 Btn_Def sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest ~
-lines-per-page lv-ornt lv-font-no td-show-parm tb_runExcel tb_excel fi_file ~
-btn-ok btn-cancel 
+fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS from_date to_date begin_trailer ~
 end_trailer begin_ord-no end_ord-no begin_bol-no end_bol-no sl_avail ~
-sl_selected rd-dest lines-per-page lv-ornt lv-font-no lv-font-name ~
-td-show-parm tb_runExcel tb_excel fi_file 
+sl_selected rd-dest fi_file tb_OpenCSV tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -119,31 +118,31 @@ DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel 
     LABEL "&Cancel" 
-    SIZE 15 BY 1.14.
+    SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
     LABEL "&OK" 
-    SIZE 15 BY 1.14.
+    SIZE 16 BY 1.29.
 
 DEFINE BUTTON Btn_Add 
     LABEL "&Add >>" 
-    SIZE 16 BY 1.
+    SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Def 
     LABEL "&Default" 
-    SIZE 16 BY 1.
+    SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_down 
     LABEL "Move Down" 
-    SIZE 16 BY 1.
+    SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Remove 
     LABEL "<< &Remove" 
-    SIZE 16 BY 1.
+    SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_Up 
     LABEL "Move Up" 
-    SIZE 16 BY 1.
+    SIZE 16 BY 1.1.
 
 DEFINE VARIABLE begin_bol-no   AS INTEGER   FORMAT ">>>>>>>>" INITIAL 0 
     LABEL "Beginning BOL#" 
@@ -175,11 +174,10 @@ DEFINE VARIABLE end_trailer    AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-sqrshipN.csv" 
-    LABEL "Excel File Name" 
-    VIEW-AS FILL-IN 
-    SIZE 43 BY 1
-    FGCOLOR 9 .
+DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\SqTotalShipped.csv" 
+    LABEL "Name" 
+    VIEW-AS FILL-IN NATIVE 
+    SIZE 49 BY 1.
 
 DEFINE VARIABLE from_date      AS DATE      FORMAT "99/99/9999":U 
     LABEL "Beginning BOL Date" 
@@ -217,41 +215,42 @@ DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2
     RADIO-BUTTONS 
     "To Printer", 1,
     "To Screen", 2,
-    "To File", 3,
-    "To Fax", 4,
     "To Email", 5,
-    "To Port Directly", 6
-    SIZE 21 BY 6.19 NO-UNDO.
+    "To CSV", 3
+    SIZE 15 BY 5 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 94 BY 7.14.
+    SIZE 90 BY 5.57.
 
 DEFINE RECTANGLE RECT-7
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 94 BY 7.86.
+    SIZE 90 BY 7.1.
 
 DEFINE VARIABLE sl_avail     AS CHARACTER 
     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-    SIZE 31 BY 5 NO-UNDO.
+    SIZE 33 BY 5 NO-UNDO.
 
 DEFINE VARIABLE sl_selected  AS CHARACTER 
     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-    SIZE 31 BY 5 NO-UNDO.
+    SIZE 33 BY 5 NO-UNDO.
+
+DEFINE VARIABLE tbAutoClose  AS LOGICAL   INITIAL NO 
+    LABEL "Auto Close" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 16 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_excel     AS LOGICAL   INITIAL YES 
     LABEL "Export To Excel?" 
     VIEW-AS TOGGLE-BOX
-    SIZE 21 BY .81
-    BGCOLOR 3 NO-UNDO.
+    SIZE 21 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel  AS LOGICAL   INITIAL NO 
-    LABEL "Auto Run Excel?" 
+DEFINE VARIABLE tb_OpenCSV   AS LOGICAL   INITIAL NO 
+    LABEL "Open CSV?" 
     VIEW-AS TOGGLE-BOX
-    SIZE 21 BY .81
-    BGCOLOR 3 NO-UNDO.
+    SIZE 15.4 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL   INITIAL YES 
+DEFINE VARIABLE td-show-parm AS LOGICAL   INITIAL NO 
     LABEL "Show Parameters?" 
     VIEW-AS TOGGLE-BOX
     SIZE 24 BY .81 NO-UNDO.
@@ -260,57 +259,58 @@ DEFINE VARIABLE td-show-parm AS LOGICAL   INITIAL YES
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    from_date AT ROW 2.81 COL 24.2 COLON-ALIGNED
-    to_date AT ROW 2.81 COL 67.2 COLON-ALIGNED
-    begin_trailer AT ROW 4 COL 24.2 COLON-ALIGNED HELP
+    from_date AT ROW 2.81 COL 26.6 COLON-ALIGNED
+    to_date AT ROW 2.81 COL 68 COLON-ALIGNED
+    begin_trailer AT ROW 4 COL 26.6 COLON-ALIGNED HELP
     "Enter Beginning Trailer Number" WIDGET-ID 2
-    end_trailer AT ROW 4 COL 67.2 COLON-ALIGNED HELP
+    end_trailer AT ROW 4 COL 68 COLON-ALIGNED HELP
     "Enter Ending Trailer Number" WIDGET-ID 4
-    begin_ord-no AT ROW 5.19 COL 24.2 COLON-ALIGNED HELP
+    begin_ord-no AT ROW 5.19 COL 26.6 COLON-ALIGNED HELP
     "Enter Beginning Order Number" WIDGET-ID 6
-    end_ord-no AT ROW 5.19 COL 67.2 COLON-ALIGNED HELP
+    end_ord-no AT ROW 5.19 COL 68 COLON-ALIGNED HELP
     "Enter Ending Order Number" WIDGET-ID 8
-    begin_bol-no AT ROW 6.43 COL 24.2 COLON-ALIGNED HELP
+    begin_bol-no AT ROW 6.43 COL 26.6 COLON-ALIGNED HELP
     "Enter Beginning Bol#" WIDGET-ID 46
-    end_bol-no AT ROW 6.43 COL 67.2 COLON-ALIGNED HELP
+    end_bol-no AT ROW 6.43 COL 68 COLON-ALIGNED HELP
     "Enter Ending Bol#" WIDGET-ID 48
-    Btn_Def AT ROW 9.71 COL 40 HELP
+    Btn_Def AT ROW 9.71 COL 40.4 HELP
     "Add Selected Table to Tables to Audit" WIDGET-ID 56
-    sl_avail AT ROW 9.76 COL 6 NO-LABELS WIDGET-ID 26
-    sl_selected AT ROW 9.76 COL 60 NO-LABELS WIDGET-ID 28
-    Btn_Add AT ROW 10.71 COL 40 HELP
+    sl_avail AT ROW 9.76 COL 4 NO-LABELS WIDGET-ID 26
+    sl_selected AT ROW 9.76 COL 60.6 NO-LABELS WIDGET-ID 28
+    Btn_Add AT ROW 10.71 COL 40.4 HELP
     "Add Selected Table to Tables to Audit" WIDGET-ID 32
-    Btn_Remove AT ROW 11.71 COL 40 HELP
+    Btn_Remove AT ROW 11.71 COL 40.4 HELP
     "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-    btn_Up AT ROW 12.76 COL 40 WIDGET-ID 40
-    btn_down AT ROW 13.81 COL 40 WIDGET-ID 42
-    rd-dest AT ROW 15.76 COL 5 NO-LABELS
-    lines-per-page AT ROW 15.86 COL 84 COLON-ALIGNED
-    lv-ornt AT ROW 15.91 COL 31 NO-LABELS
-    lv-font-no AT ROW 17.19 COL 34 COLON-ALIGNED
-    lv-font-name AT ROW 18.14 COL 28 COLON-ALIGNED NO-LABELS
-    td-show-parm AT ROW 19.33 COL 31
-    tb_runExcel AT ROW 19.95 COL 93 RIGHT-ALIGNED
-    tb_excel AT ROW 20 COL 71 RIGHT-ALIGNED
-    fi_file AT ROW 20.71 COL 49 COLON-ALIGNED HELP
+    btn_Up AT ROW 12.76 COL 40.4 WIDGET-ID 40
+    btn_down AT ROW 13.81 COL 40.4 WIDGET-ID 42
+    lines-per-page AT ROW 15.52 COL 84 COLON-ALIGNED
+    lv-ornt AT ROW 15.57 COL 31 NO-LABELS
+    rd-dest AT ROW 15.76 COL 6 NO-LABELS
+    lv-font-no AT ROW 16.38 COL 34 COLON-ALIGNED
+    tb_excel AT ROW 16.38 COL 75 RIGHT-ALIGNED
+    lv-font-name AT ROW 17.33 COL 28 COLON-ALIGNED NO-LABELS
+    td-show-parm AT ROW 18.67 COL 28.6
+    fi_file AT ROW 19.57 COL 26.6 COLON-ALIGNED HELP
     "Enter File Name"
-    btn-ok AT ROW 22.38 COL 24
-    btn-cancel AT ROW 22.38 COL 59
+    tb_OpenCSV AT ROW 19.67 COL 92.4 RIGHT-ALIGNED
+    tbAutoClose AT ROW 21.1 COL 28.6 WIDGET-ID 60
+    btn-ok AT ROW 21.95 COL 28.6
+    btn-cancel AT ROW 21.95 COL 48.6
     "Available Columns" VIEW-AS TEXT
-    SIZE 29 BY .62 AT ROW 9.05 COL 2 WIDGET-ID 38
-    "Selection Parameters" VIEW-AS TEXT
-    SIZE 21 BY .71 AT ROW 1 COL 3
-    BGCOLOR 2 
-    "Output Destination" VIEW-AS TEXT
-    SIZE 18 BY .62 AT ROW 15.1 COL 4
+    SIZE 29 BY .62 AT ROW 9 COL 4.2 WIDGET-ID 38
     "Selected Columns(In Display Order)" VIEW-AS TEXT
-    SIZE 34 BY .62 AT ROW 9.05 COL 59.4 WIDGET-ID 44
-    RECT-6 AT ROW 15 COL 1
-    RECT-7 AT ROW 1 COL 1
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    SIZE 34 BY .62 AT ROW 9 COL 60.2 WIDGET-ID 44
+    " Selection Parameters" VIEW-AS TEXT
+    SIZE 21.2 BY .71 AT ROW 1.14 COL 5
+    " Output Destination" VIEW-AS TEXT
+    SIZE 19 BY .62 AT ROW 15.1 COL 5
+    RECT-6 AT ROW 15.43 COL 4
+    RECT-7 AT ROW 1.52 COL 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
     SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1.6 ROW 1.24
-    SIZE 94.4 BY 23.19.
+    AT COL 1 ROW 1
+    SIZE 96 BY 23.19
+    BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -330,8 +330,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
     CREATE WINDOW C-Win ASSIGN
         HIDDEN             = YES
         TITLE              = "Sq Ft Totals Shipped "
-        HEIGHT             = 23.52
-        WIDTH              = 95.6
+        HEIGHT             = 23.19
+        WIDTH              = 96
         MAX-HEIGHT         = 33.29
         MAX-WIDTH          = 204.8
         VIRTUAL-HEIGHT     = 33.29
@@ -394,17 +394,41 @@ ASSIGN
 ASSIGN 
     from_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
-/* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
-   ALIGN-R                                                              */
+/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
+    lines-per-page:HIDDEN IN FRAME FRAME-A = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    lv-font-name:HIDDEN IN FRAME FRAME-A = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    lv-font-no:HIDDEN IN FRAME FRAME-A = TRUE.
+
+/* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    lv-ornt:HIDDEN IN FRAME FRAME-A = TRUE.
+
+/* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE ALIGN-R                                         */
+ASSIGN 
+    tb_excel:HIDDEN IN FRAME FRAME-A       = TRUE
     tb_excel:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
-/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
+/* SETTINGS FOR TOGGLE-BOX tb_OpenCSV IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-    tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+    tb_OpenCSV:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+
+/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    td-show-parm:HIDDEN IN FRAME FRAME-A = TRUE.
 
 ASSIGN 
     to_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
@@ -423,7 +447,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Finished Goods Posting History Report */
+ON END-ERROR OF C-Win /* Sq Ft Totals Shipped  */
     OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
@@ -437,7 +461,7 @@ ON END-ERROR OF C-Win /* Finished Goods Posting History Report */
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Finished Goods Posting History Report */
+ON WINDOW-CLOSE OF C-Win /* Sq Ft Totals Shipped  */
     DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -449,6 +473,22 @@ ON WINDOW-CLOSE OF C-Win /* Finished Goods Posting History Report */
 
 
 &Scoped-define SELF-NAME begin_bol-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_bol-no C-Win
+ON HELP OF begin_bol-no IN FRAME FRAME-A /* Beginning BOL# */
+    DO:
+        DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE rec-val  AS RECID     NO-UNDO.
+   
+        RUN windows/l-bolh.w (cocode,SELF:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
+        IF char-val <> "" THEN
+            ASSIGN begin_bol-no:SCREEN-VALUE = ENTRY(1,char-val).
+
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_bol-no C-Win
 ON LEAVE OF begin_bol-no IN FRAME FRAME-A /* Beginning BOL# */
     DO:
@@ -474,41 +514,9 @@ ON LEAVE OF begin_ord-no IN FRAME FRAME-A /* Beginning Order# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_trailer C-Win
 ON HELP OF begin_trailer IN FRAME FRAME-A /* Beginning Trailer# */
     DO:
-       .
+        .
 
     END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME begin_bol-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_bol-no C-Win
-ON HELP OF begin_bol-no IN FRAME FRAME-A
-DO:
-   DEF VAR char-val AS cha NO-UNDO.
-   DEF VAR rec-val AS RECID NO-UNDO.
-   
-   RUN windows/l-bolh.w (cocode,SELF:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
-   IF char-val <> "" THEN
-      ASSIGN begin_bol-no:SCREEN-VALUE = ENTRY(1,char-val).
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME end_bol-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_bol-no C-Win
-ON HELP OF end_bol-no IN FRAME FRAME-A
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-   DEF VAR rec-val AS RECID NO-UNDO.
-   
-   RUN windows/l-bolh.w (cocode,SELF:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
-   IF char-val <> "" THEN
-      ASSIGN end_bol-no:SCREEN-VALUE = ENTRY(1,char-val).
-
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -542,7 +550,13 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}.
         END.
-
+        IF rd-dest = 3 THEN
+        DO:
+            ASSIGN 
+                fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
+            RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+            fi_file:SCREEN-VALUE =  cFileName.
+        END.
         RUN GetSelectionList.
  
         RUN run-report.
@@ -550,7 +564,21 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         CASE rd-dest:
             WHEN 1 THEN RUN output-to-printer.
             WHEN 2 THEN RUN output-to-screen.
-            WHEN 3 THEN RUN output-to-file.
+            WHEN 3 THEN 
+                DO:
+                    IF NOT tb_OpenCSV THEN 
+                    DO:        
+                        MESSAGE "CSV file have been created." SKIP(1)
+                            "~"OK"~" to open CSV file?"
+                            VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
+                            TITLE "" UPDATE lChoice AS LOGICAL.
+                 
+                        IF lChoice THEN
+                        DO:
+                            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                        END.
+                    END.
+                END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
                 DO:
                 /*run output-to-fax.*/
@@ -584,7 +612,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                     END.
                 END. 
             WHEN 6 THEN RUN output-to-port.
-        END CASE. 
+        END CASE.
+        IF tbAutoClose:CHECKED THEN 
+            APPLY 'CLOSE' TO THIS-PROCEDURE.
         SESSION:SET-WAIT-STATE("").
     END.
 
@@ -596,22 +626,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
     DO:
-        DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
+        DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 
         APPLY "DEFAULT-ACTION" TO sl_avail.
-
-    /*
-    DO i = 1 TO sl_avail:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
-      IF sl_avail:IS-SELECTED(i) AND
-        (NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i)) OR sl_selected:NUM-ITEMS = 0) THEN
-      /*ldummy = sl_selected:ADD-LAST(sl_avail:ENTRY(i)).*/
-          cSelectedList = cSelectedList +
-                          entry(i,cTextListToSelect) + "," + entry(i,cFieldListToSelect) + ",".
-    END.
-    cSelectedList = SUBSTRING(cSelectedList,1,LENGTH(cSelectedList) - 1).
-    sl_selected:LIST-ITEM-PAIRS = cSelectedList.
-    sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
-    */
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -622,7 +639,7 @@ ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
 ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
     DO:
-        DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
+        DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 
         RUN DisplaySelectionDefault.  /* task 04041406 */ 
         RUN DisplaySelectionList2 .
@@ -648,11 +665,6 @@ ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove C-Win
 ON CHOOSE OF Btn_Remove IN FRAME FRAME-A /* << Remove */
     DO:
-        /* DO i = sl_selected:NUM-ITEMS TO 1 BY -1 WITH FRAME {&FRAME-NAME}:
-           IF sl_selected:IS-SELECTED(i) THEN
-           ldummy = sl_selected:DELETE(i).
-         END
-         */
         APPLY "DEFAULT-ACTION" TO sl_selected  .
     END.
 
@@ -672,6 +684,22 @@ ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 
 
 &Scoped-define SELF-NAME end_bol-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_bol-no C-Win
+ON HELP OF end_bol-no IN FRAME FRAME-A /* Ending BOL# */
+    DO:
+        DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE rec-val  AS RECID     NO-UNDO.
+   
+        RUN windows/l-bolh.w (cocode,SELF:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
+        IF char-val <> "" THEN
+            ASSIGN end_bol-no:SCREEN-VALUE = ENTRY(1,char-val).
+
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_bol-no C-Win
 ON LEAVE OF end_bol-no IN FRAME FRAME-A /* Ending BOL# */
     DO:
@@ -697,7 +725,7 @@ ON LEAVE OF end_ord-no IN FRAME FRAME-A /* Ending Order# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_trailer C-Win
 ON HELP OF end_trailer IN FRAME FRAME-A /* Ending Trailer# */
     DO:
-        DEFINE VARIABLE char-val AS cha NO-UNDO.
+        DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
         RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
         IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
@@ -715,12 +743,35 @@ ON LEAVE OF end_trailer IN FRAME FRAME-A /* Ending Trailer# */
     END.
 
 /* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON HELP OF fi_file IN FRAME FRAME-A /* Name */
+    DO:
+        DEFINE VARIABLE ls-filename AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE ll-ok       AS LOG       NO-UNDO.
+
+        SYSTEM-DIALOG GET-FILE ls-filename 
+            TITLE "Select File to Save "
+            FILTERS "Excel Files    (*.csv)" "*.csv",
+            "All Files    (*.*) " "*.*"
+            INITIAL-DIR "c:\tmp"
+            MUST-EXIST
+            USE-FILENAME
+            UPDATE ll-ok.
+
+        IF ll-ok THEN SELF:SCREEN-VALUE = ls-filename.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON LEAVE OF fi_file IN FRAME FRAME-A /* Excel File Name */
+ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
     DO:
         ASSIGN {&self-name}.
     END.
@@ -755,7 +806,7 @@ ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
     DO:
-        DEFINE VARIABLE char-val AS cha NO-UNDO.
+        DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
         RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
         IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE        = ENTRY(1,char-val)
@@ -808,6 +859,18 @@ ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME rd-dest
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
+ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
+    DO:
+        ASSIGN {&self-name}.
+        RUN pChangeDest.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
@@ -819,27 +882,6 @@ ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
                 ldummy = {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE)
                 /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                 .
-
-
-    /* for pairs
-        DEF VAR cSelectedList AS cha NO-UNDO.
-        cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
-        DO i = 1 TO sl_avail:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
-        IF sl_avail:IS-SELECTED(i) AND
-          (NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i)) OR
-             sl_selected:NUM-ITEMS = 0) THEN
-        /*ldummy = sl_selected:ADD-LAST(sl_avail:ENTRY(i)).*/
-            cSelectedList = cSelectedList +
-                            entry(i,cTextListToSelect) + "," + entry(i,cFieldListToSelect) + ",".
-        MESSAGE i sl_avail:IS-SELECTED(i) NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i))
-            sl_selected:NUM-ITEMS
-            SKIP cSelectedList
-            VIEW-AS ALERT-BOX INFO BUTTONS OK.
-      END.
-      cSelectedList = SUBSTRING(cSelectedList,1,LENGTH(cSelectedList) - 1).
-      sl_selected:LIST-ITEM-PAIRS = cSelectedList.
-      sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
-      */
 
     END.
 
@@ -884,9 +926,9 @@ ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_runExcel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+&Scoped-define SELF-NAME tb_OpenCSV
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV C-Win
+ON VALUE-CHANGED OF tb_OpenCSV IN FRAME FRAME-A /* Open CSV? */
     DO:
         ASSIGN {&self-name}.
     END.
@@ -954,18 +996,31 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         to_date   = TODAY.
 
     RUN DisplaySelectionList.
+    btn-ok:LOAD-IMAGE("Graphics/32x32/Ok.png").
+    btn-cancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
+    Btn_Def:LOAD-IMAGE("Graphics/32x32/default.png").
+    Btn_Add:LOAD-IMAGE("Graphics/32x32/additem.png").
+    Btn_Remove:LOAD-IMAGE("Graphics/32x32/remove.png").
+    btn_Up:LOAD-IMAGE("Graphics/32x32/moveup.png").
+    btn_down:LOAD-IMAGE("Graphics/32x32/movedown.png").
     RUN enable_UI.
+    {sys/inc/reportsConfigNK1.i "OZ10" }
+    ASSIGN
+        td-show-parm:SENSITIVE = lShowParameters
+        td-show-parm:HIDDEN    = NOT lShowParameters
+        td-show-parm:VISIBLE   = lShowParameters
+        .
 
     {methods/nowait.i}
 
     DO WITH FRAME {&FRAME-NAME}:      
         {custom/usrprint.i}
-        RUN DisplaySelectionList2.
-        APPLY "entry" TO from_date.
-    END.
-  
-    IF NOT THIS-PROCEDURE:PERSISTENT THEN
-        WAIT-FOR CLOSE OF THIS-PROCEDURE.
+RUN DisplaySelectionList2.
+APPLY "entry" TO from_date.
+END.
+RUN pChangeDest.
+IF NOT THIS-PROCEDURE:PERSISTENT THEN
+    WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -996,12 +1051,12 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault C-Win 
 PROCEDURE DisplaySelectionDefault :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cListContents AS cha     NO-UNDO.
-    DEFINE VARIABLE iCount        AS INTEGER NO-UNDO.
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
 
     DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
@@ -1019,12 +1074,12 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList C-Win 
 PROCEDURE DisplaySelectionList :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cListContents AS cha     NO-UNDO.
-    DEFINE VARIABLE iCount        AS INTEGER NO-UNDO.
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
 
     /*   MESSAGE "List to select: " NUM-ENTRIES(cTextListToSelect) ":" NUM-ENTRIES(cFieldListToSelect) */
     /*           VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                    */
@@ -1066,12 +1121,12 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList2 C-Win 
 PROCEDURE DisplaySelectionList2 :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cListContents AS cha     NO-UNDO.
-    DEFINE VARIABLE iCount        AS INTEGER NO-UNDO.
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
     
     IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN 
     DO:
@@ -1115,14 +1170,13 @@ PROCEDURE enable_UI :
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
     DISPLAY from_date to_date begin_trailer end_trailer begin_ord-no end_ord-no 
-        begin_bol-no end_bol-no sl_avail sl_selected rd-dest lines-per-page 
-        lv-ornt lv-font-no lv-font-name td-show-parm tb_runExcel tb_excel 
-        fi_file 
+        begin_bol-no end_bol-no sl_avail sl_selected rd-dest fi_file 
+        tb_OpenCSV tbAutoClose 
         WITH FRAME FRAME-A IN WINDOW C-Win.
     ENABLE RECT-6 RECT-7 from_date to_date begin_trailer end_trailer begin_ord-no 
         end_ord-no begin_bol-no end_bol-no Btn_Def sl_avail sl_selected 
-        Btn_Add Btn_Remove btn_Up btn_down rd-dest lines-per-page lv-ornt 
-        lv-font-no td-show-parm tb_runExcel tb_excel fi_file btn-ok btn-cancel 
+        Btn_Add Btn_Remove btn_Up btn_down rd-dest fi_file tb_OpenCSV 
+        tbAutoClose btn-ok btn-cancel 
         WITH FRAME FRAME-A IN WINDOW C-Win.
     {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
     VIEW C-Win.
@@ -1134,11 +1188,11 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetSelectionList C-Win 
 PROCEDURE GetSelectionList :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cTmpList AS cha NO-UNDO.
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cTmpList AS CHARACTER NO-UNDO.
 
     EMPTY TEMP-TABLE ttRptSelected.
     cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1197,10 +1251,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Move-Field C-Win 
 PROCEDURE Move-Field :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER move AS CHARACTER NO-UNDO.
 
     DO i = 1 TO sl_selected:NUM-ITEMS IN FRAME {&FRAME-NAME}
@@ -1230,7 +1284,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-file C-Win 
 PROCEDURE output-to-file :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1245,10 +1299,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-port C-Win 
 PROCEDURE output-to-port :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
     RUN custom/d-print.w (list-name).
 
 END PROCEDURE.
@@ -1259,10 +1313,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
     RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
 END PROCEDURE.
 
@@ -1272,10 +1326,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
 PROCEDURE output-to-screen :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
     RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
@@ -1285,19 +1339,19 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE excelheader      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cDisplay       AS cha       NO-UNDO.
-    DEFINE VARIABLE cExcelDisplay  AS cha       NO-UNDO.
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE excelheader    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDisplay       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cExcelDisplay  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hField         AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE cTmpField      AS CHA       NO-UNDO.
-    DEFINE VARIABLE cVarValue      AS cha       NO-UNDO.
-    DEFINE VARIABLE cExcelVarValue AS cha       NO-UNDO.
-    DEFINE VARIABLE cFieldName     AS cha       NO-UNDO.
-    DEFINE VARIABLE cSelectedList  AS cha       NO-UNDO.
+    DEFINE VARIABLE cTmpField      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVarValue      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cExcelVarValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldName     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSelectedList  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE v-del-zone     AS cha       FORM "x(8)" NO-UNDO.
     DEFINE VARIABLE v-terr         AS cha       FORM "x(4)" NO-UNDO.
     DEFINE VARIABLE tboldate       AS CHARACTER NO-UNDO.
@@ -1310,20 +1364,17 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-trailer      AS CHARACTER FORMAT "x(8)" NO-UNDO.
     DEFINE VARIABLE v-bol-no       AS INTEGER   FORMAT ">>>>>>>9" NO-UNDO.
     DEFINE VARIABLE v-totl-sq      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE dTotalSqft     AS DECIMAL  FORMAT "->>,>>>,>>>.9<<<<"  NO-UNDO.
-    DEFINE VARIABLE cCustName         AS CHARACTER FORMAT "X(30)" NO-UNDO.
+    DEFINE VARIABLE dTotalSqft     AS DECIMAL   FORMAT "->>,>>>,>>>.9<<<<" NO-UNDO.
+    DEFINE VARIABLE cCustName      AS CHARACTER FORMAT "X(30)" NO-UNDO.
     DEFINE VARIABLE v-i-name       LIKE oe-ordl.i-name NO-UNDO.
 
     DEFINE VARIABLE str-tit4       AS cha       FORM "x(200)" NO-UNDO.
     DEFINE VARIABLE str-tit5       AS cha       FORM "x(200)" NO-UNDO.
     DEFINE VARIABLE str-line       AS cha       FORM "x(300)" NO-UNDO.
     DEFINE VARIABLE cShipName      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iShipQty       AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iOrdQty        AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dTtlSqFt       AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
-
-    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    DEFINE VARIABLE iShipQty       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iOrdQty        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dTtlSqFt       AS DECIMAL   NO-UNDO.
 
     cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
@@ -1397,15 +1448,15 @@ PROCEDURE run-report :
         itemfg.i-no    EQ oe-boll.i-no 
         NO-LOCK
         BREAK BY oe-bolh.bol-no
-              BY oe-boll.i-no:
+        BY oe-boll.i-no:
 
         STATUS DEFAULT "Processing Order#: " +
             TRIM(STRING(oe-boll.ord-no,">>>>>>>>")) .
 
         IF FIRST-OF (oe-boll.i-no) THEN
             ASSIGN iShipQty = 0
-                   iOrdQty = 0
-                   dTtlSqFt = 0 .
+                iOrdQty  = 0
+                dTtlSqFt = 0 .
 
         FIND FIRST oe-ordl NO-LOCK
             WHERE oe-ordl.company EQ cocode
@@ -1426,106 +1477,108 @@ PROCEDURE run-report :
             ASSIGN v-trailer = oe-bolh.trailer
                 v-bol-no  = oe-bolh.bol-no.
         cCustName = "" .
-        IF AVAIL oe-ord THEN
+        IF AVAILABLE oe-ord THEN
             FIND FIRST cust NO-LOCK
-            WHERE cust.company EQ cocode 
-            AND cust.cust-no EQ oe-ord.cust-no NO-ERROR .
+                WHERE cust.company EQ cocode 
+                AND cust.cust-no EQ oe-ord.cust-no NO-ERROR .
 
         IF AVAILABLE cust THEN
-            ASSIGN cCustName = cust.NAME
-            v-del-zone = cust.del-zone
-            v-terr     = cust.terr.
+            ASSIGN cCustName  = cust.NAME
+                v-del-zone = cust.del-zone
+                v-terr     = cust.terr.
 
         RELEASE cust .
-       ASSIGN cShipName = "" .
+        ASSIGN 
+            cShipName = "" .
         RUN oe/custxship.p (oe-bolh.company,
-                        oe-bolh.cust-no,
-                        oe-bolh.ship-id,
-                        BUFFER shipto).
-        IF AVAIL shipto THEN
-            ASSIGN cShipName = shipto.ship-name 
-                   v-del-zone = dest-code
-            .
+            oe-bolh.cust-no,
+            oe-bolh.ship-id,
+            BUFFER shipto).
+        IF AVAILABLE shipto THEN
+            ASSIGN cShipName  = shipto.ship-name 
+                v-del-zone = dest-code
+                .
 
         RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT dTotalSqft).
  
         /*IF AVAILABLE oe-ordl AND oe-ordl.ship-qty GT 0 THEN*/
-         IF oe-boll.qty GT 0 THEN
-             dTotalSqft = round(dTotalSqft,5) * oe-boll.qty .
+        IF oe-boll.qty GT 0 THEN
+            dTotalSqft = ROUND(dTotalSqft,5) * oe-boll.qty .
 
         iShipQty = iShipQty + /*(IF AVAIL oe-ordl THEN oe-ordl.ship-qty ELSE 0)*/ oe-boll.qty . /* ticket 60604*/
         
         IF FIRST-OF (oe-boll.i-no) THEN
-        iOrdQty = iOrdQty + (IF AVAIL oe-ordl THEN oe-ordl.qty ELSE 0).
+            iOrdQty = iOrdQty + (IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE 0).
         
         dTtlSqFt = dTtlSqFt + dTotalSqft.
-      IF LAST-OF(oe-boll.i-no) THEN DO:
-            
-        ASSIGN 
-            cDisplay       = ""
-            cTmpField      = ""
-            cVarValue      = ""
-            cExcelDisplay  = ""
-            cExcelVarValue = "".    
-
-        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-            cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-         
-            CASE cTmpField:                               
-                WHEN "v-del-zone" THEN 
-                    cVarValue = STRING(v-del-zone).
-                WHEN "v-terr" THEN 
-                    cVarValue = STRING(v-terr).                
-                WHEN "v-trailer" THEN 
-                    cVarValue = STRING(v-trailer,"x(21)").
-                WHEN "v-totl-sq" THEN 
-                    cVarValue = STRING(dTtlSqFt,"->,>>>,>>>.9<<<<").
-                WHEN "v-bol-no" THEN 
-                    cVarValue = STRING(v-bol-no,">>>>>>9").
-
-                WHEN "cust-no" THEN 
-                    cVarValue = IF AVAIL oe-ord THEN STRING(oe-ord.cust-no,"x(8)") ELSE "".
-                WHEN "cust-name" THEN 
-                    cVarValue = STRING(cCustName,"x(30)") .                
-                WHEN "po-num" THEN 
-                    cVarValue = STRING(oe-boll.po-no) .
-                WHEN "ord-no" THEN 
-                    cVarValue = STRING(oe-boll.ord-no,">>>>>9").
-                WHEN "rel-no" THEN 
-                    cVarValue = STRING(oe-bolh.release#,">>>>>9").
-                WHEN "i-no" THEN 
-                    cVarValue = STRING(oe-boll.i-no).
-                WHEN "i-name" THEN 
-                    cVarValue = STRING(v-i-name,"x(30)").
-                WHEN "job" THEN 
-                    cVarValue = IF oe-boll.job-no NE "" THEN STRING(oe-boll.job-no + "-" + string(oe-boll.job-no2,"99")) ELSE "" .                
-                WHEN "shp-qty" THEN 
-                    cVarValue = STRING(iShipQty,">>>,>>>,>>9").
-                WHEN "ord-qty" THEN 
-                    cVarValue = STRING(iOrdQty,">>>,>>>,>>9").
-                WHEN "part-no" THEN 
-                    cVarValue = STRING(itemfg.part-no).
-                WHEN "bol-date" THEN 
-                    cVarValue = STRING(oe-bolh.bol-date,"99/99/9999").
-                WHEN "ship-id" THEN 
-                    cVarValue = STRING(oe-bolh.ship-id,"x(8)").
-                WHEN "ship-name" THEN 
-                    cVarValue = STRING(cShipName,"x(30)").
-               
-            END CASE.
-            cExcelVarValue = cVarValue.
-            cDisplay = cDisplay + cVarValue +
-                FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".  
-        END.
-
-        PUT UNFORMATTED cDisplay SKIP.
-        IF tb_excel THEN 
+        IF LAST-OF(oe-boll.i-no) THEN 
         DO:
-            PUT STREAM excel UNFORMATTED  
-                cExcelDisplay SKIP.
+            
+            ASSIGN 
+                cDisplay       = ""
+                cTmpField      = ""
+                cVarValue      = ""
+                cExcelDisplay  = ""
+                cExcelVarValue = "".    
+
+            DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+                cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+         
+                CASE cTmpField:                               
+                    WHEN "v-del-zone" THEN 
+                        cVarValue = STRING(v-del-zone).
+                    WHEN "v-terr" THEN 
+                        cVarValue = STRING(v-terr).                
+                    WHEN "v-trailer" THEN 
+                        cVarValue = STRING(v-trailer,"x(21)").
+                    WHEN "v-totl-sq" THEN 
+                        cVarValue = STRING(dTtlSqFt,"->,>>>,>>>.9<<<<").
+                    WHEN "v-bol-no" THEN 
+                        cVarValue = STRING(v-bol-no,">>>>>>9").
+
+                    WHEN "cust-no" THEN 
+                        cVarValue = IF AVAILABLE oe-ord THEN STRING(oe-ord.cust-no,"x(8)") ELSE "".
+                    WHEN "cust-name" THEN 
+                        cVarValue = STRING(cCustName,"x(30)") .                
+                    WHEN "po-num" THEN 
+                        cVarValue = STRING(oe-boll.po-no) .
+                    WHEN "ord-no" THEN 
+                        cVarValue = STRING(oe-boll.ord-no,">>>>>9").
+                    WHEN "rel-no" THEN 
+                        cVarValue = STRING(oe-bolh.release#,">>>>>9").
+                    WHEN "i-no" THEN 
+                        cVarValue = STRING(oe-boll.i-no).
+                    WHEN "i-name" THEN 
+                        cVarValue = STRING(v-i-name,"x(30)").
+                    WHEN "job" THEN 
+                        cVarValue = IF oe-boll.job-no NE "" THEN STRING(oe-boll.job-no + "-" + string(oe-boll.job-no2,"99")) ELSE "" .                
+                    WHEN "shp-qty" THEN 
+                        cVarValue = STRING(iShipQty,">>>,>>>,>>9").
+                    WHEN "ord-qty" THEN 
+                        cVarValue = STRING(iOrdQty,">>>,>>>,>>9").
+                    WHEN "part-no" THEN 
+                        cVarValue = STRING(itemfg.part-no).
+                    WHEN "bol-date" THEN 
+                        cVarValue = STRING(oe-bolh.bol-date,"99/99/9999").
+                    WHEN "ship-id" THEN 
+                        cVarValue = STRING(oe-bolh.ship-id,"x(8)").
+                    WHEN "ship-name" THEN 
+                        cVarValue = STRING(cShipName,"x(30)").
+               
+                END CASE.
+                cExcelVarValue = cVarValue.
+                cDisplay = cDisplay + cVarValue +
+                    FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".  
+            END.
+
+            PUT UNFORMATTED cDisplay SKIP.
+            IF tb_excel THEN 
+            DO:
+                PUT STREAM excel UNFORMATTED  
+                    cExcelDisplay SKIP.
+            END.
         END.
-      END.
     END.
 
     STATUS DEFAULT "Printing...".
@@ -1537,7 +1590,7 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_runExcel THEN
+        IF tb_OpenCSV THEN
             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
@@ -1553,10 +1606,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetCustRange C-Win 
 PROCEDURE SetCustRange :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
 
     DO WITH FRAME {&FRAME-NAME}:
@@ -1577,17 +1630,17 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lv-frame-hdl  AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE lv-group-hdl  AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE lv-field-hdl  AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE lv-field2-hdl AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE parm-fld-list AS cha     NO-UNDO.
-    DEFINE VARIABLE parm-lbl-list AS cha     NO-UNDO.
-    DEFINE VARIABLE i             AS INTEGER NO-UNDO.
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-frame-hdl  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lv-group-hdl  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lv-field-hdl  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lv-field2-hdl AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE parm-fld-list AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE parm-lbl-list AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE i             AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lv-label      AS cha.
 
     lv-frame-hdl = FRAME {&frame-name}:handle.
@@ -1641,6 +1694,37 @@ PROCEDURE show-param :
     END.
 
     PUT FILL("-",80) FORMAT "x(80)" SKIP.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeDest C-Win 
+PROCEDURE pChangeDest :
+    /*------------------------------------------------------------------------------
+     Purpose:    
+     Parameters:  <none>
+     Notes:      
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF rd-dest:SCREEN-VALUE EQ "3" THEN
+            ASSIGN
+                tb_OpenCSV:SCREEN-VALUE = "Yes"
+                fi_file:SENSITIVE       = YES
+                tb_OpenCSV:SENSITIVE    = YES
+                tb_excel                = YES
+                .
+        ELSE
+            ASSIGN
+                tb_OpenCSV:SCREEN-VALUE = "NO"
+                fi_file:SENSITIVE       = NO
+                tb_OpenCSV:SENSITIVE    = NO
+                tb_excel                = NO
+                .
+        ASSIGN 
+            fi_file:SCREEN-VALUE = "c:\tmp\SqTotalShipped.csv".    
+    END.
 
 END PROCEDURE.
 

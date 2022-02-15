@@ -31,6 +31,7 @@
 {inventory/ttFGBin.i}
 {inventory/ttRawMaterialsToPost.i}
 {inventory/ttRawMaterialsGLTransToPost.i}
+{inventory/ttFGComponent.i}
 
 DEFINE VARIABLE giLengthUniquePrefix       AS INTEGER   INITIAL 20.
 DEFINE VARIABLE giLengthAlias              AS INTEGER   INITIAL 25.
@@ -60,7 +61,10 @@ FUNCTION fGetNextTransactionID RETURNS INTEGER
 FUNCTION fGetNumberSuffix RETURNS INTEGER PRIVATE
     (ipcFullText AS CHARACTER,
     ipiStartChar AS INTEGER) FORWARD.
-
+        
+FUNCTION fGetOverageQuantitySubUnitsPerUnit RETURNS INTEGER 
+    (ipiQuantitySubUnitsPerUnit AS INTEGER) FORWARD.
+    
 FUNCTION fGetSnapshotCompareStatus RETURNS CHARACTER PRIVATE
     (ipcCompany AS CHARACTER,
      ipcTag AS CHARACTER,
@@ -428,6 +432,187 @@ PROCEDURE Inventory_FGQuantityAdjust:
         ).
 END PROCEDURE.
 
+PROCEDURE Inventory_GetFGSetComponents:
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to return set parts for the given item
+ Notes: Replaces fg/fullset.i
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttFGComponent.
+    
+    EMPTY TEMP-TABLE ttFGComponent.
+    
+    RUN pCreateFGSetComponents (
+        INPUT  ipcCompany, 
+        INPUT  ipcItemID,
+        INPUT-OUTPUT TABLE ttFGComponent 
+        ).
+               
+END PROCEDURE.
+
+PROCEDURE Inventory_GetFGReceiptTransaction:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opriFGRctd AS ROWID     NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+       
+    FIND FIRST bf-fg-rctd NO-LOCK  
+         WHERE bf-fg-rctd.company   EQ ipcCompany
+           AND bf-fg-rctd.tag       EQ ipcTag
+           AND bf-fg-rctd.rita-code EQ gcTransactionTypeReceive
+           AND bf-fg-rctd.qty       GT 0
+         NO-ERROR.
+    IF AVAILABLE bf-fg-rctd THEN
+        opriFGRctd = ROWID(bf-fg-rctd).
+
+END PROCEDURE.
+
+PROCEDURE Inventory_MoveFGTransaction:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriFGRctd  AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE lValidLoc AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lValidBin AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cUserID   AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+       
+    FIND FIRST bf-fg-rctd NO-LOCK  
+         WHERE ROWID(bf-fg-rctd) EQ ipriFGRctd
+         NO-ERROR.
+    IF NOT AVAILABLE bf-fg-rctd THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid FG Receipt passed as input"
+            .
+        
+        RETURN. 
+    END.
+    
+    RUN ValidateLoc ( bf-fg-rctd.company, ipcLocation, OUTPUT lValidLoc).
+    
+    IF NOT lValidLoc THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid Location " + ipcLocation                 
+            oplError   = TRUE
+            .
+        RETURN.
+    END.
+    
+    /* Validate location */
+    RUN ValidateBin (bf-fg-rctd.company, ipcLocation, ipcBin, OUTPUT lValidBin).
+    
+    IF ipcBin EQ "" OR NOT lValidBin THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid Bin " + ipcBin
+            oplError   = TRUE 
+            .
+        RETURN.
+    END.
+    
+    FIND CURRENT bf-fg-rctd EXCLUSIVE-LOCK NO-ERROR.
+    IF NOT AVAILABLE bf-fg-rctd THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "FG Receipt is locked. Please try again later"
+            .
+        
+        RETURN.     
+    END.
+    
+    RUN spGetSessionParam ("UserID", OUTPUT cUserID).
+    
+    ASSIGN
+        bf-fg-rctd.loc        = ipcLocation
+        bf-fg-rctd.loc-bin    = ipcBin
+        bf-fg-rctd.created-by = cUserID
+        .
+END PROCEDURE.
+
+PROCEDURE pCreateFGSetComponents PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID  AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttFGComponent.
+
+    DEFINE VARIABLE dHeaderQuantity       AS DECIMAL NO-UNDO INITIAL 1.
+    DEFINE VARIABLE dHeaderQuantityPerSet AS DECIMAL NO-UNDO INITIAL 1.
+    DEFINE VARIABLE dPartQuantity         AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    DEFINE BUFFER bf-fg-set FOR fg-set.
+     
+    FIND FIRST bf-itemfg NO-LOCK
+         WHERE bf-itemfg.company EQ ipcCompany
+           AND bf-itemfg.i-no    EQ ipcItemID
+           AND bf-itemfg.isaset  EQ TRUE 
+           AND bf-itemfg.alloc   NE TRUE  /* Assembled or assembled with part receipts */
+         NO-ERROR.
+    IF NOT AVAILABLE bf-itemfg THEN
+        RETURN.
+
+    FIND FIRST bf-fg-set NO-LOCK 
+         WHERE bf-fg-set.company EQ bf-itemfg.company 
+           AND bf-fg-set.set-no  EQ bf-itemfg.i-no 
+           AND bf-fg-set.part-no EQ bf-itemfg.i-no
+        NO-ERROR.    
+    IF AVAILABLE bf-fg-set THEN
+        ASSIGN
+            dHeaderQuantity       = IF bf-fg-set.qtyPerSet LT 0 THEN
+                                        (1 / (bf-fg-set.qtyPerSet * -1))
+                                    ELSE
+                                        bf-fg-set.qtyPerSet
+            dHeaderQuantityPerSet = bf-fg-set.qtyPerSet
+            .
+
+    FOR EACH bf-fg-set NO-LOCK 
+        WHERE bf-fg-set.company EQ bf-itemfg.company 
+          AND bf-fg-set.set-no  EQ bf-itemfg.i-no
+          AND bf-fg-set.part-no NE bf-fg-set.set-no:
+        
+        dPartQuantity = 0.
+        
+        FIND FIRST ttFGComponent
+             WHERE ttFGComponent.itemID EQ bf-fg-set.part-no
+             NO-ERROR.
+        IF NOT AVAILABLE ttFGComponent THEN
+            CREATE ttFGComponent.
+        ELSE
+            dPartQuantity = ttFGComponent.quantityToDeplete.
+        
+        ASSIGN
+            ttFGComponent.itemID         = bf-fg-set.part-no
+            ttFGComponent.createReceipt  = NOT bf-fg-set.noReceipt
+            ttFGComponent.quantityPerSet = dHeaderQuantityPerSet * bf-fg-set.qtyPerSet
+            .
+
+        ASSIGN
+            ttFGComponent.quantityToDeplete = IF bf-fg-set.qtyPerSet LT 0 THEN
+                                                  (1 / (bf-fg-set.qtyPerSet * -1))
+                                              ELSE
+                                                  bf-fg-set.qtyPerSet
+            ttFGComponent.quantityToDeplete = ttFGComponent.quantityToDeplete * dHeaderQuantity
+            ttFGComponent.quantityToDeplete = ttFGComponent.quantityToDeplete + dPartQuantity
+            .
+    END.
+END PROCEDURE.
+
 PROCEDURE Inventory_GetWarehouseLength:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -484,7 +669,8 @@ PROCEDURE Inventory_GetQuantityOfUnitsForOEBoll:
     RUN pGetQuantityOfSubUnitsPerUnitFromBinAndOrder(bf-oe-boll.company, bf-oe-boll.i-no, bf-oe-boll.job-no, bf-oe-boll.job-no2, bf-oe-boll.loc, bf-oe-boll.loc-bin, bf-oe-boll.tag, bf-oe-boll.ord-no,
         OUTPUT iQuantitySubUnitsPerUnit).  //Get the QuantitySubUnitsPerUnit (cases per pallet)
     
-    iQuantityPerSubUnit = bf-oe-boll.qty-case. 
+    iQuantityPerSubUnit = bf-oe-boll.qty-case.
+    iQuantitySubUnitsPerUnit = iQuantitySubUnitsPerUnit + fGetOverageQuantitySubUnitsPerUnit(INTEGER(bf-oe-boll.partial)) .
     
     RUN RecalcQuantityUnits (bf-oe-boll.qty, INPUT-OUTPUT iQuantityPerSubUnit, INPUT-OUTPUT iQuantitySubUnitsPerUnit,
                                              OUTPUT dQuantityOfSubUnits, OUTPUT opiQuantityOfUnits, OUTPUT dQuantityPartial).
@@ -522,6 +708,26 @@ PROCEDURE Inventory_GetQuantityOfUnitsForBinAndOrder:
                                                                                          
         
 END PROCEDURE.
+
+PROCEDURE Inventory_GetQuantityOfSubUnitsPerUnitFromBinAndOrder:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given bin and order inputs, return a recalculation of the # 
+     of Units (Pallets).
+     Notes:
+    ------------------------------------------------------------------------------*/ 
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobID2 AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBin AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTag AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrderID AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
+          
+     RUN pGetQuantityOfSubUnitsPerUnitFromBinAndOrder(ipcCompany, ipcItemID, ipcJobID, ipiJobID2, ipcLocationID, ipcBin, ipcTag, ipiOrderID,
+         OUTPUT opiQuantitySubUnitsPerUnit).  
+END PROCEDURE.        
 
 PROCEDURE pBuildRMHistory PRIVATE:
 /*------------------------------------------------------------------------------
@@ -587,6 +793,53 @@ PROCEDURE pBuildRMHistory PRIVATE:
     END.  
 END PROCEDURE.
 
+PROCEDURE pCreateFGSetComponentTransactions PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriFGRctd   AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.    
+    
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+    DEFINE BUFFER bf-itemfg  FOR itemfg.
+    
+    FIND FIRST bf-fg-rctd NO-LOCK
+         WHERE ROWID (bf-fg-rctd) EQ ipriFGRctd
+         NO-ERROR.
+    IF NOT AVAILABLE bf-fg-rctd THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid fg-rctd record"
+            .
+        
+        RETURN.
+    END.
+    
+    FIND FIRST bf-itemfg NO-LOCK
+         WHERE bf-itemfg.company EQ bf-fg-rctd.company
+           AND bf-itemfg.i-no    EQ bf-fg-rctd.i-no
+         NO-ERROR.
+    IF NOT AVAILABLE bf-itemfg THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid item '" + bf-fg-rctd.i-no + "'"
+            .
+        
+        RETURN.    
+    END.
+    
+    IF NOT bf-itemfg.isaset OR bf-itemfg.alloc THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Item '" + bf-itemfg.i-no + "' is not a set or "
+            .
+        
+        RETURN.    
+    END.
+END PROCEDURE.
+
 PROCEDURE pFGQuantityAdjust PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -608,6 +861,7 @@ PROCEDURE pFGQuantityAdjust PRIVATE:
     DEFINE VARIABLE dQuantityAssigned AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iIndex            AS INTEGER NO-UNDO.
     DEFINE VARIABLE lSuccess          AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lMsgResponse      AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-fg-bin FOR fg-bin.
     DEFINE BUFFER bf-itemfg FOR itemfg.
@@ -737,18 +991,22 @@ PROCEDURE pFGQuantityAdjust PRIVATE:
         END.
 
         IF NOT oplError THEN DO:
-            RUN PostFinishedGoodsForUser (
-                INPUT        ipcCompany,
-                INPUT        "A",             /* Adjustment */
-                INPUT        USERID("ASI"),
-                INPUT        FALSE, /* Executes API closing orders logic */
-                INPUT-OUTPUT lSuccess,
-                INPUT-OUTPUT opcMessage
-                ).
-            oplError = NOT lSuccess.
-            
-            IF oplError THEN
-                UNDO, LEAVE.            
+            RUN displayMessageQuestion ("69", OUTPUT lMsgResponse).
+            IF lMsgResponse THEN
+            DO:
+                RUN PostFinishedGoodsForUser (
+                    INPUT        ipcCompany,
+                    INPUT        "A",             /* Adjustment */
+                    INPUT        USERID("ASI"),
+                    INPUT        FALSE, /* Executes API closing orders logic */
+                    INPUT-OUTPUT lSuccess,
+                    INPUT-OUTPUT opcMessage
+                    ).
+                oplError = NOT lSuccess.
+                
+                IF oplError THEN
+                    UNDO, LEAVE.            
+            END.    
         END.
         
     END.
@@ -2508,6 +2766,61 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
         .
 END PROCEDURE.
 
+PROCEDURE Inventory_GetFGReceiptTransactions:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the temp-table of FG transactions
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUser            AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+    
+    RUN pGetFGTransactions (
+        INPUT  ipcCompany,
+        INPUT  ipcUser,
+        INPUT  gcTransactionTypeReceive,
+        OUTPUT TABLE ttBrowseInventory
+        ).
+END PROCEDURE.
+    
+PROCEDURE pGetFGTransactions PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the temp-table of FG transactions
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUser            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTransactionType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+    
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+    
+    EMPTY TEMP-TABLE ttBrowseInventory.
+    
+    FOR EACH bf-fg-rctd NO-LOCK
+        WHERE bf-fg-rctd.company     EQ ipcCompany
+          AND (bf-fg-rctd.rita-code  EQ ipcTransactionType OR ipcTransactionType EQ "")
+          AND (bf-fg-rctd.created-by EQ ipcUser OR ipcUser EQ ""):
+        CREATE ttBrowseInventory.
+        ASSIGN
+            ttBrowseInventory.company          = bf-fg-rctd.company
+            ttBrowseInventory.fgItemID         = bf-fg-rctd.i-no
+            ttBrowseInventory.tag              = bf-fg-rctd.tag
+            ttBrowseInventory.warehouse        = bf-fg-rctd.loc
+            ttBrowseInventory.location         = bf-fg-rctd.loc-bin
+            ttBrowseInventory.quantity         = bf-fg-rctd.qty
+            ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-fg-rctd))
+            ttBrowseInventory.inventoryStatus  = "Unposted"
+            ttBrowseInventory.lastTransTime    = NOW
+            .
+        
+        IF ipcTransactionType EQ gcTransactionTypeReceive THEN
+            ttBrowseInventory.transactionType  = "Receipt".
+        ELSE IF ipcTransactionType EQ gcTransactionTypeTransfer THEN
+            ttBrowseInventory.transactionType  = "Transfer".
+    END.
+END PROCEDURE.
+
 PROCEDURE pGetLastIssue PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given a loadtag buffer, find the last issue for the tag
@@ -3585,7 +3898,7 @@ PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
                                            IF AVAILABLE bf-period THEN bf-period.pnum ELSE 1,
                                            "A",
                                            ipdtPostingDate,
-                                           "",
+                                           (IF ttRawMaterialsGLTransToPost.jobNo NE "" THEN "Job:" + ttRawMaterialsGLTransToPost.jobNo + "-" + STRING(ttRawMaterialsGLTransToPost.jobNo2,"99") ELSE ""),
                                            "RM").   
                        ASSIGN 
                         dDebitsTotal = 0
@@ -6046,7 +6359,7 @@ PROCEDURE CreatePrintInventoryForFG:
         END.
         
         FIND FIRST company NO-LOCK
-             WHERE company.company  Eq inventoryStock.company
+             WHERE company.company  EQ inventoryStock.company
              NO-ERROR.
         IF AVAILABLE company THEN
             ttPrintInventoryStockFG.vendor = company.name.
@@ -8785,10 +9098,24 @@ PROCEDURE UpdateTagStatusID:
     DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE lValidStatusID    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lOnHold           AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lCurrentBinStatus AS LOGICAL NO-UNDO.
+    
     DEFINE BUFFER bf-fg-bin FOR fg-bin.
     
     oplSuccess = YES.
-     
+
+    RUN Inventory_ValidateStatusID (ipcStatusID, OUTPUT lValidStatusID).
+    IF NOT lValidStatusID THEN DO:
+        ASSIGN
+            oplSuccess = NO
+            opcMessage = "Invalid Status ID '" + ipcStatusID + "'"
+            .
+ 
+        RETURN.
+    END.
+             
     FIND FIRST bf-fg-bin EXCLUSIVE-LOCK
          WHERE ROWID(bf-fg-bin) EQ iprifgbin
          NO-WAIT NO-ERROR.
@@ -8809,10 +9136,20 @@ PROCEDURE UpdateTagStatusID:
             .
             
         RETURN.
-    
     END. 
+    
+    RUN Inventory_GetStatusOnHold (ipcStatusID, OUTPUT lOnHold).
+            
     /* Updates bin status ID */
-    bf-fg-bin.statusID = ipcStatusID.
+    ASSIGN
+        bf-fg-bin.statusID = ipcStatusID
+        lCurrentBinStatus  = bf-fg-bin.onHold
+        bf-fg-bin.onHold   = lOnHold
+        .
+
+    IF lCurrentBinStatus NE lOnHold THEN
+        RUN UpdateFGLocationOnHandQty (ROWID(bf-fg-bin), lOnHold).
+                
     RELEASE bf-fg-bin.        
 END.
 
@@ -8838,7 +9175,7 @@ PROCEDURE UpdateFGLocationOnHandQty:
             AND bf-itemfg.i-no EQ bf-fg-bin.i-no NO-ERROR.
               
        /* Updates On Hand qty */     
-       IF avail bf-itemfg AND iplOnHold THEN
+       IF AVAIL bf-itemfg AND iplOnHold THEN
        bf-itemfg.q-onh =  bf-itemfg.q-onh - bf-fg-bin.qty.
        ELSE IF AVAIL bf-itemfg THEN
        bf-itemfg.q-onh =  bf-itemfg.q-onh + bf-fg-bin.qty.
@@ -8982,6 +9319,19 @@ FUNCTION fGetNumberSuffix RETURNS INTEGER PRIVATE
         iNumberSuffix = 0.
     
     RETURN iNumberSuffix.
+END FUNCTION.
+
+FUNCTION fGetOverageQuantitySubUnitsPerUnit RETURNS INTEGER 
+    (ipiQuantitySubUnitsPerUnit AS INTEGER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns an integer number 
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE iNumberSubUnit        AS INTEGER.
+    
+    iNumberSubUnit = IF ipiQuantitySubUnitsPerUnit GT 0 THEN 1 ELSE 0 .
+            
+    RETURN iNumberSubUnit.
 END FUNCTION.
 
 FUNCTION fGetSnapshotCompareStatus RETURNS CHARACTER

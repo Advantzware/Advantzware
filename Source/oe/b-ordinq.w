@@ -681,7 +681,7 @@ DEFINE BROWSE Browser-Table
       oe-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
       oe-ordl.line FORMAT ">>99":U
-      oe-ordl.po-no-po FORMAT ">>>>>9":U
+      oe-ordl.po-no-po FORMAT ">>>>>>>9":U
       oe-ordl.e-num FORMAT ">>>>>9":U LABEL-BGCOLOR 14
       getTotalReturned() @ dTotQtyRet COLUMN-LABEL "Tot Returned" FORMAT ">>>,>>9":U
       getReturnedInv() @ dTotRetInv COLUMN-LABEL "Qty Returned Inv" FORMAT ">>>,>>9":U
@@ -3061,6 +3061,8 @@ FUNCTION get-pct RETURNS INTEGER
     rtnValue = ((ipBal / oe-ordl.qty) - 1) * 100.
     IF rtnValue EQ 0 THEN rtnValue = 100.
     IF rtnValue EQ -100 THEN rtnValue = 0.
+    IF rtnValue GT 999 THEN rtnValue = 999.
+    ELSE IF rtnValue LT -999 THEN rtnValue = -999.
   END.
 
   RETURN rtnValue.

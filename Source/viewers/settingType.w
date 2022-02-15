@@ -71,7 +71,7 @@ settingType.securityLevel settingType.dataType settingType.defaultValue ~
 settingType.validValueMax settingType.validValueMin 
 &Scoped-define ENABLED-TABLES settingType
 &Scoped-define FIRST-ENABLED-TABLE settingType
-&Scoped-Define ENABLED-OBJECTS RECT-2 categoryTags validValues 
+&Scoped-Define ENABLED-OBJECTS categoryTags validValues 
 &Scoped-Define DISPLAYED-FIELDS settingType.settingName ~
 settingType.hasContext settingType.description settingType.isPassword ~
 settingType.securityLevel settingType.dataType settingType.defaultValue ~
@@ -143,8 +143,8 @@ DEFINE VARIABLE fiValidValue AS CHARACTER FORMAT "X(256)":U
      SIZE 50 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 182 BY 18.86.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 181 BY 18.1.
 
 DEFINE VARIABLE categoryTags AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
@@ -175,7 +175,7 @@ DEFINE FRAME F-Main
           SIZE 14 BY 1
      settingType.dataType AT ROW 6.62 COL 26 COLON-ALIGNED WIDGET-ID 14
           VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEMS "Character","Integer","Decimal","Logical","Date" 
+          LIST-ITEMS "Character","Integer","Decimal","Logical","Date","DateTime","DateTime-TZ" 
           DROP-DOWN-LIST
           SIZE 23.6 BY 1
      btCategoryTagsInsert AT ROW 7.67 COL 154.8 WIDGET-ID 36
@@ -197,12 +197,12 @@ DEFINE FRAME F-Main
           SIZE 38 BY 1
      "Tags:" VIEW-AS TEXT
           SIZE 6.2 BY .62 AT ROW 9.81 COL 110.8 WIDGET-ID 48
-     "Category" VIEW-AS TEXT
-          SIZE 10.6 BY .62 AT ROW 9.05 COL 106.4 WIDGET-ID 40
-     "Description:" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 2.43 COL 14 WIDGET-ID 18
      "Valid Values:" VIEW-AS TEXT
           SIZE 14.6 BY .62 AT ROW 9.05 COL 13.4 WIDGET-ID 26
+     "Description:" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 2.43 COL 14 WIDGET-ID 18
+     "Category" VIEW-AS TEXT
+          SIZE 10.6 BY .62 AT ROW 9.05 COL 106.4 WIDGET-ID 40
      RECT-2 AT ROW 1 COL 1 WIDGET-ID 46
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -237,8 +237,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 18.86
-         WIDTH              = 182.
+         HEIGHT             = 18.1
+         WIDTH              = 181.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -277,6 +277,8 @@ ASSIGN
    NO-ENABLE 3                                                          */
 /* SETTINGS FOR FILL-IN fiValidValue IN FRAME F-Main
    NO-ENABLE 3 4                                                        */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN settingType.securityLevel IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN settingType.settingName IN FRAME F-Main
@@ -501,9 +503,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win
-PROCEDURE local-delete-record:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
+PROCEDURE local-delete-record :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -516,11 +517,9 @@ PROCEDURE local-delete-record:
     
     /* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
 PROCEDURE local-disable-fields :
@@ -597,9 +596,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win
-PROCEDURE local-update-record:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
+PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -622,11 +620,9 @@ PROCEDURE local-update-record:
     /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

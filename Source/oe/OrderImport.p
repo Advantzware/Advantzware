@@ -31,7 +31,8 @@ ASSIGN
                              + "pValidateLineItems"
     cValidateListCXMLMonitor = "pValidateCustomer,pValidateOrderDate,pValidateOrderShipTo,"
                              + "pValidateOrderWithPayload,pValidatePayloadID,pValidateLineItems"
-    cValidateListEDI         = ""
+    cValidateListEDI         = "pValidateCustomer,pValidateOrderDate,pValidateOrderShipTo,"
+                             + "pValidateOrderWithPayload,pValidatePayloadID,pValidateLineItems"
     .
 
 /* Input pre-processing */
@@ -80,6 +81,15 @@ PROCEDURE pPreProcessInputs PRIVATE:
             IF NOT oplSuccess THEN
                 RETURN.
         END.
+        ELSE IF ttOrder.importType EQ cOrderImportTypeEDI THEN DO:
+            RUN pPreProcessOrderEDI (
+                BUFFER ttOrder,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
+            IF NOT oplSuccess THEN
+                RETURN.
+        END.    
     END.    
 END PROCEDURE.
 
@@ -95,8 +105,6 @@ PROCEDURE pPreProcessOrderCXMLMonitor PRIVATE:
     DEFINE VARIABLE cPreProcessBy AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-shipto FOR shipto.
-    DEFINE BUFFER bf-oe-ord FOR oe-ord.
-    DEFINE BUFFER bf-itemfg FOR itemfg.
        
     IF AVAILABLE ipbf-ttOrder THEN DO:        
         IF ipbf-ttOrder.action EQ cOrderActionCreate THEN DO:
@@ -146,13 +154,13 @@ PROCEDURE pPreProcessOrderCXMLMonitor PRIVATE:
         END.
         
         IF cPreprocessBy EQ "SiteID" THEN
-            RUN pPreProcessOrderCXMLMonitorBySiteID (
+            RUN pPreProcessOrderBySiteID (
                 BUFFER ttOrder,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
                 ).
         ELSE IF cPreprocessBy EQ "Identity" THEN
-            RUN pPreProcessOrderCXMLMonitorByIdentity (
+            RUN pPreProcessOrderByIdentity (
                 BUFFER ttOrder,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
@@ -166,7 +174,88 @@ PROCEDURE pPreProcessOrderCXMLMonitor PRIVATE:
     END.
 END PROCEDURE.
 
-PROCEDURE pPreProcessOrderCXMLMonitorBySiteID PRIVATE:
+PROCEDURE pPreProcessOrderEDI PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Pre-processes the inputs for cXML orders
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttOrder FOR ttOrder.
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO INITIAL TRUE.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cPreProcessBy AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-shipto FOR shipto.
+       
+    IF AVAILABLE ipbf-ttOrder THEN DO:        
+        IF ipbf-ttOrder.action EQ cOrderActionCreate THEN DO:
+            /* Validation of fromIdentity */
+            IF ipbf-ttOrder.fromIdentity EQ "" THEN DO:
+                ASSIGN
+                    oplSuccess = FALSE
+                    opcMessage = 'FromIdentity is empty for Order# ' + STRING(ipbf-ttOrder.orderID)
+                    .
+            END. 
+            ELSE DO:
+                ipbf-ttOrder.customerID = fGetCustNoForcXMLMonitor(ipbf-ttOrder.company, ipbf-ttOrder.fromIdentity, ipbf-ttOrder.shipToID).
+                
+                IF ipbf-ttOrder.customerID NE "" THEN
+                    cPreProcessBy = "Identity".
+            END.
+            
+            IF cPreProcessBy EQ "" THEN DO:
+                /* This procedure validates company code,shipToID and location code, 
+                   and returns valid company code,location code,shipToID and customer number.
+                   and additionally it returns the shipto table buffer to access any other data 
+                   from shipto table */ 
+                RUN cXML/getCustDetails.p (
+                    INPUT        ipbf-ttOrder.fromIdentity,
+                    INPUT-OUTPUT ipbf-ttOrder.shipToID,   /* Shipto SiteID */
+                    INPUT-OUTPUT ipbf-ttOrder.company,
+                    INPUT-OUTPUT ipbf-ttOrder.warehouseID,
+                    INPUT        ipbf-ttOrder.orderID,
+                    OUTPUT       ipbf-ttOrder.customerID,
+                    OUTPUT       oplSuccess,
+                    OUTPUT       opcMessage,
+                    BUFFER       bf-shipto
+                    ).
+                IF NOT oplSuccess THEN
+                    RETURN.
+                
+                cPreProcessBy = "SiteID".
+            END.
+        END.
+        
+        IF cPreprocessBy EQ "" THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Unable to validate the customer/shipto for Order#: " + ipbf-ttOrder.poID
+                .
+            RETURN.
+        END.
+        
+        IF cPreprocessBy EQ "SiteID" THEN
+            RUN pPreProcessOrderBySiteID (
+                BUFFER ttOrder,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
+        ELSE IF cPreprocessBy EQ "Identity" THEN
+            RUN pPreProcessOrderByIdentity (
+                BUFFER ttOrder,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
+        
+        IF NOT oplSuccess THEN
+            RETURN.
+
+        IF NUM-ENTRIES(ipbf-ttOrder.billToID, ":") GE 2 AND TRIM(ENTRY(2, ipbf-ttOrder.billToID, ":")) NE "" THEN 
+            ipbf-ttOrder.billToID = ENTRY(2, ipbf-ttOrder.billToID, ":").
+    END.
+END PROCEDURE.
+
+PROCEDURE pPreProcessOrderBySiteID PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Pre-processes the inputs for cXML orders
  Notes:
@@ -226,7 +315,7 @@ PROCEDURE pPreProcessOrderCXMLMonitorBySiteID PRIVATE:
     END.
 END PROCEDURE.
 
-PROCEDURE pPreProcessOrderCXMLMonitorByIdentity PRIVATE:
+PROCEDURE pPreProcessOrderByIdentity PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Pre-processes the inputs for cXML orders
  Notes:
@@ -459,6 +548,19 @@ PROCEDURE pValidateOrder PRIVATE:
         RETURN.
     END.
 
+    FIND FIRST bf-oe-ord NO-LOCK
+         WHERE bf-oe-ord.company      EQ ipbf-ttOrder.company
+           AND bf-oe-ord.cust-no      EQ ipbf-ttOrder.customerID
+           AND bf-oe-ord.po-no        EQ ipbf-ttOrder.poID
+           AND bf-oe-ord.spare-char-3 EQ ipbf-ttOrder.payLoadID
+         NO-ERROR.
+    IF AVAILABLE bf-oe-ord AND ipbf-ttOrder.action EQ cOrderActionCreate THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = 'Order already exists with PO#: ' + STRING(ipbf-ttOrder.poID) + ' and PayloadID ' + STRING(ipbf-ttOrder.payloadID).
+            .                
+        RETURN.
+    END.     
 END PROCEDURE.
 
 PROCEDURE pValidateOrderWithPayload PRIVATE:

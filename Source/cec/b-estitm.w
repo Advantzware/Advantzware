@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 {custom/persist.i}
 {est/ttInputEst.i NEW}
+
     
 DEF VAR ls-add-what AS cha NO-UNDO.
 DEF VAR ll-add-set AS LOG NO-UNDO INIT NO.
@@ -154,6 +155,7 @@ DEFINE VARIABLE lv-hld-wid   LIKE eb.wid       NO-UNDO.
 DEFINE VARIABLE lv-hld-len   LIKE eb.len       NO-UNDO.
 DEFINE VARIABLE lv-hld-dep   LIKE eb.dep       NO-UNDO.
 DEFINE VARIABLE lv-hld-style LIKE eb.style     NO-UNDO.
+DEFINE VARIABLE lCEUseNewLayoutCalc  AS LOGICAL NO-UNDO.
 
 DEF NEW SHARED TEMP-TABLE tt-eb-set NO-UNDO LIKE eb.
 
@@ -232,6 +234,7 @@ DEFINE VARIABLE lAccessClose    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cAccessList     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAllowResetType   AS LOGICAL NO-UNDO.
 RUN methods/prgsecur.p
 	    (INPUT "p-upditm.",
 	     INPUT "CREATE", /* based on run, create, update, delete or all */
@@ -245,7 +248,9 @@ RUN methods/prgsecur.p
 DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.	
 DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
 
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
@@ -261,6 +266,12 @@ IF lRecFound THEN
     OUTPUT cRecValue, OUTPUT lRecFound).
 IF lRecFound THEN
     lQuotePriceMatrix = logical(cRecValue) NO-ERROR.    
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cRecValue, OUTPUT lRecFound).
+
+IF lRecFound THEN
+    lCEUseNewLayoutCalc = logical(cRecValue) NO-ERROR. 
+    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -869,7 +880,7 @@ DO:
        WHEN "cust-no" THEN DO:
            ls-cur-val = lw-focus:SCREEN-VALUE.
            /*RUN windows/l-custact.w (gcompany,ls-cur-val, OUTPUT char-val, OUTPUT look-recid).*/
-    
+           RUN spSetSessionParam ("CustListID", "EC").    
            RUN system/openlookup.p (
                INPUT  "", 
                INPUT  "", /* lookup field */
@@ -1198,7 +1209,6 @@ END.
 ON ENTRY OF eb.cust-no IN BROWSE br-estitm /* Cust. # */
 DO:
   DEF BUFFER b-eb FOR eb.
-
 
   IF {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
     FIND FIRST b-eb
@@ -2837,7 +2847,10 @@ PROCEDURE calc-layout :
       {sys/inc/ceroute1.i w id l en}
     END.
 
-    RUN cec/calc-dim.p.
+    IF lCEUseNewLayoutCalc THEN
+        RUN pCalcDimensions.
+    ELSE
+       RUN cec/calc-dim.p.
   END.
 
   IF ceroute-chr NE "" THEN DO:
@@ -2854,7 +2867,10 @@ PROCEDURE calc-layout :
        xeb.num-wid  = 1
        xeb.num-len  = 1.
 
-      RUN cec/calc-dim1.p NO-ERROR.
+        IF lCEUseNewLayoutCalc THEN
+            RUN pCalcDimensions.
+        ELSE
+            RUN cec/calc-dim1.p NO-ERROR.
 
       ASSIGN
        xef.gsh-len = xef.gsh-len - (xef.nsh-len * xef.n-out-l)
@@ -2897,7 +2913,10 @@ PROCEDURE calc-layout4Artios :
       RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
       {sys/inc/ceroute1.i w id l en}
 
-      RUN cec/calc-dim.p.
+        IF lCEUseNewLayoutCalc THEN
+            RUN pCalcDimensions.
+        ELSE
+            RUN cec/calc-dim.p.
 
       /*
       IF xef.m-code EQ "" THEN xef.m-code = ceroute-chr.
@@ -4861,7 +4880,10 @@ DEF VAR li AS INT NO-UNDO.
                   eb.num-len = 1
                   eb.num-up = 1.
                
-               RUN cec/calc-dim.p .
+                IF lCEUseNewLayoutCalc THEN
+                    RUN pCalcDimensions.
+                ELSE
+                    RUN cec/calc-dim.p .
             END.
          END.
         
@@ -4908,7 +4930,11 @@ DEF VAR li AS INT NO-UNDO.
                   FIND xef WHERE RECID(xef) = recid(ef).
                   FIND xeb WHERE RECID(xeb) = recid(eb).
               /* END.*/
-               RUN cec/calc-dim.p .
+               
+                IF lCEUseNewLayoutCalc THEN
+                    RUN pCalcDimensions.
+                ELSE
+                    RUN cec/calc-dim.p .
             END.
          END.
         
@@ -4953,7 +4979,11 @@ DEF VAR li AS INT NO-UNDO.
                eb.num-wid = 1
                eb.num-len = 1
                eb.num-up = 1.
-            RUN cec/calc-dim.p.
+            
+             IF lCEUseNewLayoutCalc THEN
+                 RUN pCalcDimensions.
+             ELSE
+                 RUN cec/calc-dim.p.
          END.
       END.
 
@@ -5079,6 +5109,23 @@ PROCEDURE getEstQtyRowID :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalcDimensions B-table-Win
+PROCEDURE pCalcDimensions PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Calculate and Update Form's size values
+     Notes: calculate EF Gross, net, die size and other dimension fields
+    ------------------------------------------------------------------------------*/
+    
+    RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+        
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -5830,6 +5877,9 @@ PROCEDURE local-assign-record :
            NOT ll-new-record       AND
            NOT ll-tandem))THEN
        RUN set-yld-qty (ROWID(eb)).      
+       
+    RUN pUpdatePOScores.
+          
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5922,7 +5972,7 @@ PROCEDURE local-copy-record :
   IF lv-copy-what = "" THEN RETURN.
 
   IF lv-copy-what EQ "copy" THEN DO:
-      RUN ce/copyestN.w (lv-copy-what, est.est-no, OUTPUT v-neweb-est ) .
+      RUN ce/copyestN.w (lv-copy-what, (IF AVAIL est THEN est.est-no ELSE ""), OUTPUT v-neweb-est ) .
       IF v-neweb-est NE "" THEN DO:
           FIND FIRST est WHERE est.company EQ cocode
               AND est.est-no EQ FILL(" ",8 - LENGTH(TRIM(v-neweb-est))) + TRIM(v-neweb-est) NO-LOCK NO-ERROR .
@@ -5953,6 +6003,8 @@ PROCEDURE local-copy-record :
       RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
   END.
       /* Code placed here will execute AFTER standard behavior.    */
+      
+  RUN pUpdatePOScores.    
 
 END PROCEDURE.
 
@@ -6132,16 +6184,22 @@ PROCEDURE local-delete-record :
   IF AVAIL est THEN DO:
     RUN est/resetf&b.p (ROWID(est), ll-mass-del).
     RUN pResetQtySet(ROWID(est)).
+    IF lAllowResetType OR NOT ll-mass-del THEN
     RUN reset-est-type (OUTPUT li-est-type).
-
-    IF AVAIL eb THEN RUN dispatch ("open-query").
+                      
+    IF AVAIL eb THEN 
+    DO: 
+      RUN dispatch ("open-query").          
+      RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'Record-source':U,OUTPUT char-hdl).
+      RUN pReOpenQuery IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+    END.
   END.
 
   ELSE DO:
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl). 
     DO WHILE TRUE:
       RUN get-num-records IN WIDGET-HANDLE(char-hdl) (lv-rowid, OUTPUT lv-num-rec). /* not to get error 2108 4 times*/
-      IF lv-num-rec NE 0 THEN DO:
+      IF lv-num-rec NE 0 AND lv-eb-recid NE ? THEN DO:
         IF lv-num-rec EQ ? THEN
           RUN dispatch IN WIDGET-HANDLE(char-hdl) ('get-prev').
         ELSE
@@ -6152,9 +6210,40 @@ PROCEDURE local-delete-record :
           /*LEAVE.       */
           RUN pSetFirstRunValue IN WIDGET-HANDLE(char-hdl)(yes).
           RUN local-open-query IN WIDGET-HANDLE(char-hdl).
+          LEAVE.
       END.
     END.
   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
+PROCEDURE local-destroy :
+    /*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdFormulaProcs) THEN
+        DELETE PROCEDURE hdFormulaProcs.
+        
+    IF VALID-HANDLE(hdCustomerProcs) THEN
+        DELETE PROCEDURE hdCustomerProcs.
+        
+    IF VALID-HANDLE(hdSalesManProcs) THEN
+        DELETE PROCEDURE hdSalesManProcs.
+        
+    IF VALID-HANDLE(hdQuoteProcs) THEN
+        DELETE PROCEDURE hdQuoteProcs.    
+       
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
 
@@ -6748,10 +6837,12 @@ PROCEDURE mass-delete :
     RUN est/ItemDeleteSelection.w (
         INPUT-OUTPUT TABLE tt-eb
         ).
+    lAllowResetType = NO.    
     FOR EACH tt-eb
         WHERE tt-eb.selected
-        BY tt-eb.form-no DESCENDING 
+        BREAK BY tt-eb.form-no DESCENDING 
         BY tt-eb.blank-no DESCENDING:
+        IF LAST(tt-eb.blank-no) THEN lAllowResetType = YES.
         FIND FIRST bf-ef NO-LOCK
              WHERE bf-ef.company EQ tt-eb.company 
                AND bf-ef.est-no  EQ tt-eb.est-no 
@@ -6767,7 +6858,8 @@ PROCEDURE mass-delete :
   FOR EACH tt-eb:
     DELETE tt-eb.
   END.
-
+  lAllowResetType = NO.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -7187,6 +7279,33 @@ PROCEDURE pValidSalesRep PRIVATE:
     END.                                         
 END PROCEDURE.
 	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdatePOScores B-table-Win 
+PROCEDURE pUpdatePOScores :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-style FOR style.
+
+
+    FIND FIRST bf-style NO-LOCK
+        WHERE bf-style.company EQ eb.company
+        AND bf-style.style   EQ eb.style
+        NO-ERROR.
+        
+    IF AVAILABLE bf-style AND bf-style.formula[20] NE "" THEN 
+    DO:
+        RUN Formula_ReBuildAndSavePanelDetailsForEstimate IN hdFormulaProcs (
+            INPUT ROWID(eb)
+            ).
+    END.
+END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -8211,14 +8330,16 @@ PROCEDURE update-set :
   IF lv-type = ? THEN
       RETURN NO-APPLY.
   lv-old-type = est.est-type.
-
+     
   IF lv-type NE lv-old-type THEN DO:
+    IF lv-old-type EQ 6 AND lv-type EQ 5 THEN
+    RUN pResetQtySet(ROWID(est)).
     FIND CURRENT est.
     est.est-type = lv-type.
     RUN reset-est-type (OUTPUT lv-type).
     FIND CURRENT est NO-LOCK.
   END.
-  
+     
   IF est.est-type EQ 6 THEN DO:
      IF lv-old-type GE 7 THEN DO:
         FOR EACH bf-eb FIELDS(yld-qty)

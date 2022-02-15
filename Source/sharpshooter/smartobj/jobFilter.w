@@ -39,6 +39,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lShowErrorAsAlert  AS LOGICAL   NO-UNDO INITIAL TRUE.
 DEFINE VARIABLE cLocation          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJob               AS CHARACTER NO-UNDO.
 
@@ -50,6 +51,14 @@ DEFINE VARIABLE cFormattedJobno         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE oJobHeader              AS JobHeader NO-UNDO.
 DEFINE VARIABLE lScanNextJob            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValidateSameJobScan    AS LOGICAL   NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lValidateJobClosed      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAllowEmptyFormAndBlank AS LOGICAL   NO-UNDO.
+
+/* Required for run_link.i */
+DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
+
+DEFINE VARIABLE oKeyboard AS system.Keyboard NO-UNDO.
 
 oJobHeader = NEW JobHeader().
 
@@ -68,8 +77,8 @@ oJobHeader = NEW JobHeader().
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS imJobLookup cbJobNo2 cbFormNo cbBlankNo ~
-fiJobNo btnJobDetailsText 
+&Scoped-Define ENABLED-OBJECTS imJobLookup btnKeyboardJobNo cbJobNo2 ~
+cbFormNo cbBlankNo fiJobNo btnJobDetailsText 
 &Scoped-Define DISPLAYED-OBJECTS cbJobNo2 cbFormNo cbBlankNo fiJobNoLabel ~
 fiJobNo fiFormNoLabel fiBlankNoLabel btnJobDetailsText 
 
@@ -91,25 +100,30 @@ DEFINE BUTTON btJobDetails
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "View Current Job Details".
 
-DEFINE VARIABLE cbBlankNo AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE BUTTON btnKeyboardJobNo 
+     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS
+     LABEL "Keyboard" 
+     SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
+
+DEFINE VARIABLE cbBlankNo AS CHARACTER FORMAT "XX":U INITIAL "0" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
      SIZE 9.8 BY 1
      BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
-DEFINE VARIABLE cbFormNo AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE cbFormNo AS CHARACTER FORMAT "XX":U INITIAL "0" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
      SIZE 9 BY 1
      BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
-DEFINE VARIABLE cbJobNo2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE cbJobNo2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "00" 
+     LIST-ITEMS "000" 
      DROP-DOWN-LIST
-     SIZE 9.8 BY 1
+     SIZE 11.6 BY 1
      BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE btnJobDetailsText AS CHARACTER FORMAT "X(256)":U INITIAL "DETAIL" 
@@ -126,7 +140,7 @@ DEFINE VARIABLE fiFormNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "FORM:"
 
 DEFINE VARIABLE fiJobNo AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 31.2 BY 1.48
+     SIZE 36 BY 1.48
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiJobNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "JOB:" 
@@ -142,16 +156,17 @@ DEFINE IMAGE imJobLookup
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btJobDetails AT ROW 1 COL 122 WIDGET-ID 160
-     cbJobNo2 AT ROW 1.24 COL 41.4 COLON-ALIGNED NO-LABEL WIDGET-ID 162
-     cbFormNo AT ROW 1.24 COL 64.8 COLON-ALIGNED NO-LABEL WIDGET-ID 164
-     cbBlankNo AT ROW 1.24 COL 89.2 COLON-ALIGNED NO-LABEL WIDGET-ID 166
+     btJobDetails AT ROW 1 COL 129.6 WIDGET-ID 160
+     btnKeyboardJobNo AT ROW 1.24 COL 138 WIDGET-ID 136 NO-TAB-STOP 
+     cbJobNo2 AT ROW 1.24 COL 47 COLON-ALIGNED NO-LABEL WIDGET-ID 162
+     cbFormNo AT ROW 1.24 COL 72.4 COLON-ALIGNED NO-LABEL WIDGET-ID 164
+     cbBlankNo AT ROW 1.24 COL 96.8 COLON-ALIGNED NO-LABEL WIDGET-ID 166
      fiJobNoLabel AT ROW 1.29 COL 2 NO-LABEL WIDGET-ID 2
      fiJobNo AT ROW 1.29 COL 10 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     fiFormNoLabel AT ROW 1.29 COL 54 NO-LABEL WIDGET-ID 16
-     fiBlankNoLabel AT ROW 1.29 COL 77 NO-LABEL WIDGET-ID 20
-     btnJobDetailsText AT ROW 1.24 COL 109 NO-LABEL
-     imJobLookup AT ROW 1.24 COL 102 WIDGET-ID 182
+     fiFormNoLabel AT ROW 1.29 COL 61.6 NO-LABEL WIDGET-ID 16
+     fiBlankNoLabel AT ROW 1.29 COL 84.6 NO-LABEL WIDGET-ID 20
+     btnJobDetailsText AT ROW 1.24 COL 116.6 NO-LABEL
+     imJobLookup AT ROW 1.24 COL 109.6 WIDGET-ID 182
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -185,7 +200,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
          HEIGHT             = 2.05
-         WIDTH              = 135.2.
+         WIDTH              = 146.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -216,6 +231,9 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN btnJobDetailsText IN FRAME F-Main
    ALIGN-L                                                              */
+ASSIGN 
+       btnKeyboardJobNo:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN fiBlankNoLabel IN FRAME F-Main
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN fiFormNoLabel IN FRAME F-Main
@@ -291,6 +309,18 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME btnKeyboardJobNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardJobNo s-object
+ON CHOOSE OF btnKeyboardJobNo IN FRAME F-Main /* Keyboard */
+DO:
+    APPLY "ENTRY":U TO fiJobNo.    
+    
+    oKeyboard:OpenKeyboardOverride (fiJobNo:HANDLE, "Qwerty"). 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME cbBlankNo
@@ -369,10 +399,9 @@ END.
 
 &Scoped-define SELF-NAME fiJobNo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
-ON ANY-KEY OF fiJobNo IN FRAME F-Main
+ON ENTER OF fiJobNo IN FRAME F-Main
 DO:
-    IF KEYLABEL(LASTKEY) EQ "ENTER" THEN
-        APPLY 'LEAVE' TO SELF. 
+    APPLY 'LEAVE' TO SELF. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -382,11 +411,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
 ON ENTRY OF fiJobNo IN FRAME F-Main
 DO:
-    cJob = SELF:SCREEN-VALUE.  
+    IF VALID-OBJECT (oKeyboard) AND NOT oKeyboard:IsKeyboardOpen() THEN
+        cJob = SELF:SCREEN-VALUE.  
     
     fiJobNo:SET-SELECTION(1, -1).
     
     SELF:BGCOLOR = 30.
+
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:OpenKeyboard (SELF, "Qwerty").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -419,9 +452,13 @@ DO:
         iStatusMessageType = 0
         .
     
-    IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 THEN
+    /* If last key is not button choose or mouse click event */
+    IF (LASTKEY EQ -1 OR LASTKEY EQ 617) AND NOT (VALID-OBJECT (oKeyboard) AND oKeyboard:IsKeyboardOpen()) THEN
         RETURN.
 
+    IF SELF:SCREEN-VALUE EQ "" THEN
+        RETURN.
+        
     IF SELF:SCREEN-VALUE EQ cJob AND lValidateSameJobScan THEN DO:
         cMessage = "THE JOB '" + cJob + "' IS ALREADY SCANNED. ~n"
                  + "DO YOU WANT SCAN THE SAME JOB AGAIN?".
@@ -457,17 +494,8 @@ DO:
         ).      
 
     IF cMessage NE "" THEN DO:
-        ASSIGN
-            cStatusMessage     = cMessage
-            iStatusMessageType = 3
-            .
-            
-        RUN new-state("job-error").
-
-        ASSIGN
-            cStatusMessage     = ""
-            iStatusMessageType = 0
-            .   
+        RUN pSendError (cMessage).
+        
         RETURN.
     END.
     
@@ -491,18 +519,8 @@ DO:
         OUTPUT cJobNo2ListItems 
         ).
     IF lParse AND cJobNo2 NE "" AND INDEX(cJobNo2ListItems,STRING(INTEGER(cJobNo2),"99")) LE 0 THEN DO:
-        ASSIGN
-            cStatusMessage     = "INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER."
-            iStatusMessageType = 3
-            .
-            
-        RUN new-state("job-error").
-
-        ASSIGN
-            cStatusMessage     = ""
-            iStatusMessageType = 0
-            .           
-
+        RUN pSendError ("INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER.").
+        
         RETURN.            
     END.
     
@@ -523,17 +541,8 @@ DO:
         OUTPUT cFormNoListItems 
         ).  
     IF lParse AND cFormNo NE "" AND INDEX(cFormNoListItems,STRING(INTEGER(cFormNo),"99")) LE 0 THEN DO:
-        ASSIGN
-            cStatusMessage     = "INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER."
-            iStatusMessageType = 3
-            .
-            
-        RUN new-state("job-error").
-
-        ASSIGN
-            cStatusMessage     = ""
-            iStatusMessageType = 0
-            . 
+        RUN pSendError ("INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER.").
+         
         RETURN.            
     END.
 
@@ -554,17 +563,8 @@ DO:
         OUTPUT cBlankNoListItems 
         ).  
     IF lParse AND cBlankNo NE "" AND INDEX(cBlankNoListItems,STRING(INTEGER(cBlankNo),"99")) LE 0 THEN DO:
-        ASSIGN
-            cStatusMessage     = "INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER."
-            iStatusMessageType = 3
-            .
-            
-        RUN new-state("job-error").
-
-        ASSIGN
-            cStatusMessage     = ""
-            iStatusMessageType = 0
-            . 
+        RUN pSendError ("INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER.").
+        
         RETURN.            
     END.
 
@@ -654,6 +654,19 @@ RUN pInit.
 
 /* **********************  Internal Procedures  *********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE AllowEmptyFormAndBlank s-object 
+PROCEDURE AllowEmptyFormAndBlank :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    lAllowEmptyFormAndBlank = TRUE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableAll s-object 
 PROCEDURE DisableAll :
 /*------------------------------------------------------------------------------
@@ -664,6 +677,19 @@ PROCEDURE DisableAll :
     DO WITH FRAME {&FRAME-NAME}:
         DISABLE fiJobNo cbJobNo2 cbFormNo cbBlankNo imJobLookup btJobDetails.
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableErrorAlerts s-object 
+PROCEDURE DisableErrorAlerts :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    lShowErrorAsAlert = FALSE.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -704,9 +730,9 @@ PROCEDURE GetJob :
     
     ASSIGN
         opcJobNo   = fiJobNo:SCREEN-VALUE
-        opiJobNo2  = INTEGER(cbJobNo2:SCREEN-VALUE)
-        opiFormNo  = INTEGER(cbFormNo:SCREEN-VALUE)
-        opiBlankNo = INTEGER(cbBlankNo:SCREEN-VALUE)
+        opiJobNo2  = IF cbJobNo2:SCREEN-VALUE EQ " " THEN ? ELSE INTEGER(cbJobNo2:SCREEN-VALUE)
+        opiFormNo  = IF cbFormNo:SCREEN-VALUE EQ " " THEN ? ELSE INTEGER(cbFormNo:SCREEN-VALUE)
+        opiBlankNo = IF cbBlankNo:SCREEN-VALUE EQ " " THEN ? ELSE INTEGER(cbBlankNo:SCREEN-VALUE)
         .
 END PROCEDURE.
 
@@ -771,6 +797,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE HideFormAndBlank s-object 
+PROCEDURE HideFormAndBlank :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        HIDE cbFormNo cbBlankNo fiFormNoLabel fiBlankNoLabel.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE HideJobDetails s-object 
 PROCEDURE HideJobDetails :
 /*------------------------------------------------------------------------------
@@ -778,7 +818,9 @@ PROCEDURE HideJobDetails :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    btJobDetails:VISIBLE IN FRAME {&FRAME-NAME} = FALSE.
+    DO WITH FRAME {&FRAME-NAME}:
+        HIDE btJobDetails btnJobDetailsText.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -809,9 +851,8 @@ PROCEDURE JobFGItemChanged :
     
     /* Raise an error if output form and blank are not found on the current form and blank list */
     IF LOOKUP(STRING(INTEGER(ENTRY (1, cFormNoList)) ,"99") , cbFormNo:LIST-ITEMS) EQ 0 OR LOOKUP(STRING(INTEGER(ENTRY (1, cBlankNoList)), "99") , cbBlankNo:LIST-ITEMS) EQ 0 THEN DO:
-        MESSAGE "Invalid item '" + ipcItemID + "' for Job # '" + fiJobno:SCREEN-VALUE + "-" + cbJobno2:SCREEN-VALUE + "'"
-            VIEW-AS ALERT-BOX ERROR.
-        
+        RUN pSendError ("Invalid item '" + ipcItemID + "' for Job # '" + fiJobno:SCREEN-VALUE + "-" + cbJobno2:SCREEN-VALUE + "'").
+
         RETURN.
     END.
     
@@ -885,6 +926,11 @@ PROCEDURE pGetBlankNo PRIVATE :
     ELSE
         opiBlankNo = INTEGER(ENTRY(1, opcBlankNoListItems)) NO-ERROR.
 
+    IF lAllowEmptyFormAndBlank THEN
+        ASSIGN
+            opcBlankNoListItems = " " + "," + opcBlankNoListItems
+            opiBlankNo = ?
+            NO-ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -915,6 +961,11 @@ PROCEDURE pGetFormNo PRIVATE :
     ELSE
         opiFormNo = INTEGER(ENTRY(1, opcFormNoListItems)) NO-ERROR.
 
+    IF lAllowEmptyFormAndBlank THEN
+        ASSIGN
+            opcFormNoListItems = " " + "," + opcFormNoListItems
+            opiFormNo = ?
+            NO-ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -942,6 +993,7 @@ PROCEDURE pGetJobNo2 PRIVATE :
         opcJobno2ListItems = "00".
     ELSE
         opiJobNo2 = INTEGER(ENTRY(1, opcJobno2ListItems)) NO-ERROR.
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1035,8 +1087,41 @@ PROCEDURE pOnValueChangeOfJobDeails PRIVATE :
     
     IF NOT lValidJob THEN DO: 
         cMessage = "Invalid Job Entry".
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        RUN pSendError (cMessage).
     END.    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError s-object 
+PROCEDURE pSendError :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcStatusMessage AS CHARACTER NO-UNDO.
+    
+    IF lShowErrorAsAlert THEN DO:
+        MESSAGE ipcStatusMessage
+            VIEW-AS ALERT-BOX ERROR.
+        
+        RETURN.
+    END.
+    
+    ASSIGN
+        cStatusMessage     = ipcStatusMessage
+        iStatusMessageType = 3
+        .
+        
+    RUN new-state (
+        "job-error"
+        ).
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1098,19 +1183,8 @@ PROCEDURE pValidateJob PRIVATE :
         OUTPUT lError,
         OUTPUT cMessage
         ).       
-    IF lError THEN DO:
-        ASSIGN
-            cStatusMessage     = cMessage
-            iStatusMessageType = 3
-            .
-            
-        RUN new-state("job-error").
-
-        ASSIGN
-            cStatusMessage     = ""
-            iStatusMessageType = 0
-            .        
-    END.
+    IF lError THEN
+        RUN pSendError (cMessage).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1130,6 +1204,9 @@ PROCEDURE pValidateJobClosed PRIVATE :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
+    IF NOT lValidateJobClosed THEN
+        RETURN.
+        
     RUN IsJobClosed IN hdJobProcs (
         INPUT  cCompany,
         INPUT  fiJobNo:SCREEN-VALUE,
@@ -1139,12 +1216,36 @@ PROCEDURE pValidateJobClosed PRIVATE :
     IF NOT lJobClosed THEN
         RETURN.
         
-    RUN displayMessageQuestion (
+    RUN displayMessageQuestionDialog (
         INPUT  "67",
         OUTPUT lResponse
         ).
         
     oplError = NOT lResponse.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset s-object 
+PROCEDURE Reset :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        fiJobNo:SCREEN-VALUE   = ""
+        cbJobNo2:LIST-ITEMS    = " "
+        cbJobNo2:SCREEN-VALUE  = " "
+        cbFormNo:LIST-ITEMS    = " "
+        cbFormNo:SCREEN-VALUE  = " "
+        cbBlankNo:LIST-ITEMS   = " "
+        cbBlankNo:SCREEN-VALUE = " "
+        .            
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1209,6 +1310,42 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetKeyboard s-object 
+PROCEDURE SetKeyboard :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipoKeyboard AS system.Keyboard NO-UNDO.
+    
+    oKeyboard = ipoKeyboard.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard s-object
+PROCEDURE ShowKeyboard:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        btnKeyboardJobNo:VISIBLE   = TRUE
+        btnKeyboardJobNo:SENSITIVE = TRUE
+        .
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -1225,6 +1362,20 @@ PROCEDURE state-changed :
          or add new cases. */
   END CASE.
   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ValidateJobClosed s-object 
+PROCEDURE ValidateJobClosed :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iplValidateJobClosed AS LOGICAL NO-UNDO.
+    
+    lValidateJobClosed = iplValidateJobClosed.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

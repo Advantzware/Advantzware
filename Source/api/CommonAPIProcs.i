@@ -62,22 +62,50 @@ PROCEDURE pUpdateDelimiter PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData   AS LONGCHAR  NO-UNDO.
     DEFINE INPUT        PARAMETER ipcRequestDataType AS CHARACTER NO-UNDO.
     
-    IF ipcRequestDataType EQ "JSON" THEN
+    RUN pUpdateDelimiterAndTrim (
+        INPUT-OUTPUT ioplcRequestData,
+        INPUT        ipcRequestDataType,
+        INPUT        TRUE
+        ).  
+END PROCEDURE.
+
+PROCEDURE pUpdateDelimiterWithoutTrim PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Replaces the delimiters of the request data for a given data type
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData   AS LONGCHAR  NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcRequestDataType AS CHARACTER NO-UNDO.
+    
+    RUN pUpdateDelimiterAndTrim (
+        INPUT-OUTPUT ioplcRequestData,
+        INPUT        ipcRequestDataType,
+        INPUT        FALSE
+        ).  
+END PROCEDURE.
+
+PROCEDURE pUpdateDelimiterAndTrim PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Replaces and trims the delimiters of the request data for a given data type
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData   AS LONGCHAR  NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcRequestDataType AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER iplTrim            AS LOGICAL   NO-UNDO.
+    
+    ASSIGN
+        ioplcRequestData = REPLACE(ioplcRequestData, "$comma$", ",")
+        ioplcRequestData = REPLACE(ioplcRequestData, "$linefeed$", "~n")    /* Replaces $linefeed$ with carriage return character */
+        ioplcRequestData = REPLACE(ioplcRequestData, "$formfeed$", CHR(12)) /* Replaces $formfeed$ with Form Feed character (PAGE keyword) */
+        .
+
+    IF iplTrim THEN
         ASSIGN
-            ioplcRequestData = REPLACE(ioplcRequestData, "$comma$", ",")
             ioplcRequestData = TRIM(ioplcRequestData, ",")
-            .
-    ELSE
-        ASSIGN
-            ioplcRequestData = REPLACE(ioplcRequestData, "$linefeed$", "~n")
             ioplcRequestData = TRIM(ioplcRequestData, "~n")
+            ioplcRequestData = TRIM(ioplcRequestData, CHR(12))
             .
             
-    /* Replaces $page$ with Form Feed character (PAGE keyword) */
-    ASSIGN
-        ioplcRequestData = REPLACE(ioplcRequestData, "$formfeed$", CHR(12))
-        ioplcRequestData = TRIM(ioplcRequestData, CHR(12))
-        .    
 END PROCEDURE.
 
 PROCEDURE updateRequestData:

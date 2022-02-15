@@ -22,6 +22,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
+USING Progress.Json.ObjectModel.*.
 
 /* Create an unnamed pool to store all the widgets created 
      by this procedure. This is a good default which assures
@@ -177,7 +178,7 @@ DEFINE FRAME Dialog-Frame
      SPACE(31.00) SKIP(6.56)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "ZOHO CRM (Customer Contacts)" WIDGET-ID 100.
+         TITLE "CRM (Customer Contacts)" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -245,9 +246,9 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttCRMContacts.
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* ZOHO CRM (Customer Contacts) */
-DO:
-  APPLY "END-ERROR":U TO SELF.
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* CRM (Customer Contacts) */
+DO:         
+    APPLY "END-ERROR":U TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -325,6 +326,9 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
+  
+  RUN spSetSettingContext.
+  
   RUN pGetCRM.
   IF RETURN-VALUE NE "" THEN RETURN.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -388,15 +392,35 @@ PROCEDURE pGetCRM :
     DEFINE VARIABLE iRows   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iHeight AS INTEGER NO-UNDO.
 
+    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE gcCRMSource AS CHARACTER NO-UNDO.
+    
+    RUN spGetSettingByName("CRMSource", OUTPUT gcCRMSource).
+            
     DO WITH FRAME {&FRAME-NAME}:
-        svStatus:SCREEN-VALUE = "Retreiving ZOHO CRM ...".
         EMPTY TEMP-TABLE ttAccounts.
         EMPTY TEMP-TABLE ttCRMContacts.
-        RUN pZohoCRM (ipcCompany, ipcRecKey, OUTPUT iRows).
-        IF RETURN-VALUE NE "" THEN DO:
-            MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
-            RETURN RETURN-VALUE.
+        
+        SESSION:SET-WAIT-STATE("GENERAL").
+        IF gcCRMSource EQ "Hubspot" THEN DO:
+            svStatus:SCREEN-VALUE = "Fetching contacts from Hubspot. Please wait...".
+            RUN pHubspotCRM (ipcCompany, OUTPUT iRows, OUTPUT lError, OUTPUT cMessage).
+            IF lError THEN
+                MESSAGE cMessage
+                VIEW-AS ALERT-BOX ERROR.
         END.
+        ELSE DO:
+            svStatus:SCREEN-VALUE = "Retreiving ZOHO CRM ...".
+            RUN pZohoCRM (ipcCompany, INPUT ipcRecKey, OUTPUT iRows).
+            IF RETURN-VALUE NE "" THEN DO:
+                MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
+                RETURN RETURN-VALUE.
+            END.
+        END.
+        
+        SESSION:SET-WAIT-STATE("").
+        
         IF iRows GT 30 THEN iRows = 30.
         IF iRows GT 5 THEN DO:
             ASSIGN

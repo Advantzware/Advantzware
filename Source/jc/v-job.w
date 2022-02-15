@@ -173,14 +173,14 @@ DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR job.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS job.start-date job.loc job.due-date job.promiseDate
+&Scoped-Define ENABLED-FIELDS job.start-date job.loc job.due-date job.promiseDate job.shipFromLocation
 &Scoped-define ENABLED-TABLES job
 &Scoped-define FIRST-ENABLED-TABLE job
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalcDueDate btnCalendar-2 ~
 fiTypeDescription 
 &Scoped-Define DISPLAYED-FIELDS job.job-no job.job-no2 job.est-no job.stat ~
 job.start-date job.orderType job.create-date job.csrUser_id job.close-date ~
-job.user-id job.loc job.due-date job.promiseDate 
+job.user-id job.loc job.due-date job.promiseDate job.shipFromLocation
 &Scoped-define DISPLAYED-TABLES job
 &Scoped-define FIRST-DISPLAYED-TABLE job
 &Scoped-Define DISPLAYED-OBJECTS fiTypeDescription 
@@ -189,10 +189,10 @@ job.user-id job.loc job.due-date job.promiseDate
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-ASSIGN-FIELDS job.job-no job.job-no2 job.est-no ~
 job.start-date job.orderType job.create-date job.close-date job.due-date ~
-job.promiseDate
+job.promiseDate job.shipFromLocation
 &Scoped-define ROW-AVAILABLE btnCalendar-1 btnCalendar-2 btnCalendar-3
 &Scoped-define DISPLAY-FIELD job.start-date job.create-date job.close-date ~
-job.due-date job.promiseDate
+job.due-date job.promiseDate job.shipFromLocation
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -331,6 +331,11 @@ DEFINE FRAME F-Main
           SIZE 16 BY 1
           BGCOLOR 15 
      btnCalendar-2 AT ROW 3.62 COL 143.6
+     job.shipFromLocation AT ROW 4.72 COL 67 COLON-ALIGNED
+          LABEL "Distribution Location"
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
+          BGCOLOR 15 
      job.promiseDate AT ROW 4.72 COL 126 COLON-ALIGNED
           LABEL "Promise Date"
           VIEW-AS FILL-IN 
@@ -415,6 +420,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN job.due-date IN FRAME F-Main
    2 4 EXP-LABEL                                                        */
 /* SETTINGS FOR FILL-IN job.promiseDate IN FRAME F-Main
+   2 4 EXP-LABEL                                                        */
+/* SETTINGS FOR FILL-IN job.shipFromLocation IN FRAME F-Main
    2 4 EXP-LABEL                                                        */   
 /* SETTINGS FOR FILL-IN job.est-no IN FRAME F-Main
    NO-ENABLE 2 EXP-FORMAT                                               */
@@ -462,7 +469,9 @@ ON HELP OF FRAME F-Main
 DO:
   DEFINE VARIABLE char-val AS CHARACTER NO-UNDO. 
   DEFINE VARIABLE lw-focus AS WIDGET-HANDLE NO-UNDO.
-
+  DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
   lw-focus = FOCUS.
 
@@ -474,11 +483,34 @@ DO:
           IF AVAILABLE eb THEN lw-focus:SCREEN-VALUE = eb.est-no.
         END.                
       END. 
-      WHEN "loc" THEN DO:
-        RUN windows/l-loc.w (cocode, lw-focus:SCREEN-VALUE, OUTPUT char-val).
-        IF char-val <> "" THEN 
-           ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+      WHEN "loc" THEN DO:          
+        RUN system/openLookup.p (
+                  INPUT  g_company, 
+                  INPUT  "",  /* Lookup ID */
+                  INPUT  150,  /* Subject ID */
+                  INPUT  "",  /* User ID */
+                  INPUT  0,   /* Param Value ID */
+                  OUTPUT cFieldsValue, 
+                  OUTPUT cFoundValue, 
+                  OUTPUT recFoundRecID
+                  ). 
+        IF cFoundValue <> "" THEN 
+           ASSIGN job.loc:SCREEN-VALUE = cFoundValue.
       END.
+      WHEN "shipFromLocation" THEN DO:           
+        RUN system/openLookup.p (
+                  INPUT  g_company, 
+                  INPUT  "",  /* Lookup ID */
+                  INPUT  150,  /* Subject ID */
+                  INPUT  "",  /* User ID */
+                  INPUT  0,   /* Param Value ID */
+                  OUTPUT cFieldsValue, 
+                  OUTPUT cFoundValue, 
+                  OUTPUT recFoundRecID
+                  ).         
+        IF cFoundValue <> "" THEN 
+           ASSIGN job.shipFromLocation:SCREEN-VALUE = cFoundValue.
+      END.        
       WHEN "reason" THEN DO:
             RUN windows/l-rejjob.w (cocode, lw-focus:SCREEN-VALUE, OUTPUT char-val).
             /* If value selected, set code to first entry of string,
@@ -638,7 +670,20 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+   
+   
+&Scoped-define SELF-NAME job.shipFromLocation
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.shipFromLocation V-table-Win
+ON LEAVE OF job.shipFromLocation IN FRAME F-Main /* Dist Warehouse */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+    RUN valid-dist-whse. 
+    IF NOT ll-valid THEN RETURN NO-APPLY.
+  END.
+END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
 
 &Scoped-define SELF-NAME job.orderType
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.orderType V-table-Win
@@ -749,7 +794,7 @@ PROCEDURE add-job :
   
   DEFINE BUFFER bf-job-hdr FOR job-hdr.
   
-  IF NOT lAddFromTool THEN
+  IF NOT lAddFromTool AND cJobType EQ "Molded" THEN
   DO:
       RUN jc/d-addJob.w (INPUT NO, OUTPUT lAddOption). 
       IF lAddOption = "" THEN RETURN NO-APPLY.    /* cancel */
@@ -1174,9 +1219,15 @@ PROCEDURE local-assign-record :
         AND job-hdr.job-no  EQ job.job-no
         AND job-hdr.job-no2 EQ job.job-no2:
     ASSIGN job-hdr.due-date = job.due-date
-           job-hdr.loc      = job.loc.
+           job-hdr.loc      = if job.shipFromLocation ne "" then job.shipFromLocation else job.loc.
+           
+           FIND FIRST itemfg WHERE itemfg.company EQ cocode
+                      AND itemfg.i-no EQ job-hdr.i-no
+                      NO-LOCK NO-ERROR.
+          IF AVAILABLE itemfg THEN
+          run fg/fg-reset.p (recid(itemfg)).
   END. /* each job-hdr */
-
+    
    IF adm-new-record THEN DO:
     FIND FIRST bf-est NO-LOCK
         WHERE bf-est.company EQ job.company
@@ -1280,7 +1331,8 @@ PROCEDURE local-create-record :
    job.company    = cocode
    job.loc        = locode
    /*job.start-date = TODAY v-startdate */
-   job.stat       = "P".
+   job.stat       = "P"
+   job.shipFromLocation = locode.
 
 
   IF copyJob THEN
@@ -1624,6 +1676,12 @@ PROCEDURE local-update-record :
   
   RUN validate-cust-hold NO-ERROR. 
     IF NOT ll-valid THEN RETURN NO-APPLY.
+    
+  RUN valid-whse.
+  IF NOT ll-valid THEN RETURN NO-APPLY.  
+    
+  RUN valid-dist-whse.
+  IF NOT ll-valid THEN RETURN NO-APPLY.     
 
   RUN validate-est ("Update").
   IF NOT ll-valid THEN RETURN NO-APPLY.
@@ -1633,10 +1691,7 @@ PROCEDURE local-update-record :
 
   RUN valid-job-no2.
   IF NOT ll-valid THEN RETURN NO-APPLY.
-
-  RUN valid-whse.
-  IF NOT ll-valid THEN RETURN NO-APPLY.
-
+      
   RUN valid-job-est .
   IF NOT ll-valid THEN RETURN NO-APPLY.
 
@@ -2689,6 +2744,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-dist-whse V-table-Win 
+PROCEDURE valid-dist-whse :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+  ll-valid = YES.
+
+  DO WITH FRAME {&frame-name}:
+
+    IF TRIM(job.shipFromLocation:SCREEN-VALUE) NE "" THEN DO:        
+        FIND FIRST loc 
+            WHERE loc.company EQ cocode 
+              AND loc.loc EQ job.shipFromLocation:SCREEN-VALUE
+            NO-LOCK NO-ERROR.
+        IF NOT AVAILABLE loc THEN DO:
+          MESSAGE "Invalid Distribution Location code entered..."
+                  VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO job.shipFromLocation.
+          ll-valid = NO.
+        END.
+    END.
+  END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-est V-table-Win 
 PROCEDURE validate-est :
 /*------------------------------------------------------------------------------
@@ -2866,6 +2952,7 @@ PROCEDURE validate-est :
             btnCalcDueDate
             job.due-date
             job.promisedate
+            job.shipFromLocation
             btnCalendar-1
             btnCalendar-2
             btnCalendar-3

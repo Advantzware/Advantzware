@@ -40,7 +40,7 @@ assign
  cocode = gcompany
  locode = gloc.
 
-def var v-s-pono like po-ord.po-no format ">>>>>>".
+def var v-s-pono like po-ord.po-no format ">>>>>>>>".
 def var v-e-pono like v-s-pono init 999999.
 def var v-s-date like po-ord.po-date format "99/99/9999" init "01/01/0001".
 def var v-e-date like v-s-date init today.

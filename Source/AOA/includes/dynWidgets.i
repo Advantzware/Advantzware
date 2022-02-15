@@ -1,20 +1,20 @@
 /* dynWidgets.i - rstark - 2.22.20109 */
 
-DEFINE VARIABLE cAction         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cInitialItems   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cInitialValue   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cParamLabel     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cParamName      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE dParamHeight    AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE dParamWidth     AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE lInitialized    AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lIsVisible      AS LOGICAL   NO-UNDO INITIAL YES.
-DEFINE VARIABLE lModified       AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lMovable        AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lResizable      AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lSelectable     AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lSensitive      AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lShowLabel      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAction       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInitialItems AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInitialValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cParamLabel   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cParamName    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dParamHeight  AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dParamWidth   AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lInitialized  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lIsVisible    AS LOGICAL   NO-UNDO INITIAL YES.
+DEFINE VARIABLE lModified     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lMovable      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lResizable    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lSelectable   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lSensitive    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lShowLabel    AS LOGICAL   NO-UNDO.
 
 DEFINE TEMP-TABLE ttParamOrder NO-UNDO
     FIELD paramRow      AS INTEGER
@@ -30,6 +30,44 @@ DEFINE TEMP-TABLE ttParamOrder NO-UNDO
             .
 
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pButton:
+    DEFINE INPUT  PARAMETER ipcPoolName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iphFrame     AS HANDLE    NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLabel     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcName      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdCol       AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdRow       AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdWidth     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdHeight    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplSensitive AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplIsVisible AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER ophWidget    AS HANDLE    NO-UNDO.
+
+    CREATE BUTTON ophWidget IN WIDGET-POOL ipcPoolName
+        ASSIGN
+            FRAME = iphFrame
+            NAME = ipcName
+            LABEL = ipcLabel
+            COL = ipdCol
+            ROW = ipdRow
+            WIDTH = ipdWidth
+            HEIGHT = ipdHeight
+            TOOLTIP = "Click to " + ipcLabel
+            SENSITIVE = iplSensitive
+            MOVABLE = lMovable
+            RESIZABLE = lResizable
+            SELECTABLE = lSelectable
+        TRIGGERS:
+          {AOA/includes/cursorTriggers.i "{2}"}
+          ON START-MOVE
+            PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
+          ON START-RESIZE
+            PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
+          ON CHOOSE
+            PERSISTENT RUN pButtonClick IN THIS-PROCEDURE (ophWidget:HANDLE).
+        END TRIGGERS.
+END PROCEDURE.
 
 PROCEDURE pButtonCalendar:
     DEFINE INPUT  PARAMETER ipcPoolName  AS CHARACTER NO-UNDO.
@@ -145,7 +183,10 @@ PROCEDURE pComboBox:
         ophWidget:LIST-ITEM-PAIRS = ipcListItems.
         ELSE
         ophWidget:LIST-ITEMS = ipcListItems.
-        ophWidget:SCREEN-VALUE = ipcValue.
+        ASSIGN
+            ophWidget:INNER-LINES  = ophWidget:NUM-ITEMS
+            ophWidget:SCREEN-VALUE = ipcValue
+            .
     END. /* if valid-handle */
 END PROCEDURE.
 
@@ -168,6 +209,7 @@ PROCEDURE pCreateDynParameters :
     DEFINE VARIABLE hPickList   AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hWidget     AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lAutoClose  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lOnePer     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lRunSync    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lSensitive  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
@@ -299,6 +341,20 @@ PROCEDURE pCreateDynParameters :
                 ).
         END. /* if rectangle */
         CASE dynParam.viewAs:
+            WHEN "BUTTON" THEN
+            RUN pButton (
+                cPoolName,
+                hFrame,
+                cParamLabel,
+                cParamName,
+                dCol,
+                dRow,
+                dynParamSetDtl.paramWidth,
+                dynParamSetDtl.paramHeight,
+                lSensitive,
+                lIsVisible,
+                OUTPUT hWidget
+                ).
             WHEN "COMBO-BOX" THEN
             RUN pComboBox (
                 cPoolName,
@@ -469,7 +525,10 @@ PROCEDURE pCreateDynParameters :
                 ttDynAction.descriptionProc = dynParamSetDtl.descriptionProc
                 ttDynAction.initialValue    = dynParamSetDtl.initialValue
                 .
+            &IF "{&program-id}" NE "dynRun." &THEN
+            IF ttDynAction.action NE ? AND LOOKUP("Session Parameter",ttDynAction.action) NE 0 THEN
             RUN spSetSessionParam (ttDynAction.paramName + "-Handle",STRING(hWidget:HANDLE)).
+            &ENDIF
         END. /* if valid-handle */
         hWidget:HIDDEN = iplLive AND lIsVisible EQ NO.
         hWidget:MOVE-TO-TOP().
@@ -496,6 +555,8 @@ PROCEDURE pCreateDynParameters :
         DO WHILE VALID-HANDLE(hWidget):
             IF hWidget:NAME EQ "svAutoClose" THEN
             hWidget:SCREEN-VALUE = STRING(dynSubject.autoClose).
+            IF hWidget:NAME EQ "svOnePer" THEN
+            hWidget:SCREEN-VALUE = STRING(dynSubject.onePer).
             IF hWidget:NAME EQ "svRunSync" THEN
             hWidget:SCREEN-VALUE = STRING(dynSubject.runSync).
             FIND FIRST dynValueParam NO-LOCK

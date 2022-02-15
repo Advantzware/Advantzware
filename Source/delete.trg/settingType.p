@@ -4,4 +4,10 @@
 
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
 
+FOR EACH setting EXCLUSIVE-LOCK
+    WHERE setting.settingTypeID EQ {&TABLENAME}.settingTypeID
+    :
+    DELETE setting.
+END. // each setting
+
 {methods/triggers/delete.i}

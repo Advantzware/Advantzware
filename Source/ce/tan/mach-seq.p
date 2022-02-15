@@ -555,9 +555,10 @@ do on error undo:
   end.
 end.
 
+/* Commented this becase Die Size (trim-l and trim-w) should *never* be used directly in the machine limit determination
 assign
  sh-len = xef.trim-w
- sh-wid = xef.trim-l.
+ sh-wid = xef.trim-l.*/
 
 /* laminating */
 if xef.medium ne "" or xef.flute ne "" or xef.lam-code ne "" then

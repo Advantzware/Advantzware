@@ -76,6 +76,15 @@ SESSION:DEBUG-ALERT = NO.
 
 /* gdm - */
 DEF VAR v-inv-bal AS DEC FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cARCashEntry AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "ARCashEntry", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cARCashEntry = cRtnChar NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -401,7 +410,12 @@ DO:
 
     CASE FOCUS:NAME:
         WHEN "inv-no" THEN DO:
+             IF cARCashEntry EQ "Ask" THEN        
              RUN ar/d-arinvq.w (OUTPUT lvSelection).
+             ELSE IF cARCashEntry EQ "Auto" THEN
+             lvSelection = "Summary".
+             ELSE  lvSelection = "Detail".
+             
              IF lvSelection = "Summary" THEN
                 RUN ar/l-arinv.w (ar-cash.company,ar-cash.cust-no,FOCUS:SCREEN-VALUE, OUTPUT char-val, OUTPUT lk-recid).
              ELSE 
@@ -782,7 +796,7 @@ PROCEDURE create-onaccount :
   ld-unapplied = ar-cash.check-amt - ld-unapplied.
 
   IF ld-unapplied GT 0 THEN
-     MESSAGE "Put UNAPPLIED monies ON ACCOUNT?"
+     MESSAGE "Customer has no open invoices – Apply this payment on account?"
         VIEW-AS ALERT-BOX BUTTON YES-NO
         UPDATE choice.
 
@@ -989,7 +1003,12 @@ PROCEDURE local-add-record :
 
   FIND FIRST bf-cashl OF ar-cash NO-LOCK NO-ERROR.
   IF NOT AVAIL bf-cashl THEN DO:
+     IF cARCashEntry EQ "Ask" THEN
      RUN ar/d-arinvq.w (OUTPUT lvSelection).
+     ELSE IF cARCashEntry EQ "Auto" THEN
+     lvSelection = "Summary".
+     ELSE  lvSelection = "Detail".
+     
      IF lvSelection = "Summary" THEN
         RUN ar/d-selinv.w (RECID(ar-cash), NO, OUTPUT lv-canceled).
      ELSE

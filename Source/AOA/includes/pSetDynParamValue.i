@@ -53,6 +53,8 @@ PROCEDURE pSetDynParamValue:
             dynParamValue.isLookup         = dynSubject.isLookup
             dynParamValue.runSync          = dynSubject.runSync
             dynParamValue.autoClose        = dynSubject.autoClose
+            dynParamValue.formType         = dynSubject.formType
+            dynParamValue.onePer           = dynSubject.onePer
             dynParamValue.custListID       = dynSubject.custListID
             dynParamValue.useCustList      = dynSubject.useCustList
             dynParamValue.mnemonic         = dynSubject.mnemonic
@@ -95,6 +97,7 @@ PROCEDURE pSetDynParamValue:
                 dynValueColumn.isActive          = {1}SubjectColumn.isActive
                 dynValueColumn.isCalcField       = {1}SubjectColumn.isCalcField
                 dynValueColumn.isFilterInitField = {1}SubjectColumn.isFilterInitField
+                dynValueColumn.isFormField       = {1}SubjectColumn.isFormField
                 dynValueColumn.isGroup           = {1}SubjectColumn.isGroup
                 dynValueColumn.isReturnValue     = {1}SubjectColumn.isReturnValue
                 dynValueColumn.isSearchable      = {1}SubjectColumn.isSearchable
@@ -140,8 +143,7 @@ PROCEDURE pSetDynParamValue:
         WHERE dynParamSetDtl.paramSetID EQ {1}SubjectParamSet.paramSetID,
         FIRST dynParam NO-LOCK
         WHERE dynParam.paramID EQ dynParamSetDtl.paramID
-           BY {1}SubjectParamSet.setRow
-           BY {1}SubjectParamSet.setCol
+           BY {1}SubjectParamSet.sortOrder
            BY dynParamSetDtl.paramRow
            BY dynParamSetDtl.paramCol
         :
@@ -177,4 +179,5 @@ PROCEDURE pSetDynParamValue:
                 .
         END. /* if datepicklist */
     END. /* each dynsubjectparamset */
+
 END PROCEDURE.

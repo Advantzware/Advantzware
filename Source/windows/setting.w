@@ -106,19 +106,19 @@ DEFINE FRAME F-Main
          SIZE 184 BY 39.19
          BGCOLOR 15  WIDGET-ID 100.
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 12 ROW 1
-         SIZE 11 BY 2
-         BGCOLOR 15  WIDGET-ID 300.
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 56.6 ROW 1.95
          SIZE 39 BY 2
          BGCOLOR 15  WIDGET-ID 200.
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 12 ROW 1
+         SIZE 11 BY 2
+         BGCOLOR 15  WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -127,7 +127,7 @@ DEFINE FRAME message-frame
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 2
+   Design Page: 1
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -339,7 +339,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_settingfilter ).
        RUN set-position IN h_settingfilter ( 5.33 , 1.80 ) NO-ERROR.
-       /* Size in UIB:  ( 4.29 , 175.00 ) */
+       /* Size in UIB:  ( 4.29 , 180.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/setting.w':U ,
@@ -351,7 +351,8 @@ PROCEDURE adm-create-objects :
                      HIDE-SETTING-FILTER = FALSE,
                      HIDE-SCOPE-FILTER = TRUE,
                      SETTING-FILTER-TYPE = SettingType,
-                     LOAD-DATA-FROM-TT = FALSE':U ,
+                     LOAD-DATA-FROM-TT = FALSE,
+                     COLUMN-NAME = TRUE':U ,
              OUTPUT h_setting ).
        RUN set-position IN h_setting ( 9.71 , 1.80 ) NO-ERROR.
        RUN set-size IN h_setting ( 28.05 , 180.20 ) NO-ERROR.
@@ -374,7 +375,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_setting-4 ).
        RUN set-position IN h_setting-4 ( 5.29 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 6.67 , 175.00 ) */
+       /* Size in UIB:  ( 6.67 , 180.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/scopefilter.w':U ,
@@ -388,13 +389,14 @@ PROCEDURE adm-create-objects :
              INPUT  'browsers/setting.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'SAVE-TYPE = DATABASE,
-                     BROWSE-COLUMNS = settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser|programID,
-                     BROWSE-COLUMNS-DISPLAY = scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser|programID,
+                     BROWSE-COLUMNS = settingName|description|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser|programID|settingValue,
+                     BROWSE-COLUMNS-DISPLAY = scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser|programID|settingValue,
                      HIDE-SEARCH = FALSE,
                      HIDE-SETTING-FILTER = FALSE,
                      HIDE-SCOPE-FILTER = FALSE,
                      SETTING-FILTER-TYPE = Setting,
-                     LOAD-DATA-FROM-TT = FALSE':U ,
+                     LOAD-DATA-FROM-TT = FALSE,
+                     COLUMN-NAME = FALSE':U ,
              OUTPUT h_setting-3 ).
        RUN set-position IN h_setting-3 ( 16.62 , 2.00 ) NO-ERROR.
        RUN set-size IN h_setting-3 ( 23.19 , 104.00 ) NO-ERROR.
@@ -427,10 +429,8 @@ PROCEDURE adm-create-objects :
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_setting-4 ,
              h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_scopefilter ,
-             h_setting-4 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_setting-3 ,
-             h_scopefilter , 'AFTER':U ).
+             h_setting-4 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_setting-2 ,
              h_setting-3 , 'AFTER':U ).
     END. /* Page 2 */

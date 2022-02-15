@@ -84,7 +84,7 @@ DEFINE QUERY external_tables FOR APIOutbound.
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS cbContentType br_table 
+&Scoped-Define ENABLED-OBJECTS RECT-9 cbContentType br_table 
 &Scoped-Define DISPLAYED-OBJECTS cbContentType 
 
 /* Custom List Definitions                                              */
@@ -144,10 +144,14 @@ RUN set-attribute-list (
 DEFINE VARIABLE cbContentType AS CHARACTER FORMAT "X(256)":U 
      LABEL "Content Type" 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "","Headers","x-www-form-urlencoded","form-data" 
+     LIST-ITEMS "","Headers","x-www-form-urlencoded","form-data","User" 
      DROP-DOWN-LIST
-     SIZE 46 BY 1
+     SIZE 46 BY .92
      FONT 6 NO-UNDO.
+
+DEFINE RECTANGLE RECT-9
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 124 BY 15.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -163,7 +167,7 @@ DEFINE BROWSE br_table
       APIOutboundContent.contentValue FORMAT "x(100)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 122 BY 9.24
+    WITH NO-ASSIGN SEPARATORS SIZE 122 BY 13.24
          FONT 6 ROW-HEIGHT-CHARS .52.
 
 
@@ -171,11 +175,12 @@ DEFINE BROWSE br_table
 
 DEFINE FRAME F-Main
      cbContentType AT ROW 1.24 COL 16.8 COLON-ALIGNED WIDGET-ID 6
-     br_table AT ROW 2.71 COL 1
+     br_table AT ROW 2.52 COL 2.6
+     RECT-9 AT ROW 1 COL 1 WIDGET-ID 8
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15 FONT 6 WIDGET-ID 100.
+         BGCOLOR 15 FGCOLOR 9 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -205,8 +210,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 11
-         WIDTH              = 122.6.
+         HEIGHT             = 17.52
+         WIDTH              = 124.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -335,6 +340,8 @@ END.
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
+{methods/browsers/setCellColumns.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -389,6 +396,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win
+PROCEDURE local-initialize:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN setCellColumns.
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

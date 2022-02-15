@@ -18,6 +18,8 @@ DEFINE VARIABLE glCreateFGReceipts                     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCheckClosedStatus                    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCreateRFIDTag                        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCreateComponenetTagsForSetHeaderItem AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glFGSetCreateAdjustment                AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE gcLoadtagPrintSoftware                 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glAutoPrint                            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE giFGSetRec                             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE gcLoadTag                              AS CHARACTER NO-UNDO.
@@ -25,11 +27,9 @@ DEFINE VARIABLE gcLoadTagOutputFile                    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcLoadTagOutputPath                    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcBOLLoadTagOutputFile                 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcBOLLoadTagOutputPath                 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcLoadtagLocationSource                AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glCreateTagsForEmptyBOLLineTags        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCreateTagForPartial                  AS LOGICAL   NO-UNDO.
-
-DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
-oSetting = NEW system.Setting().
 
 {oerep/ttLoadTag.i}
 {api/ttAPIOutboundEvent.i}
@@ -72,6 +72,8 @@ FUNCTION fGetNextTTLoadTagRecordID RETURNS INTEGER PRIVATE
 
 FUNCTION fReplaceQuotes RETURNS CHARACTER PRIVATE
     ( INPUT ipcField AS CHARACTER ) FORWARD.
+
+RUN pUpdateConfig.
 
 PROCEDURE BuildLoadTagsFromBOL:
 /*------------------------------------------------------------------------------
@@ -885,12 +887,12 @@ PROCEDURE pCreateLoadTag:
             bf-loadtag.partial      = ipbf-ttLoadTag.partial
             .
 
-        IF glUpdateLocBinFromItemFG THEN
+        IF gcLoadtagLocationSource EQ "FGItem" THEN
             ASSIGN
                 bf-loadtag.loc     = bf-itemfg.def-loc
                 bf-loadtag.loc-bin = bf-itemfg.def-loc-bin
                 .
-        ELSE IF glUpdateLocBinFromFGBin THEN DO:
+        ELSE IF gcLoadtagLocationSource EQ "FGBin" THEN DO:
             FIND FIRST bf-fg-bin NO-LOCK
                  WHERE bf-fg-bin.company EQ bf-itemfg.company
                    AND bf-fg-bin.i-no    EQ bf-itemfg.i-no
@@ -1098,7 +1100,7 @@ PROCEDURE pCreateLoadTag:
                     bf-fg-rctd.std-cost = bf-fg-bin.std-tot-cost.
             END.
     
-            IF NOT giFGSetRec EQ 1 THEN DO:
+            IF glFGSetCreateAdjustment THEN DO:
                 IF bf-itemfg.isaset AND
                   (bf-itemfg.alloc EQ NO  OR
                   (bf-itemfg.alloc EQ YES AND /* fgrecpt-char NE "Manual" AND*/ TRIM(bf-fg-rctd.job-no) NE "")) THEN DO:
@@ -1237,7 +1239,7 @@ PROCEDURE pCreateLoadTag:
                 END.
             END.
 
-            IF NOT ( giFGSetRec EQ 1 AND bf-itemfg.alloc NE YES) THEN
+            IF NOT ( NOT glFGSetCreateAdjustment AND bf-itemfg.alloc NE YES) THEN
                 RUN fg/comprcpt.p (
                     INPUT ROWID(bf-fg-rctd)
                     ).
@@ -1637,7 +1639,7 @@ PROCEDURE pPrintLoadTag PRIVATE:
         '"'  fReplaceQuotes(ipbf-ttLoadTag.orderDesc2)    '",'
         .
         
-        IF CAN-DO("ASI,SSLABEL",gcLoadTag) THEN DO:
+        IF CAN-DO("ASI,SSLABEL", gcLoadtagPrintSoftware) THEN DO:
         PUT UNFORMATTED
         '"' SUBSTR(ipbf-ttLoadTag.tag,16,5) '",'
         '"' ipbf-ttLoadTag.rfidTag '",' .
@@ -1698,7 +1700,7 @@ PROCEDURE pPrintLoadTagHeader PRIVATE:
         "TAG#,PARTIAL,CASECODE,SN1,SN2,SN3,SN4,SN5,SN6,SN7,SN8,PONO,DN1,DN2,DN3,DN4,"
         "DN5,DN6,DN7,DN8,DN9,DN10,EST#,ORDDESC1,ORDDESC2".
     
-    IF CAN-DO("ASI,SSLABEL",gcLoadTag) THEN
+    IF CAN-DO("ASI,SSLABEL",gcLoadtagPrintSoftware) THEN
         PUT UNFORMATTED ",COUNTER#,RFIDTag".
 
     PUT UNFORMATTED 
@@ -2039,28 +2041,50 @@ PROCEDURE pUpdateConfig PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE cSettingValue AS CHARACTER NO-UNDO.
+    
+    RUN spGetSettingByName("LoadTag", OUTPUT gcLoadTag).
+    RUN spGetSettingByName("LoadTagOutputFile", OUTPUT gcLoadTagOutputFile).
+    RUN spGetSettingByName("LoadTagOutputFilePath", OUTPUT gcLoadTagOutputPath).
+    RUN spGetSettingByName("LoadTagOutputFilePath", OUTPUT gcBOLLoadTagOutputFile).
+    RUN spGetSettingByName("BOLLoadTagOutputFilePath", OUTPUT gcBOLLoadTagOutputPath).
 
-    IF VALID-OBJECT(oSetting) THEN
-        ASSIGN
-            glUpdateLoadTagSSCC                    = LOGICAL(oSetting:GetByName("UpdateLoadTagSSCC"))
-            glUpdateLocBinFromItemFG               = LOGICAL(oSetting:GetByName("UpdateLocBinFromItemFG"))
-            glUpdateLocBinFromFGBin                = LOGICAL(oSetting:GetByName("UpdateLocBinFromFGBin"))
-            glCreateFGReceipts                     = LOGICAL(oSetting:GetByName("CreateFGReceipts"))
-            glCheckClosedStatus                    = LOGICAL(oSetting:GetByName("CheckClosedStatus"))
-            glUpdateSetWithMaxQuantity             = LOGICAL(oSetting:GetByName("UpdateSetWithMaxQuantity"))
-            glCreateRFIDTag                        = LOGICAL(oSetting:GetByName("CreateRFIDTag"))
-            glCreateComponenetTagsForSetHeaderItem = LOGICAL(oSetting:GetByName("CreateComponenetTagsForSetHeaderItem"))
-            glAutoPrint                            = LOGICAL(oSetting:GetByName("AutoPrint"))
-            glCreateTagsForEmptyBOLLineTags        = LOGICAL(oSetting:GetByName("CreateTagsForEmptyBOLLineTags"))
-            glCreateTagForPartial                  = LOGICAL(oSetting:GetByName("CreateTagForPartial"))
-            giFGSetRec                             = INTEGER(oSetting:GetByName("FGSetRec"))
-            gcLoadTag                              = STRING(oSetting:GetByName("LoadTag"))
-            gcLoadTagOutputFile                    = STRING(oSetting:GetByName("LoadTagOutputFile"))
-            gcLoadTagOutputPath                    = STRING(oSetting:GetByName("LoadTagOutputFilePath"))
-            gcBOLLoadTagOutputFile                 = STRING(oSetting:GetByName("BOLLoadTagOutputFile"))
-            gcBOLLoadTagOutputPath                 = STRING(oSetting:GetByName("BOLLoadTagOutputFilePath"))
-            NO-ERROR.
+    RUN spGetSettingByName("UpdateLoadTagSSCC", OUTPUT cSettingValue).
+    glUpdateLoadTagSSCC = LOGICAL (cSettingValue) NO-ERROR.
+    
+    RUN spGetSettingByName("UpdateLocBinFromItemFG", OUTPUT cSettingValue).
+    glUpdateLocBinFromItemFG = LOGICAL (cSettingValue) NO-ERROR.
 
+    RUN spGetSettingByName("UpdateLocBinFromFGBin", OUTPUT cSettingValue).
+    glUpdateLocBinFromFGBin = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("CreateFGReceipts", OUTPUT cSettingValue).
+    glCreateFGReceipts = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("CheckClosedStatus", OUTPUT cSettingValue).
+    glCheckClosedStatus = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("UpdateSetWithMaxQuantity", OUTPUT cSettingValue).
+    glUpdateSetWithMaxQuantity = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("CreateRFIDTag", OUTPUT cSettingValue).
+    glCreateRFIDTag = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("CreateComponenetTagsForSetHeaderItem", OUTPUT cSettingValue).
+    glCreateComponenetTagsForSetHeaderItem = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("AutoPrint", OUTPUT cSettingValue).
+    glAutoPrint = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("CreateTagsForEmptyBOLLineTags", OUTPUT cSettingValue).
+    glCreateTagsForEmptyBOLLineTags = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("CreateTagForPartial", OUTPUT cSettingValue).
+    glCreateTagForPartial = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("FGSetRec", OUTPUT cSettingValue).
+    giFGSetRec = INTEGER (cSettingValue) NO-ERROR.
+    
 END PROCEDURE.
 
 PROCEDURE pUpdateTTLoadTagFGBinDetails PRIVATE:
@@ -3426,23 +3450,6 @@ PROCEDURE pUpdateTTLoadTagOrderDetails:
     END.
 END PROCEDURE.
 
-
-PROCEDURE SetSetting:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipoSetting AS system.Setting NO-UNDO.
-
-    IF VALID-OBJECT(ipoSetting) THEN DO:
-        IF VALID-OBJECT(oSetting) THEN
-            DELETE OBJECT oSetting.
-
-        oSetting = ipoSetting.
-    END.
-    
-    RUN pUpdateConfig.
-END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 

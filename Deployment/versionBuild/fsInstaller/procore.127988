@@ -1,0 +1,14 @@
+
+10/14/21 13:57:48  [127988]
+Progress Recent Message(s):
+  
+
+  *** ABL Call Stack ***
+Last action: IN/OUT CLOSE   (80)
+8128: ipWriteMessage fsInstallerAuto.w (.\fsInstallerAuto.w)
+5774: ipCompileBase2 fsInstallerAuto.w (.\fsInstallerAuto.w)
+5736: ipCompileBase2 fsInstallerAuto.w (.\fsInstallerAuto.w)
+5675: ipCompileBase fsInstallerAuto.w (.\fsInstallerAuto.w)
+4326: USER-INTERFACE-TRIGGER fsInstallerAuto.w (.\fsInstallerAuto.w)
+5229: USER-INTERFACE-TRIGGER fsInstallerAuto.w (.\fsInstallerAuto.w)
+5387: fsInstallerAuto.w (.\fsInstallerAuto.w)

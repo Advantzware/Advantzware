@@ -393,7 +393,7 @@ IF AVAIL bf-quoteqty THEN
    
         IF iLine GT 1 THEN DO:
             gchWorkSheet = gchExcelApplication:Sheets:item(1).
-            RUN AddBorders(INPUT "B" + STRING(37 + iLine) + ":H" + STRING(37 + iLine)).
+            RUN AddBorders(INPUT "B" + STRING(39 + iLine) + ":H" + STRING(39 + iLine)).
             gchWorkSheet = gchExcelApplication:Sheets:item(2).                               
         END.
     END.
@@ -437,13 +437,13 @@ IF LvOutputSelection = "email" THEN
 
 /* Connect to the running Excel session. */
 CREATE "Excel.Application" gchExcelApplication CONNECT NO-ERROR.
-IF NOT VALID-HANDLE(gchExcelApplication) THEN
-RETURN.
 
 /* If Excel is running close it. */
 IF NOT VALID-HANDLE (gchExcelApplication) THEN
     /* Start a new session of Excel. */
     CREATE "Excel.Application" gchExcelApplication NO-ERROR.
+    IF NOT VALID-HANDLE(gchExcelApplication) THEN
+    RETURN.
 
 /* Network connection checks. */
 CREATE "WScript.Network" gchWshNetwork NO-ERROR.

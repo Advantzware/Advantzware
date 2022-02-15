@@ -32,7 +32,7 @@
 3 yes 4 "job-hdr.blank-no" "Blank" ">9" "job-hdr" 0 "integer" "ASI" 0 no no "" "" no "" "" "201911064565804355848" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 3 yes 8 "job-hdr.cust-no" "Cust. #" "x(8)" "job-hdr" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355849" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 3 yes 9 "job-hdr.due-date" "Due Date" "99/99/9999" "job-hdr" 0 "date" "ASI" 0 no no "" "" no "" "" "201911064565804355850" yes yes yes "" no "" "" 0 0 "" no no "" "" no
-3 yes 6 "job-hdr.est-no" "Estimate #" "x(5)" "job-hdr" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355851" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+3 yes 6 "job-hdr.est-no" "Estimate #" "x(8)" "job-hdr" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355851" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 3 yes 3 "job-hdr.frm" "Form" ">>9" "job-hdr" 0 "integer" "ASI" 0 no no "" "" no "" "" "201911064565804355852" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 3 yes 5 "job-hdr.i-no" "Item No" "x(15)" "job-hdr" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355853" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 3 yes 1 "job-hdr.job-no" "Job Number" "x(6)" "job-hdr" 0 "STRING" "ASI" 1 no no "" "" no "" "" "201911064565804355854" yes yes yes "" no "" "" 0 0 "" no no "" "" no
@@ -343,8 +343,8 @@
 31 yes 1 "shifts.shift" "Shift" "X" "shifts" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355977" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 32 yes 2 "vend.name" "Name" "x(30)" "vend" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355978" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 32 yes 1 "vend.vend-no" "Vend.#" "x(30)" "vend" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355979" yes yes yes "" no "" "" 0 0 "" no no "" "" no
-33 yes 2 "mat.dscr" "Description" "x(30)" "mat" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355980" yes yes yes "" no "" "" 0 0 "" no no "" "" no
-33 yes 1 "mat.mat" "Type" "x(5)" "mat" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355981" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+33 yes 2 "materialType.materialDescription" "Material Description" "x(40)" "materialType" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202201271571508511225" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+33 yes 1 "materialType.materialType" "Material Type" "x(8)" "materialType" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202201271571508511226" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 34 yes 2 "procat.dscr" "Description" "x(20)" "procat" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355982" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 34 yes 1 "procat.procat" "Category" "x(5)" "procat" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565804355983" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 35 yes 2 "ttTempTable.exportDate" "exportDate" "99/99/9999" "ttTempTable" 0 "date" "ASI" 0 no no "" "" no "" "" "201911064565804355984" no no no "" no "" "" 0 0 "" no no "" "" no
@@ -1725,8 +1725,13 @@
 114 yes 4 "rm-rdtlh.tag" "Tag" "x(8)" "rm-rdtlh" 8 "STRING" "ASI" 0 no no "" "" no "" "" "202005202361805285132" no no no "" no "" "" 0 0 "" no no "" "" no
 114 yes 15 "rm-rdtlh.tag2" "To Tag" "x(5)" "rm-rdtlh" 6.6 "STRING" "ASI" 0 no no "" "" no "" "" "202005202361805285133" no no no "" no "" "" 0 0 "" no no "" "" no
 114 yes 16 "rm-rdtlh.user-id" "User ID" "x(8)" "rm-rdtlh" 8 "STRING" "ASI" 0 no no "" "" no "" "" "202005202361805285134" no no no "" no "" "" 0 0 "" no no "" "" no
+115 yes 14 "CalcLFAllocated" "LF Allocated" ">,>>>,>>9.99<<<<" "" 0 "Decimal" "ASI" 0 no no "" "" yes "" ? "202110190345008098188" no no no "job-mat.len|/|12" no "" "" 0 0 "" no no "" "" no
 115 yes 9 "item.cons-uom" "RM UOM" "x(3)" "item" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202005221960905308748" no no no "" no "" "" 0 0 "" no no "" "" no
 115 yes 13 "item.cust-no" "Cust. #" "x(8)" "item" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202107024200007675320" no no no "" no "" "" 0 0 "" no no "" "" no
+115 yes 18 "item.q-avail" "Qty Available" "->>>,>>>,>>9.9<<<<<" "item" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202110190375008098257" no no no "" no "" "" 0 0 "" no no "" "" no
+115 yes 16 "item.q-onh" "Qty On-Hand" "->>>,>>>,>>9.9<<<<<" "item" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202110190375008098258" no no no "" no "" "" 0 0 "" no no "" "" no
+115 yes 17 "item.q-ono" "Qty On-Order" "->>>,>>>,>>9.9<<<<<" "item" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202110190375008098259" no no no "" no "" "" 0 0 "" no no "" "" no
+115 yes 15 "item.r-wid" "Roll Width" ">>,>>9.99<<<" "item" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202110190345008098189" no no no "" no "" "" 0 0 "" no no "" "" no
 115 yes 5 "job-mat.blank-no" "BLANK" ">9" "job-mat" 0 "integer" "ASI" 0 no no "" "" no "" "" "202005221960905308749" no no no "" no "" "" 0 0 "" no no "" "" no
 115 yes 4 "job-mat.frm" "Form" ">>9" "job-mat" 0 "integer" "ASI" 0 no no "" "" no "" "" "202005221960905308750" no no no "" no "" "" 0 0 "" no no "" "" no
 115 yes 2 "job-mat.job-no" "Job Number" "x(6)" "job-mat" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202005221960905308751" no no no "" no "" "" 0 0 "" no no "" "" no
@@ -2043,27 +2048,32 @@
 134 yes 7 "ttAgedReceivables.address2" "Address 2" "x(30)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202008146913305578726" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 21 "ttAgedReceivables.adtp" "Adtp" "->,>>9" "ttAgedReceivables" 0 "integer" "ASI" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" "202008146913305578727" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 19 "ttAgedReceivables.amount" "Amount" "->,>>>,>>>,>>9.99" "ttAgedReceivables" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" "202008146913305578728" no no no "" no "" "" 0 0 "" no no "" "" no
-134 yes 29 "ttAgedReceivables.arClass" "AR Class" "99" "ttAgedReceivables" 0 "integer" "ASI" 0 no no "" "" no "" "" "202008146913305578729" no no no "" no "" "" 0 0 "" no no "" "" no
+134 yes 32 "ttAgedReceivables.arClass" "AR Class" "99" "ttAgedReceivables" 0 "integer" "ASI" 0 no no "" "" no "" "" "202008146913305578729" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 14 "ttAgedReceivables.checkMemo" "Check/Memo" "x(10)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202008146913305578730" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 8 "ttAgedReceivables.city" "City" "x(15)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202008146913305578731" no no no "" no "" "" 0 0 "" no no "" "" no
-134 yes 31 "ttAgedReceivables.collNote" "Collection Note" "x(50)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202008146913305578732" no no no "" no "" "" 0 0 "" no no "" "" no
+134 yes 36 "ttAgedReceivables.collNote" "Collection Note" "x(50)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202008146913305578732" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 3 "ttAgedReceivables.contact" "Contact" "x(15)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202008146913305578733" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 11 "ttAgedReceivables.creditLimit" "Credit Lim" "->>,>>>,>>9.99" "ttAgedReceivables" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202008146913305578734" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 2 "ttAgedReceivables.custName" "Customer Name" "x(30)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202007306979705466948" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 1 "ttAgedReceivables.custNo" "Customer" "x(8)" "ttAgedReceivables" 0 "character" "ASI" 0 no yes "" "" no "" "" "202007306979705466949" no no no "" no "" "" 0 0 "" no no "" "" no
-134 yes 27 "ttAgedReceivables.custPoNo" "Customer PoNo" "x(15)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202008146913305578735" no no no "" no "" "" 0 0 "" no no "" "" no
+134 yes 30 "ttAgedReceivables.custPoNo" "Customer PoNo" "x(15)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202008146913305578735" no no no "" no "" "" 0 0 "" no no "" "" no
+134 yes 34 "ttAgedReceivables.daysFromDueDate" "Days From Due Date" "->,>>9" "ttAgedReceivables" 0 "integer" "ASI" 0 no no "" "" no "" "" "202110198379008099399" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 15 "ttAgedReceivables.daysOld" "Days Old" "->>>>>>>9" "ttAgedReceivables" 0 "integer" "ASI" 0 no no "" "" no "" "" "202008146913305578736" no no no "" no "" "" 0 0 "" no no "" "" no
+134 yes 33 "ttAgedReceivables.dueDate" "Due Date" "99/99/9999" "ttAgedReceivables" 0 "date" "ASI" 0 no no "" "" no "" "" "202110198379008099400" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 13 "ttAgedReceivables.fax" "Fax" "x(12)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202008146913305578737" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 18 "ttAgedReceivables.invoiceDate" "Inv Date" "99/99/9999" "ttAgedReceivables" 0 "date" "ASI" 0 no no "" "" no "" "" "202008146913305578738" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 17 "ttAgedReceivables.invoiceNo" "Invoice" ">>>>>>>>9" "ttAgedReceivables" 0 "integer" "ASI" 0 no no "" "" no "" "" "202008146913305578739" no no no "" no "" "" 0 0 "" no no "" "" no
-134 yes 30 "ttAgedReceivables.invoiceNote" "Invoice Note" "x(50)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202008146913305578740" no no no "" no "" "" 0 0 "" no no "" "" no
-134 yes 28 "ttAgedReceivables.jobNo" "Job No " "x(9)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202008146913305578741" no no no "" no "" "" 0 0 "" no no "" "" no
+134 yes 35 "ttAgedReceivables.invoiceNote" "Invoice Note" "x(50)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202008146913305578740" no no no "" no "" "" 0 0 "" no no "" "" no
+134 yes 31 "ttAgedReceivables.jobNo" "Job No " "x(9)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202008146913305578741" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 23 "ttAgedReceivables.periodDay1" "Period Days 1" "->,>>>,>>>,>>9.99" "ttAgedReceivables" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" "202008146913305578742" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 24 "ttAgedReceivables.periodDay2" "Period Days 2" "->,>>>,>>>,>>9.99" "ttAgedReceivables" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" "202008146913305578743" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 25 "ttAgedReceivables.periodDay3" "Period Days 3" "->,>>>,>>>,>>9.99" "ttAgedReceivables" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" "202008146913305578744" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 26 "ttAgedReceivables.periodDay4" "Period Days 4" "->,>>>,>>>,>>9.99" "ttAgedReceivables" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" "202008146913305578745" no no no "" no "" "" 0 0 "" no no "" "" no
+134 yes 27 "ttAgedReceivables.periodDay5" "Period Days 5" "->,>>>,>>>,>>9.99" "ttAgedReceivables" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" "202110198379008099401" no no no "" no "" "" 0 0 "" no no "" "" no
+134 yes 28 "ttAgedReceivables.periodDay6" "Period Days 6" "->,>>>,>>>,>>9.99" "ttAgedReceivables" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" "202110198379008099402" no no no "" no "" "" 0 0 "" no no "" "" no
+134 yes 29 "ttAgedReceivables.periodDay7" "Period Days 7" "->,>>>,>>>,>>9.99" "ttAgedReceivables" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" "202110198379008099403" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 12 "ttAgedReceivables.phone" "Phone" "x(13)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202008146913305578746" no no no "" no "" "" 0 0 "" no no "" "" no
-134 no 32 "ttAgedReceivables.recordID" "Record ID" ">>>,>>>,>>9" "ttAgedReceivables" 0 "integer" "ASI" 0 no no "" "" no "" "" "202106144461607419490" no no no "" no "" "" 0 0 "" no no "" "" no
+134 no 37 "ttAgedReceivables.recordID" "Record ID" ">>>,>>>,>>9" "ttAgedReceivables" 0 "integer" "ASI" 0 no no "" "" no "" "" "202106144461607419490" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 4 "ttAgedReceivables.salesRep" "Sales Rep" "x(25)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202008146913305578747" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 9 "ttAgedReceivables.state" "State" "x(5)" "ttAgedReceivables" 0 "character" "ASI" 0 no no "" "" no "" "" "202008146913305578748" no no no "" no "" "" 0 0 "" no no "" "" no
 134 yes 22 "ttAgedReceivables.td" "Td" "->,>>9" "ttAgedReceivables" 0 "integer" "ASI" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" "202008146913305578749" no no no "" no "" "" 0 0 "" no no "" "" no
@@ -2626,9 +2636,10 @@
 176 yes 1 "ttFormHeader.company" "Company" "x(8)" "ttFormHeader" 0 "character" "ASI" 0 no no "" "" no "" "" "202109030677907924194" no no no "" no "" "" 0 0 "" no no "" "" no
 176 yes 4 "ttFormHeader.customerID" "Customer ID" "x(8)" "ttFormHeader" 0 "character" "ASI" 0 no no "" "" no "" "" "202108280876607913786" no no no "" no "" "" 0 0 "" no no "" "" no
 176 yes 5 "ttFormHeader.customerName" "Customer Name" "x(8)" "ttFormHeader" 0 "character" "ASI" 0 no no "" "" no "" "" "202108280876607913787" no no no "" no "" "" 0 0 "" no no "" "" no
-176 yes 7 "ttFormHeader.emailKeyValues" "Email Key Values" "x(30)" "ttFormHeader" 0 "character" "ASI" 0 no no "" "" no "" "" "202109030114907921598" no no no "" no "" "" 0 0 "" no no "" "" no
+176 yes 7 "ttFormHeader.emailKeyValues" "Email Key Values" "x(30)" "ttFormHeader" 0 "character" "ASI" 0 no no "" "" no "" "" "202109030114907921598" no no no "" no "" "" 0 0 "" no no "" "" yes
 176 yes 3 "ttFormHeader.invoiceDate" "Invoice Date" "99/99/99" "ttFormHeader" 0 "date" "ASI" 0 no no "" "" no "" "" "202108290480607914280" no no no "" no "" "" 0 0 "" no no "" "" no
 176 yes 2 "ttFormHeader.invoiceID" "Invoice ID" "->,>>>,>>9" "ttFormHeader" 0 "integer" "ASI" 0 no no "" "" no "" "" "202108290480607914281" no no no "" no "" "" 0 0 "" no no "" "" no
+176 no 8 "ttFormHeader.recordID" "Record ID" ">>>,>>>,>>9" "ttFormHeader" 0 "integer" "ASI" 0 no no "" "" no "" "" "202110120182808131578" no no no "" no "" "" 0 0 "" no no "" "" no
 176 yes 6 "ttFormHeader.shiptoID" "Shipto ID" "x(8)" "ttFormHeader" 0 "character" "ASI" 0 no no "" "" no "" "" "202108310095307917362" no no no "" no "" "" 0 0 "" no no "" "" no
 177 yes 2 "ap-inv.inv-date" "Invoice Date" "99/99/9999" "ap-inv" 0 "date" "ASI" 0 no no "" "" no "" "" "202107191875207795031" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 177 yes 1 "ap-inv.inv-no" "Invoice No." "x(20)" "ap-inv" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202107191875207795032" yes yes yes "" no "" "" 0 0 "" no no "" "" no
@@ -2640,6 +2651,7 @@
 178 yes 41 "ttWIPStandards.comp" "Complete" "Yes/No" "ttWIPStandards" 0 "logical" "ASI" 0 no no "" "" no "" "" "202108207959907910505" no no no "" no "" "" 0 0 "" no no "" "" no
 178 yes 40 "ttWIPStandards.crew" "Crew" ">9" "ttWIPStandards" 0 "integer" "ASI" 0 no no "" "" no "" "" "202108207959907910506" no no no "" no "" "" 0 0 "" no no "" "" no
 178 yes 43 "ttWIPStandards.cust-no" "Customer" "x(8)" "ttWIPStandards" 0 "character" "ASI" 0 no no "" "" no "" "" "202108207959907910507" no no no "" no "" "" 0 0 "" no no "" "" no
+178 yes 49 "ttWIPStandards.cuts" "Cuts" ">>>,>>9" "ttWIPStandards" 0 "integer" "ASI" 0 no no "" "" no "" "" "202112091107808355855" no no no "" no "" "" 0 0 "" no no "" "" no
 178 yes 16 "ttWIPStandards.dep" "Depth" ">>9.9<<" "ttWIPStandards" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202108207959907910508" no no no "" no "" "" 0 0 "" no no "" "" no
 178 yes 36 "ttWIPStandards.deprt" "DP" "x(3)" "ttWIPStandards" 0 "character" "ASI" 0 no no "" "" no "" "" "202108207959907910509" no no no "" no "" "" 0 0 "" no no "" "" no
 178 yes 32 "ttWIPStandards.die-in" "Die Inches" ">>>>9" "ttWIPStandards" 0 "integer" "ASI" 0 no no "" "" no "" "" "202108207959907910510" no no no "" no "" "" 0 0 "" no no "" "" no
@@ -2693,3 +2705,213 @@
 182 yes 3 "ttPoReceipt.rec-date" "Received Date" "99/99/9999" "ttPoReceipt" 0 "date" "ASI" 0 no no "" "" no "" "" "202109211471708042684" no no no "" no "" "" 0 0 "" no no "" "" no
 182 yes 6 "ttPoReceipt.rec-qty" "PO Received Qty" ">>>>>>>>9" "ttPoReceipt" 0 "integer" "ASI" 0 no no "" "" no "" "" "202109211471708042685" no no no "" no "" "" 0 0 "" no no "" "" no
 182 yes 7 "ttPoReceipt.rec-qty-uom" "PO Received UOM" "x(3)" "ttPoReceipt" 0 "character" "ASI" 0 no no "" "" no "" "" "202109211471708042686" no no no "" no "" "" 0 0 "" no no "" "" no
+195 yes 1 "country.countryCode" "Country Code" "x(4)" "country" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202110221978408171275" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+195 yes 2 "country.Description" "Description" "x(20)" "country" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202110221978408171276" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+196 yes 103 "ttImportData.cData[100]" "Column[100]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193613" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 104 "ttImportData.cData[101]" "Column[101]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193614" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 105 "ttImportData.cData[102]" "Column[102]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193615" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 106 "ttImportData.cData[103]" "Column[103]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193616" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 107 "ttImportData.cData[104]" "Column[104]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193617" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 108 "ttImportData.cData[105]" "Column[105]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193618" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 109 "ttImportData.cData[106]" "Column[106]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193619" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 110 "ttImportData.cData[107]" "Column[107]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193620" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 111 "ttImportData.cData[108]" "Column[108]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193621" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 112 "ttImportData.cData[109]" "Column[109]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193622" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 13 "ttImportData.cData[10]" "Column[10]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193623" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 113 "ttImportData.cData[110]" "Column[110]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193624" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 114 "ttImportData.cData[111]" "Column[111]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193625" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 115 "ttImportData.cData[112]" "Column[112]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193626" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 116 "ttImportData.cData[113]" "Column[113]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193627" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 117 "ttImportData.cData[114]" "Column[114]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193628" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 118 "ttImportData.cData[115]" "Column[115]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193629" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 119 "ttImportData.cData[116]" "Column[116]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193630" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 120 "ttImportData.cData[117]" "Column[117]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193631" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 121 "ttImportData.cData[118]" "Column[118]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193632" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 122 "ttImportData.cData[119]" "Column[119]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193633" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 14 "ttImportData.cData[11]" "Column[11]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193634" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 123 "ttImportData.cData[120]" "Column[120]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193635" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 124 "ttImportData.cData[121]" "Column[121]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193636" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 125 "ttImportData.cData[122]" "Column[122]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193637" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 126 "ttImportData.cData[123]" "Column[123]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193638" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 127 "ttImportData.cData[124]" "Column[124]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193639" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 128 "ttImportData.cData[125]" "Column[125]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193640" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 129 "ttImportData.cData[126]" "Column[126]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193641" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 130 "ttImportData.cData[127]" "Column[127]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193642" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 131 "ttImportData.cData[128]" "Column[128]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193643" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 132 "ttImportData.cData[129]" "Column[129]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193644" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 15 "ttImportData.cData[12]" "Column[12]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193645" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 133 "ttImportData.cData[130]" "Column[130]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193646" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 134 "ttImportData.cData[131]" "Column[131]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193647" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 135 "ttImportData.cData[132]" "Column[132]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193648" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 136 "ttImportData.cData[133]" "Column[133]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193649" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 137 "ttImportData.cData[134]" "Column[134]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193650" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 138 "ttImportData.cData[135]" "Column[135]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193651" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 139 "ttImportData.cData[136]" "Column[136]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193652" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 140 "ttImportData.cData[137]" "Column[137]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193653" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 141 "ttImportData.cData[138]" "Column[138]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193654" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 142 "ttImportData.cData[139]" "Column[139]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193655" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 16 "ttImportData.cData[13]" "Column[13]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193656" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 143 "ttImportData.cData[140]" "Column[140]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193657" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 144 "ttImportData.cData[141]" "Column[141]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193658" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 145 "ttImportData.cData[142]" "Column[142]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193659" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 146 "ttImportData.cData[143]" "Column[143]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193660" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 147 "ttImportData.cData[144]" "Column[144]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193661" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 148 "ttImportData.cData[145]" "Column[145]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193662" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 149 "ttImportData.cData[146]" "Column[146]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193663" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 150 "ttImportData.cData[147]" "Column[147]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193664" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 151 "ttImportData.cData[148]" "Column[148]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193665" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 152 "ttImportData.cData[149]" "Column[149]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193666" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 17 "ttImportData.cData[14]" "Column[14]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193667" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 153 "ttImportData.cData[150]" "Column[150]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193668" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 154 "ttImportData.cData[151]" "Column[151]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193669" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 155 "ttImportData.cData[152]" "Column[152]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193670" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 156 "ttImportData.cData[153]" "Column[153]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193671" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 157 "ttImportData.cData[154]" "Column[154]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193672" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 158 "ttImportData.cData[155]" "Column[155]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193673" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 159 "ttImportData.cData[156]" "Column[156]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193674" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 160 "ttImportData.cData[157]" "Column[157]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193675" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 161 "ttImportData.cData[158]" "Column[158]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193676" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 162 "ttImportData.cData[159]" "Column[159]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193677" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 18 "ttImportData.cData[15]" "Column[15]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193678" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 163 "ttImportData.cData[160]" "Column[160]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193679" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 164 "ttImportData.cData[161]" "Column[161]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193680" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 165 "ttImportData.cData[162]" "Column[162]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193681" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 166 "ttImportData.cData[163]" "Column[163]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193682" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 167 "ttImportData.cData[164]" "Column[164]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193683" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 168 "ttImportData.cData[165]" "Column[165]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193684" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 169 "ttImportData.cData[166]" "Column[166]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193685" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 170 "ttImportData.cData[167]" "Column[167]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193686" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 171 "ttImportData.cData[168]" "Column[168]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193687" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 172 "ttImportData.cData[169]" "Column[169]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193688" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 19 "ttImportData.cData[16]" "Column[16]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193689" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 173 "ttImportData.cData[170]" "Column[170]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193690" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 174 "ttImportData.cData[171]" "Column[171]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193691" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 175 "ttImportData.cData[172]" "Column[172]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193692" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 176 "ttImportData.cData[173]" "Column[173]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193693" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 177 "ttImportData.cData[174]" "Column[174]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193694" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 178 "ttImportData.cData[175]" "Column[175]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193695" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 179 "ttImportData.cData[176]" "Column[176]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193696" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 180 "ttImportData.cData[177]" "Column[177]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193697" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 181 "ttImportData.cData[178]" "Column[178]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193698" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 182 "ttImportData.cData[179]" "Column[179]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193699" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 20 "ttImportData.cData[17]" "Column[17]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193700" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 183 "ttImportData.cData[180]" "Column[180]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193701" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 184 "ttImportData.cData[181]" "Column[181]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193702" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 185 "ttImportData.cData[182]" "Column[182]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193703" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 186 "ttImportData.cData[183]" "Column[183]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193704" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 187 "ttImportData.cData[184]" "Column[184]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193705" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 188 "ttImportData.cData[185]" "Column[185]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193706" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 189 "ttImportData.cData[186]" "Column[186]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193707" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 190 "ttImportData.cData[187]" "Column[187]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193708" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 191 "ttImportData.cData[188]" "Column[188]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193709" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 192 "ttImportData.cData[189]" "Column[189]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193710" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 21 "ttImportData.cData[18]" "Column[18]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193711" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 193 "ttImportData.cData[190]" "Column[190]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193712" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 194 "ttImportData.cData[191]" "Column[191]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193713" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 195 "ttImportData.cData[192]" "Column[192]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193714" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 196 "ttImportData.cData[193]" "Column[193]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193715" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 197 "ttImportData.cData[194]" "Column[194]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193716" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 198 "ttImportData.cData[195]" "Column[195]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193717" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 199 "ttImportData.cData[196]" "Column[196]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193718" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 200 "ttImportData.cData[197]" "Column[197]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193719" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 201 "ttImportData.cData[198]" "Column[198]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193720" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 202 "ttImportData.cData[199]" "Column[199]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193721" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 22 "ttImportData.cData[19]" "Column[19]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193722" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 4 "ttImportData.cData[1]" "Column[1]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193723" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 203 "ttImportData.cData[200]" "Column[200]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193724" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 23 "ttImportData.cData[20]" "Column[20]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193725" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 24 "ttImportData.cData[21]" "Column[21]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193726" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 25 "ttImportData.cData[22]" "Column[22]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193727" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 26 "ttImportData.cData[23]" "Column[23]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193728" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 27 "ttImportData.cData[24]" "Column[24]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193729" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 28 "ttImportData.cData[25]" "Column[25]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193730" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 29 "ttImportData.cData[26]" "Column[26]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193731" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 30 "ttImportData.cData[27]" "Column[27]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193732" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 31 "ttImportData.cData[28]" "Column[28]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193733" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 32 "ttImportData.cData[29]" "Column[29]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193734" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 5 "ttImportData.cData[2]" "Column[2]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193735" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 33 "ttImportData.cData[30]" "Column[30]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193736" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 34 "ttImportData.cData[31]" "Column[31]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193737" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 35 "ttImportData.cData[32]" "Column[32]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193738" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 36 "ttImportData.cData[33]" "Column[33]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193739" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 37 "ttImportData.cData[34]" "Column[34]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193740" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 38 "ttImportData.cData[35]" "Column[35]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193741" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 39 "ttImportData.cData[36]" "Column[36]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193742" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 40 "ttImportData.cData[37]" "Column[37]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193743" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 41 "ttImportData.cData[38]" "Column[38]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193744" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 42 "ttImportData.cData[39]" "Column[39]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193745" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 6 "ttImportData.cData[3]" "Column[3]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193746" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 43 "ttImportData.cData[40]" "Column[40]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193747" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 44 "ttImportData.cData[41]" "Column[41]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193748" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 45 "ttImportData.cData[42]" "Column[42]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193749" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 46 "ttImportData.cData[43]" "Column[43]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193750" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 47 "ttImportData.cData[44]" "Column[44]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193751" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 48 "ttImportData.cData[45]" "Column[45]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193752" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 49 "ttImportData.cData[46]" "Column[46]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193753" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 50 "ttImportData.cData[47]" "Column[47]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193754" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 51 "ttImportData.cData[48]" "Column[48]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193755" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 52 "ttImportData.cData[49]" "Column[49]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193756" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 7 "ttImportData.cData[4]" "Column[4]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193757" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 53 "ttImportData.cData[50]" "Column[50]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193758" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 54 "ttImportData.cData[51]" "Column[51]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193759" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 55 "ttImportData.cData[52]" "Column[52]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193760" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 56 "ttImportData.cData[53]" "Column[53]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720708193761" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 57 "ttImportData.cData[54]" "Column[54]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193762" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 58 "ttImportData.cData[55]" "Column[55]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193763" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 59 "ttImportData.cData[56]" "Column[56]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193764" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 60 "ttImportData.cData[57]" "Column[57]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193765" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 61 "ttImportData.cData[58]" "Column[58]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193766" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 62 "ttImportData.cData[59]" "Column[59]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193767" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 8 "ttImportData.cData[5]" "Column[5]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193768" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 63 "ttImportData.cData[60]" "Column[60]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193769" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 64 "ttImportData.cData[61]" "Column[61]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193770" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 65 "ttImportData.cData[62]" "Column[62]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193771" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 66 "ttImportData.cData[63]" "Column[63]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193772" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 67 "ttImportData.cData[64]" "Column[64]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193773" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 68 "ttImportData.cData[65]" "Column[65]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193774" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 69 "ttImportData.cData[66]" "Column[66]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193775" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 70 "ttImportData.cData[67]" "Column[67]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193776" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 71 "ttImportData.cData[68]" "Column[68]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193777" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 72 "ttImportData.cData[69]" "Column[69]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193778" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 9 "ttImportData.cData[6]" "Column[6]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193779" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 73 "ttImportData.cData[70]" "Column[70]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193780" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 74 "ttImportData.cData[71]" "Column[71]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193781" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 75 "ttImportData.cData[72]" "Column[72]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193782" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 76 "ttImportData.cData[73]" "Column[73]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193783" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 77 "ttImportData.cData[74]" "Column[74]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193784" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 78 "ttImportData.cData[75]" "Column[75]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193785" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 79 "ttImportData.cData[76]" "Column[76]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193786" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 80 "ttImportData.cData[77]" "Column[77]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193787" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 81 "ttImportData.cData[78]" "Column[78]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193788" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 82 "ttImportData.cData[79]" "Column[79]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193789" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 10 "ttImportData.cData[7]" "Column[7]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193790" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 83 "ttImportData.cData[80]" "Column[80]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193791" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 84 "ttImportData.cData[81]" "Column[81]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193792" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 85 "ttImportData.cData[82]" "Column[82]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193793" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 86 "ttImportData.cData[83]" "Column[83]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193794" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 87 "ttImportData.cData[84]" "Column[84]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193795" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 88 "ttImportData.cData[85]" "Column[85]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193796" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 89 "ttImportData.cData[86]" "Column[86]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193797" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 90 "ttImportData.cData[87]" "Column[87]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193798" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 91 "ttImportData.cData[88]" "Column[88]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193799" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 92 "ttImportData.cData[89]" "Column[89]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193800" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 11 "ttImportData.cData[8]" "Column[8]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193801" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 93 "ttImportData.cData[90]" "Column[90]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193802" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 94 "ttImportData.cData[91]" "Column[91]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193803" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 95 "ttImportData.cData[92]" "Column[92]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193804" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 96 "ttImportData.cData[93]" "Column[93]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193805" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 97 "ttImportData.cData[94]" "Column[94]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193806" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 98 "ttImportData.cData[95]" "Column[95]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193807" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 99 "ttImportData.cData[96]" "Column[96]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193808" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 100 "ttImportData.cData[97]" "Column[97]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193809" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 101 "ttImportData.cData[98]" "Column[98]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193810" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 102 "ttImportData.cData[99]" "Column[99]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193811" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 12 "ttImportData.cData[9]" "Column[9]" "x(8)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111107720808193812" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 3 "ttImportData.cImportNote" "Reason" "x(50)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111040313208188212" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 1 "ttImportData.iCount" "Record" "->,>>>,>>9" "ttImportData" 0 "integer" "ASI" 0 no no "" "" no "" "" "202111107720808193813" no no no "" no "" "" 0 0 "" no no "" "" no
+196 yes 2 "ttImportData.lValid" "Valid" "Yes/No" "ttImportData" 0 "logical" "ASI" 0 no no "" "" no "" "" "202111040313208188213" no no no "" no "" "" 0 0 "" no no "" "" no
+198 yes 2 "ttExchangeRate.asOfDate" "As Of Date" "99/99/9999" "ttExchangeRate" 0 "date" "ASI" 0 no no "" "" no "" "" "202112110937408312799" no no no "" no "" "" 0 0 "" no no "" "" no
+198 yes 3 "ttExchangeRate.baseCurrencyCode" "Base Currency" "x(3)" "ttExchangeRate" 0 "character" "ASI" 0 no no "" "" no "" "" "202112110937408312800" no no no "" no "" "" 0 0 "" no no "" "" no
+198 yes 1 "ttExchangeRate.company" "Company" "x(3)" "ttExchangeRate" 0 "character" "ASI" 0 no no "" "" no "" "" "202112110937408312801" no no no "" no "" "" 0 0 "" no no "" "" no
+198 yes 5 "ttExchangeRate.exchangeRate" "Exchange Rate" "->>,>>9.99<<<<<" "ttExchangeRate" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202112110937408312802" no no no "" no "" "" 0 0 "" no no "" "" no
+198 yes 4 "ttExchangeRate.rateCurrencyCode" "Rate Currency" "x(3)" "ttExchangeRate" 0 "character" "ASI" 0 no no "" "" no "" "" "202112110937408312803" no no no "" no "" "" 0 0 "" no no "" "" no

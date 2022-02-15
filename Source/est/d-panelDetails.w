@@ -1702,7 +1702,7 @@ PROCEDURE pInit :
         RUN Formula_BuildAndSavePanelDetailsForEstimate IN hdFormulaProcs (
             INPUT  ipriInput
             ).
-        RUN GetPanelDetailsForEstimate IN hdFormulaProcs (
+        RUN Formula_GetPanelDetailsForPOScores IN hdFormulaProcs (
             INPUT  cCompany,
             INPUT  cEstimateNo,
             INPUT  iFormNo,

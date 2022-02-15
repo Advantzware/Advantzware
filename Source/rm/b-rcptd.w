@@ -315,7 +315,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       rm-rctd.r-no COLUMN-LABEL "Seq#" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       rm-rctd.rct-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      rm-rctd.po-no FORMAT "x(6)":U WIDTH 9 LABEL-BGCOLOR 14
+      rm-rctd.po-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
       rm-rctd.po-line COLUMN-LABEL "PO Ln#" FORMAT ">>9":U
       rm-rctd.job-no FORMAT "x(6)":U LABEL-BGCOLOR 14
       rm-rctd.job-no2 FORMAT "99":U
@@ -331,7 +331,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 22 LABEL-BGCOLOR 14
       rm-rctd.pur-uom COLUMN-LABEL "PUOM" FORMAT "x(4)":U WIDTH 7
             LABEL-BGCOLOR 14
-      rm-rctd.cost COLUMN-LABEL "Cost" FORMAT "->,>>>,>>9.99<<<<":U
+      rm-rctd.cost COLUMN-LABEL "Cost" FORMAT "->,>>>,>>9.99<":U
             LABEL-BGCOLOR 14
       rm-rctd.cost-uom COLUMN-LABEL "CUOM" FORMAT "x(4)":U WIDTH 7
             LABEL-BGCOLOR 14
@@ -502,7 +502,7 @@ rm-rctd.rita-code = ""R"""
      _FldNameList[15]   > asi.rm-rctd.pur-uom
 "pur-uom" "PUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > asi.rm-rctd.cost
-"cost" "Cost" "->,>>>,>>9.99<<<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cost" "Cost" "->,>>>,>>9.99<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > asi.rm-rctd.cost-uom
 "cost-uom" "CUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
@@ -2947,7 +2947,7 @@ PROCEDURE local-create-record :
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lv-rno LIKE fg-rctd.r-no NO-UNDO.
     DEFINE BUFFER b-rm-rctd FOR rm-rctd.
- 
+    DEFINE BUFFER bff-item FOR ITEM .
     /* Code placed here will execute PRIOR to standard behavior. */
   
     FIND LAST b-rm-rctd USE-INDEX rm-rctd NO-LOCK NO-ERROR.
@@ -2967,13 +2967,21 @@ PROCEDURE local-create-record :
     IF ERROR-STATUS:ERROR THEN
         MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
             VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-
+       
     FIND FIRST tt-rm-rctd NO-ERROR.
 
     IF AVAILABLE tt-rm-rctd THEN 
     DO:
         BUFFER-COPY tt-rm-rctd EXCEPT rec_key TO rm-rctd.
         tt-rm-rctd.tt-rowid = ROWID(rm-rctd).
+        FIND FIRST bff-item NO-LOCK
+             WHERE bff-item.company EQ cocode 
+               AND bff-item.i-no EQ tt-rm-rctd.i-no 
+             NO-ERROR.
+        IF v-bin NE "user entered" AND v-bin EQ "RMITEM" AND AVAIL bff-item THEN
+        ASSIGN 
+             rm-rctd.loc     = bff-item.loc
+             rm-rctd.loc-bin = bff-item.loc-bin.
         IF rm-rctd.loc EQ "" THEN 
            rm-rctd.loc = locode .
     END.
@@ -3332,7 +3340,7 @@ PROCEDURE pGetTagSequence :
             FOR EACH bf-rm-rctd
                 WHERE bf-rm-rctd.company EQ ipcCompany
                 AND bf-rm-rctd.loc     EQ cLocation
-                AND bf-rm-rctd.tag     BEGINS STRING(ipiPoNo,"999999")
+                AND bf-rm-rctd.tag     BEGINS STRING(ipiPoNo,"99999999")
                 USE-INDEX tag NO-LOCK
                 BY bf-rm-rctd.tag DESCENDING:
 
@@ -3349,7 +3357,7 @@ PROCEDURE pGetTagSequence :
     DO:
         FIND LAST rm-rdtlh NO-LOCK
             WHERE rm-rdtlh.company EQ ipcCompany
-            AND rm-rdtlh.tag     BEGINS STRING(ipiPoNo,"999999")
+            AND rm-rdtlh.tag     BEGINS STRING(ipiPoNo,"99999999")
             AND INT(SUBSTR(rm-rdtlh.tag,7,2)) GT iSeq
             USE-INDEX tag NO-ERROR.
         IF AVAILABLE rm-rdtlh THEN 
@@ -3358,7 +3366,7 @@ PROCEDURE pGetTagSequence :
 
     ASSIGN
         iSeq        = iSeq + 1
-        opcSequence = STRING(ipiPoNo,"999999") + STRING(iSeq,"99").
+        opcSequence = STRING(ipiPoNo,"99999999") + STRING(iSeq,"99").
 
 END PROCEDURE.
 
@@ -3445,7 +3453,7 @@ PROCEDURE po-cost :
 
         RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).
         ASSIGN lv-cost = ABSOLUTE(lv-cost) .
-        rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-cost).
+        rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-cost,">,>>>,>>9.999").
     END.
 
 END PROCEDURE.
@@ -3856,7 +3864,7 @@ PROCEDURE valid-b-num :
 
         IF ERROR-STATUS:ERROR THEN 
         DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Invalid Blank #, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO rm-rctd.b-num IN BROWSE {&browse-name}.
             RETURN ERROR.
         END.
@@ -3893,10 +3901,10 @@ PROCEDURE valid-i-no :
                        NEXT.
                    END.
                    ELSE 
-                       v-msg = "Invalid entry, try help".
+                       v-msg = "Invalid Item No, try help".
                END.
              ELSE DO:
-                  v-msg = "Invalid entry, try help".
+                  v-msg = "Invalid Item No, try help".
              END.
            END.
         END.
@@ -4077,7 +4085,7 @@ PROCEDURE valid-job-no :
 
         IF ERROR-STATUS:ERROR THEN 
         DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Invalid Job No, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO rm-rctd.job-no IN BROWSE {&browse-name}.
             RETURN ERROR.
         END.
@@ -4126,7 +4134,7 @@ PROCEDURE valid-job-no2 :
 
         IF ERROR-STATUS:ERROR THEN 
         DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Invalid Job No2, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO rm-rctd.job-no2 IN BROWSE {&browse-name}.
             RETURN ERROR.
         END.
@@ -4222,7 +4230,7 @@ PROCEDURE valid-po-no :
                 NO-LOCK NO-ERROR.
             IF NOT AVAILABLE po-ordl THEN 
             DO:
-                MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+                MESSAGE "Invalid PO No, try help..." VIEW-AS ALERT-BOX ERROR.
                 APPLY "entry" TO rm-rctd.po-no IN BROWSE {&browse-name}.
                 RETURN ERROR.
             END.
@@ -4326,7 +4334,7 @@ PROCEDURE valid-s-num :
 
         IF ERROR-STATUS:ERROR THEN 
         DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Invalid Sheet #, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO rm-rctd.s-num IN BROWSE {&browse-name}.
             RETURN ERROR.
         END.

@@ -80,17 +80,36 @@ oe-ord.fob-code FORM "x(11)" SPACE(2) /* gdm 01060906 */
 v-shipvia /*carrier.carrier*/ FORM "x(20)" SPACE(1)
 oe-ord.terms-d /*terms.dscr*/ FORM "x(15)" space(5) v-salesman space(8) oe-ord.ord-no space(2) v-q-no FORMAT ">>>>>9" SKIP.
 
+IF v-print-fmt eq "ackhead 10" THEN
+DO:
 
-PUT "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
-       "<R24><C6><FROM><R26><C6><LINE>" SKIP
-       "<R24><C20><FROM><R26><C20><LINE>" SKIP
-     /*"<R26><C30><FROM><R28><C30><LINE>" SKIP */
-       "<R24><C49><FROM><R26><C49><LINE>" SKIP
-       "<R24><C61><FROM><R26><C61><LINE>" SKIP
-       "<R24><C72><FROM><R26><C72><LINE>" SKIP
-       .
+        PUT "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
+               "<R24><C6><FROM><R26><C6><LINE>" SKIP
+               "<R24><C20><FROM><R26><C20><LINE>" SKIP
+             /*"<R26><C30><FROM><R28><C30><LINE>" SKIP */
+               "<R24><C48><FROM><R26><C48><LINE>" SKIP
+               "<R24><C57><FROM><R26><C57><LINE>" SKIP
+               "<R24><C65><FROM><R26><C65><LINE>" SKIP
+               "<R24><C70><FROM><R26><C70><LINE>" SKIP
+               .
 
-PUT "<FArial><=5><R+1> Line        Customer Part#           Description                                                             Ordered                             Price          UOM" SKIP(1).
+        PUT "<FArial><=5><R+1> Line        Customer Part#           Description                                                         Ordered            Price         UOM   Extended Total" SKIP(1).
+
+END.
+ELSE DO:
+
+        PUT "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
+               "<R24><C6><FROM><R26><C6><LINE>" SKIP
+               "<R24><C20><FROM><R26><C20><LINE>" SKIP
+             /*"<R26><C30><FROM><R28><C30><LINE>" SKIP */
+               "<R24><C49><FROM><R26><C49><LINE>" SKIP
+               "<R24><C61><FROM><R26><C61><LINE>" SKIP
+               "<R24><C72><FROM><R26><C72><LINE>" SKIP
+               .
+
+        PUT "<FArial><=5><R+1> Line        Customer Part#           Description                                                             Ordered                             Price          UOM" SKIP(1).
+
+END.
 PUT "<FCourier New>"          .
 v-printline = v-printline + 6.
 

@@ -49,7 +49,7 @@ CREATE WIDGET-POOL.
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
@@ -67,35 +67,36 @@ CREATE WIDGET-POOL.
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON BtnCancel AUTO-END-KEY DEFAULT 
-     LABEL "Cancel" 
-     SIZE 15 BY 1.14
-     BGCOLOR 8 .
+    LABEL "Cancel" 
+    SIZE 16 BY 1.29
+    BGCOLOR 8 .
 
 DEFINE BUTTON BtnOK AUTO-GO DEFAULT 
-     LABEL "OK" 
-     SIZE 15 BY 1.14
-     BGCOLOR 8 .
+    LABEL "OK" 
+    SIZE 16 BY 1.29
+    BGCOLOR 8 .
 
 DEFINE VARIABLE FILL-IN-1 AS CHARACTER FORMAT "X(256)":U INITIAL "Ok To Post Miscellaneous to WIP ?" 
-      VIEW-AS TEXT 
-     SIZE 43 BY 1.43
-     FONT 6 NO-UNDO.
+    VIEW-AS TEXT 
+    SIZE 43 BY 1.43
+    FONT 6 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     BtnOK AT ROW 5.29 COL 14
-     BtnCancel AT ROW 5.29 COL 43
-     FILL-IN-1 AT ROW 2.43 COL 15 COLON-ALIGNED NO-LABEL
+    BtnOK AT ROW 5.29 COL 15.4
+    BtnCancel AT ROW 5.29 COL 44.4
+    FILL-IN-1 AT ROW 2.43 COL 16 COLON-ALIGNED NO-LABELS
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 80 BY 8.76.
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 1
+    SIZE 77.6 BY 8.76
+    BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -112,24 +113,24 @@ DEFINE FRAME DEFAULT-FRAME
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-  CREATE WINDOW C-Win ASSIGN
-         HIDDEN             = YES
-         TITLE              = "Transfer Misc. Costs to Job"
-         HEIGHT             = 8.86
-         WIDTH              = 80
-         MAX-HEIGHT         = 16
-         MAX-WIDTH          = 80
-         VIRTUAL-HEIGHT     = 16
-         VIRTUAL-WIDTH      = 80
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = no
-         BGCOLOR            = ?
-         FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+    CREATE WINDOW C-Win ASSIGN
+        HIDDEN             = YES
+        TITLE              = "Transfer Misc. Costs to Job"
+        HEIGHT             = 8.86
+        WIDTH              = 77.6
+        MAX-HEIGHT         = 16
+        MAX-WIDTH          = 80
+        VIRTUAL-HEIGHT     = 16
+        VIRTUAL-WIDTH      = 80
+        RESIZE             = YES
+        SCROLL-BARS        = NO
+        STATUS-AREA        = NO
+        BGCOLOR            = ?
+        FGCOLOR            = ?
+        KEEP-FRAME-Z-ORDER = YES
+        THREE-D            = YES
+        MESSAGE-AREA       = NO
+        SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -142,26 +143,22 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
-ASSIGN
-       BtnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
+   FRAME-NAME                                                           */
+ASSIGN 
+    BtnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "ribbon-button".
 
-
-ASSIGN
-       BtnOK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
+ASSIGN 
+    BtnOK:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "ribbon-button".
 
 /* SETTINGS FOR FILL-IN FILL-IN-1 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+    THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -170,12 +167,13 @@ THEN C-Win:HIDDEN = no.
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Transfer Misc. Costs to Job */
-OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
-  /* This case occurs when the user presses the "Esc" key.
-     In a persistently run window, just ignore this.  If we did not, the
-     application would exit. */
-  IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
-END.
+    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+    DO:
+        /* This case occurs when the user presses the "Esc" key.
+           In a persistently run window, just ignore this.  If we did not, the
+           application would exit. */
+        IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -183,11 +181,11 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Transfer Misc. Costs to Job */
-DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
-END.
+    DO:
+        /* This event will close the window and terminate the procedure.  */
+        APPLY "CLOSE":U TO THIS-PROCEDURE.
+        RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -196,9 +194,9 @@ END.
 &Scoped-define SELF-NAME BtnCancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BtnCancel C-Win
 ON CHOOSE OF BtnCancel IN FRAME DEFAULT-FRAME /* Cancel */
-DO:
-   apply "close" to this-procedure.
-END.
+    DO:
+        APPLY "close" TO THIS-PROCEDURE.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -207,33 +205,33 @@ END.
 &Scoped-define SELF-NAME BtnOK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BtnOK C-Win
 ON CHOOSE OF BtnOK IN FRAME DEFAULT-FRAME /* OK */
-DO:
-    DEF VAR v-dunne AS LOG NO-UNDO.
-    DEF VAR cocode AS cha NO-UNDO.
+    DO:
+        DEFINE VARIABLE v-dunne AS LOG NO-UNDO.
+        DEFINE VARIABLE cocode  AS cha NO-UNDO.
 
-    cocode = g_company.
-    postit:
-    do transaction on error undo postit, leave postit:
+        cocode = g_company.
+        postit:
+        DO TRANSACTION ON ERROR UNDO postit, LEAVE postit:
 
-       transblok:
-       for each pc-misc where pc-misc.company = g_company
-                             on error undo postit, leave:
+            transblok:
+            FOR EACH pc-misc WHERE pc-misc.company = g_company
+                ON ERROR UNDO postit, LEAVE:
 
-               {pc/pcmscact.i}
+                {pc/pcmscact.i}
 
-                delete pc-misc.
-        end. /* for each pc-misc */
+                DELETE pc-misc.
+            END. /* for each pc-misc */
 
-        v-dunne = yes.
-     end. /* postit */
+            v-dunne = YES.
+        END. /* postit */
 
-     if not v-dunne  then
-         message "   ERRORS ENCOUNTERED...  POSTING ABORTED !   " 
-                 VIEW-AS ALERT-BOX ERROR.
+        IF NOT v-dunne  THEN
+            MESSAGE "   ERRORS ENCOUNTERED...  POSTING ABORTED !   " 
+                VIEW-AS ALERT-BOX ERROR.
 
 
-   APPLY "close" TO THIS-PROCEDURE.
-END.
+        APPLY "close" TO THIS-PROCEDURE.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -254,7 +252,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
-   RUN disable_UI.
+    RUN disable_UI.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -263,19 +261,22 @@ PAUSE 0 BEFORE-HIDE.
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
     /* security check need {methods/prgsecur.i} in definition section */
-  IF access-close THEN DO:
-     APPLY "close" TO THIS-PROCEDURE.
-     RETURN .
-  END.
+    IF access-close THEN 
+    DO:
+        APPLY "close" TO THIS-PROCEDURE.
+        RETURN .
+    END.
 
-  RUN enable_UI.
+    BtnOK:LOAD-IMAGE("Graphics/32x32/Ok.png").
+    BtnCancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
+    RUN enable_UI.
 
-  {methods/nowait.i}
+    {methods/nowait.i}
 
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -286,18 +287,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Delete the WINDOW we created */
-  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-  THEN DELETE WIDGET C-Win.
-  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+    /*------------------------------------------------------------------------------
+      Purpose:     DISABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we clean-up the user-interface by deleting
+                   dynamic widgets we have created and/or hide 
+                   frames.  This procedure is usually called when
+                   we are ready to "clean-up" after running.
+    ------------------------------------------------------------------------------*/
+    /* Delete the WINDOW we created */
+    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+        THEN DELETE WIDGET C-Win.
+    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -305,21 +306,21 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     ENABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we display/view/enable the widgets in the
-               user-interface.  In addition, OPEN all queries
-               associated with each FRAME and BROWSE.
-               These statements here are based on the "Other 
-               Settings" section of the widget Property Sheets.
-------------------------------------------------------------------------------*/
-  DISPLAY FILL-IN-1 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE BtnOK BtnCancel 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
-  VIEW C-Win.
+    /*------------------------------------------------------------------------------
+      Purpose:     ENABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we display/view/enable the widgets in the
+                   user-interface.  In addition, OPEN all queries
+                   associated with each FRAME and BROWSE.
+                   These statements here are based on the "Other 
+                   Settings" section of the widget Property Sheets.
+    ------------------------------------------------------------------------------*/
+    DISPLAY FILL-IN-1 
+        WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+    ENABLE BtnOK BtnCancel 
+        WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+    {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+    VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

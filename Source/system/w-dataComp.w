@@ -44,7 +44,7 @@ DEFINE VARIABLE hdTableBuffer AS HANDLE  NO-UNDO.
 DEFINE VARIABLE hdTempTable   AS HANDLE  NO-UNDO.
 DEFINE VARIABLE iFieldsCount  AS INTEGER NO-UNDO.
 
-DEFINE VARIABLE cTableNames    AS CHARACTER INITIAL "APIInbound,APIInboundDetail,APIOutbound,APIOutboundDetail,APIOutboundTrigger".
+DEFINE VARIABLE cTableNames    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompareResult AS CHARACTER NO-UNDO.
  
 /* Temp-Table Definitions */
@@ -79,6 +79,12 @@ DEFINE TEMP-TABLE ttAPIOutboundTrigger NO-UNDO
     field differentFields AS CHARACTER
     .  
 
+DEFINE TEMP-TABLE ttSettingType NO-UNDO
+    LIKE SettingType
+    USE-INDEX rec_key     AS PRIMARY
+    FIELD differentFields AS CHARACTER
+    FIELD company         AS CHARACTER
+    .  
 
 DEFINE TEMP-TABLE ttUnmatchedData NO-UNDO
     FIELD ttTableName       AS CHARACTER FORMAT "X(32)"  LABEL "Table Name"
@@ -87,6 +93,8 @@ DEFINE TEMP-TABLE ttUnmatchedData NO-UNDO
     FIELd ttPrimaryKey      AS CHARACTER FORMAT "X(96)"  LABEL "Primary Key"
     FIELD ttUnmatchedFields AS CHARACTER FORMAT "X(256)" LABEL "Unmatched Fields"
     .
+
+cTableNames = "APIInbound,APIInboundDetail,APIOutbound,APIOutboundDetail,APIOutboundTrigger,SettingType".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -121,7 +129,8 @@ DEFINE TEMP-TABLE ttUnmatchedData NO-UNDO
     ~{&OPEN-QUERY-brUnmatchedData}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-14 RECT-15 cbTableName brUnmatchedData 
+&Scoped-Define ENABLED-OBJECTS RECT-14 RECT-15 cbTableName brUnmatchedData ~
+btUpdateAll 
 &Scoped-Define DISPLAYED-OBJECTS cbTableName fiFileName 
 
 /* Custom List Definitions                                              */
@@ -153,6 +162,10 @@ DEFINE BUTTON btUpdate
      SIZE 19.6 BY 1.52
      FONT 22.
 
+DEFINE BUTTON btUpdateAll 
+     LABEL "Update All" 
+     SIZE 19 BY 1.52.
+
 DEFINE BUTTON btViewDifferences 
      LABEL "View Differences" 
      SIZE 20.2 BY 1.52
@@ -161,7 +174,7 @@ DEFINE BUTTON btViewDifferences
 DEFINE VARIABLE cbTableName AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      DROP-DOWN-LIST
-     SIZE 32.6 BY 1.1
+     SIZE 32.6 BY 1
      FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiFileName AS CHARACTER FORMAT "X(256)":U 
@@ -176,7 +189,7 @@ DEFINE RECTANGLE RECT-14
 
 DEFINE RECTANGLE RECT-15
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 45 BY 2.19
+     SIZE 66 BY 2.19
      FGCOLOR 0 .
 
 /* Query definitions                                                    */
@@ -208,8 +221,9 @@ DEFINE FRAME DEFAULT-FRAME
      fiFileName AT ROW 3.24 COL 16.2 COLON-ALIGNED NO-LABEL WIDGET-ID 6
      btLoadAndCompare AT ROW 3.24 COL 120 WIDGET-ID 12
      brUnmatchedData AT ROW 5.29 COL 2.6 WIDGET-ID 200
-     btUpdate AT ROW 23.14 COL 70.4 WIDGET-ID 14
-     btViewDifferences AT ROW 23.14 COL 92.2 WIDGET-ID 18
+     btUpdateAll AT ROW 23.24 COL 61.4 WIDGET-ID 26
+     btUpdate AT ROW 23.24 COL 82.4 WIDGET-ID 14
+     btViewDifferences AT ROW 23.24 COL 104.2 WIDGET-ID 18
      "Select File:" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 3.48 COL 5 WIDGET-ID 22
           BGCOLOR 23 FGCOLOR 24 FONT 22
@@ -217,7 +231,7 @@ DEFINE FRAME DEFAULT-FRAME
           SIZE 14 BY .62 AT ROW 2.29 COL 4 WIDGET-ID 24
           BGCOLOR 23 FGCOLOR 24 FONT 22
      RECT-14 AT ROW 1.48 COL 2.8 WIDGET-ID 10
-     RECT-15 AT ROW 22.81 COL 69 WIDGET-ID 20
+     RECT-15 AT ROW 22.91 COL 60 WIDGET-ID 20
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -448,7 +462,12 @@ DO:
                 RUN pLoadAndCompareAPIOutboundTrigger NO-ERROR.  
                 hdTempTable = TEMP-TABLE ttAPIOutboundTrigger:HANDLE.
                 CREATE BUFFER hdTTBuffer FOR TABLE "ttAPIOutboundTrigger".
-            END.                         
+            END. 
+            WHEN "SettingType" THEN DO:
+                RUN pLoadAndCompareSettingType NO-ERROR.  
+                hdTempTable = TEMP-TABLE ttSettingType:HANDLE.
+                CREATE BUFFER hdTTBuffer FOR TABLE "ttSettingType".
+            END.                                     
         END CASE.
     
         IF ERROR-STATUS:ERROR THEN DO:
@@ -481,7 +500,7 @@ DO:
     REPEAT:
         SYSTEM-DIALOG GET-FILE cFileName
         TITLE   "Choose Procedure to Run ..."
-        FILTERS "Data Files (*.d)"   "*.d"                  
+        FILTERS "Data Files (*.d),Json Files (*.json)"   "*.d,*.json"                  
         MUST-EXIST
         USE-FILENAME
         UPDATE lOKpressed.
@@ -500,14 +519,44 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdate C-Win
 ON CHOOSE OF btUpdate IN FRAME DEFAULT-FRAME /* Update Record */
 DO:           
+    IF NOT AVAILABLE ttUnmatchedData THEN
+        RETURN.
+         
     MESSAGE "Do you want to update the record into the database?"
         VIEW-AS ALERT-BOX QUESTION BUTTONS 
         OK-CANCEL UPDATE lCheckFlag as LOGICAL.
        
     IF lCheckFlag THEN    
-        RUN pUpdateRecord.        
+        RUN pUpdateRecord (BUFFER ttUnmatchedData).        
     
     APPLY "VALUE-CHANGED" TO {&BROWSE-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btUpdateAll
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdateAll C-Win
+ON CHOOSE OF btUpdateAll IN FRAME DEFAULT-FRAME /* Update All */
+DO:
+    IF NOT CAN-FIND(FIRST ttUnmatchedData WHERE ttUnmatchedData.ttUnmatchedFields NE "Exact Match") THEN DO:
+        MESSAGE "No records to update"
+        VIEW-AS ALERT-BOX INFORMATION.
+        RETURN.
+    END.
+    
+    MESSAGE "Do you want to update all the record(s) into the database?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS 
+        OK-CANCEL UPDATE lCheckFlag as LOGICAL.
+       
+    IF NOT lCheckFlag THEN
+        RETURN. 
+        
+    FOR EACH ttUnmatchedData
+        WHERE ttUnmatchedData.ttUnmatchedFields NE "Exact Match":
+        RUN pUpdateRecord (BUFFER ttUnmatchedData). 
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -534,7 +583,7 @@ END.
 
 &Scoped-define SELF-NAME cbTableName
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbTableName C-Win
-ON VALUE-CHANGED OF cbTableName IN FRAME DEFAULT-FRAME /* Select Table */
+ON VALUE-CHANGED OF cbTableName IN FRAME DEFAULT-FRAME
 DO:
     ASSIGN {&SELF-NAME}.
     
@@ -618,7 +667,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY cbTableName fiFileName 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-14 RECT-15 cbTableName brUnmatchedData 
+  ENABLE RECT-14 RECT-15 cbTableName brUnmatchedData btUpdateAll 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -710,6 +759,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLoadAndCompareSettingType C-Win
+PROCEDURE pLoadAndCompareSettingType PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {system\loadandcompare.i &param1 = "fiFileName:SCREEN-VALUE IN FRAME {&FRAME-NAME}" &param2 = "SettingType" &param3 = "settingName" &param4 = "rec_key" &param5 = "defaultValue"}
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord C-Win 
 PROCEDURE pUpdateRecord PRIVATE :
 /*------------------------------------------------------------------------------
@@ -717,8 +781,13 @@ PROCEDURE pUpdateRecord PRIVATE :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER bf-ttUnmatchedData FOR ttUnmatchedData.
+    
     DEFINE VARIABLE lCreated AS LOGICAL NO-UNDO.
     
+    IF NOT AVAILABLE bf-ttUnmatchedData THEN
+        RETURN.
+        
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
@@ -727,11 +796,11 @@ PROCEDURE pUpdateRecord PRIVATE :
     CREATE QUERY hdQuery.
     
     DO TRANSACTION:
-        IF ttUnmatchedData.ttUnmatchedFields EQ "New Record" THEN DO:
+        IF bf-ttUnmatchedData.ttUnmatchedFields EQ "New Record" THEN DO:
             hdQuery:SET-BUFFERS(hdTTBuffer).
 
             hdQuery:QUERY-PREPARE("FOR EACH " + hdTTBuffer:NAME +
-                                     " WHERE " + hdTTBuffer:NAME + ".rec_key" + " EQ " + '"' + ttUnmatchedData.ttRecKey + '"').
+                                     " WHERE " + hdTTBuffer:NAME + ".rec_key" + " EQ " + '"' + bf-ttUnmatchedData.ttRecKey + '"').
             hdQuery:QUERY-OPEN.
             hdQuery:GET-FIRST.
             
@@ -742,31 +811,28 @@ PROCEDURE pUpdateRecord PRIVATE :
             END.                    
         END. 
     
-        ELSE IF ttUnmatchedData.ttUnmatchedFields NE "Exact Match" THEN DO :
+        ELSE IF bf-ttUnmatchedData.ttUnmatchedFields NE "Exact Match" THEN DO :
             hdQuery:SET-BUFFERS(hdTableBuffer, hdTTBuffer).
       
             hdQuery:QUERY-PREPARE("FOR EACH "  + hdTableBuffer:name + " EXCLUSIVE-LOCK " +
-                                     " WHERE " + hdTableBuffer:NAME + ".rec_key" + " EQ " + '"'+ ttUnmatchedData.ttRecKey + '"'  +
+                                     " WHERE " + hdTableBuffer:NAME + ".rec_key" + " EQ " + '"'+ bf-ttUnmatchedData.ttRecKey + '"'  +
                                     ", FIRST " + hdTTBuffer:NAME +
                                      " WHERE " + hdTableBuffer:NAME + ".rec_key" + " EQ " + hdTTBuffer:NAME + ".rec_key" ).
             hdQuery:QUERY-OPEN.
             hdQuery:GET-FIRST.
             
             IF hdTableBuffer:AVAILABLE AND hdTTBuffer:AVAILABLE THEN DO:
-                DO iFieldsCount = 1 TO NUM-ENTRIES(ttUnmatchedData.ttUnmatchedFields): 
-                    hdTableBuffer:BUFFER-FIELD(ENTRY(iFieldsCount,ttUnmatchedData.ttUnmatchedFields)):BUFFER-VALUE = hdTTBuffer:BUFFER-FIELD(ENTRY(iFieldsCount,ttUnmatchedData.ttUnmatchedFields)):BUFFER-VALUE.      
+                DO iFieldsCount = 1 TO NUM-ENTRIES(bf-ttUnmatchedData.ttUnmatchedFields): 
+                    hdTableBuffer:BUFFER-FIELD(ENTRY(iFieldsCount,bf-ttUnmatchedData.ttUnmatchedFields)):BUFFER-VALUE = hdTTBuffer:BUFFER-FIELD(ENTRY(iFieldsCount,bf-ttUnmatchedData.ttUnmatchedFields)):BUFFER-VALUE.      
                 END.
             END.                
         END.
-        ttUnmatchedData.ttUnmatchedFields = "Exact Match".     
+        bf-ttUnmatchedData.ttUnmatchedFields = "Exact Match".     
     END.
             
     hdTableBuffer:BUFFER-RELEASE(). 
     
-    {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME} 
-      
-    MESSAGE "Data Updated Successfully"
-        VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.   
+    {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

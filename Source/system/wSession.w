@@ -39,7 +39,12 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 DEFINE INPUT  PARAMETER ipOpenSessions AS INTEGER NO-UNDO.
 DEFINE INPUT  PARAMETER ipMaxPerUser   AS INTEGER NO-UNDO.
-DEFINE OUTPUT PARAMETER op-value AS cha NO-UNDO.
+DEFINE OUTPUT PARAMETER op-value AS CHAR NO-UNDO. 
+
+DEFINE VARIABLE cDefaultResponse AS CHAR INITIAL "Exit Application" NO-UNDO.
+ASSIGN 
+    op-value = cDefaultResponse.
+    
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 

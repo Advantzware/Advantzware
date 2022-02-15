@@ -162,12 +162,14 @@ lCEGOTOCALC = LOGICAL(cNK1Value).
 DEFINE VARIABLE viEQtyPrev     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cOldFGItem     AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessCreateFG AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessClose    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cAccessList     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAllowResetType   AS LOGICAL NO-UNDO.
 RUN methods/prgsecur.p
             (INPUT "p-upditm.",
              INPUT "CREATE", /* based on run, create, update, delete or all */
@@ -181,10 +183,13 @@ RUN methods/prgsecur.p
 DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hPrepProcs AS HANDLE NO-UNDO.
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs. 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
+RUN system/PrepProcs.p PERSISTENT SET hPrepProcs.
+
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -197,6 +202,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /
     OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN
     lQuotePriceMatrix = logical(cNK1Value) NO-ERROR.    
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCEUseNewLayoutCalc = logical(cNK1Value) NO-ERROR. 
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -650,7 +660,7 @@ DO:
            ELSE lv-ind = "".  
            IF AVAILABLE style AND style.type EQ "f" THEN DO: /* foam */
               RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
-              ef.board:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).
+              ef.board:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val).
               APPLY "ENTRY":U TO ef.board.
               RUN new-board.
            END. /* if foam */
@@ -664,6 +674,7 @@ DO:
            END.               
        END.
        WHEN "cust-no" THEN DO:
+           RUN spSetSessionParam ("CustListID", "EF").
            ls-cur-val = eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}.
            RUN system/openlookup.p (
                INPUT  "", 
@@ -928,7 +939,6 @@ END.
 ON ENTRY OF eb.cust-no IN BROWSE br-estitm /* Cust. # */
 DO:
   DEF BUFFER b-eb FOR eb.
-
 
   IF {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
     FIND FIRST b-eb
@@ -2062,7 +2072,11 @@ PROCEDURE calc-layout :
       RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
       {ce/ceroute1.i w id l en} 
     END.
-    RUN ce/calc-dim.p.
+    
+    IF lCEUseNewLayoutCalc THEN
+        RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+    ELSE
+        RUN ce/calc-dim.p.
   END.
 
 END PROCEDURE.
@@ -3814,8 +3828,8 @@ PROCEDURE local-assign-record :
        lv-hld-fctp NE ef.f-coat-p THEN DO:
       {sys/inc/flm-prep.i}
     END.
-      
-  IF NOT ll-new-record          AND
+  
+  IF (NOT ll-new-record  OR ll-copied-from-eb)   AND
      (lv-hld-icol NE eb.i-col OR
       lv-hld-icot NE eb.i-coat) THEN DO:
 
@@ -3859,6 +3873,8 @@ PROCEDURE local-assign-record :
         RUN set-yld-qty (
             INPUT ROWID(eb)
             ).
+
+  RUN Prep_ValidateAndDeletePlatePrep IN hPrepProcs (ROWID(eb)).
 
 END PROCEDURE.
 
@@ -3918,7 +3934,7 @@ PROCEDURE local-copy-record :
   IF lv-copy-what = "" THEN RETURN.
 
   IF lv-copy-what EQ "copy" THEN DO:
-      RUN ce/copyestN.w (lv-copy-what, est.est-no, OUTPUT v-neweb-est ) .
+      RUN ce/copyestN.w (lv-copy-what, (IF AVAILABLE est THEN est.est-no ELSE ""), OUTPUT v-neweb-est ) .
       IF v-neweb-est NE "" THEN DO:
           FIND FIRST est WHERE est.company EQ cocode
               AND est.est-no EQ FILL(" ",8 - LENGTH(TRIM(v-neweb-est))) + TRIM(v-neweb-est) NO-LOCK NO-ERROR .
@@ -4134,31 +4150,69 @@ PROCEDURE local-delete-record :
   
   RUN release-shared-buffers.
   FIND CURRENT est NO-LOCK NO-ERROR.
-  IF AVAIL est THEN DO:
+  IF AVAIL est THEN DO: 
     RUN est/resetf&b.p (ROWID(est), ll-mass-del).
     RUN pResetQtySet(ROWID(est)).
+    IF lAllowResetType OR NOT ll-mass-del THEN
     RUN reset-est-type (OUTPUT li-est-type).
 
-    IF AVAIL eb THEN RUN dispatch ("open-query").
+    IF AVAIL eb THEN     
+    DO:      
+        RUN dispatch ("open-query").
+        RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'Record-source':U,OUTPUT char-hdl).
+        RUN pReOpenQuery IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+    END.
   END.
 
   ELSE DO:    
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl). 
     DO WHILE TRUE:
-      RUN get-num-records IN WIDGET-HANDLE(char-hdl) (lv-rowid, OUTPUT lv-num-rec). /* not to get error 2108 4 times*/
-      IF lv-num-rec NE 0 THEN DO:
+      RUN get-num-records IN WIDGET-HANDLE(char-hdl) (lv-rowid, OUTPUT lv-num-rec). /* not to get error 2108 4 times*/  
+      IF lv-num-rec NE 0 AND lv-eb-recid NE ? THEN DO:
         IF lv-num-rec EQ ? THEN
           RUN dispatch IN WIDGET-HANDLE(char-hdl) ('get-prev').
         ELSE
           RUN dispatch IN WIDGET-HANDLE(char-hdl) ('get-next').           
         IF NOT AVAIL eb OR eb.part-no NE "" THEN LEAVE.
       END.
-      ELSE DO: 
+      ELSE DO:     
           RUN first-run IN WIDGET-HANDLE(char-hdl).
           RUN dispatch IN WIDGET-HANDLE(char-hdl) ("row-changed").
+          LEAVE.
       END.
     END.
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-HANDLE(hPrepProcs) THEN
+        DELETE PROCEDURE hPrepProcs.
+        
+  IF VALID-HANDLE(hdCustomerProcs) THEN
+      DELETE PROCEDURE hdCustomerProcs.
+  
+  IF VALID-HANDLE(hdSalesManProcs) THEN
+      DELETE PROCEDURE hdSalesManProcs.
+        
+  IF VALID-HANDLE(hdQuoteProcs) THEN
+      DELETE PROCEDURE hdQuoteProcs.  
+  
+      
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4631,11 +4685,12 @@ PROCEDURE mass-delete :
     RUN est/ItemDeleteSelection.w (
         INPUT-OUTPUT TABLE tt-eb
         ).
+    lAllowResetType = NO.
     FOR EACH tt-eb 
         WHERE tt-eb.selected
-        BY tt-eb.form-no DESCENDING 
+        BREAK BY tt-eb.form-no DESCENDING 
         BY tt-eb.blank-no DESCENDING:
-
+        IF LAST(tt-eb.blank-no) THEN lAllowResetType = YES.
         FIND FIRST bf-ef NO-LOCK
              WHERE bf-ef.company EQ tt-eb.company 
                AND bf-ef.est-no  EQ tt-eb.est-no 
@@ -4643,10 +4698,10 @@ PROCEDURE mass-delete :
         RUN repo-query (ROWID(bf-ef), tt-eb.row-id).
         IF AVAILABLE eb AND eb.est-no EQ tt-eb.est-no THEN 
             RUN dispatch ("delete-record").
-            
+          
     END.
   END.
-
+  lAllowResetType = NO.
   ll-mass-del = NO.
   FOR EACH tt-eb:
     DELETE tt-eb.
@@ -5271,8 +5326,8 @@ PROCEDURE reset-est-type :
   END.
   
   
- IF op-est-type EQ 4 AND li-form-no EQ 1 AND li-blank-no EQ 1 
-    AND eb.bl-qty EQ eb.yld-qty THEN do:
+ IF op-est-type EQ 4 AND li-form-no EQ 1 AND li-blank-no EQ 1 THEN 
+ DO:
   
    MESSAGE "Change this Tandem/Combo to a Single Estimate Type?" SKIP
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
@@ -5372,6 +5427,7 @@ PROCEDURE run-goto :
   DEF VAR lv-changed-to-page-six AS LOG NO-UNDO.
 
   DEF BUFFER b-eb FOR eb.
+  DEFINE BUFFER bfSelected-eb FOR eb.
 
   IF AVAIL est THEN DO:
     IF est.est-type EQ 1 THEN DO:
@@ -5432,6 +5488,18 @@ PROCEDURE run-goto :
         END.
       END.
 
+      /* If Blank Record was changed on GOTO screen, refresh related variables to avoid unnecessary checks */
+      IF lv-rowid NE ? AND ROWID(eb) NE lv-rowid THEN
+      DO:
+          FIND FIRST bfSelected-eb NO-LOCK
+              WHERE ROWID(bfSelected-eb) = lv-rowid NO-ERROR.
+              
+          IF AVAILABLE bfSelected-eb THEN  
+              ASSIGN lv-hld-style = bfSelected-eb.style
+                     lv-hld-cust  = bfSelected-eb.cust-no.
+      END.               
+                 
+                       
       RUN redisplay-blanks (lv-rowid).
 
       IF op-changed THEN

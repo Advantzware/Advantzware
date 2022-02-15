@@ -69,8 +69,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR. 
-
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -96,30 +95,30 @@ IF lRecFound THEN
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR oe-prmtx.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS oe-prmtx.meth oe-prmtx.qty[1] oe-prmtx.uom[1] ~
-oe-prmtx.qty[2] oe-prmtx.uom[2] oe-prmtx.qty[3] oe-prmtx.uom[3] ~
-oe-prmtx.qty[4] oe-prmtx.uom[4] oe-prmtx.qty[5] oe-prmtx.uom[5] ~
+&Scoped-Define ENABLED-FIELDS oe-prmtx.meth oe-prmtx.online oe-prmtx.qty[1] ~
+oe-prmtx.uom[1] oe-prmtx.minOrderQty oe-prmtx.qty[2] oe-prmtx.uom[2] ~
+oe-prmtx.quoteID oe-prmtx.qty[3] oe-prmtx.uom[3] oe-prmtx.qty[4] ~
+oe-prmtx.uom[4] oe-prmtx.taxBasis oe-prmtx.qty[5] oe-prmtx.uom[5] ~
 oe-prmtx.qty[6] oe-prmtx.uom[6] oe-prmtx.qty[7] oe-prmtx.uom[7] ~
 oe-prmtx.qty[8] oe-prmtx.uom[8] oe-prmtx.qty[9] oe-prmtx.uom[9] ~
-oe-prmtx.qty[10] oe-prmtx.uom[10] oe-prmtx.online oe-prmtx.minOrderQty ~
-oe-prmtx.quoteID
+oe-prmtx.qty[10] oe-prmtx.uom[10] 
 &Scoped-define ENABLED-TABLES oe-prmtx
 &Scoped-define FIRST-ENABLED-TABLE oe-prmtx
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 
 &Scoped-Define DISPLAYED-FIELDS oe-prmtx.cust-no oe-prmtx.custShipID ~
-oe-prmtx.custype oe-prmtx.i-no oe-prmtx.procat oe-prmtx.eff-date ~
-oe-prmtx.exp-date oe-prmtx.meth oe-prmtx.qty[1] oe-prmtx.price[1] ~
-oe-prmtx.discount[1] oe-prmtx.uom[1] oe-prmtx.qty[2] oe-prmtx.price[2] ~
-oe-prmtx.discount[2] oe-prmtx.uom[2] oe-prmtx.qty[3] oe-prmtx.price[3] ~
-oe-prmtx.discount[3] oe-prmtx.uom[3] oe-prmtx.qty[4] oe-prmtx.price[4] ~
-oe-prmtx.discount[4] oe-prmtx.uom[4] oe-prmtx.qty[5] oe-prmtx.price[5] ~
+oe-prmtx.custype oe-prmtx.i-no oe-prmtx.procat oe-prmtx.meth ~
+oe-prmtx.eff-date oe-prmtx.exp-date oe-prmtx.online oe-prmtx.qty[1] ~
+oe-prmtx.price[1] oe-prmtx.discount[1] oe-prmtx.uom[1] oe-prmtx.minOrderQty ~
+oe-prmtx.qty[2] oe-prmtx.price[2] oe-prmtx.discount[2] oe-prmtx.uom[2] ~
+oe-prmtx.quoteID oe-prmtx.qty[3] oe-prmtx.price[3] oe-prmtx.discount[3] ~
+oe-prmtx.uom[3] oe-prmtx.qty[4] oe-prmtx.price[4] oe-prmtx.discount[4] ~
+oe-prmtx.uom[4] oe-prmtx.taxBasis oe-prmtx.qty[5] oe-prmtx.price[5] ~
 oe-prmtx.discount[5] oe-prmtx.uom[5] oe-prmtx.qty[6] oe-prmtx.price[6] ~
 oe-prmtx.discount[6] oe-prmtx.uom[6] oe-prmtx.qty[7] oe-prmtx.price[7] ~
 oe-prmtx.discount[7] oe-prmtx.uom[7] oe-prmtx.qty[8] oe-prmtx.price[8] ~
 oe-prmtx.discount[8] oe-prmtx.uom[8] oe-prmtx.qty[9] oe-prmtx.price[9] ~
 oe-prmtx.discount[9] oe-prmtx.uom[9] oe-prmtx.qty[10] oe-prmtx.price[10] ~
-oe-prmtx.discount[10] oe-prmtx.uom[10] oe-prmtx.online oe-prmtx.minOrderQty ~
-oe-prmtx.quoteID
+oe-prmtx.discount[10] oe-prmtx.uom[10] 
 &Scoped-define DISPLAYED-TABLES oe-prmtx
 &Scoped-define FIRST-DISPLAYED-TABLE oe-prmtx
 
@@ -136,8 +135,7 @@ oe-prmtx.price[4] oe-prmtx.discount[4] oe-prmtx.price[5] ~
 oe-prmtx.discount[5] oe-prmtx.price[6] oe-prmtx.discount[6] ~
 oe-prmtx.price[7] oe-prmtx.discount[7] oe-prmtx.price[8] ~
 oe-prmtx.discount[8] oe-prmtx.price[9] oe-prmtx.discount[9] ~
-oe-prmtx.price[10] oe-prmtx.discount[10] oe-prmtx.online ~
-oe-prmtx.minOrderQty
+oe-prmtx.price[10] oe-prmtx.discount[10] 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -172,7 +170,7 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 142 BY 16.19.
+     SIZE 144 BY 16.19.
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -197,6 +195,12 @@ DEFINE FRAME F-Main
      oe-prmtx.procat AT ROW 1.24 COL 124 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
+     oe-prmtx.meth AT ROW 2.43 COL 23.2 COLON-ALIGNED
+          VIEW-AS COMBO-BOX INNER-LINES 10
+          LIST-ITEM-PAIRS "Price",yes,
+                     "Discount",no
+          DROP-DOWN-LIST
+          SIZE 15.4 BY 1
      oe-prmtx.eff-date AT ROW 2.43 COL 78 COLON-ALIGNED
           LABEL "Effective Date"
           VIEW-AS FILL-IN 
@@ -205,20 +209,13 @@ DEFINE FRAME F-Main
           LABEL "Expiration Date"
           VIEW-AS FILL-IN 
           SIZE 19.6 BY 1
-    oe-prmtx.meth COLUMN-LABEL "Price Basis" 
-      VIEW-AS COMBO-BOX INNER-LINES 10
-      LIST-ITEM-PAIRS "Price","P",
-                      "Discount","D"
-      DROP-DOWN-LIST
-      AT ROW 2.43 COL 12
      oe-prmtx.online AT ROW 2.67 COL 48
-          LABEL "Online"
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY .81
      oe-prmtx.qty[1] AT ROW 4.57 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[1] AT ROW 4.57 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[1] AT ROW 4.57 COL 55 COLON-ALIGNED NO-LABEL FORMAT "->>,>>>,>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[1] AT ROW 4.57 COL 87 COLON-ALIGNED NO-LABEL
@@ -227,10 +224,13 @@ DEFINE FRAME F-Main
      oe-prmtx.uom[1] AT ROW 4.57 COL 109 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
+     oe-prmtx.minOrderQty AT ROW 4.57 COL 122.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
      oe-prmtx.qty[2] AT ROW 5.76 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[2] AT ROW 5.76 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[2] AT ROW 5.76 COL 55 COLON-ALIGNED NO-LABEL FORMAT "->>,>>>,>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[2] AT ROW 5.76 COL 87 COLON-ALIGNED NO-LABEL
@@ -239,6 +239,9 @@ DEFINE FRAME F-Main
      oe-prmtx.uom[2] AT ROW 5.76 COL 109 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
+     oe-prmtx.quoteID AT ROW 6.57 COL 122.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
      oe-prmtx.qty[3] AT ROW 6.95 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -263,6 +266,20 @@ DEFINE FRAME F-Main
      oe-prmtx.uom[4] AT ROW 8.14 COL 109 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     oe-prmtx.taxBasis AT ROW 8.62 COL 122.4 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+          VIEW-AS COMBO-BOX INNER-LINES 5
+          LIST-ITEM-PAIRS "Force No Tax",2,
+                     "Force Tax",1,
+                     "Default",0
+          DROP-DOWN-LIST
+          SIZE 19.6 BY 1
      oe-prmtx.qty[5] AT ROW 9.33 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -272,13 +289,6 @@ DEFINE FRAME F-Main
      oe-prmtx.discount[5] AT ROW 9.33 COL 87 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      oe-prmtx.uom[5] AT ROW 9.33 COL 109 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
@@ -342,32 +352,6 @@ DEFINE FRAME F-Main
      oe-prmtx.uom[10] AT ROW 15.29 COL 109 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
-     oe-prmtx.minOrderQty  AT ROW 4.57 COL 123 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 14.6 BY 1        
-     oe-prmtx.quoteID AT ROW 6.57 COL 123 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 14.6 BY 1
-     "Discount" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 3.86 COL 89
-     "Price" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 3.86 COL 57
-     "UOM" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 3.86 COL 114
-     "Quantity" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 3.86 COL 35
-     "3" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 7.19 COL 20
-     "5" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 9.57 COL 20
-     "Level" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 3.86 COL 20
-     "7" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 11.95 COL 20
-     "Min Order Qty" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 3.86 COL 125 
-     "Quote ID" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 5.86 COL 125    
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -375,20 +359,42 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     "8" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 13.14 COL 20
-     "9" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 14.33 COL 20
-     "4" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 8.38 COL 20
+     "Tax Override" VIEW-AS TEXT
+          SIZE 14.8 BY .62 AT ROW 7.91 COL 124.4 WIDGET-ID 4
      "1" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 4.81 COL 20
+     "9" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 14.33 COL 20
+     "8" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 13.14 COL 20
+     "Quote ID" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 5.86 COL 124.2
+     "Min Order Qty" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 3.86 COL 124.2
+     "7" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 11.95 COL 20
+     "Level" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 3.86 COL 20
+     "5" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 9.57 COL 20
+     "3" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 7.19 COL 20
+     "Quantity" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 3.86 COL 35
+     "UOM" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 3.86 COL 114
+     "Price" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 3.86 COL 57
+     "Discount" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 3.86 COL 89
      "2" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 6 COL 20
      "6" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 10.76 COL 20
      "10" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 15.52 COL 20
+     "4" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 8.38 COL 20
      RECT-1 AT ROW 1 COL 1
      RECT-5 AT ROW 3.62 COL 15
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -610,6 +616,22 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME oe-prmtx.custShipID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-prmtx.custShipID V-table-Win
+ON LEAVE OF oe-prmtx.custShipID IN FRAME F-Main /* Ship ID */
+DO:
+   IF LASTKEY <> -1 THEN DO:
+    IF  oe-prmtx.custShipID:SCREEN-VALUE IN frame {&FRAME-NAME} <> "" THEN DO:
+         RUN valid-shipid(OUTPUT lReturnError) NO-ERROR.
+         IF lReturnError THEN RETURN NO-APPLY.
+     END.
+  END.         
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME oe-prmtx.custype
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-prmtx.custype V-table-Win
 ON LEAVE OF oe-prmtx.custype IN FRAME F-Main /* Type */
@@ -651,21 +673,6 @@ DO:
     
   
   
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME oe-prmtx.custShipID
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-prmtx.custShipID V-table-Win
-ON LEAVE OF oe-prmtx.custShipID IN FRAME F-Main /* ship Id */
-DO:
-   IF LASTKEY <> -1 THEN DO:
-    IF  oe-prmtx.custShipID:SCREEN-VALUE IN frame {&FRAME-NAME} <> "" THEN DO:
-         RUN valid-shipid(OUTPUT lReturnError) NO-ERROR.
-         IF lReturnError THEN RETURN NO-APPLY.
-     END.
-  END.         
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1165,71 +1172,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetValidUOMList V-table-Win
-PROCEDURE pSetValidUOMList PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-/*------------------------------------------------------------------------------
- Purpose:  Given company and get, set the global UOM list variable
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
-
-DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
- 
-DEFINE BUFFER bf-itemfg FOR itemfg.
-
-    IF ipcItemID NE "" THEN DO:
-        FIND FIRST bf-itemfg NO-LOCK
-            WHERE bf-itemfg.company EQ ipcCompany
-            AND bf-itemfg.i-no EQ ipcItemID
-            NO-ERROR.
-
-    END.
-    IF AVAILABLE bf-itemfg THEN DO: 
-        RUN Conv_GetValidPriceUOMsForItem(ROWID(bf-itemfg), OUTPUT uom-list, OUTPUT lError, OUTPUT cMessage).
-    END.
-    ELSE DO: 
-        RUN Conv_GetValidPriceUOMs(OUTPUT uom-list).
-    END.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-panel V-table-Win 
-PROCEDURE set-panel :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-switch AS INT NO-UNDO.
-
-  DEF VAR char-hdl AS CHAR NO-UNDO.
-
-
-  RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'disable-button-target':U,OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do:
-      IF ip-switch EQ 0 THEN 
-          RUN disable-all IN WIDGET-HANDLE(char-hdl).
-      ELSE
-          RUN enable-all IN WIDGET-HANDLE(char-hdl) .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
@@ -1355,8 +1297,74 @@ PROCEDURE local-update-record :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME  
+&ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE mass-delete V-table-Win 
+PROCEDURE mass-delete :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+ RUN util/del-prmtx.w.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pricemtx-newitem V-table-Win 
+PROCEDURE pricemtx-newitem :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF OUTPUT PARAMETER oplExists AS LOG NO-UNDO.
+
+ASSIGN oplExists = lEditMode .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetValidUOMList V-table-Win 
+PROCEDURE pSetValidUOMList PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose:  Given company and get, set the global UOM list variable
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+ 
+DEFINE BUFFER bf-itemfg FOR itemfg.
+
+    IF ipcItemID NE "" THEN DO:
+        FIND FIRST bf-itemfg NO-LOCK
+            WHERE bf-itemfg.company EQ ipcCompany
+            AND bf-itemfg.i-no EQ ipcItemID
+            NO-ERROR.
+
+    END.
+    IF AVAILABLE bf-itemfg THEN DO: 
+        RUN Conv_GetValidPriceUOMsForItem(ROWID(bf-itemfg), OUTPUT uom-list, OUTPUT lError, OUTPUT cMessage).
+    END.
+    ELSE DO: 
+        RUN Conv_GetValidPriceUOMs(OUTPUT uom-list).
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reftable-values V-table-Win 
 PROCEDURE reftable-values :
@@ -1436,6 +1444,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-panel V-table-Win 
+PROCEDURE set-panel :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-switch AS INT NO-UNDO.
+
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+
+
+  RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'disable-button-target':U,OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do:
+      IF ip-switch EQ 0 THEN 
+          RUN disable-all IN WIDGET-HANDLE(char-hdl).
+      ELSE
+          RUN enable-all IN WIDGET-HANDLE(char-hdl) .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -1451,20 +1484,6 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE mass-delete V-table-Win 
-PROCEDURE mass-delete :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
- RUN util/del-prmtx.w.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1595,43 +1614,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-shipid V-table-Win 
-PROCEDURE valid-shipid :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-   DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
-   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-  {methods/lValidateError.i YES}
-  IF oe-prmtx.custShipID:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE ""
-  THEN DO:
-  
-     RUN pIsValidShiptoID IN hdValidateProcs (
-            INPUT  oe-prmtx.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME},
-            INPUT  oe-prmtx.custShipID:SCREEN-VALUE IN FRAME {&FRAME-NAME},
-            INPUT  TRUE, /* Is required */
-            INPUT  cocode,
-            OUTPUT lSuccess,
-            OUTPUT cMessage
-            ) NO-ERROR.
-      IF NOT lSuccess THEN
-      DO:
-          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO oe-prmtx.custShipID.
-          oplReturnError = YES.           
-      END.
-      
-  END.
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-procat V-table-Win 
 PROCEDURE valid-procat :
 /*------------------------------------------------------------------------------
@@ -1662,6 +1644,43 @@ IF AVAIL itemfg
         APPLY "entry" TO oe-prmtx.procat.
         RETURN ERROR.
 END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-shipid V-table-Win 
+PROCEDURE valid-shipid :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  {methods/lValidateError.i YES}
+  IF oe-prmtx.custShipID:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE ""
+  THEN DO:
+  
+     RUN pIsValidShiptoID IN hdValidateProcs (
+            INPUT  oe-prmtx.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+            INPUT  oe-prmtx.custShipID:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+            INPUT  TRUE, /* Is required */
+            INPUT  cocode,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ) NO-ERROR.
+      IF NOT lSuccess THEN
+      DO:
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO oe-prmtx.custShipID.
+          oplReturnError = YES.           
+      END.
+      
+  END.
 
   {methods/lValidateError.i NO}
 END PROCEDURE.
@@ -1979,19 +1998,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pricemtx-newitem V-table-Win 
-PROCEDURE pricemtx-newitem :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF OUTPUT PARAMETER oplExists AS LOG NO-UNDO.
-
-ASSIGN oplExists = lEditMode .
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

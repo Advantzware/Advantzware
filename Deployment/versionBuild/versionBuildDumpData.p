@@ -30,6 +30,14 @@ DEF VAR cOutDir AS CHAR NO-UNDO.
 ASSIGN 
     cOutDir = "C:\asigui\Upgrades\PATCH" + cNewVer + "\DataFiles".
 
+&SCOPED-DEFINE cFile attribute
+
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
 &SCOPED-DEFINE cFile audittbl
 
 OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
@@ -154,8 +162,7 @@ OUTPUT STREAM s3 TO VALUE(cOutDir + "\dynSubjectColumn.d").
 OUTPUT STREAM s4 TO VALUE(cOutDir + "\dynSubjectParamSet.d").
 
 FOR EACH dynSubject NO-LOCK WHERE 
-    dynSubject.subjectID LT 5000 AND
-    dynSubject.isActive EQ TRUE
+    dynSubject.subjectID LT 5000
     BY dynSubject.subjectid:
     EXPORT STREAM s0 dynSubject.
     FOR EACH dynSubjectTable OF dynSubject NO-LOCK:
@@ -263,6 +270,27 @@ FOR EACH {&cFile}:
 END.
 OUTPUT CLOSE.
 
+&SCOPED-DEFINE cFile estCostCategorySystem
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile estCostGroupSystem
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile estCostGroupLevelSystem
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
 &SCOPED-DEFINE cFile naics
 OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
 FOR EACH {&cFile}:
@@ -339,6 +367,15 @@ FOR EACH {&cFile} WHERE {&cFile}.clientID BEGINS "_default":
     EXPORT {&cFile}.
 END.
 OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile settingType
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+
 
 QUIT.
 

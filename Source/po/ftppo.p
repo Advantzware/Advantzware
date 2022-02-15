@@ -359,7 +359,7 @@ IF AVAIL sys-ctrl THEN DO:
                   "option batch abort"   SKIP.
               PUT UNFORMATTED 
                   "option confirm off"   SKIP.
-              PUT UNFORMATTED "open ftp://premierpleky:C8S1f9zyWy@corrchoiceb2b.greif.com" SKIP.
+              PUT UNFORMATTED "open ftp://premierpleky:G9JqHVoNWq@corrchoiceb2b.greif.com" SKIP.
               PUT UNFORMATTED
                 "cd mcc"                 SKIP.       /* test or prod */
               PUT UNFORMATTED
@@ -371,7 +371,7 @@ IF AVAIL sys-ctrl THEN DO:
            PUT UNFORMATTED 
                "open corrchoiceb2b.greif.com" SKIP  /* ftp server ip address */
                "premierpleky"         SKIP     /* userid */
-               "C8S1f9zyWy"           SKIP     /* password */
+               "G9JqHVoNWq"           SKIP     /* password */
                "cd mcc"  SKIP
                "put " ip-exp-file     SKIP     /*file to transfer */
                "quit".
