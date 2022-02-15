@@ -35,9 +35,9 @@ AND NOT {&TABLENAME}.all-flg  THEN
 
 IF {&TABLENAME}.qty-all LT 0 THEN {&TABLENAME}.qty-all = 0.
 
-IF {&TABLENAME}.all-flg NE old-{&TABLENAME}.all-flg AND system.SharedConfig:Instance:GetValue("JobMaterialUpdateSource") NE "UI" THEN 
+IF {&TABLENAME}.all-flg NE old-{&TABLENAME}.all-flg THEN 
     dQtyAllocChange = {&TABLENAME}.qty-all * (IF {&TABLENAME}.all-flg THEN 1 ELSE -1).
-ELSE IF {&TABLENAME}.qty-all NE old-{&TABLENAME}.qty-all AND ({&TABLENAME}.all-flg OR system.SharedConfig:Instance:GetValue("IsJobMaterialAllocated") EQ "YES") THEN 
+ELSE IF {&TABLENAME}.qty-all NE old-{&TABLENAME}.qty-all AND {&TABLENAME}.all-flg THEN 
     dQtyAllocChange = {&TABLENAME}.qty-all - old-{&TABLENAME}.qty-all.
     
 IF dQtyAllocChange NE 0 THEN DO:

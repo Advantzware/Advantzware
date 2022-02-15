@@ -70,6 +70,7 @@ for each job-mat EXCLUSIVE-LOCK
   if ip-factor eq 1 and job.stat eq "W" then job.stat = "A".
   else
   if ip-factor eq -1 then do:
+    IF system.SharedConfig:Instance:GetValue("JobMaterialUpdateSource") NE "UI" THEN
     assign
      job-mat.qty-all = 0
      job-mat.all-flg = no.
