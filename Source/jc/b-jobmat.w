@@ -969,7 +969,7 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
   
   /* Code placed here will execute PRIOR to standard behavior. */
-  system.SharedConfig:Instance:SetValue("JobMaterialUpdateSource", "UI").
+  system.SharedConfig:Instance:SetValue("JobMaterialResetAllocationFields", "NO").
   
   IF ll-commit THEN RUN jc/jc-all2.p (ROWID(job-mat), -1).
 
@@ -982,7 +982,7 @@ PROCEDURE local-assign-record :
   IF ll-commit THEN
       RUN jc/jc-all2.p (ROWID(job-mat), 1).
 
-  system.SharedConfig:Instance:DeleteValue("JobMaterialUpdateSource").
+  system.SharedConfig:Instance:DeleteValue("JobMaterialResetAllocationFields").
 
 END PROCEDURE.
 
@@ -1640,14 +1640,14 @@ PROCEDURE run-alloc :
            WHERE ROWID(b-job-mat) EQ ROWID(job-mat)
            NO-ERROR.
       IF AVAILABLE b-job-mat THEN DO:
-          system.SharedConfig:Instance:SetValue("JobMaterialUpdateSource", "UI").
+          system.SharedConfig:Instance:SetValue("JobMaterialResetAllocationFields", "NO").
           
           IF lv-alloc-char BEGINS "alloc" THEN 
               RUN jc/jc-all2.p (ROWID(b-job-mat), 1).
           ELSE 
               RUN jc/jc-all2.p (ROWID(b-job-mat), -1).
           
-          system.SharedConfig:Instance:DeleteValue("JobMaterialUpdateSource").
+          system.SharedConfig:Instance:DeleteValue("JobMaterialResetAllocationFields").
                         
           b-job-mat.all-flg = lv-alloc-char BEGINS "alloc".
 
