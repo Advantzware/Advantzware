@@ -35,6 +35,7 @@ DEFINE VARIABLE cLoc     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cocode   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE locode   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE i        AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cMatList AS CHARACTER NO-UNDO.
 
 RUN spGetSessionParam("Company", OUTPUT cCompany).
 RUN spGetSessionParam("Location", OUTPUT cLoc).
@@ -63,10 +64,10 @@ DEFINE VARIABLE ghExcelProcs      AS HANDLE        NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-7 begin_job-no begin_job-no2 end_job-no ~
-end_job-no2 RADIO-SET-1 begin_job-closeDate end_close-date btn-ok ~
+end_job-no2 rd_jobstat begin_job-closeDate end_close-date select-mat btn-ok ~
 btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_job-no begin_job-no2 end_job-no ~
-end_job-no2 RADIO-SET-1 begin_job-closeDate end_close-date 
+end_job-no2 rd_jobstat begin_job-closeDate end_close-date select-mat 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -90,10 +91,10 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 16 BY 1.29.
 
-DEFINE VARIABLE begin_job-closeDate AS DATE FORMAT "99/99/99":U 
+DEFINE VARIABLE begin_job-closeDate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Close Date" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
      LABEL "Beginning Job#" 
@@ -105,10 +106,10 @@ DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_close-date AS DATE FORMAT "99/99/99":U 
+DEFINE VARIABLE end_close-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Close Date" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
      LABEL "Ending Job#" 
@@ -120,17 +121,21 @@ DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE RADIO-SET-1 AS INTEGER 
+DEFINE VARIABLE rd_jobstat AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
-          "Open", 1,
-"Closed", 2,
-"All", 3
+          "Open", "O",
+"Closed", "C",
+"All", "A"
      SIZE 50 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 8.29.
+     SIZE 94 BY 12.81.
+
+DEFINE VARIABLE select-mat AS CHARACTER 
+     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
+     SIZE 44 BY 5 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -140,17 +145,22 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Job Number"
      begin_job-no2 AT ROW 2.67 COL 36 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     end_job-no AT ROW 2.67 COL 59 COLON-ALIGNED HELP
+     end_job-no AT ROW 2.67 COL 63 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 2.67 COL 71 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.67 COL 74 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     RADIO-SET-1 AT ROW 4.48 COL 26 NO-LABEL WIDGET-ID 2
+     rd_jobstat AT ROW 4.48 COL 26 NO-LABEL WIDGET-ID 2
      begin_job-closeDate AT ROW 6 COL 23.8 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 8
-     end_close-date AT ROW 6 COL 58 COLON-ALIGNED HELP
+     end_close-date AT ROW 6 COL 63 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 10
-     btn-ok AT ROW 10.57 COL 31
-     btn-cancel AT ROW 10.57 COL 51
+     select-mat AT ROW 8.67 COL 26.4 HELP
+          "Enter description of this Material Type." NO-LABEL WIDGET-ID 12
+     btn-ok AT ROW 15 COL 31
+     btn-cancel AT ROW 15 COL 51
+     "Select/Deselect Material Types" VIEW-AS TEXT
+          SIZE 38 BY .62 AT ROW 7.76 COL 27.2 WIDGET-ID 14
+          FONT 6
      " Selection Parameters" VIEW-AS TEXT
           SIZE 21.2 BY .71 AT ROW 1.14 COL 5
      "Job Status:" VIEW-AS TEXT
@@ -159,7 +169,7 @@ DEFINE FRAME FRAME-A
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 96 BY 15.19
+         SIZE 96 BY 15.81
          BGCOLOR 15 .
 
 
@@ -180,7 +190,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Job Summary Analysis Report New"
-         HEIGHT             = 11.81
+         HEIGHT             = 15.95
          WIDTH              = 96
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -379,6 +389,29 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME rd_jobstat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_jobstat C-Win
+ON VALUE-CHANGED OF rd_jobstat IN FRAME FRAME-A
+DO:
+  assign {&self-name}.
+  RUN pSetCloseDate.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME select-mat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL select-mat C-Win
+ON VALUE-CHANGED OF select-mat IN FRAME FRAME-A
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -409,11 +442,20 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn-ok:load-image("Graphics/32x32/Ok.png").
     btn-cancel:load-image("Graphics/32x32/cancel.png").
     RUN enable_UI.
+    
+    FOR EACH mat FIELDS(mat dscr) NO-LOCK:
+        cMatList = cMatList + string(mat.mat,"x(5)") + " " + mat.dscr + ",".
+    END.
+    IF substr(cMatList,LENGTH(TRIM(cMatList)),1) EQ "," THEN
+        substr(cMatList,LENGTH(TRIM(cMatList)),1) = "".
+
+    select-mat:list-items = cMatList.
+    
     {methods/nowait.i}
   
     DO WITH FRAME {&FRAME-NAME}:
         {custom/usrprint.i}
-    
+        RUN pSetCloseDate.
 APPLY "entry" TO begin_job-no.
 END.
     
@@ -457,11 +499,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_job-no begin_job-no2 end_job-no end_job-no2 RADIO-SET-1 
-          begin_job-closeDate end_close-date 
+  DISPLAY begin_job-no begin_job-no2 end_job-no end_job-no2 rd_jobstat 
+          begin_job-closeDate end_close-date select-mat 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-7 begin_job-no begin_job-no2 end_job-no end_job-no2 RADIO-SET-1 
-         begin_job-closeDate end_close-date btn-ok btn-cancel 
+  ENABLE RECT-7 begin_job-no begin_job-no2 end_job-no end_job-no2 rd_jobstat 
+         begin_job-closeDate end_close-date select-mat btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -585,7 +627,8 @@ PROCEDURE pPrintDepartment :
             AND ttOperation.iJobNo2 EQ ttDepartment.iJobNo2
             AND ttOperation.cDept EQ ttDepartment.cDept
             AND ttOperation.iFormNo EQ ttDepartment.iFormNo
-            AND ttOperation.iBlankNo EQ ttDepartment.iBlankNo:
+            AND ttOperation.iBlankNo EQ ttDepartment.iBlankNo
+            AND ttOperation.iPass EQ ttDepartment.iPass:
             
             RUN pPrintOperation (INPUT-OUTPUT iopiRowCount, BUFFER ttOperation).
         END.
@@ -597,7 +640,7 @@ PROCEDURE pPrintDepartment :
         RUN Excel_SetCellValue IN ghExcelProcs ("I" + STRING(iopiRowCount),  STRING(ttDepartment.dCostVar)).
         RUN Excel_SetCellValue IN ghExcelProcs ("J" + STRING(iopiRowCount),  STRING(ttDepartment.dSetupWasteVar)).
         RUN Excel_SetCellValue IN ghExcelProcs ("K" + STRING(iopiRowCount),  STRING(ttDepartment.dRunWasteVar)).
-        iopiRowCount = iopiRowCount + 1.             
+        iopiRowCount = iopiRowCount + 2.             
         RUN Excel_InsertRowAbove IN ghExcelProcs (iopiRowCount). 
     END.      
     iopiRowCount = iopiRowCount + 1.
@@ -621,14 +664,17 @@ PROCEDURE pPrintFGItem :
     FOR EACH ttItem NO-LOCK
         WHERE ttItem.cJobNo EQ ttJob.cJobNo
         AND ttItem.iJobNo2 EQ ttJob.iJobNo2: 
-        
-        RUN Excel_SetCellValue IN ghExcelProcs ("A" + STRING(iopiRowCount),  ttItem.cFGItem). 
-        RUN Excel_SetCellValue IN ghExcelProcs ("B" + STRING(iopiRowCount),  ttItem.cFGName).
-        RUN Excel_SetCellValue IN ghExcelProcs ("C" + STRING(iopiRowCount),  STRING(ttItem.dSellingPrice)). 
-        RUN Excel_SetCellValue IN ghExcelProcs ("D" + STRING(iopiRowCount),  STRING(ttItem.cSellingUom)). 
-        RUN Excel_SetCellValue IN ghExcelProcs ("E" + STRING(iopiRowCount),  STRING(ttItem.dJobQty)). 
-        RUN Excel_SetCellValue IN ghExcelProcs ("F" + STRING(iopiRowCount),  STRING(ttItem.dProduced)).
-        RUN Excel_SetCellValue IN ghExcelProcs ("G" + STRING(iopiRowCount),  STRING(ttItem.dOnHand)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("A" + STRING(iopiRowCount),  STRING(ttItem.iFormNo,"99") + "|" +  string(ttItem.iBlankNo,"99")). 
+        RUN Excel_SetCellValue IN ghExcelProcs ("B" + STRING(iopiRowCount),  ttItem.cFGItem). 
+        RUN Excel_SetCellValue IN ghExcelProcs ("C" + STRING(iopiRowCount),  ttItem.cFGName).
+        RUN Excel_SetCellValue IN ghExcelProcs ("D" + STRING(iopiRowCount),  STRING(ttItem.dSellingPrice)). 
+        RUN Excel_SetCellValue IN ghExcelProcs ("E" + STRING(iopiRowCount),  STRING(ttItem.cSellingUom)). 
+        RUN Excel_SetCellValue IN ghExcelProcs ("F" + STRING(iopiRowCount),  STRING(ttItem.dJobQty)). 
+        RUN Excel_SetCellValue IN ghExcelProcs ("G" + STRING(iopiRowCount),  STRING(ttItem.dProduced)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("H" + STRING(iopiRowCount),  STRING(ttItem.dOnHand)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("I" + STRING(iopiRowCount),  STRING(ttItem.dStdCost)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("J" + STRING(iopiRowCount),  STRING(ttItem.cItemDesc)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("K" + STRING(iopiRowCount),  STRING(ttItem.cProductCat)).
         iopiRowCount = iopiRowCount + 1.
         RUN Excel_InsertRowAbove IN ghExcelProcs (iopiRowCount).                                     
     END.
@@ -656,14 +702,15 @@ PROCEDURE pPrintMaterial :
         AND ttMaterial.iJobNo2 EQ ttJob.iJobNo2:
 
         RUN Excel_SetCellValue IN ghExcelProcs ("A" + STRING(iopiRowCount),  STRING(ttMaterial.cMaterial)).
-        RUN Excel_SetCellValue IN ghExcelProcs ("B" + STRING(iopiRowCount),  STRING(ttMaterial.dQtyStd)).
-        RUN Excel_SetCellValue IN ghExcelProcs ("C" + STRING(iopiRowCount),  STRING(ttMaterial.cStdUom)).
-        RUN Excel_SetCellValue IN ghExcelProcs ("D" + STRING(iopiRowCount),  STRING(ttMaterial.dQtyAct)).
-        RUN Excel_SetCellValue IN ghExcelProcs ("E" + STRING(iopiRowCount),  STRING(ttMaterial.cActUom)).
-        RUN Excel_SetCellValue IN ghExcelProcs ("F" + STRING(iopiRowCount),  STRING(ttMaterial.dQtyVar)). 
-        RUN Excel_SetCellValue IN ghExcelProcs ("G" + STRING(iopiRowCount),  STRING(ttMaterial.dCostStd)).         
-        RUN Excel_SetCellValue IN ghExcelProcs ("H" + STRING(iopiRowCount),  STRING(ttMaterial.dCostAct)).         
-        RUN Excel_SetCellValue IN ghExcelProcs ("I" + STRING(iopiRowCount),  STRING(ttMaterial.dCostVar)).           
+        RUN Excel_SetCellValue IN ghExcelProcs ("B" + STRING(iopiRowCount),  STRING(ttMaterial.cUsedonForms)). 
+        RUN Excel_SetCellValue IN ghExcelProcs ("C" + STRING(iopiRowCount),  STRING(ttMaterial.dQtyStd)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("D" + STRING(iopiRowCount),  STRING(ttMaterial.cStdUom)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("E" + STRING(iopiRowCount),  STRING(ttMaterial.dQtyAct)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("F" + STRING(iopiRowCount),  STRING(ttMaterial.cActUom)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("G" + STRING(iopiRowCount),  STRING(ttMaterial.dQtyVar)). 
+        RUN Excel_SetCellValue IN ghExcelProcs ("H" + STRING(iopiRowCount),  STRING(ttMaterial.dCostStd)).         
+        RUN Excel_SetCellValue IN ghExcelProcs ("I" + STRING(iopiRowCount),  STRING(ttMaterial.dCostAct)).         
+        RUN Excel_SetCellValue IN ghExcelProcs ("J" + STRING(iopiRowCount),  STRING(ttMaterial.dCostVar)).           
             
         iopiRowCount = iopiRowCount + 1.      
         RUN Excel_InsertRowAbove IN ghExcelProcs (iopiRowCount).                        
@@ -698,11 +745,33 @@ PROCEDURE pPrintOperation :
     RUN Excel_SetCellValue IN ghExcelProcs ("I" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dCost)).
     RUN Excel_SetCellValue IN ghExcelProcs ("J" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dSetupWaste)).
     RUN Excel_SetCellValue IN ghExcelProcs ("K" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dRunWaste)).
-    RUN Excel_SetCellValue IN ghExcelProcs ("L" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.cDownTimeCode)).
-    RUN Excel_SetCellValue IN ghExcelProcs ("M" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dDownTimeHrs)).        
+    RUN Excel_SetCellValue IN ghExcelProcs ("L" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.cDTChargeable)).
+    RUN Excel_SetCellValue IN ghExcelProcs ("M" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.cDTNotChargeable)).
+    RUN Excel_SetCellValue IN ghExcelProcs ("N" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dDownTimeHrs)).        
     iopiRowCount = iopiRowCount + 1.
     RUN Excel_InsertRowAbove IN ghExcelProcs (iopiRowCount).   
     
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetCloseDate C-Win 
+PROCEDURE pSetCloseDate :
+DO WITH FRAME {&FRAME-NAME}:
+       
+        IF rd_jobstat:SCREEN-VALUE EQ "C" THEN
+        DO:
+           ASSIGN
+               begin_job-closeDate:HIDDEN = NO
+               end_close-date:HIDDEN = NO .
+        END.
+        ELSE
+         ASSIGN
+               begin_job-closeDate:HIDDEN = YES
+               end_close-date:HIDDEN = YES .
+    END.
 
 END PROCEDURE.
 
@@ -714,7 +783,7 @@ PROCEDURE run-report :
 /* ----------------------------------------------- jc/rep/job-sum.p 08/94 JLF */
     /* Job Summary Report                                                         */
     /* -------------------------------------------------------------------------- */        
-   
+    DEFINE VARIABLE cMtype AS CHARACTER NO-UNDO.
     SESSION:SET-WAIT-STATE ("general").
        
     EMPTY TEMP-TABLE ttJob.
@@ -725,7 +794,17 @@ PROCEDURE run-report :
     
     
     DO WITH FRAME {&FRAME-NAME}:
+        DO i = 1 TO select-mat:num-items:
+            IF select-mat:is-selected(i) THEN
+                cMtype = cMtype + trim(substr(select-mat:entry(i),1,5)) + ",".
+        END.
+
+        IF LENGTH(TRIM(cMtype)) NE 0 AND
+            substr(cMtype,LENGTH(TRIM(cMtype)),1) EQ "," THEN
+            substr(cMtype,LENGTH(TRIM(cMtype)),1) = "".  
+    
         RUN jc/jobSumReport.p(cocode, begin_job-no:SCREEN-VALUE, STRING(begin_job-no2:SCREEN-VALUE,"99"), end_job-no:SCREEN-VALUE, STRING(begin_job-no2,"99"),
+            rd_jobstat:SCREEN-VALUE, begin_job-closeDate:SCREEN-VALUE, end_close-date:SCREEN-VALUE, cMtype,
             OUTPUT table ttJob,
             OUTPUT table ttDepartment,
             OUTPUT table ttOperation,

@@ -23,6 +23,7 @@ DEFINE INPUT PARAMETER ipiToJobNo2 AS INTEGER NO-UNDO.
 DEFINE INPUT PARAMETER ipcStatus AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipdtCloseStart AS DATE NO-UNDO.
 DEFINE INPUT PARAMETER ipdtCloseEnd AS DATE NO-UNDO.
+DEFINE INPUT PARAMETER ipcMatType AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER TABLE FOR ttJob.
 DEFINE OUTPUT PARAMETER TABLE FOR ttDepartment.
 DEFINE OUTPUT PARAMETER TABLE FOR ttOperation.
@@ -41,7 +42,7 @@ FUNCTION fGetOnHandQty RETURNS INTEGER PRIVATE
     
 /* ***************************  Main Block  *************************** */
           
-RUN pBuildTempTables(ipcCompany, ipcFromJobNo, ipiFromJobNo2, ipcToJobNo, ipiToJobNo2, ipcStatus, ipdtCloseStart, ipdtCloseEnd).
+RUN pBuildTempTables(ipcCompany, ipcFromJobNo, ipiFromJobNo2, ipcToJobNo, ipiToJobNo2, ipcStatus, ipdtCloseStart, ipdtCloseEnd, ipcMatType).
 
 /* **********************  Internal Procedures  *********************** */
 PROCEDURE pBuildTempTables PRIVATE:
@@ -57,6 +58,7 @@ PROCEDURE pBuildTempTables PRIVATE:
     DEFINE INPUT PARAMETER ipcStatus AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdtCloseStart AS DATE NO-UNDO.
     DEFINE INPUT PARAMETER ipdtCloseEnd AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMatType AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cJobNo LIKE job.job-no EXTENT 2 INIT [" ", "zzzzzz"] NO-UNDO.
     DEFINE VARIABLE lClosedOnly AS LOGICAL NO-UNDO.
@@ -93,7 +95,7 @@ PROCEDURE pBuildTempTables PRIVATE:
                      
         RUN pBuildFGItems(BUFFER ttJob, BUFFER job).
         RUN pBuildDepartmentsAndOperations(BUFFER job, BUFFER estCostHeader).
-        RUN pBuildMaterials(BUFFER job, BUFFER estCostHeader).          
+        RUN pBuildMaterials(BUFFER job, BUFFER estCostHeader, ipcMatType).          
     END.
 END PROCEDURE.
 
@@ -128,7 +130,10 @@ PROCEDURE pBuildFGItems PRIVATE:
             ttItem.cFGName       = itemfg.i-name
             ttItem.dSellingPrice = itemfg.sell-price
             ttItem.cSellingUom   = itemfg.sell-uom
-            ttItem.dJobQty       = job-hdr.qty 
+            ttItem.dJobQty       = job-hdr.qty
+            ttItem.cItemDesc     = itemfg.part-dscr1
+            ttItem.cProductCat   = itemfg.procat
+            ttItem.dStdCost      = job-hdr.std-mat-cost + job-hdr.std-lab-cost + job-hdr.std-fix-cost + job-hdr.std-var-cost
             .
          
         RUN fg/GetProductionQty.p (INPUT job-hdr.company,
@@ -169,6 +174,8 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
     DEFINE VARIABLE dActRunWaste   AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dActCost       AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iBlankNo       AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-ttOperation FOR ttOperation.
          
     IF AVAILABLE ipbf-estCostHeader THEN
     DO:
@@ -192,6 +199,7 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
                 ttOperation.dSetupWaste   = estCostOperation.quantityInSetupWaste                 
                 ttOperation.dRunWaste     = estCostOperation.quantityInRunWaste                   
                 ttOperation.iSeq          = estCostOperation.sequence
+                ttOperation.iPass         = estCostOperation.pass
                 .
         END.           
     END.
@@ -212,6 +220,7 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
             AND ttOperation.cMachine EQ mch-act.m-code
             AND ttOperation.iFormNo EQ mch-act.frm
             AND ttOperation.iBlankNo EQ iBlankNo
+            AND ttOperation.iPass EQ mch-act.pass
             AND ttOperation.cStdAct EQ "Actual"
             NO-ERROR.
         IF NOT AVAILABLE ttOperation THEN DO:  
@@ -224,6 +233,7 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
                 ttOperation.cDept         = mch-act.dept
                 ttOperation.cMachine      = mch-act.m-code
                 ttOperation.cStdAct       = "Actual"
+                ttOperation.iPass         = mch-act.pass
                 .
         END.
         CASE job-code.cat:
@@ -245,7 +255,7 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
             END.
             OTHERWISE DO:
                 ASSIGN 
-                    ttOperation.cDownTimeCode = ttOperation.cDownTimeCode + mch-act.d-type + ","
+                    ttOperation.cDTChargeable = ttOperation.cDTChargeable + mch-act.d-type + ","
                     ttOperation.dDownTimeHrs  = ttOperation.dDowntimeHrs + mch-act.hours
                     .    
             END.
@@ -258,9 +268,34 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
         AND ttOperation.iJobNo2 EQ ipbf-job.job-no2
         BREAK BY ttOperation.cJobNo
         BY ttOperation.iJobNo2
-        BY ttOperation.cDept:
+        BY ttOperation.cDept
+        BY ttOperation.iPass
+        BY ttOperation.iFormNo
+        BY ttOperation.iBlankNo:
+        
+        FIND FIRST bf-ttOperation
+            WHERE bf-ttOperation.cJobNo EQ ttOperation.cJobNo
+            AND bf-ttOperation.iJobNo2 EQ ttOperation.iJobNo2
+            AND bf-ttOperation.cMachine EQ ttOperation.cMachine
+            AND bf-ttOperation.iFormNo EQ ttOperation.iFormNo
+            AND bf-ttOperation.iBlankNo EQ ttOperation.iBlankNo
+            AND bf-ttOperation.cStdAct EQ "Actual"
+            NO-ERROR.
+        IF NOT AVAIL bf-ttOperation THEN
+        DO:
+              CREATE bf-ttOperation.
+              ASSIGN
+                bf-ttOperation.cJobNo        = ttOperation.cJobNo
+                bf-ttOperation.iJobNo2       = ttOperation.iJobNo2                                              
+                bf-ttOperation.iFormNo       = ttOperation.iFormNo
+                bf-ttOperation.iBlankNo      = ttOperation.iBlankNo
+                bf-ttOperation.cDept         = ttOperation.cDept
+                bf-ttOperation.cMachine      = ttOperation.cMachine
+                bf-ttOperation.cStdAct       = "Actual"
+                bf-ttOperation.iPass         = ttOperation.iPass.              
+        END.
                
-        IF FIRST-OF(ttOperation.cDept) THEN
+        IF FIRST-OF(ttOperation.iBlankNo) THEN
             ASSIGN
                 dActRunQty     = 0            
                 dActSetupHrs   = 0                   
@@ -284,6 +319,7 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
             AND ttDepartment.cDept EQ ttOperation.cDept 
             AND ttDepartment.iFormNo EQ ttOperation.iFormNo
             AND ttDepartment.iBlankNo EQ ttOperation.iBlankNo
+            AND ttDepartment.iPass EQ ttOperation.iPass
             NO-ERROR.
         IF NOT AVAIL ttDepartment THEN
         DO:
@@ -294,7 +330,8 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
                 ttDepartment.cDept   = ttOperation.cDept
                 ttDepartment.iFormNo = ttOperation.iFormNo
                 ttDepartment.iBlankNo = ttOperation.iBlankNo
-                ttDepartment.iSeq     = ttOperation.iSeq.            
+                ttDepartment.iSeq     = ttOperation.iSeq
+                ttDepartment.iPass    = ttOperation.iPass.            
         END.          
         ASSIGN            
             ttDepartment.dRunQty       = ttDepartment.dRunQty + ttOperation.dRunQty            
@@ -304,7 +341,7 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
             ttDepartment.dSetupWaste   = ttDepartment.dSetupWaste + ttOperation.dSetupWaste                 
             ttDepartment.dRunWaste     = ttDepartment.dRunWaste + ttOperation.dRunWaste  
             ttDepartment.dCost         = ttDepartment.dCost + ttOperation.dCost
-            ttDepartment.cDownTimeCode = ttOperation.cDownTimeCode
+            ttDepartment.cDTChargeable = ttOperation.cDTChargeable
             ttDepartment.dDownTimeHrs  = ttDepartment.dDownTimeHrs + ttOperation.dDownTimeHrs
             .        
         
@@ -333,7 +370,7 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
                 dStdCost                 = dStdCost + ttOperation.dCost
                 .
              
-        IF LAST-OF(ttOperation.cDept) THEN
+        IF LAST-OF(ttOperation.iBlankNo) THEN
         DO:
             ASSIGN
                 ttDepartment.dRunQtyVar     = (dStdRunQty - dActRunQty) / dStdRunQty * 100 
@@ -363,6 +400,7 @@ PROCEDURE pBuildMaterials PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-job           FOR job.
     DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
+    DEFINE INPUT PARAMETER ipcMatType AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE dStdItemQty  AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dStdItemCost AS DECIMAL NO-UNDO.
@@ -372,7 +410,11 @@ PROCEDURE pBuildMaterials PRIVATE:
     IF AVAILABLE ipbf-estCostHeader THEN
     DO:
         FOR EACH estCostMaterial NO-LOCK 
-            WHERE estCostMaterial.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID             
+            WHERE estCostMaterial.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID,
+            FIRST ITEM NO-LOCK 
+            WHERE ITEM.company EQ estCostMaterial.company 
+            AND item.i-no  EQ estCostMaterial.itemID
+            AND index(ipcMatType,item.mat-type) GT 0
             BREAK BY estCostMaterial.formNo DESCENDING
             BY estCostMaterial.blankNo
             BY estCostMaterial.itemID:
@@ -397,7 +439,8 @@ PROCEDURE pBuildMaterials PRIVATE:
             ASSIGN 
                 ttMaterial.dQtyStd  = ttMaterial.dQtyStd + estCostMaterial.quantityRequiredTotal
                 ttMaterial.dCostStd = ttMaterial.dCostStd + estCostMaterial.costTotal
-                .             
+                ttMaterial.cUsedonForms = ttMaterial.cUsedonForms + (IF LOOKUP(string(estCostMaterial.formNo),ttMaterial.cUsedonForms) EQ 0 THEN STRING(estCostMaterial.formNo) + "," ELSE "")
+                .                   
         END.
     END.
     FOR EACH mat-act NO-LOCK
@@ -407,7 +450,8 @@ PROCEDURE pBuildMaterials PRIVATE:
         ,
         FIRST ITEM NO-LOCK 
         WHERE ITEM.company EQ mat-act.company 
-        AND item.i-no  EQ mat-act.i-no:
+        AND item.i-no  EQ mat-act.i-no
+        AND index(ipcMatType,item.mat-type) GT 0:
         
         FIND FIRST ttMaterial NO-LOCK
             WHERE ttMaterial.cJobNo EQ ipbf-job.job-no
@@ -426,10 +470,12 @@ PROCEDURE pBuildMaterials PRIVATE:
                 ttMaterial.cMaterial = mat-act.i-no
                 ttMaterial.cActUom   = mat-act.qty-uom.
         END.
-        ASSIGN 
+        ASSIGN
+            ttMaterial.cActUom  = mat-act.qty-uom
             ttMaterial.dQtyAct  = ttMaterial.dQtyAct + mat-act.qty
             ttMaterial.dCostAct = ttMaterial.dCostAct + mat-act.cost
-            .             
+            ttMaterial.cUsedonForms = ttMaterial.cUsedonForms + (IF LOOKUP(string(mat-act.s-num),ttMaterial.cUsedonForms) EQ 0 THEN STRING(mat-act.s-num) + "," ELSE "")
+            .            
     END.
     FOR EACH ttMaterial:        
         ASSIGN 
