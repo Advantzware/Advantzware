@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invxprnt10.p  */
 /* PRINT INVOICE   Xprint Standard Form             */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -600,7 +600,7 @@ find first company where company.company eq cocode NO-LOCK.
           IF NOT lPrintQtyAll THEN do:
             PUT space(1) v-inv-qty format "->>>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(2)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(3)
                 v-i-dscr  format "x(25)" SPACE(3)
                 v-price  format "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(1)
@@ -611,7 +611,7 @@ find first company where company.company eq cocode NO-LOCK.
           ELSE DO:
               PUT space(1)v-ord-qty  format "->>>>>>9" SPACE(1)
                 v-inv-qty  format "->>>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(3)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(2)
                 v-i-no  format "x(15)" SPACE(3)
                 v-i-dscr  format "x(25)" SPACE(2)
                 v-price  format "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(2)

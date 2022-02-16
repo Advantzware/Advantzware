@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invfibrex.p  */
 /* PRINT INVOICE   Fibre                                              */
 /* ------------------------------------------------------------------ */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 {oe/rep/invoice.i}
 {custom/notesdef.i}
@@ -202,7 +202,7 @@ DEF VAR v-sold-addr3a  AS CHAR FORMAT "x(30)"                 NO-UNDO.
           PUT
              "<P9><C0.2>" inv-line.qty    FORMAT "->,>>>,>>9" 
              "<C8>"       v-ship-qty      FORMAT "->,>>>,>>9"
-             "<C17>"      inv-line.ord-no FORMAT ">>>>>>9"
+             "<C17.4>"      inv-line.ord-no FORMAT ">>>>>>>9"
              "<C24>"      STRING(inv-line.part-no) FORMAT "x(15)"
              "<C36.8>"      STRING(inv-line.i-name)  FORMAT "x(25)"
              "<C57>"      STRING(v-p-c,"x")
@@ -225,8 +225,8 @@ DEF VAR v-sold-addr3a  AS CHAR FORMAT "x(30)"                 NO-UNDO.
           END.
 
           PUT "<C8>"    STRING(inv-line.inv-qty,"->,>>>,>>9") FORMAT "X(10)"
-              "<C17.75>"  TRIM(STRING(INT(inv-line.est-no),">>>>>>>"))
-              "<C23.75>"  STRING(inv-line.i-no) FORMAT "x(15)".
+              "<C17.4>"  TRIM(STRING(INT(inv-line.est-no),">>>>>>>>"))
+              "<C24>"  STRING(inv-line.i-no) FORMAT "x(15)".
 
           IF TRIM(inv-line.part-dscr1) NE "" THEN
              PUT "<C36.8>"   inv-line.part-dscr1 FORMAT "X(25)".
@@ -239,7 +239,7 @@ DEF VAR v-sold-addr3a  AS CHAR FORMAT "x(30)"                 NO-UNDO.
           PUT SKIP.
           ASSIGN v-printline = v-printline + 1.
 
-          PUT "<C23.75>" inv-line.po-no FORMAT "X(15)".
+          PUT "<C24>" inv-line.po-no FORMAT "X(15)".
 
           IF TRIM(inv-line.part-dscr2) NE "" THEN
              PUT "<C36.8>"   inv-line.part-dscr2 FORMAT "X(25)".
@@ -289,8 +289,8 @@ DEF VAR v-sold-addr3a  AS CHAR FORMAT "x(30)"                 NO-UNDO.
                {oe/rep/invfibrex.i}
             END.
             
-            put "<C17.4>"  TRIM(STRING(inv-misc.ord-no,">>>>>>>")) 
-                "<C23.75>" inv-misc.charge FORMAT "x(20)"
+            put "<C17.4>"  TRIM(STRING(inv-misc.ord-no,">>>>>>>>")) 
+                "<C24>" inv-misc.charge FORMAT "x(20)"
                 "<C38.8>"  inv-misc.dscr   FORMAT "x(30)"
                 "<C71>"    inv-misc.amt    FORM "$->>>,>>9.99"
                 SKIP.
@@ -321,8 +321,8 @@ DEF VAR v-sold-addr3a  AS CHAR FORMAT "x(30)"                 NO-UNDO.
 
             IF v-est-no NE "" OR inv-misc.po-no NE "" THEN
             DO:
-               PUT "<C17.4>" TRIM(STRING(INT(v-est-no),">>>>>>>"))
-                   "<C23.75>" "PO#: " inv-misc.po-no SKIP.
+               PUT "<C17.4>" TRIM(STRING(INT(v-est-no),">>>>>>>>"))
+                   "<C24>" "PO#: " inv-misc.po-no SKIP.
                v-printline = v-printline + 1.
             END.
 

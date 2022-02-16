@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invfibre.p 11/00 JLF */
 /* PRINT Fibre Invoice                                                        */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 DEF VAR v-prt-control-list AS cha NO-UNDO.
 DEF VAR v-prt-control AS cha NO-UNDO.
 DEF VAR v-cnt AS INT NO-UNDO.
@@ -75,7 +75,7 @@ format header
     with frame inv-top page-top no-box no-underline stream-io width 85.
 
 form oe-ordl.qty            format "->>>>>>>"       to 8
-     inv-line.ord-no        format ">>>>>>"         at 11   
+     inv-line.ord-no        format ">>>>>>>>"         at 10   
      w-par                  format "x(30)"          at 19
      inv-line.inv-qty       format "->>>>>>>"       to 57
      v-p-c                  format "x"              at 59
