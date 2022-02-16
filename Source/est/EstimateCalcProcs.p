@@ -4441,7 +4441,7 @@ PROCEDURE pProcessFarm PRIVATE:
     IF AVAILABLE bf-estCostMaterial THEN 
     DO:
         ASSIGN 
-            bf-estCostMaterial.isPrimarySubstrate      = NO
+            bf-estCostMaterial.isPrimarySubstrate      = YES
             bf-estCostMaterial.addToWeightNet          = YES
             bf-estCostMaterial.addToWeightTare         = NO
             bf-estCostMaterial.isPurchasedFG           = YES                               

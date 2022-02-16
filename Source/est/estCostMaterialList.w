@@ -1,5 +1,8 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
+/* Connected Databases 
+          asi              PROGRESS
+*/
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
@@ -35,6 +38,7 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/defines/sortByDefs.i}
 {system/VendorCostProcs.i}
+
 
 /* Parameters Definitions ---                                           */
 DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstCostHeaderToCalc. 
@@ -81,8 +85,8 @@ estCostHeader estCostMaterial
     ~{&OPEN-QUERY-brEstCostMaterial}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-13 brEstCostMaterial bOk bCancel ~
-fiEstimateNo 
+&Scoped-Define ENABLED-OBJECTS RECT-13 brEstCostMaterial bOk ~
+btnCopyVendorToAll bCancel fiEstimateNo 
 &Scoped-Define DISPLAYED-OBJECTS fiEstimateNo estimate 
 
 /* Custom List Definitions                                              */
@@ -106,6 +110,10 @@ DEFINE BUTTON bCancel
 DEFINE BUTTON bOk 
      LABEL "Choose Vendor" 
      SIZE 17.6 BY 1.38.
+
+DEFINE BUTTON btnCopyVendorToAll 
+     LABEL "Copy Vendor to All" 
+     SIZE 20 BY 1.38.
 
 DEFINE VARIABLE estimate AS CHARACTER FORMAT "X(8)":U INITIAL "Estimate#:" 
       VIEW-AS TEXT 
@@ -167,6 +175,7 @@ DEFINE BROWSE brEstCostMaterial
 DEFINE FRAME DEFAULT-FRAME
      brEstCostMaterial AT ROW 3.67 COL 171 RIGHT-ALIGNED WIDGET-ID 200
      bOk AT ROW 19.19 COL 3 WIDGET-ID 342
+     btnCopyVendorToAll AT ROW 19.19 COL 22.4 WIDGET-ID 358     
      bCancel AT ROW 19.19 COL 155.8 WIDGET-ID 356
      fiEstimateNo AT ROW 1.67 COL 17.8 NO-LABEL WIDGET-ID 66
      estimate AT ROW 1.91 COL 4.4 NO-LABEL WIDGET-ID 64
@@ -317,8 +326,7 @@ DO:
     DEFINE VARIABLE gcScopeRMOverride  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Override".
     DEFINE VARIABLE gcScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated".
     DEFINE VARIABLE cAdderList         AS CHARACTER EXTENT 6 NO-UNDO.
-    DEFINE VARIABLE iCount             AS INTEGER   NO-UNDO.
-     
+    DEFINE VARIABLE iCount             AS INTEGER   NO-UNDO.     
      
     IF AVAILABLE estCostMaterial THEN
     DO:
@@ -360,11 +368,11 @@ DO:
         IF AVAILABLE bf-estCostMaterial THEN 
         DO:          
             ASSIGN 
-                bf-estCostMaterial.vendorId = ttVendItemCost.vendorID  
-                bf-estCostMaterial.costUOM = ttVendItemCost.vendorUOM 
+                bf-estCostMaterial.vendorId   = ttVendItemCost.vendorID  
+                bf-estCostMaterial.costUOM    = ttVendItemCost.vendorUOM 
                 bf-estCostMaterial.costPerUOM = ttVendItemCost.costPerVendorUOM
-                bf-estCostMaterial.costSetup = ttVendItemCost.costSetup
-                bf-estCostMaterial.costTotal = ttVendItemCost.costTotal
+                bf-estCostMaterial.costSetup  = ttVendItemCost.costSetup
+                bf-estCostMaterial.costTotal  = ttVendItemCost.costTotal
                 .
             IF AVAILABLE ttEstCostHeaderToCalc THEN 
                 ttEstCostHeaderToCalc.lRecalcRequired = TRUE.
@@ -405,6 +413,109 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnCopyVendorToAll
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCopyVendorToAll C-Win
+ON CHOOSE OF btnCopyVendorToAll IN FRAME DEFAULT-FRAME /* Copy Vendor to All */
+DO:
+        DEFINE BUFFER bf-estCostMaterialForAll FOR estCostMaterial.
+        DEFINE BUFFER bb-ttEstCostHeaderToCalc FOR ttEstCostHeaderToCalc.
+        DEFINE BUFFER bb-estCostHeaderForAll   FOR esTCostHeader.  
+        
+        DEFINE VARIABLE gcScopeRMOverride  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Override".
+        DEFINE VARIABLE gcScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated".
+        DEFINE VARIABLE cAdderList         AS CHARACTER EXTENT 6 NO-UNDO.
+        DEFINE VARIABLE oplError           AS LOGICAL   NO-UNDO.
+        DEFINE VARIABLE opcMessage         AS CHARACTER NO-UNDO.
+                            
+    
+        IF AVAILABLE estCostMaterial THEN
+        DO:
+                              
+            FOR EACH bb-ttEstCostHeaderToCalc,
+                FIRST bb-estCostHeaderForAll NO-LOCK
+                WHERE bb-estCostHeaderForAll.estCostHeaderID   = bb-ttEstCostHeaderToCalc.iEstCostHeaderID,        
+                EACH bf-estCostMaterialForAll EXCLUSIVE-LOCK
+                WHERE bf-estCostMaterialForAll.estCostHeaderID = bb-estCostHeaderForAll.estCostHeaderID
+                AND bf-estCostMaterialForAll.estimateNo        = bb-estCostHeaderForAll.estimateNo
+                AND bf-estCostMaterialForAll.isPrimarySubstrate
+                AND bf-estCostMaterialForAll.estCostMaterialID <> estCostMaterial.estCostMaterialID
+                AND bf-estCostMaterialForAll.vendorId          <> estCostMaterial.vendorID:                
+                
+                EMPTY TEMP-TABLE ttVendItemCost.
+                  
+                RUN BuildVendItemCostsWithAdders(
+                    INPUT  bf-estCostMaterialForAll.Company,
+                    INPUT  bf-estCostMaterialForAll.ItemID,
+                    INPUT  IF isPurchasedFG THEN "FG" ELSE "RM",
+                    INPUT  IF isPurchasedFG THEN gcScopeFGEstimated ELSE gcScopeRMOverride,
+                    INPUT  "Yes",
+                    INPUT  bf-estCostMaterialForAll.estimateNo,
+                    INPUT  bf-estCostMaterialForAll.formNo,
+                    INPUT  bf-estCostMaterialForAll.blankNo,
+                    INPUT  bf-estCostMaterialForAll.quantityRequiredTotal,
+                    INPUT  bf-estCostMaterialForAll.quantityUOM,
+                    INPUT  bf-estCostMaterialForAll.dimLength,
+                    INPUT  bf-estCostMaterialForAll.dimWidth,
+                    INPUT  bf-estCostMaterialForAll.dimDepth,
+                    INPUT  bf-estCostMaterialForAll.dimUOM,
+                    INPUT  bf-estCostMaterialForAll.basisWeight,
+                    INPUT  bf-estCostMaterialForAll.basisWeightUOM,
+                    INPUT  cAdderList,
+                    OUTPUT  TABLE  ttVendItemCost,
+                    OUTPUT  oplError,
+                    OUTPUT  opcMessage).
+                
+                IF oplError THEN 
+                DO:
+                    MESSAGE opcMessage
+                        VIEW-AS ALERT-BOX.
+                    
+                    RETURN NO-APPLY.                    
+                END.
+                
+                find first ttVendItemCost
+                    where ttVendItemCost.vendorid = estCostMaterial.vendorID no-error.
+                    
+                if not available ttVendItemCost then
+                do:
+                    MESSAGE "No Valid Vendor Found For Selected Item"
+                        VIEW-AS ALERT-BOX.
+                    return no-apply.                    
+                end.
+                
+                if ttVendItemCost.isValid = false then 
+                do:
+                    MESSAGE ttVendItemCost.reasonNotValid
+                    VIEW-AS ALERT-BOX. 
+                    RETURN NO-APPLY.                   
+                end.
+            END.        
+        
+            FOR EACH bb-ttEstCostHeaderToCalc,
+                FIRST bb-estCostHeaderForAll NO-LOCK     
+                WHERE bb-estCostHeaderForAll.estCostHeaderID EQ bb-ttEstCostHeaderToCalc.iEstCostHeaderID,
+                        
+                EACH bf-estCostMaterialForAll EXCLUSIVE-LOCK
+                WHERE bf-estCostMaterialForAll.estCostHeaderID = bb-estCostHeaderForAll.estCostHeaderID
+                AND bf-estCostMaterialForAll.estimateNo        = bb-estCostHeaderForAll.estimateNo
+                AND bf-estCostMaterialForAll.isPrimarySubstrate
+                AND bf-estCostMaterialForAll.estCostMaterialID <> estCostMaterial.estCostMaterialID
+                AND bf-estCostMaterialForAll.vendorId          <> estCostMaterial.vendorID:
+                  
+                ASSIGN 
+                    bf-estCostMaterialForAll.vendorId = estCostMaterial.vendorID.
+            END.          
+        END.
+             
+        RELEASE bf-estCostMaterialForAll.
+    
+        {&OPEN-QUERY-{&BROWSE-NAME}}     
+      
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -441,8 +552,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         FIRST estCostHeader NO-LOCK 
             WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID:
         ASSIGN
-            fiEstimateNo:SCREEN-VALUE = estCostHeader.estimateNo
-            .
+            fiEstimateNo:SCREEN-VALUE = estCostHeader.estimateNo.
 
     END.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -500,7 +610,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiEstimateNo estimate 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-13 brEstCostMaterial bOk bCancel fiEstimateNo 
+  ENABLE RECT-13 brEstCostMaterial bOk btnCopyVendorToAll 
+         bCancel fiEstimateNo 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
