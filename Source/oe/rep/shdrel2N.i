@@ -1,4 +1,4 @@
-  
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */  
   DEF BUFFER b-oe-ordl FOR oe-ordl.
 
   DEF VAR lv-qty LIKE oe-rell.qty NO-UNDO.
@@ -557,9 +557,8 @@ END.
        w-ord.ship-id       = v-ship-id
        w-ord.job-no        = oe-ordl.job-no
        w-ord.job-no2       = oe-ordl.job-no2
-       w-ord.job           = if w-ord.job-no eq "" then "" else
-                               (trim(w-ord.job-no) + "-" +
-                                string(w-ord.job-no2,"99"))
+       w-ord.job           = if w-ord.job-no eq "" then "" ELSE 
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)))
        w-ord.po-num        = v-po-no
        w-ord.ord-qty       = oe-ordl.qty
        w-ord.shp-qty       = oe-ordl.ship-qty

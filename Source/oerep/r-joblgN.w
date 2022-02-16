@@ -17,6 +17,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */     
 
 CREATE WIDGET-POOL.
 
@@ -69,7 +70,7 @@ ASSIGN cTextListToSelect = "Job#,Order#,Cust#,Cust Name#,Item Number,Item Name,C
                            "Due Date,Cust Part#,Est#,Die#,Cad#,CSR"
        cFieldListToSelect = "job,ord,cust,cust-name,item,item-name,cust-po,ord-qty,ord-date," +
                             "due-date,cust-part,est,die,cad,csr"
-       cFieldLength = "10,8,8,30,15,30,15,11,10," + "10,15,8,15,15,8"
+       cFieldLength = "13,8,8,30,15,30,15,11,10," + "10,15,8,15,15,8"
        cFieldType = "c,c,c,c,c,c,c,i,c," + "c,c,c,c,c,c" 
     .
 
@@ -1475,12 +1476,12 @@ PROCEDURE run-report :
 /*{sys/form/r-topw.f}*/
 
 def var v-fcust as char extent 2 init ["", "zzzzzzzz"] NO-UNDO.
-def var v-ford-no as int format ">>>>>9" extent 2 init [0, 999999] NO-UNDO.
+def var v-ford-no as int format ">>>>>>>9" extent 2 init [0, 99999999] NO-UNDO.
 def var v-fdate as date format "99/99/9999" extent 2 init [01/01/0001, today] NO-UNDO.
 def var v-fitem as char format "x(15)" extent 2 init ["", "zzzzzzzzzzzzzzz"] NO-UNDO.
 def var v-frst as log init NO NO-UNDO.
 def var changed as log init NO NO-UNDO.
-def var job-num as char format "x(9)" NO-UNDO.
+def var job-num as char format "x(13)" NO-UNDO.
 def var v-i-no like oe-ordl.i-no no-undo.
 def var v-i-name like oe-ordl.i-name no-undo.
 DEF VAR v-cust AS CHAR FORMAT "X(17)" NO-UNDO.
@@ -1731,7 +1732,7 @@ DISPLAY "" WITH FRAME r-top.
 
         assign
           v-i-no  = job-hdr.i-no
-          job-num = trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99").
+          job-num = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
 
         /*IF tb_cust-name EQ "#" THEN
            v-cust = job-hdr.cust-no.
@@ -1768,7 +1769,7 @@ DISPLAY "" WITH FRAME r-top.
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "job"    THEN cVarValue = string(job-num,"x(10)") .
+                         WHEN "job"    THEN cVarValue = string(job-num,"x(13)") .
                          WHEN "ord"   THEN cVarValue = string(job-hdr.ord-no,">>>>>>>>").
                          WHEN "cust"   THEN cVarValue = STRING(job-hdr.cust-no,"x(8)").
                          WHEN "cust-name"  THEN cVarValue = STRING(v-cust,"x(30)") .

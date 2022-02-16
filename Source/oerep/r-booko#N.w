@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */     
 
 CREATE WIDGET-POOL.
 
@@ -147,7 +148,7 @@ ASSIGN cTextListToSelect = "Order#,Est#,Job#,Date,Cust#,Name," +
                             "v-orderedMsf,v-jobShipQty,v-boardProfit,v-boardPO,v-boardpoQty,v-boardCost,v-boardTotalCost,v-boardTotalQty," +
                             "v-Order%Profit,v-MSFRec,v-FGShipDate,v-PORecDate,v-FGExtPrice," +
                             "v-PORecCost,v-ProfitSold$,v-ProfitSold%,v-UnitsBoard,v-UnitLoss$,v-Loss%,v-bol#,v-inv#"
-       cFieldLength = "6,8,9,10,8,30," + "15,25,12,11,11,4,13,14," + "7,11,12,9,12,11,13,11," +
+       cFieldLength = "8,8,13,10,8,30," + "15,25,12,11,11,4,13,14," + "7,11,12,9,12,11,13,11," +
                       "13,9,12,11,12," + "11,13,13,11,12,7,8,8"
        cFieldType   = "i,c,c,c,c,c," + "c,c,i,i,i,c,i,i," + "i,i,i,i,i,i,i,i," + "i,i,i,i,i,i,i,i,i,i,i,i,i"
        .
@@ -1798,7 +1799,7 @@ DEF VAR str-tit5 AS cha NO-UNDO.
 DEF BUFFER b-oe-ordl FOR oe-ordl.
 
 DEF VAR v-cust LIKE oe-ord.cust-no EXTENT 2 INIT ["","zzzzzzzz"].
-DEF VAR v-ord-no AS INT FORMAT ">>>>>>" EXTENT 2 INIT [0,999999].
+DEF VAR v-ord-no AS INT FORMAT ">>>>>>>9" EXTENT 2 INIT [0,99999999].
 DEF VAR v-date AS DATE FORMAT "99/99/9999" EXTENT 2 INIT [TODAY,TODAY].
 DEF VAR v-item AS CHAR FORMAT "x(15)" EXTENT 2 INIT ["","zzzzzzzzzzzzzzz"].
 DEF VAR v-ord-qty AS LOG FORMAT "Ordered/Remaining" INIT YES.
@@ -1840,7 +1841,7 @@ FORMAT  /* frame ord */
    oe-ord.ord-no
    oe-ord.est-no FORMAT "x(8)"
    oe-ord.job-no SPACE(0) "-" SPACE(0)
-   oe-ord.job-no2 FORMAT "99"
+   oe-ord.job-no2 FORMAT "999"
    SPACE(3) 
    oe-ord.ord-date
    SPACE(3) 
@@ -2123,7 +2124,7 @@ FOR EACH oe-ord
                  IF hField <> ? THEN DO:                 
                      cTmpField = SUBSTRING(GetFieldValue(hField),1,int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                      IF ENTRY(i,cSelectedList) = "Job#" THEN
-                        cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(oe-ordl.job-no2,"99") ELSE "".                  
+                        cTmpField = IF cTmpField <> "" THEN TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', cTmpField, oe-ordl.job-no2))) ELSE "".                  
 
                      IF cFieldName = "oe-ordl.price" OR cFieldName = "oe-ordl.cost"
                          THEN cTmpField = STRING(DECIMAL(cTmpField),"->>>,>>9.99").
@@ -2181,8 +2182,7 @@ FOR EACH oe-ord
             ASSIGN
               ExtList.ord-no    = oe-ord.ord-no
               ExtList.est-no    = TRIM(oe-ord.est-no)
-              ExtList.job-no    = TRIM(oe-ord.job-no) + "-" 
-                                  + TRIM(STRING(oe-ord.job-no2, "99"))
+              ExtList.job-no    = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ord.job-no, oe-ord.job-no2)))
               ExtList.ord-date  = oe-ord.ord-date
               ExtList.cust-no   = oe-ord.cust-no
               ExtList.cust-name = oe-ord.cust-name

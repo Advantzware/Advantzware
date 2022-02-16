@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */
 
 DEF VAR v-custpart AS CHAR NO-UNDO.
 DEF VAR v-value-head AS LOG NO-UNDO.
@@ -61,7 +62,7 @@ DEF VAR v-value-head AS LOG NO-UNDO.
                                else
                                if v-sort eq "S" then oe-ordl.s-man[li]
                                else
-                               if v-sort eq "O" then string(oe-rel.ord-no,"999999")
+                               if v-sort eq "O" then string(oe-rel.ord-no,"99999999")
                                else
                                if v-sort eq "C" then oe-ord.cust-no
                                else oe-rel.i-no

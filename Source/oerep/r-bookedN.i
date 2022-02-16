@@ -1,3 +1,5 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
+
 DEFINE VARIABLE dNetprct LIKE probe.net-profit.
 DEFINE VARIABLE cUsers-id AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
@@ -687,7 +689,7 @@ FORMAT wkrecap.procat
                  IF hField <> ? THEN DO:                 
                      cTmpField = SUBSTRING(GetFieldValue(hField),1,INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                      IF ENTRY(i,cSelectedList) = "Job#" THEN
-                        cTmpField = cTmpField + IF cTmpField NE "" THEN "-" + STRING(fg-rcpth.job-no2,"99") ELSE "".                  
+                        cTmpField = IF cTmpField NE "" THEN TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', cTmpField, fg-rcpth.job-no2))) ELSE "".                  
                      
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
@@ -945,7 +947,7 @@ FORMAT wkrecap.procat
                  IF hField NE ? THEN DO:                 
                      cTmpField = SUBSTRING(GetFieldValue(hField),1,INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                      IF ENTRY(i,cSelectedList) = "Job#" THEN
-                        cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + STRING(fg-rcpth.job-no2,"99") ELSE "".                  
+                        cTmpField = IF cTmpField <> "" THEN TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', cTmpField, fg-rcpth.job-no2))) ELSE "".                  
                      
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
