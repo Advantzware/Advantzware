@@ -9098,10 +9098,24 @@ PROCEDURE UpdateTagStatusID:
     DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE lValidStatusID    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lOnHold           AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lCurrentBinStatus AS LOGICAL NO-UNDO.
+    
     DEFINE BUFFER bf-fg-bin FOR fg-bin.
     
     oplSuccess = YES.
-     
+
+    RUN Inventory_ValidateStatusID (ipcStatusID, OUTPUT lValidStatusID).
+    IF NOT lValidStatusID THEN DO:
+        ASSIGN
+            oplSuccess = NO
+            opcMessage = "Invalid Status ID '" + ipcStatusID + "'"
+            .
+ 
+        RETURN.
+    END.
+             
     FIND FIRST bf-fg-bin EXCLUSIVE-LOCK
          WHERE ROWID(bf-fg-bin) EQ iprifgbin
          NO-WAIT NO-ERROR.
@@ -9122,10 +9136,20 @@ PROCEDURE UpdateTagStatusID:
             .
             
         RETURN.
-    
     END. 
+    
+    RUN Inventory_GetStatusOnHold (ipcStatusID, OUTPUT lOnHold).
+            
     /* Updates bin status ID */
-    bf-fg-bin.statusID = ipcStatusID.
+    ASSIGN
+        bf-fg-bin.statusID = ipcStatusID
+        lCurrentBinStatus  = bf-fg-bin.onHold
+        bf-fg-bin.onHold   = lOnHold
+        .
+
+    IF lCurrentBinStatus NE lOnHold THEN
+        RUN UpdateFGLocationOnHandQty (ROWID(bf-fg-bin), lOnHold).
+                
     RELEASE bf-fg-bin.        
 END.
 

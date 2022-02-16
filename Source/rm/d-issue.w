@@ -3586,7 +3586,7 @@ PROCEDURE validate-jobmat :
                     IF AVAILABLE job-mat THEN 
                     DO:
                         CREATE xjob-mat.
-                        BUFFER-COPY job-mat TO xjob-mat.
+                        BUFFER-COPY job-mat EXCEPT rec_key TO xjob-mat.
                 
                         FIND job-mat WHERE RECID(job-mat) EQ recid(xjob-mat).
           
@@ -3619,7 +3619,9 @@ PROCEDURE validate-jobmat :
                             job-mat.basis-w            = item.basis-w
                             job-mat.qty                = job-mat.qty * IF job-mat.n-up EQ 0 THEN 1 ELSE job-mat.n-up
                             job-mat.n-up               = v-job-up * v-out                 
-                            job-mat.qty                = job-mat.qty / IF job-mat.n-up EQ 0 THEN 1 ELSE job-mat.n-up.
+                            job-mat.qty                = job-mat.qty / IF job-mat.n-up EQ 0 THEN 1 ELSE job-mat.n-up
+                            job-mat.all-flg            = NO
+                            .
                      
                         {sys/inc/roundup.i job-mat.qty}
                 

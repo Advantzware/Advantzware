@@ -794,7 +794,7 @@ PROCEDURE add-job :
   
   DEFINE BUFFER bf-job-hdr FOR job-hdr.
   
-  IF NOT lAddFromTool THEN
+  IF NOT lAddFromTool AND cJobType EQ "Molded" THEN
   DO:
       RUN jc/d-addJob.w (INPUT NO, OUTPUT lAddOption). 
       IF lAddOption = "" THEN RETURN NO-APPLY.    /* cancel */
