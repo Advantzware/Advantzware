@@ -225,22 +225,24 @@
 
         find b-itemfg where recid(b-itemfg) eq recid(itemfg) NO-LOCK.
 
-        for each oe-ordl
+        for each oe-ordl NO-LOCK
             where oe-ordl.company eq cocode
             and oe-ordl.i-no    eq {1}fg-rctd.i-no
             and oe-ordl.opened  eq yes
             and oe-ordl.job-no  eq ""
             and oe-ordl.cost    eq 0
             use-index item:
-        
-            run sys/ref/convcuom.p(b-itemfg.prod-uom, "M", 0, 0, 0, 0,
-                b-itemfg.total-std-cost, output oe-ordl.cost).
+            FIND FIRST bf-oe-ordl EXCLUSIVE-LOCK
+                 WHERE ROWID(bf-oe-ordl) EQ ROWID(oe-ordl)
+                 NO-ERROR.
+            IF AVAILABLE bf-oe-ordl THEN
+                RUN sys/ref/convcuom.p(b-itemfg.prod-uom, "M", 0, 0, 0, 0, b-itemfg.total-std-cost, output bf-oe-ordl.cost).
         end.
     end. /* last-of i-no*/
 
     IF "{1}" EQ "" AND {1}fg-rctd.t-qty NE 0 THEN 
     DO:
-        FIND FIRST loadtag
+        FIND FIRST loadtag EXCLUSIVE-LOCK
             WHERE loadtag.company   EQ {1}fg-rctd.company
             AND loadtag.item-type EQ NO
             AND loadtag.tag-no    EQ {1}fg-rctd.tag

@@ -1422,8 +1422,9 @@ PROCEDURE pPostCount :
     DEFINE VARIABLE lLastItem AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lLastBin  AS LOGICAL NO-UNDO.
     
-    DEFINE BUFFER b2-fg-bin FOR fg-bin.
-
+    DEFINE BUFFER b2-fg-bin  FOR fg-bin.
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    
     EMPTY TEMP-TABLE w-fg-rctd.
     EMPTY TEMP-TABLE work-job.
     
@@ -1468,7 +1469,7 @@ PROCEDURE pPostCount :
                     w-fg-rctd.i-name = b-itemfg.i-name
                     w-fg-rctd.r-no   = x.
     
-                FIND FIRST fg-bin
+                FIND FIRST fg-bin NO-LOCK
                     WHERE fg-bin.company EQ cocode
                     AND fg-bin.i-no    EQ itemfg.i-no
                     AND fg-bin.loc     EQ fg-rctd.loc
@@ -1480,7 +1481,7 @@ PROCEDURE pPostCount :
                     USE-INDEX co-ino NO-ERROR.
                 v-adj-qty = (IF AVAILABLE fg-bin THEN fg-bin.qty ELSE 0) * tt-fg-set.part-qty-dec.
     
-                FIND FIRST fg-bin
+                FIND FIRST fg-bin NO-LOCK
                     WHERE fg-bin.company EQ cocode
                     AND fg-bin.i-no    EQ b-itemfg.i-no
                     AND fg-bin.loc     EQ fg-rctd.loc
@@ -1516,7 +1517,7 @@ PROCEDURE pPostCount :
             lLastItem = iplLastItem
             .
             
-        FOR FIRST fg-rctd
+        FOR FIRST fg-rctd EXCLUSIVE-LOCK
             WHERE ROWID(fg-rctd) EQ ipriFGRctd:             
             {fg/fg-cpostLimit.i}
         END.
