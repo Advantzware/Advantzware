@@ -49,10 +49,10 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS cbFormula fiTransDate fiTag fiCount ~
-tgExportOnly btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS cbFormula fiTransDate fiTag fiCount ~
-tgExportOnly 
+&Scoped-Define ENABLED-OBJECTS cbFormula fiTransDate cbLocation fiTag ~
+fiCount tgExportOnly btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS cbFormula fiTransDate cbLocation fiTag ~
+fiCount tgExportOnly 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -91,6 +91,12 @@ DEFINE VARIABLE cbFormula AS CHARACTER FORMAT "X(256)":U
      DROP-DOWN-LIST
      SIZE 16 BY 1 NO-UNDO.
 
+DEFINE VARIABLE cbLocation AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Location" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     DROP-DOWN-LIST
+     SIZE 16 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fiCount AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 1 
      LABEL "Batches" 
      VIEW-AS FILL-IN 
@@ -99,7 +105,7 @@ DEFINE VARIABLE fiCount AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 1
 DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U 
      LABEL "Tag" 
      VIEW-AS FILL-IN 
-     SIZE 38.2 BY 1 NO-UNDO.
+     SIZE 43 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiTransDate AS DATE FORMAT "99/99/99":U 
      LABEL "Transaction Date" 
@@ -117,6 +123,7 @@ DEFINE VARIABLE tgExportOnly AS LOGICAL INITIAL no
 DEFINE FRAME FRAME-A
      cbFormula AT ROW 2 COL 20 COLON-ALIGNED WIDGET-ID 48
      fiTransDate AT ROW 3.52 COL 20 COLON-ALIGNED WIDGET-ID 46
+     cbLocation AT ROW 3.52 COL 46.6 COLON-ALIGNED WIDGET-ID 56
      fiTag AT ROW 5 COL 20 COLON-ALIGNED WIDGET-ID 44
      fiCount AT ROW 6.52 COL 20 COLON-ALIGNED WIDGET-ID 50
      tgExportOnly AT ROW 8.29 COL 19 WIDGET-ID 14
@@ -289,6 +296,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN enable_UI.
     DO WITH FRAME {&FRAME-NAME}:
         RUN pBuildFormulaList.
+        RUN pBuildLocationList.
         fiTransDate = TODAY.
     END.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -331,10 +339,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY cbFormula fiTransDate fiTag fiCount tgExportOnly 
+  DISPLAY cbFormula fiTransDate cbLocation fiTag fiCount tgExportOnly 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE cbFormula fiTransDate fiTag fiCount tgExportOnly btn-process 
-         btn-cancel 
+  ENABLE cbFormula fiTransDate cbLocation fiTag fiCount tgExportOnly 
+         btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -362,6 +370,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildLocationList C-Win
+PROCEDURE pBuildLocationList PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DO WITH FRAME {&FRAME-NAME}: 
+    FOR EACH loc NO-LOCK 
+    WHERE loc.company EQ g_company:
+        cbLocation:ADD-LAST(loc.loc).
+    END.
+END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFolderBrowse C-Win 
 PROCEDURE pFolderBrowse :
@@ -405,6 +434,7 @@ PROCEDURE run-process :
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN 
             cbFormula
+            cbLocation
             fiTag
             fiTransDate
             tgExportOnly  
@@ -412,6 +442,7 @@ PROCEDURE run-process :
             .
     END.
     cEstimate = fGetXRef(g_company, cbFormula).
+    RUN util/rjust.p (INPUT-OUTPUT cEstimate, 8).
     
     IF NOT CAN-FIND(FIRST est WHERE est.company EQ g_company AND est.est-no EQ cEstimate) THEN 
         ASSIGN 
@@ -423,21 +454,30 @@ PROCEDURE run-process :
             lError = YES
             cMessage = "Tag cannot be blank"
             .
+    IF LENGTH(fiTag) GT 16 THEN 
+        ASSIGN 
+            lError = YES
+            cMessage = "Tag cannot be larger than 16 characters"
+            .
     IF fiTransDate EQ ? THEN 
         ASSIGN 
             lError = YES
             cMessage = "Date cannot be blank"
-            .        
+            .
+    IF cbLocation EQ "" THEN 
+        ASSIGN 
+            lError = YES
+            cMessage = "Location must be selected"
+            .            
     IF fiCount LE 0 THEN  
         ASSIGN 
             lError = YES
             cMessage = "Batch count must be greater than 0"
             .
     IF NOT lError THEN DO:
-        RUN util/rjust.p (INPUT-OUTPUT cEstimate, 8).    
         DO iCount = 1 TO fiCount:
             cTag = fiTag + "-" + STRING(iCount,"999").            
-            RUN jc/ProcessFurnishBatch.p (g_company, cEstimate, cTag, fiTransDate, tgExportOnly, OUTPUT lError, OUTPUT cMessage).
+            RUN jc/ProcessFurnishBatch.p (g_company, cEstimate, cTag, fiTransDate, cbLocation, tgExportOnly, OUTPUT lError, OUTPUT cMessage).
         END.
     END.   
     IF lError THEN 

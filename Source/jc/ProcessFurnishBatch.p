@@ -17,6 +17,7 @@ DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcEstimateID AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcTag        AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipdtTransDate AS DATETIME  NO-UNDO.
+DEFINE INPUT  PARAMETER ipcLocation   AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER iplExportOnly AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
@@ -56,11 +57,14 @@ RUN spGetSessionParam (
     INPUT  "Company",
     OUTPUT cCompany
     ).
-
-RUN spGetSessionParam (
-    INPUT  "Location",
-    OUTPUT cLocation
-    ).    
+IF ipcLocation EQ "" THEN 
+    RUN spGetSessionParam (
+        INPUT  "Location",
+        OUTPUT cLocation
+        ).
+ELSE 
+    cLocation = ipcLocation.
+        
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -127,6 +131,38 @@ PROCEDURE pAddRMToProcess PRIVATE:
     END.
     
     ttRMToProcess.quantity = ttRMToProcess.quantity + ipdQty.
+
+END PROCEDURE.
+
+PROCEDURE pAddRMTransactionFromBin PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-rm-bin FOR rm-bin.
+    DEFINE INPUT-OUTPUT PARAMETER iopdQuantity AS DECIMAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTransType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtTransDate AS DATETIME NO-UNDO.
+    DEFINE INPUT PARAMETER ipcQuantityUOM AS CHARACTER NO-UNDO.
+    
+    CREATE ttRMTransaction.
+    ASSIGN
+        ttRMTransaction.company           = ipbf-rm-bin.company
+        ttRMTransaction.itemID            = ipbf-rm-bin.i-no
+        ttRMTransaction.transactionType   = ipcTransType
+        ttRMTransaction.quantity          = IF ipbf-rm-bin.qty GT 0 THEN MINIMUM(iopdQuantity, ipbf-rm-bin.qty) ELSE iopdQuantity
+        ttRMTransaction.tag               = ipbf-rm-bin.tag
+        ttRMTransaction.transactionDate   = ipdtTransDate
+        ttRMTransaction.quantityUOM       = ipcQuantityUOM
+        ttRMTransaction.costPerUOM        = ipbf-rm-bin.cost
+        ttRMTransaction.costTotal         = ipbf-rm-bin.cost * ttRMTransaction.quantity
+        ttRMTransaction.costUOM           = "EA"
+        ttRMTransaction.rmBInRowID        = ROWID(ipbf-rm-bin)
+        ttRMTransaction.transactionStatus = "Created"
+        iopdQuantity                      = iopdQuantity - ttRMTransaction.quantity
+        iopdCostTotal                     = iopdCostTotal + ttRMTransaction.costTotal
+        .
 
 END PROCEDURE.
 
@@ -238,28 +274,25 @@ PROCEDURE pBuildRMTransactions PRIVATE:
         FOR EACH bf-rm-bin NO-LOCK
             WHERE bf-rm-bin.company EQ ttRMToProcess.company
               AND bf-rm-bin.i-no    EQ ttRMToProcess.itemID
+              AND bf-rm-bin.loc     EQ cLocation
               AND bf-rm-bin.qty     GT 0
             BY bf-rm-bin.rec_key:
             IF dQuantity LE 0 THEN
                 LEAVE.
+            RUN pAddRMTransactionFromBin(BUFFER bf-rm-bin, INPUT-OUTPUT dQuantity, INPUT-OUTPUT dCostTotal, ttRMToProcess.transactionType, ipdtTransDate, bf-item.cons-uom).
+        END.
+        
+        IF dQuantity LE 0 THEN
+            NEXT.
 
-            CREATE ttRMTransaction.
-            ASSIGN
-                ttRMTransaction.company           = bf-rm-bin.company
-                ttRMTransaction.itemID            = bf-rm-bin.i-no
-                ttRMTransaction.transactionType   = ttRMToProcess.transactionType
-                ttRMTransaction.quantity          = MINIMUM(dQuantity, bf-rm-bin.qty)
-                ttRMTransaction.tag               = bf-rm-bin.tag
-                ttRMTransaction.transactionDate   = ipdtTransDate
-                ttRMTransaction.quantityUOM       = bf-item.cons-uom
-                ttRMTransaction.costPerUOM        = bf-rm-bin.cost
-                ttRMTransaction.costTotal         = bf-rm-bin.cost * ttRMTransaction.quantity
-                ttRMTransaction.costUOM           = "EA"
-                ttRMTransaction.rmBInRowID        = ROWID(bf-rm-bin)
-                ttRMTransaction.transactionStatus = "Created"
-                dQuantity                         = dQuantity - ttRMTransaction.quantity
-                dCostTotal                        = dCostTotal + ttRMTransaction.costTotal
-                .
+        FOR EACH bf-rm-bin NO-LOCK
+            WHERE bf-rm-bin.company EQ ttRMToProcess.company
+              AND bf-rm-bin.i-no    EQ ttRMToProcess.itemID
+              AND bf-rm-bin.qty     GT 0
+            BY bf-rm-bin.rec_key:
+            IF dQuantity LE 0 THEN
+                LEAVE.
+            RUN pAddRMTransactionFromBin(BUFFER bf-rm-bin, INPUT-OUTPUT dQuantity, INPUT-OUTPUT dCostTotal, ttRMToProcess.transactionType, ipdtTransDate, bf-item.cons-uom).
         END.
         
         IF dQuantity LE 0 THEN
@@ -272,24 +305,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
             BY bf-rm-bin.rec_key:
             IF dQuantity LE 0 THEN
                 LEAVE.
-
-            CREATE ttRMTransaction.
-            ASSIGN
-                ttRMTransaction.company           = bf-rm-bin.company
-                ttRMTransaction.itemID            = bf-rm-bin.i-no
-                ttRMTransaction.transactionType   = ttRMToProcess.transactionType
-                ttRMTransaction.quantity          = dQuantity
-                ttRMTransaction.tag               = bf-rm-bin.tag
-                ttRMTransaction.transactionDate   = ipdtTransDate
-                ttRMTransaction.quantityUOM       = bf-item.cons-uom
-                ttRMTransaction.costPerUOM        = bf-rm-bin.cost
-                ttRMTransaction.costTotal         = bf-rm-bin.cost * ttRMTransaction.quantity
-                ttRMTransaction.transactionStatus = "Created"
-                ttRMTransaction.costUOM           = "EA"
-                ttRMTransaction.rmBinRowID        = ROWID(bf-rm-bin)
-                dQuantity                         = dQuantity - ttRMTransaction.quantity
-                dCostTotal                        = dCostTotal + ttRMTransaction.costTotal
-                .
+            RUN pAddRMTransactionFromBin(BUFFER bf-rm-bin, INPUT-OUTPUT dQuantity, INPUT-OUTPUT dCostTotal, ttRMToProcess.transactionType, ipdtTransDate, bf-item.cons-uom).
         END.  
         
     END.
