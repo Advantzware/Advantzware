@@ -21,6 +21,7 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* Parameters Definitions ---                                           */
 
@@ -99,8 +100,8 @@ SESSION:SET-WAIT-STATE('').
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnSave btnExportShifts btnReset btnImport ~
-btnExportEmployees btnExportJobs setAllResources selectedShift ~
-btnExportMachines selectedStartDate btnCalendar-1 selectedStartDateOption ~
+btnExportEmployees btnExportJobs btnExportMachines setAllResources ~
+selectedShift selectedStartDate btnCalendar-1 selectedStartDateOption ~
 selectedEndDate btnCalendar-2 selectedEndDateOption selectedStartDueDate ~
 btnCalendar-3 selectedStartDueDateOption selectedEndDueDate btnCalendar-4 ~
 selectedEndDueDateOption svAllJobNo svStartJobNo svStartJobNo2 svEndJobNo ~
@@ -261,25 +262,23 @@ DEFINE VARIABLE selectedStartDueDate AS DATE FORMAT "99/99/9999":U INITIAL 01/01
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svEndJobNo AS CHARACTER FORMAT "X(6)" 
+DEFINE VARIABLE svEndJobNo AS CHARACTER FORMAT "X(9)" 
      LABEL "End Job" 
      VIEW-AS FILL-IN 
-     SIZE 9 BY 1.
+     SIZE 13 BY 1.
 
-DEFINE VARIABLE svEndJobNo2 AS INTEGER FORMAT ">9" INITIAL 0 
-     LABEL "" 
+DEFINE VARIABLE svEndJobNo2 AS INTEGER FORMAT ">>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1.
+     SIZE 5.4 BY 1.
 
-DEFINE VARIABLE svStartJobNo AS CHARACTER FORMAT "X(6)" 
+DEFINE VARIABLE svStartJobNo AS CHARACTER FORMAT "X(9)" 
      LABEL "Start Job" 
      VIEW-AS FILL-IN 
-     SIZE 9 BY 1.
+     SIZE 13 BY 1.
 
-DEFINE VARIABLE svStartJobNo2 AS INTEGER FORMAT ">9" INITIAL 0 
-     LABEL "" 
+DEFINE VARIABLE svStartJobNo2 AS INTEGER FORMAT ">>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1.
+     SIZE 5.4 BY 1.
 
 DEFINE VARIABLE lvEmpLogin AS CHARACTER INITIAL "ProdAce" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -335,12 +334,12 @@ DEFINE RECTANGLE RECT-7
      SIZE 9 BY 2.14
      BGCOLOR 15 .
 
-DEFINE VARIABLE setAllResources AS LOGICAL INITIAL YES 
+DEFINE VARIABLE setAllResources AS LOGICAL INITIAL yes 
      LABEL "Toggle (On/Off) Resources Selected" 
      VIEW-AS TOGGLE-BOX
      SIZE 39 BY .81 NO-UNDO.
 
-DEFINE VARIABLE svAllJobNo AS LOGICAL INITIAL YES 
+DEFINE VARIABLE svAllJobNo AS LOGICAL INITIAL yes 
      LABEL "All Jobs" 
      VIEW-AS TOGGLE-BOX
      SIZE 12 BY .81 NO-UNDO.
@@ -361,12 +360,12 @@ DEFINE FRAME DEFAULT-FRAME
           "Export Employees to Production ACE" WIDGET-ID 14
      btnExportJobs AT ROW 12.19 COL 48 HELP
           "Export Jobs to Production ACE" WIDGET-ID 26
+     btnExportMachines AT ROW 12.19 COL 56 HELP
+          "Export Machines to Production ACE" WIDGET-ID 4
      setAllResources AT ROW 2.19 COL 85 HELP
           "Select to Toggle All Resources (On/Off)" WIDGET-ID 30
      selectedShift AT ROW 2.91 COL 3 HELP
           "Select Shift" NO-LABEL
-     btnExportMachines AT ROW 12.19 COL 56 HELP
-          "Export Machines to Production ACE" WIDGET-ID 4
      selectedStartDate AT ROW 2.91 COL 32 COLON-ALIGNED HELP
           "Enter Starting Date"
      btnCalendar-1 AT ROW 2.91 COL 50 WIDGET-ID 76
@@ -391,12 +390,12 @@ DEFINE FRAME DEFAULT-FRAME
           "All Jobs?" WIDGET-ID 174
      svStartJobNo AT ROW 11.95 COL 25 COLON-ALIGNED HELP
           "Enter Start Job" WIDGET-ID 178
-     svStartJobNo2 AT ROW 11.95 COL 36 COLON-ALIGNED HELP
-          "Enter Start Job Run" WIDGET-ID 180
+     svStartJobNo2 AT ROW 11.95 COL 38.2 COLON-ALIGNED HELP
+          "Enter Start Job Run" NO-LABEL WIDGET-ID 180
      svEndJobNo AT ROW 13.14 COL 25 COLON-ALIGNED HELP
           "Enter End Job" WIDGET-ID 176
-     svEndJobNo2 AT ROW 13.14 COL 36 COLON-ALIGNED HELP
-          "Enter End Job Run" WIDGET-ID 182
+     svEndJobNo2 AT ROW 13.14 COL 38.2 COLON-ALIGNED HELP
+          "Enter End Job Run" NO-LABEL WIDGET-ID 182
      lvProdAceDir AT ROW 15.52 COL 21 COLON-ALIGNED
      lvImportDir AT ROW 16.71 COL 21 COLON-ALIGNED
      lvProdAceType AT ROW 17.91 COL 24 NO-LABEL
@@ -407,14 +406,14 @@ DEFINE FRAME DEFAULT-FRAME
      lvResourceList AT ROW 21.48 COL 21 COLON-ALIGNED
      "Type:" VIEW-AS TEXT
           SIZE 6 BY .81 AT ROW 17.91 COL 16
-     " Select to Set Current (1st) Job Per Resource" VIEW-AS TEXT
-          SIZE 52 BY .62 AT ROW 1.24 COL 85 WIDGET-ID 190
-          FONT 6
      " Export" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 7.91 COL 4 WIDGET-ID 40
           FONT 6
      "Select Shift to Post ... Enter Date Range" VIEW-AS TEXT
           SIZE 49 BY .62 AT ROW 2.19 COL 3
+          FONT 6
+     " Import" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.24 COL 4 WIDGET-ID 36
           FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -423,13 +422,13 @@ DEFINE FRAME DEFAULT-FRAME
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
-     " Import" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.24 COL 4 WIDGET-ID 36
-          FONT 6
      "Employee Login:" VIEW-AS TEXT
           SIZE 16 BY .81 AT ROW 19.1 COL 6
      " Configuration" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 14.57 COL 4 WIDGET-ID 38
+          FONT 6
+     " Select to Set Current (1st) Job Per Resource" VIEW-AS TEXT
+          SIZE 52 BY .62 AT ROW 1.24 COL 85 WIDGET-ID 190
           FONT 6
      RECT-1 AT ROW 14.81 COL 2
      RECT-2 AT ROW 8.14 COL 2 WIDGET-ID 2
@@ -976,8 +975,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createTtblProdAce C-Win
-PROCEDURE createTtblProdAce:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createTtblProdAce C-Win 
+PROCEDURE createTtblProdAce :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1135,7 +1134,7 @@ PROCEDURE createTtblProdAce:
     INPUT STREAM sProdAce CLOSE.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1177,7 +1176,7 @@ PROCEDURE enable_UI :
           lvEmpLogin lvProdAceBlankEmployee lvResourceList 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE btnSave btnExportShifts btnReset btnImport btnExportEmployees 
-         btnExportJobs setAllResources selectedShift btnExportMachines 
+         btnExportJobs btnExportMachines setAllResources selectedShift 
          selectedStartDate btnCalendar-1 selectedStartDateOption 
          selectedEndDate btnCalendar-2 selectedEndDateOption 
          selectedStartDueDate btnCalendar-3 selectedStartDueDateOption 
@@ -1239,12 +1238,8 @@ PROCEDURE pExport :
             .
         ELSE
         ASSIGN
-            svStartJobNo = FILL(" ",6 - LENGTH(svStartJobNo))
-                         + svStartJobNo + "-"
-                         + STRING(svStartJobNo2)
-            svEndJobNo   = FILL(" ",6 - LENGTH(svEndJobNo))
-                         + svEndJobNo + "-"
-                         + STRING(svEndJobNo2)
+            svStartJobNo = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', svStartJobNo, svStartJobNo2)) 
+            svEndJobNo   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', svEndJobNo, svEndJobNo2))                           
                          .
         FOR EACH ttblResource
             WHERE ttblResource.dmiID GT 0

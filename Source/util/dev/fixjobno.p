@@ -1,6 +1,7 @@
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
-&SCOPED-DEFINE fix job-no = FILL(" ",6 - LENGTH(TRIM(job-no))) + TRIM(job-no).
-&SCOPED-DEFINE where-phrase WHERE SUBSTR(job-no,6,1) EQ ""
+&SCOPED-DEFINE fix job-no = FILL(" ",9 - LENGTH(TRIM(job-no))) + TRIM(job-no).
+&SCOPED-DEFINE where-phrase WHERE SUBSTR(job-no,9,1) EQ ""
 
 
 SESSION:SET-WAIT-STATE ("general").

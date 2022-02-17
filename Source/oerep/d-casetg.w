@@ -13,6 +13,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 
@@ -114,7 +115,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 DISPLAY
       w-ord.ord-no  LABEL "Order#"
       w-ord.job-no  LABEL "  Job#"
-      w-ord.job-no2 NO-LABEL FORMAT "99"
+      w-ord.job-no2 NO-LABEL FORMAT "999"
       w-ord.cust-no LABEL "Cust #"
       w-ord.i-no LABEL "Item #"
       w-ord.prod-notes LABEL "Color"

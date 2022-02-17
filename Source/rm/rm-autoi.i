@@ -1,5 +1,6 @@
 /* -------------------------------------------------- rm/rm-autoi.i 12/96 JLF */
 /* Raw Materials - Create autopost rm issues                                  */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /* -------------------------------------------------------------------------- */
 
 FIND FIRST sys-ctrl
@@ -697,8 +698,7 @@ PROCEDURE post-rm:
 
       FIND FIRST job
           WHERE job.company EQ rm-rctd.company
-            AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no))) +
-                               TRIM(rm-rctd.job-no)
+            AND trim(job.job-no)  EQ TRIM(rm-rctd.job-no)
             AND job.job-no2 EQ rm-rctd.job-no2
           NO-ERROR.
 

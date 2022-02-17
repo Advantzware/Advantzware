@@ -1,3 +1,4 @@
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 DEF INPUT PARAMETER v-rctd-rowid AS ROWID NO-UNDO.
 /*
 DEF INPUT PARAMETER v-from-job AS CHAR NO-UNDO.
@@ -683,8 +684,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
 
       FIND FIRST job
           WHERE job.company EQ rm-rctd.company
-            AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no))) +
-                               TRIM(rm-rctd.job-no)
+            AND trim(job.job-no) EQ TRIM(rm-rctd.job-no)
             AND job.job-no2 EQ rm-rctd.job-no2
           NO-ERROR.
 

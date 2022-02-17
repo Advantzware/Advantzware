@@ -21,6 +21,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 
@@ -261,14 +262,14 @@ DEFINE VARIABLE begin_item      AS CHARACTER FORMAT "X(15)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_job       AS CHARACTER FORMAT "X(6)" 
+DEFINE VARIABLE begin_job       AS CHARACTER FORMAT "X(9)" 
     LABEL "From Job #" 
     VIEW-AS FILL-IN 
-    SIZE 13.2 BY 1.
+    SIZE 12 BY 1.
 
-DEFINE VARIABLE begin_job2      AS INTEGER   FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE begin_job2      AS INTEGER   FORMAT "999":U INITIAL 0 
     VIEW-AS FILL-IN 
-    SIZE 4 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_po        AS INTEGER   FORMAT ">>>>>>>>" INITIAL 0 
     LABEL "From PO #" 
@@ -310,14 +311,14 @@ DEFINE VARIABLE end_item        AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzz
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_job         AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job         AS CHARACTER FORMAT "X(9)" INITIAL "zzzzzzzzz" 
     LABEL "To Job #" 
     VIEW-AS FILL-IN 
-    SIZE 13.2 BY 1.
+    SIZE 12 BY 1.
 
-DEFINE VARIABLE end_job2        AS INTEGER   FORMAT ">>":U INITIAL 99 
+DEFINE VARIABLE end_job2        AS INTEGER   FORMAT ">>>":U INITIAL 999 
     VIEW-AS FILL-IN 
-    SIZE 4 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_po          AS INTEGER   FORMAT ">>>>>>>>" INITIAL 99999999 
     LABEL "To PO #" 
@@ -424,11 +425,11 @@ DEFINE FRAME rd-poexp
     "Enter Ending Vendor Item Number" WIDGET-ID 106
     begin_job AT ROW 8.14 COL 29.8 COLON-ALIGNED HELP
     "Enter Beginning Job Number" WIDGET-ID 108
-    begin_job2 AT ROW 8.14 COL 43 COLON-ALIGNED HELP
+    begin_job2 AT ROW 8.14 COL 41.6 COLON-ALIGNED HELP
     "Enter Beginning Job Number" NO-LABELS WIDGET-ID 116
     end_job AT ROW 8.14 COL 72.8 COLON-ALIGNED HELP
     "Enter Ending Job Number" WIDGET-ID 110
-    end_job2 AT ROW 8.14 COL 85.8 COLON-ALIGNED HELP
+    end_job2 AT ROW 8.14 COL 84.5 COLON-ALIGNED HELP
     "Enter Ending Job Number" NO-LABELS WIDGET-ID 118
     begin_date AT ROW 9.19 COL 29.8 COLON-ALIGNED HELP
     "Enter Beginning Due Date" WIDGET-ID 112
@@ -1395,7 +1396,8 @@ PROCEDURE run-report :
     DEFINE BUFFER bf-itemfg FOR itemfg.
     DEFINE BUFFER bf-item   FOR ITEM.
 
-
+    begin_job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job)). 
+    end_job   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job)).
 
     v-excelheader = buildHeader().
     SESSION:SET-WAIT-STATE ("general").
@@ -1413,8 +1415,8 @@ PROCEDURE run-report :
         AND po-ordl.i-no LE end_item
         AND po-ordl.vend-i-no GE begin_vend-i-no
         AND po-ordl.vend-i-no LE end_vend-i-no
-        AND po-ordl.job-no GE begin_job
-        AND po-ordl.job-no LE end_job
+        AND fill(" ",9 - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) GE begin_job
+        AND fill(" ",9 - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) LE end_job
         AND po-ordl.job-no2 GE begin_job2
         AND po-ordl.job-no2 LE end_job2
         AND po-ordl.due-date  GE begin_date
@@ -1741,7 +1743,7 @@ PROCEDURE Set-Sort-Data :
             begin_po:SCREEN-VALUE       = STRING(piPOFrom)
             begin_job:SCREEN-VALUE      = pcJobFrom
             begin_job2:SCREEN-VALUE     = STRING(piJob2From)
-            end_job2:SCREEN-VALUE       = STRING(99)
+            end_job2:SCREEN-VALUE       = STRING(999)
             end_date:SCREEN-VALUE       = STRING(12/31/2099)
             rd_open-closed:SCREEN-VALUE = STRING(piOpenClosed).
         
