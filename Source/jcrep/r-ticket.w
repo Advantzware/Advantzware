@@ -937,7 +937,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}.
-    
+            lv-ornt = lv-ornt:SCREEN-VALUE. 
             IF NOT lPrinterAllow AND (lv-format-f EQ "Colonial" OR lv-format-f EQ "CCC" ) AND rd-dest EQ 1 THEN
             DO:
                 MESSAGE "Only Administrators can print a job card." VIEW-AS ALERT-BOX INFORMATION .
