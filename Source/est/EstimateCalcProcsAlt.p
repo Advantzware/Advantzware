@@ -219,7 +219,7 @@ PROCEDURE ChangeSellPrice:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriProbe AS ROWID NO-UNDO.
     
-    DEFINE BUFFER bf-estCostDetail FOR estCostDetail.
+    DEFINE BUFFER bf-ttEstCostDetail FOR ttEstCostDetail.
     DEFINE BUFFER bf-ttEstCostForm FOR ttEstCostForm.
 
     DEFINE VARIABLE dQtyInM         AS DECIMAL NO-UNDO.
@@ -267,13 +267,13 @@ PROCEDURE ChangeSellPrice:
                 
                 /*Add New Commission Cost*/
                 RUN pAddCostDetail(bf-ttEstCostForm.estCostHeaderID, bf-ttEstCostForm.estCostFormID, "" , bf-ttEstCostForm.estCostFormID,
-                    gcSourceTypeNonFactory,"commission","Commission", dCommission, 0, bf-ttEstCostForm.company, bf-ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).
+                    gcSourceTypeNonFactory,"commission","Commission", dCommission, 0, bf-ttEstCostForm.company, bf-ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).
                 /*Recalculate Cost Totals to get a new TotalFullCost*/
                 RUN pCalcCostTotals(estCostHeader.estCostHeaderID, bf-ttEstCostForm.estCostFormID, NO).
                 
                 /*Add New Profit based on new Full Cost and New Price*/
                 RUN pAddCostDetail(bf-ttEstCostForm.estCostHeaderID, bf-ttEstCostForm.estCostFormID, "" , bf-ttEstCostForm.estCostFormID,
-                    gcSourceTypeNonFactory,"pProfit","Profit After Price Change", dNewPrice - bf-ttEstCostForm.costTotalFull, 0, bf-ttEstCostForm.company, bf-ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).
+                    gcSourceTypeNonFactory,"pProfit","Profit After Price Change", dNewPrice - bf-ttEstCostForm.costTotalFull, 0, bf-ttEstCostForm.company, bf-ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).
                 /*Recalculate Sell Price*/
                 RUN pCalcCostTotals(estCostHeader.estCostHeaderID, bf-ttEstCostForm.estCostFormID, NO).
             END. 
@@ -305,23 +305,25 @@ PROCEDURE pAddCostDetail PRIVATE:
     DEFINE INPUT PARAMETER ipdProfitPercent AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
-    DEFINE PARAMETER BUFFER opbf-estCostDetail FOR estCostDetail.
+    DEFINE PARAMETER BUFFER opbf-ttEstCostDetail FOR ttEstCostDetail.
     
-    CREATE opbf-estCostDetail.
+    CREATE opbf-ttEstCostDetail.
     ASSIGN 
-        opbf-estCostDetail.estCostHeaderID   = ipiEstHeaderID
-        opbf-estCostDetail.estCostFormID     = ipiEstFormID
-        opbf-estCostDetail.estCostBlankID    = ipiEstBlankID
-        opbf-estCostDetail.company           = ipcCompany
-        opbf-estCostDetail.estimateNo        = ipcEstimateNo
-        opbf-estCostDetail.sourceID          = ipiEstSourceID
-        opbf-estCostDetail.sourceType        = ipcSourceType
-        opbf-estCostDetail.estCostCategoryID = ipcEstCostCategoryID
-        opbf-estCostDetail.estCostDetailDesc = ipcDescription
-        opbf-estCostDetail.costTotal         = ipdCost
-        opbf-estCostDetail.profitPercent     = ipdProfitPercent
-        opbf-estCostDetail.profitPercentType = "Margin"
+        opbf-ttEstCostDetail.estCostHeaderID   = ipiEstHeaderID
+        opbf-ttEstCostDetail.estCostFormID     = ipiEstFormID
+        opbf-ttEstCostDetail.estCostBlankID    = ipiEstBlankID
+        opbf-ttEstCostDetail.company           = ipcCompany
+        opbf-ttEstCostDetail.estimateNo        = ipcEstimateNo
+        opbf-ttEstCostDetail.sourceID          = ipiEstSourceID
+        opbf-ttEstCostDetail.sourceType        = ipcSourceType
+        opbf-ttEstCostDetail.estCostCategoryID = ipcEstCostCategoryID
+        opbf-ttEstCostDetail.estCostDetailDesc = ipcDescription
+        opbf-ttEstCostDetail.costTotal         = ipdCost
+        opbf-ttEstCostDetail.profitPercent     = ipdProfitPercent
+        opbf-ttEstCostDetail.profitPercentType = "Margin"
         .
+        
+    RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostDetail.estCostDetailID, INPUT-OUTPUT opbf-ttEstCostDetail.rec_key).
 
 END PROCEDURE.
 
@@ -336,10 +338,10 @@ PROCEDURE pAddCostDetailForOperation PRIVATE:
     DEFINE INPUT PARAMETER ipdCost AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdProfitPercent AS DECIMAL NO-UNDO.
     
-    DEFINE BUFFER bf-estCostDetail FOR estCostDetail.
+    DEFINE BUFFER bf-ttEstCostDetail FOR ttEstCostDetail.
     
     RUN pAddCostDetail(ipbf-estCostOperation.estCostHeaderID, ipbf-estCostOperation.estCostFormID, ipbf-estCostOperation.estCostBlankID, ipbf-estCostOperation.estCostOperationID, 
-        gcSourceTypeOperation, ipcEstCostCategoryID, ipcDescription, ipdCost, ipdProfitPercent, ipbf-estCostOperation.company, ipbf-estCostOperation.estimateNo, BUFFER bf-estCostDetail).
+        gcSourceTypeOperation, ipcEstCostCategoryID, ipcDescription, ipdCost, ipdProfitPercent, ipbf-estCostOperation.company, ipbf-estCostOperation.estimateNo, BUFFER bf-ttEstCostDetail).
 
 END PROCEDURE.
 
@@ -355,10 +357,10 @@ PROCEDURE pAddCostDetailForMaterial PRIVATE:
     DEFINE INPUT PARAMETER ipdCost AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdProfitPercent AS DECIMAL NO-UNDO.
     
-    DEFINE BUFFER bf-estCostDetail FOR estCostDetail.
+    DEFINE BUFFER bf-ttEstCostDetail FOR ttEstCostDetail.
     
     RUN pAddCostDetail(ipbf-estCostMaterial.estCostHeaderID, ipbf-estCostMaterial.estCostFormID, ipbf-estCostMaterial.estCostBlankID, ipbf-estCostMaterial.estCostMaterialID, 
-        gcSourceTypeMaterial, ipcEstCostCategoryID, ipcDescription, ipdCost, ipdProfitPercent, ipbf-estCostMaterial.company, ipbf-estCostMaterial.estimateNo, BUFFER bf-estCostDetail). 
+        gcSourceTypeMaterial, ipcEstCostCategoryID, ipcDescription, ipdCost, ipdProfitPercent, ipbf-estCostMaterial.company, ipbf-estCostMaterial.estimateNo, BUFFER bf-ttEstCostDetail). 
     
 
 END PROCEDURE.
@@ -374,10 +376,10 @@ PROCEDURE pAddCostDetailForMisc PRIVATE:
     DEFINE INPUT PARAMETER ipdCost AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdProfitPercent AS DECIMAL NO-UNDO.
     
-    DEFINE BUFFER bf-estCostDetail FOR estCostDetail.
+    DEFINE BUFFER bf-ttEstCostDetail FOR ttEstCostDetail.
     
     RUN pAddCostDetail(ipbf-estCostMisc.estCostHeaderID, ipbf-estCostMisc.estCostFormID, ipbf-estCostMisc.estCostBlankID, ipbf-estCostMisc.estCostMiscID, 
-        gcSourceTypeMisc, ipcEstCostCategoryID, ipcDescription, ipdCost, ipdProfitPercent, ipbf-estCostMisc.company, ipbf-estCostMisc.estimateNo, BUFFER bf-estCostDetail). 
+        gcSourceTypeMisc, ipcEstCostCategoryID, ipcDescription, ipdCost, ipdProfitPercent, ipbf-estCostMisc.company, ipbf-estCostMisc.estimateNo, BUFFER bf-ttEstCostDetail). 
     
 
 END PROCEDURE.
@@ -1607,7 +1609,7 @@ PROCEDURE pBuildCostDetailForFreight PRIVATE:
     DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-estCostDetail FOR estCostDetail.
+    DEFINE BUFFER bf-ttEstCostDetail FOR ttEstCostDetail.
     DEFINE BUFFER bf-estCostMisc   FOR estCostMisc.
     
         
@@ -1640,7 +1642,7 @@ PROCEDURE pBuildCostDetailForFreight PRIVATE:
         IF ipbf-estCostItem.freightChargeMethod EQ "P" THEN 
         DO: /*Integrate Freight Cost for Prepaid*/
             RUN pAddCostDetail(ipbf-estCostBlank.estCostHeaderID, ipiEstCostFormIDForCost, ipiEstCostBlankIDForCost, ipbf-estCostBlank.estCostBlankID, 
-                gcSourceTypeNonFactory, "nfFreight", "Freight", dFreightTotal, 0, ipbf-estCostBlank.company, ipbf-estCostBlank.estimateNo, BUFFER bf-estCostDetail).
+                gcSourceTypeNonFactory, "nfFreight", "Freight", dFreightTotal, 0, ipbf-estCostBlank.company, ipbf-estCostBlank.estimateNo, BUFFER bf-ttEstCostDetail).
         END. /*Prepaid Freight*/
         ELSE 
         DO: /*Separate Billed Freight*/
@@ -2237,7 +2239,7 @@ PROCEDURE pBuildPriceRelatedCostDetails PRIVATE:
     DEFINE VARIABLE dPriceForForm     AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dCommission       AS DECIMAL NO-UNDO.
     
-    DEFINE BUFFER bf-estCostDetail FOR estCostDetail.
+    DEFINE BUFFER bf-ttEstCostDetail FOR ttEstCostDetail.
     DEFINE BUFFER bf-ttEstCostForm FOR ttEstCostForm.
     
     FOR EACH bf-ttEstCostForm NO-LOCK
@@ -2251,9 +2253,9 @@ PROCEDURE pBuildPriceRelatedCostDetails PRIVATE:
         
         RUN pGetPriceProfitAndCommissionForForm(BUFFER bf-ttEstCostForm, BUFFER estCostItem, OUTPUT dNetProfitForForm, OUTPUT dCommission, OUTPUT dPriceForForm).
         RUN pAddCostDetail(bf-ttEstCostForm.estCostHeaderID, bf-ttEstCostForm.estCostFormID, "", bf-ttEstCostForm.estCostFormID, 
-            gcSourceTypeProfit, "pProfit", "Profit", dNetProfitForForm, 0, bf-ttEstCostForm.company, bf-ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).
+            gcSourceTypeProfit, "pProfit", "Profit", dNetProfitForForm, 0, bf-ttEstCostForm.company, bf-ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).
         RUN pAddCostDetail(bf-ttEstCostForm.estCostHeaderID, bf-ttEstCostForm.estCostFormID, "" , bf-ttEstCostForm.estCostFormID,
-            gcSourceTypeNonFactory,"commission","Commission", dCommission, 0, bf-ttEstCostForm.company, bf-ttEstCostForm.estimateNo, BUFFER bf-estCostDetail ).
+            gcSourceTypeNonFactory,"commission","Commission", dCommission, 0, bf-ttEstCostForm.company, bf-ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail ).
         RUN pCalcCostTotals(bf-ttEstCostForm.estCostHeaderID, bf-ttEstCostForm.estCostFormID, NO).
         
     END.
@@ -2538,7 +2540,7 @@ PROCEDURE pBuildNonFactoryCostDetails PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
     
-    DEFINE BUFFER bf-estCostDetail FOR estCostDetail.
+    DEFINE BUFFER bf-ttEstCostDetail FOR ttEstCostDetail.
     DEFINE BUFFER bf-ce-ctrl       FOR ce-ctrl.
     DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
     DEFINE BUFFER bf-estCostMisc   FOR estCostMisc.
@@ -2582,7 +2584,7 @@ PROCEDURE pBuildNonFactoryCostDetails PRIVATE:
         
         IF bf-estCostHeader.directMaterialPct NE 0 THEN 
             RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, "", ttEstCostForm.estCostFormID, 
-                gcSourceTypeNonFactory, "nfMatMarkup", "Direct Material Markup", ttEstCostForm.costTotalMaterial * bf-estCostHeader.directMaterialPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).
+                gcSourceTypeNonFactory, "nfMatMarkup", "Direct Material Markup", ttEstCostForm.costTotalMaterial * bf-estCostHeader.directMaterialPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).
         DO iIndex = 1 TO 6:
             bf-estCostHeader.gsaMaterialPct = bf-ce-ctrl.mat-pct[iIndex] / 100.
             IF bf-ce-ctrl.mat-cost[iIndex] GT ttEstCostForm.costTotalMaterial THEN LEAVE.
@@ -2590,9 +2592,9 @@ PROCEDURE pBuildNonFactoryCostDetails PRIVATE:
         IF bf-estCostHeader.gsaMaterialPct NE 0 THEN 
         DO:
             RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, "", ttEstCostForm.estCostFormID, 
-                gcSourceTypeNonFactory, "nfGSAMat", "GSA Material", (ttEstCostForm.costTotalMaterial - ttEstCostForm.costTotalBoard) * bf-estCostHeader.gsaMaterialPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).
+                gcSourceTypeNonFactory, "nfGSAMat", "GSA Material", (ttEstCostForm.costTotalMaterial - ttEstCostForm.costTotalBoard) * bf-estCostHeader.gsaMaterialPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).
             RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, "", ttEstCostForm.estCostFormID, 
-                gcSourceTypeNonFactory, "nfGSABoard", "GSA Board", ttEstCostForm.costTotalBoard * bf-estCostHeader.gsaMaterialPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).
+                gcSourceTypeNonFactory, "nfGSABoard", "GSA Board", ttEstCostForm.costTotalBoard * bf-estCostHeader.gsaMaterialPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).
         END.
         DO iIndex = 1 TO 6:
             bf-estCostHeader.gsaLaborPct = bf-ce-ctrl.lab-pct[iIndex] / 100.
@@ -2600,11 +2602,11 @@ PROCEDURE pBuildNonFactoryCostDetails PRIVATE:
         END. 
         IF bf-estCostHeader.gsaLaborPct NE 0 THEN 
             RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, "", ttEstCostForm.estCostFormID, 
-                gcSourceTypeNonFactory, "nfGSALab", "GSA Labor", ttEstCostForm.costTotalLabor * bf-estCostHeader.gsaLaborPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).
+                gcSourceTypeNonFactory, "nfGSALab", "GSA Labor", ttEstCostForm.costTotalLabor * bf-estCostHeader.gsaLaborPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).
         
         IF bf-estCostHeader.warehouseMarkupPct NE 0 THEN 
             RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, "", ttEstCostForm.estCostFormID, 
-                gcSourceTypeNonFactory, "nfWarehouse", "Warehousing", ttEstCostForm.costTotalFactory * bf-estCostHeader.warehouseMarkupPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).
+                gcSourceTypeNonFactory, "nfWarehouse", "Warehousing", ttEstCostForm.costTotalFactory * bf-estCostHeader.warehouseMarkupPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).
         
         FOR EACH estCostBlank NO-LOCK 
             WHERE estCostBlank.estCostHeaderID EQ ttEstCostForm.estCostHeaderID
@@ -2614,33 +2616,33 @@ PROCEDURE pBuildNonFactoryCostDetails PRIVATE:
                 OUTPUT dCostStorage, OUTPUT dCostHandling).
             IF dCostStorage NE 0 THEN 
                 RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, estCostBlank.estCostBlankID, estCostBlank.estCostBlankID, 
-                    gcSourceTypeNonFactory, "nfWarehouse", "Warehousing", dCostStorage, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).
+                    gcSourceTypeNonFactory, "nfWarehouse", "Warehousing", dCostStorage, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).
             IF dCostHandling NE 0 THEN 
                 RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, estCostBlank.estCostBlankID, estCostBlank.estCostBlankID, 
-                    gcSourceTypeNonFactory, "nfWarehouse", "Warehousing", dCostHandling, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).
+                    gcSourceTypeNonFactory, "nfWarehouse", "Warehousing", dCostHandling, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).
         END.
         
         /*Note - currently a defect with the Folding % is zeroed out during the calc process - this is fix*/
         IF bf-estCostHeader.foldPct NE 0 THEN 
             RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, "", ttEstCostForm.estCostFormID, 
-                gcSourceTypeNonFactory, "nfFolding", "Folding", ttEstCostForm.costTotalFactory * bf-estCostHeader.foldPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).      
+                gcSourceTypeNonFactory, "nfFolding", "Folding", ttEstCostForm.costTotalFactory * bf-estCostHeader.foldPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).      
         
                                 
         IF bf-estCostHeader.special1MarkupPct NE 0 THEN 
             RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, "", ttEstCostForm.estCostFormID, 
-                gcSourceTypeNonFactory, "nfUserDef1", "Special Markup 1", ttEstCostForm.costTotalFactory * bf-estCostHeader.special1MarkupPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).    
+                gcSourceTypeNonFactory, "nfUserDef1", "Special Markup 1", ttEstCostForm.costTotalFactory * bf-estCostHeader.special1MarkupPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).    
         IF bf-estCostHeader.special2MarkupPct NE 0 THEN 
             RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, "", ttEstCostForm.estCostFormID, 
-                gcSourceTypeNonFactory, "nfUserDef2", "Special Markup 2", ttEstCostForm.costTotalFactory * bf-estCostHeader.special2MarkupPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).
+                gcSourceTypeNonFactory, "nfUserDef2", "Special Markup 2", ttEstCostForm.costTotalFactory * bf-estCostHeader.special2MarkupPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).
         IF bf-estCostHeader.special3MarkupPct NE 0 THEN 
             RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, "", ttEstCostForm.estCostFormID, 
-                gcSourceTypeNonFactory, "nfUserDef3", "Special Markup 3", ttEstCostForm.costTotalFactory * bf-estCostHeader.special3MarkupPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).
+                gcSourceTypeNonFactory, "nfUserDef3", "Special Markup 3", ttEstCostForm.costTotalFactory * bf-estCostHeader.special3MarkupPct, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).
         RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, "", ttEstCostForm.estCostFormID, 
-            gcSourceTypeNonFactory, "nfUserDef1", "Special Markup 1", bf-estCostHeader.special1FlatValue, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).    
+            gcSourceTypeNonFactory, "nfUserDef1", "Special Markup 1", bf-estCostHeader.special1FlatValue, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).    
         RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, "", ttEstCostForm.estCostFormID, 
-            gcSourceTypeNonFactory, "nfUserDef2", "Special Markup 2", bf-estCostHeader.special2FlatValue, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).
+            gcSourceTypeNonFactory, "nfUserDef2", "Special Markup 2", bf-estCostHeader.special2FlatValue, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).
         RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, "", ttEstCostForm.estCostFormID, 
-            gcSourceTypeNonFactory, "nfUserDef3", "Special Markup 3", bf-estCostHeader.special3FlatValue, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-estCostDetail).                                                                                                   
+            gcSourceTypeNonFactory, "nfUserDef3", "Special Markup 3", bf-estCostHeader.special3FlatValue, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).                                                                                                   
     END. /*Each bf-estCostHeader*/    
     RUN pCalcCostTotals(ipiEstCostHeaderID, 0, NO).
     RELEASE bf-estCostHeader.
@@ -3231,18 +3233,18 @@ PROCEDURE pCalcTotalsForCostDetail PRIVATE:
      Purpose: given a cost Total
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-estCostDetail     FOR estCostDetail.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostDetail     FOR ttEstCostDetail.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostCategory FOR ttEstCostCategory.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm     FOR ttEstCostForm.
     DEFINE PARAMETER BUFFER ipbf-estCostHeader     FOR estCostHeader.
     
-    RUN pCalcCostTotalsHeader(BUFFER ipbf-estCostHeader, BUFFER ipbf-ttEstCostCategory, ipbf-estCostDetail.costTotal).
-    RUN pCalcCostTotalsForm(BUFFER ipbf-ttEstCostForm, BUFFER ipbf-ttEstCostCategory, ipbf-estCostDetail.costTotal).
+    RUN pCalcCostTotalsHeader(BUFFER ipbf-estCostHeader, BUFFER ipbf-ttEstCostCategory, ipbf-ttEstCostDetail.costTotal).
+    RUN pCalcCostTotalsForm(BUFFER ipbf-ttEstCostForm, BUFFER ipbf-ttEstCostCategory, ipbf-ttEstCostDetail.costTotal).
         
     FIND FIRST estCostBlank NO-LOCK 
-        WHERE estCostBlank.estCostHeaderID EQ ipbf-estCostDetail.estCostHeaderID
-        AND estCostBlank.estCostFormID EQ ipbf-estCostDetail.estCostFormID
-        AND estCostBlank.estCostBlankID EQ ipbf-estCostDetail.estCostBlankID
+        WHERE estCostBlank.estCostHeaderID EQ ipbf-ttEstCostDetail.estCostHeaderID
+        AND estCostBlank.estCostFormID EQ ipbf-ttEstCostDetail.estCostFormID
+        AND estCostBlank.estCostBlankID EQ ipbf-ttEstCostDetail.estCostBlankID
         NO-ERROR.
     IF AVAILABLE estCostBlank THEN 
     DO:  /*Blank-specific cost*/
@@ -3251,16 +3253,16 @@ PROCEDURE pCalcTotalsForCostDetail PRIVATE:
             AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID
             NO-ERROR.
         IF AVAILABLE estCostItem THEN 
-            RUN pCalcCostTotalsItem(BUFFER estCostItem, BUFFER ipbf-ttEstCostCategory, ipbf-estCostDetail.costTotal).
+            RUN pCalcCostTotalsItem(BUFFER estCostItem, BUFFER ipbf-ttEstCostCategory, ipbf-ttEstCostDetail.costTotal).
     END.
     ELSE /*Divide up the Form-level Costs into each item*/
         FOR EACH estCostBlank NO-LOCK
-            WHERE estCostBlank.estCostHeaderID EQ ipbf-estCostDetail.estCostHeaderID
-            AND estCostBlank.estCostFormID EQ ipbf-estCostDetail.estCostFormID, 
+            WHERE estCostBlank.estCostHeaderID EQ ipbf-ttEstCostDetail.estCostHeaderID
+            AND estCostBlank.estCostFormID EQ ipbf-ttEstCostDetail.estCostFormID, 
             FIRST estCostItem NO-LOCK  
             WHERE estCostItem.estCostHeaderID EQ estCostBlank.estCostHeaderID
             AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID :
-            RUN pCalcCostTotalsItem(BUFFER estCostItem, BUFFER ipbf-ttEstCostCategory, ipbf-estCostDetail.costTotal * estCostBlank.pctOfForm).
+            RUN pCalcCostTotalsItem(BUFFER estCostItem, BUFFER ipbf-ttEstCostCategory, ipbf-ttEstCostDetail.costTotal * estCostBlank.pctOfForm).
         END.
 
 END PROCEDURE.
@@ -4011,28 +4013,28 @@ PROCEDURE pCalcCostTotals PRIVATE:
     DEFINE INPUT PARAMETER ipiEstCostFormID AS INT64 NO-UNDO.
     DEFINE INPUT PARAMETER iplFullReset AS LOGICAL NO-UNDO.
     
-    DEFINE BUFFER bf-estCostDetail FOR estCostDetail.
+    DEFINE BUFFER bf-ttEstCostDetail FOR ttEstCostDetail.
     
     
         
     RUN pGetEstCostCategoryTT(OUTPUT TABLE ttEstCostCategory).
     
-    FOR EACH bf-estCostDetail EXCLUSIVE-LOCK
-        WHERE bf-estCostDetail.estCostHeaderID EQ ipiEstCostHeaderID
-        AND (iplFullReset OR NOT bf-estCostDetail.hasBeenProcessed)
-        AND (ipiEstCostFormID EQ 0 OR bf-estCostDetail.estCostFormID EQ ipiEstCostFormID), 
+    FOR EACH bf-ttEstCostDetail EXCLUSIVE-LOCK
+        WHERE bf-ttEstCostDetail.estCostHeaderID EQ ipiEstCostHeaderID
+        AND (iplFullReset OR NOT bf-ttEstCostDetail.hasBeenProcessed)
+        AND (ipiEstCostFormID EQ 0 OR bf-ttEstCostDetail.estCostFormID EQ ipiEstCostFormID), 
         FIRST estCostHeader NO-LOCK 
-        WHERE estCostHeader.estCostHeaderID EQ bf-estCostDetail.estCostHeaderID,
+        WHERE estCostHeader.estCostHeaderID EQ bf-ttEstCostDetail.estCostHeaderID,
         FIRST ttEstCostForm NO-LOCK
-        WHERE ttEstCostForm.estCostHeaderID EQ bf-estCostDetail.estCostHeaderID
-        AND ttEstCostForm.estCostFormID EQ bf-estCostDetail.estCostFormID, 
+        WHERE ttEstCostForm.estCostHeaderID EQ bf-ttEstCostDetail.estCostHeaderID
+        AND ttEstCostForm.estCostFormID EQ bf-ttEstCostDetail.estCostFormID, 
         FIRST ttEstCostCategory NO-LOCK 
-        WHERE ttEstCostCategory.estCostCategoryID EQ bf-estCostDetail.estCostCategoryID 
+        WHERE ttEstCostCategory.estCostCategoryID EQ bf-ttEstCostDetail.estCostCategoryID 
         :
-        RUN pCalcTotalsForCostDetail(BUFFER bf-estCostDetail, BUFFER ttEstCostCategory, BUFFER ttEstCostForm, BUFFER estCostHeader).
-        bf-estCostDetail.hasBeenProcessed = YES.
+        RUN pCalcTotalsForCostDetail(BUFFER bf-ttEstCostDetail, BUFFER ttEstCostCategory, BUFFER ttEstCostForm, BUFFER estCostHeader).
+        bf-ttEstCostDetail.hasBeenProcessed = YES.
     END.        
-    RELEASE bf-estCostDetail.
+    RELEASE bf-ttEstCostDetail.
             
 END PROCEDURE.
 
@@ -4048,23 +4050,23 @@ PROCEDURE pBuildCostSummary PRIVATE:
     
     RUN pGetEstCostCategoryTT(OUTPUT TABLE ttEstCostCategory).
     
-    FOR EACH estCostDetail NO-LOCK
-        WHERE estCostDetail.estCostHeaderID EQ ipiEstCostHeaderID, 
+    FOR EACH ttEstCostDetail NO-LOCK
+        WHERE ttEstCostDetail.estCostHeaderID EQ ipiEstCostHeaderID, 
         FIRST estCostHeader NO-LOCK 
-        WHERE estCostHeader.estCostHeaderID EQ estCostDetail.estCostHeaderID,
+        WHERE estCostHeader.estCostHeaderID EQ ttEstCostDetail.estCostHeaderID,
         FIRST ttEstCostForm NO-LOCK
-        WHERE ttEstCostForm.estCostHeaderID EQ estCostDetail.estCostHeaderID
-        AND ttEstCostForm.estCostFormID EQ estCostDetail.estCostFormID, 
+        WHERE ttEstCostForm.estCostHeaderID EQ ttEstCostDetail.estCostHeaderID
+        AND ttEstCostForm.estCostFormID EQ ttEstCostDetail.estCostFormID, 
         FIRST ttEstCostCategory NO-LOCK 
-        WHERE ttEstCostCategory.estCostCategoryID EQ estCostDetail.estCostCategoryID
+        WHERE ttEstCostCategory.estCostCategoryID EQ ttEstCostDetail.estCostCategoryID
         :
-        RUN pAddCostSummary(estCostHeader.rec_key, ttEstCostCategory.estCostGroupID, estCostDetail.estCostHeaderID, estCostDetail.costTotal, estCostHeader.quantityMaster / 1000).
-        RUN pAddCostSummary(ttEstCostForm.rec_key, ttEstCostCategory.estCostGroupID, estCostDetail.estCostHeaderID, estCostDetail.costTotal, ttEstCostForm.quantityFGOnForm / 1000).
+        RUN pAddCostSummary(estCostHeader.rec_key, ttEstCostCategory.estCostGroupID, ttEstCostDetail.estCostHeaderID, ttEstCostDetail.costTotal, estCostHeader.quantityMaster / 1000).
+        RUN pAddCostSummary(ttEstCostForm.rec_key, ttEstCostCategory.estCostGroupID, ttEstCostDetail.estCostHeaderID, ttEstCostDetail.costTotal, ttEstCostForm.quantityFGOnForm / 1000).
         
         FIND FIRST estCostBlank NO-LOCK 
-            WHERE estCostBlank.estCostHeaderID EQ estCostDetail.estCostHeaderID
-            AND estCostBlank.estCostFormID EQ estCostDetail.estCostFormID
-            AND estCostBlank.estCostBlankID EQ estCostDetail.estCostBlankID
+            WHERE estCostBlank.estCostHeaderID EQ ttEstCostDetail.estCostHeaderID
+            AND estCostBlank.estCostFormID EQ ttEstCostDetail.estCostFormID
+            AND estCostBlank.estCostBlankID EQ ttEstCostDetail.estCostBlankID
             NO-ERROR.
         IF AVAILABLE estCostBlank THEN 
         DO:  /*Blank-specific cost*/
@@ -4073,17 +4075,17 @@ PROCEDURE pBuildCostSummary PRIVATE:
                 AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID
                 NO-ERROR.
             IF AVAILABLE estCostItem THEN 
-                RUN pAddCostSummary(estCostItem.rec_key, ttEstCostCategory.estCostGroupID, estCostDetail.estCostHeaderID, estCostDetail.costTotal, estCostItem.quantityRequired / 1000).
+                RUN pAddCostSummary(estCostItem.rec_key, ttEstCostCategory.estCostGroupID, ttEstCostDetail.estCostHeaderID, ttEstCostDetail.costTotal, estCostItem.quantityRequired / 1000).
            
         END.
         ELSE /*Divide up the Form-level Costs into each item*/
             FOR EACH estCostBlank NO-LOCK
-                WHERE estCostBlank.estCostHeaderID EQ estCostDetail.estCostHeaderID
-                AND estCostBlank.estCostFormID EQ estCostDetail.estCostFormID, 
+                WHERE estCostBlank.estCostHeaderID EQ ttEstCostDetail.estCostHeaderID
+                AND estCostBlank.estCostFormID EQ ttEstCostDetail.estCostFormID, 
                 FIRST estCostItem NO-LOCK  
                 WHERE estCostItem.estCostHeaderID EQ estCostBlank.estCostHeaderID
                 AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID :
-                RUN pAddCostSummary(estCostItem.rec_key, ttEstCostCategory.estCostGroupID, estCostDetail.estCostHeaderID, estCostDetail.costTotal * estCostBlank.pctOfForm, estCostItem.quantityRequired / 1000).
+                RUN pAddCostSummary(estCostItem.rec_key, ttEstCostCategory.estCostGroupID, ttEstCostDetail.estCostHeaderID, ttEstCostDetail.costTotal * estCostBlank.pctOfForm, estCostItem.quantityRequired / 1000).
            
             END.
         
@@ -5388,16 +5390,16 @@ PROCEDURE pPurgeCostDetail PRIVATE:
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
     DEFINE INPUT PARAMETER ipcCategory AS CHARACTER NO-UNDO.
 
-    DEFINE BUFFER bf-estCostDetail FOR estCostDetail.
+    DEFINE BUFFER bf-ttEstCostDetail FOR ttEstCostDetail.
     
-    FOR EACH bf-estCostDetail EXCLUSIVE-LOCK 
-        WHERE bf-estCostDetail.estCostHeaderID EQ ipiEstCostHeaderID
-        AND (ipcCategory EQ "" OR bf-estCostDetail.estCostCategoryID EQ ipcCategory)
+    FOR EACH bf-ttEstCostDetail EXCLUSIVE-LOCK 
+        WHERE bf-ttEstCostDetail.estCostHeaderID EQ ipiEstCostHeaderID
+        AND (ipcCategory EQ "" OR bf-ttEstCostDetail.estCostCategoryID EQ ipcCategory)
         USE-INDEX estHeader:
-        DELETE bf-estCostDetail.
+        DELETE bf-ttEstCostDetail.
     END.
     
-    RELEASE bf-estCostDetail.
+    RELEASE bf-ttEstCostDetail.
     
 END PROCEDURE.
 
@@ -5658,18 +5660,87 @@ PROCEDURE pSetKeyFields PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pUpdateChildTables PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Assign Parent Key in Child Tables
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcParentTable      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiEstCostHeaderID  AS INT64 NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSourceKey        AS INT64 NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTargetKey        AS INT64 NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSourceRecKey     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTargetRecKey     AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bfChild-estCostBlank     FOR estCostBlank.
+    DEFINE BUFFER bfChild-estCostOperation FOR estCostOperation.
+    DEFINE BUFFER bfChild-estCostMaterial  FOR estCostMaterial.
+    DEFINE BUFFER bfChild-estCostMisc      FOR estCostMisc.
+    DEFINE BUFFER bfChild-ttEstCostDetail  FOR ttEstCostDetail.
+    DEFINE BUFFER bfChild-estCostSummary   FOR estCostSummary.
+    
+    
+    CASE(ipcParentTable):
+        WHEN "estCostForm" THEN
+        DO:
+            FOR EACH bfChild-estCostBlank EXCLUSIVE-LOCK
+                WHERE bfChild-estCostBlank.estCostHeaderID = ipiEstCostHeaderID:
+              
+                IF bfChild-estCostBlank.estCostFormID = ipiSourceKey THEN
+                    bfChild-estCostBlank.estCostFormID = ipiTargetKey.
+            END.
+        
+            FOR EACH bfChild-ttEstCostDetail EXCLUSIVE-LOCK
+                WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID:              
+                IF bfChild-ttEstCostDetail.estCostFormID = ipiSourceKey THEN
+                    bfChild-ttEstCostDetail.estCostFormID = ipiTargetKey.
+            END.
+        
+            FOR EACH bfChild-estCostOperation EXCLUSIVE-LOCK
+                WHERE bfChild-estCostOperation.estCostHeaderID = ipiEstCostHeaderID:
+                
+                IF bfChild-estCostOperation.estCostFormID = ipiSourceKey THEN  
+                    bfChild-estCostOperation.estCostFormID = ipiTargetKey.
+            END.
+        
+            FOR EACH bfChild-estCostMaterial EXCLUSIVE-LOCK
+                WHERE bfChild-estCostMaterial.estCostHeaderID = ipiEstCostHeaderID:
+                IF bfChild-estCostMaterial.estCostFormID = ipiSourceKey THEN  
+                    bfChild-estCostMaterial.estCostFormID = ipiTargetKey.
+            END.
+        
+            FOR EACH bfChild-estCostMisc EXCLUSIVE-LOCK
+                WHERE bfChild-estCostMisc.estCostHeaderID = ipiEstCostHeaderID:
+                
+                IF bfChild-estCostMisc.estCostFormID = ipiSourceKey THEN  
+                    bfChild-estCostMisc.estCostFormID = ipiTargetKey.
+            END.
+        
+            FOR EACH bfChild-estCostSummary EXCLUSIVE-LOCK
+                WHERE bfChild-estCostSummary.estCostHeaderID = ipiEstCostHeaderID:
+            
+                IF bfChild-estCostSummary.scopeRecKey = ipcSourceRecKey THEN      
+                    bfChild-estCostSummary.scopeRecKey = ipcTargetRecKey.
+            END.
+    
+        END.
+        WHEN "estCostDetail" THEN
+        DO:
+        END.
+        WHEN "estCostForm" THEN
+        DO:
+        END.
+    END CASE.
+
+END PROCEDURE.
+
 PROCEDURE pWriteDatasetIntoDB PRIVATE:
     /*------------------------------------------------------------------------------
         Purpose:This procedure will create records in DB tables
         Notes:
        ------------------------------------------------------------------------------*/
     DEFINE BUFFER bfEx-estCostForm         FOR estCostForm.
-    DEFINE BUFFER bfChild-estCostBlank     FOR estCostBlank.
-    DEFINE BUFFER bfChild-estCostOperation FOR estCostOperation.
-    DEFINE BUFFER bfChild-estCostMaterial  FOR estCostMaterial.
-    DEFINE BUFFER bfChild-estCostMisc      FOR estCostMisc.
-    DEFINE BUFFER bfChild-estCostDetail    FOR estCostDetail.
-    DEFINE BUFFER bfChild-estCostSummary   FOR estCostSummary.
+    DEFINE BUFFER bfEx-EstCostDetail       FOR EstCostDetail.
 
     FOR EACH ttEstCostForm
         TRANSACTION:
@@ -5677,48 +5748,29 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
         BUFFER-COPY ttEstCostForm EXCEPT rec_key estCostFormID TO bfEx-estCostForm.
         
         /* Update parent key in child Tables */
-        
-        FOR EACH bfChild-estCostBlank EXCLUSIVE-LOCK
-            WHERE bfChild-estCostBlank.estCostHeaderID = ttEstCostForm.estCostHeaderID:
-              
-            IF bfChild-estCostBlank.estCostFormID = ttEstCostForm.estCostFormID THEN
-                bfChild-estCostBlank.estCostFormID = bfEx-estCostForm.estCostFormID.
-        END.
-        
-        FOR EACH bfChild-estCostDetail EXCLUSIVE-LOCK
-            WHERE bfChild-estCostDetail.estCostHeaderID = ttEstCostForm.estCostHeaderID:              
-            IF bfChild-estCostDetail.estCostFormID = ttEstCostForm.estCostFormID THEN
-                bfChild-estCostDetail.estCostFormID = bfEx-estCostForm.estCostFormID.
-        END.
-        
-        FOR EACH bfChild-estCostOperation EXCLUSIVE-LOCK
-            WHERE bfChild-estCostOperation.estCostHeaderID = ttEstCostForm.estCostHeaderID:
-                
-            IF bfChild-estCostOperation.estCostFormID = ttEstCostForm.estCostFormID THEN  
-            bfChild-estCostOperation.estCostFormID = bfEx-estCostForm.estCostFormID.
-        END.
-        
-        FOR EACH bfChild-estCostMaterial EXCLUSIVE-LOCK
-            WHERE bfChild-estCostMaterial.estCostHeaderID = ttEstCostForm.estCostHeaderID:
-            IF bfChild-estCostMaterial.estCostFormID = ttEstCostForm.estCostFormID THEN  
-                bfChild-estCostMaterial.estCostFormID = bfEx-estCostForm.estCostFormID.
-        END.
-        
-        FOR EACH bfChild-estCostMisc EXCLUSIVE-LOCK
-            WHERE bfChild-estCostMisc.estCostHeaderID = ttEstCostForm.estCostHeaderID:
-                
-            IF bfChild-estCostMisc.estCostFormID = ttEstCostForm.estCostFormID THEN  
-            bfChild-estCostMisc.estCostFormID = bfEx-estCostForm.estCostFormID.
-        END.
-        
-        FOR EACH bfChild-estCostSummary EXCLUSIVE-LOCK
-            WHERE bfChild-estCostSummary.estCostHeaderID = ttEstCostForm.estCostHeaderID:
+        RUN pUpdateChildTables ("estCostForm", 
+            ttEstCostForm.estCostHeaderID, 
+            ttEstCostForm.estCostFormID, 
+            bfEx-estCostForm.estCostFormID,
+            ttEstCostForm.rec_key,
+            bfEx-estCostForm.rec_key).
             
-            IF bfChild-estCostSummary.scopeRecKey = ttEstCostForm.rec_key THEN      
-                bfChild-estCostSummary.scopeRecKey = bfEx-estCostForm.rec_key.
-        END.
-        
     END. /* ttEstCostForm */
+    
+    FOR EACH ttEstCostDetail
+        TRANSACTION:
+        CREATE bfEx-estCostDetail.
+        BUFFER-COPY ttEstCostDetail EXCEPT rec_key estCostDetailID TO bfEx-estCostDetail.
+        
+        /* Update parent key in child Tables */
+        RUN pUpdateChildTables ("estCostDetail", 
+            ttEstCostDetail.estCostHeaderID, 
+            ttEstCostDetail.estCostDetailID, 
+            bfEx-estCostDetail.estCostDetailID,
+            ttEstCostDetail.rec_key,
+            bfEx-estCostDetail.rec_key).
+    END.
+        
     RELEASE bfEx-estCostForm.
     
     EMPTY TEMP-TABLE ttEstCostForm.
