@@ -640,8 +640,9 @@ PROCEDURE pPrintDepartment :
         RUN Excel_SetCellValue IN ghExcelProcs ("I" + STRING(iopiRowCount),  STRING(ttDepartment.dCostVar)).
         RUN Excel_SetCellValue IN ghExcelProcs ("J" + STRING(iopiRowCount),  STRING(ttDepartment.dSetupWasteVar)).
         RUN Excel_SetCellValue IN ghExcelProcs ("K" + STRING(iopiRowCount),  STRING(ttDepartment.dRunWasteVar)).
-        iopiRowCount = iopiRowCount + 2.             
-        RUN Excel_InsertRowAbove IN ghExcelProcs (iopiRowCount). 
+        iopiRowCount = iopiRowCount + 1.                     
+        RUN Excel_InsertRowsAbove IN ghExcelProcs (iopiRowCount, 2).
+        iopiRowCount = iopiRowCount + 1. 
     END.      
     iopiRowCount = iopiRowCount + 1.
 

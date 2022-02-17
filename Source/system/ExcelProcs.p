@@ -78,6 +78,25 @@ PROCEDURE Excel_InsertRowAbove:
     
 END PROCEDURE.
 
+PROCEDURE Excel_InsertRowsAbove:
+/*------------------------------------------------------------------------------
+ Purpose:  Given a row number, this will insert a row above the row number and 
+ copy formatting to it.
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiRowToInsertAbove AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiNumRows AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    
+    IF ipiNumRows LE 0 THEN 
+        ipiNumRows = 1.
+        
+    DO iCount = 1 TO ipiNumRows:
+        RUN pInsertRowAbove(ipiRowToInsertAbove).
+    END.
+    
+END PROCEDURE.
 PROCEDURE Excel_SetCellValue:
 /*------------------------------------------------------------------------------
  Purpose:  given cell address and value, sets the value within the active sheet
@@ -139,7 +158,7 @@ PROCEDURE pInitialize PRIVATE:
        /* Do not display Excel error messages. */
        gchExcelApplication:DisplayAlerts  = FALSE NO-ERROR.  
        /* Disable screen updating so it will go faster */
-       gchExcelApplication:ScreenUpdating = FALSE NO-ERROR.      
+       //gchExcelApplication:ScreenUpdating = FALSE NO-ERROR.      
     END.
     
 END PROCEDURE.
