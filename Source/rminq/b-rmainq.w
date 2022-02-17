@@ -278,7 +278,7 @@ DEFINE BROWSE Browser-Table
       cons-uom() @ ld-cons-uom COLUMN-LABEL "RM UOM" FORMAT "X(4)":U
             WIDTH 10 LABEL-BGCOLOR 14
       job-mat.wid FORMAT ">>9.99<<":U LABEL-BGCOLOR 14
-      job-mat.len FORMAT ">>9.99<<":U LABEL-BGCOLOR 14
+      job-mat.len FORMAT ">>>>9.99<<<<":U LABEL-BGCOLOR 14
       job.due-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
   ENABLE
       job-mat.rm-i-no
@@ -425,7 +425,7 @@ ASSIGN
      _FldNameList[11]   > asi.job-mat.wid
 "job-mat.wid" ? ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > asi.job-mat.len
-"job-mat.len" ? ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mat.len" ? ">>>>9.99<<<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > asi.job.due-date
 "job.due-date" ? ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
@@ -676,6 +676,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sort-by:HIDDEN  = TRUE.
 fi_sort-by:VISIBLE = FALSE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
