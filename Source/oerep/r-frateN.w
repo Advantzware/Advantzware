@@ -1387,8 +1387,8 @@ assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
 
- v-job[1] = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)))
- v-job[2] = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2))).
+ v-job[1] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2))
+ v-job[2] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)).
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1468,12 +1468,14 @@ for each ar-inv
 
     each ar-invl
     where ar-invl.x-no eq ar-inv.x-no
-      and TRIM(FILL(" ",9 - LENGTH(TRIM(ar-invl.job-no))) +
+      AND FILL(" ",9 - LENGTH(TRIM(ar-invl.job-no))) +
           TRIM(ar-invl.job-no) +
-          STRING(ar-invl.job-no2,"999")) GE TRIM(v-job[1])
-      and TRIM(FILL(" ",9 - LENGTH(TRIM(ar-invl.job-no))) +
+          STRING(ar-invl.job-no2,"999") GE v-job[1]
+      AND FILL(" ",9 - LENGTH(TRIM(ar-invl.job-no))) +
           TRIM(ar-invl.job-no) +
-          STRING(ar-invl.job-no2,"999")) LE TRIM(v-job[2])
+          STRING(ar-invl.job-no2,"999") LE v-job[2]
+      AND ar-invl.job-no2 GE int(begin_job-no2)
+      AND ar-invl.job-no2 LE int(end_job-no2)    
       and not ar-invl.misc
     no-lock,
 

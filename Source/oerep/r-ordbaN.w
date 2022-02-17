@@ -1693,7 +1693,7 @@ PROCEDURE build-tt :
                           STRING(MONTH(oe-ordl.req-date),"99")  +
                           STRING(DAY(oe-ordl.req-date),"99")    +
                           STRING(oe-ordl.part-no,"x(15)") + STRING(oe-ord.ord-no,"99999999999"))              
-   tt-report.key-04  = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
+   tt-report.key-04  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))
    tt-report.key-05  = STRING(oe-ord.ord-no,"99999999999")
    tt-report.key-06  = oe-ordl.i-no
    tt-report.key-07  = STRING(YEAR(ip-date),"9999") +
@@ -2375,8 +2375,8 @@ ASSIGN
  v-date[2]  = end_ord-date
  v-po[1]    = begin_po-no
  v-po[2]    = end_po-no
- v-job[1]   = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)))
- v-job[2]   = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)))
+ v-job[1]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2))
+ v-job[2]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2))
  v-item[1]  = begin_i-no
  v-item[2]  = end_i-no
  v-sort     = substr(rd_sort,1,1)
