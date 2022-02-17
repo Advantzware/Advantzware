@@ -96,7 +96,7 @@ PUT "<=4><B> CUSTOMER PO       FOB            SHIP VIA             TERMS        
     "<R26><C69><FROM><R29><C69><LINE><||3>" SKIP
     "<R26><C73><FROM><R29><C73><LINE><||3>" SKIP
     "<P10><=5><B>" SPACE(29) "CUST PART #" SKIP
-    "   QTY    SHIPPED  ORDER #   FG ITEM #          DESCRIPTION    P/C    PRICE    UOM   AMOUNT" SKIP
+    "   QTY    SHIPPED  ORDER #   FG ITEM #          DESCRIPTION     P/C    PRICE    UOM   AMOUNT" SKIP
     " ORDERED  INVOICED  EST #      P.O. #" space(15) "LOT</B>" SKIP(1).
 
 v-printline = v-printline + 9.

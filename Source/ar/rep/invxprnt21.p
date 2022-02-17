@@ -490,8 +490,8 @@ ELSE lv-comp-color = "BLACK".
                 v-inv-qty format  "->>>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
-                ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(3)
+                ar-invl.ord-no FORM ">>>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(2)
                 v-i-dscr  format "x(25)" SPACE(2)
                 v-price  FORMAT "$->>>,>>9.9999"  SPACE(1)
                 v-price-head SPACE(1)
@@ -503,8 +503,8 @@ ELSE lv-comp-color = "BLACK".
                 v-ord-qty format  "->>>>>>9" SPACE(1)
                 v-inv-qty  format "->>>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
-                ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(3)
+                ar-invl.ord-no FORM ">>>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(2)
                 v-i-dscr  format "x(25)" SPACE(2)
                 v-price  FORMAT "$->>>,>>9.9999"  SPACE(1)
                 v-price-head SPACE(1)
@@ -527,18 +527,18 @@ ELSE lv-comp-color = "BLACK".
                       PUT SPACE(1) v-ship-qty FORMAT "->>>>>>9" .
 
                          IF LENGTH(ar-invl.po-no) LE 8 THEN DO:
-                             PUT SPACE(9) ar-invl.po-no FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE(3) v-part-info SKIP.
+                             PUT SPACE(9) ar-invl.po-no FORMAT "x(8)" SPACE(2)   ar-invl.part-no SPACE(2) v-part-info SKIP.
                          END.
                          ELSE DO: 
-                             PUT  SPACE(1) ar-invl.po-no FORMAT "x(15)" SPACE(2)   ar-invl.part-no SPACE(3) v-part-info SKIP.
+                             PUT  SPACE(1) ar-invl.po-no FORMAT "x(15)" SPACE(3)   ar-invl.part-no SPACE(2) v-part-info SKIP.
                          END.
                      END. /* lPrintQtyAll*/
                      ELSE DO:
                          IF LENGTH(ar-invl.po-no) LE 8 THEN DO:
-                             PUT  SPACE(18) ar-invl.po-no FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE(3) v-part-info SKIP.
+                             PUT  SPACE(18) ar-invl.po-no FORMAT "x(8)" SPACE(2)   ar-invl.part-no SPACE(2) v-part-info SKIP.
                          END.
                          ELSE DO: 
-                             PUT SPACE(11) ar-invl.po-no FORMAT "x(15)" SPACE(1)   ar-invl.part-no SPACE(3) v-part-info SKIP.
+                             PUT SPACE(11) ar-invl.po-no FORMAT "x(15)" SPACE(2)   ar-invl.part-no SPACE(2) v-part-info SKIP.
                          END.
 
                      END.    /* else do */

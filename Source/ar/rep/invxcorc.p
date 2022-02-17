@@ -410,10 +410,10 @@ assign
             PUT space(1) v-inv-qty format "->>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>9" SPACE(1)
                 /*v-bo-qty  format   "->>>>>9" SPACE(1)*/
-                ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
+                ar-invl.ord-no FORM ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
                 v-i-dscr  format "x(25)" SPACE(1)
-                v-price /* format ">>>9.9999" */ FORMAT ">>,>>9.99" SPACE(2)
+                v-price /* format ">>>9.9999" */ FORMAT ">>,>>9.99" SPACE(1)
                 v-price-head SPACE(1)
                 ar-invl.amt  format "->>>,>>9.99"                     
                 SKIP.
@@ -435,8 +435,8 @@ assign
 
               if v-part-info ne "" OR ar-invl.part-no <> "" then do:
                 /*put space(40) v-part-info skip.*/
-                 IF v = 1 THEN PUT SPACE(25) ar-invl.part-no SPACE v-part-info SKIP.
-                 ELSE   PUT SPACE(41) v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(26) ar-invl.part-no SPACE v-part-info SKIP.
+                 ELSE   PUT SPACE(42) v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.

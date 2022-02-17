@@ -509,8 +509,8 @@ assign
                 /*SPACE(1)*/
                 v-ship-qty  format "->>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
-                ar-invl.ord-no FORMAT ">>>>>9" SPACE(5)
-                v-i-no  format "x(15)" SPACE(3)
+                ar-invl.ord-no FORMAT ">>>>>>>9"
+                v-i-no  format "x(15)" AT 34.5 SPACE(3)
                 v-i-dscr  format "x(30)" SPACE(2)
                 v-price  format "$>>,>>9.99" SPACE(1)
                 v-price-head SPACE(1)

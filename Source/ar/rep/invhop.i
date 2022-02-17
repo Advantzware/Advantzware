@@ -38,10 +38,9 @@ for each ar-invl
 		     ar-invl.qty - ar-invl.ship-qty - oe-ordl.t-ship-qty
     		   else 0
 		 else 0
-   v-job-no = fill(" ",6 - length(trim(ar-invl.job-no))) +
-		trim(ar-invl.job-no) +
-	      (if ar-invl.job-no ne "" then 
-		("-" + string(ar-invl.job-no2,"99")) else "")
+   v-job-no = IF ar-invl.job-no NE "" THEN
+              TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ar-invl.job-no, ar-invl.job-no2)))
+              ELSE ""
    v-part-comp = if not avail oe-ordl              or
 		   oe-ordl.ship-qty ge oe-ordl.qty then "C"
 		 else "P"

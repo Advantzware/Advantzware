@@ -13,7 +13,7 @@ def var v-fob as char format "x(27)" NO-UNDO.
 def var v-shipvia like carrier.dscr NO-UNDO.
 def var v-addr3 as char format "x(30)" NO-UNDO.
 def var v-sold-addr3 as char format "x(30)" NO-UNDO.
-def var v-shipto-name as char format "x(30)" NO-UNDO.
+def var v-shipto-name as char FORMAT "x(30)" NO-UNDO.
 def var v-shipto-addr as char format "x(30)" extent 2 NO-UNDO.
 def var v-shipto-city as char format "x(15)" NO-UNDO.
 def var v-shipto-state as char format "x(2)" NO-UNDO.
@@ -487,9 +487,9 @@ assign
             PUT /*space(1) v-inv-qty format "->>>>>9" */
                 v-po-no
                 /*SPACE(1)*/
-                v-ship-qty  format "->>>>>9" AT 13 SPACE(3)
+                v-ship-qty  format "->>>>>9" AT 13 SPACE(1)
                /* v-bo-qty  format "->>>>>9" SPACE(1) */
-                ar-invl.ord-no FORMAT ">>>>>9" SPACE(1)
+                ar-invl.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
                 v-i-dscr  format "x(24)" 
                 v-price  format "$->,>>9.99" SPACE(-1)

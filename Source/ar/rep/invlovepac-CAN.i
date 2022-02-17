@@ -61,7 +61,7 @@ PUT
      "<C22>" v-shipvia FORM "x(20)" SPACE(1)
      ar-inv.terms-d FORM "x(15)" space(4) v-salesman FORM "x(8)"
      v-tot-pallets FORM "->>>>,>>9" 
-     lv-bol-no FORM ">>>>>>>>"
+     "<C73>"lv-bol-no FORM ">>>>>>>>"
     SKIP.
 
 

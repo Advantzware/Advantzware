@@ -79,7 +79,7 @@ format header
     with frame inv-top page-top no-box no-underline stream-io width 85.
     
 form ar-invl.qty            format "->>>>>>>"       to 8
-     ar-invl.ord-no         format ">>>>>>"         at 11   
+     ar-invl.ord-no         format ">>>>>>>>"         at 10   
      w-par                  format "x(30)"          at 19
      ar-invl.inv-qty        format "->>>>>>>"       to 57
      v-p-c                  format "X"            at 59

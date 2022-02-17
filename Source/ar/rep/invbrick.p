@@ -71,8 +71,8 @@ format header
        ar-inv.terms-d               at 26   format "x(11)"
        space (10)                                         
        carrier.dscr                 at 48   format "x(6)" when avail carrier 
-       v-fob                        at 58   format "x(4)"             
-       v-ord-no                     at 64   format ">>>>>>"
+       v-fob                        at 56   format "x(4)"             
+       v-ord-no                     at 62   format ">>>>>>>>"
        ar-inv.inv-date              to 80   FORMAT "99/99/99" 
        
 

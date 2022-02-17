@@ -254,7 +254,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                                        no-lock no-error.
                                        
        display ar-invl.po-no
-                trim(string(oe-ordl.ord-no,">>>>>9"))
+                trim(string(oe-ordl.ord-no,">>>>>>>9"))
                                 when avail oe-ordl @ ar-invl.i-no
                ar-invl.i-no     when not avail oe-ordl
                ar-invl.inv-qty
@@ -300,7 +300,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                                        no-lock no-error.
                                        
        display ar-invl.po-no
-                trim(string(oe-ordl.ord-no,">>>>>9"))
+                trim(string(oe-ordl.ord-no,">>>>>>>9"))
                                 when avail oe-ordl @ ar-invl.i-no
                ar-invl.i-no     when not avail oe-ordl 
                ar-invl.inv-qty

@@ -393,8 +393,8 @@ FOR each report
              ar-invl.amt FORMAT "->>>,>>9.99"                
            SKIP
            SPACE(1)
-             v-ord-no    FORMAT ">>>>>>" 
-           SPACE(9) v-i-dscr    FORMAT "x(25)"             
+             TRIM(STRING(v-ord-no,">>>>>>>>" ))
+           SPACE(7) v-i-dscr    FORMAT "x(25)"             
            SPACE(25)
              v-pc  
            SPACE(5)
