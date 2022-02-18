@@ -5003,7 +5003,7 @@ PROCEDURE valid-board :
         AND item.i-no EQ ef.board:SCREEN-VALUE) OR
         ef.board:SCREEN-VALUE EQ "" THEN DO:
         
-       MESSAGE "Invalid entry, try help...sdgdfg" VIEW-AS ALERT-BOX ERROR.
+       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
        APPLY "entry" TO ef.board.
        RETURN ERROR.        
     END.
