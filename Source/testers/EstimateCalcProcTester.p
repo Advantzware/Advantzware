@@ -84,11 +84,16 @@ PROCEDURE pCompareNewVsRefactoredProc:
     DEFINE VARIABLE cTime    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
     
+    
+    DEFINE BUFFER bf-SrcEstCostDetail FOR EstCostDetail.
+    DEFINE BUFFER bf-TrgEstCostDetail FOR EstCostDetail.
     DEFINE BUFFER bf-SrcEstCostForm FOR EstCostForm.
     DEFINE BUFFER bf-TrgEstCostForm FOR EstCostForm.
     //cEstList = "103412,103413,103416,103417,103423,103425".
      cEstList = "103363,103368,103370,103404,103418".
-    cEstList = "103426".
+    //cEstList = "103436".
+    
+    cEstList = "103425".
     /*
     Mismatch 103418 
     Source Id and Target ID same- 103413 , 103404 , 103363
@@ -139,7 +144,7 @@ PROCEDURE pCompareNewVsRefactoredProc:
             NEXT.
         END.
         
-        
+        /*
         IF NOT CAN-FIND(FIRST bf-SrcEstCostForm WHERE bf-SrcEstCostForm.estCostHeaderID = iSrcHeaderID) THEN
         DO:
             MESSAGE
@@ -178,6 +183,49 @@ PROCEDURE pCompareNewVsRefactoredProc:
             END.
                
         END. // bf-SrcEstCostForm
+    */
+    
+        IF NOT CAN-FIND(FIRST bf-SrcEstCostDetail WHERE bf-SrcEstCostDetail.estCostHeaderID = iSrcHeaderID) THEN
+        DO:
+            MESSAGE
+                "Est" cEstID1 skip
+                "NOT AVAILABLE bf-bf-SrcEstCostDetail: " iSrcHeaderID
+                VIEW-AS ALERT-BOX.
+            NEXT.
+        END.
+        
+        cText = "". 
+            
+        FOR EACH bf-SrcEstCostDetail NO-LOCK
+            WHERE bf-SrcEstCostDetail.estCostHeaderID = iSrcHeaderID:
+        
+                    
+            FIND FIRST bf-TrgEstCostDetail NO-LOCK
+                WHERE bf-TrgEstCostDetail.estCostHeaderID = iTrgHeaderID
+                AND bf-TrgEstCostDetail.sourceType = bf-SrcEstCostDetail.sourceType
+                AND bf-TrgEstCostDetail.estCostCategoryID = bf-SrcEstCostDetail.estCostCategoryID
+                
+                NO-ERROR.
+        
+            IF NOT AVAILABLE bf-TrgEstCostDetail THEN
+            DO:
+                MESSAGE "NOT AVAILABLE bf-TrgEstCostDetail: " iTrgHeaderID
+                    VIEW-AS ALERT-BOX.
+                NEXT.
+            END.
+      
+            BUFFER-COMPARE bf-SrcEstCostDetail to bf-TrgEstCostDetail save result in cFields.
+    
+    
+            IF cFields <> "" THEN
+            DO:                
+                cText = cText +  "Est" + cEstID1 + Chr(10)
+                    + "CategoryID" + String(bf-SrcEstCostDetail.estCostCategoryID) + Chr(10)
+                    + "Fields:" + cFields + Chr(10).
+            END.
+               
+        END. // bf-SrcEstCostDetail
+    
     
         IF cText = "" THEN
             MESSAGE 
