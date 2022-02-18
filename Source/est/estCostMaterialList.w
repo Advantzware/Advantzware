@@ -1,5 +1,8 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
+/* Connected Databases 
+          asi              PROGRESS
+*/
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
@@ -35,10 +38,15 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/defines/sortByDefs.i}
 {system/VendorCostProcs.i}
+{custom/globdefs.i}
+
 
 /* Parameters Definitions ---                                           */
 DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstCostHeaderToCalc. 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+ 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -81,8 +89,8 @@ estCostHeader estCostMaterial
     ~{&OPEN-QUERY-brEstCostMaterial}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-13 brEstCostMaterial bOk bCancel ~
-fiEstimateNo 
+&Scoped-Define ENABLED-OBJECTS RECT-13 brEstCostMaterial bOk ~
+btnRecostboard bCancel fiEstimateNo 
 &Scoped-Define DISPLAYED-OBJECTS fiEstimateNo estimate 
 
 /* Custom List Definitions                                              */
@@ -106,6 +114,10 @@ DEFINE BUTTON bCancel
 DEFINE BUTTON bOk 
      LABEL "Choose Vendor" 
      SIZE 17.6 BY 1.38.
+
+DEFINE BUTTON btnRecostboard 
+     LABEL "Recost Board" 
+     SIZE 20 BY 1.38.
 
 DEFINE VARIABLE estimate AS CHARACTER FORMAT "X(8)":U INITIAL "Estimate#:" 
       VIEW-AS TEXT 
@@ -166,7 +178,8 @@ DEFINE BROWSE brEstCostMaterial
 
 DEFINE FRAME DEFAULT-FRAME
      brEstCostMaterial AT ROW 3.67 COL 171 RIGHT-ALIGNED WIDGET-ID 200
-     bOk AT ROW 19.19 COL 3 WIDGET-ID 342
+     bOk AT ROW 19.19 COL 3 WIDGET-ID 342     
+     btnRecostboard AT ROW 19.19 COL 44.2 WIDGET-ID 360
      bCancel AT ROW 19.19 COL 155.8 WIDGET-ID 356
      fiEstimateNo AT ROW 1.67 COL 17.8 NO-LABEL WIDGET-ID 66
      estimate AT ROW 1.91 COL 4.4 NO-LABEL WIDGET-ID 64
@@ -317,8 +330,7 @@ DO:
     DEFINE VARIABLE gcScopeRMOverride  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Override".
     DEFINE VARIABLE gcScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated".
     DEFINE VARIABLE cAdderList         AS CHARACTER EXTENT 6 NO-UNDO.
-    DEFINE VARIABLE iCount             AS INTEGER   NO-UNDO.
-     
+    DEFINE VARIABLE iCount             AS INTEGER   NO-UNDO.     
      
     IF AVAILABLE estCostMaterial THEN
     DO:
@@ -360,11 +372,11 @@ DO:
         IF AVAILABLE bf-estCostMaterial THEN 
         DO:          
             ASSIGN 
-                bf-estCostMaterial.vendorId = ttVendItemCost.vendorID  
-                bf-estCostMaterial.costUOM = ttVendItemCost.vendorUOM 
+                bf-estCostMaterial.vendorId   = ttVendItemCost.vendorID  
+                bf-estCostMaterial.costUOM    = ttVendItemCost.vendorUOM 
                 bf-estCostMaterial.costPerUOM = ttVendItemCost.costPerVendorUOM
-                bf-estCostMaterial.costSetup = ttVendItemCost.costSetup
-                bf-estCostMaterial.costTotal = ttVendItemCost.costTotal
+                bf-estCostMaterial.costSetup  = ttVendItemCost.costSetup
+                bf-estCostMaterial.costTotal  = ttVendItemCost.costTotal
                 .
             IF AVAILABLE ttEstCostHeaderToCalc THEN 
                 ttEstCostHeaderToCalc.lRecalcRequired = TRUE.
@@ -400,6 +412,17 @@ DO:
         RUN pReopenBrowse.
     END.    
 END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnRecostboard
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRecostboard C-Win
+ON CHOOSE OF btnRecostboard IN FRAME DEFAULT-FRAME /* Recost Board */
+    DO: 
+        RUN ipRecostBoard(INPUT YES).                
+        
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -441,10 +464,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         FIRST estCostHeader NO-LOCK 
             WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID:
         ASSIGN
-            fiEstimateNo:SCREEN-VALUE = estCostHeader.estimateNo
-            .
+            fiEstimateNo:SCREEN-VALUE = estCostHeader.estimateNo.
 
     END.
+    
+    RUN sys/ref/nk1look.p (g_company, "CEAutoRecostBoard", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    
+    IF lFound = TRUE AND cReturn EQ "YES" THEN 
+        RUN ipRecostBoard(INPUT NO).    
+    
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -500,7 +528,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiEstimateNo estimate 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-13 brEstCostMaterial bOk bCancel fiEstimateNo 
+  ENABLE RECT-13 brEstCostMaterial bOk btnRecostboard 
+         bCancel fiEstimateNo 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -508,6 +537,28 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRecostBoard C-Win
+PROCEDURE ipRecostBoard:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iplMessage AS LOGICAL NO-UNDO.
+    FOR EACH ttEstCostHeaderToCalc:
+            
+        RUN est\RecostBoardEst.p(INPUT ttEstCostHeaderToCalc.iEstCostHeaderID,
+                                 INPUT iplMessage).
+    END.
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReOpenBrowse C-Win 
 PROCEDURE pReOpenBrowse :
