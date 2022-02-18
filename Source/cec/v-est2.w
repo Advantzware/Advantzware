@@ -79,6 +79,7 @@ DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
 
 DEFINE VARIABLE cNK1Value           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lWoodStyle          AS LOGICAL   NO-UNDO.
 
 {cec/bestfitc.i NEW SHARED}
 
@@ -884,7 +885,9 @@ DO:
    def var char-val as cha no-undo.
    def var lv-rowid as rowid no-undo.
    DEF VAR lw-focus AS WIDGET NO-UNDO.
-
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID         NO-UNDO.
 
    lw-focus = FOCUS.
 
@@ -906,6 +909,22 @@ DO:
                   RUN new-board.
               END. /* IF char-val NE "" THEN DO: */
            END. /* if foam */
+           ELSE IF AVAIL style AND style.type = "W" THEN  DO: /* Wood */               
+              RUN system/openlookup.p (
+                cocode, 
+                "", /* lookup field */
+                155,   /* Subject ID */
+                "",  /* User ID */
+                0,   /* Param value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ). 
+              IF cFoundValue NE "" AND cFoundValue NE ef.board:SCREEN-VALUE THEN DO:
+                ef.board:SCREEN-VALUE = cFoundValue.                
+                APPLY "ENTRY":U TO ef.board.
+              END.
+           END.
            ELSE DO:
                run windows/l-board1.w (eb.company,lv-ind,lw-focus:screen-value, output lv-rowid).
                IF lv-rowid NE ? THEN DO:
@@ -1168,7 +1187,8 @@ DO:
   {&methods/lValidateError.i YES}
        find first item where item.company = gcompany and
                              ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
-                              (index("1234",item.mat-type) > 0 and lv-is-foam) ) and
+                              (index("1234",item.mat-type) > 0 and lv-is-foam) OR
+                              (item.materialType EQ "Wood" AND lWoodStyle) ) and
                               item.industry = lv-industry and
                               item.i-no = self:screen-value
                               no-lock no-error.
@@ -3524,7 +3544,8 @@ PROCEDURE local-display-fields :
   END.
 
   assign lv-is-foam = no
-         lv-industry = "".
+         lv-industry = ""
+         lWoodStyle  = NO.
       
 
     IF ef.board = "" THEN
@@ -3538,6 +3559,7 @@ PROCEDURE local-display-fields :
   IF AVAIL style THEN
   DO:
      IF style.type = "F" then lv-is-foam = yes.
+     IF Style.TYPE = "W" THEN lWoodStyle = YES.
      lv-industry = style.industry.
   END.
 
@@ -3810,7 +3832,8 @@ IF NOT ll-auto-calc-selected THEN
     if EF.BOARD:screen-value <> "" and
        not can-find (first item where item.company = gcompany and
                                       ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
-                                      (index("1234",item.mat-type) > 0 and lv-is-foam) ) and
+                                      (index("1234",item.mat-type) > 0 and lv-is-foam) OR
+                                      (item.materialType   EQ "Wood" AND lWoodStyle)) and
                                       item.industry = lv-industry and
                                       item.i-no = ef.board:screen-value)
     then do:
@@ -4153,7 +4176,8 @@ PROCEDURE new-board :
     FIND FIRST item
         WHERE item.company  EQ gcompany
           AND ((INDEX("BPR",item.mat-type) GT 0 AND NOT lv-is-foam) OR
-               (INDEX("1234",item.mat-type) GT 0 AND lv-is-foam))
+               (INDEX("1234",item.mat-type) GT 0 AND lv-is-foam))  OR
+               (item.materialType EQ "Wood" AND lWoodStyle)
           AND item.industry EQ lv-industry
           AND item.i-no     EQ ef.board:SCREEN-VALUE
         NO-LOCK NO-ERROR.
