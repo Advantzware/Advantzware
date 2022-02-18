@@ -306,8 +306,8 @@ DEFINE BROWSE Browser-Table
       oe-ordl.qty FORMAT "->>,>>>,>>9":U LABEL-BGCOLOR 14
       oe-ordl.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       oe-ordl.part-no COLUMN-LABEL "Part #" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      oe-ordl.price FORMAT ">>,>>>,>>9.99<<<<":U
-      get-price-disc () @ ld-price COLUMN-LABEL "Inv Price" FORMAT "->>,>>>,>>9.99<<<<":U
+      oe-ordl.price COLUMN-LABEL "Order Price" FORMAT ">>,>>>,>>9.99<<<<":U
+      get-price-disc () @ ld-price COLUMN-LABEL "Sell Price" FORMAT "->>,>>>,>>9.99<<<<":U
             WIDTH 14.4
       get-pr-uom() @ ld-pr-uom COLUMN-LABEL "UOM" FORMAT "X(4)":U
       oe-ordl.tax COLUMN-LABEL "Tax" FORMAT "Y/N":U LABEL-BGCOLOR 14
@@ -444,9 +444,10 @@ ASI.oe-ordl.line LT 99999999"
 "oe-ordl.i-name" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-ordl.part-no
 "oe-ordl.part-no" "Part #" ? "character" ? ? ? 14 ? ? no "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   = ASI.oe-ordl.price
+     _FldNameList[7]   > ASI.oe-ordl.price
+"oe-ordl.price" "Order Price" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
-"get-price-disc () @ ld-price" "Inv Price" "->>,>>>,>>9.99<<<<" ? ? ? ? ? ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-price-disc () @ ld-price" "Sell Price" "->>,>>>,>>9.99<<<<" ? ? ? ? ? ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
 "get-pr-uom() @ ld-pr-uom" "UOM" "X(4)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.oe-ordl.tax
