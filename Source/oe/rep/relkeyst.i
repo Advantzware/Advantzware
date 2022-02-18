@@ -121,8 +121,7 @@
           end.
 
           for each w-bin where w-par eq "" by w-qty[2] desc by w-qty[1] desc:
-            if w-oe-rell.job-no ne "" then w-par = "Job#: " + TRIM(w-oe-rell.job-no
-                                                 + "-" + STRING(w-oe-rell.job-no2,"999")).
+            if w-oe-rell.job-no ne "" then w-par = "Job#: " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-oe-rell.job-no, w-oe-rell.job-no2))).
             leave.
           end.
         

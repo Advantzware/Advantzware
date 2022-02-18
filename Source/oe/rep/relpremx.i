@@ -126,7 +126,7 @@ DEF VAR lv-save-cust-uom AS CHAR NO-UNDO.
 DEF BUFFER xitemfg FOR itemfg.
 DEF SHARED VAR v-print-components AS LOG NO-UNDO.
 DEF SHARED VAR s-print-part-no AS LOG NO-UNDO.
-DEF VAR v-reljob AS CHAR FORMAT "x(10)" NO-UNDO.
+DEF VAR v-reljob AS CHAR FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE iOrdQtyCust AS INTEGER NO-UNDO.
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl .
 DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
@@ -641,7 +641,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                         trim(w-bin.w-loc) + "/" +
                         trim(w-bin.w-bin)  .
              
-             v-reljob = (w-bin.job + "-" + string(w-bin.job2,"999"))   .
+             v-reljob = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-bin.job, w-bin.job2))).
 
              IF v-reljob EQ "-000" THEN v-reljob = "" .
              if trim(v-bin) eq "//" then

@@ -468,7 +468,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                     DO:
                         PUT {2} "<R+1><C1>" w-oe-rell.ord-no            FORMAT ">>>>>>>9"  SPACE(1)  .
                         IF w-oe-rell.job-no NE "" THEN
-                            PUT {2} "<R+1><C1>" TRIM(w-oe-rell.job-no) + "-" + STRING(w-oe-rell.job-no2,"999") FORMAT "X(13)" SPACE(1) "<R-1>" .
+                            PUT {2} "<R+1><C1>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-oe-rell.job-no, w-oe-rell.job-no2))) FORMAT "X(13)" SPACE(1) "<R-1>" .
                     END.
 
                PUT {2}

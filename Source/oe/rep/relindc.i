@@ -377,7 +377,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                 ASSIGN iCountLine = 1 .
 
                 IF AVAILABLE oe-ordl THEN
-                v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(INTEGER(oe-ordl.job-no2), "999" ) .
+                v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
                 ELSE v-job-no = "" .
                  
                       PUT SPACE(1) v-job-no FORMAT "X(13)"  .
@@ -449,7 +449,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                          ASSIGN iv-comp-unit = 0 .
                    iv-comp-unit = iv-comp-unit + TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) .
                    IF LAST-OF(fg-bin.loc-bin) THEN do:
-                       v-job-no = fg-bin.job-no + "-" + STRING(INTEGER(fg-bin.job-no2), "999" )  .
+                       v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-bin.job-no, fg-bin.job-no2))).
                        IF (v-job-no EQ "-" OR v-job-no EQ "-000" ) THEN v-job-no = "".
                        IF FIRST(fg-bin.job-no) THEN
                            PUT SKIP(1) .
@@ -510,7 +510,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                
                ASSIGN iCountLine = 1 .
 
-             v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(INTEGER(oe-ordl.job-no2), "999" ) .
+             v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
               PUT SPACE(1) v-job-no FORMAT "X(13)"  .
 
@@ -559,7 +559,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
           v-printline = v-printline + 1.
           ASSIGN iCountLine = 1 .
 
-           v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(int(oe-ordl.job-no2), "999" ) .
+           v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
             /*IF /*NOT v-p-bin AND*/ NOT s-print-pricing THEN*/
               PUT SPACE(1) v-job-no FORMAT "X(13)"  .
 
@@ -633,7 +633,7 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                    END.
 
                   IF LAST-OF(fg-bin.loc-bin) THEN do: 
-                      v-job-no = fg-bin.job-no + "-" + STRING(INTEGER(fg-bin.job-no2), "999" )  .
+                      v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-bin.job-no, fg-bin.job-no2))).
                       IF (v-job-no EQ "-" OR v-job-no EQ "-000" ) THEN v-job-no = "".
                       IF FIRST(fg-bin.job-no) THEN
                            PUT SKIP(1) .

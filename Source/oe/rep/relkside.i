@@ -621,7 +621,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                         trim(w-bin.w-loc) + "/" +
                         trim(w-bin.w-bin)  .
              
-             v-reljob = (w-bin.job + "-" + string(w-bin.job2,"999"))   .
+             v-reljob = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-bin.job, w-bin.job2))).
 
              IF v-reljob EQ "-000" THEN v-reljob = "" .
              if trim(v-bin) eq "//" then

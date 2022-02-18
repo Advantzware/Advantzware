@@ -309,7 +309,7 @@ PUT
          IF LAST(tt-w2.cases * tt-w2.cas-cnt) THEN DO:
            IF FIRST(tt-w2.cases * tt-w2.cas-cnt) THEN DO:
              PUT {1} 
-                 v-job-var  FORMAT "x(9)"
+                 v-job-var  FORMAT "x(13)"
                  oe-rel.lot-no FORMAT "x(15)" AT 14
                  oe-ordl.part-no AT 30
                  oe-ordl.part-dscr1 FORMAT "x(26)" AT 45

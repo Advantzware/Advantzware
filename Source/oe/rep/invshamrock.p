@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invshamrock.p  */
 /* PRINT INVOICE   Xprint Standard Form             */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -573,8 +573,8 @@ DEFINE INPUT PARAMETER iplPrntDupl AS LOGICAL NO-UNDO.
           IF iplPrntDupl = NO THEN
             PUT space(1) v-inv-qty format "->>>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(3)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(2)
                 v-i-dscr  format "x(25)" SPACE(3)
                 v-price  format "->>>>,>>9.99" /*"->>,>>9.99<<"*/ SPACE(1)
                 v-price-head SPACE(1)
@@ -583,8 +583,8 @@ DEFINE INPUT PARAMETER iplPrntDupl AS LOGICAL NO-UNDO.
           ELSE
               PUT space(1) v-inv-qty format "->>>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(3)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(2)
                 v-i-dscr  format "x(25)" SPACE(3)
                 
                 SKIP.
@@ -599,7 +599,7 @@ DEFINE INPUT PARAMETER iplPrntDupl AS LOGICAL NO-UNDO.
                             else           trim(lv-inv-list).
 
               if v-part-info ne "" OR (v = 1 AND inv-line.part-no <> "") then do:
-                 IF v = 1 THEN PUT SPACE(27) inv-line.part-no SPACE(3) v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(28) inv-line.part-no SPACE(2) v-part-info SKIP.
                  ELSE
                  IF v = 2 THEN PUT SPACE(45) v-part-info SKIP.
                  ELSE          PUT SPACE(24) "Previous Invoice(s): " v-part-info SKIP.

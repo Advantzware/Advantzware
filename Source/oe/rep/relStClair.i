@@ -754,13 +754,13 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                  WHEN 3 THEN do:
                      lvTransDate = ?.
                      IF v-bin = "" AND lOHAvail = NO THEN DO:
-                        v-bin = "Job:" + string(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99").
+                        v-bin = "Job:" + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
                         IF oe-ordl.job-no = "" THEN DO:
                             FIND FIRST job-hdr WHERE job-hdr.company = oe-ordl.company
                                 AND job-hdr.i-no = oe-ordl.i-no
                                 AND job-hdr.opened NO-LOCK NO-ERROR.
                             IF AVAIL job-hdr THEN 
-                                ASSIGN v-bin = "Job:" + string(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99")
+                                ASSIGN v-bin = "Job:" + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)))
                                        ldtJobDate = job-hdr.due-date
                                        .                            
                         END.
