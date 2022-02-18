@@ -23,10 +23,11 @@ DEFINE INPUT  PARAMETER ipcKeyFields     AS CHARACTER NO-UNDO. /* If iplDeleteRe
 DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
 /* ***************************  Definitions  ************************** */
 
-DEFINE VARIABLE hdTTSystemData AS HANDLE  NO-UNDO.
-DEFINE VARIABLE hdTableBuffer  AS HANDLE  NO-UNDO.
-DEFINE VARIABLE hdTTBuffer     AS HANDLE  NO-UNDO.
-DEFINE VARIABLE iFieldCount    AS INTEGER NO-UNDO.
+DEFINE VARIABLE hdTTSystemData AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdTableBuffer  AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdTTBuffer     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iFieldCount    AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cDBName        AS CHARACTER NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -35,29 +36,53 @@ DEFINE VARIABLE iFieldCount    AS INTEGER NO-UNDO.
 FIND FIRST ASI._file NO-LOCK
      WHERE ASI._file._file-name = ipcTable
      NO-ERROR.
-IF NOT AVAILABLE ASI._file THEN DO:
+FIND FIRST Audit._file NO-LOCK
+     WHERE Audit._file._file-name = ipcTable
+     NO-ERROR.
+IF NOT AVAILABLE ASI._file AND NOT AVAILABLE Audit._file THEN DO:     
     opcMessage = "Invalid DB table " + ipcTable + " passed as input parameter".
     RETURN.
 END.
+
+cDBName = IF AVAILABLE ASI._file THEN "ASI" ELSE "Audit".
 
 IF SEARCH(IF ipcFileName NE "" THEN ipcFileName ELSE ipcTable + ".json") EQ ? THEN DO:
     opcMessage = "File '" + (IF ipcFileName NE "" THEN ipcFileName ELSE ipcTable + ".json") + "' does not exist".
     RETURN.
 END.
 
-IF NOT iplDeleteRecords AND ipcKeyFields EQ "" THEN DO:
-    ipcKeyFields = "rec_key".
+IF NOT iplDeleteRecords AND ipcKeyFields EQ "" AND cDBName EQ "ASI" THEN DO:
+    FIND FIRST ASI._field NO-LOCK
+         WHERE ASI._field._Field-Name EQ "rec_key"
+           AND ASI._field._file-recid EQ RECID(ASI._file) 
+         NO-ERROR.    
+    IF AVAILABLE ASI._field THEN
+        ipcKeyFields = "rec_key".
 END.
 
 IF ipcKeyFields NE "" THEN DO:
-    DO iFieldCount = 1 TO NUM-ENTRIES(ipcKeyFields):
-        FIND FIRST ASI._field NO-LOCK
-             WHERE ASI._field._Field-Name = ENTRY(iFieldCount, ipcKeyFields)
-               AND ASI._field._file-recid = RECID(ASI._file) NO-ERROR.
-        IF NOT AVAILABLE ASI._field THEN DO:
-            opcMessage = "Field '" + ENTRY(iFieldCount, ipcKeyFields) + "' is not available in " + ipcTable.
-            RETURN.
-        END.     
+    IF cDBName EQ "ASI" THEN DO:
+        DO iFieldCount = 1 TO NUM-ENTRIES(ipcKeyFields):
+            FIND FIRST ASI._field NO-LOCK
+                 WHERE ASI._field._Field-Name EQ ENTRY(iFieldCount, ipcKeyFields)
+                   AND ASI._field._file-recid EQ RECID(ASI._file) 
+                 NO-ERROR.
+            IF NOT AVAILABLE ASI._field THEN DO:
+                opcMessage = "Field '" + ENTRY(iFieldCount, ipcKeyFields) + "' is not available in " + ipcTable.
+                RETURN.
+            END.     
+        END.
+    END.
+    ELSE DO:
+        DO iFieldCount = 1 TO NUM-ENTRIES(ipcKeyFields):
+            FIND FIRST Audit._field NO-LOCK
+                 WHERE Audit._field._Field-Name EQ ENTRY(iFieldCount, ipcKeyFields)
+                   AND Audit._field._file-recid EQ RECID(Audit._file) NO-ERROR.
+            IF NOT AVAILABLE Audit._field THEN DO:
+                opcMessage = "Field '" + ENTRY(iFieldCount, ipcKeyFields) + "' is not available in " + ipcTable.
+                RETURN.
+            END.     
+        END.    
     END.
 END.
 

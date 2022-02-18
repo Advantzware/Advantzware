@@ -402,6 +402,7 @@ PROCEDURE pImportExport :
         RUN system/SystemDataExport.p (
             cbTable:SCREEN-VALUE,
             fiFilePath:SCREEN-VALUE,
+            "",
             "",            
             OUTPUT cMessage
             ).
