@@ -151,7 +151,7 @@
         oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "DueOnMonth", STRING(iDueOnMonth)).
         oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "DueOnDay", STRING(iDueOnDay)).
         oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "NetDays", STRING(iNetDays)).
-        oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "DiscPercent", STRING(dDiscPct)).
+        oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "DiscountPercent", STRING(dDiscPct)).
         oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "DiscountDays", STRING(iDiscDays)).
         oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "TermsDescription", STRING(cTermsDesc)).
         oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "OrderLineCount", STRING(iOrderLineCount)).
