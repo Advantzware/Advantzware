@@ -15,7 +15,8 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */
+     
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
@@ -62,7 +63,7 @@ ASSIGN
     cFieldListToSelect = "cust-no,cust-name,po-num,ord-no,rel-no,i-no,i-name," +
                                 "job,shp-qty,ord-qty,part-no,v-del-zone,v-terr," +
                                 "v-trailer,v-totl-sq,v-bol-no,ship-id,ship-name,bol-date"
-    cFieldLength       = "8,30,15,6,6,15,30," + "9,11,11,15,8,4," + "21,12,7,8,30,10"
+    cFieldLength       = "8,30,15,8,6,15,30," + "13,11,11,15,8,4," + "21,12,7,8,30,10"
     cFieldType         = "c,c,c,i,i,c,c," + "c,i,i,c,c,c," + "c,i,i,c,c,c"
     .
 
@@ -1543,7 +1544,7 @@ PROCEDURE run-report :
                     WHEN "po-num" THEN 
                         cVarValue = STRING(oe-boll.po-no) .
                     WHEN "ord-no" THEN 
-                        cVarValue = STRING(oe-boll.ord-no,">>>>>9").
+                        cVarValue = STRING(oe-boll.ord-no,">>>>>>>9").
                     WHEN "rel-no" THEN 
                         cVarValue = STRING(oe-bolh.release#,">>>>>9").
                     WHEN "i-no" THEN 
@@ -1551,7 +1552,7 @@ PROCEDURE run-report :
                     WHEN "i-name" THEN 
                         cVarValue = STRING(v-i-name,"x(30)").
                     WHEN "job" THEN 
-                        cVarValue = IF oe-boll.job-no NE "" THEN STRING(oe-boll.job-no + "-" + string(oe-boll.job-no2,"99")) ELSE "" .                
+                        cVarValue = IF oe-boll.job-no NE "" THEN TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))) ELSE "" .                
                     WHEN "shp-qty" THEN 
                         cVarValue = STRING(iShipQty,">>>,>>>,>>9").
                     WHEN "ord-qty" THEN 
