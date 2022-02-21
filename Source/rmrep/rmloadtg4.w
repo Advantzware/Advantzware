@@ -2519,10 +2519,10 @@ PROCEDURE run-report :
         IF v-job BEGINS "-" THEN v-job = "".
 
         ASSIGN
-            lv-middlesex-po  = SUBSTR(TRIM(w-po.job-no),1,6)
+            lv-middlesex-po  = SUBSTR(TRIM(w-po.job-no),1,9)
             lv-middlesex-job = IF lv-middlesex-job EQ "" THEN "" ELSE
                         "%MX" +
-                        FILL("0",6 - LENGTH(TRIM(lv-middlesex-job))) +
+                        FILL("0",9 - LENGTH(TRIM(lv-middlesex-job))) +
                         TRIM(lv-middlesex-job)
             lv-middlesex-po  = SUBSTR(STRING(w-po.po-no),1,6)
             lv-middlesex-po  = IF lv-middlesex-po EQ "" THEN "" ELSE

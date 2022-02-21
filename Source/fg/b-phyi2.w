@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -204,8 +205,8 @@ DEFINE BROWSE br_table
             WIDTH 16
       fg-rctd.inv-no COLUMN-LABEL "Counted Qty" FORMAT ">>>,>>>,>>9":U
             WIDTH 16
-      fg-rctd.job-no FORMAT "x(6)":U
-      fg-rctd.job-no2 FORMAT "99":U
+      fg-rctd.job-no FORMAT "x(9)":U
+      fg-rctd.job-no2 FORMAT "999":U
       fg-rctd.i-no FORMAT "x(15)":U
       fg-rctd.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
       fg-rctd.std-cost COLUMN-LABEL "Cost" FORMAT ">>>,>>9.99<<":U
@@ -843,14 +844,14 @@ DEF VAR lv-rowid AS ROWID NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+        STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))
+        .
 
     
     RUN windows/l-fgibn2.w (g_company, fg-rctd.i-no:screen-value in browse {&browse-name}, fg-rctd.job-no:screen-value in browse {&browse-name}, INT(fg-rctd.job-no2:screen-value in browse {&browse-name}), fg-rctd.loc:screen-value in browse {&browse-name}, fg-rctd.loc-bin:screen-value in browse {&browse-name}, fg-rctd.tag:screen-value in browse {&browse-name}, output lv-rowid).
     FIND fg-bin WHERE ROWID(fg-bin) EQ lv-rowid NO-LOCK NO-ERROR.
 
-    IF AVAIL fg-bin AND (fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}      NE fg-bin.job-no  OR
+    IF AVAIL fg-bin AND (trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})      NE trim(fg-bin.job-no)  OR
                          INT(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE fg-bin.job-no2 OR
                          fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}         NE fg-bin.loc     OR
                          fg-rctd.loc-bin:SCREEN-VALUE IN browse {&browse-name}     NE fg-bin.loc-bin OR
@@ -942,7 +943,7 @@ PROCEDURE get-def-values :
      find first fg-bin where
           fg-bin.company eq cocode
                 and fg-bin.i-no    eq fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                and fg-bin.job-no  eq fg-rctd.job-no:SCREEN-VALUE
+                and trim(fg-bin.job-no)  eq trim(fg-rctd.job-no:SCREEN-VALUE)
                 and ((fg-rctd.job-no:SCREEN-VALUE ne " " and
                     fg-bin.job-no2 eq int(fg-rctd.job-no2:SCREEN-VALUE) ) or
                     (fg-rctd.job-no:SCREEN-VALUE eq " "))
@@ -993,7 +994,7 @@ PROCEDURE get-fg-bin-cost :
     FIND FIRST fg-bin
         WHERE fg-bin.company EQ cocode
           AND fg-bin.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND fg-bin.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND trim(fg-bin.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
           AND fg-bin.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           AND fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
           AND fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1007,7 +1008,7 @@ PROCEDURE get-fg-bin-cost :
            FIND FIRST fg-bin WHERE
                 fg-bin.company EQ cocode
                   AND fg-bin.i-no    EQ fg-rctd.i-no:SCREEN-VALUE 
-                  AND fg-bin.job-no  EQ loadtag.job-no
+                  AND trim(fg-bin.job-no)  EQ trim(loadtag.job-no)
                   AND fg-bin.job-no2 EQ loadtag.job-no2
                   AND fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE 
                   AND fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE 
@@ -1022,7 +1023,7 @@ PROCEDURE get-fg-bin-cost :
 
   FIND FIRST job-hdr WHERE
        job-hdr.company = g_company
-                  AND job-hdr.job-no = loadtag.job-no
+                  AND trim(job-hdr.job-no) = trim(loadtag.job-no)
                   AND job-hdr.job-no2 = loadtag.job-no2
                   AND job-hdr.i-no = loadtag.i-no NO-LOCK NO-ERROR.
    /*IF AVAIL job-hdr THEN 
@@ -1034,7 +1035,7 @@ PROCEDURE get-fg-bin-cost :
    IF NOT AVAIL job-hdr THEN DO:
       FIND FIRST job
           WHERE job.company EQ cocode
-            AND job.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
+            AND trim(job.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
             AND job.job-no2 EQ int(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
         NO-LOCK NO-ERROR.
       IF AVAIL job THEN
@@ -1078,7 +1079,7 @@ PROCEDURE get-fg-bin-cost :
       IF fg-rctd.job-no:SCREEN-VALUE <> ""  THEN
          FIND FIRST oe-ordl WHERE oe-ordl.company = g_company
                            AND oe-ordl.i-no = fg-rctd.i-no:SCREEN-VALUE
-                           AND oe-ordl.job-no = fg-rctd.job-no:SCREEN-VALUE
+                           AND trim(oe-ordl.job-no) = trim(fg-rctd.job-no:SCREEN-VALUE)
                            AND oe-ordl.job-no2 = loadtag.job-no2 NO-LOCK NO-ERROR.
       ELSE IF AVAIL loadtag THEN
          FIND FIRST oe-ordl WHERE oe-ordl.company = g_company
@@ -1132,7 +1133,7 @@ if ip-first-disp  and avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&br
   find first po-ordl where po-ordl.company = cocode
                        and po-ordl.po-no = int(fg-rctd.po-no)
                        and po-ordl.i-no  = fg-rctd.i-no
-                       and po-ordl.job-no = fg-rctd.job-no
+                       and trim(po-ordl.job-no) = trim(fg-rctd.job-no)
                        and po-ordl.job-no2 = fg-rctd.job-no2
                        and po-ordl.item-type = no
                        no-lock no-error.
@@ -1485,13 +1486,13 @@ PROCEDURE new-bin :
 ------------------------------------------------------------------------------*/
  DO WITH FRAME {&FRAME-NAME}:
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+        STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))
+        .
 
     FIND FIRST fg-bin 
         WHERE fg-bin.company EQ cocode
           AND fg-bin.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND fg-bin.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND trim(fg-bin.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
           AND fg-bin.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           AND fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
           AND fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1672,13 +1673,13 @@ DEF INPUT PARAM ip-int AS INT NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+        STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))
+        .
 
     IF NOT CAN-FIND(FIRST fg-bin 
                     WHERE fg-bin.company  EQ cocode
                       AND fg-bin.i-no     EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND (fg-bin.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}       OR ip-int LT 1)
+                      AND (trim(fg-bin.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) OR ip-int LT 1)
                       AND (fg-bin.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) OR ip-int LT 2)
                       AND (fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}          OR ip-int LT 3)
                       AND (fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}      OR ip-int LT 4)

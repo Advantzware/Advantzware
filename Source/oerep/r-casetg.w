@@ -3285,10 +3285,10 @@ PROCEDURE run-report :
                           "%MX" +
                           FILL("0",9 - LENGTH(TRIM(lv-middlesex-job))) +
                           TRIM(lv-middlesex-job)
-                lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,9)
+                lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,6)
                 lv-middlesex-po  = IF lv-middlesex-po EQ "" THEN "" ELSE
                           "BNJ" +
-                          FILL("0",9 - LENGTH(TRIM(lv-middlesex-po))) +
+                          FILL("0",6 - LENGTH(TRIM(lv-middlesex-po))) +
                           TRIM(lv-middlesex-po).
             IF w-ord.total-tags GT 0 THEN
             DO:
