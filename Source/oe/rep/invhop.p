@@ -26,7 +26,7 @@ def var v-fob as char format "x(11)" no-undo.
 def var v-ship-date as date format "99/99/9999" no-undo init today.
 def var v-invoice-date as date format "99/99/9999" no-undo.
 def var v-bol-no as int format ">>>>>>" no-undo.
-def var v-order-no as int format ">>>>>>" no-undo.
+def var v-order-no as int format ">>>>>>>>" no-undo.
 def var v-unit-price as dec format "$>>,>>9.99" no-undo.
 def var v-terms as char format "x(20)" no-undo.
 def var v-salesman as char format "x(11)" no-undo.

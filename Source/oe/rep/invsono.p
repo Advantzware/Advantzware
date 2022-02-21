@@ -53,7 +53,7 @@ def var v-ord-del-hdr  as char format "x(4)" init "Del#".
 def var v-part-info    as char format "x(30)".
 def var v-beeler-lines as int.
 def var v              as int.
-def var v-ord#         as int format ">>>>>>" no-undo.
+def var v-ord#         as int format ">>>>>>>>" no-undo.
 
 def var v-c-name         like company.name.
 def var v-c-addr         like company.addr.

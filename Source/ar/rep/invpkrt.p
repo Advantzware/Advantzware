@@ -374,8 +374,8 @@ ASSIGN ls-image1 = "images\packrite.jpg"
                  v-price-head             FORMAT "X(3)"               
                  ar-invl.amt              FORMAT "->>>,>>9.99"  
                  SKIP
-                 SPACE(34)
-                 v-ord-no                 FORMAT ">>>>>>"      SPACE(1)
+                 SPACE(32)
+                 TRIM(STRING(v-ord-no,">>>>>>>9"))             SPACE(1)
                  v-i-dscr                 FORMAT "x(21)"       SPACE(1)
                  SKIP.
 

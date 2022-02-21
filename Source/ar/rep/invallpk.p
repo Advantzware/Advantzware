@@ -36,7 +36,7 @@ def var v-net                                               like ar-invl.amt.
 def var cnt                                                 as int.
 def var v-part-info                                       as char format "x(30)".
 def var v                                                    as int.
-def var v-ord#                                            as int format ">>>>>>" no-undo.
+def var v-ord#                                            as int format ">>>>>>>>" no-undo.
 
 def var v-c-name         like company.name.
 def var v-c-addr         like company.addr.

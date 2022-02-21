@@ -373,8 +373,8 @@ FOR each report
                   v-t-price-2  FORMAT "->>>,>>9.99"                
                   SKIP
                   SPACE(1)
-                  v-ord-no    FORMAT ">>>>>>" 
-                  SPACE(10) v-i-dscr    FORMAT "x(30)"
+                  TRIM(STRING(v-ord-no,">>>>>>>9")) 
+                  SPACE(8) v-i-dscr    FORMAT "x(30)"
                   SPACE(2) v-qty FORMAT "->>>>>9"
                   SPACE(13) v-pc  
                   SPACE(1)  v-price-head 
