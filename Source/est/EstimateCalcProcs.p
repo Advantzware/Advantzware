@@ -3029,7 +3029,7 @@ PROCEDURE pCalculateWeightsAndSizes PRIVATE:
             
             IF bf-estCostMaterial.estCostBlankID EQ 0 THEN 
             DO: /*Form level material - calc based on basis-weight and blank area*/
-                IF bf-estCostMaterial.isPrimarySubstrate THEN 
+                IF bf-estCostMaterial.isPrimarySubstrate AND NOT bf-estCostBlank.isPurchased THEN 
                 DO:   /*Board and adders*/
                     /*refactor - basis assumed to be LBs/MSF*/
                     dWeightInDefaultUOM = bf-estCostMaterial.basisWeight * dBlankAreaTotalInDefaultUOM.

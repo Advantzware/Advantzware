@@ -417,97 +417,103 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCopyVendorToAll C-Win
 ON CHOOSE OF btnCopyVendorToAll IN FRAME DEFAULT-FRAME /* Copy Vendor to All */
 DO:
-        DEFINE BUFFER bf-estCostMaterialForAll FOR estCostMaterial.
-        DEFINE BUFFER bb-ttEstCostHeaderToCalc FOR ttEstCostHeaderToCalc.
-        DEFINE BUFFER bb-estCostHeaderForAll   FOR esTCostHeader.  
+    DEFINE BUFFER bf-estCostMaterialForAll FOR estCostMaterial.
+    DEFINE BUFFER bb-ttEstCostHeaderToCalc FOR ttEstCostHeaderToCalc.
+    DEFINE BUFFER bb-estCostHeaderForAll   FOR esTCostHeader.  
         
-        DEFINE VARIABLE gcScopeRMOverride  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Override".
-        DEFINE VARIABLE gcScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated".
-        DEFINE VARIABLE cAdderList         AS CHARACTER EXTENT 6 NO-UNDO.
-        DEFINE VARIABLE oplError           AS LOGICAL   NO-UNDO.
-        DEFINE VARIABLE opcMessage         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE gcScopeRMOverride  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Override".
+    DEFINE VARIABLE gcScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated".
+    DEFINE VARIABLE cAdderList         AS CHARACTER EXTENT 6 NO-UNDO.
+    DEFINE VARIABLE oplError           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE opcMessage         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE chErrorList        AS CHARACTER NO-UNDO.
                             
     
-        IF AVAILABLE estCostMaterial THEN
-        DO:
-                              
-            FOR EACH bb-ttEstCostHeaderToCalc,
-                FIRST bb-estCostHeaderForAll NO-LOCK
-                WHERE bb-estCostHeaderForAll.estCostHeaderID   = bb-ttEstCostHeaderToCalc.iEstCostHeaderID,        
-                EACH bf-estCostMaterialForAll EXCLUSIVE-LOCK
-                WHERE bf-estCostMaterialForAll.estCostHeaderID = bb-estCostHeaderForAll.estCostHeaderID
-                AND bf-estCostMaterialForAll.estimateNo        = bb-estCostHeaderForAll.estimateNo
-                AND bf-estCostMaterialForAll.isPrimarySubstrate
-                AND bf-estCostMaterialForAll.estCostMaterialID <> estCostMaterial.estCostMaterialID
-                AND bf-estCostMaterialForAll.vendorId          <> estCostMaterial.vendorID:                
+    IF AVAILABLE estCostMaterial THEN
+    DO:                              
+        FOR EACH bb-ttEstCostHeaderToCalc,
+            FIRST bb-estCostHeaderForAll NO-LOCK
+            WHERE bb-estCostHeaderForAll.estCostHeaderID   = bb-ttEstCostHeaderToCalc.iEstCostHeaderID,        
+            EACH bf-estCostMaterialForAll EXCLUSIVE-LOCK
+            WHERE bf-estCostMaterialForAll.estCostHeaderID = bb-estCostHeaderForAll.estCostHeaderID
+            AND bf-estCostMaterialForAll.estimateNo        = bb-estCostHeaderForAll.estimateNo
+            AND bf-estCostMaterialForAll.isPrimarySubstrate
+            AND bf-estCostMaterialForAll.estCostMaterialID <> estCostMaterial.estCostMaterialID
+            AND bf-estCostMaterialForAll.vendorId          <> estCostMaterial.vendorID:                
                 
-                EMPTY TEMP-TABLE ttVendItemCost.
+            EMPTY TEMP-TABLE ttVendItemCost.
                   
-                RUN BuildVendItemCostsWithAdders(
-                    INPUT  bf-estCostMaterialForAll.Company,
-                    INPUT  bf-estCostMaterialForAll.ItemID,
-                    INPUT  IF isPurchasedFG THEN "FG" ELSE "RM",
-                    INPUT  IF isPurchasedFG THEN gcScopeFGEstimated ELSE gcScopeRMOverride,
-                    INPUT  "Yes",
-                    INPUT  bf-estCostMaterialForAll.estimateNo,
-                    INPUT  bf-estCostMaterialForAll.formNo,
-                    INPUT  bf-estCostMaterialForAll.blankNo,
-                    INPUT  bf-estCostMaterialForAll.quantityRequiredTotal,
-                    INPUT  bf-estCostMaterialForAll.quantityUOM,
-                    INPUT  bf-estCostMaterialForAll.dimLength,
-                    INPUT  bf-estCostMaterialForAll.dimWidth,
-                    INPUT  bf-estCostMaterialForAll.dimDepth,
-                    INPUT  bf-estCostMaterialForAll.dimUOM,
-                    INPUT  bf-estCostMaterialForAll.basisWeight,
-                    INPUT  bf-estCostMaterialForAll.basisWeightUOM,
-                    INPUT  cAdderList,
-                    OUTPUT  TABLE  ttVendItemCost,
-                    OUTPUT  oplError,
-                    OUTPUT  opcMessage).
+            RUN BuildVendItemCostsWithAdders(
+                INPUT  bf-estCostMaterialForAll.Company,
+                INPUT  bf-estCostMaterialForAll.ItemID,
+                INPUT  IF isPurchasedFG THEN "FG" ELSE "RM",
+                INPUT  IF isPurchasedFG THEN gcScopeFGEstimated ELSE gcScopeRMOverride,
+                INPUT  "Yes",
+                INPUT  bf-estCostMaterialForAll.estimateNo,
+                INPUT  bf-estCostMaterialForAll.formNo,
+                INPUT  bf-estCostMaterialForAll.blankNo,
+                INPUT  bf-estCostMaterialForAll.quantityRequiredTotal,
+                INPUT  bf-estCostMaterialForAll.quantityUOM,
+                INPUT  bf-estCostMaterialForAll.dimLength,
+                INPUT  bf-estCostMaterialForAll.dimWidth,
+                INPUT  bf-estCostMaterialForAll.dimDepth,
+                INPUT  bf-estCostMaterialForAll.dimUOM,
+                INPUT  bf-estCostMaterialForAll.basisWeight,
+                INPUT  bf-estCostMaterialForAll.basisWeightUOM,
+                INPUT  cAdderList,
+                OUTPUT  TABLE  ttVendItemCost,
+                OUTPUT  oplError,
+                OUTPUT  opcMessage).
                 
-                IF oplError THEN 
-                DO:
-                    MESSAGE opcMessage
-                        VIEW-AS ALERT-BOX.
-                    
-                    RETURN NO-APPLY.                    
-                END.
-                
-                find first ttVendItemCost
-                    where ttVendItemCost.vendorid = estCostMaterial.vendorID no-error.
-                    
-                if not available ttVendItemCost then
-                do:
-                    MESSAGE "No Valid Vendor Found For Selected Item"
-                        VIEW-AS ALERT-BOX.
-                    return no-apply.                    
-                end.
-                
-                if ttVendItemCost.isValid = false then 
-                do:
-                    MESSAGE ttVendItemCost.reasonNotValid
-                    VIEW-AS ALERT-BOX. 
-                    RETURN NO-APPLY.                   
-                end.
-            END.        
-        
-            FOR EACH bb-ttEstCostHeaderToCalc,
-                FIRST bb-estCostHeaderForAll NO-LOCK     
-                WHERE bb-estCostHeaderForAll.estCostHeaderID EQ bb-ttEstCostHeaderToCalc.iEstCostHeaderID,
-                        
-                EACH bf-estCostMaterialForAll EXCLUSIVE-LOCK
-                WHERE bf-estCostMaterialForAll.estCostHeaderID = bb-estCostHeaderForAll.estCostHeaderID
-                AND bf-estCostMaterialForAll.estimateNo        = bb-estCostHeaderForAll.estimateNo
-                AND bf-estCostMaterialForAll.isPrimarySubstrate
-                AND bf-estCostMaterialForAll.estCostMaterialID <> estCostMaterial.estCostMaterialID
-                AND bf-estCostMaterialForAll.vendorId          <> estCostMaterial.vendorID:
-                  
+            IF oplError THEN 
+            DO:                    
                 ASSIGN 
-                    bf-estCostMaterialForAll.vendorId = estCostMaterial.vendorID.
-            END.          
+                    chErrorList = chErrorList + chr(10) + opcMessage.            
+            END.
+                
+            FIND FIRST ttVendItemCost
+                WHERE ttVendItemCost.vendorid = estCostMaterial.vendorID NO-ERROR.
+                    
+            IF NOT AVAILABLE ttVendItemCost THEN
+            DO:
+                ASSIGN 
+                    chErrorList = chErrorList + chr(10) + "No Valid Vendor Found For Selected Item".
+            END.
+                
+            IF ttVendItemCost.isValid = FALSE THEN 
+            DO:
+                ASSIGN 
+                    chErrorList = chErrorList + chr(10) + ttVendItemCost.reasonNotValid.
+            END.
+        END.    
+            
+        ASSIGN 
+            chErrorList = TRIM(chErrorList,CHR(10)).    
+            
+        IF chErrorList <> "" THEN
+        DO:
+            MESSAGE chErrorList
+                VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
         END.
+        
+        FOR EACH bb-ttEstCostHeaderToCalc,
+            FIRST bb-estCostHeaderForAll NO-LOCK     
+            WHERE bb-estCostHeaderForAll.estCostHeaderID EQ bb-ttEstCostHeaderToCalc.iEstCostHeaderID,
+                        
+            EACH bf-estCostMaterialForAll EXCLUSIVE-LOCK
+            WHERE bf-estCostMaterialForAll.estCostHeaderID = bb-estCostHeaderForAll.estCostHeaderID
+            AND bf-estCostMaterialForAll.estimateNo        = bb-estCostHeaderForAll.estimateNo
+            AND bf-estCostMaterialForAll.isPrimarySubstrate
+            AND bf-estCostMaterialForAll.estCostMaterialID <> estCostMaterial.estCostMaterialID
+            AND bf-estCostMaterialForAll.vendorId          <> estCostMaterial.vendorID:
+                  
+            ASSIGN 
+                bf-estCostMaterialForAll.vendorId = estCostMaterial.vendorID.
+        END.          
+    END.
              
-        RELEASE bf-estCostMaterialForAll.
+    RELEASE bf-estCostMaterialForAll.
     
         {&OPEN-QUERY-{&BROWSE-NAME}}     
       
