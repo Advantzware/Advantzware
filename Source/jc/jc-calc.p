@@ -1116,39 +1116,8 @@ DO:
 
                     IF ll-use-netsht AND CAN-DO("1,2,3,4,B,P,R",item.mat-type) THEN 
                     DO:
-                        v-blk-qty = 0.
-                        FOR EACH job-hdr
-                            WHERE job-hdr.company  EQ job-mat.company
-                            AND job-hdr.job      EQ job-mat.job
-                            AND job-hdr.job-no   EQ job-mat.job-no
-                            AND job-hdr.job-no2  EQ job-mat.job-no2
-                            AND (job-hdr.frm     EQ job-mat.frm OR
-                            xest.est-type   EQ 2           OR
-                            xest.est-type   EQ 6)
-                            USE-INDEX job NO-LOCK:
-        
-                            IF xest.est-type EQ 2 OR xest.est-type EQ 6 THEN
-                                FOR EACH eb
-                                    WHERE eb.company EQ job.company
-                                    AND eb.est-no  EQ job.est-no
-                                    AND eb.form-no EQ job-mat.frm
-                                    USE-INDEX est-no NO-LOCK
-                                    BY job-hdr.qty *
-                                    (IF eb.est-type EQ 2 THEN
-                                    IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%
-                                    ELSE
-                                    IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet) /
-                                    eb.num-up DESCENDING:
-                                    v-blk-qty = (job-hdr.qty *
-                                        (IF eb.est-type EQ 2 THEN
-                                        IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%
-                                        ELSE
-                                        IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet) /
-                                        (eb.num-up * v-out)).
-                                    LEAVE.
-                                END.
-                            ELSE v-blk-qty = v-blk-qty + (job-hdr.qty / job-mat.n-up).
-                        END.
+                        RUN pCalcNetSheets (BUFFER job-mat, xest.est-type, v-out, OUTPUT v-blk-qty).
+                        
                         IF v-blk-qty NE 0 THEN job-mat.qty = v-blk-qty.
                     END.
         
@@ -1631,6 +1600,63 @@ PROCEDURE pAddSet PRIVATE:
             fg-set.line = x
             .
     END.
+
+END PROCEDURE.
+
+PROCEDURE pCalcNetSheets PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job-mat FOR job-mat. 
+    DEFINE INPUT PARAMETER ipiEstType AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOut AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdNetSheets AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE dNetSheetsMax AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dNetSheets AS DECIMAL NO-UNDO.
+    
+    FOR EACH job-hdr NO-LOCK 
+        WHERE job-hdr.company  EQ ipbf-job-mat.company
+        AND job-hdr.job      EQ ipbf-job-mat.job
+        AND job-hdr.job-no   EQ ipbf-job-mat.job-no
+        AND job-hdr.job-no2  EQ ipbf-job-mat.job-no2
+        AND (job-hdr.frm     EQ ipbf-job-mat.frm OR
+        ipiEstType   EQ 2           OR
+        ipiEstType   EQ 6)
+        USE-INDEX job:
+        
+        IF ipiEstType EQ 2 OR ipiEstType EQ 6 THEN
+            FOR EACH eb NO-LOCK 
+                WHERE eb.company EQ job-hdr.company
+                AND eb.est-no  EQ job-hdr.est-no
+                AND eb.form-no EQ ipbf-job-mat.frm
+                USE-INDEX est-no
+                BY job-hdr.qty *
+                (IF eb.est-type EQ 2 THEN
+                IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%
+                ELSE
+                IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet) /
+                eb.num-up DESCENDING:
+                dNetSheetsMax = (job-hdr.qty *
+                    (IF eb.est-type EQ 2 THEN
+                    IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%
+                    ELSE
+                    IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet) /
+                    (eb.num-up * ipiOut)).
+                LEAVE.
+            END.
+        ELSE DO: 
+            IF job-hdr.n-on NE 0 THEN         
+                dNetSheets = (job-hdr.qty / job-hdr.n-on).
+            ELSE 
+                dNetSheets = job-hdr.qty.
+                
+            IF dNetSheets GT dNetSheetsMax THEN 
+                dNetSheetsMax = dNetSheets.
+        END.
+    END.
+    opdNetSheets = dNetSheetsMax.
 
 END PROCEDURE.
 

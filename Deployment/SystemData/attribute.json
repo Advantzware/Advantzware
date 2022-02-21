@@ -3297,6 +3297,104 @@
     "rec_key": "202201098126508436345"
   },
   {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "DiscountDays",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186739208565801"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "DiscountPercent",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186738108565800"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "DueOnDay",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186735008565798"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "DueOnMonth",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186729908565797"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "NetDays",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186736008565799"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "OrderLineCount",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186741608565803"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "OrderMiscCount",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186742508565804"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "TermsDescription",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186740508565802"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "TotalLineCount",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186743308565805"
+  },
+  {
+    "dbFieldName": "ord-no",
+    "dbFieldExtent": 0,
+    "attributeName": "OrderID",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186325308565769"
+  },
+  {
+    "dbFieldName": "spare-char-3",
+    "dbFieldExtent": 0,
+    "attributeName": "PayLoadID",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186450908565787"
+  },
+  {
+    "dbFieldName": "t-freight",
+    "dbFieldExtent": 0,
+    "attributeName": "TotalFreight",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186501908565790"
+  },
+  {
+    "dbFieldName": "t-revenue",
+    "dbFieldExtent": 0,
+    "attributeName": "TotalRevenue",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186500408565789"
+  },
+  {
+    "dbFieldName": "tax",
+    "dbFieldExtent": 0,
+    "attributeName": "TotalTax",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186506308565791"
+  },
+  {
     "dbFieldName": "i-dscr",
     "dbFieldExtent": 0,
     "attributeName": "ItemDescription",
@@ -3325,6 +3423,13 @@
     "rec_key": "202111190040508130748"
   },
   {
+    "dbFieldName": "line",
+    "dbFieldExtent": 0,
+    "attributeName": "OrderLineID",
+    "dbTableName": "oe-ordl",
+    "rec_key": "202202186326808565770"
+  },
+  {
     "dbFieldName": "ord-no",
     "dbFieldExtent": 0,
     "attributeName": "Order#",
@@ -3337,6 +3442,27 @@
     "attributeName": "OverrunPercent",
     "dbTableName": "oe-ordl",
     "rec_key": "202111190040508130749"
+  },
+  {
+    "dbFieldName": "qty",
+    "dbFieldExtent": 0,
+    "attributeName": "LineQuantity",
+    "dbTableName": "oe-ordl",
+    "rec_key": "202202186330508565771"
+  },
+  {
+    "dbFieldName": "req-date",
+    "dbFieldExtent": 0,
+    "attributeName": "DueDate",
+    "dbTableName": "oe-ordl",
+    "rec_key": "202202186374008565777"
+  },
+  {
+    "dbFieldName": "spare-char-2",
+    "dbFieldExtent": 0,
+    "attributeName": "QuantityUOM",
+    "dbTableName": "oe-ordl",
+    "rec_key": "202202186350608565776"
   },
   {
     "dbFieldName": "stat",
