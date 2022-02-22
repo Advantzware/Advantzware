@@ -47,6 +47,15 @@ locode =  cLoc.
 
 DEFINE VARIABLE LvOutputSelection AS CHARACTER     INIT "on-Screen" NO-UNDO.
 DEFINE VARIABLE ghExcelProcs      AS HANDLE        NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL       NO-UNDO.
+DEFINE VARIABLE cJobBuildVersion  AS CHARACTER     NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "JobBuildVersion", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cJobBuildVersion = cRtnChar NO-ERROR. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -345,7 +354,13 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
-        END.                   
+        END.   
+        
+        IF cJobBuildVersion NE "New" THEN
+        DO:
+           MESSAGE "Current NK1 settings are not valid for this report (CEVersion, JobBuildVersion)" 
+                    VIEW-AS ALERT-BOX WARNING.
+        END.
                 
         RUN run-report. 
         STATUS DEFAULT "Processing Complete. ". 
@@ -637,9 +652,9 @@ PROCEDURE pPrintDepartment :
         RUN Excel_SetCellValue IN ghExcelProcs ("F" + STRING(iopiRowCount),  STRING(ttDepartment.dSetupHrsVar)).
         RUN Excel_SetCellValue IN ghExcelProcs ("G" + STRING(iopiRowCount),  STRING(ttDepartment.dRunHrsVar)).
         RUN Excel_SetCellValue IN ghExcelProcs ("H" + STRING(iopiRowCount),  STRING(ttDepartment.dSpeedVar)).
-        RUN Excel_SetCellValue IN ghExcelProcs ("I" + STRING(iopiRowCount),  STRING(ttDepartment.dCostVar)).
-        RUN Excel_SetCellValue IN ghExcelProcs ("J" + STRING(iopiRowCount),  STRING(ttDepartment.dSetupWasteVar)).
-        RUN Excel_SetCellValue IN ghExcelProcs ("K" + STRING(iopiRowCount),  STRING(ttDepartment.dRunWasteVar)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("K" + STRING(iopiRowCount),  STRING(ttDepartment.dCostVar)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("L" + STRING(iopiRowCount),  STRING(ttDepartment.dSetupWasteVar)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("M" + STRING(iopiRowCount),  STRING(ttDepartment.dRunWasteVar)).
         iopiRowCount = iopiRowCount + 1.                     
         RUN Excel_InsertRowsAbove IN ghExcelProcs (iopiRowCount, 2).
         iopiRowCount = iopiRowCount + 1. 
@@ -668,13 +683,13 @@ PROCEDURE pPrintFGItem :
         RUN Excel_SetCellValue IN ghExcelProcs ("A" + STRING(iopiRowCount),  STRING(ttItem.iFormNo,"99") + "|" +  string(ttItem.iBlankNo,"99")). 
         RUN Excel_SetCellValue IN ghExcelProcs ("B" + STRING(iopiRowCount),  ttItem.cFGItem). 
         RUN Excel_SetCellValue IN ghExcelProcs ("C" + STRING(iopiRowCount),  ttItem.cFGName).
-        RUN Excel_SetCellValue IN ghExcelProcs ("D" + STRING(iopiRowCount),  STRING(ttItem.dSellingPrice)). 
-        RUN Excel_SetCellValue IN ghExcelProcs ("E" + STRING(iopiRowCount),  STRING(ttItem.cSellingUom)). 
-        RUN Excel_SetCellValue IN ghExcelProcs ("F" + STRING(iopiRowCount),  STRING(ttItem.dJobQty)). 
-        RUN Excel_SetCellValue IN ghExcelProcs ("G" + STRING(iopiRowCount),  STRING(ttItem.dProduced)).
-        RUN Excel_SetCellValue IN ghExcelProcs ("H" + STRING(iopiRowCount),  STRING(ttItem.dOnHand)).
-        RUN Excel_SetCellValue IN ghExcelProcs ("I" + STRING(iopiRowCount),  STRING(ttItem.dStdCost)).
-        RUN Excel_SetCellValue IN ghExcelProcs ("J" + STRING(iopiRowCount),  STRING(ttItem.cItemDesc)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("D" + STRING(iopiRowCount),  STRING(ttItem.cItemDesc)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("E" + STRING(iopiRowCount),  STRING(ttItem.dSellingPrice)). 
+        RUN Excel_SetCellValue IN ghExcelProcs ("F" + STRING(iopiRowCount),  STRING(ttItem.cSellingUom)). 
+        RUN Excel_SetCellValue IN ghExcelProcs ("G" + STRING(iopiRowCount),  STRING(ttItem.dJobQty)). 
+        RUN Excel_SetCellValue IN ghExcelProcs ("H" + STRING(iopiRowCount),  STRING(ttItem.dProduced)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("I" + STRING(iopiRowCount),  STRING(ttItem.dOnHand)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("J" + STRING(iopiRowCount),  STRING(ttItem.dStdCost)).         
         RUN Excel_SetCellValue IN ghExcelProcs ("K" + STRING(iopiRowCount),  STRING(ttItem.cProductCat)).
         iopiRowCount = iopiRowCount + 1.
         RUN Excel_InsertRowAbove IN ghExcelProcs (iopiRowCount).                                     
@@ -742,13 +757,15 @@ PROCEDURE pPrintOperation :
     RUN Excel_SetCellValue IN ghExcelProcs ("E" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dRunQty)).
     RUN Excel_SetCellValue IN ghExcelProcs ("F" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dSetupHrs)). 
     RUN Excel_SetCellValue IN ghExcelProcs ("G" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dRunHrs)).       
-    RUN Excel_SetCellValue IN ghExcelProcs ("H" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dSpeed)). 
-    RUN Excel_SetCellValue IN ghExcelProcs ("I" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dCost)).
-    RUN Excel_SetCellValue IN ghExcelProcs ("J" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dSetupWaste)).
-    RUN Excel_SetCellValue IN ghExcelProcs ("K" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dRunWaste)).
-    RUN Excel_SetCellValue IN ghExcelProcs ("L" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.cDTChargeable)).
-    RUN Excel_SetCellValue IN ghExcelProcs ("M" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.cDTNotChargeable)).
-    RUN Excel_SetCellValue IN ghExcelProcs ("N" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dDownTimeHrs)).        
+    RUN Excel_SetCellValue IN ghExcelProcs ("H" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dSpeed)).
+    RUN Excel_SetCellValue IN ghExcelProcs ("I" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dMRCrew)).
+    RUN Excel_SetCellValue IN ghExcelProcs ("J" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dRunCrew)).
+    RUN Excel_SetCellValue IN ghExcelProcs ("K" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dCost)).
+    RUN Excel_SetCellValue IN ghExcelProcs ("L" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dSetupWaste)).
+    RUN Excel_SetCellValue IN ghExcelProcs ("M" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dRunWaste)).
+    RUN Excel_SetCellValue IN ghExcelProcs ("N" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.cDTChargeable)).
+    RUN Excel_SetCellValue IN ghExcelProcs ("O" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.cDTNotChargeable)).
+    RUN Excel_SetCellValue IN ghExcelProcs ("P" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dDownTimeHrs)).        
     iopiRowCount = iopiRowCount + 1.
     RUN Excel_InsertRowAbove IN ghExcelProcs (iopiRowCount).   
     

@@ -73,7 +73,9 @@ DEFINE TEMP-TABLE ttOperation NO-UNDO
     FIELD cDTNotChargeable AS CHARACTER FORMAT "x(5)" LABEL "Downtime Chargeable"
     FIELD dDownTimeHrs     AS DECIMAL   FORMAT ">>>>9.99" LABEL "DownTime Hrs" 
     FIELD iSeq             AS INTEGER   FORMAT ">>9" LABEL "Sequence"
-    FIELD iPass          AS INTEGER   FORMAT ">>9" LABEL "Pass"
+    FIELD iPass            AS INTEGER   FORMAT ">>9" LABEL "Pass"
+    FIELD dMRCrew          AS DECIMAL   FORMAT "->>,>>9.99" LABEL "MR Crew" 
+    FIELD dRunCrew         AS DECIMAL   FORMAT "->>,>>9.99" LABEL "Run Crew" 
     .
 
 DEFINE TEMP-TABLE ttMaterial NO-UNDO 

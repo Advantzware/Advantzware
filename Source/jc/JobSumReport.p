@@ -200,6 +200,8 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
                 ttOperation.dRunWaste     = estCostOperation.quantityInRunWaste                   
                 ttOperation.iSeq          = estCostOperation.sequence
                 ttOperation.iPass         = estCostOperation.pass
+                ttOperation.dMRCrew       = estCostOperation.crewSizeSetup
+                ttOperation.dRunCrew      = estCostOperation.crewSizeRun
                 .
         END.           
     END.
@@ -238,19 +240,23 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
         END.
         CASE job-code.cat:
             WHEN "RUN" THEN DO:
-                ASSIGN             
+                ASSIGN
+                    ttOperation.dRunCrew      = ttOperation.dRunCrew + mch-act.crew
                     ttOperation.dRunQty       = ttOperation.dRunQty + mch-act.qty
                     ttOperation.dRunHrs       = ttOperation.dRunHrs + mch-act.hours
                     ttOperation.dRunWaste     = ttOperation.dRunWaste + mch-act.waste
                     ttOperation.dSpeed        = ttOperation.dRunQty / ttOperation.dRunHrs          
-                    ttOperation.dCost         = ttOperation.dCost + (mch-act.hours *  mach.run-rate).          
-                    .
+                    ttOperation.dCost         = ttOperation.dCost + (mch-act.hours *  mach.run-rate) + (mach.run-fixoh  * mch-act.hours)
+                                                                  + (mach.run-varoh * mch-act.hours) .          
+                   
             END.
             WHEN "MR" THEN DO:
                 ASSIGN 
+                    ttOperation.dMRCrew       = ttOperation.dMRCrew + mch-act.crew
                     ttOperation.dSetupHrs     = ttOperation.dSetupHrs + mch-act.hours                   
                     ttOperation.dSetupWaste   = ttOperation.dSetupWaste + mch-act.waste
-                    ttOperation.dCost         = ttOperation.dCost + (mch-act.hours *  mach.mr-rate)
+                    ttOperation.dCost         = ttOperation.dCost + (mch-act.hours *  mach.mr-rate) + (mach.mr-fixoh * mch-act.hours)
+                                                                  + (mach.mr-varoh * mch-act.hours) 
                     .
             END.
             OTHERWISE DO:
@@ -402,10 +408,11 @@ PROCEDURE pBuildMaterials PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
     DEFINE INPUT PARAMETER ipcMatType AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE dStdItemQty  AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dStdItemCost AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dActItemQty  AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dActItemCost AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dStdItemQty   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dStdItemCost  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dActItemQty   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dActItemCost  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dMaterialCost AS DECIMAL NO-UNDO.
      
     IF AVAILABLE ipbf-estCostHeader THEN
     DO:
@@ -442,6 +449,8 @@ PROCEDURE pBuildMaterials PRIVATE:
                 ttMaterial.cUsedonForms = ttMaterial.cUsedonForms + (IF LOOKUP(string(estCostMaterial.formNo),ttMaterial.cUsedonForms) EQ 0 THEN STRING(estCostMaterial.formNo) + "," ELSE "")
                 .                   
         END.
+        RUN pBuildMiscPrep(BUFFER ipbf-job, BUFFER ipbf-estCostHeader, "Misc").
+        RUN pBuildMiscPrep(BUFFER ipbf-job, BUFFER ipbf-estCostHeader, "Prep").
     END.
     FOR EACH mat-act NO-LOCK
         WHERE mat-act.company EQ ipbf-job.company
@@ -472,8 +481,10 @@ PROCEDURE pBuildMaterials PRIVATE:
         END.
         ASSIGN
             ttMaterial.cActUom  = mat-act.qty-uom
-            ttMaterial.dQtyAct  = ttMaterial.dQtyAct + mat-act.qty
-            ttMaterial.dCostAct = ttMaterial.dCostAct + mat-act.cost
+            ttMaterial.dQtyAct  = ttMaterial.dQtyAct + mat-act.qty.
+            RUN pGetMaterialCost(BUFFER ipbf-job, BUFFER ITEM, BUFFER mat-act, OUTPUT dMaterialCost). 
+        ASSIGN    
+            ttMaterial.dCostAct = ttMaterial.dCostAct +  ( mat-act.qty * dMaterialCost )
             ttMaterial.cUsedonForms = ttMaterial.cUsedonForms + (IF LOOKUP(string(mat-act.s-num),ttMaterial.cUsedonForms) EQ 0 THEN STRING(mat-act.s-num) + "," ELSE "")
             .            
     END.
@@ -491,6 +502,88 @@ PROCEDURE pBuildMaterials PRIVATE:
       
 END PROCEDURE.
 
+PROCEDURE pBuildMiscPrep PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE PARAMETER BUFFER ipbf-job           FOR job.
+    DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    
+    FOR EACH estCostMisc NO-LOCK 
+        WHERE estCostMisc.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+        AND ((ipcType EQ "Misc" AND NOT estCostMisc.isPrep) OR (ipcType EQ "Prep" AND estCostMisc.isPrep))
+        AND estCostMisc.itemID NE ""
+        BREAK BY estCostMisc.formNo
+        BY estCostMisc.blankNo:
+        
+        FIND FIRST ttMaterial NO-LOCK
+             WHERE ttMaterial.cJobNo EQ ipbf-job.job-no
+               AND ttMaterial.iJobNo2 EQ ipbf-job.job-no2
+               AND ttMaterial.cMaterial EQ estCostMisc.itemID
+               NO-ERROR.
+                
+            IF NOT AVAILABLE ttMaterial THEN
+            DO:
+                CREATE ttMaterial.
+                ASSIGN
+                    ttMaterial.cJobNo    = ipbf-job.job-no
+                    ttMaterial.iJobNo2   = ipbf-job.job-no2 
+                    ttMaterial.iFormNo   = estCostMisc.formNo
+                    ttMaterial.iBlankNo  = estCostMisc.blankNo                             
+                    ttMaterial.cMaterial = estCostMisc.itemID
+                    ttMaterial.cStdUom   = estCostMisc.costUOM .
+            END.
+            ASSIGN 
+                ttMaterial.dQtyStd  = ttMaterial.dQtyStd + estCostMisc.quantityRequiredTotal
+                ttMaterial.dCostStd = ttMaterial.dCostStd + estCostMisc.costTotal
+                ttMaterial.cUsedonForms = ttMaterial.cUsedonForms + (IF LOOKUP(string(estCostMisc.formNo),ttMaterial.cUsedonForms) EQ 0 THEN STRING(estCostMisc.formNo) + "," ELSE "")
+                .         
+    END.    
+
+END PROCEDURE.    
+ 
+PROCEDURE pGetMaterialCost PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job            FOR job.
+    DEFINE PARAMETER BUFFER ipbf-item           FOR ITEM.
+    DEFINE PARAMETER BUFFER ipbf-mat-act        FOR mat-act.
+    DEFINE OUTPUT PARAMETER opdMaterialCost AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE cScUom AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    FIND FIRST job-mat NO-LOCK
+         WHERE job-mat.company eq ipbf-job.company
+           AND job-mat.job     eq ipbf-job.job 
+           AND job-mat.i-no    eq ipbf-item.i-no NO-ERROR.
+    
+    cScUom = IF AVAIL job-mat AND job-mat.sc-uom gt "" THEN
+                  job-mat.sc-uom else mat-act.qty-uom.
+    
+    RUN Conv_ValueFromUOMtoUOM(ipbf-job.company, 
+                    ipbf-item.i-no, 
+                    "RM", 
+                    DEC(ipbf-mat-act.cost),
+                    cScUom, 
+                    ipbf-mat-act.qty-uom, 
+                    (IF AVAIL job-mat AND job-mat.basis-w ne 0 then job-mat.basis-w
+                           ELSE ipbf-item.basis-w),
+                    (IF AVAIL job-mat AND job-mat.len     ne 0 THEN job-mat.len
+                           ELSE ipbf-item.s-len),
+                    (IF AVAIL job-mat AND job-mat.wid     ne 0 THEN job-mat.wid
+                           ELSE IF item.r-wid EQ 0 THEN ipbf-item.s-wid ELSE ipbf-item.r-wid),
+                    ipbf-item.s-dep,
+                    0, 
+                    OUTPUT opdMaterialCost, 
+                    OUTPUT lError, 
+                    OUTPUT cMessage).                          
+END PROCEDURE.    
 
 /*PROCEDURE pMaterial PRIVATE:                                                                           */
 /*    /*------------------------------------------------------------------------------                   */
