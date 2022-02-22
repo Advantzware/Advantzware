@@ -38,7 +38,7 @@ DEFINE VARIABLE giAttributeIDFilmLen          AS INTEGER NO-UNDO INITIAL 14.    
 DEFINE VARIABLE giAttributeIDFilmWid          AS INTEGER NO-UNDO INITIAL 15.    //Film Width
 DEFINE VARIABLE giAttributeIDGShtLen          AS INTEGER NO-UNDO INITIAL 16.    //Gross Sht Length
 DEFINE VARIABLE giAttributeIDGShtWid          AS INTEGER NO-UNDO INITIAL 17.    //Gross Sht Width
-DEFINE VARIABLE giAttributeIDEstQtySqFeet     AS INTEGER NO-UNDO INITIAL 18.    //Estimate Qty / Cumulative qty
+DEFINE VARIABLE giAttributeIDEstQtyPerFG      AS INTEGER NO-UNDO INITIAL 18.    //Estimate Qty - Its Estimate qty in terms of Finished Goods 
 DEFINE VARIABLE giAttributeIDDieLIIn          AS INTEGER NO-UNDO INITIAL 19.    //Die Lineal Inches
 DEFINE VARIABLE giAttributeIDEstSheets        AS INTEGER NO-UNDO INITIAL 20.    //Estimated Sheets
 DEFINE VARIABLE giAttributeIDSheetSqIn        AS INTEGER NO-UNDO INITIAL 21.    //Sheet Square Inches
@@ -56,7 +56,7 @@ DEFINE VARIABLE giAttributeIDQtySetShorts     AS INTEGER NO-UNDO INITIAL 32.    
 DEFINE VARIABLE giAttributeIDNoOnDieLen       AS INTEGER NO-UNDO INITIAL 33.    //# On Die Length
 DEFINE VARIABLE giAttributeIDNoOnDieWid       AS INTEGER NO-UNDO INITIAL 34.    //# On Die Width
 DEFINE VARIABLE giAttributeIDBlankSqIn        AS INTEGER NO-UNDO INITIAL 35.    //Blank Sq In
-DEFINE VARIABLE giAttributeIDEstQtyPerUnit    AS INTEGER NO-UNDO INITIAL 36.    //Estimate Qty - Its Estimate qty in per Unit 
+DEFINE VARIABLE giAttributeIDEstQtyPerFeed    AS INTEGER NO-UNDO INITIAL 36.    //Estimate Qty - Its Estimate qty in terms of Feeds 
 DEFINE VARIABLE giAttributeIDUnitizingFormula AS INTEGER NO-UNDO INITIAL 98.    //Unitizing Formula
 DEFINE VARIABLE giAttributeIDDieHoursFormula  AS INTEGER NO-UNDO INITIAL 99.    //Die Hours Formula
 DEFINE VARIABLE giAttributeIDStyle            AS INTEGER NO-UNDO INITIAL 101.   //Style
@@ -1071,7 +1071,7 @@ PROCEDURE pGetEfficiencyByQty PRIVATE:
     DEFINE VARIABLE cQtyValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAttrName  AS CHARACTER NO-UNDO.
     
-    RUN pGetAttribute(giAttributeIDEstQtyPerUnit, OUTPUT cQtyValue, OUTPUT cAttrName, OUTPUT oplError, OUTPUT opcMessage). //Get colors attribute
+    RUN pGetAttribute(giAttributeIDEstQtyPerFeed, OUTPUT cQtyValue, OUTPUT cAttrName, OUTPUT oplError, OUTPUT opcMessage). //Get colors attribute
     ASSIGN dOperationQty = DECIMAL(cQtyValue) NO-ERROR.
     
     /* Extra Sheets Calc */
@@ -2764,8 +2764,8 @@ PROCEDURE pProcessOperation PRIVATE:
     ipbf-ttOperation.FGCumulativeNumOut = fGetCumulNumOutForOperation(INPUT ipbf-ttOperation.numOutForOperation).
     ipbf-ttOperation.FGCumulativeNumOut = MAX(1,ipbf-ttOperation.FGCumulativeNumOut).
      
-    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtyPerUnit, iopdQtyInOut).
-    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtySqFeet, iopdQtyInOut * ipbf-ttOperation.FGCumulativeNumOut ).
+    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtyPerFeed, iopdQtyInOut).
+    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtyPerFG, iopdQtyInOut * ipbf-ttOperation.FGCumulativeNumOut ).
     RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipbf-ttOperation.OperationId, ipbf-ttOperation.pass))). 
     
     /* Now calculate spoilage for this pass based upon Qty set above */
@@ -2807,8 +2807,8 @@ PROCEDURE pProcessOperation PRIVATE:
     END.
     
     /* Set Quantity and dependent attributes for each Line. These will be used to get Spoilage value */   
-    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtyPerUnit, ipbf-ttOperation.quantityIn).  
-    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtySqFeet, ipbf-ttOperation.quantityIn * ipbf-ttOperation.FGCumulativeNumOut).  
+    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtyPerFeed, ipbf-ttOperation.quantityIn).  
+    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtyPerFG, ipbf-ttOperation.quantityIn * ipbf-ttOperation.FGCumulativeNumOut).  
     RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipbf-ttOperation.OperationId, ipbf-ttOperation.pass))). 
     
     /* Calculate Run parameters based upon QtyIn calculated for this machine */
@@ -3024,8 +3024,8 @@ PROCEDURE pSetAttributesFromQty PRIVATE:
     
     IF dCalcQty NE 0 THEN
     DO:
-        RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstQtyPerUnit, STRING(dCalcQty)).  
-        RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstQtySqFeet, STRING(dCalcQty * iCumulNumOut)).  
+        RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstQtyPerFeed, STRING(dCalcQty)).  
+        RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstQtyPerFG, STRING(dCalcQty * iCumulNumOut)).  
         RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipcOperationId, ipiPass))).
     END. 
         
@@ -3534,8 +3534,8 @@ PROCEDURE SetAttributesFromEstOP PRIVATE:
         RUN pSetAttributesBlank(BUFFER bf-eb).
         RUN pSetAttributeForColors(BUFFER bf-eb, ipcLocation, bf-est-op.m-code, bf-est-op.dept ,bf-est-op.op-pass).  //Maxco
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDDieNumberUp, STRING(fGetDieNumberUp(BUFFER bf-eb,bf-est-op.m-code))). //v-up  
-        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerUnit, bf-est-op.qty).  //qty
-        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtySqFeet, bf-est-op.qty).  //qty
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFeed, bf-est-op.qty).  //qty
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFG, bf-est-op.qty).  //qty
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER bf-eb, bf-est-op.m-code, bf-est-op.op-pass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDNoOutGShtWid, STRING(fGetOperationsGrsShtWid(BUFFER bf-eb, bf-est-op.m-code, bf-est-op.op-pass))). //v-out
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDSetPartsperForm, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,2,""))). //ld-parts[2]
@@ -3626,8 +3626,8 @@ PROCEDURE SetAttributesFromJobMch:
         RUN pSetAttributesBlank(BUFFER bf-eb).
         RUN pSetAttributeForColors(BUFFER bf-eb, bf-job.loc, bf-job-mch.m-code, bf-job-mch.dept ,bf-job-mch.pass).  //Maxco
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDDieNumberUp, STRING(fGetDieNumberUp(BUFFER bf-eb,bf-job-mch.m-code))). //v-up  
-        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerUnit, STRING(fGetOriginalQtyfromEst(BUFFER bf-eb, BUFFER bf-job))).  //qty
-        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtySqFeet, STRING(fGetOriginalQtyfromEst(BUFFER bf-eb, BUFFER bf-job))).  //qty
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFeed, STRING(fGetOriginalQtyfromEst(BUFFER bf-eb, BUFFER bf-job))).  //qty
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFG, STRING(fGetOriginalQtyfromEst(BUFFER bf-eb, BUFFER bf-job))).  //qty
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDNoOutGShtWid, STRING(fGetOperationsGrsShtWid(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //v-out
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDSetPartsperForm, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,2,""))). //ld-parts[2]
@@ -4119,7 +4119,7 @@ FUNCTION fGetOperationsEstSheet RETURNS DECIMAL PRIVATE
     DEFINE VARIABLE cError        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
     
-    RUN pGetAttribute(giAttributeIDEstQtyPerUnit, OUTPUT cQtyValue, OUTPUT cAttrName, OUTPUT cError, OUTPUT cMessage). //Get colors attribute
+    RUN pGetAttribute(giAttributeIDEstQtyPerFeed, OUTPUT cQtyValue, OUTPUT cAttrName, OUTPUT cError, OUTPUT cMessage). //Get colors attribute
     ASSIGN dOperationQty = DECIMAL(cQtyValue) NO-ERROR.
     
     FIND FIRST mach NO-LOCK
