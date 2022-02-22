@@ -189,7 +189,7 @@ DEFINE BROWSE Browser-Table
       job-hdr.i-no FORMAT "x(15)":U
       job-hdr.qty FORMAT ">>>,>>>,>>9":U
       job-hdr.sq-in FORMAT ">>9.99":U
-      job-hdr.ord-no FORMAT ">>>>>9":U WIDTH 9
+      job-hdr.ord-no FORMAT ">>>>>>>9":U WIDTH 12
       job-hdr.po-no FORMAT "x(15)":U
       job-hdr.due-date FORMAT "99/99/9999":U WIDTH 15
       job-hdr.std-mat-cost COLUMN-LABEL "Material" FORMAT "->>>,>>9.99<<":U
@@ -327,7 +327,7 @@ ASSIGN
 "job-hdr.qty" ? ">>>,>>>,>>9" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   = ASI.job-hdr.sq-in
      _FldNameList[7]   > ASI.job-hdr.ord-no
-"job-hdr.ord-no" ? ? "integer" ? ? ? ? ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.ord-no" ? ? "integer" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.job-hdr.po-no
 "job-hdr.po-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.job-hdr.due-date
@@ -1054,7 +1054,7 @@ PROCEDURE local-update-record :
        INPUT  "UpdateJobHeader",                               /* Trigger ID (Mandatory) */
        INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
        INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-       INPUT  job.job-no + "-" + STRING(job.job-no2, "99"),      /* Primary ID for which API is called for (Mandatory) */   
+       INPUT  job.job-no + "-" + STRING(job.job-no2, "999"),      /* Primary ID for which API is called for (Mandatory) */   
        INPUT  "Update Job Header triggered from " + PROGRAM-NAME(1)    /* Event's description (Optional) */
        ) NO-ERROR.
    

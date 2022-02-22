@@ -380,7 +380,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND job-hdr WHERE ROWID(job-hdr) EQ ip-rowid NO-LOCK NO-ERROR.
   FIND job-reft WHERE ROWID(job-reft) EQ ip-ref-rowid NO-LOCK NO-ERROR.
   IF AVAIL job-hdr THEN
-     fi_job-no = TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99").
+     fi_job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
 
   IF AVAIL job-hdr THEN FIND FIRST d-fibre
         WHERE d-fibre.reftable EQ "cecrep/d-fibre.w"

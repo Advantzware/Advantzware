@@ -11,8 +11,8 @@ DEFINE INPUT PARAMETER v-format LIKE sys-ctrl.char-fld.
 
 DEFINE NEW SHARED VARIABLE save_id        AS RECID.
 DEFINE NEW SHARED VARIABLE v-today        AS DATE      INIT TODAY FORMAT 99/99/9999.
-DEFINE NEW SHARED VARIABLE v-job          AS CHARACTER FORMAT "x(6)" EXTENT 2 INIT [" ","zzzzzz"].
-DEFINE NEW SHARED VARIABLE v-job2         AS INTEGER   FORMAT "99" EXTENT 2 INIT [00,99].
+DEFINE NEW SHARED VARIABLE v-job          AS CHARACTER FORMAT "x(9)" EXTENT 2 INIT [" ","zzzzzzzzz"].
+DEFINE NEW SHARED VARIABLE v-job2         AS INTEGER   FORMAT "999" EXTENT 2 INIT [000,999].
 DEFINE NEW SHARED VARIABLE v-stypart      LIKE style.dscr.
 DEFINE NEW SHARED VARIABLE v-dsc          LIKE oe-ordl.part-dscr1 EXTENT 2.
 DEFINE NEW SHARED VARIABLE v-size         AS CHARACTER FORMAT "x(26)" EXTENT 2.
@@ -270,14 +270,16 @@ ASSIGN
 
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company               EQ cocode
-    AND job-hdr.job-no                GE substr(fjob-no,1,6)
-    AND job-hdr.job-no                LE substr(tjob-no,1,6)
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
-    trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  GE fjob-no
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
-    trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  LE tjob-no
+    AND TRIM(job-hdr.job-no)                GE TRIM(SUBSTR(fjob-no,1,9))
+    AND TRIM(job-hdr.job-no)                LE TRIM(SUBSTR(tjob-no,1,9))
+    AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+        TRIM(job-hdr.job-no) +
+        STRING(job-hdr.job-no2,"999")  GE fjob-no
+    AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+        TRIM(job-hdr.job-no) +
+        STRING(job-hdr.job-no2,"999")  LE tjob-no
+    AND job-hdr.job-no2 GE fjob-no2
+    AND job-hdr.job-no2 LE tjob-no2
     AND (job-hdr.ftick-prnt            EQ v-reprint OR
     PROGRAM-NAME(2) MATCHES "*r-tickt2*")
     AND CAN-FIND(FIRST job WHERE job.company EQ cocode
@@ -341,14 +343,16 @@ END.
 
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company               EQ cocode
-    AND job-hdr.job-no                GE substr(fjob-no,1,6)
-    AND job-hdr.job-no                LE substr(tjob-no,1,6)
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
-    trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  GE fjob-no
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
-    trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  LE tjob-no
+    AND TRIM(job-hdr.job-no)                GE TRIM(SUBSTR(fjob-no,1,9))
+    AND TRIM(job-hdr.job-no)                LE TRIM(SUBSTR(tjob-no,1,9))
+    AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+        TRIM(job-hdr.job-no) +
+        STRING(job-hdr.job-no2,"999")  GE fjob-no
+    AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+        TRIM(job-hdr.job-no) +
+        STRING(job-hdr.job-no2,"999")  LE tjob-no
+    AND job-hdr.job-no2 GE fjob-no2
+    AND job-hdr.job-no2 LE tjob-no2
     AND (job-hdr.ftick-prnt            EQ v-reprint OR
     PROGRAM-NAME(2) MATCHES "*r-tickt2*")
     AND CAN-FIND(FIRST job WHERE job.company EQ cocode
@@ -887,7 +891,8 @@ FOR EACH ef
             .
                
         PUT "<=#5><R+0.5><UNITS=INCHES><C80><FROM><C105><r+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
-        STRING(TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(job-hdr.frm,"99") + "-" + STRING(job-hdr.blank-no,"99")) FORMAT "x(15)" "><R-3>" . 
+        (TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) + 
+        "-" + STRING(job-hdr.frm,"99") + "-" + STRING(job-hdr.blank-no,"99")) FORMAT "x(19)" "><R-3>" . 
                
         PUT "<=#6><R-1> <C3><B>" cPackingLabel FORMAT "x(8)"  "</B>" SKIP
             "<C3>" cTotalCount                 FORMAT "x(23)" "<B><C15>" TRIM(STRING(job-hdr.qty, ">>>,>>>,>>9")) "</B>"
@@ -975,7 +980,7 @@ DO:
                            "<=12><C30><FROM><R+4><C30><LINE><|3>"
                            "<=12><C60><FROM><R+4><C60><LINE><|3>"
                           "<=12><R+1><C5>Job # <C30> Estimate #" "<C60> FG Item:" itemfg.i-no
-                          "<=12><R+2><C8>" string(bf-jobhdr.job-no + "-" + STRING(bf-jobhdr.job-no,"99")) FORMAT "x(12)"   "<C35>"  bf-jobhdr.est-no  
+                          "<=12><R+2><C8>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', bf-jobhdr.job-no, bf-jobhdr.job-no2))) FORMAT "x(13)"   "<C35>"  bf-jobhdr.est-no  
                           "<C60> File Name: " STRING( SUBSTR(attach.attach-file,r-INDEX(attach.attach-file,'\') + 1)) FORMAT "x(50)"
                           "<=12><R+4><C1><FROM><C106><LINE><||3>"
                           "<=12><R+5><C5><#21><R+42><C+90><IMAGE#21=" attach.attach-file ">" SKIP.  
