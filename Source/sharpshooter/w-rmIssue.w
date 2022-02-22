@@ -126,7 +126,7 @@ RUN spSetSettingContext.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btJobReset btPost cbRMItem btTotal btScanned ~
-btConsumed br-table btClear btnNumPad btnExitText btnClearText ~
+btConsumed btClear br-table btnNumPad btnExitText btnClearText ~
 btnSettingsText statusMessage 
 &Scoped-Define DISPLAYED-OBJECTS cbRMItem fiUOM fiTotalQty fiScannedQty ~
 fiConsumedQty btnExitText btnClearText btnSettingsText statusMessage 
@@ -288,19 +288,19 @@ DEFINE FRAME F-Main
      btScanned AT ROW 6.48 COL 139.6 WIDGET-ID 164
      btConsumed AT ROW 6.48 COL 168.2 WIDGET-ID 166
      fiTotalQty AT ROW 8.76 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 170
+     btClear AT ROW 3.19 COL 194.8 WIDGET-ID 146
      fiScannedQty AT ROW 8.76 COL 137.6 COLON-ALIGNED NO-LABEL WIDGET-ID 174
      fiConsumedQty AT ROW 8.76 COL 166.2 COLON-ALIGNED NO-LABEL WIDGET-ID 172
      br-table AT ROW 10.05 COL 1.4 WIDGET-ID 200
-     btClear AT ROW 3.19 COL 194.8 WIDGET-ID 146
      btnNumPad AT ROW 3.48 COL 182.8 WIDGET-ID 120 NO-TAB-STOP 
      btnExitText AT ROW 1.24 COL 189 COLON-ALIGNED NO-LABEL WIDGET-ID 70
      btnClearText AT ROW 3.38 COL 182 NO-LABEL WIDGET-ID 148
      btnSettingsText AT ROW 19.81 COL 180.2 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      statusMessage AT ROW 19.95 COL 2.8 NO-LABEL WIDGET-ID 66
-     "UOM:" VIEW-AS TEXT
-          SIZE 10.4 BY .95 AT ROW 5.76 COL 65 WIDGET-ID 178
      "RM ITEM:" VIEW-AS TEXT
           SIZE 17 BY .95 AT ROW 5.76 COL 1.6 WIDGET-ID 154
+     "UOM:" VIEW-AS TEXT
+          SIZE 10.4 BY .95 AT ROW 5.76 COL 65 WIDGET-ID 178
      RECT-2 AT ROW 3.29 COL 181.8 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -702,6 +702,7 @@ END.
 {src/adm/template/windowmn.i}
 {sharpshooter/pStatusMessage.i}
 {sharpshooter/ChangeWindowSize.i}
+{sharpshooter/smartobj/browseNavigate.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -806,6 +807,18 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_tagfilter , 'State':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_tagfilter , 'TAG':U , THIS-PROCEDURE ).
 
+       /* Links to SmartObject h_navigatefirst. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'NAV-FIRST':U , h_navigatefirst ).
+
+       /* Links to SmartObject h_navigateprev. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'NAV-PREV':U , h_navigateprev ).
+
+       /* Links to SmartObject h_navigatenext. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'NAV-NEXT':U , h_navigatenext ).
+
+       /* Links to SmartObject h_navigatelast. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'NAV-LAST':U , h_navigatelast ).
+
        /* Links to SmartObject h_setting. */
        RUN add-link IN adm-broker-hdl ( h_setting , 'SETTING':U , THIS-PROCEDURE ).
 
@@ -816,14 +829,14 @@ PROCEDURE adm-create-objects :
              btPost:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_tagfilter ,
              btConsumed:HANDLE IN FRAME F-Main , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
-             br-table:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
              h_navigatefirst , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext ,
              h_navigateprev , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
              h_navigatenext , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_setting ,
+             h_navigatelast , 'AFTER':U ).
     END. /* Page 1 */
 
   END CASE.
@@ -891,8 +904,8 @@ PROCEDURE enable_UI :
   DISPLAY cbRMItem fiUOM fiTotalQty fiScannedQty fiConsumedQty btnExitText 
           btnClearText btnSettingsText statusMessage 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btJobReset btPost cbRMItem btTotal btScanned btConsumed br-table 
-         btClear btnNumPad btnExitText btnClearText btnSettingsText 
+  ENABLE btJobReset btPost cbRMItem btTotal btScanned btConsumed btClear 
+         br-table btnNumPad btnExitText btnClearText btnSettingsText 
          statusMessage 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
