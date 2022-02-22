@@ -21,7 +21,7 @@
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
-USING jc.JobHeader.
+USING jc.*.
 
 /* Create an unnamed pool to store all the widgets created 
      by this procedure. This is a good default which assures
@@ -44,15 +44,17 @@ DEFINE VARIABLE cLocation          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJob               AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE hdJobDetails            AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdJobDetailsWin         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdJobProcs              AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cFormattedJobno         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE oJobHeader              AS JobHeader NO-UNDO.
-DEFINE VARIABLE lScanNextJob            AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lValidateSameJobScan    AS LOGICAL   NO-UNDO INITIAL TRUE.
-DEFINE VARIABLE lValidateJobClosed      AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lAllowEmptyFormAndBlank AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hdJobDetails            AS HANDLE      NO-UNDO.
+DEFINE VARIABLE hdJobDetailsWin         AS HANDLE      NO-UNDO.
+DEFINE VARIABLE hdJobProcs              AS HANDLE      NO-UNDO.
+DEFINE VARIABLE cFormattedJobno         AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE oJobHeader              AS JobHeader   NO-UNDO.
+DEFINE VARIABLE oJobMaterial            AS JobMaterial NO-UNDO.
+DEFINE VARIABLE lScanNextJob            AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lValidateSameJobScan    AS LOGICAL     NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lValidateJobClosed      AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lAllowEmptyFormAndBlank AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lDisplayForMaterials    AS LOGICAL     NO-UNDO.
 
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
@@ -60,7 +62,10 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE oKeyboard AS system.Keyboard NO-UNDO.
 
-oJobHeader = NEW JobHeader().
+ASSIGN
+    oJobHeader   = NEW JobHeader()
+    oJobMaterial = NEW JobMaterial()
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -713,6 +718,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplayForMaterials s-object
+PROCEDURE DisplayForMaterials:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    lDisplayForMaterials = TRUE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableAll s-object
+PROCEDURE EnableAll:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        ENABLE fiJobNo cbJobNo2 cbFormNo cbBlankNo imJobLookup btJobDetails.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetJob s-object 
 PROCEDURE GetJob :
 /*------------------------------------------------------------------------------
@@ -912,14 +950,22 @@ PROCEDURE pGetBlankNo PRIVATE :
     DEFINE INPUT  PARAMETER ipiJobNo2           AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opiBlankNo          AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcBlankNoListItems AS CHARACTER NO-UNDO.
-
-    RUN GetBlanknoForJobHeaderByStatus IN hdJobProcs (
-        INPUT ipcCompany,
-        INPUT ipcJobNo,
-        INPUT ipiJobNo2,
-        INPUT ?, /* Fetch both opened and closed jobs */
-        INPUT-OUTPUT opcBlankNoListItems
-        ).
+    
+    IF lDisplayForMaterials THEN
+        RUN GetBlanknoForJob IN hdJobProcs (
+            INPUT ipcCompany,
+            INPUT ipcJobNo,
+            INPUT ipiJobNo2,
+            INPUT-OUTPUT opcBlankNoListItems
+            ).
+    ELSE    
+        RUN GetBlanknoForJobHeaderByStatus IN hdJobProcs (
+            INPUT ipcCompany,
+            INPUT ipcJobNo,
+            INPUT ipiJobNo2,
+            INPUT ?, /* Fetch both opened and closed jobs */
+            INPUT-OUTPUT opcBlankNoListItems
+            ).
 
     IF opcBlankNoListItems EQ "" THEN
         opcBlankNoListItems = "00".
@@ -948,13 +994,21 @@ PROCEDURE pGetFormNo PRIVATE :
     DEFINE OUTPUT PARAMETER opiFormNo          AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcFormNoListItems AS CHARACTER NO-UNDO.
 
-    RUN GetFormnoForJobHeaderByStatus IN hdJobProcs (
-        INPUT ipcCompany,
-        INPUT ipcJobNo,
-        INPUT ipiJobNo2,
-        INPUT ?, /* Fetch both opened and closed jobs */
-        INPUT-OUTPUT opcFormNoListItems
-        ).
+    IF lDisplayForMaterials THEN
+        RUN GetFormnoForJob IN hdJobProcs (
+            INPUT ipcCompany,
+            INPUT ipcJobNo,
+            INPUT ipiJobNo2,
+            INPUT-OUTPUT opcFormNoListItems
+            ).    
+    ELSE
+        RUN GetFormnoForJobHeaderByStatus IN hdJobProcs (
+            INPUT ipcCompany,
+            INPUT ipcJobNo,
+            INPUT ipiJobNo2,
+            INPUT ?, /* Fetch both opened and closed jobs */
+            INPUT-OUTPUT opcFormNoListItems
+            ).
 
     IF opcFormNoListItems EQ "" THEN
         opcFormNoListItems = "00".
@@ -1050,7 +1104,10 @@ PROCEDURE pJobScan PRIVATE :
 
     btJobDetails:SENSITIVE = FALSE.
 
-    lValidJob = oJobHeader:SetContext (INPUT ipcCompany, INPUT ipcJobNo, INPUT ipiJobNo2, INPUT ipiFormNo, INPUT ipiBlankNo).
+    IF lDisplayForMaterials THEN
+        lValidJob = oJobMaterial:SetContext (INPUT ipcCompany, INPUT ipcJobNo, INPUT ipiJobNo2, INPUT ipiFormNo, INPUT ipiBlankNo).
+    ELSE
+        lValidJob = oJobHeader:SetContext (INPUT ipcCompany, INPUT ipcJobNo, INPUT ipiJobNo2, INPUT ipiFormNo, INPUT ipiBlankNo).
     
     btJobDetails:SENSITIVE = lValidJob.
 
