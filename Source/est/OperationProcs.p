@@ -38,7 +38,7 @@ DEFINE VARIABLE giAttributeIDFilmLen          AS INTEGER NO-UNDO INITIAL 14.    
 DEFINE VARIABLE giAttributeIDFilmWid          AS INTEGER NO-UNDO INITIAL 15.    //Film Width
 DEFINE VARIABLE giAttributeIDGShtLen          AS INTEGER NO-UNDO INITIAL 16.    //Gross Sht Length
 DEFINE VARIABLE giAttributeIDGShtWid          AS INTEGER NO-UNDO INITIAL 17.    //Gross Sht Width
-DEFINE VARIABLE giAttributeIDEstQty           AS INTEGER NO-UNDO INITIAL 18.    //Estimate Qty
+DEFINE VARIABLE giAttributeIDEstQtySqFeet     AS INTEGER NO-UNDO INITIAL 18.    //Estimate Qty / Cumulative qty
 DEFINE VARIABLE giAttributeIDDieLIIn          AS INTEGER NO-UNDO INITIAL 19.    //Die Lineal Inches
 DEFINE VARIABLE giAttributeIDEstSheets        AS INTEGER NO-UNDO INITIAL 20.    //Estimated Sheets
 DEFINE VARIABLE giAttributeIDSheetSqIn        AS INTEGER NO-UNDO INITIAL 21.    //Sheet Square Inches
@@ -56,6 +56,7 @@ DEFINE VARIABLE giAttributeIDQtySetShorts     AS INTEGER NO-UNDO INITIAL 32.    
 DEFINE VARIABLE giAttributeIDNoOnDieLen       AS INTEGER NO-UNDO INITIAL 33.    //# On Die Length
 DEFINE VARIABLE giAttributeIDNoOnDieWid       AS INTEGER NO-UNDO INITIAL 34.    //# On Die Width
 DEFINE VARIABLE giAttributeIDBlankSqIn        AS INTEGER NO-UNDO INITIAL 35.    //Blank Sq In
+DEFINE VARIABLE giAttributeIDEstQtyPerUnit    AS INTEGER NO-UNDO INITIAL 36.    //Estimate Qty - Its Estimate qty in per Unit 
 DEFINE VARIABLE giAttributeIDUnitizingFormula AS INTEGER NO-UNDO INITIAL 98.    //Unitizing Formula
 DEFINE VARIABLE giAttributeIDDieHoursFormula  AS INTEGER NO-UNDO INITIAL 99.    //Die Hours Formula
 DEFINE VARIABLE giAttributeIDStyle            AS INTEGER NO-UNDO INITIAL 101.   //Style
@@ -79,10 +80,15 @@ DEFINE VARIABLE gcSheetMakerOutput                   AS CHARACTER NO-UNDO INITIA
 DEFINE VARIABLE gcDeptsForWidthSheeters              AS CHARACTER NO-UNDO INITIAL "GU".
  
 DEFINE VARIABLE glTagDisabled AS LOGICAL NO-UNDO.
+DEFINE VARIABLE giTotalOut    AS INTEGER NO-UNDO INIT 1.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
+
+FUNCTION fGetCumulNumOutForOperation RETURNS INTEGER PRIVATE
+    (INPUT ipiOut AS INTEGER  ) FORWARD.
+
 FUNCTION fGetAttributeName RETURNS CHARACTER PRIVATE
     (ipiAttributeID AS INTEGER) FORWARD.
 
@@ -153,7 +159,7 @@ FUNCTION fGetOperationsQty RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb,
     ipcMachine AS CHARACTER,
     ipcLocationID AS CHARACTER,
-    ipiPass AS INTEGER) FORWARD.   
+    ipiPass AS INTEGER, OUTPUT opiCumNumOut AS INTEGER) FORWARD.   
      
 FUNCTION fGetDieNumberUp RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb,
@@ -1065,7 +1071,7 @@ PROCEDURE pGetEfficiencyByQty PRIVATE:
     DEFINE VARIABLE cQtyValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAttrName  AS CHARACTER NO-UNDO.
     
-    RUN pGetAttribute(giAttributeIDEstQty, OUTPUT cQtyValue, OUTPUT cAttrName, OUTPUT oplError, OUTPUT opcMessage). //Get colors attribute
+    RUN pGetAttribute(giAttributeIDEstQtyPerUnit, OUTPUT cQtyValue, OUTPUT cAttrName, OUTPUT oplError, OUTPUT opcMessage). //Get colors attribute
     ASSIGN dOperationQty = DECIMAL(cQtyValue) NO-ERROR.
     
     /* Extra Sheets Calc */
@@ -2755,7 +2761,11 @@ PROCEDURE pProcessOperation PRIVATE:
         .
 
     /* Set Quantity and dependent attributes for each Line. These will be used to get Spoilage value */   
-    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQty, iopdQtyInOut).  
+    ipbf-ttOperation.FGCumulativeNumOut = fGetCumulNumOutForOperation(INPUT ipbf-ttOperation.numOutForOperation).
+    ipbf-ttOperation.FGCumulativeNumOut = MAX(1,ipbf-ttOperation.FGCumulativeNumOut).
+     
+    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtyPerUnit, iopdQtyInOut).
+    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtySqFeet, iopdQtyInOut * ipbf-ttOperation.FGCumulativeNumOut ).
     RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipbf-ttOperation.OperationId, ipbf-ttOperation.pass))). 
     
     /* Now calculate spoilage for this pass based upon Qty set above */
@@ -2797,7 +2807,8 @@ PROCEDURE pProcessOperation PRIVATE:
     END.
     
     /* Set Quantity and dependent attributes for each Line. These will be used to get Spoilage value */   
-    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQty, ipbf-ttOperation.quantityIn).  
+    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtyPerUnit, ipbf-ttOperation.quantityIn).  
+    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtySqFeet, ipbf-ttOperation.quantityIn * ipbf-ttOperation.FGCumulativeNumOut).  
     RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipbf-ttOperation.OperationId, ipbf-ttOperation.pass))). 
     
     /* Calculate Run parameters based upon QtyIn calculated for this machine */
@@ -3007,12 +3018,14 @@ PROCEDURE pSetAttributesFromQty PRIVATE:
     DEFINE INPUT  PARAMETER TABLE FOR ttOperation.
     
     DEFINE VARIABLE dCalcQty AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iCumulNumOut AS INTEGER NO-UNDO.
     
-    dCalcQty = fGetOperationsQty(BUFFER ipbf-eb, ipcOperationId, ipcLocationId, ipiPass).
+    dCalcQty = fGetOperationsQty(BUFFER ipbf-eb, ipcOperationId, ipcLocationId, ipiPass, OUTPUT iCumulNumOut).
     
     IF dCalcQty NE 0 THEN
     DO:
-        RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstQty, STRING(dCalcQty)).  
+        RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstQtyPerUnit, STRING(dCalcQty)).  
+        RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstQtySqFeet, STRING(dCalcQty * iCumulNumOut)).  
         RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipcOperationId, ipiPass))).
     END. 
         
@@ -3269,6 +3282,7 @@ PROCEDURE pRecalcOperations PRIVATE:
     
     
     EMPTY TEMP-TABLE ttEstBlank.
+    giTotalOut = 1.
     
     /*Process each est-op for the right quantity*/
     FOR EACH ttEstop 
@@ -3520,7 +3534,8 @@ PROCEDURE SetAttributesFromEstOP PRIVATE:
         RUN pSetAttributesBlank(BUFFER bf-eb).
         RUN pSetAttributeForColors(BUFFER bf-eb, ipcLocation, bf-est-op.m-code, bf-est-op.dept ,bf-est-op.op-pass).  //Maxco
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDDieNumberUp, STRING(fGetDieNumberUp(BUFFER bf-eb,bf-est-op.m-code))). //v-up  
-        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQty, bf-est-op.qty).  //qty
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerUnit, bf-est-op.qty).  //qty
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtySqFeet, bf-est-op.qty).  //qty
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER bf-eb, bf-est-op.m-code, bf-est-op.op-pass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDNoOutGShtWid, STRING(fGetOperationsGrsShtWid(BUFFER bf-eb, bf-est-op.m-code, bf-est-op.op-pass))). //v-out
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDSetPartsperForm, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,2,""))). //ld-parts[2]
@@ -3611,7 +3626,8 @@ PROCEDURE SetAttributesFromJobMch:
         RUN pSetAttributesBlank(BUFFER bf-eb).
         RUN pSetAttributeForColors(BUFFER bf-eb, bf-job.loc, bf-job-mch.m-code, bf-job-mch.dept ,bf-job-mch.pass).  //Maxco
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDDieNumberUp, STRING(fGetDieNumberUp(BUFFER bf-eb,bf-job-mch.m-code))). //v-up  
-        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQty, STRING(fGetOriginalQtyfromEst(BUFFER bf-eb, BUFFER bf-job))).  //qty
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerUnit, STRING(fGetOriginalQtyfromEst(BUFFER bf-eb, BUFFER bf-job))).  //qty
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtySqFeet, STRING(fGetOriginalQtyfromEst(BUFFER bf-eb, BUFFER bf-job))).  //qty
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDNoOutGShtWid, STRING(fGetOperationsGrsShtWid(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //v-out
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDSetPartsperForm, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,2,""))). //ld-parts[2]
@@ -3655,6 +3671,23 @@ FUNCTION fBuildMessageRETURNS CHARACTER PRIVATE
     		
 END FUNCTION.
 
+
+FUNCTION fGetCumulNumOutForOperation RETURNS INTEGER PRIVATE
+    (INPUT ipiOut AS INTEGER  ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    DEFINE VARIABLE iTempOut AS INTEGER NO-UNDO.
+        
+    ASSIGN
+        giTotalOut = giTotalOut * ipiOut
+        iTempOut   = giTotalOut.
+       
+    RETURN iTempOut.
+        
+END FUNCTION.
 
 FUNCTION fGetAttributeName RETURNS CHARACTER PRIVATE
     (ipiAttributeID AS INTEGER):
@@ -3983,7 +4016,8 @@ FUNCTION fGetOperationsQty RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb,
     ipcMachine AS CHARACTER,
     ipcLocationID AS CHARACTER,
-    ipiPass AS INTEGER):
+    ipiPass AS INTEGER,
+    OUTPUT opiCumNumOut AS INTEGER):
     /*------------------------------------------------------------------------------
     Purpose: 
     Notes:
@@ -4028,7 +4062,9 @@ FUNCTION fGetOperationsQty RETURNS DECIMAL PRIVATE
             AND bf-ttOperation.formNo       EQ ipbf-eb.form-no NO-ERROR.
     
     IF AVAILABLE bf-ttOperation THEN     
-        dReturnValue = bf-ttOperation.quantityIn. 
+        ASSIGN
+            dReturnValue = bf-ttOperation.quantityIn
+            opiCumNumOut = bf-ttOperation.FGCumulativeNumOut. 
         
     RETURN dReturnValue.
 		
@@ -4083,7 +4119,7 @@ FUNCTION fGetOperationsEstSheet RETURNS DECIMAL PRIVATE
     DEFINE VARIABLE cError        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
     
-    RUN pGetAttribute(giAttributeIDEstQty, OUTPUT cQtyValue, OUTPUT cAttrName, OUTPUT cError, OUTPUT cMessage). //Get colors attribute
+    RUN pGetAttribute(giAttributeIDEstQtyPerUnit, OUTPUT cQtyValue, OUTPUT cAttrName, OUTPUT cError, OUTPUT cMessage). //Get colors attribute
     ASSIGN dOperationQty = DECIMAL(cQtyValue) NO-ERROR.
     
     FIND FIRST mach NO-LOCK
