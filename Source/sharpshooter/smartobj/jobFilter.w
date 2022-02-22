@@ -453,7 +453,7 @@ DO:
         .
     
     /* If last key is not button choose or mouse click event */
-    IF (LASTKEY EQ -1 OR LASTKEY EQ 617) AND NOT (VALID-OBJECT (oKeyboard) AND oKeyboard:IsKeyboardOpen()) THEN
+    IF (LASTKEY EQ -1 OR (LASTKEY GE 609 AND LASTKEY LE 652)) AND NOT (VALID-OBJECT (oKeyboard) AND oKeyboard:IsKeyboardOpen()) THEN
         RETURN.
 
     IF SELF:SCREEN-VALUE EQ "" THEN
