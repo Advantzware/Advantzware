@@ -21,6 +21,13 @@ DEFINE TEMP-TABLE ttEstCostForm NO-UNDO
 DEFINE TEMP-TABLE ttEstCostDetail NO-UNDO
     LIKE estCostDetail
     .
+    
+DEFINE TEMP-TABLE ttEstCostSummary NO-UNDO
+    LIKE estCostSummary
+    .    
+    
+    
+    
 /* ********************  Preprocessor Definitions  ******************** */
 
 

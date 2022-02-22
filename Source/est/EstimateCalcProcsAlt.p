@@ -252,9 +252,11 @@ PROCEDURE ChangeSellPrice:
             FOR EACH bf-ttEstCostForm NO-LOCK
                 WHERE bf-ttEstCostForm.estCostHeaderID EQ estCostHeader.estCostHeaderID,
                 FIRST estCostBlank NO-LOCK 
-                WHERE estCostBlank.estCostFormID EQ bf-ttEstCostForm.estCostFormID,
+                WHERE estCostBlank.estCostHeaderID EQ estCostHeader.estCostHeaderID
+                  AND estCostBlank.estCostFormID EQ bf-ttEstCostForm.estCostFormID,
                 FIRST estCostItem NO-LOCK 
-                WHERE estCostItem.estCostItemID EQ estCostBlank.estCostItemID:
+                WHERE estCostItem.estCostHeaderID EQ estCostHeader.estCostHeaderID
+                  AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID:
                 
                 /*Calculate new Price for form and commisson*/
                 ASSIGN 
@@ -395,27 +397,29 @@ PROCEDURE pAddCostSummary PRIVATE:
     DEFINE INPUT PARAMETER  ipdCost AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER  ipdQtyPerM AS DECIMAL NO-UNDO.
     
-    DEFINE BUFFER bf-estCostSummary FOR estCostSummary.
+    DEFINE BUFFER bf-ttEstCostSummary FOR ttEstCostSummary.
     
-    FIND FIRST bf-estCostSummary EXCLUSIVE-LOCK
-        WHERE bf-estCostSummary.scopeRecKey EQ ipcScopeRecKey
-        AND bf-estCostSummary.estCostGroupID EQ ipcGroupID
+    FIND FIRST bf-ttEstCostSummary EXCLUSIVE-LOCK
+        WHERE bf-ttEstCostSummary.scopeRecKey EQ ipcScopeRecKey
+        AND bf-ttEstCostSummary.estCostGroupID EQ ipcGroupID
         NO-ERROR.
-    IF NOT AVAILABLE bf-estCostSummary THEN 
+    IF NOT AVAILABLE bf-ttEstCostSummary THEN 
     DO:
-        CREATE bf-estCostSummary.
+        CREATE bf-ttEstCostSummary.
         ASSIGN 
-            bf-estCostSummary.estCostGroupID  = ipcGroupID
-            bf-estCostSummary.scopeRecKey     = ipcScopeRecKey
-            bf-estCostSummary.estCostHeaderID = ipiEstCostHeaderID
+            bf-ttEstCostSummary.estCostGroupID  = ipcGroupID
+            bf-ttEstCostSummary.scopeRecKey     = ipcScopeRecKey
+            bf-ttEstCostSummary.estCostHeaderID = ipiEstCostHeaderID
             .
-
-    END.
-    bf-estCostSummary.costTotal = bf-estCostSummary.costTotal + ipdCost.
-    IF ipdQtyPerM GT 0 THEN 
-        bf-estCostSummary.costTotalPerMFinished  = bf-estCostSummary.costTotalPerMFinished + ipdCost / ipdQtyPerM.
+            
+        RUN pSetKeyFields(INPUT-OUTPUT bf-ttEstCostSummary.estCostSummaryID, INPUT-OUTPUT bf-ttEstCostSummary.rec_key).
         
-    RELEASE bf-estCostSummary.
+    END.
+    bf-ttEstCostSummary.costTotal = bf-ttEstCostSummary.costTotal + ipdCost.
+    IF ipdQtyPerM GT 0 THEN 
+        bf-ttEstCostSummary.costTotalPerMFinished  = bf-ttEstCostSummary.costTotalPerMFinished + ipdCost / ipdQtyPerM.
+        
+    RELEASE bf-ttEstCostSummary.
     
 END PROCEDURE.
 
@@ -1879,9 +1883,11 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
             
         
         FOR EACH bf-estCostBlank NO-LOCK 
-            WHERE bf-estCostBlank.estCostFormID EQ bf-ttEstCostForm.estCostFormID,
+            WHERE bf-estCostBlank.estCostHeaderID EQ bf-ttEstCostForm.estCostHeaderID
+              AND bf-estCostBlank.estCostFormID EQ bf-ttEstCostForm.estCostFormID,
             FIRST bf-estCostItem NO-LOCK 
-            WHERE bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID:
+            WHERE bf-estCostItem.estCostHeaderID EQ bf-ttEstCostForm.estCostHeaderID
+              AND bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID:
                 
             IF bf-estCostBlank.isPurchased THEN
                 dApplicableFGHandlingRate = bf-estCostHeader.handlingRateFGFarmPerCWT.
@@ -2185,9 +2191,11 @@ PROCEDURE pBuildFreightCostDetails PRIVATE:
             AND bf-estCostBlank.formNo EQ 0
             AND bf-estCostBlank.blankNo EQ 0,
             FIRST bf-ttEstCostForm NO-LOCK 
-            WHERE bf-ttEstCostForm.estCostFormID EQ bf-estCostBlank.estCostFormID,
+            WHERE bf-ttEstCostForm.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
+              AND bf-ttEstCostForm.estCostFormID EQ bf-estCostBlank.estCostFormID,
             FIRST bf-estCostItem NO-LOCK 
-            WHERE bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID,
+            WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
+              AND bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID,
             FIRST bf-eb NO-LOCK
             WHERE bf-eb.company EQ bf-estCostBlank.company
             AND bf-eb.est-no EQ bf-estCostBlank.estimateNo
@@ -2210,9 +2218,11 @@ PROCEDURE pBuildFreightCostDetails PRIVATE:
             FIRST bf-estCostHeader NO-LOCK 
             WHERE bf-estCostHeader.estCostHeaderID EQ bf-ttEstCostForm.estCostHeaderID,
             EACH bf-estCostBlank NO-LOCK 
-            WHERE bf-estCostBlank.estCostFormID EQ bf-ttEstCostForm.estCostFormID,
+            WHERE bf-estCostBlank.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
+              AND bf-estCostBlank.estCostFormID EQ bf-ttEstCostForm.estCostFormID,
             FIRST bf-estCostItem NO-LOCK 
-            WHERE bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID,
+            WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
+              AND bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID,
             FIRST bf-eb NO-LOCK
             WHERE bf-eb.company EQ bf-estCostBlank.company
             AND bf-eb.est-no EQ bf-estCostBlank.estimateNo
@@ -3773,7 +3783,8 @@ PROCEDURE pProcessMaterialTypeCalc PRIVATE:
                 WHERE bf-estCostBlank.estCostHeaderID EQ ipbf-estCostMaterial.estCostHeaderID
                 AND bf-estCostBlank.estCostFormID EQ ipbf-estCostMaterial.estCostFormID,
                 FIRST bf-estCostItem NO-LOCK
-                WHERE bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID,
+                WHERE bf-estCostItem.estCostHeaderID EQ ipbf-estCostMaterial.estCostHeaderID
+                  AND bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID,
                 FIRST bf-itemfg NO-LOCK 
                 WHERE bf-itemfg.company EQ bf-estCostItem.company
                 AND bf-itemfg.i-no EQ bf-estCostItem.itemID:
@@ -5405,20 +5416,20 @@ END PROCEDURE.
 
 PROCEDURE pPurgeCostSummary PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose:  Purges all EstCostSummary data for a given headerID
+     Purpose:  Purges all ttEstCostSummary data for a given headerID
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
 
-    DEFINE BUFFER bf-estCostSummary FOR estCostSummary.
+    DEFINE BUFFER bf-ttEstCostSummary FOR ttEstCostSummary.
     
-    FOR EACH bf-estCostSummary EXCLUSIVE-LOCK 
-        WHERE bf-estCostSummary.estCostHeaderID EQ ipiEstCostHeaderID
+    FOR EACH bf-ttEstCostSummary EXCLUSIVE-LOCK 
+        WHERE bf-ttEstCostSummary.estCostHeaderID EQ ipiEstCostHeaderID
         USE-INDEX estHeader:
-        DELETE bf-estCostSummary.
+        DELETE bf-ttEstCostSummary.
     END.
     
-    RELEASE bf-estCostSummary.
+    RELEASE bf-ttEstCostSummary.
     
 END PROCEDURE.
 
@@ -5677,7 +5688,7 @@ PROCEDURE pUpdateChildTables PRIVATE:
     DEFINE BUFFER bfChild-estCostMaterial  FOR estCostMaterial.
     DEFINE BUFFER bfChild-estCostMisc      FOR estCostMisc.
     DEFINE BUFFER bfChild-ttEstCostDetail  FOR ttEstCostDetail.
-    DEFINE BUFFER bfChild-estCostSummary   FOR estCostSummary.
+    DEFINE BUFFER bfChild-ttEstCostSummary FOR ttEstCostSummary.
     
     
     CASE(ipcParentTable):
@@ -5716,18 +5727,18 @@ PROCEDURE pUpdateChildTables PRIVATE:
                     bfChild-estCostMisc.estCostFormID = ipiTargetKey.
             END.
         
-            FOR EACH bfChild-estCostSummary EXCLUSIVE-LOCK
-                WHERE bfChild-estCostSummary.estCostHeaderID = ipiEstCostHeaderID:
+            FOR EACH bfChild-ttEstCostSummary EXCLUSIVE-LOCK
+                WHERE bfChild-ttEstCostSummary.estCostHeaderID = ipiEstCostHeaderID:
             
-                IF bfChild-estCostSummary.scopeRecKey = ipcSourceRecKey THEN      
-                    bfChild-estCostSummary.scopeRecKey = ipcTargetRecKey.
+                IF bfChild-ttEstCostSummary.scopeRecKey = ipcSourceRecKey THEN      
+                    bfChild-ttEstCostSummary.scopeRecKey = ipcTargetRecKey.
             END.
     
         END.
         WHEN "estCostDetail" THEN
         DO:
         END.
-        WHEN "estCostForm" THEN
+        WHEN "estCostSummary" THEN
         DO:
         END.
     END CASE.
@@ -5741,6 +5752,7 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
        ------------------------------------------------------------------------------*/
     DEFINE BUFFER bfEx-estCostForm         FOR estCostForm.
     DEFINE BUFFER bfEx-EstCostDetail       FOR EstCostDetail.
+    DEFINE BUFFER bfEx-estCostSummary      FOR estCostSummary.
 
     FOR EACH ttEstCostForm
         TRANSACTION:
@@ -5762,19 +5774,23 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
         CREATE bfEx-estCostDetail.
         BUFFER-COPY ttEstCostDetail EXCEPT rec_key estCostDetailID TO bfEx-estCostDetail.
         
-        /* Update parent key in child Tables */
-        RUN pUpdateChildTables ("estCostDetail", 
-            ttEstCostDetail.estCostHeaderID, 
-            ttEstCostDetail.estCostDetailID, 
-            bfEx-estCostDetail.estCostDetailID,
-            ttEstCostDetail.rec_key,
-            bfEx-estCostDetail.rec_key).
-    END.
+    END. /* ttEstCostDetail */
+    
+    FOR EACH ttEstCostSummary
+        TRANSACTION:
+        CREATE bfEx-estCostSummary.
+        BUFFER-COPY ttEstCostSummary EXCEPT rec_key estCostSummaryID TO bfEx-estCostSummary.
+        
+    END. /* ttEstCostDetail */
         
     RELEASE bfEx-estCostForm.
+    RELEASE bfEx-estCostDetail.
+    RELEASE bfEx-estCostSummary.
     
     EMPTY TEMP-TABLE ttEstCostForm.
-
+    EMPTY TEMP-TABLE ttEstCostDetail.
+    EMPTY TEMP-TABLE ttEstCostSummary.
+    
 END PROCEDURE.
 
 
