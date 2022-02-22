@@ -3646,7 +3646,7 @@ PROCEDURE validate-jobmat :
 
             if avail job-mat then do:
                 create xjob-mat.
-                buffer-copy job-mat to xjob-mat.
+                buffer-copy job-mat EXCEPT rec_key to xjob-mat.
 
                 find job-mat where recid(job-mat) eq recid(xjob-mat).
 
@@ -3677,7 +3677,9 @@ PROCEDURE validate-jobmat :
                  job-mat.basis-w = item.basis-w
                  job-mat.qty     = job-mat.qty * IF job-mat.n-up EQ 0 THEN 1 ELSE job-mat.n-up
                  job-mat.n-up    = v-job-up * v-out
-                 job-mat.qty     = job-mat.qty / IF job-mat.n-up EQ 0 THEN 1 ELSE job-mat.n-up.
+                 job-mat.qty     = job-mat.qty / IF job-mat.n-up EQ 0 THEN 1 ELSE job-mat.n-up
+                 job-mat.all-flg = NO
+                 .
 
                 {sys/inc/roundup.i job-mat.qty}
 
