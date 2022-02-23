@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -1524,8 +1525,7 @@ PROCEDURE run-report :
         {custom/statusMsg.i "'Processing Item # ' + string(item.i-no)"} 
 
         ASSIGN
-            v-job-no = FILL(" ",6 - length(TRIM(rm-rdtlh.job-no))) +
-                  trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99")
+            v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', rm-rdtlh.job-no, rm-rdtlh.job-no2)) 
             v-value  = rm-rdtlh.cost * rm-rdtlh.qty .
        
         IF v-job-no BEGINS "-" THEN v-job-no = "".

@@ -23,6 +23,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -66,7 +67,7 @@ ll-sort-asc = NO /*oeinq*/  .
           AND oe-ordl.part-no   BEGINS fi_part-no   ~
           AND oe-ordl.po-no     BEGINS fi_po-no     ~
           AND oe-ordl.est-no    BEGINS fi_est-no    ~
-          AND oe-ordl.job-no    BEGINS fi_job-no    ~
+          AND fill(" ",9 - length(TRIM(oe-ordl.job-no))) + trim(oe-ordl.job-no) BEGINS fi_job-no    ~
           AND (oe-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "") ~
           AND oe-ordl.opened    EQ YES
 
@@ -96,7 +97,7 @@ ll-sort-asc = NO /*oeinq*/  .
     IF lv-sort-by EQ "part-no"   THEN oe-ordl.part-no                                                                                                  ELSE ~
     IF lv-sort-by EQ "po-no"     THEN oe-ordl.po-no                                                                                                    ELSE ~
     IF lv-sort-by EQ "est-no"    THEN oe-ordl.est-no                                                                                                   ELSE ~
-    IF lv-sort-by EQ "job-no"    THEN STRING(oe-ordl.job-no,"x(6)") + STRING(oe-ordl.job-no2,"99")                                                     ELSE ~
+    IF lv-sort-by EQ "job-no"    THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', oe-ordl.job-no, oe-ordl.job-no2))                                  ELSE ~
     IF lv-sort-by EQ "spare-char-2"    THEN oe-ord.spare-char-2                                                                                                   ELSE ~
     IF lv-sort-by EQ "approved-date"    THEN STRING(YEAR(oe-ord.approved-date),"9999") + STRING(MONTH(oe-ord.approved-date),"99") + STRING(DAY(oe-ord.approved-date),"99")                                                     ELSE ~
                                       STRING(YEAR(oe-ordl.req-date),"9999") + STRING(MONTH(oe-ordl.req-date),"99") + STRING(DAY(oe-ordl.req-date),"99")
@@ -205,15 +206,15 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      VIEW-AS FILL-IN 
-     SIZE 9 BY 1
+     SIZE 12 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1
+     SIZE 5.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
@@ -287,8 +288,8 @@ DEFINE BROWSE Browser-Table
       oe-ordl.po-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
-      oe-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U LABEL-BGCOLOR 14
-      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
+      oe-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U LABEL-BGCOLOR 14
+      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">>9":U LABEL-BGCOLOR 14
       oe-ord.spare-char-2 COLUMN-LABEL "Hold Reason code"     
             LABEL-BGCOLOR 14
       oe-ord.approved-date COLUMN-LABEL "Hold/Approved Date" FORMAT "99/99/9999":U
