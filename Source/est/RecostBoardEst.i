@@ -14,7 +14,7 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE TEMP-TABLE ttEstGroups NO-UNDO
+DEFINE TEMP-TABLE ttRecostBoardGroups NO-UNDO
     FIELD VendNo         LIKE estCostMaterial.vendorID
     FIELD INo            LIKE estCostMaterial.itemID
     FIELD Len            LIKE eb.len
@@ -37,11 +37,12 @@ DEFINE TEMP-TABLE ttEstGroups NO-UNDO
     FIELD itemType       AS CHARACTER
     FIELD customerID     AS CHARACTER
     FIELD quantityMaster AS INTEGER
+    FIELD CompanyId      AS CHARACTER
     FIELD FormIdList     AS CHARACTER.
 
-DEFINE TEMP-TABLE ttEstLineXRef /*allows for easy re-finding of po-ordl*/ NO-UNDO 
-    FIELD EstGroupRowId        AS ROWID
-    FIELD estCostMaterialRowID AS ROWID.
+DEFINE TEMP-TABLE ttRecostBoardLineXRef /*allows for easy re-finding of EstCostMaterial*/ NO-UNDO 
+    FIELD RecostBoardGroupRowId        AS ROWID
+    FIELD EstCostMaterialRowID         AS ROWID.
         
 /* ********************  Preprocessor Definitions  ******************** */
 

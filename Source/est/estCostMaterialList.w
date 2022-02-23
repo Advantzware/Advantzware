@@ -39,7 +39,7 @@ CREATE WIDGET-POOL.
 {methods/defines/sortByDefs.i}
 {system/VendorCostProcs.i}
 {custom/globdefs.i}
-
+{est\RecostBoardEst.i}
 
 /* Parameters Definitions ---                                           */
 DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstCostHeaderToCalc. 
@@ -468,11 +468,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     END.
     
-    RUN sys/ref/nk1look.p (g_company, "CEAutoRecostBoard", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    
-    IF lFound = TRUE AND cReturn EQ "YES" THEN 
-        RUN ipRecostBoard(INPUT NO).    
-    
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -546,14 +541,39 @@ PROCEDURE ipRecostBoard:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER iplMessage AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE hdRecostBoardEst AS HANDLE NO-UNDO.
+    DEFINE VARIABLE chMessage        AS CHARACTER NO-UNDO.
+    
+    IF VALID-HANDLE(hdRecostBoardEst) = FALSE THEN
+        RUN est\RecostBoardEst.p PERSISTENT SET hdRecostBoardEst.   
+        
     FOR EACH ttEstCostHeaderToCalc:
             
-        RUN est\RecostBoardEst.p(INPUT ttEstCostHeaderToCalc.iEstCostHeaderID,
-                                 INPUT iplMessage).
+        RUN ipRecostBoard IN hdRecostBoardEst(INPUT ttEstCostHeaderToCalc.iEstCostHeaderID,
+                                              OUTPUT chMessage,
+                                              OUTPUT TABLE ttRecostBoardGroups).
+                                              
+        IF iplMessage AND chMessage <> "" THEN 
+            MESSAGE chMessage
+                VIEW-AS ALERT-BOX.
+                
+        IF chMessage = "" THEN
+        DO:
+            IF iplMessage THEN RUN ShowCostUpdates. /*Present updates to user and get confirmation*/
+        
+            RUN UpdateEstCostMaterial IN hdRecostBoardEst(INPUT NO,
+                INPUT TABLE ttRecostBoardGroups).  /*Update the EstCostMaterial costs with better costs*/
+        END.        
     END.
+    
     {&OPEN-QUERY-{&BROWSE-NAME}}
 
+    IF VALID-HANDLE(hdRecostBoardEst) THEN
+        DELETE PROCEDURE hdRecostBoardEst.
+        
 END PROCEDURE.
+
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -593,6 +613,37 @@ PROCEDURE pReOpenBrowse :
             {&OPEN-QUERY-{&BROWSE-NAME}}
     END CASE.
 END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowCostUpdates C-Win
+PROCEDURE ShowCostUpdates:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lUpdateCost AS LOGICAL NO-UNDO.
+
+    FOR EACH ttRecostBoardGroups
+        WHERE ttRecostBoardGroups.Multi
+          AND ttRecostBoardGroups.UpdateCost:
+
+        MESSAGE "A reduced cost of " ttRecostBoardGroups.NewCost " " ttRecostBoardGroups.NewCostUOM " was found." SKIP
+            "Total Qty: " ttRecostBoardGroups.TotalQty " " ttRecostBoardGroups.TotalQtyUom SKIP
+            "Item #: " ttRecostBoardGroups.INo SKIP
+            "Vendor: " ttRecostBoardGroups.VendNo SKIP
+            "Width: " ttRecostBoardGroups.Wid SKIP
+            "Length: " ttRecostBoardGroups.Len SKIP
+            "Scores: " ttRecostBoardGroups.Scores SKIP 
+            "Adders: " ttRecostBoardGroups.Adders SKIP(1)
+            "Do you want to apply this cost to the order lines?"
+            VIEW-AS ALERT-BOX INFORMATION BUTTONS YES-NO UPDATE lUpdateCost.
+        ttRecostBoardGroups.UpdateCost = lUpdateCost.
+
+    END. /*each ttRecostBoardGroups*/
+END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

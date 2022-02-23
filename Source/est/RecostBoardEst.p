@@ -17,129 +17,116 @@
 
 /* ***************************  Main Block  *************************** */
                                          
-{est\ttEstCostHeaderToCalc.i}
 {est\RecostBoardEst.i}
-{system\VendorCostProcs.i}
 {system\FormulaProcs.i}
 
-DEFINE INPUT PARAMETER ipinEstCostHeaderID LIKE ttEstCostHeaderToCalc.iEstCostHeaderID.
-DEFINE INPUT PARAMETER iplMessage AS LOG NO-UNDO. /* YES will prompt a summary message*/
-
-{custom/globdefs.i}
-{sys/inc/VAR.i NEW SHARED}
-
-DEFINE VARIABLE glUpdate AS LOG     NO-UNDO.
-DEFINE VARIABLE k_frac   AS DECIMAL INIT "6.25" NO-UNDO.
-
-ASSIGN 
-    cocode = g_company
-    locode = g_loc.
-{sys/inc/f16to32.i}
-
-/* ***************************  Main Block  *************************** */
-
-glUpdate = NO.
-
-RUN ProcessEstCostMaterial. /*Build internal temp-tables*/
-
-FIND FIRST ttEstGroups WHERE ttEstGroups.Multi EQ YES NO-LOCK NO-ERROR.
-IF AVAILABLE ttEstGroups THEN 
-DO:     
-    /*more than one EstCostMaterial line with matching item, vendor, & size*/
-    RUN GetNewCostsN.    
-    
-    RUN UpdateEstCostMaterial(YES).  /*See if cost is better than current EstCostMaterial, YES = Compare only*/
-    
-    IF glUpdate THEN 
-    DO: /*If Better costs were found*/
-        IF iplMessage THEN RUN ShowCostUpdates. /*Present updates to user and get confirmation*/
-        RUN UpdateEstCostMaterial(NO).  /*Update the EstCostMaterial costs with better costs*/
-    END.    
-    ELSE
-        IF iplMessage THEN 
-            MESSAGE "No board cost or setup improvements available after grouping purchase order items."
-                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-END.  /*Avail ttEstGroups*/
-ELSE
-    IF iplMessage THEN 
-        MESSAGE "No purchase order items can be grouped for new costs."
-            VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-
+DEFINE VARIABLE loUpdate AS LOG     NO-UNDO INITIAL FALSE.
 
 /* **********************  Internal Procedures  *********************** */
+PROCEDURE ipRecostBoard:
+    DEFINE INPUT  PARAMETER ipinEstCostHeaderID AS INT64.
+    DEFINE OUTPUT PARAMETER opchErrorMessage    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttRecostBoardGroups.    
 
-PROCEDURE GetNewCostsN:
+    RUN ProcessEstCostMaterial(INPUT ipinEstCostHeaderID). /*Build internal temp-tables*/
+
+    FIND FIRST ttRecostBoardGroups WHERE ttRecostBoardGroups.Multi EQ YES NO-LOCK NO-ERROR.
+    
+    IF NOT AVAILABLE ttRecostBoardGroups THEN 
+    DO:  
+        ASSIGN opchErrorMessage = "No purchase order items can be grouped for new costs.".
+        RETURN.  
+    END. 
+        
+    /*more than one EstCostMaterial line with matching item, vendor, & size*/
+    RUN GetNewCosts.
+    
+    RUN UpdateEstCostMaterial(INPUT YES,
+                              INPUT TABLE ttRecostBoardGroups).  /*See if cost is better than current EstCostMaterial, YES = Compare only*/             
+            
+    IF NOT loUpdate THEN
+        ASSIGN opchErrorMessage = "No board cost or setup improvements available after grouping purchase order items.". 
+            
+END PROCEDURE.
+
+PROCEDURE GetNewCosts PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE oploError   AS LOGICAL NO-UNDO.    
+    DEFINE VARIABLE opchMessage AS CHARACTER NO-UNDO.
    
     DEFINE VARIABLE dCostPerUOM AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCostSetup  AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dCostTotal  AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.    
     
-    FOR EACH ttEstGroups 
-        WHERE ttEstGroups.Multi:
+    FOR EACH ttRecostBoardGroups 
+        WHERE ttRecostBoardGroups.Multi:
         
-        RUN GetVendorCost(cocode, 
-            ttEstGroups.INo, 
-            ttEstGroups.itemType, 
-            ttEstGroups.VendNo, 
-            ttEstGroups.customerID, 
+        RUN GetVendorCost(ttRecostBoardGroups.CompanyId, 
+            ttRecostBoardGroups.INo, 
+            ttRecostBoardGroups.itemType, 
+            ttRecostBoardGroups.VendNo, 
+            ttRecostBoardGroups.customerID, 
             "", 
             0, 
             0,
-            ttEstGroups.TotalQty, 
-            ttEstGroups.TotalQtyUOM,
-            ttEstGroups.Len, 
-            ttEstGroups.Wid, 
-            ttEstGroups.Dep, 
-            ttEstGroups.UOM, 
-            ttEstGroups.BasisWeight, 
-            ttEstGroups.BasisWeightUOM, 
+            ttRecostBoardGroups.TotalQty, 
+            ttRecostBoardGroups.TotalQtyUOM,
+            ttRecostBoardGroups.Len, 
+            ttRecostBoardGroups.Wid, 
+            ttRecostBoardGroups.Dep, 
+            ttRecostBoardGroups.UOM, 
+            ttRecostBoardGroups.BasisWeight, 
+            ttRecostBoardGroups.BasisWeightUOM, 
             NO,
             OUTPUT dCostPerUOM, 
             OUTPUT dCostSetup, 
             OUTPUT cCostUOM,
             OUTPUT dCostTotal, 
-            OUTPUT lError, 
-            OUTPUT cMessage).
-   
-        ASSIGN 
-            ttEstGroups.NewCost    = dCostPerUOM + ttEstGroups.AdderCost
-            ttEstGroups.NewCostUOM = cCostUOM
-            ttEstGroups.NewSetup   = dCostSetup.
+            OUTPUT oploError, 
+            OUTPUT opchMessage).
 
-    END. /*each ttEstGroups*/
+            ASSIGN 
+                ttRecostBoardGroups.NewCost    = dCostPerUOM + ttRecostBoardGroups.AdderCost
+                ttRecostBoardGroups.NewCostUOM = cCostUOM
+                ttRecostBoardGroups.NewSetup   = dCostSetup.
+
+    END. /*each ttRecostBoardGroups*/
 
 END PROCEDURE.
 
-
-
-PROCEDURE ProcessEstCostMaterial :
+PROCEDURE ProcessEstCostMaterial PRIVATE:
     /*------------------------------------------------------------------------------
       Purpose: Build Temp tables for processing    
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipinEstCostHeaderID AS INT64 NO-UNDO.    
+    
     DEFINE BUFFER bf-Item FOR ITEM.
     DEFINE BUFFER bf-eb   FOR eb.        
 
-    DEFINE VARIABLE dQty           AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE cScores        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cAdders        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dAdderCost     AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE hdFormulaProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cScores           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAdders           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dAdderCost        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQty              AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE hdFormulaProcs    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdConversionProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE loError           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE chMessage         AS CHARACTER NO-UNDO.
 
-    FOR EACH ttEstGroups:
-        DELETE ttEstGroups.
-    END.
-    FOR EACH ttEstLineXref:
-        DELETE ttEstLineXref.
-    END.    
+    EMPTY TEMP-TABLE ttRecostBoardGroups.
+    EMPTY TEMP-TABLE ttRecostBoardLineXRef.
+    
+    IF VALID-HANDLE(hdFormulaProcs) = FALSE THEN
+        RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+    
+    IF VALID-HANDLE(hdConversionProcs) = FALSE THEN
+        RUN system/ConversionProcs.p   PERSISTENT SET hdConversionProcs.   
     
     FOR EACH estCostHeader NO-LOCK     
         WHERE estCostHeader.estCostHeaderID EQ ipinEstCostHeaderID,
@@ -148,11 +135,8 @@ PROCEDURE ProcessEstCostMaterial :
         AND estCostMaterial.isPrimarySubstrate:
             
         ASSIGN 
-            cScores = "".
-            
-        IF VALID-HANDLE(hdFormulaProcs) = FALSE THEN
-            RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
-            
+            cScores = "".           
+                    
         FIND FIRST bf-eb NO-LOCK
             WHERE bf-eb.company EQ estCostMaterial.company
             AND bf-eb.est-no    EQ estCostMaterial.estimateNo
@@ -199,163 +183,162 @@ PROCEDURE ProcessEstCostMaterial :
         IF NOT AVAILABLE bf-Item THEN 
             NEXT.          
                        
-        FIND FIRST ttEstGroups 
-            WHERE ttEstGroups.INo          EQ estCostMaterial.itemID
-            AND ttEstGroups.VendNo         EQ estCostMaterial.vendorID
-            AND ttEstGroups.Len            EQ bf-eb.len
-            AND ttEstGroups.Wid            EQ bf-eb.wid
-            AND ttEstGroups.Dep            EQ bf-eb.dep
-            AND ttEstGroups.Scores         EQ cScores
-            AND ttEstGroups.Adders         EQ cAdders
-            AND ttEstGroups.quantityMaster EQ estCostHeader.quantityMaster NO-ERROR.
+        FIND FIRST ttRecostBoardGroups 
+            WHERE ttRecostBoardGroups.INo  EQ estCostMaterial.itemID
+            AND ttRecostBoardGroups.VendNo EQ estCostMaterial.vendorID
+            AND ttRecostBoardGroups.Len    EQ bf-eb.len
+            AND ttRecostBoardGroups.Wid    EQ bf-eb.wid
+            AND ttRecostBoardGroups.Dep    EQ bf-eb.dep
+            AND ttRecostBoardGroups.Scores EQ cScores
+            AND ttRecostBoardGroups.Adders EQ cAdders NO-ERROR.
             
-        IF AVAILABLE ttEstGroups THEN 
+        IF AVAILABLE ttRecostBoardGroups THEN 
         DO:                   
-            dQty = estCostMaterial.quantityRequiredTotal.
+            dQty = estCostMaterial.quantityRequiredTotal.                        
                         
-            IF estCostMaterial.quantityUOM NE ttEstGroups.TotalQtyUOM THEN 
-            DO:
-                /*convert uom so that it can be summed with existing qty*/
-                RUN sys/ref/convquom.p (INPUT estCostMaterial.quantityUOM,
-                    INPUT ttEstGroups.TotalQtyUOM,
+            IF estCostMaterial.quantityUOM NE ttRecostBoardGroups.TotalQtyUOM THEN 
+            DO:     
+                RUN Conv_QuantityFromUOMtoUOM IN hdConversionProcs(
+                    INPUT estCostMaterial.company,
+                    INPUT estCostMaterial.itemID,
+                    INPUT ttRecostBoardGroups.itemType,
+                    INPUT estCostMaterial.quantityRequiredTotal,
+                    INPUT estCostMaterial.quantityUOM,
+                    INPUT ttRecostBoardGroups.TotalQtyUOM,
                     INPUT estCostMaterial.basisWeight,
                     INPUT bf-eb.len,
                     INPUT bf-eb.wid,
                     INPUT bf-eb.dep,
-                    INPUT estCostMaterial.quantityRequiredTotal,
-                    OUTPUT dQty).
+                    INPUT 0,
+                    OUTPUT dQty,
+                    OUTPUT loError,
+                    OUTPUT chMessage).
             END.
+            
             ASSIGN 
-                ttEstGroups.Multi      = YES
-                ttEstGroups.TotalQty   = ttEstGroups.TotalQty + dQty
-                ttEstGroups.LineCount  = ttEstGroups.LineCount + 1
-                ttEstGroups.FormIdList = ttEstGroups.FormIdList + "," + string(estCostMaterial.formNo).            
+                ttRecostBoardGroups.Multi      = YES
+                ttRecostBoardGroups.TotalQty   = ttRecostBoardGroups.TotalQty + dQty
+                ttRecostBoardGroups.LineCount  = ttRecostBoardGroups.LineCount + 1
+                ttRecostBoardGroups.FormIdList = ttRecostBoardGroups.FormIdList + "," + string(estCostMaterial.formNo).            
         END.
         ELSE 
         DO:
-            CREATE ttEstGroups.
+            CREATE ttRecostBoardGroups.
             ASSIGN
-                ttEstGroups.INo            = estCostMaterial.itemID
-                ttEstGroups.VendNo         = estCostMaterial.vendorID
-                ttEstGroups.Len            = bf-eb.len
-                ttEstGroups.Wid            = bf-eb.wid
-                ttEstGroups.Dep            = bf-eb.dep 
-                ttEstGroups.UOM            = estCostMaterial.dimUOM                
-                ttEstGroups.Scores         = cScores
-                ttEstGroups.Adders         = cAdders
-                ttEstGroups.AdderCost      = dAdderCost
-                ttEstGroups.TotalQty       = estCostMaterial.quantityRequiredTotal
-                ttEstGroups.TotalQtyUOM    = estCostMaterial.quantityUOM                
-                ttEstGroups.Multi          = NO
-                ttEstGroups.BasisWeight    = estCostMaterial.basisWeight
-                ttEstGroups.BasisWeightUOM = estCostMaterial.basisWeightUOM                
-                ttEstGroups.LineCount      = 1
-                ttEstGroups.itemType       = IF estCostMaterial.isPurchasedFG THEN "FG" ELSE "RM" 
-                ttEstGroups.quantityMaster = estCostHeader.quantityMaster
-                ttEstGroups.customerID     = bf-Item.cust-no
-                ttEstGroups.FormIdList     = STRING(estCostMaterial.formNo).
+                ttRecostBoardGroups.CompanyId      = estCostMaterial.company
+                ttRecostBoardGroups.INo            = estCostMaterial.itemID
+                ttRecostBoardGroups.VendNo         = estCostMaterial.vendorID
+                ttRecostBoardGroups.Len            = bf-eb.len
+                ttRecostBoardGroups.Wid            = bf-eb.wid
+                ttRecostBoardGroups.Dep            = bf-eb.dep 
+                ttRecostBoardGroups.UOM            = estCostMaterial.dimUOM                
+                ttRecostBoardGroups.Scores         = cScores
+                ttRecostBoardGroups.Adders         = cAdders
+                ttRecostBoardGroups.AdderCost      = dAdderCost
+                ttRecostBoardGroups.TotalQty       = estCostMaterial.quantityRequiredTotal
+                ttRecostBoardGroups.TotalQtyUOM    = estCostMaterial.quantityUOM                
+                ttRecostBoardGroups.Multi          = NO
+                ttRecostBoardGroups.BasisWeight    = estCostMaterial.basisWeight
+                ttRecostBoardGroups.BasisWeightUOM = estCostMaterial.basisWeightUOM                
+                ttRecostBoardGroups.LineCount      = 1
+                ttRecostBoardGroups.itemType       = IF estCostMaterial.isPurchasedFG THEN "FG" ELSE "RM" 
+                ttRecostBoardGroups.quantityMaster = estCostHeader.quantityMaster
+                ttRecostBoardGroups.customerID     = bf-Item.cust-no
+                ttRecostBoardGroups.FormIdList     = STRING(estCostMaterial.formNo).
         END.
         
-        CREATE ttEstLineXRef.
+        CREATE ttRecostBoardLineXRef.
         ASSIGN        
-            ttEstLineXRef.EstGroupRowId        = ROWID(ttEstGroups)
-            ttEstLineXRef.estCostMaterialRowID = ROWID(estCostMaterial).             
+            ttRecostBoardLineXRef.RecostBoardGroupRowId = ROWID(ttRecostBoardGroups)
+            ttRecostBoardLineXRef.EstCostMaterialRowID     = ROWID(estCostMaterial).             
     
     END.
-    DELETE PROCEDURE hdFormulaProcs.
+    IF VALID-HANDLE(hdFormulaProcs) THEN
+        DELETE PROCEDURE hdFormulaProcs.
+    
+    IF VALID-HANDLE(hdConversionProcs) THEN
+        DELETE PROCEDURE hdConversionProcs.
+    
     
 END PROCEDURE.
 
-PROCEDURE ShowCostUpdates :
-    /*------------------------------------------------------------------------------
-      Purpose: Present Results to the user
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lUpdateCost AS LOG NO-UNDO.
-
-    FOR EACH ttEstGroups
-        WHERE ttEstGroups.Multi
-        AND ttEstGroups.UpdateCost:
-
-        MESSAGE "A reduced cost of " ttEstGroups.NewCost " " ttEstGroups.NewCostUOM " was found." SKIP
-            "Total Qty: " ttEstGroups.TotalQty " " ttEstGroups.TotalQtyUom SKIP
-            "Item #: " ttEstGroups.INo SKIP
-            "Vendor: " ttEstGroups.VendNo SKIP
-            "Width: " ttEstGroups.Wid SKIP
-            "Length: " ttEstGroups.Len SKIP
-            "Scores: " ttEstGroups.Scores SKIP 
-            "Adders: " ttEstGroups.Adders SKIP(1)
-            "Do you want to apply this cost to the order lines?"
-            VIEW-AS ALERT-BOX INFORMATION BUTTONS YES-NO UPDATE lUpdateCost.
-        ttEstGroups.UpdateCost = lUpdateCost.
-
-    END. /*each ttEstGroups*/
-END PROCEDURE.
-
-
-PROCEDURE UpdateEstCostMaterial :
+PROCEDURE UpdateEstCostMaterial:
     /*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-
     DEFINE INPUT PARAMETER iplCompareOnly AS LOG NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE FOR ttRecostBoardGroups.
 
     DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
-    DEFINE VARIABLE xEstGroupCost    LIKE estCostMaterial.costTotal NO-UNDO.
-    DEFINE VARIABLE xNewEstLineSetup LIKE estCostMaterial.costSetup NO-UNDO.
-    DEFINE VARIABLE cAdders          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dEstGroupCost     LIKE estCostMaterial.costTotal NO-UNDO.
+    DEFINE VARIABLE dNewEstLineSetup  LIKE estCostMaterial.costSetup NO-UNDO.
+    DEFINE VARIABLE cAdders           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdConversionProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE loError           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE chMessage         AS CHARACTER NO-UNDO.
+    
+    IF VALID-HANDLE(hdConversionProcs) = FALSE THEN
+        RUN system/ConversionProcs.p   PERSISTENT SET hdConversionProcs.    
 
-    FOR EACH ttEstGroups
-        WHERE ttEstGroups.Multi
-        AND (iplCompareOnly OR ttEstGroups.UpdateCost),
-        EACH ttEstLineXref
-        WHERE ttEstLineXref.EstGroupRowId EQ ROWID(ttEstGroups) NO-LOCK:
+    FOR EACH ttRecostBoardGroups
+        WHERE ttRecostBoardGroups.Multi
+        AND (iplCompareOnly OR ttRecostBoardGroups.UpdateCost),
+        EACH ttRecostBoardLineXRef
+        WHERE ttRecostBoardLineXRef.RecostBoardGroupRowId EQ ROWID(ttRecostBoardGroups) NO-LOCK:
         FIND FIRST estCostMaterial 
-            WHERE ROWID(estCostMaterial) EQ ttEstLineXref.estCostMaterialRowID NO-LOCK NO-ERROR.
+            WHERE ROWID(estCostMaterial) EQ ttRecostBoardLineXRef.EstCostMaterialRowID NO-LOCK NO-ERROR.
         
         IF AVAILABLE estCostMaterial THEN 
         DO:
             ASSIGN 
-                xEstGroupCost    = ttEstGroups.NewCost
-                xNewEstLineSetup = ttEstGroups.NewSetup / ttEstGroups.LineCount.                
-                       
-            IF estCostMaterial.costUOM NE ttEstGroups.NewCostUom THEN
-                RUN sys/ref/convcuom.p(INPUT ttEstGroups.NewCostUom,
-                    INPUT estCostMaterial.quantityUOM,
-                    INPUT ttEstGroups.BasisWeight,
-                    INPUT ttEstGroups.Len,
-                    INPUT ttEstGroups.Wid,
-                    INPUT 0,
-                    INPUT xEstGroupCost, 
-                    OUTPUT xEstGroupCost).
+                dEstGroupCost    = ttRecostBoardGroups.NewCost
+                dNewEstLineSetup = ttRecostBoardGroups.NewSetup / ttRecostBoardGroups.LineCount.
+             
+           IF estCostMaterial.costUOM NE ttRecostBoardGroups.NewCostUom THEN       
+            RUN Conv_QuantityFromUOMtoUOM IN hdConversionProcs(
+                INPUT ttRecostBoardGroups.company,
+                INPUT ttRecostBoardGroups.INO,
+                INPUT ttRecostBoardGroups.itemType,
+                INPUT estCostMaterial.quantityRequiredTotal,
+                INPUT ttRecostBoardGroups.NewCostUom,
+                INPUT estCostMaterial.quantityUOM,
+                INPUT ttRecostBoardGroups.BasisWeight,
+                INPUT ttRecostBoardGroups.len,
+                INPUT ttRecostBoardGroups.wid,
+                INPUT ttRecostBoardGroups.dep,
+                INPUT 0,
+                OUTPUT dEstGroupCost,
+                OUTPUT loError,
+                OUTPUT chMessage).  
         
-            IF xEstGroupCost LT estCostMaterial.costTotal OR xNewEstLineSetup LT estCostMaterial.costSetup THEN 
+            IF dEstGroupCost LT estCostMaterial.costTotal OR dNewEstLineSetup LT estCostMaterial.costSetup THEN 
             DO:
                 ASSIGN 
-                    glUpdate               = YES 
-                    ttEstGroups.UpdateCost = YES.
+                    loUpdate               = YES 
+                    ttRecostBoardGroups.UpdateCost = YES.
                     
                 IF NOT iplCompareOnly THEN 
                 DO:  /*Update estCostMaterial*/
                     FIND CURRENT estCostMaterial EXCLUSIVE-LOCK.
-                    IF  estCostMaterial.costPerUOM > xEstGroupCost THEN  
-                        ASSIGN estCostMaterial.costPerUOM = xEstGroupCost
+                    IF  estCostMaterial.costPerUOM > dEstGroupCost THEN  
+                        ASSIGN estCostMaterial.costPerUOM = dEstGroupCost
                             estCostMaterial.costTotal  = estCostMaterial.quantityRequiredTotal * estCostMaterial.costPerUOM.
-                    IF estCostMaterial.costSetup > xNewEstLineSetup THEN 
-                        ASSIGN estCostMaterial.costSetup = xNewEstLineSetup.
-                    FIND CURRENT estCostMaterial NO-LOCK.
-                    
+                    IF estCostMaterial.costSetup > dNewEstLineSetup THEN 
+                        ASSIGN estCostMaterial.costSetup = dNewEstLineSetup.
+                    FIND CURRENT estCostMaterial NO-LOCK.                    
                 END.
             END.
         END. /*avail bf-estCostMaterial*/
-    END. /*Each tt*/
+    END. /*Each ttRecostBoardGroups*/
     
+    IF VALID-HANDLE(hdConversionProcs) THEN
+        DELETE PROCEDURE hdConversionProcs.
+        
 END PROCEDURE.
 
-PROCEDURE GetAdders :
+PROCEDURE GetAdders PRIVATE:
     /*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
@@ -381,8 +364,9 @@ PROCEDURE GetAdders :
     DO:
         DO iCount = 1 TO 6:
             IF bf-ef.adder[iCount] <> "" THEN
-                lAvailAdder = TRUE.
-            opcAdders = opcAdders + "," + bf-ef.adder[iCount].        
+                ASSIGN
+                    lAvailAdder = TRUE
+                    opcAdders   = opcAdders + "," + bf-ef.adder[iCount].        
         END.
         
         ASSIGN 
