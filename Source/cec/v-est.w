@@ -952,19 +952,11 @@ DO:
                APPLY "ENTRY":U TO lw-focus.
              END.
            END.
-           ELSE IF AVAIL style AND style.type = "W" THEN  DO: /* Wood */               
-              RUN system/openlookup.p (
-                cocode, 
-                "", /* lookup field */
-                155,   /* Subject ID */
-                "",  /* User ID */
-                0,   /* Param value ID */
-                OUTPUT cFieldsValue, 
-                OUTPUT cFoundValue, 
-                OUTPUT recFoundRecID
-                ). 
-              IF cFoundValue NE "" AND cFoundValue NE ef.board:SCREEN-VALUE THEN DO:
-                ef.board:SCREEN-VALUE = cFoundValue.                
+           ELSE IF AVAIL style AND style.type = "W" THEN  DO: /* Wood */
+               RUN AOA/dynLookupSetParam.p (155, ROWID(style), OUTPUT char-val).             
+              IF char-val NE "" THEN DO:
+                ef.board:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val).  
+                ef.brd-dscr:SCREEN-VALUE IN FRAME {&frame-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-name", char-val).
                 APPLY "ENTRY":U TO ef.board.
               END.
            END.
@@ -5000,6 +4992,7 @@ PROCEDURE valid-board :
         WHERE item.company   EQ cocode
         AND   item.materialType   EQ "Wood"          
         AND  (item.i-code eq lv-i-code OR lv-i-code eq "B")
+        AND  item.industry EQ lv-industry
         AND item.i-no EQ ef.board:SCREEN-VALUE) OR
         ef.board:SCREEN-VALUE EQ "" THEN DO:
         

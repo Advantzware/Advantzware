@@ -910,18 +910,10 @@ DO:
               END. /* IF char-val NE "" THEN DO: */
            END. /* if foam */
            ELSE IF AVAIL style AND style.type = "W" THEN  DO: /* Wood */               
-              RUN system/openlookup.p (
-                cocode, 
-                "", /* lookup field */
-                155,   /* Subject ID */
-                "",  /* User ID */
-                0,   /* Param value ID */
-                OUTPUT cFieldsValue, 
-                OUTPUT cFoundValue, 
-                OUTPUT recFoundRecID
-                ). 
-              IF cFoundValue NE "" AND cFoundValue NE ef.board:SCREEN-VALUE THEN DO:
-                ef.board:SCREEN-VALUE = cFoundValue.                
+              RUN AOA/dynLookupSetParam.p (155, ROWID(style), OUTPUT char-val).
+              IF char-val NE ""  THEN DO:
+                ef.board:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val).
+                ef.brd-dscr:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-name", char-val).
                 APPLY "ENTRY":U TO ef.board.
               END.
            END.
