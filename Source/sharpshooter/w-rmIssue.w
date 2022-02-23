@@ -125,8 +125,8 @@ RUN spSetSettingContext.
     ~{&OPEN-QUERY-br-table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btJobReset btPost cbRMItem btTotal btScanned ~
-btConsumed btClear br-table btnNumPad btnExitText btnClearText ~
+&Scoped-Define ENABLED-OBJECTS btJobReset btPost cbRMItem btTotal btClear ~
+btScanned btConsumed btnNumPad br-table btnExitText btnClearText ~
 btnSettingsText statusMessage 
 &Scoped-Define DISPLAYED-OBJECTS cbRMItem fiUOM fiTotalQty fiScannedQty ~
 fiConsumedQty btnExitText btnClearText btnSettingsText statusMessage 
@@ -280,27 +280,27 @@ DEFINE BROWSE br-table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btJobReset AT ROW 3.62 COL 151.4 WIDGET-ID 180
+     btJobReset AT ROW 3.38 COL 151.4 WIDGET-ID 180
      btPost AT ROW 3.24 COL 160.6 WIDGET-ID 38
      cbRMItem AT ROW 5.52 COL 16.6 COLON-ALIGNED NO-LABEL WIDGET-ID 152
      fiUOM AT ROW 5.62 COL 73.6 COLON-ALIGNED NO-LABEL WIDGET-ID 176
      btTotal AT ROW 6.48 COL 111 WIDGET-ID 162 NO-TAB-STOP 
+     btClear AT ROW 3.38 COL 194.8 WIDGET-ID 146
      btScanned AT ROW 6.48 COL 139.6 WIDGET-ID 164
      btConsumed AT ROW 6.48 COL 168.2 WIDGET-ID 166
      fiTotalQty AT ROW 8.76 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 170
-     btClear AT ROW 3.19 COL 194.8 WIDGET-ID 146
      fiScannedQty AT ROW 8.76 COL 137.6 COLON-ALIGNED NO-LABEL WIDGET-ID 174
      fiConsumedQty AT ROW 8.76 COL 166.2 COLON-ALIGNED NO-LABEL WIDGET-ID 172
-     br-table AT ROW 10.05 COL 1.4 WIDGET-ID 200
      btnNumPad AT ROW 3.48 COL 182.8 WIDGET-ID 120 NO-TAB-STOP 
+     br-table AT ROW 10.05 COL 1.4 WIDGET-ID 200
      btnExitText AT ROW 1.24 COL 189 COLON-ALIGNED NO-LABEL WIDGET-ID 70
-     btnClearText AT ROW 3.38 COL 182 NO-LABEL WIDGET-ID 148
+     btnClearText AT ROW 3.57 COL 182 NO-LABEL WIDGET-ID 148
      btnSettingsText AT ROW 19.81 COL 180.2 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      statusMessage AT ROW 19.95 COL 2.8 NO-LABEL WIDGET-ID 66
-     "RM ITEM:" VIEW-AS TEXT
-          SIZE 17 BY .95 AT ROW 5.76 COL 1.6 WIDGET-ID 154
      "UOM:" VIEW-AS TEXT
           SIZE 10.4 BY .95 AT ROW 5.76 COL 65 WIDGET-ID 178
+     "RM ITEM:" VIEW-AS TEXT
+          SIZE 17 BY .95 AT ROW 5.76 COL 1.6 WIDGET-ID 154
      RECT-2 AT ROW 3.29 COL 181.8 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -362,7 +362,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-/* BROWSE-TAB br-table fiConsumedQty F-Main */
+/* BROWSE-TAB br-table btnNumPad F-Main */
 ASSIGN 
        br-table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
@@ -829,6 +829,8 @@ PROCEDURE adm-create-objects :
              btPost:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_tagfilter ,
              btConsumed:HANDLE IN FRAME F-Main , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
+             br-table:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
              h_navigatefirst , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext ,
@@ -904,8 +906,8 @@ PROCEDURE enable_UI :
   DISPLAY cbRMItem fiUOM fiTotalQty fiScannedQty fiConsumedQty btnExitText 
           btnClearText btnSettingsText statusMessage 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btJobReset btPost cbRMItem btTotal btScanned btConsumed btClear 
-         br-table btnNumPad btnExitText btnClearText btnSettingsText 
+  ENABLE btJobReset btPost cbRMItem btTotal btClear btScanned btConsumed 
+         btnNumPad br-table btnExitText btnClearText btnSettingsText 
          statusMessage 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
@@ -1413,9 +1415,11 @@ PROCEDURE pUpdateRMItemList :
     
     cbRMItem:LIST-ITEMS IN FRAME {&FRAME-NAME} = cRMListitems.
 
-    IF gcSSIssueDefaultRM NE "User Select" THEN
+    IF gcSSIssueDefaultRM NE "User Select" THEN DO:
         cbRMItem:SCREEN-VALUE = ENTRY(1, cRMListitems) NO-ERROR.
-
+        
+        APPLY "VALUE-CHANGED" TO cbRMItem. 
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
