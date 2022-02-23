@@ -334,7 +334,7 @@ PROCEDURE pAddCostDetailForOperation PRIVATE:
      Purpose: Given an EstOperation buffer, create a unique cost detail record
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-estCostOperation FOR estCostOperation.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostOperation FOR ttEstCostOperation.
     DEFINE INPUT PARAMETER ipcEstCostCategoryID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdCost AS DECIMAL NO-UNDO.
@@ -342,8 +342,8 @@ PROCEDURE pAddCostDetailForOperation PRIVATE:
     
     DEFINE BUFFER bf-ttEstCostDetail FOR ttEstCostDetail.
     
-    RUN pAddCostDetail(ipbf-estCostOperation.estCostHeaderID, ipbf-estCostOperation.estCostFormID, ipbf-estCostOperation.estCostBlankID, ipbf-estCostOperation.estCostOperationID, 
-        gcSourceTypeOperation, ipcEstCostCategoryID, ipcDescription, ipdCost, ipdProfitPercent, ipbf-estCostOperation.company, ipbf-estCostOperation.estimateNo, BUFFER bf-ttEstCostDetail).
+    RUN pAddCostDetail(ipbf-ttEstCostOperation.estCostHeaderID, ipbf-ttEstCostOperation.estCostFormID, ipbf-ttEstCostOperation.estCostBlankID, ipbf-ttEstCostOperation.estCostOperationID, 
+        gcSourceTypeOperation, ipcEstCostCategoryID, ipcDescription, ipdCost, ipdProfitPercent, ipbf-ttEstCostOperation.company, ipbf-ttEstCostOperation.estimateNo, BUFFER bf-ttEstCostDetail).
 
 END PROCEDURE.
 
@@ -1072,31 +1072,33 @@ END PROCEDURE.
 
 PROCEDURE pAddEstOperation PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose:  Create estCostOperation for ttEstCostForm
+     Purpose:  Create ttEstCostOperation for ttEstCostForm
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-ttEstCostForm    FOR ttEstCostForm.
-    DEFINE PARAMETER BUFFER opbf-estCostOperation FOR estCostOperation.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostForm      FOR ttEstCostForm.
+    DEFINE PARAMETER BUFFER opbf-ttEstCostOperation FOR ttEstCostOperation.
     
-    CREATE opbf-estCostOperation.
+    CREATE opbf-ttEstCostOperation.
     ASSIGN 
-        opbf-estCostOperation.estCostFormID   = ipbf-ttEstCostForm.estCostFormID
-        opbf-estCostOperation.estCostHeaderID = ipbf-ttEstCostForm.estCostHeaderID
-        opbf-estCostOperation.company         = ipbf-ttEstCostForm.company
-        opbf-estCostOperation.estimateNo      = ipbf-ttEstCostForm.estimateNo
-        opbf-estCostOperation.formNo          = ipbf-ttEstCostForm.formNo
+        opbf-ttEstCostOperation.estCostFormID   = ipbf-ttEstCostForm.estCostFormID
+        opbf-ttEstCostOperation.estCostHeaderID = ipbf-ttEstCostForm.estCostHeaderID
+        opbf-ttEstCostOperation.company         = ipbf-ttEstCostForm.company
+        opbf-ttEstCostOperation.estimateNo      = ipbf-ttEstCostForm.estimateNo
+        opbf-ttEstCostOperation.formNo          = ipbf-ttEstCostForm.formNo
         .
+    
+    RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostOperation.estCostOperationID, INPUT-OUTPUT opbf-ttEstCostOperation.rec_key).
         
 END PROCEDURE.
 
 PROCEDURE pAddEstOperationFromEstOp PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: Creates an estCostOperation based on est-op and form
+     Purpose: Creates an ttEstCostOperation based on est-op and form
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-est-op           FOR est-op.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm    FOR ttEstCostForm.
-    DEFINE PARAMETER BUFFER opbf-estCostOperation FOR estCostOperation.
+    DEFINE PARAMETER BUFFER opbf-ttEstCostOperation FOR ttEstCostOperation.
 
     DEFINE           BUFFER bf-mach               FOR mach.
     DEFINE           BUFFER bf-est-op             FOR est-op.
@@ -1109,65 +1111,65 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
         NO-ERROR.
     IF AVAILABLE bf-mach THEN 
     DO:
-        RUN pAddEstOperation(BUFFER ipbf-ttEstCostForm, BUFFER opbf-estCostOperation).
+        RUN pAddEstOperation(BUFFER ipbf-ttEstCostForm, BUFFER opbf-ttEstCostOperation).
         ASSIGN 
-            opbf-estCostOperation.blankNo                      = ipbf-est-op.b-num
-            opbf-estCostOperation.estCostBlankID               = fGetEstBlankID(opbf-estCostOperation.estCostBlankID, opbf-estCostOperation.estCostFormID, opbf-estCostOperation.blankNo)
-            opbf-estCostOperation.operationID                  = ipbf-est-op.m-code
-            opbf-estCostOperation.pass                         = MAX(ipbf-est-op.op-pass, 1)
-            opbf-estCostOperation.sequenceOfOperation          = ipbf-est-op.line
-            opbf-estCostOperation.numOutDivisor                = ipbf-est-op.n_out_div
+            opbf-ttEstCostOperation.blankNo                      = ipbf-est-op.b-num
+            opbf-ttEstCostOperation.estCostBlankID               = fGetEstBlankID(opbf-ttEstCostOperation.estCostBlankID, opbf-ttEstCostOperation.estCostFormID, opbf-ttEstCostOperation.blankNo)
+            opbf-ttEstCostOperation.operationID                  = ipbf-est-op.m-code
+            opbf-ttEstCostOperation.pass                         = MAX(ipbf-est-op.op-pass, 1)
+            opbf-ttEstCostOperation.sequenceOfOperation          = ipbf-est-op.line
+            opbf-ttEstCostOperation.numOutDivisor                = ipbf-est-op.n_out_div
                        
-            opbf-estCostOperation.quantityInSetupWaste         = ipbf-est-op.op-waste
-            opbf-estCostOperation.hoursSetup                   = ipbf-est-op.op-mr
-            opbf-estCostOperation.speed                        = ipbf-est-op.op-speed
-            opbf-estCostOperation.quantityInRunWastePercent    = ipbf-est-op.op-spoil
-            opbf-estCostOperation.isLocked                     = ipbf-est-op.isLocked
-            opbf-estCostOperation.crewSizeSetup                = ipbf-est-op.op-crew[1]
-            opbf-estCostOperation.crewSizeRun                  = ipbf-est-op.op-crew[2]
-            opbf-estCostOperation.countInks                    = ipbf-est-op.num-col
-            opbf-estCostOperation.countCoats                   = ipbf-est-op.num-coat
-            opbf-estCostOperation.countFountainChanges         = ipbf-est-op.fountains
-            opbf-estCostOperation.countPlateChanges            = ipbf-est-op.plates
+            opbf-ttEstCostOperation.quantityInSetupWaste         = ipbf-est-op.op-waste
+            opbf-ttEstCostOperation.hoursSetup                   = ipbf-est-op.op-mr
+            opbf-ttEstCostOperation.speed                        = ipbf-est-op.op-speed
+            opbf-ttEstCostOperation.quantityInRunWastePercent    = ipbf-est-op.op-spoil
+            opbf-ttEstCostOperation.isLocked                     = ipbf-est-op.isLocked
+            opbf-ttEstCostOperation.crewSizeSetup                = ipbf-est-op.op-crew[1]
+            opbf-ttEstCostOperation.crewSizeRun                  = ipbf-est-op.op-crew[2]
+            opbf-ttEstCostOperation.countInks                    = ipbf-est-op.num-col
+            opbf-ttEstCostOperation.countCoats                   = ipbf-est-op.num-coat
+            opbf-ttEstCostOperation.countFountainChanges         = ipbf-est-op.fountains
+            opbf-ttEstCostOperation.countPlateChanges            = ipbf-est-op.plates
             
-            opbf-estCostOperation.isSpeedInLF                  = bf-mach.therm
-            opbf-estCostOperation.operationName                = bf-mach.m-dscr
-            opbf-estCostOperation.feedType                     = bf-mach.p-type
-            opbf-estCostOperation.outputType                   = opbf-estCostOperation.feedType
-            opbf-estCostOperation.departmentIDPrimary          = bf-mach.dept[1]
-            opbf-estCostOperation.departmentID                 = bf-mach.dept
-            opbf-estCostOperation.quantityInSetupWastePerColor = bf-mach.col-wastesh
-            opbf-estCostOperation.costPerHourFOSetup           = bf-mach.mr-fixoh
-            opbf-estCostOperation.costPerHourFORun             = bf-mach.run-fixoh
-            opbf-estCostOperation.costPerHourVOSetup           = bf-mach.mr-varoh
-            opbf-estCostOperation.costPerHourVORun             = bf-mach.run-varoh
-            opbf-estCostOperation.quantityInkLbsWastedPerSetup = bf-mach.ink-waste
-            opbf-estCostOperation.quantityInkLbsWastedPerColor = bf-mach.col-wastelb
-            opbf-estCostOperation.hoursRunMinimum              = bf-mach.minRunHours
-            opbf-estCostOperation.costMinimum                  = bf-mach.mrk-rate
+            opbf-ttEstCostOperation.isSpeedInLF                  = bf-mach.therm
+            opbf-ttEstCostOperation.operationName                = bf-mach.m-dscr
+            opbf-ttEstCostOperation.feedType                     = bf-mach.p-type
+            opbf-ttEstCostOperation.outputType                   = opbf-ttEstCostOperation.feedType
+            opbf-ttEstCostOperation.departmentIDPrimary          = bf-mach.dept[1]
+            opbf-ttEstCostOperation.departmentID                 = bf-mach.dept
+            opbf-ttEstCostOperation.quantityInSetupWastePerColor = bf-mach.col-wastesh
+            opbf-ttEstCostOperation.costPerHourFOSetup           = bf-mach.mr-fixoh
+            opbf-ttEstCostOperation.costPerHourFORun             = bf-mach.run-fixoh
+            opbf-ttEstCostOperation.costPerHourVOSetup           = bf-mach.mr-varoh
+            opbf-ttEstCostOperation.costPerHourVORun             = bf-mach.run-varoh
+            opbf-ttEstCostOperation.quantityInkLbsWastedPerSetup = bf-mach.ink-waste
+            opbf-ttEstCostOperation.quantityInkLbsWastedPerColor = bf-mach.col-wastelb
+            opbf-ttEstCostOperation.hoursRunMinimum              = bf-mach.minRunHours
+            opbf-ttEstCostOperation.costMinimum                  = bf-mach.mrk-rate
             .
 
         IF glOpRatesSeparate THEN 
             ASSIGN 
-                opbf-estCostOperation.costPerManHourDLSetup = bf-mach.lab-rate[1]
-                opbf-estCostOperation.costPerManHourDLRun   = bf-mach.lab-rate[2]
+                opbf-ttEstCostOperation.costPerManHourDLSetup = bf-mach.lab-rate[1]
+                opbf-ttEstCostOperation.costPerManHourDLRun   = bf-mach.lab-rate[2]
                 .
         ELSE 
             ASSIGN 
-                opbf-estCostOperation.costPerManHourDLSetup = bf-mach.lab-rate[bf-mach.lab-drate]
-                opbf-estCostOperation.costPerManHourDLRun   = bf-mach.lab-rate[bf-mach.lab-drate]
+                opbf-ttEstCostOperation.costPerManHourDLSetup = bf-mach.lab-rate[bf-mach.lab-drate]
+                opbf-ttEstCostOperation.costPerManHourDLRun   = bf-mach.lab-rate[bf-mach.lab-drate]
                 .
             
        
-        IF fIsDepartment(gcDeptsForPrinters, opbf-estCostOperation.departmentID) THEN  
-            opbf-estCostOperation.isPrinter = YES.
-        IF fIsDepartment(gcDeptsForCoaters, opbf-estCostOperation.departmentID) THEN  
-            opbf-estCostOperation.isCoater = YES.
+        IF fIsDepartment(gcDeptsForPrinters, opbf-ttEstCostOperation.departmentID) THEN  
+            opbf-ttEstCostOperation.isPrinter = YES.
+        IF fIsDepartment(gcDeptsForCoaters, opbf-ttEstCostOperation.departmentID) THEN  
+            opbf-ttEstCostOperation.isCoater = YES.
         
-        IF fIsDepartment(gcDeptsForGluers, opbf-estCostOperation.departmentID)  THEN 
-            opbf-estCostOperation.isGluer = YES.
-        IF fIsDepartment(gcDeptsForLeafers, opbf-estCostOperation.departmentID)  THEN 
-            opbf-estCostOperation.isLeafer = YES.
+        IF fIsDepartment(gcDeptsForGluers, opbf-ttEstCostOperation.departmentID)  THEN 
+            opbf-ttEstCostOperation.isGluer = YES.
+        IF fIsDepartment(gcDeptsForLeafers, opbf-ttEstCostOperation.departmentID)  THEN 
+            opbf-ttEstCostOperation.isLeafer = YES.
         
         IF VALID-HANDLE(ghOperation) THEN
             RUN Operations_GetOutputType IN ghOperation( INPUT ipbf-est-op.company, 
@@ -1180,34 +1182,34 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
         
         IF cOutputType = "B" THEN
             ASSIGN 
-                opbf-estCostOperation.isBlankMaker = YES
-                opbf-estCostOperation.outputType   = "B"
+                opbf-ttEstCostOperation.isBlankMaker = YES
+                opbf-ttEstCostOperation.outputType   = "B"
                 .
                 
         ELSE IF cOutputType = "S" THEN
             ASSIGN
-                opbf-estCostOperation.isNetSheetMaker = YES
-                opbf-estCostOperation.outputType      = "S".
+                opbf-ttEstCostOperation.isNetSheetMaker = YES
+                opbf-ttEstCostOperation.outputType      = "S".
                 
         
-        opbf-estCostOperation.numOutForOperation = 1.
-        IF opbf-estCostOperation.isNetSheetMaker THEN 
+        opbf-ttEstCostOperation.numOutForOperation = 1.
+        IF opbf-ttEstCostOperation.isNetSheetMaker THEN 
             ASSIGN 
-                opbf-estCostOperation.numOutForOperation = fGetNetSheetOut(opbf-estCostOperation.estCostOperationID,ipbf-ttEstCostForm.numOutNet, ipbf-est-op.qty)
+                opbf-ttEstCostOperation.numOutForOperation = fGetNetSheetOut(opbf-ttEstCostOperation.estCostOperationID,ipbf-ttEstCostForm.numOutNet, ipbf-est-op.qty)
                 .
-        IF opbf-estCostOperation.isBlankMaker THEN 
+        IF opbf-ttEstCostOperation.isBlankMaker THEN 
             ASSIGN 
-                opbf-estCostOperation.numOutForOperation = opbf-estCostOperation.numOutForOperation * ipbf-ttEstCostForm.numOutBlanksOnNet.
+                opbf-ttEstCostOperation.numOutForOperation = opbf-ttEstCostOperation.numOutForOperation * ipbf-ttEstCostForm.numOutBlanksOnNet.
                 
-        IF opbf-estCostOperation.blankNo NE 0 THEN 
+        IF opbf-ttEstCostOperation.blankNo NE 0 THEN 
         DO:
             FIND FIRST estCostBlank NO-LOCK 
-                WHERE estCostBlank.estCostHeaderID EQ opbf-estCostOperation.estCostHeaderID
-                AND estCostBlank.estCostFormID EQ opbf-estCostOperation.estCostFormID
-                AND estCostBlank.blankNo EQ opbf-estCostOperation.blankNo
+                WHERE estCostBlank.estCostHeaderID EQ opbf-ttEstCostOperation.estCostHeaderID
+                AND estCostBlank.estCostFormID EQ opbf-ttEstCostOperation.estCostFormID
+                AND estCostBlank.blankNo EQ opbf-ttEstCostOperation.blankNo
                 NO-ERROR.
             IF AVAILABLE estCostBlank THEN 
-                opbf-estCostOperation.estCostBlankID = estCostBlank.estCostBlankID. 
+                opbf-ttEstCostOperation.estCostBlankID = estCostBlank.estCostBlankID. 
         END.
     END.
     
@@ -2431,7 +2433,7 @@ PROCEDURE pCalcHeader PRIVATE:
     DEFINE BUFFER bf-ttEstCostForm     FOR ttEstCostForm.
     DEFINE BUFFER bf-estCostBlank      FOR estCostBlank.
     DEFINE BUFFER bf-estCostMaterial   FOR estCostMaterial.
-    DEFINE BUFFER bf-estCostOperation  FOR estCostOperation.
+    DEFINE BUFFER bf-ttEstCostOperation  FOR ttEstCostOperation.
     DEFINE BUFFER bf-estCostHeader     FOR estCostHeader.
     
     DEFINE VARIABLE iNumOutBlanksOnForm AS INTEGER NO-UNDO.
@@ -2664,24 +2666,24 @@ PROCEDURE pBuildCostDetailForOperation PRIVATE:
      Purpose: Given an operation buffer, build all costDetail records
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-estCostOperation FOR estCostOperation.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostOperation FOR ttEstCostOperation.
 
-    RUN pAddCostDetailForOperation(BUFFER ipbf-estCostOperation, "opSetupDL","Operation Setup DL",
-        ipbf-estCostOperation.costTotalDLSetup,0).
-    RUN pAddCostDetailForOperation(BUFFER ipbf-estCostOperation, "opSetupVO","Operation Setup VOH",
-        ipbf-estCostOperation.costTotalVOSetup,0).
-    RUN pAddCostDetailForOperation(BUFFER ipbf-estCostOperation, "opSetupFO","Operation Setup FOH",
-        ipbf-estCostOperation.costTotalFOSetup,0).
-    RUN pAddCostDetailForOperation(BUFFER ipbf-estCostOperation, "opRunDL","Operation Run DL",
-        ipbf-estCostOperation.costTotalDLRun,0).
-    RUN pAddCostDetailForOperation(BUFFER ipbf-estCostOperation, "opRunVO","Operation Run VOH",
-        ipbf-estCostOperation.costTotalVORun,0).
-    RUN pAddCostDetailForOperation(BUFFER ipbf-estCostOperation, "opRunFO","Operation Run FOH",
-        ipbf-estCostOperation.costTotalFORun,0).
-    RUN pAddCostDetailForOperation(BUFFER ipbf-estCostOperation, "opSetupMinDiff","Operation Setup - Min Charge Diff",
-        ipbf-estCostOperation.costTotalMinDiffSetup,0).
-    RUN pAddCostDetailForOperation(BUFFER ipbf-estCostOperation, "opRunMinDiff","Operation Run - Min Charge Diff",
-        ipbf-estCostOperation.costTotalMinDiffRun,0).
+    RUN pAddCostDetailForOperation(BUFFER ipbf-ttEstCostOperation, "opSetupDL","Operation Setup DL",
+        ipbf-ttEstCostOperation.costTotalDLSetup,0).
+    RUN pAddCostDetailForOperation(BUFFER ipbf-ttEstCostOperation, "opSetupVO","Operation Setup VOH",
+        ipbf-ttEstCostOperation.costTotalVOSetup,0).
+    RUN pAddCostDetailForOperation(BUFFER ipbf-ttEstCostOperation, "opSetupFO","Operation Setup FOH",
+        ipbf-ttEstCostOperation.costTotalFOSetup,0).
+    RUN pAddCostDetailForOperation(BUFFER ipbf-ttEstCostOperation, "opRunDL","Operation Run DL",
+        ipbf-ttEstCostOperation.costTotalDLRun,0).
+    RUN pAddCostDetailForOperation(BUFFER ipbf-ttEstCostOperation, "opRunVO","Operation Run VOH",
+        ipbf-ttEstCostOperation.costTotalVORun,0).
+    RUN pAddCostDetailForOperation(BUFFER ipbf-ttEstCostOperation, "opRunFO","Operation Run FOH",
+        ipbf-ttEstCostOperation.costTotalFORun,0).
+    RUN pAddCostDetailForOperation(BUFFER ipbf-ttEstCostOperation, "opSetupMinDiff","Operation Setup - Min Charge Diff",
+        ipbf-ttEstCostOperation.costTotalMinDiffSetup,0).
+    RUN pAddCostDetailForOperation(BUFFER ipbf-ttEstCostOperation, "opRunMinDiff","Operation Run - Min Charge Diff",
+        ipbf-ttEstCostOperation.costTotalMinDiffRun,0).
             
 END PROCEDURE.
 
@@ -2693,10 +2695,10 @@ PROCEDURE pBuildFactoryCostDetails PRIVATE:
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
     
     /*Process Operations*/
-    FOR EACH estCostOperation NO-LOCK 
-        WHERE estCostOperation.estCostHeaderID EQ ipiEstCostHeaderID:
-        RUN pBuildCostDetailForOperation(BUFFER estCostOperation).
-    END. /*Each estCostOperation for estHeader*/    
+    FOR EACH ttEstCostOperation NO-LOCK 
+        WHERE ttEstCostOperation.estCostHeaderID EQ ipiEstCostHeaderID:
+        RUN pBuildCostDetailForOperation(BUFFER ttEstCostOperation).
+    END. /*Each ttEstCostOperation for estHeader*/    
     /*Process Materials*/
     FOR EACH estCostMaterial NO-LOCK 
         WHERE estCostMaterial.estCostHeaderID EQ ipiEstCostHeaderID:
@@ -3847,7 +3849,7 @@ PROCEDURE pProcessOperations PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostHeader  FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm  FOR ttEstCostForm.
     
-    DEFINE           BUFFER bf-estCostOperation FOR estCostOperation.
+    DEFINE           BUFFER bf-ttEstCostOperation FOR ttEstCostOperation.
     DEFINE VARIABLE dQtyFormsRequiredForBlanks    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyFormsRequiredForBlanksMax AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyInOut                     AS DECIMAL NO-UNDO.
@@ -3906,15 +3908,15 @@ PROCEDURE pProcessOperations PRIVATE:
         AND est-op.qty EQ dQtyTarget
         GROUP BY est-op.line DESCENDING:
 
-    RUN pAddEstOperationFromEstOp(BUFFER est-op, BUFFER ipbf-ttEstCostForm, BUFFER bf-estCostOperation).                    
-    IF AVAILABLE bf-estCostOperation THEN 
+    RUN pAddEstOperationFromEstOp(BUFFER est-op, BUFFER ipbf-ttEstCostForm, BUFFER bf-ttEstCostOperation).                    
+    IF AVAILABLE bf-ttEstCostOperation THEN 
     DO:
         /*REFACTOR to calculate quantities for combos*/        
-        IF est-op.b-num NE 0 AND bf-estCostOperation.feedType EQ "B" THEN
+        IF est-op.b-num NE 0 AND bf-ttEstCostOperation.feedType EQ "B" THEN
         DO:  
             /*Calculate for Combo*/
             FIND FIRST ttEstBlank
-                WHERE ttEstBlank.estCostBlankID EQ bf-estCostOperation.estCostBlankID
+                WHERE ttEstBlank.estCostBlankID EQ bf-ttEstCostOperation.estCostBlankID
                 NO-ERROR.
                 
             IF AVAILABLE ttEstBlank AND NOT ttEstBlank.lOutputInitialized THEN 
@@ -3922,12 +3924,12 @@ PROCEDURE pProcessOperations PRIVATE:
                     ttEstBlank.lOutputInitialized = YES
                     .
             
-            RUN pProcessOperation(BUFFER ipbf-estCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER bf-estCostOperation, INPUT-OUTPUT ttEstBlank.dQtyInOut, 
+            RUN pProcessOperation(BUFFER ipbf-estCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER bf-ttEstCostOperation, INPUT-OUTPUT ttEstBlank.dQtyInOut, 
                 INPUT-OUTPUT ttEstBlank.dQtyInOutSetupWaste, INPUT-OUTPUT ttEstBlank.dQtyInOutRunWaste).
         END. /*BlankNo not 0*/
         ELSE 
         DO:                  
-            IF bf-estCostOperation.isBlankMaker THEN 
+            IF bf-ttEstCostOperation.isBlankMaker THEN 
             DO:
                 /*Find the most forms required to support each blank operations*/
                 FOR EACH ttEstBlank NO-LOCK 
@@ -3943,17 +3945,17 @@ PROCEDURE pProcessOperations PRIVATE:
                 
                 /*Convert the forms for the most wasteful blank into what is required out of the blank maker as a total for all blanks*/
                 ASSIGN 
-                    dQtyInOut           = dQtyFormsRequiredForBlanksMax * bf-estCostOperation.numOutForOperation
-                    dQtyInOutSetupWaste = dQtyInOutSetupWaste * bf-estCostOperation.numOutForOperation
-                    dQtyInOutRunWaste   = dQtyInOutRunWaste * bf-estCostOperation.numOutForOperation.
+                    dQtyInOut           = dQtyFormsRequiredForBlanksMax * bf-ttEstCostOperation.numOutForOperation
+                    dQtyInOutSetupWaste = dQtyInOutSetupWaste * bf-ttEstCostOperation.numOutForOperation
+                    dQtyInOutRunWaste   = dQtyInOutRunWaste * bf-ttEstCostOperation.numOutForOperation.
             END.
             IF dQtyInOut EQ 0 THEN 
                 dQtyInOut = ipbf-ttEstCostForm.quantityFGOnFormYielded.
-            RUN pProcessOperation(BUFFER ipbf-estCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER bf-estCostOperation, INPUT-OUTPUT dQtyInOut, 
+            RUN pProcessOperation(BUFFER ipbf-estCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER bf-ttEstCostOperation, INPUT-OUTPUT dQtyInOut, 
                 INPUT-OUTPUT dQtyInOutSetupWaste, INPUT-OUTPUT dQtyInOutRunWaste).
                 
         END.
-        RUN pCalcEstOperation(BUFFER ipbf-estCostHeader, BUFFER bf-estCostOperation, BUFFER ipbf-ttEstCostForm).                    
+        RUN pCalcEstOperation(BUFFER ipbf-estCostHeader, BUFFER bf-ttEstCostOperation, BUFFER ipbf-ttEstCostForm).                    
     END.
                     
 END. /*Each est-op*/
@@ -4246,7 +4248,7 @@ PROCEDURE pCalcEstOperation PRIVATE:
      Notes: Should replace end if pr4-mch.p
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-estCostHeader    FOR estCostHeader.
-    DEFINE PARAMETER BUFFER ipbf-estCostOperation FOR estCostOperation.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostOperation FOR ttEstCostOperation.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm    FOR ttEstCostForm.
     
     DEFINE VARIABLE dCostMinimumDiff       AS DECIMAL NO-UNDO.
@@ -4255,61 +4257,61 @@ PROCEDURE pCalcEstOperation PRIVATE:
     DEFINE VARIABLE dCostMinimumDiffRun    AS DECIMAL NO-UNDO.
     
         
-    IF ipbf-estCostOperation.speed NE 0 THEN
-        IF ipbf-estCostOperation.isSpeedInLF THEN
-            ipbf-estCostOperation.hoursRun = ipbf-estCostOperation.quantityInAfterSetupWasteLF / ipbf-estCostOperation.speed. 
+    IF ipbf-ttEstCostOperation.speed NE 0 THEN
+        IF ipbf-ttEstCostOperation.isSpeedInLF THEN
+            ipbf-ttEstCostOperation.hoursRun = ipbf-ttEstCostOperation.quantityInAfterSetupWasteLF / ipbf-ttEstCostOperation.speed. 
         ELSE 
-            ipbf-estCostOperation.hoursRun = ipbf-estCostOperation.quantityInAfterSetupWaste / ipbf-estCostOperation.speed.
+            ipbf-ttEstCostOperation.hoursRun = ipbf-ttEstCostOperation.quantityInAfterSetupWaste / ipbf-ttEstCostOperation.speed.
     ELSE 
-        ipbf-estCostOperation.hoursRun = 0.
+        ipbf-ttEstCostOperation.hoursRun = 0.
     
-    IF ipbf-estCostOperation.numOutDivisor GT 0 THEN
-        ipbf-estCostOperation.hoursRun = ipbf-estCostOperation.hoursRun / ipbf-estCostOperation.numOutDivisor.
+    IF ipbf-ttEstCostOperation.numOutDivisor GT 0 THEN
+        ipbf-ttEstCostOperation.hoursRun = ipbf-ttEstCostOperation.hoursRun / ipbf-ttEstCostOperation.numOutDivisor.
         
-    IF ipbf-estCostOperation.hoursRun LT ipbf-estCostOperation.hoursRunMinimum THEN 
-        ipbf-estCostOperation.hoursRun = ipbf-estCostOperation.hoursRunMinimum.
+    IF ipbf-ttEstCostOperation.hoursRun LT ipbf-ttEstCostOperation.hoursRunMinimum THEN 
+        ipbf-ttEstCostOperation.hoursRun = ipbf-ttEstCostOperation.hoursRunMinimum.
     
     ASSIGN    
-        ipbf-estCostOperation.costPerHourTotalRun   = ipbf-estCostOperation.costPerManHourDLRun * ipbf-estCostOperation.crewSizeRun + 
-                                                     ipbf-estCostOperation.costPerHourFORun + ipbf-estCostOperation.costPerHourVORun
-        ipbf-estCostOperation.costPerHourTotalSetup = ipbf-estCostOperation.costPerManHourDLSetup * ipbf-estCostOperation.crewSizeSetup + 
-                                                     ipbf-estCostOperation.costPerHourFOSetup + ipbf-estCostOperation.costPerHourVOSetup
-        ipbf-estCostOperation.costTotalDLSetup      = ipbf-estCostOperation.hoursSetup * ipbf-estCostOperation.crewSizeSetup * ipbf-estCostOperation.costPerManHourDLSetup
-        ipbf-estCostOperation.costTotalVOSetup      = ipbf-estCostOperation.hoursSetup * ipbf-estCostOperation.costPerHourVOSetup
-        ipbf-estCostOperation.costTotalFOSetup      = ipbf-estCostOperation.hoursSetup * ipbf-estCostOperation.costPerHourFOSetup
-        ipbf-estCostOperation.costTotalDLRun        = ipbf-estCostOperation.hoursRun * ipbf-estCostOperation.crewSizeRun * ipbf-estCostOperation.costPerManHourDLRun
-        ipbf-estCostOperation.costTotalVORun        = ipbf-estCostOperation.hoursRun * ipbf-estCostOperation.costPerHourVORun
-        ipbf-estCostOperation.costTotalFORun        = ipbf-estCostOperation.hoursRun * ipbf-estCostOperation.costPerHourFORun
-        ipbf-estCostOperation.costTotalSetup        = ipbf-estCostOperation.costTotalDLSetup + ipbf-estCostOperation.costTotalVOSetup + ipbf-estCostOperation.costTotalFOSetup
-        ipbf-estCostOperation.costTotalRun          = ipbf-estCostOperation.costTotalDLRun + ipbf-estCostOperation.costTotalVORun + ipbf-estCostOperation.costTotalFORun
-        ipbf-estCostOperation.costTotal             = ipbf-estCostOperation.costTotalRun + ipbf-estCostOperation.costTotalSetup
+        ipbf-ttEstCostOperation.costPerHourTotalRun   = ipbf-ttEstCostOperation.costPerManHourDLRun * ipbf-ttEstCostOperation.crewSizeRun + 
+                                                     ipbf-ttEstCostOperation.costPerHourFORun + ipbf-ttEstCostOperation.costPerHourVORun
+        ipbf-ttEstCostOperation.costPerHourTotalSetup = ipbf-ttEstCostOperation.costPerManHourDLSetup * ipbf-ttEstCostOperation.crewSizeSetup + 
+                                                     ipbf-ttEstCostOperation.costPerHourFOSetup + ipbf-ttEstCostOperation.costPerHourVOSetup
+        ipbf-ttEstCostOperation.costTotalDLSetup      = ipbf-ttEstCostOperation.hoursSetup * ipbf-ttEstCostOperation.crewSizeSetup * ipbf-ttEstCostOperation.costPerManHourDLSetup
+        ipbf-ttEstCostOperation.costTotalVOSetup      = ipbf-ttEstCostOperation.hoursSetup * ipbf-ttEstCostOperation.costPerHourVOSetup
+        ipbf-ttEstCostOperation.costTotalFOSetup      = ipbf-ttEstCostOperation.hoursSetup * ipbf-ttEstCostOperation.costPerHourFOSetup
+        ipbf-ttEstCostOperation.costTotalDLRun        = ipbf-ttEstCostOperation.hoursRun * ipbf-ttEstCostOperation.crewSizeRun * ipbf-ttEstCostOperation.costPerManHourDLRun
+        ipbf-ttEstCostOperation.costTotalVORun        = ipbf-ttEstCostOperation.hoursRun * ipbf-ttEstCostOperation.costPerHourVORun
+        ipbf-ttEstCostOperation.costTotalFORun        = ipbf-ttEstCostOperation.hoursRun * ipbf-ttEstCostOperation.costPerHourFORun
+        ipbf-ttEstCostOperation.costTotalSetup        = ipbf-ttEstCostOperation.costTotalDLSetup + ipbf-ttEstCostOperation.costTotalVOSetup + ipbf-ttEstCostOperation.costTotalFOSetup
+        ipbf-ttEstCostOperation.costTotalRun          = ipbf-ttEstCostOperation.costTotalDLRun + ipbf-ttEstCostOperation.costTotalVORun + ipbf-ttEstCostOperation.costTotalFORun
+        ipbf-ttEstCostOperation.costTotal             = ipbf-ttEstCostOperation.costTotalRun + ipbf-ttEstCostOperation.costTotalSetup
         .
     
     /*Apply minimum Charge*/
-    IF glApplyOperationMinimumCharge AND ipbf-estCostOperation.costTotal GT 0 THEN 
+    IF glApplyOperationMinimumCharge AND ipbf-ttEstCostOperation.costTotal GT 0 THEN 
     DO:
         IF glApplyOperationMinimumChargeRunOnly THEN 
         DO:
-            IF ipbf-estCostOperation.costMinimum GT ipbf-estCostOperation.costTotalRun THEN 
+            IF ipbf-ttEstCostOperation.costMinimum GT ipbf-ttEstCostOperation.costTotalRun THEN 
                 ASSIGN 
-                    dCostMinimumDiffRun = ipbf-estCostOperation.costMinimum - ipbf-estCostOperation.costTotalRun.
+                    dCostMinimumDiffRun = ipbf-ttEstCostOperation.costMinimum - ipbf-ttEstCostOperation.costTotalRun.
         END.
         ELSE 
         DO:
-            IF ipbf-estCostOperation.costMinimum GT ipbf-estCostOperation.costTotal THEN 
+            IF ipbf-ttEstCostOperation.costMinimum GT ipbf-ttEstCostOperation.costTotal THEN 
                 ASSIGN 
-                    dCostMinimumDiff       = ipbf-estCostOperation.costMinimum - ipbf-estCostOperation.costTotal
-                    dCostMinimumDiffFactor = ipbf-estCostOperation.costTotalSetup / ipbf-estCostOperation.costTotal
+                    dCostMinimumDiff       = ipbf-ttEstCostOperation.costMinimum - ipbf-ttEstCostOperation.costTotal
+                    dCostMinimumDiffFactor = ipbf-ttEstCostOperation.costTotalSetup / ipbf-ttEstCostOperation.costTotal
                     dCostMinimumDiffSetup  = dCostMinimumDiff * dCostMinimumDiffFactor
                     dCostMinimumDiffRun    = dCostMinimumDiff - dCostMinimumDiffSetup
                     .
         END.
         ASSIGN 
-            ipbf-estCostOperation.costTotalDlRun   = ipbf-estCostOperation.costTotalDLRun + dCostMinimumDiffRun
-            ipbf-estCostOperation.costTotalDlSetup = ipbf-estCostOperation.costTotalDLSetup + dCostMinimumDiffSetup
-            ipbf-estCostOperation.costTotalSetup   = ipbf-estCostOperation.costTotalDLSetup + ipbf-estCostOperation.costTotalVOSetup + ipbf-estCostOperation.costTotalFOSetup
-            ipbf-estCostOperation.costTotalRun     = ipbf-estCostOperation.costTotalDLRun + ipbf-estCostOperation.costTotalVORun + ipbf-estCostOperation.costTotalFORun
-            ipbf-estCostOperation.costTotal        = ipbf-estCostOperation.costTotalRun + ipbf-estCostOperation.costTotalSetup
+            ipbf-ttEstCostOperation.costTotalDlRun   = ipbf-ttEstCostOperation.costTotalDLRun + dCostMinimumDiffRun
+            ipbf-ttEstCostOperation.costTotalDlSetup = ipbf-ttEstCostOperation.costTotalDLSetup + dCostMinimumDiffSetup
+            ipbf-ttEstCostOperation.costTotalSetup   = ipbf-ttEstCostOperation.costTotalDLSetup + ipbf-ttEstCostOperation.costTotalVOSetup + ipbf-ttEstCostOperation.costTotalFOSetup
+            ipbf-ttEstCostOperation.costTotalRun     = ipbf-ttEstCostOperation.costTotalDLRun + ipbf-ttEstCostOperation.costTotalVORun + ipbf-ttEstCostOperation.costTotalFORun
+            ipbf-ttEstCostOperation.costTotal        = ipbf-ttEstCostOperation.costTotalRun + ipbf-ttEstCostOperation.costTotalSetup
             .
                     
     END. 
@@ -4501,28 +4503,28 @@ PROCEDURE pProcessGlues PRIVATE:
     DEFINE           BUFFER bf-estCostMaterial FOR estCostMaterial.
     DEFINE VARIABLE dQtyRequiredMinDiff AS DECIMAL NO-UNDO.
     
-    FOR EACH estCostOperation NO-LOCK 
-        WHERE estCostOperation.estCostHeaderID EQ ipbf-ttEstCostForm.estCostHeaderID
-        AND estCostOperation.estCostFormID EQ ipbf-ttEstCostForm.estCostFormID
-        AND estCostOperation.isGluer, 
+    FOR EACH ttEstCostOperation NO-LOCK 
+        WHERE ttEstCostOperation.estCostHeaderID EQ ipbf-ttEstCostForm.estCostHeaderID
+        AND ttEstCostOperation.estCostFormID EQ ipbf-ttEstCostForm.estCostFormID
+        AND ttEstCostOperation.isGluer, 
         EACH ttGlue NO-LOCK
-        WHERE ttGlue.estHeaderID EQ estCostOperation.estCostHeaderID
-        AND ttGlue.estFormID EQ estCostOperation.estCostFormID
-        AND ttGlue.estBlankID EQ estCostOperation.estCostBlankID
+        WHERE ttGlue.estHeaderID EQ ttEstCostOperation.estCostHeaderID
+        AND ttGlue.estFormID EQ ttEstCostOperation.estCostFormID
+        AND ttGlue.estBlankID EQ ttEstCostOperation.estCostBlankID
         ,
         FIRST estCostBlank NO-LOCK 
         WHERE estCostBlank.estCostHeaderID EQ ttGlue.estHeaderID
         AND estCostBlank.estCostFormID EQ ttGlue.estFormID 
         AND estCostBlank.estCostBlankID EQ ttGlue.estBlankID 
-        BY estCostOperation.sequenceOfOperation DESCENDING:
+        BY ttEstCostOperation.sequenceOfOperation DESCENDING:
         
         RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-ttEstCostForm, ttGlue.cItemID, estCostBlank.estCostBlankID, BUFFER bf-estCostMaterial).
         
         ASSIGN    
             bf-estCostMaterial.addToWeightNet             = YES
-            bf-estCostMaterial.quantityRequiredNoWaste    = estCostOperation.quantityInNoWaste * ttGlue.dQtyRequiredPerBlank
-            bf-estCostMaterial.quantityRequiredRunWaste   = estCostOperation.quantityInRunWaste * ttGlue.dQtyRequiredPerBlank
-            bf-estCostMaterial.quantityRequiredSetupWaste = estCostOperation.quantityInSetupWaste * ttGlue.dQtyRequiredPerBlank
+            bf-estCostMaterial.quantityRequiredNoWaste    = ttEstCostOperation.quantityInNoWaste * ttGlue.dQtyRequiredPerBlank
+            bf-estCostMaterial.quantityRequiredRunWaste   = ttEstCostOperation.quantityInRunWaste * ttGlue.dQtyRequiredPerBlank
+            bf-estCostMaterial.quantityRequiredSetupWaste = ttEstCostOperation.quantityInSetupWaste * ttGlue.dQtyRequiredPerBlank
             dQtyRequiredMinDiff                           = ttGlue.dMinLbsPerJob - 
                                                     (bf-estCostMaterial.quantityRequiredNoWaste + bf-estCostMaterial.quantityRequiredRunWaste + bf-estCostMaterial.quantityRequiredSetupWaste)
             bf-estCostMaterial.quantityUOM                = ttGlue.cQtyUOM
@@ -4609,13 +4611,13 @@ END PROCEDURE.
 
 PROCEDURE pProcessInk PRIVATE:
     /*------------------------------------------------------------------------------
-    Purpose: Processes a single ttInk/estCostOperation
+    Purpose: Processes a single ttInk/ttEstCostOperation
     Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-estCostHeader    FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm    FOR ttEstCostForm.
     DEFINE PARAMETER BUFFER ipbf-estCostBlank     FOR estCostBlank.
-    DEFINE PARAMETER BUFFER ipbf-estCostOperation FOR estCostOperation.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostOperation FOR ttEstCostOperation.
     DEFINE PARAMETER BUFFER ipbf-ttInk            FOR ttInk.
     
  
@@ -4629,9 +4631,9 @@ PROCEDURE pProcessInk PRIVATE:
         bf-estCostMaterial.addToWeightNet             = YES
         ipbf-ttInk.dQtyRequiredPerBlank               = ipbf-ttInk.dCoveragePercent * ipbf-estCostBlank.blankAreaNetWindow / ipbf-ttInk.dCoverageRate
         dQtyRequiredPerForm                           = ipbf-estCostBlank.numOut * ipbf-ttInk.dQtyRequiredPerBlank
-        bf-estCostMaterial.quantityRequiredNoWaste    = ipbf-estCostOperation.quantityInNoWaste * dQtyRequiredPerForm
-        bf-estCostMaterial.quantityRequiredRunWaste   = ipbf-estCostOperation.quantityInRunWaste * dQtyRequiredPerForm
-        bf-estCostMaterial.quantityRequiredSetupWaste = ipbf-estCostOperation.quantityInSetupWaste * dQtyRequiredPerForm + ipbf-estCostOperation.quantityInkLbsWastedPerSetup
+        bf-estCostMaterial.quantityRequiredNoWaste    = ipbf-ttEstCostOperation.quantityInNoWaste * dQtyRequiredPerForm
+        bf-estCostMaterial.quantityRequiredRunWaste   = ipbf-ttEstCostOperation.quantityInRunWaste * dQtyRequiredPerForm
+        bf-estCostMaterial.quantityRequiredSetupWaste = ipbf-ttEstCostOperation.quantityInSetupWaste * dQtyRequiredPerForm + ipbf-ttEstCostOperation.quantityInkLbsWastedPerSetup
         dQtyRequiredMinDiff                           = ipbf-ttInk.dMinLbsPerJob - (bf-estCostMaterial.quantityRequiredNoWaste + bf-estCostMaterial.quantityRequiredRunWaste + bf-estCostMaterial.quantityRequiredSetupWaste)
         bf-estCostMaterial.quantityUOM                = ipbf-ttInk.cQtyUOM
         bf-estCostMaterial.noCharge                   = ipbf-ttInk.lNoCharge
@@ -4650,7 +4652,7 @@ PROCEDURE pProcessLeaf PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-estCostHeader    FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm    FOR ttEstCostForm.
-    DEFINE PARAMETER BUFFER ipbf-estCostOperation FOR estCostOperation.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostOperation FOR ttEstCostOperation.
     DEFINE PARAMETER BUFFER ipbf-ttLeaf           FOR ttLeaf.
     DEFINE INPUT PARAMETER ipdQtyRequiredPerFeed AS DECIMAL NO-UNDO.    
  
@@ -4662,9 +4664,9 @@ PROCEDURE pProcessLeaf PRIVATE:
         bf-estCostMaterial.addToWeightNet             = YES
         bf-estCostMaterial.dimLength                  = ipbf-ttLeaf.dDimLength
         bf-estCostMaterial.dimWidth                   = ipbf-ttLeaf.dDimWidth
-        bf-estCostMaterial.quantityRequiredNoWaste    = ipbf-estCostOperation.quantityInNoWaste * ipdQtyRequiredPerFeed
-        bf-estCostMaterial.quantityRequiredRunWaste   = ipbf-estCostOperation.quantityInRunWaste * ipdQtyRequiredPerFeed
-        bf-estCostMaterial.quantityRequiredSetupWaste = ipbf-estCostOperation.quantityInSetupWaste * ipdQtyRequiredPerFeed
+        bf-estCostMaterial.quantityRequiredNoWaste    = ipbf-ttEstCostOperation.quantityInNoWaste * ipdQtyRequiredPerFeed
+        bf-estCostMaterial.quantityRequiredRunWaste   = ipbf-ttEstCostOperation.quantityInRunWaste * ipdQtyRequiredPerFeed
+        bf-estCostMaterial.quantityRequiredSetupWaste = ipbf-ttEstCostOperation.quantityInSetupWaste * ipdQtyRequiredPerFeed
         bf-estCostMaterial.quantityUOM                = ipbf-ttLeaf.cQtyUOM
         bf-estCostMaterial.basisWeight                = 144000 / ipbf-ttLeaf.dCoverageRate
         .             
@@ -4683,39 +4685,39 @@ PROCEDURE pProcessInks PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm FOR ttEstCostForm.
 
     /*Inks*/
-    FOR EACH estCostOperation NO-LOCK 
-        WHERE estCostOperation.estCostHeaderID EQ ipbf-ttEstCostForm.estCostHeaderID
-        AND estCostOperation.estCostFormID EQ ipbf-ttEstCostForm.estCostFormID
-        AND estCostOperation.isPrinter, 
+    FOR EACH ttEstCostOperation NO-LOCK 
+        WHERE ttEstCostOperation.estCostHeaderID EQ ipbf-ttEstCostForm.estCostHeaderID
+        AND ttEstCostOperation.estCostFormID EQ ipbf-ttEstCostForm.estCostFormID
+        AND ttEstCostOperation.isPrinter, 
         EACH ttInk NO-LOCK
-        WHERE ttInk.estHeaderID EQ estCostOperation.estCostHeaderID
-        AND ttInk.estFormID EQ estCostOperation.estCostFormID
-        AND ttInk.iPass EQ estCostOperation.pass
+        WHERE ttInk.estHeaderID EQ ttEstCostOperation.estCostHeaderID
+        AND ttInk.estFormID EQ ttEstCostOperation.estCostFormID
+        AND ttInk.iPass EQ ttEstCostOperation.pass
         AND ttInk.iCountInks GT 0,
         FIRST estCostBlank NO-LOCK 
         WHERE estCostBlank.estCostHeaderID EQ ttInk.estHeaderID
         AND estCostBlank.estCostFormID EQ ttInk.estFormID 
         AND estCostBlank.estCostBlankID EQ ttInk.estBlankID :
         
-        RUN pProcessInk(BUFFER ipbf-estCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER estCostBlank, BUFFER estCostOperation, BUFFER ttInk).    
+        RUN pProcessInk(BUFFER ipbf-estCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER estCostBlank, BUFFER ttEstCostOperation, BUFFER ttInk).    
         
     END.
     /*Coatings*/
-    FOR EACH estCostOperation NO-LOCK 
-        WHERE estCostOperation.estCostHeaderID EQ ipbf-ttEstCostForm.estCostHeaderID
-        AND estCostOperation.estCostFormID EQ ipbf-ttEstCostForm.estCostFormID
-        AND estCostOperation.isCoater, 
+    FOR EACH ttEstCostOperation NO-LOCK 
+        WHERE ttEstCostOperation.estCostHeaderID EQ ipbf-ttEstCostForm.estCostHeaderID
+        AND ttEstCostOperation.estCostFormID EQ ipbf-ttEstCostForm.estCostFormID
+        AND ttEstCostOperation.isCoater, 
         EACH ttInk NO-LOCK
-        WHERE ttInk.estHeaderID EQ estCostOperation.estCostHeaderID
-        AND ttInk.estFormID EQ estCostOperation.estCostFormID
-        AND ttInk.iPass EQ estCostOperation.pass
+        WHERE ttInk.estHeaderID EQ ttEstCostOperation.estCostHeaderID
+        AND ttInk.estFormID EQ ttEstCostOperation.estCostFormID
+        AND ttInk.iPass EQ ttEstCostOperation.pass
         AND ttInk.iCountCoatings GT 0,
         FIRST estCostBlank NO-LOCK 
         WHERE estCostBlank.estCostHeaderID EQ ttInk.estHeaderID
         AND estCostBlank.estCostFormID EQ ttInk.estFormID 
         AND estCostBlank.estCostBlankID EQ ttInk.estBlankID :
             
-        RUN pProcessInk(BUFFER ipbf-estCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER estCostBlank, BUFFER estCostOperation, BUFFER ttInk).    
+        RUN pProcessInk(BUFFER ipbf-estCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER estCostBlank, BUFFER ttEstCostOperation, BUFFER ttInk).    
     END.
 
 END PROCEDURE.
@@ -4738,14 +4740,14 @@ PROCEDURE pProcessLeafs PRIVATE:
         WHERE ttLeaf.estHeaderID EQ ipbf-ttEstCostForm.estCostHeaderID
         AND ttLeaf.estFormID EQ ipbf-ttEstCostForm.estCostFormID
         ,
-        FIRST estCostOperation NO-LOCK 
-        WHERE estCostOperation.estCostHeaderID EQ ipbf-ttEstCostForm.estCostHeaderID
-        AND estCostOperation.estCostFormID EQ ipbf-ttEstCostForm.estCostFormID
-        AND estCostOperation.isLeafer
-        AND (estCostOperation.feedType EQ "S" AND ttLeaf.lIsSheetFed OR NOT ttLeaf.lIsSheetFed)  /*If leaf is not for a specific blank, must have a sheet fed leafer*/
-        BY estCostOperation.sequenceOfOperation DESCENDING:
+        FIRST ttEstCostOperation NO-LOCK 
+        WHERE ttEstCostOperation.estCostHeaderID EQ ipbf-ttEstCostForm.estCostHeaderID
+        AND ttEstCostOperation.estCostFormID EQ ipbf-ttEstCostForm.estCostFormID
+        AND ttEstCostOperation.isLeafer
+        AND (ttEstCostOperation.feedType EQ "S" AND ttLeaf.lIsSheetFed OR NOT ttLeaf.lIsSheetFed)  /*If leaf is not for a specific blank, must have a sheet fed leafer*/
+        BY ttEstCostOperation.sequenceOfOperation DESCENDING:
         
-        IF estCostOperation.feedType NE "B" AND ttLeaf.iBlankNo NE 0 THEN  /*Allow blank specific leaf/window to be consumed by sheet fed machines*/
+        IF ttEstCostOperation.feedType NE "B" AND ttLeaf.iBlankNo NE 0 THEN  /*Allow blank specific leaf/window to be consumed by sheet fed machines*/
         DO:            
             FIND FIRST estCostBlank NO-LOCK 
                 WHERE estCostBlank.estCostHeaderID EQ ttLeaf.estHeaderID
@@ -4758,7 +4760,7 @@ PROCEDURE pProcessLeafs PRIVATE:
         ELSE 
             dQtyRequiredPerFeed = ttLeaf.dQtyRequiredPerLeaf.
             
-        RUN pProcessLeaf(BUFFER ipbf-estCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER estCostOperation, BUFFER ttLeaf, dQtyRequiredPerFeed).    
+        RUN pProcessLeaf(BUFFER ipbf-estCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER ttEstCostOperation, BUFFER ttLeaf, dQtyRequiredPerFeed).    
         
     END.
 
@@ -5247,7 +5249,7 @@ PROCEDURE pProcessOperation PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-estCostHeader    FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm    FOR ttEstCostForm.
-    DEFINE PARAMETER BUFFER ipbf-estCostOperation FOR estCostOperation.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostOperation FOR ttEstCostOperation.
     DEFINE INPUT-OUTPUT PARAMETER iopdQtyInOut AS DECIMAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopdQtyInOutSetupWaste AS DECIMAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopdQtyInOutRunWaste AS DECIMAL NO-UNDO.
@@ -5260,72 +5262,72 @@ PROCEDURE pProcessOperation PRIVATE:
     DEFINE VARIABLE dPartCount    AS DECIMAL NO-UNDO.
     
     ASSIGN 
-        ipbf-estCostOperation.quantityOut       = iopdQtyInOut  /*This machines out is last machines in*/  
-        ipbf-estCostOperation.quantityInNoWaste = ipbf-estCostOperation.quantityOut / ipbf-estCostOperation.numOutForOperation  /*Get QtyIn in Feed units*/
-        iopdQtyInOutSetupWaste                  = iopdQtyInOutSetupWaste / ipbf-estCostOperation.numOutForOperation
-        iopdQtyInOutRunWaste                    = iopdQtyInOutRunWaste / ipbf-estCostOperation.numOutForOperation
-        ipbf-estCostOperation.quantityIn        = fRoundUp(ipbf-estCostOperation.quantityIn)
+        ipbf-ttEstCostOperation.quantityOut       = iopdQtyInOut  /*This machines out is last machines in*/  
+        ipbf-ttEstCostOperation.quantityInNoWaste = ipbf-ttEstCostOperation.quantityOut / ipbf-ttEstCostOperation.numOutForOperation  /*Get QtyIn in Feed units*/
+        iopdQtyInOutSetupWaste                  = iopdQtyInOutSetupWaste / ipbf-ttEstCostOperation.numOutForOperation
+        iopdQtyInOutRunWaste                    = iopdQtyInOutRunWaste / ipbf-ttEstCostOperation.numOutForOperation
+        ipbf-ttEstCostOperation.quantityIn        = fRoundUp(ipbf-ttEstCostOperation.quantityIn)
         iopdQtyInOutSetupWaste                  = fRoundUp(iopdQtyInOutSetupWaste)
         iopdQtyInOutRunWaste                    = fRoundUp(iopdQtyInOutRunWaste)
         .
     
     /*Recalc from standards off right now*/
-    IF NOT ipbf-estCostOperation.isLocked THEN 
+    IF NOT ipbf-ttEstCostOperation.isLocked THEN 
     DO:
         FIND FIRST bf-mach NO-LOCK 
             WHERE bf-mach.company EQ ipbf-estCostHeader.company
-            AND bf-mach.m-code EQ ipbf-estCostOperation.operationID
+            AND bf-mach.m-code EQ ipbf-ttEstCostOperation.operationID
             NO-ERROR.
         //RUN pRecalcEstOperationFromStandardsSetupWaste(BUFFER ipbf-estCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER ipbf-estCostOperation, BUFFER bf-mach).
        
     END.
     
     ASSIGN 
-        ipbf-estCostOperation.quantityInRunWaste        = (ipbf-estCostOperation.quantityInNoWaste / 
-                                                    (1 - (ipbf-estCostOperation.quantityInRunWastePercent / 100))) 
-                                                    - ipbf-estCostOperation.quantityInNoWaste
-        ipbf-estCostOperation.quantityInRunWaste        = fRoundUp(ipbf-estCostOperation.quantityInRunWaste)
-        ipbf-estCostOperation.quantityInAfterSetupWaste = ipbf-estCostOperation.quantityInNoWaste + ipbf-estCostOperation.quantityInRunWaste
-        ipbf-estCostOperation.quantityIn                = ipbf-estCostOperation.quantityInAfterSetupWaste + ipbf-estCostOperation.quantityInSetupWaste
-        iopdQtyInOutRunWaste                            = iopdQtyInOutRunWaste + ipbf-estCostOperation.quantityInRunWaste
-        iopdQtyInOutSetupWaste                          = iopdQtyInOutSetupWaste + ipbf-estCostOperation.quantityInSetupWaste
-        ipbf-estCostOperation.quantityIn                = fRoundUp(ipbf-estCostOperation.quantityIn)
-        iopdQtyInOut                                    = ipbf-estCostOperation.quantityIn
+        ipbf-ttEstCostOperation.quantityInRunWaste        = (ipbf-ttEstCostOperation.quantityInNoWaste / 
+                                                    (1 - (ipbf-ttEstCostOperation.quantityInRunWastePercent / 100))) 
+                                                    - ipbf-ttEstCostOperation.quantityInNoWaste
+        ipbf-ttEstCostOperation.quantityInRunWaste        = fRoundUp(ipbf-ttEstCostOperation.quantityInRunWaste)
+        ipbf-ttEstCostOperation.quantityInAfterSetupWaste = ipbf-ttEstCostOperation.quantityInNoWaste + ipbf-ttEstCostOperation.quantityInRunWaste
+        ipbf-ttEstCostOperation.quantityIn                = ipbf-ttEstCostOperation.quantityInAfterSetupWaste + ipbf-ttEstCostOperation.quantityInSetupWaste
+        iopdQtyInOutRunWaste                            = iopdQtyInOutRunWaste + ipbf-ttEstCostOperation.quantityInRunWaste
+        iopdQtyInOutSetupWaste                          = iopdQtyInOutSetupWaste + ipbf-ttEstCostOperation.quantityInSetupWaste
+        ipbf-ttEstCostOperation.quantityIn                = fRoundUp(ipbf-ttEstCostOperation.quantityIn)
+        iopdQtyInOut                                    = ipbf-ttEstCostOperation.quantityIn
         .
-    IF ipbf-estCostOperation.isSpeedInLF THEN 
+    IF ipbf-ttEstCostOperation.isSpeedInLF THEN 
     DO:
         /*Refactor - assumes dim in inches*/
-        CASE ipbf-estCostOperation.feedType:
+        CASE ipbf-ttEstCostOperation.feedType:
             WHEN "R" THEN 
                 dLFPerFeed = ipbf-ttEstCostForm.grossLength / 12.
             WHEN "S" THEN 
                 DO:
-                    IF ipbf-estCostOperation.isNetSheetMaker THEN 
+                    IF ipbf-ttEstCostOperation.isNetSheetMaker THEN 
                         dLFPerFeed = ipbf-ttEstCostForm.grossLength / 12.
                     ELSE
                         dLFPerFeed = ipbf-ttEstCostForm.netLength / 12.
                 END.
         END CASE.
-        ipbf-estCostOperation.quantityInAfterSetupWasteLF = ipbf-estCostOperation.quantityInAfterSetupWaste * dLFPerFeed.
+        ipbf-ttEstCostOperation.quantityInAfterSetupWasteLF = ipbf-ttEstCostOperation.quantityInAfterSetupWaste * dLFPerFeed.
     END.
     
     //Apply feed types A and P after base in-out calculation performed.  These will only affect the run hrs
-    IF fIsSetType(ipbf-estCostHeader.estType) AND (ipbf-estCostOperation.feedType EQ "A" OR  ipbf-estCostOperation.feedType EQ "P") THEN 
+    IF fIsSetType(ipbf-estCostHeader.estType) AND (ipbf-ttEstCostOperation.feedType EQ "A" OR  ipbf-ttEstCostOperation.feedType EQ "P") THEN 
     DO: 
-        IF ipbf-estCostOperation.feedType EQ "P" THEN 
+        IF ipbf-ttEstCostOperation.feedType EQ "P" THEN 
             dPartCount = fGetPartCount(ipbf-estCostHeader.company, ipbf-estCostHeader.estimateNo).
         ELSE 
             dPartCount = 1.
         ASSIGN 
-            ipbf-estCostOperation.quantityInNoWaste         = ipbf-estCostHeader.quantityMaster * dPartCount
-            ipbf-estCostOperation.quantityOut               = ipbf-estCostHeader.quantityMaster
-            ipbf-estCostOperation.quantityInRunWaste        = (ipbf-estCostOperation.quantityInNoWaste / 
-                                                    (1 - (ipbf-estCostOperation.quantityInRunWastePercent / 100))) 
-                                                    - ipbf-estCostOperation.quantityInNoWaste
-            ipbf-estCostOperation.quantityInRunWaste        = fRoundUp(ipbf-estCostOperation.quantityInRunWaste)
-            ipbf-estCostOperation.quantityInAfterSetupWaste = ipbf-estCostOperation.quantityInNoWaste + ipbf-estCostOperation.quantityInRunWaste
-            ipbf-estCostOperation.quantityIn                = ipbf-estCostOperation.quantityInAfterSetupWaste + ipbf-estCostOperation.quantityInSetupWaste
-            ipbf-estCostOperation.quantityIn                = fRoundUp(ipbf-estCostOperation.quantityIn)            
+            ipbf-ttEstCostOperation.quantityInNoWaste         = ipbf-estCostHeader.quantityMaster * dPartCount
+            ipbf-ttEstCostOperation.quantityOut               = ipbf-estCostHeader.quantityMaster
+            ipbf-ttEstCostOperation.quantityInRunWaste        = (ipbf-ttEstCostOperation.quantityInNoWaste / 
+                                                    (1 - (ipbf-ttEstCostOperation.quantityInRunWastePercent / 100))) 
+                                                    - ipbf-ttEstCostOperation.quantityInNoWaste
+            ipbf-ttEstCostOperation.quantityInRunWaste        = fRoundUp(ipbf-ttEstCostOperation.quantityInRunWaste)
+            ipbf-ttEstCostOperation.quantityInAfterSetupWaste = ipbf-ttEstCostOperation.quantityInNoWaste + ipbf-ttEstCostOperation.quantityInRunWaste
+            ipbf-ttEstCostOperation.quantityIn                = ipbf-ttEstCostOperation.quantityInAfterSetupWaste + ipbf-ttEstCostOperation.quantityInSetupWaste
+            ipbf-ttEstCostOperation.quantityIn                = fRoundUp(ipbf-ttEstCostOperation.quantityIn)            
             .
     END.
     
@@ -5465,7 +5467,7 @@ PROCEDURE pRecalcEstOperationFromStandardsRunSpeed PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-estCostHeader    FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm    FOR ttEstCostForm.
-    DEFINE PARAMETER BUFFER ipbf-estCostOperation FOR estCostOperation.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostOperation FOR ttEstCostOperation.
     DEFINE PARAMETER BUFFER ipbf-mach             FOR mach.
 
    
@@ -5480,7 +5482,7 @@ PROCEDURE pRecalcEstOperationFromStandardsRunWastePercent PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-estCostHeader    FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm    FOR ttEstCostForm.
-    DEFINE PARAMETER BUFFER ipbf-estCostOperation FOR estCostOperation.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostOperation FOR ttEstCostOperation.
     DEFINE PARAMETER BUFFER ipbf-mach             FOR mach.
 
 
@@ -5496,15 +5498,15 @@ PROCEDURE pRecalcEstOperationFromStandardsSetupWaste PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-estCostHeader    FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm    FOR ttEstCostForm.
-    DEFINE PARAMETER BUFFER ipbf-estCostOperation FOR estCostOperation.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostOperation FOR ttEstCostOperation.
     DEFINE PARAMETER BUFFER ipbf-mach             FOR mach.
 
-    ipbf-estCostOperation.quantityInSetupWaste = ipbf-mach.mr-waste.
-    IF ipbf-estCostOperation.isPrinter OR ipbf-estCostOperation.isCoater THEN 
-        ipbf-estCostOperation.quantityInSetupWaste = ipbf-estCostOperation.quantityInSetupWaste + 
-            (ipbf-estCostOperation.quantityInSetupWastePerColor * 
-            IF glUsePlateChangesAsColorForSetupWaste AND ipbf-estCostOperation.countPlateChanges NE 0 THEN ipbf-estCostOperation.countPlateChanges
-            ELSE (ipbf-estCostOperation.countCoats + ipbf-estCostOperation.countInks)).
+    ipbf-ttEstCostOperation.quantityInSetupWaste = ipbf-mach.mr-waste.
+    IF ipbf-ttEstCostOperation.isPrinter OR ipbf-ttEstCostOperation.isCoater THEN 
+        ipbf-ttEstCostOperation.quantityInSetupWaste = ipbf-ttEstCostOperation.quantityInSetupWaste + 
+            (ipbf-ttEstCostOperation.quantityInSetupWastePerColor * 
+            IF glUsePlateChangesAsColorForSetupWaste AND ipbf-ttEstCostOperation.countPlateChanges NE 0 THEN ipbf-ttEstCostOperation.countPlateChanges
+            ELSE (ipbf-ttEstCostOperation.countCoats + ipbf-ttEstCostOperation.countInks)).
 
 /*REFACTOR To handle the "Plain Jobs only* function in EB1*/
 /*        RUN est/diewaste.p (BUFFER est-op).*/
@@ -5684,7 +5686,7 @@ PROCEDURE pUpdateChildTables PRIVATE:
     DEFINE INPUT  PARAMETER ipcTargetRecKey     AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bfChild-estCostBlank     FOR estCostBlank.
-    DEFINE BUFFER bfChild-estCostOperation FOR estCostOperation.
+    DEFINE BUFFER bfChild-ttEstCostOperation FOR ttEstCostOperation.
     DEFINE BUFFER bfChild-estCostMaterial  FOR estCostMaterial.
     DEFINE BUFFER bfChild-estCostMisc      FOR estCostMisc.
     DEFINE BUFFER bfChild-ttEstCostDetail  FOR ttEstCostDetail.
@@ -5705,13 +5707,16 @@ PROCEDURE pUpdateChildTables PRIVATE:
                 WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID:              
                 IF bfChild-ttEstCostDetail.estCostFormID = ipiSourceKey THEN
                     bfChild-ttEstCostDetail.estCostFormID = ipiTargetKey.
+                    
+                IF bfChild-ttEstCostDetail.sourceID = ipiSourceKey THEN
+                    bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
             END.
         
-            FOR EACH bfChild-estCostOperation EXCLUSIVE-LOCK
-                WHERE bfChild-estCostOperation.estCostHeaderID = ipiEstCostHeaderID:
+            FOR EACH bfChild-ttEstCostOperation EXCLUSIVE-LOCK
+                WHERE bfChild-ttEstCostOperation.estCostHeaderID = ipiEstCostHeaderID:
                 
-                IF bfChild-estCostOperation.estCostFormID = ipiSourceKey THEN  
-                    bfChild-estCostOperation.estCostFormID = ipiTargetKey.
+                IF bfChild-ttEstCostOperation.estCostFormID = ipiSourceKey THEN  
+                    bfChild-ttEstCostOperation.estCostFormID = ipiTargetKey.
             END.
         
             FOR EACH bfChild-estCostMaterial EXCLUSIVE-LOCK
@@ -5735,10 +5740,15 @@ PROCEDURE pUpdateChildTables PRIVATE:
             END.
     
         END.
-        WHEN "estCostDetail" THEN
+        WHEN "estCostOperation" THEN
         DO:
+            FOR EACH bfChild-ttEstCostDetail EXCLUSIVE-LOCK
+                WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID:              
+                IF bfChild-ttEstCostDetail.sourceID = ipiSourceKey THEN
+                    bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
+            END.
         END.
-        WHEN "estCostSummary" THEN
+        WHEN "" THEN
         DO:
         END.
     END CASE.
@@ -5753,6 +5763,7 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
     DEFINE BUFFER bfEx-estCostForm         FOR estCostForm.
     DEFINE BUFFER bfEx-EstCostDetail       FOR EstCostDetail.
     DEFINE BUFFER bfEx-estCostSummary      FOR estCostSummary.
+    DEFINE BUFFER bfEx-estCostOperation    FOR estCostOperation.
 
     FOR EACH ttEstCostForm
         TRANSACTION:
@@ -5781,15 +5792,31 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
         CREATE bfEx-estCostSummary.
         BUFFER-COPY ttEstCostSummary EXCEPT rec_key estCostSummaryID TO bfEx-estCostSummary.
         
-    END. /* ttEstCostDetail */
+    END. /* ttEstCostSummary */
+     
+    FOR EACH ttEstCostOperation
+        TRANSACTION:
+        CREATE bfEx-estCostOperation.
+        BUFFER-COPY ttEstCostOperation EXCEPT rec_key estCostOperationID TO bfEx-estCostOperation.
+        
+        RUN pUpdateChildTables ("estCostOperation", 
+            ttEstCostOperation.estCostHeaderID, 
+            ttEstCostOperation.estCostOperationID, 
+            bfEx-estCostOperation.estCostOperationID,
+            ttEstCostOperation.rec_key,
+            bfEx-estCostOperation.rec_key).
+    END. /* ttEstCostOperation */    
+        
         
     RELEASE bfEx-estCostForm.
     RELEASE bfEx-estCostDetail.
     RELEASE bfEx-estCostSummary.
+    RELEASE bfEx-estCostOperation.
     
     EMPTY TEMP-TABLE ttEstCostForm.
     EMPTY TEMP-TABLE ttEstCostDetail.
     EMPTY TEMP-TABLE ttEstCostSummary.
+    EMPTY TEMP-TABLE ttEstCostOperation.
     
 END PROCEDURE.
 
@@ -5841,26 +5868,26 @@ FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
      Notes:
     ------------------------------------------------------------------------------*/    
     DEFINE BUFFER bf-ef-nsh           FOR ef-nsh.
-    DEFINE BUFFER bf-estCostOperation FOR estCostOperation.
+    DEFINE BUFFER bf-ttEstCostOperation FOR ttEstCostOperation.
     DEFINE BUFFER bf-est-op            FOR est-op.
     
     DEFINE VARIABLE iOut AS INTEGER NO-UNDO.
     DEFINE VARIABLE lFoam AS LOGICAL NO-UNDO.
     
-    FIND FIRST bf-estCostOperation NO-LOCK 
-        WHERE bf-estCostOperation.estCostOperationID EQ ipiEstCostOperationID
+    FIND FIRST bf-ttEstCostOperation NO-LOCK 
+        WHERE bf-ttEstCostOperation.estCostOperationID EQ ipiEstCostOperationID
         NO-ERROR.
-    IF AVAILABLE bf-estCostOperation THEN
+    IF AVAILABLE bf-ttEstCostOperation THEN
     DO:
-         lFoam = IsFoamStyle (bf-estCostOperation.company, bf-estCostOperation.estimateNo, bf-estCostOperation.formNo).
+         lFoam = IsFoamStyle (bf-ttEstCostOperation.company, bf-ttEstCostOperation.estimateNo, bf-ttEstCostOperation.formNo).
          
         IF lFoam THEN
         DO:
             FIND FIRST bf-ef-nsh NO-LOCK    
-                WHERE bf-ef-nsh.company EQ bf-estCostOperation.company
-                AND bf-ef-nsh.est-no EQ bf-estCostOperation.estimateNo
-                AND bf-ef-nsh.form-no EQ bf-estCostOperation.formNo
-                AND bf-ef-nsh.pass EQ bf-estCostOperation.pass
+                WHERE bf-ef-nsh.company EQ bf-ttEstCostOperation.company
+                AND bf-ef-nsh.est-no EQ bf-ttEstCostOperation.estimateNo
+                AND bf-ef-nsh.form-no EQ bf-ttEstCostOperation.formNo
+                AND bf-ef-nsh.pass EQ bf-ttEstCostOperation.pass
                 NO-ERROR.
             
             IF AVAILABLE bf-ef-nsh THEN 
@@ -5870,11 +5897,11 @@ FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
         DO: 
             /* pull Numout for sheeters */
             FIND FIRST bf-est-op NO-LOCK
-                WHERE bf-est-op.company EQ bf-estCostOperation.company
-                AND bf-est-op.est-no    EQ bf-estCostOperation.estimateNo
-                AND bf-est-op.s-num     EQ bf-estCostOperation.formNo
-                AND bf-est-op.b-num     EQ bf-estCostOperation.blankNo
-                AND bf-est-op.op-Pass   EQ bf-estCostOperation.pass
+                WHERE bf-est-op.company EQ bf-ttEstCostOperation.company
+                AND bf-est-op.est-no    EQ bf-ttEstCostOperation.estimateNo
+                AND bf-est-op.s-num     EQ bf-ttEstCostOperation.formNo
+                AND bf-est-op.b-num     EQ bf-ttEstCostOperation.blankNo
+                AND bf-est-op.op-Pass   EQ bf-ttEstCostOperation.pass
                 AND bf-est-op.line      LT 500
                 AND bf-est-op.qty       EQ ipdEstOPQty NO-ERROR.
                 
