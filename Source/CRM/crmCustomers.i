@@ -124,6 +124,7 @@ PROCEDURE pHubspotCRM PRIVATE:
     DEFINE VARIABLE cUser            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lcResponseData   AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE cNextpageLinkID  AS CHARACTER NO-UNDO INITIAL "0".
+    DEFINE VARIABLE cPhone           AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-APIOutboundEvent FOR APIOutboundEvent.
     
@@ -212,7 +213,6 @@ PROCEDURE pHubspotCRM PRIVATE:
                 ttCRMCustomers.custCity      = cust.city
                 ttCRMCustomers.custState     = cust.state
                 ttCRMCustomers.custCode      = cust.zip
-                ttCRMCustomers.action        = "Update"
                 ttCRMCustomers.origName      = cust.name
                 ttCRMCustomers.origAreaCode  = cust.area-code
                 ttCRMCustomers.origPhone     = cust.phone
@@ -222,8 +222,33 @@ PROCEDURE pHubspotCRM PRIVATE:
                 ttCRMCustomers.origState     = cust.state
                 ttCRMCustomers.origCode      = cust.zip
                 ttCRMCustomers.xxCustRowID   = ROWID(cust)
-                ttCRMCustomers.xxApplyAction = YES
+                ttCRMCustomers.xxApplyAction = NO
                 .
+
+            ASSIGN
+                cPhone = REPLACE(ttCRMCustomers.crmPhone," ","")
+                cPhone = REPLACE(cPhone,"+","")
+                cPhone = REPLACE(cPhone,"-","")
+                cPhone = REPLACE(cPhone,"(","")
+                cPhone = REPLACE(cPhone,")","")
+                cPhone = REPLACE(cPhone,"x","")
+                cPhone = REPLACE(cPhone,".","")
+                .
+                                            
+            IF cust.name      NE ttCRMCustomers.crmName     OR
+               cust.area-code NE SUBSTR(cPhone,1,3)         OR
+               cust.phone     NE SUBSTR(cPhone,4,7)         OR
+               cust.addr[1]   NE ttCRMCustomers.crmStreet   OR
+               cust.addr[2]   NE ttCRMCustomers.crmStreet2  OR
+               cust.city      NE ttCRMCustomers.crmCity     OR
+               cust.state     NE ttCRMCustomers.crmState    OR
+               cust.zip       NE ttCRMCustomers.crmCode THEN
+                ASSIGN
+                    ttCRMCustomers.action        = "Update"
+                    ttCRMCustomers.xxApplyAction = YES
+                    . 
+            ELSE
+                DELETE ttCRMCustomers.      
         END. /* avail cust */
     END. /* each ttCRMCustomers */
     
