@@ -44,6 +44,8 @@ CREATE WIDGET-POOL.
 
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobBuildVersion     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCalculationTypeList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMaterialTypeGroup   AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -197,7 +199,7 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/viewer.i}
-{methods/template/viewer.i}
+/* {methods/template/viewer.i} */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -282,6 +284,7 @@ PROCEDURE add-item :
     RUN dispatch (
         INPUT 'add-record'
         ).  
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -335,6 +338,37 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record V-table-Win
+PROCEDURE local-add-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  
+    ASSIGN 
+        materialType.materialTypeGroup:LIST-ITEMS IN FRAME {&frame-name} = cMaterialTypeGroup
+        materialType.materialTypeGroup:SCREEN-VALUE = ENTRY(1,cMaterialTypeGroup)
+        materialType.calculationType:LIST-ITEM-PAIRS = cCalculationTypeList
+        materialType.calculationType:SCREEN-VALUE = ENTRY(2,cCalculationTypeList)
+        materialType.consumedByDept:SCREEN-VALUE = "PR"
+        .
+    RUN pGetDeptDesc.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement V-table-Win 
 PROCEDURE local-assign-statement :
@@ -402,11 +436,9 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cCalculationTypeList AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdMaterialProcs      AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cRtnChar             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound            AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMaterialTypeGroup   AS CHARACTER NO-UNDO.
         
     DO WITH FRAME {&FRAME-NAME}:
     END.
