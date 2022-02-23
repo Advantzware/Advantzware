@@ -256,6 +256,23 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableAll s-object
+PROCEDURE DisableAll:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        DISABLE fiTag btnKeyboardTag.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableErrorAlerts s-object 
 PROCEDURE DisableErrorAlerts :
 /*------------------------------------------------------------------------------
@@ -302,6 +319,23 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableAll s-object
+PROCEDURE EnableAll:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        ENABLE fiTag btnKeyboardTag.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType s-object 
 PROCEDURE GetMessageAndType :
