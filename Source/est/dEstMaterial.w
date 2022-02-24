@@ -81,19 +81,18 @@ RUN sys/ref/nk1look.p (
 &Scoped-define INTERNAL-TABLES estMaterial
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
-&Scoped-define FIELDS-IN-QUERY-Dialog-Frame estMaterial.itemID ~
+&Scoped-define FIELDS-IN-QUERY-Dialog-Frame estMaterial.wastePercent ~
+estMaterial.formNo estMaterial.blankNo estMaterial.itemID ~
 estMaterial.materialTypeID estMaterial.quantity estMaterial.quantityUOM ~
-estMaterial.quantityPer estMaterial.wastePercent ~
+estMaterial.quantityPer estMaterial.costOverridePerUOM ~
+estMaterial.costOverrideUOM estMaterial.noCharge estMaterial.dimLength ~
+estMaterial.dimWidth estMaterial.dimDepth estMaterial.weightPerEA 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame ~
+estMaterial.wastePercent estMaterial.formNo estMaterial.blankNo ~
+estMaterial.itemID estMaterial.quantity estMaterial.quantityPer ~
 estMaterial.costOverridePerUOM estMaterial.costOverrideUOM ~
 estMaterial.noCharge estMaterial.dimLength estMaterial.dimWidth ~
-estMaterial.dimDepth estMaterial.weightPerEA estMaterial.formNo ~
-estMaterial.blankNo 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame estMaterial.itemID ~
-estMaterial.quantity estMaterial.quantityUOM estMaterial.quantityPer ~
-estMaterial.wastePercent estMaterial.costOverridePerUOM ~
-estMaterial.costOverrideUOM estMaterial.noCharge estMaterial.dimLength ~
-estMaterial.dimWidth estMaterial.dimDepth estMaterial.weightPerEA ~
-estMaterial.formNo estMaterial.blankNo 
+estMaterial.dimDepth estMaterial.weightPerEA 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame estMaterial
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame estMaterial
 &Scoped-define TABLES-IN-QUERY-Dialog-Frame estMaterial
@@ -101,26 +100,24 @@ estMaterial.formNo estMaterial.blankNo
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS estMaterial.itemID estMaterial.quantity ~
-estMaterial.quantityUOM estMaterial.quantityPer estMaterial.wastePercent ~
-estMaterial.costOverridePerUOM estMaterial.costOverrideUOM ~
-estMaterial.noCharge estMaterial.dimLength estMaterial.dimWidth ~
-estMaterial.dimDepth estMaterial.weightPerEA estMaterial.formNo ~
-estMaterial.blankNo 
+&Scoped-Define ENABLED-FIELDS estMaterial.wastePercent estMaterial.formNo ~
+estMaterial.blankNo estMaterial.itemID estMaterial.quantity ~
+estMaterial.quantityPer estMaterial.costOverridePerUOM ~
+estMaterial.costOverrideUOM estMaterial.noCharge estMaterial.dimLength ~
+estMaterial.dimWidth estMaterial.dimDepth estMaterial.weightPerEA 
 &Scoped-define ENABLED-TABLES estMaterial
 &Scoped-define FIRST-ENABLED-TABLE estMaterial
 &Scoped-Define ENABLED-OBJECTS OverrideExist Btn_OK Btn_Done Btn_Cancel ~
 RECT-21 RECT-38 RECT-39 
-&Scoped-Define DISPLAYED-FIELDS estMaterial.itemID ~
-estMaterial.materialTypeID estMaterial.quantity estMaterial.quantityUOM ~
-estMaterial.quantityPer estMaterial.wastePercent ~
+&Scoped-Define DISPLAYED-FIELDS estMaterial.wastePercent estMaterial.formNo ~
+estMaterial.blankNo estMaterial.itemID estMaterial.materialTypeID ~
+estMaterial.quantity estMaterial.quantityUOM estMaterial.quantityPer ~
 estMaterial.costOverridePerUOM estMaterial.costOverrideUOM ~
 estMaterial.noCharge estMaterial.dimLength estMaterial.dimWidth ~
-estMaterial.dimDepth estMaterial.weightPerEA estMaterial.formNo ~
-estMaterial.blankNo 
+estMaterial.dimDepth estMaterial.weightPerEA 
 &Scoped-define DISPLAYED-TABLES estMaterial
 &Scoped-define FIRST-DISPLAYED-TABLE estMaterial
-&Scoped-Define DISPLAYED-OBJECTS fi_mat-name fi_type-name est-no 
+&Scoped-Define DISPLAYED-OBJECTS est-no fi_mat-name fi_type-name 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -220,6 +217,7 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
+     
      estMaterial.itemID AT ROW 2.91 COL 13.6 COLON-ALIGNED
           LABEL "Item ID" FORMAT "x(10)"
           VIEW-AS FILL-IN 
@@ -306,7 +304,7 @@ DEFINE FRAME Dialog-Frame
           LABEL "Blank#" FORMAT "9"
           VIEW-AS FILL-IN 
           SIZE 5.8 BY 1
-          BGCOLOR 15 FONT 1
+          BGCOLOR 15 FONT 1          
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6.
@@ -386,6 +384,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR COMBO-BOX estMaterial.quantityPer IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN estMaterial.quantityUOM IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 ASSIGN 
        RECT-39:HIDDEN IN FRAME Dialog-Frame           = TRUE.
 
@@ -421,7 +421,7 @@ DO:
         DEFINE VARIABLE char-val   AS cha    NO-UNDO.
         DEFINE VARIABLE lv-handle  AS HANDLE NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID  NO-UNDO .
-        DEFINE VARIABLE cUomList   AS CHARACTER NO-UNDO.
+        
         CASE FOCUS:NAME :
             WHEN "itemID" THEN 
                 DO:
@@ -439,34 +439,7 @@ DO:
                     END.
                     RETURN NO-APPLY.   
                 END.
-            WHEN "quantityUOM" THEN 
-                DO:
-                   FIND FIRST ITEM
-                        WHERE item.company EQ eb.company
-                        AND item.i-no    EQ estMaterial.itemID:SCREEN-VALUE 
-                        NO-LOCK NO-ERROR.
-                   IF AVAILABLE ITEM THEN
-                   RUN sys/ref/uom-rm.p  (item.mat-type, output cUomList).
-                   RUN windows/l-stduom.w (eb.company,cUomList, estMaterial.quantityUOM:SCREEN-VALUE in frame {&frame-name}, output char-val).
-         
-                   if char-val <> "" then 
-                   assign estMaterial.quantityUOM:screen-value in frame {&frame-name} = entry(1,char-val).
-                   RETURN NO-APPLY.   
-                END.    
-            WHEN "costOverrideUOM" THEN 
-                DO:
-                   FIND FIRST ITEM NO-LOCK
-                        WHERE item.company EQ eb.company
-                        AND item.i-no    EQ estMaterial.itemID:SCREEN-VALUE 
-                        NO-ERROR.
-                   IF AVAILABLE ITEM THEN
-                   RUN sys/ref/uom-rm.p  (item.mat-type, output cUomList).
-                   RUN windows/l-stduom.w (eb.company,cUomList, estMaterial.costOverrideUOM:SCREEN-VALUE in frame {&frame-name}, output char-val).
-         
-                   if char-val <> "" then 
-                   assign estMaterial.costOverrideUOM:screen-value in frame {&frame-name} = entry(1,char-val).
-                   RETURN NO-APPLY.   
-                END.    
+            
         END CASE.
     END.
 
@@ -595,18 +568,13 @@ DO:
         RUN valid-material(OUTPUT lValidateResult) NO-ERROR.
         IF lValidateResult THEN RETURN NO-APPLY.
         
-        RUN valid-uom(INPUT "qty", estMaterial.quantityUom:SCREEN-VALUE, OUTPUT lValidateResult) NO-ERROR.
-        IF lValidateResult THEN RETURN NO-APPLY.
-        
-        RUN valid-uom(INPUT "cost", estMaterial.costOverrideUOM:SCREEN-VALUE, OUTPUT lValidateResult) NO-ERROR.
-        IF lValidateResult THEN RETURN NO-APPLY.
-        
         DO TRANSACTION:
             FIND CURRENT estMaterial EXCLUSIVE-LOCK NO-ERROR.
 
             DO WITH FRAME {&FRAME-NAME}:
                 ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
-            END.             
+            END.
+            estMaterial.quantityUOM     = "EA".
         END.
         
         FIND CURRENT estMaterial NO-LOCK NO-ERROR .
@@ -858,7 +826,7 @@ PROCEDURE display-item :
         IF AVAILABLE eb THEN
             ASSIGN
                 est-no                  = eb.est-no 
-                .
+                estMaterial.quantityUOM = "EA".
 
         DISPLAY estMaterial.FormNo estMaterial.BlankNo estMaterial.quantity  
             estMaterial.quantityPer estMaterial.itemID estMaterial.quantity
@@ -894,22 +862,22 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fi_mat-name fi_type-name est-no 
+  DISPLAY est-no fi_mat-name fi_type-name 
       WITH FRAME Dialog-Frame.
   IF AVAILABLE estMaterial THEN 
-    DISPLAY estMaterial.itemID estMaterial.materialTypeID estMaterial.quantity 
+    DISPLAY estMaterial.wastePercent estMaterial.formNo estMaterial.blankNo 
+          estMaterial.itemID estMaterial.materialTypeID estMaterial.quantity 
           estMaterial.quantityUOM estMaterial.quantityPer 
-          estMaterial.wastePercent estMaterial.costOverridePerUOM 
-          estMaterial.costOverrideUOM estMaterial.noCharge estMaterial.dimLength 
-          estMaterial.dimWidth estMaterial.dimDepth estMaterial.weightPerEA 
-          estMaterial.formNo estMaterial.blankNo 
+          estMaterial.costOverridePerUOM estMaterial.costOverrideUOM 
+          estMaterial.noCharge estMaterial.dimLength estMaterial.dimWidth 
+          estMaterial.dimDepth estMaterial.weightPerEA 
       WITH FRAME Dialog-Frame.
-  ENABLE estMaterial.itemID estMaterial.quantity estMaterial.quantityUOM 
-         estMaterial.quantityPer estMaterial.wastePercent OverrideExist Btn_OK 
-         Btn_Done Btn_Cancel estMaterial.costOverridePerUOM 
-         estMaterial.costOverrideUOM estMaterial.noCharge estMaterial.dimLength 
-         estMaterial.dimWidth estMaterial.dimDepth estMaterial.weightPerEA 
-         estMaterial.formNo estMaterial.blankNo RECT-21 RECT-38 RECT-39 
+  ENABLE estMaterial.wastePercent estMaterial.formNo estMaterial.blankNo 
+         estMaterial.itemID estMaterial.quantity estMaterial.quantityPer 
+         OverrideExist Btn_OK Btn_Done Btn_Cancel 
+         estMaterial.costOverridePerUOM estMaterial.costOverrideUOM 
+         estMaterial.noCharge estMaterial.dimLength estMaterial.dimWidth 
+         estMaterial.dimDepth estMaterial.weightPerEA RECT-21 RECT-38 RECT-39 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -1045,46 +1013,6 @@ PROCEDURE valid-material :
             MESSAGE "Invalid Item Id, try help..." VIEW-AS ALERT-BOX.
             APPLY "entry" TO estMaterial.itemID .
             opcValidError = YES .
-        END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-uom Dialog-Frame 
-PROCEDURE valid-uom :
-/*------------------------------------------------------------------------------
-              Purpose:     
-              Parameters:  <none>
-              Notes:       
-            ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcType AS CHARACTER NO-UNDO .
-    DEFINE INPUT  PARAMETER ipcUom AS CHARACTER NO-UNDO .
-    DEFINE OUTPUT PARAMETER oplValidError AS LOGICAL NO-UNDO .
-    DEFINE VARIABLE cUomList AS CHARACTER NO-UNDO.
-    DO WITH FRAME {&FRAME-NAME}:
-        FIND FIRST item NO-LOCK
-            WHERE item.company EQ cocode
-            AND item.i-no    EQ estMaterial.itemID:SCREEN-VALUE 
-            NO-ERROR.
-        IF AVAILABLE ITEM THEN
-        RUN sys/ref/uom-rm.p  (item.mat-type, output cUomList).
-       
-        IF LOOKUP(ipcUom,cUomList) EQ 0 THEN 
-        DO:
-            IF ipcType EQ "qty" THEN
-            DO:             
-                MESSAGE "Invalid quantity UOM, try help..." VIEW-AS ALERT-BOX.
-                APPLY "entry" TO estMaterial.quantityUom .
-                oplValidError = YES .
-            END.
-            ELSE DO:
-               MESSAGE "Invalid cost UOM, try help..." VIEW-AS ALERT-BOX.
-                APPLY "entry" TO estMaterial.costOverrideUOM .
-                oplValidError = YES .
-            END.
         END.
     END.
 
