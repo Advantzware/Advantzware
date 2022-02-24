@@ -352,7 +352,11 @@ PROCEDURE Inventory_CalculateTagQuantityInTTbrowse:
                    TRUE
                ELSE
                    ttBrowseInventory.inventoryStatus EQ ipcInventoryStatus):
-        opdQuantity = opdQuantity + ttBrowseInventory.quantity.
+        opdQuantity = opdQuantity 
+                    + IF ttBrowseInventory.quantity EQ ? THEN
+                          0
+                      ELSE
+                          ttBrowseInventory.quantity.
     END.
 END PROCEDURE.
 
@@ -7789,7 +7793,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
                    AND ttBrowseInventory.rmItemID         EQ bf-rm-rctd.i-no
                    AND ttBrowseInventory.tag              EQ bf-rm-rctd.tag)
                  NO-ERROR.
-            IF NOT AVAILABLE ttbrowseInventory THEN
+            IF NOT AVAILABLE ttBrowseInventory THEN
                 CREATE ttBrowseInventory.
 
             ASSIGN

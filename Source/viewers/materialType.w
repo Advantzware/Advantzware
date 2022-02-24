@@ -356,7 +356,12 @@ PROCEDURE local-assign-statement :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-
+    IF AVAILABLE materialType THEN
+    RUN Material_UpdateMaterialSystemType IN hdMaterialProcs (
+                           cCompany,
+                           materialType.materialType,
+                           materialType.materialTypeGroup
+                           ).    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -422,6 +427,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE (hdMaterialProcs) THEN
+        DELETE PROCEDURE hdMaterialProcs.
+                
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit V-table-Win 
 PROCEDURE pInit :
 /*------------------------------------------------------------------------------
@@ -429,9 +453,9 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hdMaterialProcs      AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE cRtnChar             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRecFound            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE hdMaterialProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cRtnChar        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
         
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -457,7 +481,7 @@ PROCEDURE pInit :
         materialType.calculationType:LIST-ITEM-PAIRS = cCalculationTypeList        
         materialType.materialTypeGroup:LIST-ITEMS    = cMaterialTypeGroup
         .
-    
+
     RUN sys/ref/nk1look.p (INPUT cCompany, "JobBuildVersion", "C" /* Logical */, NO /* check by cust */, 
                            INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                            OUTPUT cRtnChar, OUTPUT lRecFound).
