@@ -86,7 +86,7 @@ ENd.
 PROCEDURE CalcLayoutSize:
     
     DEFINE VARIABLE gcCompany    AS CHARACTER NO-UNDO INITIAL "001".
-    DEFINE VARIABLE gcEstimateID AS CHARACTER NO-UNDO INITIAL "  103391".
+    DEFINE VARIABLE gcEstimateID AS CHARACTER NO-UNDO INITIAL "  103446".
     
      
     FIND FIRST est NO-LOCK
@@ -107,7 +107,7 @@ PROCEDURE CalcLayoutSize:
 
     RUN est/CalcLayoutSize.p (INPUT ROWID(ef),
         INPUT ROWID(eb),
-        YEs,
+        NO,   // iplCalcSizeOnly
         OUTPUT TABLE ttLayoutSize).
         
         
@@ -127,8 +127,7 @@ PROCEDURE CalcLayoutSize:
             "Die Length" dDieSizeLength ef.trim-l SKIP
             "Die Width" dDieSizewidth ef.trim-w SKIP
             "Die depth" dDieSizedepth ef.trim-d SKIP
-            ef.roll SKIP
-   INDEX("B",ef.xgrain) EQ 0 skip
+           
             ef.xgrain skip
    
             "xef.lsh-lock" ef.lsh-lock

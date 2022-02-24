@@ -978,6 +978,7 @@ PROCEDURE pCalcLayout:
     
     /* Corrugated Version */  
     ELSE IF lDecimal = NO THEN
+    DO:
         ASSIGN
             ttLayoutSize.dGrossSheetLength = ROUND(ttLayoutSize.dGrossSheetLength * dDecimalFactor,0)
             ttLayoutSize.dGrossSheetLength = ttLayoutSize.dGrossSheetLength / dDecimalFactor
@@ -997,13 +998,14 @@ PROCEDURE pCalcLayout:
             ttLayoutSize.dDieSizeWidth     = ttLayoutSize.dDieSizeWidth / dDecimalFactor
             ttLayoutSize.dDieSizeDepth     = ROUND(ttLayoutSize.dDieSizeDepth * dDecimalFactor,0)
             ttLayoutSize.dDieSizeDepth     = ttLayoutSize.dDieSizeDepth / dDecimalFactor.
-    
-    IF AVAIL(bf-item) AND bf-item.i-code EQ "E" AND bf-ef.xgrain = "S" THEN
-        ASSIGN
-            dSwapDim                       = ttLayoutSize.dGrossSheetLength
-            ttLayoutSize.dGrossSheetLength = ttLayoutSize.dGrossSheetWidth
-            ttLayoutSize.dGrossSheetWidth  = dSwapDim.
-    
+
+        IF AVAIL(bf-item) AND bf-item.i-code EQ "E" AND bf-ef.xgrain = "S" THEN
+            ASSIGN
+                dSwapDim                       = ttLayoutSize.dGrossSheetLength
+                ttLayoutSize.dGrossSheetLength = ttLayoutSize.dGrossSheetWidth
+                ttLayoutSize.dGrossSheetWidth  = dSwapDim.
+    END.
+
 END PROCEDURE.
 
 
