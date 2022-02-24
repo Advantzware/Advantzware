@@ -3484,7 +3484,8 @@ PROCEDURE local-display-fields :
   DEF VAR lv-tot-wid AS INT NO-UNDO.
   DEF VAR lv-tot-up AS INT NO-UNDO.
   def var li-n-cuts as int no-undo.
-
+  DEFINE VARIABLE iDecimalValue AS INTEGER NO-UNDO.
+  
   DEF BUFFER bf-eb FOR eb.
 
   IF VALID-HANDLE(br-flm) THEN DELETE WIDGET br-flm.
@@ -3496,36 +3497,37 @@ PROCEDURE local-display-fields :
   DO WITH FRAME {&FRAME-NAME}:
 
      IF v-cecscrn-char EQ "Decimal" THEN do:
+        iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .        
         ASSIGN
-           ef.gsh-wid:FORMAT = ">>>9.999999"
-           ef.gsh-len:FORMAT = ">>>9.999999"
-           ef.gsh-dep:FORMAT = ">>>9.999999"
-           ef.nsh-wid:FORMAT = ">>>9.999999"
-           ef.nsh-len:FORMAT = ">>>9.999999"
-           ef.nsh-dep:FORMAT = ">>>9.999999"
-           ef.trim-w:FORMAT = ">>>9.999999"
-           ef.trim-l:FORMAT = ">>>9.999999"
-           ef.trim-d:FORMAT = ">>>9.999999"
-           eb.t-wid:FORMAT = ">>>9.999999"
-           eb.t-len:FORMAT = ">>>>9.999999"
-           eb.t-dep:FORMAT = ">>>>9.999999"
-           ef.lsh-wid:FORMAT = ">>9.999999"
-           ef.lsh-len:FORMAT = ">>9.999999"
-           ef.leaf-w[1]:FORMAT = ">>9.999999"
-           ef.leaf-w[2]:FORMAT = ">>9.999999"
-           ef.leaf-w[3]:FORMAT = ">>9.999999"
-           ef.leaf-w[4]:FORMAT = ">>9.999999"
-           ef.leaf-l[1]:FORMAT = ">>9.999999"
-           ef.leaf-l[2]:FORMAT = ">>9.999999"
-           ef.leaf-l[3]:FORMAT = ">>9.999999"
-           ef.leaf-l[4]:FORMAT = ">>9.999999"
+           ef.gsh-wid:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.gsh-len:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.gsh-dep:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.nsh-wid:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.nsh-len:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.nsh-dep:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.trim-w:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.trim-l:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.trim-d:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           eb.t-wid:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           eb.t-len:FORMAT = ">>>>9." + FILL("9",INTEGER(iDecimalValue))
+           eb.t-dep:FORMAT = ">>>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.lsh-wid:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.lsh-len:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.leaf-w[1]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.leaf-w[2]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.leaf-w[3]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.leaf-w[4]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.leaf-l[1]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.leaf-l[2]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.leaf-l[3]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.leaf-l[4]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
                 /* eb.t-sqin:FORMAT = ">>>>>9.99999"*/ .
 
         IF eb.t-sqin GT 999999  THEN
             ASSIGN
-            eb.t-sqin:FORMAT = ">>>>>>>>>9.99999" 
+            eb.t-sqin:FORMAT = ">>>>>>>>>9." + FILL("9",INTEGER(iDecimalValue))
             eb.t-sqin:WIDTH = 17.2 .
-        ELSE ASSIGN eb.t-sqin:FORMAT = ">>>>>9.99999" .
+        ELSE ASSIGN eb.t-sqin:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue)) .
      END.
      ELSE do:
          ASSIGN
