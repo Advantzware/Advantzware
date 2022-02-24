@@ -158,7 +158,7 @@ PROCEDURE pInitialize PRIVATE:
        /* Do not display Excel error messages. */
        gchExcelApplication:DisplayAlerts  = FALSE NO-ERROR.  
        /* Disable screen updating so it will go faster */
-       //gchExcelApplication:ScreenUpdating = FALSE NO-ERROR.      
+       gchExcelApplication:ScreenUpdating = FALSE NO-ERROR.      
     END.
     
 END PROCEDURE.

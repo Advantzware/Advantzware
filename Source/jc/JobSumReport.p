@@ -205,7 +205,9 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
                 .
         END.           
     END.
-     
+    
+    RUN pBuildMiscPrep(BUFFER ipbf-job, BUFFER ipbf-estCostHeader, "Lab").
+    
     FOR EACH mch-act NO-LOCK
         WHERE mch-act.company EQ ipbf-job.company
         AND mch-act.job-no EQ ipbf-job.job-no
@@ -449,8 +451,8 @@ PROCEDURE pBuildMaterials PRIVATE:
                 ttMaterial.cUsedonForms = ttMaterial.cUsedonForms + (IF LOOKUP(string(estCostMaterial.formNo),ttMaterial.cUsedonForms) EQ 0 THEN STRING(estCostMaterial.formNo) + "," ELSE "")
                 .                   
         END.
-        RUN pBuildMiscPrep(BUFFER ipbf-job, BUFFER ipbf-estCostHeader, "Misc").
-        RUN pBuildMiscPrep(BUFFER ipbf-job, BUFFER ipbf-estCostHeader, "Prep").
+        RUN pBuildMiscPrep(BUFFER ipbf-job, BUFFER ipbf-estCostHeader, "Mat").
+        
     END.
     FOR EACH mat-act NO-LOCK
         WHERE mat-act.company EQ ipbf-job.company
@@ -509,37 +511,53 @@ PROCEDURE pBuildMiscPrep PRIVATE:
     ------------------------------------------------------------------------------*/    
     DEFINE PARAMETER BUFFER ipbf-job           FOR job.
     DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
-    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCostType AS CHARACTER NO-UNDO.
     
     FOR EACH estCostMisc NO-LOCK 
-        WHERE estCostMisc.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
-        AND ((ipcType EQ "Misc" AND NOT estCostMisc.isPrep) OR (ipcType EQ "Prep" AND estCostMisc.isPrep))
-        AND estCostMisc.itemID NE ""
-        BREAK BY estCostMisc.formNo
+        WHERE estCostMisc.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID 
+        AND estCostMisc.costType EQ ipcCostType
+        BY estCostMisc.formNo
         BY estCostMisc.blankNo:
         
-        FIND FIRST ttMaterial NO-LOCK
-             WHERE ttMaterial.cJobNo EQ ipbf-job.job-no
-               AND ttMaterial.iJobNo2 EQ ipbf-job.job-no2
-               AND ttMaterial.cMaterial EQ estCostMisc.itemID
-               NO-ERROR.
-                
-            IF NOT AVAILABLE ttMaterial THEN
-            DO:
-                CREATE ttMaterial.
-                ASSIGN
-                    ttMaterial.cJobNo    = ipbf-job.job-no
-                    ttMaterial.iJobNo2   = ipbf-job.job-no2 
-                    ttMaterial.iFormNo   = estCostMisc.formNo
-                    ttMaterial.iBlankNo  = estCostMisc.blankNo                             
-                    ttMaterial.cMaterial = estCostMisc.itemID
-                    ttMaterial.cStdUom   = estCostMisc.costUOM .
-            END.
-            ASSIGN 
-                ttMaterial.dQtyStd  = ttMaterial.dQtyStd + estCostMisc.quantityRequiredTotal
-                ttMaterial.dCostStd = ttMaterial.dCostStd + estCostMisc.costTotal
-                ttMaterial.cUsedonForms = ttMaterial.cUsedonForms + (IF LOOKUP(string(estCostMisc.formNo),ttMaterial.cUsedonForms) EQ 0 THEN STRING(estCostMisc.formNo) + "," ELSE "")
-                .         
+        IF estCostMisc.costType EQ "Mat" THEN
+        DO:       
+            FIND FIRST ttMaterial NO-LOCK
+                 WHERE ttMaterial.cJobNo EQ ipbf-job.job-no
+                   AND ttMaterial.iJobNo2 EQ ipbf-job.job-no2
+                   AND ttMaterial.cMaterial EQ estCostMisc.itemID
+                   NO-ERROR.
+                    
+                IF NOT AVAILABLE ttMaterial THEN
+                DO:
+                    CREATE ttMaterial.
+                    ASSIGN
+                        ttMaterial.cJobNo    = ipbf-job.job-no
+                        ttMaterial.iJobNo2   = ipbf-job.job-no2 
+                        ttMaterial.iFormNo   = estCostMisc.formNo
+                        ttMaterial.iBlankNo  = estCostMisc.blankNo                             
+                        ttMaterial.cMaterial = estCostMisc.itemID
+                        ttMaterial.cStdUom   = estCostMisc.costUOM .
+                END.
+                ASSIGN 
+                    ttMaterial.dQtyStd  = ttMaterial.dQtyStd + estCostMisc.quantityRequiredTotal
+                    ttMaterial.dCostStd = ttMaterial.dCostStd + estCostMisc.costTotal
+                    ttMaterial.cUsedonForms = ttMaterial.cUsedonForms + (IF LOOKUP(string(estCostMisc.formNo),ttMaterial.cUsedonForms) EQ 0 THEN STRING(estCostMisc.formNo) + "," ELSE "")
+                    .         
+        END.        
+        ELSE IF estCostMisc.costType EQ "Lab" THEN
+        DO:       
+            CREATE ttOperation.
+            ASSIGN                
+                ttOperation.cJobNo        = ipbf-job.job-no
+                ttOperation.iJobNo2       = ipbf-job.job-no2                                                      
+                ttOperation.iFormNo       = estCostMisc.formNo
+                ttOperation.iBlankNo      = estCostMisc.blankNo                 
+                ttOperation.cMachine      = estCostMisc.costDescription 
+                ttOperation.cStdAct       = "Standard"
+                ttOperation.dRunQty       = estCostMisc.quantityRequiredTotal                
+                ttOperation.dCost         = estCostMisc.costTotal                  
+                .
+        END.
     END.    
 
 END PROCEDURE.    
@@ -564,7 +582,7 @@ PROCEDURE pGetMaterialCost PRIVATE:
            AND job-mat.i-no    eq ipbf-item.i-no NO-ERROR.
     
     cScUom = IF AVAIL job-mat AND job-mat.sc-uom gt "" THEN
-                  job-mat.sc-uom else mat-act.qty-uom.
+                  job-mat.sc-uom else ipbf-mat-act.qty-uom.
     
     RUN Conv_ValueFromUOMtoUOM(ipbf-job.company, 
                     ipbf-item.i-no, 
