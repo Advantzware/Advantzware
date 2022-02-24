@@ -182,6 +182,8 @@ PROCEDURE calcShiftEndTime:
     IF iplUseTime THEN
     iShiftEndTime = fCalcTime(ipcTime).
     ELSE DO:
+        IF ipcStartShift EQ "" AND ipcEndShift EQ CHR(254) THEN
+        iShiftEndTime = 86400.
         FIND FIRST shifts NO-LOCK
              WHERE shifts.company EQ ipcCompany
                AND shifts.shift   EQ ipcStartShift
