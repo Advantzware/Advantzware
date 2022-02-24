@@ -221,7 +221,7 @@ FOR EACH oe-ord
 
         PUT "<FArial><R3><C43><p9> Max # of Colors: <B>" string(iColorCount) "</B>" "  # of Forms: <B>" STRING(iFormCount) "</B>" SKIP.
         PUT "<FArial><R4.5><C43.8><p9> Customer: <B>" IF AVAILABLE cust THEN cust.NAME ELSE "" FORMAT "x(30)"  "</B>" SKIP.
-        PUT "<FArial><R5><C68.8><p9> Order # : <B>" oe-ordl.ord-no "</B>" skip  .
+        PUT "<FArial><R5><C68.8><p9> Order # : <B>" TRIM(STRING(oe-ordl.ord-no,">>>>>>>9")) FORM "X(8)" "</B>" skip  .
         PUT "<FArial><R6><C45.9><p9> Carton: <B>" cDieDescr "</B>" SKIP.
 
         PUT "<FArial><R7.5><C42.8><p9> Order Date: <B>" oe-ord.ord-date "</B>" SKIP.

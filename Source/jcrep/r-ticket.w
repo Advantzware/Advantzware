@@ -264,13 +264,13 @@ DEFINE VARIABLE dept_codes     AS CHARACTER FORMAT "X(256)":U INITIAL "QA"
     VIEW-AS FILL-IN 
     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job1       AS CHARACTER FORMAT "x(9)" INITIAL "zzzzzzzzz" 
+DEFINE VARIABLE end_job1       AS CHARACTER FORMAT "x(9)" INITIAL "zzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
     SIZE 14 BY 1
     BGCOLOR 3 FGCOLOR 15 .
 
-DEFINE VARIABLE end_job2       AS INTEGER   FORMAT ">>9" INITIAL 999 
+DEFINE VARIABLE end_job2       AS INTEGER   FORMAT ">>9" INITIAL 99 
     LABEL "-" 
     VIEW-AS FILL-IN 
     SIZE 5.4 BY 1.
@@ -559,11 +559,11 @@ DEFINE FRAME FRAME-A
     TB_sample_req AT ROW 16.95 COL 56 WIDGET-ID 2
     tb_freeze-note AT ROW 17 COL 21
     tb_dept-note AT ROW 17 COL 56
-    lv-font-no AT ROW 18.62 COL 46 COLON-ALIGNED
+    lv-font-no AT ROW 20.31 COL 48 COLON-ALIGNED
     lv-ornt AT ROW 18.62 COL 53 NO-LABELS
     lines-per-page AT ROW 18.62 COL 91 COLON-ALIGNED
     rd-dest AT ROW 18.86 COL 5 NO-LABELS
-    lv-font-name AT ROW 19.81 COL 58 COLON-ALIGNED NO-LABELS
+    lv-font-name AT ROW 20.31 COL 58 COLON-ALIGNED NO-LABELS
     td-show-parm AT ROW 21.33 COL 31.4
     run_format AT ROW 21.95 COL 69 COLON-ALIGNED WIDGET-ID 12
     tb_ExportXML AT ROW 22.05 COL 31.4 WIDGET-ID 20
@@ -936,7 +936,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}.
-    
+            lv-ornt = lv-ornt:SCREEN-VALUE. 
             IF NOT lPrinterAllow AND (lv-format-f EQ "Colonial" OR lv-format-f EQ "CCC" ) AND rd-dest EQ 1 THEN
             DO:
                 MESSAGE "Only Administrators can print a job card." VIEW-AS ALERT-BOX INFORMATION .
@@ -963,8 +963,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             DO:
 
                 FIND FIRST job-hdr WHERE job-hdr.company EQ cocode
-                    AND TRIM(job-hdr.job-no) EQ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))) 
-                    NO-LOCK NO-ERROR.
+                    AND TRIM(job-hdr.job-no) EQ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))) NO-LOCK NO-ERROR.
 
                 IF NOT AVAILABLE job-hdr THEN 
                 DO:
@@ -974,9 +973,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             END.
 
             FOR EACH job-hdr 
-                WHERE job-hdr.company             EQ cocode
-                AND TRIM(job-hdr.job-no)          GE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)))
-                AND TRIM(job-hdr.job-no)          LE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)))
+                WHERE job-hdr.company               EQ cocode
+                AND TRIM(job-hdr.job-no)            GE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)))
+                AND TRIM(job-hdr.job-no)            LE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)))
                 NO-LOCK :
                 /*  FIND FIRST cust WHERE cust.company EQ cocode 
                       AND cust.cust-no EQ job-hdr.cust-no NO-LOCK NO-ERROR.
@@ -1858,7 +1857,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DO:
         FIND FIRST job-hdr NO-LOCK
             WHERE job-hdr.company EQ cocode
-            AND TRIM(job-hdr.job-no)  EQ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)))
+            AND TRIM(job-hdr.job-no) EQ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)))
             AND job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
             NO-ERROR.
 
@@ -2855,9 +2854,6 @@ PROCEDURE new-job-no :
             FOR EACH job-hdr
                 WHERE job-hdr.company               EQ cocode
 
-                AND TRIM(job-hdr.job-no)                GE TRIM(SUBSTR(fjob-no,1,9))
-                AND TRIM(job-hdr.job-no)                LE TRIM(SUBSTR(IF ipcRunType EQ "All" THEN tjob-no ELSE fJob-no,1,9))
-
                 AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
                 TRIM(job-hdr.job-no) +
                 STRING(job-hdr.job-no2,"999")  GE fjob-no
@@ -2898,7 +2894,7 @@ PROCEDURE new-job-no :
                     sys-ctrl-shipto.char-fld > ''
                     NO-LOCK NO-ERROR.
 
-                IF AVAILABLE sys-ctrl-shipto AND substr(fjob-no,1,9) EQ substr(tjob-no,1,9) THEN 
+                IF AVAILABLE sys-ctrl-shipto AND substr(fjob-no,1,9) EQ substr(tjob-no,1,9) THEN
                 DO:
                     lv-format-c = sys-ctrl-shipto.char-fld .
                 END.
@@ -3466,6 +3462,19 @@ PROCEDURE pRunFormatValueChanged :
         IF lv-format-f EQ "Henry" AND tb_fold:SCREEN-VALUE EQ "Yes" THEN
             tb_spanish:HIDDEN = NO.
         ELSE tb_spanish:HIDDEN = YES.
+            
+        IF lv-format-c EQ "jobcardc 1" OR lv-format-c EQ "jobcardc 2" THEN
+        DO: 
+           ASSIGN
+            lv-ornt:HIDDEN = NO
+            lv-ornt:SENSITIVE = YES.
+        END.
+        ELSE ASSIGN 
+            lv-ornt:HIDDEN = YES
+            lv-ornt:SENSITIVE = NO
+            lv-font-name:HIDDEN = YES
+            lv-font-no:HIDDEN = YES
+            lines-per-page:HIDDEN = YES.
     END.
 END PROCEDURE.
 
@@ -3671,7 +3680,7 @@ PROCEDURE split-ship-proc :
 
         FIND FIRST job-hdr NO-LOCK
             WHERE job-hdr.company EQ cocode
-            AND TRIM(job-hdr.job-no)  EQ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)))
+            AND TRIM(job-hdr.job-no) EQ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)))
             AND job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
             NO-ERROR.
         IF AVAILABLE job-hdr AND  job-hdr.splitShip EQ YES THEN

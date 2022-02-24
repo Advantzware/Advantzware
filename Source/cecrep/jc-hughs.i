@@ -12,11 +12,9 @@
          END.
 
          FOR EACH job-hdr WHERE job-hdr.company               EQ cocode
-                            and (production OR
+                            AND (production OR
                                  job-hdr.ftick-prnt eq reprint OR
                                  PROGRAM-NAME(2) MATCHES "*r-tickt2*")
-                            AND TRIM(job-hdr.job-no)                GE TRIM(SUBSTR(fjob-no,1,9))
-                            AND TRIM(job-hdr.job-no)                LE TRIM(SUBSTR(tjob-no,1,9))
                             AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
                                 TRIM(job-hdr.job-no) +
                                 STRING(job-hdr.job-no2,"999")  GE fjob-no

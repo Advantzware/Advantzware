@@ -203,9 +203,12 @@ DEFINE        VARIABLE cTotalCount      AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cExpectedPallets AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cEstRecKey       AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE lPrintSetHeader  AS LOGICAL NO-UNDO.
+DEFINE        VARIABLE cBarCode         AS CHARACTER NO-UNDO.
 
 DEFINE TEMP-TABLE tt-reftable NO-UNDO LIKE reftable
     FIELD est-type LIKE est.est-type.
+
+DEFINE BUFFER bff-job-hdr FOR job-hdr.    
 
 {cec/msfcalc.i}
 DEFINE BUFFER bf-eb     FOR eb.
@@ -233,8 +236,8 @@ FORMAT HEADER
          "<C45>HENRY MOLDED PRODUCTS,INC."   SKIP
          "<C47>Job/Head Especificación"  
          "<C84>Fecha:"  v-today  SKIP
-         "<P16><C24>Número de orden:<B>" STRING(v-job-no)"</B>" 
-         "<C52>Máquina: " "<B>" cJobMachCode "</B>"
+         "<P16><C22>Número de orden:<B>" STRING(v-job-no)"</B>" 
+         "<C50>Máquina: " "<B>" cJobMachCode "</B>"
          "<C68>Ciclos: " "<B>" cCycleValue "</B>"
          "<P10><C84>Fecha De Vencimiento:"  v-due-date SKIP(1)
          /*v-fill*/
@@ -270,14 +273,12 @@ ASSIGN
 
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company               EQ cocode
-    AND TRIM(job-hdr.job-no)                GE TRIM(SUBSTR(fjob-no,1,9))
-    AND TRIM(job-hdr.job-no)                LE TRIM(SUBSTR(tjob-no,1,9))
-    AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
-        TRIM(job-hdr.job-no) +
-        STRING(job-hdr.job-no2,"999")  GE fjob-no
-    AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
-        TRIM(job-hdr.job-no) +
-        STRING(job-hdr.job-no2,"999")  LE tjob-no
+    AND fill(" ",9 - length(TRIM(job-hdr.job-no))) +
+    trim(job-hdr.job-no) +
+    string(job-hdr.job-no2,"999")  GE fjob-no
+    AND fill(" ",9 - length(TRIM(job-hdr.job-no))) +
+    trim(job-hdr.job-no) +
+    string(job-hdr.job-no2,"999")  LE tjob-no
     AND job-hdr.job-no2 GE fjob-no2
     AND job-hdr.job-no2 LE tjob-no2
     AND (job-hdr.ftick-prnt            EQ v-reprint OR
@@ -343,14 +344,12 @@ END.
 
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company               EQ cocode
-    AND TRIM(job-hdr.job-no)                GE TRIM(SUBSTR(fjob-no,1,9))
-    AND TRIM(job-hdr.job-no)                LE TRIM(SUBSTR(tjob-no,1,9))
-    AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
-        TRIM(job-hdr.job-no) +
-        STRING(job-hdr.job-no2,"999")  GE fjob-no
-    AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
-        TRIM(job-hdr.job-no) +
-        STRING(job-hdr.job-no2,"999")  LE tjob-no
+    AND fill(" ",9 - length(TRIM(job-hdr.job-no))) +
+    trim(job-hdr.job-no) +
+    string(job-hdr.job-no2,"999")  GE fjob-no
+    AND fill(" ",9 - length(TRIM(job-hdr.job-no))) +
+    trim(job-hdr.job-no) +
+    string(job-hdr.job-no2,"999")  LE tjob-no
     AND job-hdr.job-no2 GE fjob-no2
     AND job-hdr.job-no2 LE tjob-no2
     AND (job-hdr.ftick-prnt            EQ v-reprint OR
@@ -825,7 +824,12 @@ FOR EACH ef
                          string(eb.dep)
             v-size[2] = eb.i-coldscr.             
             
-              
+        FIND FIRST bff-job-hdr NO-LOCK
+             WHERE bff-job-hdr.company  EQ job-hdr.company
+               AND bff-job-hdr.job-no   EQ job-hdr.job-no
+               AND bff-job-hdr.job-no2  EQ job-hdr.job-no2
+               AND bff-job-hdr.frm      EQ job-hdr.frm
+               AND bff-job-hdr.blank-no EQ eb.blank-no NO-ERROR.
         
         RUN pGetPrintLabel2(INPUT lSpanish, OUTPUT cItemSpecLabel, OUTPUT cFGItemLabel, OUTPUT cKeyItemLabel, OUTPUT cMoldsLabel, OUTPUT cWetWeightLabel,
                              OUTPUT cFirstDryLabel, OUTPUT cDscrLabel , OUTPUT cMoldIDsLabel, OUTPUT cBoneDryLabel , OUTPUT cMoistureLabel,
@@ -871,12 +875,12 @@ FOR EACH ef
         
             IF eb.tr-cnt NE 0 THEN
             DO:
-               ASSIGN dExpectedPallets =  ( job-hdr.qty / eb.tr-cnt ) .
+               ASSIGN dExpectedPallets =  ( (IF AVAILABLE bff-job-hdr THEN bff-job-hdr.qty ELSE job-hdr.qty) / eb.tr-cnt ) .
                 {sys/inc/roundup.i dExpectedPallets}
             END.
             ELSE dExpectedPallets = 0 .                  
                     
-        PUT "<=#5> <C3>" cFGItemLabel FORMAT "x(10)" "<C8><B>" eb.stock-no FORMAT "x(15)"  "</B><C20>" cKeyItemLabel FORMAT "x(15)" "<B>"  job-hdr.keyItem "</B> "  
+        PUT "<=#5> <C3>" cFGItemLabel FORMAT "x(10)" "<C8><B>" eb.stock-no FORMAT "x(15)"  "</B><C20>" cKeyItemLabel FORMAT "x(15)" "<B>" (IF AVAIL bff-job-hdr THEN bff-job-hdr.keyItem ELSE job-hdr.keyItem) "</B> "  
             "<C35>" cMoldsLabel FORMAT "x(8)" "<C44><B>" TRIM(STRING(eb.num-up)) "</B>"   
             "<C50>" cWetWeightLabel FORMAT "x(13)" "<C59><B>" STRING(fGetMiscFields(itemfg.rec_key,"00001")) "</B>" 
             "<C65>" cFirstDryLabel FORMAT "x(14)" "<C74><B>" STRING(fGetMiscFields(itemfg.rec_key,"00003")) "</B>" SKIP
@@ -889,13 +893,16 @@ FOR EACH ef
             "<C50>" cMinWeightLabel FORMAT "x(12)" "<C59><B>" STRING(fGetMiscFields(itemfg.rec_key,"00002")) "</B>" 
             "<C65>" cFiberContentLabel FORMAT "x(20)" "<C74><B>" STRING(fGetMiscFields(itemfg.rec_key,"00006")) "</B>" SKIP
             .
+        IF AVAILABLE bff-job-hdr THEN
+        cBarCode = STRING(TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', bff-job-hdr.job-no, bff-job-hdr.job-no2))) + "-" + STRING(bff-job-hdr.frm,"99") + "-" + STRING(bff-job-hdr.blank-no,"99")).
+        ELSE
+        cBarCode = STRING(TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) + "-" + STRING(job-hdr.frm,"99") + "-" + STRING(job-hdr.blank-no,"99")).
                
         PUT "<=#5><R+0.5><UNITS=INCHES><C80><FROM><C105><r+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
-        (TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) + 
-        "-" + STRING(job-hdr.frm,"99") + "-" + STRING(job-hdr.blank-no,"99")) FORMAT "x(19)" "><R-3>" . 
+        cBarCode FORMAT "x(19)" "><R-3>" . 
                
         PUT "<=#6><R-1> <C3><B>" cPackingLabel FORMAT "x(8)"  "</B>" SKIP
-            "<C3>" cTotalCount                 FORMAT "x(23)" "<B><C15>" TRIM(STRING(job-hdr.qty, ">>>,>>>,>>9")) "</B>"
+            "<C3>" cTotalCount                 FORMAT "x(23)" "<B><C15>" TRIM(STRING((IF AVAILABLE bff-job-hdr THEN bff-job-hdr.qty ELSE job-hdr.qty), ">>>,>>>,>>9")) "</B>"
             "<C25>" cCartonCodeLabel           FORMAT "x(20)" "<C35>" TRIM(eb.cas-no) SKIP
             "<C3>" cPalletCountLabel           FORMAT "x(23)" "<C15>" TRIM(STRING(eb.tr-cnt,">,>>>,>>9"))    
             "<C25>" cPalletSizeLabel           FORMAT "x(23)" "<C35>" TRIM(IF AVAILABLE eb THEN (STRING(eb.tr-len) + " x " +  STRING(eb.tr-wid) + " x " +  STRING(eb.tr-dep)) ELSE "") FORMAT "x(12)" SKIP
@@ -980,7 +987,7 @@ DO:
                            "<=12><C30><FROM><R+4><C30><LINE><|3>"
                            "<=12><C60><FROM><R+4><C60><LINE><|3>"
                           "<=12><R+1><C5>Job # <C30> Estimate #" "<C60> FG Item:" itemfg.i-no
-                          "<=12><R+2><C8>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', bf-jobhdr.job-no, bf-jobhdr.job-no2))) FORMAT "x(13)"   "<C35>"  bf-jobhdr.est-no  
+                          "<=12><R+2><C8>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', bf-jobhdr.job-no, bf-jobhdr.job-no2))) FORM "x(13)"   "<C35>"  bf-jobhdr.est-no  
                           "<C60> File Name: " STRING( SUBSTR(attach.attach-file,r-INDEX(attach.attach-file,'\') + 1)) FORMAT "x(50)"
                           "<=12><R+4><C1><FROM><C106><LINE><||3>"
                           "<=12><R+5><C5><#21><R+42><C+90><IMAGE#21=" attach.attach-file ">" SKIP.  

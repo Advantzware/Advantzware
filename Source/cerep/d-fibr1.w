@@ -428,7 +428,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         
         IF job-mch.dept EQ "PR" THEN
         DO:
-           fi_job-no = TRIM(job-mch.job-no) + "-" + STRING(job-mch.job-no2,"99").
+           fi_job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-mch.job-no, job-mch.job-no2))).
 
            RUN get-upd-reft (INPUT YES,
                              INPUT job-mch.job-no,
