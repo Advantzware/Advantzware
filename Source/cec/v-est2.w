@@ -2711,7 +2711,7 @@ PROCEDURE auto-calc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/  
-
+   DEFINE VARIABLE cItemUom AS CHARACTER NO-UNDO.
    {custom/checkuse.i}
 
    ll-auto-calc-selected = yes.
@@ -2749,6 +2749,12 @@ PROCEDURE auto-calc :
           eb.num-len:screen-value = string("0")
           eb.num-wid:screen-value = string("0")
           eb.num-dep:screen-value = string("0").
+   
+   IF lNewVendorItemCost THEN 
+   DO:
+       cItemUom = fGetVendItemCostUOM(ITEM.company, ITEM.i-no).
+       ef.cost-uom:SCREEN-VALUE = IF cItemUom NE "" THEN cItemUom ELSE ef.cost-uom:SCREEN-VALUE . 
+   END.       
 
    run dispatch ('enable-fields').
    disable ef.gsh-wid ef.gsh-len ef.gsh-dep
