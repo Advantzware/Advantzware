@@ -332,7 +332,7 @@ DEFINE FRAME F-Main
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Finished Goods Receive/Transfer"
+         TITLE              = "Receive/Transfer"
          HEIGHT             = 29.62
          WIDTH              = 189.2
          MAX-HEIGHT         = 29.62
@@ -425,7 +425,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttBrowseInventory BY ttBrowseInventory.lastTran
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* Finished Goods Receive/Transfer */
+ON END-ERROR OF W-Win /* Receive/Transfer */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -438,7 +438,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* Finished Goods Receive/Transfer */
+ON WINDOW-CLOSE OF W-Win /* Receive/Transfer */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
