@@ -3186,6 +3186,8 @@ PROCEDURE valid-po-no :
   DEFINE VARIABLE lMessage  AS LOGICAL NO-UNDO.
   DEFINE VARIABLE lResponse AS LOGICAL   NO-UNDO.
   DEF BUFFER b-ap-invl FOR ap-invl.
+  DEF VAR tRecQty AS DEC NO-UNDO.
+  DEF VAR tInvQty AS DEC NO-UNDO.
   
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -3223,6 +3225,10 @@ PROCEDURE valid-po-no :
             po-ordl.company EQ po-ord.company AND 
             po-ordl.po-no   EQ po-ord.po-no:
             
+            ASSIGN 
+                tRecQty = tRecQty + po-ordl.t-rec-qty
+                tInvQty = tInvQty + po-ordl.t-inv-qty.
+                
             IF po-ordl.t-rec-qty EQ 0 THEN DO:
                 FIND FIRST ITEM NO-LOCK
                      WHERE item.company EQ cocode
@@ -3264,9 +3270,10 @@ PROCEDURE valid-po-no :
 
         RUN build-table (RECID(po-ord)).
                 
-        IF NOT apinvmsg-log AND lv-num-rec GT 0 THEN
-        DO:          
-          MESSAGE "This PO has " + STRING(lv-num-rec) + " uninvoiced receipts." SKIP 
+        IF NOT apinvmsg-log 
+        AND tInvQty GE tRecQty  
+        THEN DO:          
+          MESSAGE "This PO has no uninvoiced receipts." SKIP 
                   "Do you want to continue processing?"
                    VIEW-AS ALERT-BOX QUESTION 
                    BUTTONS OK-CANCEL UPDATE lcheckflg as logical.
