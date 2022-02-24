@@ -407,6 +407,8 @@ END.
 ON ENTER OF fiJobNo IN FRAME F-Main
 DO:
     APPLY 'LEAVE' TO SELF. 
+    IF lScanNextJob THEN
+        RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
