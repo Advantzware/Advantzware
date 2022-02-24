@@ -3264,7 +3264,7 @@ PROCEDURE valid-po-no :
 
         RUN build-table (RECID(po-ord)).
                 
-        IF NOT apinvmsg-log OR lv-num-rec LE 0 THEN
+        IF NOT apinvmsg-log AND lv-num-rec GT 0 THEN
         DO:          
           MESSAGE "This PO has been received and invoiced." SKIP 
                   "Do you want to continue processing?"
