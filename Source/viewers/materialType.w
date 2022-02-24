@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 &scoped-def proc-enable proc-enable
 
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobBuildVersion     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalculationTypeList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMaterialTypeGroup   AS CHARACTER NO-UNDO.
@@ -84,7 +84,7 @@ materialType.consumedByDept materialType.calculationType ~
 materialType.autoIssue 
 &Scoped-define DISPLAYED-TABLES materialType
 &Scoped-define FIRST-DISPLAYED-TABLE materialType
-&Scoped-Define DISPLAYED-OBJECTS fiDeptDesc
+&Scoped-Define DISPLAYED-OBJECTS fiDeptDesc 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -119,7 +119,7 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE fiDeptDesc AS CHARACTER FORMAT "X(32)":U      
+DEFINE VARIABLE fiDeptDesc AS CHARACTER FORMAT "X(32)":U 
      VIEW-AS FILL-IN 
      SIZE 31 BY 1 NO-UNDO.
 
@@ -138,18 +138,17 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
      materialType.materialTypeGroup AT ROW 3.81 COL 26 COLON-ALIGNED WIDGET-ID 16
-          LABEL "System Type"
-          VIEW-AS COMBO-BOX INNER-LINES 15           
-          DROP-DOWN-LIST 
+          VIEW-AS COMBO-BOX INNER-LINES 15
+          DROP-DOWN-LIST
           SIZE 18.2 BY 1
      materialType.consumedByDept AT ROW 5 COL 26 COLON-ALIGNED WIDGET-ID 14
           LABEL "Department"
           VIEW-AS FILL-IN 
           SIZE 8.2 BY 1
-     fiDeptDesc AT ROW 5 COL 36.8 COLON-ALIGNED NO-LABEL WIDGET-ID 28     
+     fiDeptDesc AT ROW 5 COL 36.8 COLON-ALIGNED NO-LABEL WIDGET-ID 28
      materialType.calculationType AT ROW 6.14 COL 26 COLON-ALIGNED WIDGET-ID 10
           VIEW-AS COMBO-BOX INNER-LINES 8
-          LIST-ITEM-PAIRS "Item 1"," Item 1"
+          LIST-ITEM-PAIRS "Default"," Default"
           DROP-DOWN-LIST
           SIZE 26 BY 1
      materialType.autoIssue AT ROW 7.33 COL 28 WIDGET-ID 2
@@ -199,7 +198,7 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/viewer.i}
-/* {methods/template/viewer.i} */
+{methods/template/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -217,11 +216,9 @@ END.
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
-       
-/* SETTINGS FOR FILL-IN materialType.materialTypeGroup IN FRAME F-Main
-   EXP-LABEL                                                            */
+
 /* SETTINGS FOR FILL-IN materialType.consumedByDept IN FRAME F-Main
-   EXP-LABEL                                                            */   
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN fiDeptDesc IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -237,11 +234,15 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-/* ************************  Control Triggers  ************************ */ 
-&Scoped-define SELF-NAME F-Main
+ 
+
+
+
+/* ************************  Control Triggers  ************************ */
+
 &Scoped-define SELF-NAME materialType.consumedByDept
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL materialType.consumedByDept V-table-Win
-ON LEAVE OF materialType.consumedByDept IN FRAME F-Main /* Dept */
+ON LEAVE OF materialType.consumedByDept IN FRAME F-Main /* Department */
 DO:
     IF LASTKEY = -1 THEN RETURN.
     {&methods/lValidateError.i YES}
@@ -254,6 +255,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -284,7 +286,7 @@ PROCEDURE add-item :
     RUN dispatch (
         INPUT 'add-record'
         ).  
-        
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -339,37 +341,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record V-table-Win
-PROCEDURE local-add-record:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  
-    ASSIGN 
-        materialType.materialTypeGroup:LIST-ITEMS IN FRAME {&frame-name} = cMaterialTypeGroup
-        materialType.materialTypeGroup:SCREEN-VALUE = ENTRY(1,cMaterialTypeGroup)
-        materialType.calculationType:LIST-ITEM-PAIRS = cCalculationTypeList
-        materialType.calculationType:SCREEN-VALUE = ENTRY(2,cCalculationTypeList)
-        materialType.consumedByDept:SCREEN-VALUE = "PR"
-        .
-    RUN pGetDeptDesc.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement V-table-Win 
 PROCEDURE local-assign-statement :
 /*------------------------------------------------------------------------------
@@ -386,6 +357,25 @@ PROCEDURE local-assign-statement :
 
     /* Code placed here will execute AFTER standard behavior.    */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+PROCEDURE local-display-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pGetDeptDesc.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -410,20 +400,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
-PROCEDURE local-display-fields :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDeptDesc V-table-Win 
+PROCEDURE pGetDeptDesc :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-    RUN pGetDeptDesc.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+   
+      FIND FIRST dept NO-LOCK
+           WHERE dept.code EQ materialType.consumedByDept:SCREEN-VALUE
+           NO-ERROR.
+      IF AVAIL dept THEN     
+      fiDeptDesc:SCREEN-VALUE = dept.dscr .
+      materialType.consumedByDept:SCREEN-VALUE = CAPS(materialType.consumedByDept:SCREEN-VALUE).
+    END.                                                  
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -460,9 +453,10 @@ PROCEDURE pInit :
         
     DELETE PROCEDURE hdMaterialProcs.
                             
-    materialType.calculationType:LIST-ITEM-PAIRS = cCalculationTypeList.
-    
-    materialType.materialTypeGroup:LIST-ITEMS = cMaterialTypeGroup.
+    ASSIGN
+        materialType.calculationType:LIST-ITEM-PAIRS = cCalculationTypeList        
+        materialType.materialTypeGroup:LIST-ITEMS    = cMaterialTypeGroup
+        .
     
     RUN sys/ref/nk1look.p (INPUT cCompany, "JobBuildVersion", "C" /* Logical */, NO /* check by cust */, 
                            INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -486,36 +480,15 @@ PROCEDURE proc-enable :
         IF adm-new-record THEN
         DO:
             ASSIGN
-                materialType.calculationType:SCREEN-VALUE = "Default"
+                materialType.calculationType:SCREEN-VALUE   = ?
                 materialType.materialTypeGroup:SCREEN-VALUE = "Board"
-                materialType.consumedByDept:SCREEN-VALUE = "PR".
-                RUN pGetDeptDesc.            
+                materialType.consumedByDept:SCREEN-VALUE    = "PR"
+                .
+            RUN pGetDeptDesc.            
         END.
     END.
     IF cJobBuildVersion NE "New" THEN
     DISABLE materialType.calculationType WITH FRAME {&FRAME-NAME} .
-     
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDeptDesc V-table-Win 
-PROCEDURE pGetDeptDesc :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-   
-      FIND FIRST dept NO-LOCK
-           WHERE dept.code EQ materialType.consumedByDept:SCREEN-VALUE
-           NO-ERROR.
-      IF AVAIL dept THEN     
-      fiDeptDesc:SCREEN-VALUE = dept.dscr .
-      materialType.consumedByDept:SCREEN-VALUE = CAPS(materialType.consumedByDept:SCREEN-VALUE).
-    END.                                                  
      
 END PROCEDURE.
 
