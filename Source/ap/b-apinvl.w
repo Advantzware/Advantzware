@@ -3266,7 +3266,7 @@ PROCEDURE valid-po-no :
                 
         IF NOT apinvmsg-log AND lv-num-rec GT 0 THEN
         DO:          
-          MESSAGE "This PO has been received and invoiced." SKIP 
+          MESSAGE "This PO has " + STRING(lv-num-rec) + " uninvoiced receipts." SKIP 
                   "Do you want to continue processing?"
                    VIEW-AS ALERT-BOX QUESTION 
                    BUTTONS OK-CANCEL UPDATE lcheckflg as logical.
