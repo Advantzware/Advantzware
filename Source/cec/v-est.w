@@ -1645,10 +1645,7 @@ DO:
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          APPLY "ENTRY" TO SELF.
          RETURN NO-APPLY.      
-      END.
-      ELSE do: 
-          self:screen-value = string( var-num +  op-dec) .
-      END.
+      END.        
    END.
 
    IF ll-auto-calc-selected AND {&self-name} <> dec(self:SCREEN-VALUE )
