@@ -2426,7 +2426,7 @@ PROCEDURE release-update :
     IF oe-bolh.stat EQ "H" THEN
       ASSIGN
        oe-bolh.stat = "R"
-       oe-bolh.printed = YES.
+       oe-bolh.printed = NO.
 
     ELSE ASSIGN oe-bolh.stat = "H"
                 oe-bolh.printed = NO.

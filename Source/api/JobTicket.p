@@ -126,6 +126,7 @@
     DEFINE VARIABLE oAttribute AS system.Attribute NO-UNDO.
     
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-cust    FOR cust.
     
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
@@ -290,10 +291,16 @@
                  WHERE ROWID(job-hdr) EQ ttEstCostHeaderID.riJobHeader
                  NO-ERROR.
             
-            IF AVAILABLE job-hdr THEN
+            IF AVAILABLE job-hdr THEN DO:
                 FIND FIRST job NO-LOCK
                      WHERE job.job EQ job-hdr.job
                      NO-ERROR.     
+
+                FIND FIRST cust NO-LOCK
+                     WHERE cust.company EQ job-hdr.company
+                       AND cust.cust-no EQ job-hdr.cust-no
+                     NO-ERROR.
+            END.
             
             ASSIGN
                 lJobAvailable          = TRUE
@@ -390,7 +397,13 @@
                            AND bf-job-hdr.frm      EQ estCostBlank.formNo
                            AND bf-job-hdr.blank-no EQ estCostBlank.blankNo
                            NO-ERROR.
-                          
+                    
+                    IF AVAILABLE bf-job-hdr THEN
+                        FIND FIRST bf-cust NO-LOCK
+                             WHERE bf-cust.company EQ bf-job-hdr.company
+                               AND bf-cust.cust-no EQ bf-job-hdr.cust-no
+                             NO-ERROR.
+                    
                     ASSIGN
                         lBlankAvailable    = TRUE
                         lMaterialAvailable = FALSE
@@ -401,12 +414,42 @@
                     FOR EACH estCostMaterial NO-LOCK
                         WHERE estCostMaterial.estCostHeaderID EQ estCostBlank.estCostHeaderID
                           AND estCostMaterial.estCostBlankID  EQ estCostBlank.estCostBlankID:
-                              
+                        FIND FIRST item NO-LOCK
+                             WHERE item.company EQ estCostMaterial.company
+                               AND item.i-no    EQ estCostMaterial.itemID
+                             NO-ERROR.
+
+                        IF AVAILABLE job-hdr THEN DO:
+                            FIND FIRST job-mat NO-LOCK
+                                 WHERE job-mat.company  EQ job-hdr.company
+                                   AND job-mat.job      EQ job-hdr.job
+                                   AND job-mat.job-no   EQ job-hdr.job-no
+                                   AND job-mat.job-no2  EQ job-hdr.job-no2
+                                   AND job-mat.frm      EQ estCostMaterial.formNo
+                                   AND job-mat.blank-no EQ estCostMaterial.blankNo
+                                 NO-ERROR.
+
+                            IF AVAILABLE job-mat THEN
+                                FIND FIRST po-ordl NO-LOCK
+                                     WHERE po-ordl.company   EQ job-mat.company
+                                       AND po-ordl.job-no    EQ job-mat.job-no
+                                       AND po-ordl.job-no2   EQ job-mat.job-no2
+                                       AND po-ordl.s-num     EQ job-mat.frm
+                                       AND po-ordl.b-num     EQ job-mat.blank-no
+                                       AND po-ordl.i-no      EQ job-mat.i-no
+                                       AND po-ordl.item-type EQ TRUE
+                                     NO-ERROR.
+                        END.
+                                                        
                         lMaterialAvailable = TRUE.
 
                         lcMaterial = lcMaterialData.
                         
                         lcMaterial = oAttribute:ReplaceAttributes(lcMaterial, BUFFER estCostMaterial:HANDLE).
+                        lcMaterial = oAttribute:ReplaceAttributes(lcMaterial, BUFFER item:HANDLE).
+                        lcMaterial = oAttribute:ReplaceAttributes(lcMaterial, BUFFER job-mat:HANDLE).
+                        lcMaterial = oAttribute:ReplaceAttributes(lcMaterial, BUFFER po-ordl:HANDLE).
+                        
                         lcConcatMaterial = lcConcatMaterial + lcMaterial.
                     END.
                     
@@ -482,6 +525,7 @@
                     
                     lcBlank = oAttribute:ReplaceAttributes(lcBlank, BUFFER estCostBlank:HANDLE).
                     lcBlank = oAttribute:ReplaceAttributes(lcBlank, BUFFER eb:HANDLE).
+                    lcBlank = oAttribute:ReplaceAttributes(lcBlank, BUFFER cust:HANDLE).
                     lcBlank = oAttribute:ReplaceAttributes(lcBlank, BUFFER bf-job-hdr:HANDLE).
 
                     lcConcatFormImageFiles = lcConcatFormImageFiles + lcConcatBlankImageFiles.                    
@@ -495,12 +539,42 @@
                 FOR EACH estCostMaterial NO-LOCK
                     WHERE estCostMaterial.estCostHeaderID EQ estCostForm.estCostHeaderID
                       AND estCostMaterial.formNo          EQ estCostForm.formNo:
-                          
+                    FIND FIRST item NO-LOCK
+                         WHERE item.company EQ estCostMaterial.company
+                           AND item.i-no    EQ estCostMaterial.itemID
+                         NO-ERROR.
+                    
+                    IF AVAILABLE job-hdr THEN DO:
+                        FIND FIRST job-mat NO-LOCK
+                             WHERE job-mat.company  EQ job-hdr.company
+                               AND job-mat.job      EQ job-hdr.job
+                               AND job-mat.job-no   EQ job-hdr.job-no
+                               AND job-mat.job-no2  EQ job-hdr.job-no2
+                               AND job-mat.frm      EQ estCostMaterial.formNo
+                               AND job-mat.blank-no EQ estCostMaterial.blankNo
+                             NO-ERROR.
+
+                        IF AVAILABLE job-mat THEN
+                            FIND FIRST po-ordl NO-LOCK
+                                 WHERE po-ordl.company   EQ job-mat.company
+                                   AND po-ordl.job-no    EQ job-mat.job-no
+                                   AND po-ordl.job-no2   EQ job-mat.job-no2
+                                   AND po-ordl.s-num     EQ job-mat.frm
+                                   AND po-ordl.b-num     EQ job-mat.blank-no
+                                   AND po-ordl.i-no      EQ job-mat.i-no
+                                   AND po-ordl.item-type EQ TRUE
+                                 NO-ERROR.
+                    END.
+                    
                     lFormMaterialAvailable = TRUE.
 
                     lcFormMaterial = lcFormMaterialData.
                     
                     lcFormMaterial = oAttribute:ReplaceAttributes(lcFormMaterial, BUFFER estCostMaterial:HANDLE).
+                    lcFormMaterial = oAttribute:ReplaceAttributes(lcFormMaterial, BUFFER item:HANDLE).
+                    lcFormMaterial = oAttribute:ReplaceAttributes(lcFormMaterial, BUFFER job-mat:HANDLE).
+                    lcFormMaterial = oAttribute:ReplaceAttributes(lcFormMaterial, BUFFER po-ordl:HANDLE).
+
                     lcConcatFormMaterial = lcConcatFormMaterial + lcFormMaterial.
                 END.
                 
@@ -609,6 +683,7 @@
             RUN pInsertPageHeaderFooter (INPUT-OUTPUT lcJob, INPUT lcJobHeader, INPUT lcPageFooter).
 
             lcJob = oAttribute:ReplaceAttributes(lcJob, BUFFER job-hdr:HANDLE).
+            lcJob = oAttribute:ReplaceAttributes(lcJob, BUFFER cust:HANDLE).
             
             lcConcatJob = lcConcatJob + lcJob.
         END.

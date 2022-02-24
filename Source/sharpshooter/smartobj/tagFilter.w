@@ -210,10 +210,16 @@ END.
 ON LEAVE OF fiTag IN FRAME F-Main /* TAG */
 DO:
     /* If last key is not button choose or mouse click event */
-    IF ((LASTKEY NE 617 AND LASTKEY NE -1) OR (VALID-OBJECT (oKeyboard) AND oKeyboard:IsKeyboardOpen())) AND SELF:SCREEN-VALUE NE "" THEN
+    IF (((LASTKEY LT 609 OR LASTKEY GT 652) AND LASTKEY NE -1) OR (VALID-OBJECT (oKeyboard) AND oKeyboard:IsKeyboardOpen())) AND SELF:SCREEN-VALUE NE "" THEN DO:
         RUN pScanTag (
             INPUT SELF:SCREEN-VALUE
-            ) NO-ERROR.            
+            ) NO-ERROR.   
+        
+        IF ERROR-STATUS:ERROR THEN
+            RETURN NO-APPLY.
+    END.
+    ELSE
+        fiTag:BGCOLOR = 15.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -224,6 +230,8 @@ END.
 ON TAB OF fiTag IN FRAME F-Main /* TAG */
 DO:
     APPLY "LEAVE" TO SELF.
+    IF ERROR-STATUS:ERROR THEN
+        RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -247,6 +255,23 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableAll s-object
+PROCEDURE DisableAll:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        DISABLE fiTag btnKeyboardTag.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableErrorAlerts s-object 
 PROCEDURE DisableErrorAlerts :
@@ -294,6 +319,23 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableAll s-object
+PROCEDURE EnableAll:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        ENABLE fiTag btnKeyboardTag.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType s-object 
 PROCEDURE GetMessageAndType :
@@ -395,6 +437,9 @@ PROCEDURE pScanTag :
     
     DEFINE VARIABLE lValidTag AS LOGICAL   NO-UNDO.
     
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
     RUN new-state (
         INPUT "tag-invalid"
         ).
@@ -404,7 +449,7 @@ PROCEDURE pScanTag :
     IF NOT lValidTag THEN DO:
         RUN pSendError ("Invalid Tag '" + ipcTag + "'").
         
-        SELF:SCREEN-VALUE = "".
+        fiTag:SCREEN-VALUE = "".
         
         RETURN ERROR.    
     END.
@@ -412,19 +457,19 @@ PROCEDURE pScanTag :
     IF LOGICAL(oLoadtag:GetValue("ItemType")) EQ TRUE AND cTagTypeScan EQ "FG" THEN DO:
         RUN pSendError ("Only finished good item tags are allowed").
         
-        SELF:SCREEN-VALUE = "".
+        fiTag:SCREEN-VALUE = "".
         
         RETURN ERROR.
     END.
     ELSE IF LOGICAL(oLoadtag:GetValue("ItemType")) EQ FALSE AND cTagTypeScan EQ "RM" THEN DO:
         RUN pSendError ("Only raw material item tags are allowed").
         
-        SELF:SCREEN-VALUE = "".
+        fiTag:SCREEN-VALUE = "".
         
         RETURN ERROR.
     END.
 
-    SELF:BGCOLOR = 15.
+    fiTag:BGCOLOR = 15.
 
     RUN new-state (
         INPUT "tag-valid"

@@ -230,9 +230,9 @@ DEFINE FRAME F-Main
           SIZE 11 BY 1
      mach.spare-int-2 AT ROW 1.24 COL 138 COLON-ALIGNED HELP
           "Enter Machine DMI ID" WIDGET-ID 16
-          LABEL "DMI ID" FORMAT "999"
+          LABEL "DMI ID" FORMAT "9999"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1 TOOLTIP "Machine DMI ID"
+          SIZE 8 BY 1 TOOLTIP "Machine DMI ID"
      mach.loc AT ROW 2.19 COL 17 COLON-ALIGNED
           LABEL "Est/Sch Locn"
           VIEW-AS FILL-IN 

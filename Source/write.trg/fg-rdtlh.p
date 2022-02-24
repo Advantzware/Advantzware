@@ -13,6 +13,12 @@ DEF VAR ll AS LOG NO-UNDO.
 
 FIND FIRST fg-rcpth WHERE fg-rcpth.r-no EQ {&TABLENAME}.r-no NO-ERROR.
 
+IF AVAILABLE fg-rcpth THEN
+    ASSIGN
+        {&TABLENAME}.i-no       = fg-rcpth.i-no
+        {&TABLENAME}.trans-date = fg-rcpth.trans-date
+        .
+        
 IF AVAIL fg-rcpth            AND
    fg-rcpth.job-no NE ""     AND
    fg-rcpth.rita-code EQ "R" THEN DO:

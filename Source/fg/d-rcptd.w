@@ -1000,8 +1000,11 @@ DO:
         IF lNegative AND lNewTagRan THEN 
         DO:
             IF lNegative AND INTEGER(fg-rctd.cases:SCREEN-VALUE ) GT 0 THEN
+             ASSIGN
                 fg-rctd.cases:SCREEN-VALUE  = 
-                    STRING(INTEGER(fg-rctd.cases:SCREEN-VALUE ) * -1).
+                    STRING(INTEGER(fg-rctd.cases:SCREEN-VALUE ) * -1)
+                fg-rctd.partial:SCREEN-VALUE  = 
+                        STRING(INTEGER(fg-rctd.partial:SCREEN-VALUE ) * -1).
         END.
 
         RUN valid-lot# (fg-rctd.stack-code:HANDLE) NO-ERROR.
@@ -1896,8 +1899,11 @@ DO:
             IF lNegative THEN 
             DO:
                 IF lNegative AND INTEGER(fg-rctd.cases:SCREEN-VALUE ) GT 0 THEN
+                ASSIGN
                     fg-rctd.cases:SCREEN-VALUE  = 
-                        STRING(INTEGER(fg-rctd.cases:SCREEN-VALUE ) * -1).
+                        STRING(INTEGER(fg-rctd.cases:SCREEN-VALUE ) * -1)
+                    fg-rctd.partial:SCREEN-VALUE  = 
+                        STRING(INTEGER(fg-rctd.partial:SCREEN-VALUE ) * -1)    .
 
             END.
         END.  
@@ -3346,8 +3352,10 @@ PROCEDURE new-tag :
                     fg-rctd.cases:SCREEN-VALUE  = STRING(loadtag.case-bundle).
                 IF INTEGER(fg-rctd.qty-case:SCREEN-VALUE ) = 0 THEN
                     fg-rctd.qty-case:SCREEN-VALUE  = STRING(loadtag.qty-case).
-                IF INTEGER(loadtag.case-bundle) > 1 AND INTEGER(fg-rctd.cases-unit:SCREEN-VALUE ) = 1 THEN
-                    fg-rctd.cases-unit:SCREEN-VALUE  = STRING(loadtag.case-bundle).
+                IF INTEGER(fg-rctd.partial:SCREEN-VALUE ) = 0 THEN
+                    fg-rctd.partial:SCREEN-VALUE  = STRING(loadtag.partial).    
+                IF INTEGER(fg-rctd.cases-unit:SCREEN-VALUE ) = 1  THEN
+                    fg-rctd.cases-unit:SCREEN-VALUE  = STRING(loadtag.case-bundle + INTEGER(DYNAMIC-FUNCTION("fGetOverageQuantitySubUnitsPerUnit" IN hInventoryProcs,INTEGER(loadtag.partial)))) .
                 /* Task 12061305 */  
                 IF loadtag.job-no <> "" THEN 
                 DO:

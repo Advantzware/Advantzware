@@ -1,0 +1,7 @@
+               <Task Code="$MachineID$" Action="$JobMachineAction$" CostCenterCode="$MachineCodeSchedule$" SetupMinutes="$MakeReadyMinutes$" RunMinutes="$RunMinutes$" Quantity="$RunQuantityWithCountMultiplier|>>>>>>9|INT|$" Configuration="$MachineDescription$" >
+                   <Attributes>
+                       <Attribute Name="CutsPerPiece" Value="$DieInches$"/>
+                       <Attribute Name="Caliper" Value="$Caliper$"/>
+                   </Attributes>
+               </Task>
+

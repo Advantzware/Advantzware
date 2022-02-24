@@ -393,8 +393,8 @@ FOR EACH fr-style NO-LOCK
     FOR EACH fr-styfl NO-LOCK
         WHERE fr-styfl.reftable EQ "STYFLU"
           AND fr-styfl.company  EQ fr-style.style
-          AND fr-styfl.loc      GE begin_flute
-          AND fr-styfl.loc      LE end_flute
+          AND fr-styfl.loc      EQ begin_flute
+          //AND fr-styfl.loc      LE end_flute
           AND CAN-DO("1,2,3,4,5,6,7",fr-styfl.code)
 
         TRANSACTION:
@@ -402,17 +402,18 @@ FOR EACH fr-style NO-LOCK
       FIND FIRST to-styfl
           WHERE to-styfl.reftable EQ fr-styfl.reftable
             AND to-styfl.company  EQ to-style.style
-            AND to-styfl.loc      EQ /*end_flute*/ fr-styfl.loc
+            AND to-styfl.loc      EQ end_flute
             AND to-styfl.code     EQ fr-styfl.code
             AND to-styfl.code2    EQ fr-styfl.code2
           NO-ERROR.
+
 
       IF NOT AVAIL to-styfl THEN DO:
         CREATE to-styfl.
         ASSIGN
          to-styfl.reftable = fr-styfl.reftable
          to-styfl.company  = to-style.style
-         to-styfl.loc      = /*end_flute*/ fr-styfl.loc
+         to-styfl.loc      = end_flute
          to-styfl.code     = fr-styfl.code
          to-styfl.code2    = fr-styfl.code2.
       END.
@@ -432,25 +433,26 @@ FOR EACH fr-style NO-LOCK
     FOR EACH fr-stysc NO-LOCK
         WHERE fr-stysc.reftable EQ "STYSCORE"
           AND fr-stysc.company  EQ fr-style.style
-          AND fr-stysc.loc      GE begin_flute
-          AND fr-stysc.loc      LE end_flute
+          AND fr-stysc.loc      EQ begin_flute
+          //AND fr-stysc.loc      LE end_flute
           AND CAN-DO("1,2,3,4,5,6,7",fr-stysc.code)
         TRANSACTION:
 
       FIND FIRST to-stysc
           WHERE to-stysc.reftable EQ fr-stysc.reftable
             AND to-stysc.company  EQ to-style.style
-            AND to-stysc.loc      EQ /*end_flute*/ fr-stysc.loc
+            AND to-stysc.loc      EQ end_flute
             AND to-stysc.code     EQ fr-stysc.code
             AND to-stysc.code2    EQ fr-stysc.code2
           NO-ERROR.
 
+      
       IF NOT AVAIL to-stysc THEN DO:
         CREATE to-stysc.
         ASSIGN
          to-stysc.reftable = fr-stysc.reftable
          to-stysc.company  = to-style.style
-         to-stysc.loc      = /*end_flute*/ fr-stysc.loc
+         to-stysc.loc      = end_flute
          to-stysc.code     = fr-stysc.code
          to-stysc.code2    = fr-stysc.code2.
       END.

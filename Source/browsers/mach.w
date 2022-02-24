@@ -52,6 +52,8 @@ for each dept {sys/ref/deptW.i} no-lock,
   mach.d-seq = dept.fc.
 end.
 
+DEFINE VARIABLE v-col-move AS LOGICAL NO-UNDO INIT TRUE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -344,9 +346,14 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+&SCOPED-DEFINE cellColumnDat mach.w 
+ {methods/browsers/setCellColumns.i}
+
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+RUN setCellColumns.
 
 {methods/winReSize.i}
 
@@ -427,6 +434,26 @@ PROCEDURE local-open-query :
 
   DO WITH FRAME {&FRAME-NAME}:
     APPLY "value-changed" TO browse-order.
+  END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
+PROCEDURE move-columns :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+     ASSIGN
+      {&BROWSE-NAME}:COLUMN-MOVABLE = v-col-move
+         {&BROWSE-NAME}:COLUMN-RESIZABLE = v-col-move
+        v-col-move = NOT v-col-move.
+     /*   FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+     DISPLAY FI_moveCol.*/
   END.
 END PROCEDURE.
 

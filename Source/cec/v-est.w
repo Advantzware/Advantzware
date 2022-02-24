@@ -94,6 +94,7 @@ DEF VAR v-count AS INT NO-UNDO.
 
 DEFINE VARIABLE cWidgethandles AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lWoodStyle AS LOGICAL NO-UNDO.
 
 DO TRANSACTION:
   {sys/inc/addprep.i}
@@ -950,6 +951,14 @@ DO:
                     .       
                APPLY "ENTRY":U TO lw-focus.
              END.
+           END.
+           ELSE IF AVAIL style AND style.type = "W" THEN  DO: /* Wood */
+               RUN AOA/dynLookupSetParam.p (155, ROWID(style), OUTPUT char-val).             
+              IF char-val NE "" THEN DO:
+                ef.board:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val).  
+                ef.brd-dscr:SCREEN-VALUE IN FRAME {&frame-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-name", char-val).
+                APPLY "ENTRY":U TO ef.board.
+              END.
            END.
            else do:
              run windows/l-board1.w (eb.company,lv-ind,lw-focus:screen-value, output lv-rowid).
@@ -2885,11 +2894,13 @@ PROCEDURE check-style :
     IF AVAIL style THEN
       ASSIGN
        lv-foam                 = style.type EQ "F"
-       style_dscr:SCREEN-VALUE = style.dscr.
+       style_dscr:SCREEN-VALUE = style.dscr
+       lWoodStyle              = style.type EQ "W".
     ELSE
       ASSIGN
        lv-foam                 = NO
-       style_dscr:SCREEN-VALUE = "".
+       style_dscr:SCREEN-VALUE = ""
+       lWoodStyle              = NO.
   END.
 
 END PROCEDURE.
@@ -4318,17 +4329,18 @@ PROCEDURE new-board :
   DO WITH FRAME {&FRAME-NAME}:
 
     IF ef.board NE ef.board:SCREEN-VALUE THEN DO:
-      FIND FIRST item NO-LOCK {sys/look/itemb1W.i}
-             AND item.i-no EQ ef.board:SCREEN-VALUE NO-ERROR.
+      FIND FIRST item NO-LOCK
+           WHERE item.company  EQ cocode
+             AND item.i-no     EQ ef.board:SCREEN-VALUE NO-ERROR.
       IF AVAIL item THEN do:
          ASSIGN
            ef.brd-dscr:SCREEN-VALUE = item.i-name .
-           IF NOT lv-foam THEN
+           IF NOT lWoodStyle THEN
                ASSIGN
                eb.flute:SCREEN-VALUE = ITEM.flute
                eb.test:SCREEN-VALUE = ITEM.reg-no.
-           ELSE
-               ASSIGN 
+           ELSE IF ITEM.flute NE "" THEN
+              ASSIGN
                eb.flute:SCREEN-VALUE = ITEM.flute
                eb.test:SCREEN-VALUE = ITEM.reg-no.
       END.
@@ -4458,6 +4470,7 @@ PROCEDURE new-style :
     IF AVAIL style THEN DO:
       ASSIGN
        lv-foam           = style.type EQ "F"
+       lWoodStyle        = style.type EQ "W"
        ll-wid-len-warned = NO.
       IF style.qty-per-set NE 0 THEN DO:
         fi_per-set:SCREEN-VALUE = string(style.qty-per-set).
@@ -4967,13 +4980,25 @@ PROCEDURE valid-board :
   DO WITH FRAME {&FRAME-NAME}:
     ef.board:SCREEN-VALUE = CAPS(ef.board:SCREEN-VALUE).
 
-    IF NOT CAN-FIND(FIRST item
+    IF NOT lWoodStyle AND NOT CAN-FIND(FIRST item
                     {sys/look/itemb1W.i}
                       AND item.i-no EQ ef.board:SCREEN-VALUE) OR
        ef.board:SCREEN-VALUE EQ ""                            THEN DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO ef.board.
       RETURN ERROR.
+    END.    
+    IF lWoodStyle AND NOT CAN-FIND(FIRST item
+        WHERE item.company   EQ cocode
+        AND   item.materialType   EQ "Wood"          
+        AND  (item.i-code eq lv-i-code OR lv-i-code eq "B")
+        AND  item.industry EQ lv-industry
+        AND item.i-no EQ ef.board:SCREEN-VALUE) OR
+        ef.board:SCREEN-VALUE EQ "" THEN DO:
+        
+       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+       APPLY "entry" TO ef.board.
+       RETURN ERROR.        
     END.
 
     IF ef.brd-dscr:SCREEN-VALUE EQ "" THEN RUN new-board.

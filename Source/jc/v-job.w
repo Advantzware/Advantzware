@@ -794,7 +794,7 @@ PROCEDURE add-job :
   
   DEFINE BUFFER bf-job-hdr FOR job-hdr.
   
-  IF NOT lAddFromTool THEN
+  IF NOT lAddFromTool AND cJobType EQ "Molded" THEN
   DO:
       RUN jc/d-addJob.w (INPUT NO, OUTPUT lAddOption). 
       IF lAddOption = "" THEN RETURN NO-APPLY.    /* cancel */
@@ -1224,8 +1224,11 @@ PROCEDURE local-assign-record :
            FIND FIRST itemfg WHERE itemfg.company EQ cocode
                       AND itemfg.i-no EQ job-hdr.i-no
                       NO-LOCK NO-ERROR.
-          IF AVAILABLE itemfg THEN
-          run fg/fg-reset.p (recid(itemfg)).
+          IF AVAILABLE itemfg THEN 
+          DO:
+           RUN fg/chkfgloc.p (itemfg.i-no, job-hdr.loc). 
+           RUN fg/fg-reset.p (recid(itemfg)).
+          END. 
   END. /* each job-hdr */
     
    IF adm-new-record THEN DO:

@@ -559,11 +559,11 @@ DEFINE FRAME FRAME-A
     TB_sample_req AT ROW 16.95 COL 56 WIDGET-ID 2
     tb_freeze-note AT ROW 17 COL 21
     tb_dept-note AT ROW 17 COL 56
-    lv-font-no AT ROW 18.62 COL 46 COLON-ALIGNED
+    lv-font-no AT ROW 20.31 COL 48 COLON-ALIGNED
     lv-ornt AT ROW 18.62 COL 53 NO-LABELS
     lines-per-page AT ROW 18.62 COL 91 COLON-ALIGNED
     rd-dest AT ROW 18.86 COL 5 NO-LABELS
-    lv-font-name AT ROW 19.81 COL 58 COLON-ALIGNED NO-LABELS
+    lv-font-name AT ROW 20.31 COL 58 COLON-ALIGNED NO-LABELS
     td-show-parm AT ROW 21.33 COL 31.4
     run_format AT ROW 21.95 COL 69 COLON-ALIGNED WIDGET-ID 12
     tb_ExportXML AT ROW 22.05 COL 31.4 WIDGET-ID 20
@@ -937,7 +937,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}.
-    
+            lv-ornt = lv-ornt:SCREEN-VALUE. 
             IF NOT lPrinterAllow AND (lv-format-f EQ "Colonial" OR lv-format-f EQ "CCC" ) AND rd-dest EQ 1 THEN
             DO:
                 MESSAGE "Only Administrators can print a job card." VIEW-AS ALERT-BOX INFORMATION .
@@ -3470,6 +3470,19 @@ PROCEDURE pRunFormatValueChanged :
         IF lv-format-f EQ "Henry" AND tb_fold:SCREEN-VALUE EQ "Yes" THEN
             tb_spanish:HIDDEN = NO.
         ELSE tb_spanish:HIDDEN = YES.
+            
+        IF lv-format-c EQ "jobcardc 1" OR lv-format-c EQ "jobcardc 2" THEN
+        DO: 
+           ASSIGN
+            lv-ornt:HIDDEN = NO
+            lv-ornt:SENSITIVE = YES.
+        END.
+        ELSE ASSIGN 
+            lv-ornt:HIDDEN = YES
+            lv-ornt:SENSITIVE = NO
+            lv-font-name:HIDDEN = YES
+            lv-font-no:HIDDEN = YES
+            lines-per-page:HIDDEN = YES.
     END.
 END PROCEDURE.
 
