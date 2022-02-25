@@ -168,10 +168,10 @@ DEFINE BUTTON btnPrevious
      LABEL "Prev" 
      SIZE 8 BY 1.91 TOOLTIP "Previous".
 
-DEFINE BUTTON btnSBNotes  NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON btnSBNotes  NO-FOCUS
      LABEL "SB Notes" 
-     SIZE 19 BY 1.91 TOOLTIP "Schedule Board Notes"
-     BGCOLOR 8 .
+     SIZE 19 BY 1.52 TOOLTIP "Schedule Board Notes"
+     BGCOLOR 8 FONT 17.
 
 DEFINE BUTTON btUpdate  NO-FOCUS
      LABEL "Update" 
@@ -271,7 +271,7 @@ DEFINE VARIABLE fiStatusLabel AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS:"
 
 DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MESSAGE" 
       VIEW-AS TEXT 
-     SIZE 136 BY 1.43 NO-UNDO.
+     SIZE 76 BY 1.43 NO-UNDO.
 
 DEFINE IMAGE imJobLookup
      FILENAME "Graphics/32x32/search_new.png":U
@@ -311,7 +311,7 @@ DEFINE FRAME F-Main
      btUpdate AT ROW 32.67 COL 189
      btAllocate AT ROW 32.67 COL 170
      btnExitText AT ROW 1.24 COL 187 NO-LABEL WIDGET-ID 24
-     statusMessage AT ROW 30.76 COL 3 NO-LABEL WIDGET-ID 28
+     statusMessage AT ROW 32.67 COL 2 NO-LABEL WIDGET-ID 28
      btnViewRM AT ROW 2.91 COL 138.2 COLON-ALIGNED NO-LABEL WIDGET-ID 138
      btClear AT ROW 3.14 COL 197 WIDGET-ID 146
      btnClearText AT ROW 3.33 COL 184.2 NO-LABEL WIDGET-ID 148
@@ -861,10 +861,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-job-mat , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_viewrminquiry ,
-             h_jobfilter , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat-last-all ,
-             h_viewrminquiry , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat ,
              h_b-job-mat-last-all , 'AFTER':U ).
     END. /* Page 1 */
@@ -1448,9 +1444,8 @@ PROCEDURE pWinReSize :
             btAdd:ROW            = {&WINDOW-NAME}:HEIGHT - .96
             btUpdate:ROW         = {&WINDOW-NAME}:HEIGHT - .96
             btnSBnotes:ROW       = {&WINDOW-NAME}:HEIGHT - .96
-            .
-        dRow = {&WINDOW-NAME}:HEIGHT - 1. 
-        
+            dRow                 = {&WINDOW-NAME}:HEIGHT - 1
+            .        
         RUN get-position IN h_b-job-mat ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
         RUN get-size IN h_b-job-mat ( OUTPUT dHeight , OUTPUT dWidth ) NO-ERROR.
         ASSIGN
