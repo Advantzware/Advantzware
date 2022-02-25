@@ -324,9 +324,7 @@ do:
         end.
     END.  
    
-   PAGE. 
-   PUT "<C2><R1><#1><R+65><C+85><IMAGE#1=" ls-full-img2  SKIP. 
-   
+  RUN printTermsConditions.   
 end.
 
 else 
@@ -527,11 +525,10 @@ do:
                         recid(xest)).
                 end.
             END.
-            
-            PAGE. 
-            PUT "<C2><R1><#1><R+65><C+85><IMAGE#1=" ls-full-img2  SKIP.
-            
+                                    
         END.  /*ch-multi and v-last */
+        
+        RUN printTermsConditions.
    
     end. /* for each report */
   
@@ -543,12 +540,25 @@ PROCEDURE printHeader:
 
     IF LINE-COUNTER > PAGE-SIZE - ipPageOffSet THEN 
     DO:
-        PAGE.
-        PUT "<C2><R1><#1><R+65><C+85><IMAGE#1=" ls-full-img2  SKIP.
-        PAGE.
+        PAGE.        
         {cec/quote/quoGc2.i}
         opInitVar = 0.
         PUT SKIP .
     END.
 END PROCEDURE.
+
+PROCEDURE printTermsConditions:
+
+    PAGE. 
+    PUT SKIP(3) "<C2><b>Signed By:</b> __________________________ " SKIP
+    "<C2>(Buyer's Agent)                           "  SKIP
+    "<C2>Exact quantities cannot be guaranteed.  We reserve the right to over-run or under-run not to exceed 10% of quantities ordered.  This" SKIP
+    '<C2>quotation is subject to "General Agreements and Conditions Governing Contracts" printed on the reverse side hereof and if there are' SKIP
+    "<C2>any inconsistencies between the provisions contained in this quotation and the said general agreements and conditions governing" SKIP
+    "<C2>contracts, the later shall control." SKIP.
+    PAGE.
+    PUT "<C2><R1><#1><R+65><C+85><IMAGE#1=" ls-full-img2  SKIP.
+   
+END PROCEDURE.
+
 /* end ---------------------------------- copr. 2000  advanced software, inc. */
