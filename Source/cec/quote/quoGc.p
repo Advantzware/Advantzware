@@ -289,9 +289,10 @@ do:
         {cec/quote/quoGc2.i}
     END.
 
-    PUT "<FArial><R58><C1><P12><B> Comments </B> <P9> " .
+    //PUT "<FArial><R58><C1><P12><B> Comments </B> <P9> " .
+    RUN printTermsConditions.
       
-    ASSIGN
+   /* ASSIGN
         v-tmp-lines = 0
         li-cline    = 1.
     do i = 1 to 5:
@@ -300,10 +301,10 @@ do:
             put "<C1><R" string(58 + li-cline,">9") + "><C6>" xquo.comment[i]. 
             li-cline = li-cline + 1.
         END.
-    end.
+    end. 
 
     v-printline = v-printline + 6.
-    IF v-printline < 50 THEN PAGE.
+    IF v-printline < 50 THEN PAGE.*/
 
     release est.
     if v-prt-box then 
@@ -322,9 +323,7 @@ do:
                 input-output v-lines,
                 recid(xest)).
         end.
-    END.  
-   
-  RUN printTermsConditions.   
+    END.    
 end.
 
 else 
@@ -490,10 +489,11 @@ do:
 
         IF (ch-multi and (v-last OR s-sep-page)) then 
         do:
-            PUT "<FArial><R58><C1><P12><B> Comments </B> <P9> " .
-
+            
+            //PUT "<FArial><R58><C1><P12><B> Comments </B> <P9> " .
+            RUN printTermsConditions.
             FIND bf-quo WHERE RECID(bf-quo) = lv-first-qrecid NO-LOCK NO-ERROR. 
-            li-cline = 0.
+           /* li-cline = 0.
             do i = 1 to 5:      
                 if bf-quo.comment[i] ne "" then 
                 DO:
@@ -501,12 +501,12 @@ do:
                     put "<C1><R" string(58 + li-cline,">9") + "><C6>" bf-quo.comment[i]  .            
                 END.
             
-            end.
+            end. 
             v-printline = v-printline + 6.
             IF v-printline < 50 THEN 
             DO:
                 page.
-            END.
+            END.  */
 
             if v-prt-box then 
             DO:
@@ -526,10 +526,8 @@ do:
                 end.
             END.
                                     
-        END.  /*ch-multi and v-last */
-        
-        RUN printTermsConditions.
-   
+        END.  /*ch-multi and v-last */         
+           
     end. /* for each report */
   
 end.  /* multi */
@@ -548,16 +546,15 @@ PROCEDURE printHeader:
 END PROCEDURE.
 
 PROCEDURE printTermsConditions:
-
-    PAGE. 
-    PUT SKIP(3) "<C2><b>Signed By:</b> __________________________ " SKIP
-    "<C2>(Buyer's Agent)                           "  SKIP
-    "<C2>Exact quantities cannot be guaranteed.  We reserve the right to over-run or under-run not to exceed 10% of quantities ordered.  This" SKIP
-    '<C2>quotation is subject to "General Agreements and Conditions Governing Contracts" printed on the reverse side hereof and if there are' SKIP
-    "<C2>any inconsistencies between the provisions contained in this quotation and the said general agreements and conditions governing" SKIP
-    "<C2>contracts, the later shall control." SKIP.
+         
+    PUT "<FArial><R58><C1><P12><B>Signed By:</b> __________________________ " SKIP
+    "<P10><C1>(Buyer's Agent)                           "  SKIP
+    "<C1>Exact quantities cannot be guaranteed.  We reserve the right to over-run or under-run not to exceed 10% of quantities ordered.  This" SKIP
+    '<C1>quotation is subject to "General Agreements and Conditions Governing Contracts" printed on the reverse side hereof and if there are' SKIP
+    "<C1>any inconsistencies between the provisions contained in this quotation and the said general agreements and conditions governing" SKIP
+    "<C1>contracts, the later shall control." SKIP.    
     PAGE.
-    PUT "<C2><R1><#1><R+65><C+85><IMAGE#1=" ls-full-img2  SKIP.
+    PUT "<C2><R1><#1><R+65><C+82><IMAGE#1=" ls-full-img2  SKIP.
    
 END PROCEDURE.
 
