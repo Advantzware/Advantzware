@@ -4389,6 +4389,7 @@ PROCEDURE pCalculatedField :
 
     FOR EACH ttField:
         cFieldList = cFieldList + ttField.fieldName + ",".
+        IF LENGTH(cFieldList) GT 31000 THEN LEAVE.
     END. /* each ttField */
     ASSIGN
         cFieldList = TRIM(cFieldList,",")

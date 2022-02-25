@@ -57,3 +57,21 @@ PROCEDURE Material_GetSystemTypeList:
     opcSystemTypeList = gcSystemTypeList.
 END PROCEDURE.
 
+PROCEDURE Material_UpdateMaterialSystemType:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMaterialType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMaterialTypeGroup AS CHARACTER NO-UNDO. 
+    DEFINE BUFFER bf-item FOR ITEM.
+    
+     FOR EACH bf-item EXCLUSIVE-LOCK
+        WHERE bf-item.company EQ ipcCompany
+          AND bf-item.mat-type EQ ipcMaterialType :
+
+            bf-item.materialType = ipcMaterialTypeGroup.             
+     END.       
+END PROCEDURE.
+

@@ -1046,34 +1046,33 @@ DO:
     &scoped-define exclude-row-display true 
     {methods/template/brwrowdisplay.i}    
     
-    DEF VAR lActive AS LOG NO-UNDO.
-   IF v-cefgitem-log AND AVAIL eb THEN
-   DO:
-/*                                                        */
-/*       FIND FIRST reftable WHERE                        */
-/*            reftable.reftable EQ "FGSTATUS" AND         */
-/*            reftable.company  EQ cocode AND             */
-/*            reftable.loc      EQ "" AND                 */
-/*            reftable.code     EQ eb.stock-no            */
-/*            NO-LOCK NO-ERROR.                           */
-/*                                                        */
-/*       IF AVAIL reftable AND reftable.code2 EQ "I" THEN */
-       RUN fg/GetItemfgActInact.p (INPUT cocode,
-                                   INPUT eb.stock-no,
-                                   OUTPUT lActive).
-        IF NOT lActive THEN 
-            eb.stock-no:BGCOLOR IN BROWSE {&browse-name} = 11.
-        ELSE
-            eb.stock-no:BGCOLOR IN BROWSE {&browse-name} = ?.
+    DEFINE VARIABLE cFormat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lActive AS LOGICAL   NO-UNDO.
 
-      RELEASE reftable.
-   END.
+    IF v-cefgitem-log AND AVAIL eb THEN DO:
+        RUN fg/GetItemfgActInact.p (
+         cocode,
+         eb.stock-no,
+         OUTPUT lActive
+         ).
+         eb.stock-no:BGCOLOR IN BROWSE {&browse-name} = IF NOT lActive THEN 11 ELSE ?.
+    END.
+    IF AVAILABLE eb THEN DO:
+        cFormat = "".
 
-  IF v-cecscrn-dec AND AVAIL eb THEN
-     ASSIGN
-        eb.wid:FORMAT IN BROWSE {&browse-name} = ">>9.999999"
-        eb.len:FORMAT IN BROWSE {&browse-name} = ">>9.999999"
-        eb.dep:FORMAT IN BROWSE {&browse-name} = ">>9.999999".
+        IF v-cecscrn-dec THEN
+        cFormat = ">>9.999999".
+
+        IF v-cecscrn-decimals GT 0 THEN
+        cFormat = ">>9." + FILL("9",INTEGER(v-cecscrn-decimals)).
+
+        IF cFormat NE "" THEN
+        ASSIGN
+            eb.wid:FORMAT IN BROWSE {&browse-name} = cFormat
+            eb.len:FORMAT IN BROWSE {&browse-name} = cFormat
+            eb.dep:FORMAT IN BROWSE {&browse-name} = cFormat
+            .
+    END. // if avail
 END.
 
 /* _UIB-CODE-BLOCK-END */

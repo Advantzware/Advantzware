@@ -177,6 +177,7 @@ PROCEDURE Inventory_AdjustRawMaterialBinQty:
     
     RUN pCreateRMTransactionFromRMBin (
         INPUT  ipriRMBin,
+        INPUT  TODAY,
         INPUT  "A",  /* Adjust */
         INPUT  ipdQty,
         INPUT  ipcReasonCode,
@@ -351,7 +352,11 @@ PROCEDURE Inventory_CalculateTagQuantityInTTbrowse:
                    TRUE
                ELSE
                    ttBrowseInventory.inventoryStatus EQ ipcInventoryStatus):
-        opdQuantity = opdQuantity + ttBrowseInventory.quantity.
+        opdQuantity = opdQuantity 
+                    + IF ttBrowseInventory.quantity EQ ? THEN
+                          0
+                      ELSE
+                          ttBrowseInventory.quantity.
     END.
 END PROCEDURE.
 
@@ -1215,6 +1220,43 @@ PROCEDURE Inventory_CreateRMTransaction:
     
     RUN pCreateRMTransaction (
         INPUT  ipcCompany, 
+        INPUT  TODAY,
+        INPUT  ipcItemID, 
+        INPUT  ipcTag, 
+        INPUT  ipcLocation, 
+        INPUT  ipcBin, 
+        INPUT  ipcTransType, 
+        INPUT  ipdQty, 
+        INPUT  ipdCost, 
+        INPUT  ipcReasonCode, 
+        OUTPUT opriRMRctd, 
+        OUTPUT oplError, 
+        OUTPUT opcMessage
+        ).
+END PROCEDURE.
+
+PROCEDURE Inventory_CreateRMTransactionForDate:
+/*------------------------------------------------------------------------------
+ Purpose: 
+ Notes: 
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtTransDate AS DATETIME  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTransType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdCost       AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    
+    RUN pCreateRMTransaction (
+        INPUT  ipcCompany, 
+        INPUT  ipdtTransDate, 
         INPUT  ipcItemID, 
         INPUT  ipcTag, 
         INPUT  ipcLocation, 
@@ -1235,6 +1277,7 @@ PROCEDURE pCreateRMTransaction PRIVATE:
  Notes: 
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtTransDate AS DATETIME  NO-UNDO. 
     DEFINE INPUT  PARAMETER ipcItemID     AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTag        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcLocation   AS CHARACTER NO-UNDO.
@@ -1288,7 +1331,7 @@ PROCEDURE pCreateRMTransaction PRIVATE:
             bf-rm-rctd.i-name         = bf-item.i-name
             bf-rm-rctd.tag            = ipcTag
             bf-rm-rctd.rita-code      = ipcTransType
-            bf-rm-rctd.rct-date       = TODAY
+            bf-rm-rctd.rct-date       = ipdtTransDate
             bf-rm-rctd.loc            = ipcLocation
             bf-rm-rctd.loc-bin        = ipcBin
             bf-rm-rctd.qty            = ipdQty
@@ -1321,6 +1364,7 @@ PROCEDURE Inventory_CreateRMTransactionFromRMBin:
     
     RUN pCreateRMTransactionFromRMBin (
         INPUT  ipriRMBin,
+        INPUT  TODAY,
         INPUT  ipcTransType,
         INPUT  ipdQty,
         INPUT  ipcReasonCode,
@@ -1333,12 +1377,46 @@ PROCEDURE Inventory_CreateRMTransactionFromRMBin:
     oplError = NOT lSuccess.
 END PROCEDURE.
 
+PROCEDURE Inventory_CreateRMTransactionFromRMBinForDate:
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to Update RM Bin quantity and create a transaction
+ Notes: This is a business logic copy of procedure cre-tran.p 
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriRMBin     AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtTransDate AS DATETIME  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTransType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplUpdateJob  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    
+    RUN pCreateRMTransactionFromRMBin (
+        INPUT  ipriRMBin,
+        INPUT  ipdtTransDate,
+        INPUT  ipcTransType,
+        INPUT  ipdQty,
+        INPUT  ipcReasonCode,
+        INPUT  iplUpdateJob,
+        OUTPUT opriRMRctd,
+        OUTPUT lSuccess,  
+        OUTPUT opcMessage          
+        ).
+        
+    oplError = NOT lSuccess.
+END PROCEDURE.
+
+
 PROCEDURE pCreateRMTransactionFromRMBin PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Procedure to Update RM Bin quantity and create a transaction
  Notes: This is a business logic copy of procedure cre-tran.p 
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipriRMBin     AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtTransDate AS DATETIME  NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTransType  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
@@ -1369,6 +1447,7 @@ PROCEDURE pCreateRMTransactionFromRMBin PRIVATE:
     
         RUN pCreateRMTransaction(
             INPUT  bf-rm-bin.company, 
+            INPUT  ipdtTransDate,
             INPUT  bf-rm-bin.i-no, 
             INPUT  bf-rm-bin.tag, 
             INPUT  bf-rm-bin.loc, 
@@ -7714,7 +7793,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
                    AND ttBrowseInventory.rmItemID         EQ bf-rm-rctd.i-no
                    AND ttBrowseInventory.tag              EQ bf-rm-rctd.tag)
                  NO-ERROR.
-            IF NOT AVAILABLE ttbrowseInventory THEN
+            IF NOT AVAILABLE ttBrowseInventory THEN
                 CREATE ttBrowseInventory.
 
             ASSIGN
