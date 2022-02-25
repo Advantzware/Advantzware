@@ -32,6 +32,7 @@ DEFINE OUTPUT PARAMETER opcMessage              AS CHARACTER  NO-UNDO.
 g_company=ipcCompany.
 
 {sys/inc/var.i "new shared"}
+{inventory/ttBrowseInventory.i}
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lValidBin        AS LOGICAL   NO-UNDO.
@@ -303,6 +304,24 @@ ELSE DO:
         ).
     
     oplSuccess = NOT lError.
+    
+    IF NOT oplSuccess THEN
+        RETURN.
+    
+    IF iplPost THEN DO:
+        RUN Inventory_BuildRawMaterialToPost IN hdInventoryProcs (
+            INPUT  opriRctd,
+            INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
+            ).    
+        
+        RUN Inventory_PostRawMaterials IN hdInventoryProcs (
+            INPUT  ipcCompany,
+            INPUT  TODAY,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage,
+            INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
+            ).    
+    END.
 END.    
 
 DELETE PROCEDURE hdInventoryProcs.
