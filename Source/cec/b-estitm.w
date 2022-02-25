@@ -1910,21 +1910,21 @@ DO:
       RETURN NO-APPLY.
    END.
 
-   IF v-cecscrn-dec THEN
-   DO:
-      len-num = INT(SELF:screen-value) .
-      RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
-      IF op-error THEN DO:
-         MESSAGE "Invalid Dimension."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "ENTRY" TO SELF.
-         RETURN NO-APPLY.
-      END.
-      ELSE DO: 
-          
-          eb.len:screen-value IN BROWSE {&browse-name} = string( len-num +  op-dec) .
-      END.
-   END.
+/*   IF v-cecscrn-dec THEN                                                                 */
+/*   DO:                                                                                   */
+/*      len-num = INT(SELF:screen-value) .                                                 */
+/*      RUN valid-64-dec(INPUT DECIMAL(SELF:SCREEN-VALUE), OUTPUT op-error, OUTPUT op-dec).*/
+/*      IF op-error THEN DO:                                                               */
+/*         MESSAGE "Invalid Dimension."                                                    */
+/*            VIEW-AS ALERT-BOX ERROR BUTTONS OK.                                          */
+/*         APPLY "ENTRY" TO SELF.                                                          */
+/*         RETURN NO-APPLY.                                                                */
+/*      END.                                                                               */
+/*      ELSE DO:                                                                           */
+/*                                                                                         */
+/*          eb.len:screen-value IN BROWSE {&browse-name} = string( len-num +  op-dec) .    */
+/*      END.                                                                               */
+/*   END.                                                                                  */
 
    RUN valid-wid-len (FOCUS) NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1968,20 +1968,20 @@ DO:
       RETURN NO-APPLY.
    END.
 
-   IF v-cecscrn-dec THEN
-   DO:
-      wid-num = INT(SELF:screen-value) .
-      RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
-      IF op-error THEN DO:
-         MESSAGE "Invalid Dimension."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "ENTRY" TO SELF.
-         RETURN NO-APPLY.
-      END.
-      ELSE DO: 
-          eb.wid:screen-value IN BROWSE {&browse-name} = string( wid-num +  op-dec) .
-      END.
-   END.
+/*   IF v-cecscrn-dec THEN                                                             */
+/*   DO:                                                                               */
+/*      wid-num = INT(SELF:screen-value) .                                             */
+/*      RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).                 */
+/*      IF op-error THEN DO:                                                           */
+/*         MESSAGE "Invalid Dimension."                                                */
+/*            VIEW-AS ALERT-BOX ERROR BUTTONS OK.                                      */
+/*         APPLY "ENTRY" TO SELF.                                                      */
+/*         RETURN NO-APPLY.                                                            */
+/*      END.                                                                           */
+/*      ELSE DO:                                                                       */
+/*          eb.wid:screen-value IN BROWSE {&browse-name} = string( wid-num +  op-dec) .*/
+/*      END.                                                                           */
+/*   END.                                                                              */
 
    RUN valid-wid-len (FOCUS) NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -2023,20 +2023,20 @@ DO:
          RETURN NO-APPLY.
       END.
   
-   IF v-cecscrn-dec THEN
-       DO:
-       dep-num = INT(SELF:screen-value) .
-       RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
-       IF op-error THEN DO:
-           MESSAGE "Invalid Dimension."
-               VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-           APPLY "ENTRY" TO SELF.
-           RETURN NO-APPLY.
-       END.
-       ELSE DO: 
-           eb.dep:screen-value IN BROWSE {&browse-name} = string( dep-num +  op-dec) .
-       END.
-     END.
+/*   IF v-cecscrn-dec THEN                                                              */
+/*       DO:                                                                            */
+/*       dep-num = INT(SELF:screen-value) .                                             */
+/*       RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).                 */
+/*       IF op-error THEN DO:                                                           */
+/*           MESSAGE "Invalid Dimension."                                               */
+/*               VIEW-AS ALERT-BOX ERROR BUTTONS OK.                                    */
+/*           APPLY "ENTRY" TO SELF.                                                     */
+/*           RETURN NO-APPLY.                                                           */
+/*       END.                                                                           */
+/*       ELSE DO:                                                                       */
+/*           eb.dep:screen-value IN BROWSE {&browse-name} = string( dep-num +  op-dec) .*/
+/*       END.                                                                           */
+/*     END.                                                                             */
    END.
 END.
 
