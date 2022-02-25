@@ -1,5 +1,6 @@
 /* ------------------------------------------- cec/quote/quoprfrm.p 11/05 YSK */
-/* print quotes in Xprint Marketing(APC) format                                               */
+/* print quotes in Xprint Marketing(APC) format                               */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -182,14 +183,14 @@ if (not ch-multi) then do:
 
 
    PUT "<|10><R28><C1><#5><FROM><R30><C80><RECT>" SKIP    
-             "<R28><C6><FROM><R30><C6><LINE>" SKIP
-             "<R28><C20><FROM><R30><C20><LINE>" SKIP
-             "<R28><C45><FROM><R30><C45><LINE>" SKIP
-             "<R28><C55><FROM><R30><C55><LINE>" SKIP
-             "<R28><C62><FROM><R30><C62><LINE>" SKIP
-             "<R28><C72><FROM><R30><C72><LINE>" SKIP
+             "<R28><C8><FROM><R30><C8><LINE>" SKIP
+             "<R28><C25.5><FROM><R30><C25.5><LINE>" SKIP
+             "<R28><C51.5><FROM><R30><C51.5><LINE>" SKIP
+             "<R28><C60><FROM><R30><C60><LINE>" SKIP
+             "<R28><C66><FROM><R30><C66><LINE>" SKIP
+             "<R28><C75><FROM><R30><C75><LINE>" SKIP
              .
-   PUT "<FArial><=5><R+1> Est#      Description                    Item/Style/Color/Board                                     Quantity    Release                 Price         UOM " SKIP(1).
+   PUT "<FArial><=5><R+1> Est#                    Description                           Item/Style/Color/Board                         Quantity        Release         Price         UOM " SKIP(1).
   PUT "<FCourier New>".
     {cec/quote/quoprfrm.i 1}
     v-quo-total = v-line-total + v-t-tax[1] + v-t-tax[2] + v-t-tax[3].
@@ -323,15 +324,15 @@ if (not ch-multi) then do:
 
 
    PUT "<|10><R28><C1><#5><FROM><R30><C80><RECT>" SKIP    
-             "<R28><C6.2><FROM><R30><C6.2><LINE>" SKIP
-             "<R28><C20><FROM><R30><C20><LINE>" SKIP
-             "<R28><C45><FROM><R30><C45><LINE>" SKIP
-             "<R28><C55><FROM><R30><C55><LINE>" SKIP
-             "<R28><C62><FROM><R30><C62><LINE>" SKIP
-             "<R28><C72><FROM><R30><C72><LINE>" SKIP 
+             "<R28><C8><FROM><R30><C8><LINE>" SKIP
+             "<R28><C25.5><FROM><R30><C25.5><LINE>" SKIP
+             "<R28><C51.5><FROM><R30><C51.5><LINE>" SKIP
+             "<R28><C59><FROM><R30><C59><LINE>" SKIP
+             "<R28><C66><FROM><R30><C66><LINE>" SKIP
+             "<R28><C75><FROM><R30><C75><LINE>" SKIP 
              .
    PUT "<FArial><=5><R28.1> Est# " SKIP(1).
-   PUT "<FArial><=5><R+1> Quote#  Description                   Item/Style/Color/Board                                     Quantity    Release                 Price         UOM " SKIP(1).
+   PUT "<FArial><=5><R+1> Quote#                Description                        Item/Style/Color/Board                          Quantity       Release           Price         UOM " SKIP(1).
   PUT "<FCourier New>".
 
 
@@ -383,15 +384,15 @@ if (not ch-multi) then do:
 
 
    PUT "<|10><R28><C1><#5><FROM><R30><C80><RECT>" SKIP    
-             "<R28><C6><FROM><R30><C6><LINE>" SKIP
-             "<R28><C20><FROM><R30><C20><LINE>" SKIP
-             "<R28><C45><FROM><R30><C45><LINE>" SKIP
-             "<R28><C55><FROM><R30><C55><LINE>" SKIP
-             "<R28><C62><FROM><R30><C62><LINE>" SKIP
-             "<R28><C72><FROM><R30><C72><LINE>" SKIP
+             "<R28><C8><FROM><R30><C8><LINE>" SKIP
+             "<R28><C25.5><FROM><R30><C25.5><LINE>" SKIP
+             "<R28><C51.5><FROM><R30><C51.5><LINE>" SKIP
+             "<R28><C59><FROM><R30><C59><LINE>" SKIP
+             "<R28><C66><FROM><R30><C66><LINE>" SKIP
+             "<R28><C75><FROM><R30><C75><LINE>" SKIP
              .
    PUT "<FArial><=5><R28.1> Est# " SKIP(1).
-   PUT "<FArial><=5><R+1> Quote#  Description                   Item/Style/Color/Board                                     Quantity    Release                 Price         UOM " SKIP(1).
+   PUT "<FArial><=5><R+1> Quote#             Description                        Item/Style/Color/Board                               Quantity    Release             Price         UOM " SKIP(1).
   PUT "<FCourier New>".
  END.
 
