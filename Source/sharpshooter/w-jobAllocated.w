@@ -119,12 +119,12 @@ DEFINE VARIABLE h_viewrminquiry AS HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btAdd  NO-FOCUS
      LABEL "Add New Material" 
-     SIZE 27 BY 1.52
+     SIZE 36 BY 1.52
      FONT 17.
 
 DEFINE BUTTON btAllocate  NO-FOCUS
      LABEL "Allocate" 
-     SIZE 13 BY 1.52
+     SIZE 18 BY 1.52
      FONT 17.
 
 DEFINE BUTTON btClear 
@@ -140,7 +140,7 @@ DEFINE BUTTON btCopy  NO-FOCUS
 
 DEFINE BUTTON btDelete  NO-FOCUS
      LABEL "Delete" 
-     SIZE 13 BY 1.52
+     SIZE 15 BY 1.52
      FONT 17.
 
 DEFINE BUTTON btExit 
@@ -168,15 +168,14 @@ DEFINE BUTTON btnPrevious
      LABEL "Prev" 
      SIZE 8 BY 1.91 TOOLTIP "Previous".
 
-DEFINE BUTTON btnSBNotes 
-     IMAGE-UP FILE "Graphics/32x32/book_open.png":U NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON btnSBNotes  NO-FOCUS FLAT-BUTTON
      LABEL "SB Notes" 
-     SIZE 8 BY 1.91 TOOLTIP "Schedule Board Notes"
+     SIZE 19 BY 1.91 TOOLTIP "Schedule Board Notes"
      BGCOLOR 8 .
 
 DEFINE BUTTON btUpdate  NO-FOCUS
      LABEL "Update" 
-     SIZE 13 BY 1.52
+     SIZE 16 BY 1.52
      FONT 17.
 
 DEFINE VARIABLE btnClearText AS CHARACTER FORMAT "X(256)":U INITIAL "RESET" 
@@ -283,6 +282,7 @@ DEFINE IMAGE imJobLookup
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnSBNotes AT ROW 32.67 COL 97
      btExit AT ROW 1 COL 197 WIDGET-ID 126
      btnFirst AT ROW 10.67 COL 197 WIDGET-ID 44
      btnLast AT ROW 16.38 COL 197 WIDGET-ID 46
@@ -306,16 +306,15 @@ DEFINE FRAME F-Main
      fiJobQtyLabel AT ROW 19.71 COL 122 NO-LABEL
      fiJobQty AT ROW 19.71 COL 136 COLON-ALIGNED NO-LABEL
      btCopy AT ROW 7.33 COL 125 WIDGET-ID 118
-     btDelete AT ROW 32.67 COL 150
-     btAdd AT ROW 32.67 COL 164
-     btUpdate AT ROW 32.67 COL 192
-     btAllocate AT ROW 32.67 COL 192
+     btDelete AT ROW 32.67 COL 117
+     btAdd AT ROW 32.67 COL 133
+     btUpdate AT ROW 32.67 COL 189
+     btAllocate AT ROW 32.67 COL 170
      btnExitText AT ROW 1.24 COL 187 NO-LABEL WIDGET-ID 24
      statusMessage AT ROW 30.76 COL 3 NO-LABEL WIDGET-ID 28
      btnViewRM AT ROW 2.91 COL 138.2 COLON-ALIGNED NO-LABEL WIDGET-ID 138
      btClear AT ROW 3.14 COL 197 WIDGET-ID 146
      btnClearText AT ROW 3.33 COL 184.2 NO-LABEL WIDGET-ID 148
-     btnSBNotes AT ROW 32.67 COL 135
      imJobLookup AT ROW 7.52 COL 94.6 WIDGET-ID 182
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -546,19 +545,17 @@ DO:
    RUN pStatusMessage ("", 0).
                 
    IF NOT AVAIL job THEN
-   DO:
-       FIND FIRST job NO-LOCK
-            WHERE job.company EQ cCompany
-            AND job.job-no EQ  substring(fiJob:SCREEN-VALUE,1,6)
-            AND job.job-no2 EQ  integer(substring(fiJob:SCREEN-VALUE,8,2)) NO-ERROR.       
-   END.
-        
-   IF AVAIL job THEN
-   RUN pCopyJob IN h_b-job-mat-last-all(job.company, ROWID(job), OUTPUT lComplete) .
+   FIND FIRST job NO-LOCK
+        WHERE job.company EQ cCompany
+          AND job.job-no  EQ SUBSTRING(fiJob:SCREEN-VALUE,1,6)
+          AND job.job-no2 EQ INTEGER(substring(fiJob:SCREEN-VALUE,8,2))
+        NO-ERROR.       
+   IF AVAILABLE job THEN DO:
+       RUN pCopyJob IN h_b-job-mat-last-all (job.company, ROWID(job), OUTPUT lComplete).
+       RUN pSBNotes (YES).
+   END. // if avail
    IF lComplete THEN
-   DO:    
-      RUN pStatusMessage ("Copy Complete", 2). 
-   END.     
+   RUN pStatusMessage ("Copy Complete", 2). 
    RUN pReOpenQuery IN h_b-job-mat(rwRowid).
 END.
 
@@ -686,7 +683,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSBNotes W-Win
 ON CHOOSE OF btnSBNotes IN FRAME F-Main /* SB Notes */
 DO:
-    RUN pSBNotes.
+    RUN pSBNotes (NO).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -864,6 +861,12 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-job-mat , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_viewrminquiry ,
+             h_jobfilter , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat-last-all ,
+             h_viewrminquiry , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat ,
+             h_b-job-mat-last-all , 'AFTER':U ).
     END. /* Page 1 */
 
   END CASE.
@@ -1267,6 +1270,8 @@ PROCEDURE pSBNotes :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplCopy AS LOGICAL NO-UNDO.
+
     DEFINE VARIABLE iForm       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iBlank      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cRmItem     AS CHARACTER NO-UNDO.
@@ -1275,6 +1280,8 @@ PROCEDURE pSBNotes :
     DEFINE VARIABLE dAvailQty   AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lUpdated    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE rwRowid     AS ROWID     NO-UNDO. 
+
+    DEFINE BUFFER bsbNote FOR sbNote.
 
     IF AVAILABLE job THEN DO:   
         RUN pGetMaterial IN h_b-job-mat (
@@ -1291,12 +1298,26 @@ PROCEDURE pSBNotes :
                  WHERE ROWID(job-mat) EQ rwRowID
                  NO-ERROR.
             IF AVAILABLE job-mat THEN
-            RUN schedule/objects/prompts/externalNotes.w (
-                job-mat.company,
-                job-mat.job-no,
-                job-mat.job-no2,
-                job-mat.frm
-                ).
+            CASE iplCopy:
+                WHEN YES THEN DO:
+                    FOR EACH sbNote NO-LOCK
+                        WHERE sbNote.company EQ job-mat.company
+                          AND sbNote.job-no  EQ job-mat.job-no
+                          AND sbNote.job-no2 EQ job-mat.job-no2
+                          AND sbNote.frm     EQ job-mat.frm
+                        :
+                        CREATE bsbNote.
+                        BUFFER-COPY sbNote EXCEPT rec_key TO bsbNote.
+                    END. // each sbnote
+                END.
+                WHEN NO THEN 
+                RUN schedule/objects/prompts/externalNotes.w (
+                    job-mat.company,
+                    job-mat.job-no,
+                    job-mat.job-no2,
+                    job-mat.frm
+                    ).
+            END CASE.
         END. // if rwrowid ne ?
     END. // if avail job
 

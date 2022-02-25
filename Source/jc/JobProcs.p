@@ -689,7 +689,7 @@ PROCEDURE pCopyMaterialPreviousJob PRIVATE:
               bff-job-mat.job-no2 = bff-job.job-no2.
          oplComplete = YES. 
          
-         bff-job-mat.all-flg = YES.  
+/*         bff-job-mat.all-flg = YES.*/
          RUN jc/jc-all2.p (ROWID(bff-job-mat), 1).           
     END.   
     RUN spProgressBar (?, ?, 100).
