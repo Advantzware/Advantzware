@@ -269,6 +269,8 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
   
+      RUN rm/MaterialProcs.p PERSISTENT SET hdMaterialProcs.
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -435,8 +437,8 @@ PROCEDURE local-destroy:
  Notes:
 ------------------------------------------------------------------------------*/
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF VALID-HANDLE (hdMaterialProcs) THEN
-        DELETE PROCEDURE hdMaterialProcs.
+/*    IF VALID-HANDLE (hdMaterialProcs) THEN*/
+/*        DELETE PROCEDURE hdMaterialProcs. */
                 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
@@ -454,7 +456,6 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hdMaterialProcs AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cRtnChar        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
         
@@ -466,8 +467,6 @@ PROCEDURE pInit :
         OUTPUT cCompany
         ).
         
-    RUN rm/MaterialProcs.p PERSISTENT SET hdMaterialProcs.
-    
     RUN Material_GetCalculationTypeList IN hdMaterialProcs (
         OUTPUT cCalculationTypeList
         ).
@@ -476,8 +475,6 @@ PROCEDURE pInit :
         OUTPUT cMaterialTypeGroup
         ).    
         
-    DELETE PROCEDURE hdMaterialProcs.
-                            
     ASSIGN
         materialType.calculationType:LIST-ITEM-PAIRS = cCalculationTypeList        
         materialType.materialTypeGroup:LIST-ITEMS    = cMaterialTypeGroup
