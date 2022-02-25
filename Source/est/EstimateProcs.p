@@ -958,8 +958,8 @@ PROCEDURE pUpdateEfFormLayout PRIVATE:
             ipbf-eb.num-up   = ttLayoutSize.iBlankNumUp           
             . 
             
-        /* Assign Num ON and Num Out fields only */    
-        IF iplCalcSizeOnly = NO THEN 
+        /* Assign Num ON and Num Out fields only. In case error calculating Size only use full layout calc */    
+        IF iplCalcSizeOnly = NO OR (iplCalcSizeOnly = YES AND ttLayoutSize.lRecalcFullLayout = YES) THEN 
             ASSIGN
                 ipbf-ef.i-code  = ttLayoutSize.cBoardItemCode        
                 ipbf-ef.weight  = ttLayoutSize.cBoardItemBasisWeight 

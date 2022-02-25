@@ -101,8 +101,6 @@ IF AVAILABLE bf-style THEN
         iStyleFormulaOnLen = bf-style.use-l
         iStyleFormulaOnWid = bf-style.use-w.
 
-/* Create Temp-table record and populate the fields later */    
-CREATE ttLayoutSize.    
 
 IF iplCalcSizeOnly THEN
     RUN pCalcLayoutSizeOnly.
@@ -111,6 +109,10 @@ ELSE
 
 
 PROCEDURE pCalcLayoutSizeOnly:
+    
+    /* Create Temp-table record and populate the fields later */    
+    CREATE ttLayoutSize.    
+    
     
     IF bf-ef.m-code NE "" THEN
     DO:
@@ -419,17 +421,28 @@ PROCEDURE pCalcLayoutSizeOnly:
         IF AVAIL bf-mach AND bf-mach.dept[1] EQ "RC" 
             AND (ttLayoutSize.dGrossSheetLength LT ttLayoutSize.dDieSizeLength + dTrimLength  
               OR ttLayoutSize.dGrossSheetWidth LT ttLayoutSize.dDieSizeWidth + dTrimWidth) THEN
+      DO:
+            RUN pResetFields.
             RUN pCalcLayout.
+            lRecalcFullLayout = YES.
+      END.
       
     END. /* Corrugated */
   
     IF ttLayoutSize.dNetSheetLength LT ttLayoutSize.dDieSizeLength + dTrimLength
      OR ttLayoutSize.dNetSheetWidth LT ttLayoutSize.dDieSizeWidth + dTrimWidth THEN
+    DO:
+        RUN pResetFields.
         RUN pCalcLayout.
+        lRecalcFullLayout = YES.
+    END.
     
 END PROCEDURE.    
 
 PROCEDURE pCalcLayout:
+    
+    /* Create Temp-table record and populate the fields later */    
+    CREATE ttLayoutSize.
         
     IF bf-ef.m-code NE "" THEN
     DO:
@@ -1243,6 +1256,37 @@ PROCEDURE pGetFormulaTT PRIVATE:
             OUTPUT TABLE formule).
     END.
     
+
+END PROCEDURE.
+
+PROCEDURE pResetFields PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    EMPTY TEMP-TABLE ttLayoutSize.
+    ASSIGN
+        dTrimLength       = 0
+        dTrimWidth        = 0
+        dCalcTotalLength  = 0
+        dCalcTotalWidth   = 0
+        dWidtoUse         = 0
+        dLengthtoUse      = 0
+        iCalcNumOnWidth   = 0
+        iCalcNumOnLength  = 0
+        iCnt              = 0
+        iExt              = 0
+        dSwapDim          = 0
+        dTempLength       = 0
+        dTempWidth        = 0
+        lRound            = NO
+        lDecimal          = NO
+        dDecimalFactor    = 0
+        dDecimalMax       = 0
+        dConversionFactor = 0
+        .
+
 
 END PROCEDURE.
         
