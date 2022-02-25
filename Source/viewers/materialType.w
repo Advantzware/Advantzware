@@ -437,8 +437,8 @@ PROCEDURE local-destroy:
  Notes:
 ------------------------------------------------------------------------------*/
     /* Code placed here will execute PRIOR to standard behavior. */
-/*    IF VALID-HANDLE (hdMaterialProcs) THEN*/
-/*        DELETE PROCEDURE hdMaterialProcs. */
+    IF VALID-HANDLE (hdMaterialProcs) THEN
+        DELETE PROCEDURE hdMaterialProcs.
                 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
