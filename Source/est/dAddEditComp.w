@@ -1221,6 +1221,32 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-64-dec D-Dialog 
+PROCEDURE valid-64-dec :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-dec AS DECIMAL DECIMALS 6 NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-dec AS DECIMAL DECIMALS 6 NO-UNDO.
+    
+    FIND FIRST tt-64-dec WHERE
+        SUBSTRING(STRING(tt-64-dec.DEC),1,3) EQ substring(STRING(ip-dec),1,3) NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE tt-64-dec  THEN
+        op-error = YES.
+    ELSE  op-dec = tt-64-dec.DEC .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-procat D-Dialog 
 PROCEDURE valid-procat :
     /*------------------------------------------------------------------------------
