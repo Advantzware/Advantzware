@@ -271,7 +271,7 @@ DEFINE VARIABLE fiStatusLabel AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS:"
 
 DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MESSAGE" 
       VIEW-AS TEXT 
-     SIZE 76 BY 1.43 NO-UNDO.
+     SIZE 94 BY 1.43 NO-UNDO.
 
 DEFINE IMAGE imJobLookup
      FILENAME "Graphics/32x32/search_new.png":U
@@ -548,7 +548,7 @@ DO:
    FIND FIRST job NO-LOCK
         WHERE job.company EQ cCompany
           AND job.job-no  EQ SUBSTRING(fiJob:SCREEN-VALUE,1,6)
-          AND job.job-no2 EQ INTEGER(substring(fiJob:SCREEN-VALUE,8,2))
+          AND job.job-no2 EQ INTEGER(SUBSTRING(fiJob:SCREEN-VALUE,8,2))
         NO-ERROR.       
    IF AVAILABLE job THEN DO:
        RUN pCopyJob IN h_b-job-mat-last-all (job.company, ROWID(job), OUTPUT lComplete).
@@ -861,6 +861,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-job-mat , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_viewrminquiry ,
+             h_jobfilter , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat-last-all ,
+             h_viewrminquiry , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat ,
              h_b-job-mat-last-all , 'AFTER':U ).
     END. /* Page 1 */
@@ -1279,42 +1283,52 @@ PROCEDURE pSBNotes :
 
     DEFINE BUFFER bsbNote FOR sbNote.
 
-    IF AVAILABLE job THEN DO:   
-        RUN pGetMaterial IN h_b-job-mat (
-            OUTPUT rwRowid,
-            OUTPUT iForm,
-            OUTPUT iBlank,
-            OUTPUT cRmItem,
-            OUTPUT cRmItemDesc,
-            OUTPUT dAllocation,
-            OUTPUT dAvailQty
-            ).   
-        IF rwRowID NE ? THEN DO:
-            FIND FIRST job-mat NO-LOCK
-                 WHERE ROWID(job-mat) EQ rwRowID
-                 NO-ERROR.
-            IF AVAILABLE job-mat THEN
-            CASE iplCopy:
-                WHEN YES THEN DO:
-                    FOR EACH sbNote NO-LOCK
-                        WHERE sbNote.company EQ job-mat.company
-                          AND sbNote.job-no  EQ job-mat.job-no
-                          AND sbNote.job-no2 EQ job-mat.job-no2
-                          AND sbNote.frm     EQ job-mat.frm
-                        :
-                        CREATE bsbNote.
-                        BUFFER-COPY sbNote EXCEPT rec_key TO bsbNote.
-                    END. // each sbnote
-                END.
-                WHEN NO THEN 
-                RUN schedule/objects/prompts/externalNotes.w (
-                    job-mat.company,
-                    job-mat.job-no,
-                    job-mat.job-no2,
-                    job-mat.frm
-                    ).
-            END CASE.
-        END. // if rwrowid ne ?
+    IF AVAILABLE job THEN DO WITH FRAME {&FRAME-NAME}:
+        CASE iplCopy:
+            WHEN YES THEN DO:
+                FOR EACH sbNote NO-LOCK
+                    WHERE sbNote.company EQ cCompany
+                      AND sbNote.job-no  EQ ENTRY(1,fiLastJob:SCREEN-VALUE,"-")
+                      AND sbNote.job-no2 EQ INTEGER(ENTRY(2,fiLastJob:SCREEN-VALUE,"-"))
+                      AND CAN-FIND(FIRST job-mch
+                                   WHERE job-mch.company EQ sbNote.company
+                                     AND job-mch.m-code  EQ sbNote.m-code
+                                     AND job-mch.job-no  EQ job.job-no
+                                     AND job-mch.job-no2 EQ job.job-no2
+                                     AND job-mch.frm     EQ sbNote.frm)
+                    :
+                    CREATE bsbNote.
+                    BUFFER-COPY sbNote EXCEPT job-no job-no2 rec_key TO bsbNote
+                        ASSIGN
+                            bsbNote.job-no  = job.job-no
+                            bsbNote.job-no2 = job.job-no2
+                            .
+                END. // each sbnote
+            END. // YES
+            WHEN NO THEN DO: 
+                RUN pGetMaterial IN h_b-job-mat (
+                    OUTPUT rwRowid,
+                    OUTPUT iForm,
+                    OUTPUT iBlank,
+                    OUTPUT cRmItem,
+                    OUTPUT cRmItemDesc,
+                    OUTPUT dAllocation,
+                    OUTPUT dAvailQty
+                    ).   
+                IF rwRowID NE ? THEN DO:
+                    FIND FIRST job-mat NO-LOCK
+                         WHERE ROWID(job-mat) EQ rwRowID
+                         NO-ERROR.
+                    IF AVAILABLE job-mat THEN
+                        RUN schedule/objects/prompts/externalNotes.w (
+                            job-mat.company,
+                            job-mat.job-no,
+                            job-mat.job-no2,
+                            job-mat.frm
+                            ).
+                END. // if rwrowid ne ?
+            END. // NO
+        END CASE.
     END. // if avail job
 
 END PROCEDURE.

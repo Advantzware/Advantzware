@@ -684,13 +684,13 @@ PROCEDURE pCopyMaterialPreviousJob PRIVATE:
          CREATE bff-job-mat.
          BUFFER-COPY bf-job-mat EXCEPT rec_key job job-no job-no2 TO bff-job-mat.
          ASSIGN
-              bff-job-mat.job     = bff-job.job
-              bff-job-mat.job-no  = bff-job.job-no
-              bff-job-mat.job-no2 = bff-job.job-no2.
-         oplComplete = YES. 
-         
-/*         bff-job-mat.all-flg = YES.*/
-         RUN jc/jc-all2.p (ROWID(bff-job-mat), 1).           
+             bff-job-mat.job     = bff-job.job
+             bff-job-mat.job-no  = bff-job.job-no
+             bff-job-mat.job-no2 = bff-job.job-no2
+             oplComplete         = YES
+             .         
+         IF bff-job-mat.all-flg EQ YES THEN
+         RUN jc/jc-all2.p (ROWID(bff-job-mat), 1).
     END.   
     RUN spProgressBar (?, ?, 100).
     
