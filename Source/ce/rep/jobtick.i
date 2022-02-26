@@ -1,7 +1,7 @@
 /* ----------------------------------------------- ce/rep/jobtick.i 03/99 JLF */
 /* factory ticket                                                             */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 {sys/form/s-top.f}
 
@@ -59,8 +59,8 @@ format header
        trim(string(page-number - v-last-page,">9")) + " of " +
          trim(string(v-page-tot,">9"))  at 79   format "x(8)"
        trim(job-hdr.est-no)             at 103  format "x(5)"
-       trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99")
-                                        at 133  format "x(9)"
+       TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)))
+                                        at 133  format "x(13)"
        skip(2)
        job-hdr.cust-no                  at 79
        v-slsmn                          at 103

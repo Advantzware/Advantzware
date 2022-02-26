@@ -19,7 +19,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 /* Create an unnamed pool to store all the widgets created 
      by this procedure. This is a good default which assures
      that this procedure's triggers and internal procedures 
@@ -101,25 +101,25 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE begin_job# AS CHARACTER FORMAT "x(6)" 
+DEFINE VARIABLE begin_job# AS CHARACTER FORMAT "x(9)" 
      LABEL "Beginning  Job#" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1.
 
-DEFINE VARIABLE begin_job2 AS INTEGER FORMAT ">9" INITIAL 0 
+DEFINE VARIABLE begin_job2 AS INTEGER FORMAT ">>9" INITIAL 0 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1.
+     SIZE 5.4 BY 1.
 
-DEFINE VARIABLE end_job# AS CHARACTER FORMAT "x(6)" INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job# AS CHARACTER FORMAT "x(9)" INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1.
 
-DEFINE VARIABLE end_job2 AS INTEGER FORMAT ">9" INITIAL 99 
+DEFINE VARIABLE end_job2 AS INTEGER FORMAT ">>9" INITIAL 999 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1.
+     SIZE 5.4 BY 1.
 
 DEFINE VARIABLE lbl_prt-box AS CHARACTER FORMAT "X(256)":U INITIAL "Print Box Design?" 
      VIEW-AS FILL-IN 
@@ -701,13 +701,11 @@ END.
 if td-show-parm then run show-param. 
 
 assign
-   fjob-no = fill(" ",6 - length(trim(begin_job#))) + trim(begin_job#)
-   tjob-no = fill(" ",6 - length(trim(end_job#))) + trim(end_job#)
+   fjob-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job#))
+   tjob-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job#))
    reprint = tb_rep-job
-   fjob-no = fill(" ",6 - length(trim(fjob-no))) + trim(fjob-no) +
-             string(fjob-no2,"99")
-   tjob-no = fill(" ",6 - length(trim(tjob-no))) + trim(tjob-no) +
-             string(tjob-no2,"99")
+   fjob-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fjob-no, fjob-no2))
+   tjob-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tjob-no, tjob-no2))
    v-print-box = tb_prt-box .
 
 RUN cecrep/jobtick.p ("RFC").

@@ -1,7 +1,7 @@
 /* --------------------------------------------- cec/rep/jobtick5.p           */
 /* factory ticket                                                             */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 def input parameter v-recid  as recid.
 def input parameter v-format as char.
 def input parameter v-loc-loop as  int no-undo.
@@ -392,7 +392,7 @@ if v-break then do:
 
   assign
    v-standards = (avail job-mch)
-   v-job-prt   = trim(job.job-no) + "-" + string(job.job-no2,"99")
+   v-job-prt   = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
    v-ord-date  = if avail xoe-ord then
                    string(xoe-ord.ord-date,"99/99/99")
                  else

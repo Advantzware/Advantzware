@@ -1,7 +1,7 @@
 /* ---------------------------------------------- cecrep/jobpfs2.i 03/13 BPV */
 /* factory ticket   Printer's Finishing Services                                           */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 def {1} var save_id as recid.
 
 def {1} buffer xest     for est.
@@ -14,10 +14,10 @@ def {1} buffer xstyle   for style.
 def {1} buffer xxprep   for prep.
 
 def {1} var v-break         as   log                                    no-undo.
-def {1} var v-job-prt       as   char format "x(9)"                     no-undo.
+def {1} var v-job-prt       as   char format "x(13)"                     no-undo.
 def {1} var v-ord-no        as   char format "x(8)"                     no-undo.
 def {1} var v-ord-date      as   char format "x(8)"                     no-undo.
-def {1} var v-est-no        as   char format "x(6)"                     no-undo.
+def {1} var v-est-no        as   char format "x(8)"                     no-undo.
 def {1} var v-fg            as   char format "x(37)"                    no-undo.
 def {1} var v-due-date      as   char format "x(10)"                    no-undo.
 
@@ -86,7 +86,7 @@ format header
        "SPEC SHEET<P10>" AT 60 SKIP(1)
      /*  "DATE:" AT 2 TODAY */ /*"SHOP ORDER" AT 60 */ "Contact:" AT 2 v-cntct-no  "EST#:" AT 83 trim(v-est-no) SKIP       
        "<#1><C1><FROM><R+36><C80><RECT><|3>"
-       "<=#1><R+2><C50><FROM><C80><LINE><|3>"
+       "<=#1><R+2><C49><FROM><C80><LINE><|3>"
        "<=#1><R+5><C1><FROM><C80><LINE><|3>"     /* item*/
        "<=#1><R+10><C1><FROM><C80><LINE><|3>"
        "<=#1><R+11><C1><FROM><C40><LINE><|3>"     /*Shipments*/
@@ -97,10 +97,11 @@ format header
        "<=#1><R+21><C1><FROM><C80><LINE><|3>"  /* DESCRIPTION */
        "<=#1><R+28><C1><FROM><C80><LINE><|3>"  /* may need double line*/ */
        /*"<=#1><R+26><C1><FROM><R+34><C79><RECT><|3>" */
-       "<=#1><C50><FROM><R+5><C50><LINE><|3>"
-       "<=#1><C60><FROM><R+5><C60><LINE><|3>"
-       "<=#1><C71><FROM><R+2><C71><LINE><|3>"
-       "<=#1><R+2><C69><FROM><R+3><C69><LINE><|3>"
+       "<=#1><C49><FROM><R+5><C49><LINE><|3>"
+       "<=#1><C57.5><FROM><R+2><C57.5><LINE><|3>"
+       "<=#1><C68><FROM><R+2><C68><LINE><|3>"
+       "<=#1><R+2><C68><FROM><R+3><C68><LINE><|3>"
+       "<=#1><R+2><C59><FROM><R+3><C59><LINE><|3>"
        "<=#1><R+5><C50><FROM><R+5><C50><LINE><|3>"
        "<=#1><R+10><C40><FROM><R+5><C40><LINE><|3>"
        "<=#1><R+10><C56><FROM><R+5><C56><LINE><|3>"

@@ -12,7 +12,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 /* Create an unnamed pool to store all the widgets created 
      by this procedure. This is a good default which assures
      that this procedure's triggers and internal procedures 
@@ -498,7 +498,7 @@ DEFINE VARIABLE fiText2 AS CHARACTER FORMAT "X(256)":U INITIAL "FOB:"
      VIEW-AS FILL-IN 
      SIZE 6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_prev_order AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_prev_order AS CHARACTER FORMAT "X(8)":U 
      LABEL "Previous Order #" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1.

@@ -24,7 +24,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
@@ -100,7 +100,7 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "x(9)" 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "x(13)" 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
@@ -296,7 +296,7 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
 DO:
    ASSIGN {&displayed-objects}.
-   FIND FIRST tt-fibre WHERE tt-fibre.tt-job-no = job-hdr.job-no
+   FIND FIRST tt-fibre WHERE trim(tt-fibre.tt-job-no) = trim(job-hdr.job-no)
                          AND tt-fibre.tt-job-no2 = job-hdr.job-no2
                          AND tt-fibre.tt-frm = v-form-no
                          AND tt-fibre.tt-blank = v-blank-no NO-LOCK NO-ERROR.

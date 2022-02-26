@@ -2,7 +2,7 @@
 /* Job Ticket Xprint form for McElroy                                         */
 /* cecrep/jobMcElroy.p  factory ticket  for McElroy - landscape                 */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &SCOPED-DEFINE PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 DEF INPUT PARAM v-FORMAT AS CHAR.
@@ -138,14 +138,16 @@ ASSIGN v-local-copies = 1
 DO v-local-loop = 1 TO v-local-copies:
   
   FOR EACH job-hdr 
-    WHERE job-hdr.company               EQ cocode
-      AND job-hdr.ftick-prnt            EQ reprint
-      AND job-hdr.job-no                GE SUBSTR(fjob-no,1,6)
-      AND job-hdr.job-no                LE SUBSTR(tjob-no,1,6)
-      AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) + TRIM(job-hdr.job-no) +
-          STRING(job-hdr.job-no2,"99")  GE fjob-no
-      AND FILL(" ",6 - length(trim(job-hdr.job-no))) + TRIM(job-hdr.job-no) +
-          STRING(job-hdr.job-no2,"99")  LE tjob-no,
+      WHERE job-hdr.company               EQ cocode
+	AND job-hdr.ftick-prnt            EQ reprint
+	AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+	    TRIM(job-hdr.job-no) +
+	    STRING(job-hdr.job-no2,"999")  GE fjob-no
+	AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+	    TRIM(job-hdr.job-no) +
+	    STRING(job-hdr.job-no2,"999")  LE tjob-no
+	AND job-hdr.job-no2 GE fjob-no2
+	AND job-hdr.job-no2 LE tjob-no2,
 
     FIRST job NO-LOCK
     WHERE job.company EQ cocode

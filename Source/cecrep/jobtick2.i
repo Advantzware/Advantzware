@@ -19,7 +19,7 @@ def {1} buffer xstyle   for style.
 def {1} buffer xxprep   for prep.
 
 def {1} var v-break         as   log                                    no-undo.
-def {1} var v-job-prt       as   char format "x(10)"                    no-undo.
+def {1} var v-job-prt       as   char format "x(13)"                    no-undo.
 def {1} var v-ord-no        as   char format "x(8)"                     no-undo.
 def {1} var v-ord-date      as   char format "x(8)"                     no-undo.
 def {1} var v-est-no        as   char format "x(8)"                     no-undo.
