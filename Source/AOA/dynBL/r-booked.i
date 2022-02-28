@@ -38,22 +38,22 @@ PROCEDURE pBusinessLogic:
     DEFINE BUFFER bOEOrdl FOR oe-ordl.
     DEFINE BUFFER bOERel  FOR oe-rel.
 
-    FOR EACH ce-ctrl NO-LOCK 
-        WHERE ce-ctrl.company GE cStartCompany
-          AND ce-ctrl.company LE cEndCompany
+    FOR EACH company NO-LOCK 
+        WHERE company.company GE cStartCompany
+          AND company.company LE cEndCompany
         :
         FIND FIRST period NO-LOCK
-             WHERE period.company EQ ce-ctrl.company
+             WHERE period.company EQ company.company
                AND period.pst     LE dtEndOrderDate
                AND period.pend    GE dtEndOrderDate
              NO-ERROR.
         ASSIGN
-            cocode     = ce-ctrl.company
+            cocode     = company.company
             dtTrandate = IF AVAILABLE period THEN MINIMUM(dtStartOrderDate,period.pst)
                                                      ELSE dtStartOrderDate
             .
         FOR EACH oe-ord NO-LOCK
-            WHERE oe-ord.company  EQ ce-ctrl.company
+            WHERE oe-ord.company  EQ company.company
               AND oe-ord.cust-no  GE cStartCustNo
               AND oe-ord.cust-no  LE cEndCustNo
               AND oe-ord.ord-date GE dtTrandate
