@@ -1,5 +1,35 @@
 [
   {
+    "rec_key": "202202224354008566309",
+    "settingTypeID": 704,
+    "description": "Default RM Item to select",
+    "dataType": "Character",
+    "validValues": "User Select,First Board,First Item",
+    "defaultValue": "User Select",
+    "validValueMin": "",
+    "validValueMax": "",
+    "isPassword": false,
+    "categoryTags": "SSRMIssue",
+    "settingName": "SSIssueDefaultRM",
+    "securityLevel": 0,
+    "hasContext": false
+  },
+  {
+    "rec_key": "202202224082108566298",
+    "settingTypeID": 703,
+    "description": "Post Scanned items automatically",
+    "dataType": "Logical",
+    "validValues": "YES,NO",
+    "defaultValue": "NO",
+    "validValueMin": "",
+    "validValueMax": "",
+    "isPassword": false,
+    "categoryTags": "SSRMIssue",
+    "settingName": "AutoPost",
+    "securityLevel": 0,
+    "hasContext": false
+  },
+  {
     "rec_key": "202202074618808553143",
     "settingTypeID": 702,
     "description": "Allow user to override the status id of on hold tag\nLogical = YES\nThis allows the user to scan a tag that is already on hold.\nIf the pallet tag that is scanned has a status of On Hold, the user will be prompted to enter a status update\n\nLogical = NO\nThis will not allow the user to scan a tag that is already on hold and will show them a message that this tag is on hold and cannot be used.  If the pallet tag that was scanned has a status of On Hold, then the user will be prompted with zMessage(55) indicating the tag is on hold and will display the tag status in the zMessage.  We want to include the Status id and status description - using the new zMessage framework) and return to the tag field (in focus) to enter a different tag.\n",
@@ -9,7 +39,7 @@
     "validValueMin": "",
     "validValueMax": "",
     "isPassword": false,
-    "categoryTags": "",
+    "categoryTags": "SSTagStatus",
     "settingName": "AllowOnHoldTagScan",
     "securityLevel": 0,
     "hasContext": false
