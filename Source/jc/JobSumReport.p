@@ -293,6 +293,7 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
             AND bf-ttOperation.cMachine EQ ttOperation.cMachine
             AND bf-ttOperation.iFormNo EQ ttOperation.iFormNo
             AND bf-ttOperation.iBlankNo EQ ttOperation.iBlankNo
+            AND bf-ttOperation.iPass EQ ttOperation.iPass
             AND bf-ttOperation.cStdAct EQ "Actual"
             NO-ERROR.
         IF NOT AVAIL bf-ttOperation THEN

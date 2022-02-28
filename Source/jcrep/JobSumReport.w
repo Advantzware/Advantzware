@@ -721,7 +721,7 @@ PROCEDURE pPrintOperation :
     DEFINE PARAMETER BUFFER ipbf-ttOperation FOR ttOperation.
           
    
-    RUN Excel_SetCellValue IN ghExcelProcs ("A" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.iFormNo,"99") + "|" +  string(ipbf-ttOperation.iBlankNo,"99")).
+    RUN Excel_SetCellValue IN ghExcelProcs ("A" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.iFormNo,"99") + "|" +  string(ipbf-ttOperation.iBlankNo,"99") + "|" +  string(ipbf-ttOperation.iPass,"99")).
     RUN Excel_SetCellValue IN ghExcelProcs ("B" + STRING(iopiRowCount),  ipbf-ttOperation.cDept).
     RUN Excel_SetCellValue IN ghExcelProcs ("C" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.cStdAct)).
     RUN Excel_SetCellValue IN ghExcelProcs ("D" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.cMachine)).
