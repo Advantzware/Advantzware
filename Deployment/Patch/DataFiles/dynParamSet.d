@@ -101,7 +101,7 @@
 109 "System" "Ship To Range" 5.48 69 yes "Ship To" yes "202005062079105231430"
 112 "System" "Charge Code Range" 5.48 74 yes "Charge Codes" yes "202005201753905284213"
 113 "System" "Ship to Status" 3.33 36 yes "Ship to Status" yes "202006042136305335230"
-114 "System" "FG Item Status" 3.33 36 yes "FG Item Status" yes "202006042156105335232"
+114 "System" "FG Item Status" 3.33 42 yes "FG Item Status" yes "202006042156105335232"
 115 "System" "Printer ID" 3.1 56 yes "" yes "202006156807805359288"
 116 "System" "Print Spec Notes" 3.33 59 yes "Print Spec Notes" yes "202007060586105434102"
 117 "System" "PO Date Range" 4.52 63 yes "PO Dates" yes "202007070705805439379"
@@ -155,3 +155,4 @@
 172 "System" "WIP Standards Misc" 10.91 42 yes "" yes "202108207420407910287"
 173 "System" "Importer Parameters" 15.71 92 yes "" yes "202111028352008187350"
 174 "System" "Currency" 3.1 64 yes "" yes "202112110699808312464"
+176 "System" "Production Analysis Misc" 4.05 34 yes "" yes "202202147287208528706"
