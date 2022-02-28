@@ -790,7 +790,8 @@ DO:
         phandle = WIDGET-HANDLE(char-hdl).
         RUN new-state IN phandle ('update-begin':U).
     END.
-
+    QUERY br_table:GET-NEXT().
+    IF QUERY br_table:QUERY-OFF-END THEN RUN dispatch ('cancel-record':U).
 END.
 
 /* _UIB-CODE-BLOCK-END */
