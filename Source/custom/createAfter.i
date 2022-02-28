@@ -1,1 +1,4 @@
-notes period venditemcost
+materialType ~
+notes ~
+period ~
+venditemcost
