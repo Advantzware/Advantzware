@@ -33,7 +33,7 @@ DEFINE TEMP-TABLE ttOrdersBooked NO-UNDO
     FIELD printSheet   AS CHARACTER LABEL "Prints Sheet"   FORMAT "x(20)"
     FIELD dCstPerM     AS DECIMAL   LABEL "Cost/$m"        FORMAT "->>>,>>>,>>9.99"
     FIELD dTotStdCost  AS DECIMAL   LABEL "Total Std Cost" FORMAT "->>>>>>>9.99"
-    FIELD dCostRT      AS DECIMAL   LABEL "Std Cost RT"    FORMAT "->>>>>>>9.99"
+    FIELD dCostRT      AS DECIMAL   LABEL "Cost RT"        FORMAT "->>>>>>>9.99"
     FIELD lCostDiff    AS LOGICAL   LABEL "Cost Diff"      FORMAT "*/"
     FIELD dFullCost    AS DECIMAL   LABEL "Full Cost"      FORMAT "->>>>>>>9.99"
     FIELD cEnterBy     AS CHARACTER LABEL "Entered By"     FORMAT "x(10)"
