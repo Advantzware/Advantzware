@@ -69,10 +69,10 @@ estCostMaterial
 &Scoped-define SELF-NAME brEstCostMaterial
 &Scoped-define QUERY-STRING-brEstCostMaterial FOR EACH ttEstCostHeaderToCalc, ~
            FIRST estCostHeader NO-LOCK     WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID, ~
-           EACH estCostMaterial NO-LOCK     WHERE estCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID     AND estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}
+           EACH estCostMaterial NO-LOCK     WHERE estCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID     AND (estCostMaterial.isPrimarySubstrate OR estCostMaterial.isPurchased) ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-brEstCostMaterial OPEN QUERY {&SELF-NAME} FOR EACH ttEstCostHeaderToCalc, ~
            FIRST estCostHeader NO-LOCK     WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID, ~
-           EACH estCostMaterial NO-LOCK     WHERE estCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID     AND estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
+           EACH estCostMaterial NO-LOCK     WHERE estCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID     AND (estCostMaterial.isPrimarySubstrate OR estCostMaterial.isPurchased) ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-brEstCostMaterial ttEstCostHeaderToCalc ~
 estCostHeader estCostMaterial
 &Scoped-define FIRST-TABLE-IN-QUERY-brEstCostMaterial ttEstCostHeaderToCalc
@@ -264,7 +264,7 @@ FOR EACH ttEstCostHeaderToCalc,
     WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID,
     EACH estCostMaterial NO-LOCK
     WHERE estCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID
-    AND estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
+    AND (estCostMaterial.isPrimarySubstrate OR estCostMaterial.isPurchased) ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Query            is OPENED
@@ -436,8 +436,8 @@ DO:
             WHERE bb-estCostHeaderForAll.estCostHeaderID   = bb-ttEstCostHeaderToCalc.iEstCostHeaderID,        
             EACH bf-estCostMaterialForAll EXCLUSIVE-LOCK
             WHERE bf-estCostMaterialForAll.estCostHeaderID = bb-estCostHeaderForAll.estCostHeaderID
-            AND bf-estCostMaterialForAll.estimateNo        = bb-estCostHeaderForAll.estimateNo
-            AND bf-estCostMaterialForAll.isPrimarySubstrate
+            AND bf-estCostMaterialForAll.estimateNo        = bb-estCostHeaderForAll.estimateNo            
+			AND (bf-estCostMaterialForAll.isPrimarySubstrate OR bf-estCostMaterialForAll.isPurchased)
             AND bf-estCostMaterialForAll.estCostMaterialID <> estCostMaterial.estCostMaterialID
             AND bf-estCostMaterialForAll.vendorId          <> estCostMaterial.vendorID:                
                 
@@ -503,8 +503,8 @@ DO:
                         
             EACH bf-estCostMaterialForAll EXCLUSIVE-LOCK
             WHERE bf-estCostMaterialForAll.estCostHeaderID = bb-estCostHeaderForAll.estCostHeaderID
-            AND bf-estCostMaterialForAll.estimateNo        = bb-estCostHeaderForAll.estimateNo
-            AND bf-estCostMaterialForAll.isPrimarySubstrate
+            AND bf-estCostMaterialForAll.estimateNo        = bb-estCostHeaderForAll.estimateNo            
+			AND (bf-estCostMaterialForAll.isPrimarySubstrate OR bf-estCostMaterialForAll.isPurchased)
             AND bf-estCostMaterialForAll.estCostMaterialID <> estCostMaterial.estCostMaterialID
             AND bf-estCostMaterialForAll.vendorId          <> estCostMaterial.vendorID:
                   

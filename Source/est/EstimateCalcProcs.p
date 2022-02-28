@@ -1,12 +1,8 @@
-
 /*------------------------------------------------------------------------
     File        : EstimateCalcProcs.p
     Purpose     : 
-
     Syntax      :
-
     Description : 
-
     Author(s)   : BV
     Created     : Thu Jan 24 16:45:11 EST 2019
     Notes       :
@@ -3029,7 +3025,7 @@ PROCEDURE pCalculateWeightsAndSizes PRIVATE:
             
             IF bf-estCostMaterial.estCostBlankID EQ 0 THEN 
             DO: /*Form level material - calc based on basis-weight and blank area*/
-                IF bf-estCostMaterial.isPrimarySubstrate AND NOT bf-estCostBlank.isPurchased THEN 
+                IF bf-estCostMaterial.isPrimarySubstrate THEN 
                 DO:   /*Board and adders*/
                     /*refactor - basis assumed to be LBs/MSF*/
                     dWeightInDefaultUOM = bf-estCostMaterial.basisWeight * dBlankAreaTotalInDefaultUOM.
@@ -4441,7 +4437,7 @@ PROCEDURE pProcessFarm PRIVATE:
     IF AVAILABLE bf-estCostMaterial THEN 
     DO:
         ASSIGN 
-            bf-estCostMaterial.isPrimarySubstrate      = YES
+            bf-estCostMaterial.isPrimarySubstrate      = NO
             bf-estCostMaterial.addToWeightNet          = YES
             bf-estCostMaterial.addToWeightTare         = NO
             bf-estCostMaterial.isPurchasedFG           = YES                               
