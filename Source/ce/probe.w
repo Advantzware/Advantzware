@@ -656,12 +656,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-LEAVE OF br_table IN FRAME F-Main /* Estimate  Analysis Per Thousand */
 DO:
+    DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
+    DEF VAR char-hdl AS CHAR NO-UNDO.   
+
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
-   /*{src/adm/template/brsleave.i} */
-     {est/brsleave.i}   /* same but update will be like add */
+    {est/brsleave.i}   /* same but update will be like add */
      
-     if keyfunction(lastkey) = "return" then reposition {&browse-name} forward 0.
+    IF KEYFUNCTION(LASTKEY) EQ "return" 
+    OR KEYFUNCTION(LASTKEY) EQ "tab" THEN DO:
+        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+        phandle = WIDGET-HANDLE(char-hdl).
+        RUN new-state IN phandle ('update-begin':U).
+    END.
+         
 END.
 
 /* _UIB-CODE-BLOCK-END */
