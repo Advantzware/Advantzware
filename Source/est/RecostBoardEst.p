@@ -23,12 +23,12 @@
 DEFINE VARIABLE loUpdate AS LOG     NO-UNDO INITIAL FALSE.
 
 /* **********************  Internal Procedures  *********************** */
-PROCEDURE ipRecostBoard:
+PROCEDURE RecostBoardEst_RecostBoard:
     DEFINE INPUT  PARAMETER ipinEstCostHeaderID AS INT64.
     DEFINE OUTPUT PARAMETER opchErrorMessage    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE FOR ttRecostBoardGroups.    
 
-    RUN ProcessEstCostMaterial(INPUT ipinEstCostHeaderID). /*Build internal temp-tables*/
+    RUN pProcessEstCostMaterial(INPUT ipinEstCostHeaderID). /*Build internal temp-tables*/
 
     FIND FIRST ttRecostBoardGroups WHERE ttRecostBoardGroups.Multi EQ YES NO-LOCK NO-ERROR.
     
@@ -39,9 +39,9 @@ PROCEDURE ipRecostBoard:
     END. 
         
     /*more than one EstCostMaterial line with matching item, vendor, & size*/
-    RUN GetNewCosts.
+    RUN pGetNewCosts.
     
-    RUN UpdateEstCostMaterial(INPUT YES,
+    RUN RecostBoardEst_UpdateEstCostMaterial(INPUT YES,
                               INPUT TABLE ttRecostBoardGroups).  /*See if cost is better than current EstCostMaterial, YES = Compare only*/             
             
     IF NOT loUpdate THEN
@@ -49,7 +49,7 @@ PROCEDURE ipRecostBoard:
             
 END PROCEDURE.
 
-PROCEDURE GetNewCosts PRIVATE:
+PROCEDURE pGetNewCosts PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -99,7 +99,7 @@ PROCEDURE GetNewCosts PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE ProcessEstCostMaterial PRIVATE:
+PROCEDURE pProcessEstCostMaterial PRIVATE:
     /*------------------------------------------------------------------------------
       Purpose: Build Temp tables for processing    
       Parameters:  <none>
@@ -170,7 +170,7 @@ PROCEDURE ProcessEstCostMaterial PRIVATE:
                 cScores = TRIM(cScores,",").
         END.
                         
-        RUN GetAdders(INPUT estCostMaterial.company,
+        RUN pGetAdders(INPUT estCostMaterial.company,
             INPUT estCostMaterial.estimateNo,
             INPUT estCostMaterial.formNo,
             OUTPUT cAdders,
@@ -262,7 +262,7 @@ PROCEDURE ProcessEstCostMaterial PRIVATE:
     
 END PROCEDURE.
 
-PROCEDURE UpdateEstCostMaterial:
+PROCEDURE RecostBoardEst_UpdateEstCostMaterial:
     /*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
@@ -338,7 +338,7 @@ PROCEDURE UpdateEstCostMaterial:
         
 END PROCEDURE.
 
-PROCEDURE GetAdders PRIVATE:
+PROCEDURE pGetAdders PRIVATE:
     /*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>

@@ -550,7 +550,7 @@ PROCEDURE ipRecostBoard:
         
     FOR EACH ttEstCostHeaderToCalc:
             
-        RUN ipRecostBoard IN hdRecostBoardEst(INPUT ttEstCostHeaderToCalc.iEstCostHeaderID,
+        RUN RecostBoardEst_RecostBoard IN hdRecostBoardEst(INPUT ttEstCostHeaderToCalc.iEstCostHeaderID,
                                               OUTPUT chMessage,
                                               OUTPUT TABLE ttRecostBoardGroups).
                                               
@@ -562,7 +562,7 @@ PROCEDURE ipRecostBoard:
         DO:
             IF iplMessage THEN RUN ShowCostUpdates. /*Present updates to user and get confirmation*/
         
-            RUN UpdateEstCostMaterial IN hdRecostBoardEst(INPUT NO,
+            RUN RecostBoardEst_UpdateEstCostMaterial IN hdRecostBoardEst(INPUT NO,
                 INPUT TABLE ttRecostBoardGroups).  /*Update the EstCostMaterial costs with better costs*/
         END.        
     END.
