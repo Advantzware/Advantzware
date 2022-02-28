@@ -117,6 +117,8 @@ END.
 /* EndPoint Variable replacement using SharedConfig values */
 gcEndPoint = scInstance:ReplaceEndPointVariables(gcEndPoint, gcAPIID).
 
+RUN pReplaceUserContentVariables(INPUT-OUTPUT gcEndPoint, INPUT ipiAPIOutboundID).
+
 IF NOT glAPIConfigFound THEN DO:
     ASSIGN 
         opcMessage = "Config for Outbound API Sequence ID [" 
@@ -176,6 +178,8 @@ IF glSaveFile THEN DO:
         RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "CurrentDateTime", NOW, "").
         RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "RequestDateTime", cRequestDateTime, "").
 
+        RUN pReplaceUserContentVariables(INPUT-OUTPUT gcSaveFileFolder, INPUT ipiAPIOutboundID).
+        
         /* API Variable replacement using SharedConfig values */
         gcSaveFileFolder = scInstance:ReplaceAPIVariables(gcSaveFileFolder, gcAPIID).
 
@@ -416,6 +420,11 @@ FINALLY:
         OS-DELETE VALUE(gcResponseFile).
 END FINALLY.
 
+
+
+/* **********************  Internal Procedures  *********************** */
+
+
 PROCEDURE pReadResponse PRIVATE:
     /*------------------------------------------------------------------------------
     Purpose: Reads outbound response data based on data type
@@ -469,4 +478,21 @@ PROCEDURE pReadResponse PRIVATE:
         OUTPUT oplSuccess,
         OUTPUT opcMessage
         ).
+END PROCEDURE.
+
+PROCEDURE pReplaceUserContentVariables:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER iopcRequestData  AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiAPIOutboundID AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-APIOutboundContent FOR APIOutboundContent.
+    
+    FOR EACH bf-APIOutboundContent NO-LOCK
+        WHERE bf-APIOutboundContent.apiOutboundID EQ ipiAPIOutboundID
+          AND bf-APIOutboundContent.contentType   EQ "User":
+        RUN Format_UpdateRequestData (INPUT-OUTPUT iopcRequestData, bf-APIOutboundContent.contentKey, bf-APIOutboundContent.contentValue, "").        
+    END.    
 END PROCEDURE.

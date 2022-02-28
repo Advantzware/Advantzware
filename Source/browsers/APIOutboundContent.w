@@ -144,9 +144,9 @@ RUN set-attribute-list (
 DEFINE VARIABLE cbContentType AS CHARACTER FORMAT "X(256)":U 
      LABEL "Content Type" 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "","Headers","x-www-form-urlencoded","form-data" 
+     LIST-ITEMS "","Headers","x-www-form-urlencoded","form-data","User" 
      DROP-DOWN-LIST
-     SIZE 46 BY 1
+     SIZE 46 BY .92
      FONT 6 NO-UNDO.
 
 DEFINE RECTANGLE RECT-9

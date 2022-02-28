@@ -115,6 +115,7 @@ PROCEDURE pHubspotCRM PRIVATE:
     DEFINE VARIABLE cUser            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lcResponseData   AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE cNextpageLinkID  AS CHARACTER NO-UNDO INITIAL "0".
+    DEFINE VARIABLE cPhone           AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-APIOutboundEvent FOR APIOutboundEvent.
     
@@ -198,8 +199,7 @@ PROCEDURE pHubspotCRM PRIVATE:
             NEXT.
             
         ASSIGN
-            ttCRMContacts.action         = "Update"
-            ttCRMContacts.xxApplyAction  = YES
+            ttCRMContacts.xxApplyAction  = NO
             ttCRMContacts.xxRow          = opiRows
             ttCRMContacts.xxTableRecKey  = phone.table_rec_key
             ttCRMContacts.phoneAttention = phone.attention
@@ -214,6 +214,28 @@ PROCEDURE pHubspotCRM PRIVATE:
             ttCRMContacts.origEmail      = phone.e_mail
             ttCRMContacts.xxPhoneRowID   = ROWID(phone)
             .
+
+        ASSIGN
+            cPhone = REPLACE(ttCRMContacts.crmPhone," ","")
+            cPhone = REPLACE(cPhone,"+","")
+            cPhone = REPLACE(cPhone,"-","")
+            cPhone = REPLACE(cPhone,"(","")
+            cPhone = REPLACE(cPhone,")","")
+            cPhone = REPLACE(cPhone,"x","")
+            cPhone = REPLACE(cPhone,".","")
+            .
+                               
+        IF phone.attention       NE ttCRMContacts.crmFirstName + " " + ttCRMContacts.crmLastName OR
+           phone.phone_city_code NE SUBSTRING(cPhone,1,3) OR
+           phone.phone           NE SUBSTRING(cPhone,4,7) OR
+           phone.phone_ext       NE SUBSTR(cPhone,11) THEN
+            ASSIGN
+                ttCRMContacts.action        = "Update"
+                ttCRMContacts.xxApplyAction = YES
+                . 
+        ELSE
+            DELETE ttCRMContacts.           
+                     
     END.
 END PROCEDURE.
 

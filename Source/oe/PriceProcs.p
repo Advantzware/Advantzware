@@ -118,7 +118,10 @@ FUNCTION fUseLastPrice RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER) FORWARD.
 
 FUNCTION fGetNk1PriceMatrixPricingMethod RETURNS CHARACTER PRIVATE
-    (ipcCompany AS CHARACTER) FORWARD.    
+    (ipcCompany AS CHARACTER) FORWARD.  
+
+FUNCTION fGetNk1OEUseMatrixForNonstock RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER) FORWARD. 
 
 /* ***************************  Main Block  *************************** */
 
@@ -1556,7 +1559,8 @@ PROCEDURE pGetPriceMatrix PRIVATE:
     DEFINE VARIABLE iIndex         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cMsgBlankInd   AS CHARACTER NO-UNDO INIT "[blank]".
     DEFINE VARIABLE lMatrixFound   AS LOGICAL   NO-UNDO.
-    
+    DEFINE VARIABLE lMtxForNonstock AS LOGICAL  NO-UNDO.
+             
     IF NOT AVAILABLE ipbf-itemfg THEN 
     DO:
         ASSIGN 
@@ -1573,6 +1577,9 @@ PROCEDURE pGetPriceMatrix PRIVATE:
             .
         RETURN.
     END.
+    
+    lMtxForNonstock = fGetNk1OEUseMatrixForNonstock(ipbf-cust.company).
+    
     IF ipcShipID NE "" THEN 
     DO:
         FIND FIRST bf-shipto NO-LOCK 
@@ -1592,12 +1599,8 @@ PROCEDURE pGetPriceMatrix PRIVATE:
     IF ipbf-itemfg.i-code NE "S" THEN 
     DO:
         /* Use matrix for non-stock items ONLY if NK1 "OEUseMatrixForNonstock" logical eq true 
-        Also referenced in oe/PriceProcsLineBuilder.i   */
-        DEF VAR cUseMatrix AS CHAR NO-UNDO.
-        DEF VAR lFound AS LOG NO-UNDO.
-        RUN sys/ref/nk1look.p (ipbf-itemfg.company, "OEUseMatrixForNonstock", "L", NO, NO, "", "", OUTPUT cUseMatrix, OUTPUT lFound).
-        IF lFound 
-        AND cUseMatrix EQ "YES" THEN.
+        Also referenced in oe/PriceProcsLineBuilder.i   */         
+        IF lMtxForNonstock THEN.
         ELSE DO:
             ASSIGN 
                 opcMatchDetail = "This FG item is configured as a non-inventoried (Not stocked) item"
@@ -1994,5 +1997,31 @@ FUNCTION fGetNk1PriceMatrixPricingMethod RETURNS CHARACTER PRIVATE
 
     cPriceMatrixPricingMethod = cReturn.
     RETURN cPriceMatrixPricingMethod.
+	
+END FUNCTION.
+
+FUNCTION fGetNk1OEUseMatrixForNonstock RETURNS LOGICAL PRIVATE
+    ( ipcCompany AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns whether LastPrice is option set for NK1 SELLPRIC 
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE lOEUseMatrixForNonstock   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFound                    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn                   AS CHARACTER NO-UNDO. 
+    
+    
+    RUN sys/ref/nk1look.p (ipcCompany, 
+        "OEUseMatrixForNonstock",
+        "L",
+        NO,
+        NO,
+        "",
+        "",
+        OUTPUT cReturn,
+        OUTPUT lFound).    
+
+    lOEUseMatrixForNonstock = logical(cReturn) NO-ERROR.
+    RETURN lOEUseMatrixForNonstock.
 	
 END FUNCTION.

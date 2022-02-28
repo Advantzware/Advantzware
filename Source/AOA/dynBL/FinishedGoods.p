@@ -237,11 +237,9 @@ PROCEDURE pBusinessLogic:
           AND itemfg.style   LE cEndStyleNo
           AND itemfg.procat  GE cStartProCat
           AND itemfg.procat  LE cEndProCat
-          AND (((itemfg.stat EQ "A"
-           OR itemfg.stat    EQ "")
-          AND cFGItemStatus  EQ "All") 
-           OR cFGItemStatus  EQ "Active")
         :
+        IF cFGItemStatus EQ "Active"   AND itemfg.stat EQ "I" THEN NEXT.
+        IF cFGItemStatus EQ "Inactive" AND itemfg.stat NE "I" THEN NEXT.
         CREATE ttFinishGoods.
         BUFFER-COPY itemfg TO ttFinishGoods.
         ASSIGN          

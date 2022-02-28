@@ -1,0 +1,9 @@
+{
+    "Requester": "[STRING-REQ]",
+    "Company": "[STRING-REQ]",
+    "InventoryStockID": "[STRING-REQ]",
+    "PrimaryID": "[STRING-REQ]",
+    "ItemType": "[STRING-REQ]",
+    "SplitQuantity": [DECIMAL-REQ],
+    "RequesterNotes": "[STRING-REQ]"
+}
