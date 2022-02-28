@@ -241,6 +241,9 @@
     DEFINE VARIABLE cScoreSizeDecimalCorrKraft  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalKiwi       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalCorrTrim   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dItemScoreWidth16ths        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dItemScoreLength16ths       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dItemScoreDepth16ths        AS DECIMAL   NO-UNDO.
     
     DEFINE VARIABLE cWhsCode           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQtyPerPack        AS CHARACTER NO-UNDO.
@@ -1451,9 +1454,9 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                                                        cFormattedScoresWestrock + "x "  + TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
                                                        
                         cFormattedScoresLiberty  = IF cFormattedScoresLiberty EQ "" THEN 
-                                                       TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
+                                                       TRIM(STRING(dScoreSize16ths, ">>>>.99"))
                                                    ELSE
-                                                       cFormattedScoresLiberty + "x     "  + TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))                        
+                                                       cFormattedScoresLiberty + " x "  + TRIM(STRING(dScoreSize16ths, ">>>>.99"))                        
                         
                         cScoreSizeDecimalAlliFlutes = IF cScoreSizeDecimalAlliFlutes EQ "" THEN 
                                                         (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
@@ -1513,7 +1516,6 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             END.
             ASSIGN 
                 cFormattedScoresWestrock    = REPLACE(cFormattedScoresWestrock,".", "")
-                cFormattedScoresLiberty     = REPLACE(cFormattedScoresLiberty,".","")
                 cScoreSize16ths             = REPLACE(cScoreSize16ths,".", ":")
                 cScoreSizeDecimalHRMS1      = REPLACE(cScoreSizeDecimalHRMS1,".",":")
                 cScoreSizeDecimalHRMS2      = REPLACE(cScoreSizeDecimalHRMS2,".",":")
@@ -1525,7 +1527,24 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cScoreSizeDecimalKiwi       = REPLACE(cScoreSizeDecimalKiwi,".",":")
                 cScoreSizeDecimalCorrTrim   = REPLACE(cScoreSizeDecimalCorrTrim,".","")
                 .
+
+            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", item.s-len, OUTPUT dItemScoreLength16ths).
+            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", item.s-wid, OUTPUT dItemScoreWidth16ths).
+            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", item.s-dep, OUTPUT dItemScoreDepth16ths).
             
+            IF cFormattedScoresLiberty EQ "" THEN DO:
+                IF AVAILABLE item THEN DO:
+                    IF AVAILABLE item AND item.s-dep GT 0 THEN   
+                        cFormattedScoresLiberty = TRIM(STRING(dItemScoreLength16ths, ">>>>.99")) + " x " 
+                                                + TRIM(STRING(dItemScoreWidth16ths, ">>>>.99")) + " x " 
+                                                + TRIM(STRING(dItemScoreDepth16ths, ">>>>.99")).
+                    ELSE
+                        cFormattedScoresLiberty = TRIM(STRING(dItemScoreWidth16ths, ">>>>.99")).
+                END.
+                ELSE
+                    cFormattedScoresLiberty = cItemWidth16ths.
+            END.
+                
             RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineScoresData, cRequestDataType).            
             
             lcLineData = REPLACE(lcLineData, "$lineAdder$", lcConcatLineAdderData).
@@ -1550,6 +1569,9 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSize16thsHRMS2", cScoreSize16thsHRMS2).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "FormattedScoring", cFormattedScoresWestrock).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "FormattedScoringLiberty", cFormattedScoresLiberty).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemScoreLength16ths", STRING(dItemScoreLength16ths)).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemScoreWidth16ths", STRING(dItemScoreWidth16ths)).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemScoreDepth16ths", STRING(dItemScoreDepth16ths)).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalAlliFlutes", cScoreSizeDecimalAlliFlutes).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeAlliance", cScoreSizeDecimalAlliance).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalKiwi", cScoreSizeDecimalKiwi).

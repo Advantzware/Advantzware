@@ -141,6 +141,7 @@ DEF SHARED VAR s-prt-set-header AS LOG NO-UNDO.
 DEF VAR v-managed-order AS cha FORM "x(30)" NO-UNDO.
 DEF VAR ll-tandem AS LOG NO-UNDO.
 DEF VAR lv-note-text-2 AS CHAR NO-UNDO.
+DEFINE        VARIABLE cBarCodeVal   AS CHARACTER NO-UNDO .
 
 assign
  v-line[1] = chr(95) + fill(chr(95),40) + chr(95) + "  " +
@@ -375,6 +376,8 @@ do v-local-loop = 1 to v-local-copies:
          lv-cust-set = lv-part-no
          lv-au = IF itemfg.alloc THEN "U" ELSE "A".
 
+       ASSIGN cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .  
+         
        IF est.est-type = 6 THEN lv-au = lv-au + "    " + job-hdr.i-no.
        ELSE
        DO:
@@ -397,6 +400,7 @@ do v-local-loop = 1 to v-local-copies:
            "<P12><B><C90>JOB TICKET"       
        SKIP
        "<#1><C1><FROM><C106><R+45><RECT><||3><C80><P10></B>" v-qa-text "<B>"
+       "<=1><R+45.5><C3><#BarCodeStart><FROM><C50><R+3><#BarCodeEnd><BARCODE,TYPE=128B,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">"
        "<=1><R-2><C33><B><P12>" v-managed-order "</B>"
        "<=1><C32><FROM><R+45><C32><LINE><||3>"
        "<=1><C55><FROM><R+8><C55><LINE><||3>"
@@ -979,6 +983,7 @@ do v-local-loop = 1 to v-local-copies:
 
     PAGE.
     PUT "<#11><C1><FROM><C106><R+47><RECT><||3><C80><P10>" v-qa-text  
+        "<=BarCodeStart><FROM><=BarCodeEnd><BARCODE,TYPE=128B,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">"
         "<=11><C30><FROM><R+3><C30><LINE><||3>"
         "<=11><C40><FROM><R+3><C40><LINE><||3>"
         "<=11><C72><FROM><R+3><C72><LINE><||3>"
@@ -1013,6 +1018,7 @@ do v-local-loop = 1 to v-local-copies:
       ls-fgitem-img = itemfg.box-image.
     
       PUT UNFORMATTED "<#12><C1><FROM><C106><R+47><RECT><||3><C80>" v-qa-text SKIP
+           "<=BarCodeStart><FROM><=BarCodeEnd><BARCODE,TYPE=128B,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">"
            "<=12><R+1><C5>FG Item: " itemfg.i-no " " itemfg.i-name
           "<=12><R+3><C1><FROM><C106><LINE><||3>"
           "<=12><R+5><C5><#21><R+45><C+90><IMAGE#21=" ls-fgitem-img ">" SKIP. 

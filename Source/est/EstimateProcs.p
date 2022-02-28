@@ -330,7 +330,8 @@ PROCEDURE Estimate_LoadEstToTT:
                 ttGoto.numLen = bf-eb.num-wid
                 .
 
-        IF ttGoto.estType EQ 2 OR ttGoto.estType EQ 6 THEN DO:
+        IF ttGoto.estType EQ 2 OR ttGoto.estType EQ 6 THEN 
+        DO:
             IF ttGoto.estType EQ 2 THEN
                 ASSIGN
                     dReqQty  = bf-eb.bl-qty
@@ -339,9 +340,7 @@ PROCEDURE Estimate_LoadEstToTT:
             ELSE
                 ASSIGN
                     dReqQty  = bf-est.est-qty[1]
-/*                  dPartQty = bf-eb.quantityPerSet*/ /* May have to assign dPartQty with new field eb.quantityPerSet. 
-                                                         Reverting back to eb.yld-qty due incosistency between legacy and new goto screen */ 
-                    dPartQty = bf-eb.yld-qty
+                    dPartQty = bf-eb.quantityPerSet
                     .
     
             dPartQty = IF dPartQty LT 0 THEN

@@ -521,6 +521,8 @@ PROCEDURE pUpdateFields :
         ASSIGN
             APIOutboundTrigger.company       = APIOutbound.company
             APIOutboundTrigger.apiOutboundID = APIOutbound.apiOutboundID
+            APIOutboundTrigger.apiID         = APIOutbound.apiID
+            APIOutboundTrigger.clientID      = APIOutbound.clientID            
             APIOutboundTrigger.createBy      = USERID("ASI")
             APIOutboundTrigger.createTime    = NOW
             . 

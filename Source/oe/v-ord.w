@@ -4964,7 +4964,7 @@ PROCEDURE local-assign-record :
     IF oe-ord.ediSubmitted EQ 1 AND (cOldCustomer NE oe-ord.cust-no OR cOldCustPo NE oe-ord.po-no OR cOldShipTo NE oe-ord.ship-id ) THEN
     ASSIGN oe-ord.ediModified = 1.
 
-   IF (dueDateChanged AND OEDateAuto-log AND OEDateAuto-char EQ "colonial") OR
+    IF (dueDateChanged AND OEDateAuto-log AND OEDateAuto-char EQ "colonial") OR
        (cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id) THEN 
     DO:
         lcheckflg = NO .

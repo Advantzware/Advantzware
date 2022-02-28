@@ -2632,17 +2632,18 @@ PROCEDURE pReselectReceipts PRIVATE:
         FIND CURRENT ap-invl EXCLUSIVE-LOCK NO-ERROR.
         IF AVAILABLE ap-invl THEN DO:
             DELETE ap-invl.
-
+                 
+            ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = "".     
             RUN dispatch (
                 INPUT "open-query"
-                ).            
-            {methods/run_link.i "TableIO-Source" "auto-line-add"}
-
-            IF AVAILABLE ap-invl THEN DO:
-                APPLY "ENTRY" TO ap-invl.po-no IN BROWSE {&BROWSE-NAME}.
-
-                ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(ipiPOID).
+                ).           
                 
+            {methods/run_link.i "TableIO-Source" "auto-line-add"}
+                             
+            APPLY "ENTRY" TO ap-invl.po-no IN BROWSE {&BROWSE-NAME}.                  
+            IF AVAILABLE ap-invl THEN DO:                           
+
+                ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(ipiPOID).                                         
                 lReselectingReceipts = TRUE.
                 
                 APPLY "LEAVE" TO ap-invl.po-no IN BROWSE {&BROWSE-NAME}.
@@ -3185,6 +3186,8 @@ PROCEDURE valid-po-no :
   DEFINE VARIABLE lMessage  AS LOGICAL NO-UNDO.
   DEFINE VARIABLE lResponse AS LOGICAL   NO-UNDO.
   DEF BUFFER b-ap-invl FOR ap-invl.
+  DEF VAR tRecQty AS DEC NO-UNDO.
+  DEF VAR tInvQty AS DEC NO-UNDO.
   
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -3222,6 +3225,10 @@ PROCEDURE valid-po-no :
             po-ordl.company EQ po-ord.company AND 
             po-ordl.po-no   EQ po-ord.po-no:
             
+            ASSIGN 
+                tRecQty = tRecQty + po-ordl.t-rec-qty
+                tInvQty = tInvQty + po-ordl.t-inv-qty.
+                
             IF po-ordl.t-rec-qty EQ 0 THEN DO:
                 FIND FIRST ITEM NO-LOCK
                      WHERE item.company EQ cocode
@@ -3263,9 +3270,10 @@ PROCEDURE valid-po-no :
 
         RUN build-table (RECID(po-ord)).
                 
-        IF NOT apinvmsg-log OR lv-num-rec LE 0 THEN
-        DO:          
-          MESSAGE "This PO has been received and invoiced." SKIP 
+        IF NOT apinvmsg-log 
+        AND tInvQty GE tRecQty  
+        THEN DO:          
+          MESSAGE "This PO has no uninvoiced receipts." SKIP 
                   "Do you want to continue processing?"
                    VIEW-AS ALERT-BOX QUESTION 
                    BUTTONS OK-CANCEL UPDATE lcheckflg as logical.
@@ -3370,6 +3378,7 @@ PROCEDURE valid-qty :
     DEFINE VARIABLE lError                      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage                    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lResponse                   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iPurchaseOrder              AS INTEGER   NO-UNDO.
     
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ap-invl.qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
@@ -3399,13 +3408,15 @@ PROCEDURE valid-qty :
               RETURN.
           END.
           ELSE DO:
+              iPurchaseOrder = INTEGER(ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
               RUN dispatch (
                   INPUT "cancel-record"
                   ).
                 
               RUN pReselectReceipts(
-                  INPUT INTEGER(ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+                  INPUT iPurchaseOrder
                   ).
+              RETURN.    
           END.
       END.
       ELSE IF lRecordsFound AND DECIMAL(ap-invl.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT dQuantityAvailableToInvoice AND NOT lQuantityExceededWarned AND NOT lHasNegativeReceipts THEN DO:

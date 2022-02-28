@@ -76,7 +76,8 @@ DEFINE STREAM excel.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-7 RECT-8 begin_date end_date ~
 begin_cust-no end_cust-no begin_type end_type begin_item-cat end_item-cat ~
-begin_item end_item fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
+begin_item end_item tb_active fi_file tb_OpenCSV tbAutoClose btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_date end_date begin_cust-no ~
 end_cust-no begin_type end_type begin_item-cat end_item-cat begin_item ~
 end_item tb_active fi_file tb_OpenCSV tbAutoClose 
@@ -104,137 +105,137 @@ FUNCTION appendXLLine RETURNS CHARACTER
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
-    LABEL "&Cancel" 
-    SIZE 16 BY 1.29.
+     LABEL "&Cancel" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
-    LABEL "&OK" 
-    SIZE 16 BY 1.29.
+     LABEL "&OK" 
+     SIZE 16 BY 1.29.
 
-DEFINE VARIABLE begin_cust-no  AS CHARACTER FORMAT "X(8)" 
-    LABEL "From Customer Code" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
+     LABEL "From Customer Code" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
-    LABEL "From Effective Date" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "From Effective Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_item     AS CHARACTER FORMAT "X(15)" 
-    LABEL "From F.G. Item Code" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE begin_item AS CHARACTER FORMAT "X(15)" 
+     LABEL "From F.G. Item Code" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
 DEFINE VARIABLE begin_item-cat AS CHARACTER FORMAT "X(5)" 
-    LABEL "From FG Category" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+     LABEL "From FG Category" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_type     AS CHARACTER FORMAT "X(8)" 
-    LABEL "From Customer Type" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE begin_type AS CHARACTER FORMAT "X(8)" 
+     LABEL "From Customer Type" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_cust-no    AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
-    LABEL "To Customer Code" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
+     LABEL "To Customer Code" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
-    LABEL "To Effective Date" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
+     LABEL "To Effective Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_item       AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzz" 
-    LABEL "To F.G. Item Code" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_item AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzz" 
+     LABEL "To F.G. Item Code" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_item-cat   AS CHARACTER FORMAT "X(5)" INITIAL "zzzzz" 
-    LABEL "To FG Category" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_item-cat AS CHARACTER FORMAT "X(5)" INITIAL "zzzzz" 
+     LABEL "To FG Category" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_type       AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
-    LABEL "To Customer Type" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_type AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
+     LABEL "To Customer Type" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\PriceMatrixExport.csv" 
-    LABEL "Name" 
-    VIEW-AS FILL-IN NATIVE 
-    SIZE 49 BY 1.
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\PriceMatrixExport.csv" 
+     LABEL "Name" 
+     VIEW-AS FILL-IN NATIVE 
+     SIZE 49 BY 1.
 
 DEFINE RECTANGLE RECT-7
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 90 BY 7.33.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 90 BY 7.33.
 
 DEFINE RECTANGLE RECT-8
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 90 BY 2.14.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 90 BY 2.14.
 
-DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL NO 
-    LABEL "Auto Close" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 16 BY .81 NO-UNDO.
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_active   AS LOGICAL INITIAL NO 
-    LABEL "Only Active Entries?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 25 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_active AS LOGICAL INITIAL no 
+     LABEL "Only Active Entries?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_excel    AS LOGICAL INITIAL YES 
-    LABEL "Export To Excel?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 21 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+     LABEL "Export To Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_OpenCSV  AS LOGICAL INITIAL YES 
-    LABEL "Open CSV?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 15.4 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_OpenCSV AS LOGICAL INITIAL yes 
+     LABEL "Open CSV?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15.4 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-    begin_date AT ROW 2.29 COL 27.8 COLON-ALIGNED HELP
-    "Enter Beginning Date" WIDGET-ID 108
-    end_date AT ROW 2.29 COL 70.8 COLON-ALIGNED HELP
-    "Enter Ending Date" WIDGET-ID 110
-    begin_cust-no AT ROW 3.38 COL 27.8 COLON-ALIGNED HELP
-    "Enter Beginning Customer Number" WIDGET-ID 6
-    end_cust-no AT ROW 3.38 COL 70.8 COLON-ALIGNED HELP
-    "Enter Ending Customer Number" WIDGET-ID 16
-    begin_type AT ROW 4.43 COL 27.8 COLON-ALIGNED HELP
-    "Enter Beginning Type" WIDGET-ID 104
-    end_type AT ROW 4.43 COL 70.8 COLON-ALIGNED HELP
-    "Enter Ending Type" WIDGET-ID 106
-    begin_item-cat AT ROW 5.52 COL 27.8 COLON-ALIGNED HELP
-    "Enter Beginning Type" WIDGET-ID 112
-    end_item-cat AT ROW 5.52 COL 70.8 COLON-ALIGNED HELP
-    "Enter Ending Type" WIDGET-ID 114
-    begin_item AT ROW 6.62 COL 27.8 COLON-ALIGNED HELP
-    "Enter Beginning FG Item Number" WIDGET-ID 100
-    end_item AT ROW 6.62 COL 70.8 COLON-ALIGNED HELP
-    "Enter Ending FG Item Number" WIDGET-ID 102
-    tb_active AT ROW 7.81 COL 39.6 WIDGET-ID 32
-    fi_file AT ROW 9.57 COL 17.4 COLON-ALIGNED HELP
-    "Enter File Name" WIDGET-ID 22
-    tb_OpenCSV AT ROW 9.67 COL 83.8 RIGHT-ALIGNED WIDGET-ID 34
-    tb_excel AT ROW 11.24 COL 4 WIDGET-ID 32
-    tbAutoClose AT ROW 11.33 COL 40 WIDGET-ID 64
-    btn-ok AT ROW 12.24 COL 31 WIDGET-ID 14
-    btn-cancel AT ROW 12.24 COL 51 WIDGET-ID 12
-    " Selection Parameters" VIEW-AS TEXT
-    SIZE 21.2 BY .71 AT ROW 1.14 COL 5 WIDGET-ID 36
-    RECT-7 AT ROW 1.52 COL 4 WIDGET-ID 38
-    RECT-8 AT ROW 9.1 COL 4 WIDGET-ID 84
-    SPACE(3.79) SKIP(3.32)
+     begin_date AT ROW 2.29 COL 27.8 COLON-ALIGNED HELP
+          "Enter Beginning Date" WIDGET-ID 108
+     end_date AT ROW 2.29 COL 70.8 COLON-ALIGNED HELP
+          "Enter Ending Date" WIDGET-ID 110
+     begin_cust-no AT ROW 3.38 COL 27.8 COLON-ALIGNED HELP
+          "Enter Beginning Customer Number" WIDGET-ID 6
+     end_cust-no AT ROW 3.38 COL 70.8 COLON-ALIGNED HELP
+          "Enter Ending Customer Number" WIDGET-ID 16
+     begin_type AT ROW 4.43 COL 27.8 COLON-ALIGNED HELP
+          "Enter Beginning Type" WIDGET-ID 104
+     end_type AT ROW 4.43 COL 70.8 COLON-ALIGNED HELP
+          "Enter Ending Type" WIDGET-ID 106
+     begin_item-cat AT ROW 5.52 COL 27.8 COLON-ALIGNED HELP
+          "Enter Beginning Type" WIDGET-ID 112
+     end_item-cat AT ROW 5.52 COL 70.8 COLON-ALIGNED HELP
+          "Enter Ending Type" WIDGET-ID 114
+     begin_item AT ROW 6.62 COL 27.8 COLON-ALIGNED HELP
+          "Enter Beginning FG Item Number" WIDGET-ID 100
+     end_item AT ROW 6.62 COL 70.8 COLON-ALIGNED HELP
+          "Enter Ending FG Item Number" WIDGET-ID 102
+     tb_active AT ROW 7.81 COL 39.6 WIDGET-ID 32
+     fi_file AT ROW 9.57 COL 17.4 COLON-ALIGNED HELP
+          "Enter File Name" WIDGET-ID 22
+     tb_OpenCSV AT ROW 9.67 COL 83.8 RIGHT-ALIGNED WIDGET-ID 34
+     tb_excel AT ROW 11.24 COL 4 WIDGET-ID 32
+     tbAutoClose AT ROW 11.33 COL 40 WIDGET-ID 64
+     btn-ok AT ROW 12.24 COL 31 WIDGET-ID 14
+     btn-cancel AT ROW 12.24 COL 51 WIDGET-ID 12
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21.2 BY .71 AT ROW 1.14 COL 5 WIDGET-ID 36
+     RECT-7 AT ROW 1.52 COL 4 WIDGET-ID 38
+     RECT-8 AT ROW 9.1 COL 4 WIDGET-ID 84
+     SPACE(3.79) SKIP(3.32)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    BGCOLOR 15 
-    TITLE "Price Matrix Excel Export" WIDGET-ID 100.
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         BGCOLOR 15 
+         TITLE "Price Matrix Excel Export" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -255,57 +256,69 @@ DEFINE FRAME Dialog-Frame
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
 ASSIGN 
-    FRAME Dialog-Frame:SCROLLABLE = FALSE
-    FRAME Dialog-Frame:HIDDEN     = TRUE.
+       FRAME Dialog-Frame:SCROLLABLE       = FALSE
+       FRAME Dialog-Frame:HIDDEN           = TRUE.
 
 ASSIGN 
-    begin_cust-no:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
+       begin_cust-no:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
 
 ASSIGN 
-    begin_date:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
+       begin_date:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
 
 ASSIGN 
-    begin_item:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
+       begin_item:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
 
 ASSIGN 
-    begin_item-cat:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
+       begin_item-cat:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
 
 ASSIGN 
-    begin_type:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
+       begin_type:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
 
 ASSIGN 
-    end_cust-no:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
+       end_cust-no:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
 
 ASSIGN 
-    end_date:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
+       end_date:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
 
 ASSIGN 
-    end_item:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
+       end_item:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
 
 ASSIGN 
-    end_item-cat:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
+       end_item-cat:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
 
 ASSIGN 
-    end_type:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
+       end_type:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
 
 ASSIGN 
-    fi_file:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
+       fi_file:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
 
-/* SETTINGS FOR TOGGLE-BOX tb_active IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
 ASSIGN 
-    tb_active:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
+       tb_active:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME Dialog-Frame
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    tb_excel:HIDDEN IN FRAME Dialog-Frame       = TRUE
-    tb_excel:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
+       tb_excel:HIDDEN IN FRAME Dialog-Frame           = TRUE
+       tb_excel:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_OpenCSV IN FRAME Dialog-Frame
    ALIGN-R                                                              */
 ASSIGN 
-    tb_OpenCSV:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
+       tb_OpenCSV:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -319,7 +332,7 @@ ASSIGN
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Price Matrix Excel Export */
-    DO:
+DO:
         DEFINE VARIABLE lw-focus   AS WIDGET-HANDLE NO-UNDO.
         DEFINE VARIABLE ls-cur-val AS CHARACTER     NO-UNDO.
         DEFINE VARIABLE char-val   AS CHARACTER     NO-UNDO.
@@ -397,7 +410,7 @@ ON HELP OF FRAME Dialog-Frame /* Price Matrix Excel Export */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Price Matrix Excel Export */
-    DO:
+DO:
         APPLY "END-ERROR":U TO SELF.
     END.
 
@@ -408,7 +421,7 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Price Matrix Excel Export */
 &Scoped-define SELF-NAME begin_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no Dialog-Frame
 ON LEAVE OF begin_cust-no IN FRAME Dialog-Frame /* From Customer Code */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -419,7 +432,7 @@ ON LEAVE OF begin_cust-no IN FRAME Dialog-Frame /* From Customer Code */
 &Scoped-define SELF-NAME begin_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date Dialog-Frame
 ON LEAVE OF begin_date IN FRAME Dialog-Frame /* From Effective Date */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -430,7 +443,7 @@ ON LEAVE OF begin_date IN FRAME Dialog-Frame /* From Effective Date */
 &Scoped-define SELF-NAME begin_item
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_item Dialog-Frame
 ON LEAVE OF begin_item IN FRAME Dialog-Frame /* From F.G. Item Code */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -441,7 +454,7 @@ ON LEAVE OF begin_item IN FRAME Dialog-Frame /* From F.G. Item Code */
 &Scoped-define SELF-NAME begin_item-cat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_item-cat Dialog-Frame
 ON LEAVE OF begin_item-cat IN FRAME Dialog-Frame /* From FG Category */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -452,7 +465,7 @@ ON LEAVE OF begin_item-cat IN FRAME Dialog-Frame /* From FG Category */
 &Scoped-define SELF-NAME begin_type
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_type Dialog-Frame
 ON LEAVE OF begin_type IN FRAME Dialog-Frame /* From Customer Type */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -463,7 +476,7 @@ ON LEAVE OF begin_type IN FRAME Dialog-Frame /* From Customer Type */
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel Dialog-Frame
 ON CHOOSE OF btn-cancel IN FRAME Dialog-Frame /* Cancel */
-    DO:
+DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -474,7 +487,7 @@ ON CHOOSE OF btn-cancel IN FRAME Dialog-Frame /* Cancel */
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok Dialog-Frame
 ON CHOOSE OF btn-ok IN FRAME Dialog-Frame /* OK */
-    DO:
+DO:
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.
@@ -506,7 +519,7 @@ ON CHOOSE OF btn-ok IN FRAME Dialog-Frame /* OK */
 &Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no Dialog-Frame
 ON LEAVE OF end_cust-no IN FRAME Dialog-Frame /* To Customer Code */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -517,7 +530,7 @@ ON LEAVE OF end_cust-no IN FRAME Dialog-Frame /* To Customer Code */
 &Scoped-define SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date Dialog-Frame
 ON LEAVE OF end_date IN FRAME Dialog-Frame /* To Effective Date */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -528,7 +541,7 @@ ON LEAVE OF end_date IN FRAME Dialog-Frame /* To Effective Date */
 &Scoped-define SELF-NAME end_item
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_item Dialog-Frame
 ON LEAVE OF end_item IN FRAME Dialog-Frame /* To F.G. Item Code */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -539,7 +552,7 @@ ON LEAVE OF end_item IN FRAME Dialog-Frame /* To F.G. Item Code */
 &Scoped-define SELF-NAME end_item-cat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_item-cat Dialog-Frame
 ON LEAVE OF end_item-cat IN FRAME Dialog-Frame /* To FG Category */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -550,7 +563,7 @@ ON LEAVE OF end_item-cat IN FRAME Dialog-Frame /* To FG Category */
 &Scoped-define SELF-NAME end_type
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_type Dialog-Frame
 ON LEAVE OF end_type IN FRAME Dialog-Frame /* To Customer Type */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -561,7 +574,7 @@ ON LEAVE OF end_type IN FRAME Dialog-Frame /* To Customer Type */
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file Dialog-Frame
 ON HELP OF fi_file IN FRAME Dialog-Frame /* Name */
-    DO:
+DO:
         DEFINE VARIABLE ls-filename AS CHARACTER NO-UNDO.
         DEFINE VARIABLE ll-ok       AS LOG       NO-UNDO.
 
@@ -581,10 +594,9 @@ ON HELP OF fi_file IN FRAME Dialog-Frame /* Name */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file Dialog-Frame
 ON LEAVE OF fi_file IN FRAME Dialog-Frame /* Name */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -595,7 +607,7 @@ ON LEAVE OF fi_file IN FRAME Dialog-Frame /* Name */
 &Scoped-define SELF-NAME tb_active
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_active Dialog-Frame
 ON VALUE-CHANGED OF tb_active IN FRAME Dialog-Frame /* Only Active Entries? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -606,7 +618,7 @@ ON VALUE-CHANGED OF tb_active IN FRAME Dialog-Frame /* Only Active Entries? */
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel Dialog-Frame
 ON VALUE-CHANGED OF tb_excel IN FRAME Dialog-Frame /* Export To Excel? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -617,7 +629,7 @@ ON VALUE-CHANGED OF tb_excel IN FRAME Dialog-Frame /* Export To Excel? */
 &Scoped-define SELF-NAME tb_OpenCSV
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV Dialog-Frame
 ON VALUE-CHANGED OF tb_OpenCSV IN FRAME Dialog-Frame /* Open CSV? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -681,16 +693,16 @@ RUN disable_UI.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME Dialog-Frame.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME Dialog-Frame.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -698,25 +710,25 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY begin_date end_date begin_cust-no end_cust-no begin_type end_type 
-        begin_item-cat end_item-cat begin_item end_item tb_active fi_file 
-        tb_OpenCSV tbAutoClose 
-        WITH FRAME Dialog-Frame.
-    ENABLE RECT-7 RECT-8 begin_date end_date begin_cust-no end_cust-no begin_type 
-        end_type begin_item-cat end_item-cat begin_item end_item fi_file 
-        tb_OpenCSV tbAutoClose btn-ok btn-cancel 
-        WITH FRAME Dialog-Frame.
-    VIEW FRAME Dialog-Frame.
-    {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY begin_date end_date begin_cust-no end_cust-no begin_type end_type 
+          begin_item-cat end_item-cat begin_item end_item tb_active fi_file 
+          tb_OpenCSV tbAutoClose 
+      WITH FRAME Dialog-Frame.
+  ENABLE RECT-7 RECT-8 begin_date end_date begin_cust-no end_cust-no begin_type 
+         end_type begin_item-cat end_item-cat begin_item end_item tb_active 
+         fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
+      WITH FRAME Dialog-Frame.
+  VIEW FRAME Dialog-Frame.
+  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -724,7 +736,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report Dialog-Frame 
 PROCEDURE run-report :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -744,7 +756,7 @@ PROCEDURE run-report :
         v-excelheader = "Eff. Date,Customer,Type,Category,Item Code,Price Basis,Qty1,Price1,Dsc1,UOM1,Qty2,Price2,Dsc2,UOM2,"+
             "Qty3,Price3,Dsc3,UOM3,Qty4,Price4,Dsc4,UOM4,Qty5,Price5,Dsc5,UOM5,Qty6,Price6,Dsc6,UOM6," + 
             "Qty7,Price7,Dsc7,UOM7,Qty8,Price8,Dsc8,UOM8,Qty9,Price9,Dsc9,UOM9,Qty10,Price10,Dsc10,UOM10," +
-            "Exp Date,ShipTo,Online,Minimum Order Qty,Quote,Customer Part #,Item Name,Item Description 1".
+            "Exp Date,ShipTo,Online,Minimum Order Qty,Quote,Customer Part #,Item Name,Item Description 1,Tax Basis".
 
         SESSION:SET-WAIT-STATE ("general").
 
@@ -846,7 +858,7 @@ PROCEDURE run-report :
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cCustPart) 
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cIName) 
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cIDesc1)
-            
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.taxBasis))
                 .
 
             PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.

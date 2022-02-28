@@ -594,8 +594,6 @@ PROCEDURE genOrderLinesLocal:
   DEFINE VARIABLE cCostUOM AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
   DEFINE VARIABLE hdCostProcs AS HANDLE.
-  DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE cPriceHoldMessage AS CHARACTER NO-UNDO.
   RUN system\CostProcs.p PERSISTENT SET hdCostProcs.  
   oplSuccess = YES.
   
@@ -694,7 +692,9 @@ PROCEDURE genOrderLinesLocal:
         oe-ordl.line      = INT(itemLineNumber)
         oe-ordl.i-no      = itemManufacturerPartID
         oe-ordl.part-no   = TRIM(itemSupplierPartID)
-        oe-ordl.qty       = DEC(itemQuantity)         
+        oe-ordl.qty       = DEC(itemQuantity)
+        oe-ordl.pr-uom    = TRIM(itemUnitOfMeasure)
+        oe-ordl.price     = DEC(itemMoney)
         oe-ordl.est-no    = oe-ord.est-no
         oe-ordl.q-qty     = oe-ord.t-fuel
         oe-ordl.whsed     = oe-ordl.est-no NE ''
@@ -703,11 +703,6 @@ PROCEDURE genOrderLinesLocal:
         oe-ordl.ediPriceUOM = TRIM(itemUnitOfMeasure)
         oe-ordl.ediPrice    = DEC(itemMoney)
         .
-        
-      IF itemUnitOfMeasure NE "EA" THEN DO:  
-        RUN Conv_QtyToEA(oe-ordl.company, oe-ordl.i-no, oe-ordl.qty, oe-ordl.pr-uom, itemfg.case-count, OUTPUT oe-ordl.qty).
-        oe-ordl.ediPriceUOM = (IF LOOKUP(oe-ordl.ediPriceUOM, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.ediPriceUOM).
-      END.  
 
       IF oe-ordl.price EQ 0 THEN DO:                      
         FIND FIRST xoe-ord OF oe-ord NO-LOCK.
@@ -734,7 +729,20 @@ PROCEDURE genOrderLinesLocal:
                                              OUTPUT dCostPerUOMVO,OUTPUT dCostPerUOMDM, OUTPUT cCostUOM , OUTPUT lFound) .
        oe-ordl.cost = dCostPerUOMTotal .
        oe-ordl.t-cost = oe-ordl.cost * oe-ordl.qty / 1000 .
-            
+      
+      IF oe-ordl.pr-uom NE "EA" THEN 
+      DO:  /*This assumes the qty uom is the same as the price uom on imported orders*/
+          ASSIGN 
+              oe-ordl.spare-dec-1  = oe-ordl.qty
+              oe-ordl.spare-char-2 = oe-ordl.pr-uom
+              oe-ordl.t-price      = oe-ordl.spare-dec-1 * oe-ordl.price
+              oe-ordl.pr-uom       = (IF LOOKUP(oe-ordl.pr-uom, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.pr-uom)
+              .
+          RUN Conv_QtyToEA(oe-ordl.company, oe-ordl.i-no, oe-ordl.qty, oe-ordl.pr-uom, itemfg.case-count, OUTPUT oe-ordl.qty).
+      END. /*oe-ordl.pr-uom ne "EA"*/
+      ELSE 
+          oe-ordl.t-price = oe-ordl.qty * oe-ordl.price.
+       
       oe-ordl.cas-cnt = IF oe-ordl.qty LT itemfg.case-count THEN oe-ordl.qty ELSE itemfg.case-count.
       /* {oe/defwhsed.i oe-ordl} */
       
@@ -742,12 +750,6 @@ PROCEDURE genOrderLinesLocal:
         oe-ordl.req-date = oe-ord.ord-date + 10.
 
       oe-ordl.promiseDate = oe-ordl.req-date.
-      
-      RUN Price_CheckPriceHoldForOrder(ROWID(oe-ord),
-            NO, /*Prompt*/
-            YES, /*Set oe-ord hold fields*/
-            OUTPUT lPriceHold, 
-            OUTPUT cPriceHoldMessage).
       
       IF oe-ord.promiseDate EQ ? THEN DO:
           FIND CURRENT oe-ord EXCLUSIVE-LOCK NO-ERROR.

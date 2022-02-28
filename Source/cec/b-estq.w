@@ -165,7 +165,8 @@ DEFINE VARIABLE lIsMatches      AS LOGICAL   NO-UNDO.
              
 &SCOPED-DEFINE for-eqty                            ~
           FIRST ASI.est-qty WHERE  est-qty.company = ASI.est.company ~
-                             AND ASI.est-qty.est-no = ASI.est.est-no  
+                             AND ASI.est-qty.est-no = ASI.est.est-no ~
+                             AND est-qty.eqty EQ eb.eqty
 
 &SCOPED-DEFINE for-ef                     ~
            each ASI.ef WHERE ASI.ef.company = ASI.est.company ~

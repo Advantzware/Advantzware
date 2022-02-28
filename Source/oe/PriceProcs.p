@@ -118,7 +118,10 @@ FUNCTION fUseLastPrice RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER) FORWARD.
 
 FUNCTION fGetNk1PriceMatrixPricingMethod RETURNS CHARACTER PRIVATE
-    (ipcCompany AS CHARACTER) FORWARD.    
+    (ipcCompany AS CHARACTER) FORWARD.  
+
+FUNCTION fGetNk1OEUseMatrixForNonstock RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER) FORWARD. 
 
 /* ***************************  Main Block  *************************** */
 
@@ -1556,7 +1559,8 @@ PROCEDURE pGetPriceMatrix PRIVATE:
     DEFINE VARIABLE iIndex         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cMsgBlankInd   AS CHARACTER NO-UNDO INIT "[blank]".
     DEFINE VARIABLE lMatrixFound   AS LOGICAL   NO-UNDO.
-    
+    DEFINE VARIABLE lMtxForNonstock AS LOGICAL  NO-UNDO.
+             
     IF NOT AVAILABLE ipbf-itemfg THEN 
     DO:
         ASSIGN 
@@ -1573,6 +1577,9 @@ PROCEDURE pGetPriceMatrix PRIVATE:
             .
         RETURN.
     END.
+    
+    lMtxForNonstock = fGetNk1OEUseMatrixForNonstock(ipbf-cust.company).
+    
     IF ipcShipID NE "" THEN 
     DO:
         FIND FIRST bf-shipto NO-LOCK 
@@ -1592,12 +1599,8 @@ PROCEDURE pGetPriceMatrix PRIVATE:
     IF ipbf-itemfg.i-code NE "S" THEN 
     DO:
         /* Use matrix for non-stock items ONLY if NK1 "OEUseMatrixForNonstock" logical eq true 
-        Also referenced in oe/PriceProcsLineBuilder.i   */
-        DEF VAR cUseMatrix AS CHAR NO-UNDO.
-        DEF VAR lFound AS LOG NO-UNDO.
-        RUN sys/ref/nk1look.p (ipbf-itemfg.company, "OEUseMatrixForNonstock", "L", NO, NO, "", "", OUTPUT cUseMatrix, OUTPUT lFound).
-        IF lFound 
-        AND cUseMatrix EQ "YES" THEN.
+        Also referenced in oe/PriceProcsLineBuilder.i   */         
+        IF lMtxForNonstock THEN.
         ELSE DO:
             ASSIGN 
                 opcMatchDetail = "This FG item is configured as a non-inventoried (Not stocked) item"
@@ -1629,7 +1632,7 @@ PROCEDURE pGetPriceMatrix PRIVATE:
         /*Must be effecitve*/
         AND (opbf-oe-prmtx.eff-date LE TODAY)
         /*must not be expired*/
-        AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ? OR opbf-oe-prmtx.exp-date EQ 01/01/0001)
+        AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ?)
         /* Can't be all blank */
         AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
         AND opbf-oe-prmtx.custShipID EQ "")
@@ -1665,7 +1668,7 @@ PROCEDURE pGetPriceMatrix PRIVATE:
             /*Must be effecitve*/
             AND (opbf-oe-prmtx.eff-date LE TODAY)
             /*must not be expired*/
-            AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ? OR opbf-oe-prmtx.exp-date EQ 01/01/0001)
+            AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ?)
             /* Can't be all blank */
             AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
             AND opbf-oe-prmtx.custShipID EQ "")
@@ -1845,6 +1848,36 @@ PROCEDURE Price_ExpireQuotesByItem:
      END.        
 END PROCEDURE.
 
+PROCEDURE Price_GetPriceMatrixTaxBasis:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns a Rowid of a valid price matrix, given 3 key inputs
+     Notes: Returns the tax basis of the available oe-prmtx record
+     Syntax Example:
+    RUN Price_GetPriceMatrixTaxBasis (cocode, oe-ordl.i-no, oe-ord.cust-no, oe-ord.ship-id,
+                                        OUTPUT opiTaxBasis, OUTPUT lFound, OUTPUT cMessage).
+        
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.  /*Company*/
+    DEFINE INPUT  PARAMETER ipcFGItemID    AS CHARACTER NO-UNDO.  /*FG Item ID*/
+    DEFINE INPUT  PARAMETER ipcCustID      AS CHARACTER NO-UNDO.  /*Customer Scope of FG Item*/
+    DEFINE INPUT  PARAMETER ipcShipID      AS CHARACTER NO-UNDO.  /*Ship to Scope of Customer  - optional*/
+    DEFINE OUTPUT PARAMETER oplMatchFound  AS LOGICAL   NO-UNDO.  /*Logical that can determine if find on rowid should be done*/
+    DEFINE OUTPUT PARAMETER opcMatchDetail AS CHARACTER NO-UNDO.  /*Clarifies the match criteria or failure to match*/
+    DEFINE OUTPUT PARAMETER opiTaxBasis    AS INTEGER   NO-UNDO.  /* Return oe-prmtx.taxBasis */
+
+    DEFINE BUFFER bf-itemfg   FOR itemfg.
+    DEFINE BUFFER bf-cust     FOR cust.
+    DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
+
+    RUN pSetBuffers(ipcCompany, ipcFGItemId, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).
+
+    /*Find match given buffers */  
+    RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, OUTPUT oplMatchFound, OUTPUT opcMatchDetail).
+    
+    IF AVAILABLE bf-oe-prmtx THEN
+        opiTaxBasis = bf-oe-prmtx.taxBasis.
+END PROCEDURE.
+
 PROCEDURE pSetBuffers PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Sets Buffers for FG Item and Customers
@@ -1964,5 +1997,31 @@ FUNCTION fGetNk1PriceMatrixPricingMethod RETURNS CHARACTER PRIVATE
 
     cPriceMatrixPricingMethod = cReturn.
     RETURN cPriceMatrixPricingMethod.
+	
+END FUNCTION.
+
+FUNCTION fGetNk1OEUseMatrixForNonstock RETURNS LOGICAL PRIVATE
+    ( ipcCompany AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns whether LastPrice is option set for NK1 SELLPRIC 
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE lOEUseMatrixForNonstock   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFound                    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn                   AS CHARACTER NO-UNDO. 
+    
+    
+    RUN sys/ref/nk1look.p (ipcCompany, 
+        "OEUseMatrixForNonstock",
+        "L",
+        NO,
+        NO,
+        "",
+        "",
+        OUTPUT cReturn,
+        OUTPUT lFound).    
+
+    lOEUseMatrixForNonstock = logical(cReturn) NO-ERROR.
+    RETURN lOEUseMatrixForNonstock.
 	
 END FUNCTION.

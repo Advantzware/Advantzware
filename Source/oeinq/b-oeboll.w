@@ -629,6 +629,10 @@ FUNCTION get-cost RETURNS DECIMAL
   def var v-cost-m AS DEC DECIMALS 4 extent 4 NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
 
+  FIND CURRENT oe-boll NO-LOCK.
+  
+  IF NOT avail oe-boll THEN RETURN NO-APPLY.
+  
   find first job-hdr WHERE
        job-hdr.company eq oe-boll.company AND
        job-hdr.job-no  eq oe-boll.job-no AND
@@ -668,7 +672,8 @@ FUNCTION get-cost RETURNS DECIMAL
        v-cost-m[4] = job-hdr.std-mat-cost
        v-uom       = "M".
        
-    else   
+    else
+    if avail itemfg THEN
       assign
        v-cost-m[1] = itemfg.std-lab-cost
        v-cost-m[2] = itemfg.std-fix-cost
@@ -676,7 +681,7 @@ FUNCTION get-cost RETURNS DECIMAL
        v-cost-m[4] = itemfg.std-mat-cost.
 
     if v-uom eq "" then
-       v-uom = itemfg.prod-uom.
+       v-uom = if avail itemfg THEN itemfg.prod-uom ELSE "".
 
     do i = 1 to 4:
 

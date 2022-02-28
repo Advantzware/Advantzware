@@ -3123,8 +3123,9 @@ PROCEDURE valid-po-date :
                oplReturnError = YES.
                lCheckError = YES .               
         END.
-        IF DATE(po-ord.po-date:SCREEN-VALUE) LT (TODAY - 90) AND NOT lCheckError THEN DO:        
-            MESSAGE "PO Date is more than 90 days earlier than today" VIEW-AS ALERT-BOX INFO.
+        
+        IF DATE(po-ord.po-date:SCREEN-VALUE) LT (TODAY - 90) AND NOT lCheckError THEN DO:
+            RUN displayMessage ( INPUT "74").           
         END.  
   END.
   {methods/lValidateError.i NO}

@@ -75,8 +75,11 @@ CLASS system.Attribute:
      Notes:
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE LONGCHAR pReplaceAttributes( iplcRequestData AS LONGCHAR, ipcSourceTable AS CHARACTER, ipBufferHandle AS HANDLE ):
-        DEFINE VARIABLE hdField       AS HANDLE    NO-UNDO.
-        DEFINE VARIABLE cFieldValue   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE hdField        AS HANDLE    NO-UNDO.
+        DEFINE VARIABLE cFieldValue    AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE iIndex         AS INTEGER   NO-UNDO.
+        DEFINE VARIABLE iExtent        AS INTEGER   NO-UNDO.
+        DEFINE VARIABLE cAttributeName AS CHARACTER NO-UNDO.
         
         IF NOT VALID-HANDLE(ipBufferHandle) THEN
             RETURN iplcRequestData.
@@ -87,15 +90,37 @@ CLASS system.Attribute:
               AND attribute.dbFieldName   NE "":
             cFieldValue = "".
             
-            IF ipBufferHandle:AVAILABLE THEN DO:
-                hdField = ipBufferHandle:BUFFER-FIELD(attribute.dbFieldName) NO-ERROR.
-                    
-                IF VALID-HANDLE (hdField) THEN
-                    cFieldValue = STRING(hdField:BUFFER-VALUE(attribute.dbFieldExtent)).
-            END.
+            hdField = ipBufferHandle:BUFFER-FIELD(attribute.dbFieldName) NO-ERROR.
+                
+            IF VALID-HANDLE (hdField) AND ipBufferHandle:AVAILABLE THEN
+                cFieldValue = STRING(hdField:BUFFER-VALUE(attribute.dbFieldExtent)).
             
             UpdateRequestData (INPUT-OUTPUT iplcRequestData, attribute.attributeName, cFieldValue).                  
         END.        
+        
+        DO iIndex = 1 TO ipBufferHandle:NUM-FIELDS:
+            cFieldValue = "".
+            
+            hdField = ipBufferHandle:BUFFER-FIELD(iIndex) NO-ERROR.
+
+            IF VALID-HANDLE (hdField) THEN DO:
+                cAttributeName = ipBufferHandle:NAME + "." + hdField:NAME.
+                IF hdField:EXTENT GT 0 THEN DO:
+                    DO iExtent = 1 TO hdField:EXTENT :
+                        IF ipBufferHandle:AVAILABLE THEN
+                            cFieldValue = STRING(hdField:BUFFER-VALUE(iExtent)).
+                        
+                        UpdateRequestData (INPUT-OUTPUT iplcRequestData, cAttributeName + "[" + STRING(iExtent) + "]", cFieldValue).
+                    END.
+                END.
+                ELSE DO:
+                    IF ipBufferHandle:AVAILABLE THEN
+                        cFieldValue = STRING(hdField:BUFFER-VALUE()).
+                    
+                    UpdateRequestData (INPUT-OUTPUT iplcRequestData, cAttributeName, cFieldValue).                  
+                END.
+            END.
+        END.
                 
         RETURN iplcRequestData.
     END METHOD.    

@@ -655,6 +655,8 @@ PROCEDURE pUpdateFields :
         ASSIGN
             APIOutboundDetail.company       = APIOutbound.company
             APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID
+            APIOutboundDetail.apiID         = APIOutbound.apiID
+            APIOutboundDetail.clientID      = APIOutbound.clientID
             APIOutboundDetail.data          = edData:SCREEN-VALUE
             .
 END PROCEDURE.
