@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
  /* cec/quote/qusclair.i */
  
   /*PUT "<C+25><#1>"
@@ -56,9 +57,9 @@
    terms.dscr FORM "x(15)" space(1) sman.sname SPACE(-1) v-phone-no /*v-over-under*/ SKIP.
 
    PUT "<|10><R23><C1><#5><FROM><R25><C81><RECT>" SKIP    
-             "<R23><C7><FROM><R25><C7><LINE>" SKIP
-             "<R23><C20><FROM><R25><C20><LINE>" SKIP
-             "<R23><C45><FROM><R25><C45><LINE>" SKIP
+             "<R23><C8><FROM><R25><C8><LINE>" SKIP
+             "<R23><C21><FROM><R25><C21><LINE>" SKIP
+             "<R23><C46><FROM><R25><C46><LINE>" SKIP
              "<R23><C56><FROM><R25><C56><LINE>" SKIP
              "<R23><C63><FROM><R25><C63><LINE>" SKIP
              "<R23><C75><FROM><R25><C75><LINE>" SKIP.
