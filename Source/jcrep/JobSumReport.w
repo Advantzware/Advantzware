@@ -35,7 +35,6 @@ DEFINE VARIABLE cLoc     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cocode   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE locode   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE i        AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cMatList AS CHARACTER NO-UNDO.
 
 RUN spGetSessionParam("Company", OUTPUT cCompany).
 RUN spGetSessionParam("Location", OUTPUT cLoc).
@@ -55,7 +54,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "JobBuildVersion", "C" /* Logical */, NO /*
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    cJobBuildVersion = cRtnChar NO-ERROR. 
+    cJobBuildVersion = cRtnChar NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -73,10 +72,9 @@ IF lRecFound THEN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-7 begin_job-no begin_job-no2 end_job-no ~
-end_job-no2 rd_jobstat begin_job-closeDate end_close-date select-mat btn-ok ~
-btn-cancel 
+end_job-no2 rd_jobstat begin_job-closeDate end_close-date btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_job-no begin_job-no2 end_job-no ~
-end_job-no2 rd_jobstat begin_job-closeDate end_close-date select-mat 
+end_job-no2 rd_jobstat begin_job-closeDate end_close-date 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -140,11 +138,7 @@ DEFINE VARIABLE rd_jobstat AS CHARACTER
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 12.81.
-
-DEFINE VARIABLE select-mat AS CHARACTER 
-     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 44 BY 5 NO-UNDO.
+     SIZE 94 BY 6.38.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -163,13 +157,8 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Job Number" WIDGET-ID 8
      end_close-date AT ROW 6 COL 63 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 10
-     select-mat AT ROW 8.67 COL 26.4 HELP
-          "Enter description of this Material Type." NO-LABEL WIDGET-ID 12
-     btn-ok AT ROW 15 COL 31
-     btn-cancel AT ROW 15 COL 51
-     "Select/Deselect Material Types" VIEW-AS TEXT
-          SIZE 38 BY .62 AT ROW 7.76 COL 27.2 WIDGET-ID 14
-          FONT 6
+     btn-ok AT ROW 8.38 COL 30
+     btn-cancel AT ROW 8.38 COL 50
      " Selection Parameters" VIEW-AS TEXT
           SIZE 21.2 BY .71 AT ROW 1.14 COL 5
      "Job Status:" VIEW-AS TEXT
@@ -199,7 +188,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Job Summary Analysis Report New"
-         HEIGHT             = 15.95
+         HEIGHT             = 9.24
          WIDTH              = 96
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -416,17 +405,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME select-mat
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL select-mat C-Win
-ON VALUE-CHANGED OF select-mat IN FRAME FRAME-A
-DO:
-        ASSIGN {&self-name}.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -458,14 +436,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn-cancel:load-image("Graphics/32x32/cancel.png").
     RUN enable_UI.
     
-    FOR EACH mat FIELDS(mat dscr) NO-LOCK:
-        cMatList = cMatList + string(mat.mat,"x(5)") + " " + mat.dscr + ",".
-    END.
-    IF substr(cMatList,LENGTH(TRIM(cMatList)),1) EQ "," THEN
-        substr(cMatList,LENGTH(TRIM(cMatList)),1) = "".
-
-    select-mat:list-items = cMatList.
-    
+        
     {methods/nowait.i}
   
     DO WITH FRAME {&FRAME-NAME}:
@@ -515,10 +486,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_job-no begin_job-no2 end_job-no end_job-no2 rd_jobstat 
-          begin_job-closeDate end_close-date select-mat 
+          begin_job-closeDate end_close-date 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-7 begin_job-no begin_job-no2 end_job-no end_job-no2 rd_jobstat 
-         begin_job-closeDate end_close-date select-mat btn-ok btn-cancel 
+         begin_job-closeDate end_close-date btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -801,7 +772,6 @@ PROCEDURE run-report :
 /* ----------------------------------------------- jc/rep/job-sum.p 08/94 JLF */
     /* Job Summary Report                                                         */
     /* -------------------------------------------------------------------------- */        
-    DEFINE VARIABLE cMtype AS CHARACTER NO-UNDO.
     SESSION:SET-WAIT-STATE ("general").
        
     EMPTY TEMP-TABLE ttJob.
@@ -811,18 +781,9 @@ PROCEDURE run-report :
     EMPTY TEMP-TABLE ttItem.    
     
     
-    DO WITH FRAME {&FRAME-NAME}:
-        DO i = 1 TO select-mat:num-items:
-            IF select-mat:is-selected(i) THEN
-                cMtype = cMtype + trim(substr(select-mat:entry(i),1,5)) + ",".
-        END.
-
-        IF LENGTH(TRIM(cMtype)) NE 0 AND
-            substr(cMtype,LENGTH(TRIM(cMtype)),1) EQ "," THEN
-            substr(cMtype,LENGTH(TRIM(cMtype)),1) = "".  
-    
+    DO WITH FRAME {&FRAME-NAME}:    
         RUN jc/jobSumReport.p(cocode, begin_job-no:SCREEN-VALUE, STRING(begin_job-no2:SCREEN-VALUE,"99"), end_job-no:SCREEN-VALUE, STRING(begin_job-no2,"99"),
-            rd_jobstat:SCREEN-VALUE, begin_job-closeDate:SCREEN-VALUE, end_close-date:SCREEN-VALUE, cMtype,
+            rd_jobstat:SCREEN-VALUE, begin_job-closeDate:SCREEN-VALUE, end_close-date:SCREEN-VALUE, 
             OUTPUT table ttJob,
             OUTPUT table ttDepartment,
             OUTPUT table ttOperation,

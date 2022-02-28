@@ -23,7 +23,6 @@ DEFINE INPUT PARAMETER ipiToJobNo2 AS INTEGER NO-UNDO.
 DEFINE INPUT PARAMETER ipcStatus AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipdtCloseStart AS DATE NO-UNDO.
 DEFINE INPUT PARAMETER ipdtCloseEnd AS DATE NO-UNDO.
-DEFINE INPUT PARAMETER ipcMatType AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER TABLE FOR ttJob.
 DEFINE OUTPUT PARAMETER TABLE FOR ttDepartment.
 DEFINE OUTPUT PARAMETER TABLE FOR ttOperation.
@@ -42,7 +41,7 @@ FUNCTION fGetOnHandQty RETURNS INTEGER PRIVATE
     
 /* ***************************  Main Block  *************************** */
           
-RUN pBuildTempTables(ipcCompany, ipcFromJobNo, ipiFromJobNo2, ipcToJobNo, ipiToJobNo2, ipcStatus, ipdtCloseStart, ipdtCloseEnd, ipcMatType).
+RUN pBuildTempTables(ipcCompany, ipcFromJobNo, ipiFromJobNo2, ipcToJobNo, ipiToJobNo2, ipcStatus, ipdtCloseStart, ipdtCloseEnd).
 
 /* **********************  Internal Procedures  *********************** */
 PROCEDURE pBuildTempTables PRIVATE:
@@ -58,8 +57,7 @@ PROCEDURE pBuildTempTables PRIVATE:
     DEFINE INPUT PARAMETER ipcStatus AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdtCloseStart AS DATE NO-UNDO.
     DEFINE INPUT PARAMETER ipdtCloseEnd AS DATE NO-UNDO.
-    DEFINE INPUT PARAMETER ipcMatType AS CHARACTER NO-UNDO.
-    
+       
     DEFINE VARIABLE cJobNo LIKE job.job-no EXTENT 2 INIT [" ", "zzzzzz"] NO-UNDO.
     DEFINE VARIABLE lClosedOnly AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lOpenOnly AS LOGICAL NO-UNDO.
@@ -95,7 +93,7 @@ PROCEDURE pBuildTempTables PRIVATE:
                      
         RUN pBuildFGItems(BUFFER ttJob, BUFFER job).
         RUN pBuildDepartmentsAndOperations(BUFFER job, BUFFER estCostHeader).
-        RUN pBuildMaterials(BUFFER job, BUFFER estCostHeader, ipcMatType).          
+        RUN pBuildMaterials(BUFFER job, BUFFER estCostHeader).          
     END.
 END PROCEDURE.
 
@@ -180,7 +178,15 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
     IF AVAILABLE ipbf-estCostHeader THEN
     DO:
         FOR EACH estCostOperation NO-LOCK 
-            WHERE estCostOperation.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+            WHERE estCostOperation.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID,
+            FIRST job-mch NO-LOCK 
+            WHERE job-mch.company EQ ipbf-estCostHeader.company
+            AND job-mch.job-no EQ ipbf-estCostHeader.jobID
+            AND job-mch.job-no2 EQ ipbf-estCostHeader.jobID2
+            AND job-mch.frm EQ estCostOperation.formNo
+            AND job-mch.blank-no EQ estCostOperation.blankNo
+            AND job-mch.pass EQ estCostOperation.pass
+            AND job-mch.m-code EQ estCostOperation.operationID
             BY estCostOperation.sequenceOfOperation:
             CREATE ttOperation.
             ASSIGN                
@@ -408,7 +414,6 @@ PROCEDURE pBuildMaterials PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-job           FOR job.
     DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
-    DEFINE INPUT PARAMETER ipcMatType AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE dStdItemQty   AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dStdItemCost  AS DECIMAL NO-UNDO.
@@ -420,10 +425,16 @@ PROCEDURE pBuildMaterials PRIVATE:
     DO:
         FOR EACH estCostMaterial NO-LOCK 
             WHERE estCostMaterial.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID,
-            FIRST ITEM NO-LOCK 
-            WHERE ITEM.company EQ estCostMaterial.company 
-            AND item.i-no  EQ estCostMaterial.itemID
-            AND index(ipcMatType,item.mat-type) GT 0
+            FIRST materialType NO-LOCK  /*materialType for AutoIssue logic*/
+            WHERE materialType.company EQ estCostMaterial.company
+            AND materialType.materialType EQ estCostMaterial.materialType,
+            FIRST job-mat NO-LOCK /*Confirm job-mat has not been deleted from JU1*/
+            WHERE job-mat.company EQ ipbf-estCostHeader.company
+            AND job-mat.job-no EQ ipbf-estCostHeader.jobID
+            AND job-mat.job-no2 EQ ipbf-estCostHeader.jobID2
+            AND job-mat.frm EQ estCostMaterial.formNo
+            AND job-mat.blank-no EQ estCostMaterial.blankNo
+            AND job-mat.i-no EQ estCostMaterial.itemID
             BREAK BY estCostMaterial.formNo DESCENDING
             BY estCostMaterial.blankNo
             BY estCostMaterial.itemID:
@@ -443,7 +454,8 @@ PROCEDURE pBuildMaterials PRIVATE:
                     ttMaterial.iFormNo   = estCostMaterial.formNo
                     ttMaterial.iBlankNo  = estCostMaterial.blankNo                             
                     ttMaterial.cMaterial = estCostMaterial.itemID
-                    ttMaterial.cStdUom   = estCostMaterial.quantityUOM .
+                    ttMaterial.cStdUom   = estCostMaterial.quantityUOM 
+                    ttMaterial.lAutoIssue = materialType.autoIssue.
             END.
             ASSIGN 
                 ttMaterial.dQtyStd  = ttMaterial.dQtyStd + estCostMaterial.quantityRequiredTotal
@@ -457,13 +469,8 @@ PROCEDURE pBuildMaterials PRIVATE:
     FOR EACH mat-act NO-LOCK
         WHERE mat-act.company EQ ipbf-job.company
         AND mat-act.job-no EQ ipbf-job.job-no
-        AND mat-act.job-no2 EQ ipbf-job.job-no2
-        ,
-        FIRST ITEM NO-LOCK 
-        WHERE ITEM.company EQ mat-act.company 
-        AND item.i-no  EQ mat-act.i-no
-        AND index(ipcMatType,item.mat-type) GT 0:
-        
+        AND mat-act.job-no2 EQ ipbf-job.job-no2:
+                
         FIND FIRST ttMaterial NO-LOCK
             WHERE ttMaterial.cJobNo EQ ipbf-job.job-no
             AND ttMaterial.iJobNo2 EQ ipbf-job.job-no2
@@ -490,7 +497,13 @@ PROCEDURE pBuildMaterials PRIVATE:
             ttMaterial.cUsedonForms = ttMaterial.cUsedonForms + (IF LOOKUP(string(mat-act.s-num),ttMaterial.cUsedonForms) EQ 0 THEN STRING(mat-act.s-num) + "," ELSE "")
             .            
     END.
-    FOR EACH ttMaterial:        
+    FOR EACH ttMaterial:     
+        IF ttMaterial.lAutoIssue AND ttMaterial.dQtyAct EQ 0 THEN  /*Auto assign those items that will be auto issued eq to standards*/ 
+            ASSIGN 
+                ttMaterial.dQtyAct = ttMaterial.dQtyStd
+                ttMaterial.dCostAct = ttMaterial.dCostStd
+                ttMaterial.cActUom = ttMaterial.cStdUom
+                .   
         ASSIGN 
             ttJob.dTotStdMaterialCost = ttJob.dTotStdMaterialCost + ttMaterial.dCostStd
             ttJob.dTotStdCost         = ttJob.dTotStdCost + ttMaterial.dCostStd

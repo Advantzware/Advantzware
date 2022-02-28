@@ -92,8 +92,9 @@ DEFINE TEMP-TABLE ttMaterial NO-UNDO
     FIELD dQtyVar      AS DECIMAL   FORMAT "->>>,>>9.99<<" LABEL "Var Item Qty" 
     FIELD dCostStd     AS DECIMAL   FORMAT "->,>>>,>>>,>>9.99" LABEL "Std Cost"
     FIELD dCostAct     AS DECIMAL   FORMAT "->,>>>,>>>,>>9.99" LABEL "Act Cost"
-    FIELD dCostVar     AS DECIMAL   FORMAT "->,>>>,>>>,>>9.99" LABEL "Var Item Cost".
-
+    FIELD dCostVar     AS DECIMAL   FORMAT "->,>>>,>>>,>>9.99" LABEL "Var Item Cost"
+    FIELD lAutoIssue   AS LOGICAL   FORMAT "Yes/No" LABEL "Auto Issued"
+    .
 
 DEFINE TEMP-TABLE ttItem NO-UNDO 
     FIELD cJobNo        AS CHARACTER FORMAT "x(8)" LABEL "Job Number"
