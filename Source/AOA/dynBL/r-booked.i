@@ -7,6 +7,8 @@ DEFINE VARIABLE iPerDays AS INTEGER   NO-UNDO EXTENT 2.
 DEFINE VARIABLE iCount   AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iTotal   AS INTEGER   NO-UNDO.
 
+DEFINE NEW SHARED VARIABLE cocode AS CHARACTER NO-UNDO.
+
 /* ************************  Function Prototypes ********************** */
 
 FUNCTION fGetRoutingForJob RETURNS CHARACTER 
@@ -45,8 +47,11 @@ PROCEDURE pBusinessLogic:
                AND period.pst     LE dtEndOrderDate
                AND period.pend    GE dtEndOrderDate
              NO-ERROR.
-        dtTrandate = IF AVAILABLE period THEN MINIMUM(dtStartOrderDate,period.pst)
-                                                 ELSE dtStartOrderDate.
+        ASSIGN
+            cocode     = ce-ctrl.company
+            dtTrandate = IF AVAILABLE period THEN MINIMUM(dtStartOrderDate,period.pst)
+                                                     ELSE dtStartOrderDate
+            .
         FOR EACH oe-ord NO-LOCK
             WHERE oe-ord.company  EQ ce-ctrl.company
               AND oe-ord.cust-no  GE cStartCustNo
@@ -499,6 +504,8 @@ PROCEDURE pOrdersBooked2:
     DEFINE VARIABLE dPricePerTon AS   DECIMAL          NO-UNDO.
     DEFINE VARIABLE dProfitPer   AS   DECIMAL          NO-UNDO.
     DEFINE VARIABLE dMargin      AS   DECIMAL          NO-UNDO.
+    DEFINE VARIABLE dCost        AS   DECIMAL          NO-UNDO.
+    DEFINE VARIABLE cUOM         AS   CHARACTER        NO-UNDO.
 
     DEFINE BUFFER bItemFG FOR itemfg.
     
@@ -615,6 +622,7 @@ PROCEDURE pOrdersBooked2:
             dPricePerTon = dRevenue / w-data.t-tons
             dProfitPer   = (dRevenue - w-data.cost) / dRevenue * 100
             dMargin      = w-data.margin
+            dCost        = ?
             .
         IF dMSFPrice    EQ ? THEN dMSFPrice    = 0.
         IF dPricePerTon EQ ? THEN dPricePerTon = 0.
@@ -633,6 +641,25 @@ PROCEDURE pOrdersBooked2:
                  WHERE itemfg.company EQ oe-ordl.company
                    AND itemfg.i-no    EQ oe-ordl.i-no
                  NO-ERROR.
+            FIND FIRST po-ordl NO-LOCK
+                 WHERE po-ordl.company   EQ oe-ordl.company
+                   AND po-ordl.i-no      EQ oe-ordl.i-no
+                   AND po-ordl.po-no     EQ oe-ordl.po-no-po
+                   AND po-ordl.item-type EQ NO
+                 USE-INDEX item-ordno
+                 NO-ERROR.
+            IF AVAILABLE po-ordl AND oe-ordl.po-no-po NE 0 THEN DO:
+                ASSIGN
+                    cUOM  = IF po-ordl.cons-uom NE "" THEN po-ordl.cons-uom ELSE "M"
+                    dCost = po-ordl.cons-cost
+                    .
+                IF cUOM NE "M" THEN
+                RUN sys/ref/convcuom.p(cUOM, "M", 0, 0, 0, 0, dCost, OUTPUT dCost).
+            END. // if avail po-ordl
+
+            IF dCost EQ ? THEN
+            dCost = oe-ordl.cost.
+
             IF NOT AVAILABLE itemfg OR itemfg.die-no EQ "" THEN
             FIND FIRST eb NO-LOCK
                  WHERE eb.company  EQ oe-ordl.company
@@ -686,7 +713,7 @@ PROCEDURE pOrdersBooked2:
             ttOrdersBooked.prodCode     = w-data.proCat 
             ttOrdersBooked.fgItemNo     = IF AVAILABLE oe-ordl THEN oe-ordl.i-no ELSE ""
             ttOrdersBooked.fgItemName   = w-data.item-n
-            ttOrdersBooked.qtyOrdEa     = w-data.qty                         
+            ttOrdersBooked.qtyOrdEa     = w-data.qty
             ttOrdersBooked.sqFt         = w-data.sqft                     
             ttOrdersBooked.totalSqft    = w-data.t-sqft                          
             ttOrdersBooked.msfPrice     = dMSFPrice                   
@@ -712,6 +739,8 @@ PROCEDURE pOrdersBooked2:
             ttOrdersBooked.PrintSheet   = IF AVAILABLE itemfg THEN itemfg.plate-no ELSE ""
             ttOrdersBooked.dCstPerM     = IF AVAILABLE oe-ordl THEN oe-ordl.cost ELSE 0
             ttOrdersBooked.dTotStdCost  = IF AVAILABLE oe-ordl THEN oe-ordl.t-cost ELSE 0
+            ttOrdersBooked.dCostRT      = dCost
+            ttOrdersBooked.lCostDiff    = ttOrdersBooked.dCstPerM NE ttOrdersBooked.dCostRT
             ttOrdersBooked.dFullCost    = IF AVAILABLE oe-ordl THEN oe-ordl.spare-dec-1 ELSE 0
             ttOrdersBooked.cEnterBy     = oe-ord.entered-id
             ttOrdersBooked.cStatus      = c-result
@@ -727,8 +756,8 @@ PROCEDURE pOrdersBooked2:
             . 
         IF ttOrdersBooked.dCstPerM EQ ? THEN
         ttOrdersBooked.dCstPerM = 0.
-        IF ttOrdersBooked.dTOTStdCost EQ ? THEN
-        ttOrdersBooked.dTOTStdCost = 0.
+        IF ttOrdersBooked.dTotStdCost EQ ? THEN
+        ttOrdersBooked.dTotStdCost = 0.
         IF ttOrdersBooked.zzCost EQ ? THEN
         ttOrdersBooked.zzCost = 0.
         DELETE w-data.
@@ -738,6 +767,7 @@ END PROCEDURE.
 {AOA/dynBL/pBuildCustList.i}
 
 /* ************************  Function Implementations ***************** */
+
 FUNCTION fGetRoutingForJob RETURNS CHARACTER 
     (  ):
 /*------------------------------------------------------------------------------
@@ -768,7 +798,6 @@ FUNCTION fGetRoutingForJob RETURNS CHARACTER
     END.                
 
     RETURN cResult.
-
         
 END FUNCTION.
 
