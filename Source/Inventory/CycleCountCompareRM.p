@@ -217,9 +217,10 @@ PROCEDURE exportSnapshot:
         IF NOT AVAIL inventoryStockSnapshot THEN DO:
         CREATE inventoryStockSnapshot.
         ASSIGN                      
-            inventoryStockSnapshot.inventoryStockID    = rm-bin.tag    
+            inventoryStockSnapshot.inventoryStockID    = rm-bin.tag  
+            inventoryStockSnapshot.tag                 = rm-bin.tag
             inventoryStockSnapshot.company             = rm-bin.company        
-            inventoryStockSnapshot.rmItemID            = ""      
+            inventoryStockSnapshot.rmItemID            = rm-bin.i-no      
             inventoryStockSnapshot.fgItemID            = rm-bin.i-no                        
             inventoryStockSnapshot.itemType            = "RM"                           
             inventoryStockSnapshot.warehouseID         = rm-bin.loc    

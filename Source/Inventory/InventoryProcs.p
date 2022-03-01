@@ -7304,6 +7304,10 @@ PROCEDURE BuildPhyScanBrowseFromSnapshotLocation:
     DEFINE INPUT PARAMETER ipcLocationID       AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTransactionType  AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
+
+    DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+    
+    RUN Inventory_GetWarehouseLength (ipcCompany, OUTPUT iWarehouseLength).
     
     FOR EACH inventoryStockSnapshot NO-LOCK
         WHERE inventoryStockSnapshot.company     EQ ipcCompany
@@ -7351,14 +7355,14 @@ PROCEDURE BuildPhyScanBrowseFromSnapshotLocation:
                 ttPhysicalBrowseInventory.origWarehouseID  = inventoryStockSnapshot.warehouseID
                 ttPhysicalBrowseInventory.location         = IF AVAILABLE inventoryTransaction THEN
                                                                  inventoryTransaction.warehouseID +
-                                                                 FILL(" ", 5 - LENGTH(inventoryTransaction.warehouseID)) +
+                                                                 FILL(" ", iWarehouseLength - LENGTH(inventoryTransaction.warehouseID)) +
                                                                  inventoryTransaction.locationID            
                                                              ELSE    
                                                                  ttPhysicalBrowseInventory.warehouseID +
-                                                                 FILL(" ", 5 - LENGTH(ttPhysicalBrowseInventory.warehouseID)) +
+                                                                 FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.warehouseID)) +
                                                                  ttPhysicalBrowseInventory.locationID            
                 ttPhysicalBrowseInventory.origLocation     = ttPhysicalBrowseInventory.origWarehouseID +
-                                                             FILL(" ", 5 - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) +
+                                                             FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) +
                                                              ttPhysicalBrowseInventory.origLocationID            
                 ttPhysicalBrowseInventory.inventoryStatus  = IF AVAILABLE inventoryTransaction THEN
                                                                  fGetSnapshotCompareStatus ( 
@@ -7375,6 +7379,67 @@ PROCEDURE BuildPhyScanBrowseFromSnapshotLocation:
     END.
 END PROCEDURE.
 
+PROCEDURE Inventory_GetSnapShotForLocation:
+/*------------------------------------------------------------------------------
+ Purpose: Rebuilds browse temp-table
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin      AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
+    
+    DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+    
+    RUN Inventory_GetWarehouseLength (ipcCompany, OUTPUT iWarehouseLength).
+    
+    EMPTY TEMP-TABLE ttPhysicalBrowseInventory.
+    
+    FOR EACH inventoryStockSnapShot NO-LOCK
+        WHERE inventoryStockSnapShot.company          EQ ipcCompany
+          AND inventoryStockSnapshot.warehouseID      EQ ipcLocation
+          AND inventoryStockSnapshot.locationID       EQ ipcBin
+          AND inventoryStockSnapshot.inventoryStockID NE '':
+        FIND FIRST ttPhysicalBrowseInventory NO-LOCK
+             WHERE ttPhysicalBrowseInventory.company EQ inventoryStockSnapshot.company
+               AND ttPhysicalBrowseInventory.tag     EQ inventoryStockSnapshot.inventoryStockID
+             NO-ERROR.
+        IF NOT AVAILABLE ttPhysicalBrowseInventory THEN DO:
+            CREATE ttPhysicalBrowseInventory.
+            ASSIGN
+                ttPhysicalBrowseInventory.company          = inventoryStockSnapshot.company
+                ttPhysicalBrowseInventory.inventoryStockID = inventoryStockSnapshot.inventoryStockID
+                ttPhysicalBrowseInventory.tag              = inventoryStockSnapshot.inventoryStockID
+                ttPhysicalBrowseInventory.itemType         = inventoryStockSnapshot.itemType
+                ttPhysicalBrowseInventory.itemID           = IF inventoryStockSnapshot.itemType EQ "FG" THEN
+                                                                 inventoryStockSnapshot.fgItemID
+                                                             ELSE IF inventoryStockSnapshot.itemType EQ "RM" THEN /* Should be rmItemID. Needs correction in CycleCountCompareRM.p */
+                                                                 inventoryStockSnapshot.fgItemID
+                                                             ELSE
+                                                                 ""
+                ttPhysicalBrowseInventory.quantity         = 0
+                ttPhysicalBrowseInventory.origQuantity     = IF inventoryStockSnapshot.quantityOriginal EQ ? THEN
+                                                                 0
+                                                             ELSE
+                                                                 inventoryStockSnapshot.quantityOriginal
+                ttPhysicalBrowseInventory.customerID       = inventoryStockSnapshot.customerID
+                ttPhysicalBrowseInventory.lastTransTime    = NOW
+                ttPhysicalBrowseInventory.locationID       = ""
+                ttPhysicalBrowseInventory.origLocationID   = inventoryStockSnapshot.locationID
+                ttPhysicalBrowseInventory.warehouseID      = ""
+                ttPhysicalBrowseInventory.origWarehouseID  = inventoryStockSnapshot.warehouseID
+                ttPhysicalBrowseInventory.location         = ttPhysicalBrowseInventory.warehouseID 
+                                                           + FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.warehouseID)) 
+                                                           + ttPhysicalBrowseInventory.locationID            
+                ttPhysicalBrowseInventory.origLocation     = ttPhysicalBrowseInventory.origWarehouseID 
+                                                           + FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) 
+                                                           + ttPhysicalBrowseInventory.origLocationID            
+                ttPhysicalBrowseInventory.inventoryStatus  = gcStatusSnapshotNotScanned                                                         
+                .
+        END.  
+    END.
+END PROCEDURE.
+
 PROCEDURE BuildPhyScanBrowseFromTransactionLocation:
     /*------------------------------------------------------------------------------
      Purpose: Rebuilds browse temp-table
@@ -7385,6 +7450,10 @@ PROCEDURE BuildPhyScanBrowseFromTransactionLocation:
     DEFINE INPUT PARAMETER ipcLocationID       AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTransactionType  AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
+
+    DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+    
+    RUN Inventory_GetWarehouseLength (ipcCompany, OUTPUT iWarehouseLength).
     
     FOR EACH inventoryTransaction NO-LOCK
         WHERE inventoryTransaction.company         EQ ipcCompany
@@ -7406,7 +7475,7 @@ PROCEDURE BuildPhyScanBrowseFromTransactionLocation:
                 ttPhysicalBrowseInventory.locationID       = inventoryTransaction.locationID
                 ttPhysicalBrowseInventory.warehouseID      = inventoryTransaction.warehouseID
                 ttPhysicalBrowseInventory.location         = inventoryTransaction.warehouseID +
-                                                             FILL(" ", 5 - LENGTH(inventoryTransaction.warehouseID)) +
+                                                             FILL(" ", iWarehouseLength - LENGTH(inventoryTransaction.warehouseID)) +
                                                              inventoryTransaction.locationID                                                   
                 . 
                     
@@ -7427,7 +7496,7 @@ PROCEDURE BuildPhyScanBrowseFromTransactionLocation:
                     ttPhysicalBrowseInventory.origLocationID  = inventoryStockSnapshot.locationID
                     ttPhysicalBrowseInventory.origWarehouseID = inventoryStockSnapshot.warehouseID
                     ttPhysicalBrowseInventory.origLocation    = inventoryStockSnapshot.warehouseID +
-                                                                FILL(" ", 5 - LENGTH(inventoryStockSnapshot.warehouseID)) +
+                                                                FILL(" ", iWarehouseLength - LENGTH(inventoryStockSnapshot.warehouseID)) +
                                                                 inventoryStockSnapshot.locationID                                               
                     .
             ELSE DO:
@@ -7474,6 +7543,10 @@ PROCEDURE BuildPhyScanBrowseFromTransactionUser:
     DEFINE INPUT PARAMETER ipcUser             AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTransactionType  AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
+
+    DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+    
+    RUN Inventory_GetWarehouseLength (ipcCompany, OUTPUT iWarehouseLength).
     
     FOR EACH inventoryTransaction NO-LOCK
         WHERE inventoryTransaction.company         EQ ipcCompany
@@ -7494,7 +7567,7 @@ PROCEDURE BuildPhyScanBrowseFromTransactionUser:
                 ttPhysicalBrowseInventory.locationID       = inventoryTransaction.locationID
                 ttPhysicalBrowseInventory.warehouseID      = inventoryTransaction.warehouseID
                 ttPhysicalBrowseInventory.location         = inventoryTransaction.warehouseID +
-                                                             FILL(" ", 5 - LENGTH(inventoryTransaction.warehouseID)) +
+                                                             FILL(" ", iWarehouseLength - LENGTH(inventoryTransaction.warehouseID)) +
                                                              inventoryTransaction.locationID                                                   
                 . 
                     
@@ -7515,7 +7588,7 @@ PROCEDURE BuildPhyScanBrowseFromTransactionUser:
                     ttPhysicalBrowseInventory.origLocationID  = inventoryStockSnapshot.locationID
                     ttPhysicalBrowseInventory.origWarehouseID = inventoryStockSnapshot.warehouseID
                     ttPhysicalBrowseInventory.origLocation    = inventoryStockSnapshot.warehouseID +
-                                                                FILL(" ", 5 - LENGTH(inventoryStockSnapshot.warehouseID)) +
+                                                                FILL(" ", iWarehouseLength - LENGTH(inventoryStockSnapshot.warehouseID)) +
                                                                 inventoryStockSnapshot.locationID                                               
                     .
             ELSE DO:
@@ -7802,6 +7875,10 @@ PROCEDURE SubmitPhysicalCountScan:
     DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
     
+    DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+    
+    RUN Inventory_GetWarehouseLength (ipcCompany, OUTPUT iWarehouseLength).
+    
     FIND FIRST inventoryStockSnapshot NO-LOCK
          WHERE inventoryStockSnapshot.company EQ ipcCompany
            AND inventoryStockSnapshot.tag     EQ ipcTag
@@ -7832,7 +7909,7 @@ PROCEDURE SubmitPhysicalCountScan:
                 ttPhysicalBrowseInventory.origLocationID   = inventoryStockSnapshot.locationID
                 ttPhysicalBrowseInventory.origWarehouseID  = inventoryStockSnapshot.warehouseID
                 ttPhysicalBrowseInventory.origLocation     = ttPhysicalBrowseInventory.origWarehouseID +
-                                                             FILL(" ", 5 - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) +
+                                                             FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) +
                                                              ttPhysicalBrowseInventory.origLocationID            
                 .
         END.             
@@ -7843,7 +7920,7 @@ PROCEDURE SubmitPhysicalCountScan:
                 ttPhysicalBrowseInventory.locationID       = inventoryStockSnapshot.locationID 
                 ttPhysicalBrowseInventory.warehouseID      = inventoryStockSnapshot.warehouseID 
                 ttPhysicalBrowseInventory.location         = ttPhysicalBrowseInventory.warehouseID +
-                                                             FILL(" ", 5 - LENGTH(ttPhysicalBrowseInventory.warehouseID)) +
+                                                             FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.warehouseID)) +
                                                              ttPhysicalBrowseInventory.locationID
                 .       
     END. 
@@ -7873,7 +7950,7 @@ PROCEDURE SubmitPhysicalCountScan:
                     ttPhysicalBrowseInventory.locationID      = loadtag.loc-bin
                     ttPhysicalBrowseInventory.warehouseID     = loadtag.loc 
                     ttPhysicalBrowseInventory.location        = ttPhysicalBrowseInventory.warehouseID +
-                                                                FILL(" ", 5 - LENGTH(ttPhysicalBrowseInventory.warehouseID)) +
+                                                                FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.warehouseID)) +
                                                                 ttPhysicalBrowseInventory.locationID
                     .
         END.    
@@ -7884,22 +7961,22 @@ PROCEDURE SubmitPhysicalCountScan:
             ttPhysicalBrowseInventory.locationID      = ipcLocationID
             ttPhysicalBrowseInventory.warehouseID     = ipcWarehouseID
             ttPhysicalBrowseInventory.location        = ipcWarehouseID +
-                                                        FILL(" ", 5 - LENGTH(ipcWarehouseID)) +
+                                                        FILL(" ", iWarehouseLength - LENGTH(ipcWarehouseID)) +
                                                         ipcLocationID
             .
 
-    RUN CreateTransactionCompare (
-        ipcCompany,
-        ipcTag,
-        ttPhysicalBrowseInventory.quantity,
-        "",    /* Blank Quantity EOM */
-        ttPhysicalBrowseInventory.warehouseID,
-        ttPhysicalBrowseInventory.locationID,
-        FALSE, /* Post transaction */
-        OUTPUT oplCreated,
-        OUTPUT opcMessage
-        ).
-    
+/*    RUN CreateTransactionCompare (            */
+/*        ipcCompany,                           */
+/*        ipcTag,                               */
+/*        ttPhysicalBrowseInventory.quantity,   */
+/*        "",    /* Blank Quantity EOM */       */
+/*        ttPhysicalBrowseInventory.warehouseID,*/
+/*        ttPhysicalBrowseInventory.locationID, */
+/*        FALSE, /* Post transaction */         */
+/*        OUTPUT oplCreated,                    */
+/*        OUTPUT opcMessage                     */
+/*        ).                                    */
+/*                                              */
             
     ASSIGN
         ttPhysicalBrowseInventory.lastTransTime   = NOW
@@ -7907,8 +7984,8 @@ PROCEDURE SubmitPhysicalCountScan:
                                                     ipcCompany,
                                                     ttPhysicalBrowseInventory.tag,
                                                     ttPhysicalBrowseInventory.quantity,
-                                                    ttPhysicalBrowseInventory.warehouseID,
-                                                    ttPhysicalBrowseInventory.locationID
+                                                    ipcWarehouseID,
+                                                    ipcLocationID
                                                     )
         .                                           
 END PROCEDURE.
@@ -8070,6 +8147,10 @@ PROCEDURE RebuildBrowseTTFromPO:
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     EMPTY TEMP-TABLE ttBrowseInventory.
+
+    DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+    
+    RUN Inventory_GetWarehouseLength (ipcCompany, OUTPUT iWarehouseLength).
     
     FOR EACH inventoryStock NO-LOCK
        WHERE inventoryStock.company   EQ ipcCompany
@@ -8094,7 +8175,7 @@ PROCEDURE RebuildBrowseTTFromPO:
         CREATE ttBrowseInventory.
         BUFFER-COPY inventoryStock EXCEPT inventoryStock.locationID TO ttBrowseInventory.
         ttBrowseinventory.locationID = inventoryStock.warehouseID +
-                                       FILL(" ", 5 - LENGTH(inventoryStock.warehouseID)) +
+                                       FILL(" ", iWarehouseLength - LENGTH(inventoryStock.warehouseID)) +
                                        inventoryStock.locationID.         
     END.
         
@@ -8114,6 +8195,10 @@ PROCEDURE RebuildWIPBrowseTT:
     DEFINE OUTPUT PARAMETER opiTotTags    AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opiTotOnHand  AS INTEGER   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+
+    DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+    
+    RUN Inventory_GetWarehouseLength (ipcCompany, OUTPUT iWarehouseLength).
     
     EMPTY TEMP-TABLE ttBrowseInventory.
     
@@ -8128,7 +8213,7 @@ PROCEDURE RebuildWIPBrowseTT:
         BUFFER-COPY inventoryStock EXCEPT inventoryStock.locationID TO ttBrowseInventory.
         ASSIGN
             ttBrowseinventory.locationID = inventoryStock.warehouseID +
-                                           FILL(" ", 5 - LENGTH(inventoryStock.warehouseID)) +
+                                           FILL(" ", iWarehouseLength - LENGTH(inventoryStock.warehouseID)) +
                                            inventoryStock.locationID
             opiTotTags                   = opiTotTags + 1.
          
@@ -8789,8 +8874,15 @@ PROCEDURE LocationParser:
     DEFINE OUTPUT PARAMETER opcWarehouseID AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcLocationID  AS CHARACTER NO-UNDO.    
     
+    DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
+    
+    RUN spGetSessionParam("Company", OUTPUT cCompany).
+    
+    RUN Inventory_GetWarehouseLength (cCompany, OUTPUT iWarehouseLength).
+    
     ASSIGN    
-        opcWarehouseID = SUBSTRING(ipcLocation, 1, 5)
+        opcWarehouseID = SUBSTRING(ipcLocation, 1, iWarehouseLength)
         opcLocationID  = SUBSTRING(ipcLocation, 6)
         .
      
@@ -9721,11 +9813,28 @@ FUNCTION fGetSnapshotCompareStatus RETURNS CHARACTER
         AND inventoryTransaction.scannedTime EQ inventoryTransaction.createdTime THEN
         opcStatus = gcStatusSnapshotNotScannedConf.
     
-    FIND FIRST loadtag NO-LOCK
-         WHERE loadtag.company EQ ipcCompany
-           AND loadtag.tag-no  EQ ipcTag
-         NO-ERROR.
-    IF AVAILABLE loadtag AND NOT AVAILABLE inventoryStockSnapshot THEN
+    IF AVAILABLE inventoryStockSnapshot THEN
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company   EQ ipcCompany
+               AND loadtag.item-type EQ LOGICAL(inventoryStockSnapShot.itemType, "RM/FG")
+               AND loadtag.tag-no    EQ ipcTag
+             NO-ERROR.
+    
+    IF NOT AVAILABLE loadtag THEN
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company   EQ ipcCompany
+               AND loadtag.item-type EQ NO
+               AND loadtag.tag-no    EQ ipcTag
+             NO-ERROR.
+
+    IF NOT AVAILABLE loadtag THEN
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company   EQ ipcCompany
+               AND loadtag.item-type EQ YES
+               AND loadtag.tag-no    EQ ipcTag
+             NO-ERROR.
+
+    IF NOT AVAILABLE loadtag THEN
         opcStatus = gcStatusSnapshotTagNotFound.
 
     RETURN opcStatus.
