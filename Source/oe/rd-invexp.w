@@ -98,7 +98,7 @@ ASSIGN
                                         "csr,line-sales-tax,ord-head-ship-stat,ord-line,bill-note,Auto,reason,cAccountant,cInvComment,inv-head.t-inv-tax,inv-head.t-inv-freight," +
                                         "custTaxStatus,custTaxCode,custTaxId,taxExpDate,shiptoTaxCode,shiptoStatus," +
                                         "ediPrice,ediPriceUom"
-    cFieldLength       = "15,15,15,20,15,30,15,15," + "15,15,15,20,15,30,15," + "15,15,15,8,2,6,15," +
+    cFieldLength       = "15,15,15,20,15,30,15,15," + "15,15,15,20,15,30,15," + "15,15,15,9,3,8,15," +
                        "30,15,10,30,30," + "15,15,5,4,25,4,25,4,25," + "7,7,7,10,10,10,10,10," + "15,15,15,15,15,10,100,12,60,10,10," +
                        "6,8,20,10,14,6," + "10,13"
     cFieldType         = "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c," + "c,c,c,c,i,c,c," +

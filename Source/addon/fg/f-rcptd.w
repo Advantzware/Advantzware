@@ -2450,7 +2450,7 @@ PROCEDURE local-enable-fields :
     ELSE
       ASSIGN
        lv-job-no  = ""
-       lv-job-no2 = "00".
+       lv-job-no2 = "000".
 
     IF ll-set-parts THEN
       APPLY "entry" TO fg-rctd.tag IN BROWSE {&browse-name}.

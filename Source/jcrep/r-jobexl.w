@@ -94,7 +94,7 @@ ASSIGN
                             "ship-qty,inv-qty,wip-qty,ou-pct,sales-rep,job-hold," +
                             "create-date,due-date,job.user-id,job.orderType"
                             
-    cFieldLength       = "13,15,9,6,9,10,10," + "6,15,10,9,9,11," + "11,11,9,7,14,15," + "12,10,10,1"
+    cFieldLength       = "13,15,9,8,9,10,10," + "6,15,10,9,9,11," + "11,11,9,7,14,15," + "12,10,10,1"
     cFieldType         = "c,c,c,i,c,c,c," + "c,c,i,i,i,i," + "i,i,i,i,c,c," + "c,c,c,c"
     .
 

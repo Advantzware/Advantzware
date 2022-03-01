@@ -1590,7 +1590,7 @@ PROCEDURE run-report :
                 WHEN "apItem"         THEN 
                     cVarValue = IF AVAILABLE po-ordl THEN STRING(po-ordl.i-no,"x(15)") ELSE "".
                 WHEN "apJob"         THEN 
-                    cVarValue = IF AVAILABLE po-ordl THEN STRING(po-ordl.job-no + "-" + STRING(po-ordl.job-no2,">9") ) ELSE "".
+                    cVarValue = IF AVAILABLE po-ordl THEN TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))) ELSE "".
                 WHEN "apSNum"         THEN 
                     cVarValue = IF AVAILABLE po-ordl AND po-ordl.s-num NE ? THEN STRING(po-ordl.s-num) ELSE "".
                 WHEN "apBNum"         THEN 
