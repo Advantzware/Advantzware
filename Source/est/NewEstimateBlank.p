@@ -14,8 +14,6 @@
 
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT PARAMETER ip-rief     AS ROWID      NO-UNDO.
-DEFINE INPUT PARAMETER ip-industry AS CHARACTER  NO-UNDO.
-
 DEFINE OUTPUT PARAMETER op-rieb    AS ROWID      NO-UNDO.
 
 /*{sys/inc/var.i SHARED}*/
@@ -50,8 +48,7 @@ FIND FIRST ce-ctrl WHERE ce-ctrl.company = ef.company
 IF NOT AVAILABLE ef THEN RETURN.
 RUN sys/ref/nk1look.p (ef.company, "CERequestYield", "C", NO, NO, "", "", OUTPUT cPriceBasedOnYield, OUTPUT lFound).
 
-IF ip-industry = 'C' THEN 
-    RUN sys/ref/nk1look.p (ef.company, "EstimateLocDefault", "C", NO, NO, "", "", OUTPUT cEstimateLocDefault, OUTPUT lFound).
+RUN sys/ref/nk1look.p (ef.company, "EstimateLocDefault", "C", NO, NO, "", "", OUTPUT cEstimateLocDefault, OUTPUT lFound).
 
 CASE cPriceBasedOnYield:
     WHEN "RequestAlways" OR 
@@ -101,49 +98,43 @@ li = IF AVAIL bf-eb THEN bf-eb.blank-no ELSE 0.
 
 CREATE eb. 
 ASSIGN
-    eb.est-type  = ef.est-type
-    eb.company   = ef.company
-    eb.loc       = ef.loc
-    eb.e-num     = ef.e-num
-    eb.est-no    = ef.est-no
-    eb.est-int   = INT(ef.est-no)
-    eb.eqty      = ef.eqty
-    eb.form-no   = ef.form-no
-    eb.blank-no  = li + 1
-    eb.cas-no    = ce-ctrl.def-case
-    eb.tr-no     = ce-ctrl.def-pal
-    eb.cust-no   = cPrev-cust
-    eb.ship-id   = cPrev-ship
-    eb.i-pass    = 0
-    eb.yrprice  = lPriceBasedOnYield.
-    
-    IF ip-industry <> "C" THEN 
-        ASSIGN 
-            eb.part-no  = cPart-no + IF cPart-no NE "" THEN ("-" + STRING(eb.form-no) + "-" + STRING(eb.blank-no)) ELSE ""
-            eb.style    = cPrev-style
-            eb.cust-%   = INT(ef.est-type EQ 2).
-    ELSE 
-        ASSIGN 
-            eb.tr-cas    = 1
-            eb.quantityPerSet   = 1
-            eb.yld-qty   = 1
-            eb.tab-in    = YES
-            eb.len       = 0
-            eb.wid       = 0
-            eb.dep       = 0
-            eb.procat    = IF AVAIL bf-eb THEN bf-eb.procat ELSE ""
-            eb.flute     = ef.flute
-            eb.test      = ef.test
-            eb.loc = cEstimateLocDefault.
+    eb.est-type       = ef.est-type
+    eb.company        = ef.company
+    eb.loc            = ef.loc
+    eb.e-num          = ef.e-num
+    eb.est-no         = ef.est-no
+    eb.est-int        = INT(ef.est-no)
+    eb.eqty           = ef.eqty
+    eb.form-no        = ef.form-no
+    eb.blank-no       = li + 1
+    eb.cas-no         = ce-ctrl.def-case
+    eb.tr-no          = ce-ctrl.def-pal
+    eb.cust-no        = cPrev-cust
+    eb.ship-id        = cPrev-ship
+    eb.i-pass         = 0
+    eb.yrprice        = lPriceBasedOnYield     
+    eb.part-no        = cPart-no + IF cPart-no NE "" THEN ("-" + STRING(eb.form-no) + "-" + STRING(eb.blank-no)) ELSE ""
+    eb.style          = cPrev-style
+    eb.cust-%         = INT(ef.est-type EQ 2) 
+    eb.tr-cas         = 1
+    eb.quantityPerSet = 1
+    eb.yld-qty        = 1
+    eb.tab-in         = YES
+    eb.len            = 0
+    eb.wid            = 0
+    eb.dep            = 0
+    eb.procat         = IF AVAILABLE bf-eb THEN bf-eb.procat ELSE ""
+    eb.flute          = ef.flute
+    eb.test           = ef.test.
  
-/*IF cEstimateLocDefault NE "" THEN
-    eb.loc = cEstimateLocDefault. */
+IF cEstimateLocDefault NE "" THEN
+    ASSIGN eb.loc = cEstimateLocDefault.
     
 RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).
 IF cPackCodeOverride GT "" THEN 
     eb.cas-no = cPackCodeOverride.
     
-IF ip-industry = "C" AND ef.est-type EQ 6 AND cPart-no NE "" THEN 
+IF (ef.est-type EQ 6 OR ef.est-type EQ 2) AND cPart-no NE "" THEN 
 DO:
     li = 1.
     FOR EACH bf-eb
@@ -171,7 +162,6 @@ DO:
     END.
 END.
 
-//cCompany = IF ip-industry = "C" THEN eb.company ELSE cocode.
 FIND FIRST ITEM WHERE ITEM.company = ef.company
     AND ITEM.mat-type = "C"
     AND item.i-no EQ eb.cas-no NO-LOCK NO-ERROR.
@@ -201,7 +191,7 @@ DO:
             IF AVAIL itemfg THEN itemfg.case-count ELSE item.box-case.
 END.
 
-IF (ip-industry = "C" AND eb.est-type = 6) OR eb.est-type = 2 THEN 
+IF (eb.est-type EQ 6 OR eb.est-type EQ 2) THEN 
 DO:
     FIND FIRST bf-eb
         WHERE bf-eb.company  EQ eb.company
