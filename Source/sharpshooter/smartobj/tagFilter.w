@@ -355,6 +355,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetScannedTag s-object
+PROCEDURE GetScannedTag:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcTag AS CHARACTER NO-UNDO.
+    
+    IF VALID-OBJECT(oLoadTag) THEN
+        opcTag = oLoadtag:GetValue("Tag").
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetTag s-object 
 PROCEDURE GetTag :
 /*------------------------------------------------------------------------------
