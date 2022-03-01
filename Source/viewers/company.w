@@ -939,15 +939,18 @@ PROCEDURE local-assign-record :
     END.
 
   END.
+  
+  IF adm-new-record AND NOT adm-adding-record THEN.
+  ELSE do:
+      FIND FIRST account WHERE account.company EQ company.company NO-LOCK NO-ERROR.
 
-  FIND FIRST account WHERE account.company EQ company.company NO-LOCK NO-ERROR.
-
-  IF NOT AVAIL account AND company.co-acc NE "" THEN
-  FOR EACH account WHERE account.company EQ company.co-acc NO-LOCK:
-    CREATE bf-account.
-    BUFFER-COPY account TO bf-account
-      ASSIGN
-       bf-account.company = company.company.
+      IF NOT AVAIL account AND company.co-acc NE "" THEN
+      FOR EACH account WHERE account.company EQ company.co-acc NO-LOCK:
+        CREATE bf-account.
+        BUFFER-COPY account TO bf-account
+          ASSIGN
+           bf-account.company = company.company.
+      END.
   END.
 
   SESSION:SET-WAIT-STATE ("").
