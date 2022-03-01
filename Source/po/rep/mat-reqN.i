@@ -6,7 +6,7 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
 
   for each job
       where job.company eq cocode
-        AND job.opened  EQ YES
+        AND (job.opened  EQ YES OR tb_include-job )
         and job.job-no  ge substr(v-job-no[1],1,6)
         and job.job-no  le substr(v-job-no[2],1,6)
         AND job.due-date GE begin_job-date
@@ -174,7 +174,7 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
           assign
            len-score        = "".
                              
-           run po/po-ordls.p (recid(po-ordl)). 
+           
             
            {po/poprints.i}                     
           
@@ -359,7 +359,7 @@ for each {1}report where {1}report.term-id eq v-term,
         END.
         
         PUT UNFORMATTED cDisplay SKIP.
-        IF tb_excel THEN DO:
+        IF rd-dest = 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
                    cExcelDisplay SKIP.
         END.
@@ -408,7 +408,7 @@ for each {1}report where {1}report.term-id eq v-term,
         END.
         
         PUT UNFORMATTED cDisplay SKIP.
-        IF tb_excel THEN DO:
+        IF rd-dest = 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
                    cExcelDisplay SKIP.
         END.

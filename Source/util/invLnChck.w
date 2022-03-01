@@ -487,7 +487,7 @@ PROCEDURE run-process :
         FIRST cust NO-LOCK
         WHERE cust.company EQ oe-bolh.company
         AND cust.cust-no EQ oe-bolh.cust-no
-        AND cust.active NE "X" /* exclude transfers */,    
+        AND NOT cust.internal /* exclude transfers */,    
         EACH oe-boll 
         WHERE oe-boll.company EQ oe-bolh.company
         AND oe-boll.b-no    EQ oe-bolh.b-no                    
@@ -727,7 +727,7 @@ PROCEDURE run-process :
         UPDATE ll.
     IF ll THEN 
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-        open-mime-resource "text/plain" string("file:///" + fi_file_path) false.
+        open-mime-resource "text/plain" string("file:///" + fi_file_path) NOT-EMBEDDED.
 &ELSE
         OS-COMMAND NO-WAIT NOTEPAD VALUE(fi_file_path).
 &ENDIF

@@ -100,6 +100,8 @@
     DEFINE VARIABLE cUnitsperpack AS CHARACTER NO-UNDO INITIAL "1".
     DEFINE VARIABLE cSalesunit    AS CHARACTER NO-UNDO INITIAL "Each".    
     
+    RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
+    
     IF ipcRequestHandler NE "" THEN 
         RUN VALUE(ipcRequestHandler) (
             INPUT TABLE ttArgs,

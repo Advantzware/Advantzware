@@ -433,7 +433,7 @@ DEFINE BROWSE BROWSE-1
     oe-ordl.line FORMAT ">>99":U
     get-cost() @ ld-cost COLUMN-LABEL "Invoice Line Cost" WIDTH 24 
     get-cost-uom() @ ld-cost-uom COLUMN-LABEL "Cost!UOM"
-    oe-ordl.po-no-po FORMAT ">>>>>9":U
+    oe-ordl.po-no-po FORMAT ">>>>>>>9":U
     get-last-shipto() @ v-last-shipto COLUMN-LABEL "Last!ShipTo" FORMAT "x(8)":U
     get-act-bol-qty() @ li-act-bol-qty COLUMN-LABEL "Act. BOL!Qty" FORMAT "->>,>>>,>>>":U
     WIDTH 15.4    
@@ -642,6 +642,27 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         DISPLAY citem cItemName cLoc.
  
         /*   IF AVAILABLE itemfg THEN*/
+        IF ipLocation EQ "*All" THEN
+        DO:
+          OPEN QUERY BROWSE-1 FOR EACH oe-ordl   
+            WHERE oe-ordl.company EQ cocode
+            AND ( (LOOKUP(oe-ordl.cust-no,custcount) <> 0 AND oe-ordl.cust-no <> "") OR custcount = "") 
+            AND ( oe-ordl.opened  EQ YES)
+            AND ( oe-ordl.stat    NE "C"  OR oe-ordl.stat EQ "")
+            AND oe-ordl.i-no EQ itemfg.i-no NO-LOCK ,
+            FIRST oe-ord NO-LOCK
+            WHERE oe-ord.company  EQ oe-ordl.company
+            AND oe-ord.ord-no   EQ oe-ordl.ord-no
+            AND (oe-ord.opened EQ YES ),
+            FIRST oe-rel WHERE oe-rel.company = oe-ordl.company 
+            AND oe-rel.ord-no = oe-ordl.ord-no 
+            AND oe-rel.i-no = oe-ordl.i-no 
+            AND oe-rel.line = oe-ordl.line 
+            AND (oe-rel.spare-char-1 EQ ipLocation OR ipLocation EQ "*All" ) OUTER-JOIN NO-LOCK
+            BY oe-ordl.ord-no BY oe-ordl.i-no.
+            
+        END.
+        ELSE do:
         OPEN QUERY BROWSE-1 FOR EACH oe-ordl   
             WHERE oe-ordl.company EQ cocode
             AND ( (LOOKUP(oe-ordl.cust-no,custcount) <> 0 AND oe-ordl.cust-no <> "") OR custcount = "") 
@@ -658,6 +679,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             AND oe-rel.line = oe-ordl.line 
             AND (oe-rel.spare-char-1 EQ ipLocation OR ipLocation EQ "*All" ) NO-LOCK
             BY oe-ordl.ord-no BY oe-ordl.i-no.
+        END.    
     END.
 
 

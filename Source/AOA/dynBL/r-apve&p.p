@@ -10,10 +10,11 @@
 /* Temp-Table Definitions ---                                           */
 
 &Scoped-define ttTempTable ttAPInvoicePosting 
-{aoa/tempTable/ttAPInvoicePosting.i}
-{aoa/tempTable/ttAPInvoicePostingGL.i}
-{aoa/tempTable/ttAPInvoicePostingSummary.i}
-{aoa/tempTable/ttAPInvoicePostingMsg.i}
+{AOA/tempTable/ttAPInvoicePosting.i}
+{AOA/tempTable/ttAPInvoicePostingGL.i}
+{AOA/tempTable/ttAPInvoicePostingSummary.i}
+{AOA/tempTable/ttAPInvoicePostingMsg.i}
+RUN spSetSessionParam ("SummaryTables", "3").
 
 DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
     FIELD actnum   LIKE account.actnum
@@ -209,7 +210,7 @@ PROCEDURE pBusinessLogic:
     END. /* ttAPInvoicePostingMsg */
     IF lProgressBar THEN
         RUN spProgressBar (cProgressBar, 80, 100). 
-    {AOA/BL/exportDynTempTable.i ttAPInvoicePostingMsg}
+    {AOA/dynBL/exportDynTempTable.i ttAPInvoicePostingMsg}
     IF lProgressBar THEN
         RUN spProgressBar (cProgressBar, 100, 100). 
 END PROCEDURE.
@@ -705,7 +706,7 @@ PROCEDURE pEditReport:
         END. /* if last-of */
     END. /* each tt-report */
     
-    {AOA/BL/exportDynTempTable.i ttAPInvoicePostingGL}
+    {AOA/dynBL/exportDynTempTable.i ttAPInvoicePostingGL}
     
     FOR EACH tt-report,
         FIRST ap-inv NO-LOCK
@@ -875,7 +876,7 @@ PROCEDURE pEditReport:
     END. /* last-of */
     dFrtTotal  = (ACCUM TOTAL ap-inv.freight).
 
-    {AOA/BL/exportDynTempTable.i ttAPInvoicePostingSummary}
+    {AOA/dynBL/exportDynTempTable.i ttAPInvoicePostingSummary}
     
 END PROCEDURE.
 
@@ -960,7 +961,7 @@ PROCEDURE pPostGL:
                                     iPeriod,
                                     "A",
                                     dtPostDate,
-                                    string(ap-inv.inv-no),
+                                    "Vendor:" + STRING(vend.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
                                     "AP").
 
                 ASSIGN
@@ -1173,7 +1174,7 @@ PROCEDURE pPostGL:
                                     iPeriod,
                                     "A",
                                     dtPostDate,
-                                    string(ap-inv.inv-no),
+                                    (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + string(ap-inv.inv-no,"9999999"),
                                     "AP").
             END. /* last-of actnum */
         END. /* for each ap-inv */
@@ -1189,7 +1190,7 @@ PROCEDURE pPostGL:
                                iPeriod,
                                "A",
                                dtPostDate,
-                               string(ap-inv.inv-no),
+                               (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
                                "AP").
         END. /* dfrttotal ne 0 */
         FOR EACH tt-ap-tax
@@ -1207,7 +1208,7 @@ PROCEDURE pPostGL:
                                iPeriod,
                                "A",
                                dtPostDate,
-                               string(ap-inv.inv-no),
+                               (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
                                "AP").
             END. /* last-of actnum */
         END. /* each tt-ap-tax */
@@ -1221,7 +1222,7 @@ PROCEDURE pPostGL:
                           iPeriod,
                           "A",
                           dtPostDate,
-                          string(ap-inv.inv-no),
+                          (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
                           "AP").
     END. /* postit: transaction */
 END PROCEDURE.

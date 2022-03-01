@@ -488,7 +488,7 @@ v-printline = 0.
                v-dep     = 0.
 
         len-score = "".   
-        run po/po-ordls.p (recid(po-ordl)).
+        
         {po/poprints.i} 
             PUT "Score: " AT 17 len-score FORMAT "x(50)".
           END.

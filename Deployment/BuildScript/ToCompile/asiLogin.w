@@ -116,13 +116,11 @@ DEFINE VARIABLE iLockoutTries AS INT NO-UNDO.
 DEFINE VARIABLE iModePos AS INT NO-UNDO.
 DEFINE VARIABLE intBufferSize AS INTEGER NO-UNDO INITIAL 256.
 DEFINE VARIABLE intResult AS INTEGER NO-UNDO.
-DEFINE VARIABLE iNumUsers AS INT NO-UNDO.
 DEFINE VARIABLE is-running AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iTries AS INT NO-UNDO.
 DEFINE VARIABLE iTruncLevel AS INT NO-UNDO.
 DEFINE VARIABLE jCtr AS INT NO-UNDO.
 DEFINE VARIABLE lConnectAudit AS LOG NO-UNDO.
-DEFINE VARIABLE lCorrupt AS LOG NO-UNDO.
 DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lExit AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
@@ -528,10 +526,12 @@ ON LEAVE OF fiUserID IN FRAME DEFAULT-FRAME /* User ID */
 DO:
     RUN ipAssignSV.
     FIND FIRST ttUsers NO-LOCK WHERE
-        ttUsers.ttfUserID = fiUserID
+        ttUsers.ttfUserID EQ fiUserID AND 
+        ttUsers.ttfPdbName EQ "*"
         NO-ERROR.
     IF NOT AVAIL ttUsers THEN FIND FIRST ttUsers NO-LOCK WHERE
-        ttUsers.ttfUserAlias = fiUserID
+        ttUsers.ttfUserAlias EQ fiUserID AND 
+        ttUsers.ttfPdbName EQ "*"
         NO-ERROR.
 
     IF NOT AVAIL ttUsers THEN DO:
@@ -562,8 +562,6 @@ DO:
             SELF:SCREEN-VALUE = "".
         RETURN NO-APPLY.
     END.
-    
-
     
     ASSIGN
         /* set the combo box possible values */
@@ -839,13 +837,12 @@ PROCEDURE ipChangeEnvironment :
             preProPath = cTop + "," +
                          cTop + "asiObjects.pl," +
                          cTop + "asigraphics.pl," +
-                         cTop + "asiDataDigger.pl," +
                          cTop + cEnvCustomerDir + "," +
                          cTop + cEnvOverrideDir + "," +
                          cTop + cEnvProgramsDir + "," +
                          cTop + cEnvProgramsDir + "\Addon" + "," +
-                         cTop + cEnvResourceDir + "," +
                          cTop + cEnvCustFiles + "," +
+                         cTop + cEnvResourceDir + "," +
                          cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ","
                 PROPATH = preProPath + origPropath.      
         RETURN.
@@ -881,13 +878,12 @@ PROCEDURE ipChangeEnvironment :
             preProPath = cTop + "," +
                          cTop + "asiObjects.pl," +
                          cTop + "asigraphics.pl," +
-                         cTop + "asiDataDigger.pl," +
                          cTop + cEnvCustomerDir + "," +
                          cTop + cEnvOverrideDir + "," +
                          cTop + cEnvProgramsDir + "," +
                          cTop + cEnvProgramsDir + "\Addon" + "," +
-                         cTop + cEnvResourceDir + "," +
                          cTop + cEnvCustFiles + "," +
+                         cTop + cEnvResourceDir + "," +
                          cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ","
                 PROPATH = preProPath + origPropath.
         IF NUM-ENTRIES(cDbValidList) EQ 1 THEN DO:
@@ -1341,10 +1337,6 @@ PROCEDURE ipPreRun :
         END.
     END.
      
-    RUN epUpdateUsrFile IN hPreRun (OUTPUT cUsrList).
-
-    RUN ipUpdUsrFile IN THIS-PROCEDURE (cUsrList).
-
     RUN epGetUserGroups IN hPreRun (OUTPUT g_groups).
 
     IF iDbLevel GT 16061200 THEN 
@@ -1374,9 +1366,6 @@ PROCEDURE ipReadUsrFile :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    ASSIGN 
-        lCorrupt = FALSE
-        iCtr = 1.
     INPUT FROM VALUE(SEARCH(cUsrLoc)).
     REPEAT:
         IMPORT UNFORMATTED cUsrLine.
@@ -1390,12 +1379,10 @@ PROCEDURE ipReadUsrFile :
                 ttUsers.ttfEnvList = ENTRY(4,cUsrLine,"|")
                 ttUsers.ttfDbList = ENTRY(5,cUsrLine,"|")
                 ttUsers.ttfModeList = ENTRY(6,cUsrLine,"|")
-                iCtr = iCtr + 1.
+                .
         END.
     END.
     INPUT CLOSE.
-    ASSIGN
-        iNumUsers = iCtr.
 
 END PROCEDURE.
 
@@ -1429,95 +1416,6 @@ PROCEDURE ipSetCurrentDir :
     END.
     &ENDIF
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdUsrFile C-Win 
-PROCEDURE ipUpdUsrFile :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       The ONLY reason to run this is if in "healing" mode; i.e there's been
-                   a change to the structure of the .usr file or the ttUsers temp-table
-    ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcUserList AS CHAR NO-UNDO.
-    DEFINE VARIABLE iCtr AS INT NO-UNDO.
-    DEFINE VARIABLE cOutString AS CHAR.
-    DEFINE VARIABLE cUserModes AS CHAR NO-UNDO.
-    
-    DEFINE BUFFER bttUsers FOR ttUsers.
-
-    /* ipcUserList is a list of all _user records in the connected DBs. */
-    ASSIGN 
-        lUpdUsr = FALSE.
-    
-    /* If we haven't previiously deleted the DB-specific records, do it now. */    
-    IF CAN-FIND (FIRST ttUsers WHERE 
-                ttUsers.ttfPdbName NE "*") THEN DO:
-        ASSIGN 
-            lUpdUsr = TRUE.
-        FOR EACH ttUsers WHERE 
-            ttUsers.ttfPdbName NE "*":
-            DELETE ttUsers.
-        END.
-    END.   
-    
-    /* If a new user has been created in the DB, add to .usr file */
-    DO iCtr = 1 TO NUM-ENTRIES(ipcUserList):
-        FIND FIRST bttUsers WHERE 
-            ttUsers.ttfUserID EQ ENTRY(iCtr,ipcUserList) AND
-            ttUsers.ttfPdbName EQ "PROD"
-            NO-LOCK NO-ERROR.
-        IF AVAIL bttUsers THEN ASSIGN 
-            cUserModes = bttUsers.ttfModeList.
-        ELSE ASSIGN
-            cUserModes = "".
-
-        FOR EACH bttUsers WHERE 
-            bttUsers.ttfUserID EQ ENTRY(iCtr,ipcUserList) AND
-            bttUsers.ttfPdbName NE "*":
-            DELETE ttUsers.
-        END.
-
-        FIND FIRST ttUsers WHERE
-            ttUsers.ttfUserID EQ ENTRY(iCtr,ipcUserList) AND
-            ttUsers.ttfPdbName EQ "*"
-            NO-ERROR.
-        IF NOT AVAIL ttUsers THEN DO:
-            CREATE ttUsers.
-            ASSIGN
-                lUpdUsr = TRUE
-                ttUsers.ttfUserID = ENTRY(iCtr,ipcUserList)
-                ttUsers.ttfUserAlias = ENTRY(iCtr,ipcUserList)
-                ttUsers.ttfPdbName = "*"
-                ttUsers.ttfModeList = cUserModes
-                .
-        END.
-        ELSE IF ttUsers.ttfModeList EQ "" 
-        AND cUserModes NE "" THEN ASSIGN 
-            lUpdUsr = TRUE
-            ttUsers.ttfModeList = cUserModes.
-        
-    END.
-    
-    IF lUpdUsr = TRUE THEN DO:
-        OUTPUT STREAM usrStream TO VALUE(cUsrLoc).
-        FOR EACH ttUsers by ttUsers.ttfUserID:
-            ASSIGN 
-                cOutString = 
-                ttUsers.ttfUserID + "|" + 
-                ttUsers.ttfPdbName + "|" +
-                ttUsers.ttfUserAlias + "|" + 
-                ttUsers.ttfEnvList + "|" +
-                ttUsers.ttfDbList + "|" +
-                ttUsers.ttfModeList.
-            PUT STREAM usrStream UNFORMATTED cOutString + CHR(10).
-        END.
-        OUTPUT STREAM usrStream CLOSE.
-    END.
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

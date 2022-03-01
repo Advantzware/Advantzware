@@ -13,6 +13,8 @@
     Notes       :
   ----------------------------------------------------------------------*/
 
+DEFINE VARIABLE gcRequestDataType AS CHARACTER NO-UNDO.
+
 /* ************************  Function Prototypes ********************** */
 FUNCTION fGetAPITransactionCounter RETURNS INTEGER PRIVATE
 	( INPUT ipiAPIOutboundID AS INTEGER ) FORWARD.
@@ -22,6 +24,35 @@ FUNCTION fGetClientTransactionCounter RETURNS INTEGER PRIVATE
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE pSetRequestDataType PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcRequestDataType AS CHARACTER NO-UNDO.
+
+    gcRequestDataType = ipcRequestDataType.
+         
+END PROCEDURE.
+
+PROCEDURE pUpdateRequestDataType PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiAPIOutboundID AS INTEGER NO-UNDO.
+
+    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
+    
+    FIND FIRST bf-APIOutbound NO-LOCK
+         WHERE bf-APIOutbound.apiOutboundID EQ ipiAPIOutboundID 
+         NO-ERROR.
+    IF AVAILABLE bf-APIOutbound THEN
+        RUN pSetRequestDataType (
+            INPUT bf-APIOutbound.requestDataType
+            ).
+         
+END PROCEDURE.
 
 PROCEDURE pUpdateDelimiter PRIVATE:
 /*------------------------------------------------------------------------------
@@ -31,22 +62,50 @@ PROCEDURE pUpdateDelimiter PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData   AS LONGCHAR  NO-UNDO.
     DEFINE INPUT        PARAMETER ipcRequestDataType AS CHARACTER NO-UNDO.
     
-    IF ipcRequestDataType EQ "JSON" THEN
+    RUN pUpdateDelimiterAndTrim (
+        INPUT-OUTPUT ioplcRequestData,
+        INPUT        ipcRequestDataType,
+        INPUT        TRUE
+        ).  
+END PROCEDURE.
+
+PROCEDURE pUpdateDelimiterWithoutTrim PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Replaces the delimiters of the request data for a given data type
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData   AS LONGCHAR  NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcRequestDataType AS CHARACTER NO-UNDO.
+    
+    RUN pUpdateDelimiterAndTrim (
+        INPUT-OUTPUT ioplcRequestData,
+        INPUT        ipcRequestDataType,
+        INPUT        FALSE
+        ).  
+END PROCEDURE.
+
+PROCEDURE pUpdateDelimiterAndTrim PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Replaces and trims the delimiters of the request data for a given data type
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData   AS LONGCHAR  NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcRequestDataType AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER iplTrim            AS LOGICAL   NO-UNDO.
+    
+    ASSIGN
+        ioplcRequestData = REPLACE(ioplcRequestData, "$comma$", ",")
+        ioplcRequestData = REPLACE(ioplcRequestData, "$linefeed$", "~n")    /* Replaces $linefeed$ with carriage return character */
+        ioplcRequestData = REPLACE(ioplcRequestData, "$formfeed$", CHR(12)) /* Replaces $formfeed$ with Form Feed character (PAGE keyword) */
+        .
+
+    IF iplTrim THEN
         ASSIGN
-            ioplcRequestData = REPLACE(ioplcRequestData, "$comma$", ",")
             ioplcRequestData = TRIM(ioplcRequestData, ",")
-            .
-    ELSE
-        ASSIGN
-            ioplcRequestData = REPLACE(ioplcRequestData, "$linefeed$", "~n")
             ioplcRequestData = TRIM(ioplcRequestData, "~n")
+            ioplcRequestData = TRIM(ioplcRequestData, CHR(12))
             .
             
-    /* Replaces $page$ with Form Feed character (PAGE keyword) */
-    ASSIGN
-        ioplcRequestData = REPLACE(ioplcRequestData, "$formfeed$", CHR(12))
-        ioplcRequestData = TRIM(ioplcRequestData, CHR(12))
-        .    
 END PROCEDURE.
 
 PROCEDURE updateRequestData:
@@ -60,214 +119,13 @@ PROCEDURE updateRequestData:
     DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData AS LONGCHAR  NO-UNDO.
     DEFINE INPUT        PARAMETER ipcField         AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcValue         AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE cFieldValuePrefix AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFieldValueSuffix AS CHARACTER NO-UNDO.        
-    DEFINE VARIABLE cFormat           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFormatType       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iIndex            AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cNextChar         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cSourceString     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTargetString     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cAlignmentStyle   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTrim             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lFormatAvail      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lFormatTypeAvail  AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lAlignmentAvail   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lTrimAvail        AS LOGICAL   NO-UNDO.
-    
-    ASSIGN
-        cFieldValuePrefix = "$"
-        cFieldValueSuffix = "$"
-        .
 
-    IF ipcValue EQ ? THEN
-        ipcValue = "".
-    
-    /* This will add an escape character (\) before a (") so JSON won't throw error */
-    ASSIGN
-        ipcValue = REPLACE(ipcValue, '\','\\')
-        ipcValue = REPLACE(ipcValue, '"','\"')
-        .
-    
-    /* Replaces the key field with value in request data */
-    ioplcRequestData = REPLACE(ioplcRequestData, cFieldValuePrefix + ipcField + cFieldValueSuffix, ipcValue).
-    
-    /* If the key field is available with a specific format or data type for conversion */
-    DO WHILE ioplcRequestData MATCHES "*" + cFieldValuePrefix + ipcField + "|*|" + cFieldValueSuffix + "*":
-        /* cNextChar fetches the character after the at the end of key field */
-        ASSIGN
-            cFormat         = ""
-            cFormatType     = ""
-            cAlignmentStyle = ""
-            cSourceString   = ""
-            cTrim           = ""
-            cNextChar       = SUBSTRING(ioplcRequestData,INDEX(ioplcRequestData,cFieldValuePrefix + ipcField + "|") + LENGTH(cFieldValuePrefix + ipcField), 1)
-            .
-        
-        ASSIGN
-            lFormatAvail     = FALSE
-            lFormatTypeAvail = FALSE
-            lAlignmentAvail  = FALSE
-            lTrimAvail       = FALSE
-            .
-            
-        /* If $ do nothing, as it would have been already replaced */
-        IF cNextChar EQ "$" THEN
-            cFormat = "".
-        /* If |, then a format exists */
-        ELSE IF cNextChar EQ "|" THEN DO:
-            iIndex = INDEX(ioplcRequestData,cFieldValuePrefix + ipcField + "|") + LENGTH(cFieldValuePrefix + ipcField) + 1.
-            
-            /* Code to retrieve the format */
-            DO WHILE TRUE:
-                IF SUBSTRING(ioplcRequestData,iIndex,1) EQ "|" THEN
-                    LEAVE.
-                
-                ASSIGN
-                    cFormat = cFormat + SUBSTRING(ioplcRequestData,iIndex,1)
-                    iIndex  = iIndex + 1
-                    .
-            END.
-
-            lFormatAvail = TRUE.
-            
-            /* Block to check if a data type exist */            
-            iIndex = iIndex + 1.
-            
-            /* If the next character after the format is not $, then data type exist */
-            IF SUBSTRING(ioplcRequestData,iIndex,1) NE "$" THEN DO:     
-                DO WHILE TRUE:
-                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ "|" THEN
-                        LEAVE.
-                    
-                    ASSIGN
-                        cFormatType = cFormatType + SUBSTRING(ioplcRequestData,iIndex,1)
-                        iIndex      = iIndex + 1
-                        .
-                END.
-                
-                lFormatTypeAvail = TRUE.
-            END.
-            ELSE 
-                iIndex = iIndex - 1.
-            
-            /* Block to check if a alignment style exist */
-            iIndex = iIndex + 1.
-  
-            /* If the next character after the format is not $, then alignment style exist */
-            IF SUBSTRING(ioplcRequestData,iIndex,1) NE "$" THEN DO:
-                DO WHILE TRUE:
-                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ "|" THEN
-                        LEAVE.
-  
-                    ASSIGN
-                        cAlignmentStyle = cAlignmentStyle + SUBSTRING(ioplcRequestData,iIndex,1)
-                        iIndex          = iIndex + 1
-                        .
-                END.
-                
-                lAlignmentAvail = TRUE.
-            END. 
-            ELSE
-                iIndex = iIndex - 1.
-                
-            iIndex = iIndex + 1.    
-            
-            /* If the next character after the alignment is not $, then trim exist */
-            IF SUBSTRING(ioplcRequestData,iIndex,1) NE "$" THEN DO:
-                DO WHILE TRUE:
-                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ "|" THEN
-                        LEAVE.
-  
-                    ASSIGN
-                        cTrim  = cTrim + SUBSTRING(ioplcRequestData,iIndex,1)
-                        iIndex = iIndex + 1
-                        .
-                END.
-                
-                lTrimAvail = TRUE.
-            END.                    
-        END.    
-        ELSE
-            cFormat = ?.    
-
-        IF cFormatType NE "" THEN DO:
-            /* To convert a decimal value into integer without losing the original value */
-            /* Decimal places will be rounded to Progress standard */
-            IF cFormatType EQ "DECIMAL-INTEGER" OR cFormatType EQ "DEC-INT" THEN
-                ASSIGN
-                    cTargetString = STRING(DECIMAL(ipcValue),cFormat)
-                    cTargetString = REPLACE(cTargetString, ".", "")
-                    cTargetString = TRIM(cTargetString)
-                    NO-ERROR.
-            ELSE IF cFormatType BEGINS "INT" THEN
-                ASSIGN
-                    cTargetString = STRING(INTEGER(ipcValue),cFormat)
-                    cTargetString = TRIM(cTargetString)
-                    NO-ERROR.
-            ELSE IF cFormatType BEGINS "DEC" THEN
-                ASSIGN
-                    cTargetString = STRING(DECIMAL(ipcValue),cFormat)
-                    cTargetString = TRIM(cTargetString)
-                    NO-ERROR.
-            ELSE IF cFormatType EQ "TIME" THEN
-                RUN Format_Time (
-                    INPUT  INTEGER(ipcValue),
-                    INPUT  cFormat,
-                    OUTPUT cTargetString
-                    ) NO-ERROR.
-            ELSE IF cFormatType EQ "MTIME" THEN
-                RUN Format_MTime (
-                    INPUT  INTEGER(ipcValue),
-                    INPUT  cFormat,
-                    OUTPUT cTargetString
-                    ) NO-ERROR.
-            ELSE IF cFormatType EQ "DATE" THEN
-                RUN Format_DateTimeTZ (
-                    INPUT  DATETIME-TZ(ipcValue),
-                    INPUT  cFormat,
-                    OUTPUT cTargetString
-                    ) NO-ERROR.
-            ELSE IF cFormatType BEGINS "LOG" THEN
-                ASSIGN
-                    cTargetString = STRING(LOGICAL(ipcValue), cFormat)
-                    cTargetString = TRIM(cTargetString)
-                    .
-        END.
-        ELSE
-            cTargetString = STRING(ipcValue,cFormat).
-
-        IF cFormatType BEGINS "INT" OR cFormatType BEGINS "DEC" THEN DO:
-            IF cAlignmentStyle EQ "L" THEN
-                cTargetString = cTargetString + FILL(" ", LENGTH(cFormat) - LENGTH(cTargetString)).
-            ELSE IF cAlignmentStyle EQ "R" THEN
-                cTargetString = FILL(" ", LENGTH(cFormat) - LENGTH(cTargetString)) + cTargetString.
-        END.
-
-        /* If trim format exists them trim the target string */
-        IF cTrim EQ "TRIM" THEN
-            cTargetString = TRIM(cTargetString).
-        
-        IF lFormatAvail THEN        
-            cSourceString = cSourceString + cFieldValuePrefix + ipcField + "|" + cFormat + "|".
-        
-        /* Constructing the string to replace with the formatted string */
-        IF lFormatTypeAvail THEN
-            cSourceString = cSourceString + cFormatType + "|".
-        
-        IF lAlignmentAvail THEN
-            cSourceString = cSourceString + cAlignmentStyle + "|".
-
-        IF lTrimAvail THEN
-            cSourceString = cSourceString + cTrim + "|".
-
-        cSourceString = cSourceString + cFieldValueSuffix.
-                
-        /* Replace the key field with format and data type with the value */
-        IF cFormat NE ? AND cFormat NE "" THEN
-            ioplcRequestData = REPLACE(ioplcRequestData,cSourceString, cTargetString).    
-    END.    
+    RUN Format_UpdateRequestData (
+        INPUT-OUTPUT ioplcRequestData,
+        INPUT        ipcField,
+        INPUT        ipcValue,
+        INPUT        gcRequestDataType
+        ).            
 END PROCEDURE.
 
 

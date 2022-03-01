@@ -74,6 +74,12 @@ DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE glPOModified AS LOG NO-UNDO.
 DEFINE VARIABLE lCheckTagHoldMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hFreightProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lTagWarning AS LOGICAL NO-UNDO.
+
+RUN system/FreightProcs.p PERSISTENT SET hFreightProcs.
 
 DEFINE TEMP-TABLE w-rowid FIELD w-rowid AS CHAR
           INDEX w-rowid IS PRIMARY w-rowid.
@@ -759,6 +765,7 @@ END.
 ON VALUE-CHANGED OF oe-boll.tag IN BROWSE Browser-Table /* Tag */
 DO:
      lCheckTagHoldMessage = NO .
+     lTagWarning = NO.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -884,10 +891,9 @@ DO:
                          INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
                          INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
                          INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT INT(oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name}),
+                         INPUT INT(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name}),
                          INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         INPUT INT(oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name}),
+                         INPUT INT(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}),
                          OUTPUT v-tot-pallets).
 
      IF LASTKEY NE 13 THEN
@@ -932,18 +938,18 @@ DO:
 
   IF INT(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}) NE v-old-qty-case THEN
   DO:
-     RUN oe/pallcalc2.p (INPUT cocode,
-                         INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT INT(oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         INPUT INT(oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         OUTPUT v-tot-pallets).
+     
+      RUN oe/pallcalc2.p (INPUT cocode,
+          INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT INT(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT INT(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}),
+          OUTPUT v-tot-pallets).
 
      IF LASTKEY NE 13 THEN
         oe-boll.tot-pallets:SCREEN-VALUE = STRING(v-tot-pallets).
@@ -986,18 +992,17 @@ DO:
 
   IF INT(oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name}) NE v-old-partial THEN
   DO:
-     RUN oe/pallcalc2.p (INPUT cocode,
-                         INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT INT(oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         INPUT INT(oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         OUTPUT v-tot-pallets).
+      RUN oe/pallcalc2.p (INPUT cocode,
+          INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT INT(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT INT(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}),
+          OUTPUT v-tot-pallets).
 
      IF LASTKEY NE 13 THEN
         oe-boll.tot-pallets:SCREEN-VALUE = STRING(v-tot-pallets).
@@ -1724,6 +1729,7 @@ DEF VAR v-pallets AS DEC NO-UNDO.
 DEF VAR v-freight AS DEC NO-UNDO.
 DEF VAR v-freight-related-modified AS LOG NO-UNDO.
 DEF VAR dFreight AS DEC NO-UNDO.
+  
 DEF BUFFER bf-oe-boll FOR oe-boll.
 DEF BUFFER bf2-oe-boll FOR oe-boll.
 DEF BUFFER bf3-oe-boll FOR oe-boll.
@@ -1794,10 +1800,12 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
   FIND b-oe-bolh WHERE ROWID(b-oe-bolh) EQ ROWID(oe-bolh) NO-ERROR.
   IF AVAIL b-oe-bolh THEN DO:
     b-oe-bolh.tot-wt = 0.
+    IF cFreightCalculationValue EQ "ALL" THEN
     b-oe-bolh.freight = 0.
     FOR EACH b-oe-boll OF b-oe-bolh NO-LOCK:
       b-oe-bolh.tot-wt = b-oe-bolh.tot-wt + b-oe-boll.weight.
-      b-oe-bolh.freight = b-oe-bolh.freight + b-oe-boll.freight.      
+      IF cFreightCalculationValue EQ "ALL" THEN
+      b-oe-bolh.freight = b-oe-bolh.freight + b-oe-boll.freight.
     END.
 
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
@@ -1811,39 +1819,36 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
                             AND oe-ordl.i-no = oe-boll.i-no NO-LOCK NO-ERROR.
       IF AVAIL oe-ordl THEN oe-boll.LINE = oe-ordl.LINE.
     END.
-
+        
     /* Task 04171407, only recalc freight if quantity is changed, */
     /* if weight or freight changed, just add up and display in header */ 
     IF (v-qty NE oe-boll.qty
       OR v-qty-case NE oe-boll.qty-case
       OR v-partial  NE oe-boll.partial
-      OR v-pallets  NE oe-boll.tot-pallets 
-      OR adm-new-record)
-      AND (v-freight EQ oe-boll.freight)
-      AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:
+      OR v-pallets  NE oe-boll.tot-pallets
+      OR v-weight   NE oe-boll.weight
+      OR adm-new-record) THEN do:
+      
+        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+        
+        IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:         
+          RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), YES, OUTPUT dFreight).
+          IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+          RUN calc-freight-header IN WIDGET-HANDLE(char-hdl) (INPUT dFreight).          
+        END.
+        ELSE DO:
+          RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), NO, OUTPUT dFreight).
+        END.
+      
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:            
+          RUN dispatch IN WIDGET-HANDLE(char-hdl) ('display-fields').
+      END.
+    END.            
     
-      RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), YES, OUTPUT dFreight).
-    END.
-    ELSE DO:
-         RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), NO, OUTPUT dFreight).
-         IF AVAIL(b-oe-bolh) THEN
-           dFreight = b-oe-bolh.freight.
-         ELSE
-           IF AVAIL(oe-bolh) THEN
-             dFreight = b-oe-bolh.freight.
-    END.
-     
-    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-
-    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:       
-       RUN calc-freight-header IN WIDGET-HANDLE(char-hdl) (INPUT dFreight).
-       RUN dispatch IN WIDGET-HANDLE(char-hdl) ('display-fields').
-    END.
-     
-    /* RUN calc-all-freight. */
+    IF cFreightCalculationValue NE "ALL" THEN
+    RUN ProrateFreightAcrossBOLLines IN hFreightProcs(INPUT ROWID(oe-bolh), INPUT oe-bolh.freight, OUTPUT lError, OUTPUT cMessage).
   END. /* if freight modified or new record */
-
-
+    
   oe-bolh.tot-pallets = oe-boll.tot-pallets.
 
   FOR EACH b-oe-boll fields(tot-pallets freight) WHERE
@@ -1941,6 +1946,7 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
 
   Browser-Table:REFRESH() IN FRAME {&FRAME-NAME}.
   lCheckTagHoldMessage = NO.
+  lTagWarning = NO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1997,6 +2003,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */   
   lCheckTagHoldMessage = NO.
+  lTagWarning = NO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2048,7 +2055,8 @@ PROCEDURE local-create-record :
   IF AVAIL b-oe-boll THEN oe-boll.s-code = b-oe-boll.s-code.
   IF oe-boll.po-no:SCREEN-VALUE IN BROWSE {&browse-name} GT "" THEN
       oe-boll.po-no = oe-boll.po-no:SCREEN-VALUE IN BROWSE {&browse-name}.
-  lCheckTagHoldMessage = NO.    
+  lCheckTagHoldMessage = NO.
+  lTagWarning = NO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2067,6 +2075,7 @@ PROCEDURE local-delete-record :
   DEF VAR li-ord-no LIKE oe-boll.ord-no NO-UNDO.
   DEF VAR li-boll-cnt AS INT NO-UNDO.
   DEF VAR dFreight AS DEC DECIMALS 6 NO-UNDO.
+   
   li-boll-cnt = 0.
   FOR EACH bf-boll 
     WHERE bf-boll.company = oe-boll.company
@@ -2136,6 +2145,9 @@ PROCEDURE local-delete-record :
 
   IF AVAIL oe-bolh THEN
   DO:
+    IF cFreightCalculationValue NE "ALL" THEN
+    RUN ProrateFreightAcrossBOLLines IN hFreightProcs(INPUT ROWID(oe-bolh), INPUT oe-bolh.freight, OUTPUT lError, OUTPUT cMessage).  
+    
     oe-bolh.tot-pallets = 0.
    
     FOR EACH b2-oe-boll WHERE b2-oe-boll.company EQ oe-bolh.company
@@ -2185,7 +2197,7 @@ PROCEDURE local-destroy :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  DELETE OBJECT hFreightProcs.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2340,18 +2352,17 @@ PROCEDURE local-update-record :
     /*pressing enter*/
     IF LASTKEY EQ 13 OR (adm-new-record AND INT(oe-boll.tot-pallets:SCREEN-VALUE) EQ 0) THEN
     DO:
-       RUN oe/pallcalc2.p (INPUT cocode,
-                           INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                           INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                           INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
-                           INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
-                           INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
-                           INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
-                           INPUT oe-boll.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                           INPUT INT(oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name}),
-                           INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
-                           INPUT INT(oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name}),
-                           OUTPUT v-tot-pallets).
+        RUN oe/pallcalc2.p (INPUT cocode,
+            INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
+            INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
+            INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
+            INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
+            INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
+            INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
+            INPUT INT(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name}),
+            INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
+            INPUT INT(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}),
+            OUTPUT v-tot-pallets).
 
        oe-boll.tot-pallets:SCREEN-VALUE = STRING(v-tot-pallets).
     END.
@@ -2539,18 +2550,17 @@ PROCEDURE new-release :
 
     RUN value-changed-qty.
     
-    RUN oe/pallcalc2.p (INPUT cocode,
-                        INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                        INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                        INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
-                        INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
-                        INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
-                        INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
-                        INPUT oe-boll.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                        INPUT INT(oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name}),
-                        INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
-                        INPUT INT(oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name}),
-                        OUTPUT v-tot-pallets).
+      RUN oe/pallcalc2.p (INPUT cocode,
+          INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT INT(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT INT(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}),
+          OUTPUT v-tot-pallets).
 
     IF LASTKEY NE 13 THEN
        oe-boll.tot-pallets:SCREEN-VALUE = STRING(v-tot-pallets).
@@ -2590,18 +2600,17 @@ PROCEDURE new-tag :
         .
         RUN new-bin.
 
-        RUN oe/pallcalc2.p (INPUT cocode,
-                   INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                   INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                   INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
-                   INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
-                   INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
-                   INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
-                   INPUT oe-boll.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                   INPUT INT(oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name}),
-                   INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
-                   INPUT INT(oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name}),
-                   OUTPUT v-tot-pallets).
+          RUN oe/pallcalc2.p (INPUT cocode,
+              INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
+              INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
+              INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
+              INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
+              INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
+              INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
+              INPUT INT(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name}),
+              INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
+              INPUT INT(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}),
+              OUTPUT v-tot-pallets).
 
         RUN value-changed-qty.
         oe-boll.tot-pallets:SCREEN-VALUE = STRING(v-tot-pallets).
@@ -2798,6 +2807,10 @@ DEF BUFFER bf-boll FOR oe-boll.
    /* gdm - */
    FIND CURRENT oe-bolh EXCLUSIVE-LOCK.
    RUN recalc-freight (OUTPUT dTotFreight).
+   
+   IF cFreightCalculationValue NE "ALL" THEN
+   RUN ProrateFreightAcrossBOLLines IN hFreightProcs(INPUT ROWID(oe-bolh), INPUT oe-bolh.freight, OUTPUT lError, OUTPUT cMessage).
+   
 /*    ASSIGN oe-bolh.tot-pallets = 0                                                       */
 /*           dTotFreight         = 0                                                       */
 /*           tot-other-freight   = 0.                                                      */
@@ -3443,11 +3456,12 @@ PROCEDURE valid-tag :
   DEFINE VARIABLE lMessageValue    AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cTagStatus       AS CHARACTER NO-UNDO.
   
+  DEF BUFFER bf-oe-boll FOR oe-boll.
   RUN inventory\InventoryProcs.p PERSISTENT SET hInventoryProcs.
   
   DO WITH FRAME {&FRAME-NAME}:
     RUN set-local-vars.
-
+    
     IF lv-tag NE ""                                 AND
        ((CAN-FIND(FIRST fg-bin
                   WHERE fg-bin.company EQ cocode
@@ -3468,6 +3482,22 @@ PROCEDURE valid-tag :
       MESSAGE "Tag exists for another item..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO oe-boll.tag IN BROWSE {&browse-name}.
       RETURN ERROR.
+    END.
+    
+    IF lv-tag NE "" AND NOT lTagWarning THEN 
+    DO:
+          FIND FIRST bf-oe-boll NO-LOCK
+               WHERE bf-oe-boll.company EQ cocode
+               AND bf-oe-boll.bol-no EQ oe-bolh.bol-no
+               AND bf-oe-boll.tag EQ lv-tag
+               AND ROWID(bf-oe-boll)  NE ROWID(oe-boll)
+               NO-ERROR.
+          IF avail bf-oe-boll THEN
+          DO:
+             MESSAGE "This tag is already on this BOL and should not be added a second time"
+             VIEW-AS ALERT-BOX WARNING.
+             lTagWarning = YES.
+          END.           
     END.
   
     IF lv-tag NE "" AND fgrecpt-int = 1 and

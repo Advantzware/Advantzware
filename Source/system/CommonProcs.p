@@ -143,6 +143,17 @@ FUNCTION sfCommon_GetWeekDayInText RETURNS CHARACTER
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfCommon_GetMonthName) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_GetMonthName Procedure 
+FUNCTION sfCommon_GetMonthName RETURNS CHARACTER
+  ( INPUT ipiMonth AS INTEGER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-sfCommon_HideAMPM) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_HideAMPM Procedure 
@@ -186,6 +197,19 @@ FUNCTION sfCommon_IsDateWeekend RETURNS LOGICAL
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_RoundUp) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_RoundUp Procedure
+FUNCTION sfCommon_RoundUp RETURNS DECIMAL 
+  (ipdValue AS DECIMAL) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfCommon_SetDateOptions) = 0 &THEN
 
@@ -288,6 +312,34 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-pGetServerDateTime) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetServerDateTime Procedure
+PROCEDURE pGetServerDateTime PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the DB server date and time
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdttzCurrentDateTime AS DATETIME-TZ NO-UNDO.
+
+    DEFINE VARIABLE cSessionTimeSource AS CHARACTER NO-UNDO.
+    
+    cSessionTimeSource = SESSION:TIME-SOURCE.
+    
+    SESSION:TIME-SOURCE = LDBNAME("ASI").
+    
+    opdttzCurrentDateTime = NOW.
+    
+    SESSION:TIME-SOURCE = cSessionTimeSource.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-pGetTimeInGMT) = 0 &THEN
 
@@ -543,18 +595,126 @@ END PROCEDURE.
 
 &ENDIF
 
-&IF DEFINED(EXCLUDE-spCommon_GetCurrentGMTTime) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_GetCurrentGMTTime Procedure 
-PROCEDURE spCommon_GetCurrentGMTTime :
+&IF DEFINED(EXCLUDE-spCommon_CurrencyExcRate) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_CurrencyExcRate Procedure 
+PROCEDURE spCommon_CurrencyExcRate :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBaseCurrCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRateCurrCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtDate        AS DATE      NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdExchangeRate AS DECIMAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-exchangeRate FOR exchangeRate.
+     
+    FIND FIRST currency NO-LOCK
+         WHERE currency.company   EQ ipcCompany
+         AND currency.c-code      EQ ipcBaseCurrCode         
+         NO-ERROR.
+         
+    opdExchangeRate = IF AVAILABLE currency AND currency.ex-rate GT 0 THEN currency.ex-rate ELSE 1.     
+    
+    IF AVAIL currency THEN
+    DO:
+        MAIN-LOOP:
+        FOR EACH exchangeRate NO-LOCK
+            WHERE exchangeRate.company EQ ipcCompany
+            AND exchangeRate.baseCurrencyCode EQ ipcBaseCurrCode
+            AND exchangeRate.rateCurrencyCode EQ ipcRateCurrCode             
+            BREAK BY exchangeRate.asOfDate:
+             
+            IF FIRST(exchangeRate.asOfDate) AND  ipdtDate LT exchangeRate.asOfDate THEN
+            DO:
+                 LEAVE MAIN-LOOP.
+            END.
+             
+            IF exchangeRate.exchangeRate GT 0 AND ipdtDate GE exchangeRate.asOfDate  THEN
+            do: 
+                opdExchangeRate = exchangeRate.exchangeRate. 
+                
+                MAIN-LOOP2:
+                FOR EACH bf-exchangeRate NO-LOCK
+                    WHERE bf-exchangeRate.company EQ ipcCompany
+                    AND bf-exchangeRate.baseCurrencyCode EQ ipcBaseCurrCode
+                    AND bf-exchangeRate.rateCurrencyCode EQ ipcRateCurrCode
+                    AND bf-exchangeRate.asOfDate GT exchangeRate.asOfDate                  
+                    BREAK BY bf-exchangeRate.asOfDate:                     
+                    
+                    IF  bf-exchangeRate.asOfDate GT  ipdtDate THEN 
+                    NEXT MAIN-LOOP2.                 
+                    
+                    opdExchangeRate = bf-exchangeRate.exchangeRate.
+                
+                END. 
+            END.               
+        END.    
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spCommon_CurrencyExcRate) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_CurrentCurrencyExcRate Procedure 
+PROCEDURE spCommon_CurrentCurrencyExcRate :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBaseCurrCode AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opdtDate        AS DATE      NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdExchangeRate AS DECIMAL   NO-UNDO.
+     
+    FIND FIRST currency NO-LOCK
+         WHERE currency.company   EQ ipcCompany
+         AND currency.c-code      EQ ipcBaseCurrCode         
+         NO-ERROR.        
+    
+    IF AVAIL currency THEN
+    DO:
+        MAIN-LOOP:
+        FOR EACH exchangeRate NO-LOCK
+            WHERE exchangeRate.company EQ ipcCompany
+            AND exchangeRate.baseCurrencyCode EQ ipcBaseCurrCode             
+            BREAK BY exchangeRate.asOfDate DESC :
+             IF exchangeRate.exchangeRate GT 0 then
+             do:
+                opdExchangeRate = exchangeRate.exchangeRate.
+                opdtDate = exchangeRate.asOfDate.
+                LEAVE MAIN-LOOP.
+             END.
+        END.    
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spCommon_GetGMTTime) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_GetGMTTime Procedure 
+PROCEDURE spCommon_GetGMTTime :
 /*------------------------------------------------------------------------------
  Purpose: Returns current GMT Time
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipdttzCurrentTime    AS DATETIME-TZ NO-UNDO.
     DEFINE OUTPUT PARAMETER opdttzCurrentGMTTime AS DATETIME-TZ NO-UNDO.
     
     RUN pGetTimeInGMT(
-        INPUT  NOW,
+        INPUT  ipdttzCurrentTime,
         OUTPUT opdttzCurrentGMTTime
         ).
 END PROCEDURE.
@@ -586,6 +746,29 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-spCommon_GetServerGMTTime) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_GetServerGMTTime Procedure
+PROCEDURE spCommon_GetServerTime:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdttzCurrentGMTTime AS DATETIME-TZ NO-UNDO.
+    
+    RUN pGetServerDateTime(
+        OUTPUT opdttzCurrentGMTTime
+        ).   
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spCommon_ParseTime) = 0 &THEN
 
@@ -814,6 +997,26 @@ PROCEDURE spCommon_CheckPostingProcess:
         DELETE object qh.
     END. /*  NOT lCheckLock*/         
    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spCommon_FillCharacter) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_FillCharacter Procedure
+PROCEDURE spCommon_FillCharacter:
+/*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE INPUT-OUTPUT  PARAMETER iopcCharacter      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSize AS INTEGER NO-UNDO.
+    
+    iopcCharacter = FILL(" ",ipiSize - LENGTH(TRIM(iopcCharacter))) + TRIM(iopcCharacter).
 
 END PROCEDURE.
 	
@@ -1203,6 +1406,44 @@ END FUNCTION.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfCommon_GetMonthName) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_GetMonthName Procedure 
+FUNCTION sfCommon_GetMonthName RETURNS CHARACTER
+  ( INPUT ipiMonth AS INTEGER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cMonthChar AS CHARACTER NO-UNDO EXTENT 12.
+    
+    IF ipiMonth LT 1 OR ipiMonth GT 12 THEN
+        RETURN "".
+
+    ASSIGN
+        cMonthChar[1] = "JAN"
+        cMonthChar[2] = "FEB"
+        cMonthChar[3] = "MAR"
+        cMonthChar[4] = "APR"
+        cMonthChar[5] = "MAY"
+        cMonthChar[6] = "Jun"
+        cMonthChar[7] = "JUL"
+        cMonthChar[8] = "AUG"
+        cMonthChar[9] = "SEP"
+        cMonthChar[10] = "OCT"
+        cMonthChar[11] = "NOV"
+        cMonthChar[12] = "DEC"
+        .
+
+    RETURN cMonthChar[ipiMonth].
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-sfCommon_HideAMPM) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_HideAMPM Procedure 
@@ -1277,6 +1518,31 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_RoundUp) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_RoundUp Procedure
+FUNCTION sfCommon_RoundUp RETURNS DECIMAL 
+    (ipdValue AS DECIMAL):
+    /*------------------------------------------------------------------------------
+     Purpose: Given a value, rounds up to next integer
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE dValueRounded AS DECIMAL NO-UNDO.
+
+    IF (ipdValue - INTEGER(ipdValue)) > 0 THEN 
+        dValueRounded = INTEGER(ipdValue) + 1.
+    ELSE dValueRounded = INTEGER (ipdValue).
+    RETURN dValueRounded.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfCommon_SetDateOptions) = 0 &THEN
 

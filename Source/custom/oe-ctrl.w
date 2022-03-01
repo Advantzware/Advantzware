@@ -47,6 +47,15 @@ CREATE WIDGET-POOL.
 {sys/ref/sys-ctrl.i}
 
 DEF VAR giCurrOrd AS INT NO-UNDO.
+DEF VARIABLE lNewOrderEntry AS LOGICAL NO-UNDO.
+DEFIN VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFIN VARIABLE lRecFound AS LOGICAL NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT g_company, "NewOrderEntry", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lNewOrderEntry = LOGICAL(cRtnChar) NO-ERROR.    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -86,7 +95,7 @@ sys-ctrl.char-fld
     ~{&OPEN-QUERY-brHoldTests}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS n-ord Btn_Update Btn_Close 
+&Scoped-Define ENABLED-OBJECTS n-ord Btn_Update Btn_Close Btn_OrdType 
 &Scoped-Define DISPLAYED-FIELDS ar-ctrl.last-inv oe-ctrl.n-bol ~
 oe-ctrl.p-fact oe-ctrl.p-job oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-sep 
 &Scoped-define DISPLAYED-TABLES ar-ctrl oe-ctrl
@@ -117,6 +126,10 @@ DEFINE BUTTON Btn_Close
 
 DEFINE BUTTON Btn_Update 
      LABEL "&Update" 
+     SIZE 15 BY 1.14.
+
+DEFINE BUTTON Btn_OrdType   
+     LABEL "&Order Type" 
      SIZE 15 BY 1.14.
 
 DEFINE VARIABLE fiHoldTests AS CHARACTER FORMAT "X(256)":U INITIAL "Order Hold Tests:" 
@@ -182,6 +195,8 @@ DEFINE FRAME oe-ctrl
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 7 FGCOLOR 15 
+     Btn_OrdType  AT ROW 1.24 COL 70 HELP
+          "Update/Save Order Type"      
      n-ord AT ROW 2.43 COL 31 COLON-ALIGNED HELP
           "Enter order number to be used for next order"
           LABEL "Next Order Number"
@@ -210,7 +225,7 @@ DEFINE FRAME oe-ctrl
      oe-ctrl.p-sep AT ROW 11.48 COL 13
           LABEL "Print Separate Invoice per Release"
           VIEW-AS TOGGLE-BOX
-          SIZE 43 BY .81
+          SIZE 43 BY .81            
      Btn_Update AT ROW 25.29 COL 54 HELP
           "Update/Save System Configurations"
      Btn_Close AT ROW 25.29 COL 70 HELP
@@ -284,6 +299,10 @@ ASSIGN
 ASSIGN 
        Btn_Update:PRIVATE-DATA IN FRAME oe-ctrl     = 
                 "ribbon-button".
+ASSIGN 
+       Btn_OrdType:PRIVATE-DATA IN FRAME oe-ctrl     = 
+                "ribbon-button".                
+                
 
 /* SETTINGS FOR FILL-IN fiHoldTests IN FRAME oe-ctrl
    NO-ENABLE                                                            */
@@ -499,6 +518,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn_OrdType
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OrdType C-Win
+ON CHOOSE OF Btn_OrdType IN FRAME oe-ctrl /* Update */
+DO:
+     RUN oe/dOrderType.w .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME n-ord
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL n-ord C-Win
 ON ENTRY OF n-ord IN FRAME oe-ctrl /* Next Order Number */
@@ -571,6 +601,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>").
   n-ord:SENSITIVE = NO.
+   IF NOT lNewOrderEntry THEN
+   Btn_OrdType:HIDDEN = YES.
   END.
   {methods/nowait.i}
 
@@ -623,7 +655,7 @@ PROCEDURE enable_UI :
     DISPLAY oe-ctrl.n-bol oe-ctrl.p-fact oe-ctrl.p-job oe-ctrl.p-bol 
           oe-ctrl.p-pick oe-ctrl.p-sep 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
-  ENABLE n-ord Btn_Update Btn_Close 
+  ENABLE n-ord Btn_Update Btn_Close Btn_OrdType
       WITH FRAME oe-ctrl IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-oe-ctrl}
   VIEW C-Win.

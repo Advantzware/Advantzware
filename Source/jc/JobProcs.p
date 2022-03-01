@@ -193,6 +193,75 @@ PROCEDURE GetSecondaryJobForJob:
         ).
 END PROCEDURE.
 
+
+PROCEDURE pAllocationJobMaterial PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: add or update job material 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iprwRowIdJob    AS ROWID     NO-UNDO.    
+    DEFINE INPUT PARAMETER ipiFormNo       AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo      AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRmItem       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdAllocation   AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioprwRowId AS ROWID NO-UNDO.
+    
+    DEFINE BUFFER bf-job FOR job.
+    DEFINE BUFFER bf-job-mat FOR job-mat.
+    DEFINE BUFFER bf-item FOR ITEM.
+    
+    FIND FIRST bf-job NO-LOCK
+         WHERE ROWID(bf-job) EQ iprwRowIdJob NO-ERROR.
+    
+    IF ipcType EQ "Add" THEN
+    DO:
+         CREATE bf-job-mat.
+            ASSIGN
+               bf-job-mat.company  = ipcCompany
+               bf-job-mat.job      = bf-job.job
+               bf-job-mat.job-no   = bf-job.job-no
+               bf-job-mat.job-no2  = bf-job.job-no2
+               bf-job-mat.rm-i-no  = ipcRmItem
+               bf-job-mat.frm      = ipiFormNo
+               bf-job-mat.blank-no = ipiBlankNo
+               bf-job-mat.qty-all  = ipdAllocation
+               ioprwRowId          = ROWID(bf-job-mat)
+               .  
+               
+           FIND FIRST bf-item NO-LOCK
+                WHERE bf-item.company EQ ipcCompany 
+                AND bf-item.i-no EQ ipcRmItem NO-ERROR.
+           IF AVAIL bf-item THEN
+           DO:
+                bf-job-mat.basis-w = bf-item.basis-w.        
+                bf-job-mat.sc-uom = bf-item.cons-uom.
+                bf-job-mat.qty-uom  = bf-item.cons-uom.
+                IF bf-item.r-wid NE 0 THEN
+                  bf-job-mat.wid = bf-item.r-wid.
+                ELSE
+                  ASSIGN
+                    bf-job-mat.wid = bf-item.s-wid
+                    bf-job-mat.len = bf-item.s-len.       
+               
+           END.    
+             
+    END.
+    ELSE IF ipcType EQ "Update" THEN
+    DO:
+         FIND FIRST bf-job-mat EXCLUSIVE-LOCK
+              WHERE ROWID(bf-job-mat) EQ ioprwRowId NO-ERROR.
+              
+         IF avail bf-job-mat THEN     
+         ASSIGN            
+              bf-job-mat.rm-i-no  = ipcRmItem        
+              bf-job-mat.qty-all  = ipdAllocation   .
+    END.
+    RELEASE bf-job-mat.  
+    
+END PROCEDURE.
+
 PROCEDURE pGetSecondaryJobForJob PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Returns all available secondary job list for a given jobID
@@ -209,6 +278,7 @@ PROCEDURE pGetSecondaryJobForJob PRIVATE:
         WHERE bf-job-hdr.company EQ ipcCompany
           AND bf-job-hdr.job-no  EQ ipcJobno
           AND (bf-job-hdr.opened EQ iplJobStatus OR iplJobStatus EQ ?)
+           BY bf-job-hdr.opened DESCENDING
            BY bf-job-hdr.job-no2:
         opcJobno2List = IF opcJobno2List EQ "" THEN 
                             STRING(bf-job-hdr.job-no2,"99")
@@ -405,6 +475,43 @@ PROCEDURE GetFormnoForJob:
     RELEASE bf-job-mat.
 END PROCEDURE.
 
+PROCEDURE job_AllocationJobMaterial:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns blank no list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iprwRowIdJob    AS ROWID     NO-UNDO.     
+    DEFINE INPUT PARAMETER ipiFormNo       AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo      AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRmItem       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdAllocation   AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioprwRowId AS ROWID NO-UNDO.
+      
+    RUN pAllocationJobMaterial(INPUT ipcType, INPUT ipcCompany, INPUT iprwRowIdJob, INPUT ipiFormNo, INPUT ipiBlankNo, INPUT ipcRmItem, INPUT ipdAllocation, INPUT-OUTPUT ioprwRowId).
+   
+    
+END PROCEDURE.
+
+PROCEDURE job_CopyMaterialPreviousJob:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns blank no list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iprwRowIdJob AS ROWID     NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo   AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplComplete AS LOGICAL NO-UNDO.
+      
+    RUN pCopyMaterialPreviousJob(INPUT ipcCompany, INPUT iprwRowIdJob, INPUT ipcJobNo, INPUT ipiJobNo2, INPUT ipiFormNo, INPUT ipiBlankNo, OUTPUT oplComplete).
+   
+    
+END PROCEDURE.
+
 PROCEDURE job_CloseJob_DCPost:
     /*------------------------------------------------------------------------------
      Purpose: Returns blank no list for a given jobID
@@ -415,6 +522,17 @@ PROCEDURE job_CloseJob_DCPost:
       
     RUN CloseJob_DCPost(INPUT ipcCompany,TABLE w-job).
    
+    
+END PROCEDURE.
+
+PROCEDURE job_Delete_JobMaterial:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns blank no list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iprwRowid      AS ROWID NO-UNDO.
+          
+    RUN pDelete_JobMaterial(INPUT iprwRowid).      
     
 END PROCEDURE.
 
@@ -475,7 +593,108 @@ PROCEDURE CloseJob_DCPost PRIVATE:
         END.         
     END. 
     
-END PROCEDURE.
+END PROCEDURE.  
+
+
+PROCEDURE pDelete_JobMaterial PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwRowid   AS ROWID NO-UNDO.
+    DEFINE BUFFER bf-job-mat FOR job-mat.
+    DEFINE BUFFER bf-job FOR job.
+    
+    FIND FIRST bf-job-mat EXCLUSIVE-LOCK 
+         WHERE rowid(bf-job-mat) EQ iprwRowid NO-ERROR.
+    
+    IF AVAIL bf-job-mat THEN
+    DO:
+        FIND FIRST bf-job EXCLUSIVE-LOCK
+             WHERE bf-job.company EQ bf-job-mat.company
+               AND bf-job.job-no  EQ bf-job-mat.job-no
+               AND bf-job.job-no2 EQ bf-job-mat.job-no2
+               AND bf-job.job     EQ bf-job-mat.job NO-ERROR.
+               
+        RUN jc/jc-all.p (ROWID(bf-job-mat), -1, INPUT-OUTPUT bf-job.stat). 
+        FIND CURRENT bf-job NO-LOCK.
+        DELETE bf-job-mat.
+    END.
+    
+END PROCEDURE.  
+
+PROCEDURE pCopyMaterialPreviousJob PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns blank no list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iprwRowIdJob AS ROWID     NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo   AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplComplete AS LOGICAL NO-UNDO.
+                 
+    DEFINE BUFFER bf-job-mat FOR job-mat.
+    DEFINE BUFFER bff-job-mat FOR job-mat.
+    DEFINE BUFFER bf-job FOR job.
+    DEFINE BUFFER bf-item FOR ITEM.
+    DEFINE BUFFER bff-job FOR job.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    
+    FIND FIRST bff-job NO-LOCK
+         WHERE ROWID(bff-job) EQ iprwRowIdJob NO-ERROR.
+         
+    IF NOT AVAIL bff-job THEN
+    RETURN NO-APPLY.
+    
+    RUN spProgressBar ("Running Copy process", 90, 100).
+    FOR EACH bff-job-mat EXCLUSIVE-LOCK
+         WHERE bff-job-mat.company EQ ipcCompany
+         AND bff-job-mat.job-no EQ bff-job.job-no 
+         AND bff-job-mat.job-no NE ""   
+         AND bff-job-mat.job-no2 EQ bff-job.job-no2,
+         FIRST bf-item NO-LOCK WHERE bf-item.company EQ bff-job-mat.company 
+         AND bf-item.i-no    EQ bff-job-mat.rm-i-no 
+         and lookup(bf-item.mat-type,"1,2,3,4,A,B,R,P") GT 0:           
+         
+         IF bff-job-mat.all-flg EQ YES THEN
+         RUN jc/jc-all2.p (ROWID(bff-job-mat), - 1).
+         
+         DELETE  bff-job-mat.         
+    END.
+     
+    FOR EACH bf-job-mat NO-LOCK
+        WHERE bf-job-mat.company EQ ipcCompany
+        and bf-job-mat.job-no  EQ ipcJobNo 
+        AND bf-job-mat.job-no ne ""   
+        AND bf-job-mat.job-no2 EQ ipiJobNo2 
+        AND (bf-job-mat.frm      EQ ipiFormNo OR ipiFormNo EQ ?)         
+        AND (bf-job-mat.blank-no EQ ipiBlankNo OR ipiBlankNo EQ ?) 
+        AND bf-job-mat.qty-all GT 0 USE-INDEX seq-idx, 
+        FIRST bf-job       WHERE bf-job.company EQ bf-job-mat.company 
+        AND bf-job.job     EQ bf-job-mat.job       
+        AND bf-job.job-no  EQ bf-job-mat.job-no         
+        AND bf-job.job-no2 EQ bf-job-mat.job-no2, 
+        FIRST bf-item NO-LOCK WHERE bf-item.company EQ bf-job-mat.company 
+        AND bf-item.i-no    EQ bf-job-mat.rm-i-no 
+        and lookup(bf-item.mat-type,"1,2,3,4,A,B,R,P") GT 0 :
+                         
+         CREATE bff-job-mat.
+         BUFFER-COPY bf-job-mat EXCEPT rec_key job job-no job-no2 TO bff-job-mat.
+         ASSIGN
+             bff-job-mat.job     = bff-job.job
+             bff-job-mat.job-no  = bff-job.job-no
+             bff-job-mat.job-no2 = bff-job.job-no2
+             oplComplete         = YES
+             .         
+         IF bff-job-mat.all-flg EQ YES THEN
+         RUN jc/jc-all2.p (ROWID(bff-job-mat), 1).
+    END.   
+    RUN spProgressBar (?, ?, 100).
+    
+END PROCEDURE.    
 
 
 PROCEDURE GetBlanknoForJob:
@@ -765,7 +984,9 @@ END PROCEDURE.
 PROCEDURE JobParser:
     /*------------------------------------------------------------------------------
      Purpose: Parses the job given in XXXXX-99.99.99 format 
-     Notes:
+     Notes:   If any of the three elements (jobno2, formno, blankno) are present, and are 
+              NOT an integer,  the parser fail reporting an error.
+              Is completely uncaring as to the length of the job-no field.
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcJobno        AS CHARACTER NO-UNDO.    
@@ -775,80 +996,45 @@ PROCEDURE JobParser:
     DEFINE OUTPUT PARAMETER oplIsParsed     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE iValid AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iNumElements AS INT NO-UNDO.
+    DEFINE VARIABLE cInputTest AS CHAR NO-UNDO.
+    DEFINE VARIABLE iIntTest AS INT NO-UNDO.
+    
+    ASSIGN 
+        cInputTest = REPLACE(ipcJobNo,"-",".")
+        iNumElements = NUM-ENTRIES(cInputTest,".")
+        opcJobno = ENTRY(1,cInputTest,".")
+        opcJobNo2 = IF iNumElements GT 1 THEN ENTRY(2,cInputTest,".") ELSE ""
+        opcFormNo = IF iNumElements GT 2 THEN ENTRY(3,cInputTest,".") ELSE ""
+        opcBlankNo = IF iNumElements GT 3 THEN ENTRY(4,cInputTest,".") ELSE "".
         
-    IF INDEX(ipcJobno,"-") NE 0 THEN DO:        
-        iValid = (IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
-                     NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 1 THEN
-                      INTEGER(ENTRY(1,ENTRY(2,ipcJobno,"-"),"."))
-                  ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 2 THEN
-                      INTEGER(ENTRY(2,ipcJobno,"-"))
-                  ELSE 
-                      0) NO-ERROR.
-                 
-        IF ERROR-STATUS:ERROR THEN DO:
-            opcMessage = "Invalid Jobno2 value".
-            RETURN.
-        END.
-        
-        iValid = (IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
-                     NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 2 THEN
-                      INTEGER(ENTRY(2,ENTRY(2,ipcJobno,"-"),"."))
-                  ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 3 THEN
-                      INTEGER(ENTRY(3,ipcJobno,"-"))
-                  ELSE 
-                      0) NO-ERROR.
-                  
-        IF ERROR-STATUS:ERROR THEN DO:
-            opcMessage = "Invalid Formno value".
-            RETURN.
-        END.
-
-        iValid = (IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
-                     NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 3 THEN
-                      INTEGER(ENTRY(3,ENTRY(2,ipcJobno,"-"),"."))
-                  ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 4 THEN
-                      INTEGER(ENTRY(4,ipcJobno,"-"))
-                  ELSE 
-                      0) NO-ERROR.
-                  
-        IF ERROR-STATUS:ERROR THEN DO:
-            opcMessage = "Invalid Blankno value".
-            RETURN.
-        END.
-
-        ASSIGN
-            opcJobNo   = ENTRY(1,ipcJobno,"-")        
-            opcJobNo2  = IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
-                            NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 1 THEN
-                             ENTRY(1,ENTRY(2,ipcJobno,"-"),".")
-                         ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 2 THEN
-                             ENTRY(2,ipcJobno,"-")
-                         ELSE
-                             ""
-            opcFormno  = IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
-                            NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 2 THEN
-                             ENTRY(2,ENTRY(2,ipcJobno,"-"),".")
-                         ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 3 THEN
-                             ENTRY(3,ipcJobno,"-")
-                         ELSE
-                             ""
-            opcBlankno = IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
-                            NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 3 THEN
-                             ENTRY(3,ENTRY(2,ipcJobno,"-"),".")
-                         ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 4 THEN
-                             ENTRY(4,ipcJobno,"-")
-                         ELSE
-                             ""
-            NO-ERROR.
-            
-        IF ERROR-STATUS:ERROR THEN DO:
-            opcMessage = ERROR-STATUS:GET-MESSAGE(1).
-            RETURN.
-        END.            
-        
-        oplIsParsed = TRUE.
+    /* Is job-no2 an integer? */
+    ASSIGN 
+        iIntTest = IF opcJobNo2 NE "" THEN INTEGER(opcJobNo2) ELSE 0 NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid Job-no2 value".
+        RETURN.
     END.
+    /* Is form-no an integer? */
+    ASSIGN 
+        iIntTest = IF opcFormNo NE "" THEN INTEGER(opcFormNo) ELSE 0 NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid Form No value".
+        RETURN.
+    END.
+    /* Is blank-no an integer? */
+    ASSIGN 
+        iIntTest = IF opcBlankNo NE "" THEN INTEGER(opcBlankNo) ELSE 0 NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid Blank No value".
+        RETURN.
+    END.
+            
+    ASSIGN 
+        oplIsParsed = TRUE.
 
 END PROCEDURE.
 
@@ -1137,6 +1323,39 @@ PROCEDURE GetJobHdrDetails:
             opcCustno = job-hdr.cust-no
             opcIno    = job-hdr.i-no.
                                 
+END PROCEDURE.
+
+PROCEDURE getLastActivity:
+/*------------------------------------------------------------------------------
+ Purpose:  
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcLastActivity AS CHARACTER NO-UNDO.
+
+/*    FIND FIRST mch-act NO-LOCK                    */
+/*         WHERE mch-act.company EQ ipcCompany      */
+/*           AND mch-act.job-no  EQ ipcJobno        */
+/*           AND mch-act.job-no2 EQ ipiJobno2       */
+/*           NO-ERROR.                              */
+/*    IF AVAILABLE mch-act AND mch-act.complete THEN*/
+/*    ASSIGN                                        */
+/*         opcLastActivity  = "Posted".             */
+/*    ELSE IF AVAILABLE mch-act THEN                */
+/*         opcLastActivity = "Unposted".            */
+    FOR EACH mch-act NO-LOCK 
+        WHERE mch-act.company EQ ipcCompany
+          AND mch-act.job-no  EQ ipcJobno
+          AND mch-act.job-no2 EQ ipiJobno2
+        BREAK BY mch-act.op-date
+              BY mch-act.stopp
+        :
+        IF LAST(mch-act.stopp) THEN
+        opcLastActivity = mch-act.m-code.
+    END. /* each mch-act */
+                                         
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */

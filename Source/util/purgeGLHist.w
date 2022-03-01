@@ -202,14 +202,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 148
          VIRTUAL-HEIGHT     = 28.81
          VIRTUAL-WIDTH      = 148
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = NO
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -255,7 +255,7 @@ ASSIGN
        fiInstructionsLabel:READ-ONLY IN FRAME fMain        = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
-THEN wWin:HIDDEN = yes.
+THEN wWin:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -326,7 +326,7 @@ DO:
             ASSIGN 
                 fiOutputDir:SCREEN-VALUE = cOutputDirName. 
                 
-             cFileName     = "_ConsolidationReport" + "_" + STRING(year(TODAY)) + STRING(MONTH(TODAY)) + STRING(DAY(TODAY)) + "_" + STRING(TIME) + ".csv" .
+             cFileName     = "_ConsolidationReport" + "_" + STRING(YEAR(TODAY)) + STRING(MONTH(TODAY)) + STRING(DAY(TODAY)) + "_" + STRING(TIME) + ".csv" .
                
             /* Find the oldest glhist record in the table */
             FIND FIRST glHist NO-LOCK WHERE 
@@ -475,7 +475,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndYear wWin
 ON LEAVE OF fiEndYear IN FRAME fMain /* Consolidate/Purge GL Records Through...Year */
 DO:     
-    IF LASTKEY = -1 THEN RETURN.
+    IF LASTKEY = 617 THEN RETURN.  /* User pressed Exit button */
     RUN valid-year(OUTPUT lReturnError) NO-ERROR.
     IF lReturnError THEN RETURN NO-APPLY.
      
@@ -571,7 +571,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             "consolidated entries.  This list, as a .CSV file, can be found in the directory specified below." + CHR(10) + CHR(10) +
             "When 'PURGE' is selected, entries in the list file will be processed so that the original entries will be deleted, " +
             "and the consolidated entries will be added.  The original (deleted) items will be exported into the same directory, " + 
-            "so that they can be restored if required."
+            "so that they can be restored if required." + CHR(10) + 
+            "NOTE: IF YOU ELECT TO RESTORE (IMPORT) THE PURGED RECORDS, YOU MUST RUN 'Purge GL Detail' FIRST."
         fiEndYear:SCREEN-VALUE = STRING(YEAR(TODAY) - 7)
         fiEndPeriod:SCREEN-VALUE = STRING(company.num-per)
         fiOutputDir:SCREEN-VALUE = SESSION:TEMP-DIRECTORY.  
@@ -672,18 +673,20 @@ PROCEDURE valid-year :
     DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
     DEFINE VARIABLE ldDate    AS DATE    NO-UNDO.
   
-  {methods/lValidateError.i YES}
-   DO WITH FRAME {&FRAME-NAME}:        
-    IF INTEGER(fiEndYear:SCREEN-VALUE) GT (YEAR(TODAY) - 7) 
-    THEN DO:         
-        MESSAGE 
-            "Advantzware requires the last 7 years for prior period comparison purposes. Process not allowed.."
-            VIEW-AS ALERT-BOX .
-       oplReturn = YES.
-       APPLY "entry" TO fiEndYear.        
+    {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:        
+        IF INTEGER(fiEndYear:SCREEN-VALUE) GT (YEAR(TODAY) - 7) THEN DO:         
+            MESSAGE 
+                "Advantzware requires the last 7 years for prior period comparison purposes. Process not allowed.."
+                VIEW-AS ALERT-BOX .
+            IF USERID("ASI") NE "ASI" THEN DO:
+                oplReturn = YES.
+                APPLY "entry" TO fiEndYear.
+            END.
+        END. 
     END. 
-   END. 
-  {methods/lValidateError.i NO}
+    {methods/lValidateError.i NO}
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

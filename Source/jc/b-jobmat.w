@@ -237,7 +237,7 @@ DEFINE BROWSE br_table
       job-mat.qty FORMAT "->>>,>>>,>>9.9<<<<<":U
       job-mat.qty-uom COLUMN-LABEL "Qty!UOM" FORMAT "x(4)":U WIDTH 7
       job-mat.wid FORMAT ">>9.99<<":U LABEL-BGCOLOR 14
-      job-mat.len FORMAT ">>>9.99<<":U LABEL-BGCOLOR 14
+      job-mat.len FORMAT ">>>>>9.99<<<<":U LABEL-BGCOLOR 14
       job-mat.n-up COLUMN-LABEL "#Up" FORMAT ">>9":U
       job-mat.basis-w COLUMN-LABEL "MSF!Weight" FORMAT ">>9.99":U
       job-mat.post COLUMN-LABEL "Auto!Post?" FORMAT "Y/N":U
@@ -370,7 +370,7 @@ use-index seq-idx"
      _FldNameList[10]   > ASI.job-mat.wid
 "job-mat.wid" ? ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.job-mat.len
-"job-mat.len" ? ">>>9.99<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mat.len" ? ">>>>>9.99<<<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.job-mat.n-up
 "job-mat.n-up" "#Up" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.job-mat.basis-w
@@ -969,6 +969,8 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
   
   /* Code placed here will execute PRIOR to standard behavior. */
+  system.SharedConfig:Instance:SetValue("JobMaterialResetAllocationFields", "NO").
+  
   IF ll-commit THEN RUN jc/jc-all2.p (ROWID(job-mat), -1).
 
   /* Dispatch standard ADM method.                             */
@@ -977,12 +979,10 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   job-mat.i-no = job-mat.rm-i-no.
 
-  IF ll-commit THEN DO:
-    job-mat.all-flg = YES.  
-    RUN jc/jc-all2.p (ROWID(job-mat), 1).
-  END.
+  IF ll-commit THEN
+      RUN jc/jc-all2.p (ROWID(job-mat), 1).
 
-  ELSE job-mat.all-flg = NO. 
+  system.SharedConfig:Instance:DeleteValue("JobMaterialResetAllocationFields").
 
 END PROCEDURE.
 
@@ -1094,6 +1094,16 @@ PROCEDURE local-delete-record :
           FIND CURRENT job.
           RUN jc/jc-all.p (ROWID(bf-job-mat), -1, INPUT-OUTPUT job.stat).
           FIND CURRENT job NO-LOCK.
+      END.
+  END.
+
+  /* write trigger is ignored when the record is deleted in the same transaction.
+     Instead read the record again and delete the record to trigger the write trigger.
+     Write trigger is required to be executed here, as it sets the item.q-comm */
+  FOR EACH tt-job-item WHERE tt-job-item.IS-SELECTED:
+      FOR EACH bf-job-mat EXCLUSIVE-LOCK 
+          WHERE bf-job-mat.company EQ cocode AND 
+          ROWID(bf-job-mat) EQ tt-job-item.tt-rowid :
           DELETE bf-job-mat .
       END.
   END.
@@ -1291,6 +1301,22 @@ PROCEDURE local-update-record :
   run select-page in widget-handle(char-hdl) (1).
   run select-page in widget-handle(char-hdl) (3).
 
+  system.SharedConfig:Instance:SetValue(STRING(ROWID(job-mat)), "Update").
+  
+  RUN api/ProcessOutboundRequest.p (
+      INPUT  job.company,                                     /* Company Code (Mandatory) */
+      INPUT  job.loc,                                         /* Location Code (Mandatory) */
+      INPUT  "SendJobAMS",                                    /* API ID (Mandatory) */
+      INPUT  "",                                              /* Scope ID */
+      INPUT  "",                                              /* Scope Type */
+      INPUT  "UpdateJobMaterial",                             /* Trigger ID (Mandatory) */
+      INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
+      INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+      INPUT  job.job-no + "-" + STRING(job.job-no2, "99"),      /* Primary ID for which API is called for (Mandatory) */   
+      INPUT  "Update Job Header triggered from " + PROGRAM-NAME(1)    /* Event's description (Optional) */
+      ) NO-ERROR.
+   
+  system.SharedConfig:Instance:DeleteValue(STRING(ROWID(job-mat))).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1610,15 +1636,26 @@ PROCEDURE run-alloc :
    ELSE ll = YES.
 
    IF ll THEN DO:
-      FIND b-job-mat WHERE ROWID(b-job-mat) EQ ROWID(job-mat) EXCLUSIVE-LOCK.
-      b-job-mat.all-flg = YES.  
-      IF lv-alloc-char BEGINS "alloc" THEN RUN jc/jc-all2.p (ROWID(b-job-mat), 1).
-      ELSE RUN jc/jc-all2.p (ROWID(b-job-mat), -1).
-      FIND CURRENT b-job-mat EXCLUSIVE-LOCK.
-      IF b-job-mat.qty-all EQ 0 AND
-         NOT b-job-mat.all-flg  THEN b-job-mat.qty-all = b-job-mat.qty.
-      FIND CURRENT b-job-mat NO-LOCK.
-      RUN dispatch ("display-fields").
+      FIND FIRST b-job-mat EXCLUSIVE-LOCK 
+           WHERE ROWID(b-job-mat) EQ ROWID(job-mat)
+           NO-ERROR.
+      IF AVAILABLE b-job-mat THEN DO:
+          system.SharedConfig:Instance:SetValue("JobMaterialResetAllocationFields", "NO").
+          
+          IF lv-alloc-char BEGINS "alloc" THEN 
+              RUN jc/jc-all2.p (ROWID(b-job-mat), 1).
+          ELSE 
+              RUN jc/jc-all2.p (ROWID(b-job-mat), -1).
+          
+          system.SharedConfig:Instance:DeleteValue("JobMaterialResetAllocationFields").
+                        
+          b-job-mat.all-flg = lv-alloc-char BEGINS "alloc".
+
+          IF b-job-mat.qty-all EQ 0 AND NOT b-job-mat.all-flg THEN 
+              b-job-mat.qty-all = b-job-mat.qty.
+    
+          RUN dispatch ("display-fields").
+      END.
    END.
 
 END PROCEDURE.

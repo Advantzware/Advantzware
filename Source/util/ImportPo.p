@@ -67,14 +67,14 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD last-ship-date          AS DATE   FORMAT "99/99/9999" COLUMN-LABEL "Last Ship Date" HELP "Optional - Date"
     FIELD setup                   AS DECIMAL FORMAT ">>,>>9.99" COLUMN-LABEL "Setup" HELP "Optional - Decimal"
     FIELD disc                    AS DECIMAL FORMAT "->>>,>>9.99" COLUMN-LABEL "Discount" HELP "Optional - Decimal"
-    FIELD actnum                  AS CHARACTER FORMAT "x(25)" COLUMN-LABEL "GL Number" HELP "Required - Size:25"
+    FIELD actnum                  AS CHARACTER FORMAT "x(25)" COLUMN-LABEL "GL Number" HELP "Optional - Size:25"
     FIELD over-pct                AS DECIMAL FORMAT ">>9.99%" COLUMN-LABEL "Overrun" HELP "Optional - Decimal"
     FIELD under-pct               AS DECIMAL   FORMAT ">>9.99%" COLUMN-LABEL "Underrun" HELP "Optional - Decimal"
     FIELD cust-no                 AS CHARACTER   FORMAT "x(8)" COLUMN-LABEL "Customer #" HELP "Optional - Size:8"
     FIELD ord-no                  AS INTEGER   FORMAT ">>>>>9" COLUMN-LABEL "Order #" HELP "Optional - Integer"
     FIELD shipto-cust-no          AS CHARACTER   FORMAT "x(8)" COLUMN-LABEL "ShipTo Customer #" HELP "Required if Po type is drop shipment - Size:8"
     FIELD drop-shipment           AS CHARACTER   FORMAT "X(8)" COLUMN-LABEL "Drop Shipment Type" HELP "Required if Po type is drop shipment - Customer or Vendor"
-       
+    FIELD req-date                AS DATE FORMAT "99/99/9999" COLUMN-LABEL "Required Date" HELP "Required - Date"
     
     .
 DEFINE VARIABLE gcAutoIndicator AS CHARACTER NO-UNDO INITIAL "<AUTO>".    
@@ -107,13 +107,18 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE cPoNoGroup AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lAutoNumber AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE dTotCost AS DECIMAL NO-UNDO .
-    
+    DEFINE VARIABLE dTotCost AS DECIMAL NO-UNDO .    
     DEFINE VARIABLE riNote AS ROWID NO-UNDO.
-    DEFINE BUFFER bf-po-ord FOR po-ord.
-    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    DEFINE VARIABLE ghPOProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cPriceHoldMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCreateLine AS LOGICAL NO-UNDO.
     
+    DEFINE BUFFER bf-po-ord FOR po-ord.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.       
     DEFINE BUFFER bf-ttImportPo FOR ttImportPo.
+    
+    RUN po\POProcs.p PERSISTENT SET ghPOProcs.
     
      ASSIGN 
         cPoNoGroup = ""
@@ -156,16 +161,18 @@ PROCEDURE pProcessRecord PRIVATE:
                bf-po-ord.buyer          = USERID(LDBNAME(1))
                bf-po-ord.under-pct      = 10
                bf-po-ord.over-pct       = 10         
-               bf-po-ord.due-date       = bf-po-ord.po-date + 
-                                       IF WEEKDAY(bf-po-ord.po-date) EQ 6 THEN 3 ELSE 1
+               bf-po-ord.due-date       = ipbf-ttImportPo.req-date 
                bf-po-ord.last-ship-date = bf-po-ord.due-date                 
-               bf-po-ord.user-id        = USERID(LDBNAME(1)) .  
+               bf-po-ord.user-id        = USERID(LDBNAME(1))
+               bf-po-ord.entered-date   = TODAY
+               bf-po-ord.entered-time   = TIME.  
                
                IF lAutoNumber AND cPoNoGroup NE "" THEN DO:
                  FIND CURRENT ipbf-ttImportPo EXCLUSIVE-LOCK.
                    ASSIGN 
                 ipbf-ttImportpo.PoNoGroup = cPoNoGroup
                 ipbf-ttImportpo.po-no = STRING(bf-po-ord.po-no)
+                ipbf-ttImportPo.printed = "No"
                 .
                FIND CURRENT ipbf-ttImportPo NO-LOCK.
         END.
@@ -197,6 +204,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportPo.over-pct, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.over-pct).                                           
     RUN pAssignValueD (ipbf-ttImportPo.under-pct, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.under-pct).
     RUN pAssignValueC (ipbf-ttImportPo.shipto-cust-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.cust-no).
+    RUN pAssignValueDate (ipbf-ttImportPo.req-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.due-date).
     
     
     IF bf-po-ord.ship-name EQ "" OR bf-po-ord.ship-addr[1] EQ "" THEN
@@ -270,10 +278,17 @@ PROCEDURE pProcessRecord PRIVATE:
             bf-po-ordl.due-date  = bf-po-ord.due-date
             bf-po-ordl.over-pct  = bf-po-ord.over-pct
             bf-po-ordl.under-pct = bf-po-ord.under-pct
-            bf-po-ordl.vend-no   = bf-po-ord.vend-no.
+            bf-po-ordl.vend-no   = bf-po-ord.vend-no
+            bf-po-ordl.entered-date = TODAY
+            bf-po-ordl.entered-time = TIME
+            lCreateLine             = YES
+            .
 
-    END.       
-        
+    END.  
+    
+    IF NOT lCreateLine THEN
+    RUN po/poordlup.p (RECID(bf-po-ordl), -1, YES).  
+   
     RUN pAssignValueDate (ipbf-ttImportPo.due-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.due-date).                         
     RUN pAssignValueC (ipbf-ttImportPo.job-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.job-no).                                 
     RUN pAssignValueC (ipbf-ttImportPo.i-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.i-no).                                          
@@ -299,20 +314,11 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportPo.over-pct, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.over-pct).                                           
     RUN pAssignValueD (ipbf-ttImportPo.under-pct, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.under-pct).                         
     RUN pAssignValueC (ipbf-ttImportPo.cust-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.cust-no).                 
-    RUN pAssignValueI (ipbf-ttImportPo.ord-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.ord-no).   
-    
-    
+    RUN pAssignValueI (ipbf-ttImportPo.ord-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.ord-no).  
+    RUN pAssignValueCToL (ipbf-ttImportPo.opened, "Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.opened).     
+    RUN pAssignValueCToL (ipbf-ttImportPo.item-type,"RM", iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.item-type).    
+    RUN pAssignValueCToL (ipbf-ttImportPo.printed, "Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.printed).        
         
-    IF ipbf-ttImportPo.printed EQ "Yes" THEN
-        ASSIGN bf-po-ord.printed = YES.
-    ELSE bf-po-ord.printed = NO .
-    IF ipbf-ttImportPo.opened EQ "Yes" THEN
-        ASSIGN bf-po-ordl.opened = YES.
-    ELSE bf-po-ordl.opened = NO .
-    IF ipbf-ttImportPo.item-type EQ "RM" THEN
-        ASSIGN bf-po-ordl.item-type = YES.
-    ELSE bf-po-ordl.item-type = NO .
-    
     IF ipbf-ttImportPo.item-type EQ "RM" THEN
     DO:
         FIND FIRST ITEM NO-LOCK
@@ -335,13 +341,32 @@ PROCEDURE pProcessRecord PRIVATE:
           bf-po-ordl.dscr[1] =  itemfg.part-dscr1
           bf-po-ordl.dscr[2] =  itemfg.part-dscr2 .
     END.
+   
+   RUN PO_CalLineTotalCostAndConsQty IN ghPOProcs(ROWID(bf-po-ordl)).
+   bf-po-ordl.cons-cost = bf-po-ordl.t-cost / bf-po-ordl.cons-qty.
+   
+   RUN Vendor_CheckPriceHoldForPo (
+    ROWID(bf-po-ord),                                  
+    YES, /*Set po-ord hold fields*/
+    OUTPUT lPriceHold, 
+    OUTPUT cPriceHoldMessage
+    ).
+           
    IF bf-po-ordl.cost EQ 0 THEN
      RUN vend-cost(ROWID(bf-po-ord),ROWID(bf-po-ordl)). 
-
+        
+   IF ipbf-ttImportPo.actnum EQ "" THEN
+   RUN pGetActnum(ROWID(bf-po-ord),ROWID(bf-po-ordl),"FG",ipbf-ttImportPo.item-type). 
+   
+   RUN po/updordpo.p (BUFFER bf-po-ordl).
+   
+   RUN po/po-total.p (RECID(bf-po-ord)).
+   
+   RUN po/poordlup.p (RECID(bf-po-ordl), 1, YES).
 
    RELEASE bf-po-ord .
    RELEASE bf-po-ordl .                                                                                                                                   
-                                                                                                                               
+   DELETE OBJECT ghPOProcs.                                                                                                                            
 END PROCEDURE.                                                                                                                 
                                                                                                                                
 PROCEDURE pValidate PRIVATE:
@@ -407,12 +432,12 @@ PROCEDURE pValidate PRIVATE:
     END.
     IF oplValid THEN 
     DO:
-        IF ipbf-ttImportPo.actnum EQ "" THEN 
+        IF ipbf-ttImportPo.req-date EQ ? THEN 
             ASSIGN 
                 oplValid = NO
-                opcNote  = "GL Account is Blank".
+                opcNote  = "Required Date is Blank ".
     END.
-    
+        
     /*Determine if Add or Update*/ 
     IF oplValid THEN 
     DO:
@@ -553,6 +578,7 @@ PROCEDURE pValidate PRIVATE:
         END.      
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
+    IF ipbf-ttImportPo.job-no EQ "0" THEN ipbf-ttImportPo.job-no = "".
 END PROCEDURE.
 
 
@@ -667,3 +693,98 @@ PROCEDURE vend-cost PRIVATE:
       RELEASE bff-po-ordl.
     
 END PROCEDURE.    
+
+PROCEDURE pGetActnum PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  
+     Notes:
+    ------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER rwRowidPoOrd  AS ROWID     NO-UNDO.
+DEFINE INPUT PARAMETER rwRowidPoOrdl AS ROWID     NO-UNDO.
+DEFINE INPUT PARAMETER ipcType       AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcItemType   AS CHARACTER NO-UNDO.
+
+DEFINE BUFFER bff-po-ord  FOR po-ord.
+DEFINE BUFFER bff-po-ordl FOR po-ordl.
+DEFINE BUFFER bf-itemfg   FOR itemfg.
+DEFINE BUFFER b-job-hdr  FOR job-hdr.
+FIND FIRST bff-po-ord  WHERE ROWID(bff-po-ord)  EQ rwRowidPoOrd  EXCLUSIVE-LOCK NO-ERROR.
+FIND FIRST bff-po-ordl WHERE ROWID(bff-po-ordl) EQ rwRowidPoOrdl EXCLUSIVE-LOCK NO-ERROR.
+    
+DEFINE VARIABLE v-charge LIKE surcharge.charge.
+DEFINE VARIABLE cAccount          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cResult           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-default-gl-log  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE v-default-gl-cha  AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (bff-po-ordl.company,"AP GL#", "L", NO, NO, "", "", OUTPUT cResult, OUTPUT lFound).
+IF lFound THEN ASSIGN v-default-gl-log = LOGICAL(cResult).
+RUN sys/ref/nk1look.p (bff-po-ordl.company,"AP GL#", "C", NO, NO, "", "", OUTPUT cResult, OUTPUT lFound).
+IF lFound THEN ASSIGN v-default-gl-cha = cResult.
+
+IF ipcItemType EQ "RM" THEN
+DO:
+   FIND item NO-LOCK 
+            WHERE item.company EQ bff-po-ordl.company
+            AND item.i-no EQ bff-po-ordl.i-no 
+            NO-ERROR.
+                
+   FIND FIRST costtype NO-LOCK
+        WHERE costtype.company EQ bff-po-ordl.company
+        AND costtype.loc       EQ bff-po-ord.loc
+        AND costtype.cost-type EQ item.cost-type
+        NO-ERROR.  
+    IF AVAILABLE costtype AND v-default-gl-log THEN
+        bff-po-ordl.actnum =
+            IF v-default-gl-cha EQ "Asset"   THEN costtype.inv-asset
+            ELSE
+            IF v-default-gl-cha BEGINS "Exp"  AND
+            (v-default-gl-cha EQ "Expense" OR costtype.cons-exp NE "")
+            THEN costtype.cons-exp
+            ELSE bff-po-ordl.actnum
+            .
+END.
+ELSE IF ipcItemType EQ "FG" THEN
+DO:
+    FIND FIRST bf-itemfg NO-LOCK
+         WHERE bf-itemfg.company EQ bff-po-ordl.company
+           AND bf-itemfg.i-no EQ bff-po-ordl.i-no 
+           NO-ERROR.
+    IF AVAILABLE bf-itemfg THEN 
+    DO:
+        IF ipcType EQ "FG" THEN 
+        DO:
+            FOR EACH prodl NO-LOCK
+                WHERE prodl.company EQ bf-itemfg.company
+                AND prodl.procat  EQ bf-itemfg.procat
+                ,
+                FIRST prod NO-LOCK
+                WHERE prod.company EQ prodl.company
+                AND prod.prolin  EQ prodl.prolin
+                :
+                cAccount = prod.fg-mat.
+                LEAVE.
+            END.
+        END.
+        IF cAccount EQ "" THEN 
+        DO:
+            FIND FIRST fgcat NO-LOCK 
+                WHERE fgcat.company   EQ bf-itemfg.company
+                  AND fgcat.procat    EQ bf-itemfg.procat
+                NO-ERROR.
+            IF AVAILABLE fgcat AND fgcat.cogsExpAcct NE "" AND ipcType EQ "FG" THEN 
+                cAccount = fgcat.cogsExpAcct.
+            IF AVAILABLE fgcat AND fgcat.brdExpAcct NE "" AND ipcType EQ "RMJob" THEN 
+                cAccount = fgcat.brdExpAcct.
+
+        END.
+        
+        ASSIGN bff-po-ordl.actnum = cAccount .
+    END. /* IF AVAILABLE bf-itemfg */
+END.   /* ELSE IF ipcItemType EQ "FG" */
+
+   RELEASE bff-po-ord.
+   RELEASE bff-po-ordl.
+   
+END PROCEDURE.

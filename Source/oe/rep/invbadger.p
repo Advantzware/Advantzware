@@ -570,13 +570,17 @@ for each report where report.term-id eq v-term-id no-lock,
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
         "<=8><R+5> Grand Total:" inv-head.t-inv-rev FORM "->>,>>9.99" .
-
-    PUT "<FArial><R56><C1><P12><B> Remit to: " v-comp-name SKIP
-         "<c9>" v-comp-add1 SKIP
-         "<c9>" v-comp-add2 SKIP
-         "<c9>" v-comp-add3 SKIP
-         "<c9>" v-comp-add4 "</B> <P9>" 
-         .
+    
+    IF ltb_print-message THEN
+    DO:
+        PUT "<FArial><R56><C1><P12><B> Remit to: " v-comp-name SKIP
+             "<c9>" v-comp-add1 SKIP
+             "<c9>" v-comp-add2 SKIP
+             "<c9>" v-comp-add3 SKIP
+             "<c9>" v-comp-add4 "</B> <P9>" 
+             .    
+    END.
+    
 
     PUT "<FArial><R61><C1><P12><B> Notes </B> <P9> " SKIP
          "<c7>" inv-head.bill-i[1] SKIP

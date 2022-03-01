@@ -129,7 +129,7 @@ DEFINE BUTTON Btn_est-new-mold AUTO-GO
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_est-rel AUTO-GO 
-     LABEL "Misc Estimate" 
+     LABEL "Distribution Estimate" 
      SIZE 26 BY 2.14
      BGCOLOR 8 .
 
@@ -368,7 +368,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_est-rel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_est-rel D-Dialog
-ON CHOOSE OF Btn_est-rel IN FRAME D-Dialog /* Misc Estimate */
+ON CHOOSE OF Btn_est-rel IN FRAME D-Dialog /* Logistics Estimate */
 DO:
     assign ls-add-what = "MiscEst".
     apply "window-close" to this-procedure.

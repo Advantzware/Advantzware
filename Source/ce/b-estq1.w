@@ -765,7 +765,6 @@ END.
 ON VALUE-CHANGED OF begin_cust-no IN FRAME F-Main
 DO:
   
-  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF {&self-name}:SCREEN-VALUE <> "" THEN DO:
      begin_ship:SENSITIVE = YES.
   END.

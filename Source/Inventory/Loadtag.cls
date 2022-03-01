@@ -24,7 +24,39 @@ CLASS Inventory.Loadtag:
         
         RETURN AVAILABLE bf-loadtag.
     END METHOD.
-    
+
+    METHOD PUBLIC LOGICAL SetContext (ipcCompany AS CHARACTER, ipcTag AS CHARACTER):
+
+        FIND FIRST bf-loadtag NO-LOCK
+             WHERE bf-loadtag.company   EQ ipcCompany
+               AND bf-loadtag.item-type EQ YES
+               AND bf-loadtag.tag-no    EQ ipcTag
+             NO-ERROR.
+
+        IF NOT AVAILABLE bf-loadtag THEN
+            FIND FIRST bf-loadtag NO-LOCK
+                 WHERE bf-loadtag.company   EQ ipcCompany
+                   AND bf-loadtag.item-type EQ NO
+                   AND bf-loadtag.tag-no    EQ ipcTag
+                 NO-ERROR.
+
+/*        IF NOT AVAILABLE bf-loadtag THEN                    */
+/*            FIND FIRST bf-loadtag NO-LOCK                   */
+/*                 WHERE bf-loadtag.company      EQ ipcCompany*/
+/*                   AND bf-loadtag.item-type    EQ YES       */
+/*                   AND bf-loadtag.misc-char[1] EQ ipcTag    */
+/*                 NO-ERROR.                                  */
+/*                                                            */
+/*        IF NOT AVAILABLE bf-loadtag THEN                    */
+/*            FIND FIRST bf-loadtag NO-LOCK                   */
+/*                 WHERE bf-loadtag.company      EQ ipcCompany*/
+/*                   AND bf-loadtag.item-type    EQ NO        */
+/*                   AND bf-loadtag.misc-char[1] EQ ipcTag    */
+/*                 NO-ERROR.                                  */
+        
+        RETURN AVAILABLE bf-loadtag.
+    END METHOD.
+        
     METHOD PUBLIC CHARACTER GetValue(INPUT ipcType AS CHARACTER):       
         
         IF NOT AVAILABLE bf-loadtag THEN
@@ -39,6 +71,8 @@ CLASS Inventory.Loadtag:
                 RETURN STRING(bf-loadtag.loc-bin).
             WHEN "ItemID" THEN 
                 RETURN STRING(bf-loadtag.i-no).         
+            WHEN "ItemType" THEN 
+                RETURN STRING(bf-loadtag.item-type).   
             WHEN "Quantity" THEN 
                 RETURN STRING(bf-loadtag.qty). 
             WHEN "PO" THEN
@@ -55,6 +89,10 @@ CLASS Inventory.Loadtag:
                 RETURN STRING(bf-loadtag.case-bundle).
             WHEN "Partial" THEN
                 RETURN STRING(bf-loadtag.partial).       
+            WHEN "Tag" THEN
+                RETURN bf-loadtag.tag-no.
+            WHEN "ItemName" THEN
+                RETURN bf-loadtag.i-name.     
             OTHERWISE
                 RETURN "".
         END.

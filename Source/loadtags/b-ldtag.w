@@ -246,12 +246,12 @@ DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE tb_i-name AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1
+     SIZE 30 BY 1
      BGCOLOR 15 .
 
 DEFINE VARIABLE tb_i-no AS CHARACTER FORMAT "x(15)" 
      VIEW-AS FILL-IN 
-     SIZE 21.8 BY 1
+     SIZE 19 BY 1
      BGCOLOR 15 .
 
 DEFINE VARIABLE tb_job-no AS CHARACTER FORMAT "x(6)" 
@@ -279,9 +279,9 @@ DEFINE VARIABLE tb_ord-no AS INTEGER FORMAT ">>>>>9" INITIAL 0
      SIZE 8.8 BY 1
      BGCOLOR 15 .
 
-DEFINE VARIABLE tb_po-no AS INTEGER FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE tb_po-no AS INTEGER FORMAT ">>>>>>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 9.6 BY 1
+     SIZE 13 BY 1
      BGCOLOR 15 .
 
 DEFINE VARIABLE tb_rfidtag AS CHARACTER FORMAT "X(24)" 
@@ -318,7 +318,7 @@ DEFINE BROWSE Browser-Table
       loadtag.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U LABEL-BGCOLOR 14
       loadtag.job-no2 COLUMN-LABEL "#" FORMAT ">9":U
-      loadtag.po-no COLUMN-LABEL "PO" FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      loadtag.po-no COLUMN-LABEL "PO" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       loadtag.ord-no COLUMN-LABEL "Order" FORMAT ">>>>>9":U LABEL-BGCOLOR 14
       loadtag.i-no COLUMN-LABEL "Item" FORMAT "x(15)":U LABEL-BGCOLOR 14
       loadtag.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
@@ -359,8 +359,8 @@ DEFINE FRAME F-Main
      tb_job-no2 AT ROW 1.71 COL 66.6 COLON-ALIGNED HELP
           "Enter Job sub-number." NO-LABEL
      tb_po-no AT ROW 1.71 COL 70.4 COLON-ALIGNED NO-LABEL
-     tb_ord-no AT ROW 1.71 COL 80 COLON-ALIGNED NO-LABEL
-     tb_i-no AT ROW 1.71 COL 89 COLON-ALIGNED HELP
+     tb_ord-no AT ROW 1.71 COL 84 COLON-ALIGNED NO-LABEL
+     tb_i-no AT ROW 1.71 COL 92 COLON-ALIGNED HELP
           "Enter Item Number." NO-LABEL
      tb_i-name AT ROW 1.71 COL 111 COLON-ALIGNED HELP
           "Enter finished goods item name." NO-LABEL
@@ -375,7 +375,7 @@ DEFINE FRAME F-Main
           SIZE 7 BY .62 AT ROW 1.05 COL 126
           FGCOLOR 9 FONT 6
      "Order" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.05 COL 83
+          SIZE 8 BY .62 AT ROW 1.05 COL 87
           FGCOLOR 9 FONT 6
      "Tag#/RFID#" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 1.05 COL 10

@@ -54,7 +54,6 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHAR NO-UNDO.
 DEFINE VARIABLE char-hdl                AS CHAR NO-UNDO.
 DEFINE VARIABLE columnCount             AS INT  NO-UNDO.
 DEFINE VARIABLE idx                     AS INT  NO-UNDO.
-DEFINE VARIABLE ilogic                  AS LOG  NO-UNDO.
 DEFINE VARIABLE iSecurityLevel          AS INT  NO-UNDO.
 DEFINE VARIABLE lActive                 AS LOG  NO-UNDO.
 DEFINE VARIABLE ll-first                AS LOG  INIT YES NO-UNDO.
@@ -158,7 +157,7 @@ utilities.securityLevel
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnRun fi_desc fi_module fi_hotkey fi_notes ~
+&Scoped-Define ENABLED-OBJECTS fi_desc fi_module fi_hotkey fi_notes ~
 fi_seclevel cPrgmNameLabel btn_go btn_show Browser-Table 
 &Scoped-Define DISPLAYED-OBJECTS fi_desc fi_module fi_hotkey fi_notes ~
 fi_seclevel fi_sort-by fi_pro-name cPrgmNameLabel 
@@ -217,10 +216,6 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnRun 
-     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "&Run" 
-     SIZE 7 BY 1.91.
 
 DEFINE BUTTON btn_go 
      LABEL "&Go" 
@@ -300,7 +295,6 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnRun AT ROW 3.38 COL 40
      fi_desc AT ROW 2.19 COL 2.8 NO-LABEL WIDGET-ID 16
      fi_module AT ROW 2.19 COL 37.4 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      fi_hotkey AT ROW 2.19 COL 49.2 COLON-ALIGNED NO-LABEL WIDGET-ID 40
@@ -533,33 +527,6 @@ DO:
   
   
     END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnRun
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRun B-table-Win
-ON CHOOSE OF btnRun IN FRAME F-Main /* Run */
-DO:
-    DEF VAR cUnExtended AS CHAR NO-UNDO.
-    /* removes any extenstion from the value entered, if any */
-    ASSIGN 
-        cUnextended = REPLACE(fi_pro-name:SCREEN-VALUE IN FRAME {&frame-name},".r","")
-        cUnextended = REPLACE(cUnextended,".w","")
-        cUnextended = REPLACE(cUnextended,".p","")
-        cUnextended = REPLACE(cUnextended,".","").
-
-    /* Searches for source code (and if found, runs it), THEN for r-code */
-    IF SEARCH('util/' + cUnextended + '.w') NE ? THEN
-        RUN VALUE('util/' + cUnextended + '.w').
-    ELSE IF SEARCH('util/' + cUnextended + '.p') NE ? THEN
-        RUN VALUE('util/' + cUnextended + '.p').
-    ELSE IF SEARCH('util/' + cUnextended + '.r') NE ? THEN
-        RUN VALUE('util/' + cUnextended + '.r').
-    ELSE MESSAGE 
-        'Program: util/' + cUnextended + ' does not exist with any extension.' VIEW-AS ALERT-BOX.
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -886,11 +853,7 @@ PROCEDURE local-initialize :
     ASSIGN 
         utilities.description:WIDTH IN BROWSE {&browse-name} = 60
         utilities.notes:WIDTH IN BROWSE {&browse-name} = 86.
-        
-    FOR EACH bf-utilities WHERE utilities.securityLevel LE iSecurityLevel :
-        ilogic = fi_hotkey:ADD-LAST (bf-utilities.hotkey) IN FRAME {&frame-name}.
-    END. /* each bf-utilities */
-        
+       
     APPLY 'ENTRY':U TO fi_desc IN FRAME {&FRAME-NAME}.
 
 END PROCEDURE.

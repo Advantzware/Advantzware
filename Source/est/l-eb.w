@@ -80,11 +80,18 @@ def var lv-type-dscr as cha no-undo.
 
 DEF VAR lv-first-time AS LOG INIT YES NO-UNDO.
 
-DEFINE VARIABLE cellColumn AS HANDLE NO-UNDO EXTENT 20.
-DEFINE VARIABLE columnCount AS INTEGER NO-UNDO.
-DEFINE VARIABLE idx AS INTEGER NO-UNDO.
-DEFINE VARIABLE useColors AS CHAR NO-UNDO.
-DEF VAR v-fg-est-no AS cha NO-UNDO.
+DEFINE VARIABLE cellColumn  AS HANDLE    NO-UNDO EXTENT 20.
+DEFINE VARIABLE columnCount AS INTEGER   NO-UNDO.
+DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE useColors   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-fg-est-no AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFGStatus   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFGFlag     AS CHARACTER NO-UNDO.
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD f_FGStatus V-table-Win 
+FUNCTION f_FGStatus RETURNS CHARACTER
+  (ipcompany AS CHARACTER,ipStockNO AS CHARACTER)  FORWARD.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -109,7 +116,7 @@ DEF VAR v-fg-est-no AS cha NO-UNDO.
 
 /* Definitions for BROWSE BROWSE-1                                      */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 eb.est-no eb.cust-no eb.part-no ~
-eb.part-dscr1 eb.stock-no 
+eb.part-dscr1 eb.stock-no f_FGStatus() @ cFGStatus
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH eb WHERE ~{&KEY-PHRASE} ~
       AND eb.company = ip-company AND ~
@@ -134,7 +141,7 @@ and itemfg.stat eq "A" OUTER-JOIN NO-LOCK ~
       AND itemfg.company eq eb.company ~
 and itemfg.i-no eq eb.stock-no ~
 and itemfg.stat eq "A" OUTER-JOIN NO-LOCK ~
-    ~{&SORTBY-PHRASE}.
+    ~{&SORTBY-PHRASE} .
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 eb ef est itemfg
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 eb
 &Scoped-define SECOND-TABLE-IN-QUERY-BROWSE-1 ef
@@ -204,7 +211,7 @@ DEFINE VARIABLE rd-sort AS INTEGER
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 115 BY 1.43.
+     SIZE 120 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -226,9 +233,11 @@ DEFINE BROWSE BROWSE-1
             WIDTH 35 COLUMN-FONT 1 LABEL-BGCOLOR 14
       eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(16)":U WIDTH 22
             COLUMN-FONT 0 LABEL-BGCOLOR 14
+      f_FGStatus(ip-company,eb.stock-no) @ cFGStatus COLUMN-LABEL "Status" FORMAT "x(8)":U WIDTH 10
+            COLUMN-FONT 0 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 115 BY 11.19
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 120 BY 11.19
          BGCOLOR 8 FONT 0.
 
 
@@ -301,7 +310,7 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
      _TblList          = "ASI.eb,ASI.ef OF ASI.eb,ASI.est OF ASI.eb,ASI.itemfg WHERE ASI.eb ..."
-     _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
+     _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE by eb.est-no DESC"
      _TblOptList       = ", FIRST, FIRST, FIRST OUTER"
      _Where[1]         = "ASI.eb.company = ip-company AND
 ((eb.est-type ge 1 and eb.est-type le 4 and ip-est-type ge 1 and ip-est-type le 4) or
@@ -310,7 +319,7 @@ ASSIGN
      _Where[4]         = "itemfg.company eq eb.company
 and itemfg.i-no eq eb.stock-no
 and itemfg.stat eq ""A"""
-     _FldNameList[1]   > ASI.eb.est-no
+    _FldNameList[1]   > ASI.eb.est-no
 "eb.est-no" ? "x(8)" "character" ? ? 0 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.eb.cust-no
 "eb.cust-no" "Cust#" ? "character" ? ? 0 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -320,6 +329,8 @@ and itemfg.stat eq ""A"""
 "eb.part-dscr1" "Description" ? "character" ? ? 1 14 ? ? no ? no no "35" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.eb.stock-no
 "eb.stock-no" "FG Item#" "x(16)" "character" ? ? 0 14 ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+      _FldNameList[6]   > ASI.eb.est-no
+"f_FGStatus() @ cFGStatus" "Status" "x(8)" "character" ? ? 0 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
@@ -376,6 +387,11 @@ END.
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 OR RETURN OF browse-1
 DO:
+   ASSIGN cFGFlag = f_FGStatus(ip-company,eb.stock-no) .
+   IF cFGFlag EQ "InActive" THEN
+   DO:
+       MESSAGE "Item is inactive." VIEW-AS ALERT-BOX WARNING.
+   END.
    op-rowid-val = (ROWID(eb))                 .
    apply "window-close" to frame {&frame-name}. 
       
@@ -442,6 +458,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
+   ASSIGN cFGFlag = f_FGStatus(ip-company,eb.stock-no) .
+   IF cFGFlag EQ "InActive" THEN
+   DO:
+       MESSAGE "Item is inactive." VIEW-AS ALERT-BOX WARNING.
+   END.
    op-rowid-val = (ROWID(eb)).
    apply "window-close" to frame {&frame-name}. 
       
@@ -585,11 +606,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       END.
     END CASE.
   END.*/
-
-  lv-search = ip-cur-val.
-  lv-search:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ip-cur-val.
-  APPLY "leave" TO lv-search IN FRAME {&FRAME-NAME}.
-
+  IF rd-sort NE 1 THEN
+  DO:  
+      lv-search = ip-cur-val.
+      lv-search:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ip-cur-val.
+      APPLY "leave" TO lv-search IN FRAME {&FRAME-NAME}.   
+  END.
+  
   SESSION:SET-WAIT-STATE("").
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -658,3 +681,35 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION f_FGStatus B-table-Win 
+FUNCTION f_FGStatus RETURNS CHARACTER
+  (INPUT ipcompany AS CHARACTER, INPUT ipStockNO AS CHARACTER) :
+/*------------------------------------------------------------------------------
+  Purpose:    
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE opcFGStatus AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFGStat     AS CHARACTER NO-UNDO.
+  
+  IF eb.stock-no NE "" THEN
+  FIND FIRST itemfg NO-LOCK
+          WHERE itemfg.company EQ ipcompany 
+            AND itemfg.i-no EQ eb.stock-no NO-ERROR .
+      IF AVAIL itemfg THEN
+            ASSIGN cFGStat = itemfg.stat.
+      ELSE cFGStat = "A".      
+      
+      IF cFGStat EQ "A" THEN 
+            opcFGStatus = "Active" . 
+      ELSE  opcFGStatus = "InActive" .
+      
+  RELEASE itemfg.    
+  RETURN opcFGStatus.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

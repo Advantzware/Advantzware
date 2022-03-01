@@ -44,16 +44,16 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE cXML 
 {oe/rep/invoice.i NEW}
 
-DEFINE NEW SHARED VARIABLE s-print-zero-qty AS LOGICAL NO-UNDO.
+DEFINE NEW SHARED VARIABLE s-print-zero-qty AS LOGICAL   NO-UNDO.
 
-DEFINE VARIABLE cArgsValue AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+DEFINE            VARIABLE cArgsValue       AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE hdOutboundProcs  AS HANDLE    NO-UNDO.
 
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 ASSIGN
-  cocode = gcompany
-  locode = gloc.
+    cocode = gcompany
+    locode = gloc.
 
 SESSION:SET-WAIT-STATE('').
 
@@ -61,9 +61,9 @@ SESSION:SET-WAIT-STATE('').
 {XMLOutput/XMLOutput.i &NEW=NEW &cXMLSysCtrl=cXMLInvoice &Company=cocode &c=c}
 
 ASSIGN
-  lXMLOutput = NO /* prevent XML Invoices from generating */
-  clXMLOutput = YES /* force cXML Invoices to generate */
-  .
+    lXMLOutput  = NO /* prevent XML Invoices from generating */
+    clXMLOutput = YES /* force cXML Invoices to generate */
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -80,11 +80,11 @@ ASSIGN
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS cXMLCustomer invStart calendar-1 invEnd ~
-calendar-2 invNoStart invNoEnd rd_posted invDate calendar-3 fiInvSuffix ~
-btnOK btnCancel 
+&Scoped-Define ENABLED-OBJECTS RECT-6 cXMLCustomer invStart calendar-1 ~
+invEnd calendar-2 invNoStart invNoEnd rd_posted invDate calendar-3 ~
+fiInvSuffix tbAutoClose btnOK btnCancel 
 &Scoped-Define DISPLAYED-OBJECTS cXMLCustomer invStart invEnd invNoStart ~
-invNoEnd rd_posted invDate fiInvSuffix 
+invNoEnd rd_posted invDate fiInvSuffix tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -100,102 +100,114 @@ rd_posted invDate
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCancel 
-     LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+    LABEL "&Cancel" 
+    SIZE 16 BY 1.29.
 
 DEFINE BUTTON btnOK 
-     LABEL "&OK" 
-     SIZE 15 BY 1.14.
+    LABEL "&OK" 
+    SIZE 16 BY 1.29.
 
 DEFINE BUTTON calendar-1 
-     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-     LABEL "" 
-     SIZE 4.6 BY 1.05.
+    IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+    LABEL "" 
+    SIZE 4.6 BY 1.05.
 
 DEFINE BUTTON calendar-2 
-     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-     LABEL "" 
-     SIZE 4.6 BY 1.05.
+    IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+    LABEL "" 
+    SIZE 4.6 BY 1.05.
 
 DEFINE BUTTON calendar-3 
-     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-     LABEL "" 
-     SIZE 4.6 BY 1.05.
+    IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+    LABEL "" 
+    SIZE 4.6 BY 1.05.
 
 DEFINE VARIABLE fiInvSuffix AS CHARACTER FORMAT "X(2)":U 
-     LABEL "Invoice Suffix" 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+    LABEL "Invoice Suffix" 
+    VIEW-AS FILL-IN 
+    SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE invDate AS DATE FORMAT "99/99/9999":U 
-     LABEL "Invoice Date" 
-     VIEW-AS FILL-IN 
-     SIZE 15 BY 1.05 NO-UNDO.
+DEFINE VARIABLE invDate     AS DATE      FORMAT "99/99/9999":U 
+    LABEL "Invoice Date" 
+    VIEW-AS FILL-IN 
+    SIZE 15 BY 1.05 NO-UNDO.
 
-DEFINE VARIABLE invEnd AS DATE FORMAT "99/99/9999":U 
-     LABEL "To" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1.05 NO-UNDO.
+DEFINE VARIABLE invEnd      AS DATE      FORMAT "99/99/9999":U 
+    LABEL "To" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1.05 NO-UNDO.
 
-DEFINE VARIABLE invNoEnd AS INTEGER FORMAT ">>>>>>9":U INITIAL 9999999 
-     LABEL "To" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1.05 NO-UNDO.
+DEFINE VARIABLE invNoEnd    AS INTEGER   FORMAT ">>>>>>9":U INITIAL 9999999 
+    LABEL "To" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1.05 NO-UNDO.
 
-DEFINE VARIABLE invNoStart AS INTEGER FORMAT ">>>>>>>9":U INITIAL 0 
-     LABEL "Invoice #" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1.05 NO-UNDO.
+DEFINE VARIABLE invNoStart  AS INTEGER   FORMAT ">>>>>>>9":U INITIAL 0 
+    LABEL "Invoice #" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1.05 NO-UNDO.
 
-DEFINE VARIABLE invStart AS DATE FORMAT "99/99/9999":U 
-     LABEL "Invoice Date" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1.05 NO-UNDO.
+DEFINE VARIABLE invStart    AS DATE      FORMAT "99/99/9999":U 
+    LABEL "Invoice Date" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1.05 NO-UNDO.
 
-DEFINE VARIABLE rd_posted AS INTEGER INITIAL 1 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "Unposted", 1,
-"Posted", 2
-     SIZE 29.6 BY 1.19 NO-UNDO.
+DEFINE VARIABLE rd_posted   AS INTEGER   INITIAL 1 
+    VIEW-AS RADIO-SET HORIZONTAL
+    RADIO-BUTTONS 
+    "Unposted", 1,
+    "Posted", 2
+    SIZE 29.6 BY 1.19 NO-UNDO.
+
+DEFINE RECTANGLE RECT-6
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    SIZE 78 BY 6.19.
 
 DEFINE VARIABLE cXMLCustomer AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
-     SIZE 78 BY 11.19 NO-UNDO.
+    VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
+    SIZE 78 BY 11.19 NO-UNDO.
+
+DEFINE VARIABLE tbAutoClose  AS LOGICAL   INITIAL NO 
+    LABEL "Auto Close" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 16 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     cXMLCustomer AT ROW 1.95 COL 2 HELP
-          "Select Customer" NO-LABEL WIDGET-ID 4
-     invStart AT ROW 13.86 COL 21 COLON-ALIGNED HELP
-          "Enter Starting Invoice Date" WIDGET-ID 8
-     calendar-1 AT ROW 13.86 COL 39 WIDGET-ID 12
-     invEnd AT ROW 13.86 COL 47 COLON-ALIGNED HELP
-          "Enter Ending Invoice Date" WIDGET-ID 10
-     calendar-2 AT ROW 13.86 COL 65 WIDGET-ID 14
-     invNoStart AT ROW 15.52 COL 21 COLON-ALIGNED HELP
-          "Enter Starting Invoice Date" WIDGET-ID 26
-     invNoEnd AT ROW 15.52 COL 47 COLON-ALIGNED HELP
-          "Enter Ending Invoice Date" WIDGET-ID 24
-     rd_posted AT ROW 17.29 COL 19.4 NO-LABEL WIDGET-ID 20
-     invDate AT ROW 17.38 COL 58.2 COLON-ALIGNED HELP
-          "Enter Invoice Date" WIDGET-ID 30
-     calendar-3 AT ROW 17.38 COL 74.8 WIDGET-ID 28
-     fiInvSuffix AT ROW 19.1 COL 21 COLON-ALIGNED
-     btnOK AT ROW 19.1 COL 49 WIDGET-ID 16
-     btnCancel AT ROW 19.1 COL 65 WIDGET-ID 18
-     "Customers" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 6
+    cXMLCustomer AT ROW 1.95 COL 2 HELP
+    "Select Customer" NO-LABELS WIDGET-ID 4
+    invStart AT ROW 13.86 COL 21 COLON-ALIGNED HELP
+    "Enter Starting Invoice Date" WIDGET-ID 8
+    calendar-1 AT ROW 13.86 COL 39 WIDGET-ID 12
+    invEnd AT ROW 13.86 COL 47 COLON-ALIGNED HELP
+    "Enter Ending Invoice Date" WIDGET-ID 10
+    calendar-2 AT ROW 13.86 COL 65 WIDGET-ID 14
+    invNoStart AT ROW 15.52 COL 21 COLON-ALIGNED HELP
+    "Enter Starting Invoice Date" WIDGET-ID 26
+    invNoEnd AT ROW 15.52 COL 47 COLON-ALIGNED HELP
+    "Enter Ending Invoice Date" WIDGET-ID 24
+    rd_posted AT ROW 17.29 COL 18.6 NO-LABELS WIDGET-ID 20
+    invDate AT ROW 17.38 COL 57.4 COLON-ALIGNED HELP
+    "Enter Invoice Date" WIDGET-ID 30
+    calendar-3 AT ROW 17.38 COL 74.8 WIDGET-ID 28
+    fiInvSuffix AT ROW 18.67 COL 21 COLON-ALIGNED
+    tbAutoClose AT ROW 19.86 COL 23 WIDGET-ID 64
+    btnOK AT ROW 20.86 COL 22.8 WIDGET-ID 16
+    btnCancel AT ROW 20.86 COL 44.6 WIDGET-ID 18
+    "Customers" VIEW-AS TEXT
+    SIZE 11 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 6
+    RECT-6 AT ROW 13.62 COL 2 WIDGET-ID 66
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 80 BY 19.48 WIDGET-ID 100.
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 1
+    SIZE 80.2 BY 21.43
+    BGCOLOR 15  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -212,24 +224,24 @@ DEFINE FRAME DEFAULT-FRAME
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-  CREATE WINDOW C-Win ASSIGN
-         HIDDEN             = YES
-         TITLE              = "cXML Invoice Generation"
-         HEIGHT             = 19.62
-         WIDTH              = 80
-         MAX-HEIGHT         = 19.62
-         MAX-WIDTH          = 80
-         VIRTUAL-HEIGHT     = 19.62
-         VIRTUAL-WIDTH      = 80
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = no
-         BGCOLOR            = ?
-         FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+    CREATE WINDOW C-Win ASSIGN
+        HIDDEN             = YES
+        TITLE              = "cXML Invoice Generation"
+        HEIGHT             = 21.43
+        WIDTH              = 80.2
+        MAX-HEIGHT         = 21.43
+        MAX-WIDTH          = 81
+        VIRTUAL-HEIGHT     = 21.43
+        VIRTUAL-WIDTH      = 81
+        RESIZE             = YES
+        SCROLL-BARS        = NO
+        STATUS-AREA        = NO
+        BGCOLOR            = ?
+        FGCOLOR            = ?
+        KEEP-FRAME-Z-ORDER = YES
+        THREE-D            = YES
+        MESSAGE-AREA       = NO
+        SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -246,14 +258,12 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR BUTTON btnCancel IN FRAME DEFAULT-FRAME
    2                                                                    */
 ASSIGN 
-       btnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
+    btnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "ribbon-button".
 
 /* SETTINGS FOR BUTTON btnOK IN FRAME DEFAULT-FRAME
    2                                                                    */
 ASSIGN 
-       btnOK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
+    btnOK:PRIVATE-DATA IN FRAME DEFAULT-FRAME = "ribbon-button".
 
 /* SETTINGS FOR BUTTON calendar-1 IN FRAME DEFAULT-FRAME
    2                                                                    */
@@ -276,7 +286,7 @@ ASSIGN
 /* SETTINGS FOR RADIO-SET rd_posted IN FRAME DEFAULT-FRAME
    1                                                                    */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+    THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -290,12 +300,13 @@ THEN C-Win:HIDDEN = no.
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* cXML Invoice Generation */
-OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
-  /* This case occurs when the user presses the "Esc" key.
-     In a persistently run window, just ignore this.  If we did not, the
-     application would exit. */
-  IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
-END.
+    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+    DO:
+        /* This case occurs when the user presses the "Esc" key.
+           In a persistently run window, just ignore this.  If we did not, the
+           application would exit. */
+        IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -303,13 +314,13 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* cXML Invoice Generation */
-DO:
-  /* This event will close the window and terminate the procedure.  */
-  IF VALID-HANDLE(hdOutboundProcs) THEN
-    DELETE PROCEDURE hdOutboundProcs. 
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
-END.
+    DO:
+        /* This event will close the window and terminate the procedure.  */
+        IF VALID-HANDLE(hdOutboundProcs) THEN
+            DELETE PROCEDURE hdOutboundProcs. 
+        APPLY "CLOSE":U TO THIS-PROCEDURE.
+        RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -318,9 +329,9 @@ END.
 &Scoped-define SELF-NAME btnCancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel C-Win
 ON CHOOSE OF btnCancel IN FRAME DEFAULT-FRAME /* Cancel */
-DO:
-  APPLY 'CLOSE':U TO THIS-PROCEDURE.
-END.
+    DO:
+        APPLY 'CLOSE':U TO THIS-PROCEDURE.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -329,84 +340,90 @@ END.
 &Scoped-define SELF-NAME btnOK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK C-Win
 ON CHOOSE OF btnOK IN FRAME DEFAULT-FRAME /* OK */
-DO:
-  DEFINE VARIABLE iCount AS INTEGER     NO-UNDO.
-  DEFINE VARIABLE cMessage AS CHARACTER   NO-UNDO.
-  DEFINE VARIABLE lUnposted AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE cSuffix AS CHARACTER NO-UNDO.
+    DO:
+        DEFINE VARIABLE iCount    AS INTEGER   NO-UNDO.
+        DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE lUnposted AS LOGICAL   NO-UNDO.
+        DEFINE VARIABLE cSuffix   AS CHARACTER NO-UNDO.
   
-  ASSIGN {&List-1}
-    fcust = cXMLCustomer
-    tcust = fcust
-    fdate = invStart
-    tdate = invEnd
-    v-term-id = STRING(YEAR(TODAY),'9999') +
+        ASSIGN {&List-1}
+            fcust     = cXMLCustomer
+            tcust     = fcust
+            fdate     = invStart
+            tdate     = invEnd
+            v-term-id = STRING(YEAR(TODAY),'9999') +
                 STRING(MONTH(TODAY),'99') +
                 STRING(DAY(TODAY),'99') +
                 STRING(TIME,'99999') +
                 PROGRAM-NAME(1) +
                 USERID('NoSweat')
-    lUnPosted = rd_Posted EQ 1
-    cSuffix = fiInvSuffix:SCREEN-VALUE 
-    .
+            lUnPosted = rd_Posted EQ 1
+            cSuffix   = fiInvSuffix:SCREEN-VALUE 
+            .
   
-  IF cXMLCustomer EQ ? THEN DO:
-    MESSAGE 'Please Select a Customer' VIEW-AS ALERT-BOX.
-    APPLY 'ENTRY':U TO cXMLCustomer.
-    RETURN NO-APPLY.
-  END.
-  IF lUnposted THEN DO:
-      FOR EACH inv-head NO-LOCK
-          WHERE inv-head.company EQ cocode
-            AND inv-head.cust-no EQ cXMLCustomer
-            AND inv-head.inv-date GE invStart
-            AND inv-head.inv-date LE invEnd
-            AND inv-head.inv-no   GE invNoStart
-            AND inv-head.inv-no   LE invNoEnd
-            AND (inv-head.stat EQ "" OR inv-head.stat EQ "X")
+        IF cXMLCustomer EQ ? THEN 
+        DO:
+            MESSAGE 'Please Select a Customer' VIEW-AS ALERT-BOX.
+            APPLY 'ENTRY':U TO cXMLCustomer.
+            RETURN NO-APPLY.
+        END.
+        IF lUnposted THEN 
+        DO:
+            FOR EACH inv-head NO-LOCK
+                WHERE inv-head.company EQ cocode
+                AND inv-head.cust-no EQ cXMLCustomer
+                AND inv-head.inv-date GE invStart
+                AND inv-head.inv-date LE invEnd
+                AND inv-head.inv-no   GE invNoStart
+                AND inv-head.inv-no   LE invNoEnd
+                AND (inv-head.stat EQ "" OR inv-head.stat EQ "X")
                 :
-        cArgsValue = STRING(ROWID(inv-head)) + "," + cSuffix + "," + STRING(invDate).
-
-        RUN pCallOutboundAPI(
-            INPUT inv-head.company,
-            INPUT locode,
-            INPUT inv-head.cust-no,
-            INPUT inv-head.inv-no,
-            INPUT "inv-head,Suffix,InvoiceDate",
-            INPUT cArgsValue
-            ).
+                cArgsValue = STRING(ROWID(inv-head)) + "," + cSuffix + "," + STRING(invDate).
         
-        CREATE report.
-        ASSIGN
-          report.term-id = v-term-id
-          report.key-01 = inv-head.cust-no
-          report.key-02 = STRING(inv-head.bol-no,'9999999999')
-          report.rec-id = RECID(inv-head)
-          .
-      END. /* each inv-head */
-      DISABLE {&List-1} {&List-2} WITH FRAME {&FRAME-NAME}.
-      IF CAN-FIND(FIRST report WHERE report.term-id EQ v-term-id) THEN
-      RUN oe/rep/invpremx.p (cSuffix,NO).
-      iCount = 0.
-      FOR EACH report EXCLUSIVE-LOCK WHERE report.term-id EQ v-term-id: 
-        iCount = iCount + 1.
-        DELETE report.
-      END. /* each report */
-  END.
-  ELSE DO:
-    RUN pProcessPostedARInvoices(cocode, cXMLCustomer, invStart, invEnd, invNoStart, invNoEnd,
-        invDate, cSuffix, OUTPUT iCount).
-  END.
-  IF iCount GT 0 THEN 
-      cMessage = "Processed " + STRING(iCount) + " invoices ".
-  ELSE
-      cMessage = "No invoices available to process ".
-  cMessage = cMessage + "for " + cXMLCustomer + " between " + STRING(invStart) + " and " + STRING(invEnd) + ".".
+                IF NOT inv-head.ediInvoice THEN
+                    RUN pCallOutboundAPI(
+                        INPUT inv-head.company,
+                        INPUT locode,
+                        INPUT inv-head.cust-no,
+                        INPUT inv-head.inv-no,
+                        INPUT "inv-head,Suffix,InvoiceDate",
+                        INPUT cArgsValue
+                        ).
+        
+                CREATE report.
+                ASSIGN
+                    report.term-id = v-term-id
+                    report.key-01  = inv-head.cust-no
+                    report.key-02  = STRING(inv-head.bol-no,'9999999999')
+                    report.rec-id  = RECID(inv-head)
+                    .
+            END. /* each inv-head */
+            DISABLE {&List-1} {&List-2} WITH FRAME {&FRAME-NAME}.
+            IF CAN-FIND(FIRST report WHERE report.term-id EQ v-term-id) THEN
+                RUN oe/rep/invpremx.p (cSuffix,NO).
+            iCount = 0.
+            FOR EACH report EXCLUSIVE-LOCK WHERE report.term-id EQ v-term-id: 
+                iCount = iCount + 1.
+                DELETE report.
+            END. /* each report */
+        END.
+        ELSE 
+        DO:
+            RUN pProcessPostedARInvoices(cocode, cXMLCustomer, invStart, invEnd, invNoStart, invNoEnd,
+                invDate, cSuffix, OUTPUT iCount).
+        END.
+        IF iCount GT 0 THEN 
+            cMessage = "Processed " + STRING(iCount) + " invoices ".
+        ELSE
+            cMessage = "No invoices available to process ".
+        cMessage = cMessage + "for " + cXMLCustomer + " between " + STRING(invStart) + " and " + STRING(invEnd) + ".".
 
-  MESSAGE cMessage
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-  ENABLE {&List-1} {&List-2} WITH FRAME {&FRAME-NAME}.
-END.
+        MESSAGE cMessage
+            VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
+        ENABLE {&List-1} {&List-2} WITH FRAME {&FRAME-NAME}.
+        IF tbAutoClose:CHECKED THEN 
+            APPLY 'CLOSE' TO THIS-PROCEDURE.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -415,9 +432,9 @@ END.
 &Scoped-define SELF-NAME calendar-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL calendar-1 C-Win
 ON CHOOSE OF calendar-1 IN FRAME DEFAULT-FRAME
-DO:
-  APPLY 'HELP':U TO invStart.
-END.
+    DO:
+        APPLY 'HELP':U TO invStart.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -426,9 +443,9 @@ END.
 &Scoped-define SELF-NAME calendar-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL calendar-2 C-Win
 ON CHOOSE OF calendar-2 IN FRAME DEFAULT-FRAME
-DO:
-  APPLY 'HELP':U TO invEnd.
-END.
+    DO:
+        APPLY 'HELP':U TO invEnd.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -437,9 +454,9 @@ END.
 &Scoped-define SELF-NAME calendar-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL calendar-3 C-Win
 ON CHOOSE OF calendar-3 IN FRAME DEFAULT-FRAME
-DO:
-  APPLY 'HELP':U TO invDate.
-END.
+    DO:
+        APPLY 'HELP':U TO invDate.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -448,9 +465,9 @@ END.
 &Scoped-define SELF-NAME invDate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL invDate C-Win
 ON HELP OF invDate IN FRAME DEFAULT-FRAME /* Invoice Date */
-DO:
-  {methods/calendar.i}
-END.
+    DO:
+        {methods/calendar.i}
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -459,9 +476,9 @@ END.
 &Scoped-define SELF-NAME invEnd
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL invEnd C-Win
 ON HELP OF invEnd IN FRAME DEFAULT-FRAME /* To */
-DO:
-  {methods/calendar.i}
-END.
+    DO:
+        {methods/calendar.i}
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -470,9 +487,9 @@ END.
 &Scoped-define SELF-NAME invStart
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL invStart C-Win
 ON HELP OF invStart IN FRAME DEFAULT-FRAME /* Invoice Date */
-DO:
-  {methods/calendar.i}
-END.
+    DO:
+        {methods/calendar.i}
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -481,19 +498,19 @@ END.
 &Scoped-define SELF-NAME rd_posted
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_posted C-Win
 ON VALUE-CHANGED OF rd_posted IN FRAME DEFAULT-FRAME
-DO:
-  ASSIGN {&self-name}.
-  IF rd_Posted EQ 1 THEN
-  DO:
-     ASSIGN
-       invDate:HIDDEN IN FRAME DEFAULT-FRAME = YES
-       calendar-3:HIDDEN IN FRAME DEFAULT-FRAME = YES. 
-  END.
-  ELSE
-  ASSIGN
-    invDate:HIDDEN IN FRAME DEFAULT-FRAME = NO
-    calendar-3:HIDDEN IN FRAME DEFAULT-FRAME = NO.
-END.
+    DO:
+        ASSIGN {&self-name}.
+        IF rd_Posted EQ 1 THEN
+        DO:
+            ASSIGN
+                invDate:HIDDEN IN FRAME DEFAULT-FRAME    = YES
+                calendar-3:HIDDEN IN FRAME DEFAULT-FRAME = YES. 
+        END.
+        ELSE
+            ASSIGN
+                invDate:HIDDEN IN FRAME DEFAULT-FRAME    = NO
+                calendar-3:HIDDEN IN FRAME DEFAULT-FRAME = NO.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -513,7 +530,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
-   RUN disable_UI.
+    RUN disable_UI.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -522,40 +539,44 @@ PAUSE 0 BEFORE-HIDE.
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  ASSIGN
-    invStart = TODAY
-    invEnd = TODAY
-    invDate = TODAY
-    .
-  RUN enable_UI.
-  ASSIGN
-    invDate:HIDDEN IN FRAME DEFAULT-FRAME = YES
-    calendar-3:HIDDEN IN FRAME DEFAULT-FRAME = YES.
+    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    ASSIGN
+        invStart = TODAY
+        invEnd   = TODAY
+        invDate  = TODAY
+        .
+    btnok:LOAD-IMAGE("Graphics/32x32/Ok.png").
+    btncancel:LOAD-IMAGE("Graphics/32x32/cancel.png").  
+    RUN enable_UI.
+    ASSIGN
+        invDate:HIDDEN IN FRAME DEFAULT-FRAME    = YES
+        calendar-3:HIDDEN IN FRAME DEFAULT-FRAME = YES.
 
-  FIND FIRST sys-ctrl NO-LOCK
-       WHERE sys-ctrl.company EQ  cocode
-         AND sys-ctrl.name    EQ 'cXMLInvoice' NO-ERROR.
-  IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN DO:
-    cXMLCustomer:LIST-ITEM-PAIRS = ?.
-    FOR EACH sys-ctrl-shipto OF sys-ctrl NO-LOCK
-        WHERE sys-ctrl-shipto.cust-vend EQ YES
-          AND sys-ctrl-shipto.log-fld EQ YES,
-        FIRST cust NO-LOCK
-        WHERE cust.company EQ sys-ctrl-shipto.company
-          AND cust.cust-no EQ sys-ctrl-shipto.cust-vend-no:
-      cXMLCustomer:ADD-LAST(REPLACE(cust.name,',','') + ' (' + cust.cust-no + ')',cust.cust-no).
+    FIND FIRST sys-ctrl NO-LOCK
+        WHERE sys-ctrl.company EQ  cocode
+        AND sys-ctrl.name    EQ 'cXMLInvoice' NO-ERROR.
+    IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN 
+    DO:
+        cXMLCustomer:LIST-ITEM-PAIRS = ?.
+        FOR EACH sys-ctrl-shipto OF sys-ctrl NO-LOCK
+            WHERE sys-ctrl-shipto.cust-vend EQ YES
+            AND sys-ctrl-shipto.log-fld EQ YES,
+            FIRST cust NO-LOCK
+            WHERE cust.company EQ sys-ctrl-shipto.company
+            AND cust.cust-no EQ sys-ctrl-shipto.cust-vend-no:
+            cXMLCustomer:ADD-LAST(REPLACE(cust.name,',','') + ' (' + cust.cust-no + ')',cust.cust-no).
+        END.
+    END. /* avail sys-ctrl */
+    ELSE 
+    DO:
+        MESSAGE 'System Configuration Settings Do Not' SKIP
+            'Exist for Generating cXML Invoices'
+            VIEW-AS ALERT-BOX.
+        APPLY 'CLOSE':U TO THIS-PROCEDURE.
     END.
-  END. /* avail sys-ctrl */
-  ELSE DO:
-    MESSAGE 'System Configuration Settings Do Not' SKIP
-      'Exist for Generating cXML Invoices'
-      VIEW-AS ALERT-BOX.
-    APPLY 'CLOSE':U TO THIS-PROCEDURE.
-  END.
 
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -566,18 +587,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Delete the WINDOW we created */
-  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-  THEN DELETE WIDGET C-Win.
-  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+    /*------------------------------------------------------------------------------
+      Purpose:     DISABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we clean-up the user-interface by deleting
+                   dynamic widgets we have created and/or hide 
+                   frames.  This procedure is usually called when
+                   we are ready to "clean-up" after running.
+    ------------------------------------------------------------------------------*/
+    /* Delete the WINDOW we created */
+    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+        THEN DELETE WIDGET C-Win.
+    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -585,35 +606,35 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     ENABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we display/view/enable the widgets in the
-               user-interface.  In addition, OPEN all queries
-               associated with each FRAME and BROWSE.
-               These statements here are based on the "Other 
-               Settings" section of the widget Property Sheets.
-------------------------------------------------------------------------------*/
-  DISPLAY cXMLCustomer invStart invEnd invNoStart invNoEnd rd_posted invDate 
-          fiInvSuffix 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE cXMLCustomer invStart calendar-1 invEnd calendar-2 invNoStart invNoEnd 
-         rd_posted invDate calendar-3 fiInvSuffix btnOK btnCancel 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
-  VIEW C-Win.
+    /*------------------------------------------------------------------------------
+      Purpose:     ENABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we display/view/enable the widgets in the
+                   user-interface.  In addition, OPEN all queries
+                   associated with each FRAME and BROWSE.
+                   These statements here are based on the "Other 
+                   Settings" section of the widget Property Sheets.
+    ------------------------------------------------------------------------------*/
+    DISPLAY cXMLCustomer invStart invEnd invNoStart invNoEnd rd_posted invDate 
+        fiInvSuffix tbAutoClose 
+        WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+    ENABLE RECT-6 cXMLCustomer invStart calendar-1 invEnd calendar-2 invNoStart 
+        invNoEnd rd_posted invDate calendar-3 fiInvSuffix tbAutoClose btnOK 
+        btnCancel 
+        WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+    {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+    VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallOutboundAPI C-Win
-PROCEDURE pCallOutboundAPI PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallOutboundAPI C-Win 
+PROCEDURE pCallOutboundAPI PRIVATE :
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcLocation   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCustID     AS CHARACTER NO-UNDO.
@@ -629,10 +650,10 @@ PROCEDURE pCallOutboundAPI PRIVATE:
     DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
  
     ASSIGN  
-        cAPIId       = "SendInvoice"
-        cPrimaryID   = STRING(ipiInvoiceNo)
-        cTriggerID   = "printInvoice".
-        cDescription = cAPIID + " triggered by " + cTriggerID + " from cXMLCinv.w for Invoice: " + cPrimaryID
+        cAPIId     = "SendInvoice"
+        cPrimaryID = STRING(ipiInvoiceNo)
+        cTriggerID = "printInvoice".
+    cDescription = cAPIID + " triggered by " + cTriggerID + " from cXMLCinv.w for Invoice: " + cPrimaryID
         .
     RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
         INPUT  ipcCompany,    /* Company Code (Mandatory) */
@@ -651,19 +672,17 @@ PROCEDURE pCallOutboundAPI PRIVATE:
     
     RUN Outbound_ResetContext IN hdOutboundProcs. 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProcessOEInvoices C-Win 
 PROCEDURE pProcessOEInvoices PRIVATE :
-/*------------------------------------------------------------------------------
-         Purpose:  Given range parameters, process unposted OE invoices to cXML.
-         Notes: RUN pProcessPostedARInvoices(ipcCompany, ipcCustomerID, ipdtInvStart, ipdtInvEnd,
-                    OUTPUT opiCount).
-        ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+             Purpose:  Given range parameters, process unposted OE invoices to cXML.
+             Notes: RUN pProcessPostedARInvoices(ipcCompany, ipcCustomerID, ipdtInvStart, ipdtInvEnd,
+                        OUTPUT opiCount).
+            ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdtInvStart AS DATE NO-UNDO.
@@ -696,11 +715,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProcessPostedARInvoices C-Win 
 PROCEDURE pProcessPostedARInvoices PRIVATE :
-/*------------------------------------------------------------------------------
-     Purpose:  Given range parameters, process posted ar invoices to cXML.
-     Notes: RUN pProcessPostedARInvoices(ipcCompany, ipcCustomerID, ipdtInvStart, ipdtInvEnd,
-                OUTPUT opiCount).
-    ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+         Purpose:  Given range parameters, process posted ar invoices to cXML.
+         Notes: RUN pProcessPostedARInvoices(ipcCompany, ipcCustomerID, ipdtInvStart, ipdtInvEnd,
+                    OUTPUT opiCount).
+        ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdtInvStart AS DATE NO-UNDO.
@@ -723,7 +742,7 @@ PROCEDURE pProcessPostedARInvoices PRIVATE :
         
         cArgsValue = STRING(ROWID(ar-inv)) + "," + ipcInvSuffix + "," + STRING(ipdtInvoiceDate). 
 
-        IF ar-inv.gross NE 0 THEN               
+        IF ar-inv.gross NE 0 AND NOT ar-inv.ediInvoice THEN               
             RUN pCallOutboundAPI(
                 INPUT ar-inv.company,
                 INPUT locode,

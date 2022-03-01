@@ -54,6 +54,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE iHTMLPage       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE loadProgram     AS CHARACTER NO-UNDO.
 
+    IF cSBID EQ ? THEN RETURN.
     ASSIGN
         containerHandle = THIS-PROCEDURE:HANDLE
         ID              = cSBID
@@ -69,6 +70,7 @@ PROCEDURE pBusinessLogic:
     RUN {&objects}/sbHTML.p (
         cCompany,
         iHTMLPage,
+        lUseDueDateOnly,
         lLaunchHTMLPage,
         lProgressBar,
         cProgressBar

@@ -35,6 +35,7 @@ BY Task.nextTime INDEXED-REPOSITION.
 RUN system/session.p PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
 
+RUN pGetTaskTimeLimit.
 RUN pRunCommand (OUTPUT cRun).
 dttOpenDateTime = NOW.
 DO WHILE TRUE:

@@ -55,6 +55,7 @@ def new shared var cocode as cha no-undo.
 def new shared var locode as cha no-undo.
 
 {custom/globdefs.i}
+{system\FormulaProcs.i}
 
 assign cocode = g_company
        locode = g_loc.
@@ -90,6 +91,10 @@ DEF VAR cadFile AS CHARACTER NO-UNDO.
 DEF VAR lv-master-est-no LIKE eb.master-est-no NO-UNDO.
 DEF BUFFER b-style FOR style.
 DEF VAR v-count AS INT NO-UNDO.
+
+DEFINE VARIABLE cWidgethandles AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lWoodStyle AS LOGICAL NO-UNDO.
 
 DO TRANSACTION:
   {sys/inc/addprep.i}
@@ -193,7 +198,7 @@ eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc eb.lockLayout
 &Scoped-define SECOND-DISPLAYED-TABLE eb
 &Scoped-define THIRD-DISPLAYED-TABLE est-qty
 &Scoped-define FOURTH-DISPLAYED-TABLE ef
-&Scoped-Define DISPLAYED-OBJECTS tb-set fi_msf fi_per-set fi_from-est-no ~
+&Scoped-Define DISPLAYED-OBJECTS tb-set fi_msf fi_lf-blank fi_tot-lf-blank fi_per-set fi_from-est-no ~
 fi_blank-qty sman_sname procat_desc style_dscr tab-inout 
 
 /* Custom List Definitions                                              */
@@ -277,7 +282,7 @@ DEFINE BUTTON btn_fgitem
 
 DEFINE BUTTON btn_qty-msf 
      LABEL "" 
-     SIZE 74 BY 1.
+     SIZE 79.3 BY 1.
 
 DEFINE BUTTON btn_style 
      LABEL "" 
@@ -298,9 +303,19 @@ DEFINE VARIABLE fi_msf AS DECIMAL FORMAT "->,>>>,>>9.999":U INITIAL 0
      SIZE 15.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_per-set AS DECIMAL FORMAT "->>>9.9<<<":U INITIAL 0 
-     LABEL "Qty/Set" 
+     LABEL "PerSet" 
      VIEW-AS FILL-IN 
      SIZE 11 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE fi_lf-blank AS DECIMAL FORMAT "->,>>>,>>9.9":U INITIAL 0 
+     LABEL "Linear Feet" 
+     VIEW-AS FILL-IN 
+     SIZE 15.4 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE fi_tot-lf-blank AS DECIMAL FORMAT "->,>>>,>>9.99":U INITIAL 0 
+     LABEL "TLF" 
+     VIEW-AS FILL-IN 
+     SIZE 15.4 BY 1 NO-UNDO.     
 
 DEFINE VARIABLE procat_desc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -344,11 +359,13 @@ DEFINE VARIABLE tb-set AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Corr
-     tb-set AT ROW 16 COL 90 WIDGET-ID 12
+     tb-set AT ROW 11.71 COL 132 WIDGET-ID 12
      bt-new-die AT ROW 6.95 COL 80 WIDGET-ID 8
-     btn_qty-msf AT ROW 2.67 COL 78
+     btn_qty-msf AT ROW 2.67 COL 73.2
      fi_msf AT ROW 2.67 COL 134.6 COLON-ALIGNED
      fi_per-set AT ROW 2.67 COL 114 COLON-ALIGNED
+     fi_lf-blank AT ROW 16 COL 91 COLON-ALIGNED
+     fi_tot-lf-blank AT ROW 2.67 COL 114 COLON-ALIGNED
      est.est-no AT ROW 1.24 COL 9.2 COLON-ALIGNED
           LABEL "Est #" FORMAT "x(8)"
           VIEW-AS FILL-IN 
@@ -421,7 +438,7 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      est-qty.eqty AT ROW 2.67 COL 90 COLON-ALIGNED
-          LABEL "Quantity" FORMAT ">>>>>>>"
+          LABEL "Qty" FORMAT ">>>>>>>"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      eb.part-no AT ROW 3.86 COL 90 COLON-ALIGNED
@@ -499,10 +516,10 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      style_dscr AT ROW 10.52 COL 35 COLON-ALIGNED NO-LABEL
-     eb.flute AT ROW 10.52 COL 89 COLON-ALIGNED
+     eb.flute AT ROW 10.52 COL 88 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
-     eb.test AT ROW 10.52 COL 103 COLON-ALIGNED
+          SIZE 8.3 BY 1
+     eb.test AT ROW 10.52 COL 103.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.2 BY 1
      tab-inout AT ROW 10.52 COL 120 COLON-ALIGNED
@@ -515,9 +532,9 @@ DEFINE FRAME Corr
      ef.brd-dscr AT ROW 11.71 COL 45 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
-     eb.lockLayout AT ROW 11.71 COL 115 COLON-ALIGNED 
+     eb.lockLayout AT ROW 11.71 COL 108 COLON-ALIGNED 
           VIEW-AS TOGGLE-BOX 
-          SIZE 30 BY 1     
+          SIZE 20 BY 1     
      eb.len AT ROW 12.91 COL 26 COLON-ALIGNED
           LABEL "Length" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
@@ -582,7 +599,7 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      eb.t-sqin AT ROW 16 COL 127 COLON-ALIGNED
-          LABEL "Blank Square Feet" FORMAT ">>>9.999<<"
+          LABEL "Square Ft" FORMAT ">>>9.999<<"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      bt-new-plate AT ROW 7.91 COL 115.6 WIDGET-ID 10
@@ -710,6 +727,12 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        fi_per-set:HIDDEN IN FRAME Corr           = TRUE.
+       
+       
+/* SETTINGS FOR FILL-IN fi_tot-lf-blank IN FRAME Corr
+   NO-ENABLE                                                            */
+ASSIGN 
+       fi_tot-lf-blank:HIDDEN IN FRAME Corr           = TRUE.       
 
 /* SETTINGS FOR FILL-IN eb.form-no IN FRAME Corr
    NO-ENABLE EXP-LABEL                                                  */
@@ -835,8 +858,8 @@ DO:
                 OUTPUT cFoundValue, 
                 OUTPUT recFoundRecID
                 ).
-             IF cFoundValue <> "" AND cFoundValue NE lw-focus:SCREEN-VALUE THEN DO:
-                lw-focus:SCREEN-VALUE = cFoundValue.
+             IF cFoundValue <> "" AND cFoundValue NE eb.sman:SCREEN-VALUE THEN DO:
+                eb.sman:SCREEN-VALUE = cFoundValue.
                 RUN new-sman.
               APPLY "ENTRY":U TO eb.sman . 
              END.          
@@ -872,7 +895,7 @@ DO:
            ls-cur-val = lw-focus:screen-value.
            run windows/l-stylec.w (cocode,ls-cur-val, output char-val).
            if char-val <> "" then do:
-              assign lw-focus:screen-value =  entry(1,char-val)
+              assign eb.style:screen-value =  entry(1,char-val)
                      style_dscr:screen-value = entry(2,char-val) 
                   /*   ef.board:screen-value in frame {&frame-name} = if ef.board:screen-value = "" then entry(3,char-val)  else ef.board:screen-value /* style.material[1] */
                   */  
@@ -901,14 +924,14 @@ DO:
            ls-cur-val = lw-focus:screen-value.
            run windows/l-flute.w (cocode,output char-val).
            if char-val <> "" then
-              lw-focus:screen-value =  entry(1,char-val).
+              eb.flute:screen-value =  entry(1,char-val).
            APPLY "ENTRY":U TO eb.flute .   
        end.
        when "test" then do:
            ls-cur-val = eb.flute:screen-value.
            run windows/l-test.w (cocode,locode,ls-cur-val,output char-val).
            if char-val <> "" then
-              lw-focus:screen-value =  entry(1,char-val).
+              eb.test:screen-value =  entry(1,char-val).
            APPLY "ENTRY":U TO eb.test .   
        end.
        when "Board" then do:
@@ -920,14 +943,22 @@ DO:
            if avail style then lv-ind = style.industry.
            else lv-ind = "".  
            if avail style and style.type = "f" then DO: /* foam */
-             RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
+             RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).  
              IF char-val NE "" THEN DO:
                ASSIGN
-                    lw-focus:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val)
-                    ef.brd-dscr:SCREEN-VALUE IN FRAME {&frame-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-name", char-val)
+                    ef.board:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val)
+                    ef.brd-dscr:SCREEN-VALUE IN FRAME {&frame-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-name", char-val)
                     .       
                APPLY "ENTRY":U TO lw-focus.
              END.
+           END.
+           ELSE IF AVAIL style AND style.type = "W" THEN  DO: /* Wood */
+               RUN AOA/dynLookupSetParam.p (155, ROWID(style), OUTPUT char-val).             
+              IF char-val NE "" THEN DO:
+                ef.board:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val).  
+                ef.brd-dscr:SCREEN-VALUE IN FRAME {&frame-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-name", char-val).
+                APPLY "ENTRY":U TO ef.board.
+              END.
            END.
            else do:
              run windows/l-board1.w (eb.company,lv-ind,lw-focus:screen-value, output lv-rowid).
@@ -1001,18 +1032,18 @@ DO:
        when "upc-no" then do:     
            run windows/l-itemfu.w  (cocode,lw-focus:screen-value, output char-val). 
            if char-val <> "" then 
-              lw-focus:screen-value = entry(1,char-val).
+              eb.upc-no:screen-value = entry(1,char-val).
        end.
        when "spc-no" then do:
            run windows/l-itemfs.w  (cocode,lw-focus:screen-value, output char-val). 
            if char-val <> "" then 
-              lw-focus:screen-value = entry(1,char-val).
+              eb.spc-no:screen-value = entry(1,char-val).
        end.  
        when "ship-id" then do:
            ls-cur-val = lw-focus:screen-value.
            run windows/l-shipto.w (cocode,locode,eb.cust-no:screen-value,ls-cur-val, output char-val).
            if char-val <> "" then DO:
-              lw-focus:screen-value =  ENTRY(1,char-val).
+              eb.ship-id:screen-value =  ENTRY(1,char-val).
               RUN display-shipto.
               find first shipto where shipto.company = cocode
                                   and shipto.cust-no = eb.cust-no:screen-value
@@ -1027,12 +1058,12 @@ DO:
        end.  /* ship-id*/
        WHEN "adhesive" THEN DO:
            RUN windows/l-item.w (cocode,"","G,S,T",lw-focus:SCREEN-VALUE,OUTPUT char-val).
-           IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+           IF char-val <> "" THEN eb.adhesive:SCREEN-VALUE = ENTRY(1,char-val).
        END.
        WHEN "loc" THEN DO:
          run windows/l-loc.w (cocode, lw-focus:SCREEN-VALUE, output char-val).
          if char-val <> "" then 
-            assign lw-focus:SCREEN-VALUE = entry(1,char-val).
+            assign eb.loc:SCREEN-VALUE = entry(1,char-val).
        END.
        when "csrUser_id" then do:
          run windows/l-users.w (est.csrUser_id:SCREEN-VALUE in frame {&frame-name}, output char-val).
@@ -1172,6 +1203,11 @@ DO:
                          OUTPUT cRecValue, OUTPUT lRecFound).    
   IF lRecFound THEN
     cArtiosCAD = cRecValue NO-ERROR.  
+  
+  RUN sys/ref/nk1look.p (INPUT cocode, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cRecValue, OUTPUT lRecFound).
+  IF lRecFound THEN
+    lCEUseNewLayoutCalc = logical(cRecValue) NO-ERROR. 
+  
   
   ASSIGN
     initDir = cArtiosCAD 
@@ -1624,10 +1660,7 @@ DO:
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          APPLY "ENTRY" TO SELF.
          RETURN NO-APPLY.      
-      END.
-      ELSE do: 
-          self:screen-value = string( var-num +  op-dec) .
-      END.
+      END.        
    END.
 
    IF ll-auto-calc-selected AND {&self-name} <> dec(self:SCREEN-VALUE )
@@ -2482,6 +2515,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable V-table-Win
+PROCEDURE local-enable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'TABLEIO-SOURCE',OUTPUT cWidgethandles).
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckAutoLock V-table-Win 
 PROCEDURE pCheckAutoLock :
 /*------------------------------------------------------------------------------
@@ -2837,11 +2891,13 @@ PROCEDURE check-style :
     IF AVAIL style THEN
       ASSIGN
        lv-foam                 = style.type EQ "F"
-       style_dscr:SCREEN-VALUE = style.dscr.
+       style_dscr:SCREEN-VALUE = style.dscr
+       lWoodStyle              = style.type EQ "W".
     ELSE
       ASSIGN
        lv-foam                 = NO
-       style_dscr:SCREEN-VALUE = "".
+       style_dscr:SCREEN-VALUE = ""
+       lWoodStyle              = NO.
   END.
 
 END PROCEDURE.
@@ -3232,6 +3288,9 @@ PROCEDURE local-assign-record :
 
   {cec/slotheit.i}  
   {cec/slotwidth.i}
+  
+  DEFINE BUFFER bf-style FOR style.
+  
   ASSIGN
    eb.sty-lock = NOT ll-auto-calc-selected
    eb.tab-in   = IF tab-inout EQ "In"  THEN YES ELSE
@@ -3265,6 +3324,42 @@ PROCEDURE local-assign-record :
          ll-blank-size-changed = YES
          eb.k-len-array2[li]   = ld-k-len-array[li].
     END.
+    
+    FIND FIRST bf-style
+         WHERE bf-style.company EQ eb.company
+           AND bf-style.style   EQ eb.style
+         NO-ERROR.
+    IF AVAILABLE bf-style AND bf-style.type EQ "B" AND bf-style.formula[20] EQ "" THEN DO:
+        EMPTY TEMP-TABLE ttPanel.
+        
+        DO li = 1 TO EXTENT(eb.k-wid-array2):
+            CREATE ttPanel.
+            ASSIGN
+                ttPanel.iPanelNum  = li
+                ttPanel.cPanelType = "W"
+                ttPanel.cScoreType = eb.k-wid-scr-type2[li]
+                ttPanel.dPanelSize = eb.k-wid-array2[li]
+                .
+        END.
+
+        DO li = 1 TO EXTENT(eb.k-len-array2):
+            CREATE ttPanel.
+            ASSIGN
+                ttPanel.iPanelNum  = li
+                ttPanel.cPanelType = "L"
+                ttPanel.cScoreType = eb.k-len-scr-type2[li]
+                ttPanel.dPanelSize = eb.k-len-array2[li]
+                .
+        END.
+                
+        RUN UpdatePanelDetailsForEstimate IN hdFormulaProcs (
+            INPUT eb.company,
+            INPUT eb.est-no,
+            INPUT eb.form-no,
+            INPUT eb.blank-no,
+            INPUT TABLE ttPanel
+            ).    
+    END.     
   END.
 
   IF lv-foam THEN
@@ -3657,15 +3752,39 @@ PROCEDURE local-display-fields :
   DEF VAR lv-eqty AS CHAR NO-UNDO.
   DEF VAR lv-image AS CHAR NO-UNDO.
   DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
+  DEFINE VARIABLE iCount  AS INTEGER     NO-UNDO.  
+  DEFINE VARIABLE iDecimalValue AS INTEGER NO-UNDO.
+  
   DEF BUFFER b-ef FOR ef.
   DEF BUFFER b-eb FOR eb.
 
+  DEFINE BUFFER bf-style FOR style.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   {cec/msfcalc.i}
 
 
   IF NOT AVAIL est OR NOT AVAIL eb THEN RETURN.
 
+  FIND FIRST bf-style NO-LOCK
+       WHERE bf-style.company EQ eb.company
+         AND bf-style.style   EQ eb.style
+       NO-ERROR.
+  IF AVAILABLE bf-style AND bf-style.type EQ "B" AND bf-style.formula[20] EQ "" THEN DO:
+      DO iCount = 1 TO NUM-ENTRIES(cWidgethandles):
+          phandle = WIDGET-HANDLE(ENTRY(iCount, cWidgethandles)).
+          IF VALID-HANDLE(phandle) AND LOOKUP("DisablePOScores", pHandle:INTERNAL-ENTRIES) GT 0 THEN 
+              RUN DisablePOScores IN pHandle NO-ERROR.
+      END.
+  END.
+  ELSE DO:
+      DO iCount = 1 TO NUM-ENTRIES(cWidgethandles):
+          phandle = WIDGET-HANDLE(ENTRY(iCount, cWidgethandles)).
+          IF VALID-HANDLE(phandle) AND LOOKUP("EnablePOScores", pHandle:INTERNAL-ENTRIES) GT 0 THEN 
+              RUN EnablePOScores IN pHandle NO-ERROR.
+      END.
+  END.
+  
 DO WITH FRAME {&FRAME-NAME}:
 
   ASSIGN tb-set:SENSITIVE = FALSE
@@ -3673,42 +3792,44 @@ DO WITH FRAME {&FRAME-NAME}:
          bt-new-plate:SENSITIVE = FALSE.
 
   IF v-cecscrn-char EQ "Decimal" THEN do:
+     iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .     
+     
      ASSIGN
-        eb.len:FORMAT = ">>9.999999"
+        eb.len:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
         eb.len:WIDTH = 15.2
-        eb.wid:FORMAT = ">>9.999999"
+        eb.wid:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
         eb.wid:WIDTH = 15.2
-        eb.dep:FORMAT = ">>9.999999"
+        eb.dep:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
         eb.dep:WIDTH = 15.2
-        eb.dust:FORMAT = "->>9.999999"
+        eb.dust:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.dust:WIDTH = 15.2
-        eb.fpanel:FORMAT = "->>9.999999"
+        eb.fpanel:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.fpanel:WIDTH = 15.2
-        eb.lock:FORMAT = "->>9.999999"
+        eb.lock:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.lock:WIDTH = 15.2
-        eb.gluelap:FORMAT = "->>9.999999"
+        eb.gluelap:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.gluelap:WIDTH = 15.2
-        eb.k-wid:FORMAT = "->>9.999999"
+        eb.k-wid:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.k-wid:WIDTH = 15.2
-        eb.k-len:FORMAT = "->>9.999999"
+        eb.k-len:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.k-len:WIDTH = 15.2
-        eb.tuck:FORMAT = "->>9.999999"
+        eb.tuck:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.tuck:WIDTH = 15.2
-        eb.lin-in:FORMAT = "->>9.999999"
+        eb.lin-in:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.lin-in:WIDTH = 15.2
-        eb.t-wid:FORMAT = ">>>>9.999999"
+        eb.t-wid:FORMAT = ">>>>9." + FILL("9",INTEGER(iDecimalValue))
         eb.t-wid:WIDTH = 15.2
-        eb.t-len:FORMAT = ">>>>9.999999"
+        eb.t-len:FORMAT = ">>>>9." + FILL("9",INTEGER(iDecimalValue))
         eb.t-len:WIDTH = 15.2
-        eb.t-sqin:FORMAT = ">>>>>9.999999"
+        eb.t-sqin:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
         eb.t-sqin:WIDTH = 15.2.
      IF eb.t-sqin GT 999999  THEN
          ASSIGN
-         eb.t-sqin:FORMAT = ">>>>>>>>>9.99999"
+         eb.t-sqin:FORMAT = ">>>>>>>>>9." + FILL("9",INTEGER(iDecimalValue))
          eb.t-sqin:WIDTH = 17.2 .
      ELSE
          ASSIGN
-             eb.t-sqin:FORMAT = ">>>>>9.999999"
+             eb.t-sqin:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
              eb.t-sqin:WIDTH = 15.2.
 
   END.
@@ -3780,8 +3901,9 @@ END.
        fi_msf     = (IF eb.est-type GE 7 THEN eb.bl-qty
                      ELSE (est-qty.eqty * fi_per-set)) *
                     (IF v-corr THEN (eb.t-sqin * .007)
-                               ELSE (eb.t-sqin / 144)) / 1000.
-
+                               ELSE (eb.t-sqin / 144)) / 1000
+      fi_lf-blank = eb.t-len / 12
+      fi_tot-lf-blank = fi_lf-blank * est-qty.eqty .
 
   fi_from-est-no = IF eb.master-est-no NE "" AND
                       eb.est-type EQ 8       THEN eb.master-est-no
@@ -3850,12 +3972,15 @@ END.
 
     btn_qty-msf:LABEL = TRIM(est-qty.eqty:LABEL) + ": " +
                         TRIM(lv-eqty) +
-                        FILL(" ",10) +
+                        FILL(" ",8) +
                         TRIM(fi_per-set:LABEL) + ": " +
                         TRIM(STRING(fi_per-set,fi_per-set:FORMAT)) +
-                        FILL(" ",10) +
+                        FILL(" ",8) +
                         TRIM(fi_msf:LABEL) + ": " +
-                        TRIM(STRING(fi_msf,fi_msf:FORMAT)).
+                        TRIM(STRING(fi_msf,fi_msf:FORMAT)) +
+                        FILL(" ",8) +
+                        TRIM(fi_tot-lf-blank:LABEL) + ": " +
+                        TRIM(STRING(fi_tot-lf-blank,fi_tot-lf-blank:FORMAT)).
 
     btn_fgitem:LABEL = " " + TRIM(eb.stock:LABEL) + ": " /*+ TRIM(eb.stock) */.
     IF eb.stock = "" THEN
@@ -4013,6 +4138,7 @@ PROCEDURE local-update-record :
            decimal(hd2:screen-value) - trunc(decimal(hd2:screen-value),0) >= v-16-or-32 
            AND hd2:name NE "t-sqin" AND hd2:NAME NE "comm"
            AND hd2:NAME NE "fi_msf" AND hd2:NAME NE "fi_per-set"
+           AND hd2:NAME NE "fi_lf-blank"
         then do:
              message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
                      view-as alert-box error.
@@ -4036,7 +4162,7 @@ PROCEDURE local-update-record :
             find xest where recid(xest) = recid(est) no-lock no-error.
             find xeb where recid(xeb) = recid(eb) no-lock no-error.
             find xef where recid(xef) = recid(ef) no-lock no-error.
-            run crt-itemfg (input self:screen-value).
+            run crt-itemfg (input eb.stock-no:screen-value).
          end.   
          return no-apply.        
       end.  
@@ -4204,17 +4330,18 @@ PROCEDURE new-board :
   DO WITH FRAME {&FRAME-NAME}:
 
     IF ef.board NE ef.board:SCREEN-VALUE THEN DO:
-      FIND FIRST item NO-LOCK {sys/look/itemb1W.i}
-             AND item.i-no EQ ef.board:SCREEN-VALUE NO-ERROR.
+      FIND FIRST item NO-LOCK
+           WHERE item.company  EQ cocode
+             AND item.i-no     EQ ef.board:SCREEN-VALUE NO-ERROR.
       IF AVAIL item THEN do:
          ASSIGN
            ef.brd-dscr:SCREEN-VALUE = item.i-name .
-           IF NOT lv-foam THEN
+           IF NOT lWoodStyle THEN
                ASSIGN
                eb.flute:SCREEN-VALUE = ITEM.flute
                eb.test:SCREEN-VALUE = ITEM.reg-no.
-           ELSE
-               ASSIGN 
+           ELSE IF ITEM.flute NE "" THEN
+              ASSIGN
                eb.flute:SCREEN-VALUE = ITEM.flute
                eb.test:SCREEN-VALUE = ITEM.reg-no.
       END.
@@ -4344,6 +4471,7 @@ PROCEDURE new-style :
     IF AVAIL style THEN DO:
       ASSIGN
        lv-foam           = style.type EQ "F"
+       lWoodStyle        = style.type EQ "W"
        ll-wid-len-warned = NO.
       IF style.qty-per-set NE 0 THEN DO:
         fi_per-set:SCREEN-VALUE = string(style.qty-per-set).
@@ -4721,7 +4849,10 @@ PROCEDURE update-sheet :
     {sys/inc/ceroute1.i w id l en}
   END.
 
-  RUN cec/calc-dim.p .
+  IF lCEUseNewLayoutCalc THEN
+      RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+  ELSE
+      RUN cec/calc-dim.p .
 
   IF ceroute-chr NE "" THEN DO:
     FIND FIRST mach
@@ -4737,7 +4868,10 @@ PROCEDURE update-sheet :
        xeb.num-wid  = 1
        xeb.num-len  = 1.
 
-      RUN cec/calc-dim1.p NO-ERROR.
+        IF lCEUseNewLayoutCalc THEN
+            RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+        ELSE
+            RUN cec/calc-dim1.p NO-ERROR.
 
       ASSIGN
        xef.gsh-len = xef.gsh-len - (xef.nsh-len * xef.n-out-l)
@@ -4847,13 +4981,25 @@ PROCEDURE valid-board :
   DO WITH FRAME {&FRAME-NAME}:
     ef.board:SCREEN-VALUE = CAPS(ef.board:SCREEN-VALUE).
 
-    IF NOT CAN-FIND(FIRST item
+    IF NOT lWoodStyle AND NOT CAN-FIND(FIRST item
                     {sys/look/itemb1W.i}
                       AND item.i-no EQ ef.board:SCREEN-VALUE) OR
        ef.board:SCREEN-VALUE EQ ""                            THEN DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO ef.board.
       RETURN ERROR.
+    END.    
+    IF lWoodStyle AND NOT CAN-FIND(FIRST item
+        WHERE item.company   EQ cocode
+        AND   item.materialType   EQ "Wood"          
+        AND  (item.i-code eq lv-i-code OR lv-i-code eq "B")
+        AND  item.industry EQ lv-industry
+        AND item.i-no EQ ef.board:SCREEN-VALUE) OR
+        ef.board:SCREEN-VALUE EQ "" THEN DO:
+        
+       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+       APPLY "entry" TO ef.board.
+       RETURN ERROR.        
     END.
 
     IF ef.brd-dscr:SCREEN-VALUE EQ "" THEN RUN new-board.

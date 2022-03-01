@@ -54,12 +54,12 @@ DEFINE VARIABLE cTransDesc AS CHARACTER NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-17 fiTransType fiFromDate btnCalendar-1 ~
-fiToDate btnCalendar-2 btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiTransType fiFromDate fiToDate 
+fiToDate btnCalendar-2 btnCalendar-3 dtTransType fiReceiptDate btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiTransType fiFromDate fiToDate fiReceiptDate 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
-&Scoped-define List-3 btnCalendar-1 btnCalendar-2 
+&Scoped-define List-3 btnCalendar-1 btnCalendar-2 btnCalendar-3 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -89,6 +89,11 @@ DEFINE BUTTON btnCalendar-2
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     
+DEFINE BUTTON btnCalendar-3 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".     
 
 DEFINE VARIABLE fiFromDate AS DATE FORMAT "99/99/9999":U 
      LABEL "From Date" 
@@ -100,10 +105,23 @@ DEFINE VARIABLE fiToDate AS DATE FORMAT "99/99/9999":U
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiTransType AS CHARACTER FORMAT "!":U 
+DEFINE VARIABLE fiTransType AS CHARACTER FORMAT "x(1)":U 
      LABEL "Transaction Type" 
      VIEW-AS FILL-IN 
      SIZE 6 BY 1 NO-UNDO.
+ 
+DEFINE VARIABLE dtTransType AS CHARACTER FORMAT "x(10)":U  INITIAL "Update"
+     LABEL "Mode"     
+     VIEW-AS COMBO-BOX INNER-LINES 2
+     LIST-ITEMS "Update","Delete" 
+     DROP-DOWN-LIST
+     SIZE 16 BY 1
+     FGCOLOR 0 FONT 22 NO-UNDO.
+  
+DEFINE VARIABLE fiReceiptDate AS DATE FORMAT "99/99/9999":U 
+     LABEL "New Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -113,15 +131,20 @@ DEFINE RECTANGLE RECT-17
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     fiTransType AT ROW 7.19 COL 23 COLON-ALIGNED WIDGET-ID 2
-     fiFromDate AT ROW 8.86 COL 23 COLON-ALIGNED WIDGET-ID 4
-     btnCalendar-1 AT ROW 8.86 COL 43.4 WIDGET-ID 8
-     fiToDate AT ROW 8.86 COL 56 COLON-ALIGNED WIDGET-ID 6
-     btnCalendar-2 AT ROW 8.86 COL 75 WIDGET-ID 10
+     dtTransType AT ROW 6.39 COL 23 COLON-ALIGNED 
+     fiReceiptDate AT ROW 6.39 COL 56 COLON-ALIGNED 
+     btnCalendar-3 AT ROW 6.39 COL 75
+     fiTransType AT ROW 8.19 COL 23 COLON-ALIGNED WIDGET-ID 2
+     fiFromDate AT ROW 9.86 COL 23 COLON-ALIGNED WIDGET-ID 4
+     btnCalendar-1 AT ROW 9.86 COL 43.4 WIDGET-ID 8
+     fiToDate AT ROW 9.86 COL 56 COLON-ALIGNED WIDGET-ID 6
+     btnCalendar-2 AT ROW 9.86 COL 75 WIDGET-ID 10         
      btn-process AT ROW 14.1 COL 21
      btn-cancel AT ROW 14.1 COL 52
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 5.29 COL 5
+     "If blank - All Transactions" VIEW-AS TEXT
+          SIZE 32 BY .62 AT ROW 8.39 COL 33     
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
@@ -161,7 +184,7 @@ DEFINE FRAME FRAME-B
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Clear unposted FG Transactions"
+         TITLE              = "Update/Delete FG Transactions"
          HEIGHT             = 15.57
          WIDTH              = 90.2
          MAX-HEIGHT         = 19.76
@@ -211,6 +234,8 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME FRAME-A
    3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-3 IN FRAME FRAME-A
+   3                                                                    */   
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -267,8 +292,42 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
   v-process  = NO.
+  
+  DO WITH FRAME {&FRAME-NAME}:
+  ASSIGN
+  fiFromDate fiToDate fiTransType dtTransType fiReceiptDate.
+  END.
+  
+  IF fiReceiptDate EQ ? AND dtTransType:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Update" THEN DO:
+    MESSAGE "New date must not be blank.  Please re-enter." VIEW-AS ALERT-BOX.
+    APPLY "Entry" TO fiReceiptDate.
+    RETURN.
+  END.
+  
+  IF fiTransType NE "" AND LOOKUP(fiTransType, cTransList) EQ 0 THEN DO:
+    MESSAGE "Invalid Transaction Type.  Please re-enter." VIEW-AS ALERT-BOX.
+    APPLY "Entry" TO fiTransType.
+    RETURN.
+  END.
+  
+  IF fiFromDate EQ ? THEN DO:
+    MESSAGE "From date must not be blank.  Please re-enter." VIEW-AS ALERT-BOX.
+    APPLY "Entry" TO fiFromDate.
+    RETURN.
+  END.
+  
+  IF fiToDate EQ ? THEN DO:
+    MESSAGE "To date must not be blank.  Please re-enter." VIEW-AS ALERT-BOX.
+    APPLY "Entry" TO fiToDate.
+    RETURN.
+  END.
+    
+  IF fiTransType :SCREEN-VALUE EQ "" THEN
+  MESSAGE "All Unposted Transactions" 
+          VIEW-AS ALERT-BOX INFO.
 
-  MESSAGE "Are you sure you want to" TRIM(c-win:TITLE)
+  MESSAGE "Are you sure you want to" (IF dtTransType:SCREEN-VALUE EQ "Update" THEN "update New Date "
+           ELSE "delete FG Transactions")
           "within the selected parameters?"       
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE v-process.
@@ -301,6 +360,16 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME btnCalendar-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-3 C-Win
+ON CHOOSE OF btnCalendar-3 IN FRAME FRAME-A
+DO:
+  {methods/btnCalendar.i fiReceiptDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME fiFromDate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFromDate C-Win
@@ -324,6 +393,17 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fiReceiptDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiReceiptDate C-Win
+ON HELP OF fiReceiptDate IN FRAME FRAME-A /* Trans Date */
+DO:
+
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME fiTransType
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTransType C-Win
@@ -331,6 +411,24 @@ ON HELP OF fiTransType IN FRAME FRAME-A /* Transaction Type */
 DO:
   RUN windows/l-tranCd.w (fiTransType:SCREEN-VALUE, OUTPUT char-val).
   fiTransType:SCREEN-VALUE = char-val.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME dtTransType
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dtTransType C-Win
+ON VALUE-CHANGED OF dtTransType IN FRAME FRAME-A /* Transaction Mode */
+DO:
+   IF dtTransType:SCREEN-VALUE EQ "Update" THEN
+   DO:
+       fiReceiptDate:HIDDEN = NO.
+       btnCalendar-3:HIDDEN = NO.
+   END.
+   ELSE ASSIGN
+            fiReceiptDate:HIDDEN   = YES
+            btnCalendar-3:HIDDEN = YES.  
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -410,10 +508,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiTransType fiFromDate fiToDate 
+  DISPLAY fiTransType fiFromDate fiToDate dtTransType fiReceiptDate
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-17 fiTransType fiFromDate btnCalendar-1 fiToDate btnCalendar-2 
-         btn-process btn-cancel 
+         btnCalendar-3 dtTransType fiReceiptDate btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -426,31 +524,22 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
+DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
 SESSION:SET-WAIT-STATE("General").
-DO WITH FRAME {&FRAME-NAME}:
-  ASSIGN
-  fiFromDate fiToDate fiTransType.
-END.
-IF LOOKUP(fiTransType, cTransList) EQ 0 THEN DO:
-  MESSAGE "Invalid Transaction Type.  Please re-enter." VIEW-AS ALERT-BOX.
-  RETURN.
-END.
-IF fiFromDate EQ ? THEN DO:
-  MESSAGE "From date must not be blank.  Please re-enter." VIEW-AS ALERT-BOX.
-  RETURN.
-END.
-IF fiToDate EQ ? THEN DO:
-  MESSAGE "To date must not be blank.  Please re-enter." VIEW-AS ALERT-BOX.
-  RETURN.
-END.
-FOR EACH fg-rctd
-    WHERE fg-rctd.company EQ cocode
-      AND fg-rctd.rita-code EQ fiTransType
-      AND fg-rctd.rct-date GE fiFromDate
-      AND fg-rctd.rct-date LE fiToDate:
-    DELETE fg-rctd.
-END.
 
+FOR EACH bf-fg-rctd
+    WHERE bf-fg-rctd.company EQ cocode
+      AND (bf-fg-rctd.rita-code EQ fiTransType OR fiTransType EQ "")
+      AND bf-fg-rctd.rct-date GE fiFromDate
+      AND bf-fg-rctd.rct-date LE fiToDate:
+    IF dtTransType:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Delete" THEN
+    DO:
+       DELETE bf-fg-rctd.
+    END.         
+    ELSE
+    ASSIGN bf-fg-rctd.rct-date = fiReceiptDate.
+END.
+         
 SESSION:SET-WAIT-STATE("").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.

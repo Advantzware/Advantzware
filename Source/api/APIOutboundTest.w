@@ -32,7 +32,7 @@ USING System.SharedConfig.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
-
+{api/ttReceipt.i}
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -70,9 +70,9 @@ ASSIGN
 btTriggerIDLookup btGo fiTriggerID edRequestData 
 &Scoped-Define DISPLAYED-OBJECTS fiAPITriggerIDLabel fiTriggerID ~
 fiAPIIDLabel fiAPIId fiClientIDlb fiClientID fiPrimaryKeyLabel fiPrimaryKey ~
-fiEventDescLabel edEventDesc fiMessage fiEndPointLabel edEndpoint ~
-fiRequestDataLabel edRequestData fiResponseDataLabel edResponseData ~
-fiErrorMessageLabel edErrorMessage 
+fiEventDescLabel edEventDesc fiResponseTime fiMessage fiEndPointLabel ~
+edEndpoint fiRequestDataLabel edRequestData fiResponseDataLabel ~
+edResponseData fiErrorMessageLabel edErrorMessage 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -220,6 +220,11 @@ DEFINE VARIABLE fiResponseDataLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Resp
      SIZE 19 BY 1
      FONT 6 NO-UNDO.
 
+DEFINE VARIABLE fiResponseTime AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1
+     FGCOLOR 2  NO-UNDO.
+
 DEFINE VARIABLE fiTriggerID AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1
@@ -256,9 +261,10 @@ DEFINE FRAME F-Main
      btPrimaryKeyLookup AT ROW 4.76 COL 62.8 WIDGET-ID 112
      fiPrimaryKeyLabel AT ROW 4.81 COL 12 COLON-ALIGNED NO-LABEL WIDGET-ID 102
      fiPrimaryKey AT ROW 4.81 COL 28.4 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     btSubmit AT ROW 5.86 COL 139.8 WIDGET-ID 134
      fiEventDescLabel AT ROW 6.1 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 124
      edEventDesc AT ROW 6.1 COL 30.4 NO-LABEL WIDGET-ID 126
-     btSubmit AT ROW 6.86 COL 139.8 WIDGET-ID 134
+     fiResponseTime AT ROW 8.62 COL 137.8 COLON-ALIGNED NO-LABEL WIDGET-ID 136
      fiMessage AT ROW 9.95 COL 9.6 COLON-ALIGNED NO-LABEL WIDGET-ID 130
      fiEndPointLabel AT ROW 11.1 COL 9.6 COLON-ALIGNED NO-LABEL WIDGET-ID 88
      edEndpoint AT ROW 11.1 COL 25 NO-LABEL WIDGET-ID 14
@@ -410,6 +416,8 @@ ASSIGN
 ASSIGN 
        fiResponseDataLabel:READ-ONLY IN FRAME F-Main        = TRUE.
 
+/* SETTINGS FOR FILL-IN fiResponseTime IN FRAME F-Main
+   NO-ENABLE                                                            */
 ASSIGN 
        fiTriggerID:READ-ONLY IN FRAME F-Main        = TRUE.
 
@@ -540,6 +548,7 @@ DO:
             edEventDesc:SENSITIVE        = TRUE
             btUpdateRequest:SENSITIVE    = TRUE
             btPrimaryKeyLookup:SENSITIVE = TRUE
+            btSubmit:SENSITIVE           = TRUE
             .  
     END.  
 END.
@@ -588,6 +597,7 @@ DO:
     DEFINE VARIABLE iAPIOutboundTriggerID AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iAPIOutboundEventID   AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cRequestType          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iTimeElapsed          AS INT64     NO-UNDO.
     
     RUN pValidateOutboundAPI (
          OUTPUT iAPIOutboundID,
@@ -601,14 +611,7 @@ DO:
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
-    
-    IF edRequestData:SCREEN-VALUE EQ "" THEN DO:
-        scInstance:DeleteValue("APIOutboundTestMode").
-        MESSAGE "Request Data cannot be empty" 
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN.
-    END.
-              
+          
     ASSIGN
         lcRequestData     = edRequestData:SCREEN-VALUE
         cAPIID            = fiAPIId:SCREEN-VALUE
@@ -622,6 +625,8 @@ DO:
         .
     
     SESSION:SET-WAIT-STATE("GENERAL").
+    
+    ETIME(YES).
     
     RUN Outbound_GetAPIRequestType IN hdOutboundProcs (
         INPUT  cCompany,
@@ -642,7 +647,15 @@ DO:
         OUTPUT lSuccess,
         OUTPUT cMessage
         ). 
-
+    
+    iTimeElapsed = ETIME. 
+    
+    fiResponseTime:SCREEN-VALUE = IF iTimeElapsed GT 999 THEN
+                                      (STRING(TRUNCATE(iTimeElapsed / 1000, 0)) + "s" + " " + STRING(INT(iTimeElapsed MOD 1000)) + "ms")
+                                  ELSE
+                                      STRING(iTimeElapsed) + "ms"
+                                  .
+                                  
     SESSION:SET-WAIT-STATE(""). 
        
     RUN api/CreateAPIOutboundEvent.p (
@@ -714,15 +727,15 @@ DO:
     DEFINE VARIABLE cMessage              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSuccess              AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lcRequestData         AS LONGCHAR  NO-UNDO.
- 
+    DEFINE VARIABLE riReceipt             AS ROWID     NO-UNDO.
+    DEFINE VARIABLE iCount                AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cTag                  AS CHARACTER NO-UNDO.
+    
     EMPTY TEMP-TABLE ttArgs.
  
     cParentProgram = "api\APIOutboundTest.w".
     
-    ASSIGN
-        btSubmit:SENSITIVE          = FALSE
-        edRequestData:READ-ONLY     = FALSE
-        .    
+    edRequestData:READ-ONLY = FALSE.
 
     RUN pValidateOutboundAPI (
          OUTPUT iAPIOutboundID,
@@ -859,7 +872,8 @@ DO:
                 INPUT STRING(ROWID(oe-bolh))
                 ).
         END.
-        WHEN "SendJob" THEN DO:
+        WHEN "SendJob" OR 
+        WHEN "SendJobAMS" THEN DO:
             FIND FIRST job NO-LOCK
                  WHERE job.company EQ cCompany
                    AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-")))) + TRIM(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-"))
@@ -876,6 +890,146 @@ DO:
                 INPUT STRING(ROWID(job))
                 ).                      
         END.
+        WHEN "SendReceipt" THEN DO:
+            FIND FIRST po-ordl NO-LOCK
+                 WHERE po-ordl.company EQ cCompany
+                   AND po-ordl.po-no   EQ INTEGER(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-"))
+                   AND po-ordl.line    EQ INTEGER(ENTRY(2,fiPrimaryKey:SCREEN-VALUE,"-"))
+                 NO-ERROR.
+            IF NOT AVAILABLE po-ordl THEN DO:
+                MESSAGE "Invalid PO #. Enter Receipt to find in <PO>-<POLine>-<Tag> format"
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN.            
+            END.
+            
+            IF NOT po-ordl.item-type THEN DO:
+                FOR FIRST fg-rcpth NO-LOCK
+                    WHERE fg-rcpth.company    EQ po-ordl.company
+                      AND fg-rcpth.i-no       EQ po-ordl.i-no
+                      AND fg-rcpth.rita-code  EQ "R"
+                      AND fg-rcpth.po-no      EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
+                      AND fg-rcpth.po-line    EQ po-ordl.line,
+                    FIRST fg-rdtlh NO-LOCK
+                    WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
+                      AND fg-rdtlh.tag       EQ ENTRY(3,fiPrimaryKey:SCREEN-VALUE,"-")
+                      AND fg-rdtlh.rita-code EQ "R":
+                    riReceipt = ROWID(fg-rcpth).
+                END.
+            END.
+            ELSE DO:   
+                FOR FIRST rm-rcpth NO-LOCK
+                    WHERE rm-rcpth.company    EQ po-ordl.company
+                      AND rm-rcpth.i-no       EQ po-ordl.i-no
+                      AND rm-rcpth.rita-code  EQ "R"
+                      AND rm-rcpth.po-no      EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
+                      AND rm-rcpth.po-line    EQ po-ordl.line,
+                    FIRST rm-rdtlh NO-LOCK
+                    WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
+                      AND rm-rdtlh.tag       EQ ENTRY(3,fiPrimaryKey:SCREEN-VALUE,"-")
+                      AND rm-rdtlh.rita-code EQ "R":
+                    riReceipt = ROWID(rm-rcpth).
+                END.
+            END.
+
+            IF riReceipt EQ ? THEN DO:
+                MESSAGE "Invalid History record"
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN.                
+            END. 
+
+            RUN pCreateArgs (
+                INPUT "ROWID",
+                INPUT IF po-ordl.item-type THEN "rm-rcpth" ELSE "fg-rcpth",
+                INPUT STRING(riReceipt)
+                ).
+        END.
+        WHEN "SendReceipts" THEN DO:
+            EMPTY TEMP-TABLE ttReceipt.
+            
+            FIND FIRST po-ordl NO-LOCK
+                 WHERE po-ordl.company EQ cCompany
+                   AND po-ordl.po-no   EQ INTEGER(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-"))
+                   AND po-ordl.line    EQ INTEGER(ENTRY(2,fiPrimaryKey:SCREEN-VALUE,"-"))
+                 NO-ERROR.
+            IF NOT AVAILABLE po-ordl THEN DO:
+                MESSAGE "Invalid PO #. Enter receipts to find in <PO>-<POLine> format"
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN.            
+            END.
+            
+            cTag = ENTRY(3,fiPrimaryKey:SCREEN-VALUE,"-") NO-ERROR.
+            
+            IF NOT po-ordl.item-type THEN DO:
+                FOR EACH fg-rcpth NO-LOCK
+                    WHERE fg-rcpth.company    EQ po-ordl.company
+                      AND fg-rcpth.i-no       EQ po-ordl.i-no
+                      AND fg-rcpth.rita-code  EQ "R"
+                      AND fg-rcpth.po-no      EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
+                      AND fg-rcpth.po-line    EQ po-ordl.line,
+                    FIRST fg-rdtlh NO-LOCK
+                    WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
+                      AND (fg-rdtlh.tag      EQ cTag OR cTag EQ "")
+                      AND fg-rdtlh.rita-code EQ "R":
+                    CREATE ttReceipt.
+                    ASSIGN
+                        iCount                 = iCount + 1
+                        ttReceipt.lineID       = iCount                           
+                        ttReceipt.company      = fg-rcpth.company
+                        ttReceipt.location     = fg-rcpth.loc
+                        ttReceipt.poID         = INTEGER(fg-rcpth.po-no)
+                        ttReceipt.poLine       = fg-rcpth.po-line
+                        ttReceipt.jobID        = fg-rcpth.job-no
+                        ttReceipt.jobID2       = fg-rcpth.job-no2
+                        ttReceipt.itemID       = fg-rcpth.i-no
+                        ttReceipt.itemName     = IF fg-rcpth.i-name EQ "" THEN fg-rcpth.i-no ELSE fg-rcpth.i-name
+                        ttReceipt.quantityUOM  = "EA"
+                        ttReceipt.quantity     = fg-rdtlh.qty
+                        ttReceipt.rcpthRowID   = ROWID(fg-rcpth)
+                        .    
+                END.
+            END.
+            ELSE DO:   
+                FOR EACH rm-rcpth NO-LOCK
+                    WHERE rm-rcpth.company    EQ po-ordl.company
+                      AND rm-rcpth.i-no       EQ po-ordl.i-no
+                      AND rm-rcpth.rita-code  EQ "R"
+                      AND rm-rcpth.po-no      EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
+                      AND rm-rcpth.po-line    EQ po-ordl.line,
+                    FIRST rm-rdtlh NO-LOCK
+                    WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
+                      AND (rm-rdtlh.tag      EQ cTag OR cTag EQ "")
+                      AND rm-rdtlh.rita-code EQ "R":
+                    CREATE ttReceipt.
+                    ASSIGN
+                        iCount                 = iCount + 1                        
+                        ttReceipt.lineID       = iCount
+                        ttReceipt.company      = rm-rcpth.company
+                        ttReceipt.location     = rm-rcpth.loc
+                        ttReceipt.poID         = INTEGER(rm-rcpth.po-no)
+                        ttReceipt.poLine       = rm-rcpth.po-line
+                        ttReceipt.jobID        = rm-rcpth.job-no
+                        ttReceipt.jobID2       = rm-rcpth.job-no2                  
+                        ttReceipt.itemID       = rm-rcpth.i-no
+                        ttReceipt.itemName     = IF rm-rcpth.i-name EQ "" THEN rm-rcpth.i-no ELSE rm-rcpth.i-name
+                        ttReceipt.quantityUOM  = rm-rcpth.pur-uom
+                        ttReceipt.quantity     = rm-rdtlh.qty
+                        ttReceipt.rcpthRowID   = ROWID(rm-rcpth)
+                        .
+                END.
+            END.
+
+            IF NOT TEMP-TABLE ttReceipt:HAS-RECORDS THEN DO:
+                MESSAGE "No receipts available"
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN.                
+            END. 
+
+            RUN pCreateArgs (
+                INPUT "ROWID",
+                INPUT "TTReceiptHandle",
+                INPUT STRING(TEMP-TABLE ttReceipt:HANDLE)
+                ).   
+        END.        
         WHEN "SendInvoice" THEN DO:
             FIND FIRST inv-head NO-LOCK
                  WHERE inv-head.company EQ cCompany
@@ -903,7 +1057,8 @@ DO:
                     INPUT STRING(ROWID(ar-inv))
                     ).
         END.
-        WHEN "SendOrderAck"  THEN DO:
+        WHEN "SendOrderAck" OR
+        WHEN "SendOrder" THEN DO:
             FIND FIRST oe-ord NO-LOCK
                  WHERE oe-ord.company EQ cCompany
                    AND oe-ord.ord-no   EQ INTEGER(fiPrimaryKey:SCREEN-VALUE)
@@ -980,7 +1135,6 @@ DO:
 
     ASSIGN
         edRequestData:SCREEN-VALUE  = lcRequestData
-        btSubmit:SENSITIVE          = TRUE
         edRequestData:SENSITIVE     = TRUE
         edResponseData:SCREEN-VALUE = ""
         edErrorMessage:SCREEN-VALUE = ""
@@ -1120,7 +1274,8 @@ DO:
                 OUTPUT recVal
                 ).      
         END.
-        WHEN "SendJob" THEN DO:  
+        WHEN "SendJob" OR
+        WHEN "SendJobAMS" THEN DO:  
             RUN system/openlookup.p (
                 cCompany, 
                 "Job-no",            /* lookup field */
@@ -1138,7 +1293,7 @@ DO:
         IF fiAPIID:SCREEN-VALUE EQ "SendPurchaseOrderLineStatus" THEN
             fiPrimaryKey:SCREEN-VALUE = ENTRY(2,returnFields,"|") 
                                       + "-" + ENTRY(4,returnFields,"|").
-        ELSE IF fiAPIID:SCREEN-VALUE EQ "SendJob" THEN
+        ELSE IF fiAPIID:SCREEN-VALUE EQ "SendJob" OR fiAPIID:SCREEN-VALUE EQ "SendJobAMS" THEN
             fiPrimaryKey:SCREEN-VALUE = ENTRY(4,returnFields,"|")
                                      + "-" + ENTRY(6,returnFields,"|").                            
         ELSE
@@ -1272,8 +1427,9 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiAPITriggerIDLabel fiTriggerID fiAPIIDLabel fiAPIId fiClientIDlb 
           fiClientID fiPrimaryKeyLabel fiPrimaryKey fiEventDescLabel edEventDesc 
-          fiMessage fiEndPointLabel edEndpoint fiRequestDataLabel edRequestData 
-          fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage 
+          fiResponseTime fiMessage fiEndPointLabel edEndpoint fiRequestDataLabel 
+          edRequestData fiResponseDataLabel edResponseData fiErrorMessageLabel 
+          edErrorMessage 
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE RECT-1 RECT-2 RECT-3 Btn_Cancel btTriggerIDLookup btGo fiTriggerID 
          edRequestData 

@@ -1,0 +1,8 @@
+﻿*.gitcred
+Advantzware/.settings
+Advantzware/.dbconnection
+Advantzware/.project
+Advantzware/.propath
+Advantzware/assemblies.xml
+.metadata/*
+.sharedavm/.project

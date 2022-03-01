@@ -12,8 +12,8 @@
           AND ((oe-ord.po-no  GE v-po[1] AND
                 oe-ord.po-no  LE v-po[2]))
           AND (v-ostat EQ "A"                           OR
-               (oe-ord.opened AND v-ostat EQ "O")       OR
-               (NOT oe-ord.opened AND v-ostat EQ "C"))
+               (oe-ord.opened EQ YES AND v-ostat EQ "O")       OR
+               (oe-ord.opened EQ NO  AND v-ostat EQ "C"))
         use-index ordate no-lock,
 
         each oe-ordl of oe-ord
@@ -240,7 +240,7 @@
               END.
            
               PUT UNFORMATTED cDisplay SKIP.
-              IF tb_excel THEN DO:
+              IF rd-dest = 3 THEN DO:
                    PUT STREAM excel UNFORMATTED  
                          cExcelDisplay SKIP.
                END.
@@ -377,7 +377,7 @@
                 "-----------"
                 skip.
 
-            IF tb_excel THEN DO:
+            IF rd-dest = 3 THEN DO:
               IF tb_break THEN
                 PUT STREAM excel UNFORMATTED
                     '"' ""                                                '",'
@@ -428,7 +428,7 @@
               tt-fg-bin.qty               FORMAT ">>>,>>>,>>9"
               SKIP.
 
-          IF tb_excel THEN DO:
+          IF rd-dest = 3 THEN DO:
             IF tb_break THEN
               PUT STREAM excel UNFORMATTED
                   '"' ""                                                '",'

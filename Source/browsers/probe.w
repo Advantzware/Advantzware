@@ -777,12 +777,21 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-LEAVE OF br_table IN FRAME F-Main /* Estimate  Analysis Per Thousand */
 DO:
+    DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
+    DEF VAR char-hdl AS CHAR NO-UNDO.   
+
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
-   /*{src/adm/template/brsleave.i} */
-     {est/brsleave.i}   /* same but update will be LIKE add */
+    {est/brsleave.i}   /* same but update will be LIKE add */
      
-     IF KEYFUNCTION(LASTKEY) EQ "return" THEN REPOSITION {&browse-name} FORWARD 0.
+    IF KEYFUNCTION(LASTKEY) EQ "return" 
+    OR KEYFUNCTION(LASTKEY) EQ "tab" THEN DO:
+        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+        phandle = WIDGET-HANDLE(char-hdl).
+        RUN new-state IN phandle ('update-begin':U).
+    END.
+    QUERY br_table:GET-NEXT().
+    IF QUERY br_table:QUERY-OFF-END THEN RUN dispatch ('cancel-record':U).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1546,6 +1555,7 @@ PROCEDURE create-quote :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER lReturnError AS LOGICAL NO-UNDO.
 DEFINE BUFFER xprobe FOR probe.
 DEFINE BUFFER bf-qhd FOR quotehd.
 DEFINE BUFFER bf-notes FOR notes.
@@ -1576,6 +1586,7 @@ DEFINE VARIABLE lv-cust LIKE eb.cust-no NO-UNDO.
 DEFINE VARIABLE cNotes LIKE quotehd.comment NO-UNDO.
 DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSmanFromCustomer AS LOGICAL NO-UNDO.
 DEFINE BUFFER bf-cust FOR cust.
 {est/checkuse.i}
 
@@ -1596,9 +1607,14 @@ IF CAN-FIND(FIRST xprobe
             OUTPUT cMessage
             ).
         IF NOT lSuccess THEN DO:                                         
-            MESSAGE cMessage + " on customer"
-            VIEW-AS ALERT-BOX ERROR.
-            RETURN.
+            MESSAGE  "Salesperson " + eb.sman +  " on the estimate is inactive.  Updating to salesperson from customer. "            
+            VIEW-AS ALERT-BOX QUESTION 
+            BUTTONS OK-CANCEL UPDATE lcheckflg as logical .            
+            IF not lcheckflg THEN do:
+             lReturnError = YES.
+             RETURN.
+            END.
+            ELSE lSmanFromCustomer = YES.            
         END.      
   END.
     /*
@@ -1740,7 +1756,7 @@ IF CAN-FIND(FIRST xprobe
       END.
 
       ASSIGN
-       quotehd.sman      = eb.sman  /* bf-eb.sman */
+       quotehd.sman      =  IF lSmanFromCustomer THEN cust.sman ELSE eb.sman  /* bf-eb.sman */
        quotehd.carrier   = eb.carrier  /*bf-eb.carrier */
        quotehd.del-zone  = eb.dest-code  /* bf-eb.dest-code */
        quotehd.terms     = cust.terms
@@ -1899,7 +1915,7 @@ IF CAN-FIND(FIRST xprobe
      quoteqty.lab-cost   = w-probeit.lab-cost
      quoteqty.vo-cost    = w-probeit.vo-cost
      quoteqty.fo-cost    = w-probeit.fo-cost
-     quoteqty.tot-lbs    = w-probeit.tot-lbs
+     quoteqty.tot-lbs    = if est.estimateTypeID EQ "Misc" THEN 0 ELSE w-probeit.tot-lbs
      quoteqty.profit     = IF w-probeit.prof-on EQ "Net" THEN w-probeit.net-profit
                                                          ELSE w-probeit.gross-profit.
 
@@ -2042,7 +2058,9 @@ IF CAN-FIND(FIRST xprobe
             quotechg.amt = v-tot-mat + v-tot-lab.
             
             IF quotechg.prep-qty NE 0 THEN
-               quotechg.cost = ((quotechg.matf + (quotechg.matm * (quotechg.prep-qty / 1000)))
+               ASSIGN 
+                quotechg.spare-dec-1 = quotechg.amt / quotechg.prep-qty
+                quotechg.cost = ((quotechg.matf + (quotechg.matm * (quotechg.prep-qty / 1000)))
                              + (quotechg.labf + (quotechg.labm * (quotechg.prep-qty / 1000)))) / quotechg.prep-qty.
             
 
@@ -2639,6 +2657,7 @@ PROCEDURE local-open-query :
   Notes:       
 ------------------------------------------------------------------------------*/
  
+    
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT AVAILABLE est THEN RETURN "adm-error".
   FOR EACH probe EXCLUSIVE-LOCK 
@@ -2666,7 +2685,8 @@ PROCEDURE local-open-query :
   ASSIGN
      probe.gross-profit:VISIBLE IN BROWSE {&browse-name} = NOT(ll-use-margin AND cerunf = "Fibre" AND cerunc = "Fibre")
      probe.comm:VISIBLE IN BROWSE {&browse-name} = NOT(probe.gross-profit:VISIBLE IN BROWSE {&browse-name}).
-
+  
+          
   FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
                       AND sys-ctrl.name    EQ "SETPRINT"
                        NO-ERROR.
@@ -2686,48 +2706,8 @@ PROCEDURE pGetCEVersionCalcSettings PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-est FOR est.
 
-    DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iCEVersion AS INTEGER   NO-UNDO.
+    RUN Estimate_GetVersionSettings(ipbf-est.company, ipbf-est.estimateTypeID, OUTPUT glEstimateCalcNew, OUTPUT glEstimateCalcNewPrompt).
 
-    RUN sys/ref/nk1look.p (ipbf-est.company, "CEVersion", "C" /* Character */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cReturn, OUTPUT lFound).
-    glEstimateCalcNew = lFound AND cReturn EQ "New".
- 
-    RUN sys/ref/nk1look.p (ipbf-est.company, "CEVersion", "I" /* Character */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cReturn, OUTPUT lFound).
-    IF lRecFound THEN 
-        iCEVersion = INTEGER(cReturn).
-        
-    IF glEstimateCalcNew THEN 
-        CASE iCEVersion:
-            WHEN 1 THEN 
-                ASSIGN 
-                    glEstimateCalcNewPrompt = glEstimateCalcNew.
-            WHEN 2 THEN 
-                DO:
-                    IF NOT DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
-                        glEstimateCalcNew = NO.            
-                    ASSIGN 
-                        glEstimateCalcNewPrompt = glEstimateCalcNew.
-                END.
-            WHEN 3 THEN 
-                DO:
-                    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
-                        glEstimateCalcNewPrompt = YES.
-                    ELSE 
-                        glEstimateCalcNewPrompt = NO.            
-                END.
-            WHEN 4 THEN 
-                DO:
-                    IF NOT ipbf-est.estimateTypeID EQ "MISC" THEN 
-                        ASSIGN 
-                            glEstimateCalcNew       = NO
-                            glEstimateCalcNewPrompt = NO.
-                END.
-        END CASE.
 
 END PROCEDURE.
 
@@ -2954,7 +2934,7 @@ PROCEDURE pCalculateEstimate PRIVATE:
     
     IF NOT VALID-HANDLE(hdEstimateCalcProcs) THEN 
         RUN est\EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
-    RUN CalculateEstimate IN hdEstimateCalcProcs (est.company, est.est-no, lPurge).
+    RUN CalculateEstimateWithPrompts IN hdEstimateCalcProcs (est.company, est.est-no, lPurge).
     
 
 END PROCEDURE.
@@ -4213,11 +4193,12 @@ PROCEDURE update-quote :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 
   {est/checkuse.i}
 
-  RUN create-quote.
+  RUN create-quote( OUTPUT lReturnError).
+  IF lReturnError THEN RETURN NO-APPLY.
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"container-source", OUTPUT char-hdl).
   RUN select-page IN WIDGET-HANDLE(char-hdl) (10).

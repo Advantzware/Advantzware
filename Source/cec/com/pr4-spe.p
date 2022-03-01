@@ -14,6 +14,8 @@ DEF BUFFER b-cost FOR reftable.
 DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 
+DEFINE VARIABLE v-vend-no AS CHARACTER NO-UNDO.
+
 find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
 for each xef where xef.company = xest.company

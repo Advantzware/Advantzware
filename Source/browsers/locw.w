@@ -19,6 +19,8 @@
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
 
+USING system.SharedConfig. 
+     
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
@@ -41,7 +43,7 @@ ASSIGN
     .
 DEFINE VARIABLE ll-show-zero-bins AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lc-pass-loc       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lUnspecified      AS LOGICAL   NO-UNDO .
+DEFINE VARIABLE lUnspecified      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lFirst            AS LOGICAL   NO-UNDO INIT YES.
 DEFINE VARIABLE lCalculate        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iPrevPage         AS INTEGER   NO-UNDO.
@@ -52,35 +54,8 @@ DEFINE VARIABLE lRecalcAllocated  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lRecalcBackOrder  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE v-col-move        AS LOGICAL   NO-UNDO INIT TRUE.
 {sys/inc/oeinq.i}
- 
-DEFINE NEW SHARED TEMP-TABLE w-job NO-UNDO
-    FIELD job-no-disp AS CHARACTER
-    FIELD job-no      LIKE job-hdr.job-no
-    FIELD job-no2     LIKE job-hdr.job-no2
-    FIELD po-no       LIKE fg-bin.po-no
-    FIELD i-no        LIKE job-hdr.i-no
-    FIELD j-no        LIKE job-hdr.j-no
-    FIELD loc         LIKE fg-bin.loc
-    FIELD loc-desc      AS CHARACTER FORMAT "x(20)"
-    FIELD loc-bin     LIKE fg-bin.loc-bin
-    FIELD tag         LIKE fg-bin.tag
-    FIELD lead-days   LIKE itemfg-loc.lead-days FORMAT ">>>"
-    FIELD ord-level   LIKE itemfg-loc.ord-level FORMAT ">>>,>>>,>>>.<<<"
-    FIELD ord-max     LIKE itemfg-loc.ord-max   FORMAT ">>>,>>>,>>>.<<"
-    FIELD ord-min     LIKE itemfg-loc.ord-min   FORMAT ">>>,>>>,>>>.<<<"
-    FIELD onHand        AS INTEGER FORMAT "->>,>>>,>>9" LABEL "OnHand"
-    FIELD onOrder       AS INTEGER FORMAT "->>,>>>,>>9" LABEL "Jobs/POs"
-    FIELD allocated     AS INTEGER FORMAT "->>,>>>,>>9" LABEL "Allocated"
-    FIELD backOrder     AS INTEGER FORMAT "->>,>>>,>>9" LABEL "BackOrder"
-    FIELD qtyAvailable  AS INTEGER FORMAT "->>,>>>,>>9" LABEL "Available"
-    FIELD beg-date      AS DATE    FORMAT "99/99/9999"  LABEL "BeginDate"
-        INDEX w-job
-            job-no
-            job-no2
-            loc
-            loc-bin
-            tag
-            .
+
+{methods/defines/w-job.i}
 DEFINE TEMP-TABLE w-jobs LIKE w-job.
 DEFINE TEMP-TABLE hold-job LIKE w-job.
 DEFINE TEMP-TABLE tt-ids 
@@ -114,6 +89,8 @@ DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAccessRelButton AS LOGICAL NO-UNDO .
+DEFINE VARIABLE scInstance  AS CLASS system.SharedConfig NO-UNDO.
+
 RUN methods/prgsecur.p
 	    (INPUT "loc.",
 	     INPUT "ALL", /* based on run, create, update, delete or all */
@@ -493,10 +470,20 @@ END.
 ON CHOOSE OF btnRelease IN FRAME F-Main /* View Releases */
 DO:
     DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE lRecordFound AS LOGICAL NO-UNDO.
     IF AVAIL w-jobs THEN
        cLocation =  w-jobs.loc .
+   
+    RUN pCheckRelease(INPUT cLocation, OUTPUT lRecordFound).                                     
     
+    IF lRecordFound THEN
     RUN oeinq/b-relinfo.w(ROWID(itemfg), cLocation).
+    ELSE DO:
+       scInstance = SharedConfig:instance.
+       scInstance:SetValue("Item",TRIM(STRING(itemfg.i-no))).
+       scInstance:SetValue("Loc",TRIM(STRING(cLocation))).
+       RUN displayMessage("68").    
+    END.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -526,7 +513,14 @@ DO:
     DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO .
     IF AVAIL w-jobs THEN
        cLocation =  w-jobs.loc .
-
+       
+    IF itemfg.q-alloc EQ 0 THEN
+    do:
+       scInstance = SharedConfig:instance.
+       scInstance:SetValue("Item",TRIM(STRING(itemfg.i-no))).
+       scInstance:SetValue("Loc",TRIM(STRING(cLocation))).
+       RUN displayMessage("68").
+    END.
     IF itemfg.q-alloc NE 0 THEN
         IF cFGBinInquiry EQ "Yes" THEN
         RUN AOA/dynGrid.p (13,
@@ -560,8 +554,9 @@ DO:
     DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO .
     IF AVAIL w-jobs THEN
        cLocation =  w-jobs.loc .
-    IF NOT AVAILABLE itemfg THEN RETURN NO-APPLY.
-    IF itemfg.q-ono NE 0 THEN DO:
+    IF NOT AVAILABLE itemfg THEN RETURN NO-APPLY.   
+      
+   
         FIND FIRST job-hdr NO-LOCK
              WHERE job-hdr.company EQ itemfg.company
                AND job-hdr.i-no    EQ itemfg.i-no
@@ -570,29 +565,27 @@ DO:
                             WHERE job.company EQ job-hdr.company
                               AND job.job     EQ job-hdr.job
                               AND job.job-no  EQ job-hdr.job-no
-                              AND job.job-no2 EQ job-hdr.job-no2)
+                              AND job.job-no2 EQ job-hdr.job-no2
+                              AND job.opened EQ YES
+                              AND (job.loc EQ cLocation OR job.shipFromLocation EQ cLocation OR cLocation EQ "*All")
+                              )
              NO-ERROR.
         IF AVAILABLE job-hdr THEN
+        DO:        
             IF cFGBinInquiry EQ "Yes" THEN
             RUN AOA/dynGrid.p (15,
                 "company^" + itemfg.company +
                 "|fgItem^" + itemfg.i-no
                 ).
             ELSE
-              RUN jcinq/b-jobinfo.w(ROWID(itemfg),cLocation).
-            /*RUN jc/w-inqjob.w (ROWID(itemfg), YES).*/
-        ELSE DO:
-            FIND FIRST fg-set NO-LOCK
-                 WHERE fg-set.company EQ itemfg.company
-                   AND fg-set.part-no EQ itemfg.i-no
-                 NO-ERROR.
-            IF AVAILABLE fg-set THEN
-             RUN jcinq/b-jobinfo.w(ROWID(itemfg),cLocation).
-            /*RUN jc/w-inqjbc.w (ROWID(itemfg), YES).*/
+              RUN jcinq/b-jobinfo.w(ROWID(itemfg),cLocation).                   
         END.
-        IF NOT AVAIL job-hdr AND NOT AVAIL fg-set THEN
-            MESSAGE "No jobs for this item.." VIEW-AS ALERT-BOX INFORMATION . 
-    END.          
+        ELSE DO:
+              scInstance = SharedConfig:instance.
+              scInstance:SetValue("Item",TRIM(STRING(itemfg.i-no))).
+              scInstance:SetValue("Loc",TRIM(STRING(cLocation))).
+              RUN displayMessage("68").
+        END.              
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -611,12 +604,15 @@ DO:
          WHERE po-ordl.company   EQ itemfg.company
            AND po-ordl.i-no      EQ itemfg.i-no
            AND po-ordl.item-type EQ NO
-           AND po-ordl.opened    EQ YES
+           AND lookup(po-ordl.stat, "o,p,u,a") > 0
            AND CAN-FIND(FIRST po-ord
                         WHERE po-ord.company EQ po-ordl.company
-                          AND po-ord.po-no   EQ po-ordl.po-no)
+                          AND po-ord.po-no   EQ po-ordl.po-no 
+                          AND (po-ord.loc EQ cLocation OR cLocation EQ "*All" )
+                          AND lookup(po-ord.stat, "N,O,R,U,H") > 0)
          NO-ERROR.
     IF AVAILABLE po-ordl THEN
+    do:
         IF cFGBinInquiry EQ "Yes" THEN
         RUN AOA/dynGrid.p (14,
             "company^" + itemfg.company +
@@ -625,6 +621,14 @@ DO:
         ELSE
         /*RUN po/w-inqpo.w (ROWID(itemfg), YES).*/
          RUN poinq/b-poinfo.w (ROWID(itemfg), cLocation).
+    END.
+    ELSE      
+    DO:
+       scInstance = SharedConfig:instance.
+       scInstance:SetValue("Item",TRIM(STRING(itemfg.i-no))).
+       scInstance:SetValue("Loc",TRIM(STRING(cLocation))).
+       RUN displayMessage("68").     
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -648,10 +652,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
+{methods/build-table.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -695,109 +699,6 @@ PROCEDURE apply-arrow :
     ------------------------------------------------------------------------------*/
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
     APPLY 'down-arrow' TO BROWSE br_table.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-table B-table-Win 
-PROCEDURE build-table :
-/*------------------------------------------------------------------------------
-  Purpose:                 /** BUILD JOB WORK FILE **/
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iTotOnHand  AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iTotOnOrder AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iTotAlloc   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iTotBack    AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iTotAvail   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iTotReOrder AS INTEGER NO-UNDO.
-    lUnspecified = NO.
-    
-    EMPTY TEMP-TABLE w-jobs.
-    EMPTY TEMP-TABLE w-job.
-    
-    IF NOT AVAILABLE itemfg THEN
-        RETURN.
-    FIND FIRST oe-ctrl NO-LOCK
-         WHERE oe-ctrl.company EQ itemfg.company
-         NO-ERROR.
-
-    FOR EACH itemfg-loc NO-LOCK
-        WHERE itemfg-loc.company EQ itemfg.company
-          AND itemfg-loc.i-no    EQ itemfg.i-no,
-        FIRST loc NO-LOCK
-        WHERE loc.company EQ itemfg-loc.company
-          AND loc.loc     EQ itemfg-loc.loc
-        :
-        CREATE w-jobs.
-        ASSIGN 
-            w-jobs.i-no         = itemfg.i-no
-            w-jobs.loc          = itemfg-loc.loc    
-            w-jobs.lead-days    = itemfg-loc.lead-days
-            w-jobs.ord-level    = itemfg-loc.ord-level
-            w-jobs.ord-max      = itemfg-loc.ord-max
-            w-jobs.ord-min      = itemfg-loc.ord-min
-            w-jobs.onHand       = itemfg-loc.q-onh
-            w-jobs.onOrder      = itemfg-loc.q-ono
-            w-jobs.allocated    = itemfg-loc.q-alloc
-            w-jobs.backOrder    = itemfg-loc.q-back
-            w-jobs.qtyAvailable = w-jobs.onHand
-                                + w-jobs.onOrder
-                                - w-jobs.allocated
-            iTotOnHand          = iTotOnHand  + w-jobs.onHand
-            iTotonOrder         = iTotOnOrder + w-jobs.onOrder
-            iTotAlloc           = iTotAlloc   + w-jobs.allocated
-            iTotBack            = iTotBack    + w-jobs.backOrder
-            iTotAvail           = iTotAvail   + w-jobs.qtyAvailable
-            iTotReOrder         = iTotReOrder + w-jobs.ord-level
-            .
-        IF AVAILABLE loc THEN
-            w-jobs.loc-desc = loc.dscr.      
-
-        RELEASE w-jobs.
-    END. /* each itemfg-loc */
-    CREATE w-jobs.
-    ASSIGN 
-        w-jobs.i-no         = itemfg.i-no
-        w-jobs.loc          = "*ALL"
-        w-jobs.loc-desc     = "ALL Locations"
-        w-jobs.lead-days    = itemfg.lead-days
-        w-jobs.ord-level    = itemfg.ord-level
-        w-jobs.ord-max      = itemfg.ord-max
-        w-jobs.ord-min      = itemfg.ord-min
-        w-jobs.onHand       = itemfg.q-onh
-        w-jobs.onOrder      = itemfg.q-ono
-        w-jobs.allocated    = itemfg.q-alloc
-        w-jobs.backOrder    = itemfg.q-back
-        w-jobs.qtyAvailable = itemfg.q-avail
-        .
-    IF iTotAlloc NE itemfg.q-alloc 
-        OR iTotOnHand NE itemfg.q-onh 
-        OR iTotOnOrder NE itemfg.q-ono
-        OR iTotBack NE itemfg.q-back
-        OR iTotAvail NE itemfg.q-avail THEN DO:
-          
-        lUnspecified = YES.
-    
-        CREATE w-jobs.
-        ASSIGN 
-            w-jobs.i-no         = itemfg.i-no
-            w-jobs.loc          = "*UNSP"
-            w-jobs.loc-desc     = "Unspecified Locations"
-            w-jobs.lead-days    = 0
-            w-jobs.ord-level    = 0
-            w-jobs.ord-max      = 0
-            w-jobs.ord-min      = 0
-            w-jobs.onHand       = itemfg.q-onh - iTotOnHand
-            w-jobs.onOrder      = itemfg.q-ono - iTotOnOrder
-            w-jobs.allocated    = itemfg.q-alloc - iTotAlloc
-            w-jobs.backOrder    = itemfg.q-back - iTotBack
-            w-jobs.qtyAvailable = itemfg.q-avail - iTotAvail
-            .
-    END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1000,7 +901,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
 PROCEDURE move-columns :
 /*------------------------------------------------------------------------------
@@ -1020,7 +920,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view B-table-Win
 PROCEDURE local-view:
@@ -1061,8 +960,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE override-qty B-table-Win 
 PROCEDURE override-qty :
 /*------------------------------------------------------------------------------
@@ -1075,7 +972,48 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckRelease B-table-Win
+PROCEDURE pCheckRelease:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipLocation       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplReturnRelease AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER oe-ordl FOR oe-ordl.
+    DEFINE BUFFER oe-ord  FOR oe-ord.
+    DEFINE BUFFER oe-rel  FOR oe-rel.
 
+    MAIN-LOOP:
+    FOR EACH oe-ordl NO-LOCK
+        WHERE oe-ordl.company EQ cocode          
+          AND oe-ordl.opened  EQ YES 
+          AND oe-ordl.i-no    EQ itemfg.i-no 
+          AND (oe-ordl.stat   NE "C"
+           OR  oe-ordl.stat   EQ ""), 
+        FIRST oe-ord NO-LOCK                             
+        WHERE oe-ord.company EQ oe-ordl.company     
+          AND oe-ord.ord-no  EQ oe-ordl.ord-no     
+          AND oe-ord.opened  EQ YES,             
+        EACH oe-rel NO-LOCK
+        WHERE oe-rel.company       EQ oe-ordl.company   
+          AND oe-rel.ord-no        EQ oe-ordl.ord-no                 
+          AND oe-rel.i-no          EQ oe-ordl.i-no                     
+          AND oe-rel.line          EQ oe-ordl.line                     
+          AND (oe-rel.spare-char-1 EQ ipLocation
+           OR  ipLocation          EQ "*All" ) 
+          AND LOOKUP(oe-rel.s-code,"B,S") NE 0
+          AND LOOKUP(oe-rel.stat,"S,A,L,B,Z") NE 0
+        :
+        oplReturnRelease = YES.
+        LEAVE MAIN-LOOP.
+    END.    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckUnspecified B-table-Win
 PROCEDURE pCheckUnspecified PRIVATE:
@@ -1137,12 +1075,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCorrectQuantities B-table-Win
 PROCEDURE pCorrectQuantities PRIVATE:
 /*------------------------------------------------------------------------------
@@ -1177,8 +1109,6 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayRecalculateMsg B-table-Win
 PROCEDURE pDisplayRecalculateMsg PRIVATE:
@@ -1246,12 +1176,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetPOLocation B-table-Win
 PROCEDURE pGetPOLocation PRIVATE:
 /*------------------------------------------------------------------------------
@@ -1304,8 +1228,6 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 
 PROCEDURE resort-query :

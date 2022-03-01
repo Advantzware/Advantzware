@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+&Scoped-define proc-enable proc-enable
 {custom/globdefs.i}
 
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
@@ -45,15 +46,22 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
 {sys/inc/var.i new shared}
 
-assign
+ASSIGN
  cocode = g_company
  locode = g_loc.
 
 DEFINE NEW SHARED VARIABLE uom-list AS CHARACTER INIT "M,EA,L,CS,C,LB,DRM,ROL,PKG,SET,DOZ,BDL" NO-UNDO.
 DEFINE BUFFER bf-vendItemCost FOR vendItemCost .
+DEFINE VARIABLE dMaxQty     AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dMaxLenWid  AS DECIMAL NO-UNDO.
 DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdVendorCostProcs AS HANDLE    NO-UNDO.
  RUN util/Validate.p PERSISTENT SET hdValidator.
      THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdValidator).
+     
+RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
+dMaxQty = DYNAMIC-FUNCTION("VendCost_GetUnlimitedQuantity" IN hdVendorCostProcs).
+dMaxLenWid = DYNAMIC-FUNCTION("VendCost_GetUnlimitedLenWid" IN hdVendorCostProcs).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -97,6 +105,7 @@ vendItemCost.validWidth[18] vendItemCost.validWidth[19] ~
 vendItemCost.validWidth[20] 
 &Scoped-define ENABLED-TABLES vendItemCost
 &Scoped-define FIRST-ENABLED-TABLE vendItemCost
+&Scoped-Define ENABLED-OBJECTS MaxQty maxL maxW
 &Scoped-Define DISPLAYED-FIELDS vendItemCost.itemType vendItemCost.itemID ~
 vendItemCost.vendorID vendItemCost.customerID vendItemCost.estimateNo ~
 vendItemCost.formNo vendItemCost.blankNo vendItemCost.vendorItemID ~
@@ -120,7 +129,7 @@ vendItemCost.validWidth[18] vendItemCost.validWidth[19] ~
 vendItemCost.validWidth[20] 
 &Scoped-define DISPLAYED-TABLES vendItemCost
 &Scoped-define FIRST-DISPLAYED-TABLE vendItemCost
-
+&Scoped-Define DISPLAYED-OBJECTS MaxQty maxL maxW 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -176,10 +185,28 @@ DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 93 BY 14.57.
 
+DEFINE VARIABLE maxL AS LOGICAL INITIAL no 
+     LABEL "Unlimited" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16.8 BY .81.
+
+DEFINE VARIABLE MaxQty AS LOGICAL INITIAL no 
+     LABEL "Unlimited" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15 BY .81 NO-UNDO.
+
+DEFINE VARIABLE maxW AS LOGICAL INITIAL no 
+     LABEL "Unlimited" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16.8 BY .81.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     MaxQty AT ROW 14.57 COL 70
+     maxL AT ROW 7.67 COL 71
+     maxW AT ROW 5.29 COL 71
      vendItemCost.itemType AT ROW 2.29 COL 14.2 COLON-ALIGNED
           VIEW-AS COMBO-BOX INNER-LINES 4
           LIST-ITEM-PAIRS "FG","FG",
@@ -260,15 +287,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 
-     vendItemCost.dimLengthMinimum AT ROW 5.38 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 30 FORMAT ">>,>>9.9999"
+     vendItemCost.dimLengthMinimum AT ROW 6.48 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 30 FORMAT ">>,>>9.9999"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 
-     vendItemCost.dimLengthMaximum AT ROW 5.38 COL 69.2 COLON-ALIGNED NO-LABEL WIDGET-ID 28 FORMAT ">>,>>9.9999"
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
-          BGCOLOR 15 
-     vendItemCost.dimWidthUnder AT ROW 8.43 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 42 FORMAT ">>,>>9.9999"
+     vendItemCost.dimLengthMaximum AT ROW 6.48 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 28 FORMAT ">>,>>9.9999"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 
@@ -279,24 +302,28 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     vendItemCost.dimWidthUnderCharge AT ROW 8.38 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 54 FORMAT "->>,>>9.9999"
+     vendItemCost.dimWidthUnder AT ROW 9.57 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 42 FORMAT ">>,>>9.9999"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 
-     vendItemCost.dimLengthUnder AT ROW 9.52 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 34 FORMAT ">>,>>9.9999"
+     vendItemCost.dimWidthUnderCharge AT ROW 9.57 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 54 FORMAT "->>,>>9.9999"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 
-     vendItemCost.dimLengthUnderCharge AT ROW 9.52 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 52 FORMAT "->>,>>9.9999"
+     vendItemCost.dimLengthUnder AT ROW 10.76 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 34 FORMAT ">>,>>9.9999"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 
-     vendItemCost.quantityMinimumOrder AT ROW 11.29 COL 68 COLON-ALIGNED WIDGET-ID 46
+     vendItemCost.dimLengthUnderCharge AT ROW 10.76 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 52 FORMAT "->>,>>9.9999"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+          BGCOLOR 15 
+     vendItemCost.quantityMinimumOrder AT ROW 12.19 COL 68 COLON-ALIGNED WIDGET-ID 46
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 
-     vendItemCost.quantityMaximumOrder AT ROW 12.71 COL 68 COLON-ALIGNED WIDGET-ID 44
-          LABEL "Max Order Qty" FORMAT ">>>>>>9.99<<<<"
+     vendItemCost.quantityMaximumOrder AT ROW 13.38 COL 68 COLON-ALIGNED WIDGET-ID 44
+          LABEL "Max Order Qty" FORMAT ">>>>>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 
@@ -352,10 +379,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
           BGCOLOR 15 
-     vendItemCost.validWidth[14] AT ROW 7.48 COL 98.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -363,6 +386,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     vendItemCost.validWidth[14] AT ROW 7.48 COL 98.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
      vendItemCost.validWidth[15] AT ROW 8.52 COL 98.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
@@ -439,10 +466,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
           BGCOLOR 15 
-     vendItemCost.validLength[14] AT ROW 7.48 COL 126.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-          BGCOLOR 15 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -450,6 +473,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     vendItemCost.validLength[14] AT ROW 7.48 COL 126.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
      vendItemCost.validLength[15] AT ROW 8.52 COL 126.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
@@ -475,11 +502,7 @@ DEFINE FRAME F-Main
           SIZE 12 BY 1
           BGCOLOR 15 
      "Upcharge" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 7.62 COL 71.2 WIDGET-ID 14
-     "L:" VIEW-AS TEXT
-          SIZE 4 BY .62 AT ROW 5.48 COL 53 WIDGET-ID 22
-     "Under" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 7.62 COL 58.2 WIDGET-ID 12
+          SIZE 12 BY .62 AT ROW 8.86 COL 71 WIDGET-ID 14
      "Valid Roll Widths" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 3.57 COL 90 WIDGET-ID 50
      " Restrictions" VIEW-AS TEXT
@@ -487,15 +510,19 @@ DEFINE FRAME F-Main
      " Vendor Item Cost Details" VIEW-AS TEXT
           SIZE 29.8 BY .62 AT ROW 1.33 COL 4.2
      "W:" VIEW-AS TEXT
-          SIZE 4 BY .62 AT ROW 8.57 COL 53 WIDGET-ID 16
+          SIZE 4 BY .62 AT ROW 9.81 COL 53 WIDGET-ID 16
      "L:" VIEW-AS TEXT
-          SIZE 4 BY .62 AT ROW 9.52 COL 53 WIDGET-ID 18
+          SIZE 4 BY .62 AT ROW 11 COL 53 WIDGET-ID 18
      "Min" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 3.57 COL 58.2 WIDGET-ID 24
      "Max" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 3.57 COL 72 WIDGET-ID 26
      "W:" VIEW-AS TEXT
           SIZE 4 BY .62 AT ROW 4.52 COL 52.8 WIDGET-ID 20
+     "L:" VIEW-AS TEXT
+          SIZE 4 BY .62 AT ROW 6.71 COL 53 WIDGET-ID 22
+     "Under" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 8.86 COL 58 WIDGET-ID 12
      RECT-1 AT ROW 1 COL 1
      RECT-5 AT ROW 1.48 COL 2
      RECT-6 AT ROW 2.05 COL 49.2 WIDGET-ID 4
@@ -596,6 +623,12 @@ ASSIGN
 /* SETTINGS FOR FILL-IN vendItemCost.itemID IN FRAME F-Main
    NO-ENABLE 1 2                                                        */
 /* SETTINGS FOR COMBO-BOX vendItemCost.itemType IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX maxL IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX MaxQty IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX maxW IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN vendItemCost.quantityMaximumOrder IN FRAME F-Main
    2 EXP-LABEL EXP-FORMAT                                               */
@@ -738,31 +771,31 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
-  def var char-val as cha no-undo.
+  DEFINE VARIABLE char-val AS cha NO-UNDO.
   DEFINE VARIABLE riLookup AS RECID NO-UNDO.
-  def var lv-handle as handle no-undo.
+  DEFINE VARIABLE lv-handle AS HANDLE NO-UNDO.
   DEFINE VARIABLE cMainField AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cAllFields AS CHARACTER NO-UNDO.
   DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
 
   {&methods/lValidateError.i YES}
-  case FOCUS:NAME :
-    when "vendorUOM" then do:
-        IF vendItemCost.itemType:SCREEN-VALUE EQ "RM" THEN do:
+  CASE FOCUS:NAME :
+    WHEN "vendorUOM" THEN DO:
+        IF vendItemCost.itemType:SCREEN-VALUE EQ "RM" THEN DO:
             FIND FIRST ITEM NO-LOCK
                 WHERE ITEM.company EQ cocode
                 AND ITEM.i-no EQ  vendItemCost.itemID:SCREEN-VALUE NO-ERROR.
             IF AVAIL ITEM THEN
-                RUN sys/ref/uom-rm.p  (ITEM.mat-type, output uom-list).
+                RUN sys/ref/uom-rm.p  (ITEM.mat-type, OUTPUT uom-list).
         END.
         ELSE DO:
             RUN sys/ref/uom-fg.p (NO, OUTPUT uom-list).
         END.
 
-        run windows/l-stduom.w (cocode, uom-list, focus:screen-value, output char-val).
-        if char-val ne "" then 
-            focus:screen-value in frame {&frame-name} = entry(1,char-val).
-    end.
+        RUN windows/l-stduom.w (cocode, uom-list, FOCUS:SCREEN-VALUE, OUTPUT char-val).
+        IF char-val NE "" THEN 
+            FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
+    END.
     WHEN "customerID" THEN DO:
         
          RUN system/openlookup.p (g_company, "cust-no", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
@@ -794,17 +827,47 @@ DO:
          END.
     END.
 
-    otherwise do:
-      lv-handle = focus:handle.
-      run applhelp.p.
+    OTHERWISE DO:
+      lv-handle = FOCUS:HANDLE.
+      RUN applhelp.p.
 
-      if g_lookup-var ne "" then lv-handle:screen-value = g_lookup-var. 
+      IF g_lookup-var NE "" THEN lv-handle:SCREEN-VALUE = g_lookup-var. 
 
-      apply "entry" to lv-handle.
-      return no-apply.
-    end.
-  end case.  
+      APPLY "entry" TO lv-handle.
+      RETURN NO-APPLY.
+    END.
+  END CASE.  
   {&methods/lValidateError.i NO}
+END.
+
+&Scoped-define SELF-NAME maxL
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL maxL V-table-Win
+ON VALUE-CHANGED OF maxL IN FRAME F-Main /* MaxL */
+DO:
+   IF LOGICAL(maxL:SCREEN-VALUE) EQ TRUE THEN
+   vendItemCost.dimLengthMaximum:SCREEN-VALUE = STRING(dMaxLenWid) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME maxW
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL maxW V-table-Win
+ON VALUE-CHANGED OF maxW IN FRAME F-Main /* MaxL */
+DO:
+   IF LOGICAL(maxW:SCREEN-VALUE) EQ TRUE THEN
+   vendItemCost.dimWidthMaximum:SCREEN-VALUE = STRING(dMaxLenWid) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME MaxQty
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL MaxQty V-table-Win
+ON VALUE-CHANGED OF MaxQty IN FRAME F-Main /* MaxQty */
+DO:
+   IF LOGICAL(MaxQty:SCREEN-VALUE) EQ TRUE THEN
+   vendItemCost.quantityMaximumOrder:SCREEN-VALUE = STRING(dMaxQty) .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -817,8 +880,8 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-  session:data-entry-return = yes.
-
+  SESSION:DATA-ENTRY-RETURN = YES.
+      
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
@@ -838,6 +901,7 @@ PROCEDURE add-item :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+
    RUN dispatch ('add-record').
 END PROCEDURE.
 
@@ -951,7 +1015,7 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+    
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -971,7 +1035,7 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  disable all with frame {&frame-name}.
+  DISABLE ALL WITH FRAME {&frame-name}.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -999,7 +1063,6 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   vendItemCost.company = cocode.
  
-
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost)).
@@ -1017,15 +1080,30 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+
+  DO WITH FRAME {&FRAME-NAME}:
+      /*IF vendItemCost.dimLengthMaximum = 0 THEN 
+          vendItemCost.dimLengthMaximum:SCREEN-VALUE = "99999.9999".*/
+          
+      IF (vendItemCost.dimLengthMaximum = dMaxLenWid OR vendItemCost.dimWidthMaximum = 0) THEN
+          MaxL = TRUE. 
+      ELSE MaxL = FALSE.
+          
+      IF (vendItemCost.dimWidthMaximum = dMaxLenWid OR vendItemCost.dimWidthMaximum = 0) THEN
+          MaxW = TRUE. 
+      ELSE MaxW = FALSE.
+          
+      IF (vendItemCost.quantityMaximumOrder = dMaxQty OR vendItemCost.quantityMaximumOrder = 0) THEN
+        MaxQty = TRUE.
+      ELSE maxQty = FALSE.
+      DISABLE MaxL MaxW maxQty.
+  END.
   
-    
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /*RUN pDisplayValue .*/
-
   /* Code placed here will execute AFTER standard behavior.    */
-
 
 END PROCEDURE.
 
@@ -1042,11 +1120,19 @@ PROCEDURE local-update-record :
     DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
     DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
+       
   DO WITH FRAME {&FRAME-NAME}:
-   
+      IF vendItemCost.dimLengthMaximum:SCREEN-VALUE = "0.0000" THEN
+          vendItemCost.dimLengthMaximum:SCREEN-VALUE = STRING(dMaxLenWid).
+
+      IF vendItemCost.dimWidthMaximum:SCREEN-VALUE = "0.0000" THEN
+          vendItemCost.dimWidthMaximum:SCREEN-VALUE = STRING(dMaxLenWid).
+
+      IF vendItemCost.quantitymaximumOrder:SCREEN-VALUE = "0.000000" THEN
+          vendItemCost.quantitymaximumOrder:SCREEN-VALUE = STRING(dMaxQty). 
   END.
- 
-  disable all with frame {&frame-name}.
+
+  DISABLE ALL WITH FRAME {&frame-name}.
 
   IF adm-adding-record THEN lNewRecord = YES .
 
@@ -1058,8 +1144,23 @@ PROCEDURE local-update-record :
 
   
   adm-adding-record = NO .
-  
+  RUN local-display-fields.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
+PROCEDURE proc-enable :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+      ENABLE MaxL MaxW maxQty.
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

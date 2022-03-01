@@ -172,7 +172,7 @@ FUNCTION fGetApiType RETURNS CHARACTER
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btGo 
      LABEL "GO" 
-     SIZE 15 BY 1.14
+     SIZE 15 BY 1.15
      FONT 6.
 
 DEFINE VARIABLE cbRequestDataType AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
@@ -186,7 +186,7 @@ DEFINE VARIABLE cbRequestVerb AS CHARACTER FORMAT "X(256)":U INITIAL "All"
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "All","Post","Get" 
      DROP-DOWN-LIST
-     SIZE 20.6 BY 1
+     SIZE 20.67 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE cbStatus AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
@@ -223,7 +223,7 @@ DEFINE VARIABLE fiRequestDataTypeLabel AS CHARACTER FORMAT "X(256)":U INITIAL "R
 
 DEFINE VARIABLE fiRequestVerbLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Request Verb" 
      VIEW-AS FILL-IN 
-     SIZE 20.4 BY .81
+     SIZE 20.33 BY .81
      FGCOLOR 1 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiStatusLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Status" 
@@ -259,7 +259,7 @@ DEFINE BROWSE br_table
             WIDTH 15
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 157.6 BY 20
+    WITH NO-ASSIGN SEPARATORS SIZE 157.67 BY 20
          BGCOLOR 15  FIT-LAST-COLUMN.
 
 
@@ -268,16 +268,16 @@ DEFINE BROWSE br_table
 DEFINE FRAME F-Main
      fiAPIIDLabel AT ROW 1 COL 3 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      fiClientIDLabel AT ROW 1 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 20
-     fiRequestDataTypeLabel AT ROW 1 COL 58.8 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-     fiRequestVerbLabel AT ROW 1 COL 86.6 COLON-ALIGNED NO-LABEL WIDGET-ID 16
-     fiStatusLabel AT ROW 1 COL 107.8 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     fiAPIId AT ROW 1.95 COL 5 NO-LABEL WIDGET-ID 2
-     fiClientID AT ROW 1.95 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     cbRequestDataType AT ROW 1.95 COL 58.8 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     cbRequestVerb AT ROW 1.95 COL 86.6 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     cbStatus AT ROW 1.95 COL 107.8 COLON-ALIGNED NO-LABEL WIDGET-ID 22
-     btGo AT ROW 3.14 COL 5 WIDGET-ID 24
-     br_table AT ROW 4.33 COL 1
+     fiRequestDataTypeLabel AT ROW 1 COL 58.83 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     fiRequestVerbLabel AT ROW 1 COL 86.67 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     fiStatusLabel AT ROW 1 COL 107.83 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     fiAPIId AT ROW 1.96 COL 5 NO-LABEL WIDGET-ID 2
+     fiClientID AT ROW 1.96 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     cbRequestDataType AT ROW 1.96 COL 58.83 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     cbRequestVerb AT ROW 1.96 COL 86.67 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     cbStatus AT ROW 1.96 COL 107.83 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     btGo AT ROW 3.15 COL 5 WIDGET-ID 24
+     br_table AT ROW 4.35 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -310,8 +310,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 23.33
-         WIDTH              = 157.6.
+         HEIGHT             = 23.35
+         WIDTH              = 157.67.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -522,6 +522,29 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiAPIId
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiAPIId B-table-Win
+ON ENTER OF fiAPIId IN FRAME F-Main
+DO:
+    APPLY "CHOOSE" TO btGo.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiClientID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiClientID B-table-Win
+ON ENTER OF fiClientID IN FRAME F-Main
+DO:
+    APPLY "CHOOSE" TO btGo.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
@@ -535,7 +558,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+{methods/browsers/setCellColumns.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -582,6 +605,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   
+   RUN pExportDumpFile.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -613,7 +651,9 @@ PROCEDURE local-initialize :
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-
+    
+    RUN setCellColumns NO-ERROR.
+    
     /* Code placed here will execute AFTER standard behavior.    */
     &IF INDEX("{&NORECKEY}","{&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}") = 0 &THEN
         {methods/template/local/setvalue.i}
@@ -697,6 +737,80 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExportDumpFile B-table-Win 
+PROCEDURE pExportDumpFile :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE cAPIOutboundPath   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIOutboundContentPath AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIOutboundDetailPath  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIOutboundTriggerPath AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cApiClientXrefPath AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cApiClientPath     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOutputPath   AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE lCreated AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+ cOutputPath   = ".\custfiles\api\backup".   
+   
+ RUN FileSys_CreateDirectory(INPUT cOutputPath,OUTPUT lCreated, OUTPUT cMessage ).
+ IF NOT lCreated THEN 
+ DO:       
+    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    RETURN.  
+ END.   
+     
+ ASSIGN
+    cAPIOutboundPath = cOutputPath + "\" + "APIOutbound.d"
+    cAPIOutboundContentPath = cOutputPath + "\" + "APIOutboundContent.d"
+    cAPIOutboundDetailPath = cOutputPath + "\" + "APIOutboundDetail.d"
+    cAPIOutboundTriggerPath = cOutputPath + "\" + "APIOutboundTrigger.d"
+    cApiClientXrefPath = cOutputPath + "\" + "apiClientXref.d"
+    cApiClientPath = cOutputPath + "\" + "apiClient.d".     
+   
+  OUTPUT to VALUE(cAPIOutboundPath) .
+  FOR EACH APIOutbound NO-LOCK:
+      EXPORT APIOutbound.
+  END.
+  OUTPUT CLOSE.
+  OUTPUT to VALUE(cAPIOutboundContentPath) .
+  FOR EACH APIOutboundContent NO-LOCK:
+      EXPORT APIOutboundContent.
+  END.
+  OUTPUT CLOSE.
+  OUTPUT to VALUE(cAPIOutboundDetailPath) .
+  FOR EACH APIOutboundDetail NO-LOCK:
+      EXPORT APIOutboundDetail.
+  END.
+  OUTPUT CLOSE.
+  OUTPUT to VALUE(cAPIOutboundTriggerPath) .
+  FOR EACH APIOutboundTrigger NO-LOCK:
+      EXPORT APIOutboundTrigger.
+  END.
+  OUTPUT CLOSE.
+  OUTPUT to VALUE(cApiClientXrefPath) .
+  FOR EACH ApiClientXref NO-LOCK:
+      EXPORT ApiClientXref.
+  END.
+  OUTPUT CLOSE.
+  OUTPUT to VALUE(cApiClientPath) .
+  FOR EACH ApiClient NO-LOCK:
+      EXPORT ApiClient.
+  END.
+  OUTPUT CLOSE.
+  
+  MESSAGE "Dump Outbound API Maintenance successfully." VIEW-AS ALERT-BOX INFORMATION.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

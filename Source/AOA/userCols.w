@@ -1013,6 +1013,8 @@ PROCEDURE pSave :
     APPLY "ROW-LEAVE":U TO BROWSE subjectColumnBrowse.
     APPLY "ROW-LEAVE":U TO BROWSE sortBrowse.
     APPLY "ROW-LEAVE":U TO BROWSE groupBrowse.
+    IF FOCUS:NAME EQ "groupLabel" THEN
+    APPLY "RETURN":U TO ttGroup.groupLabel IN BROWSE groupBrowse.
     DO TRANSACTION:
         FOR EACH dynValueColumn EXCLUSIVE-LOCK
             WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
@@ -1065,6 +1067,7 @@ PROCEDURE pSave :
                 dynValueColumn.isActive          = ttSubjectColumn.isActive
                 dynValueColumn.isCalcField       = ttSubjectColumn.isCalcField
                 dynValueColumn.isFilterInitField = ttSubjectColumn.isFilterInitField
+                dynValueColumn.isFormField       = ttSubjectColumn.isFormField
                 dynValueColumn.isGroup           = ttSubjectColumn.isGroup
                 dynValueColumn.isReturnValue     = ttSubjectColumn.isReturnValue
                 dynValueColumn.isSearchable      = ttSubjectColumn.isSearchable
@@ -1189,6 +1192,7 @@ PROCEDURE pUserColumns :
             ttSubjectColumn.isActive          = dynValueColumn.isActive      
             ttSubjectColumn.isCalcField       = dynValueColumn.isCalcField
             ttSubjectColumn.isFilterInitField = dynValueColumn.isFilterInitField
+            ttSubjectColumn.isFormField       = dynValueColumn.isFormField
             ttSubjectColumn.isGroup           = dynValueColumn.isGroup       
             ttSubjectColumn.isReturnValue     = dynValueColumn.isReturnValue 
             ttSubjectColumn.isSearchable      = dynValueColumn.isSearchable  

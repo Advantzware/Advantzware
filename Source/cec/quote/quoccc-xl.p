@@ -99,6 +99,12 @@ ELSE
    gcTempDir = "c:\tmp\".
 
 RUN InitializeExcel.
+IF NOT VALID-HANDLE(gchExcelApplication) THEN DO:
+    MESSAGE 
+      "Microsoft Excel is required.  This report is unable to be executed."
+    VIEW-AS ALERT-BOX ERROR.
+    RETURN.
+END.
 RUN MainLoop.
 RUN Cleanup.
 
@@ -387,7 +393,7 @@ IF AVAIL bf-quoteqty THEN
    
         IF iLine GT 1 THEN DO:
             gchWorkSheet = gchExcelApplication:Sheets:item(1).
-            RUN AddBorders(INPUT "B" + STRING(37 + iLine) + ":H" + STRING(37 + iLine)).
+            RUN AddBorders(INPUT "B" + STRING(39 + iLine) + ":H" + STRING(39 + iLine)).
             gchWorkSheet = gchExcelApplication:Sheets:item(2).                               
         END.
     END.
@@ -436,6 +442,8 @@ CREATE "Excel.Application" gchExcelApplication CONNECT NO-ERROR.
 IF NOT VALID-HANDLE (gchExcelApplication) THEN
     /* Start a new session of Excel. */
     CREATE "Excel.Application" gchExcelApplication NO-ERROR.
+    IF NOT VALID-HANDLE(gchExcelApplication) THEN
+    RETURN.
 
 /* Network connection checks. */
 CREATE "WScript.Network" gchWshNetwork NO-ERROR.

@@ -700,6 +700,8 @@ PROCEDURE genOrderLinesLocal:
         oe-ordl.whsed     = oe-ordl.est-no NE ''
         oe-ordl.q-no      = oe-ord.q-no
         oe-ordl.prom-date = oe-ord.due-date
+        oe-ordl.ediPriceUOM = TRIM(itemUnitOfMeasure)
+        oe-ordl.ediPrice    = DEC(itemMoney)
         .
 
       IF oe-ordl.price EQ 0 THEN DO:                      
@@ -846,6 +848,14 @@ PROCEDURE GetItemAndPart:
            AND bf-customerPart.shipToID     EQ ipcShipTo
            AND bf-customerPart.customerPart EQ ipcSupplierPartID
          NO-ERROR.
+    IF NOT AVAILABLE bf-customerPart THEN
+        FIND FIRST bf-customerPart NO-LOCK
+             WHERE bf-customerPart.company      EQ ipcCompany
+               AND bf-customerPart.customerID   EQ ipcCustNo
+               AND bf-customerPart.shipToID     EQ ""
+               AND bf-customerPart.customerPart EQ ipcSupplierPartID
+             NO-ERROR.
+
     IF NOT AVAILABLE bf-customerPart THEN DO:
         oplSuccess = FALSE.
         

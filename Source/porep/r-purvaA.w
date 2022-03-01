@@ -599,7 +599,7 @@ DO:
   run run-report. 
   STATUS DEFAULT "Processing Complete".
   IF tb_excel AND tb_runExcel THEN
-  OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(fi_file)).
+  OS-COMMAND NO-WAIT VALUE(SEARCH(fi_file)).
 
   case rd-dest:
        when 1 then run output-to-printer.
@@ -1218,7 +1218,7 @@ PROCEDURE run-report :
 def var v-foot-rem like ap-invl.amt-msf no-undo.
 def var v-msf-cal as log no-undo.
 
-def var v-s-pono like po-ord.po-no format ">>>>>>".
+def var v-s-pono like po-ord.po-no format ">>>>>>>>".
 def var v-e-pono like v-s-pono init 999999.
 def var v-s-date like po-ord.po-date format "99/99/9999" init "01/01/0001".
 def var v-e-date like v-s-date init today.

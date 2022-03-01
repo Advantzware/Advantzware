@@ -327,7 +327,9 @@ PROCEDURE ipChooseExcel :
     
     SESSION:SET-WAIT-STATE("general").
     STATUS INPUT "Opening Excel. Please wait...".
-    CREATE "Excel.Application" chExcelApplication.
+    CREATE "Excel.Application" chExcelApplication NO-ERROR.
+    IF NOT VALID-HANDLE(chExcelApplication) THEN
+    RETURN.
     STATUS INPUT "Exporting data. Please wait...".
 
     ASSIGN 
@@ -550,7 +552,9 @@ PROCEDURE ipChoosePrint :
 
     STATUS DEFAULT "Exporting data. Please wait...".
     SESSION:SET-WAIT-STATE("general").
-    CREATE "Excel.Application" chExcelApplication.
+    CREATE "Excel.Application" chExcelApplication NO-ERROR.
+    IF NOT VALID-HANDLE(chExcelApplication) THEN
+    RETURN.
 
     ASSIGN 
         chWorkbook                 = chExcelApplication:Workbooks:Add()

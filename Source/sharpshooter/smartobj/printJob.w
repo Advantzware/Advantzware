@@ -62,9 +62,9 @@ DEFINE VARIABLE phandle  AS HANDLE    NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btPrintJob 
-     IMAGE-UP FILE "Graphics/32x32/document_check_edit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/print_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Print Job" 
-     SIZE 11 BY 2.62 TOOLTIP "Print Job Card"
+     SIZE 8 BY 1.91 TOOLTIP "Print Job Card"
      FONT 35.
 
 
@@ -74,7 +74,8 @@ DEFINE FRAME F-Main
      btPrintJob AT ROW 1 COL 1 NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 FGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */

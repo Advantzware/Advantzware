@@ -55,6 +55,7 @@ DEF VAR lv-sort-by AS CHAR INIT "inv-no" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "Inv# " NO-UNDO.
 DEF VAR ll-sort-asc AS LOG NO-UNDO.
 DEF VAR v-col-move AS LOG INIT TRUE NO-UNDO.
+DEFINE VARIABLE iPeriod AS INTEGER NO-UNDO.
 
 &SCOPED-DEFINE key-phrase ar-invl.company EQ cocode AND ar-invl.posted EQ YES
 
@@ -93,10 +94,17 @@ DEF VAR v-col-move AS LOG INIT TRUE NO-UNDO.
     IF lv-sort-by EQ "inv-no"  THEN STRING(ar-invl.inv-no,"9999999999")                                                                             ELSE ~
     IF lv-sort-by EQ "bol-no"  THEN STRING(ar-invl.bol-no,"9999999999")                                                                             ELSE ~
     IF lv-sort-by EQ "po-no"   THEN ar-invl.po-no                                                                                                   ELSE ~
+    IF lv-sort-by EQ "i-name"   THEN ar-invl.i-name                                                                                                   ELSE ~
     IF lv-sort-by EQ "due"  THEN STRING(ar-inv.due,"->>,>>>,>>9.99")                                                                             ELSE ~
+    IF lv-sort-by EQ "net"  THEN STRING(ar-inv.net,"->>,>>>,>>9.99")                                                                             ELSE ~
+    IF lv-sort-by EQ "paid"  THEN STRING(ar-inv.paid,"->>,>>>,>>9.99")                                                                             ELSE ~
     IF lv-sort-by EQ "part-no" THEN ar-invl.part-no                                                                                                 ELSE ~
+    IF lv-sort-by EQ "runNumber"  THEN STRING(ar-inv.runNumber,"9999999999")                                                                            ELSE ~
+    IF lv-sort-by EQ "postedDate"  THEN STRING(YEAR(ar-inv.postedDate),"9999") + STRING(MONTH(ar-inv.postedDate),"99") + STRING(DAY(ar-inv.postedDate),"99")  ELSE ~
+    IF lv-sort-by EQ "glYear"  THEN STRING(ar-inv.glYear,"99999")                                                                            ELSE ~
+    IF lv-sort-by EQ "iPeriod"  THEN STRING(getPeriod(),"99999")                                                                            ELSE ~
                                     STRING(YEAR(ar-inv.inv-date),"9999") + STRING(MONTH(ar-inv.inv-date),"99") + STRING(DAY(ar-inv.inv-date),"99")
-
+     
 &SCOPED-DEFINE sortby BY ar-invl.inv-no BY ar-invl.bol-no DESC BY ar-invl.i-no BY ar-invl.line
 
 &SCOPED-DEFINE sortby-phrase-asc  ~
@@ -134,7 +142,8 @@ DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 &Scoped-define FIELDS-IN-QUERY-BROWSE-3 ar-invl.inv-no ar-invl.bol-no ~
 ar-invl.cust-no ar-inv.inv-date ar-inv.net ar-inv.paid ar-inv.due ~
 ar-invl.actnum ar-invl.i-no ar-invl.part-no ar-invl.ord-no ar-invl.po-no ~
-ar-invl.est-no ar-invl.i-name 
+ar-invl.est-no ar-invl.i-name ar-inv.runNumber ar-inv.postedDate ~
+ar-inv.glYear getPeriod() @ iPeriod
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-3 ar-invl.inv-no ~
 ar-invl.bol-no ar-invl.cust-no ar-inv.inv-date ar-inv.net ar-inv.paid ~
 ar-inv.due ar-invl.actnum ar-invl.i-no ar-invl.part-no ar-invl.ord-no ~
@@ -176,7 +185,13 @@ FI_moveCol
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getPeriod B-table-Win 
+FUNCTION getPeriod RETURNS INTEGER
+  ( /* parameter-definitions */ )  FORWARD.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -300,8 +315,12 @@ DEFINE BROWSE BROWSE-3
       ar-invl.part-no FORMAT "x(15)":U
       ar-invl.ord-no FORMAT ">>>>>9":U
       ar-invl.po-no COLUMN-LABEL "Cust PO#" FORMAT "x(15)":U
-      ar-invl.est-no COLUMN-LABEL "Est#" FORMAT "x(5)":U
+      ar-invl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U
       ar-invl.i-name FORMAT "x(30)":U
+      ar-inv.runNumber FORMAT ">>>>>>>>":U
+      ar-inv.postedDate FORMAT "99/99/9999":U
+      ar-inv.glYear FORMAT "9999":U
+      getPeriod() @ iPeriod COLUMN-LABEL "Period" FORMAT ">>>":U
   ENABLE
       ar-invl.inv-no
       ar-invl.bol-no
@@ -423,8 +442,14 @@ ASSIGN
      _FldNameList[12]   > asi.ar-invl.po-no
 "ar-invl.po-no" "Cust PO#" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > asi.ar-invl.est-no
-"ar-invl.est-no" "Est#" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-invl.est-no" "Est#" "x(8)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   = asi.ar-invl.i-name
+     _FldNameList[15]   = asi.ar-inv.runNumber
+     _FldNameList[16]   = asi.ar-inv.postedDate
+     _FldNameList[17]   = asi.ar-inv.glYear
+     _FldNameList[18]   > "_<CALC>"
+"getPeriod() @ iPeriod" "Period" ">>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no     
+    
      _Query            is OPENED
 */  /* BROWSE BROWSE-3 */
 &ANALYZE-RESUME
@@ -441,6 +466,128 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Invoice Information detail */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
+ON HELP OF FRAME Dialog-Frame
+    DO:
+        DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+
+        CASE FOCUS:NAME :
+            WHEN "fi_inv-no" THEN 
+                DO:
+                    RUN windows/l-arinv.w (
+                        INPUT  cocode, 
+                        INPUT  fi_cust-no,  /* Lookup ID */
+                        INPUT  fi_inv-no:SCREEN-VALUE,  /* Subject ID */                           
+                        OUTPUT cFoundValue, 
+                        OUTPUT recFoundRecID
+                        ).   
+                    IF cFoundValue <> "" THEN 
+                        ASSIGN fi_inv-no:SCREEN-VALUE = entry(1,cFoundValue).         
+                END.
+            WHEN "fi_cust-no"  THEN    
+                DO:
+                    RUN system/openLookup.p (
+                        INPUT  cocode, 
+                        INPUT  "",  /* Lookup ID */
+                        INPUT  23,  /* Subject ID */
+                        INPUT  "",  /* User ID */
+                        INPUT  0,   /* Param Value ID */
+                        OUTPUT cFieldsValue, 
+                        OUTPUT cFoundValue, 
+                        OUTPUT recFoundRecID
+                        ).   
+                    IF cFoundValue <> "" THEN 
+                        ASSIGN fi_cust-no:SCREEN-VALUE = cFoundValue.         
+                 END.
+            WHEN "fi_actnum"  THEN    
+                DO:
+                    RUN system/openLookup.p (
+                        INPUT  cocode, 
+                        INPUT  "",  /* Lookup ID */
+                        INPUT  107,  /* Subject ID */
+                        INPUT  "",  /* User ID */
+                        INPUT  0,   /* Param Value ID */
+                        OUTPUT cFieldsValue, 
+                        OUTPUT cFoundValue, 
+                        OUTPUT recFoundRecID
+                        ).   
+                    IF cFoundValue <> "" THEN 
+                        ASSIGN fi_actnum:SCREEN-VALUE = cFoundValue.         
+                 END.
+                 
+              WHEN "fi_i-no"  THEN    
+                DO:
+                    RUN system/openLookup.p (
+                        INPUT  cocode, 
+                        INPUT  "",  /* Lookup ID */
+                        INPUT  25,  /* Subject ID */
+                        INPUT  "",  /* User ID */
+                        INPUT  0,   /* Param Value ID */
+                        OUTPUT cFieldsValue, 
+                        OUTPUT cFoundValue, 
+                        OUTPUT recFoundRecID
+                        ).   
+                    IF cFoundValue <> "" THEN 
+                        ASSIGN fi_i-no:SCREEN-VALUE = cFoundValue.         
+                 END.
+                        
+             WHEN "fi_ord-no"  THEN    
+                DO:
+                    RUN system/openLookup.p (
+                        INPUT  cocode, 
+                        INPUT  "",  /* Lookup ID */
+                        INPUT  27,  /* Subject ID */
+                        INPUT  "",  /* User ID */
+                        INPUT  0,   /* Param Value ID */
+                        OUTPUT cFieldsValue, 
+                        OUTPUT cFoundValue, 
+                        OUTPUT recFoundRecID
+                        ).   
+                    IF cFoundValue <> "" THEN 
+                        ASSIGN fi_ord-no:SCREEN-VALUE = cFoundValue.         
+                 END.
+                 
+                 
+              WHEN "fi_est-no"  THEN    
+                DO:
+                    RUN system/openLookup.p (
+                        INPUT  cocode, 
+                        INPUT  "",  /* Lookup ID */
+                        INPUT  50,  /* Subject ID */
+                        INPUT  "",  /* User ID */
+                        INPUT  0,   /* Param Value ID */
+                        OUTPUT cFieldsValue, 
+                        OUTPUT cFoundValue, 
+                        OUTPUT recFoundRecID
+                        ).   
+                    IF cFoundValue <> "" THEN 
+                        ASSIGN fi_est-no:SCREEN-VALUE = cFoundValue.         
+                 END.
+                 WHEN "fi_bol-no"  THEN    
+                DO:
+                    RUN system/openLookup.p (
+                        INPUT  cocode, 
+                        INPUT  "",  /* Lookup ID */
+                        INPUT  38,  /* Subject ID */
+                        INPUT  "",  /* User ID */
+                        INPUT  0,   /* Param Value ID */
+                        OUTPUT cFieldsValue, 
+                        OUTPUT cFoundValue, 
+                        OUTPUT recFoundRecID
+                        ).   
+                    IF cFoundValue <> "" THEN 
+                        ASSIGN fi_bol-no:SCREEN-VALUE = cFoundValue.         
+                 END.
+                 
+        END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -574,6 +721,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no Dialog-Frame
 ON LEAVE OF fi_cust-no IN FRAME Dialog-Frame /* Customer# */
 DO:
+   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   /*IF LASTKEY NE -1 THEN DO:
     APPLY "choose" TO btn_go.
   END.
@@ -587,7 +735,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no Dialog-Frame
 ON VALUE-CHANGED OF fi_cust-no IN FRAME Dialog-Frame /* Customer# */
 DO:
-  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
@@ -997,3 +1144,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getPeriod B-table-Win 
+FUNCTION getPeriod RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iReturn AS INTEGER NO-UNDO.
+    iReturn = MONTH(ar-inv.postedDate).
+    IF iReturn EQ ? THEN iReturn = 0.
+    RETURN iReturn .   /* Function return value. */
+    
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

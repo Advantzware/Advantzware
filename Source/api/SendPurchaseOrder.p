@@ -89,6 +89,7 @@
     DEFINE VARIABLE cFreightTerms        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFreightFOB          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBuyer               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBuyerEmailID        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNotes             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNotesHRMS         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNotesAlliance     AS CHARACTER NO-UNDO.
@@ -108,6 +109,7 @@
     DEFINE VARIABLE cTimeLiberty         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMaxOverPct          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMinUnderPct         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCurrencyCode        AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line Variables */
     DEFINE VARIABLE cPoLine                    AS CHARACTER NO-UNDO.
@@ -197,7 +199,8 @@
     DEFINE VARIABLE cVendItemNoBoard           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cVendItemNoAdders          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cVendItemNoBoardAndAdders  AS CHARACTER NO-UNDO.
-    
+    DEFINE VARIABLE cTotalLineCost             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cGLAccountNumber           AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID                    AS CHARACTER NO-UNDO.
@@ -231,11 +234,16 @@
     DEFINE VARIABLE cScoreSize16thsWestRock     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalHRMS1      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalHRMS2      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreSize16thsHRMS1        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreSize16thsHRMS2        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalAlliFlutes AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalAlliance   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalCorrKraft  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalKiwi       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalCorrTrim   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dItemScoreWidth16ths        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dItemScoreLength16ths       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dItemScoreDepth16ths        AS DECIMAL   NO-UNDO.
     
     DEFINE VARIABLE cWhsCode           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQtyPerPack        AS CHARACTER NO-UNDO.
@@ -285,6 +293,7 @@
     DEFINE BUFFER bf-hrms-reftable      FOR reftable.
     DEFINE BUFFER bf-job-mat            FOR job-mat.
     DEFINE BUFFER bf-item               FOR item.
+    DEFINE BUFFER bf-users              FOR users.
     
     DEFINE TEMP-TABLE ttVendItemNumberAdders
         FIELD sequence       AS INTEGER 
@@ -304,12 +313,12 @@
     DEFINE VARIABLE cRequestFile     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cRequestFilePath AS CHARACTER NO-UNDO.
   
+    RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
   
 /* ************************  Function Prototypes ********************** */
 FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
     (  ) FORWARD.
-    
-      
+              
     /* This is to run client specific request handler to fetch request data */
     IF ipcRequestHandler NE "" THEN
         RUN VALUE(ipcRequestHandler) (
@@ -508,12 +517,24 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                                  ELSE 
                                      "ORIGIN"
             cTotalCost         = STRING(po-ord.t-cost)
+            cCurrencyCode      = po-ord.curr-code[1]            
             cCurrentDateTime   = STRING(DATETIME(TODAY,MTIME))
             cHeaderUnderPct    = STRING(po-ord.under-pct)
             cHeaderOverPct     = STRING(po-ord.over-pct)
             cMaxOverPct        = STRING(100 + po-ord.over-pct)
             cMinUnderPct       = STRING(100 - po-ord.under-pct)
             .
+        
+        system.SharedConfig:Instance:SetValue("APIVariable_SendPurchaseOrder_Buyer", cBuyer).
+        system.SharedConfig:Instance:SetValue("APIVariable_SendPurchaseOrder_PODate", cPoDate).
+        
+        IF cBuyer NE "" THEN DO:
+            FIND FIRST bf-users NO-LOCK
+                 WHERE bf-users.user_id EQ cBuyer
+                 NO-ERROR.
+            IF AVAILABLE bf-users THEN
+                cBuyerEmailID = bf-users.image_filename.    
+        END.
         
         ASSIGN
             cClientID        = APIOutbound.clientID
@@ -563,7 +584,8 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
         END.
         ASSIGN 
             cPoHeadNotesKiwi = cPoNotes
-            cPoNotes         = REPLACE(cPoNotes, "~n", "")
+            cPoNotes         = REPLACE(cPoNotes, CHR(10)," ")
+            cPoNotes         = REPLACE(cPoNotes, CHR(13)," ")
             .
         
         cPoNotesHRMS = cPoNotes.
@@ -700,12 +722,13 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cLineDueDate                = STRING(po-ordl.due-date)
                 dCostInMSF                  = po-ordl.cost
                 dQuantityInSF               = po-ordl.ord-qty
-                cJobDescriptionKiwiT        = STRING(po-ordl.po-no,"999999")
+                cTotalLineCost              = STRING(po-ordl.t-cost)
+                cJobDescriptionKiwiT        = STRING(po-ordl.po-no,"99999999")
                                               + "-" + STRING(po-ordl.LINE,"99") + "/" 
                                               + IF po-ordl.job-no EQ "" THEN "" ELSE 
                                               TRIM(STRING(po-ordl.job-no, "X(6)")) + "-" + STRING(po-ordl.job-no2,"99") 
                                               + "-" + STRING(po-ordl.s-num,"99")
-                                                
+                cGLAccountNumber            = po-ordl.actnum                                
                 cScoreSizeDecimal           = ""
                 cScoreSize16ths             = ""
                 cItemWithAdders             = "" 
@@ -720,6 +743,8 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cScoreSize16thsWestRock     = ""
                 cScoreSizeDecimalHRMS1      = ""
                 cScoreSizeDecimalHRMS2      = ""
+                cScoreSize16thsHRMS1        = ""
+                cScoreSize16thsHRMS2        = ""
                 cCostInMSF                  = ""
                 cQuantityInSF               = ""
                 dQuantityInCostUom          = 0
@@ -1021,12 +1046,17 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             ASSIGN 
                 cPoNotesKiwi  = cPoHeadNotesKiwi + " " + cPoLineNotes
                 cPoNotesKiwi1 = TRIM(po-ordl.dscr[1]) + " " + TRIM(po-ordl.dscr[2]) + " " + cPoNotesKiwi
-                cPoLineNotes  = REPLACE(cPoLineNotes, "~n", "")
-                cPoNotesHRMS  = cPoNotesHRMS + " " + cPoLineNotes
+                cPoLineNotes  = REPLACE(cPoLineNotes, CHR(10)," ")
+                cPoLineNotes  = REPLACE(cPoLineNotes, CHR(13)," ")
+                cPoNotesHRMS  = IF cPoNotesHRMS EQ "" THEN
+                                    cPoLineNotes
+                                ELSE
+                                    cPoNotesHRMS + " " + cPoLineNotes
                 .      
             cPoLineNotes1 = cPoLineNotes.
             IF cPoLineNotes EQ "" THEN
                 cPoLineNotes = cPoNotes.
+            
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "company", cCompany).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poID", cPoNo).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLine", cPoLine).
@@ -1102,6 +1132,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "SPACE", " ").
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNo",cPoNo).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "buyer", cBuyer).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerEmailID", cBuyerEmailID).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "fobCode", cFOBCode).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXAreaCode", cCustXAreaCode).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXPhone", cCustXPhone).
@@ -1149,9 +1180,12 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "CostPerEAAdders",STRING(dCostPerEAAdders)).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "CostPerEA",STRING(dCostPerEA)).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "BoardSetupCost",cBoardSetupCost).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData,"MaxOverPct",cMaxOverPct).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData,"MinUnderPct",cMinUnderPct).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "MaxOverPct",cMaxOverPct).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "MinUnderPct",cMinUnderPct).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNotes", cPoNotes).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "TotalLineCost", cTotalLineCost).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "GLAccountNumber", cGLAccountNumber).
+            
             cItemWithAdders = cItemID.
             
             EMPTY TEMP-TABLE ttVendItemNumberAdders.
@@ -1420,9 +1454,9 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                                                        cFormattedScoresWestrock + "x "  + TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
                                                        
                         cFormattedScoresLiberty  = IF cFormattedScoresLiberty EQ "" THEN 
-                                                       TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
+                                                       TRIM(STRING(dScoreSize16ths, ">>>>.99"))
                                                    ELSE
-                                                       cFormattedScoresLiberty + "x     "  + TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))                        
+                                                       cFormattedScoresLiberty + " x "  + TRIM(STRING(dScoreSize16ths, ">>>>.99"))                        
                         
                         cScoreSizeDecimalAlliFlutes = IF cScoreSizeDecimalAlliFlutes EQ "" THEN 
                                                         (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
@@ -1436,17 +1470,26 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                                                  ELSE
                                                     cScoreSizeDecimalHRMS1 + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType.
                         cScoreSizeDecimalKiwi =  cScoreSizeDecimalKiwi + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType.
+                        cScoreSize16thsHRMS1  = IF cScoreSize16thsHRMS1 EQ "" THEN 
+                                                 (STRING(dScoreSize16ths, ">>>.99")) + STRING(cScoreType, "X(1)")
+                                                 ELSE
+                                                    cScoreSize16thsHRMS1 + (STRING(dScoreSize16ths, ">>>.99")) + STRING(cScoreType, "X(1)").
                     END.
                     ELSE 
                         cScoreSizeDecimalKiwi  = cScoreSizeDecimalKiwi  + "000:00 ".
                                                      
                 END.
-                ELSE IF iIndex GT 9 AND dScoreSizeArray[iIndex] NE 0 THEN 
+                ELSE IF iIndex GT 9 AND dScoreSizeArray[iIndex] NE 0 THEN DO:
                     cScoreSizeDecimalHRMS2 = IF cScoreSizeDecimalHRMS2 EQ "" THEN 
                                                  (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
                                              ELSE
                                                 cScoreSizeDecimalHRMS2 + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType.
-                                                
+
+                    cScoreSize16thsHRMS2  = IF cScoreSize16thsHRMS2 EQ "" THEN 
+                                             (STRING(dScoreSize16ths, ">>>.99")) + STRING(cScoreType, "X(1)")
+                                             ELSE
+                                                cScoreSize16thsHRMS2 + (STRING(dScoreSize16ths, ">>>.99")) + STRING(cScoreType, "X(1)").
+                END.
                 IF iIndex LE 17 THEN DO:  
                     IF dScoreSizeArray[iIndex] EQ 0 THEN 
                         ASSIGN 
@@ -1465,21 +1508,43 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                        
                     ELSE 
                         cScoreSizeDecimalCorrKraft = cScoreSizeDecimalCorrKraft + (STRING(dScoreSize16ths, "999.99")) + "16" + cScoreType.     
-                END.    
+                END. 
+                
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "ScoreSize16ths" + STRING(iIndex), dScoreSize16ths).  
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "ScoreSizeDecimal" + STRING(iIndex), dScoreSizeDecimal).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "ScoreType" + STRING(iIndex), cScoreType).
             END.
             ASSIGN 
                 cFormattedScoresWestrock    = REPLACE(cFormattedScoresWestrock,".", "")
-                cFormattedScoresLiberty     = REPLACE(cFormattedScoresLiberty,".","")
                 cScoreSize16ths             = REPLACE(cScoreSize16ths,".", ":")
                 cScoreSizeDecimalHRMS1      = REPLACE(cScoreSizeDecimalHRMS1,".",":")
                 cScoreSizeDecimalHRMS2      = REPLACE(cScoreSizeDecimalHRMS2,".",":")
+                cScoreSize16thsHRMS1        = REPLACE(cScoreSize16thsHRMS1,".",":")
+                cScoreSize16thsHRMS2        = REPLACE(cScoreSize16thsHRMS2,".",":")                
                 cScoreSizeDecimalAlliFlutes = REPLACE(cScoreSizeDecimalAlliFlutes,".",":")
                 cScoreSizeDecimalAlliance   = REPLACE(cScoreSizeDecimalAlliance,".","")
                 cScoreSizeDecimalCorrKraft  = REPLACE(cScoreSizeDecimalCorrKraft,".","")
                 cScoreSizeDecimalKiwi       = REPLACE(cScoreSizeDecimalKiwi,".",":")
                 cScoreSizeDecimalCorrTrim   = REPLACE(cScoreSizeDecimalCorrTrim,".","")
                 .
+
+            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", item.s-len, OUTPUT dItemScoreLength16ths).
+            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", item.s-wid, OUTPUT dItemScoreWidth16ths).
+            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", item.s-dep, OUTPUT dItemScoreDepth16ths).
             
+            IF cFormattedScoresLiberty EQ "" THEN DO:
+                IF AVAILABLE item THEN DO:
+                    IF AVAILABLE item AND item.s-dep GT 0 THEN   
+                        cFormattedScoresLiberty = TRIM(STRING(dItemScoreLength16ths, ">>>>.99")) + " x " 
+                                                + TRIM(STRING(dItemScoreWidth16ths, ">>>>.99")) + " x " 
+                                                + TRIM(STRING(dItemScoreDepth16ths, ">>>>.99")).
+                    ELSE
+                        cFormattedScoresLiberty = TRIM(STRING(dItemScoreWidth16ths, ">>>>.99")).
+                END.
+                ELSE
+                    cFormattedScoresLiberty = cItemWidth16ths.
+            END.
+                
             RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineScoresData, cRequestDataType).            
             
             lcLineData = REPLACE(lcLineData, "$lineAdder$", lcConcatLineAdderData).
@@ -1500,8 +1565,13 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSize16thsWestrock", cScoreSize16thsWestrock).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalHRMS1", cScoreSizeDecimalHRMS1).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalHRMS2", cScoreSizeDecimalHRMS2).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSize16thsHRMS1", cScoreSize16thsHRMS1).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSize16thsHRMS2", cScoreSize16thsHRMS2).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "FormattedScoring", cFormattedScoresWestrock).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "FormattedScoringLiberty", cFormattedScoresLiberty).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemScoreLength16ths", STRING(dItemScoreLength16ths)).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemScoreWidth16ths", STRING(dItemScoreWidth16ths)).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemScoreDepth16ths", STRING(dItemScoreDepth16ths)).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalAlliFlutes", cScoreSizeDecimalAlliFlutes).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeAlliance", cScoreSizeDecimalAlliance).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalKiwi", cScoreSizeDecimalKiwi).
@@ -1577,6 +1647,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "freightTerms", cFreightTerms).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "freightFOB", cFreightFOB).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "buyer", cBuyer).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BuyerEmailID", cBuyerEmailID).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poNotes", cPoNotes).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "fobCode", cFOBCode).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custAreaCode", cCustAreaCode).
@@ -1608,6 +1679,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPPlantID",cGPPlantID).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPBillto",cGPBillto). 
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TimeLiberty",cTimeLiberty). 
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrencyCode",cCurrencyCode).
             
         /* This replace is required for replacing nested JSON data */
         ioplcRequestData = REPLACE(ioplcRequestData, "$detail$", lcConcatLineData).

@@ -93,11 +93,17 @@ DEFINE VARIABLE h_apiclientxref1 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_apiclientxref1-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_apioutbound AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_apioutbound-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_apioutbound-3 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_apioutbound-4 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_apioutbound-5 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_apioutboundcontent AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_apioutboundcontent-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_apioutbounddetail AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_apioutbounddetail-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_apioutboundtrigger AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_apioutboundtrigger-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
@@ -106,6 +112,7 @@ DEFINE VARIABLE h_p-updapi-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updapi-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updapi-4 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updapi-5 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_q-apiclient AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 
@@ -125,19 +132,19 @@ DEFINE FRAME F-Main
          SIZE 160 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 14.6 ROW 1.1
-         SIZE 11 BY 1.9
-         BGCOLOR 15  WIDGET-ID 300.
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 111 ROW 2.95
          SIZE 50 BY 1.43
          BGCOLOR 15  WIDGET-ID 200.
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 14.6 ROW 1.1
+         SIZE 11 BY 1.9
+         BGCOLOR 15  WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -147,7 +154,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: ASI.APIOutbound
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
+   Design Page: 3
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -261,6 +268,7 @@ END.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 {custom/initializeprocs.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -296,12 +304,12 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_exit ).
        RUN set-position IN h_exit ( 1.00 , 153.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Segments|Triggers|Scope' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Content|Segments|Triggers|Scope' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
@@ -312,13 +320,14 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartObject h_options3. */
        RUN add-link IN adm-broker-hdl ( h_apioutbound , 'attach':U , h_options3 ).
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options3 ).
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options3 ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_options3 ,
-             FRAME message-frame:HANDLE , 'BEFORE':U ).
+             FRAME OPTIONS-FRAME:HANDLE , 'BEFORE':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_options3 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
@@ -334,6 +343,14 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 4.20 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/apioutbound.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Initial-Lock = NO-LOCK,
@@ -347,6 +364,9 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_apioutbound , 'export-xl':U , h_export ).
 
        /* Links to SmartBrowser h_apioutbound. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_apioutbound ).
@@ -367,7 +387,7 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = ?':U ,
              OUTPUT h_apioutbound-2 ).
        RUN set-position IN h_apioutbound-2 ( 6.71 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 18.57 , 157.00 ) */
+       /* Size in UIB:  ( 19.76 , 157.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.w':U ,
@@ -407,12 +427,78 @@ PROCEDURE adm-create-objects :
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewerid/apioutbound.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_apioutbound-5 ).
+       RUN set-position IN h_apioutbound-5 ( 4.57 , 12.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 139.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'browsers/apioutboundcontent.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_apioutboundcontent ).
+       RUN set-position IN h_apioutboundcontent ( 6.57 , 20.00 ) NO-ERROR.
+       RUN set-size IN h_apioutboundcontent ( 15.00 , 124.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/apioutboundcontent.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_apioutboundcontent-2 ).
+       RUN set-position IN h_apioutboundcontent-2 ( 21.71 , 27.00 ) NO-ERROR.
+       /* Size in UIB:  ( 4.76 , 112.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/p-updsav.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-updsav ).
+       RUN set-position IN h_p-updsav ( 26.71 , 45.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsav ( 2.38 , 76.00 ) NO-ERROR.
+
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1,2':U) NO-ERROR.
+
+       /* Links to SmartViewer h_apioutbound-5. */
+       RUN add-link IN adm-broker-hdl ( h_apioutbound , 'Record':U , h_apioutbound-5 ).
+
+       /* Links to SmartBrowser h_apioutboundcontent. */
+       RUN add-link IN adm-broker-hdl ( h_apioutbound-2 , 'Record':U , h_apioutboundcontent ).
+
+       /* Links to SmartViewer h_apioutboundcontent-2. */
+       RUN add-link IN adm-broker-hdl ( h_apioutboundcontent , 'Record':U , h_apioutboundcontent-2 ).
+       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_apioutboundcontent-2 ).
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_apioutbound-5 ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_apioutboundcontent ,
+             h_apioutbound-5 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_apioutboundcontent-2 ,
+             h_apioutboundcontent , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
+             h_apioutboundcontent-2 , 'AFTER':U ).
+    END. /* Page 3 */
+    WHEN 4 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewerid/apioutbound.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_apioutbound-3 ).
+       RUN set-position IN h_apioutbound-3 ( 4.81 , 14.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 139.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/apioutbounddetail.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_apioutbounddetail ).
-       RUN set-position IN h_apioutbounddetail ( 6.24 , 19.80 ) NO-ERROR.
-       RUN set-size IN h_apioutbounddetail ( 6.71 , 127.00 ) NO-ERROR.
+       RUN set-position IN h_apioutbounddetail ( 6.95 , 9.80 ) NO-ERROR.
+       RUN set-size IN h_apioutbounddetail ( 13.33 , 149.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/apioutbounddetail.w':U ,
@@ -423,8 +509,8 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = ?':U ,
              OUTPUT h_apioutbounddetail-2 ).
-       RUN set-position IN h_apioutbounddetail-2 ( 14.33 , 24.00 ) NO-ERROR.
-       /* Size in UIB:  ( 10.24 , 116.00 ) */
+       RUN set-position IN h_apioutbounddetail-2 ( 20.52 , 25.00 ) NO-ERROR.
+       /* Size in UIB:  ( 6.43 , 116.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-updapi.w':U ,
@@ -433,11 +519,14 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updapi-2 ).
-       RUN set-position IN h_p-updapi-2 ( 25.76 , 40.00 ) NO-ERROR.
+       RUN set-position IN h_p-updapi-2 ( 27.19 , 40.00 ) NO-ERROR.
        RUN set-size IN h_p-updapi-2 ( 2.14 , 82.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('1,2':U) NO-ERROR.
+
+       /* Links to SmartViewer h_apioutbound-3. */
+       RUN add-link IN adm-broker-hdl ( h_apioutbound , 'Record':U , h_apioutbound-3 ).
 
        /* Links to SmartBrowser h_apioutbounddetail. */
        RUN add-link IN adm-broker-hdl ( h_apioutbound-2 , 'Record':U , h_apioutbounddetail ).
@@ -447,29 +536,39 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-updapi-2 , 'TableIO':U , h_apioutbounddetail-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_apioutbounddetail ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_apioutbound-3 ,
              h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_apioutbounddetail ,
+             h_apioutbound-3 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_apioutbounddetail-2 ,
              h_apioutbounddetail , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updapi-2 ,
              h_apioutbounddetail-2 , 'AFTER':U ).
-    END. /* Page 3 */
-    WHEN 4 THEN DO:
+    END. /* Page 4 */
+    WHEN 5 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewerid/apioutbound.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_apioutbound-4 ).
+       RUN set-position IN h_apioutbound-4 ( 4.81 , 9.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 139.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/apioutboundtrigger.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_apioutboundtrigger ).
-       RUN set-position IN h_apioutboundtrigger ( 6.14 , 5.00 ) NO-ERROR.
-       RUN set-size IN h_apioutboundtrigger ( 6.71 , 153.00 ) NO-ERROR.
+       RUN set-position IN h_apioutboundtrigger ( 6.76 , 12.20 ) NO-ERROR.
+       RUN set-size IN h_apioutboundtrigger ( 15.48 , 134.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/apioutboundtrigger.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_apioutboundtrigger-2 ).
-       RUN set-position IN h_apioutboundtrigger-2 ( 14.81 , 17.40 ) NO-ERROR.
-       /* Size in UIB:  ( 7.38 , 127.20 ) */
+       RUN set-position IN h_apioutboundtrigger-2 ( 22.43 , 16.00 ) NO-ERROR.
+       /* Size in UIB:  ( 3.81 , 127.20 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-updapi.w':U ,
@@ -478,11 +577,14 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updapi-3 ).
-       RUN set-position IN h_p-updapi-3 ( 24.57 , 34.20 ) NO-ERROR.
+       RUN set-position IN h_p-updapi-3 ( 26.48 , 32.00 ) NO-ERROR.
        RUN set-size IN h_p-updapi-3 ( 2.24 , 97.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('1,2':U) NO-ERROR.
+
+       /* Links to SmartViewer h_apioutbound-4. */
+       RUN add-link IN adm-broker-hdl ( h_apioutbound , 'Record':U , h_apioutbound-4 ).
 
        /* Links to SmartBrowser h_apioutboundtrigger. */
        RUN add-link IN adm-broker-hdl ( h_apioutbound-2 , 'Record':U , h_apioutboundtrigger ).
@@ -492,14 +594,16 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-updapi-3 , 'TableIO':U , h_apioutboundtrigger-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_apioutboundtrigger ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_apioutbound-4 ,
              h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_apioutboundtrigger ,
+             h_apioutbound-4 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_apioutboundtrigger-2 ,
              h_apioutboundtrigger , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updapi-3 ,
              h_apioutboundtrigger-2 , 'AFTER':U ).
-    END. /* Page 4 */
-    WHEN 5 THEN DO:
+    END. /* Page 5 */
+    WHEN 6 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/apiclient.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -553,7 +657,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.86 , 10.80 ) */
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
        /* Links to SmartViewer h_apiclient. */
        RUN add-link IN adm-broker-hdl ( h_p-updapi-4 , 'TableIO':U , h_apiclient ).
@@ -580,7 +684,7 @@ PROCEDURE adm-create-objects :
              h_apiclientxref1 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updapi-5 ,
              h_apiclientxref1-2 , 'AFTER':U ).
-    END. /* Page 5 */
+    END. /* Page 6 */
 
   END CASE.
   /* Select a Startup page. */

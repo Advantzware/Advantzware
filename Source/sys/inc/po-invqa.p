@@ -6,15 +6,15 @@ def input  param v-recid        as   recid.
 def output param v-qty          as   dec.
 def output param v-amt          as   dec.
 
-{sys/inc/var.i shared}
-{sys/form/s-top.f}
+//{sys/inc/var.i shared}
+//{sys/form/s-top.f}
 
 
 find po-ordl where recid(po-ordl) eq v-recid no-lock no-error.
 
 if avail po-ordl then
 find first po-ord
-    where po-ord.company eq cocode
+    where po-ord.company eq po-ordl.company
       and po-ord.po-no   eq po-ordl.po-no
     no-lock no-error.
 
@@ -24,7 +24,7 @@ for each reftable
     no-lock,
     
     each ap-inv
-    where ap-inv.company eq cocode
+    where ap-inv.company eq po-ord.company
       and ap-inv.i-no    eq int(reftable.code2)
       and ap-inv.vend-no eq po-ord.vend-no
       and (ap-inv.po-no  eq po-ordl.po-no or ap-inv.po-no eq 0)

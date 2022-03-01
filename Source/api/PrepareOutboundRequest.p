@@ -41,6 +41,7 @@ IF AVAILABLE APIOutbound AND
         INPUT  APIOutbound.apiOutboundID,
         INPUT  ipiAPIOutboundTriggerID,        
         INPUT  APIOutbound.requestHandler,
+        INPUT  APIOutbound.requestDataType,
         INPUT-OUTPUT oplcRequestData,
         OUTPUT oplSuccess,
         OUTPUT opcMessage
@@ -63,6 +64,7 @@ PROCEDURE pPrepareRequest PRIVATE:
     DEFINE INPUT        PARAMETER ipiAPIOutboundID        AS INTEGER   NO-UNDO.
     DEFINE INPUT        PARAMETER ipiAPIOutboundTriggerID AS INTEGER   NO-UNDO.
     DEFINE INPUT        PARAMETER ipcRequestHandler       AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcRequestDataType      AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER oplcRequestData         AS LONGCHAR  NO-UNDO.
     DEFINE OUTPUT       PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage              AS CHARACTER NO-UNDO.
@@ -79,6 +81,10 @@ PROCEDURE pPrepareRequest PRIVATE:
             oplSuccess = FALSE
             opcMessage = "Request handler for API " + ipcAPIID + " not Found!"
             .
+        
+        IF ipcRequestDataType EQ "x-www-form-urlencoded" THEN
+            oplSuccess = TRUE.
+            
         RETURN.
     END. 
     
@@ -97,6 +103,8 @@ PROCEDURE pPrepareRequest PRIVATE:
             INPUT-OUTPUT oplcRequestData
             ).
 
-    DELETE PROCEDURE hdOutboundProcs.
-
+    FINALLY:
+        IF VALID-HANDLE(hdOutboundProcs) THEN
+            DELETE PROCEDURE hdOutboundProcs.
+    END.
 END PROCEDURE.

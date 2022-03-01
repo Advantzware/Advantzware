@@ -103,7 +103,8 @@ item.dept-name[7] item.dept-name[8] item.dept-name[9] item.dept-name[10] ~
 item.box-case item.speed%[1] item.speed%[2] item.speed%[3] item.speed%[4] ~
 item.speed%[5] item.speed%[6] item.speed%[7] item.speed%[8] item.speed%[9] ~
 item.speed%[10] item.case-pall item.stat item.sqin-lb item.linin-lb  ~
-item.ink-type item.press-type item.yield item.min-lbs item.spare-char-1 
+item.ink-type item.press-type item.yield item.min-lbs item.spare-char-1 ~
+item.wastePercent
 &Scoped-define ENABLED-TABLES item
 &Scoped-define FIRST-ENABLED-TABLE item
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-20 RECT-3 RECT-4 RECT-5 ~
@@ -120,7 +121,7 @@ item.dept-name[9] item.dept-name[10] item.box-case item.speed%[1] ~
 item.speed%[2] item.speed%[3] item.speed%[4] item.speed%[5] item.speed%[6] ~
 item.speed%[7] item.speed%[8] item.speed%[9] item.speed%[10] item.case-pall ~
 item.stat item.sqin-lb item.linin-lb item.ink-type item.press-type item.yield ~
-item.min-lbs item.spare-char-1 
+item.min-lbs item.spare-char-1 item.wastePercent
 &Scoped-define DISPLAYED-TABLES item
 &Scoped-define FIRST-DISPLAYED-TABLE item
 &Scoped-Define DISPLAYED-OBJECTS fi_mat-type mat_dscr u-ptd costtype_descr ~
@@ -606,6 +607,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
+     item.wastePercent AT ROW 14.71 COL 129 COLON-ALIGNED HELP
+          "This value will be used to calculate additional waste on top of the calculated required quantity in estimating.  This applies to material added as an additional miscellaneous material." WIDGET-ID 2
+          LABEL "Est. Waste %"
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1     
      item.spare-char-1 AT ROW 16.71 COL 129 COLON-ALIGNED HELP
           "" WIDGET-ID 2
           LABEL "Freight Class"
@@ -911,6 +917,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN item.min-lbs IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN item.wastePercent IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                    */   
 ASSIGN 
        item.min-lbs:HIDDEN IN FRAME F-Main           = TRUE
        item.min-lbs:PRIVATE-DATA IN FRAME F-Main     = 
@@ -1439,9 +1447,11 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-mat-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    FIND mat WHERE mat.mat EQ fi_mat-type:SCREEN-VALUE NO-LOCK NO-ERROR.
-    IF AVAIL mat THEN
-    mat_dscr:SCREEN-VALUE = mat.dscr.
+    FIND FIRST materialType NO-LOCK
+         WHERE materialType.company EQ cocode 
+         AND materialType.materialType EQ fi_mat-type:SCREEN-VALUE NO-ERROR.
+    IF AVAIL materialType THEN
+    mat_dscr:SCREEN-VALUE = materialType.materialDescription.
     IF LOOKUP(fi_mat-type:SCREEN-VALUE IN FRAME {&frame-name},"B,P") = 0 THEN
       asi.item.spare-char-1:HIDDEN = TRUE.
     ELSE
@@ -1458,10 +1468,12 @@ ON VALUE-CHANGED OF fi_mat-type IN FRAME F-Main /* Mat'l Type */
 DO:
   &Scoped-define mat-types-enable NO
 
-  FIND mat WHERE mat.mat EQ fi_mat-type:SCREEN-VALUE NO-LOCK NO-ERROR.
+  FIND FIRST materialType NO-LOCK
+       WHERE materialType.company EQ cocode 
+       AND materialType.materialType EQ fi_mat-type:SCREEN-VALUE NO-ERROR.
 
-  IF AVAIL mat THEN DO:
-    mat_dscr:SCREEN-VALUE = mat.dscr.
+  IF AVAIL materialType THEN DO:
+    mat_dscr:SCREEN-VALUE = materialType.materialDescription.
 
     &Scoped-define mat-types-enable YES
     DO WITH FRAME {&FRAME-NAME}:
@@ -1912,7 +1924,13 @@ PROCEDURE local-assign-record :
          locode = gloc
          fi_mat-type = lv-mat-type
          item.mat-type = lv-mat-type.
-
+         
+  FIND FIRST materialType NO-LOCK
+         WHERE materialType.company EQ cocode 
+         AND materialType.materialType EQ item.mat-type NO-ERROR.
+  IF AVAIL materialType THEN       
+  ITEM.materialType = materialType.materialTypeGroup.
+     
   IF adm-new-record AND item.mat-type = "D" THEN DO:  /* from rm/cpall.i */
      FIND FIRST bf-item WHERE bf-item.company = gcompany AND
                               bf-item.mat-type = "D" AND
@@ -2759,7 +2777,8 @@ PROCEDURE valid-mat-type :
   DO WITH FRAME {&FRAME-NAME}:
     fi_mat-type:SCREEN-VALUE = CAPS(fi_mat-type:SCREEN-VALUE).
 
-    IF NOT CAN-FIND(FIRST mat WHERE mat.mat EQ fi_mat-type:SCREEN-VALUE) THEN DO:
+    IF NOT CAN-FIND(FIRST materialType WHERE materialType.company EQ cocode
+                    AND materialType.materialType EQ fi_mat-type:SCREEN-VALUE) THEN DO:
       MESSAGE "Invalid Material Type. Try Help."  VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO fi_mat-type IN FRAME {&FRAME-NAME}.
       RETURN ERROR.
@@ -2895,3 +2914,6 @@ END.
 
   {methods/lValidateError.i NO}
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

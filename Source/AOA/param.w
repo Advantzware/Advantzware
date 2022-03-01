@@ -101,13 +101,13 @@ btnSelection-List btnToggle-Box
 &Scoped-define List-2 btnCombo-Box btnEditor btnFill-In btnRadio-Set ~
 btnSelection-List btnToggle-Box 
 &Scoped-define displayFields dynParam.paramID dynParam.paramName ~
-dynParam.paramLabel dynParam.paramType dynParam.action ~
+dynParam.paramLabel dynParam.action dynParam.paramType ~
 dynParam.actionParamName dynParam.dataType dynParam.paramFormat ~
 dynParam.viewAs dynParam.innerLines dynParam.paramWidth ~
 dynParam.paramHeight dynParam.initialValue dynParam.initialItems ~
 dynParam.initializeProc dynParam.validateProc dynParam.descriptionProc 
 &Scoped-define enabledFields dynParam.paramName dynParam.paramLabel ~
-dynParam.paramType dynParam.action dynParam.actionParamName ~
+dynParam.action dynParam.paramType dynParam.actionParamName ~
 dynParam.dataType dynParam.paramFormat dynParam.viewAs dynParam.innerLines ~
 dynParam.paramWidth dynParam.paramHeight dynParam.initialValue ~
 dynParam.initialItems dynParam.initializeProc dynParam.validateProc ~
@@ -192,12 +192,12 @@ DEFINE FRAME F-Main
 DEFINE FRAME viewFrame
      btnCombo-Box AT ROW 22.19 COL 26 HELP
           "Create New COMBO-BOX" WIDGET-ID 190
+     btnEditor AT ROW 22.19 COL 33 HELP
+          "Create New EDITOR" WIDGET-ID 192
      dynParam.paramID AT ROW 1.24 COL 20 COLON-ALIGNED WIDGET-ID 166
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     btnEditor AT ROW 22.19 COL 33 HELP
-          "Create New EDITOR" WIDGET-ID 192
      dynParam.paramName AT ROW 2.43 COL 20 COLON-ALIGNED WIDGET-ID 170 FORMAT "x(40)"
           VIEW-AS FILL-IN 
           SIZE 50 BY 1
@@ -206,15 +206,15 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 50 BY 1
           BGCOLOR 15 
+     dynParam.action AT ROW 4.81 COL 45 NO-LABEL WIDGET-ID 186
+          VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
+          LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL","START DESCRIPTION","END DESCRIPTION","LIST-ITEM-PAIRS","SORT","SESSION PARAMETER" 
+          SIZE 27 BY 11.43
      dynParam.paramType AT ROW 5.76 COL 20 COLON-ALIGNED WIDGET-ID 180
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEMS "System","User" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
-     dynParam.action AT ROW 5.76 COL 45 NO-LABEL WIDGET-ID 186
-          VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-          LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL","START DESCRIPTION","END DESCRIPTION","LIST-ITEM-PAIRS" 
-          SIZE 27 BY 10.48
      dynParam.actionParamName AT ROW 6.95 COL 20 COLON-ALIGNED WIDGET-ID 302
           LABEL "Action Param Name"
           VIEW-AS FILL-IN 
@@ -230,8 +230,8 @@ DEFINE FRAME viewFrame
           SIZE 22 BY 1
           BGCOLOR 15 
      dynParam.viewAs AT ROW 10.52 COL 20 COLON-ALIGNED WIDGET-ID 184
-          VIEW-AS COMBO-BOX INNER-LINES 6
-          LIST-ITEMS "Combo-Box","Editor","Fill-In","Radio-Set","Selection-List","Toggle-Box" 
+          VIEW-AS COMBO-BOX INNER-LINES 7
+          LIST-ITEMS "Combo-Box","Editor","Fill-In","Radio-Set","Selection-List","Toggle-Box","Button" 
           DROP-DOWN-LIST
           SIZE 22 BY 1
      dynParam.innerLines AT ROW 11.71 COL 20 COLON-ALIGNED WIDGET-ID 160
@@ -264,12 +264,6 @@ DEFINE FRAME viewFrame
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
-     dynParam.descriptionProc AT ROW 20.05 COL 20 COLON-ALIGNED WIDGET-ID 300
-          LABEL "Descript Procedure"
-          VIEW-AS COMBO-BOX SORT INNER-LINES 100
-          LIST-ITEMS "Item 1" 
-          DROP-DOWN-LIST
-          SIZE 50 BY 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 76 ROW 1
@@ -278,6 +272,12 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     dynParam.descriptionProc AT ROW 20.05 COL 20 COLON-ALIGNED WIDGET-ID 300
+          LABEL "Descript Procedure"
+          VIEW-AS COMBO-BOX SORT INNER-LINES 100
+          LIST-ITEMS "Item 1" 
+          DROP-DOWN-LIST
+          SIZE 50 BY 1
      btnFill-In AT ROW 22.19 COL 40 HELP
           "Create New FILL-IN" WIDGET-ID 194
      btnRadio-Set AT ROW 22.19 COL 47 HELP
@@ -287,7 +287,7 @@ DEFINE FRAME viewFrame
      btnToggle-Box AT ROW 22.19 COL 61 HELP
           "Create New TOGGLE-BOX" WIDGET-ID 200
      "Action:" VIEW-AS TEXT
-          SIZE 7 BY .81 AT ROW 4.81 COL 45 WIDGET-ID 188
+          SIZE 7 BY .81 AT ROW 4.81 COL 37 WIDGET-ID 188
      RECT-9 AT ROW 21.95 COL 25 WIDGET-ID 288
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -630,6 +630,31 @@ PROCEDURE disable_UI :
   HIDE FRAME F-Main.
   HIDE FRAME viewFrame.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy s-object 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hDynDescripProc) THEN
+    DELETE PROCEDURE hDynDescripProc.
+    IF VALID-HANDLE(hDynInitProc) THEN
+    DELETE PROCEDURE hDynInitProc.
+    IF VALID-HANDLE(hDynValProc) THEN
+    DELETE PROCEDURE hDynValProc.
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1171,8 +1196,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTableHandle s-object
-PROCEDURE pTableHandle:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTableHandle s-object 
+PROCEDURE pTableHandle :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1182,7 +1207,7 @@ PROCEDURE pTableHandle:
     ophTable = BUFFER dynParam:HANDLE.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

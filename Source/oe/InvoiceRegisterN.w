@@ -127,10 +127,10 @@ DEFINE            VARIABLE v-ttl-tax         AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE v-ttl-rate        AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE cItemFgCat        LIKE itemfg.procat NO-UNDO.
 
-DEFINE VARIABLE cFieldInProcess AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cFieldPostType  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cFieldUserId    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cFieldDateTime  AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE cFieldInProcess   AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE cFieldPostType    AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE cFieldUserId      AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE cFieldDateTime    AS CHARACTER NO-UNDO.
 
 
 {oe/ttSaveLine.i}
@@ -222,12 +222,10 @@ END.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date begin_cust end_cust ~
 begin_inv end_inv begin_date end_date tb_detailed tb_detailed-2 tb_ton ~
-tb_export rd-dest lv-ornt lines-per-page lv-font-no td-show-parm btn-ok ~
-btn-cancel 
+tb_export rd-dest tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tran-date tran-period begin_cust end_cust ~
 begin_inv end_inv begin_date end_date tb_detailed tb_detailed-2 tb_ton ~
-tb_export rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
-td-show-parm 
+tb_export rd-dest tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -240,161 +238,165 @@ td-show-parm
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
-     LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+    LABEL "&Cancel" 
+    SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
-     LABEL "&OK" 
-     SIZE 15 BY 1.14.
+    LABEL "&OK" 
+    SIZE 16 BY 1.29.
 
-DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Beginning Cust No" 
-     VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_cust     AS CHARACTER FORMAT "X(256)":U 
+    LABEL "Beginning Cust No" 
+    VIEW-AS FILL-IN 
+    SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Beginning Invoice Date" 
-     VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
+    LABEL "Beginning Invoice Date" 
+    VIEW-AS FILL-IN 
+    SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_inv AS INTEGER FORMAT ">>>>>>>>>" INITIAL 0 
-     LABEL "Beginning Invoice#" 
-     VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+DEFINE VARIABLE begin_inv      AS INTEGER   FORMAT ">>>>>>>>>" INITIAL 0 
+    LABEL "Beginning Invoice#" 
+    VIEW-AS FILL-IN 
+    SIZE 17 BY 1.
 
-DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzzz" 
-     LABEL "Ending Cust No" 
-     VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE end_cust       AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzzz" 
+    LABEL "Ending Cust No" 
+    VIEW-AS FILL-IN 
+    SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
-     LABEL "Ending Invoice Date" 
-     VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
+    LABEL "Ending Invoice Date" 
+    VIEW-AS FILL-IN 
+    SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_inv AS INTEGER FORMAT ">>>>>>>>>" INITIAL 999999999 
-     LABEL "Ending Invoice#" 
-     VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+DEFINE VARIABLE end_inv        AS INTEGER   FORMAT ">>>>>>>>>" INITIAL 999999999 
+    LABEL "Ending Invoice#" 
+    VIEW-AS FILL-IN 
+    SIZE 17 BY 1.
 
-DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
-     LABEL "Lines Per Page" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY 1 NO-UNDO.
+DEFINE VARIABLE lines-per-page AS INTEGER   FORMAT ">>":U INITIAL 99 
+    LABEL "Lines Per Page" 
+    VIEW-AS FILL-IN 
+    SIZE 4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
-     VIEW-AS FILL-IN 
-     SIZE 62 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-name   AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
+    VIEW-AS FILL-IN 
+    SIZE 62 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
-     LABEL "Font" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-no     AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
+    LABEL "Font" 
+    VIEW-AS FILL-IN 
+    SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tran-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Post Date" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+DEFINE VARIABLE tran-date      AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
+    LABEL "Post Date" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tran-period AS INTEGER FORMAT ">>":U INITIAL 0 
-     LABEL "Period" 
-     VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+DEFINE VARIABLE tran-period    AS INTEGER   FORMAT ">>":U INITIAL 0 
+    LABEL "Period" 
+    VIEW-AS FILL-IN 
+    SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "Portrait", "P",
-"Landscape", "L"
-     SIZE 30 BY .95 NO-UNDO.
+DEFINE VARIABLE lv-ornt        AS CHARACTER INITIAL "P" 
+    VIEW-AS RADIO-SET HORIZONTAL
+    RADIO-BUTTONS 
+    "Portrait", "P",
+    "Landscape", "L"
+    SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
-     VIEW-AS RADIO-SET VERTICAL
-     RADIO-BUTTONS 
-          "To Printer", 1,
-"To Screen", 2,
-"To File", 3,
-"To Fax", 4,
-"To Email", 5,
-"To Port Directly", 6
-     SIZE 19 BY 6.67 NO-UNDO.
+DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2 
+    VIEW-AS RADIO-SET VERTICAL
+    RADIO-BUTTONS 
+    "To Printer", 1,
+    "To Screen", 2,
+    "To Email", 5,
+    "To File", 3
+    SIZE 16.4 BY 5 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 7.38.
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    SIZE 91 BY 5.48.
 
 DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 12.38.
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    SIZE 91 BY 11.33.
 
-DEFINE VARIABLE tb_detailed AS LOGICAL INITIAL no 
-     LABEL "Invoice Report Detailed?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 28 BY 1 NO-UNDO.
+DEFINE VARIABLE tbAutoClose   AS LOGICAL INITIAL NO 
+    LABEL "Auto Close" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_detailed-2 AS LOGICAL INITIAL no 
-     LABEL "G/L Report Detailed?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 28 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_detailed   AS LOGICAL INITIAL NO 
+    LABEL "Invoice Report Detailed?" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 28 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_export AS LOGICAL INITIAL no 
-     LABEL "Export/FTP  Invoices?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 24 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_detailed-2 AS LOGICAL INITIAL NO 
+    LABEL "G/L Report Detailed?" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 28 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_ton AS LOGICAL INITIAL no 
-     LABEL "Print $/Ton?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 28 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_export     AS LOGICAL INITIAL NO 
+    LABEL "Export/FTP  Invoices?" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 24 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
-     LABEL "Show Parameters?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 24 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_ton        AS LOGICAL INITIAL NO 
+    LABEL "Print $/Ton?" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 28 BY 1 NO-UNDO.
+
+DEFINE VARIABLE td-show-parm  AS LOGICAL INITIAL NO 
+    LABEL "Show Parameters?" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 24 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     tran-date AT ROW 2.43 COL 44 COLON-ALIGNED
-     tran-period AT ROW 3.62 COL 44 COLON-ALIGNED
-     begin_cust AT ROW 5.05 COL 27 COLON-ALIGNED
-     end_cust AT ROW 5.05 COL 69 COLON-ALIGNED
-     begin_inv AT ROW 6.24 COL 27 COLON-ALIGNED HELP
-          "Enter Beginning Invoice Number"
-     end_inv AT ROW 6.24 COL 69 COLON-ALIGNED HELP
-          "Enter Ending Invoice Number"
-     begin_date AT ROW 7.43 COL 27 COLON-ALIGNED HELP
-          "Enter Beginning Invoice Date"
-     end_date AT ROW 7.43 COL 69 COLON-ALIGNED HELP
-          "Enter Ending Invoice Date"
-     tb_detailed AT ROW 8.76 COL 36
-     tb_detailed-2 AT ROW 9.71 COL 36
-     tb_ton AT ROW 10.67 COL 36
-     tb_export AT ROW 11.62 COL 36
-     rd-dest AT ROW 14.81 COL 5 NO-LABEL
-     lv-ornt AT ROW 15.05 COL 29 NO-LABEL
-     lines-per-page AT ROW 15.05 COL 82 COLON-ALIGNED
-     lv-font-no AT ROW 17.43 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 18.38 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 19.81 COL 30
-     btn-ok AT ROW 22.19 COL 24
-     btn-cancel AT ROW 22.19 COL 59
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
-          BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .95 AT ROW 13.86 COL 3
-     RECT-6 AT ROW 14.33 COL 1
-     RECT-7 AT ROW 1 COL 1
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1.6 ROW 1.24
-         SIZE 94.4 BY 22.91.
+    tran-date AT ROW 2.29 COL 44 COLON-ALIGNED
+    tran-period AT ROW 3.48 COL 44 COLON-ALIGNED
+    begin_cust AT ROW 4.91 COL 28.4 COLON-ALIGNED
+    end_cust AT ROW 4.91 COL 70.4 COLON-ALIGNED
+    begin_inv AT ROW 6.1 COL 28.4 COLON-ALIGNED HELP
+    "Enter Beginning Invoice Number"
+    end_inv AT ROW 6.1 COL 70.4 COLON-ALIGNED HELP
+    "Enter Ending Invoice Number"
+    begin_date AT ROW 7.29 COL 28.4 COLON-ALIGNED HELP
+    "Enter Beginning Invoice Date"
+    end_date AT ROW 7.29 COL 70.4 COLON-ALIGNED HELP
+    "Enter Ending Invoice Date"
+    tb_detailed AT ROW 8.62 COL 36
+    tb_detailed-2 AT ROW 9.57 COL 36
+    tb_ton AT ROW 10.52 COL 36
+    tb_export AT ROW 11.48 COL 36
+    lv-font-no AT ROW 13.52 COL 33.2 COLON-ALIGNED
+    rd-dest AT ROW 13.62 COL 4.6 NO-LABELS
+    lv-ornt AT ROW 13.62 COL 42.6 NO-LABELS
+    lines-per-page AT ROW 13.62 COL 86.6 COLON-ALIGNED
+    lv-font-name AT ROW 14.71 COL 28.8 COLON-ALIGNED NO-LABELS
+    td-show-parm AT ROW 17.67 COL 31.2
+    tbAutoClose AT ROW 19 COL 31.2 WIDGET-ID 64
+    btn-ok AT ROW 20.05 COL 31
+    btn-cancel AT ROW 20.05 COL 52.8
+    " Selection Parameters" VIEW-AS TEXT
+    SIZE 21 BY .71 AT ROW 1.1 COL 4
+    " Output Destination" VIEW-AS TEXT
+    SIZE 19 BY .76 AT ROW 12.91 COL 4
+    RECT-6 AT ROW 13.38 COL 3
+    RECT-7 AT ROW 1.57 COL 3
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 1
+    SIZE 95 BY 20.67
+    BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -411,30 +413,30 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-  CREATE WINDOW C-Win ASSIGN
-         HIDDEN             = YES
-         TITLE              = "Invoice Register"
-         HEIGHT             = 23.24
-         WIDTH              = 95.8
-         MAX-HEIGHT         = 33.29
-         MAX-WIDTH          = 204.8
-         VIRTUAL-HEIGHT     = 33.29
-         VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
-         BGCOLOR            = ?
-         FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+    CREATE WINDOW C-Win ASSIGN
+        HIDDEN             = YES
+        TITLE              = "Invoice Register"
+        HEIGHT             = 20.67
+        WIDTH              = 95
+        MAX-HEIGHT         = 33.29
+        MAX-WIDTH          = 204.8
+        VIRTUAL-HEIGHT     = 33.29
+        VIRTUAL-WIDTH      = 204.8
+        RESIZE             = YES
+        SCROLL-BARS        = NO
+        STATUS-AREA        = YES
+        BGCOLOR            = ?
+        FGCOLOR            = ?
+        KEEP-FRAME-Z-ORDER = YES
+        THREE-D            = YES
+        MESSAGE-AREA       = NO
+        SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -449,55 +451,67 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 ASSIGN 
-       begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    begin_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 ASSIGN 
-       begin_inv:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    begin_inv:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 ASSIGN 
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
+    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
 
 ASSIGN 
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
+    btn-ok:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
 
 ASSIGN 
-       end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    end_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 ASSIGN 
-       end_inv:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    end_inv:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+
+/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    lines-per-page:HIDDEN IN FRAME FRAME-A = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-       tb_detailed:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    lv-font-name:HIDDEN IN FRAME FRAME-A = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    lv-font-no:HIDDEN IN FRAME FRAME-A = TRUE.
+
+/* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    lv-ornt:HIDDEN IN FRAME FRAME-A = TRUE.
 
 ASSIGN 
-       tb_detailed-2:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    tb_detailed:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 ASSIGN 
-       tb_export:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    tb_detailed-2:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 ASSIGN 
-       tb_ton:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    tb_export:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 ASSIGN 
-       tran-date:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    tb_ton:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+
+/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    td-show-parm:HIDDEN IN FRAME FRAME-A = TRUE.
+
+ASSIGN 
+    tran-date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 /* SETTINGS FOR FILL-IN tran-period IN FRAME FRAME-A
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+    THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -520,7 +534,7 @@ THEN C-Win:HIDDEN = no.
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Invoice Register */
-OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -534,10 +548,10 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Invoice Register */
-DO:         
+    DO:         
         RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
-                                        INPUT "postStartDtTm", INPUT cocode, INPUT STRING("OB4-" + STRING(cocode)), INPUT YES, 
-                                        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime). 
+            INPUT "postStartDtTm", INPUT cocode, INPUT STRING("OB4-" + STRING(cocode)), INPUT YES, 
+            OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime). 
         /* This event will close the window and terminate the procedure.  */
         DELETE OBJECT hNotesProcs.
         IF VALID-HANDLE(hdOutboundProcs) THEN
@@ -553,7 +567,7 @@ DO:
 &Scoped-define SELF-NAME begin_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Invoice Date */
-DO:
+    DO:
         ASSIGN {&self-name}.
         IF LASTKEY NE -1 AND MONTH(begin_date) NE MONTH(tran-date)  THEN
         DO:
@@ -570,7 +584,7 @@ DO:
 &Scoped-define SELF-NAME begin_inv
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_inv C-Win
 ON LEAVE OF begin_inv IN FRAME FRAME-A /* Beginning Invoice# */
-DO:
+    DO:
         ASSIGN {&self-name}.
     END.
 
@@ -581,11 +595,11 @@ DO:
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-DO:
+    DO:
     
         RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
-                                        INPUT "postStartDtTm", INPUT cocode, INPUT STRING("OB4-" + STRING(cocode)), INPUT YES, 
-                                        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime). 
+            INPUT "postStartDtTm", INPUT cocode, INPUT STRING("OB4-" + STRING(cocode)), INPUT YES, 
+            OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime). 
                                         
         IF VALID-HANDLE(hdOutboundProcs) THEN
             DELETE PROCEDURE hdOutboundProcs.
@@ -599,7 +613,7 @@ DO:
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
-DO:
+    DO:
         DEFINE VARIABLE lv-post      AS LOG       NO-UNDO.
         DEFINE VARIABLE v-close-line AS LOG       NO-UNDO.
         DEFINE VARIABLE cStatus      AS CHARACTER NO-UNDO.
@@ -704,19 +718,27 @@ DO:
                                 
                 IF oeclose-log THEN
                 DO:
-                   RUN pGetInvOrder.
+                    RUN pGetInvOrder.
                 
-                   RUN pCreateWOrd.
+                    RUN pCreateWOrd.
                 
-                   IF CAN-FIND (FIRST w-ord) THEN
-                   RUN oe/d-close.w.
+                    IF CAN-FIND (FIRST w-ord) THEN
+                        RUN oe/d-close.w.
                 END.
                 
             END.
         END.
 
         ELSE MESSAGE "No Invoices available for posting..." VIEW-AS ALERT-BOX ERROR.  
-        
+        IF tbAutoClose:CHECKED THEN DO:
+            RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
+                INPUT "postStartDtTm", INPUT cocode, INPUT STRING("OB4-" + STRING(cocode)), INPUT YES, 
+                OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime). 
+                                            
+            IF VALID-HANDLE(hdOutboundProcs) THEN
+                DELETE PROCEDURE hdOutboundProcs.
+            APPLY "close" TO THIS-PROCEDURE.
+        END. /* IF tbAutoClose:CHECKED THEN DO */
         SESSION:SET-WAIT-STATE("").
     END.
 
@@ -727,7 +749,7 @@ DO:
 &Scoped-define SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Invoice Date */
-DO:
+    DO:
         ASSIGN {&self-name}.
         
         IF LASTKEY NE -1 AND MONTH(end_date) NE MONTH(tran-date) THEN
@@ -745,7 +767,7 @@ DO:
 &Scoped-define SELF-NAME end_inv
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_inv C-Win
 ON LEAVE OF end_inv IN FRAME FRAME-A /* Ending Invoice# */
-DO:
+    DO:
         ASSIGN {&self-name}.
     END.
 
@@ -756,7 +778,7 @@ DO:
 &Scoped-define SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
-DO:
+    DO:
         ASSIGN {&self-name}.
     END.
 
@@ -767,7 +789,7 @@ DO:
 &Scoped-define SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
-DO:
+    DO:
         DEFINE VARIABLE char-val AS cha NO-UNDO.
 
         RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
@@ -782,7 +804,7 @@ DO:
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
-DO:
+    DO:
         ASSIGN lv-font-no.
     END.
 
@@ -793,7 +815,7 @@ DO:
 &Scoped-define SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
-DO:
+    DO:
         ASSIGN lv-ornt.
     END.
 
@@ -803,7 +825,7 @@ DO:
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
-DO:
+    DO:
         {custom/chgfont.i}
     END.
 
@@ -814,7 +836,7 @@ DO:
 &Scoped-define SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
-DO:
+    DO:
         ASSIGN {&self-name}.
     END.
 
@@ -825,7 +847,7 @@ DO:
 &Scoped-define SELF-NAME tb_detailed
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_detailed C-Win
 ON VALUE-CHANGED OF tb_detailed IN FRAME FRAME-A /* Invoice Report Detailed? */
-DO:
+    DO:
         ASSIGN {&self-name}.
     END.
 
@@ -836,7 +858,7 @@ DO:
 &Scoped-define SELF-NAME tb_detailed-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_detailed-2 C-Win
 ON VALUE-CHANGED OF tb_detailed-2 IN FRAME FRAME-A /* G/L Report Detailed? */
-DO:
+    DO:
         ASSIGN {&self-name}.
     END.
 
@@ -847,7 +869,7 @@ DO:
 &Scoped-define SELF-NAME tb_export
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_export C-Win
 ON VALUE-CHANGED OF tb_export IN FRAME FRAME-A /* Export/FTP  Invoices? */
-DO:
+    DO:
         ASSIGN {&self-name}.
     END.
 
@@ -858,7 +880,7 @@ DO:
 &Scoped-define SELF-NAME tb_ton
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_ton C-Win
 ON VALUE-CHANGED OF tb_ton IN FRAME FRAME-A /* Print $/Ton? */
-DO:
+    DO:
         IF {&self-name}:SCREEN-VALUE EQ "Yes" THEN
             lv-ornt:SCREEN-VALUE = "L".
     END.
@@ -870,7 +892,7 @@ DO:
 &Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
-DO:
+    DO:
         ASSIGN {&self-name}.
     END.
 
@@ -881,7 +903,7 @@ DO:
 &Scoped-define SELF-NAME tran-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-date C-Win
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
-DO:
+    DO:
         ASSIGN {&self-name}.
 
         IF LASTKEY NE -1 THEN 
@@ -899,7 +921,7 @@ DO:
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-date C-Win
 ON VALUE-CHANGED OF tran-date IN FRAME FRAME-A /* Post Date */
-DO:
+    DO:
         ll-warned = NO.
     END.
 
@@ -910,7 +932,7 @@ DO:
 &Scoped-define SELF-NAME tran-period
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-period C-Win
 ON LEAVE OF tran-period IN FRAME FRAME-A /* Period */
-DO:
+    DO:
         ASSIGN {&self-name}.
     END.
 
@@ -963,9 +985,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF AVAILABLE inv-head THEN begin_inv = inv-head.inv-no.
 
     end_date = TODAY.
-
+    btn-ok:LOAD-IMAGE("Graphics/32x32/Ok.png").
+    btn-cancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
     RUN enable_UI.
-
+    {sys/inc/reportsConfigNK1.i "OB4" }
+    ASSIGN
+        td-show-parm:SENSITIVE = lShowParameters
+        td-show-parm:HIDDEN    = NOT lShowParameters
+        td-show-parm:VISIBLE   = lShowParameters
+        .
     {methods/nowait.i}
 
     DO WITH FRAME {&frame-name}:
@@ -994,12 +1022,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
     
     RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
-                                        INPUT "postStartDtTm", INPUT cocode, INPUT STRING("OB4-" + cocode), INPUT NO, 
-                                        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
+        INPUT "postStartDtTm", INPUT cocode, INPUT STRING("OB4-" + cocode), INPUT NO, 
+        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
     IF cFieldInProcess EQ "Yes" THEN
     DO:    
         MESSAGE "Another user " cFieldUserId " started posting from " cFieldPostType " at " cFieldDateTime " and this process does not " 
-        "support multiple people posting at the same time. Please try again later." VIEW-AS ALERT-BOX INFO.
+            "support multiple people posting at the same time. Please try again later." VIEW-AS ALERT-BOX INFORMATION.
         APPLY "close" TO THIS-PROCEDURE.
         RETURN .
     END.
@@ -1020,11 +1048,11 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-tax-gr C-Win 
 PROCEDURE calc-tax-gr :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipr-head-row AS ROWID.
     DEFINE INPUT PARAMETER ipi-inv-no LIKE inv-head.inv-no NO-UNDO.
 
@@ -1127,11 +1155,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-tons C-Win 
 PROCEDURE calc-tons :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ip-i-no LIKE itemfg.i-no NO-UNDO.
     DEFINE INPUT  PARAMETER ip-qty AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER op-weight AS DECIMAL NO-UNDO.
@@ -1153,21 +1181,21 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-date C-Win 
 PROCEDURE check-date :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO. 
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO. 
     DO WITH FRAME {&frame-name}:
         v-invalid = NO.
         
-        RUN GL_CheckModClosePeriod(input cocode, input DATE(tran-date), input "AR", output cMessage, output lSuccess ) .  
-        IF NOT lSuccess then 
+        RUN GL_CheckModClosePeriod(INPUT cocode, INPUT DATE(tran-date), INPUT "AR", OUTPUT cMessage, OUTPUT lSuccess ) .  
+        IF NOT lSuccess THEN 
         DO:
-           MESSAGE cMessage VIEW-AS ALERT-BOX INFO.
-           v-invalid = YES.
+            MESSAGE cMessage VIEW-AS ALERT-BOX INFORMATION.
+            v-invalid = YES.
         END.  
 
         FIND FIRST period                   
@@ -1184,18 +1212,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Delete the WINDOW we created */
-  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-  THEN DELETE WIDGET C-Win.
-  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+    /*------------------------------------------------------------------------------
+      Purpose:     DISABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we clean-up the user-interface by deleting
+                   dynamic widgets we have created and/or hide 
+                   frames.  This procedure is usually called when
+                   we are ready to "clean-up" after running.
+    ------------------------------------------------------------------------------*/
+    /* Delete the WINDOW we created */
+    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+        THEN DELETE WIDGET C-Win.
+    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1203,25 +1231,25 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     ENABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we display/view/enable the widgets in the
-               user-interface.  In addition, OPEN all queries
-               associated with each FRAME and BROWSE.
-               These statements here are based on the "Other 
-               Settings" section of the widget Property Sheets.
-------------------------------------------------------------------------------*/
-  DISPLAY tran-date tran-period begin_cust end_cust begin_inv end_inv begin_date 
-          end_date tb_detailed tb_detailed-2 tb_ton tb_export rd-dest lv-ornt 
-          lines-per-page lv-font-no lv-font-name td-show-parm 
-      WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 tran-date begin_cust end_cust begin_inv end_inv 
-         begin_date end_date tb_detailed tb_detailed-2 tb_ton tb_export rd-dest 
-         lv-ornt lines-per-page lv-font-no td-show-parm btn-ok btn-cancel 
-      WITH FRAME FRAME-A IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-  VIEW C-Win.
+    /*------------------------------------------------------------------------------
+      Purpose:     ENABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we display/view/enable the widgets in the
+                   user-interface.  In addition, OPEN all queries
+                   associated with each FRAME and BROWSE.
+                   These statements here are based on the "Other 
+                   Settings" section of the widget Property Sheets.
+    ------------------------------------------------------------------------------*/
+    DISPLAY tran-date tran-period begin_cust end_cust begin_inv end_inv begin_date 
+        end_date tb_detailed tb_detailed-2 tb_ton tb_export rd-dest 
+        tbAutoClose 
+        WITH FRAME FRAME-A IN WINDOW C-Win.
+    ENABLE RECT-6 RECT-7 tran-date begin_cust end_cust begin_inv end_inv 
+        begin_date end_date tb_detailed tb_detailed-2 tb_ton tb_export rd-dest 
+        tbAutoClose btn-ok btn-cancel 
+        WITH FRAME FRAME-A IN WINDOW C-Win.
+    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+    VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1229,11 +1257,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE list-gl C-Win 
 PROCEDURE list-gl :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
 
     {sys/form/r-top3w.f} 
 
@@ -1441,7 +1469,7 @@ PROCEDURE list-gl :
                     ld-t[2]    = - ld-t[2].
             ELSE*/
             IF FIRST-OF(ttGLTransaction.account) THEN
-            v-disp-amt = 0.
+                v-disp-amt = 0.
             
             ASSIGN 
                 v-disp-amt = v-disp-amt + ttGLTransaction.amount.
@@ -1738,23 +1766,23 @@ PROCEDURE list-gl :
                 dTotOffSet    = dTotOffSet + dec(ttGLTransaction.amount) .
                 
             IF v-gldetail THEN 
-                DO:
-                    ASSIGN
-                        ld-t[1] = dRecTot / 2000
-                        ld-pton = v-disp-amt / ld-t[1].
+            DO:
+                ASSIGN
+                    ld-t[1] = dRecTot / 2000
+                    ld-pton = v-disp-amt / ld-t[1].
 
-                    IF ld-pton EQ ? THEN ld-pton = 0.
+                IF ld-pton EQ ? THEN ld-pton = 0.
 
-                    DISPLAY ttGLTransaction.account     @ account.actnum
-                        v-dscr
-                        ttGLTransaction.amount    @ v-tmp-amt
-                        ld-pton FORMAT "->>>>>>9.999" 
-                        WHEN tb_ton 
-                        ld-t[1] 
-                        WHEN tb_ton 
-                        WITH FRAME gl-det.
-                    DOWN WITH FRAME gl-det.  
-                END.    
+                DISPLAY ttGLTransaction.account     @ account.actnum
+                    v-dscr
+                    ttGLTransaction.amount    @ v-tmp-amt
+                    ld-pton FORMAT "->>>>>>9.999" 
+                    WHEN tb_ton 
+                    ld-t[1] 
+                    WHEN tb_ton 
+                    WITH FRAME gl-det.
+                DOWN WITH FRAME gl-det.  
+            END.    
                 
             IF LAST-OF(ttGLTransaction.account) THEN 
             DO:
@@ -1783,9 +1811,9 @@ PROCEDURE list-gl :
         END.    /* for each "act-rece"*/ 
         v-balance = 0 .
         FOR EACH ttGLTransaction NO-LOCK
-                BREAK BY ttGLTransaction.account:  
-           ASSIGN                     
-            v-balance = v-balance + dec(ttGLTransaction.amount) .
+            BREAK BY ttGLTransaction.account:  
+            ASSIGN                     
+                v-balance = v-balance + dec(ttGLTransaction.amount) .
         END.     
         
         IF v-gldetail THEN
@@ -1830,11 +1858,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE list-post-inv C-Win 
 PROCEDURE list-post-inv :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-list-post AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER b-oe-boll FOR oe-boll.
@@ -2082,11 +2110,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-file C-Win 
 PROCEDURE output-to-file :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
     {custom/out2file.i}     
 
 END PROCEDURE.
@@ -2096,11 +2124,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-port C-Win 
 PROCEDURE output-to-port :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     RUN custom/d-print.w (list-name).
 
 END PROCEDURE.
@@ -2110,11 +2138,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
 END PROCEDURE.
 
@@ -2123,11 +2151,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
 PROCEDURE output-to-screen :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     RUN scr-rpt-d.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 
 END PROCEDURE.
@@ -2137,22 +2165,22 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateWOrd C-Win 
 PROCEDURE pCreateWOrd :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-    ------------------------------------------------------------------------------*/        
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+        ------------------------------------------------------------------------------*/        
     
     FOR EACH w-ord :
-     DELETE w-ord.
+        DELETE w-ord.
     END.     
     
     FOR EACH ttOrderToUpdate 
         WHERE ttOrderToUpdate.isClose :  
-         CREATE w-ord.
-         ASSIGN 
-             w-ord.ord-no = ttOrderToUpdate.orderID
-             w-ord.rec-id = ttOrderToUpdate.reOeOrd.
+        CREATE w-ord.
+        ASSIGN 
+            w-ord.ord-no = ttOrderToUpdate.orderID
+            w-ord.rec-id = ttOrderToUpdate.reOeOrd.
     END.       
     
 END PROCEDURE.
@@ -2162,11 +2190,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetHeader C-Win 
 PROCEDURE pGetHeader :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        -----------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            -----------------------------------------------------------------------------*/
        
     DEFINE VARIABLE httSource AS HANDLE NO-UNDO.
     DEFINE VARIABLE httTarget AS HANDLE NO-UNDO.
@@ -2185,11 +2213,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInvLine C-Win 
 PROCEDURE pGetInvLine :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DEFINE VARIABLE httSource AS HANDLE NO-UNDO.
     DEFINE VARIABLE httTarget AS HANDLE NO-UNDO.     
     
@@ -2208,11 +2236,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInvOrder C-Win 
 PROCEDURE pGetInvOrder :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DEFINE VARIABLE httSource AS HANDLE NO-UNDO.
     DEFINE VARIABLE httTarget AS HANDLE NO-UNDO.  
         
@@ -2231,11 +2259,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMiscLine C-Win 
 PROCEDURE pGetMiscLine :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DEFINE VARIABLE httSource AS HANDLE NO-UNDO.
     DEFINE VARIABLE httTarget AS HANDLE NO-UNDO.    
     
@@ -2254,11 +2282,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGLTransaction C-Win 
 PROCEDURE pGLTransaction :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DEFINE VARIABLE httSource AS HANDLE NO-UNDO.
     DEFINE VARIABLE httTarget AS HANDLE NO-UNDO.    
     
@@ -2277,10 +2305,10 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunApiOutboundTrigger C-Win 
 PROCEDURE pRunApiOutboundTrigger :
-/*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-inv-head FOR inv-head.
 
     DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
@@ -2291,7 +2319,8 @@ PROCEDURE pRunApiOutboundTrigger :
     DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
    
 
-    IF AVAILABLE ipbf-inv-head AND ipbf-inv-head.t-inv-rev NE 0 THEN DO:    
+    IF AVAILABLE ipbf-inv-head AND ipbf-inv-head.t-inv-rev NE 0 AND NOT ipbf-inv-head.ediInvoice THEN 
+    DO:    
         ASSIGN 
             cAPIID       = "SendInvoice"
             cTriggerID   = "PostInvoice"
@@ -2324,7 +2353,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-/* ---------------------------------------------------- oe/invpost.p 10/94 gb */
+    /* ---------------------------------------------------- oe/invpost.p 10/94 gb */
     /* Invoicing  - Edit Register & Post Invoicing Transactions                   */
     /* -------------------------------------------------------------------------- */
     DEFINE BUFFER xinv-head FOR inv-head.
@@ -2378,7 +2407,7 @@ PROCEDURE run-report :
         v-e-date,
         begin_cust,
         end_cust,
-        TODAY,
+        DATE(tran-date),
         "",
         OUTPUT iProcessed,
         OUTPUT iValid,
@@ -2396,26 +2425,27 @@ PROCEDURE run-report :
     RUN pGLTransaction .
     
     FIND FIRST ttInvoiceLineToPost NO-LOCK NO-ERROR.
-    IF AVAIL ttInvoiceLineToPost THEN
-    v-trnum = ttInvoiceLineToPost.runID.
-    ELSE DO:
-      FIND FIRST ttInvoiceMiscToPost NO-LOCK NO-ERROR.
-        IF AVAIL ttInvoiceMiscToPost THEN
-        v-trnum = ttInvoiceMiscToPost.runID.      
+    IF AVAILABLE ttInvoiceLineToPost THEN
+        v-trnum = ttInvoiceLineToPost.runID.
+    ELSE 
+    DO:
+        FIND FIRST ttInvoiceMiscToPost NO-LOCK NO-ERROR.
+        IF AVAILABLE ttInvoiceMiscToPost THEN
+            v-trnum = ttInvoiceMiscToPost.runID.      
     END.
     
     ASSIGN
-    str-tit2 = TRIM(c-win:TITLE) + " - " +
+        str-tit2 = TRIM(c-win:TITLE) + " - " +
                TRIM(STRING(tb_detailed,"Detail/Summary")) +
                " - RUN# " + TRIM(STRING(v-trnum))
-    {sys/inc/ctrtext.i str-tit2 112}
+        {sys/inc/ctrtext.i str-tit2 112}
 
-    str-tit3 = "Period " + string(tran-period,"99") + " - " +
+        str-tit3 = "Period " + string(tran-period,"99") + " - " +
                IF AVAILABLE period THEN
                (STRING(period.pst) + " to " + STRING(period.pend)) ELSE ""
-    {sys/inc/ctrtext.i str-tit3 132}
+        {sys/inc/ctrtext.i str-tit3 132}
 
-    str-tit4   = "Post Date " + STRING(tran-date, "99/99/99").
+        str-tit4 = "Post Date " + STRING(tran-date, "99/99/99").
         
     {sys/inc/print1.i}
 
@@ -2444,11 +2474,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lv-frame-hdl  AS HANDLE  NO-UNDO.
     DEFINE VARIABLE lv-group-hdl  AS HANDLE  NO-UNDO.
     DEFINE VARIABLE lv-field-hdl  AS HANDLE  NO-UNDO.
@@ -2518,11 +2548,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE undo-save-line C-Win 
 PROCEDURE undo-save-line :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DISABLE TRIGGERS FOR LOAD OF inv-line.
     DISABLE TRIGGERS FOR LOAD OF inv-misc.
     
@@ -2554,11 +2584,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-date C-Win 
 PROCEDURE valid-date :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DEFINE VARIABLE ll AS LOG NO-UNDO.
 
 

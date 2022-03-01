@@ -35,6 +35,7 @@ DEFINE VARIABLE lvReturnChar    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvFound         AS LOG       NO-UNDO.
 DEFINE VARIABLE autofgissue-log AS LOGICAL   NO-UNDO. /* set and used */
 DEFINE VARIABLE v-fgpostgl      AS CHARACTER NO-UNDO. /* set by fgpostgl nk1 value */
+DEFINE VARIABLE cDescription    AS CHARACTER NO-UNDO.
 
 /* ***************************  Definitions  ************************** */
 {methods/defines/hndldefs.i}
@@ -51,6 +52,8 @@ DEFINE BUFFER b-prgrms FOR prgrms.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
+
+{api/ttReceipt.i}
 
 ASSIGN
     cocode = gcompany
@@ -387,7 +390,10 @@ PROCEDURE add-rel-for-qty:
         RUN CopyShipNote (bf-orig-oe-rel.rec_key, oe-rel.rec_key).
         
         IF oe-rel.qty LT 0 THEN oe-rel.qty = 0.
-
+         
+        IF AVAIL bf-oe-ordl THEN
+        oe-rel.tot-qty = (oe-ordl.qty - v-qty-sum) .
+        ELSE
         oe-rel.tot-qty = oe-rel.qty.
 
         IF oe-rel.rel-date LE v-lst-rel THEN oe-rel.rel-date = v-lst-rel + 1.
@@ -506,6 +512,8 @@ PROCEDURE fg-post:
     DEFINE BUFFER b-po-ordl   FOR po-ordl.
     DEFINE BUFFER b-oe-ordl   FOR oe-ordl.
     DEFINE BUFFER b-w-fg-rctd FOR w-fg-rctd.  
+    DEFINE BUFFER bf-po-ordl  FOR po-ordl.
+    
     DEFINE VARIABLE v-one-item     AS LOG.
     DEFINE VARIABLE v-dec          AS DECIMAL   DECIMALS 10.
     DEFINE VARIABLE v-po-no        LIKE rm-rcpt.po-no NO-UNDO.
@@ -550,7 +558,8 @@ PROCEDURE fg-post:
     DEFINE VARIABLE lFGSetAssembly AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cFGSetAssembly AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFGSetAdjust   AS CHARACTER NO-UNDO.
-
+    DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
+    
     SESSION:SET-WAIT-STATE ("general").
 
     FIND FIRST period NO-LOCK
@@ -594,7 +603,9 @@ PROCEDURE fg-post:
     
     DISABLE TRIGGERS FOR LOAD OF itemfg.
     DISABLE TRIGGERS FOR LOAD OF b-oe-ordl.
-
+    
+    EMPTY TEMP-TABLE ttReceipt.
+    
     /* Handle Manually created job farm out records */
     FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code = "F":       
         RUN manualFarmOut.
@@ -676,6 +687,25 @@ PROCEDURE fg-post:
                     FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
                     FIND CURRENT po-ordl NO-LOCK NO-ERROR.
                     FIND CURRENT fg-bin NO-LOCK NO-ERROR.
+
+                    IF AVAILABLE fg-rcpth AND AVAILABLE fg-rdtlh AND fg-rcpth.rita-code EQ "R" THEN DO: 
+                        CREATE ttReceipt.
+                        ASSIGN
+                            iCount                 = iCount + 1
+                            ttReceipt.lineID       = iCount                                    
+                            ttReceipt.company      = fg-rcpth.company
+                            ttReceipt.location     = fg-rcpth.loc
+                            ttReceipt.poID         = INTEGER(fg-rcpth.po-no)
+                            ttReceipt.poLine       = fg-rcpth.po-line
+                            ttReceipt.jobID        = fg-rcpth.job-no
+                            ttReceipt.jobID2       = fg-rcpth.job-no2
+                            ttReceipt.itemID       = fg-rcpth.i-no
+                            ttReceipt.itemName     = IF fg-rcpth.i-name EQ "" THEN fg-rcpth.i-no ELSE fg-rcpth.i-name
+                            ttReceipt.quantityUOM  = "EA"
+                            ttReceipt.quantity     = fg-rdtlh.qty
+                            ttReceipt.rcpthRowID   = ROWID(fg-rcpth)
+                            .
+                    END.                    
                     LEAVE loop1.
                 END. /* IF AVAIL itemfg */
                 PAUSE 1 NO-MESSAGE.  /* This limits the "thrash" of DB checks and network traffic to 1/sec rather than 12K/sec */ 
@@ -971,12 +1001,12 @@ PROCEDURE fg-post:
                              period.pnum,
                              "A",
                              v-post-date,
-                             "",
+                             work-job.cDesc,
                              "FG").
         END. /* each work-job */
     END.
 
-
+    RUN pRunAPIOutboundTrigger.
 /*    Now handled in calling program                                 */
 /*    IF v-got-fgemail THEN                                          */
 /*    DO:                                                            */
@@ -1115,9 +1145,6 @@ PROCEDURE gl-from-work:
     DEF INPUT PARAM ip-run AS INT NO-UNDO.
     DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
 
-    DEF VAR credits AS DEC INIT 0 NO-UNDO.
-    DEF VAR debits  AS DEC INIT 0 NO-UNDO. 
-
     FIND FIRST period
         WHERE period.company EQ cocode
         AND period.pst     LE v-post-date
@@ -1129,29 +1156,20 @@ PROCEDURE gl-from-work:
         OR (ip-run EQ 2 AND work-gl.job-no EQ "")
         BREAK BY work-gl.actnum:
 
-        ASSIGN
-            debits  = debits  + work-gl.debits
-            credits = credits + work-gl.credits.
-
-        IF LAST-OF(work-gl.actnum) THEN 
-        DO:
           RUN GL_SpCreateGLHist(cocode,
                              work-gl.actnum,
                              "FGPOST",
                              (IF work-gl.job-no NE "" THEN "FG Receipt from Job"
                                                       ELSE "FG Receipt from PO"),
                              v-post-date,
-                             (debits - credits),
+                             (work-gl.debits - work-gl.credits),
                              ip-trnum,
                              period.pnum,
                              "A",
                              v-post-date,
-                             "",
+                             work-gl.cDesc,
                              "FG").
-          ASSIGN
-             debits          = 0
-             credits         = 0.
-        END.
+
     END.
 
 
@@ -1483,6 +1501,59 @@ PROCEDURE process-releases:
 
 END PROCEDURE.
 
+PROCEDURE pRunAPIOutboundTrigger PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
+
+    IF NOT TEMP-TABLE ttReceipt:HAS-RECORDS THEN
+        RETURN.
+            
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+                             
+    RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+        INPUT  ttReceipt.company,                                  /* Company Code (Mandatory) */
+        INPUT  ttReceipt.loc,                                      /* Location Code (Mandatory) */
+        INPUT  "SendReceipts",                                     /* API ID (Mandatory) */
+        INPUT  "",                                                 /* Scope ID */
+        INPUT  "",                                                 /* Scoped Type */
+        INPUT  "FGPost",                                           /* Trigger ID (Mandatory) */
+        INPUT  "TTReceiptHandle",                                  /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  STRING(TEMP-TABLE ttReceipt:HANDLE),                /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  "FGPost",                                           /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  "Triggered from RM Post",                           /* Event's description (Optional) */
+        OUTPUT lSuccess,                                           /* Success/Failure flag */
+        OUTPUT cMessage                                            /* Status message */
+        ) NO-ERROR.
+
+    FOR EACH ttReceipt:
+        IF ttReceipt.jobID NE "" THEN
+            RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+                INPUT  ttReceipt.company,                                  /* Company Code (Mandatory) */
+                INPUT  ttReceipt.loc,                                      /* Location Code (Mandatory) */
+                INPUT  "SendReceipt",                                      /* API ID (Mandatory) */
+                INPUT  "",                                                 /* Scope ID */
+                INPUT  "",                                                 /* Scoped Type */
+                INPUT  "JobFGPost",                                        /* Trigger ID (Mandatory) */
+                INPUT  "fg-rcpth",                                         /* Comma separated list of table names for which data being sent (Mandatory) */
+                INPUT  STRING(ttReceipt.rcpthRowID),                       /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                INPUT  "FGPost",                                           /* Primary ID for which API is called for (Mandatory) */   
+                INPUT  "Triggered from FG Post",                           /* Event's description (Optional) */
+                OUTPUT lSuccess,                                           /* Success/Failure flag */
+                OUTPUT cMessage                                            /* Status message */
+                ) NO-ERROR.
+    END.
+                
+    EMPTY TEMP-TABLE ttReceipt.
+        
+    DELETE PROCEDURE hdOutboundProcs. 
+
+END PROCEDURE.
+
 PROCEDURE replace-actrel-qty:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -1690,15 +1761,12 @@ FUNCTION fCanCloseJob RETURNS LOGICAL
                       AND job-hdr.job-no  EQ job.job-no
                       AND job-hdr.job-no2 EQ job.job-no2
                       AND ROWID(job-hdr)  NE lv-rowid
-                      AND NOT CAN-FIND(FIRST b-itemfg
+                      AND NOT CAN-FIND(FIRST b-itemfg //Exclude purchased items or unassembled set headers
                                        WHERE b-itemfg.company EQ job-hdr.company
                                          AND b-itemfg.i-no    EQ job-hdr.i-no
-                                         AND b-itemfg.pur-man EQ YES)
-                      AND NOT CAN-FIND(FIRST eb
-                                       WHERE eb.company  EQ job.company
-                                         AND eb.est-no   EQ job.est-no
-                                         AND eb.stock-no EQ job-hdr.i-no
-                                         AND eb.pur-man  EQ YES):
+                                         AND (b-itemfg.pur-man EQ YES OR 
+                                            (b-itemfg.isaset AND b-itemfg.alloc)))
+                      :
                   /* get underrun quantity, v-find-qty, uses ll-qty-changed */
                   {fg/closejob.i}
         

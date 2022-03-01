@@ -58,8 +58,9 @@ DEF VAR cTestAud AS CHAR NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS rsDB1 rsDB2 btQueryBuilder btSuperProcs ~
-btDataDigger btEditor btLockMon btMonitorUsers btProTools btSwitchMode 
+&Scoped-Define ENABLED-OBJECTS btSettingTypes btEditor rsDB1 rsDB2 ~
+btProTools btRunningrProcs btQueryBuilder btSuperProcs btDataDigger ~
+btLockMon btMonitorUsers btSwitchMode 
 &Scoped-Define DISPLAYED-OBJECTS rsDB1 rsDB2 fiMode 
 
 /* Custom List Definitions                                              */
@@ -82,7 +83,7 @@ DEFINE BUTTON btDataDigger
      SIZE 8 BY 1.91 TOOLTIP "Data Digger".
 
 DEFINE BUTTON btEditor 
-     IMAGE-UP FILE "Graphics/32x32/edit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/editold.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Run Editor" 
      SIZE 8 BY 1.91 TOOLTIP "Progress Editor".
 
@@ -105,6 +106,16 @@ DEFINE BUTTON btQueryBuilder
      IMAGE-UP FILE "adeicon/rbuild%.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Query Builder" 
      SIZE 8 BY 1.91 TOOLTIP "Query Builder".
+
+DEFINE BUTTON btRunningrProcs 
+     IMAGE-UP FILE "Graphics/32x32/elements_cascade.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Running Procedures" 
+     SIZE 8 BY 1.91 TOOLTIP "Running Procedures".
+
+DEFINE BUTTON btSettingTypes 
+     IMAGE-UP FILE "Graphics/32x32/window_gearold.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Setting Types" 
+     SIZE 8 BY 1.91 TOOLTIP "Setting Types".
 
 DEFINE BUTTON btSuperProcs 
      IMAGE-UP FILE "Graphics/32x32/elements_tree.ico":U NO-FOCUS FLAT-BUTTON
@@ -138,29 +149,31 @@ DEFINE VARIABLE rsDB2 AS CHARACTER
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 73 BY 2.38
+     SIZE 91 BY 2.38
      BGCOLOR 15 .
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     btSettingTypes AT ROW 1.48 COL 75
+     btEditor AT ROW 1.48 COL 30
      rsDB1 AT ROW 3.86 COL 2 NO-LABEL
-     rsDB2 AT ROW 3.86 COL 30 NO-LABEL
+     rsDB2 AT ROW 3.86 COL 40 NO-LABEL
+     btProTools AT ROW 1.48 COL 39 WIDGET-ID 2
+     fiMode AT ROW 3.86 COL 83 COLON-ALIGNED
+     btRunningrProcs AT ROW 1.48 COL 66 WIDGET-ID 28
      btQueryBuilder AT ROW 1.48 COL 12
-     fiMode AT ROW 3.86 COL 65 COLON-ALIGNED
      btSuperProcs AT ROW 1.48 COL 57 WIDGET-ID 26
      btDataDigger AT ROW 1.48 COL 3 WIDGET-ID 20
-     btEditor AT ROW 1.48 COL 30
      btLockMon AT ROW 1.48 COL 21 WIDGET-ID 18
      btMonitorUsers AT ROW 1.48 COL 48
-     btProTools AT ROW 1.48 COL 39 WIDGET-ID 2
-     btSwitchMode AT ROW 1.48 COL 66
+     btSwitchMode AT ROW 1.48 COL 84
      RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 75 BY 4.05.
+         SIZE 92 BY 4.05.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -181,12 +194,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Programmer's Toolbox"
          HEIGHT             = 4.05
-         WIDTH              = 75
+         WIDTH              = 92
          MAX-HEIGHT         = 4.05
-         MAX-WIDTH          = 75
+         MAX-WIDTH          = 92
          VIRTUAL-HEIGHT     = 4.05
-         VIRTUAL-WIDTH      = 75
-         RESIZE             = yes
+         VIRTUAL-WIDTH      = 92
+         MAX-BUTTON         = no
+         RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = no
          BGCOLOR            = ?
@@ -311,6 +325,28 @@ DO:
         END. 
     END CASE.
     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btRunningrProcs
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btRunningrProcs C-Win
+ON CHOOSE OF btRunningrProcs IN FRAME DEFAULT-FRAME /* Running Procedures */
+DO:
+    RUN sys/isRunning.w.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btSettingTypes
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSettingTypes C-Win
+ON CHOOSE OF btSettingTypes IN FRAME DEFAULT-FRAME /* Setting Types */
+DO:
+    RUN util/settingType.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -473,6 +509,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF NOT lResult THEN ASSIGN btEditor:VISIBLE = FALSE.
     ELSE ASSIGN iNumOK = iNumOK + 1.
 
+    RUN epCanAccess IN hPgmSecurity ("util/wPgmrToolbox.w", "SettingTypes", OUTPUT lResult).
+    IF NOT lResult THEN ASSIGN btSettingTypes:VISIBLE = FALSE.
+    ELSE ASSIGN iNumOK = iNumOK + 1.
 
     DELETE OBJECT hPgmSecurity.
     IF iNumOK = 0 THEN DO:
@@ -524,8 +563,9 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY rsDB1 rsDB2 fiMode 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE rsDB1 rsDB2 btQueryBuilder btSuperProcs btDataDigger btEditor 
-         btLockMon btMonitorUsers btProTools btSwitchMode 
+  ENABLE btSettingTypes btEditor rsDB1 rsDB2 btProTools btRunningrProcs 
+         btQueryBuilder btSuperProcs btDataDigger btLockMon btMonitorUsers 
+         btSwitchMode 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

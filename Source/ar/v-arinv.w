@@ -51,8 +51,6 @@ DEFINE VARIABLE Is-add-dup-inv AS CHARACTER NO-UNDO .
 DEFINE VARIABLE oeInvAddDate-Int AS INTEGER NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
-DEFINE VARIABLE lEDI810Visible AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lEDI810NewValue AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
 
 {sys/inc/VAR.i "new shared"}
@@ -63,9 +61,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "InvAddDate", "I" /* Logical */, NO /* chec
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    oeInvAddDate-Int = INTEGER(cRtnChar) NO-ERROR.
-
-RUN util/checkModule.p (INPUT "", INPUT "EdIvTran.", INPUT NO, OUTPUT lEDI810Visible).
+    oeInvAddDate-Int = INTEGER(cRtnChar) NO-ERROR.  
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 
@@ -96,7 +92,7 @@ DEFINE QUERY external_tables FOR ar-inv.
 &Scoped-Define ENABLED-FIELDS ar-inv.cust-no ar-inv.ship-id ar-inv.inv-no ~
 ar-inv.po-no ar-inv.inv-date ar-inv.due-date ar-inv.printed ar-inv.period ~
 ar-inv.tax-code ar-inv.terms ar-inv.cust-name ar-inv.disc-% ~
-ar-inv.disc-days ar-inv.carrier ar-inv.f-bill ar-inv.freight 
+ar-inv.disc-days ar-inv.carrier ar-inv.f-bill ar-inv.freight ar-inv.ediInvoice 
 &Scoped-define ENABLED-TABLES ar-inv
 &Scoped-define FIRST-ENABLED-TABLE ar-inv
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 RECT-1 RECT-5 
@@ -105,10 +101,10 @@ ar-inv.po-no ar-inv.inv-date ar-inv.due-date ar-inv.printed ar-inv.period ~
 ar-inv.tax-code ar-inv.terms ar-inv.terms-d ar-inv.cust-name ar-inv.disc-% ~
 ar-inv.disc-days ar-inv.carrier ar-inv.f-bill ar-inv.freight ar-inv.tax-amt ~
 ar-inv.gross ar-inv.disc-taken ar-inv.paid ar-inv.due ar-inv.curr-code[1] ~
-ar-inv.ex-rate 
+ar-inv.ex-rate ar-inv.ediInvoice
 &Scoped-define DISPLAYED-TABLES ar-inv
 &Scoped-define FIRST-DISPLAYED-TABLE ar-inv
-&Scoped-Define DISPLAYED-OBJECTS ship_name tbEdiInvoice 
+&Scoped-Define DISPLAYED-OBJECTS ship_name  
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -171,12 +167,6 @@ DEFINE RECTANGLE RECT-1
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 42 BY 3.81.
-
-DEFINE VARIABLE tbEdiInvoice AS LOGICAL INITIAL no 
-     LABEL "EDI Invoice?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 26 BY .81 NO-UNDO.
-
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -265,7 +255,10 @@ DEFINE FRAME F-Main
           LABEL "Exchange Rate"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     tbEdiInvoice AT ROW 9.43 COL 89 WIDGET-ID 2
+     ar-inv.ediInvoice AT ROW 9.43 COL 80 COLON-ALIGNED
+         LABEL "No EDI" 
+         VIEW-AS TOGGLE-BOX
+         SIZE 26 BY .81
      btnCalendar-1 AT ROW 5.29 COL 39.2
      btnCalendar-2 AT ROW 6.24 COL 39.2
      RECT-1 AT ROW 1 COL 1
@@ -368,8 +361,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ar-inv.tax-code IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR TOGGLE-BOX tbEdiInvoice IN FRAME F-Main
-   NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX ar-inv.ediInvoice IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ar-inv.terms-d IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -615,20 +608,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tbEdiInvoice
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbEdiInvoice V-table-Win
-ON VALUE-CHANGED OF tbEdiInvoice IN FRAME F-Main /* EDI Invoice? */
-DO:
-  ASSIGN tbEdiInvoice.
-  
-  lEDI810NewValue = tbEdiInvoice.
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME ar-inv.terms
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-inv.terms V-table-Win
 ON ENTRY OF ar-inv.terms IN FRAME F-Main /* Terms Code */
@@ -853,11 +832,7 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   /*ar-inv.f-bill = ar-inv.freight GT 0.*/
-  
-  DO WITH FRAME {&FRAME-NAME}:     
-     ar-inv.ediInvoice = tbEdiInvoice:SCREEN-VALUE EQ "YES".  
-  END. 
-  
+      
   FIND FIRST cust WHERE cust.company = g_company
                     AND cust.cust-no = ar-inv.cust-no NO-LOCK NO-ERROR.  
     IF cOldShipto NE ar-inv.ship-id then do:                    
@@ -926,6 +901,8 @@ PROCEDURE local-assign-record :
 
   END. /* adm-adding-record */
 
+  RUN pUpdateTaxGroup.
+  
   /* gdm - 02270909 */
   FIND FIRST ar-invl EXCLUSIVE-LOCK
       WHERE ar-invl.x-no EQ ar-inv.x-no NO-ERROR.
@@ -957,11 +934,8 @@ PROCEDURE local-cancel-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-          
-  DO WITH FRAME F-Main:
-    DISABLE tbEdiInvoice.
-  END.
+  /* Code placed here will execute AFTER standard behavior.    */           
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1027,9 +1001,7 @@ PROCEDURE local-disable :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-  DO WITH FRAME F-Main:
-    DISABLE tbEdiInvoice.
-  END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1063,12 +1035,7 @@ PROCEDURE local-display-fields :
           AND currency.c-code  EQ ar-inv.curr-code[1]:SCREEN-VALUE
         NO-ERROR.
     IF AVAIL currency THEN
-      ar-inv.ex-rate:SCREEN-VALUE = STRING(currency.ex-rate).
- 
-    If NOT adm-new-record THEN 
-      tbEdiInvoice:SCREEN-VALUE = (IF AVAILABLE(ar-inv) AND ar-inv.ediInvoice = YES THEN "YES" ELSE "NO").
-    ELSE
-      tbEdiInvoice:SCREEN-VALUE = (IF lEdi810NewValue = YES THEN "YES" ELSE "NO").
+      ar-inv.ex-rate:SCREEN-VALUE = STRING(currency.ex-rate).    
 
   END.
 
@@ -1091,11 +1058,7 @@ PROCEDURE local-enable :
 
   /* Code placed here will execute AFTER standard behavior.    */
            
-  DO WITH FRAME F-Main:
-    DISABLE tbEdiInvoice.
-      IF NOT  lEDI810Visible THEN 
-          tbEdiInvoice:VISIBLE = FALSE.
-  END.
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1118,10 +1081,7 @@ PROCEDURE local-update-record :
 
   RUN valid-cust-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
- 
-  DO WITH FRAME  {&FRAME-NAME}:
-  DISABLE tbEdiInvoice.
-  END.
+    
   DO WITH FRAME {&FRAME-NAME}:
      {&methods/lValidateError.i YES}
      {VALIDATE/stax.i ar-inv.tax-code}
@@ -1547,20 +1507,13 @@ PROCEDURE proc-enable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
-   DO WITH FRAME  {&FRAME-NAME}:
-     IF lEDI810Visible THEN 
-       ENABLE tbEdiInvoice.
-     ELSE 
-       tbEDIInvoice:VISIBLE = FALSE.
-   END.
+      
    IF NOT adm-new-record THEN
-     IF ar-inv.posted THEN DO:
-        DEF VAR char-hdl AS cha NO-UNDO.
-        MESSAGE "This invoice has been posted. No changes are allowed!" 
-                VIEW-AS ALERT-BOX ERROR.
-        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-source", OUTPUT char-hdl).
-        RUN apply-cancel IN WIDGET-HANDLE(char-hdl).
+     IF ar-inv.posted THEN DO:        
+       DO WITH FRAME {&FRAME-NAME}:
+         DISABLE ALL .
+         ENABLE ar-inv.ediInvoice.
+       END. 
      END.
 
      ELSE
@@ -1568,6 +1521,28 @@ PROCEDURE proc-enable :
        ar-inv.cust-no:SENSITIVE = NO.
        APPLY "entry" TO ar-inv.ship-id.
      END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateTaxGroup V-table-Win 
+PROCEDURE pUpdateTaxGroup :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE BUFFER bf-ar-invl FOR ar-invl.
+  
+  FOR EACH bf-ar-invl EXCLUSIVE-LOCK
+      WHERE bf-ar-invl.company EQ cocode
+      AND bf-ar-invl.x-no EQ ar-inv.x-no:
+      ASSIGN 
+          bf-ar-invl.taxGroup = ar-inv.tax-code. 
+  END.
+  RELEASE bf-ar-invl.
 
 END PROCEDURE.
 

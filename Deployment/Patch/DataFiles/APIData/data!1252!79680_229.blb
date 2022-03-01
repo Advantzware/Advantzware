@@ -1,0 +1,7 @@
+$formfeed$
+$JobHeader$
+<#12><C2><R8><FROM><C80><R+52><RECT><||3><C80>
+<=12><R+1><C5>Image: FG Item Image          Form No:$FormNo|>99|INT|$ Blank No:$BlankNo|>99|INT|$
+<=12><R+2><C2><FROM><C80><LINE><||3>
+<=12><R+3><C3><#21><R+46><C+76><IMAGE#21=$ImageFile$>
+<C74><R64>Page: $PageNumber$ of <#PAGES>

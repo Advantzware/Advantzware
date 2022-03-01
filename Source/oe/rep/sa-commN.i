@@ -25,10 +25,16 @@
           where ar-invl.x-no eq ar-inv.x-no
             and ((tb_prep AND ar-invl.billable) or not ar-invl.misc)
           no-lock:
-        
-        RUN oe/invlcomp.p (ROWID(ar-invl), OUTPUT ll-comp).
-        
-        IF ll-comp THEN NEXT.
+          
+        FIND FIRST oe-ord NO-LOCK
+             WHERE oe-ord.company EQ ar-invl.company
+               AND oe-ord.ord-no  EQ ar-invl.ord-no  
+             NO-ERROR.
+        IF AVAILABLE oe-ord THEN
+        DO:          
+            RUN oe/invlcomp.p (ROWID(ar-invl), OUTPUT ll-comp).         
+            IF ll-comp THEN NEXT.
+        END.
         v-calc-cat = "".
         IF ar-invl.misc THEN DO:
             FIND FIRST prep NO-LOCK
@@ -129,10 +135,16 @@
             NO-LOCK:
 
           IF AVAIL ar-invl THEN DO:
-            RUN oe/invlcomp.p (ROWID(b-ar-invl), OUTPUT ll-comp).
-            IF ll-comp THEN NEXT.
+            FIND FIRST oe-ord NO-LOCK
+                 WHERE oe-ord.company EQ ar-invl.company
+                   AND oe-ord.ord-no  EQ ar-invl.ord-no  
+                 NO-ERROR.
+            IF AVAILABLE oe-ord THEN
+            DO:
+                RUN oe/invlcomp.p (ROWID(b-ar-invl), OUTPUT ll-comp).
+                IF ll-comp THEN NEXT.
+            END.
           END.
-
           IF v-cat NE "" THEN DO:
             RELEASE itemfg.
             IF NOT b-ar-invl.misc THEN
@@ -731,7 +743,7 @@
          END. 
       END.
       PUT UNFORMATTED cDisplay SKIP.
-      IF tb_excel THEN DO:
+      IF rd-dest = 3 THEN DO:
        cExcelDisplay = cExcelDisplay.
        PUT STREAM st-excell UNFORMATTED  
                cExcelDisplay SKIP.

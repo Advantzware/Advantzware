@@ -103,3 +103,12 @@
   ASSIGN v-cell = "R15C6".
   chExcelApplication:Goto(v-cell) NO-ERROR.
   ASSIGN chExcelApplication:ActiveCell:Value = v-over-under .
+
+  IF AVAIL est and est.estimateTypeID NE "Misc" THEN
+  DO:   
+    ASSIGN v-cell = "R17C7".
+    chExcelApplication:Goto(v-cell) NO-ERROR.
+    ASSIGN chExcelApplication:ActiveCell:Value = "$/MSF" .
+  END.
+
+

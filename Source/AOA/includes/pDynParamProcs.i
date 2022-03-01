@@ -2,12 +2,25 @@
 
 {AOA/includes/dynWidgets.i "{1}" " "}
 
+/* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pButtonClick:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+
+    FOR EACH dynSubjectParamSet NO-LOCK
+        WHERE dynSubjectParamSet.subjectID  EQ dynParamValue.subjectID,
+        FIRST dynParamSetDtl NO-LOCK
+        WHERE dynParamSetDtl.paramSetID     EQ dynSubjectParamSet.paramSetID
+          AND dynParamSetDtl.paramName      EQ iphWidget:NAME
+          AND dynParamSetDtl.validateProc NE ""
+        :
+        IF CAN-DO(hDynValProc:INTERNAL-ENTRIES,dynParamSetDtl.validateProc) THEN
+        RUN VALUE(dynParamSetDtl.validateProc) IN hDynValProc.
+    END. // each dunsubjectparamset
+
+END PROCEDURE.
+
 PROCEDURE pCalendar :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
     DEFINE VARIABLE calendarDate AS CHARACTER NO-UNDO.
@@ -20,11 +33,6 @@ PROCEDURE pCalendar :
 END PROCEDURE.
 
 PROCEDURE pDatePickList :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphWidget   AS HANDLE NO-UNDO.
     DEFINE INPUT PARAMETER iphCalendar AS HANDLE NO-UNDO.
     DEFINE INPUT PARAMETER iphPickList AS HANDLE NO-UNDO.
@@ -40,13 +48,12 @@ PROCEDURE pDatePickList :
     IF VALID-HANDLE(iphCalendar) THEN
     iphCalendar:SENSITIVE = iphPickList:SCREEN-VALUE EQ "Fixed Date".
 
+    IF lModified EQ NO AND lInitialized EQ YES THEN
+    lModified = iphWidget:MODIFIED.
+
 END PROCEDURE.
 
 PROCEDURE pInitDynParameters :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphFrame AS HANDLE NO-UNDO.
     
     DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
@@ -73,11 +80,6 @@ PROCEDURE pInitDynParameters :
 END PROCEDURE.
 
 PROCEDURE pParamAction :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
     DEFINE VARIABLE cAction    AS CHARACTER NO-UNDO.
@@ -144,11 +146,6 @@ PROCEDURE pParamAction :
 END PROCEDURE.
 
 PROCEDURE pParamValidate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
     DEFINE VARIABLE cErrorMsg  AS CHARACTER NO-UNDO.
@@ -197,11 +194,6 @@ PROCEDURE pParamValidate :
 END PROCEDURE.
 
 PROCEDURE pRecipients :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
     DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
@@ -213,16 +205,14 @@ PROCEDURE pRecipients :
 END PROCEDURE.
 
 PROCEDURE pSaveDynParamValues :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcOutputFormat AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE hWidget    AS HANDLE  NO-UNDO.
     DEFINE VARIABLE iSortOrder AS INTEGER NO-UNDO.
     
+    DEFINE BUFFER bDynSubjectParamSet FOR dynSubjectParamSet.
+    DEFINE BUFFER bDynParamSetDtl     FOR dynParamSetDtl.
+
     DO TRANSACTION:
         EMPTY TEMP-TABLE ttParamOrder.
         FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
@@ -260,6 +250,7 @@ PROCEDURE pSaveDynParamValues :
             :
             DELETE dynValueParam.
         END. /* each dynvalueparam */
+        iSortOrder = 500.
         FOR EACH ttParamOrder:
             CREATE dynValueParam.
             ASSIGN
@@ -281,6 +272,7 @@ PROCEDURE pSaveDynParamValues :
             hWidget = FRAME outputFrame:HANDLE
             hWidget = hWidget:FIRST-CHILD
             hWidget = hWidget:FIRST-CHILD
+            iSortOrder = 900
             .
         DO WHILE VALID-HANDLE(hWidget):
             IF CAN-DO("EDITOR,RADIO-SET,TOGGLE-BOX",hWidget:TYPE) THEN DO:
@@ -300,6 +292,29 @@ PROCEDURE pSaveDynParamValues :
             END. /* if hwidget:type */
             hWidget = hWidget:NEXT-SIBLING.
         END. /* do while */
+        iSortOrder = 0.
+        FOR EACH bDynSubjectParamSet NO-LOCK
+            WHERE bDynSubjectParamSet.subjectID EQ dynParamValue.subjectID,
+            EACH bDynParamSetDtl NO-LOCK
+            WHERE bDynParamSetDtl.paramSetID EQ bDynSubjectParamSet.paramSetID
+               BY bDynSubjectParamSet.sortOrder
+               BY bDynParamSetDtl.paramRow
+               BY bDynParamSetDtl.paramCol
+            :
+            FIND FIRST dynValueParam EXCLUSIVE-LOCK
+                 WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+                   AND dynValueParam.user-id      EQ dynParamValue.user-id
+                   AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+                   AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+                   AND dynValueParam.paramName    EQ bDynParamSetDtl.paramName
+                 NO-ERROR.
+                 .
+            IF AVAILABLE dynValueParam THEN
+            ASSIGN
+                iSortOrder              = iSortOrder + 1
+                dynValueParam.sortOrder = iSortOrder
+                .
+        END. // each bdynsubjectparamset
         RELEASE dynValueParam.
 &ENDIF        
     END. /* do trans */

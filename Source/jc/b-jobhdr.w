@@ -891,6 +891,16 @@ PROCEDURE local-delete-record :
      IF AVAIL bf-itemfg AND NOT bf-itemfg.pur-man THEN
       bf-itemfg.q-ono = bf-itemfg.q-ono - dJobQty.      
   END.
+  
+  IF AVAILABLE job AND NOT CAN-FIND(FIRST job-hdr of job) THEN
+  DO:  
+      FIND CURRENT job EXCLUSIVE-LOCK NO-ERROR.
+      DELETE job.
+     
+      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN reopen-query-main IN WIDGET-HANDLE(char-hdl).       
+  END.
 
 END PROCEDURE.
 
@@ -1032,6 +1042,22 @@ PROCEDURE local-update-record :
       RUN refresh-browser.
    END.
 
+   system.SharedConfig:Instance:SetValue(STRING(ROWID(job-hdr)), "Update").
+   
+   RUN api/ProcessOutboundRequest.p (
+       INPUT  job.company,                                     /* Company Code (Mandatory) */
+       INPUT  job.loc,                                         /* Location Code (Mandatory) */
+       INPUT  "SendJobAMS",                                    /* API ID (Mandatory) */
+       INPUT  "",                                              /* Scope ID */
+       INPUT  "",                                              /* Scope Type */
+       INPUT  "UpdateJobHeader",                               /* Trigger ID (Mandatory) */
+       INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
+       INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+       INPUT  job.job-no + "-" + STRING(job.job-no2, "99"),      /* Primary ID for which API is called for (Mandatory) */   
+       INPUT  "Update Job Header triggered from " + PROGRAM-NAME(1)    /* Event's description (Optional) */
+       ) NO-ERROR.
+   
+    system.SharedConfig:Instance:DeleteValue(STRING(ROWID(job-hdr))).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

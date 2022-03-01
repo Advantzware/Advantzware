@@ -37,9 +37,23 @@ DEFINE TEMP-TABLE w-probeit LIKE probeit
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE pQuoteAutoCreateFromEst:
+PROCEDURE Quote_CreateQuoteFromEst:
     /*------------------------------------------------------------------------------
      Purpose: Primary Public Procedure for calculating the estimate
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    
+    RUN pQuoteAutoCreateFromEst(iprwRowid, ipcCompany, ipcEstimateNo).
+    
+END.    
+
+
+PROCEDURE pQuoteAutoCreateFromEst PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Internal Procedure for calculating the estimate
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
@@ -255,7 +269,7 @@ PROCEDURE pCreateQuoteFromProbe PRIVATE:
             END.
 
             ASSIGN
-                quotehd.sman     = eb.sman  /* bf-eb.sman */
+                quotehd.sman     = cust.sman  /* bf-eb.sman */
                 quotehd.carrier  = eb.carrier  /*bf-eb.carrier */
                 quotehd.del-zone = eb.dest-code  /* bf-eb.dest-code */
                 quotehd.terms    = cust.terms
@@ -658,19 +672,24 @@ PROCEDURE pUpdateQuotePriceFromMatrix PRIVATE:
     DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     DEFINE BUFFER bf-quoteqty FOR quoteqty.
+    DEFINE BUFFER bf-quotehd FOR quotehd.
       FIND FIRST bf-oe-prmtx NO-LOCK WHERE ROWID(bf-oe-prmtx) EQ oprwRowid NO-ERROR.
       IF bf-oe-prmtx.quoteID NE 0 THEN
       DO:      
-         FIND FIRST quotehd
-              WHERE quotehd.company EQ bf-oe-prmtx.company                
-                AND quotehd.q-no    EQ bf-oe-prmtx.quoteID
-              NO-LOCK NO-ERROR.
-         IF AVAIL quotehd THEN
+         FIND FIRST bf-quotehd EXCLUSIVE-LOCK
+              WHERE bf-quotehd.company EQ bf-oe-prmtx.company                
+                AND bf-quotehd.q-no    EQ bf-oe-prmtx.quoteID
+              NO-ERROR.
+         IF AVAIL bf-quotehd THEN
          DO:
+            ASSIGN
+                 bf-quotehd.effectiveDate = bf-oe-prmtx.eff-date
+                 bf-quotehd.expireDate    = bf-oe-prmtx.exp-date.
+                
             FOR EACH quoteitm
-                WHERE quoteitm.company EQ quotehd.company
-                AND quoteitm.loc     EQ quotehd.loc
-                AND quoteitm.q-no    EQ quotehd.q-no
+                WHERE quoteitm.company EQ bf-quotehd.company
+                AND quoteitm.loc     EQ bf-quotehd.loc
+                AND quoteitm.q-no    EQ bf-quotehd.q-no
                 AND quoteitm.i-no    EQ bf-oe-prmtx.i-no 
                 EXCLUSIVE-LOCK :
                 
@@ -698,11 +717,11 @@ PROCEDURE pUpdateQuotePriceFromMatrix PRIVATE:
                     END.
                 END.     
             END. 
-         END.  /* AVAIL quotehd*/      
+         END.  /* AVAIL bf-quotehd*/      
       END.   /* bf-oe-prmtx.quoteID NE 0*/
 
       RELEASE bf-quoteqty.
-       
+      RELEASE bf-quotehd. 
    
 END PROCEDURE.
 
@@ -725,6 +744,7 @@ PROCEDURE pUnApprovedDuplicateQuote:
         AND bf-quotehd.cust-no EQ quotehd.cust-no
         AND bf-quotehd.ship-id EQ quotehd.ship-id
         AND bf-quotehd.pricingMethod EQ quotehd.pricingMethod
+        AND bf-quotehd.effectiveDate LT TODAY
         AND rowid(bf-quotehd) NE iprwRowid ,
         EACH quoteitm NO-LOCK
              WHERE quoteitm.company EQ bf-quotehd.company

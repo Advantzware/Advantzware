@@ -79,6 +79,10 @@ CLASS system.ConfigLoader:
                 RETURN SEARCH("system/SSLoadTagJobDesign.json").
             WHEN "SSLoadTagBOLDesign" THEN
                 RETURN SEARCH("system/SSLoadTagBOLDesign.json").
+            WHEN "SSLoadTagPODesign" THEN
+                RETURN SEARCH("system/SSLoadTagPODesign.json").
+            WHEN "SSLoadTagReprintDesign" THEN
+                RETURN SEARCH("system/SSLoadTagReprintDesign.json").
         END CASE.
     END METHOD.     
 
@@ -89,6 +93,10 @@ CLASS system.ConfigLoader:
             WHEN "SSLoadTagJobDesign" THEN
                 RETURN cCONFIG_TYPE_JSON.
             WHEN "SSLoadTagBOLDesign" THEN
+                RETURN cCONFIG_TYPE_JSON.
+            WHEN "SSLoadTagPODesign" THEN
+                RETURN cCONFIG_TYPE_JSON.
+            WHEN "SSLoadTagReprintDesign" THEN
                 RETURN cCONFIG_TYPE_JSON.
         END CASE.
     END METHOD. 

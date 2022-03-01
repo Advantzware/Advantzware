@@ -1563,6 +1563,7 @@ PROCEDURE copy-inks :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipUpdateOtherEst AS LOGICAL NO-UNDO.
+  DEFINE INPUT PARAMETER ipUpdateUnit AS LOGICAL NO-UNDO.
   DEF BUFFER b-eb FOR eb.
 
 
@@ -1571,7 +1572,7 @@ PROCEDURE copy-inks :
                            AND b-eb.est-no  EQ eb.est-no
                            AND b-eb.eqty    EQ eb.eqty
                            AND b-eb.form-no NE 0) THEN
-    RUN est/copyinks.p (ROWID(eb),ipUpdateOtherEst).
+    RUN est/copyinks.p (ROWID(eb),ipUpdateOtherEst, ipUpdateUnit).
 
 END PROCEDURE.
 
@@ -1757,14 +1758,14 @@ PROCEDURE local-assign-record :
       ll-ans = NOT ll-ans.
 
       RUN cec/d-layers.w (ll-ans, ROWID(eb), eb.tr-no, eb.tr-dep, eb.cas-cnt,
-                          lv-numstack, INPUT-OUTPUT lv-layers).
+                          lv-numstack, INPUT-OUTPUT lv-layers, INPUT-OUTPUT lv-tr-cnt).
     END.
 
     ASSIGN
      lv-cas-pal    = lv-numstack * lv-layers
-     lv-tr-cnt     = eb.cas-cnt * lv-cas-pal
+     lv-tr-cnt     = IF lv-tr-cnt EQ 0 THEN (eb.cas-cnt * lv-cas-pal) ELSE lv-tr-cnt
      eb.cas-pal    = lv-cas-pal
-     eb.tr-cnt     = lv-tr-cnt
+     eb.tr-cnt     = lv-tr-cnt + INTEGER(eb.quantityPartial:SCREEN-VALUE)
      eb.tr-cas     = lv-layers
      eb.stacks     = lv-numstack
      eb.stack-code = lv-stack-code.
@@ -1773,7 +1774,7 @@ PROCEDURE local-assign-record :
   IF ll-update-pack OR ll-unit-calc THEN DO:
     lv-layers = eb.tr-cas.
     RUN cec/d-layers.w (NO, ROWID(eb), eb.tr-no, eb.tr-dep, eb.cas-cnt,
-                        eb.stacks, INPUT-OUTPUT lv-layers).
+                        eb.stacks, INPUT-OUTPUT lv-layers, INPUT-OUTPUT lv-tr-cnt).
 
     IF (cecunit-log EQ NO AND eb.tr-cas GT lv-layers) OR
         cecunit-log THEN DO:
@@ -1791,12 +1792,13 @@ PROCEDURE local-assign-record :
 
         IF ll-ans THEN
            RUN cec/d-layers.w (YES, ROWID(eb), eb.tr-no, eb.tr-dep, eb.cas-cnt,
-                               eb.stacks, INPUT-OUTPUT eb.tr-cas).
+                               eb.stacks, INPUT-OUTPUT eb.tr-cas, INPUT-OUTPUT eb.tr-cnt).
     END.
 
-    /*ASSIGN                                */
-    /* eb.cas-pal = eb.stacks * eb.tr-cas   */
-    /* eb.tr-cnt  = eb.cas-cnt * eb.cas-pal.*/
+    ASSIGN                                
+     eb.cas-pal = eb.stacks * eb.tr-cas  
+     eb.tr-cnt  = eb.tr-cnt + INTEGER(eb.quantityPartial:SCREEN-VALUE)
+     .
    
      RUN cec/UpdFgEc.p(INPUT eb.company, INPUT ROWID(eb)) .
 
@@ -3195,5 +3197,18 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstType V-table-Win 
+PROCEDURE pGetEstType :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplFolding AS LOGICAL NO-UNDO.
+  oplFolding = IF eb.est-type LE 4 THEN YES ELSE NO . 
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 

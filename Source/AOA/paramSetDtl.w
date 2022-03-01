@@ -180,46 +180,46 @@ DEFINE FRAME viewFrame
           BGCOLOR 15 
      dynParamSetDtl.action AT ROW 4.81 COL 45 NO-LABEL WIDGET-ID 186
           VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-          LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL","START DESCRIPTION","END DESCRIPTION","LIST-ITEM-PAIRS" 
-          SIZE 27 BY 10.24
-     dynParamSetDtl.paramWidth AT ROW 8.14 COL 20 COLON-ALIGNED WIDGET-ID 306
+          LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL","START DESCRIPTION","END DESCRIPTION","LIST-ITEM-PAIRS","SORT","SESSION PARAMETER" 
+          SIZE 27 BY 11.43
+     dynParamSetDtl.paramWidth AT ROW 9.33 COL 20 COLON-ALIGNED WIDGET-ID 306
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.paramHeight AT ROW 9.33 COL 20 COLON-ALIGNED WIDGET-ID 304
+     dynParamSetDtl.paramHeight AT ROW 10.52 COL 20 COLON-ALIGNED WIDGET-ID 304
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.paramCol AT ROW 10.52 COL 20 COLON-ALIGNED WIDGET-ID 156
+     dynParamSetDtl.paramCol AT ROW 11.71 COL 20 COLON-ALIGNED WIDGET-ID 156
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.paramRow AT ROW 11.71 COL 20 COLON-ALIGNED WIDGET-ID 164
+     dynParamSetDtl.paramRow AT ROW 12.91 COL 20 COLON-ALIGNED WIDGET-ID 164
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.paramPrompt AT ROW 12.91 COL 22 WIDGET-ID 288
+     dynParamSetDtl.paramPrompt AT ROW 14.1 COL 22 WIDGET-ID 288
           VIEW-AS TOGGLE-BOX
           SIZE 11 BY 1
-     dynParamSetDtl.initialValue AT ROW 14.1 COL 20 COLON-ALIGNED WIDGET-ID 154
+     dynParamSetDtl.initialValue AT ROW 15.29 COL 20 COLON-ALIGNED WIDGET-ID 154
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.initialItems AT ROW 15.29 COL 20 COLON-ALIGNED WIDGET-ID 152 FORMAT "x(256)"
+     dynParamSetDtl.initialItems AT ROW 16.48 COL 20 COLON-ALIGNED WIDGET-ID 152 FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.initializeProc AT ROW 16.48 COL 20 COLON-ALIGNED WIDGET-ID 296
+     dynParamSetDtl.initializeProc AT ROW 17.67 COL 20 COLON-ALIGNED WIDGET-ID 296
           VIEW-AS COMBO-BOX SORT INNER-LINES 100
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
-     dynParamSetDtl.validateProc AT ROW 17.67 COL 20 COLON-ALIGNED WIDGET-ID 298
+     dynParamSetDtl.validateProc AT ROW 18.86 COL 20 COLON-ALIGNED WIDGET-ID 298
           VIEW-AS COMBO-BOX SORT INNER-LINES 100
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
-     dynParamSetDtl.descriptionProc AT ROW 18.86 COL 20 COLON-ALIGNED WIDGET-ID 300
+     dynParamSetDtl.descriptionProc AT ROW 20.05 COL 20 COLON-ALIGNED WIDGET-ID 300
           LABEL "Descript Procedure"
           VIEW-AS COMBO-BOX SORT INNER-LINES 100
           LIST-ITEMS "Item 1" 
@@ -486,6 +486,31 @@ PROCEDURE disable_UI :
   HIDE FRAME DEFAULT-FRAME.
   HIDE FRAME viewFrame.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy s-object 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hDynDescripProc) THEN
+    DELETE PROCEDURE hDynDescripProc.
+    IF VALID-HANDLE(hDynInitProc) THEN
+    DELETE PROCEDURE hDynInitProc.
+    IF VALID-HANDLE(hDynValProc) THEN
+    DELETE PROCEDURE hDynValProc.
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -948,8 +973,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTableHandle s-object
-PROCEDURE pTableHandle:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTableHandle s-object 
+PROCEDURE pTableHandle :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -959,7 +984,7 @@ PROCEDURE pTableHandle:
     ophTable = BUFFER dynParamSetDtl:HANDLE.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

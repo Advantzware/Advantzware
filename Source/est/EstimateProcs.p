@@ -13,11 +13,192 @@
 
 /* ***************************  Definitions  ************************** */
 {est/ttGoto.i}
+{est/ttCalcLayoutSize.i}
+{est/ttEstSysConfig.i}
+
+DEFINE VARIABLE gcTypeSingle AS CHARACTER NO-UNDO INITIAL "Single".
+DEFINE VARIABLE gcTypeSet    AS CHARACTER NO-UNDO INITIAL "Set".
+DEFINE VARIABLE gcTypeCombo  AS CHARACTER NO-UNDO INITIAL "Combo/Tandem".
+DEFINE VARIABLE gcTypeMisc   AS CHARACTER NO-UNDO INITIAL "Miscellaneous".
+DEFINE VARIABLE gcTypeWood   AS CHARACTER NO-UNDO INITIAL "Wood".
+DEFINE VARIABLE gcTypeList   AS CHARACTER NO-UNDO. 
 /* ********************  Preprocessor Definitions  ******************** */
+
+/* ************************  Function Prototypes ********************** */
+
+
+FUNCTION fEstimate_GetEstimateType RETURNS CHARACTER 
+	(ipiEstimateStructureType AS INTEGER,
+	 ipcEstimateTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_GetQuantityPerSet RETURNS DECIMAL 
+	(BUFFER ipbf-eb FOR eb) FORWARD.
+
+FUNCTION fEstimate_IsDepartment RETURNS LOGICAL 
+	(ipcDepartment AS CHARACTER,
+	 ipcDepartmentList AS CHARACTER EXTENT 4) FORWARD.
+
+FUNCTION fEstimate_IsComboType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsInk RETURNS LOGICAL 
+	(ipcMaterialType AS CHARACTER,
+	 ipcInkType AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsMiscType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsSetType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsSingleType RETURNS LOGICAL
+    (ipcEstType AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsWoodType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
 
+ASSIGN 
+    /*Build mapping from estimate type # to descriptive type*/ 
+    gcTypeList = gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo + "," + gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo
+    .
+    
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE Estimate_GetSystemDataForEstimate:
+/*------------------------------------------------------------------------------
+     Purpose: Returns the system data in Temp-tables
+     Notes: If No data is setup in user specific tables then use system tables 
+    ------------------------------------------------------------------------------*/
+
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttEstCostCategory. 
+    DEFINE OUTPUT PARAMETER TABLE FOR ttEstCostGroup. 
+    DEFINE OUTPUT PARAMETER TABLE FOR ttEstCostGroupLevel. 
+    
+    DEFINE BUFFER bf-estCostCategory         FOR estCostCategory.
+    DEFINE BUFFER bf-estCostCategorySystem   FOR estCostCategorySystem.
+    DEFINE BUFFER bf-estCostGroup            FOR estCostGroup.
+    DEFINE BUFFER bf-estCostGroupSystem      FOR estCostGroupSystem.
+    DEFINE BUFFER bf-estCostGroupLevel       FOR estCostGroupLevel.
+    DEFINE BUFFER bf-estCostGroupLevelSystem FOR estCostGroupLevelSystem.
+    
+    EMPTY TEMP-TABLE ttEstCostCategory.
+    EMPTY TEMP-TABLE ttEstCostGroup.
+    EMPTY TEMP-TABLE ttEstCostGroupLevel.
+    
+    /* Load the estCostCategorySystem data. If category data is setup in estCostCategory then overwrite it */
+    FOR EACH bf-estCostCategorySystem NO-LOCK:
+        
+        IF CAN-FIND(FIRST ttEstCostCategory WHERE ttEstCostCategory.estCostCategoryID = bf-estCostCategorySystem.estCostCategoryID ) THEN
+            NEXT.
+        
+            
+        CREATE ttEstCostCategory.
+        
+        FIND FIRST bf-estCostCategory NO-LOCK
+            WHERE bf-estCostCategory.estCostCategoryID = bf-estCostCategorySystem.estCostCategoryID NO-ERROR.
+        
+        IF AVAILABLE bf-estCostCategory THEN
+            BUFFER-COPY bf-estCostCategory TO ttEstCostCategory.
+            
+        ELSE 
+            BUFFER-COPY bf-estCostCategorySystem TO ttEstCostCategory.
+    END.
+    
+    /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
+    FOR EACH bf-estCostGroupSystem NO-LOCK:
+        
+        IF CAN-FIND(FIRST ttEstCostGroup WHERE ttEstCostGroup.estCostGroupID = bf-estCostGroupSystem.estCostGroupID ) THEN
+            NEXT.
+                    
+        CREATE ttEstCostGroup.
+        
+        FIND FIRST bf-estCostGroup NO-LOCK
+            WHERE bf-estCostGroup.estCostGroupID = bf-estCostGroupSystem.estCostGroupID NO-ERROR.
+        
+        IF AVAILABLE bf-estCostGroup THEN
+            BUFFER-COPY bf-estCostGroup TO ttEstCostGroup.
+            
+        ELSE 
+            BUFFER-COPY bf-estCostGroupSystem TO ttEstCostGroup.
+    END.
+   
+    /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
+    FOR EACH bf-estCostGroupLevelSystem NO-LOCK:
+        
+        IF CAN-FIND(FIRST ttEstCostGroupLevel WHERE ttEstCostGroupLevel.estCostGroupLevelID = bf-estCostGroupLevelSystem.estCostGroupLevelID ) THEN
+            NEXT.
+            
+        CREATE ttEstCostGroupLevel.
+            
+        FIND FIRST bf-estCostGroupLevel NO-LOCK
+            WHERE bf-estCostGroupLevel.estCostGroupLevelID = bf-estCostGroupLevelSystem.estCostGroupLevelID NO-ERROR.
+        
+        IF AVAILABLE bf-estCostGroupLevel THEN
+            BUFFER-COPY bf-estCostGroupLevel TO ttEstCostGroupLevel.
+            
+        ELSE 
+            BUFFER-COPY bf-estCostGroupLevelSystem TO ttEstCostGroupLevel.
+    END.
+
+END PROCEDURE.
+
+PROCEDURE Estimate_GetVersionSettings:
+    /*------------------------------------------------------------------------------
+     Purpose: Gets settings to use the new estimate calc and prompt, given est buffer
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateTypeID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplUseNew AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplUseNewPrompt AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iCEVersion AS INTEGER   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CEVersion", "C" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    oplUseNew = lFound AND cReturn EQ "New".
+ 
+    RUN sys/ref/nk1look.p (ipcCompany, "CEVersion", "I" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN 
+        iCEVersion = INTEGER(cReturn).
+        
+    IF oplUseNew THEN 
+        CASE iCEVersion:
+            WHEN 1 THEN 
+                ASSIGN 
+                    oplUseNewPrompt = oplUseNew.
+            WHEN 2 THEN 
+                DO:
+                    IF NOT DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
+                        oplUseNew = NO.            
+                    ASSIGN 
+                        oplUseNewPrompt = oplUseNew.
+                END.
+            WHEN 3 THEN 
+                DO:
+                    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
+                        oplUseNewPrompt = YES.
+                    ELSE 
+                        oplUseNewPrompt = NO.            
+                END.
+            WHEN 4 THEN 
+                DO:
+                    IF NOT ipcEstimateTypeID EQ "MISC" THEN 
+                        ASSIGN 
+                            oplUseNew       = NO
+                            oplUseNewPrompt = NO.
+                END.
+        END CASE.
+
+END PROCEDURE.
 
 PROCEDURE Estimate_GetQuantities:
     /*------------------------------------------------------------------------------
@@ -149,7 +330,8 @@ PROCEDURE Estimate_LoadEstToTT:
                 ttGoto.numLen = bf-eb.num-wid
                 .
 
-        IF ttGoto.estType EQ 2 OR ttGoto.estType EQ 6 THEN DO:
+        IF ttGoto.estType EQ 2 OR ttGoto.estType EQ 6 THEN 
+        DO:
             IF ttGoto.estType EQ 2 THEN
                 ASSIGN
                     dReqQty  = bf-eb.bl-qty
@@ -158,9 +340,7 @@ PROCEDURE Estimate_LoadEstToTT:
             ELSE
                 ASSIGN
                     dReqQty  = bf-est.est-qty[1]
-/*                  dPartQty = bf-eb.quantityPerSet*/ /* May have to assign dPartQty with new field eb.quantityPerSet. 
-                                                         Reverting back to eb.yld-qty due incosistency between legacy and new goto screen */ 
-                    dPartQty = bf-eb.yld-qty
+                    dPartQty = bf-eb.quantityPerSet
                     .
     
             dPartQty = IF dPartQty LT 0 THEN
@@ -635,6 +815,62 @@ PROCEDURE Estimate_GetEstimateDir:
 
 END PROCEDURE.
 
+PROCEDURE Estimate_UpdateEfFormLayout:
+    /*------------------------------------------------------------------------------
+     Purpose: This procedure will update the ef record's dimension fields for a given
+              estimate number. This code is to replace calc-dim.p and calc-dim1.p programs,
+              where it updates the EF and eb fields for an estimate.
+              It calculates EF Gross, net, die size and other dimension fields
+     Notes: This will be called across codebase to calculate layout fields
+    ------------------------------------------------------------------------------*/
+
+    DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    
+    IF NOT AVAILABLE ipbf-ef OR NOT AVAILABLE ipbf-eb THEN
+        RETURN.
+
+    RUN est/CalcLayoutSize.p (INPUT ROWID(ipbf-ef),
+        INPUT ROWID(ipbf-eb),
+        OUTPUT TABLE ttLayoutSize).
+    
+        
+    FOR FIRST ttLayoutSize:
+        
+        ASSIGN
+            ipbf-ef.lsh-len  = ttLayoutSize.dLayoutSheetLength    
+            ipbf-ef.lsh-wid  = ttLayoutSize.dLayoutSheetWidth     
+            ipbf-ef.nsh-len  = ttLayoutSize.dNetSheetLength       
+            ipbf-ef.nsh-wid  = ttLayoutSize.dNetSheetWidth        
+            ipbf-ef.nsh-dep  = ttLayoutSize.dNetSheetDepth        
+            ipbf-ef.gsh-len  = ttLayoutSize.dGrossSheetLength     
+            ipbf-ef.gsh-wid  = ttLayoutSize.dGrossSheetWidth      
+            ipbf-ef.gsh-dep  = ttLayoutSize.dGrossSheetDepth      
+            ipbf-ef.trim-l   = ttLayoutSize.dDieSizeLength        
+            ipbf-ef.trim-w   = ttLayoutSize.dDieSizeWidth         
+            ipbf-ef.trim-d   = ttLayoutSize.dDieSizeDepth         
+            ipbf-ef.roll-wid = ttLayoutSize.dRollWidth            
+            ipbf-ef.die-in   = ttLayoutSize.dDieInchesRequired    
+            ipbf-ef.i-code   = ttLayoutSize.cBoardItemCode        
+            ipbf-ef.weight   = ttLayoutSize.cBoardItemBasisWeight 
+            ipbf-ef.cal      = ttLayoutSize.dBoardItemCaliper     
+            ipbf-ef.roll     = ttLayoutSize.IsRollMaterial        
+            ipbf-ef.n-out    = ttLayoutSize.iNumOutWidth          
+            ipbf-ef.n-out-l  = ttLayoutSize.iNumOutLength         
+            ipbf-ef.n-out-d  = ttLayoutSize.iNumOutDepth          
+            ipbf-ef.n-cuts   = ttLayoutSize.iNumberCuts           
+            ipbf-eb.num-up   = ttLayoutSize.iBlankNumUp           
+            ipbf-eb.num-wid  = ttLayoutSize.iBlankNumOnWidth      
+            ipbf-eb.num-len  = ttLayoutSize.iBlankNumOnLength     
+            ipbf-eb.num-dep  = ttLayoutSize.iBlankNumOnDepth 
+            .     
+   
+    END.     
+
+
+
+END PROCEDURE.
+
 PROCEDURE Estimate_UpdateEfFormQty PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: This procedure will update the ef record's blank-qty for a given
@@ -730,3 +966,149 @@ PROCEDURE pUpdateFormBoard PRIVATE:
             .
     END.
 END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fEstimate_GetEstimateType RETURNS CHARACTER 
+	(ipiEstimateStructureType AS INTEGER, ipcEstimateTypeID AS CHARACTER):
+    /*------------------------------------------------------------------------------
+    Purpose:  Given estimate qualifiers, return the Estimate Type
+    Notes:
+    ------------------------------------------------------------------------------*/	
+
+    DEFINE VARIABLE cType AS CHARACTER NO-UNDO.
+    
+    cType = ENTRY(ipiEstimateStructureType, gcTypeList).
+    CASE ipcEstimateTypeID:
+        WHEN "Misc" THEN 
+            cType = gcTypeMisc.
+        WHEN "Wood" THEN
+            cType = gcTypeWood.
+    END CASE.	
+    RETURN cType.
+    
+END FUNCTION.
+
+FUNCTION fEstimate_GetQuantityPerSet RETURNS DECIMAL 
+    (BUFFER ipbf-eb FOR eb):
+    /*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    DEFINE VARIABLE dQuantityPerSet AS DECIMAL NO-UNDO.
+       
+
+    IF ipbf-eb.est-type LT 5 THEN
+        dQuantityPerSet     = ipbf-eb.cust-%. 
+    ELSE         
+        dQuantityPerSet     = ipbf-eb.quantityPerSet.
+        
+    IF dQuantityPerSet LT 0 THEN 
+        dQuantityPerSet     = ABSOLUTE(1 / dQuantityPerSet). 
+    
+    IF ipbf-eb.form-no EQ 0 OR dQuantityPerSet EQ 0 THEN
+        dQuantityPerSet =  1.
+
+    RETURN dQuantityPerSet.
+
+END FUNCTION.
+
+FUNCTION fEstimate_IsDepartment RETURNS LOGICAL 
+    (ipcDepartment AS CHARACTER, ipcDepartmentList AS CHARACTER EXTENT 4):
+    /*------------------------------------------------------------------------------
+     Purpose: determine if provided department is in department list
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE iIndex        AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lIsDepartment AS LOGICAL NO-UNDO. 
+    
+    DO iIndex = 1 TO 4:
+        IF CAN-DO(ipcDepartment,ipcDepartmentList[iIndex]) THEN 
+        DO:
+            lIsDepartment = YES.
+            LEAVE.
+        END.
+    END.
+    RETURN lIsDepartment.
+        
+END FUNCTION.
+
+FUNCTION fEstimate_IsComboType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Combo Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN ipcEstType EQ gcTypeCombo.
+    
+END FUNCTION.
+
+FUNCTION fEstimate_IsInk RETURNS LOGICAL 
+	(ipcMaterialType AS CHARACTER, ipcInkType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+    Purpose:  Given a material type and ink type, return if valid Ink
+    Notes:
+    ------------------------------------------------------------------------------*/	
+    
+    RETURN INDEX("IV",ipcMaterialType) GT 0 AND ipcInkType NE "A".
+    		
+END FUNCTION.
+
+FUNCTION fEstimate_IsMiscType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Combo Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN ipcEstType EQ gcTypeMisc.
+        
+END FUNCTION.
+
+FUNCTION fEstimate_IsSetType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Set Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN ipcEstType EQ gcTypeSet.
+        
+END FUNCTION.
+
+FUNCTION fEstimate_IsSingleType RETURNS LOGICAL
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Single Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN ipcEstType EQ gcTypeSingle.
+    
+END FUNCTION.
+
+FUNCTION fEstimate_IsWoodType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Single Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN ipcEstType EQ gcTypeWood.
+    
+END FUNCTION.
+
+FUNCTION fEstimate_UseNew RETURNS LOGICAL 
+    (ipcCompany AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns the Setting to use new estimate calculation
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (ipcCompany, "CEVersion", "C" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    
+    RETURN lFound AND cReturn EQ "New".
+        
+END FUNCTION.

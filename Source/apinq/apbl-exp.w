@@ -25,12 +25,12 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER lcSearch   AS CHAR NO-UNDO.
-DEFINE INPUT PARAMETER lcsearchby AS CHAR NO-UNDO.
+DEFINE INPUT PARAMETER lcSearch   AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER lcsearchby AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
-DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
+DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 
 {custom/gperiod.i}
 {custom/persist.i}
@@ -42,70 +42,73 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/gloc.i}
 {custom/getcmpny.i}
 {custom/getloc.i}*/
-DEFINE {&NEW} SHARED VARIABLE g_batch AS LOGICAL NO-UNDO.
-DEFINE {&NEW} SHARED VARIABLE g_batch-rowid AS rowid NO-UNDO.
-DEFINE VARIABLE v-prgmname LIKE prgrms.prgmname NO-UNDO.
+DEFINE {&NEW} SHARED VARIABLE g_batch       AS LOGICAL NO-UNDO.
+DEFINE {&NEW} SHARED VARIABLE g_batch-rowid AS ROWID   NO-UNDO.
+DEFINE               VARIABLE v-prgmname    LIKE prgrms.prgmname NO-UNDO.
 {sys/inc/var.i new shared}
- v-prgmname = SUBSTRING(PROGRAM-NAME(1), R-INDEX(PROGRAM-NAME(1), "/") + 1).
- v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
+v-prgmname = SUBSTRING(PROGRAM-NAME(1), R-INDEX(PROGRAM-NAME(1), "/") + 1).
+v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
 
-assign
- cocode = g_company
- /*locode = gloc*/ .
+ASSIGN
+    cocode = g_company
+    /*locode = gloc*/ .
 
-DEF BUFFER b-vend FOR vend.
-DEF BUFFER b-ap-inv FOR ap-inv.
+DEFINE BUFFER b-vend   FOR vend.
+DEFINE BUFFER b-ap-inv FOR ap-inv.
 
-DEF TEMP-TABLE tt-report NO-UNDO /*LIKE report*/
-    FIELD key-01 LIKE report.key-01
-    FIELD key-02 LIKE report.key-02
-    FIELD check-no   AS   CHAR
-    FIELD trans-date LIKE ap-inv.inv-date
-    FIELD dscr       AS   CHAR
-    FIELD credits    AS   DEC
-    FIELD debits     AS   DEC
-    FIELD balance    AS   DEC
-    FIELD cr-db      AS   LOG
-    FIELD add-sub    AS   LOG
-    FIELD po-no      AS   CHAR
-    FIELD ap-inv-rec-key AS CHAR
-    FIELD vend-no AS CHAR
-    FIELD inv-no AS CHAR
-  INDEX key-01 IS PRIMARY key-01
-  INDEX key-02 key-02
-  INDEX check-no check-no
-  INDEX trans-date trans-date
-  INDEX dscr dscr
-  INDEX credits credits
-  INDEX debits debits
-  INDEX balance balance
-  INDEX po-no po-no.
+DEFINE TEMP-TABLE tt-report NO-UNDO /*LIKE report*/
+    FIELD key-01         LIKE report.key-01
+    FIELD key-02         LIKE report.key-02
+    FIELD check-no       AS CHARACTER
+    FIELD trans-date     LIKE ap-inv.inv-date
+    FIELD dscr           AS CHARACTER
+    FIELD credits        AS DECIMAL
+    FIELD debits         AS DECIMAL
+    FIELD balance        AS DECIMAL
+    FIELD cr-db          AS LOG
+    FIELD add-sub        AS LOG
+    FIELD po-no          AS CHARACTER
+    FIELD ap-inv-rec-key AS CHARACTER
+    FIELD vend-no        AS CHARACTER
+    FIELD inv-no         AS CHARACTER
+    INDEX key-01 IS PRIMARY key-01
+    INDEX key-02            key-02
+    INDEX check-no          check-no
+    INDEX trans-date        trans-date
+    INDEX dscr              dscr
+    INDEX credits           credits
+    INDEX debits            debits
+    INDEX balance           balance
+    INDEX po-no             po-no.
 
-DEF VAR lv-save-char AS CHAR INIT "" NO-UNDO.
+DEFINE VARIABLE lv-save-char AS CHARACTER INIT "" NO-UNDO.
 
 DEFINE STREAM excel.
 
-DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
-DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
-DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cNK1Value        AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN
-    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
+    lAPInvoiceLength = LOGICAL(cNK1Value) NO-ERROR.
 
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR cTextListToSelect AS cha NO-UNDO.
-DEF VAR cFieldListToSelect AS cha NO-UNDO.
-DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE ldummy             AS LOG       NO-UNDO.
+DEFINE VARIABLE cTextListToSelect  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
-ASSIGN cTextListToSelect = "Invoice#,Check#,Date,Description,Credits,Debits,Balance,PO#s"
+ASSIGN 
+    cTextListToSelect  = "Invoice#,Check#,Date,Description,Credits,Debits,Balance,PO#s"
 
-      cFieldListToSelect = "inv,chk,date,dscr,credt,debt,bal,po" .
+    cFieldListToSelect = "inv,chk,date,dscr,credt,debt,bal,po" .
 {sys/inc/ttRptSel.i}
 
-    ASSIGN cTextListToDefault  = "Invoice#,Check#,Date,Description,Credits,Debits,Balance,PO#s".
+ASSIGN 
+    cTextListToDefault = "Invoice#,Check#,Date,Description,Credits,Debits,Balance,PO#s".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -123,10 +126,10 @@ ASSIGN cTextListToSelect = "Invoice#,Check#,Date,Description,Credits,Debits,Bala
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_vend end_vend ~
-begin_inv end_inv sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up ~
-btn_down tb_runExcel fi_file btn-ok btn-cancel 
+begin_inv end_inv sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up ~
+btn_down fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_vend end_vend begin_inv end_inv ~
-sl_avail sl_selected tb_excel tb_runExcel fi_file 
+sl_avail sl_selected fi_file tb_OpenCSV tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -139,31 +142,32 @@ sl_avail sl_selected tb_excel tb_runExcel fi_file
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD appendXLLine rd-fgnq-exp 
 FUNCTION appendXLLine RETURNS CHARACTER
-  ( ipc-append AS CHAR )  FORWARD.
+    ( ipc-append AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD assignParam rd-fgnq-exp 
 FUNCTION assignParam RETURNS CHARACTER
-  ( ipc-param AS CHAR , ipl-end AS LOG)  FORWARD.
+    ( ipc-param AS CHARACTER , ipl-end AS LOG)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD buildHeader rd-fgnq-exp 
 FUNCTION buildHeader RETURNS CHARACTER
-  ( /* parameter-definitions */ )  FORWARD.
+    ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getValue-itemfg rd-fgnq-exp 
 FUNCTION getValue-itemfg RETURNS CHARACTER
-  ( BUFFER ipb-itemfg FOR cust, ipc-field AS CHAR )  FORWARD.
+    ( BUFFER ipb-itemfg FOR cust, ipc-field AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -171,135 +175,138 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
-     LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+    LABEL "&Cancel" 
+    SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
-     LABEL "&OK" 
-     SIZE 15 BY 1.14.
+    LABEL "&OK" 
+    SIZE 16 BY 1.29.
 
 DEFINE BUTTON Btn_Add 
-     LABEL "&Add >>" 
-     SIZE 16 BY 1.
+    LABEL "&Add >>" 
+    SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Def 
-     LABEL "&Default" 
-     SIZE 16 BY 1.
+    LABEL "&Default" 
+    SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_down 
-     LABEL "Move Down" 
-     SIZE 16 BY 1.
+    LABEL "Move Down" 
+    SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Remove 
-     LABEL "<< &Remove" 
-     SIZE 16 BY 1.
+    LABEL "<< &Remove" 
+    SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_Up 
-     LABEL "Move Up" 
-     SIZE 16 BY 1.
+    LABEL "Move Up" 
+    SIZE 16 BY 1.1.
 
-DEFINE VARIABLE begin_inv AS CHARACTER /*FORMAT "x(10)"*/ 
-     LABEL "From Invoice#" 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1.
+DEFINE VARIABLE begin_inv  AS CHARACTER FORMAT "x(8)" 
+    LABEL "From Invoice#" 
+    VIEW-AS FILL-IN 
+    SIZE 20 BY 1.
 
 DEFINE VARIABLE begin_vend AS CHARACTER FORMAT "x(10)" 
-     LABEL "From Vendor#" 
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1.
+    LABEL "From Vendor#" 
+    VIEW-AS FILL-IN 
+    SIZE 20 BY 1.
 
-DEFINE VARIABLE end_inv AS CHARACTER /*FORMAT "X(10)" INITIAL "zzzzzzzzzz"*/ 
-     LABEL "To Invoice#" 
-     VIEW-AS FILL-IN 
-     SIZE 21 BY 1.
+DEFINE VARIABLE end_inv    AS CHARACTER FORMAT "x(8)" 
+    LABEL "To Invoice#" 
+    VIEW-AS FILL-IN 
+    SIZE 21 BY 1.
 
-DEFINE VARIABLE end_vend AS CHARACTER FORMAT "X(10)" INITIAL "zzzzzzzzzzz" 
-     LABEL "To Vendor#" 
-     VIEW-AS FILL-IN 
-     SIZE 21 BY 1.
+DEFINE VARIABLE end_vend   AS CHARACTER FORMAT "X(10)" INITIAL "zzzzzzzzzzz" 
+    LABEL "To Vendor#" 
+    VIEW-AS FILL-IN 
+    SIZE 21 BY 1.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-frmitm.csv" 
-     LABEL "If Yes, File Name" 
-     VIEW-AS FILL-IN 
-     SIZE 43 BY 1
-     FGCOLOR 9 .
+DEFINE VARIABLE fi_file    AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\VendorExport.csv" 
+    LABEL "Name" 
+    VIEW-AS FILL-IN NATIVE 
+    SIZE 52 BY 1.
 
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 7.86.
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    SIZE 94 BY 7.86.
 
 DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 9.29.
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    SIZE 94 BY 6.38.
 
 DEFINE RECTANGLE RECT-8
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 2.48.
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    SIZE 94 BY 2.48.
 
-DEFINE VARIABLE sl_avail AS CHARACTER 
-     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 31 BY 6.14 NO-UNDO.
+DEFINE VARIABLE sl_avail    AS CHARACTER 
+    VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
+    SIZE 31 BY 6.14 NO-UNDO.
 
 DEFINE VARIABLE sl_selected AS CHARACTER 
-     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 31 BY 6.14 NO-UNDO.
+    VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
+    SIZE 31 BY 6.14 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
-     LABEL "Export To Excel?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 21 BY .81
-     BGCOLOR 3  NO-UNDO.
+DEFINE VARIABLE tbAutoClose AS LOGICAL   INITIAL NO 
+    LABEL "Auto Close" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL yes 
-     LABEL "Auto Run Excel?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 21 BY .81
-     BGCOLOR 3  NO-UNDO.
+DEFINE VARIABLE tb_excel    AS LOGICAL   INITIAL YES 
+    LABEL "Export To Excel?" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 21 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_OpenCSV  AS LOGICAL   INITIAL YES 
+    LABEL "Open CSV?" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 15.4 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME rd-fgnq-exp
-     begin_vend AT ROW 4.05 COL 23.6 COLON-ALIGNED HELP
-          "Enter Beginning Vendor#" WIDGET-ID 142
-     end_vend AT ROW 4.05 COL 67.6 COLON-ALIGNED HELP
-          "Enter Ending Vendor#" WIDGET-ID 144
-     begin_inv AT ROW 5.81 COL 23.6 COLON-ALIGNED HELP
-          "Enter Beginning Vendor#" WIDGET-ID 150
-     end_inv AT ROW 5.81 COL 67.6 COLON-ALIGNED HELP
-          "Enter Ending Vendor#" WIDGET-ID 152
-     sl_avail AT ROW 12.24 COL 9 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 12.24 COL 64 NO-LABEL WIDGET-ID 28
-     Btn_Def AT ROW 12.43 COL 44 HELP
-          "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     Btn_Add AT ROW 13.62 COL 44 HELP
-          "Add Selected Table to Tables to Audit" WIDGET-ID 130
-     Btn_Remove AT ROW 14.81 COL 44 HELP
-          "Remove Selected Table from Tables to Audit" WIDGET-ID 134
-     btn_Up AT ROW 16 COL 44 WIDGET-ID 136
-     btn_down AT ROW 17.19 COL 44 WIDGET-ID 132
-     tb_excel AT ROW 18.91 COL 36 WIDGET-ID 32
-     tb_runExcel AT ROW 18.91 COL 78 RIGHT-ALIGNED WIDGET-ID 34
-     fi_file AT ROW 19.86 COL 34 COLON-ALIGNED HELP
-          "Enter File Name" WIDGET-ID 22
-     btn-ok AT ROW 21.71 COL 30 WIDGET-ID 14
-     btn-cancel AT ROW 21.71 COL 60.2 WIDGET-ID 12
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
-          BGCOLOR 2 
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 11.52 COL 9.4 WIDGET-ID 140
-     "Selected Columns" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 11.52 COL 64.4 WIDGET-ID 138
-     "Export Selection" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 10.52 COL 3 WIDGET-ID 86
-     RECT-6 AT ROW 10.76 COL 2 WIDGET-ID 30
-     RECT-7 AT ROW 1.24 COL 2 WIDGET-ID 38
-     RECT-8 AT ROW 18.62 COL 2 WIDGET-ID 84
-     SPACE(2.39) SKIP(2.08)
+    begin_vend AT ROW 3.55 COL 20.5 COLON-ALIGNED HELP
+    "Enter Beginning Vendor#" WIDGET-ID 142
+    end_vend AT ROW 3.55 COL 64.6 COLON-ALIGNED HELP
+    "Enter Ending Vendor#" WIDGET-ID 144
+    begin_inv AT ROW 5.31 COL 20.5 COLON-ALIGNED HELP
+    "Enter Beginning Vendor#" WIDGET-ID 150
+    end_inv AT ROW 5.31 COL 64.6 COLON-ALIGNED HELP
+    "Enter Ending Vendor#" WIDGET-ID 152
+    sl_avail AT ROW 9.43 COL 7 NO-LABELS WIDGET-ID 26
+    Btn_Def AT ROW 9.43 COL 42.6 HELP
+    "Add Selected Table to Tables to Audit" WIDGET-ID 56
+    sl_selected AT ROW 9.43 COL 62.6 NO-LABELS WIDGET-ID 28
+    Btn_Add AT ROW 10.62 COL 42.6 HELP
+    "Add Selected Table to Tables to Audit" WIDGET-ID 130
+    Btn_Remove AT ROW 11.81 COL 42.6 HELP
+    "Remove Selected Table from Tables to Audit" WIDGET-ID 134
+    btn_Up AT ROW 13 COL 42.6 WIDGET-ID 136
+    btn_down AT ROW 14.19 COL 42.6 WIDGET-ID 132
+    fi_file AT ROW 17.1 COL 18.8 COLON-ALIGNED HELP
+    "Enter File Name" WIDGET-ID 22
+    tb_OpenCSV AT ROW 17.19 COL 87.8 RIGHT-ALIGNED WIDGET-ID 34
+    tb_excel AT ROW 19.1 COL 4 WIDGET-ID 32
+    tbAutoClose AT ROW 19.1 COL 43 WIDGET-ID 58
+    btn-ok AT ROW 20.05 COL 32.4 WIDGET-ID 14
+    btn-cancel AT ROW 20.05 COL 52.4 WIDGET-ID 12
+    " Selection Parameters" VIEW-AS TEXT
+    SIZE 21.2 BY .71 AT ROW 1.14 COL 5 WIDGET-ID 36
+    " Export Selection" VIEW-AS TEXT
+    SIZE 17 BY .62 AT ROW 8.05 COL 5 WIDGET-ID 86
+    "Selected Columns" VIEW-AS TEXT
+    SIZE 18 BY .62 AT ROW 8.71 COL 69.4 WIDGET-ID 138
+    "Available Columns" VIEW-AS TEXT
+    SIZE 18 BY .62 AT ROW 8.71 COL 13.4 WIDGET-ID 140
+    RECT-6 AT ROW 8.38 COL 4 WIDGET-ID 30
+    RECT-7 AT ROW 1.52 COL 4 WIDGET-ID 38
+    RECT-8 AT ROW 16.48 COL 4 WIDGET-ID 84
+    SPACE(2.99) SKIP(2.98)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Export Vendor to Excel" WIDGET-ID 100.
+    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+    BGCOLOR 15 
+    TITLE "Export Vendor to Excel" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -320,40 +327,34 @@ DEFINE FRAME rd-fgnq-exp
 /* SETTINGS FOR DIALOG-BOX rd-fgnq-exp
    FRAME-NAME                                                           */
 ASSIGN 
-       FRAME rd-fgnq-exp:SCROLLABLE       = FALSE
-       FRAME rd-fgnq-exp:HIDDEN           = TRUE.
+    FRAME rd-fgnq-exp:SCROLLABLE = FALSE
+    FRAME rd-fgnq-exp:HIDDEN     = TRUE.
 
 ASSIGN 
-       begin_inv:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
-                "parm".
+    begin_inv:PRIVATE-DATA IN FRAME rd-fgnq-exp = "parm".
 
 ASSIGN 
-       begin_vend:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
-                "parm".
+    begin_vend:PRIVATE-DATA IN FRAME rd-fgnq-exp = "parm".
 
 ASSIGN 
-       end_inv:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
-                "parm".
+    end_inv:PRIVATE-DATA IN FRAME rd-fgnq-exp = "parm".
 
 ASSIGN 
-       end_vend:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
-                "parm".
+    end_vend:PRIVATE-DATA IN FRAME rd-fgnq-exp = "parm".
 
 ASSIGN 
-       fi_file:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
-                "parm".
+    fi_file:PRIVATE-DATA IN FRAME rd-fgnq-exp = "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME rd-fgnq-exp
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-       tb_excel:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
-                "parm".
+    tb_excel:HIDDEN IN FRAME rd-fgnq-exp       = TRUE
+    tb_excel:PRIVATE-DATA IN FRAME rd-fgnq-exp = "parm".
 
-/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME rd-fgnq-exp
+/* SETTINGS FOR TOGGLE-BOX tb_OpenCSV IN FRAME rd-fgnq-exp
    ALIGN-R                                                              */
 ASSIGN 
-       tb_runExcel:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
-                "parm".
+    tb_OpenCSV:PRIVATE-DATA IN FRAME rd-fgnq-exp = "parm".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -366,44 +367,44 @@ ASSIGN
 
 &Scoped-define SELF-NAME rd-fgnq-exp
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgnq-exp rd-fgnq-exp
-ON HELP OF FRAME rd-fgnq-exp /* Export Customer to Excel */
-DO:
-DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
-DEF VAR ls-cur-val AS CHAR NO-UNDO.
-DEF VAR char-val AS CHAR NO-UNDO.
+ON HELP OF FRAME rd-fgnq-exp /* Export Vendor to Excel */
+    DO:
+        DEFINE VARIABLE lw-focus   AS WIDGET-HANDLE NO-UNDO.
+        DEFINE VARIABLE ls-cur-val AS CHARACTER     NO-UNDO.
+        DEFINE VARIABLE char-val   AS CHARACTER     NO-UNDO.
 
-   lw-focus = FOCUS.
+        lw-focus = FOCUS.
 
-   case lw-focus:name :
-      /* when "begin_i-no" then do:
-           ls-cur-val = lw-focus:screen-value.
-           RUN windows/l-itemfj.w (cocode, ls-cur-val, output char-val).
-           if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
-           end.
-           return no-apply.
-       end.  /* itemfg */
-       when "end_i-no" then do:
-           ls-cur-val = lw-focus:screen-value.
-           run windows/l-itemfj.w (cocode, ls-cur-val, output char-val).
-           if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
-           end.
-           return no-apply.
-       end.  /* itemfg*/*/
+        CASE lw-focus:NAME :
+        /* when "begin_i-no" then do:
+             ls-cur-val = lw-focus:screen-value.
+             RUN windows/l-itemfj.w (cocode, ls-cur-val, output char-val).
+             if char-val <> "" then do:
+                lw-focus:screen-value =  ENTRY(1,char-val).
+             end.
+             return no-apply.
+         end.  /* itemfg */
+         when "end_i-no" then do:
+             ls-cur-val = lw-focus:screen-value.
+             run windows/l-itemfj.w (cocode, ls-cur-val, output char-val).
+             if char-val <> "" then do:
+                lw-focus:screen-value =  ENTRY(1,char-val).
+             end.
+             return no-apply.
+         end.  /* itemfg*/*/
 
-END CASE.
-END.
+        END CASE.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgnq-exp rd-fgnq-exp
-ON WINDOW-CLOSE OF FRAME rd-fgnq-exp /* Export Customer to Excel */
-DO:
-  APPLY "END-ERROR":U TO SELF.
-END.
+ON WINDOW-CLOSE OF FRAME rd-fgnq-exp /* Export Vendor to Excel */
+    DO:
+        APPLY "END-ERROR":U TO SELF.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -412,9 +413,9 @@ END.
 &Scoped-define SELF-NAME begin_inv
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_inv rd-fgnq-exp
 ON LEAVE OF begin_inv IN FRAME rd-fgnq-exp /* From Invoice# */
-DO:
-   assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -423,9 +424,9 @@ END.
 &Scoped-define SELF-NAME begin_vend
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_vend rd-fgnq-exp
 ON LEAVE OF begin_vend IN FRAME rd-fgnq-exp /* From Vendor# */
-DO:
-   assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -434,9 +435,9 @@ END.
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel rd-fgnq-exp
 ON CHOOSE OF btn-cancel IN FRAME rd-fgnq-exp /* Cancel */
-DO:
-   apply "close" to this-procedure.
-END.
+    DO:
+        APPLY "close" TO THIS-PROCEDURE.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -445,14 +446,35 @@ END.
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok rd-fgnq-exp
 ON CHOOSE OF btn-ok IN FRAME rd-fgnq-exp /* OK */
-DO:
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN {&displayed-objects}.
-  END.
-  RUN GetSelectionList.  
-  run run-report.
+    DO:
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN {&displayed-objects}.
+        END.
+  
+        ASSIGN 
+            fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
+        RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+        fi_file:SCREEN-VALUE =  cFileName.
+  
+        RUN GetSelectionList.  
+        RUN run-report.
+  
+        IF NOT tb_OpenCSV THEN 
+        DO:        
+            MESSAGE "CSV file have been created." SKIP(1)
+                "~"OK"~" to open CSV file?"
+                VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
+                TITLE "" UPDATE lChoice AS LOGICAL.
+ 
+            IF lChoice THEN
+            DO:
+                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+            END.
+        END.  /* IF NOT tb_OpenCSV THEN */
+        IF tbAutoClose:CHECKED THEN 
+            APPLY "END-ERROR":U TO SELF.
 
- END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -461,24 +483,11 @@ DO:
 &Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add rd-fgnq-exp
 ON CHOOSE OF Btn_Add IN FRAME rd-fgnq-exp /* Add >> */
-DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+    DO:
+        DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 
-  APPLY "DEFAULT-ACTION" TO sl_avail.
-
-  /*
-  DO i = 1 TO sl_avail:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
-    IF sl_avail:IS-SELECTED(i) AND
-      (NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i)) OR sl_selected:NUM-ITEMS = 0) THEN
-    /*ldummy = sl_selected:ADD-LAST(sl_avail:ENTRY(i)).*/
-        cSelectedList = cSelectedList +
-                        entry(i,cTextListToSelect) + "," + entry(i,cFieldListToSelect) + ",".
-  END.
-  cSelectedList = SUBSTRING(cSelectedList,1,LENGTH(cSelectedList) - 1).
-  sl_selected:LIST-ITEM-PAIRS = cSelectedList.
-  sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
-  */
-END.
+        APPLY "DEFAULT-ACTION" TO sl_avail.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -487,13 +496,13 @@ END.
 &Scoped-define SELF-NAME Btn_Def
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def rd-fgnq-exp
 ON CHOOSE OF Btn_Def IN FRAME rd-fgnq-exp /* Default */
-DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
+    DO:
+        DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 
-  RUN DisplaySelectionDefault.  /* task 04041406 */ 
-  RUN DisplaySelectionList2 .
+        RUN DisplaySelectionDefault.  /* task 04041406 */ 
+        RUN DisplaySelectionList2 .
   
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -502,9 +511,9 @@ END.
 &Scoped-define SELF-NAME btn_down
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_down rd-fgnq-exp
 ON CHOOSE OF btn_down IN FRAME rd-fgnq-exp /* Move Down */
-DO:
-  RUN Move-Field ("Down").
-END.
+    DO:
+        RUN Move-Field ("Down").
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -513,14 +522,9 @@ END.
 &Scoped-define SELF-NAME Btn_Remove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove rd-fgnq-exp
 ON CHOOSE OF Btn_Remove IN FRAME rd-fgnq-exp /* << Remove */
-DO:
- /* DO i = sl_selected:NUM-ITEMS TO 1 BY -1 WITH FRAME {&FRAME-NAME}:
-    IF sl_selected:IS-SELECTED(i) THEN
-    ldummy = sl_selected:DELETE(i).
-  END
-  */
-  APPLY "DEFAULT-ACTION" TO sl_selected  .
-END.
+    DO:
+        APPLY "DEFAULT-ACTION" TO sl_selected  .
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -529,9 +533,9 @@ END.
 &Scoped-define SELF-NAME btn_Up
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_Up rd-fgnq-exp
 ON CHOOSE OF btn_Up IN FRAME rd-fgnq-exp /* Move Up */
-DO:
-  RUN Move-Field ("Up").
-END.
+    DO:
+        RUN Move-Field ("Up").
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -540,9 +544,9 @@ END.
 &Scoped-define SELF-NAME end_inv
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_inv rd-fgnq-exp
 ON LEAVE OF end_inv IN FRAME rd-fgnq-exp /* To Invoice# */
-DO:
-     assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -551,9 +555,9 @@ END.
 &Scoped-define SELF-NAME end_vend
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_vend rd-fgnq-exp
 ON LEAVE OF end_vend IN FRAME rd-fgnq-exp /* To Vendor# */
-DO:
-     assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -561,10 +565,33 @@ END.
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file rd-fgnq-exp
-ON LEAVE OF fi_file IN FRAME rd-fgnq-exp /* If Yes, File Name */
-DO:
-     assign {&self-name}.
-END.
+ON HELP OF fi_file IN FRAME rd-fgnq-exp /* Name */
+    DO:
+        DEFINE VARIABLE ls-filename AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE ll-ok       AS LOG       NO-UNDO.
+
+        SYSTEM-DIALOG GET-FILE ls-filename 
+            TITLE "Select File to Save "
+            FILTERS "Excel Files    (*.csv)" "*.csv",
+            "All Files    (*.*) " "*.*"
+            INITIAL-DIR "c:\tmp"
+            MUST-EXIST
+            USE-FILENAME
+            UPDATE ll-ok.
+
+        IF ll-ok THEN SELF:SCREEN-VALUE = ls-filename.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file rd-fgnq-exp
+ON LEAVE OF fi_file IN FRAME rd-fgnq-exp /* Name */
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -573,37 +600,15 @@ END.
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail rd-fgnq-exp
 ON DEFAULT-ACTION OF sl_avail IN FRAME rd-fgnq-exp
-DO:
+    DO:
   
-   IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
-       sl_selected:NUM-ITEMS = 0)
-   THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
-               ldummy = {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE)
-              /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
-               .
-
-  
-/* for pairs
-    DEF VAR cSelectedList AS cha NO-UNDO.
-    cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
-    DO i = 1 TO sl_avail:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
-    IF sl_avail:IS-SELECTED(i) AND
-      (NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i)) OR
-         sl_selected:NUM-ITEMS = 0) THEN
-    /*ldummy = sl_selected:ADD-LAST(sl_avail:ENTRY(i)).*/
-        cSelectedList = cSelectedList +
-                        entry(i,cTextListToSelect) + "," + entry(i,cFieldListToSelect) + ",".
-    MESSAGE i sl_avail:IS-SELECTED(i) NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i))
-        sl_selected:NUM-ITEMS
-        SKIP cSelectedList
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-  END.
-  cSelectedList = SUBSTRING(cSelectedList,1,LENGTH(cSelectedList) - 1).
-  sl_selected:LIST-ITEM-PAIRS = cSelectedList.
-  sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
-  */
-
-END.
+        IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
+            sl_selected:NUM-ITEMS = 0)
+            THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
+                ldummy = {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE)
+                /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
+                .
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -612,22 +617,24 @@ END.
 &Scoped-define SELF-NAME sl_selected
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_selected rd-fgnq-exp
 ON DEFAULT-ACTION OF sl_selected IN FRAME rd-fgnq-exp
-DO:
-   DO i = 1 TO {&SELF-NAME}:NUM-ITEMS:
-    IF {&SELF-NAME}:IS-SELECTED(i) THEN DO:
-       ASSIGN ldummy = sl_Avail:add-last({&SELF-NAME}:SCREEN-VALUE)
-              ldummy = /*{&SELF-NAME}:DELETE(i)*/
+    DO:
+        DO i = 1 TO {&SELF-NAME}:NUM-ITEMS:
+            IF {&SELF-NAME}:IS-SELECTED(i) THEN 
+            DO:
+                ASSIGN 
+                    ldummy = sl_Avail:add-last({&SELF-NAME}:SCREEN-VALUE)
+                    ldummy = /*{&SELF-NAME}:DELETE(i)*/
                        {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE)
-              .
-    END.           
-  END.
-  IF {&SELF-NAME}:NUM-ITEMS NE 0 THEN
-  ASSIGN
-    {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
-    .
+                    .
+            END.           
+        END.
+        IF {&SELF-NAME}:NUM-ITEMS NE 0 THEN
+            ASSIGN
+                {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
+                .
     
 
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -636,20 +643,20 @@ END.
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel rd-fgnq-exp
 ON VALUE-CHANGED OF tb_excel IN FRAME rd-fgnq-exp /* Export To Excel? */
-DO:
-  assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_runExcel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel rd-fgnq-exp
-ON VALUE-CHANGED OF tb_runExcel IN FRAME rd-fgnq-exp /* Auto Run Excel? */
-DO:
-  assign {&self-name}.
-END.
+&Scoped-define SELF-NAME tb_OpenCSV
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV rd-fgnq-exp
+ON VALUE-CHANGED OF tb_OpenCSV IN FRAME rd-fgnq-exp /* Open CSV? */
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -664,28 +671,36 @@ END.
 
 {sys/inc/f3helpd.i}
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
-IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
-THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
+    THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   
-  RUN DisplaySelectionList.
-  RUN enable_UI.
-   {methods/nowait.i}
-  DO WITH FRAME {&FRAME-NAME}:
-    RUN pAPInvoiceLength.
-    {custom/usrprint.i}
-    RUN DisplaySelectionList2.
-    RUN Set-Sort-Data.
+    RUN DisplaySelectionList.
+    btn-ok:LOAD-IMAGE("Graphics/32x32/Ok.png").
+    btn-cancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
+    Btn_Def:LOAD-IMAGE("Graphics/32x32/default.png").
+    Btn_Add:LOAD-IMAGE("Graphics/32x32/additem.png").
+    Btn_Remove:LOAD-IMAGE("Graphics/32x32/remove.png").
+    btn_Up:LOAD-IMAGE("Graphics/32x32/moveup.png").
+    btn_down:LOAD-IMAGE("Graphics/32x32/movedown.png").
+    RUN enable_UI.
+    {methods/nowait.i}
+    DO WITH FRAME {&FRAME-NAME}:
+        RUN pAPInvoiceLength.
+        {custom/usrprint.i}
+        RUN DisplaySelectionList2.
+        RUN Set-Sort-Data.
     
-    APPLY "entry" TO begin_vend.
-  END. 
-  WAIT-FOR GO OF FRAME {&FRAME-NAME}.
+        APPLY "entry" TO begin_vend.
+        fi_file:SCREEN-VALUE = "c:\tmp\VendorExport.csv".
+    END. 
+    WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
 
@@ -695,367 +710,378 @@ RUN disable_UI.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-tempfile B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-tempfile rd-fgnq-exp 
 PROCEDURE create-tempfile :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-def var balance as dec format "->>>,>>9.99".
-def var t-dscr   as CHAR.
-def var x-check-no   as char.
-def var t-credits    as dec  format ">,>>>,>>>.99"  column-label "Credits" .
-def var t-debits     as dec  format ">,>>>,>>>.99"  column-label "Debits"  .
-def var t-balance    as dec  format ">>,>>>,>>>.99" column-label "Balance" .
-def var work-bal     as dec  format ">>,>>>,>>>.99" column-label "Balance" .
-def var bal-diff     as dec  format ">>,>>>,>>>.99" column-label "Balance" .
-def var t-vendor     like  vend.vend-no.
-def var f-inv        like  ap-inv.inv-no init "            ".
-def var t-inv        like  ap-inv.inv-no init "ZZZZZZZZZZZZ".
-def var t-o          as log format "Y/N" init "N".
-def var num-day-old  as dec format ">>>9" init 9999.
-def var show-bal like t-balance.
-DEF VAR lv-key LIKE tt-report.key-01 NO-UNDO.
-DEF VAR lv-po-no LIKE tt-report.po-no NO-UNDO.
-DEF VAR v-refnum AS CHAR NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE balance     AS DECIMAL   FORMAT "->>>,>>9.99".
+    DEFINE VARIABLE t-dscr      AS CHARACTER.
+    DEFINE VARIABLE x-check-no  AS CHARACTER.
+    DEFINE VARIABLE t-credits   AS DECIMAL   FORMAT ">,>>>,>>>.99" COLUMN-LABEL "Credits" .
+    DEFINE VARIABLE t-debits    AS DECIMAL   FORMAT ">,>>>,>>>.99" COLUMN-LABEL "Debits"  .
+    DEFINE VARIABLE t-balance   AS DECIMAL   FORMAT ">>,>>>,>>>.99" COLUMN-LABEL "Balance" .
+    DEFINE VARIABLE work-bal    AS DECIMAL   FORMAT ">>,>>>,>>>.99" COLUMN-LABEL "Balance" .
+    DEFINE VARIABLE bal-diff    AS DECIMAL   FORMAT ">>,>>>,>>>.99" COLUMN-LABEL "Balance" .
+    DEFINE VARIABLE t-vendor    LIKE vend.vend-no.
+    DEFINE VARIABLE f-inv       LIKE ap-inv.inv-no INIT "            ".
+    DEFINE VARIABLE t-inv       LIKE ap-inv.inv-no INIT "ZZZZZZZZZZZZ".
+    DEFINE VARIABLE t-o         AS LOG       FORMAT "Y/N" INIT "N".
+    DEFINE VARIABLE num-day-old AS DECIMAL   FORMAT ">>>9" INIT 9999.
+    DEFINE VARIABLE show-bal    LIKE t-balance.
+    DEFINE VARIABLE lv-key      LIKE tt-report.key-01 NO-UNDO.
+    DEFINE VARIABLE lv-po-no    LIKE tt-report.po-no NO-UNDO.
+    DEFINE VARIABLE v-refnum    AS CHARACTER NO-UNDO.
 
 
-FOR EACH tt-report:
-  DELETE tt-report.
-END.
+    FOR EACH tt-report:
+        DELETE tt-report.
+    END.
 
-    for each ap-inv
-        where ap-inv.company  eq cocode
-          and ap-inv.vend-no  GE begin_vend
-          and ap-inv.vend-no  LE end_vend
-          and ap-inv.inv-no   ge begin_inv
-          and ap-inv.inv-no   LE end_inv
-          and ap-inv.posted   eq yes       
-          and ap-inv.inv-date ge (today - num-day-old)
-        no-lock
+    FOR EACH ap-inv
+        WHERE ap-inv.company  EQ cocode
+        AND ap-inv.vend-no  GE begin_vend
+        AND ap-inv.vend-no  LE end_vend
+        AND ap-inv.inv-no   GE begin_inv
+        AND ap-inv.inv-no   LE end_inv
+        AND ap-inv.posted   EQ YES       
+        AND ap-inv.inv-date GE (TODAY - num-day-old)
+        NO-LOCK
           
-        by ap-inv.inv-date by ap-inv.inv-no:
+        BY ap-inv.inv-date BY ap-inv.inv-no:
 
-      ASSIGN
-         show-bal = ap-inv.net + ap-inv.freight
-         lv-key = STRING(YEAR(ap-inv.inv-date),"9999") +
+        ASSIGN
+            show-bal = ap-inv.net + ap-inv.freight
+            lv-key   = STRING(YEAR(ap-inv.inv-date),"9999") +
                   STRING(MONTH(ap-inv.inv-date),"99")  +
                   STRING(DAY(ap-inv.inv-date),"99")    +
                   ap-inv.inv-no.
 
-      if ap-inv.due ne 0 or not t-o then do:
-        CREATE tt-report.
-        ASSIGN
-         tt-report.key-01     = lv-key
-         tt-report.key-02     = ap-inv.inv-no
-         tt-report.trans-date = ap-inv.inv-date
-         tt-report.dscr       = "Invoice"
-         tt-report.debits     = ap-inv.net + ap-inv.freight
-         tt-report.balance    = t-balance + tt-report.debits
-         tt-report.cr-db      = NO
-         tt-report.add-sub    = YES
-         tt-report.ap-inv-rec-key = ap-inv.rec_key
-         tt-report.vend-no    = ap-inv.vend-no
-         tt-report.inv-no     = ap-inv.inv-no.
-                         
-        for each ap-payl
-            where ap-payl.inv-no   eq ap-inv.inv-no
-              and ap-payl.vend-no  eq ap-inv.vend-no
-              and ap-payl.posted   eq YES
-            no-lock,
-               
-            first ap-pay
-            where ap-pay.company eq cocode 
-              and ap-pay.c-no    eq ap-payl.c-no
-            NO-LOCK:
-              
-          t-dscr = "Payment".
-            
-          if ap-payl.memo then t-dscr = "CR MEMO".
-            
-          if ap-payl.amt-paid            lt 0  and
-             ap-payl.memo                eq no and
-             ap-inv.net + ap-inv.freight gt 0  then t-dscr = "Void Chk".
-               
-          if ap-payl.amt-paid ne 0 then do:
-            ASSIGN
-            t-credits  = ap-payl.amt-paid
-            t-balance  = t-balance - ap-payl.amt-paid
-            x-check-no = string(ap-payl.check-no).
-
+        IF ap-inv.due NE 0 OR NOT t-o THEN 
+        DO:
             CREATE tt-report.
             ASSIGN
-             tt-report.key-01     = string(lv-key,"x(100)") + "a" + 
-                                    STRING(ap-payl.c-no,"9999999999") +
-                                    STRING(ap-payl.line,"9999999999")
-             tt-report.check-no   = x-check-no
-             tt-report.dscr       = t-dscr
-             tt-report.credits    = t-credits
-             tt-report.cr-db      = yes
-             tt-report.add-sub    = NO
-             tt-report.vend-no    = ap-payl.vend-no
-             tt-report.inv-no     = ap-payl.inv-no.
-
-            FIND FIRST b-ap-inv WHERE
-                 b-ap-inv.company EQ ap-pay.company AND
-                 b-ap-inv.vend-no EQ ap-payl.vend-no AND
-                 b-ap-inv.inv-no  EQ ap-payl.inv-no
-                 NO-LOCK NO-ERROR.
-
-            IF AVAIL b-ap-inv THEN
-               tt-report.ap-inv-rec-key = b-ap-inv.rec_key.
-
-            IF t-dscr NE "Void Chk" THEN
-               tt-report.trans-date = ap-pay.check-date.
-            ELSE
-            DO:
-               v-refnum = "VOIDED CHECK"
-                        + string(ap-pay.check-no, "zzzzzzz9").
-
-               FIND FIRST ap-ledger WHERE
-                    ap-ledger.company EQ cocode AND
-                    ap-ledger.vend-no EQ ap-pay.vend-no AND
-                    ap-ledger.refnum = v-refnum
-                    NO-LOCK NO-ERROR.
-
-               IF AVAIL ap-ledger THEN
-               DO:
-                  tt-report.trans-date = ap-ledger.tr-date.
-                  RELEASE ap-ledger.
-               END.
-               ELSE
-                  tt-report.trans-date = ap-pay.check-date.
-
-            END.
-          end. /* if ap-payl.amt-paid ne 0 */
-
-          if ap-payl.amt-disc ne 0 then do:
-            if ap-payl.memo then t-debits = ap-payl.amt-disc.
-            else t-credits = ap-payl.amt-disc.
-
-            ASSIGN
-            t-dscr = "Discount"
-            x-check-no = string(ap-payl.check-no).
+                tt-report.key-01         = lv-key
+                tt-report.key-02         = ap-inv.inv-no
+                tt-report.trans-date     = ap-inv.inv-date
+                tt-report.dscr           = "Invoice"
+                tt-report.debits         = ap-inv.net + ap-inv.freight
+                tt-report.balance        = t-balance + tt-report.debits
+                tt-report.cr-db          = NO
+                tt-report.add-sub        = YES
+                tt-report.ap-inv-rec-key = ap-inv.rec_key
+                tt-report.vend-no        = ap-inv.vend-no
+                tt-report.inv-no         = ap-inv.inv-no.
+                         
+            FOR EACH ap-payl
+                WHERE ap-payl.inv-no   EQ ap-inv.inv-no
+                AND ap-payl.vend-no  EQ ap-inv.vend-no
+                AND ap-payl.posted   EQ YES
+                NO-LOCK,
+               
+                FIRST ap-pay
+                WHERE ap-pay.company EQ cocode 
+                AND ap-pay.c-no    EQ ap-payl.c-no
+                NO-LOCK:
               
-            if ap-payl.memo then do:
+                t-dscr = "Payment".
+            
+                IF ap-payl.memo THEN t-dscr = "CR MEMO".
+            
+                IF ap-payl.amt-paid            LT 0  AND
+                    ap-payl.memo                EQ NO AND
+                    ap-inv.net + ap-inv.freight GT 0  THEN t-dscr = "Void Chk".
+               
+                IF ap-payl.amt-paid NE 0 THEN 
+                DO:
+                    ASSIGN
+                        t-credits  = ap-payl.amt-paid
+                        t-balance  = t-balance - ap-payl.amt-paid
+                        x-check-no = STRING(ap-payl.check-no).
 
-              ASSIGN
-                 t-dscr = "DB MEMO"
-                 t-balance = t-balance + ap-payl.amt-disc.
-                
-              create tt-report.
-              assign
-               tt-report.key-01     = string(lv-key,"x(100)") + "a" + 
+                    CREATE tt-report.
+                    ASSIGN
+                        tt-report.key-01   = STRING(lv-key,"x(100)") + "a" + 
                                     STRING(ap-payl.c-no,"9999999999") +
                                     STRING(ap-payl.line,"9999999999")
-               tt-report.check-no   = x-check-no
-               tt-report.trans-date = ap-pay.check-date
-               tt-report.dscr       = t-dscr
-               tt-report.credits    = t-debits
-               tt-report.cr-db      = no
-               tt-report.add-sub    = YES
-               tt-report.vend-no    = ap-payl.vend-no
-               tt-report.inv-no     = ap-payl.inv-no.
+                        tt-report.check-no = x-check-no
+                        tt-report.dscr     = t-dscr
+                        tt-report.credits  = t-credits
+                        tt-report.cr-db    = YES
+                        tt-report.add-sub  = NO
+                        tt-report.vend-no  = ap-payl.vend-no
+                        tt-report.inv-no   = ap-payl.inv-no.
 
-              FIND FIRST b-ap-inv WHERE
-                   b-ap-inv.company EQ ap-pay.company AND
-                   b-ap-inv.vend-no EQ ap-payl.vend-no AND
-                   b-ap-inv.inv-no  EQ ap-payl.inv-no
-                   NO-LOCK NO-ERROR.
+                    FIND FIRST b-ap-inv WHERE
+                        b-ap-inv.company EQ ap-pay.company AND
+                        b-ap-inv.vend-no EQ ap-payl.vend-no AND
+                        b-ap-inv.inv-no  EQ ap-payl.inv-no
+                        NO-LOCK NO-ERROR.
 
-              IF AVAIL b-ap-inv THEN
-                 tt-report.ap-inv-rec-key = b-ap-inv.rec_key.
-            end. /* if ap-payl.memo */
+                    IF AVAILABLE b-ap-inv THEN
+                        tt-report.ap-inv-rec-key = b-ap-inv.rec_key.
 
-            else do:
-              t-balance = t-balance - ap-payl.amt-disc.
+                    IF t-dscr NE "Void Chk" THEN
+                        tt-report.trans-date = ap-pay.check-date.
+                    ELSE
+                    DO:
+                        v-refnum = "VOIDED CHECK"
+                            + string(ap-pay.check-no, "zzzzzzz9").
 
-              create tt-report.
-              assign
-               tt-report.key-01     = string(lv-key,"x(100)") + "a" +
+                        FIND FIRST ap-ledger WHERE
+                            ap-ledger.company EQ cocode AND
+                            ap-ledger.vend-no EQ ap-pay.vend-no AND
+                            ap-ledger.refnum = v-refnum
+                            NO-LOCK NO-ERROR.
+
+                        IF AVAILABLE ap-ledger THEN
+                        DO:
+                            tt-report.trans-date = ap-ledger.tr-date.
+                            RELEASE ap-ledger.
+                        END.
+                        ELSE
+                            tt-report.trans-date = ap-pay.check-date.
+
+                    END.
+                END. /* if ap-payl.amt-paid ne 0 */
+
+                IF ap-payl.amt-disc NE 0 THEN 
+                DO:
+                    IF ap-payl.memo THEN t-debits = ap-payl.amt-disc.
+                    ELSE t-credits = ap-payl.amt-disc.
+
+                    ASSIGN
+                        t-dscr     = "Discount"
+                        x-check-no = STRING(ap-payl.check-no).
+              
+                    IF ap-payl.memo THEN 
+                    DO:
+
+                        ASSIGN
+                            t-dscr    = "DB MEMO"
+                            t-balance = t-balance + ap-payl.amt-disc.
+                
+                        CREATE tt-report.
+                        ASSIGN
+                            tt-report.key-01     = STRING(lv-key,"x(100)") + "a" + 
+                                    STRING(ap-payl.c-no,"9999999999") +
+                                    STRING(ap-payl.line,"9999999999")
+                            tt-report.check-no   = x-check-no
+                            tt-report.trans-date = ap-pay.check-date
+                            tt-report.dscr       = t-dscr
+                            tt-report.credits    = t-debits
+                            tt-report.cr-db      = NO
+                            tt-report.add-sub    = YES
+                            tt-report.vend-no    = ap-payl.vend-no
+                            tt-report.inv-no     = ap-payl.inv-no.
+
+                        FIND FIRST b-ap-inv WHERE
+                            b-ap-inv.company EQ ap-pay.company AND
+                            b-ap-inv.vend-no EQ ap-payl.vend-no AND
+                            b-ap-inv.inv-no  EQ ap-payl.inv-no
+                            NO-LOCK NO-ERROR.
+
+                        IF AVAILABLE b-ap-inv THEN
+                            tt-report.ap-inv-rec-key = b-ap-inv.rec_key.
+                    END. /* if ap-payl.memo */
+
+                    ELSE 
+                    DO:
+                        t-balance = t-balance - ap-payl.amt-disc.
+
+                        CREATE tt-report.
+                        ASSIGN
+                            tt-report.key-01     = STRING(lv-key,"x(100)") + "a" +
                                       STRING(ap-payl.c-no,"9999999999") +
                                       STRING(ap-payl.line,"9999999999")
-               tt-report.check-no   = x-check-no
-               tt-report.trans-date = ap-pay.check-date
-               tt-report.dscr       = t-dscr
-               tt-report.credits    = t-credits
-               tt-report.cr-db      = yes
-               tt-report.add-sub    = NO
-               tt-report.vend-no    = ap-payl.vend-no
-               tt-report.inv-no     = ap-payl.inv-no.
+                            tt-report.check-no   = x-check-no
+                            tt-report.trans-date = ap-pay.check-date
+                            tt-report.dscr       = t-dscr
+                            tt-report.credits    = t-credits
+                            tt-report.cr-db      = YES
+                            tt-report.add-sub    = NO
+                            tt-report.vend-no    = ap-payl.vend-no
+                            tt-report.inv-no     = ap-payl.inv-no.
 
-              FIND FIRST b-ap-inv WHERE
-                   b-ap-inv.company EQ ap-pay.company AND
-                   b-ap-inv.vend-no EQ ap-payl.vend-no AND
-                   b-ap-inv.inv-no  EQ ap-payl.inv-no
-                   NO-LOCK NO-ERROR.
+                        FIND FIRST b-ap-inv WHERE
+                            b-ap-inv.company EQ ap-pay.company AND
+                            b-ap-inv.vend-no EQ ap-payl.vend-no AND
+                            b-ap-inv.inv-no  EQ ap-payl.inv-no
+                            NO-LOCK NO-ERROR.
 
-              IF AVAIL b-ap-inv THEN
-                 tt-report.ap-inv-rec-key = b-ap-inv.rec_key.
-            end. /* else do: */
-          end. /* if ap-payl.amt-disc ne 0 */
-        end. /* for each ap-payl */
-      end. /* if (t-o and ap-inv.due ne 0) */
+                        IF AVAILABLE b-ap-inv THEN
+                            tt-report.ap-inv-rec-key = b-ap-inv.rec_key.
+                    END. /* else do: */
+                END. /* if ap-payl.amt-disc ne 0 */
+            END. /* for each ap-payl */
+        END. /* if (t-o and ap-inv.due ne 0) */
 
-      for each ap-payl
-          where ap-payl.inv-no  eq "0"
-            and ap-payl.posted  eq yes
-            and ap-payl.vend-no eq vend.vend-no
-          no-lock,
+        FOR EACH ap-payl
+            WHERE ap-payl.inv-no  EQ "0"
+            AND ap-payl.posted  EQ YES
+            AND ap-payl.vend-no EQ vend.vend-no
+            NO-LOCK,
             
-          first ap-pay
-          where ap-pay.company eq cocode 
-            and ap-pay.c-no eq ap-payl.c-no
-          NO-LOCK:
+            FIRST ap-pay
+            WHERE ap-pay.company EQ cocode 
+            AND ap-pay.c-no EQ ap-payl.c-no
+            NO-LOCK:
             
-        t-dscr = "Payment".
-        if ap-payl.memo then t-dscr = "CR MEMO".
+            t-dscr = "Payment".
+            IF ap-payl.memo THEN t-dscr = "CR MEMO".
 
-        if ap-payl.amt-paid ne 0 then do:
-          t-credits = ap-payl.amt-paid.
-          t-balance = t-balance - ap-payl.amt-paid.
-          x-check-no = string(ap-payl.check-no).
+            IF ap-payl.amt-paid NE 0 THEN 
+            DO:
+                t-credits = ap-payl.amt-paid.
+                t-balance = t-balance - ap-payl.amt-paid.
+                x-check-no = STRING(ap-payl.check-no).
             
-          create tt-report.
-          assign
-           tt-report.key-01     = string(lv-key,"x(100)") + "a" + 
+                CREATE tt-report.
+                ASSIGN
+                    tt-report.key-01     = STRING(lv-key,"x(100)") + "a" + 
                                   STRING(ap-payl.c-no,"9999999999") +
                                   STRING(ap-payl.line,"9999999999")
-           tt-report.check-no   = x-check-no
-           tt-report.trans-date = ap-pay.check-date
-           tt-report.dscr       = t-dscr
-           tt-report.credits    = t-credits
-           tt-report.cr-db      = yes
-           tt-report.add-sub    = NO
-           tt-report.vend-no    = ap-payl.vend-no
-           tt-report.inv-no     = ap-payl.inv-no.
+                    tt-report.check-no   = x-check-no
+                    tt-report.trans-date = ap-pay.check-date
+                    tt-report.dscr       = t-dscr
+                    tt-report.credits    = t-credits
+                    tt-report.cr-db      = YES
+                    tt-report.add-sub    = NO
+                    tt-report.vend-no    = ap-payl.vend-no
+                    tt-report.inv-no     = ap-payl.inv-no.
 
-          FIND FIRST b-ap-inv WHERE
-               b-ap-inv.company EQ ap-pay.company AND
-               b-ap-inv.vend-no EQ ap-payl.vend-no AND
-               b-ap-inv.inv-no  EQ ap-payl.inv-no
-               NO-LOCK NO-ERROR.
+                FIND FIRST b-ap-inv WHERE
+                    b-ap-inv.company EQ ap-pay.company AND
+                    b-ap-inv.vend-no EQ ap-payl.vend-no AND
+                    b-ap-inv.inv-no  EQ ap-payl.inv-no
+                    NO-LOCK NO-ERROR.
 
-          IF AVAIL b-ap-inv THEN
-             tt-report.ap-inv-rec-key = b-ap-inv.rec_key.
-        end. /* if ap-payl.amt-paid ne 0 */
+                IF AVAILABLE b-ap-inv THEN
+                    tt-report.ap-inv-rec-key = b-ap-inv.rec_key.
+            END. /* if ap-payl.amt-paid ne 0 */
 
-        if ap-payl.amt-disc ne 0 then do:
-          if ap-payl.memo then t-debits  = ap-payl.amt-disc.
-          else t-credits = ap-payl.amt-disc.
-          t-dscr = "Discount".
-          if not ap-payl.memo then t-balance = t-balance - ap-payl.amt-disc.
-            x-check-no = string(ap-payl.check-no).
+            IF ap-payl.amt-disc NE 0 THEN 
+            DO:
+                IF ap-payl.memo THEN t-debits  = ap-payl.amt-disc.
+                ELSE t-credits = ap-payl.amt-disc.
+                t-dscr = "Discount".
+                IF NOT ap-payl.memo THEN t-balance = t-balance - ap-payl.amt-disc.
+                x-check-no = STRING(ap-payl.check-no).
 
-          if ap-payl.memo then do:
+                IF ap-payl.memo THEN 
+                DO:
 
-            ASSIGN
-            t-dscr = "DB MEMO"
-            t-balance = t-balance + ap-payl.amt-disc.
+                    ASSIGN
+                        t-dscr    = "DB MEMO"
+                        t-balance = t-balance + ap-payl.amt-disc.
               
-            create tt-report.
-            assign
-             tt-report.key-01     = string(lv-key,"x(100)") + "a" +
+                    CREATE tt-report.
+                    ASSIGN
+                        tt-report.key-01     = STRING(lv-key,"x(100)") + "a" +
                                     STRING(ap-payl.c-no,"9999999999") +
                                     STRING(ap-payl.line,"9999999999")
-             tt-report.check-no   = x-check-no
-             tt-report.trans-date = ap-pay.check-date
-             tt-report.dscr       = t-dscr
-             tt-report.credits    = t-debits
-             tt-report.cr-db      = no
-             tt-report.add-sub    = YES
-             tt-report.vend-no    = ap-payl.vend-no
-             tt-report.inv-no     = ap-payl.inv-no.
+                        tt-report.check-no   = x-check-no
+                        tt-report.trans-date = ap-pay.check-date
+                        tt-report.dscr       = t-dscr
+                        tt-report.credits    = t-debits
+                        tt-report.cr-db      = NO
+                        tt-report.add-sub    = YES
+                        tt-report.vend-no    = ap-payl.vend-no
+                        tt-report.inv-no     = ap-payl.inv-no.
 
-              FIND FIRST b-ap-inv WHERE
-                   b-ap-inv.company EQ ap-pay.company AND
-                   b-ap-inv.vend-no EQ ap-payl.vend-no AND
-                   b-ap-inv.inv-no  EQ ap-payl.inv-no
-                   NO-LOCK NO-ERROR.
+                    FIND FIRST b-ap-inv WHERE
+                        b-ap-inv.company EQ ap-pay.company AND
+                        b-ap-inv.vend-no EQ ap-payl.vend-no AND
+                        b-ap-inv.inv-no  EQ ap-payl.inv-no
+                        NO-LOCK NO-ERROR.
 
-              IF AVAIL b-ap-inv THEN
-                 tt-report.ap-inv-rec-key = b-ap-inv.rec_key.
-          end. /* if ap-payl.memo then do */
+                    IF AVAILABLE b-ap-inv THEN
+                        tt-report.ap-inv-rec-key = b-ap-inv.rec_key.
+                END. /* if ap-payl.memo then do */
             
-          else do:
-            create tt-report.
-            assign
-             tt-report.key-01     = string(lv-key,"x(100)") + "a" + 
+                ELSE 
+                DO:
+                    CREATE tt-report.
+                    ASSIGN
+                        tt-report.key-01     = STRING(lv-key,"x(100)") + "a" + 
                                   STRING(ap-payl.c-no,"9999999999") +
                                   STRING(ap-payl.line,"9999999999")
-             tt-report.check-no   = x-check-no
-             tt-report.trans-date = ap-pay.check-date
-             tt-report.dscr       = t-dscr
-             tt-report.credits    = t-credits
-             tt-report.cr-db      = yes
-             tt-report.add-sub    = NO
-             tt-report.vend-no    = ap-payl.vend-no
-             tt-report.inv-no     = ap-payl.inv-no.
+                        tt-report.check-no   = x-check-no
+                        tt-report.trans-date = ap-pay.check-date
+                        tt-report.dscr       = t-dscr
+                        tt-report.credits    = t-credits
+                        tt-report.cr-db      = YES
+                        tt-report.add-sub    = NO
+                        tt-report.vend-no    = ap-payl.vend-no
+                        tt-report.inv-no     = ap-payl.inv-no.
 
-              FIND FIRST b-ap-inv WHERE
-                   b-ap-inv.company EQ ap-pay.company AND
-                   b-ap-inv.vend-no EQ ap-payl.vend-no AND
-                   b-ap-inv.inv-no  EQ ap-payl.inv-no
-                   NO-LOCK NO-ERROR.
+                    FIND FIRST b-ap-inv WHERE
+                        b-ap-inv.company EQ ap-pay.company AND
+                        b-ap-inv.vend-no EQ ap-payl.vend-no AND
+                        b-ap-inv.inv-no  EQ ap-payl.inv-no
+                        NO-LOCK NO-ERROR.
 
-              IF AVAIL b-ap-inv THEN
-                 tt-report.ap-inv-rec-key = b-ap-inv.rec_key.
-          end. /* else do: */
-        end. /* if ap-payl.amt-disc ne 0 */
-      end. /* for each ap-payl */
+                    IF AVAILABLE b-ap-inv THEN
+                        tt-report.ap-inv-rec-key = b-ap-inv.rec_key.
+                END. /* else do: */
+            END. /* if ap-payl.amt-disc ne 0 */
+        END. /* for each ap-payl */
 
-      RELEASE tt-report.
+        RELEASE tt-report.
 
-      bal-diff = work-bal.
-      if ap-inv.due ne 0 or not t-o THEN work-bal = work-bal + ap-inv.net + ap-inv.freight.
+        bal-diff = work-bal.
+        IF ap-inv.due NE 0 OR NOT t-o THEN work-bal = work-bal + ap-inv.net + ap-inv.freight.
 
-      lv-po-no = "".
+        lv-po-no = "".
 
-      FOR EACH tt-report WHERE tt-report.key-01 BEGINS lv-key BREAK BY tt-report.key-01:
+        FOR EACH tt-report WHERE tt-report.key-01 BEGINS lv-key BREAK BY tt-report.key-01:
 
-        if tt-report.add-sub then work-bal = work-bal + tt-report.credits.
-        else work-bal = work-bal - tt-report.credits.
+            IF tt-report.add-sub THEN work-bal = work-bal + tt-report.credits.
+            ELSE work-bal = work-bal - tt-report.credits.
 
-        if tt-report.dscr EQ "Invoice" then
-          work-bal = work-bal - tt-report.credits.
+            IF tt-report.dscr EQ "Invoice" THEN
+                work-bal = work-bal - tt-report.credits.
 
-        tt-report.balance = work-bal.
+            tt-report.balance = work-bal.
   
-        if tt-report.dscr ne "Invoice" AND
-           NOT tt-report.cr-db THEN
-          ASSIGN
-           tt-report.debits  = tt-report.credits
-           tt-report.credits = 0.
+            IF tt-report.dscr NE "Invoice" AND
+                NOT tt-report.cr-db THEN
+                ASSIGN
+                    tt-report.debits  = tt-report.credits
+                    tt-report.credits = 0.
           
-        if FIRST(tt-report.key-01) then do:
-          if ap-inv.po-no eq 0 then
-          for each ap-invl
-              where ap-invl.i-no  eq ap-inv.i-no
-                and ap-invl.po-no ne 0
-              break by ap-invl.po-no:
+            IF FIRST(tt-report.key-01) THEN 
+            DO:
+                IF ap-inv.po-no EQ 0 THEN
+                    FOR EACH ap-invl
+                        WHERE ap-invl.i-no  EQ ap-inv.i-no
+                        AND ap-invl.po-no NE 0
+                        BREAK BY ap-invl.po-no:
               
-            IF LAST-OF(ap-invl.po-no) THEN
-              lv-po-no = TRIM(lv-po-no) + " " +
-                         TRIM(STRING(ap-invl.po-no,">>>>>>>>>>")).
-          end.
+                        IF LAST-OF(ap-invl.po-no) THEN
+                            lv-po-no = TRIM(lv-po-no) + " " +
+                                TRIM(STRING(ap-invl.po-no,">>>>>>>>>>")).
+                    END.
             
-          else lv-po-no = TRIM(STRING(ap-inv.po-no,">>>>>>>>>>")).
+                ELSE lv-po-no = TRIM(STRING(ap-inv.po-no,">>>>>>>>>>")).
 
-          tt-report.po-no = TRIM(lv-po-no).
-        END.  
-      end. /* for each tt-report break by tt-report.key-01 */
+                tt-report.po-no = TRIM(lv-po-no).
+            END.  
+        END. /* for each tt-report break by tt-report.key-01 */
        
-      if (show-bal ne work-bal and work-bal ne bal-diff) or
-         (show-bal eq work-bal and bal-diff eq 0)        then do:
-        CREATE tt-report.
-        ASSIGN
-         tt-report.key-01     = string(lv-key,"x(100)") + "z"
-         tt-report.key-02     = "Balance Due"
-         tt-report.trans-date = ap-inv.due-date
-         tt-report.balance    = work-bal.                                                
-      end. /* if (show-bal ne work-bal and */      
-    end. /* for each ap-inv */
+        IF (show-bal NE work-bal AND work-bal NE bal-diff) OR
+            (show-bal EQ work-bal AND bal-diff EQ 0)        THEN 
+        DO:
+            CREATE tt-report.
+            ASSIGN
+                tt-report.key-01     = STRING(lv-key,"x(100)") + "z"
+                tt-report.key-02     = "Balance Due"
+                tt-report.trans-date = ap-inv.due-date
+                tt-report.balance    = work-bal.                                                
+        END. /* if (show-bal ne work-bal and */      
+    END. /* for each ap-inv */
 
 END PROCEDURE.
 
@@ -1064,16 +1090,16 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI rd-fgnq-exp  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Hide all frames. */
-  HIDE FRAME rd-fgnq-exp.
+    /*------------------------------------------------------------------------------
+      Purpose:     DISABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we clean-up the user-interface by deleting
+                   dynamic widgets we have created and/or hide 
+                   frames.  This procedure is usually called when
+                   we are ready to "clean-up" after running.
+    ------------------------------------------------------------------------------*/
+    /* Hide all frames. */
+    HIDE FRAME rd-fgnq-exp.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1081,21 +1107,21 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault rd-fgnq-exp 
 PROCEDURE DisplaySelectionDefault :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
   
-  DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
+    DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
-     cListContents = cListContents +                   
-                    (IF cListContents = "" THEN ""  ELSE ",") +
-                     ENTRY(iCount,cTextListToDefault)   .
-  END.            
-  sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
+        cListContents = cListContents +                   
+            (IF cListContents = "" THEN ""  ELSE ",") +
+            ENTRY(iCount,cTextListToDefault)   .
+    END.            
+    sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
 END PROCEDURE.
 
@@ -1104,42 +1130,44 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList rd-fgnq-exp 
 PROCEDURE DisplaySelectionList :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
 
-/*   MESSAGE "List to select: " NUM-ENTRIES(cTextListToSelect) ":" NUM-ENTRIES(cFieldListToSelect) */
-/*           VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                    */
-  IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
+    /*   MESSAGE "List to select: " NUM-ENTRIES(cTextListToSelect) ":" NUM-ENTRIES(cFieldListToSelect) */
+    /*           VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                    */
+    IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN 
+    DO:
      
-     RETURN.
-  END.
+        RETURN.
+    END.
 
-  EMPTY TEMP-TABLE ttRptList.
+    EMPTY TEMP-TABLE ttRptList.
 
-  DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
+    DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
 
-     cListContents = cListContents +
-                    /* (IF cListContents = "" THEN ""  ELSE ",") +
-                     ENTRY(iCount,cTextListToSelect) + "," +
-                     ENTRY(1,cFieldListToSelect)
-                     paris */
+        cListContents = cListContents +
+            /* (IF cListContents = "" THEN ""  ELSE ",") +
+             ENTRY(iCount,cTextListToSelect) + "," +
+             ENTRY(1,cFieldListToSelect)
+             paris */
                      
-                    (IF cListContents = "" THEN ""  ELSE ",") +
-                     ENTRY(iCount,cTextListToSelect)   .
-    CREATE ttRptList.
-    ASSIGN ttRptList.TextList = ENTRY(iCount,cTextListToSelect)
-           ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
-           .
-  END.
+            (IF cListContents = "" THEN ""  ELSE ",") +
+            ENTRY(iCount,cTextListToSelect)   .
+        CREATE ttRptList.
+        ASSIGN 
+            ttRptList.TextList  = ENTRY(iCount,cTextListToSelect)
+            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
+            .
+    END.
   
- /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
+    /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
   
-  sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
+    sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
 END PROCEDURE.
 
@@ -1148,46 +1176,48 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList2 rd-fgnq-exp 
 PROCEDURE DisplaySelectionList2 :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR cListContents AS cha NO-UNDO.
-  DEF VAR iCount AS INT NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
 
-/*   MESSAGE "List to select: " NUM-ENTRIES(cTextListToSelect) ":" NUM-ENTRIES(cFieldListToSelect) */
-/*           VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                    */
-  IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
+    /*   MESSAGE "List to select: " NUM-ENTRIES(cTextListToSelect) ":" NUM-ENTRIES(cFieldListToSelect) */
+    /*           VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                    */
+    IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN 
+    DO:
      
-     RETURN.
-  END.
+        RETURN.
+    END.
 
-  EMPTY TEMP-TABLE ttRptList.
+    EMPTY TEMP-TABLE ttRptList.
 
-  DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
+    DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
 
-     cListContents = cListContents +
-                    /* (IF cListContents = "" THEN ""  ELSE ",") +
-                     ENTRY(iCount,cTextListToSelect) + "," +
-                     ENTRY(1,cFieldListToSelect)
-                     paris */
+        cListContents = cListContents +
+            /* (IF cListContents = "" THEN ""  ELSE ",") +
+             ENTRY(iCount,cTextListToSelect) + "," +
+             ENTRY(1,cFieldListToSelect)
+             paris */
                      
-                    (IF cListContents = "" THEN ""  ELSE ",") +
-                     ENTRY(iCount,cTextListToSelect)   .
-    CREATE ttRptList.
-    ASSIGN ttRptList.TextList = ENTRY(iCount,cTextListToSelect)
-           ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
-           .
-  END.
+            (IF cListContents = "" THEN ""  ELSE ",") +
+            ENTRY(iCount,cTextListToSelect)   .
+        CREATE ttRptList.
+        ASSIGN 
+            ttRptList.TextList  = ENTRY(iCount,cTextListToSelect)
+            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
+            .
+    END.
   
- /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
+    /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
   
-  sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
+    sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
-  DO iCount = 1 TO sl_selected:NUM-ITEMS:
-      ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
-  END.
+    DO iCount = 1 TO sl_selected:NUM-ITEMS:
+        ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
+    END.
 
 END PROCEDURE.
 
@@ -1196,24 +1226,24 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI rd-fgnq-exp  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     ENABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we display/view/enable the widgets in the
-               user-interface.  In addition, OPEN all queries
-               associated with each FRAME and BROWSE.
-               These statements here are based on the "Other 
-               Settings" section of the widget Property Sheets.
-------------------------------------------------------------------------------*/
-  DISPLAY begin_vend end_vend begin_inv end_inv sl_avail sl_selected tb_excel 
-          tb_runExcel fi_file 
-      WITH FRAME rd-fgnq-exp.
-  ENABLE RECT-6 RECT-7 RECT-8 begin_vend end_vend begin_inv end_inv sl_avail 
-         sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down tb_runExcel 
-         fi_file btn-ok btn-cancel 
-      WITH FRAME rd-fgnq-exp.
-  VIEW FRAME rd-fgnq-exp.
-  {&OPEN-BROWSERS-IN-QUERY-rd-fgnq-exp}
+    /*------------------------------------------------------------------------------
+      Purpose:     ENABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we display/view/enable the widgets in the
+                   user-interface.  In addition, OPEN all queries
+                   associated with each FRAME and BROWSE.
+                   These statements here are based on the "Other 
+                   Settings" section of the widget Property Sheets.
+    ------------------------------------------------------------------------------*/
+    DISPLAY begin_vend end_vend begin_inv end_inv sl_avail sl_selected fi_file 
+        tb_OpenCSV tbAutoClose 
+        WITH FRAME rd-fgnq-exp.
+    ENABLE RECT-6 RECT-7 RECT-8 begin_vend end_vend begin_inv end_inv sl_avail 
+        Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down fi_file 
+        tb_OpenCSV tbAutoClose btn-ok btn-cancel 
+        WITH FRAME rd-fgnq-exp.
+    VIEW FRAME rd-fgnq-exp.
+    {&OPEN-BROWSERS-IN-QUERY-rd-fgnq-exp}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1221,24 +1251,25 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetSelectionList rd-fgnq-exp 
 PROCEDURE GetSelectionList :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- DEF VAR cTmpList AS cha NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cTmpList AS CHARACTER NO-UNDO.
 
- EMPTY TEMP-TABLE ttRptSelected.
- cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
+    EMPTY TEMP-TABLE ttRptSelected.
+    cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
- DO i = 1 TO sl_selected:NUM-ITEMS IN FRAME {&FRAME-NAME} :
-    FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.  
-    CREATE ttRptSelected.
-    ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
-           ttRptSelected.FieldList = ttRptList.FieldList
-           /* ttRptSelected.FieldLength */
-        .   
- END.
+    DO i = 1 TO sl_selected:NUM-ITEMS IN FRAME {&FRAME-NAME} :
+        FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.  
+        CREATE ttRptSelected.
+        ASSIGN 
+            ttRptSelected.TextList  = ENTRY(i,cTmpList)
+            ttRptSelected.FieldList = ttRptList.FieldList
+            /* ttRptSelected.FieldLength */
+            .   
+    END.
 
 END PROCEDURE.
 
@@ -1247,34 +1278,72 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Move-Field rd-fgnq-exp 
 PROCEDURE Move-Field :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER move AS CHARACTER NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER move AS CHARACTER NO-UNDO.
 
-  DO i = 1 TO sl_selected:NUM-ITEMS IN FRAME {&FRAME-NAME}
-      WITH FRAME {&FRAME-NAME}:
-    IF sl_selected:IS-SELECTED(i) THEN
-    DO:
-      IF move = "Down" AND i NE sl_selected:NUM-ITEMS THEN
-      ASSIGN
-        ldummy = sl_selected:INSERT(sl_selected:SCREEN-VALUE,i + 2)
-        ldummy = sl_selected:DELETE(i)
-        sl_selected:SCREEN-VALUE = sl_selected:ENTRY(i + 1)
-        .
-      ELSE
-      IF move = "Up" AND i NE 1 THEN
-      ASSIGN
-        ldummy = sl_selected:INSERT(sl_selected:SCREEN-VALUE,i - 1)
-        ldummy = sl_selected:DELETE(i + 1)
-        sl_selected:SCREEN-VALUE = sl_selected:ENTRY(i - 1)
-        .
-      LEAVE.
+    DO i = 1 TO sl_selected:NUM-ITEMS IN FRAME {&FRAME-NAME}
+        WITH FRAME {&FRAME-NAME}:
+        IF sl_selected:IS-SELECTED(i) THEN
+        DO:
+            IF move = "Down" AND i NE sl_selected:NUM-ITEMS THEN
+                ASSIGN
+                    ldummy                   = sl_selected:INSERT(sl_selected:SCREEN-VALUE,i + 2)
+                    ldummy                   = sl_selected:DELETE(i)
+                    sl_selected:SCREEN-VALUE = sl_selected:ENTRY(i + 1)
+                    .
+            ELSE
+                IF move = "Up" AND i NE 1 THEN
+                    ASSIGN
+                        ldummy                   = sl_selected:INSERT(sl_selected:SCREEN-VALUE,i - 1)
+                        ldummy                   = sl_selected:DELETE(i + 1)
+                        sl_selected:SCREEN-VALUE = sl_selected:ENTRY(i - 1)
+                        .
+            LEAVE.
+        END.
     END.
-  END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength rd-fgnq-exp 
+PROCEDURE pAPInvoiceLength :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    IF lAPInvoiceLength THEN 
+    DO:
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN 
+                begin_inv:FORMAT       = "x(20)"
+                end_inv:FORMAT         = "x(20)"
+                begin_inv:WIDTH-CHARS  = 30
+                begin_vend:WIDTH-CHARS = 30
+                end_inv:WIDTH-CHARS    = 30
+                end_vend:WIDTH-CHARS   = 30
+                end_inv:INITIAL        = "zzzzzzzzzzzzzzzzzzzz".                   
+        END.
+    END.
+    ELSE 
+    DO: 
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN 
+                begin_inv:FORMAT       = "x(12)"
+                end_inv:FORMAT         = "x(12)"
+                begin_inv:WIDTH-CHARS  = 20
+                begin_vend:WIDTH-CHARS = 20
+                end_inv:WIDTH-CHARS    = 20
+                end_vend:WIDTH-CHARS   = 20
+                end_inv:INITIAL        = "zzzzzzzzzzzz".
+        END.    
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1282,52 +1351,53 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report rd-fgnq-exp 
 PROCEDURE run-report :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF VAR v-excelheader AS CHAR NO-UNDO.
-DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
-DEF BUFFER b-cust FOR cust.
-DEF VAR li-pallets AS INT NO-UNDO.
-DEF VAR op-qty-pal AS INT NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE v-excelheader        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE v-excel-detail-lines AS CHARACTER NO-UNDO.
+    DEFINE BUFFER b-cust FOR cust.
+    DEFINE VARIABLE li-pallets AS INTEGER NO-UNDO.
+    DEFINE VARIABLE op-qty-pal AS INTEGER NO-UNDO.
 
-v-excelheader = buildHeader().
-SESSION:SET-WAIT-STATE ("general").
+    v-excelheader = buildHeader().
+    SESSION:SET-WAIT-STATE ("general").
 
-IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
-IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
+    IF tb_excel THEN OUTPUT STREAM excel TO VALUE(cFileName).
+    IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 
-v-excel-detail-lines = "".
-op-qty-pal = 0 .
-li-pallets = 0 .
+    v-excel-detail-lines = "".
+    op-qty-pal = 0 .
+    li-pallets = 0 .
 
-RUN create-tempfile.
+    RUN create-tempfile.
 
     FOR EACH tt-report NO-LOCK:
 
         v-excel-detail-lines = "".
 
-       FOR EACH ttRptSelected:
-         /* IF LOOKUP(ttRptSelected.TextList, "Contact,Title,Email") <> 0    THEN do: */
-              IF ttRptSelected.TextList = "Invoice#" THEN
-              v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(tt-report.key-02)).
-              IF ttRptSelected.TextList = "Check#" THEN
-              v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(tt-report.check-no)).
-              IF ttRptSelected.TextList = "Date" THEN
-              v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(tt-report.trans-date)).
-              IF ttRptSelected.TextList = "Description" THEN do:
-                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(tt-report.dscr)).
-              END.
-              IF ttRptSelected.TextList = "Credits" THEN
-              v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(tt-report.credits)).
-              IF ttRptSelected.TextList = "Debits" THEN
-              v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(tt-report.debits)).
-              IF ttRptSelected.TextList = "Balance" THEN
-              v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(tt-report.balance)).
-              IF ttRptSelected.TextList = "PO#s" THEN
-              v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(tt-report.po-no)).
+        FOR EACH ttRptSelected:
+            /* IF LOOKUP(ttRptSelected.TextList, "Contact,Title,Email") <> 0    THEN do: */
+            IF ttRptSelected.TextList = "Invoice#" THEN
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(tt-report.key-02)).
+            IF ttRptSelected.TextList = "Check#" THEN
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(tt-report.check-no)).
+            IF ttRptSelected.TextList = "Date" THEN
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(tt-report.trans-date)).
+            IF ttRptSelected.TextList = "Description" THEN 
+            DO:
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(tt-report.dscr)).
+            END.
+            IF ttRptSelected.TextList = "Credits" THEN
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(tt-report.credits)).
+            IF ttRptSelected.TextList = "Debits" THEN
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(tt-report.debits)).
+            IF ttRptSelected.TextList = "Balance" THEN
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(tt-report.balance)).
+            IF ttRptSelected.TextList = "PO#s" THEN
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(tt-report.po-no)).
               
               
               
@@ -1339,19 +1409,20 @@ RUN create-tempfile.
           END.  */
         END.  /* each ttrptse */
 
-       PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
+        PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
 
     END. /* for each phone */ 
 
-IF tb_excel THEN DO:
-   OUTPUT STREAM excel CLOSE.
-   IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
-END.
+    IF tb_excel THEN 
+    DO:
+        OUTPUT STREAM excel CLOSE.
+        IF tb_OpenCSV THEN
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+    END.
 
-RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
-SESSION:SET-WAIT-STATE ("").
+    SESSION:SET-WAIT-STATE ("").
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1359,35 +1430,35 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Sort-Data rd-fgnq-exp 
 PROCEDURE Set-Sort-Data :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DO WITH FRAME {&FRAME-NAME}:
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
 
-      /* If a customer number was entered, find first and last matching customers. */
- /*   IF begin_i-no:SCREEN-VALUE EQ "" THEN DO:
-        FIND FIRST fg-rcpth WHERE fg-rcpth.company EQ cocode NO-LOCK NO-ERROR.
-        begin_i-no:SCREEN-VALUE = fg-rcpth.i-no.
-        FIND LAST fg-rcpth WHERE fg-rcpth.company EQ cocode NO-LOCK NO-ERROR.
-        end_i-no:SCREEN-VALUE   = fg-rcpth.i-no .
-    END. */
-  /*  IF begin_title-cod:SCREEN-VALUE EQ "" THEN DO:
-        FIND FIRST phone WHERE phone.company EQ cocode NO-LOCK NO-ERROR.
-        begin_title-cod:SCREEN-VALUE = phone.titlcode .
-        FIND LAST phone WHERE phone.company EQ cocode NO-LOCK NO-ERROR.
-        end_title-cod:SCREEN-VALUE   = phone.titlcode .
-    END. */
+    /* If a customer number was entered, find first and last matching customers. */
+    /*   IF begin_i-no:SCREEN-VALUE EQ "" THEN DO:
+           FIND FIRST fg-rcpth WHERE fg-rcpth.company EQ cocode NO-LOCK NO-ERROR.
+           begin_i-no:SCREEN-VALUE = fg-rcpth.i-no.
+           FIND LAST fg-rcpth WHERE fg-rcpth.company EQ cocode NO-LOCK NO-ERROR.
+           end_i-no:SCREEN-VALUE   = fg-rcpth.i-no .
+       END. */
+    /*  IF begin_title-cod:SCREEN-VALUE EQ "" THEN DO:
+          FIND FIRST phone WHERE phone.company EQ cocode NO-LOCK NO-ERROR.
+          begin_title-cod:SCREEN-VALUE = phone.titlcode .
+          FIND LAST phone WHERE phone.company EQ cocode NO-LOCK NO-ERROR.
+          end_title-cod:SCREEN-VALUE   = phone.titlcode .
+      END. */
 
-  /*  IF lcSearch NE "" THEN 
-        begin_cust-type:SCREEN-VALUE = lcSearch.
-    IF lcsearchby NE "" THEN 
-        end_cust-type:SCREEN-VALUE = lcsearchby.*/
+    /*  IF lcSearch NE "" THEN 
+          begin_cust-type:SCREEN-VALUE = lcSearch.
+      IF lcsearchby NE "" THEN 
+          end_cust-type:SCREEN-VALUE = lcsearchby.*/
 
-END.
+    END.
 
-RETURN.
+    RETURN.
 
 END PROCEDURE.
 
@@ -1398,12 +1469,12 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION appendXLLine rd-fgnq-exp 
 FUNCTION appendXLLine RETURNS CHARACTER
-  ( ipc-append AS CHAR ) :
-/*------------------------------------------------------------------------------
-  Purpose:  Adds a value to a csv line
-    Notes:  Protects agains commans and quotes.
-------------------------------------------------------------------------------*/
-    DEF VAR lc-line AS CHAR NO-UNDO.
+    ( ipc-append AS CHARACTER ) :
+    /*------------------------------------------------------------------------------
+      Purpose:  Adds a value to a csv line
+        Notes:  Protects agains commans and quotes.
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lc-line AS CHARACTER NO-UNDO.
 
     ipc-append = REPLACE(ipc-append, '"', '').
     ipc-append = REPLACE(ipc-append, ',', ' ').
@@ -1417,19 +1488,19 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION assignParam rd-fgnq-exp 
 FUNCTION assignParam RETURNS CHARACTER
-  ( ipc-param AS CHAR , ipl-end AS LOG) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEF VAR lc-return AS CHAR.
+    ( ipc-param AS CHARACTER , ipl-end AS LOG) :
+    /*------------------------------------------------------------------------------
+      Purpose:  
+        Notes:  
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lc-return AS CHARACTER.
 
     IF ipl-end THEN
         lc-return = ipc-param + "ZZZZZZZZZZZZZZZ".
     ELSE
         lc-return = ipc-param.
 
-  RETURN lc-return.   /* Function return value. */
+    RETURN lc-return.   /* Function return value. */
 
 END FUNCTION.
 
@@ -1438,24 +1509,24 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION buildHeader rd-fgnq-exp 
 FUNCTION buildHeader RETURNS CHARACTER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-DEF VAR lc-header AS CHAR NO-UNDO.
+    ( /* parameter-definitions */ ) :
+    /*------------------------------------------------------------------------------
+      Purpose:  
+        Notes:  
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lc-header AS CHARACTER NO-UNDO.
 
-FOR EACH ttRptSelected:
-    lc-header = lc-header + appendXLLine(ttRptSelected.TextList).
-END.
-/*     lc-header = lc-header + appendXLLine ("PO #").      */
-/*     lc-header = lc-header + appendXLLine ("Vendor #").  */
-/*     lc-header = lc-header + appendXLLine ("Due Date").  */
-/*     lc-header = lc-header + appendXLLine ("Ship ID").   */
-/*     lc-header = lc-header + appendXLLine ("Ship Name"). */
-/*     lc-header = lc-header + appendXLLine ("Job #").     */
-/*     lc-header = lc-header + appendXLLine ("Item #").    */
-/*     lc-header = lc-header + appendXLLine ("Item Name"). */
+    FOR EACH ttRptSelected:
+        lc-header = lc-header + appendXLLine(ttRptSelected.TextList).
+    END.
+    /*     lc-header = lc-header + appendXLLine ("PO #").      */
+    /*     lc-header = lc-header + appendXLLine ("Vendor #").  */
+    /*     lc-header = lc-header + appendXLLine ("Due Date").  */
+    /*     lc-header = lc-header + appendXLLine ("Ship ID").   */
+    /*     lc-header = lc-header + appendXLLine ("Ship Name"). */
+    /*     lc-header = lc-header + appendXLLine ("Job #").     */
+    /*     lc-header = lc-header + appendXLLine ("Item #").    */
+    /*     lc-header = lc-header + appendXLLine ("Item Name"). */
 
   
     RETURN lc-header.   /* Function return value. */
@@ -1467,194 +1538,222 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getValue-itemfg rd-fgnq-exp 
 FUNCTION getValue-itemfg RETURNS CHARACTER
-  ( BUFFER ipb-itemfg FOR cust, ipc-field AS CHAR ) :
-/*------------------------------------------------------------------------------
-  Purpose:  Take a buffer and field name as string and return the value
-    Notes:  
-------------------------------------------------------------------------------*/
-{custom/getperd.i} 
-    DEF VAR h-field AS HANDLE.
-    DEF VAR li-extent AS INT NO-UNDO.
-    DEF VAR lc-return AS CHAR FORMAT "x(100)" NO-UNDO.
-    DEF VAR ptd-profit1 AS CHAR NO-UNDO.
-    DEF VAR ytd-profit1 AS CHAR NO-UNDO.
-    DEF VAR lyr-profit1 AS CHAR NO-UNDO.
-    DEF VAR ptd-sales1 AS DEC NO-UNDO.
+    ( BUFFER ipb-itemfg FOR cust, ipc-field AS CHARACTER ) :
+    /*------------------------------------------------------------------------------
+      Purpose:  Take a buffer and field name as string and return the value
+        Notes:  
+    ------------------------------------------------------------------------------*/
+    {custom/getperd.i} 
+    DEFINE VARIABLE h-field     AS HANDLE.
+    DEFINE VARIABLE li-extent   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lc-return   AS CHARACTER FORMAT "x(100)" NO-UNDO.
+    DEFINE VARIABLE ptd-profit1 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE ytd-profit1 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lyr-profit1 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE ptd-sales1  AS DECIMAL   NO-UNDO.
 
     CASE ipc-field :
-        WHEN "ptd-profit" THEN DO:
-            lc-return = STRING(ipb-itemfg.sales[gperiod] - ipb-itemfg.cost[1]) .
-        END.
-        WHEN "ytd-profit" THEN DO:
-            lc-return = string(DECIMAL(ipb-itemfg.ytd-sales) - DECIMAL(ipb-itemfg.cost[5])) .
-        END.
-        WHEN "lyr-profit" THEN DO:
-            lc-return = string(DECIMAL(ipb-itemfg.lyr-sales) - DECIMAL(ipb-itemfg.cost[6])) .
-        END.
-        WHEN "ptd-profit-pct" THEN DO:
-            /*IF ptd-profit-pct NE ? THEN*/
-            ptd-profit1 = STRING(ipb-itemfg.sales[gperiod] - ipb-itemfg.cost[1]) .
-            ptd-sales1 = (ipb-itemfg.sales[gperiod]).
-            lc-return = string(decimal(ptd-profit1) / DECIMAL(ptd-sales1) * 100) .
-        END.
-        WHEN "ytd-profit-pct" THEN DO:
-            /*IF ytd-profit-pct NE ? THEN*/
-            ytd-profit1 = string(DECIMAL(ipb-itemfg.ytd-sales) - DECIMAL(ipb-itemfg.cost[5])) .
-            lc-return = string(decimal(ytd-profit1) / DECIMAL(ipb-itemfg.ytd-sales) * 100) .
-        END.
-        WHEN "lyr-profit-pct" THEN DO:
-           /* IF lyr-profit-pct NE ? THEN*/
-            lyr-profit1 = string(DECIMAL(ipb-itemfg.lyr-sales) - DECIMAL(ipb-itemfg.cost[6])) .
-            lc-return = string(decimal(lyr-profit1) / DECIMAL(ipb-itemfg.lyr-sales) * 100) .
-        END.
-        WHEN "ptd-sales" THEN DO:
-            IF gperiod NE 0 THEN
-            lc-return = string(ipb-itemfg.sales[gperiod]).
-        END.
-        WHEN "total-msf" THEN DO:
-            IF gperiod NE 0 THEN
-            lc-return = string(ipb-itemfg.ptd-msf[gperiod]).
-        END.
-        WHEN "sname"  THEN DO:
-            FIND sman WHERE sman.company EQ ipb-itemfg.company
-                AND sman.sman EQ  ipb-itemfg.sman NO-LOCK NO-ERROR.
-            IF AVAIL sman THEN
-                lc-return = sman.sNAME.
-            ELSE
-                lc-return = "".
+        WHEN "ptd-profit" THEN 
+            DO:
+                lc-return = STRING(ipb-itemfg.sales[gperiod] - ipb-itemfg.cost[1]) .
+            END.
+        WHEN "ytd-profit" THEN 
+            DO:
+                lc-return = STRING(DECIMAL(ipb-itemfg.ytd-sales) - DECIMAL(ipb-itemfg.cost[5])) .
+            END.
+        WHEN "lyr-profit" THEN 
+            DO:
+                lc-return = STRING(DECIMAL(ipb-itemfg.lyr-sales) - DECIMAL(ipb-itemfg.cost[6])) .
+            END.
+        WHEN "ptd-profit-pct" THEN 
+            DO:
+                /*IF ptd-profit-pct NE ? THEN*/
+                ptd-profit1 = STRING(ipb-itemfg.sales[gperiod] - ipb-itemfg.cost[1]) .
+                ptd-sales1 = (ipb-itemfg.sales[gperiod]).
+                lc-return = STRING(DECIMAL(ptd-profit1) / DECIMAL(ptd-sales1) * 100) .
+            END.
+        WHEN "ytd-profit-pct" THEN 
+            DO:
+                /*IF ytd-profit-pct NE ? THEN*/
+                ytd-profit1 = STRING(DECIMAL(ipb-itemfg.ytd-sales) - DECIMAL(ipb-itemfg.cost[5])) .
+                lc-return = STRING(DECIMAL(ytd-profit1) / DECIMAL(ipb-itemfg.ytd-sales) * 100) .
+            END.
+        WHEN "lyr-profit-pct" THEN 
+            DO:
+                /* IF lyr-profit-pct NE ? THEN*/
+                lyr-profit1 = STRING(DECIMAL(ipb-itemfg.lyr-sales) - DECIMAL(ipb-itemfg.cost[6])) .
+                lc-return = STRING(DECIMAL(lyr-profit1) / DECIMAL(ipb-itemfg.lyr-sales) * 100) .
+            END.
+        WHEN "ptd-sales" THEN 
+            DO:
+                IF gperiod NE 0 THEN
+                    lc-return = STRING(ipb-itemfg.sales[gperiod]).
+            END.
+        WHEN "total-msf" THEN 
+            DO:
+                IF gperiod NE 0 THEN
+                    lc-return = STRING(ipb-itemfg.ptd-msf[gperiod]).
+            END.
+        WHEN "sname"  THEN 
+            DO:
+                FIND sman WHERE sman.company EQ ipb-itemfg.company
+                    AND sman.sman EQ  ipb-itemfg.sman NO-LOCK NO-ERROR.
+                IF AVAILABLE sman THEN
+                    lc-return = sman.sNAME.
+                ELSE
+                    lc-return = "".
             
-        END.
-        WHEN "terms-dscr"  THEN DO:
-            FIND terms WHERE terms.company EQ ipb-itemfg.company
-                AND terms.t-code EQ  ipb-itemfg.terms NO-LOCK NO-ERROR.
-            IF AVAIL terms THEN
-                lc-return = terms.dscr.
-            ELSE
-                lc-return = "".
-        END.
-         WHEN "tax-dscr"  THEN DO:
-            FIND stax WHERE stax.company EQ ipb-itemfg.company
-                AND stax.tax-group EQ  ipb-itemfg.tax-gr NO-LOCK NO-ERROR.
-            IF AVAIL stax THEN
-                lc-return = stax.tax-dscr1[1].
-            ELSE
-                lc-return = "".
-        END.
-        WHEN "custype-dscr" THEN DO:
-            FIND custype WHERE custype.company EQ ipb-itemfg.company
-                AND custype.custype EQ ipb-itemfg.TYPE NO-LOCK NO-ERROR.
-            IF AVAIL custype THEN
-                 lc-return = custype.dscr.
-            ELSE
-                lc-return = "".
-        END.
-        WHEN "loc-dscr"  THEN DO:
-            FIND loc WHERE loc.company EQ ipb-itemfg.company
-                AND loc.loc EQ  ipb-itemfg.loc NO-LOCK NO-ERROR.
-            IF AVAIL loc THEN
-                lc-return = loc.dscr.
-            ELSE
-                lc-return = "".
-        END.
-        WHEN "carrier-dscr"  THEN DO:
-            FIND FIRST carrier WHERE carrier.company EQ ipb-itemfg.company
-                AND carrier.carrier EQ  ipb-itemfg.carrier  NO-LOCK NO-ERROR.
+            END.
+        WHEN "terms-dscr"  THEN 
+            DO:
+                FIND terms WHERE terms.company EQ ipb-itemfg.company
+                    AND terms.t-code EQ  ipb-itemfg.terms NO-LOCK NO-ERROR.
+                IF AVAILABLE terms THEN
+                    lc-return = terms.dscr.
+                ELSE
+                    lc-return = "".
+            END.
+        WHEN "tax-dscr"  THEN 
+            DO:
+                FIND stax WHERE stax.company EQ ipb-itemfg.company
+                    AND stax.tax-group EQ  ipb-itemfg.tax-gr NO-LOCK NO-ERROR.
+                IF AVAILABLE stax THEN
+                    lc-return = stax.tax-dscr1[1].
+                ELSE
+                    lc-return = "".
+            END.
+        WHEN "custype-dscr" THEN 
+            DO:
+                FIND custype WHERE custype.company EQ ipb-itemfg.company
+                    AND custype.custype EQ ipb-itemfg.TYPE NO-LOCK NO-ERROR.
+                IF AVAILABLE custype THEN
+                    lc-return = custype.dscr.
+                ELSE
+                    lc-return = "".
+            END.
+        WHEN "loc-dscr"  THEN 
+            DO:
+                FIND loc WHERE loc.company EQ ipb-itemfg.company
+                    AND loc.loc EQ  ipb-itemfg.loc NO-LOCK NO-ERROR.
+                IF AVAILABLE loc THEN
+                    lc-return = loc.dscr.
+                ELSE
+                    lc-return = "".
+            END.
+        WHEN "carrier-dscr"  THEN 
+            DO:
+                FIND FIRST carrier WHERE carrier.company EQ ipb-itemfg.company
+                    AND carrier.carrier EQ  ipb-itemfg.carrier  NO-LOCK NO-ERROR.
  
-            IF AVAIL carrier THEN
-                lc-return = carrier.dscr.
-            ELSE
-                lc-return = "".
-        END.
-        WHEN "del-dscr"  THEN DO:
-            FIND FIRST carr-mtx WHERE carr-mtx.company EQ ipb-itemfg.company
-                AND carr-mtx.del-zone EQ  ipb-itemfg.del-zone NO-LOCK NO-ERROR.
-            IF AVAIL carr-mtx THEN
-                lc-return = carr-mtx.del-dscr.
-            ELSE
-                lc-return = "".
-        END.
-        WHEN "terr-dscr"  THEN DO:
-            FIND terr WHERE terr.company EQ ipb-itemfg.company
-                AND terr.terr EQ  ipb-itemfg.terr NO-LOCK NO-ERROR.
-            IF AVAIL terr THEN
-                lc-return = terr.dscr .
-            ELSE
-                lc-return = "".
-        END.
-        WHEN "po-mand" THEN DO:                
+                IF AVAILABLE carrier THEN
+                    lc-return = carrier.dscr.
+                ELSE
+                    lc-return = "".
+            END.
+        WHEN "del-dscr"  THEN 
+            DO:
+                FIND FIRST carr-mtx WHERE carr-mtx.company EQ ipb-itemfg.company
+                    AND carr-mtx.del-zone EQ  ipb-itemfg.del-zone NO-LOCK NO-ERROR.
+                IF AVAILABLE carr-mtx THEN
+                    lc-return = carr-mtx.del-dscr.
+                ELSE
+                    lc-return = "".
+            END.
+        WHEN "terr-dscr"  THEN 
+            DO:
+                FIND terr WHERE terr.company EQ ipb-itemfg.company
+                    AND terr.terr EQ  ipb-itemfg.terr NO-LOCK NO-ERROR.
+                IF AVAILABLE terr THEN
+                    lc-return = terr.dscr .
+                ELSE
+                    lc-return = "".
+            END.
+        WHEN "po-mand" THEN 
+            DO:                
                 IF ipb-itemfg.cust-no NE "" THEN
-                    lc-return = string(ipb-itemfg.po-mandatory).   
-        END.
-        WHEN "show-set" THEN DO:
+                    lc-return = STRING(ipb-itemfg.po-mandatory).   
+            END.
+        WHEN "show-set" THEN 
+            DO:
                 IF ipb-itemfg.cust-no NE "" THEN
-                    lc-return = string(ipb-itemfg.show-set). 
+                    lc-return = STRING(ipb-itemfg.show-set). 
            
-        END.
-        WHEN "flat-comm" THEN DO:
-                  IF ipb-itemfg.cust-no NE "" THEN
-                    lc-return = string(ipb-itemfg.flatCommPct).
+            END.
+        WHEN "flat-comm" THEN 
+            DO:
+                IF ipb-itemfg.cust-no NE "" THEN
+                    lc-return = STRING(ipb-itemfg.flatCommPct).
              
-        END.
-        WHEN "inv-meth"  THEN DO:
-            CASE ipb-itemfg.inv-meth :
-                WHEN NO THEN
-                    lc-return = "BOL".
-                WHEN Yes THEN
-                    lc-return = "PO".
-                OTHERWISE
+            END.
+        WHEN "inv-meth"  THEN 
+            DO:
+                CASE ipb-itemfg.inv-meth :
+                    WHEN NO THEN
+                        lc-return = "BOL".
+                    WHEN YES THEN
+                        lc-return = "PO".
+                    OTHERWISE
                     lc-return = "Group by Date".
-            END CASE.
-        END.
-        WHEN "sort"  THEN DO:
-            CASE ipb-itemfg.SORT :
-                WHEN "N" THEN
-                    lc-return = "No".
-                WHEN "Y" THEN
-                    lc-return = "Yes".
-            END CASE.
-        END.
-        WHEN "fob-code"  THEN DO:
-            CASE ipb-itemfg.fob-code :
-                WHEN "DEST" THEN
-                    lc-return = "Destination".
-                WHEN "ORIG" THEN
-                    lc-return = "Origin".
-            END CASE.
-        END.
-        WHEN "active" THEN DO:
-            CASE ipb-itemfg.active :
-                WHEN "A" THEN
-                    lc-return = "Active".
-                WHEN "I" THEN
-                    lc-return = "Inactive".
-                WHEN "X" THEN
-                    lc-return = "Inhouse".
-                WHEN "S" THEN
-                    lc-return = "Statement".
-                WHEN "E" THEN
-                    lc-return = "Service".
-            END CASE.
-        END.
-        WHEN "frt-pay" THEN DO:
-            CASE ipb-itemfg.frt-pay :
-                WHEN "B" THEN
-                    lc-return = "Bill".
-                WHEN "C" THEN
-                    lc-return = "Collect".
-                WHEN "P" THEN
-                    lc-return = "Prepaid".
-                WHEN "T" THEN
-                    lc-return = "3rd Party".
-            END CASE.
-        END.
-        WHEN "title"  THEN DO:
-            lc-return = "" .
-        END.
-        WHEN "dfuncTotMSFPTD"  THEN DO:
+                END CASE.
+            END.
+        WHEN "sort"  THEN 
+            DO:
+                CASE ipb-itemfg.SORT :
+                    WHEN "N" THEN
+                        lc-return = "No".
+                    WHEN "Y" THEN
+                        lc-return = "Yes".
+                END CASE.
+            END.
+        WHEN "fob-code"  THEN 
+            DO:
+                CASE ipb-itemfg.fob-code :
+                    WHEN "DEST" THEN
+                        lc-return = "Destination".
+                    WHEN "ORIG" THEN
+                        lc-return = "Origin".
+                END CASE.
+            END.
+        WHEN "active" THEN 
+            DO:
+                CASE ipb-itemfg.active :
+                    WHEN "A" THEN
+                        lc-return = "Active".
+                    WHEN "I" THEN
+                        lc-return = "Inactive".
+                    WHEN "X" THEN
+                        lc-return = "Inhouse".
+                    WHEN "S" THEN
+                        lc-return = "Statement".
+                    WHEN "E" THEN
+                        lc-return = "Service".
+                END CASE.
+            END.
+        WHEN "frt-pay" THEN 
+            DO:
+                CASE ipb-itemfg.frt-pay :
+                    WHEN "B" THEN
+                        lc-return = "Bill".
+                    WHEN "C" THEN
+                        lc-return = "Collect".
+                    WHEN "P" THEN
+                        lc-return = "Prepaid".
+                    WHEN "T" THEN
+                        lc-return = "3rd Party".
+                END CASE.
+            END.
+        WHEN "title"  THEN 
+            DO:
+                lc-return = "" .
+            END.
+        WHEN "dfuncTotMSFPTD"  THEN 
+            DO:
             /*IF g_period NE 0 THEN lc-return = STRING(ipb-itemfg.ptd-msf[g_period]).*/
-        END.
-        OTHERWISE DO:
-            IF INDEX(ipc-field,"[") > 0 THEN DO:
+            END.
+        OTHERWISE 
+        DO:
+            IF INDEX(ipc-field,"[") > 0 THEN 
+            DO:
                 li-extent = INT(SUBSTRING(ipc-field,INDEX(ipc-field,"[") + 1, LENGTH(TRIM(ipc-field)) - INDEX(ipc-field,"[") - 1)).
                 ipc-field = SUBSTRING(ipc-field,1,INDEX(ipc-field,"[") - 1).
             END.
@@ -1673,36 +1772,3 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength  B-table-Win 
-PROCEDURE pAPInvoiceLength :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAPInvoiceLength THEN DO:
-        DO WITH FRAME {&FRAME-NAME}:
-            ASSIGN begin_inv:FORMAT = "x(20)"
-                   end_inv:FORMAT = "x(20)"
-                   begin_inv:WIDTH-CHARS = 30
-                   begin_vend:WIDTH-CHARS = 30
-                   end_inv:WIDTH-CHARS = 30
-                   end_vend:WIDTH-CHARS = 30
-                   end_inv:INITIAL = "zzzzzzzzzzzzzzzzzzzz".                   
-        END.
-    END.
-    ELSE DO: 
-        DO WITH FRAME {&FRAME-NAME}:
-            ASSIGN begin_inv:FORMAT = "x(12)"
-                   end_inv:FORMAT = "x(12)"
-                   begin_inv:WIDTH-CHARS = 20
-                   begin_vend:WIDTH-CHARS = 20
-                   end_inv:WIDTH-CHARS = 20
-                   end_vend:WIDTH-CHARS = 20
-                   end_inv:INITIAL = "zzzzzzzzzzzz".
-        END.    
-    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

@@ -190,6 +190,8 @@
 
 
 /* ***************************  Main Block  *************************** */
+    RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
+    
     IF ipcRequestHandler NE "" THEN
          RUN VALUE(ipcRequestHandler) (
              INPUT TABLE ttArgs,
@@ -287,15 +289,15 @@
                    AND oe-ordl.i-no    EQ job-hdr.i-no
                  NO-ERROR.  
             ASSIGN 
-                cOrderQty = IF AVAILABLE oe-ordl THEN TRIM(STRING(oe-ordl.qty,"->,>>>,>>9")) ELSE "0"
+                cOrderQty = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.qty) ELSE "0"
                 cMfgDate  = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.prom-date) ELSE ""
                 .                                            
                 ASSIGN 
                     lcJobHeaderData               = bf-APIOutboundDetail.data
-                    cOrder                        = TRIM(STRING(job-hdr.ord-no,">>>>>9"))                                     
-                    cStartDate                    = TRIM(STRING(job-hdr.start-date,"99/99/9999"))
-                    cQuantity                     = TRIM(STRING(job-hdr.qty,">>,>>>,>>9"))                    cAverageCost                  = TRIM(STRING(job-hdr.avg-cost,">>>,>>9.9999"))                    cLastPurchaseCost             = TRIM(STRING(job-hdr.last-cost,">>>,>>9.9999"))                    cStandardItemCost             = TRIM(STRING(job-hdr.std-tot-cost,"->>>,>>9.99<<"))                    cStandardMaterialCost         = TRIM(STRING(job-hdr.std-mat-cost,"->>>,>>9.99<<"))                    cStandardLaborCost            = TRIM(STRING(job-hdr.std-lab-cost,"->>>,>>9.99<<"))                    cStandardFixedOverheadCost    = TRIM(STRING(job-hdr.std-fix-cost,"->>>,>>9.99<<"))                    cStandardVariableOverHeadCost = TRIM(STRING(job-hdr.std-var-cost,"->>>,>>9.99<<"))                    cItem                         = job-hdr.i-no                    cCustomer                     = job-hdr.cust-no                    cForm                         = TRIM(STRING(job-hdr.frm,">>9"))                    cBlank                        = TRIM(STRING(job-hdr.blank-no,">9"))                    cDueDate                      = TRIM(STRING(job-hdr.due-date,"99/99/9999"))                    cCustomerPO                   = job-hdr.po-no                    cDueTime                      = TRIM(STRING(job-hdr.due-time,">>>>9"))                    cFreezeNotes                  = STRING(job-hdr.freezeNote)                    cSplitShip                    = STRING(job-hdr.splitShip)
-                    cSquareInchPct                = STRING(job-hdr.sq-in,">>9.99")                    cFreezeNotesDate              = STRING(job-hdr.freezeNotesDate,"99/99/9999")                    cWarehoused                   = STRING(job-hdr.whsed)
+                    cOrder                        = STRING(job-hdr.ord-no)                                     
+                    cStartDate                    = STRING(job-hdr.start-date)
+                    cQuantity                     = STRING(job-hdr.qty)                    cAverageCost                  = STRING(job-hdr.avg-cost)                    cLastPurchaseCost             = STRING(job-hdr.last-cost)                    cStandardItemCost             = STRING(job-hdr.std-tot-cost)                    cStandardMaterialCost         = STRING(job-hdr.std-mat-cost)                    cStandardLaborCost            = STRING(job-hdr.std-lab-cost)                    cStandardFixedOverheadCost    = STRING(job-hdr.std-fix-cost)                    cStandardVariableOverHeadCost = STRING(job-hdr.std-var-cost)                    cItem                         = job-hdr.i-no                    cCustomer                     = job-hdr.cust-no                    cForm                         = STRING(job-hdr.frm)                    cBlank                        = STRING(job-hdr.blank-no)                    cDueDate                      = STRING(job-hdr.due-date)                    cCustomerPO                   = job-hdr.po-no                    cDueTime                      = STRING(job-hdr.due-time)                    cFreezeNotes                  = STRING(job-hdr.freezeNote)                    cSplitShip                    = STRING(job-hdr.splitShip)
+                    cSquareInchPct                = STRING(job-hdr.sq-in)                    cFreezeNotesDate              = STRING(job-hdr.freezeNotesDate)                    cWarehoused                   = STRING(job-hdr.whsed)
                     cOpened                       = STRING(job-hdr.opened)
                     cPrinted                      = STRING(job-hdr.ftick-prnt)
                     cKeyItem                      = STRING(INTEGER(job-hdr.keyItem))
@@ -392,25 +394,25 @@
                 ASSIGN
                     lcJobMatData               = bf-APIOutboundDetail.data
                     cItemNumber                = job-mat.i-no
-                    cJobMatItemStandardCost    = TRIM(STRING(job-mat.std-cost,">>>,>>9.99<<"))
+                    cJobMatItemStandardCost    = STRING(job-mat.std-cost)
                     cStandardCostUOM           = job-mat.sc-uom
-                    cCostPerUOM                = TRIM(STRING(job-mat.cost-m,"->,>>9.9999"))
-                    cQtyToOrder                = TRIM(STRING(job-mat.qty,">,>>>,>>9.9<<<<<"))
+                    cCostPerUOM                = STRING(job-mat.cost-m)
+                    cQtyToOrder                = STRING(job-mat.qty)
                     cQuantityUOM               = job-mat.qty-uom
-                    cLength                    = TRIM(STRING(job-mat.len,">>9.99<<"))
-                    cWidth                     = TRIM(STRING(job-mat.wid,">>9.99<<"))
-                    cBasisWeight               = TRIM(STRING(job-mat.basis-w,">>9.99"))
-                    cLineNumber                = TRIM(STRING(job-mat.line,"99"))
+                    cLength                    = STRING(job-mat.len)
+                    cWidth                     = STRING(job-mat.wid)
+                    cBasisWeight               = STRING(job-mat.basis-w)
+                    cLineNumber                = STRING(job-mat.line)
                     cRMItem                    = job-mat.rm-i-no
-                    cJobMatBlank               = TRIM(STRING(job-mat.blank-no,">9"))
-                    cJobMatForm                = TRIM(STRING(job-mat.frm,">>9"))
+                    cJobMatBlank               = STRING(job-mat.blank-no)
+                    cJobMatForm                = STRING(job-mat.frm)
                     cAllocated                 = STRING(all-flg)
-                    cQuantityAllocated         = TRIM(STRING(job-mat.qty-all,">>>,>>9.99<<<<"))
-                    cQuantityIssued            = TRIM(STRING(job-mat.qty-iss,"->>,>>9.99<<<<"))
-                    cMRQuantity                = TRIM(STRING(job-mat.qty-mr,">>>>9.99<<<<"))
-                    cWasteQuantity             = TRIM(STRING(job-mat.qty-wst,">>>>9.99<<<<"))
-                    cDepth                     = TRIM(STRING(job-mat.dep,">,>>9.99<<<<"))
-                    cPONumber                  = TRIM(STRING(job-mat.po-no,">>>>>9"))
+                    cQuantityAllocated         = STRING(job-mat.qty-all)
+                    cQuantityIssued            = STRING(job-mat.qty-iss)
+                    cMRQuantity                = STRING(job-mat.qty-mr)
+                    cWasteQuantity             = STRING(job-mat.qty-wst)
+                    cDepth                     = STRING(job-mat.dep)
+                    cPONumber                  = STRING(job-mat.po-no)
                     cCrossGrain                = IF job-mat.xGrain = "N" THEN "NO" ELSE IF job-mat.xGrain = "S" THEN "(S)heet"
                                                     ELSE IF job-mat.xGrain = "B" THEN "(B)lank" ELSE job-mat.xgrain
                     .
@@ -459,47 +461,47 @@
                    lcJobMachineData           = bf-APIOutboundDetail.data
                    cAnchored                  = STRING(job-mch.anchored)
                    cMachineCode               = job-mch.m-code
-                   cMRWaste                   = TRIM(STRING(job-mch.mr-waste,">>>9"))
-                   cMRRate                    = TRIM(STRING(job-mch.mr-rate,">>9.99"))
-                   cMchMRvariableOverHeadRate = TRIM(STRING(job-mch.mr-varoh,">>9.99"))
-                   cMchMRFixedOverheadRate    = TRIM(STRING(job-mch.mr-fixoh,">>9.99"))
+                   cMRWaste                   = STRING(job-mch.mr-waste)
+                   cMRRate                    = STRING(job-mch.mr-rate)
+                   cMchMRvariableOverHeadRate = STRING(job-mch.mr-varoh)
+                   cMchMRFixedOverheadRate    = STRING(job-mch.mr-fixoh)
                    cDepartment                = job-mch.dept
                    cItemName                  = job-mch.i-name
                    cJobMchItem                = job-mch.i-no
-                   cJobMatForm                = TRIM(STRING(job-mch.frm,">>9"))
-                   cRunHours                  = TRIM(STRING(job-mch.run-hr,">>9.99"))
-                   cRunMinutes                = TRIM(STRING(ROUND(job-mch.run-hr * 60, 0)))
-                   cRunSpeed                  = TRIM(STRING(job-mch.speed, ">>>>9"))
-                   cMRHours                   = TRIM(STRING(job-mch.mr-hr,">>9.99"))
-                   cMRMinutes                 = TRIM(STRING(ROUND(job-mch.mr-hr * 60, 0)))
-                   cJobMchBlank               = TRIM(STRING(job-mch.blank-no,">9"))
-                   cJobMchLineNumber          = TRIM(STRING(job-mch.line,">9"))
-                   cRunQuantity               = TRIM(STRING(job-mch.run-qty,">,>>>,>>9.9<<"))
-                   cRunStartDate              = TRIM(STRING(job-mch.start-date,"99/99/9999"))
-                   cRunStartTime              = TRIM(STRING(job-mch.start-time,"->,>>>,>>9"))
-                   cQueueTime                 = TRIM(STRING(job-mch.queue-time,">>>>9"))
-                   cLagTime                   = TRIM(STRING(job-mch.lag-time,">>>>9"))
-                   cEndDate                   = STRING(job-mch.end-date,"99/99/9999")
-                   cEndTime                   = TRIM(STRING(job-mch.end-time,"->,>>>,>>9"))
-                   cSetupStartDate            = TRIM(STRING(job-mch.start-date-su,"99/99/9999"))
-                   cSetupStartTime            = TRIM(STRING(job-mch.start-time-su,"->,>>>,>>9"))
-                   cSetupEndDate              = STRING(job-mch.end-date-su,"99/99/9999")
-                   cSetupEndTime              = TRIM(STRING(job-mch.end-time-su,"->,>>>,>>9"))
+                   cJobMatForm                = STRING(job-mch.frm)
+                   cRunHours                  = STRING(job-mch.run-hr)
+                   cRunMinutes                = STRING(ROUND(job-mch.run-hr * 60, 0))
+                   cRunSpeed                  = STRING(job-mch.speed)
+                   cMRHours                   = STRING(job-mch.mr-hr)
+                   cMRMinutes                 = STRING(ROUND(job-mch.mr-hr * 60, 0))
+                   cJobMchBlank               = STRING(job-mch.blank-no)
+                   cJobMchLineNumber          = STRING(job-mch.line)
+                   cRunQuantity               = STRING(job-mch.run-qty)
+                   cRunStartDate              = STRING(job-mch.start-date)
+                   cRunStartTime              = STRING(job-mch.start-time)
+                   cQueueTime                 = STRING(job-mch.queue-time)
+                   cLagTime                   = STRING(job-mch.lag-time)
+                   cEndDate                   = STRING(job-mch.end-date)
+                   cEndTime                   = STRING(job-mch.end-time)
+                   cSetupStartDate            = STRING(job-mch.start-date-su)
+                   cSetupStartTime            = STRING(job-mch.start-time-su)
+                   cSetupEndDate              = STRING(job-mch.end-date-su)
+                   cSetupEndTime              = STRING(job-mch.end-time-su)
                    cMRComplete                = STRING(job-mch.mr-complete)
                    cRunComplete               = STRING(job-mch.run-complete)
                    cJobMchDueDate             = STRING(job-mch.due-date,"99/99/9999")
-                   cJobMchDueTime             = TRIM(STRING(job-mch.due-time,">>>>9"))
-                   cMRTotalRate               = TRIM(STRING(job-mch.mr-trate,">>9.99"))
-                   cFixedOverHeadRate         = TRIM(STRING(job-mch.run-fixoh,">>9.99"))
-                   cRunProfitPct              = TRIM(STRING(job-mch.run-profit,">>9.99"))
-                   cMRProfitPct               = TRIM(STRING(job-mch.mr-profit,">>9.99"))
-                   cRunRate                   = TRIM(STRING(job-mch.run-rate,">>9.99"))
-                   cRunTotalRate              = TRIM(STRING(job-mch.run-trate,">>9.99"))
-                   cVariableOverheadRate      = TRIM(STRING(job-mch.run-varoh,">>9.99"))
-                   cMRContributionRate        = TRIM(STRING(job-mch.mr-cont,">>9.99"))
-                   cRunContributionRate       = TRIM(STRING(job-mch.run-cont,">>9.99"))
-                   cJobMachineID              = TRIM(STRING(job-mch.job-mchID,">>>>>>9"))
-                   cJobMchWastePct            = TRIM(STRING(job-mch.wst-prct,">>9.99"))
+                   cJobMchDueTime             = STRING(job-mch.due-time)
+                   cMRTotalRate               = STRING(job-mch.mr-trate)
+                   cFixedOverHeadRate         = STRING(job-mch.run-fixoh)
+                   cRunProfitPct              = STRING(job-mch.run-profit)
+                   cMRProfitPct               = STRING(job-mch.mr-profit)
+                   cRunRate                   = STRING(job-mch.run-rate)
+                   cRunTotalRate              = STRING(job-mch.run-trate)
+                   cVariableOverheadRate      = STRING(job-mch.run-varoh)
+                   cMRContributionRate        = STRING(job-mch.mr-cont)
+                   cRunContributionRate       = STRING(job-mch.run-cont)
+                   cJobMachineID              = STRING(job-mch.job-mchID)
+                   cJobMchWastePct            = STRING(job-mch.wst-prct)
                    . 
                 RUN updateRequestData(INPUT-OUTPUT lcJobMachineData, "Anchored",cAnchored).   
                 RUN updateRequestData(INPUT-OUTPUT lcJobMachineData, "Blank",cJobMchBlank).
@@ -560,15 +562,15 @@
                 ASSIGN  
                     lcJobPrepData     = bf-APIOutboundDetail.data 
                     cPrepCode         = job-prep.code
-                    cJobPrepQuantity  = TRIM(STRING(job-prep.qty,"->>>,>>>,>>9.9<<<<<"))
-                    cItemStandardCost = TRIM(STRING(job-prep.std-cost,">>>,>>9.99<<"))
+                    cJobPrepQuantity  = STRING(job-prep.qty)
+                    cItemStandardCost = STRING(job-prep.std-cost)
                     cStandardUOM      = job-prep.sc-uom
-                    cCostPerM         = TRIM(STRING(job-prep.cost-m,"->,>>9.9999"))
-                    cPrepDate         = TRIM(STRING(job-prep.prep-date,"99/99/9999"))
-                    cPrepTime         = TRIM(STRING(job-prep.prep-time,"->,>>>,>>9"))
+                    cCostPerM         = STRING(job-prep.cost-m)
+                    cPrepDate         = STRING(job-prep.prep-date)
+                    cPrepTime         = STRING(job-prep.prep-time)
                     cjobPrepPosted    = STRING(job-prep.opn)        
-                    cJobPrepForm      = TRIM(STRING(job-prep.frm,">>9"))
-                    cJobPrepBlank     = TRIM(STRING(job-prep.blank-no,">9"))
+                    cJobPrepForm      = STRING(job-prep.frm)
+                    cJobPrepBlank     = STRING(job-prep.blank-no)
                     cMatOrLab         = IF job-prep.ml THEN "Material" ELSE "Labor"
                     cSIMON            = IF job-prep.simon EQ "S"      THEN "Seperate" 
                                         ELSE IF job-prep.simon EQ "I" THEN "Integrate"

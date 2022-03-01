@@ -32,7 +32,7 @@ DEF VAR v-ship-zip AS CHAR NO-UNDO .
 DEF VAR v-ship-name AS CHAR NO-UNDO .
 DEF VAR v-fg-cat AS CHAR INIT "" NO-UNDO .
 DEFINE VARIABLE lSelected AS LOGICAL INIT YES NO-UNDO.
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+//DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 DEFINE VARIABLE cRelDueDate AS CHARACTER NO-UNDO.
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -48,26 +48,26 @@ cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
   /*{sys/form/r-top5DL.f} */
   {sys/form/r-top.i}
-{sys/inc/ctrtext.i str-tit 112}.
-RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+{sys/inc/ctrtext.i str-tit 122}.
+//RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header 
      skip(1)
      day_str
-     str-tit format "x(112)"
+     str-tit format "x(122)"
      "Page" at 123
      page-number format ">>9"
      skip
      tim_str
-     str-tit2 format "x(112)"
+     str-tit2 format "x(122)"
      skip
-     str-tit3 format "x(112)"
+     str-tit3 format "x(122)"
      skip(1)
-     str-tit4 format "x(299)"
+     str-tit4 format "x(313)"
      skip
-     str-tit5 format "x(299)"
+     str-tit5 format "x(313)"
      skip(1)
-     with frame r-top100 row 1 column 1 stream-io width 300
+     with frame r-top100 row 1 column 1 stream-io width 314
      no-labels no-box no-underline .
 
 
@@ -87,7 +87,7 @@ form header
 
   assign
    str-tit2 = c-win:title
-   {sys/inc/ctrtext.i str-tit2 112}
+   {sys/inc/ctrtext.i str-tit2 122}
 
    v-fcust[1]   = begin_cust-no
    v-fcust[2]   = end_cust-no
@@ -129,7 +129,7 @@ form header
               if v-sort eq "A"  then "By Carrier By Date"       else
               if v-sort eq "CR" then "By Credit Rating By Date" else
                                      "By Territory By Date"
-  {sys/inc/ctrtext.i str-tit3 132}.
+  {sys/inc/ctrtext.i str-tit3 142}.
    
   FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
      IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
@@ -159,7 +159,7 @@ form header
 
   if td-show-parm then run show-param.
 
-  IF tb_excel THEN 
+  IF rd-dest EQ 3 THEN 
   DO:
   
     OUTPUT STREAM excel TO VALUE(cFileName).
@@ -725,8 +725,6 @@ form header
 
   SESSION:SET-WAIT-STATE ("").
 
-  IF tb_excel THEN DO:
+  IF rd-dest EQ 3 THEN DO:
     OUTPUT STREAM excel CLOSE.
-    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END.

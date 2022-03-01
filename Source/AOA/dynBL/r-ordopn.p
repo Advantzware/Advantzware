@@ -16,26 +16,37 @@
 {sys/ref/CustList.i NEW}
 
 DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
-    FIELD inv-no       AS   INTEGER 
-    FIELD chk-inv      AS   LOGICAL INITIAL YES
+    FIELD inv-no         AS INTEGER 
+    FIELD chk-inv        AS LOGICAL INITIAL YES
     FIELD q-onh        LIKE itemfg.q-onh
     FIELD q-shp        LIKE itemfg.q-onh
     FIELD q-rel        LIKE itemfg.q-onh
     FIELD q-wip        LIKE itemfg.q-onh
     FIELD q-avl        LIKE itemfg.q-onh
     FIELD po-no        LIKE oe-ord.po-no
-    FIELD inv          AS   LOGICAL
+    FIELD inv            AS LOGICAL
     FIELD cad-no       LIKE itemfg.cad-no
-    FIELD row-id       AS   ROWID 
+    FIELD row-id         AS ROWID 
     FIELD due-date     LIKE oe-ordl.req-date
     FIELD unit-count   LIKE eb.cas-cnt
     FIELD units-pallet LIKE eb.cas-pal
+    FIELD job-no         AS CHARACTER
+    FIELD die          LIKE eb.die-no
+    FIELD styl         LIKE eb.style
+    FIELD due-dt         AS DATE
+    FIELD run-end-date   AS DATE
+    FIELD sht            AS CHARACTER
+    FIELD prntd          AS CHARACTER
+    FIELD die-cut        AS CHARACTER
+    FIELD glue           AS CHARACTER
     .
 /* Local Variable Definitions ---                                       */
 
 &Scoped-define subjectID 20
 {AOA/includes/subjectID{&subjectID}Defs.i}
 
+DEFINE VARIABLE dOrdVal    AS DECIMAL NO-UNDO.
+DEFINE VARIABLE iRecordID  AS INTEGER NO-UNDO.
 DEFINE VARIABLE lOrderLine AS LOGICAL NO-UNDO.
 
 FUNCTION fCalcSellPrice RETURN DECIMAL ():
@@ -59,26 +70,27 @@ END FUNCTION.
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
-    DEFINE VARIABLE lInc       AS    LOGICAL          NO-UNDO INITIAL YES.
-    DEFINE VARIABLE cStat      AS    CHARACTER        NO-UNDO INITIAL "A".
-    DEFINE VARIABLE iBalQty    AS    INTEGER          NO-UNDO.
-    DEFINE VARIABLE iQOH       LIKE  itemfg.q-onh     NO-UNDO.
-    DEFINE VARIABLE iQtyShp    LIKE  iQOH             NO-UNDO.
-    DEFINE VARIABLE iQtyRel    LIKE  iQOH             NO-UNDO.
-    DEFINE VARIABLE cComma     AS    CHARACTER        NO-UNDO INITIAL ",".
-    DEFINE VARIABLE dJobQty    AS    DECIMAL          NO-UNDO.
-    DEFINE VARIABLE dRecQty    AS    DECIMAL          NO-UNDO.
-    DEFINE VARIABLE cStat2     AS    CHARACTER        NO-UNDO.
-    DEFINE VARIABLE dtDueDate  LIKE  oe-ordl.req-date NO-UNDO.
-    DEFINE VARIABLE dtDueDate2 LIKE  oe-ordl.req-date NO-UNDO.
-    DEFINE VARIABLE lSched     AS    LOGICAL          NO-UNDO.
-    DEFINE VARIABLE iIndex     AS INTEGER             NO-UNDO.
-    DEFINE VARIABLE tmpFile    AS CHARACTER           NO-UNDO.
-    DEFINE VARIABLE lc-result  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cResult    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iCount     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lInc         AS LOGICAL          NO-UNDO INITIAL YES.
+    DEFINE VARIABLE cStat        AS CHARACTER        NO-UNDO INITIAL "A".
+    DEFINE VARIABLE iBalQty      AS INTEGER          NO-UNDO.
+    DEFINE VARIABLE iQOH       LIKE itemfg.q-onh     NO-UNDO.
+    DEFINE VARIABLE iQtyShp    LIKE iQOH             NO-UNDO.
+    DEFINE VARIABLE iQtyRel    LIKE iQOH             NO-UNDO.
+    DEFINE VARIABLE cComma       AS CHARACTER        NO-UNDO INITIAL ",".
+    DEFINE VARIABLE dJobQty      AS DECIMAL          NO-UNDO.
+    DEFINE VARIABLE dRecQty      AS DECIMAL          NO-UNDO.
+    DEFINE VARIABLE cStat2       AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE dtDueDate  LIKE oe-ordl.req-date NO-UNDO.
+    DEFINE VARIABLE dtDueDate2 LIKE oe-ordl.req-date NO-UNDO.
+    DEFINE VARIABLE lSched       AS LOGICAL          NO-UNDO.
+    DEFINE VARIABLE iIndex       AS INTEGER          NO-UNDO.
+    DEFINE VARIABLE tmpFile      AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE lc-result    AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE cResult      AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE iCount       AS INTEGER          NO-UNDO.
     
     DEFINE BUFFER bOERell FOR oe-rell.
+    DEFINE BUFFER bJobMch FOR job-mch.
     
     /* subject business logic */
     IF lAllJobNo THEN
@@ -94,9 +106,8 @@ PROCEDURE pBusinessLogic:
         cEndJobNo    = FILL(" ",6 - LENGTH(TRIM(cEndJobNo))) + TRIM(cEndJobNo) + STRING(INTEGER(iEndJobNo2),"99") 
         cStat        = SUBSTRING(cJobStatus,1,2)
         cOrderStatus = SUBSTRING(cOrderStatus,1,1)
-        lInc         = lIncludeZeroOrderBalanceItems  
+        lInc         = lIncludeZeroOrderBalanceItems
         .
-    
     FIND FIRST oe-ctrl NO-LOCK
          WHERE oe-ctrl.company EQ cCompany
          NO-ERROR.
@@ -110,9 +121,9 @@ PROCEDURE pBusinessLogic:
           AND oe-ord.user-id  GE cStartUserID
           AND oe-ord.user-id  LE cEndUserID
           AND (cOrderStatus   EQ "A" 
-           OR (oe-ord.opened
+           OR (oe-ord.opened  EQ YES
           AND cOrderStatus    EQ "O")
-           OR (NOT oe-ord.opened
+           OR (oe-ord.opened  EQ NO
           AND cOrderStatus    EQ "C"))
         USE-INDEX ordate,
         EACH oe-ordl OF oe-ord NO-LOCK
@@ -174,7 +185,7 @@ PROCEDURE pBusinessLogic:
     
         dtDueDate = oe-ordl.req-date.
     
-        IF cPrimarySort EQ "Release Due Date" THEN DO:
+        IF lUseReleaseDueDate THEN DO:
             dtDueDate  = ?.
             FOR EACH oe-rel NO-LOCK
                 WHERE oe-rel.company EQ oe-ordl.company
@@ -188,11 +199,11 @@ PROCEDURE pBusinessLogic:
                                                  ELSE oe-rel.rel-date.
                 LEAVE.
             END. /* each oe-rel */
-        END. /* primarysort eq rel date */
+        END. /* if lUseReleaseDueDate */
     
         IF dtDueDate LT dtStartDueDate OR
            dtDueDate GT dtEndDueDate   THEN NEXT.
-    
+
         ASSIGN
             lOrderLine = YES
             iBalQty    = oe-ordl.qty
@@ -316,7 +327,7 @@ PROCEDURE pBusinessLogic:
               AND ar-invl.i-no    EQ oe-ordl.i-no
             USE-INDEX ord-no
             :
-            RUN pBuildttReport (ar-invl.inv-date, RECID(ar-invl),cPrimarySort,cSecondarySort).
+            RUN pBuildttReport (ar-invl.inv-date, RECID(ar-invl)).
         END. /* each ar-invl */
     
         IF oe-ctrl.u-inv THEN
@@ -328,7 +339,7 @@ PROCEDURE pBusinessLogic:
             FIRST inv-head NO-LOCK
             WHERE inv-head.r-no EQ inv-line.r-no
             :
-            RUN pBuildttReport (inv-head.inv-date, RECID(inv-line),cPrimarySort,cSecondarySort).
+            RUN pBuildttReport (inv-head.inv-date, RECID(inv-line)).
         END. /* each inv-line */
     
         FOR EACH oe-rell NO-LOCK
@@ -382,7 +393,7 @@ PROCEDURE pBusinessLogic:
             END. /* if avail oe-bolh */
             IF NOT AVAILABLE ar-invl  AND
                NOT AVAILABLE inv-line THEN
-            RUN pBuildttReport (oe-relh.rel-date, RECID(oe-rell),cPrimarySort,cSecondarySort).
+            RUN pBuildttReport (oe-relh.rel-date, RECID(oe-rell)).
         END. /* each oe-rell */
     
         IF lSched THEN
@@ -392,11 +403,74 @@ PROCEDURE pBusinessLogic:
               AND oe-rel.i-no    EQ oe-ordl.i-no
               AND oe-rel.line    EQ oe-ordl.line
             :
-            RUN pBuildttReport (oe-rel.rel-date, RECID(oe-rel),cPrimarySort,cSecondarySort).
+            RUN pBuildttReport (oe-rel.rel-date, RECID(oe-rel)).
         END. /* each oe-rel */
     
         IF lOrderLine THEN
-        RUN pBuildttReport (TODAY, RECID(oe-ordl),cPrimarySort,cSecondarySort).
+        RUN pBuildttReport (TODAY, RECID(oe-ordl)).
+
+        FIND FIRST job NO-LOCK
+             WHERE job.company EQ oe-ordl.company
+               AND job.job-no  EQ oe-ordl.job-no
+               AND job.job-no2 EQ oe-ordl.job-no2
+             NO-ERROR.
+        IF AVAILABLE job THEN DO:
+            tt-report.due-dt = job.start-date.
+            IF AVAILABLE oe-ordl THEN
+            tt-report.due-dt = IF oe-ordl.req-date  NE ? THEN oe-ordl.req-date
+                          ELSE IF oe-ordl.prom-date NE ? THEN oe-ordl.prom-date
+                          ELSE tt-report.due-dt.                        
+            FOR EACH job-hdr NO-LOCK 
+                WHERE job-hdr.company  EQ oe-ordl.company
+                  AND job-hdr.ord-no   EQ oe-ordl.ord-no
+                  AND job-hdr.i-no     EQ oe-ordl.i-no
+                  AND job-hdr.job-no   EQ oe-ordl.job-no
+                  AND job-hdr.job-no2  EQ oe-ordl.job-no2
+                BREAK BY job-hdr.job-no
+                      BY job-hdr.job-no2
+                      BY job-hdr.frm
+                      BY job-hdr.blank-no
+                TRANSACTION:                
+                IF job-hdr.job-no NE "" THEN
+                tt-report.job-no = FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no)))
+                                 + TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99")
+                                 .
+                ASSIGN
+                    tt-report.sht     = " "
+                    tt-report.prntd   = " "
+                    tt-report.die-cut = " "
+                    tt-report.glue    = " "
+                    .
+                IF LAST-OF(job-hdr.blank-no) THEN DO:
+                    FIND LAST bJobMch NO-LOCK
+                         WHERE bJobMch.company EQ job-hdr.company
+                           AND bJobMch.job-no  EQ job-hdr.job-no
+                           AND bJobMch.job-no2 EQ job-hdr.job-no2
+                         USE-INDEX seq-idx
+                         NO-ERROR.
+                    IF AVAILABLE bJobMch THEN DO:
+                        tt-report.run-end-date = bJobMch.end-date.
+                        RELEASE bJobMch.
+                    END.
+                    ELSE tt-report.run-end-date = ?.
+                    FIND FIRST bJobMch NO-LOCK
+                         WHERE bJobMch.company EQ job-hdr.company
+                           AND bJobMch.job-no  EQ job-hdr.job-no
+                           AND bJobMch.job-no2 EQ job-hdr.job-no2
+                         USE-INDEX seq-idx
+                         NO-ERROR.                  
+                    IF AVAILABLE bJobMch AND bJobMch.dept  EQ "GL" AND bJobMch.run-complete THEN 
+                    tt-report.glue = "  X".
+                    IF AVAILABLE bJobMch AND (bJobMch.dept EQ "RS" OR  bJobMch.dept  EQ "AA") AND bJobMch.run-complete THEN 
+                    tt-report.sht = "  X".
+                    IF AVAILABLE bJobMch AND bJobMch.dept  EQ "PR" AND bJobMch.run-complete THEN 
+                    tt-report.prntd = "  X".
+                    IF AVAILABLE bJobMch AND bJobMch.dept  EQ "DC" AND bJobMch.run-complete THEN 
+                    tt-report.die-cut = "  X".                
+                    RELEASE bJobMch.
+                END. /* if last-of */
+            END. /* each job-hdr */                
+        END. /* avail job  */      
     END. /*  each oe-ord  */
     
     FOR EACH tt-report NO-LOCK 
@@ -413,24 +487,24 @@ PROCEDURE pBusinessLogic:
             .
         IF LAST-OF(tt-report.row-id) THEN DO:
             IF NOT CAN-FIND(FIRST ttOpenOrderReportDetail
-                            WHERE ttOpenOrderReportDetail.company EQ cCompany
-                              AND ttOpenOrderReportDetail.i-no    EQ oe-ordl.i-no) THEN
-            RUN pCalcQOH (cCompany).
+                            WHERE ttOpenOrderReportDetail.xxcompany EQ cCompany
+                              AND ttOpenOrderReportDetail.xxi-no    EQ oe-ordl.i-no) THEN
+            RUN pCalcQOH (cCompany, oe-ordl.i-no).
     
             ASSIGN
                 iIndex = iIndex + 1
                 tt-report.key-08 = STRING(iIndex)
                 .
             FOR EACH ttOpenOrderReportDetail
-                WHERE ttOpenOrderReportDetail.company EQ oe-ordl.company
-                  AND ttOpenOrderReportDetail.i-no    EQ oe-ordl.i-no
-                  AND ttOpenOrderReportDetail.job-no  EQ oe-ordl.job-no
-                  AND ttOpenOrderReportDetail.job-no2 EQ oe-ordl.job-no2
+                WHERE ttOpenOrderReportDetail.xxcompany EQ oe-ordl.company
+                  AND ttOpenOrderReportDetail.xxi-no    EQ oe-ordl.i-no
+                  AND ttOpenOrderReportDetail.job-no    EQ oe-ordl.job-no
+                  AND ttOpenOrderReportDetail.job-no2   EQ oe-ordl.job-no2
                 :
                 ASSIGN
                     tt-report.q-onh = tt-report.q-onh + ttOpenOrderReportDetail.qty
-                    ttOpenOrderReportDetail.ord-no = oe-ord.ord-no
-                    ttOpenOrderReportDetail.xxIndex = iIndex
+                    ttOpenOrderReportDetail.xxord-no = oe-ord.ord-no
+                    ttOpenOrderReportDetail.xxIndex  = iIndex
                     .
             END. /*  end of for each ttOpenOrderReportDetail */
     
@@ -447,15 +521,15 @@ PROCEDURE pBusinessLogic:
                 :
                 IF FIRST-OF(job-hdr.i-no) THEN
                 FOR EACH ttOpenOrderReportDetail 
-                    WHERE ttOpenOrderReportDetail.company EQ job-hdr.company
-                      AND ttOpenOrderReportDetail.i-no    EQ job-hdr.i-no
-                      AND ttOpenOrderReportDetail.job-no  EQ job-hdr.job-no
-                      AND ttOpenOrderReportDetail.job-no2 EQ job-hdr.job-no2
+                    WHERE ttOpenOrderReportDetail.xxcompany EQ job-hdr.company
+                      AND ttOpenOrderReportDetail.xxi-no    EQ job-hdr.i-no
+                      AND ttOpenOrderReportDetail.job-no    EQ job-hdr.job-no
+                      AND ttOpenOrderReportDetail.job-no2   EQ job-hdr.job-no2
                     :
                     ASSIGN
                         tt-report.q-onh = tt-report.q-onh + ttOpenOrderReportDetail.qty
-                        ttOpenOrderReportDetail.ord-no = oe-ord.ord-no
-                        ttOpenOrderReportDetail.xxIndex = iIndex
+                        ttOpenOrderReportDetail.xxord-no = oe-ord.ord-no
+                        ttOpenOrderReportDetail.xxIndex  = iIndex
                         .
                 END. /* each ttOpenOrderReportDetail */
             END. /* each job-hdr */
@@ -464,7 +538,7 @@ PROCEDURE pBusinessLogic:
                 tt-report.q-shp = iQtyShp
                 tt-report.q-rel = iQtyRel
                 .
-            IF cWIPQty EQ "1" THEN
+            IF cWIPQty EQ "Order" THEN
             tt-report.q-wip = oe-ordl.qty - (tt-report.q-onh + tt-report.q-shp).
             ELSE DO:
                 ASSIGN
@@ -545,7 +619,7 @@ PROCEDURE pBusinessLogic:
           AND (lIncludeZeroQtyActReleaseQty
            OR tt-report.q-avl   GT 0
            OR tt-report.q-rel   GT 0),
-        FIRST itemfg
+        FIRST itemfg NO-LOCK
         WHERE itemfg.company    EQ cCompany
           AND itemfg.i-no       EQ tt-report.key-06,
         FIRST cust NO-LOCK
@@ -553,15 +627,7 @@ PROCEDURE pBusinessLogic:
           AND cust.cust-no      EQ tt-report.key-02,
         FIRST oe-ordl NO-LOCK 
         WHERE ROWID(oe-ordl)    EQ tt-report.row-id,
-        FIRST oe-ord OF oe-ordl 
-        BREAK BY tt-report.key-01
-              BY tt-report.key-02
-              BY tt-report.key-03
-              BY tt-report.key-04
-              BY tt-report.key-05
-              BY tt-report.key-06
-              BY tt-report.row-id
-              BY tt-report.key-07
+        FIRST oe-ord OF oe-ordl NO-LOCK 
         :
         dtDueDate2 = ?.
         FOR EACH oe-rel NO-LOCK 
@@ -576,52 +642,101 @@ PROCEDURE pBusinessLogic:
            LEAVE.
         END. /* end of for each oe-rel */
     
-        lc-result = oe-ord.stat .
-            RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
-            IF cResult NE "" THEN
-                lc-result  = cResult .
+        dOrdVal = 0.
+        IF oe-ordl.pr-uom BEGINS "L" AND oe-ordl.pr-uom NE "LB" THEN
+        dOrdVal = oe-ordl.price * IF oe-ordl.qty LT 0 THEN -1 ELSE 1.
+        ELSE IF oe-ordl.pr-uom EQ "CS" THEN
+             dOrdVal = oe-ordl.qty
+                     / (IF oe-ordl.cas-cnt NE 0 THEN oe-ordl.cas-cnt
+                        ELSE IF AVAILABLE itemfg AND itemfg.case-count NE 0 THEN
+                        itemfg.case-count ELSE 1)
+                     * oe-ordl.price
+                     .
+             ELSE IF oe-ordl.pr-uom EQ "C" THEN
+                  dOrdVal = oe-ordl.qty / 100 * oe-ordl.price.
+                  ELSE IF oe-ordl.pr-uom EQ "M" THEN
+                       dOrdVal = oe-ordl.qty / 1000 * oe-ordl.price.
+                       ELSE /* default to each */
+                       dOrdVal = oe-ordl.qty * oe-ordl.price.
+        dOrdVal = ROUND(dOrdVal,2).
+        IF oe-ordl.disc NE 0 THEN
+        dOrdVal = ROUND(dOrdVal * (1 - (oe-ordl.disc / 100)),2).
+
+        lc-result = oe-ord.stat.
+        RUN oe/getStatusDesc.p (oe-ord.stat, OUTPUT cResult) .
+        IF cResult NE "" THEN
+        lc-result = cResult.
     
         CREATE ttOpenOrderReport.
         ASSIGN
-            ttOpenOrderReport.custNo      = cust.cust-no
-            ttOpenOrderReport.lineDueDate = oe-ordl.req-date
-            ttOpenOrderReport.relDueDate  = dtDueDate2 
-            ttOpenOrderReport.custPartNo  = oe-ordl.part-no 
-            ttOpenOrderReport.fgItemName  = oe-ordl.i-name 
-            ttOpenOrderReport.fgItemNo    = oe-ordl.i-no 
-            ttOpenOrderReport.orderNo     = oe-ordl.ord-no
-            ttOpenOrderReport.cadNo       = tt-report.cad-no
-            ttOpenOrderReport.poNo        = tt-report.po-no
-            ttOpenOrderReport.qtyOrd      = oe-ordl.qty 
-            ttOpenOrderReport.qtyOnhand   = tt-report.q-onh
-            ttOpenOrderReport.qtyShipped  = tt-report.q-shp
-            ttOpenOrderReport.qtyActRel   = tt-report.q-rel
-            ttOpenOrderReport.qtyWIP      = tt-report.q-wip
-            ttOpenOrderReport.qtyAvail    = tt-report.q-avl
-            ttOpenOrderReport.salesRep    = oe-ordl.s-man[1]
-            ttOpenOrderReport.unit        = tt-report.unit-count
-            ttOpenOrderReport.pallet      = tt-report.units-pallet
-            ttOpenOrderReport.palletCount = ttOpenOrderReport.unit
-                                          * ttOpenOrderReport.pallet
-            ttOpenOrderReport.sellPrice   = fCalcSellPrice()
-            ttOpenOrderReport.cSTATUS     = lc-result
-            ttOpenOrderReport.xxSort1     = IF cPrimarySort EQ "Customer" THEN ttOpenOrderReport.custNo
-                                            ELSE tt-report.key-01
-            ttOpenOrderReport.xxSort2     = tt-report.key-03
-            ttOpenOrderReport.xxIndex     = INTEGER(tt-report.key-08)
-            iCount = iCount + 1
+            ttOpenOrderReport.custNo       = cust.cust-no
+            ttOpenOrderReport.lineDueDate  = oe-ordl.req-date
+            ttOpenOrderReport.relDueDate   = dtDueDate2 
+            ttOpenOrderReport.custPartNo   = oe-ordl.part-no 
+            ttOpenOrderReport.fgItemName   = oe-ordl.i-name 
+            ttOpenOrderReport.fgItemNo     = oe-ordl.i-no 
+            ttOpenOrderReport.orderNo      = oe-ordl.ord-no
+            ttOpenOrderReport.cadNo        = tt-report.cad-no
+            ttOpenOrderReport.poNo         = tt-report.po-no
+            ttOpenOrderReport.qtyOrd       = oe-ordl.qty 
+            ttOpenOrderReport.qtyOnhand    = tt-report.q-onh
+            ttOpenOrderReport.qtyShipped   = tt-report.q-shp
+            ttOpenOrderReport.qtyActRel    = tt-report.q-rel
+            ttOpenOrderReport.qtyWIP       = tt-report.q-wip
+            ttOpenOrderReport.qtyAvail     = tt-report.q-avl
+            ttOpenOrderReport.salesRep     = oe-ordl.s-man[1]
+            ttOpenOrderReport.unit         = tt-report.unit-count
+            ttOpenOrderReport.pallet       = tt-report.units-pallet
+            ttOpenOrderReport.palletCount  = ttOpenOrderReport.unit
+                                           * ttOpenOrderReport.pallet
+            ttOpenOrderReport.sellPrice    = fCalcSellPrice()
+            ttOpenOrderReport.cStatus      = lc-result
+            ttOpenOrderReport.orderValue   = dOrdVal
+            ttOpenOrderReport.ackDate      = oe-ord.ack-prnt-date
+            ttOpenOrderReport.ordStartDate = oe-ord.ord-date
+            ttOpenOrderReport.csr          = oe-ord.csrUser_id            
+            ttOpenOrderReport.jobNo        = tt-report.job-no
+            ttOpenOrderReport.die          = tt-report.die
+            ttOpenOrderReport.style        = tt-report.styl
+            ttOpenOrderReport.dueDate      = tt-report.due-dt
+            ttOpenOrderReport.runEndDate   = tt-report.run-end-date
+            ttOpenOrderReport.sheeted      = tt-report.sht
+            ttOpenOrderReport.printed      = tt-report.prntd
+            ttOpenOrderReport.dueCut       = tt-report.die-cut
+            ttOpenOrderReport.glued        = tt-report.glue
+            ttOpenOrderReport.xxIndex      = INTEGER(tt-report.key-08)
+            iRecordID                      = iRecordID + 1            
+            ttOpenOrderReport.recordID     = iRecordID
+            iCount                         = iCount + 1
             .
+        IF lShowDetail AND ttOpenOrderReport.qtyOnhand GT 0 THEN
+        FOR EACH ttOpenOrderReportDetail
+            WHERE ttOpenOrderReportDetail.xxcompany EQ cCompany
+              AND ttOpenOrderReportDetail.xxi-no    EQ ttOpenOrderReport.fgItemNo
+              AND ttOpenOrderReportDetail.qty       GT 0
+              AND (ttOpenOrderReportDetail.xxord-no EQ ttOpenOrderReport.orderNo
+               OR SUBSTRING(tt-report.key-04,1,6)   EQ "")
+              AND ttOpenOrderReportDetail.xxcust-no EQ ""
+             :
+             ttOpenOrderReportDetail.recordID = ttOpenOrderReport.recordID.
+        END. /* each ttopenorderreportdetail */
         IF lProgressBar THEN
-            RUN spProgressBar (cProgressBar, iCount, ?).
-            DELETE tt-report.
+        RUN spProgressBar (cProgressBar, iCount, ?).
+        DELETE tt-report.
     END. /* each tt-report */
+    IF lShowDetail THEN
+    FOR EACH ttOpenOrderReportDetail
+        WHERE ttOpenOrderReportDetail.recordID EQ 0
+        :
+        DELETE ttOpenOrderReportDetail.
+    END. /* each ttopenorderreportdetail */
+    ELSE
+    EMPTY TEMP-TABLE ttOpenOrderReportDetail.
 END PROCEDURE.
 
 PROCEDURE pBuildttReport:
     DEFINE INPUT PARAMETER ipdtDate         AS DATE      NO-UNDO.
     DEFINE INPUT PARAMETER iprRecID         AS RECID     NO-UNDO.
-    DEFINE INPUT PARAMETER ipcPrimarySort   AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcSecondarySort AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE dtDueDate  LIKE oe-ordl.req-date NO-UNDO.
     DEFINE VARIABLE dtDueDate2 LIKE oe-ordl.req-date NO-UNDO.
@@ -674,6 +789,10 @@ PROCEDURE pBuildttReport:
             ASSIGN
                 tt-report.unit-count   = eb.cas-cnt
                 tt-report.units-pallet = eb.cas-pal
+                tt-report.unit-count   = eb.cas-cnt
+                tt-report.units-pallet = eb.cas-pal
+                tt-report.die          = eb.die-no
+                tt-report.styl         = eb.style
                 .
             RELEASE eb.
         END.  /*IF AVAIL eb*/
@@ -681,23 +800,7 @@ PROCEDURE pBuildttReport:
 
     ASSIGN
         tt-report.term-id  = ""
-        tt-report.key-01   = IF ipcPrimarySort EQ "Line Due Date" OR ipcPrimarySort EQ "Release Due Date" THEN
-                             STRING(YEAR(dtDueDate),"9999")
-                           + STRING(MONTH(dtDueDate),"99")
-                           + STRING(DAY(dtDueDate),"99")
-                        ELSE IF ipcPrimarySort EQ "Sales Rep" THEN oe-ordl.s-man[1]
-                        ELSE ""
         tt-report.key-02   = oe-ord.cust-no
-        tt-report.key-03   = IF ipcSecondarySort EQ "PO"           THEN cPONo
-                        ELSE IF ipcSecondarySort EQ "Item"         THEN (STRING(oe-ordl.i-no,"x(15)") + cPONo)
-                        ELSE IF ipcSecondarySort EQ "Cust Part"    THEN (STRING(oe-ordl.part-no,"x(15)") + STRING(oe-ord.ord-no,"99999999999"))
-                        ELSE IF ipcSecondarySort EQ "FG Item Name" THEN (STRING(oe-ordl.i-name,"x(30)") + STRING(oe-ord.ord-no,"99999999999"))
-                        ELSE IF ipcSecondarySort EQ "Order"        THEN (STRING(oe-ord.ord-no,"99999999999") + oe-ordl.part-no)
-                        ELSE IF ipcSecondarySort EQ "CAD"          THEN (STRING(tt-report.cad-no,"x(15)") + STRING(oe-ord.ord-no,"99999999999"))
-                        ELSE (STRING(YEAR(dtDueDate),"9999")
-                           + STRING(MONTH(dtDueDate),"99")
-                           + STRING(DAY(dtDueDate),"99")
-                           + STRING(oe-ordl.part-no,"x(15)") + STRING(oe-ord.ord-no,"99999999999"))              
         tt-report.key-04   = FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no)))
                            + TRIM(oe-ordl.job-no) + "-"
                            + STRING(oe-ordl.job-no2,"99")
@@ -750,17 +853,29 @@ END PROCEDURE.
 
 PROCEDURE pCalcQOH:
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemNo  AS CHARACTER NO-UNDO.
 
     FOR EACH itemfg NO-LOCK
         WHERE itemfg.company EQ ipcCompany
-          AND itemfg.i-no    EQ oe-ordl.i-no,
+          AND itemfg.i-no    EQ ipcItemNo,
         EACH fg-bin NO-LOCK
         WHERE fg-bin.company EQ itemfg.company
           AND fg-bin.i-no    EQ itemfg.i-no
         :
         CREATE ttOpenOrderReportDetail.
-        BUFFER-COPY fg-bin TO ttOpenOrderReportDetail.
+        ASSIGN
+            ttOpenOrderReportDetail.xxcompany = fg-bin.company
+            ttOpenOrderReportDetail.xxi-no    = fg-bin.i-no
+            ttOpenOrderReportDetail.xxord-no  = fg-bin.ord-no
+            ttOpenOrderReportDetail.xxcust-no = fg-bin.cust-no
+            ttOpenOrderReportDetail.job-no    = fg-bin.job-no
+            ttOpenOrderReportDetail.job-no2   = fg-bin.job-no2
+            ttOpenOrderReportDetail.loc       = fg-bin.loc
+            ttOpenOrderReportDetail.loc-bin   = fg-bin.loc-bin
+            ttOpenOrderReportDetail.tag       = fg-bin.tag
+            ttOpenOrderReportDetail.qty       = fg-bin.qty
+            .
     END. /*FOR EACH itemfg*/
 END PROCEDURE.
 
-{aoa/BL/pBuildCustList.i}
+{AOA/dynBL/pBuildCustList.i}

@@ -96,6 +96,8 @@ DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
 DEFINE VARIABLE cReturn AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOG  NO-UNDO.
 DEFINE VARIABLE iQuoPrint AS INTEGER NO-UNDO.
+DEFINE VARIABLE dWeight   AS DECIMAL FORMAT ">>>>>9.99<<" NO-UNDO.
+DEFINE VARIABLE v-corr    AS LOGICAL                      NO-UNDO.
 
 FIND FIRST users WHERE
      users.user_id EQ USERID("NOSWEAT")
@@ -115,7 +117,13 @@ IF lRecFound THEN
 /* Capture the current active printer */
 CREATE "WScript.Network" WshNetwork.
 
-CREATE "Excel.Application" chExcelApplication .
+CREATE "Excel.Application" chExcelApplication NO-ERROR.
+IF NOT VALID-HANDLE(chExcelApplication) THEN DO:
+    MESSAGE 
+      "Microsoft Excel is required.  This report is unable to be executed."
+    VIEW-AS ALERT-BOX ERROR.
+    RETURN.
+END.
 
 assign CurActivePrinter = SESSION:PRINTER-NAME
        AdobePrinter     = "CutePDF Writer"
@@ -175,7 +183,7 @@ if (xquo.shipto[1] eq xquo.soldto[1] and
      ship[4] = ""
      ship[5] = "SAME".
 
-  IF iQuoPrint EQ 1 THEN
+  IF iQuoPrint EQ 1 AND est.estimateTypeID NE "Misc" THEN
   RUN sys/ref/getFileFullPathName.p ("Template\QuotePremWaterMark.xlt", OUTPUT chFile).
   ELSE RUN sys/ref/getFileFullPathName.p ("Template\QuotePrem.xlt", OUTPUT chFile). 
   IF chFile = ? THEN  

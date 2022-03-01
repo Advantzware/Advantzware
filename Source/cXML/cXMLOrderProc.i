@@ -195,6 +195,7 @@ PROCEDURE assignOrderHeader:
                             ELSE IF paymentPCard BEGINS '5' THEN 'MC'
                             ELSE IF paymentPCard BEGINS '6' THEN 'DISCOVER'
                             ELSE ''
+          oe-ord.ediSubmitted  = 1                  
           .
           IF paymentExpiration NE '' THEN
           oe-ord.cc-expiration = DATE(INT(SUBSTR(paymentExpiration,6,2))
@@ -309,6 +310,12 @@ PROCEDURE assignOrderHeader:
             shipToID = shipto.ship-id.
             /*10061401*/
         END. /* can find shipto */
+
+        FIND FIRST bf-shipto NO-LOCK
+             WHERE bf-shipto.company EQ oe-ord.company
+               AND bf-shipto.cust-no EQ oe-ord.cust-no
+               AND bf-shipto.ship-id EQ shipToID NO-ERROR.
+        oe-ord.carrier = IF AVAILABLE bf-shipto AND bf-shipto.carrier NE "" THEN bf-shipto.carrier ELSE oe-ord.carrier. 
         opcShipToID = shipToID.
     
         RELEASE oe-ord.  
@@ -632,6 +639,8 @@ PROCEDURE genOrderLines:
         oe-ordl.q-no      = oe-ord.q-no
         oe-ordl.prom-date = oe-ord.due-date
         oe-ordl.stat      = 'W'
+        oe-ordl.ediPriceUOM = TRIM(itemUnitOfMeasure)
+        oe-ordl.ediPrice    = DEC(itemMoney)
         .
     
       IF oe-ordl.price EQ 0 THEN DO:                      
@@ -739,7 +748,7 @@ PROCEDURE gencXMLOrder:
   
   RUN XMLOutput/XMLParser.p (ipcXMLFile).
   FIND FIRST ttNodes NO-LOCK
-        WHERE ttNodes.nodeName BEGINS "ISA" 
+        WHERE ttNodes.nodeName BEGINS "ISA" AND ttNodes.nodeName NE "isAdhoc"
         NO-ERROR. 
 
   lIsEdiXml = (IF AVAILABLE ttNodes THEN YES ELSE NO).

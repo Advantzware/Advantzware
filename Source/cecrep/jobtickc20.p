@@ -26,7 +26,9 @@ DEFINE        VARIABLE lv-part-name     AS cha     FORM "x(30)" NO-UNDO.
 DEFINE        VARIABLE lv-fg-name       AS cha     NO-UNDO.
 DEFINE        VARIABLE tb_app-unprinted AS LOG     NO-UNDO.
 DEFINE        VARIABLE iset-qty         AS INTEGER NO-UNDO.
-DEFINE        VARIABLE  cCustName       AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cCustName        AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cForm            AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cBlank           AS CHARACTER NO-UNDO.
 
 {jcrep/r-ticket.i "shared"}
 
@@ -211,13 +213,13 @@ DO v-local-loop = 1 TO v-local-copies:
           NO-LOCK NO-ERROR.
           IF AVAILABLE fg-bin THEN DO:
             ASSIGN
-              v-loc     = "Whs: " + fg-bin.loc
+              v-loc     = "Loc: " + fg-bin.loc
               v-loc-bin = "Bin: " + fg-bin.loc-bin.
           END.
           ELSE
           IF AVAILABLE itemfg THEN DO:                             
             ASSIGN
-              v-loc     = "Whs: " + itemfg.def-loc
+              v-loc     = "Loc: " + itemfg.def-loc
               v-loc-bin = "Bin: " + itemfg.def-loc-bin.
           END.
 
@@ -232,6 +234,13 @@ DO v-local-loop = 1 TO v-local-copies:
                              IF AVAILABLE xoe-ord  THEN DECIMAL(xoe-ord.under-pct)  ELSE 0
                iover-run    = IF AVAILABLE xoe-ordl THEN DECIMAL(xoe-ordl.over-pct) ELSE
                              IF AVAILABLE xoe-ord  THEN DECIMAL(xoe-ord.over-pct)  ELSE 0                                 .
+           
+           IF AVAILABLE xeb THEN
+               ASSIGN
+                   cForm  =  STRING(xeb.form-no,"99") +  IF AVAIL xest THEN "/" + STRING(xest.form-qty,"99") ELSE ""
+                   cBlank =  STRING(xeb.BLANK-no,"99") + IF AVAIL xef  THEN "/" + STRING(xef.blank-qty,"99") ELSE ""
+                   .
+           
            IF v-job-cust AND NOT AVAILABLE xoe-ord AND AVAILABLE cust THEN
                ASSIGN
                     lv-over-run  = TRIM(STRING(cust.over-pct,">>9.99%"))
@@ -283,8 +292,8 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=CustomerName><B>" cCustName FORMAT "x(30)" "</B>"
             "<FGColor=Black>"
             "<P8> "
-            "<=Form><B>" IF AVAILABLE xeb THEN STRING(xeb.form-no,"99") ELSE "" FORMAT "x(2)" "</B>  "
-            "<=Blank><B>" IF AVAILABLE xeb THEN STRING(xeb.BLANK-no,"99") ELSE ""  FORMAT "x(2)" "</B>"
+            "<=Form><B>" cForm FORMAT "x(5)" "</B>  "
+            "<=Blank><B>" cBlank  FORMAT "x(5)" "</B>"
             "<=Part><B>" v-cp FORMAT "x(15)" "</B>"
              .
 
@@ -520,10 +529,10 @@ DO v-local-loop = 1 TO v-local-copies:
 
               "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)"
               "<=Scores>" SUBSTRING(v-len-score,1,30) FORMAT "x(30)" 
-              "<=Adders1>" IF LENGTH(xef.adder[7]) GT 10 THEN  string(string(xef.adder[7],"x(17)") + "...") ELSE xef.adder[7]  FORMAT "x(20)"
-              "<=Adders2>"IF LENGTH(xef.adder[8]) GT 10 THEN  string(string(xef.adder[8],"x(17)") + "...") ELSE xef.adder[8]  FORMAT "x(20)"
-              "<=Adders3>" IF LENGTH(xef.adder[9]) GT 10 THEN  string(string(xef.adder[9],"x(17)") + "...") ELSE xef.adder[9]  FORMAT "x(20)"
-              "<=Adders4>" IF LENGTH(xef.adder[10]) GT 10 THEN  string(string(xef.adder[10],"x(17)") + "...") ELSE xef.adder[10]  FORMAT "x(20)"
+              "<=Adders1>" xef.adder[7]  FORMAT "x(20)"
+              "<=Adders2>" xef.adder[8]  FORMAT "x(20)"
+              "<=Adders3>" xef.adder[9]  FORMAT "x(20)"
+              "<=Adders4>" xef.adder[10]  FORMAT "x(20)"
               "<=VendorPO>" STRING(v-po-no)  FORMAT "x(10)" 
               "<=VendorCode>" STRING(v-vend-no ) FORMAT "x(15)"
               "<B>"
@@ -550,7 +559,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=Plate>" IF AVAILABLE xeb THEN xeb.plate-no ELSE "" FORMAT "x(15)" 
               "</B>"
               "<=PlateLocation>" v-plate-loc FORMAT "x(20)" 
-              "<=InkDescription>" IF AVAILABLE xeb THEN xeb.i-coldscr ELSE "" FORMAT "x(30)"
+              "<=InkDescription>" IF AVAILABLE xeb THEN xeb.i-coldscr ELSE "" FORMAT "x(40)"
                 .
 
            
@@ -792,8 +801,8 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PrintedLabel>Printed"
               "<=FormLabel>Form:"
               "<=PartLabel>Customer Part #"
-              "<=Form><B>" IF AVAILABLE xeb THEN STRING(xeb.form-no,"99") ELSE "" FORMAT "x(2)" "</B>  "
-              "<=Blank><B>" IF AVAILABLE xeb THEN STRING(xeb.BLANK-no,"99") ELSE ""  FORMAT "x(2)" "</B>"
+              "<=Form><B>" cForm FORMAT "x(5)" "</B>  "
+              "<=Blank><B>" cBlank  FORMAT "x(5)" "</B>"
               "<=Part><B>" v-cp FORMAT "x(15)" "</B>"
               " <=PrintedDate><B>"  TODAY  "</B>"
               

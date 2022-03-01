@@ -151,6 +151,13 @@ PROCEDURE pValidate PRIVATE:
     END.
     IF oplValid THEN 
     DO:
+        IF length(ipbf-ttImportCust.CustNo) GT 8 THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Maximum Customer character Length is 8".
+    END.
+    IF oplValid THEN 
+    DO:
         IF ipbf-ttImportCust.accountType EQ '' THEN 
             ASSIGN 
                 oplValid = NO

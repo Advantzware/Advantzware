@@ -81,7 +81,7 @@ PROCEDURE pValidate PRIVATE:
     RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
-    
+                    
     IF oplValid THEN 
     DO:
         IF ipbf-ttImportVend.Company EQ '' THEN 
@@ -95,6 +95,13 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Vendor".
+    END.
+    IF oplValid THEN 
+    DO:
+        IF length(ipbf-ttImportVend.VendNo) GT 8 THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Maximum Vendor character Length is 8".
     END.
     IF oplValid THEN 
     DO:
@@ -158,6 +165,10 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
     DEFINE BUFFER bf-vend FOR vend.
     
+    DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
+    
     FIND FIRST bf-vend EXCLUSIVE-LOCK
         WHERE bf-vend.company EQ ipbf-ttImportVend.Company
         AND bf-vend.vend-no EQ ipbf-ttImportVend.VendNo
@@ -208,6 +219,28 @@ PROCEDURE pProcessRecord PRIVATE:
         bf-vend.curr-code = "CAD".
     ELSE 
         bf-vend.curr-code = "USD".
+
+    IF AVAILABLE bf-vend AND NEW bf-vend THEN DO:
+        RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+        
+        RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+            INPUT  bf-vend.company,                                                      /* Company Code (Mandatory) */
+            INPUT  bf-vend.loc,                                                          /* Location Code (Mandatory) */
+            INPUT  "SendVendor",                                                         /* API ID (Mandatory) */
+            INPUT  bf-vend.vend-no,                                                      /* Scope ID */
+            INPUT  "Vendor",                                                             /* Scope Type */
+            INPUT  "AddVendor",                                                          /* Trigger ID (Mandatory) */
+            INPUT  "vend",                                                               /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ROWID(bf-vend)),                                               /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */
+            INPUT  STRING(bf-vend.vend-no),                                              /* Primary ID for which API is called for (Mandatory) */
+            INPUT  "Create vendor from VF1",                                             /* Event's description (Optional) */
+            OUTPUT lSuccess,                                                             /* Success/Failure flag */
+            OUTPUT cMessage                                                              /* Status message */
+            ) NO-ERROR.
+        
+        DELETE PROCEDURE hdOutboundProcs.
+    END.
+          
     RELEASE bf-vend .
 
 END PROCEDURE.

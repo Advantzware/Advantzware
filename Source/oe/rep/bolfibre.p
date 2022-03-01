@@ -64,7 +64,7 @@ format header
        "BOL DATE"                       
        oe-bolh.bol-date                         format "99/99/99"       skip
        "BOL#"
-       oe-bolh.bol-no                           format "999999" SPACE(2)
+       oe-bolh.bol-no                           format "9999999" SPACE(2)
        caps(v-fob)                      FORM "x(12)"
        "CARRIER"                        at 35    
        oe-bolh.carrier                  SPACE(8)

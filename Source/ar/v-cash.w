@@ -39,7 +39,7 @@ DEF BUFFER bf-cashl FOR ar-cashl.
 DEF BUFFER ar-c-memo FOR reftable.
 def var look-recid as recid no-undo.
 DEF VAR lv-old-cust LIKE ar-cash.cust-no NO-UNDO.
-DEF VAR ll-warned AS LOG NO-UNDO.
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
 
 &SCOPED-DEFINE enable-arcash proc-enable
 &SCOPED-DEFINE create-more ar/c-arcash
@@ -344,8 +344,8 @@ END.
 ON LEAVE OF ar-cash.check-date IN FRAME F-Main /* Check Date */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-check-date NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-check-date(OUTPUT lError) NO-ERROR.
+    IF lError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -356,7 +356,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-cash.check-date V-table-Win
 ON VALUE-CHANGED OF ar-cash.check-date IN FRAME F-Main /* Check Date */
 DO:
-  ll-warned = NO.
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -553,6 +553,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+ 
+  IF adm-adding-record THEN
+  cAction = "add-only".
+  ELSE cAction = "initial".
+  
+  {methods/run_link.i "container-source" "enable-line-button" "(input cAction)" } 
+   adm-adding-record = NO .
+   adm-new-record = NO.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -599,6 +625,7 @@ PROCEDURE local-create-record :
 */
 
   RUN dispatch ('row-changed').
+  {methods/run_link.i "container-source" "disable-line-button" } 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -670,13 +697,14 @@ PROCEDURE local-update-record :
   DEF VAR ll-new-record AS LOG NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEFINE VARIABLE lUpdateBankCode AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   /* === validation ====*/
   RUN valid-cust-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  RUN valid-check-date NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-check-date(OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
 
   DO WITH FRAME {&FRAME-NAME}:
      {&methods/lValidateError.i YES}
@@ -757,6 +785,11 @@ PROCEDURE local-update-record :
      RUN auto-line-add IN WIDGET-HANDLE(char-hdl).
 
   END.
+  IF NOT ll-new-record THEN do:  
+      cAction = "initial".       
+      {methods/run_link.i "container-source" "enable-line-button" "(input cAction)" } 
+  END.
+   
 END PROCEDURE.
 
 
@@ -810,8 +843,8 @@ PROCEDURE proc-enable :
     lv-old-cust = ar-cash.cust-no:SCREEN-VALUE.
     IF NOT adm-new-record AND AVAIL ar-cash AND CAN-FIND(FIRST ar-cashl OF ar-cash) THEN DISABLE ar-cash.cust-no.
   END.
-
-  ll-warned = NO.
+  
+  {methods/run_link.i "container-source" "disable-line-button" } 
 
 END PROCEDURE.
 
@@ -882,27 +915,27 @@ PROCEDURE valid-check-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DEF VAR ll AS LOG INIT NO NO-UNDO.
-
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
 
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-    IF NOT ll-warned                                                               AND
-       NOT CAN-FIND(FIRST period
-                    WHERE period.company EQ g_company
-                      AND period.pstat   EQ YES
-                      AND period.pst     LE DATE(ar-cash.check-date:SCREEN-VALUE)
-                      AND period.pend    GE DATE(ar-cash.check-date:SCREEN-VALUE)) THEN DO:
-      MESSAGE TRIM(ar-cash.check-date:LABEL) +
-              " is not within an open period, continue..."
-          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-          UPDATE ll.
-      IF ll THEN ll-warned = YES.
-      ELSE DO:
-        APPLY "entry" TO ar-cash.check-date.
-        RETURN ERROR.
-      END.
+  
+    RUN GL_CheckModClosePeriod(INPUT g_company,
+                               INPUT ar-cash.check-date:SCREEN-VALUE,
+                               "AR",
+                               OUTPUT cMessage,
+                               OUTPUT lSuccess
+                               ).
+    IF NOT lSuccess THEN do:                          
+      MESSAGE "This payment date cannot be used as the period for this payment is not open"
+               VIEW-AS ALERT-BOX ERROR.        
+       APPLY "entry" TO ar-cash.check-date.
+       oplReturnError = YES.           
     END.
+    
   END.
 
   {methods/lValidateError.i NO}

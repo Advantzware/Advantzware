@@ -58,6 +58,8 @@ DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lInterCompanyBilling     AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdCustomerProcs          AS HANDLE  NO-UNDO.
 
 /* gdm - 05050903 */
 DEF BUFFER bf-cust FOR cust.
@@ -122,7 +124,9 @@ RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR. 
+    
+RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -161,7 +165,7 @@ cust.loc cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.classID cust.spare-int-1 ~
 cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
 cust.imported cust.show-set cust.nationalAcct cust.log-field[1] ~
-cust.tagStatus 
+cust.tagStatus cust.internal
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
 &Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-5 RECT-6 
@@ -178,7 +182,7 @@ cust.loc cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.classID cust.spare-int-1 ~
 cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
 cust.imported cust.show-set cust.nationalAcct cust.log-field[1] ~
-cust.tagStatus 
+cust.tagStatus cust.internal
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS cbMatrixPrecision cbMatrixRounding ~
@@ -524,6 +528,8 @@ DEFINE FRAME F-Main
      rd_inv-meth AT ROW 15.43 COL 19 NO-LABEL
      cust.cr-hold AT ROW 11.71 COL 47
           LABEL "Credit Hold"
+     cust.internal AT ROW 7.1 COL 47
+          LABEL "Internal"
           VIEW-AS TOGGLE-BOX
           SIZE 17 BY .81
      cust.fin-chg AT ROW 12.43 COL 47
@@ -1628,7 +1634,11 @@ DO:
     then do:
        message "Invalid State Code. Try Help." view-as alert-box error.
        return no-apply.
-    end.                                     
+    end.  
+    IF cust.state:MODIFIED THEN
+    DO:
+         RUN pNewCountry.
+    END.
     {&methods/lValidateError.i NO}
 END.
 
@@ -2381,7 +2391,9 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/cust.i}
   IF cust.date-field[2] EQ TODAY THEN
-      cust.date-field[2] = ?.
+      cust.date-field[2] = ?.       
+  FIND FIRST company NO-LOCK WHERE company.company EQ cocode NO-ERROR.     
+  cust.fax-country = company.countryCode.
   DO WITH FRAME {&FRAME-NAME}:
 
      if adm-new-record and adm-adding-record THEN /*adding, not copying*/
@@ -2395,7 +2407,7 @@ PROCEDURE local-create-record :
         cbMatrixPrecision:SCREEN-VALUE = STRING(cust.matrixPrecision)
         cbMatrixRounding:SCREEN-VALUE  = STRING(cust.matrixRounding)
         cbMatrixPrecision
-        cbMatrixRounding
+        cbMatrixRounding        
         .
      END.
   END.
@@ -2535,10 +2547,12 @@ PROCEDURE local-update-record :
   DEFINE VARIABLE cOld-fob    AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cOld-freight AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lError         AS LOGICAL NO-UNDO.
 
   def buffer bf-cust for cust.
-  /*def buffer bf-shipto for shipto.
-  def buffer bf-soldto for soldto.*/
+  DEFINE BUFFER bf-shipto for shipto.
+  /*def buffer bf-soldto for soldto.*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
   assign
@@ -2729,6 +2743,25 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
 
   RUN disable-fields.
+  RUN pGetInterCompanyBilling(INPUT cocode, INPUT cust.cust-no, OUTPUT lInterCompanyBilling).
+  
+  IF lInterCompanyBilling THEN
+  DO:
+      FOR EACH bf-shipto NO-LOCK
+          WHERE bf-shipto.company EQ cust.company
+          AND bf-shipto.cust-no EQ cust.cust-no:
+      
+        RUN Customer_InterCompanyTrans IN hdCustomerProcs(
+                                           INPUT cocode,
+                                           INPUT cust.cust-no,
+                                           INPUT bf-shipto.ship-id,
+                                           INPUT "",
+                                           OUTPUT lError,
+                                           OUTPUT cMessage
+                                           ).
+      END.                                  
+  END.
+  
   IF cust.cr-hold NE ll-prev-cr-hold THEN DO:
       RUN ClearTagsHold (cust.rec_key).
       CASE cust.cr-hold:
@@ -2775,6 +2808,28 @@ PROCEDURE local-update-record :
   END.
   lCheckMessage = NO .
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE (hdSalesManProcs) THEN
+        DELETE PROCEDURE hdSalesManProcs.
+        
+    IF VALID-HANDLE (hdCustomerProcs) THEN
+            DELETE PROCEDURE hdCustomerProcs.        
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2840,6 +2895,51 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInterCompanyBilling V-table-Win 
+PROCEDURE pGetInterCompanyBilling :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplReturnValue AS LOGICAL NO-UNDO.
+  
+  DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.      
+      
+  RUN sys/ref/nk1look.p (INPUT ipcCompany, "InterCompanyBilling", "L" /* Logical */, YES /* check by cust */, 
+      INPUT YES /* use cust not vendor */, ipcCustomer /* cust */, "" /* ship-to*/,
+      OUTPUT cReturn, OUTPUT lRecFound).
+  oplReturnValue = LOGICAL(cReturn) NO-ERROR.       
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pNewCountry V-table-Win 
+PROCEDURE pNewCountry :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&frame-name}:
+      FIND FIRST statecod NO-LOCK
+           WHERE statecod.statecod EQ cust.state:SCREEN-VALUE NO-ERROR.
+      IF AVAIL statecod THEN
+      DO:
+         cust.fax-country:SCREEN-VALUE = statecod.countryCode. 
+      END.
+  END.            
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -518,6 +518,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   
+   RUN pExportDumpFile.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit B-table-Win 
 PROCEDURE pInit :
 /*------------------------------------------------------------------------------
@@ -526,6 +541,50 @@ PROCEDURE pInit :
   Notes:       
 ------------------------------------------------------------------------------*/
     RUN dispatch ('open-query').
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExportDumpFile B-table-Win 
+PROCEDURE pExportDumpFile :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE cAPIInboundPath   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIInboundDetailPath AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE cOutputPath   AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE lCreated AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+ cOutputPath   = ".\custfiles\api\backup".   
+   
+ RUN FileSys_CreateDirectory(INPUT cOutputPath,OUTPUT lCreated, OUTPUT cMessage ).
+ IF NOT lCreated THEN 
+ DO:       
+    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    RETURN.  
+ END.   
+     
+ ASSIGN
+    cAPIInboundPath = cOutputPath + "\" + "APIInbound.d"
+    cAPIInboundDetailPath = cOutputPath + "\" + "APIInboundDetail.d"
+    .   
+   
+  OUTPUT to VALUE(cAPIInboundPath) .
+  FOR EACH APIInbound NO-LOCK:
+      EXPORT APIInbound.
+  END.
+  OUTPUT CLOSE.
+  OUTPUT to VALUE(cAPIInboundDetailPath) .
+  FOR EACH APIInboundDetail NO-LOCK:
+      EXPORT APIInboundDetail.
+  END.       
+  
+  MESSAGE "Dump Inbound API Maintenance successfully." VIEW-AS ALERT-BOX INFORMATION.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

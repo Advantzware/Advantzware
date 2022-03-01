@@ -113,7 +113,8 @@ itemfg.prod-notes itemfg.trNo itemfg.spare-char-4 itemfg.subZone ~
 itemfg.stackHeight itemfg.std-mat-cost itemfg.std-lab-cost ~
 itemfg.std-var-cost itemfg.std-fix-cost itemfg.spare-dec-1 ~
 itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost itemfg.prod-uom ~
-itemfg.palletVolume itemfg.prod-code itemfg.weightPerEA 
+itemfg.palletVolume itemfg.prod-code itemfg.weightPerEA itemfg.unitLength ~
+itemfg.unitWidth itemfg.unitHeight
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS tg-Freeze-weight btn_misc-est RECT-10 RECT-8 ~
@@ -701,11 +702,11 @@ ASSIGN
 /* SETTINGS FOR FILL-IN itemfg.type-code IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.unitHeight IN FRAME F-Main
-   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.unitLength IN FRAME F-Main
-   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.unitWidth IN FRAME F-Main
-   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.upc-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.weight-100 IN FRAME F-Main
@@ -1892,9 +1893,9 @@ PROCEDURE local-assign-record :
 
     IF adm-new-record AND NOT adm-adding-record AND AVAILABLE b-i THEN 
     DO: /* copy */
-
-      IF lNewVendorItemCost THEN RUN CopyVendItemCost(b-i.i-no, itemfg.i-no).
-      ELSE DO:
+        
+      IF lNewVendorItemCost AND v-mat THEN RUN CopyVendItemCost(b-i.i-no, itemfg.i-no).
+      ELSE IF NOT lNewVendorItemCost AND v-mat THEN DO:
         FOR EACH b-ei OF b-i NO-LOCK:
             FIND FIRST e-itemfg OF itemfg NO-LOCK NO-ERROR.
 
@@ -1960,7 +1961,7 @@ PROCEDURE local-assign-record :
     ASSIGN 
         lCheckPurMan = NO .
 
-    IF NOT  v-mat AND adm-new-record AND NOT adm-adding-record THEN 
+    IF NOT lNewVendorItemCost AND NOT v-mat AND adm-new-record AND NOT adm-adding-record THEN 
     DO: /* task 06161508 */
 
         FOR EACH e-itemfg OF itemfg  NO-LOCK:

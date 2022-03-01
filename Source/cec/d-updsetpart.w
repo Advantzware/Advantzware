@@ -684,13 +684,18 @@ DO:
       scr-in-cell-width = {sys/inc/k16.i b-eb2.k-len-array2[2]}.
 END.
 
-ASSIGN
-   eb.len:SCREEN-VALUE = STRING({sys/inc/k16.i eb.len})
-   eb.wid:SCREEN-VALUE = STRING({sys/inc/k16.i eb.wid})
-   eb.dep:SCREEN-VALUE = STRING({sys/inc/k16.i eb.dep})
-   rd_alloc   = bf-set.set-is-assembled
-   tb_unitize = bf-set.pur-man.
-
+IF eb.est-type GE 5 THEN
+   DO:
+      IF v-cecscrn-char NE "Decimal" THEN
+         ASSIGN eb.len:FORMAT = ">>>9.99"
+                eb.wid:FORMAT = ">>>9.99"
+                eb.dep:FORMAT = ">>>9.99".
+      ELSE
+         ASSIGN eb.len:FORMAT = ">>>9.999999"
+                eb.wid:FORMAT = ">>>9.999999"
+                eb.dep:FORMAT = ">>>9.999999".
+   END.
+  
    IF rd_alloc NE ? THEN
       rd_alloc = NOT rd_alloc.
 
@@ -837,6 +842,13 @@ PROCEDURE local-initialize :
         scr-in-cell-width:FORMAT IN FRAME {&FRAME-NAME} = "->>,>>9.999999"
         scr-end-cell-w1:FORMAT IN FRAME {&FRAME-NAME}  = "->>,>>9.999999"
         scr-end-cell-w2:FORMAT IN FRAME {&FRAME-NAME}  = "->>,>>9.999999".
+  
+  ASSIGN
+     eb.len:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING({sys/inc/k16.i eb.len})
+     eb.wid:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING({sys/inc/k16.i eb.wid})
+     eb.dep:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING({sys/inc/k16.i eb.dep})
+     rd_alloc   = bf-set.set-is-assembled
+     tb_unitize = bf-set.pur-man.            
 
 END PROCEDURE.
 

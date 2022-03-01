@@ -175,6 +175,245 @@ PROCEDURE CalculatePanels:
         ).
 END PROCEDURE.
 
+PROCEDURE Formula_GetFormulaFromttPanel:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER TABLE FOR ttPanel.
+    DEFINE OUTPUT PARAMETER opcFormulaLength AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFormulaWidth  AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lAddBraces               AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iChar                    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cFormula                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAddScoreAllowanceLength AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lAddScoreAllowanceWidth  AS LOGICAL   NO-UNDO.
+    
+    FOR EACH ttPanel
+        BY ttPanel.iPanelNum:
+        lAddBraces = FALSE.
+        
+        DO iChar = 1 TO LENGTH(gcValidOperators):
+            IF INDEX(ttPanel.cPanelFormula, SUBSTRING(gcValidOperators, iChar, 1)) GT 0 THEN DO:
+                lAddBraces = TRUE.
+                LEAVE.
+            END.
+        END.
+        
+        cFormula = ttPanel.cPanelFormula.
+        IF lAddBraces THEN
+            cFormula = "(" + cFormula + ")".
+            
+        IF ttPanel.cPanelType EQ "W" THEN DO:
+            opcFormulaWidth = opcFormulaWidth + "+" + cFormula.
+            
+            /* If atleast one of the panel size from formula does not match panel size then score allowance is added */
+            lAddScoreAllowanceWidth = lAddScoreAllowanceWidth OR ttPanel.dPanelSizeFromFormula NE ttPanel.dPanelSize.
+        END.
+        ELSE IF ttPanel.cPanelType EQ "L" THEN DO:
+            opcFormulaLength = opcFormulaLength + "+" + cFormula.
+            
+            /* If atleast one of the panel size from formula does not match panel size then score allowance is added */
+            lAddScoreAllowanceLength = lAddScoreAllowanceLength OR ttPanel.dPanelSizeFromFormula NE ttPanel.dPanelSize.
+        END.  
+    END.
+    
+    IF lAddScoreAllowanceLength THEN
+        opcFormulaLength = opcFormulaLength + "+" + "S".
+
+    IF lAddScoreAllowanceWidth THEN
+        opcFormulaWidth = opcFormulaWidth + "+" + "S".
+
+    ASSIGN
+        opcFormulaLength = TRIM(opcFormulaLength, "+")
+        opcFormulaWidth  = TRIM(opcFormulaWidth, "+")
+        .        
+END PROCEDURE.
+
+PROCEDURE Formula_GetReverseGrainAndEstimateTypeForPOLine:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriPOOrdl      AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcReverseGrain AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiEstimateType AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    DEFINE BUFFER bf-eb      FOR eb.
+    DEFINE BUFFER bf-ef      FOR ef.
+    
+    FIND FIRST bf-po-ordl NO-LOCK
+         WHERE ROWID(bf-po-ordl) EQ ipriPOOrdl
+         NO-ERROR.
+    IF NOT AVAILABLE bf-po-ordl THEN
+        RETURN.
+        
+    RUN pGetBuffersForPOLine (BUFFER bf-po-ordl, BUFFER bf-eb, BUFFER bf-ef).
+    
+    IF AVAILABLE bf-ef THEN
+        ASSIGN
+            opcReverseGrain = bf-ef.xgrain
+            opiEstimateType = bf-ef.est-type
+            .    
+END PROCEDURE.
+
+PROCEDURE Formula_ParseDesignScores:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateID   AS CHARACTE  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo       AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiDesignNo     AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPrintMetric  AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttScoreLine.
+    
+    
+    DEFINE VARIABLE cScoreLine  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dSizeFactor AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cSizeFormat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCecScrnLog AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCurrentSizeFormat AS CHARACTER NO-UNDO INIT "Decimal".
+    
+    
+    DEFINE BUFFER bf-box-design-hdr  FOR box-design-hdr.
+    DEFINE BUFFER bf-box-design-line FOR box-design-line.
+    DEFINE BUFFER bf-eb              FOR eb.
+    DEFINE BUFFER bf-est             FOR est.
+
+    EMPTY TEMP-TABLE ttPanel.
+    EMPTY TEMP-TABLE ttScoreLine.
+    
+    FIND FIRST bf-eb NO-LOCK
+        WHERE bf-eb.company = ipcCompany
+        AND bf-eb.est-no    = ipcEstimateID
+        AND bf-eb.form-no   = ipiFormNo
+        AND bf-eb.blank-no  = ipiBlankNo NO-ERROR.
+    
+    IF NOT AVAILABLE bf-eb THEN
+        RETURN.
+        
+    FIND FIRST bf-est NO-LOCK
+        WHERE bf-est.company = ipcCompany
+        AND bf-est.est-no    = ipcEstimateID NO-ERROR.
+    
+    IF NOT AVAILABLE bf-est THEN
+        RETURN.
+    
+    RUN Formula_GetPanelDetailsForPOScores (
+        INPUT  bf-eb.company,
+        INPUT  bf-eb.est-no,
+        INPUT  bf-eb.form-no,
+        INPUT  bf-eb.blank-no,
+        OUTPUT TABLE ttPanel
+        ).
+
+    IF NOT CAN-FIND(FIRST ttPanel) THEN
+        RETURN.
+    
+    RUN GetSizeFactor (
+        INPUT  bf-eb.company,
+        OUTPUT dSizeFactor,
+        OUTPUT cSizeFormat,
+        OUTPUT lCecScrnLog
+        ). 
+    
+    IF cCurrentSizeFormat NE cSizeFormat THEN
+        RUN SwitchPanelSizeFormatForttPanel (
+            INPUT cCurrentSizeFormat,
+            INPUT cSizeFormat,
+            INPUT-OUTPUT TABLE ttPanel
+            ). 
+
+
+    FIND FIRST bf-box-design-hdr NO-LOCK
+        WHERE bf-box-design-hdr.company = bf-eb.company
+        AND bf-box-design-hdr.design-no = ipiDesignNo NO-ERROR.
+    
+    IF NOT AVAILABLE bf-box-design-hdr THEN
+        RETURN.
+    
+    IF iplPrintMetric AND NOT bf-est.metric THEN
+        RUN pConvertIntoMetricSizeForttPanel (INPUT-OUTPUT TABLE ttPanel).
+       
+    RUN pCreateScoreLine (bf-box-design-hdr.lscore, "L", NO,1, cCurrentSizeFormat, cSizeFormat).
+    
+    RUN pCreateScoreLine (bf-box-design-hdr.lcum-score, "L", YES,1, cCurrentSizeFormat, cSizeFormat).
+    
+    FOR EACH bf-box-design-line OF bf-box-design-hdr NO-LOCK:
+
+        RUN pCreateScoreLine (bf-box-design-line.wscore, "W", NO, bf-box-design-line.line-no, cCurrentSizeFormat, cSizeFormat).
+        RUN pCreateScoreLine (bf-box-design-line.wcum-score, "W", YES, bf-box-design-line.line-no, cCurrentSizeFormat, cSizeFormat).
+
+    END.
+
+END PROCEDURE.
+
+PROCEDURE Formula_ReBuildBoxDesignForEstimate:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriEb AS ROWID NO-UNDO.
+    
+    DEFINE VARIABLE iExt AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-eb  FOR eb.
+        
+    EMPTY TEMP-TABLE ttPanel.
+    
+    RUN pBuildPanelDetailsForEstimate (
+        INPUT  ipriEb,
+        INPUT  TRUE,  /* Re-build */
+        INPUT  TRUE,  /* Save */
+        INPUT  "L,W", /* Panel Types to build */
+        OUTPUT TABLE ttPanel
+        ).
+    
+    DO TRANSACTION:
+        FIND FIRST bf-eb EXCLUSIVE-LOCK
+            WHERE ROWID(bf-eb) = ipriEb NO-ERROR.
+        
+        IF AVAILABLE bf-eb THEN
+        DO:     
+            IF CAN-FIND(FIRST ttPanel WHERE ttPanel.cPanelType EQ "L"
+                AND ttPanel.dPanelSize NE 0) THEN 
+            DO iExt = 1 TO EXTENT(bf-eb.k-len-array2): 
+            
+                FIND FIRST ttPanel WHERE ttPanel.cPanelType EQ "L"
+                    AND ttPanel.iPanelNum  EQ iExt NO-ERROR.
+    
+                IF AVAILABLE ttPanel THEN
+                    ASSIGN
+                        bf-eb.k-len-array2[iExt]    = ttPanel.dPanelSize
+                        bf-eb.k-len-scr-type2[iExt] = ttPanel.cScoreType
+                        .
+             
+            END.  
+        
+            IF CAN-FIND(FIRST ttPanel WHERE ttPanel.cPanelType EQ "W"
+                AND ttPanel.dPanelSize NE 0) THEN 
+            DO iExt = 1 TO EXTENT(bf-eb.k-wid-array2): 
+            
+                FIND FIRST ttPanel WHERE ttPanel.cPanelType EQ "W"
+                    AND ttPanel.iPanelNum  EQ iExt NO-ERROR.
+    
+                IF AVAILABLE ttPanel THEN
+                    ASSIGN
+                        bf-eb.k-wid-array2[iExt]    = ttPanel.dPanelSize
+                        bf-eb.k-wid-scr-type2[iExt] = ttPanel.cScoreType
+                        .
+             
+            END.
+        END. // IF AVAILABLE bf-eb THEN
+        
+    END.
+END PROCEDURE.
+
 PROCEDURE GetSizeFactor:
 /*------------------------------------------------------------------------------
  Purpose: Fetch the decimal factor from NK1 CECSCRN
@@ -237,7 +476,30 @@ PROCEDURE GetSizeFactor:
     END.            
 END PROCEDURE.
 
-PROCEDURE GetPanelDetailsForEstimate:
+PROCEDURE Formula_GetPanelDetailsForPOScores:
+/*------------------------------------------------------------------------------
+ Purpose: A public method to return Estimate's Alt Design or PO Scores
+ Notes: Fetches panelDetail records for a given Estimate
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateID AS CHARACTE  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo    AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE         FOR ttPanel.    
+    
+    
+    RUN GetPanelDetailsForEstimate (
+        INPUT  ipcCompany,
+        INPUT  ipcEstimateID,
+        INPUT  ipiFormNo,
+        INPUT  ipiBlankNo,
+        INPUT gcPanelLinkTypeEstimate,
+        OUTPUT TABLE ttPanel
+        ).
+                          
+END PROCEDURE.
+
+PROCEDURE GetPanelDetailsForEstimate PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Fetches panelDetail records for a given Estimate
  Notes:
@@ -246,13 +508,14 @@ PROCEDURE GetPanelDetailsForEstimate:
     DEFINE INPUT  PARAMETER ipcEstimateID AS CHARACTE  NO-UNDO.
     DEFINE INPUT  PARAMETER ipiFormNo     AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiBlankNo    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelLinkType AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE         FOR ttPanel.    
     
     DEFINE BUFFER bf-panelHeader FOR panelHeader.
     
     FIND FIRST bf-panelHeader NO-LOCK
          WHERE bf-panelHeader.company    EQ ipcCompany
-           AND bf-panelHeader.linkType   EQ gcPanelLinkTypeEstimate
+           AND bf-panelHeader.linkType   EQ ipcPanelLinkType
            AND bf-panelHeader.estimateID EQ ipcEstimateID
            AND bf-panelHeader.formNo     EQ ipiFormNo
            AND bf-panelHeader.blankNo    EQ ipiBlankNo
@@ -419,6 +682,7 @@ PROCEDURE GetPanelScoreAndTypeForEstimate:
         INPUT  ipcEstimateID,
         INPUT  ipiFormNo,
         INPUT  ipiBlankNo,
+        INPUT gcPanelLinkTypeEstimate,
         OUTPUT TABLE ttPanel
         ).
 
@@ -779,6 +1043,7 @@ PROCEDURE pBuildPanelDetailsForEstimate PRIVATE:
         INPUT  bf-eb.est-no,
         INPUT  bf-eb.form-no,
         INPUT  bf-eb.blank-no,
+        INPUT gcPanelLinkTypeEstimate,
         OUTPUT TABLE ttPanel
         ).
     IF NOT iplRebuild THEN DO:
@@ -944,22 +1209,12 @@ PROCEDURE pBuildPanelDetailsForPO PRIVATE:
     DEFINE INPUT  PARAMETER ipcPanelTypes AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE FOR ttPanel.
 
-    DEFINE VARIABLE cReturnChar      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lPOFarmOutScores AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE riEb             AS ROWID     NO-UNDO.
-    
     DEFINE VARIABLE lRebuild AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-eb      FOR eb.
     DEFINE BUFFER bf-ef      FOR ef.
     DEFINE BUFFER bf-po-ordl FOR po-ordl.
-    DEFINE BUFFER bf-itemfg  FOR itemfg.
-    DEFINE BUFFER bf-job     FOR job.
-    DEFINE BUFFER bf-est-qty FOR est-qty.
-    DEFINE BUFFER bf-job-mat FOR job-mat.
-    DEFINE BUFFER bf-item    FOR item.
-    DEFINE BUFFER bf-est     FOR est.
+    DEFINE BUFFER bf-style   FOR style.
     
     FIND FIRST bf-po-ordl NO-LOCK
          WHERE ROWID(bf-po-ordl) EQ ipriPOOrdl
@@ -994,115 +1249,28 @@ PROCEDURE pBuildPanelDetailsForPO PRIVATE:
             RETURN.
     END.
     
-    RUN sys/ref/nk1look.p (
-        INPUT bf-po-ordl.company, /* Company Code */ 
-        INPUT "POFarmOutScores",  /* sys-ctrl name */
-        INPUT "L",                /* Output return value */
-        INPUT NO,                 /* Use ship-to */
-        INPUT NO,                 /* ship-to vendor */
-        INPUT "",                 /* ship-to vendor value */
-        INPUT "",                 /* shi-id value */
-        OUTPUT cReturnChar, 
-        OUTPUT lRecFound
-        ).
-    lPOFarmOutScores = cReturnChar EQ "YES".
-    
-    IF bf-po-ordl.i-no NE "" AND NOT bf-po-ordl.item-type AND lPOFarmOutScores THEN DO:
-        FIND FIRST bf-itemfg NO-LOCK
-             WHERE bf-itemfg.company EQ bf-po-ordl.company
-               AND bf-itemfg.i-no    EQ bf-po-ordl.i-no
-             NO-ERROR.
-        IF AVAILABLE bf-itemfg AND bf-itemfg.est-no NE "" THEN DO:            
-            FOR LAST bf-est-qty NO-LOCK
-                WHERE bf-est-qty.company EQ bf-po-ordl.company
-                  AND bf-est-qty.est-no  EQ bf-itemfg.est-no 
-                USE-INDEX est-qty,
-                FIRST bf-ef NO-LOCK
-                WHERE bf-ef.company EQ bf-est-qty.company 
-                  AND bf-ef.est-no  EQ bf-est-qty.est-no 
-                  AND bf-ef.eqty    EQ bf-est-qty.eqty 
-                USE-INDEX est-qty,
-                FIRST bf-eb NO-LOCK 
-                WHERE bf-eb.company  EQ bf-ef.company
-                  AND bf-eb.est-no   EQ bf-ef.est-no 
-                  AND bf-eb.stock-no EQ bf-po-ordl.i-no
-                  AND bf-eb.eqty     EQ bf-ef.eqty 
-                USE-INDEX est-qty:
-                riEb = ROWID(bf-eb).
-            END.
-            
-            IF riEb NE ? THEN
-                FIND FIRST bf-eb NO-LOCK
-                     WHERE ROWID(bf-eb) EQ riEb
-                     NO-ERROR.  
-        END.
-    END.
-
-    IF bf-po-ordl.i-no NE "" AND bf-po-ordl.item-type THEN DO:
-        FIND FIRST bf-item NO-LOCK
-             WHERE bf-item.company EQ bf-po-ordl.company
-               AND bf-item.i-no    EQ bf-po-ordl.i-no
-             NO-ERROR.
-        IF AVAILABLE bf-item AND LOOKUP(bf-item.mat-type, "B,P") EQ 0 THEN
-            NEXT.
-            
-        IF bf-po-ordl.job-no NE "" THEN
-            FIND FIRST bf-job-mat NO-LOCK 
-                 WHERE bf-job-mat.company    EQ bf-po-ordl.company
-                   AND bf-job-mat.rm-i-no    EQ bf-po-ordl.i-no
-                   AND bf-job-mat.job-no     EQ STRING(FILL(" ",6 - LENGTH(TRIM(bf-po-ordl.job-no)))) + TRIM(bf-po-ordl.job-no)
-                   AND bf-job-mat.job-no2    EQ bf-po-ordl.job-no2
-                   AND bf-job-mat.i-no       EQ bf-po-ordl.i-no
-                   AND ((bf-job-mat.frm      EQ bf-po-ordl.s-num AND bf-po-ordl.s-num NE 0) OR
-                         bf-po-ordl.s-num    EQ 0 OR 
-                         bf-po-ordl.s-num    EQ ?)
-                   AND ((bf-job-mat.blank-no EQ bf-po-ordl.b-num AND bf-po-ordl.b-num NE 0) OR
-                         bf-po-ordl.b-num    EQ 0)
-                 USE-INDEX i-no 
-                 NO-ERROR.
-
-        IF AVAILABLE bf-job-mat THEN
-            FIND FIRST bf-job NO-LOCK 
-                 WHERE bf-job.company EQ bf-job-mat.company
-                   AND bf-job.job     EQ bf-job-mat.job
-                   AND bf-job.job-no  EQ bf-job-mat.job-no
-                   AND bf-job.job-no2 EQ bf-job-mat.job-no2
-                 NO-ERROR.
-                 
-        IF AVAILABLE bf-job THEN
-            FIND FIRST bf-est NO-LOCK
-                 WHERE bf-est.company EQ bf-job.company
-                   AND bf-est.est-no  EQ bf-job.est-no
-                 NO-ERROR.
-                 
-        IF AVAILABLE bf-est THEN
-            FIND FIRST bf-ef NO-LOCK 
-                 WHERE bf-ef.company EQ bf-est.company
-                   AND bf-ef.est-no  EQ bf-est.est-no
-                   AND bf-ef.form-no EQ bf-job-mat.frm
-                 NO-ERROR.
-                
-        IF AVAILABLE bf-ef THEN
-            FIND FIRST bf-eb NO-LOCK
-                 WHERE bf-eb.company EQ bf-ef.company
-                   AND bf-eb.est-no  EQ bf-ef.est-no
-                   AND bf-eb.form-no EQ bf-ef.form-no
-                 NO-ERROR.
-    END.     
+    RUN pGetBuffersForPOLine (BUFFER bf-po-ordl, BUFFER bf-eb, BUFFER bf-ef).
     
     IF AVAILABLE bf-eb THEN DO:
         EMPTY TEMP-TABLE ttPanel.
-        
-        RUN pBuildPanelDetailsForEstimate (
-            INPUT  ROWID(bf-eb),
-            INPUT  FALSE,  /* Re-build */
-            INPUT  FALSE,  /* Save */
-            INPUT  ipcPanelTypes,   /* Panel Types to build */
-            OUTPUT TABLE ttPanel
-            ).       
+
+        FIND FIRST bf-style NO-LOCK
+             WHERE bf-style.company  EQ bf-eb.company
+               AND bf-style.style    EQ bf-eb.style
+               AND bf-style.type     EQ "B"
+               AND bf-style.industry EQ "2"
+             NO-ERROR.
+        IF AVAILABLE bf-style THEN        
+            RUN pBuildPanelDetailsForEstimate (
+                INPUT  ROWID(bf-eb),
+                INPUT  FALSE,  /* Re-build */
+                INPUT  FALSE,  /* Save */
+                INPUT  ipcPanelTypes,   /* Panel Types to build */
+                OUTPUT TABLE ttPanel
+                ).       
     END.
     
-    IF iplSave THEN
+    IF iplSave AND AVAILABLE bf-eb AND AVAILABLE bf-style THEN
         RUN pUpdatePanelDetails (
             INPUT  gcPanelLinkTypePO,
             INPUT  bf-eb.company,
@@ -1141,6 +1309,7 @@ PROCEDURE pBuildttPanel PRIVATE:
             ttPanel.cScoreType            = bf-panelDetail.scoreType
             ttPanel.dPanelSize            = bf-panelDetail.panelSize
             ttPanel.dPanelSizeFromFormula = bf-panelDetail.panelSizeFromFormula
+            ttPanel.dPanelSizeDecimal     = bf-panelDetail.panelSize
             .            
     END.    
     
@@ -1183,6 +1352,131 @@ PROCEDURE pDeletePanelDetail PRIVATE:
         WHERE bf-panelDetail.panelHeaderID EQ ipiPanelHeaderID:
         DELETE bf-panelDetail.
     END.    
+END PROCEDURE.
+
+PROCEDURE pGetBuffersForPOLine:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-po-ordl FOR po-ordl.
+    DEFINE PARAMETER BUFFER opbf-eb      FOR eb.
+    DEFINE PARAMETER BUFFER opbf-ef      FOR ef.
+    
+    DEFINE VARIABLE cReturnChar      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lPOFarmOutScores AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE riEb             AS ROWID     NO-UNDO.
+    
+    DEFINE VARIABLE lRebuild AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-itemfg  FOR itemfg.
+    DEFINE BUFFER bf-job     FOR job.
+    DEFINE BUFFER bf-est-qty FOR est-qty.
+    DEFINE BUFFER bf-job-mat FOR job-mat.
+    DEFINE BUFFER bf-item    FOR item.
+    DEFINE BUFFER bf-est     FOR est.
+    DEFINE BUFFER bf-style   FOR style.
+    
+    IF NOT AVAILABLE ipbf-po-ordl THEN
+        RETURN.
+          
+    RUN sys/ref/nk1look.p (
+        INPUT ipbf-po-ordl.company, /* Company Code */ 
+        INPUT "POFarmOutScores",  /* sys-ctrl name */
+        INPUT "L",                /* Output return value */
+        INPUT NO,                 /* Use ship-to */
+        INPUT NO,                 /* ship-to vendor */
+        INPUT "",                 /* ship-to vendor value */
+        INPUT "",                 /* shi-id value */
+        OUTPUT cReturnChar, 
+        OUTPUT lRecFound
+        ).
+    lPOFarmOutScores = cReturnChar EQ "YES".
+    
+    IF ipbf-po-ordl.i-no NE "" AND NOT ipbf-po-ordl.item-type AND lPOFarmOutScores THEN DO:
+        FIND FIRST bf-itemfg NO-LOCK
+             WHERE bf-itemfg.company EQ ipbf-po-ordl.company
+               AND bf-itemfg.i-no    EQ ipbf-po-ordl.i-no
+             NO-ERROR.
+        IF AVAILABLE bf-itemfg AND bf-itemfg.est-no NE "" THEN DO:            
+            FOR LAST bf-est-qty NO-LOCK
+                WHERE bf-est-qty.company EQ ipbf-po-ordl.company
+                  AND bf-est-qty.est-no  EQ bf-itemfg.est-no 
+                USE-INDEX est-qty,
+                FIRST opbf-ef NO-LOCK
+                WHERE opbf-ef.company EQ bf-est-qty.company 
+                  AND opbf-ef.est-no  EQ bf-est-qty.est-no 
+                  AND opbf-ef.eqty    EQ bf-est-qty.eqty 
+                USE-INDEX est-qty,
+                FIRST opbf-eb NO-LOCK 
+                WHERE opbf-eb.company  EQ opbf-ef.company
+                  AND opbf-eb.est-no   EQ opbf-ef.est-no 
+                  AND opbf-eb.stock-no EQ ipbf-po-ordl.i-no
+                  AND opbf-eb.eqty     EQ opbf-ef.eqty 
+                USE-INDEX est-qty:
+                riEb = ROWID(opbf-eb).
+            END.
+            
+            IF riEb NE ? THEN
+                FIND FIRST opbf-eb NO-LOCK
+                     WHERE ROWID(opbf-eb) EQ riEb
+                     NO-ERROR.  
+        END.
+    END.
+
+    IF ipbf-po-ordl.i-no NE "" AND ipbf-po-ordl.item-type THEN DO:
+        FIND FIRST bf-item NO-LOCK
+             WHERE bf-item.company EQ ipbf-po-ordl.company
+               AND bf-item.i-no    EQ ipbf-po-ordl.i-no
+             NO-ERROR.
+        IF AVAILABLE bf-item AND LOOKUP(bf-item.mat-type, "B,P") EQ 0 THEN
+            NEXT.
+            
+        IF ipbf-po-ordl.job-no NE "" THEN
+            FIND FIRST bf-job-mat NO-LOCK 
+                 WHERE bf-job-mat.company    EQ ipbf-po-ordl.company
+                   AND bf-job-mat.rm-i-no    EQ ipbf-po-ordl.i-no
+                   AND bf-job-mat.job-no     EQ STRING(FILL(" ",6 - LENGTH(TRIM(ipbf-po-ordl.job-no)))) + TRIM(ipbf-po-ordl.job-no)
+                   AND bf-job-mat.job-no2    EQ ipbf-po-ordl.job-no2
+                   AND bf-job-mat.i-no       EQ ipbf-po-ordl.i-no
+                   AND ((bf-job-mat.frm      EQ ipbf-po-ordl.s-num AND ipbf-po-ordl.s-num NE 0) OR
+                         ipbf-po-ordl.s-num    EQ 0 OR 
+                         ipbf-po-ordl.s-num    EQ ?)
+                   AND ((bf-job-mat.blank-no EQ ipbf-po-ordl.b-num AND ipbf-po-ordl.b-num NE 0) OR
+                         ipbf-po-ordl.b-num    EQ 0)
+                 USE-INDEX i-no 
+                 NO-ERROR.
+
+        IF AVAILABLE bf-job-mat THEN
+            FIND FIRST bf-job NO-LOCK 
+                 WHERE bf-job.company EQ bf-job-mat.company
+                   AND bf-job.job     EQ bf-job-mat.job
+                   AND bf-job.job-no  EQ bf-job-mat.job-no
+                   AND bf-job.job-no2 EQ bf-job-mat.job-no2
+                 NO-ERROR.
+                 
+        IF AVAILABLE bf-job THEN
+            FIND FIRST bf-est NO-LOCK
+                 WHERE bf-est.company EQ bf-job.company
+                   AND bf-est.est-no  EQ bf-job.est-no
+                 NO-ERROR.
+                 
+        IF AVAILABLE bf-est THEN
+            FIND FIRST opbf-ef NO-LOCK 
+                 WHERE opbf-ef.company EQ bf-est.company
+                   AND opbf-ef.est-no  EQ bf-est.est-no
+                   AND opbf-ef.form-no EQ bf-job-mat.frm
+                 NO-ERROR.
+                
+        IF AVAILABLE opbf-ef THEN
+            FIND FIRST opbf-eb NO-LOCK
+                 WHERE opbf-eb.company EQ opbf-ef.company
+                   AND opbf-eb.est-no  EQ opbf-ef.est-no
+                   AND opbf-eb.form-no EQ opbf-ef.form-no
+                 NO-ERROR.
+    END.     
+
 END PROCEDURE.
 
 PROCEDURE pGetRounded16ths PRIVATE:
@@ -1236,6 +1530,120 @@ PROCEDURE pGetScoreAndTypes PRIVATE:
             opcScoreTypes[ttPanel.iPanelNum] = ttPanel.cScoreType
             .
     END.
+END PROCEDURE.
+
+PROCEDURE pCreateScoreLine PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcScoreTxt         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelType        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplTotal            AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiLineNo           AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcOriginalFormat   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcNewFormat        AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iCnt         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cTempVal     AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cScrNum      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreLine   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iSpaceCount  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dTmpScore    AS DECIMAL   NO-UNDO.
+
+    DEFINE VARIABLE cRepChar     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTempChar    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewText     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iNum         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE deFinalScore AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE deCumulScore AS DECIMAL   NO-UNDO.
+
+
+    ASSIGN 
+        cNewText = ipcScoreTxt.
+
+    DO iCnt = 1 TO LENGTH(ipcScoreTxt):
+        ASSIGN 
+            cTempChar = TRIM(SUBSTRING(ipcScoreTxt, iCnt, 1)).
+
+        IF (cTempChar = "" OR iCnt = LENGTH(ipcScoreTxt)) and cRepChar <> "" Then
+        DO: 
+            IF iCnt = LENGTH(ipcScoreTxt) AND cTempChar <> "" THEN
+                ASSIGN cRepChar = cRepChar + cTempChar.
+
+            ASSIGN 
+                iNum = INTEGER(REPLACE(REPLACE(cRepChar, "[", ""), "]", "")) NO-ERROR.
+
+            IF NOT ERROR-STATUS:ERROR THEN
+            DO:
+                IF ipcPanelType = "W" THEN
+                    FOR EACH ttPanel 
+                        WHERE ttPanel.cPanelType EQ ipcPanelType
+                        AND ttPanel.iPanelNum  LT iNum:
+
+                        ASSIGN 
+                            dTmpScore = ttPanel.dPanelSize.
+
+
+                        IF iplTotal THEN
+                            deCumulScore = deCumulScore + ttPanel.dPanelSizeDecimal.
+                    END.
+
+                FIND FIRST ttPanel 
+                    WHERE ttPanel.cPanelType EQ ipcPanelType
+                    AND ttPanel.iPanelNum  EQ iNum NO-ERROR.
+
+                IF AVAILABLE ttPanel THEN
+                DO:
+
+                    ASSIGN 
+                        dTmpScore   = ttPanel.dPanelSize.
+
+                     IF iplTotal THEN DO:
+                        deCumulScore = deCumulScore + ttPanel.dPanelSizeDecimal.
+                        IF ipcOriginalFormat NE ipcNewFormat THEN 
+                            RUN SwitchPanelSizeFormat (
+                                INPUT  ipcOriginalFormat,
+                                INPUT  ipcNewFormat,
+                                INPUT  deCumulScore,
+                                OUTPUT deFinalScore
+                                ).                           
+                     END.
+                    ELSE
+                        deFinalScore  = dTmpScore.
+                     
+                    cNewText = REPLACE(cNewText, cRepChar, string(deFinalScore)) . 
+                END.                        
+
+            END.
+            ASSIGN 
+                cRepChar = "".
+
+        END.
+
+        IF cTempChar <> "" THEN
+            ASSIGN cRepChar = cRepChar + cTempChar.
+
+    END.
+    
+    FIND FIRST ttScoreLine
+        WHERE ttScoreLine.PanelType = ipcPanelType
+          AND ttScoreLine.LineNum = ipiLineNo NO-ERROR.
+          
+    IF NOT AVAILABLE ttScoreLine THEN
+    DO: 
+        CREATE ttScoreLine.
+        ASSIGN 
+            ttScoreLine.PanelType = ipcPanelType
+            ttScoreLine.LineNum   = ipiLineNo.
+    END.  
+  
+    IF iplTotal THEN
+        ttScoreLine.ScoreLineTotal = cNewText.
+    ELSE
+        ttScoreLine.ScoreLine      = cNewText.
+            
+
 END PROCEDURE.
 
 PROCEDURE pRoundPanelSize PRIVATE:
@@ -1344,7 +1752,7 @@ PROCEDURE pUpdatePanelDetail PRIVATE:
         ASSIGN
             bf-panelDetail.panelFormula         = ipcPanelFormula
             bf-panelDetail.scoringAllowance     = ipdScoringAllowance
-            bf-panelDetail.scoreType            = ipcScoreType
+            bf-panelDetail.scoreType            = IF ipcScoreType EQ ? THEN "" ELSE ipcScoreType 
             bf-panelDetail.panelSize            = ipdPanelSize
             bf-panelDetail.panelSizeFromFormula = ipdPanelSizeFromFormula
             .        
@@ -1631,7 +2039,7 @@ PROCEDURE pCreatePanelDetail PRIVATE:
         bf-panelDetail.panelNo              = ipiPanelNo
         bf-panelDetail.panelFormula         = ipcPanelFormula
         bf-panelDetail.scoringAllowance     = ipdScoringAllowance
-        bf-panelDetail.scoreType            = ipcScoreType
+        bf-panelDetail.scoreType            = IF ipcScoreType EQ ? THEN "" ELSE ipcScoreType
         bf-panelDetail.panelSize            = ipdPanelSize
         bf-panelDetail.panelSizeFromFormula = ipdPanelSizeFromFormula
         .
@@ -1682,6 +2090,99 @@ PROCEDURE Convert32ndsToDecimal:
         INPUT  iopdSize,
         OUTPUT iopdSize
         ).    
+END PROCEDURE.
+
+PROCEDURE pUpdatePanelDetailsPOLegacy PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Updates the legacy reftable based on Panel Details
+     Notes: Once we deprecate the use of POLSCORE reftable, this procedure and all
+     callers should be removed
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoID    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoLine  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE      FOR ttPanel.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    
+    FIND FIRST bf-po-ordl NO-LOCK 
+        WHERE bf-po-ordl.company EQ ipcCompany
+        AND bf-po-ordl.po-no EQ ipiPoID
+        AND bf-po-ordl.line EQ ipiPoLine 
+        NO-ERROR.
+    IF AVAILABLE bf-po-ordl AND bf-po-ordl.spare-char-1 EQ "LENGTH" THEN
+        RUN pUpdatePanelDetailsPOLegacyDetail(ipcCompany, ipiPOID, ipiPOLine, "L", TABLE ttPanel BY-REFERENCE). 
+    ELSE 
+        RUN pUpdatePanelDetailsPOLegacyDetail(ipcCompany, ipiPOID, ipiPOLine, "W", TABLE ttPanel BY-REFERENCE).
+        
+END PROCEDURE.
+
+PROCEDURE pUpdatePanelDetailsPOLegacyDetail PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Purpose:  Updates the legacy reftable based on Panel Details
+         Notes: Once we deprecate the use of POLSCORE reftable, this procedure and all
+         callers should be removed
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoID        AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoLine      AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPanelType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE      FOR ttPanel.
+    
+    DEFINE BUFFER bf-scoreReftable1 FOR reftable.
+    DEFINE BUFFER bf-scoreReftable2 FOR reftable.
+    
+    DEFINE VARIABLE dScore AS DECIMAL NO-UNDO.
+    
+    FIND FIRST bf-scoreReftable1 EXCLUSIVE-LOCK
+        WHERE bf-scoreReftable1.reftable EQ "POLSCORE"
+          AND bf-scoreReftable1.company  EQ ipcCompany
+          AND bf-scoreReftable1.loc      EQ "1"
+          AND bf-scoreReftable1.code     EQ STRING(ipiPoID,"9999999999")
+          AND bf-scoreReftable1.code2    EQ STRING(ipiPoLine, "9999999999")
+        NO-ERROR.
+
+    FIND FIRST bf-scoreReftable2 EXCLUSIVE-LOCK
+        WHERE bf-scoreReftable2.reftable EQ "POLSCORE"
+          AND bf-scoreReftable2.company  EQ ipcCompany
+          AND bf-scoreReftable2.loc      EQ "2"
+          AND bf-scoreReftable2.code     EQ STRING(ipiPoID,"9999999999")
+          AND bf-scoreReftable2.code2    EQ STRING(ipiPoLine, "9999999999")
+        NO-ERROR.
+
+    IF AVAILABLE bf-scoreReftable1 THEN
+        ASSIGN  //Clear out data arrays 
+            bf-scoreReftable1.val  = 0
+            bf-scoreReftable1.dscr = ""
+            . 
+
+    IF AVAILABLE bf-scoreReftable2 THEN
+        ASSIGN  //Clear out data arrays 
+            bf-scoreReftable2.val  = 0
+            bf-scoreReftable2.dscr = ""
+            . 
+
+    FOR EACH ttPanel
+        WHERE ttPanel.cPanelType EQ ipcPanelType  //W or L
+        BY ttPanel.iPanelNum:
+        dScore = ttPanel.dPanelSize.
+
+        RUN ConvertDecimalTo16ths(INPUT-OUTPUT dScore).
+
+        IF AVAILABLE bf-scoreReftable1 AND ttPanel.iPanelNum LE 12 THEN                                
+            ASSIGN 
+                bf-scoreReftable1.val[ttPanel.iPanelNum] = dScore
+                bf-scoreReftable1.dscr                   = bf-scoreReftable1.dscr + (IF ttPanel.cScoreType EQ "" THEN " " ELSE IF ttPanel.cScoreType EQ ? THEN " " ELSE ttPanel.cScoreType)
+                .                                    
+        ELSE IF AVAILABLE bf-scoreReftable2 AND ttPanel.iPanelNum LE 20  THEN                                
+            ASSIGN 
+                bf-scoreReftable2.val[ttPanel.iPanelNum - 12] = dScore
+                bf-scoreReftable2.dscr                        = bf-scoreReftable2.dscr + (IF ttPanel.cScoreType EQ "" THEN " " ELSE IF ttPanel.cScoreType EQ ? THEN " " ELSE ttPanel.cScoreType)
+                .                                            
+    END.
+
+    RELEASE bf-scoreReftable1.
+    RELEASE bf-scoreReftable2.
+
 END PROCEDURE.
 
 PROCEDURE SwitchPanelSizeFormat:
@@ -1758,6 +2259,19 @@ PROCEDURE SwitchPanelSizeFormatForttPanel:
     END.
 END PROCEDURE.
 
+PROCEDURE pConvertIntoMetricSizeForttPanel PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Comverts the dimensions into Metric Numbers
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER TABLE                 FOR ttPanel.
+
+    FOR EACH ttPanel:
+        ttPanel.dPanelSize =  ROUND(ttPanel.dPanelSize * 25.4, 0).
+    END.
+
+END PROCEDURE.
+
 PROCEDURE UpdatePanelDetailsForEstimate:
 /*------------------------------------------------------------------------------
  Purpose: Updates/Creates panelHeader and panelDetail records for a given Estimate
@@ -1807,6 +2321,14 @@ PROCEDURE UpdatePanelDetailsForPO:
         INPUT  "",                   /* Score set Type */
         INPUT  TABLE ttPanel
         ). 
+    
+    //Deprecate when POLSCORE Reftable is removed
+    RUN pUpdatePanelDetailsPOLegacy(
+        INPUT ipcCompany,
+        INPUT ipiPOID,
+        INPUT ipiPOLine,
+        INPUT TABLE ttPanel BY-REFERENCE).
+        
 END PROCEDURE.
 
 PROCEDURE UpdatePanelDetailsForStyle:
@@ -1920,7 +2442,7 @@ PROCEDURE pUpdatePanelDetails PRIVATE:
             ).        
         FOR EACH ttPanel
             BY ttPanel.iPanelNum:
-            IF ttPanel.cPanelFormula EQ "" AND ttPanel.dScoringAllowance EQ 0 AND ttPanel.cScoreType = "" AND ttPanel.dPanelSize EQ 0 AND ttPanel.dPanelSizeFromFormula EQ 0 THEN
+            IF ttPanel.cPanelFormula EQ "" AND ttPanel.dScoringAllowance EQ 0 AND (ttPanel.cScoreType EQ "" OR ttPanel.cScoreType EQ ?) AND ttPanel.dPanelSize EQ 0 AND ttPanel.dPanelSizeFromFormula EQ 0 THEN
                 NEXT.
                 
             RUN pUpdatePanelDetail (

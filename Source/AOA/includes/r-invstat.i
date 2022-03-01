@@ -97,11 +97,68 @@ DEFINE TEMP-TABLE ttProdSum NO-UNDO
 DEFINE VARIABLE cPOSource AS CHARACTER NO-UNDO.
 &ENDIF
 
+FUNCTION fRuleFail RETURN LOGICAL PRIVATE
+    (iplRule1 AS LOGICAL,
+     iplRule2 AS LOGICAL,
+     iplRule3 AS LOGICAL,
+     iplRule4 AS LOGICAL,
+     iplRule5 AS LOGICAL,
+     ipdQty   AS DECIMAL
+     ):
+
+    // open dates only, fail
+    IF iplRule1 EQ FALSE AND
+       iplRule2 EQ FALSE AND
+       iplRule3 EQ FALSE AND
+      (iplRule4 EQ TRUE  OR
+       iplRule5 EQ TRUE) THEN
+    ASSIGN
+        iplRule4 = FALSE
+        iplRule5 = FALSE
+        .
+    ELSE
+    // if rule 2 only, fail
+    IF iplRule1 EQ FALSE AND
+       iplRule2 EQ TRUE AND
+       iplRule3 EQ FALSE AND
+       iplRule4 EQ FALSE AND
+       iplRule5 EQ FALSE THEN
+    iplRule2 = FALSE.
+    ELSE
+    // if rule 3 only, fail
+    IF iplRule1 EQ FALSE AND
+       iplRule2 EQ FALSE AND
+       iplRule3 EQ TRUE  AND
+       iplRule4 EQ FALSE AND
+       iplRule5 EQ FALSE THEN
+    iplRule3 = FALSE.
+    ELSE
+    // if rule 2 & 3 with No Prod Qty, fail
+    IF iplRule1 EQ FALSE AND
+       iplRule2 EQ TRUE  AND
+       iplRule3 EQ TRUE  AND
+       iplRule4 EQ FALSE AND
+       iplRule5 EQ FALSE AND
+       ipdQty   EQ 0     THEN
+    ASSIGN
+        iplRule2 = FALSE
+        iplRule3 = FALSE
+        .
+
+    RETURN
+        iplRule1 EQ FALSE AND
+        iplRule2 EQ FALSE AND
+        iplRule3 EQ FALSE AND
+        iplRule4 EQ FALSE AND
+        iplRule5 EQ FALSE.
+
+END FUNCTION.
+
 FUNCTION fSalesRepName RETURNS CHARACTER PRIVATE
     (ipcCompany AS CHARACTER, ipcSalesRep AS CHARACTER):
     FIND FIRST sman NO-LOCK
         WHERE sman.company EQ ipcCompany
-        AND sman.sman EQ ipcSalesRep
+          AND sman.sman EQ ipcSalesRep
         NO-ERROR.
     RETURN IF AVAILABLE sman THEN REPLACE(sman.sname,",","") ELSE "".
 END FUNCTION.
@@ -116,15 +173,15 @@ FUNCTION fItemDescription RETURNS CHARACTER PRIVATE
     
     FIND FIRST bItemFG NO-LOCK
         WHERE bItemFG.company EQ ipcCompany
-        AND bItemFG.i-no    EQ ipcItemID
+          AND bItemFG.i-no    EQ ipcItemID
         NO-ERROR.
     IF AVAILABLE bItemFG THEN
-        cItemDescription = bItemFG.i-name.
+    cItemDescription = bItemFG.i-name.
     ELSE 
     DO:
         FIND FIRST bPrep NO-LOCK
             WHERE bPrep.company EQ ipcCompany
-            AND bPrep.code    EQ ipcItemID
+              AND bPrep.code    EQ ipcItemID
             NO-ERROR.
         IF AVAILABLE bPrep THEN
             cItemDescription = bPrep.dscr.
@@ -138,7 +195,7 @@ FUNCTION fProductDescription RETURNS CHARACTER PRIVATE
     (ipcCompany AS CHARACTER, ipcProductCategory AS CHARACTER):
     FIND FIRST fgcat NO-LOCK
         WHERE fgcat.company EQ ipcCompany
-        AND fgcat.procat  EQ ipcProductCategory
+          AND fgcat.procat  EQ ipcProductCategory
         NO-ERROR.
     RETURN IF AVAILABLE fgcat THEN fgcat.dscr ELSE "".
 END FUNCTION.
@@ -166,9 +223,9 @@ PROCEDURE pBusinessLogic:
     
     CASE cAsOfDateOption:
         WHEN "Prior Month" THEN
-            dtAsOfDate = DYNAMIC-FUNCTION("sfCommon_DateOptionDate", "Date Prior Month", dtAsOfDate).
+        dtAsOfDate = DYNAMIC-FUNCTION("sfCommon_DateOptionDate", "Date Prior Month", dtAsOfDate).
         WHEN "Prior Year" THEN
-            dtAsOfDate = DYNAMIC-FUNCTION("sfCommon_DateOptionDate", "Date Prior Year", dtAsOfDate).
+        dtAsOfDate = DYNAMIC-FUNCTION("sfCommon_DateOptionDate", "Date Prior Year", dtAsOfDate).
     END CASE.
     lOldJobBuild = fIsOldJobBuild(cCompany).
     
@@ -223,13 +280,13 @@ PROCEDURE pAddJobItem PRIVATE:
     
     CASE ipcPriceUOM:
         WHEN "M" THEN 
-            dPricePerEA = ipdPricePerUOM / 1000.
+        dPricePerEA = ipdPricePerUOM / 1000.
         WHEN "LOT" OR 
         WHEN "L" THEN 
-            ASSIGN 
-                lLot        = YES
-                dPricePerEA = ipdPricePerUOM
-                . 
+        ASSIGN 
+            lLot        = YES
+            dPricePerEA = ipdPricePerUOM
+            . 
         OTHERWISE 
         dPricePerEA = ipdPricePerUOM.                
     END CASE.
@@ -275,7 +332,7 @@ PROCEDURE pAddJobItem PRIVATE:
         .
     FIND FIRST cust NO-LOCK
         WHERE cust.company EQ ipcCompany
-        AND cust.cust-no EQ ipcCustomerID
+          AND cust.cust-no EQ ipcCustomerID
         NO-ERROR.
     IF AVAILABLE cust THEN
         ASSIGN
@@ -285,7 +342,7 @@ PROCEDURE pAddJobItem PRIVATE:
             .
     FIND FIRST ttProdSum
         WHERE ttProdSum.cCompany         EQ ipcCompany
-        AND ttProdSum.cProductCategory EQ ipcProductCategory
+          AND ttProdSum.cProductCategory EQ ipcProductCategory
         NO-ERROR.
     IF NOT AVAILABLE ttProdSum THEN 
     DO:
@@ -407,20 +464,29 @@ PROCEDURE pBuildJobItem PRIVATE:
     DEFINE VARIABLE lHasOrder    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lIsComp      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lNoMake      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lRule        AS LOGICAL   NO-UNDO EXTENT 5.
+    DEFINE VARIABLE lLog         AS LOGICAL   NO-UNDO INITIAL NO.
+
+    IF lLog AND USERID("ASI") NE "asi" THEN
+    llog = NO.
     
+    IF lLog THEN
+    OUTPUT TO c:\tmp\GreenBar.txt.
+
     EMPTY TEMP-TABLE ttJobItem.
+
     FOR EACH job-hdr NO-LOCK  /*Go through all job-hdrs*/
         WHERE job-hdr.company EQ ipcCompany
-        AND job-hdr.cust-no GE ipcCustStart
-        AND job-hdr.cust-no LE ipcCustEnd
-        AND job-hdr.i-no    GE ipcFGItemStart
-        AND job-hdr.i-no    LE ipcFGItemEnd,
+          AND job-hdr.cust-no GE ipcCustStart
+          AND job-hdr.cust-no LE ipcCustEnd
+          AND job-hdr.i-no    GE ipcFGItemStart
+          AND job-hdr.i-no    LE ipcFGItemEnd,
         FIRST job OF job-hdr  NO-LOCK
         WHERE job.create-date LE ipdtJobEnd
-        AND job.create-date GE ipdtJobStart,
+          AND job.create-date GE ipdtJobStart,
         FIRST itemfg NO-LOCK
         WHERE itemfg.company  EQ job-hdr.company
-        AND itemfg.i-no     EQ job-hdr.i-no
+          AND itemfg.i-no     EQ job-hdr.i-no
         :
         ASSIGN 
             dQtyOrd      = job-hdr.qty
@@ -453,8 +519,8 @@ PROCEDURE pBuildJobItem PRIVATE:
         DO:
             FIND FIRST oe-ordl NO-LOCK
                 WHERE oe-ordl.company EQ job-hdr.company
-                AND oe-ordl.ord-no  EQ job-hdr.ord-no
-                AND oe-ordl.i-no    EQ job-hdr.i-no
+                  AND oe-ordl.ord-no  EQ job-hdr.ord-no
+                  AND oe-ordl.i-no    EQ job-hdr.i-no
                 NO-ERROR.
             IF AVAILABLE oe-ordl THEN 
             DO:
@@ -464,8 +530,15 @@ PROCEDURE pBuildJobItem PRIVATE:
                     OUTPUT dQtyInv,
                     OUTPUT dQtyShip
                     ).
+                RUN pGetQuantityOnHandAsOf (
+                    job-hdr.company,
+                    job-hdr.job-no,
+                    job-hdr.job-no2,
+                    job-hdr.i-no,
+                    ipdtAsOf,
+                    OUTPUT dQtyOnHand
+                    ).
                 ASSIGN 
-                    dQtyOnHand   = dQtyProd - dQtyShip
                     dPricePerUOM = oe-ordl.price
                     cPriceUOM    = oe-ordl.pr-uom 
                     lHasOrder    = YES
@@ -476,7 +549,7 @@ PROCEDURE pBuildJobItem PRIVATE:
             END.
             FIND FIRST oe-ord NO-LOCK
                 WHERE oe-ord.company EQ job-hdr.company
-                AND oe-ord.ord-no  EQ job-hdr.ord-no
+                  AND oe-ord.ord-no  EQ job-hdr.ord-no
                 NO-ERROR.
             IF AVAILABLE oe-ord THEN DO:
                 ASSIGN
@@ -504,13 +577,37 @@ PROCEDURE pBuildJobItem PRIVATE:
                 .
         END.
         
-        cSource = "Job Header - "
-                + IF itemfg.isaset AND NOT CAN-DO(cProductCategoryList,itemfg.procat) THEN "Set"
-                ELSE "Single".
-              
-        /* No Backlog at time of "as of" */
-        IF (dQtyInv GE dQtyOrd) OR (job.close-date LT ipdtAsOf AND dQtyOnHand EQ 0) THEN NEXT.
-        
+        ASSIGN
+            cSource  = "Job Header - "
+                     + IF itemfg.isaset AND NOT CAN-DO(cProductCategoryList,itemfg.procat) THEN "Set"
+                       ELSE "Single"
+            lRule[1] = dQtyOnHand NE 0
+            lRule[2] = dQtyInv    EQ 0
+            lRule[3] = dQtyOnHand EQ 0 AND
+                       dQtyInv    NE 0 AND
+                       dQtyOrd    GT dQtyInv
+            lRule[4] = dQtyOnHand EQ 0 AND
+                      (job.close-date EQ ? OR
+                       job.close-date GE ipdtAsOf)
+            lRule[5] = dQtyOnHand EQ 0 AND AVAILABLE oe-ord AND
+                      (oe-ord.closeDate EQ ? OR
+                       oe-ord.closeDate GE ipdtAsOf)
+            .
+        IF fRuleFail(lRule[1], lRule[2], lRule[3], lRule[4], lRule[5], dQtyProd) THEN NEXT.
+
+        IF lLog THEN
+        EXPORT
+            "Cust:" job-hdr.cust-no
+            "Job:" job-hdr.job-no
+            "dQtyOnHand:" dQtyOnHand
+            "dQtyInv:" dQtyInv
+            "dQtyOrd:" dQtyOrd
+            "dQtyProd:" dQtyProd
+            "Rules:" lRule
+            "Job Close:" job.close-date job.opened
+            "Order Close:" oe-ord.closeDate oe-ord.opened
+            .
+
         RUN pAddJobItem (
             job-hdr.company,
             job-hdr.cust-no,
@@ -540,10 +637,10 @@ PROCEDURE pBuildJobItem PRIVATE:
         DO:
             FOR EACH fg-set NO-LOCK 
                 WHERE fg-set.company EQ itemfg.company
-                AND fg-set.set-no  EQ itemfg.i-no,
+                  AND fg-set.set-no  EQ itemfg.i-no,
                 FIRST bf-comp-itemfg NO-LOCK 
                 WHERE bf-comp-itemfg.company EQ fg-set.company
-                AND bf-comp-itemfg.i-no    EQ fg-set.part-no
+                  AND bf-comp-itemfg.i-no    EQ fg-set.part-no
                 BY fg-set.line
                 :
                 ASSIGN 
@@ -615,22 +712,26 @@ PROCEDURE pBuildJobItem PRIVATE:
                     1
                     ).
     END.
+    IF lLog THEN DO:
+        OUTPUT CLOSE.
+        OS-COMMAND NO-WAIT notepad.exe c:\tmp\GreenBar.txt.
+    END. // if log
 
     FOR EACH oe-ord NO-LOCK 
         WHERE oe-ord.company EQ ipcCompany
-        AND oe-ord.cust-no   GE ipcCustStart
-        AND oe-ord.cust-no   LE ipcCustEnd
-        AND oe-ord.ord-date  LE ipdtJobEnd
-        AND oe-ord.ord-date  GE ipdtJobStart,
+          AND oe-ord.cust-no   GE ipcCustStart
+          AND oe-ord.cust-no   LE ipcCustEnd
+          AND oe-ord.ord-date  LE ipdtJobEnd
+          AND oe-ord.ord-date  GE ipdtJobStart,
         EACH oe-ordm NO-LOCK
         WHERE oe-ordm.company EQ oe-ord.company
-        AND oe-ordm.ord-no  EQ oe-ord.ord-no
-        AND oe-ordm.charge  GE ipcFGItemStart
-        AND oe-ordm.charge  LE ipcFGItemEnd
-        AND oe-ordm.bill    EQ "Y",
+          AND oe-ordm.ord-no  EQ oe-ord.ord-no
+          AND oe-ordm.charge  GE ipcFGItemStart
+          AND oe-ordm.charge  LE ipcFGItemEnd
+          AND oe-ordm.bill    EQ "Y",
         FIRST prep NO-LOCK 
         WHERE prep.company EQ oe-ordm.company
-        AND prep.code    EQ oe-ordm.charge
+          AND prep.code    EQ oe-ordm.charge
         :
         ASSIGN 
             dQtyOrd      = 1
@@ -660,7 +761,20 @@ PROCEDURE pBuildJobItem PRIVATE:
             ).
         
         IF dPricePerUOM LT dInvAmt THEN NEXT.  /* already invoiced at time of "as of" */
-        
+
+        ASSIGN
+            lRule[1] = dQtyOnHand NE 0
+            lRule[2] = dQtyInv    EQ 0
+            lRule[3] = dQtyOnHand EQ 0 AND
+                       dQtyInv    NE 0 AND
+                       dQtyOrd    GT dQtyInv
+            lRule[4] = FALSE
+            lRule[5] = dQtyOnHand EQ 0 AND
+                      (oe-ord.closeDate EQ ? OR
+                       oe-ord.closeDate GE ipdtAsOf)
+            .
+        IF fRuleFail(lRule[1], lRule[2], lRule[3], lRule[4], lRule[5], dQtyProd) THEN NEXT.
+
         RUN pAddJobItem (
             oe-ord.company,
             oe-ord.cust-no,
@@ -690,20 +804,20 @@ PROCEDURE pBuildJobItem PRIVATE:
     
     FOR EACH oe-ord NO-LOCK 
         WHERE oe-ord.company EQ ipcCompany
-        AND oe-ord.cust-no   GE ipcCustStart
-        AND oe-ord.cust-no   LE ipcCustEnd
-        AND oe-ord.ord-date  LE ipdtJobEnd
-        AND oe-ord.ord-date  GE ipdtJobStart
-        AND oe-ord.est-no EQ "",
+          AND oe-ord.cust-no   GE ipcCustStart
+          AND oe-ord.cust-no   LE ipcCustEnd
+          AND oe-ord.ord-date  LE ipdtJobEnd
+          AND oe-ord.ord-date  GE ipdtJobStart
+          AND oe-ord.est-no EQ "",
         EACH oe-ordl NO-LOCK 
         WHERE oe-ordl.company EQ oe-ord.company
-        AND oe-ordl.ord-no EQ oe-ord.ord-no
-        AND oe-ordl.i-no  GE ipcFGItemStart
-        AND oe-ordl.i-no  LE ipcFGItemEnd
-        AND oe-ordl.est-no EQ "",
+          AND oe-ordl.ord-no EQ oe-ord.ord-no
+          AND oe-ordl.i-no  GE ipcFGItemStart
+          AND oe-ordl.i-no  LE ipcFGItemEnd
+          AND oe-ordl.est-no EQ "",
         FIRST itemfg NO-LOCK
         WHERE itemfg.company  EQ oe-ordl.company
-        AND itemfg.i-no     EQ oe-ordl.i-no
+          AND itemfg.i-no     EQ oe-ordl.i-no
         :
         ASSIGN 
             dQtyOrd      = oe-ordl.qty
@@ -733,6 +847,20 @@ PROCEDURE pBuildJobItem PRIVATE:
             OUTPUT dQtyInv,
             OUTPUT dQtyShip
             ).
+
+        ASSIGN
+            lRule[1] = dQtyOnHand NE 0
+            lRule[2] = dQtyInv    EQ 0
+            lRule[3] = dQtyOnHand EQ 0 AND
+                       dQtyInv    NE 0 AND
+                       dQtyOrd    GT dQtyInv
+            lRule[4] = FALSE
+            lRule[5] = dQtyOnHand EQ 0 AND
+                      (oe-ord.closeDate EQ ? OR
+                       oe-ord.closeDate GE ipdtAsOf)
+            .
+        IF fRuleFail(lRule[1], lRule[2], lRule[3], lRule[4], lRule[5], dQtyProd) THEN NEXT.
+
         RUN pAddJobItem (
             oe-ord.company,
             oe-ord.cust-no,
@@ -774,16 +902,16 @@ PROCEDURE pGetInvoicedAmountForMiscAsOf PRIVATE:
 
     FOR EACH ar-invl NO-LOCK 
         WHERE ar-invl.company EQ ipcCompany
-        AND ar-invl.misc    EQ YES
-        AND ar-invl.ord-no  EQ ipiOrdNo
-        AND ar-invl.i-name  EQ ipcCharge,
+          AND ar-invl.misc    EQ YES
+          AND ar-invl.ord-no  EQ ipiOrdNo
+          AND ar-invl.i-name  EQ ipcCharge,
         FIRST ar-inv NO-LOCK 
         WHERE ar-inv.company  EQ ar-invl.company 
-        AND ar-inv.x-no     EQ ar-invl.x-no
-        AND ar-inv.inv-date LE ipdtAsOf,
+          AND ar-inv.x-no     EQ ar-invl.x-no
+          AND ar-inv.inv-date LE ipdtAsOf,
         FIRST prep NO-LOCK 
         WHERE prep.company EQ ar-invl.company
-        AND prep.code    EQ ar-invl.i-name
+          AND prep.code    EQ ar-invl.i-name
         :
         opdInvoiceAmount = ar-invl.amt.
         LEAVE.
@@ -843,23 +971,23 @@ PROCEDURE pGetQuantityInvShipAsOf PRIVATE:
 
         FOR EACH oe-boll NO-LOCK
             WHERE oe-boll.company EQ oe-ordl.company
-            AND oe-boll.ord-no  EQ oe-ordl.ord-no
-            AND oe-boll.i-no    EQ oe-ordl.i-no
-            AND oe-boll.line    EQ oe-ordl.line
-            AND oe-boll.s-code  NE "T"
+              AND oe-boll.ord-no  EQ oe-ordl.ord-no
+              AND oe-boll.i-no    EQ oe-ordl.i-no
+              AND oe-boll.line    EQ oe-ordl.line
+              AND oe-boll.s-code  NE "T"
             USE-INDEX ord-no,
             FIRST oe-bolh NO-LOCK
             WHERE oe-bolh.b-no     EQ oe-boll.b-no
-            AND oe-bolh.posted   EQ YES
-            AND oe-bolh.bol-date LE ipdtAsOf
+              AND oe-bolh.posted   EQ YES
+              AND oe-bolh.bol-date LE ipdtAsOf
             USE-INDEX b-no
             :
             IF (oe-boll.s-code NE "I" OR
                 CAN-FIND(FIRST bf-oe-ordl 
                 WHERE bf-oe-ordl.company        EQ oe-ordl.company
-                AND bf-oe-ordl.ord-no         EQ oe-ordl.ord-no
-                AND bf-oe-ordl.is-a-component EQ YES
-                AND bf-oe-ordl.set-hdr-line   EQ oe-ordl.line)) THEN                
+                  AND bf-oe-ordl.ord-no         EQ oe-ordl.ord-no
+                  AND bf-oe-ordl.is-a-component EQ YES
+                  AND bf-oe-ordl.set-hdr-line   EQ oe-ordl.line)) THEN                
                 opdQuantityShipped = opdQuantityShipped + oe-boll.qty.
         END.
     END.
@@ -880,15 +1008,15 @@ PROCEDURE pGetQuantityMadeAsOf PRIVATE:
     FOR EACH fg-rcpth  
         FIELDS(r-no rita-code) NO-LOCK
         WHERE fg-rcpth.company    EQ ipcCompany
-        AND fg-rcpth.job-no     EQ ipcJobNo
-        AND fg-rcpth.job-no2    EQ ipiJobNo2
-        AND fg-rcpth.i-no       EQ ipcINo
-        AND fg-rcpth.rita-code  EQ 'R' 
-        AND fg-rcpth.trans-date LE ipdtAsOf
+          AND fg-rcpth.job-no     EQ ipcJobNo
+          AND fg-rcpth.job-no2    EQ ipiJobNo2
+          AND fg-rcpth.i-no       EQ ipcINo
+          AND fg-rcpth.rita-code  EQ 'R' 
+          AND fg-rcpth.trans-date LE ipdtAsOf
         USE-INDEX job,
         EACH fg-rdtlh FIELDS(qty) NO-LOCK
         WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-        AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+          AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
         :            
         opdQty = opdQty + fg-rdtlh.qty.
     END.  /*each fg history*/    
@@ -899,31 +1027,40 @@ PROCEDURE pGetQuantityOnHandAsOf PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given Job inputs, determine the production quantity as of a particular date
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiJobNo2  AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcINo     AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdtAsOf   AS DATE      NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdQty    AS DECIMAL   NO-UNDO.        
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcINo     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtAsOf   AS DATE      NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQty     AS DECIMAL   NO-UNDO.        
     
-    FOR EACH fg-rcpth NO-LOCK
+    IF ipdtAsOf EQ TODAY THEN
+    FOR EACH fg-bin NO-LOCK
+        WHERE fg-bin.company EQ ipcCompany
+          AND fg-bin.job-no  EQ ipcJobNo
+          AND fg-bin.job-no2 EQ ipiJobNo2
+          AND fg-bin.i-no    EQ ipcINo
+        :
+        opdQty = opdQty + fg-bin.qty.
+    END. // each fg-bin
+    ELSE
+    FOR EACH fg-rcpth NO-LOCK    
         WHERE fg-rcpth.company    EQ ipcCompany
-        AND fg-rcpth.i-no       EQ ipcINo
-        AND fg-rcpth.job-no     EQ ipcJobNo
-        AND fg-rcpth.job-no2    EQ ipiJobNo2
-        AND fg-rcpth.trans-date LE ipdtAsOf
+          AND fg-rcpth.i-no       EQ ipcINo
+          AND fg-rcpth.job-no     EQ ipcJobNo
+          AND fg-rcpth.job-no2    EQ ipiJobNo2
+          AND fg-rcpth.trans-date LE ipdtAsOf
         USE-INDEX tran,
         EACH fg-rdtlh NO-LOCK
         WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-        AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+          AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
         BY fg-rcpth.trans-date
         BY fg-rdtlh.trans-time
         BY fg-rcpth.r-no
         :
         CASE fg-rcpth.rita-code:
-            WHEN "S" OR 
-            WHEN "s" THEN
-                opdQty = opdQty - fg-rdtlh.qty.
+            WHEN "S" OR WHEN "s" THEN
+            opdQty = opdQty - fg-rdtlh.qty.
             OTHERWISE 
             opdQty = opdQty + fg-rdtlh.qty.
         END CASE.    
@@ -931,4 +1068,4 @@ PROCEDURE pGetQuantityOnHandAsOf PRIVATE:
 
 END PROCEDURE.
 
-{AOA/BL/pBuildCustList.i}
+{AOA/dynBL/pBuildCustList.i}

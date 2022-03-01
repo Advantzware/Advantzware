@@ -1,36 +1,38 @@
-/* subjectID104Defs.i - auto generated 04.28.2020 @  9:19:42 pm */
+/* subjectID104Defs.i - auto generated 07.06.2021 @  7:16:47 pm */
 
 {AOA/includes/dynRunBusinessLogicDefs.i}
 
 /* parameter values loaded into these variables */
-DEFINE VARIABLE cCompany AS Character NO-UNDO.
-DEFINE VARIABLE lAllCustNo AS Logical NO-UNDO.
-DEFINE VARIABLE cStartCustNo AS Character NO-UNDO.
-DEFINE VARIABLE cStartCustName AS Character NO-UNDO.
-DEFINE VARIABLE cEndCustNo AS Character NO-UNDO.
-DEFINE VARIABLE cEndCustName AS Character NO-UNDO.
-DEFINE VARIABLE lAllCustTypes AS Logical NO-UNDO.
-DEFINE VARIABLE cStartCustType AS Character NO-UNDO.
-DEFINE VARIABLE cStartCustDescription AS Character NO-UNDO.
-DEFINE VARIABLE cEndCustType AS Character NO-UNDO.
-DEFINE VARIABLE cEndCustDescription AS Character NO-UNDO.
-DEFINE VARIABLE lAllGroups AS Logical NO-UNDO.
-DEFINE VARIABLE cStartSalesGroup AS Character NO-UNDO.
-DEFINE VARIABLE cStartSalesGroupDescription AS Character NO-UNDO.
-DEFINE VARIABLE cEndSalesGroup AS Character NO-UNDO.
-DEFINE VARIABLE cEndSalesGroupDescription AS Character NO-UNDO.
-DEFINE VARIABLE lAllSalesRep AS Logical NO-UNDO.
-DEFINE VARIABLE cStartSalesRep AS Character NO-UNDO.
-DEFINE VARIABLE cStartSalesRepName AS Character NO-UNDO.
-DEFINE VARIABLE cEndSalesRep AS Character NO-UNDO.
-DEFINE VARIABLE cEndSalesRepName AS Character NO-UNDO.
-DEFINE VARIABLE lAllProCats AS Logical NO-UNDO.
-DEFINE VARIABLE cStartProCat AS Character NO-UNDO.
-DEFINE VARIABLE cStartProCatDescriptn AS Character NO-UNDO.
-DEFINE VARIABLE cEndProCat AS Character NO-UNDO.
-DEFINE VARIABLE cEndProCatDescriptn AS Character NO-UNDO.
-DEFINE VARIABLE dtStartInvoiceDate AS Date NO-UNDO.
-DEFINE VARIABLE dtEndInvoiceDate AS Date NO-UNDO.
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllCustNo AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cStartCustNo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartCustName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndCustNo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndCustName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllCustTypes AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cStartCustType AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartCustDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndCustType AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndCustDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllGroups AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cStartSalesGroup AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartSalesGroupDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndSalesGroup AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndSalesGroupDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllSalesRep AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cStartSalesRep AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartSalesRepName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndSalesRep AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndSalesRepName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllProCats AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cStartProCat AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartProCatDescriptn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndProCat AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndProCatDescriptn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtStartInvoiceDate AS DATE NO-UNDO.
+DEFINE VARIABLE cDatePickList-1 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtEndInvoiceDate AS DATE NO-UNDO.
+DEFINE VARIABLE cDatePickList-2 AS CHARACTER NO-UNDO.
 
 PROCEDURE pAssignParamVariables:
     /* load dynamic parameter values into variables */
@@ -62,6 +64,10 @@ PROCEDURE pAssignParamVariables:
         cEndProCat = DYNAMIC-FUNCTION("fGetDynParamValue","endProCat")
         cEndProCatDescriptn = DYNAMIC-FUNCTION("fGetDynParamValue","endProCatDescriptn")
         dtStartInvoiceDate = DATE(DYNAMIC-FUNCTION("fGetDynParamValue","startInvoiceDate"))
+        cDatePickList-1 = DYNAMIC-FUNCTION("fGetDynParamValue","DatePickList-1")
+        dtStartInvoiceDate = DYNAMIC-FUNCTION("fDateOptionDate",cDatePickList-1,dtStartInvoiceDate)
         dtEndInvoiceDate = DATE(DYNAMIC-FUNCTION("fGetDynParamValue","endInvoiceDate"))
+        cDatePickList-2 = DYNAMIC-FUNCTION("fGetDynParamValue","DatePickList-2")
+        dtEndInvoiceDate = DYNAMIC-FUNCTION("fDateOptionDate",cDatePickList-2,dtEndInvoiceDate)
         .
 END PROCEDURE.

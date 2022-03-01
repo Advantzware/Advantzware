@@ -743,7 +743,7 @@ END.
 IF v-export THEN DO:
    OUTPUT STREAM s-temp close.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(v-exp-name)).
+      OS-COMMAND NO-WAIT VALUE(SEARCH(v-exp-name)).
 END.
 
 SESSION:SET-WAIT-STATE("").

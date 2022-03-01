@@ -115,7 +115,7 @@ FUNCTION fCostOutReport RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttCostOutReport.
 
     /* subject business logic */
-    RUN aoa/BL/costOut.p (OUTPUT TABLE ttCostOutReport, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/costOut.p (OUTPUT TABLE ttCostOutReport, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttCostOutReport:HANDLE .
 

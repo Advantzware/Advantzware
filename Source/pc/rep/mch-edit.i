@@ -102,12 +102,12 @@ FOR EACH tt-report NO-LOCK,
        app-foh = ROUND(ld * mach.run-fixoh,2)
        app-voh = ROUND(ld * mach.run-varoh,2).
 
-    {jc/jcglcrt.i prod.wip-lab 0 app-lab}
-    {jc/jcglcrt.i prod.wip-fo  0 app-foh}
-    {jc/jcglcrt.i prod.wip-vo  0 app-voh}
-    {jc/jcglcrt.i prod.aa-lab app-lab 0}
-    {jc/jcglcrt.i prod.aa-fo  app-foh 0}
-    {jc/jcglcrt.i prod.aa-vo  app-voh 0}
+    {jc/jcglcrt.i prod.wip-lab 0 app-lab 0 "prod.wip-mat"}
+    {jc/jcglcrt.i prod.wip-fo  0 app-foh 0 "prod.wip-mat"}
+    {jc/jcglcrt.i prod.wip-vo  0 app-voh 0 "prod.wip-mat"}
+    {jc/jcglcrt.i prod.aa-lab app-lab 0 0 "prod.wip-mat"}
+    {jc/jcglcrt.i prod.aa-fo  app-foh 0 0 "prod.wip-mat"}
+    {jc/jcglcrt.i prod.aa-vo  app-voh 0 0 "prod.wip-mat"}
   END.
 
   v-recid = ?.

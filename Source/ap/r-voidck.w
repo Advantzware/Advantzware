@@ -754,9 +754,10 @@ do transaction on error undo, leave:
                          ap-pay.reconciled = no
                          on error undo postit, leave postit:
 
-       assign ap-pay.cleared = yes
-              ap-pay.reconciled = ?
-              v-tot-amt-paid = v-tot-amt-paid + ap-pay.check-amt.
+       assign ap-pay.cleared         = yes
+              ap-pay.reconciled      = ?
+              ap-pay.transactionDate = udate
+              v-tot-amt-paid         = v-tot-amt-paid + ap-pay.check-amt.
 
        find first bank where bank.company = cocode and
                              bank.bank-code = ap-pay.bank-code no-error.
@@ -848,7 +849,7 @@ do transaction on error undo, leave:
                         uperiod,
                         "A",
                         udate,
-                        string(ap-pay.vend-no),
+                        (IF AVAIL ap-pay THEN "Vendor:" + STRING(ap-pay.vend-no,"x(8)") ELSE ""),
                         "AP").
 
    if v-tot-amt-disc ne 0 then do:
@@ -862,7 +863,7 @@ do transaction on error undo, leave:
                         uperiod,
                         "A",
                         udate,
-                        string(ap-pay.vend-no),
+                        (IF AVAIL ap-pay THEN "Vendor:" + STRING(ap-pay.vend-no,"x(8)") ELSE ""),
                         "AP").
      
    end.
@@ -887,7 +888,7 @@ do transaction on error undo, leave:
                         uperiod,
                         "A",
                         udate,
-                        string(ap-pay.vend-no),
+                        (IF AVAIL ap-pay THEN "Vendor:" + STRING(ap-pay.vend-no,"x(8)") ELSE ""),
                         "AP").
        
      end.
@@ -903,7 +904,7 @@ do transaction on error undo, leave:
                         uperiod,
                         "A",
                         udate,
-                        string(ap-pay.vend-no),
+                        (IF AVAIL ap-pay THEN "Vendor:" + STRING(ap-pay.vend-no,"x(8)") ELSE ""),
                         "AP").
 end. /* postit */
 

@@ -1,0 +1,13 @@
+ISA*00*          *00*          *ZZ*Enter Sender ID*ZZ*Enter ReceiverI*$CurrentDate|YYMMDD|DATE|$*$CurrentTime|hhmm|TIME|$*U*00501*$ClientTransCounter|999999999|INT|$*0*T*:~
+GS*IN*  *  *$CurrentDate|YYYYMMDD|DATE|$*$CurrentTime|hhmm|TIME|$*$ClientTransCounter|999999999|INT|$*X*005010~
+ST*855*$ClientTransCounter|999999999|INT|$~
+BAK*00*AC*$OrdNo$*$OrdDate|YYYYMMDD|Date|$*****$AckPrntDate|YYYYMMDD|Date|$~
+REF*CO*Enter Reference Identification~
+ITD***$TermDiscountPercent$**$TermDiscountDays$*******$TermsDescription$~
+DTM*002*$DueDate|YYYYMMDD|Date|$~
+N9*L1*Enter Reference Identification~
+MTX**$invNotes$~$Detail$$MiscCharge$
+CTT*$LineCount$~
+SE*13*$ClientTransCounter|999999999|INT|$~
+GE*1*$ClientTransCounter|999999999|INT|$~
+IEA*1*$ClientTransCounter|999999999|INT|$~

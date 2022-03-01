@@ -485,8 +485,9 @@ ASSIGN
        Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 3
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
-/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
-   NO-ENABLE                                                            */
+ASSIGN 
+       btn_show:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN fi_sortBy IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -817,6 +818,7 @@ DO:
     APPLY "choose" TO btn_go.
   END.
   */
+  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF NOT AVAIL cust THEN DO:
        FIND FIRST cust WHERE cust.cust-no = fi_cust-no:SCREEN-VALUE 
            AND cust.company = cocode NO-LOCK NO-ERROR.
@@ -830,7 +832,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main /* Customer# */
 DO:
-  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
@@ -1500,7 +1501,7 @@ PROCEDURE pPrepareAndExecuteQuery :
 /*------------------------------------------------------------------------------
  Purpose: Private procedure to prepare and execute query in browse
  Notes:
-------------------------------------------------------------------------------*/   
+------------------------------------------------------------------------------*/     
     DEFINE INPUT PARAMETER iplInitialLoad    AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE cLimitingQuery        AS CHARACTER NO-UNDO.
@@ -1518,7 +1519,8 @@ PROCEDURE pPrepareAndExecuteQuery :
     cLimitingQuery = "FOR EACH ar-invl NO-LOCK"
                      + " WHERE ar-invl.company EQ " + QUOTER(cocode)
                      + " AND ar-invl.posted EQ YES " 
-                     + pGetWhereCriteria("ar-invl",YES)                    
+                     + pGetWhereCriteria("ar-invl",YES)
+                     + " USE-INDEX inv-no-desc "                    
                      + " ,FIRST ar-inv  no-lock"
                      + " WHERE ar-inv.x-no EQ ar-invl.x-no "
                      + " AND ar-inv.inv-date GE " + quoter(fi_bdate)    
@@ -1561,7 +1563,8 @@ PROCEDURE pPrepareAndExecuteQuery :
                        + " WHERE ar-invl.company EQ " + QUOTER(cocode)
                        + " AND ar-invl.posted EQ YES "
                        + cBrowseWhereClause   
-                       + pGetWhereCriteria("ar-invl",YES)             
+                       + pGetWhereCriteria("ar-invl",YES)
+                       + " USE-INDEX inv-no-desc"             
                        + " ,FIRST ar-inv  no-lock"
                        + " WHERE ar-inv.x-no EQ ar-invl.x-no "
                        + " AND ar-inv.inv-date GE " + quoter(fi_bdate)    

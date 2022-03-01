@@ -164,6 +164,7 @@ DEFINE BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.
 DEFINE VARIABLE ghVendorCost AS HANDLE no-undo.
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 DEFINE VARIABLE hGLProcs  AS HANDLE NO-UNDO.
+DEFINE VARIABLE cPODateChangeRequiresReason AS CHARACTER NO-UNDO.
 
 {windows/l-jobmt1.i}
 
@@ -184,6 +185,8 @@ IF AVAILABLE uom THEN ld-roll-len = uom.mult.
 RUN Po/POProcs.p PERSISTENT SET hdPOProcs.
 
 RUN system/GLProcs.p PERSISTENT SET hGLProcs.
+
+RUN spGetSettingByName ("PODateChangeRequiresReason", OUTPUT cPODateChangeRequiresReason).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1069,6 +1072,9 @@ DO:
   DEFINE VARIABLE dPurchaseLimit AS DECIMAL NO-UNDO.
   DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cPriceHoldMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE dtOldDueDate AS DATE NO-UNDO.
+  DEFINE VARIABLE rwRowid      AS ROWID NO-UNDO.
+  DEFINE VARIABLE cDateChangeReason AS CHARACTER NO-UNDO.
 
   DEFINE BUFFER b-po-ordl FOR po-ordl.
 
@@ -1129,12 +1135,16 @@ DO:
 
   RUN valid-max-po-cost(OUTPUT op-error).
   IF op-error THEN RETURN NO-APPLY.
+  
+  RUN valid-due-date(OUTPUT op-error) NO-ERROR.
+  IF op-error THEN RETURN NO-APPLY.
 
   RUN update-shipto.
 
   RUN po/poordlup.p (RECID(po-ordl), -1, YES).
 
   lv-save-ord-no = po-ordl.ord-no.
+  dtOldDueDate   = po-ordl.due-date.
 
   DO WITH FRAME {&FRAME-NAME}:
     IF po-ordl.vend-i-no:SCREEN-VALUE EQ "?" THEN
@@ -1193,6 +1203,14 @@ FIND CURRENT po-ordl NO-LOCK NO-ERROR.
 END.
 FIND CURRENT po-ord NO-LOCK NO-ERROR.
 FIND CURRENT po-ordl NO-LOCK NO-ERROR.
+
+IF ip-type EQ "Update" AND cPODateChangeRequiresReason EQ "Yes"
+   AND dtOldDueDate NE po-ordl.due-date THEN 
+DO:
+    RUN po/d-pdcnot.w /* PERSISTENT SET h_reasonWin */
+       (INPUT po-ordl.rec_key, INPUT "D", INPUT "", INPUT "", INPUT 0, INPUT "DDC", INPUT "",
+       OUTPUT cDateChangeReason, OUTPUT rwRowid)  .
+END.
       
 ll = NO.
 
@@ -1267,7 +1285,8 @@ FOR EACH tt-job-mat:
             ASSIGN
             job-mat.blank-no = po-ordl.b-num
             job-mat.j-no     = 1
-            job-mat.qty-all  = job-mat.qty.
+            job-mat.all-flg  = NO
+            .
         IF po-ordl.s-num NE ? THEN job-mat.frm = po-ordl.s-num.
         FIND CURRENT job-mat NO-LOCK NO-ERROR.
     END.
@@ -1630,7 +1649,8 @@ DO:
                     END. /* If a finished good */
 
                 END.  
-                                
+                
+                RUN pGetAccountForJobCat.
                 cFirstMach = "" .
                 RUN GetFirstMach(OUTPUT cFirstMach) .
                 ASSIGN cFirstMach:SCREEN-VALUE = cFirstMach . 
@@ -1678,8 +1698,9 @@ DO:
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
             ELSE 
             DO:
-
                 /* populate GL# from job-hdr.i-no + itemfg tables, then reftable AH 02-24-10 */
+                RUN pGetAccountForJobCat.
+                
                 IF po-ordl.item-type:SCREEN-VALUE = "FG" THEN 
                 DO:                      
                     FIND FIRST itemfg WHERE itemfg.company EQ po-ordl.company
@@ -1760,6 +1781,8 @@ DO:
                         AND vendItemCost.ItemType EQ "RM"    
                         AND vendItemCost.customerID EQ po-ordl.cust-no:screen-value
                         AND vendItemCost.estimateNo EQ ""
+                        AND vendItemCost.effectiveDate LE TODAY
+                        AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
                         NO-ERROR.
     IF AVAIL vendItemCost THEN 
 /*                                                                                 */
@@ -2011,9 +2034,10 @@ DO:
             RUN valid-s-num NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
             ELSE 
-            DO:
-
+            DO:                 
                 /* populate GL# from job-hdr.i-no + itemfg tables, then reftable AH 02-24-10 */
+                RUN pGetAccountForJobCat.
+                
                 IF po-ordl.item-type:SCREEN-VALUE = "FG" THEN 
                 DO:                 
                     FIND FIRST itemfg WHERE itemfg.company EQ g_company
@@ -3779,6 +3803,8 @@ PROCEDURE display-rmitem :
             WHERE vendItemCost.company EQ ITEM.company
             AND vendItemCost.itemID    EQ item.i-no
             AND vendItemCost.itemType EQ "RM"
+            AND vendItemCost.effectiveDate LE TODAY
+            AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
             NO-ERROR.
       
         IF AVAILABLE vendItemCost then
@@ -4247,6 +4273,8 @@ PROCEDURE GetVendItem :
         WHERE vendItemCost.company EQ ipcCompany
         AND vendItemCost.itemID EQ ipcItemID /*itemfg.i-no*/
         AND vendItemCost.itemType EQ ipcItemType  /* "FG" "RM" */ 
+        AND vendItemCost.effectiveDate LE TODAY
+        AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
         NO-ERROR.
         
    IF AVAIL vendItemCost then
@@ -5127,6 +5155,46 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetAccountForJobCat Dialog-Frame
+PROCEDURE pGetAccountForJobCat:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cAccountNo AS CHARACTER NO-UNDO.
+    DEFINE BUFFER b-job-hdr  FOR job-hdr.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+      /* populate GL# from job-hdr.i-no + itemfg tables, then reftable AH 02-24-10 */
+      IF po-ordl.item-type:SCREEN-VALUE = "rm" THEN 
+      DO:
+        ASSIGN 
+        cAccountNo = "".
+        FIND FIRST b-job-hdr WHERE 
+             b-job-hdr.company EQ g_company AND
+             b-job-hdr.job-no  EQ po-ordl.job-no:SCREEN-VALUE AND
+             b-job-hdr.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)  AND
+             b-job-hdr.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) NO-LOCK NO-ERROR. 
+        IF AVAILABLE b-job-hdr THEN
+        RUN get-itemfg-gl (INPUT b-job-hdr.company, b-job-hdr.i-no, OUTPUT cAccountNo).
+        IF cAccountNo <> "" THEN 
+        DO:
+            ASSIGN 
+                po-ordl.actnum:SCREEN-VALUE = cAccountNo.
+            FIND FIRST account NO-LOCK
+                 WHERE account.company EQ g_company
+                 AND account.actnum   EQ cAccountNo NO-ERROR.
+            v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
+        END.
+        RELEASE b-job-hdr.
+      END.
+    END.        
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE replace-job-mat Dialog-Frame 
@@ -6082,6 +6150,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-due-date V-table-Win 
+PROCEDURE valid-due-date :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+ 
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+        IF DATE(po-ordl.due-date:SCREEN-VALUE) EQ ? THEN DO:        
+               MESSAGE "A due date is required for Purchase Orders." SKIP
+               "Please enter due Date." VIEW-AS ALERT-BOX INFO.
+               APPLY "entry" TO po-ordl.due-date.
+               oplReturnError = YES.                               
+        END.            
+  END.
+  {methods/lValidateError.i NO}
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-min-len Dialog-Frame 
 PROCEDURE valid-min-len :
 /*------------------------------------------------------------------------------
@@ -6108,6 +6201,8 @@ PROCEDURE valid-min-len :
             AND vendItemCost.itemID    EQ po-ordl.i-no:screen-value
             AND vendItemCost.itemType EQ "RM"
             AND vendItemCost.vendorID EQ po-ord.vend-no
+            AND vendItemCost.effectiveDate LE TODAY
+            AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
             NO-ERROR.
       
         IF AVAILABLE vendItemCost then
@@ -6156,6 +6251,8 @@ PROCEDURE valid-min-wid :
             AND vendItemCost.itemID    EQ po-ordl.i-no:screen-value
             AND vendItemCost.itemType EQ "RM"
             AND vendItemCost.vendorID EQ po-ord.vend-no
+            AND vendItemCost.effectiveDate LE TODAY
+            AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
                 NO-ERROR.
       
         IF AVAILABLE vendItemCost then
@@ -6801,6 +6898,7 @@ PROCEDURE vend-cost :
                 po-ordl.cons-cost:SCREEN-VALUE = STRING(dCostPerUOMCons,po-ordl.cons-cost:FORMAT)
                 po-ordl.pr-uom:SCREEN-VALUE    = cCostUOM
                 .
+            IF po-ordl.pr-uom:SCREEN-VALUE EQ "" THEN po-ordl.pr-uom:SCREEN-VALUE = "EA".
             IF po-ordl.pr-uom:SCREEN-VALUE NE po-ordl.pr-qty-uom:SCREEN-VALUE THEN 
                 RUN Conv_QuantityFromUOMToUOM (
                     INPUT  po-ordl.company,

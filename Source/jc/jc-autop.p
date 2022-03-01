@@ -36,6 +36,7 @@ DEF VAR ll-po AS LOG NO-UNDO.
 DEF VAR lv-qty-uom LIKE job-mat.qty-uom NO-UNDO.
 def var v-avg-cst as LOG NO-UNDO.
 DEF VAR v-current-rowid AS ROWID NO-UNDO.
+DEFINE VARIABLE lBoardByWeight AS LOGICAL NO-UNDO.
 
 find first rm-ctrl where rm-ctrl.company eq cocode no-lock no-error.
 v-avg-cst = rm-ctrl.avg-lst-cst.
@@ -60,6 +61,11 @@ IF AVAIL job-mat AND job-mat.post THEN DO:
 END.
 
 IF AVAIL item THEN DO:
+    lBoardByWeight = item.mat-type EQ "B" AND CAN-FIND(FIRST materialType 
+        WHERE materialType.company      EQ item.company
+        AND materialType.materialType EQ item.mat-type
+        AND materialType.calculationType EQ "ByFGWeight").
+    
   IF item.mat-type EQ "B" THEN
   FOR EACH po-ordl NO-LOCK
       WHERE po-ordl.company   EQ job-mat.company
@@ -76,7 +82,7 @@ IF AVAIL item THEN DO:
   END.
 
   IF NOT ll-po THEN DO:
-    IF item.mat-type EQ "B" AND AVAIL job THEN DO:
+    IF item.mat-type EQ "B" AND AVAIL job AND NOT lBoardByWeight THEN DO:
       ASSIGN
        ip-qty     = 0
        lv-qty-uom = "EA".
@@ -110,7 +116,7 @@ IF AVAIL item THEN DO:
                              OUTPUT ip-qty).
 
 
-   IF NOT CAN-DO("I,G",ITEM.mat-type) THEN DO:
+   IF NOT CAN-DO("I,G",ITEM.mat-type) AND NOT lBoardByWeight THEN DO:
      ip-qty = TRUNCATE(ip-qty,3).  /*to handle small decimal place errors from ip-factor*/
      {sys/inc/roundup.i ip-qty}
    END.                        

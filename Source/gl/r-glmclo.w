@@ -900,62 +900,78 @@ PROCEDURE close-month :
     DEFINE VARIABLE dAccountTotal AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     DEFINE VARIABLE iProgressCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dEarningsRunningTotal AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dRetEarningsRunningTotal AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dContraRunningTotal AS DECIMAL NO-UNDO.
     DEF BUFFER b-period FOR period. 
+    DEF BUFFER bEarningsAcct FOR account.
+    DEF BUFFER bContraAcct FOR account.
+    DEF BUFFER bRetEarningsAcct FOR account.
+    DEF BUFFER bNextPeriod FOR period.
+    DEF BUFFER bCompany FOR company.
+    DEF BUFFER bUpdateAcct FOR account.
+    
+    DEF VAR cContraAcctNo AS CHAR NO-UNDO.
+    DEF VAR cRetEarningsAcctNo AS CHAR NO-UNDO.
       
     SESSION:SET-WAIT-STATE ("general").
 
-    FIND FIRST gl-ctrl NO-LOCK WHERE 
-        gl-ctrl.company EQ cocode 
-        NO-ERROR.
-    FIND FIRST company NO-LOCK WHERE 
-        company.company EQ cocode.
-    FIND CURRENT period NO-LOCK NO-ERROR.
-    IF period.pnum EQ company.num-per THEN ASSIGN  
-        lv-rowid = ROWID(period)
-        lLastPeriod = YES.
+    DO TRANSACTION:
+        FIND FIRST gl-ctrl NO-LOCK WHERE 
+            gl-ctrl.company EQ cocode 
+            NO-ERROR.
+        FIND FIRST company NO-LOCK WHERE 
+            company.company EQ cocode.
+        FIND CURRENT period NO-LOCK NO-ERROR.
+        IF period.pnum EQ company.num-per THEN ASSIGN  
+            lv-rowid = ROWID(period)
+            lLastPeriod = YES.
+        
+        /* Find the earnings account */
+        FIND bEarningsAcct EXCLUSIVE WHERE 
+            bEarningsAcct.company EQ cocode AND 
+            bEarningsAcct.actnum  EQ gl-ctrl.ret
+            NO-ERROR.
+        IF NOT AVAIL bEarningsAcct THEN DO ON ENDKEY UNDO, RETURN:
+            MESSAGE 
+                "Unable to Find Current Year Earnings Account from G/L Control File."
+                VIEW-AS ALERT-BOX ERROR.
+            RETURN.
+        END.
+        ASSIGN 
+            bEarningsAcct.cyr[uperiod]  = 0.
     
-    /* Find the earnings account */
-    FIND b-racct EXCLUSIVE WHERE 
-        b-racct.company EQ cocode AND 
-        b-racct.actnum  EQ gl-ctrl.ret
-        NO-ERROR.
-    IF NOT AVAIL b-racct THEN DO ON ENDKEY UNDO, RETURN:
-        MESSAGE 
-            "Unable to Find Current Year Earnings Account from G/L Control File."
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN.
-    END.
-    ASSIGN 
-        b-racct.cyr[uperiod]  = 0.
-    FIND CURRENT b-racct NO-LOCK.
+        /* Find the contra account */
+        FIND bContraAcct EXCLUSIVE WHERE 
+            bContraAcct.company EQ cocode AND 
+            bContraAcct.actnum  EQ gl-ctrl.contra
+            NO-ERROR.
+        IF NOT AVAIL bContraAcct THEN DO ON ENDKEY UNDO, RETURN:
+            MESSAGE 
+                "Unable to find Profit Contra Account from G/L Control File." 
+                VIEW-AS ALERT-BOX ERROR.
+            RETURN.
+        END.
+        ASSIGN 
+            cContraAcctNo = bContraAcct.actnum
+            bContraAcct.cyr[uperiod]  = 0.
+       
+        /* Find the retained earnings account */
+        FIND bRetEarningsAcct NO-LOCK WHERE 
+            bRetEarningsAcct.company EQ cocode AND 
+            bRetEarningsAcct.actnum  EQ gl-ctrl.retainedEarnings
+            NO-ERROR.
+        IF NOT AVAIL bRetEarningsAcct THEN DO ON ENDKEY UNDO, RETURN:
+            MESSAGE 
+                "No Retained Earnings account defined. Set up Retained Earnings account in G-F-3"
+                VIEW-AS ALERT-BOX ERROR.
+            RETURN.
+        END.
+        ASSIGN 
+            cRetEarningsAcctNo = bRetEarningsAcct.actnum.
 
-    /* Find the contra account */
-    FIND b-cacct EXCLUSIVE WHERE 
-        b-cacct.company EQ cocode AND 
-        b-cacct.actnum  EQ gl-ctrl.contra
-        NO-ERROR.
-    IF NOT AVAIL b-cacct THEN DO ON ENDKEY UNDO, RETURN:
-        MESSAGE 
-            "Unable to find Profit Contra Account from G/L Control File." 
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN.
-    END.
-    ASSIGN 
-        b-cacct.cyr[uperiod]  = 0.
-    FIND CURRENT b-cacct NO-LOCK.
-   
-    /* Find the retained earnings account */
-    FIND b-racct NO-LOCK WHERE 
-        b-racct.company EQ cocode AND 
-        b-racct.actnum  EQ gl-ctrl.retainedEarnings
-        NO-ERROR.
-    IF NOT AVAIL b-racct THEN DO ON ENDKEY UNDO, RETURN:
-        MESSAGE 
-            "No Retained Earnings account defined. Set up Retained Earnings account in G-F-3"
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN.
-    END.
-
+    END. /* TRANSACTION 1 */
+    
     ASSIGN 
         v-msg1:HIDDEN IN FRAME {&FRAME-NAME} = NO
         v-msg2:HIDDEN = NO
@@ -966,6 +982,7 @@ PROCEDURE close-month :
         v-msg1 
         WITH FRAME {&FRAME-NAME}.
     
+    /* Set basis for progress bar */
     ASSIGN 
         iCount = 0
         iProgressCount = 0.
@@ -975,10 +992,10 @@ PROCEDURE close-month :
     END.
     
     /* Calculate account total for month we're about to close */
-    FOR EACH account EXCLUSIVE WHERE 
+    FOR EACH account NO-LOCK WHERE 
         account.company EQ cocode AND 
-        account.actnum NE b-cacct.actnum AND 
-        account.actnum NE b-racct.actnum
+        account.actnum NE cContraAcctNo AND 
+        account.actnum NE cRetEarningsAcctNo
         BY account.actnum:
         
         iProgressCount = iProgressCount + 1.
@@ -986,7 +1003,6 @@ PROCEDURE close-month :
     
         /* Zero out any existing account balance for the month */
         ASSIGN
-            account.cyr[uperiod] = 0
             dAccountTotal  = 0. 
        
         /* Recalculate account balance based on glhist txns for the month */
@@ -995,7 +1011,7 @@ PROCEDURE close-month :
             glhist.tr-date GE period.pst AND 
             glhist.tr-date LE period.pend AND 
             glhist.actnum  EQ account.actnum          
-            TRANSACTION:  
+            TRANSACTION :  
        
             v-msg2 = "Account: " + glhist.actnum + "   " + glhist.jrnl.
             DISP v-msg2 WITH FRAME {&FRAME-NAME}.          
@@ -1005,45 +1021,52 @@ PROCEDURE close-month :
                 dAccountTotal = dAccountTotal + glhist.tr-amt
                 glhist.posted   = YES
                 glhist.postedBy = USERID(LDBNAME(1)).           
-        END. /* FOR EACH glhist*/ 
+        END. /* FOR EACH glhist - TRANSACTION 2 */ 
     
         /* Set the account balance for this period equal the sum of the GL hist records */
-        ASSIGN 
-            account.cyr[uperiod] = dAccountTotal.
-
+        DO TRANSACTION:
+            FIND bUpdateAcct EXCLUSIVE WHERE 
+                ROWID(bUpdateAcct) EQ ROWID(account).
+            ASSIGN 
+                bUpdateAcct.cyr[uperiod] = dAccountTotal.
+        END /* TRANSACTION 3 */. 
+        
         /* If this is a Revenue or Expense account, create an offset entry in the Earnings account */
-        IF INDEX("RE",account.type) GT 0 THEN DO:
-            /* Credit the earnings account */
-            FIND FIRST b-racct EXCLUSIVE WHERE 
-                b-racct.company EQ cocode AND 
-                b-racct.actnum  EQ gl-ctrl.ret.
-            ASSIGN 
-                b-racct.cyr[uperiod] = b-racct.cyr[uperiod] + dAccountTotal.
-            
-            /* Debit the contra account */
-            FIND FIRST b-cacct EXCLUSIVE WHERE 
-                b-cacct.company EQ cocode AND 
-                b-cacct.actnum  EQ gl-ctrl.contra.
-            ASSIGN 
-                b-cacct.cyr[uperiod] = b-cacct.cyr[uperiod] - dAccountTotal.
-        END.      
-    
+        DO TRANSACTION:
+            IF INDEX("RE",account.type) GT 0 THEN DO:
+                /* Credit the earnings account */
+                FIND FIRST b-racct EXCLUSIVE WHERE 
+                    b-racct.company EQ cocode AND 
+                    b-racct.actnum  EQ gl-ctrl.ret.
+                ASSIGN 
+                    b-racct.cyr[uperiod] = b-racct.cyr[uperiod] + dAccountTotal.
+                FIND CURRENT b-racct NO-LOCK.
+                
+                /* Debit the contra account */
+                FIND FIRST b-cacct EXCLUSIVE WHERE 
+                    b-cacct.company EQ cocode AND 
+                    b-cacct.actnum  EQ gl-ctrl.contra.
+                ASSIGN 
+                    b-cacct.cyr[uperiod] = b-cacct.cyr[uperiod] - dAccountTotal.
+                FIND CURRENT b-cacct NO-LOCK.
+            END.      
+        END. /* TRANSACTION 4 */
     END.
 
-    DO TRANSACTION:
-        FIND CURRENT period EXCLUSIVE.
+    DO TRANSACTION :
+        FIND bNextPeriod EXCLUSIVE WHERE  
+            ROWID(bNextPeriod) EQ ROWID(period).
         ASSIGN 
-            period.pstat = FALSE
+            bNextPeriod.pstat = FALSE
             iClosedPeriod = period.pnum.
-        FIND CURRENT period NO-LOCK.
             
         IF period.pnum EQ company.num-per THEN DO:
-            FIND CURRENT company EXCLUSIVE.
+            FIND bCompany EXCLUSIVE WHERE 
+                ROWID(bCompany) EQ ROWID(company).
             ASSIGN 
-                company.yend-per = NO.
-            FIND CURRENT company NO-LOCK.
+                bCompany.yend-per = NO.
         END.
-    END.
+    END. /* TRANSACTION 5 */
 
     FIND NEXT period NO-LOCK WHERE 
         period.company EQ cocode AND 
@@ -1053,7 +1076,7 @@ PROCEDURE close-month :
         uperiod = period.pnum.
                                
     /* If this is last month of year, do some end of year calcs */
-    IF lLastPeriod THEN DO:
+    IF lLastPeriod THEN DO TRANSACTION:
         FIND FIRST gl-ctrl EXCLUSIVE WHERE 
             gl-ctrl.company EQ cocode 
             NO-ERROR NO-WAIT.
@@ -1083,7 +1106,7 @@ PROCEDURE close-month :
             "",
             "").        
         RUN GL_SpCreateGLHist (
-            cocode,
+            cocode, 
             gl-ctrl.ret,
             "AutoClose",
             STRING("Auto Posted Current Years Earnings for ") + STRING(period.yr),
@@ -1095,8 +1118,9 @@ PROCEDURE close-month :
             DATE(TODAY),
             "",
             "").                      
-    END.    
-    
+ 
+    END. /* TRANSACTION 6 */
+  
     SESSION:SET-WAIT-STATE ("").
     
     RUN spProgressBar ("Close Period", 1, 1).
@@ -1487,7 +1511,7 @@ PROCEDURE run-report :
     IF tb_excel THEN DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN 
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     SESSION:SET-WAIT-STATE("").
@@ -1507,11 +1531,13 @@ PROCEDURE pGetNetIncome :
     DEFINE INPUT PARAMETER ipcAccount AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdNetAmount AS DECIMAL NO-UNDO.
 
-    FIND FIRST b-cacct NO-LOCK WHERE 
-        b-cacct.company EQ cocode AND 
-        b-cacct.actnum  EQ ipcAccount NO-ERROR. 
+    DEFINE BUFFER bContra FOR account.
+    
+    FIND FIRST bContra NO-LOCK WHERE 
+        bContra.company EQ cocode AND 
+        bContra.actnum  EQ ipcAccount NO-ERROR. 
     DO i = 1 TO company.num-per:
-        opdNetAmount = opdNetAmount + b-cacct.cyr[i].
+        opdNetAmount = opdNetAmount + bContra.cyr[i].
     END.
  
 END PROCEDURE.

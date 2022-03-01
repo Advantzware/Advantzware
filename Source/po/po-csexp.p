@@ -11,8 +11,6 @@ def input parameter v-format as char no-undo.
 
 def buffer xjob-mat for job-mat.
 def buffer xitem for item.
-def buffer b-ref1  for reftable.
-def buffer b-ref2  for reftable.
 
 {po/po-print.i}
 {methods/getExecutableFileName.i quoter}
@@ -37,6 +35,8 @@ DEF VAR lv-cust-no AS CHAR NO-UNDO.
 DEF VAR lv-cust-list AS CHAR INIT "360,360,5,71" NO-UNDO.
 DEF VAR lv-char-list AS CHAR INIT ",CSC,SouthPak,TrePaper" NO-UNDO.
 
+DEFINE VARIABLE iIndex          AS INTEGER NO-UNDO.
+DEFINE VARIABLE lScoreAvailable AS LOGICAL NO-UNDO.
 
 DEF TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-qty AS DEC DECIMALS 3 EXTENT 20
@@ -393,11 +393,28 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                                                     format "99".
     
     /* STYLE NUMBER */
-    run po/po-ordls.p (recid(po-ordl)).
+    RUN po/POProcs.p PERSISTENT SET hdPOProcs.
     
-    {po/po-ordls.i}
+    RUN PO_GetLineScoresAndTypes IN hdPOProcs (
+        INPUT  po-ordl.company,
+        INPUT  po-ordl.po-no,
+        INPUT  po-ordl.line,
+        OUTPUT lv-val,
+        OUTPUT lv-typ
+        ).
+    
+    DELETE PROCEDURE hdPOProcs.  
+    
+    lScoreAvailable = FALSE.
+    
+    DO iIndex = 1 TO EXTENT(lv-val):
+        IF lv-val[iIndex] NE 0 OR lv-typ[iIndex] NE "" THEN DO:
+            lScoreAvailable = TRUE.
+            LEAVE.
+        END.
+    END. 
  
-    li-style = IF AVAIL b-ref1 OR AVAIL b-ref2 THEN 1 ELSE 2.
+    li-style = IF lScoreAvailable THEN 1 ELSE 2.
 
     put li-style                                    format "9999".
     
@@ -556,16 +573,17 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     /* D4 */
     
     /* SCORE */
-    do i = 1 to 9:
-      if avail b-ref1 and b-ref1.val[i] ne 0 then 
-        put trunc(b-ref1.val[i],0)                  format ">>>"
-            ":"                                     format "x"
-            (b-ref1.val[i] - trunc(b-ref1.val[i],0)) * 100
-                                                    format "99"
-            substr(b-ref1.dscr,i,1)                 format "x".
+    DO i = 1 TO 9:
+      IF lScoreAvailable AND lv-val[i] NE 0 THEN 
+        PUT trunc(lv-val[i],0)                      FORMAT ">>>"
+            ":"                                     FORMAT "x"
+            (lv-val[i] - trunc(lv-val[i],0)) * 100
+                                                    FORMAT "99"
+            lv-typ[i]                               FORMAT "x".
             
-      else put "       "                            format "x(7)".
-    end.
+      ELSE PUT "       "                            FORMAT "x(7)".
+    END.
+
 
     /* NUMBER UP */
     put 1                                           format "999.99".

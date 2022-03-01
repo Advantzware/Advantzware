@@ -252,13 +252,13 @@ DO v-local-loop = 1 TO v-local-copies:
                AND fg-bin.qty     NE 0 NO-LOCK NO-ERROR.
            IF AVAIL fg-bin THEN DO:
               ASSIGN
-                 v-loc     = "Whs: " + fg-bin.loc
+                 v-loc     = "Loc: " + fg-bin.loc
                  v-loc-bin = "Bin: " + fg-bin.loc-bin.
            END.
            ELSE
            IF AVAIL itemfg THEN DO:
             ASSIGN
-              v-loc     = "Whs: " + itemfg.def-loc
+              v-loc     = "Loc: " + itemfg.def-loc
               v-loc-bin = "Bin: " + itemfg.def-loc-bin.
            END.
          END. /*brick FORMAT*/

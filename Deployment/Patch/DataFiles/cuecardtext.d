@@ -1,4 +1,70 @@
-0 "Message" no 0 0 "Enter Cue Card Text Here" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 01/14/21 82960 "" "202101148296005948833"
+0 "Message" yes 0 0 "Enter Cue Card Text Here" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 01/14/21 82960 "" "202101148296005948833"
+0 "Message" yes 1 0 "Submitted Run Now Request is Available
+
+File: TaskResults/AgedReceivables.20210809.30742.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/09/21 30762 "Mike" "202108093076207865381"
+0 "Message" yes 2 0 "Submitted Run Now Request is Available
+
+File: TaskResults/AgedReceivables.20210809.31085.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/09/21 31096 "Mike" "202108093109607865417"
+0 "Message" yes 3 0 "Submitted Run Now Request is Available
+
+File: TaskResults/AgedReceivables.20210809.31382.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/09/21 31392 "Mike" "202108093139207865424"
+0 "Message" yes 4 0 "Submitted Run Now Request is Available
+
+File: TaskResults/AgedReceivables.20210809.31474.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/09/21 31480 "Mike" "202108093148007865517"
+0 "Message" yes 5 0 "Submitted Run Now Request is Available
+
+File: TaskResults/AgedReceivables.20210810.56110.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/10/21 56118 "Mike" "202108105611807886920"
+0 "Message" yes 6 0 "Submitted Run Now Request is Available
+
+File: TaskResults/Commissions.20210902.28900.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 28917 "Mike" "202109022891707958330"
+0 "Message" yes 7 0 "Submitted Run Now Request is Available
+
+File: TaskResults/Carrier.20210902.29266.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29277 "Mike" "202109022927707958484"
+0 "Message" yes 8 0 "Submitted Run Now Request is Available
+
+File: TaskResults/Carrier.20210902.29271.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29277 "Mike" "202109022927707958485"
+0 "Message" yes 9 0 "Submitted Run Now Request is Available
+
+File: TaskResults/Carrier.20210902.29287.docx" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29292 "Mike" "202109022929207958489"
+0 "Message" yes 10 0 "Submitted Run Now Request is Available
+
+File: TaskResults/Carrier.20210902.29303.pdf" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29308 "Mike" "202109022930807958493"
+0 "Message" yes 11 0 "Submitted Run Now Request is Available
+
+File: TaskResults/Carrier.20210902.29319.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29324 "Mike" "202109022932407958497"
+0 "Message" yes 12 0 "Submitted Run Now Request is Available
+
+File: TaskResults/Carrier.20210902.29443.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29448 "Mike" "202109022944807958504"
+0 "Message" yes 13 0 "Submitted Run Now Request is Available
+
+File: TaskResults/Carrier.20210902.29444.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29450 "Mike" "202109022945007958507"
+0 "Message" yes 14 0 "Submitted Run Now Request is Available
+
+File: TaskResults/Carrier.20210902.29447.pdf" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29450 "Mike" "202109022945007958508"
+0 "Message" yes 15 0 "Submitted Run Now Request is Available
+
+File: TaskResults/Carrier.20210902.29448.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29463 "Mike" "202109022946307958510"
+0 "Message" yes 16 0 "Submitted Run Now Request is Available
+
+File: TaskResults/InvoiceForm.20210928.73864.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/28/21 73870 "nosweat" "202109287387008077950"
+0 "Message" yes 17 0 "Submitted Run Now Request is Available
+
+File: TaskResults/InvoiceForm.20210928.75825.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/28/21 75832 "nosweat" "202109287583208078173"
+0 "Message" yes 18 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.02/AgedReceivables.03.53203.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 02/03/22 53224 "Mike" "202202035322408536686"
+0 "Message" yes 19 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.02/OpenOrders.03.53256.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 02/03/22 53282 "Mike" "202202035328208536711"
+0 "Message" yes 20 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.02/Carrier.04.34424.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 02/04/22 34434 "asi" "202202043443408548516"
+0 "Message" yes 21 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.02/AgedReceivables.04.37170.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 02/04/22 37177 "Mike" "202202043717708548751"
+0 "Message" yes 22 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.02/BOLPackingList.04.37198.pdf" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 02/04/22 37205 "Mike" "202202043720508548786"
 1 "System" yes 1 1 "Welcome to Version 16.8.0 of Advantzware!
 
 This is our new Cue Card feature.  Cue Cards appear to guide and explain new features and functionality added to Advantzware.

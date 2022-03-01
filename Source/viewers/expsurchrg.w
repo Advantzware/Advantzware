@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS s-object 
 /*------------------------------------------------------------------------
 
   File:
@@ -64,11 +64,11 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-excel-exp 
-     IMAGE-UP FILE "Graphics/32x32/printer.ico":U
-     IMAGE-DOWN FILE "Graphics/32x32/printer_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/excel.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/excel_disable.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/excel_disable.png":U NO-FOCUS FLAT-BUTTON
      LABEL "List" 
-     SIZE 7.8 BY 1.81 TOOLTIP "List".
+     SIZE 7.8 BY 1.81 TOOLTIP "Export".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -78,7 +78,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-		 BGCOLOR 21.
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -107,8 +107,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.52
-         WIDTH              = 66.
+         HEIGHT             = 2.81
+         WIDTH              = 67.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -156,7 +156,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME btn-excel-exp
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-excel-exp s-object
-ON CHOOSE OF btn-excel-exp IN FRAME F-Main
+ON CHOOSE OF btn-excel-exp IN FRAME F-Main /* List */
 DO:
 /*    def var char-hdl as cha no-undo.                                                         */
 /*    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'excel-source':U,OUTPUT char-hdl). */
@@ -172,7 +172,7 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
 
 
 /* ***************************  Main Block  *************************** */

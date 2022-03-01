@@ -310,6 +310,7 @@ PROCEDURE pProcessRecord PRIVATE:
 
     DEFINE VARIABLE riAPInv  AS ROWID. 
     DEFINE VARIABLE riAPInvl AS ROWID. 
+    DEFINE VARIABLE lHold    AS LOGICAL NO-UNDO.
     DEFINE BUFFER bf-ap-inv FOR ap-inv .
     DEFINE BUFFER bf-ap-invl FOR ap-invl .
        
@@ -384,15 +385,23 @@ PROCEDURE pProcessRecord PRIVATE:
         RUN pUpdateInvoiceLineFromPO(ROWID(bf-ap-inv)).
     END.
     IF ipbf-ttImportAP.LinePOLine NE 0 THEN
-        bf-ap-invl.po-line = ipbf-ttImportAP.LinePOLine.
+        bf-ap-invl.po-line =  ipbf-ttImportAP.LinePOLine .  
+        
+     IF ipbf-ttImportAP.LinePONumber NE 0 AND ipbf-ttImportAP.LinePOLine NE 0 THEN   
+        bf-ap-invl.LINE = (ipbf-ttImportAP.LinePOLine + (ipbf-ttImportAP.LinePONumber * 1000) ).
+        
     IF ipbf-ttImportAP.LineAccount NE "" THEN 
         bf-ap-invl.actnum = ipbf-ttImportAP.LineAccount. 
         
     IF ipbf-ttImportAP.LineDescription NE "" THEN 
         bf-ap-invl.dscr = ipbf-ttImportAP.LineDescription.    
-                                                            
+        
+    RUN pCheckPOPOLine(ipbf-ttImportAP.company, ipbf-ttImportAP.LinePONumber, ipbf-ttImportAP.LinePOLine, OUTPUT lHold).
+        
+    IF lHold THEN bf-ap-inv.stat = "H".
+                                                          
     RUN pRecalculateInvoiceHeader (ROWID(bf-ap-inv), NO).   
-
+        
     RELEASE bf-ap-inv .
     RELEASE bf-ap-invl .
 END PROCEDURE.
@@ -727,3 +736,20 @@ PROCEDURE pUpdateInvoiceLineFromPO:
 
 END PROCEDURE.
 
+PROCEDURE pCheckPOPOLine:
+    /*------------------------------------------------------------------------------
+       Purpose:
+       Notes:
+      ------------------------------------------------------------------------------*/
+      DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+      DEFINE INPUT PARAMETER ipiPoNumber AS INTEGER NO-UNDO.
+      DEFINE INPUT PARAMETER ipiPoLine   AS INTEGER NO-UNDO.
+      DEFINE OUTPUT PARAMETER oplHold    AS LOGICAL NO-UNDO.
+
+      IF NOT CAN-FIND(FIRST po-ordl NO-LOCK
+                     WHERE po-ordl.company EQ ipcCompany
+                     AND po-ordl.po-no   EQ ipiPoNumber
+                     AND po-ordl.line    EQ ipiPoLine) THEN
+                     oplHold = YES.   
+                    
+END PROCEDURE.    

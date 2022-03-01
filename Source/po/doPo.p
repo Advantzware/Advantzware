@@ -899,18 +899,18 @@ PROCEDURE buildRptRecs :
     /*****************************************/        
     FIND tt-ei WHERE ROWID(tt-ei) EQ iprTT-ei NO-LOCK NO-ERROR.            
     IF AVAILABLE tt-ei THEN 
-    DO:                         
+    DO:        
         FOR EACH tt-eiv
             WHERE tt-eiv.company    EQ cocode
             AND tt-eiv.i-no       EQ tt-ei.i-no
             AND tt-eiv.item-type  EQ bf-w-job-mat.this-is-a-rm
-            AND tt-eiv.vend-no    NE ""
+            AND tt-eiv.vend-no    NE "" 
           
             AND (tt-eiv.item-type EQ NO OR
             (v-wid                GE tt-eiv.roll-w[27] AND
-            v-wid                LE tt-eiv.roll-w[28] AND
+            (v-wid                LE tt-eiv.roll-w[28] OR tt-eiv.roll-w[28] EQ 0) AND
             v-len                GE tt-eiv.roll-w[29] AND
-            v-len                LE tt-eiv.roll-w[30]))
+            (v-len                LE tt-eiv.roll-w[30] OR tt-eiv.roll-w[30] EQ 0)))
             NO-LOCK,
 
             FIRST vend
@@ -1573,6 +1573,8 @@ PROCEDURE calcLenWidN:
         FIND FIRST vendItemCost WHERE vendItemCost.company EQ cocode 
                                   AND vendItemCost.itemID EQ bf-po-ordl.i-no 
                                   AND vendItemCost.vendorID EQ bf-po-ord.vend-no
+                                  AND vendItemCost.effectiveDate LE TODAY
+                                  AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
             NO-LOCK NO-ERROR.
 
         IF AVAILABLE vendItemCost AND vendItemCost.vendorItemID NE "" THEN
@@ -3023,100 +3025,6 @@ END PROCEDURE.
 
 &ENDIF
 
-&IF DEFINED(EXCLUDE-PoOrdlFinal) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PoOrdlFinal Procedure 
-PROCEDURE PoOrdlFinal :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-        Requires:
-          po-ordl
-        Needs the UI to be removed
-    
-          
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER iprPoOrdl     AS ROWID       NO-UNDO.
-
-
-    DEFINE BUFFER bf-po-ordl FOR po-ordl.  
-
-    FIND bf-po-ordl EXCLUSIVE-LOCK WHERE ROWID(bf-po-ordl) EQ iprPoOrdl NO-ERROR.
-
-    EMPTY TEMP-TABLE tt-ref1.
-
-    {po/po-ordls.i bf-}
-
-    IF NOT bf-po-ordl.item-type THEN
-        RUN jc/writeFarmFromPO.p (ROWID(bf-po-ordl), bf-po-ordl.job-no, STRING(bf-po-ordl.job-no2),
-            STRING(bf-po-ordl.ord-no), bf-po-ordl.i-no, STRING(bf-po-ordl.s-num),
-            STRING(bf-po-ordl.b-num)).
-
-
-    /********************************************/
-    /* Process Scoring Changes ******************/
-    /* find on b-ref1 is not in the program     */
-    /********************************************/
-    IF AVAILABLE b-ref1 THEN 
-    DO:
-        CREATE tt-ref1.
-        BUFFER-COPY b-ref1 TO tt-ref1.
-        DELETE b-ref1.
-    END.
-
-    IF AVAILABLE b-ref2 THEN 
-    DO:
-        CREATE tt-ref2.
-        BUFFER-COPY b-ref2 TO tt-ref2.
-        DELETE b-ref2.
-    END.
-
-    RUN po/po-ordls.p (RECID(bf-po-ordl)).
-
-    IF AVAILABLE tt-ref1 OR AVAILABLE tt-ref2 THEN 
-    DO:
-        {po/po-ordls.i}
-
-        ll = NO.
-        IF AVAILABLE b-ref1 AND AVAILABLE tt-ref1 THEN 
-        DO li = 1 TO EXTENT(b-ref1.val):
-            IF b-ref1.val[li] NE tt-ref1.val[li] THEN ll = YES.
-            IF ll THEN LEAVE.
-        END. /* avail b-ref1 ... */
-        IF NOT ll                         AND
-            AVAILABLE b-ref2 AND AVAILABLE tt-ref2 THEN 
-        DO li = 1 TO EXTENT(b-ref2.val):
-            IF b-ref2.val[li] NE tt-ref2.val[li] THEN ll = YES.
-            IF ll THEN LEAVE.
-        END. /* Not ll */
-
-        IF ll THEN 
-        DO:
-            ll = NO.
-            MESSAGE "Scoring allowances have changed for PO/RM#: " +
-                TRIM(STRING(bf-po-ordl.po-no,">>>>>>>>"))         +
-                "/" + bf-po-ordl.i-no                             +
-                ", would you like to apply the new scores?"
-                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-                UPDATE ll.
-        END. /* If ll */
-
-        IF NOT ll THEN 
-        DO:
-            IF AVAILABLE b-ref1 AND AVAILABLE tt-ref1 THEN BUFFER-COPY tt-ref1 TO b-ref1.
-            IF AVAILABLE b-ref2 AND AVAILABLE tt-ref2 THEN BUFFER-COPY tt-ref2 TO b-ref2.
-        END. /* not ll */
-
-    END. /* AVail tt-ref1 */
-    FIND CURRENT bf-po-ordl NO-LOCK NO-ERROR.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
 
 &IF DEFINED(EXCLUDE-processAdders) = 0 &THEN
 
@@ -3618,9 +3526,7 @@ PROCEDURE processJobMat :
                 OUTPUT gvrItem) /* needs additional buffers */.
 
         END. /* if avail b-item ... */
-
-        /* Update Farm recs, deal with changes to scoring allowances */
-        RUN PoOrdlFinal (INPUT gvrPoOrdl).
+                
         FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrPoOrd NO-ERROR.
         IF NOT AVAILABLE po-ord THEN 
         DO:
@@ -3861,6 +3767,8 @@ PROCEDURE RevCreateTtEiv:
         WHERE vendItemCost.company EQ itemfg.company
         AND vendItemCost.ItemID    EQ itemfg.i-no
         AND vendItemCost.ItemType EQ "FG"
+        AND vendItemCost.effectiveDate LE TODAY
+        AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
         NO-ERROR.        
     IF AVAIL vendItemCost THEN DO:    
        CREATE tt-ei.
@@ -3877,7 +3785,9 @@ PROCEDURE RevCreateTtEiv:
                                      AND vendItemCost.formNo EQ bf-w-job-mat.frm
                                      AND vendItemCost.blankNo EQ bf-w-job-mat.blank-no
                                      AND vendItemCost.ItemID    EQ itemfg.i-no
-                                     AND vendItemCost.ItemType EQ "FG"  ,
+                                     AND vendItemCost.ItemType EQ "FG" 
+                                     AND vendItemCost.effectiveDate LE TODAY
+                                     AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?),
           
           EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
             /* AND venditemcostlevel.quantityfrom <= fGetVendCostQty(bf-w-job-mat.qty, bf-w-job-mat.qty-uom, venditemcost.vendorUom)
@@ -3942,7 +3852,9 @@ PROCEDURE RevCreateTtEiv:
 /*        AND vendItemCost.formNo EQ bf-w-job-mat.frm       */
 /*        AND vendItemCost.blankNo EQ bf-w-job-mat.blank-no */
           AND vendItemCost.ItemID    EQ itemfg.i-no
-          AND vendItemCost.ItemType EQ "FG"  ,
+          AND vendItemCost.ItemType EQ "FG"
+          AND vendItemCost.effectiveDate LE TODAY
+          AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?),
                                                      
         EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
         BY vendItemCostLevel.vendItemCostLevelID:    
@@ -4061,6 +3973,8 @@ PROCEDURE RevCreateTtEivVend:
         WHERE vendItemCost.company EQ item.company
         AND vendItemCost.ItemID    EQ item.i-no
         AND vendItemCost.ItemType EQ "RM"
+        AND vendItemCost.effectiveDate LE TODAY
+        AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
         NO-ERROR.
     IF AVAIL vendItemCost THEN 
     DO:    
@@ -4071,15 +3985,18 @@ PROCEDURE RevCreateTtEivVend:
             tt-ei.std-uom = vendItemCost.VendorUOM
             .        
     END.
-    v-index = 0.    
+    v-index = 0. 
+ 
     FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ ITEM.company
                     AND vendItemCost.ItemID    EQ item.i-no
                     AND vendItemCost.ItemType EQ "RM" 
-                    AND bf-w-job-mat.wid GE venditemCost.dimWidthMinimum AND bf-w-job-mat.wid LE venditemCost.dimWidthMaximum
-                    AND bf-w-job-mat.len GE venditemCost.dimlengthMinimum AND bf-w-job-mat.len LE venditemCost.dimlengthMaximum,
+                    AND bf-w-job-mat.wid GE venditemCost.dimWidthMinimum AND (bf-w-job-mat.wid LE venditemCost.dimWidthMaximum OR venditemCost.dimWidthMaximum EQ 0)
+                    AND bf-w-job-mat.len GE venditemCost.dimlengthMinimum AND (bf-w-job-mat.len LE venditemCost.dimlengthMaximum OR venditemCost.dimlengthMaximum EQ 0)
+                    AND vendItemCost.effectiveDate LE TODAY
+                    AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?),
                                                      
         EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
-        BY vendItemCostLevel.vendItemCostLevelID:
+        BY vendItemCostLevel.vendItemCostLevelID:  
         dQtyInVendorUOM = fGetVendCostQty(bf-w-job-mat.qty, bf-w-job-mat.qty-uom, venditemcost.vendorUom).
         IF  dQtyInVendorUOM LT venditemcostlevel.quantityfrom
             OR dQtyInVendorUOM GT venditemcostlevel.quantityto 
@@ -4119,7 +4036,7 @@ PROCEDURE RevCreateTtEivVend:
                 assign tt-eiv.roll-w[v-index]   = vendItemCost.validWidth[v-index] /* e-itemfg-vend.roll-w[v-index] */   
                        .
     END.
-        
+    
     oprItem = ROWID(ITEM).
 
 END PROCEDURE.

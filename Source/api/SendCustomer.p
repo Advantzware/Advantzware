@@ -22,7 +22,9 @@
     DEFINE OUTPUT       PARAMETER opcMessage              AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cCalcAddress AS CHARACTER NO-UNDO.
-    
+
+    RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
+        
     IF ipcRequestHandler NE "" THEN
         RUN VALUE(ipcRequestHandler) (
             INPUT TABLE  ttArgs,

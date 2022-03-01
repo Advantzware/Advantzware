@@ -130,6 +130,7 @@ DEFINE VARIABLE lv-disc            LIKE cust.disc        NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix  AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE lRecFound          AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE cRtnChar           AS CHARACTER        NO-UNDO.
+DEFINE VARIABLE lMatrixExists       AS LOGICAL          NO-UNDO.
 
 DEF BUFFER b-oe-ord FOR oe-ord.
 DEF BUFFER b-oe-ordl FOR oe-ordl.
@@ -286,13 +287,12 @@ PROCEDURE new-order:
 
     EMPTY TEMP-TABLE tt-item-qty-price.
 
-
+    IF NOT lQuotePriceMatrix THEN
     FOR EACH quotehd NO-LOCK 
       WHERE quotehd.company EQ xest.company AND
       quotehd.est-no EQ xest.est-no AND 
       quotehd.quo-date LE TODAY AND
-      (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) AND
-      ((quotehd.effectiveDate LE TODAY AND quotehd.approved) OR NOT lQuotePriceMatrix)
+      (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) 
       ,
     EACH quoteitm OF quotehd NO-LOCK ,
           EACH quoteqty OF quoteitm NO-LOCK BREAK BY quoteqty.LINE BY quoteqty.quote-date DESC 
@@ -544,7 +544,7 @@ PROCEDURE create-order-lines.
                                xoe-ord.cust-no,
                                TRIM(xoe-ord.ship-id),
                                oe-ordl.i-no,
-                               0,
+                               xoe-ord.ord-no,
                                OUTPUT oe-ordl.over-pct ,
                                OUTPUT oe-ordl.Under-pct,
                                OUTPUT cTagDesc ) .   
@@ -877,16 +877,15 @@ PROCEDURE create-order-lines.
          END.
        END.  /* est-type = 3 or 4 */
     END. /* not avail oe-ordl */
-
-    IF avail xest AND v-quo-price-log AND NOT v-chose-quote THEN DO:
+      
+    IF NOT lQuotePriceMatrix AND avail xest AND v-quo-price-log AND NOT v-chose-quote THEN DO:
       j = 0.
        FOR EACH quotehd
             WHERE quotehd.company EQ cocode
             AND quotehd.loc     EQ locode
             AND quotehd.est-no  EQ cPriceEst
             AND quotehd.quo-date LE TODAY 
-            AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
-            AND ((quotehd.effectiveDate LE TODAY AND quotehd.approved) OR NOT lQuotePriceMatrix)  
+            AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)              
             USE-INDEX quote NO-LOCK,
             
             EACH quoteitm OF quotehd
@@ -926,7 +925,15 @@ PROCEDURE create-order-lines.
         ASSIGN oe-ordl.q-no = lv-q-no.
        END. /* lv-q-no ne 0 */
     END. /* avail xest and quo price log ... */
-
+    ELSE IF lQuotePriceMatrix THEN
+    DO:        
+        IF oe-ordl.qty EQ 0 THEN
+        oe-ordl.qty = IF eb.bl-qty NE 0 THEN eb.bl-qty ELSE eb.eqty .
+        
+        RUN Price_CalculateLinePrice (ROWID(oe-ordl), oe-ordl.i-no, xoe-ord.cust-no ,  xoe-ord.ship-id , oe-ordl.qty, YES,
+                                      OUTPUT lMatrixExists, INPUT-OUTPUT oe-ordl.price, INPUT-OUTPUT oe-ordl.pr-uom).
+    END. /* lQuotePriceMatrix*/
+   
     RUN Conv_CalcTotalPrice(cocode, 
                         oe-ordl.i-no,
                         DECIMAL(oe-ordl.qty),

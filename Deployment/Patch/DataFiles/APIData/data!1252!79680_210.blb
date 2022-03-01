@@ -1,0 +1,3 @@
+IT1*$ItemID$*$ItemQuantity$*$ItemUOM$*$ItemPriceEach$**BP*$BuyerPart$*UP*$BuyerPart$*UP*$BuyerPart$~
+CTP********$LineTotal$~
+PID*F*08***$ItemDescription$~

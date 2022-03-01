@@ -1,0 +1,18 @@
+Wed 12/29/2021 Merge/Compile 
+---------------------------------------------------- 
+21:00:00.59 Validating/adding auditTbl/Fld records 
+21:00:00.72 Updating SQL permissions 
+21:00:05.48 Pulling latest merges from GitHub 
+Saved working directory and index state WIP on develop: 5e45c317b Merge pull request #9468 from Advantzware/feature/105869-Changing-order-Due-Date-changes-Release-Date
+Fetching origin
+HEAD is now at 5e45c317b Merge pull request #9468 from Advantzware/feature/105869-Changing-order-Due-Date-changes-Release-Date
+21:00:40.10 Copying program files to /Devel environment 
+21:00:40.10   Deleting and recreating /Devel/Source directory 
+21:01:21.71   Copying source files from repository to /Devel/Source 
+23745 File(s) copied
+21:04:28.69   Copying resource files from repository to /Devel/Resources 
+1556 File(s) copied
+21:04:41.28   Removing /Devel/Override 
+21:04:41.30 Source/Resource copy complete 
+21:04:41.31 Begin compiling program files 
+Should complete approximately 21:24 

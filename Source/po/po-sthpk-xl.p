@@ -516,8 +516,6 @@ assign
         chExcelApplication:Goto(v-cell) NO-ERROR.
         ASSIGN chExcelApplication:ActiveCell:Value = po-ordl.i-name.
         
-        {po/po-ordls.i}
-        
         /*
         len-score = ''.
 
@@ -611,7 +609,7 @@ assign
                   v-printline = v-printline + 1.
         END.
         
-        run po/po-ordls.p (recid(po-ordl)).
+        
             
         {po/poprints.i}
             

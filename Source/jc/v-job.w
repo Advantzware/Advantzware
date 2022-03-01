@@ -173,14 +173,14 @@ DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR job.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS job.start-date job.loc job.due-date job.promiseDate
+&Scoped-Define ENABLED-FIELDS job.start-date job.loc job.due-date job.promiseDate job.shipFromLocation
 &Scoped-define ENABLED-TABLES job
 &Scoped-define FIRST-ENABLED-TABLE job
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalcDueDate btnCalendar-2 ~
 fiTypeDescription 
 &Scoped-Define DISPLAYED-FIELDS job.job-no job.job-no2 job.est-no job.stat ~
 job.start-date job.orderType job.create-date job.csrUser_id job.close-date ~
-job.user-id job.loc job.due-date job.promiseDate 
+job.user-id job.loc job.due-date job.promiseDate job.shipFromLocation
 &Scoped-define DISPLAYED-TABLES job
 &Scoped-define FIRST-DISPLAYED-TABLE job
 &Scoped-Define DISPLAYED-OBJECTS fiTypeDescription 
@@ -189,10 +189,10 @@ job.user-id job.loc job.due-date job.promiseDate
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-ASSIGN-FIELDS job.job-no job.job-no2 job.est-no ~
 job.start-date job.orderType job.create-date job.close-date job.due-date ~
-job.promiseDate
+job.promiseDate job.shipFromLocation
 &Scoped-define ROW-AVAILABLE btnCalendar-1 btnCalendar-2 btnCalendar-3
 &Scoped-define DISPLAY-FIELD job.start-date job.create-date job.close-date ~
-job.due-date job.promiseDate
+job.due-date job.promiseDate job.shipFromLocation
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -320,6 +320,7 @@ DEFINE FRAME F-Main
           SIZE 11.6 BY 1
           BGCOLOR 15 
      job.loc AT ROW 3.62 COL 101 COLON-ALIGNED WIDGET-ID 2
+          LABEL "Location"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 
@@ -330,6 +331,11 @@ DEFINE FRAME F-Main
           SIZE 16 BY 1
           BGCOLOR 15 
      btnCalendar-2 AT ROW 3.62 COL 143.6
+     job.shipFromLocation AT ROW 4.72 COL 67 COLON-ALIGNED
+          LABEL "Distribution Location"
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
+          BGCOLOR 15 
      job.promiseDate AT ROW 4.72 COL 126 COLON-ALIGNED
           LABEL "Promise Date"
           VIEW-AS FILL-IN 
@@ -414,6 +420,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN job.due-date IN FRAME F-Main
    2 4 EXP-LABEL                                                        */
 /* SETTINGS FOR FILL-IN job.promiseDate IN FRAME F-Main
+   2 4 EXP-LABEL                                                        */
+/* SETTINGS FOR FILL-IN job.shipFromLocation IN FRAME F-Main
    2 4 EXP-LABEL                                                        */   
 /* SETTINGS FOR FILL-IN job.est-no IN FRAME F-Main
    NO-ENABLE 2 EXP-FORMAT                                               */
@@ -461,7 +469,9 @@ ON HELP OF FRAME F-Main
 DO:
   DEFINE VARIABLE char-val AS CHARACTER NO-UNDO. 
   DEFINE VARIABLE lw-focus AS WIDGET-HANDLE NO-UNDO.
-
+  DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
   lw-focus = FOCUS.
 
@@ -473,11 +483,34 @@ DO:
           IF AVAILABLE eb THEN lw-focus:SCREEN-VALUE = eb.est-no.
         END.                
       END. 
-      WHEN "loc" THEN DO:
-        RUN windows/l-loc.w (cocode, lw-focus:SCREEN-VALUE, OUTPUT char-val).
-        IF char-val <> "" THEN 
-           ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+      WHEN "loc" THEN DO:          
+        RUN system/openLookup.p (
+                  INPUT  g_company, 
+                  INPUT  "",  /* Lookup ID */
+                  INPUT  150,  /* Subject ID */
+                  INPUT  "",  /* User ID */
+                  INPUT  0,   /* Param Value ID */
+                  OUTPUT cFieldsValue, 
+                  OUTPUT cFoundValue, 
+                  OUTPUT recFoundRecID
+                  ). 
+        IF cFoundValue <> "" THEN 
+           ASSIGN job.loc:SCREEN-VALUE = cFoundValue.
       END.
+      WHEN "shipFromLocation" THEN DO:           
+        RUN system/openLookup.p (
+                  INPUT  g_company, 
+                  INPUT  "",  /* Lookup ID */
+                  INPUT  150,  /* Subject ID */
+                  INPUT  "",  /* User ID */
+                  INPUT  0,   /* Param Value ID */
+                  OUTPUT cFieldsValue, 
+                  OUTPUT cFoundValue, 
+                  OUTPUT recFoundRecID
+                  ).         
+        IF cFoundValue <> "" THEN 
+           ASSIGN job.shipFromLocation:SCREEN-VALUE = cFoundValue.
+      END.        
       WHEN "reason" THEN DO:
             RUN windows/l-rejjob.w (cocode, lw-focus:SCREEN-VALUE, OUTPUT char-val).
             /* If value selected, set code to first entry of string,
@@ -637,7 +670,20 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+   
+   
+&Scoped-define SELF-NAME job.shipFromLocation
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.shipFromLocation V-table-Win
+ON LEAVE OF job.shipFromLocation IN FRAME F-Main /* Dist Warehouse */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+    RUN valid-dist-whse. 
+    IF NOT ll-valid THEN RETURN NO-APPLY.
+  END.
+END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
 
 &Scoped-define SELF-NAME job.orderType
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.orderType V-table-Win
@@ -748,7 +794,7 @@ PROCEDURE add-job :
   
   DEFINE BUFFER bf-job-hdr FOR job-hdr.
   
-  IF NOT lAddFromTool THEN
+  IF NOT lAddFromTool AND cJobType EQ "Molded" THEN
   DO:
       RUN jc/d-addJob.w (INPUT NO, OUTPUT lAddOption). 
       IF lAddOption = "" THEN RETURN NO-APPLY.    /* cancel */
@@ -1040,6 +1086,7 @@ PROCEDURE hold-release :
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.  
   DEFINE VARIABLE lOrderOnHold AS LOGICAL NO-UNDO.  
   DEFINE VARIABLE cHoldMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cTriggerID   AS CHARACTER NO-UNDO.
   
     IF AVAILABLE job AND job.opened THEN 
     DO:
@@ -1103,7 +1150,25 @@ PROCEDURE hold-release :
             IF job.stat <> "H" THEN job.reason = "".
 
             FIND CURRENT job NO-LOCK NO-ERROR.
-
+            
+            IF job.stat EQ "H" THEN
+                cTriggerID = "HoldJob".
+            ELSE
+                cTriggerID = "ReleaseJob".
+                
+            RUN api/ProcessOutboundRequest.p (
+                INPUT  job.company,                                     /* Company Code (Mandatory) */
+                INPUT  job.loc,                                         /* Location Code (Mandatory) */
+                INPUT  "SendJobAMS",                                    /* API ID (Mandatory) */
+                INPUT  "",                                              /* Scope ID */
+                INPUT  "",                                              /* Scope Type */
+                INPUT  cTriggerID,                                      /* Trigger ID (Mandatory) */
+                INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
+                INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                INPUT  job.job-no + "-" + STRING(job.job-no2, "99"),      /* Primary ID for which API is called for (Mandatory) */   
+                INPUT  "Job " + STRING(job.stat EQ "H", "HoldJob/ReleaseJob") + " triggered from " + PROGRAM-NAME(1)    /* Event's description (Optional) */
+                ) NO-ERROR.
+            
             RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
             RUN dispatch IN WIDGET-HANDLE(char-hdl) ("row-changed") .
         END. /* Not lOrderOnHold */
@@ -1154,9 +1219,18 @@ PROCEDURE local-assign-record :
         AND job-hdr.job-no  EQ job.job-no
         AND job-hdr.job-no2 EQ job.job-no2:
     ASSIGN job-hdr.due-date = job.due-date
-           job-hdr.loc      = job.loc.
+           job-hdr.loc      = if job.shipFromLocation ne "" then job.shipFromLocation else job.loc.
+           
+           FIND FIRST itemfg WHERE itemfg.company EQ cocode
+                      AND itemfg.i-no EQ job-hdr.i-no
+                      NO-LOCK NO-ERROR.
+          IF AVAILABLE itemfg THEN 
+          DO:
+           RUN fg/chkfgloc.p (itemfg.i-no, job-hdr.loc). 
+           RUN fg/fg-reset.p (recid(itemfg)).
+          END. 
   END. /* each job-hdr */
-
+    
    IF adm-new-record THEN DO:
     FIND FIRST bf-est NO-LOCK
         WHERE bf-est.company EQ job.company
@@ -1219,6 +1293,7 @@ PROCEDURE local-copy-record :
   IF noDate THEN
   ASSIGN
     job.start-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ''
+    job.close-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ''
     job.due-date:SCREEN-VALUE = ''
     job.promiseDate:SCREEN-VALUE = ''.
 
@@ -1259,7 +1334,8 @@ PROCEDURE local-create-record :
    job.company    = cocode
    job.loc        = locode
    /*job.start-date = TODAY v-startdate */
-   job.stat       = "P".
+   job.stat       = "P"
+   job.shipFromLocation = locode.
 
 
   IF copyJob THEN
@@ -1291,6 +1367,10 @@ PROCEDURE local-delete-record :
   DEFINE VARIABLE char-hdl AS cha NO-UNDO.
   DEFINE VARIABLE ll-warn AS LOG NO-UNDO.
 
+  DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
+  DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+  
   {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   /*IF NOT adm-new-record THEN DO:*/
@@ -1365,9 +1445,35 @@ PROCEDURE local-delete-record :
   
   RUN pUpdateCommittedQty(recid(job)).
 
+  RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
+  RUN Outbound_PrepareRequestForScope IN hdOutboundProcs (
+      INPUT  job.company,                                     /* Company Code (Mandatory) */
+      INPUT  job.loc,                                         /* Location Code (Mandatory) */
+      INPUT  "SendJobAMS",                                    /* API ID (Mandatory) */
+      INPUT  "",                                              /* Scope ID */
+      INPUT  "",                                              /* Scope Type */
+      INPUT  "DeleteJob",                                     /* Trigger ID (Mandatory) */
+      INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
+      INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+      INPUT  job.job-no + "-" + STRING(job.job-no2, "99"),    /* Primary ID for which API is called for (Mandatory) */   
+      INPUT  "Job delete triggered from " + PROGRAM-NAME(1),  /* Event's description (Optional) */
+      OUTPUT lSuccess,
+      OUTPUT cMessage
+      ) NO-ERROR.
+        
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
+  /* Verifying if the job is deleted */
+  IF NOT AVAILABLE job THEN
+      RUN Outbound_Execute IN hdOutboundProcs (
+          OUTPUT lSuccess,
+          OUTPUT cMessage
+          ) NO-ERROR.
+
+  RUN Outbound_ResetContext IN hdOutboundProcs.
+    
    RUN displayMessage (INPUT "47").
   
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
@@ -1375,6 +1481,11 @@ PROCEDURE local-delete-record :
   RUN reopen-query1 IN WIDGET-HANDLE(char-hdl).
   /* Code placed here will execute AFTER standard behavior.    */
   {&methods/lValidateError.i NO}
+
+  FINALLY:
+      IF VALID-HANDLE (hdOutboundProcs) THEN
+          DELETE PROCEDURE hdOutboundProcs.
+  END FINALLY.  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1568,6 +1679,12 @@ PROCEDURE local-update-record :
   
   RUN validate-cust-hold NO-ERROR. 
     IF NOT ll-valid THEN RETURN NO-APPLY.
+    
+  RUN valid-whse.
+  IF NOT ll-valid THEN RETURN NO-APPLY.  
+    
+  RUN valid-dist-whse.
+  IF NOT ll-valid THEN RETURN NO-APPLY.     
 
   RUN validate-est ("Update").
   IF NOT ll-valid THEN RETURN NO-APPLY.
@@ -1577,10 +1694,7 @@ PROCEDURE local-update-record :
 
   RUN valid-job-no2.
   IF NOT ll-valid THEN RETURN NO-APPLY.
-
-  RUN valid-whse.
-  IF NOT ll-valid THEN RETURN NO-APPLY.
-
+      
   RUN valid-job-est .
   IF NOT ll-valid THEN RETURN NO-APPLY.
 
@@ -1783,6 +1897,20 @@ PROCEDURE local-update-record :
   /*needed for immediately pushing print button after adding new job*/
   IF ll-new THEN
   DO:
+     IF AVAILABLE job THEN
+         RUN api/ProcessOutboundRequest.p (
+             INPUT  job.company,                                     /* Company Code (Mandatory) */
+             INPUT  job.loc,                                         /* Location Code (Mandatory) */
+             INPUT  "SendJobAMS",                                    /* API ID (Mandatory) */
+             INPUT  "",                                              /* Scope ID */
+             INPUT  "",                                              /* Scope Type */
+             INPUT  "AddJob",                                        /* Trigger ID (Mandatory) */
+             INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
+             INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+             INPUT  job.job-no + "-" + STRING(job.job-no2, "99"),      /* Primary ID for which API is called for (Mandatory) */   
+             INPUT  "Job add triggered from " + PROGRAM-NAME(1)    /* Event's description (Optional) */
+             ) NO-ERROR.
+      
      IF NOT AVAILABLE job-hdr THEN
         FIND FIRST job-hdr NO-LOCK
              WHERE job-hdr.company EQ job.company
@@ -2371,6 +2499,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+  
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopen-query-main V-table-Win 
+PROCEDURE reopen-query-main :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ 
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+  RUN reopen-query1 IN WIDGET-HANDLE(char-hdl).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE updateOrderDate V-table-Win 
 PROCEDURE updateOrderDate :
 /*------------------------------------------------------------------------------
@@ -2601,6 +2747,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-dist-whse V-table-Win 
+PROCEDURE valid-dist-whse :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+  ll-valid = YES.
+
+  DO WITH FRAME {&frame-name}:
+
+    IF TRIM(job.shipFromLocation:SCREEN-VALUE) NE "" THEN DO:        
+        FIND FIRST loc 
+            WHERE loc.company EQ cocode 
+              AND loc.loc EQ job.shipFromLocation:SCREEN-VALUE
+            NO-LOCK NO-ERROR.
+        IF NOT AVAILABLE loc THEN DO:
+          MESSAGE "Invalid Distribution Location code entered..."
+                  VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO job.shipFromLocation.
+          ll-valid = NO.
+        END.
+    END.
+  END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-est V-table-Win 
 PROCEDURE validate-est :
 /*------------------------------------------------------------------------------
@@ -2778,6 +2955,7 @@ PROCEDURE validate-est :
             btnCalcDueDate
             job.due-date
             job.promisedate
+            job.shipFromLocation
             btnCalendar-1
             btnCalendar-2
             btnCalendar-3
@@ -2862,13 +3040,19 @@ PROCEDURE validate-start-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
   {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         RUN jc/validStartDate.p (INPUT job.start-date:SCREEN-VALUE,
-                                 OUTPUT ll-valid).
-        IF NOT ll-valid THEN
-            APPLY "entry" TO job.start-date.
+                                 OUTPUT cMessage).
+        ll-valid = YES.                         
+        IF cMessage NE "" THEN
+        DO:
+           MESSAGE cMessage 
+                 VIEW-AS ALERT-BOX WARNING.
+           ll-valid = YES.      
+        END.  
+
     END.
 /*   DEF VAR lv-msg AS CHAR NO-UNDO.                            */
 /*                                                              */

@@ -3011,217 +3011,225 @@ PROCEDURE pAssignValues :
 DO WITH FRAME {&frame-name}:   
     
    DO i = 1 TO 20: 
-
-       FIND FIRST vendItemCostLevel EXCLUSIVE-LOCK
-           WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID 
-              AND ROWID(vendItemCostLevel) EQ rwRowid[i] NO-ERROR .
-
-       IF NOT AVAIL vendItemCostLevel THEN do:
-           CREATE vendItemCostLevel .
-           ASSIGN vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID .
-       END.
-
-      IF i EQ 1 THEN do:
-
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase1:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost1:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup1:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev1:SCREEN-VALUE)  
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-1:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost1:CHECKED.
-           IF decimal(dBase2:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+      IF i EQ 1 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase1:SCREEN-VALUE),
+              DECIMAL(dEaCost1:SCREEN-VALUE),
+              DECIMAL(dSetup1:SCREEN-VALUE),
+              DECIMAL(dDev1:SCREEN-VALUE),
+              INTEGER(iLeadTime-1:SCREEN-VALUE),
+              tbBestCost1:CHECKED).  
+           IF DECIMAL(dBase2:SCREEN-VALUE) EQ 0 THEN   LEAVE .
 
        END.
-       ELSE IF i EQ 2 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase2:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost2:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup2:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev2:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-2:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost2:CHECKED.
-           IF decimal(dBase3:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+       ELSE IF i EQ 2 THEN DO: 
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase2:SCREEN-VALUE),
+              DECIMAL(dEaCost2:SCREEN-VALUE),
+              DECIMAL(dSetup2:SCREEN-VALUE),
+              DECIMAL(dDev2:SCREEN-VALUE),
+              INTEGER(iLeadTime-2:SCREEN-VALUE),
+              tbBestCost2:CHECKED).  
+           IF DECIMAL(dBase3:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
-       ELSE IF  i EQ 3 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase3:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost3:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup3:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev3:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-3:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost3:CHECKED.
-           IF decimal(dBase4:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+      ELSE IF  i EQ 3 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase3:SCREEN-VALUE),
+              DECIMAL(dEaCost3:SCREEN-VALUE),
+              DECIMAL(dSetup3:SCREEN-VALUE),
+              DECIMAL(dDev3:SCREEN-VALUE),
+              INTEGER(iLeadTime-3:SCREEN-VALUE),
+              tbBestCost3:CHECKED).  
+           IF DECIMAL(dBase4:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
-       ELSE IF  i EQ 4 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase4:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost4:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup4:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev4:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-4:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost4:CHECKED.
-           IF decimal(dBase5:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+       ELSE IF  i EQ 4 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase4:SCREEN-VALUE),
+              DECIMAL(dEaCost4:SCREEN-VALUE),
+              DECIMAL(dSetup4:SCREEN-VALUE),
+              DECIMAL(dDev4:SCREEN-VALUE),
+              INTEGER(iLeadTime-4:SCREEN-VALUE),
+              tbBestCost4:CHECKED).  
+           IF DECIMAL(dBase5:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
-       ELSE IF  i EQ 5 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase5:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost5:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup5:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev5:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-5:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost5:CHECKED.
-           IF decimal(dBase6:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+       ELSE IF  i EQ 5 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase5:SCREEN-VALUE),
+              DECIMAL(dEaCost5:SCREEN-VALUE),
+              DECIMAL(dSetup5:SCREEN-VALUE),
+              DECIMAL(dDev5:SCREEN-VALUE),
+              INTEGER(iLeadTime-5:SCREEN-VALUE),
+              tbBestCost5:CHECKED).  
+           IF DECIMAL(dBase6:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
-       ELSE IF  i EQ 6 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase6:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost6:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup6:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev6:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-6:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost6:CHECKED.
-           IF decimal(dBase7:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+       ELSE IF  i EQ 6 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase6:SCREEN-VALUE),
+              DECIMAL(dEaCost6:SCREEN-VALUE),
+              DECIMAL(dSetup6:SCREEN-VALUE),
+              DECIMAL(dDev6:SCREEN-VALUE),
+              INTEGER(iLeadTime-6:SCREEN-VALUE),
+              tbBestCost6:CHECKED).  
+           IF DECIMAL(dBase7:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
-       ELSE IF  i EQ 7 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase    = decimal(dBase7:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost7:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup7:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev7:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-7:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost7:CHECKED.
-           IF decimal(dBase8:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+       ELSE IF  i EQ 7 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase7:SCREEN-VALUE),
+              DECIMAL(dEaCost7:SCREEN-VALUE),
+              DECIMAL(dSetup7:SCREEN-VALUE),
+              DECIMAL(dDev7:SCREEN-VALUE),
+              INTEGER(iLeadTime-7:SCREEN-VALUE),
+              tbBestCost7:CHECKED).  
+           IF DECIMAL(dBase8:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
-       ELSE IF  i EQ 8 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase8:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost8:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup8:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev8:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-8:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost8:CHECKED.
-           IF decimal(dBase9:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+       ELSE IF  i EQ 8 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase8:SCREEN-VALUE),
+              DECIMAL(dEaCost8:SCREEN-VALUE),
+              DECIMAL(dSetup8:SCREEN-VALUE),
+              DECIMAL(dDev8:SCREEN-VALUE),
+              INTEGER(iLeadTime-8:SCREEN-VALUE),
+              tbBestCost8:CHECKED).  
+           IF DECIMAL(dBase9:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
-       ELSE IF  i EQ 9 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase9:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost9:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup9:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev9:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-9:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost9:CHECKED.
-           IF decimal(dBase10:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+       ELSE IF  i EQ 9 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase9:SCREEN-VALUE),
+              DECIMAL(dEaCost9:SCREEN-VALUE),
+              DECIMAL(dSetup9:SCREEN-VALUE),
+              DECIMAL(dDev9:SCREEN-VALUE),
+              INTEGER(iLeadTime-9:SCREEN-VALUE),
+              tbBestCost9:CHECKED).  
+           IF DECIMAL(dBase10:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
-       ELSE IF  i EQ 10 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase10:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost10:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup10:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev10:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-10:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost10:CHECKED.
-           IF decimal(dBase11:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+       ELSE IF  i EQ 10 THEN DO:
+            RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase10:SCREEN-VALUE),
+              DECIMAL(dEaCost10:SCREEN-VALUE),
+              DECIMAL(dSetup10:SCREEN-VALUE),
+              DECIMAL(dDev10:SCREEN-VALUE),
+              INTEGER(iLeadTime-10:SCREEN-VALUE),
+              tbBestCost10:CHECKED).             
+              IF DECIMAL(dBase11:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
-       ELSE IF i EQ 11 THEN do:
-
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase11:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost-11:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup-11:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev-11:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-11:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost11:CHECKED.
-           IF decimal(dBase12:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+       ELSE IF i EQ 11 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase11:SCREEN-VALUE),
+              DECIMAL(dEaCost-11:SCREEN-VALUE),
+              DECIMAL(dSetup-11:SCREEN-VALUE),
+              DECIMAL(dDev-11:SCREEN-VALUE),
+              INTEGER(iLeadTime-11:SCREEN-VALUE),
+              tbBestCost11:CHECKED).
+           IF DECIMAL(dBase12:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
-       ELSE IF i EQ 12 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase12:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost-12:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup-12:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev-12:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-12:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost12:CHECKED.
-           IF decimal(dBase13:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+       ELSE IF i EQ 12 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase12:SCREEN-VALUE),
+              DECIMAL(dEaCost-12:SCREEN-VALUE),
+              DECIMAL(dSetup-12:SCREEN-VALUE),
+              DECIMAL(dDev-12:SCREEN-VALUE),
+              INTEGER(iLeadTime-12:SCREEN-VALUE),
+              tbBestCost12:CHECKED).
+          IF DECIMAL(dBase13:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+      END.
+      ELSE IF  i EQ 13 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase13:SCREEN-VALUE),
+              DECIMAL(dEaCost-13:SCREEN-VALUE),
+              DECIMAL(dSetup-13:SCREEN-VALUE),
+              DECIMAL(dDev-13:SCREEN-VALUE),
+              INTEGER(iLeadTime-13:SCREEN-VALUE),
+              tbBestCost13:CHECKED).
+           IF DECIMAL(dBase14:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
-       ELSE IF  i EQ 13 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase13:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost-13:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup-13:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev-13:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-13:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost13:CHECKED.
-           IF decimal(dBase14:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+       ELSE IF  i EQ 14 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase14:SCREEN-VALUE),
+              DECIMAL(dEaCost-14:SCREEN-VALUE),
+              DECIMAL(dSetup-14:SCREEN-VALUE),
+              DECIMAL(dDev-14:SCREEN-VALUE),
+              INTEGER(iLeadTime-14:SCREEN-VALUE),
+              tbBestCost14:CHECKED).
+          IF DECIMAL(dBase15:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
-       ELSE IF  i EQ 14 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase14:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost-14:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup-14:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev-14:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-14:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost14:CHECKED.
-           IF decimal(dBase15:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+       ELSE IF  i EQ 15 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase15:SCREEN-VALUE),
+              DECIMAL(dEaCost-15:SCREEN-VALUE),
+              DECIMAL(dSetup-15:SCREEN-VALUE),
+              DECIMAL(dDev-15:SCREEN-VALUE),
+              INTEGER(iLeadTime-15:SCREEN-VALUE),
+              tbBestCost15:CHECKED).
+          IF DECIMAL(dBase16:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+      END.
+      ELSE IF  i EQ 16 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase16:SCREEN-VALUE),
+              DECIMAL(dEaCost-16:SCREEN-VALUE),
+              DECIMAL(dSetup-16:SCREEN-VALUE),
+              DECIMAL(dDev-16:SCREEN-VALUE),
+              INTEGER(iLeadTime-16:SCREEN-VALUE),
+              tbBestCost16:CHECKED).
+           IF DECIMAL(dBase17:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
-       ELSE IF  i EQ 15 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase15:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost-15:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup-15:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev-15:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-15:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost15:CHECKED.
-           IF decimal(dBase16:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+       ELSE IF  i EQ 17 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase17:SCREEN-VALUE),
+              DECIMAL(dEaCost-17:SCREEN-VALUE),
+              DECIMAL(dSetup-17:SCREEN-VALUE),
+              DECIMAL(dDev-17:SCREEN-VALUE),
+              INTEGER(iLeadTime-17:SCREEN-VALUE),
+              tbBestCost17:CHECKED).
+          IF DECIMAL(dBase18:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+      END.
+      ELSE IF  i EQ 18 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase18:SCREEN-VALUE),
+              DECIMAL(dEaCost-18:SCREEN-VALUE),
+              DECIMAL(dSetup-18:SCREEN-VALUE),
+              DECIMAL(dDev-18:SCREEN-VALUE),
+              INTEGER(iLeadTime-18:SCREEN-VALUE),
+              tbBestCost18:CHECKED).
+           IF DECIMAL(dBase19:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
-       ELSE IF  i EQ 16 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase16:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost-16:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup-16:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev-16:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-16:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost16:CHECKED.
-           IF decimal(dBase17:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+       ELSE IF  i EQ 19 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase19:SCREEN-VALUE),
+              DECIMAL(dEaCost-19:SCREEN-VALUE),
+              DECIMAL(dSetup-19:SCREEN-VALUE),
+              DECIMAL(dDev-19:SCREEN-VALUE),
+              INTEGER(iLeadTime-19:SCREEN-VALUE),
+              tbBestCost19:CHECKED).
+          IF DECIMAL(dBase20:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
-       ELSE IF  i EQ 17 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase17:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost-17:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup-17:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev-17:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-17:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost17:CHECKED.
-           IF decimal(dBase18:SCREEN-VALUE) EQ 0 THEN   LEAVE .
-       END.
-       ELSE IF  i EQ 18 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase18:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost-18:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup-18:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev-18:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-18:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost18:CHECKED.
-           IF decimal(dBase19:SCREEN-VALUE) EQ 0 THEN   LEAVE .
-       END.
-       ELSE IF  i EQ 19 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase19:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost-19:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup-19:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev-19:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-19:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost19:CHECKED.
-           IF decimal(dBase20:SCREEN-VALUE) EQ 0 THEN   LEAVE .
-       END.
-       ELSE IF  i EQ 20 THEN do:
-           ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dBase20:SCREEN-VALUE)  
-           vendItemCostLevel.costPerUOM    = decimal(dEaCost-20:SCREEN-VALUE) 
-           vendItemCostLevel.costSetup     = decimal(dSetup-20:SCREEN-VALUE)
-           vendItemCostLevel.costDeviation = decimal(dDev-20:SCREEN-VALUE) 
-           vendItemCostLevel.leadTimeDays = integer(iLeadTime-20:SCREEN-VALUE)
-           vendItemCostLevel.useForBestCost = tbBestCost20:CHECKED.
+       ELSE IF  i EQ 20 THEN DO:
+          RUN VendCost_UpdateVendItemCostLevelNoRecalc IN hdVendorCostProcs (rwRowid[i],
+              vendItemCost.vendItemCostID,
+              DECIMAL(dBase20:SCREEN-VALUE),
+              DECIMAL(dEaCost-20:SCREEN-VALUE),
+              DECIMAL(dSetup-20:SCREEN-VALUE),
+              DECIMAL(dDev-20:SCREEN-VALUE),
+              INTEGER(iLeadTime-20:SCREEN-VALUE),
+              tbBestCost20:CHECKED).
        END.
    END.
 

@@ -36,23 +36,27 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE exclude-brwCustom
+&SCOPED-DEFINE xlocal-destroy
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 {sys/inc/var.i "NEW SHARED"}
 {sys/inc/varasgn.i}
-
 {oerep/ttLoadTag.i}
 {oerep/r-loadtg.i NEW}
+
 DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
        FIELD tag-no AS CHARACTER.
 
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSelectAll AS LOGICAL   NO-UNDO INITIAL TRUE.
 
 DEFINE VARIABLE hdLoadTagProcs AS HANDLE NO-UNDO.
 
@@ -80,7 +84,7 @@ DEFINE VARIABLE hdLoadTagProcs AS HANDLE NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table ttLoadTag.isSelected ttLoadTag.tagStatus ttLoadTag.custID ttLoadTag.orderID ttLoadTag.jobID ttLoadTag.jobID2 NO-LABEL ttLoadTag.itemID ttLoadTag.itemName ttLoadTag.tag ttLoadTag.quantityInUnit ttLoadTag.subUnitsPerUnit ttLoadTag.quantityInSubUnit ttLoadTag.quantityOfSubUnits ttLoadTag.jobQuantity ttLoadTag.printCopies ttLoadTag.ordQuantity ttLoadTag.relQuantity ttLoadTag.overPct ttLoadTag.partial ttLoadTag.totalTags ttLoadTag.quantityTotal ttLoadTag.unitWeight ttLoadTag.palletWeight ttLoadTag.lotID ttLoadTag.custPONo ttLoadTag.poline   
+&Scoped-define FIELDS-IN-QUERY-br_table ttLoadTag.isSelected ttLoadTag.tagStatus ttLoadTag.custID ttLoadTag.orderID ttLoadTag.jobID ttLoadTag.jobID2 NO-LABEL ttLoadTag.itemID ttLoadTag.itemName ttLoadTag.tag ttLoadTag.quantityInUnit ttLoadTag.subUnitsPerUnit ttLoadTag.quantityInSubUnit ttLoadTag.quantityOfSubUnits ttLoadTag.jobQuantity ttLoadTag.printCopies ttLoadTag.ordQuantity ttLoadTag.relQuantity ttLoadTag.overPct ttLoadTag.partial ttLoadTag.totalTags ttLoadTag.quantityTotal ttLoadTag.unitWeight ttLoadTag.palletWeight ttLoadTag.lotID ttLoadTag.custPONo ttLoadTag.poline ttLoadTag.emptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table ttLoadTag.isSelected   
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table ttLoadTag
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table ttLoadTag
@@ -160,36 +164,38 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      ttLoadTag.isSelected COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
+      ttLoadTag.isSelected COLUMN-LABEL "[]All" WIDTH 10 VIEW-AS TOGGLE-BOX
       ttLoadTag.tagStatus COLUMN-LABEL "Status" WIDTH 15
       ttLoadTag.custID COLUMN-LABEL "Cust #" WIDTH 30
       ttLoadTag.orderID  COLUMN-LABEL "Order#" WIDTH 15
-      ttLoadTag.jobID COLUMN-LABEL "  Job#" WIDTH 15
-      ttLoadTag.jobID2 NO-LABEL FORMAT "99" WIDTH 4
-      ttLoadTag.itemID COLUMN-LABEL "Item #" WIDTH 30
-      ttLoadTag.itemName COLUMN-LABEL "Item!Name" WIDTH 40
-      ttLoadTag.tag COLUMN-LABEL "Tag#" WIDTH 32
-      ttLoadTag.quantityInUnit FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty!Per Pallet" WIDTH 15
-      ttLoadTag.subUnitsPerUnit FORMAT ">>>,>>9" COLUMN-LABEL "Units/!Pallet" WIDTH 12
-      ttLoadTag.quantityInSubUnit FORMAT ">>>,>>9" COLUMN-LABEL "Unit!Count" WIDTH 12
-      ttLoadTag.quantityOfSubUnits FORMAT ">>>,>>9" COLUMN-LABEL "Total!Units" WIDTH 12
-      ttLoadTag.jobQuantity COLUMN-LABEL "Job!Quantity" WIDTH 15
-      ttLoadTag.printCopies COLUMN-LABEL "Print!Copies" WIDTH 15
-      ttLoadTag.ordQuantity COLUMN-LABEL "Ord Qty" WIDTH 15
-      ttLoadTag.relQuantity COLUMN-LABEL "Rel Qty" WIDTH 15
+      ttLoadTag.jobID COLUMN-LABEL "  Job#" WIDTH 17
+      ttLoadTag.jobID2 NO-LABEL FORMAT "99" WIDTH 9
+      ttLoadTag.itemID COLUMN-LABEL "Item #" WIDTH 50
+      ttLoadTag.itemName COLUMN-LABEL "Item!Name" WIDTH 60
+      ttLoadTag.tag COLUMN-LABEL "Tag#" WIDTH 50
+      ttLoadTag.quantityInUnit FORMAT "->,>>>,>>9" COLUMN-LABEL "Total Qty!Per Pallet" WIDTH 20
+      ttLoadTag.subUnitsPerUnit FORMAT "->>>,>>9" COLUMN-LABEL "Units/!Pallet" WIDTH 17
+      ttLoadTag.quantityInSubUnit FORMAT "->>>,>>9" COLUMN-LABEL "Unit!Count" WIDTH 17
+      ttLoadTag.quantityOfSubUnits FORMAT "->>>,>>9" COLUMN-LABEL "Total!Units" WIDTH 17
+      ttLoadTag.jobQuantity COLUMN-LABEL "Job!Quantity" WIDTH 17
+      ttLoadTag.printCopies COLUMN-LABEL "Print!Copies" WIDTH 17
+      ttLoadTag.ordQuantity COLUMN-LABEL "Ord Qty" WIDTH 17
+      ttLoadTag.relQuantity COLUMN-LABEL "Rel Qty" WIDTH 17
       ttLoadTag.overPct FORMAT ">>9.99" COLUMN-LABEL "Overrun%" WIDTH 15
       ttLoadTag.partial COLUMN-LABEL "Partial" WIDTH 12
-      ttLoadTag.totalTags COLUMN-LABEL "No. of!Tags" WIDTH 12
-      ttLoadTag.quantityTotal FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty"
-      ttLoadTag.unitWeight COLUMN-LABEL "Unit!Wt" WIDTH 12
-      ttLoadTag.palletWeight COLUMN-LABEL "Pallet!Wt" WIDTH 12
-      ttLoadTag.lotID FORMAT "X(20)" COLUMN-LABEL "FG Lot#" WIDTH 30
-      ttLoadTag.custPONo COLUMN-LABEL "Customer!PO#" WIDTH 15
+      ttLoadTag.totalTags COLUMN-LABEL "No. of!Tags" WIDTH 15
+      ttLoadTag.quantityTotal FORMAT "->,>>>,>>9" COLUMN-LABEL "Total Qty" WIDTH 17
+      ttLoadTag.unitWeight COLUMN-LABEL "Unit!Wt" WIDTH 15
+      ttLoadTag.palletWeight COLUMN-LABEL "Pallet!Wt" WIDTH 15
+      ttLoadTag.lotID FORMAT "X(20)" COLUMN-LABEL "FG Lot#" WIDTH 40
+      ttLoadTag.custPONo COLUMN-LABEL "Customer!PO#" WIDTH 25
       ttLoadTag.poline COLUMN-LABEL "Ln" WIDTH 10
+      ttLoadTag.emptyColumn COLUMN-LABEL ""
       ENABLE ttLoadTag.isSelected
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH SEPARATORS SIZE 150 BY 6.71.
+    WITH SEPARATORS NO-TAB-STOP SIZE 150 BY 6.69
+         FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -198,7 +204,8 @@ DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 36 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -256,6 +263,9 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       br_table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -311,6 +321,29 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON START-SEARCH OF br_table IN FRAME F-Main
+DO:
+    IF SELF:CURRENT-COLUMN:NAME EQ "isSelected" THEN DO:
+        lSelectAll = NOT lSelectAll.
+        
+        FOR EACH ttLoadTag:
+            ttLoadTag.isSelected = lSelectAll.
+        END.
+        
+        SELF:CURRENT-COLUMN:LABEL = IF lSelectAll THEN
+                                        "[*] All"
+                                    ELSE
+                                        "[ ] All".
+                                        
+        RUN dispatch ("open-query").   
+    END.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON VALUE-CHANGED OF br_table IN FRAME F-Main
 DO:
   /* This ADM trigger code must be preserved in order to notify other
@@ -328,10 +361,14 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustomSharpShooter.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{sharpshooter/smartobj/browseNavigate.i}
+{methods/browsers/setCellColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -447,6 +484,107 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildLoadTagsFromPO B-table-Win 
+PROCEDURE BuildLoadTagsFromPO :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany           AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOID              AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOLine            AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantity          AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantityInSubUnit AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit   AS INTEGER   NO-UNDO.      
+    DEFINE INPUT  PARAMETER ipcQuantityUOM       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCopies            AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
+    
+    RUN BuildLoadTagsFromPO IN hdLoadTagProcs (
+        INPUT  ipcCompany,
+        INPUT  ipiPOID,
+        INPUT  ipiPOLine,
+        INPUT  ipiQuantity,
+        INPUT  ipiQuantityInSubUnit,
+        INPUT  ipiSubUnitsPerUnit,        
+        INPUT  ipcQuantityUOM,
+        INPUT  ipiCopies,
+        OUTPUT oplError,
+        OUTPUT opcMessage,
+        INPUT-OUTPUT TABLE ttLoadTag
+        ).
+
+    RUN dispatch (
+        INPUT "open-query"
+        ).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildLoadTagsFromRelease B-table-Win 
+PROCEDURE BuildLoadTagsFromRelease :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCopies    AS INTEGER   NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttLoadTag.
+    
+    SESSION:SET-WAIT-STATE("GENERAL").
+    
+    RUN BuildLoadTagsFromRelease IN hdLoadTagProcs (
+        INPUT  ipcCompany,
+        INPUT  ipiReleaseID,
+        INPUT  ipiCopies,
+        INPUT-OUTPUT TABLE ttLoadTag BY-REFERENCE
+        ).
+    
+    RUN dispatch (
+        INPUT "open-query"
+        ).
+    
+    SESSION:SET-WAIT-STATE("").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildLoadTagsFromTag B-table-Win 
+PROCEDURE BuildLoadTagsFromTag :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCopies  AS INTEGER   NO-UNDO.
+
+    SESSION:SET-WAIT-STATE("GENERAL").
+    
+    RUN BuildLoadTagsFromTag IN hdLoadTagProcs (
+        INPUT  ipcCompany,
+        INPUT  ipcTag,
+        INPUT  ipiCopies,
+        INPUT-OUTPUT TABLE ttLoadTag BY-REFERENCE
+        ).    
+    
+    RUN dispatch (
+        INPUT "open-query"
+        ).
+    
+    SESSION:SET-WAIT-STATE("").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CreateLoadTagFromTT B-table-Win 
 PROCEDURE CreateLoadTagFromTT :
 /*------------------------------------------------------------------------------
@@ -478,8 +616,13 @@ PROCEDURE DeleteSelected :
     DEFINE VARIABLE lChoice AS LOGICAL NO-UNDO.
     
     IF AVAILABLE ttLoadTag THEN DO:
-        MESSAGE "Delete selected record?"
-        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lChoice.    
+        RUN sharpshooter/messageDialog.w (
+            "DELETE SELECTED RECORD?",
+            YES,
+            YES,
+            NO,
+            OUTPUT lChoice
+            ).
         
         IF lChoice THEN DO:
             DELETE ttLoadTag.
@@ -530,25 +673,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
-PROCEDURE local-destroy :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    /* Code placed here will execute PRIOR to standard behavior. */
-    IF VALID-HANDLE(hdLoadTagProcs) THEN
-        DELETE PROCEDURE hdLoadTagProcs.
-        
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -564,6 +688,28 @@ PROCEDURE local-enable :
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pInit.
     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+    
+    RUN setCellColumns NO-ERROR.
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -796,6 +942,10 @@ PROCEDURE pInit PRIVATE :
             END CASE.
         END.
     END.
+
+    BROWSE {&BROWSE-NAME}:ROW-HEIGHT-CHARS = 1.
+    BROWSE {&BROWSE-NAME}:FONT = 17.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -820,9 +970,6 @@ PROCEDURE PrintTTLoadTags :
         ).
     
     SESSION:SET-WAIT-STATE("").
-    
-    MESSAGE "Printing complete!"
-        VIEW-AS ALERT-BOX INFORMATION.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -865,6 +1012,20 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE xlocal-destroy B-table-Win 
+PROCEDURE xlocal-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF VALID-HANDLE(hdLoadTagProcs) THEN
+        DELETE PROCEDURE hdLoadTagProcs.
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

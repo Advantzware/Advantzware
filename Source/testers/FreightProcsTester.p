@@ -14,6 +14,7 @@
 
 /* ***************************  Definitions  ************************** */
 DEFINE VARIABLE hFreightProcs AS HANDLE.
+DEFINE VARIABLE ghSession     AS HANDLE.
 DEFINE VARIABLE gcCompany     AS CHARACTER INIT '001'.
 DEFINE VARIABLE gcEstimate1   AS CHARACTER INIT '10001'.
 DEFINE VARIABLE gcEstimate2   AS CHARACTER INIT '10002'.
@@ -29,6 +30,9 @@ DEFINE VARIABLE giDeleteBlank AS INTEGER   INIT 2.
 
 
 /* ***************************  Main Block  *************************** */
+RUN system\session.p PERSISTENT SET ghSession.
+SESSION:ADD-SUPER-PROCEDURE (ghSession).
+
 RUN system\FreightProcs.p PERSISTENT SET hFreightProcs.
 
 /*RUN DeleteAllEstReleasesForEstimate IN hFreightProcs (gcCompany, gcEstimate1).                                       */
@@ -68,7 +72,8 @@ RUN system\FreightProcs.p PERSISTENT SET hFreightProcs.
 /*END.                                                                                                                 */
 /*RUN pCreateTestEstReleases.                                                                                          */
 
-RUN pTestFreightForBOL.
+//RUN pTestFreightForBOL.
+RUN pTestFreightProrating.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -188,7 +193,7 @@ PROCEDURE pCreateTestEstReleases PRIVATE:
                 estRelease.monthsAtShipFrom = 3
                 estRelease.stackHeight = 2
                 .
-            RUN GetStorageAndHandlingForLocation IN hFreightProcs (estRelease.company, estRelease.shipFromLocationID, estRelease.stackHeight,
+            RUN GetStorageAndHandlingForLocation IN hFreightProcs (estRelease.company, estRelease.shipFromLocationID, estRelease.stackHeight, eb.tr-wid, eb.tr-len,
                 OUTPUT estRelease.storageCost, OUTPUT estRelease.handlingCost, OUTPUT lError, OUTPUT cMessage). 
         RUN CalcStorageAndHandlingForEstRelease IN hFreightProcs (iEstReleaseID, OUTPUT lError, OUTPUT cMessage).
         IF lError THEN 
@@ -271,6 +276,31 @@ PROCEDURE pTestFreightForBOL PRIVATE:
             "New" dFreight SKIP 
             "Old" oe-bolh.freight
             VIEW-AS ALERT-BOX.    
+    END.
+    
+
+END PROCEDURE.
+
+PROCEDURE pTestFreightProrating PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dFreight AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    FOR EACH oe-bolh NO-LOCK 
+        WHERE oe-bolh.company EQ '001'
+        //AND oe-bolh.bol-no EQ 9550
+        AND NOT oe-bolh.posted
+        AND CAN-FIND(FIRST oe-boll WHERE oe-boll.company EQ oe-bolh.company AND oe-boll.b-no EQ oe-bolh.b-no)       
+        : 
+        RUN GetFreightForBOL IN hFreightProcs (ROWID(oe-bolh), NO, OUTPUT dFreight, OUTPUT lError, OUTPUT cMessage).
+        IF ROUND(dFreight,2) NE ROUND(oe-bolh.freight,2) THEN DO:
+            RUN ProrateFreightAcrossBOLLines IN hFreightProcs (ROWID(oe-bolh), 4000, OUTPUT lError, OUTPUT cMessage).
+        END. 
+                
     END.
     
 

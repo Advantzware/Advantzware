@@ -10,7 +10,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:
+  File: sharpshooter/smartobj/releaseFilter.w
 
   Description: from SMART.W - Template for basic SmartObject
 
@@ -34,8 +34,16 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lShowErrorAsAlert  AS LOGICAL   NO-UNDO INITIAL TRUE.
+
+DEFINE VARIABLE lReleasePrintedValidation AS LOGICAL NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE lReleasePostedValidation  AS LOGICAL NO-UNDO INITIAL FALSE.
+
 DEFINE VARIABLE oReleaseHeader AS oe.ReleaseHeader NO-UNDO.
+DEFINE VARIABLE oKeyboard      AS system.Keyboard  NO-UNDO.
 
 oReleaseHeader = NEW oe.ReleaseHeader().
 
@@ -54,7 +62,7 @@ oReleaseHeader = NEW oe.ReleaseHeader().
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btFind fiRelease 
+&Scoped-Define ENABLED-OBJECTS btFind fiRelease btnKeyboardRelease 
 &Scoped-Define DISPLAYED-OBJECTS fiRelease 
 
 /* Custom List Definitions                                              */
@@ -70,24 +78,32 @@ oReleaseHeader = NEW oe.ReleaseHeader().
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btFind 
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Find" 
-     SIZE 11 BY 1.48.
+     SIZE 8 BY 1.91.
 
-DEFINE VARIABLE fiRelease AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
-     LABEL "Release #" 
+DEFINE BUTTON btnKeyboardRelease 
+     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS
+     LABEL "Keyboard" 
+     SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
+
+DEFINE VARIABLE fiRelease AS CHARACTER FORMAT "X(7)":U 
+     LABEL "RELEASE" 
      VIEW-AS FILL-IN 
-     SIZE 28 BY 1.38 TOOLTIP "Enter release #" NO-UNDO.
+     SIZE 28 BY 1.38 TOOLTIP "Enter release #"
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btFind AT ROW 1.19 COL 48 WIDGET-ID 4
-     fiRelease AT ROW 1.24 COL 17 COLON-ALIGNED WIDGET-ID 2
+     btFind AT ROW 1 COL 49 WIDGET-ID 4
+     fiRelease AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 2
+     btnKeyboardRelease AT ROW 1.19 COL 57.2 WIDGET-ID 136 NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15 FONT 17 WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -144,6 +160,9 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       btnKeyboardRelease:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -174,15 +193,28 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnKeyboardRelease
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardRelease s-object
+ON CHOOSE OF btnKeyboardRelease IN FRAME F-Main /* Keyboard */
+DO:
+    APPLY "ENTRY":U TO fiRelease.    
+    
+    oKeyboard:OpenKeyboardOverride (fiRelease:HANDLE, "Qwerty"). 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fiRelease
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON ANY-KEY OF fiRelease IN FRAME F-Main /* Release # */
+ON ENTRY OF fiRelease IN FRAME F-Main /* RELEASE */
 DO:
-    IF KEY-LABEL(LASTKEY) EQ "HELP" THEN
-        APPLY "HELP" TO SELF.
-        
-    IF KEY-LABEL(LASTKEY) EQ "ENTER" OR KEY-LABEL(LASTKEY) EQ "TAB" THEN
-        APPLY "LEAVE" TO SELF.  
+    SELF:SET-SELECTION ( 1, -1).    
+    SELF:BGCOLOR = 30.
+
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:OpenKeyboard (SELF, "Qwerty").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -190,17 +222,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON ENTRY OF fiRelease IN FRAME F-Main /* Release # */
-DO:
-    SELF:SET-SELECTION ( 1, -1).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON HELP OF fiRelease IN FRAME F-Main /* Release # */
+ON HELP OF fiRelease IN FRAME F-Main /* RELEASE */
 DO:
     DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
@@ -232,10 +254,21 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON LEAVE OF fiRelease IN FRAME F-Main /* Release # */
+ON LEAVE OF fiRelease IN FRAME F-Main /* RELEASE */
 DO:
-    IF LASTKEY NE -1 OR SELF:SCREEN-VALUE NE "" THEN
-        RUN pReleaseScan.
+    /* If last key is not button choose or mouse click event */
+    IF (((LASTKEY LT 609 OR LASTKEY GT 652) AND LASTKEY NE -1) OR (VALID-OBJECT (oKeyboard) AND oKeyboard:IsKeyboardOpen())) AND SELF:SCREEN-VALUE NE "" THEN
+        RUN pReleaseScan.   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
+ON TAB OF fiRelease IN FRAME F-Main /* RELEASE */
+DO:
+    APPLY "LEAVE" TO SELF.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -259,6 +292,19 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableErrorAlerts s-object 
+PROCEDURE DisableErrorAlerts :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    lShowErrorAsAlert = FALSE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableRelease s-object 
 PROCEDURE DisableRelease :
@@ -293,6 +339,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EmptyRelease s-object 
+PROCEDURE EmptyRelease :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    fiRelease:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableRelease s-object 
 PROCEDURE EnableRelease :
 /*------------------------------------------------------------------------------
@@ -305,6 +364,24 @@ PROCEDURE EnableRelease :
     btFind:SENSITIVE = TRUE.
         
     APPLY "ENTRY" TO fiRelease.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType s-object 
+PROCEDURE GetMessageAndType :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiStatusMessageType AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        opcStatusMessage     = cStatusMessage
+        opiStatusMessageType = iStatusMessageType
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -351,7 +428,11 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+    
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -366,22 +447,126 @@ PROCEDURE pReleaseScan :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
     END.
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
     
     RUN new-state (
         INPUT "release-invalid"
         ).
     
+    IF SELF:SCREEN-VALUE EQ "EXIT" THEN DO:
+        RUN new-state (
+            INPUT "release-exit"
+            ).        
+        RETURN.        
+    END.
+    
+    INTEGER(fiRelease:SCREEN-VALUE) NO-ERROR.
+
+    IF ERROR-STATUS:ERROR THEN DO:
+        RUN pSendError ("INVALID RELEASE '" + fiRelease:SCREEN-VALUE + "'").
+        
+        fiRelease:SCREEN-VALUE = "".
+        
+        RETURN.    
+    END.
+            
     oReleaseHeader:SetContext(cCompany, INTEGER(fiRelease:SCREEN-VALUE)).
     
     IF NOT oReleaseHeader:IsAvailable() THEN DO:
-        MESSAGE "Invalid release # '" + fiRelease:SCREEN-VALUE + "'"
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pSendError ("INVALID RELEASE '" + fiRelease:SCREEN-VALUE + "'").
+        
+        fiRelease:SCREEN-VALUE = "".
+        
         RETURN.
+    END.
+    
+    IF lReleasePrintedValidation AND NOT LOGICAL(oReleaseHeader:GetValue("Printed")) THEN DO:
+        RUN pSendError ("RELEASE '" + oReleaseHeader:GetValue("ReleaseID") + "' IS NOT PRINTED").
+        
+        fiRelease:SCREEN-VALUE = "".
+            
+        RETURN.    
+    END.
+
+    IF lReleasePostedValidation AND LOGICAL(oReleaseHeader:GetValue("Posted")) THEN DO:
+        RUN pSendError ("RELEASE '" + oReleaseHeader:GetValue("ReleaseID") + "' IS ALREADY POSTED").
+        
+        fiRelease:SCREEN-VALUE = "".
+            
+        RETURN.    
     END.
     
     RUN new-state (
         INPUT "release-valid"
+        ).    
+                    
+    SELF:BGCOLOR = 15.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError s-object 
+PROCEDURE pSendError :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcStatusMessage AS CHARACTER NO-UNDO.
+
+    IF lShowErrorAsAlert THEN DO:
+        MESSAGE ipcStatusMessage
+            VIEW-AS ALERT-BOX ERROR.
+        
+        RETURN.
+    END.
+    
+    ASSIGN
+        cStatusMessage     = ipcStatusMessage
+        iStatusMessageType = 3
+        .
+    RUN new-state (
+        "release-error"
         ).
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ReleasePostedValidation s-object 
+PROCEDURE ReleasePostedValidation :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iplReleasePostedValidation AS LOGICAL NO-UNDO.
+    
+    lReleasePostedValidation = iplReleasePostedValidation.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ReleasePrintedValidation s-object 
+PROCEDURE ReleasePrintedValidation :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iplReleasePrintedValidation AS LOGICAL NO-UNDO.
+    
+    lReleasePrintedValidation = iplReleasePrintedValidation.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -402,6 +587,41 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetKeyboard s-object 
+PROCEDURE SetKeyboard :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipoKeyboard AS system.Keyboard NO-UNDO.
+    
+    oKeyboard = ipoKeyboard.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard s-object
+PROCEDURE ShowKeyboard:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        btnKeyboardRelease:VISIBLE   = TRUE
+        btnKeyboardRelease:SENSITIVE = TRUE
+        .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :

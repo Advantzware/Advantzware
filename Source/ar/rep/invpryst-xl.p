@@ -766,12 +766,35 @@ ELSE lv-comp-color = "BLACK".
     chExcelApplication:Rows(v-cell):SELECT.
     chExcelApplication:SELECTION:DELETE.
 
+    IF ltb_print-message THEN
+    DO:
+        ASSIGN 
+            v-cell = "R" + STRING(inrowcount) + "C1".
+        chExcelApplication:Goto(v-cell) NO-ERROR.
+        ASSIGN 
+            chExcelApplication:ActiveCell:Value = "Remit To: " .
+        ASSIGN 
+            v-cell = "R" + STRING(inrowcount) + "C4".
+        chExcelApplication:Goto(v-cell) NO-ERROR.
+        ASSIGN 
+            chExcelApplication:ActiveCell:Value = cInvMessage[1] .
+    END.
+        
     ASSIGN v-cell = "R" + STRING(inrowcount) + "C39".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN chExcelApplication:ActiveCell:Value = v-cartot-lines.
 
     ASSIGN inrowcount = inrowcount + 1 .
 
+    IF ltb_print-message THEN
+    DO:
+        ASSIGN 
+            v-cell = "R" + STRING(inrowcount) + "C4".
+        chExcelApplication:Goto(v-cell) NO-ERROR.
+        ASSIGN 
+            chExcelApplication:ActiveCell:Value = cInvMessage[2] .
+    END.
+        
     ASSIGN v-cell = "R" + STRING(inrowcount) + "C45".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN chExcelApplication:ActiveCell:Value = v-subtot-lines.
@@ -825,6 +848,15 @@ ELSE lv-comp-color = "BLACK".
     ASSIGN chExcelApplication:ActiveCell:Value = v-t-tax[3].
             
     ASSIGN inrowcount = inrowcount + 1                                                  */
+    IF ltb_print-message THEN
+    DO:
+        ASSIGN 
+            v-cell = "R" + STRING(inrowcount) + "C4".
+        chExcelApplication:Goto(v-cell) NO-ERROR.
+        ASSIGN 
+            chExcelApplication:ActiveCell:Value = cInvMessage[3] .
+    END.
+        
            v-cell = "R" + STRING(inrowcount) + "C45".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN chExcelApplication:ActiveCell:Value = v-inv-freight.
@@ -833,7 +865,26 @@ ELSE lv-comp-color = "BLACK".
            v-cell = "R" + STRING(inrowcount) + "C45".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN chExcelApplication:ActiveCell:Value = (v-subtot-lines + v-inv-freight) .
-
+    
+    IF ltb_print-message THEN
+    DO:
+        ASSIGN 
+            v-cell = "R" + STRING(inrowcount) + "C4".
+        chExcelApplication:Goto(v-cell) NO-ERROR.
+        ASSIGN 
+            chExcelApplication:ActiveCell:Value = cInvMessage[4] .
+    END.
+    inrowcount = inrowcount + 1.
+    
+    IF ltb_print-message THEN
+    DO:
+        ASSIGN 
+            v-cell = "R" + STRING(inrowcount) + "C4".
+        chExcelApplication:Goto(v-cell) NO-ERROR.
+        ASSIGN 
+            chExcelApplication:ActiveCell:Value = cInvMessage[5] .
+    END.
+    
     chExcelApplication:Goto("R15C1") NO-ERROR.
     os-delete value(v-dir + STRING(ar-inv.inv-no) + ".xls").     
     os-delete value(v-dir + "asi.pdf").

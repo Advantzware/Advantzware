@@ -205,14 +205,14 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         IF AVAILABLE fg-bin THEN 
         DO:
             ASSIGN
-                v-loc     = "Whs: " + fg-bin.loc
+                v-loc     = "Loc: " + fg-bin.loc
                 v-loc-bin = "Bin: " + fg-bin.loc-bin.
         END.
         ELSE
             IF AVAILABLE itemfg THEN 
             DO:                             
                 ASSIGN
-                    v-loc     = "Whs: " + itemfg.def-loc
+                    v-loc     = "Loc: " + itemfg.def-loc
                     v-loc-bin = "Bin: " + itemfg.def-loc-bin.
             END.
 
@@ -550,55 +550,21 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
     DO i = 1 TO 10:
                         
         IF xeb.i-code[i] EQ job-mat.i-no THEN 
-        DO:
-                             
-            FIND FIRST wrk-ink
-                WHERE wrk-ink.i-code   EQ xeb.i-code[i]
-                AND wrk-ink.form-no  EQ xeb.form-no
-                AND wrk-ink.blank-no EQ xeb.blank-no
-                AND wrk-ink.i-pass   EQ xeb.i-ps[i]
-                                   
-                NO-ERROR.
-            IF NOT AVAILABLE wrk-ink THEN 
-            DO:
-                CREATE wrk-ink.
-                ASSIGN 
-                    wrk-ink.i-code   = xeb.i-code[i]
-                    wrk-ink.form-no  = xeb.form-no
-                    wrk-ink.blank-no = xeb.blank-no
-                    wrk-ink.i-dscr   = xeb.i-dscr[i]
-                    wrk-ink.i-pass   = xeb.i-ps[i]
-                    .
-            END.
+        DO:  
+            CREATE wrk-ink.
+            ASSIGN 
+                wrk-ink.i-code   = xeb.i-code[i]
+                wrk-ink.form-no  = xeb.form-no
+                wrk-ink.blank-no = xeb.blank-no
+                wrk-ink.i-dscr   = xeb.i-dscr[i]
+                wrk-ink.i-pass   = xeb.i-ps[i]
+                wrk-ink.i-qty    = job-mat.qty
+                .
         END.
     END. /* loop i */
-                  
-    FIND FIRST wrk-ink
-        WHERE wrk-ink.i-code    EQ job-mat.i-no
-        AND wrk-ink.form-no   EQ job-mat.frm
-        AND (wrk-ink.blank-no EQ job-mat.blank-no OR
-        est.est-type     EQ 4)
-        NO-ERROR.
 
-    IF NOT AVAILABLE wrk-ink AND
-        (job-mat.blank-no  EQ xeb.blank-no OR
-        (job-mat.blank-no EQ 0 AND xeb.blank-no EQ 1)) THEN 
-    DO:
-        CREATE wrk-ink.
-        ASSIGN
-            wrk-ink.i-code   = job-mat.i-no
-            wrk-ink.form-no  = xeb.form-no
-            wrk-ink.blank-no = xeb.blank-no
-            wrk-ink.i-dscr   = item.est-dscr
-            wrk-ink.i-unit   = 0 
-            wrk-ink.i-pass   = 1.
-    END.
-
-    IF AVAILABLE wrk-ink THEN 
-        wrk-ink.i-qty = wrk-ink.i-qty + job-mat.qty.
 END. /* JOB-MAT */
 
-            
 j = 0 . 
 FOR EACH wrk-ink NO-LOCK:
     j = j + 1   .

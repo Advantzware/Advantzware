@@ -68,7 +68,7 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-33 imItemLookup 
+&Scoped-Define ENABLED-OBJECTS imItemLookup 
 &Scoped-Define DISPLAYED-OBJECTS cbFGItem fiFGItem fiFGItemName 
 
 /* Custom List Definitions                                              */
@@ -84,42 +84,38 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE cbFGItem AS CHARACTER FORMAT "X(256)":U 
-     LABEL "FG Item #" 
+     LABEL "FG ITEM" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      DROP-DOWN-LIST
      SIZE 59.6 BY 1
-     FONT 36 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiFGItem AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 59.6 BY 1.29 NO-UNDO.
+     SIZE 59.6 BY 1.67
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiFGItemName AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 75 BY 1.29 NO-UNDO.
+     SIZE 77 BY 1.29 NO-UNDO.
 
 DEFINE IMAGE imItemLookup
-     FILENAME "Graphics/32x32/magnifying_glass.ico":U
+     FILENAME "Graphics/32x32/search_new.png":U
      STRETCH-TO-FIT RETAIN-SHAPE
      SIZE 5.4 BY 1.29.
-
-DEFINE RECTANGLE RECT-33
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 85 BY 3.52.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     cbFGItem AT ROW 1.67 COL 16.6 COLON-ALIGNED WIDGET-ID 170
-     fiFGItem AT ROW 1.67 COL 16.6 COLON-ALIGNED NO-LABEL WIDGET-ID 180
-     fiFGItemName AT ROW 3.24 COL 3.2 NO-LABEL WIDGET-ID 176
-     RECT-33 AT ROW 1.24 COL 1 WIDGET-ID 178
-     imItemLookup AT ROW 1.62 COL 78.8 WIDGET-ID 182
+     cbFGItem AT ROW 1.24 COL 16.8 COLON-ALIGNED WIDGET-ID 170
+     fiFGItem AT ROW 1.24 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 180
+     fiFGItemName AT ROW 3.14 COL 2 NO-LABEL WIDGET-ID 176
+     imItemLookup AT ROW 1.38 COL 78.6 WIDGET-ID 182
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15 FONT 36 WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -210,7 +206,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME cbFGItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbFGItem s-object
-ON VALUE-CHANGED OF cbFGItem IN FRAME F-Main /* FG Item # */
+ON VALUE-CHANGED OF cbFGItem IN FRAME F-Main /* FG ITEM */
 DO:
     DEFINE VARIABLE lValidItem AS LOGICAL NO-UNDO.
 
@@ -401,9 +397,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy s-object 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable s-object
-PROCEDURE local-enable:
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-HANDLE(hdJobProcs) THEN
+    DELETE PROCEDURE hdJobProcs.
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable s-object 
+PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -419,11 +435,9 @@ PROCEDURE local-enable:
     RUN pInit.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE No-Resize s-object 
 PROCEDURE No-Resize :
@@ -474,6 +488,26 @@ PROCEDURE pUpdateFGItemName PRIVATE :
     
     fiFGItemName:SCREEN-VALUE = oItemFG:GetValue("ItemName").
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset s-object 
+PROCEDURE Reset :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        fiFGItem:SCREEN-VALUE = ""
+        cbFGItem:LIST-ITEMS   = ""
+        cbFGItem:SCREEN-VALUE = ""
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

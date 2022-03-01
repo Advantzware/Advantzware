@@ -88,8 +88,7 @@ APIOutboundDetail.parentID
 &Scoped-define ENABLED-TABLES APIOutboundDetail
 &Scoped-define FIRST-ENABLED-TABLE APIOutboundDetail
 &Scoped-Define ENABLED-OBJECTS edData 
-&Scoped-Define DISPLAYED-FIELDS APIOutboundDetail.apiID ~
-APIOutboundDetail.clientID APIOutboundDetail.detailID ~
+&Scoped-Define DISPLAYED-FIELDS APIOutboundDetail.detailID ~
 APIOutboundDetail.parentID 
 &Scoped-define DISPLAYED-TABLES APIOutboundDetail
 &Scoped-define FIRST-DISPLAYED-TABLE APIOutboundDetail
@@ -97,8 +96,6 @@ APIOutboundDetail.parentID
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
-&Scoped-define ADM-ASSIGN-FIELDS APIOutboundDetail.apiID ~
-APIOutboundDetail.clientID 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -132,39 +129,30 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE edData AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 101 BY 4
+     SIZE 101 BY 4.05
      BGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 116 BY 10.24.
+     SIZE 116 BY 6.43.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     APIOutboundDetail.apiID AT ROW 1.24 COL 13 COLON-ALIGNED WIDGET-ID 2
-          LABEL "API ID" FORMAT "x(32)"
-          VIEW-AS FILL-IN 
-          SIZE 40.4 BY 1
-          BGCOLOR 3 FGCOLOR 15 
-     APIOutboundDetail.clientID AT ROW 1.24 COL 73 COLON-ALIGNED WIDGET-ID 14
-          VIEW-AS FILL-IN 
-          SIZE 40.4 BY 1
-          BGCOLOR 3 FGCOLOR 15 
-     APIOutboundDetail.detailID AT ROW 3.14 COL 13 COLON-ALIGNED WIDGET-ID 4
+     APIOutboundDetail.detailID AT ROW 1.48 COL 12 COLON-ALIGNED WIDGET-ID 4
           LABEL "Detail ID" FORMAT "x(32)"
           VIEW-AS FILL-IN 
           SIZE 40.4 BY 1
           BGCOLOR 15 
-     APIOutboundDetail.parentID AT ROW 5.1 COL 13.2 COLON-ALIGNED WIDGET-ID 6
+     APIOutboundDetail.parentID AT ROW 1.48 COL 73 COLON-ALIGNED WIDGET-ID 6
           LABEL "Parent ID" FORMAT "x(32)"
           VIEW-AS FILL-IN 
           SIZE 40.4 BY 1
           BGCOLOR 15 
-     edData AT ROW 6.95 COL 15 NO-LABEL WIDGET-ID 8 NO-TAB-STOP 
+     edData AT ROW 2.91 COL 14 NO-LABEL WIDGET-ID 8 NO-TAB-STOP 
      "Data:" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 6.95 COL 8 WIDGET-ID 10
+          SIZE 7 BY .62 AT ROW 2.91 COL 7 WIDGET-ID 10
      RECT-6 AT ROW 1 COL 1 WIDGET-ID 12
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -227,13 +215,6 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN APIOutboundDetail.apiID IN FRAME F-Main
-   NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
-ASSIGN 
-       APIOutboundDetail.apiID:READ-ONLY IN FRAME F-Main        = TRUE.
-
-/* SETTINGS FOR FILL-IN APIOutboundDetail.clientID IN FRAME F-Main
-   NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN APIOutboundDetail.detailID IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 ASSIGN 
@@ -655,12 +636,6 @@ PROCEDURE pSetDefaults :
    END.
 
    edData:SCREEN-VALUE = "".
-   
-   IF AVAILABLE APIOutbound THEN
-       ASSIGN
-           APIOutboundDetail.apiID:SCREEN-VALUE    = APIOutbound.apiID
-           APIOutboundDetail.clientID:SCREEN-VALUE = APIOutbound.clientID
-           .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -680,6 +655,8 @@ PROCEDURE pUpdateFields :
         ASSIGN
             APIOutboundDetail.company       = APIOutbound.company
             APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID
+            APIOutboundDetail.apiID         = APIOutbound.apiID
+            APIOutboundDetail.clientID      = APIOutbound.clientID
             APIOutboundDetail.data          = edData:SCREEN-VALUE
             .
 END PROCEDURE.

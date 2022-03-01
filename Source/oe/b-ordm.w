@@ -695,7 +695,7 @@ PROCEDURE create-invoice :
                                  THEN shipto.tax-code ELSE oe-ord.tax-gr
          inv-head.tot-ord      = 0
          inv-head.inv-no       = 0
-         inv-head.stat         = ""
+         inv-head.stat         = IF cust.inv-meth EQ ? THEN "H" ELSE ""
          inv-head.deleted      = NO
          inv-head.posted       = NO
          inv-head.inv-date     = TODAY
@@ -942,7 +942,7 @@ END.
       USE-INDEX cust  NO-ERROR.
       
   IF (oe-ordm.bill NE "N" AND ld-prev-amt NE oe-ordm.amt)
-       AND AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
+       AND AVAIL cust AND NOT cust.internal AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
     RUN oe/creditck.p (ROWID(oe-ord), YES).
   
   /* create reftable for prep */
@@ -1109,7 +1109,7 @@ PROCEDURE local-delete-record :
       WHERE cust.company EQ cocode
         AND cust.cust-no EQ oe-ord.cust-no
       USE-INDEX cust  NO-ERROR.
-  IF AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
+  IF AVAIL cust AND NOT cust.internal AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
     RUN oe/creditck.p (ROWID(oe-ord), YES).
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
   
@@ -1228,7 +1228,7 @@ PROCEDURE local-update-record :
       WHERE cust.company EQ cocode
         AND cust.cust-no EQ oe-ord.cust-no
       USE-INDEX cust  NO-ERROR.
-  IF AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
+  IF AVAIL cust AND NOT cust.internal AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
       RUN oe/creditck.p (ROWID(oe-ord), YES).
         
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).

@@ -5,6 +5,11 @@
 
 DEFINE VARIABLE cSessionValue AS CHARACTER NO-UNDO.
 
+&Scoped-define sysCtrlIncludeOnly
+{sys/ref/sys-ctrl.i}
+
+{util/ttImport.i}
+
 /* **********************  Internal Functions  ************************ */
 
 FUNCTION sfGetUserControlFieldValue RETURNS CHARACTER PRIVATE
@@ -89,6 +94,25 @@ PROCEDURE dynInitEstTypeID:
     RETURN cSessionValue.
 END PROCEDURE.
 
+PROCEDURE dynInitFormFormat:
+    cSessionValue = str-init[LOOKUP("INVPRINT",name-fld-list)].
+    RETURN cSessionValue.
+END PROCEDURE.
+
+PROCEDURE dynInitImportType:
+    DEFINE VARIABLE cTypes AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
+
+    DO idx = 1 TO NUM-ENTRIES(gcTypeLabels):
+        cTypes = cTypes
+               + ENTRY(idx,gcTypeLabels) + ","
+               + ENTRY(idx,gcTypePrograms) + ","
+               .
+    END.
+    cTypes = TRIM(cTypes,",").
+    RETURN cTypes.
+END PROCEDURE.
+
 PROCEDURE dynInitItemType:
     RUN spGetSessionParam ("ItemType", OUTPUT cSessionValue).
     IF cSessionValue EQ "" THEN
@@ -107,6 +131,18 @@ END PROCEDURE.
 
 PROCEDURE dynInitMaxSessionPerUser:
     RETURN sfGetUserControlFieldValue ("MaxSessionPerUser").
+END PROCEDURE.
+
+PROCEDURE dynInitNK1AutoPDC:
+    DEFINE VARIABLE cAutoPDC AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAutoPDC AS LOGICAL   NO-UNDO.
+
+    RUN spGetSessionParam ("Company", OUTPUT cSessionValue).
+    RUN sys/ref/nk1look.p (
+        cSessionValue,"AutoPDC","C",NO,NO,"","",
+        OUTPUT cAutoPDC, OUTPUT lAutoPDC
+        ).
+    RETURN cAutoPDC.
 END PROCEDURE.
 
 PROCEDURE dynInitNO:

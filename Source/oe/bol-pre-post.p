@@ -12,6 +12,11 @@ DEF VAR li AS INT NO-UNDO.
 DEF VAR v-tag2 AS CHAR NO-UNDO.
 DEFINE VARIABLE riRowId AS ROWID NO-UNDO.
 DEFINE VARIABLE lFGBOLTransferPost AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lBOLTransferAutoPost AS LOGICAL NO-UNDO.
+DEFINE VARIABLE oSetting  AS system.Setting        NO-UNDO.
+oSetting  = NEW system.Setting().
+
+oSetting:LoadByCategoryAndProgram("PrintBol").
 
 {pc/pcprdd4u.i NEW}
 {fg/invrecpt.i NEW}   
@@ -29,9 +34,9 @@ FUNCTION fGetBOLTransferPost RETURNS LOGICAL PRIVATE
 FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
     FIRST oe-bolh
     WHERE oe-bolh.b-no EQ oe-boll.b-no
-      AND CAN-FIND(FIRST b-oe-boll
-                   WHERE b-oe-boll.b-no EQ oe-bolh.b-no
-                     AND b-oe-boll.qty  NE 0),
+      /*AND CAN-FIND(FIRST b-oe-boll                       */ /* Ticket 102615*/
+      /*             WHERE b-oe-boll.b-no EQ oe-bolh.b-no  */
+      /*               AND b-oe-boll.qty  NE 0)            */,
     FIRST cust NO-LOCK
     WHERE cust.company EQ oe-bolh.company
       AND cust.cust-no EQ oe-bolh.cust-no,
@@ -211,6 +216,8 @@ FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
   {oe/seq-bolh.i}
 END.
 
+IF VALID-OBJECT (oSetting) THEN
+        DELETE OBJECT oSetting.
 
 PROCEDURE pAutoPostTransferTransaction:
     /*------------------------------------------------------------------------------
@@ -226,8 +233,10 @@ PROCEDURE pAutoPostTransferTransaction:
     DEFINE VARIABLE hInventoryProcs    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lActiveBin         AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lPromptForClose    AS LOGICAL   NO-UNDO INITIAL YES.   
-        
-    IF lFGBOLTransferPost THEN
+    
+    lBOLTransferAutoPost = LOGICAL(oSetting:GetByName("BOLTransferAutoPost")).    
+    
+    IF lFGBOLTransferPost OR lBOLTransferAutoPost THEN
     DO: 
         FOR EACH fg-rctd NO-LOCK
             WHERE fg-rctd.company EQ ipcCompany 
@@ -262,7 +271,7 @@ FUNCTION fGetBOLTransferPost RETURNS LOGICAL PRIVATE
     /*------------------------------------------------------------------------------
      Purpose:  return Nk1 value 
      Notes:
-    ------------------------------------------------------------------------------*/	
+    ------------------------------------------------------------------------------*/    
     DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lRecordFound AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cReturnChar AS LOGICAL NO-UNDO. 
@@ -272,5 +281,5 @@ FUNCTION fGetBOLTransferPost RETURNS LOGICAL PRIVATE
         lReturnValue = LOGICAL(cReturnChar).
     
     RETURN lReturnValue.
-    		
+            
 END FUNCTION.

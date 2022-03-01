@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+USING system.SharedConfig.
 
 CREATE WIDGET-POOL.
 
@@ -77,6 +78,11 @@ DEFINE VARIABLE cRetChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE dTotalFreight AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iFreightCalculationValue AS INTEGER NO-UNDO.
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
+DEFINE VARIABLE hFreightProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lBOLHideBillableFreight AS LOGICAL     NO-UNDO.
+
+RUN system/FreightProcs.p PERSISTENT SET hFreightProcs.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -88,7 +94,13 @@ RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "I" /* Logical */, NO
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cRetChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    iFreightCalculationValue = INTEGER(cRetChar) NO-ERROR.    
+    iFreightCalculationValue = INTEGER(cRetChar) NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "BOLHideBillableFreight", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRetChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBOLHideBillableFreight = LOGICAL(cRetChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -632,6 +644,7 @@ DO:
               RUN windows/l-loc.w (g_company, oe-bolh.loc:screen-value IN FRAME {&frame-name}, OUTPUT char-val).
               IF char-val <> "" THEN DO:
                 FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
+                RUN new-loc.
               END.
          END.
 
@@ -700,6 +713,18 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-loc( OUTPUT lReturnError) NO-ERROR.
     IF lReturnError THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME oe-bolh.loc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.loc V-table-Win
+ON VALUE-CHANGED OF oe-bolh.loc IN FRAME F-Main /* loc */
+DO:    
+  IF LASTKEY NE -1 THEN DO:
+    RUN new-loc.
   END.
 END.
 
@@ -986,13 +1011,32 @@ END.
 ON VALUE-CHANGED OF oe-bolh.cwt IN FRAME F-Main /* Rate/100 Wt */
 DO:
   RUN pCalcFrtForce.
+  RUN calc-freight.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.tot-wt V-table-Win
+ON VALUE-CHANGED OF oe-bolh.tot-wt IN FRAME F-Main /* Total Weight */
+DO:  
+  RUN calc-freight.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.tot-pallets V-table-Win
+ON VALUE-CHANGED OF oe-bolh.tot-pallets IN FRAME F-Main /* Total Pallet */
+DO:  
+  RUN calc-freight.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -1008,7 +1052,12 @@ FOR EACH cust NO-LOCK
   lv-cust-x = cust.cust-no.
   LEAVE.
 END.
-
+IF lBOLHideBillableFreight THEN
+    ASSIGN
+        dBillableFreight:SENSITIVE = NO
+        dBillableFreight:HIDDEN = YES
+        dBillableFreight:VISIBLE = NO.
+    
 RUN sbo/oerel-recalc-act.p PERSISTENT SET lr-rel-lib.
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -1094,17 +1143,32 @@ DEF VAR ldMinRate AS DEC NO-UNDO.
 /*                    oe-bolh.cust-no:SCREEN-VALUE, */
 /*                    oe-bolh.ship-id:SCREEN-VALUE, */
 /*                    oe-bolh.carrier:SCREEN-VALUE, */
-/*                    OUTPUT ld ).                  */
+/*                    OUTPUT ld ).                  */   
+
+        scInstance = SharedConfig:instance.
+        scInstance:SetValue("BolScreenValueOfLocation",TRIM(oe-bolh.loc:SCREEN-VALUE)).
+        scInstance:SetValue("BolScreenValueOfCarrier",TRIM(oe-bolh.carrier:SCREEN-VALUE)).
+        scInstance:SetValue("BolScreenValueOfRate",TRIM(oe-bolh.cwt:SCREEN-VALUE)).
+        scInstance:SetValue("BolScreenValueOfWeight",TRIM(oe-bolh.tot-wt:SCREEN-VALUE)).
+        
         IF NOT lFreightEntered AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN
         DO:          
             RUN oe/calcBolFrt.p (ROWID(oe-bolh), YES, OUTPUT ld).
             oe-bolh.freight:SCREEN-VALUE = STRING(ld).
             oe-bolh.freightCalculationAmount:SCREEN-VALUE = STRING(ld).
+            oe-bolh.tot-pallets:SCREEN-VALUE = STRING(oe-bolh.tot-pallets).
         END.
         ELSE DO:   
            RUN oe/calcBolFrt.p (ROWID(oe-bolh), NO, OUTPUT ld).  
            oe-bolh.freightCalculationAmount:SCREEN-VALUE = STRING(ld).
+           oe-bolh.tot-pallets:SCREEN-VALUE = STRING(oe-bolh.tot-pallets).
         END.
+        
+        scInstance = SharedConfig:instance.
+        scInstance:DeleteValue(INPUT "BolScreenValueOfLocation").
+        scInstance:DeleteValue(INPUT "BolScreenValueOfCarrier").
+        scInstance:DeleteValue(INPUT "BolScreenValueOfRate").
+        scInstance:DeleteValue(INPUT "BolScreenValueOfWeight").
       END.
       ELSE DO: 
         FIND CURRENT oe-bolh.
@@ -1588,6 +1652,9 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE old-loc AS CHARACTER NO-UNDO.
   DEFINE VARIABLE dNewCwt AS DECIMAL NO-UNDO.
   DEFINE VARIABLE dOldCwt AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE dtOldBolDate AS DATE NO-UNDO.
   
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
@@ -1601,7 +1668,8 @@ PROCEDURE local-assign-record :
    old-carrier = oe-bolh.carrier
    old-shipid  = oe-bolh.ship-id
    old-loc     = oe-bolh.loc
-   dOldCwt     = oe-bolh.cwt.
+   dOldCwt     = oe-bolh.cwt
+   dtOldBolDate = oe-bolh.bol-date.
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -1661,7 +1729,16 @@ PROCEDURE local-assign-record :
       END.
     END.
   END.
-
+  
+  IF dtOldBolDate NE oe-bolh.bol-date AND NOT adm-new-record THEN
+  DO:
+       MESSAGE "Update BOL lines date" 
+               VIEW-AS ALERT-BOX QUESTION 
+               BUTTONS OK-CANCEL UPDATE lcheckflg AS LOGICAL .
+       IF lcheckflg THEN          
+       RUN pUpdateLineBolDate.
+  END.
+  
   IF (old-carrier NE new-carrier OR old-shipid NE new-shipid OR 
       new-loc NE new-loc OR (dOldCwt NE dNewCwt ) )
       THEN DO:
@@ -1689,8 +1766,12 @@ PROCEDURE local-assign-record :
   END.
 
   IF old-freight NE new-freight THEN DO:
-/* Task 04171407 - was to no longer update line items when header freight is updated, reinstating this 09161402 */   
+/* Task 04171407 - was to no longer update line items when header freight is updated, reinstating this 09161402 */
+        IF cFreightCalculationValue NE "ALL" THEN
+        RUN ProrateFreightAcrossBOLLines IN hFreightProcs(INPUT ROWID(oe-bolh), INPUT oe-bolh.freight, OUTPUT lError, OUTPUT cMessage).
+        ELSE
         RUN oe/bolfrteq.p (BUFFER oe-bolh, new-freight, old-freight).
+        
         RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'container-source':U,OUTPUT char-hdl).
         hContainer = HANDLE(char-hdl).
         IF VALID-HANDLE(hContainer) THEN
@@ -1877,9 +1958,9 @@ PROCEDURE local-destroy :
      DELETE OBJECT lr-rel-lib.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
-
+   
   /* Code placed here will execute AFTER standard behavior.    */
-
+  DELETE OBJECT hFreightProcs.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2214,7 +2295,7 @@ PROCEDURE new-carrier :
   DO WITH FRAME {&FRAME-NAME}:
     FIND carrier
         WHERE carrier.company EQ g_company
-          AND carrier.loc     EQ g_loc                       
+          AND carrier.loc     EQ oe-bolh.loc:SCREEN-VALUE                      
           AND carrier.carrier EQ oe-bolh.carrier:SCREEN-VALUE
         NO-LOCK NO-ERROR.
         
@@ -2226,6 +2307,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-loc V-table-Win 
+PROCEDURE new-loc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:  
+    FIND FIRST loc NO-LOCK
+         WHERE loc.company = g_company
+         AND loc.loc = oe-bolh.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-ERROR.
+    IF AVAIL loc THEN DO:
+      RUN new-carrier.
+    END.                                       
+  END.                             
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-cust-no V-table-Win 
 PROCEDURE new-cust-no :
@@ -2321,7 +2426,7 @@ PROCEDURE release-update :
     IF oe-bolh.stat EQ "H" THEN
       ASSIGN
        oe-bolh.stat = "R"
-       oe-bolh.printed = YES.
+       oe-bolh.printed = NO.
 
     ELSE ASSIGN oe-bolh.stat = "H"
                 oe-bolh.printed = NO.
@@ -2428,6 +2533,27 @@ PROCEDURE pCalcFrtForce :
           
       END.          
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateLineBolDate V-table-Win 
+PROCEDURE pUpdateLineBolDate :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-oe-boll FOR oe-boll.
+    
+    IF AVAILABLE oe-bolh THEN
+    FOR EACH bf-oe-boll EXCLUSIVE-LOCK
+        WHERE bf-oe-boll.company EQ oe-bolh.company 
+        AND bf-oe-boll.b-no EQ oe-bolh.b-no:
+        ASSIGN
+          bf-oe-boll.bol-date = oe-bolh.bol-date.
+    END.
+    RELEASE bf-oe-boll.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

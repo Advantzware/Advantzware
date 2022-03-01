@@ -499,7 +499,7 @@ DEFINE BROWSE BROWSE-1
     oe-ordl.line FORMAT ">>99":U
     get-cost() @ ld-cost COLUMN-LABEL "Invoice Line Cost" WIDTH 24 
     get-cost-uom() @ ld-cost-uom COLUMN-LABEL "Cost!UOM"
-    oe-ordl.po-no-po FORMAT ">>>>>9":U
+    oe-ordl.po-no-po FORMAT ">>>>>>>9":U
     get-last-shipto() @ v-last-shipto COLUMN-LABEL "Last!ShipTo" FORMAT "x(8)":U
     get-act-bol-qty() @ li-act-bol-qty COLUMN-LABEL "Act. BOL!Qty" FORMAT "->>,>>>,>>>":U
     WIDTH 15.4    

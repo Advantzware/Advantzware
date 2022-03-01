@@ -21,6 +21,7 @@ DEFINE VARIABLE cRoundMethodUp   AS CHARACTER NO-UNDO INITIAL "ROUNDUP".
 DEFINE VARIABLE cRoundMethodDown AS CHARACTER NO-UNDO INITIAL "ROUNDDOWN".
 DEFINE VARIABLE cCalcMethod      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalcMethodAPI   AS CHARACTER NO-UNDO INITIAL "API".
+DEFINE VARIABLE lVertex          AS LOGICAL   NO-UNDO INITIAL ?.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -62,7 +63,7 @@ PROCEDURE pCalculateForInvHeadChild PRIVATE:
         DO:
             RUN pCalculate (
                 INPUT  ipbf-inv-head.company,
-                INPUT  ipbf-inv-head.tax-gr,
+                INPUT  (IF bf-inv-line.taxGroup NE "" THEN bf-inv-line.taxGroup ELSE ipbf-inv-head.tax-gr),
                 INPUT  FALSE,   /* Is this freight */
                 INPUT  bf-inv-line.t-price,
                 INPUT  ipbf-inv-head.cust-no,
@@ -85,11 +86,11 @@ PROCEDURE pCalculateForInvHeadChild PRIVATE:
         AND bf-inv-misc.bill    EQ "Y":     
         opdInvoiceSubTotal = opdInvoiceSubTotal + bf-inv-misc.amt.
 
-        IF ipbf-inv-head.tax-gr NE "" AND bf-inv-misc.tax THEN 
+        IF bf-inv-misc.spare-char-1 NE "" AND bf-inv-misc.tax THEN 
         DO:
             RUN pCalculate (
                 INPUT  ipbf-inv-head.company,
-                INPUT  ipbf-inv-head.tax-gr,
+                INPUT  bf-inv-misc.spare-char-1,
                 INPUT  FALSE,   /* Is this freight */
                 INPUT  bf-inv-misc.amt,
                 INPUT  ipbf-inv-head.cust-no,
@@ -175,6 +176,20 @@ PROCEDURE pGetTotalTaxRoundedByLine PRIVATE:
                 opdTaxTotal                  = opdTaxTotal + dLineTax
                 .
     END.
+END PROCEDURE.
+
+PROCEDURE pIsVertexActive PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplActive AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cSettingValue AS CHARACTER NO-UNDO.
+    
+    RUN spGetSettingByName ("Vertex", OUTPUT cSettingValue).
+    
+    oplActive = cSettingValue EQ "YES".
 END PROCEDURE.
 
 PROCEDURE pPopulateTaxAccount PRIVATE:
@@ -621,10 +636,16 @@ PROCEDURE pGetTaxable PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-itemfg FOR itemfg.
     DEFINE OUTPUT PARAMETER oplTaxable AS LOGICAL NO-UNDO.
     
+    DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lTaxableCust   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lTaxableShipTo AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lTaxableFGItem AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cTaxGroup      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lMatchFound    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMatchDetail   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iTaxBasis      AS INTEGER   NO-UNDO.
+    
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
     
     IF AVAILABLE ipbf-cust THEN
         ASSIGN 
@@ -640,6 +661,17 @@ PROCEDURE pGetTaxable PRIVATE:
         ASSIGN 
             lTaxableFGItem = ipbf-itemfg.taxable
             .
+            
+    RUN Price_GetPriceMatrixTaxBasis (
+        INPUT  cCompany,
+        INPUT  IF AVAILABLE ipbf-itemfg THEN ipbf-itemfg.i-no ELSE "",
+        INPUT  IF AVAILABLE ipbf-cust THEN ipbf-cust.cust-no ELSE "",
+        INPUT  IF AVAILABLE ipbf-shipto THEN ipbf-shipto.ship-id ELSE "",
+        OUTPUT lMatchFound,
+        OUTPUT cMatchDetail,
+        OUTPUT iTaxBasis
+        ).
+                    
     RUN pGetTaxGroup(BUFFER ipbf-cust, BUFFER ipbf-shipto, OUTPUT cTaxGroup).
     
     /*old logic*/    
@@ -648,14 +680,26 @@ PROCEDURE pGetTaxable PRIVATE:
     /*        oplTaxable = lTaxableShipTo.                                 */
     
     /*new logic - 35645*/
-    IF AVAILABLE ipbf-itemfg AND AVAILABLE ipbf-shipto THEN 
+    IF lMatchFound AND iTaxBasis NE 0 THEN /* 0 - Default tax */ DO:
+        oplTaxable = iTaxBasis EQ 1. /* 1 - Force Tax, 2 - Force No Tax */
+        system.SharedConfig:Instance:SetValue("Tax-Source", IF opltaxable THEN "Price Matrix Tax Forced" ELSE "Price Matrix No Tax (Forced)").
+    END.
+    ELSE IF AVAILABLE ipbf-itemfg AND AVAILABLE ipbf-shipto THEN DO:
         oplTaxable = lTaxableFGItem AND lTaxableShipTo.
-    ELSE IF AVAILABLE ipbf-itemfg AND NOT AVAILABLE ipbf-shipto THEN
-            oplTaxable = lTaxableFGItem AND lTaxableCust.
-        ELSE IF AVAILABLE ipbf-shipto AND NOT AVAILABLE ipbf-itemfg THEN  
-                oplTaxable = lTaxableShipto.
-            ELSE 
-                oplTaxable = lTaxableCust.
+        system.SharedConfig:Instance:SetValue("Tax-Source", "FGItem and Shipto Tax").
+    END.
+    ELSE IF AVAILABLE ipbf-itemfg AND NOT AVAILABLE ipbf-shipto THEN DO:
+        oplTaxable = lTaxableFGItem AND lTaxableCust.
+        system.SharedConfig:Instance:SetValue("Tax-Source", "FGItem and Customer Tax").
+    END.
+    ELSE IF AVAILABLE ipbf-shipto AND NOT AVAILABLE ipbf-itemfg THEN DO:
+        oplTaxable = lTaxableShipto.
+        system.SharedConfig:Instance:SetValue("Tax-Source", "Shipto Tax").
+    END.
+    ELSE DO:
+        oplTaxable = lTaxableCust.
+        system.SharedConfig:Instance:SetValue("Tax-Source", "Customer Tax").
+    END.
                     
 
 END PROCEDURE.
@@ -857,11 +901,10 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
     DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.
     DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hdVertexProcs AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE lSuccess      AS LOGICAL NO-UNDO.
 
-    DEFINE VARIABLE hdVertexProcs AS HANDLE NO-UNDO.
-    
-    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
-    
     DEFINE BUFFER bf-inv-head FOR inv-head.
     
     FIND FIRST bf-inv-head NO-LOCK 
@@ -889,6 +932,17 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
         RETURN.
     END.
 
+    IF lVertex EQ ? THEN
+        RUN pIsVertexActive(OUTPUT lVertex).
+
+    IF NOT lVertex THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "NK6 setting 'Vertex' is not active"
+            .
+        RETURN.    
+    END.
+
     RUN system/VertexProcs.p PERSISTENT SET hdVertexProcs.
     
     RUN Vertex_CalculateTaxForInvHead IN hdVertexProcs (
@@ -905,8 +959,11 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
         OUTPUT opcMessage    
         ).
     oplError = NOT lSuccess. /* Vertex still sends success flag rather than error flag */    
-    
-    DELETE PROCEDURE hdVertexProcs.    
+
+    FINALLY:
+        IF VALID-HANDLE (hdVertexProcs) THEN
+            DELETE PROCEDURE hdVertexProcs.    
+    END FINALLY.    
 END PROCEDURE.
 
 PROCEDURE pAPICalculateForArInv PRIVATE:
@@ -926,9 +983,9 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
     DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE lSuccess      AS LOGICAL NO-UNDO.
     DEFINE VARIABLE hdVertexProcs AS HANDLE  NO-UNDO.
-    
+    DEFINE VARIABLE lSuccess      AS LOGICAL NO-UNDO.
+
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
     
     FIND FIRST bf-ar-inv NO-LOCK 
@@ -955,7 +1012,18 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
             .
         RETURN.
     END.
-    
+
+    IF lVertex EQ ? THEN
+        RUN pIsVertexActive(OUTPUT lVertex).
+
+    IF NOT lVertex THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "NK6 setting 'Vertex' is not active"
+            .
+        RETURN.    
+    END.
+        
     RUN system/VertexProcs.p PERSISTENT SET hdVertexProcs.
     
     RUN Vertex_CalculateTaxForArInv IN hdVertexProcs (
@@ -973,7 +1041,10 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
         ).
     oplError = NOT lSuccess. /* Vertex still sends success flag rather than error flag */
     
-    DELETE PROCEDURE hdVertexProcs.
+    FINALLY:
+        IF VALID-HANDLE (hdVertexProcs) THEN 
+            DELETE PROCEDURE hdVertexProcs.    
+    END FINALLY. 
 END PROCEDURE.
 
 PROCEDURE pCalculateForInvHead PRIVATE:
@@ -1314,7 +1385,7 @@ PROCEDURE pCalculateForArInv PRIVATE:
         IF bf-ar-inv.tax-code NE "" AND bf-ar-invl.tax THEN DO:
             RUN pCalculate (
                 INPUT  bf-ar-inv.company,
-                INPUT  bf-ar-inv.tax-code,
+                INPUT  (IF bf-ar-invl.taxGroup NE "" THEN bf-ar-invl.taxGroup ELSE bf-ar-inv.tax-code),
                 INPUT  FALSE,   /* Is this freight */
                 INPUT  bf-ar-invl.amt,
                 INPUT  bf-ar-inv.cust-no,
@@ -1332,7 +1403,7 @@ PROCEDURE pCalculateForArInv PRIVATE:
             IF bf-ar-inv.f-bill THEN DO:
                 RUN pCalculate (
                     INPUT  bf-ar-invl.company,
-                    INPUT  bf-ar-inv.tax-code,
+                    INPUT  (IF bf-ar-invl.taxGroup NE "" THEN bf-ar-invl.taxGroup ELSE bf-ar-inv.tax-code),
                     INPUT  TRUE,   /* Is this freight */
                     INPUT  bf-ar-invl.t-freight,
                     INPUT  bf-ar-inv.cust-no,

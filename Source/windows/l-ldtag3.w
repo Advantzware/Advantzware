@@ -179,10 +179,10 @@ DEFINE BROWSE BROWSE-1
       tt-loadtag.i-name FORMAT "x(30)":U
       tt-loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U
       tt-loadtag.job-no2 COLUMN-LABEL "" FORMAT ">9":U
-      tt-loadtag.loc FORMAT "x(5)":U
+      tt-loadtag.loc COLUMN-LABEL "Location" FORMAT "x(5)":U
       tt-loadtag.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       tt-loadtag.ord-no FORMAT ">>>>>9":U
-      tt-loadtag.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>9":U
+      tt-loadtag.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>>>9":U
       tt-loadtag.qty COLUMN-LABEL "Qty" FORMAT "->>>>>>9.9<<":U
       tt-loadtag.qty-case FORMAT "->,>>>,>>9":U
       tt-loadtag.pallet-count FORMAT "->,>>>,>>9":U

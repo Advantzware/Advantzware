@@ -29,6 +29,7 @@ DEFINE VARIABLE cShipId AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dtEffectiveDate AS DATE NO-UNDO.
 DEFINE VARIABLE cCustType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustCompareValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPriceMatrixPricingMethod AS CHARACTER NO-UNDO.
 RUN util/updQuoteProcs.p PERSISTENT SET hdupdQuoteProcs.
 RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
@@ -50,7 +51,13 @@ RUN sys/ref/nk1look.p (INPUT cocode, "QuoteExpireDuplicates", "L" /* Logical */,
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    lQuoteExpireDuplicates = logical(cRtnChar) NO-ERROR.   
+    lQuoteExpireDuplicates = logical(cRtnChar) NO-ERROR.  
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "PriceMatrixPricingMethod", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cPriceMatrixPricingMethod = cRtnChar NO-ERROR.    
 
 IF PROGRAM-NAME(2) MATCHES "*vp-prmtx.*" OR PROGRAM-NAME(2) MATCHES "*ImportQuote.*" THEN
 DO:
@@ -153,13 +160,14 @@ IF AVAIL quotehd THEN DO:
        quotehd.approved = YES
        quotehd.expireDate = 12/31/2099.
        IF dtEffectiveDate EQ ? THEN
-       quotehd.effectiveDate = TODAY.
-       RUN unApprovedDuplicateQuote IN hdQuoteProcs (ROWID(quotehd),quoteitm.part-no,quoteitm.i-no). 
+       quotehd.effectiveDate = TODAY.       
+       RUN unApprovedDuplicateQuote IN hdQuoteProcs (ROWID(quotehd),quoteitm.part-no,quoteitm.i-no).
+       
     END.   
     FIND CURRENT quotehd NO-LOCK NO-ERROR. 
      
-    IF lQuoteExpireDuplicates THEN
-    RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(quoteitm), quotehd.quo-date - 1) .
+    //IF lQuoteExpireDuplicates THEN
+    //RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(quoteitm), quotehd.effectiveDate - 1) .
      
   END.
 END.
@@ -182,7 +190,7 @@ PROCEDURE update-matrix.
         AND oe-prmtx.custShipID         EQ cShipId 
         AND oe-prmtx.procat             EQ itemfg.procat 
         AND oe-prmtx.custype            EQ cCustType
-        AND (oe-prmtx.eff-date          EQ dtEffectiveDate OR oe-prmtx.eff-date EQ TODAY)        
+        AND (oe-prmtx.eff-date          EQ dtEffectiveDate )        
       BY oe-prmtx.eff-date DESC:
     LEAVE.
   END.
@@ -246,8 +254,11 @@ PROCEDURE update-matrix.
   FOR EACH b-matrix BY b-matrix.qty:
     FOR EACH w-matrix
         WHERE w-matrix.qty GE b-matrix.qty
-          AND (w-matrix.price-m GE b-matrix.price-m OR
-               w-matrix.qty EQ b-matrix.qty)
+          AND w-matrix.qty EQ b-matrix.qty
+          AND w-matrix.price-m EQ b-matrix.price-m
+/* #103075 Remove logic to filter multiple diff-qty/same-price records */          
+/*          AND (w-matrix.price-m GT b-matrix.price-m OR*/
+/*               w-matrix.qty EQ b-matrix.qty)          */
           AND ROWID(w-matrix) NE ROWID(b-matrix):
       DELETE w-matrix.
     END.
@@ -262,7 +273,10 @@ PROCEDURE update-matrix.
   FOR EACH w-matrix WHERE w-matrix.qty LE 0:
     DELETE w-matrix.
   END.
-
+  
+  IF cPriceMatrixPricingMethod EQ "From" AND lQuotePriceMatrix THEN
+  oe-prmtx.qty = 0.
+  ELSE
   FOR EACH w-matrix BREAK BY w-matrix.qty:
     IF LAST(w-matrix.qty) THEN DO:
       CREATE b-matrix.
@@ -281,6 +295,16 @@ PROCEDURE update-matrix.
        oe-prmtx.uom[li]  = w-matrix.uom
        oe-prmtx.price[li]= w-matrix.price.
   END.
+  
+  FIND CURRENT oe-prmtx NO-LOCK NO-ERROR.
+  RUN Price_ExpireOldPrice(
+        INPUT oe-prmtx.company,
+        INPUT oe-prmtx.i-no,
+        INPUT oe-prmtx.custshipid,
+        INPUT oe-prmtx.cust-no,
+        INPUT oe-prmtx.custype,
+        INPUT oe-prmtx.procat
+        ).
 
 END PROCEDURE.
 
@@ -293,7 +317,7 @@ PROCEDURE update-matrix-minus.
         AND oe-prmtx.custShipID         EQ cShipId 
         AND oe-prmtx.procat             EQ itemfg.procat 
         AND oe-prmtx.custype            EQ cCustType
-        AND (oe-prmtx.eff-date          EQ dtEffectiveDate OR oe-prmtx.eff-date EQ TODAY)
+        AND (oe-prmtx.eff-date          EQ dtEffectiveDate )
       BY oe-prmtx.eff-date DESC:
     LEAVE.
   END.
@@ -358,8 +382,11 @@ PROCEDURE update-matrix-minus.
   FOR EACH b-matrix BY b-matrix.qty:
     FOR EACH w-matrix
         WHERE w-matrix.qty GE b-matrix.qty
-          AND (w-matrix.price-m GE b-matrix.price-m OR
-               w-matrix.qty EQ b-matrix.qty)
+          AND w-matrix.qty EQ b-matrix.qty
+          AND w-matrix.price-m EQ b-matrix.price-m
+/* #103075 Remove logic to filter multiple diff-qty/same-price records */          
+/*          AND (w-matrix.price-m GT b-matrix.price-m OR*/
+/*               w-matrix.qty EQ b-matrix.qty)          */
           AND ROWID(w-matrix) NE ROWID(b-matrix):
       DELETE w-matrix.
     END.
@@ -375,6 +402,9 @@ PROCEDURE update-matrix-minus.
     DELETE w-matrix.
   END.
 
+  IF cPriceMatrixPricingMethod EQ "From" AND lQuotePriceMatrix THEN
+  oe-prmtx.qty = 0.
+  ELSE
   FOR EACH w-matrix BREAK BY w-matrix.qty:
     IF LAST(w-matrix.qty) THEN DO:
       CREATE b-matrix.
@@ -404,5 +434,15 @@ PROCEDURE update-matrix-minus.
     */
     END.
   END.
+  
+  FIND CURRENT oe-prmtx NO-LOCK NO-ERROR.
+  RUN Price_ExpireOldPrice(
+        INPUT oe-prmtx.company,
+        INPUT oe-prmtx.i-no,
+        INPUT oe-prmtx.custshipid,
+        INPUT oe-prmtx.cust-no,
+        INPUT oe-prmtx.custype,
+        INPUT oe-prmtx.procat
+        ).
 
 END PROCEDURE.

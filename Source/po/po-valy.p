@@ -580,7 +580,7 @@ assign
           end.    
         end.
                
-        run po/po-ordls.p (recid(po-ordl)).
+        
 
         IF v-summarize-by-item AND /*LAST-OF(po-ordl.s-len)*/ LAST-OF(po-ordl.job-no2)  THEN DO:
            /*IF LAST-OF(po-ordl.i-no) THEN

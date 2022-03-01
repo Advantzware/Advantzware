@@ -186,7 +186,7 @@ DEFINE VARIABLE fiJobID2 AS INTEGER FORMAT ">>":U INITIAL 0
      SIZE 5 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiLocationID AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Location" 
+     LABEL "Bin" 
      VIEW-AS FILL-IN 
      SIZE 16.4 BY 1 NO-UNDO.
 
@@ -206,7 +206,7 @@ DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U
      SIZE 32 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiWarehouseID AS CHARACTER FORMAT "X(5)":U 
-     LABEL "Warehouse" 
+     LABEL "Location" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
@@ -244,14 +244,14 @@ DEFINE BROWSE BROWSE-2
       inventoryStockID   COLUMN-LABEL "Tag #"            WIDTH 28 FORMAT "X(30)"
       quantity            COLUMN-LABEL "Quantity"         WIDTH 16 FORMAT "->>>>>>>>9"
       PoID                COLUMN-LABEL "PO #"             WIDTH 12 FORMAT ">>>>>>>>>"
-      WareHouseID         COLUMN-LABEL "Warehouse"        WIDTH 14
-      LocationID          COLUMN-LABEL "Location"         WIDTH 10
+      WareHouseID         COLUMN-LABEL "Location"         WIDTH 14
+      LocationID          COLUMN-LABEL "Bin"              WIDTH 10
       tagStatus           COLUMN-LABEL "Tag Status"       WIDTH 12
       StatusDescription   COLUMN-LABEL "Tag Description"  WIDTH 30 FORMAT "X(50)"
       onHold              COLUMN-LABEL "On Hold"          WIDTH 9  FORMAT "Yes/No"
       PrimaryID           COLUMN-LABEL "Item #"           WIDTH 20 FORMAT "X(30)"
       ItemDesc            COLUMN-LABEL "Item Description" WIDTH 30 FORMAT "X(50)"
-      fGetJobID() @ JobNo COLUMN-LABEL "Job #"            WIDTH 12 
+      fGetJobID() @ JobNo COLUMN-LABEL "Job #"            WIDTH 12 FORMAT "X(10)"
       customerID          COLUMN-LABEL "Customer"         WIDTH 15
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -424,6 +424,11 @@ DO:
     DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lOnHold  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cJobNo AS CHARACTER.
+    
+    cJobNo = fiJobID:SCREEN-VALUE.
+    RUN spCommon_FillCharacter (INPUT-OUTPUT cJobNo,INPUT 6).  
+    fiJobID:SCREEN-VALUE = cJobNo.
     
     SESSION:SET-WAIT-STATE ("GENERAL").
     
@@ -611,6 +616,18 @@ PROCEDURE pLoadFGBinData :
     DEFINE INPUT  PARAMETER iplOnHold      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iRecordLimit     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dQueryTimeLimit  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lEnableShowAll   AS LOGICAL   NO-UNDO.
+    
+    RUN Browser_GetRecordAndTimeLimit(
+        INPUT  ipcCompany,
+        INPUT  "IQ3",
+        OUTPUT iRecordLimit,
+        OUTPUT dQueryTimeLimit,
+        OUTPUT lEnableShowAll
+    ).    
         
     RUN api\inbound\GetInventoryDetails.p (
         INPUT  ipcCompany, 
@@ -627,6 +644,7 @@ PROCEDURE pLoadFGBinData :
         INPUT  ipcStatusID,
         INPUT  iplOnHold,
         INPUT  "FG",
+        INPUT  iRecordLimit,
         OUTPUT oplSuccess,
         OUTPUT opcMessage,
         OUTPUT TABLE ttItem
@@ -652,7 +670,7 @@ PROCEDURE pUpdateAllBinStatus PRIVATE :
     DEFINE BUFFER bf-ttItem FOR ttItem.
     
     IF AVAILABLE ttItem THEN DO:
-        RUN fg/d-fgStatusUpdate (
+        RUN fg/d-fgStatusUpdate.w (
             INPUT  "",            /* Bin Status ID */
             INPUT  NO,            /* On Hold */
             OUTPUT lUpdateStatus,
@@ -846,7 +864,7 @@ PROCEDURE export-xl :
                                               INPUT FALSE /* Auto increment File name */,
                                               OUTPUT lSuccess,
                                               OUTPUT cMessage).    
-  OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
       
   DELETE OBJECT hdOutputProcs.
  
@@ -865,9 +883,10 @@ FUNCTION fGetJobID RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
     IF ttItem.jobNo NE "" THEN
-        RETURN ttItem.jobNo + "-" + TRIM(STRING(ttItem.jobNo2,">9")).
+        RETURN ttItem.jobNo + "-" + TRIM(STRING(ttItem.jobNo2,"99")).
     ELSE
         RETURN "".
+      
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

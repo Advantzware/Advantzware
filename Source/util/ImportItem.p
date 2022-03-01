@@ -194,23 +194,11 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportItem.cons-uom, iplIgnoreBlanks, INPUT-OUTPUT bf-item.cons-uom).                         
     RUN pAssignValueD (ipbf-ttImportItem.q-onh, YES, INPUT-OUTPUT bf-item.q-onh).
     
-    IF ipbf-ttImportItem.alloc EQ "Yes"  THEN
-    bf-item.alloc = YES .
-    ELSE bf-item.alloc = NO .
-    
-    IF ipbf-ttImportItem.stocked EQ "Yes"  THEN
-    bf-item.stocked = YES .
-    ELSE bf-item.stocked = NO .
-    
-    IF ipbf-ttImportItem.pur-man EQ "Purchased"  THEN
-    bf-item.pur-man = YES .
-    ELSE bf-item.pur-man = NO .
-    
-    IF ipbf-ttImportItem.inv-by-cust EQ "Yes"  THEN
-    bf-item.inv-by-cust = YES .
-    ELSE bf-item.inv-by-cust = NO .     
-      
-    
+    RUN pAssignValueCToL (ipbf-ttImportItem.alloc, "Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-item.alloc).
+    RUN pAssignValueCToL (ipbf-ttImportItem.stocked, "Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-item.stocked).
+    RUN pAssignValueCToL (ipbf-ttImportItem.pur-man, "Purchased", iplIgnoreBlanks, INPUT-OUTPUT bf-item.pur-man).
+    RUN pAssignValueCToL (ipbf-ttImportItem.inv-by-cust, "Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-item.inv-by-cust).
+        
     /*IF ipbf-ttImportItem.ml EQ "M" THEN
         ASSIGN bf-item.ml = YES.
     ELSE bf-item.ml = NO .*/

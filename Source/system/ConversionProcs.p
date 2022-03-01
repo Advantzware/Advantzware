@@ -14,6 +14,13 @@
 /* ***************************  Definitions  ************************** */
 
  {system/ttConversionProcs.i}
+ 
+ 
+/*Settings Globals - Measurement Conversion Constants */
+DEFINE VARIABLE gdCMPerIn AS DECIMAL   NO-UNDO INITIAL 2.54.
+DEFINE VARIABLE gdInPerFt AS DECIMAL   NO-UNDO INITIAL 12.
+DEFINE VARIABLE gdMMPerCm AS DECIMAL   NO-UNDO INITIAL 10.  
+DEFINE VARIABLE gdCMPerM  AS DECIMAL   NO-UNDO INITIAL 100.
     
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -30,14 +37,17 @@ FUNCTION Conv_IsEAUOM RETURNS LOGICAL
     ipcItemID AS CHARACTER,
     ipcUOM AS CHARACTER) FORWARD.
 
-FUNCTION fGetFeet RETURNS DECIMAL PRIVATE
+FUNCTION fConv_GetFeet RETURNS DECIMAL
     (ipdDim AS DECIMAL,
     ipcUOM AS CHARACTER) FORWARD.
 
 FUNCTION fGetInches RETURNS DECIMAL PRIVATE
     (ipdDim AS DECIMAL,
     ipcUOM AS CHARACTER) FORWARD.
-
+    
+FUNCTION fGetSqInches RETURNS DECIMAL PRIVATE
+    ( ipdArea AS DECIMAL, ipcUOM AS CHARACTER )FORWARD.
+        
 FUNCTION fGetSqft RETURNS DECIMAL PRIVATE
     (ipdLength AS DECIMAL,
     ipdWidth AS DECIMAL,
@@ -790,7 +800,7 @@ PROCEDURE pAddUOMsFromDimensions PRIVATE:
         RUN pAddUOM("LI", YES, "EA","Lineal Inches", 1 / fGetInches(ipdLength,ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
         RUN pAddUOM("MLI", YES, "EA","Lineal Inches", 1000 / fGetInches(ipdLength, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
         RUN pAddUOM("IN", YES, "EA","Inches", 1 / fGetInches(ipdLength, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
-        RUN pAddUOM("LF", YES, "EA","Lineal Feet", 1 / fGetFeet(ipdLength, ipcSource), ipcSource, "Cost", ipiSourceLevel).
+        RUN pAddUOM("LF", YES, "EA","Lineal Feet", 1 / fConv_GetFeet(ipdLength, ipcSource), ipcSource, "Cost", ipiSourceLevel).
         IF ipdWidth GT 0 THEN 
         DO:
             RUN pAddUOM("SQIN", YES, "EA", "Square Inches", 1 / fGetSqin(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
@@ -848,6 +858,8 @@ PROCEDURE pAddUOMsFromWeight PRIVATE:
             DO: 
                 RUN pAddUOM("LB", YES, "EA","Pounds", 1 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost", ipiSourceLevel).
                 RUN pAddUOM("TON", YES, "EA","Tons", 2000 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost", ipiSourceLevel).
+                RUN pAddUOM("CWT", YES, "EA","CWT", 100 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost", ipiSourceLevel).
+               
             END.
     END CASE.
     
@@ -1262,7 +1274,7 @@ FUNCTION Conv_IsEAUOM RETURNS LOGICAL
     
 END FUNCTION.
 
-FUNCTION fGetFeet RETURNS DECIMAL PRIVATE
+FUNCTION fConv_GetFeet RETURNS DECIMAL
     ( ipdDim AS DECIMAL, ipcUOM AS CHARACTER ):
     /*------------------------------------------------------------------------------
      Purpose: Given a length dimension, convert to feet
@@ -1270,6 +1282,20 @@ FUNCTION fGetFeet RETURNS DECIMAL PRIVATE
     ------------------------------------------------------------------------------*/	
    
     RETURN fGetInches(ipdDim, ipcUOM) / 12.
+        
+END FUNCTION.
+
+FUNCTION fConv_GetAreaSqFeet RETURNS DECIMAL
+    ( ipdArea AS DECIMAL, ipcUOM AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: Given an area measurement in Sq unit, convert to Sq feet
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE dReturnVal AS DECIMAL NO-UNDO.
+    
+    ASSIGN dReturnVal = fGetSqInches(ipdArea, ipcUOM) / 144 NO-ERROR. 
+       
+    RETURN dReturnVal.
         
 END FUNCTION.
 
@@ -1291,20 +1317,18 @@ FUNCTION fGetInches RETURNS DECIMAL PRIVATE
     ------------------------------------------------------------------------------*/	
     DEFINE VARIABLE dInches  AS DECIMAL NO-UNDO.
     
-    DEFINE VARIABLE dCMPerIn AS DECIMAL NO-UNDO INITIAL 2.54. 
-    
     CASE CAPS(ipcUOM):
         WHEN "IN" OR WHEN "LI" THEN 
             dInches = ipdDim.
         WHEN "FT" OR WHEN "LF" THEN 
-            dInches = ipdDim * 12.
+            dInches = ipdDim * gdInPerFt.
         WHEN "CM" THEN 
-            dInches = ipdDim / dCMPerIn.
+            dInches = ipdDim / gdCMPerIn.
         WHEN "MM" THEN 
-            dInches = ipdDim / (dCMPerIn * 10).
+            dInches = ipdDim / (gdCMPerIn * gdMMPerCm).
         WHEN "MET" OR 
         WHEN "M" THEN 
-            dInches = ipdDim / (dCMPerIn / 100).          
+            dInches = ipdDim / (gdCMPerIn / gdCMPerM).          
         OTHERWISE 
         dInches = ipdDim.
  
@@ -1314,6 +1338,36 @@ FUNCTION fGetInches RETURNS DECIMAL PRIVATE
 		
 END FUNCTION.
 
+FUNCTION fGetSqInches RETURNS DECIMAL PRIVATE
+    ( ipdArea AS DECIMAL, ipcUOM AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: given an Are measurement and uom, convert to Sq inches
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE dInches  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iExponent AS INTEGER NO-UNDO INITIAL 2.
+    
+    CASE CAPS(ipcUOM):
+        WHEN "SQIN" OR WHEN "SQLI" THEN 
+            dInches = ipdArea.
+        WHEN "SQFT" OR WHEN "SQLF" THEN 
+            dInches = ipdArea * EXP( gdInPerFt, iExponent).
+        WHEN "SQCM" THEN 
+            dInches = ipdArea / EXP( gdCMPerIn, iExponent).
+        WHEN "SQMM" THEN 
+            dInches = ipdArea / (EXP( gdCMPerIn, iExponent) * EXP( gdMMPerCm, iExponent)).
+        WHEN "SQMET" OR WHEN "SQM" THEN 
+            dInches = ipdArea / (EXP( gdCMPerIn, iExponent) / EXP( gdCMPerM, iExponent)).          
+        OTHERWISE 
+        dInches = ipdArea.
+ 
+    END CASE.     
+      
+    RETURN dInches.
+        
+END FUNCTION.
+
+
 FUNCTION fGetSqft RETURNS DECIMAL PRIVATE
     (ipdLength AS DECIMAL, ipdWidth AS DECIMAL, ipcDimUOM AS CHARACTER):
     /*------------------------------------------------------------------------------
@@ -1322,7 +1376,7 @@ FUNCTION fGetSqft RETURNS DECIMAL PRIVATE
     ------------------------------------------------------------------------------*/	
     DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO.
     
-    dSqft = fGetFeet(ipdLength, ipcDimUOM) * fGetFeet(ipdWidth, ipcDimUOM).
+    dSqft = fConv_GetFeet(ipdLength, ipcDimUOM) * fConv_GetFeet(ipdWidth, ipcDimUOM).
     RETURN dSqft.
     
 END FUNCTION.

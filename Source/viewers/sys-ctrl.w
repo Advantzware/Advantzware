@@ -43,9 +43,12 @@ DEF VAR v-msg    AS CHAR FORMAT  "x(100)" NO-UNDO.
 
 /* User can select multiple values for these, and validation is on */
 /* each value they select                                          */
-DEF VAR gvcMultiSelect AS CHAR NO-UNDO INIT "OEDateChange,SSBOLEMAIL,OEPriceHold,CEUpdate,OutputCSV".
+DEF VAR gvcMultiSelect AS CHAR NO-UNDO INIT "OEDateChange,SSBOLEMAIL,OEPriceHold,CEUpdate,OutputCSV,CUSTXFER,VENDXFER".
 DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
 DEF VAR lResult AS LOG NO-UNDO.
+DEFINE VARIABLE lSuperAdmin AS LOGICAL NO-UNDO.
+
+lSuperAdmin = DYNAMIC-FUNCTION("sfIsUserSuperAdmin").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -73,13 +76,12 @@ DEFINE QUERY external_tables FOR sys-ctrl.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS sys-ctrl.isPassword sys-ctrl.descrip ~
 sys-ctrl.module sys-ctrl.char-fld sys-ctrl.date-fld sys-ctrl.dec-fld ~
-sys-ctrl.int-fld sys-ctrl.log-fld 
+sys-ctrl.isActive sys-ctrl.int-fld sys-ctrl.log-fld 
 &Scoped-define ENABLED-TABLES sys-ctrl
 &Scoped-define FIRST-ENABLED-TABLE sys-ctrl
-&Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS sys-ctrl.name sys-ctrl.isPassword ~
 sys-ctrl.descrip sys-ctrl.module sys-ctrl.char-fld sys-ctrl.date-fld ~
-sys-ctrl.dec-fld sys-ctrl.int-fld sys-ctrl.log-fld 
+sys-ctrl.dec-fld sys-ctrl.isActive sys-ctrl.int-fld sys-ctrl.log-fld 
 &Scoped-define DISPLAYED-TABLES sys-ctrl
 &Scoped-define FIRST-DISPLAYED-TABLE sys-ctrl
 
@@ -118,52 +120,68 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE InActiveMessage AS CHARACTER 
+     VIEW-AS EDITOR
+     SIZE 54 BY 1.67
+     BGCOLOR 53 FGCOLOR 12  NO-UNDO.
+
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 138 BY 9.76.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     sys-ctrl.name AT ROW 1.24 COL 20 COLON-ALIGNED FORMAT "X(40)"
+     sys-ctrl.name AT ROW 1.24 COL 17 COLON-ALIGNED FORMAT "X(40)"
           VIEW-AS FILL-IN 
           SIZE 47 BY 1
-     sys-ctrl.isPassword AT ROW 1.24 COL 70 WIDGET-ID 2
+          BGCOLOR 15 FGCOLOR 1 
+     sys-ctrl.isPassword AT ROW 1.24 COL 67 WIDGET-ID 2
           VIEW-AS TOGGLE-BOX
           SIZE 19 BY 1
-     sys-ctrl.descrip AT ROW 2.43 COL 20 COLON-ALIGNED FORMAT "x(70)"
+     sys-ctrl.descrip AT ROW 2.43 COL 17 COLON-ALIGNED FORMAT "x(70)"
           VIEW-AS FILL-IN 
-          SIZE 116 BY 1
-     sys-ctrl.module AT ROW 3.62 COL 20 COLON-ALIGNED HELP
+          SIZE 119 BY 1
+          BGCOLOR 15 FGCOLOR 1 
+     sys-ctrl.module AT ROW 3.62 COL 17 COLON-ALIGNED HELP
           ""
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     sys-ctrl.char-fld AT ROW 4.81 COL 20 COLON-ALIGNED
+          BGCOLOR 15 FGCOLOR 1 
+     sys-ctrl.char-fld AT ROW 4.81 COL 17 COLON-ALIGNED
           LABEL "Character Value" FORMAT "x(100)"
           VIEW-AS FILL-IN 
-          SIZE 116 BY 1
-     sys-ctrl.date-fld AT ROW 6 COL 20 COLON-ALIGNED
+          SIZE 119 BY 1
+          BGCOLOR 15 FGCOLOR 1 
+     sys-ctrl.date-fld AT ROW 6 COL 17 COLON-ALIGNED
           LABEL "Date Value"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     sys-ctrl.dec-fld AT ROW 7.19 COL 20 COLON-ALIGNED
+          BGCOLOR 15 FGCOLOR 1 
+     sys-ctrl.dec-fld AT ROW 7.19 COL 17 COLON-ALIGNED
           LABEL "Decimal Value"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     sys-ctrl.int-fld AT ROW 8.38 COL 20 COLON-ALIGNED
+          BGCOLOR 15 FGCOLOR 1 
+     sys-ctrl.isActive AT ROW 7.19 COL 67
+          VIEW-AS TOGGLE-BOX
+          SIZE 10 BY 1
+     sys-ctrl.int-fld AT ROW 8.38 COL 17 COLON-ALIGNED
           LABEL "Integer Value"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     sys-ctrl.log-fld AT ROW 9.57 COL 20 COLON-ALIGNED
+          BGCOLOR 15 FGCOLOR 1 
+     InActiveMessage AT ROW 8.38 COL 67 NO-LABEL
+     sys-ctrl.log-fld AT ROW 9.57 COL 17 COLON-ALIGNED
           LABEL "Logical Value"
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
+          BGCOLOR 15 FGCOLOR 1 
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         AT COL 1 ROW 1 SCROLLABLE .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -230,6 +248,11 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN sys-ctrl.descrip IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR EDITOR InActiveMessage IN FRAME F-Main
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       InActiveMessage:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN sys-ctrl.int-fld IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN sys-ctrl.log-fld IN FRAME F-Main
@@ -238,6 +261,8 @@ ASSIGN
    EXP-HELP                                                             */
 /* SETTINGS FOR FILL-IN sys-ctrl.name IN FRAME F-Main
    NO-ENABLE 1 EXP-FORMAT                                               */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -377,7 +402,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-{custom/getcmpny.i}
+  {custom/getcmpny.i}
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         

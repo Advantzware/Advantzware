@@ -19,5 +19,5 @@
 
 /* ***************************  Definitions  ************************** */
 
-hCurrentColumn:LABEL-BGCOLOR = 30. 
+hCurrentColumn:LABEL-BGCOLOR = 30 NO-ERROR. 
 

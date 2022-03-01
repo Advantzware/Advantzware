@@ -73,47 +73,47 @@ cInvMessage4 cInvMessage5
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
      LABEL "Cancel" 
-     SIZE 15 BY 1.14
+     SIZE 16 BY 1.29
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK AUTO-GO 
      LABEL "OK" 
-     SIZE 15 BY 1.14
+     SIZE 16 BY 1.29
      BGCOLOR 8 .
 
-DEFINE VARIABLE cInvMessage1 AS CHARACTER FORMAT "X(40)" 
+DEFINE VARIABLE cInvMessage1 AS CHARACTER FORMAT "X(60)" 
      LABEL "Invoice Message 1" 
-     VIEW-AS FILL-IN 
+     VIEW-AS FILL-IN NATIVE 
      SIZE 55 BY 1
-     BGCOLOR 15.
+     FGCOLOR 0 .
 
-DEFINE VARIABLE cInvMessage2 AS CHARACTER FORMAT "X(40)":U 
+DEFINE VARIABLE cInvMessage2 AS CHARACTER FORMAT "X(60)":U 
      LABEL "Invoice Message 2" 
-     VIEW-AS FILL-IN 
-     SIZE 55 BY 1 
-     BGCOLOR 15 NO-UNDO.
+     VIEW-AS FILL-IN NATIVE 
+     SIZE 55 BY 1
+     FGCOLOR 0  NO-UNDO.
 
-DEFINE VARIABLE cInvMessage3 AS CHARACTER FORMAT "X(40)":U 
+DEFINE VARIABLE cInvMessage3 AS CHARACTER FORMAT "X(60)":U 
      LABEL "Invoice Message 3" 
-     VIEW-AS FILL-IN 
-     SIZE 55 BY 1 
-     BGCOLOR 15 NO-UNDO.
+     VIEW-AS FILL-IN NATIVE 
+     SIZE 55 BY 1
+     FGCOLOR 0  NO-UNDO.
 
-DEFINE VARIABLE cInvMessage4 AS CHARACTER FORMAT "X(40)":U 
+DEFINE VARIABLE cInvMessage4 AS CHARACTER FORMAT "X(60)":U 
      LABEL "Invoice Message 4" 
-     VIEW-AS FILL-IN 
-     SIZE 55 BY 1 
-     BGCOLOR 15 NO-UNDO.
+     VIEW-AS FILL-IN NATIVE 
+     SIZE 55 BY 1
+     FGCOLOR 0  NO-UNDO.
 
-DEFINE VARIABLE cInvMessage5 AS CHARACTER FORMAT "X(40)":U 
+DEFINE VARIABLE cInvMessage5 AS CHARACTER FORMAT "X(60)":U 
      LABEL "Invoice Message 5" 
-     VIEW-AS FILL-IN 
-     SIZE 55 BY 1 
-     BGCOLOR 15 NO-UNDO.
+     VIEW-AS FILL-IN NATIVE 
+     SIZE 55 BY 1
+     FGCOLOR 0  NO-UNDO.
 
 DEFINE RECTANGLE RECT-30
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 90.2 BY 6.91.
+     SIZE 88 BY 6.91.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -124,13 +124,13 @@ DEFINE FRAME Dialog-Frame
      cInvMessage3 AT ROW 4.1 COL 30 COLON-ALIGNED
      cInvMessage4 AT ROW 5.29 COL 30 COLON-ALIGNED
      cInvMessage5 AT ROW 6.48 COL 30 COLON-ALIGNED
-     Btn_OK AT ROW 8.29 COL 18.6
-     Btn_Cancel AT ROW 8.29 COL 57.4
-     RECT-30 AT ROW 1.19 COL 1.2 WIDGET-ID 56
-     SPACE(2.39) SKIP(2.38)
+     Btn_OK AT ROW 8.62 COL 28
+     Btn_Cancel AT ROW 8.62 COL 54
+     RECT-30 AT ROW 1.19 COL 4 WIDGET-ID 56
+     SPACE(2.99) SKIP(2.37)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         FGCOLOR 1 FONT 6
+         BGCOLOR 15 FGCOLOR 1 FONT 6
          TITLE "Invoice Message"
          DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
 
@@ -213,6 +213,9 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
+   Btn_OK:LOAD-IMAGE("Graphics/32x32/Ok.png").
+   Btn_Cancel:LOAD-IMAGE("Graphics/32x32/cancel.png").   
+   
    cInvMessage1:SCREEN-VALUE IN FRAME {&FRAME-NAME} = iopcMessage1 .
    cInvMessage2:SCREEN-VALUE IN FRAME {&FRAME-NAME} = iopcMessage2 .
    cInvMessage3:SCREEN-VALUE IN FRAME {&FRAME-NAME} = iopcMessage3 .

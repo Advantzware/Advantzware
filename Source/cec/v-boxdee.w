@@ -48,6 +48,7 @@ DEFINE VARIABLE li-lscore-len      AS INTEGER INIT 80 NO-UNDO.
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO. 
 
+
 PROCEDURE ShellExecuteA EXTERNAL "shell32":u :
     DEFINE INPUT PARAMETER hwnd AS long.
     DEFINE INPUT PARAMETER lpOperation AS CHARACTER.
@@ -168,13 +169,13 @@ DEFINE FRAME F-Main
      box-design-hdr.description AT ROW 1.24 COL 22 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     box-design-hdr.box-3d-image AT ROW 1.24 COL 75 COLON-ALIGNED
+     box-design-hdr.box-image AT ROW 1.24 COL 75 COLON-ALIGNED FORMAT "x(200)"
+          VIEW-AS FILL-IN 
+          SIZE 63 BY 1
+     box-design-hdr.box-3d-image AT ROW 1.24 COL 75 COLON-ALIGNED FORMAT "x(200)"
           VIEW-AS FILL-IN 
           SIZE 62 BY 1
           BGCOLOR 14 
-     box-design-hdr.box-image AT ROW 1.24 COL 75 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 63 BY 1
      box-design-hdr.lscore AT ROW 2.43 COL 2 NO-LABEL FORMAT "x(210)"
           VIEW-AS FILL-IN 
           SIZE 116 BY 1
@@ -194,10 +195,10 @@ DEFINE FRAME F-Main
      editor_wscore AT ROW 4.81 COL 133 NO-LABEL
      "Total" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 3.33 COL 122
-     "W Totals   W Score" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 4.1 COL 123
      "Score:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 2.43 COL 122
+     "W Totals   W Score" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 4.1 COL 123
      box-image-2 AT ROW 4.57 COL 2
      RECT-40 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -262,10 +263,12 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN box-design-hdr.box-3d-image IN FRAME F-Main
-   NO-DISPLAY NO-ENABLE                                                 */
+   NO-DISPLAY NO-ENABLE EXP-FORMAT                                      */
 ASSIGN 
        box-design-hdr.box-3d-image:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN box-design-hdr.box-image IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR EDITOR box-design-hdr.box-text IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -914,6 +917,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-alt-design-box V-table-Win
+PROCEDURE display-alt-design-box:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE riEBrowid AS ROWID     NO-UNDO.
+    DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+    
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+   
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+        RUN get-eb-rowid IN WIDGET-HANDLE(char-hdl) (OUTPUT riEBrowid).
+  
+    IF riEBrowid <> ? THEN
+        FIND FIRST eb NO-LOCK WHERE ROWID(eb) = riEBrowid NO-ERROR.
+    
+    IF AVAILABLE style AND AVAILABLE eb THEN 
+        RUN est/dboxAltDesign.w (ROWID(style), ROWID(eb)).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :

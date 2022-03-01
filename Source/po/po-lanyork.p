@@ -552,7 +552,7 @@ v-printline = 0.
                 FIND FIRST ef NO-LOCK
                     WHERE ef.company EQ cocode 
                       AND ef.est-no EQ eb.est-no 
-                      AND ef.form-no EQ eb.form-no .
+                      AND ef.form-no EQ eb.form-no NO-ERROR.
 
             IF AVAIL eb THEN
                 FIND FIRST style NO-LOCK
@@ -623,55 +623,10 @@ v-printline = 0.
                len-score = "".
        
         IF po-ordl.item-type THEN do:
-                 run po/po-ordls.p (recid(po-ordl)).                          
+                                          
                                                                      
-                 {po/po-ordls.i}
+                 {po/poprints.i}
 
-            IF AVAIL b-ref1 OR AVAIL b-ref2 THEN 
-            DO:
-                ASSIGN
-                    lv-val = 0
-                    lv-typ = "".
-
-                IF AVAIL b-ref1 THEN
-                DO x = 1 TO 12:
-                    lv-val[x] = b-ref1.val[x].
-                    {sys/inc/k16bb.i "lv-val[x]"}
-                    lv-typ[x] = SUBSTR(b-ref1.dscr,x,1).
-                END.
-
-                IF AVAIL b-ref2 THEN
-                DO x = 1 TO 8:
-                    lv-val[x + 12] = b-ref2.val[x].
-                    {sys/inc/k16bb.i "lv-val[x + 12]"}
-                    lv-typ[x + 12] = SUBSTR(b-ref2.dscr,x,1).
-                END.
-
-                DO lv-int = 0 TO 1:
-                    ASSIGN
-                        v-lscore-c = ""
-                        len-score  = "".
-
-                    DO x = 1 TO 10:
-                        IF lv-val[(lv-int * 10) + x] GT 9999 THEN
-                            RUN sys\inc\decfrac2.p(INPUT DEC(STRING(lv-val[(lv-int * 10) + x],">>>>>")), INPUT 32, OUTPUT len-score).
-                        ELSE
-                            IF lv-val[(lv-int * 10) + x] GT 999 THEN
-                                RUN sys\inc\decfrac2.p(INPUT DEC(STRING(lv-val[(lv-int * 10) + x],">>>>")), INPUT 32, OUTPUT len-score).
-                            ELSE
-                                RUN sys\inc\decfrac2.p(INPUT lv-val[(lv-int * 10) + x], INPUT 32, OUTPUT len-score).
-                        
-                         IF lv-val[(lv-int * 10) + x] NE 0 THEN 
-                              v-lscore-c = v-lscore-c + len-score + " " .
-
-                        /* print score type for Premier */
-                        IF v-score-types AND lv-typ[(lv-int * 10) + x] NE "" THEN DO:
-/*                            RUN sys\inc\decfrac2.p(INPUT DEC(lv-typ[(lv-int * 10) + x]), INPUT 32, OUTPUT len-score).*/
-                            v-lscore-c = v-lscore-c + lv-typ[(lv-int * 10) + x] + "  ". 
-                        END.
-                        ELSE DO:
-                            v-lscore-c = v-lscore-c + "  ".
-                        END.
                     END.
  
                     IF v-lscore-c NE "" THEN 

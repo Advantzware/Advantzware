@@ -115,6 +115,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPrintPrice AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cShiptoCustomer AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cShiptoNotes AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "POLoadtag",
@@ -648,7 +649,7 @@ v-printline = 0.
 /*                v-printline = v-printline + 1.                                             */
 
         len-score = "".   
-        run po/po-ordls.p (recid(po-ordl)).
+        
         {po/poprints.i}       
             IF v-score-types THEN do:
                 if not v-test-scr then do:                                  
@@ -882,6 +883,24 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
         */   
   end.
 
+  FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR. 
+    FIND FIRST loc NO-LOCK WHERE loc.company EQ cocode AND loc.loc EQ po-ord.ship-id NO-ERROR.
+    
+    IF NOT AVAIL loc THEN
+    FIND FIRST loc NO-LOCK 
+         WHERE loc.company EQ cocode 
+         AND loc.loc EQ locode NO-ERROR.
+           
+    IF AVAIL loc THEN FIND FIRST location NO-LOCK 
+    WHERE location.locationCode EQ loc.loc
+      AND location.rec_key EQ loc.addrRecKey NO-ERROR.
+    
+    IF AVAIL location THEN DO:
+        ASSIGN cShiptoNotes = location.notes .
+        PUT cShiptoNotes FORMAT "X(60)" SKIP .
+        v-printline = v-printline + 1.
+    END.
+  
   IF v-printline > 46 THEN DO:                  
      PAGE.
      v-printline = 0.

@@ -36,6 +36,9 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 def var ll-auto-calc-selected as log no-undo.
+DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound           AS LOGICAL   NO-UNDO.
 
 def new shared buffer xef for ef.
 def new shared buffer xeb for eb.
@@ -504,9 +507,9 @@ DO:
            IF AVAILABLE style AND style.type EQ "f" THEN DO: /* foam */
               RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
               ASSIGN
-                ef.board:SCREEN-VALUE    IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no",   char-val)
-                ef.cal:SCREEN-VALUE      IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "cal",    char-val)
-                ef.brd-dscr:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-name", char-val)
+                ef.board:SCREEN-VALUE    IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no",   char-val)
+                ef.cal:SCREEN-VALUE      IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.cal",    char-val)
+                ef.brd-dscr:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-name", char-val)
                 .
               APPLY "ENTRY":U TO ef.board.
            END. /* if foam */
@@ -640,6 +643,12 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
+
+
+    RUN sys/ref/nk1look.p (INPUT ef.company, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cNK1Value, OUTPUT lRecFound).
+    IF lRecFound THEN
+        lCEUseNewLayoutCalc = logical(cNK1Value) NO-ERROR. 
+
 
   /************************ INTERNAL PROCEDURES ********************/
 
@@ -786,7 +795,11 @@ PROCEDURE local-assign-record :
      find xef where recid(xef) = recid(ef).
      find xeb where recid(xeb) = recid(eb).
 
-     run ce/calc-dim.p .
+      IF lCEUseNewLayoutCalc THEN
+        RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+    ELSE
+          run ce/calc-dim.p .
+     
      find xef where recid(xef) = recid(ef).
      find xeb where recid(xeb) = recid(eb).
 

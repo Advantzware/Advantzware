@@ -33,6 +33,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object06 h_p-farmh
 &SCOPED-DEFINE h_Object07 h_vp-tandm
 &SCOPED-DEFINE h_Object08 h_vp-clsjc
+&SCOPED-DEFINE h_Object09 h_p-taginfo
 
 
 /* Parameters Definitions ---                                           */
@@ -123,6 +124,7 @@ DEFINE VARIABLE h_p-job AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-jobhdr AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-jobmat AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-jobmch AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-taginfo AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
@@ -659,7 +661,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navest-2 ).
-       RUN set-position IN h_v-navest-2 ( 9.10 , 57.00 ) NO-ERROR.
+       RUN set-position IN h_v-navest-2 ( 9.45 , 7.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 34.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -708,7 +710,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navest-3 ).
-       RUN set-position IN h_v-navest-3 ( 9.10 , 49.00 ) NO-ERROR.
+       RUN set-position IN h_v-navest-3 ( 9.45 , 7.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 34.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -733,6 +735,14 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_p-jobmch ( 22.67 , 19.00 ) NO-ERROR.
        RUN set-size IN h_p-jobmch ( 1.76 , 101.00 ) NO-ERROR.
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-taginfo.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_p-taginfo ).
+       RUN set-position IN h_p-taginfo ( 22.91 , 122.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.38 , 13.00 ) */
+
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2,1':U) NO-ERROR.
 
@@ -747,6 +757,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-jobmch , 'TableIO':U , h_b-jobmch ).
        RUN add-link IN adm-broker-hdl ( h_v-job , 'Record':U , h_b-jobmch ).
 
+       /* Links to SmartViewer h_p-taginfo. */
+       RUN add-link IN adm-broker-hdl ( h_b-jobmch , 'taginfo':U , h_p-taginfo ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-job-3 ,
              h_folder , 'AFTER':U ).
@@ -756,6 +768,8 @@ PROCEDURE adm-create-objects :
              h_v-navest-3 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-jobmch ,
              h_b-jobmch , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-taginfo ,
+             h_p-jobmch , 'AFTER':U ).
     END. /* Page 4 */
     WHEN 5 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -771,7 +785,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navest-4 ).
-       RUN set-position IN h_v-navest-4 ( 9.10 , 45.00 ) NO-ERROR.
+       RUN set-position IN h_v-navest-4 ( 9.45 , 7.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 34.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (

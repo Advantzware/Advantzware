@@ -27,8 +27,9 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE list-name AS cha       NO-UNDO.
+DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
 
 {custom/gperiod.i}
 {custom/persist.i}
@@ -57,9 +58,9 @@ DEFINE STREAM excel.
 
 
 DEFINE VARIABLE ldummy             AS LOG NO-UNDO.
-DEFINE VARIABLE cTextListToSelect  AS cha NO-UNDO.
-DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
-DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE cTextListToSelect  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 
 ASSIGN 
     cTextListToSelect  = "Program Name,Module,Hotkey,Description,Notes,Security Level"
@@ -86,10 +87,10 @@ ASSIGN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_name end_name ~
-begin_mod end_mod Btn_Def sl_avail sl_selected Btn_Add Btn_Remove btn_Up ~
-btn_down tb_runExcel fi_file btn-ok btn-cancel 
+begin_mod end_mod sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up ~
+btn_down fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_name end_name begin_mod end_mod ~
-sl_avail sl_selected tb_excel tb_runExcel fi_file 
+sl_avail sl_selected fi_file tb_OpenCSV tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -135,135 +136,138 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
-    LABEL "&Cancel" 
-    SIZE 15 BY 1.14.
+     LABEL "&Cancel" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
-    LABEL "&OK" 
-    SIZE 15 BY 1.14.
+     LABEL "&OK" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON Btn_Add 
-    LABEL "&Add >>" 
-    SIZE 16 BY 1.
+     LABEL "&Add >>" 
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Def 
-    LABEL "&Default" 
-    SIZE 16 BY 1.
+     LABEL "&Default" 
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_down 
-    LABEL "Move Down" 
-    SIZE 16 BY 1.
+     LABEL "Move Down" 
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Remove 
-    LABEL "<< &Remove" 
-    SIZE 16 BY 1.
+     LABEL "<< &Remove" 
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_Up 
-    LABEL "Move Up" 
-    SIZE 16 BY 1.
+     LABEL "Move Up" 
+     SIZE 16 BY 1.1.
 
-DEFINE VARIABLE begin_mod  AS CHARACTER FORMAT "x(3)" 
-    LABEL "From Module" 
-    VIEW-AS FILL-IN 
-    SIZE 20 BY 1.
+DEFINE VARIABLE begin_mod AS CHARACTER FORMAT "x(3)" 
+     LABEL "From Module" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
 
 DEFINE VARIABLE begin_name AS CHARACTER FORMAT "x(16)" 
-    LABEL "From Name" 
-    VIEW-AS FILL-IN 
-    SIZE 20 BY 1.
+     LABEL "From Name" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE end_mod    AS CHARACTER FORMAT "X(3)" INITIAL "zzzzzzzzzzz" 
-    LABEL "To Module" 
-    VIEW-AS FILL-IN 
-    SIZE 21 BY 1.
+DEFINE VARIABLE end_mod AS CHARACTER FORMAT "X(3)" INITIAL "zzzzzzzzzzz" 
+     LABEL "To Module" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1.
 
-DEFINE VARIABLE end_name   AS CHARACTER FORMAT "X(16)" INITIAL "zzzzzzzzzzz" 
-    LABEL "To Name" 
-    VIEW-AS FILL-IN 
-    SIZE 21 BY 1.
+DEFINE VARIABLE end_name AS CHARACTER FORMAT "X(16)" INITIAL "zzzzzzzzzzz" 
+     LABEL "To Name" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1.
 
-DEFINE VARIABLE fi_file    AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-frmitm.csv" 
-    LABEL "If Yes, File Name" 
-    VIEW-AS FILL-IN 
-    SIZE 43 BY 1
-    FGCOLOR 9 .
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\ExportUtilities.csv" 
+     LABEL "Name" 
+     VIEW-AS FILL-IN NATIVE 
+     SIZE 52 BY 1.
 
 DEFINE RECTANGLE RECT-6
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 101 BY 7.86.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 94 BY 7.86.
 
 DEFINE RECTANGLE RECT-7
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 101 BY 8.1.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 94 BY 5.19.
 
 DEFINE RECTANGLE RECT-8
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 101 BY 2.48.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 94 BY 2.48.
 
-DEFINE VARIABLE sl_avail    AS CHARACTER 
-    VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-    SIZE 31 BY 6.14 NO-UNDO.
+DEFINE VARIABLE sl_avail AS CHARACTER 
+     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
+     SIZE 31 BY 6.14 NO-UNDO.
 
 DEFINE VARIABLE sl_selected AS CHARACTER 
-    VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-    SIZE 31 BY 6.14 NO-UNDO.
+     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
+     SIZE 31 BY 6.14 NO-UNDO.
 
-DEFINE VARIABLE tb_excel    AS LOGICAL   INITIAL YES 
-    LABEL "Export To Excel?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 21 BY .81
-    BGCOLOR 3 NO-UNDO.
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL   INITIAL YES 
-    LABEL "Auto Run Excel?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 21 BY .81
-    BGCOLOR 3 NO-UNDO.
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+     LABEL "Export To Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_OpenCSV AS LOGICAL INITIAL yes 
+     LABEL "Open CSV?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15.4 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME rd-utilexp
-    begin_name AT ROW 3.67 COL 28 COLON-ALIGNED HELP
-    "Enter Beginning Name" WIDGET-ID 142
-    end_name AT ROW 3.67 COL 71 COLON-ALIGNED HELP
-    "Enter Ending Name" WIDGET-ID 144
-    begin_mod AT ROW 4.62 COL 28 COLON-ALIGNED HELP
-    "Enter Beginning Module" WIDGET-ID 150
-    end_mod AT ROW 4.62 COL 71 COLON-ALIGNED HELP
-    "Enter Ending Module" WIDGET-ID 152
-    Btn_Def AT ROW 11.19 COL 44 HELP
-    "Add Selected Table to Tables to Audit" WIDGET-ID 56
-    sl_avail AT ROW 11.24 COL 9 NO-LABELS WIDGET-ID 26
-    sl_selected AT ROW 11.24 COL 64 NO-LABELS WIDGET-ID 28
-    Btn_Add AT ROW 12.33 COL 44 HELP
-    "Add Selected Table to Tables to Audit" WIDGET-ID 130
-    Btn_Remove AT ROW 13.52 COL 44 HELP
-    "Remove Selected Table from Tables to Audit" WIDGET-ID 134
-    btn_Up AT ROW 14.71 COL 44 WIDGET-ID 136
-    btn_down AT ROW 15.91 COL 44 WIDGET-ID 132
-    tb_excel AT ROW 17.91 COL 36 WIDGET-ID 32
-    tb_runExcel AT ROW 17.91 COL 78 RIGHT-ALIGNED WIDGET-ID 34
-    fi_file AT ROW 18.86 COL 34 COLON-ALIGNED HELP
-    "Enter File Name" WIDGET-ID 22
-    btn-ok AT ROW 20.71 COL 30 WIDGET-ID 14
-    btn-cancel AT ROW 20.71 COL 60.2 WIDGET-ID 12
-    "Selected Columns" VIEW-AS TEXT
-    SIZE 34 BY .62 AT ROW 10.52 COL 64.4 WIDGET-ID 138
-    "Available Columns" VIEW-AS TEXT
-    SIZE 29 BY .62 AT ROW 10.52 COL 9.4 WIDGET-ID 140
-    "Export Selection" VIEW-AS TEXT
-    SIZE 17 BY .62 AT ROW 9.52 COL 3 WIDGET-ID 86
-    "Selection Parameters" VIEW-AS TEXT
-    SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
-    BGCOLOR 2 
-    RECT-6 AT ROW 9.76 COL 2 WIDGET-ID 30
-    RECT-7 AT ROW 1.24 COL 2 WIDGET-ID 38
-    RECT-8 AT ROW 17.62 COL 2 WIDGET-ID 84
-    SPACE(2.39) SKIP(2.32)
+     begin_name AT ROW 2.91 COL 26.4 COLON-ALIGNED HELP
+          "Enter Beginning Name" WIDGET-ID 142
+     end_name AT ROW 2.91 COL 65 COLON-ALIGNED HELP
+          "Enter Ending Name" WIDGET-ID 144
+     begin_mod AT ROW 3.86 COL 26.4 COLON-ALIGNED HELP
+          "Enter Beginning Module" WIDGET-ID 150
+     end_mod AT ROW 3.86 COL 65 COLON-ALIGNED HELP
+          "Enter Ending Module" WIDGET-ID 152
+     sl_avail AT ROW 8.14 COL 7 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 8.14 COL 42.2 HELP
+          "Add Selected Table to Tables to Audit" WIDGET-ID 56
+     sl_selected AT ROW 8.14 COL 62.6 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 9.29 COL 42.2 HELP
+          "Add Selected Table to Tables to Audit" WIDGET-ID 130
+     Btn_Remove AT ROW 10.48 COL 42.2 HELP
+          "Remove Selected Table from Tables to Audit" WIDGET-ID 134
+     btn_Up AT ROW 11.67 COL 42.2 WIDGET-ID 136
+     btn_down AT ROW 12.86 COL 42.2 WIDGET-ID 132
+     fi_file AT ROW 15.81 COL 18.8 COLON-ALIGNED HELP
+          "Enter File Name" WIDGET-ID 22
+     tb_OpenCSV AT ROW 15.91 COL 87.6 RIGHT-ALIGNED WIDGET-ID 34
+     tbAutoClose AT ROW 17.71 COL 43 WIDGET-ID 64
+     tb_excel AT ROW 17.81 COL 4 WIDGET-ID 32
+     btn-ok AT ROW 18.62 COL 32.8 WIDGET-ID 14
+     btn-cancel AT ROW 18.62 COL 52.8 WIDGET-ID 12
+     "Selected Columns" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 7.43 COL 69.4 WIDGET-ID 138
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21.2 BY .71 AT ROW 1.14 COL 5 WIDGET-ID 36
+     " Export Selection" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 6.76 COL 5 WIDGET-ID 86
+     "Available Columns" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 7.43 COL 13.4 WIDGET-ID 140
+     RECT-6 AT ROW 7.1 COL 4 WIDGET-ID 30
+     RECT-7 AT ROW 1.52 COL 4 WIDGET-ID 38
+     RECT-8 AT ROW 15.19 COL 4 WIDGET-ID 84
+     SPACE(2.99) SKIP(3.27)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    TITLE "Export Utilities to Excel" WIDGET-ID 100.
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         BGCOLOR 15 
+         TITLE "Export Utilities to Excel" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -284,33 +288,41 @@ DEFINE FRAME rd-utilexp
 /* SETTINGS FOR DIALOG-BOX rd-utilexp
    FRAME-NAME                                                           */
 ASSIGN 
-    FRAME rd-utilexp:SCROLLABLE = FALSE
-    FRAME rd-utilexp:HIDDEN     = TRUE.
+       FRAME rd-utilexp:SCROLLABLE       = FALSE
+       FRAME rd-utilexp:HIDDEN           = TRUE.
 
 ASSIGN 
-    begin_mod:PRIVATE-DATA IN FRAME rd-utilexp = "parm".
+       begin_mod:PRIVATE-DATA IN FRAME rd-utilexp     = 
+                "parm".
 
 ASSIGN 
-    begin_name:PRIVATE-DATA IN FRAME rd-utilexp = "parm".
+       begin_name:PRIVATE-DATA IN FRAME rd-utilexp     = 
+                "parm".
 
 ASSIGN 
-    end_mod:PRIVATE-DATA IN FRAME rd-utilexp = "parm".
+       end_mod:PRIVATE-DATA IN FRAME rd-utilexp     = 
+                "parm".
 
 ASSIGN 
-    end_name:PRIVATE-DATA IN FRAME rd-utilexp = "parm".
+       end_name:PRIVATE-DATA IN FRAME rd-utilexp     = 
+                "parm".
 
 ASSIGN 
-    fi_file:PRIVATE-DATA IN FRAME rd-utilexp = "parm".
+       fi_file:PRIVATE-DATA IN FRAME rd-utilexp     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME rd-utilexp
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    tb_excel:PRIVATE-DATA IN FRAME rd-utilexp = "parm".
+       tb_excel:HIDDEN IN FRAME rd-utilexp           = TRUE
+       tb_excel:PRIVATE-DATA IN FRAME rd-utilexp     = 
+                "parm".
 
-/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME rd-utilexp
+/* SETTINGS FOR TOGGLE-BOX tb_OpenCSV IN FRAME rd-utilexp
    ALIGN-R                                                              */
 ASSIGN 
-    tb_runExcel:PRIVATE-DATA IN FRAME rd-utilexp = "parm".
+       tb_OpenCSV:PRIVATE-DATA IN FRAME rd-utilexp     = 
+                "parm".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -323,8 +335,8 @@ ASSIGN
 
 &Scoped-define SELF-NAME rd-utilexp
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-utilexp rd-utilexp
-ON HELP OF FRAME rd-utilexp /* Export SysCtrl to Excel */
-    DO:
+ON HELP OF FRAME rd-utilexp /* Export Utilities to Excel */
+DO:
         DEFINE VARIABLE lw-focus   AS WIDGET-HANDLE NO-UNDO.
         DEFINE VARIABLE ls-cur-val AS CHARACTER     NO-UNDO.
         DEFINE VARIABLE char-val   AS CHARACTER     NO-UNDO.
@@ -341,8 +353,8 @@ ON HELP OF FRAME rd-utilexp /* Export SysCtrl to Excel */
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-utilexp rd-utilexp
-ON WINDOW-CLOSE OF FRAME rd-utilexp /* Export SysCtrl to Excel */
-    DO:
+ON WINDOW-CLOSE OF FRAME rd-utilexp /* Export Utilities to Excel */
+DO:
         APPLY "END-ERROR":U TO SELF.
     END.
 
@@ -353,7 +365,7 @@ ON WINDOW-CLOSE OF FRAME rd-utilexp /* Export SysCtrl to Excel */
 &Scoped-define SELF-NAME begin_mod
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_mod rd-utilexp
 ON LEAVE OF begin_mod IN FRAME rd-utilexp /* From Module */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -364,7 +376,7 @@ ON LEAVE OF begin_mod IN FRAME rd-utilexp /* From Module */
 &Scoped-define SELF-NAME begin_name
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_name rd-utilexp
 ON LEAVE OF begin_name IN FRAME rd-utilexp /* From Name */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -375,7 +387,7 @@ ON LEAVE OF begin_name IN FRAME rd-utilexp /* From Name */
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel rd-utilexp
 ON CHOOSE OF btn-cancel IN FRAME rd-utilexp /* Cancel */
-    DO:
+DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -386,14 +398,35 @@ ON CHOOSE OF btn-cancel IN FRAME rd-utilexp /* Cancel */
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok rd-utilexp
 ON CHOOSE OF btn-ok IN FRAME rd-utilexp /* OK */
-    DO:
+DO:
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.
   
+        ASSIGN 
+            fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
+            RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+            fi_file:SCREEN-VALUE =  cFileName.
+  
         RUN GetSelectionList.  
   
         RUN run-report.
+        
+        IF NOT tb_OpenCSV THEN 
+        DO:        
+            MESSAGE "CSV file have been created." SKIP(1)
+                "~"OK"~" to open CSV file?"
+                VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
+                TITLE "" UPDATE lChoice AS LOGICAL.
+     
+            IF lChoice THEN
+            DO:
+                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+            END.
+        END.  /* IF NOT tb_OpenCSV THEN */
+        
+        IF tbAutoClose:CHECKED THEN 
+        APPLY "END-ERROR":U TO SELF.
 
     END.
 
@@ -404,8 +437,8 @@ ON CHOOSE OF btn-ok IN FRAME rd-utilexp /* OK */
 &Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add rd-utilexp
 ON CHOOSE OF Btn_Add IN FRAME rd-utilexp /* Add >> */
-    DO:
-        DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
+DO:
+        DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 
         APPLY "DEFAULT-ACTION" TO sl_avail.
     END.
@@ -417,8 +450,8 @@ ON CHOOSE OF Btn_Add IN FRAME rd-utilexp /* Add >> */
 &Scoped-define SELF-NAME Btn_Def
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def rd-utilexp
 ON CHOOSE OF Btn_Def IN FRAME rd-utilexp /* Default */
-    DO:
-        DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
+DO:
+        DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 
         RUN DisplaySelectionDefault.  /* task 04041406 */ 
         RUN DisplaySelectionList2 .
@@ -432,7 +465,7 @@ ON CHOOSE OF Btn_Def IN FRAME rd-utilexp /* Default */
 &Scoped-define SELF-NAME btn_down
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_down rd-utilexp
 ON CHOOSE OF btn_down IN FRAME rd-utilexp /* Move Down */
-    DO:
+DO:
         RUN Move-Field ("Down").
     END.
 
@@ -443,7 +476,7 @@ ON CHOOSE OF btn_down IN FRAME rd-utilexp /* Move Down */
 &Scoped-define SELF-NAME Btn_Remove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove rd-utilexp
 ON CHOOSE OF Btn_Remove IN FRAME rd-utilexp /* << Remove */
-    DO:
+DO:
         APPLY "DEFAULT-ACTION" TO sl_selected  .
     END.
 
@@ -454,7 +487,7 @@ ON CHOOSE OF Btn_Remove IN FRAME rd-utilexp /* << Remove */
 &Scoped-define SELF-NAME btn_Up
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_Up rd-utilexp
 ON CHOOSE OF btn_Up IN FRAME rd-utilexp /* Move Up */
-    DO:
+DO:
         RUN Move-Field ("Up").
     END.
 
@@ -465,7 +498,7 @@ ON CHOOSE OF btn_Up IN FRAME rd-utilexp /* Move Up */
 &Scoped-define SELF-NAME end_mod
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_mod rd-utilexp
 ON LEAVE OF end_mod IN FRAME rd-utilexp /* To Module */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -476,7 +509,7 @@ ON LEAVE OF end_mod IN FRAME rd-utilexp /* To Module */
 &Scoped-define SELF-NAME end_name
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_name rd-utilexp
 ON LEAVE OF end_name IN FRAME rd-utilexp /* To Name */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -486,8 +519,31 @@ ON LEAVE OF end_name IN FRAME rd-utilexp /* To Name */
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file rd-utilexp
-ON LEAVE OF fi_file IN FRAME rd-utilexp /* If Yes, File Name */
-    DO:
+ON HELP OF fi_file IN FRAME rd-utilexp /* Name */
+DO:
+   DEF VAR ls-filename AS CHARACTER NO-UNDO.
+   DEF VAR ll-ok AS LOG NO-UNDO.
+
+   SYSTEM-DIALOG GET-FILE ls-filename 
+                 TITLE "Select File to Save "
+                 FILTERS "Excel Files    (*.csv)" "*.csv",
+                         "All Files    (*.*) " "*.*"
+                 INITIAL-DIR "c:\tmp"
+                 MUST-EXIST
+                 USE-FILENAME
+                 UPDATE ll-ok.
+
+    IF ll-ok THEN SELF:SCREEN-VALUE = ls-filename.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file rd-utilexp
+ON LEAVE OF fi_file IN FRAME rd-utilexp /* Name */
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -498,7 +554,7 @@ ON LEAVE OF fi_file IN FRAME rd-utilexp /* If Yes, File Name */
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail rd-utilexp
 ON DEFAULT-ACTION OF sl_avail IN FRAME rd-utilexp
-    DO:
+DO:
   
         IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
             sl_selected:NUM-ITEMS = 0)
@@ -513,7 +569,7 @@ ON DEFAULT-ACTION OF sl_avail IN FRAME rd-utilexp
 &Scoped-define SELF-NAME sl_selected
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_selected rd-utilexp
 ON DEFAULT-ACTION OF sl_selected IN FRAME rd-utilexp
-    DO:
+DO:
         DO i = 1 TO {&SELF-NAME}:NUM-ITEMS:
             IF {&SELF-NAME}:IS-SELECTED(i) THEN 
             DO:
@@ -539,7 +595,7 @@ ON DEFAULT-ACTION OF sl_selected IN FRAME rd-utilexp
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel rd-utilexp
 ON VALUE-CHANGED OF tb_excel IN FRAME rd-utilexp /* Export To Excel? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -547,10 +603,10 @@ ON VALUE-CHANGED OF tb_excel IN FRAME rd-utilexp /* Export To Excel? */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_runExcel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel rd-utilexp
-ON VALUE-CHANGED OF tb_runExcel IN FRAME rd-utilexp /* Auto Run Excel? */
-    DO:
+&Scoped-define SELF-NAME tb_OpenCSV
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV rd-utilexp
+ON VALUE-CHANGED OF tb_OpenCSV IN FRAME rd-utilexp /* Open CSV? */
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -578,12 +634,20 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
     RUN DisplaySelectionList.
+    btn-ok:LOAD-IMAGE("Graphics/32x32/Ok.png").
+    btn-cancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
+    Btn_Def:LOAD-IMAGE("Graphics/32x32/default.png").
+    Btn_Add:LOAD-IMAGE("Graphics/32x32/additem.png").
+    Btn_Remove:LOAD-IMAGE("Graphics/32x32/remove.png").
+    btn_Up:LOAD-IMAGE("Graphics/32x32/moveup.png").
+    btn_down:LOAD-IMAGE("Graphics/32x32/movedown.png").
     RUN enable_UI.
     {methods/nowait.i}
     DO WITH FRAME {&FRAME-NAME}:
         {custom/usrprint.i}
         RUN DisplaySelectionList2.
         APPLY "entry" TO begin_name.
+        fi_file:SCREEN-VALUE = "c:~\tmp~\ExportUtilities.csv".
     END.
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -597,16 +661,16 @@ RUN disable_UI.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI rd-utilexp  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME rd-utilexp.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME rd-utilexp.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -614,7 +678,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault rd-utilexp 
 PROCEDURE DisplaySelectionDefault :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -637,7 +701,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList rd-utilexp 
 PROCEDURE DisplaySelectionList :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -673,7 +737,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList2 rd-utilexp 
 PROCEDURE DisplaySelectionList2 :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -722,24 +786,24 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI rd-utilexp  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY begin_name end_name begin_mod end_mod sl_avail sl_selected tb_excel 
-        tb_runExcel fi_file 
-        WITH FRAME rd-utilexp.
-    ENABLE RECT-6 RECT-7 RECT-8 begin_name end_name begin_mod end_mod Btn_Def 
-        sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down tb_runExcel 
-        fi_file btn-ok btn-cancel 
-        WITH FRAME rd-utilexp.
-    VIEW FRAME rd-utilexp.
-    {&OPEN-BROWSERS-IN-QUERY-rd-utilexp}
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY begin_name end_name begin_mod end_mod sl_avail sl_selected fi_file 
+          tb_OpenCSV tbAutoClose 
+      WITH FRAME rd-utilexp.
+  ENABLE RECT-6 RECT-7 RECT-8 begin_name end_name begin_mod end_mod sl_avail 
+         Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down fi_file 
+         tb_OpenCSV tbAutoClose btn-ok btn-cancel 
+      WITH FRAME rd-utilexp.
+  VIEW FRAME rd-utilexp.
+  {&OPEN-BROWSERS-IN-QUERY-rd-utilexp}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -747,12 +811,12 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetSelectionList rd-utilexp 
 PROCEDURE GetSelectionList :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cTmpList AS cha NO-UNDO.
+    DEFINE VARIABLE cTmpList AS CHARACTER NO-UNDO.
 
     EMPTY TEMP-TABLE ttRptSelected.
     cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -774,7 +838,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Move-Field rd-utilexp 
 PROCEDURE Move-Field :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -809,7 +873,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report rd-utilexp 
 PROCEDURE run-report :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -822,7 +886,7 @@ PROCEDURE run-report :
     v-excelheader = buildHeader().
     SESSION:SET-WAIT-STATE ("general").
 
-    IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
+    IF tb_excel THEN OUTPUT STREAM excel TO VALUE(cFileName).
     IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 
     FIND FIRST users NO-LOCK
@@ -850,8 +914,8 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        IF tb_OpenCSV THEN
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

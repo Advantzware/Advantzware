@@ -890,7 +890,7 @@ PROCEDURE build-report-recs :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-def input parameter ipv-s-pono like po-ord.po-no format ">>>>>>" NO-UNDO.
+def input parameter ipv-s-pono like po-ord.po-no format ">>>>>>>>" NO-UNDO.
 def input parameter ipv-e-pono like ipv-s-pono init 999999 NO-UNDO.
 def input parameter ipv-s-date like po-ord.po-date format "99/99/9999" init "01/01/0001" NO-UNDO.
 def input parameter ipv-e-date like ipv-s-date init TODAY NO-UNDO.
@@ -1263,7 +1263,7 @@ def buffer xjob-mat for job-mat.
 def var v-foot-rem like ap-invl.amt-msf no-undo.
 def var v-msf-cal as log no-undo.
 
-def var v-s-pono like po-ord.po-no format ">>>>>>" NO-UNDO.
+def var v-s-pono like po-ord.po-no format ">>>>>>>>" NO-UNDO.
 def var v-e-pono like v-s-pono init 999999 NO-UNDO.
 def var v-s-date like po-ord.po-date format "99/99/9999" init "01/01/0001" NO-UNDO.
 def var v-e-date like v-s-date init TODAY NO-UNDO.
@@ -1753,7 +1753,7 @@ RUN build-report-recs (
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+    OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

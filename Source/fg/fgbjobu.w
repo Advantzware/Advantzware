@@ -47,6 +47,10 @@ DEFINE BUFFER tmp-w-job FOR w-job.
 DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 
 {sys/ref/fgoecost.i}
+{jc/jcgl-sh.i NEW}
+{sys/inc/fgpostgl.i} 
+{oe/invwork.i NEW}
+{sys/inc/adjustgl.i} 
 
 DEFINE VARIABLE hPgmSecurity AS HANDLE  NO-UNDO.
 DEFINE VARIABLE lAccess1     AS LOGICAL NO-UNDO.
@@ -501,6 +505,7 @@ DO:
     DEFINE VARIABLE lOldValueOnHold AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lUpdateAllJobTags AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lUpdateJobPO AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER b-fg-bin FOR fg-bin.
     DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
@@ -631,7 +636,15 @@ DO:
                 fg-bin.qty           = w-job.qty
                 fg-bin.partial-count = w-job.partial-count
                 .
-            IF ll-changed THEN DO:                
+            IF ll-changed THEN DO:
+               RUN displayMessageQuestion ("69", OUTPUT lMsgResponse).
+               IF lMsgResponse THEN
+               DO:
+                  RUN fg/cre-pchr.p (ROWID(fg-bin), "A", lv-qty, lv-part,cReasonCode).
+                  RUN fg/fg-reset.p (recid(itemfg)).
+                  RUN pCreateGLTrans(ROWID(fg-bin), INPUT lv-qty).
+               END.
+               ELSE do:
                 FIND FIRST itemfg
                      {sys/look/itemfgrlW.i}
                      AND itemfg.i-no EQ fg-bin.i-no
@@ -676,7 +689,7 @@ DO:
                     bf-fg-rctd.cases-unit     = fg-bin.cases-unit .  
                     
                     RELEASE bf-fg-rctd.
-                    
+               END. /* not lMsgResponse*/     
                  
                 IF fg-bin.tag NE "" THEN DO:
                 FOR EACH loadtag
@@ -1283,6 +1296,82 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateGLTrans D-Dialog 
+PROCEDURE pCreateGLTrans :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iprwRowid AS ROWID   NO-UNDO.
+  DEFINE INPUT PARAMETER ipdQty    AS DECIMAL NO-UNDO.
+  
+  DEFINE VARIABLE iTrnum  LIKE gl-ctrl.trnum NO-UNDO.
+  DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+  DEFINE BUFFER bf-fg-bin FOR fg-bin.
+  
+  
+  FIND FIRST bf-fg-bin NO-LOCK 
+       WHERE ROWID(bf-fg-bin) EQ iprwRowid NO-ERROR.     
+  
+    EMPTY TEMP-TABLE work-job.
+    IF avail bf-fg-bin then
+    DO:
+       cDescription  = IF bf-fg-bin.job-no NE "" THEN "Job: " + bf-fg-bin.job-no + "-" + STRING(bf-fg-bin.job-no2,"99")
+                        ELSE IF bf-fg-bin.po-no NE "" THEN "PO: " + STRING(bf-fg-bin.po-no,"999999") ELSE "" .
+
+       run oe/invposty.p (0, bf-fg-bin.i-no, ipdQty * -1, bf-fg-bin.pur-uom,
+                          bf-fg-bin.std-lab-cost, bf-fg-bin.std-fix-cost,
+                          bf-fg-bin.std-var-cost, bf-fg-bin.std-mat-cost, cDescription).                                
+    END.    
+
+    IF v-adjustgl THEN 
+    DO TRANSACTION:
+        /** GET next G/L TRANS. POSTING # **/
+        REPEAT:
+            FIND FIRST gl-ctrl WHERE gl-ctrl.company EQ cocode EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
+            IF AVAILABLE gl-ctrl THEN
+            DO:
+                ASSIGN
+                    iTrnum        = gl-ctrl.trnum + 1
+                    gl-ctrl.trnum = iTrnum.
+                FIND CURRENT gl-ctrl NO-LOCK.
+                LEAVE.
+            END.
+        END.
+        
+        FIND FIRST period NO-LOCK
+            WHERE period.company EQ cocode
+            AND period.pst     LE TODAY
+            AND period.pend    GE TODAY
+            NO-ERROR.
+
+        FOR EACH work-job BREAK BY work-job.actnum:
+
+            RUN GL_SpCreateGLHist(cocode,
+                work-job.actnum,
+                "ADJUST",
+                (IF work-job.fg THEN "FG Adjustment entries FG"
+                ELSE "FG Adjustment entries COGS"),
+                TODAY,
+                (IF work-job.fg THEN - work-job.amt
+                ELSE work-job.amt),
+                iTrnum,
+                period.pnum,
+                "A",
+                TODAY,
+                work-job.cDesc,
+                "FG").
+        END. /* each work-job */
+    END.
+
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidUnitCount D-Dialog 
 PROCEDURE pValidUnitCount :

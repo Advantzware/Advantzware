@@ -57,9 +57,7 @@ IF ll THEN DO:
   RETURN ERROR.
 END.
 
-{po/po-ordls.i io-}
-IF AVAIL b-ref1 THEN DELETE b-ref1.
-IF AVAIL b-ref2 THEN DELETE b-ref2.
+
 
 {po/poordlup.i io-}
     FIND po-ordl WHERE ROWID(po-ordl) EQ ROWID(io-po-ordl) NO-LOCK NO-ERROR.
@@ -130,7 +128,7 @@ END.
 FOR EACH loadtag
     WHERE loadtag.company   EQ io-po-ordl.company
       AND loadtag.item-type EQ YES
-      AND loadtag.tag-no    BEGINS STRING(io-po-ordl.po-no,'9999999') +
+      AND loadtag.tag-no    BEGINS STRING(io-po-ordl.po-no,'99999999') +
                                    STRING(io-po-ordl.line,'999'):
   DELETE loadtag.
 END.

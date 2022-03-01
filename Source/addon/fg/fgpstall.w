@@ -83,7 +83,8 @@ DEF STREAM logFile.
 DEF STREAM before.
 DEF STREAM after.
 /* AJ 06/24/2008  Added two variables for excel report */
-DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
+DEFINE VARIABLE excelheader  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
 DEFINE STREAM excel.
 
 DEFINE BUFFER b-fg-rctd FOR fg-rctd.
@@ -95,6 +96,7 @@ DO TRANSACTION:
   {sys/inc/fgpost.i}   
 END.
 {fg/fgPostProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -168,7 +170,7 @@ DEFINE VARIABLE begin_userid AS CHARACTER FORMAT "X(8)":U
      SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_whs AS CHARACTER FORMAT "X(5)":U 
-     LABEL "From Warehouse" 
+     LABEL "From Location" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
@@ -193,7 +195,7 @@ DEFINE VARIABLE end_userid AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz"
      SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_whs AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
-     LABEL "To Warehouse" 
+     LABEL "To Location" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
@@ -423,8 +425,6 @@ DEFINE FRAME FRAME-A
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.1 COL 1.8
           BGCOLOR 2 
-     "Trans Typ :" VIEW-AS TEXT
-          SIZE 12 BY .95 AT ROW 9.95 COL 2 WIDGET-ID 6
      "Sort Options :" VIEW-AS TEXT
           SIZE 15 BY .95 AT ROW 9.95 COL 36.6 WIDGET-ID 14
      "Output Destination" VIEW-AS TEXT
@@ -434,6 +434,8 @@ DEFINE FRAME FRAME-A
      "This Procedure Will Post All Finished Goods Transactions" VIEW-AS TEXT
           SIZE 65 BY .95 AT ROW 1.71 COL 23.8
           FONT 6
+     "Trans Typ :" VIEW-AS TEXT
+          SIZE 12 BY .95 AT ROW 9.95 COL 2 WIDGET-ID 6
      RECT-6 AT ROW 16.48 COL 1
      RECT-7 AT ROW 1 COL 1
      RECT-30 AT ROW 9.81 COL 1.6 WIDGET-ID 8
@@ -496,59 +498,20 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       Btn_Cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       Btn_OK:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-
 ASSIGN 
-    v-post-date:PRIVATE-DATA IN FRAME FRAME-A     = 
+       begin_fg-r-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
-    begin_fg-r-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+       begin_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
-    end_fg-r-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+       begin_job-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
-    begin_userid:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-    end_userid:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-    ldt-from:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-    ldt-to:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-    begin_job-no:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-    end_job-no:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-    begin_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-    end_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+       begin_userid:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -556,58 +519,49 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       Btn_Cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       Btn_OK:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       end_fg-r-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_job-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_userid:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        end_whs:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
-       t-receipt:PRIVATE-DATA IN FRAME FRAME-A     = 
+       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
-       t-ship:PRIVATE-DATA IN FRAME FRAME-A     = 
+       ldt-from:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
-       t-trans:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-       t-adj:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-       tb_glnum:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-       t-ret:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-       tb_totCstVal:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-       tb_grndtotal:PRIVATE-DATA IN FRAME FRAME-A     = 
+       ldt-to:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-       tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
-   ALIGN-R                                                              */
-ASSIGN 
-       tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-ASSIGN 
-       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-/*
-ASSIGN 
-       rd_print:PRIVATE-DATA IN FRAME FRAME-A     = 
+       rd-dest:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -621,14 +575,59 @@ ASSIGN
 ASSIGN 
        rd-UOMJob:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-ASSIGN 
-       rd-dest:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-*/
 
+ASSIGN 
+       rd_print:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       t-adj:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       t-receipt:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       t-ret:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       t-ship:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       t-trans:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_glnum:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_grndtotal:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_totCstVal:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tgl-itemCD IN FRAME FRAME-A
    NO-ENABLE                                                            */
+ASSIGN 
+       v-post-date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 /* SETTINGS FOR FILL-IN v-trans-lbl IN FRAME FRAME-A
    NO-ENABLE ALIGN-L                                                    */
 ASSIGN 
@@ -649,7 +648,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1606,7 +1605,7 @@ PROCEDURE fg-post :
                          period.pnum,
                          "A",
                          v-post-date,
-                         string(IF AVAIL fg-rctd THEN fg-rctd.i-no ELSE ""),
+                         work-job.cDesc,
                          "FG").
     end. /* each work-job */
   end.
@@ -1780,7 +1779,7 @@ PROCEDURE gl-from-work :
                          period.pnum,
                          "A",
                          v-post-date,
-                         string(IF AVAIL fg-rctd THEN fg-rctd.i-no ELSE ""),
+                         work-gl.cDesc,
                          "FG").
       
      assign
@@ -2038,7 +2037,7 @@ FORM HEADER
     WITH FRAME after STREAM-IO WIDTH 132 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP.
 
 FORM HEADER
-     "WHSE:"
+     "LOCN:"
      v-whse
      SKIP    
      "         TOTAL"   at 128    
@@ -2440,7 +2439,7 @@ IF tb_excel THEN
   DO:
       OUTPUT STREAM excel CLOSE.
       IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT VALUE(SEARCH(fi_file)).
 END.
 
 IF ip-run-what EQ "" THEN

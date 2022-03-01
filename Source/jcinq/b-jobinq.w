@@ -832,6 +832,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON LEAVE OF fi_cust-no IN FRAME F-Main
 DO:
+    {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   /*IF LASTKEY NE -1 THEN DO:
     APPLY "choose" TO btn_go.
   END.*/
@@ -844,7 +845,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
 DO:
-  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
@@ -2061,6 +2061,9 @@ FUNCTION overUnderPct RETURNS INTEGER
     rtnValue = ((ipBalance / oe-ordl.qty) - 1) * 100.
     IF rtnValue EQ 0 THEN rtnValue = 100.
     IF rtnValue EQ -100 THEN rtnValue = 0.
+    
+    IF rtnValue GT 999 THEN rtnValue = 999.
+    ELSE IF rtnValue LT -999 THEN rtnValue = -999.
     END. /* avail oe-ordl */
   END. /* avail job-hdr */
   RETURN rtnValue.

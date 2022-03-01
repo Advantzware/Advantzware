@@ -40,7 +40,7 @@ assign
  cocode = gcompany
  locode = gloc.
 
-def var v-s-pono like po-ord.po-no format ">>>>>>".
+def var v-s-pono like po-ord.po-no format ">>>>>>>>".
 def var v-e-pono like v-s-pono init 999999.
 def var v-s-date like po-ord.po-date format "99/99/9999" init "01/01/0001".
 def var v-e-date like v-s-date init today.
@@ -1540,7 +1540,7 @@ DISPLAY WITH FRAME r-top.
 IF tb_excel THEN DO:
    OUTPUT STREAM s-temp CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

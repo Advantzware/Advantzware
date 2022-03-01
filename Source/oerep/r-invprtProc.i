@@ -277,6 +277,7 @@ PROCEDURE assignSelections:
     DEFINE INPUT PARAMETER iptb_prt-dupl        AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptbPdfOnly          AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptbOpenInvOnly      AS LOGICAL INITIAL NO               .
+    DEFINE INPUT PARAMETER iptb_print-message   AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER ipcInvMessage1       AS CHARACTER FORMAT "X(40)"         .
     DEFINE INPUT PARAMETER ipcInvMessage2       AS CHARACTER FORMAT "X(40)"         .
     DEFINE INPUT PARAMETER ipcInvMessage3       AS CHARACTER FORMAT "X(40)"         .
@@ -332,6 +333,7 @@ PROCEDURE assignSelections:
         tb_prt-dupl      = iptb_prt-dupl
         tb_PdfOnly       = iptbPdfOnly
         tb_open-inv      = iptbOpenInvOnly
+        ltb_print-message = iptb_print-message
         cInvMessage[1]   = ipcInvMessage1
         cInvMessage[2]   = ipcInvMessage2
         cInvMessage[3]   = ipcInvMessage3
@@ -1005,9 +1007,9 @@ PROCEDURE output-to-mail :
                 OR
                 (buf-{&head}.cust-no EQ icCustNo AND tb_BatchMail)) 
                 AND (if tb_cust-list then can-find(first ttCustList where ttCustList.cust-no eq buf-{&head}.cust-no
-                AND ttCustList.log-fld no-lock) else true)
-                AND  INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 
-                AND  (((NOT tb_reprint) AND buf-{&head}.inv-no EQ 0) OR
+                AND ttCustList.log-fld no-lock) else true)              
+                AND (INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 OR "{&head}" EQ "ar-inv")
+                AND  (((NOT tb_reprint) AND (buf-{&head}.inv-no EQ 0 OR "{&head}" EQ "ar-inv")) OR
                 (tb_reprint AND buf-{&head}.inv-no NE 0 AND
                 (IF "{&head}" EQ "ar-inv" THEN buf-{&head}.inv-date GE begin_date
                 AND buf-{&head}.inv-date LE end_date ELSE TRUE) AND                    
@@ -1102,7 +1104,7 @@ PROCEDURE output-to-mail :
                             FIND oe-ord WHERE oe-ord.company = buf-{&head}.company
                                 AND oe-ord.ord-no = {&line}.ord-no
                                 NO-LOCK NO-ERROR.
-                            vSoldToNo = IF AVAILABLE oe-ord THEN oe-ord.sold-id ELSE "".
+                            vSoldToNo = IF AVAILABLE oe-ord THEN oe-ord.sold-id ELSE buf-{&head}.cust-no.
                         END.
                         vShipToNo = STRING(buf-{&head}.sold-no).
 
@@ -1124,9 +1126,9 @@ PROCEDURE output-to-mail :
                 ((buf-{&head}.cust-no GE begin_cust AND buf-{&head}.cust-no LE end_cust AND NOT tb_BatchMail)
                 OR
                 (buf-{&head}.cust-no EQ icCustNo AND tb_BatchMail)
-                ) AND
-                   INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 AND 
-                (((NOT tb_reprint) AND buf-{&head}.inv-no EQ 0) OR
+                )
+                AND (INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 OR "{&head}" EQ "ar-inv") AND 
+                (((NOT tb_reprint) AND (buf-{&head}.inv-no EQ 0 OR "{&head}" EQ "ar-inv")) OR
                 (tb_reprint AND buf-{&head}.inv-no NE 0 AND
                 (IF "{&head}" EQ "ar-inv" THEN buf-{&head}.inv-date GE begin_date
                 AND buf-{&head}.inv-date LE end_date ELSE TRUE) AND                    
@@ -2354,6 +2356,11 @@ PROCEDURE SetInvForm:
                 v-program      = "oe/rep/invlovepac.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
+        WHEN "Lovepac-CAN" THEN
+            ASSIGN
+                v-program      = "oe/rep/invlovepac-CAN.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
         WHEN "invprint10-CAN" THEN
             ASSIGN
                 v-program      = "oe/rep/inv10can.p"
@@ -2958,6 +2965,11 @@ PROCEDURE SetInvPostForm:
                 v-program      = "ar/rep/invlovepac.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
+        WHEN "Lovepac-CAN" THEN
+            ASSIGN
+                v-program      = "ar/rep/invlovepac-CAN.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
         WHEN "invprint10-CAN" THEN
             ASSIGN
                 v-program      = "ar/rep/inv10can.p"
@@ -3515,6 +3527,12 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE:
 
     IF NOT AVAILABLE bf-inv-head AND NOT AVAILABLE bf-ar-inv THEN
         RETURN.
+        
+    IF AVAIL bf-inv-head AND bf-inv-head.ediInvoice THEN 
+        RETURN.
+        
+    IF AVAIL bf-ar-inv AND bf-ar-inv.ediInvoice THEN 
+        RETURN.    
                       
     ASSIGN 
         cAPIID       = "SendInvoice"

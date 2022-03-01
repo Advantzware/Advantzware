@@ -1,10 +1,12 @@
 "202007061848505434106" "001" "_ANY_" "Customer" "_default" "CalculateTax" "_ANY_" no
 "202005285503905315489" "001" "_ANY_" "_ANY_" "_default" "CheckTransfer" "_ANY_" no
+"202112095483208360305" "001" "_ANY_" "_ANY_" "_default" "GetExchangeRate" "GetExchangeRate" no
+"202110254042408178952" "001" "_ANY_" "_ANY_" "_default" "JobTicket" "_ANY_" no
 "202005285503905315490" "001" "_ANY_" "_ANY_" "_default" "SendAdvancedShipNotice" "_ANY_" no
 "202005285503905315492" "001" "_ANY_" "_ANY_" "_default1" "SendAdvancedShipNotice" "_ANY_" no
+"202107072372207688369" "001" "_ANY_" "_ANY_" "_default" "SendBankCheck" "_ANY_" no
 "202005285503905315493" "001" "_ANY_" "_ANY_" "_default" "SendCustomer" "_ANY_" no
 "202005285503905315494" "001" "_ANY_" "_ANY_" "_default" "SendFinishedGood" "_ANY_" no
-"202005285503905315495" "001" "_ANY_" "_ANY_" "_default" "SendFinishedGood2" "_ANY_" no
 "202005285504005315496" "001" "_ANY_" "_ANY_" "_default" "SendInvoice" "_ANY_" no
 "202009024138005624296" "001" "_ANY_" "_ANY_" "_default1" "SendInvoice" "_ANY_" no
 "202005285504005315497" "001" "_ANY_" "_ANY_" "_default" "SendJob" "_ANY_" no
