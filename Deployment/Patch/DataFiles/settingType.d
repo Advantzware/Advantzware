@@ -1,3 +1,20 @@
+"202202224354008566309" 704 "Default RM Item to select" "Character" "User Select,First Board,First Item" "User Select" "" "" no "SSRMIssue" "SSIssueDefaultRM" 0 no
+"202202224082108566298" 703 "Post Scanned items automatically" "Logical" "YES,NO" "NO" "" "" no "SSRMIssue" "AutoPost" 0 no
+"202202074618808553143" 702 "Allow user to override the status id of on hold tag
+Logical = YES
+This allows the user to scan a tag that is already on hold.
+If the pallet tag that is scanned has a status of On Hold, the user will be prompted to enter a status update
+
+Logical = NO
+This will not allow the user to scan a tag that is already on hold and will show them a message that this tag is on hold and cannot be used.  If the pallet tag that was scanned has a status of On Hold, then the user will be prompted with zMessage(55) indicating the tag is on hold and will display the tag status in the zMessage.  We want to include the Status id and status description - using the new zMessage framework) and return to the tag field (in focus) to enter a different tag.
+" "Logical" "YES,NO" "NO" "" "" no "SSTagStatus" "AllowOnHoldTagScan" 0 no
+"202202074613408553113" 701 "This can be defaulted so that the user cannot enter any tag status and
+the default here forces the tag to be updated with this status
+automatically.  If left blank, then the user will be prompted for the
+tag status to apply.  For example, if the tag status is forced to be
+'001' - Quarantine, then the user will not be prompted or permitted to
+change the status.
+" "Character" "" "" "" "" no "SSTagStatus" "DefaultTagScanStatusID" 0 no
 "202201274048108513598" 700 "Vertex Client Secret
 NK1=VertexClientSecret" "Character" "" "" "" "" no "Vertex" "VertexClientSecret" 0 no
 "202201274048108513595" 699 "Vertex Client ID
