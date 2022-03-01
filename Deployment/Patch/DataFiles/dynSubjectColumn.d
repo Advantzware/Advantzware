@@ -78,6 +78,8 @@
 8 yes 17 "CalcLoginDateTime" "Login Date Time" "x(22)" "machtran" 0 "Character" "ASI" 0 no no "" "" yes "calcStringDateTime" "machtran.start_date|machtran.start_time" "201902080000000000001" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 18 "CalcLogoutDateTime" "Logout Date Time" "x(22)" "machtran" 0 "Character" "ASI" 0 no no "" "" yes "calcStringDateTime" "machtran.end_date|machtran.end_time" "201902080000000000002" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 9 "CalcStartTime" "Start Time" "x(11)" "machtran" 0 "Character" "ASI" 0 no no "" "" yes "calcStringTime" "machtran.start_time" "201902070000000000001" no no no "" no "" "" 0 0 "" no no "" "" no
+8 no 19 "cust.cust-no" "Cust. #" "x(8)" "cust" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202202155477108565189" no no no "" no "" "" 0 0 "" no no "" "" no
+8 no 20 "cust.name" "Customer Name" "x(30)" "cust" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202202155477108565190" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 5 "machtran.blank_number" "Blank Number" ">9" "machtran" 0 "Integer" "ASI" 0 no no "" "" no "" "" "201903123444702670498" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 7 "machtran.charge_code" "Charge Code" "X(5)" "machtran" 0 "Character" "ASI" 0 no no "" "" no "" "" "201903123444702670499" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 16 "machtran.completed" "Completed?" "yes/no" "machtran" 0 "Logical" "ASI" 0 no no "" "" no "" "" "201903123444702670500" no no no "" no "" "" 0 0 "" no no "" "" no
@@ -90,7 +92,7 @@
 8 yes 14 "machtran.run_qty" "Run Quantity" "->>,>>>,>>9" "machtran" 0 "Integer" "ASI" 0 no no "" "Report,Sum,[Group] Machine,Sum" no "" "" "201903123444702670506" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 12 "machtran.shift" "Shift" "X" "machtran" 0 "Character" "ASI" 0 no no "" "" no "" "" "201903123444702670507" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 8 "machtran.start_date" "Start Date" "99/99/9999" "machtran" 0 "Date" "ASI" 2 no no "" "" no "" "" "201903123444702670508" no no no "" no "" "" 0 0 "" no no "" "" no
-8 no 19 "machtran.start_time" "Start Time" ">>>>9" "machtran" 0 "Integer" "ASI" 3 no no "" "" no "" "" "201902180000000000001" no no no "" no "" "" 0 0 "" no no "" "" no
+8 no 21 "machtran.start_time" "Start Time" ">>>>9" "machtran" 0 "Integer" "ASI" 3 no no "" "" no "" "" "201902180000000000001" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 13 "machtran.total_time" "Total Time" "->,>>>,>>9" "machtran" 0 "Integer" "ASI" 0 no no "" "" no "" "" "201903123444702670509" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 15 "machtran.waste_qty" "Waste Quantity" "->>>>9" "machtran" 0 "Integer" "ASI" 0 no no "" "Report,Sum,[Group] Machine,Sum" no "" "" "201903123444702670510" no no no "" no "" "" 0 0 "" no no "" "" no
 9 yes 6 "AuditDtl.AuditAfterValue" "After Value" "x(16)" "AuditDtl" 0 "STRING" "AUDIT" 0 no no "" "" no "" "" "201904237193303445856" no no no "" no "" "" 0 0 "" no no "" "" no
@@ -2403,47 +2405,49 @@
 160 yes 4 "oe-relh.rel-date" "Date Last Counted" "99/99/9999" "oe-relh" 0 "date" "ASI" 0 no no "" "" no "" "" "202102161049806212513" no no yes "" no "" "" 0 0 "" no no "" "" no
 160 yes 1 "oe-relh.release#" "Release#" "->,>>>,>>9" "oe-relh" 0 "integer" "ASI" 0 no no "" "" no "" "" "202102161049806212514" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 160 yes 5 "oe-relh.trailer" "Trailer" "x(20)" "oe-relh" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202102161049806212515" no no yes "" no "" "" 0 0 "" no no "" "" no
-161 yes 35 "ttOrdersBooked.ackDate" "Ack. Date" "99/99/9999" "ttOrdersBooked" 0 "date" "ASI" 0 no no "" "" no "" "" "202102187159506063979" no no no "" no "" "" 0 0 "" no no "" "" no
-161 yes 32 "ttOrdersBooked.cEnterBy" "Entered By" "x(10)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062776" no no no "" no "" "" 0 0 "" no no "" "" no
+161 yes 37 "ttOrdersBooked.ackDate" "Ack. Date" "99/99/9999" "ttOrdersBooked" 0 "date" "ASI" 0 no no "" "" no "" "" "202102187159506063979" no no no "" no "" "" 0 0 "" no no "" "" no
+161 yes 34 "ttOrdersBooked.cEnterBy" "Entered By" "x(10)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062776" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 7 "ttOrdersBooked.commPer" "Comm Pct" ">>>>>9.99" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202102186346306062777" no no no "" no "" "" 0 0 "" no no "" "" no
-161 yes 39 "ttOrdersBooked.csr" "CSR" "x(8)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102187159506063980" no no no "" no "" "" 0 0 "" no no "" "" no
-161 yes 33 "ttOrdersBooked.cStatus" "Status" "x(20)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062778" no no no "" no "" "" 0 0 "" no no "" "" no
+161 yes 41 "ttOrdersBooked.csr" "CSR" "x(8)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102187159506063980" no no no "" no "" "" 0 0 "" no no "" "" no
+161 yes 35 "ttOrdersBooked.cStatus" "Status" "x(20)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062778" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 6 "ttOrdersBooked.custName" "Customer Name" "X(30)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062779" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 5 "ttOrdersBooked.custNo" "Cust No" "X(8)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062780" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 10 "ttOrdersBooked.custPartNo" "Customer Part" "x(15)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062781" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 21 "ttOrdersBooked.custPO" "Cust PO" "x(15)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062782" no no no "" no "" "" 0 0 "" no no "" "" no
+161 yes 30 "ttOrdersBooked.dCostRT" "Cost RT" "->>>>>>>9.99" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202280070808573401" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 29 "ttOrdersBooked.dCstPerM" "Cost/$m" "->>>,>>>,>>9.99" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202102186346306062783" no no no "" no "" "" 0 0 "" no no "" "" no
-161 yes 31 "ttOrdersBooked.dFullCost" "Full Cost" "->>>>>>>9.99" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202102186346306062784" no no no "" no "" "" 0 0 "" no no "" "" no
+161 yes 33 "ttOrdersBooked.dFullCost" "Full Cost" "->>>>>>>9.99" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202102186346306062784" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 23 "ttOrdersBooked.dieNo" "Die No" "x(15)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062785" no no no "" no "" "" 0 0 "" no no "" "" no
-161 yes 30 "ttOrdersBooked.dTotStdCost" "Total Std Cost" "->>>>>>>9.99" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202102186346306062786" no no no "" no "" "" 0 0 "" no no "" "" no
+161 yes 32 "ttOrdersBooked.dTotStdCost" "Total Std Cost" "->>>>>>>9.99" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202102186346306062786" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 3 "ttOrdersBooked.dueDate" "Due Date" "99/99/9999" "ttOrdersBooked" 0 "date" "ASI" 0 no no "" "" no "" "" "202102186346306062787" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 12 "ttOrdersBooked.fgItemName" "FG Item Name" "X(30)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062788" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 11 "ttOrdersBooked.fgItemNo" "FG Item" "X(15)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062789" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 27 "ttOrdersBooked.inksCode" "Inks" "x(40)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062790" no no no "" no "" "" 0 0 "" no no "" "" no
+161 yes 31 "ttOrdersBooked.lCostDiff" "Cost Diff" "*/" "ttOrdersBooked" 0 "logical" "ASI" 0 no no "" "" no "" "" "202202280070808573402" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 26 "ttOrdersBooked.machineCode" "Machine" "x(30)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062791" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 15 "ttOrdersBooked.msfPrice" "MSF" "->>,>>9.99" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "Report,Calculated|$V{orderAmount_ReportFooter} / $V{totalSqft_ReportFooter}|Double,[Group] Sales Rep,Calculated|$V{orderAmount_Sales_Rep_Group} / $V{totalSqft_Sales_Rep_Group}|Double" no "" "" "202102186346306062792" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 17 "ttOrdersBooked.orderAmount" "Order Amount" "->,>>>,>>9.99" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Sales Rep,Sum" no "" "" "202102186346306062793" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 22 "ttOrdersBooked.orderDate" "Order Date" "99/99/9999" "ttOrdersBooked" 0 "date" "ASI" 0 no no "" "" no "" "" "202102186346306062794" no no no "" no "" "" 0 0 "" no no "" "" no
-161 yes 4 "ttOrdersBooked.orderNo" "Order No" ">>>>>>>" "ttOrdersBooked" 0 "integer" "ASI" 0 no no "" "" no "" "" "202102186346306062795" no no no "" no "" "" 0 0 "" no no "" "" no
-161 yes 37 "ttOrdersBooked.poReceived" "PO Received" "99/99/9999" "ttOrdersBooked" 0 "date" "ASI" 0 no no "" "" no "" "" "202102187159506063981" no no no "" no "" "" 0 0 "" no no "" "" no
-161 yes 38 "ttOrdersBooked.prevOrderNo" "Prev Order" "x(8)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102187159506063982" no no no "" no "" "" 0 0 "" no no "" "" no
+161 yes 4 "ttOrdersBooked.orderNo" "Order No" ">>>>>>>9" "ttOrdersBooked" 0 "integer" "ASI" 0 no no "" "" no "" "" "202102186346306062795" no no no "" no "" "" 0 0 "" no no "" "" no
+161 yes 39 "ttOrdersBooked.poReceived" "PO Received" "99/99/9999" "ttOrdersBooked" 0 "date" "ASI" 0 no no "" "" no "" "" "202102187159506063981" no no no "" no "" "" 0 0 "" no no "" "" no
+161 yes 40 "ttOrdersBooked.prevOrderNo" "Prev Order" "x(10)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102187159506063982" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 16 "ttOrdersBooked.price" "Price" ">,>>>,>>9.99" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202102186346306062796" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 28 "ttOrdersBooked.printSheet" "Prints Sheet" "x(20)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062797" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 8 "ttOrdersBooked.prodCode" "Prod Code" "x(8)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062798" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 18 "ttOrdersBooked.profitPer" "Profit" "->,>>>,>>9.9" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "Report,Calculated|($V{orderAmount_ReportFooter} - $V{zzCost_ReportFooter}) / $V{orderAmount_ReportFooter} * 100|Double,[Group] Sales Rep,Calculated|($V{orderAmount_Sales_Rep_Group} - $V{zzCost_Sales_Rep_Group}) / $V{profitPer_Sales_Rep_Group} * 100|Double" no "" "" "202102186346306062799" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 25 "ttOrdersBooked.prUOM" "UOM" "x(6)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062800" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 9 "ttOrdersBooked.qtyOrdEa" "Qty Ordered" ">,>>>,>>9" "ttOrdersBooked" 0 "integer" "ASI" 0 no no "" "" no "" "" "202102186346306062801" no no no "" no "" "" 0 0 "" no no "" "" no
-161 no 41 "ttOrdersBooked.recordID" "Record ID" ">>>,>>>,>>9" "ttOrdersBooked" 0 "integer" "ASI" 0 no no "" "" no "" "" "202106144466107419492" no no no "" no "" "" 0 0 "" no no "" "" no
+161 no 43 "ttOrdersBooked.recordID" "Record ID" ">>>,>>>,>>9" "ttOrdersBooked" 0 "integer" "ASI" 0 no no "" "" no "" "" "202106144466107419492" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 1 "ttOrdersBooked.salesRep" "Sales Rep" "X(3)" "ttOrdersBooked" 0 "character" "ASI" 0 no yes "" "" no "" "" "202102186346306062802" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 2 "ttOrdersBooked.salesRepName" "Sales Rep Name" "X(30)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062803" no no no "" no "" "" 0 0 "" no no "" "" no
-161 yes 36 "ttOrdersBooked.shipFrom" "Ship From" "x(9)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102187159506063983" no no no "" no "" "" 0 0 "" no no "" "" no
-161 yes 34 "ttOrdersBooked.shippedQty" "Shipped Qty" "->,>>>,>>9" "ttOrdersBooked" 0 "integer" "ASI" 0 no no "" "" no "" "" "202102187159506063984" no no no "" no "" "" 0 0 "" no no "" "" no
+161 yes 38 "ttOrdersBooked.shipFrom" "Ship From" "x(9)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102187159506063983" no no no "" no "" "" 0 0 "" no no "" "" no
+161 yes 36 "ttOrdersBooked.shippedQty" "Shipped Qty" "->,>>>,>>9" "ttOrdersBooked" 0 "integer" "ASI" 0 no no "" "" no "" "" "202102187159506063984" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 13 "ttOrdersBooked.sqFt" "Sq Ft" ">>>,>>>,>>>.999999" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202102186346306062804" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 20 "ttOrdersBooked.ton" "Ton" "->>>,>>>,>>9.99" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "Report,Calculated|$V{orderAmount_ReportFooter} / $V{totalTons_ReportFooter}|Double,[Group] Sales Rep,Calculated|$V{orderAmount_Sales_Rep_Group} /$V{totalTons_Sales_Rep_Group}|Double" no "" "" "202102186346306062805" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 14 "ttOrdersBooked.totalSqft" "Total SqFt" "->>>,>>>,>>>.999" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Sales Rep,Sum" no "" "" "202102186346306062806" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 19 "ttOrdersBooked.totalTons" "Total Tons" "->,>>>.999999" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Sales Rep,Sum" no "" "" "202102186346306062807" no no no "" no "" "" 0 0 "" no no "" "" no
 161 yes 24 "ttOrdersBooked.vUserID" "User ID" "x(8)" "ttOrdersBooked" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186346306062808" no no no "" no "" "" 0 0 "" no no "" "" no
-161 no 40 "ttOrdersBooked.zzCost" "Cost" "->>,>>9.99" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Sales Rep,Sum" no "" "" "202103180343407076354" no no no "" no "" "" 0 0 "" no no "" "" no
+161 no 42 "ttOrdersBooked.zzCost" "Cost" "->>,>>9.99" "ttOrdersBooked" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Sales Rep,Sum" no "" "" "202103180343407076354" no no no "" no "" "" 0 0 "" no no "" "" no
 162 yes 4 "ttRecapProductCategory.amountCurrent" "Amount Current" "->>>,>>>,>>9.99" "ttRecapProductCategory" 0 "decimal" "ASI" 0 no no "" "Report,Sum" no "" "" "202102186275506062680" no no no "" no "" "" 0 0 "" no no "" "" no
 162 yes 8 "ttRecapProductCategory.amountPeriod" "Amount Period" "->>>,>>>,>>9.99" "ttRecapProductCategory" 0 "decimal" "ASI" 0 no no "" "Report,Sum" no "" "" "202102186275506062681" no no no "" no "" "" 0 0 "" no no "" "" no
 162 yes 2 "ttRecapProductCategory.catDscr" "Category Description" "x(20)" "ttRecapProductCategory" 0 "character" "ASI" 0 no no "" "" no "" "" "202102186275506062682" no no no "" no "" "" 0 0 "" no no "" "" no
@@ -2915,3 +2919,52 @@
 198 yes 1 "ttExchangeRate.company" "Company" "x(3)" "ttExchangeRate" 0 "character" "ASI" 0 no no "" "" no "" "" "202112110937408312801" no no no "" no "" "" 0 0 "" no no "" "" no
 198 yes 5 "ttExchangeRate.exchangeRate" "Exchange Rate" "->>,>>9.99<<<<<" "ttExchangeRate" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202112110937408312802" no no no "" no "" "" 0 0 "" no no "" "" no
 198 yes 4 "ttExchangeRate.rateCurrencyCode" "Rate Currency" "x(3)" "ttExchangeRate" 0 "character" "ASI" 0 no no "" "" no "" "" "202112110937408312803" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 44 "ttProductionAnalysis.actMachine" "Act Machine" "x(6)" "ttProductionAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202202148307408530920" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 10 "ttProductionAnalysis.blankNo" "Blank" ">9" "ttProductionAnalysis" 0 "integer" "ASI" 0 no no "" "" no "" "" "202202148307408530921" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 32 "ttProductionAnalysis.crew" "Crew" "->,>>>,>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530922" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 4 "ttProductionAnalysis.custName" "Customer Name" "x(30)" "ttProductionAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202202148307408530923" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 3 "ttProductionAnalysis.custNo" "Customer" "x(8)" "ttProductionAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202202148307408530924" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 1 "ttProductionAnalysis.dDate" "Date" "x(10)" "ttProductionAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202202148307408530925" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 43 "ttProductionAnalysis.dept" "Department" "x(2)" "ttProductionAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202202148307408530926" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 15 "ttProductionAnalysis.dtActHr" "Act D/T Hr" ">>>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530927" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 38 "ttProductionAnalysis.dtHrsEff" "D/T Hrs Eff" "->>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530928" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 9 "ttProductionAnalysis.frm" "Form" ">>9" "ttProductionAnalysis" 0 "integer" "ASI" 0 no no "" "" no "" "" "202202148307408530929" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 5 "ttProductionAnalysis.itemNo" "Item No" "x(10)" "ttProductionAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202202148307408530930" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 7 "ttProductionAnalysis.jobNo" "Job" "x(6)" "ttProductionAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202202148307408530931" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 8 "ttProductionAnalysis.jobNo2" "Run" ">9" "ttProductionAnalysis" 0 "integer" "ASI" 0 no no "" "" no "" "" "202202148307408530932" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 22 "ttProductionAnalysis.kicksPerHrs" "Kicks/Hour" "->>,>>>,>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530933" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 2 "ttProductionAnalysis.machine" "Machine" "x(6)" "ttProductionAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202202148307408530934" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 13 "ttProductionAnalysis.mrActHr" "MR Act Hr" ">>>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530935" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 41 "ttProductionAnalysis.mrComp" "MR-C" "x(8)" "ttProductionAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202202148307408530936" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 35 "ttProductionAnalysis.mrEffPct" "MR Eff Pct" "->>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530937" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 34 "ttProductionAnalysis.mrStdHr" "MR Std Hr" ">>>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530938" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 28 "ttProductionAnalysis.mrWaste" "MR Waste" "->,>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530939" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 26 "ttProductionAnalysis.msfPerHr" "MSF/Hour" "->,>>>,>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530940" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 21 "ttProductionAnalysis.numberUp" "Number Up" ">>,>>>,>>9" "ttProductionAnalysis" 0 "integer" "ASI" 0 no no "" "" no "" "" "202202148307408530941" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 45 "ttProductionAnalysis.opDate" "Oper Date" "99/99/9999" "ttProductionAnalysis" 0 "date" "ASI" 0 no no "" "" no "" "" "202202148307408530942" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 46 "ttProductionAnalysis.opTime" "Oper Time" "x(11)" "ttProductionAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202202148307408530943" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 6 "ttProductionAnalysis.partNo" "Part No" "x(12)" "ttProductionAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202202148307408530944" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 11 "ttProductionAnalysis.pass" "Pass" ">>9" "ttProductionAnalysis" 0 "integer" "ASI" 0 no no "" "" no "" "" "202202148307408530945" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 18 "ttProductionAnalysis.pieces" "Pieces" ">,>>>,>>9" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530946" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 23 "ttProductionAnalysis.piecesManHr" "Pieces/Man Hr" "->>,>>>,>>>,>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530947" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 19 "ttProductionAnalysis.piecesPerHr" "Pieces/Hour" "->>>,>>>,>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530948" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 20 "ttProductionAnalysis.piecesRunHr" "Pieces/Run Hr" ">>,>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530949" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 33 "ttProductionAnalysis.qtyExpect" "Qty Expected" ">,>>>,>>9" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530950" no no no "" no "" "" 0 0 "" no no "" "" no
+200 no 49 "ttProductionAnalysis.recordID" "Record ID" ">>>,>>>,>>9" "ttProductionAnalysis" 0 "integer" "ASI" 0 no no "" "" no "" "" "202202148307408530951" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 14 "ttProductionAnalysis.runActHr" "Run Act Hr" ">>>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530952" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 42 "ttProductionAnalysis.runComp" "Run-C" "x(8)" "ttProductionAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202202148307408530953" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 37 "ttProductionAnalysis.runEffPct" "Run Eff Pct" "->>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530954" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 36 "ttProductionAnalysis.runStdHr" "Run Std Hr" ">>>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530955" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 29 "ttProductionAnalysis.runWaste" "Run Waste" "->,>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530956" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 12 "ttProductionAnalysis.shift" "Shift" ">9" "ttProductionAnalysis" 0 "integer" "ASI" 0 no no "" "" no "" "" "202202148307408530957" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 24 "ttProductionAnalysis.sqFtPiece" "SqFt Piece" ">>,>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530958" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 47 "ttProductionAnalysis.startDate" "Start Date" "99/99/9999" "ttProductionAnalysis" 0 "date" "ASI" 0 no no "" "" no "" "" "202202148307408530959" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 48 "ttProductionAnalysis.startTime" "Start Time" "x(11)" "ttProductionAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202202148307408530960" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 16 "ttProductionAnalysis.totActHrs" "Total Act Hrs" "->>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530961" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 25 "ttProductionAnalysis.totalMSF" "Total MSF" ">>,>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530962" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 27 "ttProductionAnalysis.totalTons" "Total Tons" ">>,>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530963" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 30 "ttProductionAnalysis.totalWaste" "Total Waste" "->>,>>,>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530964" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 40 "ttProductionAnalysis.totEffPct" "Total Eff Pct" "->>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530965" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 17 "ttProductionAnalysis.totLabHrs" "Total Labor Hrs" "->,>>>,>>>,>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530966" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 39 "ttProductionAnalysis.totStdHrs" "Total Std Hrs" "->>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530967" no no no "" no "" "" 0 0 "" no no "" "" no
+200 yes 31 "ttProductionAnalysis.wastePct" "Waste Pct" "->,>>9.99" "ttProductionAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202202148307408530968" no no no "" no "" "" 0 0 "" no no "" "" no

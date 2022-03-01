@@ -249,3 +249,5 @@
 "" "202112170532708378261" "SendJobAMS" "UpdateJobMaterial" "Triggers when job material is updated" no 2021-12-17T01:28:47.842 "asi" "_default" 254 38
 "" "202112225550008385920" "SendOrderAck" "PrintOrderAck" "Print Order Acknowledgement" yes 2021-12-22T15:25:00.037 "asi" "_default1" 255 57
 "" "202112225550008385921" "SendOrderAck" "RePrintOrderAck" "Reprint of Order Acknowledgement" yes 2021-12-22T15:25:00.058 "asi" "_default1" 256 57
+"" "202202185333608565734" "SendOrder" "PrintOrder" "Triggers when order is printed" no 2022-02-18T14:57:02.260 "asi" "_default" 257 58
+"" "202202185335508565735" "SendOrder" "ReprintOrder" "Triggers when an order is re-printed" no 2022-02-18T14:57:21.978 "asi" "_default" 258 58

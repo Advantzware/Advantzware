@@ -178,7 +178,7 @@ Will be deleted after 16.15.00 release." 1000
 Files saved based on NK1 = AuditDir settings." 900
 "ProcessFurnishBatchTester.r" "UTIL" "" "HMP Special Furnish Processing" "This utility will accept an estimate as input and result in:
 Issues for the Special Materials on the Estimate Tab
-Receipt of hte estimate quantity for ""Board"" Furnish Material based on the cost of the issued special materials" 900
+Receipt of the estimate quantity for ""Board"" Furnish Material based on the cost of the issued special materials" 900
 "Prodcode.r" "FG" "IF1" "Update the Items Prod Code as New / Repeat" "Updates the Order Line Production code from the FG Item.
 
 Another utility will update the FG Item from the job - Same program but in fg directory to set the FG item to New or Repeat." 900
