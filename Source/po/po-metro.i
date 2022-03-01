@@ -48,7 +48,7 @@
              "<R27><C15.5><FROM><R29><C15.5><LINE>" SKIP
              "<R27><C19><FROM><R29><C19><LINE>" SKIP       
              "<R27><C48><FROM><R29><C48><LINE>" SKIP
-             "<R27><C56><FROM><R29><C56><LINE>" SKIP
+             "<R27><C59><FROM><R29><C59><LINE>" SKIP
              "<R27><C68><FROM><R29><C68><LINE>" 
              "<R27><C72><FROM><R29><C72><LINE>" SKIP
              .

@@ -486,12 +486,12 @@ assign
            {po/po-centx.i}
         END.
 
-        ASSIGN v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99")
+        ASSIGN v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2)))
                v-adder = ""
                v-basis-w = 0
                v-dep     = 0.
 
-        IF v-job-no = "-00" THEN v-job-no = "".
+        IF v-job-no = "-000" THEN v-job-no = "".
 
         IF po-ordl.item-type THEN
         FIND FIRST ITEM WHERE ITEM.company EQ po-ord.company
@@ -530,8 +530,8 @@ assign
            PUT v-LINE FORM ">>>"
                STRING(v-ord-qty, lv-format) FORMAT "x(13)" SPACE(3)
                po-ordl.pr-qty-uom SPACE(1)
-               po-ordl.i-no FORM "x(30)" SPACE(1)
-               v-job-no FORM "x(9)" AT 80 SPACE(1)
+               po-ordl.i-no FORM "x(26)" SPACE(1)
+               v-job-no FORM "x(13)" AT 78 SPACE(1)
                po-ordl.cost FORM "->>>9.99<<"
                po-ordl.pr-uom
                v-t-cost FORM "$>>>,>>9.99"  SKIP. 

@@ -129,8 +129,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     
     find first job
         where job.company eq cocode
-          and job.job-no  eq fill(" ",6 - length(trim(po-ordl.job-no))) +
-                                  trim(po-ordl.job-no)
+          and TRIM(job.job-no)  eq trim(po-ordl.job-no)
           and job.job-no2 eq po-ordl.job-no2
         no-lock no-error.
         
@@ -329,10 +328,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       else put "00000000".
     end.
 
-    PUT TRIM(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2,"99") FORMAT "x(9)".
+    PUT TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))) FORMAT "x(13)".
 
     /* FILLER */
-    put space(109).
+    put space(105).
     
     put skip.
     

@@ -337,9 +337,7 @@ v-printline = 0.
             assign v-num-add = 0.
 
             find first job where job.company eq cocode 
-                             and job.job-no eq string(fill(" ",6 - length(
-                                                trim(po-ordl.job-no)))) +
-                                                trim(po-ordl.job-no) 
+                             and trim(job.job-no) eq trim(po-ordl.job-no) 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
             if avail job then
@@ -400,7 +398,7 @@ v-printline = 0.
           
         end. /* avail item and item.mat-type eq "B" */
        
-        v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") +
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))) +
                    (IF po-ordl.s-num NE ? THEN "-" + string(po-ordl.s-num,"99")
                     ELSE "").
 
@@ -422,9 +420,9 @@ v-printline = 0.
         PUT "<C1>" po-ordl.LINE FORM ">>9"
             "<C5>" po-ordl.ord-qty FORM ">>,>>>,>>9"
             "<C16>" po-ordl.pr-qty-uom 
-            "<C21>" po-ordl.i-no FORM "x(20)"
+            "<C21>" po-ordl.i-no FORM "x(16)"
             v-adder[1] 
-            "<C52>" v-job-no FORM "x(12)" SPACE(1).
+            "<C49>" v-job-no FORM "x(16)" SPACE(1).
 
         IF lPrintPrice THEN
            PUT
@@ -581,8 +579,8 @@ v-printline = 0.
         ASSIGN cCustPo = oe-ord.po-no .
 
         IF po-ordl.ord-no NE 0 THEN DO:
-            put "<C21>Order#:" string(po-ordl.ord-no,">>>>>9").
-            PUT "<C33>Cust PO#:" cCustPo           /*Task# 10041302*/
+            put "<C21>Order#:" string(po-ordl.ord-no,">>>>>>>9").
+            PUT "<C35>Cust PO#:" cCustPo           /*Task# 10041302*/
                 skip.
             lv-add-line = NO.
             v-line-number = v-line-number + 1.

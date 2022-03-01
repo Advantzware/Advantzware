@@ -25,7 +25,7 @@ def var v-saddr like shipto.ship-addr NO-UNDO.
 def var v-scity like shipto.ship-city NO-UNDO.
 def var v-sstate like shipto.ship-state NO-UNDO.
 def var v-szip like shipto.ship-zip NO-UNDO.
-def var v-job as char format "x(9)" NO-UNDO.
+def var v-job as char format "x(13)" NO-UNDO.
 def var v-po-tot like po-ord.t-cost extent 2 NO-UNDO.
 def var v-t-freight like po-ord.t-freight extent 2 NO-UNDO.
 def var v-sqft as dec NO-UNDO.
@@ -56,9 +56,9 @@ DEF VAR fg-uom-list AS CHAR NO-UNDO.
 {custom/formtext.i NEW}
 
 form v-ord-qty              to 6    format "x(6)"
-     po-ordl.i-name         at 8    format "x(30)"
-     v-adder[1]             at 39   format "x(10)"
-     v-job                  at 50
+     po-ordl.i-name         at 8    format "x(26)"
+     v-adder[1]             at 35   format "x(10)"
+     v-job                  AT 46
      po-ordl.cost           at 59   format ">>>,>>9.99<"
      po-ordl.pr-uom
      v-sqft                 to 80   format ">,>>9.9<<"
