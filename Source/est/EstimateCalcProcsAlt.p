@@ -1,19 +1,19 @@
-
-/*------------------------------------------------------------------------
-    File        : EstimateCalcProcs.p
+  /*--------------------------------------------------------------------------
+    File        : EstimateCalcProcsAlt.p
     
     Purpose     : New code for EstimateCalcProcs.p for Performace improvement. It being updated to use Dataset/temp-tables instead of DB tables
+    
+    Syntax      :      
+    
+    Description :        
 
-    Syntax      :
-
-    Description : 
-
-    Author(s)   : sakshi.singh
+    Author(s)   : BV
+                  sakshi.singh
     
     Created     : Tue Feb 08 17:17:51 EST 2022
     
     Notes       : Dataset will be written into DB in the end of processing
-  ----------------------------------------------------------------------*/
+    ------------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
 
@@ -372,7 +372,7 @@ PROCEDURE pAddCostDetailForMisc PRIVATE:
      Purpose: Given an EstOperation buffer, create a unique cost detail record
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-estCostMisc FOR estCostMisc.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostMisc FOR ttEstCostMisc.
     DEFINE INPUT PARAMETER ipcEstCostCategoryID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdCost AS DECIMAL NO-UNDO.
@@ -380,8 +380,8 @@ PROCEDURE pAddCostDetailForMisc PRIVATE:
     
     DEFINE BUFFER bf-ttEstCostDetail FOR ttEstCostDetail.
     
-    RUN pAddCostDetail(ipbf-estCostMisc.estCostHeaderID, ipbf-estCostMisc.estCostFormID, ipbf-estCostMisc.estCostBlankID, ipbf-estCostMisc.estCostMiscID, 
-        gcSourceTypeMisc, ipcEstCostCategoryID, ipcDescription, ipdCost, ipdProfitPercent, ipbf-estCostMisc.company, ipbf-estCostMisc.estimateNo, BUFFER bf-ttEstCostDetail). 
+    RUN pAddCostDetail(ipbf-ttEstCostMisc.estCostHeaderID, ipbf-ttEstCostMisc.estCostFormID, ipbf-ttEstCostMisc.estCostBlankID, ipbf-ttEstCostMisc.estCostMiscID, 
+        gcSourceTypeMisc, ipcEstCostCategoryID, ipcDescription, ipdCost, ipdProfitPercent, ipbf-ttEstCostMisc.company, ipbf-ttEstCostMisc.estimateNo, BUFFER bf-ttEstCostDetail). 
     
 
 END PROCEDURE.
@@ -861,19 +861,22 @@ END PROCEDURE.
 
 PROCEDURE pAddEstMisc PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: Creates an estCostMisc and returns the buffer
+     Purpose: Creates an ttEstCostMisc and returns the buffer
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm FOR ttEstCostForm.
-    DEFINE PARAMETER BUFFER opbf-estCostMisc   FOR estCostMisc.
+    DEFINE PARAMETER BUFFER opbf-ttEstCostMisc   FOR ttEstCostMisc.
 
-    CREATE opbf-estCostMisc.
+    CREATE opbf-ttEstCostMisc.
     ASSIGN 
-        opbf-estCostMisc.estCostHeaderID = ipbf-ttEstCostForm.estCostHeaderID
-        opbf-estCostMisc.estCostFormID   = ipbf-ttEstCostForm.estCostFormID
-        opbf-estCostMisc.company         = ipbf-ttEstCostForm.company
-        opbf-estCostMisc.estimateNo      = ipbf-ttEstCostForm.estimateNo
+        opbf-ttEstCostMisc.estCostHeaderID = ipbf-ttEstCostForm.estCostHeaderID
+        opbf-ttEstCostMisc.estCostFormID   = ipbf-ttEstCostForm.estCostFormID
+        opbf-ttEstCostMisc.company         = ipbf-ttEstCostForm.company
+        opbf-ttEstCostMisc.estimateNo      = ipbf-ttEstCostForm.estimateNo
         .
+    
+    RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostMisc.estCostMiscID, INPUT-OUTPUT opbf-ttEstCostMisc.rec_key).
+    
 END PROCEDURE.
 
 PROCEDURE pAddEstMiscForBoardFreight PRIVATE:
@@ -889,27 +892,27 @@ PROCEDURE pAddEstMiscForBoardFreight PRIVATE:
     DEFINE INPUT  PARAMETER ipcCostUOM       AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdCostTotal     AS DECIMAL NO-UNDO.
 
-    DEFINE           BUFFER bf-estCostMisc   FOR estCostMisc.
+    DEFINE           BUFFER bf-ttEstCostMisc   FOR ttEstCostMisc.
     DEFINE           BUFFER bf-prep          FOR prep.
 
     IF ipdCostTotal GT 0 THEN 
     DO:
-        RUN pAddEstMisc(BUFFER ipbf-ttEstCostForm, BUFFER bf-estCostMisc).
+        RUN pAddEstMisc(BUFFER ipbf-ttEstCostForm, BUFFER bf-ttEstCostMisc).
 
         ASSIGN 
-            bf-estCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/
-            bf-estCostMisc.formNo                = ipbf-ttEstCostForm.formNo  
-            bf-estCostMisc.blankNo               = 0  
-            bf-estCostMisc.costDescription       = ipcCostDesc
-            bf-estCostMisc.costType              = ipcCostType
-            bf-estCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")
-            bf-estCostMisc.SIMON                 = "I"
-            bf-estCostMisc.costUOM               = ipcCostUOM
-            bf-estCostMisc.costPerUOM            = ipdCostperUOM
-            bf-estCostMisc.costSetup             = 0
-            bf-estCostMisc.costTotalBeforeProfit = ipdCostTotal
+            bf-ttEstCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/
+            bf-ttEstCostMisc.formNo                = ipbf-ttEstCostForm.formNo  
+            bf-ttEstCostMisc.blankNo               = 0  
+            bf-ttEstCostMisc.costDescription       = ipcCostDesc
+            bf-ttEstCostMisc.costType              = ipcCostType
+            bf-ttEstCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")
+            bf-ttEstCostMisc.SIMON                 = "I"
+            bf-ttEstCostMisc.costUOM               = ipcCostUOM
+            bf-ttEstCostMisc.costPerUOM            = ipdCostperUOM
+            bf-ttEstCostMisc.costSetup             = 0
+            bf-ttEstCostMisc.costTotalBeforeProfit = ipdCostTotal
             .
-        RUN pCalcEstMisc(BUFFER bf-estCostMisc, BUFFER ipbf-ttEstCostForm).
+        RUN pCalcEstMisc(BUFFER bf-ttEstCostMisc, BUFFER ipbf-ttEstCostForm).
         
     END.
 
@@ -925,7 +928,7 @@ PROCEDURE pAddEstMiscForForm PRIVATE:
     DEFINE INPUT PARAMETER ipiIndex AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-estCostMisc FOR estCostMisc.
+    DEFINE BUFFER bf-ttEstCostMisc FOR ttEstCostMisc.
     
     DEFINE VARIABLE cCostType  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dCostPerM  AS DECIMAL   NO-UNDO.
@@ -964,27 +967,27 @@ PROCEDURE pAddEstMiscForForm PRIVATE:
     
     IF dCostPerM GT 0 OR dCostSetup GT 0 THEN 
     DO:
-        RUN pAddEstMisc(BUFFER ipbf-ttEstCostForm, BUFFER bf-estCostMisc).
+        RUN pAddEstMisc(BUFFER ipbf-ttEstCostForm, BUFFER bf-ttEstCostMisc).
        
         ASSIGN 
-            bf-estCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/
-            bf-estCostMisc.formNo                = ipbf-ef.mis-snum[ipiIndex]  
-            bf-estCostMisc.blankNo               = iBlankNo
-            bf-estCostMisc.costDescription       = ipbf-ef.mis-cost[ipiIndex]
-            bf-estCostMisc.costType              = cCostType
-            bf-estCostMisc.costUOM               = "M"
-            bf-estCostMisc.costPerUOM            = dCostPerM
-            bf-estCostMisc.costSetup             = dCostSetup
-            bf-estCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")
-            bf-estCostMisc.SIMON                 = ipbf-ef.mis-simon[ipiIndex]
-            bf-estCostMisc.profitPercent         = ipbf-ef.mis-mkup[ipiIndex]
-            bf-estCostMisc.sourcequantity        = dQty
-            bf-estCostMisc.quantityPerSourceQty  = 1
-            bf-estCostMisc.quantityRequiredTotal = dQty
-            bf-estCostMisc.quantityUOM           = "EA"
-            bf-estCostMisc.costTotalBeforeProfit = dCostPerM * dQty / 1000 + dCostSetup
+            bf-ttEstCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/
+            bf-ttEstCostMisc.formNo                = ipbf-ef.mis-snum[ipiIndex]  
+            bf-ttEstCostMisc.blankNo               = iBlankNo
+            bf-ttEstCostMisc.costDescription       = ipbf-ef.mis-cost[ipiIndex]
+            bf-ttEstCostMisc.costType              = cCostType
+            bf-ttEstCostMisc.costUOM               = "M"
+            bf-ttEstCostMisc.costPerUOM            = dCostPerM
+            bf-ttEstCostMisc.costSetup             = dCostSetup
+            bf-ttEstCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")
+            bf-ttEstCostMisc.SIMON                 = ipbf-ef.mis-simon[ipiIndex]
+            bf-ttEstCostMisc.profitPercent         = ipbf-ef.mis-mkup[ipiIndex]
+            bf-ttEstCostMisc.sourcequantity        = dQty
+            bf-ttEstCostMisc.quantityPerSourceQty  = 1
+            bf-ttEstCostMisc.quantityRequiredTotal = dQty
+            bf-ttEstCostMisc.quantityUOM           = "EA"
+            bf-ttEstCostMisc.costTotalBeforeProfit = dCostPerM * dQty / 1000 + dCostSetup
             .
-        RUN pCalcEstMisc(BUFFER bf-estCostMisc, BUFFER ipbf-ttEstCostForm).
+        RUN pCalcEstMisc(BUFFER bf-ttEstCostMisc, BUFFER ipbf-ttEstCostForm).
         
     END.
 END PROCEDURE.
@@ -1001,27 +1004,27 @@ PROCEDURE pAddEstMiscForHandling PRIVATE:
     DEFINE INPUT  PARAMETER ipcCostUOM       AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdCostTotal     AS DECIMAL NO-UNDO.
     
-    DEFINE           BUFFER bf-estCostMisc   FOR estCostMisc.
+    DEFINE           BUFFER bf-ttEstCostMisc   FOR ttEstCostMisc.
     
     IF ipdCostTotal GT 0 THEN 
     DO:
-        RUN pAddEstMisc(BUFFER ipbf-ttEstCostForm, BUFFER bf-estCostMisc).
+        RUN pAddEstMisc(BUFFER ipbf-ttEstCostForm, BUFFER bf-ttEstCostMisc).
        
         ASSIGN 
-            bf-estCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/
-            bf-estCostMisc.formNo                = ipbf-ttEstCostForm.formNo  
-            bf-estCostMisc.blankNo               = 0  
-            bf-estCostMisc.costDescription       = ipcCostDesc
-            bf-estCostMisc.costType              = ipcCostType
-            bf-estCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")
-            bf-estCostMisc.SIMON                 = "I"
-            bf-estCostMisc.costUOM               = ipcCostUOM
-            bf-estCostMisc.costPerUOM            = ipdCostperUOM
-            bf-estCostMisc.costSetup             = 0
-            bf-estCostMisc.costTotalBeforeProfit = ipdCostTotal
+            bf-ttEstCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/
+            bf-ttEstCostMisc.formNo                = ipbf-ttEstCostForm.formNo  
+            bf-ttEstCostMisc.blankNo               = 0  
+            bf-ttEstCostMisc.costDescription       = ipcCostDesc
+            bf-ttEstCostMisc.costType              = ipcCostType
+            bf-ttEstCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")
+            bf-ttEstCostMisc.SIMON                 = "I"
+            bf-ttEstCostMisc.costUOM               = ipcCostUOM
+            bf-ttEstCostMisc.costPerUOM            = ipdCostperUOM
+            bf-ttEstCostMisc.costSetup             = 0
+            bf-ttEstCostMisc.costTotalBeforeProfit = ipdCostTotal
             .
             
-        RUN pCalcEstMisc(BUFFER bf-estCostMisc, BUFFER ipbf-ttEstCostForm).
+        RUN pCalcEstMisc(BUFFER bf-ttEstCostMisc, BUFFER ipbf-ttEstCostForm).
     END.
 
 END PROCEDURE.
@@ -1035,38 +1038,38 @@ PROCEDURE pAddEstMiscForPrep PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-est-prep      FOR est-prep.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm FOR ttEstCostForm.
     
-    DEFINE           BUFFER bf-estCostMisc   FOR estCostMisc.
+    DEFINE           BUFFER bf-ttEstCostMisc   FOR ttEstCostMisc.
     DEFINE           BUFFER bf-prep          FOR prep.
     
-    RUN pAddEstMisc(BUFFER ipbf-ttEstCostForm, BUFFER bf-estCostMisc).
+    RUN pAddEstMisc(BUFFER ipbf-ttEstCostForm, BUFFER bf-ttEstCostMisc).
     FIND FIRST bf-prep NO-LOCK 
         WHERE bf-prep.company EQ ipbf-est-prep.company
         AND bf-prep.code EQ ipbf-est-prep.code
         NO-ERROR.
         
     ASSIGN 
-        bf-estCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/
-        bf-estCostMisc.formNo                = ipbf-est-prep.s-num  
-        bf-estCostMisc.blankNo               = ipbf-est-prep.b-num
-        bf-estCostMisc.prepID                = ipbf-est-prep.code
-        bf-estCostMisc.itemID                = IF AVAILABLE bf-prep THEN bf-prep.i-no ELSE ipbf-est-prep.i-no
-        bf-estCostMisc.costDescription       = ipbf-est-prep.dscr
-        bf-estCostMisc.costType              = IF ipbf-est-prep.ml THEN "Mat" ELSE "Lab"
-        bf-estCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")
-        bf-estCostMisc.SIMON                 = ipbf-est-prep.simon
-        bf-estCostMisc.profitPercent         = ipbf-est-prep.mkup
-        bf-estCostMisc.sourcequantity        = ipbf-est-prep.qty
-        bf-estCostMisc.quantityPerSourceQty  = 1
-        bf-estCostMisc.quantityRequiredTotal = bf-estCostMisc.sourceQuantity * bf-estCostMisc.quantityPerSourceQty
-        bf-estCostMisc.quantityUOM           = "EA"
-        bf-estCostMisc.costUOM               = "EA"
-        bf-estCostMisc.costPerUOM            = ipbf-est-prep.cost
-        bf-estCostMisc.costSetup             = 0
-        bf-estCostMisc.costTotalBeforeProfit = bf-estCostMisc.costPerUOM * bf-estCostMisc.quantityRequiredTotal + bf-estCostMisc.costSetup
-        bf-estCostMisc.isPrep                = YES
+        bf-ttEstCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/
+        bf-ttEstCostMisc.formNo                = ipbf-est-prep.s-num  
+        bf-ttEstCostMisc.blankNo               = ipbf-est-prep.b-num
+        bf-ttEstCostMisc.prepID                = ipbf-est-prep.code
+        bf-ttEstCostMisc.itemID                = IF AVAILABLE bf-prep THEN bf-prep.i-no ELSE ipbf-est-prep.i-no
+        bf-ttEstCostMisc.costDescription       = ipbf-est-prep.dscr
+        bf-ttEstCostMisc.costType              = IF ipbf-est-prep.ml THEN "Mat" ELSE "Lab"
+        bf-ttEstCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")
+        bf-ttEstCostMisc.SIMON                 = ipbf-est-prep.simon
+        bf-ttEstCostMisc.profitPercent         = ipbf-est-prep.mkup
+        bf-ttEstCostMisc.sourcequantity        = ipbf-est-prep.qty
+        bf-ttEstCostMisc.quantityPerSourceQty  = 1
+        bf-ttEstCostMisc.quantityRequiredTotal = bf-ttEstCostMisc.sourceQuantity * bf-ttEstCostMisc.quantityPerSourceQty
+        bf-ttEstCostMisc.quantityUOM           = "EA"
+        bf-ttEstCostMisc.costUOM               = "EA"
+        bf-ttEstCostMisc.costPerUOM            = ipbf-est-prep.cost
+        bf-ttEstCostMisc.costSetup             = 0
+        bf-ttEstCostMisc.costTotalBeforeProfit = bf-ttEstCostMisc.costPerUOM * bf-ttEstCostMisc.quantityRequiredTotal + bf-ttEstCostMisc.costSetup
+        bf-ttEstCostMisc.isPrep                = YES
         .
     
-    RUN pCalcEstMisc(BUFFER bf-estCostMisc, BUFFER ipbf-ttEstCostForm).
+    RUN pCalcEstMisc(BUFFER bf-ttEstCostMisc, BUFFER ipbf-ttEstCostForm).
 
 END PROCEDURE.
 
@@ -1616,7 +1619,7 @@ PROCEDURE pBuildCostDetailForFreight PRIVATE:
     DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-ttEstCostDetail FOR ttEstCostDetail.
-    DEFINE BUFFER bf-estCostMisc   FOR estCostMisc.
+    DEFINE BUFFER bf-ttEstCostMisc   FOR ttEstCostMisc.
     
         
     ASSIGN 
@@ -1652,31 +1655,31 @@ PROCEDURE pBuildCostDetailForFreight PRIVATE:
         END. /*Prepaid Freight*/
         ELSE 
         DO: /*Separate Billed Freight*/
-            RUN pAddEstMisc(BUFFER ipbf-ttEstCostForm, BUFFER bf-estCostMisc).
-            IF AVAILABLE bf-estCostMisc THEN 
+            RUN pAddEstMisc(BUFFER ipbf-ttEstCostForm, BUFFER bf-ttEstCostMisc).
+            IF AVAILABLE bf-ttEstCostMisc THEN 
             DO:
                 ASSIGN 
-                    bf-estCostMisc.estCostFormID         = ipiEstCostFormIDForCost
-                    bf-estCostMisc.estCostBlankID        = ipiEstCostBlankIDForCost
-                    bf-estCostMisc.formNo                = ipbf-estCostBlank.formNo  
-                    bf-estCostMisc.blankNo               = ipbf-estCostBlank.blankNo
-                    bf-estCostMisc.prepID                = "Freight"
-                    bf-estCostMisc.costDescription       = "Freight - Billed"
-                    bf-estCostMisc.costType              = "Frt"
-                    bf-estCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")
-                    bf-estCostMisc.SIMON                 = "S"
-                    bf-estCostMisc.profitPercent         = 0
-                    bf-estCostMisc.sourcequantity        = 1
-                    bf-estCostMisc.quantityPerSourceQty  = 1
-                    bf-estCostMisc.quantityRequiredTotal = bf-estCostMisc.sourceQuantity * bf-estCostMisc.quantityPerSourceQty
-                    bf-estCostMisc.quantityUOM           = "EA"
-                    bf-estCostMisc.costUOM               = "EA"
-                    bf-estCostMisc.costPerUOM            = 0
-                    bf-estCostMisc.costSetup             = dFreightTotal
-                    bf-estCostMisc.costTotalBeforeProfit = bf-estCostMisc.costPerUOM * bf-estCostMisc.quantityRequiredTotal + bf-estCostMisc.costSetup
-                    bf-estCostMisc.isPrep                = NO
+                    bf-ttEstCostMisc.estCostFormID         = ipiEstCostFormIDForCost
+                    bf-ttEstCostMisc.estCostBlankID        = ipiEstCostBlankIDForCost
+                    bf-ttEstCostMisc.formNo                = ipbf-estCostBlank.formNo  
+                    bf-ttEstCostMisc.blankNo               = ipbf-estCostBlank.blankNo
+                    bf-ttEstCostMisc.prepID                = "Freight"
+                    bf-ttEstCostMisc.costDescription       = "Freight - Billed"
+                    bf-ttEstCostMisc.costType              = "Frt"
+                    bf-ttEstCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")
+                    bf-ttEstCostMisc.SIMON                 = "S"
+                    bf-ttEstCostMisc.profitPercent         = 0
+                    bf-ttEstCostMisc.sourcequantity        = 1
+                    bf-ttEstCostMisc.quantityPerSourceQty  = 1
+                    bf-ttEstCostMisc.quantityRequiredTotal = bf-ttEstCostMisc.sourceQuantity * bf-ttEstCostMisc.quantityPerSourceQty
+                    bf-ttEstCostMisc.quantityUOM           = "EA"
+                    bf-ttEstCostMisc.costUOM               = "EA"
+                    bf-ttEstCostMisc.costPerUOM            = 0
+                    bf-ttEstCostMisc.costSetup             = dFreightTotal
+                    bf-ttEstCostMisc.costTotalBeforeProfit = bf-ttEstCostMisc.costPerUOM * bf-ttEstCostMisc.quantityRequiredTotal + bf-ttEstCostMisc.costSetup
+                    bf-ttEstCostMisc.isPrep                = NO
                     .
-                RUN pCalcEstMisc(BUFFER bf-estCostMisc, BUFFER ipbf-ttEstCostForm).
+                RUN pCalcEstMisc(BUFFER bf-ttEstCostMisc, BUFFER ipbf-ttEstCostForm).
             END.
         END. /*Separate Billed Freight*/
     END.    /*Freight not 0*/
@@ -1728,105 +1731,105 @@ PROCEDURE pBuildCostDetailForMisc PRIVATE:
      Purpose: Given an operation buffer, build all costDetail records
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-estCostMisc FOR estCostMisc.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostMisc FOR ttEstCostMisc.
     
     DEFINE VARIABLE cCostBin AS CHARACTER NO-UNDO.
     
     ASSIGN 
-        cCostBin = IF ipbf-estCostMisc.isPrep THEN "P" ELSE "M"
-        cCostBin = cCostBin + ipbf-estCostMisc.costType + ipbf-estCostMisc.SIMON.
+        cCostBin = IF ipbf-ttEstCostMisc.isPrep THEN "P" ELSE "M"
+        cCostBin = cCostBin + ipbf-ttEstCostMisc.costType + ipbf-ttEstCostMisc.SIMON.
     
     CASE cCostBin:
         WHEN "PLabI" THEN 
             DO:  /*PrepLabIncluded*/
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "pLabCost","Prep Labor - Cost",
-                    ipbf-estCostMisc.costTotalBeforeProfit,0).
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "pLabProfit","Prep Labor - Profit",
-                    ipbf-estCostMisc.profitTotal,0).                    
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "pLabCost","Prep Labor - Cost",
+                    ipbf-ttEstCostMisc.costTotalBeforeProfit,0).
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "pLabProfit","Prep Labor - Profit",
+                    ipbf-ttEstCostMisc.profitTotal,0).                    
             END.
         WHEN "PMatI" THEN  
             DO:  /*PrepMatIncluded*/
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "pMatCost","Prep Material - Cost",
-                    ipbf-estCostMisc.costTotalBeforeProfit,0).
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "pMatProfit","Prep Material - Profit",
-                    ipbf-estCostMisc.profitTotal,0).                    
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "pMatCost","Prep Material - Cost",
+                    ipbf-ttEstCostMisc.costTotalBeforeProfit,0).
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "pMatProfit","Prep Material - Profit",
+                    ipbf-ttEstCostMisc.profitTotal,0).                    
             END. 
         WHEN "PLabM" THEN 
             DO:  /*PrepLabMarginSeparate*/
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "pLabCost","Prep Labor - Cost",
-                    ipbf-estCostMisc.costTotalBeforeProfit,0).
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "pLabPrice","Prep Labor - Profit - Price",
-                    ipbf-estCostMisc.profitTotal,0).                    
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "pLabCost","Prep Labor - Cost",
+                    ipbf-ttEstCostMisc.costTotalBeforeProfit,0).
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "pLabPrice","Prep Labor - Profit - Price",
+                    ipbf-ttEstCostMisc.profitTotal,0).                    
             END.
         WHEN "PMatM" THEN  
             DO:  /*PrepMatMarginSeparate*/
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "pMatCost","Prep Material - Cost",
-                    ipbf-estCostMisc.costTotalBeforeProfit,0).
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "pMatPrice","Prep Material - Profit - Price",
-                    ipbf-estCostMisc.profitTotal,0).   
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "pMatCost","Prep Material - Cost",
+                    ipbf-ttEstCostMisc.costTotalBeforeProfit,0).
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "pMatPrice","Prep Material - Profit - Price",
+                    ipbf-ttEstCostMisc.profitTotal,0).   
             END.                 
         WHEN "PLabS" OR 
         WHEN "PLabO" THEN 
             DO:  /*PrepLabSeparate*/
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "pLabCostSep","Prep Labor - Cost - Separate",
-                    ipbf-estCostMisc.costTotalBeforeProfit,0).
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "pLabProfitSep","Prep Labor - Profit - Separate",
-                    ipbf-estCostMisc.profitTotal,0).                    
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "pLabCostSep","Prep Labor - Cost - Separate",
+                    ipbf-ttEstCostMisc.costTotalBeforeProfit,0).
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "pLabProfitSep","Prep Labor - Profit - Separate",
+                    ipbf-ttEstCostMisc.profitTotal,0).                    
             END.
         WHEN "PMatS" OR 
         WHEN "PMatO" THEN  
             DO:  /*PrepMatSeparate*/
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "pMatCostSep","Prep Material - Cost - Separate",
-                    ipbf-estCostMisc.costTotalBeforeProfit,0).
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "pMatProfitSep","Prep Material - Profit - Separate",
-                    ipbf-estCostMisc.profitTotal,0).                    
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "pMatCostSep","Prep Material - Cost - Separate",
+                    ipbf-ttEstCostMisc.costTotalBeforeProfit,0).
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "pMatProfitSep","Prep Material - Profit - Separate",
+                    ipbf-ttEstCostMisc.profitTotal,0).                    
             END. 
         WHEN "MLabI" THEN 
             DO:  /*MiscLabIncluded*/
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "mLabCost","Misc Labor - Cost - COGS",
-                    ipbf-estCostMisc.costTotalBeforeProfit,0).
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "mLabProfit","Misc Labor - Profit - COGS",
-                    ipbf-estCostMisc.profitTotal,0).                    
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "mLabCost","Misc Labor - Cost - COGS",
+                    ipbf-ttEstCostMisc.costTotalBeforeProfit,0).
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "mLabProfit","Misc Labor - Profit - COGS",
+                    ipbf-ttEstCostMisc.profitTotal,0).                    
             END.
         WHEN "MMatI" OR
         WHEN "MFrtBrdI" OR
         WHEN "MRMI" OR
         WHEN "MFGI" THEN  
             DO:  /*MiscMatIncluded*/
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "mMatCost","Misc Material - Cost - COGS",
-                    ipbf-estCostMisc.costTotalBeforeProfit,0).
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "mMatProfit","Misc Material - Profit - COGS",
-                    ipbf-estCostMisc.profitTotal,0).                    
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "mMatCost","Misc Material - Cost - COGS",
+                    ipbf-ttEstCostMisc.costTotalBeforeProfit,0).
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "mMatProfit","Misc Material - Profit - COGS",
+                    ipbf-ttEstCostMisc.profitTotal,0).                    
             END. 
         WHEN "MLabM" THEN 
             DO:  /*MiscLabMarginSeparate*/
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "mLabCost","Misc Labor - Cost - COGS",
-                    ipbf-estCostMisc.costTotalBeforeProfit,0).
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "mLabPrice","Misc Labor - Profit - Price",
-                    ipbf-estCostMisc.profitTotal,0).                    
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "mLabCost","Misc Labor - Cost - COGS",
+                    ipbf-ttEstCostMisc.costTotalBeforeProfit,0).
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "mLabPrice","Misc Labor - Profit - Price",
+                    ipbf-ttEstCostMisc.profitTotal,0).                    
             END.
         WHEN "MMatM" THEN  
             DO:  /*MiscMatMarginSeparate*/
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "mMatCost","Misc Material - Cost - COGS",
-                    ipbf-estCostMisc.costTotalBeforeProfit,0).
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "mMatPrice","Misc Material - Profit - Price",
-                    ipbf-estCostMisc.profitTotal,0).   
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "mMatCost","Misc Material - Cost - COGS",
+                    ipbf-ttEstCostMisc.costTotalBeforeProfit,0).
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "mMatPrice","Misc Material - Profit - Price",
+                    ipbf-ttEstCostMisc.profitTotal,0).   
             END.                 
         WHEN "MLabS" OR 
         WHEN "MLabO" THEN 
             DO:  /*MiscLabSeparate*/
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "mLabCostSep","Misc Labor - Cost - Separate",
-                    ipbf-estCostMisc.costTotalBeforeProfit,0).
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "mLabProfitSep","Misc Labor - Profit - Separate",
-                    ipbf-estCostMisc.profitTotal,0).                    
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "mLabCostSep","Misc Labor - Cost - Separate",
+                    ipbf-ttEstCostMisc.costTotalBeforeProfit,0).
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "mLabProfitSep","Misc Labor - Profit - Separate",
+                    ipbf-ttEstCostMisc.profitTotal,0).                    
             END.
         WHEN "MMatS" OR 
         WHEN "MMatO" THEN  
             DO:  /*MiscMatSeparate*/
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "mMatCostSep","Misc Material - Cost - Separate",
-                    ipbf-estCostMisc.costTotalBeforeProfit,0).
-                RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "mMatProfitSep","Misc Material - Profit - Separate",
-                    ipbf-estCostMisc.profitTotal,0).                    
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "mMatCostSep","Misc Material - Cost - Separate",
+                    ipbf-ttEstCostMisc.costTotalBeforeProfit,0).
+                RUN pAddCostDetailForMisc(BUFFER ipbf-ttEstCostMisc, "mMatProfitSep","Misc Material - Profit - Separate",
+                    ipbf-ttEstCostMisc.profitTotal,0).                    
             END. 
     END.
    
@@ -1847,7 +1850,7 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
     DEFINE BUFFER bf-estCostBlank         FOR estCostBlank.
     DEFINE BUFFER bf-estCostItem          FOR estCostItem.
     DEFINE BUFFER bf-estCostMaterial      FOR estCostMaterial.
-    DEFINE BUFFER bf-estCostMisc          FOR estCostMisc.
+    DEFINE BUFFER bf-ttEstCostMisc          FOR ttEstCostMisc.
     
     
     DEFINE VARIABLE dRMHandlingCost           AS DECIMAL   NO-UNDO.
@@ -1955,13 +1958,13 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
         END.
         
         /* Include cost for Prep and any Material misc cost which is not Labour */
-        FOR EACH bf-estCostMisc NO-LOCK 
-            WHERE bf-estCostMisc.estCostHeaderID EQ bf-ttEstCostForm.estCostHeaderID
-              AND bf-estCostMisc.estCostFormID   EQ bf-ttEstCostForm.estCostFormID:
+        FOR EACH bf-ttEstCostMisc NO-LOCK 
+            WHERE bf-ttEstCostMisc.estCostHeaderID EQ bf-ttEstCostForm.estCostHeaderID
+              AND bf-ttEstCostMisc.estCostFormID   EQ bf-ttEstCostForm.estCostFormID:
                 
-            IF bf-estCostMisc.isPrep = YES 
-            OR (bf-estCostMisc.isPrep = NO AND bf-estCostMisc.costType = "Mat") THEN
-                dCostTotalMaterial = dCostTotalMaterial + bf-estCostMisc.costTotal.
+            IF bf-ttEstCostMisc.isPrep = YES 
+            OR (bf-ttEstCostMisc.isPrep = NO AND bf-ttEstCostMisc.costType = "Mat") THEN
+                dCostTotalMaterial = dCostTotalMaterial + bf-ttEstCostMisc.costTotal.
                 
         END. /*Each estCostMaterial for estHeader*/
         
@@ -2555,7 +2558,7 @@ PROCEDURE pBuildNonFactoryCostDetails PRIVATE:
     DEFINE BUFFER bf-ttEstCostDetail FOR ttEstCostDetail.
     DEFINE BUFFER bf-ce-ctrl       FOR ce-ctrl.
     DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
-    DEFINE BUFFER bf-estCostMisc   FOR estCostMisc.
+    DEFINE BUFFER bf-ttEstCostMisc   FOR ttEstCostMisc.
     
     DEFINE VARIABLE iIndex        AS INTEGER NO-UNDO.
     DEFINE VARIABLE dCostStorage  AS DECIMAL NO-UNDO.
@@ -2569,30 +2572,6 @@ PROCEDURE pBuildNonFactoryCostDetails PRIVATE:
         WHERE bf-ce-ctrl.company EQ bf-estCostHeader.company
         AND bf-ce-ctrl.loc EQ bf-estCostHeader.warehouseID:
             
-        /*Finished Goods Handling*/
-        /*        IF bf-estCostHeader.handlingCostPerCWTFG NE 0 THEN DO:                                                                                    */
-        /*            RUN pAddEstMisc(BUFFER ttEstCostForm, BUFFER bf-estCostMisc).                                                                           */
-        /*            ASSIGN                                                                                                                                */
-        /*                bf-estCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/                                                 */
-        /*                bf-estCostMisc.formNo                = ttEstCostForm.formNo                                                                         */
-        /*                bf-estCostMisc.blankNo               = 0                                                                                          */
-        /*                bf-estCostMisc.costDescription       = "Finished Goods Handling"                                                                  */
-        /*                bf-estCostMisc.costType              = "Lab"                                                                                      */
-        /*                bf-estCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")                          */
-        /*                bf-estCostMisc.SIMON                 = "I"                                                                                        */
-        /*                bf-estCostMisc.profitPercent         = 0                                                                                          */
-        /*                bf-estCostMisc.sourcequantity        = 1 /*Shipping weight of blanks on this form*/                                               */
-        /*                bf-estCostMisc.quantityPerSourceQty  = 1                                                                                          */
-        /*                bf-estCostMisc.quantityRequiredTotal = bf-estCostMisc.sourceQuantity * bf-estCostMisc.quantityPerSourceQty                        */
-        /*                bf-estCostMisc.quantityUOM           = "CWT"                                                                                      */
-        /*                bf-estCostMisc.costUOM               = "CWT"                                                                                      */
-        /*                bf-estCostMisc.costPerUOM            = bf-estCostHeader.handlingCostPerCWTFG                                                      */
-        /*                bf-estCostMisc.costSetup             = 0                                                                                          */
-        /*                bf-estCostMisc.costTotalBeforeProfit = bf-estCostMisc.costPerUOM * bf-estCostMisc.quantityRequiredTotal + bf-estCostMisc.costSetup*/
-        /*                bf-estCostMisc.isPrep                = NO                                                                                         */
-        /*                .                                                                                                                                 */
-        /*            RUN pCalcEstMisc(BUFFER bf-estCostMisc, BUFFER ttEstCostForm).                                                                          */
-        /*        END.                                                                                                                                      */
         
         IF bf-estCostHeader.directMaterialPct NE 0 THEN 
             RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, "", ttEstCostForm.estCostFormID, 
@@ -2706,9 +2685,9 @@ PROCEDURE pBuildFactoryCostDetails PRIVATE:
                     
     END. /*Each estCostMaterial for estHeader*/
     
-    FOR EACH estCostMisc NO-LOCK 
-        WHERE estCostMisc.estCostHeaderID EQ ipiEstCostHeaderID:
-        RUN pBuildCostDetailForMisc(BUFFER estCostMisc).                  
+    FOR EACH ttEstCostMisc NO-LOCK 
+        WHERE ttEstCostMisc.estCostHeaderID EQ ipiEstCostHeaderID:
+        RUN pBuildCostDetailForMisc(BUFFER ttEstCostMisc).                  
     END. /*Each estCostMaterial for estHeader*/
     RUN pCalcCostTotals(ipiEstCostHeaderID, 0, NO).
     
@@ -3807,7 +3786,7 @@ END PROCEDURE.
 
 PROCEDURE pProcessMiscNonPrep PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: Given an ef buffer, build the estCostMisc for non-prep mis items
+     Purpose: Given an ef buffer, build the ttEstCostMisc for non-prep mis items
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ef            FOR ef.
@@ -3825,7 +3804,7 @@ END PROCEDURE.
 
 PROCEDURE pProcessMiscPrep PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: Given an ef buffer, build the estCostMisc for prep misc items
+     Purpose: Given an ef buffer, build the ttEstCostMisc for prep misc items
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ef            FOR ef.
@@ -4227,18 +4206,18 @@ END PROCEDURE.
 
 PROCEDURE pCalcEstMisc PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: given a estCostMisc buffer, calculate common fields
+     Purpose: given a ttEstCostMisc buffer, calculate common fields
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-estCostMisc   FOR estCostMisc.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostMisc   FOR ttEstCostMisc.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm FOR ttEstCostForm.
 
-    ipbf-estCostMisc.profitTotal = fGetProfit(ipbf-estCostMisc.costTotalBeforeProfit, ipbf-estCostMisc.profitPercent, ipbf-estCostMisc.profitPercentType).
-    IF ipbf-estCostMisc.SIMON EQ "M" THEN 
-        ipbf-estCostMisc.costTotal = ipbf-estCostMisc.costTotalBeforeProfit.
+    ipbf-ttEstCostMisc.profitTotal = fGetProfit(ipbf-ttEstCostMisc.costTotalBeforeProfit, ipbf-ttEstCostMisc.profitPercent, ipbf-ttEstCostMisc.profitPercentType).
+    IF ipbf-ttEstCostMisc.SIMON EQ "M" THEN 
+        ipbf-ttEstCostMisc.costTotal = ipbf-ttEstCostMisc.costTotalBeforeProfit.
     ELSE 
-        ipbf-estCostMisc.costTotal = ipbf-estCostMisc.costTotalBeforeProfit + ipbf-estCostMisc.profitTotal.
-    ipbf-estCostMisc.costTotalPerMFinished = ipbf-estCostMisc.costTotal / (ipbf-ttEstCostForm.quantityFGOnForm / 1000).
+        ipbf-ttEstCostMisc.costTotal = ipbf-ttEstCostMisc.costTotalBeforeProfit + ipbf-ttEstCostMisc.profitTotal.
+    ipbf-ttEstCostMisc.costTotalPerMFinished = ipbf-ttEstCostMisc.costTotal / (ipbf-ttEstCostForm.quantityFGOnForm / 1000).
 
 END PROCEDURE.
 
@@ -5688,7 +5667,7 @@ PROCEDURE pUpdateChildTables PRIVATE:
     DEFINE BUFFER bfChild-estCostBlank     FOR estCostBlank.
     DEFINE BUFFER bfChild-ttEstCostOperation FOR ttEstCostOperation.
     DEFINE BUFFER bfChild-estCostMaterial  FOR estCostMaterial.
-    DEFINE BUFFER bfChild-estCostMisc      FOR estCostMisc.
+    DEFINE BUFFER bfChild-ttEstCostMisc      FOR ttEstCostMisc.
     DEFINE BUFFER bfChild-ttEstCostDetail  FOR ttEstCostDetail.
     DEFINE BUFFER bfChild-ttEstCostSummary FOR ttEstCostSummary.
     
@@ -5725,11 +5704,11 @@ PROCEDURE pUpdateChildTables PRIVATE:
                     bfChild-estCostMaterial.estCostFormID = ipiTargetKey.
             END.
         
-            FOR EACH bfChild-estCostMisc EXCLUSIVE-LOCK
-                WHERE bfChild-estCostMisc.estCostHeaderID = ipiEstCostHeaderID:
+            FOR EACH bfChild-ttEstCostMisc EXCLUSIVE-LOCK
+                WHERE bfChild-ttEstCostMisc.estCostHeaderID = ipiEstCostHeaderID:
                 
-                IF bfChild-estCostMisc.estCostFormID = ipiSourceKey THEN  
-                    bfChild-estCostMisc.estCostFormID = ipiTargetKey.
+                IF bfChild-ttEstCostMisc.estCostFormID = ipiSourceKey THEN  
+                    bfChild-ttEstCostMisc.estCostFormID = ipiTargetKey.
             END.
         
             FOR EACH bfChild-ttEstCostSummary EXCLUSIVE-LOCK
@@ -5748,9 +5727,17 @@ PROCEDURE pUpdateChildTables PRIVATE:
                     bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
             END.
         END.
-        WHEN "" THEN
+        WHEN "estCostMisc" THEN
         DO:
+            FOR EACH bfChild-ttEstCostDetail EXCLUSIVE-LOCK
+                WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID              
+                  AND bfChild-ttEstCostDetail.sourceType = gcSourceTypeMisc:
+                      
+                IF bfChild-ttEstCostDetail.sourceID = ipiSourceKey THEN
+                    bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
+            END.
         END.
+        
     END CASE.
 
 END PROCEDURE.
@@ -5764,6 +5751,8 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
     DEFINE BUFFER bfEx-EstCostDetail       FOR EstCostDetail.
     DEFINE BUFFER bfEx-estCostSummary      FOR estCostSummary.
     DEFINE BUFFER bfEx-estCostOperation    FOR estCostOperation.
+    DEFINE BUFFER bfEx-estCostMisc         FOR estCostMisc.
+    
 
     FOR EACH ttEstCostForm
         TRANSACTION:
@@ -5807,16 +5796,31 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
             bfEx-estCostOperation.rec_key).
     END. /* ttEstCostOperation */    
         
+    FOR EACH ttEstCostMisc
+        TRANSACTION:
+        CREATE bfEx-estCostMisc.
+        BUFFER-COPY ttEstCostMisc EXCEPT rec_key estCostMiscID TO bfEx-estCostMisc.
+        
+        RUN pUpdateChildTables ("estCostMisc", 
+            ttEstCostMisc.estCostHeaderID, 
+            ttEstCostMisc.estCostMiscID, 
+            bfEx-estCostMisc.estCostMiscID,
+            ttEstCostMisc.rec_key,
+            bfEx-estCostMisc.rec_key).
+    END. /* ttEstCostOperation */    
+     
         
     RELEASE bfEx-estCostForm.
     RELEASE bfEx-estCostDetail.
     RELEASE bfEx-estCostSummary.
     RELEASE bfEx-estCostOperation.
+    RELEASE bfEx-estCostMisc.
     
     EMPTY TEMP-TABLE ttEstCostForm.
     EMPTY TEMP-TABLE ttEstCostDetail.
     EMPTY TEMP-TABLE ttEstCostSummary.
     EMPTY TEMP-TABLE ttEstCostOperation.
+    EMPTY TEMP-TABLE ttEstCostMisc.
     
 END PROCEDURE.
 
