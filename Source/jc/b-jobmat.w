@@ -224,7 +224,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      job-mat.frm COLUMN-LABEL "S" FORMAT ">>>":U WIDTH 4 COLUMN-FONT 0
+      job-mat.frm COLUMN-LABEL "F" FORMAT ">>>":U WIDTH 4 COLUMN-FONT 0
             LABEL-BGCOLOR 14
       job-mat.blank-no COLUMN-LABEL "B" FORMAT ">>>":U WIDTH 4
             COLUMN-FONT 0
@@ -350,7 +350,7 @@ ASSIGN
   AND ASI.job-mat.job-no2 = ASI.job.job-no2
 use-index seq-idx"
      _FldNameList[1]   > ASI.job-mat.frm
-"job-mat.frm" "S" ">>>" "integer" ? ? 0 14 ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mat.frm" "F" ">>>" "integer" ? ? 0 14 ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-mat.blank-no
 "job-mat.blank-no" "B" ">>>" "integer" ? ? 0 ? ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-mat.rm-i-no
@@ -518,7 +518,7 @@ END.
 
 &Scoped-define SELF-NAME job-mat.frm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job-mat.frm br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF job-mat.frm IN BROWSE br_table /* S */
+ON LEAVE OF job-mat.frm IN BROWSE br_table /* F */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-frm NO-ERROR.
