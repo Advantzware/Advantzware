@@ -65,8 +65,7 @@ assign
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR dept.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS dept.isRequired dept.dscr dept.fc ~
-dept.isInactive 
+&Scoped-Define ENABLED-FIELDS dept.dscr dept.fc dept.isInactive 
 &Scoped-define ENABLED-TABLES dept
 &Scoped-define FIRST-ENABLED-TABLE dept
 &Scoped-Define ENABLED-OBJECTS RECT-1 
@@ -204,6 +203,8 @@ ASSIGN
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN dept.fc IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX dept.isRequired IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
