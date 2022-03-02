@@ -711,6 +711,7 @@ PROCEDURE pPostBols :
     DEFINE VARIABLE cFGTagValidation AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFGTagValidation AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lFirstOFBOL      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lMsgResponse     AS LOGICAL   NO-UNDO.
 
     DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
     /* Deletes xreport of report */
@@ -832,6 +833,14 @@ PROCEDURE pPostBols :
                 fDebugMsg("before each w-except after bolcheck " + STRING(AVAILABLE(bf-oe-bolh))).
                 FOR EACH w-except 
                     WHERE w-except.bol-no EQ bf-oe-bolh.bol-no:
+                    IF w-except.lAvailOnhQty AND lSingleBol THEN 
+                    DO:                     
+                        RUN displayMessageQuestion ("76", OUTPUT lMsgResponse).                        
+                        IF lMsgResponse THEN do:
+                         DELETE w-except.
+                         LEAVE.
+                        END. 
+                    END.                    
                     IF NOT lInsufficientQty THEN 
                     lInsufficientQty = YES.
                     fDebugMsg("Create w-nopost for BOL " + STRING(w-except.bol-no) + " item " + w-except.i-no).             
