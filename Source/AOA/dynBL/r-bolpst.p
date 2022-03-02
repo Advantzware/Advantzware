@@ -832,7 +832,7 @@ PROCEDURE pPostBols :
                 RUN oe/bolcheck.p (ROWID(bf-oe-bolh)).
                 fDebugMsg("before each w-except after bolcheck " + STRING(AVAILABLE(bf-oe-bolh))).
                 FOR EACH w-except 
-                    WHERE w-except.bol-no EQ bf-oe-bolh.bol-no:
+                    WHERE w-except.bol-no EQ bf-oe-bolh.bol-no BY w-except.lAvailOnhQty DESC :
                     IF w-except.lAvailOnhQty AND lSingleBol THEN 
                     DO:                     
                         RUN displayMessageQuestion ("76", OUTPUT lMsgResponse).                        

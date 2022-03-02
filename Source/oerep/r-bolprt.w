@@ -1422,10 +1422,15 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DELETE tt-post.
                         NEXT mainblock.           
                     END.  
-           
+                    
+                    FIND FIRST w-except NO-LOCK 
+                        WHERE w-except.bol-no EQ oe-bolh.bol-no
+                          AND w-except.lAvailOnhQty
+                        NO-ERROR. 
+                    IF NOT AVAILABLE w-except THEN    
                     FIND FIRST w-except NO-LOCK 
                         WHERE w-except.bol-no EQ oe-bolh.bol-no 
-                        NO-ERROR. 
+                        NO-ERROR.                         
                     IF AVAILABLE w-except THEN 
                     DO:
                         IF lSingleBOL THEN DO:
