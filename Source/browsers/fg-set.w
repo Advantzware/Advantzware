@@ -505,7 +505,7 @@ PROCEDURE est-build :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  IF AVAILABLE fg-set THEN
   RUN sys/ref/mksetest.p (ROWID(fg-set)).
 
 END PROCEDURE.

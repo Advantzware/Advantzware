@@ -2720,7 +2720,7 @@ PROCEDURE post-enable :
         po-ord.cust-no:HIDDEN = NO.
     END.
      
-    IF NOT lAllowedEditStatus OR po-ord.stat EQ "H" THEN 
+    IF NOT lAllowedEditStatus OR ( AVAIL po-ord AND po-ord.stat EQ "H") THEN 
     po-ord.stat:SENSITIVE = NO.
     ELSE po-ord.stat:SENSITIVE = YES.
     
