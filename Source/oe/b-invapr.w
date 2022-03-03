@@ -311,7 +311,7 @@ DEFINE BROWSE br_table
       tt-invl.sname FORMAT "x(20)":U COLUMN-LABEL 'Sales Rep'
       inv-head.sold-city COLUMN-LABEL "City" FORMAT "x(20)":U
       inv-head.tot-ord FORMAT "->>,>>>,>>9.9<<":U
-      inv-head.inv-no COLUMN-LABEL 'Inv#' LABEL-BGCOLOR 14
+      inv-head.inv-no FORMAT ">>>>>>>9":U COLUMN-LABEL 'Inv#' LABEL-BGCOLOR 14
       tt-invl.qty COLUMN-LABEL "Qty" 
       ENABLE tt-invl.IS-SELECTED
 /* _UIB-CODE-BLOCK-END */

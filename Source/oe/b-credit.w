@@ -159,7 +159,7 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
       ar-inv.inv-date FORMAT "99/99/9999":U COLUMN-FONT 0
-      ar-inv.inv-no COLUMN-LABEL "Invoice Number" FORMAT ">>>>>9":U
+      ar-inv.inv-no COLUMN-LABEL "Invoice Number" FORMAT ">>>>>>>9":U
             COLUMN-FONT 0
       (ar-inv.paid + ar-inv.due) @ ld-inv-amt COLUMN-LABEL "Invoice Amount"
             COLUMN-FONT 0

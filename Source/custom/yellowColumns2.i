@@ -1076,7 +1076,7 @@ PROCEDURE openQuery:
 
 &ELSEIF '{&yellowColumnsName}' EQ 'ar-inv' &THEN
    &SCOPED-DEFINE SORTBY-PHRASE BY ~
-    IF sortColumn EQ 'Invoice#'    THEN STRING(ar-inv.inv-no, '>>>>>9')   ELSE ~
+    IF sortColumn EQ 'Invoice#'    THEN STRING(ar-inv.inv-no, '>>>>>>>9')   ELSE ~
     IF sortColumn EQ 'Cust.#'      THEN ar-inv.cust-no                    ELSE ~
     IF sortColumn EQ 'Customer Name'   THEN ar-inv.cust-name              ELSE ~
     IF sortColumn EQ 'Inv Date' THEN STRING(YEAR(ar-inv.inv-date),'9999') + ~

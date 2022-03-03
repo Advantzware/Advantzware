@@ -89,7 +89,7 @@ ASSIGN
     cFieldListToSelect = "sman,cust-no,inv-no,ar-inv.inv-date,i-no,ord-no,qty," +
                             "amt,cash-date,amtp,delta,v-gp,v-camt,v-comm,basis,ttl-cst"
 
-    cFieldLength       = "4,8,7,10,15,6,9," + "12,13,12,12,12,12,8,5,15"
+    cFieldLength       = "4,8,8,10,15,6,9," + "12,13,12,12,12,12,8,5,15"
     .
 
 {sys/inc/ttRptSel.i}
@@ -1484,7 +1484,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-slsm         LIKE ar-invl.sman EXTENT 1.
     DEFINE VARIABLE v-slsc         LIKE ar-invl.s-comm EXTENT 1.
     DEFINE VARIABLE v-slsp         LIKE ar-invl.s-pct EXTENT 1.
-    DEFINE VARIABLE v-inv-no       LIKE ar-invl.inv-no FORMAT ">>>>>>9".
+    DEFINE VARIABLE v-inv-no       LIKE ar-invl.inv-no FORMAT ">>>>>>>9".
     DEFINE VARIABLE v-qty          AS DECIMAL.
     DEFINE VARIABLE v-amt          LIKE ar-invl.amt.
     DEFINE VARIABLE v-amtp         LIKE ar-invl.amt.

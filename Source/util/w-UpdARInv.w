@@ -175,7 +175,7 @@ DEFINE BROWSE brInvoiceData
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS brInvoiceData C-Win _FREEFORM
   QUERY brInvoiceData DISPLAY
       ttARInv.selected      FORMAT "YES/NO"         COLUMN-LABEL "Select"           WIDTH 09 VIEW-AS TOGGLE-BOX 
-     ttARInv.invoiceNo     FORMAT ">>>>>>9"         COLUMN-LABEL "Invoice#"         WIDTH 11
+     ttARInv.invoiceNo     FORMAT ">>>>>>>9"        COLUMN-LABEL "Invoice#"         WIDTH 11
      ttARInv.custID        FORMAT "X(8)"            COLUMN-LABEL "Customer#"        WIDTH 15
      ttARInv.invoiceDate   FORMAT "99/99/9999"      COLUMN-LABEL "Invoice Date"     WIDTH 20
      ttARInv.checkDate     FORMAT "99/99/9999"      COLUMN-LABEL "Last Check Date"  WIDTH 20

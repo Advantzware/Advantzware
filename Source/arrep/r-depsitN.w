@@ -1774,7 +1774,7 @@ PROCEDURE run-report :
                     DISPLAY lv-name     @ bank.actnum
                             "Chk " + TRIM(STRING(lv-check-no,">>>>>>>>>>")) + " " +
                             (IF lv-inv-no NE 0 THEN
-                               "Inv " + TRIM(STRING(lv-inv-no,">>>>>>>")) ELSE "")
+                               "Inv " + TRIM(STRING(lv-inv-no,">>>>>>>>")) ELSE "")
                                         @ v-tr-num
                             lv-amt      @ tot-daily[2]
          
@@ -1788,7 +1788,7 @@ PROCEDURE run-report :
                           '"' ""      '",'
                           '"' "Chk " + TRIM(STRING(lv-check-no,">>>>>>>>>>")) + " " +
                               (IF lv-inv-no NE 0 THEN
-                              "Inv " + TRIM(STRING(lv-inv-no,">>>>>>>")) ELSE "")  '",'
+                              "Inv " + TRIM(STRING(lv-inv-no,">>>>>>>>")) ELSE "")  '",'
                           '"' STRING(lv-amt,"->>,>>>,>>9.99") '",'
                          SKIP.
                   END. */
@@ -1819,7 +1819,7 @@ PROCEDURE run-report :
                         WHEN "chk"    THEN 
                             cVarValue = IF lv-check-no NE 0 THEN STRING(lv-check-no,">>>>>>>>>>>>")  ELSE "" .
                         WHEN "inv"    THEN 
-                            cVarValue = IF lv-inv-no NE 0 THEN STRING(lv-inv-no,">>>>>>>") ELSE ""  .
+                            cVarValue = IF lv-inv-no NE 0 THEN STRING(lv-inv-no,">>>>>>>>") ELSE ""  .
 
                     END CASE.
 

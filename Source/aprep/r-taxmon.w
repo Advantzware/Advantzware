@@ -975,7 +975,7 @@ FOR EACH cust WHERE cust.company EQ cocode NO-LOCK:
             tt-report.term-id = v-term
             tt-report.key-01  = IF ar-invl.taxGroup NE "" THEN ar-invl.taxGroup ELSE ar-inv.tax-code
             tt-report.rec-id  = RECID(ar-invl)
-            tt-report.key-05  = STRING(ar-invl.inv-no,"9999999")
+            tt-report.key-05  = STRING(ar-invl.inv-no,"99999999")
             tt-report.key-06  = STRING(ar-invl.LINE,"99").
     END. /* for each ar-inv */
 
