@@ -478,6 +478,40 @@ PROCEDURE Inventory_GetFGReceiptTransaction:
 
 END PROCEDURE.
 
+PROCEDURE pGetRMItemOnHandQuantity PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-loadtag FOR loadtag.    
+    DEFINE OUTPUT PARAMETER opdOnHandQty AS DECIMAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-bin   FOR rm-bin.
+    DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
+    DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
+
+    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    
+    RUN pGetLastIssue(
+        BUFFER ipbf-loadtag, 
+        BUFFER bf-rm-rdtlh, 
+        BUFFER bf-rm-rcpth, 
+        OUTPUT lFound
+        ).
+    IF NOT lFound THEN
+        RETURN.
+        
+    FIND FIRST bf-rm-bin NO-LOCK
+         WHERE bf-rm-bin.company EQ ipbf-loadtag.company
+           AND bf-rm-bin.i-no    EQ ipbf-loadtag.i-no
+           AND bf-rm-bin.tag     EQ ipbf-loadtag.tag-no
+           AND bf-rm-bin.loc     EQ bf-rm-rdtlh.loc
+           AND bf-rm-bin.loc-bin EQ bf-rm-rdtlh.loc-bin
+         NO-ERROR.
+    IF AVAILABLE bf-rm-bin THEN
+        opdOnHandQty = bf-rm-bin.qty.
+END PROCEDURE.
+
 PROCEDURE Inventory_GetRMReceiptTransaction:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -2517,7 +2551,9 @@ PROCEDURE Inventory_CreateRMReturnFromTag:
         OUTPUT oplError,
         OUTPUT opcMessage
         ).
-
+    
+    EMPTY TEMP-TABLE ttBrowseInventory.
+    
     IF iplPost AND NOT oplError THEN DO:
         RUN Inventory_BuildRawMaterialToPost (
             INPUT  riRmRctd,
@@ -3145,6 +3181,74 @@ PROCEDURE pGetRMTransactions PRIVATE:
     END.
 END PROCEDURE.
 
+PROCEDURE Inventory_GetRMIssuedQuantity:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a loadtag send the issue quantity
+     Notes: 
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag          AS CHARACTER NO-UNDO. 
+    DEFINE OUTPUT PARAMETER opdIssuedQty    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcIssuedQtyUOM AS CHARACTER NO-UNDO.  
+    DEFINE OUTPUT PARAMETER oplError        AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-loadtag  FOR loadtag.
+    DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
+    DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
+    DEFINE BUFFER bf-job-mat  FOR job-mat.
+    DEFINE BUFFER bf-item     FOR item.
+    
+    DEFINE VARIABLE lFound          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dBasisWeight    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dLength         AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dWidth          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dDepth          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    
+    FIND FIRST bf-loadtag NO-LOCK 
+         WHERE bf-loadtag.company   EQ ipcCompany
+           AND bf-loadtag.item-type EQ YES
+           AND bf-loadtag.tag-no    EQ ipcTag
+         NO-ERROR.
+    IF NOT AVAILABLE bf-loadtag THEN DO:
+        ASSIGN
+            oplError = TRUE
+            opcMessage = "Invalid loadtag '" + ipcTag + "'"
+            .
+        RETURN.
+    END.
+    
+    RUN pGetLastIssue(
+        BUFFER bf-loadtag, 
+        BUFFER bf-rm-rdtlh, 
+        BUFFER bf-rm-rcpth, 
+        OUTPUT lFound
+        ).
+    IF NOT lFound THEN DO:
+        ASSIGN
+            oplError  = TRUE
+            opcMessage = "Tag '" + ipcTag + "' not issued yet"
+            .
+       
+        RETURN.
+    END.
+    
+    RUN pGetRMIssuedQuantity (
+        INPUT  bf-loadtag.company,
+        INPUT  bf-loadtag.i-no,
+        INPUT  bf-loadtag.tag-no,
+        INPUT  bf-rm-rcpth.job-no,
+        INPUT  bf-rm-rcpth.job-no2,
+        INPUT  bf-rm-rdtlh.s-num,
+        INPUT  bf-rm-rdtlh.b-num,
+        OUTPUT opdIssuedQty,
+        OUTPUT opcIssuedQtyUOM
+        ).
+END PROCEDURE.
+
 PROCEDURE pGetLastIssue PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given a loadtag buffer, find the last issue for the tag
@@ -3177,14 +3281,16 @@ PROCEDURE pGetRMIssuedQuantity PRIVATE:
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTag      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcJobID    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiJobID2   AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiFormNo   AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiBlankNo  AS INTEGER   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdQuantity AS DECIMAL   NO-UNDO.
-   
+    DEFINE INPUT  PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobID          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobID2         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo        AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdIssuedQuantity AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcIssuedQtyUOM   AS CHARACTER NO-UNDO.
+    
     DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
     DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
 
@@ -3199,9 +3305,11 @@ PROCEDURE pGetRMIssuedQuantity PRIVATE:
         FIRST bf-rm-rcpth NO-LOCK
         WHERE bf-rm-rcpth.r-no      EQ bf-rm-rdtlh.r-no
           AND bf-rm-rcpth.rita-code EQ bf-rm-rdtlh.rita-code:
-        opdQuantity = opdQuantity + bf-rm-rdtlh.qty.
+        ASSIGN
+            opdIssuedQuantity = opdIssuedQuantity + bf-rm-rdtlh.qty
+            opcIssuedQtyUOM   = bf-rm-rcpth.pur-uom
+            .
     END.
-       
 END PROCEDURE.
 
 PROCEDURE pCreateRMReturnFromTag PRIVATE:
@@ -3226,8 +3334,9 @@ PROCEDURE pCreateRMReturnFromTag PRIVATE:
 
     DEFINE VARIABLE lValidTag       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE dIssuedQty      AS DECIMAL   NO-UNDO.    
+    DEFINE VARIABLE cIssuedQtyUOM   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iNextRNo        AS INTEGER   NO-UNDO.
-
+    
     IF ipdQuantity LE 0 THEN DO:
         ASSIGN
             oplError   = TRUE
@@ -3285,12 +3394,14 @@ PROCEDURE pCreateRMReturnFromTag PRIVATE:
         
     RUN pGetRMIssuedQuantity (
         INPUT  ipcCompany,
+        INPUT  bf-loadtag.i-no,
         INPUT  ipcTag,
         INPUT  bf-rm-rcpth.job-no,
         INPUT  bf-rm-rcpth.job-no2,
         INPUT  bf-rm-rdtlh.s-num,
         INPUT  bf-rm-rdtlh.b-num,
-        OUTPUT dIssuedQty        
+        OUTPUT dIssuedQty,
+        OUTPUT cIssuedQtyUOM
         ).
 
     IF dIssuedQty = 0 THEN DO:
@@ -9008,7 +9119,12 @@ PROCEDURE pGetInventoryStockDetails:
             ttInventoryStockDetails.inventoryStockID    = STRING(ROWID(bf-loadtag))
             oplValidInvStock                            = TRUE
             .
-
+        
+        RUN pGetRMItemOnHandQuantity (
+            BUFFER bf-loadtag,
+            OUTPUT ttInventoryStockDetails.quantityOnHand
+            ).
+            
         FIND FIRST bf-item NO-LOCK
              WHERE bf-item.company EQ bf-loadtag.company
                AND bf-item.i-no    EQ bf-loadtag.i-no
