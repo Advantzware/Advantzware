@@ -2,6 +2,7 @@
 
 DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 DEFINE VARIABLE dOnHandQty AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
 {oe/bolcheck.i}
 
 FIND oe-bolh WHERE ROWID(oe-bolh) EQ ip-rowid NO-LOCK NO-ERROR.
@@ -76,11 +77,13 @@ FOR EACH oe-boll NO-LOCK
                     AND fg-bin.cust-no EQ oe-boll.cust-no
                     :
                        dOnHandQty = dOnHandQty + fg-bin.qty.
+                       cLocBin = fg-bin.loc-bin.
                  END.
                  IF dOnHandQty GT 0 AND oe-boll.tag NE "" AND
                     dOnHandQty GE tt-fg-bin.qty THEN
                  ASSIGN
-                    w-except.lAvailOnhQty = YES.
+                    w-except.lAvailOnhQty = YES
+                    w-except.cLocBin = cLocBin.
         END.         
     END.
 END.

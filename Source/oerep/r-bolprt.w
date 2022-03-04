@@ -1437,7 +1437,8 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                                 
                             IF w-except.lAvailOnhQty THEN
                             DO:
-                                 RUN displayMessageQuestion ("76", OUTPUT lMsgResponse).                                                                    
+                                 RUN displayMessageQuestion ("76", OUTPUT lMsgResponse).
+                                 IF lMsgResponse THEN RUN Inventory_UpdateBolBinWithMatchInventory IN hdInventoryProcs (oe-boll.company, oe-boll.b-no, w-except.cLocBin).
                             END.
                             ELSE
                             MESSAGE "BOL # " STRING(oe-bolh.bol-no) "cannot be processed because there is not enough inventory to be shipped." SKIP

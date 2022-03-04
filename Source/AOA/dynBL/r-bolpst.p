@@ -836,7 +836,8 @@ PROCEDURE pPostBols :
                     IF w-except.lAvailOnhQty AND lSingleBol THEN 
                     DO:                     
                         RUN displayMessageQuestion ("76", OUTPUT lMsgResponse).                        
-                        IF lMsgResponse THEN do:
+                        IF lMsgResponse THEN do:                           
+                         RUN Inventory_UpdateBolBinWithMatchInventory IN hdInventoryProcs(cocode, w-except.b-no, w-except.cLocBin).  
                          DELETE w-except.
                          LEAVE.
                         END. 
