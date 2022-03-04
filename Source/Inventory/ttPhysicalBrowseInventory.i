@@ -5,6 +5,7 @@ DEFINE TEMP-TABLE ttPhysicalBrowseInventory NO-UNDO
     FIELD itemID           AS CHARACTER
     FIELD quantity         AS DECIMAL
     FIELD origQuantity     AS DECIMAL
+    FIELD quantityUOM      AS CHARACTER
     FIELD locationID       AS CHARACTER
     FIELD warehouseID      AS CHARACTER
     FIELD location         AS CHARACTER

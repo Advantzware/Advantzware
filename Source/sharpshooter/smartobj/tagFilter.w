@@ -207,19 +207,27 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag s-object
+ON ENTER OF fiTag IN FRAME F-Main /* TAG */
+DO:
+    RUN pScanTag (SELF:SCREEN-VALUE) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN
+        RETURN NO-APPLY.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag s-object
 ON LEAVE OF fiTag IN FRAME F-Main /* TAG */
 DO:
-    /* If last key is not button choose or mouse click event */
-    IF (((LASTKEY LT 609 OR LASTKEY GT 652) AND LASTKEY NE -1) OR (VALID-OBJECT (oKeyboard) AND oKeyboard:IsKeyboardOpen())) AND SELF:SCREEN-VALUE NE "" THEN DO:
-        RUN pScanTag (
-            INPUT SELF:SCREEN-VALUE
-            ) NO-ERROR.   
-        
-        IF ERROR-STATUS:ERROR THEN
-            RETURN NO-APPLY.
+    IF lAutoScanNextTag THEN DO:
+        lAutoScanNextTag = FALSE.
+        RETURN NO-APPLY.
     END.
-    ELSE
-        fiTag:BGCOLOR = 15.
+            
+    fiTag:BGCOLOR = 15.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -229,7 +237,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag s-object
 ON TAB OF fiTag IN FRAME F-Main /* TAG */
 DO:
-    APPLY "LEAVE" TO SELF.
+    RUN pScanTag (SELF:SCREEN-VALUE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN
         RETURN NO-APPLY.
 END.
@@ -256,9 +264,8 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableAll s-object
-PROCEDURE DisableAll:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableAll s-object 
+PROCEDURE DisableAll :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -267,11 +274,9 @@ PROCEDURE DisableAll:
         DISABLE fiTag btnKeyboardTag.
     END.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableErrorAlerts s-object 
 PROCEDURE DisableErrorAlerts :
@@ -320,9 +325,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableAll s-object
-PROCEDURE EnableAll:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableAll s-object 
+PROCEDURE EnableAll :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -331,11 +335,9 @@ PROCEDURE EnableAll:
         ENABLE fiTag btnKeyboardTag.
     END.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType s-object 
 PROCEDURE GetMessageAndType :
@@ -355,9 +357,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetScannedTag s-object
-PROCEDURE GetScannedTag:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetScannedTag s-object 
+PROCEDURE GetScannedTag :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -367,11 +368,9 @@ PROCEDURE GetScannedTag:
     IF VALID-OBJECT(oLoadTag) THEN
         opcTag = oLoadtag:GetValue("Tag").
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetTag s-object 
 PROCEDURE GetTag :
@@ -458,10 +457,15 @@ PROCEDURE pScanTag :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
+    lAutoScanNextTag = FALSE.
+    
     RUN new-state (
         INPUT "tag-invalid"
         ).
-        
+
+    IF (LASTKEY EQ -1 OR (LASTKEY GE 609 AND LASTKEY LE 652)) AND NOT (VALID-OBJECT (oKeyboard) AND oKeyboard:IsKeyboardOpen()) AND fiTag:SCREEN-VALUE NE "" THEN
+        RETURN.
+
     lValidTag = oLoadTag:SetContext(INPUT cCompany, INPUT ipcTag).
 
     IF NOT lValidTag THEN DO:
@@ -540,6 +544,8 @@ PROCEDURE ScanNextTag :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
+    lAutoScanNextTag = TRUE.
+    
     APPLY "ENTRY" TO fiTag.    
 END PROCEDURE.
 
@@ -589,9 +595,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard s-object
-PROCEDURE ShowKeyboard:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard s-object 
+PROCEDURE ShowKeyboard :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -605,11 +610,9 @@ PROCEDURE ShowKeyboard:
         .
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :

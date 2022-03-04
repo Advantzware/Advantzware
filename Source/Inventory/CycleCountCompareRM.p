@@ -221,8 +221,7 @@ PROCEDURE exportSnapshot:
             inventoryStockSnapshot.tag                 = rm-bin.tag
             inventoryStockSnapshot.company             = rm-bin.company        
             inventoryStockSnapshot.rmItemID            = rm-bin.i-no      
-            inventoryStockSnapshot.fgItemID            = rm-bin.i-no                        
-            inventoryStockSnapshot.itemType            = "RM"                           
+            inventoryStockSnapshot.itemType            = "RM"
             inventoryStockSnapshot.warehouseID         = rm-bin.loc    
             inventoryStockSnapshot.locationID          = rm-bin.loc-bin
             inventoryStockSnapshot.zoneID              = ""     

@@ -72,6 +72,14 @@ FUNCTION fGetSnapshotCompareStatus RETURNS CHARACTER PRIVATE
      ipcWarehouseID AS CHARACTER,
      ipcLocationID AS CHARACTER) FORWARD.
 
+FUNCTION fGetSnapshotCompareStatusBySnapshotID RETURNS CHARACTER PRIVATE
+    (ipcCompany AS CHARACTER,
+     ipiSnapshotID AS INTEGER,
+     ipcTag AS CHARACTER,
+     ipdQuantity AS DECIMAL,
+     ipcWarehouseID AS CHARACTER,
+     ipcLocationID AS CHARACTER) FORWARD.
+
 FUNCTION fGetRowBGColor RETURNS INTEGER PRIVATE
     (ipcInventoryStatus AS CHARACTER) FORWARD.
 
@@ -7384,9 +7392,10 @@ PROCEDURE Inventory_GetSnapShotForLocation:
  Purpose: Rebuilds browse temp-table
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcBin      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSnapshotID AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin        AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
     
     DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
@@ -7396,10 +7405,11 @@ PROCEDURE Inventory_GetSnapShotForLocation:
     EMPTY TEMP-TABLE ttPhysicalBrowseInventory.
     
     FOR EACH inventoryStockSnapShot NO-LOCK
-        WHERE inventoryStockSnapShot.company          EQ ipcCompany
-          AND inventoryStockSnapshot.warehouseID      EQ ipcLocation
-          AND inventoryStockSnapshot.locationID       EQ ipcBin
-          AND inventoryStockSnapshot.inventoryStockID NE '':
+        WHERE inventoryStockSnapShot.company             EQ ipcCompany
+          AND inventoryStockSnapshot.inventorysnapshotID EQ ipiSnapShotID
+          AND inventoryStockSnapshot.warehouseID         EQ ipcLocation
+          AND inventoryStockSnapshot.locationID          EQ ipcBin
+          AND inventoryStockSnapshot.inventoryStockID    NE '':
         FIND FIRST ttPhysicalBrowseInventory NO-LOCK
              WHERE ttPhysicalBrowseInventory.company EQ inventoryStockSnapshot.company
                AND ttPhysicalBrowseInventory.tag     EQ inventoryStockSnapshot.inventoryStockID
@@ -7422,6 +7432,7 @@ PROCEDURE Inventory_GetSnapShotForLocation:
                                                                  0
                                                              ELSE
                                                                  inventoryStockSnapshot.quantityOriginal
+                ttPhysicalBrowseInventory.quantityUOM      = inventoryStockSnapshot.quantityUOM                                                                 
                 ttPhysicalBrowseInventory.customerID       = inventoryStockSnapshot.customerID
                 ttPhysicalBrowseInventory.lastTransTime    = NOW
                 ttPhysicalBrowseInventory.locationID       = ""
@@ -7867,6 +7878,7 @@ PROCEDURE SubmitPhysicalCountScan:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSnapshotID  AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcWarehouseID AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcLocationID  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTag         AS CHARACTER NO-UNDO.
@@ -7877,11 +7889,17 @@ PROCEDURE SubmitPhysicalCountScan:
     
     DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
     
+    ASSIGN
+        ipcWarehouseID = CAPS(ipcWarehouseID)
+        ipcLocationID  = CAPS(ipcLocationID)
+        .
+        
     RUN Inventory_GetWarehouseLength (ipcCompany, OUTPUT iWarehouseLength).
     
     FIND FIRST inventoryStockSnapshot NO-LOCK
-         WHERE inventoryStockSnapshot.company EQ ipcCompany
-           AND inventoryStockSnapshot.tag     EQ ipcTag
+         WHERE inventoryStockSnapshot.company             EQ ipcCompany
+           AND inventoryStockSnapshot.inventorySnapshotID EQ ipiSnapshotID
+           AND inventoryStockSnapshot.tag                 EQ ipcTag
          NO-ERROR.
            
     FIND FIRST ttPhysicalBrowseInventory EXCLUSIVE-LOCK
@@ -7897,15 +7915,15 @@ PROCEDURE SubmitPhysicalCountScan:
                 ttPhysicalBrowseInventory.inventoryStockID = inventoryStockSnapshot.inventoryStockID
                 ttPhysicalBrowseInventory.tag              = inventoryStockSnapshot.tag
                 ttPhysicalBrowseInventory.itemType         = inventoryStockSnapshot.itemType
-                ttPhysicalBrowseInventory.itemID           = IF inventoryStockSnapshot.fgItemID NE "" THEN
+                ttPhysicalBrowseInventory.itemID           = IF inventoryStockSnapshot.itemType EQ 'FG' THEN
                                                                  inventoryStockSnapshot.fgItemID
-                                                             ELSE IF inventoryStockSnapshot.rmItemID NE "" THEN
+                                                             ELSE IF inventoryStockSnapshot.itemType EQ 'RM' THEN
                                                                  inventoryStockSnapshot.rmItemID
                                                              ELSE
                                                                  inventoryStockSnapshot.wipItemID
-                ttPhysicalBrowseInventory.quantity         = inventoryStockSnapshot.quantity
+                ttPhysicalBrowseInventory.origQuantity     = inventoryStockSnapshot.quantityOriginal
+                ttPhysicalBrowseInventory.quantityUOM      = inventoryStockSnapshot.quantityUOM
                 ttPhysicalBrowseInventory.customerID       = inventoryStockSnapshot.customerID
-                ttPhysicalBrowseInventory.origQuantity     = inventoryStockSnapshot.quantity
                 ttPhysicalBrowseInventory.origLocationID   = inventoryStockSnapshot.locationID
                 ttPhysicalBrowseInventory.origWarehouseID  = inventoryStockSnapshot.warehouseID
                 ttPhysicalBrowseInventory.origLocation     = ttPhysicalBrowseInventory.origWarehouseID +
@@ -7926,23 +7944,39 @@ PROCEDURE SubmitPhysicalCountScan:
     END. 
     ELSE DO:
         FIND FIRST loadtag NO-LOCK
-             WHERE loadtag.company EQ ipcCompany
-			   AND loadtag.tag-no  EQ ipcTag NO-ERROR.
-        IF NOT AVAILABLE loadtag THEN DO:
+             WHERE loadtag.company   EQ ipcCompany
+               AND loadtag.item-type EQ TRUE
+			   AND loadtag.tag-no    EQ ipcTag
+			 NO-ERROR.
+        IF NOT AVAILABLE loadtag THEN
+            FIND FIRST loadtag NO-LOCK
+                 WHERE loadtag.company   EQ ipcCompany
+                   AND loadtag.item-type EQ FALSE
+                   AND loadtag.tag-no    EQ ipcTag
+                 NO-ERROR.
+
+        IF NOT AVAILABLE loadtag THEN DO:         
             ASSIGN
-		  oplCreated = FALSE
-		  opcMessage = "Invalid Tag"
-		  .
+        	    oplCreated = FALSE
+        		opcMessage = "Invalid Tag"
+        		.
+
             RETURN.
         END.
         
         IF NOT AVAILABLE ttPhysicalBrowseInventory THEN DO:
             CREATE ttPhysicalBrowseInventory.
             ASSIGN            
-                ttPhysicalBrowseInventory.company  = loadtag.company
-                ttPhysicalBrowseInventory.tag      = ipcTag
-                ttPhysicalBrowseInventory.itemID   = loadtag.i-no            
-                ttPhysicalBrowseInventory.quantity = loadtag.qty
+                ttPhysicalBrowseInventory.company         = loadtag.company
+                ttPhysicalBrowseInventory.tag             = loadtag.tag-no
+                ttPhysicalBrowseInventory.itemID          = loadtag.i-no
+                ttPhysicalBrowseInventory.itemType        = STRING(loadtag.item-type, 'RM/FG')                            
+                ttPhysicalBrowseInventory.origQuantity    = loadtag.qty
+                ttPhysicalBrowseInventory.origLocationID  = loadtag.loc
+                ttPhysicalBrowseInventory.origWarehouseID = loadtag.loc-bin
+                ttPhysicalBrowseInventory.origLocation    = ttPhysicalBrowseInventory.origWarehouseID +
+                                                            FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) +
+                                                            ttPhysicalBrowseInventory.origLocationID            
                 .
             
             IF NOT iplSetParamLoc THEN
@@ -7980,8 +8014,9 @@ PROCEDURE SubmitPhysicalCountScan:
             
     ASSIGN
         ttPhysicalBrowseInventory.lastTransTime   = NOW
-        ttPhysicalBrowseInventory.inventoryStatus = fGetSnapshotCompareStatus (
+        ttPhysicalBrowseInventory.inventoryStatus = fGetSnapshotCompareStatusBySnapshotID (
                                                     ipcCompany,
+                                                    ipiSnapshotID,
                                                     ttPhysicalBrowseInventory.tag,
                                                     ttPhysicalBrowseInventory.quantity,
                                                     ipcWarehouseID,
@@ -9841,6 +9876,84 @@ FUNCTION fGetSnapshotCompareStatus RETURNS CHARACTER
 
 END FUNCTION.
 
+FUNCTION fGetSnapshotCompareStatusBySnapshotID RETURNS CHARACTER
+    (ipcCompany AS CHARACTER , ipiSnapshotID AS INTEGER, ipcTag AS CHARACTER , ipdQuantity AS DECIMAL , ipcWarehouseID AS CHARACTER , ipcLocationID AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: Gets the compare status
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE opcStatus                   AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE lLocationChanged            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lQuantityChanged            AS LOGICAL   NO-UNDO.
+    
+    opcStatus = gcStatusSnapshotTagNotFound.
+
+    FIND FIRST inventoryStockSnapshot NO-LOCK
+         WHERE inventoryStockSnapshot.company             EQ ipcCompany
+           AND inventoryStockSnapshot.inventorySnapshotID EQ ipiSnapshotID
+           AND inventoryStockSnapshot.tag                 EQ ipcTag
+         NO-ERROR.
+
+    IF AVAILABLE inventoryStockSnapshot THEN DO:
+        IF ipdQuantity NE inventoryStockSnapshot.quantity THEN
+            ASSIGN
+                lQuantityChanged = TRUE
+                opcStatus        = gcStatusSnapshotQtyChange.
+        
+        IF ipcWarehouseID NE inventoryStockSnapshot.warehouseID OR
+           ipcLocationID  NE inventoryStockSnapshot.locationID THEN
+            ASSIGN
+                lLocationChanged = TRUE
+                opcStatus        = gcStatusSnapshotLocChange.
+           
+        IF lLocationChanged AND lQuantityChanged THEN
+            opcStatus = gcStatusSnapshotQtyAndLocChange.
+            
+        IF NOT lLocationChanged AND NOT lQuantityChanged THEN
+            opcStatus = gcStatusSnapshotCompleteMatch.    
+    END.
+    
+    FIND FIRST inventoryTransaction NO-LOCK
+         WHERE inventoryTransaction.company         EQ ipcCompany
+           AND inventoryTransaction.tag             EQ ipcTag
+           AND inventoryTransaction.transactionType EQ gcTransactionTypeCompare NO-ERROR.
+    IF AVAILABLE inventoryTransaction
+        AND inventoryTransaction.quantityChange EQ 0
+        AND inventoryTransaction.scannedTime EQ inventoryTransaction.createdTime THEN
+        opcStatus = gcStatusSnapshotNotScannedConf.
+    
+    IF AVAILABLE inventoryStockSnapshot THEN
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company   EQ ipcCompany
+               AND loadtag.item-type EQ LOGICAL(inventoryStockSnapShot.itemType, "RM/FG")
+               AND loadtag.tag-no    EQ ipcTag
+             NO-ERROR.
+    
+    IF NOT AVAILABLE loadtag THEN
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company   EQ ipcCompany
+               AND loadtag.item-type EQ NO
+               AND loadtag.tag-no    EQ ipcTag
+             NO-ERROR.
+
+    IF NOT AVAILABLE loadtag THEN
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company   EQ ipcCompany
+               AND loadtag.item-type EQ YES
+               AND loadtag.tag-no    EQ ipcTag
+             NO-ERROR.
+
+    IF NOT AVAILABLE loadtag THEN
+        opcStatus = gcStatusSnapshotTagNotFound.
+
+    IF NOT AVAILABLE inventoryStockSnapshot AND AVAILABLE loadtag THEN
+        opcStatus = gcStatusSnapshotTagNotOnHand.
+         
+    RETURN opcStatus.
+
+END FUNCTION.
+
 FUNCTION fGetRowBGColor RETURNS INTEGER
     (ipcInventoryStatus AS CHARACTER):
 
@@ -9848,7 +9961,7 @@ FUNCTION fGetRowBGColor RETURNS INTEGER
 
     CASE ipcInventoryStatus:
         WHEN gcStatusSnapshotNotScanned      THEN
-            iColor = 8. /* Grey */            
+            iColor = ?. /* Grey */            
         WHEN gcStatusSnapshotNotScannedConf  THEN
             iColor = 14. /* Yellow */
         WHEN gcStatusSnapshotCompleteMatch   THEN
@@ -9860,6 +9973,10 @@ FUNCTION fGetRowBGColor RETURNS INTEGER
         WHEN gcStatusSnapshotQtyAndLocChange THEN
             iColor = 20. /* Blue */
         WHEN gcStatusSnapshotTagNotFound     THEN
+            iColor = 12. /* Red */
+        WHEN gcStatusSnapshotTagNotOnHand    THEN
+            iColor = 12. /* Red */
+        WHEN gcStatusSnapshotNotScannedQtyZero THEN
             iColor = 12. /* Red */
     END CASE.
     

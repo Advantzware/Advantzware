@@ -54,14 +54,13 @@ DEFINE VARIABLE hdStatusColumn        AS HANDLE          NO-UNDO.
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl              AS CHARACTER       NO-UNDO.
 DEFINE VARIABLE pHandle               AS HANDLE          NO-UNDO.
+DEFINE VARIABLE iSnapShotID           AS INTEGER         NO-UNDO.
 
 DEFINE VARIABLE glShowVirtualKeyboard AS LOGICAL         NO-UNDO.
 DEFINE VARIABLE gcShowSettings        AS CHARACTER       NO-UNDO.
 
 DEFINE VARIABLE oKeyboard             AS system.Keyboard NO-UNDO.
 
-RUN spGetSessionParam ("Company", OUTPUT cCompany).
-    
 oKeyboard = NEW system.Keyboard().
 
 RUN spSetSettingContext.
@@ -87,7 +86,7 @@ RUN spSetSettingContext.
 &Scoped-define INTERNAL-TABLES ttPhysicalBrowseInventory
 
 /* Definitions for BROWSE br-table                                      */
-&Scoped-define FIELDS-IN-QUERY-br-table ttPhysicalBrowseInventory.tag ttPhysicalBrowseInventory.itemID ttPhysicalBrowseInventory.quantity ttPhysicalBrowseInventory.origQuantity ttPhysicalBrowseInventory.location ttPhysicalBrowseInventory.origLocation ttPhysicalBrowseInventory.inventoryStatus   
+&Scoped-define FIELDS-IN-QUERY-br-table ttPhysicalBrowseInventory.tag ttPhysicalBrowseInventory.itemType ttPhysicalBrowseInventory.itemID ttPhysicalBrowseInventory.quantity ttPhysicalBrowseInventory.origQuantity ttPhysicalBrowseInventory.quantityUOM ttPhysicalBrowseInventory.location ttPhysicalBrowseInventory.origLocation ttPhysicalBrowseInventory.inventoryStatus   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br-table   
 &Scoped-define SELF-NAME br-table
 &Scoped-define QUERY-STRING-br-table FOR EACH ttPhysicalBrowseInventory BY ttPhysicalBrowseInventory.lastTransTime DESCENDING
@@ -101,10 +100,10 @@ RUN spSetSettingContext.
     ~{&OPEN-QUERY-br-table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btResetLocation btClear fiLocation btnNumPad ~
-br-table btnExitText btnClearText statusMessage btnSettingsText 
-&Scoped-Define DISPLAYED-OBJECTS fiLocation btnExitText btnClearText ~
-statusMessage btnSettingsText 
+&Scoped-Define ENABLED-OBJECTS btClear btnNumPad fiLocation br-table ~
+btnExitText btnClearText statusMessage btnSettingsText 
+&Scoped-Define DISPLAYED-OBJECTS cbSnapshot fiLocation btnExitText ~
+btnClearText statusMessage btnSettingsText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -136,16 +135,21 @@ DEFINE BUTTON btClear
      LABEL "Reset" 
      SIZE 8 BY 1.91.
 
+DEFINE BUTTON btNextLoc 
+     LABEL "Next Location" 
+     SIZE 33 BY 1.57.
+
 DEFINE BUTTON btnNumPad 
      IMAGE-UP FILE "Graphics/32x32/numeric_keypad.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "NumPad" 
      SIZE 8 BY 1.91 TOOLTIP "Numeric Keypad".
 
-DEFINE BUTTON btResetLocation 
-     IMAGE-UP FILE "Graphics/32x32/back_white.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/back_white.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Reset" 
-     SIZE 8 BY 1.91.
+DEFINE VARIABLE cbSnapshot AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Snapshot" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     DROP-DOWN-LIST
+     SIZE 67 BY 1
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE btnClearText AS CHARACTER FORMAT "X(256)":U INITIAL "RESET" 
       VIEW-AS TEXT 
@@ -188,26 +192,29 @@ DEFINE BROWSE br-table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br-table W-Win _FREEFORM
   QUERY br-table DISPLAY
       ttPhysicalBrowseInventory.tag WIDTH 45 COLUMN-LABEL "Tag #" FORMAT "X(30)"
+    ttPhysicalBrowseInventory.itemType WIDTH 16 COLUMN-LABEL "Item Type" 
     ttPhysicalBrowseInventory.itemID WIDTH 50 COLUMN-LABEL "Item" FORMAT "X(15)"
-    ttPhysicalBrowseInventory.quantity WIDTH 30 COLUMN-LABEL "Quantity"
-    ttPhysicalBrowseInventory.origQuantity WIDTH 30 COLUMN-LABEL "Original Quantity"
-    ttPhysicalBrowseInventory.location WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(12)"
-    ttPhysicalBrowseInventory.origLocation WIDTH 30 COLUMN-LABEL "Original Location" FORMAT "X(12)"
+    ttPhysicalBrowseInventory.quantity WIDTH 30 COLUMN-LABEL "Scanned Quantity"
+    ttPhysicalBrowseInventory.origQuantity WIDTH 30 COLUMN-LABEL "System Quantity"
+    ttPhysicalBrowseInventory.quantityUOM WIDTH 15 COLUMN-LABEL "UOM"
+    ttPhysicalBrowseInventory.location WIDTH 30 COLUMN-LABEL "Scanned Location" FORMAT "X(12)"
+    ttPhysicalBrowseInventory.origLocation WIDTH 30 COLUMN-LABEL "System Location" FORMAT "X(12)"
     ttPhysicalBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(25)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 194.8 BY 14.05
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 194.8 BY 12.38
          BGCOLOR 15 FGCOLOR 0 FONT 36 ROW-HEIGHT-CHARS 1.05 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btResetLocation AT ROW 2.95 COL 95.2 WIDGET-ID 150
      btClear AT ROW 3.19 COL 194.8 WIDGET-ID 146
-     fiLocation AT ROW 3.24 COL 22.8 COLON-ALIGNED WIDGET-ID 6
      btnNumPad AT ROW 2.38 COL 129 WIDGET-ID 120 NO-TAB-STOP 
-     br-table AT ROW 7.43 COL 2 WIDGET-ID 200
+     cbSnapshot AT ROW 3.14 COL 22.8 COLON-ALIGNED WIDGET-ID 152
+     btNextLoc AT ROW 4.86 COL 97 WIDGET-ID 154
+     fiLocation AT ROW 4.95 COL 22.8 COLON-ALIGNED WIDGET-ID 6
+     br-table AT ROW 9.1 COL 2 WIDGET-ID 200
      btnExitText AT ROW 1.24 COL 189 COLON-ALIGNED NO-LABEL WIDGET-ID 70
      btnClearText AT ROW 3.38 COL 182 NO-LABEL WIDGET-ID 148
      statusMessage AT ROW 21.86 COL 2.8 NO-LABEL WIDGET-ID 66
@@ -236,7 +243,7 @@ DEFINE FRAME F-Main
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Create Loadtag - Return"
+         TITLE              = "Physical Count"
          HEIGHT             = 23.33
          WIDTH              = 207.8
          MAX-HEIGHT         = 31.24
@@ -273,9 +280,16 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-/* BROWSE-TAB br-table btnNumPad F-Main */
+/* BROWSE-TAB br-table fiLocation F-Main */
 /* SETTINGS FOR FILL-IN btnClearText IN FRAME F-Main
    ALIGN-L                                                              */
+/* SETTINGS FOR BUTTON btNextLoc IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       btNextLoc:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR COMBO-BOX cbSnapshot IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN statusMessage IN FRAME F-Main
@@ -307,7 +321,7 @@ BY ttPhysicalBrowseInventory.lastTransTime DESCENDING.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* Create Loadtag - Return */
+ON END-ERROR OF W-Win /* Physical Count */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
 DO:
     /* This case occurs when the user presses the "Esc" key.
@@ -321,10 +335,13 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* Create Loadtag - Return */
+ON WINDOW-CLOSE OF W-Win /* Physical Count */
 DO:
     /* This ADM code must be left here in order for the SmartWindow
        and its descendents to terminate properly on exit. */
+    IF VALID-HANDLE (hdInventoryProcs) THEN
+        DELETE PROCEDURE hdInventoryProcs.
+    
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN NO-APPLY.
 END.
@@ -343,7 +360,7 @@ DO:
    
     DEFINE VARIABLE iColor AS INTEGER NO-UNDO.
 
-    IF AVAILABLE ttPhysicalBrowseInventory THEN 
+    IF AVAILABLE ttPhysicalBrowseInventory  THEN 
     DO:
         iColor = DYNAMIC-FUNCTION (
             "fGetRowBGColor" IN hdInventoryProcs,
@@ -377,9 +394,12 @@ END.
 ON CHOOSE OF btClear IN FRAME F-Main /* Reset */
 DO:
     RUN pStatusMessage ("", 0).
-    {methods/run_link.i "RETURN-SOURCE" "Reset"}
 
-    {methods/run_link.i "LOADTAG-SOURCE" "EmptyTTLoadtag"} 
+    RUN pResetWarning NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN
+        RETURN NO-APPLY.
+    
+    RUN Reset.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -402,8 +422,60 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExitText W-Win
 ON MOUSE-SELECT-CLICK OF btnExitText IN FRAME F-Main
 DO:
-    RUN dispatch ("exit").
+    RUN WindowExit.
     RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btNextLoc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btNextLoc W-Win
+ON CHOOSE OF btNextLoc IN FRAME F-Main /* Next Location */
+DO:
+    DEFINE VARIABLE cChoice   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE cBin      AS CHARACTER NO-UNDO.
+    
+    RUN pStatusMessage ("", 0).
+
+    IF CAN-FIND (FIRST ttPhysicalBrowseInventory
+                 WHERE ttPhysicalBrowseInventory.inventoryStatus EQ gcStatusSnapshotNotScanned) THEN DO:
+        ASSIGN
+            cLocation = TRIM(SUBSTRING(fiLocation:SCREEN-VALUE, 1, iWarehouseLength))
+            cBin      = TRIM(SUBSTRING(fiLocation:SCREEN-VALUE, iWarehouseLength + 1))
+            .
+
+        FOR EACH ttPhysicalBrowseInventory
+            WHERE ttPhysicalBrowseInventory.inventoryStatus EQ gcStatusSnapshotNotScanned:
+            ASSIGN
+                ttPhysicalBrowseInventory.lastTransTime   = NOW
+                ttPhysicalBrowseInventory.inventoryStatus = gcStatusSnapshotNotScannedQtyZero 
+                ttPhysicalBrowseInventory.warehouseID     = cLocation  
+                ttPhysicalBrowseInventory.locationID      = cBin
+                ttPhysicalBrowseInventory.location        = ttPhysicalBrowseInventory.warehouseID 
+                                                          + FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.warehouseID)) 
+                                                          + ttPhysicalBrowseInventory.locationID  
+                .
+        END.
+        
+        {&OPEN-QUERY-{&BROWSE-NAME}} 
+        
+        RUN sharpshooter/messageDialogCustom.w (
+            INPUT  "Some tags in the system snapshot have not been scanned.~nDo you want to confirm that these are not in this location or re-check?",
+            INPUT  "CONFIRM,RE-CHECK",
+            OUTPUT cChoice
+            ).
+        
+        IF cChoice EQ "RE-CHECK" THEN DO: 
+            {methods/run_link.i "TAG-SOURCE" "Set-Focus"}
+            
+            RETURN.
+        END.
+    END.
+    
+    RUN Reset.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -435,25 +507,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btResetLocation
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btResetLocation W-Win
-ON CHOOSE OF btResetLocation IN FRAME F-Main /* Reset */
+&Scoped-define SELF-NAME cbSnapshot
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbSnapshot W-Win
+ON VALUE-CHANGED OF cbSnapshot IN FRAME F-Main /* Snapshot */
 DO:
-    RUN pStatusMessage ("", 0).
-
-    ASSIGN
-        fiLocation:SCREEN-VALUE = ""
-        fiLocation:SENSITIVE    = TRUE
-        fiLocation:BGCOLOR      = 30
-        .
-    
-    APPLY "ENTRY" TO fiLocation.    
-
-    {methods/run_link.i "TAG-SOURCE" "DisableAll"}
-
-    EMPTY TEMP-TABLE ttPhysicalBrowseInventory.
-
-    {&OPEN-QUERY-{&BROWSE-NAME}}
+    iSnapShotID = INTEGER(SELF:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -549,11 +607,11 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/exit.w':U ,
+             INPUT  'sharpshooter/smartobj/exit.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 200.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.10 , 200.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -561,7 +619,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_tagfilter ).
-       RUN set-position IN h_tagfilter ( 4.91 , 14.00 ) NO-ERROR.
+       RUN set-position IN h_tagfilter ( 6.57 , 14.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.29 , 85.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -624,6 +682,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_setting , 'SETTING':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_adjustwindowsize , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_tagfilter ,
+             fiLocation:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
              br-table:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
@@ -698,10 +760,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiLocation btnExitText btnClearText statusMessage btnSettingsText 
+  DISPLAY cbSnapshot fiLocation btnExitText btnClearText statusMessage 
+          btnSettingsText 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btResetLocation btClear fiLocation btnNumPad br-table btnExitText 
-         btnClearText statusMessage btnSettingsText 
+  ENABLE btClear btnNumPad fiLocation br-table btnExitText btnClearText 
+         statusMessage btnSettingsText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -840,11 +903,15 @@ PROCEDURE pInit :
     DEFINE VARIABLE cSettingValue AS CHARACTER NO-UNDO.  
     DEFINE VARIABLE iBrowseCol    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE hdBrowseCol   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cChoice       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSnapshotList AS CHARACTER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    RUN spGetSessionParam("UserID", OUTPUT cUser).
+    RUN spGetSessionParam ("UserID", OUTPUT cUser).
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    
     RUN pStatusMessage ("", 0).
 
     RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT cSettingValue).
@@ -870,6 +937,27 @@ PROCEDURE pInit :
         {&BROWSE-NAME}:FONT              = 36
         {&BROWSE-NAME}:FIT-LAST-COLUMN   = TRUE
         .
+
+    hColumnRowColor = {&BROWSE-NAME}:FIRST-COLUMN.
+    DO WHILE VALID-HANDLE(hColumnRowColor):
+        ASSIGN
+            cColHandList    = cColHandList + ","  + string(hColumnRowColor)
+            hColumnRowColor = hColumnRowColor:NEXT-COLUMN
+            .
+    END. /* do while */
+    cColHandList = TRIM(cColHandList, ",").
+
+    IF NOT CAN-FIND(FIRST inventorySnapshot NO-LOCK
+                    WHERE inventorySnapshot.company EQ cCompany) THEN DO:
+        RUN sharpshooter/messageDialogCustom.w (
+            INPUT  "This application requires an Inventory Snapshot to be created.",
+            INPUT  "OK",
+            OUTPUT cChoice
+            ).
+            
+        APPLY "CLOSE" TO THIS-PROCEDURE.
+        RETURN.
+    END.
     
     DO iBrowseCol = 1 TO BROWSE {&BROWSE-NAME}:NUM-COLUMNS:
         hdBrowseCol = BROWSE {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseCol).
@@ -890,7 +978,20 @@ PROCEDURE pInit :
     
     {methods/run_link.i "TAG-SOURCE" "DisableAll"}
     {methods/run_link.i "TAG-SOURCE" "DisableErrorAlerts"}
+         
+    FOR EACH inventorySnapshot NO-LOCK
+        WHERE inventorySnapshot.company EQ cCompany
+        BY inventorySnapshot.inventorySnapshotID DESCENDING:
+        cSnapshotList = cSnapshotList + "," + inventorySnapshot.snapshotDesc + "," + STRING(inventorySnapshot.inventorySnapshotID). 
+    END.
     
+    ASSIGN
+        cSnapshotList              = TRIM(cSnapshotList, ",")
+        cbSnapshot:LIST-ITEM-PAIRS = cSnapshotList
+        cbSnapshot:SCREEN-VALUE    = ENTRY(2, cSnapshotList)
+        iSnapShotID                = INTEGER(cbSnapshot:SCREEN-VALUE) 
+        .
+        
     APPLY "ENTRY" TO fiLocation.
 END PROCEDURE.
 
@@ -950,6 +1051,7 @@ PROCEDURE pLocationScan :
         
     RUN Inventory_GetSnapShotForLocation IN hdInventoryProcs (
         INPUT cCompany,
+        INPUT iSnapShotID,
         INPUT cWarehouse,
         INPUT cLocation,
         INPUT-OUTPUT TABLE ttPhysicalBrowseInventory BY-REFERENCE
@@ -963,16 +1065,47 @@ PROCEDURE pLocationScan :
     ASSIGN
         fiLocation:SENSITIVE = FALSE
         fiLocation:BGCOLOR   = 15
+        btNextLoc:VISIBLE    = TRUE
+        btNextLoc:SENSITIVE  = TRUE
         .
            
     {methods/run_link.i "TAG-SOURCE" "EnableAll"}
-    {methods/run_link.i "TAG-SOURCE" "ScanNextTag"}
-                    
+    {methods/run_link.i "TAG-SOURCE" "Set-Focus"}
+    
     {&OPEN-QUERY-{&BROWSE-NAME}}    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetWarning W-Win
+PROCEDURE pResetWarning PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lChoice AS LOGICAL NO-UNDO.
+    
+    IF CAN-FIND(FIRST ttPhysicalBrowseInventory
+                WHERE ttPhysicalBrowseInventory.inventoryStatus NE gcStatusSnapshotNotScanned) THEN DO:
+        RUN sharpshooter/messageDialog.w (
+            INPUT  "Some tags have been scanned. Changes will not be saved. Are you sure you want to proceed?",
+            INPUT  TRUE,
+            INPUT  TRUE,
+            INPUT  FALSE,
+            OUTPUT lChoice
+            ).
+        
+        IF NOT lChoice THEN 
+            RETURN ERROR.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTagScan W-Win 
 PROCEDURE pTagScan :
@@ -998,6 +1131,7 @@ PROCEDURE pTagScan :
             
     RUN SubmitPhysicalCountScan IN hdInventoryProcs (
         cCompany,
+        iSnapShotID,
         cLocation,
         cBin,
         cTag,
@@ -1022,6 +1156,9 @@ PROCEDURE pUpdateColor :
     DEFINE INPUT PARAMETER ipiColor   AS INTEGER NO-UNDO.
 
     hdStatusColumn:BGCOLOR = ipiColor.
+    
+    IF ipiColor EQ 12 THEN
+        hdStatusColumn:FGCOLOR = 15.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1071,6 +1208,37 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset W-Win
+PROCEDURE Reset:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        fiLocation:SCREEN-VALUE = ""
+        fiLocation:SENSITIVE    = TRUE
+        fiLocation:BGCOLOR      = 30
+        btNextLoc:VISIBLE       = FALSE
+        .
+    
+    APPLY "ENTRY" TO fiLocation.    
+
+    {methods/run_link.i "TAG-SOURCE" "DisableAll"}
+
+    EMPTY TEMP-TABLE ttPhysicalBrowseInventory.
+
+    {&OPEN-QUERY-{&BROWSE-NAME}}  
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Exit W-Win 
 PROCEDURE Select_Exit :
@@ -1171,4 +1339,22 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE WindowExit W-Win
+PROCEDURE WindowExit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN pResetWarning NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN
+        RETURN NO-APPLY.
+        
+    RUN dispatch ("exit").
+    RETURN NO-APPLY.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
