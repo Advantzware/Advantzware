@@ -360,7 +360,7 @@ DEFINE BROWSE br-estitm
       eb.cust-% COLUMN-LABEL "Qty/Set" FORMAT "->>,>>>":U WIDTH 10
       eb.i-col FORMAT ">9":U
       eb.i-coat FORMAT ">9":U
-      eb.form-no COLUMN-LABEL "S" FORMAT ">>>":U
+      eb.form-no COLUMN-LABEL "F" FORMAT ">>>":U
       eb.blank-no COLUMN-LABEL "B" FORMAT ">>>":U
       eb.num-wid FORMAT ">9":U
       eb.num-len FORMAT ">9":U
@@ -528,7 +528,7 @@ ASSIGN
      _FldNameList[20]   > ASI.eb.i-coat
 "eb.i-coat" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > ASI.eb.form-no
-"eb.form-no" "S" ">>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.form-no" "F" ">>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > ASI.eb.blank-no
 "eb.blank-no" "B" ">>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   = ASI.eb.num-wid

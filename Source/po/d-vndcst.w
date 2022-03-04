@@ -205,7 +205,7 @@ DEFINE FRAME Dialog-Frame
           SIZE 8 BY .62 AT ROW 1.95 COLUMN 42.4
      "Length" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.95 COLUMN 81.4
-     "S / B" VIEW-AS TEXT
+     "F / B" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.95 COLUMN 5.4
      "Depth" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.95 COLUMN 103.4

@@ -45,7 +45,7 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD i-name                  AS CHARACTER   FORMAT "x(30)" COLUMN-LABEL "Item Name" HELP "Optional - Size:30"
     FIELD s-wid                   AS DECIMAL FORMAT ">>9.9999" COLUMN-LABEL "Width" HELP "Optional - Decimal"  
     FIELD s-len                   AS DECIMAL FORMAT ">>9.9999" COLUMN-LABEL "Length" HELP "Optional - Decimal"
-    FIELD s-num                   AS INTEGER FORMAT ">9" COLUMN-LABEL "Sheet #" HELP "Optional - Integer"
+    FIELD s-num                   AS INTEGER FORMAT ">9" COLUMN-LABEL "Form #" HELP "Optional - Integer"
     FIELD b-num                   AS INTEGER FORMAT ">9" COLUMN-LABEL "Blank #" HELP "Optional - Integer"
     FIELD dscr                    AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Description 1" HELP "Optional - Size:30"
     FIELD dscr2                   AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Description 2" HELP "Optional - Size:30"

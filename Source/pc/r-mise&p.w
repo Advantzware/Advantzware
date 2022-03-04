@@ -1252,7 +1252,7 @@ PROCEDURE run-report :
      pc-misc.ml column-label "MATL/LABOR"
      pc-misc.job-no column-label "JOB #" space(0) "-" space(0)
      pc-misc.job-no2 no-label format "99"
-     pc-misc.frm column-label "S /" space(0) "/" space(0)
+     pc-misc.frm column-label "F /" space(0) "/" space(0)
      pc-misc.blank-no column-label "B"
      pc-misc.i-no column-label "ITEM #"
      pc-misc.m-code column-label "MACH"
