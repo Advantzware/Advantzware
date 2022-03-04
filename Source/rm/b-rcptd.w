@@ -2625,8 +2625,8 @@ PROCEDURE get-matrix :
                  IF ll-add-setup AND lv-out-qty NE 0 THEN
                            lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
                  
-                 IF v-po-cuom EQ "L" THEN
-                    ext-cost = ABSOLUTE(v-po-cost) .
+                IF v-po-cuom EQ "L" THEN
+                    ext-cost =  ABSOLUTE(ROUND(lv-out-qty * lv-out-cost,2)).
                 ELSE IF lRMOverrunCost THEN do:
                    IF lv-out-qty GT dConsumQty   THEN DO:
                        ext-cost = ABSOLUTE(ROUND(dConsumQty * lv-out-cost,2)).
@@ -2745,11 +2745,11 @@ PROCEDURE get-matrix :
               
                 /* convert cost */
                 IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ "L" THEN
-                    lv-out-cost = DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}) / lv-out-qty .
+                    lv-out-cost = po-ordl.cons-cost.
                 ELSE
                     /* gdm - 07210901 */
                     IF v-po-cuom EQ "L" THEN do:
-                        lv-out-cost = DEC(v-po-cost) / lv-out-qty .
+                        lv-out-cost = po-ordl.cons-cost.
                     END.
                     ELSE
                         IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ lv-cost-uom THEN
@@ -2779,10 +2779,10 @@ PROCEDURE get-matrix :
                     dConsumQty = lv-out-qty .
         
                  IF ll-add-setup AND lv-out-qty NE 0 THEN
-                           lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
+                           lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).              
                
                 IF v-po-cuom EQ "L" THEN
-                    ext-cost = ABSOLUTE(v-po-cost) .
+                    ext-cost = ABSOLUTE(ROUND(lv-out-qty * lv-out-cost,2)).
                 ELSE IF lRMOverrunCost THEN do:
                    IF lv-out-qty GT dConsumQty   THEN DO:
                       
