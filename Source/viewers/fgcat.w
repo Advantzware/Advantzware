@@ -656,6 +656,7 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
+    IF AVAILABLE fgcat THEN
     cat-format:SCREEN-VALUE = STRING(fgcat.commrate EQ 1,"yes/no").
   END.
 
