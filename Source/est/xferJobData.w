@@ -73,7 +73,7 @@ DEFINE VARIABLE opSpoilCol AS LOGICAL NO-UNDO.
 DEFINE VARIABLE mrStdCol AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE ttblEstOp NO-UNDO
-  FIELD s-num LIKE est-op.s-num LABEL 'S'
+  FIELD s-num LIKE est-op.s-num LABEL 'F'
   FIELD d-seq LIKE est-op.d-seq
   FIELD b-num LIKE est-op.b-num LABEL 'B'
   FIELD p-num LIKE est-op.op-pass LABEL 'P'

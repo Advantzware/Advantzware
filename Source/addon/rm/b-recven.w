@@ -1191,7 +1191,7 @@ END.
 
 &Scoped-define SELF-NAME rm-rctd.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:
   DEF VAR v-auto-rec-log AS LOG NO-UNDO.
 
@@ -1237,7 +1237,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON VALUE-CHANGED OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:
   ll-warned = NO.
 END.

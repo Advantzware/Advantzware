@@ -666,7 +666,7 @@ END.
 
 &Scoped-define SELF-NAME rm-rdtlh.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rdtlh.s-num BROWSE-1 _BROWSE-COLUMN Dialog-Frame
-ON RETURN OF rm-rdtlh.s-num IN BROWSE BROWSE-1 /* S */
+ON RETURN OF rm-rdtlh.s-num IN BROWSE BROWSE-1 /* F */
 DO:
   RUN update-record.
 END.

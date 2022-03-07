@@ -855,7 +855,7 @@ END.
 
 &Scoped-define SELF-NAME rm-rctd.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON ENTRY OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:    
   IF onlyOneForm() THEN DO:
     APPLY 'TAB' TO SELF.
@@ -868,7 +868,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:
    IF rm-rctd.s-num NE INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
       RUN update-qty-proc.
