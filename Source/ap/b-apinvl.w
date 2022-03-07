@@ -250,6 +250,10 @@ FUNCTION display-snum RETURNS INTEGER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-actdscr B-table-Win 
 FUNCTION get-actdscr RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
+  
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getcurrentpo B-table-Win 
+FUNCTION getcurrentpo RETURNS INTEGER
+  ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3998,6 +4002,23 @@ FUNCTION get-actdscr RETURNS CHARACTER
      ELSE RETURN "".
   END.
   ELSE RETURN "".   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getcurrentpo B-table-Win 
+FUNCTION getcurrentpo RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+
+  IF AVAIL ap-invl THEN
+    RETURN ap-invl.po-no.
+  ELSE RETURN -1.  /* Function return value. */
 
 END FUNCTION.
 
