@@ -34,7 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-{est\ttEstCostHeaderToCalc.i}
+{est/ttEstCostHeaderToCalc.i}
 {methods/defines/hndldefs.i}
 {methods/defines/sortByDefs.i}
 {system/VendorCostProcs.i}
@@ -58,6 +58,7 @@ DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstCostHeaderToCalc.
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 &Scoped-define BROWSE-NAME brEstCostMaterial
+&Scoped-define SORTBY-PHRASE BY estCostHeader.quantityMaster BY estCostMaterial.formNo
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES ttEstCostHeaderToCalc estCostHeader ~
@@ -477,10 +478,11 @@ DO:
             IF NOT AVAILABLE ttVendItemCost THEN
             DO:
                 ASSIGN 
-                    chErrorList = chErrorList + chr(10) + "No Valid Vendor Found For Selected Item".
+                    chErrorList = chErrorList + chr(10) + "Unable to copy Vendor " + estCostMaterial.vendorID + 
+                                  " to Item " + bf-estCostMaterialForAll.itemID + " - Form " + estCostMaterial.itemID.
             END.
                 
-            IF ttVendItemCost.isValid = FALSE THEN 
+            IF AVAILABLE ttVendItemCost AND ttVendItemCost.isValid = FALSE THEN 
             DO:
                 ASSIGN 
                     chErrorList = chErrorList + chr(10) + ttVendItemCost.reasonNotValid.
@@ -564,6 +566,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
+
 
 &Scoped-define sdBrowseName brEstCostMaterial
 {methods/sortByProc.i "pByQtyMaster" "estCostHeader.quantityMaster"}
