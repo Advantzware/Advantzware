@@ -505,7 +505,7 @@ ON LEAVE OF fiTagStatus IN FRAME F-Main /* Status */
 DO:
     DEFINE VARIABLE lValidStatusID AS LOGICAL NO-UNDO.
 
-    IF ((LASTKEY NE 617 AND LASTKEY NE -1) OR (VALID-OBJECT (oKeyboard) AND oKeyboard:IsKeyboardOpen())) AND SELF:SCREEN-VALUE NE "" THEN DO:
+    IF (((LASTKEY LT 609 OR LASTKEY GT 652) AND LASTKEY NE -1) OR (VALID-OBJECT (oKeyboard) AND oKeyboard:IsKeyboardOpen())) AND SELF:SCREEN-VALUE NE "" THEN DO:
         RUN Inventory_ValidateStatusID in hdInventoryProcs(
             INPUT  SELF:SCREEN-VALUE,
             OUTPUT lValidStatusID

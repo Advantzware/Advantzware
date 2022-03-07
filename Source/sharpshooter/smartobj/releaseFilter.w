@@ -257,7 +257,7 @@ END.
 ON LEAVE OF fiRelease IN FRAME F-Main /* RELEASE */
 DO:
     /* If last key is not button choose or mouse click event */
-    IF ((LASTKEY NE 617 AND LASTKEY NE -1) OR (VALID-OBJECT (oKeyboard) AND oKeyboard:IsKeyboardOpen())) AND SELF:SCREEN-VALUE NE "" THEN
+    IF (((LASTKEY LT 609 OR LASTKEY GT 652) AND LASTKEY NE -1) OR (VALID-OBJECT (oKeyboard) AND oKeyboard:IsKeyboardOpen())) AND SELF:SCREEN-VALUE NE "" THEN
         RUN pReleaseScan.   
 END.
 

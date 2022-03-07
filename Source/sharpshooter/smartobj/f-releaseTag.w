@@ -367,6 +367,7 @@ PROCEDURE Reset :
   Notes:       
 ------------------------------------------------------------------------------*/
     {methods/run_link.i "RELEASE-SOURCE" "EmptyRelease"}
+    {methods/run_link.i "RELEASE-SOURCE" "Set-Focus"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

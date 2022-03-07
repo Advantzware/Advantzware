@@ -3889,7 +3889,10 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-eb FOR eb.
   /* Code placed here will execute PRIOR to standard behavior. */
-
+    ASSIGN
+        lv-copy-what = ""
+        ls-add-what  = "".
+        
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 

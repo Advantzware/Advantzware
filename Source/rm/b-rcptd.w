@@ -331,11 +331,11 @@ DEFINE BROWSE Browser-Table
             WIDTH 22 LABEL-BGCOLOR 14
       rm-rctd.pur-uom COLUMN-LABEL "PUOM" FORMAT "x(4)":U WIDTH 7
             LABEL-BGCOLOR 14
-      rm-rctd.cost COLUMN-LABEL "Cost" FORMAT "->,>>>,>>9.99<":U
+      rm-rctd.cost COLUMN-LABEL "Cost" FORMAT "->,>>>,>>9.99<<<<":U
             LABEL-BGCOLOR 14
       rm-rctd.cost-uom COLUMN-LABEL "CUOM" FORMAT "x(4)":U WIDTH 7
             LABEL-BGCOLOR 14
-      calc-ext-cost() @ ext-cost COLUMN-LABEL "Ext.Amount" FORMAT "->,>>>,>>9.99<<":U
+      calc-ext-cost() @ ext-cost COLUMN-LABEL "Ext.Amount" FORMAT "->,>>>,>>9.99<<<<":U
             WIDTH 20.2 COLUMN-BGCOLOR 14
       display-dimension('W') @ lv-po-wid COLUMN-LABEL "Width"
       display-dimension('L') @ lv-po-len COLUMN-LABEL "Length"
@@ -502,11 +502,11 @@ rm-rctd.rita-code = ""R"""
      _FldNameList[15]   > asi.rm-rctd.pur-uom
 "pur-uom" "PUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > asi.rm-rctd.cost
-"cost" "Cost" "->,>>>,>>9.99<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cost" "Cost" "->,>>>,>>9.99<<<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > asi.rm-rctd.cost-uom
 "cost-uom" "CUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
-"calc-ext-cost() @ ext-cost" "Ext.Amount" "->,>>>,>>9.99<<" ? 14 ? ? ? ? ? no ? no no "20.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"calc-ext-cost() @ ext-cost" "Ext.Amount" "->,>>>,>>9.99<<<<" ? 14 ? ? ? ? ? no ? no no "20.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > "_<CALC>"
 "display-dimension('W') @ lv-po-wid" "Width" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > "_<CALC>"
@@ -2625,8 +2625,8 @@ PROCEDURE get-matrix :
                  IF ll-add-setup AND lv-out-qty NE 0 THEN
                            lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
                  
-                 IF v-po-cuom EQ "L" THEN
-                    ext-cost = ABSOLUTE(v-po-cost) .
+                IF v-po-cuom EQ "L" THEN
+                    ext-cost =  ABSOLUTE(ROUND(lv-out-qty * lv-out-cost,2)).
                 ELSE IF lRMOverrunCost THEN do:
                    IF lv-out-qty GT dConsumQty   THEN DO:
                        ext-cost = ABSOLUTE(ROUND(dConsumQty * lv-out-cost,2)).
@@ -2745,11 +2745,11 @@ PROCEDURE get-matrix :
               
                 /* convert cost */
                 IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ "L" THEN
-                    lv-out-cost = DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}) / lv-out-qty .
+                    lv-out-cost = po-ordl.cons-cost.
                 ELSE
                     /* gdm - 07210901 */
                     IF v-po-cuom EQ "L" THEN do:
-                        lv-out-cost = DEC(v-po-cost) / lv-out-qty .
+                        lv-out-cost = po-ordl.cons-cost.
                     END.
                     ELSE
                         IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ lv-cost-uom THEN
@@ -2779,10 +2779,10 @@ PROCEDURE get-matrix :
                     dConsumQty = lv-out-qty .
         
                  IF ll-add-setup AND lv-out-qty NE 0 THEN
-                           lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
+                           lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).              
                
                 IF v-po-cuom EQ "L" THEN
-                    ext-cost = ABSOLUTE(v-po-cost) .
+                    ext-cost = ABSOLUTE(ROUND(lv-out-qty * lv-out-cost,2)).
                 ELSE IF lRMOverrunCost THEN do:
                    IF lv-out-qty GT dConsumQty   THEN DO:
                       

@@ -48,6 +48,9 @@ PROCEDURE pDatePickList :
     IF VALID-HANDLE(iphCalendar) THEN
     iphCalendar:SENSITIVE = iphPickList:SCREEN-VALUE EQ "Fixed Date".
 
+    IF lModified EQ NO AND lInitialized EQ YES THEN
+    lModified = iphWidget:MODIFIED.
+
 END PROCEDURE.
 
 PROCEDURE pInitDynParameters :

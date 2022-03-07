@@ -859,7 +859,7 @@ PROCEDURE update-sheet :
         xeb.num-len  = 1.
   
          IF lCEUseNewLayoutCalc THEN
-             RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+             RUN Estimate_UpdateEfFormLayoutSizeOnly (BUFFER xef, BUFFER xeb).
          ELSE
              RUN cec/calc-dim1.p NO-ERROR.
   
