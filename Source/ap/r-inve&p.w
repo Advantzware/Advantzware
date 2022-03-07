@@ -105,7 +105,7 @@ def var v-export as log no-undo.
 def var v-rec-written as int no-undo.
 def var t-rec-written as int no-undo.
 def var v-s-inv-no like inv-head.inv-no init 0 no-undo.
-def var v-e-inv-no like v-s-inv-no init 999999.
+def var v-e-inv-no like v-s-inv-no init 99999999.
 def var v-s-date   like inv-head.inv-date format "99/99/9999"
                                           init 01/01/0001 no-undo.
 def var v-e-date   like v-s-date init today.
@@ -978,7 +978,7 @@ ASSIGN
                         tran-period,
                         "A",
                         tran-date,
-                        "Vendor:" + string(ap-inv.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"9999999") + " Line: " + STRING(ap-invl.LINE,"99"),
+                        "Vendor:" + string(ap-inv.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"99999999") + " Line: " + STRING(ap-invl.LINE,"99"),
                         "AP").
       ASSIGN
        t1 = t1 + ap-invl.amt
@@ -1070,7 +1070,7 @@ ASSIGN
 
                   work-gl.debits = work-gl.debits -
                                    (fg-rdtlh.qty / 1000 * fg-rdtlh.cost ).
-                  work-gl.cDesc = work-gl.cDesc + "Vendor:" + string(ap-inv.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"9999999") + " ".
+                  work-gl.cDesc = work-gl.cDesc + "Vendor:" + string(ap-inv.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"99999999") + " ".
 
                   /* Credit WIP Material */
                   FIND FIRST work-gl WHERE work-gl.actnum EQ prod.wip-mat
@@ -1083,7 +1083,7 @@ ASSIGN
 
                   work-gl.credits = work-gl.credits -
                                     (fg-rdtlh.qty / 1000 * fg-rdtlh.cost).
-                  work-gl.cDesc = work-gl.cDesc + "Vendor:" + string(ap-inv.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"9999999") + " ". 
+                  work-gl.cDesc = work-gl.cDesc + "Vendor:" + string(ap-inv.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"99999999") + " ". 
                 END.
               END.  
               /* Balance GL */
@@ -1269,7 +1269,7 @@ ASSIGN
                         tran-period,
                         "A",
                         tran-date,
-                        (IF AVAIL ap-inv THEN "Vendor:" + string(ap-inv.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"9999999") ELSE ""),
+                        (IF AVAIL ap-inv THEN "Vendor:" + string(ap-inv.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"99999999") ELSE ""),
                         "AP").
     
     ASSIGN
@@ -1286,7 +1286,7 @@ ASSIGN
                         tran-period,
                         "A",
                         tran-date,
-                        (IF AVAIL ap-inv THEN "Vendor:" + string(ap-inv.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"9999999") ELSE ""),
+                        (IF AVAIL ap-inv THEN "Vendor:" + string(ap-inv.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"99999999") ELSE ""),
                         "AP").
   
   FOR EACH work-gl BREAK BY work-gl.actnum:
@@ -1532,7 +1532,7 @@ FOR EACH report WHERE report.term-id EQ v-term NO-LOCK,
 
     PUT ap-inv.inv-date AT 41       SPACE(1)
         ap-inv.vend-no              SPACE(1)
-        ap-inv.inv-no               SPACE(6)
+        ap-inv.inv-no FORMAT ">>>>>>>9"              SPACE(5)
         "Freight"    FORMAT "x(18)" SPACE(7)
         1.0          FORMAT "9.9"   SPACE(1)
         ap-inv.freight              TO 118

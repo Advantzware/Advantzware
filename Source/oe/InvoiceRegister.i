@@ -28,7 +28,7 @@
 
         display ttGLTransaction.account       @ account.actnum
                 v-dscr
-                int(ttGLTransaction.invoiceID)  @ inv-head.inv-no FORMAT ">>>>>>9"
+                int(ttGLTransaction.invoiceID)  @ inv-head.inv-no FORMAT ">>>>>>>9"
                 ttGLTransaction.itemID       @ inv-line.i-no
                 v-tmp-amt
                 ld-pton FORMAT "->>>>>>9.999" WHEN tb_ton 

@@ -941,7 +941,7 @@ PROCEDURE post-gl :
                         w-actnum   = ap-payl.actnum
                         w-amt-paid = ap-payl.amt-paid
                         w-amt-disc = ap-payl.amt-disc
-                        w-disb.cDesc = "Vendor:" + string(vend.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"9999999") + " Check: " + STRING(ap-payl.check-no,"999999999999")
+                        w-disb.cDesc = "Vendor:" + string(vend.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"99999999") + " Check: " + STRING(ap-payl.check-no,"999999999999")
                         .
                 END.
                 
