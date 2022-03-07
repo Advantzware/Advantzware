@@ -219,7 +219,8 @@ PROCEDURE exportSnapshot:
         IF NOT AVAIL inventoryStockSnapshot THEN DO:
             CREATE inventoryStockSnapshot.
             ASSIGN        
-                inventoryStockSnapshot.inventoryStockID    = fg-bin.tag    
+                inventoryStockSnapshot.inventoryStockID    = fg-bin.tag 
+                inventoryStockSnapshot.tag                 = fg-bin.tag   
                 inventoryStockSnapshot.company             = fg-bin.company        
                 inventoryStockSnapshot.rmItemID            = ""      
                 inventoryStockSnapshot.fgItemID            = fg-bin.i-no                        

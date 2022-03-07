@@ -52,7 +52,7 @@ DEFINE VARIABLE dButtonsWidth AS DECIMAL NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 messageText btn1 btn2 btn3 btn4 
+&Scoped-Define ENABLED-OBJECTS messageText btn1 btn2 btn3 btn4 
 &Scoped-Define DISPLAYED-OBJECTS messageText 
 
 /* Custom List Definitions                                              */
@@ -92,10 +92,6 @@ DEFINE VARIABLE messageText AS CHARACTER
      VIEW-AS EDITOR NO-BOX
      SIZE 155 BY 9.76 NO-UNDO.
 
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 157 BY 10.48.
-
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -105,8 +101,7 @@ DEFINE FRAME Dialog-Frame
      btn2 AT ROW 11.81 COL 62 WIDGET-ID 2
      btn3 AT ROW 11.81 COL 77.8
      btn4 AT ROW 11.81 COL 93 WIDGET-ID 6
-     RECT-1 AT ROW 1.14 COL 4.4 WIDGET-ID 8
-     SPACE(1.99) SKIP(2.47)
+     SPACE(55.39) SKIP(0.14)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 21 FGCOLOR 15 FONT 38
@@ -307,7 +302,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY messageText 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-1 messageText btn1 btn2 btn3 btn4 
+  ENABLE messageText btn1 btn2 btn3 btn4 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

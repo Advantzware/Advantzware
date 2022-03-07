@@ -101,9 +101,9 @@ RUN spSetSettingContext.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btClear btnNumPad fiLocation br-table ~
-btnExitText btnClearText statusMessage btnSettingsText 
+btnExitText btnClearText statusMessage btnAdjustQtyText btnSettingsText 
 &Scoped-Define DISPLAYED-OBJECTS cbSnapshot fiLocation btnExitText ~
-btnClearText statusMessage btnSettingsText 
+btnClearText statusMessage btnAdjustQtyText btnSettingsText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -119,6 +119,7 @@ btnClearText statusMessage btnSettingsText
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
+DEFINE VARIABLE h_adjustqty AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_adjustwindowsize AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigatefirst AS HANDLE NO-UNDO.
@@ -150,6 +151,11 @@ DEFINE VARIABLE cbSnapshot AS CHARACTER FORMAT "X(256)":U
      DROP-DOWN-LIST
      SIZE 67 BY 1
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+
+DEFINE VARIABLE btnAdjustQtyText AS CHARACTER FORMAT "X(256)":U INITIAL "ADJUST QTY" 
+      VIEW-AS TEXT 
+     SIZE 23 BY 1.43
+     BGCOLOR 21  NO-UNDO.
 
 DEFINE VARIABLE btnClearText AS CHARACTER FORMAT "X(256)":U INITIAL "RESET" 
       VIEW-AS TEXT 
@@ -192,14 +198,14 @@ DEFINE BROWSE br-table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br-table W-Win _FREEFORM
   QUERY br-table DISPLAY
       ttPhysicalBrowseInventory.tag WIDTH 45 COLUMN-LABEL "Tag #" FORMAT "X(30)"
-    ttPhysicalBrowseInventory.itemType WIDTH 16 COLUMN-LABEL "Item Type" 
-    ttPhysicalBrowseInventory.itemID WIDTH 50 COLUMN-LABEL "Item" FORMAT "X(15)"
-    ttPhysicalBrowseInventory.quantity WIDTH 30 COLUMN-LABEL "Scanned Quantity"
-    ttPhysicalBrowseInventory.origQuantity WIDTH 30 COLUMN-LABEL "System Quantity"
-    ttPhysicalBrowseInventory.quantityUOM WIDTH 15 COLUMN-LABEL "UOM"
-    ttPhysicalBrowseInventory.location WIDTH 30 COLUMN-LABEL "Scanned Location" FORMAT "X(12)"
-    ttPhysicalBrowseInventory.origLocation WIDTH 30 COLUMN-LABEL "System Location" FORMAT "X(12)"
-    ttPhysicalBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(25)"
+    ttPhysicalBrowseInventory.itemType WIDTH 8 COLUMN-LABEL "Type" 
+    ttPhysicalBrowseInventory.itemID WIDTH 40 COLUMN-LABEL "Item" FORMAT "X(15)"
+    ttPhysicalBrowseInventory.quantity WIDTH 28 COLUMN-LABEL "Scanned Quantity"
+    ttPhysicalBrowseInventory.origQuantity WIDTH 28 COLUMN-LABEL "System Quantity"
+    ttPhysicalBrowseInventory.quantityUOM WIDTH 10 COLUMN-LABEL "UOM"
+    ttPhysicalBrowseInventory.location WIDTH 28 COLUMN-LABEL "Scanned Location" FORMAT "X(12)"
+    ttPhysicalBrowseInventory.origLocation WIDTH 28 COLUMN-LABEL "System Location" FORMAT "X(12)"
+    ttPhysicalBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(40)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 194.8 BY 12.38
@@ -217,7 +223,8 @@ DEFINE FRAME F-Main
      br-table AT ROW 9.1 COL 2 WIDGET-ID 200
      btnExitText AT ROW 1.24 COL 189 COLON-ALIGNED NO-LABEL WIDGET-ID 70
      btnClearText AT ROW 3.38 COL 182 NO-LABEL WIDGET-ID 148
-     statusMessage AT ROW 21.86 COL 2.8 NO-LABEL WIDGET-ID 66
+     statusMessage AT ROW 21.86 COL 41.4 NO-LABEL WIDGET-ID 66
+     btnAdjustQtyText AT ROW 21.95 COL 6.6 NO-LABEL WIDGET-ID 156
      btnSettingsText AT ROW 21.95 COL 179 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      RECT-2 AT ROW 2.19 COL 128 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -281,6 +288,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
 /* BROWSE-TAB br-table fiLocation F-Main */
+/* SETTINGS FOR FILL-IN btnAdjustQtyText IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN btnClearText IN FRAME F-Main
    ALIGN-L                                                              */
 /* SETTINGS FOR BUTTON btNextLoc IN FRAME F-Main
@@ -353,6 +362,17 @@ END.
 &Scoped-define BROWSE-NAME br-table
 &Scoped-define SELF-NAME br-table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table W-Win
+ON DEFAULT-ACTION OF br-table IN FRAME F-Main
+DO:
+    RUN AdjustQuantity.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table W-Win
 ON ROW-DISPLAY OF br-table IN FRAME F-Main
 DO:
 &scoped-define exclude-row-display true 
@@ -406,6 +426,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnAdjustQtyText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAdjustQtyText W-Win
+ON MOUSE-SELECT-CLICK OF btnAdjustQtyText IN FRAME F-Main
+DO:
+    RUN AdjustQuantity.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnClearText
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearText W-Win
 ON MOUSE-SELECT-CLICK OF btnClearText IN FRAME F-Main
@@ -451,9 +482,10 @@ DO:
             WHERE ttPhysicalBrowseInventory.inventoryStatus EQ gcStatusSnapshotNotScanned:
             ASSIGN
                 ttPhysicalBrowseInventory.lastTransTime   = NOW
-                ttPhysicalBrowseInventory.inventoryStatus = gcStatusSnapshotNotScannedQtyZero 
-                ttPhysicalBrowseInventory.warehouseID     = cLocation  
-                ttPhysicalBrowseInventory.locationID      = cBin
+                ttPhysicalBrowseInventory.inventoryStatus = gcStatusSnapshotNotScannedCountingZero
+                ttPhysicalBrowseInventory.quantity        = 0 
+                ttPhysicalBrowseInventory.warehouseID     = CAPS(cLocation)  
+                ttPhysicalBrowseInventory.locationID      = CAPS(cBin)
                 ttPhysicalBrowseInventory.location        = ttPhysicalBrowseInventory.warehouseID 
                                                           + FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.warehouseID)) 
                                                           + ttPhysicalBrowseInventory.locationID  
@@ -473,6 +505,8 @@ DO:
             
             RETURN.
         END.
+        
+        RUN pCreateCounts.
     END.
     
     RUN Reset.    
@@ -581,6 +615,36 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE AdjustQuantity W-Win 
+PROCEDURE AdjustQuantity :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lValueReturned AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dValue         AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cChoice        AS CHARACTER NO-UNDO.
+    
+    IF AVAILABLE ttPhysicalBrowseInventory THEN DO:
+        RUN sharpshooter/modifyQuantity.w (ttPhysicalBrowseInventory.quantity, OUTPUT dValue, OUTPUT lValueReturned).
+        IF lValueReturned THEN DO:
+            IF ttPhysicalBrowseInventory.quantity EQ dValue THEN DO:
+                RUN sharpshooter/messageDialogCustom.w (
+                    INPUT  "Adjusted quantity for tag " + ttPhysicalBrowseInventory.tag + " is same as existing quantity",
+                    INPUT  "OK",
+                    OUTPUT cChoice
+                    ).
+                RETURN.
+            END.
+
+            RUN pAdjustQuantity (ttPhysicalBrowseInventory.company, ttPhysicalBrowseInventory.tag, dValue).        
+        END.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-create-objects W-Win  _ADM-CREATE-OBJECTS
 PROCEDURE adm-create-objects :
 /*------------------------------------------------------------------------------
@@ -655,6 +719,14 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/adjustqty.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_adjustqty ).
+       RUN set-position IN h_adjustqty ( 21.67 , 30.60 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/setting.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
@@ -678,12 +750,13 @@ PROCEDURE adm-create-objects :
        /* Links to SmartObject h_navigatelast. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'NAV-LAST':U , h_navigatelast ).
 
+       /* Links to SmartObject h_adjustqty. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'ADJUST':U , h_adjustqty ).
+
        /* Links to SmartObject h_setting. */
        RUN add-link IN adm-broker-hdl ( h_setting , 'SETTING':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
-             h_adjustwindowsize , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_tagfilter ,
              fiLocation:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
@@ -694,8 +767,10 @@ PROCEDURE adm-create-objects :
              h_navigateprev , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
              h_navigatenext , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_setting ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_adjustqty ,
              h_navigatelast , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_setting ,
+             h_adjustqty , 'AFTER':U ).
     END. /* Page 1 */
 
   END CASE.
@@ -761,10 +836,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY cbSnapshot fiLocation btnExitText btnClearText statusMessage 
-          btnSettingsText 
+          btnAdjustQtyText btnSettingsText 
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE btClear btnNumPad fiLocation br-table btnExitText btnClearText 
-         statusMessage btnSettingsText 
+         statusMessage btnAdjustQtyText btnSettingsText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -886,6 +961,74 @@ PROCEDURE OpenSetting :
     ------------------------------------------------------------------------------*/
     RUN windows/setting-dialog.w.
     {sharpshooter/settingChangeDialog.i}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAdjustQuantity W-Win 
+PROCEDURE pAdjustQuantity PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag              AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantity         AS DECIMAL   NO-UNDO.
+    
+    DEFINE VARIABLE lCreated AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN pAdjustTransactionQuantity IN hdInventoryProcs (
+        INPUT  ipcCompany,
+        INPUT  iSnapshotID,
+        INPUT  ipcTag,
+        INPUT  ipdQuantity, /* Zeroing out */
+        OUTPUT lCreated,
+        OUTPUT cMessage,
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory BY-REFERENCE
+        ).
+
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateCounts W-Win 
+PROCEDURE pCreateCounts PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iSequeceID AS INTEGER   NO-UNDO.
+    
+    FOR EACH ttPhysicalBrowseInventory:
+        RUN api\inbound\CreateInventoryCount.p (
+            INPUT        ttPhysicalBrowseInventory.company,
+            INPUT        ttPhysicalBrowseInventory.warehouseID,
+            INPUT        ttPhysicalBrowseInventory.locationID,
+            INPUT        "",
+            INPUT        0,
+            INPUT        0,
+            INPUT-OUTPUT ttPhysicalBrowseInventory.jobID,
+            INPUT-OUTPUT ttPhysicalBrowseInventory.jobID2,
+            INPUT        ttPhysicalBrowseInventory.itemID,
+            INPUT        ttPhysicalBrowseInventory.itemType,
+            INPUT        ttPhysicalBrowseInventory.tag,
+            INPUT        ttPhysicalBrowseInventory.quantity,
+            INPUT        0,
+            INPUT        0,
+            INPUT        ttPhysicalBrowseInventory.quantityUOM,
+            INPUT        FALSE,
+            INPUT        FALSE,
+            OUTPUT       iSequeceID,
+            OUTPUT       lSuccess,
+            OUTPUT       cMessage
+            ) NO-ERROR.            
+    END.     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1078,9 +1221,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetWarning W-Win
-PROCEDURE pResetWarning PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetWarning W-Win 
+PROCEDURE pResetWarning PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1101,11 +1243,9 @@ PROCEDURE pResetWarning PRIVATE:
             RETURN ERROR.
     END.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTagScan W-Win 
 PROCEDURE pTagScan :
@@ -1183,6 +1323,7 @@ PROCEDURE pWinReSize :
             statusMessage:ROW            = {&WINDOW-NAME}:HEIGHT - .86
             dCol                         = {&WINDOW-NAME}:WIDTH  - 8
             btnExitText:COL              = dCol - 9
+            btnAdjustQtyText:ROW         = {&WINDOW-NAME}:HEIGHT - .86
             btnSettingsText:ROW          = {&WINDOW-NAME}:HEIGHT - .86
             btnSettingsText:COL          = dCol - 20
             btnClearText:COL             = dCol - 12
@@ -1191,6 +1332,7 @@ PROCEDURE pWinReSize :
             BROWSE {&BROWSE-NAME}:WIDTH  = dCol - 2
             .
 
+        RUN set-position IN h_adjustqty ({&WINDOW-NAME}:HEIGHT - 1.1, btnAdjustQtyText:COL + 23).
         RUN set-position IN h_exit ( 1.00 , dCol ) NO-ERROR.
         RUN set-position IN h_setting ( {&WINDOW-NAME}:HEIGHT - 1.1 , btnSettingsText:COL + 18 ) NO-ERROR.
         RUN get-position IN h_navigatefirst ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
@@ -1209,9 +1351,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset W-Win
-PROCEDURE Reset:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset W-Win 
+PROCEDURE Reset :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1234,11 +1375,9 @@ PROCEDURE Reset:
 
     {&OPEN-QUERY-{&BROWSE-NAME}}  
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Exit W-Win 
 PROCEDURE Select_Exit :
@@ -1340,8 +1479,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE WindowExit W-Win
-PROCEDURE WindowExit:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE WindowExit W-Win 
+PROCEDURE WindowExit :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1353,8 +1492,7 @@ PROCEDURE WindowExit:
     RUN dispatch ("exit").
     RETURN NO-APPLY.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

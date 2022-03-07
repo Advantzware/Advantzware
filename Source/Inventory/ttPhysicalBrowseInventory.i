@@ -3,6 +3,8 @@ DEFINE TEMP-TABLE ttPhysicalBrowseInventory NO-UNDO
     FIELD inventoryStockID AS CHARACTER
     FIELD tag              AS CHARACTER
     FIELD itemID           AS CHARACTER
+    FIELD jobID            AS CHARACTER
+    FIELD jobID2           AS INTEGER
     FIELD quantity         AS DECIMAL
     FIELD origQuantity     AS DECIMAL
     FIELD quantityUOM      AS CHARACTER

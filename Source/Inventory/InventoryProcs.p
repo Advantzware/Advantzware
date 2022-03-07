@@ -72,7 +72,7 @@ FUNCTION fGetSnapshotCompareStatus RETURNS CHARACTER PRIVATE
      ipcWarehouseID AS CHARACTER,
      ipcLocationID AS CHARACTER) FORWARD.
 
-FUNCTION fGetSnapshotCompareStatusBySnapshotID RETURNS CHARACTER PRIVATE
+FUNCTION fGetSnapshotCompareStatusBySnapshotID RETURNS CHARACTER
     (ipcCompany AS CHARACTER,
      ipiSnapshotID AS INTEGER,
      ipcTag AS CHARACTER,
@@ -7427,11 +7427,13 @@ PROCEDURE Inventory_GetSnapShotForLocation:
                                                                  inventoryStockSnapshot.fgItemID
                                                              ELSE
                                                                  ""
-                ttPhysicalBrowseInventory.quantity         = 0
+                ttPhysicalBrowseInventory.jobID            = inventoryStockSnapshot.jobID
+                ttPhysicalBrowseInventory.jobID2           = inventoryStockSnapshot.jobID2
                 ttPhysicalBrowseInventory.origQuantity     = IF inventoryStockSnapshot.quantityOriginal EQ ? THEN
                                                                  0
                                                              ELSE
                                                                  inventoryStockSnapshot.quantityOriginal
+                ttPhysicalBrowseInventory.quantity         = ttPhysicalBrowseInventory.origQuantity
                 ttPhysicalBrowseInventory.quantityUOM      = inventoryStockSnapshot.quantityUOM                                                                 
                 ttPhysicalBrowseInventory.customerID       = inventoryStockSnapshot.customerID
                 ttPhysicalBrowseInventory.lastTransTime    = NOW
@@ -7635,36 +7637,38 @@ PROCEDURE pAdjustTransactionQuantity:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSnapshotID       AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTag              AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQuantity         AS DECIMAL   NO-UNDO.    
     DEFINE OUTPUT PARAMETER oplCreated          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
     
-    FIND FIRST ttPhysicalBrowseInventory EXCLUSIVE-LOCK
+    FIND FIRST ttPhysicalBrowseInventory
          WHERE ttPhysicalBrowseInventory.company EQ ipcCompany
            AND ttPhysicalBrowseInventory.tag     EQ ipcTag
          NO-ERROR.
     
     IF AVAILABLE ttPhysicalBrowseInventory THEN DO:       
-        RUN CreateTransactionCompare (
-            ttPhysicalBrowseInventory.company,
-            ttPhysicalBrowseInventory.tag,
-            ipdQuantity,
-            "",    /* Blank Quantity EOM */
-            ttPhysicalBrowseInventory.warehouseID,
-            ttPhysicalBrowseInventory.locationID,
-            FALSE, /* Post transaction */
-            OUTPUT oplCreated,
-            OUTPUT opcMessage
-            ).
-    
-        IF oplCreated THEN 
+/*        RUN CreateTransactionCompare (            */
+/*            ttPhysicalBrowseInventory.company,    */
+/*            ttPhysicalBrowseInventory.tag,        */
+/*            ipdQuantity,                          */
+/*            "",    /* Blank Quantity EOM */       */
+/*            ttPhysicalBrowseInventory.warehouseID,*/
+/*            ttPhysicalBrowseInventory.locationID, */
+/*            FALSE, /* Post transaction */         */
+/*            OUTPUT oplCreated,                    */
+/*            OUTPUT opcMessage                     */
+/*            ).                                    */
+/*                                                  */
+/*        IF oplCreated THEN                        */
             ASSIGN
                 ttPhysicalBrowseInventory.lastTransTime   = NOW
                 ttPhysicalBrowseInventory.quantity        = ipdQuantity
-                ttPhysicalBrowseInventory.inventoryStatus = fGetSnapshotCompareStatus (
+                ttPhysicalBrowseInventory.inventoryStatus = fGetSnapshotCompareStatusBySnapshotID (
                                                             ipcCompany,
+                                                            ipiSnapshotID,
                                                             ipcTag,
                                                             ipdQuantity,
                                                             ttPhysicalBrowseInventory.warehouseID,
@@ -9896,7 +9900,7 @@ FUNCTION fGetSnapshotCompareStatusBySnapshotID RETURNS CHARACTER
          NO-ERROR.
 
     IF AVAILABLE inventoryStockSnapshot THEN DO:
-        IF ipdQuantity NE inventoryStockSnapshot.quantity THEN
+        IF ipdQuantity NE inventoryStockSnapshot.quantityOriginal THEN
             ASSIGN
                 lQuantityChanged = TRUE
                 opcStatus        = gcStatusSnapshotQtyChange.
@@ -9971,12 +9975,12 @@ FUNCTION fGetRowBGColor RETURNS INTEGER
         WHEN gcStatusSnapshotQtyChange       THEN
             iColor = 11. /* Cyan */
         WHEN gcStatusSnapshotQtyAndLocChange THEN
-            iColor = 20. /* Blue */
+            iColor = 11. /* Blue */
         WHEN gcStatusSnapshotTagNotFound     THEN
             iColor = 12. /* Red */
         WHEN gcStatusSnapshotTagNotOnHand    THEN
             iColor = 12. /* Red */
-        WHEN gcStatusSnapshotNotScannedQtyZero THEN
+        WHEN gcStatusSnapshotNotScannedCountingZero THEN
             iColor = 12. /* Red */
     END CASE.
     

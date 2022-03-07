@@ -212,6 +212,11 @@ DO:
     RUN pScanTag (SELF:SCREEN-VALUE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN
         RETURN NO-APPLY.  
+
+    IF lAutoScanNextTag THEN DO:
+        lAutoScanNextTag = FALSE.
+        RETURN NO-APPLY.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -222,11 +227,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag s-object
 ON LEAVE OF fiTag IN FRAME F-Main /* TAG */
 DO:
-    IF lAutoScanNextTag THEN DO:
-        lAutoScanNextTag = FALSE.
-        RETURN NO-APPLY.
-    END.
-            
     fiTag:BGCOLOR = 15.
 END.
 
@@ -240,6 +240,11 @@ DO:
     RUN pScanTag (SELF:SCREEN-VALUE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN
         RETURN NO-APPLY.
+
+    IF lAutoScanNextTag THEN DO:
+        lAutoScanNextTag = FALSE.
+        RETURN NO-APPLY.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -463,9 +468,9 @@ PROCEDURE pScanTag :
         INPUT "tag-invalid"
         ).
 
-    IF (LASTKEY EQ -1 OR (LASTKEY GE 609 AND LASTKEY LE 652)) AND NOT (VALID-OBJECT (oKeyboard) AND oKeyboard:IsKeyboardOpen()) AND fiTag:SCREEN-VALUE NE "" THEN
+    IF fiTag:SCREEN-VALUE EQ "" THEN
         RETURN.
-
+        
     lValidTag = oLoadTag:SetContext(INPUT cCompany, INPUT ipcTag).
 
     IF NOT lValidTag THEN DO:
@@ -490,8 +495,6 @@ PROCEDURE pScanTag :
         
         RETURN ERROR.
     END.
-
-    fiTag:BGCOLOR = 15.
 
     RUN new-state (
         INPUT "tag-valid"
