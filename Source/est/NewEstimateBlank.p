@@ -16,8 +16,6 @@
 DEFINE INPUT PARAMETER ip-rief     AS ROWID      NO-UNDO.
 DEFINE OUTPUT PARAMETER op-rieb    AS ROWID      NO-UNDO.
 
-/*{sys/inc/var.i SHARED}*/
-
 DEFINE BUFFER bf-eb FOR eb. /*bf - buffer*/
 
 DEFINE VARIABLE cPrev-cust  LIKE eb.cust-no NO-UNDO.
@@ -26,14 +24,12 @@ DEFINE VARIABLE cPrev-style LIKE eb.style   NO-UNDO.
 
 DEFINE VARIABLE cPart-no            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE li                  AS INTEGER   NO-UNDO. /*Count variable*/
-/*DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO.*/
 DEFINE VARIABLE cPackCodeOverride   AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE lFound              AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cPriceBasedOnYield  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPriceBasedOnYield  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cEstimateLocDefault AS CHARACTER NO-UNDO.
-
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -58,6 +54,7 @@ CASE cPriceBasedOnYield:
     WHEN "YieldNewOnly" THEN 
         lPriceBasedOnYield = YES.
 END CASE.
+
 IF cPriceBasedOnYield EQ "RequestNewOnly" OR cPriceBasedOnYield EQ "YieldNewOnly" THEN 
     FOR EACH eb
         WHERE eb.company EQ ef.company
@@ -75,14 +72,14 @@ FIND FIRST bf-eb
     AND bf-eb.form-no  EQ 0
     AND bf-eb.blank-no EQ 0
     NO-LOCK NO-ERROR.
-cPart-no = IF AVAIL bf-eb THEN bf-eb.part-no ELSE "".
+cPart-no = IF AVAILABLE bf-eb THEN bf-eb.part-no ELSE "".
 
 FIND LAST bf-eb NO-LOCK
     WHERE bf-eb.company EQ ef.company
     AND bf-eb.est-no  EQ ef.est-no
     AND bf-eb.form-no NE 0
     USE-INDEX est-qty NO-ERROR.
-IF AVAIL bf-eb THEN
+IF AVAILABLE bf-eb THEN
     ASSIGN
         cPrev-cust = bf-eb.cust-no
         cPrev-ship = bf-eb.ship-id
@@ -93,7 +90,7 @@ FIND LAST bf-eb NO-LOCK
     AND bf-eb.est-no  EQ ef.est-no
     AND bf-eb.form-no EQ ef.form-no
     USE-INDEX est-qty NO-ERROR.
-li = IF AVAIL bf-eb THEN bf-eb.blank-no ELSE 0.
+li = IF AVAILABLE bf-eb THEN bf-eb.blank-no ELSE 0.
 
 
 CREATE eb. 
@@ -165,7 +162,8 @@ END.
 FIND FIRST ITEM WHERE ITEM.company = ef.company
     AND ITEM.mat-type = "C"
     AND item.i-no EQ eb.cas-no NO-LOCK NO-ERROR.
-IF AVAIL item THEN 
+    
+IF AVAILABLE item THEN 
 DO:
     FIND FIRST e-item
         WHERE e-item.company = item.company
