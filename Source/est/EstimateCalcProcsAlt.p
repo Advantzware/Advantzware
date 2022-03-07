@@ -8,11 +8,12 @@
     Description :        
 
     Author(s)   : BV
-                  sakshi.singh
+                  
     
     Created     : Tue Feb 08 17:17:51 EST 2022
     
-    Notes       : Dataset will be written into DB in the end of processing
+    Notes       : sakshi.singh- Refactor for performance optimization. 
+                  Dataset will be written into DB in the end of processing
     ------------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
@@ -793,6 +794,8 @@ PROCEDURE pAddEstMaterial PRIVATE:
     IF AVAILABLE bf-item THEN 
     DO:
         CREATE opbf-ttEstCostMaterial.
+        RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostMaterial.estCostMaterialID, INPUT-OUTPUT opbf-ttEstCostMaterial.rec_key).
+        
         ASSIGN 
             opbf-ttEstCostMaterial.estCostFormID    = ipbf-ttEstCostForm.estCostFormID
             opbf-ttEstCostMaterial.estCostHeaderID  = ipbf-ttEstCostForm.estCostHeaderID
