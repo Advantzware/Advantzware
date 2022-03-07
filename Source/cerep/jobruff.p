@@ -1621,10 +1621,10 @@ PROCEDURE pPrintDetail:
             
             IF PAGE-SIZE - LINE-COUNTER LE 12 THEN PAGE. 
             PUT 
-              "<C3><FGCOLOR=GREEN>SHIP TO: "  "<C40><FGCOLOR=GREEN>CUST PO: <FGCOLOR=BLACK>" (IF AVAIL oe-ordl THEN oe-ordl.po-no ELSE "") FORMAT "x(15)" "<C59><FGCOLOR=GREEN>  CASE WEIGHT: <FGCOLOR=BLACK>" string(bf-eb.cas-wt) FORMAT "x(10)"   SKIP
-              "<C7>" v-shipto[1] "<C43><FGCOLOR=GREEN> QTY: <FGCOLOR=BLACK>" IF AVAIL xjob-hdr THEN string(xjob-hdr.qty) ELSE "" SKIP
-              "<C7>" v-shipto[2] "<C42><FGCOLOR=GREEN> PACK: <FGCOLOR=BLACK>" string(bf-eb.cas-cnt)   "<C61><FGCOLOR=GREEN>  PER CASE: <FGCOLOR=BLACK>" bf-eb.cas-no FORMAT "x(15)" SKIP
-              "<C7>" v-shipto[3] "<C42><FGCOLOR=GREEN> PACK: <FGCOLOR=BLACK>" string(bf-eb.cas-pal)   "<C60><FGCOLOR=GREEN> PER PALLET: <FGCOLOR=BLACK>" bf-eb.tr-no FORMAT "x(15)" SKIP
+              "<C3><FGCOLOR=GREEN>SHIP TO: "  "<C35.35><FGCOLOR=GREEN>CUST PO: <FGCOLOR=BLACK>" (IF AVAIL oe-ordl THEN oe-ordl.po-no ELSE "") FORMAT "x(15)" SKIP
+              "<C7>" v-shipto[1] "<C37.85><FGCOLOR=GREEN> QTY: <FGCOLOR=BLACK>" IF AVAIL xjob-hdr THEN string(xjob-hdr.qty) ELSE "" SKIP
+              "<C7>" v-shipto[2] "<C37><FGCOLOR=GREEN> PACK: <FGCOLOR=BLACK>" string(bf-eb.cas-cnt)   "<C46.85><FGCOLOR=GREEN>  PER CASE: <FGCOLOR=BLACK>" bf-eb.cas-no FORMAT "x(15)" SKIP
+              "<C7>" v-shipto[3] "<C37><FGCOLOR=GREEN> PACK: <FGCOLOR=BLACK>" string(bf-eb.cas-pal)   "<C46><FGCOLOR=GREEN> PER PALLET: <FGCOLOR=BLACK>" ( IF AVAIL bf-item THEN string(bf-item.i-NAME) ELSE "" ) FORM "x(30)" SKIP
               "<C7>" v-shipto[4]  SKIP
               "<C3><FGCOLOR=GREEN>PART#: <FGCOLOR=BLACK>" bf-eb.part-no FORMAT "x(15)" SKIP
               "<C4><FGCOLOR=GREEN>DESC: <FGCOLOR=BLACK>" bf-eb.part-dscr1 FORMAT "x(30)" SKIP
