@@ -296,7 +296,7 @@
             RETURN.             
         END.
                         
-        IF iopcJobID NE "" THEN DO:
+        IF iopcJobID NE "" AND ipcItemType EQ "FG" THEN DO:
             RUN pValidateJob (
                 INPUT  ipcCompany,
                 INPUT  iopcJobID,
@@ -755,9 +755,11 @@
              NO-LOCK NO-ERROR.
         IF AVAILABLE bf-fg-bin THEN
             ASSIGN
-               bf-fg-rctd.ext-cost = bf-fg-rctd.t-qty / (IF bf-fg-bin.pur-uom EQ "M" THEN 1000 ELSE 1) * bf-fg-bin.std-tot-cost
-               bf-fg-rctd.cost     = bf-fg-rctd.ext-cost / bf-fg-rctd.t-qty
-               bf-fg-rctd.cost-uom = bf-fg-bin.pur-uom.
+               bf-fg-rctd.ext-cost   = bf-fg-rctd.t-qty / (IF bf-fg-bin.pur-uom EQ "M" THEN 1000 ELSE 1) * bf-fg-bin.std-tot-cost
+               bf-fg-rctd.cost       = bf-fg-rctd.ext-cost / bf-fg-rctd.t-qty
+               bf-fg-rctd.cost-uom   = bf-fg-bin.pur-uom
+               bf-fg-rctd.cases-unit = bf-fg-bin.cases-unit
+               .
         ELSE
             RUN fg/fgrctdcst.p (
                 INPUT  ROWID(bf-fg-rctd),

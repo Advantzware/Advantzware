@@ -7417,37 +7417,40 @@ PROCEDURE Inventory_GetSnapShotForLocation:
         IF NOT AVAILABLE ttPhysicalBrowseInventory THEN DO:
             CREATE ttPhysicalBrowseInventory.
             ASSIGN
-                ttPhysicalBrowseInventory.company          = inventoryStockSnapshot.company
-                ttPhysicalBrowseInventory.inventoryStockID = inventoryStockSnapshot.inventoryStockID
-                ttPhysicalBrowseInventory.tag              = inventoryStockSnapshot.inventoryStockID
-                ttPhysicalBrowseInventory.itemType         = inventoryStockSnapshot.itemType
-                ttPhysicalBrowseInventory.itemID           = IF inventoryStockSnapshot.itemType EQ "FG" THEN
-                                                                 inventoryStockSnapshot.fgItemID
-                                                             ELSE IF inventoryStockSnapshot.itemType EQ "RM" THEN /* Should be rmItemID. Needs correction in CycleCountCompareRM.p */
-                                                                 inventoryStockSnapshot.fgItemID
-                                                             ELSE
-                                                                 ""
-                ttPhysicalBrowseInventory.jobID            = inventoryStockSnapshot.jobID
-                ttPhysicalBrowseInventory.jobID2           = inventoryStockSnapshot.jobID2
-                ttPhysicalBrowseInventory.origQuantity     = IF inventoryStockSnapshot.quantityOriginal EQ ? THEN
-                                                                 0
-                                                             ELSE
-                                                                 inventoryStockSnapshot.quantityOriginal
-                ttPhysicalBrowseInventory.quantity         = ttPhysicalBrowseInventory.origQuantity
-                ttPhysicalBrowseInventory.quantityUOM      = inventoryStockSnapshot.quantityUOM                                                                 
-                ttPhysicalBrowseInventory.customerID       = inventoryStockSnapshot.customerID
-                ttPhysicalBrowseInventory.lastTransTime    = NOW
-                ttPhysicalBrowseInventory.locationID       = ""
-                ttPhysicalBrowseInventory.origLocationID   = inventoryStockSnapshot.locationID
-                ttPhysicalBrowseInventory.warehouseID      = ""
-                ttPhysicalBrowseInventory.origWarehouseID  = inventoryStockSnapshot.warehouseID
-                ttPhysicalBrowseInventory.location         = ttPhysicalBrowseInventory.warehouseID 
-                                                           + FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.warehouseID)) 
-                                                           + ttPhysicalBrowseInventory.locationID            
-                ttPhysicalBrowseInventory.origLocation     = ttPhysicalBrowseInventory.origWarehouseID 
-                                                           + FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) 
-                                                           + ttPhysicalBrowseInventory.origLocationID            
-                ttPhysicalBrowseInventory.inventoryStatus  = gcStatusSnapshotNotScanned                                                         
+                ttPhysicalBrowseInventory.company            = inventoryStockSnapshot.company
+                ttPhysicalBrowseInventory.inventoryStockID   = inventoryStockSnapshot.inventoryStockID
+                ttPhysicalBrowseInventory.tag                = inventoryStockSnapshot.inventoryStockID
+                ttPhysicalBrowseInventory.itemType           = inventoryStockSnapshot.itemType
+                ttPhysicalBrowseInventory.itemID             = IF inventoryStockSnapshot.itemType EQ "FG" THEN
+                                                                   inventoryStockSnapshot.fgItemID
+                                                               ELSE IF inventoryStockSnapshot.itemType EQ "RM" THEN /* Should be rmItemID. Needs correction in CycleCountCompareRM.p */
+                                                                   inventoryStockSnapshot.rmItemID
+                                                               ELSE
+                                                                   ""
+                ttPhysicalBrowseInventory.jobID              = inventoryStockSnapshot.jobID
+                ttPhysicalBrowseInventory.jobID2             = inventoryStockSnapshot.jobID2
+                ttPhysicalBrowseInventory.origQuantity       = IF inventoryStockSnapshot.quantityOriginal EQ ? THEN
+                                                                   0
+                                                               ELSE
+                                                                   inventoryStockSnapshot.quantityOriginal
+                ttPhysicalBrowseInventory.quantity           = 0
+                ttPhysicalBrowseInventory.quantityPerSubUnit = IF inventoryStockSnapshot.quantityPerSubUnit EQ 0 THEN 1 ELSE inventoryStockSnapshot.quantityPerSubUnit
+                ttPhysicalBrowseInventory.quantityOfSubUnits = inventoryStockSnapshot.quantityOfSubUnits
+                ttPhysicalBrowseInventory.quantityPartial    = inventoryStockSnapshot.quantityPartial 
+                ttPhysicalBrowseInventory.quantityUOM        = inventoryStockSnapshot.quantityUOM                                                                 
+                ttPhysicalBrowseInventory.customerID         = inventoryStockSnapshot.customerID
+                ttPhysicalBrowseInventory.lastTransTime      = NOW
+                ttPhysicalBrowseInventory.locationID         = ""
+                ttPhysicalBrowseInventory.origLocationID     = inventoryStockSnapshot.locationID
+                ttPhysicalBrowseInventory.warehouseID        = ""
+                ttPhysicalBrowseInventory.origWarehouseID    = inventoryStockSnapshot.warehouseID
+                ttPhysicalBrowseInventory.location           = ttPhysicalBrowseInventory.warehouseID 
+                                                             + FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.warehouseID)) 
+                                                             + ttPhysicalBrowseInventory.locationID            
+                ttPhysicalBrowseInventory.origLocation       = ttPhysicalBrowseInventory.origWarehouseID 
+                                                             + FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) 
+                                                             + ttPhysicalBrowseInventory.origLocationID            
+                ttPhysicalBrowseInventory.inventoryStatus    = gcStatusSnapshotNotScanned                                                         
                 .
         END.  
     END.
@@ -7663,18 +7666,24 @@ PROCEDURE pAdjustTransactionQuantity:
 /*            ).                                    */
 /*                                                  */
 /*        IF oplCreated THEN                        */
+        ASSIGN
+            ttPhysicalBrowseInventory.lastTransTime   = NOW
+            ttPhysicalBrowseInventory.quantity        = ipdQuantity
+            ttPhysicalBrowseInventory.inventoryStatus = fGetSnapshotCompareStatusBySnapshotID (
+                                                        ipcCompany,
+                                                        ipiSnapshotID,
+                                                        ipcTag,
+                                                        ipdQuantity,
+                                                        ttPhysicalBrowseInventory.warehouseID,
+                                                        ttPhysicalBrowseInventory.locationID
+                                                        )
+            .
+        
+        IF ttPhysicalBrowseInventory.itemType = "FG" THEN
             ASSIGN
-                ttPhysicalBrowseInventory.lastTransTime   = NOW
-                ttPhysicalBrowseInventory.quantity        = ipdQuantity
-                ttPhysicalBrowseInventory.inventoryStatus = fGetSnapshotCompareStatusBySnapshotID (
-                                                            ipcCompany,
-                                                            ipiSnapshotID,
-                                                            ipcTag,
-                                                            ipdQuantity,
-                                                            ttPhysicalBrowseInventory.warehouseID,
-                                                            ttPhysicalBrowseInventory.locationID
-                                                            )
-                .
+                ttPhysicalBrowseInventory.quantityOfSubUnits = TRUNCATE(ipdQuantity / ttPhysicalBrowseInventory.quantityPerSubUnit, 0)
+                ttPhysicalBrowseInventory.quantityPartial    = ipdQuantity - (ttPhysicalBrowseInventory.quantityOfSubUnits * ttPhysicalBrowseInventory.quantityPerSubUnit)
+                .                             
     END.
 END PROCEDURE.
 
@@ -7944,7 +7953,18 @@ PROCEDURE SubmitPhysicalCountScan:
                 ttPhysicalBrowseInventory.location         = ttPhysicalBrowseInventory.warehouseID +
                                                              FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.warehouseID)) +
                                                              ttPhysicalBrowseInventory.locationID
-                .       
+                .
+        
+        /* Set the quantity to the original quantity so that a tag scan would match the original quantity  */
+        ASSIGN
+            ttPhysicalBrowseInventory.quantity = inventoryStockSnapshot.quantityOriginal
+            .
+
+        IF ttPhysicalBrowseInventory.itemType = "FG" THEN
+            ASSIGN
+                ttPhysicalBrowseInventory.quantityOfSubUnits = TRUNCATE(ttPhysicalBrowseInventory.quantity / ttPhysicalBrowseInventory.quantityPerSubUnit, 0)
+                ttPhysicalBrowseInventory.quantityPartial    = ttPhysicalBrowseInventory.quantity - (ttPhysicalBrowseInventory.quantityOfSubUnits * ttPhysicalBrowseInventory.quantityPerSubUnit)
+                .               
     END. 
     ELSE DO:
         FIND FIRST loadtag NO-LOCK
@@ -7976,8 +7996,8 @@ PROCEDURE SubmitPhysicalCountScan:
                 ttPhysicalBrowseInventory.itemID          = loadtag.i-no
                 ttPhysicalBrowseInventory.itemType        = STRING(loadtag.item-type, 'RM/FG')                            
                 ttPhysicalBrowseInventory.origQuantity    = loadtag.qty
-                ttPhysicalBrowseInventory.origLocationID  = loadtag.loc
-                ttPhysicalBrowseInventory.origWarehouseID = loadtag.loc-bin
+                ttPhysicalBrowseInventory.origLocationID  = loadtag.loc-bin
+                ttPhysicalBrowseInventory.origWarehouseID = loadtag.loc
                 ttPhysicalBrowseInventory.origLocation    = ttPhysicalBrowseInventory.origWarehouseID +
                                                             FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) +
                                                             ttPhysicalBrowseInventory.origLocationID            

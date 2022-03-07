@@ -56,8 +56,9 @@ DEFINE VARIABLE char-hdl              AS CHARACTER       NO-UNDO.
 DEFINE VARIABLE pHandle               AS HANDLE          NO-UNDO.
 DEFINE VARIABLE iSnapShotID           AS INTEGER         NO-UNDO.
 
-DEFINE VARIABLE glShowVirtualKeyboard AS LOGICAL         NO-UNDO.
-DEFINE VARIABLE gcShowSettings        AS CHARACTER       NO-UNDO.
+DEFINE VARIABLE glShowVirtualKeyboard     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE gcShowSettings            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE glEnableSnapshotSelection AS LOGICAL   NO-UNDO.
 
 DEFINE VARIABLE oKeyboard             AS system.Keyboard NO-UNDO.
 
@@ -1005,7 +1006,18 @@ PROCEDURE pCreateCounts PRIVATE :
     DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iSequeceID AS INTEGER   NO-UNDO.
     
+    DEFINE VARIABLE dQuantityOfSubUnits AS DECIMAL NO-UNDO.
+    
+    RUN pStatusMessage("Saving scans..." ,1).
+    
     FOR EACH ttPhysicalBrowseInventory:
+        dQuantityOfSubUnits = IF ttPhysicalBrowseInventory.itemType EQ "RM" THEN 
+                                  ttPhysicalBrowseInventory.quantity 
+                              ELSE IF ttPhysicalBrowseInventory.inventoryStatus EQ gcStatusSnapshotNotScannedCountingZero THEN
+                                  0
+                              ELSE
+                                  ttPhysicalBrowseInventory.quantityOfSubUnits.
+        
         RUN api\inbound\CreateInventoryCount.p (
             INPUT        ttPhysicalBrowseInventory.company,
             INPUT        ttPhysicalBrowseInventory.warehouseID,
@@ -1018,9 +1030,9 @@ PROCEDURE pCreateCounts PRIVATE :
             INPUT        ttPhysicalBrowseInventory.itemID,
             INPUT        ttPhysicalBrowseInventory.itemType,
             INPUT        ttPhysicalBrowseInventory.tag,
-            INPUT        ttPhysicalBrowseInventory.quantity,
-            INPUT        0,
-            INPUT        0,
+            INPUT        dQuantityOfSubUnits,
+            INPUT        IF ttPhysicalBrowseInventory.itemType EQ "RM" THEN 1 ELSE ttPhysicalBrowseInventory.quantityPerSubUnit,
+            INPUT        IF ttPhysicalBrowseInventory.itemType EQ "RM" THEN 0 ELSE ttPhysicalBrowseInventory.quantityPartial,
             INPUT        ttPhysicalBrowseInventory.quantityUOM,
             INPUT        FALSE,
             INPUT        FALSE,
@@ -1028,7 +1040,9 @@ PROCEDURE pCreateCounts PRIVATE :
             OUTPUT       lSuccess,
             OUTPUT       cMessage
             ) NO-ERROR.            
-    END.     
+    END.
+    
+    RUN pStatusMessage("Save complete" ,1).     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1132,6 +1146,7 @@ PROCEDURE pInit :
         cSnapshotList              = TRIM(cSnapshotList, ",")
         cbSnapshot:LIST-ITEM-PAIRS = cSnapshotList
         cbSnapshot:SCREEN-VALUE    = ENTRY(2, cSnapshotList)
+        cbSnapshot:SENSITIVE       = glEnableSnapshotSelection
         iSnapShotID                = INTEGER(cbSnapshot:SCREEN-VALUE) 
         .
         

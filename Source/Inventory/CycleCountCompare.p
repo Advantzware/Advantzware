@@ -231,7 +231,10 @@ PROCEDURE exportSnapshot:
                 inventoryStockSnapshot.locationID          = fg-bin.loc-bin
                 inventoryStockSnapshot.zoneID              = ""     
                 inventoryStockSnapshot.quantity            = 0    
-                inventoryStockSnapshot.quantityOriginal    = fg-bin.qty        
+                inventoryStockSnapshot.quantityOriginal    = fg-bin.qty
+                inventoryStockSnapshot.quantityPerSubUnit  = fg-bin.case-count
+                inventoryStockSnapshot.quantityOfSubUnits  = TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0)
+                inventoryStockSnapshot.quantityPartial     = fg-bin.partial-count
                 inventoryStockSnapshot.quantityUOM         = "EA"       
                 inventoryStockSnapshot.costStandardPerUOM  = fg-bin.std-tot-cost
                 inventoryStockSnapshot.costUOM             = fg-bin.pur-uom
