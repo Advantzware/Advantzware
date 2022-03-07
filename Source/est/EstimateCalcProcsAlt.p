@@ -5740,6 +5740,16 @@ PROCEDURE pUpdateChildTables PRIVATE:
                     bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
             END.
         END.
+        WHEN "estCostMaterial" THEN
+        DO:
+            FOR EACH bfChild-ttEstCostDetail EXCLUSIVE-LOCK
+                WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID              
+                  AND bfChild-ttEstCostDetail.sourceType = gcSourceTypeMaterial:
+                      
+                IF bfChild-ttEstCostDetail.sourceID = ipiSourceKey THEN
+                    bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
+            END.
+        END.
         
     END CASE.
 
@@ -5755,6 +5765,7 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
     DEFINE BUFFER bfEx-estCostSummary      FOR estCostSummary.
     DEFINE BUFFER bfEx-estCostOperation    FOR estCostOperation.
     DEFINE BUFFER bfEx-estCostMisc         FOR estCostMisc.
+    DEFINE BUFFER bfEx-estCostMaterial     FOR estCostMaterial.
     
 
     FOR EACH ttEstCostForm
@@ -5771,13 +5782,6 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
             bfEx-estCostForm.rec_key).
             
     END. /* ttEstCostForm */
-    
-    FOR EACH ttEstCostDetail
-        TRANSACTION:
-        CREATE bfEx-estCostDetail.
-        BUFFER-COPY ttEstCostDetail EXCEPT rec_key estCostDetailID TO bfEx-estCostDetail.
-        
-    END. /* ttEstCostDetail */
     
     FOR EACH ttEstCostSummary
         TRANSACTION:
@@ -5811,19 +5815,44 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
             ttEstCostMisc.rec_key,
             bfEx-estCostMisc.rec_key).
     END. /* ttEstCostOperation */    
-     
+    
+    FOR EACH ttEstCostMaterial
+        TRANSACTION:
+        CREATE bfEx-estCostMaterial.
+        BUFFER-COPY ttEstCostMaterial EXCEPT rec_key estCostMaterialID TO bfEx-estCostMaterial.
         
+        RUN pUpdateChildTables ("estCostMaterial",
+            ttEstCostMaterial.estCostHeaderID, 
+            ttEstCostMaterial.estCostMaterialID, 
+            bfEx-estCostMaterial.estCostMaterialID,
+            ttEstCostMaterial.rec_key,
+            bfEx-estCostMaterial.rec_key).
+    END. /* ttEstCostOperation */ 
+    
+    
+     
+    
+    /* process this one in the end because its linked table from many tables */
+    FOR EACH ttEstCostDetail
+        TRANSACTION:
+        CREATE bfEx-estCostDetail.
+        BUFFER-COPY ttEstCostDetail EXCEPT rec_key estCostDetailID TO bfEx-estCostDetail.
+        
+    END. /* ttEstCostDetail */ 
+    
     RELEASE bfEx-estCostForm.
     RELEASE bfEx-estCostDetail.
     RELEASE bfEx-estCostSummary.
     RELEASE bfEx-estCostOperation.
     RELEASE bfEx-estCostMisc.
+    RELEASE bfEx-estCostMaterial.
     
     EMPTY TEMP-TABLE ttEstCostForm.
     EMPTY TEMP-TABLE ttEstCostDetail.
     EMPTY TEMP-TABLE ttEstCostSummary.
     EMPTY TEMP-TABLE ttEstCostOperation.
     EMPTY TEMP-TABLE ttEstCostMisc.
+    EMPTY TEMP-TABLE ttEstCostMaterial.
     
 END PROCEDURE.
 
