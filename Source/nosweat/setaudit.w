@@ -50,29 +50,7 @@ DEFINE VARIABLE hTableColumn AS HANDLE  NO-UNDO EXTENT 20.
 DEFINE VARIABLE lContinue    AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lSave        AS LOGICAL NO-UNDO.
 
-DEFINE TEMP-TABLE ttTable NO-UNDO
-    FIELD auditTable        AS CHARACTER FORMAT "x(20)" LABEL "Table"
-    FIELD description       AS CHARACTER FORMAT "x(30)" LABEL "Description"
-    FIELD saveHolder        AS CHARACTER FORMAT "x(2)"  LABEL "Save"
-    FIELD resetHolder       AS CHARACTER FORMAT "x(2)"  LABEL "Reset"
-    FIELD expireDays        AS INTEGER   FORMAT ">>>9"  LABEL "Expire"
-    FIELD expireDaysDefault AS INTEGER   FORMAT ">>>9"  LABEL "Default"
-    FIELD audit             AS LOGICAL   EXTENT 4
-    FIELD auditDefault      AS LOGICAL   EXTENT 4
-        INDEX ttTable IS PRIMARY auditTable
-        .
-DEFINE TEMP-TABLE ttField NO-UNDO
-    FIELD auditTable   AS CHARACTER
-    FIELD auditField   AS CHARACTER FORMAT "x(30)" LABEL "Field"
-    FIELD description  AS CHARACTER FORMAT "x(30)" LABEL "Description"
-    FIELD saveHolder   AS CHARACTER FORMAT "x(2)"  LABEL "Save"
-    FIELD resetHolder  AS CHARACTER FORMAT "x(2)"  LABEL "Reset"
-    FIELD audit        AS LOGICAL                  LABEL "Update"
-    FIELD auditDefault AS LOGICAL                  LABEL "Default"
-        INDEX ttField IS PRIMARY 
-            auditTable
-            auditField
-            .
+{nosweat/ttAuditTable.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
