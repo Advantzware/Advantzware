@@ -58,9 +58,9 @@ DEF VAR cTestAud AS CHAR NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btSettingTypes btEditor rsDB1 rsDB2 ~
-btProTools btRunningrProcs btQueryBuilder btSuperProcs btDataDigger ~
-btLockMon btMonitorUsers btSwitchMode 
+&Scoped-Define ENABLED-OBJECTS btAuditTable rsDB1 rsDB2 btSettingTypes ~
+btEditor btProTools btRunningrProcs btQueryBuilder btSuperProcs ~
+btDataDigger btLockMon btMonitorUsers btSwitchMode 
 &Scoped-Define DISPLAYED-OBJECTS rsDB1 rsDB2 fiMode 
 
 /* Custom List Definitions                                              */
@@ -77,6 +77,11 @@ btLockMon btMonitorUsers btSwitchMode
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btAuditTable 
+     IMAGE-UP FILE "Graphics/32x32/document_checks.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Audit Table Defaults" 
+     SIZE 8 BY 1.91 TOOLTIP "Audit Table Defaults".
+
 DEFINE BUTTON btDataDigger 
      IMAGE-UP FILE "Graphics/32x32/industrial_robot.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Run DataDigger" 
@@ -149,31 +154,32 @@ DEFINE VARIABLE rsDB2 AS CHARACTER
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 91 BY 2.38
+     SIZE 100 BY 2.38
      BGCOLOR 15 .
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btSettingTypes AT ROW 1.48 COL 75
-     btEditor AT ROW 1.48 COL 30
+     btAuditTable AT ROW 1.48 COL 84
      rsDB1 AT ROW 3.86 COL 2 NO-LABEL
      rsDB2 AT ROW 3.86 COL 40 NO-LABEL
+     btSettingTypes AT ROW 1.48 COL 75
+     fiMode AT ROW 3.86 COL 91 COLON-ALIGNED
+     btEditor AT ROW 1.48 COL 30
      btProTools AT ROW 1.48 COL 39 WIDGET-ID 2
-     fiMode AT ROW 3.86 COL 83 COLON-ALIGNED
      btRunningrProcs AT ROW 1.48 COL 66 WIDGET-ID 28
      btQueryBuilder AT ROW 1.48 COL 12
      btSuperProcs AT ROW 1.48 COL 57 WIDGET-ID 26
      btDataDigger AT ROW 1.48 COL 3 WIDGET-ID 20
      btLockMon AT ROW 1.48 COL 21 WIDGET-ID 18
      btMonitorUsers AT ROW 1.48 COL 48
-     btSwitchMode AT ROW 1.48 COL 84
+     btSwitchMode AT ROW 1.48 COL 93
      RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 92 BY 4.05.
+         SIZE 101 BY 4.05.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -194,11 +200,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Programmer's Toolbox"
          HEIGHT             = 4.05
-         WIDTH              = 92
+         WIDTH              = 101
          MAX-HEIGHT         = 4.05
-         MAX-WIDTH          = 92
+         MAX-WIDTH          = 101
          VIRTUAL-HEIGHT     = 4.05
-         VIRTUAL-WIDTH      = 92
+         VIRTUAL-WIDTH      = 101
          MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
@@ -258,6 +264,17 @@ DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btAuditTable
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btAuditTable C-Win
+ON CHOOSE OF btAuditTable IN FRAME DEFAULT-FRAME /* Audit Table Defaults */
+DO:
+    RUN nosweat/AuditTable.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -563,9 +580,9 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY rsDB1 rsDB2 fiMode 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btSettingTypes btEditor rsDB1 rsDB2 btProTools btRunningrProcs 
-         btQueryBuilder btSuperProcs btDataDigger btLockMon btMonitorUsers 
-         btSwitchMode 
+  ENABLE btAuditTable rsDB1 rsDB2 btSettingTypes btEditor btProTools 
+         btRunningrProcs btQueryBuilder btSuperProcs btDataDigger btLockMon 
+         btMonitorUsers btSwitchMode 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
