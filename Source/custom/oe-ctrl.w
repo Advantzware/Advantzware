@@ -191,7 +191,7 @@ DEFINE FRAME oe-ctrl
      fiOptions AT ROW 6.24 COL 3 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      tgCreateSSBol AT ROW 10.43 COL 13 WIDGET-ID 8
      ar-ctrl.last-inv AT ROW 1.24 COL 31 COLON-ALIGNED
-          LABEL "Last Invoice Number" FORMAT ">>>>>>9"
+          LABEL "Last Invoice Number" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 7 FGCOLOR 15 

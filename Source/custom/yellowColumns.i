@@ -120,7 +120,7 @@ PROCEDURE openQuery:
 &ELSEIF '{&yellowColumnsName}' EQ 'b-cusinq' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
   IF sortColumn EQ 'Ck/Cr/Dr/PO#' THEN tt-arinq.ref-num ELSE ~
-  IF sortColumn EQ 'Invoice#' THEN STRING(tt-arinq.inv-no,'999999') ELSE ~
+  IF sortColumn EQ 'Invoice#' THEN STRING(tt-arinq.inv-no,'99999999') ELSE ~
   IF sortColumn EQ 'Date' THEN STRING(tt-arinq.seq,'9999999999') ELSE ~
   IF sortColumn EQ 'Description' THEN tt-arinq.tr-dscr ELSE ~
   IF sortColumn EQ 'Age App' THEN tt-arinq.ageapp ELSE ~
@@ -1176,7 +1176,7 @@ PROCEDURE openQuery:
 
 &ELSEIF '{&yellowColumnsName}' EQ 'ar-inv' &THEN
    &SCOPED-DEFINE SORTBY-PHRASE BY ~
-    IF sortColumn EQ 'Invoice#'    THEN STRING(ar-inv.inv-no, '>>>>>9')   ELSE ~
+    IF sortColumn EQ 'Invoice#'    THEN STRING(ar-inv.inv-no, '>>>>>>>9')   ELSE ~
     IF sortColumn EQ 'Cust.#'      THEN ar-inv.cust-no                    ELSE ~
     IF sortColumn EQ 'Customer Name'   THEN ar-inv.cust-name              ELSE ~
     IF sortColumn EQ 'Inv Date' THEN STRING(YEAR(ar-inv.inv-date),'9999') + ~
