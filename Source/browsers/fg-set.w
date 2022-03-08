@@ -426,6 +426,7 @@ PROCEDURE add-item :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+   IF AVAILABLE itemfg THEN 
    RUN dispatch ('add-record').
 END PROCEDURE.
 
