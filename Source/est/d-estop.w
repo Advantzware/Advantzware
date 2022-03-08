@@ -77,6 +77,7 @@ DEFINE            VARIABLE ll-foam             AS LOG       NO-UNDO.
 DEFINE            VARIABLE lv-eqty             LIKE est-qty.eqty NO-UNDO.
 DEFINE            VARIABLE v-override-mode     AS LOG       NO-UNDO.
 DEFINE            VARIABLE ll-add-record       AS LOG       NO-UNDO.
+DEFINE            VARIABLE hdOpProcs           AS HANDLE    NO-UNDO.
 
 {est/d-machex.i NEW}
 
@@ -530,6 +531,8 @@ DO:
 
         /* APPLY "END-ERROR":U TO SELF.*/
         APPLY 'GO':U TO FRAME {&FRAME-NAME}.
+        
+        DELETE PROCEDURE hdOpProcs.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1889,6 +1892,7 @@ PROCEDURE valid-mach :
     DEFINE VARIABLE dTrimL      AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE dMachMaxLen AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE dMachMaxWid AS DECIMAL   NO-UNDO .
+    DEFINE VARIABLE iNumOut     AS INTEGER NO-UNDO.
 
     DEFINE BUFFER b-est-op FOR est-op.
     DEFINE BUFFER b-mach   FOR mach.
