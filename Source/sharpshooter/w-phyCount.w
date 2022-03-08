@@ -473,7 +473,8 @@ DO:
     RUN pStatusMessage ("", 0).
 
     IF CAN-FIND (FIRST ttPhysicalBrowseInventory
-                 WHERE ttPhysicalBrowseInventory.inventoryStatus EQ gcStatusSnapshotNotScanned) THEN DO:
+                 WHERE ttPhysicalBrowseInventory.inventoryStatus EQ gcStatusSnapshotNotScanned
+                    OR ttPhysicalBrowseInventory.inventoryStatus EQ gcStatusSnapshotNotScannedCountingZero) THEN DO:
         ASSIGN
             cLocation = TRIM(SUBSTRING(fiLocation:SCREEN-VALUE, 1, iWarehouseLength))
             cBin      = TRIM(SUBSTRING(fiLocation:SCREEN-VALUE, iWarehouseLength + 1))
