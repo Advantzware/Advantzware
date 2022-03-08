@@ -984,7 +984,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         DEFINE VARIABLE cFGTagValidation   AS CHARACTER NO-UNDO.
         DEFINE VARIABLE lFGTagValidation   AS LOGICAL   NO-UNDO.
         DEFINE VARIABLE lPrintExceptionBol AS LOGICAL   NO-UNDO.
-        DEFINE VARIABLE lMsgResponse       AS LOGICAL   NO-UNDO.
+        DEFINE VARIABLE lAvailOnHandQty    AS LOGICAL   NO-UNDO.
         /* Initilize temp-table */
         EMPTY TEMP-TABLE tt-filelist.
         EMPTY TEMP-TABLE tt-post.
@@ -1437,8 +1437,8 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                                 
                             IF w-except.lAvailOnhQty THEN
                             DO:
-                                 RUN displayMessageQuestion ("76", OUTPUT lMsgResponse).
-                                 IF lMsgResponse THEN RUN Inventory_UpdateBolBinWithMatchInventory IN hdInventoryProcs (oe-boll.company, oe-boll.b-no, w-except.cLocBin).
+                                 lAvailOnHandQty = YES.
+                                 RUN Inventory_UpdateBolBinWithMatchInventory IN hdInventoryProcs (oe-boll.company, oe-boll.b-no, w-except.cLocBin).
                             END.
                             ELSE
                             MESSAGE "BOL # " STRING(oe-bolh.bol-no) "cannot be processed because there is not enough inventory to be shipped." SKIP
@@ -1451,7 +1451,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                                 INPUT "Not Enough Quantity to be Shipped",
                                 INPUT ROWID(oe-boll)
                                 ). 
-                        IF NOT lMsgResponse THEN 
+                        IF NOT lAvailOnHandQty THEN 
                         DO: 
                             DELETE tt-post.
                             NEXT mainblock.       
@@ -1664,7 +1664,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         DO: 
             FIND FIRST w-except NO-LOCK
                 NO-ERROR.    
-            IF AVAILABLE w-except AND NOT lMsgResponse THEN 
+            IF AVAILABLE w-except AND NOT lAvailOnHandQty THEN 
             DO:
                 lv-exception = YES.
                                                 

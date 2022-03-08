@@ -711,8 +711,7 @@ PROCEDURE pPostBols :
     DEFINE VARIABLE cFGTagValidation AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFGTagValidation AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lFirstOFBOL      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lMsgResponse     AS LOGICAL   NO-UNDO.
-
+    
     DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
     /* Deletes xreport of report */
     {sa/sa-sls01.i}
@@ -834,13 +833,10 @@ PROCEDURE pPostBols :
                 FOR EACH w-except 
                     WHERE w-except.bol-no EQ bf-oe-bolh.bol-no BY w-except.lAvailOnhQty DESC :
                     IF w-except.lAvailOnhQty AND lSingleBol THEN 
-                    DO:                     
-                        RUN displayMessageQuestion ("76", OUTPUT lMsgResponse).                        
-                        IF lMsgResponse THEN do:                           
+                    DO:                                                   
                          RUN Inventory_UpdateBolBinWithMatchInventory IN hdInventoryProcs(cocode, w-except.b-no, w-except.cLocBin).  
                          DELETE w-except.
-                         LEAVE.
-                        END. 
+                         LEAVE.                        
                     END.                    
                     IF NOT lInsufficientQty THEN 
                     lInsufficientQty = YES.
