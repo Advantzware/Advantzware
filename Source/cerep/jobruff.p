@@ -232,6 +232,7 @@ DEF VAR v-spoil LIKE job-mch.wst-prct NO-UNDO.
 DEF VAR v-output AS INT FORM ">,>>>,>>9" NO-UNDO.
 DEFINE VARIABLE cRelStat AS CHARACTER NO-UNDO .
 DEFINE BUFFER bf-item FOR ITEM .
+DEFINE BUFFER bff-item FOR ITEM .
 DEFINE VARIABLE cBarCodeVal AS CHARACTER NO-UNDO .
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE ls-image1 AS CHAR FORMAT "x(200)" NO-UNDO.
@@ -1619,12 +1620,16 @@ PROCEDURE pPrintDetail:
             IF NOT AVAILABLE tt-key2 THEN CREATE tt-key2.                                       
             V-PRT-UP = v-up * ef.n-out-l.
             
+            FIND FIRST bff-item NO-LOCK 
+                WHERE bff-item.company EQ cocode
+                AND bff-item.i-no      EQ bf-eb.tr-no NO-ERROR.
+            
             IF PAGE-SIZE - LINE-COUNTER LE 12 THEN PAGE. 
             PUT 
               "<C3><FGCOLOR=GREEN>SHIP TO: "  "<C35.35><FGCOLOR=GREEN>CUST PO: <FGCOLOR=BLACK>" (IF AVAIL oe-ordl THEN oe-ordl.po-no ELSE "") FORMAT "x(15)" SKIP
               "<C7>" v-shipto[1] "<C37.85><FGCOLOR=GREEN> QTY: <FGCOLOR=BLACK>" IF AVAIL xjob-hdr THEN string(xjob-hdr.qty) ELSE "" SKIP
               "<C7>" v-shipto[2] "<C37><FGCOLOR=GREEN> PACK: <FGCOLOR=BLACK>" string(bf-eb.cas-cnt)   "<C46.85><FGCOLOR=GREEN>  PER CASE: <FGCOLOR=BLACK>" bf-eb.cas-no FORMAT "x(15)" SKIP
-              "<C7>" v-shipto[3] "<C37><FGCOLOR=GREEN> PACK: <FGCOLOR=BLACK>" string(bf-eb.cas-pal)   "<C46><FGCOLOR=GREEN> PER PALLET: <FGCOLOR=BLACK>" ( IF AVAIL bf-item THEN string(bf-item.i-NAME) ELSE "" ) FORM "x(30)" SKIP
+              "<C7>" v-shipto[3] "<C37><FGCOLOR=GREEN> PACK: <FGCOLOR=BLACK>" string(bf-eb.cas-pal)   "<C46><FGCOLOR=GREEN> PER PALLET: <FGCOLOR=BLACK>" ( IF AVAIL bff-item THEN string(bff-item.i-NAME) ELSE "" ) FORM "x(30)" SKIP
               "<C7>" v-shipto[4]  SKIP
               "<C3><FGCOLOR=GREEN>PART#: <FGCOLOR=BLACK>" bf-eb.part-no FORMAT "x(15)" SKIP
               "<C4><FGCOLOR=GREEN>DESC: <FGCOLOR=BLACK>" bf-eb.part-dscr1 FORMAT "x(30)" SKIP
