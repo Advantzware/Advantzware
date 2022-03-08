@@ -6,9 +6,9 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: setaudit.w
+  File: AuditTable.w
 
-  Description: Set Audit Table Selections
+  Description: Set Audit Table Default Selections
 
   Input Parameters:
       <none>
@@ -18,7 +18,7 @@
 
   Author: Ron Stark
 
-  Created: 07/29/98
+  Created: 3.7.2022
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
