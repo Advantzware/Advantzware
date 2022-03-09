@@ -9539,6 +9539,25 @@ PROCEDURE UpdateFGLocationOnHandQty:
     RELEASE bf-itemfg-loc.
     RELEASE bf-itemfg.
 END.
+
+PROCEDURE Inventory_DeleteInventorySnapshot:
+    DEFINE INPUT  PARAMETER iproInventorySnapshotRowID AS ROWID NO-UNDO.
+    
+    FIND FIRST InventorySnapshot 
+        WHERE ROWID(InventorySnapshot) = iproInventorySnapshotRowID EXCLUSIVE-LOCK NO-ERROR.
+    
+    IF AVAILABLE InventorySnapshot THEN 
+    DO:
+        FOR EACH inventoryStockSnapshot EXCLUSIVE-LOCK
+            WHERE inventoryStockSnapshot.company = InventorySnapshot.company
+            AND inventoryStockSnapshot.InventorySnapshotID = InventorySnapshot.InventorySnapshotID:
+                 
+            DELETE inventoryStockSnapshot.        
+        END.
+    
+        DELETE InventorySnapshot.
+    END.
+END.
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fCanDeleteInventoryStock RETURNS LOGICAL 
