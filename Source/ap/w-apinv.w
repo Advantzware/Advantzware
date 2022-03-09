@@ -554,6 +554,9 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_movecol-2 ( 1.00 , 24.80 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
        
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+       
        /* Links to SmartViewer h_movecol. */
        RUN add-link IN adm-broker-hdl ( h_f-porec , 'move-columns':U , h_movecol-2 ). 
               
