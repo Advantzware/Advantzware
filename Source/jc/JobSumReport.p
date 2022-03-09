@@ -249,7 +249,7 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
         CASE job-code.cat:
             WHEN "RUN" THEN DO:
                 ASSIGN
-                    ttOperation.dRunCrew      = ttOperation.dRunCrew + mch-act.crew
+                    ttOperation.dRunCrew      = mch-act.crew
                     ttOperation.dRunQty       = ttOperation.dRunQty + mch-act.qty
                     ttOperation.dRunHrs       = ttOperation.dRunHrs + mch-act.hours
                     ttOperation.dRunWaste     = ttOperation.dRunWaste + mch-act.waste
@@ -260,7 +260,7 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
             END.
             WHEN "MR" THEN DO:
                 ASSIGN 
-                    ttOperation.dMRCrew       = ttOperation.dMRCrew + mch-act.crew
+                    ttOperation.dMRCrew       = mch-act.crew
                     ttOperation.dSetupHrs     = ttOperation.dSetupHrs + mch-act.hours                   
                     ttOperation.dSetupWaste   = ttOperation.dSetupWaste + mch-act.waste
                     ttOperation.dCost         = ttOperation.dCost + (mch-act.hours *  mach.mr-rate) + (mach.mr-fixoh * mch-act.hours)
@@ -386,15 +386,15 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
                 .
              
         IF LAST-OF(ttOperation.iBlankNo) THEN
-        DO:
+        DO:     
             ASSIGN
-                ttDepartment.dRunQtyVar     = (dStdRunQty - dActRunQty) / dStdRunQty * 100 
-                ttDepartment.dSetupHrsVar   = (dStdSetupHrs - dActSetupHrs) / dStdSetupHrs * 100                   
-                ttDepartment.dRunHrsVar     = (dStdRunHrs - dActRunHrs) / dStdRunHrs * 100                   
-                ttDepartment.dSpeedVar      = (dStdSpeed - dActSpeed) / dStdSpeed * 100 
-                ttDepartment.dSetupWasteVar = (dStdSetupWaste - dActSetupWaste) / dStdSetupWaste * 100                  
-                ttDepartment.dRunWasteVar   = (dStdRunWaste - dActRunWaste) / dStdRunWaste * 100   
-                ttDepartment.dCostVar       = (dStdCost - dActCost) / dStdCost * 100 
+                ttDepartment.dRunQtyVar     = (dStdRunQty - dActRunQty) / dStdRunQty  /* * 100 is in excel template*/
+                ttDepartment.dSetupHrsVar   = (dStdSetupHrs / dActSetupHrs )  //(dStdSetupHrs - dActSetupHrs) / dStdSetupHrs   /* * 100 is in excel template*/                  
+                ttDepartment.dRunHrsVar     = (dStdRunHrs / dActRunHrs)  //(dStdRunHrs - dActRunHrs) / dStdRunHrs  /* * 100 is in excel template*/                 
+                ttDepartment.dSpeedVar      = (dActSpeed * dStdSpeed) //(dStdSpeed - dActSpeed) / dStdSpeed    /* * 100 is in excel template*/
+                ttDepartment.dSetupWasteVar = (dStdSetupWaste - dActSetupWaste) / dStdSetupWaste /* * 100 is in excel template*/
+                ttDepartment.dRunWasteVar   = (dStdRunWaste - dActRunWaste) / dStdRunWaste   /* * 100 is in excel template*/ 
+                ttDepartment.dCostVar       = (dStdCost - dActCost) / dStdCost  /* * 100 is in excel template*/
                 .    
             IF ttDepartment.dRunQtyVar EQ ? THEN ttDepartment.dRunQtyVar = 0. 
             IF ttDepartment.dSetupHrsVar EQ ? THEN ttDepartment.dSetupHrsVar = 0.
@@ -510,8 +510,8 @@ PROCEDURE pBuildMaterials PRIVATE:
             ttJob.dTotStdCost         = ttJob.dTotStdCost + ttMaterial.dCostStd
             ttJob.dTotActCost         = ttJob.dTotActCost + ttMaterial.dCostAct
             ttJob.dTotActMaterialCost = ttJob.dTotActMaterialCost + ttMaterial.dCostAct
-            ttMaterial.dCostVar       = IF ttMaterial.dCostStd NE 0 THEN (ttMaterial.dCostStd - ttMaterial.dCostAct) / ttMaterial.dCostStd * 100 ELSE 0
-            ttMaterial.dQtyVar        = IF ttMaterial.dQtyStd NE 0 THEN (ttMaterial.dQtyStd - ttMaterial.dQtyAct) / ttMaterial.dQtyStd * 100 ELSE 0
+            ttMaterial.dCostVar       = IF ttMaterial.dCostStd NE 0 THEN (ttMaterial.dCostStd - ttMaterial.dCostAct) / ttMaterial.dCostStd ELSE 0 /* * 100 is in excel template*/
+            ttMaterial.dQtyVar        = IF ttMaterial.dQtyStd NE 0 THEN (ttMaterial.dQtyStd - ttMaterial.dQtyAct) / ttMaterial.dQtyStd ELSE 0  /* * 100 is in excel template*/
             .
   
     END.
