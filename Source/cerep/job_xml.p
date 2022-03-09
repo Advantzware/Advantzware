@@ -719,7 +719,7 @@ FOR EACH job-hdr NO-LOCK
         FIND FIRST job NO-LOCK
             WHERE job.company EQ cocode
               AND job.job     EQ job-hdr.job
-              AND job.job-no  EQ v-job-no
+              AND TRIM(job.job-no)  EQ TRIM(v-job-no)
               AND job.job-no2 EQ v-job-no2
             NO-ERROR.
             

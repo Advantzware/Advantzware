@@ -2417,7 +2417,7 @@ PROCEDURE create-job :
 
            FIND LAST b-job NO-LOCK
                WHERE b-job.company EQ itemfg.company
-                 AND b-job.job-no EQ v-bld-job
+                 AND TRIM(b-job.job-no) EQ TRIM(v-bld-job)
                NO-ERROR.
           
            IF AVAIL b-job THEN DO:
@@ -2671,7 +2671,7 @@ IF ll-bin-tag THEN DO:
    ll        = NO
    lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)) .
 
-  IF trim(lv-job-no) BEGINS "-00" THEN lv-job-no = "".
+  IF trim(lv-job-no) BEGINS "-000" THEN lv-job-no = "".
 
 
  v-s-code  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE

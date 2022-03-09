@@ -382,7 +382,7 @@ for each job-hdr NO-LOCK
         find first job
             where job.company eq cocode
               and job.job     eq job-hdr.job
-              and job.job-no  eq v-job-no
+              and TRIM(job.job-no)  eq TRIM(v-job-no)
               and job.job-no2 eq v-job-no2
             no-lock no-error.
             

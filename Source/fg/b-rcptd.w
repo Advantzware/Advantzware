@@ -264,7 +264,7 @@ DEFINE BROWSE Browser-Table
     fg-rctd.tag             COLUMN-LABEL "Tag#"         FORMAT "x(20)":U        WIDTH 29    LABEL-BGCOLOR 14
     fg-rctd.po-no           COLUMN-LABEL "PO No."       FORMAT "x(9)":U         WIDTH 14    LABEL-BGCOLOR 14
     fg-rctd.po-line         COLUMN-LABEL "PO Ln"        FORMAT ">>9":U          WIDTH 8
-    fg-rctd.job-no          COLUMN-LABEL "Job#"         FORMAT "x(9)":U         WIDTH 12     LABEL-BGCOLOR 14
+    fg-rctd.job-no          COLUMN-LABEL "Job#"         FORMAT "x(9)":U         WIDTH 15     LABEL-BGCOLOR 14
     fg-rctd.job-no2         COLUMN-LABEL ""             FORMAT "999":U          WIDTH 5
     fg-rctd.i-no            COLUMN-LABEL "Item"         FORMAT "X(15)":U        WIDTH 22    LABEL-BGCOLOR 14
     fg-rctd.i-name          COLUMN-LABEL "Name/Desc"    FORMAT "x(30)":U        WIDTH 45    LABEL-BGCOLOR 14
@@ -425,7 +425,7 @@ use-index fg-rctd"
      _FldNameList[6]   > ASI.fg-rctd.po-line
 "po-line" "PO Ln#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.fg-rctd.job-no
-"job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.fg-rctd.job-no2
 "job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.fg-rctd.i-no
@@ -937,7 +937,7 @@ PROCEDURE get-matrix :
                 DO:
                     FIND FIRST job-hdr WHERE job-hdr.company = cocode                       
                         AND job-hdr.i-no  = fg-rctd.i-no:screen-value
-                        AND job-hdr.job-no = (fg-rctd.job-no:screen-value)
+                        AND TRIM(job-hdr.job-no) = TRIM(fg-rctd.job-no:screen-value)
                         AND job-hdr.job-no2 = integer(fg-rctd.job-no2:screen-value)
                         NO-LOCK NO-ERROR.
                     IF AVAILABLE job-hdr THEN 

@@ -2185,7 +2185,7 @@ DEF INPUT PARAM ip-fgemail-file AS cha NO-UNDO.
                               "========== =============== ============ " SKIP.
        END.
        PUT STREAM st-email UNFORMATTED
-                 tt-email.job-no + "-" + string(tt-email.job-no2,"999") FORM "x(10)"
+                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-email.job-no, tt-email.job-no2))) FORM "x(13)"
                  " " tt-email.i-no " " tt-email.qty FORM "->>>,>>>,>>9" 
                  SKIP.
        IF LAST-OF(tt-email.cust-no) THEN DO:

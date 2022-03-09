@@ -192,7 +192,7 @@ DEFINE BROWSE Browser-Table
       STRING(fg-rctd.trans-time,'HH:MM') @ trans-time COLUMN-LABEL "Adjustment!Time"
       fg-rctd.i-no FORMAT "X(15)":U WIDTH 22
       fg-rctd.i-name FORMAT "x(30)":U
-      fg-rctd.job-no FORMAT "x(9)":U WIDTH 13
+      fg-rctd.job-no FORMAT "x(9)":U WIDTH 15
       fg-rctd.job-no2 FORMAT "999":U
       fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U WIDTH 8
       fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 11
@@ -336,7 +336,7 @@ fg-rctd.rita-code = ""A"""
      _FldNameList[5]   > asi.fg-rctd.i-name
 "i-name" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.fg-rctd.job-no
-"job-no" ? ? "character" ? ? ? ? ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-no" ? ? "character" ? ? ? ? ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.fg-rctd.job-no2
 "job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.fg-rctd.loc
