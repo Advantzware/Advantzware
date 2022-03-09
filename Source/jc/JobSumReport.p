@@ -271,6 +271,8 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
                 ASSIGN 
                     ttOperation.cDTChargeable = ttOperation.cDTChargeable + mch-act.d-type + ","
                     ttOperation.dDownTimeHrs  = ttOperation.dDowntimeHrs + mch-act.hours
+                    ttOperation.dDTCost       = ttOperation.dCost + (mch-act.hours *  mach.mr-rate) + (mach.mr-fixoh * mch-act.hours)
+                                                                  + (mach.mr-varoh * mch-act.hours) 
                     .    
             END.
         END CASE.
@@ -391,7 +393,7 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
                 ttDepartment.dRunQtyVar     = (dStdRunQty - dActRunQty) / dStdRunQty  /* * 100 is in excel template*/
                 ttDepartment.dSetupHrsVar   = (dStdSetupHrs / dActSetupHrs )  //(dStdSetupHrs - dActSetupHrs) / dStdSetupHrs   /* * 100 is in excel template*/                  
                 ttDepartment.dRunHrsVar     = (dStdRunHrs / dActRunHrs)  //(dStdRunHrs - dActRunHrs) / dStdRunHrs  /* * 100 is in excel template*/                 
-                ttDepartment.dSpeedVar      = (dActSpeed * dStdSpeed) //(dStdSpeed - dActSpeed) / dStdSpeed    /* * 100 is in excel template*/
+                ttDepartment.dSpeedVar      = (dActSpeed / dStdSpeed) //(dStdSpeed - dActSpeed) / dStdSpeed    /* * 100 is in excel template*/
                 ttDepartment.dSetupWasteVar = (dStdSetupWaste - dActSetupWaste) / dStdSetupWaste /* * 100 is in excel template*/
                 ttDepartment.dRunWasteVar   = (dStdRunWaste - dActRunWaste) / dStdRunWaste   /* * 100 is in excel template*/ 
                 ttDepartment.dCostVar       = (dStdCost - dActCost) / dStdCost  /* * 100 is in excel template*/
