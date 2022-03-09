@@ -2952,7 +2952,7 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
     IF NOT lSetJob AND bf-loadtag.form-no EQ 0 AND bf-loadtag.job-no NE "" THEN DO:                        
         ASSIGN
             oplSuccess = FALSE
-            opcMessage = "Sheet # may not be 0 for tag " + ipcTag
+            opcMessage = "Form # may not be 0 for tag " + ipcTag
             .
         RETURN.
     END.

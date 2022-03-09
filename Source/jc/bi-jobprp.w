@@ -196,7 +196,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      job-prep.frm COLUMN-LABEL "S" FORMAT ">>>":U WIDTH 4 COLUMN-FONT 0
+      job-prep.frm COLUMN-LABEL "F" FORMAT ">>>":U WIDTH 4 COLUMN-FONT 0
       job-prep.blank-no COLUMN-LABEL "B" FORMAT ">>>":U WIDTH 4
             COLUMN-FONT 0
       job-prep.qty FORMAT "->>>,>>>,>>9.9<<<<<":U WIDTH 12 COLUMN-FONT 0
@@ -307,7 +307,7 @@ job-prep.job eq job.job and
 job-prep.job-no eq job.job-no and
 job-prep.job-no2 eq job.job-no2"
      _FldNameList[1]   > ASI.job-prep.frm
-"job-prep.frm" "S" ">>>" "integer" ? ? 0 ? ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-prep.frm" "F" ">>>" "integer" ? ? 0 ? ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-prep.blank-no
 "job-prep.blank-no" "B" ">>>" "integer" ? ? 0 ? ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-prep.qty
@@ -410,7 +410,7 @@ END.
 
 &Scoped-define SELF-NAME job-prep.frm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job-prep.frm br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF job-prep.frm IN BROWSE br_table /* S */
+ON LEAVE OF job-prep.frm IN BROWSE br_table /* F */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-frm NO-ERROR.

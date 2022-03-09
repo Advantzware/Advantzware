@@ -74,7 +74,7 @@ ASSIGN
                             "Shipping Carrier,Total Freight,Freight Payment,FOB," +
                             "Tax Code,Tax,Taxable,Payment Terms,Total Cost," +
                             "Job #,Item Type,Item #,Item Name,Width,Length," +
-                            "Sheet #,Blank #,Description 1,Description 2," +
+                            "Form #,Blank #,Description 1,Description 2," +
                             "Vendor Item #,Order Qty,Order UOM," +
                             "Qty Received,Rec. UOM,Item Cost,UOM,Buyer," +
                             "Status,Item Status,Printed,Opened,Type,Contact," +
@@ -116,7 +116,7 @@ ASSIGN
                             "Shipping Carrier,Total Freight,Freight Payment,FOB," +
                             "Tax Code,Tax,Taxable,Payment Terms,Total Cost," +
                             "Job #,Item Type,Item #,Item Name,Width,Length," +
-                            "Sheet #,Blank #,Description 1,Description 2," +
+                            "Form #,Blank #,Description 1,Description 2," +
                             "Vendor Item #,Order Qty,Order UOM," +
                             "Qty Received,Rec. UOM,Item Cost,UOM,Buyer," +
                             "Status,Item Status,Printed,Opened,Type,Contact," +

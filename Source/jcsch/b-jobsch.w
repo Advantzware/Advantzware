@@ -444,7 +444,7 @@ DEFINE BROWSE Browser-Table
       tt-sch.seq-no COLUMN-LABEL "Seq#" FORMAT ">>9":U LABEL-BGCOLOR 14       
       job-mch.job-no COLUMN-LABEL "Job #" FORMAT "x(6)":U  LABEL-BGCOLOR 14
       job-mch.job-no2 COLUMN-LABEL "" FORMAT ">9":U        LABEL-BGCOLOR 14
-      job-mch.frm COLUMN-LABEL "S" FORM ">9" LABEL-BGCOLOR 14
+      job-mch.frm COLUMN-LABEL "F" FORM ">9" LABEL-BGCOLOR 14
       job-mch.blank-no COLUMN-LABEL "B" FORM ">9" LABEL-BGCOLOR 14
       job-mch.pass COLUMN-LABEL "P" FORM ">9" LABEL-BGCOLOR 14
       tt-sch.cust-no LABEL "Customer" LABEL-BGCOLOR 14

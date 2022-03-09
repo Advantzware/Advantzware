@@ -308,7 +308,7 @@ DEFINE BROWSE BROWSE-1
             WIDTH 14 LABEL-BGCOLOR 14
       rm-rcpth.job-no FORMAT "x(6)":U LABEL-BGCOLOR 14
       rm-rcpth.job-no2 COLUMN-LABEL "" FORMAT "99":U LABEL-BGCOLOR 14
-      rm-rdtlh.s-num COLUMN-LABEL "S" FORMAT ">9":U WIDTH 3 LABEL-BGCOLOR 14
+      rm-rdtlh.s-num COLUMN-LABEL "F" FORMAT ">9":U WIDTH 3 LABEL-BGCOLOR 14
       rm-rcpth.trans-date COLUMN-LABEL "TR Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
       rm-rcpth.rita-code COLUMN-LABEL "C" FORMAT "x(1)":U LABEL-BGCOLOR 14
@@ -458,7 +458,7 @@ ASSIGN
      _FldNameList[4]   > ASI.rm-rcpth.job-no2
 "rm-rcpth.job-no2" "" "99" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.rm-rdtlh.s-num
-"rm-rdtlh.s-num" "S" ? "integer" ? ? ? 14 ? ? yes ? no no "3" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rdtlh.s-num" "F" ? "integer" ? ? ? 14 ? ? yes ? no no "3" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.rm-rcpth.trans-date
 "rm-rcpth.trans-date" "TR Date" ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.rm-rcpth.rita-code
@@ -666,7 +666,7 @@ END.
 
 &Scoped-define SELF-NAME rm-rdtlh.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rdtlh.s-num BROWSE-1 _BROWSE-COLUMN Dialog-Frame
-ON RETURN OF rm-rdtlh.s-num IN BROWSE BROWSE-1 /* S */
+ON RETURN OF rm-rdtlh.s-num IN BROWSE BROWSE-1 /* F */
 DO:
   RUN update-record.
 END.

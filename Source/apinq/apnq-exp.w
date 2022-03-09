@@ -74,7 +74,7 @@ DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 ASSIGN 
     cTextListToSelect  = "Invoice#,Vendor#,Invoice Date,Due Date,Net,Paid,Discount,Balance Due,Tax Code,Discount%," +
                                                "Status,Tax,Freight,User,PO Number,Line,Account Number,Account Description,Quantity,UOM," +
-                                               "Price,UOM Price,Tax2,SqFt,Amount,Total MSF,Item#,Description,Job#,Sheet#,Blank#"
+                                               "Price,UOM Price,Tax2,SqFt,Amount,Total MSF,Item#,Description,Job#,Form#,Blank#"
 
     cFieldListToSelect = "inv,vend,inv-dt,due-dt,net,paid,disc,bal-due,tx-cd,disc%,stat,tax,freight,usr,po,line,act-no,act-dsc," +
                                         "qty,uom,price,uom-pric,tax2,sqft,amt,ttl-msf,ino,dscr,job,sht,blnk" .
@@ -83,7 +83,7 @@ ASSIGN
 ASSIGN 
     cTextListToDefault = "Invoice#,Vendor#,Invoice Date,Due Date,Net,Paid,Discount,Balance Due,Tax Code,Discount%," +
                                                "Status,Tax,Freight,User,PO Number,Line,Account Number,Account Description,Quantity,UOM," +
-                                               "Price,UOM Price,Tax2,SqFt,Amount,Total MSF,Item#,Description,Job#,Sheet#,Blank#".
+                                               "Price,UOM Price,Tax2,SqFt,Amount,Total MSF,Item#,Description,Job#,Form#,Blank#".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1089,7 +1089,7 @@ PROCEDURE run-report :
                 ELSE
                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING("")).
             END.
-            IF ttRptSelected.TextList = "Sheet#" THEN 
+            IF ttRptSelected.TextList = "Form#" THEN 
             DO:
                 IF AVAILABLE ap-invl THEN
                     FIND FIRST po-ordl WHERE po-ordl.company = cocode
