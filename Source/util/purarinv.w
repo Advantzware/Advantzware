@@ -101,10 +101,10 @@ assign
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btSimulatePurge btStartProcess tbNonZero ~
-end_date begin_cust-no end_cust-no begin_inv end_inv rd_inactive ~
-fiDirectory tbOpenFile 
+end_date begin_cust-no end_cust-no begin_inv end_inv tbInactive fiDirectory ~
+tbOpenFile 
 &Scoped-Define DISPLAYED-OBJECTS EDITOR-1 tbNonZero end_date begin_cust-no ~
-end_cust-no begin_inv end_inv lbl_inv rd_inactive fiDirectory tbOpenFile 
+end_cust-no begin_inv end_inv tbInactive fiDirectory tbOpenFile 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -165,17 +165,10 @@ DEFINE VARIABLE fiDirectory AS CHARACTER FORMAT "X(256)":U
      SIZE 64.8 BY 1
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE lbl_inv AS CHARACTER FORMAT "X(256)":U INITIAL "Customers Inactive:" 
-     VIEW-AS FILL-IN 
-     SIZE 22 BY 1 NO-UNDO.
-
-DEFINE VARIABLE rd_inactive AS CHARACTER 
-     VIEW-AS RADIO-SET VERTICAL
-     RADIO-BUTTONS 
-          "Customer has no Invoices left", "1",
-"Customer balance is zero", "2",
-"Customer is not Internal Customer", "3"
-     SIZE 48.8 BY 2.38 NO-UNDO.
+DEFINE VARIABLE tbInactive AS LOGICAL INITIAL no 
+     LABEL "Customers Inactive" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 26 BY .95 NO-UNDO.
 
 DEFINE VARIABLE tbNonZero AS LOGICAL INITIAL no 
      LABEL "Purge Invoices with non-zero balance?" 
@@ -192,8 +185,8 @@ DEFINE VARIABLE tbOpenFile AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     btSimulatePurge AT ROW 21.48 COL 20 WIDGET-ID 28
-     btStartProcess AT ROW 21.48 COL 47.2 WIDGET-ID 12
+     btSimulatePurge AT ROW 20.52 COL 20 WIDGET-ID 28
+     btStartProcess AT ROW 20.52 COL 47.2 WIDGET-ID 12
      EDITOR-1 AT ROW 5.29 COL 15 NO-LABEL WIDGET-ID 10 NO-TAB-STOP 
      tbNonZero AT ROW 9.81 COL 21
      end_date AT ROW 11 COL 49 COLON-ALIGNED HELP
@@ -206,20 +199,19 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Invoice Number"
      end_inv AT ROW 14.1 COL 54 COLON-ALIGNED HELP
           "Enter Ending Invoice Number"
-     lbl_inv AT ROW 15.52 COL 3.4 NO-LABEL WIDGET-ID 30
-     rd_inactive AT ROW 15.52 COL 25 NO-LABEL WIDGET-ID 32
-     fiDirectory AT ROW 19.52 COL 3 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-     tbOpenFile AT ROW 19.62 COL 70.4 WIDGET-ID 26
+     tbInactive AT ROW 15.76 COL 21 WIDGET-ID 36
+     fiDirectory AT ROW 18.57 COL 3 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     tbOpenFile AT ROW 18.67 COL 70.4 WIDGET-ID 26
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
      "Records to view  will be stored in directory:" VIEW-AS TEXT
-          SIZE 50.6 BY .62 AT ROW 18.62 COL 11.4 WIDGET-ID 16
+          SIZE 50.6 BY .62 AT ROW 17.67 COL 11.4 WIDGET-ID 16
           FONT 22
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89.6 BY 22.52.
+         SIZE 89.6 BY 21.33.
 
 DEFINE FRAME FRAME-B
      "and may take hours to complete!" VIEW-AS TEXT
@@ -254,7 +246,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Purge AR Invoices"
-         HEIGHT             = 22.52
+         HEIGHT             = 21.33
          WIDTH              = 89.6
          MAX-HEIGHT         = 22.52
          MAX-WIDTH          = 98.2
@@ -307,16 +299,6 @@ ASSIGN
 
 ASSIGN 
        end_inv:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-/* SETTINGS FOR FILL-IN lbl_inv IN FRAME FRAME-A
-   NO-ENABLE ALIGN-L                                                    */
-ASSIGN 
-       lbl_inv:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "rd_inv".
-
-ASSIGN 
-       rd_inactive:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR FRAME FRAME-B
@@ -533,15 +515,47 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY EDITOR-1 tbNonZero end_date begin_cust-no end_cust-no begin_inv 
-          end_inv lbl_inv rd_inactive fiDirectory tbOpenFile 
+          end_inv tbInactive fiDirectory tbOpenFile 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE btSimulatePurge btStartProcess tbNonZero end_date begin_cust-no 
-         end_cust-no begin_inv end_inv rd_inactive fiDirectory tbOpenFile 
+         end_cust-no begin_inv end_inv tbInactive fiDirectory tbOpenFile 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-B}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCustomerInActive C-Win 
+PROCEDURE pCustomerInActive PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:Private procedure to delete orphan records 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer     AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-cust FOR cust.
+    
+    FOR EACH bf-cust EXCLUSIVE-LOCK 
+        WHERE bf-cust.company EQ ipcCompany
+          AND bf-cust.ACTIVE  NE "I"
+          AND bf-cust.ACTIVE  NE "X"
+          AND NOT bf-cust.internal
+          AND bf-cust.cust-no EQ ipcCustomer
+          AND bf-cust.balanceCurrent EQ 0
+          AND NOT CAN-FIND(FIRST ar-inv NO-LOCK
+              WHERE ar-inv.company EQ bf-cust.company
+                AND ar-inv.cust-no EQ bf-cust.cust-no) 
+                USE-INDEX ACTIVE:
+                          
+              bf-cust.ACTIVE = "I".                  
+    END.      
+        
+    RELEASE bf-cust.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -623,62 +637,11 @@ PROCEDURE pPurgeOrphanRecords PRIVATE :
                 EXPORT STREAM out5 ar-ledger.
                 FIND CURRENT ar-ledger EXCLUSIVE-LOCK NO-ERROR.                
                 DELETE ar-ledger.
-                END.
+               END.
                 ASSIGN
                     iPurgeCount5 = iPurgeCount5 + 1. 
                                    
     END. 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCustomerInActive C-Win 
-PROCEDURE pCustomerInActive PRIVATE :
-/*------------------------------------------------------------------------------
- Purpose:Private procedure to delete orphan records 
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcExecute      AS LOGICAL NO-UNDO.
-    
-    DEFINE BUFFER bf-cust FOR cust.
-    
-    IF rd_inactive EQ "1" AND ipcExecute THEN
-    DO:
-        FOR EACH bf-cust EXCLUSIVE-LOCK 
-            WHERE bf-cust.company EQ ipcCompany
-              AND bf-cust.ACTIVE  NE "I"
-              AND NOT CAN-FIND(FIRST ar-inv NO-LOCK
-                  WHERE ar-inv.company EQ bf-cust.company
-                    AND ar-inv.cust-no EQ bf-cust.cust-no) 
-                    USE-INDEX active:
-                  
-                  bf-cust.ACTIVE = "I".                  
-        END.           
-    END.
-    ELSE IF rd_inactive EQ "2" AND ipcExecute THEN
-    DO:
-        FOR EACH bf-cust EXCLUSIVE-LOCK 
-            WHERE bf-cust.company EQ ipcCompany
-              AND bf-cust.ACTIVE  NE "I"
-              AND bf-cust.balanceCurrent EQ 0
-              USE-INDEX active:
-                  
-                  bf-cust.ACTIVE = "I".                  
-        END.           
-    END.
-    ELSE IF rd_inactive EQ "3" AND ipcExecute THEN
-    DO:
-        FOR EACH bf-cust EXCLUSIVE-LOCK 
-            WHERE bf-cust.company EQ ipcCompany
-              AND bf-cust.ACTIVE  NE "I"
-              AND NOT bf-cust.internal
-              USE-INDEX active:                  
-                  bf-cust.ACTIVE = "I".                  
-        END.          
-    END.
-    RELEASE bf-cust.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -699,6 +662,10 @@ PROCEDURE pRunProcess :
     DEFINE VARIABLE cOutputArLedger AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOutputArMcash  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFileName       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustNo         AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-ar-inv FOR ar-inv.
+    DEFINE BUFFER bf-ar-invl FOR ar-invl.
     
     DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
@@ -822,29 +789,33 @@ PROCEDURE pRunProcess :
     DISABLE TRIGGERS FOR LOAD OF ar-ledger.
 
     MAIN-LOOP:
-    FOR EACH ar-inv WHERE 
-        ar-inv.company  EQ cocode AND 
-        ar-inv.inv-date LE end_date AND 
-        ar-inv.inv-no   GE begin_inv AND
-        ar-inv.inv-no   LE end_inv AND
-        ar-inv.cust-no  GE begin_cust-no AND
-        ar-inv.cust-no  LE end_cust-no AND
-        ar-inv.posted   EQ yes
-        NO-LOCK USE-INDEX inv-date:
+    FOR EACH bf-ar-inv WHERE 
+        bf-ar-inv.company  EQ cocode AND 
+        bf-ar-inv.inv-date LE end_date AND 
+        bf-ar-inv.inv-no   GE begin_inv AND
+        bf-ar-inv.inv-no   LE end_inv AND
+        bf-ar-inv.cust-no  GE begin_cust-no AND
+        bf-ar-inv.cust-no  LE end_cust-no AND
+        bf-ar-inv.posted   EQ yes
+        NO-LOCK USE-INDEX inv-date 
+        BREAK BY bf-ar-inv.cust-no:
         
-        {custom/statusMsg.i " 'Customer:'  + ar-inv.cust-no + '  Invoice:'  + string(ar-inv.inv-no) "}
+        {custom/statusMsg.i " 'Customer:'  + bf-ar-inv.cust-no + '  Invoice:'  + string(bf-ar-inv.inv-no) "}
+        
+        IF LAST-OF(bf-ar-inv.cust-no) THEN
+        cCustNo = bf-ar-inv.cust-no.
 
         ASSIGN
-            invBalAmt = IF ar-inv.net = ar-inv.gross + ar-inv.freight + ar-inv.tax-amt THEN
-                    ar-inv.net 
+            invBalAmt = IF bf-ar-inv.net = bf-ar-inv.gross + bf-ar-inv.freight + bf-ar-inv.tax-amt THEN
+                    bf-ar-inv.net 
                   ELSE 
-                    ar-inv.gross.        
+                    bf-ar-inv.gross.        
           
         FOR EACH ar-cashl NO-LOCK WHERE
-            ar-cashl.company  EQ ar-inv.company AND
+            ar-cashl.company  EQ bf-ar-inv.company AND
             ar-cashl.posted   EQ yes AND
-            ar-cashl.cust-no  EQ ar-inv.cust-no AND
-            ar-cashl.inv-no   EQ ar-inv.inv-no
+            ar-cashl.cust-no  EQ bf-ar-inv.cust-no AND
+            ar-cashl.inv-no   EQ bf-ar-inv.inv-no
             USE-INDEX inv-no:
 
             
@@ -871,22 +842,22 @@ PROCEDURE pRunProcess :
         
             CREATE ttPurgeInvCsv.
             ASSIGN
-                ttPurgeInvCsv.company = ar-inv.company
-                ttPurgeInvCsv.iInvNo  = ar-inv.inv-no
-                ttPurgeInvCsv.cCustNo = ar-inv.cust-no
-                ttPurgeInvCsv.dtInvDate = ar-inv.inv-date
+                ttPurgeInvCsv.company = bf-ar-inv.company
+                ttPurgeInvCsv.iInvNo  = bf-ar-inv.inv-no
+                ttPurgeInvCsv.cCustNo = bf-ar-inv.cust-no
+                ttPurgeInvCsv.dtInvDate = bf-ar-inv.inv-date
                 ttPurgeInvCsv.dInvAmount = invBalAmt 
-                ttPurgeInvCsv.dBalDue    = ar-inv.due
+                ttPurgeInvCsv.dBalDue    = bf-ar-inv.due
                 ttPurgeInvCsv.cNote      = "".
         
             ASSIGN
                 totWriteOff = totWriteOff + invBalAmt.
                 
             FOR EACH ar-cashl NO-LOCK WHERE
-                ar-cashl.company  EQ ar-inv.company AND
+                ar-cashl.company  EQ bf-ar-inv.company AND
                 ar-cashl.posted   EQ yes AND
-                ar-cashl.cust-no  EQ ar-inv.cust-no AND
-                ar-cashl.inv-no   EQ ar-inv.inv-no
+                ar-cashl.cust-no  EQ bf-ar-inv.cust-no AND
+                ar-cashl.inv-no   EQ bf-ar-inv.inv-no
                 USE-INDEX inv-no:
 
                 FIND ar-cash NO-LOCK WHERE
@@ -922,14 +893,14 @@ PROCEDURE pRunProcess :
                     iPurgeCount2 = iPurgeCount2 + 1.
             END.
 
-            FOR EACH ar-invl NO-LOCK WHERE
-                ar-invl.company EQ cocode AND
-                ar-invl.x-no EQ ar-inv.x-no:
+            FOR EACH bf-ar-invl NO-LOCK WHERE
+                bf-ar-invl.company EQ cocode AND
+                bf-ar-invl.x-no EQ bf-ar-inv.x-no:
                 
                 IF ipcExecute THEN 
                 DO:
-                    EXPORT STREAM out2 ar-invl.
-                    FIND CURRENT ar-invl EXCLUSIVE-LOCK NO-ERROR.
+                    EXPORT STREAM out2 bf-ar-invl.
+                    FIND FIRST ar-invl WHERE ROWID(ar-invl) EQ ROWID(bf-ar-invl) EXCLUSIVE-LOCK NO-ERROR.
                     DELETE ar-invl.
                     ttPurgeInvCsv.cNote      = "Invoice Deleted".
                 END.
@@ -937,14 +908,17 @@ PROCEDURE pRunProcess :
                     iPurgeCount3 = iPurgeCount3 + 1.
             END.
                                     
-            RUN pPurgeArLedger(cocode, "INV# " + STRING(ar-inv.inv-no), ipcExecute). 
-
-            
+            RUN pPurgeArLedger(cocode, "INV# " + STRING(bf-ar-inv.inv-no), ipcExecute). 
+                        
             IF ipcExecute THEN 
             DO:
-                EXPORT STREAM out1 ar-inv.
-                FIND CURRENT ar-inv EXCLUSIVE-LOCK NO-ERROR.
+                EXPORT STREAM out1 bf-ar-inv.
+                FIND FIRST ar-inv WHERE ROWID(ar-inv) EQ ROWID(bf-ar-inv) EXCLUSIVE-LOCK NO-ERROR.
                 DELETE ar-inv.
+                IF cCustNo NE "" AND tbInactive THEN do:
+                   RUN pCustomerInActive(cocode, cCustNo).
+                   cCustNo = "".
+                END.
             END.
             ASSIGN
                 iPurgeCount4 = iPurgeCount4 + 1.
@@ -952,9 +926,7 @@ PROCEDURE pRunProcess :
     END.
     
     RUN pPurgeOrphanRecords(cocode, ipcExecute).
-    
-    RUN pCustomerInActive(cocode, ipcExecute).
-
+        
     SESSION:SET-WAIT-STATE("").
     
     IF ipcExecute THEN 
