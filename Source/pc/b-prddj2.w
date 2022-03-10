@@ -76,6 +76,7 @@ DEFINE VARIABLE iJobRecalc AS INTEGER NO-UNDO.
 DEFINE VARIABLE iQtyProduced AS INTEGER NO-UNDO.
 DEFINE VARIABLE hdOpProcs    AS HANDLE.
 DEFINE VARIABLE hdJobProcs   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 
 DEF TEMP-TABLE tt-prdd2 NO-UNDO LIKE tt-prdd.
 
@@ -408,15 +409,15 @@ DO:
 
     CASE lw-focus:NAME:
          WHEN "m-code" THEN DO:
-             RUN windows/l-mach.w (g_company,g_loc,lw-focus:SCREEN-VALUE, OUTPUT char-val).
-             IF char-val NE "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val). 
+             RUN windows/l-mach.w (g_company,g_loc,tt-prdd.m-code:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
+             IF char-val NE "" THEN tt-prdd.m-code:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val). 
         END.
         WHEN "frm"      THEN RUN item-help (lw-focus).
         WHEN "blank-no" THEN RUN item-help (lw-focus).
         WHEN "i-no"     THEN RUN item-help (lw-focus).
         WHEN "code" THEN DO:
-            RUN windows/l-jobcod.w (lw-focus:SCREEN-VALUE , OUTPUT char-val).
-            IF char-val NE "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+            RUN windows/l-jobcod.w (tt-prdd.CODE:SCREEN-VALUE IN BROWSE {&browse-name} , OUTPUT char-val).
+            IF char-val NE "" THEN tt-prdd.CODE:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
         END.        
     END CASE.
     RETURN NO-APPLY.
@@ -499,7 +500,7 @@ END.
 
 ON 'entry':U OF  tt-prdd.m-code IN BROWSE {&browse-name}
 DO:
-   IF SELF:SCREEN-VALUE <> "" AND lv-adding-mode AND ll-skip THEN DO:
+   IF SELF:SCREEN-VALUE IN BROWSE {&browse-name} <> "" AND lv-adding-mode AND ll-skip THEN DO:
       APPLY "entry" TO tt-prdd.CODE IN BROWSE {&browse-name}.
       RETURN NO-APPLY.
    END.
@@ -510,8 +511,8 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     IF SELF:MODIFIED THEN RUN new-m-code.
 
-    RUN valid-m-code NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-m-code(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.  
 END.
 
@@ -526,8 +527,8 @@ END.
 ON 'leave':U OF tt-prdd.frm IN BROWSE {&browse-name}
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-frm (SELF:MODIFIED) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-frm (SELF:MODIFIED, OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -542,8 +543,8 @@ END.
 ON 'leave':U OF tt-prdd.blank-no IN BROWSE {&browse-name}
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-blank-no (SELF:MODIFIED) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-blank-no (SELF:MODIFIED, OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -561,8 +562,8 @@ END.
 ON 'leave':U OF tt-prdd.pass IN BROWSE {&browse-name}
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-pass NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-pass(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -577,8 +578,8 @@ END.
 ON 'leave':U OF tt-prdd.i-no IN BROWSE {&browse-name}
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-i-no (SELF:MODIFIED) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-i-no (SELF:MODIFIED, OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -592,7 +593,7 @@ DO:
       MESSAGE "Invalid Job Code. Try Help. " VIEW-AS ALERT-BOX ERROR.
       RETURN NO-APPLY.
    END.
-   tt-prdd.CODE:SCREEN-VALUE = CAPS(tt-prdd.CODE:SCREEN-VALUE).
+   tt-prdd.CODE:SCREEN-VALUE IN BROWSE {&browse-name} = CAPS(tt-prdd.CODE:SCREEN-VALUE IN BROWSE {&browse-name}).
 END.
 
 ON 'value-changed':U OF tt-prdd.CODE  IN BROWSE {&browse-name}
@@ -610,17 +611,17 @@ ON LEAVE OF tt-prdd.startx IN BROWSE {&browse-name} DO:
                 VIEW-AS ALERT-BOX ERROR.
         RETURN NO-APPLY.
      END.
-     IF int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,4,2)) < 0 OR 
-        int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,4,2)) >= 60 THEN DO:
+     IF int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) < 0 OR 
+        int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) >= 60 THEN DO:
         MESSAGE "Invalid Minites." VIEW-AS ALERT-BOX ERROR.
         RETURN NO-APPLY.
      END.
      tt-prdd.hours:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(
         ROUND(( 
-                (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,1,2)) * 3600 +
-           INT(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) * 60 ) -
-         ( int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,1,2)) * 3600 +
-           INT(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,4,2)) * 60 )
+                (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) * 3600 +
+           INT(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) * 60 ) -
+         ( int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) * 3600 +
+           INT(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) * 60 )
         ) / 3600 ,2) ).
 END.
 
@@ -634,20 +635,20 @@ ON 'leave':U OF tt-prdd.stopx IN BROWSE {&browse-name} DO:
         MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
         RETURN NO-APPLY.
      END.
-     IF int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) < 0 OR 
-        int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) >= 60 OR
+     IF int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) < 0 OR 
+        int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) >= 60 OR
         (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) EQ 24 AND
-         int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) NE 0) THEN DO:
+         int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) NE 0) THEN DO:
         MESSAGE "Invalid Minites." VIEW-AS ALERT-BOX ERROR.        
         RETURN NO-APPLY.
      END.
 
      tt-prdd.hours:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(
         ROUND(( 
-                (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,1,2)) * 3600 +
-           INT(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) * 60 ) -
-         ( int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,1,2)) * 3600 +
-           INT(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,4,2)) * 60 )
+                (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) * 3600 +
+           INT(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) * 60 ) -
+         ( int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) * 3600 +
+           INT(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) * 60 )
         ) / 3600 ,2) ).
 END.
 
@@ -658,8 +659,8 @@ END.
 ON 'leave':U OF tt-prdd.crew IN BROWSE {&browse-name}
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-crew NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-crew(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -749,11 +750,11 @@ PROCEDURE auto-add-next :
 
   RUN auto-add.
   ASSIGN tt-prdd.m-code:SCREEN-VALUE IN BROWSE {&browse-name} = bf-prev.m-code         
-         tt-prdd.blank-no:SCREEN-VALUE = STRING(bf-prev.blank-no)
-         tt-prdd.frm:SCREEN-VALUE = STRING(bf-prev.frm)
-         tt-prdd.pass:SCREEN-VALUE = STRING(bf-prev.pass)
-         tt-prdd.i-no:SCREEN-VALUE = bf-prev.i-no
-         tt-prdd.i-name:SCREEN-VALUE = bf-prev.i-name
+         tt-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(bf-prev.blank-no)
+         tt-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(bf-prev.frm)
+         tt-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(bf-prev.pass)
+         tt-prdd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = bf-prev.i-no
+         tt-prdd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = bf-prev.i-name
          tt-prdd.job = bf-prev.job
          lv-dept = "".
   APPLY "entry" TO tt-prdd.CODE IN BROWSE {&browse-name}.
@@ -858,7 +859,7 @@ PROCEDURE display-item :
       FIND FIRST mach
           WHERE mach.company EQ cocode
             AND mach.loc     EQ locode
-            AND mach.m-code  EQ tt-prdd.m-code:SCREEN-VALUE
+            AND mach.m-code  EQ tt-prdd.m-code:SCREEN-VALUE IN BROWSE {&browse-name}
           NO-LOCK NO-ERROR.
 
       IF (v-est-type EQ 2 OR v-est-type EQ 6)             AND
@@ -1306,7 +1307,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   lv-adding-mode = YES.
-
+               MESSAGE "lv-is-first-prdd" STRING(lv-is-first-prdd) VIEW-AS ALERT-BOX ERROR .
   /* Dispatch standard ADM method.                             */
   IF NOT lv-is-first-prdd THEN
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ).
@@ -1510,20 +1511,20 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   lv-rowid = ROWID(tt-prdd).
 
-  RUN valid-m-code NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-m-code( OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
-  RUN valid-frm (NO) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-frm (NO, OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
-  RUN valid-blank-no (NO) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-blank-no (NO, OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
-  RUN valid-pass NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-pass ( OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
-  RUN valid-i-no (NO) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-i-no (NO, OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
   IF int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name} ,1,2)) >= 24 THEN DO:
         MESSAGE "Invalid Hours." 
@@ -1531,8 +1532,8 @@ PROCEDURE local-update-record :
         APPLY "entry" TO tt-prdd.startx.
         RETURN NO-APPLY.
      END.
-     IF int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,4,2)) < 0 OR 
-        int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,4,2)) >= 60 THEN DO:
+     IF int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) < 0 OR 
+        int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) >= 60 THEN DO:
         MESSAGE "Invalid Minites." VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO tt-prdd.startx.
         RETURN .
@@ -1542,10 +1543,10 @@ PROCEDURE local-update-record :
         APPLY "entry" TO tt-prdd.stopx.
         RETURN NO-APPLY.
      END.
-     IF int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) < 0 OR 
-        int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) >= 60 OR
+     IF int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) < 0 OR 
+        int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) >= 60 OR
         (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) EQ 24 AND
-         int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) NE 0) THEN DO:
+         int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) NE 0) THEN DO:
         MESSAGE "Invalid Minites." VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO tt-prdd.stopx.        
         RETURN NO-APPLY.
@@ -1553,10 +1554,10 @@ PROCEDURE local-update-record :
 
      tt-prdd.hours:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(
         ROUND(( 
-                (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,1,2)) * 3600 +
-           INT(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) * 60 ) -
-         ( int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,1,2)) * 3600 +
-           INT(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,4,2)) * 60 )
+                (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) * 3600 +
+           INT(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) * 60 ) -
+         ( int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) * 3600 +
+           INT(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) * 60 )
         ) / 3600 ,2) ).
      IF INT(tt-prdd.hours:SCREEN-VALUE IN BROWSE {&browse-name}) < 0 THEN DO:
         MESSAGE "Time entered will create negative hours, OK to proceed? "
@@ -1566,9 +1567,17 @@ PROCEDURE local-update-record :
            RETURN .
         END.
      END.
+  
+  FIND FIRST job-code WHERE job-code.CODE = tt-prdd.CODE:SCREEN-VALUE IN BROWSE {&browse-name}
+              NO-LOCK NO-ERROR.
+   IF NOT AVAIL job-code THEN DO:
+      MESSAGE "Invalid Job Code. Try Help. " VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO tt-prdd.CODE.
+      RETURN NO-APPLY.
+   END.   
 
-  RUN valid-crew NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-crew( OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -1701,7 +1710,7 @@ PROCEDURE new-m-code :
           WHERE itemfg.company EQ job-hdr.company
             AND itemfg.i-no    EQ job-hdr.i-no
           NO-LOCK NO-ERROR.
-      IF AVAIL itemfg THEN tt-prdd.i-name:SCREEN-VALUE = itemfg.i-name.
+      IF AVAIL itemfg THEN tt-prdd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name.
     END.
 
     ASSIGN
@@ -2788,6 +2797,7 @@ PROCEDURE valid-blank-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-changed AS LOG NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
 
   IF NOT ll-no-blk THEN DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST job-mch
@@ -2814,12 +2824,13 @@ PROCEDURE valid-blank-no :
       THEN DO:
         MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO tt-prdd.blank-no IN BROWSE {&browse-name}.
-        RETURN ERROR.
+        oplReturnError = YES.
+        RETURN .
       END.
     END.
 
     IF ip-changed THEN DO:
-      tt-prdd.i-no:SCREEN-VALUE = "".
+      tt-prdd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = "".
       RUN new-job-hdr.
     END.
   END.
@@ -2838,14 +2849,15 @@ PROCEDURE valid-crew :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(tt-prdd.crew:SCREEN-VALUE IN BROWSE {&browse-name}) LE 0 THEN DO:
       MESSAGE TRIM(tt-prdd.crew:LABEL IN BROWSE {&browse-name}) +
               " must be greater than 0..."
           VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO tt-prdd.crew IN BROWSE {&browse-name}.
-      RETURN ERROR.
+      oplReturnError = yes.
+      RETURN .
     END.
   END.
 
@@ -2862,6 +2874,7 @@ PROCEDURE valid-frm :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-changed AS LOG NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
 
   IF NOT ll-no-frm THEN DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST job-mch
@@ -2873,11 +2886,12 @@ PROCEDURE valid-frm :
     THEN DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO tt-prdd.frm IN BROWSE {&browse-name}.
-      RETURN ERROR.
+      oplReturnError = yes.
+      RETURN .
     END.
 
     IF ip-changed THEN DO:
-      tt-prdd.i-no:SCREEN-VALUE = "".
+      tt-prdd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = "".
       RUN new-job-hdr.
     END.
   END.
@@ -2897,7 +2911,7 @@ PROCEDURE valid-i-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-changed AS LOG NO-UNDO.
-
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
 
   IF NOT ll-no-blk THEN DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST job-hdr
@@ -2925,7 +2939,8 @@ PROCEDURE valid-i-no :
       THEN DO:
         MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO tt-prdd.i-no IN BROWSE {&browse-name}.
-        RETURN ERROR.
+        oplReturnError = yes.
+        RETURN .
       END.
     END.
 
@@ -2944,8 +2959,8 @@ PROCEDURE valid-m-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-msg AS CHAR NO-UNDO.
-
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  DEF VAR lv-msg AS CHAR NO-UNDO.                            
 
   DO WITH FRAME {&FRAME-NAME}:
     ll-skip = NO.
@@ -2963,7 +2978,8 @@ PROCEDURE valid-m-code :
     IF lv-msg NE "" THEN DO:
       MESSAGE TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO tt-prdd.m-code IN BROWSE {&browse-name}.
-      RETURN ERROR.
+      oplReturnError = yes.
+      RETURN .
     END.
 
     ll-skip = YES.
@@ -2978,7 +2994,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-pass B-table-Win 
 PROCEDURE valid-pass :
-
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DEF VAR choice AS LOG NO-UNDO.
   DEF VAR lv-m-code AS CHAR NO-UNDO.
   DEF VAR lv-msg AS CHAR EXTENT 2 NO-UNDO.
@@ -3023,7 +3039,8 @@ PROCEDURE valid-pass :
 
       IF lv-dept EQ "" THEN DO:
         APPLY "entry" TO tt-prdd.pass.
-        RETURN ERROR.
+        oplReturnError = yes.
+        RETURN .
       END.
     END.  
     
