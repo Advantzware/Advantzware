@@ -30,8 +30,6 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
-&SCOPED-DEFINE yellowColumnsName snapshotType itemType
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT
 
@@ -48,15 +46,14 @@ CREATE WIDGET-POOL.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartNavBrowser
+&Scoped-define PROCEDURE-TYPE SmartBrowser
 &Scoped-define DB-AWARE no
 
-&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
+//&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
@@ -64,7 +61,7 @@ CREATE WIDGET-POOL.
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES inventorySnapshot
-
+&Scoped-define SORTBY-PHRASE BY inventorySnapshot.inventorySnapshotID DESC
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
@@ -84,9 +81,8 @@ inventorySnapshot.snapshotTime
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order ~
-Btn_Delete_invSnapshot auto_find Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 ~
+Btn_Delete_invSnapshot 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -100,35 +96,17 @@ Btn_Delete_invSnapshot auto_find Btn_Clear_Find
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
 
 DEFINE BUTTON Btn_Delete_invSnapshot 
      LABEL "&Delete" 
-     SIZE 13 BY 1
-     FONT 4.
-
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
-     VIEW-AS FILL-IN 
-     SIZE 21 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 15 BY .71
-     BGCOLOR 14 FONT 6 NO-UNDO.
-
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 44 BY 1 NO-UNDO.
+     SIZE 23 BY 1.29
+     FONT 4
+     BGCOLOR 14.
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 95 BY 1.43.
+     EDGE-PIXELS 2 GRAPHIC-EDGE   
+     SIZE 25 BY 1.76
+     BGCOLOR 8.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -149,10 +127,10 @@ DEFINE QUERY Browser-Table FOR
 
 /* Browse definitions                                                   */
 DEFINE BROWSE Browser-Table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _FREEFORM
   QUERY Browser-Table NO-LOCK DISPLAY
       inventorySnapshot.inventorySnapshotID COLUMN-LABEL "ID" FORMAT "->,>>>,>>9":U LABEL-BGCOLOR 14
-      inventorySnapshot.snapshotDesc COLUMN-LABEL "Description" FORMAT "x(8)":U LABEL-BGCOLOR 14
+      inventorySnapshot.snapshotDesc COLUMN-LABEL "Description" FORMAT "x(30)":U LABEL-BGCOLOR 14
       inventorySnapshot.snapshotType COLUMN-LABEL "Type" FORMAT "x(8)":U LABEL-BGCOLOR 14
       inventorySnapshot.ItemType COLUMN-LABEL "Item Type" FORMAT "x(8)":U LABEL-BGCOLOR 14
       inventorySnapshot.warehouseID COLUMN-LABEL "LocationId" FORMAT "x(8)":U LABEL-BGCOLOR 14
@@ -164,31 +142,21 @@ DEFINE BROWSE Browser-Table
       
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 95 BY 22.86
-         FONT 2 ROW-HEIGHT-CHARS .57.
-
-
+    WITH NO-ASSIGN SEPARATORS SIZE 170 BY 15.7
+         BGCOLOR 15 FGCOLOR 0 FONT 6 ROW-HEIGHT-CHARS .75 FIT-LAST-COLUMN.
+         
 /* ************************  Frame Definitions  *********************** */
-
+         
 DEFINE FRAME F-Main
-     Browser-Table AT ROW 1 COL 1 HELP
-          "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     fi_sortby AT ROW 23.38 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     browse-order AT ROW 24.1 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     Btn_Delete_invSnapshot AT ROW 24.1 COL 45 HELP
-          "DELETE Inventory Snapshot"
-     auto_find AT ROW 24.1 COL 59 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 24.1 COL 82 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 24.1 COL 2
-     RECT-4 AT ROW 23.86 COL 1
+     Browser-Table AT ROW 1 COL 1    
+     HELP "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     Btn_Delete_invSnapshot AT ROW 17.24 COL 2 HELP
+          "DELETE Inventory Snapshot"               
+     RECT-4 AT ROW 17 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 .
+         BGCOLOR 15 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -227,8 +195,8 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/browser.i}
-{src/adm/method/query.i}
-{methods/template/browser.i}
+//{src/adm/method/query.i}
+//{methods/template/browser.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -252,13 +220,11 @@ ASSIGN
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
                 "2"
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
-
-/* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
-   NO-DISPLAY NO-ENABLE                                                 */
+       
 ASSIGN 
-       fi_sortby:HIDDEN IN FRAME F-Main           = TRUE
-       fi_sortby:READ-ONLY IN FRAME F-Main        = TRUE.
-
+       Btn_Delete_invSnapshot:PRIVATE-DATA IN FRAME F-Main = 
+                "panel-image".       
+                
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -323,9 +289,8 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
-        
-        RUN StartSearch.
-    END.
+    
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -335,7 +300,7 @@ DO:
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
 DO:
     
-    END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -369,6 +334,8 @@ ON CHOOSE OF Btn_Delete_invSnapshot IN FRAME F-Main /* Delete */
         DO:
             DELETE PROCEDURE hHandle.
         END.
+        {&OPEN-QUERY-Browser-Table}
+        
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -382,19 +349,13 @@ ON CHOOSE OF Btn_Delete_invSnapshot IN FRAME F-Main /* Delete */
 
 
 /* ***************************  Main Block  *************************** */
-
-{custom/YellowColumns.i}
-
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
 {methods/winReSize.i}
-/* Ticket# : 92946
-   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
-fi_sortby:HIDDEN  = TRUE.
-fi_sortby:VISIBLE = FALSE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -461,7 +422,6 @@ PROCEDURE local-open-query :
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
-
     /* Code placed here will execute PRIOR to standard behavior. */
 
     /* Dispatch standard ADM method.                             */

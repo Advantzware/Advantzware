@@ -95,7 +95,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 100 BY 28.57
+         SIZE 175 BY 22.5
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
@@ -132,9 +132,9 @@ DEFINE FRAME message-frame
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Machine Charge Codes"
-         HEIGHT             = 28.57
-         WIDTH              = 100
+         TITLE              = "Inventory Snapshot"
+         HEIGHT             = 22
+         WIDTH              = 175
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -147,6 +147,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          THREE-D            = yes
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
+         
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -312,7 +313,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 26.43 , 98.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 20 , 171.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -323,85 +324,25 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
-    WHEN 1 THEN DO:
-      /*
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/export.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 21.00 ) NO-ERROR.
-       */
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+    WHEN 1 THEN DO:      
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/inventorySnapshot.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_inventorySnapshot ).
+       
        RUN set-position IN h_inventorySnapshot ( 4.81 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_inventorySnapshot ( 19.52 , 95.00 ) NO-ERROR.
-
-       /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
-
-       /* Links to SmartObject h_export. */
-       //RUN add-link IN adm-broker-hdl ( h_inventorySnapshot , 'export-xl':U , h_export ).
-
+       RUN set-size IN h_inventorySnapshot ( 19.52 , 95.00) NO-ERROR.     
+             
        /* Links to SmartNavBrowser h_inventorySnapshot. */
-       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_inventorySnapshot ).
+       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_inventorySnapshot ).       
        RUN add-link IN adm-broker-hdl ( h_inventorySnapshot , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_inventorySnapshot ,
              h_folder , 'AFTER':U ).
-    END. /* Page 1 */
-    /*
-    WHEN 2 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/inventorySnapshot.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_inventorySnapshot-2 ).
-       RUN set-position IN h_inventorySnapshot-2 ( 6.00 , 9.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.62 , 78.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 10.76 , 21.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-navico.r':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = NAV-ICON,
-                     Right-to-Left = First-On-Left':U ,
-             OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 15.05 , 30.00 ) NO-ERROR.
-       RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
-
-       /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
-
-       /* Links to SmartViewer h_inventorySnapshot-2. */
-       RUN add-link IN adm-broker-hdl ( h_inventorySnapshot , 'Record':U , h_inventorySnapshot-2 ).
-       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_inventorySnapshot-2 ).
-
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_inventorySnapshot-2 ,
-             h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
-             h_inventorySnapshot-2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
-             h_p-updsav , 'AFTER':U ).
-    END. /* Page 2 */
-    */
+    END. /* Page 1 */   
 
   END CASE.
   /* Select a Startup page. */
