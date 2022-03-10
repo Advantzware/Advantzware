@@ -23,18 +23,19 @@ DEFINE TEMP-TABLE ttOrderLineChange
     FIELD note            AS CHARACTER
     .
 
-DEFINE            VARIABLE hdOutput         AS HANDLE    NO-UNDO.
-DEFINE            VARIABLE lError           AS LOGICAL   NO-UNDO.
-DEFINE            VARIABLE cMessage         AS CHARACTER NO-UNDO. 
-DEFINE            VARIABLE dOrderTotalCost  AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE hdOutput         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdCostProcs      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lError           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE dOrderTotalCost  AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dNewOrdLineCostM AS DECIMAL   NO-UNDO.
 
 DEFINE NEW SHARED VARIABLE lv-qty           AS INTEGER   NO-UNDO.
 DEFINE NEW SHARED VARIABLE qty              AS INTEGER   NO-UNDO.
-DEFINE NEW SHARED VARIABLE v-shared-rel     AS INTEGER   NO-UNDO.
+DEFINE NEW SHARED VARIABLE v-shared-rel     AS INTEGER   NO-UNDO.  
 
-DEFINE            VARIABLE dNewOrdLineCostM AS DECIMAL   NO-UNDO.
-
-RUN system\OutputProcs.p PERSISTENT SET hdOutput.
+RUN system/OutputProcs.p PERSISTENT SET hdOutput.
+RUN system/costProcs.p PERSISTENT SET hdCostProcs.
 
 {oe/chkordl.i NEW}
 {oe/relemail.i NEW}
@@ -57,9 +58,6 @@ ASSIGN
     
 {sys/inc/vendItemCost.i}
 {sys/ref/fgoecost.i}
-
-FUNCTION get-itemfg-cost RETURNS DECIMAL
-    ( ipv-item AS CHARACTER /* parameter-definitions */ )  FORWARD.
     
 FUNCTION get-order-total RETURNS DECIMAL
     ( ipiorder AS INTEGER, ipiOrderLine AS INTEGER /* parameter-definitions */ )  FORWARD.    
@@ -131,6 +129,12 @@ END.
 
 RUN Output_TempTableToCSV IN hdOutput (TEMP-TABLE ttOrderLineChange:HANDLE, ipFilePath ,YES,YES, OUTPUT lError, OUTPUT cMessage).
 
+IF VALID-HANDLE(hdOutput) THEN
+   DELETE OBJECT hdOutput.
+   
+IF VALID-HANDLE(hdCostProcs) THEN
+   DELETE OBJECT hdCostProcs.   
+
 PROCEDURE pGetNewCostM:
     /*------------------------------------------------------------------------------
      Purpose: 
@@ -143,66 +147,97 @@ PROCEDURE pGetNewCostM:
     DEFINE VARIABLE lv-uom       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE v-cost       AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCostFromEst AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOM  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cCostUOM     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dCostFreight AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerM    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMTotal AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMDL AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMFO AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMVO AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMDM AS DECIMAL NO-UNDO.
     
     IF ipbf-oe-ordl.job-no EQ "" THEN 
     DO:
-        FIND FIRST itemfg
-            WHERE itemfg.company EQ cocode
-            AND itemfg.i-no = ipbf-oe-ordl.i-no
-            NO-LOCK NO-ERROR.
+        FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company EQ cocode
+               AND itemfg.i-no EQ ipbf-oe-ordl.i-no
+             NO-ERROR.
             
-        FIND FIRST po-ord WHERE po-ord.company EQ cocode
-            AND po-ord.po-no   EQ ipbf-oe-ordl.po-no-po
-            NO-LOCK NO-ERROR.    
+        FIND FIRST po-ord NO-LOCK
+             WHERE po-ord.company EQ cocode
+               AND po-ord.po-no   EQ ipbf-oe-ordl.po-no-po
+             NO-ERROR.    
                 
-        FIND FIRST po-ordl  WHERE po-ordl.company   EQ cocode
-            AND po-ordl.i-no      EQ ipbf-oe-ordl.i-no
-            AND po-ordl.po-no     EQ ipbf-oe-ordl.po-no-po
-            AND po-ordl.item-type EQ NO
-            USE-INDEX item-ordno NO-LOCK NO-ERROR.
+        FIND FIRST po-ordl NO-LOCK
+             WHERE po-ordl.company   EQ cocode
+               AND po-ordl.i-no      EQ ipbf-oe-ordl.i-no
+               AND po-ordl.po-no     EQ ipbf-oe-ordl.po-no-po
+               AND po-ordl.item-type EQ NO
+             USE-INDEX item-ordno NO-ERROR.
             
-        IF AVAILABLE po-ordl AND AVAILABLE po-ordl THEN
-        DO:                
-            IF po-ordl.cons-uom EQ "M" THEN
-                opdNewOrdCost = po-ordl.cons-cost. 
-            ELSE 
-            DO:                 
-                RUN sys/ref/convcuom.p (po-ordl.cons-uom, "M", 0, 0, 0, 0,
-                    po-ordl.cons-cost, OUTPUT ld-cost).
-
-                opdNewOrdCost = ld-cost.                          
-            END.
-            IF lNewVendorItemCost THEN .
-            ELSE 
-                FIND FIRST e-itemfg-vend WHERE
-                    e-itemfg-vend.company EQ po-ordl.company AND
-                    e-itemfg-vend.i-no EQ po-ordl.i-no AND
-                    e-itemfg-vend.vend-no EQ po-ord.vend-no AND
-                    e-itemfg-vend.est-no EQ ""
-                    NO-LOCK NO-ERROR.
-
-            IF AVAILABLE e-itemfg-vend THEN
-            DO:
-                opdNewOrdCost = DECIMAL(DEC(opdNewOrdCost) * (1 + (e-itemfg-vend.markup / 100.0 ))).
-            END.
+        IF AVAILABLE po-ordl THEN
+        DO:  
+            RUN GetCostForPOLine IN hdCostProcs (po-ordl.company, po-ordl.po-no, po-ordl.LINE, po-ordl.i-no, OUTPUT dCostPerUOM, OUTPUT cCostUOM, OUTPUT dCostFreight, OUTPUT lFound).
+                 
+            IF cCostUOM EQ "M" THEN            
+               opdNewOrdCost = dCostPerUOM.            
+            ELSE DO:               
+                dCostPerM = DYNAMIC-FUNCTION('fConvertCostForItem':U IN hdCostProcs,
+                po-ordl.company, 
+                po-ordl.i-no, 
+                IF po-ordl.item-type THEN "RM" ELSE "FG", 
+                dCostPerUOM, 
+                cCostUOM, 
+                "M", 
+                0, /*BasisWeight*/
+                0, /*Length override - leave as 0 if not in UI or on Order/PO*/
+                0, /*Width override - leave as 0 if not in UI or on Order/PO*/
+                0, /*Depth override - leave as 0 if not in UI or on Order/PO*/
+                0, /*Case Count override - leave as 0 if not in UI or on Order/PO*/
+                0, /*Lot Quantity - leave as 0 if not in UI or on Order/PO*/
+                "" /*Lot Quantity UOM - leave as "" if not in UI or on PO*/
+                ).
+                                
+               ASSIGN 
+               dCostPerUOM        = dCostPerM .             
+               opdNewOrdCost = dCostPerUOM.    
+            END.                
         END. 
         ELSE 
         DO:
-              
             IF AVAILABLE itemfg THEN
-                ASSIGN 
-                    lv-uom        = IF itemfg.prod-uom NE "" THEN itemfg.prod-uom ELSE "M"
-                    v-cost        = get-itemfg-cost(itemfg.i-no)
-                    opdNewOrdCost = DECIMAL(get-itemfg-cost(itemfg.i-no)).
-                    
-            IF lv-uom NE "M" THEN 
-            DO:
-                RUN sys/ref/convcuom.p(lv-uom, "M", 0, 0, 0, 0,
-                    v-cost, OUTPUT ld-cost).
-                ASSIGN 
-                    opdNewOrdCost = ld-cost
-                    .                        
-            END. 
+            RUN GetCostForFGItem IN hdCostProcs (
+                                   INPUT itemfg.company,
+                                   INPUT itemfg.i-no,
+                                   OUTPUT dCostPerUOMTotal,
+                                   OUTPUT dCostPerUOMDL,
+                                   OUTPUT dCostPerUOMFO,
+                                   OUTPUT dCostPerUOMVO,
+                                   OUTPUT dCostPerUOMDM,
+                                   OUTPUT cCostUOM,
+                                   OUTPUT lFound
+                                   ).
+            IF cCostUOM NE "M" THEN 
+            DO:                 
+                RUN Conv_ValueFromUOMtoUOM (
+                        INPUT  itemfg.company, 
+                        INPUT  itemfg.i-no, 
+                        INPUT  "FG", 
+                        INPUT  dCostPerUOMTotal, 
+                        INPUT  cCostUOM, 
+                        INPUT  "M", 
+                        INPUT  0, 
+                        INPUT  0,
+                        INPUT  0,
+                        INPUT  0, 0, 
+                        OUTPUT opdNewOrdCost, 
+                        OUTPUT lError, 
+                        OUTPUT cMessage
+                        ).    
+            END.
+            ELSE  opdNewOrdCost = dCostPerUOMTotal.              
+            
         END.
                 
     END.
@@ -326,35 +361,6 @@ PROCEDURE getCostFromEstimate :
     END.
 
 END PROCEDURE.
-
-
-
-FUNCTION get-itemfg-cost RETURNS DECIMAL
-    ( ipv-item AS CHARACTER /* parameter-definitions */ ) :
-    /*------------------------------------------------------------------------------
-      Purpose:  
-        Notes:  
-    ------------------------------------------------------------------------------*/
-    DEFINE BUFFER bfItemfg FOR itemfg.
-    DEFINE VARIABLE v-cost AS DECIMAL NO-UNDO.
-    v-cost = 0.
-    FIND FIRST bfItemfg WHERE bfItemfg.company = cocode
-        AND bfItemfg.i-no    = ipv-item
-        NO-LOCK NO-ERROR.
-    IF AVAIL(bfItemfg) THEN
-        v-cost = bfItemfg.total-std-cost.
-    FIND FIRST fg-ctrl WHERE fg-ctrl.company = cocode NO-LOCK NO-ERROR.
-    IF AVAILABLE fg-ctrl THEN 
-    DO:
-        IF fg-ctrl.inv-meth = "A" AND bfItemfg.avg-cost GT 0 THEN
-            v-cost = bfItemfg.avg-cost.
-        ELSE
-            IF fg-ctrl.inv-meth = "L" AND bfItemfg.last-cost GT 0 THEN
-                v-cost = bfItemfg.last-cost.
-    END.   
-    RETURN v-cost.   /* Function return value. */
-
-END FUNCTION.
 
 
 FUNCTION get-order-total RETURNS DECIMAL

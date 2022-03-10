@@ -104,7 +104,7 @@ DEFINE BUTTON btStartProcess
      LABEL "Start Process" 
      SIZE 16 BY 1.14.
 
-DEFINE VARIABLE begin_ord-date AS DATE FORMAT "99/99/9999":U 
+DEFINE VARIABLE begin_ord-date AS DATE FORMAT "99/99/9999":U INITIAL TODAY
      LABEL "Beginning Order Date" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
