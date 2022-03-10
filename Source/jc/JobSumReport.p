@@ -254,7 +254,7 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
                     ttOperation.dRunHrs       = ttOperation.dRunHrs + mch-act.hours
                     ttOperation.dRunWaste     = ttOperation.dRunWaste + mch-act.waste
                     ttOperation.dSpeed        = ttOperation.dRunQty / ttOperation.dRunHrs          
-                    ttOperation.dCost         = ttOperation.dCost + (mch-act.hours *  mach.run-rate) + (mach.run-fixoh  * mch-act.hours)
+                    ttOperation.dCost         = ttOperation.dCost + (mch-act.hours *  mach.lab-rate[2] * mch-act.crew) + (mach.run-fixoh  * mch-act.hours)
                                                                   + (mach.run-varoh * mch-act.hours) .          
                    
             END.
@@ -263,17 +263,17 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
                     ttOperation.dMRCrew       = mch-act.crew
                     ttOperation.dSetupHrs     = ttOperation.dSetupHrs + mch-act.hours                   
                     ttOperation.dSetupWaste   = ttOperation.dSetupWaste + mch-act.waste
-                    ttOperation.dCost         = ttOperation.dCost + (mch-act.hours *  mach.mr-rate) + (mach.mr-fixoh * mch-act.hours)
+                    ttOperation.dCost         = ttOperation.dCost + (mch-act.hours *  mach.lab-rate[1] * mch-act.crew) + (mach.mr-fixoh * mch-act.hours)
                                                                   + (mach.mr-varoh * mch-act.hours) 
                     .
             END.
-            OTHERWISE DO:
+            WHEN "DT" THEN DO:
                 ASSIGN 
-                    ttOperation.cDTChargeable = ttOperation.cDTChargeable + mch-act.d-type + ","
+                    ttOperation.cDTChargeable = ttOperation.cDTChargeable + mch-act.code + ","
                     ttOperation.dDownTimeHrs  = ttOperation.dDowntimeHrs + mch-act.hours
-                    ttOperation.dDTCost       = ttOperation.dCost + (mch-act.hours *  mach.mr-rate) + (mach.mr-fixoh * mch-act.hours)
+                    ttOperation.dDTCost       = ttOperation.dDTCost + (mch-act.hours *  mach.lab-rate[2] * mch-act.crew) + (mach.mr-fixoh * mch-act.hours)
                                                                   + (mach.mr-varoh * mch-act.hours) 
-                    .    
+                    ttOperation.dCost         = ttOperation.dCost + ttOperation.dDTCost.    
             END.
         END CASE.
                 
@@ -390,13 +390,13 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
         IF LAST-OF(ttOperation.iBlankNo) THEN
         DO:     
             ASSIGN
-                ttDepartment.dRunQtyVar     = (dStdRunQty - dActRunQty) / dStdRunQty  /* * 100 is in excel template*/
-                ttDepartment.dSetupHrsVar   = (dStdSetupHrs / dActSetupHrs )  //(dStdSetupHrs - dActSetupHrs) / dStdSetupHrs   /* * 100 is in excel template*/                  
-                ttDepartment.dRunHrsVar     = (dStdRunHrs / dActRunHrs)  //(dStdRunHrs - dActRunHrs) / dStdRunHrs  /* * 100 is in excel template*/                 
-                ttDepartment.dSpeedVar      = (dActSpeed / dStdSpeed) //(dStdSpeed - dActSpeed) / dStdSpeed    /* * 100 is in excel template*/
-                ttDepartment.dSetupWasteVar = (dStdSetupWaste - dActSetupWaste) / dStdSetupWaste /* * 100 is in excel template*/
-                ttDepartment.dRunWasteVar   = (dStdRunWaste - dActRunWaste) / dStdRunWaste   /* * 100 is in excel template*/ 
-                ttDepartment.dCostVar       = (dStdCost - dActCost) / dStdCost  /* * 100 is in excel template*/
+                ttDepartment.dRunQtyVar     = dStdRunQty / dActRunQty  /* * 100 is in excel template*/
+                ttDepartment.dSetupHrsVar   = dStdSetupHrs / dActSetupHrs  //(dStdSetupHrs - dActSetupHrs) / dStdSetupHrs   /* * 100 is in excel template*/                  
+                ttDepartment.dRunHrsVar     = dStdRunHrs / dActRunHrs  //(dStdRunHrs - dActRunHrs) / dStdRunHrs  /* * 100 is in excel template*/                 
+                ttDepartment.dSpeedVar      = dActSpeed / dStdSpeed //(dStdSpeed - dActSpeed) / dStdSpeed    /* * 100 is in excel template*/
+                ttDepartment.dSetupWasteVar = dStdSetupWaste / dActSetupWaste /* * 100 is in excel template*/
+                ttDepartment.dRunWasteVar   = dStdRunWaste / dActRunWaste /* * 100 is in excel template*/ 
+                ttDepartment.dCostVar       = dStdCost / dActCost /* * 100 is in excel template*/
                 .    
             IF ttDepartment.dRunQtyVar EQ ? THEN ttDepartment.dRunQtyVar = 0. 
             IF ttDepartment.dSetupHrsVar EQ ? THEN ttDepartment.dSetupHrsVar = 0.
@@ -472,7 +472,10 @@ PROCEDURE pBuildMaterials PRIVATE:
     FOR EACH mat-act NO-LOCK
         WHERE mat-act.company EQ ipbf-job.company
         AND mat-act.job-no EQ ipbf-job.job-no
-        AND mat-act.job-no2 EQ ipbf-job.job-no2:
+        AND mat-act.job-no2 EQ ipbf-job.job-no2,
+        FIRST ITEM NO-LOCK 
+        WHERE ITEM.company EQ mat-act.company
+        AND ITEM.i-no EQ mat-act.i-no:
                 
         FIND FIRST ttMaterial NO-LOCK
             WHERE ttMaterial.cJobNo EQ ipbf-job.job-no
@@ -493,10 +496,8 @@ PROCEDURE pBuildMaterials PRIVATE:
         END.
         ASSIGN
             ttMaterial.cActUom  = mat-act.qty-uom
-            ttMaterial.dQtyAct  = ttMaterial.dQtyAct + mat-act.qty.
-            RUN pGetMaterialCost(BUFFER ipbf-job, BUFFER ITEM, BUFFER mat-act, OUTPUT dMaterialCost). 
-        ASSIGN    
-            ttMaterial.dCostAct = ttMaterial.dCostAct +  ( mat-act.qty * dMaterialCost )
+            ttMaterial.dQtyAct  = ttMaterial.dQtyAct + mat-act.qty
+            ttMaterial.dCostAct = ttMaterial.dCostAct + mat-act.ext-cost
             ttMaterial.cUsedonForms = ttMaterial.cUsedonForms + (IF LOOKUP(string(mat-act.s-num),ttMaterial.cUsedonForms) EQ 0 THEN STRING(mat-act.s-num) + "," ELSE "")
             .            
     END.
@@ -551,7 +552,7 @@ PROCEDURE pBuildMiscPrep PRIVATE:
                         ttMaterial.iJobNo2   = ipbf-job.job-no2 
                         ttMaterial.iFormNo   = estCostMisc.formNo
                         ttMaterial.iBlankNo  = estCostMisc.blankNo                             
-                        ttMaterial.cMaterial = estCostMisc.itemID
+                        ttMaterial.cMaterial = IF estCostMisc.itemID EQ "" THEN estCostMisc.costDescription ELSE estCostMisc.itemID
                         ttMaterial.cStdUom   = estCostMisc.costUOM .
                 END.
                 ASSIGN 

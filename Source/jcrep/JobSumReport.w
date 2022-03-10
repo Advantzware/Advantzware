@@ -619,21 +619,22 @@ PROCEDURE pPrintDepartment :
             RUN pPrintOperation (INPUT-OUTPUT iopiRowCount, BUFFER ttOperation).
         END.
         RUN Excel_SetCellValue IN ghExcelProcs ("C" + STRING(iopiRowCount),  "Efficiency").                                                  
-        //RUN Excel_SetCellValue IN ghExcelProcs ("E" + STRING(iopiRowCount),  STRING(ttDepartment.dRunQtyVar)).
-        RUN Excel_SetCellFormat IN ghExcelProcs ("F" + STRING(iopiRowCount),  STRING("0%")).
         RUN Excel_SetCellValue IN ghExcelProcs ("F" + STRING(iopiRowCount),  STRING(ttDepartment.dSetupHrsVar)).
-        RUN Excel_SetCellFormat IN ghExcelProcs ("G" + STRING(iopiRowCount),  STRING("0%")).
         RUN Excel_SetCellValue IN ghExcelProcs ("G" + STRING(iopiRowCount),  STRING(ttDepartment.dRunHrsVar)).
-        RUN Excel_SetCellFormat IN ghExcelProcs ("H" + STRING(iopiRowCount),  STRING("0%")).
         RUN Excel_SetCellValue IN ghExcelProcs ("H" + STRING(iopiRowCount),  STRING(ttDepartment.dSpeedVar)).
-        RUN Excel_SetCellFormat IN ghExcelProcs ("M" + STRING(iopiRowCount),  STRING("0%")).
         RUN Excel_SetCellValue IN ghExcelProcs ("M" + STRING(iopiRowCount),  STRING(ttDepartment.dCostVar)).
-        RUN Excel_SetCellFormat IN ghExcelProcs ("N" + STRING(iopiRowCount),  STRING("0%")).
         RUN Excel_SetCellValue IN ghExcelProcs ("N" + STRING(iopiRowCount),  STRING(ttDepartment.dSetupWasteVar)).
-        RUN Excel_SetCellFormat IN ghExcelProcs ("O" + STRING(iopiRowCount),  STRING("0%")).
         RUN Excel_SetCellValue IN ghExcelProcs ("O" + STRING(iopiRowCount),  STRING(ttDepartment.dRunWasteVar)).
         iopiRowCount = iopiRowCount + 1.                     
         RUN Excel_InsertRowsAbove IN ghExcelProcs (iopiRowCount, 2).
+        //Set formatting after adding the row to avoid copying formatting down to next cells.
+        RUN Excel_SetCellFormat IN ghExcelProcs ("F" + STRING(iopiRowCount - 1),  "0.00%").
+        RUN Excel_SetCellFormat IN ghExcelProcs ("G" + STRING(iopiRowCount - 1),  "0.00%").
+        RUN Excel_SetCellFormat IN ghExcelProcs ("H" + STRING(iopiRowCount - 1),  "0.00%").
+        RUN Excel_SetCellFormat IN ghExcelProcs ("M" + STRING(iopiRowCount - 1),  "0.00%").
+        RUN Excel_SetCellFormat IN ghExcelProcs ("N" + STRING(iopiRowCount - 1),  "0.00%").
+        RUN Excel_SetCellFormat IN ghExcelProcs ("O" + STRING(iopiRowCount - 1),  "0.00%").
+
         iopiRowCount = iopiRowCount + 1. 
     END.      
     iopiRowCount = iopiRowCount + 1.
