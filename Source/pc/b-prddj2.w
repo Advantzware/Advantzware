@@ -389,7 +389,7 @@ DO:
     RUN get-link-handle IN adm-broker-hdl
        (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
     phandle = WIDGET-HANDLE(char-hdl).
-
+       
     RUN new-state IN phandle ('update-begin':U).
 END.
 
@@ -1307,7 +1307,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   lv-adding-mode = YES.
-               MESSAGE "lv-is-first-prdd" STRING(lv-is-first-prdd) VIEW-AS ALERT-BOX ERROR .
+               
   /* Dispatch standard ADM method.                             */
   IF NOT lv-is-first-prdd THEN
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ).
