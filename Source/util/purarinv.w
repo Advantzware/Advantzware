@@ -787,6 +787,7 @@ PROCEDURE pRunProcess :
     DISABLE TRIGGERS FOR LOAD OF ar-cash.
     DISABLE TRIGGERS FOR LOAD OF ar-cashl.
     DISABLE TRIGGERS FOR LOAD OF ar-ledger.
+    DISABLE TRIGGERS FOR LOAD OF ar-mcash.
 
     MAIN-LOOP:
     FOR EACH bf-ar-inv WHERE 
@@ -797,7 +798,7 @@ PROCEDURE pRunProcess :
         bf-ar-inv.cust-no  GE begin_cust-no AND
         bf-ar-inv.cust-no  LE end_cust-no AND
         bf-ar-inv.posted   EQ yes
-        NO-LOCK USE-INDEX inv-date 
+        NO-LOCK USE-INDEX posted 
         BREAK BY bf-ar-inv.cust-no:
         
         {custom/statusMsg.i " 'Customer:'  + bf-ar-inv.cust-no + '  Invoice:'  + string(bf-ar-inv.inv-no) "}
