@@ -83,7 +83,8 @@ DEF STREAM logFile.
 DEF STREAM before.
 DEF STREAM after.
 /* AJ 06/24/2008  Added two variables for excel report */
-DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
+DEFINE VARIABLE excelheader  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
 DEFINE STREAM excel.
 
 DEFINE BUFFER b-fg-rctd FOR fg-rctd.
@@ -1604,7 +1605,7 @@ PROCEDURE fg-post :
                          period.pnum,
                          "A",
                          v-post-date,
-                         string(IF AVAIL fg-rctd THEN fg-rctd.i-no ELSE ""),
+                         work-job.cDesc,
                          "FG").
     end. /* each work-job */
   end.
@@ -1778,7 +1779,7 @@ PROCEDURE gl-from-work :
                          period.pnum,
                          "A",
                          v-post-date,
-                         string(IF AVAIL fg-rctd THEN fg-rctd.i-no ELSE ""),
+                         work-gl.cDesc,
                          "FG").
       
      assign

@@ -72,11 +72,17 @@ DEFINE BUFFER b-itemfg FOR itemfg .
 
 
 ASSIGN cTextListToSelect = "Customer Part#,FG Item#,Order#,Ord Date,Due Date,BOL Date,On-Time," +
-                           "Prom Dt,Reason,MSF,WT,Trailer#,Customer Group"
+                           "Prom Dt,Reason,MSF,WT,Trailer#,Customer Group," +
+                           "Last Receipt Date,Order Quantity,Customer Name,Item Unit Price,Item Price UOM," +
+                           "Pallet Count,Manufacture Date,Completion Date,FG Category,BOL Number,BOL Carrier," +
+                           "BOL Shipped Quantity,Shipment Value,Release Quantity,Release Due Date,Release Date"
        cFieldListToSelect = "cust-part,fgitem,order,ord-date,due-date,bol-date,ontime," +
-                            "prom-dt,reason,msf,wt,trail,cust-g"
-       cFieldLength = "15,15,8,8,8,8,7," + "10,8,15,6,20,14"
-       cFieldType = "c,c,i,c,c,c,c," + "c,c,i,i,c,c" 
+                            "prom-dt,reason,msf,wt,trail,cust-g," +
+                            "cLastReceiptDate,iOrderQuantity,cCustomerName,dItemUnitPrice,dItemPriceUOM," +
+                            "iPalletCount,dtManufactureDate,dtCompletionDate,cFGCategory,iBOLNumber,cBOLCarrier," +
+                            "iBOLShippedQuantity,dShipmentValue,iReleaseQuantity,dtReleaseDueDate,dtReleaseDate"
+       cFieldLength = "15,15,8,8,8,8,7," + "10,8,15,6,20,14," + "17,14,30,16,14," + "12,16,15,11,10,11," + "19,14,15,15,12"
+       cFieldType = "c,c,i,c,c,c,c," + "c,c,i,i,c,c," + "c,i,c,i,c," + "i,c,c,c,i,c," + "i,i,i,c,c"
     .
 
 {sys/inc/ttRptSel.i}
@@ -615,6 +621,9 @@ SESSION:SET-WAIT-STATE("general").
                DO:
                   OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
                END.
+           END.
+           ELSE DO:
+                  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
            END.
        END. /* WHEN 3 THEN DO: */
        WHEN 4 THEN DO:
@@ -1460,14 +1469,19 @@ DEFINE VARIABLE v-cust  LIKE oe-ord.cust-no  EXTENT 2 INIT ["","zzzzzzzz"] NO-UN
 DEFINE VARIABLE v-date  LIKE oe-ord.ord-date FORMAT "99/99/9999"
                                      EXTENT 2 INIT [TODAY, 12/31/9999] NO-UNDO.
 
-DEFINE VARIABLE v-cust-no LIKE cust.cust-no NO-UNDO.
-DEFINE VARIABLE v-name    LIKE cust.NAME NO-UNDO.
-DEFINE VARIABLE v-del     AS   INTEGER EXTENT 2 NO-UNDO.
-DEFINE VARIABLE v-ont     LIKE v-del NO-UNDO.
-DEFINE VARIABLE v-msf AS DECIMAL FORMAT  "->,>>>,>>9.9999" NO-UNDO.
-DEFINE VARIABLE v-sqft LIKE itemfg.t-sqft NO-UNDO.
-DEFINE VARIABLE v-compare-dt AS DATE NO-UNDO.
-DEFINE VARIABLE lcXLLine AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-cust-no       LIKE cust.cust-no NO-UNDO.
+DEFINE VARIABLE v-name          LIKE cust.NAME NO-UNDO.
+DEFINE VARIABLE v-del           AS   INTEGER EXTENT 2 NO-UNDO.
+DEFINE VARIABLE v-ont           LIKE v-del NO-UNDO.
+DEFINE VARIABLE v-msf           AS DECIMAL FORMAT  "->,>>>,>>9.9999" NO-UNDO.
+DEFINE VARIABLE lv-qty          LIKE oe-ordl.qty NO-UNDO.
+DEFINE VARIABLE lv-last         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-status       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFGCategory     LIKE itemfg.procat NO-UNDO.
+DEFINE VARIABLE v-sqft          LIKE itemfg.t-sqft NO-UNDO.
+DEFINE VARIABLE v-compare-dt    AS DATE NO-UNDO.
+DEFINE VARIABLE lcXLLine        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dShipmentValue  AS DECIMAL NO-UNDO.
 
 DEFINE VARIABLE cDisplay AS cha NO-UNDO.
 DEFINE VARIABLE cExcelDisplay AS cha NO-UNDO.
@@ -1564,8 +1578,10 @@ SESSION:SET-WAIT-STATE ("general").
         WHERE oe-ord.company  EQ cocode
           AND oe-ord.cust-no  GE v-cust[1]
           AND oe-ord.cust-no  LE v-cust[2]
-          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq oe-ord.cust-no
-          AND ttCustList.log-fld no-lock) else true)
+          AND (IF lselected THEN CAN-FIND(FIRST ttCustList
+                                          WHERE ttCustList.cust-no EQ oe-ord.cust-no
+                                            AND ttCustList.log-fld EQ TRUE)
+               ELSE TRUE)
           AND oe-ord.ord-date GE v-date[1]
           AND oe-ord.ord-date LE v-date[2]
         USE-INDEX cust NO-LOCK,
@@ -1584,7 +1600,7 @@ SESSION:SET-WAIT-STATE ("general").
         NO-LOCK,
 
         FIRST oe-rell
-        WHERE oe-rell.company EQ cocode
+        WHERE oe-rell.company EQ oe-rel.company
           AND oe-rell.r-no    EQ oe-rel.link-no
           AND oe-rell.i-no    EQ oe-rel.i-no
           AND oe-rell.line    EQ oe-rel.line
@@ -1592,7 +1608,7 @@ SESSION:SET-WAIT-STATE ("general").
         USE-INDEX r-no NO-LOCK,
 
         EACH oe-boll
-        WHERE oe-boll.company  EQ cocode
+        WHERE oe-boll.company  EQ oe-rell.company
           AND oe-boll.r-no     EQ oe-rell.r-no
           AND oe-boll.ord-no   EQ oe-rell.ord-no
           AND oe-boll.rel-no   EQ oe-rell.rel-no
@@ -1613,14 +1629,62 @@ SESSION:SET-WAIT-STATE ("general").
               BY oe-ordl.i-no:
 
         {custom/statusMsg.i "'Processing Order # ' + string(oe-ord.ord-no)"} 
+      
+      ASSIGN
+            lv-qty  = 0
+            lv-last = "".
+     
+        IF LOOKUP("cLastReceiptDate",cSelectedList) NE 0 THEN DO:
+            FIND FIRST fg-rcpth NO-LOCK
+                 WHERE fg-rcpth.company   EQ oe-ordl.company
+                   AND fg-rcpth.job-no    EQ oe-ordl.job-no
+                   AND fg-rcpth.job-no2   EQ oe-ordl.job-no2
+                   AND fg-rcpth.i-no      EQ oe-ordl.i-no
+                   AND fg-rcpth.rita-code EQ 'R'
+                 USE-INDEX tdate
+                 NO-ERROR.
+            IF AVAILABLE fg-rcpth THEN
+            lv-last = STRING(fg-rcpth.trans-date,"99/99/99").
+/*            FOR EACH fg-rcpth                                    */
+/*                FIELDS(trans-date) NO-LOCK                       */
+/*                WHERE fg-rcpth.company EQ oe-ordl.company        */
+/*                AND fg-rcpth.job-no    EQ oe-ordl.job-no         */
+/*                AND fg-rcpth.job-no2   EQ oe-ordl.job-no2        */
+/*                AND fg-rcpth.i-no      EQ oe-ordl.i-no           */
+/*                AND fg-rcpth.rita-code EQ 'R'                    */
+/*                USE-INDEX job                                    */
+/*                BREAK BY fg-rcpth.trans-date DESCENDING:         */
+/*                                                                 */
+/*                lv-last = STRING(fg-rcpth.trans-date,"99/99/99").*/
+/*                LEAVE .                                          */
+/*            END.                                                 */
+        END. // if lookup
 
+
+        RUN fg/GetProductionQty.p (INPUT oe-ordl.company,
+            INPUT oe-ordl.job-no,
+            INPUT oe-ordl.job-no2,
+            INPUT oe-ordl.i-no,
+            INPUT NO,
+            OUTPUT lv-qty).
+
+        IF lv-qty LT oe-ordl.qty * (100 - oe-ordl.under-pct) / 100 THEN
+            lv-last = "Not Complete".
+
+        lv-status = IF lv-last EQ "Not Complete" THEN
+            IF TODAY GT oe-ordl.req-date THEN "Late" ELSE ""
+            ELSE
+            IF DATE(lv-last) LE oe-ordl.req-date THEN "On Time"
+            ELSE TRIM(STRING(DATE(lv-last) - oe-ordl.req-date),">,>>9").
+        
       FIND FIRST itemfg WHERE itemfg.company = oe-boll.company AND 
                               itemfg.i-no    = oe-boll.i-no NO-LOCK NO-ERROR.
       ASSIGN
-         v-sqft = IF AVAILABLE itemfg THEN itemfg.t-sqft ELSE 0.
-         v-msf = (oe-boll.qty * v-sqft )/ 1000. 
-
-
+         v-sqft      = IF AVAILABLE itemfg THEN itemfg.t-sqft ELSE 0.
+         cFGCategory = IF AVAILABLE itemfg THEN itemfg.procat ELSE "".
+         v-msf       = (oe-boll.qty * v-sqft )/ 1000
+         . 
+      
       IF FIRST-OF(oe-ord.cust-no) THEN DO:
         FIND FIRST cust
             WHERE cust.company EQ cocode
@@ -1668,6 +1732,15 @@ SESSION:SET-WAIT-STATE ("general").
                  IF oe-bolh.bol-date LE v-compare-dt THEN
                      ttgroup.ontime     =ttgroup.ontime + 1 .
       END.
+      
+      RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no,
+                        DECIMAL(oe-boll.qty),
+                        DECIMAL(oe-ordl.price),
+                        oe-ordl.pr-uom,
+                        DECIMAL(oe-ordl.disc),
+                        DECIMAL(oe-ordl.cas-cnt),    
+                        OUTPUT dShipmentValue).
 
 
 
@@ -1693,6 +1766,22 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "wt"  THEN cVarValue = STRING(oe-boll.weight,"->>>>>") .
                          WHEN "trail"  THEN cVarValue = STRING(oe-bolh.trailer,"x(20)") .
                          WHEN "cust-g"  THEN cVarValue = IF AVAILABLE cust THEN  STRING(cust.spare-char-2) ELSE "" .
+                         WHEN "cLastReceiptDate"  THEN cVarValue = STRING(lv-last).
+                         WHEN "iOrderQuantity"  THEN cVarValue = STRING(oe-ordl.qty,"->>>,>>>,>>9").
+                         WHEN "cCustomerName"  THEN cVarValue = STRING(v-name,"x(30)").
+                         WHEN "dItemUnitPrice"  THEN cVarValue = STRING(oe-ordl.price,"->>,>>>,>>9.99<<<<").
+                         WHEN "dItemPriceUOM"  THEN cVarValue = STRING(oe-ordl.pr-uom,"XXX").
+                         WHEN "iPalletCount"  THEN cVarValue = STRING(oe-ordl.cases-unit,">>>>").
+                         WHEN "dtManufactureDate"  THEN cVarValue = STRING(oe-ordl.prom-date,"99/99/9999").
+                         WHEN "dtCompletionDate"  THEN cVarValue = STRING(oe-ordl.req-date,"99/99/9999").
+                         WHEN "cFGCategory"  THEN cVarValue = STRING(cFGCategory,"x(5)").
+                         WHEN "iBOLNumber"  THEN cVarValue = STRING(oe-bolh.bol-no,">>>>>>>9").
+                         WHEN "cBOLCarrier"  THEN cVarValue = STRING(oe-bolh.carrier,"x(5)").
+                         WHEN "iBOLShippedQuantity" THEN cVarValue = STRING(oe-boll.qty,"->>,>>>,>>9").
+                         WHEN "dShipmentValue"      THEN cVarValue = STRING(dShipmentValue,"->>,>>>,>>9.99").
+                         WHEN "iReleaseQuantity"    THEN cVarValue = IF oe-ordl.t-rel-qty GT 0 THEN STRING(oe-ordl.t-rel-qty,">>,>>>,>>9") ELSE "0".
+                         WHEN "dtReleaseDueDate"    THEN cVarValue = STRING(ENTRY(1, oe-rel.spare-char-4)).
+                         WHEN "dtReleaseDate"       THEN cVarValue = STRING(oe-rel.rel-date,"99/99/9999").
 
                     END CASE.
 
@@ -1854,8 +1943,6 @@ SESSION:SET-WAIT-STATE ("general").
 
 IF rd-dest EQ 3 THEN DO:
   OUTPUT STREAM excel CLOSE.
-  IF tb_OpenCSV THEN
-    OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

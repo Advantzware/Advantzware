@@ -320,11 +320,13 @@ PROCEDURE autocalc:
     {sys/inc/roundup.i lv-layers}
   
     RUN cec/d-layers.w (NO, ROWID(xeb), xeb.tr-no, xeb.tr-dep, xeb.cas-cnt,
-                        v-op-numstacks, INPUT-OUTPUT lv-layers).
+                        v-op-numstacks, INPUT-OUTPUT lv-layers, INPUT-OUTPUT v-op-tr-cnt).
      
     ASSIGN
      v-op-cas-pal = v-op-numstacks * lv-layers
-     v-op-tr-cnt  = v-op-cas-pal * xeb.cas-cnt.
+     v-op-tr-cnt  = IF v-op-tr-cnt EQ 0 THEN (v-op-cas-pal * xeb.cas-cnt) ELSE v-op-tr-cnt
+     .
+     
      
   END.  
 

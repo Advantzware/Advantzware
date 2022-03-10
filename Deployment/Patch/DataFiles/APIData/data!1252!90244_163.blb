@@ -1,0 +1,19 @@
+         <Part Code="$Item$" Description="$FGItemName$" Quantity="$Quantity|>>>>>>9|INT|$" Action="$JobHeaderAction$">
+            <Attributes>
+                <Attribute Name="Form" Value="$Form$" />
+                <Attribute Name="Blank" Value="$Blank$" />
+                <Attribute Name="QuantityOrdered" Value="$QuantityOrdered$" />
+                <Attribute Name="CustomerCode" Value="$CustomerID$" /> 
+                <Attribute Name="CustomerName" Value="$CustomerName$" />  
+                <Attribute Name="ProductCode" Value="$ProductCode$" /> 
+                <Attribute Name="IsASet" Value="$IsASet$" />
+                <Attribute Name="ItemWidth" Value="$ItemWidth$" />
+                <Attribute Name="ItemLength" Value="$ItemLength$" />
+                <Attribute Name="ItemDepth" Value="$ItemDepth$" />  
+                <Attribute Name="Lock" Value="$IsJobHeaderLocked$" />  
+                <Attribute Name="QuantityReceived" Value="$QuantityReceived$" />  
+            </Attributes>
+            <Tasks>
+$JobMachine$
+            </Tasks>
+         </Part>

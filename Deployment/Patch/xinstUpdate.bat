@@ -76,6 +76,7 @@ CD ..
 MKDIR Backups > NUL
 CD Backups
 MKDIR PatchFiles
+MKDIR Databases
 CD ..
 CD Updates
 

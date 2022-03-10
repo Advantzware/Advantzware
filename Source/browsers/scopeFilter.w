@@ -371,6 +371,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiProgram
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiProgram s-object
+ON RETURN OF fiProgram IN FRAME F-Main /* Program */
+DO:
+    APPLY "CHOOSE" TO btSearch.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &Scoped-define SELF-NAME fiScopeField1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiScopeField1 s-object
 ON HELP OF fiScopeField1 IN FRAME F-Main
@@ -398,6 +410,16 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiScopeField1 s-object
+ON RETURN OF fiScopeField1 IN FRAME F-Main
+DO:
+    APPLY "CHOOSE" TO btSearch.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fiScopeField2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiScopeField2 s-object
 ON HELP OF fiScopeField2 IN FRAME F-Main
@@ -414,7 +436,7 @@ DO:
         WHEN "Vendor" THEN
             iSubjectID = 32.            
     END CASE.
-    
+    iSubjectID = DYNAMIC-FUNCTION("sfSubjectID",iSubjectID).
     RUN system/openlookup.p (
         cCompany,  /* company */ 
         "",  /* lookup field */
@@ -442,6 +464,16 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiScopeField2 s-object
+ON RETURN OF fiScopeField2 IN FRAME F-Main
+DO:
+    APPLY "CHOOSE" TO btSearch.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fiScopeField3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiScopeField3 s-object
 ON HELP OF fiScopeField3 IN FRAME F-Main
@@ -455,7 +487,7 @@ DO:
         WHEN "ShipTo" THEN
             iSubjectID = 122.
     END CASE.
-    
+    iSubjectID = DYNAMIC-FUNCTION("sfSubjectID",iSubjectID).
     RUN system/openlookup.p (
         cCompany,  /* company */ 
         "",  /* lookup field */
@@ -477,6 +509,38 @@ DO:
         END CASE.
     END.  
   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiScopeField3 s-object
+ON RETURN OF fiScopeField3 IN FRAME F-Main
+DO:
+    APPLY "CHOOSE" TO btSearch.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fisearch
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fisearch s-object
+ON RETURN OF fisearch IN FRAME F-Main /* Search */
+DO:
+    APPLY "CHOOSE" TO btSearch.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiUser
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiUser s-object
+ON RETURN OF fiUser IN FRAME F-Main /* User */
+DO:
+    APPLY "CHOOSE" TO btSearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */

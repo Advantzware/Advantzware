@@ -74,7 +74,7 @@ ASSIGN
                             "Shipping Carrier,Total Freight,Freight Payment,FOB," +
                             "Tax Code,Tax,Taxable,Payment Terms,Total Cost," +
                             "Job #,Item Type,Item #,Item Name,Width,Length," +
-                            "Sheet #,Blank #,Description 1,Description 2," +
+                            "Form #,Blank #,Description 1,Description 2," +
                             "Vendor Item #,Order Qty,Order UOM," +
                             "Qty Received,Rec. UOM,Item Cost,UOM,Buyer," +
                             "Status,Item Status,Printed,Opened,Type,Contact," +
@@ -83,7 +83,8 @@ ASSIGN
                             "Setup,Discount,GL Number,Overrun,Underrun," +
                             "Customer #,Order #,Customer # From Order,FG Item # From Job,Cust Part#,Adder," +
                             "RM Item Code,FG Item Code,Style from Job,Buyer ID,User ID,Po Line," +
-                            "ShipTo Customer,Drop Shipment Type,RM Category,RM Category description,FG Category,FG Category description,Required Date".
+                            "ShipTo Customer,Drop Shipment Type,RM Category,RM Category description,FG Category,FG Category description,Required Date," +
+                            "PoDate Change Notes,Required Date Change Notes,Last Ship Date Change Notes,Due Date Change Notes".
 cFieldListToSelect = "po-ordl.po-no,po-ord.vend-no,po-ordl.due-date,po-ord.ship-id,po-ord.ship-name," +
     "po-ord.ship-addr[1],po-ord.ship-addr[2],po-ord.ship-city,po-ord.ship-state,po-ord.ship-zip," +
     "po-ord.carrier,po-ord.t-freight,po-ord.frt-pay,po-ord.fob-code," +
@@ -98,7 +99,8 @@ cFieldListToSelect = "po-ordl.po-no,po-ord.vend-no,po-ordl.due-date,po-ord.ship-
     "po-ordl.setup,po-ordl.disc,po-ordl.actnum,po-ordl.over-pct,po-ordl.under-pct," +
     "po-ordl.cust-no,po-ordl.ord-no,po-ordl.dfuncCustfromOrder,po-ordl.dfuncFGFromJob,cust-part,adders," +
     "rm-item,fg-item,style-job,po-ord.buyer,po-ord.user-id,po-ordl.line," +
-    "shipto-cust,dropshipment,rm-cat,rm-cat-dscr,fg-cat,fg-cat-dscr,po-ord.due-date"  .
+    "shipto-cust,dropshipment,rm-cat,rm-cat-dscr,fg-cat,fg-cat-dscr,po-ord.due-date," +
+    "po-date-notes,required-date-note,lastShip-date-notes,due-date-notes".
 
 /*vend.name
        lv_vend-add1:SCREEN-VALUE  = vend.add1
@@ -114,7 +116,7 @@ ASSIGN
                             "Shipping Carrier,Total Freight,Freight Payment,FOB," +
                             "Tax Code,Tax,Taxable,Payment Terms,Total Cost," +
                             "Job #,Item Type,Item #,Item Name,Width,Length," +
-                            "Sheet #,Blank #,Description 1,Description 2," +
+                            "Form #,Blank #,Description 1,Description 2," +
                             "Vendor Item #,Order Qty,Order UOM," +
                             "Qty Received,Rec. UOM,Item Cost,UOM,Buyer," +
                             "Status,Item Status,Printed,Opened,Type,Contact," +
@@ -1385,7 +1387,8 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-excelheader        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE v-excel-detail-lines AS CHARACTER NO-UNDO.
     DEFINE VARIABLE v-adder              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFGItem              AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE cFGItem              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNotes               AS CHARACTER NO-UNDO.
     DEFINE BUFFER xjob-mat  FOR job-mat.
     DEFINE BUFFER xitem     FOR item.
 
@@ -1452,7 +1455,7 @@ PROCEDURE run-report :
     
         FOR EACH ttRptSelected:
 
-            IF LOOKUP(ttRptSelected.FieldList,"po-ordl.job-no,cust-part,adders,rm-item,fg-item,style-job,shipto-cust,dropshipment,rm-cat,rm-cat-dscr,fg-cat,fg-cat-dscr") EQ 0 THEN 
+            IF LOOKUP(ttRptSelected.FieldList,"po-ordl.job-no,cust-part,adders,rm-item,fg-item,style-job,shipto-cust,dropshipment,rm-cat,rm-cat-dscr,fg-cat,fg-cat-dscr,po-date-notes,required-date-note,lastShip-date-notes,due-date-notes") EQ 0 THEN 
             DO:
                 v-excel-detail-lines = v-excel-detail-lines + 
                     appendXLLine(getValue(BUFFER po-ordl,BUFFER po-ord,BUFFER vend,ttRptSelected.FieldList)).
@@ -1572,6 +1575,26 @@ PROCEDURE run-report :
                             ELSE v-excel-detail-lines = v-excel-detail-lines + "," .
 
                         END.
+                    WHEN "po-date-notes" THEN 
+                        DO:
+                            RUN pGetNotes(INPUT po-ord.rec_key, "P", OUTPUT cNotes).
+                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(cNotes)).  
+                        END.
+                    WHEN "required-date-note" THEN 
+                        DO:
+                            RUN pGetNotes(INPUT po-ord.rec_key, "R", OUTPUT cNotes).
+                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(cNotes)).  
+                        END. 
+                    WHEN "lastShip-date-notes" THEN 
+                        DO:
+                            RUN pGetNotes(INPUT po-ord.rec_key, "L", OUTPUT cNotes).
+                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(cNotes)).  
+                        END.  
+                    WHEN "due-date-notes" THEN 
+                        DO:
+                            RUN pGetNotes(INPUT po-ordl.rec_key, "D", OUTPUT cNotes).
+                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(cNotes)).  
+                        END.    
                     WHEN "adders" THEN 
                         DO:
 
@@ -1743,6 +1766,30 @@ PROCEDURE Set-Sort-Data :
             end_vend-i-no:SCREEN-VALUE   = assignParam(pcVendItemTo,YES).
     END.
     RETURN.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetNotes rd-poexp 
+PROCEDURE pGetNotes :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcPoOrdRecKey AS CHARACTER NO-UNDO.     
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-notes FOR notes. 
+    FOR EACH bf-notes NO-LOCK
+        WHERE bf-notes.rec_key EQ ipcPoOrdRecKey 
+        and bf-notes.note_type eq ipcType:
+                                 
+        opcNotes = bf-notes.note_title + " - " + bf-notes.note_text .  
+    END.                                                            
 
 END PROCEDURE.
 

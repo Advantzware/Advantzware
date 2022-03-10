@@ -26,31 +26,26 @@ PROCEDURE pGetTaskTimeLimit:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE gcTaskerNotRunning          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE gcTaskerNotRunningEmailID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE gcTaskerNotRunningTimeLimit AS CHARACTER NO-UNDO.
+    
+    RUN spGetSettingByName ("TaskerNotRunning", OUTPUT gcTaskerNotRunning).
+    RUN spGetSettingByName ("TaskerNotRunningEmailID", OUTPUT gcTaskerNotRunningEmailID).
+    RUN spGetSettingByName ("TaskerNotRunningTimeLimit", OUTPUT gcTaskerNotRunningTimeLimit).
+    
     FOR EACH company NO-LOCK:
-        RUN sys/ref/nk1look.p (
-            company.company,"TaskerNotRunning","L",NO,NO,"","",
-            OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
-            ).
-        IF lTaskerNotRunning AND cTaskerNotRunning EQ "YES" THEN DO:
-            RUN sys/ref/nk1look.p (
-                company.company,"TaskerNotRunning","I",NO,NO,"","",
-                OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
-                ).
-            iEmailConfigID = INTEGER(cTaskerNotRunning).
+        IF gcTaskerNotRunning EQ "YES" THEN DO:
+            iEmailConfigID = INTEGER(gcTaskerNotRunningEmailID).
             IF NOT CAN-FIND(FIRST emailConfig
                             WHERE emailConfig.configID EQ iEmailConfigID
                               AND emailConfig.isActive EQ YES) THEN
             NEXT.
-            RUN sys/ref/nk1look.p (
-                company.company,"TaskerNotRunning","D",NO,NO,"","",
-                OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
-                ).
-            dTaskTimeLimit = DECIMAL(cTaskerNotRunning).
+            dTaskTimeLimit = INTEGER(gcTaskerNotRunningTimeLimit).
             IF dTaskTimeLimit NE 0 THEN
             LEAVE.
         END. /* if true */
     END. /* each company */
-
 END PROCEDURE.
 
 PROCEDURE pHTMLFooter :
@@ -561,7 +556,8 @@ PROCEDURE pTasks :
             END. /* if ne ? */
         END.
         /* check if running is beyond task time limit */
-        IF Task.isRunning EQ YES AND
+        IF AVAILABLE Task        AND
+           Task.isRunning EQ YES AND
            Task.taskStart NE ?   AND
            Task.expired   EQ NO  AND
            DATETIME(DATE(Task.taskStart), MTIME(Task.taskStart) + INTEGER(dTaskTimeLimit) * 60000) LT NOW AND

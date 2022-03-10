@@ -462,7 +462,7 @@ DEFINE FRAME F-Main
           SIZE 10 BY .62 AT ROW 1.71 COL 66
      "Markup" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.71 COL 106.2
-     "S  /  B" VIEW-AS TEXT
+     "F  /  B" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 5
      "Special Materials" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 8.62 COL 3
@@ -1722,7 +1722,21 @@ PROCEDURE local-display-fields :
    fi_spec-qty-06 = lv-spec-qty[06]
    fi_spec-qty-07 = lv-spec-qty[07]
    fi_spec-qty-08 = lv-spec-qty[08].
-
+   
+  DO WITH FRAME {&FRAME-NAME}:
+    IF ef.mis-cost[1]:SCREEN-VALUE NE "" AND
+       ef.mis-bnum[1]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[1]:FORMAT = ">>9".    
+    IF ef.mis-cost[2]:SCREEN-VALUE NE "" AND
+       ef.mis-bnum[2]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[2]:FORMAT = ">>9".   
+    IF ef.mis-cost[3]:SCREEN-VALUE NE "" AND
+       ef.mis-bnum[3]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[3]:FORMAT = ">>9".   
+    IF ef.mis-cost[4]:SCREEN-VALUE NE "" AND
+       ef.mis-bnum[4]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[4]:FORMAT = ">>9".    
+    IF ef.mis-cost[5]:SCREEN-VALUE NE "" AND
+       ef.mis-bnum[5]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[5]:FORMAT = ">>9".     
+    IF ef.mis-cost[6]:SCREEN-VALUE NE "" AND
+       ef.mis-bnum[6]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[6]:FORMAT = ">>9".     
+  END.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
@@ -1897,20 +1911,7 @@ DEF INPUT PARAMETER v-int AS INT NO-UNDO .
         IF ef.mis-cost[5]:SCREEN-VALUE NE "" THEN STRING(ef.form-no) ELSE ""
      ef.mis-snum[6]:SCREEN-VALUE =
         IF ef.mis-cost[6]:SCREEN-VALUE NE "" THEN STRING(ef.form-no) ELSE "".
-
-    IF ef.mis-cost[1]:SCREEN-VALUE NE "" AND
-       ef.mis-bnum[1]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[1]:SCREEN-VALUE = "1".
-    IF ef.mis-cost[2]:SCREEN-VALUE NE "" AND
-       ef.mis-bnum[2]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[2]:SCREEN-VALUE = "1".
-    IF ef.mis-cost[3]:SCREEN-VALUE NE "" AND
-       ef.mis-bnum[3]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[3]:SCREEN-VALUE = "1".
-    IF ef.mis-cost[4]:SCREEN-VALUE NE "" AND
-       ef.mis-bnum[4]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[4]:SCREEN-VALUE = "1".
-    IF ef.mis-cost[5]:SCREEN-VALUE NE "" AND
-       ef.mis-bnum[5]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[5]:SCREEN-VALUE = "1".
-    IF ef.mis-cost[6]:SCREEN-VALUE NE "" AND
-       ef.mis-bnum[6]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[6]:SCREEN-VALUE = "1".
-
+    
     IF v-int = 1 THEN
     IF ef.mis-cost[1]:SCREEN-VALUE NE ""     AND
        DEC(ef.mis-mkup[1]:SCREEN-VALUE) EQ 0 THEN
@@ -1968,20 +1969,7 @@ PROCEDURE new-mis-upcost :
      ef.mis-snum[5]:SCREEN-VALUE =
         IF ef.mis-cost[5]:SCREEN-VALUE NE "" THEN STRING(ef.form-no) ELSE ""
      ef.mis-snum[6]:SCREEN-VALUE =
-        IF ef.mis-cost[6]:SCREEN-VALUE NE "" THEN STRING(ef.form-no) ELSE "".
-
-    IF ef.mis-cost[1]:SCREEN-VALUE NE "" AND
-       ef.mis-bnum[1]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[1]:SCREEN-VALUE = "1".
-    IF ef.mis-cost[2]:SCREEN-VALUE NE "" AND
-       ef.mis-bnum[2]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[2]:SCREEN-VALUE = "1".
-    IF ef.mis-cost[3]:SCREEN-VALUE NE "" AND
-       ef.mis-bnum[3]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[3]:SCREEN-VALUE = "1".
-    IF ef.mis-cost[4]:SCREEN-VALUE NE "" AND
-       ef.mis-bnum[4]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[4]:SCREEN-VALUE = "1".
-    IF ef.mis-cost[5]:SCREEN-VALUE NE "" AND
-       ef.mis-bnum[5]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[5]:SCREEN-VALUE = "1".
-    IF ef.mis-cost[6]:SCREEN-VALUE NE "" AND
-       ef.mis-bnum[6]:SCREEN-VALUE EQ "" THEN ef.mis-bnum[6]:SCREEN-VALUE = "1".
+        IF ef.mis-cost[6]:SCREEN-VALUE NE "" THEN STRING(ef.form-no) ELSE "".    
   END.
 
 END PROCEDURE.

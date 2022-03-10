@@ -65,9 +65,9 @@ DEFINE VARIABLE copyCompany AS CHARACTER NO-UNDO.
 DEFINE QUERY external_tables FOR company.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS company.fid company.cBgColor company.name ~
-company.sid company.addr[1] company.addr[2] company.city company.state ~
-company.zip company.subLedgerAP company.co-acc company.num-per ~
-company.subLedgerPO company.subLedgerOP company.acc-level ~
+company.sid company.addr[1] company.countryCode company.addr[2] ~
+company.city company.state company.zip company.subLedgerAP company.co-acc ~
+company.num-per company.subLedgerPO company.subLedgerOP company.acc-level ~
 company.acc-dig[1] company.acc-dig[2] company.acc-dig[3] company.acc-dig[4] ~
 company.acc-dig[5] company.subLedgerWIP company.yend-off ~
 company.spare-char-1 company.subLedgerRM company.subLedgerFG ~
@@ -76,9 +76,9 @@ company.subLedgerBR company.curr-code
 &Scoped-define FIRST-ENABLED-TABLE company
 &Scoped-Define ENABLED-OBJECTS RECT-1 COMBO-BOX_subLedgerAR 
 &Scoped-Define DISPLAYED-FIELDS company.company company.fid company.name ~
-company.sid company.addr[1] company.addr[2] company.city company.state ~
-company.zip company.subLedgerAP company.co-acc company.num-per ~
-company.subLedgerPO company.subLedgerOP company.acc-level ~
+company.sid company.addr[1] company.countryCode company.addr[2] ~
+company.city company.state company.zip company.subLedgerAP company.co-acc ~
+company.num-per company.subLedgerPO company.subLedgerOP company.acc-level ~
 company.acc-dig[1] company.acc-dig[2] company.acc-dig[3] company.acc-dig[4] ~
 company.acc-dig[5] company.subLedgerWIP company.yend-off ~
 company.spare-char-1 company.subLedgerRM company.subLedgerFG ~
@@ -209,6 +209,10 @@ DEFINE FRAME F-Main
           SIZE 38 BY 1
           BGCOLOR 15 FONT 4
      bResetColor AT ROW 3.62 COL 116
+     company.countryCode AT ROW 4 COL 83.2 COLON-ALIGNED WIDGET-ID 4
+          VIEW-AS FILL-IN 
+          SIZE 11 BY 1
+          BGCOLOR 15 FONT 4
      company.addr[2] AT ROW 4.81 COL 19 COLON-ALIGNED
           LABEL "Address"
           VIEW-AS FILL-IN 
@@ -273,10 +277,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 7 FGCOLOR 15 FONT 4
-     company.acc-dig[3] AT ROW 8.86 COL 60 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 3.2 BY 1
-          BGCOLOR 7 FGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -284,6 +284,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     company.acc-dig[3] AT ROW 8.86 COL 60 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 3.2 BY 1
+          BGCOLOR 7 FGCOLOR 15 FONT 4
      company.acc-dig[4] AT ROW 8.86 COL 64 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
@@ -935,15 +939,18 @@ PROCEDURE local-assign-record :
     END.
 
   END.
+  
+  IF adm-new-record AND NOT adm-adding-record THEN.
+  ELSE do:
+      FIND FIRST account WHERE account.company EQ company.company NO-LOCK NO-ERROR.
 
-  FIND FIRST account WHERE account.company EQ company.company NO-LOCK NO-ERROR.
-
-  IF NOT AVAIL account AND company.co-acc NE "" THEN
-  FOR EACH account WHERE account.company EQ company.co-acc NO-LOCK:
-    CREATE bf-account.
-    BUFFER-COPY account TO bf-account
-      ASSIGN
-       bf-account.company = company.company.
+      IF NOT AVAIL account AND company.co-acc NE "" THEN
+      FOR EACH account WHERE account.company EQ company.co-acc NO-LOCK:
+        CREATE bf-account.
+        BUFFER-COPY account TO bf-account
+          ASSIGN
+           bf-account.company = company.company.
+      END.
   END.
 
   SESSION:SET-WAIT-STATE ("").

@@ -310,35 +310,49 @@ END.
 ON CHOOSE OF bOk IN FRAME DEFAULT-FRAME /* Choose Vendor */
 DO:
     DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
+    DEFINE BUFFER bf-ef              FOR ef.
     
     DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE gcScopeRMOverride  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Override".
     DEFINE VARIABLE gcScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated".
+    DEFINE VARIABLE cAdderList         AS CHARACTER EXTENT 6 NO-UNDO.
+    DEFINE VARIABLE iCount             AS INTEGER   NO-UNDO.
      
      
     IF AVAILABLE estCostMaterial THEN
-    RUN system/vendorcostSelector.w(
-     INPUT  estCostMaterial.company, //ipcCompany ,
-     INPUT  estCostMaterial.itemID ,
-     INPUT  IF isPurchasedFG THEN "FG" ELSE "RM", //ipcItemType ,
-     INPUT  IF isPurchasedFG THEN gcScopeFGEstimated ELSE gcScopeRMOverride, //ipcScope ,
-     INPUT  "Yes", //iplIncludeBlankVendor ,
-     INPUT  estCostMaterial.estimateNo, //ipcEstimateNo,
-     INPUT  estCostMaterial.formNo, //ipiFormNo,
-     INPUT  estCostMaterial.blankNo, //ipiBlankNo,
-     INPUT  estCostMaterial.quantityRequiredTotal , //ipdQuantity ,
-     INPUT  estCostMaterial.quantityUOM, //ipcQuantityUOM ,
-     INPUT  estCostMaterial.dimLength, //ipdDimLength ,
-     INPUT  estCostMaterial.dimWidth, //ipdDimWidth ,
-     INPUT  estCostMaterial.dimDepth, //ipdDimDepth ,
-     INPUT  estCostMaterial.dimUOM, //ipcDimUOM ,
-     INPUT  estCostMaterial.basisWeight, //ipdBasisWeight ,
-     INPUT  estCostMaterial.basisWeightUOM, //ipcBasisWeightUOM ,
-     OUTPUT  TABLE ttVendItemCost,
-     OUTPUT  lError ,
-     OUTPUT  cMessage 
-    ).
+    DO:
+        FOR EACH bf-ef NO-LOCK
+            WHERE bf-ef.company EQ estCostMaterial.company
+            AND bf-ef.est-no  EQ estCostMaterial.estimateNo:
+            DO iCount = 1 TO 6:
+                IF bf-ef.adder[iCount] <> "" THEN 
+                    cAdderList[iCount] = bf-ef.adder[iCount].
+            END.
+        END.
+        RUN system/vendorcostSelector.w(
+         INPUT  estCostMaterial.company, //ipcCompany ,
+         INPUT  estCostMaterial.itemID ,
+         INPUT  IF isPurchasedFG THEN "FG" ELSE "RM", //ipcItemType ,
+         INPUT  IF isPurchasedFG THEN gcScopeFGEstimated ELSE gcScopeRMOverride, //ipcScope ,
+         INPUT  "Yes", //iplIncludeBlankVendor ,
+         INPUT  estCostMaterial.estimateNo, //ipcEstimateNo,
+         INPUT  estCostMaterial.formNo, //ipiFormNo,
+         INPUT  estCostMaterial.blankNo, //ipiBlankNo,
+         INPUT  estCostMaterial.quantityRequiredTotal , //ipdQuantity ,
+         INPUT  estCostMaterial.quantityUOM, //ipcQuantityUOM ,
+         INPUT  estCostMaterial.dimLength, //ipdDimLength ,
+         INPUT  estCostMaterial.dimWidth, //ipdDimWidth ,
+         INPUT  estCostMaterial.dimDepth, //ipdDimDepth ,
+         INPUT  estCostMaterial.dimUOM, //ipcDimUOM ,
+         INPUT  estCostMaterial.basisWeight, //ipdBasisWeight ,
+         INPUT  estCostMaterial.basisWeightUOM, //ipcBasisWeightUOM ,
+         INPUT  cAdderList,
+         OUTPUT  TABLE ttVendItemCost,
+         OUTPUT  lError ,
+         OUTPUT  cMessage 
+        ).
+    END.
     
     FOR FIRST ttVendItemCost WHERE ttVendItemCost.isSelected :
         FIND bf-estCostMaterial EXCLUSIVE-LOCK

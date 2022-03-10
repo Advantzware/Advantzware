@@ -23,9 +23,9 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE list-name    AS cha NO-UNDO.
-DEFINE VARIABLE init-dir     AS CHA NO-UNDO.
-DEFINE VARIABLE lv-comp-curr AS cha NO-UNDO.
+DEFINE VARIABLE list-name    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE init-dir     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-comp-curr AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -102,6 +102,7 @@ DEFINE VARIABLE cRecValue                 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound                 AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iAPCheckFile              AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lBankTransmittalLocation  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cFileName                 AS CHARACTER NO-UNDO.
 
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
@@ -182,7 +183,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "BankTransmittalLocation", "l" /* Logical *
     OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN
     lBankTransmittalLocation = LOGICAL(cNK1Value) NO-ERROR.
-    
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -200,12 +201,10 @@ IF lRecFound THEN
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date rd_sort tb_prt-acc ~
 tb_void rd_print-apfile tb_APcheckFile fi_CheckFile tbTransmitFile ~
-fiTransmitFile lv-ornt rd-dest lines-per-page lv-font-no td-show-parm ~
-tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+fiTransmitFile rd-dest fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tran-date tran-period lbl_sort rd_sort ~
 tb_prt-acc tb_void rd_print-apfile tb_APcheckFile fi_CheckFile ~
-tbTransmitFile lv-ornt rd-dest lines-per-page lv-font-no lv-font-name ~
-td-show-parm tb_excel tb_runExcel fi_file 
+tbTransmitFile rd-dest fi_file tb_OpenCSV tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -223,27 +222,24 @@ DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
     LABEL "&Cancel" 
-    SIZE 15 BY 1.14.
+    SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
     LABEL "&OK" 
-    SIZE 15 BY 1.14.
+    SIZE 16 BY 1.29.
 
 DEFINE VARIABLE fiTransmitFile  AS CHARACTER FORMAT "X(100)" 
-    VIEW-AS FILL-IN 
-    SIZE 54 BY .81
-    BGCOLOR 15 FGCOLOR 9 .
+    VIEW-AS FILL-IN NATIVE 
+    SIZE 55 BY .81.
 
 DEFINE VARIABLE fi_CheckFile    AS CHARACTER FORMAT "X(80)" 
-    VIEW-AS FILL-IN 
-    SIZE 55 BY .81
-    BGCOLOR 15 FGCOLOR 9 .
+    VIEW-AS FILL-IN NATIVE 
+    SIZE 55 BY .81.
 
-DEFINE VARIABLE fi_file         AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-chkreg.csv" 
-    LABEL "If Yes, File Name" 
-    VIEW-AS FILL-IN 
-    SIZE 43 BY 1
-    FGCOLOR 9 .
+DEFINE VARIABLE fi_file         AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\APChecksRegister.csv" 
+    LABEL "Name" 
+    VIEW-AS FILL-IN NATIVE 
+    SIZE 49 BY 1.
 
 DEFINE VARIABLE lbl_sort        AS CHARACTER FORMAT "X(256)":U INITIAL "Post Automatic or Manual Checks?" 
     VIEW-AS FILL-IN 
@@ -285,8 +281,8 @@ DEFINE VARIABLE rd-dest         AS INTEGER   INITIAL 2
     RADIO-BUTTONS 
     "To Printer", 1,
     "To Screen", 2,
-    "To File", 3
-    SIZE 20 BY 3.81 NO-UNDO.
+    "To CSV", 3
+    SIZE 15.2 BY 3.81 NO-UNDO.
 
 DEFINE VARIABLE rd_print-apfile AS CHARACTER INITIAL "Text" 
     VIEW-AS RADIO-SET HORIZONTAL
@@ -304,11 +300,16 @@ DEFINE VARIABLE rd_sort         AS CHARACTER INITIAL "Automatic"
 
 DEFINE RECTANGLE RECT-6
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 94 BY 7.
+    SIZE 92 BY 4.29.
 
 DEFINE RECTANGLE RECT-7
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 94 BY 10.71.
+    SIZE 92 BY 10.24.
+
+DEFINE VARIABLE tbAutoClose    AS LOGICAL INITIAL NO 
+    LABEL "Auto Close" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 16 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tbTransmitFile AS LOGICAL INITIAL NO 
     LABEL "Transmit File" 
@@ -323,19 +324,17 @@ DEFINE VARIABLE tb_APcheckFile AS LOGICAL INITIAL NO
 DEFINE VARIABLE tb_excel       AS LOGICAL INITIAL YES 
     LABEL "Export To Excel?" 
     VIEW-AS TOGGLE-BOX
-    SIZE 21 BY .81
-    BGCOLOR 3 NO-UNDO.
+    SIZE 21 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_prt-acc     AS LOGICAL INITIAL NO 
     LABEL "Print Invoice & GL Account Detail?" 
     VIEW-AS TOGGLE-BOX
     SIZE 37 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel    AS LOGICAL INITIAL NO 
-    LABEL "Auto Run Excel?" 
+DEFINE VARIABLE tb_OpenCSV     AS LOGICAL INITIAL NO 
+    LABEL "Open CSV?" 
     VIEW-AS TOGGLE-BOX
-    SIZE 21 BY .81
-    BGCOLOR 3 NO-UNDO.
+    SIZE 15.4 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_void        AS LOGICAL INITIAL NO 
     LABEL "Void Skipped Checks?" 
@@ -351,42 +350,43 @@ DEFINE VARIABLE td-show-parm   AS LOGICAL INITIAL NO
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    tran-date AT ROW 2.57 COL 41 COLON-ALIGNED
-    tran-period AT ROW 3.76 COL 41 COLON-ALIGNED
-    lbl_sort AT ROW 5.19 COL 13 COLON-ALIGNED NO-LABELS
-    rd_sort AT ROW 5.19 COL 51 NO-LABELS
-    tb_prt-acc AT ROW 6.48 COL 20
-    tb_void AT ROW 7.67 COL 20
-    rd_print-apfile AT ROW 8.86 COL 54 NO-LABELS WIDGET-ID 6
-    tb_APcheckFile AT ROW 8.95 COL 20.2 WIDGET-ID 4
-    fi_CheckFile AT ROW 9.71 COL 36 COLON-ALIGNED HELP
+    tran-date AT ROW 2.24 COL 41 COLON-ALIGNED
+    tran-period AT ROW 3.43 COL 41 COLON-ALIGNED
+    lbl_sort AT ROW 4.86 COL 13 COLON-ALIGNED NO-LABELS
+    rd_sort AT ROW 4.86 COL 51 NO-LABELS
+    tb_prt-acc AT ROW 6.1 COL 20.8
+    tb_void AT ROW 7.29 COL 20.8
+    rd_print-apfile AT ROW 8.48 COL 54.8 NO-LABELS WIDGET-ID 6
+    tb_APcheckFile AT ROW 8.57 COL 21 WIDGET-ID 4
+    fi_CheckFile AT ROW 9.62 COL 36.8 COLON-ALIGNED HELP
     "Enter File Name" NO-LABELS WIDGET-ID 2
-    tbTransmitFile AT ROW 10.48 COL 20.2 WIDGET-ID 12
-    fiTransmitFile AT ROW 10.67 COL 36 COLON-ALIGNED HELP
+    tbTransmitFile AT ROW 10.38 COL 21 WIDGET-ID 12
+    fiTransmitFile AT ROW 10.57 COL 36.8 COLON-ALIGNED HELP
     "Enter File Name" NO-LABELS WIDGET-ID 10
-    lv-ornt AT ROW 12.1 COL 29 NO-LABELS
-    rd-dest AT ROW 13 COL 8 NO-LABELS
-    lines-per-page AT ROW 13.24 COL 82 COLON-ALIGNED
-    lv-font-no AT ROW 13.52 COL 32 COLON-ALIGNED
-    lv-font-name AT ROW 14.48 COL 26 COLON-ALIGNED NO-LABELS
-    td-show-parm AT ROW 15.62 COL 28
-    tb_excel AT ROW 16.62 COL 48.2 RIGHT-ALIGNED
-    tb_runExcel AT ROW 16.62 COL 69.2 RIGHT-ALIGNED
-    fi_file AT ROW 17.43 COL 26 COLON-ALIGNED HELP
+    lv-font-no AT ROW 12.33 COL 32.8 COLON-ALIGNED
+    lv-ornt AT ROW 12.33 COL 43.4 NO-LABELS
+    lines-per-page AT ROW 12.33 COL 87.6 COLON-ALIGNED
+    rd-dest AT ROW 12.43 COL 4.8 NO-LABELS
+    lv-font-name AT ROW 13.29 COL 29.6 COLON-ALIGNED NO-LABELS
+    td-show-parm AT ROW 14.1 COL 27.8
+    tb_excel AT ROW 14.19 COL 92 RIGHT-ALIGNED
+    fi_file AT ROW 15.05 COL 25.8 COLON-ALIGNED HELP
     "Enter File Name"
-    btn-ok AT ROW 19.19 COL 24
-    btn-cancel AT ROW 19.43 COL 58
-    "Selection Parameters" VIEW-AS TEXT
-    SIZE 21 BY .71 AT ROW 1.24 COL 5
-    BGCOLOR 2 
-    "Output Destination" VIEW-AS TEXT
-    SIZE 18 BY .62 AT ROW 12.05 COL 3
-    RECT-6 AT ROW 11.95 COL 1
-    RECT-7 AT ROW 1 COL 1
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    tb_OpenCSV AT ROW 15.14 COL 92 RIGHT-ALIGNED
+    tbAutoClose AT ROW 16.71 COL 28 WIDGET-ID 64
+    btn-ok AT ROW 17.71 COL 27.8
+    btn-cancel AT ROW 17.71 COL 48.4
+    " Selection Parameters" VIEW-AS TEXT
+    SIZE 21 BY .71 AT ROW 1.05 COL 4
+    " Output Destination" VIEW-AS TEXT
+    SIZE 19 BY .62 AT ROW 11.76 COL 4
+    RECT-6 AT ROW 12.19 COL 3
+    RECT-7 AT ROW 1.52 COL 3
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
     SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1.6 ROW 1.24
-    SIZE 95.2 BY 20.24.
+    AT COL 1 ROW 1
+    SIZE 95.8 BY 20.48
+    BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -406,8 +406,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
     CREATE WINDOW C-Win ASSIGN
         HIDDEN             = YES
         TITLE              = "A/P Checks Register"
-        HEIGHT             = 20.71
-        WIDTH              = 95.4
+        HEIGHT             = 18.24
+        WIDTH              = 96
         MAX-HEIGHT         = 33.29
         MAX-WIDTH          = 204.8
         VIRTUAL-HEIGHT     = 33.29
@@ -463,8 +463,26 @@ ASSIGN
 ASSIGN 
     lbl_sort:PRIVATE-DATA IN FRAME FRAME-A = "rd_sort".
 
+/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    lines-per-page:HIDDEN IN FRAME FRAME-A = TRUE.
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    lv-font-name:HIDDEN IN FRAME FRAME-A = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    lv-font-no:HIDDEN IN FRAME FRAME-A = TRUE.
+
+/* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    lv-ornt:HIDDEN IN FRAME FRAME-A = TRUE.
+
 ASSIGN 
     rd_print-apfile:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
@@ -472,14 +490,20 @@ ASSIGN
     rd_sort:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
-   ALIGN-R                                                              */
+   NO-DISPLAY NO-ENABLE ALIGN-R                                         */
 ASSIGN 
+    tb_excel:HIDDEN IN FRAME FRAME-A       = TRUE
     tb_excel:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
-/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
+/* SETTINGS FOR TOGGLE-BOX tb_OpenCSV IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-    tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+    tb_OpenCSV:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+
+/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    td-show-parm:HIDDEN IN FRAME FRAME-A = TRUE.
 
 ASSIGN 
     tran-date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
@@ -555,19 +579,27 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
     DO:
-        DEFINE VARIABLE lv-post      AS LOG NO-UNDO.
-        DEFINE VARIABLE lv-bank-file AS cha NO-UNDO.
+        DEFINE VARIABLE lv-post      AS LOG       NO-UNDO.
+        DEFINE VARIABLE lv-bank-file AS CHARACTER NO-UNDO.
   
         IF rd_print-apfile:SCREEN-VALUE EQ "Text" THEN ASSIGN 
-            fi_CheckFile:SCREEN-VALUE = cApCheckTextFile.
+                fi_CheckFile:SCREEN-VALUE = cApCheckTextFile.
         ELSE ASSIGN 
-            fi_CheckFile:SCREEN-VALUE = cApCheckCsvFile.
+                fi_CheckFile:SCREEN-VALUE = cApCheckCsvFile.
 
         RUN check-date.
         IF v-invalid THEN RETURN NO-APPLY.
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
+        END.
+        
+        IF rd-dest = 3 THEN
+        DO:
+            ASSIGN 
+                fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
+            RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+            fi_file:SCREEN-VALUE =  cFileName.
         END.
 
         post-manual = rd_sort EQ "Manual".
@@ -624,7 +656,21 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         CASE rd-dest:
             WHEN 1 THEN RUN output-to-printer.
             WHEN 2 THEN RUN output-to-screen.
-            WHEN 3 THEN RUN output-to-file.
+            WHEN 3 THEN 
+                DO:
+                    IF NOT tb_OpenCSV THEN 
+                    DO:        
+                        MESSAGE "CSV file have been created." SKIP(1)
+                            "~"OK"~" to open CSV file?"
+                            VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
+                            TITLE "" UPDATE lChoice AS LOGICAL.
+                 
+                        IF lChoice THEN
+                        DO:
+                            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                        END.
+                    END.
+                END. /* WHEN 3 THEN DO: */
         END CASE.
 
         FIND FIRST ap-ctrl WHERE ap-ctrl.company EQ cocode NO-LOCK NO-ERROR.
@@ -664,6 +710,8 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             MESSAGE "No A/P Checks available for posting..." VIEW-AS ALERT-BOX ERROR.
             RUN undo-trnum.
         END.
+        IF tbAutoClose:CHECKED THEN 
+            APPLY 'CLOSE' TO THIS-PROCEDURE.  
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -691,10 +739,32 @@ ON LEAVE OF fi_CheckFile IN FRAME FRAME-A
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON HELP OF fi_file IN FRAME FRAME-A /* Name */
+    DO:
+        DEFINE VARIABLE ls-filename AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE ll-ok       AS LOG       NO-UNDO.
+
+        SYSTEM-DIALOG GET-FILE ls-filename 
+            TITLE "Select File to Save "
+            FILTERS "Excel Files    (*.csv)" "*.csv",
+            "All Files    (*.*) " "*.*"
+            INITIAL-DIR "c:\tmp"
+            MUST-EXIST
+            USE-FILENAME
+            UPDATE ll-ok.
+
+        IF ll-ok THEN SELF:SCREEN-VALUE = ls-filename.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
+ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
     DO:
         ASSIGN {&self-name}.
     END.
@@ -718,7 +788,7 @@ ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
     DO:
-        DEFINE VARIABLE char-val AS cha NO-UNDO.
+        DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
         RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
         IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE        = ENTRY(1,char-val)
@@ -754,7 +824,7 @@ ON LEAVE OF lv-ornt IN FRAME FRAME-A
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
     DO:
-    {custom/chgfont.i}
+        {custom/chgfont.i}
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -766,6 +836,7 @@ ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
     DO:
         ASSIGN {&self-name}.
+        RUN pChangeDest.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -816,12 +887,12 @@ ON VALUE-CHANGED OF tb_APcheckFile IN FRAME FRAME-A /* Create AP Check File? */
         ASSIGN {&self-name}.
 
         IF TRIM(v-fileFormat) NE "" 
-        AND {&self-name}:CHECKED THEN ASSIGN 
-            fi_CheckFile:HIDDEN    = NO
-            rd_print-apfile:HIDDEN = NO.
+            AND {&self-name}:CHECKED THEN ASSIGN 
+                fi_CheckFile:HIDDEN    = NO
+                rd_print-apfile:HIDDEN = NO.
         ELSE ASSIGN 
-            fi_CheckFile:HIDDEN    = YES
-            rd_print-apfile:HIDDEN = YES .
+                fi_CheckFile:HIDDEN    = YES
+                rd_print-apfile:HIDDEN = YES .
      
     END.
 
@@ -851,9 +922,9 @@ ON VALUE-CHANGED OF tb_prt-acc IN FRAME FRAME-A /* Print Invoice  GL Account Det
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_runExcel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+&Scoped-define SELF-NAME tb_OpenCSV
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV C-Win
+ON VALUE-CHANGED OF tb_OpenCSV IN FRAME FRAME-A /* Open CSV? */
     DO:
         ASSIGN {&self-name}.
     END.
@@ -946,156 +1017,147 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     tran-date = TODAY.
 
+    btn-ok:LOAD-IMAGE("Graphics/32x32/Ok.png").
+    btn-cancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
     RUN enable_UI.
-
+    {sys/inc/reportsConfigNK1.i "HR6" }
+    ASSIGN
+        td-show-parm:SENSITIVE = lShowParameters
+        td-show-parm:HIDDEN    = NOT lShowParameters
+        td-show-parm:VISIBLE   = lShowParameters
+        .
+    
     {methods/nowait.i}
 
     DO WITH FRAME {&FRAME-NAME}:
         {custom/usrprint.i}
 
-    IF postdate-log THEN 
-    DO:
-        tran-date:SCREEN-VALUE = STRING(TODAY).
-        RUN check-date.
-    END.
-    ELSE ASSIGN
-        tran-date:SCREEN-VALUE   = ""
-        tran-period:SCREEN-VALUE = "".
-    
-    ASSIGN 
-        tb_APcheckFile = IF tb_APcheckFile:SCREEN-VALUE EQ "YES" THEN YES ELSE NO.         
-    
-    APPLY "entry" TO tran-date.
-END.
-
-/* gdm - 05210901 */
-ASSIGN 
-    tb_APcheckFile:HIDDEN IN FRAME {&FRAME-NAME}  = YES
-    fi_CheckFile:HIDDEN IN FRAME {&FRAME-NAME}    = YES
-    fiTransmitFile:HIDDEN IN FRAME {&FRAME-NAME}  = YES
-    rd_print-apfile:HIDDEN IN FRAME {&FRAME-NAME} = YES .
-
-FIND FIRST sys-ctrl NO-LOCK 
-    WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.name    EQ "APCheckFile" NO-ERROR.
-IF NOT AVAILABLE sys-ctrl THEN 
-DO TRANSACTION:
-    CREATE sys-ctrl.
-    ASSIGN
-        sys-ctrl.company = cocode
-        sys-ctrl.name    = "APCheckFile"
-        sys-ctrl.descrip = "Download Text format when printing AP Checks?"
-        sys-ctrl.log-fld = YES.
-END.
-
-FIND FIRST sys-ctrl-shipto NO-LOCK
-    WHERE sys-ctrl-shipto.company      EQ cocode
-    AND sys-ctrl-shipto.NAME         EQ "APCheckFile"
-    AND sys-ctrl-shipto.cust-vend    EQ YES 
-    AND sys-ctrl-shipto.cust-vend-no EQ "" NO-ERROR.
-IF NOT AVAILABLE sys-ctrl-shipto THEN 
-DO TRANSACTION:
-    CREATE sys-ctrl-shipto.
-    ASSIGN
-        sys-ctrl-shipto.company      = cocode       
-        sys-ctrl-shipto.NAME         = "APCheckFile"
-        sys-ctrl-shipto.cust-vend    = YES          
-        sys-ctrl-shipto.cust-vend-no = "". 
-
-    MESSAGE 
-        "System control record not found. Update APCheckFile file path."
-        UPDATE sys-ctrl-shipto.char-fld FORMAT "x(50)".
-END.    
-
-ASSIGN 
-    v-fileFormat = sys-ctrl.char-fld.
-
-IF AVAILABLE sys-ctrl 
-AND sys-ctrl.log-fld  
-AND TRIM(v-fileFormat) NE "" THEN 
-DO:
-    IF sys-ctrl-shipto.char-fld NE "" THEN 
-    DO:
-        IF SUBSTR(TRIM(sys-ctrl-shipto.char-fld),LENGTH(sys-ctrl-shipto.char-fld) - 3 ,4) NE ".txt" THEN 
+        IF postdate-log THEN 
         DO:
-            IF v-fileFormat EQ "Positive Pay-Santander" THEN ASSIGN 
-                fi_CheckFile = "PositivePay_" + 
+            tran-date:SCREEN-VALUE = STRING(TODAY).
+            RUN check-date.
+        END.
+        ELSE ASSIGN
+                tran-date:SCREEN-VALUE   = ""
+                tran-period:SCREEN-VALUE = "".
+    
+        ASSIGN 
+            tb_APcheckFile = IF tb_APcheckFile:SCREEN-VALUE EQ "YES" THEN YES ELSE NO.         
+    
+        APPLY "entry" TO tran-date.
+    END.
+
+    /* gdm - 05210901 */
+    ASSIGN 
+        tb_APcheckFile:HIDDEN IN FRAME {&FRAME-NAME}  = YES
+        fi_CheckFile:HIDDEN IN FRAME {&FRAME-NAME}    = YES
+        fiTransmitFile:HIDDEN IN FRAME {&FRAME-NAME}  = YES
+        rd_print-apfile:HIDDEN IN FRAME {&FRAME-NAME} = YES .
+
+    FIND FIRST sys-ctrl NO-LOCK 
+        WHERE sys-ctrl.company EQ cocode
+        AND sys-ctrl.name    EQ "APCheckFile" NO-ERROR.
+    IF NOT AVAILABLE sys-ctrl THEN 
+    DO TRANSACTION:
+        CREATE sys-ctrl.
+        ASSIGN
+            sys-ctrl.company = cocode
+            sys-ctrl.name    = "APCheckFile"
+            sys-ctrl.descrip = "Download Text format when printing AP Checks?"
+            sys-ctrl.log-fld = YES.
+    END.
+
+    FIND FIRST sys-ctrl-shipto NO-LOCK
+        WHERE sys-ctrl-shipto.company      EQ cocode
+        AND sys-ctrl-shipto.NAME         EQ "APCheckFile"
+        AND sys-ctrl-shipto.cust-vend    EQ YES 
+        AND sys-ctrl-shipto.cust-vend-no EQ "" NO-ERROR.
+    IF NOT AVAILABLE sys-ctrl-shipto THEN 
+    DO TRANSACTION:
+        CREATE sys-ctrl-shipto.
+        ASSIGN
+            sys-ctrl-shipto.company      = cocode       
+            sys-ctrl-shipto.NAME         = "APCheckFile"
+            sys-ctrl-shipto.cust-vend    = YES          
+            sys-ctrl-shipto.cust-vend-no = "". 
+
+        MESSAGE 
+            "System control record not found. Update APCheckFile file path."
+            UPDATE sys-ctrl-shipto.char-fld FORMAT "x(50)".
+    END.    
+
+    ASSIGN 
+        v-fileFormat = sys-ctrl.char-fld.
+
+    IF AVAILABLE sys-ctrl 
+        AND sys-ctrl.log-fld  
+        AND TRIM(v-fileFormat) NE "" THEN 
+    DO:
+        IF sys-ctrl-shipto.char-fld NE "" THEN 
+        DO:
+            IF SUBSTR(TRIM(sys-ctrl-shipto.char-fld),LENGTH(sys-ctrl-shipto.char-fld) - 3 ,4) NE ".txt" THEN 
+            DO:
+                IF v-fileFormat EQ "Positive Pay-Santander" THEN ASSIGN 
+                        fi_CheckFile = "PositivePay_" + 
                                 STRING(YEAR(TODAY),"9999") + 
                                 STRING(MONTH(TODAY),"99") + 
                                 STRING(DAY(TODAY),"99") + 
                                 "_" + 
                                     STRING(TIME) + ".txt".
-            ELSE ASSIGN 
-                fi_CheckFile = STRING(TODAY,"99999999") + 
+                ELSE ASSIGN 
+                        fi_CheckFile = STRING(TODAY,"99999999") + 
                                 STRING(TIME) + ".txt".
 
-            IF SUBSTR(sys-ctrl-shipto.char-fld,LENGTH(sys-ctrl-shipto.char-fld),1) NE "/" 
-            AND SUBSTR(sys-ctrl-shipto.char-fld,LENGTH(sys-ctrl-shipto.char-fld),1) NE "\" THEN ASSIGN 
-                fi_CheckFile = TRIM(sys-ctrl-shipto.char-fld) + "\" + fi_CheckFile.
+                IF SUBSTR(sys-ctrl-shipto.char-fld,LENGTH(sys-ctrl-shipto.char-fld),1) NE "/" 
+                    AND SUBSTR(sys-ctrl-shipto.char-fld,LENGTH(sys-ctrl-shipto.char-fld),1) NE "\" THEN ASSIGN 
+                        fi_CheckFile = TRIM(sys-ctrl-shipto.char-fld) + "\" + fi_CheckFile.
+                ELSE ASSIGN 
+                        fi_CheckFile = TRIM(sys-ctrl-shipto.char-fld) + fi_CheckFile.
+            END.
             ELSE ASSIGN 
-                fi_CheckFile = TRIM(sys-ctrl-shipto.char-fld) + fi_CheckFile.
+                    fi_CheckFile = TRIM(sys-ctrl-shipto.char-fld).
         END.
         ELSE ASSIGN 
-            fi_CheckFile = TRIM(sys-ctrl-shipto.char-fld).
-    END.
-    ELSE ASSIGN 
-        fi_CheckFile = "C:\tmp\" +
+                fi_CheckFile = "C:\tmp\" +
                        STRING(TODAY,"99999999") + 
                        STRING(TIME) + ".txt".       
 
-    ASSIGN 
-        tb_APcheckFile:HIDDEN IN FRAME {&FRAME-NAME}    = NO
-        fi_CheckFile:HIDDEN   IN FRAME {&FRAME-NAME}    = NO
-        tb_APcheckFile:HIDDEN    IN FRAME {&FRAME-NAME} = NO 
-        tb_APcheckFile:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+        ASSIGN 
+            tb_APcheckFile:HIDDEN IN FRAME {&FRAME-NAME}    = NO
+            fi_CheckFile:HIDDEN   IN FRAME {&FRAME-NAME}    = NO
+            tb_APcheckFile:HIDDEN    IN FRAME {&FRAME-NAME} = NO 
+            tb_APcheckFile:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
 
-    IF fi_CheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN ASSIGN 
-            fi_CheckFile = "C:\tmp\" + STRING(TODAY,"99999999") + STRING(TIME) + ".txt"
-            fi_CheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = fi_CheckFile.
+        IF fi_CheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN ASSIGN 
+                fi_CheckFile                                     = "C:\tmp\" + STRING(TODAY,"99999999") + STRING(TIME) + ".txt"
+                fi_CheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = fi_CheckFile.
      
-    ASSIGN 
-        cApCheckTextFile = fi_CheckFile
-        cApCheckCsvFile  = SUBSTRING(fi_CheckFile,1,INDEX(fi_CheckFile,".") - 1) + ".csv" .
+        ASSIGN 
+            cApCheckTextFile = fi_CheckFile
+            cApCheckCsvFile  = SUBSTRING(fi_CheckFile,1,INDEX(fi_CheckFile,".") - 1) + ".csv" .
 
-    IF rd_print-apfile:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Text" THEN ASSIGN 
-        fi_CheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cApCheckTextFile.
-    ELSE ASSIGN 
-        fi_CheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cApCheckCsvFile.
+        IF rd_print-apfile:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Text" THEN ASSIGN 
+                fi_CheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cApCheckTextFile.
+        ELSE ASSIGN 
+                fi_CheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cApCheckCsvFile.
 
-    ASSIGN 
-        fi_CheckFile:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+        ASSIGN 
+            fi_CheckFile:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
     
-    IF tb_APcheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "YES" THEN ASSIGN 
-        fi_CheckFile:HIDDEN IN FRAME {&FRAME-NAME}    = NO
-        rd_print-apfile:HIDDEN IN FRAME {&FRAME-NAME} = NO .
+        IF tb_APcheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "YES" THEN ASSIGN 
+                fi_CheckFile:HIDDEN IN FRAME {&FRAME-NAME}    = NO
+                rd_print-apfile:HIDDEN IN FRAME {&FRAME-NAME} = NO .
+        ELSE ASSIGN 
+                fi_CheckFile:HIDDEN IN FRAME {&FRAME-NAME}    = YES
+                rd_print-apfile:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+    END.
     ELSE ASSIGN 
-        fi_CheckFile:HIDDEN IN FRAME {&FRAME-NAME}    = YES
-        rd_print-apfile:HIDDEN IN FRAME {&FRAME-NAME} = YES.
-END.
-ELSE ASSIGN 
-    tb_APcheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No" .
+            tb_APcheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No" .
     
-RUN sys/ref/nk1look.p (
-    INPUT  cocode,                   /* Company Code */
-    INPUT  cBankTransmitSysCtrlName, /* sys-ctrl name */
-    INPUT  "L",                      /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
-    INPUT  FALSE,                    /* Use ship-to */
-    INPUT  FALSE,                    /* ship-to vendor */
-    INPUT  "",                       /* ship-to vendor value */
-    INPUT  "",                       /* shi-id value */
-    OUTPUT cBankTransmitRecValue,
-    OUTPUT lBankTransmitRecFound
-    ).
-    
-fiTransmitFile:HIDDEN IN FRAME {&FRAME-NAME} = lBankTransmitRecFound.
-                          
-IF lBankTransmitRecFound 
-AND LOGICAL(cBankTransmitRecValue) THEN 
-DO:
     RUN sys/ref/nk1look.p (
         INPUT  cocode,                   /* Company Code */
         INPUT  cBankTransmitSysCtrlName, /* sys-ctrl name */
-        INPUT  "C",                      /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
+        INPUT  "L",                      /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
         INPUT  FALSE,                    /* Use ship-to */
         INPUT  FALSE,                    /* ship-to vendor */
         INPUT  "",                       /* ship-to vendor value */
@@ -1103,37 +1165,54 @@ DO:
         OUTPUT cBankTransmitRecValue,
         OUTPUT lBankTransmitRecFound
         ).
+    
+    fiTransmitFile:HIDDEN IN FRAME {&FRAME-NAME} = lBankTransmitRecFound.
+                          
+    IF lBankTransmitRecFound 
+        AND LOGICAL(cBankTransmitRecValue) THEN 
+    DO:
+        RUN sys/ref/nk1look.p (
+            INPUT  cocode,                   /* Company Code */
+            INPUT  cBankTransmitSysCtrlName, /* sys-ctrl name */
+            INPUT  "C",                      /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
+            INPUT  FALSE,                    /* Use ship-to */
+            INPUT  FALSE,                    /* ship-to vendor */
+            INPUT  "",                       /* ship-to vendor value */
+            INPUT  "",                       /* shi-id value */
+            OUTPUT cBankTransmitRecValue,
+            OUTPUT lBankTransmitRecFound
+            ).
         
-    ASSIGN
-        tbTransmitFile:CHECKED IN FRAME {&FRAME-NAME} = TRUE
-        fiTransmitFile:HIDDEN IN FRAME {&FRAME-NAME}  = FALSE
-        cBankTransmitFullFilePath                     = (IF cBankTransmitRecValue NE "" THEN
+        ASSIGN
+            tbTransmitFile:CHECKED IN FRAME {&FRAME-NAME} = TRUE
+            fiTransmitFile:HIDDEN IN FRAME {&FRAME-NAME}  = FALSE
+            cBankTransmitFullFilePath                     = (IF cBankTransmitRecValue NE "" THEN
                                                          cBankTransmitRecValue + "/"
                                                          ELSE
                                                          "C:/Tmp/") 
-        .
-END.
+            .
+    END.
 
-ASSIGN
-    cBankTransmitFullFilePath = (IF cBankTransmitFullFilePath NE "" THEN
+    ASSIGN
+        cBankTransmitFullFilePath                          = (IF cBankTransmitFullFilePath NE "" THEN
                                  cBankTransmitFullFilePath
                                  ELSE
                                  "C:/Tmp/")
-    cBankTransmitFileName =     "PayablesAdvantage_" 
+        cBankTransmitFileName                              = "PayablesAdvantage_" 
                                 + STRING(YEAR(TODAY),"9999")
                                 + STRING(MONTH(TODAY),"99")
                                 + STRING(DAY(TODAY),"99")
                                 + REPLACE(STRING(TIME,"hh:mm:ss"), ":", "")
                                 + ".txt"
-    fiTransmitFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cBankTransmitFullFilePath 
+        fiTransmitFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cBankTransmitFullFilePath 
                                                          + cBankTransmitFileName
-    .
-IF NOT lBankTransmittalLocation THEN ASSIGN
-    tbTransmitFile:HIDDEN IN FRAME {&FRAME-NAME} = YES
-    fiTransmitFile:HIDDEN IN FRAME {&FRAME-NAME} = YES .
-        
-IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+        .
+    IF NOT lBankTransmittalLocation THEN ASSIGN
+            tbTransmitFile:HIDDEN IN FRAME {&FRAME-NAME} = YES
+            fiTransmitFile:HIDDEN IN FRAME {&FRAME-NAME} = YES .
+    RUN pChangeDest.        
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1145,10 +1224,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-date C-Win 
 PROCEDURE check-date :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
 
     DO WITH FRAME {&FRAME-NAME}:
         v-invalid = NO.
@@ -1189,10 +1268,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE checkLock C-Win 
 PROCEDURE checkLock :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       Check for a locked record and return locking user
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       Check for a locked record and return locking user
+        ------------------------------------------------------------------------------*/
 
     DEFINE INPUT PARAMETER ipcTable AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iprRow   AS ROWID NO-UNDO.
@@ -1270,10 +1349,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE copy-report-to-audit-dir C-Win 
 PROCEDURE copy-report-to-audit-dir :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
     DEFINE VARIABLE targetfile AS CHARACTER FORMAT "X(50)" NO-UNDO.
     DEFINE VARIABLE dirname1   AS CHARACTER FORMAT "X(20)" NO-UNDO.
     DEFINE VARIABLE dirname2   AS CHARACTER FORMAT "X(20)" NO-UNDO.
@@ -1302,11 +1381,11 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-bank-file C-Win 
 PROCEDURE create-bank-file :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER op-data-file AS cha NO-UNDO.
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER op-data-file AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE targetfile          AS CHARACTER FORMAT "X(50)" NO-UNDO.
     DEFINE VARIABLE dirname1            AS CHARACTER FORMAT "X(20)" NO-UNDO.
@@ -1416,14 +1495,12 @@ PROCEDURE enable_UI :
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
     DISPLAY tran-date tran-period lbl_sort rd_sort tb_prt-acc tb_void 
-        rd_print-apfile tb_APcheckFile fi_CheckFile tbTransmitFile lv-ornt 
-        rd-dest lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
-        tb_runExcel fi_file 
+        rd_print-apfile tb_APcheckFile fi_CheckFile tbTransmitFile rd-dest 
+        fi_file tb_OpenCSV tbAutoClose 
         WITH FRAME FRAME-A IN WINDOW C-Win.
     ENABLE RECT-6 RECT-7 tran-date rd_sort tb_prt-acc tb_void rd_print-apfile 
-        tb_APcheckFile fi_CheckFile tbTransmitFile fiTransmitFile lv-ornt 
-        rd-dest lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel 
-        fi_file btn-ok btn-cancel 
+        tb_APcheckFile fi_CheckFile tbTransmitFile fiTransmitFile rd-dest 
+        fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
         WITH FRAME FRAME-A IN WINDOW C-Win.
     {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
     VIEW C-Win.
@@ -1435,10 +1512,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-file C-Win 
 PROCEDURE output-to-file :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
 
     IF init-dir = "" THEN init-dir = "c:\temp" .
@@ -1465,10 +1542,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
     DEFINE VARIABLE printok   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
     DEFINE VARIABLE result    AS LOGICAL   NO-UNDO.
@@ -1483,10 +1560,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
 PROCEDURE output-to-screen :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
 
     RUN scr-rpt-d.w (list-name,c-win:TITLE,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
 
@@ -1498,10 +1575,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PositivePay C-Win 
 PROCEDURE PositivePay :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes: gdm - 05210901
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes: gdm - 05210901
+        ------------------------------------------------------------------------------*/
     DEFINE VARIABLE dtCheckDate AS DATE NO-UNDO.
     ASSIGN 
         dtCheckDate = ap-sel.check-date + iAPCheckFile.   
@@ -1522,17 +1599,17 @@ PROCEDURE PositivePay :
                 STRING(INT(ap-sel.check-no),"9999999999")                   /* Check Number   */ 
                 STRING(INT(REPLACE(STRING(v-amt-paid,"->>,>>>,>>9.99"),".","")), "9999999999999")  /* Amount         */ 
                 IF dtCheckDate NE ? 
-                    THEN STRING(YEAR(dtCheckDate),"9999") +  
-                    STRING(MONTH(dtCheckDate),"99")  +     
-                    STRING(DAY(dtCheckDate),"99")   
+                THEN STRING(YEAR(dtCheckDate),"9999") +  
+                STRING(MONTH(dtCheckDate),"99")  +     
+                STRING(DAY(dtCheckDate),"99")   
                 ELSE "00000000"                                          /* Issue Date     */
                 FILL(" ",30)                                                /* Additinal data */ 
-            IF TRIM(vend.name) NE ""
+                IF TRIM(vend.name) NE ""
                 THEN TRIM(vend.name) + FILL(" ",(80 - LENGTH(TRIM(vend.name))))
                 ELSE FILL(" ",80)                                         /* Payee NAME     */
-            IF ap-sel.vend-no EQ "VOID"
+                IF ap-sel.vend-no EQ "VOID"
                 THEN "V" ELSE FILL(" ",1)                                       /* Void Indicator */
-            SKIP.
+                SKIP.
         END.
         ELSE 
         DO: /* excel output */
@@ -1561,10 +1638,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PositivePay-knight C-Win 
 PROCEDURE PositivePay-knight :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes: gdm - 05210901
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes: gdm - 05210901
+        ------------------------------------------------------------------------------*/
     DEFINE VARIABLE v-check-date AS DATE NO-UNDO .
     IF tb_APcheckFile THEN 
     DO:
@@ -1580,19 +1657,19 @@ PROCEDURE PositivePay-knight :
         DO:
             /* Output to .txt file */
             PUT STREAM checkFile UNFORMATTED
-            IF ap-sel.vend-no EQ "VOID"
+                IF ap-sel.vend-no EQ "VOID"
                 THEN "V" ELSE "I"      ","                            /* Void Indicator */
-            STRING(INT(REPLACE(bank.bk-act,"-","")), "9999999999") ","    /* Account Number */
-            STRING(INT(ap-sel.check-no))               ","            /* Check Number   */
-            IF TRIM(vend.name) NE ""                                  /* Payee NAME     */
+                STRING(INT(REPLACE(bank.bk-act,"-","")), "9999999999") ","    /* Account Number */
+                STRING(INT(ap-sel.check-no))               ","            /* Check Number   */
+                IF TRIM(vend.name) NE ""                                  /* Payee NAME     */
                 THEN TRIM(vend.name) 
                 ELSE FILL(" ",10)                        ","            
-             TRIM(STRING(v-amt-paid,"->>>>>>>9.99"))         ","      /* Amount         */  
-            IF v-check-date NE ?                                      /* Issue Date     */
+                TRIM(STRING(v-amt-paid,"->>>>>>>9.99"))         ","      /* Amount         */  
+                IF v-check-date NE ?                                      /* Issue Date     */
                 THEN STRING(v-check-date,"99/99/9999")   
                 ELSE "00000000"                                        
-            FILL(" ",30)                                              /* Additinal data */ 
-            SKIP.
+                FILL(" ",30)                                              /* Additinal data */ 
+                SKIP.
         END.
         ELSE 
         DO: /* ap excel output */
@@ -1618,10 +1695,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PositivePay-Santander C-Win 
 PROCEDURE PositivePay-Santander :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes: 
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes: 
+        ------------------------------------------------------------------------------*/
     DEFINE VARIABLE dtCheckDate AS DATE NO-UNDO.
     dtCheckDate = ap-sel.check-date + iAPCheckFile.
     IF tb_APcheckFile THEN 
@@ -1634,23 +1711,23 @@ PROCEDURE PositivePay-Santander :
         DO:
             /* Output to .txt file */
             PUT STREAM checkFile UNFORMATTED
-            "6217    6017          "
-            STRING(DECIMAL(REPLACE(bank.bk-act,"-","")), "99999999999999999")   /* Account Number */
-            STRING(INT(ap-sel.check-no),"9999999999")                   /* Check Number   */ 
-            STRING(INT(REPLACE(STRING(v-amt-paid,"->>,>>>,>>9.99"),".","")), "9999999999") /* Amount         */ 
-            IF dtCheckDate NE ? 
+                "6217    6017          "
+                STRING(DECIMAL(REPLACE(bank.bk-act,"-","")), "99999999999999999")   /* Account Number */
+                STRING(INT(ap-sel.check-no),"9999999999")                   /* Check Number   */ 
+                STRING(INT(REPLACE(STRING(v-amt-paid,"->>,>>>,>>9.99"),".","")), "9999999999") /* Amount         */ 
+                IF dtCheckDate NE ? 
                 THEN SUBSTRING(STRING(YEAR(dtCheckDate),"9999"),3,2) +  
-                    STRING(MONTH(dtCheckDate),"99")  +     
-                    STRING(DAY(dtCheckDate),"99")   
+                STRING(MONTH(dtCheckDate),"99")  +     
+                STRING(DAY(dtCheckDate),"99")   
                 ELSE "000000"                                          /* Issue Date     */
-            IF TRIM(vend.vend-no) NE ""
+                IF TRIM(vend.vend-no) NE ""
                 THEN TRIM(vend.vend-no) + FILL(" ",(15 - LENGTH(TRIM(vend.vend-no))))
                 ELSE FILL(" ",15)                                         /* Payee NAME     */
-            FILL(" ",40)                                                /* Region/Dept Name */ 
-            IF TRIM(vend.name) NE ""
+                FILL(" ",40)                                                /* Region/Dept Name */ 
+                IF TRIM(vend.name) NE ""
                 THEN TRIM(vend.name) + FILL(" ",(80 - LENGTH(TRIM(vend.name))))
                 ELSE FILL(" ",80)                                         /* Payee NAME     */
-            SKIP.
+                SKIP.
         END.
         ELSE 
         DO: /* excel output */
@@ -1674,50 +1751,13 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE StandardCSV C-Win 
-PROCEDURE StandardCSV :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes: gdm - 05210901
-    ------------------------------------------------------------------------------*/   
-    DEFINE VARIABLE dtCheckDate AS DATE NO-UNDO.
-    
-    IF tb_APcheckFile THEN DO:
-        FIND FIRST ap-chk WHERE
-            ap-chk.company  EQ ap-sel.company AND
-            ap-chk.check-no EQ ap-sel.check-no
-            NO-LOCK NO-ERROR.
-        IF ap-chk.check-date NE ? THEN ASSIGN 
-            dtCheckDate = ap-chk.check-date .
-
-        IF rd_print-apfile:SCREEN-VALUE IN FRAME {&frame-name} EQ "Text" THEN 
-            PUT STREAM checkFile UNFORMATTED
-                STRING(INT(ap-sel.check-no),"9999999999") + "," +       /* Check Number     */
-                STRING(vend.NAME) + "," +                               /* Vendor Name    */
-                STRING(dtCheckDate,"99/99/9999") + "," +                /* Check Date     */
-                STRING(ap-sel.amt-paid,"->>>>>>>>9.99")                 /* Check amount paid */
-                SKIP .
-        ELSE PUT STREAM ap-excel UNFORMATTED
-                STRING(INT(ap-sel.check-no),"9999999999") + "," +       /* Check Number     */
-                STRING(vend.NAME) + "," +                               /* Vendor Name    */
-                STRING(dtCheckDate,"99/99/9999") + "," +                /* Check Date     */
-                STRING(ap-sel.amt-paid,"->>>>>>>>9.99")                 /* Check amount paid */
-                SKIP .
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-gl C-Win 
 PROCEDURE post-gl :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
     DEFINE BUFFER b-ap-pay FOR ap-pay.  
 
     DEFINE VARIABLE lv-check-no LIKE ap-chk.check-no NO-UNDO.
@@ -1742,7 +1782,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                STRING(ap-sel.inv-no),
+                "Vendor:" + string(ap-sel.vend-no,"x(8)") + " Inv:" + STRING(ap-sel.inv-no,"99999999"),
                 "AP").
 
             RUN GL_SpCreateGLHist(cocode,
@@ -1755,7 +1795,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                STRING(ap-sel.inv-no),
+                "Vendor:" + string(ap-sel.vend-no,"x(8)") + " Inv:" + STRING(ap-sel.inv-no,"99999999"),
                 "AP").
         END.
     END.
@@ -1778,7 +1818,7 @@ PROCEDURE post-gl :
         BY ap-sel.check-no:
 
         IF ap-sel.man-check AND ap-sel.check-date EQ ? THEN ASSIGN 
-            ap-sel.check-date = ap-sel.pre-date.
+                ap-sel.check-date = ap-sel.pre-date.
 
         ACCUM ap-sel.amt-paid (TOTAL BY ap-sel.check-no).
         ACCUM ap-sel.amt-paid (TOTAL BY ap-sel.bank-code).
@@ -1815,13 +1855,15 @@ PROCEDURE post-gl :
 
                 CREATE ap-pay.
                 ASSIGN
-                    ap-pay.company   = cocode
-                    ap-pay.check-act = ap-sel.actnum
-                    ap-pay.check-no  = lv-check-no
-                    ap-pay.period    = tran-period
-                    ap-pay.c-no      = x + 1
-                    ap-pay.vend-no   = ap-sel.vend-no
-                    ap-pay.bank-code = ap-sel.bank-code.
+                    ap-pay.company          = cocode
+                    ap-pay.check-act        = ap-sel.actnum
+                    ap-pay.check-no         = lv-check-no
+                    ap-pay.period           = tran-period
+                    ap-pay.c-no             = x + 1
+                    ap-pay.vend-no          = ap-sel.vend-no
+                    ap-pay.bank-code        = ap-sel.bank-code
+                    ap-pay.transactionDate  = tran-date
+                    .
 
                 IF ap-pay.check-no NE ap-sel.check-no THEN
                     ASSIGN
@@ -1832,16 +1874,16 @@ PROCEDURE post-gl :
         END.
 
         IF ap-sel.man-check THEN ASSIGN
-            ap-pay.check-date = ap-sel.pre-date
-            ap-pay.man-check  = YES.
+                ap-pay.check-date = ap-sel.pre-date
+                ap-pay.man-check  = YES.
         ELSE ASSIGN 
-            ap-pay.check-date = ap-sel.check-date.
+                ap-pay.check-date = ap-sel.check-date.
 
         ASSIGN 
             ap-pay.posted = YES.
         
         IF ap-pay.check-date EQ ? THEN ASSIGN 
-            ap-pay.check-date = TODAY.
+                ap-pay.check-date = TODAY.
 
         FOR EACH b-ap-pay EXCLUSIVE WHERE 
             b-ap-pay.company EQ ap-pay.company AND 
@@ -1885,12 +1927,12 @@ PROCEDURE post-gl :
             vend.acc-bal = vend.acc-bal - ap-sel.disc-amt - ap-sel.amt-paid.
 
         IF ap-inv.due LE 0 
-        AND ap-inv.pay-date NE ? 
-        AND ap-inv.inv-date NE ? THEN ASSIGN
-            vend.avg-pay = ((vend.avg-pay * vend.num-inv) +
+            AND ap-inv.pay-date NE ? 
+            AND ap-inv.inv-date NE ? THEN ASSIGN
+                vend.avg-pay = ((vend.avg-pay * vend.num-inv) +
                             (ap-inv.pay-date - ap-inv.inv-date)) /
                             (vend.num-inv + 1)
-            vend.num-inv = vend.num-inv + 1. /* number of invoices paid */
+                vend.num-inv = vend.num-inv + 1. /* number of invoices paid */
 
         FIND FIRST bank EXCLUSIVE WHERE
             bank.company   = cocode AND
@@ -1898,7 +1940,7 @@ PROCEDURE post-gl :
             NO-ERROR.
 
         IF AVAILABLE bank THEN ASSIGN 
-            bank.bal = bank.bal - ap-sel.amt-paid.
+                bank.bal = bank.bal - ap-sel.amt-paid.
 
         IF LAST-OF(ap-sel.check-no) THEN 
         DO:
@@ -1935,16 +1977,16 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                STRING(ap-inv.inv-no),
+                "Vendor:" + string(ap-inv.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"99999999"),
                 "AP").
         END.
 
         DELETE ap-sel.
 
         IF NOT CAN-FIND(FIRST ap-sel WHERE 
-                        ap-sel.company   EQ ap-chk.company AND 
-                        ap-sel.check-no  EQ ap-chk.check-no AND 
-                        ap-sel.man-check EQ ap-chk.man-check) THEN 
+            ap-sel.company   EQ ap-chk.company AND 
+            ap-sel.check-no  EQ ap-chk.check-no AND 
+            ap-sel.man-check EQ ap-chk.man-check) THEN 
             DELETE ap-chk.
     END. /* for each tt-post */
 
@@ -2030,9 +2072,8 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-line-amt     LIKE ap-invl.amt NO-UNDO.
     DEFINE VARIABLE v-frgt-amt     LIKE ap-inv.freight NO-UNDO.
     DEFINE VARIABLE excelheader    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFileName      LIKE fi_file NO-UNDO.
     DEFINE VARIABLE cAPFileName    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPosPayProc    AS CHAR NO-UNDO.
+    DEFINE VARIABLE cPosPayProc    AS CHARACTER NO-UNDO.
     
     RUN system/ftpProcs.p PERSISTENT SET hdFTPProcs.
     
@@ -2051,7 +2092,7 @@ PROCEDURE run-report :
 
         /* Call outbound API "CheckTransfer" to FTP the file */
         IF NOT ERROR-STATUS:ERROR AND lSuccess 
-        AND cBankCode NE "" THEN 
+            AND cBankCode NE "" THEN 
         DO:
             ASSIGN 
                 cFTPPartner = cBankCode.
@@ -2136,22 +2177,22 @@ PROCEDURE run-report :
     FORMAT HEADER
         "Check    Vendor"
         "Invoice                                 Discount" AT 55
-        "   Check   Pre-Issued" AT 110 SKIP
+        "   Check   Pre-Issued  Delivery  " AT 110 SKIP
         "Number   Number   Name       Check Date"
         "Date      Number                  Due      Taken" AT 55
-        "Amt Paid   Date"       AT 110 SKIP
-        FILL("_",132) FORMAT "x(140)"      SKIP
-        WITH FRAME f-top WIDTH 142 NO-BOX NO-LABELS NO-UNDERLINE STREAM-IO.
+        "Amt Paid   Date        Method"       AT 110 SKIP
+        FILL("_",140) FORMAT "x(140)"      SKIP
+        WITH FRAME f-top WIDTH 152 NO-BOX NO-LABELS NO-UNDERLINE STREAM-IO.
     
     FORMAT HEADER
         "Check    Vendor"
         "Invoice                                           Discount" AT 55
-        "   Check   Pre-Issued" AT 120 SKIP
+        "   Check   Pre-Issued Delivery " AT 120 SKIP
         "Number   Number   Name       Check Date"
         "Date      Number                            Due      Taken" AT 55
-        "Amt Paid   Date"       AT 120 SKIP
-        FILL("_",142) FORMAT "x(140)"      SKIP
-        WITH FRAME f-top3 WIDTH 142 NO-BOX NO-LABELS NO-UNDERLINE STREAM-IO.
+        "Amt Paid   Date       Method"       AT 120 SKIP
+        FILL("_",150) FORMAT "x(150)"      SKIP
+        WITH FRAME f-top3 WIDTH 162 NO-BOX NO-LABELS NO-UNDERLINE STREAM-IO.
 
 
     SESSION:SET-WAIT-STATE("general").
@@ -2177,13 +2218,12 @@ PROCEDURE run-report :
 
     {sys/inc/outprint.i VALUE(lines-per-page)}
 
-    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
-
+    
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel TO VALUE(cFileName).
         excelheader = "Check Number,Vendor Number,Name,Check Date,Invoice Date,"
-            + "Number,Due,Discount Taken,Check Amt Paid,Pre-Issued Date".
+            + "Number,Due,Discount Taken,Check Amt Paid,Pre-Issued Date,Delivery Method".
         PUT STREAM excel UNFORMATTED 
             excelheader SKIP.
     END.
@@ -2196,9 +2236,9 @@ PROCEDURE run-report :
         IF v-fileFormat EQ "Positive Pay-Santander" THEN
             excelheader = "Fixed Code,Account Number,Check Number,Amount,Issue Date,VendorID,Filler,Payee Name" .
         ELSE IF v-fileFormat EQ "StandardCSV" THEN
-            excelheader = "Check Number,Vendor Name,Check Date,Check Amount Paid" .
-        ELSE
-            excelheader = "Void Indicator,Account Number,Check Number,Payee Name,Amount,Issue Date" .
+                excelheader = "Check Number,Vendor Name,Check Date,Check Amount Paid" .
+            ELSE
+                excelheader = "Void Indicator,Account Number,Check Number,Payee Name,Amount,Issue Date" .
 
         IF rd_print-apfile EQ "Text" THEN   /* One of three positive pay text formats */
         DO:
@@ -2231,9 +2271,9 @@ PROCEDURE run-report :
         AND ap-sel.man-check    EQ post-manual
         AND TRIM(ap-sel.inv-no) GT ""
         AND CAN-FIND(FIRST ap-chk
-            WHERE ap-chk.company   EQ ap-sel.company
-            AND ap-chk.check-no  EQ ap-sel.check-no
-            AND ap-chk.man-check EQ ap-sel.man-check),
+        WHERE ap-chk.company   EQ ap-sel.company
+        AND ap-chk.check-no  EQ ap-sel.check-no
+        AND ap-chk.man-check EQ ap-sel.man-check),
 
         FIRST ap-inv NO-LOCK WHERE 
         ap-inv.company EQ ap-sel.company
@@ -2268,7 +2308,8 @@ PROCEDURE run-report :
                     SKIP.
             
             /* Output record to Positive Pay file */
-            IF tb_APcheckFile THEN DO:
+            IF tb_APcheckFile THEN 
+            DO:
                 ASSIGN 
                     cPosPayProc = REPLACE(v-fileFormat," ","").
                 RUN VALUE(cPosPayProc).
@@ -2288,36 +2329,36 @@ PROCEDURE run-report :
 
         RELEASE currency.
         IF lv-comp-curr NE "" 
-        AND lv-comp-curr NE ap-inv.curr-code[1] THEN FIND FIRST currency NO-LOCK WHERE 
-            currency.company     EQ ap-inv.company
-            AND currency.c-code      EQ ap-inv.curr-code[1]
-            AND currency.ar-ast-acct NE ""
-            AND currency.ex-rate     GT 0
-            NO-ERROR.
+            AND lv-comp-curr NE ap-inv.curr-code[1] THEN FIND FIRST currency NO-LOCK WHERE 
+                currency.company     EQ ap-inv.company
+                AND currency.c-code      EQ ap-inv.curr-code[1]
+                AND currency.ar-ast-acct NE ""
+                AND currency.ex-rate     GT 0
+                NO-ERROR.
 
         IF AVAILABLE currency THEN ASSIGN
-            tt-post.actnum    = currency.ar-ast-acct
-            tt-post.ex-rate   = currency.ex-rate
-            tt-post.curr-disc = tt-post.curr-disc * tt-post.ex-rate
-            tt-post.curr-paid = tt-post.curr-paid * tt-post.ex-rate
-            tt-post.curr-bal  = tt-post.curr-bal  * tt-post.ex-rate.
+                tt-post.actnum    = currency.ar-ast-acct
+                tt-post.ex-rate   = currency.ex-rate
+                tt-post.curr-disc = tt-post.curr-disc * tt-post.ex-rate
+                tt-post.curr-paid = tt-post.curr-paid * tt-post.ex-rate
+                tt-post.curr-bal  = tt-post.curr-bal  * tt-post.ex-rate.
 
         v-postable = YES.
 
         IF v-fst-chk THEN
         DO:
             IF lAPInvoiceLength THEN DISPLAY 
-                TRIM(STRING(ap-sel.check-no,">>>>>>>>")) FORMAT "x(8)"
-                vend.vend-no
-                vend.name
-                SPACE(6)
-                WITH FRAME a STREAM-IO.
+                    TRIM(STRING(ap-sel.check-no,">>>>>>>>")) FORMAT "x(8)"
+                    vend.vend-no
+                    vend.name
+                    SPACE(6)
+                    WITH FRAME a STREAM-IO.
             ELSE DISPLAY 
-                TRIM(STRING(ap-sel.check-no,">>>>>>>>")) FORMAT "x(8)"
-                vend.vend-no
-                vend.name
-                SPACE(6)
-                WITH FRAME a1 STREAM-IO.
+                    TRIM(STRING(ap-sel.check-no,">>>>>>>>")) FORMAT "x(8)"
+                    vend.vend-no
+                    vend.name
+                    SPACE(6)
+                    WITH FRAME a1 STREAM-IO.
     
             IF tb_excel THEN
             DO:
@@ -2335,8 +2376,8 @@ PROCEDURE run-report :
             END.
         END.
         ELSE IF tb_excel THEN /* No header on second or later checks */
-            PUT STREAM excel UNFORMATTED
-                " ".
+                PUT STREAM excel UNFORMATTED
+                    " ".
 
         IF lAPInvoiceLength THEN DISPLAY 
             ap-inv.inv-date           FORMAT "99/99/99"
@@ -2345,7 +2386,7 @@ PROCEDURE run-report :
             tt-post.curr-bal  TO 101
             tt-post.curr-disc TO 112
             tt-post.curr-paid TO 127
-            WITH FRAME a STREAM-IO WIDTH 142 NO-LABELS NO-BOX.
+            WITH FRAME a STREAM-IO WIDTH 152 NO-LABELS NO-BOX.
         ELSE DISPLAY 
             ap-inv.inv-date           FORMAT "99/99/99"
             SPACE(2)
@@ -2353,25 +2394,33 @@ PROCEDURE run-report :
             tt-post.curr-bal  TO 91
             tt-post.curr-disc TO 102
             tt-post.curr-paid TO 117
-            WITH FRAME a1 STREAM-IO WIDTH 132 NO-LABELS NO-BOX.
+            WITH FRAME a1 STREAM-IO WIDTH 142 NO-LABELS NO-BOX.
 
         IF tb_excel THEN PUT STREAM excel UNFORMATTED
-            STRING(ap-inv.inv-date,"99/99/9999") + "," +
-            ap-sel.inv-no + "," +
-            STRING(tt-post.curr-bal,"->>>>>>>9.99") + "," +
-            STRING(tt-post.curr-disc,"->>>>9.99 ") + "," +
-            STRING(tt-post.curr-paid,"->>>>>>>9.99").
+                STRING(ap-inv.inv-date,"99/99/9999") + "," +
+                ap-sel.inv-no + "," +
+                STRING(tt-post.curr-bal,"->>>>>>>9.99") + "," +
+                STRING(tt-post.curr-disc,"->>>>9.99 ") + "," +
+                STRING(tt-post.curr-paid,"->>>>>>>9.99").
 
         IF ap-sel.man-check THEN
         DO:
             IF lAPInvoiceLength THEN DISPLAY 
-                ap-sel.pre-date TO 140 WITH FRAME a.
+                    ap-sel.pre-date TO 140 WITH FRAME a.
             ELSE DISPLAY 
-                ap-sel.pre-date TO 130 WITH FRAME a1.
+                    ap-sel.pre-date TO 130 WITH FRAME a1.
             IF tb_excel THEN
                 PUT STREAM excel UNFORMATTED
                     STRING(ap-sel.pre-date,"99/99/9999").
         END.
+             
+        IF lAPInvoiceLength THEN DISPLAY 
+           ap-sel.deliveryMethod TO 151 WITH FRAME a.
+        ELSE DISPLAY 
+           ap-sel.deliveryMethod TO 142 WITH FRAME a1.
+        IF tb_excel THEN
+            PUT STREAM excel UNFORMATTED
+              STRING(ap-sel.deliveryMethod).
 
         IF tb_excel THEN
             PUT STREAM excel UNFORMATTED SKIP.
@@ -2391,21 +2440,21 @@ PROCEDURE run-report :
                 AND ap-chk.check-no EQ ap-sel.check-no
                 NO-ERROR.
             IF lAPInvoiceLength THEN DISPLAY 
-                ap-chk.check-date AT 30     FORMAT "99/99/99"
-                "** CHECK TOTAL"  AT 51
-                tot0              TO 101
-                tot1              TO 112
-                tot2              TO 127 "*"
-                SKIP(1)
-                WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME ctot WIDTH 142 STREAM-IO.
+                    ap-chk.check-date AT 30     FORMAT "99/99/99"
+                    "** CHECK TOTAL"  AT 51
+                    tot0              TO 101
+                    tot1              TO 112
+                    tot2              TO 127 "*"
+                    SKIP(1)
+                    WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME ctot WIDTH 142 STREAM-IO.
             ELSE DISPLAY 
-                ap-chk.check-date AT 30     FORMAT "99/99/99"
-                "** CHECK TOTAL"  AT 51
-                tot0              TO 91
-                tot1              TO 102
-                tot2              TO 117 "*"
-                SKIP(1)
-                WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME ctot1 WIDTH 132 STREAM-IO.
+                    ap-chk.check-date AT 30     FORMAT "99/99/99"
+                    "** CHECK TOTAL"  AT 51
+                    tot0              TO 91
+                    tot1              TO 102
+                    tot2              TO 117 "*"
+                    SKIP(1)
+                    WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME ctot1 WIDTH 132 STREAM-IO.
 
             IF tb_excel THEN
                 PUT STREAM excel UNFORMATTED
@@ -2423,7 +2472,8 @@ PROCEDURE run-report :
                     SKIP(1).
 
 
-            IF tb_APcheckFile THEN DO:
+            IF tb_APcheckFile THEN 
+            DO:
                 ASSIGN 
                     cPosPayProc = REPLACE(v-fileFormat," ","").
                 RUN VALUE(cPosPayProc).
@@ -2450,19 +2500,19 @@ PROCEDURE run-report :
     END. /* each ap-sel */
     
     IF lAPInvoiceLength THEN DISPLAY 
-        "*** GRAND TOTALS ***" AT 50
-        gtot0                  TO 101
-        gtot1                  TO 112
-        gtot2                  TO 127 "**" SKIP (1)
-        "NUMBER OF CHECKS WRITTEN " ctr
-        WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME b WIDTH 142 STREAM-IO.
+            "*** GRAND TOTALS ***" AT 50
+            gtot0                  TO 101
+            gtot1                  TO 112
+            gtot2                  TO 127 "**" SKIP (1)
+            "NUMBER OF CHECKS WRITTEN " ctr
+            WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME b WIDTH 142 STREAM-IO.
     ELSE DISPLAY 
-        "*** GRAND TOTALS ***" AT 50
-        gtot0                  TO 91
-        gtot1                  TO 102
-        gtot2                  TO 117 "**" SKIP (1)
-        "NUMBER OF CHECKS WRITTEN " ctr
-        WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME b1 WIDTH 132 STREAM-IO.
+            "*** GRAND TOTALS ***" AT 50
+            gtot0                  TO 91
+            gtot1                  TO 102
+            gtot2                  TO 117 "**" SKIP (1)
+            "NUMBER OF CHECKS WRITTEN " ctr
+            WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME b1 WIDTH 132 STREAM-IO.
 
     IF tb_APcheckFile THEN 
     DO:
@@ -2515,9 +2565,9 @@ PROCEDURE run-report :
             WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME f-top4 PAGE-TOP WIDTH 143 STREAM-IO.
 
         IF lAPInvoiceLength THEN DISPLAY 
-            "" WITH FRAME f-top4.
+                "" WITH FRAME f-top4.
         ELSE DISPLAY 
-            "" WITH FRAME f-top2.
+                "" WITH FRAME f-top2.
 
         FOR EACH tt-post NO-LOCK,
 
@@ -2622,7 +2672,7 @@ PROCEDURE run-report :
             IF lAPInvoiceLength THEN PUT ap-inv.inv-no FORMAT "x(20)".
             ELSE PUT ap-inv.inv-no FORMAT "x(12)".
             PUT SPACE(1)
-            {ap/invlline.i -1}    FORMAT ">>>9"
+                {ap/invlline.i -1}    FORMAT ">>>9"
                 SPACE(1)
                 ap-invl.dscr          FORMAT "x(18)"
                 SPACE(1)
@@ -2729,7 +2779,7 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_runExcel THEN
+        IF tb_OpenCSV THEN
             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
@@ -2745,10 +2795,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lv-frame-hdl  AS HANDLE  NO-UNDO.
     DEFINE VARIABLE lv-group-hdl  AS HANDLE  NO-UNDO.
     DEFINE VARIABLE lv-field-hdl  AS HANDLE  NO-UNDO.
@@ -2816,13 +2866,51 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE StandardCSV C-Win 
+PROCEDURE StandardCSV :
+    /*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes: gdm - 05210901
+        ------------------------------------------------------------------------------*/   
+    DEFINE VARIABLE dtCheckDate AS DATE NO-UNDO.
+    
+    IF tb_APcheckFile THEN 
+    DO:
+        FIND FIRST ap-chk WHERE
+            ap-chk.company  EQ ap-sel.company AND
+            ap-chk.check-no EQ ap-sel.check-no
+            NO-LOCK NO-ERROR.
+        IF ap-chk.check-date NE ? THEN ASSIGN 
+                dtCheckDate = ap-chk.check-date .
+
+        IF rd_print-apfile:SCREEN-VALUE IN FRAME {&frame-name} EQ "Text" THEN 
+            PUT STREAM checkFile UNFORMATTED
+                STRING(INT(ap-sel.check-no),"9999999999") + "," +       /* Check Number     */
+                STRING(vend.NAME) + "," +                               /* Vendor Name    */
+                STRING(dtCheckDate,"99/99/9999") + "," +                /* Check Date     */
+                STRING(ap-sel.amt-paid,"->>>>>>>>9.99")                 /* Check amount paid */
+                SKIP .
+        ELSE PUT STREAM ap-excel UNFORMATTED
+                STRING(INT(ap-sel.check-no),"9999999999") + "," +       /* Check Number     */
+                STRING(vend.NAME) + "," +                               /* Vendor Name    */
+                STRING(dtCheckDate,"99/99/9999") + "," +                /* Check Date     */
+                STRING(ap-sel.amt-paid,"->>>>>>>>9.99")                 /* Check amount paid */
+                SKIP .
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE undo-trnum C-Win 
 PROCEDURE undo-trnum :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
     /* GET next G/L TRANS. POSTING # **/
     /* gdm - 11050906 */
     DEFINE VARIABLE lLocked AS LOG       NO-UNDO.
@@ -2873,6 +2961,37 @@ PROCEDURE undo-trnum :
 
 
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeDest C-Win 
+PROCEDURE pChangeDest :
+    /*------------------------------------------------------------------------------
+         Purpose:    
+         Parameters:  <none>
+         Notes:      
+        ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF rd-dest:SCREEN-VALUE EQ "3" THEN
+            ASSIGN
+                tb_OpenCSV:SCREEN-VALUE = "Yes"
+                fi_file:SENSITIVE       = YES
+                tb_OpenCSV:SENSITIVE    = YES
+                tb_excel                = YES
+                .
+        ELSE
+            ASSIGN
+                tb_OpenCSV:SCREEN-VALUE = "NO"
+                fi_file:SENSITIVE       = NO
+                tb_OpenCSV:SENSITIVE    = NO
+                tb_excel                = NO
+                .
+        ASSIGN 
+            fi_file:SCREEN-VALUE = "c:\tmp\APChecksRegister.csv".   
+    END.
 
 END PROCEDURE.
 

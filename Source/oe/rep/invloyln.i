@@ -68,7 +68,7 @@ PUT
         
 PUT "<FArial><P12><=#3><R-2> <P10>" SKIP
     "<=#3><B>                      INVOICE#                    " SKIP
-    "<=#3><R+1><P14>                 " inv-head.inv-no format ">>>>>>9" "</B><P10>"
+    "<=#3><R+1><P14>                 " inv-head.inv-no format ">>>>>>>9" "</B><P10>"
     "<=#3><R+3>                 DATE           " v-inv-date SKIP 
     "<=#3><R+4>       Customer Id:          " v-custno "<FCourier New>"    
     SKIP(1)
@@ -143,7 +143,7 @@ PUT
   "<R63><P10><B>ORIGINAL INVOICE</B>" 
   " " SKIP  
 "<BGCOLOR=255,255,0><R64><C19><FROM><R65><C70><FILLRECT>"
-"<R64><C20><P11><B>Remit Payment to: 1700 Kosciusko Street, St. Louis, MO 63104-4608</B><P10>".
+"<R64><C20><P11><B>Remit Payment to: 222 Russell Blvd., St. Louis, MO 63104-4608</B><P10>".
 
 PUT "<FArial><=5><B>   CUST PO#                     CUSTOMER PART #                                     QUANTITY                                  PRICE" SKIP
     "   ORDER#                           DESCRIPTION                                     SHIPPED      INVOICED   P/C            UOM             AMOUNT"    SKIP

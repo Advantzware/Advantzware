@@ -637,7 +637,7 @@ DEFINE BROWSE Browser-Table
       oe-ordl.line FORMAT ">>99":U
       get-cost() @ ld-cost COLUMN-LABEL "Invoice Line Cost" WIDTH 24 
       get-cost-uom() @ ld-cost-uom COLUMN-LABEL "Cost!UOM"
-      oe-ordl.po-no-po FORMAT ">>>>>9":U
+      oe-ordl.po-no-po FORMAT ">>>>>>>9":U
       get-last-shipto() @ v-last-shipto COLUMN-LABEL "Last!ShipTo" FORMAT "x(8)":U
       get-act-bol-qty() @ li-act-bol-qty COLUMN-LABEL "Act. BOL!Qty" FORMAT "->>,>>>,>>>":U
             WIDTH 15.4  LABEL-BGCOLOR 14  /* mod 01 Task 10111317  */
@@ -3700,6 +3700,8 @@ FUNCTION get-pct RETURNS INTEGER
     rtnValue = ((ipBal / oe-ordl.qty) - 1) * 100.
     IF rtnValue EQ 0 THEN rtnValue = 100.
     IF rtnValue EQ -100 THEN rtnValue = 0.
+    IF rtnValue GT 999 THEN rtnValue = 999.
+    ELSE IF rtnValue LT -999 THEN rtnValue = -999.
   END.
 
   RETURN rtnValue.

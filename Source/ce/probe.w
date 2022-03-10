@@ -2629,6 +2629,20 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunProductList B-table-Win
+PROCEDURE pRunProductList :
+/*------------------------------------------------------------------------------
+ Purpose: Estimate Print from DB Tables, not text files
+ Notes:
+------------------------------------------------------------------------------*/
+
+RUN est\MRPReport.p (ROWID(eb)).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 
 PROCEDURE resort-query :

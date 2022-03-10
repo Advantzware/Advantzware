@@ -1100,7 +1100,7 @@ PROCEDURE create-loadtag :
 
     DO WHILE TRUE:
         tagNo = IF ipItemOnly THEN STRING(CAPS(w-po.i-no),'X(15)') + STRING(ipTagNo,'99999')
-        ELSE STRING(w-po.po-no,'9999999') + STRING(w-po.line,'999') + STRING(ipTagNo,'9999999').
+        ELSE STRING(w-po.po-no,'99999999') + STRING(w-po.line,'999') + STRING(ipTagNo,'9999999').
         IF NOT CAN-FIND(FIRST loadtag
             WHERE loadtag.company EQ cocode
             AND loadtag.item-type EQ YES

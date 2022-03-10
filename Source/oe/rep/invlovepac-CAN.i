@@ -25,7 +25,7 @@ PUT "<R6><C50><FROM><R6><C80><LINE><||3>" SKIP
     "<R6><C65><FROM><R8><C65><LINE><||3>" SKIP
     "<R8><C65><FROM><R10><C65><LINE><||3>" SKIP.
         
-PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " inv-head.inv-no "</B><P10>                            Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
+PUT "<FArial><P12><=#3><R-2><B><C50>Facturé/Invoice#: " inv-head.inv-no FORMAT ">>>>>>>9" "</B><P10><C74>Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
     "<=#3> Client                      Contact"
     "<=#3><R+2> Téléphone                        Fax" 
     "<=#3><R+4> Bdc PO                           Date <FCourier New>"    
@@ -46,8 +46,9 @@ PUT "<R21><C1><#4><FROM><R25><C80><RECT><||3>" SKIP
 v-printline = v-printline + 5.
 
 
-PUT "<FArial><=4>     Ship Date                                               Ship Via                             Terms                          S.Person " SKIP
-    "<FArial><=4><R+1>     Expédition              FOB                        Expéditeur                         Termes                      Représentant     Pallets         BOL#" SKIP
+PUT 
+    "<FArial><=4>     Expédition              FAB                        Expéditeur                         Termes                      Représentant     Palettes          BL" SKIP
+    "<FArial><=4><R+1>     Ship Date               FOB                          Ship Via                             Terms                          S.Person       Pallets         BOL#" SKIP
      "<FCourier New><=4><R+3> " v-date-ship FORM "99/99/9999" space(2)
      v-fob FORM "x(12)" SPACE(1)
      v-shipvia FORM "x(20)" SPACE(1)
@@ -66,8 +67,8 @@ PUT "<R26><C1><#5><FROM><R28><C80><RECT><||3>" SKIP
                 "<R26><C65><FROM><R28><C65><LINE><||3>" SKIP
                 "<R26><C69><FROM><R28><C69><LINE><||3>" SKIP
                 .   
-PUT "<FArial><=5>  Ordered     Shipped    Order #                                                                                                      Price         UoM          Amount" SKIP(1).
-PUT "<FArial><=5><R+1>Commandé  Expédié  Commande   Item#/CustPart#                       Description                            Prix          UM            Montant" SKIP(1).
+PUT "<FArial><=5>Commandé  Expédié  Commande   Item#/CustPart#                       Description                            Prix          UM            Montant" SKIP(1).
+PUT "<FArial><=5><R+1>  Ordered     Shipped    Order #                                                                                                      Price         UoM          Amount" SKIP(1).
 v-printline = v-printline + 4.
            
 

@@ -1,0 +1,21 @@
+ISA*00*          *00*          *ZZ*<Enter Sender ID>*ZZ*<Enter Receiver ID>*$CurrentDate|YYMMDD|DATE|$*$CurrentTime|hhmm|TIME|$*U*00501*$ClientTransCounter|999999999|INT|$*0*T*:~
+GS*IN*  *  *$CurrentDate|YYMMDD|DATE|$*$CurrentTime|hhmm|TIME|$*$ClientTransCounter|999999999|INT|$*X*005010~
+ST*810*$ClientTransCounter|999999999|INT|$~
+BIG*$InvoiceDate|YYYYMMDD|Date|$*$InvoiceNum$*$InvoiceDueDate|YYYYMMDD|Date|$*$PurchaseOrder$~
+CUR*BY*$Currency$~
+REF*19*Enter Reference Identification~
+PER*BI*Enter Name*TE*$AreaCode|(xxx)|$$Phone|xxx-xxxx|$*EM*$FaxAreaCode|(xxx)|$$Fax|xxx-xxxx|$~
+N1*ST*$ShipToName$*92*Enter Identification Code~
+N3*$ShipToStreetAddress1$*$ShipToStreetAddress2$~
+N4*$ShipToCity$*$ShipToState$*$ShipToPostalCode$*$Country$~
+ITD*****$TermDiscountDays$***$TermDiscountAmount$*$TermsDescription$~
+DTM*011*$InvoiceDate|YYYYMMDD|Date|$~
+FOB*$FreightPayCode$$FreightPayCode$*$FobCode||||IF["Destination","DE","PE"]|$*$FobCodeDescription$~
+$ItemDetail$
+$SurchargeDetail$
+TDS*$TotalAmount$*$TotalAmount$*$TermsDiscountDue$*$TermDiscountAmount$*~
+TXI*GS*$TotalTax$~
+CTT*$LineCount$~
+SE*13*$ClientTransCounter|999999999|INT|$~
+GE*1*$ClientTransCounter|999999999|INT|$~
+IEA*1*$ClientTransCounter|999999999|INT|$~

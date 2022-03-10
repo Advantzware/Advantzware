@@ -80,14 +80,11 @@ DEFINE VARIABLE hdFGProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE glShowVirtualKeyboard AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE gcShowSettings        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcShowAdjustQuantity  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcShowVirtualKeyboard AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE oSetting  AS system.Setting        NO-UNDO.
 DEFINE VARIABLE oKeyboard AS system.Keyboard       NO-UNDO.
 
-oSetting  = NEW system.Setting().
 oKeyboard = NEW system.Keyboard().
-
-oSetting:LoadByCategoryAndProgram("SSFGInquiry").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -130,6 +127,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_adjustqty AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_adjustqty-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_adjustwindowsize AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-fginqbins AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-fginqloc AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-fginqlocbin AS HANDLE NO-UNDO.
@@ -996,7 +994,7 @@ END.
 {sharpshooter/smartobj/windowExit.i}
 {wip/pKeyboard.i}
 {sharpshooter/pStatusMessage.i}
-
+{sharpshooter/ChangeWindowSize.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1025,6 +1023,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_setting ).
        RUN set-position IN h_setting ( 31.76 , 160.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.60 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/adjustwindowsize.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_adjustwindowsize ).
+       RUN set-position IN h_adjustwindowsize ( 1.00 , 160.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/exit.w':U ,
@@ -1422,9 +1428,6 @@ PROCEDURE local-destroy :
     IF VALID-HANDLE(hdFGProcs) THEN
         DELETE PROCEDURE hdFGProcs.
 
-    IF VALID-OBJECT (oSetting) THEN
-        DELETE OBJECT oSetting.
-
     IF VALID-OBJECT (oKeyboard) THEN
         DELETE OBJECT oKeyboard.
               
@@ -1482,9 +1485,8 @@ PROCEDURE OpenSetting :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    IF VALID-OBJECT(oSetting) THEN
-        RUN windows/setting-dialog.w (oSetting).
-
+    RUN windows/setting-dialog.w.
+    {sharpshooter/settingChangeDialog.i}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1527,6 +1529,8 @@ PROCEDURE pInit :
     RUN spGetSessionParam ("Location", OUTPUT cLoc).
     RUN pStatusMessage ("", 0).
     
+    RUN spSetSettingContext.
+    
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ cCompany
          NO-ERROR .
@@ -1534,12 +1538,12 @@ PROCEDURE pInit :
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
                          + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + cLoc.
+
+    RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT gcShowVirtualKeyboard).
+    RUN spGetSettingByName ("ShowAdjustQuantity", OUTPUT gcShowAdjustQuantity).
+    RUN spGetSettingByName ("ShowSettings", OUTPUT gcShowSettings).    
     
-    ASSIGN
-        glShowVirtualKeyboard = LOGICAL(oSetting:GetByName("ShowVirtualKeyboard"))
-        gcShowSettings        = oSetting:GetByName("ShowSettings")
-        gcShowAdjustQuantity  = oSetting:GetByName("ShowAdjustQuantity")
-        .
+    glShowVirtualKeyboard = LOGICAL(gcShowVirtualKeyboard) NO-ERROR.
 
     ASSIGN        
         btnKeyboardItem:VISIBLE     = glShowVirtualKeyboard
@@ -1699,16 +1703,6 @@ PROCEDURE pWinReSize :
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            {&WINDOW-NAME}:ROW                 = 1
-            {&WINDOW-NAME}:COL                 = 1
-            {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
-            {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
-            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT
-            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
-            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
             statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
             dCol                               = {&WINDOW-NAME}:WIDTH  - 8
             btnExitText:COL                    = dCol - 9
@@ -1739,6 +1733,7 @@ PROCEDURE pWinReSize :
             dWidth  = dCol - 3
             .
         RUN set-size IN h_b-fginqbins ( dHeight , dWidth ) NO-ERROR.
+        RUN set-position IN h_adjustwindowsize ( 1.00 , dCol - 45 ) NO-ERROR.
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 

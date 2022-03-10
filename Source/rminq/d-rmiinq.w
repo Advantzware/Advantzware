@@ -198,7 +198,7 @@ DEFINE FRAME Dialog-Frame
           SIZE 7 BY 1
           BGCOLOR 15 FONT 1
      rm-rdtlh.s-num AT ROW 3.62 COL 20 COLON-ALIGNED
-          LABEL "S" FORMAT ">9"
+          LABEL "F" FORMAT ">9"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
           BGCOLOR 15 FONT 1

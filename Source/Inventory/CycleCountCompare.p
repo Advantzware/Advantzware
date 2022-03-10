@@ -64,7 +64,7 @@ DEFINE TEMP-TABLE ttCycleCountCompare
     FIELD dScanCostValue             AS DECIMAL   COLUMN-LABEL "Scan cost Value"
     FIELD cJobNo                     AS CHARACTER COLUMN-LABEL "Job#" 
     FIELD cJobNo2                    AS CHARACTER COLUMN-LABEL "Job#2"
-    FIELD cSNum                      AS CHARACTER COLUMN-LABEL "Sheet#"
+    FIELD cSNum                      AS CHARACTER COLUMN-LABEL "Form#"
     FIELD cBNum                      AS CHARACTER COLUMN-LABEL "Blank#"
     FIELD cShtSize                   AS CHARACTER COLUMN-LABEL "Sheet Size"
     INDEX tag  cCompany cTag 
@@ -90,7 +90,7 @@ DEFINE TEMP-TABLE ttSnapShot
     FIELD cCostUom                  AS CHARACTER COLUMN-LABEL "Cost UOM"
     FIELD cJobNo                    AS CHARACTER COLUMN-LABEL "Job#" 
     FIELD cJobNo2                   AS CHARACTER COLUMN-LABEL "Job#2"
-    FIELD cSNum                     AS CHARACTER COLUMN-LABEL "Sheet#"
+    FIELD cSNum                     AS CHARACTER COLUMN-LABEL "Form#"
     FIELD cBNum                     AS CHARACTER COLUMN-LABEL "Blank#"
     INDEX tag  cCompany cTag
     INDEX ITEM cCompany cFGItemID    

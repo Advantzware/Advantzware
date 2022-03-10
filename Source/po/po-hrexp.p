@@ -11,8 +11,6 @@ DEFINE INPUT PARAMETER v-format AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER xjob-mat FOR job-mat.
 DEFINE BUFFER xitem FOR item.
-DEFINE BUFFER b-ref1  FOR reftable.
-DEFINE BUFFER b-ref2  FOR reftable.
 DEFINE BUFFER bpo-ord FOR po-ord.
 DEFINE VARIABLE cWinScpXmlLog AS CHARACTER.
 DEFINE STREAM sReadLog.
@@ -59,6 +57,8 @@ DEFINE VARIABLE vBlankWidth AS CHAR NO-UNDO.
 DEFINE VARIABLE vScore2 AS CHAR NO-UNDO.
 DEFINE VARIABLE v-jobno AS CHAR NO-UNDO.
 DEFINE VARIABLE v-form AS CHAR NO-UNDO.
+DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+DEFINE VARIABLE lScoreAvailable AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-qty AS DECIMAL DECIMALS 3 EXTENT 20
@@ -299,10 +299,29 @@ FOR EACH report NO-LOCK WHERE
             .   
 
         /* STYLE CODE */
-        RUN po/po-ordls.p (RECID(po-ordl)).
-        {po/po-ordls.i}
+        RUN po/POProcs.p PERSISTENT SET hdPOProcs.
+        
+        RUN PO_GetLineScoresAndTypes IN hdPOProcs (
+            INPUT  po-ordl.company,
+            INPUT  po-ordl.po-no,
+            INPUT  po-ordl.line,
+            OUTPUT lv-val,
+            OUTPUT lv-typ
+            ).
+        
+        DELETE PROCEDURE hdPOProcs.  
+        
+        lScoreAvailable = FALSE.
+        
+        DO iIndex = 1 TO EXTENT(lv-val):
+            IF lv-val[iIndex] NE 0 OR lv-typ[iIndex] NE "" THEN DO:
+                lScoreAvailable = TRUE.
+                LEAVE.
+            END.
+        END.
+        
         ASSIGN  
-            vStyleCode = IF AVAILABLE b-ref1 OR AVAILABLE b-ref2 THEN 1 ELSE 2
+            vStyleCode = IF lScoreAvailable THEN 1 ELSE 2
             vStyleDesc = (IF vStyleCode EQ 1 THEN "SCORED" ELSE "TRIMMED") + " SHEET".
             
         /* QUANTITY SHEETS */
@@ -393,11 +412,11 @@ FOR EACH report NO-LOCK WHERE
         ASSIGN 
             vScore = "".
         DO i = 1 TO 9:
-            IF AVAILABLE b-ref1 AND b-ref1.val[i] NE 0 THEN ASSIGN 
-                    vScore = vScore + STRING(TRUNC(b-ref1.val[i],0), ">>>") +
+            IF lScoreAvailable AND lv-val[i] NE 0 THEN ASSIGN 
+                    vScore = vScore + STRING(TRUNC(lv-val[i],0), ">>>") +
                                   ":" +
-                                  STRING((b-ref1.val[i] - trunc(b-ref1.val[i],0)) * 100,"99") +
-                                  substr(b-ref1.dscr,i,1).
+                                  STRING((lv-val[i] - trunc(lv-val[i],0)) * 100,"99") +
+                                  lv-typ[i].
         
             ELSE ASSIGN 
                     vScore = vScore + "       ".
@@ -407,22 +426,12 @@ FOR EACH report NO-LOCK WHERE
         /* Additional Scores */
         ASSIGN 
             vscore2 = "".
-        DO i = 10 TO 12:
-            IF AVAILABLE b-ref1 AND b-ref1.val[i] NE 0 THEN ASSIGN 
-                    vScore2 = vScore2 + STRING(TRUNC(b-ref1.val[i],0), ">>>") +
+        DO i = 10 TO 20:
+            IF lScoreAvailable AND lv-val[i] NE 0 THEN ASSIGN 
+                    vScore2 = vScore2 + STRING(TRUNC(lv-val[i],0), ">>>") +
                                   ":" +
-                                  STRING((b-ref1.val[i] - trunc(b-ref1.val[i],0)) * 100,"99") +
-                                  substr(b-ref1.dscr,i,1).
-        
-            ELSE ASSIGN 
-                    vScore2 = vScore2 + "       ".
-        END.
-        IF AVAILABLE b-ref2 THEN DO i = 1 TO 9:
-            IF AVAILABLE b-ref2 AND b-ref2.val[i] NE 0 THEN ASSIGN 
-                    vScore2 = vScore2 + STRING(TRUNC(b-ref2.val[i],0), ">>>") +
-                                  ":" +
-                                  STRING((b-ref2.val[i] - trunc(b-ref2.val[i],0)) * 100,"99") +
-                                  substr(b-ref2.dscr,i,1).
+                                  STRING((lv-val[i] - trunc(lv-val[i],0)) * 100,"99") +
+                                  lv-typ[i].
         
             ELSE ASSIGN 
                     vScore2 = vScore2 + "       ".

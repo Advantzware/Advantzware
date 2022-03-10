@@ -12,8 +12,8 @@
           AND oe-ord.user-id  GE begin_userid
           AND oe-ord.user-id  LE end_userid
           AND (v-ostat EQ "A"                           OR
-               (oe-ord.opened AND v-ostat EQ "O")       OR
-               (NOT oe-ord.opened AND v-ostat EQ "C"))
+               (oe-ord.opened EQ YES AND v-ostat EQ "O")       OR
+               (oe-ord.opened EQ NO  AND v-ostat EQ "C"))
         USE-INDEX ordate NO-LOCK,
 
         EACH oe-ordl OF oe-ord

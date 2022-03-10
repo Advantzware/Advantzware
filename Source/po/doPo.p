@@ -894,18 +894,18 @@ PROCEDURE buildRptRecs :
     /*****************************************/        
     FIND tt-ei WHERE ROWID(tt-ei) EQ iprTT-ei NO-LOCK NO-ERROR.            
     IF AVAILABLE tt-ei THEN 
-    DO:                         
+    DO:        
         FOR EACH tt-eiv
             WHERE tt-eiv.company    EQ cocode
             AND tt-eiv.i-no       EQ tt-ei.i-no
             AND tt-eiv.item-type  EQ bf-w-job-mat.this-is-a-rm
-            AND tt-eiv.vend-no    NE ""
+            AND tt-eiv.vend-no    NE "" 
           
             AND (tt-eiv.item-type EQ NO OR
             (v-wid                GE tt-eiv.roll-w[27] AND
-            v-wid                LE tt-eiv.roll-w[28] AND
+            (v-wid                LE tt-eiv.roll-w[28] OR tt-eiv.roll-w[28] EQ 0) AND
             v-len                GE tt-eiv.roll-w[29] AND
-            v-len                LE tt-eiv.roll-w[30]))
+            (v-len                LE tt-eiv.roll-w[30] OR tt-eiv.roll-w[30] EQ 0)))
             NO-LOCK,
 
             FIRST vend
@@ -1532,6 +1532,8 @@ PROCEDURE calcLenWidN:
         FIND FIRST vendItemCost WHERE vendItemCost.company EQ cocode 
                                   AND vendItemCost.itemID EQ bf-po-ordl.i-no 
                                   AND vendItemCost.vendorID EQ bf-po-ord.vend-no
+                                  AND vendItemCost.effectiveDate LE TODAY
+                                  AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
             NO-LOCK NO-ERROR.
 
         IF AVAILABLE vendItemCost AND vendItemCost.vendorItemID NE "" THEN
@@ -3724,6 +3726,8 @@ PROCEDURE RevCreateTtEiv:
         WHERE vendItemCost.company EQ itemfg.company
         AND vendItemCost.ItemID    EQ itemfg.i-no
         AND vendItemCost.ItemType EQ "FG"
+        AND vendItemCost.effectiveDate LE TODAY
+        AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
         NO-ERROR.        
     IF AVAIL vendItemCost THEN DO:    
        CREATE tt-ei.
@@ -3740,7 +3744,9 @@ PROCEDURE RevCreateTtEiv:
                                      AND vendItemCost.formNo EQ bf-w-job-mat.frm
                                      AND vendItemCost.blankNo EQ bf-w-job-mat.blank-no
                                      AND vendItemCost.ItemID    EQ itemfg.i-no
-                                     AND vendItemCost.ItemType EQ "FG"  ,
+                                     AND vendItemCost.ItemType EQ "FG" 
+                                     AND vendItemCost.effectiveDate LE TODAY
+                                     AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?),
           
           EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
             /* AND venditemcostlevel.quantityfrom <= fGetVendCostQty(bf-w-job-mat.qty, bf-w-job-mat.qty-uom, venditemcost.vendorUom)
@@ -3805,7 +3811,9 @@ PROCEDURE RevCreateTtEiv:
 /*        AND vendItemCost.formNo EQ bf-w-job-mat.frm       */
 /*        AND vendItemCost.blankNo EQ bf-w-job-mat.blank-no */
           AND vendItemCost.ItemID    EQ itemfg.i-no
-          AND vendItemCost.ItemType EQ "FG"  ,
+          AND vendItemCost.ItemType EQ "FG"
+          AND vendItemCost.effectiveDate LE TODAY
+          AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?),
                                                      
         EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
         BY vendItemCostLevel.vendItemCostLevelID:    
@@ -3924,6 +3932,8 @@ PROCEDURE RevCreateTtEivVend:
         WHERE vendItemCost.company EQ item.company
         AND vendItemCost.ItemID    EQ item.i-no
         AND vendItemCost.ItemType EQ "RM"
+        AND vendItemCost.effectiveDate LE TODAY
+        AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
         NO-ERROR.
     IF AVAIL vendItemCost THEN 
     DO:    
@@ -3934,15 +3944,18 @@ PROCEDURE RevCreateTtEivVend:
             tt-ei.std-uom = vendItemCost.VendorUOM
             .        
     END.
-    v-index = 0.    
+    v-index = 0. 
+ 
     FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ ITEM.company
                     AND vendItemCost.ItemID    EQ item.i-no
                     AND vendItemCost.ItemType EQ "RM" 
-                    AND bf-w-job-mat.wid GE venditemCost.dimWidthMinimum AND bf-w-job-mat.wid LE venditemCost.dimWidthMaximum
-                    AND bf-w-job-mat.len GE venditemCost.dimlengthMinimum AND bf-w-job-mat.len LE venditemCost.dimlengthMaximum,
+                    AND bf-w-job-mat.wid GE venditemCost.dimWidthMinimum AND (bf-w-job-mat.wid LE venditemCost.dimWidthMaximum OR venditemCost.dimWidthMaximum EQ 0)
+                    AND bf-w-job-mat.len GE venditemCost.dimlengthMinimum AND (bf-w-job-mat.len LE venditemCost.dimlengthMaximum OR venditemCost.dimlengthMaximum EQ 0)
+                    AND vendItemCost.effectiveDate LE TODAY
+                    AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?),
                                                      
         EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
-        BY vendItemCostLevel.vendItemCostLevelID:
+        BY vendItemCostLevel.vendItemCostLevelID:  
         dQtyInVendorUOM = fGetVendCostQty(bf-w-job-mat.qty, bf-w-job-mat.qty-uom, venditemcost.vendorUom).
         IF  dQtyInVendorUOM LT venditemcostlevel.quantityfrom
             OR dQtyInVendorUOM GT venditemcostlevel.quantityto 
@@ -3982,7 +3995,7 @@ PROCEDURE RevCreateTtEivVend:
                 assign tt-eiv.roll-w[v-index]   = vendItemCost.validWidth[v-index] /* e-itemfg-vend.roll-w[v-index] */   
                        .
     END.
-        
+    
     oprItem = ROWID(ITEM).
 
 END PROCEDURE.

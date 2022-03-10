@@ -380,7 +380,8 @@ END. /* foR EACH tt-bin-file */
 
 EMPTY TEMP-TABLE w-bin.
 FOR EACH tt-item NO-LOCK:
- FOR EACH w-oe-rell WHERE w-oe-rell.set-no EQ tt-item.w-i-no USE-INDEX idx,
+ FOR EACH  w-oe-rell WHERE w-oe-rell.set-no EQ tt-item.w-i-no
+  AND w-oe-rell.ord-no EQ tt-item.w-ord-no USE-INDEX idx,
   FIRST oe-ordl
   WHERE oe-ordl.company EQ cocode
   AND oe-ordl.ord-no  EQ w-oe-rell.ord-no

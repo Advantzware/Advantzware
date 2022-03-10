@@ -206,7 +206,7 @@ DEFINE BROWSE Browser-Table
       rm-rctd.pur-uom COLUMN-LABEL "UOM" FORMAT "x(3)":U
       rm-rctd.company FORMAT "x(3)":U
       rm-rctd.rita-code FORMAT "x(1)":U
-      rm-rctd.s-num FORMAT ">9":U
+      rm-rctd.s-num COLUMN-LABEL "Form #" FORMAT ">9":U
   ENABLE
       rm-rctd.rct-date
       rm-rctd.i-no

@@ -72,6 +72,7 @@ DEFINE VARIABLE iTotTags          AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iTotOnHand        AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iCount            AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cFilterBy         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdWipTagProcs     AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 
@@ -782,6 +783,9 @@ DO:
 
     IF VALID-HANDLE(hdJobProcs) THEN
         DELETE OBJECT hdJobProcs.
+    
+    IF VALID-HANDLE(hdWipTagProcs) THEN
+        DELETE OBJECT hdWipTagProcs.
 
     IF VALID-HANDLE(hdJobDetailsWin) THEN
         APPLY "WINDOW-CLOSE" TO hdJobDetailsWin.
@@ -804,6 +808,9 @@ ON CHOOSE OF bt-print-selected IN FRAME F-Main
 DO: 
     DEFINE VARIABLE lOptionSelected AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cOption         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lXprint         AS LOGICAL   NO-UNDO.
+     
+    lXprint =  IF cPathTemplate MATCHES "*.xpr*" THEN YES ELSE NO .
     
     RUN Inventory\PrintDialog.w (
         OUTPUT lOptionSelected,
@@ -829,7 +836,9 @@ DO:
                 INPUT-OUTPUT TABLE ttPrintInventoryStock 
                 ).
         END.
-        
+        IF lXprint THEN
+        RUN pXprint.
+        ELSE 
         RUN pPrintLabels.
     END.
     /* Print Selected Option */
@@ -847,6 +856,9 @@ DO:
                 INPUT-OUTPUT TABLE ttPrintInventoryStock
                 ).
         
+            IF lXprint THEN
+            RUN pXprint.
+            ELSE 
             RUN pPrintLabels.
             
         END.
@@ -1710,6 +1722,7 @@ PROCEDURE init :
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
     RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
     RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
+    RUN wip/wipTagProcs.p PERSISTENT SET hdWipTagProcs.
    
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ cCompany
@@ -2259,6 +2272,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pXprint W-Win 
+PROCEDURE pXprint PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+        
+    RUN pPrintView IN hdWipTagProcs (INPUT TABLE ttPrintInventoryStock,                          
+                                     INPUT cPathTemplate
+                                     ).
+    RUN rebuildTempTable(
+        INPUT cCompany,
+        INPUT cFormattedJobno,
+        INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        INPUT cb-jobno2:SCREEN-VALUE  IN FRAME {&FRAME-NAME},
+        INPUT cb-formno:SCREEN-VALUE  IN FRAME {&FRAME-NAME},
+        INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        ).
+
+    APPLY "VALUE-CHANGED" TO {&BROWSE-NAME} IN FRAME  {&FRAME-NAME}.                                        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME      
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE rebuildTempTable W-Win 
 PROCEDURE rebuildTempTable :

@@ -206,9 +206,9 @@ DEFINE RECTANGLE RECT-16
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME ar-ctrl
-     ar-ctrl.last-inv AT ROW 1.24 COL 24 COLON-ALIGNED FORMAT ">>>>>>9"
+     ar-ctrl.last-inv AT ROW 1.24 COL 24 COLON-ALIGNED FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 14 BY 1
           BGCOLOR 15 
      cDscrAccRec AT ROW 2.38 COL 53.2 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      ar-ctrl.receivables AT ROW 2.48 COL 24.2 COLON-ALIGNED

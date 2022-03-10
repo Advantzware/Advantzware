@@ -380,6 +380,16 @@ PROCEDURE pAutoSelectTags:
     fDebugMsg("avail oe-rel " + STRING(AVAILABLE(oe-rel))).
     IF NOT AVAILABLE oe-rel THEN 
         RETURN.
+    
+    /* Ensure that warehouse for inventory assignment is the ship-from for the BOL */
+    /* Since the order was created, it could have been changed from the original's ship-to/ship-from */
+    DO TRANSACTION:
+        FIND CURRENT oe-rel EXCLUSIVE NO-ERROR.    
+        IF AVAIL oe-rel THEN ASSIGN 
+            oe-rel.spare-char-1 = xoe-boll.loc.
+        FIND CURRENT oe-rel NO-LOCK NO-ERROR.
+    END. 
+            
     FIND FIRST oe-relh NO-LOCK
         WHERE oe-relh.r-no EQ xoe-boll.r-no 
         NO-ERROR.
@@ -401,7 +411,7 @@ PROCEDURE pAutoSelectTags:
     fDebugMsg("RowID: " + STRING(ROWID(xoe-boll))).
     fDebugMsg("lSelectTags: " + STRING(lSelectTags)).
     fDebugMsg("oe-rel.spare-char-1: " + oe-rel.spare-char-1).     
-    RUN oe/fifoloopTags.p (ROWID(xoe-boll), lSelectTags, oe-rel.spare-char-1 /*oe-boll.ship-from */, OUTPUT lNoneSelected, OUTPUT hTToe-rel).
+    RUN oe/fifoloopTags.p (ROWID(xoe-boll), lSelectTags, xoe-boll.loc /*oe-rel.spare-char-1*/ /*oe-boll.ship-from */, OUTPUT lNoneSelected, OUTPUT hTToe-rel).
     fDebugMsg("end fifoloop " + STRING(TIME,"hh:mm:ss am")).     
     /* From fifoloop, process returned dynamic temp-table to retrieve tag records selected */
     hBufOeRell = hTToe-rel:DEFAULT-BUFFER-HANDLE.
@@ -701,7 +711,7 @@ PROCEDURE pPostBols :
     DEFINE VARIABLE cFGTagValidation AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFGTagValidation AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lFirstOFBOL      AS LOGICAL   NO-UNDO.
-
+    
     DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
     /* Deletes xreport of report */
     {sa/sa-sls01.i}
@@ -821,7 +831,13 @@ PROCEDURE pPostBols :
                 RUN oe/bolcheck.p (ROWID(bf-oe-bolh)).
                 fDebugMsg("before each w-except after bolcheck " + STRING(AVAILABLE(bf-oe-bolh))).
                 FOR EACH w-except 
-                    WHERE w-except.bol-no EQ bf-oe-bolh.bol-no:
+                    WHERE w-except.bol-no EQ bf-oe-bolh.bol-no BY w-except.lAvailOnhQty DESC :
+                    IF w-except.lAvailOnhQty AND lSingleBol THEN 
+                    DO:                                                   
+                         RUN Inventory_UpdateBolBinWithMatchInventory IN hdInventoryProcs(cocode, w-except.b-no, w-except.cLocBin).  
+                         DELETE w-except.
+                         LEAVE.                        
+                    END.                    
                     IF NOT lInsufficientQty THEN 
                     lInsufficientQty = YES.
                     fDebugMsg("Create w-nopost for BOL " + STRING(w-except.bol-no) + " item " + w-except.i-no).             

@@ -12,8 +12,8 @@
           AND oe-ord.user-id  GE begin_userid
           AND oe-ord.user-id  LE end_userid
           AND (v-ostat EQ "A"                           OR
-               (oe-ord.opened AND v-ostat EQ "O")       OR
-               (NOT oe-ord.opened AND v-ostat EQ "C"))
+               (oe-ord.opened EQ YES AND v-ostat EQ "O")       OR
+               (oe-ord.opened EQ NO  AND v-ostat EQ "C"))
         USE-INDEX ordate NO-LOCK,
 
         EACH oe-ordl OF oe-ord
@@ -372,7 +372,10 @@
             AND oe-rel.line    EQ oe-ordl.line
           NO-LOCK BY oe-rel.rel-date DESC:
       
-         {oe/rel-stat.i lv-stat} 
+         {oe/rel-stat.i lv-stat}
+         
+         ASSIGN
+          tt-report.cust-lot = oe-rel.lot-no .
         
         /*IF INDEX("ALSBI",lv-stat) GT 0 THEN DO:*/
            lv-due-date2 = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
@@ -462,6 +465,8 @@
                    WHEN "prntd"       THEN cVarValue =  STRING(tt-report.prntd).
                    WHEN "die-cut"     THEN cVarValue =  STRING(tt-report.die-cut).
                    WHEN "glue"        THEN cVarValue =  STRING(tt-report.glue).
+                   WHEN "last-date"   THEN cVarValue = IF oe-ord.last-date NE ? THEN STRING(oe-ord.last-date) ELSE "".
+                   WHEN "cust-lot"    THEN cVarValue =  STRING(tt-report.cust-lot).
                END CASE.                                                                 
                 
               cExcelVarValue = cVarValue.

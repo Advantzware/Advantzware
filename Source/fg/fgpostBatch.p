@@ -35,6 +35,7 @@ DEFINE VARIABLE lvReturnChar    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvFound         AS LOG       NO-UNDO.
 DEFINE VARIABLE autofgissue-log AS LOGICAL   NO-UNDO. /* set and used */
 DEFINE VARIABLE v-fgpostgl      AS CHARACTER NO-UNDO. /* set by fgpostgl nk1 value */
+DEFINE VARIABLE cDescription    AS CHARACTER NO-UNDO.
 
 /* ***************************  Definitions  ************************** */
 {methods/defines/hndldefs.i}
@@ -687,34 +688,23 @@ PROCEDURE fg-post:
                     FIND CURRENT po-ordl NO-LOCK NO-ERROR.
                     FIND CURRENT fg-bin NO-LOCK NO-ERROR.
 
-                    IF AVAILABLE fg-rcpth AND AVAILABLE fg-rdtlh AND fg-rcpth.rita-code EQ "R" AND fg-rcpth.po-no NE "" THEN DO:
-                        FIND FIRST bf-po-ordl NO-LOCK
-                             WHERE bf-po-ordl.company EQ fg-rcpth.company
-                               AND bf-po-ordl.po-no   EQ INTEGER(fg-rcpth.po-no)
-                               AND bf-po-ordl.line    EQ fg-rcpth.po-line
-                             NO-ERROR.
-                        IF AVAILABLE bf-po-ordl THEN DO:   
-                            FIND FIRST ttReceipt
-                                 WHERE ttReceipt.poID   EQ bf-po-ordl.po-no
-                                   AND ttReceipt.poLine EQ bf-po-ordl.line
-                                 NO-ERROR.
-                            IF NOT AVAILABLE ttReceipt THEN DO:
-                                    CREATE ttReceipt.
-                                    ASSIGN
-                                        iCount                 = iCount + 1
-                                        ttReceipt.lineID       = iCount                                    
-                                        ttReceipt.company      = bf-po-ordl.company
-                                        ttReceipt.location     = fg-rcpth.loc
-                                        ttReceipt.poID         = bf-po-ordl.po-no
-                                        ttReceipt.poLine       = bf-po-ordl.line
-                                        ttReceipt.itemID       = fg-rcpth.i-no
-                                        ttReceipt.itemName     = IF fg-rcpth.i-name EQ "" THEN fg-rcpth.i-no ELSE fg-rcpth.i-name
-                                        ttReceipt.quantityUOM  = "EA"
-                                        .
-                            END.
-
-                            ttReceipt.quantity = ttReceipt.quantity + fg-rdtlh.qty.
-                        END.
+                    IF AVAILABLE fg-rcpth AND AVAILABLE fg-rdtlh AND fg-rcpth.rita-code EQ "R" THEN DO: 
+                        CREATE ttReceipt.
+                        ASSIGN
+                            iCount                 = iCount + 1
+                            ttReceipt.lineID       = iCount                                    
+                            ttReceipt.company      = fg-rcpth.company
+                            ttReceipt.location     = fg-rcpth.loc
+                            ttReceipt.poID         = INTEGER(fg-rcpth.po-no)
+                            ttReceipt.poLine       = fg-rcpth.po-line
+                            ttReceipt.jobID        = fg-rcpth.job-no
+                            ttReceipt.jobID2       = fg-rcpth.job-no2
+                            ttReceipt.itemID       = fg-rcpth.i-no
+                            ttReceipt.itemName     = IF fg-rcpth.i-name EQ "" THEN fg-rcpth.i-no ELSE fg-rcpth.i-name
+                            ttReceipt.quantityUOM  = "EA"
+                            ttReceipt.quantity     = fg-rdtlh.qty
+                            ttReceipt.rcpthRowID   = ROWID(fg-rcpth)
+                            .
                     END.                    
                     LEAVE loop1.
                 END. /* IF AVAIL itemfg */
@@ -1011,7 +1001,7 @@ PROCEDURE fg-post:
                              period.pnum,
                              "A",
                              v-post-date,
-                             "",
+                             work-job.cDesc,
                              "FG").
         END. /* each work-job */
     END.
@@ -1155,9 +1145,6 @@ PROCEDURE gl-from-work:
     DEF INPUT PARAM ip-run AS INT NO-UNDO.
     DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
 
-    DEF VAR credits AS DEC INIT 0 NO-UNDO.
-    DEF VAR debits  AS DEC INIT 0 NO-UNDO. 
-
     FIND FIRST period
         WHERE period.company EQ cocode
         AND period.pst     LE v-post-date
@@ -1169,29 +1156,20 @@ PROCEDURE gl-from-work:
         OR (ip-run EQ 2 AND work-gl.job-no EQ "")
         BREAK BY work-gl.actnum:
 
-        ASSIGN
-            debits  = debits  + work-gl.debits
-            credits = credits + work-gl.credits.
-
-        IF LAST-OF(work-gl.actnum) THEN 
-        DO:
           RUN GL_SpCreateGLHist(cocode,
                              work-gl.actnum,
                              "FGPOST",
                              (IF work-gl.job-no NE "" THEN "FG Receipt from Job"
                                                       ELSE "FG Receipt from PO"),
                              v-post-date,
-                             (debits - credits),
+                             (work-gl.debits - work-gl.credits),
                              ip-trnum,
                              period.pnum,
                              "A",
                              v-post-date,
-                             "",
+                             work-gl.cDesc,
                              "FG").
-          ASSIGN
-             debits          = 0
-             credits         = 0.
-        END.
+
     END.
 
 
@@ -1540,10 +1518,10 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE:
     RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
         INPUT  ttReceipt.company,                                  /* Company Code (Mandatory) */
         INPUT  ttReceipt.loc,                                      /* Location Code (Mandatory) */
-        INPUT  "SendReceipt",                                      /* API ID (Mandatory) */
+        INPUT  "SendReceipts",                                     /* API ID (Mandatory) */
         INPUT  "",                                                 /* Scope ID */
         INPUT  "",                                                 /* Scoped Type */
-        INPUT  "CreateReceipt",                                    /* Trigger ID (Mandatory) */
+        INPUT  "FGPost",                                           /* Trigger ID (Mandatory) */
         INPUT  "TTReceiptHandle",                                  /* Comma separated list of table names for which data being sent (Mandatory) */
         INPUT  STRING(TEMP-TABLE ttReceipt:HANDLE),                /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
         INPUT  "FGPost",                                           /* Primary ID for which API is called for (Mandatory) */   
@@ -1551,7 +1529,25 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE:
         OUTPUT lSuccess,                                           /* Success/Failure flag */
         OUTPUT cMessage                                            /* Status message */
         ) NO-ERROR.
-            
+
+    FOR EACH ttReceipt:
+        IF ttReceipt.jobID NE "" THEN
+            RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+                INPUT  ttReceipt.company,                                  /* Company Code (Mandatory) */
+                INPUT  ttReceipt.loc,                                      /* Location Code (Mandatory) */
+                INPUT  "SendReceipt",                                      /* API ID (Mandatory) */
+                INPUT  "",                                                 /* Scope ID */
+                INPUT  "",                                                 /* Scoped Type */
+                INPUT  "JobFGPost",                                        /* Trigger ID (Mandatory) */
+                INPUT  "fg-rcpth",                                         /* Comma separated list of table names for which data being sent (Mandatory) */
+                INPUT  STRING(ttReceipt.rcpthRowID),                       /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                INPUT  "FGPost",                                           /* Primary ID for which API is called for (Mandatory) */   
+                INPUT  "Triggered from FG Post",                           /* Event's description (Optional) */
+                OUTPUT lSuccess,                                           /* Success/Failure flag */
+                OUTPUT cMessage                                            /* Status message */
+                ) NO-ERROR.
+    END.
+                
     EMPTY TEMP-TABLE ttReceipt.
         
     DELETE PROCEDURE hdOutboundProcs. 

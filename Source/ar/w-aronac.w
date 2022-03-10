@@ -612,3 +612,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInitializeButton W-Win 
+PROCEDURE pInitializeButton :
+/* -----------------------------------------------------------
+  Purpose:  
+  Parameters:  
+  Notes:       
+-------------------------------------------------------------*/
+
+   RUN local-initialize IN h_p-updsav . 
+          
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+

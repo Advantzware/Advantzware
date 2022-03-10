@@ -1,0 +1,26 @@
+[
+  {
+    "estCostGroupLevelID": 1,
+    "estCostGroupLevelDesc": "Direct Cost",
+    "rec_key": "299906246224705383474",
+    "company": ""
+  },
+  {
+    "estCostGroupLevelID": 2,
+    "estCostGroupLevelDesc": "Factory Cost",
+    "rec_key": "299906246224705383475",
+    "company": ""
+  },
+  {
+    "estCostGroupLevelID": 3,
+    "estCostGroupLevelDesc": "Full Cost",
+    "rec_key": "299906246224705383476",
+    "company": ""
+  },
+  {
+    "estCostGroupLevelID": 4,
+    "estCostGroupLevelDesc": "Selling Price",
+    "rec_key": "299906246224705383477",
+    "company": ""
+  }
+]

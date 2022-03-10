@@ -76,6 +76,15 @@ SESSION:DEBUG-ALERT = NO.
 
 /* gdm - */
 DEF VAR v-inv-bal AS DEC FORMAT "->>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cARCashEntry AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "ARCashEntry", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cARCashEntry = cRtnChar NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -212,7 +221,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ar-cashl.inv-no FORMAT ">>>>>>9":U WIDTH 15.2
+      ar-cashl.inv-no FORMAT ">>>>>>>9":U WIDTH 15.2
       ar-cashl.inv-date COLUMN-LABEL "Invoice Date" FORMAT "99/99/9999":U
             WIDTH 17.2
       ar-cashl.amt-due COLUMN-LABEL "Balance Due" FORMAT "->>,>>>,>>9.99":U
@@ -331,7 +340,7 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _FldNameList[1]   > ASI.ar-cashl.inv-no
-"ar-cashl.inv-no" ? ">>>>>>9" "integer" ? ? ? ? ? ? yes ? no no "15.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-cashl.inv-no" ? ">>>>>>>9" "integer" ? ? ? ? ? ? yes ? no no "15.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.ar-cashl.inv-date
 "ar-cashl.inv-date" "Invoice Date" ? "date" ? ? ? ? ? ? no ? no no "17.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.ar-cashl.amt-due
@@ -401,7 +410,12 @@ DO:
 
     CASE FOCUS:NAME:
         WHEN "inv-no" THEN DO:
+             IF cARCashEntry EQ "Ask" THEN        
              RUN ar/d-arinvq.w (OUTPUT lvSelection).
+             ELSE IF cARCashEntry EQ "Auto" THEN
+             lvSelection = "Summary".
+             ELSE  lvSelection = "Detail".
+             
              IF lvSelection = "Summary" THEN
                 RUN ar/l-arinv.w (ar-cash.company,ar-cash.cust-no,FOCUS:SCREEN-VALUE, OUTPUT char-val, OUTPUT lk-recid).
              ELSE 
@@ -782,7 +796,7 @@ PROCEDURE create-onaccount :
   ld-unapplied = ar-cash.check-amt - ld-unapplied.
 
   IF ld-unapplied GT 0 THEN
-     MESSAGE "Put UNAPPLIED monies ON ACCOUNT?"
+     MESSAGE "Customer has no open invoices – Apply this payment on account?"
         VIEW-AS ALERT-BOX BUTTON YES-NO
         UPDATE choice.
 
@@ -989,7 +1003,12 @@ PROCEDURE local-add-record :
 
   FIND FIRST bf-cashl OF ar-cash NO-LOCK NO-ERROR.
   IF NOT AVAIL bf-cashl THEN DO:
+     IF cARCashEntry EQ "Ask" THEN
      RUN ar/d-arinvq.w (OUTPUT lvSelection).
+     ELSE IF cARCashEntry EQ "Auto" THEN
+     lvSelection = "Summary".
+     ELSE  lvSelection = "Detail".
+     
      IF lvSelection = "Summary" THEN
         RUN ar/d-selinv.w (RECID(ar-cash), NO, OUTPUT lv-canceled).
      ELSE

@@ -13,6 +13,10 @@
     Created     : Tue Jun 20 08:50:05 EDT 2017
     Notes       :
   ----------------------------------------------------------------------*/
+  
+  DEFINE TEMP-TABLE formule NO-UNDO 
+    FIELD formule AS DECIMAL EXTENT 12
+    .
 
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT PARAMETER ipriEb               AS ROWID NO-UNDO.
@@ -20,17 +24,12 @@ DEFINE INPUT PARAMETER iplRound             AS LOGICAL NO-UNDO.
 DEFINE INPUT PARAMETER iplDecimal           AS LOGICAL NO-UNDO.
 DEFINE INPUT PARAMETER ipdDecimalFactor     AS DECIMAL NO-UNDO.
 DEFINE INPUT PARAMETER ipdConversionFactor  AS DECIMAL NO-UNDO.
+DEFINE OUTPUT PARAMETER TABLE FOR formule.
 
 
 DEFINE VARIABLE iIndex        AS INTEGER NO-UNDO.
 DEFINE VARIABLE dSquareBoxFit AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dScores       AS DECIMAL NO-UNDO.
-
-
-
-/*REFACTOR - consider better temp-table with more descriptive fields*/
-DEFINE SHARED TEMP-TABLE formule 
-    FIELD formule AS DECIMAL EXTENT 12.
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -203,7 +202,7 @@ PROCEDURE pCalcFormula:
     /* Remove any blank/space or invalid character in formula */
     DO iIndex = 1 TO LENGTH(ipcFormula):
         IF KEYCODE(SUBSTRING(ipcFormula,iIndex,1)) = 32  /*space character*/ 
-            OR INDEX("0123456789.+-*/LWDTFJBOSI", SUBSTRING(ipcFormula,iIndex,1)) = 0 /*Invalid*/ 
+            OR INDEX("0123456789.+-*/LWDTFJBOSIGK", SUBSTRING(ipcFormula,iIndex,1)) = 0 /*Invalid*/ 
             THEN
             ipcFormula = SUBSTRING(ipcFormula,1,iIndex - 1) + SUBSTRING(ipcFormula,iIndex + 1).
     END.
@@ -224,28 +223,28 @@ PROCEDURE pCalcFormula:
                 iNextOperation              = iNextOperation + 1.
             NEXT.
         END.
-        IF INDEX("LWDJTSFBOIXY",cFormulaCharacter) > 0 AND dCalculations[iNextOperation] = 0 THEN 
+        IF INDEX("LWDJTSFBOIXYGK",cFormulaCharacter) > 0 AND dCalculations[iNextOperation] = 0 THEN 
         DO:
             IF cFormulaCharacter = "L" THEN dCalculations[iNextOperation] = ipdLength .
             IF cFormulaCharacter = "W" THEN dCalculations[iNextOperation] = ipdWidth .
             IF cFormulaCharacter = "D" THEN dCalculations[iNextOperation] = ipdDepth .
-            IF cFormulaCharacter = "J" THEN dCalculations[iNextOperation] = ipdJointTabWidth .
+            IF cFormulaCharacter = "J" OR cFormulaCharacter = "G" THEN dCalculations[iNextOperation] = ipdJointTabWidth .
             IF cFormulaCharacter = "T" THEN dCalculations[iNextOperation] = ipdTuck .
-            IF cFormulaCharacter = "S" THEN dCalculations[iNextOperation] = ipdScores .
+            IF cFormulaCharacter = "S" OR cFormulaCharacter = "K" THEN dCalculations[iNextOperation] = ipdScores .
             IF cFormulaCharacter = "F" THEN dCalculations[iNextOperation] = ipdTopDustFlap .
             IF cFormulaCharacter = "B" THEN dCalculations[iNextOperation] = ipdBottomFlap .
             IF cFormulaCharacter = "O" THEN dCalculations[iNextOperation] = ipdLockTab .
             IF cFormulaCharacter = "I" THEN dCalculations[iNextOperation] = ipdSquareBoxFit .
             NEXT.
         END.
-        ELSE IF INDEX("LWDJTSFBOIXY",cFormulaCharacter) > 0 AND dCalculations[iNextOperation] NE 0 THEN 
+        ELSE IF INDEX("LWDJTSFBOIXYGK",cFormulaCharacter) > 0 AND dCalculations[iNextOperation] NE 0 THEN 
             DO:
                 IF cFormulaCharacter = "L" THEN dCalculations[iNextOperation] = ipdLength * dCalculations[iNextOperation].
                 IF cFormulaCharacter = "W" THEN dCalculations[iNextOperation] = ipdWidth * dCalculations[iNextOperation].
                 IF cFormulaCharacter = "D" THEN dCalculations[iNextOperation] = ipdDepth * dCalculations[iNextOperation].
-                IF cFormulaCharacter = "J" THEN dCalculations[iNextOperation] = ipdJointTabWidth * dCalculations[iNextOperation].
+                IF cFormulaCharacter = "J" OR cFormulaCharacter = "G" THEN dCalculations[iNextOperation] = ipdJointTabWidth * dCalculations[iNextOperation].
                 IF cFormulaCharacter = "T" THEN dCalculations[iNextOperation] = ipdTuck * dCalculations[iNextOperation].
-                IF cFormulaCharacter = "S" THEN dCalculations[iNextOperation] = ipdScores * dCalculations[iNextOperation].
+                IF cFormulaCharacter = "S" OR cFormulaCharacter = "K" THEN dCalculations[iNextOperation] = ipdScores * dCalculations[iNextOperation].
                 IF cFormulaCharacter = "F" THEN dCalculations[iNextOperation] = ipdTopDustFlap * dCalculations[iNextOperation].
                 IF cFormulaCharacter = "B" THEN dCalculations[iNextOperation] = ipdBottomFlap * dCalculations[iNextOperation].
                 IF cFormulaCharacter = "O" THEN dCalculations[iNextOperation] = ipdLockTab * dCalculations[iNextOperation].
@@ -269,6 +268,7 @@ PROCEDURE pCalcFormula:
     END.
     
     /*Process NK1 ROUND*/
+    IF NOT iplDecimal OR iplRound THEN
     DO iIndex = 1 TO EXTENT(dCalculations):
         dCalculations[iIndex] = dCalculations[iIndex] * ipdDecimalFactor /*16 or 32*/.
         IF iplRound THEN

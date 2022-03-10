@@ -1962,6 +1962,23 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE :
             OUTPUT lSuccess,                /* Success/Failure flag */
             OUTPUT cMessage                 /* Status message */
             ) NO-ERROR.
+        
+        IF tb_corr:CHECKED IN FRAME {&FRAME-NAME} THEN
+            RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+                INPUT  ipbf-po-ord.company,                 /* Company Code (Mandatory) */
+                INPUT  ipbf-po-ord.loc,                     /* Location Code (Mandatory) */
+                INPUT  cAPIID,                              /* API ID (Mandatory) */
+                INPUT  ipbf-po-ord.vend-no,                 /* Scope ID */
+                INPUT  "Vendor",                            /* Scoped Type */
+                INPUT  "TransferToCorrugator",              /* Trigger ID (Mandatory) */
+                INPUT  "po-ord",                            /* Comma separated list of table names for which data being sent (Mandatory) */
+                INPUT  STRING(ROWID(ipbf-po-ord)),          /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                INPUT  cPrimaryID,                          /* Primary ID for which API is called for (Mandatory) */   
+                INPUT  cDescription,                        /* Event's description (Optional) */
+                OUTPUT lSuccess,                            /* Success/Failure flag */
+                OUTPUT cMessage                             /* Status message */
+                ) NO-ERROR.
+                        
         FIND FIRST vend NO-LOCK 
             WHERE vend.company EQ ipbf-po-ord.company
             AND vend.vend-no EQ ipbf-po-ord.vend-no

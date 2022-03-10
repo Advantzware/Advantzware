@@ -33,8 +33,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "PrePressHotFolderOut,METRIC,CEImportForm,CEImportFormFolder,BusinessFormLogo,CalcBtnImage,CalcBtnLink,DCClosedJobs,"
            + "ImportFolder,ImportLog,TagFormat,FgItemHideCalcFields,VendCostMatrix,RelSkipRecalc,RMAllowAdd,CECostSave,RMOverrunCostProtection,"
            + "SSBOLPassword,BOLImageFooter,InvAddDate,POFGDims,OEPriceHold,POConfigDir,EDILogs,AutoLogout,AutoLogoutLocal,RMTagValidation,"
-           + "MenuLink1,MenuLink2,MenuLink3,MenuLink4,MenuLink5,MenuLink6,MenuLink7,MenuLink8,MenuLinkASI,MenuLinkZoHo,MenuLinkUpgrade,"
-           + "BitMap,CEMenu,BOLPartial,OEAutoDateUpdate,SSPostFGTransfer,FGUnderOver,FGSetAdjustReason,AdjustReason,ShipNotesExpanded,CTIDir,"
+           + "CEMenu,BOLPartial,OEAutoDateUpdate,SSPostFGTransfer,FGUnderOver,FGSetAdjustReason,AdjustReason,ShipNotesExpanded,CTIDir,"
            + "TSBREAKSQTY,CERouteFromStyle,Tasker,CEUpdate,LoadTagLimit,RMHistoryBrowse,CeSizeVal,TSShowPending,FGHistoryDate,CEUpdateCAD,"
            + "FGLabel,AuditJobCalc,WipTag,WIPTAGSDefaultLocation,POItemFilterDefault,DynAuditField,DynTaskTicker,InvoiceSavePDF,BOLSavePDF,"
            + "FGBinInquiry,CEAutoCalcMessage,OERequiredField,CEReleases,FGVendCostEnhanced,Autorel,RelCredT,PhysCnt,ProdAceBarScan,JobExport," 
@@ -51,7 +50,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,POPriceHold,SearchLimits,SSIssueDefaultRM,PlateFile,APInvoiceLength,DeleteBinsAllowed,InvoiceApprovalOrderlineChange,QuotePriceMatrix,"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,CEVendorDefault"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,PriceMatrixPricingMethod,CaseLabel,InterCompanyBilling,"
-           + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,CEShipWeight"
+           + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST,CENewLayoutCalc,OEUseMatrixForNonstock,CEShipWeight"
            .
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -464,32 +463,6 @@ CASE ip-nk1-value:
     WHEN "RMTagValidation" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Validates the tag number upon issue Material Posting",
-        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
-    WHEN "MenuLink1" OR WHEN "MenuLink2" OR WHEN "MenuLink3" OR WHEN "MenuLink4" OR
-    WHEN "MenuLink5" OR WHEN "MenuLink6" OR WHEN "MenuLink7" OR WHEN "MenuLink8" THEN
-    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
-        INPUT "",
-        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
-    WHEN "MenuLinkASI" THEN
-    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
-        INPUT "http://www.advantzware.com",
-        INPUT "Graphics\asiicon.ico" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
-    WHEN "MenuLinkZoHo" THEN
-    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
-        INPUT "https://support.zoho.com/portal/advantzware/kb",
-        INPUT "Graphics\32x32\question.ico" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
-    WHEN "MenuLinkUpgrade" THEN
-    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
-        INPUT "https://desk.zoho.com/support/advantzware/ShowHomePage.do#Solutions",
-        INPUT "Graphics\32x32\question_and_answer.ico" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
-    WHEN "BitMap" THEN
-    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
-        INPUT "Graphics\bigboxes",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "CEMenu" THEN
@@ -1665,7 +1638,51 @@ CASE ip-nk1-value:
             INPUT 0,                              /* Int value */
             INPUT NO,                             /* Logical value */ 
             INPUT 0                               /* Dec value*/
-            ).
+            ).   
+    WHEN "ARCashEntry" THEN     
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "prompt for AR Invoice Line",   /* Description */
+            INPUT "Ask",                          /* Char Value */
+            INPUT 0,                              /* Int value */
+            INPUT NO,                             /* Logical value */ 
+            INPUT 0                               /* Dec value*/
+            ).           
+    WHEN "JOBQTYCUST" THEN     
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Create Job Quantity with overrun % from customer if no order?",  /* Description */
+            INPUT "",                                                               /* Char Value */
+            INPUT 0,                                                                /* Int value */
+            INPUT NO,                                                               /* Logical value */ 
+            INPUT 0                                                                 /* Dec value*/
+            ).           
+    WHEN "CENewLayoutCalc" THEN     
+    RUN sys/inc/addnk1.p (
+        INPUT cocode, 
+        INPUT ip-nk1-value, 
+        INPUT NO,           
+        INPUT "Use new Layout calculation routine?", /* Description */
+        INPUT "",                                   /* Char Value */
+        INPUT 0,                                    /* Int value */
+        INPUT NO,                                   /* Logical value */ 
+        INPUT 0                                     /* Dec value*/
+        ).
+    WHEN "OEUseMatrixForNonstock" THEN     
+    RUN sys/inc/addnk1.p (
+        INPUT cocode, 
+        INPUT ip-nk1-value, 
+        INPUT NO,           
+        INPUT "Use Price Matrix (and other auto-pricing) for non-stock (custom) items", /* Description */
+        INPUT "",                                   /* Char Value */
+        INPUT 0,                                    /* Int value */
+        INPUT NO,                                   /* Logical value */ 
+        INPUT 0                                     /* Dec value*/
+        ).    
     WHEN "CEShipWeight" THEN     
     RUN sys/inc/addnk1.p (
             INPUT cocode, 
@@ -1677,6 +1694,7 @@ CASE ip-nk1-value:
             INPUT NO,                             /* Logical value */ 
             INPUT 0                               /* Dec value*/
             ).                        
+        
 END CASE.
 ELSE
 CASE ip-nk1-value:

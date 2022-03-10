@@ -17,7 +17,7 @@
 DEFINE INPUT  PARAMETER ipcCompany              AS CHARACTER  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcWareHouseID          AS CHARACTER  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcLocationID           AS CHARACTER  NO-UNDO.
-DEFINE INPUT  PARAMETER ipcInventoryStockIDTag  AS CHARACTER  NO-UNDO.
+DEFINE INPUT  PARAMETER ipcTag                  AS CHARACTER  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcPrimaryID            AS CHARACTER  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcItemType             AS CHARACTER  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcUsername             AS CHARACTER  NO-UNDO.
@@ -32,6 +32,7 @@ DEFINE OUTPUT PARAMETER opcMessage              AS CHARACTER  NO-UNDO.
 g_company=ipcCompany.
 
 {sys/inc/var.i "new shared"}
+{inventory/ttBrowseInventory.i}
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lValidBin        AS LOGICAL   NO-UNDO.
@@ -40,6 +41,7 @@ DEFINE VARIABLE lValidCompany    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iRNo             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTransfer        AS CHARACTER NO-UNDO INITIAL "T".
 DEFINE VARIABLE lPromptForClose  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lError           AS LOGICAL   NO-UNDO.
 
 RUN Inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs. 
 
@@ -77,24 +79,8 @@ IF NOT lValidLoc THEN DO:
     RETURN.
 END.
 
-/* Validate location */
-RUN ValidateBin IN hdInventoryProcs (
-    ipcCompany,
-    ipcWareHouseID,
-    ipcLocationID,
-    OUTPUT lValidBin
-    ).
-
-IF ipcLocationID EQ "" OR NOT lValidBin THEN DO:
-    ASSIGN 
-        opcMessage = "Invalid LocationID " + ipcLocationID
-        oplSuccess = NO 
-        .
-    RETURN.
-END.
-
 /* Validate tag */
-IF ipcInventoryStockIDTag EQ "" THEN
+IF ipcTag EQ "" THEN
     ASSIGN 
         opcMessage = "Empty inventoryStockIDTag"
         oplSuccess = NO
@@ -120,25 +106,62 @@ IF ipcItemType EQ "" THEN
         oplSuccess = NO
         .
         
-
 IF NOT oplSuccess THEN
     RETURN.
 
+IF ipcItemType NE "RM" AND ipcItemType NE "FG" THEN
+    ASSIGN 
+        opcMessage = IF opcMessage EQ "" THEN 
+                         "Invalid ItemType"
+                     ELSE
+                         opcMessage + ", " + "Empty ItemType"
+        oplSuccess = NO
+        .
+
+IF NOT oplSuccess THEN
+    RETURN.
+    
+/* Checks whether tag# is valid or not */
+FIND FIRST loadtag NO-LOCK
+     WHERE loadtag.company   EQ ipcCompany
+       AND loadtag.ITEM-type EQ LOGICAL(ipcItemType, "RM/FG")
+       AND loadtag.tag-no    EQ ipcTag 
+     NO-ERROR.
+IF NOT AVAILABLE loadtag THEN DO:
+    ASSIGN
+       opcMessage = "Invalid Loadtag# " + ipcTag 
+       oplSuccess = NO
+       .
+    RETURN.  
+END.
+ 
+ /* Validate location */
+IF loadtag.item-type THEN
+    RUN ValidateBinRM IN hdInventoryProcs (
+        ipcCompany,
+        ipcWareHouseID,
+        ipcLocationID,
+        OUTPUT lValidBin
+        ).
+ELSE IF NOT loadtag.item-type THEN
+    RUN ValidateBin IN hdInventoryProcs (
+        ipcCompany,
+        ipcWareHouseID,
+        ipcLocationID,
+        OUTPUT lValidBin
+        ).
+
+IF ipcLocationID EQ "" OR NOT lValidBin THEN DO:
+    ASSIGN 
+        opcMessage = "Invalid LocationID " + ipcLocationID
+        oplSuccess = NO 
+        .
+    RETURN.
+END.
+ 
+ 
 /* Inventory transfer creation */ 
 IF ipcItemType EQ "FG" THEN DO:
-     
-     /* Checks whether tag# is valid or not */
-     FIND FIRST loadtag WHERE loadtag.company   = ipcCompany
-                          AND loadtag.ITEM-type = NO
-                          AND loadtag.tag-no    = ipcInventoryStockIDTag NO-LOCK NO-ERROR.
-     IF NOT AVAILABLE loadtag THEN DO:
-         ASSIGN
-            opcMessage = "Invalid Loadtag# " + ipcInventoryStockIDTag 
-            oplSuccess = NO
-            .
-         RETURN.  
-     END.
-
      /* Checks whether inventory is valid or not */
      FIND FIRST fg-bin WHERE fg-bin.company = ipcCompany
                          AND fg-bin.i-no    = ipcPrimaryID
@@ -147,7 +170,7 @@ IF ipcItemType EQ "FG" THEN DO:
                          NO-LOCK NO-ERROR.
      IF NOT AVAILABLE fg-bin THEN DO:
          ASSIGN
-            opcMessage = "Invalid Inventory for the tag " + ipcInventoryStockIDTag
+            opcMessage = "Invalid Inventory for the tag " + ipcTag
             oplSuccess = NO
             .
          RETURN.
@@ -233,7 +256,73 @@ IF ipcItemType EQ "FG" THEN DO:
                 .
     END.
 END.
-
+ELSE DO:
+    FIND FIRST rm-rctd NO-LOCK
+         WHERE rm-rctd.company   EQ ipcCompany
+           AND rm-rctd.rita-code EQ "T" 
+           AND rm-rctd.tag       EQ ipcTag
+         NO-ERROR.    
+    IF AVAILABLE rm-rctd THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Tag '" + ipcTag + "' has a pending transfer"
+            .
+        
+        RETURN.    
+    END.
+    
+    FIND FIRST rm-bin NO-LOCK
+         WHERE rm-bin.company EQ loadtag.company
+           AND rm-bin.i-no    EQ loadtag.i-no
+           AND rm-bin.tag     EQ loadtag.tag-no
+         NO-ERROR. 
+    IF NOT AVAILABLE rm-bin OR (AVAILABLE rm-bin AND rm-bin.qty LT 0) THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "No inventory exists for tag '" + loadtag.tag-no + "'"
+            .
+        
+        RETURN.    
+    END.
+    
+    IF rm-bin.loc     EQ ipcWareHouseID AND
+       rm-bin.loc-bin EQ ipcLocationID  THEN DO:
+        ASSIGN
+            opcMessage = "To Whse/Bin may not be the same as From Whse/Bin for item " + ipcPrimaryID
+            oplSuccess = NO
+            .
+        RETURN.
+    END.   
+    
+    RUN Inventory_CreateRMTransactionTransfer IN hdInventoryProcs (
+        INPUT  ROWID(rm-bin),
+        INPUT  ipcWareHouseID,
+        INPUT  ipcLocationID,
+        OUTPUT opriRctd,
+        OUTPUT lError,
+        OUTPUT opcMessage
+        ).
+    
+    oplSuccess = NOT lError.
+    
+    IF NOT oplSuccess THEN
+        RETURN.
+    
+    IF iplPost THEN DO:
+        RUN Inventory_BuildRawMaterialToPost IN hdInventoryProcs (
+            INPUT  opriRctd,
+            INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
+            ).    
+        
+        RUN Inventory_PostRawMaterials IN hdInventoryProcs (
+            INPUT  ipcCompany,
+            INPUT  TODAY,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage,
+            INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
+            ).    
+    END.
+END.    
 
 DELETE PROCEDURE hdInventoryProcs.
 

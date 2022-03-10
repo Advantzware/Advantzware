@@ -11,8 +11,6 @@ def input parameter v-format as char no-undo.
 
 def buffer xjob-mat for job-mat.
 def buffer xitem for item.
-def buffer b-ref1  for reftable.
-def buffer b-ref2  for reftable.
 
 {po/po-print.i}
 {methods/getExecutableFileName.i quoter}
@@ -44,6 +42,8 @@ DEF VAR ld AS DEC DECIMALS 10 NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR lv-uom LIKE job-mat.sc-uom NO-UNDO.
 
+DEFINE VARIABLE iIndex          AS INTEGER NO-UNDO.
+DEFINE VARIABLE lScoreAvailable AS LOGICAL NO-UNDO.
 
 DEF TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-qty AS DEC DECIMALS 3 EXTENT 20
@@ -552,36 +552,39 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     
     put skip.
     
-    run po/po-ordls.p (recid(po-ordl)).
+    RUN po/POProcs.p PERSISTENT SET hdPOProcs.
     
-    {po/po-ordls.i}
-            
+    RUN PO_GetLineScoresAndTypes IN hdPOProcs (
+        INPUT  po-ordl.company,
+        INPUT  po-ordl.po-no,
+        INPUT  po-ordl.line,
+        OUTPUT lv-val,
+        OUTPUT lv-typ
+        ).
+    
+    DELETE PROCEDURE hdPOProcs.  
+    
+    lScoreAvailable = FALSE.
+    
+    DO iIndex = 1 TO EXTENT(lv-val):
+        IF lv-val[iIndex] NE 0 OR lv-typ[iIndex] NE "" THEN DO:
+            lScoreAvailable = TRUE.
+            LEAVE.
+        END.
+    END.              
     /* Order Extension Record */
     
     /* TYPE */
     put "X".
 
-    do i = 1 to 12:
-      if avail b-ref1 then do:
+    do i = 1 to 17:
+      if lScoreAvailable then do:
         /* STYPE 1 to extent(b-ref1.val) */
-        put substr(b-ref1.dscr,i,1) format "xx".
+        put lv-typ[i] format "xx".
     
         /* SCORE 1 to extent(b-ref1.val) */
-        put trunc(b-ref1.val[i],0)                          format "9999"
-            (b-ref1.val[i] - trunc(b-ref1.val[i],0)) * 100  format "99".
-      end.
-            
-      else put "  000000".
-    end.
-
-    do i = 1 to 5:
-      if avail b-ref2 then do:
-        /* STYPE 1 to extent(b-ref2.val) */
-        put substr(b-ref2.dscr,i,1) format "xx".
-    
-        /* SCORE 1 to extent(b-ref2.val) */
-        put trunc(b-ref2.val[i],0)                          format "9999"
-            (b-ref2.val[i] - trunc(b-ref2.val[i],0)) * 100  format "99".
+        put trunc(lv-val[i],0)                          format "9999"
+            (lv-val[i] - trunc(lv-val[i],0)) * 100      format "99".
       end.
             
       else put "  000000".

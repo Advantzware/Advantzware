@@ -71,7 +71,7 @@ FOR EACH tt-report
                 xtt-report.key-01  = IF sort-by-cust THEN tt-report.key-09
                                 ELSE IF AVAILABLE itemfg THEN itemfg.procat ELSE ""
                 xtt-report.key-02  = ar-invl.i-no
-                xtt-report.key-03  = STRING(ar-invl.inv-no,"9999999")
+                xtt-report.key-03  = STRING(ar-invl.inv-no,"99999999")
                 xtt-report.key-09  = tt-report.key-09
                 xtt-report.key-10  = "ar-invl".
         END.
@@ -89,7 +89,7 @@ FOR EACH tt-report
                 v-exc            = YES
                 tt-report.key-01 = IF sort-by-cust THEN tt-report.key-09 ELSE ""
                 tt-report.key-02 = ""
-                tt-report.key-03 = STRING(ar-cashl.inv-no,"9999999").
+                tt-report.key-03 = STRING(ar-cashl.inv-no,"99999999").
 
             RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
@@ -485,6 +485,18 @@ FOR EACH tt-report
 
     /* IF tl_color = YES THEN */
     x-v-color = STRING(v-color).
+    ASSIGN
+        cSoldToName = ""
+        .
+    FOR EACH soldto NO-LOCK
+        WHERE soldto.company EQ cocode
+        AND soldto.cust-no   EQ v-cust-no
+        AND soldto.sold-id   EQ ar-inv.ship-id
+        :
+        ASSIGN
+            cSoldToName = soldto.sold-name
+            .
+    END.
     /* ELSE
         x-v-color = "". */
       
@@ -582,6 +594,8 @@ FOR EACH tt-report
                 cVarValue = STRING(iOrdNo,">>>>>9")  .   
             WHEN "po-no"       THEN 
                 cVarValue = STRING(cPoNo)  .   
+            WHEN "cSoldToName" THEN 
+                cVarValue = STRING(cSoldToName,"x(30)")  .  
                                                               
         END CASE.
                       
@@ -843,6 +857,8 @@ FOR EACH tt-report
                         cVarValue = "".   
                     WHEN "po-no"       THEN 
                         cVarValue = "".
+                    WHEN "cSoldToName" THEN 
+                        cVarValue = "".
                                                               
                 END CASE.
                       
@@ -997,6 +1013,8 @@ FOR EACH tt-report
                     WHEN "ord-no"      THEN 
                         cVarValue = "".   
                     WHEN "po-no"       THEN 
+                        cVarValue = "".
+                    WHEN "cSoldToName" THEN 
                         cVarValue = "".
                                                               
                 END CASE.
@@ -1154,6 +1172,8 @@ DO:
             WHEN "ord-no"      THEN 
                 cVarValue = "".   
             WHEN "po-no"       THEN 
+                cVarValue = "".
+            WHEN "cSoldToName" THEN 
                 cVarValue = "".
                                                               
         END CASE.

@@ -456,7 +456,8 @@ DO:
             item-name:SCREEN-VALUE IN FRAME {&frame-name},
             cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
             fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
-            LOGICAL(tb_auto:SCREEN-VALUE IN FRAME {&frame-name}), OUTPUT lv-rowid) . 
+            LOGICAL(tb_auto:SCREEN-VALUE IN FRAME {&frame-name}),
+            fg-no:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT lv-rowid) . 
         FIND FIRST bff-ttInputEst NO-LOCK
             WHERE bff-ttInputEst.cCompany EQ cocode
             AND ROWID(bff-ttInputEst) EQ lv-rowid NO-ERROR .
@@ -484,7 +485,8 @@ DO:
                 item-name:SCREEN-VALUE IN FRAME {&frame-name},
                 cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
-                LOGICAL(tb_auto:SCREEN-VALUE IN FRAME {&frame-name}), OUTPUT lv-rowid) . 
+                LOGICAL(tb_auto:SCREEN-VALUE IN FRAME {&frame-name}),
+                fg-no:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT lv-rowid) . 
             
             RUN repo-query (lv-rowid).            
         END.      
@@ -531,7 +533,8 @@ DO:
                 item-name:SCREEN-VALUE IN FRAME {&frame-name},
                 cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
-                LOGICAL(tb_auto:SCREEN-VALUE IN FRAME {&frame-name}),OUTPUT lv-rowid) . 
+                LOGICAL(tb_auto:SCREEN-VALUE IN FRAME {&frame-name}),
+                fg-no:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT lv-rowid) . 
    
             RUN repo-query (ROWID(ttInputEst)).
         END.
@@ -1465,8 +1468,11 @@ PROCEDURE pDefaultValue :
         ------------------------------------------------------------------------------*/
     
     DO WITH FRAME {&FRAME-NAME}:
-
-           
+      FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR. 
+      IF AVAILABLE ce-ctrl THEN
+      cType:SCREEN-VALUE = ce-ctrl.spare-char-1. 
+      ELSE
+      cType:SCREEN-VALUE = "No".
     END.
 
 END PROCEDURE.
@@ -1656,7 +1662,8 @@ PROCEDURE pDisplayValue :
                     ttInputEst.cSetType         = "Set"
                     ttInputEst.cCompany         = cocode 
                     ttInputEst.iFormNo          = bf-eb.form-no
-                    ttInputEst.iBlankNo         = bf-eb.blank-no             
+                    ttInputEst.iBlankNo         = bf-eb.blank-no
+                    ttInputEst.cStockNo         = bf-eb.stock-no
                     ttInputEst.cPartID          = bf-eb.part-no             
                     ttInputEst.cPartName        = bf-eb.part-dscr1
                     ttInputEst.cPartDescription = eb.part-dscr2

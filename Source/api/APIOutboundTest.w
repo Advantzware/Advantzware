@@ -32,7 +32,7 @@ USING System.SharedConfig.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
-
+{api/ttReceipt.i}
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -728,6 +728,8 @@ DO:
     DEFINE VARIABLE lSuccess              AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lcRequestData         AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE riReceipt             AS ROWID     NO-UNDO.
+    DEFINE VARIABLE iCount                AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cTag                  AS CHARACTER NO-UNDO.
     
     EMPTY TEMP-TABLE ttArgs.
  
@@ -941,6 +943,93 @@ DO:
                 INPUT STRING(riReceipt)
                 ).
         END.
+        WHEN "SendReceipts" THEN DO:
+            EMPTY TEMP-TABLE ttReceipt.
+            
+            FIND FIRST po-ordl NO-LOCK
+                 WHERE po-ordl.company EQ cCompany
+                   AND po-ordl.po-no   EQ INTEGER(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-"))
+                   AND po-ordl.line    EQ INTEGER(ENTRY(2,fiPrimaryKey:SCREEN-VALUE,"-"))
+                 NO-ERROR.
+            IF NOT AVAILABLE po-ordl THEN DO:
+                MESSAGE "Invalid PO #. Enter receipts to find in <PO>-<POLine> format"
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN.            
+            END.
+            
+            cTag = ENTRY(3,fiPrimaryKey:SCREEN-VALUE,"-") NO-ERROR.
+            
+            IF NOT po-ordl.item-type THEN DO:
+                FOR EACH fg-rcpth NO-LOCK
+                    WHERE fg-rcpth.company    EQ po-ordl.company
+                      AND fg-rcpth.i-no       EQ po-ordl.i-no
+                      AND fg-rcpth.rita-code  EQ "R"
+                      AND fg-rcpth.po-no      EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
+                      AND fg-rcpth.po-line    EQ po-ordl.line,
+                    FIRST fg-rdtlh NO-LOCK
+                    WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
+                      AND (fg-rdtlh.tag      EQ cTag OR cTag EQ "")
+                      AND fg-rdtlh.rita-code EQ "R":
+                    CREATE ttReceipt.
+                    ASSIGN
+                        iCount                 = iCount + 1
+                        ttReceipt.lineID       = iCount                           
+                        ttReceipt.company      = fg-rcpth.company
+                        ttReceipt.location     = fg-rcpth.loc
+                        ttReceipt.poID         = INTEGER(fg-rcpth.po-no)
+                        ttReceipt.poLine       = fg-rcpth.po-line
+                        ttReceipt.jobID        = fg-rcpth.job-no
+                        ttReceipt.jobID2       = fg-rcpth.job-no2
+                        ttReceipt.itemID       = fg-rcpth.i-no
+                        ttReceipt.itemName     = IF fg-rcpth.i-name EQ "" THEN fg-rcpth.i-no ELSE fg-rcpth.i-name
+                        ttReceipt.quantityUOM  = "EA"
+                        ttReceipt.quantity     = fg-rdtlh.qty
+                        ttReceipt.rcpthRowID   = ROWID(fg-rcpth)
+                        .    
+                END.
+            END.
+            ELSE DO:   
+                FOR EACH rm-rcpth NO-LOCK
+                    WHERE rm-rcpth.company    EQ po-ordl.company
+                      AND rm-rcpth.i-no       EQ po-ordl.i-no
+                      AND rm-rcpth.rita-code  EQ "R"
+                      AND rm-rcpth.po-no      EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
+                      AND rm-rcpth.po-line    EQ po-ordl.line,
+                    FIRST rm-rdtlh NO-LOCK
+                    WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
+                      AND (rm-rdtlh.tag      EQ cTag OR cTag EQ "")
+                      AND rm-rdtlh.rita-code EQ "R":
+                    CREATE ttReceipt.
+                    ASSIGN
+                        iCount                 = iCount + 1                        
+                        ttReceipt.lineID       = iCount
+                        ttReceipt.company      = rm-rcpth.company
+                        ttReceipt.location     = rm-rcpth.loc
+                        ttReceipt.poID         = INTEGER(rm-rcpth.po-no)
+                        ttReceipt.poLine       = rm-rcpth.po-line
+                        ttReceipt.jobID        = rm-rcpth.job-no
+                        ttReceipt.jobID2       = rm-rcpth.job-no2                  
+                        ttReceipt.itemID       = rm-rcpth.i-no
+                        ttReceipt.itemName     = IF rm-rcpth.i-name EQ "" THEN rm-rcpth.i-no ELSE rm-rcpth.i-name
+                        ttReceipt.quantityUOM  = rm-rcpth.pur-uom
+                        ttReceipt.quantity     = rm-rdtlh.qty
+                        ttReceipt.rcpthRowID   = ROWID(rm-rcpth)
+                        .
+                END.
+            END.
+
+            IF NOT TEMP-TABLE ttReceipt:HAS-RECORDS THEN DO:
+                MESSAGE "No receipts available"
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN.                
+            END. 
+
+            RUN pCreateArgs (
+                INPUT "ROWID",
+                INPUT "TTReceiptHandle",
+                INPUT STRING(TEMP-TABLE ttReceipt:HANDLE)
+                ).   
+        END.        
         WHEN "SendInvoice" THEN DO:
             FIND FIRST inv-head NO-LOCK
                  WHERE inv-head.company EQ cCompany
@@ -968,7 +1057,8 @@ DO:
                     INPUT STRING(ROWID(ar-inv))
                     ).
         END.
-        WHEN "SendOrderAck"  THEN DO:
+        WHEN "SendOrderAck" OR
+        WHEN "SendOrder" THEN DO:
             FIND FIRST oe-ord NO-LOCK
                  WHERE oe-ord.company EQ cCompany
                    AND oe-ord.ord-no   EQ INTEGER(fiPrimaryKey:SCREEN-VALUE)

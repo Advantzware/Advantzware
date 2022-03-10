@@ -21,6 +21,7 @@ PROCEDURE pDynBrowserParam:
     IF AVAILABLE dynSubject THEN DO:
         ASSIGN
             iSubjectID = dynSubject.subjectID
+            iSubjectID = DYNAMIC-FUNCTION("sfSubjectID",iSubjectID)
             cUserID    = USERID("ASI")
             cPrgmName  = "[" + ipcSubjectAltID + "]"
             .

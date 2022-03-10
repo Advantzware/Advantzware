@@ -118,11 +118,11 @@ DEFINE QUERY BROWSE-2 FOR
 DEFINE BROWSE BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 Dialog-Frame _STRUCTURED
   QUERY BROWSE-2 NO-LOCK DISPLAY
-      po-ordl.po-no FORMAT ">>>>>9":U
+      po-ordl.po-no FORMAT ">>>>>>>9":U
       po-ordl.job-no FORMAT "x(6)":U
       po-ordl.job-no2 FORMAT ">9":U
       po-ordl.i-no FORMAT "x(15)":U
-      po-ordl.s-num FORMAT ">9":U
+      po-ordl.s-num COLUMN-LABEL "Form #" FORMAT ">9":U
       po-ordl.b-num FORMAT ">9":U WIDTH 7.6
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

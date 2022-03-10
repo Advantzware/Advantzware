@@ -23,6 +23,10 @@ DEFINE TEMP-TABLE ttDMITrans NO-UNDO LIKE dmiTrans.
 
 /* ************************  Function Prototypes ********************** */
 
+FUNCTION fGetLocation RETURNS CHARACTER PRIVATE
+	(ipcCompany AS CHARACTER,
+	 ipcMachineID AS CHARACTER) FORWARD.
+
 FUNCTION fGetTag RETURNS CHARACTER PRIVATE
 	(BUFFER dmiTrans FOR dmiTrans) FORWARD.
 
@@ -39,7 +43,8 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lExportOnly AS LOGICAL   NO-UNDO.
-
+    DEFINE VARIABLE cLocation   AS CHARACTER NO-UNDO.
+    
     DEFINE BUFFER bDMITrans FOR dmiTrans.
 
     EMPTY TEMP-TABLE ttDMITrans.
@@ -56,6 +61,7 @@ PROCEDURE pBusinessLogic:
                     WHERE mach.spare-int-2 EQ dmiTrans.dmiID) THEN
         NEXT.
         // only process dmitrans record with invalid dmiid values
+            
         CREATE ttDMITrans.
         BUFFER-COPY dmiTrans TO ttDMITrans.
         CASE cPostDelete:
@@ -67,12 +73,15 @@ PROCEDURE pBusinessLogic:
                     ASSIGN
                         cEstimateID = fGetXRef(cCompany, dmiTrans.jobID)
                         cTag        = fGetTag(BUFFER dmiTrans)
+                        cLocation   = fGetLocation(cCompany, STRING(dmiTrans.dmiID))
                         lExportOnly = NO
                         .
                     RUN jc\ProcessFurnishBatch.p (
                         cCompany,
                         cEstimateID,
                         cTag,
+                        TODAY,
+                        cLocation, 
                         lExportOnly,
                         OUTPUT lError,
                         OUTPUT cMessage
@@ -92,6 +101,24 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
+FUNCTION fGetLocation RETURNS CHARACTER PRIVATE
+	(ipcCompany AS CHARACTER, ipcMachineID AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose:  Given a machine code, return the location of that machine
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cLocation AS CHARACTER.
+    
+    FIND FIRST mach NO-LOCK 
+        WHERE mach.company EQ ipcCompany
+        AND mach.m-code EQ ipcMachineID
+        NO-ERROR.
+	IF AVAILABLE mach THEN 
+	   cLocation = mach.physicalLoc.
+        
+    RETURN cLocation.        
+END FUNCTION.
+
 FUNCTION fGetTag RETURNS CHARACTER PRIVATE
 	(BUFFER dmiTrans FOR dmiTrans):
 /*------------------------------------------------------------------------------
@@ -105,7 +132,7 @@ FUNCTION fGetTag RETURNS CHARACTER PRIVATE
         cDateTime = STRING(YEAR(dmiTrans.tranDate),"9999") + STRING(MONTH(dmiTrans.tranDate),"99") + STRING(DAY(dmiTrans.tranDate),"99") + STRING(dmiTrans.tranTime,"99999")
         cTag = STRING(dmiTrans.dmiID) + "-" + dmiTrans.jobID + cDateTime 
         .
-	RETURN cTag.
+	RETURN SUBSTRING(cTag,1,20).
 	
 END FUNCTION.
 
@@ -121,7 +148,9 @@ FUNCTION fGetXRef RETURNS CHARACTER PRIVATE
         INPUT "Formula", 
         INPUT ipcLookup, 
         OUTPUT cReturn).
-
+    
+    RUN util/rjust.p (INPUT-OUTPUT cReturn, 8).
+    
     RETURN cReturn.   /* Function return value. */
 		
 END FUNCTION.

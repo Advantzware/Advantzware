@@ -150,6 +150,7 @@ END.
 DEFINE VARIABLE viEQtyPrev     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cOldFGItem     AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessCreateFG AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessClose    AS LOGICAL   NO-UNDO.
@@ -188,6 +189,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /
     OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN
     lQuotePriceMatrix = logical(cNK1Value) NO-ERROR.     
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCEUseNewLayoutCalc = logical(cNK1Value) NO-ERROR. 
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -354,8 +360,8 @@ DEFINE BROWSE br-estitm
       eb.cust-% COLUMN-LABEL "Qty/Set" FORMAT "->>,>>>":U WIDTH 10
       eb.i-col FORMAT ">9":U
       eb.i-coat FORMAT ">9":U
-      eb.form-no COLUMN-LABEL "S" FORMAT ">>>":U
-      eb.blank-no COLUMN-LABEL "B" FORMAT ">>>":U
+      eb.form-no COLUMN-LABEL "Form" FORMAT ">>>":U WIDTH 6.5
+      eb.blank-no COLUMN-LABEL "Blank" FORMAT ">>>":U WIDTH 6.5
       eb.num-wid FORMAT ">9":U
       eb.num-len FORMAT ">9":U
       eb.num-up COLUMN-LABEL "# Up" FORMAT ">>9":U
@@ -522,9 +528,9 @@ ASSIGN
      _FldNameList[20]   > ASI.eb.i-coat
 "eb.i-coat" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > ASI.eb.form-no
-"eb.form-no" "S" ">>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.form-no" "Form" ">>>" "integer" ? ? ? ? ? ? no ? no no "6.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > ASI.eb.blank-no
-"eb.blank-no" "B" ">>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.blank-no" "Blank" ">>>" "integer" ? ? ? ? ? ? no ? no no "6.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   = ASI.eb.num-wid
      _FldNameList[24]   = ASI.eb.num-len
      _FldNameList[25]   > ASI.eb.num-up
@@ -647,7 +653,7 @@ DO:
            ELSE lv-ind = "".  
            IF AVAILABLE style AND style.type EQ "f" THEN DO: /* foam */
               RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
-              ef.board:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).
+              ef.board:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val).
               RUN new-board.
               APPLY "ENTRY":U TO ef.board.
            END. /* if foam */
@@ -2089,7 +2095,11 @@ PROCEDURE calc-layout :
       RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
       {ce/ceroute1.i w id l en} 
     END.
-    RUN ce/calc-dim.p.
+    
+    IF lCEUseNewLayoutCalc THEN
+        RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+    ELSE
+        RUN ce/calc-dim.p.
   END.
 
 END PROCEDURE.
@@ -4379,7 +4389,12 @@ PROCEDURE local-delete-record :
     IF lAllowResetType OR NOT ll-mass-del THEN
     RUN reset-est-type (OUTPUT li-est-type).
 
-    IF AVAIL eb THEN RUN dispatch ("open-query").
+    IF AVAIL eb THEN     
+    DO: 
+        RUN dispatch ("open-query").
+        RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'Record-source':U,OUTPUT char-hdl).
+        RUN pReOpenQuery IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+    END.
   END.
 
   ELSE DO:    

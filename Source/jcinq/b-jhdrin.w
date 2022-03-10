@@ -169,7 +169,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      job-hdr.frm COLUMN-LABEL "Sheet" FORMAT ">>>":U LABEL-BGCOLOR 14
+      job-hdr.frm COLUMN-LABEL "Form" FORMAT ">>>":U LABEL-BGCOLOR 14
       job-hdr.blank-no COLUMN-LABEL "Blank" FORMAT ">>>":U LABEL-BGCOLOR 14
       job-hdr.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
@@ -274,7 +274,7 @@ ASSIGN
      _TblList          = "ASI.job-hdr OF ASI.job"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _FldNameList[1]   > ASI.job-hdr.frm
-"job-hdr.frm" "Sheet" ">>>" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.frm" "Form" ">>>" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-hdr.blank-no
 "job-hdr.blank-no" "Blank" ">>>" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-hdr.cust-no

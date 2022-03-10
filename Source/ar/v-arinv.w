@@ -181,7 +181,7 @@ DEFINE FRAME F-Main
           SIZE 21 BY 1
      ship_name AT ROW 2.43 COL 37 COLON-ALIGNED NO-LABEL
      ar-inv.inv-no AT ROW 3.38 COL 16 COLON-ALIGNED
-          LABEL "Invoice#" FORMAT ">>>>>>9"
+          LABEL "Invoice#" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 21 BY 1
      ar-inv.po-no AT ROW 4.33 COL 16 COLON-ALIGNED
@@ -1509,12 +1509,11 @@ PROCEDURE proc-enable :
 ------------------------------------------------------------------------------*/
       
    IF NOT adm-new-record THEN
-     IF ar-inv.posted THEN DO:
-        DEF VAR char-hdl AS cha NO-UNDO.
-        MESSAGE "This invoice has been posted. No changes are allowed!" 
-                VIEW-AS ALERT-BOX ERROR.
-        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-source", OUTPUT char-hdl).
-        RUN apply-cancel IN WIDGET-HANDLE(char-hdl).
+     IF ar-inv.posted THEN DO:        
+       DO WITH FRAME {&FRAME-NAME}:
+         DISABLE ALL .
+         ENABLE ar-inv.ediInvoice.
+       END. 
      END.
 
      ELSE

@@ -13,24 +13,25 @@
 {jc/jcgl-sh.i  NEW}
 {fg/fg-post3.i NEW}
 
-DEFINE INPUT        PARAMETER ipcCompany                 AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipcInventoryStockID        AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipdQuantity                AS DECIMAL   NO-UNDO.
-DEFINE INPUT        PARAMETER ipcQuantityUOM             AS CHARACTER NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER iopiPONo                   AS INTEGER   NO-UNDO.
-DEFINE INPUT        PARAMETER ipiPOLine                  AS INTEGER   NO-UNDO. 
-DEFINE INPUT-OUTPUT PARAMETER iopcJobID                  AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipcJobID2                  AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipiQuantityPerSubUnit      AS INTEGER   NO-UNDO.
-DEFINE INPUT        PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
-DEFINE INPUT        PARAMETER ipcWarehouseID             AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipcLocationID              AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipcSSPostFG                AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipcUsername                AS CHARACTER NO-UNDO.
-DEFINE OUTPUT       PARAMETER opriRctd                   AS ROWID     NO-UNDO.
-DEFINE OUTPUT       PARAMETER opdFinalQuantity           AS DECIMAL   NO-UNDO.
-DEFINE OUTPUT       PARAMETER oplSuccess                 AS LOGICAL   NO-UNDO.
-DEFINE OUTPUT       PARAMETER opcMessage                 AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcCompany                         AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcInventoryStockID                AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipdQuantity                        AS DECIMAL   NO-UNDO.
+DEFINE INPUT        PARAMETER ipcQuantityUOM                     AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopiPONo                           AS INTEGER   NO-UNDO.
+DEFINE INPUT        PARAMETER ipiPOLine                          AS INTEGER   NO-UNDO. 
+DEFINE INPUT-OUTPUT PARAMETER iopcJobID                          AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcJobID2                          AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipiQuantityPerSubUnit              AS INTEGER   NO-UNDO.
+DEFINE INPUT        PARAMETER ipiQuantitySubUnitsPerUnit         AS INTEGER   NO-UNDO.
+DEFINE INPUT        PARAMETER ipcWarehouseID                     AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcLocationID                      AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER iplCreateFGCompReceiptForSetHeader AS LOGICAL   NO-UNDO.
+DEFINE INPUT        PARAMETER ipcSSPostFG                        AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcUsername                        AS CHARACTER NO-UNDO.
+DEFINE OUTPUT       PARAMETER opriRctd                           AS ROWID     NO-UNDO.
+DEFINE OUTPUT       PARAMETER opdFinalQuantity                   AS DECIMAL   NO-UNDO.
+DEFINE OUTPUT       PARAMETER oplSuccess                         AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT       PARAMETER opcMessage                         AS CHARACTER NO-UNDO.
 
 {api\inbound\ttRctd.i}
 
@@ -93,16 +94,6 @@ IF ipcInventoryStockID EQ "" THEN DO:
     RETURN.
 END.
 
-/* Validate Job Number and PO Number */
-IF iopiPONo NE 0 AND iopcJobID NE "" THEN DO:
-    ASSIGN 
-        opcMessage = "Enter either PO Number or Job Number for Tag  (" + ipcInventoryStockID + ")".                    
-        oplSuccess = NO
-        .
-        
-    RETURN.
-END.
-
 /* Validates PO Number and Quantity when tag is not registered */
 FIND FIRST loadtag NO-LOCK
      WHERE loadtag.company   EQ ipcCompany
@@ -115,6 +106,16 @@ IF NOT AVAILABLE loadtag THEN DO:
            AND loadtag.item-type EQ YES
            AND loadtag.tag-no    EQ ipcInventoryStockID
          NO-ERROR.
+END.
+
+/* Validate Job Number and PO Number */
+IF iopiPONo NE 0 AND iopcJobID NE "" AND AVAILABLE loadtag AND NOT loadtag.item-type THEN DO:
+    ASSIGN 
+        opcMessage = "Enter either PO Number or Job Number for Tag  (" + ipcInventoryStockID + ")".                    
+        oplSuccess = NO
+        .
+        
+    RETURN.
 END.
 
 IF NOT AVAILABLE loadtag THEN DO:
@@ -509,6 +510,19 @@ IF NOT lItemType THEN DO:
 END.
 /* RM process */
 ELSE DO:
+    FIND FIRST item NO-LOCK
+         WHERE item.company EQ ipcCompany
+           AND item.i-no    EQ cPrimaryID
+         NO-ERROR.
+    IF NOT AVAILABLE item THEN DO:
+        ASSIGN
+            opcMessage = "Invalid RM item '" + cPrimaryID + "'"
+            oplSuccess = NO
+            .
+
+        RETURN.            
+    END.
+    
     IF ipdQuantity LT 0 THEN DO:
         ASSIGN
             opcMessage = "Enter positive quantity for Tag (" + ipcInventoryStockID + ")"
@@ -554,6 +568,7 @@ ELSE DO:
         INPUT        ipcInventoryStockID,
         INPUT        ipdQuantity,
         INPUT        ipcQuantityUOM,
+        INPUT        item.pur-uom,
         INPUT-OUTPUT iopiPONo,
         INPUT        ipiPOLine,
         INPUT-OUTPUT iopcJobID,
@@ -574,58 +589,57 @@ ELSE DO:
         RETURN.
     END.
     
-    FOR EACH  rm-rctd NO-LOCK
-        WHERE rm-rctd.company   EQ ipcCompany
-          AND (rm-rctd.user-id  EQ "" OR
-               rm-rctd.user-id  EQ ipcUserName)
-          AND rm-rctd.rita-code EQ "R" /* Receipts */:
-
-        CREATE ttRctd.
-        BUFFER-COPY rm-rctd TO ttRctd
-        ASSIGN
-            ttRctd.rmrctdRowID  = ROWID(rm-rctd)
-            ttRctd.ttRctdHasRec = YES
-            ttRctd.SeqNo        = 1
-            .
-        IF lAutoIssue THEN DO:
-            /* creates RMRctd records for receipts */
-            RUN InventoryReceipt_RMIssueCreation IN hdInventoryReceipt (
-                INPUT-OUTPUT TABLE ttRctd BY-REFERENCE,  /* Just need to pass handle */
-                INPUT        rm-rctd.company,
-                INPUT        rm-rctd.tag,
-                INPUT-OUTPUT oplSuccess,
-                OUTPUT       opcMessage
-                ) NO-ERROR.
-
-            IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN DO:
-                ASSIGN
-                    opcMessage = "Error while creating RM issue for Tag (" + ipcInventoryStockID + ") " + ERROR-STATUS:GET-MESSAGE(1) + " " + opcMessage
-                    oplSuccess = NO
-                    .  
-                                      
-                RETURN.
-            END. 
-        END.
-    END.
-    
     opdFinalQuantity = ipdQuantity.
     
-    /* Posts RM goods  */
-    RUN InventoryReceipt_PostRMItems IN hdInventoryReceipt (
-        INPUT-OUTPUT TABLE ttRctd BY-REFERENCE, /* Just need to pass handle */
-        INPUT        ipcCompany,
-        INPUT        iopiPONo,
-        INPUT-OUTPUT oplSuccess,
-        OUTPUT       opcMessage
-        ) NO-ERROR.
-        
-    IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN DO:
-        ASSIGN
-            opcMessage = "Error while Posting RM receipt for Tag (" + ipcInventoryStockID + ") " + ERROR-STATUS:GET-MESSAGE(1) + " " + opcMessage
-            oplSuccess = NO
-            .
+    IF ipcSSPostFG NE "no" THEN DO:
+        FOR EACH  rm-rctd NO-LOCK
+            WHERE ROWID(rm-rctd) EQ opriRctd:
+            CREATE ttRctd.
+            BUFFER-COPY rm-rctd TO ttRctd
+            ASSIGN
+                ttRctd.rmrctdRowID  = ROWID(rm-rctd)
+                ttRctd.ttRctdHasRec = YES
+                ttRctd.SeqNo        = 1
+                .
+            IF lAutoIssue THEN DO:
+                /* creates RMRctd records for receipts */
+                RUN InventoryReceipt_RMIssueCreation IN hdInventoryReceipt (
+                    INPUT-OUTPUT TABLE ttRctd BY-REFERENCE,  /* Just need to pass handle */
+                    INPUT        rm-rctd.company,
+                    INPUT        rm-rctd.tag,
+                    INPUT-OUTPUT oplSuccess,
+                    OUTPUT       opcMessage
+                    ) NO-ERROR.
+    
+                IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN DO:
+                    ASSIGN
+                        opcMessage = "Error while creating RM issue for Tag (" + ipcInventoryStockID + ") " + ERROR-STATUS:GET-MESSAGE(1) + " " + opcMessage
+                        oplSuccess = NO
+                        .  
+                                          
+                    RETURN.
+                END. 
+            END.
+        END.
+    
+        /* Posts RM goods  */
+
+        RUN InventoryReceipt_PostRMItems IN hdInventoryReceipt (
+            INPUT-OUTPUT TABLE ttRctd BY-REFERENCE, /* Just need to pass handle */
+            INPUT        ipcCompany,
+            INPUT        iopiPONo,
+            INPUT-OUTPUT oplSuccess,
+            OUTPUT       opcMessage
+            ) NO-ERROR.
             
-        RETURN.
+        IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN DO:
+            ASSIGN
+                opcMessage = "Error while Posting RM receipt for Tag (" + ipcInventoryStockID + ") " + ERROR-STATUS:GET-MESSAGE(1) + " " + opcMessage
+                oplSuccess = NO
+                .
+                
+            RETURN.
+        END.
     END.
 END.
 
@@ -780,6 +794,10 @@ PROCEDURE pFGRecordCreation PRIVATE :
         .
         
     RELEASE bf-fg-rctd.
+
+    IF AVAILABLE itemfg AND iplCreateFGCompReceiptForSetHeader AND (itemfg.alloc EQ NO OR itemfg.alloc EQ ?) THEN
+        RUN fg/comprcpt.p (opriFGRctd).
+    
 END PROCEDURE.
 
 PROCEDURE pRMRecordCreation PRIVATE :
@@ -790,7 +808,8 @@ PROCEDURE pRMRecordCreation PRIVATE :
     DEFINE INPUT        PARAMETER ipcCompany                 AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcInventoryStockID        AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipdQuantity                AS DECIMAL   NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcQuantityUOM             AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcCostUOM                 AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcPurchaseUOM             AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiPONo                   AS INTEGER   NO-UNDO.
     DEFINE INPUT        PARAMETER ipiPOLine                  AS INTEGER   NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopcJobID                  AS CHARACTER NO-UNDO.
@@ -806,6 +825,7 @@ PROCEDURE pRMRecordCreation PRIVATE :
     DEFINE VARIABLE iFrm  AS DECIMAL NO-UNDO.
     
     DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+    DEFINE BUFFER bf-item    FOR item.
     
     RUN sys/ref/asiseq.p (
         INPUT ipcCompany, 
@@ -833,7 +853,8 @@ PROCEDURE pRMRecordCreation PRIVATE :
         bf-rm-rctd.loc        = ipcWarehouseID
         bf-rm-rctd.loc-bin    = ipcLocationID
         bf-rm-rctd.user-id    = ipcUserName
-        bf-rm-rctd.pur-uom    = ipcQuantityUOM
+        bf-rm-rctd.cost-uom   = ipcCostUOM
+        bf-rm-rctd.pur-uom    = ipcPurchaseUOM
         bf-rm-rctd.i-no       = cPrimaryID
         NO-ERROR .
          
@@ -936,7 +957,14 @@ PROCEDURE pRMRecordCreation PRIVATE :
             bf-rm-rctd.cost-uom = po-ordl.pr-uom
             .
     END.
-    
+
+    FIND FIRST bf-item NO-LOCK
+         WHERE bf-item.company EQ ipcCompany
+           AND bf-item.i-no    EQ cPrimaryID
+         NO-ERROR.
+    IF AVAILABLE bf-item AND bf-item.i-code EQ "R" THEN
+        bf-rm-rctd.pur-uom = bf-item.cons-uom.
+        
     IF NOT AVAILABLE loadtag THEN DO:
         
         IF AVAILABLE po-ordl THEN

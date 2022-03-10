@@ -1115,7 +1115,7 @@ PROCEDURE gl-from-work :
                 period.pnum,
                 "A",
                 TODAY,
-                "",
+                (IF work-gl.job-no NE "" THEN "Job:" + STRING(work-gl.job-no) + "-" + STRING(work-gl.job-no2,"99") ELSE ""),
                 "WIP"). 
             ASSIGN
                 debits  = 0
@@ -2693,7 +2693,7 @@ PROCEDURE run-report :
     DO:                                    
         OUTPUT STREAM excel TO VALUE(cFileName).                        /*Task# 02101407*/                  
         excelheader = "MACH,DESCRIPT,DP,DATE,SH,JOB #,"
-            + "S,B,P,ITEM #,ITEM DESCRIPTION,CODE,"
+            + "F,B,P,ITEM #,ITEM DESCRIPTION,CODE,"
             + "HOURS,START,STOP,CR,RUN QTY,WASTE,C".
         PUT STREAM excel UNFORMATTED 
             '"' REPLACE(excelheader,',','","') '"' SKIP.

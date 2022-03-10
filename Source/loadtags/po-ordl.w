@@ -289,7 +289,7 @@ DEFINE QUERY ttbl-browse-2 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 B-table-Win _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      po-ordl.po-no COLUMN-LABEL "PO #" FORMAT ">>>>>9":U
+      po-ordl.po-no COLUMN-LABEL "PO #" FORMAT ">>>>>>>9":U
       po-ordl.i-no FORMAT "x(15)":U
       po-ordl.job-no COLUMN-LABEL "Job #" FORMAT "x(6)":U
       po-ordl.job-no2 COLUMN-LABEL "" FORMAT ">9":U WIDTH 15.8

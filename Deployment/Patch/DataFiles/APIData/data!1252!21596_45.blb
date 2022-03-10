@@ -1,7 +1,0 @@
-        {
-          "Company": "$Company$",
-          "ItemID": "$ItemID$",
-          "CustomerID": "$CustomerID$",
-          "ShipToID": "$ShipToID$",
-          "Matrix": [$matrix$]
-        }

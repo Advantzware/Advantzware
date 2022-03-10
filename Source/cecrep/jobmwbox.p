@@ -48,6 +48,10 @@ DEF VAR v-note-cnt AS INT NO-UNDO.
 DEF VAR v-note-length AS INT NO-UNDO.
 DEF VAR v-die-loc AS cha FORM "x(15)" NO-UNDO.
 
+DEFINE VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
+DEFINE  SHARED VARIABLE s-prt-fgimage AS LOGICAL NO-UNDO.
+DEFINE BUFFER bf-itemfg         FOR itemfg .
+
 assign
  v-line[1] = chr(95) + fill(chr(95),40) + chr(95) + "  " +
              chr(95) + fill(chr(95),40) + chr(95) + "  " +
@@ -177,6 +181,11 @@ do v-local-loop = 1 to v-local-copies:
                      trim(string({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
                      trim(string({sys/inc/k16v.i xeb.dep},">,>>9.99")) else ""
            v-i-line[4] = "Joint: " + if avail xeb then v-joint-dscr else "".
+   
+           IF AVAIL xeb THEN
+                FIND FIRST bf-itemfg NO-LOCK
+                     WHERE bf-itemfg.company EQ xeb.company
+                       AND bf-itemfg.i-no EQ xeb.stock-no NO-ERROR . 
    
        /*===== for xprint */
 
@@ -559,6 +568,18 @@ do v-local-loop = 1 to v-local-copies:
             PAGE.
         end.
         ELSE PAGE.
+        
+        /* print fgitem's image */
+        IF s-prt-fgimage THEN DO:        
+            ls-fgitem-img = IF AVAIL bf-itemfg THEN bf-itemfg.box-image ELSE "".
+
+            PUT UNFORMATTED "<#12><R1><C1><FROM><C95><R+50><RECT><||3><C95>" /*v-qa-text*/ SKIP
+                "<=12><R+1><C5>FG Item: " (IF AVAIL bf-itemfg THEN bf-itemfg.i-no ELSE "") " " ( IF AVAIL bf-itemfg THEN bf-itemfg.i-name ELSE "")
+                "<=12><R+3><C1><FROM><C95><LINE><||3>"
+                "<=12><R+5><C5><#21><R+45><C+80><IMAGE#21=" ls-fgitem-img ">" SKIP. 
+            PAGE.
+        END. /* IF s-prt-fgimage THEN DO: */
+        
             end.  /* for each w-ef */
     end.  /* each job */
     end.  /* end v-local-loop  */

@@ -30,6 +30,14 @@ DEF VAR cOutDir AS CHAR NO-UNDO.
 ASSIGN 
     cOutDir = "C:\asigui\Upgrades\PATCH" + cNewVer + "\DataFiles".
 
+&SCOPED-DEFINE cFile attribute
+
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
 &SCOPED-DEFINE cFile audittbl
 
 OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
@@ -256,6 +264,27 @@ END.
 OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile estCostGroupLevel
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile estCostCategorySystem
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile estCostGroupSystem
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile estCostGroupLevelSystem
 OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
 FOR EACH {&cFile}:
     EXPORT {&cFile}.

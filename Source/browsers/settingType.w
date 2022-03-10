@@ -69,13 +69,14 @@ CREATE WIDGET-POOL.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table settingType.settingName settingType.description ~
-settingType.dataType settingType.validValues settingType.defaultValue 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table settingType.settingName ~
+settingType.description settingType.dataType settingType.validValues ~
+settingType.defaultValue 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH settingType WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH settingType WHERE ~{&KEY-PHRASE} NO-LOCK ~
-      ~{&SORTBY-PHRASE}.
+    ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table settingType
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table settingType
 
@@ -83,7 +84,7 @@ settingType.dataType settingType.validValues settingType.defaultValue
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+&Scoped-Define ENABLED-OBJECTS Browser-Table browse-order auto_find ~
 Btn_Clear_Find 
 &Scoped-Define DISPLAYED-OBJECTS fi_sortby browse-order auto_find 
 
@@ -100,74 +101,72 @@ Btn_Clear_Find
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Clear_Find 
-    LABEL "&Clear Find" 
-    SIZE 13 BY 1
-    FONT 4.
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
-DEFINE VARIABLE auto_find    AS CHARACTER FORMAT "X(256)":U 
-    LABEL "Auto Find" 
-    VIEW-AS FILL-IN 
-    SIZE 60 BY 1 NO-UNDO.
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 96 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_sortby    AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS FILL-IN 
-    SIZE 38 BY 1
-    BGCOLOR 14 FONT 6 NO-UNDO.
+DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 38 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER   INITIAL 1 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Name", 1,
-    "Description", 2
-    SIZE 55 BY 1 NO-UNDO.
+DEFINE VARIABLE browse-order AS INTEGER INITIAL 1 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Name", 1,
+"Description", 2
+     SIZE 55 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 145 BY 1.43.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 181 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
-    settingType SCROLLING.
+      settingType SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
-    QUERY Browser-Table NO-LOCK DISPLAY
-    settingType.settingName FORMAT "x(30)":U WIDTH 50 LABEL-BGCOLOR 14
-    settingType.description FORMAT "x(50)":U  WIDTH 50   LABEL-BGCOLOR 14
-    settingType.dataType COLUMN-LABEL "Data Type" FORMAT "x(15)":U 
-    LABEL-BGCOLOR 14
-    settingType.validValues COLUMN-LABEL "Valid Value" FORMAT "x(40)":U
-    LABEL-BGCOLOR 14
-    settingType.defaultValue COLUMN-LABEL "Default Value" FORMAT "x(20)":U
-    LABEL-BGCOLOR 14      
+  QUERY Browser-Table NO-LOCK DISPLAY
+      settingType.settingName FORMAT "x(50)":U WIDTH 50 LABEL-BGCOLOR 14
+      settingType.description FORMAT "x(50)":U WIDTH 50.4 LABEL-BGCOLOR 14
+      settingType.dataType FORMAT "x(15)":U LABEL-BGCOLOR 14
+      settingType.validValues COLUMN-LABEL "Valid Value" FORMAT "x(40)":U
+            LABEL-BGCOLOR 14
+      settingType.defaultValue FORMAT "x(20)":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 195 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 181 BY 23.33
          FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-    Browser-Table AT ROW 1 COL 1 HELP
-    "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-    fi_sortby AT ROW 18.86 COL 84 COLON-ALIGNED NO-LABELS
-    browse-order AT ROW 19.33 COL 6 HELP
-    "Select Browser Sort Order" NO-LABELS
-    auto_find AT ROW 19.33 COL 70 COLON-ALIGNED HELP
-    "Enter Auto Find Value"
-    Btn_Clear_Find AT ROW 19.33 COL 132 HELP
-    "CLEAR AUTO FIND Value"
-    "By:" VIEW-AS TEXT
-    SIZE 4 BY 1 AT ROW 19.33 COL 2
-    RECT-4 AT ROW 19.1 COL 1
+     Browser-Table AT ROW 1 COL 1 HELP
+          "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     fi_sortby AT ROW 24.1 COL 84 COLON-ALIGNED NO-LABEL
+     browse-order AT ROW 24.57 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 24.57 COL 70 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 24.57 COL 168 HELP
+          "CLEAR AUTO FIND Value"
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 24.57 COL 2
+     RECT-4 AT ROW 24.33 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1 SCROLLABLE 
-    BGCOLOR 8 FGCOLOR 0 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 8 FGCOLOR 0 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -183,11 +182,10 @@ DEFINE FRAME F-Main
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
-IF NOT THIS-PROCEDURE:PERSISTENT THEN 
-DO:
-    MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
-        VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-    RETURN.
+IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
+          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+  RETURN.
 END.
 
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -197,8 +195,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.52
-         WIDTH              = 195.
+         HEIGHT             = 25.71
+         WIDTH              = 181.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -225,19 +223,22 @@ END.
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
-    FRAME F-Main:SCROLLABLE = FALSE
-    FRAME F-Main:HIDDEN     = TRUE.
+       FRAME F-Main:SCROLLABLE       = FALSE
+       FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-    Browser-Table:PRIVATE-DATA IN FRAME F-Main           = "2"
-    Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+       Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
+                "2"
+       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 /* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
-    fi_sortby:HIDDEN IN FRAME F-Main    = TRUE
-    fi_sortby:READ-ONLY IN FRAME F-Main = TRUE.
+       fi_sortby:HIDDEN IN FRAME F-Main           = TRUE
+       fi_sortby:READ-ONLY IN FRAME F-Main        = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -247,17 +248,17 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
      _TblList          = "ASI.settingType"
-     _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"      
+     _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _FldNameList[1]   > ASI.settingType.settingName
-"settingName" ? "x(30)" "character" ? ? ? 14 ? ? no ? no no "50" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"settingName" ? "x(50)" "character" ? ? ? 14 ? ? no ? no no "50" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.settingType.description
 "description" ? "x(50)" "character" ? ? ? 14 ? ? no ? no no "50.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.settingType.dataType
-"dataType" "Data Type" "x(15)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"dataType" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.settingType.validValues
 "validValues" "Valid Value" "x(40)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.settingType.defaultValue
-"defaultValue" "Default Value" "x(20)" "Character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no     
+"defaultValue" ? "x(20)" "Character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -279,7 +280,7 @@ ASSIGN
 &Scoped-define SELF-NAME Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
-    DO:
+DO:
         /* This code displays initial values for newly added or copied rows. */
         {src/adm/template/brsentry.i}
     END.
@@ -290,7 +291,7 @@ ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
-    DO:
+DO:
         /* Do not disable this code or no updates will take place except
          by pressing the Save button on an Update SmartPanel. */
         {src/adm/template/brsleave.i}
@@ -302,7 +303,7 @@ ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
-    DO:
+DO:
     
         /* gdm - 09190806 */
         RUN StartSearch.
@@ -315,7 +316,7 @@ ON START-SEARCH OF Browser-Table IN FRAME F-Main
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
-    DO:
+DO:
         /* This ADM trigger code must be preserved in order to notify other
            objects when the browser's current row changes. */
         {src/adm/template/brschnge.i}
@@ -344,6 +345,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sortby:HIDDEN  = TRUE.
 fi_sortby:VISIBLE = FALSE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -352,20 +354,20 @@ fi_sortby:VISIBLE = FALSE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
-    /*------------------------------------------------------------------------------
-      Purpose:     Dispatched to this procedure when the Record-
-                   Source has a new row available.  This procedure
-                   tries to get the new row (or foriegn keys) from
-                   the Record-Source and process it.
-      Parameters:  <none>
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Dispatched to this procedure when the Record-
+               Source has a new row available.  This procedure
+               tries to get the new row (or foriegn keys) from
+               the Record-Source and process it.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.             */
-    {src/adm/template/row-head.i}
+  /* Define variables needed by this internal procedure.             */
+  {src/adm/template/row-head.i}
 
-    /* Process the newly available records (i.e. display fields,
-       open queries, and/or pass records on to any RECORD-TARGETS).    */
-    {src/adm/template/row-end.i}
+  /* Process the newly available records (i.e. display fields,
+     open queries, and/or pass records on to any RECORD-TARGETS).    */
+  {src/adm/template/row-end.i}
 
 END PROCEDURE.
 
@@ -374,17 +376,17 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME F-Main.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME F-Main.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -392,7 +394,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
 PROCEDURE export-xl :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -411,7 +413,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
@@ -428,10 +430,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -452,20 +453,20 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
-    /*------------------------------------------------------------------------------
-      Purpose:     Send record ROWID's for all tables used by
-                   this file.
-      Parameters:  see template/snd-head.i
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Send record ROWID's for all tables used by
+               this file.
+  Parameters:  see template/snd-head.i
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.               */
-    {src/adm/template/snd-head.i}
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
 
-    /* For each requested table, put it's ROWID in the output list.      */
-    {src/adm/template/snd-list.i "settingType"}
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "settingType"}
 
-    /* Deal with any unexpected table requests before closing.           */
-    {src/adm/template/snd-end.i}
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 
@@ -474,7 +475,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
-    /* -----------------------------------------------------------
+/* -----------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       

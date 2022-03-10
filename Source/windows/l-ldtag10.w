@@ -157,7 +157,7 @@ DEFINE BROWSE BROWSE-1
       tt-loadtag.loc FORMAT "x(5)":U
       tt-loadtag.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       tt-loadtag.ord-no FORMAT ">>>>>9":U
-      tt-loadtag.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>9":U
+      tt-loadtag.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>>>9":U
       tt-loadtag.qty COLUMN-LABEL "Qty" FORMAT "->>>,>>>,>>9.9<<<<<":U
       tt-loadtag.qty-case FORMAT "->,>>>,>>9":U
       tt-loadtag.pallet-count FORMAT "->,>>>,>>9":U

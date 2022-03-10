@@ -759,7 +759,7 @@ PROCEDURE run-report :
         fg-rctd.tag       FORMAT "x(20)" /* gdm - 12090821 */
         fg-rctd.job-no SPACE(0) "-" SPACE(0)
         fg-rctd.job-no2 FORMAT "99" SPACE(2)
-        fg-rctd.po-no        FORMAT "x(6)"  AT 55                                                            
+        fg-rctd.po-no        FORMAT "x(8)"  AT 55                                                            
         po-ord.vend-no       AT 61
         fg-rctd.loc-bin      AT 70       
         fg-rctd.cases        TO 85

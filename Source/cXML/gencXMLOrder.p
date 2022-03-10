@@ -700,6 +700,8 @@ PROCEDURE genOrderLinesLocal:
         oe-ordl.whsed     = oe-ordl.est-no NE ''
         oe-ordl.q-no      = oe-ord.q-no
         oe-ordl.prom-date = oe-ord.due-date
+        oe-ordl.ediPriceUOM = TRIM(itemUnitOfMeasure)
+        oe-ordl.ediPrice    = DEC(itemMoney)
         .
 
       IF oe-ordl.price EQ 0 THEN DO:                      

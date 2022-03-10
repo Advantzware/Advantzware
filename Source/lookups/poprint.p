@@ -44,7 +44,7 @@
 &Scoped-define auto-find-row 23.65
 
 &Global-define DATATYP1 INTEGER
-&Global-define FORMAT-1 >>>>>9
+&Global-define FORMAT-1 >>>>>>>9
 &Scoped-define FLDNAME1 po-ord.po-no
 &Scoped-define SORTBY-1 BY {&FLDNAME1}
 &Scoped-define DESCRIP1 PO Number

@@ -2,7 +2,7 @@
 <jsonDataAdapter class="net.sf.jasperreports.data.json.JsonDataAdapterImpl">
   <name>Invoice Form Adapter</name>
   <dataFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="repositoryDataLocation">
-    <location>InvoicePrint.json</location>
+    <location>InvoiceForm.json</location>
   </dataFile>
   <language>json</language>
   <useConnection>true</useConnection>

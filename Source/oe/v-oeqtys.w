@@ -46,6 +46,8 @@ DEF VAR li-bor AS INT NO-UNDO.
 DEF VAR li-ava AS INT NO-UNDO.
 DEF VAR li-reo AS INT NO-UNDO.
 
+DEFINE VARIABLE cDisplayFGLocationSummary AS CHARACTER NO-UNDO.
+
 {sys/inc/oereordr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -72,12 +74,15 @@ DEF VAR li-reo AS INT NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR oe-ordl.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-38 RECT-40 btn_onh btn_ono btn_all ~
-btn_bor btn_ava 
-&Scoped-Define DISPLAYED-OBJECTS btn_reo 
+&Scoped-Define ENABLED-OBJECTS RECT-40 btn_onh btn_ono btn_all btn_bor ~
+btn_ava 
+&Scoped-Define DISPLAYED-OBJECTS cLocation dOnHand dOnOrder dAllocated ~
+dAvailable btn_reo 
 
 /* Custom List Definitions                                              */
-/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,LocationQty,List-4,List-5,List-6 */
+&Scoped-define LocationQty cLocation dOnHand dOnOrder dAllocated ~
+dAvailable 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -133,8 +138,38 @@ DEFINE VARIABLE btn_reo AS CHARACTER FORMAT "X(256)":U
       VIEW-AS TEXT 
      SIZE 43.6 BY 1.1 NO-UNDO.
 
+DEFINE VARIABLE cLocation AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Location" 
+     VIEW-AS FILL-IN 
+     SIZE 16.4 BY 1
+     BGCOLOR 15 FGCOLOR 1  NO-UNDO.
+
+DEFINE VARIABLE dAllocated AS INTEGER FORMAT "->>>,>>>,>>9":U INITIAL 0 
+     LABEL "Allocated" 
+     VIEW-AS FILL-IN 
+     SIZE 16.4 BY 1
+     BGCOLOR 15 FGCOLOR 1  NO-UNDO.
+
+DEFINE VARIABLE dAvailable AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Available" 
+     VIEW-AS FILL-IN 
+     SIZE 16.4 BY 1
+     BGCOLOR 15 FGCOLOR 1  NO-UNDO.
+
+DEFINE VARIABLE dOnHand AS INTEGER FORMAT "->>>,>>>,>>9":U INITIAL 0 
+     LABEL "On Hand" 
+     VIEW-AS FILL-IN 
+     SIZE 16.4 BY 1
+     BGCOLOR 15 FGCOLOR 1  NO-UNDO.
+
+DEFINE VARIABLE dOnOrder AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "On Order" 
+     VIEW-AS FILL-IN 
+     SIZE 16.4 BY 1
+     BGCOLOR 15 FGCOLOR 1  NO-UNDO.
+
 DEFINE RECTANGLE RECT-38
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 152 BY 2.86.
 
 DEFINE RECTANGLE RECT-40
@@ -150,6 +185,11 @@ DEFINE FRAME F-Main
      btn_all AT ROW 1.24 COL 108
      btn_bor AT ROW 2.43 COL 20
      btn_ava AT ROW 2.43 COL 64
+     cLocation AT ROW 4.1 COL 18 COLON-ALIGNED
+     dOnHand AT ROW 4.1 COL 46 COLON-ALIGNED
+     dOnOrder AT ROW 4.1 COL 75 COLON-ALIGNED
+     dAllocated AT ROW 4.1 COL 105 COLON-ALIGNED
+     dAvailable AT ROW 4.1 COL 134 COLON-ALIGNED
      btn_reo AT ROW 2.48 COL 106 COLON-ALIGNED NO-LABEL
      "FG Item Totals" VIEW-AS TEXT
           SIZE 18 BY 2.38 AT ROW 1.24 COL 2
@@ -159,7 +199,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         FGCOLOR 1 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -189,7 +229,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 12.67
+         HEIGHT             = 5.14
          WIDTH              = 152.6.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -223,6 +263,18 @@ ASSIGN
        btn_reo:PRIVATE-DATA IN FRAME F-Main     = 
                 "Reorder".
 
+/* SETTINGS FOR FILL-IN cLocation IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN dAllocated IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN dAvailable IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN dOnHand IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN dOnOrder IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR RECTANGLE RECT-38 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -363,43 +415,81 @@ PROCEDURE calc-fgqtys :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var v-use-rel as log no-undo.
-  
-
-  find first itemfg where itemfg.company = oe-ordl.company and
-                          itemfg.i-no = oe-ordl.i-no
-                          no-lock no-error.                          
-  if not avail itemfg then do:
-     assign li-onh = 0
-              li-ono = 0
-              li-all = 0
-              li-bor = 0
-              li-ava = 0
-              li-reo = 0.
-     return error.
-  end.
+    ASSIGN 
+        li-onh     = 0
+        li-ono     = 0
+        li-all     = 0
+        li-bor     = 0
+        li-ava     = 0
+        li-reo     = 0
+        dAllocated = 0
+        dOnHand    = 0
+        dAvailable = 0
+        dOnOrder   = 0
+        cLocation  = ""
+        .
+    FIND FIRST itemfg NO-LOCK
+         WHERE itemfg.company EQ oe-ordl.company
+           AND itemfg.i-no    EQ oe-ordl.i-no
+         NO-ERROR.                          
+    IF NOT AVAILABLE itemfg THEN
+    RETURN ERROR.
  
-  IF oereordr-log OR oereordr-log EQ ? THEN
-      RUN oe/oereordr.p (BUFFER itemfg, INPUT oereordr-log, OUTPUT li-all).
-  ELSE li-all = itemfg.q-alloc. 
+    IF NOT oereordr-log THEN
+    li-all = itemfg.q-alloc.
+    ELSE
+    RUN oe/oereordr.p (BUFFER itemfg, INPUT oereordr-log, OUTPUT li-all).
 
-  if avail itemfg then
-    assign
-     li-onh = itemfg.q-onh
-     li-ono = itemfg.q-ono
-     /*li-all = itemfg.q-alloc */
-     li-bor = itemfg.q-back
-     li-ava = itemfg.q-onh +
-              (IF oereordr-cha EQ "XOnOrder" THEN 0 ELSE itemfg.q-ono) -
-              li-all
-     li-reo = itemfg.ord-level.
-
-  else assign li-onh = 0
-              li-ono = 0
-              li-all = 0
-              li-bor = 0
-              li-ava = 0
-              li-reo = 0.
+    ASSIGN
+        li-onh = itemfg.q-onh
+        li-ono = itemfg.q-ono
+        li-bor = itemfg.q-back
+        li-ava = itemfg.q-onh
+               + (IF oereordr-cha EQ "XOnOrder" THEN 0 ELSE itemfg.q-ono)
+               - li-all
+        li-reo = itemfg.ord-level
+        .
+    IF cDisplayFGLocationSummary EQ "YES" THEN DO:
+        FIND FIRST oe-rel NO-LOCK
+             WHERE oe-rel.company EQ oe-ordl.company
+               AND oe-rel.ord-no  EQ oe-ordl.ord-no
+               AND oe-rel.i-no    EQ oe-ordl.i-no
+             USE-INDEX ord-item
+             NO-ERROR.
+        IF NOT AVAILABLE oe-rel THEN DO:
+            RELEASE oe-ord.
+            RELEASE shipto.
+            FIND FIRST oe-ord NO-LOCK
+                 WHERE oe-ord.company EQ oe-ordl.company
+                   AND oe-ord.ord-no  EQ oe-ordl.ord-no
+                 NO-ERROR.
+            IF AVAILABLE oe-ord THEN
+            FIND FIRST shipto NO-LOCK
+                 WHERE shipto.company EQ oe-ord.company
+                   AND shipto.cust-no EQ oe-ord.cust-no
+                   AND shipto.ship-id EQ oe-ord.ship-id
+                 NO-ERROR.
+            IF AVAILABLE shipto THEN
+            cLocation = shipto.loc.
+            ELSE
+            IF AVAILABLE oe-ord THEN
+            cLocation = oe-ord.loc.
+        END.
+        ELSE
+        cLocation = oe-rel.spare-char-1.
+        FOR EACH itemfg-loc NO-LOCK
+            WHERE itemfg-loc.company EQ itemfg.company
+              AND itemfg-loc.loc     EQ cLocation
+              AND itemfg-loc.i-no    EQ itemfg.i-no
+            :
+            ASSIGN 
+                dOnHand    = dOnHand    + itemfg-loc.q-onh
+                dOnOrder   = dOnOrder   + itemfg-loc.q-ono
+                dAllocated = dAllocated + itemfg-loc.q-alloc
+                dAvailable = dAvailable + dOnHand + dOnOrder - dAllocated
+                .
+        END. /* each itemfg-loc */
+    END.
 
 END PROCEDURE.
 
@@ -437,7 +527,6 @@ PROCEDURE get-qtys :
   DEF OUTPUT PARAM op-bor AS INT NO-UNDO.
   DEF OUTPUT PARAM op-ava AS INT NO-UNDO.
   DEF OUTPUT PARAM op-reo AS INT NO-UNDO.
-
 
   ASSIGN
    op-onh = li-onh
@@ -498,6 +587,10 @@ PROCEDURE local-display-fields :
         RUN dispatch IN WIDGET-HANDLE(ENTRY(li,char-hdl)) ("display-fields").
     END.
     
+    IF cDisplayFGLocationSummary EQ "YES" THEN
+    DISPLAY {&LocationQty}.
+    ELSE
+    HIDE {&LocationQty}.
   END.
 
 END PROCEDURE.
@@ -518,6 +611,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  RUN spGetSettingByName("DisplayFGLocationSummary", OUTPUT cDisplayFGLocationSummary).
 
 END PROCEDURE.
 

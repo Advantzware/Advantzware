@@ -1732,9 +1732,6 @@ PROCEDURE gl-from-work :
     DEFINE INPUT PARAMETER ip-run AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ip-trnum AS INTEGER NO-UNDO.
 
-    DEFINE VARIABLE credits AS DECIMAL INIT 0 NO-UNDO.
-    DEFINE VARIABLE debits  AS DECIMAL INIT 0 NO-UNDO. 
-
 
     FIND FIRST period
         WHERE period.company EQ cocode
@@ -1747,30 +1744,19 @@ PROCEDURE gl-from-work :
         OR (ip-run EQ 2 AND work-gl.job-no EQ "")
         BREAK BY work-gl.actnum:
 
-        ASSIGN
-            debits  = debits  + work-gl.debits
-            credits = credits + work-gl.credits.
-
-        IF LAST-OF(work-gl.actnum) THEN 
-        DO:
       
             RUN GL_SpCreateGLHist(cocode,
                 work-gl.actnum,
                 "RMPOST",
                 (IF work-gl.job-no NE "" THEN "RM Issue to Job" ELSE "RM Receipt"),
                 v-post-date,
-                debits - credits,
+                work-gl.debits - work-gl.credits,
                 ip-trnum,
                 period.pnum,
                 "A",
                 v-post-date,
-                "",
-                "RM").  
-            ASSIGN 
-                debits  = 0
-                credits = 0. 
-      
-        END.
+                work-gl.cDesc,
+                "RM").      
     END.
 
 END PROCEDURE.
@@ -1951,9 +1937,6 @@ PROCEDURE post-rm :
     DEFINE VARIABLE v-recid        AS RECID     NO-UNDO.
     DEFINE VARIABLE li             AS INTEGER   NO-UNDO.
 
-    DEFINE VARIABLE dQuantity      AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lError         AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
     
     DEFINE VARIABLE v-rmemail-file AS CHARACTER NO-UNDO.
@@ -2328,59 +2311,23 @@ PROCEDURE post-rm :
                 .
         END.
       
-        IF AVAILABLE rm-rcpth AND AVAILABLE rm-rdtlh AND rm-rcpth.rita-code EQ "R" AND rm-rcpth.po-no NE "" THEN 
-        DO:
-            FIND FIRST bf-po-ordl NO-LOCK
-                WHERE bf-po-ordl.company EQ rm-rcpth.company
-                AND bf-po-ordl.po-no   EQ INTEGER(rm-rcpth.po-no)
-                AND bf-po-ordl.line    EQ rm-rcpth.po-line
-                NO-ERROR.
-            IF AVAILABLE bf-po-ordl THEN 
-            DO:   
-                FIND FIRST ttReceipt
-                    WHERE ttReceipt.poID   EQ bf-po-ordl.po-no
-                    AND ttReceipt.poLine EQ bf-po-ordl.line
-                    NO-ERROR.
-                IF NOT AVAILABLE ttReceipt THEN 
-                DO:
-                    CREATE ttReceipt.
-                    ASSIGN
-                        iCount                = iCount + 1
-                        ttReceipt.lineID      = iCount
-                        ttReceipt.company     = bf-po-ordl.company
-                        ttReceipt.location    = rm-rcpth.loc
-                        ttReceipt.poID        = bf-po-ordl.po-no
-                        ttReceipt.poLine      = bf-po-ordl.line
-                        ttReceipt.itemID      = rm-rcpth.i-no
-                        ttReceipt.itemName    = IF rm-rcpth.i-name EQ "" THEN rm-rcpth.i-no ELSE rm-rcpth.i-name
-                        ttReceipt.quantityUOM = bf-po-ordl.pr-uom
-                        .
-                END.
-              
-                dQuantity = rm-rdtlh.qty.
-              
-                IF ttReceipt.quantityUOM EQ "" OR ttReceipt.quantityUOM NE rm-rcpth.pur-uom THEN 
-                DO:
-                    RUN Conv_QuantityFromUOMToUOM (
-                        INPUT  rm-rcpth.company,
-                        INPUT  rm-rcpth.i-no,
-                        INPUT  "RM",
-                        INPUT  dQuantity,
-                        INPUT  rm-rcpth.pur-uom, 
-                        INPUT  ttReceipt.quantityUOM,
-                        INPUT  0,
-                        INPUT  bf-po-ordl.s-len,
-                        INPUT  bf-po-ordl.s-wid,
-                        INPUT  bf-po-ordl.s-dep,
-                        INPUT  0,
-                        OUTPUT dQuantity,
-                        OUTPUT lError,
-                        OUTPUT cMessage
-                        ).          
-                END. 
-              
-                ttReceipt.quantity = ttReceipt.quantity + dQuantity.
-            END.
+        IF AVAILABLE rm-rcpth AND AVAILABLE rm-rdtlh AND rm-rcpth.rita-code EQ "R" THEN DO:
+            CREATE ttReceipt.
+            ASSIGN
+                iCount                 = iCount + 1
+                ttReceipt.lineID       = iCount
+                ttReceipt.company      = rm-rcpth.company
+                ttReceipt.location     = rm-rcpth.loc
+                ttReceipt.poID         = INTEGER(rm-rcpth.po-no)
+                ttReceipt.poLine       = rm-rcpth.po-line
+                ttReceipt.jobID        = rm-rcpth.job-no
+                ttReceipt.jobID2       = rm-rcpth.job-no2                  
+                ttReceipt.itemID       = rm-rcpth.i-no
+                ttReceipt.itemName     = IF rm-rcpth.i-name EQ "" THEN rm-rcpth.i-no ELSE rm-rcpth.i-name
+                ttReceipt.quantityUOM  = rm-rcpth.pur-uom
+                ttReceipt.quantity     = rm-rdtlh.qty
+                ttReceipt.rcpthRowID   = ROWID(rm-rcpth)
+                .
         END.
     END. /* for each rm-rctd */
 
@@ -2455,10 +2402,10 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE :
     RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
         INPUT  ttReceipt.company,                                  /* Company Code (Mandatory) */
         INPUT  ttReceipt.loc,                                      /* Location Code (Mandatory) */
-        INPUT  "SendReceipt",                                      /* API ID (Mandatory) */
+        INPUT  "SendReceipts",                                     /* API ID (Mandatory) */
         INPUT  "",                                                 /* Scope ID */
         INPUT  "",                                                 /* Scoped Type */
-        INPUT  "CreateReceipt",                                    /* Trigger ID (Mandatory) */
+        INPUT  "RMPost",                                           /* Trigger ID (Mandatory) */
         INPUT  "TTReceiptHandle",                                  /* Comma separated list of table names for which data being sent (Mandatory) */
         INPUT  STRING(TEMP-TABLE ttReceipt:HANDLE),                /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
         INPUT  "RMPost",                                           /* Primary ID for which API is called for (Mandatory) */   
@@ -2466,7 +2413,25 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE :
         OUTPUT lSuccess,                                           /* Success/Failure flag */
         OUTPUT cMessage                                            /* Status message */
         ) NO-ERROR.
-        
+
+    FOR EACH ttReceipt:
+        IF ttReceipt.jobID NE "" THEN
+            RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+                INPUT  ttReceipt.company,                                  /* Company Code (Mandatory) */
+                INPUT  ttReceipt.loc,                                      /* Location Code (Mandatory) */
+                INPUT  "SendReceipt",                                      /* API ID (Mandatory) */
+                INPUT  "",                                                 /* Scope ID */
+                INPUT  "",                                                 /* Scoped Type */
+                INPUT  "JobRMPost",                                        /* Trigger ID (Mandatory) */
+                INPUT  "rm-rcpth",                                         /* Comma separated list of table names for which data being sent (Mandatory) */
+                INPUT  STRING(ttReceipt.rcpthRowID),                       /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                INPUT  "RMPost",                                           /* Primary ID for which API is called for (Mandatory) */   
+                INPUT  "Triggered from RM Post",                           /* Event's description (Optional) */
+                OUTPUT lSuccess,                                           /* Success/Failure flag */
+                OUTPUT cMessage                                            /* Status message */
+                ) NO-ERROR.
+    END.
+            
     EMPTY TEMP-TABLE ttReceipt.
         
     DELETE PROCEDURE hdOutboundProcs.    
@@ -2828,22 +2793,24 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
         DO:
 
             /* Debit RM Asset */
-            FIND FIRST work-gl WHERE work-gl.actnum EQ costtype.inv-asset NO-LOCK NO-ERROR.
-            IF NOT AVAILABLE work-gl THEN 
-            DO:
+                
                 CREATE work-gl.
                 work-gl.actnum = costtype.inv-asset.
-            END.
+            
             work-gl.debits = work-gl.debits + v-ext-cost.
-
+            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE "")
+                                         + (IF tt-rctd.po-no NE "" THEN " PO:" + string(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
+                                         + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
+            
             /* Credit RM AP Accrued */
-            FIND FIRST work-gl WHERE work-gl.actnum EQ costtype.ap-accrued NO-LOCK NO-ERROR.
-            IF NOT AVAILABLE work-gl THEN 
-            DO:
+                            
                 CREATE work-gl.
                 work-gl.actnum = costtype.ap-accrued.
-            END.
+            
             work-gl.credits = work-gl.credits + v-ext-cost.
+            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE "")
+                                         + (IF tt-rctd.po-no NE "" THEN " PO:" + STRING(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
+                                         + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
         END.
 
         ELSE
@@ -2911,6 +2878,9 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                             work-gl.actnum  = prod.wip-mat.
                     END.
                     work-gl.debits = work-gl.debits + ld.
+                    work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
+                                    tt-rctd.po-no NE "" THEN "PO:" + string(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
+                                    + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
 
                     /* Credit RM Asset */
                     FIND FIRST work-gl
@@ -2929,6 +2899,9 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                             work-gl.actnum  = costtype.inv-asset.
                     END.
                     work-gl.credits = work-gl.credits + ld.
+                    work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
+                                    tt-rctd.po-no NE "" THEN "PO:" + string(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
+                                    + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
                 END.
             END.
     END.
@@ -3128,7 +3101,7 @@ FOR EACH work-gl BREAK BY work-gl.actnum:
                        ELSE "ACCOUNT NOT FOUND - " + work-gl.actnum
         v-disp-actnum = work-gl.actnum
         v-disp-amt    = work-gl.debits - work-gl.credits.
-
+        
     DISPLAY v-disp-actnum v-dscr udate v-disp-amt
         WITH FRAME gldetail.
     DOWN WITH FRAME gldetail.

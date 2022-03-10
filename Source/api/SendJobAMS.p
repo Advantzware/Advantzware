@@ -122,6 +122,9 @@ DEFINE VARIABLE cJobDueDate                   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobDueTime                   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobStartDate                 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cNotes                        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFirstHeaderQuantity          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFirstHeaderCustomerID        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFirstHeaderCustomerName      AS CHARACTER NO-UNDO.
     
 /* Job Header Variables*/
 DEFINE VARIABLE iTaskCounter                  AS INTEGER   NO-UNDO.
@@ -266,6 +269,7 @@ DEFINE VARIABLE iBlankCounter                 AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lIsACombo                     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iLinkSeqNo                    AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iAssemblyBlankCount           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cAction                       AS CHARACTER NO-UNDO.
                     
 DEFINE BUFFER bf-APIOutboundDetail        FOR APIOutboundDetail.
 DEFINE BUFFER bf-job-mat                  FOR job-mat.
@@ -426,15 +430,15 @@ DO:
             ASSIGN  
                 lcJobPrepData     = bf-APIOutboundDetail.data 
                 cPrepCode         = job-prep.code
-                cJobPrepQuantity  = TRIM(STRING(job-prep.qty,"->>>,>>>,>>9.9<<<<<"))
-                cItemStandardCost = TRIM(STRING(job-prep.std-cost,">>>,>>9.99<<"))
+                cJobPrepQuantity  = STRING(job-prep.qty)
+                cItemStandardCost = STRING(job-prep.std-cost)
                 cStandardUOM      = job-prep.sc-uom
-                cCostPerM         = TRIM(STRING(job-prep.cost-m,"->,>>9.9999"))
-                cPrepDate         = TRIM(STRING(job-prep.prep-date,"99/99/9999"))
-                cPrepTime         = TRIM(STRING(job-prep.prep-time,"->,>>>,>>9"))
+                cCostPerM         = STRING(job-prep.cost-m)
+                cPrepDate         = STRING(job-prep.prep-date)
+                cPrepTime         = STRING(job-prep.prep-time)
                 cjobPrepPosted    = STRING(job-prep.opn)        
-                cJobPrepForm      = TRIM(STRING(job-prep.frm,">>9"))
-                cJobPrepBlank     = TRIM(STRING(job-prep.blank-no,">9"))
+                cJobPrepForm      = STRING(job-prep.frm)
+                cJobPrepBlank     = STRING(job-prep.blank-no)
                 cMatOrLab         = IF job-prep.ml THEN "Material" ELSE "Labor"
                 cSIMON            = IF job-prep.simon EQ "S"      THEN "Seperate" 
                                         ELSE IF job-prep.simon EQ "I" THEN "Integrate"
@@ -474,6 +478,27 @@ DO:
     lcJobsData       = REPLACE(lcJobsData, "$JobPrep$", lcConcatJobPrepData).
     lcJobsData       = REPLACE(lcJobsData, "$JobSetPart$", lcConcatJobSetPartData).
     lcJobsData       = REPLACE(lcJobsData, "$JobLink$", lcConcatJobLinkData).
+
+    FIND FIRST job-hdr NO-LOCK
+         WHERE job-hdr.company  EQ job.company
+           AND job-hdr.job      EQ job.job
+           AND job-hdr.job-no   EQ job.job-no
+           AND job-hdr.job-no2  EQ job.job-no2
+         NO-ERROR.
+    IF AVAILABLE job-hdr THEN
+        ASSIGN
+            cFirstHeaderQuantity   = STRING(job-hdr.qty)
+            cFirstHeaderCustomerID = job-hdr.cust-no
+            .
+    
+    IF cFirstHeaderCustomerID NE "" THEN DO:
+        FIND FIRST cust NO-LOCK
+             WHERE cust.company EQ job.company
+               AND cust.cust-no EQ cFirstHeaderCustomerID
+             NO-ERROR.
+        IF AVAILABLE cust THEN
+            cFirstHeaderCustomerName = cust.name.
+    END.
         
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Company",cCompany).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobNumber1",cJobNo).
@@ -492,6 +517,9 @@ DO:
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobStartDate",cJobStartDate).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Notes",cNotes).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobStatus",cJobStatus).
+    RUN updateRequestData(INPUT-OUTPUT lcJobsData, "FirstHeaderQuantity", cFirstHeaderQuantity).
+    RUN updateRequestData(INPUT-OUTPUT lcJobsData, "FirstHeaderCustomerID", cFirstHeaderCustomerID).
+    RUN updateRequestData(INPUT-OUTPUT lcJobsData, "FirstHeaderCustomerName", cFirstHeaderCustomerName).
 
     ioplcRequestData = REPLACE(ioplcRequestData, "$Jobs$", lcJobsData).   
 END.                        
@@ -833,25 +861,25 @@ PROCEDURE pCreateMaterials PRIVATE:
 
         ASSIGN
             cItemNumber             = job-mat.i-no
-            cJobMatItemStandardCost = TRIM(STRING(job-mat.std-cost,">>>,>>9.99<<"))
+            cJobMatItemStandardCost = STRING(job-mat.std-cost)
             cStandardCostUOM        = job-mat.sc-uom
-            cCostPerUOM             = TRIM(STRING(job-mat.cost-m,"->,>>9.9999"))
-            cQtyToOrder             = TRIM(STRING(job-mat.qty,">,>>>,>>9.9<<<<<"))
+            cCostPerUOM             = STRING(job-mat.cost-m)
+            cQtyToOrder             = STRING(job-mat.qty)
             cQuantityUOM            = job-mat.qty-uom
-            cLength                 = TRIM(STRING(job-mat.len,">>9.99<<"))
-            cWidth                  = TRIM(STRING(job-mat.wid,">>9.99<<"))
-            cBasisWeight            = TRIM(STRING(job-mat.basis-w,">>9.99"))
-            cLineNumber             = TRIM(STRING(job-mat.line,"99"))
+            cLength                 = STRING(job-mat.len)
+            cWidth                  = STRING(job-mat.wid)
+            cBasisWeight            = STRING(job-mat.basis-w)
+            cLineNumber             = STRING(job-mat.line)
             cRMItem                 = job-mat.rm-i-no
-            cJobMatBlank            = TRIM(STRING(job-mat.blank-no,">9"))
-            cJobMatForm             = TRIM(STRING(job-mat.frm,">>9"))
+            cJobMatBlank            = STRING(job-mat.blank-no)
+            cJobMatForm             = STRING(job-mat.frm)
             cAllocated              = STRING(job-mat.all-flg)
-            cQuantityAllocated      = TRIM(STRING(job-mat.qty-all,">>>,>>9.99<<<<"))
-            cQuantityIssued         = TRIM(STRING(job-mat.qty-iss,"->>,>>9.99<<<<"))
-            cMRQuantity             = TRIM(STRING(job-mat.qty-mr,">>>>9.99<<<<"))
-            cWasteQuantity          = TRIM(STRING(job-mat.qty-wst,">>>>9.99<<<<"))
-            cDepth                  = TRIM(STRING(job-mat.dep,">,>>9.99<<<<"))
-            cPONumber               = TRIM(STRING(job-mat.po-no,">>>>>9"))
+            cQuantityAllocated      = STRING(job-mat.qty-all)
+            cQuantityIssued         = STRING(job-mat.qty-iss)
+            cMRQuantity             = STRING(job-mat.qty-mr)
+            cWasteQuantity          = STRING(job-mat.qty-wst)
+            cDepth                  = STRING(job-mat.dep)
+            cPONumber               = STRING(job-mat.po-no)
             cCrossGrain             = IF job-mat.xGrain = "N" THEN "NO" ELSE IF job-mat.xGrain = "S" THEN "(S)heet"
                                                 ELSE IF job-mat.xGrain = "B" THEN "(B)lank" ELSE job-mat.xgrain
             .
@@ -881,6 +909,12 @@ PROCEDURE pCreateMaterials PRIVATE:
         RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Grain",cGrain).
         RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Cylinder",cCylinder).
         RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Tray",cTray).
+
+        cAction = system.SharedConfig:Instance:ConsumeValue(STRING(ROWID(job-mat))).
+        IF cAction EQ "" THEN
+            cAction = "Create".
+            
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "JobMaterialAction", cAction).
             
         CREATE ttMaterial.
         ASSIGN
@@ -1013,6 +1047,7 @@ PROCEDURE pProcessAMSData PRIVATE:
 
     RUN pCreateParts(
         BUFFER ipbf-job,
+        INPUT  lIsSet,
         INPUT  lIsNewCalculationMethod
         ).
         
@@ -1053,9 +1088,9 @@ PROCEDURE pProcessAMSData PRIVATE:
         END.
     
         ttPart.taskIDs = TRIM(ttPart.taskIDs, ",").
-        
-        IF NOT lTaskAvailable THEN
-            DELETE ttPart.
+        /* Commenting the code to delete the parts without task, as AMS now allows us to send parts without a task */
+/*        IF NOT lTaskAvailable THEN*/
+/*            DELETE ttPart.        */
     END.
 
     /* If there is a Combo Form (multiple blanks out of one sheet/form), we need to add a “Combo Form” 
@@ -1088,9 +1123,9 @@ PROCEDURE pProcessAMSData PRIVATE:
         END.
 
         ttPart.taskIDs = TRIM(ttPart.taskIDs, ",").
-
-        IF NOT lTaskAvailable THEN
-            DELETE ttPart.
+        /* Commenting the code to delete the parts without task, as AMS now allows us to send parts without a task */
+/*        IF NOT lTaskAvailable THEN*/
+/*            DELETE ttPart.        */
     END.
 
     /* If the job is for a Set, we need to make the assumption that the last operation on the 
@@ -1255,7 +1290,8 @@ PROCEDURE pCreateParts PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-job FOR job.    
+    DEFINE PARAMETER BUFFER ipbf-job FOR job.  
+    DEFINE INPUT  PARAMETER iplIsSet                  AS LOGICAL NO-UNDO.  
     DEFINE INPUT  PARAMETER iplIsNewCalculationMethod AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-job-hdr-APIOutboundDetail FOR APIOutboundDetail.
@@ -1290,7 +1326,7 @@ PROCEDURE pCreateParts PRIVATE:
            AND bf-combo-APIOutboundDetail.parentID      EQ "JobHeader"
          NO-ERROR.
                                    
-    IF NOT iplIsNewCalculationMethod THEN DO:                    
+    IF NOT iplIsNewCalculationMethod AND iplIsSet THEN DO:                    
         FIND FIRST job-hdr NO-LOCK
              WHERE job-hdr.company  EQ ipbf-job.company
                AND job-hdr.job      EQ ipbf-job.job
@@ -1326,9 +1362,10 @@ PROCEDURE pCreateParts PRIVATE:
             
             ASSIGN
                 cItem     = eb.stock-no
-                cForm     = TRIM(STRING(eb.form-no,">>9"))
-                cBlank    = TRIM(STRING(eb.blank-no,">9"))
+                cForm     = STRING(eb.form-no)
+                cBlank    = STRING(eb.blank-no)
                 cQuantity = STRING(job-hdr.qty * (IF eb.quantityperSet EQ 0 THEN 1 ELSE eb.quantityperSet))
+                cKeyItem  = STRING(INTEGER(job-hdr.keyItem))
                 cNumberOn = STRING(eb.num-up)
                 cLock     = STRING(job-hdr.lock, "TRUE/FALSE")
                 .
@@ -1343,7 +1380,11 @@ PROCEDURE pCreateParts PRIVATE:
                 ).
                                 
             lcJobHeaderData = bf-job-hdr-APIOutboundDetail.data.
-            
+
+            cAction = system.SharedConfig:Instance:ConsumeValue(STRING(ROWID(job-hdr))).
+            IF cAction EQ "" THEN
+                cAction = "Create".
+                            
             RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
             RUN pUpdateCustInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
             RUN pGetOrderQuantity(BUFFER job-hdr, OUTPUT dOrderQty).
@@ -1355,7 +1396,8 @@ PROCEDURE pCreateParts PRIVATE:
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Quantity",cQuantity).
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsJobHeaderLocked",cLock).
-            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).
+            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).           
+            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "JobHeaderAction", cAction).
             
             CREATE ttPart.
             ASSIGN
@@ -1393,8 +1435,8 @@ PROCEDURE pCreateParts PRIVATE:
         /* Header Part */
         ASSIGN 
             cItem     = job-hdr.i-no
-            cForm     = TRIM(STRING(job-hdr.frm,">>9"))
-            cBlank    = TRIM(STRING(job-hdr.blank-no,">9"))
+            cForm     = STRING(job-hdr.frm)
+            cBlank    = STRING(job-hdr.blank-no)
             cQuantity = STRING(job-hdr.qty)
             cKeyItem  = STRING(INTEGER(job-hdr.keyItem))
             cNumberOn = STRING(job-hdr.n-on)
@@ -1424,7 +1466,8 @@ PROCEDURE pCreateParts PRIVATE:
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsJobHeaderLocked",cLock).
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).
-                        
+        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "JobHeaderAction", cAction).
+                                
         CREATE ttPart.
         ASSIGN
             ttPart.formNo      = job-hdr.frm
@@ -1460,9 +1503,10 @@ PROCEDURE pCreateParts PRIVATE:
             
             ASSIGN
                 cItem     = job-hdr.i-no
-                cForm     = TRIM(STRING(job-hdr.frm,">>9"))
-                cBlank    = TRIM(STRING(job-hdr.blank-no,">9"))
+                cForm     = STRING(job-hdr.frm)
+                cBlank    = STRING(job-hdr.blank-no)
                 cQuantity = STRING(job-hdr.qty)
+                cKeyItem  = STRING(INTEGER(job-hdr.keyItem))
                 cNumberOn = STRING(job-hdr.n-on)
                 cLock     = STRING(job-hdr.lock, "TRUE/FALSE")
                 .
@@ -1477,7 +1521,11 @@ PROCEDURE pCreateParts PRIVATE:
                 ).
                             
             lcJobHeaderData = bf-job-hdr-APIOutboundDetail.data.
-            
+
+            cAction = system.SharedConfig:Instance:ConsumeValue(STRING(ROWID(job-hdr))).
+            IF cAction EQ "" THEN
+                cAction = "Create".
+                            
             RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
             RUN pUpdateCustInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
             RUN pGetOrderQuantity(BUFFER job-hdr, OUTPUT dOrderQty).
@@ -1490,7 +1538,8 @@ PROCEDURE pCreateParts PRIVATE:
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsJobHeaderLocked",cLock).
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).
-                
+            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "JobHeaderAction", cAction).
+            
             CREATE ttPart.
             ASSIGN
                 ttPart.formNo      = job-hdr.frm
@@ -1542,8 +1591,8 @@ PROCEDURE pCreateParts PRIVATE:
         /* Header Part */
         ASSIGN 
             cItem     = job-hdr.i-no
-            cForm     = TRIM(STRING(job-hdr.frm,">>9"))
-            cBlank    = TRIM(STRING(job-hdr.blank-no,">9"))
+            cForm     = STRING(job-hdr.frm)
+            cBlank    = STRING(job-hdr.blank-no)
             cQuantity = STRING(job-hdr.qty)
             cKeyItem  = STRING(INTEGER(job-hdr.keyItem))
             cNumberOn = STRING(job-hdr.n-on)
@@ -1561,6 +1610,10 @@ PROCEDURE pCreateParts PRIVATE:
                         
         lcJobHeaderData = bf-job-hdr-APIOutboundDetail.data.
 
+        cAction = system.SharedConfig:Instance:ConsumeValue(STRING(ROWID(job-hdr))).
+        IF cAction EQ "" THEN
+            cAction = "Create".
+                
         RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
         RUN pUpdateCustInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
         RUN pGetOrderQuantity(BUFFER job-hdr, OUTPUT dOrderQty).
@@ -1573,7 +1626,8 @@ PROCEDURE pCreateParts PRIVATE:
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsJobHeaderLocked",cLock).
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).
-                    
+        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "JobHeaderAction", cAction).
+                            
         CREATE ttPart.
         ASSIGN
             ttPart.formNo      = job-hdr.frm
@@ -1594,8 +1648,8 @@ PROCEDURE pCreateTasks PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-job FOR job.
 
-    DEFINE VARIABLE lcJobMachineData AS LONGCHAR NO-UNDO.
-    
+    DEFINE VARIABLE lcJobMachineData AS LONGCHAR  NO-UNDO.
+        
     DEFINE BUFFER bf-job-mch-APIOutboundDetail FOR APIOutboundDetail.
     
     FIND FIRST bf-job-mch-APIOutboundDetail NO-LOCK
@@ -1612,7 +1666,12 @@ PROCEDURE pCreateTasks PRIVATE:
         USE-INDEX line-idx:
         IF AVAILABLE bf-job-mch-APIOutboundDetail THEN
             lcJobMachineData = bf-job-mch-APIOutboundDetail.data.
+
         
+        cAction = system.SharedConfig:Instance:ConsumeValue(STRING(ROWID(job-mch))).
+        IF cAction EQ "" THEN
+            cAction = "Create".
+                    
         CREATE ttTask.
         ASSIGN
             ttTask.formNo      = job-mch.frm
@@ -1622,13 +1681,15 @@ PROCEDURE pCreateTasks PRIVATE:
             ttTask.taskID      = job-mch.job-mchID
             ttTask.runQuantity = job-mch.run-qty
             .
-
+            
         RUN pUpdateMachineDetails(
             BUFFER job-mch,
             INPUT  lcJobMachineData,
             OUTPUT lcJobMachineData
             ).
-
+        
+        RUN updateRequestData(INPUT-OUTPUT lcJobMachineData, "JobMachineAction", cAction).   
+         
         ttTask.requestData = lcJobMachineData.               
     END.
 END PROCEDURE.
@@ -1691,7 +1752,10 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
     DEFINE VARIABLE lStartedMR             AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lStartedRun            AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lStarted               AS LOGICAL   NO-UNDO.
-    
+    DEFINE VARIABLE cMachineCodeSchedule   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMachineIndustry       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMachineDescription    AS CHARACTER NO-UNDO.
+            
     DEFINE BUFFER bf-mach    FOR mach.
     DEFINE BUFFER bf-mch-act FOR mch-act.
     
@@ -1702,48 +1766,48 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
         lcJobMachineDataByItem     = iplcJobMachineData
         cAnchored                  = STRING(ipbf-job-mch.anchored)
         cMachineCode               = ipbf-job-mch.m-code
-        cMRWaste                   = TRIM(STRING(ipbf-job-mch.mr-waste,">>>9"))
-        cMRRate                    = TRIM(STRING(ipbf-job-mch.mr-rate,">>9.99"))
-        cMchMRvariableOverHeadRate = TRIM(STRING(ipbf-job-mch.mr-varoh,">>9.99"))
-        cMchMRFixedOverheadRate    = TRIM(STRING(ipbf-job-mch.mr-fixoh,">>9.99"))
+        cMRWaste                   = STRING(ipbf-job-mch.mr-waste)
+        cMRRate                    = STRING(ipbf-job-mch.mr-rate)
+        cMchMRvariableOverHeadRate = STRING(ipbf-job-mch.mr-varoh)
+        cMchMRFixedOverheadRate    = STRING(ipbf-job-mch.mr-fixoh)
         cDepartment                = ipbf-job-mch.dept
         cItemName                  = ipbf-job-mch.i-name
         cJobMchItem                = ipbf-job-mch.i-no
-        cJobMchForm                = TRIM(STRING(ipbf-job-mch.frm,">>9"))
-        cRunHours                  = TRIM(STRING(ipbf-job-mch.run-hr,">>>,>>9.99"))
-        cRunMinutes                = TRIM(STRING(ROUND(ipbf-job-mch.run-hr * 60, 0)))
-        cRunSpeed                  = TRIM(STRING(ipbf-job-mch.speed, ">>>>9"))
-        cMRHours                   = TRIM(STRING(ipbf-job-mch.mr-hr,">>9.99"))
-        cMRMinutes                 = TRIM(STRING(ROUND(ipbf-job-mch.mr-hr * 60, 0)))
-        cJobMchBlank               = TRIM(STRING(ipbf-job-mch.blank-no,">9"))
-        cJobMchLineNumber          = TRIM(STRING(ipbf-job-mch.line,">9"))
-        cRunQuantity               = TRIM(STRING(ipbf-job-mch.run-qty,">,>>>,>>9.9<<"))
-        cRunStartDate              = TRIM(STRING(ipbf-job-mch.start-date,"99/99/9999"))
-        cRunStartTime              = TRIM(STRING(ipbf-job-mch.start-time,"->,>>>,>>9"))
-        cQueueTime                 = TRIM(STRING(ipbf-job-mch.queue-time,">>>>9"))
-        cLagTime                   = TRIM(STRING(ipbf-job-mch.lag-time,">>>>9"))
-        cEndDate                   = STRING(ipbf-job-mch.end-date,"99/99/9999")
-        cEndTime                   = TRIM(STRING(ipbf-job-mch.end-time,"->,>>>,>>9"))
-        cSetupStartDate            = TRIM(STRING(ipbf-job-mch.start-date-su,"99/99/9999"))
-        cSetupStartTime            = TRIM(STRING(ipbf-job-mch.start-time-su,"->,>>>,>>9"))
-        cSetupEndDate              = STRING(ipbf-job-mch.end-date-su,"99/99/9999")
-        cSetupEndTime              = TRIM(STRING(ipbf-job-mch.end-time-su,"->,>>>,>>9"))
+        cJobMchForm                = STRING(ipbf-job-mch.frm)
+        cRunHours                  = STRING(ipbf-job-mch.run-hr)
+        cRunMinutes                = STRING(ROUND(ipbf-job-mch.run-hr * 60, 0))
+        cRunSpeed                  = STRING(ipbf-job-mch.speed)
+        cMRHours                   = STRING(ipbf-job-mch.mr-hr)
+        cMRMinutes                 = STRING(ROUND(ipbf-job-mch.mr-hr * 60, 0))
+        cJobMchBlank               = STRING(ipbf-job-mch.blank-no)
+        cJobMchLineNumber          = STRING(ipbf-job-mch.line)
+        cRunQuantity               = STRING(ipbf-job-mch.run-qty)
+        cRunStartDate              = STRING(ipbf-job-mch.start-date)
+        cRunStartTime              = STRING(ipbf-job-mch.start-time)
+        cQueueTime                 = STRING(ipbf-job-mch.queue-time)
+        cLagTime                   = STRING(ipbf-job-mch.lag-time)
+        cEndDate                   = STRING(ipbf-job-mch.end-date)
+        cEndTime                   = STRING(ipbf-job-mch.end-time)
+        cSetupStartDate            = STRING(ipbf-job-mch.start-date-su)
+        cSetupStartTime            = STRING(ipbf-job-mch.start-time-su)
+        cSetupEndDate              = STRING(ipbf-job-mch.end-date-su)
+        cSetupEndTime              = STRING(ipbf-job-mch.end-time-su)
         cMRComplete                = STRING(ipbf-job-mch.mr-complete)
         cRunComplete               = STRING(ipbf-job-mch.run-complete)
         lComplete                  = ipbf-job-mch.mr-complete AND ipbf-job-mch.run-complete
-        cJobMchDueDate             = STRING(ipbf-job-mch.due-date,"99/99/9999")
-        cJobMchDueTime             = TRIM(STRING(ipbf-job-mch.due-time,">>>>9"))
-        cMRTotalRate               = TRIM(STRING(ipbf-job-mch.mr-trate,">>9.99"))
-        cFixedOverHeadRate         = TRIM(STRING(ipbf-job-mch.run-fixoh,">>9.99"))
-        cRunProfitPct              = TRIM(STRING(ipbf-job-mch.run-profit,">>9.99"))
-        cMRProfitPct               = TRIM(STRING(ipbf-job-mch.mr-profit,">>9.99"))
-        cRunRate                   = TRIM(STRING(ipbf-job-mch.run-rate,">>9.99"))
-        cRunTotalRate              = TRIM(STRING(ipbf-job-mch.run-trate,">>9.99"))
-        cVariableOverheadRate      = TRIM(STRING(ipbf-job-mch.run-varoh,">>9.99"))
-        cMRContributionRate        = TRIM(STRING(ipbf-job-mch.mr-cont,">>9.99"))
-        cRunContributionRate       = TRIM(STRING(ipbf-job-mch.run-cont,">>9.99"))
-        cJobMachineID              = TRIM(STRING(ipbf-job-mch.job-mchID,">>>>>>9"))
-        cJobMchWastePct            = TRIM(STRING(ipbf-job-mch.wst-prct,">>9.99"))
+        cJobMchDueDate             = STRING(ipbf-job-mch.due-date)
+        cJobMchDueTime             = STRING(ipbf-job-mch.due-time)
+        cMRTotalRate               = STRING(ipbf-job-mch.mr-trate)
+        cFixedOverHeadRate         = STRING(ipbf-job-mch.run-fixoh)
+        cRunProfitPct              = STRING(ipbf-job-mch.run-profit)
+        cMRProfitPct               = STRING(ipbf-job-mch.mr-profit)
+        cRunRate                   = STRING(ipbf-job-mch.run-rate)
+        cRunTotalRate              = STRING(ipbf-job-mch.run-trate)
+        cVariableOverheadRate      = STRING(ipbf-job-mch.run-varoh)
+        cMRContributionRate        = STRING(ipbf-job-mch.mr-cont)
+        cRunContributionRate       = STRING(ipbf-job-mch.run-cont)
+        cJobMachineID              = STRING(ipbf-job-mch.job-mchID)
+        cJobMchWastePct            = STRING(ipbf-job-mch.wst-prct)
         . 
     
     FOR EACH bf-mch-act NO-LOCK
@@ -1832,11 +1896,16 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
          WHERE bf-mach.company EQ ipbf-job-mch.company
            AND bf-mach.m-code  EQ ipbf-job-mch.m-code
          NO-ERROR.
-    IF AVAILABLE bf-mach THEN DO:
-        RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineCodeSchedule", IF bf-mach.sch-m-code NE "" THEN bf-mach.sch-m-code ELSE cMachineCode).
-        RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineIndustry", bf-mach.industry).
-        RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineDescription", bf-mach.m-dscr).
-    END.
+    IF AVAILABLE bf-mach THEN
+        ASSIGN
+            cMachineCodeSchedule = IF bf-mach.sch-m-code NE "" THEN bf-mach.sch-m-code ELSE cMachineCode
+            cMachineIndustry     = bf-mach.industry
+            cMachineDescription  = bf-mach.m-dscr
+            .
+            
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineCodeSchedule", cMachineCodeSchedule).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineIndustry", cMachineIndustry).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineDescription", cMachineDescription).
     
     oplcConcatJobMachineDataByItem = oplcConcatJobMachineDataByItem + lcJobMachineDataByItem.         
 END PROCEDURE.   

@@ -663,6 +663,9 @@ DO:
                   OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
                END.
            END.
+           ELSE DO:
+                  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
+           END.
        END. /* WHEN 3 THEN DO: */
        WHEN 4 THEN DO:
            /*run output-to-fax.*/
@@ -1397,7 +1400,7 @@ def var v-gp        as   dec format ">>9.99" NO-UNDO.
 def var v-slsm      like ar-invl.sman extent 1 NO-UNDO.
 def var v-slsc      like ar-invl.s-comm extent 1 NO-UNDO.
 def var v-slsp      like ar-invl.s-pct extent 1 NO-UNDO.
-def var v-inv-no    like ar-invl.inv-no NO-UNDO FORMAT ">>>>>>9".
+def var v-inv-no    like ar-invl.inv-no NO-UNDO FORMAT ">>>>>>>9".
 def var dFreightCost     AS DECIMAL NO-UNDO .
 def var dWarehouseCost   AS DECIMAL NO-UNDO .
 def var dManufactureCost AS DECIMAL NO-UNDO .
@@ -1520,8 +1523,6 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 SESSION:SET-WAIT-STATE ("").
 IF rd-dest EQ 3 THEN DO:
    OUTPUT STREAM st-excell CLOSE.
-   IF tb_OpenCSV THEN
-      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.                  
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 /*OUTPUT STREAM excel CLOSE. */

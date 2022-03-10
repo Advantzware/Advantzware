@@ -102,21 +102,21 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 150 BY 23.81
+         SIZE 182.8 BY 28.57
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 148 ROW 2.91
+         SIZE 35 BY 1.43
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 90 ROW 2.91
-         SIZE 61 BY 1.43
+         SIZE 181 BY 1.91
          BGCOLOR 15 .
 
 
@@ -127,7 +127,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: ASI.settingType
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 2
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -139,8 +139,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Setting Type Maintenance"
-         HEIGHT             = 34.33
-         WIDTH              = 204.2
+         HEIGHT             = 28.57
+         WIDTH              = 182.8
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -302,7 +302,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_attach ).
-       RUN set-position IN h_attach ( 1.00 , 85.20 ) NO-ERROR.
+       RUN set-position IN h_attach ( 1.00 , 110.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -312,14 +312,14 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 150.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 20.95 , 182.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/options.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 93.00 ) NO-ERROR.
+       RUN set-position IN h_options ( 1.00 , 118.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -327,8 +327,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 141.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       RUN set-position IN h_exit ( 1.00 , 174.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        /* Links to SmartObject h_attach. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'attach':U , h_attach ).
@@ -353,7 +353,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 77.40 ) NO-ERROR.
+       RUN set-position IN h_export ( 1.00 , 102.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -361,8 +361,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_settingType ).
-       RUN set-position IN h_settingType ( 4.81 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_settingType ( 19.52 , 150.00 ) NO-ERROR.
+       RUN set-position IN h_settingType ( 4.81 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_settingType ( 24.76 , 181.00 ) NO-ERROR.
 
        /* Links to SmartObject h_export. */
        RUN add-link IN adm-broker-hdl ( h_settingType , 'export-xl':U , h_export ).
@@ -382,7 +382,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 24.62 , 26.80 ) NO-ERROR.
+       RUN set-position IN h_p-updsav ( 24.52 , 50.60 ) NO-ERROR.
        RUN set-size IN h_p-updsav ( 2.24 , 82.80 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -390,8 +390,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_settingtype-3 ).
-       RUN set-position IN h_settingtype-3 ( 5.52 , 1.00 ) NO-ERROR.
-       /* Size in UIB:  ( 16.71 , 150.00 ) */
+       RUN set-position IN h_settingtype-3 ( 5.52 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 18.10 , 181.00 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.

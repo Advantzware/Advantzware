@@ -140,14 +140,15 @@ begin_curr end_curr begin_term end_term begin_arclass end_arclass ~
 trend_days as-of-date period-days-1 period-days-2 period-days-3 ~
 period-days-4 rs_detail rd_sort rd_sort2 tb_paid tb_include-factored ~
 tb_fuel tb_separate-fc begin_inv-date end_inv-date tgInactiveCust ~
-btn_SelectColumns rd-dest fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
+tgIncludeGLTotal btn_SelectColumns rd-dest fi_file tb_OpenCSV tbAutoClose ~
+btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_comp end_comp tb_cust-list ~
 begin_cust-no end_cust-no begin_slsmn end_slsmn begin_curr end_curr ~
 begin_term end_term begin_arclass end_arclass trend_days as-of-date ~
 period-days-1 period-days-2 period-days-3 period-days-4 rs_detail lbl_sort ~
 rd_sort lbl_sort2 rd_sort2 tb_paid tb_include-factored tb_fuel ~
-tb_separate-fc begin_inv-date end_inv-date tgInactiveCust rd-dest fi_file ~
-tb_OpenCSV tbAutoClose 
+tb_separate-fc begin_inv-date end_inv-date tgInactiveCust tgIncludeGLTotal ~
+rd-dest fi_file tb_OpenCSV tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -422,6 +423,11 @@ DEFINE VARIABLE tgInactiveCust AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tgIncludeGLTotal AS LOGICAL INITIAL no 
+     LABEL "Include G/L Totals" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 26 BY .81 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -472,6 +478,7 @@ DEFINE FRAME FRAME-A
      end_inv-date AT ROW 15.76 COL 70 COLON-ALIGNED HELP
           "Enter Ending Invoice Date"
      tgInactiveCust AT ROW 17 COL 29 WIDGET-ID 20
+     tgIncludeGLTotal AT ROW 17 COL 59.6 WIDGET-ID 66
      btn_SelectColumns AT ROW 18.1 COL 29 WIDGET-ID 10
      rd-dest AT ROW 20.71 COL 6.2 NO-LABEL
      lv-font-no AT ROW 20.76 COL 38 COLON-ALIGNED
@@ -732,6 +739,10 @@ ASSIGN
 
 ASSIGN 
        tgInactiveCust:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tgIncludeGLTotal:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -1259,7 +1270,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_sort C-Win
 ON VALUE-CHANGED OF rd_sort IN FRAME FRAME-A
 DO:
-        ASSIGN {&self-name}.
+        ASSIGN {&self-name}.         
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1526,7 +1537,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
     ASSIGN 
         cColumnInit = NO .
-    RUN pChangeDest. 
+    RUN pChangeDest.    
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1748,16 +1759,17 @@ PROCEDURE enable_UI :
           end_arclass trend_days as-of-date period-days-1 period-days-2 
           period-days-3 period-days-4 rs_detail lbl_sort rd_sort lbl_sort2 
           rd_sort2 tb_paid tb_include-factored tb_fuel tb_separate-fc 
-          begin_inv-date end_inv-date tgInactiveCust rd-dest fi_file tb_OpenCSV 
-          tbAutoClose 
+          begin_inv-date end_inv-date tgInactiveCust tgIncludeGLTotal rd-dest 
+          fi_file tb_OpenCSV tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_comp end_comp btnCustList tb_cust-list 
          begin_cust-no end_cust-no begin_slsmn end_slsmn begin_curr end_curr 
          begin_term end_term begin_arclass end_arclass trend_days as-of-date 
          period-days-1 period-days-2 period-days-3 period-days-4 rs_detail 
          rd_sort rd_sort2 tb_paid tb_include-factored tb_fuel tb_separate-fc 
-         begin_inv-date end_inv-date tgInactiveCust btn_SelectColumns rd-dest 
-         fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
+         begin_inv-date end_inv-date tgInactiveCust tgIncludeGLTotal 
+         btn_SelectColumns rd-dest fi_file tb_OpenCSV tbAutoClose btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2024,6 +2036,7 @@ PROCEDURE run-report :
     str-tit7 = "" . 
     v-s-class = begin_arclass.
     v-e-class = end_arclass.
+    lIncludeGLTotal = tgIncludeGLTotal.
     SESSION:SET-WAIT-STATE ("general").
 
     DO WITH FRAME {&frame-name}:

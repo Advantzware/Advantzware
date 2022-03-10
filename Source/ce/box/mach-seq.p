@@ -695,9 +695,10 @@ for each xef
     end.
   end.
 
+/* Commented this becase Die Size (trim-l and trim-w) should *never* be used directly in the machine limit determination
   assign
    sh-len = xef.trim-w
-   sh-wid = xef.trim-l.
+   sh-wid = xef.trim-l.*/
 
   /* get die cutter */
   diecut:
