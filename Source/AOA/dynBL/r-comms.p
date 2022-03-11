@@ -18,7 +18,7 @@ DEFINE TEMP-TABLE ttCommissions NO-UNDO
     FIELD fgItem        AS CHARACTER FORMAT "x(15)"            LABEL "FG Item"
     FIELD custPart      AS CHARACTER FORMAT "x(15)"            LABEL "Cust Part"
     FIELD orderNo       AS INTEGER   FORMAT ">>>>>>9"          LABEL "Order"
-    FIELD invoiceNo     AS INTEGER   FORMAT ">>>>>>9"          LABEL "Invoice"
+    FIELD invoiceNo     AS INTEGER   FORMAT ">>>>>>>9"          LABEL "Invoice"
     FIELD category      AS CHARACTER FORMAT "x(3)"             LABEL "Cat"
     FIELD quantity      AS INTEGER   FORMAT "->>>>>>>9"        LABEL "Quantity"
     FIELD sellPrice     AS DECIMAL   FORMAT "->>>>>>>9.99"     LABEL "Sell Price"
@@ -166,7 +166,7 @@ PROCEDURE pBusinessLogic:
               ASSIGN
                   ttReport.key-01 = cSalesRep[1]
                   ttReport.key-02 = cust.cust-no
-                  ttReport.key-03 = STRING(ar-inv.inv-no,"9999999")
+                  ttReport.key-03 = STRING(ar-inv.inv-no,"99999999")
                   ttReport.key-10 = "ar-invl"
                   ttReport.rec-id = RECID(ar-invl)
                   ttReport.row-id = ROWID(ar-invl)
@@ -236,7 +236,7 @@ PROCEDURE pBusinessLogic:
                     CREATE ttReport.
                     ASSIGN
                         ttReport.key-01 = cSalesRep[1]
-                        ttReport.key-03 = STRING(bARInvl.inv-no,"9999999")
+                        ttReport.key-03 = STRING(bARInvl.inv-no,"99999999")
                         ttReport.row-id = ROWID(bARInvl)
                         ttReport.key-02 = cust.cust-no
                         ttReport.key-10 = "ar-cashl"
@@ -253,7 +253,7 @@ PROCEDURE pBusinessLogic:
                     CREATE ttReport.
                     ASSIGN
                         ttReport.key-01 = cust.sman
-                        ttReport.key-03 = STRING(ar-cashl.inv-no,"9999999")
+                        ttReport.key-03 = STRING(ar-cashl.inv-no,"99999999")
                         .
                 END. /* else */
                 IF AVAILABLE ttReport THEN

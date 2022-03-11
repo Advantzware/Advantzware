@@ -1666,7 +1666,7 @@ PROCEDURE run-asistmt :
     FORM
         tt-inv.trans-date 
         tt-inv.type FORM "x(3)"
-        tt-inv.inv-no FORMAT ">>>>>>9"
+        tt-inv.inv-no FORMAT ">>>>>>>9"
         tt-inv.description FORM "x(25)"
         tt-inv.old-day FORMAT ">>>9"
         tt-inv.amount      
@@ -1698,7 +1698,7 @@ PROCEDURE run-asistmt :
     FORM
         tt-inv.trans-date
         tt-inv.type
-        tt-inv.inv-no FORMAT ">>>>>>9"
+        tt-inv.inv-no FORMAT ">>>>>>>9"
         tt-inv.DESCRIPTION FORM "x(25)"
         tt-inv.amount
         v-balance
@@ -2624,7 +2624,7 @@ PROCEDURE run-asistmt-mail :
     FORM
         tt-inv.trans-date 
         tt-inv.type   FORM "x(3)"  
-        tt-inv.inv-no FORMAT ">>>>>>9"
+        tt-inv.inv-no FORMAT ">>>>>>>9"
         tt-inv.description FORM "x(25)"
         tt-inv.old-day FORMAT ">>>9"
         tt-inv.amount      
@@ -2634,7 +2634,7 @@ PROCEDURE run-asistmt-mail :
     FORM
         tt-inv.trans-date 
         tt-inv.type FORM "x(3)"
-        tt-inv.inv-no FORMAT ">>>>>>9"
+        tt-inv.inv-no FORMAT ">>>>>>>9"
         tt-inv.description FORM "x(20)"
         tt-inv.old-day FORMAT ">>>9"
         tt-inv.amount      
@@ -2676,7 +2676,7 @@ PROCEDURE run-asistmt-mail :
     FORM
         tt-inv.trans-date
         tt-inv.type
-        tt-inv.inv-no FORMAT ">>>>>>9"
+        tt-inv.inv-no FORMAT ">>>>>>>9"
         tt-inv.DESCRIPTION FORM "x(25)"
         tt-inv.amount
         v-balance
@@ -3490,7 +3490,7 @@ PROCEDURE run-protagonstmt :
 
     FORM SPACE(1)
         tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date"
-        tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Invoice #" SPACE(1)
+        tt-inv.inv-no FORMAT ">>>>>>>9" COLUMN-LABEL "Invoice #" SPACE(1)
         tt-inv.description FORMAT "x(14)" COLUMN-LABEL "Description"
         tt-inv.po-no FORMAT "x(12)" COLUMN-LABEL "Cust PO#"
         dAged[1] FORMAT "->>>>>>>9.99" COLUMN-LABEL "0-30"
@@ -3501,7 +3501,7 @@ PROCEDURE run-protagonstmt :
 
     FORM SPACE(1)
         tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date"
-        tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Invoice #" SPACE(1)
+        tt-inv.inv-no FORMAT ">>>>>>>9" COLUMN-LABEL "Invoice #" SPACE(1)
         tt-inv.description FORMAT "x(14)" COLUMN-LABEL "Description"
         tt-inv.po-no FORMAT "x(12)" COLUMN-LABEL "Cust PO#"
         dAged[1] FORMAT "$->>>>>>>9.99" COLUMN-LABEL "0-30"
@@ -3528,7 +3528,7 @@ PROCEDURE run-protagonstmt :
 
     FORM SPACE(1)
         tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date"
-        tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Invoice #" SPACE(1)
+        tt-inv.inv-no FORMAT ">>>>>>>9" COLUMN-LABEL "Invoice #" SPACE(1)
         tt-inv.description FORMAT "x(14)" COLUMN-LABEL "Description"
         tt-inv.po-no FORMAT "x(12)" COLUMN-LABEL "Cust PO#"
         dAged[1] FORMAT "->>>>>>>9.99" COLUMN-LABEL "0-30"
@@ -3539,7 +3539,7 @@ PROCEDURE run-protagonstmt :
 
     FORM SPACE(1)
         tt-inv.trans-date FORMAT "99/99/99" COLUMN-LABEL "Date"
-        tt-inv.inv-no FORMAT ">>>>>>9" COLUMN-LABEL "Invoice #" SPACE(1)
+        tt-inv.inv-no FORMAT ">>>>>>>9" COLUMN-LABEL "Invoice #" SPACE(1)
         tt-inv.description FORMAT "x(14)" COLUMN-LABEL "Description"
         tt-inv.po-no FORMAT "x(12)" COLUMN-LABEL "Cust PO#"
         dAged[1] FORMAT "$->>>>>>>9.99" COLUMN-LABEL "0-30"

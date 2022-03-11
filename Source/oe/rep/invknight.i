@@ -48,7 +48,7 @@ PUT "<|10><R7><C53><#3><FROM><R9><C78><RECT>" SKIP
     "<R8><C53><FROM><R8><C78><LINE>" SKIP
     "<R7><C65><FROM><R9><C65><LINE>" SKIP
     "<FArial><P12><=#3><R-2> <P10>" ip-copy-title FORM "x(20)" SKIP
-    "<=#3>          INVOICE#                    " inv-head.inv-no
+    "<=#3>          INVOICE#                    " inv-head.inv-no FORMAT ">>>>>>>9"
     "<=#3><R+1>              DATE               " v-inv-date "<FCourier New>"
     SKIP(1)
     "<|10><R21><C1><#4><FROM><R24><C80><RECT>" SKIP

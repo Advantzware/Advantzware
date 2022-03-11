@@ -169,7 +169,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      mch.form-no  COLUMN-LABEL "Sheet" FORMAT ">>>":U LABEL-BGCOLOR 14
+      mch.form-no  COLUMN-LABEL "Form" FORMAT ">>>":U LABEL-BGCOLOR 14
       mch.blank-no COLUMN-LABEL "Blank" FORMAT ">>>":U LABEL-BGCOLOR 14
       mch.pass     COLUMN-LABEL "P#"    FORMAT ">>":U  LABEL-BGCOLOR 14
       mch.m-code   COLUMN-LABEL "Machine" LABEL-BGCOLOR 14

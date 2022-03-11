@@ -960,7 +960,7 @@ ASSIGN
                           tran-period,
                           "A",
                           tran-date,
-                          (IF AVAIL vend THEN "Vendor:" + string(vend.vend-no,"x(8)") ELSE "") + "Inv:" + STRING(ap-invl.inv-no,"9999999"),
+                          (IF AVAIL vend THEN "Vendor:" + string(vend.vend-no,"x(8)") ELSE "") + "Inv:" + STRING(ap-invl.inv-no,"99999999"),
                           "AP").
       assign
        t1 = t1 + ap-invl.amt
@@ -1249,7 +1249,7 @@ ASSIGN
                        tran-period,
                        "A",
                        tran-date,
-                       (IF AVAIL vend THEN "Vendor:" + string(vend.vend-no,"x(8)") ELSE "") + "Inv:" + STRING(ap-inv.inv-no,"9999999"),
+                       (IF AVAIL vend THEN "Vendor:" + string(vend.vend-no,"x(8)") ELSE "") + "Inv:" + STRING(ap-inv.inv-no,"99999999"),
                        "AP").
     assign
     g2 = g2 + lv-frt-total.
@@ -1264,7 +1264,7 @@ ASSIGN
                        tran-period,
                        "A",
                        tran-date,
-                       (IF AVAIL vend THEN "Vendor:" + string(vend.vend-no,"x(8)") ELSE "") + "Inv:" + STRING(ap-inv.inv-no,"9999999"),
+                       (IF AVAIL vend THEN "Vendor:" + string(vend.vend-no,"x(8)") ELSE "") + "Inv:" + STRING(ap-inv.inv-no,"99999999"),
                        "AP").
   for each work-gl break by work-gl.actnum:
     assign
@@ -1282,7 +1282,7 @@ ASSIGN
                        tran-period,
                        "A",
                        tran-date,
-                       (IF AVAIL vend THEN "Vendor:" + string(vend.vend-no,"x(8)") ELSE "") + "Inv:" + STRING(ap-inv.inv-no,"9999999"),
+                       (IF AVAIL vend THEN "Vendor:" + string(vend.vend-no,"x(8)") ELSE "") + "Inv:" + STRING(ap-inv.inv-no,"99999999"),
                        "AP").
       assign
        debits  = 0

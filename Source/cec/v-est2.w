@@ -290,7 +290,7 @@ DEFINE FRAME Corr
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Normal","N",
                      "Blank","B",
-                     "Sheet","S"
+                     "Form","S"
           DROP-DOWN-LIST
           SIZE 13 BY 1
      ef.board AT ROW 2.43 COL 12 COLON-ALIGNED
@@ -546,7 +546,7 @@ DEFINE FRAME Corr
      "Adders" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 10.05 COL 5
           FGCOLOR 9 
-     "S  /  B" VIEW-AS TEXT
+     "F  /  B" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 10.29 COL 106
           FGCOLOR 9 
      "Cost/" VIEW-AS TEXT

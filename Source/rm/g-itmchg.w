@@ -116,7 +116,7 @@ DEFINE QUERY BROWSE-3 FOR
 DEFINE BROWSE BROWSE-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-3 gDialog _FREEFORM
   QUERY BROWSE-3 DISPLAY
-      job-mat.frm       LABEL "S" FORMAT ">>>"
+      job-mat.frm       LABEL "F" FORMAT ">>>"
       job-mat.blank-no  LABEL "B" FORMAT ">>>"
       item-chg.i-no     LABEL "RM Item#"
       tt-fg             LABEL "FG Item#"

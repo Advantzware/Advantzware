@@ -25,7 +25,7 @@ PUT "<R6><C50><FROM><R6><C80><LINE><||3>" SKIP
     "<R6><C65><FROM><R8><C65><LINE><||3>" SKIP
     "<R8><C65><FROM><R10><C65><LINE><||3>" SKIP.
         
-PUT "<FArial><P12><=#3><R-2><B><C50>Facturé/Invoice#: " inv-head.inv-no "</B><P10><C74>Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
+PUT "<FArial><P12><=#3><R-2><B><C50>Facturé/Invoice#: " inv-head.inv-no FORMAT ">>>>>>>9" "</B><P10><C74>Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
     "<=#3> Client                      Contact"
     "<=#3><R+2> Téléphone                        Fax" 
     "<=#3><R+4> Bdc PO                           Date <FCourier New>"    

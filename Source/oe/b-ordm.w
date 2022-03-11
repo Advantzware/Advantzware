@@ -249,7 +249,7 @@ DEFINE BROWSE br_table
             WIDTH 6
       oe-ordm.spare-char-2 COLUMN-LABEL "FG Item Code" FORMAT "x(15)":U
       oe-ordm.est-no COLUMN-LABEL "Estimate" FORMAT "x(12)":U WIDTH 12
-      oe-ordm.form-no COLUMN-LABEL "S" FORMAT ">9":U WIDTH 2
+      oe-ordm.form-no COLUMN-LABEL "F" FORMAT ">9":U WIDTH 2
       oe-ordm.blank-no COLUMN-LABEL "B" FORMAT ">9":U WIDTH 2
   ENABLE
       oe-ordm.charge
@@ -409,7 +409,7 @@ ASSIGN
      _FldNameList[24]   > ASI.oe-ordm.est-no
 "oe-ordm.est-no" "Estimate" "x(12)" "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > ASI.oe-ordm.form-no
-"oe-ordm.form-no" "S" ? "integer" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordm.form-no" "F" ? "integer" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[26]   > ASI.oe-ordm.blank-no
 "oe-ordm.blank-no" "B" ? "integer" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED

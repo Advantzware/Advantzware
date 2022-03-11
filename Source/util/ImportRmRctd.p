@@ -24,7 +24,7 @@ DEFINE TEMP-TABLE ttImportRmRctd
     FIELD qty       AS DECIMAL   FORMAT "->>>>>>9.9<<" COLUMN-LABEL "Qty   " HELP "Optional - Decimal"
     FIELD cost      AS DECIMAL   FORMAT "->>>,>>9.99<<<<" COLUMN-LABEL "Cost  " HELP "Optional - Decimal"
     FIELD ritaCode  AS CHARACTER FORMAT "x" COLUMN-LABEL "Rita Code" HELP "Required - Size:1"
-    FIELD sNum      AS INTEGER   FORMAT ">>9" COLUMN-LABEL "S-Num" HELP "Optional - Integer"
+    FIELD sNum      AS INTEGER   FORMAT ">>9" COLUMN-LABEL "F-Num" HELP "Optional - Integer"
     FIELD bNum      AS INTEGER   FORMAT ">>9" COLUMN-LABEL "B-Num" HELP "Optional - Integer"
     FIELD pass      AS INTEGER   FORMAT ">9" COLUMN-LABEL "Pass" HELP "Optional - Integer"
     FIELD jobNo     AS CHARACTER FORMAT "x(6)" COLUMN-LABEL "Job #  " HELP "Optional - Size:6"

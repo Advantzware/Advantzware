@@ -222,7 +222,7 @@ DEFINE VARIABLE begin_i-no    AS CHARACTER FORMAT "X(15)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_inv-no  AS INTEGER   FORMAT "->>>>>>9":U INITIAL 0 
+DEFINE VARIABLE begin_inv-no  AS INTEGER   FORMAT "->>>>>>>9":U INITIAL 0 
     LABEL "From Invoice" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
@@ -252,7 +252,7 @@ DEFINE VARIABLE end_i-no      AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzz
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_inv-no    AS INTEGER   FORMAT "->>>>>>9":U INITIAL 9999999 
+DEFINE VARIABLE end_inv-no    AS INTEGER   FORMAT "->>>>>>>9":U INITIAL 99999999 
     LABEL "To Invoice" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
@@ -1318,7 +1318,7 @@ PROCEDURE run-report :
         
                 CASE cTmpField:
                     WHEN "ar-invl.inv-no"  THEN 
-                        cVarValue   = STRING(ar-invl.inv-no,">>>>>>9" ).
+                        cVarValue   = STRING(ar-invl.inv-no,">>>>>>>9" ).
                     WHEN "ar-invl.bol-no"  THEN 
                         cVarValue   = STRING(ar-invl.bol-no,">>>>>>9").
                     WHEN "ar-invl.cust-no" THEN 

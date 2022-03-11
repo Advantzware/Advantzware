@@ -822,7 +822,20 @@ PROCEDURE Inventory_GetQuantityOfSubUnitsPerUnitFromBinAndOrder:
           
      RUN pGetQuantityOfSubUnitsPerUnitFromBinAndOrder(ipcCompany, ipcItemID, ipcJobID, ipiJobID2, ipcLocationID, ipcBin, ipcTag, ipiOrderID,
          OUTPUT opiQuantitySubUnitsPerUnit).  
-END PROCEDURE.        
+END PROCEDURE.     
+
+PROCEDURE Inventory_UpdateBolBinWithMatchInventory:
+    /*------------------------------------------------------------------------------
+     Purpose:  
+     Notes:
+    ------------------------------------------------------------------------------*/ 
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNewLocBin AS CHARACTER NO-UNDO.
+              
+     RUN pUpdateBolBinWithMatchInventory(ipcCompany, ipiBNo, ipcNewLocBin).
+     
+END PROCEDURE.       
 
 PROCEDURE pBuildRMHistory PRIVATE:
 /*------------------------------------------------------------------------------
@@ -2939,7 +2952,7 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
     IF NOT lSetJob AND bf-loadtag.form-no EQ 0 AND bf-loadtag.job-no NE "" THEN DO:                        
         ASSIGN
             oplSuccess = FALSE
-            opcMessage = "Sheet # may not be 0 for tag " + ipcTag
+            opcMessage = "Form # may not be 0 for tag " + ipcTag
             .
         RETURN.
     END.
@@ -9428,6 +9441,27 @@ PROCEDURE Inventory_CreateWIPInventoryStockForIssuedRM:
     RELEASE bf-item.
     RELEASE bf-po-ordl.                 
 END PROCEDURE.
+
+
+PROCEDURE pUpdateBolBinWithMatchInventory PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Updates Loc-bin for oe-boll
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNewLocBin AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-oe-boll FOR oe-boll.
+    
+    FIND FIRST bf-oe-boll EXCLUSIVE-LOCK
+         WHERE bf-oe-boll.company EQ ipcCompany
+           AND bf-oe-boll.b-no    EQ ipiBNo NO-ERROR.
+    IF AVAIL bf-oe-boll THEN
+     ASSIGN
+          bf-oe-boll.loc-bin = ipcNewLocBin.
+    RELEASE bf-oe-boll.      
+END PROCEDURE.
+
 
 PROCEDURE UpdateTagStatusID:
 /*------------------------------------------------------------------------------

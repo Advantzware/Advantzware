@@ -157,7 +157,7 @@ DEFINE QUERY Dialog-Frame FOR
 
 DEFINE FRAME Dialog-Frame
     est-prep.s-num AT ROW 2.43 COL 28.4 COLON-ALIGNED
-    LABEL "Sheet #" FORMAT ">>>"
+    LABEL "Form" FORMAT ">>>"
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
     BGCOLOR 15 FONT 1
@@ -647,7 +647,7 @@ ON LEAVE OF est-prep.mkup IN FRAME Dialog-Frame /* Markup */
 
 &Scoped-define SELF-NAME est-prep.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-prep.s-num Dialog-Frame
-ON ENTRY OF est-prep.s-num IN FRAME Dialog-Frame /* Sheet # */
+ON ENTRY OF est-prep.s-num IN FRAME Dialog-Frame /* form */
     DO:
         /*single item est*/
         IF est.est-type EQ 1 OR est.est-type EQ 5 THEN
@@ -675,7 +675,7 @@ ON ENTRY OF est-prep.s-num IN FRAME Dialog-Frame /* Sheet # */
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-prep.s-num Dialog-Frame
-ON LEAVE OF est-prep.s-num IN FRAME Dialog-Frame /* Sheet # */
+ON LEAVE OF est-prep.s-num IN FRAME Dialog-Frame /* Form */
     DO:
         IF LASTKEY NE -1 THEN 
         DO:

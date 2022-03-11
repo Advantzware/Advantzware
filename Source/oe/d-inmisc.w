@@ -296,7 +296,7 @@ DEFINE FRAME Dialog-Frame
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
     inv-misc.spare-int-1 AT ROW 10.57 COL 102.8 COLON-ALIGNED 
-    LABEL "S" FORMAT ">9"
+    LABEL "F" FORMAT ">9"
     VIEW-AS FILL-IN 
     SIZE 8 BY 1
     BGCOLOR 15 FONT 1
