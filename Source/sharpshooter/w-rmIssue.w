@@ -1322,7 +1322,7 @@ PROCEDURE pTagScan :
              WHERE ttInventoryStockDetails.tag EQ ipcTag
              NO-ERROR.
         IF AVAILABLE ttInventoryStockDetails THEN DO:
-            lIsReturn = ttInventoryStockDetails.quantityOnHand EQ 0.
+            lIsReturn = ttInventoryStockDetails.isIssued AND ttInventoryStockDetails.quantityOnHand EQ 0.
                 
             ASSIGN
                 cJobNoLocal   = ttInventoryStockDetails.jobID
@@ -1349,10 +1349,14 @@ PROCEDURE pTagScan :
             iFormno  NE iFormNoLocal OR
             iBlankno NE iBlankNoLocal) AND
             cJobNoLocal NE "" THEN DO:
-            MESSAGE "Tag belongs to different Job. Do you want to continue?"
-                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
-                TITLE "Continue?" UPDATE lIssue AS LOGICAL.
-            IF NOT lIssue THEN
+            RUN sharpShooter/messageDialog.w (
+                INPUT  "Tag belongs to different Job. Do you want to continue?",
+                INPUT  TRUE,
+                INPUT  TRUE,
+                INPUT  FALSE,
+                OUTPUT lChoice
+                ).
+            IF NOT lChoice THEN
                 RETURN.
         END.
         

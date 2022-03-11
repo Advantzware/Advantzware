@@ -484,21 +484,20 @@ PROCEDURE pGetRMItemOnHandQuantity PRIVATE:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-loadtag FOR loadtag.    
-    DEFINE OUTPUT PARAMETER opdOnHandQty AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdOnHandQty AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsIssued  AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-rm-bin   FOR rm-bin.
     DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
     DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
 
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-    
     RUN pGetLastIssue(
         BUFFER ipbf-loadtag, 
         BUFFER bf-rm-rdtlh, 
         BUFFER bf-rm-rcpth, 
-        OUTPUT lFound
+        OUTPUT oplIsIssued
         ).
-    IF NOT lFound THEN
+    IF NOT oplIsIssued THEN
         RETURN.
         
     FIND FIRST bf-rm-bin NO-LOCK
@@ -2917,6 +2916,13 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
          NO-ERROR.         
     IF AVAILABLE bf-rm-bin THEN
         dIssuedQty = bf-rm-bin.qty.
+    ELSE DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Tag '" + ipcTag + "' does not exist in inventory"
+            .
+        RETURN.    
+    END.
         
     IF dIssuedQty EQ 0 THEN DO:
         ASSIGN
@@ -9122,7 +9128,8 @@ PROCEDURE pGetInventoryStockDetails:
         
         RUN pGetRMItemOnHandQuantity (
             BUFFER bf-loadtag,
-            OUTPUT ttInventoryStockDetails.quantityOnHand
+            OUTPUT ttInventoryStockDetails.quantityOnHand,
+            OUTPUT ttInventoryStockDetails.isIssued
             ).
             
         FIND FIRST bf-item NO-LOCK
