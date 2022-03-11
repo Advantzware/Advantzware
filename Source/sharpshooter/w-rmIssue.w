@@ -672,7 +672,6 @@ DO:
     RUN pStatusMessage ("", 0).
     
     {methods/run_link.i "TAG-SOURCE" "EmptyTag"}
-    {methods/run_link.i "TAG-SOURCE" "ScanNextTag"}   
     {methods/run_link.i "TAG-SOURCE" "EnableAll"}
     {methods/run_link.i "TAG-SOURCE" "Set-Focus"}
 
@@ -1268,6 +1267,7 @@ PROCEDURE pRebuildBrowse PRIVATE :
         .
     
     {&OPEN-QUERY-{&BROWSE-NAME}}   
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
