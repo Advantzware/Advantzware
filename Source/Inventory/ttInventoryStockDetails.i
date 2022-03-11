@@ -19,6 +19,7 @@ DEFINE TEMP-TABLE ttInventoryStockDetails NO-UNDO
     FIELD orderLevel              AS INTEGER
     FIELD orderMax                AS INTEGER
     FIELD orderMin                AS INTEGER
+    FIELD isIssued                AS LOGICAL
     FIELD quantityOnHand          AS DECIMAL
     FIELD quantityOnOrder         AS DECIMAL
     FIELD quantityAllocated       AS DECIMAL
