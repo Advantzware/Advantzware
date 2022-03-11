@@ -1439,7 +1439,7 @@ ON LEAVE OF end_i-no IN FRAME FRAME-A /* To Item# */
                 AND itemfg.i-no EQ END_i-no NO-LOCK NO-ERROR.
             IF AVAILABLE itemfg AND itemfg.alloc EQ YES THEN
                 rd_comps:SCREEN-VALUE = "U".
-            IF begin_job2 = 0 AND END_job2 = 0 THEN END_job2 = 99.
+            IF begin_job2 = 0 AND END_job2 = 0 THEN END_job2 = 999.
             FIND FIRST job-hdr NO-LOCK
                 WHERE job-hdr.company EQ cocode                 
                 AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) + 
@@ -4015,7 +4015,7 @@ PROCEDURE create-text-file :
 
         EACH-ORD:
         FOR EACH w-ord:
-            v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+            v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"999").
             IF v-job BEGINS "-" OR v-job = ? /* 9901 CAH */
                 THEN v-job = STRING(W-ORD.ORD-NO).   /* 9812 CAH in case blank */
             FIND FIRST itemfg WHERE itemfg.company = cocode
@@ -5064,10 +5064,10 @@ PROCEDURE dispJobInfo :
             ASSIGN
                 begin_ord-no:SCREEN-VALUE = STRING(v-first-order)
                 begin_job:SCREEN-VALUE    = ipcJobNo         
-                begin_job2:SCREEN-VALUE   = STRING(ipiJobNo2,"99")
+                begin_job2:SCREEN-VALUE   = STRING(ipiJobNo2,"999")
                 end_ord-no:SCREEN-VALUE   = STRING(v-last-order)
                 end_job:SCREEN-VALUE      = ipcJobNo     
-                end_job2:SCREEN-VALUE     = STRING(ipiJobNo2,"99")
+                end_job2:SCREEN-VALUE     = STRING(ipiJobNo2,"999")
                 begin_i-no:SCREEN-VALUE   = v-frstitem
                 end_i-no:SCREEN-VALUE     = v-lastitem.    
       
@@ -6385,10 +6385,10 @@ DO:
    ASSIGN
       begin_ord-no:SCREEN-VALUE = STRING(v-first-order)
       begin_job:SCREEN-VALUE    = lv-job-no         
-      begin_job2:SCREEN-VALUE   = STRING(v-job2,"99")
+      begin_job2:SCREEN-VALUE   = STRING(v-job2,"999")
       end_ord-no:SCREEN-VALUE   = STRING(v-last-order)
       end_job:SCREEN-VALUE      = lv-job-no     
-      end_job2:SCREEN-VALUE     = STRING(v-job2,"99")
+      end_job2:SCREEN-VALUE     = STRING(v-job2,"999")
       begin_i-no:SCREEN-VALUE = v-frstitem
       end_i-no:SCREEN-VALUE   = v-lastitem.           
 
@@ -6444,10 +6444,10 @@ IF AVAIL bf-jobhdr THEN DO:
       ASSIGN
          begin_ord-no:SCREEN-VALUE = STRING(bf-oe-ordl.ord-no) 
          begin_job:SCREEN-VALUE    = lv-job-no         
-         begin_job2:SCREEN-VALUE   = STRING(v-job2,"99")
+         begin_job2:SCREEN-VALUE   = STRING(v-job2,"999")
          end_ord-no:SCREEN-VALUE   = STRING(bf-oe-ordl.ord-no)  
          end_job:SCREEN-VALUE      = lv-job-no     
-         end_job2:SCREEN-VALUE     = STRING(v-job2,"99").
+         end_job2:SCREEN-VALUE     = STRING(v-job2,"999").
 
       IF v-lncnt EQ 1 THEN DO WITH FRAME {&FRAME-NAME}:
          ASSIGN
@@ -6488,10 +6488,10 @@ IF AVAIL bf-jobhdr THEN DO:
       ASSIGN
          begin_ord-no:SCREEN-VALUE = "0" 
          begin_job:SCREEN-VALUE    = lv-job-no         
-         begin_job2:SCREEN-VALUE   = STRING(v-job2,"99")
+         begin_job2:SCREEN-VALUE   = STRING(v-job2,"999")
          end_ord-no:SCREEN-VALUE   = "0"  
          end_job:SCREEN-VALUE      = lv-job-no     
-         end_job2:SCREEN-VALUE     = STRING(v-job2,"99").
+         end_job2:SCREEN-VALUE     = STRING(v-job2,"999").
 
       FOR EACH bf-job-hdr-2 FIELDS(i-no) WHERE
           bf-job-hdr-2.company EQ bf-jobhdr.company AND

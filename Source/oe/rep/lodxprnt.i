@@ -46,7 +46,7 @@
         PUT "<||><R28><C45><#7><FROM><R31><C80><RECT>" SKIP. 
         
         PUT "<FCourier New><=7><R-2><I> Customer Job# </I>" SKIP.
-        PUT "<FArial><=7><R+1><B>  " tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99") "</B>" SKIP.
+        PUT "<FArial><=7><R+1><B>  " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-word-print.job-no, tt-word-print.job-no2))) FORM "x(13)" "</B>" SKIP.
         
         PUT "<||><R34><C3><#8><FROM><R37><C80><RECT>" SKIP. 
         
@@ -137,7 +137,7 @@
         PUT "<||><R50><C45><#7><FROM><R53><C80><RECT>" SKIP. 
         
         PUT "<FCourier New><=7><R-2><I> Customer Job# </I>" SKIP.
-        PUT "<FArial><=7><R+1><B>  " tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99") "</B>" SKIP.
+        PUT "<FArial><=7><R+1><B>  " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-word-print.job-no, tt-word-print.job-no2))) FORM "x(13)" "</B>" SKIP.
         
         PUT "<||><R56><C3><#8><FROM><R59><C80><RECT>" SKIP. 
         

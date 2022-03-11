@@ -282,11 +282,11 @@ PROCEDURE pGetSecondaryJobForJob PRIVATE:
            BY bf-job-hdr.opened DESCENDING
            BY bf-job-hdr.job-no2:
         opcJobno2List = IF opcJobno2List EQ "" THEN 
-                            STRING(bf-job-hdr.job-no2,"99")
-                        ELSE IF INDEX(opcJobno2List,STRING(bf-job-hdr.job-no2,"99")) GT 0 THEN 
+                            STRING(bf-job-hdr.job-no2,"999")
+                        ELSE IF INDEX(opcJobno2List,STRING(bf-job-hdr.job-no2,"999")) GT 0 THEN 
                             opcJobno2List
                         ELSE 
-                            opcJobno2List + "," + STRING(bf-job-hdr.job-no2,"99").        
+                            opcJobno2List + "," + STRING(bf-job-hdr.job-no2,"999").        
     END.
 
     RELEASE bf-job-hdr.

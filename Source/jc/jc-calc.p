@@ -1782,7 +1782,7 @@ PROCEDURE pUpdateJobQty PRIVATE:
         ASSIGN
             li         = li + 1
             xeb.spc-no = TRIM(job.job-no) + "-" 
-                       + STRING(job.job-no2,"99") + "-"
+                       + STRING(job.job-no2,"999") + "-"
                        + STRING(xeb.form-no,"99") + "-" 
                        + STRING(li,"99").
   

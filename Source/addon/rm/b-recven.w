@@ -3349,7 +3349,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
                bell.
                message " Job Mat Record not found for "
                        TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) +
-                              "  " + rm-rctd.i-no)
+                              "  " + rm-rctd.i-no
                        VIEW-AS ALERT-BOX.
                undo transblok, next transblok.
             end.

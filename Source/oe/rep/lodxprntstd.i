@@ -40,7 +40,7 @@ IF iplPrintView THEN DO:
     
     PUT "<FArial><=5><R35><C6><P16> Customer:    " "<B><C20>" tt-word-print.cust-name FORMAT "x(30)" "</B>"   "" SKIP.
     PUT "<FArial><=5><R37><C6><P16> PO#:            " "<B><C20>" tt-word-print.cust-po-no FORMAT "x(15)" "</B>"   "" SKIP.
-    PUT "<FArial><=5><R39><C6><P16> Job#:            " "<B><C20>" tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99") "</B>"   "" SKIP.
+    PUT "<FArial><=5><R39><C6><P16> Job#:            " "<B><C20>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-word-print.job-no, tt-word-print.job-no2))) FORM "x(13)" "</B>" SKIP.
     PUT "<FArial><=5><R41><C6><P16> Item Name:  " "<B><C20>" tt-word-print.i-name FORMAT "x(30)" "</B>"   "" SKIP.
     PUT "<FArial><=5><R43><C6><P16> Part#:           " "<B><C20>" tt-word-print.cust-part-no FORMAT "x(15)" "</B>"   "" SKIP.
     PUT "<FArial><=5><R45><C6><P16> FG#:             " "<B><C20>" tt-word-print.i-no FORMAT "x(15)" "</B>"   "" SKIP.
@@ -118,7 +118,7 @@ ELSE DO:
         
         PUT "<FArial><=5><R48><C6><P16> Customer:    " "<B><C20>" tt-word-print.cust-name FORMAT "x(30)" "</B>"   "" SKIP.
         PUT "<FArial><=5><R50><C6><P16> PO#:            " "<B><C20>" tt-word-print.cust-po-no FORMAT "x(15)" "</B>"   "" SKIP.
-        PUT "<FArial><=5><R52><C6><P16> Job#:            " "<B><C20>" tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99") "</B>"   "" SKIP.
+        PUT "<FArial><=5><R52><C6><P16> Job#:            " "<B><C20>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-word-print.job-no, tt-word-print.job-no2))) FORM "x(13)" "</B>" SKIP.
         PUT "<FArial><=5><R54><C6><P16> Item Name:  " "<B><C20>" tt-word-print.i-name FORMAT "x(30)" "</B>"   "" SKIP.
         PUT "<FArial><=5><R56><C6><P16> Part#:           " "<B><C20>" tt-word-print.cust-part-no FORMAT "x(15)" "</B>"   "" SKIP.
         PUT "<FArial><=5><R58><C6><P16> FG#:             " "<B><C20>" tt-word-print.i-no FORMAT "x(15)" "</B>"   "" SKIP.

@@ -1569,7 +1569,7 @@ PROCEDURE pPrintLoadTag PRIVATE:
         PUT UNFORMATTED
         '"'  fReplaceQuotes(ipbf-ttLoadTag.custName)  '",'
              ipbf-ttLoadTag.orderID  ","
-        '"'  IF ipbf-ttLoadTag.jobID EQ "" THEN STRING(ipbf-ttLoadTag.orderID) ELSE ipbf-ttLoadTag.jobID + "-" + STRING(ipbf-ttLoadTag.jobID2, "99")  '",'
+        '"'  IF ipbf-ttLoadTag.jobID EQ "" THEN STRING(ipbf-ttLoadTag.orderID) ELSE ipbf-ttLoadTag.jobID + "-" + STRING(ipbf-ttLoadTag.jobID2, "999")  '",'
         '"'  CAPS(fReplaceQuotes(ipbf-ttLoadTag.itemID))  FORM "x(15)" '",'
         '"'  fReplaceQuotes(ipbf-ttLoadTag.custPartNo) '",'
         '"'  fReplaceQuotes(ipbf-ttLoadTag.custPONo)  '",'
@@ -2805,7 +2805,7 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
         IF NOT AVAILABLE bf-job-hdr THEN DO:
             ASSIGN
                 oplError   = TRUE
-                opcMessage = "Invalid Job # '" + ipcJobID + "-" + STRING(ipiJobID2,"99") + "'"
+                opcMessage = "Invalid Job # '" + ipcJobID + "-" + STRING(ipiJobID2,"999") + "'"
                 .
             UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
         END.
