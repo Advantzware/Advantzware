@@ -9,7 +9,7 @@
 
   File: windows/inventorysnapshot.w
 
-  Description: from cntnrwin.w - ADM SmartWindow Template
+  Description: from job-code.w - ADM SmartWindow Template
 
   Input Parameters:
       <none>
@@ -48,7 +48,7 @@ CREATE WIDGET-POOL.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartEasyWindow
+&Scoped-define PROCEDURE-TYPE SmartWindow
 &Scoped-define DB-AWARE no
 
 &Scoped-define ADM-CONTAINER WINDOW
@@ -80,7 +80,6 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
-//DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_inventorySnapshot AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_inventorySnapshot-2 AS HANDLE NO-UNDO.
@@ -88,7 +87,7 @@ DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE h_movecol       AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -102,7 +101,7 @@ DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
-         SIZE 93 BY 1.91
+         SIZE 170 BY 1.91
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
@@ -166,9 +165,6 @@ IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
@@ -290,12 +286,15 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_smartmsg ( 1.00 , 9.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/options.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 29.00 ) NO-ERROR.
+       RUN set-size IN h_options ( 20 , 150.00 ) NO-ERROR.
+       RUN set-position IN h_options ( 1.00 , 105.5 ) NO-ERROR.
+       
        /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -303,7 +302,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 85.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.00 , 162.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -324,8 +323,16 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
-    WHEN 1 THEN DO:      
-
+    WHEN 1 THEN DO:     
+    
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_movecol ).
+       RUN set-position IN h_movecol ( 1.00 , 98.1 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/inventorySnapshot.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -336,6 +343,8 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_inventorySnapshot ( 19.52 , 95.00) NO-ERROR.     
              
        /* Links to SmartNavBrowser h_inventorySnapshot. */
+       
+       RUN add-link IN adm-broker-hdl ( h_inventorySnapshot , 'move-columns':U , h_movecol ).
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_inventorySnapshot ).       
        RUN add-link IN adm-broker-hdl ( h_inventorySnapshot , 'Record':U , THIS-PROCEDURE ).
 
