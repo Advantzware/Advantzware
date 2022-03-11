@@ -171,6 +171,7 @@ DEFINE VARIABLE lCEVersion AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iQuoteExpirationDays AS INTEGER NO-UNDO. 
 DEFINE VARIABLE lQuoteExpirationDays AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAutoUpdate AS LOGICAL NO-UNDO.
              
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 
@@ -1082,9 +1083,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL probe.boardContributionTotal br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF probe.boardContributionTotal IN BROWSE br_table /* Board!Contrib$ */
 DO:
+  DEFINE BUFFER bf-probe FOR probe.
   IF LASTKEY NE -1 THEN DO:
     RUN calc-fields NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    lAutoUpdate = NO. 
+    FIND LAST bf-probe NO-LOCK
+          WHERE bf-probe.company EQ eb.company 
+            AND bf-probe.est-no EQ eb.est-no 
+            AND bf-probe.probe-date ne ? NO-ERROR.
+    IF AVAIL bf-probe AND ROWID(bf-probe) NE ROWID(probe) THEN 
+    do:        
+        IF KEYFUNCTION(LASTKEY) EQ "TAB" THEN
+        lAutoUpdate = YES.
+    END.
   END.
 END.
 
@@ -2825,8 +2837,16 @@ PROCEDURE local-update-record :
   IF vmclean THEN RUN cec/pr4-mcl1.p (ROWID(probe)).
 
   IF probe.spare-char-2 NE "" THEN
-    RUN pCalculatePricing(BUFFER probe). 
-
+    RUN pCalculatePricing(BUFFER probe).
+              
+  IF lAutoUpdate THEN
+  DO:          
+     lAutoUpdate = NO.
+     QUERY br_table:GET-NEXT().     
+     APPLY "default-action" TO BROWSE {&browse-name}.
+     RETURN NO-APPLY.        
+  END.  
+    
 /*
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
