@@ -130,7 +130,7 @@ PROCEDURE pSetFGWeights PRIVATE:
             DO:  //legacy rules from updfgdim.i
                 ASSIGN 
                     cWeightUOM        = "LB"
-                    dWeightPer100     = bf-ef.weight * bf-itemfg.t-sqft * .01                
+                    dWeightPer100     = bf-ef.weight * bf-itemfg.t-sqft * 0.1  //weight in LBs by MSF - weight / 1000 * 100 = Weight / 10                
                     dWeightPerEANet   = dWeightPer100 / 100
                     dWeightPerEAGross = dWeightPerEANet
                     .

@@ -80,6 +80,10 @@ FUNCTION fGetMatTypeCalc RETURNS CHARACTER PRIVATE
     (ipcCompany AS CHARACTER,
      ipcMaterialType AS CHARACTER) FORWARD.
 
+FUNCTION fGetMSF RETURNS DECIMAL PRIVATE
+	(ipdArea AS DECIMAL,
+	 ipcUOM AS CHARACTER) FORWARD.
+
 FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
     (ipiEstCostOperationID AS INT64,
     ipiDefaultOut AS INTEGER,
@@ -486,13 +490,11 @@ PROCEDURE pAddEstBlank PRIVATE:
         opbf-estCostBlank.areaUOM                 = "SQIN"
         opbf-estCostBlank.dimUOM                  = "IN"
         opbf-estCostBlank.weightUOM               = gcDefaultWeightUOM
-                    
                             
         /*Refactor - Calculate Windowing*/
         opbf-estCostBlank.blankAreaNetWindow      = opbf-estCostBlank.blankArea
 
-        /*Refactor - apply area UOM conversion*/
-        opbf-estCostBlank.weightPerBlank          = ipbf-estCostForm.basisWeight * opbf-estCostBlank.blankAreaNetWindow / 144000 
+        opbf-estCostBlank.weightPerBlank          = ipbf-estCostForm.basisWeight * fGetMSF(opbf-estCostBlank.blankAreaNetWindow, opbf-estCostBlank.areaUOM) 
     
         opbf-estCostBlank.quantityPerSet          = fGetQuantityPerSet(BUFFER ipbf-eb)
         opbf-estCostBlank.quantityRequired        = (IF fIsComboType(ipbf-estCostHeader.estType) THEN ipbf-eb.bl-qty ELSE ipbf-estCostHeader.quantityMaster) * opbf-estCostBlank.quantityPerSet 
@@ -3016,37 +3018,36 @@ PROCEDURE pCalcWeightsAndSizes PRIVATE:
     DEFINE BUFFER bf-estCostHeader   FOR estCostHeader.
     
     DEFINE VARIABLE dWeightInDefaultUOM         AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dBasisWeightInDefaultUOM    AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dBlankAreaTotalInDefaultUOM AS DECIMAL NO-UNDO.
-    
+    DEFINE VARIABLE cMaterialItemType           AS CHARACTER NO-UNDO.
     
     FOR EACH bf-estCostBlank NO-LOCK 
         WHERE bf-estCostBlank.estCostHeaderID EQ ipiEstCostHeaderID,
         FIRST bf-estCostItem EXCLUSIVE-LOCK
         WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostBlank.estCostHeaderID
         AND bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID:
-        
-        dBlankAreaTotalInDefaultUOM = bf-estCostBlank.blankAreaNetWindow / 144000 * bf-estCostBlank.quantityRequired.
-        IF bf-estCostBlank.areaUOM NE gcDefaultAreaUOM THEN 
-        DO:
-            //REFACTOR: convert blankarea
-        END.
                 
+                       
         FOR EACH bf-estCostMaterial EXCLUSIVE-LOCK 
             WHERE bf-estCostMaterial.estCostHeaderID EQ bf-estCostBlank.estCostHeaderID
             AND bf-estCostMaterial.estCostFormID EQ bf-estCostBlank.estCostFormID
             AND (bf-estCostMaterial.addToWeightNet OR bf-estCostMaterial.addToWeightTare)
             AND (bf-estCostMaterial.estCostBlankID EQ bf-estCostBlank.estCostBlankID OR bf-estCostMaterial.estCostBlankID EQ 0):
             
-            IF bf-estCostMaterial.weightTotal = 0 THEN 
-                RUN pConvertQuantityFromUOMToUOM(bf-estCostMaterial.company, bf-estCostMaterial.itemID, "RM", bf-estCostMaterial.quantityUOM, bf-estCostMaterial.weightUOM, 
-                    bf-estCostMaterial.basisWeight, bf-estCostMaterial.dimLength, bf-estCostMaterial.dimWidth, bf-estCostMaterial.dimDepth, 
-                    bf-estCostMaterial.quantityRequiredNoWaste, OUTPUT bf-estCostMaterial.weightTotal).
-               
-            dWeightInDefaultUOM = 0.
+            IF bf-estCostMaterial.weightTotal = 0 THEN DO:  //Weight may have been calculated already
+                IF bf-estCostMaterial.isPurchasedFG THEN 
+                    cMaterialItemType = "FG".
+                ELSE
+                    cMaterialItemTYpe = "RM".
+                RUN pConvertQuantityFromUOMToUOM(bf-estCostMaterial.company, bf-estCostMaterial.itemID, cMaterialItemType, bf-estCostMaterial.quantityUOM, bf-estCostMaterial.weightUOM, 
+                    bf-estCostMaterial.basisWeight, bf-estCostMaterial.dimLength, bf-estCostMaterial.dimWidth, bf-estCostMaterial.dimDepth, bf-estCostMaterial.quantityRequiredNoWaste, 
+                    OUTPUT bf-estCostMaterial.weightTotal).                                 
+            END.
             
-            IF bf-estCostMaterial.estCostBlankID EQ 0 THEN /*Pro-rate Weight based on pctOfForm*/
+            dWeightInDefaultUOM = 0.            
+            IF bf-estCostMaterial.estCostBlankID EQ 0 AND NOT bf-estCostMaterial.isPrimarySubstrate THEN /*Pro-rate Weight based on pctOfForm - board already done by blank above*/
                 dWeightInDefaultUOM = bf-estCostMaterial.weightTotal * bf-estCostBlank.pctOfForm.
+            ELSE IF bf-estCostMaterial.isPrimarySubstrate THEN //Calculate based on formula square inches (net) per blank
+                dWeightInDefaultUOM = fGetMSF(bf-estCostBlank.blankAreaNetWindow, bf-estCostBlank.areaUOM) * bf-estCostMaterial.basisWeight * bf-estCostBlank.quantityRequired.  
             ELSE /*Blank specific material - get all weight*/
                 dWeightInDefaultUOM = bf-estCostMaterial.weightTotal.
 
@@ -3138,8 +3139,6 @@ PROCEDURE pConvertQuantityFromUOMToUOM PRIVATE:
         ipdQuantityInFromUOM, ipcFromUOM, ipcToUOM,
         ipdBasisWeightInLbsPerMSF, ipdLength, ipdWidth, ipdDepth, 0,
         OUTPUT opdQuantityInToUOM, OUTPUT lError, OUTPUT cMessage).
-    IF lError THEN
-        RUN custom/convquom.p (ipcCompany, ipcFromUOM, ipcToUOM, ipdBasisWeightInLbsPerMSF, ipdLength, ipdWidth, ipdDepth, ipdQuantityInFromUOM, OUTPUT opdQuantityInToUOM).
     
 END PROCEDURE.
 
@@ -4423,6 +4422,9 @@ PROCEDURE pProcessBoard PRIVATE:
                                                 OUTPUT cMessage).
         
         RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm).   
+        RUN pConvertQuantityFromUOMToUOM(bf-estCostMaterial.company, bf-estCostMaterial.itemID, "RM", bf-estCostMaterial.quantityUOM, bf-estCostMaterial.weightUOM, 
+                    bf-estCostMaterial.basisWeight, bf-estCostMaterial.dimLength, bf-estCostMaterial.dimWidth, bf-estCostMaterial.dimDepth, bf-estCostMaterial.quantityRequiredTotal, 
+                    OUTPUT bf-estCostMaterial.weightTotal).               
     END.
     
     ASSIGN 
@@ -5675,6 +5677,17 @@ FUNCTION fGetMatTypeCalc RETURNS CHARACTER PRIVATE
     
     RETURN cCalculationType.
     
+END FUNCTION.
+
+FUNCTION fGetMSF RETURNS DECIMAL PRIVATE
+	(ipdArea AS DECIMAL, ipcUOM AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose:  Get area in MSF given area and UOM      
+ Notes:
+------------------------------------------------------------------------------*/	
+
+    RETURN DYNAMIC-FUNCTION("fConv_GetAreaSqFeet", ipdArea, ipcUOM) / 1000.
+		
 END FUNCTION.
 
 FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
