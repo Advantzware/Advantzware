@@ -1277,6 +1277,11 @@ PROCEDURE create-ttfrmout :
         tt-eb-set.dep              = dep        
         tt-eb-set.procat           = fg-cat
         tt-eb-set.eqty             = quantity.
+        
+        {sys/inc/k16bb.i tt-eb-set.len  } 
+        {sys/inc/k16bb.i tt-eb-set.wid  } 
+        {sys/inc/k16bb.i tt-eb-set.dep  }
+        
         IF cType EQ "No" THEN
         ASSIGN 
           tt-eb-set.set-is-assembled = FALSE
@@ -1301,6 +1306,10 @@ PROCEDURE create-ttfrmout :
             bf-ttInputEst.cCustomer = cCustNo
             bf-ttInputEst.cShipTo   = ship-to
             .
+        
+        {sys/inc/k16bb.i bf-ttInputEst.dLength  }
+        {sys/inc/k16bb.i bf-ttInputEst.dWidth  }
+        {sys/inc/k16bb.i bf-ttInputEst.dDepth  }
         
         ASSIGN 
             bf-ttInputEst.copy-qty[2]  = lv-copy-qty[2] 
@@ -1469,7 +1478,7 @@ PROCEDURE pDefaultValue :
 
            
     END.
-
+     RUN pSetLWDFormat.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1582,7 +1591,7 @@ PROCEDURE pDisplayValue :
     DEFINE BUFFER bf-eb FOR eb .
     DEFINE BUFFER bf-ef FOR ef .
     DO WITH FRAME {&FRAME-NAME}:
-
+        RUN pSetLWDFormat.
         FIND FIRST eb NO-LOCK 
             WHERE eb.company EQ cocode
             AND ROWID(eb) EQ ipriRowid NO-ERROR .
@@ -1608,9 +1617,9 @@ PROCEDURE pDisplayValue :
                     fg-no:SCREEN-VALUE     = bf-eb.stock-no
                     item-name:SCREEN-VALUE = bf-eb.part-dscr1
                     item-dscr:SCREEN-VALUE = bf-eb.part-dscr2
-                    len:SCREEN-VALUE       = STRING(bf-eb.len)
-                    wid:SCREEN-VALUE       = STRING(bf-eb.wid)
-                    dep:SCREEN-VALUE       = STRING(bf-eb.dep)              
+                    len:SCREEN-VALUE       = STRING( {sys/inc/k16.i bf-eb.len })
+                    wid:SCREEN-VALUE       = STRING( {sys/inc/k16.i bf-eb.wid })
+                    dep:SCREEN-VALUE       = STRING( {sys/inc/k16.i bf-eb.dep })             
                     fg-cat:SCREEN-VALUE    = bf-eb.procat  
                     cType:SCREEN-VALUE     = IF bf-eb.set-is-assembled EQ TRUE THEN "Yes" ELSE IF bf-eb.set-is-assembled EQ FALSE THEN "No" ELSE "Q".
                 
@@ -1661,9 +1670,9 @@ PROCEDURE pDisplayValue :
                     ttInputEst.cPartID          = bf-eb.part-no             
                     ttInputEst.cPartName        = bf-eb.part-dscr1
                     ttInputEst.cPartDescription = eb.part-dscr2
-                    ttInputEst.dLength          = bf-eb.len
-                    ttInputEst.dWidth           = bf-eb.wid            
-                    ttInputEst.dDepth           = bf-eb.dep
+                    ttInputEst.dLength          = {sys/inc/k16.i bf-eb.len }
+                    ttInputEst.dWidth           = {sys/inc/k16.i bf-eb.wid }           
+                    ttInputEst.dDepth           = {sys/inc/k16.i bf-eb.dep }
                     ttInputEst.cCategory        = bf-eb.procat
                     ttInputEst.cBoard           = IF AVAILABLE bf-ef THEN bf-ef.board ELSE ""
                     ttInputEst.cStyle           = bf-eb.style
@@ -1725,6 +1734,32 @@ PROCEDURE send-records :
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+ 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetLWDFormat D-Dialog 
+PROCEDURE pSetLWDFormat :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iDecimalValue AS INTEGER NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:
+       IF v-cecscrn-char EQ "Decimal" THEN do:
+          iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .
+
+          ASSIGN
+              len:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+              len:WIDTH  = 12.5
+              wid:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))   
+              wid:WIDTH  = 12.5
+              dep:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+              dep:WIDTH  = 12.5.        
+       END.   
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
