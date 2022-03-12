@@ -1176,7 +1176,9 @@ PROCEDURE display-item :
     FIND FIRST ITEM NO-LOCK WHERE item.company = cocode
         AND item.i-no EQ board NO-ERROR .
     IF AVAILABLE ITEM THEN
-        ASSIGN board-dscr = item.i-name .        
+        ASSIGN board-dscr = item.i-name . 
+        
+    RUN pSetLWDFormat. 
     
     DISPLAY   
         est-no iForm iBlank cSetCustPart dQtyPerSet set-item-name cCustPart  
@@ -1267,6 +1269,32 @@ PROCEDURE pGetBoardFromStyle :
         board:screen-value = IF AVAILABLE reftable AND AVAILABLE flute AND reftable.dscr NE "" THEN reftable.dscr ELSE board:screen-value.
     END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetLWDFormat D-Dialog 
+PROCEDURE pSetLWDFormat :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iDecimalValue AS INTEGER NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:
+       IF v-cecscrn-char EQ "Decimal" THEN do:
+          iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .
+
+          ASSIGN
+              len:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+              len:WIDTH  = 12.5
+              wid:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))   
+              wid:WIDTH  = 12.5
+              dep:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+              dep:WIDTH  = 12.5.        
+       END.   
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

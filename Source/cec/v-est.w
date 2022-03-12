@@ -4607,6 +4607,11 @@ PROCEDURE proc-enable :
     ENABLE btnDieLookup btnCadLookup.
 
     ef.cad-image:SCREEN-VALUE = ef.cad-image.
+    IF est.estimateTypeID EQ "WOOD" THEN
+    ASSIGN  
+      eb.test:SCREEN-VALUE = ""
+      eb.test:HIDDEN      = YES
+      eb.test:SENSITIVE   = NO.
   END.
 
   RUN set-hold-values.
@@ -5340,7 +5345,7 @@ PROCEDURE valid-test :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  IF NOT lv-foam THEN DO:
+  IF NOT lv-foam AND NOT lWoodStyle THEN DO:
     {est/valtest.i "eb.flute" "eb.test" ":SCREEN-VALUE"}
   END.
 
