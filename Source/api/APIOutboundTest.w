@@ -611,9 +611,12 @@ DO:
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
-          
+    
+    /* Assigning from edRequestData:SCREEN-VALUE can cause an error if the data in edRequestData is more than 32k */
+    ASSIGN edRequestData.
+           
     ASSIGN
-        lcRequestData     = edRequestData:SCREEN-VALUE
+        lcRequestData     = edRequestData
         cAPIID            = fiAPIId:SCREEN-VALUE
         cClientID         = fiClientID:SCREEN-VALUE
         cTriggerID        = fiTriggerID:SCREEN-VALUE
