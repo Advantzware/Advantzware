@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE cXML SYSTEM "http://xml.cXML.org/schemas/cXML/1.2.014/Fulfill.dtd">
+<cXML payloadID="$PayloadID$" timestamp="$CurrentDateTime|YYYY-MM-DDThh:mm:sstz|DATE|$" xml:lang="en-US" version="1.2.024">
+   <Header>
+      <From>
+         <Credential domain="NetworkID">
+            <Identity>Enter From Identity</Identity>
+            <SharedSecret>Enter From Shared Secret</SharedSecret>
+         </Credential>
+      </From>
+      <To>
+         <Credential domain="NetworkID">
+            <Identity>Enter To Identity</Identity>
+         </Credential>
+      </To>
+      <Sender>
+         <Credential domain="NetworkID">
+            <Identity>Enter Sender Identity</Identity>
+            <SharedSecret>Enter Sender Shared Secret</SharedSecret>
+         </Credential>
+         <UserAgent>Supplier</UserAgent>
+      </Sender>
+   </Header>
+   <Request deploymentMode="production">
+      <ConfirmationRequest>
+         <ConfirmationHeader type="accept" noticeDate="$CurrentDateTime|YYYY-MM-DDThh:mm:sstz|DATETIME|$" operation="new" confirmID="$ClientTransCounter$">
+            <Total>
+               <Money currency="USD">$TotalRevenue$</Money>
+            </Total>
+            <Shipping>
+               <Money currency="USD">$TotalFreight$</Money>
+               <Description xml:lang="en-US">UPS</Description>
+            </Shipping>
+            <Tax>
+               <Money currency="USD">$TotalTax$</Money>
+               <Description xml:lang="en-US">CA</Description>
+            </Tax>
+         </ConfirmationHeader>
+         <OrderReference orderID="$OrderID$">
+            <DocumentReference payloadID="$PayloadID$" />
+         </OrderReference>$OrderLine$$OrderMisc$
+      </ConfirmationRequest>
+   </Request>
+</cXML>

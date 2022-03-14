@@ -950,7 +950,7 @@ IF rd-dest = 3  THEN DO:
         "Trim Len,Trim Wid,Caliper Min,Caliper Max,Run Qty Min,Run Qty Max,"
         "Printer Type,Washup Hours,Max # colors,MR Waste/color,INK Waste Lbs/MR," 
         "Tandem MR/Plate,Col/Pass,Coater On,Lbs/Col,/Fountn,Panel Len,Panel Wid,"
-        "Sheets/Run,Blanks/Run,Lin.Ft/Run"
+        "Forms/Run,Blanks/Run,Lin.Ft/Run"
      SKIP.
 
 END.

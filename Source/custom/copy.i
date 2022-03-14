@@ -1,3 +1,12 @@
 /* custom/copy.i */
 
-company po-ord gl-rpt shipto account itemfg soldto oe-prmtx quotehd
+account ~
+company ~
+dept ~
+gl-rpt ~
+itemfg ~
+oe-prmtx ~
+po-ord ~
+quotehd ~
+shipto ~
+soldto

@@ -250,6 +250,10 @@ FUNCTION display-snum RETURNS INTEGER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-actdscr B-table-Win 
 FUNCTION get-actdscr RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
+  
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getcurrentpo B-table-Win 
+FUNCTION getcurrentpo RETURNS INTEGER
+  ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3186,6 +3190,8 @@ PROCEDURE valid-po-no :
   DEFINE VARIABLE lMessage  AS LOGICAL NO-UNDO.
   DEFINE VARIABLE lResponse AS LOGICAL   NO-UNDO.
   DEF BUFFER b-ap-invl FOR ap-invl.
+  DEF VAR tRecQty AS DEC NO-UNDO.
+  DEF VAR tInvQty AS DEC NO-UNDO.
   
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -3223,6 +3229,10 @@ PROCEDURE valid-po-no :
             po-ordl.company EQ po-ord.company AND 
             po-ordl.po-no   EQ po-ord.po-no:
             
+            ASSIGN 
+                tRecQty = tRecQty + po-ordl.t-rec-qty
+                tInvQty = tInvQty + po-ordl.t-inv-qty.
+                
             IF po-ordl.t-rec-qty EQ 0 THEN DO:
                 FIND FIRST ITEM NO-LOCK
                      WHERE item.company EQ cocode
@@ -3264,9 +3274,10 @@ PROCEDURE valid-po-no :
 
         RUN build-table (RECID(po-ord)).
                 
-        IF NOT apinvmsg-log OR lv-num-rec LE 0 THEN
-        DO:          
-          MESSAGE "This PO has been received and invoiced." SKIP 
+        IF NOT apinvmsg-log 
+        AND tInvQty GE tRecQty  
+        THEN DO:          
+          MESSAGE "This PO has no uninvoiced receipts." SKIP 
                   "Do you want to continue processing?"
                    VIEW-AS ALERT-BOX QUESTION 
                    BUTTONS OK-CANCEL UPDATE lcheckflg as logical.
@@ -3991,6 +4002,23 @@ FUNCTION get-actdscr RETURNS CHARACTER
      ELSE RETURN "".
   END.
   ELSE RETURN "".   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getcurrentpo B-table-Win 
+FUNCTION getcurrentpo RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+
+  IF AVAIL ap-invl THEN
+    RETURN ap-invl.po-no.
+  ELSE RETURN -1.  /* Function return value. */
 
 END FUNCTION.
 

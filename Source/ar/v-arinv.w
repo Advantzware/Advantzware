@@ -181,7 +181,7 @@ DEFINE FRAME F-Main
           SIZE 21 BY 1
      ship_name AT ROW 2.43 COL 37 COLON-ALIGNED NO-LABEL
      ar-inv.inv-no AT ROW 3.38 COL 16 COLON-ALIGNED
-          LABEL "Invoice#" FORMAT ">>>>>>9"
+          LABEL "Invoice#" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 21 BY 1
      ar-inv.po-no AT ROW 4.33 COL 16 COLON-ALIGNED

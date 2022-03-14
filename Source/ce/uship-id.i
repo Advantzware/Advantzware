@@ -33,8 +33,9 @@ FOR EACH xeb
    xeb.ship-addr[2] = shipto.ship-addr[2]
    xeb.ship-city    = shipto.ship-city
    xeb.ship-state   = shipto.ship-state
-   xeb.ship-zip     = shipto.ship-zip.
-         
+   xeb.ship-zip     = shipto.ship-zip
+   xeb.tr-no        = shipto.pallet.
+      
   release carrier.
          
   if shipto.carrier ne "" then

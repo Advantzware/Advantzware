@@ -161,7 +161,7 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      ar-invl.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>9":U
+      ar-invl.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>>9":U
       ar-invl.inv-date FORMAT "99/99/9999":U
       ar-invl.cust-no FORMAT "X(8)":U
       ar-inv.cust-name FORMAT "x(30)":U
@@ -233,7 +233,7 @@ ASSIGN
      _JoinCode[2]      = "ar-inv.company eq ar-invl.company and
 ar-inv.inv-no eq ar-invl.inv-no"
      _FldNameList[1]   > ASI.ar-invl.inv-no
-"inv-no" "Invoice#" ">>>>>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"inv-no" "Invoice#" ">>>>>>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[2]   = ASI.ar-invl.inv-date
      _FldNameList[2]   = ASI.ar-invl.cust-no
      _FldNameList[2]   = ASI.ar-inv.cust-name
