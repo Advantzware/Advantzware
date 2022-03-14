@@ -166,7 +166,7 @@ DEFINE VARIABLE fiDirectory AS CHARACTER FORMAT "X(256)":U
      FONT 22 NO-UNDO.
 
 DEFINE VARIABLE tbInactive AS LOGICAL INITIAL no 
-     LABEL "Customers Inactive" 
+     LABEL "Inactivate Customers with no activity since purge date?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY .95 NO-UNDO.
 
@@ -550,6 +550,10 @@ PROCEDURE pCustomerInActive PRIVATE :
           AND NOT CAN-FIND(FIRST ar-inv NO-LOCK
               WHERE ar-inv.company EQ bf-cust.company
                 AND ar-inv.cust-no EQ bf-cust.cust-no) 
+          AND NOT CAN-FIND(FIRST oe-ord NO-LOCK
+              WHERE oe-ord.company EQ bf-cust.company
+                AND oe-ord.cust-no EQ bf-cust.cust-no
+                AND oe-ord.opened EQ YES)      
                 USE-INDEX ACTIVE:
                           
               bf-cust.ACTIVE = "I".                  
