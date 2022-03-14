@@ -341,24 +341,41 @@
          v-cst[1]   = v-qty[1] / 1000 * ar-invl.std-mat-cost
          v-cst[6]   = v-qty[1] / 1000 * ar-invl.std-lab-cost
          v-cst[11]  = v-qty[1] / 1000 * ar-invl.std-fix-cost
-         v-cst[16]  = v-qty[1] / 1000 * ar-invl.std-var-cost
-         dEstRevenue         = ar-invl.ship-qty * ar-invl.unit-pr
-         dEstCost            = ar-invl.ship-qty * ar-invl.cost
+         v-cst[16]  = v-qty[1] / 1000 * ar-invl.std-var-cost  .
+         
+         IF ar-invl.dscr[1] EQ "EA" THEN
+         dCostPerEA = ar-invl.cost.
+         ELSE DO:           
+             RUN Conv_ValueFromUOMtoUOMWithLot(ar-invl.company, ar-invl.i-no, "FG", 
+                                              ar-invl.cost, ar-invl.dscr[1], "EA", 
+                                              0, 0, 0, 0, 0, 0, "",         
+                                              OUTPUT dCostPerEA, OUTPUT lError, OUTPUT cErrorMessage).            
+         END.
+         
+         IF ar-invl.pr-qty-uom EQ "EA" THEN
+         dUnitPricePerEA = ar-invl.unit-pr.
+         ELSE DO:    
+            RUN Conv_ValueToEA(ar-invl.company, ar-invl.i-no, ar-invl.unit-pr, ar-invl.pr-qty-uom, 0, OUTPUT dUnitPricePerEA).
+         END.
+         
+       ASSIGN
+         dEstRevenue         = ar-invl.ship-qty * dUnitPricePerEA
+         dEstCost            = ar-invl.ship-qty * dCostPerEA
          dEstMargin          = dEstRevenue - dEstCost
          dEstGM              = (dEstMargin * 100) / dEstRevenue
-         dActRevenue         = dProductionQty * ar-invl.unit-pr
-         dActCost            = dProductionQty * ar-invl.cost
+         dActRevenue         = dProductionQty * dUnitPricePerEA
+         dActCost            = dProductionQty * dCostPerEA
          dActMargin          = dActRevenue - dActCost
          dActGM              = (dActMargin * 100) / dActRevenue
          dMFGTotalVariance   = dActMargin - dEstMargin
          .
         
-         
-        
-        IF ar-invl.dscr[1] = "M" OR ar-invl.dscr[1] EQ ""  THEN
-           v-cst[21]  = v-qty[1] / 1000 * ar-invl.cost.
-        ELSE
-           v-cst[21]  = v-qty[1] * ar-invl.cost.
+         IF dEstGM GT 999.99 THEN dEstGM = 999.99.
+         IF dEstGM LT -999.99 THEN dEstGM = -999.99.
+         IF dActGM GT 999.99 THEN dActGM = 999.99.
+         IF dActGM LT -999.99 THEN dActGM = -999.99.
+                
+           v-cst[21]  = v-qty[1] * dCostPerEA.
         
         if v-sort then
         do i = 1 to 3:
@@ -485,16 +502,36 @@
               
               RUN fg/GetProductionQty.p (INPUT cocode, INPUT ar-invl.job-no, INPUT ar-invl.job-no2, INPUT ar-invl.i-no, INPUT NO, OUTPUT dProductionQty).
               
+              IF ar-invl.dscr[1] EQ "EA" THEN
+              dCostPerEA = ar-invl.cost.
+              ELSE DO: 
+                  RUN Conv_ValueFromUOMtoUOMWithLot(ar-invl.company, ar-invl.i-no, "FG", 
+                                                  ar-invl.cost, ar-invl.dscr[1], "EA", 
+                                                  0, 0, 0, 0, 0, 0, "",         
+                                                  OUTPUT dCostPerEA, OUTPUT lError, OUTPUT cErrorMessage).            
+              END.
+             
+              IF ar-invl.pr-qty-uom EQ "EA" THEN
+              dUnitPricePerEA = ar-invl.unit-pr.
+              ELSE DO: 
+                 RUN Conv_ValueToEA(ar-invl.company, ar-invl.i-no, ar-invl.unit-pr, ar-invl.pr-qty-uom, 0, OUTPUT dUnitPricePerEA).
+              END.
+              
               ASSIGN
-                   dEstRevenue         = ar-invl.ship-qty * ar-invl.unit-pr
-                   dEstCost            = ar-invl.ship-qty * ar-invl.cost
+                   dEstRevenue         = ar-invl.ship-qty * dUnitPricePerEA
+                   dEstCost            = ar-invl.ship-qty * dCostPerEA
                    dEstMargin          = dEstRevenue - dEstCost
                    dEstGM              = (dEstMargin * 100) / dEstRevenue
-                   dActRevenue         = dProductionQty * ar-invl.unit-pr
-                   dActCost            = dProductionQty * ar-invl.cost
+                   dActRevenue         = dProductionQty * dUnitPricePerEA
+                   dActCost            = dProductionQty * dCostPerEA
                    dActMargin          = dActRevenue - dActCost
                    dActGM              = (dActMargin * 100) / dActRevenue
                    dMFGTotalVariance   = dActMargin - dEstMargin.
+                   
+                   IF dEstGM GT 999.99 THEN dEstGM = 999.99.
+                   IF dEstGM LT -999.99 THEN dEstGM = -999.99.
+                   IF dActGM GT 999.99 THEN dActGM = 999.99.
+                   IF dActGM LT -999.99 THEN dActGM = -999.99.
             end.
 
             ASSIGN
@@ -503,10 +540,7 @@
              v-cst[11]  = v-qty[1] / 1000 * ar-invl.std-fix-cost
              v-cst[16]  = v-qty[1] / 1000 * ar-invl.std-var-cost.
 
-            IF ar-invl.dscr[1] = "M" OR ar-invl.dscr[1] EQ ""  THEN
-               v-cst[21]  = v-qty[1] / 1000 * ar-invl.cost.
-            ELSE
-               v-cst[21]  = v-qty[1] * ar-invl.cost.
+            v-cst[21]  = v-qty[1] * dCostPerEA.
           end.
         end.
       end.
@@ -574,16 +608,16 @@
                           WHEN "var-oh"      THEN cVarValue = IF v-cost2 THEN string(v-brdc[4],"->>>,>>9.99") ELSE "" .         
                           WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-brdc[5],"->>>,>>9.99") ELSE "" .     
                           WHEN "sal-amt"     THEN cVarValue = string(v-amt[2],"->>>,>>>,>>9.99<<") .
-                          WHEN "act-mat-cost" THEN cVarValue = string(decimal(tt-report2.key-06),"->,>>>,>>9.99") .
-                          WHEN "EstRevenue"       THEN cVarValue = string(dEstRevenue). 
-                          WHEN "EstCost"          THEN cVarValue = string(dEstCost).
-                          WHEN "EstMargin"        THEN cVarValue = string(dEstMargin).
-                          WHEN "EstGM"            THEN cVarValue = string(dEstGM,"->>>,>>9.99").
-                          WHEN "ActRevenue"       THEN cVarValue = string(dActRevenue).
-                          WHEN "ActCost"          THEN cVarValue = string(dActCost).
-                          WHEN "ActMargin"        THEN cVarValue = string(dActMargin).
-                          WHEN "ActGM"            THEN cVarValue = string(dActGM,"->>>,>>9.99").
-                          WHEN "MFGTotalVariance" THEN cVarValue = string(dMFGTotalVariance).
+                          WHEN "act-mat-cost" THEN cVarValue = string(decimal(tt-report2.key-06),"->>>,>>>,>>9.99") .
+                          WHEN "EstRevenue"       THEN cVarValue = string(dEstRevenue,"->>>,>>9.99"). 
+                          WHEN "EstCost"          THEN cVarValue = string(dEstCost,"->>>,>>9.99").
+                          WHEN "EstMargin"        THEN cVarValue = string(dEstMargin,"->>>,>>9.99").
+                          WHEN "EstGM"            THEN cVarValue = IF dEstGM NE ? THEN string(dEstGM,"->>>,>>9.99") ELSE "       0.00".
+                          WHEN "ActRevenue"       THEN cVarValue = string(dActRevenue,"->>,>>>,>>9.99").
+                          WHEN "ActCost"          THEN cVarValue = string(dActCost,"->>>,>>9.99").
+                          WHEN "ActMargin"        THEN cVarValue = string(dActMargin,"->>>,>>9.99").
+                          WHEN "ActGM"            THEN cVarValue = IF dActGM NE ? THEN string(dActGM,"->>>,>>9.99") ELSE "       0.00".
+                          WHEN "MFGTotalVariance" THEN cVarValue = string(dMFGTotalVariance,"->>,>>>,>>>,>>9.99").
                      END CASE.
                        
                      cExcelVarValue = cVarValue.

@@ -74,7 +74,7 @@ ASSIGN
                             "EstRevenue,EstCost,EstMargin,EstGM," +
                             "ActRevenue,ActCost,ActMargin,ActGM," +
                             "MFGTotalVariance"
-    cFieldLength       = "30,8,15,10,11," + "11,11,11,11,15,13," + "11,11,11,11," + "11,11,11,11," + "11"
+    cFieldLength       = "30,8,15,10,11," + "11,11,11,11,15,15," + "14,11,11,11," + "11,11,11,11," + "18"
     cFieldType         = "c,i,c,c,i," + "i,i,i,i,i,i," + "d,d,d,d," + "d,d,d,d," + "d"
     .
 
@@ -1540,6 +1540,10 @@ PROCEDURE run-report :
     DEFINE VARIABLE dActMargin        AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE dActGM            AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE dMFGTotalVariance AS DECIMAL   NO-UNDO .
+    DEFINE VARIABLE dCostPerEA        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dUnitPricePerEA   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cErrorMessage     AS CHARACTER NO-UNDO.
 
 
     FORM cust.name            COLUMN-LABEL "Customer Name"
