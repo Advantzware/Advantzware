@@ -2140,8 +2140,8 @@ PROCEDURE valid-tax :
         AND oe-ord.tax-gr EQ "" THEN DO:
             MESSAGE /*"Order has no tax group! " */
                 "Misc. charge cannot be taxable if the order is not taxable." SKIP 
-                "Ensure that the order is taxable (has a valid tax code)." SKIP 
-                "Normally the tax code will be pulled from the Ship To ID or" SKIP 
+                "Ensure that the order is taxable (has a valid tax Group)." SKIP 
+                "Normally the tax Group will be pulled from the Ship To ID or" SKIP 
                 "from the Customer record when the order is created."
                 VIEW-AS ALERT-BOX ERROR.
             ASSIGN 

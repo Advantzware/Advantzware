@@ -57,15 +57,15 @@ DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
 
 ASSIGN 
-    cTextListToSelect  = "Group,Code,Description,Rate,G/L Account#"
+    cTextListToSelect  = "Tax Group,Tax Code,Description,Rate,G/L Account#"
     cFieldListToSelect = "grp,cod,dscr,rate,act"
-    cFieldLength       = "5,5,25,10,21"
+    cFieldLength       = "9,9,25,10,21"
     cFieldType         = "c,c,c,i,c"
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN 
-    cTextListToDefault = "Group,Code,Description,Rate,G/L Account#" .
+    cTextListToDefault = "Tax Group,Tax Code,Description,Rate,G/L Account#" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1260,7 +1260,7 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel TO VALUE(cFileName).
-        /* excelheader = "Group,Code,Description,Rate,G/L Account#".*/
+        /* excelheader = "Tax Group,Tax Code,Description,Rate,G/L Account#".*/
         PUT STREAM excel UNFORMATTED 
             '"' REPLACE(excelheader,',','","') '"' SKIP.
     END.
@@ -1347,12 +1347,12 @@ PROCEDURE run-report :
                 PUT STREAM excel UNFORMATTED  
                     cExcelDisplay SKIP.
             END. 
-        END. /* tax code in use */
+        END. /* tax Group in use */
     END. /* each extent */
 /* IF tb_excel AND NOT l-codes-exist THEN PUT STREAM excel SKIP. 
  DOWN WITH FRAME stax.                                           */
 
-END. /* each tax code. */
+END. /* each tax Group. */
 
 IF tb_excel THEN 
 DO:

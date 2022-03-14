@@ -72,7 +72,7 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
 ASSIGN 
-    cTextListToSelect  = "Invoice#,Vendor#,Invoice Date,Due Date,Net,Paid,Discount,Balance Due,Tax Code,Discount%," +
+    cTextListToSelect  = "Invoice#,Vendor#,Invoice Date,Due Date,Net,Paid,Discount,Balance Due,Tax Group,Discount%," +
                                                "Status,Tax,Freight,User,PO Number,Line,Account Number,Account Description,Quantity,UOM," +
                                                "Price,UOM Price,Tax2,SqFt,Amount,Total MSF,Item#,Description,Job#,Form#,Blank#"
 
@@ -81,7 +81,7 @@ ASSIGN
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
-    cTextListToDefault = "Invoice#,Vendor#,Invoice Date,Due Date,Net,Paid,Discount,Balance Due,Tax Code,Discount%," +
+    cTextListToDefault = "Invoice#,Vendor#,Invoice Date,Due Date,Net,Paid,Discount,Balance Due,Tax Group,Discount%," +
                                                "Status,Tax,Freight,User,PO Number,Line,Account Number,Account Description,Quantity,UOM," +
                                                "Price,UOM Price,Tax2,SqFt,Amount,Total MSF,Item#,Description,Job#,Form#,Blank#".
 
@@ -1008,7 +1008,7 @@ PROCEDURE run-report :
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ap-inv.disc-taken)).
             IF ttRptSelected.TextList = "Balance Due" THEN
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ap-inv.due)).
-            IF ttRptSelected.TextList = "Tax Code" THEN
+            IF ttRptSelected.TextList = "Tax Group" THEN
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ap-inv.tax-gr)).
             IF ttRptSelected.TextList = "Discount%" THEN
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ap-inv.disc-%,">>9.99%")).
