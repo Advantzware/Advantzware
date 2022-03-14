@@ -2867,7 +2867,7 @@ PROCEDURE calc-layout :
        xeb.num-len  = 1.
 
         IF lCEUseNewLayoutCalc THEN
-            RUN Estimate_UpdateEfFormLayoutSizeOnly (BUFFER xef, BUFFER xeb).
+            RUN pCalcDimensions.
         ELSE
             RUN cec/calc-dim1.p NO-ERROR.
 

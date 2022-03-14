@@ -39,7 +39,6 @@ DEFINE TEMP-TABLE ttLayoutSize NO-UNDO
     FIELD iBlankNumOnWidth      AS DECIMAL  // xeb.num-wid
     FIELD iBlankNumOnLength     AS DECIMAL  // xeb.num-len
     FIELD iBlankNumOnDepth      AS DECIMAL  // xeb.num-dep
-    FIELD lRecalcFullLayout     AS LOGICAL  // In case of error, recalculate and assign full layout calc
     .
     
 
