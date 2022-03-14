@@ -129,10 +129,11 @@ PROCEDURE pProcessEstCostMaterial PRIVATE:
         RUN system/ConversionProcs.p   PERSISTENT SET hdConversionProcs.   
     
     FOR EACH estCostHeader NO-LOCK     
-        WHERE estCostHeader.estCostHeaderID EQ ipinEstCostHeaderID,
+        WHERE estCostHeader.estCostHeaderID EQ ipinEstCostHeaderID ,
         EACH estCostMaterial NO-LOCK     
         WHERE estCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID     
-        AND estCostMaterial.isPrimarySubstrate:
+        AND estCostMaterial.isPrimarySubstrate
+         BY estCostHeader.quantityMaster BY estCostMaterial.Formno:
             
         ASSIGN 
             cScores = "".           
@@ -163,7 +164,7 @@ PROCEDURE pProcessEstCostMaterial PRIVATE:
                 WHERE ttScoreLine.PanelType = "W" BY ttScoreLine.LineNum:
                 
                 ASSIGN 
-                    cScores = cScores + "," + string(ttScoreLine.ScoreLine).                
+                    cScores = cScores + "," + string(ttScoreLine.ScoreLine).
             END.
             
             ASSIGN 
@@ -227,6 +228,7 @@ PROCEDURE pProcessEstCostMaterial PRIVATE:
             ASSIGN
                 ttRecostBoardGroups.CompanyId      = estCostMaterial.company
                 ttRecostBoardGroups.INo            = estCostMaterial.itemID
+                ttRecostBoardGroups.ItemDescr      = bf-Item.i-dscr
                 ttRecostBoardGroups.VendNo         = estCostMaterial.vendorID
                 ttRecostBoardGroups.Len            = bf-eb.len
                 ttRecostBoardGroups.Wid            = bf-eb.wid

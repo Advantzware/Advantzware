@@ -117,7 +117,7 @@ DEFINE BUTTON bOk
 
 DEFINE BUTTON btnRecostboard 
      LABEL "Recost Board" 
-     SIZE 20 BY 1.38.
+     SIZE 18.6 BY 1.38.
 
 DEFINE VARIABLE estimate AS CHARACTER FORMAT "X(8)":U INITIAL "Estimate#:" 
       VIEW-AS TEXT 
@@ -443,6 +443,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 bOk:LOAD-IMAGE("Graphics/32x32/choosevendor.png").
 bCancel:LOAD-IMAGE("Graphics/32x32/calculate.png").
+btnRecostboard:LOAD-IMAGE("Graphics/32x32/RecostBoard.png").
+
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
@@ -466,6 +468,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ASSIGN
             fiEstimateNo:SCREEN-VALUE = estCostHeader.estimateNo.
 
+    END.
+    
+    RUN sys/ref/nk1look.p (g_company, "CEAutoRecostBoard", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    
+    IF lFound = TRUE AND cReturn EQ "YES" THEN
+    DO: 
+        RUN ipRecostBoard(INPUT NO).
+        btnRecostboard:HIDDEN IN FRAME DEFAULT-FRAME = TRUE.        
     END.
     
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -623,21 +633,27 @@ PROCEDURE ShowCostUpdates:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE lUpdateCost AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lUpdateCost   AS LOGICAL NO-UNDO.
+DEFINE VARIABLE chMessageText AS CHARACTER NO-UNDO.
+
 
     FOR EACH ttRecostBoardGroups
         WHERE ttRecostBoardGroups.Multi
           AND ttRecostBoardGroups.UpdateCost:
+          
+        ASSIGN 
+            chMessageText = "A reduced cost of " + STRING(ttRecostBoardGroups.NewCost) + " per " + ttRecostBoardGroups.NewCostUOM + " was found." + CHR(10) + 
+            "Forms: " + ttRecostBoardGroups.FormIdList + CHR(10) +
+            "Master quantity: " + String(ttRecostBoardGroups.quantityMaster) + CHR(10) +                                  
+            "Item #: " + ttRecostBoardGroups.INo + " " + ttRecostBoardGroups.ItemDescr + CHR(10) +
+            "Vendor: " + ttRecostBoardGroups.VendNo + CHR(10) +
+            "Size: " + STRING(ttRecostBoardGroups.Wid) + " x " + STRING(ttRecostBoardGroups.Len) + CHR(10) +            
+            "Scores: " + ttRecostBoardGroups.Scores + CHR(10) + 
+            (IF ttRecostBoardGroups.Adders <> "" THEN "Adders: " + ttRecostBoardGroups.Adders + CHR(10) ELSE "")  + 
+            "Total Combined Quantity: " + STRING(ttRecostBoardGroups.TotalQty) + " " + ttRecostBoardGroups.TotalQtyUom + CHR(10) +                                
+            "Do you want to apply this cost to the order lines?".
 
-        MESSAGE "A reduced cost of " ttRecostBoardGroups.NewCost " " ttRecostBoardGroups.NewCostUOM " was found." SKIP
-            "Total Qty: " ttRecostBoardGroups.TotalQty " " ttRecostBoardGroups.TotalQtyUom SKIP
-            "Item #: " ttRecostBoardGroups.INo SKIP
-            "Vendor: " ttRecostBoardGroups.VendNo SKIP
-            "Width: " ttRecostBoardGroups.Wid SKIP
-            "Length: " ttRecostBoardGroups.Len SKIP
-            "Scores: " ttRecostBoardGroups.Scores SKIP 
-            "Adders: " ttRecostBoardGroups.Adders SKIP(1)
-            "Do you want to apply this cost to the order lines?"
+        MESSAGE chMessageText
             VIEW-AS ALERT-BOX INFORMATION BUTTONS YES-NO UPDATE lUpdateCost.
         ttRecostBoardGroups.UpdateCost = lUpdateCost.
 

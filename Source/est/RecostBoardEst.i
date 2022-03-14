@@ -17,6 +17,7 @@
 DEFINE TEMP-TABLE ttRecostBoardGroups NO-UNDO
     FIELD VendNo         LIKE estCostMaterial.vendorID
     FIELD INo            LIKE estCostMaterial.itemID
+    FIELD ItemDescr      AS CHARACTER
     FIELD Len            LIKE eb.len
     FIELD Wid            LIKE eb.Wid
     FIELD Dep            LIKE eb.dep
