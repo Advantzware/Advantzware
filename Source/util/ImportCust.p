@@ -308,6 +308,11 @@ PROCEDURE pValidate PRIVATE:
         
     END.
     
+    IF ipbf-ttImportCust.CustSman EQ "" THEN
+    DO:
+         RUN pGetSalesRep(ipbf-ttImportCust.Company, OUTPUT ipbf-ttImportCust.CustSman).
+    END.
+    
     /*Field level validation*/
     IF oplValid AND iplFieldValidation THEN 
     DO:
@@ -641,3 +646,30 @@ PROCEDURE pAddNote:
     END.                           
     RELEASE bf-notes.
 END PROCEDURE.
+
+PROCEDURE pGetSalesRep:
+/*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER.
+    DEFINE OUTPUT PARAMETER opcSalesRep AS CHARACTER.
+    
+    DEFINE BUFFER bf-cust FOR cust.
+    DEFINE BUFFER bf-sman FOR sman.
+    
+    FIND FIRST bf-cust NO-LOCK
+         WHERE bf-cust.company EQ ipcCompany
+           AND bf-cust.ACTIVE EQ "X" NO-ERROR.
+    IF AVAIL bf-cust AND bf-cust.sman NE "" THEN
+    DO:
+         opcSalesRep = bf-cust.sman.
+    END.
+    ELSE DO:
+      FIND FIRST bf-sman NO-LOCK
+           WHERE bf-sman.company EQ ipcCompany NO-ERROR.
+      IF available bf-sman THEN
+         opcSalesRep = bf-sman.sman .
+    END.         
+END PROCEDURE.
+
