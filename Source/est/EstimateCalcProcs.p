@@ -16,11 +16,13 @@
 
 {est/ttEstCost.i}
 {est/ttEstSysConfig.i}
+{est\RecostBoardEst.i}
    
 
 DEFINE VARIABLE ghFreight                             AS HANDLE    NO-UNDO.
 DEFINE VARIABLE ghFormula                             AS HANDLE    NO-UNDO.
 DEFINE VARIABLE ghOperation                           AS HANDLE    NO-UNDO.
+DEFINE VARIABLE ghRecostBoardEst                      AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE gcSourceTypeOperation                 AS CHARACTER NO-UNDO INITIAL "Operation".
 DEFINE VARIABLE gcSourceTypeMaterial                  AS CHARACTER NO-UNDO INITIAL "Material".
@@ -73,7 +75,7 @@ DEFINE VARIABLE glRoundPriceToDollar                  AS LOGICAL   NO-UNDO.  /*C
 DEFINE VARIABLE glPromptForMaterialVendor             AS LOGICAL   NO-UNDO.  /*CEVENDOR*/
 DEFINE VARIABLE glUseBlankVendor                      AS LOGICAL   NO-UNDO.  /*CEVendorDefault*/
 DEFINE VARIABLE glCalcFoamCostFromBlank               AS LOGICAL   NO-UNDO.  /*FOAMCOST*/
-
+DEFINE VARIABLE glAutoRecostBoard                     AS LOGICAL   NO-UNDO.  /*CEAutoRecostBoard*/
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -2378,19 +2380,25 @@ PROCEDURE pCalcEstimate PRIVATE:
     RUN pSetGlobalSettings(ipcCompany). 
     RUN pBuildSystemData(ipcCompany). 
     RUN est\OperationProcs.p PERSISTENT SET ghOperation.
+    RUN est\RecostBoardEst.p PERSISTENT SET ghRecostBoardEst.
      
     IF iplPurge THEN 
         RUN pPurgeCalculation(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2).
         
     RUN pBuildHeadersToProcess(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2, ipiQuantity, OUTPUT opiEstCostHeaderID).
+    
     FOR EACH ttEstCostHeaderToCalc: 
         RUN pCalcHeader(ttEstCostHeaderToCalc.iEstCostHeaderID).
     END.
+    
     IF iplPrompt THEN 
         RUN pPromptForCalculationChanges.
     
     IF VALID-HANDLE(ghOperation) THEN
         DELETE PROCEDURE ghOperation.
+        
+    IF VALID-HANDLE(ghRecostBoardEst) THEN
+        DELETE PROCEDURE ghRecostBoardEst.
 
 END PROCEDURE.
 
@@ -2412,6 +2420,7 @@ PROCEDURE pCalcHeader PRIVATE:
     DEFINE VARIABLE dQtyOnFormRequired  AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyOnFormYielded   AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyMaster          AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE chMessage           AS CHARACTER NO-UNDO.
     
     EMPTY TEMP-TABLE ttEstError.
     EMPTY TEMP-TABLE ttInk.
@@ -2494,7 +2503,24 @@ PROCEDURE pCalcHeader PRIVATE:
             FIND CURRENT bf-estCostHeader EXCLUSIVE-LOCK.
             bf-estCostHeader.quantityMaster = dQtyMaster.
             FIND CURRENT bf-estCostHeader NO-LOCK.
-        END.                            
+        END.    
+        
+        IF glAutoRecostBoard = TRUE THEN
+        DO:
+            RUN RecostBoardEst_RecostBoard IN ghRecostBoardEst(INPUT bf-estCostHeader.estCostHeaderID,            
+                                                               OUTPUT chMessage,
+                                                               OUTPUT TABLE ttRecostBoardGroups).
+                
+            IF chMessage = "" THEN
+            DO:                       
+                RUN RecostBoardEst_UpdateEstCostMaterial IN ghRecostBoardEst(INPUT NO,
+                    INPUT TABLE ttRecostBoardGroups).  /*Update the EstCostMaterial costs with better costs*/
+            END.
+        END.
+        
+        
+        
+                                
         RUN pCalculateWeightsAndSizes(bf-estCostHeader.estCostHeaderID).
         RUN pProcessPacking(BUFFER bf-estCostHeader).
         RUN pProcessEstMaterial(BUFFER bf-estCostHeader).
@@ -5623,6 +5649,9 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     
     RUN sys/ref/nk1look.p (ipcCompany, "FOAMCOST", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
     glCalcFoamCostFromBlank = lFound AND cReturn EQ "Blank".
+    
+    RUN sys/ref/nk1look.p (ipcCompany, "CEAutoRecostBoard", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    glAutoRecostBoard = lFound AND cReturn EQ "YES".    
     
 END PROCEDURE.
 

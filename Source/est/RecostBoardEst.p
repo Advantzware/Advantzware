@@ -110,7 +110,7 @@ PROCEDURE pProcessEstCostMaterial PRIVATE:
     DEFINE BUFFER bf-Item FOR ITEM.
     DEFINE BUFFER bf-eb   FOR eb.        
 
-    DEFINE VARIABLE cScores           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreList        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAdders           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dAdderCost        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dQty              AS DECIMAL   NO-UNDO.
@@ -118,6 +118,9 @@ PROCEDURE pProcessEstCostMaterial PRIVATE:
     DEFINE VARIABLE hdConversionProcs AS HANDLE    NO-UNDO.
     DEFINE VARIABLE loError           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE chMessage         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dScores           AS DECIMAL   NO-UNDO EXTENT 20.
+    DEFINE VARIABLE cScoreTypes       AS CHARACTER NO-UNDO EXTENT 20.
+    DEFINE VARIABLE iCount            AS INTEGER NO-UNDO.
 
     EMPTY TEMP-TABLE ttRecostBoardGroups.
     EMPTY TEMP-TABLE ttRecostBoardLineXRef.
@@ -136,39 +139,34 @@ PROCEDURE pProcessEstCostMaterial PRIVATE:
          BY estCostHeader.quantityMaster BY estCostMaterial.Formno:
             
         ASSIGN 
-            cScores = "".           
+            cScoreList = ""
+            iCount     = 0.           
                     
         FIND FIRST bf-eb NO-LOCK
             WHERE bf-eb.company EQ estCostMaterial.company
             AND bf-eb.est-no    EQ estCostMaterial.estimateNo
             AND bf-eb.form-no   EQ estCostMaterial.Formno NO-ERROR.
-        
-        IF AVAILABLE bf-eb THEN
-            FIND FIRST style NO-LOCK
-                WHERE style.company EQ bf-eb.company
-                AND style.style   EQ bf-eb.style
-                NO-ERROR.           
             
-        IF AVAILABLE bf-eb AND AVAILABLE style THEN
-        DO:
-            RUN Formula_ParseDesignScores IN hdFormulaProcs (
+        IF AVAILABLE bf-eb THEN
+        DO:           
+            
+            RUN GetPanelScoreAndTypeForEstimate IN hdFormulaProcs (
                 INPUT bf-eb.company,
                 INPUT bf-eb.est-no,
                 INPUT bf-eb.form-no,
                 INPUT bf-eb.blank-no,
-                INPUT style.designIDAlt,
-                INPUT NO,
-                OUTPUT TABLE ttScoreLine).
-            
-            FOR EACH ttScoreLine 
-                WHERE ttScoreLine.PanelType = "W" BY ttScoreLine.LineNum:
+                INPUT "W",
+                OUTPUT dScores,                
+                OUTPUT cScoreTypes).
                 
+            DO iCount = 1 TO 20:                
                 ASSIGN 
-                    cScores = cScores + "," + string(ttScoreLine.ScoreLine).
+                    cScoreList = cScoreList + " " + string(dScores[iCount])
+                    iCount     = iCount + 1.
             END.
             
             ASSIGN 
-                cScores = TRIM(cScores,",").
+                cScoreList = TRIM(cScoreList," ").            
         END.
                         
         RUN pGetAdders(INPUT estCostMaterial.company,
@@ -187,10 +185,10 @@ PROCEDURE pProcessEstCostMaterial PRIVATE:
         FIND FIRST ttRecostBoardGroups 
             WHERE ttRecostBoardGroups.INo  EQ estCostMaterial.itemID
             AND ttRecostBoardGroups.VendNo EQ estCostMaterial.vendorID
-            AND ttRecostBoardGroups.Len    EQ bf-eb.len
-            AND ttRecostBoardGroups.Wid    EQ bf-eb.wid
-            AND ttRecostBoardGroups.Dep    EQ bf-eb.dep
-            AND ttRecostBoardGroups.Scores EQ cScores
+            AND ttRecostBoardGroups.Len    EQ estCostMaterial.dimLength
+            AND ttRecostBoardGroups.Wid    EQ estCostMaterial.dimWidth
+            AND ttRecostBoardGroups.Dep    EQ estCostMaterial.dimdepth
+            AND ttRecostBoardGroups.Scores EQ cScoreList
             AND ttRecostBoardGroups.Adders EQ cAdders NO-ERROR.
             
         IF AVAILABLE ttRecostBoardGroups THEN 
@@ -207,9 +205,9 @@ PROCEDURE pProcessEstCostMaterial PRIVATE:
                     INPUT estCostMaterial.quantityUOM,
                     INPUT ttRecostBoardGroups.TotalQtyUOM,
                     INPUT estCostMaterial.basisWeight,
-                    INPUT bf-eb.len,
-                    INPUT bf-eb.wid,
-                    INPUT bf-eb.dep,
+                    INPUT estCostMaterial.dimLength,
+                    INPUT estCostMaterial.dimWidth,
+                    INPUT estCostMaterial.dimdepth,
                     INPUT 0,
                     OUTPUT dQty,
                     OUTPUT loError,
@@ -228,13 +226,13 @@ PROCEDURE pProcessEstCostMaterial PRIVATE:
             ASSIGN
                 ttRecostBoardGroups.CompanyId      = estCostMaterial.company
                 ttRecostBoardGroups.INo            = estCostMaterial.itemID
-                ttRecostBoardGroups.ItemDescr      = bf-Item.i-dscr
+                ttRecostBoardGroups.ItemName       = bf-Item.i-name
                 ttRecostBoardGroups.VendNo         = estCostMaterial.vendorID
-                ttRecostBoardGroups.Len            = bf-eb.len
-                ttRecostBoardGroups.Wid            = bf-eb.wid
-                ttRecostBoardGroups.Dep            = bf-eb.dep 
+                ttRecostBoardGroups.Len            = estCostMaterial.dimLength
+                ttRecostBoardGroups.Wid            = estCostMaterial.dimWidth
+                ttRecostBoardGroups.Dep            = estCostMaterial.dimDepth 
                 ttRecostBoardGroups.UOM            = estCostMaterial.dimUOM                
-                ttRecostBoardGroups.Scores         = cScores
+                ttRecostBoardGroups.Scores         = cScoreList
                 ttRecostBoardGroups.Adders         = cAdders
                 ttRecostBoardGroups.AdderCost      = dAdderCost
                 ttRecostBoardGroups.TotalQty       = estCostMaterial.quantityRequiredTotal

@@ -473,10 +473,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN sys/ref/nk1look.p (g_company, "CEAutoRecostBoard", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     
     IF lFound = TRUE AND cReturn EQ "YES" THEN
-    DO: 
-        RUN ipRecostBoard(INPUT NO).
-        btnRecostboard:HIDDEN IN FRAME DEFAULT-FRAME = TRUE.        
-    END.
+        btnRecostboard:HIDDEN IN FRAME DEFAULT-FRAME = TRUE.
     
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -645,7 +642,7 @@ DEFINE VARIABLE chMessageText AS CHARACTER NO-UNDO.
             chMessageText = "A reduced cost of " + STRING(ttRecostBoardGroups.NewCost) + " per " + ttRecostBoardGroups.NewCostUOM + " was found." + CHR(10) + 
             "Forms: " + ttRecostBoardGroups.FormIdList + CHR(10) +
             "Master quantity: " + String(ttRecostBoardGroups.quantityMaster) + CHR(10) +                                  
-            "Item #: " + ttRecostBoardGroups.INo + " " + ttRecostBoardGroups.ItemDescr + CHR(10) +
+            "Item #: " + ttRecostBoardGroups.INo + " " + ttRecostBoardGroups.ItemName + CHR(10) +
             "Vendor: " + ttRecostBoardGroups.VendNo + CHR(10) +
             "Size: " + STRING(ttRecostBoardGroups.Wid) + " x " + STRING(ttRecostBoardGroups.Len) + CHR(10) +            
             "Scores: " + ttRecostBoardGroups.Scores + CHR(10) + 
