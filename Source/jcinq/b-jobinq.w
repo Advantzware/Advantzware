@@ -376,13 +376,14 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U COLUMN-BGCOLOR 8
+      job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 15
+            COLUMN-BGCOLOR 8 LABEL-BGCOLOR 14
+      job-hdr.job-no2 COLUMN-LABEL "" FORMAT "999":U WIDTH 5.6
             LABEL-BGCOLOR 14
-      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">>9":U LABEL-BGCOLOR 14
       job-hdr.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       job-hdr.est-no COLUMN-LABEL "Estimate#" FORMAT "x(8)":U WIDTH 14
             LABEL-BGCOLOR 14
-      job-hdr.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
+      job-hdr.ord-no FORMAT ">>>>>>>9":U WIDTH 12 LABEL-BGCOLOR 14
       job-hdr.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
       job.start-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
@@ -543,15 +544,15 @@ ASSIGN
      _TblOptList       = ","
      _Where[1]         = "ASI.job-hdr.job = 0"
      _FldNameList[1]   > ASI.job-hdr.job-no
-"job-hdr.job-no" "Job#" "x(7)" "character" 8 ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.job-no" "Job#" ? "character" 8 ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-hdr.job-no2
-"job-hdr.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.job-no2" "" "999" "integer" ? ? ? 14 ? ? yes ? no no "5.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-hdr.i-no
 "job-hdr.i-no" "FG Item#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.job-hdr.est-no
 "job-hdr.est-no" "Estimate#" "x(8)" "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.job-hdr.ord-no
-"job-hdr.ord-no" ? ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.ord-no" ? ? "integer" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.job-hdr.cust-no
 "job-hdr.cust-no" "Customer#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.job.start-date
