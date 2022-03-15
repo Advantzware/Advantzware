@@ -162,6 +162,7 @@ lCEGOTOCALC = LOGICAL(cNK1Value).
 DEFINE VARIABLE viEQtyPrev     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cOldFGItem     AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessCreateFG AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessClose    AS LOGICAL   NO-UNDO.
@@ -201,6 +202,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /
     OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN
     lQuotePriceMatrix = logical(cNK1Value) NO-ERROR.    
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCEUseNewLayoutCalc = logical(cNK1Value) NO-ERROR. 
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -363,8 +369,8 @@ DEFINE BROWSE br-estitm
       eb.cust-% COLUMN-LABEL "Qty/Set" FORMAT "->>,>>>":U WIDTH 10
       eb.i-col FORMAT ">9":U
       eb.i-coat FORMAT ">9":U
-      eb.form-no COLUMN-LABEL "S" FORMAT ">>>":U
-      eb.blank-no COLUMN-LABEL "B" FORMAT ">>>":U
+      eb.form-no COLUMN-LABEL "Form" FORMAT ">>>":U WIDTH 6.5
+      eb.blank-no COLUMN-LABEL "Blank" FORMAT ">>>":U WIDTH 6.5
       eb.num-wid FORMAT ">9":U
       eb.num-len FORMAT ">9":U
       eb.num-up COLUMN-LABEL "# Up" FORMAT ">>>,>>9":U
@@ -527,9 +533,9 @@ ASSIGN
      _FldNameList[17]   > ASI.eb.i-coat
 "eb.i-coat" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.eb.form-no
-"eb.form-no" "S" ">>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.form-no" "Form" ">>>" "integer" ? ? ? ? ? ? no ? no no "6.5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.eb.blank-no
-"eb.blank-no" "B" ">>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.blank-no" "Blank" ">>>" "integer" ? ? ? ? ? ? no ? no no "6.5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   = ASI.eb.num-wid
      _FldNameList[21]   = ASI.eb.num-len
      _FldNameList[22]   > ASI.eb.num-up
@@ -2066,7 +2072,11 @@ PROCEDURE calc-layout :
       RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
       {ce/ceroute1.i w id l en} 
     END.
-    RUN ce/calc-dim.p.
+    
+    IF lCEUseNewLayoutCalc THEN
+        RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+    ELSE
+        RUN ce/calc-dim.p.
   END.
 
 END PROCEDURE.
@@ -3879,7 +3889,10 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-eb FOR eb.
   /* Code placed here will execute PRIOR to standard behavior. */
-
+    ASSIGN
+        lv-copy-what = ""
+        ls-add-what  = "".
+        
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 

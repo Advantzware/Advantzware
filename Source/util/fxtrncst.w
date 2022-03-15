@@ -53,12 +53,12 @@ DEFINE STREAM excel.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 begin_i-no end_i-no tb_FallBack ~
-tb_Receipts tb_0 tb_inactive tb_pro-only tb_recalcCosts tb_excel ~
-tb_runExcel fi_file btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_i-no end_i-no tb_FallBack ~
-tb_Receipts tb_0 tb_inactive tb_pro-only tb_recalcCosts tb_excel ~
-tb_runExcel fi_file 
+&Scoped-Define ENABLED-OBJECTS RECT-17 begin_i-no end_i-no fiStartDate ~
+fiEndDate tb_FallBack tb_Receipts tb_0 tb_inactive tb_pro-only ~
+tb_recalcCosts tb_excel tb_runExcel fi_file btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_i-no end_i-no fiStartDate fiEndDate ~
+tb_FallBack tb_Receipts tb_0 tb_inactive tb_pro-only tb_recalcCosts ~
+tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -92,6 +92,16 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 48 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fiEndDate AS DATE FORMAT "99/99/9999":U INITIAL 12/31/2099 
+     LABEL "End Transaction Date" 
+     VIEW-AS FILL-IN 
+     SIZE 22 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiStartDate AS DATE FORMAT "99/99/9999":U INITIAL ? 
+     LABEL "Start Transaction Date" 
+     VIEW-AS FILL-IN 
+     SIZE 22 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\fxtrncst.csv" 
      LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
@@ -100,7 +110,7 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\fxtrncst.c
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 11.91.
+     SIZE 89 BY 16.19.
 
 DEFINE VARIABLE tb_0 AS LOGICAL INITIAL yes 
      LABEL "Fix Cost for ~"0~" in Cost and ~"?~" in Cost only" 
@@ -152,18 +162,20 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Item Number"
      end_i-no AT ROW 7.05 COL 28 COLON-ALIGNED HELP
           "Enter Ending Item Number"
-     tb_FallBack AT ROW 8.38 COL 28 WIDGET-ID 4
-     tb_Receipts AT ROW 9.33 COL 28 WIDGET-ID 6
-     tb_0 AT ROW 10.29 COL 28
-     tb_inactive AT ROW 11.24 COL 28 WIDGET-ID 2
-     tb_pro-only AT ROW 12.24 COL 28 WIDGET-ID 14
-     tb_recalcCosts AT ROW 13.24 COL 28 WIDGET-ID 16
-     tb_excel AT ROW 14.33 COL 40.6 WIDGET-ID 10
-     tb_runExcel AT ROW 14.33 COL 82.6 RIGHT-ALIGNED WIDGET-ID 12
-     fi_file AT ROW 15.24 COL 38.6 COLON-ALIGNED HELP
+     fiStartDate AT ROW 8.24 COL 28 COLON-ALIGNED WIDGET-ID 18
+     fiEndDate AT ROW 9.43 COL 28 COLON-ALIGNED WIDGET-ID 20
+     tb_FallBack AT ROW 11.24 COL 29 WIDGET-ID 4
+     tb_Receipts AT ROW 12.19 COL 29 WIDGET-ID 6
+     tb_0 AT ROW 13.14 COL 29
+     tb_inactive AT ROW 14.1 COL 29 WIDGET-ID 2
+     tb_pro-only AT ROW 15.1 COL 29 WIDGET-ID 14
+     tb_recalcCosts AT ROW 16.1 COL 29 WIDGET-ID 16
+     tb_excel AT ROW 17.19 COL 41.6 WIDGET-ID 10
+     tb_runExcel AT ROW 17.19 COL 83.6 RIGHT-ALIGNED WIDGET-ID 12
+     fi_file AT ROW 18.1 COL 39.6 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 8
-     btn-process AT ROW 17.1 COL 21
-     btn-cancel AT ROW 17.1 COL 53
+     btn-process AT ROW 21.24 COL 21
+     btn-cancel AT ROW 21.24 COL 53
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
@@ -173,7 +185,7 @@ DEFINE FRAME FRAME-A
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89.6 BY 17.95.
+         SIZE 89.6 BY 21.86.
 
 DEFINE FRAME FRAME-B
      "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
@@ -206,11 +218,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Fix FG Hist Cost"
-         HEIGHT             = 18
+         HEIGHT             = 21.86
          WIDTH              = 91.2
-         MAX-HEIGHT         = 19.76
+         MAX-HEIGHT         = 21.86
          MAX-WIDTH          = 98.2
-         VIRTUAL-HEIGHT     = 19.76
+         VIRTUAL-HEIGHT     = 21.86
          VIRTUAL-WIDTH      = 98.2
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -451,17 +463,72 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_i-no end_i-no tb_FallBack tb_Receipts tb_0 tb_inactive 
-          tb_pro-only tb_recalcCosts tb_excel tb_runExcel fi_file 
+  DISPLAY begin_i-no end_i-no fiStartDate fiEndDate tb_FallBack tb_Receipts tb_0 
+          tb_inactive tb_pro-only tb_recalcCosts tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 begin_i-no end_i-no tb_FallBack tb_Receipts tb_0 tb_inactive 
-         tb_pro-only tb_recalcCosts tb_excel tb_runExcel fi_file btn-process 
-         btn-cancel 
+  ENABLE RECT-17 begin_i-no end_i-no fiStartDate fiEndDate tb_FallBack 
+         tb_Receipts tb_0 tb_inactive tb_pro-only tb_recalcCosts tb_excel 
+         tb_runExcel fi_file btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-B}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateHistoryRecord C-Win 
+PROCEDURE pUpdateHistoryRecord :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriFGRdtlh AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipriFGRcpth AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUOM      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdCost     AS DECIMAL   NO-UNDO EXTENT 6.
+    DEFINE INPUT  PARAMETER ipcSource   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcProdUOM  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth.
+    DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
+    DEFINE BUFFER bf-fg-rctd  FOR fg-rctd.
+    
+    FIND bf-fg-rcpth EXCLUSIVE 
+         WHERE ROWID(bf-fg-rcpth) EQ ipriFGRcpth
+         NO-ERROR.
+    FIND bf-fg-rdtlh EXCLUSIVE 
+        WHERE ROWID(bf-fg-rdtlh) EQ ipriFGRdtlh
+        NO-ERROR.
+    
+    IF NOT AVAILABLE bf-fg-rdtlh OR NOT AVAILABLE bf-fg-rcpth THEN
+        RETURN.
+            
+    ASSIGN 
+        bf-fg-rdtlh.spare-dec-1  = bf-fg-rdtlh.cost /*store old cost before NY12*/
+        bf-fg-rdtlh.spare-char-2 = bf-fg-rcpth.pur-uom /*store old cost uom before NY12*/
+        bf-fg-rdtlh.cost         = ipdCost[5]
+        bf-fg-rcpth.pur-uom      = ipcUOM
+        bf-fg-rdtlh.std-tot-cost = ipdCost[5]
+        bf-fg-rdtlh.std-fix-cost = ipdCost[4]
+        bf-fg-rdtlh.std-var-cost = ipdCost[3]
+        bf-fg-rdtlh.std-mat-cost = ipdCost[2]
+        bf-fg-rdtlh.std-lab-cost = ipdCost[1]
+        bf-fg-rdtlh.spare-char-1 = ipcSource  /*Store cost source*/
+        .
+
+    FIND FIRST bf-fg-rctd EXCLUSIVE 
+         WHERE bf-fg-rctd.r-no EQ bf-fg-rcpth.r-no 
+         USE-INDEX fg-rctd NO-ERROR.
+    IF AVAIL bf-fg-rctd THEN  
+        ASSIGN 
+            bf-fg-rctd.std-cost = ipdCost[5]
+            bf-fg-rctd.cost-uom = ipcProdUOM
+            bf-fg-rctd.ext-cost = bf-fg-rctd.std-cost * (bf-fg-rctd.t-qty / IF bf-fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1)
+            .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -520,6 +587,8 @@ DISABLE TRIGGERS FOR LOAD OF fg-bin.
         FOR EACH fg-rcpth NO-LOCK 
             WHERE fg-rcpth.company EQ itemfg.company
             AND fg-rcpth.i-no    EQ itemfg.i-no
+            AND (fg-rcpth.trans-date GE fiStartDate OR fiStartDate EQ ?)
+            AND (fg-rcpth.trans-date LE fiEndDate   OR fiEndDate EQ ?)
             USE-INDEX i-no,
             EACH fg-rdtlh NO-LOCK 
             WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
@@ -577,54 +646,19 @@ DISABLE TRIGGERS FOR LOAD OF fg-bin.
                     
                 IF lv-cost[5] EQ ? THEN lv-cost[5] = 0.
     
-                IF (lv-cost[5] NE 0 OR fg-rcpth.po-no NE "") AND (lSourceFound OR tb_FallBack) THEN 
-                DO TRANSACTION:  /*if cost was found from PO or Job, lSourceFound = YES, otherwise, fall back cost of IF1 cost*/
-                    FIND bf-fg-rcpth EXCLUSIVE 
-                        WHERE ROWID(bf-fg-rcpth) EQ ROWID(fg-rcpth)
-                        NO-ERROR.
-                    FIND bf-fg-rdtlh EXCLUSIVE 
-                        WHERE ROWID(bf-fg-rdtlh) EQ ROWID(fg-rdtlh)
-                        NO-ERROR.
+                IF (lv-cost[5] NE 0 OR fg-rcpth.po-no NE "") AND (lSourceFound OR tb_FallBack) THEN DO:
+                    IF NOT tb_pro-only THEN DO: /*if cost was found from PO or Job, lSourceFound = YES, otherwise, fall back cost of IF1 cost*/
+                        iCountChanged = iCountChanged + 1.
+                        RUN pUpdateHistoryRecord(INPUT ROWID(fg-rdtlh),INPUT ROWID(fg-rcpth), lv-uom, lv-cost, cSource, itemfg.prod-uom).
+                    END.
                     
-                    
-                    iCountChanged = iCountChanged + 1.
-
-                    IF NOT tb_pro-only THEN 
-                    do:
-                        ASSIGN 
-                            bf-fg-rdtlh.spare-dec-1  = fg-rdtlh.cost /*store old cost before NY12*/
-                            bf-fg-rdtlh.spare-char-2 = fg-rcpth.pur-uom /*store old cost uom before NY12*/
-                            bf-fg-rdtlh.cost         = lv-cost[5]
-                            bf-fg-rcpth.pur-uom      = lv-uom
-                            bf-fg-rdtlh.std-tot-cost = lv-cost[5]
-                            bf-fg-rdtlh.std-fix-cost = lv-cost[4]
-                            bf-fg-rdtlh.std-var-cost = lv-cost[3]
-                            bf-fg-rdtlh.std-mat-cost = lv-cost[2]
-                            bf-fg-rdtlh.std-lab-cost = lv-cost[1]
-                            bf-fg-rdtlh.spare-char-1 = cSource  /*Store cost source*/
-           
-                            .
-    
-                        FIND FIRST bf-fg-rctd EXCLUSIVE 
-                            WHERE bf-fg-rctd.r-no EQ bf-fg-rcpth.r-no 
-                            USE-INDEX fg-rctd NO-ERROR.
-                        IF AVAIL bf-fg-rctd THEN  
-                            ASSIGN 
-                                bf-fg-rctd.std-cost = lv-cost[5]
-                                bf-fg-rctd.cost-uom = itemfg.prod-uom
-                                bf-fg-rctd.ext-cost = bf-fg-rctd.std-cost *
-                                (bf-fg-rctd.t-qty / IF bf-fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1).
-           
-                    END. /*Apply cost changes*/
-         
-                    IF tb_excel THEN 
-                    DO:
+                    IF tb_excel THEN DO:
                         EXPORT STREAM excel DELIMITER "," 
-                            bf-fg-rcpth.i-no
-                            bf-fg-rcpth.rita-code
-                            bf-fg-rcpth.job-no 
-                            bf-fg-rcpth.job-no2
-                            bf-fg-rcpth.po-no
+                            fg-rcpth.i-no
+                            fg-rcpth.rita-code
+                            fg-rcpth.job-no 
+                            fg-rcpth.job-no2
+                            fg-rcpth.po-no
                             lv-cost[5]
                             lv-uom
                             lv-cost[5]
@@ -633,10 +667,10 @@ DISABLE TRIGGERS FOR LOAD OF fg-bin.
                             lv-cost[2]
                             lv-cost[1] 
                             cSource 
-                            ( IF tb_pro-only THEN bf-fg-rdtlh.cost ELSE bf-fg-rdtlh.spare-dec-1)
-                            ( IF tb_pro-only THEN bf-fg-rcpth.pur-uom ELSE bf-fg-rdtlh.spare-char-2) .
+                            ( IF tb_pro-only THEN fg-rdtlh.cost ELSE fg-rdtlh.spare-dec-1)
+                            ( IF tb_pro-only THEN fg-rcpth.pur-uom ELSE fg-rdtlh.spare-char-2) .
                     END. /* Excel Report */
-                END.  /*Apply/record cost changes*/
+                END.
             END. /*History record eligible for processing*/
         END. /*Each History record*/
         STATUS DEFAULT "Recalculating cost for FG Item#: " + TRIM(itemfg.i-no).

@@ -13,6 +13,12 @@ DEFINE VARIABLE cCurrentProgram AS CHARACTER     NO-UNDO.
 
 DEFINE VARIABLE oUserColumn AS system.UserColumn NO-UNDO.
 
+DEFINE MENU POPUP-MENU-br_table TITLE "Settings"
+       MENU-ITEM m_Customize    LABEL "Customize"      ACCELERATOR "CTRL-S".
+
+IF "{&BROWSE-NAME}" NE "" THEN
+    BROWSE {&BROWSE-NAME}:POPUP-MENU = MENU POPUP-MENU-br_table:HANDLE.
+
 /* create a &SCOPED-DEFINE cellColumnDat value prior to this include
    if another file name is desired to store user cell column order */
 &IF DEFINED(cellColumnDat) EQ 0 &THEN
@@ -23,21 +29,18 @@ cellColumnDat = './users/' + USERID('ASI') + '/{&cellColumnDat}.dat'.
 
 ON "CTRL-S" OF FRAME {&FRAME-NAME} ANYWHERE
 DO:
-    DEFINE VARIABLE lApplyChanges AS LOGICAL NO-UNDO.
     
-    IF cellColumnDat NE "" AND "{&BROWSE-NAME}" NE "" THEN DO:
-        /* Fetch the updated changes from browse before displaying, as user still have an option to reposition and resize columns  */
-        oUserColumn:SetUserColumnFromBrowse().
-        
-        RUN windows/dUserColumn.w (oUserColumn, OUTPUT lApplyChanges).
-        
-        IF lApplyChanges THEN
-            oUserColumn:UpdateBrowse().
-    END.
+    RUN pOpenBrowseCustomizer.
     
     RETURN NO-APPLY.
 END.
 
+ON CHOOSE OF MENU-ITEM m_Customize /* Customize */
+DO:
+    RUN pOpenBrowseCustomizer.
+    
+    RETURN NO-APPLY.
+END.
 /* **********************  Internal Procedures  *********************** */
 
 
@@ -81,6 +84,24 @@ PROCEDURE pMoveDatFileToDb PRIVATE:
                  
      OS-DELETE VALUE(SEARCH(cellColumnDat)).                                       
   END.
+END PROCEDURE.
+
+PROCEDURE pOpenBrowseCustomizer PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lApplyChanges AS LOGICAL NO-UNDO.
+    
+    IF cellColumnDat NE "" AND "{&BROWSE-NAME}" NE "" THEN DO:
+        /* Fetch the updated changes from browse before displaying, as user still have an option to reposition and resize columns  */
+        oUserColumn:SetUserColumnFromBrowse().
+        
+        RUN windows/dUserColumn.w (oUserColumn, OUTPUT lApplyChanges).
+        
+        IF lApplyChanges THEN
+            oUserColumn:UpdateBrowse().
+    END.
 END PROCEDURE.
 
 PROCEDURE setCellColumns:

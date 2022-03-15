@@ -227,9 +227,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
      inv-head.inv-no AT ROW 1.48 COL 16 COLON-ALIGNED
-          LABEL "Invoice#" FORMAT ">>>>>>9"
+          LABEL "Invoice#" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 14 BY 1
      inv-head.inv-date AT ROW 1.48 COL 45 COLON-ALIGNED
           LABEL "Date"
           VIEW-AS FILL-IN 

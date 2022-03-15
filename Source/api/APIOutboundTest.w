@@ -1057,7 +1057,8 @@ DO:
                     INPUT STRING(ROWID(ar-inv))
                     ).
         END.
-        WHEN "SendOrderAck"  THEN DO:
+        WHEN "SendOrderAck" OR
+        WHEN "SendOrder" THEN DO:
             FIND FIRST oe-ord NO-LOCK
                  WHERE oe-ord.company EQ cCompany
                    AND oe-ord.ord-no   EQ INTEGER(fiPrimaryKey:SCREEN-VALUE)

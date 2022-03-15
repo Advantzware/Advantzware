@@ -353,7 +353,7 @@ DEFINE BROWSE Browser-Table
       rm-rctd.po-line FORMAT ">>9":U
       rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U LABEL-BGCOLOR 14
       rm-rctd.job-no2 FORMAT "99":U
-      rm-rctd.s-num COLUMN-LABEL "S" FORMAT ">9":U
+      rm-rctd.s-num COLUMN-LABEL "F" FORMAT ">9":U
       rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U LABEL-BGCOLOR 14
       rm-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
@@ -511,7 +511,7 @@ loadtag.misc-char[1] begins lv-search"
 "rm-rctd.job-no" "Job" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   = asi.rm-rctd.job-no2
      _FldNameList[12]   > asi.rm-rctd.s-num
-"rm-rctd.s-num" "S" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rctd.s-num" "F" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > asi.rm-rctd.i-no
 "rm-rctd.i-no" "Item" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > asi.rm-rctd.i-name
@@ -887,10 +887,9 @@ DO:
         loadtag.misc-char[2]:SCREEN-VALUE = loadtag.misc-char[2].
 
         APPLY "leave" TO rm-rctd.i-no IN BROWSE {&browse-name}.
-        
-        IF NOT v-ssrmscan THEN do:
-          APPLY "row-leave" TO BROWSE {&browse-name}.
-          RETURN NO-APPLY.
+                 
+        IF NOT v-ssrmscan THEN do:             
+          RUN dispatch ("update-record").
         END.
     END.
 END.
@@ -1192,7 +1191,7 @@ END.
 
 &Scoped-define SELF-NAME rm-rctd.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:
   DEF VAR v-auto-rec-log AS LOG NO-UNDO.
 
@@ -1238,7 +1237,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON VALUE-CHANGED OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:
   ll-warned = NO.
 END.
@@ -2793,16 +2792,16 @@ PROCEDURE LoadTag :
 /*------------------------------------------------------------------------------
   Purpose:     
   Notes:       
-------------------------------------------------------------------------------*/
-    GET FIRST {&BROWSE-NAME}.
-    DO WHILE AVAILABLE {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}:
+------------------------------------------------------------------------------*/        
+    IF AVAIL rm-rctd THEN
+    DO:
         CREATE ttLoadTag.
         ASSIGN
-            ttLoadTag.loadtag = {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}.tag
-            ttLoadTag.qty     = {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}.qty
+            ttLoadTag.loadtag = rm-rctd.tag
+            ttLoadTag.qty     = rm-rctd.qty
             .
-        GET NEXT {&BROWSE-NAME}.
-    END. /* repeat */
+    END.
+    
     IF NOT CAN-FIND(FIRST ttLoadTag) THEN RETURN.
     RUN Get_Procedure IN Persistent-Handle ("rmloadtg4a.", OUTPUT run-proc, NO).
     IF run-proc NE "" THEN

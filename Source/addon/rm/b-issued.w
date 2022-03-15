@@ -306,7 +306,7 @@ DEFINE BROWSE Browser-Table
       rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U LABEL-BGCOLOR 14
       rm-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
-      rm-rctd.s-num COLUMN-LABEL "S" FORMAT ">9":U
+      rm-rctd.s-num COLUMN-LABEL "F" FORMAT ">9":U
       rm-rctd.b-num COLUMN-LABEL "B" FORMAT ">9":U
       rm-rctd.qty COLUMN-LABEL "Qty" FORMAT "->>>>>>9.9<<<<<":U
             LABEL-BGCOLOR 14
@@ -456,7 +456,7 @@ AND rm-rctd.tag NE ''"
      _FldNameList[10]   > asi.rm-rctd.i-name
 "i-name" "Name/Desc" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > asi.rm-rctd.s-num
-"s-num" "S" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"s-num" "F" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > asi.rm-rctd.b-num
 "b-num" "B" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > asi.rm-rctd.qty
@@ -1124,7 +1124,7 @@ END.
 
 &Scoped-define SELF-NAME rm-rctd.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON ENTRY OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:    
   IF onlyOneForm() THEN DO:
     APPLY 'TAB' TO SELF.
@@ -1137,7 +1137,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:
    IF LASTKEY NE -1 THEN DO:      
       RUN valid-s-num NO-ERROR.
@@ -3497,7 +3497,7 @@ DEFINE BUFFER bf-job-hdr FOR job-hdr .
       
     IF NOT lSetJob AND INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) EQ 0 AND 
         rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:                        
-      MESSAGE "Sheet # may not be 0..." VIEW-AS ALERT-BOX.
+      MESSAGE "Form # may not be 0..." VIEW-AS ALERT-BOX.
       APPLY "entry" TO rm-rctd.s-num IN BROWSE {&BROWSE-NAME}.
       RETURN ERROR.
     END.
@@ -3646,7 +3646,7 @@ PROCEDURE validate-jobmat :
 
             if avail job-mat then do:
                 create xjob-mat.
-                buffer-copy job-mat to xjob-mat.
+                buffer-copy job-mat EXCEPT rec_key to xjob-mat.
 
                 find job-mat where recid(job-mat) eq recid(xjob-mat).
 
@@ -3677,7 +3677,9 @@ PROCEDURE validate-jobmat :
                  job-mat.basis-w = item.basis-w
                  job-mat.qty     = job-mat.qty * IF job-mat.n-up EQ 0 THEN 1 ELSE job-mat.n-up
                  job-mat.n-up    = v-job-up * v-out
-                 job-mat.qty     = job-mat.qty / IF job-mat.n-up EQ 0 THEN 1 ELSE job-mat.n-up.
+                 job-mat.qty     = job-mat.qty / IF job-mat.n-up EQ 0 THEN 1 ELSE job-mat.n-up
+                 job-mat.all-flg = NO
+                 .
 
                 {sys/inc/roundup.i job-mat.qty}
 

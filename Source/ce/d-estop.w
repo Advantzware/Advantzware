@@ -196,7 +196,7 @@ DEFINE FRAME Dialog-Frame
           SIZE 13.4 BY .81
           BGCOLOR 15 FONT 1
      est-op.s-num AT ROW 1.91 COL 26.4 COLON-ALIGNED
-          LABEL "Sheet #" FORMAT ">>>"
+          LABEL "Form" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 FONT 1
@@ -980,7 +980,7 @@ DO:
 
 &Scoped-define SELF-NAME est-op.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.s-num Dialog-Frame
-ON ENTRY OF est-op.s-num IN FRAME Dialog-Frame /* Sheet # */
+ON ENTRY OF est-op.s-num IN FRAME Dialog-Frame /* Form */
 DO:
         IF est.est-type EQ 1 THEN 
         DO:
@@ -994,7 +994,7 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.s-num Dialog-Frame
-ON LEAVE OF est-op.s-num IN FRAME Dialog-Frame /* Sheet # */
+ON LEAVE OF est-op.s-num IN FRAME Dialog-Frame /* Form */
 DO:
         IF LASTKEY NE -1 THEN 
         DO:
@@ -1077,7 +1077,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DO WITH FRAME {&FRAME-NAME}:
         /*IF ip-type EQ "update" THEN DISABLE est-op.s-num est-op.b-num.*/
 
-        IF ip-type EQ "add"  OR ip-type EQ "copy" THEN 
+
+        IF ip-type EQ "add" OR ip-type EQ "Addstd" OR ip-type EQ "copy" THEN 
         DO:
             adm-new-record = YES. 
             APPLY "entry" TO est-op.s-num  .

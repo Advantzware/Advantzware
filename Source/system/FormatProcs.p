@@ -17,6 +17,8 @@
 
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
+USING Progress.Json.ObjectModel.*.
+
 /* ***************************  Definitions  ************************** */
 /* The values of the below variables need to be in upper case and modifying them will cause inaccurate output */ 
 DEFINE VARIABLE gcMonthShort AS CHARACTER EXTENT 12 NO-UNDO INITIAL ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"].
@@ -38,6 +40,9 @@ DEFINE VARIABLE gcReplaceMilliSeconds AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcReplace12hrs        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcReplaceTimeZone     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glFormatAll           AS LOGICAL   NO-UNDO INITIAL TRUE.
+
+DEFINE VARIABLE oJSONObject AS JsonObject NO-UNDO.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -387,6 +392,8 @@ PROCEDURE pUpdateRequestData PRIVATE:
     DEFINE VARIABLE cIfFalseValue     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lIsNullValue      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lHasQuote         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReplaceSource    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReplaceTarget    AS CHARACTER NO-UNDO.
     
     ASSIGN
         cFieldValuePrefix = "$"
@@ -526,30 +533,30 @@ PROCEDURE pUpdateRequestData PRIVATE:
                 cFunction     = SUBSTRING(cFunctionValue, 1, INDEX(cFunctionValue, "[") - 1)
                 cFunctionText = REPLACE(SUBSTRING(cFunctionValue, INDEX(cFunctionValue, '[') + 1), ']', '') 
                 NO-ERROR.
+        END.
+        
+        IF cFunction EQ "IF" THEN DO:
+            ASSIGN
+                cIfValue      = ENTRY(1, cFunctionText)
+                cIfTrueValue  = ENTRY(2, cFunctionText)
+                cIfFalseValue = ENTRY(3, cFunctionText)
+                cIfValue      = REPLACE(cIfValue, '"', '')
+                cIfValue      = REPLACE(cIfValue, "'", "")
+                cIfTrueValue  = REPLACE(cIfTrueValue, '"', '')
+                cIfTrueValue  = REPLACE(cIfTrueValue, "'", "")
+                cIfFalseValue = REPLACE(cIfFalseValue, '"', '')
+                cIfFalseValue = REPLACE(cIfFalseValue, "'", "")
+                NO-ERROR.
 
-            IF cFunction EQ "IF" THEN DO:
-                ASSIGN
-                    cIfValue      = ENTRY(1, cFunctionText)
-                    cIfTrueValue  = ENTRY(2, cFunctionText)
-                    cIfFalseValue = ENTRY(3, cFunctionText)
-                    cIfValue      = REPLACE(cIfValue, '"', '')
-                    cIfValue      = REPLACE(cIfValue, "'", "")
-                    cIfTrueValue  = REPLACE(cIfTrueValue, '"', '')
-                    cIfTrueValue  = REPLACE(cIfTrueValue, "'", "")
-                    cIfFalseValue = REPLACE(cIfFalseValue, '"', '')
-                    cIfFalseValue = REPLACE(cIfFalseValue, "'", "")
-                    NO-ERROR.
-
-                IF (cIfValue EQ ipcValue) OR (lIsNullValue AND cIfValue EQ "?") THEN
-                    cFunctionText = cIfTrueValue.
-                ELSE
-                    cFunctionText = cIfFalseValue.
-                    
-                ASSIGN
-                    cFunctionText  = REPLACE(cFunctionText, "!VALUE!", cTargetString)
-                    cTargetString  = cFunctionText
-                    .
-            END.
+            IF (cIfValue EQ ipcValue) OR (lIsNullValue AND cIfValue EQ "?") THEN
+                cFunctionText = cIfTrueValue.
+            ELSE
+                cFunctionText = cIfFalseValue.
+                
+            ASSIGN
+                cFunctionText  = REPLACE(cFunctionText, "!VALUE!", cTargetString)
+                cTargetString  = cFunctionText
+                .
         END.
         
         IF cFormatType NE "" THEN DO:
@@ -607,9 +614,20 @@ PROCEDURE pUpdateRequestData PRIVATE:
             ELSE IF cAlignmentStyle EQ "R" THEN
                 cTargetString = FILL(" ", LENGTH(cFormat) - LENGTH(cTargetString)) + cTargetString.
         END.
-
-        /* If a function exists */
-        IF cFunction EQ "TRIM" THEN
+        
+        /* Some functions may need to be applied after format changes */
+        IF cFunction EQ "REPLACE" THEN DO:
+            ASSIGN
+                cReplaceSource = ENTRY(1, cFunctionText)
+                cReplaceTarget = ENTRY(2, cFunctionText)
+                cReplaceSource = REPLACE(cReplaceSource, '"', '')
+                cReplaceSource = REPLACE(cReplaceSource, "'", "")
+                cReplaceTarget = REPLACE(cReplaceTarget, '"', '')
+                cReplaceTarget = REPLACE(cReplaceTarget, "'", "")                    
+                cTargetString  = REPLACE(cTargetString, cReplaceSource, cReplaceTarget)
+                NO-ERROR. 
+        END.
+        ELSE IF cFunction EQ "TRIM" THEN 
             cTargetString = TRIM(cTargetString).
         
         IF lFormatAvail THEN        
@@ -893,17 +911,19 @@ FUNCTION fEscapeExceptionCharactersJSON RETURNS CHARACTER
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
+    IF NOT VALID-OBJECT (oJSONObject) THEN
+        oJSONObject = NEW JsonObject().
     
-    cValue = ipcValue.
+    /* Add a property to JSON Object. JsonObject will automatically escape any exception character */
+    oJSONObject:Add("EscapeExceptionalCharacters", ipcValue).
     
-    ASSIGN
-        cValue = REPLACE(cValue, '\','\\')
-        cValue = REPLACE(cValue, '/','\/')
-        cValue = REPLACE(cValue, '"','\"')
-        .
+    /* The output from GetJsonText will have all the exceptonal character escaped */
+    ipcValue = oJSONObject:GetJsonText("EscapeExceptionalCharacters").
     
-    RETURN cValue.
+    /* Remove the property so next Add won't have any error */
+    oJSONObject:Remove("EscapeExceptionalCharacters").
+    
+    RETURN ipcValue.
 END FUNCTION.
 
 FUNCTION fEscapeExceptionCharactersXML RETURNS CHARACTER 

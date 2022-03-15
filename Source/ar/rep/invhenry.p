@@ -121,6 +121,10 @@ DEFINE VARIABLE dTotalAmount   AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dExchangeRate  AS DECIMAL EXTENT 3 NO-UNDO.
 DEFINE VARIABLE cCurrency      AS CHARACTER NO-UNDO.
 
+{methods/pPrintImageOnBack.i v-print-fmt "first"}
+/* v-print-fmt => ".\custfiles\Images\<FormatName>BackImage.pdf" */
+/* After which Page- Image will print  (First, All) */
+
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -594,6 +598,7 @@ ELSE lv-comp-color = "BLACK".
                             DO i = 1 TO v-tmp-lines:
                            
                                IF v-printline > 50 THEN DO:
+                                  RUN pPrintImageOnBack.
                                   PAGE.
                                   v-printline = 0.
                                   {ar/rep/invhenry.i}
@@ -613,6 +618,7 @@ ELSE lv-comp-color = "BLACK".
             END.
             
             IF v-printline > 50 THEN DO:
+               RUN pPrintImageOnBack.
                PAGE.
                v-printline = 0.
                {ar/rep/invhenry.i}
@@ -627,6 +633,7 @@ ELSE lv-comp-color = "BLACK".
            DO i = 1 TO 4:
                 IF v-inst[i] <> "" THEN DO:                
                    IF v-printline > 50 THEN DO:
+                      RUN pPrintImageOnBack.
                       PAGE.
                       v-printline = 0.
                       {ar/rep/invhenry.i}
@@ -639,6 +646,7 @@ ELSE lv-comp-color = "BLACK".
            DO i = 1 TO 4:
               IF ar-inv.bill-i[i] <> "" THEN DO:
                  IF v-printline > 50 THEN DO:
+                    RUN pPrintImageOnBack.
                     PAGE.
                     v-printline = 0.
                     {ar/rep/invhenry.i}
@@ -650,6 +658,7 @@ ELSE lv-comp-color = "BLACK".
         END.
 
         IF v-printline > 50 THEN DO:
+           RUN pPrintImageOnBack.
            PAGE.
            v-printline = 0.
            {ar/rep/invhenry.i}
@@ -755,7 +764,7 @@ IF v-bot-lab[4] <> "" THEN do:
      ELSE
      PUT "<R56><p9><C42><#8><FROM><R+10><C+41.4><RECT> " 
             "<=8> Sales      :          EUR           GBP           USD"
-            "<=8><R+1> Conversion :" dExchangeRate[1] FORMAT "->>,>>9.99" " USD" dExchangeRate[2] FORMAT "->>,>>9.99" " USD" "      1.00 USD"
+            "<=8><R+1> Conversion :" dExchangeRate[1] FORMAT "->>,>>9.99<<<<<" " USD" dExchangeRate[2] FORMAT "->>,>>9.99<<<<<" " USD" "      1.00 USD"
             "<=8><R+2> Sub Total  :" (v-subtot-lines * dExchangeRate[1]) FORM "€->,>>>,>>9.99"  (v-subtot-lines * dExchangeRate[2]) FORM "£->,>>>,>>9.99" v-subtot-lines FORM "$->,>>>,>>9.99"
             "<=8><R+3> Freight    :" (v-inv-freight * dExchangeRate[1])  FORMAT "->>,>>>,>>9.99" (v-inv-freight * dExchangeRate[2])  FORMAT "->>,>>>,>>9.99" v-inv-freight FORMAT "->>,>>>,>>9.99"
             "<=8><R+4> " v-bot-lab[1] 
@@ -778,7 +787,7 @@ ELSE do:
     ELSE
     PUT "<R56><p9><C42><#8><FROM><R+8><C+41.4><RECT> " 
         "<=8> Sales      :           EUR           GBP           USD"
-        "<=8><R+1> Conversion :" dExchangeRate[1] FORMAT "->>,>>9.99" " USD" dExchangeRate[2] FORMAT "->>,>>9.99" " USD" "      1.00 USD"
+        "<=8><R+1> Conversion :" dExchangeRate[1] FORMAT "->>,>>9.99<<<<<" " USD" dExchangeRate[2] FORMAT "->>,>>9.99<<<<<" " USD" "      1.00 USD"
         "<=8><R+2> Sub Total  :" (v-subtot-lines * dExchangeRate[1]) FORM "€->,>>>,>>9.99"  (v-subtot-lines * dExchangeRate[2]) FORM "£->,>>>,>>9.99" v-subtot-lines FORM "$->,>>>,>>9.99"
         "<=8><R+3> Freight    :" (v-inv-freight * dExchangeRate[1])  FORMAT "->>,>>>,>>9.99" (v-inv-freight * dExchangeRate[2])  FORMAT "->>,>>>,>>9.99" v-inv-freight FORMAT "->>,>>>,>>9.99"
         "<=8><R+4> " v-bot-lab[1] 
@@ -791,6 +800,7 @@ END.
        v-printline = v-printline + 6
        v-page-num = PAGE-NUM.
 
+    RUN pPrintImageOnBack.
     /*IF v-printline < 50 THEN PUT SKIP(60 - v-printline). */
     PAGE. 
 
@@ -847,6 +857,5 @@ FOR EACH notes WHERE notes.rec_key = reckey
 END.
 
 END PROCEDURE.
-
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

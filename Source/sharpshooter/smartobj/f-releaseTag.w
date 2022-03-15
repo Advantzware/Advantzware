@@ -43,6 +43,10 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
+DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
+
+DEFINE VARIABLE oKeyboard AS system.Keyboard NO-UNDO.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -56,7 +60,7 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 &Scoped-define ADM-CONTAINER FRAME
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Custom List Definitions                                              */
@@ -79,7 +83,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 60.4 BY 11.86
+         SIZE 65.4 BY 2.52
          BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
@@ -107,8 +111,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW F-Frame-Win ASSIGN
-         HEIGHT             = 11.91
-         WIDTH              = 60.2.
+         HEIGHT             = 5.19
+         WIDTH              = 65.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -130,7 +134,7 @@ END.
 /* SETTINGS FOR WINDOW F-Frame-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE                                                          */
+   NOT-VISIBLE FRAME-NAME                                               */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -184,8 +188,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_releasefilter ).
-       RUN set-position IN h_releasefilter ( 1.10 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.67 , 58.00 ) */
+       RUN set-position IN h_releasefilter ( 1.10 , 1.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.05 , 62.60 ) */
 
        /* Links to SmartObject h_releasefilter. */
        RUN add-link IN adm-broker-hdl ( h_releasefilter , 'RELEASE':U , THIS-PROCEDURE ).
@@ -258,6 +262,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType F-Frame-Win 
+PROCEDURE GetMessageAndType :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiStatusMessageType AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        opcStatusMessage     = cStatusMessage
+        opiStatusMessageType = iStatusMessageType
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetRelease F-Frame-Win 
 PROCEDURE GetRelease :
 /*------------------------------------------------------------------------------
@@ -268,6 +291,83 @@ PROCEDURE GetRelease :
     DEFINE OUTPUT PARAMETER opoReleaseHeader AS oe.ReleaseHeader NO-UNDO.
     
     {methods/run_link.i "RELEASE-SOURCE" "GetReleaseID" "(OUTPUT opoReleaseHeader)"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable F-Frame-Win 
+PROCEDURE local-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit F-Frame-Win
+PROCEDURE pInit PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lShowKeyboard AS LOGICAL NO-UNDO.
+    
+    {methods/run_link.i "CONTAINER-SOURCE" "GetKeyboard" "(OUTPUT oKeyboard)"}
+    {methods/run_link.i "RELEASE-SOURCE" "DisableErrorAlerts"}
+    {methods/run_link.i "CONTAINER-SOURCE" "ShowKeyboard" "(OUTPUT lShowKeyboard)"}
+    {methods/run_link.i "RELEASE-SOURCE" "SetKeyboard" "(INPUT oKeyboard)"}
+    
+    IF lShowKeyboard THEN
+        RUN ShowKeyboard.
+        
+    RUN Set-Focus.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError F-Frame-Win 
+PROCEDURE pSendError PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN new-state (
+        "release-error"
+        ).
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset F-Frame-Win 
+PROCEDURE Reset :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "RELEASE-SOURCE" "EmptyRelease"}
+    {methods/run_link.i "RELEASE-SOURCE" "Set-Focus"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -290,6 +390,35 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus F-Frame-Win 
+PROCEDURE Set-Focus :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "RELEASE-SOURCE" "Set-Focus"}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard F-Frame-Win
+PROCEDURE ShowKeyboard:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "RELEASE-SOURCE" "ShowKeyboard"}
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed F-Frame-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -299,11 +428,18 @@ PROCEDURE state-changed :
 -------------------------------------------------------------*/
     DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
     DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
-  
+    
+    RUN new-state ("empty-message").
+    
     CASE p-state:
         WHEN "release-valid" THEN DO:
             RUN new-state ("release-tag-print").
         END.
+        WHEN "release-error" THEN DO:
+            {methods/run_link.i "RELEASE-SOURCE" "GetMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
+
+            RUN pSendError.
+        END.        
     END CASE.
 END PROCEDURE.
 

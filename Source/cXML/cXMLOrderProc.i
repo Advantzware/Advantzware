@@ -195,6 +195,7 @@ PROCEDURE assignOrderHeader:
                             ELSE IF paymentPCard BEGINS '5' THEN 'MC'
                             ELSE IF paymentPCard BEGINS '6' THEN 'DISCOVER'
                             ELSE ''
+          oe-ord.ediSubmitted  = 1                  
           .
           IF paymentExpiration NE '' THEN
           oe-ord.cc-expiration = DATE(INT(SUBSTR(paymentExpiration,6,2))
@@ -638,6 +639,8 @@ PROCEDURE genOrderLines:
         oe-ordl.q-no      = oe-ord.q-no
         oe-ordl.prom-date = oe-ord.due-date
         oe-ordl.stat      = 'W'
+        oe-ordl.ediPriceUOM = TRIM(itemUnitOfMeasure)
+        oe-ordl.ediPrice    = DEC(itemMoney)
         .
     
       IF oe-ordl.price EQ 0 THEN DO:                      

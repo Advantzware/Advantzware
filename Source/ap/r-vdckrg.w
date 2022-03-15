@@ -885,10 +885,11 @@ PROCEDURE post-gl :
             BREAK BY ap-pay.bank-code:
 
             ASSIGN 
-                ap-pay.cleared    = NO
-                ap-pay.reconciled = ?
-                v-tot-amt-paid    = v-tot-amt-paid + ap-pay.check-amt
-                v-bank-amt        = v-bank-amt + ap-pay.check-amt.
+                ap-pay.cleared          = NO
+                ap-pay.reconciled       = ?
+                ap-pay.transactionDate  = udate
+                v-tot-amt-paid          = v-tot-amt-paid + ap-pay.check-amt
+                v-bank-amt              = v-bank-amt + ap-pay.check-amt.
 
             FIND FIRST bank WHERE bank.company = cocode AND
                 bank.bank-code = ap-pay.bank-code NO-ERROR.
@@ -940,7 +941,7 @@ PROCEDURE post-gl :
                         w-actnum   = ap-payl.actnum
                         w-amt-paid = ap-payl.amt-paid
                         w-amt-disc = ap-payl.amt-disc
-                        w-disb.cDesc = "Vendor:" + string(vend.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"9999999") + " Check: " + STRING(ap-payl.check-no,"999999999999")
+                        w-disb.cDesc = "Vendor:" + string(vend.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"99999999") + " Check: " + STRING(ap-payl.check-no,"999999999999")
                         .
                 END.
                 

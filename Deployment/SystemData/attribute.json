@@ -1,5 +1,47 @@
 [
   {
+    "dbFieldName": "company",
+    "dbFieldExtent": 0,
+    "attributeName": "CompanyID",
+    "dbTableName": "company",
+    "rec_key": "202201057375308435959"
+  },
+  {
+    "dbFieldName": "name",
+    "dbFieldExtent": 0,
+    "attributeName": "CompanyName",
+    "dbTableName": "company",
+    "rec_key": "202201057376708435960"
+  },
+  {
+    "dbFieldName": "cust-no",
+    "dbFieldExtent": 0,
+    "attributeName": "CustomerID",
+    "dbTableName": "cust",
+    "rec_key": "202201204375008475662"
+  },
+  {
+    "dbFieldName": "name",
+    "dbFieldExtent": 0,
+    "attributeName": "CustomerName",
+    "dbTableName": "cust",
+    "rec_key": "202201204375908475663"
+  },
+  {
+    "dbFieldName": "code",
+    "dbFieldExtent": 0,
+    "attributeName": "DepartmentCode",
+    "dbTableName": "dept",
+    "rec_key": "202201098131508436347"
+  },
+  {
+    "dbFieldName": "dscr",
+    "dbFieldExtent": 0,
+    "attributeName": "DepartmentName",
+    "dbTableName": "dept",
+    "rec_key": "202201098132908436348"
+  },
+  {
     "dbFieldName": "adhesive",
     "dbFieldExtent": 0,
     "attributeName": "AdhesiveCode",
@@ -3143,6 +3185,13 @@
     "rec_key": "202111190040508130731"
   },
   {
+    "dbFieldName": "est-dscr",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemEstimateDescription",
+    "dbTableName": "item",
+    "rec_key": "202201204383508475665"
+  },
+  {
     "dbFieldName": "i-code",
     "dbFieldExtent": 0,
     "attributeName": "ItemCode",
@@ -3169,6 +3218,13 @@
     "attributeName": "ItemID",
     "dbTableName": "item",
     "rec_key": "202111190040508130727"
+  },
+  {
+    "dbFieldName": "notes",
+    "dbFieldExtent": 1,
+    "attributeName": "ItemSpecName",
+    "dbTableName": "item-spec",
+    "rec_key": "202201098631308436435"
   },
   {
     "dbFieldName": "cust-no",
@@ -3213,6 +3269,132 @@
     "rec_key": "202111190040508130738"
   },
   {
+    "dbFieldName": "note_code",
+    "dbFieldExtent": 0,
+    "attributeName": "NoteCode",
+    "dbTableName": "notes",
+    "rec_key": "202201098127708436346"
+  },
+  {
+    "dbFieldName": "note_form_no",
+    "dbFieldExtent": 0,
+    "attributeName": "FormNo",
+    "dbTableName": "notes",
+    "rec_key": "202201098120008436343"
+  },
+  {
+    "dbFieldName": "note_text",
+    "dbFieldExtent": 0,
+    "attributeName": "NoteText",
+    "dbTableName": "notes",
+    "rec_key": "202201098122408436344"
+  },
+  {
+    "dbFieldName": "note_title",
+    "dbFieldExtent": 0,
+    "attributeName": "NoteTitle",
+    "dbTableName": "notes",
+    "rec_key": "202201098126508436345"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "DiscountDays",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186739208565801"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "DiscountPercent",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186738108565800"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "DueOnDay",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186735008565798"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "DueOnMonth",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186729908565797"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "NetDays",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186736008565799"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "OrderLineCount",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186741608565803"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "OrderMiscCount",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186742508565804"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "TermsDescription",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186740508565802"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "TotalLineCount",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186743308565805"
+  },
+  {
+    "dbFieldName": "ord-no",
+    "dbFieldExtent": 0,
+    "attributeName": "OrderID",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186325308565769"
+  },
+  {
+    "dbFieldName": "spare-char-3",
+    "dbFieldExtent": 0,
+    "attributeName": "PayLoadID",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186450908565787"
+  },
+  {
+    "dbFieldName": "t-freight",
+    "dbFieldExtent": 0,
+    "attributeName": "TotalFreight",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186501908565790"
+  },
+  {
+    "dbFieldName": "t-revenue",
+    "dbFieldExtent": 0,
+    "attributeName": "TotalRevenue",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186500408565789"
+  },
+  {
+    "dbFieldName": "tax",
+    "dbFieldExtent": 0,
+    "attributeName": "TotalTax",
+    "dbTableName": "oe-ord",
+    "rec_key": "202202186506308565791"
+  },
+  {
     "dbFieldName": "i-dscr",
     "dbFieldExtent": 0,
     "attributeName": "ItemDescription",
@@ -3241,6 +3423,13 @@
     "rec_key": "202111190040508130748"
   },
   {
+    "dbFieldName": "line",
+    "dbFieldExtent": 0,
+    "attributeName": "OrderLineID",
+    "dbTableName": "oe-ordl",
+    "rec_key": "202202186326808565770"
+  },
+  {
     "dbFieldName": "ord-no",
     "dbFieldExtent": 0,
     "attributeName": "Order#",
@@ -3253,6 +3442,27 @@
     "attributeName": "OverrunPercent",
     "dbTableName": "oe-ordl",
     "rec_key": "202111190040508130749"
+  },
+  {
+    "dbFieldName": "qty",
+    "dbFieldExtent": 0,
+    "attributeName": "LineQuantity",
+    "dbTableName": "oe-ordl",
+    "rec_key": "202202186330508565771"
+  },
+  {
+    "dbFieldName": "req-date",
+    "dbFieldExtent": 0,
+    "attributeName": "DueDate",
+    "dbTableName": "oe-ordl",
+    "rec_key": "202202186374008565777"
+  },
+  {
+    "dbFieldName": "spare-char-2",
+    "dbFieldExtent": 0,
+    "attributeName": "QuantityUOM",
+    "dbTableName": "oe-ordl",
+    "rec_key": "202202186350608565776"
   },
   {
     "dbFieldName": "stat",
@@ -3295,5 +3505,26 @@
     "attributeName": "UnderrunPercent",
     "dbTableName": "oe-ordl",
     "rec_key": "202111190040508130750"
+  },
+  {
+    "dbFieldName": "buyer",
+    "dbFieldExtent": 0,
+    "attributeName": "POBuyer",
+    "dbTableName": "po-ord",
+    "rec_key": "202201114188908455004"
+  },
+  {
+    "dbFieldName": "po-no",
+    "dbFieldExtent": 0,
+    "attributeName": "POID",
+    "dbTableName": "po-ordl",
+    "rec_key": "202201208270508475752"
+  },
+  {
+    "dbFieldName": "vend-no",
+    "dbFieldExtent": 0,
+    "attributeName": "VendorID",
+    "dbTableName": "po-ordl",
+    "rec_key": "202201208271808475753"
   }
 ]

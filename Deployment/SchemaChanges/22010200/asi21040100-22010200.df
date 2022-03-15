@@ -1,0 +1,715 @@
+ADD TABLE "attribute"
+  AREA "Data"
+  LABEL "Attribute"
+  DUMP-NAME "attribute"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\attribute.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\attribute.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\attribute.p" CRC "?" 
+
+ADD FIELD "dbFieldName" OF "attribute" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Field Name"
+  POSITION 2
+  MAX-WIDTH 16
+  ORDER 10
+
+ADD FIELD "dbFieldExtent" OF "attribute" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "Field Extent"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 20
+
+ADD FIELD "attributeName" OF "attribute" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Name"
+  POSITION 4
+  MAX-WIDTH 60
+  ORDER 30
+
+ADD FIELD "dbTableName" OF "attribute" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Table Name"
+  POSITION 5
+  MAX-WIDTH 16
+  ORDER 40
+
+ADD FIELD "rec_key" OF "attribute" AS character 
+  FORMAT "x(26)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 6
+  MAX-WIDTH 52
+  ORDER 50
+
+ADD INDEX "attributeName" ON "attribute" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "dbTableName" ASCENDING 
+  INDEX-FIELD "dbFieldName" ASCENDING 
+  INDEX-FIELD "dbFieldExtent" ASCENDING 
+  INDEX-FIELD "attributeName" ASCENDING 
+
+ADD INDEX "dbFieldTable" ON "attribute" 
+  AREA "Index"
+  INDEX-FIELD "dbTableName" ASCENDING 
+
+ADD INDEX "rec_key" ON "attribute" 
+  AREA "Index"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "estCostCategorySystem"
+  AREA "Data"
+  LABEL "Estimate Cost Category System"
+  DESCRIPTION "Default data for System initialized"
+  DUMP-NAME "estCostCategorySystem"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\estCostCategorySystem.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\estCostCategorySystem.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\estCostCategorySystem.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "estCostCategorySystem" AS character 
+  DESCRIPTION "Unique ID Across DB for Record"
+  FORMAT "x(26)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  COLUMN-LABEL "Record Key"
+  HELP "Enter Record Key Value"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "estCostCategoryID" OF "estCostCategorySystem" AS character 
+  DESCRIPTION "ID for Cost Category"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Cost Category"
+  POSITION 3
+  MAX-WIDTH 40
+  COLUMN-LABEL "Cost Category"
+  HELP "Enter ID for Cost Category"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "estCostGroupID" OF "estCostCategorySystem" AS character 
+  DESCRIPTION "ID for Cost Group"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Cost Group"
+  POSITION 4
+  MAX-WIDTH 40
+  COLUMN-LABEL "Cost Group"
+  HELP "Enter ID for Cost Group"
+  ORDER 30
+  MANDATORY
+
+ADD FIELD "estCostCategoryDesc" OF "estCostCategorySystem" AS character 
+  DESCRIPTION "Description for Cost Category"
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Cost Category Desc"
+  POSITION 5
+  MAX-WIDTH 100
+  COLUMN-LABEL "Cost Category Desc"
+  HELP "Enter Description for Cost Category"
+  ORDER 40
+
+ADD FIELD "costCategoryLabel" OF "estCostCategorySystem" AS character 
+  DESCRIPTION "Label for display of estCostCategory in reports and forms"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Cost Category Label"
+  POSITION 6
+  MAX-WIDTH 40
+  COLUMN-LABEL "Cost Category Label"
+  HELP "Enter the Cost Category Label to appear on reports and forms"
+  ORDER 50
+
+ADD FIELD "includeInBoardCost" OF "estCostCategorySystem" AS logical 
+  DESCRIPTION "Flag to determine if cost gets included in Board Cost Total"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "In Board Cost"
+  POSITION 7
+  MAX-WIDTH 1
+  COLUMN-LABEL "In Board Cost"
+  HELP "Does cost get included in Board Cost Total?"
+  ORDER 60
+
+ADD FIELD "includeInMaterialCost" OF "estCostCategorySystem" AS logical 
+  DESCRIPTION "Flag to determine if cost gets included in Material (Non-Board) Cost Total"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "In Material Cost"
+  POSITION 8
+  MAX-WIDTH 1
+  COLUMN-LABEL "In Material Cost"
+  HELP "Does cost get included in Material (Non-Board) Cost Total?"
+  ORDER 70
+
+ADD FIELD "includeInLaborCost" OF "estCostCategorySystem" AS logical 
+  DESCRIPTION "Flag to determine if cost gets included in Labor Cost Total"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "In Labor Cost"
+  POSITION 9
+  MAX-WIDTH 1
+  COLUMN-LABEL "In Labor Cost"
+  HELP "Does cost get included in Labor Cost Total?"
+  ORDER 80
+
+ADD FIELD "includeInFactoryCost" OF "estCostCategorySystem" AS logical 
+  DESCRIPTION "Flag to determine if cost gets included in Factory Cost Total"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "In Factory Cost"
+  POSITION 10
+  MAX-WIDTH 1
+  COLUMN-LABEL "In Factory Cost"
+  HELP "Does cost get included in Factory Cost Total?"
+  ORDER 90
+
+ADD FIELD "includeInNonFactoryCost" OF "estCostCategorySystem" AS logical 
+  DESCRIPTION "Flag to determine if cost gets included in Non Factory Cost Total"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "In Non Factory Cost"
+  POSITION 11
+  MAX-WIDTH 1
+  COLUMN-LABEL "In Non Factory Cost"
+  HELP "Does cost get included in Non Factory Cost Total?"
+  ORDER 100
+
+ADD FIELD "company" OF "estCostCategorySystem" AS character 
+  DESCRIPTION "Company Code"
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 12
+  MAX-WIDTH 6
+  COLUMN-LABEL "Company"
+  HELP "Enter the company code."
+  ORDER 110
+  MANDATORY
+
+ADD FIELD "includeInNetProfit" OF "estCostCategorySystem" AS logical 
+  DESCRIPTION "Flag to determine if cost gets included in Profit Total"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "In Profit"
+  POSITION 13
+  MAX-WIDTH 1
+  COLUMN-LABEL "In Profit"
+  HELP "Does cost get included in Profit Total?"
+  ORDER 120
+
+ADD FIELD "includeInVariableOverheadCost" OF "estCostCategorySystem" AS logical 
+  DESCRIPTION "Flag to determine if cost gets included in Variable Overhead Cost Total"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "In VO Cost"
+  POSITION 14
+  MAX-WIDTH 1
+  COLUMN-LABEL "In VO Cost"
+  HELP "Does cost get included in Variable Overhead Cost Total?"
+  ORDER 130
+
+ADD FIELD "includeInFixedOverheadCost" OF "estCostCategorySystem" AS logical 
+  DESCRIPTION "Flag to determine if cost gets included in Fixed Overhead Cost Total"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "In FO Cost"
+  POSITION 15
+  MAX-WIDTH 1
+  COLUMN-LABEL "In FO Cost"
+  HELP "Does cost get included in Fixed Overhead Cost Total?"
+  ORDER 140
+
+ADD INDEX "estCostCategory" ON "estCostCategorySystem" 
+  AREA "Data"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Find a estCostCategory by ID"
+  INDEX-FIELD "estCostCategoryID" ASCENDING 
+
+ADD INDEX "rec_key" ON "estCostCategorySystem" 
+  AREA "Data"
+  UNIQUE
+  DESCRIPTION "Find a estCostCategory by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "estCostGroupLevelSystem"
+  AREA "Data"
+  LABEL "Estimate Cost Group Level System"
+  DESCRIPTION "Default System data for Top-level summary group for major cost calculation - eg. Factory Cost"
+  DUMP-NAME "estCostGroupLevelSystem"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\estCostGroupLevelSystem.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\estCostGroupLevelSystem.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\estCostGroupLevelSystem.p" CRC "?" 
+
+ADD FIELD "estCostGroupLevelID" OF "estCostGroupLevelSystem" AS integer 
+  DESCRIPTION "ID for Cost Group Level"
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Cost Group Level"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Cost Group Level"
+  HELP "Enter ID for Cost Group Level"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "estCostGroupLevelDesc" OF "estCostGroupLevelSystem" AS character 
+  DESCRIPTION "Description for Cost Group Level "
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Cost Group Level Desc"
+  POSITION 3
+  MAX-WIDTH 100
+  COLUMN-LABEL "Cost Group Level Desc"
+  HELP "Enter Description for Cost Group Level"
+  ORDER 20
+
+ADD FIELD "rec_key" OF "estCostGroupLevelSystem" AS character 
+  DESCRIPTION "Unique ID Acroos DB for Record"
+  FORMAT "x(26)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 4
+  MAX-WIDTH 42
+  COLUMN-LABEL "Record Key"
+  HELP "Enter Record Key Value"
+  ORDER 30
+  MANDATORY
+
+ADD FIELD "company" OF "estCostGroupLevelSystem" AS character 
+  DESCRIPTION "Company Code"
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 5
+  MAX-WIDTH 6
+  COLUMN-LABEL "Company"
+  HELP "Enter the company code."
+  ORDER 40
+  MANDATORY
+
+ADD INDEX "estCostGroupLevelID" ON "estCostGroupLevelSystem" 
+  AREA "Data"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "estCostGroupLevelID" ASCENDING 
+
+ADD INDEX "rec_key" ON "estCostGroupLevelSystem" 
+  AREA "Data"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "estCostGroupSystem"
+  AREA "Data"
+  LABEL "Estimate Cost Group System"
+  DESCRIPTION "Default System data for Groups of estCostCategory for  summarization of cost totals.  Rolls up into estCostGroupLevelSystem"
+  DUMP-NAME "estCostGroupSystem"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\estCostGroupSystem.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\estCostGroupSystem.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\estCostGroupSystem.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "estCostGroupSystem" AS character 
+  DESCRIPTION "Unique ID Acroos DB for Record"
+  FORMAT "x(26)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  COLUMN-LABEL "Record Key"
+  HELP "Enter Record Key Value"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "estCostGroupID" OF "estCostGroupSystem" AS character 
+  DESCRIPTION "ID for Cost Group"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Cost Group"
+  POSITION 3
+  MAX-WIDTH 40
+  COLUMN-LABEL "Cost Group"
+  HELP "Enter ID for Cost Group"
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "estCostGroupLevelID" OF "estCostGroupSystem" AS integer 
+  DESCRIPTION "ID for Cost Group Level"
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Cost Group Level"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Cost Group Level"
+  HELP "Enter ID for Cost Group Level"
+  ORDER 30
+  MANDATORY
+
+ADD FIELD "estCostGroupDesc" OF "estCostGroupSystem" AS character 
+  DESCRIPTION "Description for Cost Group"
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Cost Group Desc"
+  POSITION 5
+  MAX-WIDTH 100
+  COLUMN-LABEL "Cost Group Desc"
+  HELP "Enter Description for Cost Group"
+  ORDER 40
+
+ADD FIELD "costGroupLabel" OF "estCostGroupSystem" AS character 
+  DESCRIPTION "Label for display of estCostGroup in reports and forms"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Cost Group Label"
+  POSITION 6
+  MAX-WIDTH 40
+  COLUMN-LABEL "Cost Group Label"
+  HELP "Enter the Cost Group Label to appear on reports and forms"
+  ORDER 50
+
+ADD FIELD "costGroupSequence" OF "estCostGroupSystem" AS integer 
+  DESCRIPTION "Sequence for Cost Group to appear within its Cost Level"
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Cost Group Sequence"
+  POSITION 7
+  MAX-WIDTH 4
+  COLUMN-LABEL "Cost Group Sequence"
+  HELP "Enter the order for Cost Group to appear within Group Level"
+  ORDER 60
+
+ADD FIELD "company" OF "estCostGroupSystem" AS character 
+  DESCRIPTION "Company Code"
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 8
+  MAX-WIDTH 6
+  COLUMN-LABEL "Company"
+  HELP "Enter the company code."
+  ORDER 70
+  MANDATORY
+
+ADD INDEX "estCostGroupID" ON "estCostGroupSystem" 
+  AREA "Data"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Find a estCostGroup by ID"
+  INDEX-FIELD "estCostGroupID" ASCENDING 
+
+ADD INDEX "rec_key" ON "estCostGroupSystem" 
+  AREA "Data"
+  UNIQUE
+  DESCRIPTION "Find a estCostGroup by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "exchangeRate"
+  AREA "Data"
+  LABEL "Exchange Rate"
+  DUMP-NAME "exchangerate"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/exchangeRate.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/exchangeRate.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/exchangeRate.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "exchangeRate" AS character 
+  FORMAT "x(26)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 52
+  ORDER 10
+
+ADD FIELD "company" OF "exchangeRate" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 3
+  MAX-WIDTH 6
+  ORDER 20
+
+ADD FIELD "baseCurrencyCode" OF "exchangeRate" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Base Currency Code"
+  POSITION 4
+  MAX-WIDTH 6
+  ORDER 30
+
+ADD FIELD "rateCurrencyCode" OF "exchangeRate" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Exchange Currency Code"
+  POSITION 5
+  MAX-WIDTH 6
+  ORDER 40
+
+ADD FIELD "asOfDate" OF "exchangeRate" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "As Of Date"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 50
+
+ADD FIELD "exchangeRate" OF "exchangeRate" AS decimal 
+  FORMAT "->>,>>9.99<<<<<"
+  INITIAL "0"
+  LABEL "Exchange Rate"
+  POSITION 7
+  MAX-WIDTH 17
+  DECIMALS 10
+  ORDER 60
+
+ADD INDEX "rateCurrencyCode" ON "exchangeRate" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "baseCurrencyCode" ASCENDING 
+  INDEX-FIELD "rateCurrencyCode" ASCENDING 
+  INDEX-FIELD "asOfDate" DESCENDING 
+
+ADD INDEX "baseCurrencyCode" ON "exchangeRate" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "baseCurrencyCode" ASCENDING 
+
+ADD INDEX "rec_key" ON "exchangeRate" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD FIELD "glPostDate" OF "ap-inv" AS date
+  FORMAT "99/99/99"
+  POSITION 62
+  INITIAL ?
+  LABEL "G/L Transaction Date"
+  ORDER 600
+  MAX-WIDTH 4
+
+ADD FIELD "transactionDate" OF "ap-pay" AS date
+  FORMAT "99/99/99"
+  POSITION 35
+  INITIAL ?
+  LABEL "Ledger Transaction Date"
+  ORDER 320
+  MAX-WIDTH 4
+
+UPDATE FIELD "invoiceMessage1" OF "ar-ctrl"
+  FORMAT "x(60)"
+
+UPDATE FIELD "invoiceMessage2" OF "ar-ctrl"
+  FORMAT "x(60)"
+
+UPDATE FIELD "invoiceMessage3" OF "ar-ctrl"
+  FORMAT "x(60)"
+
+UPDATE FIELD "invoiceMessage4" OF "ar-ctrl"
+  FORMAT "x(60)"
+
+UPDATE FIELD "invoiceMessage5" OF "ar-ctrl"
+  FORMAT "x(60)"
+
+ADD FIELD "ediPriceUOM" OF "ar-invl" AS character
+  FORMAT "x(4)"
+  POSITION 92
+  INITIAL ""
+  LABEL "EDI Price UOM"
+  ORDER 910
+  MAX-WIDTH 16
+
+ADD FIELD "ediPrice" OF "ar-invl" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 104
+  INITIAL "0"
+  LABEL "EDI Price"
+  DECIMALS 6
+  ORDER 930
+  MAX-WIDTH 21
+
+DROP FIELD "spare-char-5" OF "ar-invl"
+DROP FIELD "spare-dec-2" OF "ar-invl"
+
+ADD FIELD "countryCode" OF "company" AS character
+  FORMAT "x(3)"
+  POSITION 43
+  INITIAL ""
+  LABEL "Country Code"
+  ORDER 490
+  MAX-WIDTH 6
+
+ADD FIELD "handlingRateRMPerCWT" OF "estCostHeader" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 35
+  INITIAL "0"
+  DECIMALS 6
+  ORDER 800
+  MAX-WIDTH 17
+
+ADD FIELD "handlingRateFGPerCWT" OF "estCostHeader" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 36
+  INITIAL "0"
+  DECIMALS 6
+  ORDER 810
+  MAX-WIDTH 17
+
+ADD FIELD "handlingRateRMFarmPerCWT" OF "estCostHeader" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 37
+  INITIAL "0"
+  DECIMALS 6
+  ORDER 820
+  MAX-WIDTH 17
+
+ADD FIELD "handlingRateFGFarmPerCWT" OF "estCostHeader" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 38
+  INITIAL "0"
+  DECIMALS 6
+  ORDER 830
+  MAX-WIDTH 17
+
+DROP FIELD "handlingRatePerCWTRMPct" OF "estCostHeader"
+DROP FIELD "handlingRatePerCWTFGPct" OF "estCostHeader"
+DROP FIELD "handlingRatePerCWTRMFarmPct" OF "estCostHeader"
+DROP FIELD "handlingRatePerCWTFGFarmPct" OF "estCostHeader"
+
+ADD FIELD "ediPriceUOM" OF "inv-line" AS character
+  FORMAT "x(4)"
+  POSITION 73
+  INITIAL ""
+  LABEL "EDI Price UOM"
+  ORDER 720
+  MAX-WIDTH 16
+
+ADD FIELD "ediPrice" OF "inv-line" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 75
+  INITIAL "0"
+  LABEL "EDI Price"
+  DECIMALS 6
+  ORDER 740
+  MAX-WIDTH 21
+
+DROP FIELD "spare-char-5" OF "inv-line"
+DROP FIELD "spare-dec-2" OF "inv-line"
+
+ADD FIELD "caseCount" OF "item" AS integer
+  FORMAT ">>>>>9"
+  POSITION 107
+  INITIAL "0"
+  LABEL "Case Count"
+  ORDER 1060
+  MAX-WIDTH 4
+
+ADD FIELD "materialType" OF "item" AS character
+  FORMAT "x(8)"
+  POSITION 108
+  INITIAL ""
+  LABEL "Item Material Type"
+  ORDER 1070
+  MAX-WIDTH 16
+
+ADD FIELD "shipFromLocation" OF "job" AS character
+  FORMAT "x(5)"
+  POSITION 70
+  INITIAL ""
+  LABEL "Ship From Location"
+  ORDER 690
+  MAX-WIDTH 10
+
+ADD FIELD "consumedByDept" OF "materialType" AS character
+  FORMAT "x(2)"
+  POSITION 9
+  INITIAL ""
+  LABEL "Consumed By Department"
+  ORDER 80
+  MAX-WIDTH 4
+
+ADD FIELD "materialTypeGroup" OF "materialType" AS character
+  FORMAT "x(8)"
+  POSITION 10
+  INITIAL ""
+  LABEL "Material Group"
+  ORDER 90
+  MAX-WIDTH 16
+
+ADD FIELD "ediSubmitted" OF "oe-ord" AS integer
+  FORMAT "->,>>>,>>9"
+  POSITION 120
+  INITIAL "0"
+  LABEL "EDI Submitted"
+  ORDER 1190
+  MAX-WIDTH 4
+
+ADD FIELD "ediModified" OF "oe-ord" AS integer
+  FORMAT "->,>>>,>>9"
+  POSITION 121
+  INITIAL "0"
+  LABEL "EDI Modified"
+  ORDER 1200
+  MAX-WIDTH 4
+
+DROP FIELD "spare-int-1" OF "oe-ord"
+DROP FIELD "spare-int-2" OF "oe-ord"
+
+UPDATE FIELD "po-no-po" OF "oe-ordl"
+  FORMAT ">>>>>>>9"
+
+ADD FIELD "ediPrice" OF "oe-ordl" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 130
+  INITIAL "0"
+  LABEL "EDI Price"
+  DECIMALS 6
+  ORDER 1170
+  MAX-WIDTH 21
+
+ADD FIELD "ediPriceUOM" OF "oe-ordl" AS character
+  FORMAT "x(8)"
+  POSITION 138
+  INITIAL ""
+  LABEL "EDI Price UOM"
+  ORDER 1320
+  MAX-WIDTH 8
+
+DROP FIELD "spare-dec-2" OF "oe-ordl"
+
+ADD FIELD "taxBasis" OF "oe-prmtx" AS integer
+  FORMAT ">9"
+  POSITION 28
+  INITIAL "0"
+  LABEL "Tax Basis"
+  ORDER 480
+  MAX-WIDTH 4
+
+UPDATE TABLE "ssrelbol"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\ssrelbol.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\ssrelbol.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\ssrelbol.p" CRC "?"
+
+ADD FIELD "isActive" OF "sys-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 47
+  INITIAL "yes"
+  HELP "Toggle Active On/Off"
+  LABEL "Active"
+  ORDER 460
+  MAX-WIDTH 1
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000018373

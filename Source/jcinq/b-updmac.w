@@ -168,7 +168,7 @@ DEFINE BROWSE BROWSE-2
    tt-mch-tran.job-no2          COLUMN-LABEL "" FORMAT ">9" WIDTH 2.8
    tt-mch-tran.machine-code     COLUMN-LABEL "Machine" FORMAT "X(15)" WIDTH 18
    tt-mch-tran.dept             COLUMN-LABEL "Dept"
-   tt-mch-tran.sheet-no         COLUMN-LABEL "Sheet" FORMAT "ZZ9" WIDTH 7
+   tt-mch-tran.sheet-no         COLUMN-LABEL "Form" FORMAT "ZZ9" WIDTH 7
    tt-mch-tran.blank-no         COLUMN-LABEL "Blank" FORMAT "ZZ9" WIDTH 7
    tt-mch-tran.pass             COLUMN-LABEL "Pass" FORMAT ">>>" WIDTH 6
    tt-mch-tran.i-no             COLUMN-LABEL "FG Item #" FORMAT "X(15)" WIDTH 20

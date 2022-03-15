@@ -8,7 +8,7 @@ DEF {1} shared temp-table tt-inv no-undo
   field inv-date as date
   field sort-fld as char
   field trans-date as date
-  field inv-no like ar-inv.inv-no FORMAT ">>>>>>9"
+  field inv-no like ar-inv.inv-no FORMAT ">>>>>>>9"
   field type as char format 'x(4)'
   field description as char format 'x(15)'
   field amount  as dec format '->>,>>>,>>>.99'

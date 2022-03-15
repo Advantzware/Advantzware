@@ -1302,7 +1302,9 @@ FOR EACH job-hdr NO-LOCK
 
         "<B> Divider: </B>"   eb.divider FORMAT "x(10)"
         "<C20><B>Size: </B>"    STRING(eb.div-len) + "x" + STRING(eb.div-wid) + "x" + STRING(ddivider) FORMAT "x(27)"
-        "<C39><B> Qty per case:</B>"   eb.div-up FORMAT "->>>>>>>9" SKIP
+        "<C39><B> Qty per case:</B>"   eb.div-up FORMAT "->>>>>>>9" 
+        "<C60><B># of Dividers:</B>" v-max-qty
+        SKIP
         
 
         "<B> Pallet:</B> " eb.tr-no

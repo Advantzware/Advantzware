@@ -435,6 +435,12 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
+    
+DISABLE TRIGGERS FOR LOAD OF ar-inv.
+DISABLE TRIGGERS FOR LOAD OF ar-invl.
+DISABLE TRIGGERS FOR LOAD OF inv-head.
+DISABLE TRIGGERS FOR LOAD OF inv-line.
+    
 DEF VAR v-cost LIKE ar-invl.cost EXTENT 5 NO-UNDO.
 
 DO WITH FRAME {&FRAME-NAME}:
@@ -450,8 +456,7 @@ FOR EACH ar-inv
       AND ar-inv.inv-no   GE fi_finv
       AND ar-inv.inv-no   LE fi_tinv
       AND ar-inv.inv-date GE begin_date
-      AND ar-inv.inv-date LE end_date
-    USE-INDEX inv-no,
+      AND ar-inv.inv-date LE end_date,
 
     EACH ar-invl
     WHERE ar-invl.x-no EQ ar-inv.x-no
@@ -486,8 +491,7 @@ FOR EACH inv-head
       AND inv-head.inv-no   GE fi_finv
       AND inv-head.inv-no   LE fi_tinv
       AND inv-head.inv-date GE begin_date
-      AND inv-head.inv-date LE end_date
-    USE-INDEX inv-no,
+      AND inv-head.inv-date LE end_date,
 
     EACH inv-line
     WHERE inv-line.r-no EQ inv-head.r-no

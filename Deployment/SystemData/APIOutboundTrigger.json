@@ -3094,7 +3094,7 @@
     "apiOutboundID": 26
   },
   {
-    "company": "001",
+    "company": "",
     "rec_key": "202112020346508308454",
     "apiID": "GetExchangeRate",
     "triggerID": "GetExchangeRate",
@@ -3209,5 +3209,83 @@
     "clientID": "_default",
     "apiOutboundTriggerID": 252,
     "apiOutboundID": 38
+  },
+  {
+    "company": "",
+    "rec_key": "202112170530608378260",
+    "apiID": "SendJobAMS",
+    "triggerID": "UpdateJobHeader",
+    "description": "Triggers when job header is updated",
+    "inActive": false,
+    "createTime": "2021-12-17T01:28:26.047",
+    "createBy": "asi",
+    "clientID": "_default",
+    "apiOutboundTriggerID": 253,
+    "apiOutboundID": 38
+  },
+  {
+    "company": "",
+    "rec_key": "202112170532708378261",
+    "apiID": "SendJobAMS",
+    "triggerID": "UpdateJobMaterial",
+    "description": "Triggers when job material is updated",
+    "inActive": false,
+    "createTime": "2021-12-17T01:28:47.842",
+    "createBy": "asi",
+    "clientID": "_default",
+    "apiOutboundTriggerID": 254,
+    "apiOutboundID": 38
+  },
+  {
+    "company": "",
+    "rec_key": "202112225550008385920",
+    "apiID": "SendOrderAck",
+    "triggerID": "PrintOrderAck",
+    "description": "Print Order Acknowledgement",
+    "inActive": true,
+    "createTime": "2021-12-22T15:25:00.037",
+    "createBy": "asi",
+    "clientID": "_default1",
+    "apiOutboundTriggerID": 255,
+    "apiOutboundID": 57
+  },
+  {
+    "company": "",
+    "rec_key": "202112225550008385921",
+    "apiID": "SendOrderAck",
+    "triggerID": "RePrintOrderAck",
+    "description": "Reprint of Order Acknowledgement",
+    "inActive": true,
+    "createTime": "2021-12-22T15:25:00.058",
+    "createBy": "asi",
+    "clientID": "_default1",
+    "apiOutboundTriggerID": 256,
+    "apiOutboundID": 57
+  },
+  {
+    "company": "",
+    "rec_key": "202202185333608565734",
+    "apiID": "SendOrder",
+    "triggerID": "PrintOrder",
+    "description": "Triggers when order is printed",
+    "inActive": false,
+    "createTime": "2022-02-18T14:57:02.260",
+    "createBy": "asi",
+    "clientID": "_default",
+    "apiOutboundTriggerID": 257,
+    "apiOutboundID": 58
+  },
+  {
+    "company": "",
+    "rec_key": "202202185335508565735",
+    "apiID": "SendOrder",
+    "triggerID": "ReprintOrder",
+    "description": "Triggers when an order is re-printed",
+    "inActive": false,
+    "createTime": "2022-02-18T14:57:21.978",
+    "createBy": "asi",
+    "clientID": "_default",
+    "apiOutboundTriggerID": 258,
+    "apiOutboundID": 58
   }
 ]

@@ -1941,7 +1941,7 @@ PROCEDURE run-report :
         cust.cust-no
         v-name
         tt-report.key-03     FORMAT "x(8)"
-        w-data.inv-no        FORMAT ">>>>>>9"
+        w-data.inv-no        FORMAT ">>>>>>>9"
         v-date               FORMAT "99/99/99"
         v-ord                FORMAT ">>>>>>"
         v-est                FORMAT "x(8)"

@@ -279,7 +279,8 @@ DO:
   /* If the calling program is "folding styles", then run
      the print functionality in that window.  Otherwise
      run the standard behavior. */
-  IF hHandle:NAME BEGINS 'windows/stylef' THEN
+  IF hHandle:NAME BEGINS 'windows/rfqtool' OR
+     hHandle:NAME BEGINS 'windows/stylef' THEN
       RUN Print-List IN hHandle.
   ELSE
       {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}

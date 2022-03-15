@@ -20,13 +20,15 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE INPUT PARAMETER ipriOrder AS ROWID NO-UNDO.
-DEFINE INPUT  PARAMETER iplUpdate AS LOGICAL     NO-UNDO.
-DEFINE OUTPUT PARAMETER opcStatus AS CHARACTER   NO-UNDO.
-DEFINE OUTPUT PARAMETER opcReason AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER ipriOrder AS ROWID     NO-UNDO.
+DEFINE INPUT  PARAMETER iplUpdate AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT PARAMETER opcStatus AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcReason AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hdOrderProcs     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
+
 RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -62,8 +62,8 @@ DEFINE VARIABLE phandle  AS HANDLE    NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btAdjust 
-     IMAGE-UP FILE "Graphics/32x32/gearwheels.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/gearwheels_disabled.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/pencil.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Adjust" 
      SIZE 8 BY 1.91 TOOLTIP "Adjust"
      FONT 35.

@@ -917,7 +917,7 @@ PROCEDURE pCreateOrderHeader PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER ipiOrderID AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiOrderID AS INTEGER   NO-UNDO.
     
     DEFINE BUFFER bf-oe-ord FOR oe-ord.
     
@@ -927,7 +927,7 @@ PROCEDURE pCreateOrderHeader PRIVATE:
        bf-oe-ord.ord-no   = fGetNextOrderNo(ipcCompany)
        bf-oe-ord.user-id  = USERID('ASI')
        bf-oe-ord.type     = 'O'       
-       ipiOrderID         = bf-oe-ord.ord-no
+       opiOrderID         = bf-oe-ord.ord-no
        .
 END PROCEDURE.
 
@@ -1104,7 +1104,7 @@ PROCEDURE pCreateRelease:
             bf-oe-rel.rel-date = bf-oe-ordl.req-date + 1.
             IF WEEKDAY(bf-oe-rel.rel-date) EQ 7 THEN
                 bf-oe-rel.rel-date = bf-oe-rel.rel-date + 2.
-            ELSE IF WEEKDAY(oe-rel.rel-date) EQ 1 THEN
+            ELSE IF WEEKDAY(bf-oe-rel.rel-date) EQ 1 THEN
                 bf-oe-rel.rel-date = bf-oe-rel.rel-date + 1.
         END. /* else */
     END.
@@ -1634,6 +1634,16 @@ PROCEDURE ProcessOrdersFromImport:
                 ).
             IF NOT oplSuccess THEN
                 RETURN.
+            
+            IF ttOrderLine.prepCode NE "" THEN
+                RUN pCreateMiscSurcharge (
+                    INPUT  ttOrder.company,
+                    INPUT  ttOrder.orderID,
+                    INPUT  ttOrderLine.prepCode,
+                    INPUT  ttOrderLine.priority,
+                    OUTPUT lError,
+                    OUTPUT opcMessage
+                    ).  
         END.
         
         FIND FIRST bf-oe-ord NO-LOCK
@@ -4512,9 +4522,11 @@ PROCEDURE pProcessImportedOrderLine:
         bf-oe-ordl.i-name     = bf-itemfg.i-name
         bf-oe-ordl.cases-unit = bf-itemfg.case-pall
         bf-oe-ordl.part-dscr1 = bf-itemfg.part-dscr1
-        bf-oe-ordl.part-dscr2 = bf-itemfg.part-dscr2         
+        bf-oe-ordl.part-dscr2 = bf-itemfg.part-dscr2 
+        bf-oe-ordl.ediPriceUOM = ipbf-ttOrderLine.uom
+        bf-oe-ordl.ediPrice    = ipbf-ttOrderLine.unitPrice
         .
-
+          
     IF AVAILABLE bf-cust THEN
         ASSIGN
             bf-oe-ordl.disc = bf-cust.disc
@@ -4556,11 +4568,12 @@ PROCEDURE pProcessImportedOrderLine:
         ASSIGN 
             bf-oe-ordl.spare-dec-1  = bf-oe-ordl.qty
             bf-oe-ordl.spare-char-2 = bf-oe-ordl.pr-uom
-            bf-oe-ordl.t-price      = bf-oe-ordl.spare-dec-1 * oe-ordl.price
+            bf-oe-ordl.t-price      = bf-oe-ordl.spare-dec-1 * bf-oe-ordl.price
             bf-oe-ordl.pr-uom       = IF LOOKUP(bf-oe-ordl.pr-uom, gcCaseUOMList) GT 0 THEN 
                                           "CS" 
                                       ELSE 
                                           bf-oe-ordl.pr-uom
+            bf-oe-ordl.ediPriceUOM = (IF LOOKUP(bf-oe-ordl.ediPriceUOM, gcCaseUOMList) GT 0 THEN "CS" ELSE bf-oe-ordl.ediPriceUOM).                              
             .
             
         RUN Conv_QtyToEA (

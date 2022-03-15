@@ -12,6 +12,7 @@
 
 USING Progress.Lang.*.
 USING Progress.Json.ObjectModel.*.
+USING System.Text.RegularExpressions.Regex.
 
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
@@ -103,6 +104,9 @@ CLASS system.JSONConfig IMPLEMENTS system.Config:
     END METHOD.
 
     METHOD PRIVATE VOID pCreateAttribute (ipiConfigID AS INTEGER, ipiAttributeID AS INTEGER, ipcAttributeName AS CHARACTER, ipcAttributeValue AS CHARACTER, ipcAttributeType AS CHARACTER):
+        IF ipcAttributeType EQ "string" THEN
+            ipcAttributeValue = Regex:Unescape(ipcAttributeValue).
+            
         CREATE ttAttribute.
         ASSIGN
             ttAttribute.attributeID    = ipiAttributeID

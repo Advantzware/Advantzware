@@ -139,7 +139,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      rm-rdtl.s-num COLUMN-LABEL "S"
+      rm-rdtl.s-num COLUMN-LABEL "F"
       rm-rdtl.b-num COLUMN-LABEL "B"
       rm-rdtl.pass COLUMN-LABEL "Pass"
       rm-rdtl.qty COLUMN-LABEL "Qty"
@@ -233,7 +233,7 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,"
      _FldNameList[1]   > ASI.rm-rdtl.s-num
-"rm-rdtl.s-num" "S" ? "integer" ? ? ? ? ? ? no ?
+"rm-rdtl.s-num" "F" ? "integer" ? ? ? ? ? ? no ?
      _FldNameList[2]   > ASI.rm-rdtl.b-num
 "rm-rdtl.b-num" "B" ? "integer" ? ? ? ? ? ? no ?
      _FldNameList[3]   > ASI.rm-rdtl.pass

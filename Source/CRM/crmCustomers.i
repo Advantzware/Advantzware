@@ -124,6 +124,7 @@ PROCEDURE pHubspotCRM PRIVATE:
     DEFINE VARIABLE cUser            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lcResponseData   AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE cNextpageLinkID  AS CHARACTER NO-UNDO INITIAL "0".
+    DEFINE VARIABLE cPhone           AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-APIOutboundEvent FOR APIOutboundEvent.
     
@@ -212,7 +213,6 @@ PROCEDURE pHubspotCRM PRIVATE:
                 ttCRMCustomers.custCity      = cust.city
                 ttCRMCustomers.custState     = cust.state
                 ttCRMCustomers.custCode      = cust.zip
-                ttCRMCustomers.action        = "Update"
                 ttCRMCustomers.origName      = cust.name
                 ttCRMCustomers.origAreaCode  = cust.area-code
                 ttCRMCustomers.origPhone     = cust.phone
@@ -222,8 +222,33 @@ PROCEDURE pHubspotCRM PRIVATE:
                 ttCRMCustomers.origState     = cust.state
                 ttCRMCustomers.origCode      = cust.zip
                 ttCRMCustomers.xxCustRowID   = ROWID(cust)
-                ttCRMCustomers.xxApplyAction = YES
+                ttCRMCustomers.xxApplyAction = NO
                 .
+
+            ASSIGN
+                cPhone = REPLACE(ttCRMCustomers.crmPhone," ","")
+                cPhone = REPLACE(cPhone,"+","")
+                cPhone = REPLACE(cPhone,"-","")
+                cPhone = REPLACE(cPhone,"(","")
+                cPhone = REPLACE(cPhone,")","")
+                cPhone = REPLACE(cPhone,"x","")
+                cPhone = REPLACE(cPhone,".","")
+                .
+                                            
+            IF cust.name      NE ttCRMCustomers.crmName     OR
+               cust.area-code NE SUBSTR(cPhone,1,3)         OR
+               cust.phone     NE SUBSTR(cPhone,4,7)         OR
+               cust.addr[1]   NE ttCRMCustomers.crmStreet   OR
+               cust.addr[2]   NE ttCRMCustomers.crmStreet2  OR
+               cust.city      NE ttCRMCustomers.crmCity     OR
+               cust.state     NE ttCRMCustomers.crmState    OR
+               cust.zip       NE ttCRMCustomers.crmCode THEN
+                ASSIGN
+                    ttCRMCustomers.action        = "Update"
+                    ttCRMCustomers.xxApplyAction = YES
+                    . 
+            ELSE
+                DELETE ttCRMCustomers.      
         END. /* avail cust */
     END. /* each ttCRMCustomers */
     
@@ -312,34 +337,33 @@ PROCEDURE pZohoCRM:
     DEFINE VARIABLE cAccessToken  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cZohoCRM      AS CHARACTER NO-UNDO.
+    
+    RUN spGetSettingByName ("ZohoCRM", OUTPUT cZohoCRM).
+    IF cZohoCRM EQ "NO" THEN DO:
+        MESSAGE "Please active setting 'ZohoCRM' from NK6"
+        VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
     
     lSuccess = YES.
     
     RUN CRM\ZohoProcs.p PERSISTENT SET hdZohoProcs.
     
-    RUN Zoho_GetRefreshToken IN hdZohoProcs (
-        INPUT  ipcCompany,
-        OUTPUT cRefreshToken
-        ).
+    RUN Zoho_GetRefreshToken IN hdZohoProcs (OUTPUT cRefreshToken).
         
     IF cRefreshToken EQ "" THEN
-        RETURN "Refresh Token value is blank. Please update the refresh token in NK1 configuration 'ZohoRefreshToken'".
+        RETURN "Refresh Token value is blank. Please update the refresh token in NK6 configuration 'ZohoRefreshToken'".
         
-    RUN Zoho_GetClientID IN hdZohoProcs (
-        INPUT  ipcCompany,
-        OUTPUT cClientID
-        ).
+    RUN Zoho_GetClientID IN hdZohoProcs (OUTPUT cClientID).
         
     IF cClientID EQ "" THEN
-        RETURN "ClientID value is blank. Please update the client id in NK1 configuration 'ZohoClientID'".
+        RETURN "ClientID value is blank. Please update the client id in NK6 configuration 'ZohoClientID'".
 
-    RUN Zoho_GetClientSecret IN hdZohoProcs (
-        INPUT  ipcCompany,
-        OUTPUT cClientSecret
-        ).
+    RUN Zoho_GetClientSecret IN hdZohoProcs (OUTPUT cClientSecret).
         
     IF cClientSecret EQ "" THEN
-        RETURN "ClientSecret value is blank. Please update the client secret in NK1 configuration 'ZohoClientSecret'".
+        RETURN "ClientSecret value is blank. Please update the client secret in NK6 configuration 'ZohoClientSecret'".
     
      RUN Zoho_GetAccessToken IN hdZohoProcs (
          INPUT  cRefreshToken,

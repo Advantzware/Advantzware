@@ -1315,6 +1315,9 @@ PROCEDURE copy-scores :
   IF AVAIL style AND AVAIL flute THEN
     RUN windows/d-cpscor.w (style.style, flute.code).
 
+    RUN dispatch IN THIS-PROCEDURE ('display-fields').
+    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1806,6 +1809,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
   DEF VAR i AS INT NO-UNDO.
   DEFINE VARIABLE dTotal AS DECIMAL EXTENT 2 NO-UNDO.
+  DEFINE VARIABLE iDecimalValue AS INTEGER NO-UNDO.
 
   DEF BUFFER bf-reftable FOR reftable.
 /*MESSAGE "start " + STRING(flute.code) VIEW-AS ALERT-BOX ERROR.*/
@@ -1822,18 +1826,21 @@ PROCEDURE local-display-fields :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF v-cecscrn-char EQ "Decimal" THEN
+      DO: 
+         iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) . 
          ASSIGN
-            ld-joint-tab:FORMAT = "->>,>>9.999999"
-            ld-blank-width:FORMAT = "->>,>>9.999999"
-            fiPOBlankWidthScore:FORMAT = "->>,>>9.999999"
-            ld-glue-in:FORMAT = "->>,>>9.999999"
-            ld-glue-out:FORMAT = "->>,>>9.999999"
-            ld-stitch-in:FORMAT = "->>,>>9.999999"
-            ld-stitch-out:FORMAT = "->>,>>9.999999"
-            ld-tape-score:FORMAT = "->>,>>9.999999"
-            style.dim-tk:FORMAT = "->>,>>9.999999"
-            style.dim-pan5:FORMAT = "->>,>>9.999999"
-            style.dim-fit:FORMAT = "->>,>>9.999999".
+            ld-joint-tab:FORMAT = "->>,>>9." + FILL("9",INTEGER(iDecimalValue))
+            ld-blank-width:FORMAT = "->>,>>9." + FILL("9",INTEGER(iDecimalValue))
+            fiPOBlankWidthScore:FORMAT = "->>,>>9." + FILL("9",INTEGER(iDecimalValue))
+            ld-glue-in:FORMAT = "->>,>>9." + FILL("9",INTEGER(iDecimalValue))
+            ld-glue-out:FORMAT = "->>,>>9." + FILL("9",INTEGER(iDecimalValue))
+            ld-stitch-in:FORMAT = "->>,>>9." + FILL("9",INTEGER(iDecimalValue))
+            ld-stitch-out:FORMAT = "->>,>>9." + FILL("9",INTEGER(iDecimalValue))
+            ld-tape-score:FORMAT = "->>,>>9." + FILL("9",INTEGER(iDecimalValue))
+            style.dim-tk:FORMAT = "->>,>>9." + FILL("9",INTEGER(iDecimalValue))
+            style.dim-pan5:FORMAT = "->>,>>9." + FILL("9",INTEGER(iDecimalValue))
+            style.dim-fit:FORMAT = "->>,>>9." + FILL("9",INTEGER(iDecimalValue)).
+       END.     
       IF style.TYPE = "W" THEN
           style.material[1]:LABEL = "Wood" .
       ELSE IF style.TYPE = "F" THEN

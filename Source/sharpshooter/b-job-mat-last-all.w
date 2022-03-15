@@ -82,15 +82,19 @@ RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table job-mat.frm job-mat.blank-no job-mat.rm-i-no item.i-dscr job-mat.qty job-mat.qty-iss job-mat.qty-uom cEmptyColumn   
+&Scoped-define FIELDS-IN-QUERY-br_table job-mat.frm job-mat.blank-no job-mat.rm-i-no item.i-dscr job-mat.qty-all job-mat.qty job-mat.qty-iss job-mat.qty-uom cEmptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH job-mat WHERE job-mat.company EQ cCompany and job-mat.job-no  EQ cJobNo AND job-mat.job-no ne ""   AND job-mat.job-no2 EQ iJobNo2 AND (job-mat.frm      EQ iFormNo OR iFormNo EQ ?)         AND (job-mat.blank-no EQ iBlankNo OR iBlankNo EQ ?) USE-INDEX seq-idx NO-LOCK, ~
-       FIRST job       WHERE job.company EQ job-mat.company         AND job.job     EQ job-mat.job         AND job.job-no  EQ job-mat.job-no         AND job.job-no2 EQ job-mat.job-no2, ~
-       FIRST item NO-LOCK WHERE item.company EQ job-mat.company   AND item.i-no    EQ job-mat.rm-i-no  and lookup(item.mat-type,"1,2,3,4,A,B,R,P") GT 0   ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH job-mat WHERE job-mat.company EQ cCompany  AND job-mat.job-no  EQ cJobNo AND job-mat.job-no ne ""  AND job-mat.job-no2 EQ iJobNo2 AND (job-mat.frm      EQ iFormNo OR iFormNo EQ ?)         AND (job-mat.blank-no EQ iBlankNo OR iBlankNo EQ ?) USE-INDEX seq-idx NO-LOCK, ~
-       FIRST job       WHERE job.company EQ job-mat.company         AND job.job     EQ job-mat.job         AND job.job-no  EQ job-mat.job-no         AND job.job-no2 EQ job-mat.job-no2, ~
-       FIRST item NO-LOCK WHERE item.company EQ job-mat.company   AND item.i-no    EQ job-mat.rm-i-no  and lookup(item.mat-type,"1,2,3,4,A,B,R,P") GT 0   ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-br_table FOR EACH job-mat NO-LOCK WHERE job-mat.company EQ cCompany AND job-mat.job-no EQ cJobNo AND job-mat.job-no NE "" AND job-mat.job-no2 EQ iJobNo2 AND (job-mat.frm EQ iFormNo OR iFormNo EQ ?) AND (job-mat.blank-no EQ iBlankNo OR iBlankNo EQ ?) AND job-mat.qty-all NE 0 USE-INDEX seq-idx, ~
+       FIRST job NO-LOCK WHERE job.company EQ job-mat.company AND job.job EQ job-mat.job AND job.job-no EQ job-mat.job-no AND job.job-no2 EQ job-mat.job-no2, ~
+       FIRST item NO-LOCK WHERE item.company EQ job-mat.company AND item.i-no EQ job-mat.rm-i-no AND LOOKUP(item.mat-type, ~
+      "1 2 3 4 A B R P", ~
+      " ") GT 0   ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH job-mat NO-LOCK WHERE job-mat.company EQ cCompany AND job-mat.job-no EQ cJobNo AND job-mat.job-no NE "" AND job-mat.job-no2 EQ iJobNo2 AND (job-mat.frm EQ iFormNo OR iFormNo EQ ?) AND (job-mat.blank-no EQ iBlankNo OR iBlankNo EQ ?) AND job-mat.qty-all NE 0 USE-INDEX seq-idx, ~
+       FIRST job NO-LOCK WHERE job.company EQ job-mat.company AND job.job EQ job-mat.job AND job.job-no EQ job-mat.job-no AND job.job-no2 EQ job-mat.job-no2, ~
+       FIRST item NO-LOCK WHERE item.company EQ job-mat.company AND item.i-no EQ job-mat.rm-i-no AND LOOKUP(item.mat-type, ~
+      "1 2 3 4 A B R P", ~
+      " ") GT 0   ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table job-mat job item
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table job-mat
 &Scoped-define SECOND-TABLE-IN-QUERY-br_table job
@@ -159,19 +163,20 @@ RUN set-attribute-list (
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
-    job-mat,
-    job,
-    item SCROLLING.
+      job-mat, 
+      job, 
+      item SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
-    QUERY br_table NO-LOCK DISPLAY
-    job-mat.frm COLUMN-LABEL "Form" FORMAT "99" WIDTH 10
+  QUERY br_table NO-LOCK DISPLAY
+      job-mat.frm COLUMN-LABEL "Form" FORMAT "99" WIDTH 10
     job-mat.blank-no COLUMN-LABEL "Blank" FORMAT "99" WIDTH 10
     job-mat.rm-i-no COLUMN-LABEL "Item No" WIDTH 35
-    item.i-dscr COLUMN-LABEL "Item Description" WIDTH 55         
+    item.i-dscr COLUMN-LABEL "Item Description" WIDTH 55
+    job-mat.qty-all COLUMN-LABEL "Qty Allocated" FORMAT "->>,>>>,>>9.9<<<<<":U WIDTH 27
     job-mat.qty COLUMN-LABEL "Required" FORMAT "->>,>>>,>>9.9<<<<<":U WIDTH 27
     job-mat.qty-iss COLUMN-LABEL "Issued" FORMAT "->>,>>>,>>9.99<<<<":U WIDTH 27
     job-mat.qty-uom FORMAT "x(3)":U WIDTH 18 COLUMN-LABEL "Qty!UOM"
@@ -185,10 +190,10 @@ DEFINE BROWSE br_table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-    br_table AT ROW 1 COL 1
+     br_table AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -196,7 +201,6 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartBrowser
-   External Tables: ASI.job
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -205,11 +209,10 @@ DEFINE FRAME F-Main
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
-IF NOT THIS-PROCEDURE:PERSISTENT THEN 
-DO:
-    MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
-        VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-    RETURN.
+IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
+          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+  RETURN.
 END.
 
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -246,8 +249,8 @@ END.
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
-    FRAME F-Main:SCROLLABLE = FALSE
-    FRAME F-Main:HIDDEN     = TRUE.
+       FRAME F-Main:SCROLLABLE       = FALSE
+       FRAME F-Main:HIDDEN           = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -258,24 +261,25 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH job-mat
-WHERE job-mat.company EQ cCompany  
-  AND job-mat.job-no  EQ cJobNo
-  AND job-mat.job-no ne ""
-  AND job-mat.job-no2 EQ iJobNo2
-  AND (job-mat.frm      EQ iFormNo OR iFormNo EQ ?)
-  AND (job-mat.blank-no EQ iBlankNo OR iBlankNo EQ ?)
-USE-INDEX seq-idx NO-LOCK,
-FIRST job
-      WHERE job.company EQ job-mat.company
-        AND job.job     EQ job-mat.job
-        AND job.job-no  EQ job-mat.job-no
-        AND job.job-no2 EQ job-mat.job-no2,
+OPEN QUERY {&SELF-NAME} FOR EACH job-mat NO-LOCK
+WHERE job-mat.company EQ cCompany
+AND job-mat.job-no EQ cJobNo
+AND job-mat.job-no NE ""
+AND job-mat.job-no2 EQ iJobNo2
+AND (job-mat.frm EQ iFormNo OR iFormNo EQ ?)
+AND (job-mat.blank-no EQ iBlankNo OR iBlankNo EQ ?)
+AND job-mat.qty-all NE 0
+USE-INDEX seq-idx,
+FIRST job NO-LOCK
+WHERE job.company EQ job-mat.company
+AND job.job EQ job-mat.job
+AND job.job-no EQ job-mat.job-no
+AND job.job-no2 EQ job-mat.job-no2,
 FIRST item NO-LOCK
 WHERE item.company EQ job-mat.company
-  AND item.i-no    EQ job-mat.rm-i-no
-  AND lookup(item.mat-type,"1,2,3,4,A,B,R,P") GT 0
-    ~{&SORTBY-PHRASE}.
+AND item.i-no EQ job-mat.rm-i-no
+AND LOOKUP(item.mat-type,"1 2 3 4 A B R P"," ") GT 0
+  ~{&SORTBY-PHRASE}
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Query            is NOT OPENED
@@ -299,7 +303,7 @@ WHERE item.company EQ job-mat.company
 &Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-ENTRY OF br_table IN FRAME F-Main
-    DO:
+DO:
         /* This code displays initial values for newly added or copied rows. */
         {src/adm/template/brsentry.i}
     END.
@@ -310,7 +314,7 @@ ON ROW-ENTRY OF br_table IN FRAME F-Main
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-LEAVE OF br_table IN FRAME F-Main
-    DO:
+DO:
         /* Do not disable this code or no updates will take place except
          by pressing the Save button on an Update SmartPanel. */
         {src/adm/template/brsleave.i}
@@ -322,7 +326,7 @@ ON ROW-LEAVE OF br_table IN FRAME F-Main
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON VALUE-CHANGED OF br_table IN FRAME F-Main
-    DO:
+DO:
         /* This ADM trigger code must be preserved in order to notify other
            objects when the browser's current row changes. */
         {src/adm/template/brschnge.i}
@@ -352,20 +356,20 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
-    /*------------------------------------------------------------------------------
-      Purpose:     Dispatched to this procedure when the Record-
-                   Source has a new row available.  This procedure
-                   tries to get the new row (or foriegn keys) from
-                   the Record-Source and process it.
-      Parameters:  <none>
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Dispatched to this procedure when the Record-
+               Source has a new row available.  This procedure
+               tries to get the new row (or foriegn keys) from
+               the Record-Source and process it.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.             */
-    {src/adm/template/row-head.i}
-  
-    /* Process the newly available records (i.e. display fields,
-       open queries, and/or pass records on to any RECORD-TARGETS).    */
-    {src/adm/template/row-end.i}
+  /* Define variables needed by this internal procedure.             */
+  {src/adm/template/row-head.i}
+
+  /* Process the newly available records (i.e. display fields,
+     open queries, and/or pass records on to any RECORD-TARGETS).    */
+  {src/adm/template/row-end.i}
 
 END PROCEDURE.
 
@@ -374,17 +378,17 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME F-Main.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME F-Main.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -392,7 +396,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetItem B-table-Win 
 PROCEDURE GetItem :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -418,33 +422,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyJob B-table-Win 
-PROCEDURE pCopyJob :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.   
-    DEFINE INPUT PARAMETER iprwRowId    AS ROWID NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplComplete AS LOGICAL NO-UNDO.
+
+    /* Code placed here will execute PRIOR to standard behavior. */
         
-    RUN job_CopyMaterialPreviousJob IN hdJobProcs(INPUT ipcCompany, 
-        INPUT iprwRowId, 
-        INPUT cJobNo,
-        INPUT iJobNo2,
-        INPUT iFormNo, 
-        INPUT iBlankNo,
-        OUTPUT oplComplete).
+    IF VALID-HANDLE(hdJobProcs) THEN
+        DELETE PROCEDURE hdJobProcs.
+                
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+/* Code placed here will execute AFTER standard behavior.    */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OpenQuery B-table-Win 
 PROCEDURE OpenQuery :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -469,9 +471,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyJob B-table-Win 
+PROCEDURE pCopyJob :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.   
+    DEFINE INPUT PARAMETER iprwRowId    AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplComplete AS LOGICAL NO-UNDO.
+        
+    RUN job_CopyMaterialPreviousJob IN hdJobProcs(INPUT ipcCompany, 
+        INPUT iprwRowId, 
+        INPUT cJobNo,
+        INPUT iJobNo2,
+        INPUT iFormNo, 
+        INPUT iBlankNo,
+        OUTPUT oplComplete).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOpenQuery B-table-Win 
 PROCEDURE pOpenQuery :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -492,46 +517,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
-PROCEDURE local-destroy:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-        
-    IF VALID-HANDLE(hdJobProcs) THEN
-        DELETE PROCEDURE hdJobProcs.
-                
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
-
-/* Code placed here will execute AFTER standard behavior.    */
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
-    /*------------------------------------------------------------------------------
-      Purpose:     Send record ROWID's for all tables used by
-                   this file.
-      Parameters:  see template/snd-head.i
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Send record ROWID's for all tables used by
+               this file.
+  Parameters:  see template/snd-head.i
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.               */
-    {src/adm/template/snd-head.i}
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
 
-    /* For each requested table, put it's ROWID in the output list.      */
-    {src/adm/template/snd-list.i "job"}
-    {src/adm/template/snd-list.i "job-mat"}
-    {src/adm/template/snd-list.i "item"}
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "job-mat"}
+  {src/adm/template/snd-list.i "job"}
+  {src/adm/template/snd-list.i "item"}
 
-    /* Deal with any unexpected table requests before closing.           */
-    {src/adm/template/snd-end.i}
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 
@@ -540,7 +543,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
-    /* -----------------------------------------------------------
+/* -----------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -560,7 +563,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ViewRMInquiry B-table-Win 
 PROCEDURE ViewRMInquiry :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       

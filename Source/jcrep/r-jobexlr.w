@@ -84,7 +84,7 @@ DEFINE TEMP-TABLE tt-report NO-UNDO
 
 ASSIGN 
     cTextListToSelect  = "Job#," +
-                            "S#,B#,P#,Machine,Item Name,Lag Time,Dept,MRHrs,RunHrs,Speed,Waste%," +
+                            "F#,B#,P#,Machine,Item Name,Lag Time,Dept,MRHrs,RunHrs,Speed,Waste%," +
                             "MR DL,MR FOH,MR VOH,Run FOH,Run VOH," +
                             "Setup Start Date,Setup Time,Setup End Date,Setup End Time,MR Completed,Run Start Date," +
                             "Run End Date,Start Time,End Time,Run Completed,Run Quantity,Locked"

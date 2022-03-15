@@ -217,7 +217,14 @@ FOR EACH ap-inv NO-LOCK
 
   END.  /* if v-amt ne 0  */
 
-  IF LAST(ap-inv.vend-no) AND t1 NE 0 THEN DO:
+  IF LAST(ap-inv.vend-no) AND ( cust-t[1] NE 0 OR cust-t[2] NE 0 OR cust-t[3] NE 0 OR cust-t[4] NE 0 OR cust-t[5] NE 0) THEN DO:
+    
+    IF cust-t[1] EQ ? THEN cust-t[1] = 0.
+    IF cust-t[2] EQ ? THEN cust-t[2] = 0.
+    IF cust-t[3] EQ ? THEN cust-t[3] = 0.
+    IF cust-t[4] EQ ? THEN cust-t[4] = 0.
+    IF cust-t[5] EQ ? THEN cust-t[5] = 0.
+    
     IF ni GT 1 THEN m3 = "".
     IF ni EQ 1 THEN m3 = m2.
     PUT str-line SKIP .

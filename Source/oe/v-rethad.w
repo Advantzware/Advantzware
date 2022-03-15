@@ -212,7 +212,7 @@ DEFINE FRAME F-Main
      oe-reth.cust-no AT ROW 2.91 COL 19 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     oe-reth.inv-no AT ROW 1.48 COL 37.2 COLON-ALIGNED FORMAT ">>>>>>9"
+     oe-reth.inv-no AT ROW 1.48 COL 37.2 COLON-ALIGNED FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      oe-reth.return-date AT ROW 1.48 COL 68.4 COLON-ALIGNED
