@@ -42,7 +42,8 @@ DEFINE TEMP-TABLE ttItemLines
     FIELD lMatrixExists   AS LOGICAL
     FIELD dDiscount       AS DECIMAL 
     FIELD iCaseCount      AS INTEGER
-    FIELD cTableType      AS CHARACTER 
+    FIELD cTableType      AS CHARACTER
+    FIELD iMatrixLevel    AS INTEGER
     .
 DEFINE TEMP-TABLE ttOePrmtx
     FIELD company       AS CHARACTER LABEL "Company"
@@ -622,7 +623,7 @@ PROCEDURE Price_CheckPriceMatrix:
             RUN pGetQtyMatchInfo(BUFFER bf-oe-prmtx, ipdQuantity, 0, OUTPUT iLevel, OUTPUT lQtyMatch).
             RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, bf-itemfg.sell-price, bf-itemfg.sell-uom, OUTPUT dPriceMtx, OUTPUT cPriceUOM).
             IF dPriceMtx NE ipdPrice THEN 
-                opcMessage = cMessage + "  Price Level:" + STRING(iLevel,"99"). 
+                opcMessage = cMessage + "  Price Level:" + ( IF bf-cust.cust-level GT iLevel THEN STRING(bf-cust.cust-level,"99") ELSE STRING(iLevel,"99")). 
             ELSE 
             DO:                
                 IF NOT lQtyMatch THEN 
@@ -668,6 +669,7 @@ PROCEDURE Price_CalculateLinePrice:
     DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER iplUpdateDB AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplMatrixExists AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiMatrixLevel AS INTEGER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopdPrice AS DECIMAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcPriceUOM AS CHARACTER NO-UNDO.
      
@@ -710,15 +712,17 @@ PROCEDURE Price_CalculateLinePrice:
             ttItemLines.cCustID, 
             ttItemLines.cShipID,
             ttItemLines.dQuantityLookup,  
-            OUTPUT ttItemLines.lMatrixExists, 
+            OUTPUT ttItemLines.lMatrixExists,
+            OUTPUT ttItemLines.iMatrixLevel,
             INPUT-OUTPUT ttItemLines.dPrice, 
             INPUT-OUTPUT ttItemLines.cPriceUOM ).    
-                
+
         IF ttItemLines.lIsPrimary THEN 
             ASSIGN 
                 oplMatrixExists = ttItemLines.lMatrixExists
                 iopdPrice       = ttItemLines.dPrice
                 iopcPriceUOM    = ttItemLines.cPriceUOM
+                opiMatrixLevel  = ttItemLines.iMatrixLevel 
                 .
         RUN Conv_CalcTotalPrice (
             ttItemLines.cCompany,
@@ -984,6 +988,7 @@ PROCEDURE Price_GetPriceMatrixPrice:
     DEFINE INPUT-OUTPUT PARAMETER iopdPrice AS DECIMAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcUom AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplQtyDistinctMatch AS LOGICAL NO-UNDO.  /*match on exact quantity*/
+    DEFINE OUTPUT PARAMETER opiMatrixLevel AS INTEGER NO-UNDO.  /*matrix level */
     DEFINE OUTPUT PARAMETER oplQtyWithinRange AS LOGICAL NO-UNDO. /*quantity within range*/
 
     /*main matrix buffer*/
@@ -1027,7 +1032,8 @@ PROCEDURE Price_GetPriceMatrixPrice:
             iLevel = ipiLevelOverride.
         ELSE 
             iLevel = iLevelStart.
-    END.
+    END.     
+    opiMatrixLevel = iLevel.
     IF oplQtyWithinRange THEN
         RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, dItemSellPrice, cItemSellPriceUom, OUTPUT iopdPrice, OUTPUT iopcUom).
     ELSE 
@@ -1058,6 +1064,7 @@ PROCEDURE Price_GetPriceMatrixPriceSimple:
     
     /*Outputs*/
     DEFINE OUTPUT PARAMETER oplMatrixMatchFound AS LOGICAL NO-UNDO.  /*Logical that specifies if a matrix was found, at all*/
+    DEFINE OUTPUT PARAMETER opiMatrixLevel AS INTEGER NO-UNDO.       /*Integer price matrix level */
     DEFINE INPUT-OUTPUT PARAMETER iopdPrice AS DECIMAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcUom AS CHARACTER NO-UNDO.
 
@@ -1068,7 +1075,7 @@ PROCEDURE Price_GetPriceMatrixPriceSimple:
     RUN Price_GetPriceMatrixPrice(ipcCompany, ipcFGITemID, ipcCustID, ipcShipID, ipdQuantity, 0,
         OUTPUT oplMatrixMatchFound, OUTPUT cMessage, 
         INPUT-OUTPUT iopdPrice, INPUT-OUTPUT iopcUOM, 
-        OUTPUT lQtyMatchFound, OUTPUT lQtyWithinMatrixRange).
+        OUTPUT lQtyMatchFound, OUTPUT opiMatrixLevel, OUTPUT lQtyWithinMatrixRange).
 
 END PROCEDURE.
 
