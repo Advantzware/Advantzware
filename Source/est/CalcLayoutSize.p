@@ -532,7 +532,8 @@ PROCEDURE pCalcLayout:
                     IF cIndustryType = "Folding" THEN    
                         ttLayoutSize.dGrossSheetLength  = IF bf-ef.xgrain EQ "S" THEN ttLayoutSize.dLayoutSheetWidth ELSE ttLayoutSize.dLayoutSheetLength.
                     ELSE
-                        ttLayoutSize.dLayoutSheetLength = bf-item.r-wid.
+                        ASSIGN
+                            ttLayoutSize.dGrossSheetLength  = ttLayoutSize.dLayoutSheetLength.
                         
                 END.
                 ELSE 
