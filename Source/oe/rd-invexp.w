@@ -85,7 +85,7 @@ ASSIGN
                                                 "Qty Ship,Qty Invoice,UOM,Rep1,Rep Name1,Rep2,Rep Name2,Rep3,Rep Name3," +
                                                 "Comm1,Comm2,Comm3,Cost,Case,Discount,Taxable,Ext. Price," +
                                                 "CSR,Line Item Tax,OrderHeader ShipTo State,Order Line No,Billing Note,Auto Approval,Tag,Accountant,Invoice Comment,Tax Amount,Freight Amount," +
-                                                "Customer Tax Status,Customer Tax Code,Customer Tax Id,Customer Tax Expiration Date,Ship To Tax Code,Ship To Taxable Status," +
+.                                                "Customer Tax Status,Customer Tax Group,Customer Tax Id,Customer Tax Expiration Date,Ship To Tax Group,Ship To Taxable Status," +
                                                 "Edi Price,Edi Price UOM"
     cFieldListToSelect = "inv-head.inv-no,inv-head.cust-no,inv-head.cust-name,inv-head.inv-date,inv-head.bol-no,ord-no,inv-head.printed,inv-head.t-inv-rev," +
                                         "stat,inv-head.sold-no,inv-head.sold-name,inv-head.contact,inv-head.tax-gr,inv-head.terms,inv-head.frt-pay," +

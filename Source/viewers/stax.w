@@ -362,7 +362,7 @@ DEFINE FRAME F-Main
           SIZE 14.8 BY .62 AT ROW 1.48 COL 83.2
      "Tax" VIEW-AS TEXT
           SIZE 6 BY .71 AT ROW 1.24 COL 66
-     "Code" VIEW-AS TEXT
+     "Group" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.95 COL 19
      "Rate" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.95 COL 66
@@ -489,7 +489,7 @@ DO:
     END.           
     ELSE DO:
       IF stax.tax-acc1[10]:SCREEN-VALUE NE "" THEN DO: 
-          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          MESSAGE "First enter corresponding tax-group." VIEW-AS ALERT-BOX INFORMATION.
           SELF:SCREEN-VALUE = "".
           APPLY "ENTRY" TO stax.tax-code1[10].
           RETURN NO-APPLY.         
@@ -527,7 +527,7 @@ DO:
     END.           
     ELSE DO:
       IF stax.tax-acc1[1]:SCREEN-VALUE NE "" THEN DO: 
-          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          MESSAGE "First enter corresponding tax-group." VIEW-AS ALERT-BOX INFORMATION.
           SELF:SCREEN-VALUE = "".
           APPLY "ENTRY" TO stax.tax-code1[1].
           RETURN NO-APPLY.         
@@ -564,7 +564,7 @@ DO:
     END.           
     ELSE DO:
       IF stax.tax-acc1[2]:SCREEN-VALUE NE "" THEN DO: 
-          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          MESSAGE "First enter corresponding tax-group." VIEW-AS ALERT-BOX INFORMATION.
           SELF:SCREEN-VALUE = "".
           APPLY "ENTRY" TO stax.tax-code1[2].
           RETURN NO-APPLY.         
@@ -602,7 +602,7 @@ DO:
     END.           
     ELSE DO:
       IF stax.tax-acc1[3]:SCREEN-VALUE NE "" THEN DO: 
-          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          MESSAGE "First enter corresponding tax-group." VIEW-AS ALERT-BOX INFORMATION.
           SELF:SCREEN-VALUE = "".
           APPLY "ENTRY" TO stax.tax-code1[3].
           RETURN NO-APPLY.         
@@ -640,7 +640,7 @@ DO:
     END.            
     ELSE DO:
       IF stax.tax-acc1[4]:SCREEN-VALUE NE "" THEN DO: 
-          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          MESSAGE "First enter corresponding tax-group." VIEW-AS ALERT-BOX INFORMATION.
           SELF:SCREEN-VALUE = "".
           APPLY "ENTRY" TO stax.tax-code1[4].
           RETURN NO-APPLY.         
@@ -678,7 +678,7 @@ DO:
     END.           
     ELSE DO:
       IF stax.tax-acc1[5]:SCREEN-VALUE NE "" THEN DO: 
-          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          MESSAGE "First enter corresponding tax-group." VIEW-AS ALERT-BOX INFORMATION.
           SELF:SCREEN-VALUE = "".
           APPLY "ENTRY" TO stax.tax-code1[5].
           RETURN NO-APPLY.         
@@ -716,7 +716,7 @@ DO:
     END.           
     ELSE DO:
       IF stax.tax-acc1[6]:SCREEN-VALUE NE "" THEN DO: 
-          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          MESSAGE "First enter corresponding tax-group." VIEW-AS ALERT-BOX INFORMATION.
           SELF:SCREEN-VALUE = "".
           APPLY "ENTRY" TO stax.tax-code1[6].
           RETURN NO-APPLY.         
@@ -753,7 +753,7 @@ DO:
     END.           
     ELSE DO:
       IF stax.tax-acc1[7]:SCREEN-VALUE NE "" THEN DO: 
-          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          MESSAGE "First enter corresponding tax-group." VIEW-AS ALERT-BOX INFORMATION.
           SELF:SCREEN-VALUE = "".
           APPLY "ENTRY" TO stax.tax-code1[7].
           RETURN NO-APPLY.         
@@ -791,7 +791,7 @@ DO:
     END.           
     ELSE DO:
       IF stax.tax-acc1[8]:SCREEN-VALUE NE "" THEN DO: 
-          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          MESSAGE "First enter corresponding tax-group." VIEW-AS ALERT-BOX INFORMATION.
           SELF:SCREEN-VALUE = "".
           APPLY "ENTRY" TO stax.tax-code1[8].
           RETURN NO-APPLY.         
@@ -829,7 +829,7 @@ DO:
     END.           
     ELSE DO:
       IF stax.tax-acc1[9]:SCREEN-VALUE NE "" THEN DO: 
-          MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+          MESSAGE "First enter corresponding tax-group." VIEW-AS ALERT-BOX INFORMATION.
           SELF:SCREEN-VALUE = "".
           APPLY "ENTRY" TO stax.tax-code1[9].
           RETURN NO-APPLY.         
@@ -1439,7 +1439,7 @@ PROCEDURE local-update-record :
       END.    
       ELSE DO:
           IF tt-accounts.c-acct NE "" THEN DO:
-              MESSAGE "First enter corresponding tax-code." VIEW-AS ALERT-BOX INFORMATION.
+              MESSAGE "First enter corresponding tax-group." VIEW-AS ALERT-BOX INFORMATION.
               tt-accounts.h-acct:SCREEN-VALUE = "".
               APPLY "ENTRY" TO tt-accounts.h-acct.
               RETURN NO-APPLY.                         

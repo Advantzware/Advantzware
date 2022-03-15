@@ -34,7 +34,7 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD t-freight               AS DECIMAL FORMAT "->>,>>9.99" COLUMN-LABEL "Total Freight" HELP "Optional - Decimal"
     FIELD frt-pay                 AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Freight Payment" HELP "Required - P C or B"
     FIELD fob-code                AS CHARACTER   FORMAT "X(10)" COLUMN-LABEL "FOB" HELP "Required - Dest or ORIG"  
-    FIELD tax-gr                  AS CHARACTER   FORMAT "x(3)" COLUMN-LABEL "Tax Code" HELP "Optional - Size:3"
+    FIELD tax-gr                  AS CHARACTER   FORMAT "x(3)" COLUMN-LABEL "Tax Group" HELP "Optional - Size:3"
     FIELD tax                     AS DECIMAL FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Tax" HELP "Optional - decimal"
     FIELD line-tax                AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Taxable" HELP "Optional - Yes or No(Blank No)"
     FIELD terms                   AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Payment Terms" HELP "Required - Size:5"

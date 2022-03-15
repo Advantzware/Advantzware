@@ -82,7 +82,7 @@ IF lRecFound THEN
 
 
 ASSIGN 
-    cTextListToSelect  = "AP Inv#,AP Vendor,AP Vend Name,AP Date,AP Due Date,AP Tax Code,AP Discount%,AP Disc Days,AP Status," +   /* 9*/
+    cTextListToSelect  = "AP Inv#,AP Vendor,AP Vend Name,AP Date,AP Due Date,AP Tax Group,AP Discount%,AP Disc Days,AP Status," +   /* 9*/
                          "AP Tax Amount,AP Amount,AP Paid Amount,AP Freight,AP Blanace Due,AP Currency," +  /* 6*/
                          "APLine PO#,APLine Account,APLine Dscription,APLine Qty,APLine Qty Uom,APLine Price,APLine Price Uom," +  /* 7*/
                          "APLine Taxable,APLine SqFt,APLine Amount,APLine Tot Msf,APLine Item,APLine Job,APLine Sheet,APLine Blank," +  /* 8*/
