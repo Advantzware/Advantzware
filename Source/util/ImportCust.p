@@ -307,19 +307,14 @@ PROCEDURE pValidate PRIVATE:
                 .
         
     END.
-    
-    IF ipbf-ttImportCust.CustSman EQ "" THEN
-    DO:
-         RUN pGetSalesRep(ipbf-ttImportCust.Company, OUTPUT ipbf-ttImportCust.CustSman).
-    END.
-    
+            
     /*Field level validation*/
     IF oplValid AND iplFieldValidation THEN 
     DO:
         IF oplValid AND ipbf-ttImportCust.CustStatus NE "" THEN 
             RUN pIsValidFromList IN hdValidator ("Active", ipbf-ttImportCust.CustStatus, "Active,Inhouse,Service,Inactive", OUTPUT oplValid, OUTPUT cValidNote).
 
-        IF oplValid AND ipbf-ttImportCust.CustSman NE "" THEN 
+        IF oplValid THEN 
             RUN pIsValidSalesRep IN hdValidator (ipbf-ttImportCust.CustSman, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportCust.CustType NE "" THEN 
@@ -459,6 +454,10 @@ PROCEDURE pProcessRecord PRIVATE:
             bf-cust.company = ipbf-ttImportCust.Company
             bf-cust.cust-no = ipbf-ttImportCust.CustNo
             .
+    END.
+    IF ipbf-ttImportCust.CustSman EQ "" THEN
+    DO:
+         RUN pGetSalesRep(ipbf-ttImportCust.Company, OUTPUT ipbf-ttImportCust.CustSman).
     END.
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
     RUN pAssignValueC (ipbf-ttImportCust.CustName, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.name).
