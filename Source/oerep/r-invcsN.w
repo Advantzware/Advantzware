@@ -74,7 +74,7 @@ ASSIGN
                             "EstRevenue,EstCost,EstMargin,EstGM," +
                             "ActRevenue,ActCost,ActMargin,ActGM," +
                             "MFGTotalVariance"
-    cFieldLength       = "30,8,15,10,11," + "11,11,11,11,15,15," + "14,11,11,11," + "11,11,11,11," + "18"
+    cFieldLength       = "30,8,15,10,15," + "14,14,14,15,15,15," + "15,15,15,11," + "15,11,15,11," + "18"
     cFieldType         = "c,i,c,c,i," + "i,i,i,i,i,i," + "d,d,d,d," + "d,d,d,d," + "d"
     .
 
