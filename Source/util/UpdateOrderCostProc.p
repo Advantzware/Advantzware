@@ -60,7 +60,7 @@ ASSIGN
 {sys/ref/fgoecost.i}
     
 FUNCTION get-order-total RETURNS DECIMAL
-    ( ipiorder AS INTEGER, ipiOrderLine AS INTEGER /* parameter-definitions */ )  FORWARD.    
+    ( ipiorder AS INTEGER /* parameter-definitions */ )  FORWARD.    
     
 FUNCTION fUseNewEstimating RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER ) FORWARD.    
@@ -94,8 +94,8 @@ FOR EACH bf-oe-ordl NO-LOCK
         .              
             
     RUN pGetNewCostM(BUFFER bf-oe-ordl, OUTPUT dNewOrdLineCostM).  
-    ttOrderLineChange.newlineCostM    = dNewOrdLineCostM.
-    ttOrderLineChange.newlineTotCost  = ttOrderLineChange.newlineCostM * bf-oe-ordl.qty / 1000.
+    ttOrderLineChange.newlineCostM    = ROUND(dNewOrdLineCostM,2).
+    ttOrderLineChange.newlineTotCost  = ROUND(ttOrderLineChange.newlineCostM,2) * bf-oe-ordl.qty / 1000.
                        
     IF ipExecute AND ttOrderLineChange.lineCostM NE ttOrderLineChange.newlineCostM THEN
     DO:                 
@@ -108,11 +108,11 @@ FOR EACH bf-oe-ordl NO-LOCK
     END.                
     IF ipExecute AND LAST-OF(bf-oe-ordl.ord-no) THEN
     DO:
-        IF bf-oe-ord.t-cost NE get-order-total(ttOrderLineChange.orderNo, ttOrderLineChange.orderLine) THEN 
+        IF bf-oe-ord.t-cost NE get-order-total(ttOrderLineChange.orderNo) THEN 
         DO:
             FIND CURRENT bf-oe-ord EXCLUSIVE-LOCK NO-ERROR.
             ASSIGN                       
-                bf-oe-ord.t-cost = get-order-total(ttOrderLineChange.orderNo, ttOrderLineChange.orderLine).                      
+                bf-oe-ord.t-cost = get-order-total(ttOrderLineChange.orderNo).                      
             FIND CURRENT bf-oe-ord NO-LOCK NO-ERROR.
         END.
     END.
@@ -122,7 +122,7 @@ FOR EACH ttOrderLineChange NO-LOCK
     BREAK BY ttOrderLineChange.orderNo
     BY ttOrderLineChange.orderLine:
     IF FIRST-OF(ttOrderLineChange.orderLine) THEN
-        dOrderTotalCost =  get-order-total(ttOrderLineChange.orderNo, ttOrderLineChange.orderLine).
+        dOrderTotalCost =  get-order-total(ttOrderLineChange.orderNo).
      
     ttOrderLineChange.newOrderTotCost =  dOrderTotalCost.              
 END.
@@ -364,7 +364,7 @@ END PROCEDURE.
 
 
 FUNCTION get-order-total RETURNS DECIMAL
-    ( ipiorder AS INTEGER, ipiOrderLine AS INTEGER /* parameter-definitions */ ) :
+    ( ipiorder AS INTEGER  /* parameter-definitions */ ) :
     /*------------------------------------------------------------------------------
       Purpose:  
         Notes:  
@@ -373,7 +373,7 @@ FUNCTION get-order-total RETURNS DECIMAL
     DEFINE BUFFER bf-ttOrderLineChange FOR ttOrderLineChange.
     FOR EACH bf-ttOrderLineChange 
         WHERE bf-ttOrderLineChange.orderNo EQ ipiorder
-        AND bf-ttOrderLineChange.orderLine EQ ipiOrderLine NO-LOCK :
+        NO-LOCK :
         dReturnCost = dReturnCost + bf-ttOrderLineChange.newlineTotCost .
     END.
     RETURN dReturnCost.   /* Function return value. */
