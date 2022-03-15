@@ -1373,6 +1373,7 @@ PROCEDURE Inventory_CreateRMTransaction:
         INPUT  ipdQty, 
         INPUT  ipdCost, 
         INPUT  ipcReasonCode, 
+        INPUT  "", //RMLot
         OUTPUT opriRMRctd, 
         OUTPUT oplError, 
         OUTPUT opcMessage
@@ -1394,6 +1395,7 @@ PROCEDURE Inventory_CreateRMTransactionForDate:
     DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdCost       AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMLot      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
@@ -1409,6 +1411,7 @@ PROCEDURE Inventory_CreateRMTransactionForDate:
         INPUT  ipdQty, 
         INPUT  ipdCost, 
         INPUT  ipcReasonCode, 
+        INPUT  ipcRMLot,
         OUTPUT opriRMRctd, 
         OUTPUT oplError, 
         OUTPUT opcMessage
@@ -1430,6 +1433,7 @@ PROCEDURE pCreateRMTransaction PRIVATE:
     DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdCost       AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMLot      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
@@ -1483,6 +1487,7 @@ PROCEDURE pCreateRMTransaction PRIVATE:
             bf-rm-rctd.pur-uom        = bf-item.cons-uom
             bf-rm-rctd.cost-uom       = bf-item.cons-uom
             bf-rm-rctd.adjustmentCode = ipcReasonCode
+            bf-rm-rctd.tag2           = ipcRMLot
             bf-rm-rctd.enteredBy      = USERID("ASI")
             bf-rm-rctd.enteredDT      = NOW
             opriRMRctd                = ROWID(bf-rm-rctd)
@@ -1665,6 +1670,7 @@ PROCEDURE pCreateRMTransactionFromRMBin PRIVATE:
             INPUT  ipdQty, 
             INPUT  bf-rm-bin.cost, 
             INPUT  ipcReasonCode, 
+            INPUT  "", //RMLot
             OUTPUT opriRMRctd, 
             OUTPUT lError, 
             OUTPUT opcMessage
