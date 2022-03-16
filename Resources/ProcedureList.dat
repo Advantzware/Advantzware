@@ -41,6 +41,7 @@ oe/PostInvoices.p no
 oerep/LoadtagProcs.p no
 oerep/r-invprtARSuper.p no
 oerep/r-invprtOESuper.p no
+rm/materialProcs.p yes
 sys/NotesProcs.p no
 system/CommonProcs.p yes
 system/ConversionProcs.p yes

@@ -1180,7 +1180,7 @@ DO:
        find first item where item.company = gcompany and
                              ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
                               (index("1234",item.mat-type) > 0 and lv-is-foam) OR
-                              (item.materialType EQ "Wood" AND lWoodStyle) ) and
+                              (fIsMatlGroup(ITEM.company, ITEM.i-no, "Wood") EQ TRUE AND lWoodStyle) ) and
                               item.industry = lv-industry and
                               item.i-no = self:screen-value
                               no-lock no-error.
@@ -3833,7 +3833,7 @@ IF NOT ll-auto-calc-selected THEN
        not can-find (first item where item.company = gcompany and
                                       ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
                                       (index("1234",item.mat-type) > 0 and lv-is-foam) OR
-                                      (item.materialType   EQ "Wood" AND lWoodStyle)) and
+                                      (fIsMatlGroup(ITEM.company, ITEM.i-no, "Wood") EQ TRUE AND lWoodStyle) and
                                       item.industry = lv-industry and
                                       item.i-no = ef.board:screen-value)
     then do:
@@ -4177,7 +4177,7 @@ PROCEDURE new-board :
         WHERE item.company  EQ gcompany
           AND ((INDEX("BPR",item.mat-type) GT 0 AND NOT lv-is-foam) OR
                (INDEX("1234",item.mat-type) GT 0 AND lv-is-foam))  OR
-               (item.materialType EQ "Wood" AND lWoodStyle)
+               (fIsMatlGroup(ITEM.company, ITEM.i-no, "Wood") EQ TRUE AND lWoodStyle)
           AND item.industry EQ lv-industry
           AND item.i-no     EQ ef.board:SCREEN-VALUE
         NO-LOCK NO-ERROR.
