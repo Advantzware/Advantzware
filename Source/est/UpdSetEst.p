@@ -151,7 +151,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
         END.
         ELSE 
         DO: 
-            RUN cec/newblank.p (ROWID(bf-ef), OUTPUT rwRowid).
+            /* RUN cec/newblank.p (ROWID(bf-ef), OUTPUT rwRowid).*/
+            RUN est/NewEstimateBlank.p(ROWID(bf-ef), OUTPUT rwRowid).
             FIND FIRST eb 
                 WHERE ROWID(eb) EQ rwRowid  
                 NO-ERROR. 
