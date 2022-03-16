@@ -1450,8 +1450,21 @@ DO:
     FIND FIRST materialType NO-LOCK
          WHERE materialType.company EQ cocode 
          AND materialType.materialType EQ fi_mat-type:SCREEN-VALUE NO-ERROR.
-    IF AVAIL materialType THEN
-    mat_dscr:SCREEN-VALUE = materialType.materialDescription.
+    IF AVAIL materialType THEN DO:
+        ASSIGN 
+            mat_dscr:SCREEN-VALUE = materialType.materialDescription.
+        FIND FIRST mat NO-LOCK WHERE 
+            mat.mat EQ fi_mat-type:SCREEN-VALUE
+            NO-ERROR.
+        IF NOT AVAIL mat THEN DO:
+            CREATE mat.
+            ASSIGN 
+                mat.company = "*"
+                mat.mat = materialType.materialType
+                mat.dscr = materialType.materialDescription.
+        END.
+    END. 
+    
     IF LOOKUP(fi_mat-type:SCREEN-VALUE IN FRAME {&frame-name},"B,P") = 0 THEN
       asi.item.spare-char-1:HIDDEN = TRUE.
     ELSE
