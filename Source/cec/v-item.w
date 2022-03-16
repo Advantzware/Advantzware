@@ -60,6 +60,9 @@ DEFINE VARIABLE lRecFound AS LOGICAL  NO-UNDO.
 DEFINE VARIABLE lDisplayWood AS LOGICAL  NO-UNDO.
 DEFINE VARIABLE lCheckMessage   AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hMaterialProcs AS HANDLE NO-UNDO.
+
+RUN rm\MaterialProcs.p PERSISTENT SET hMaterialProcs.
 
 {sys/inc/f16to32.i}
 
@@ -2140,6 +2143,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+         
+    
+    IF VALID-HANDLE(hMaterialProcs) THEN
+        DELETE PROCEDURE hMaterialProcs.    
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
@@ -2284,6 +2308,7 @@ PROCEDURE local-update-record :
   DEF VAR is-new-record AS LOG NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cItemNextId AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   is-new-record = adm-new-record.
@@ -2293,6 +2318,17 @@ PROCEDURE local-update-record :
   ELSE
       asi.item.spare-char-1:ENABLED = TRUE.
       */
+      
+    IF item.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN
+    DO:
+      RUN Material_GetNextItemId IN hMaterialProcs(input cocode, 
+                                                    INPUT fi_mat-type:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+                                                    INPUT item.s-len:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+                                                    INPUT item.s-wid:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+                                                    INPUT item.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME},                                                    
+                                                    OUTPUT cItemNextId).
+      item.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cItemNextId.
+    END.  
 
     /* 33482 - Ensure blank record is not saved - MYT - 08/28/18 */
     IF adm-new-record 

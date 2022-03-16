@@ -24,6 +24,13 @@
 
 /* **********************  Internal Procedures  *********************** */
 
+DEFINE VARIABLE gcCharCustName AS CHARACTER NO-UNDO INIT "C".
+DEFINE VARIABLE gcCharHash AS CHARACTER NO-UNDO INIT "#".
+DEFINE VARIABLE gcCharHyphen AS CHARACTER NO-UNDO INIT "-".
+DEFINE VARIABLE gcCharSeq AS CHARACTER NO-UNDO INIT "9".
+DEFINE VARIABLE gcCharZero AS CHARACTER NO-UNDO INIT "0".
+
+
 PROCEDURE Customer_CalculateOrderBalance:
 /*------------------------------------------------------------------------------
  Purpose: Calculates the customer order balance based on given rowid
@@ -116,6 +123,19 @@ PROCEDURE Customer_CalculateOrderBalance:
         IF VALID-HANDLE(hdOrderProcs) THEN 
             DELETE PROCEDURE hdOrderProcs.                  
     END.                     
+END PROCEDURE.
+
+PROCEDURE Customer_GetNextCustId:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcCustomerName AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCustomerId   AS CHARACTER NO-UNDO.
+    
+    RUN pGetNextCustId(INPUT ipcCompany, INPUT ipcCustomerName, OUTPUT opcCustomerId).
+    
 END PROCEDURE.
 
 PROCEDURE Customer_GetDefaultShipTo:
@@ -263,6 +283,87 @@ PROCEDURE pGetDefaultCustomerBuffer PRIVATE:
    
 
 END PROCEDURE.
+
+PROCEDURE pGetNextCustId PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcCustomerName AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCustomerId   AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cCustFormat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBeginCustID AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustSeq AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE iCharPos AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cChar AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNextSeq AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCustomerName AS INTEGER NO-UNDO.
+    
+    RUN spGetSettingByName("CustomerNumberMask", OUTPUT cCustFormat).
+    IF cCustFormat EQ ? THEN RETURN.  
+    
+    DO iCharPos = 1 TO LENGTH(cCustFormat):
+    cChar = SUBSTRING(cCustFormat,iCharPos,1).   
+               
+        CASE cChar:
+            WHEN gcCharCustName THEN 
+                ASSIGN 
+                    iCustomerName = iCustomerName + 1
+                    cBeginCustID = cBeginCustID + SUBSTRING(ipcCustomerName,iCustomerName,1) 
+                    .
+            WHEN gcCharHash THEN 
+                ASSIGN  
+                    cCustSeq  = cCustSeq + "9"
+                    .
+            WHEN gcCharHyphen THEN 
+                ASSIGN  
+                    cBeginCustID = cBeginCustID + gcCharHyphen 
+                    .
+            WHEN gcCharSeq THEN 
+                ASSIGN 
+                    cCustSeq  = cCustSeq + "9"
+                    .
+            WHEN gcCharZero THEN 
+                cBeginCustID = cBeginCustID + gcCharZero 
+                    .            
+            OTHERWISE 
+                cBeginCustID = cBeginCustID + cChar
+                .
+          END CASE .      
+    END.
+    
+    RUN pGetNextSequence(INPUT ipcCompany, INPUT cBeginCustID, INPUT cCustSeq, OUTPUT cNextSeq).
+    opcCustomerId = cBeginCustID + STRING(integer(cNextSeq),cCustSeq) .
+END PROCEDURE.
+
+PROCEDURE pGetNextSequence PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcBeginCustID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcCustSeq     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ipiNextSeq     AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE iNextSequence AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-cust FOR cust.
+    
+    FOR EACH bf-cust NO-LOCK 
+        WHERE bf-cust.company EQ ipcCompany
+        AND bf-cust.cust-no BEGINS ipcBeginCustID
+        BY bf-cust.cust-no DESCENDING:
+        iNextSequence = INT(SUBSTRING(bf-cust.cust-no,LENGTH(ipcBeginCustID) + 1, LENGTH(ipcCustSeq))) NO-ERROR. 
+        IF ERROR-STATUS:ERROR THEN 
+            iNextSequence = 0.
+        ELSE 
+            LEAVE.
+    END.
+    ipiNextSeq = iNextSequence + 1.
+END PROCEDURE.
+
 
 PROCEDURE Customer_InterCompanyTrans:
 /*------------------------------------------------------------------------------

@@ -2549,6 +2549,7 @@ PROCEDURE local-update-record :
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lError         AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cCustNextId    AS CHARACTER NO-UNDO.
 
   def buffer bf-cust for cust.
   DEFINE BUFFER bf-shipto for shipto.
@@ -2560,7 +2561,13 @@ PROCEDURE local-update-record :
    ll-prev-cr-hold = cust.cr-hold
    ls-prev-sman = cust.sman  
    ll-new-record = FALSE .
-
+   
+  IF cust.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" AND
+     cust.NAME:SCREEN-VALUE IN FRAME {&FRAME-NAME}  NE "" THEN
+  DO:
+    RUN Customer_GetNextCustId IN hdCustomerProcs(input cocode, input cust.NAME:SCREEN-VALUE IN FRAME {&FRAME-NAME} , OUTPUT cCustNextId).
+    cust.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cCustNextId.
+  END.
     /* 33482 - Ensure blank record is not saved - MYT - 08/28/18 */
     IF adm-new-record 
     AND cust.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:

@@ -52,10 +52,12 @@ DEF VAR ect-help AS CHAR NO-UNDO.
 DEF VAR ect-format AS CHAR NO-UNDO.
 DEFINE VARIABLE lCheckMessage   AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE hMaterialProcs AS HANDLE NO-UNDO.
 
 DEF BUFFER b-vendItemCost FOR vendItemCost.
 DEF BUFFER b-vendItemCostLevel FOR vendItemCostLevel.
+
+RUN rm\MaterialProcs.p PERSISTENT SET hMaterialProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1135,8 +1137,8 @@ END.
 ON LEAVE OF item.i-no IN FRAME F-Main /* Item# */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-i-no NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    //RUN valid-i-no NO-ERROR.
+    //IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -1703,6 +1705,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+         
+    
+    IF VALID-HANDLE(hMaterialProcs) THEN
+        DELETE PROCEDURE hMaterialProcs.    
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
@@ -1777,10 +1800,22 @@ PROCEDURE local-update-record :
   def var is-new-record as log no-undo.
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cItemNextId AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   is-new-record = adm-new-record.
   /* ========== validate all inputs =============*/
+  
+    IF item.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN
+    DO:
+      RUN Material_GetNextItemId IN hMaterialProcs(input cocode, 
+                                                    INPUT fi_mat-type:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+                                                    INPUT item.s-len:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+                                                    INPUT item.s-wid:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+                                                    INPUT item.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME},                                                    
+                                                    OUTPUT cItemNextId).
+      item.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cItemNextId.
+    END.
 
     /* 33482 - Ensure blank record is not saved - MYT - 08/28/18 */
     IF adm-new-record 

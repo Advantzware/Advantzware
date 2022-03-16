@@ -52,9 +52,11 @@ DEF VAR ll-secure AS LOG NO-UNDO.
 DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
 DEF VAR lResult AS LOG NO-UNDO.
 DEFINE VARIABLE hGLProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hVendorProcs AS HANDLE NO-UNDO.
 {sys/ref/sys-ctrl.i}
 
 RUN system/GLProcs.p PERSISTENT SET hGLProcs.
+RUN system/VendorProcs.p PERSISTENT SET hVendorProcs.
 
 DEFINE VARIABLE hdOutboundProcs  AS HANDLE    NO-UNDO.
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
@@ -1477,6 +1479,12 @@ PROCEDURE local-destroy:
     IF VALID-HANDLE(hdOutboundProcs) THEN
         DELETE PROCEDURE hdOutboundProcs.
         
+    IF VALID-HANDLE(hGLProcs) THEN
+        DELETE PROCEDURE hGLProcs.        
+    
+    IF VALID-HANDLE(hVendorProcs) THEN
+        DELETE PROCEDURE hVendorProcs.    
+        
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
@@ -1542,10 +1550,25 @@ DEFINE VARIABLE container-hdl AS CHARACTER     NO-UNDO.
 
   DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cVendNextId AS CHARACTER NO-UNDO.
 
   IF adm-new-record THEN
     lNewRec = TRUE.
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF vend.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" AND
+     vend.NAME:SCREEN-VALUE IN FRAME {&FRAME-NAME}  NE "" THEN
+  DO:
+    RUN Vendor_GetNextVendId IN hVendorProcs(input cocode, input vend.NAME:SCREEN-VALUE IN FRAME {&FRAME-NAME} , OUTPUT cVendNextId).
+    vend.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cVendNextId.
+  END.
+  
+  IF vend.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" AND
+     vend.NAME:SCREEN-VALUE IN FRAME {&FRAME-NAME}  EQ "" THEN
+  DO:   
+      MESSAGE "Please enter Vendor Id or Vendor Name." VIEW-AS ALERT-BOX ERROR.
+      RETURN NO-APPLY.
+  END.      
+  
   RUN valid-vend-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   RUN valid-po-sec.
@@ -2108,13 +2131,12 @@ PROCEDURE valid-vend-no :
 
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-    IF vend.vend-no:SCREEN-VALUE EQ "" OR
+    IF vend.vend-no:SCREEN-VALUE NE "" AND
        CAN-FIND(FIRST b-vend WHERE b-vend.company EQ cocode
                                AND b-vend.vend-no EQ vend.vend-no:SCREEN-VALUE
                                AND ROWID(b-vend)  NE ROWID(vend)) THEN DO:
       MESSAGE TRIM(vend.vend-no:LABEL) + " " +
-              TRIM(IF vend.vend-no:SCREEN-VALUE EQ "" THEN "may not be spaces"
-                                                      ELSE "already exists") +
+              TRIM("already exists") +
               "..."
           VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO vend.vend-no.

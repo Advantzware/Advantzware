@@ -12,8 +12,13 @@
     Notes       :
   ----------------------------------------------------------------------*/
 
-/* ***************************  Definitions  ************************** */   
+/* ***************************  Definitions  ************************** */ 
 
+DEFINE VARIABLE gcCharVendName AS CHARACTER NO-UNDO INIT "C".
+DEFINE VARIABLE gcCharHash AS CHARACTER NO-UNDO INIT "#".
+DEFINE VARIABLE gcCharHyphen AS CHARACTER NO-UNDO INIT "-".
+DEFINE VARIABLE gcCharSeq AS CHARACTER NO-UNDO INIT "9".
+DEFINE VARIABLE gcCharZero AS CHARACTER NO-UNDO INIT "0".
 
 /*Settings Variables*/
 
@@ -30,6 +35,19 @@
 
 
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE Vendor_GetNextVendId:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcVendorName   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcVendorId     AS CHARACTER NO-UNDO.
+    
+    RUN pGetNextVendId(INPUT ipcCompany, INPUT ipcVendorName, OUTPUT opcVendorId).
+    
+END PROCEDURE.
 
 PROCEDURE pRecalculateVendorAccountBalance:
     /*------------------------------------------------------------------------------
@@ -162,6 +180,83 @@ PROCEDURE pRecalculateVendorAccountBalance:
    
 END PROCEDURE.
 
+PROCEDURE pGetNextVendId PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcVendorName   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcVendorId     AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cVendFormat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBeginVendID AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendSeq AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE iCharPos AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cChar AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNextSeq AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iVendorName AS INTEGER NO-UNDO.
+    
+    RUN spGetSettingByName("VendorNumberMask", OUTPUT cVendFormat).
+    IF cVendFormat EQ ? THEN RETURN.   
+    
+    DO iCharPos = 1 TO LENGTH(cVendFormat):
+    cChar = SUBSTRING(cVendFormat,iCharPos,1).   
+               
+        CASE cChar:
+            WHEN gcCharVendName THEN 
+                ASSIGN 
+                    iVendorName = iVendorName + 1
+                    cBeginVendID = cBeginVendID + SUBSTRING(ipcVendorName,iVendorName,1) 
+                    .
+            WHEN gcCharHash THEN 
+                ASSIGN  
+                    cVendSeq  = cVendSeq + "9"
+                    .
+            WHEN gcCharHyphen THEN 
+                ASSIGN  
+                    cBeginVendID = cBeginVendID + gcCharHyphen 
+                    .
+            WHEN gcCharSeq THEN 
+                ASSIGN 
+                    cVendSeq  = cVendSeq + "9"
+                    .
+            WHEN gcCharZero THEN 
+                cBeginVendID = cBeginVendID + gcCharZero 
+                    .            
+            OTHERWISE 
+                cBeginVendID = cBeginVendID + cChar
+                .
+          END CASE .      
+    END.
+    
+    RUN pGetNextSequence(INPUT ipcCompany, INPUT cBeginVendID, INPUT cVendSeq, OUTPUT cNextSeq).
+    opcVendorId = cBeginVendID + STRING(integer(cNextSeq),cVendSeq) .
+END PROCEDURE.
 
-
+PROCEDURE pGetNextSequence PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcBeginVendID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcVendSeq     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ipiNextSeq     AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE iNextSequence AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-vend FOR vend.
+    
+    FOR EACH bf-vend NO-LOCK 
+        WHERE bf-vend.company EQ ipcCompany
+        AND bf-vend.vend-no BEGINS ipcBeginVendID
+        BY bf-vend.vend-no DESCENDING:
+        iNextSequence = INT(SUBSTRING(bf-vend.vend-no,LENGTH(ipcBeginVendID) + 1, LENGTH(ipcVendSeq))) NO-ERROR. 
+        IF ERROR-STATUS:ERROR THEN 
+            iNextSequence = 0.
+        ELSE 
+            LEAVE.
+    END.
+    ipiNextSeq = iNextSequence + 1.
+END PROCEDURE.
 /* ************************  Function Implementations ***************** */ 
