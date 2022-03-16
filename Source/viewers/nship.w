@@ -252,7 +252,7 @@ DEFINE VARIABLE v-ship-zip AS CHARACTER FORMAT "x(10)"
      FONT 4.
 
 DEFINE VARIABLE v-tax-code AS CHARACTER FORMAT "x(3)" 
-     LABEL "Tax Code" 
+     LABEL "Tax Group" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1
      FONT 4.
@@ -736,7 +736,7 @@ END.
 
 &Scoped-define SELF-NAME v-tax-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-tax-code Dialog-Frame
-ON LEAVE OF v-tax-code IN FRAME Dialog-Frame /* Tax Code */
+ON LEAVE OF v-tax-code IN FRAME Dialog-Frame /* Tax Group */
 DO:
   IF LASTKEY NE -1 THEN DO:
      RUN valid-tax-code NO-ERROR.
@@ -1073,7 +1073,7 @@ PROCEDURE valid-tax-code :
            NOT CAN-FIND(FIRST stax
                         WHERE stax.company   EQ shipto.company
                           AND stax.tax-group EQ v-tax-code:SCREEN-VALUE)) THEN DO:
-         MESSAGE "Must enter a valid tax code, try help..." VIEW-AS ALERT-BOX ERROR.
+         MESSAGE "Must enter a valid tax group, try help..." VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO v-tax-code.
          RETURN ERROR.
        END.

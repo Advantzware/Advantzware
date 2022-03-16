@@ -457,7 +457,7 @@ DEFINE FRAME F-Main
           VIEW-AS TOGGLE-BOX
           SIZE 24 BY 1
      po-ord.tax-gr AT ROW 11.14 COL 81.8 COLON-ALIGNED
-          LABEL "Tax Code"
+          LABEL "Tax Group"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
@@ -1202,7 +1202,7 @@ END.
 
 &Scoped-define SELF-NAME po-ord.tax-gr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.tax-gr V-table-Win
-ON LEAVE OF po-ord.tax-gr IN FRAME F-Main /* Tax Code */
+ON LEAVE OF po-ord.tax-gr IN FRAME F-Main /* Tax Group */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-tax-gr (FOCUS) NO-ERROR.

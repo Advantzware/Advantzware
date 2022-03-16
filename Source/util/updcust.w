@@ -163,7 +163,7 @@ DEFINE VARIABLE fiOver-Pct AS DECIMAL FORMAT ">>9.99":U INITIAL 0
      SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiTaxCode AS CHARACTER FORMAT "X(3)":U 
-     LABEL "Tax Code" 
+     LABEL "Tax Group" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
@@ -636,10 +636,10 @@ FUNCTION valid-data RETURNS LOGICAL
         RETURN FALSE.
     END.
 
-    /* Tax Code */
+    /* Tax Group */
     IF fiTaxCode:SCREEN-VALUE <> "" AND
         NOT can-find(first stax-group where stax-group.tax-group = fiTaxCode:screen-value) THEN DO:
-        MESSAGE "Invalid Tax Code"
+        MESSAGE "Invalid Tax Group"
             VIEW-AS ALERT-BOX INFO BUTTONS OK.
         APPLY 'entry' TO fiTaxCode.
         RETURN FALSE.

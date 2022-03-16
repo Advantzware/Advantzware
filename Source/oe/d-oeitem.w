@@ -84,6 +84,7 @@ DEFINE NEW SHARED VARIABLE nufile              AS LOG       NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-qty-mod           AS LOG       NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-fr-tax            LIKE oe-ctrl.f-tax NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-create-job        AS LOG       NO-UNDO.
+DEFINE NEW SHARED VARIABLE iMatrixLevel        AS INTEGER   NO-UNDO.
 
 DEFINE            VARIABLE lv-ordl-recid       AS RECID     NO-UNDO.
 DEFINE            VARIABLE lv-change-prom-date AS LOG       NO-UNDO.  /* flag for updating oe-ordl.prom-date*/
@@ -7585,7 +7586,7 @@ PROCEDURE get-price :
                 RUN oe/oe-price.p.
                 IF matrixExists THEN 
                 DO:  
-                    matrixTag = "Item No:" + string(v-i-item) + " Customer No:" + string(oe-ordl.cust-no) + " Ship ID:" + oe-ordl.ship-id + " Quantity:" + string(v-i-qty). 
+                    matrixTag = "Item No:" + string(v-i-item) + " Customer No:" + string(oe-ordl.cust-no) + " Ship ID:" + oe-ordl.ship-id + " Quantity:" + string(v-i-qty) + " Price Level:" + STRING(iMatrixLevel,"99"). 
 
                     RUN pAddTagInfoForGroup(
                         INPUT oe-ordl.rec_key,
