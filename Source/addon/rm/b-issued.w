@@ -303,7 +303,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       rm-rctd.po-no FORMAT "x(6)":U LABEL-BGCOLOR 14
       rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      rm-rctd.job-no2 FORMAT "99":U
+      rm-rctd.job-no2 FORMAT "999":U
       rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U LABEL-BGCOLOR 14
       rm-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
             LABEL-BGCOLOR 14

@@ -429,7 +429,8 @@ ASSIGN
                         and eb.form-no     eq job-hdr.frm
                         AND eb.blank-no > 0 NO-LOCK NO-ERROR.
         ASSIGN
-          v-bar-no = /* IF AVAIL eb THEN eb.spc-no ELSE */ trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(job-hdr.frm,"99")
+          v-bar-no = /* IF AVAIL eb THEN eb.spc-no ELSE */ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)))
+          + "-" + STRING(job-hdr.frm,"99")
           v-bar-no = barCode(v-bar-no).
 
         
