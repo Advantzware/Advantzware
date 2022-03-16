@@ -166,9 +166,9 @@ DEFINE VARIABLE fiDirectory AS CHARACTER FORMAT "X(256)":U
      FONT 22 NO-UNDO.
 
 DEFINE VARIABLE tbInactive AS LOGICAL INITIAL no 
-     LABEL "Inactivate Customers with no activity since purge date?" 
+     LABEL "Inactivate Customers with no activity since purge date" 
      VIEW-AS TOGGLE-BOX
-     SIZE 26 BY .95 NO-UNDO.
+     SIZE 66 BY .95 NO-UNDO.
 
 DEFINE VARIABLE tbNonZero AS LOGICAL INITIAL no 
      LABEL "Purge Invoices with non-zero balance?" 
