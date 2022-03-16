@@ -806,6 +806,7 @@ DO:
                   ASSIGN lw-focus:SCREEN-VALUE       = ENTRY(1,char-val)
                          po-ordl.i-name:SCREEN-VALUE = ENTRY(2,char-val).
                   RUN display-rmitem (look-recid).
+                  ll-item-validated = YES.
                 END.
               END.
               ELSE DO:  /* finished good */
@@ -815,6 +816,7 @@ DO:
                          po-ordl.i-name:screen-value = ENTRY(2,char-val).
                   RUN display-fgitem (look-recid) .
                   lCheckFGCustHold = NO.
+                  ll-item-validated = YES.
                 END.                           
               END.
             END.
