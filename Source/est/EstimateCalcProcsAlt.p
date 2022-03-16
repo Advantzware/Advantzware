@@ -5324,7 +5324,8 @@ PROCEDURE pPromptForCalculationChanges PRIVATE:
     IF glPromptForMaterialVendor THEN 
     DO:
         //run prompt for vendors
-        RUN est/estCostMaterialList.w (INPUT-OUTPUT TABLE ttEstCostHeaderToCalc BY-REFERENCE).
+        RUN est/estCostMaterialList.w (INPUT-OUTPUT TABLE ttEstCostHeaderToCalc BY-REFERENCE, 
+                                       INPUT-OUTPUT TABLE ttEstCostMaterial BY-REFERENCE ).
         
         FOR EACH ttEstCostHeaderToCalc
             WHERE ttEstCostHeaderToCalc.lRecalcRequired EQ YES:
