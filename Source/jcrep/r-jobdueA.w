@@ -1040,7 +1040,7 @@ assign
                trim(end_job-no)   + string(int(end_job-no2),"99") 
 
   v-hdr[1]  =  fill(" ",150) 
-  v-hdr[2]  = "CUSTOMER  JOB#        S  B DIE#            " 
+  v-hdr[2]  = "CUSTOMER  JOB#        F  B DIE#            " 
   v-hdr[3]  = "--------- ----------- -- - --------------- " .
   IF tb_plate THEN ASSIGN
       v-hdr[2]  = v-hdr[2] + "PLATE#          " 

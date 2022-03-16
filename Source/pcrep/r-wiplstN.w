@@ -59,7 +59,7 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
 ASSIGN 
-    cTextListToSelect  = "Trans Type,Trans Date,Job No.,S,B,Item Number,"
+    cTextListToSelect  = "Trans Type,Trans Date,Job No.,F,B,Item Number,"
                                             + "Description,Qty Posted,Wst Qty,Mch Hrs,"
                                             + "Mach Code,Job Code,C"
     cFieldListToSelect = "trns-typ,trns-dt,job-no,frm,blnk,i-no," +
@@ -71,7 +71,7 @@ ASSIGN
 
 {sys/inc/ttRptSel.i}
 ASSIGN 
-    cTextListToDefault = "Trans Type,Trans Date,Job No.,S,B,Item Number,"
+    cTextListToDefault = "Trans Type,Trans Date,Job No.,F,B,Item Number,"
                                             + "Description,Qty Posted,Wst Qty,Mch Hrs,"
                                             + "Mach Code,Job Code,C"  .
 

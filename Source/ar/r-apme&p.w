@@ -1047,12 +1047,12 @@ PROCEDURE run-report :
             PUT alf-check TO 53
                 ar-cash.check-date  AT 60
                 ck-onac AT 72
-                ar-cashl.inv-no FORMAT ">>>>>>9" AT 94.
+                ar-cashl.inv-no FORMAT ">>>>>>>9" AT 94.
             
             v2 = v2 + ck-onac.
         END.
 
-        ELSE PUT ar-cashl.inv-no FORMAT ">>>>>>9" AT 94.
+        ELSE PUT ar-cashl.inv-no FORMAT ">>>>>>>9" AT 94.
 
         IF ar-cashl.amt-paid NE 0 THEN PUT SPACE(3) ar-cashl.amt-paid.
         ELSE PUT SPACE(17).
@@ -1170,7 +1170,7 @@ PROCEDURE run-report :
             ar-cash.cust-no          SPACE(1)
             cust.name                SPACE(1)
             alf-check SPACE(1)
-            ar-cashl.inv-no FORMAT ">>>>>>9"  SPACE(1)
+            ar-cashl.inv-no FORMAT ">>>>>>>9"  SPACE(1)
             tmp-amt-paid      FORMAT "->>,>>>,>>9.99"
             SKIP.
 

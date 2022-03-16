@@ -64,7 +64,7 @@ DEFINE VARIABLE vstatus-desc       AS CHARACTER INITIAL "Approve,New,Hold,Close,
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
 
 ASSIGN 
-    cTextListToSelect  = "JOB#,S,B,DUE DATE,CUSTOMER ID,BOARD CODE,SHEET WIDTH,SHEET LENGTH,SHEETS,LBS,LF," +
+    cTextListToSelect  = "JOB#,F,B,DUE DATE,CUSTOMER ID,BOARD CODE,SHEET WIDTH,SHEET LENGTH,SHEETS,LBS,LF," +
                            "JOB HOLD REASON,ORDER STATUS"
     cFieldListToSelect = "job,sn,bn,date,cust,board,s-wid,s-len,sheet,lbs,lf,job-rson,ord-sts" 
 
@@ -74,7 +74,7 @@ ASSIGN
 
 {sys/inc/ttRptSel.i}
 ASSIGN 
-    cTextListToDefault = "JOB#,S,B,DUE DATE,CUSTOMER ID,BOARD CODE,SHEET WIDTH,SHEET LENGTH,SHEETS,LBS,LF"
+    cTextListToDefault = "JOB#,F,B,DUE DATE,CUSTOMER ID,BOARD CODE,SHEET WIDTH,SHEET LENGTH,SHEETS,LBS,LF"
     .
 
 /* _UIB-CODE-BLOCK-END */
@@ -1379,7 +1379,7 @@ PROCEDURE run-report :
         v-date[1]   = begin_date
         v-date[2]   = END_date
         v-hdr[1]    = FILL(" ",122) 
-        v-hdr[2]    = "   JOB#        S  B DUE DATE CUSTOMER ID BOARD CODE    SHEET WIDTH  SHEET LENGTH      SHEETS         LBS          LF"
+        v-hdr[2]    = "   JOB#        F  B DUE DATE CUSTOMER ID BOARD CODE    SHEET WIDTH  SHEET LENGTH      SHEETS         LBS          LF"
         v-hdr[3]    = FILL("-",122).
 
     DEFINE VARIABLE cslist AS cha NO-UNDO.

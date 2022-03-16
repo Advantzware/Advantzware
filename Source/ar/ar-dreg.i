@@ -72,7 +72,7 @@
                              tran-period,
                              "A",
                              tran-date,
-                             "Inv:" + STRING(ar-cashl.inv-no,"9999999"),
+                             "Inv:" + STRING(ar-cashl.inv-no,"99999999"),
                              "AR").
         
 

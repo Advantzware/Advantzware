@@ -117,7 +117,7 @@ IF AVAIL updfgdim-{1} THEN DO:
                                     ELSE {2}itemfg.t-sqin / 144.
     
   IF AVAIL ef AND ef.board NE "" AND {2}itemfg.spare-int-1 NE 1 THEN
-       {2}itemfg.weight-100 = {2}itemfg.t-sqft * .1 * ef.weight.
+   RUN fg\SetFGWeights.p (ROWID ({2}itemfg)).
   
   IF NOT {2}itemfg.spare-int-2 EQ 1 THEN   
       ASSIGN

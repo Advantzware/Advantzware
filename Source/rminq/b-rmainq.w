@@ -264,7 +264,7 @@ DEFINE BROWSE Browser-Table
       job-mat.job-no COLUMN-LABEL "  Job#" FORMAT "x(6)":U WIDTH 9
             LABEL-BGCOLOR 14
       job-mat.job-no2 COLUMN-LABEL "" FORMAT "99":U WIDTH 4 LABEL-BGCOLOR 14
-      job-mat.frm COLUMN-LABEL "S" FORMAT ">>>":U WIDTH 5 LABEL-BGCOLOR 14
+      job-mat.frm COLUMN-LABEL "F" FORMAT ">>>":U WIDTH 5 LABEL-BGCOLOR 14
       job-mat.blank-no COLUMN-LABEL "B" FORMAT ">>>":U WIDTH 5
             LABEL-BGCOLOR 14
       job-mat.qty COLUMN-LABEL "Required" FORMAT "->>>,>>9.9<<<<":U
@@ -409,7 +409,7 @@ ASSIGN
      _FldNameList[3]   > ASI.job-mat.job-no2
 "job-mat.job-no2" "" "99" "integer" ? ? ? 14 ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.job-mat.frm
-"job-mat.frm" "S" ">>>" "integer" ? ? ? 14 ? ? yes ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mat.frm" "F" ">>>" "integer" ? ? ? 14 ? ? yes ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.job-mat.blank-no
 "job-mat.blank-no" "B" ">>>" "integer" ? ? ? 14 ? ? yes ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.job-mat.qty

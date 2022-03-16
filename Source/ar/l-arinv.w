@@ -155,7 +155,7 @@ DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
       ar-inv.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U WIDTH 12
-      ar-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>>":U
+      ar-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>>>":U
             WIDTH 12
       ar-inv.inv-date FORMAT "99/99/9999":U WIDTH 15
       ar-inv.net COLUMN-LABEL "Net" FORMAT "->>,>>>,>>9.99":U WIDTH 18

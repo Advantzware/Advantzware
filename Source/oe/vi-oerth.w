@@ -126,19 +126,19 @@ DEFINE FRAME F-Main
      oe-reth.ra-no AT ROW 1.71 COL 8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     oe-reth.inv-no AT ROW 1.71 COL 31 COLON-ALIGNED FORMAT ">>>>>>9"
+     oe-reth.inv-no AT ROW 1.71 COL 30.8 COLON-ALIGNED FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-     oe-reth.return-date AT ROW 1.71 COL 59 COLON-ALIGNED
+          SIZE 14 BY 1
+     oe-reth.return-date AT ROW 1.71 COL 60.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     oe-reth.applied AT ROW 1.71 COL 78
-          VIEW-AS TOGGLE-BOX
-          SIZE 13.4 BY .81
-     oe-reth.posted AT ROW 1.71 COL 91.2
-          VIEW-AS TOGGLE-BOX
-          SIZE 13.4 BY .81
      lv-tot-line AT ROW 1.71 COL 123 COLON-ALIGNED
+     oe-reth.applied AT ROW 1.81 COL 79.8
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.4 BY .81
+     oe-reth.posted AT ROW 1.81 COL 93
+          VIEW-AS TOGGLE-BOX
+          SIZE 11.4 BY .81
      lv-tot-line-qty AT ROW 2.91 COL 123 COLON-ALIGNED WIDGET-ID 2
      "Reference Information" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 1 COL 3

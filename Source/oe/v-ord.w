@@ -684,7 +684,7 @@ DEFINE FRAME F-Main
           SIZE 47 BY 1
      fi_prev_order AT ROW 9.33 COL 60 COLON-ALIGNED WIDGET-ID 2
      oe-ord.tax-gr AT ROW 10.33 COL 60 COLON-ALIGNED
-          LABEL "Tax Code"
+          LABEL "Tax Group"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      oe-ord.managed AT ROW 11.38 COL 50
@@ -2054,7 +2054,7 @@ END.
 
 &Scoped-define SELF-NAME oe-ord.tax-gr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.tax-gr V-table-Win
-ON LEAVE OF oe-ord.tax-gr IN FRAME F-Main /* Tax Code */
+ON LEAVE OF oe-ord.tax-gr IN FRAME F-Main /* Tax Group */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-tax-gr NO-ERROR.

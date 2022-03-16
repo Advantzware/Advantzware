@@ -343,7 +343,7 @@ DEFINE FRAME D-Dialog
 "No", "N":U
           SIZE 16.4 BY .81
      cust.tax-gr AT ROW 16.95 COL 22 COLON-ALIGNED
-          LABEL "Tax Code"
+          LABEL "Tax Group"
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
           BGCOLOR 8 FONT 4
@@ -964,7 +964,7 @@ DO:
          cust.tax-gr:screen-value = ""                    
         )    
      then do:
-        message "Invalid Tax Code. Try Help." view-as alert-box error.
+        message "Invalid Tax Group. Try Help." view-as alert-box error.
         apply "entry" to cust.tax-gr.
         return no-apply.
      end.                                     
@@ -1552,7 +1552,7 @@ END.
 
 &Scoped-define SELF-NAME cust.tax-gr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.tax-gr D-Dialog
-ON LEAVE OF cust.tax-gr IN FRAME D-Dialog /* Tax Code */
+ON LEAVE OF cust.tax-gr IN FRAME D-Dialog /* Tax Group */
 DO:
 
   if lastkey <> -1 and cust.sort:screen-value = "Y" and 
@@ -1567,7 +1567,7 @@ DO:
      cust.tax-gr:screen-value = ""                    
      )    
   then do:
-     message "Invalid Tax Code. Try Help." self:screen-value view-as alert-box error.
+     message "Invalid Tax Group. Try Help." self:screen-value view-as alert-box error.
      return no-apply.
   end.                                     
                                    
@@ -2350,7 +2350,7 @@ PROCEDURE validate-cust :
          cust.tax-gr:screen-value = ""                    
         )    
      then do:
-        message "Invalid Tax Code. Try Help." view-as alert-box error.
+        message "Invalid Tax Group. Try Help." view-as alert-box error.
         apply "entry" to cust.tax-gr.
         return error.
      end.                                     

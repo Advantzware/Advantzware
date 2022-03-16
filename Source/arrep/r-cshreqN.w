@@ -1598,7 +1598,7 @@ PROCEDURE run-report :
                 WHEN "cst-nam"    THEN 
                     cVarValue = IF FIRST-OF(tt-report.key-02) AND AVAILABLE cust THEN cust.NAME ELSE "" .
                 WHEN "inv"        THEN 
-                    cVarValue = STRING(ar-inv.inv-no,">>>>>>9") .
+                    cVarValue = STRING(ar-inv.inv-no,">>>>>>>9") .
                 WHEN "inv-dt"     THEN 
                     cVarValue = STRING(ar-inv.inv-date) .
                 WHEN "due-dt"     THEN 

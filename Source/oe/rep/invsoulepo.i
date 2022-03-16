@@ -11,7 +11,7 @@
 *****************************************************************************/             
 PUT
   "<C2><R1><#1><R+13><C+50><IMAGE#1=" ls-full-img1  
-   "<C60><R1><P10>Page " + STRING(PAGE-NUM - lv-pg-num,">>9") + " of [=@endPage" + trim(string(inv-head.inv-no,">>>>>>9")) + "-@startPage" + trim(string(inv-head.inv-no,">>>>>>9")) + "+1] " FORM "x(120)".
+   "<C60><R1><P10>Page " + STRING(PAGE-NUM - lv-pg-num,">>9") + " of [=@endPage" + trim(string(inv-head.inv-no,">>>>>>>9")) + "-@startPage" + trim(string(inv-head.inv-no,">>>>>>>9")) + "+1] " FORM "x(120)".
 
 PUT 
   "<=1>" SKIP
@@ -74,7 +74,7 @@ PUT
         
 PUT "<FArial><P10><=#5><R-2> <P10>" SKIP
     "<=#3><B>                      INVOICE#                    " SKIP
-    "<=#3><R+1><P14>                 "inv-head.inv-no "</B><P10>"
+    "<=#3><R+1><P14>                 "inv-head.inv-no FORMAT ">>>>>>>9" "</B><P10>"
     "<=#3><R+3>                 DATE           " v-inv-date SKIP 
     "<=#3><R+4>       Customer Id:          " v-custno SKIP
     "<=#3><R+5>               Order#:                " v-ord-no SKIP

@@ -152,7 +152,7 @@ DEFINE BROWSE BROWSE-1
             WIDTH 40
       wiptag.job-no COLUMN-LABEL "Job #" FORMAT "x(6)":U WIDTH 9
       wiptag.job-no2 COLUMN-LABEL "" FORMAT ">9":U WIDTH 3.4
-      wiptag.form-no COLUMN-LABEL "S" FORMAT ">>9":U WIDTH 5
+      wiptag.form-no COLUMN-LABEL "F" FORMAT ">>9":U WIDTH 5
       wiptag.blank-no COLUMN-LABEL "B" FORMAT ">9":U WIDTH 3.4
       wiptag.pallet-count COLUMN-LABEL "Qty/Tag" FORMAT "->,>>>,>>9":U
             WIDTH 15.2
@@ -224,7 +224,7 @@ ASSIGN
      _FldNameList[5]   > ASI.wiptag.job-no2
 "job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "3.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.wiptag.form-no
-"form-no" "S" ? "integer" ? ? ? ? ? ? no "" no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"form-no" "F" ? "integer" ? ? ? ? ? ? no "" no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.wiptag.blank-no
 "blank-no" "B" ? "integer" ? ? ? ? ? ? no ? no no "3.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.wiptag.pallet-count
