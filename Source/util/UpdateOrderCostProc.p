@@ -95,7 +95,7 @@ FOR EACH bf-oe-ordl NO-LOCK
             
     RUN pGetNewCostM(BUFFER bf-oe-ordl, OUTPUT dNewOrdLineCostM).  
     ttOrderLineChange.newlineCostM    = ROUND(dNewOrdLineCostM,2).
-    ttOrderLineChange.newlineTotCost  = ROUND(ttOrderLineChange.newlineCostM,2) * bf-oe-ordl.qty / 1000.
+    ttOrderLineChange.newlineTotCost  = round(ROUND(ttOrderLineChange.newlineCostM,2) * bf-oe-ordl.qty / 1000,2).
                        
     IF ipExecute AND ttOrderLineChange.lineCostM NE ttOrderLineChange.newlineCostM THEN
     DO:                 
