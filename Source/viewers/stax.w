@@ -362,7 +362,7 @@ DEFINE FRAME F-Main
           SIZE 14.8 BY .62 AT ROW 1.48 COL 83.2
      "Tax" VIEW-AS TEXT
           SIZE 6 BY .71 AT ROW 1.24 COL 66
-     "Group" VIEW-AS TEXT
+     "Code" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.95 COL 19
      "Rate" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.95 COL 66
