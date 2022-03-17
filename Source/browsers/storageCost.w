@@ -399,6 +399,8 @@ PROCEDURE import-file :
 ------------------------------------------------------------------------------*/
 
  RUN util/dev/impStorageCost.p  .
+ 
+ RUN dispatch ("open-query").
 
 END PROCEDURE.
 

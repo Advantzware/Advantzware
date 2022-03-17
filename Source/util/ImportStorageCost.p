@@ -14,8 +14,9 @@
 
 DEFINE TEMP-TABLE ttImportStorageCost
     FIELD Company       AS CHARACTER 
+    FIELD PoNoGroup     AS CHARACTER
     FIELD Location      AS CHARACTER FORMAT "x(5)"       COLUMN-LABEL "Location"     HELP "Required. Must be valid - Size:5"
-    FIELD positions     AS INTEGER   FORMAT ">>>>>9"     COLUMN-LABEL "Positions"    HELP "Required. Integer"
+    FIELD positions     AS CHARACTER FORMAT "x(20)"      COLUMN-LABEL "Positions"    HELP "Optional - Integer or <AUTO> to auto-number.  Use <AUTO>#### where # is a unique group number. "
     FIELD handlingFee   AS DECIMAL   FORMAT "->>,>>9.99" COLUMN-LABEL "Handling Fee" HELP "Optional. Decimal"
     FIELD stack1High    AS DECIMAL   FORMAT "->>,>>9.99" COLUMN-LABEL "Stack 1 High" HELP "Optional. Decimal"
     FIELD stack2High    AS DECIMAL   FORMAT "->>,>>9.99" COLUMN-LABEL "Stack 2 High" HELP "Optional. Decimal"
@@ -26,8 +27,9 @@ DEFINE TEMP-TABLE ttImportStorageCost
     FIELD FromLength    AS DECIMAL   FORMAT ">,>>9.99"   COLUMN-LABEL "From Length"  HELP "Optional. Decimal"
     FIELD upToLength    AS DECIMAL   FORMAT ">,>>9.99"   COLUMN-LABEL "UpTo Length"  HELP "Optional. Decimal"
     .
-
-DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 1. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
+DEFINE VARIABLE gcAutoIndicator AS CHARACTER NO-UNDO INITIAL "<AUTO>".
+DEFINE VARIABLE gcLocation AS CHARACTER NO-UNDO .
+DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -83,18 +85,7 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Location".
-    END.
-    IF oplValid THEN 
-    DO:
-        IF ipbf-ttImportStorageCost.positions EQ 0 THEN 
-            ASSIGN 
-                oplValid = NO
-                opcNote  = "Key Field Blank: Positions".
-        ELSE IF ipbf-ttImportStorageCost.positions GT 999999 THEN
-            ASSIGN 
-                oplValid = NO
-                opcNote  = "Positions cannot be greater than 999999".
-    END.
+    END.    
     IF oplValid THEN 
     DO:
         IF ipbf-ttImportStorageCost.upToWidth GT 9999.99 THEN
@@ -105,39 +96,45 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN 
                 oplValid = NO
                 opcNote  = "UpTo Length cannot be greater than 9999.99".
-        /*IF ipbf-ttImportStorageCost.FromWidth GT 9999.98 THEN
+                
+        IF ipbf-ttImportStorageCost.upToWidth LT 1 AND ipbf-ttImportStorageCost.upToWidth NE 0 THEN
             ASSIGN 
                 oplValid = NO
-                opcNote  = "UpTo Length cannot be greater than 9999.98".
-        IF ipbf-ttImportStorageCost.FromWidth GT 9999.98 THEN
+                opcNote  = "UpTo Width cannot be less than 1".
+        IF ipbf-ttImportStorageCost.upToLength LT 1 AND ipbf-ttImportStorageCost.upToLength NE 0 THEN
             ASSIGN 
                 oplValid = NO
-                opcNote  = "UpTo Length cannot be greater than 9999.98". */
+                opcNote  = "UpTo Length cannot be less than 1".
     END.
     IF oplValid THEN 
     DO:
-        FIND FIRST storageCost NO-LOCK 
-            WHERE storageCost.company   EQ ipbf-ttImportStorageCost.Company
-              AND storageCost.location  EQ ipbf-ttImportStorageCost.Location
-              AND storageCost.positions EQ ipbf-ttImportStorageCost.positions
-            NO-ERROR .
-        IF AVAILABLE storageCost THEN 
-        DO:
-            IF NOT iplUpdateDuplicates THEN 
+        IF ipbf-ttImportStorageCost.positions BEGINS gcAutoIndicator THEN DO:
+            opcNote = "Add Record - Auto Increment Position#"
+            .
+        END. 
+        ELSE do:
+            FIND FIRST storageCost NO-LOCK 
+                WHERE storageCost.company   EQ ipbf-ttImportStorageCost.Company
+                  AND storageCost.location  EQ ipbf-ttImportStorageCost.Location
+                  AND storageCost.positions EQ integer(ipbf-ttImportStorageCost.positions)
+                NO-ERROR .
+            IF AVAILABLE storageCost THEN 
+            DO:
+                IF NOT iplUpdateDuplicates THEN 
+                    ASSIGN 
+                        oplValid = NO
+                        opcNote  = "Duplicate Exists:  Will be skipped"
+                        .
+                ELSE
+                    ASSIGN 
+                        opcNote = "Update record - All fields to be overwritten"
+                        .        
+            END.
+            ELSE 
                 ASSIGN 
-                    oplValid = NO
-                    opcNote  = "Duplicate Exists:  Will be skipped"
+                    opcNote = "Add record"
                     .
-            ELSE
-                ASSIGN 
-                    opcNote = "Update record - All fields to be overwritten"
-                    .        
         END.
-        ELSE 
-            ASSIGN 
-                opcNote = "Add record"
-                .
-        
     END.
     
     /*Field level validation*/
@@ -160,57 +157,130 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportStorageCost FOR ttImportStorageCost.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE cPositionNumber AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPositionNoGroup AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAutoNumber AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.     
+    DEFINE VARIABLE iCheckPositionNo AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lDeleteData AS LOGICAL NO-UNDO.
+    
     DEFINE BUFFER bf-storageCost FOR storageCost.
     DEFINE BUFFER bf-palletSize FOR palletSize.
-
-     
+    DEFINE BUFFER bf-ttImportStorageCost FOR ttImportStorageCost.
+        
+    IF lookup(ipbf-ttImportStorageCost.Location,gcLocation) EQ 0 THEN
+    ASSIGN
+        gcLocation = gcLocation + ipbf-ttImportStorageCost.Location + ","
+        lDeleteData = YES.
+    ELSE lDeleteData = NO.  
+    
+    IF lDeleteData THEN
+    DO:
+        FOR EACH bf-storageCost EXCLUSIVE-LOCK
+            WHERE bf-storageCost.company EQ ipbf-ttImportStorageCost.Company
+              AND bf-storageCost.location EQ ipbf-ttImportStorageCost.Location:
+              
+              FOR EACH bf-palletSize EXCLUSIVE-LOCK
+                  WHERE bf-palletSize.company EQ ipbf-ttImportStorageCost.Company
+                    AND bf-palletSize.location EQ ipbf-ttImportStorageCost.Location
+                    AND bf-palletSize.positions EQ bf-storageCost.positions:
+                    DELETE  bf-palletSize.
+              END.
+              DELETE bf-storageCost.
+        END.         
+    END.
+    
+    ASSIGN 
+        cPositionNoGroup = ""
+        lAutoNumber = NO
+        cPositionNumber = ipbf-ttImportStorageCost.positions
+        .
+     iCheckPositionNo = INT(ipbf-ttImportStorageCost.positions) NO-ERROR.    
+        
+    IF cPositionNumber BEGINS gcAutoIndicator THEN DO:
+        /*Auto numbering logic*/
+        
+        /*Get the PoNoGroup as string to the right of the indicator*/
+        IF LENGTH(cPositionNumber) NE LENGTH(gcAutoIndicator) THEN 
+            cPositionNoGroup = SUBSTRING(cPositionNumber,LENGTH(gcAutoIndicator) + 1, LENGTH(cPositionNumber) - LENGTH(gcAutoIndicator)).
+        IF cPositionNoGroup NE "" THEN 
+            FIND FIRST bf-ttImportStorageCost NO-LOCK
+                 WHERE bf-ttImportStorageCost.PoNoGroup EQ cPositionNoGroup
+                NO-ERROR.
+        IF AVAILABLE bf-ttImportStorageCost THEN
+            cPositionNumber = bf-ttImportStorageCost.positions.
+        ELSE 
+            lAutoNumber = YES.
+    END.       
+        
     FIND FIRST bf-storageCost EXCLUSIVE-LOCK
         WHERE bf-storageCost.company EQ ipbf-ttImportStorageCost.Company
         AND bf-storageCost.location EQ ipbf-ttImportStorageCost.Location
-        AND bf-storageCost.positions EQ ipbf-ttImportStorageCost.positions
+        AND bf-storageCost.positions EQ integer(cPositionNumber)
         NO-ERROR.  
     IF NOT AVAILABLE bf-storageCost THEN 
     DO:
         iopiAdded = iopiAdded + 1.
+        IF iCheckPositionNo EQ 0 OR iCheckPositionNo EQ ? THEN
+        RUN pGetNextPosition(INPUT ipbf-ttImportStorageCost.Company, ipbf-ttImportStorageCost.Location, OUTPUT iCheckPositionNo).
+        
         CREATE bf-storageCost.
         ASSIGN 
             bf-storageCost.company = ipbf-ttImportStorageCost.Company
+            bf-storageCost.positions = iCheckPositionNo  
+            bf-storageCost.location  = ipbf-ttImportStorageCost.Location
             .
-    END.
-    /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
-    RUN pAssignValueC (ipbf-ttImportStorageCost.Location, iplIgnoreBlanks, INPUT-OUTPUT bf-storageCost.location).
-    RUN pAssignValueI (ipbf-ttImportStorageCost.positions, iplIgnoreBlanks, INPUT-OUTPUT bf-storageCost.positions).
+        IF lAutoNumber AND cPositionNoGroup NE "" THEN DO:
+           FIND CURRENT ipbf-ttImportStorageCost EXCLUSIVE-LOCK.
+             ASSIGN 
+                ipbf-ttImportStorageCost.PoNoGroup = cPositionNoGroup
+                ipbf-ttImportStorageCost.positions = STRING(bf-storageCost.positions)                 
+                .
+           FIND CURRENT ipbf-ttImportStorageCost NO-LOCK.    
+        END.    
+    END.     
     RUN pAssignValueD (ipbf-ttImportStorageCost.handlingFee, iplIgnoreBlanks, INPUT-OUTPUT bf-storageCost.handlingFee).
     RUN pAssignValueD (ipbf-ttImportStorageCost.stack1High, iplIgnoreBlanks, INPUT-OUTPUT bf-storageCost.stack1High).
     RUN pAssignValueD (ipbf-ttImportStorageCost.stack2High, iplIgnoreBlanks, INPUT-OUTPUT bf-storageCost.stack2High).
     RUN pAssignValueD (ipbf-ttImportStorageCost.stack3High, iplIgnoreBlanks, INPUT-OUTPUT bf-storageCost.stack3High).
     RUN pAssignValueD (ipbf-ttImportStorageCost.stack4High, iplIgnoreBlanks, INPUT-OUTPUT bf-storageCost.stack4High).
-    
-    
-    
-    
-    /*FIND FIRST bf-palletSize EXCLUSIVE-LOCK
-        WHERE bf-palletSize.company EQ ipbf-ttImportStorageCost.Company
-        AND bf-palletSize.location EQ ipbf-ttImportStorageCost.Location
-        AND bf-palletSize.positions EQ ipbf-ttImportStorageCost.positions
-        NO-ERROR.  
-    IF NOT AVAILABLE bf-palletSize THEN 
+       
+    IF ipbf-ttImportStorageCost.upToWidth NE 0 OR ipbf-ttImportStorageCost.upToLength NE 0 THEN 
     DO:
-        iopiAdded = iopiAdded + 1.
+        
         CREATE bf-palletSize.
         ASSIGN 
             bf-palletSize.company = ipbf-ttImportStorageCost.Company
+            bf-palletSize.location = ipbf-ttImportStorageCost.Location
+            bf-palletSize.positions = bf-storageCost.positions
             .
+            RUN pAssignValueD (ipbf-ttImportStorageCost.upToWidth,  iplIgnoreBlanks, INPUT-OUTPUT bf-palletSize.upToWidth).
+            RUN pAssignValueD (ipbf-ttImportStorageCost.upToLength, iplIgnoreBlanks, INPUT-OUTPUT bf-palletSize.upToLength).
     END.
-    /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
-    
-    RUN pAssignValueC (ipbf-ttImportStorageCost.Location,   iplIgnoreBlanks, INPUT-OUTPUT bf-palletSize.location).
-    RUN pAssignValueI (ipbf-ttImportStorageCost.positions,  iplIgnoreBlanks, INPUT-OUTPUT bf-palletSize.positions).
-    RUN pAssignValueD (ipbf-ttImportStorageCost.upToWidth,  iplIgnoreBlanks, INPUT-OUTPUT bf-palletSize.upToWidth).
-    RUN pAssignValueD (ipbf-ttImportStorageCost.upToLength, iplIgnoreBlanks, INPUT-OUTPUT bf-palletSize.upToLength).    
-    /* Set to round up if write blank and zero is selected */      */
-        
+            
     RELEASE bf-storageCost.
-    //RELEASE bf-palletSize.
-    
+    RELEASE bf-palletSize.    
 END PROCEDURE.
+
+
+PROCEDURE pGetNextPosition PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiPosition AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPosition AS INTEGER NO-UNDO.
+    
+    FOR EACH storageCost NO-LOCK
+        WHERE storageCost.company EQ ipcCompany
+        AND storageCost.location EQ ipcLocation        
+        BY storageCost.positions DESC:
+        iPosition = storageCost.positions.
+        LEAVE.
+    END.
+    opiPosition = iPosition + 1.    
+    
+END PROCEDURE.    
