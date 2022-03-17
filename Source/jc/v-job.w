@@ -277,9 +277,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
           BGCOLOR 15 
-     job.job-no2 AT ROW 1.24 COL 37 COLON-ALIGNED NO-LABEL
+     job.job-no2 AT ROW 1.24 COL 37 COLON-ALIGNED NO-LABEL FORMAT "999"
           VIEW-AS FILL-IN 
-          SIZE 11 BY 1
+          SIZE 7 BY 1
           BGCOLOR 15 
      job.est-no AT ROW 1.24 COL 65 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
@@ -429,7 +429,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN job.job-no IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN job.job-no2 IN FRAME F-Main
-   NO-ENABLE 2                                                          */
+   NO-ENABLE 2 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN job.orderType IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
@@ -2883,7 +2883,7 @@ PROCEDURE validate-est :
             
            /* Use last 5 digits of estimate# */
            IF LENGTH(TRIM(v-bld-job)) GT 5 THEN 
-             v-bld-job = " " + SUBSTRING(TRIM(v-bld-job), 2).
+             v-bld-job = " " + SUBSTRING(TRIM(v-bld-job), 1).
              
            IF AVAILABLE sys-ctrl THEN
              v-bld-job = SUBSTR(sys-ctrl.char-fld,1,1) + TRIM(v-bld-job).
