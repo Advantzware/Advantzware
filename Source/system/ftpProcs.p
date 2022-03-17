@@ -613,6 +613,174 @@ PROCEDURE FTP_SendFileWithCurl:
     OS-DELETE VALUE(cResponseFile).
 END PROCEDURE.
 
+PROCEDURE FTP_UploadFileUsingFTP:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcHost     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFile     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUserName AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPassword AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE oWebClient AS System.Net.WebClient NO-UNDO.
+    
+    DEFINE VARIABLE lValidFile AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cFileName  AS CHARACTER NO-UNDO.
+    
+    IF ipcUserName EQ "" THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "User name cannot be empty"
+            .
+    END.
+
+    IF ipcPassword EQ "" THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Password cannot be empty"
+            .
+    END.
+    
+    IF NOT ipcHost BEGINS "ftp://" THEN
+        ipcHost = "ftp://" + ipcHost.
+    
+    ASSIGN
+        ipcHost = TRIM(ipcHost, "/")
+        ipcHost = TRIM(ipcHost, "\")
+        ipcFile = REPLACE(ipcFile, "/", "\")
+        .
+        
+    RUN FileSys_ValidateFile (ipcFile, OUTPUT lValidFile, OUTPUT opcMessage).
+    
+    IF NOT lValidFile THEN DO:
+        oplError = TRUE.
+        RETURN.
+    END.
+    
+    cFileName = ENTRY(NUM-ENTRIES(ipcFile, "\"), ipcFile, "\").
+
+    oWebClient = NEW System.Net.WebClient().
+      
+    oWebClient:Credentials = NEW System.Net.NetworkCredential(ipcUserName, ipcPassword).
+    oWebClient:UploadFile(ipcHost + "/" + cFileName, System.Net.WebRequestMethods+Ftp:UploadFile, ipcFile). 
+    oWebClient:Dispose().
+
+    CATCH e AS Progress.Lang.Error :
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = e:GetMessage(1)
+            .   
+    END CATCH.
+    
+    FINALLY:
+        IF NOT oplError THEN
+            opcMessage = "File '" + ipcFile + "' is uploaded successfully".
+            
+        IF VALID-OBJECT (oWebClient) THEN
+            DELETE OBJECT oWebClient.
+    END FINALLY.    
+END PROCEDURE.
+
+PROCEDURE FTP_UploadFileUsingSFTP:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcHost       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFile       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUserName   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPassword   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplSSLEnabled AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcHostSSHKey AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE oSftpClient AS Renci.SshNet.SftpClient NO-UNDO.
+    DEFINE VARIABLE oStream     AS System.IO.Stream        NO-UNDO.
+    
+    DEFINE VARIABLE lValidFile AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cHost      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDirectory AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFileName  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iPort      AS INTEGER   NO-UNDO.
+    
+    IF ipcUserName EQ "" THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "User name cannot be empty"
+            .
+    END.
+
+    IF ipcPassword EQ "" THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Password cannot be empty"
+            .
+    END.
+    
+    ASSIGN
+        ipcHost = REPLACE(ipcHost, "/", "\")
+        ipcHost = TRIM(ipcHost, "\")
+        ipcFile = REPLACE(ipcFile, "/", "\")
+        .
+
+    
+    IF ipcHost BEGINS "sftp:\\" THEN
+        ipcHost = REPLACE(ipcHost, "sftp:\\", "").
+                
+    RUN FileSys_ValidateFile (ipcFile, OUTPUT lValidFile, OUTPUT opcMessage).
+    
+    IF NOT lValidFile THEN DO:
+        oplError = TRUE.
+        RETURN.
+    END.
+
+    ASSIGN
+        cHost      = ENTRY(1, ipcHost, "\")
+        cDirectory = REPLACE(ipcHost, cHost, "")
+        cDirectory = TRIM(cDirectory, "\")  
+        cFileName  = ENTRY(NUM-ENTRIES(ipcFile, "\"), ipcFile, "\")
+        NO-ERROR.
+    
+    IF cDirectory NE "" THEN
+        cFileName = cDirectory + "\" + cFileName.
+        
+    IF INDEX(cHost, ":") GT 0 THEN
+        ASSIGN
+            iPort = INTEGER(ENTRY(2, cHost, ":"))
+            cHost = ENTRY(1, cHost, ":")
+            NO-ERROR.
+    ELSE
+        iPort = 22. /* Default SFTP port */
+                     
+    oSftpClient = NEW Renci.SshNet.SftpClient(cHost, iPort, ipcUserName, ipcPassword).
+      
+    oSftpClient:Connect().
+
+    oStream = System.IO.File:OpenRead(ipcFile).
+    oSftpClient:UploadFile(oStream, cFileName, ?).
+        
+    oSftpClient:Disconnect().
+
+    CATCH e AS Progress.Lang.Error :
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = e:GetMessage(1)
+            .   
+    END CATCH.
+    
+    FINALLY:
+        IF NOT oplError THEN
+            opcMessage = "File '" + ipcFile + "' is uploaded successfully".
+            
+        IF VALID-OBJECT (oSftpClient) THEN
+            DELETE OBJECT oSftpClient.
+    END FINALLY.    
+END PROCEDURE.
+
 PROCEDURE pCreateScriptRecords:
     DEFINE INPUT PARAMETER ipFtpURL      AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipFtpUser     AS CHARACTER NO-UNDO.
