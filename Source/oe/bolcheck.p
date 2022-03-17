@@ -1,7 +1,8 @@
 /* oe/bolcheck.p */
 
 DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
-
+DEFINE VARIABLE dOnHandQty AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
 {oe/bolcheck.i}
 
 FIND oe-bolh WHERE ROWID(oe-bolh) EQ ip-rowid NO-LOCK NO-ERROR.
@@ -64,6 +65,25 @@ FOR EACH oe-boll NO-LOCK
                 ASSIGN
                 w-except.bol-no = oe-bolh.bol-no
                 w-except.dOnhQty = (ACCUM TOTAL fg-bin.qty) .
-        END.
+
+                dOnHandQty = 0.
+                FOR EACH fg-bin NO-LOCK
+                    WHERE fg-bin.company EQ oe-boll.company
+                    AND fg-bin.i-no    EQ oe-boll.i-no
+                    AND fg-bin.job-no  EQ oe-boll.job-no
+                    AND fg-bin.job-no2 EQ oe-boll.job-no2
+                    AND fg-bin.loc     EQ oe-boll.loc              
+                    AND fg-bin.tag     EQ oe-boll.tag
+                    AND fg-bin.cust-no EQ oe-boll.cust-no
+                    :
+                       dOnHandQty = dOnHandQty + fg-bin.qty.
+                       cLocBin = fg-bin.loc-bin.
+                 END.
+                 IF dOnHandQty GT 0 AND oe-boll.tag NE "" AND
+                    dOnHandQty GE tt-fg-bin.qty THEN
+                 ASSIGN
+                    w-except.lAvailOnhQty = YES
+                    w-except.cLocBin = cLocBin.
+        END.         
     END.
 END.

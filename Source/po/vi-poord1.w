@@ -324,6 +324,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetPONumber V-table-Win 
+PROCEDURE pGetPONumber :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iPONum AS INTEGER NO-UNDO.
+    
+  FIND FIRST po-ord NO-LOCK
+       WHERE po-ord.po-no EQ iPONum          
+         AND po-ord.company EQ cocode NO-ERROR.
+   RUN local-display-fields.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-key V-table-Win  adm/support/_key-snd.p
 PROCEDURE send-key :
 /*------------------------------------------------------------------------------

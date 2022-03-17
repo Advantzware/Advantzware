@@ -79,7 +79,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD cPartialShp   AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Partial Ship" HELP "Optional - Yes or N0"
     FIELD cTaxable      AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Taxable" HELP "Required - must be Yes or No - Size:4"
     FIELD cTaxPrepCode  AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Tax Prep Code" HELP "Optional - Size:10"
-    FIELD cTaxGr        AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Tax Code" HELP "Optional - Size:10"
+    FIELD cTaxGr        AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Tax Group" HELP "Optional - Size:10"
     FIELD cTaxResale    AS CHARACTER FORMAT "X(15)" COLUMN-LABEL "Tax Resale#" HELP "Optional - Size:10"
     FIELD cExpDate      AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Exp Date" HELP "Optional - Date"  
     FIELD cEmail        AS CHARACTER FORMAT "X(60)" COLUMN-LABEL "Email" HELP "Optional - Date" 

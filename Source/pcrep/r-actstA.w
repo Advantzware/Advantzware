@@ -877,7 +877,7 @@ assign
   hdr-tit  = "       MACH                        ACTUAL     ACTUAL  " +
              " DOWNTIME   DOWNTIME      TOTAL   ESTIMATE   ESTIMATE   " +
              "   TOTAL      LABOR"
-  hdr-tit2 = "DEPT CODE        JOB #    S/ B    RUN HRS     MR HRS  " +
+  hdr-tit2 = "DEPT CODE        JOB #    F/ B    RUN HRS     MR HRS  " +
              " CHARGED    NOCHARGE  ACT HOURS    RUN HRS   MR HOURS  E" +
              "ST HOURS   VARIANCE"
   hdr-tit3 = fill("-", 130).
@@ -890,7 +890,7 @@ IF tb_excel THEN DO:
        "Dept"
        "Mach.Code"
        "Job#"
-       "S"
+       "F"
        "B"
        "Actual Run Hrs"
        "Actual MR Hrs"

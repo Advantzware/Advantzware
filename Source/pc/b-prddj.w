@@ -177,7 +177,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       pc-prdd.job-no FORMAT "x(6)":U WIDTH 14.2 LABEL-BGCOLOR 14
       pc-prdd.job-no2 COLUMN-LABEL "" FORMAT ">9":U
-      pc-prdd.frm COLUMN-LABEL "S" FORMAT ">>9":U LABEL-BGCOLOR 14
+      pc-prdd.frm COLUMN-LABEL "F" FORMAT ">>9":U LABEL-BGCOLOR 14
       pc-prdd.blank-no COLUMN-LABEL "B" FORMAT ">9":U LABEL-BGCOLOR 14
       pc-prdd.pass COLUMN-LABEL "P" FORMAT ">>9":U LABEL-BGCOLOR 14
       pc-prdd.i-no COLUMN-LABEL "Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
@@ -295,7 +295,7 @@ ASSIGN
      _FldNameList[2]   > ASI.pc-prdd.job-no2
 "pc-prdd.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.pc-prdd.frm
-"pc-prdd.frm" "S" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"pc-prdd.frm" "F" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.pc-prdd.blank-no
 "pc-prdd.blank-no" "B" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.pc-prdd.pass

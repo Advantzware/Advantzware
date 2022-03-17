@@ -119,12 +119,12 @@ DEFINE VARIABLE h_viewrminquiry AS HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btAdd  NO-FOCUS
      LABEL "Add New Material" 
-     SIZE 36 BY 1.52
+     SIZE 34 BY 1.52
      FONT 17.
 
 DEFINE BUTTON btAllocate  NO-FOCUS
      LABEL "Allocate" 
-     SIZE 18 BY 1.52
+     SIZE 16 BY 1.52
      FONT 17.
 
 DEFINE BUTTON btClear 
@@ -140,7 +140,7 @@ DEFINE BUTTON btCopy  NO-FOCUS
 
 DEFINE BUTTON btDelete  NO-FOCUS
      LABEL "Delete" 
-     SIZE 15 BY 1.52
+     SIZE 13 BY 1.52
      FONT 17.
 
 DEFINE BUTTON btExit 
@@ -175,7 +175,7 @@ DEFINE BUTTON btnSBNotes  NO-FOCUS
 
 DEFINE BUTTON btUpdate  NO-FOCUS
      LABEL "Update" 
-     SIZE 16 BY 1.52
+     SIZE 14 BY 1.52
      FONT 17.
 
 DEFINE VARIABLE btnClearText AS CHARACTER FORMAT "X(256)":U INITIAL "RESET" 
@@ -271,7 +271,7 @@ DEFINE VARIABLE fiStatusLabel AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS:"
 
 DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MESSAGE" 
       VIEW-AS TEXT 
-     SIZE 94 BY 1.43 NO-UNDO.
+     SIZE 102 BY 1.43 NO-UNDO.
 
 DEFINE IMAGE imJobLookup
      FILENAME "Graphics/32x32/search_new.png":U
@@ -282,7 +282,7 @@ DEFINE IMAGE imJobLookup
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnSBNotes AT ROW 32.67 COL 97
+     btnSBNotes AT ROW 32.67 COL 105
      btExit AT ROW 1 COL 197 WIDGET-ID 126
      btnFirst AT ROW 10.67 COL 197 WIDGET-ID 44
      btnLast AT ROW 16.38 COL 197 WIDGET-ID 46
@@ -306,10 +306,10 @@ DEFINE FRAME F-Main
      fiJobQtyLabel AT ROW 19.71 COL 122 NO-LABEL
      fiJobQty AT ROW 19.71 COL 136 COLON-ALIGNED NO-LABEL
      btCopy AT ROW 7.33 COL 125 WIDGET-ID 118
-     btDelete AT ROW 32.67 COL 117
-     btAdd AT ROW 32.67 COL 133
-     btUpdate AT ROW 32.67 COL 189
-     btAllocate AT ROW 32.67 COL 170
+     btDelete AT ROW 32.67 COL 125
+     btAdd AT ROW 32.67 COL 139
+     btUpdate AT ROW 32.67 COL 191
+     btAllocate AT ROW 32.67 COL 174
      btnExitText AT ROW 1.24 COL 187 NO-LABEL WIDGET-ID 24
      statusMessage AT ROW 32.67 COL 2 NO-LABEL WIDGET-ID 28
      btnViewRM AT ROW 2.91 COL 138.2 COLON-ALIGNED NO-LABEL WIDGET-ID 138
@@ -861,8 +861,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-job-mat , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_viewrminquiry ,
-             h_jobfilter , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat-last-all ,
              h_viewrminquiry , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat ,

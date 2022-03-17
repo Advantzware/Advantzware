@@ -165,7 +165,7 @@ DEFINE FRAME Dialog-Frame
      SPACE(0.59) SKIP(1.51)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Tax Code Information".
+         TITLE "Tax Group Information".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -221,7 +221,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Tax Code Information */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Tax Group Information */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.

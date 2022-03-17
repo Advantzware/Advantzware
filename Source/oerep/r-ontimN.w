@@ -75,14 +75,14 @@ ASSIGN cTextListToSelect = "Customer Part#,FG Item#,Order#,Ord Date,Due Date,BOL
                            "Prom Dt,Reason,MSF,WT,Trailer#,Customer Group," +
                            "Last Receipt Date,Order Quantity,Customer Name,Item Unit Price,Item Price UOM," +
                            "Pallet Count,Manufacture Date,Completion Date,FG Category,BOL Number,BOL Carrier," +
-                           "BOL Shipped Quantity,Shipment Value,Release Quantity,Release Due Date,Release Date"
+                           "BOL Shipped Quantity,Shipment Value,Release Quantity,Release Due Date,Release Date,Release Number"
        cFieldListToSelect = "cust-part,fgitem,order,ord-date,due-date,bol-date,ontime," +
                             "prom-dt,reason,msf,wt,trail,cust-g," +
                             "cLastReceiptDate,iOrderQuantity,cCustomerName,dItemUnitPrice,dItemPriceUOM," +
                             "iPalletCount,dtManufactureDate,dtCompletionDate,cFGCategory,iBOLNumber,cBOLCarrier," +
-                            "iBOLShippedQuantity,dShipmentValue,iReleaseQuantity,dtReleaseDueDate,dtReleaseDate"
-       cFieldLength = "15,15,8,8,8,8,7," + "10,8,15,6,20,14," + "17,14,30,16,14," + "12,16,15,11,10,11," + "19,14,15,15,12"
-       cFieldType = "c,c,i,c,c,c,c," + "c,c,i,i,c,c," + "c,i,c,i,c," + "i,c,c,c,i,c," + "i,i,i,c,c"
+                            "iBOLShippedQuantity,dShipmentValue,iReleaseQuantity,dtReleaseDueDate,dtReleaseDate,iReleaseNumber"
+       cFieldLength = "15,15,8,8,8,8,7," + "10,8,15,6,20,14," + "17,14,30,16,14," + "12,16,15,11,10,11," + "19,14,15,15,12,13"
+       cFieldType = "c,c,i,c,c,c,c," + "c,c,i,i,c,c," + "c,i,c,i,c," + "i,c,c,c,i,c," + "i,i,i,c,c,i"
     .
 
 {sys/inc/ttRptSel.i}
@@ -1685,6 +1685,9 @@ SESSION:SET-WAIT-STATE ("general").
          v-msf       = (oe-boll.qty * v-sqft )/ 1000
          . 
       
+      IF AVAIL oe-rell THEN
+          FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK NO-ERROR.
+      
       IF FIRST-OF(oe-ord.cust-no) THEN DO:
         FIND FIRST cust
             WHERE cust.company EQ cocode
@@ -1782,6 +1785,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "iReleaseQuantity"    THEN cVarValue = IF oe-ordl.t-rel-qty GT 0 THEN STRING(oe-ordl.t-rel-qty,">>,>>>,>>9") ELSE "0".
                          WHEN "dtReleaseDueDate"    THEN cVarValue = STRING(ENTRY(1, oe-rel.spare-char-4)).
                          WHEN "dtReleaseDate"       THEN cVarValue = STRING(oe-rel.rel-date,"99/99/9999").
+                         WHEN "iReleaseNumber"      THEN cVarValue = IF AVAILABLE oe-relh THEN STRING(oe-relh.release#,">>>>>>9") ELSE "".
 
                     END CASE.
 

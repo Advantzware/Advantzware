@@ -107,6 +107,13 @@ DO:
             ASSIGN
                 itemfg.alloc  = bf-set-eb.set-is-assembled
                 itemfg.procat = bf-set-eb.procat.
+        ELSE DO:   
+          FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(bf-set-eb) NO-LOCK NO-ERROR.    
+          FIND FIRST xest WHERE ROWID(xest) EQ ROWID(bf-est) NO-LOCK NO-ERROR. 
+          RUN fg/ce-addfg.p (xeb.stock-no).   
+          RELEASE xeb.
+          RELEASE xest. 
+        END.
     END.      
     RELEASE itemfg . 
     EMPTY TEMP-TABLE tt-eb-set .     
@@ -144,7 +151,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
         END.
         ELSE 
         DO: 
-            RUN cec/newblank.p (ROWID(bf-ef), OUTPUT rwRowid).
+            /* RUN cec/newblank.p (ROWID(bf-ef), OUTPUT rwRowid).*/
+            RUN est/NewEstimateBlank.p(ROWID(bf-ef), OUTPUT rwRowid).
             FIND FIRST eb 
                 WHERE ROWID(eb) EQ rwRowid  
                 NO-ERROR. 
@@ -189,6 +197,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
          
           
     ASSIGN 
+        eb.stock-no        = ttInputEst.cStockNo
         eb.part-no         = ttInputEst.cPartID
         eb.part-dscr1      = ttInputEst.cPartName
         eb.part-dscr2      = ttInputEst.cPartDescription
@@ -279,15 +288,15 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
     END.
     
 
-    /*IF NOT CAN-FIND(FIRST itemfg                                          */
-    /*            WHERE itemfg.company EQ eb.company                        */
-    /*              AND itemfg.i-no    EQ eb.stock-no) THEN DO:             */
-    /*    FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.    */
-    /*    FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR. */
-    /*    RUN fg/ce-addfg.p (xeb.stock-no).                                 */
-    /* END.                                                                 */
+    IF NOT CAN-FIND(FIRST itemfg                                          
+                WHERE itemfg.company EQ eb.company                        
+                  AND itemfg.i-no    EQ eb.stock-no) THEN DO:             
+        FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.    
+        FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR. 
+        RUN fg/ce-addfg.p (xeb.stock-no).                                 
+     END.                                                                 
     
-       
+      
     IF ttInputEst.cCategory NE '' THEN 
         eb.procat       = ttInputEst.cCategory.
     IF ttInputEst.iQuantityYield GT 0 THEN 
