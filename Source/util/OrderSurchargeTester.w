@@ -161,7 +161,7 @@ DEFINE FRAME DEFAULT-FRAME
      fiIsWeekendDelivery AT ROW 14.71 COL 39 COLON-ALIGNED WIDGET-ID 34
      "Evaluated NK1 Configuration" VIEW-AS TEXT
           SIZE 50 BY .86 AT ROW 7.52 COL 98 WIDGET-ID 40
-     "Promised Date" VIEW-AS TEXT
+     "Expected Delivery Date" VIEW-AS TEXT
           SIZE 34 BY .86 AT ROW 2.43 COL 63.8 WIDGET-ID 16
      "Order Date" VIEW-AS TEXT
           SIZE 17 BY .86 AT ROW 2.43 COL 11 WIDGET-ID 14
@@ -417,7 +417,7 @@ PROCEDURE pCalculate :
     
     IF DYNAMIC-FUNCTION("sfCommon_GetDifferenceDays", dtOrderDeliveryDate, dtEvaluationOrderDate) LT 0 THEN DO:
         MESSAGE "Order Evaluation date" DATE(dtEvaluationOrderDate) 
-                ", cannot be greater than Promised Date" DATE(dtOrderDeliveryDate)
+                ", cannot be greater than Expected delivery date" DATE(dtOrderDeliveryDate)
             VIEW-AS ALERT-BOX ERROR.
         
         RETURN.
