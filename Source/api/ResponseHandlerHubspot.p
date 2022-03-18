@@ -44,3 +44,9 @@
             opcMessage = "Success".
     END.
 
+    CATCH e AS Progress.Lang.Error :
+		ASSIGN
+		    oplSuccess = FALSE
+		    opcMessage = e:GetMessage(1)
+		    .
+    END CATCH.
