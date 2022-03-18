@@ -1767,7 +1767,6 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
 
     DEFINE VARIABLE iLevel AS INTEGER NO-UNDO.
     DEFINE VARIABLE cPriceMatrixPricingMethod AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iLevelQty AS INTEGER NO-UNDO.
     
     ASSIGN 
         opiQtyLevel         = 0
@@ -1782,24 +1781,16 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
       
     /*process matrix array completely, one time*/
     DO iLevel = ipiLevelStart TO EXTENT(ipbf-oe-prmtx.qty): /* IF customer has higher starting level set otherwise start with 1st level*/
+        IF ipdQuantityTarget EQ ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
+            oplQtyDistinctMatch = YES.
         IF cPriceMatrixPricingMethod EQ "From" THEN 
         DO:
-            IF ipdQuantityTarget EQ ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
-                oplQtyDistinctMatch = YES. 
+            IF ipdQuantityTarget GE ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
+                opiQtyLevel = iLevel.
             
-            IF ipdQuantityTarget GE ipbf-oe-prmtx.qty[iLevel] THEN
-            iLevelQty = ipbf-oe-prmtx.qty[iLevel] .
-            
-            IF ipdQuantityTarget LE (ipbf-oe-prmtx.qty[iLevel] - 1) AND ipdQuantityTarget GE iLevelQty AND iLevelQty GT 0 THEN
-            DO:                          
-                IF opiQtyLevel = 0 THEN 
-                    opiQtyLevel = (iLevel - 1).
-            END.        
         END. /* cPriceMatrixPricingMethod EQ "From" */
         ELSE IF cPriceMatrixPricingMethod EQ "Up To" AND ipdQuantityTarget LE ipbf-oe-prmtx.qty[iLevel] THEN /*As soon as a qty level is found, greater than qty, all set*/
         DO:
-            IF ipdQuantityTarget EQ ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
-                oplQtyDistinctMatch = YES.
             IF opiQtyLevel = 0 THEN 
                 opiQtyLevel = iLevel.
         END. /*Qty LE oe-prmtx qty*/
