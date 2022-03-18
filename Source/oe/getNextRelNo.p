@@ -1,16 +1,12 @@
 /* Obtain next available r-no for release creation */
-  
-    DEF INPUT PARAMETER ipMode AS CHAR NO-UNDO. /* oe-rel or oe-relh */
-    DEF OUTPUT PARAMETER opNextRelNo AS INT NO-UNDO.
+      
+    DEFINE INPUT PARAMETER ipMode AS CHARACTER NO-UNDO. /* oe-rel or oe-relh */    
+    DEFINE OUTPUT PARAMETER opNextRelNo AS INTEGER NO-UNDO.
 
-    {custom/globdefs.i}
-    {custom/gcompany.i}
-    {sys/inc/var.i NEW SHARED}
-    {sys/inc/varasgn.i}
-
-    DEF VAR iNextRelNo AS INT NO-UNDO.
-    DEF VAR iLastRelNo AS INT NO-UNDO.
-
+    DEFINE VARIABLE iNextRelNo AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iLastRelNo AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+    
     CASE ipMode:
         WHEN "oe-rel" THEN DO:
             ASSIGN 
@@ -27,8 +23,9 @@
             END.
         END.
         WHEN "release#" THEN DO:
+            RUN spGetSessionParam ("Company", OUTPUT cCompany).
             /* The caller program here (oe/release#.p) contains additional logic, so don't want to change what works */
-            RUN sys/ref/asiseq.p (cocode,
+            RUN sys/ref/asiseq.p (cCompany,
                                   "oerel_release_seq",
                                   OUTPUT opNextRelNo).
         END.
