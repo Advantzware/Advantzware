@@ -40,9 +40,10 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i "NEW SHARED"}
 {sys/inc/varasgn.i}
 
-DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdOrderProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cCompany     AS CHARACTER NO-UNDO.
+
 RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.
-THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdOrderProcs).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -59,12 +60,13 @@ THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdOrderProcs).
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 btCalculate fiOrderDate ~
+&Scoped-Define ENABLED-OBJECTS RECT-1 fiOrder btCalculate fiOrderDate ~
 fiOrderTimeHours fiOrderTimeMinutes fiExpectedDelDate slNK1Config 
-&Scoped-Define DISPLAYED-OBJECTS fiOrderDate fiOrderTimeHours ~
+&Scoped-Define DISPLAYED-OBJECTS fiOrder fiOrderDate fiOrderTimeHours ~
 fiOrderTimeMinutes fiExpectedDelDate fiOrderDateWeekday ~
 fiExpectedDelWeekday fiEvaluationOrderDate slNK1Config fiIsWeekendOrder ~
-fiIsSameDayOrder fiIsNextDayOrder fiIsWeekendDelivery 
+fiIsSameDayOrder fiIsNextDayOrder fiIsWeekendDelivery fiSurchargeItem ~
+fiPrepCost 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -87,94 +89,129 @@ DEFINE BUTTON btCalculate
 DEFINE VARIABLE fiEvaluationOrderDate AS CHARACTER FORMAT "X(256)":U 
      LABEL "Evaluation Order Date" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1.38 NO-UNDO.
+     SIZE 32 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
-DEFINE VARIABLE fiExpectedDelDate AS DATE FORMAT "99/99/9999":U INITIAL ? 
+DEFINE VARIABLE fiExpectedDelDate AS DATE FORMAT "99/99/9999":U 
      VIEW-AS FILL-IN 
-     SIZE 19.4 BY 1.38 NO-UNDO.
+     SIZE 19.4 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiExpectedDelWeekday AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 23 BY 1.38 NO-UNDO.
+     SIZE 23 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiIsNextDayOrder AS CHARACTER FORMAT "X(256)":U INITIAL "NO" 
      LABEL "Is Next day Order?" 
      VIEW-AS FILL-IN 
-     SIZE 23 BY 1.38 NO-UNDO.
+     SIZE 23 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiIsSameDayOrder AS CHARACTER FORMAT "X(256)":U INITIAL "NO" 
      LABEL "Is Same day Order?" 
      VIEW-AS FILL-IN 
-     SIZE 23 BY 1.38 NO-UNDO.
+     SIZE 23 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiIsWeekendDelivery AS CHARACTER FORMAT "X(256)":U INITIAL "NO" 
      LABEL "Is Weekend Delivery?" 
      VIEW-AS FILL-IN 
-     SIZE 23 BY 1.38 NO-UNDO.
+     SIZE 23 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiIsWeekendOrder AS CHARACTER FORMAT "X(256)":U INITIAL "NO" 
      LABEL "Is Weekend Order?" 
      VIEW-AS FILL-IN 
-     SIZE 23 BY 1.38 NO-UNDO.
+     SIZE 23 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
-DEFINE VARIABLE fiOrderDate AS DATE FORMAT "99/99/9999":U INITIAL ? 
+DEFINE VARIABLE fiOrder AS INTEGER FORMAT ">>>>>>>9":U INITIAL 0 
+     LABEL "Order #" 
      VIEW-AS FILL-IN 
-     SIZE 19.4 BY 1.38 NO-UNDO.
+     SIZE 29.8 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+
+DEFINE VARIABLE fiOrderDate AS DATE FORMAT "99/99/9999":U 
+     VIEW-AS FILL-IN 
+     SIZE 19.4 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiOrderDateWeekday AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 24 BY 1.38 NO-UNDO.
+     SIZE 24 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiOrderTimeHours AS INTEGER FORMAT "99":U INITIAL 0 
      LABEL "Time" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1.38 NO-UNDO.
+     SIZE 5 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiOrderTimeMinutes AS INTEGER FORMAT "99":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1.38 NO-UNDO.
+     SIZE 5 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+
+DEFINE VARIABLE fiPrepCost AS DECIMAL FORMAT "->>>,>>>,>>9.99":U INITIAL 0 
+     LABEL "Cost" 
+     VIEW-AS FILL-IN 
+     SIZE 37.2 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+
+DEFINE VARIABLE fiSurchargeItem AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Surcharge Misc Item" 
+     VIEW-AS FILL-IN 
+     SIZE 43 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 150 BY 5.
+     SIZE 150 BY 7.57.
 
 DEFINE VARIABLE slNK1Config AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 69 BY 7.62 NO-UNDO.
+     SIZE 69 BY 7.62
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btCalculate AT ROW 3.14 COL 126 WIDGET-ID 36
-     fiOrderDate AT ROW 3.38 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     fiOrderTimeHours AT ROW 3.38 COL 41.2 COLON-ALIGNED WIDGET-ID 4
-     fiOrderTimeMinutes AT ROW 3.38 COL 47.2 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     fiExpectedDelDate AT ROW 3.38 COL 62 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     fiOrderDateWeekday AT ROW 4.86 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-     fiExpectedDelWeekday AT ROW 4.86 COL 62 COLON-ALIGNED NO-LABEL WIDGET-ID 20
-     fiEvaluationOrderDate AT ROW 8.38 COL 39 COLON-ALIGNED WIDGET-ID 22
-     slNK1Config AT ROW 8.62 COL 84 NO-LABEL WIDGET-ID 38
-     fiIsWeekendOrder AT ROW 9.95 COL 39 COLON-ALIGNED WIDGET-ID 28
-     fiIsSameDayOrder AT ROW 11.52 COL 39 COLON-ALIGNED WIDGET-ID 30
-     fiIsNextDayOrder AT ROW 13.14 COL 39 COLON-ALIGNED WIDGET-ID 32
-     fiIsWeekendDelivery AT ROW 14.71 COL 39 COLON-ALIGNED WIDGET-ID 34
-     "Evaluated NK1 Configuration" VIEW-AS TEXT
-          SIZE 50 BY .86 AT ROW 7.52 COL 98 WIDGET-ID 40
-     "Expected Delivery Date" VIEW-AS TEXT
-          SIZE 34 BY .86 AT ROW 2.43 COL 63.8 WIDGET-ID 16
+     fiOrder AT ROW 2 COL 21.2 COLON-ALIGNED WIDGET-ID 42
+     btCalculate AT ROW 2.1 COL 128 WIDGET-ID 36
+     fiOrderDate AT ROW 5.52 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     fiOrderTimeHours AT ROW 5.52 COL 41.2 COLON-ALIGNED WIDGET-ID 4
+     fiOrderTimeMinutes AT ROW 5.52 COL 47.2 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     fiExpectedDelDate AT ROW 5.52 COL 62 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     fiOrderDateWeekday AT ROW 7 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     fiExpectedDelWeekday AT ROW 7 COL 62 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     fiEvaluationOrderDate AT ROW 10.67 COL 39 COLON-ALIGNED WIDGET-ID 22
+     slNK1Config AT ROW 10.91 COL 84 NO-LABEL WIDGET-ID 38
+     fiIsWeekendOrder AT ROW 12.24 COL 39 COLON-ALIGNED WIDGET-ID 28
+     fiIsSameDayOrder AT ROW 13.81 COL 39 COLON-ALIGNED WIDGET-ID 30
+     fiIsNextDayOrder AT ROW 15.43 COL 39 COLON-ALIGNED WIDGET-ID 32
+     fiIsWeekendDelivery AT ROW 17 COL 39 COLON-ALIGNED WIDGET-ID 34
+     fiSurchargeItem AT ROW 19.14 COL 39 COLON-ALIGNED WIDGET-ID 46
+     fiPrepCost AT ROW 19.14 COL 91.8 COLON-ALIGNED WIDGET-ID 48
+     "OR" VIEW-AS TEXT
+          SIZE 8 BY .67 AT ROW 3.67 COL 23 WIDGET-ID 54
      "Order Date" VIEW-AS TEXT
-          SIZE 17 BY .86 AT ROW 2.43 COL 11 WIDGET-ID 14
+          SIZE 17 BY .86 AT ROW 4.57 COL 11 WIDGET-ID 14
      ":" VIEW-AS TEXT
-          SIZE 1 BY .86 AT ROW 3.62 COL 48.2 WIDGET-ID 6
+          SIZE 1 BY .86 AT ROW 5.76 COL 48.2 WIDGET-ID 6
      "(24 hours format)" VIEW-AS TEXT
-          SIZE 25 BY .86 AT ROW 2.43 COL 35.4 WIDGET-ID 10
-     RECT-1 AT ROW 1.71 COL 4 WIDGET-ID 26
+          SIZE 25 BY .86 AT ROW 4.57 COL 35.4 WIDGET-ID 10
+     "Evaluated NK1 Configuration" VIEW-AS TEXT
+          SIZE 50 BY .86 AT ROW 9.81 COL 98 WIDGET-ID 40
+     "Promised Date" VIEW-AS TEXT
+          SIZE 34 BY .86 AT ROW 4.57 COL 63.8 WIDGET-ID 16
+     RECT-1 AT ROW 1.52 COL 4 WIDGET-ID 26
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 156.4 BY 17.86
-         BGCOLOR 15 FONT 20 WIDGET-ID 100.
+         SIZE 156.4 BY 21.52
+         BGCOLOR 21 FGCOLOR 15 FONT 20 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -194,11 +231,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Order Surcharge Evaluation Tester"
-         HEIGHT             = 15.76
+         HEIGHT             = 21.52
          WIDTH              = 155.6
-         MAX-HEIGHT         = 21
+         MAX-HEIGHT         = 21.52
          MAX-WIDTH          = 158.8
-         VIRTUAL-HEIGHT     = 21
+         VIRTUAL-HEIGHT     = 21.52
          VIRTUAL-WIDTH      = 158.8
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -236,6 +273,10 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiOrderDateWeekday IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiPrepCost IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiSurchargeItem IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -266,6 +307,8 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Order Surcharge Evaluation Tester */
 DO:
   /* This event will close the window and terminate the procedure.  */
+  DELETE PROCEDURE hdOrderProcs.
+    
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -351,13 +394,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiOrderDate fiOrderTimeHours fiOrderTimeMinutes fiExpectedDelDate 
-          fiOrderDateWeekday fiExpectedDelWeekday fiEvaluationOrderDate 
-          slNK1Config fiIsWeekendOrder fiIsSameDayOrder fiIsNextDayOrder 
-          fiIsWeekendDelivery 
+  DISPLAY fiOrder fiOrderDate fiOrderTimeHours fiOrderTimeMinutes 
+          fiExpectedDelDate fiOrderDateWeekday fiExpectedDelWeekday 
+          fiEvaluationOrderDate slNK1Config fiIsWeekendOrder fiIsSameDayOrder 
+          fiIsNextDayOrder fiIsWeekendDelivery fiSurchargeItem fiPrepCost 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-1 btCalculate fiOrderDate fiOrderTimeHours fiOrderTimeMinutes 
-         fiExpectedDelDate slNK1Config 
+  ENABLE RECT-1 fiOrder btCalculate fiOrderDate fiOrderTimeHours 
+         fiOrderTimeMinutes fiExpectedDelDate slNK1Config 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -376,15 +419,49 @@ PROCEDURE pCalculate :
     DEFINE VARIABLE dtOrderDate           AS DATETIME  NO-UNDO.
     DEFINE VARIABLE dtOrderDeliveryDate   AS DATETIME  NO-UNDO.
     DEFINE VARIABLE cSurchargeConfigList  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dtEvaluationOrderDate AS DATETIME NO-UNDO.
-    DEFINE VARIABLE lIsWeekendOrder       AS LOGICAL  NO-UNDO.
-    DEFINE VARIABLE lIsHolidayOrder       AS LOGICAL  NO-UNDO.
-    DEFINE VARIABLE lIsWeekendDelivery    AS LOGICAL  NO-UNDO.
-    DEFINE VARIABLE lIsSameDayDelivery    AS LOGICAL  NO-UNDO.
-    DEFINE VARIABLE lIsNextDayDelivery    AS LOGICAL  NO-UNDO.
-    DEFINE VARIABLE lIsHolidayDelivery    AS LOGICAL  NO-UNDO.
+    DEFINE VARIABLE dtEvaluationOrderDate AS DATETIME  NO-UNDO.
+    DEFINE VARIABLE lIsWeekendOrder       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lIsHolidayOrder       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lIsWeekendDelivery    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lIsSameDayDelivery    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lIsNextDayDelivery    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lIsHolidayDelivery    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cSurchargeConfig      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrepCode             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound                AS LOGICAL   NO-UNDO.
+
+    DEFINE BUFFER bf-oe-ord FOR oe-ord.
+    DEFINE BUFFER bf-prep   FOR prep.
     
     DO WITH FRAME {&FRAME-NAME}:
+    END.
+
+    IF INTEGER(fiOrder:SCREEN-VALUE) NE 0 THEN DO:
+        FIND FIRST bf-oe-ord NO-LOCK
+             WHERE bf-oe-ord.company EQ cCompany
+               AND bf-oe-ord.ord-no  EQ INTEGER(fiOrder:SCREEN-VALUE)
+               NO-ERROR.
+        IF NOT AVAILABLE bf-oe-ord THEN DO:
+            MESSAGE "Invalid order # '" + STRING(fiOrder:SCREEN-VALUE) + "'" 
+            VIEW-AS ALERT-BOX ERROR.
+            fiOrder:SCREEN-VALUE = "0".
+            RETURN.
+        END.
+        
+        IF bf-oe-ord.ord-date EQ ? THEN DO:
+            MESSAGE "Order date is not set. Defaulting to today"
+            VIEW-AS ALERT-BOX ERROR.
+        END.
+
+        IF bf-oe-ord.promiseDate EQ ? THEN DO:
+            MESSAGE "Promise date is not set. Defaulting to order date + 10"
+            VIEW-AS ALERT-BOX ERROR.
+        END.
+        
+        ASSIGN
+            fiOrderDate:SCREEN-VALUE       = IF bf-oe-ord.ord-date EQ ? THEN STRING(TODAY) ELSE STRING(bf-oe-ord.ord-date)
+            fiExpectedDelDate:SCREEN-VALUE = IF bf-oe-ord.promiseDate EQ ? THEN STRING(bf-oe-ord.ord-date + 10) ELSE STRING(bf-oe-ord.promiseDate)
+            .
     END.
     
     ASSIGN
@@ -397,13 +474,13 @@ PROCEDURE pCalculate :
         dtOrderDeliveryDate = DATE(fiExpectedDelDate:SCREEN-VALUE)
         .
         
-    RUN Order_GetSurchargeConfig (
+    RUN Order_GetSurchargeConfig IN hdOrderProcs (
         INPUT  dtOrderDate,
         INPUT  dtOrderDeliveryDate,
         OUTPUT cSurchargeConfigList
         ).    
     
-    RUN Order_GetOrderEvaluationParams (
+    RUN Order_GetOrderEvaluationParams IN hdOrderProcs (
         INPUT  dtOrderDate,
         INPUT  dtOrderDeliveryDate,
         OUTPUT dtEvaluationOrderDate,
@@ -432,7 +509,38 @@ PROCEDURE pCalculate :
         fiIsNextDayOrder:SCREEN-VALUE      = STRING(lIsNextDayDelivery, "YES/NO")
         fiIsWeekendDelivery:SCREEN-VALUE   = STRING(lIsWeekendDelivery, "YES/NO") 
         slNK1Config:LIST-ITEMS             = cSurchargeConfigList               
+        cSurchargeConfig                   = ENTRY(1, cSurchargeConfigList).        
         .
+    
+    IF cSurchargeConfig NE "" THEN DO:
+        RUN sys/ref/nk1look.p (
+            INPUT  cCompany,
+            INPUT  cSurchargeConfig,
+            INPUT  "C",
+            INPUT  YES,
+            INPUT  YES,
+            INPUT  IF AVAILABLE bf-oe-ord THEN bf-oe-ord.cust-no ELSE "",
+            INPUT  IF AVAILABLE bf-oe-ord THEN bf-oe-ord.ship-id ELSE "",
+            OUTPUT cPrepCode,
+            OUTPUT lFound
+            ).
+        IF lFound AND cPrepCode NE "" THEN DO:
+            FIND FIRST bf-prep NO-LOCK
+                 WHERE bf-prep.company EQ cCompany
+                   AND bf-prep.code    EQ cPrepCode
+                 NO-ERROR.
+            IF NOT AVAILABLE bf-prep THEN DO:
+                MESSAGE "Invalid surcharge code in NK1 config '" + cSurchargeConfig "'"
+                VIEW-AS ALERT-BOX ERROR.  
+                RETURN.
+            END.    
+            
+            ASSIGN
+                fiSurchargeItem:SCREEN-VALUE = bf-prep.code
+                fiPrepCost:SCREEN-VALUE      = STRING(bf-prep.cost)    
+                .    
+        END.
+    END.        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -452,6 +560,8 @@ PROCEDURE pInit :
         fiOrderDate:SCREEN-VALUE       = STRING(TODAY)
         fiExpectedDelDate:SCREEN-VALUE = STRING(TODAY)
         .
+    
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
     
     RUN pCalculate.
 END PROCEDURE.
