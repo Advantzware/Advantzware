@@ -1485,7 +1485,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-slsm         LIKE ar-invl.sman EXTENT 1.
     DEFINE VARIABLE v-slsc         LIKE ar-invl.s-comm EXTENT 1.
     DEFINE VARIABLE v-slsp         LIKE ar-invl.s-pct EXTENT 1.
-    DEFINE VARIABLE v-inv-no       LIKE ar-invl.inv-no FORMAT ">>>>>>9".
+    DEFINE VARIABLE v-inv-no       LIKE ar-invl.inv-no FORMAT ">>>>>>>9".
     DEFINE VARIABLE v-qty          AS DECIMAL.
     DEFINE VARIABLE v-amt          LIKE ar-invl.amt.
     DEFINE VARIABLE v-amtp         LIKE ar-invl.amt.

@@ -1127,7 +1127,7 @@ DO:
     if not avail oe-ord then find oe-ord where oe-ord.company = gcompany and
                                   oe-ord.ord-no = oe-ordl.ord-no no-lock no-error. 
     if self:screen-value = "yes" and oe-ord.tax-gr = "" then do:
-       message "Invalid tax code on order header. " view-as alert-box error.
+       message "Invalid tax Group on order header. " view-as alert-box error.
        return no-apply.
     end.
     {&methods/lValidateError.i NO}

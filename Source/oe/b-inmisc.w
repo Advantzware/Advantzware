@@ -233,7 +233,7 @@ DEFINE BROWSE Browser-Table
       inv-misc.spare-char-2 COLUMN-LABEL "FG Item Code" FORMAT "x(15)":U
             WIDTH 21
       inv-misc.est-no COLUMN-LABEL "Estimate" FORMAT "x(12)":U
-      inv-misc.spare-int-1 COLUMN-LABEL "S" FORMAT "->,>>>,>>9":U
+      inv-misc.spare-int-1 COLUMN-LABEL "F" FORMAT "->,>>>,>>9":U
             WIDTH 2
       inv-misc.spare-int-2 COLUMN-LABEL "B" FORMAT "->,>>>,>>9":U
             WIDTH 2
@@ -410,7 +410,7 @@ ASSIGN
      _FldNameList[23]   > ASI.inv-misc.est-no
 "inv-misc.est-no" "Estimate" "x(12)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > ASI.inv-misc.spare-int-1
-"inv-misc.spare-int-1" "S" ? "integer" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-misc.spare-int-1" "F" ? "integer" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > ASI.inv-misc.spare-int-2
 "inv-misc.spare-int-2" "B" ? "integer" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED

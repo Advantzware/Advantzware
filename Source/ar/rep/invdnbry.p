@@ -31,7 +31,7 @@ find first cust no-lock no-error.
 
 format header
        skip(4)
-       trim(string(ar-inv.inv-no,">>>>>>>"))
+       trim(string(ar-inv.inv-no,">>>>>>>>"))
                                     to 79
        skip(1)
        "PAGE " + string(trim(string(page-number - v-last-page,">9")) + " OF " +

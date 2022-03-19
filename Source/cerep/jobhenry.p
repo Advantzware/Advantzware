@@ -234,10 +234,10 @@ DEFINE NEW SHARED FRAME head.
 
 FORMAT HEADER
          "<C45>HENRY MOLDED PRODUCTS,INC."   SKIP
-         "<C47>Job/Head Especificación"  
+         "<C47>Job/Head Especificaciï¿½n"  
          "<C84>Fecha:"  v-today  SKIP
-         "<P16><C22>Número de orden:<B>" STRING(v-job-no)"</B>" 
-         "<C50>Máquina: " "<B>" cJobMachCode "</B>"
+         "<P16><C22>Nï¿½mero de orden:<B>" STRING(v-job-no)"</B>" 
+         "<C50>Mï¿½quina: " "<B>" cJobMachCode "</B>"
          "<C68>Ciclos: " "<B>" cCycleValue "</B>"
          "<P10><C84>Fecha De Vencimiento:"  v-due-date SKIP(1)
          /*v-fill*/
@@ -1088,20 +1088,20 @@ PROCEDURE pGetPrintLabel1:
    
     IF iplSpanish THEN DO:
      ASSIGN
-         opcJobLabel      = "Número de orden: "
-         opcMachineLabel  = "Máquina: "
+         opcJobLabel      = "Nï¿½mero de orden: "
+         opcMachineLabel  = "Mï¿½quina: "
          opcCycles        = "Ciclos: "
          opcFurnish       = "Material de pulpa: "
          opcConsistency   = "Consistencia de pulpa: "
          opcMoldTime      = "Tiempo de molde: "
-         opcAgitation     = "Agitación: "
+         opcAgitation     = "Agitaciï¿½n: "
          opcDelay         = "Retrasar: "
          opcOverTemp      = "Temperatura del horno:"
          opcBeltSpeed     = "Velocidad de la Correa: "
          opcDryTime       = "Tiempo seco:"
          opcItemList      = "Lista de articulos "
-         opcItemID        = "Identificación del artículo"
-         opcItemName      = "Nombre del árticulo "
+         opcItemID        = "Identificaciï¿½n del artï¿½culo"
+         opcItemName      = "Nombre del ï¿½rticulo "
          opcMoldCount     = "Cantidad de moldes "
          opcGeneralNotes  = "Notas generales"
          opcPreAgitate    = "Pre-agitar: "
@@ -1169,24 +1169,24 @@ PROCEDURE pGetPrintLabel2:
       
     IF iplSpanish THEN DO:
      ASSIGN
-      opcItemSpecLabel     = "Específico del artículo" /* 23*/
+      opcItemSpecLabel     = "Especï¿½fico del artï¿½culo" /* 23*/
       opcFGItemLabel       = "Articulo: "    /* 10*/
-      opcKeyItemLabel      = "Artículo clave: "   /* 15*/
+      opcKeyItemLabel      = "Artï¿½culo clave: "   /* 15*/
       opcMoldsLabel        = "Moldes: "     /*8*/
       opcWetWeightLabel    = "Peso Mojado: "   /*13*/
       opcFirstDryLabel     = "Primero seco: " /* 14*/
-      opcDscrLabel         = "Descripción: "  /*13*/
-      opcMoldIDsLabel      = "Identificación del molde:"  /*25*/
+      opcDscrLabel         = "Descripciï¿½n: "  /*13*/
+      opcMoldIDsLabel      = "Identificaciï¿½n del molde:"  /*25*/
       opcBoneDryLabel      = "Peso seco:"  /*10*/
       opMoistureLabel      = "Humedad:" /*8*/
       opcSizeLabel         = "Talla: "  /*7*/
       opcJigAvailableLabel = "Plantilla disponible:"  /*21*/
-      opcMinWeightLabel    = "Peso mínimo:"    /*12*/
+      opcMinWeightLabel    = "Peso mï¿½nimo:"    /*12*/
       opcFiberContentLabel = "Contenido de fibra: " /*20*/
       opcPackingLabel      = "Embalaje"  /*8*/
       opcPalletCountLabel  = "Cantidad en la paleta: " /*23*/
-      opcPalletSizeLabel   = "Tamaño de la paleta: "  /*21*/
-      opcCartonCodeLabel   = "Código de cartón:"  /*18*/
+      opcPalletSizeLabel   = "Tamaï¿½o de la paleta: "  /*21*/
+      opcCartonCodeLabel   = "Cï¿½digo de cartï¿½n:"  /*18*/
       opcPalletLabel       = "Paleta:"     /*7*/
       opcInstructionsLabel = "Instrucciones"  /*13*/
       opcTotalCount        = "Cuenta total:"  /*14*/

@@ -1803,6 +1803,8 @@ PROCEDURE ipCleanEstSystemData PRIVATE:
      Notes: If same record exist in system table then no need to redundant user level record
     ------------------------------------------------------------------------------*/
     
+    RUN ipStatus ("  Cleaning EstCostData").
+    
     DEFINE VARIABLE lRecMatch  AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lDuplicate AS LOGICAL NO-UNDO.
     
@@ -3881,7 +3883,6 @@ PROCEDURE ipDataFix220100:
     ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 220100...").
 
-    RUN ipCleanEstSystemData.
 
 END PROCEDURE.
 	
@@ -3906,10 +3907,12 @@ PROCEDURE ipDataFix999999 :
     RUN ipLoadSettingType.
     RUN ipSetCueCards.
     RUN ipCleanTemplates.
-    RUN ipLoadEstCostData.
     RUN ipChangeCostMethod.
     RUN ipSetDepartmentRequired.
     RUN ipAddDbmsFonts.
+    RUN ipLoadEstCostData.
+    RUN ipCleanEstSystemData.
+    RUN ipDeleteAudit.
     RUN ipRefTableConv.
     RUN util/dAOAFormatUpate.
     RUN ipDeleteAudit.
@@ -5431,11 +5434,11 @@ PROCEDURE ipLoadEstCostData :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
-  Notes:       
+  Notes:       Updated to replace tables with *System MYT 02/04/21
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading EstCostData").
 
-    &SCOPED-DEFINE tablename estCostCategory
+    &SCOPED-DEFINE tablename estCostCategorySystem
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     IF NOT CAN-FIND (FIRST {&tablename}) THEN DO:
         INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
@@ -5446,7 +5449,7 @@ PROCEDURE ipLoadEstCostData :
         INPUT CLOSE.
     END.
         
-    &SCOPED-DEFINE tablename estCostGroup
+    &SCOPED-DEFINE tablename estCostGroupSystem
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     IF NOT CAN-FIND (FIRST {&tablename}) THEN DO:
         INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
@@ -5457,7 +5460,7 @@ PROCEDURE ipLoadEstCostData :
         INPUT CLOSE.
     END.
 
-    &SCOPED-DEFINE tablename estCostGroupLevel
+    &SCOPED-DEFINE tablename estCostGroupLevelSystem
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     IF NOT CAN-FIND (FIRST {&tablename}) THEN DO:
         INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.

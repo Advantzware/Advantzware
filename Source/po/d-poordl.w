@@ -430,7 +430,7 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
      po-ordl.s-num AT ROW 1.24 COL 71.6 COLON-ALIGNED
-          LABEL "S"
+          LABEL "F"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
      po-ordl.b-num AT ROW 1.24 COL 80.4 COLON-ALIGNED
@@ -1244,7 +1244,8 @@ FOR EACH tt-job-mat:
             ASSIGN
             job-mat.blank-no = po-ordl.b-num
             job-mat.j-no     = 1
-            job-mat.qty-all  = job-mat.qty.
+            job-mat.all-flg  = NO
+            .
         IF po-ordl.s-num NE ? THEN job-mat.frm = po-ordl.s-num.
         FIND CURRENT job-mat NO-LOCK NO-ERROR.
     END.
@@ -2029,7 +2030,7 @@ END.
 
 &Scoped-define SELF-NAME po-ordl.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.s-num Dialog-Frame
-ON ENTRY OF po-ordl.s-num IN FRAME Dialog-Frame /* S */
+ON ENTRY OF po-ordl.s-num IN FRAME Dialog-Frame /* F */
 DO:
         IF lv-save-s-num NE "" THEN lv-save-s-num = {&self-name}:SCREEN-VALUE.
     END.
@@ -2039,7 +2040,7 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.s-num Dialog-Frame
-ON LEAVE OF po-ordl.s-num IN FRAME Dialog-Frame /* S */
+ON LEAVE OF po-ordl.s-num IN FRAME Dialog-Frame /* F */
 DO:
         DEFINE BUFFER b-job-mat FOR job-mat.
         DEFINE BUFFER b-job-hdr FOR job-hdr.
@@ -2071,7 +2072,7 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.s-num Dialog-Frame
-ON VALUE-CHANGED OF po-ordl.s-num IN FRAME Dialog-Frame /* S */
+ON VALUE-CHANGED OF po-ordl.s-num IN FRAME Dialog-Frame /* F */
 DO:
         ASSIGN
             ll-poord-warned = NO

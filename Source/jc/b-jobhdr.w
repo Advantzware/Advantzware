@@ -183,7 +183,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      job-hdr.frm COLUMN-LABEL "S" FORMAT ">>>":U WIDTH 4
+      job-hdr.frm COLUMN-LABEL "F" FORMAT ">>>":U WIDTH 4
       job-hdr.blank-no COLUMN-LABEL "B" FORMAT ">>>":U WIDTH 4
       job-hdr.cust-no FORMAT "x(8)":U
       job-hdr.i-no FORMAT "x(15)":U
@@ -316,7 +316,7 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED, FIRST OUTER"
      _FldNameList[1]   > ASI.job-hdr.frm
-"job-hdr.frm" "S" ">>>" "integer" ? ? ? ? ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.frm" "F" ">>>" "integer" ? ? ? ? ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-hdr.blank-no
 "job-hdr.blank-no" "B" ">>>" "integer" ? ? ? ? ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-hdr.cust-no
@@ -503,7 +503,7 @@ END.
 
 &Scoped-define SELF-NAME job-hdr.frm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job-hdr.frm Browser-Table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF job-hdr.frm IN BROWSE Browser-Table /* S */
+ON ENTRY OF job-hdr.frm IN BROWSE Browser-Table /* F */
 DO:
   IF NOT adm-new-record AND job.est-no NE "" THEN RETURN NO-APPLY.
 END.

@@ -217,7 +217,7 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _FREEFORM
   QUERY Browser-Table NO-LOCK DISPLAY
       tt-prdd.m-code    LABEL "Machine"               LABEL-BGCOLOR 14
-      tt-prdd.frm       LABEL "S"   FORMAT ">>9":U    LABEL-BGCOLOR 14
+      tt-prdd.frm       LABEL "F"   FORMAT ">>9":U    LABEL-BGCOLOR 14
       tt-prdd.blank-no  LABEL "B"   FORMAT ">9":U     LABEL-BGCOLOR 14
       tt-prdd.pass      LABEL "P"   FORMAT ">>9":U    LABEL-BGCOLOR 14
       tt-prdd.i-no                  FORMAT "x(15)":U  LABEL-BGCOLOR 14 WIDTH 20

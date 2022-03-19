@@ -113,6 +113,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE SHARED VAR v-print-unassembled AS LOG NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-frt-terms2   AS CHARACTER NO-UNDO.
 
 /*ASSIGN
    ls-image1 = "images\Lovepac_logo.jpg"
@@ -345,6 +346,11 @@ for each xxreport where xxreport.term-id eq v-term-id,
                            else if oe-bolh.frt-pay eq "C" then "Collect"
                            else if oe-bolh.frt-pay eq "T" then "Third Party"
                            else ""
+             v-frt-terms2 = if oe-bolh.frt-pay eq "P" then "Prépayé/"
+                           else if oe-bolh.frt-pay eq "B" then "Facture/"
+                           else if oe-bolh.frt-pay eq "C" then "Collecter/"
+                           else if oe-bolh.frt-pay eq "T" then "Tierce Personne/"
+                           else ""              
              v-zone = cust.del-zone.
              
       if v-terms eq "" then

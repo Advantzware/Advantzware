@@ -72,7 +72,7 @@ DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
   
 
-ASSIGN cTextListToSelect = "Trans Type,Trans Date,Job No.,S,B,Item Number,"
+ASSIGN cTextListToSelect = "Trans Type,Trans Date,Job No.,F,B,Item Number,"
                                             + "Description,Qty Posted,Wst Qty,Mch Hrs,"
                                             + "Mach Code,Job Code,C,Trans Time"
        cFieldListToSelect = "trns-typ,trns-dt,job-no,frm,blnk,i-no," +
@@ -83,7 +83,7 @@ ASSIGN cTextListToSelect = "Trans Type,Trans Date,Job No.,S,B,Item Number,"
     .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  =  "Trans Type,Trans Date,Job No.,S,B,Item Number,"
+ASSIGN cTextListToDefault  =  "Trans Type,Trans Date,Job No.,F,B,Item Number,"
                                             + "Description,Qty Posted,Wst Qty,Mch Hrs,"
                                             + "Mach Code,Job Code,C"  .
 

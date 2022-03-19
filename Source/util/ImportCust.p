@@ -79,7 +79,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD cPartialShp   AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Partial Ship" HELP "Optional - Yes or N0"
     FIELD cTaxable      AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Taxable" HELP "Required - must be Yes or No - Size:4"
     FIELD cTaxPrepCode  AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Tax Prep Code" HELP "Optional - Size:10"
-    FIELD cTaxGr        AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Tax Code" HELP "Optional - Size:10"
+    FIELD cTaxGr        AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Tax Group" HELP "Optional - Size:10"
     FIELD cTaxResale    AS CHARACTER FORMAT "X(15)" COLUMN-LABEL "Tax Resale#" HELP "Optional - Size:10"
     FIELD cExpDate      AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Exp Date" HELP "Optional - Date"  
     FIELD cEmail        AS CHARACTER FORMAT "X(60)" COLUMN-LABEL "Email" HELP "Optional - Date" 
@@ -307,15 +307,15 @@ PROCEDURE pValidate PRIVATE:
                 .
         
     END.
-    
+            
     /*Field level validation*/
     IF oplValid AND iplFieldValidation THEN 
     DO:
         IF oplValid AND ipbf-ttImportCust.CustStatus NE "" THEN 
             RUN pIsValidFromList IN hdValidator ("Active", ipbf-ttImportCust.CustStatus, "Active,Inhouse,Service,Inactive", OUTPUT oplValid, OUTPUT cValidNote).
 
-        IF oplValid AND ipbf-ttImportCust.CustSman NE "" THEN 
-            RUN pIsValidSalesRep IN hdValidator (ipbf-ttImportCust.CustSman, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
+        IF oplValid THEN 
+            RUN pIsValidSalesRep IN hdValidator (ipbf-ttImportCust.CustSman, YES, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportCust.CustType NE "" THEN 
             RUN pIsValidCustomerType IN hdValidator (ipbf-ttImportCust.CustType, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
@@ -454,6 +454,10 @@ PROCEDURE pProcessRecord PRIVATE:
             bf-cust.company = ipbf-ttImportCust.Company
             bf-cust.cust-no = ipbf-ttImportCust.CustNo
             .
+    END.
+    IF ipbf-ttImportCust.CustSman EQ "" THEN
+    DO:
+         RUN pGetSalesRep(ipbf-ttImportCust.Company, OUTPUT ipbf-ttImportCust.CustSman).
     END.
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
     RUN pAssignValueC (ipbf-ttImportCust.CustName, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.name).
@@ -641,3 +645,30 @@ PROCEDURE pAddNote:
     END.                           
     RELEASE bf-notes.
 END PROCEDURE.
+
+PROCEDURE pGetSalesRep:
+/*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER.
+    DEFINE OUTPUT PARAMETER opcSalesRep AS CHARACTER.
+    
+    DEFINE BUFFER bf-cust FOR cust.
+    DEFINE BUFFER bf-sman FOR sman.
+    
+    FIND FIRST bf-cust NO-LOCK
+         WHERE bf-cust.company EQ ipcCompany
+           AND bf-cust.ACTIVE EQ "X" NO-ERROR.
+    IF AVAIL bf-cust AND bf-cust.sman NE "" THEN
+    DO:
+         opcSalesRep = bf-cust.sman.
+    END.
+    ELSE DO:
+      FIND FIRST bf-sman NO-LOCK
+           WHERE bf-sman.company EQ ipcCompany NO-ERROR.
+      IF available bf-sman THEN
+         opcSalesRep = bf-sman.sman .
+    END.         
+END PROCEDURE.
+

@@ -94,14 +94,14 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 157.4 BY 24.29
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 152 ROW 3.62
          SIZE 3.8 BY 3.57
-         BGCOLOR 4  WIDGET-ID 100.
+         BGCOLOR 15  WIDGET-ID 100.
 
 DEFINE FRAME OPTIONS-FRAME
      BUTTON-1 AT ROW 1.95 COL 8 WIDGET-ID 2
@@ -109,7 +109,7 @@ DEFINE FRAME OPTIONS-FRAME
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 141 ROW 1
          SIZE 17 BY 2.14
-         BGCOLOR 4 .
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -129,7 +129,7 @@ DEFINE FRAME OPTIONS-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Purchase Orders Open/Close"
+         TITLE              = "Change Purchase Orders "
          HEIGHT             = 24.33
          WIDTH              = 157.2
          MAX-HEIGHT         = 320

@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<AmsData CompanyCode="$Company$" LocationCode="$Company$_$Location$" Sender="$EnteredBy$" ProgramName="IntegrationSamples.exe" Version="1.0.0.2" SendDate="$CurrentDateTime|YYYY-MM-DDThh:mm:ss|DATE|$" Machine="HMPAPP02" MessageId="2" FileName="CloseOrder.xml">
-<Order Code="$JobNumber1|X(6)|||TRIM|$-$JobNumber2|999|INT|$" Action="Delete" />
-</AmsData>

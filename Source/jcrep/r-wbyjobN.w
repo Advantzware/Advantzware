@@ -73,7 +73,7 @@ DEFINE VARIABLE cTextListToDefault  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
 
 
-ASSIGN cTextListToSelect =  "JOB #,STATUS,S,B,MACH CODE,DESCRIPTION,RUN QUANTITY,WASTE QUANTITY,"
+ASSIGN cTextListToSelect =  "JOB #,STATUS,F,B,MACH CODE,DESCRIPTION,RUN QUANTITY,WASTE QUANTITY,"
                                             + "MR STD PERCENT,MR ACT PERCENT,MR VARIANCE,RUN STD PERCENT,"
                                             + "RUN ACT PERCENT,RUN VARIANCE,OVER STD PERCENT,OVER ACT PERCENT,"
                                             + "OVER VARIANCE"
@@ -86,7 +86,7 @@ ASSIGN cTextListToSelect =  "JOB #,STATUS,S,B,MACH CODE,DESCRIPTION,RUN QUANTITY
     .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "JOB #,STATUS,S,B,MACH CODE,DESCRIPTION,RUN QUANTITY,WASTE QUANTITY,"
+ASSIGN cTextListToDefault  = "JOB #,STATUS,F,B,MACH CODE,DESCRIPTION,RUN QUANTITY,WASTE QUANTITY,"
                                             + "MR STD PERCENT,MR ACT PERCENT,MR VARIANCE,RUN STD PERCENT,"
                                             + "RUN ACT PERCENT,RUN VARIANCE,OVER STD PERCENT,OVER ACT PERCENT,"
                                             + "OVER VARIANCE" .
@@ -1397,7 +1397,7 @@ assign
                  "MACH                                RUN    WASTE  MR STD " +
                  " MR ACT       MR RUN STD RUN ACT      RUN OVER STD OVER ACT"
                  + "     OVER"
-      hdr-tit2 = "  S/ B " +
+      hdr-tit2 = "  F/ B " +
                  "CODE   DESCRIPTION             QUANTITY QUANTITY PERCENT " +
                  "PERCENT VARIANCE PERCENT PERCENT VARIANCE  PERCENT  PERCENT"
                  + " VARIANCE"
@@ -1517,7 +1517,7 @@ DEF VAR cslist AS cha NO-UNDO.
 
 IF rd-dest EQ 3 THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
-  /*excelheader = "JOB #,STATUS,S,B,MACH CODE,DESCRIPTION,RUN QUANTITY,WASTE QUANTITY,"
+  /*excelheader = "JOB #,STATUS,F,B,MACH CODE,DESCRIPTION,RUN QUANTITY,WASTE QUANTITY,"
               + "MR STD PERCENT,MR ACT PERCENT,MR VARIANCE,RUN STD PERCENT,"
               + "RUN ACT PERCENT,RUN VARIANCE,OVER STD PERCENT,OVER ACT PERCENT,"
               + "OVER VARIANCE".*/

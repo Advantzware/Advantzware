@@ -1868,7 +1868,7 @@ PROCEDURE run-report :
                     WHEN "ord"  THEN 
                         cVarValue = STRING(w-data.w-ord-no,">>>>>>>>") .
                     WHEN "inv"   THEN 
-                        cVarValue = STRING(w-data.w-inv-no,">>>>>>>") .
+                        cVarValue = STRING(w-data.w-inv-no,">>>>>>>>") .
                     WHEN "qty-ship"  THEN 
                         cVarValue = IF tb_summary THEN STRING(ACCUMULATE TOTAL BY tt-report.key-04 w-qty,"->>>>,>>9.999") ELSE  STRING(w-qty,"->>>>,>>9.999") .
                     WHEN "sqft"  THEN 

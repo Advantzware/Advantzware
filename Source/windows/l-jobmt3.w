@@ -165,7 +165,7 @@ DEFINE BROWSE BROWSE-1
       job-mat.rm-i-no COLUMN-LABEL "RM Item#" FORMAT "x(10)":U
             WIDTH 20
       item.i-name FORMAT "x(30)":U
-      job-mat.frm COLUMN-LABEL "Sheet#" FORMAT ">>9":U
+      job-mat.frm COLUMN-LABEL "Form#" FORMAT ">>9":U
       job-mat.blank-no COLUMN-LABEL "Blank#" FORMAT ">9":U
       item.i-code COLUMN-LABEL "Real/Estimated" FORMAT "X":U
 /* _UIB-CODE-BLOCK-END */
@@ -243,7 +243,7 @@ and job-mat.job-no2 = job.job-no2"
 "job-mat.rm-i-no" "RM Item#" ? "character" ? ? ? ? ? ? no ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   = ASI.item.i-name
      _FldNameList[5]   > ASI.job-mat.frm
-"job-mat.frm" "Sheet#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mat.frm" "Form#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.job-mat.blank-no
 "job-mat.blank-no" "Blank#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.item.i-code

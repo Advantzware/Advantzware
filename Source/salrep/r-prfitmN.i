@@ -71,7 +71,7 @@ FOR EACH tt-report
                 xtt-report.key-01  = IF sort-by-cust THEN tt-report.key-09
                                 ELSE IF AVAILABLE itemfg THEN itemfg.procat ELSE ""
                 xtt-report.key-02  = ar-invl.i-no
-                xtt-report.key-03  = STRING(ar-invl.inv-no,"9999999")
+                xtt-report.key-03  = STRING(ar-invl.inv-no,"99999999")
                 xtt-report.key-09  = tt-report.key-09
                 xtt-report.key-10  = "ar-invl".
         END.
@@ -89,7 +89,7 @@ FOR EACH tt-report
                 v-exc            = YES
                 tt-report.key-01 = IF sort-by-cust THEN tt-report.key-09 ELSE ""
                 tt-report.key-02 = ""
-                tt-report.key-03 = STRING(ar-cashl.inv-no,"9999999").
+                tt-report.key-03 = STRING(ar-cashl.inv-no,"99999999").
 
             RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 

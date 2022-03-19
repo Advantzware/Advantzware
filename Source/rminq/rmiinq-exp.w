@@ -64,18 +64,18 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
 ASSIGN 
-    cTextListToSelect  = "Item#,TR Date,C,Tag,Vendor Po#,Job#,S,WHS," +
+    cTextListToSelect  = "Item#,TR Date,C,Tag,Vendor Po#,Job#,F,WHS," +
                            "Bin,Qty,Qty/UOM,Cost,Cost/UOM,Ext Cost,Cert/Lot/Mill#," +
                            "UserID,Item Name,OH: EA,TON,LF,MSF" 
 
-    cFieldListToSelect = "item,tr-date,c,tag,vendor-po,job,s,whs," +
+    cFieldListToSelect = "item,tr-date,c,tag,vendor-po,job,f,whs," +
                            "bin,qty,qty-uom,cost,cost-uom,ext-cost,cert-lot," +
                            "userid,item-name,oh-ea,ton,lf,msf" .
 
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
-    cTextListToDefault = "Item#,TR Date,C,Tag,Vendor Po#,Job#,S,WHS," +
+    cTextListToDefault = "Item#,TR Date,C,Tag,Vendor Po#,Job#,F,WHS," +
                            "Bin,Qty,Qty/UOM,Cost,Cost/UOM,Ext Cost,Cert/Lot/Mill#," +
                            "UserID" .
 
@@ -1152,7 +1152,7 @@ PROCEDURE run-report :
                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(rm-rcpth.po-no).        
                 WHEN "job" THEN                                                               
                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(rm-rcpth.job-no + "-" + STRING(rm-rcpth.job-no2)).          
-                WHEN "s" THEN                                                            
+                WHEN "f" THEN                                                            
                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(rm-rdtlh.s-num)).       
                 WHEN "whs" THEN                                                         
                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(rm-rdtlh.loc).    

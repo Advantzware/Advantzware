@@ -152,7 +152,7 @@ DEFINE VARIABLE scr-run-qty AS INTEGER FORMAT "->>,>>>,>>9":U INITIAL 0
      SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE scr-sheet AS INTEGER FORMAT ">>9":U INITIAL 0 
-     LABEL "Sheet" 
+     LABEL "Form" 
      VIEW-AS FILL-IN 
      SIZE 6.8 BY 1 NO-UNDO.
 

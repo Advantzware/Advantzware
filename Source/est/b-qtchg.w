@@ -188,7 +188,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      quotechg.s-num COLUMN-LABEL "S" FORMAT ">9":U COLUMN-FONT 0
+      quotechg.s-num COLUMN-LABEL "F" FORMAT ">9":U COLUMN-FONT 0
       quotechg.b-num COLUMN-LABEL "B" FORMAT ">9":U COLUMN-FONT 0
       quotechg.bill FORMAT "!":U COLUMN-FONT 0
       quotechg.code FORMAT "x(5)":U WIDTH 7
@@ -312,7 +312,7 @@ ASSIGN
   AND ((ASI.quotechg.line eq ASI.quoteqty.line AND ASI.quotechg.qty eq ASI.quoteqty.qty) OR
        (ASI.quotechg.LINE eq 0                 AND ASI.quotechg.qty eq 0               ))"
      _FldNameList[1]   > ASI.quotechg.s-num
-"quotechg.s-num" "S" ? "integer" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"quotechg.s-num" "F" ? "integer" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.quotechg.b-num
 "quotechg.b-num" "B" ? "integer" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.quotechg.bill

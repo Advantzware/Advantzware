@@ -10,7 +10,7 @@ DEFINE INPUT  PARAMETER ipcTriggerID        AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcPrimaryID        AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcEventDescription AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER iplcRequestData     AS LONGCHAR  NO-UNDO.
-DEFINE INPUT  PARAMETER iplcReponseData     AS LONGCHAR  NO-UNDO.
+DEFINE INPUT  PARAMETER iplcResponseData    AS LONGCHAR  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcProgramName      AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER iplSuccess          AS LOGICAL   NO-UNDO.
 DEFINE INPUT  PARAMETER ipcMessage          AS CHARACTER NO-UNDO.
@@ -51,7 +51,7 @@ END.
 /* Refer https://knowledgebase.progress.com/articles/Article/Error-12009-when-using-JsonObject */
 FIX-CODEPAGE(lcResponseData) = "iso8859-1".
 
-lcResponseData = iplcReponseData.
+lcResponseData = iplcResponseData.
     
 ASSIGN
     lcNotes                          = APIOutboundEvent.notes

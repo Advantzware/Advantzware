@@ -212,7 +212,7 @@ DEFINE BROWSE Browser-Table
       pc-prdd.job-no COLUMN-LABEL "  Job#" FORMAT "x(9)":U WIDTH 14
             LABEL-BGCOLOR 14
       pc-prdd.job-no2 COLUMN-LABEL "" FORMAT "999":U
-      pc-prdd.frm COLUMN-LABEL "Sheet" FORMAT ">>>":U LABEL-BGCOLOR 14
+      pc-prdd.frm COLUMN-LABEL "Form" FORMAT ">>>":U LABEL-BGCOLOR 14
       pc-prdd.blank-no COLUMN-LABEL "Blank" FORMAT ">>>":U LABEL-BGCOLOR 14
       pc-prdd.pass FORMAT ">>>":U LABEL-BGCOLOR 14
       pc-prdd.i-no COLUMN-LABEL "Item#" FORMAT "x(20)":U LABEL-BGCOLOR 14
@@ -356,7 +356,7 @@ ASSIGN
      _FldNameList[2]   > ASI.pc-prdd.job-no2
 "pc-prdd.job-no2" "" "999" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.pc-prdd.frm
-"pc-prdd.frm" "Sheet" ">>>" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"pc-prdd.frm" "Form" ">>>" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.pc-prdd.blank-no
 "pc-prdd.blank-no" "Blank" ">>>" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.pc-prdd.pass
@@ -577,7 +577,7 @@ END.
 
 &Scoped-define SELF-NAME pc-prdd.frm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL pc-prdd.frm Browser-Table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF pc-prdd.frm IN BROWSE Browser-Table /* Sheet */
+ON ENTRY OF pc-prdd.frm IN BROWSE Browser-Table /* Form */
 DO:
   IF ll-no-frm THEN DO:
     IF KEYLABEL(LASTKEY) EQ "shift-tab" THEN
@@ -593,7 +593,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL pc-prdd.frm Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF pc-prdd.frm IN BROWSE Browser-Table /* Sheet */
+ON LEAVE OF pc-prdd.frm IN BROWSE Browser-Table /* Form */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-frm (SELF:MODIFIED) NO-ERROR.

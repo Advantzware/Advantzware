@@ -423,7 +423,7 @@ OR (lv-do-what NE ""Delete"" AND rm-rctd.qty GE 0))"
 "rm-rctd.job-no" "Job" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   = asi.rm-rctd.job-no2
      _FldNameList[9]   > asi.rm-rctd.s-num
-"rm-rctd.s-num" "S" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rctd.s-num" "F" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > asi.rm-rctd.i-no
 "rm-rctd.i-no" "Item" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > asi.rm-rctd.i-name
@@ -1051,7 +1051,7 @@ END.
 
 &Scoped-define SELF-NAME rm-rctd.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:
   IF LASTKEY NE -1 THEN DO:
     IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NE 0 AND
@@ -1086,7 +1086,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON VALUE-CHANGED OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:
   ll-warned = NO.
 END.

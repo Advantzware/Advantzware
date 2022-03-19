@@ -113,6 +113,57 @@ PROCEDURE GetFormAndBlankFromJobAndFGItem:
 
 END PROCEDURE.
 
+
+PROCEDURE Job_GetMatActQuantity:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantity    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcQuantityUOM AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-job FOR job.
+    
+    FIND FIRST bf-job NO-LOCK
+         WHERE bf-job.company EQ ipcCompany
+           AND bf-job.job-no  EQ ipcJobNo
+           AND bf-job.job-no2 EQ ipiJobNo2
+         NO-ERROR.
+    IF AVAILABLE bf-job THEN
+        RUN pGetMatActQuantity (bf-job.company, bf-job.job, ipcItemID, ipcTag, OUTPUT opdQuantity, OUTPUT opcQuantityUOM).
+END PROCEDURE.
+
+PROCEDURE pGetMatActQuantity PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJob         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantity    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcQuantityUOM AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-mat-act FOR mat-act.
+    
+    FOR EACH bf-mat-act NO-LOCK
+        WHERE bf-mat-act.company EQ ipcCompany
+          AND bf-mat-act.job     EQ ipiJob
+          AND bf-mat-act.i-no    EQ ipcItemID
+          AND bf-mat-act.tag     EQ ipcTag:
+        ASSIGN
+            opdQuantity    = opdQuantity + bf-mat-act.qty
+            opcQuantityUOM = bf-mat-act.qty-uom
+            .
+    END.
+END PROCEDURE.
+
 PROCEDURE Job_GetNextOperation:
     /*------------------------------------------------------------------------------
      Purpose: Returns machine code list for a given jobID
@@ -685,13 +736,13 @@ PROCEDURE pCopyMaterialPreviousJob PRIVATE:
          CREATE bff-job-mat.
          BUFFER-COPY bf-job-mat EXCEPT rec_key job job-no job-no2 TO bff-job-mat.
          ASSIGN
-              bff-job-mat.job     = bff-job.job
-              bff-job-mat.job-no  = bff-job.job-no
-              bff-job-mat.job-no2 = bff-job.job-no2.
-         oplComplete = YES. 
-         
-         bff-job-mat.all-flg = YES.  
-         RUN jc/jc-all2.p (ROWID(bff-job-mat), 1).           
+             bff-job-mat.job     = bff-job.job
+             bff-job-mat.job-no  = bff-job.job-no
+             bff-job-mat.job-no2 = bff-job.job-no2
+             oplComplete         = YES
+             .         
+         IF bff-job-mat.all-flg EQ YES THEN
+         RUN jc/jc-all2.p (ROWID(bff-job-mat), 1).
     END.   
     RUN spProgressBar (?, ?, 100).
     

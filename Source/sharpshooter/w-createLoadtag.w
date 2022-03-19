@@ -85,9 +85,9 @@ RUN spSetSettingContext.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btPrint btDelete btJob btPO btRelease ~
 btReturn btReprint btSplit btBOL statusMessage btnExitText btnSettingsText ~
-btnDeleteText btnPrintText btnNumPad rHighlight 
+btnDeleteText btnPrintText btnNumPad rHighlight btClear btnClearText 
 &Scoped-Define DISPLAYED-OBJECTS statusMessage btnExitText btnSettingsText ~
-btnDeleteText btnPrintText 
+btnDeleteText btnPrintText btnClearText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -123,6 +123,12 @@ DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
 DEFINE BUTTON btBOL 
      LABEL "BOL" 
      SIZE 22.4 BY 1.43.
+
+DEFINE BUTTON btClear 
+     IMAGE-UP FILE "Graphics/32x32/back_white.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/back_white.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Reset" 
+     SIZE 8 BY 1.91.
 
 DEFINE BUTTON btDelete 
      IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U NO-FOCUS FLAT-BUTTON
@@ -162,6 +168,11 @@ DEFINE BUTTON btReturn
 DEFINE BUTTON btSplit 
      LABEL "SPLIT" 
      SIZE 22.4 BY 1.43.
+
+DEFINE VARIABLE btnClearText AS CHARACTER FORMAT "X(256)":U INITIAL "RESET" 
+      VIEW-AS TEXT 
+     SIZE 12 BY 1.43
+     BGCOLOR 21  NO-UNDO.
 
 DEFINE VARIABLE btnDeleteText AS CHARACTER FORMAT "X(256)":U INITIAL "DELETE" 
       VIEW-AS TEXT 
@@ -216,6 +227,8 @@ DEFINE FRAME F-Main
      btnDeleteText AT ROW 32.19 COL 2 NO-LABEL
      btnPrintText AT ROW 32.19 COL 187 COLON-ALIGNED NO-LABEL
      btnNumPad AT ROW 1.91 COL 176 WIDGET-ID 120 NO-TAB-STOP 
+     btClear AT ROW 3.19 COL 194.8 WIDGET-ID 146
+     btnClearText AT ROW 3.38 COL 182 NO-LABEL WIDGET-ID 148
      RECT-2 AT ROW 1.71 COL 175 WIDGET-ID 130
      rHighlight AT ROW 2.43 COL 2 WIDGET-ID 20
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -280,6 +293,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME Custom                                                    */
+/* SETTINGS FOR FILL-IN btnClearText IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN btnDeleteText IN FRAME F-Main
    ALIGN-L                                                              */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
@@ -339,6 +354,42 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btClear
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btClear W-Win
+ON CHOOSE OF btClear IN FRAME F-Main /* Reset */
+DO:
+    DEFINE VARIABLE iCurrentPage AS INTEGER NO-UNDO.
+    
+    RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
+    
+    iCurrentPage = INTEGER(RETURN-VALUE).
+        
+    RUN pStatusMessage ("", 0).
+    
+    CASE iCurrentPage:
+        WHEN 1 THEN
+            {methods/run_link.i "JOB-SOURCE" "Reset"}
+        WHEN 2 THEN
+            {methods/run_link.i "PO-SOURCE" "Reset"}
+        WHEN 3 THEN
+            {methods/run_link.i "RELEASE-SOURCE" "Reset"}
+        WHEN 4 THEN
+            {methods/run_link.i "RETURN-SOURCE" "Reset"}
+        WHEN 5 THEN
+            {methods/run_link.i "REPRINT-SOURCE" "Reset"}
+        WHEN 6 THEN
+            {methods/run_link.i "SPLIT-SOURCE" "Reset"}
+        WHEN 7 THEN
+            {methods/run_link.i "BOL-SOURCE" "Reset"}
+    END CASE.
+    
+    {methods/run_link.i "LOADTAG-SOURCE" "EmptyTTLoadtag"} 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btDelete
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btDelete W-Win
 ON CHOOSE OF btDelete IN FRAME F-Main /* Delete */
@@ -360,6 +411,18 @@ DO:
     RUN select-page(1).
 
     rHighlight:X = SELF:X - 5.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnClearText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearText W-Win
+ON MOUSE-SELECT-CLICK OF btnClearText IN FRAME F-Main
+DO:
+    APPLY "CHOOSE" TO btClear.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -601,14 +664,6 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_navigatenext ).
-       RUN set-position IN h_navigatenext ( 28.86 , 201.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 8.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
@@ -622,7 +677,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_f-job ).
        RUN set-position IN h_f-job ( 4.57 , 1.00 ) NO-ERROR.
-       /* Size in UIB:  ( 15.24 , 232.20 ) */
+       /* Size in UIB:  ( 15.24 , 221.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
@@ -640,19 +695,27 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_navigatelast ( 30.76 , 201.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatenext ).
+       RUN set-position IN h_navigatenext ( 28.86 , 201.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
        /* Links to SmartFrame h_f-job. */
        RUN add-link IN adm-broker-hdl ( h_f-job , 'JOB':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_f-job , 'State':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
              h_setting , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_f-job ,
-             h_navigateprev , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
              h_f-job , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
              h_navigatefirst , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext ,
+             h_navigatelast , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -803,10 +866,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY statusMessage btnExitText btnSettingsText btnDeleteText btnPrintText 
+          btnClearText 
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE btPrint btDelete btJob btPO btRelease btReturn btReprint btSplit btBOL 
          statusMessage btnExitText btnSettingsText btnDeleteText btnPrintText 
-         btnNumPad rHighlight 
+         btnNumPad rHighlight btClear btnClearText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -1282,6 +1346,8 @@ PROCEDURE pWinReSize :
             btnExitText:COL                      = dCol - 9
             btnSettingsText:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
             btnSettingsText:COL                  = btnPrintText:COL - btnSettingsText:WIDTH - 10            
+            btnClearText:COL                     = dCol - 12
+            btClear:COL                          = dCol 
             .
 
         RUN set-position IN h_setting ( {&WINDOW-NAME}:HEIGHT - 1.1 , btnSettingsText:COL + 18 ) NO-ERROR.            

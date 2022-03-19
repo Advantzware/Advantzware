@@ -522,7 +522,8 @@
                   itemfg.std-tot-cost = itemfg.std-mat-cost.
           END.
           ASSIGN 
-             itemfg.total-std-cost = itemfg.std-tot-cost                         
+             itemfg.total-std-cost = itemfg.std-tot-cost.
+           IF itemfg.std-tot-cost GT 0 THEN                          
              itemfg.last-cost    = itemfg.std-tot-cost.
              itemfg.avg-cost =  (((itemfg.q-onh - {2}.t-qty) * itemfg.avg-cost) + (itemfg.std-tot-cost * {2}.t-qty))  / itemfg.q-onh.
          FIND FIRST fg-ctrl NO-LOCK  

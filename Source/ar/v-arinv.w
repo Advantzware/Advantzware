@@ -181,7 +181,7 @@ DEFINE FRAME F-Main
           SIZE 21 BY 1
      ship_name AT ROW 2.43 COL 37 COLON-ALIGNED NO-LABEL
      ar-inv.inv-no AT ROW 3.38 COL 16 COLON-ALIGNED
-          LABEL "Invoice#" FORMAT ">>>>>>9"
+          LABEL "Invoice#" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 21 BY 1
      ar-inv.po-no AT ROW 4.33 COL 16 COLON-ALIGNED
@@ -201,7 +201,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 21 BY 1
      ar-inv.tax-code AT ROW 7.19 COL 16 COLON-ALIGNED
-          LABEL "Tax Code"
+          LABEL "Tax Group"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
      ar-inv.terms AT ROW 8.14 COL 16 COLON-ALIGNED
@@ -596,7 +596,7 @@ END.
 
 &Scoped-define SELF-NAME ar-inv.tax-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-inv.tax-code V-table-Win
-ON LEAVE OF ar-inv.tax-code IN FRAME F-Main /* Tax Code */
+ON LEAVE OF ar-inv.tax-code IN FRAME F-Main /* Tax Group */
 DO:
     IF LASTKEY = -1 THEN RETURN.
     {&methods/lValidateError.i YES}

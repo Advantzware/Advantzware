@@ -884,7 +884,7 @@ PROCEDURE run-report :
         pc-misc.ml COLUMN-LABEL "MATL/LABOR"
         pc-misc.job-no COLUMN-LABEL "JOB #" SPACE(0) "-" SPACE(0)
         pc-misc.job-no2 NO-LABELS FORMAT "99"
-        pc-misc.frm COLUMN-LABEL "S /" SPACE(0) "/" SPACE(0)
+        pc-misc.frm COLUMN-LABEL "F /" SPACE(0) "/" SPACE(0)
         pc-misc.blank-no COLUMN-LABEL "B"
         pc-misc.i-no COLUMN-LABEL "ITEM #"
         pc-misc.m-code COLUMN-LABEL "MACH"
@@ -918,7 +918,7 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel TO VALUE(cFileName).
-        excelheader = "TRANS DATE,MATL/LABOR,JOB #,S,B,ITEM #,"
+        excelheader = "TRANS DATE,MATL/LABOR,JOB #,F,B,ITEM #,"
             + "MACH,DESCRIPTION,COST TYPE,DEPT,STD COST,COST/M".
         PUT STREAM excel UNFORMATTED 
             '"' REPLACE(excelheader,',','","') '"' SKIP.

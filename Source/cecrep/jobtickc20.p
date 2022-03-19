@@ -26,7 +26,9 @@ DEFINE        VARIABLE lv-part-name     AS cha     FORM "x(30)" NO-UNDO.
 DEFINE        VARIABLE lv-fg-name       AS cha     NO-UNDO.
 DEFINE        VARIABLE tb_app-unprinted AS LOG     NO-UNDO.
 DEFINE        VARIABLE iset-qty         AS INTEGER NO-UNDO.
-DEFINE        VARIABLE  cCustName       AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cCustName        AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cForm            AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cBlank           AS CHARACTER NO-UNDO.
 
 {jcrep/r-ticket.i "shared"}
 
@@ -232,6 +234,13 @@ DO v-local-loop = 1 TO v-local-copies:
                              IF AVAILABLE xoe-ord  THEN DECIMAL(xoe-ord.under-pct)  ELSE 0
                iover-run    = IF AVAILABLE xoe-ordl THEN DECIMAL(xoe-ordl.over-pct) ELSE
                              IF AVAILABLE xoe-ord  THEN DECIMAL(xoe-ord.over-pct)  ELSE 0                                 .
+           
+           IF AVAILABLE xeb THEN
+               ASSIGN
+                   cForm  =  STRING(xeb.form-no,"99") +  IF AVAIL xest THEN "/" + STRING(xest.form-qty,"99") ELSE ""
+                   cBlank =  STRING(xeb.BLANK-no,"99") + IF AVAIL xef  THEN "/" + STRING(xef.blank-qty,"99") ELSE ""
+                   .
+           
            IF v-job-cust AND NOT AVAILABLE xoe-ord AND AVAILABLE cust THEN
                ASSIGN
                     lv-over-run  = TRIM(STRING(cust.over-pct,">>9.99%"))
@@ -283,8 +292,8 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=CustomerName><B>" cCustName FORMAT "x(30)" "</B>"
             "<FGColor=Black>"
             "<P8> "
-            "<=Form><B>" IF AVAILABLE xeb THEN STRING(xeb.form-no,"99") ELSE "" FORMAT "x(2)" "</B>  "
-            "<=Blank><B>" IF AVAILABLE xeb THEN STRING(xeb.BLANK-no,"99") ELSE ""  FORMAT "x(2)" "</B>"
+            "<=Form><B>" cForm FORMAT "x(5)" "</B>  "
+            "<=Blank><B>" cBlank  FORMAT "x(5)" "</B>"
             "<=Part><B>" v-cp FORMAT "x(15)" "</B>"
              .
 
@@ -792,8 +801,8 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PrintedLabel>Printed"
               "<=FormLabel>Form:"
               "<=PartLabel>Customer Part #"
-              "<=Form><B>" IF AVAILABLE xeb THEN STRING(xeb.form-no,"99") ELSE "" FORMAT "x(2)" "</B>  "
-              "<=Blank><B>" IF AVAILABLE xeb THEN STRING(xeb.BLANK-no,"99") ELSE ""  FORMAT "x(2)" "</B>"
+              "<=Form><B>" cForm FORMAT "x(5)" "</B>  "
+              "<=Blank><B>" cBlank  FORMAT "x(5)" "</B>"
               "<=Part><B>" v-cp FORMAT "x(15)" "</B>"
               " <=PrintedDate><B>"  TODAY  "</B>"
               

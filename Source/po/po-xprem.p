@@ -832,14 +832,19 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
               ELSE LEAVE.
            END.
         */   
-  end.
+  end.      
   FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR. 
-    FIND FIRST loc NO-LOCK WHERE loc.company EQ cocode AND loc.loc EQ po-ord.ship-id NO-ERROR.
-    IF AVAIL loc THEN FIND FIRST location NO-LOCK 
+  FIND FIRST loc NO-LOCK WHERE loc.company EQ cocode AND loc.loc EQ po-ord.ship-id NO-ERROR.
+  IF NOT AVAIL loc THEN
+  FIND FIRST loc NO-LOCK 
+       WHERE loc.company EQ cocode 
+       AND loc.loc EQ locode NO-ERROR.
+         
+  IF AVAIL loc THEN FIND FIRST location NO-LOCK 
     WHERE location.locationCode EQ loc.loc
       AND location.rec_key EQ loc.addrRecKey NO-ERROR.
-    
-    IF AVAIL location OR company.company EQ po-ord.ship-id THEN DO:
+             
+    IF AVAIL location THEN DO:
         ASSIGN cShiptoNotes = location.notes .
         PUT cShiptoNotes FORMAT "X(60)" SKIP .
         v-printline = v-printline + 1.

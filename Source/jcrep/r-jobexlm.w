@@ -85,7 +85,7 @@ DEFINE TEMP-TABLE tt-report NO-UNDO
 
 ASSIGN 
     cTextListToSelect  = "Job#," +
-                            "S#,B#,RM Item#,Item Name,Costs,Cost/M,Tot MRP,Qty UOM," +
+                            "F#,B#,RM Item#,Item Name,Costs,Cost/M,Tot MRP,Qty UOM," +
                             "Width,Length,#Up,MSF Weight,AutoPost?,Qty,Committed"
 
     cFieldListToSelect = "job," +

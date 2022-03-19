@@ -177,7 +177,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
       po-ordl.LINE     FORMAT ">>>":U
       po-ordl.i-no      FORMAT "x(15)":U    WIDTH 23
-      po-ordl.s-num     FORMAT ">>>":U
+      po-ordl.s-num COLUMN-LABEL "Form #" FORMAT ">>>":U
       po-ordl.i-name    FORMAT "x(30)":U
       po-ordl.job-no    FORMAT "x(9)":U
       po-ordl.job-no2   FORMAT "999":U

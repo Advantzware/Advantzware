@@ -73,7 +73,7 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
 ASSIGN 
-    cTextListToSelect  = "Machine#,DP,S,B,P,Charge Code,Charge Cat,Date,Job#,Shift,Hours,Start,Stop,CR,Qty," +  /*14*/     
+    cTextListToSelect  = "Machine#,DP,F,B,P,Charge Code,Charge Cat,Date,Job#,Shift,Hours,Start,Stop,CR,Qty," +  /*14*/     
                          "Waste,C,FG Item,Style,Length,Width,Depth,Blank Len,Blank Wid," +  /*9*/     
                          "Blank Sq In.,Board,Board Cal,MSF,Wgt/MSF,Roll Width," +  /*6*/     
                          "Gross S Wid,Gross S Len,Net Sht Wid,Net Sht Len," +  /*4*/     
@@ -100,7 +100,7 @@ ASSIGN
                        .
 
 {sys/inc/ttRptSel.i}
-cTextListToDefault = "Machine#,S,B,Charge Code,Charge Cat,Date,Job#,Shift,Hours,Qty," +  /*14*/     
+cTextListToDefault = "Machine#,F,B,Charge Code,Charge Cat,Date,Job#,Shift,Hours,Qty," +  /*14*/     
                      "Waste,FG Item,Style,Length,Width,Depth,Blank Len,Blank Wid," +  /*9*/     
                      "Blank Sq In.,Board,Board Cal,MSF,Wgt/MSF,Roll Width," +  /*6*/     
                      "Gross S Wid,Gross S Len,Net Sht Wid,Net Sht Len," +  /*4*/     
@@ -1363,7 +1363,7 @@ DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
         str-tit2 = c-win:TITLE
         {sys/inc/ctrtext.i str-tit2 112}
 
-        v-hdr    = "Machine#,S,B,Charge Code,Charge Category,Date,Job#,Shift,Hours,Qt" +
+        v-hdr    = "Machine#,F,B,Charge Code,Charge Category,Date,Job#,Shift,Hours,Qt" +
          "y,Waste,FG Item,Style,Length,Width,Depth,Blank Length,Blank Width" +
          ",Blank Square Inches,Board Code,Board Caliper,MSF,Wgt/MSF,Roll Wi" +
          "dth,Gross Sheet Width,Gross Sheet Length,Net Sheet Width,Net Shee" +
@@ -1596,7 +1596,7 @@ DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
                         cTmpField =  IF cTmpField <> "" THEN  STRING(mch-act.qty,"->>>>>>>>>") ELSE "".
                     IF ENTRY(i,cSelectedList) = "Waste" THEN  
                         cTmpField =  IF cTmpField <> "" THEN  STRING(mch-act.waste,"->>>>>") ELSE "".
-                    IF ENTRY(i,cSelectedList) = "S" THEN  
+                    IF ENTRY(i,cSelectedList) = "F" THEN  
                         cTmpField =  IF cTmpField <> "" THEN  STRING(mch-act.frm,">>9") ELSE "".
                     IF ENTRY(i,cSelectedList) = "B" THEN  
                         cTmpField =  IF cTmpField <> "" THEN  STRING(mch-act.blank-no,">9") ELSE "".  

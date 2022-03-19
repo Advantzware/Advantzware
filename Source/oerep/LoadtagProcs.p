@@ -3323,9 +3323,14 @@ PROCEDURE pUpdateTTLoadTagOrderDetails:
             bf-ttLoadTag.orderDesc1  = bf-oe-ordl.part-dscr1
             bf-ttLoadTag.orderDesc2  = bf-oe-ordl.part-dscr2
             bf-ttLoadTag.runShip     = bf-oe-ordl.whsed
-            bf-ttLoadTag.poID        = bf-oe-ordl.po-no-po
-            bf-ttLoadTag.lineID      = bf-oe-ordl.e-num
             .
+       
+        IF bf-ttLoadTag.recordSource NE "Job" THEN
+            ASSIGN
+                bf-ttLoadTag.poID        = bf-oe-ordl.po-no-po
+                bf-ttLoadTag.lineID      = bf-oe-ordl.e-num
+                bf-ttLoadTag.poLineID    = bf-oe-ordl.e-num
+                .
         
         IF bf-ttLoadTag.dueDate EQ ? THEN
             bf-ttLoadTag.dueDate = bf-oe-ordl.req-date.

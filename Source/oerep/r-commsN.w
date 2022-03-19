@@ -1401,7 +1401,7 @@ def var v-gp        as   dec format ">>9.99" NO-UNDO.
 def var v-slsm      like ar-invl.sman extent 1 NO-UNDO.
 def var v-slsc      like ar-invl.s-comm extent 1 NO-UNDO.
 def var v-slsp      like ar-invl.s-pct extent 1 NO-UNDO.
-def var v-inv-no    like ar-invl.inv-no NO-UNDO FORMAT ">>>>>>9".
+def var v-inv-no    like ar-invl.inv-no NO-UNDO FORMAT ">>>>>>>9".
 def var dFreightCost     AS DECIMAL NO-UNDO .
 def var dWarehouseCost   AS DECIMAL NO-UNDO .
 def var dManufactureCost AS DECIMAL NO-UNDO .

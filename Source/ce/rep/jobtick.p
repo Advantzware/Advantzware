@@ -677,7 +677,7 @@ view frame head.
           DISPLAY "Leaf & Window Material"  AT 182
                   "RM Item#"                AT 166
                   "Description"             AT 177
-                  "Sht"                     AT 198
+                  "Frm"                     AT 198
                   "Blk"                     AT 202
                   " Length"                 AT 206
                   "  Width"                 AT 214

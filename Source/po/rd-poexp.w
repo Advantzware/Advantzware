@@ -73,9 +73,9 @@ ASSIGN
     cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID(Vendor or Cust ShipId or Company),Ship Name," +
                             "Ship Address 1,Ship Address 2,Ship City,Ship State,Ship Zip," +
                             "Shipping Carrier,Total Freight,Freight Payment,FOB," +
-                            "Tax Code,Tax,Taxable,Payment Terms,Total Cost," +
+                            "Tax Group,Tax,Taxable,Payment Terms,Total Cost," +
                             "Job #,Item Type,Item #,Item Name,Width,Length," +
-                            "Sheet #,Blank #,Description 1,Description 2," +
+                            "Form #,Blank #,Description 1,Description 2," +
                             "Vendor Item #,Order Qty,Order UOM," +
                             "Qty Received,Rec. UOM,Item Cost,UOM,Buyer," +
                             "Status,Item Status,Printed,Opened,Type,Contact," +
@@ -115,9 +115,9 @@ ASSIGN
     cTextListToDefault = "Vendor #,PO #,Po Line,Due Date,Ship ID(Vendor or Cust ShipId or Company),Ship Name," +
                             "Ship Address 1,Ship Address 2,Ship City,Ship State,Ship Zip," +
                             "Shipping Carrier,Total Freight,Freight Payment,FOB," +
-                            "Tax Code,Tax,Taxable,Payment Terms,Total Cost," +
+                            "Tax Group,Tax,Taxable,Payment Terms,Total Cost," +
                             "Job #,Item Type,Item #,Item Name,Width,Length," +
-                            "Sheet #,Blank #,Description 1,Description 2," +
+                            "Form #,Blank #,Description 1,Description 2," +
                             "Vendor Item #,Order Qty,Order UOM," +
                             "Qty Received,Rec. UOM,Item Cost,UOM,Buyer," +
                             "Status,Item Status,Printed,Opened,Type,Contact," +

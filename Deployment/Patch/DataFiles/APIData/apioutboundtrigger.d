@@ -236,7 +236,7 @@
 "" "202111245332908288093" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default7" 241 24
 "" "202111245332908288094" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default8" 242 25
 "" "202111245332908288095" "SendPurchaseOrder" "TransferToCorrugator" "Triggers when Transfer to Corrugator option is checked in PO Print screen" yes 2021-11-24T14:39:42.897 "asi" "_default9" 243 26
-"001" "202112020346508308454" "GetExchangeRate" "GetExchangeRate" "Trigger to fetch the exchange rates" no 2021-12-02T00:57:45.500 "asi" "_default" 244 54
+"" "202112020346508308454" "GetExchangeRate" "GetExchangeRate" "Trigger to fetch the exchange rates" no 2021-12-02T00:57:45.500 "asi" "_default" 244 54
 "" "202112070723908335684" "SendInvoice" "PrintInvoice" "Send EDI invoice on print of invoice" no 2021-12-07T02:00:39.309 "asi" "_default4" 245 55
 "" "202112070726308335685" "SendInvoice" "RePrintInvoice" "Send EDI invoice on re-print of invoice" no 2021-12-07T02:01:03.586 "asi" "_default4" 246 55
 "" "202112070728308335686" "SendInvoice" "PostInvoice" "Send EDI invoice on post of invoice" no 2021-12-07T02:01:23.344 "asi" "_default4" 247 55
@@ -249,3 +249,5 @@
 "" "202112170532708378261" "SendJobAMS" "UpdateJobMaterial" "Triggers when job material is updated" no 2021-12-17T01:28:47.842 "asi" "_default" 254 38
 "" "202112225550008385920" "SendOrderAck" "PrintOrderAck" "Print Order Acknowledgement" yes 2021-12-22T15:25:00.037 "asi" "_default1" 255 57
 "" "202112225550008385921" "SendOrderAck" "RePrintOrderAck" "Reprint of Order Acknowledgement" yes 2021-12-22T15:25:00.058 "asi" "_default1" 256 57
+"" "202202185333608565734" "SendOrder" "PrintOrder" "Triggers when order is printed" no 2022-02-18T14:57:02.260 "asi" "_default" 257 58
+"" "202202185335508565735" "SendOrder" "ReprintOrder" "Triggers when an order is re-printed" no 2022-02-18T14:57:21.978 "asi" "_default" 258 58

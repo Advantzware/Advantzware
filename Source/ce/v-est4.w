@@ -462,7 +462,7 @@ DEFINE FRAME F-Main
           SIZE 10 BY .62 AT ROW 1.71 COL 66
      "Markup" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.71 COL 106.2
-     "S  /  B" VIEW-AS TEXT
+     "F  /  B" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 5
      "Special Materials" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 8.62 COL 3

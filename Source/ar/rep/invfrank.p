@@ -393,7 +393,7 @@ assign
         end.
  */       
         v-inv-date = ar-inv.inv-date.
-        PUT "[@startPage" + TRIM(STRING(ar-inv.inv-no,">>>>>9")) + "]" FORMAT "X(50)".
+        PUT "[@startPage" + TRIM(STRING(ar-inv.inv-no,">>>>>>>9")) + "]" FORMAT "X(50)".
         {ar/rep/invfrank.i}
         v-subtot-lines = 0.
         v-t-tax = 0.
@@ -615,7 +615,7 @@ assign
            END.
 
         end. /* each ar-invm */
-        PUT "[@endPage" + TRIM(STRING(ar-inv.inv-no,">>>>>9")) + "]" FORMAT "X(50)".
+        PUT "[@endPage" + TRIM(STRING(ar-inv.inv-no,">>>>>>>9")) + "]" FORMAT "X(50)".
 
 /*
         if v-prntinst then do:

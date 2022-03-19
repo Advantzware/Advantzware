@@ -2692,7 +2692,7 @@ PROCEDURE run-report :
     DO:                                    
         OUTPUT STREAM excel TO VALUE(cFileName).                        /*Task# 02101407*/                  
         excelheader = "MACH,DESCRIPT,DP,DATE,SH,JOB #,"
-            + "S,B,P,ITEM #,ITEM DESCRIPTION,CODE,"
+            + "F,B,P,ITEM #,ITEM DESCRIPTION,CODE,"
             + "HOURS,START,STOP,CR,RUN QTY,WASTE,C".
         PUT STREAM excel UNFORMATTED 
             '"' REPLACE(excelheader,',','","') '"' SKIP.

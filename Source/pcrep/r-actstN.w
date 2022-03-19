@@ -77,7 +77,7 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
 ASSIGN 
-    cTextListToSelect  = "Dept,Mach,Job#,S,B,Run Hrs,MR Hrs," +
+    cTextListToSelect  = "Dept,Mach,Job#,F,B,Run Hrs,MR Hrs," +
                            "Job DT,NC DT,Tot Hrs," +
                            "Std Run,Std MR,Tot Std Hrs," +
                            "Variance,Estimate,Cailper,Run Qty,Order Qty,Item Name"
@@ -92,7 +92,7 @@ ASSIGN
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
-    cTextListToDefault = "Dept,Mach,Job#,S,B,Run Hrs,MR Hrs," +
+    cTextListToDefault = "Dept,Mach,Job#,F,B,Run Hrs,MR Hrs," +
                            "Job DT,NC DT,Tot Hrs," +
                            "Std Run,Std MR,Tot Std Hrs," +
                            "Variance" .

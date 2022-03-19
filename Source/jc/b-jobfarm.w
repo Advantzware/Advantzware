@@ -224,7 +224,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      job-farm.frm COLUMN-LABEL "S" FORMAT ">>>":U WIDTH 4 COLUMN-FONT 0
+      job-farm.frm COLUMN-LABEL "F" FORMAT ">>>":U WIDTH 4 COLUMN-FONT 0
             LABEL-BGCOLOR 14
       job-farm.blank-no COLUMN-LABEL "B" FORMAT ">>>":U WIDTH 4
             COLUMN-FONT 0
@@ -368,7 +368,7 @@ use-index seq-idx"
      _Where[2]         = "itemfg.company EQ job-farm.company AND
 itemfg.i-no EQ job-farm.i-no"
      _FldNameList[1]   > ASI.job-farm.frm
-"job-farm.frm" "S" ">>>" "integer" ? ? 0 14 ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-farm.frm" "F" ">>>" "integer" ? ? 0 14 ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-farm.blank-no
 "job-farm.blank-no" "B" ">>>" "integer" ? ? 0 ? ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-farm.i-no

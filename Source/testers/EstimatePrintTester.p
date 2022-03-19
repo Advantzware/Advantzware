@@ -22,12 +22,14 @@ DEFINE VARIABLE giTimer             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE gcOutputFile        AS CHARACTER INITIAL "C:\temp\estPrintOut.xpr".
 DEFINE VARIABLE gcProfilerFile      AS CHARACTER INITIAL "C:\temp\estCalcProfile.prof".
 DEFINE VARIABLE gcCompany           AS CHARACTER INITIAL "001".
-DEFINE VARIABLE gcEstimate          AS CHARACTER INITIAL "  101413".
+DEFINE VARIABLE gcEstimate          AS CHARACTER INITIAL "  101093".
 DEFINE VARIABLE glDoJob             AS LOGICAL   INITIAL NO.
 DEFINE VARIABLE glDoCalc            AS LOGICAL   INITIAL YES.
 DEFINE VARIABLE glPurge             AS LOGICAL   INITIAL YES.
 DEFINE VARIABLE glAlt               AS LOGICAL   INITIAL NO.
-DEFINE VARIABLE glDoPrompts         AS LOGICAL   INITIAL YES.
+DEFINE VARIABLE glDoPrompts         AS LOGICAL   INITIAL NO.
+DEFINE VARIABLE glShowWeights       AS LOGICAL   INITIAL YES.
+DEFINE VARIABLE glPrint             AS LOGICAL   INITIAL NO.
 
 DEFINE VARIABLE cJobID              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iJobID2             AS INTEGER   NO-UNDO.
@@ -81,10 +83,14 @@ IF glPurge AND NOT glAlt THEN
         AND estCostHeader.jobID EQ cJobID
         AND estCostHeader.jobID2 EQ iJobID2
         NO-ERROR.
-IF AVAILABLE estCostHeader THEN 
+IF AVAILABLE estCostHeader AND glPrint THEN 
     RUN est\EstimatePrint.p (estCostHeader.estCostHeaderID, gcOutputFile).
 
-
+IF AVAILABLE estCostHeader AND glShowWeights THEN 
+    FOR EACH estCostMaterial NO-LOCK 
+    WHERE estCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID:
+        DISPLAY estCostMaterial.itemID estCostMaterial.weightTotal estCostMaterial.addToWeightNet estCostMaterial.addToWeightTare.
+    END.    
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pOnOffProfiler :
