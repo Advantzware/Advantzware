@@ -443,10 +443,10 @@ assign
             PUT space(1) v-inv-qty format "->>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>9" SPACE(1)
                 /*v-bo-qty  format   "->>>>>9" SPACE(1)*/
-                ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
+                ar-invl.ord-no FORM ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
                 v-i-dscr  format "x(25)" SPACE(1)
-                v-price /* format ">>>9.9999" */ FORMAT ">>,>>9.99" SPACE(2)
+                v-price /* format ">>>9.9999" */ FORMAT ">>,>>9.99" SPACE(1)
                 v-price-head SPACE(1)
                 ar-invl.amt  format "->>>,>>9.99"                     
                 SKIP.
@@ -474,10 +474,10 @@ assign
                 IF ll-firstp THEN
                   PUT v-cases-order
                       v-cases-ship
-                      SPACE(9)
+                      SPACE(10)
                       ar-invl.part-no.
 
-                ELSE PUT SPACE(40).
+                ELSE PUT SPACE(41).
 
                 PUT SPACE(1)
                     v-part-info

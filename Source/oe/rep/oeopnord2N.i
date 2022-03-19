@@ -2,6 +2,7 @@
 /* Open Order Report                                                          */
 /* Author: Gilbert Marquez                                                    */
 /* December 24, 2008                                                          */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 IF v-first THEN 
@@ -272,7 +273,7 @@ IF AVAIL itemfg THEN DO:
                          WHEN "item"    THEN cVarValue = IF AVAIL itemfg THEN  string(itemfg.i-no,"x(15)") ELSE "" .
                          WHEN "rel-date"    THEN cVarValue = IF w-ord.rel-date NE ? THEN string(date(w-ord.rel-date),"99/99/99") ELSE "" .
                          WHEN "ord-date"   THEN cVarValue = IF w-ord.last-date NE ? THEN string(w-ord.last-date,"99/99/99")  ELSE "".
-                         WHEN "ord-no"   THEN cVarValue = STRING(w-ord.ord-no,"99999999").
+                         WHEN "ord-no"   THEN cVarValue = TRIM(STRING(w-ord.ord-no,">>>>>>>9")).
                          WHEN "cust-po"  THEN cVarValue = STRING(w-ord.po-num,"x(15)") .
                          WHEN "item-name"   THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.i-name,"x(25)") ELSE "" .
                          WHEN "rout"  THEN cVarValue = STRING(lv-routing,"x(15)") .

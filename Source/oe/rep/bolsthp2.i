@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/bolxprt2.i 02/04 YSK */
 /* PRINT detail                                                               */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 v-tot-cases = 0.
 
 for each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no,      
@@ -73,8 +73,8 @@ for each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe
     if i eq 2 then
       assign
        v-part-dscr = oe-ordl.i-name
-       v-job-po    = if oe-ordl.job-no eq "" then "" else
-                    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+       v-job-po    = IF oe-ordl.job-no EQ "" THEN "" 
+                     ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
     
     else
     if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
@@ -102,8 +102,8 @@ for each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe
                             v-job-po    = oe-boll.po-no.
              ELSE if i eq 2 THEN 
                   ASSIGN v-part-dscr = /*oe-ordl.i-name*/ oe-ordl.part-dscr1
-                         v-job-po    = if oe-ordl.job-no eq "" then "" else
-                                (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+                         v-job-po    = IF oe-ordl.job-no EQ "" THEN "" 
+                                       ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
              else if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
              ELSE if i eq 4 then v-part-dscr = oe-ordl.part-dscr2.
              
@@ -154,8 +154,8 @@ for each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe
                             v-job-po    = oe-boll.po-no.
       ELSE if i eq 2 THEN 
            ASSIGN v-part-dscr = /*oe-ordl.i-name*/ oe-ordl.part-dscr1
-                  v-job-po    = if oe-ordl.job-no eq "" then "" else
-                                (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+                  v-job-po    = IF oe-ordl.job-no EQ "" THEN "" 
+                                ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
       else if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
       ELSE if i eq 4 then v-part-dscr = oe-ordl.part-dscr2.
 
@@ -192,14 +192,14 @@ for each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe
                 v-job-po    = oe-boll.po-no.
       ELSE if i eq 2 then
            ASSIGN v-part-dscr = oe-ordl.part-dscr1
-                  v-job-po    = if oe-ordl.job-no eq "" then "" else
-                    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+                  v-job-po    = IF oe-ordl.job-no EQ "" THEN "" 
+                                ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
       ELSE if i eq 3 then v-part-dscr = "" /*oe-ordl.part-dscr1*/.
       ELSE if i eq 4 then v-part-dscr = "" /*oe-ordl.part-dscr2*/.
     
       IF i = 2 AND v-job-po = "" THEN
-         v-job-po = if oe-boll.job-no eq "" then "" else
-                   (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99"))                 .
+         v-job-po = IF oe-boll.job-no EQ "" THEN "" 
+                    ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
 
       if v-part-dscr ne "" or v-job-po ne "" or i le 2 then do:
          display {1}

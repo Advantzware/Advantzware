@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -174,9 +175,9 @@ DEFINE BROWSE Browser-Table
       vend-whse-trans.item-po-no FORMAT "x(15)":U WIDTH 13.2 LABEL-BGCOLOR 14
       vend-whse-trans.sell-price FORMAT ">,>>>,>>9.99":U WIDTH 20
             LABEL-BGCOLOR 14
-      vend-whse-trans.vend-job-no COLUMN-LABEL "Suppliers!Job#" FORMAT "x(6)":U
+      vend-whse-trans.vend-job-no COLUMN-LABEL "Suppliers!Job#" FORMAT "x(9)":U
             WIDTH 13.2 LABEL-BGCOLOR 14
-      vend-whse-trans.vend-job-no2 FORMAT ">9":U
+      vend-whse-trans.vend-job-no2 FORMAT ">>9":U
   ENABLE
       vend-whse-trans.vend-bol-no
       vend-whse-trans.trans-qty HELP "Quantity Consummed"
@@ -835,7 +836,7 @@ IF AVAILABLE(tt-bol) AND v-cnt = 1 THEN DO:
       vend-whse-trans.item-po-no:SCREEN-VALUE IN BROWSE {&browse-name}    = CAPS(tt-bol.po-no)
       vend-whse-trans.trans-qty:SCREEN-VALUE IN BROWSE {&browse-name}     = STRING(tt-bol.qty)
       vend-whse-trans.trans-date:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(tt-bol.bol-date)                                                                      
-      vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name}   = FILL(" ",6 - LENGTH(TRIM(tt-bol.job-no))) + TRIM(tt-bol.job-no)
+      vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name}   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', tt-bol.job-no)) 
       vend-whse-trans.vend-job-no2:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(tt-bol.job-no2) 
       vend-whse-trans.vend-ord-no:SCREEN-VALUE IN BROWSE {&browse-name}   = STRING(tt-bol.ord-no)
       vend-whse-trans.vendor-code:SCREEN-VALUE IN BROWSE {&browse-name}        = CAPS(b-vend-whse-item.vendor-code)

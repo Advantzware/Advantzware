@@ -279,9 +279,9 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _FREEFORM
     QUERY BROWSE-1 DISPLAY
-    job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(7)":U COLUMN-BGCOLOR 8
+    job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U COLUMN-BGCOLOR 8
     LABEL-BGCOLOR 14
-    job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
+    job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">>9":U LABEL-BGCOLOR 14
     job-hdr.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
     LABEL-BGCOLOR 14
     job-hdr.qty COLUMN-LABEL "Job Qty" FORMAT "->>>,>>>,>>9":U
@@ -293,7 +293,7 @@ DEFINE BROWSE BROWSE-1
     job-hdr.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
     job-hdr.est-no COLUMN-LABEL "Estimate#" FORMAT "x(8)":U WIDTH 14
     LABEL-BGCOLOR 14
-    job-hdr.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+    job-hdr.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
     job.start-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
     job.due-date   FORMAT "99/99/9999":U LABEL-BGCOLOR 14
     job.close-date COLUMN-LABEL "Close Date" FORMAT "99/99/9999":U

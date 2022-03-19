@@ -31,7 +31,7 @@ def var v-saddr like shipto.ship-addr NO-UNDO.
 def var v-scity like shipto.ship-city NO-UNDO.
 def var v-sstate like shipto.ship-state NO-UNDO.
 def var v-szip like shipto.ship-zip NO-UNDO.
-def var v-job as char format "x(12)" NO-UNDO.
+def var v-job as char format "x(16)" NO-UNDO.
 def var v-po-tot like po-ord.t-cost extent 2 NO-UNDO.
 def var v-t-freight like po-ord.t-freight extent 2 NO-UNDO.
 def var v-sqft as dec NO-UNDO.

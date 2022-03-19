@@ -17,6 +17,7 @@
 
   Created: 04/12/2002
 
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No).
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -145,9 +146,9 @@ FORMAT
     oe-boll.weight   FORMAT "->>>,>>9"
 
     HEADER
-    SPACE(5) "Item#           Item Name            P.O. #            Ord#  Rel.# Whse. Bin Loc  Tag         Cases Qty/Case  Partial   Weight" SKIP
-    SPACE(5) "--------------- -------------------- --------------- ------ ------ ----- -------- -------- -------- -------- -------- --------"
-    WITH STREAM-IO WIDTH 132 DOWN NO-LABELS NO-BOX NO-UNDERLINE FRAME boll.
+    SPACE(5) "Item#           Item Name            P.O. #              Ord#  Rel.# Whse. Bin Loc  Tag         Cases Qty/Case  Partial   Weight" SKIP
+    SPACE(5) "--------------- -------------------- --------------- -------- ------ ----- -------- -------- -------- -------- -------- --------"
+    WITH STREAM-IO WIDTH 134 DOWN NO-LABELS NO-BOX NO-UNDERLINE FRAME boll.
 
 {oe/closchk.i NEW}
 

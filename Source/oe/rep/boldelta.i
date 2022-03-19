@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolempir.i 12/99 FWK */
 /* PRINT Empire BOL                                                           */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 assign
@@ -95,8 +96,7 @@ for each report where report.term-id eq v-term-id,
 
   v-job-no = "".
   if avail oe-ordl and oe-ordl.job-no ne "" then
-     v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-                trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
+     v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
   ASSIGN v-ship-qty = v-ship-qty + oe-boll.qty
          v-weight   = v-weight + oe-boll.weight
@@ -111,8 +111,8 @@ for each report where report.term-id eq v-term-id,
                               v-job-po    = oe-boll.po-no.
         ELSE
         if i eq 2 THEN ASSIGN v-part-dscr = oe-ordl.part-dscr1 /*i-name*/
-                              v-job-po    = if oe-ordl.job-no eq "" then "" else
-                                (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+                              v-job-po    = if oe-ordl.job-no eq "" then "" ELSE 
+                                            TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
         ELSE
         if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
         ELSE
@@ -123,9 +123,9 @@ for each report where report.term-id eq v-term-id,
           PAGE {1}.
           {oe/rep/boldelta22.i}
         END.
-        cJobNo = IF oe-boll.job-no NE "" THEN (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,"99")) ELSE "No Job#".
+        cJobNo = IF oe-boll.job-no NE "" THEN TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))) ELSE "No Job#".
         IF FIRST(w2.cases * w2.cas-cnt) THEN 
-          PUT {1} cJobNo FORMAT "x(10)" /*oe-ordl.part-no*/
+          PUT {1} cJobNo FORMAT "x(13)" /*oe-ordl.part-no*/
                   v-job-po  AT 17 FORM "x(15)" 
                   oe-ordl.part-no /*oe-boll.i-no*/ AT 33 
                   oe-ordl.i-name FORM "x(22)"
@@ -193,9 +193,9 @@ for each report where report.term-id eq v-term-id,
   END.
   /* end of summary mods */
   ELSE DO:
-     cJobNo = IF oe-boll.job-no NE "" THEN (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,"99")) ELSE "No Job#".
+     cJobNo = IF oe-boll.job-no NE "" THEN TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))) ELSE "No Job#".
      DISPLAY  {1}
-          cJobNo FORMAT "x(10)"
+          cJobNo FORMAT "x(13)"
           oe-boll.po-no AT 17
           oe-ordl.part-no   WHEN AVAIL oe-ordl /*oe-boll.i-no*/ 
           oe-ordl.i-name  FORM "x(19)"

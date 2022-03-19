@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* cec/quote/quorfc2.i */
  
 PUT "<R2><C3><#89><R+14><C+43><IMAGE#89=" ls-full-img1 FORMAT "x(200)" SKIP(1). /* Abox logo */ 
@@ -41,14 +42,14 @@ PUT "<FMS Sans Serif><=4><R+1> Quote Date         FOB                     Ship V
     "<C39>" terms.dscr FORM "x(15)" "<C53>"  sman.sname "<C73>" v-over-under SKIP.
 
 PUT "<|10><R28><C1><#5><FROM><R30><C80><RECT>" SKIP    
-    "<R28><C7><FROM><R30><C7><LINE>" SKIP
-    "<R28><C20><FROM><R30><C20><LINE>" SKIP
-    "<R28><C45><FROM><R30><C45><LINE>" SKIP
-    "<R28><C56><FROM><R30><C56><LINE>" SKIP
-    "<R28><C63><FROM><R30><C63><LINE>" SKIP
-    "<R28><C73><FROM><R30><C73><LINE>" SKIP.
+    "<R28><C8><FROM><R30><C8><LINE>" SKIP
+    "<R28><C23.5><FROM><R30><C23.5><LINE>" SKIP
+    "<R28><C50><FROM><R30><C50><LINE>" SKIP
+    "<R28><C58><FROM><R30><C58><LINE>" SKIP
+    "<R28><C65><FROM><R30><C65><LINE>" SKIP
+    "<R28><C75><FROM><R30><C75><LINE>" SKIP.
   
-PUT "<FMS Sans Serif><=5><R+1> Est#/Qt#    Part#/Description               Item/Style/Color/Board                             Quantity      Release             Price           UOM " SKIP.
+PUT "<FMS Sans Serif><=5><R+1> Est#/Qt#    Part#/Description               Item/Style/Color/Board                                Quantity      Release             Price           UOM " SKIP.
 PUT "<FMS Sans Serif>".
 
 lv-pg-num = PAGE-NUMBER.

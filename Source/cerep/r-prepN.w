@@ -79,7 +79,7 @@ ASSIGN cTextListToSelect = "Code,Desc.,Customer Name,Whse,Bin Loc,Dspsl Dt,Lst U
                              "cust,lst-est,lst-job,has-not,prep.box-style,prep.price," +
                              "prep.carton-l,prep.carton-w,prep.carton-d,prep.number-up,prep.die-w,prep.die-l,prep.no-of-impressions,received-date," +
                              "prep.fgcat,prep.i-no,procat,owner1,owner%1,owner2,owner%2"
-       cFieldLength = "15,30,30,5,8,10,10," + "7,10,3,6,6,9,3,5,6,30,15,15," + "10,13,10,8,10,8," + "10,10,10,10,10,10,15,13," + "11,11,5,15,25,9,25,9"
+       cFieldLength = "15,30,30,5,8,10,10," + "7,10,3,6,6,9,3,5,6,30,15,15," + "10,13,13,8,10,8," + "10,10,10,10,10,10,15,13," + "11,11,5,15,25,9,25,9"
        cFieldType = "c,c,c,c,c,c,c," + "i,i,c,i,c,c,c,c,c,c,c,c," + "c,c,c,c,c,i," + "i,i,i,i,i,i,i,c," + "c,c,c,c,c,i,c,i"
     .
 
@@ -1224,7 +1224,7 @@ DEFINE VARIABLE ii LIKE i NO-UNDO.
         ASSIGN 
             v_ML     = IF prep.ml EQ TRUE THEN "M" ELSE "L"
             v_dfault = IF prep.dfault EQ TRUE THEN "Y" ELSE "N"
-            v-lst-job = TRIM(STRING(prep.last-job-no)  + "-" + STRING(prep.last-job-no2,"99"))
+            v-lst-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', prep.last-job-no, prep.last-job-no2)))
             cDisplay = ""
             cTmpField = ""
             cVarValue = ""
@@ -1280,7 +1280,7 @@ DEFINE VARIABLE ii LIKE i NO-UNDO.
                     WHEN "cad-no"           THEN cVarValue =  STRING(prep.cadNo).
                     WHEN "cust"             THEN cVarValue = prep.cust-no   .
                     WHEN "lst-est"          THEN cVarValue = prep.last-est-no  .
-                    WHEN "lst-job"          THEN cVarValue = IF v-lst-job NE "-00" AND v-lst-job NE "" THEN  v-lst-job ELSE "" .
+                    WHEN "lst-job"          THEN cVarValue = IF v-lst-job NE "-000" AND v-lst-job NE "" THEN  v-lst-job ELSE "" .
                     WHEN "has-not"          THEN cVarValue = IF AVAILABLE notes THEN "Yes" ELSE "No" .    
                     WHEN "owner1"           THEN cVarValue = STRING(prep.owner[1]) .
                     WHEN "owner%1"          THEN cVarValue = STRING(prep.owner-%[1]) .

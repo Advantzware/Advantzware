@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -64,7 +65,7 @@ ASSIGN cTextListToSelect  = "Est#,Customer Name,Last used,Part #,Description 1,D
                             "v_blksz,v-blk-dim,eb.i-coldscr,v_i-name,v-booked,eb.ord-no,ord-date,eb.cust-no,eb.sman,comm," +
                             "add1,add2,add3,add4,add5,fg-item,job-no"
 
-       cFieldLength = "5,30,10,15,30,30,25," + "20,27,30,30,6,11,10,8,9,12," + "10,10,10,10,10,15,9"
+       cFieldLength = "8,30,10,15,30,30,25," + "20,27,30,30,6,11,10,8,9,12," + "10,10,10,10,10,15,13"
        .
 
 {sys/inc/ttRptSel.i}
@@ -1849,7 +1850,7 @@ FOR EACH tt-eb,
                  IF hField <> ? THEN DO:                 
                      cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                      IF ENTRY(i,cSelectedList) = "Job#" THEN
-                        cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-rcpth.job-no2,"99") ELSE "".   
+                        cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-rcpth.job-no2,"999") ELSE "".   
 
                      IF ENTRY(i,cSelectedList) = "Last Order#" THEN
                         cTmpField = IF cTmpField <> "0" THEN cTmpField ELSE "".   
@@ -1883,7 +1884,7 @@ FOR EACH tt-eb,
                  WHEN "add5" THEN cVarValue = STRING(adder[5]).
                  WHEN "comm"   THEN cVarValue = STRING(eb.comm,"->>9.99%").
                  WHEN "fg-item" THEN cVarValue = IF AVAIL eb AND eb.stock-no NE "" THEN STRING(eb.stock-no,"x(15)") ELSE "".
-                 WHEN "job-no" THEN cVarValue = IF AVAIL job-hdr THEN STRING(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99"),"x(9)") ELSE "".
+                 WHEN "job-no" THEN cVarValue = IF AVAIL job-hdr THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)) ELSE "".
                  WHEN "eb-ord-no" THEN cVarValue = IF eb.ord-no NE 0 THEN STRING(eb.ord-no) ELSE STRING(iOrder).
                       
             END CASE.

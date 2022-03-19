@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invmwbox.p */
 /* PRINT INVOICE   Xprint form for Midwest Box            */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -453,7 +453,8 @@ DEFINE VARIABLE iCaseQty      AS INTEGER   NO-UNDO.
                 v-price  format ">>>,>>9.9999"                
                 inv-line.t-price  format "->>>,>>9.99"                
                 SKIP
-                v-ord-no SPACE(10)                  
+                SPACE(1)
+                TRIM(STRING(v-ord-no,">>>>>>>9")) SPACE(7)                  
                 inv-line.i-no SPACE(34)
                 v-pc  SPACE(8)
                 v-price-head SPACE(1) SKIP                

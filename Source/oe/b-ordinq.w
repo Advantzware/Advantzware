@@ -13,6 +13,8 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
 /*------------------------------------------------------------------------
 
   File:  oe\b-ordinq.w
+  
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -183,7 +185,7 @@ ll-sort-asc = NO /*oeinq*/.
     IF lv-sort-by EQ 'part-no'   THEN oe-ordl.part-no ELSE ~
     IF lv-sort-by EQ 'po-no'     THEN oe-ordl.po-no ELSE ~
     IF lv-sort-by EQ 'est-no'    THEN oe-ordl.est-no ELSE ~
-    IF lv-sort-by EQ 'job-no'    THEN STRING(oe-ordl.job-no,'x(6)') + STRING(oe-ordl.job-no2,'99')ELSE ~
+    IF lv-sort-by EQ 'job-no'    THEN STRING(oe-ordl.job-no,'x(9)') + STRING(oe-ordl.job-no2,'999')ELSE ~
     IF lv-sort-by EQ 'cad-no'    THEN itemfg.cad-no ELSE ~
     IF lv-sort-by EQ 's-man'     THEN oe-ordl.s-man[1] ELSE ~
     IF lv-sort-by EQ 'e-num'     THEN STRING(oe-ordl.e-num) ELSE ~
@@ -293,7 +295,7 @@ oe-ordl.job-no2
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table oe-ord
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH oe-ordl ~
       WHERE oe-ordl.company EQ g_company ~
-AND oe-ordl.ord-no EQ 999999 NO-LOCK, ~
+AND oe-ordl.ord-no EQ 99999999 NO-LOCK, ~
       EACH oe-ord OF oe-ordl NO-LOCK, ~
       FIRST itemfg OF oe-ordl ~
       WHERE itemfg.company EQ oe-ordl.company ~
@@ -301,7 +303,7 @@ AND itemfg.i-no EQ oe-ordl.i-no OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH oe-ordl ~
       WHERE oe-ordl.company EQ g_company ~
-AND oe-ordl.ord-no EQ 999999 NO-LOCK, ~
+AND oe-ordl.ord-no EQ 99999999 NO-LOCK, ~
       EACH oe-ord OF oe-ordl NO-LOCK, ~
       FIRST itemfg OF oe-ordl ~
       WHERE itemfg.company EQ oe-ordl.company ~
@@ -580,14 +582,14 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1
+     SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1
+     SIZE 5.2 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
@@ -649,7 +651,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      oe-ordl.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      oe-ordl.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       oe-ordl.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
       oe-ordl.whsed COLUMN-LABEL "R&S" FORMAT "X/":U LABEL-BGCOLOR 14
@@ -667,9 +669,9 @@ DEFINE BROWSE Browser-Table
       getitempo() @ cItemPo COLUMN-LABEL "Item PO#" FORMAT "x(15)":U WIDTH 30 LABEL-BGCOLOR 14
       oe-ordl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
-      oe-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 12
+      oe-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 12
             LABEL-BGCOLOR 14
-      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
+      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">>9":U LABEL-BGCOLOR 14
       itemfg.cad-no COLUMN-LABEL "CAD#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.qty COLUMN-LABEL "Ordered Qty" FORMAT "->>,>>>,>>>":U
       get-prod(li-bal) @ li-prod COLUMN-LABEL "Prod. Qty" FORMAT "->>,>>>,>>>":U
@@ -722,7 +724,7 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 4.33 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     cbType AT ROW 1.95 COL 146.2 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     cbType AT ROW 1.95 COL 150 COLON-ALIGNED NO-LABEL WIDGET-ID 32
      fiItemPo AT ROW 3.14 COL 68.2 COLON-ALIGNED NO-LABEL WIDGET-ID 36
      tbOther AT ROW 3.14 COL 154.6 WIDGET-ID 28
      tbHold AT ROW 3.14 COL 146.4 WIDGET-ID 26
@@ -736,9 +738,9 @@ DEFINE FRAME F-Main
      fi_po-no1 AT ROW 1.95 COL 68 COLON-ALIGNED NO-LABEL
      fi_est-no AT ROW 1.95 COL 88 COLON-ALIGNED NO-LABEL
      fi_job-no AT ROW 1.95 COL 102 COLON-ALIGNED NO-LABEL
-     fi_job-no2 AT ROW 1.95 COL 113 COLON-ALIGNED NO-LABEL
-     fi_cad-no AT ROW 1.95 COL 117 COLON-ALIGNED NO-LABEL
-     fi_sman AT ROW 1.95 COL 138 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     fi_job-no2 AT ROW 1.95 COL 116 COLON-ALIGNED NO-LABEL
+     fi_cad-no AT ROW 1.95 COL 121 COLON-ALIGNED NO-LABEL
+     fi_sman AT ROW 1.95 COL 142 COLON-ALIGNED NO-LABEL WIDGET-ID 10
      btn_go AT ROW 3.14 COL 2
      btn_prev AT ROW 3.14 COL 7.8
      btn_next AT ROW 3.14 COL 16.6
@@ -748,7 +750,7 @@ DEFINE FRAME F-Main
           SIZE 8 BY .71 AT ROW 1.24 COL 104
           FGCOLOR 9 FONT 22
      "CAD#" VIEW-AS TEXT
-          SIZE 8 BY .71 AT ROW 1.24 COL 119
+          SIZE 8 BY .71 AT ROW 1.24 COL 124
           FGCOLOR 9 FONT 22
      "Order#" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.24 COL 2
@@ -763,10 +765,10 @@ DEFINE FRAME F-Main
           SIZE 13 BY .71 AT ROW 1.24 COL 50
           FGCOLOR 9 FONT 22
      "Open" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.24 COL 150.6 WIDGET-ID 34
+          SIZE 6 BY .62 AT ROW 1.24 COL 154.6 WIDGET-ID 34
           FGCOLOR 9 FONT 22
      "REP#" VIEW-AS TEXT
-          SIZE 6.6 BY .71 AT ROW 1.24 COL 140.2 WIDGET-ID 12
+          SIZE 6.6 BY .71 AT ROW 1.24 COL 144.2 WIDGET-ID 12
           FGCOLOR 9 FONT 22
      "Order/Item PO" VIEW-AS TEXT
           SIZE 18 BY .71 AT ROW 1.24 COL 70
@@ -862,7 +864,7 @@ ASSIGN
      _Options          = "NO-LOCK SORTBY-PHRASE"
      _TblOptList       = ",, FIRST OUTER"
      _Where[1]         = "oe-ordl.company EQ g_company
-AND oe-ordl.ord-no EQ 999999"
+AND oe-ordl.ord-no EQ 99999999"
      _Where[3]         = "itemfg.company EQ oe-ordl.company
 AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[1]   > ASI.oe-ordl.ord-no
@@ -1165,7 +1167,7 @@ DO:
                     AND (bf-oe-ordl.i-no BEGINS fi_i-no OR fi_i-no EQ "")
                     AND (bf-oe-ordl.ord-no EQ fi_ord-no OR fi_ord-no EQ 0)
                     AND (bf-oe-ordl.est-no BEGINS fi_est-no OR fi_est-no EQ "")
-                    AND (bf-oe-ordl.job-no BEGINS fi_job-no OR fi_job-no EQ "")
+                    AND ( fill(" ",9 - length(TRIM(bf-oe-ordl.job-no))) + trim(bf-oe-ordl.job-no) BEGINS fi_job-no OR fi_job-no EQ "")
                     AND (bf-oe-ordl.po-no BEGINS fi_po-no1 OR fi_po-no1 = "")
                     AND (bf-oe-ordl.s-man[1] BEGINS fi_sman OR fi_sman EQ "")
                   NO-ERROR.
@@ -1871,7 +1873,7 @@ PROCEDURE local-open-query :
     IF fi_est-no NE "" THEN 
         fi_est-no = FILL(" ",8 - LENGTH(TRIM(fi_est-no))) + TRIM(fi_est-no).
     IF fi_job-no NE "" THEN 
-        fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).                 
+        fi_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fi_job-no)).                 
 
     /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -3577,8 +3579,8 @@ FUNCTION pGetSortCondition RETURNS CHARACTER
             IF ipcSortBy EQ 'po-no'     THEN (IF ipcSortLabel EQ "Order PO#" THEN    
                                               oe-ord.po-no ELSE oe-ordl.po-no)       ELSE ~
             IF ipcSortBy EQ 'est-no'    THEN "oe-ordl.est-no"                        ELSE ~
-            IF ipcSortBy EQ 'job-no'    THEN "STRING(oe-ordl.job-no,'x(6)')          
-                                                 + STRING(oe-ordl.job-no2,'99')"     ELSE ~
+            IF ipcSortBy EQ 'job-no'    THEN "STRING(oe-ordl.job-no,'x(9)')          
+                                                 + STRING(oe-ordl.job-no2,'999')"     ELSE ~
             IF ipcSortBy EQ 'cad-no'    THEN "itemfg.cad-no"                         ELSE ~
             IF ipcSortBy EQ 'q-onh'     THEN "itemfg.q-onh"                          ELSE ~
             IF ipcSortBy EQ 's-man'     THEN "oe-ordl.s-man[1]"                      ELSE ~
@@ -3607,7 +3609,7 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cWhereCriteria AS CHARACTER NO-UNDO.
-    
+        
     IF ipcTable EQ "oe-ord" THEN DO: 
         IF cbType EQ "Closed" OR (cbType EQ "Open" AND tbOther) THEN 
             cWhereCriteria = " oe-ord.stat NE 'W'".
@@ -3662,7 +3664,7 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
                          + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "       + STRING(fi_ord-no)   ELSE "")
                          + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS "   + QUOTER(fi_cust-no)  ELSE "")
                          + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "    + QUOTER(fi_est-no)   ELSE "")
-                         + (IF fi_job-no  NE "" THEN " AND oe-ordl.job-no BEGINS "    + QUOTER(fi_job-no)   ELSE "")
+                         + (IF fi_job-no  NE "" THEN " AND " + 'fill(" ",9 - length(TRIM(oe-ordl.job-no))) +' + " trim(oe-ordl.job-no) BEGINS "    + QUOTER(fi_job-no)   ELSE "")
                          + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
                          + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "    + QUOTER (fi_i-no)    ELSE "")
                          + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS "   + QUOTER(fi_part-no)  ELSE "")

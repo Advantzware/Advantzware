@@ -656,7 +656,7 @@ PROCEDURE CreateJob :
                AND eb.cust-no  EQ oe-ord.cust-no NO-LOCK NO-ERROR.
     IF AVAIL eb THEN 
         v-prod-cat = eb.procat.
-     v-job-no = fill(" ",6 - length(trim(string(oe-ordl.ord-no)))) + string(oe-ordl.ord-no).
+     v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', STRING(oe-ordl.ord-no))) .
      RUN jc/job-no.p (INPUT-OUTPUT v-job-no, INPUT-OUTPUT v-job-no2,INPUT v-prod-cat).
      IF v-job-no NE "" THEN DO:
        assign

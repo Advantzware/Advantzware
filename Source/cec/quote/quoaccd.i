@@ -1,5 +1,6 @@
-/* ------------------------------------------- cec/quote/quocorc.i */
-/* print quote items in Corrugated Concepts format                                          */
+/* ------------------------------------------- cec/quote/quocorc.i            */
+/* print quote items in Corrugated Concepts format                            */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 
@@ -50,7 +51,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       /*      IF LINE-COUNTER + numfit GT PAGE-SIZE - 2 THEN PAGE.  */
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
 
-      put trim(lv-est-no) FORM "x(6)" SPACE(1) 
+      put trim(lv-est-no) FORM "x(8)" SPACE(1) 
           xqitm.part-no space(1) xqitm.part-dscr1 FORM "x(30)" .  
          
     END.
@@ -82,18 +83,18 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       ELSE trim-size = "".
 */
       trim-size = STRING(eb.len) + "x" + STRING(eb.wid) + "x" + STRING(eb.dep).
-      PUT     trim-size AT 8 FORM "x(21)"
+      PUT     trim-size AT 10 FORM "x(21)"
               /*xqitm.style*/  style-dscr   .
     END.
     ELSE
     IF i EQ 3 THEN
-      PUT     "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 8 FORM "x(21)"
-              xqitm.i-coldscr  AT 29 FORM "x(30)".
+      PUT     "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 10 FORM "x(21)"
+              xqitm.i-coldscr  AT 31 FORM "x(30)".
     ELSE
     IF i EQ 4 THEN DO:
       
-       PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 8  FORM "x(21)"         
-           IF AVAIL ef THEN ef.brd-dscr /*xqitm.i-dscr*/ ELSE ""  AT 29 FORMAT "x(30)".
+       PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 10  FORM "x(21)"         
+           IF AVAIL ef THEN ef.brd-dscr /*xqitm.i-dscr*/ ELSE ""  AT 31 FORMAT "x(30)".
     END.
 
     ELSE
@@ -104,7 +105,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                 ELSE "".
 
        
-       put "FG#: " + (IF AVAIL eb THEN eb.stock-no ELSE "") AT 8 FORM "x(21)"
+       put "FG#: " + (IF AVAIL eb THEN eb.stock-no ELSE "") AT 10 FORM "x(21)"
            /*"PLATE#: " + (IF AVAIL eb THEN eb.plate-no  ELSE "")*/
             v-board FORM "x(30)".                                           
 
@@ -112,7 +113,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     END.
     ELSE
     IF i = 6 THEN 
-        PUT "Plate#: " + IF AVAIL eb THEN eb.plate-no ELSE "" AT 8 FORM "x(30)"
+        PUT "Plate#: " + IF AVAIL eb THEN eb.plate-no ELSE "" AT 10 FORM "x(30)"
             SPACE(21) .
 
     IF i > 6 THEN PUT SPACE(58).

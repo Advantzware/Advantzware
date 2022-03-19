@@ -60,7 +60,7 @@
       EACH fg-rcpth
       WHERE fg-rcpth.company EQ cocode
         AND fg-rcpth.i-no    EQ fg-bin.i-no
-        AND fg-rcpth.job-no  EQ fg-bin.job-no
+        AND trim(fg-rcpth.job-no)  EQ trim(fg-bin.job-no)
         AND fg-rcpth.job-no2 EQ fg-bin.job-no2
       USE-INDEX i-no NO-LOCK,
 
@@ -92,7 +92,7 @@
     FOR EACH fg-bin
       WHERE fg-bin.company EQ cocode
         AND fg-bin.i-no    EQ {1}.i-no
-        AND fg-bin.job-no  EQ {1}.job-no
+        AND trim(fg-bin.job-no)  EQ trim({1}.job-no)
         AND fg-bin.job-no2 EQ {1}.job-no2
         AND fg-bin.tag     EQ ""
         AND fg-bin.qty     GE {2}.t-qty
@@ -101,7 +101,7 @@
       EACH fg-rcpth
       WHERE fg-rcpth.company EQ cocode
         AND fg-rcpth.i-no    EQ fg-bin.i-no
-        AND fg-rcpth.job-no  EQ fg-bin.job-no
+        AND trim(fg-rcpth.job-no)  EQ trim(fg-bin.job-no)
         AND fg-rcpth.job-no2 EQ fg-bin.job-no2
       USE-INDEX i-no NO-LOCK,
 
@@ -178,7 +178,7 @@
           IF {1}.job-no ne "" THEN
           FIND FIRST job NO-LOCK
               WHERE job.company EQ cocode
-                AND job.job-no  EQ {1}.job-no
+                AND trim(job.job-no)  EQ trim({1}.job-no)
                 AND job.job-no2 EQ {1}.job-no2
                 AND CAN-FIND(FIRST job-hdr
                              WHERE job-hdr.company EQ job.company
@@ -668,13 +668,13 @@
   END.
 
   find first job-hdr where job-hdr.company eq cocode
-                          and job-hdr.job-no  eq {1}.job-no
+                          and trim(job-hdr.job-no)  eq trim({1}.job-no)
                           and job-hdr.job-no2 eq {1}.job-no2
                           and job-hdr.i-no    eq {1}.i-no
                 no-lock no-error.
   find first fg-bin where fg-bin.company eq cocode
                       and fg-bin.i-no    eq {1}.i-no
-                      and fg-bin.job-no  eq {1}.job-no
+                      and trim(fg-bin.job-no)  eq trim({1}.job-no)
                       and fg-bin.job-no2 eq {1}.job-no2
                       and fg-bin.loc     eq {2}.loc
                       and fg-bin.loc-bin eq {2}.loc-bin
@@ -740,7 +740,7 @@
   IF {1}.rita-code EQ "T" THEN DO:
     FIND FIRST b-fg-bin
         WHERE b-fg-bin.company EQ {1}.company
-          AND b-fg-bin.job-no  EQ {1}.job-no
+          AND trim(b-fg-bin.job-no)  EQ trim({1}.job-no)
           AND b-fg-bin.job-no2 EQ {1}.job-no2
           AND b-fg-bin.i-no    EQ {1}.i-no
           AND b-fg-bin.loc     EQ {2}.loc2
@@ -792,7 +792,7 @@
       AND fg-rdtlh.cases EQ {2}.cases
       AND fg-rdtlh.tag EQ {2}.tag
       AND fg-rdtlh.qty EQ {2}.qty
-      AND fg-rdtlh.job-no EQ {2}.job-no
+      AND trim(fg-rdtlh.job-no) EQ trim({2}.job-no)
       AND fg-rdtlh.job-no2 EQ {2}.job-no2
       AND fg-rdtlh.partial EQ {2}.partial
     NO-LOCK NO-ERROR.

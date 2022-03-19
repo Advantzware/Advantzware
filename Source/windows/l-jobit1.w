@@ -7,7 +7,10 @@
 &Scoped-define FRAME-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*----------------------------------------------------------------------*/
-/*          This .W file was created with the Progress UIB.             */
+/*          This .W file was created with the Progress UIB.             
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
+*/
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
@@ -143,7 +146,7 @@ DEFINE BROWSE BROWSE-1
       tt-job-hdr.blank-no COLUMN-LABEL "Blank#" FORMAT ">>9":U
       tt-job-hdr.i-no FORMAT "x(23)":U COLUMN-FONT 0
       tt-job-hdr.est-no FORMAT "x(8)":U COLUMN-FONT 0
-      tt-job-hdr.ord-no FORMAT ">>>>>9":U COLUMN-FONT 0
+      tt-job-hdr.ord-no FORMAT ">>>>>>>9":U COLUMN-FONT 0
       tt-job-hdr.cust-no FORMAT "x(8)":U COLUMN-FONT 0
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -204,7 +207,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-job-hdr ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.job-hdr.company = ip-company and
-job-hdr.job-no = ip-job-no and
+TRIM(job-hdr.job-no) = TRIM(ip-job-no) and
 job-hdr.job-no2 = int(ip-job-no2)"
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
@@ -344,7 +347,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   
   FRAME dialog-frame:TITLE = TRIM(FRAME dialog-frame:TITLE) + " Job: " +
-                             TRIM(ip-job-no) + "-" + STRING(INT(ip-job-no2),"99").
+                             TRIM(ip-job-no) + "-" + STRING(INT(ip-job-no2),"999").
 
   RUN build-table.
 
@@ -361,7 +364,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           
     FOR EACH tt-job-hdr
         WHERE tt-job-hdr.company EQ ip-company
-          AND tt-job-hdr.job-no  EQ ip-job-no
+          AND TRIM(tt-job-hdr.job-no)  EQ TRIM(ip-job-no)
           AND tt-job-hdr.job-no2 EQ INT(ip-job-no2)
           AND STRING(tt-job-hdr.frm,"9999999999")      +
               STRING(tt-job-hdr.blank-no,"9999999999") +
@@ -405,7 +408,7 @@ END.
 
 FOR EACH job
     WHERE job.company EQ ip-company
-      AND job.job-no  EQ ip-job-no
+      AND TRIM(job.job-no)  EQ TRIM(ip-job-no)
       AND job.job-no2 EQ INT(ip-job-no2)
     NO-LOCK:
 

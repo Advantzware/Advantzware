@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -368,7 +369,7 @@ PROCEDURE close-buttons :
     DO i = 1 TO open-list:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
       IF open-list:IS-SELECTED(i) OR ip-all THEN DO:
         FOR EACH w-file
-            WHERE w-file.job-no EQ SUBSTR(open-list:ENTRY(i),1,9):
+            WHERE w-file.job-no EQ SUBSTR(open-list:ENTRY(i),1,13):
           w-file.cloze = YES.
         END.
       END.
@@ -545,8 +546,7 @@ PROCEDURE local-initialize :
 
         CREATE w-file.
         ASSIGN
-         w-file.job-no = FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-                         TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99")
+         w-file.job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)) 
          w-file.rec-id = RECID(job-hdr)
          w-file.cloze  = YES.
 
@@ -583,7 +583,7 @@ PROCEDURE open-buttons :
     DO i = 1 TO close-list:NUM-ITEMS:
       IF close-list:IS-SELECTED(i) OR ip-all THEN DO:
         FOR EACH w-file
-            WHERE w-file.job-no EQ SUBSTR(close-list:ENTRY(i),1,9):
+            WHERE w-file.job-no EQ SUBSTR(close-list:ENTRY(i),1,13):
           w-file.cloze = NO.
         END.
       END.

@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */ 
  /* cec/quote/quoxfib2.i */
  
      PUT "<C1><R2><#1><R+4><C+65><IMAGE#1=" ls-full-img1 SKIP 
@@ -64,8 +65,8 @@
        terms.dscr FORM "x(15)" space(1) sman.sname space(2) v-over-under SKIP.
 
    PUT "<|10><R25><C1><#5><FROM><R27><C80><RECT>" SKIP    
-             "<R25><C7><FROM><R27><C7><LINE>" SKIP
-             "<R25><C23><FROM><R27><C23><LINE>" SKIP
+             "<R25><C8><FROM><R27><C8><LINE>" SKIP
+             "<R25><C24><FROM><R27><C24><LINE>" SKIP
              "<R25><C49><FROM><R27><C49><LINE>" SKIP
              "<R25><C58><FROM><R27><C58><LINE>" SKIP
              "<R25><C62><FROM><R27><C62><LINE>" SKIP

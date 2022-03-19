@@ -5,8 +5,8 @@
 
 def {1} shared var fcust as char init "".
 def {1} shared var tcust like fcust init "zzzzzzzz".
-def {1} shared var ford-no as int format  ">>>>>>".
-def {1} shared var tord-no like ford-no init 999999.
+def {1} shared var ford-no as int format  ">>>>>>>>".
+def {1} shared var tord-no like ford-no init 99999999.
 def {1} shared var fdate as date format "99/99/9999" init "01/01/0001".
 def {1} shared var tdate like fdate init today.
 def {1} shared var v-reprint as log init no.

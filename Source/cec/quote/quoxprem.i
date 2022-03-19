@@ -1,5 +1,6 @@
-/* ------------------------------------------- cec/quote/quoxprem.i  */
-/* print quote items in premierX format                                          */
+/* ------------------------------------------- cec/quote/quoxprem.i           */
+/* print quote items in premierX format                                       */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
@@ -58,7 +59,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
       lv-part-dscr1 = IF AVAIL est AND est.est-type EQ 6 AND AVAIL itemfg THEN itemfg.i-name
                       ELSE xqitm.part-dscr1.
-      PUT TRIM(lv-est-no) FORM "x(6)" SPACE(1) 
+      PUT TRIM(lv-est-no) FORM "x(8)" SPACE(1) 
           xqitm.part-no space(1) lv-part-dscr1.  
     END.
     ELSE
@@ -96,17 +97,17 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
            ELSE trim-size = "".
       END.
-      PUT  xquo.q-no  trim-size AT 8 FORM "x(21)"
+      PUT  xquo.q-no  trim-size AT 10 FORM "x(21)"
               /*xqitm.style*/  style-dscr   .
     END.
     ELSE
     IF i EQ 3 THEN
-      PUT     "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 8 FORM "x(21)"
-              xqitm.i-coldscr  AT 29 FORM "x(30)".
+      PUT     "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 10 FORM "x(21)"
+              xqitm.i-coldscr  AT 31 FORM "x(30)".
     ELSE
     IF i EQ 4 THEN DO:
-       PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 8  FORM "x(21)"         
-           IF AVAIL ef THEN ef.brd-dscr /*xqitm.i-dscr*/ ELSE ""  AT 29 FORMAT "x(30)".
+       PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 10  FORM "x(21)"         
+           IF AVAIL ef THEN ef.brd-dscr /*xqitm.i-dscr*/ ELSE ""  AT 31 FORMAT "x(30)".
     END.
     ELSE
     IF i EQ 5 /* AND numfit GE 5 */ THEN DO:
@@ -122,7 +123,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        END.
        ELSE lv-fg# = IF AVAIL eb THEN eb.stock-no ELSE xqitm.part-no.
              
-       PUT "FG#: " + lv-fg# AT 8 FORM "x(21)"
+       PUT "FG#: " + lv-fg# AT 10 FORM "x(21)"
            /*"PLATE#: " + (IF AVAIL eb THEN eb.plate-no  ELSE "")*/
             v-board FORM "x(30)" /*SKIP(1)*/.                                           
     END.
@@ -174,9 +175,9 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                   ((xqqty.qty / 1000) * xqqty.price)    ELSE
                   (xqqty.qty * xqqty.price).
 
-       PUT xqqty.qty xqqty.rels SPACE(5)
-               xqqty.price FORM "->>,>>9.999999" SPACE(3)
-               xqqty.uom .   
+       PUT     "<C52>" xqqty.qty "<C60>" xqqty.rels 
+               "<C65>" xqqty.price FORM "->>,>>9.999999" 
+               "<C77>" xqqty.uom .   
               
        v-line-total = v-line-total + xqqty.price.
        
@@ -265,7 +266,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       END.
       ELSE temp-trim-size = trim-size.
     
-      PUT eb.part-no AT 8 FORM "x(21)" temp-trim-size   SKIP.
+      PUT eb.part-no AT 10 FORM "x(21)" temp-trim-size   SKIP.
     
       /* rstark 05181205 */
       XMLLineNumber = XMLLineNumber + 1.
@@ -285,7 +286,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
             AND style.style   EQ eb.style
           NO-LOCK NO-ERROR.
       style-dscr = IF AVAIL style THEN style.dscr ELSE eb.style.      
-      PUT eb.part-dscr1 AT 8 FORM "x(21)"
+      PUT eb.part-dscr1 AT 10 FORM "x(21)"
           style-dscr SKIP.
     
       /* rstark 05181205 */
@@ -321,9 +322,9 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                        item.i-dscr.
       END.
     
-      PUT eb.part-dscr2 AT 8 FORM "x(21)" v-board SKIP .
+      PUT eb.part-dscr2 AT 10 FORM "x(21)" v-board SKIP .
     
-      PUT eb.i-coldscr AT 30 SKIP.
+      PUT eb.i-coldscr AT 31 SKIP.
       
       /* rstark 05181205 */
       XMLLineNumber = XMLLineNumber + 1.

@@ -72,7 +72,7 @@
     if w-fg-rctd.rita-code eq "R" then do:
       find first job-hdr
           where job-hdr.company eq cocode
-            and job-hdr.job-no  eq w-fg-rctd.job-no
+            and trim(job-hdr.job-no)  eq trim(w-fg-rctd.job-no)
             and job-hdr.job-no2 eq w-fg-rctd.job-no2
             and job-hdr.i-no    eq w-fg-rctd.i-no
           use-index job-no no-lock no-error.
@@ -150,13 +150,13 @@
             work-gl.actnum = prod.fg-mat.
 
             work-gl.debits = work-gl.debits + w-fg-rctd.ext-cost.
-            work-gl.cDesc  = work-gl.cDesc + (IF w-fg-rctd.job-no NE "" and w-fg-rctd.job-no NE "0" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2,"99") ELSE "") + (IF w-fg-rctd.po-no NE "" THEN " PO: " + STRING(w-fg-rctd.po-no,"999999") + "-" + STRING(w-fg-rctd.po-line,"999") ELSE "") + " Cost $" + string(w-fg-rctd.std-cost) + " / " + w-fg-rctd.cost-uom NO-ERROR.            
+            work-gl.cDesc  = work-gl.cDesc + (IF w-fg-rctd.job-no NE "" and w-fg-rctd.job-no NE "0" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2,"999") ELSE "") + (IF w-fg-rctd.po-no NE "" THEN " PO: " + STRING(w-fg-rctd.po-no,"999999") + "-" + STRING(w-fg-rctd.po-line,"999") ELSE "") + " Cost $" + string(w-fg-rctd.std-cost) + " / " + w-fg-rctd.cost-uom NO-ERROR.            
             /* Credit WIP Material */            
             create work-gl.
             work-gl.actnum = prod.wip-mat.
             
             work-gl.credits = work-gl.credits + w-fg-rctd.ext-cost.
-            work-gl.cDesc  = work-gl.cDesc + (IF w-fg-rctd.job-no NE "" and w-fg-rctd.job-no NE "0" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2,"99") ELSE "") + ( IF w-fg-rctd.po-no NE "" THEN " PO: " + STRING(w-fg-rctd.po-no,"999999") + "-" + STRING(w-fg-rctd.po-line,"999") ELSE "") + " Cost $" + string(w-fg-rctd.std-cost) + " / " + w-fg-rctd.cost-uom NO-ERROR.
+            work-gl.cDesc  = work-gl.cDesc + (IF w-fg-rctd.job-no NE "" and w-fg-rctd.job-no NE "0" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2,"999") ELSE "") + ( IF w-fg-rctd.po-no NE "" THEN " PO: " + STRING(w-fg-rctd.po-no,"999999") + "-" + STRING(w-fg-rctd.po-line,"999") ELSE "") + " Cost $" + string(w-fg-rctd.std-cost) + " / " + w-fg-rctd.cost-uom NO-ERROR.
           end.  /* if w-fg-rctd.ext-cost */
         end.  
       end.
@@ -212,7 +212,7 @@
       find first fg-bin
           where fg-bin.company eq cocode
             and fg-bin.i-no    eq w-fg-rctd.i-no
-            and fg-bin.job-no  eq w-fg-rctd.job-no
+            and trim(fg-bin.job-no)  eq trim(w-fg-rctd.job-no)
             and fg-bin.job-no2 eq w-fg-rctd.job-no2
             and fg-bin.loc     eq w-fg-rctd.loc
             and fg-bin.loc-bin eq w-fg-rctd.loc-bin
@@ -220,7 +220,7 @@
           no-lock no-error.
           
           
-          cDescription = (IF w-fg-rctd.job-no NE "" AND w-fg-rctd.job-no NE "0" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2,"99") ELSE "")
+          cDescription = (IF w-fg-rctd.job-no NE "" AND w-fg-rctd.job-no NE "0" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2,"999") ELSE "")
                      + ( IF w-fg-rctd.po-no NE "" THEN " PO: " + STRING(w-fg-rctd.po-no,"999999") + "-" + STRING(w-fg-rctd.po-line,"999") ELSE "") 
                      + " Cost $" + string(w-fg-rctd.std-cost) + " / " + w-fg-rctd.cost-uom NO-ERROR.
         
@@ -276,7 +276,7 @@
             IF rd-UOMJob EQ 1 
               THEN w-fg-rctd.pur-uom
               ELSE TRIM(TRIM(w-fg-rctd.job-no) + " " +
-                   STRING(w-fg-rctd.job-no2)) FORMAT "x(10)" 
+                   STRING(w-fg-rctd.job-no2)) FORMAT "x(13)" 
                 @ w-fg-rctd.pur-uom
 
             {2} TO 141
@@ -303,7 +303,7 @@
             IF rd-UOMJob EQ 1 
               THEN w-fg-rctd.pur-uom
               ELSE TRIM(TRIM(w-fg-rctd.job-no) + " " +
-                   STRING(w-fg-rctd.job-no2)) FORMAT "x(10)" 
+                   STRING(w-fg-rctd.job-no2)) FORMAT "x(13)" 
                 @ w-fg-rctd.pur-uom
             {2} TO 141
             /* (sub-total by w-fg-rctd.i-no) */
@@ -329,7 +329,7 @@
             IF rd-UOMJob EQ 1 
               THEN w-fg-rctd.pur-uom
               ELSE TRIM(TRIM(w-fg-rctd.job-no) + " " +
-                   STRING(w-fg-rctd.job-no2)) FORMAT "x(10)" "," 
+                   STRING(w-fg-rctd.job-no2)) FORMAT "x(13)" "," 
             IF v-cost-sell THEN v-fg-cost  
             ELSE IF NOT v-cost-sell THEN v-fg-value  
               ELSE 0       SKIP .
@@ -353,7 +353,7 @@
             IF rd-UOMJob EQ 1 
               THEN w-fg-rctd.pur-uom
               ELSE TRIM(TRIM(w-fg-rctd.job-no) + " " +
-                   STRING(w-fg-rctd.job-no2)) FORMAT "x(10)" "," 
+                   STRING(w-fg-rctd.job-no2)) FORMAT "x(13)" "," 
             IF v-cost-sell THEN v-fg-cost  
             ELSE IF NOT v-cost-sell THEN v-fg-value  
             ELSE 0       SKIP .
@@ -379,7 +379,7 @@
             IF rd-UOMJob EQ 1 
               THEN w-fg-rctd.pur-uom
               ELSE TRIM(TRIM(w-fg-rctd.job-no) + " " +
-                   STRING(w-fg-rctd.job-no2)) FORMAT "x(10)" 
+                   STRING(w-fg-rctd.job-no2)) FORMAT "x(13)" 
                   @ w-fg-rctd.pur-uom
             {2} TO 141
             /* (sub-total by w-fg-rctd.i-no) */
@@ -406,7 +406,7 @@
             IF rd-UOMJob EQ 1 
               THEN w-fg-rctd.pur-uom
               ELSE TRIM(TRIM(w-fg-rctd.job-no) + " " +
-                   STRING(w-fg-rctd.job-no2)) FORMAT "x(10)" 
+                   STRING(w-fg-rctd.job-no2)) FORMAT "x(13)" 
                   @ w-fg-rctd.pur-uom
             {2} TO 141 
             /* (sub-total by w-fg-rctd.i-no) */
@@ -445,7 +445,7 @@
                 IF rd-UOMJob EQ 1 
                   THEN w-fg-rctd.pur-uom
                   ELSE TRIM(TRIM(w-fg-rctd.job-no) + " " +
-                       STRING(w-fg-rctd.job-no2,"99")) FORMAT "x(9)" 
+                       STRING(w-fg-rctd.job-no2,"999")) FORMAT "x(13)" 
                   @ w-fg-rctd.pur-uom
                 
                 {2} TO 141 
@@ -471,7 +471,7 @@
                 IF rd-UOMJob EQ 1 
                   THEN w-fg-rctd.pur-uom
                   ELSE TRIM(TRIM(w-fg-rctd.job-no) + " " +
-                       STRING(w-fg-rctd.job-no2,"99")) FORMAT "x(9)" 
+                       STRING(w-fg-rctd.job-no2,"999")) FORMAT "x(13)" 
                       @ w-fg-rctd.pur-uom               
                 {2} TO 141 
                 /* (sub-total by w-fg-rctd.i-no) */
@@ -497,7 +497,7 @@
             IF rd-UOMJob EQ 1 
                   THEN w-fg-rctd.pur-uom
                   ELSE TRIM(TRIM(w-fg-rctd.job-no) + " " +
-                       STRING(w-fg-rctd.job-no2,"99")) FORMAT "x(9)" "," 
+                       STRING(w-fg-rctd.job-no2,"999")) FORMAT "x(13)" "," 
             IF v-cost-sell THEN v-fg-cost  
             ELSE IF NOT v-cost-sell THEN v-fg-value  
             ELSE 0       SKIP .
@@ -521,7 +521,7 @@
             IF rd-UOMJob EQ 1 
                   THEN w-fg-rctd.pur-uom
                   ELSE TRIM(TRIM(w-fg-rctd.job-no) + " " +
-                       STRING(w-fg-rctd.job-no2,"99")) FORMAT "x(9)" "," 
+                       STRING(w-fg-rctd.job-no2,"999")) FORMAT "x(13)" "," 
             IF v-cost-sell THEN v-fg-cost  
             ELSE IF NOT v-cost-sell THEN v-fg-value  
             ELSE 0       SKIP .
@@ -545,7 +545,7 @@
                 IF rd-UOMJob EQ 1 
                   THEN w-fg-rctd.pur-uom
                   ELSE TRIM(TRIM(w-fg-rctd.job-no) + " " +
-                       STRING(w-fg-rctd.job-no2,"99")) FORMAT "x(9)" 
+                       STRING(w-fg-rctd.job-no2,"999")) FORMAT "x(13)" 
                       @ w-fg-rctd.pur-uom
                 {2} TO 141 
                 /* (sub-total by w-fg-rctd.i-no) */
@@ -570,7 +570,7 @@
                 IF rd-UOMJob EQ 1 
                   THEN w-fg-rctd.pur-uom
                   ELSE TRIM(TRIM(w-fg-rctd.job-no) + " " +
-                       STRING(w-fg-rctd.job-no2,"99")) FORMAT "x(9)" 
+                       STRING(w-fg-rctd.job-no2,"999")) FORMAT "x(13)" 
                       @ w-fg-rctd.pur-uom
                 {2} TO 141 
                 /* (sub-total by w-fg-rctd.i-no) */

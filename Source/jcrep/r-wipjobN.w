@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -136,7 +137,7 @@ ASSIGN cTextListToSelect = "Machine,JOB#,Customer,Die#,Style," +
                            "Sheets,MSF,Tons,MLF,Cost/Ton,Total Value,Total Hours"
        cFieldListToSelect = "v-machine,v-job-no,v-cust,v-die,v-style,v-rm-item,item.cal,v-vendor,v-wgt,v-shtWid,v-shtLen," + 
                             "v-sheets,v-msf,v-ton,v-mlf,v-costTon,v-total,v-total-mach-hrs"
-       cFieldLength = "8,9,8,15,6," + "15,7,20,10,10,10," + "12,15,15,15,15,15,15"
+       cFieldLength = "8,13,8,15,6," + "15,7,20,10,10,10," + "12,15,15,15,15,15,15"
        cFieldType   = "c,c,c,c,c," + "c,i,c,i,i,i," + "i,i,i,i,i,i,i"
        .
 

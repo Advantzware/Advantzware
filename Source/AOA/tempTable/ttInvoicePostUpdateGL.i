@@ -7,7 +7,7 @@ DEFINE TEMP-TABLE ttInvoicePostUpdateGL
     FIELD invDate           AS DATE      LABEL "Invoice Dt"    FORMAT "99/99/99"
     FIELD custNo            AS CHARACTER LABEL "Cust Num"      FORMAT "x(8)"
     FIELD custName          AS CHARACTER LABEL "Cust Name"     FORMAT "x(25)"
-    FIELD orderNumber       AS INTEGER   LABEL "Order Number"  FORMAT ">>>>>9"
+    FIELD orderNumber       AS INTEGER   LABEL "Order Number"  FORMAT ">>>>>>>9"
     FIELD invoiceQty        AS INTEGER   LABEL "Invoice Qty"   FORMAT "->>,>>>,>>9.99"
     FIELD totInvoicefreight AS DECIMAL   LABEL "Total Freight" FORMAT "->>,>>9.99"
     FIELD totInvoiceTax     AS DECIMAL   LABEL "Total Tax"     FORMAT "->,>>9.99"

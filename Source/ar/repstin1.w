@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -258,7 +259,7 @@ DEFINE BROWSE br_table
       
       ar-inv.inv-date COLUMN-LABEL "Inv Date" FORMAT "99/99/9999":U
       ar-inv.cust-no COLUMN-LABEL "Customer" FORMAT "x(8)":U
-      ar-invl.ord-no FORMAT ">>>>>>>":U WIDTH 12
+      ar-invl.ord-no FORMAT ">>>>>>>>":U WIDTH 13
       ar-invl.amt COLUMN-LABEL "Ext Price" FORMAT "->>>,>>>,>>9.99":U
             WIDTH 20
       ar-invl.sman[1] COLUMN-LABEL "Slsmn" FORMAT "x(3)":U

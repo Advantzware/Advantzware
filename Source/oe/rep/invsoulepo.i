@@ -9,6 +9,7 @@
              space(75) v-comp-add3 FORM "x(60)" SKIP
              space(62) v-comp-add4 FORM "x(60)" "<P10>"SKIP.
 *****************************************************************************/             
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 PUT
   "<C2><R1><#1><R+13><C+50><IMAGE#1=" ls-full-img1  
    "<C60><R1><P10>Page " + STRING(PAGE-NUM - lv-pg-num,">>9") + " of [=@endPage" + trim(string(inv-head.inv-no,">>>>>>>9")) + "-@startPage" + trim(string(inv-head.inv-no,">>>>>>>9")) + "+1] " FORM "x(120)".
@@ -73,12 +74,12 @@ PUT
   
         
 PUT "<FArial><P10><=#5><R-2> <P10>" SKIP
-    "<=#3><B>                      INVOICE#                    " SKIP
-    "<=#3><R+1><P14>                 "inv-head.inv-no FORMAT ">>>>>>>9" "</B><P10>"
-    "<=#3><R+3>                 DATE           " v-inv-date SKIP 
-    "<=#3><R+4>       Customer Id:          " v-custno SKIP
-    "<=#3><R+5>               Order#:                " v-ord-no SKIP
-    "<=#3><R+6>  Purchase Order#:        " v-po-no  "<FCourier New>"
+    "<=#3><B><C61.5>INVOICE#" SKIP
+    "<=#3><R+1><P14>"                       "<C61>" inv-head.inv-no "</B><P10>"
+    "<=#3><R+3><C60.5> DATE"                "<C67>" v-inv-date SKIP 
+    "<=#3><R+4><C56.5> Customer Id:"        "<C67>" v-custno SKIP
+    "<=#3><R+5><C59>   Order#:"             "<C67>" TRIM(STRING(v-ord-no,">>>>>>>9")) SKIP
+    "<=#3><R+6><C53.5> Purchase Order#:"    "<C67>" v-po-no  "<FCourier New>"
     SKIP(1)
     .
 
@@ -111,7 +112,7 @@ PUT
   xinv-head.terms-d FORMAT "x(15)" 
  SPACE(6)
   v-salesname FORMAT "x(15)"
-  v-bol-no "</B>"
+ "<C72.5>"v-bol-no "</B>"
  SKIP.
 
 

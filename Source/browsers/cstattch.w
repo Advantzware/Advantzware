@@ -9,6 +9,7 @@
 
   File:  browsers/cstattch.w
 
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -162,7 +163,7 @@ DEFINE BROWSE Browser-Table
       attach.file-type FORMAT "X(8)":U
       attach.creat-date FORMAT "99/99/9999":U
       attach.attach-file FORMAT "x(50)":U
-      attach.est-no COLUMN-LABEL "Order #" FORMAT "x(6)":U WIDTH 10
+      attach.est-no COLUMN-LABEL "Order #" FORMAT "x(8)":U WIDTH 12
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 16.67
@@ -272,7 +273,7 @@ ASSIGN
      _FldNameList[2]   = asi.attach.creat-date
      _FldNameList[3]   = asi.attach.attach-file
      _FldNameList[4]   > asi.attach.est-no
-"attach.est-no" "Order #" "x(6)" "character" ? ? ? ? ? ? no "" no no "10" no no no "U" "" "" "" "" "" "" 0 no 0 no no
+"attach.est-no" "Order #" "x(8)" "character" ? ? ? ? ? ? no "" no no "12" no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

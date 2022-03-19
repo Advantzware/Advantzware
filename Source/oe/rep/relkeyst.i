@@ -1,4 +1,4 @@
-      
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */      
       for each w-oe-rell,
       
           first oe-ordl
@@ -121,8 +121,7 @@
           end.
 
           for each w-bin where w-par eq "" by w-qty[2] desc by w-qty[1] desc:
-            if w-oe-rell.job-no ne "" then w-par = "Job#: " + TRIM(w-oe-rell.job-no
-                                                 + "-" + STRING(w-oe-rell.job-no2,"99")).
+            if w-oe-rell.job-no ne "" then w-par = "Job#: " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-oe-rell.job-no, w-oe-rell.job-no2))).
             leave.
           end.
         
@@ -204,7 +203,7 @@
             end.
           end.
 
-          put {1} fill("-",80) format "x(80)"  skip.
+          put {1} fill("-",82) format "x(82)"  skip.
         
           assign
            v-rel-qty   = 0

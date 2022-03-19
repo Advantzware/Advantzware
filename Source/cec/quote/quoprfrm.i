@@ -1,5 +1,6 @@
 /* ------------------------------------------- cec/quote/quoxapc.i            */
-/* print quote items in Xprint Marketing format                                          */
+/* print quote items in Xprint Marketing format                               */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
@@ -64,7 +65,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       /*      IF LINE-COUNTER + numfit GT PAGE-SIZE - 2 THEN PAGE.  */
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
 
-      put trim(lv-est-no) FORM "x(6)" SPACE(1) 
+      put trim(lv-est-no) FORM "x(8)" SPACE(1) 
           xqitm.part-no SPACE(1).
       IF xqitm.part-dscr1 NE "" THEN
           PUT xqitm.part-dscr1  .  
@@ -93,10 +94,10 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                          AND xqitm.style = style.style NO-LOCK NO-ERROR.
       style-dscr = IF AVAIL style THEN style.dscr ELSE xqitm.style.
       if ch-multi THEN PUT xquo.q-no SPACE(1) .
-      PUT     trim-size AT 8 FORM "x(21)" .
+      PUT     trim-size AT 10 FORM "x(21)" .
               /*xqitm.style*/  
       IF xqitm.part-dscr1 NE "" AND i-dscr2 NE "" THEN
-          PUT i-dscr2 AT 29. 
+          PUT i-dscr2 AT 31. 
       ELSE do: 
           PUT style-dscr   .
           ASSIGN style-dscr = "" .
@@ -106,13 +107,13 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     IF i EQ 3 THEN do:
         col-dscr = xqitm.i-coldscr .
 
-      PUT     "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 8 FORM "x(21)" .
+      PUT     "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 10 FORM "x(21)" .
       IF i-dscr2 NE "" AND style-dscr NE "" THEN do:
-          PUT style-dscr  AT 29 FORM "x(30)".
+          PUT style-dscr  AT 31 FORM "x(30)".
           ASSIGN style-dscr = "" .
       END.
       ELSE DO:
-          PUT col-dscr AT 29 FORM "x(30)".
+          PUT col-dscr AT 31 FORM "x(30)".
           ASSIGN col-dscr = "" .
       END.
 
@@ -122,13 +123,13 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     IF i EQ 4 THEN DO:
         brd-dscr = IF AVAIL ef THEN ef.brd-dscr /*xqitm.i-dscr*/ ELSE "" .
 
-      PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 8  FORM "x(21)"         .
+      PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 10  FORM "x(21)"         .
       IF i-dscr2 NE "" AND col-dscr NE ""  THEN do:
-          PUT col-dscr AT 29 FORMAT "x(30)".
+          PUT col-dscr AT 31 FORMAT "x(30)".
           ASSIGN col-dscr = "" .
       END.
       ELSE do:
-           PUT brd-dscr AT 29 FORMAT "x(30)".
+           PUT brd-dscr AT 31 FORMAT "x(30)".
            ASSIGN brd-dscr = "" .
       END.
   /*    ASSIGN col-dscr = "" .*/
@@ -157,7 +158,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        lv-fg# = IF est.est-type EQ 6 AND AVAIL bf-eb THEN bf-eb.stock-no
                 ELSE IF AVAIL eb THEN eb.stock-no ELSE xqitm.part-no.
 
-       put "FG#: " + lv-fg# /*(IF AVAIL eb THEN eb.stock-no ELSE "")*/  AT 8 FORM "x(21)"  .
+       put "FG#: " + lv-fg# /*(IF AVAIL eb THEN eb.stock-no ELSE "")*/  AT 10 FORM "x(21)"  .
            /*"PLATE#: " + (IF AVAIL eb THEN eb.plate-no  ELSE "")*/
         IF i-dscr2 NE "" AND brd-dscr NE "" THEN do:
             PUT brd-dscr FORM "x(30)".  
@@ -171,7 +172,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     END.
     IF i EQ 6 THEN DO:
         IF i-dscr2 NE "" AND v-board NE "" THEN do:
-            PUT v-board AT 29 FORM "x(30)".
+            PUT v-board AT 31 FORM "x(30)".
             ASSIGN v-board = "" .
         END.
         ELSE PUT SPACE(58) .
@@ -195,9 +196,9 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       ELSE*/ 
                 
            lv-uom = IF est.est-type = 6 AND NOT lv-two-box THEN "SET" ELSE xqqty.uom.
-           put xqqty.qty xqqty.rels space(5)
-               xqqty.price FORM "->>>,>>9.99<<" space(4)
-               lv-uom.  
+           put "<C52>" xqqty.qty "<C60>" xqqty.rels 
+               "<C66>" xqqty.price FORM "->>>,>>9.99<<" 
+               "<C77>" lv-uom.  
       
 
       v-line-total = v-line-total + xqqty.price.

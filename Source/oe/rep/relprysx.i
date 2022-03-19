@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relprysx.i */
-/* Print OE Release/Picking tickets    for Prystup Xprint          */
+/* Print OE Release/Picking tickets    for Prystup Xprint           */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* -----------------------------------------------------------------*/
 
 {oe/rep/oe-pick1.i}
@@ -9,7 +10,7 @@
 DEF BUFFER ref-lot-no FOR reftable.
 
 def TEMP-TABLE w-oe-rell NO-UNDO
-   FIELD ord-no AS INT FORMAT "ZZZZZ9"
+   FIELD ord-no AS INT FORMAT "ZZZZZZZ9"
    FIELD i-no AS CHAR
    FIELD qty AS INT
    FIELD LINE AS INT
@@ -43,7 +44,7 @@ def TEMP-TABLE w-bin NO-UNDO
    FIELD w-date-time AS CHAR
    FIELD w-cust-qty AS INT
    FIELD w-uom  AS CHAR
-   FIELD w-ord-col AS CHAR FORMAT "X(6)"
+   FIELD w-ord-col AS CHAR FORMAT "X(8)"
    INDEX w-loc w-loc w-bin
    INDEX w-par w-par w-date-time
    INDEX w-date-time w-date-time.
@@ -91,9 +92,9 @@ DEF SHARED VAR s-print-bin-from AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-to AS cha NO-UNDO.
 
 
-format w-bin.w-ord-col                  AT 1    FORMAT "x(6)"
-       w-bin.w-par                      at 8    format "x(25)"
-       v-bin                            at 34   format "x(20)"
+format w-bin.w-ord-col                  AT 1    FORMAT "x(8)"
+       w-bin.w-par                      AT 10   format "x(25)"
+       v-bin                            at 35.5 format "x(20)"
        w-bin.w-skids                    TO 69   FORMAT "->>>>>"
        w-bin.w-units                    to 76   format "->>>>>"
        w-bin.w-unit-count               to 83   format "->>>>>"

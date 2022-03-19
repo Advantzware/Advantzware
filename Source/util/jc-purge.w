@@ -98,14 +98,14 @@ DEFINE BUTTON btn-process
      LABEL "&Start Process" 
      SIZE 18 BY 1.14.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(6)":U 
      LABEL "Beginning Machine#" 
@@ -117,14 +117,14 @@ DEFINE VARIABLE begin_rm-i-no AS CHARACTER FORMAT "X(10)":U
      VIEW-AS FILL-IN 
      SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(6)":U 
      LABEL "Ending Machine#" 
@@ -477,8 +477,8 @@ END.
 EMPTY TEMP-TABLE tt-po.
 
 assign
- v-job-no[1]  = begin_job-no
- v-job-no[2]  = end_job-no
+ v-job-no[1]  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job-no))
+ v-job-no[2]  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job-no)) 
  v-job-no2[1] = int(begin_job-no2)
  v-job-no2[2] = int(end_job-no2)
  v-status     = (if tb_pending  then "P"   else "") +
@@ -494,8 +494,8 @@ end.
 
 for each job
     where job.company eq cocode
-      and job.job-no  ge v-job-no[1]
-      and job.job-no  le v-job-no[2]
+      and fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) ge v-job-no[1]
+      and fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) le v-job-no[2]
       and job.job-no2 ge v-job-no2[1]
       and job.job-no2 le v-job-no2[2]
       and index(v-status,job.stat) gt 0

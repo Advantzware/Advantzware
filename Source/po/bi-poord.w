@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -190,8 +191,8 @@ DEFINE BROWSE Browser-Table
       po-ordl.i-no COLUMN-LABEL "RM/FG Item#" FORMAT "x(15)":U
             WIDTH 25
       po-ordl.i-name COLUMN-LABEL "RM/FG Item Name" FORMAT "x(30)":U
-      po-ordl.job-no FORMAT "x(6)":U
-      po-ordl.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      po-ordl.job-no FORMAT "x(9)":U
+      po-ordl.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
       po-ordl.s-num COLUMN-LABEL "Form#" FORMAT ">9":U
       po-ordl.ord-qty FORMAT "->>>,>>>,>>9.9<<<<<":U
       po-ordl.cost FORMAT "->,>>>,>>9.99<<<<":U

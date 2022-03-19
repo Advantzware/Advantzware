@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invaccrd.p */
 /* PRINT INVOICE   Xprint form for Accord            */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -541,8 +541,8 @@ ELSE lv-comp-color = "BLACK".
                 v-price  format ">>>>>9.999<" SPACE(1)               
                 inv-line.t-price  format "->,>>>,>>9.99"                
                 SKIP
-                v-ord-no SPACE(10)
-                inv-line.part-no SPACE(1)
+                STRING(v-ord-no)
+                inv-line.part-no AT 17 SPACE(1)
                 v-i-dscr-2 space(20)
                 v-price-head SPACE(1) SKIP.
             

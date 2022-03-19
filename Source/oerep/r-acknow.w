@@ -3220,16 +3220,12 @@ PROCEDURE run-report-bom :
       Notes:       
     ------------------------------------------------------------------------------*/
     ASSIGN   
-        fjob-no         = FILL(" ",6 - LENGTH(STRING(begin_ord-no))) +
-                          STRING(begin_ord-no)
-        tjob-no         = FILL(" ",6 - LENGTH(STRING(end_ord-no))) +
-                 STRING(end_ord-no)
+        fjob-no         = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_ord-no)))
+        tjob-no         = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_ord-no)))
         fjob-no2        = 0
-        tjob-no2        = 99
-        fjob-no         = FILL(" ",6 - LENGTH(TRIM(fjob-no))) + TRIM(fjob-no) +
-                 STRING(fjob-no2,"99")
-        tjob-no         = FILL(" ",6 - LENGTH(TRIM(tjob-no))) + TRIM(tjob-no) +
-                 STRING(tjob-no2,"99")
+        tjob-no2        = 999
+        fjob-no         = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fjob-no, fjob-no2)))
+        tjob-no         = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tjob-no, tjob-no2)))
         s-print-revised = tb_prt-revise.
     IF v-print-fmt EQ "CENTURY"  THEN
         RUN cerep/bomcbox.p (YES) .

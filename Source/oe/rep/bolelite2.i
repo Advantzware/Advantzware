@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolelite2.i 05.18.05 */
 /* PRINT detail                                                               */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 v-tot-cases = 0.
@@ -48,8 +49,8 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
                            w2.dscr = oe-ordl.part-no
                            w2.qty = oe-ordl.qty.
       ELSE IF i = 2 THEN 
-          ASSIGN w2.job-po = if oe-ordl.job-no eq "" then "" else
-                             (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
+          ASSIGN w2.job-po = if oe-ordl.job-no eq "" then "" ELSE 
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
                  w2.dscr = oe-ordl.i-name
                  w2.i-no = oe-ordl.i-no.
       else if i eq 3 then ASSIGN w2.dscr = oe-ordl.part-dscr1.
@@ -71,8 +72,8 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
          and oe-ordl.line    eq tt-boll.LINE no-lock no-error.
        w2.i-no = "".
        IF i = 2 THEN 
-          ASSIGN w2.job-po = if oe-ordl.job-no eq "" then "" else
-                             (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
+          ASSIGN w2.job-po = if oe-ordl.job-no eq "" then "" ELSE 
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
                  w2.dscr = oe-ordl.i-name
                  w2.i-no = oe-ordl.i-no.
        else if i eq 3 then ASSIGN w2.dscr = oe-ordl.part-dscr1.
@@ -92,8 +93,8 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
          and oe-ordl.line    eq tt-boll.LINE no-lock no-error.
        w2.i-no = "".
        IF i = 2 THEN 
-          ASSIGN w2.job-po = if oe-ordl.job-no eq "" then "" else
-                             (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
+          ASSIGN w2.job-po = if oe-ordl.job-no eq "" then "" ELSE 
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
                  w2.dscr = oe-ordl.i-name
                  w2.i-no = oe-ordl.i-no.
        else if i eq 3 then ASSIGN w2.dscr = oe-ordl.part-dscr1.
@@ -218,8 +219,8 @@ find first oe-ordl
     if i eq 2 then
       assign
        v-part-dscr = oe-ordl.i-name
-       v-job-po    = if oe-ordl.job-no eq "" then "" else
-                    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+       v-job-po    = if oe-ordl.job-no eq "" then "" ELSE 
+                     TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
     
     else
     if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
@@ -250,8 +251,8 @@ find first oe-ordl
     if i eq 2 then
       assign
        v-part-dscr = oe-ordl.i-name
-       v-job-po    = if oe-ordl.job-no eq "" then "" else
-                    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+       v-job-po    = if oe-ordl.job-no eq "" then "" ELSE 
+                     TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
     else if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
 
@@ -298,8 +299,8 @@ find first oe-ordl
     if i eq 2 then
       assign
        v-part-dscr = oe-ordl.i-name
-       v-job-po    = if oe-ordl.job-no eq "" then "" else
-                    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+       v-job-po    = if oe-ordl.job-no eq "" then "" ELSE 
+                     TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
     else
     if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
@@ -308,8 +309,8 @@ find first oe-ordl
     if i eq 4 then v-part-dscr = oe-ordl.part-dscr2.
     
     IF i = 2 AND v-job-po = "" THEN
-      v-job-po = if tt-boll.job-no eq "" then "" else
-                (trim(tt-boll.job-no) + "-" + string(tt-boll.job-no2,"99"))                 .
+      v-job-po = if tt-boll.job-no eq "" then "" ELSE 
+                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-boll.job-no, tt-boll.job-no2))).
 
     if v-part-dscr ne "" or v-job-po ne "" or i le 2 then do:
       display {1}

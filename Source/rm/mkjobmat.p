@@ -1,5 +1,6 @@
 /* -------------------------------------------------- rm/mkjobmat.p 12/00 JLF */
 /* Find/Create Job Material record for RM issued                              */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /* -------------------------------------------------------------------------- */
 
 def input  parameter v-recid1 as recid.
@@ -27,8 +28,7 @@ find first item
 
 find first job
     where job.company eq ip-cocode
-      and job.job-no  eq fill(" ",6 - length(trim(rm-rctd.job-no))) +
-                         trim(rm-rctd.job-no)
+      and trim(job.job-no)  eq trim(rm-rctd.job-no)
       and job.job-no2 eq rm-rctd.job-no2
     no-lock.
     

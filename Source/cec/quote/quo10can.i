@@ -1,5 +1,6 @@
-/* ------------------------------------------- cec/quote/quohawl.i  */
+/* ------------------------------------------- cec/quote/quohawl.i            */
 /* print quote items in Fibre format                                          */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 
@@ -61,7 +62,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
       lv-part-dscr1 = IF AVAIL est AND est.est-type EQ 6 AND AVAIL itemfg THEN itemfg.i-name
                       ELSE xqitm.part-dscr1.
-      PUT SPACE(2) trim(lv-est-no) FORM "x(6)" SPACE(1) 
+      PUT trim(lv-est-no) FORM "x(8)" SPACE(1) 
           xqitm.part-no space(1) lv-part-dscr1.  
          
     END.
@@ -179,9 +180,9 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                   ((xqqty.qty / 1000) * xqqty.price)    ELSE
                   (xqqty.qty * xqqty.price).
 
-       PUT "<C51>" xqqty.qty /* xqqty.rels*/ space(9)
-               xqqty.price FORM "->>,>>9.99" space(6)
-               xqqty.uom  .
+       PUT "<C52.5>" xqqty.qty /* xqqty.rels*/ 
+           "<C60>" xqqty.price FORM "->>,>>9.99" 
+           "<C75>" xqqty.uom  .
               
        v-line-total = v-line-total + xqqty.price.
     END.

@@ -8,7 +8,7 @@ DEF {1} SHARED TEMP-TABLE tt-report NO-UNDO
     FIELD pallets AS INT
     FIELD no-units AS INT
     FIELD release-type AS CHAR
-    FIELD order-no AS INT FORMAT ">>>>>9"
+    FIELD order-no AS INT FORMAT ">>>>>>>9"
     FIELD stop-no AS INT FORMAT ">>>>>>9"
     FIELD load-no   AS CHAR FORMAT "X(10)"
     FIELD ship-date AS DATE

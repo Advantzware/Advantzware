@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -71,7 +72,7 @@ ASSIGN
                            "Stocked Qty,Cons. UOM" 
     cFieldListToSelect = "date,rm-item,po,vend,job,qty,msf," +
                             "stk-qty,uom"
-    cFieldLength       = "10,16,9,8,9,18,12," + "18,9"
+    cFieldLength       = "10,16,9,8,13,18,12," + "18,9"
     cFieldType         = "c,c,i,c,c,i,i," + "i,c" 
     .
 
@@ -1325,7 +1326,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-tloc              LIKE v-floc INITIAL "zzzzz".
     DEFINE VARIABLE v-type              AS CHARACTER FORMAT "x(5)" INIT "RITAC".
     DEFINE VARIABLE v-code              LIKE rm-rcpth.rita-code.
-    DEFINE VARIABLE v-job-no            AS CHARACTER FORMAT "x(9)".
+    DEFINE VARIABLE v-job-no            AS CHARACTER FORMAT "x(13)".
     DEFINE VARIABLE v-fvend             LIKE item.vend-no.
     DEFINE VARIABLE v-tvend             LIKE item.vend-no INIT "zzzzzzzzzz".
     DEFINE VARIABLE v-qty               AS DECIMAL.         
@@ -1511,7 +1512,7 @@ PROCEDURE run-report :
                 v-stocked-qty = 0.
 
             IF TRIM(rm-rdtlh.job-no) NE "" THEN 
-                v-job-no = TRIM(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99").
+                v-job-no = TRIM(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"999").
 
             /* run do-items. */
 
@@ -1619,7 +1620,7 @@ PROCEDURE run-report :
                     WHEN "vend"  THEN 
                         cVarValue = IF AVAILABLE po-ordl THEN STRING(po-ord.vend-no,"x(8)") ELSE "" .
                     WHEN "job"   THEN 
-                        cVarValue = STRING(v-job-no,"x(9)") .
+                        cVarValue = STRING(v-job-no,"x(13)") .
                     WHEN "qty"  THEN 
                         cVarValue = STRING(v-qty,"->>,>>>,>>>,>>9.99") .
                     WHEN "msf"   THEN 

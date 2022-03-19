@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/boltrilx.i */
 /* PRINT Xprint Trilakes BOL                                        */
 /* ---------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 assign
    v-tot-wt = 0
    v-tot-units = 0.
@@ -61,8 +61,7 @@ for each report where report.term-id eq v-term-id,
        v-tot-wt = v-tot-wt + (oe-boll.qty / 100 * itemfg.weight-100).
 
     if avail oe-ordl and oe-ordl.job-no ne "" then
-       v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-                  trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
+       v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
    
     IF v-printline >= 39 THEN DO:
        v-printline = 0.
@@ -82,8 +81,8 @@ for each report where report.term-id eq v-term-id,
 
              DISPLAY  {1}
                 oe-ordl.i-no WHEN AVAIL oe-ordl 
-                oe-boll.ord-no AT 18 
-                v-job-no AT 34 FORM "x(10)"
+                STRING(oe-boll.ord-no) AT 16 
+                v-job-no AT 31 FORM "x(13)"
                 oe-ordl.i-name AT 44 FORM "x(22)"
                 w2.cases AT 66 FORM "->>>9"
                 " @ " AT 71
@@ -100,7 +99,7 @@ for each report where report.term-id eq v-term-id,
           DO:
              PUT {1}
                  oe-ordl.part-no
-                 IF lv-print-lot THEN oe-boll.lot-no ELSE oe-boll.po-no AT 18 FORM "x(15)"                 
+                 IF lv-print-lot THEN oe-boll.lot-no ELSE oe-boll.po-no AT 16 FORM "x(15)"                 
                  oe-ordl.part-dscr1 AT 44 FORM "x(22)"
                  w2.cases AT 66 FORM "->>>9"
                  " @ " AT 71
@@ -116,7 +115,7 @@ for each report where report.term-id eq v-term-id,
              IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
                 PUT {1}
                     oe-ordl.part-no
-                     IF lv-print-lot THEN oe-boll.lot-no ELSE oe-boll.po-no AT 18 FORM "x(15)"
+                     IF lv-print-lot THEN oe-boll.lot-no ELSE oe-boll.po-no AT 16 FORM "x(15)"
                     oe-ordl.part-dscr1 AT 44 FORM "x(22)"
                     SKIP.
                 v-printline = v-printline + 1.

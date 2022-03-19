@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -137,7 +138,7 @@ ASSIGN
                             "inv-qty,whse,cost,inv-amt," +
                             "rec-date,rec-job,rec-loc,rec-bin,rec-qty,rec-qty-uom,rec-cost,rec-cost-uom,rec-ext-value," +
                             "inv-no,inv-date,inv-qty2,inv-qty-uom,inv-price,inv-price-uom,inv-line-amount"
-    cFieldLength       = "8,25,6,8,8,15,25,6," + "13,5,10,14," + "12,10,8,8,12,10,14,10,14," + "20,12,12,11,13,10,15"
+    cFieldLength       = "8,25,6,8,8,15,25,6," + "13,5,10,14," + "12,13,8,8,12,10,14,10,14," + "20,12,12,11,13,10,15"
     cFieldType         = "c,c,i,c,c,c,c,c," + "i,c,i,i," + "c,c,c,c,i,c,i,c,i," + "c,c,i,c,i,c,i"
     .
 
@@ -2576,7 +2577,7 @@ PROCEDURE pPrintDetail :
                     WHEN "rec-date"    THEN 
                         cVarValue = STRING(rm-rcpth.trans-date,"99/99/9999") .
                     WHEN "rec-job"   THEN 
-                        cVarValue = STRING(cJobNo,"x(10)").
+                        cVarValue = STRING(cJobNo,"x(13)").
                     WHEN "rec-loc"   THEN 
                         cVarValue = STRING(rm-rdtlh.loc,"x(8)").
                     WHEN "rec-bin"   THEN 
@@ -2628,7 +2629,7 @@ PROCEDURE pPrintDetail :
             NO-LOCK:
                   
             IF fg-rcpth.job-no NE "" THEN
-                cJobNo =  fg-rcpth.job-no + "-" + STRING(fg-rcpth.job-no2,"99") .        
+                cJobNo =  fg-rcpth.job-no + "-" + STRING(fg-rcpth.job-no2,"999") .        
             ELSE 
                 cJobNo = "".
                 
@@ -2668,7 +2669,7 @@ PROCEDURE pPrintDetail :
                     WHEN "rec-date"    THEN 
                         cVarValue = STRING(fg-rcpth.trans-date,"99/99/9999") .
                     WHEN "rec-job"   THEN 
-                        cVarValue = STRING(cJobNo,"x(10)").
+                        cVarValue = STRING(cJobNo,"x(13)").
                     WHEN "rec-loc"   THEN 
                         cVarValue = STRING(fg-rdtlh.loc,"x(8)").
                     WHEN "rec-bin"   THEN 

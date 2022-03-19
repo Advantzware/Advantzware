@@ -3020,7 +3020,7 @@ PROCEDURE create-oe-rell :
     DEFINE VARIABLE li                AS INTEGER   NO-UNDO.
     DEFINE VARIABLE ll                AS LOG       NO-UNDO.
     DEFINE VARIABLE ll-bin-tag        AS LOG       NO-UNDO.
-    DEFINE VARIABLE lv-job-no         AS CHARACTER FORMAT "x(9)" NO-UNDO.
+    DEFINE VARIABLE lv-job-no         AS CHARACTER FORMAT "x(13)" NO-UNDO.
     DEFINE VARIABLE lv-selected-value AS cha       NO-UNDO. /*all,one,notag*/
     DEFINE VARIABLE v-s-code          AS CHARACTER NO-UNDO.
     DEFINE BUFFER b-reftable FOR reftable.
@@ -3166,9 +3166,9 @@ PROCEDURE create-oe-rell :
     DO:
         ASSIGN
             ll        = NO
-            lv-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99").
+            lv-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
-        IF lv-job-no EQ "-00" THEN lv-job-no = "".
+        IF lv-job-no EQ "-000" THEN lv-job-no = "".
 
 
         v-s-code  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE

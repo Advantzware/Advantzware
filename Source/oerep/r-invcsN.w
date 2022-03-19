@@ -11,7 +11,8 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */
+     
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
@@ -40,7 +41,7 @@ DEFINE TEMP-TABLE w-data NO-UNDO
     FIELD sorter AS CHARACTER
     FIELD i-no   LIKE ar-invl.i-no COLUMN-LABEL "FG Item#"
     FIELD inv-no LIKE ar-invl.inv-no COLUMN-LABEL "Invoice#"
-    FIELD job-no LIKE ar-invl.job-no FORMAT "x(9)" COLUMN-LABEL "Job#"
+    FIELD job-no LIKE ar-invl.job-no FORMAT "x(13)" COLUMN-LABEL "Job#"
     FIELD rec-id AS RECID.
 
 {salrep/ttreport.i NEW}

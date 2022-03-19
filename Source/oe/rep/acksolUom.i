@@ -78,13 +78,13 @@ PUT /*"<R16><C77><FROM><R+2><C+3><RECT><||3>"*/
     "<R18><C38><FROM><R22><C38><LINE>"
     "<R18><C49><FROM><R22><C49><LINE>"
     "<R18><C65><FROM><R22><C65><LINE>"
-    "<R18><C72><FROM><R22><C72><LINE>"
+    "<R18><C73><FROM><R22><C73><LINE>"
     .
 PUT "<=4><R+1>  Ship Date         FOB             Ship Via             Terms          Sales Person         Order#      Quote#" SKIP
 "<=4><R+3> " oe-ord.due-date FORM "99/99/9999" space(4)
 cust.fob-code FORM "x(14)" SPACE(2)
 v-shipvia /*carrier.carrier*/ FORM "x(20)" SPACE(3)
-oe-ord.terms-d /*terms.dscr*/ FORM "x(15)" space(1) v-salesman FORM "x(20)" space(2) oe-ord.ord-no space(6) v-q-no SKIP.
+oe-ord.terms-d /*terms.dscr*/ FORM "x(15)" space(1) v-salesman FORM "x(20)" "<C65.5>" oe-ord.ord-no space(6) v-q-no SKIP.
 
 
 PUT "<|10><R23><C1><#5><FROM><R25><C80><RECT>" 

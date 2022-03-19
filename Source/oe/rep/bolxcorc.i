@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolxcorc.i 05/03 YSK */
-/* PRINT Xprint Corrugate concepts BOL                                                           */
+/* PRINT Xprint Corrugate concepts BOL                                        */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 
@@ -131,15 +132,14 @@ for each report where report.term-id eq v-term-id,
 
   v-job-no = "".
   if avail oe-ordl and oe-ordl.job-no ne "" then
-    v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-               trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
-
+    v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
+         
   DISPLAY  {1}
           oe-ordl.i-no /*part-no*/   WHEN AVAIL oe-ordl 
-          oe-boll.po-no 
+          "<C13>"oe-boll.po-no 
          /* oe-boll.i-no      */
-          v-job-no FORM "x(10)"
-          oe-ordl.i-name  FORM "x(22)"
+         "<C25.8>" v-job-no FORM "x(13)"
+          "<C36>"oe-ordl.i-name  FORM "x(22)"
           oe-boll.cases FORM ">>> @"
           oe-boll.qty-case FORM "->>>>>Z" 
           /*SKIP          
@@ -156,7 +156,7 @@ for each report where report.term-id eq v-term-id,
   down {1} with frame bol-mid1.
   IF oe-ordl.part-no <> "" OR oe-ordl.part-dscr1 <> "" OR oe-boll.partial > 0 THEN DO:
      PUT {1} oe-ordl.part-no
-             oe-ordl.part-dscr1 AT 33 FORM "x(25)"
+             "<C26.5>" oe-ordl.part-dscr1 FORM "x(25)"
             .
      IF oe-boll.partial > 0 THEN
           PUT {1} v-1 FORM ">>9" AT 67

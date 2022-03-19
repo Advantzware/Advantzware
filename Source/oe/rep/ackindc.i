@@ -50,7 +50,7 @@ PUT "<=4><R+1> Ready Date     FOB           Ship Via              Terms         
 "<=4><R+3> " oe-ord.due-date FORM "99/99/9999" space(2)
 cust.fob-code FORM "x(14)" SPACE(1)
 v-shipvia /*carrier.carrier*/ FORM "x(17)" SPACE(1)
-oe-ord.terms-d /*terms.dscr*/ FORM "x(20)" SPACE(1) v-salesman FORM "x(18)" space(1) oe-ord.ord-no SKIP.
+oe-ord.terms-d /*terms.dscr*/ FORM "x(20)" SPACE(1) v-salesman FORM "x(18)" "<C72>" oe-ord.ord-no SKIP.
 
 PUT "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
        "<R24><C14.2><FROM><R26><C14.2><LINE>" SKIP

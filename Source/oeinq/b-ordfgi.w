@@ -23,6 +23,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */          
 
 CREATE WIDGET-POOL.
 
@@ -90,7 +91,7 @@ ll-sort-asc = NOT oeinq.
           AND fg-rcpth.i-no       BEGINS fi_i-no                ~
           AND fg-rcpth.rita-code  BEGINS fi_rita-code           ~
           AND (fg-rcpth.po-no     EQ TRIM(STRING(fi_po-no,">>>>>>>>")) OR fi_po-no EQ 0) ~
-          AND fg-rcpth.job-no     BEGINS fi_job-no              ~
+          AND fill(" ",9 - length(TRIM(fg-rcpth.job-no))) + trim(fg-rcpth.job-no) BEGINS fi_job-no              ~
           AND (fg-rcpth.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                           ~
@@ -123,7 +124,7 @@ ll-sort-asc = NOT oeinq.
     IF lv-sort-by EQ "cost"        THEN STRING(fg-rdtlh.cost,"-9999999999.99999")                      ELSE ~
     IF lv-sort-by EQ "partial"     THEN STRING(fg-rdtlh.partial,"-9999999999.99999")                   ELSE ~
     IF lv-sort-by EQ "stacks-unit" THEN STRING(fg-rdtlh.stacks-unit,"-9999999999.99999")               ELSE ~
-    IF lv-sort-by EQ "job-no"      THEN STRING(fg-rcpth.job-no,"x(6)") + STRING(fg-rcpth.job-no2,"99") ELSE ~
+    IF lv-sort-by EQ "job-no"      THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', fg-rcpth.job-no, fg-rcpth.job-no2)) ELSE ~
     IF lv-sort-by EQ "po-no"       THEN STRING(INT(fg-rcpth.po-no),"9999999999")                       ELSE ~
     IF lv-sort-by EQ "po-line"     THEN STRING(INT(fg-rcpth.po-line),"999")                            ELSE ~
     IF lv-sort-by EQ "stack-code"  THEN fg-rdtlh.stack-code                                            ELSE ~
@@ -318,16 +319,16 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 39 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
      SIZE 11 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1
+     SIZE 5.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
 /*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
@@ -409,8 +410,8 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       fg-rcpth.po-line COLUMN-LABEL "PO Ln" FORMAT ">99":U
             LABEL-BGCOLOR 14
-      fg-rcpth.job-no FORMAT "x(6)":U WIDTH 8 LABEL-BGCOLOR 14
-      fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
+      fg-rcpth.job-no FORMAT "x(9)":U WIDTH 14 LABEL-BGCOLOR 14
+      fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">>9":U LABEL-BGCOLOR 14
       display-bol() @ bol-no COLUMN-LABEL "BOL #" FORMAT ">>>>>>>9":U
       fg-rcpth.trans-date COLUMN-LABEL "TR Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
@@ -632,7 +633,7 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
      _FldNameList[2]   > ASI.fg-rcpth.po-no
 "fg-rcpth.po-no" "Vendor PO#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.fg-rcpth.job-no
-"fg-rcpth.job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rcpth.job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fg-rcpth.job-no2
 "fg-rcpth.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
@@ -926,7 +927,7 @@ DO:
             AND b-fg-rcpth2.i-no       BEGINS fi_i-no
             AND b-fg-rcpth2.rita-code  BEGINS fi_rita-code
             AND (b-fg-rcpth2.po-no     EQ TRIM(STRING(fi_po-no,">>>>>>>>")) OR fi_po-no EQ 0)
-            AND b-fg-rcpth2.job-no     BEGINS fi_job-no           
+            AND fill(" ",9 - length(TRIM(b-fg-rcpth2.job-no))) + trim(b-fg-rcpth2.job-no) BEGINS fi_job-no           
             AND (b-fg-rcpth2.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ ""),
             EACH b-fg-rdtlh2 EXCLUSIVE-LOCK   
             WHERE b-fg-rdtlh2.r-no      EQ b-fg-rcpth2.r-no     

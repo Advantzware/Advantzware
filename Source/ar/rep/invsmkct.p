@@ -454,9 +454,9 @@ ELSE lv-comp-color = "BLACK".
             PUT 
                 v-ship-qty       FORMAT "->>>>>>>9"       
                 v-inv-qty        FORMAT "->>>>>>>9"    SPACE(1)  
-                ar-invl.ord-no   FORMAT ">>>>>>9"      SPACE(1)
+                TRIM(STRING(ar-invl.ord-no,">>>>>>>9"))SPACE(1)
                 v-i-no           FORMAT "x(15)"        SPACE(1)  
-                v-i-dscr         FORMAT "x(25)"        SPACE(2)  
+                v-i-dscr         FORMAT "x(25)"        SPACE(1)  
                 "<C59>"v-price   FORMAT "->>,>>9.99<<" SPACE(3)
                 ar-invl.pr-uom                         SPACE(1)
                "<C71>" 
@@ -466,9 +466,9 @@ ELSE lv-comp-color = "BLACK".
                PUT 
                 v-ship-qty       FORMAT "->>>,>>9"     SPACE(1)   
                 v-inv-qty        FORMAT "->>>,>>9"     SPACE(2) 
-                ar-invl.ord-no   FORMAT ">>>>>>9"      SPACE(1)
+                TRIM(STRING(ar-invl.ord-no,">>>>>>>9"))SPACE(1)
                 v-i-no           FORMAT "x(15)"        SPACE(1)  
-                v-i-dscr         FORMAT "x(25)"        SPACE(2)  
+                v-i-dscr         FORMAT "x(25)"        SPACE(1)  
                 "<C59>"v-price   FORMAT "->>,>>9.99<<" SPACE(3)
                 ar-invl.pr-uom                         SPACE(1)
                "<C71>" 
@@ -489,16 +489,16 @@ ELSE lv-comp-color = "BLACK".
                   (v = 2 and v-po-no <> "")
                  THEN DO:
                   IF v = 1 THEN 
-                    PUT SPACE(17) ar-invl.bol-no SPACE(2)
+                    PUT SPACE(18) ar-invl.bol-no SPACE(2)
                                   ar-invl.part-no SPACE 
                                   v-part-info SKIP.
                  ELSE
                  IF v = 2 THEN
-                    PUT SPACE(27) 
+                    PUT SPACE(28) 
                         v-po-no SPACE
                         v-part-info SKIP.
                  ELSE          
-                   PUT SPACE(20) "Previous Invoice(s): " v-part-info SKIP.
+                   PUT SPACE(21) "Previous Invoice(s): " v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.

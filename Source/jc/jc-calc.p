@@ -433,7 +433,8 @@ DO:
 
     RUN pGetJobBuildVersionSettings (BUFFER job, OUTPUT lUseNewCalc, OUTPUT lPromptForNewCalc).
     IF lUseNewCalc AND lPromptForNewCalc THEN 
-        MESSAGE "Build Job With New Calculation?.  Job:" + STRING(job.job-no) + "-" + STRING(job.job-no2,"99") VIEW-AS ALERT-BOX BUTTONS YES-NO UPDATE lUseNewCalc.
+        MESSAGE "Build Job With New Calculation?.  Job: " + 
+        TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) VIEW-AS ALERT-BOX BUTTONS YES-NO UPDATE lUseNewCalc.
 
     IF lUseNewCalc THEN 
         RUN jc\BuildJob.p(ROWID(job), IF AVAILABLE oe-ordl THEN oe-ordl.ord-no ELSE 0, OUTPUT lBuildError, OUTPUT cBuildErrorMessage).
@@ -1808,7 +1809,7 @@ PROCEDURE pUpdateJobQty PRIVATE:
         ASSIGN
             li         = li + 1
             xeb.spc-no = TRIM(job.job-no) + "-" 
-                       + STRING(job.job-no2,"99") + "-"
+                       + STRING(job.job-no2,"999") + "-"
                        + STRING(xeb.form-no,"99") + "-" 
                        + STRING(li,"99").
   

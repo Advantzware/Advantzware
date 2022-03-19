@@ -6,6 +6,7 @@
       Modify By    : Aj 06/24/2008 Frieght Terms was not printing correctly  *
                      Prior it was from customer now its from oe-bolh table   *       
 * -------------------------------------------------------------------------- */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
 
@@ -51,7 +52,7 @@ def var v-part-qty          as   dec.
 def var v-ord-no            like oe-boll.ord-no.
 def var v-po-no             like oe-bolh.po-no.
 def var v-bol-no            like oe-bolh.bol-no.
-def var v-job-no            as   char format "x(9)" no-undo.
+def var v-job-no            as   char format "x(13)" no-undo.
 def var v-phone-num         as   char format "x(13)" no-undo.
 DEF VAR v-ship-phone        AS   CHAR FORMAT "X(13)" NO-UNDO.
 

@@ -9,6 +9,7 @@
              space(75) v-comp-add3 FORM "x(60)" SKIP
              space(62) v-comp-add4 FORM "x(60)" "<P10>"SKIP.
 *****************************************************************************/             
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 PUT
   "<C20><#2><R+11><C+35><IMAGE#1=" ls-full-img1 SKIP.
 
@@ -102,7 +103,7 @@ PUT
   xinv-head.terms-d FORMAT "x(15)" 
  SPACE(6)
   v-salesname FORMAT "x(15)"
-  v-bol-no "</B>"
+  "<C73>"v-bol-no "</B>"
  SKIP.
 
 /*

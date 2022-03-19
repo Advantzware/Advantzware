@@ -4,7 +4,7 @@
 /* Also update other includes that call cecrep/jobtick2.p for example*/
 
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
                                                                   
                                                                   
 def {1} var save_id as recid.
@@ -20,10 +20,10 @@ def {1} buffer xxprep   for prep.
 
 
 def {1} var v-break         as   log                                    no-undo.
-def {1} var v-job-prt       as   char format "x(9)"                     no-undo.
+def {1} var v-job-prt       as   char format "x(13)"                     no-undo.
 def {1} var v-ord-no        as   char format "x(8)"                     no-undo.
 def {1} var v-ord-date      as   char format "x(8)"                     no-undo.
-def {1} var v-est-no        as   char format "x(6)"                     no-undo.
+def {1} var v-est-no        as   char format "x(8)"                     no-undo.
 def {1} var cDisEstimate    as   character format "x(18)"               no-undo.
 def {1} var cMfgEstimate    as   character format "x(18)"               no-undo.
 def {1} var v-fg            as   char format "x(25)"                    no-undo.
@@ -66,7 +66,7 @@ def {1} var v-loc-bin       as   char format "x(14)"                    no-undo.
 def {1} var v-set-hdr       as   char format "x(25)"                    no-undo.
 def {1} var v-board-code    as   char format "x(15)"                    no-undo.
 def {1} var v-board-dscr    as   char format "x(32)"                    no-undo.
-def {1} var v-bar-no        as   char format "x(9)"                    no-undo.
+def {1} var v-bar-no        as   char format "x(13)"                    no-undo.
 
 def {1} workfile w-m no-undo
   FIELD m-code LIKE mach.m-code
@@ -105,7 +105,7 @@ format header
        /*fill(chr(95),130)               at 2    format "x(130)"         */      
       /*"<#1><C+60><LINE#1><|3>" */
     "<UNITS=INCHES><AT=+.01,5.93><FROM><AT=+.4,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,BarHeightPixels=5,VALUE=" space(0) v-bar-no SPACE(0)
-    ">"  "<AT=,7>" v-bar-no "<=#1><R+4>"
+    ">"  "<AT=,7>" v-bar-no FORM "x(13)" "<=#1><R+4>"
       SKIP  "<R8C1>" "<R+.6>"
        "User Id: "                      AT 3
         v-user-id                       

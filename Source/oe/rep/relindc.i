@@ -1,5 +1,6 @@
 /* ----------------------------------------------- oe/rep/relindc.i  01/05 YSK*/
 /* Print OE Release/Picking tickets    for Indian Carton                      */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i}
@@ -376,10 +377,10 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                 ASSIGN iCountLine = 1 .
 
                 IF AVAILABLE oe-ordl THEN
-                v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(INTEGER(oe-ordl.job-no2), "99" ) .
+                v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
                 ELSE v-job-no = "" .
                  
-                      PUT SPACE(1) v-job-no FORMAT "X(11)"  .
+                      PUT SPACE(1) v-job-no FORMAT "X(13)"  .
                 
                 IF AVAILABLE oe-ordl THEN
                     DO i = 1 to 3:
@@ -448,12 +449,12 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                          ASSIGN iv-comp-unit = 0 .
                    iv-comp-unit = iv-comp-unit + TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) .
                    IF LAST-OF(fg-bin.loc-bin) THEN do:
-                       v-job-no = fg-bin.job-no + "-" + STRING(INTEGER(fg-bin.job-no2), "99" )  .
-                       IF (v-job-no EQ "-" OR v-job-no EQ "-00" ) THEN v-job-no = "".
+                       v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-bin.job-no, fg-bin.job-no2))).
+                       IF (v-job-no EQ "-" OR v-job-no EQ "-000" ) THEN v-job-no = "".
                        IF FIRST(fg-bin.job-no) THEN
                            PUT SKIP(1) .
                        PUT SPACE(1)
-                           v-job-no FORMAT "X(11)" AT 2
+                           v-job-no FORMAT "X(13)" AT 2
                            fg-bin.loc FORMAT "x(6)" AT 44 SPACE(1)
                            fg-bin.loc-bin FORMAT "x(8)" space(1)
                            iv-comp-unit FORMAT "->>>>" .
@@ -509,9 +510,9 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                
                ASSIGN iCountLine = 1 .
 
-             v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(INTEGER(oe-ordl.job-no2), "99" ) .
+             v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
-              PUT SPACE(1) v-job-no FORMAT "X(11)"  .
+              PUT SPACE(1) v-job-no FORMAT "X(13)"  .
 
             IF AVAILABLE oe-ordl THEN
             DO i = 1 to 3:
@@ -558,9 +559,9 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
           v-printline = v-printline + 1.
           ASSIGN iCountLine = 1 .
 
-           v-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(int(oe-ordl.job-no2), "99" ) .
+           v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
             /*IF /*NOT v-p-bin AND*/ NOT s-print-pricing THEN*/
-              PUT SPACE(1) v-job-no FORMAT "X(11)"  .
+              PUT SPACE(1) v-job-no FORMAT "X(13)"  .
 
           IF AVAILABLE oe-ordl THEN
           DO:
@@ -632,13 +633,13 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
                    END.
 
                   IF LAST-OF(fg-bin.loc-bin) THEN do: 
-                      v-job-no = fg-bin.job-no + "-" + STRING(INTEGER(fg-bin.job-no2), "99" )  .
-                      IF (v-job-no EQ "-" OR v-job-no EQ "-00" ) THEN v-job-no = "".
+                      v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-bin.job-no, fg-bin.job-no2))).
+                      IF (v-job-no EQ "-" OR v-job-no EQ "-000" ) THEN v-job-no = "".
                       IF FIRST(fg-bin.job-no) THEN
                            PUT SKIP(1) .
 
                       PUT
-                          v-job-no FORMAT "X(11)" AT 2
+                          v-job-no FORMAT "X(13)" AT 2
                           fg-bin.loc FORMAT "x(6)" AT 44 SPACE(1)
                           fg-bin.loc-bin FORMAT "x(8)" space(1)
                           iv-comp-unit FORMAT "->>>>" .

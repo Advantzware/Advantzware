@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -80,7 +81,7 @@ ASSIGN cTextListToSelect =  "JOB #,STATUS,F,B,MACH CODE,DESCRIPTION,RUN QUANTITY
                                         "mr-std-per,mr-act-per,mr-var,run-std-per,"  +
                                         "run-act-per,run-ver,over-std-per,over-act-per,"     +
                                         "over-ver"
-       cFieldLength = "9,6,2,2,9,30,11,9," + "9,9,9,9," + "9,9,9,9,9"
+       cFieldLength = "13,6,2,2,9,30,11,9," + "9,9,9,9," + "9,9,9,9,9"
        cFieldType = "c,c,i,i,c,c,i,i," + "i,i,i,i," + "i,i,i,i,i" 
     .
 
@@ -167,52 +168,52 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY .95 NO-UNDO.
+     SIZE 18.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE begin_dept AS CHARACTER FORMAT "X(4)" 
      LABEL "Beginning Department" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 18.4 BY 1.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(6)" 
      LABEL "Beginning Machine" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 18.4 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 18.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_dept AS CHARACTER FORMAT "X(4)" INITIAL "zzzz" 
      LABEL "Ending Department" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 18.4 BY 1.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
      LABEL "Ending Machine" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 18.4 BY 1.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-wbyjob.csv" 
      LABEL "Name" 
@@ -298,11 +299,11 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes
 DEFINE FRAME FRAME-A
      begin_job-no AT ROW 2.95 COL 27.4 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 2.95 COL 39.4 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 2.95 COL 40.4 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 2.95 COL 69.8 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 2.95 COL 81.8 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.95 COL 82.8 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_date AT ROW 3.91 COL 27.4 COLON-ALIGNED
      end_date AT ROW 3.91 COL 69.8 COLON-ALIGNED HELP
@@ -1389,10 +1390,8 @@ assign
   v-mach[2]  = end_mach
   v-shts     = rd_qty BEGINS "Sheets"
 
-  v-job[1]   = fill(" ",6 - length(trim(begin_job-no))) +
-                trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-job[2]   = fill(" ",6 - length(trim(end_job-no)))   +
-                trim(end_job-no)   + string(int(end_job-no2),"99"). 
+  v-job[1]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2))                   
+  v-job[2]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) . 
 
  assign hdr-tit = "       " +
                  "MACH                                RUN    WASTE  MR STD " +
@@ -1534,10 +1533,12 @@ for each mch-act
       where mch-act.company                                 eq cocode
         and mch-act.op-date                                 ge v-date[1]
         and mch-act.op-date                                 le v-date[2]
-        and fill(" ",6 - length(trim(mch-act.job-no))) +
-            trim(mch-act.job-no) + string(mch-act.job-no2,"99") ge v-job[1]
-        and fill(" ",6 - length(trim(mch-act.job-no))) +
-            trim(mch-act.job-no) + string(mch-act.job-no2,"99") le v-job[2]
+        and fill(" ",9 - length(trim(mch-act.job-no))) +
+            trim(mch-act.job-no) + string(mch-act.job-no2,"999") ge v-job[1]
+        and fill(" ",9 - length(trim(mch-act.job-no))) +
+            trim(mch-act.job-no) + string(mch-act.job-no2,"999") le v-job[2]
+        AND mch-act.job-no2                                 GE int(begin_job-no2)
+        AND mch-act.job-no2                                 LE int(end_job-no2)    
         and mch-act.dept                                    ge v-dept[1]
         and mch-act.dept                                    le v-dept[2]
         and mch-act.m-code                                  ge v-mach[1]
@@ -1771,7 +1772,7 @@ for each mch-act
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "job"    THEN cVarValue = string(job.job-no + "-" + string(job.job-no2),"x(9)") .
+                         WHEN "job"    THEN cVarValue = string(job.job-no + "-" + string(job.job-no2,"999"),"x(13)") .
                          WHEN "stat"   THEN cVarValue = string(job.stat).
                          WHEN "form"   THEN cVarValue = STRING(job-mch.frm,">>").
                          WHEN "blank"  THEN cVarValue = STRING(job-mch.blank-no,">>") .

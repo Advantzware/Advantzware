@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolchill.p 10/01 JLF */
 /* Print Chillicothe BOL                                                      */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -47,7 +48,7 @@ form oe-boll.cases                  to 5  format ">>>>>"
      v-partial                      to 5  format ">>>>>"
      oe-boll.partial                to 12 format ">>>>>>"
      itemfg.i-name                  at 24 format "x(28)"
-     v-ord                          to 63 format "x(11)"
+     v-ord                          to 65 format "x(13)"
 
     with frame bol-mid down no-box no-labels stream-io width 85.
 
@@ -137,14 +138,14 @@ for each report   where report.term-id eq v-term-id,
       
   assign
    v-po  = "PO# "  + trim(oe-boll.po-no)
-   v-ord = "ORD# " + trim(string(oe-boll.ord-no,">>>>>>")).
+   v-ord = "ORD# " + trim(string(oe-boll.ord-no,">>>>>>>9")).
    
   if v-po  eq "PO# "  then v-po  = "".
   if v-ord eq "ORD# " then v-ord = "".
   
   assign 
    v-po  = fill(" ",20 - length(trim(v-po)))  + trim(v-po)
-   v-ord = fill(" ",11 - length(trim(v-ord))) + trim(v-ord).
+   v-ord = fill(" ",13 - length(trim(v-ord))) + trim(v-ord).
 
   display oe-boll.cases
           1 when oe-boll.cases eq 0 and oe-boll.partial ne 0 @ oe-boll.cases

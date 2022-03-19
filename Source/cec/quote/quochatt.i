@@ -1,6 +1,7 @@
 /* ------------------------------------------- cec/quote/quochatt.i 08/08/2018 sewa */
 /* print quote items in Chattanooga format                                          */
-/* -------------------------------------------------------------------------- */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.                    */
+/* -------------------------------------------------------------------------------- */
 
 
 logSetPrinting = FALSE.
@@ -78,7 +79,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                 ELSE xqitm.part-dscr1.
      
       
-            PUT SKIP "<C2><B>" TRIM(lv-est-no) FORM "x(5)" "</B>"
+            PUT SKIP "<C1><B>" TRIM(lv-est-no) FORM "x(8)" "</B>"
                 "<C8>"xqitm.part-no FORMAT "x(15)" SPACE(1)
               
                 /* gdm - 11040801 deducted 2 char from format, used to be 30 - now 28*/
@@ -90,7 +91,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
             DO:  
                 IF ll-prt-dscr2 AND xqitm.part-dscr2 NE "" THEN 
                 do:
-                    PUT "<B><C2>" xquo.q-no "</B><C21>" xqitm.part-dscr2  .
+                    PUT "<B><C1>" xquo.q-no "</B><C21>" xqitm.part-dscr2  .
                     lPrintSecDscr = YES .
                 END.
                 ELSE 
@@ -127,7 +128,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                         END.
                     END.
                     ELSE 
-                        PUT "<B><C2>" xquo.q-no "</B><C21>FG#: " + lv-fg#  FORM "x(30)".
+                        PUT "<B><C1>" xquo.q-no "</B><C21>FG#: " + lv-fg#  FORM "x(30)".
       
                 END.
 

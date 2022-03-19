@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolallpk22.i 07/09 GDM */
 /* N-K BOLFMT = ALLPKG2                                                         */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 IF FIRST-OF(tt-boll.LINE) THEN DO:
   FOR EACH w2.
@@ -51,7 +52,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
                            w2.qty    = oe-ordl.qty.
          ELSE IF i = 2 THEN 
             ASSIGN w2.dscr = oe-ordl.i-name
-                   w2.i-no = STRING(oe-ordl.ord-no,">>>>>9").
+                   w2.i-no = STRING(oe-ordl.ord-no,">>>>>>>9").
          else if i eq 3 then ASSIGN /*w2.i-no = oe-rel.carrier*/
                                  w2.dscr = oe-ordl.part-dscr1.
          else if i eq 4 then ASSIGN w2.dscr = oe-ordl.part-dscr2.
@@ -82,7 +83,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
 
        IF i = 2 THEN 
           ASSIGN w2.dscr = oe-ordl.i-name
-                 w2.i-no = STRING(oe-ordl.ord-no,">>>>>9").
+                 w2.i-no = STRING(oe-ordl.ord-no,">>>>>>>9").
 
        else if i eq 3 then ASSIGN /*w2.i-no = oe-rel.carrier*/
                                   w2.dscr = oe-ordl.part-dscr1.
@@ -122,7 +123,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
        IF i = 2 THEN 
           ASSIGN 
                  w2.dscr = oe-ordl.i-name
-                 w2.i-no = STRING(oe-ordl.ord-no,">>>>>9").
+                 w2.i-no = STRING(oe-ordl.ord-no,">>>>>>>9").
        else if i eq 3 then ASSIGN /*w2.i-no = oe-rel.carrier*/
                                   w2.dscr = oe-ordl.part-dscr1.
        else if i eq 4 then ASSIGN w2.dscr = oe-ordl.part-dscr2.

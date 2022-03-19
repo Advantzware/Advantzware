@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/bolpremcx.i 09/04 YSK */
 /* PRINT Xprint Premier BOL                                                           */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 
 assign
  v-tot-wt = 0
@@ -131,8 +131,7 @@ for each report where report.term-id eq v-term-id,
 
   v-job-no = "".
   if avail oe-ordl and oe-ordl.job-no ne "" then
-    v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-               trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
+    v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
   IF v-printline >= 39 THEN DO:
      v-printline = 0.
@@ -144,7 +143,7 @@ for each report where report.term-id eq v-term-id,
           oe-ordl.i-no /*part-no*/   WHEN AVAIL oe-ordl 
           oe-boll.ord-no  SPACE(10)
          /* oe-boll.i-no      */
-          v-job-no FORM "x(10)"
+          v-job-no FORM "x(13)"
           oe-ordl.i-name  FORM "x(22)"
           oe-boll.cases FORM ">>> @"
           oe-boll.qty-case FORM "->>>>>Z" 

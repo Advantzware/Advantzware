@@ -1,7 +1,7 @@
 /* --------------------------------------------- oe/rep/bolroyal.p  08/97 FWK */
 /* PRINT Royal BOL                                                            */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
 
@@ -48,7 +48,7 @@ format header
        v-ship-state
        v-ship-zip
        skip(1)
-       "RPI ORDER#" v-ord-no skip
+       "RPI ORDER#" STRING(v-ord-no) skip
        "BOL#" oe-bolh.bol-no format "9999999"
        "TO SHIP VIA" at 14 v-carrier format "x(30)"
        "DUE ON" at 56 oe-bolh.bol-date at 64 skip
@@ -213,7 +213,7 @@ for each xreport  where xreport.term-id eq v-term-id,
     create report.
     assign
      report.term-id  = v-term-id
-     report.key-01   = string(oe-boll.ord-no,"999999")
+     report.key-01   = string(oe-boll.ord-no,"99999999")
      report.key-02   = oe-boll.i-no
      report.rec-id   = recid(oe-boll)
      oe-boll.printed = yes.

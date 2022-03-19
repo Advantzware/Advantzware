@@ -1,7 +1,7 @@
 /* ---------------------------------------------- cec/rep/jobmich1.i          */
 /* factory ticket                                                             */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 def {1} var save_id as recid.
 
 def {1} buffer xest     for est.
@@ -14,10 +14,10 @@ def {1} buffer xstyle   for style.
 def {1} buffer xxprep   for prep.
 
 def {1} var v-break         as   log                                    no-undo.
-def {1} var v-job-prt       as   char format "x(9)"                     no-undo.
+def {1} var v-job-prt       as   char format "x(13)"                     no-undo.
 def {1} var v-ord-no        as   char format "x(8)"                     no-undo.
 def {1} var v-ord-date      as   char format "x(10)"                     no-undo.
-def {1} var v-est-no        as   char format "x(6)"                     no-undo.
+def {1} var v-est-no        as   char format "x(8)"                     no-undo.
 def {1} var v-fg            as   char format "x(37)"                    no-undo.
 def {1} var v-cp            as   char format "x(37)"                    no-undo.
 def {1} var v-due-date      as   char format "x(13)"                    no-undo.
@@ -87,12 +87,12 @@ FORM HEADER
        "Location:" AT 145  "<P10>"       
        "Job#:"                         at 2
        v-job-prt
-       "Overrun:"  AT 17 lv-over-run format "x(7)"       
+       "Overrun:"  AT 24 lv-over-run format "x(7)"       
        "Our Order#:" AT 40 v-ord-no
        "Ord Date:" AT 80  v-ord-date
        "Loc:" AT 109 v-loc 
        "Est#:" AT 2 v-est-no
-        "Underrun:" AT 17 lv-under-run FORMAT "x(7)"
+        "Underrun:" AT 23 lv-under-run FORMAT "x(7)"
        "FG#:" AT 40 v-fg FORM "x(15)"
        "Due Date: " AT 80 v-due-date
        "Bin:" AT 109 v-loc-bin  SKIP

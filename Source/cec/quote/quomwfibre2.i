@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
  /* cec/quote/quomwfibre2.i */
  
   PUT "<C1><#1><FArial>"   SKIP         
@@ -7,7 +8,7 @@
 
       "<FCourier New>"
       "Bill To:"  space(40) "Ship To:"  xquo.shipto[5] SKIP
-      SPACE(5) bill[1]  xquo.shipto[1] AT 55 skip
+      SPACE(5) bill[1]  xquo.shipto[1] AT 55 SKIP
       SPACE(5) bill[2]  xquo.shipto[2] AT 55 SKIP
       SPACE(5) bill[3]  xquo.shipto[3] AT 55 SKIP
       SPACE(5) bill[4]  xquo.shipto[4] AT 55 SKIP.   
@@ -41,14 +42,14 @@
    terms.dscr FORM "x(15)" space(1) sman.sname space(2) v-over-under SKIP.
 
    PUT "<|10><R28><C1><#5><FROM><R30><C80><RECT>" SKIP    
-             "<R28><C7><FROM><R30><C7><LINE>" SKIP
-             "<R28><C20><FROM><R30><C20><LINE>" SKIP
-             "<R28><C45><FROM><R30><C45><LINE>" SKIP
-             "<R28><C56><FROM><R30><C56><LINE>" SKIP
-             "<R28><C63><FROM><R30><C63><LINE>" SKIP
-             "<R28><C72><FROM><R30><C72><LINE>" SKIP.
+             "<R28><C8><FROM><R30><C8><LINE>" SKIP
+             "<R28><C25><FROM><R30><C25><LINE>" SKIP
+             "<R28><C50><FROM><R30><C50><LINE>" SKIP
+             "<R28><C59><FROM><R30><C59><LINE>" SKIP
+             "<R28><C65><FROM><R30><C65><LINE>" SKIP
+             "<R28><C75><FROM><R30><C75><LINE>" SKIP.
   
-   PUT "<FArial><=5><R+1> Est#         Part#                           Description/Style/Color/Board                         Quantity       Release            Price         UOM " SKIP.
+   PUT "<FArial><=5><R+1> Est#                      Part#                               Description/Style/Color/Board                 Quantity      Release         Price            UOM " SKIP.
    PUT "<FCourier New>".
 
 lv-pg-num = PAGE-NUM.

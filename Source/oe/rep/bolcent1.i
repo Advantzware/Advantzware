@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* oe/rep/bolcent1.i */      
       put 
          "<FMS Mincho>"
@@ -36,7 +37,7 @@
                 "<=4><C54>NMFC#"
                 "<=4><R+1>    Date              JOB#             FOB             Carrier              Class  Freight Terms         Weight" SKIP
                 "<=4><R+2><C54>152465"
-                "<=4><R+3> " oe-bolh.bol-date SPACE(3) /*v-po-no FORM "x(15)" */ space(6) v-job-no space(6) v-fob space(1) carrier.dscr FORM "x(28)" space(1) "55" space(4) v-frt-terms space(7) v-tot-wt SKIP
+                "<=4><R+3> " oe-bolh.bol-date SPACE(3) /*v-po-no FORM "x(15)" */ space(6) v-job-no "<C25.5>" v-fob space(1) carrier.dscr FORM "x(28)" space(1) "55" space(4) v-frt-terms space(7) v-tot-wt SKIP
                 "<||5><R17><C1><#5><FROM><R19><C80><RECT>" SKIP    
                 "<R17><C12><FROM><R19><C12><LINE>" SKIP
                 "<R17><C23><FROM><R19><C23><LINE>" SKIP

@@ -1,15 +1,16 @@
 /* ----------------------------------------------- jc/rep/jc-back.i 05/99 JLF */
 /* Job Backlog by Machine                                                     */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /* -------------------------------------------------------------------------- */
-
-      and job.job-no     ge substr(v-fjob,1,6)
-      and job.job-no     le substr(v-tjob,1,6)
-      and fill(" ",6 - length(trim(job.job-no))) +
-          trim(job.job-no) + string(job.job-no2,"99")
+      
+      and fill(" ",9 - length(trim(job.job-no))) +
+          trim(job.job-no) + string(job.job-no2,"999")
                          ge v-fjob
-      and fill(" ",6 - length(trim(job.job-no))) +
-          trim(job.job-no) + string(job.job-no2,"99")
+      and fill(" ",9 - length(trim(job.job-no))) +
+          trim(job.job-no) + string(job.job-no2,"999")
                          le v-tjob
+      AND job.job-no2 GE int(begin_job-no2)
+      AND job.job-no2 LE int(end_job-no2)
     use-index stat-idx no-lock,
 
     each job-mch

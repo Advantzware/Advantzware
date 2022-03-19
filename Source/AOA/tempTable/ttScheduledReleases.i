@@ -7,7 +7,7 @@ DEFINE TEMP-TABLE ttScheduledReleases NO-UNDO
     FIELD customerName    AS CHARACTER LABEL "Customer Name"     FORMAT "x(30)"
     FIELD shipTo          AS CHARACTER LABEL "ShipTo"            FORMAT "x(8)"
     FIELD poNo            AS CHARACTER LABEL "PO No"             FORMAT "x(15)"
-    FIELD orderNo         AS INTEGER   LABEL "Order No"          FORMAT ">>>>>9"
+    FIELD orderNo         AS INTEGER   LABEL "Order No"          FORMAT ">>>>>>>9"
     FIELD relNo           AS INTEGER   LABEL "Rel No"            FORMAT ">>>>>9"
     FIELD itemNo          AS CHARACTER LABEL "Item No"           FORMAT "x(15)"
     FIELD itemDescription AS CHARACTER LABEL "Item Description"  FORMAT "x(30)"

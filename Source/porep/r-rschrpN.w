@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -125,7 +126,7 @@ ASSIGN
     cFieldListToSelect = "vend,vend-name,i-no,fg-itm,bin,i-name,cust-nam,po,ord," +
                             "po-dt,qty-ord,qty-rcv,rfq-dt,carr," +
                             "job-no,size,uom,cust"
-    cFieldLength       = "8,30,15,15,8,30,30,8,8," + "8,15,15,8,7," + "10,20,3,8"
+    cFieldLength       = "8,30,15,15,8,30,30,8,8," + "8,15,15,8,7," + "13,20,3,8"
     cFieldType         = "c,c,c,c,c,c,c,c,c," + "c,i,i,c,c," + "c,c,c,c"  
     .
 
@@ -2010,7 +2011,7 @@ PROCEDURE run-report :
             {custom/statusMsg.i " 'Processing PO#  '  + string(tt-sched.po-no) "}
 
             lv-job-no = IF tt-sched.job-no EQ "" THEN ""
-            ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"99").
+            ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"999").
 
             /* DISPLAY lv-job-no
                      tt-sched.i-no

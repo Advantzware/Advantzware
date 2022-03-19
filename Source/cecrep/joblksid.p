@@ -2,7 +2,7 @@
 /*  factory ticket                                                            */
 /* -------------------------------------------------------------------------- */
 /*  YSK 06/08/01  change local var v-out1-id, v-out2-id to shared var for despr~nt1.p  */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 def input parameter v-format as char.
@@ -154,7 +154,7 @@ do v-local-loop = 1 to v-local-copies:
                                        else xeb.quantityPerSet.
 
          ASSIGN
-          v-bar-no = trim(job-hdr.job-no) + "-" + trim(STRING(job-hdr.job-no2,"99")).
+          v-bar-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
         end.
         
         assign

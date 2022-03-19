@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invxabox.p  */
 /* PRINT INVOICE   Xprint Standard Form  for ABox           */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -549,8 +549,8 @@ lv-pg-num = 0.
                 /*SPACE(1)*/
                 v-ship-qty  format "->>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
-                inv-line.ord-no FORMAT ">>>>>9" SPACE(5)
-                v-i-no  format "x(15)" SPACE(3)
+                inv-line.ord-no
+                v-i-no  format "x(15)" AT 34.5 SPACE(3)
                 v-i-dscr  format "x(30)" SPACE(2)
                 v-price  format "$>>,>>9.99" SPACE(1)
                 v-price-head SPACE(1)

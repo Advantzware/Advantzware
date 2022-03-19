@@ -1,5 +1,6 @@
 /* ------------------------------------------- cec/quote/quounipk.i           */
-/* print quote items in Unipak format                                          */
+/* print quote items in Unipak format                                         */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
@@ -63,7 +64,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       /*      IF LINE-COUNTER + numfit GT PAGE-SIZE - 2 THEN PAGE.  */
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
 
-      put trim(lv-est-no) FORM "x(6)" AT 1  /*SPACE(1) */
+      put trim(lv-est-no) FORM "x(8)" AT 1  /*SPACE(1) */
           xqitm.part-no FORMAT "x(28)" AT 12 
           xqitm.part-dscr1 FORMAT "x(25)" AT 41 /*space(1)*/.  
       

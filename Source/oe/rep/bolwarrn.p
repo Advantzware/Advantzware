@@ -3,7 +3,7 @@
 /* Print BOL when sys-ctrl.char-fld eq "Warren" - O/E Module                  */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
 
@@ -42,8 +42,8 @@ def workfile w2 no-undo
 
 form w1.pallets        to 5
      w1.pal-cnt        to 13
-     oe-boll.ord-no    to 21
-     oe-boll.i-no      at 23
+     oe-boll.ord-no    to 22
+     oe-boll.i-no      at 24
      v-frt-dscr        at 75
 
   with frame detail no-attr-space no-labels no-box no-underline down stream-io width 80.
@@ -70,7 +70,7 @@ form header
 
     with frame bol-top page-top no-box no-underline stream-io width 80.
 
-form v-part-info       at 23
+form v-part-info       at 24
 
     with frame info no-labels no-box no-underline down stream-io width 80.
 

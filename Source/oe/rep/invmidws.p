@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invmidws.p */
 /* PRINT INVOICE   Xprint form for Midwest            */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -454,7 +454,8 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                 v-price  format ">>>,>>9.9999" SPACE(1)               
                 inv-line.t-price  format "->>>,>>9.99"                
                 SKIP
-                v-ord-no SPACE(10)
+                SPACE(1)
+                TRIM(STRING(v-ord-no,">>>>>>>9")) SPACE(7)
                 inv-line.part-dscr1 space(19)
                 v-pc  SPACE(8)
                 v-price-head SPACE(1) SKIP
@@ -472,7 +473,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
 
         for each inv-misc no-lock where inv-misc.company = inv-head.company and
           inv-misc.r-no = inv-head.r-no and
-          inv-misc.bill = "Y" break by ord-no with frame detailm:
+          inv-misc.bill = "Y" break by ord-no with FRAME detailm:
 
           IF v-printline GE 56 THEN do:
                 PAGE.                

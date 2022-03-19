@@ -230,8 +230,8 @@ DEFINE BROWSE br_table
       job-farm-rctd.po-no FORMAT "x(9)":U
       itemDesc() @ lcDesc COLUMN-LABEL "Item Name" FORMAT "x(30)":U
             WIDTH 47
-      job-farm-rctd.job-no FORMAT "x(6)":U
-      job-farm-rctd.job-no2 FORMAT "99":U
+      job-farm-rctd.job-no FORMAT "x(9)":U
+      job-farm-rctd.job-no2 FORMAT "999":U
       job-farm-rctd.loc FORMAT "x(5)":U
       job-farm-rctd.loc-bin FORMAT "x(8)":U
       job-farm-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U

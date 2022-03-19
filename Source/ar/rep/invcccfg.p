@@ -509,7 +509,8 @@ RUN sys/ref/uom-ea.p (OUTPUT fg-uom-list).
                 v-price  format "->>,>>9.9999"                
                 (IF v-ship-qty1i > 0 THEN v-price2 ELSE ar-invl.amt)  format "->>>,>>9.99"                
                 SKIP
-                v-ord-no SPACE(10)
+                SPACE(1)
+                TRIM(STRING(v-ord-no,">>>>>>>9")) SPACE(7)
                 ar-invl.i-no SPACE(1)
                 
                 (IF v-tailgate <> "" THEN v-i-dscr ELSE "") FORM "x(30)"

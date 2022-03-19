@@ -292,7 +292,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
 
   FRAME {&FRAME-NAME}:TITLE = TRIM(FRAME {&FRAME-NAME}:TITLE) + " for Job#/Form: " +
-                              TRIM(ip-job-no) + "-" + STRING(ip-job-no2,"99") +
+                              TRIM(ip-job-no) + "-" + STRING(ip-job-no2,"999") +
                               "/" + TRIM(STRING(ip-frm,">>>>")).
 
   FIND FIRST eb WHERE ROWID(eb) = ip-rowid-eb NO-ERROR.
@@ -302,7 +302,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                    AND est.est-no  = eb.est-no NO-ERROR.
   FIND FIRST job-hdr WHERE job-hdr.company = cocode
                        AND job-hdr.est-no  = eb.est-no
-                       AND job-hdr.job-no  = ip-job-no
+                       AND TRIM(job-hdr.job-no)  = TRIM(ip-job-no)
                        AND job-hdr.job-no2 = ip-job-no2
                        AND job-hdr.frm     = asi.eb.form-no
                        AND job-hdr.blank-no = asi.eb.blank-no NO-LOCK NO-ERROR. 

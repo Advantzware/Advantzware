@@ -13,8 +13,8 @@ DEF {1} SHARED VAR cLocStart    AS   CHAR FORMAT "x(8)"         INIT "".
 DEF {1} SHARED VAR cLocEnd      AS   CHAR FORMAT "x(8)"         INIT "zzzzz".
 def {1} shared var v-s-rel      as   int  format ">>>"          init 0.
 def {1} shared var v-e-rel      like v-s-rel                    init 999.
-def {1} shared var v-s-ord      as   int  format ">>>>>>>"      init 0.
-def {1} shared var v-e-ord      like v-s-ord                    init 9999999.
+def {1} shared var v-s-ord      as   int  format ">>>>>>>>"     init 0.
+def {1} shared var v-e-ord      like v-s-ord                    init 99999999.
 def {1} shared var v-s-ter      like shipto.dest-code           init "".
 def {1} shared var v-e-ter      like v-s-ter                    init "zzzzz".
 def {1} shared var v-fdate      as   date format "99/99/9999"   init today.

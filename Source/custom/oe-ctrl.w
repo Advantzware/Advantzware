@@ -429,7 +429,7 @@ DO:
     IF ERROR-STATUS:ERROR THEN
       MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
               VIEW-AS ALERT-BOX INFO BUTTONS OK.
-    n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>").
+    n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>>>").
   END.
 END.
 
@@ -455,7 +455,7 @@ DO:
     FIND CURRENT oe-ctrl EXCLUSIVE-LOCK.
 
     oe-ctrl.n-ord = giCurrOrd + 1.
-    n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>").
+    n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>>>").
 
     /*IF CAN-FIND(FIRST inv-head WHERE inv-head.company EQ gcompany AND
                 inv-head.multi-invoice = no) THEN
@@ -465,7 +465,7 @@ DO:
       Btn_Close:LABEL = "&Cancel".
 
     APPLY "ENTRY" TO n-ord.
-    n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>").
+    n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>>>").
     FIND CURRENT oe-ctrl NO-LOCK.
   END.
   ELSE
@@ -505,7 +505,7 @@ DO:
     /* subtract 1 to make it the correct current value */
      liNextOrder = liNextOrder - 1.
      DYNAMIC-CURRENT-VALUE("order_seq" + company.spare-char-1, "ASI") = liNextOrder.
-     n-ord:SCREEN-VALUE = STRING(DYNAMIC-CURRENT-VALUE("order_seq" + company.spare-char-1, "ASI") + 1, ">>>>>>").
+     n-ord:SCREEN-VALUE = STRING(DYNAMIC-CURRENT-VALUE("order_seq" + company.spare-char-1, "ASI") + 1, ">>>>>>>>").
      FIND CURRENT oe-ctrl EXCLUSIVE-LOCK.
      oe-ctrl.n-ord = INTEGER(n-ord:SCREEN-VALUE).
 
@@ -533,7 +533,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL n-ord C-Win
 ON ENTRY OF n-ord IN FRAME oe-ctrl /* Next Order Number */
 DO:
-  n-ord:SCREEN-VALUE = STRING(current-value(order_seq), ">>>>>>").
+  n-ord:SCREEN-VALUE = STRING(current-value(order_seq), ">>>>>>>>").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -599,7 +599,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
             VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
-  n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>").
+  n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>>>").
   n-ord:SENSITIVE = NO.
    IF NOT lNewOrderEntry THEN
    Btn_OrdType:HIDDEN = YES.

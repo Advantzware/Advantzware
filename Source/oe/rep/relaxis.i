@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relaxis.i */
 /* Print OE Release/Picking tickets    for NSTOCK Xprint  copy of PrimerX        */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* -----------------------------------------------------------------*/
 
 
@@ -9,7 +10,7 @@
 
 
 DEF TEMP-TABLE w-oe-rell NO-UNDO
-FIELD ord-no   AS INTEGER          FORMAT "ZZZZZ9"
+FIELD ord-no   AS INTEGER          FORMAT "ZZZZZZZ9"
 FIELD i-no     AS CHARACTER
 FIELD qty      AS INTEGER
 FIELD LINE     AS INTEGER
@@ -118,8 +119,8 @@ DEF SHARED VAR s-print-spec AS LOG NO-UNDO .
 {custom/notesdef.i}
 ASSIGN lv-line-chars = 90 .
 FORMAT w-oe-rell.ord-no                 TO 6
-v-bin                            AT 8    FORMAT "x(35)"
-w-bin.w-par                      AT 44   FORMAT "x(25)"
+v-bin                            AT 10    FORMAT "x(35)"
+w-bin.w-par                      AT 46   FORMAT "x(25)"
 w-bin.w-unit-count               TO 76   FORMAT "->>>>>"
 w-bin.w-units                     TO 83   FORMAT "->>>>>"
 v-tot-rqty                       TO 93   FORMAT "->>>>>>>>"

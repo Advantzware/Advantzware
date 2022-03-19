@@ -1,5 +1,6 @@
-/* ------------------------------------------- cec/quote/quoboss.i */
-/* print quote items in Fibre Xprint format                                          */
+/* ------------------------------------------- cec/quote/quoboss.i            */
+/* print quote items in Fibre Xprint format                                   */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 v-boardDescription = 'Quote'.
@@ -118,7 +119,7 @@ FOR EACH tt-item,
          lv-part-dscr1 = IF AVAIL est AND est.est-type EQ 6 AND AVAIL itemfg THEN itemfg.i-name
                          ELSE xqitm.part-dscr1.
       /*lv-part-dscr1 = IF s-print-2nd-dscr AND AVAIL itemfg THEN ITEMfg.i-NAME ELSE lv-part-dscr1.*/
-      put trim(lv-est-no) FORM "x(6)" SPACE(1) 
+      put trim(lv-est-no) FORM "x(8)" SPACE(1) 
           xqitm.part-no space(1) lv-part-dscr1 .
     END.
 
@@ -182,20 +183,20 @@ FOR EACH tt-item,
       lv-part-dscr2 = IF s-print-2nd-dscr THEN xqitm.part-dscr2 ELSE style-dscr.
       IF style-dscr <> "" THEN
       PUT  /*xquo.q-no FORM ">>>>>9" trim-size AT 8 FORM "x(21)"*/
-              /*xqitm.style*/ /*lv-part-dscr2*/ style-dscr AT 29 /* style-dscr*/  FORM "x(30)" .
+              /*xqitm.style*/ /*lv-part-dscr2*/ style-dscr AT 31 /* style-dscr*/  FORM "x(30)" .
     END.
     ELSE                /*not a set estimate*/
 /*     IF i EQ 3 AND NOT (AVAIL est AND (est.est-type = 2 OR est.est-type = 6)) THEN DO: rtc */
     IF i EQ 3 AND NOT (AVAIL est AND (est.est-type = 2 OR est.est-type = 6)) THEN DO:
       /*lv-i-coldscr = IF s-print-2nd-dscr THEN style-dscr ELSE xqitm.i-coldscr.*/
       /*trim-size = STRING(eb.len) + "x" + STRING(eb.wid) + "x" + STRING(eb.dep).*/
-      PUT     "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 8 FORM "x(21)"
-              /*lv-i-coldscr*/ trim-size  AT 29 FORM "x(30)".
+      PUT     "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 10 FORM "x(21)"
+              /*lv-i-coldscr*/ trim-size  AT 31 FORM "x(30)".
     END.
     ELSE
 /*     IF i EQ 4 AND NOT (AVAIL est AND (est.est-type = 2 OR est.est-type = 6)) THEN DO: rtc */
     IF i EQ 4 AND NOT (AVAIL est AND (est.est-type = 2 OR est.est-type = 6))  THEN DO:
-       PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 8  FORM "x(21)".
+       PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 10  FORM "x(21)".
     
           v-board = "".
            /*  IF s-print-2nd-dscr AND v-boardDescription EQ 'Est' THEN
@@ -219,7 +220,7 @@ FOR EACH tt-item,
           /*IF AVAIL eb THEN PUT eb.stock AT 29 FORM "x(30)".
           ELSE PUT xqitm.i-dscr  AT 29 FORMAT "x(30)".*/
        END.*/
-      PUT v-board AT 29 FORM "x(30)" . 
+      PUT v-board AT 31 FORM "x(30)" . 
     END.
     ELSE
 /*     IF i EQ 5 AND NOT (AVAIL est AND (est.est-type = 2 OR est.est-type = 6)) THEN DO: rtc */
@@ -262,7 +263,7 @@ FOR EACH tt-item,
                 ELSE IF AVAIL eb THEN eb.stock-no ELSE xqitm.part-no.
         
          IF AVAIL est AND est.est-type NE 6 THEN
-            put "FG#: " + lv-fg# AT 8 FORM "x(21)"
+            put "FG#: " + lv-fg# AT 10 FORM "x(21)"
                    lv-i-coldscr FORM "x(30)" SKIP.    
     END.
     IF i > 5 THEN do:
@@ -378,12 +379,12 @@ FOR EACH tt-item,
         ELSE temp-trim-size = trim-size.
         
         IF est.est-type EQ 6 THEN
-           put eb.part-no AT 8 FORM "x(21)"
+           put eb.part-no AT 10 FORM "x(21)"
                "  Qty Per Set "
                TRIM(STRING(eb.quantityPerSet,"->>>,>>>"))
                SKIP.
         ELSE
-           put eb.part-no AT 8 FORM "x(21)"
+           put eb.part-no AT 10 FORM "x(21)"
                "  Qty Per Set "
                TRIM(STRING(eb.cust-%,"->>>,>>>"))
                SKIP.
@@ -395,7 +396,7 @@ FOR EACH tt-item,
            {cec/quote/quoboss2.i}
         END.
 
-        PUT temp-trim-size AT 8 SKIP.
+        PUT temp-trim-size AT 10 SKIP.
         
         FIND FIRST style
             WHERE style.company EQ cocode
@@ -413,7 +414,7 @@ FOR EACH tt-item,
            {cec/quote/quoboss2.i}
         END.
 
-        PUT eb.part-dscr1 AT 8 FORM "x(21)"
+        PUT eb.part-dscr1 AT 10 FORM "x(21)"
             style-dscr SKIP.
         
         IF ((AVAIL est AND est.est-type GT 4) OR NOT AVAIL est) THEN
@@ -442,7 +443,7 @@ FOR EACH tt-item,
            {cec/quote/quoboss2.i}
         END.
 
-        PUT eb.part-dscr2  AT 8  FORM "x(21)"
+        PUT eb.part-dscr2  AT 10  FORM "x(21)"
             v-board  FORM "x(50)"   SKIP .
         put eb.i-coldscr   AT 30 SKIP.
     END. /*end for each*/

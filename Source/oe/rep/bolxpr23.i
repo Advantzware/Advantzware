@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* oe/rep/bolxpr23.i*/
 DEFINE VARIABLE cBolFormat AS CHARACTER NO-UNDO .
 
@@ -42,8 +43,8 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
                            w2.dscr = oe-ordl.part-no
                            w2.qty = oe-ordl.qty.
       ELSE IF i = 2 THEN 
-          ASSIGN w2.job-po = if oe-ordl.job-no eq "" then "" else
-                             (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
+          ASSIGN w2.job-po = if oe-ordl.job-no eq "" then "" ELSE 
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
                  w2.dscr = oe-ordl.i-name
                  w2.i-no = oe-ordl.i-no.
       else if i eq 3 then ASSIGN w2.dscr = oe-ordl.part-dscr1.
@@ -64,8 +65,8 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
          and oe-ordl.line    eq tt-boll.LINE no-lock no-error.
        w2.i-no = "".
        IF i = 2 THEN 
-          ASSIGN w2.job-po = if oe-ordl.job-no eq "" then "" else
-                             (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
+          ASSIGN w2.job-po = if oe-ordl.job-no eq "" then "" ELSE 
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
                  w2.dscr = oe-ordl.i-name
                  w2.i-no = oe-ordl.i-no.
        else if i eq 3 then ASSIGN w2.dscr = oe-ordl.part-dscr1.
@@ -100,8 +101,8 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
          and oe-ordl.line    eq tt-boll.LINE no-lock no-error.
        w2.i-no = "".
        IF i = 2 THEN 
-          ASSIGN w2.job-po = if oe-ordl.job-no eq "" then "" else
-                             (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
+          ASSIGN w2.job-po = if oe-ordl.job-no eq "" then "" ELSE
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
                  w2.dscr = oe-ordl.i-name
                  w2.i-no = oe-ordl.i-no.
        else if i eq 3 then ASSIGN w2.dscr = oe-ordl.part-dscr1.

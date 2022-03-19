@@ -1,5 +1,6 @@
-/* ---------------------------------------------- oe/rep/CommInv20.p  */
-/* PRINT INVOICE   Xprint Standard Form             */
+/* ---------------------------------------------- oe/rep/CommInv20.p          */
+/* PRINT INVOICE   Xprint Standard Form                                       */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 DEFINE INPUT PARAMETER ipiBolNo AS INTEGER NO-UNDO .
@@ -556,7 +557,7 @@ DO TRANSACTION:
         DO:
             PUT SPACE(1) v-inv-qty FORMAT "->>>>>>9" SPACE(1)
                 v-ship-qty  FORMAT "->>>>>>9" SPACE(1)
-                oe-ordl.ord-no FORMAT ">>>>>>9" SPACE(2)
+                TRIM(STRING(oe-ordl.ord-no,">>>>>>>9")) SPACE(1)
                 v-i-no  FORMAT "x(15)" SPACE(3)
                 v-i-dscr  FORMAT "x(25)" SPACE(3)
                 v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(1)
@@ -568,7 +569,7 @@ DO TRANSACTION:
         DO:
             PUT SPACE(1)v-ord-qty  FORMAT "->>>>>>9" SPACE(1)
                 v-inv-qty  FORMAT "->>>>>>9" SPACE(1)
-                oe-ordl.ord-no FORMAT ">>>>>>9" SPACE(3)
+                TRIM(STRING(oe-ordl.ord-no,">>>>>>>9")) SPACE(2)
                 v-i-no  FORMAT "x(15)" SPACE(3)
                 v-i-dscr  FORMAT "x(25)" SPACE(2)
                 v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(2)
