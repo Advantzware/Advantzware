@@ -370,8 +370,7 @@ IF AVAILABLE oe-ord THEN DO:
                 ttPriceResults.cPriceOldUOM = oe-ordl.pr-uom
                 .
         RUN Price_CalculateLinePrice(ttPriceResults.riLine, ttPriceResults.cFGItemID, ttPriceResults.cCustID, ttPriceResults.cShipID, ttPriceResults.dQuantity, NO,
-                            OUTPUT ttPriceResults.lMatrixMatch, OUTPUT ttPriceResults.iQuantityLevel, INPUT-OUTPUT ttPriceResults.dPrice, INPUT-OUTPUT ttPriceResults.cPriceUOM).
-        
+                            OUTPUT ttPriceResults.lMatrixMatch, INPUT-OUTPUT ttPriceResults.dPrice, INPUT-OUTPUT ttPriceResults.cPriceUOM).
     END.
 END. 
 ELSE 
