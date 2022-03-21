@@ -287,3 +287,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnableDisable V-table-Win 
+PROCEDURE pEnableDisable :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+     DEFINE INPUT PARAMETER iplFlag AS LOGICAL NO-UNDO.
+     btn_hold:SENSITIVE IN FRAME {&FRAME-NAME} = NOT iplFlag. 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME    
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeLabel V-table-Win 
+PROCEDURE pChangeLabel :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+     DEFINE INPUT PARAMETER ipcStatus AS CHARACTER NO-UNDO.
+     btn_hold:LABEL IN FRAME {&FRAME-NAME} =  IF ipcStatus EQ "H" THEN "&Release" ELSE "&Hold" .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+

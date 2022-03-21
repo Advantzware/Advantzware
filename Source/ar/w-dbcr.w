@@ -344,7 +344,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-dbcr ).
-       RUN set-position IN h_b-dbcr ( 5.48 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_b-dbcr ( 4.48 , 4.00 ) NO-ERROR.
        RUN set-size IN h_b-dbcr ( 18.81 , 145.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -584,14 +584,29 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE lPosted AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   {methods/winReSizePgChg.i}
+
+  DEF VAR adm-current-page AS INT NO-UNDO.
+  RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
+  ASSIGN adm-current-page = INTEGER(RETURN-VALUE).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+
+ IF adm-current-page EQ 2 THEN 
+ DO:
+   RUN pGetPosted in h_v-dbcr (output lPosted). 
+   IF lPosted THEN
+   DO: 
+   	RUN set-buttons in h_p-arinv ("add-only").
+        RUN set-buttons in h_p-cashl ("disable-all").        
+   END.
+   RUN pEnableDisable in h_vp-arhld(lPosted).   
+ END.
 
 END PROCEDURE.
 
