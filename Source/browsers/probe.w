@@ -777,21 +777,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-LEAVE OF br_table IN FRAME F-Main /* Estimate  Analysis Per Thousand */
 DO:
-    DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
-    DEF VAR char-hdl AS CHAR NO-UNDO.   
 
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
     {est/brsleave.i}   /* same but update will be LIKE add */
      
-    IF KEYFUNCTION(LASTKEY) EQ "return" 
-    OR KEYFUNCTION(LASTKEY) EQ "tab" THEN DO:
-        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
-        phandle = WIDGET-HANDLE(char-hdl).
-        RUN new-state IN phandle ('update-begin':U).
-    END.
-    QUERY br_table:GET-NEXT().
-    IF QUERY br_table:QUERY-OFF-END THEN RUN dispatch ('cancel-record':U).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2763,6 +2753,9 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE li AS INTEGER NO-UNDO.
+   DEFINE VARIABLE phandle AS WIDGET-HANDLE NO-UNDO.
+   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.   
+  
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
@@ -2803,6 +2796,18 @@ PROCEDURE local-update-record :
     END.
   END.
   */
+
+
+    IF LAST-EVENT:LABEL EQ "Choose" THEN RETURN.  
+    QUERY br_table:GET-NEXT().
+    IF QUERY br_table:QUERY-OFF-END THEN RUN dispatch ('cancel-record':U).
+    ELSE DO:
+        RUN get-link-handle IN adm-broker-hdl
+            (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+        phandle = WIDGET-HANDLE(char-hdl).
+        RUN new-state IN phandle ('update-begin':U).
+    END. 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
