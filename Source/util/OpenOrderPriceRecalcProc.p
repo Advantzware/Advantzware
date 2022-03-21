@@ -46,7 +46,6 @@ DEFINE VARIABLE dNewPriceInv AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cNewPriceUOMInv AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dOldPrice    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dOldPriceTot AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE iMatrixLevel AS INTEGER   NO-UNDO.
 
 MAIN-LOOP:
 FOR EACH oe-ordl NO-LOCK
@@ -101,8 +100,8 @@ FOR EACH oe-ordl NO-LOCK
         cOldPriceUOM = oe-ordl.pr-uom
         dOldPriceTot = oe-ordl.t-price.
     
-    RUN Price_CalculateLinePrice IN hdPrice (ROWID(oe-ordl),oe-ordl.i-no,oe-ordl.cust-no,oe-ordl.ship-id,0,ipExecute,OUTPUT lFound, OUTPUT iMatrixLevel, INPUT-OUTPUT dNewPrice, INPUT-OUTPUT cNewPriceUOM).
-
+    RUN Price_CalculateLinePrice IN hdPrice (ROWID(oe-ordl),oe-ordl.i-no,oe-ordl.cust-no,oe-ordl.ship-id,0,ipExecute,OUTPUT lFound, INPUT-OUTPUT dNewPrice, INPUT-OUTPUT cNewPriceUOM).
+    
     FIND FIRST inv-line NO-LOCK 
          WHERE inv-line.company EQ oe-ordl.company
          AND inv-line.ord-no EQ oe-ordl.ord-no
@@ -110,7 +109,7 @@ FOR EACH oe-ordl NO-LOCK
          AND inv-line.LINE EQ oe-ordl.LINE NO-ERROR.
          
     IF AVAILABLE inv-line AND ipExecute THEN     
-    RUN Price_CalculateLinePrice IN hdPrice (ROWID(inv-line),oe-ordl.i-no,oe-ordl.cust-no,oe-ordl.ship-id,0,ipExecute,OUTPUT lFoundInv, OUTPUT iMatrixLevel, INPUT-OUTPUT dNewPriceInv, INPUT-OUTPUT cNewPriceUOMInv).
+    RUN Price_CalculateLinePrice IN hdPrice (ROWID(inv-line),oe-ordl.i-no,oe-ordl.cust-no,oe-ordl.ship-id,0,ipExecute,OUTPUT lFoundInv, INPUT-OUTPUT dNewPriceInv, INPUT-OUTPUT cNewPriceUOMInv).
     
     dPriceChange = (dNewPrice / dOldPrice - 1 ) * 100.
     IF lFound 
