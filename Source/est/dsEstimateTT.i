@@ -35,6 +35,13 @@ DEFINE TEMP-TABLE ttEstCostMisc NO-UNDO
 DEFINE TEMP-TABLE ttEstCostMaterial NO-UNDO
     LIKE estCostMaterial
     .    
+DEFINE TEMP-TABLE ttEstCostItem NO-UNDO
+    LIKE estCostItem
+    FIELD DBEstCostItemID LIKE estCostItem.estCostItemID
+    FIELD DBRec_key       LIKE estCostItem.rec_key
+    .     
+     
+     
          
 /* ********************  Preprocessor Definitions  ******************** */
 

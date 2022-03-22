@@ -255,14 +255,14 @@ PROCEDURE ChangeSellPrice:
                 FIRST estCostBlank NO-LOCK 
                 WHERE estCostBlank.estCostHeaderID EQ estCostHeader.estCostHeaderID
                   AND estCostBlank.estCostFormID EQ bf-ttEstCostForm.estCostFormID,
-                FIRST estCostItem NO-LOCK 
-                WHERE estCostItem.estCostHeaderID EQ estCostHeader.estCostHeaderID
-                  AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID:
+                FIRST ttEstCostItem NO-LOCK 
+                WHERE ttEstCostItem.estCostHeaderID EQ estCostHeader.estCostHeaderID
+                  AND ttEstCostItem.estCostItemID EQ estCostBlank.estCostItemID:
                 
                 /*Calculate new Price for form and commisson*/
                 ASSIGN 
                     dNewPrice   = ROUND(bf-ttEstCostForm.sellPrice * dPriceDiffRatio, 2)
-                    dCommission = dNewPrice * estCostItem.commissionPct / 100
+                    dCommission = dNewPrice * ttEstCostItem.commissionPct / 100
                     .
                 
                 /*Recalculate Totals for Form*/    
@@ -458,7 +458,7 @@ PROCEDURE pAddEstBlank PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm        FOR ttEstCostForm.
     DEFINE PARAMETER BUFFER opbf-estCostBlank         FOR estCostBlank.
     
-    DEFINE           BUFFER bf-estCostItem            FOR estCostItem.
+    DEFINE           BUFFER bf-ttEstCostItem            FOR ttEstCostItem.
     DEFINE           BUFFER bf-SetHeader-estCostBlank FOR estCostBlank.
     
     CREATE opbf-estCostBlank.
@@ -505,21 +505,21 @@ PROCEDURE pAddEstBlank PRIVATE:
         .
         
     
-    FIND FIRST bf-estCostItem EXCLUSIVE-LOCK 
-        WHERE bf-estCostItem.estCostHeaderID EQ opbf-estCostBlank.estCostHeaderID
-        AND bf-estCostItem.customerPart EQ ipbf-eb.part-no
+    FIND FIRST bf-ttEstCostItem EXCLUSIVE-LOCK 
+        WHERE bf-ttEstCostItem.estCostHeaderID EQ opbf-estCostBlank.estCostHeaderID
+        AND bf-ttEstCostItem.customerPart EQ ipbf-eb.part-no
         NO-ERROR 
         .
-    IF AVAILABLE bf-estCostItem THEN 
+    IF AVAILABLE bf-ttEstCostItem THEN 
     DO:
         ASSIGN 
-            opbf-estCostBlank.estCostItemID = bf-estCostItem.estCostItemID
-            bf-estCostItem.sizeDesc            = TRIM(STRING(opbf-estCostBlank.dimLength,">>>9.99")) + " x " + TRIM(STRING(opbf-estCostBlank.dimWidth,">>>9.99"))
+            opbf-estCostBlank.estCostItemID = bf-ttEstCostItem.estCostItemID
+            bf-ttEstCostItem.sizeDesc       = TRIM(STRING(opbf-estCostBlank.dimLength,">>>9.99")) + " x " + TRIM(STRING(opbf-estCostBlank.dimWidth,">>>9.99"))
             .
         IF opbf-estCostBlank.dimDepth NE 0 THEN 
-            bf-estCostItem.sizeDesc = bf-estCostItem.sizeDesc + " x " + TRIM(STRING(opbf-estCostBlank.dimDepth,">>>9.99")).
+            bf-ttEstCostItem.sizeDesc = bf-ttEstCostItem.sizeDesc + " x " + TRIM(STRING(opbf-estCostBlank.dimDepth,">>>9.99")).
             
-        RELEASE bf-estCostItem.
+        RELEASE bf-ttEstCostItem.
     END.
     ASSIGN 
         ipbf-ttEstCostForm.numOutBlanksOnNet = ipbf-ttEstCostForm.numOutBlanksOnNet + opbf-estCostBlank.numOut
@@ -617,67 +617,69 @@ END PROCEDURE.
 
 PROCEDURE pAddEstItem PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: Create an estCostItem given eb and other key ids
+     Purpose: Create an ttEstCostItem given eb and other key ids
      Notes: ce/print4p.i
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-eb            FOR eb.
     DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
-    DEFINE PARAMETER BUFFER opbf-estCostItem   FOR estCostItem.
+    DEFINE PARAMETER BUFFER opbf-ttEstCostItem FOR ttEstCostItem.
 
-    CREATE opbf-estCostItem.
+    CREATE opbf-ttEstCostItem.
+    RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostItem.estCostItemID, INPUT-OUTPUT opbf-ttEstCostItem.rec_key).
+    
     ASSIGN 
-        opbf-estCostItem.estCostHeaderID           = ipbf-estCostHeader.estCostHeaderID
-        opbf-estCostItem.company                   = ipbf-eb.company
-        opbf-estCostItem.estimateNo                = ipbf-eb.est-no
-        opbf-estCostItem.customerPart              = ipbf-eb.part-no
-        opbf-estCostItem.colorDesc                 = ipbf-eb.i-coldscr
-        opbf-estCostItem.customerID                = ipbf-eb.cust-no
-        opbf-estCostItem.shipToID                  = ipbf-eb.ship-id
-        opbf-estCostItem.itemName                  = ipbf-eb.part-dscr1
-        opbf-estCostItem.itemDescription1          = ipbf-eb.part-dscr2
-        opbf-estCostItem.salesgroupID              = ipbf-eb.sman
-        opbf-estCostItem.styleID                   = ipbf-eb.style
-        opbf-estCostItem.isSet                     = ipbf-eb.is-a-set
-        opbf-estCostItem.itemID                    = ipbf-eb.stock-no
-        opbf-estCostItem.company                   = ipbf-eb.company
-        opbf-estCostItem.productCategory           = ipbf-eb.procat
-        opbf-estCostItem.commissionPct             = ipbf-eb.comm
-        opbf-estCostItem.carrierID                 = ipbf-eb.carrier
-        opbf-estCostItem.carrierZone               = ipbf-eb.dest-code
-        opbf-estCostItem.freightChargeMethod       = ipbf-eb.chg-method
-        opbf-estCostItem.freightWeightPerMOverride = ipbf-eb.weight-m
-        opbf-estCostItem.freightCostOverridePerCWT = ipbf-eb.fr-out-c
-        opbf-estCostItem.freightCostOverridePerM   = ipbf-eb.fr-out-m
-        opbf-estCostItem.isPurchased               = ipbf-eb.pur-man
-        opbf-estCostItem.blankWidth                = IF ipbf-eb.t-wid EQ 0 THEN ipbf-eb.wid ELSE ipbf-eb.t-wid
-        opbf-estCostItem.blankLength               = IF ipbf-eb.t-len EQ 0 THEN ipbf-eb.len ELSE ipbf-eb.t-len
-        opbf-estCostItem.blankDepth                = IF ipbf-eb.t-dep EQ 0 THEN ipbf-eb.dep ELSE ipbf-eb.t-dep
-        opbf-estCostItem.blankArea                 = IF ipbf-eb.t-sqin EQ 0 THEN opbf-estCostItem.blankLength * opbf-estCostItem.blankWidth ELSE ipbf-eb.t-sqin
-        opbf-estCostItem.dimLength                 = ipbf-eb.len
-        opbf-estCostItem.dimWidth                  = ipbf-eb.wid
-        opbf-estCostItem.dimDepth                  = ipbf-eb.dep
-        opbf-estCostItem.quantityPerSubUnit        = ipbf-eb.cas-cnt
-        opbf-estCostItem.quantitySubUnitsPerUnit   = ipbf-eb.cas-pal
+        opbf-ttEstCostItem.estCostHeaderID           = ipbf-estCostHeader.estCostHeaderID
+        opbf-ttEstCostItem.company                   = ipbf-eb.company
+        opbf-ttEstCostItem.estimateNo                = ipbf-eb.est-no
+        opbf-ttEstCostItem.customerPart              = ipbf-eb.part-no
+        opbf-ttEstCostItem.colorDesc                 = ipbf-eb.i-coldscr
+        opbf-ttEstCostItem.customerID                = ipbf-eb.cust-no
+        opbf-ttEstCostItem.shipToID                  = ipbf-eb.ship-id
+        opbf-ttEstCostItem.itemName                  = ipbf-eb.part-dscr1
+        opbf-ttEstCostItem.itemDescription1          = ipbf-eb.part-dscr2
+        opbf-ttEstCostItem.salesgroupID              = ipbf-eb.sman
+        opbf-ttEstCostItem.styleID                   = ipbf-eb.style
+        opbf-ttEstCostItem.isSet                     = ipbf-eb.is-a-set
+        opbf-ttEstCostItem.itemID                    = ipbf-eb.stock-no
+        opbf-ttEstCostItem.company                   = ipbf-eb.company
+        opbf-ttEstCostItem.productCategory           = ipbf-eb.procat
+        opbf-ttEstCostItem.commissionPct             = ipbf-eb.comm
+        opbf-ttEstCostItem.carrierID                 = ipbf-eb.carrier
+        opbf-ttEstCostItem.carrierZone               = ipbf-eb.dest-code
+        opbf-ttEstCostItem.freightChargeMethod       = ipbf-eb.chg-method
+        opbf-ttEstCostItem.freightWeightPerMOverride = ipbf-eb.weight-m
+        opbf-ttEstCostItem.freightCostOverridePerCWT = ipbf-eb.fr-out-c
+        opbf-ttEstCostItem.freightCostOverridePerM   = ipbf-eb.fr-out-m
+        opbf-ttEstCostItem.isPurchased               = ipbf-eb.pur-man
+        opbf-ttEstCostItem.blankWidth                = IF ipbf-eb.t-wid EQ 0 THEN ipbf-eb.wid ELSE ipbf-eb.t-wid
+        opbf-ttEstCostItem.blankLength               = IF ipbf-eb.t-len EQ 0 THEN ipbf-eb.len ELSE ipbf-eb.t-len
+        opbf-ttEstCostItem.blankDepth                = IF ipbf-eb.t-dep EQ 0 THEN ipbf-eb.dep ELSE ipbf-eb.t-dep
+        opbf-ttEstCostItem.blankArea                 = IF ipbf-eb.t-sqin EQ 0 THEN opbf-ttEstCostItem.blankLength * opbf-ttEstCostItem.blankWidth ELSE ipbf-eb.t-sqin
+        opbf-ttEstCostItem.dimLength                 = ipbf-eb.len
+        opbf-ttEstCostItem.dimWidth                  = ipbf-eb.wid
+        opbf-ttEstCostItem.dimDepth                  = ipbf-eb.dep
+        opbf-ttEstCostItem.quantityPerSubUnit        = ipbf-eb.cas-cnt
+        opbf-ttEstCostItem.quantitySubUnitsPerUnit   = ipbf-eb.cas-pal
         /*Refactor - Calculate Windowing*/
-        opbf-estCostItem.blankAreaNetWindow        = opbf-estCostItem.blankArea                
+        opbf-ttEstCostItem.blankAreaNetWindow        = opbf-ttEstCostItem.blankArea                
         /*Refactor - Hardcoded*/
-        opbf-estCostItem.areaUOM                   = "SQIN"
-        opbf-estCostItem.dimUOM                    = "IN"
-        opbf-estCostItem.quantityPerSet            = fGetQuantityPerSet(BUFFER ipbf-eb)
-        opbf-estCostItem.formNo                    = ipbf-eb.form-no
-        opbf-estCostItem.blankNo                   = ipbf-eb.blank-no
+        opbf-ttEstCostItem.areaUOM                   = "SQIN"
+        opbf-ttEstCostItem.dimUOM                    = "IN"
+        opbf-ttEstCostItem.quantityPerSet            = fGetQuantityPerSet(BUFFER ipbf-eb)
+        opbf-ttEstCostItem.formNo                    = ipbf-eb.form-no
+        opbf-ttEstCostItem.blankNo                   = ipbf-eb.blank-no
         
         .
         
     IF fIsComboType(ipbf-estCostHeader.estType) THEN 
         ASSIGN 
-            opbf-estCostItem.quantityRequired = ipbf-eb.bl-qty
-            opbf-estCostItem.quantityYielded  = ipbf-eb.yld-qty
+            opbf-ttEstCostItem.quantityRequired = ipbf-eb.bl-qty
+            opbf-ttEstCostItem.quantityYielded  = ipbf-eb.yld-qty
             .
     ELSE 
         ASSIGN 
-            opbf-estCostItem.quantityRequired = ipbf-estCostHeader.quantityMaster * opbf-estCostItem.quantityPerSet
-            opbf-estCostItem.quantityYielded  = opbf-estCostItem.quantityRequired
+            opbf-ttEstCostItem.quantityRequired = ipbf-estCostHeader.quantityMaster * opbf-ttEstCostItem.quantityPerSet
+            opbf-ttEstCostItem.quantityYielded  = opbf-ttEstCostItem.quantityRequired
             .
             
     FIND FIRST cust NO-LOCK 
@@ -688,17 +690,17 @@ PROCEDURE pAddEstItem PRIVATE:
     /*Refactor - hardcoded temp?  Consider just using eb fields*/
     IF AVAILABLE cust AND cust.cust-no NE "Temp" THEN 
         ASSIGN 
-            opbf-estCostItem.customerName     = cust.name
-            opbf-estCostItem.customerAddress1 = cust.addr[1]
-            opbf-estCostItem.customerAddress2 = cust.addr[2]
-            opbf-estCostItem.customerAddress3 = cust.city + ", " + cust.state + " " + cust.zip
+            opbf-ttEstCostItem.customerName     = cust.name
+            opbf-ttEstCostItem.customerAddress1 = cust.addr[1]
+            opbf-ttEstCostItem.customerAddress2 = cust.addr[2]
+            opbf-ttEstCostItem.customerAddress3 = cust.city + ", " + cust.state + " " + cust.zip
             .
     ELSE 
         ASSIGN  
-            opbf-estCostItem.customerName     = ipbf-eb.ship-name
-            opbf-estCostItem.customerAddress1 = ipbf-eb.ship-addr[1]
-            opbf-estCostItem.customerAddress2 = ipbf-eb.ship-addr[2]
-            opbf-estCostItem.customerAddress3 = ipbf-eb.ship-city + ", " + ipbf-eb.ship-state + " " + ipbf-eb.ship-zip
+            opbf-ttEstCostItem.customerName     = ipbf-eb.ship-name
+            opbf-ttEstCostItem.customerAddress1 = ipbf-eb.ship-addr[1]
+            opbf-ttEstCostItem.customerAddress2 = ipbf-eb.ship-addr[2]
+            opbf-ttEstCostItem.customerAddress3 = ipbf-eb.ship-city + ", " + ipbf-eb.ship-state + " " + ipbf-eb.ship-zip
             .
     FIND FIRST shipto NO-LOCK 
         WHERE shipto.company EQ ipbf-eb.company
@@ -707,10 +709,10 @@ PROCEDURE pAddEstItem PRIVATE:
         NO-ERROR.
     IF AVAILABLE shipto THEN
         ASSIGN 
-            opbf-estCostItem.shipToName     = shipto.ship-name
-            opbf-estCostItem.shipToAddress1 = shipto.ship-addr[1]
-            opbf-estCostItem.shipToAddress2 = shipto.ship-addr[2]
-            opbf-estCostItem.shipToAddress3 = shipto.ship-city + ", " + shipto.ship-state + " " + shipto.ship-zip
+            opbf-ttEstCostItem.shipToName     = shipto.ship-name
+            opbf-ttEstCostItem.shipToAddress1 = shipto.ship-addr[1]
+            opbf-ttEstCostItem.shipToAddress2 = shipto.ship-addr[2]
+            opbf-ttEstCostItem.shipToAddress3 = shipto.ship-city + ", " + shipto.ship-state + " " + shipto.ship-zip
             .
     FIND FIRST sman NO-LOCK 
         WHERE sman.company EQ ipbf-eb.company
@@ -718,8 +720,8 @@ PROCEDURE pAddEstItem PRIVATE:
         NO-ERROR.
     IF AVAILABLE sman THEN 
         ASSIGN 
-            opbf-estCostItem.salesgroupName  = sman.sname
-            opbf-estCostItem.commissionBasis = sman.commbasis        
+            opbf-ttEstCostItem.salesgroupName  = sman.sname
+            opbf-ttEstCostItem.commissionBasis = sman.commbasis        
             .
     FIND FIRST style NO-LOCK 
         WHERE style.company EQ ipbf-eb.company
@@ -727,7 +729,7 @@ PROCEDURE pAddEstItem PRIVATE:
         NO-ERROR.
     IF AVAILABLE style THEN 
         ASSIGN 
-            opbf-estCostItem.styleDesc = style.dscr
+            opbf-ttEstCostItem.styleDesc = style.dscr
             .
 
 END PROCEDURE.
@@ -741,13 +743,14 @@ PROCEDURE pAddEstFarm PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostBlank    FOR estCostBlank.
     DEFINE PARAMETER BUFFER opbf-ttEstCostMaterial FOR ttEstCostMaterial.
     
-    DEFINE           BUFFER bf-estCostItem       FOR estCostItem.
+    DEFINE           BUFFER bf-ttEstCostItem       FOR ttEstCostItem.
     
-    FIND FIRST bf-estCostItem NO-LOCK 
-        WHERE bf-estCostItem.estCostItemID EQ ipbf-estCostBlank.estCostItemID
+    FIND FIRST bf-ttEstCostItem NO-LOCK 
+        WHERE bf-ttEstCostItem.estCostHeaderID EQ ipbf-estCostBlank.estCostHeaderID
+          AND bf-ttEstCostItem.estCostItemID   EQ ipbf-estCostBlank.estCostItemID
         NO-ERROR.
     
-    IF AVAILABLE bf-estCostItem THEN 
+    IF AVAILABLE bf-ttEstCostItem THEN 
     DO:
         
         CREATE opbf-ttEstCostMaterial.
@@ -759,8 +762,8 @@ PROCEDURE pAddEstFarm PRIVATE:
             opbf-ttEstCostMaterial.estimateNo         = ipbf-estCostHeader.estimateNo
             opbf-ttEstCostMaterial.formNo             = ipbf-estCostBlank.formNo
             opbf-ttEstCostMaterial.blankNo            = ipbf-estCostBlank.blankNo
-            opbf-ttEstCostMaterial.itemID             = bf-estCostItem.itemID
-            opbf-ttEstCostMaterial.itemName           = bf-estCostItem.itemName
+            opbf-ttEstCostMaterial.itemID             = bf-ttEstCostItem.itemID
+            opbf-ttEstCostMaterial.itemName           = bf-ttEstCostItem.itemName
             opbf-ttEstCostMaterial.quantityUOM        = "EA"
             opbf-ttEstCostMaterial.quantityUOMWaste   = opbf-ttEstCostMaterial.quantityUOM
             opbf-ttEstCostMaterial.sequenceOfMaterial = 1
@@ -770,7 +773,7 @@ PROCEDURE pAddEstFarm PRIVATE:
             opbf-ttEstCostMaterial.dimUOM             = ipbf-estCostBlank.dimUOM
             .
             
-    END. /*available estCostItem*/        
+    END. /*available ttEstCostItem*/        
     
 END PROCEDURE.
 
@@ -1603,12 +1606,12 @@ PROCEDURE pBuildCostDetailForFreight PRIVATE:
      Notes:
      Syntax:
             RUN pBuildCostDetailForFreight(BUFFER estCostHeader, BUFFER ttEstCostForm, 
-                BUFFER estCostBlank, BUFFER estCostItem, BUFFER eb, iEstCostFormID, iEstCostBlankID).
+                BUFFER estCostBlank, BUFFER ttEstCostItem, BUFFER eb, iEstCostFormID, iEstCostBlankID).
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm FOR ttEstCostForm.
     DEFINE PARAMETER BUFFER ipbf-estCostBlank  FOR estCostBlank.
-    DEFINE PARAMETER BUFFER ipbf-estCostItem   FOR estCostItem.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostItem   FOR ttEstCostItem.
     DEFINE PARAMETER BUFFER ipbf-eb            FOR eb.
     DEFINE INPUT PARAMETER ipiEstCostFormIDForCost AS INT64.
     DEFINE INPUT PARAMETER ipiEstCostBlankIDForCost AS INT64.
@@ -1629,12 +1632,12 @@ PROCEDURE pBuildCostDetailForFreight PRIVATE:
         dQtyShipped = ipbf-estCostBlank.quantityRequired
                 
         /*REFACTOR - MSF assumed use blankAreaUOM*/
-        dMSFforEA   = ipbf-estCostItem.blankArea / 144000  
+        dMSFforEA   = ipbf-ttEstCostItem.blankArea / 144000  
                 
         /*REFACTOR - LBs assumed use weightUOM */
-        dLBsforEA   = IF ipbf-estCostItem.freightWeightPerMOverride NE 0 
-                                THEN ipbf-estCostItem.freightWeightPerMOverride / 1000 
-                                ELSE ipbf-estCostItem.weightTotal / ipbf-estCostItem.quantityRequired
+        dLBsforEA   = IF ipbf-ttEstCostItem.freightWeightPerMOverride NE 0 
+                                THEN ipbf-ttEstCostItem.freightWeightPerMOverride / 1000 
+                                ELSE ipbf-ttEstCostItem.weightTotal / ipbf-ttEstCostItem.quantityRequired
         .
             
     /*Get Total Freight from Freight Procs*/
@@ -1643,15 +1646,15 @@ PROCEDURE pBuildCostDetailForFreight PRIVATE:
             OUTPUT dFreightTotal).
     ELSE 
     DO: /*Calc Freight based on basic inputs*/
-        RUN GetFreight(ipbf-estCostBlank.company, ipbf-estCostHeader.warehouseID, ipbf-estCostItem.carrierID, ipbf-estCostItem.carrierZone, "", 
-            dQtyShipped, dLBSforEA, dMSFforEA, ipbf-estCostBlank.quantityOfUnits, ipbf-estCostItem.freightCostOverridePerCWT, ipbf-estCostItem.freightCostOverridePerM,
+        RUN GetFreight(ipbf-estCostBlank.company, ipbf-estCostHeader.warehouseID, ipbf-ttEstCostItem.carrierID, ipbf-ttEstCostItem.carrierZone, "", 
+            dQtyShipped, dLBSforEA, dMSFforEA, ipbf-estCostBlank.quantityOfUnits, ipbf-ttEstCostItem.freightCostOverridePerCWT, ipbf-ttEstCostItem.freightCostOverridePerM,
             OUTPUT dFreightTotal, OUTPUT dFreightMin, OUTPUT lError, OUTPUT cMessage).
         IF ipbf-estCostHeader.releaseCount GT 1 AND dFreightMin GT 0 THEN 
             dFreightTotal = dFreightTotal + (ipbf-estCostHeader.releaseCount - 1) * dFreightMin.
     END.
     IF dFreightTotal NE 0 THEN 
     DO:
-        IF ipbf-estCostItem.freightChargeMethod EQ "P" THEN 
+        IF ipbf-ttEstCostItem.freightChargeMethod EQ "P" THEN 
         DO: /*Integrate Freight Cost for Prepaid*/
             RUN pAddCostDetail(ipbf-estCostBlank.estCostHeaderID, ipiEstCostFormIDForCost, ipiEstCostBlankIDForCost, ipbf-estCostBlank.estCostBlankID, 
                 gcSourceTypeNonFactory, "nfFreight", "Freight", dFreightTotal, 0, ipbf-estCostBlank.company, ipbf-estCostBlank.estimateNo, BUFFER bf-ttEstCostDetail).
@@ -1851,7 +1854,7 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
     DEFINE BUFFER bf-estCostHeader        FOR estCostHeader.
     DEFINE BUFFER bf-ef                   FOR ef.
     DEFINE BUFFER bf-estCostBlank         FOR estCostBlank.
-    DEFINE BUFFER bf-estCostItem          FOR estCostItem.
+    DEFINE BUFFER bf-ttEstCostItem          FOR ttEstCostItem.
     DEFINE BUFFER bf-ttEstCostMaterial      FOR ttEstCostMaterial.
     DEFINE BUFFER bf-ttEstCostMisc          FOR ttEstCostMisc.
     
@@ -1893,9 +1896,9 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
         FOR EACH bf-estCostBlank NO-LOCK 
             WHERE bf-estCostBlank.estCostHeaderID EQ bf-ttEstCostForm.estCostHeaderID
               AND bf-estCostBlank.estCostFormID EQ bf-ttEstCostForm.estCostFormID,
-            FIRST bf-estCostItem NO-LOCK 
-            WHERE bf-estCostItem.estCostHeaderID EQ bf-ttEstCostForm.estCostHeaderID
-              AND bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID:
+            FIRST bf-ttEstCostItem NO-LOCK 
+            WHERE bf-ttEstCostItem.estCostHeaderID EQ bf-ttEstCostForm.estCostHeaderID
+              AND bf-ttEstCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID:
                 
             IF bf-estCostBlank.isPurchased THEN
                 dApplicableFGHandlingRate = bf-estCostHeader.handlingRateFGFarmPerCWT.
@@ -1904,11 +1907,11 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
                 
             
             ASSIGN
-                dWeightInSrcUOM = bf-estCostItem.weightTotal
-                cSrcUOM         = bf-estCostItem.weightUOM.
+                dWeightInSrcUOM = bf-ttEstCostItem.weightTotal
+                cSrcUOM         = bf-ttEstCostItem.weightUOM.
                 
-            RUN pConvertQuantityFromUOMToUOM(bf-estCostItem.company, bf-estCostItem.itemID, "RM", cSrcUOM, "CWT", 
-                0, bf-estCostItem.dimLength, bf-estCostItem.dimWidth, bf-estCostItem.dimDepth, 
+            RUN pConvertQuantityFromUOMToUOM(bf-ttEstCostItem.company, bf-ttEstCostItem.itemID, "RM", cSrcUOM, "CWT", 
+                0, bf-ttEstCostItem.dimLength, bf-ttEstCostItem.dimWidth, bf-ttEstCostItem.dimDepth, 
                 dWeightInSrcUOM, OUTPUT dNetWeightInCUOM).
                 
             
@@ -2132,17 +2135,17 @@ PROCEDURE pBuildProbe PRIVATE:
     IF ipbf-estCostHeader.sellPrice GT 0 THEN 
         bf-probe.boardCostPct  = ipbf-estCostHeader.costTotalBoard / ipbf-estCostHeader.sellPrice * 100.
                     
-    FOR EACH estCostItem NO-LOCK
-        WHERE estCostItem.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
-        AND NOT estCostItem.isSet:
+    FOR EACH ttEstCostItem NO-LOCK
+        WHERE ttEstCostItem.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+        AND NOT ttEstCostItem.isSet:
             
         ASSIGN 
-            dQtyInMForItem = estCostItem.quantityRequired / 1000
+            dQtyInMForItem = ttEstCostItem.quantityRequired / 1000
             .
         FIND FIRST bf-probeit EXCLUSIVE-LOCK 
             WHERE bf-probeit.company EQ ipbf-estCostHeader.company
             AND bf-probeit.est-no EQ ipbf-estCostHeader.estimateNo
-            AND bf-probeit.part-no EQ estCostItem.customerPart
+            AND bf-probeit.part-no EQ ttEstCostItem.customerPart
             AND bf-probeit.line EQ bf-probe.line
             NO-ERROR.            
         IF NOT AVAILABLE bf-probeit THEN 
@@ -2150,20 +2153,20 @@ PROCEDURE pBuildProbe PRIVATE:
             CREATE bf-probeit.
             ASSIGN 
                 bf-probeit.line    = bf-probe.line
-                bf-probeit.bl-qty  = estCostItem.quantityRequired
-                bf-probeit.yld-qty = estCostItem.quantityYielded
-                bf-probeit.company = estCostItem.company
-                bf-probeit.cust-no = estCostItem.customerID
-                bf-probeit.est-no  = estCostItem.estimateNo
-                bf-probeit.part-no = estCostItem.customerPart
+                bf-probeit.bl-qty  = ttEstCostItem.quantityRequired
+                bf-probeit.yld-qty = ttEstCostItem.quantityYielded
+                bf-probeit.company = ttEstCostItem.company
+                bf-probeit.cust-no = ttEstCostItem.customerID
+                bf-probeit.est-no  = ttEstCostItem.estimateNo
+                bf-probeit.part-no = ttEstCostItem.customerPart
                 .
         END.
         ASSIGN
-            dPricePerM            = estCostItem.sellPrice / dQtyInMForItem
-            bf-probeit.fact-cost  = estCostItem.costTotalFactory / dQtyInMForItem
-            bf-probeit.full-cost  = estCostItem.costTotalFull / dQtyInMForItem
+            dPricePerM            = ttEstCostItem.sellPrice / dQtyInMForItem
+            bf-probeit.fact-cost  = ttEstCostItem.costTotalFactory / dQtyInMForItem
+            bf-probeit.full-cost  = ttEstCostItem.costTotalFull / dQtyInMForItem
             bf-probeit.sell-price = IF glRoundPriceToDollar THEN ROUND(dPricePerM, 0) ELSE ROUND(dPricePerM, 2)
-            bf-probeit.brd-cost   = estCostItem.costTotalBoard / dQtyInMForItem
+            bf-probeit.brd-cost   = ttEstCostItem.costTotalBoard / dQtyInMForItem
             .
         RELEASE bf-probeit.
             
@@ -2182,7 +2185,7 @@ PROCEDURE pBuildFreightCostDetails PRIVATE:
     DEFINE BUFFER bf-estCostHeader          FOR estCostHeader.
     DEFINE BUFFER bf-estCostBlank           FOR estCostBlank.
     DEFINE BUFFER bf-ttEstCostForm          FOR ttEstCostForm.
-    DEFINE BUFFER bf-estCostItem            FOR estCostItem.
+    DEFINE BUFFER bf-ttEstCostItem            FOR ttEstCostItem.
     DEFINE BUFFER bf-eb                     FOR eb.
     
     DEFINE BUFFER bfFirstBlank-estCostBlank FOR estCostBlank.
@@ -2201,9 +2204,9 @@ PROCEDURE pBuildFreightCostDetails PRIVATE:
             FIRST bf-ttEstCostForm NO-LOCK 
             WHERE bf-ttEstCostForm.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
               AND bf-ttEstCostForm.estCostFormID EQ bf-estCostBlank.estCostFormID,
-            FIRST bf-estCostItem NO-LOCK 
-            WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
-              AND bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID,
+            FIRST bf-ttEstCostItem NO-LOCK 
+            WHERE bf-ttEstCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
+              AND bf-ttEstCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID,
             FIRST bf-eb NO-LOCK
             WHERE bf-eb.company EQ bf-estCostBlank.company
             AND bf-eb.est-no EQ bf-estCostBlank.estimateNo
@@ -2215,7 +2218,7 @@ PROCEDURE pBuildFreightCostDetails PRIVATE:
             AND bfFirstBlank-estCostBlank.blankNo EQ 1
             :
             RUN pBuildCostDetailForFreight(BUFFER bf-estCostHeader, BUFFER bf-ttEstCostForm, 
-                BUFFER bf-estCostBlank, BUFFER bf-estCostItem, BUFFER bf-eb, 
+                BUFFER bf-estCostBlank, BUFFER bf-ttEstCostItem, BUFFER bf-eb, 
                 bfFirstBlank-estCostBlank.estCostFormID, bfFirstBlank-estCostBlank.estCostBlankID).
         END. /*Set Header Blank*/
     END.
@@ -2228,9 +2231,9 @@ PROCEDURE pBuildFreightCostDetails PRIVATE:
             EACH bf-estCostBlank NO-LOCK 
             WHERE bf-estCostBlank.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
               AND bf-estCostBlank.estCostFormID EQ bf-ttEstCostForm.estCostFormID,
-            FIRST bf-estCostItem NO-LOCK 
-            WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
-              AND bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID,
+            FIRST bf-ttEstCostItem NO-LOCK 
+            WHERE bf-ttEstCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
+              AND bf-ttEstCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID,
             FIRST bf-eb NO-LOCK
             WHERE bf-eb.company EQ bf-estCostBlank.company
             AND bf-eb.est-no EQ bf-estCostBlank.estimateNo
@@ -2238,7 +2241,7 @@ PROCEDURE pBuildFreightCostDetails PRIVATE:
             AND bf-eb.blank-no EQ bf-estCostBlank.blankNo
             :
             RUN pBuildCostDetailForFreight(BUFFER bf-estCostHeader, BUFFER bf-ttEstCostForm, 
-                BUFFER bf-estCostBlank, BUFFER bf-estCostItem, BUFFER bf-eb, 
+                BUFFER bf-estCostBlank, BUFFER bf-ttEstCostItem, BUFFER bf-eb, 
                 bf-estCostBlank.estCostFormID, bf-estCostBlank.estCostBlankID).        
         END. /*Each blank*/
     END. /*Not unitized*/ 
@@ -2265,11 +2268,11 @@ PROCEDURE pBuildPriceRelatedCostDetails PRIVATE:
         FIRST estCostBlank NO-LOCK 
         WHERE estCostBlank.estCostHeaderID EQ bf-ttEstCostForm.estCostHeaderID
           AND estCostBlank.estCostFormID EQ bf-ttEstCostForm.estCostFormID,
-        FIRST estCostItem NO-LOCK 
-        WHERE estCostItem.estCostHeaderID EQ bf-ttEstCostForm.estCostHeaderID 
-          AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID:
+        FIRST ttEstCostItem NO-LOCK 
+        WHERE ttEstCostItem.estCostHeaderID EQ bf-ttEstCostForm.estCostHeaderID 
+          AND ttEstCostItem.estCostItemID EQ estCostBlank.estCostItemID:
         
-        RUN pGetPriceProfitAndCommissionForForm(BUFFER bf-ttEstCostForm, BUFFER estCostItem, OUTPUT dNetProfitForForm, OUTPUT dCommission, OUTPUT dPriceForForm).
+        RUN pGetPriceProfitAndCommissionForForm(BUFFER bf-ttEstCostForm, BUFFER ttEstCostItem, OUTPUT dNetProfitForForm, OUTPUT dCommission, OUTPUT dPriceForForm).
         RUN pAddCostDetail(bf-ttEstCostForm.estCostHeaderID, bf-ttEstCostForm.estCostFormID, "", bf-ttEstCostForm.estCostFormID, 
             gcSourceTypeProfit, "pProfit", "Profit", dNetProfitForForm, 0, bf-ttEstCostForm.company, bf-ttEstCostForm.estimateNo, BUFFER bf-ttEstCostDetail).
         RUN pAddCostDetail(bf-ttEstCostForm.estCostHeaderID, bf-ttEstCostForm.estCostFormID, "" , bf-ttEstCostForm.estCostFormID,
@@ -2326,7 +2329,7 @@ PROCEDURE pBuildFreightForBoardCost PRIVATE:
     DEFINE BUFFER bf-ttEstCostForm        FOR ttEstCostForm. 
     DEFINE BUFFER bf-estCostBlank         FOR estCostBlank. 
     DEFINE BUFFER bf-estCostHeader        FOR estCostHeader.
-    DEFINE BUFFER bf-estCostItem          FOR estCostItem. 
+    DEFINE BUFFER bf-ttEstCostItem          FOR ttEstCostItem. 
     
     
     DEFINE VARIABLE dBoardFreight   AS DECIMAL   NO-UNDO.
@@ -2889,7 +2892,7 @@ PROCEDURE pBuildItems PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
 
-    DEFINE           BUFFER bf-estCostItem     FOR estCostItem.
+    DEFINE           BUFFER bf-ttEstCostItem     FOR ttEstCostItem.
     DEFINE           BUFFER bf-ttEstCostForm   FOR ttEstCostForm.
     DEFINE           BUFFER bf-estCostBlank    FOR estCostBlank.
     
@@ -2900,13 +2903,13 @@ PROCEDURE pBuildItems PRIVATE:
         WHERE eb.company EQ ipbf-estCostHeader.company
         AND eb.est-no EQ ipbf-estCostHeader.estimateNo
         BY eb.form-no DESCENDING: 
-        FIND FIRST bf-estCostItem EXCLUSIVE-LOCK
-            WHERE bf-estCostItem.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
-            AND bf-estCostItem.customerPart EQ eb.part-no
+        FIND FIRST bf-ttEstCostItem EXCLUSIVE-LOCK
+            WHERE bf-ttEstCostItem.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+            AND bf-ttEstCostItem.customerPart EQ eb.part-no
             NO-ERROR.
-        IF NOT AVAILABLE bf-estCostItem OR eb.form-no EQ 0 THEN 
+        IF NOT AVAILABLE bf-ttEstCostItem OR eb.form-no EQ 0 THEN 
         DO:
-            RUN pAddEstItem(BUFFER eb, BUFFER ipbf-estCostHeader, BUFFER bf-estCostItem).
+            RUN pAddEstItem(BUFFER eb, BUFFER ipbf-estCostHeader, BUFFER bf-ttEstCostItem).
             IF eb.form-no EQ 0 THEN 
             DO:
                 RUN pAddEstForm(BUFFER ipbf-estCostHeader, 0, BUFFER bf-ttEstCostForm).
@@ -2922,26 +2925,26 @@ PROCEDURE pBuildItems PRIVATE:
                     RUN pBuildPackingForEb(BUFFER ipbf-estCostHeader, BUFFER bf-estCostBlank, BUFFER eb).
                 END.
                 ASSIGN 
-                    bf-estCostItem.isSet              = YES
-                    bf-estCostItem.quantityPerSet     = 0
-                    bf-estCostItem.blankArea          = 0
-                    bf-estCostItem.blankAreaNetWindow = 0
-                    bf-estCostItem.blankAreaWindow    = 0
-                    iEstItemIDSetHeader               = bf-estCostItem.estCostItemID
+                    bf-ttEstCostItem.isSet              = YES
+                    bf-ttEstCostItem.quantityPerSet     = 0
+                    bf-ttEstCostItem.blankArea          = 0
+                    bf-ttEstCostItem.blankAreaNetWindow = 0
+                    bf-ttEstCostItem.blankAreaWindow    = 0
+                    iEstItemIDSetHeader               = bf-ttEstCostItem.estCostItemID
                     .
                 RELEASE bf-ttEstCostForm.
                 RELEASE bf-estCostBlank.
             END.     
             ELSE 
-                bf-estCostItem.estCostItemIDParent = iEstItemIDSetHeader.           
-        END. /*Create estCostItem*/
+                bf-ttEstCostItem.estCostItemIDParent = iEstItemIDSetHeader.           
+        END. /*Create ttEstCostItem*/
         ELSE 
             ASSIGN 
-                bf-estCostItem.quantityRequired = bf-estCostItem.quantityRequired + eb.bl-qty
-                bf-estCostItem.quantityYielded  = bf-estCostItem.quantityYielded + eb.yld-qty
-                bf-estCostItem.quantityPerSet   = IF fIsSetType(ipbf-estCostHeader.estType) THEN bf-estCostItem.quantityPerSet + fGetQuantityPerSet(BUFFER eb) ELSE 1.
+                bf-ttEstCostItem.quantityRequired = bf-ttEstCostItem.quantityRequired + eb.bl-qty
+                bf-ttEstCostItem.quantityYielded  = bf-ttEstCostItem.quantityYielded + eb.yld-qty
+                bf-ttEstCostItem.quantityPerSet   = IF fIsSetType(ipbf-estCostHeader.estType) THEN bf-ttEstCostItem.quantityPerSet + fGetQuantityPerSet(BUFFER eb) ELSE 1.
             .      
-        RELEASE bf-estCostItem.
+        RELEASE bf-ttEstCostItem.
     END. /*Build EstItems*/
 
 END PROCEDURE.
@@ -2995,7 +2998,7 @@ PROCEDURE pCalcCostTotalsItem PRIVATE:
      on the item for cost totals.
      Notes:
     ------------------------------------------------------------------------------*/
-    {est\EstimateCostTotals.i &TableName=estCostItem}
+    {est\EstimateCostTotals.i &TableName=ttEstCostItem}
 
 END PROCEDURE.
 
@@ -3008,8 +3011,8 @@ PROCEDURE pCalculateWeightsAndSizes PRIVATE:
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
     
     DEFINE BUFFER bf-estCostBlank    FOR estCostBlank.
-    DEFINE BUFFER bf-estCostItem     FOR estCostItem.
-    DEFINE BUFFER bfSet-estCostItem  FOR estCostItem.
+    DEFINE BUFFER bf-ttEstCostItem     FOR ttEstCostItem.
+    DEFINE BUFFER bfSet-ttEstCostItem  FOR ttEstCostItem.
     DEFINE BUFFER bf-ttEstCostMaterial FOR ttEstCostMaterial.
     DEFINE BUFFER bf-estCostHeader   FOR estCostHeader.
     
@@ -3020,9 +3023,9 @@ PROCEDURE pCalculateWeightsAndSizes PRIVATE:
     
     FOR EACH bf-estCostBlank NO-LOCK 
         WHERE bf-estCostBlank.estCostHeaderID EQ ipiEstCostHeaderID,
-        FIRST bf-estCostItem EXCLUSIVE-LOCK
-        WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostBlank.estCostHeaderID
-        AND bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID:
+        FIRST bf-ttEstCostItem EXCLUSIVE-LOCK
+        WHERE bf-ttEstCostItem.estCostHeaderID EQ bf-estCostBlank.estCostHeaderID
+        AND bf-ttEstCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID:
         
         dBlankAreaTotalInDefaultUOM = bf-estCostBlank.blankAreaNetWindow / 144000 * bf-estCostBlank.quantityRequired.
         IF bf-estCostBlank.areaUOM NE gcDefaultAreaUOM THEN 
@@ -3059,10 +3062,10 @@ PROCEDURE pCalculateWeightsAndSizes PRIVATE:
             IF bf-ttEstCostMaterial.addToWeightNet OR bf-ttEstCostMaterial.addToWeightTare THEN 
             DO:
                 IF bf-ttEstCostMaterial.addToWeightNet THEN 
-                    bf-estCostItem.weightNet   = bf-estCostItem.weightNet + dWeightInDefaultUOM.
+                    bf-ttEstCostItem.weightNet   = bf-ttEstCostItem.weightNet + dWeightInDefaultUOM.
                 IF bf-ttEstCostMaterial.addToWeightTare THEN 
-                    bf-estCostItem.weightTare  = bf-estCostItem.weightTare + dWeightInDefaultUOM.
-                bf-estCostItem.weightTotal = bf-estCostItem.weightTotal + dWeightInDefaultUOM.
+                    bf-ttEstCostItem.weightTare  = bf-ttEstCostItem.weightTare + dWeightInDefaultUOM.
+                bf-ttEstCostItem.weightTotal = bf-ttEstCostItem.weightTotal + dWeightInDefaultUOM.
             END.
         END.  /*Each material for blank*/       
     END. /*each blank for header*/
@@ -3070,46 +3073,46 @@ PROCEDURE pCalculateWeightsAndSizes PRIVATE:
     /*Calculate Header Weight*/
     FOR FIRST bf-estCostHeader EXCLUSIVE-LOCK 
         WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID,
-        EACH bf-estCostItem EXCLUSIVE-LOCK 
-        WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID:
+        EACH bf-ttEstCostItem EXCLUSIVE-LOCK 
+        WHERE bf-ttEstCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID:
 
         ASSIGN 
-            bf-estCostHeader.weightTotal = bf-estCostHeader.weightTotal + bf-estCostItem.weightTotal
-            bf-estCostHeader.weightNet   = bf-estCostHeader.weightNet + bf-estCostItem.weightNet
-            bf-estCostHeader.weightTare  = bf-estCostHeader.weightTare + bf-estCostItem.weightTare
+            bf-estCostHeader.weightTotal = bf-estCostHeader.weightTotal + bf-ttEstCostItem.weightTotal
+            bf-estCostHeader.weightNet   = bf-estCostHeader.weightNet + bf-ttEstCostItem.weightNet
+            bf-estCostHeader.weightTare  = bf-estCostHeader.weightTare + bf-ttEstCostItem.weightTare
             .
     END.
     /*Apply Header Weight to Set Header Item*/
     FOR FIRST bf-estCostHeader NO-LOCK
         WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID
         AND bf-estCostHeader.isUnitizedSet,
-        FIRST bf-estCostItem EXCLUSIVE-LOCK 
-        WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
-        AND bf-estCostItem.isSet:
+        FIRST bf-ttEstCostItem EXCLUSIVE-LOCK 
+        WHERE bf-ttEstCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
+        AND bf-ttEstCostItem.isSet:
 
         ASSIGN 
-            bf-estCostItem.weightTotal = bf-estCostHeader.weightTotal
-            bf-estCostItem.weightNet   = bf-estCostHeader.weightNet
-            bf-estCostItem.weightTare  = bf-estCostHeader.weightTare
+            bf-ttEstCostItem.weightTotal = bf-estCostHeader.weightTotal
+            bf-ttEstCostItem.weightNet   = bf-estCostHeader.weightNet
+            bf-ttEstCostItem.weightTare  = bf-estCostHeader.weightTare
             .
     END. 
     /*Calc Total MSF for a Set*/
     FOR FIRST bf-estCostHeader NO-LOCK
         WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID
         AND bf-estCostHeader.isUnitizedSet,
-        FIRST bfSet-estCostItem EXCLUSIVE-LOCK 
-        WHERE bfSet-estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
-        AND bfSet-estCostItem.isSet,
-        EACH bf-estCostItem NO-LOCK
-        WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHEader.estCostHeaderID:
+        FIRST bfSet-ttEstCostItem EXCLUSIVE-LOCK 
+        WHERE bfSet-ttEstCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
+        AND bfSet-ttEstCostItem.isSet,
+        EACH bf-ttEstCostItem NO-LOCK
+        WHERE bf-ttEstCostItem.estCostHeaderID EQ bf-estCostHEader.estCostHeaderID:
         ASSIGN 
-            bfSet-estCostItem.blankArea          = bfSet-estCostItem.blankArea + bf-estCostItem.blankArea * bf-estCostItem.quantityPerSet
-            bfSet-estCostItem.blankAreaNetWindow = bfSet-estCostItem.blankAreaNetWindow + bf-estCostItem.blankAreaNetWindow * bf-estCostItem.quantityPerSet
-            bfSet-estCostItem.blankAreaWindow    = bfSet-estCostItem.blankAreaWindow + bf-estCostItem.blankAreaWindow * bf-estCostItem.quantityPerSet
+            bfSet-ttEstCostItem.blankArea          = bfSet-ttEstCostItem.blankArea + bf-ttEstCostItem.blankArea * bf-ttEstCostItem.quantityPerSet
+            bfSet-ttEstCostItem.blankAreaNetWindow = bfSet-ttEstCostItem.blankAreaNetWindow + bf-ttEstCostItem.blankAreaNetWindow * bf-ttEstCostItem.quantityPerSet
+            bfSet-ttEstCostItem.blankAreaWindow    = bfSet-ttEstCostItem.blankAreaWindow + bf-ttEstCostItem.blankAreaWindow * bf-ttEstCostItem.quantityPerSet
             .
     END.
-    RELEASE bfSet-estCostItem.
-    RELEASE bf-estCostItem.
+    RELEASE bfSet-ttEstCostItem.
+    RELEASE bf-ttEstCostItem.
     RELEASE bf-estCostHeader.
     
 END PROCEDURE.
@@ -3154,7 +3157,7 @@ PROCEDURE pCopyHeaderCostsToSetItem PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
 
     DEFINE           BUFFER bf-estCostBlank    FOR estCostBlank. 
-    DEFINE           BUFFER bf-estCostItem     FOR estCostItem.
+    DEFINE           BUFFER bf-ttEstCostItem     FOR ttEstCostItem.
 
     IF fIsSetType(ipbf-estCostHeader.estType) THEN 
     DO:
@@ -3162,25 +3165,26 @@ PROCEDURE pCopyHeaderCostsToSetItem PRIVATE:
             WHERE bf-estCostBlank.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
             AND bf-estCostBlank.formNo EQ 0
             AND bf-estCostBlank.blankNo EQ 0,
-            FIRST bf-estCostItem EXCLUSIVE-LOCK
-            WHERE bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID:
+            FIRST bf-ttEstCostItem EXCLUSIVE-LOCK
+            WHERE bf-ttEstCostItem.estCostHeaderID EQ bf-estCostBlank.estCostHeaderID
+              AND bf-ttEstCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID:
             ASSIGN 
-                bf-estCostItem.costTotalBoard            = ipbf-estCostHeader.costTotalBoard
-                bf-estCostItem.costTotalFactory          = ipbf-estCostheader.costTotalFactory
-                bf-estCostItem.costTotalFixedOverhead    = ipbf-estCostHeader.costTotalFixedOverhead
-                bf-estCostItem.costTotalFull             = ipbf-estCostHeader.costTotalFull
-                bf-estCostItem.costTotalGroupLevel       = ipbf-estCostHeader.costTotalGroupLevel
-                bf-estCostItem.costTotalLabor            = ipbf-estCostHeader.costTotalLabor
-                bf-estCostItem.costTotalMaterial         = ipbf-estCostHeader.costTotalMaterial
-                bf-estCostItem.costTotalNonFactory       = ipbf-estCostHeader.costTotalNonFactory
-                bf-estCostItem.costTotalVariableOverhead = ipbf-estCostHeader.costTotalVariableOverhead
-                bf-estCostItem.profitPctGross            = ipbf-estCostHeader.profitPctGross
-                bf-estCostItem.profitPctNet              = ipbf-estCostHeader.profitPctNet
-                bf-estCostItem.sellPrice                 = ipbf-estCostHeader.sellPrice
+                bf-ttEstCostItem.costTotalBoard            = ipbf-estCostHeader.costTotalBoard
+                bf-ttEstCostItem.costTotalFactory          = ipbf-estCostheader.costTotalFactory
+                bf-ttEstCostItem.costTotalFixedOverhead    = ipbf-estCostHeader.costTotalFixedOverhead
+                bf-ttEstCostItem.costTotalFull             = ipbf-estCostHeader.costTotalFull
+                bf-ttEstCostItem.costTotalGroupLevel       = ipbf-estCostHeader.costTotalGroupLevel
+                bf-ttEstCostItem.costTotalLabor            = ipbf-estCostHeader.costTotalLabor
+                bf-ttEstCostItem.costTotalMaterial         = ipbf-estCostHeader.costTotalMaterial
+                bf-ttEstCostItem.costTotalNonFactory       = ipbf-estCostHeader.costTotalNonFactory
+                bf-ttEstCostItem.costTotalVariableOverhead = ipbf-estCostHeader.costTotalVariableOverhead
+                bf-ttEstCostItem.profitPctGross            = ipbf-estCostHeader.profitPctGross
+                bf-ttEstCostItem.profitPctNet              = ipbf-estCostHeader.profitPctNet
+                bf-ttEstCostItem.sellPrice                 = ipbf-estCostHeader.sellPrice
                 .
         END.
     END.
-    RELEASE bf-estCostItem.
+    RELEASE bf-ttEstCostItem.
 
 END PROCEDURE.
 
@@ -3242,21 +3246,21 @@ PROCEDURE pCalcTotalsForCostDetail PRIVATE:
         NO-ERROR.
     IF AVAILABLE estCostBlank THEN 
     DO:  /*Blank-specific cost*/
-        FIND FIRST estCostItem NO-LOCK 
-            WHERE estCostItem.estCostHeaderID EQ estCostBlank.estCostHeaderID
-            AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID
+        FIND FIRST ttEstCostItem NO-LOCK 
+            WHERE ttEstCostItem.estCostHeaderID EQ estCostBlank.estCostHeaderID
+            AND ttEstCostItem.estCostItemID EQ estCostBlank.estCostItemID
             NO-ERROR.
-        IF AVAILABLE estCostItem THEN 
-            RUN pCalcCostTotalsItem(BUFFER estCostItem, BUFFER ipbf-ttEstCostCategory, ipbf-ttEstCostDetail.costTotal).
+        IF AVAILABLE ttEstCostItem THEN 
+            RUN pCalcCostTotalsItem(BUFFER ttEstCostItem, BUFFER ipbf-ttEstCostCategory, ipbf-ttEstCostDetail.costTotal).
     END.
     ELSE /*Divide up the Form-level Costs into each item*/
         FOR EACH estCostBlank NO-LOCK
             WHERE estCostBlank.estCostHeaderID EQ ipbf-ttEstCostDetail.estCostHeaderID
             AND estCostBlank.estCostFormID EQ ipbf-ttEstCostDetail.estCostFormID, 
-            FIRST estCostItem NO-LOCK  
-            WHERE estCostItem.estCostHeaderID EQ estCostBlank.estCostHeaderID
-            AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID :
-            RUN pCalcCostTotalsItem(BUFFER estCostItem, BUFFER ipbf-ttEstCostCategory, ipbf-ttEstCostDetail.costTotal * estCostBlank.pctOfForm).
+            FIRST ttEstCostItem NO-LOCK  
+            WHERE ttEstCostItem.estCostHeaderID EQ estCostBlank.estCostHeaderID
+            AND ttEstCostItem.estCostItemID EQ estCostBlank.estCostItemID :
+            RUN pCalcCostTotalsItem(BUFFER ttEstCostItem, BUFFER ipbf-ttEstCostCategory, ipbf-ttEstCostDetail.costTotal * estCostBlank.pctOfForm).
         END.
 
 END PROCEDURE.
@@ -3267,7 +3271,7 @@ PROCEDURE pGetPriceProfitAndCommissionForForm PRIVATE:
      Notes: Should replace "CalcSellPrice.p and markup.p"
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm FOR ttEstCostForm.
-    DEFINE PARAMETER BUFFER ipbf-estCostItem   FOR estCostItem.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostItem   FOR ttEstCostItem.
     DEFINE OUTPUT PARAMETER opdNetProfit AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdCommission AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdPrice AS DECIMAL NO-UNDO.
@@ -3292,16 +3296,16 @@ PROCEDURE pGetPriceProfitAndCommissionForForm PRIVATE:
     END CASE. 
     IF ipbf-ttEstCostForm.costTotalFactory NE 0 THEN 
         dBoardPct = ipbf-ttEstCostForm.costTotalBoard / ipbf-ttEstCostForm.costTotalFactory * 100.
-    RUN est/GetMarkup.p (ipbf-estCostItem.company, 
-        ipbf-estCostItem.customerID, ipbf-estCostItem.productCategory, ipbf-estCostItem.styleID,
+    RUN est/GetMarkup.p (ipbf-ttEstCostItem.company, 
+        ipbf-ttEstCostItem.customerID, ipbf-ttEstCostItem.productCategory, ipbf-ttEstCostItem.styleID,
         dLookup, dBoardPct, INPUT-OUTPUT dMargin, INPUT-OUTPUT cMarginOn).
     IF cMarginOn EQ "" THEN cMarginOn = "G".
     
     IF dMargin EQ 0 THEN 
     DO: 
         FIND FIRST cust NO-LOCK 
-            WHERE cust.company EQ ipbf-estCostItem.company
-            AND cust.cust-no EQ ipbf-estCostItem.customerID
+            WHERE cust.company EQ ipbf-ttEstCostItem.company
+            AND cust.cust-no EQ ipbf-ttEstCostItem.customerID
             NO-ERROR.
         IF AVAILABLE cust THEN 
             ASSIGN 
@@ -3312,8 +3316,8 @@ PROCEDURE pGetPriceProfitAndCommissionForForm PRIVATE:
     IF dMargin EQ 0 THEN 
     DO:
         FIND FIRST estCostHeader NO-LOCK 
-            WHERE estCostHeader.company EQ ipbf-estCostItem.company
-            AND estCostHeader.estCostHeaderID EQ ipbf-estCostItem.estCostHeaderID
+            WHERE estCostHeader.company EQ ipbf-ttEstCostItem.company
+            AND estCostHeader.estCostHeaderID EQ ipbf-ttEstCostItem.estCostHeaderID
             NO-ERROR.
         IF AVAILABLE estCostHeader THEN 
             ASSIGN 
@@ -3321,7 +3325,7 @@ PROCEDURE pGetPriceProfitAndCommissionForForm PRIVATE:
                 cMarginOn = estCostHeader.marginOn
                 .
     END.
-    dCommPct = ipbf-estCostItem.commissionPct.
+    dCommPct = ipbf-ttEstCostItem.commissionPct.
     CASE cMarginOn:
         WHEN "B" THEN 
             dCost = ipbf-ttEstCostForm.costTotalBoard.
@@ -3756,7 +3760,7 @@ PROCEDURE pProcessMaterialTypeCalc PRIVATE:
     DEFINE INPUT PARAMETER ipcCalculationType AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-estCostBlank FOR estCostBlank.
-    DEFINE BUFFER bf-estCostItem FOR estCostItem.
+    DEFINE BUFFER bf-ttEstCostItem FOR ttEstCostItem.
     DEFINE BUFFER bf-itemfg FOR itemfg.
     
     DEFINE VARIABLE dTotWeightPerForm AS DECIMAL NO-UNDO.
@@ -3766,12 +3770,12 @@ PROCEDURE pProcessMaterialTypeCalc PRIVATE:
             FOR EACH bf-estCostBlank NO-LOCK 
                 WHERE bf-estCostBlank.estCostHeaderID EQ ipbf-ttEstCostMaterial.estCostHeaderID
                 AND bf-estCostBlank.estCostFormID EQ ipbf-ttEstCostMaterial.estCostFormID,
-                FIRST bf-estCostItem NO-LOCK
-                WHERE bf-estCostItem.estCostHeaderID EQ ipbf-ttEstCostMaterial.estCostHeaderID
-                  AND bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID,
+                FIRST bf-ttEstCostItem NO-LOCK
+                WHERE bf-ttEstCostItem.estCostHeaderID EQ ipbf-ttEstCostMaterial.estCostHeaderID
+                  AND bf-ttEstCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID,
                 FIRST bf-itemfg NO-LOCK 
-                WHERE bf-itemfg.company EQ bf-estCostItem.company
-                AND bf-itemfg.i-no EQ bf-estCostItem.itemID:
+                WHERE bf-itemfg.company EQ bf-ttEstCostItem.company
+                AND bf-itemfg.i-no EQ bf-ttEstCostItem.itemID:
                 dTotWeightPerForm = dTotWeightPerForm + bf-itemfg.weightPerEA * bf-estCostBlank.numOut.
             END.        
             IF dTotWeightPerForm GT 0 THEN 
@@ -4065,22 +4069,22 @@ PROCEDURE pBuildCostSummary PRIVATE:
             NO-ERROR.
         IF AVAILABLE estCostBlank THEN 
         DO:  /*Blank-specific cost*/
-            FIND FIRST estCostItem NO-LOCK 
-                WHERE estCostItem.estCostHeaderID EQ estCostBlank.estCostHeaderID
-                AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID
+            FIND FIRST ttEstCostItem NO-LOCK 
+                WHERE ttEstCostItem.estCostHeaderID EQ estCostBlank.estCostHeaderID
+                AND ttEstCostItem.estCostItemID EQ estCostBlank.estCostItemID
                 NO-ERROR.
-            IF AVAILABLE estCostItem THEN 
-                RUN pAddCostSummary(estCostItem.rec_key, ttEstCostCategory.estCostGroupID, ttEstCostDetail.estCostHeaderID, ttEstCostDetail.costTotal, estCostItem.quantityRequired / 1000).
+            IF AVAILABLE ttEstCostItem THEN 
+                RUN pAddCostSummary(ttEstCostItem.rec_key, ttEstCostCategory.estCostGroupID, ttEstCostDetail.estCostHeaderID, ttEstCostDetail.costTotal, ttEstCostItem.quantityRequired / 1000).
            
         END.
         ELSE /*Divide up the Form-level Costs into each item*/
             FOR EACH estCostBlank NO-LOCK
                 WHERE estCostBlank.estCostHeaderID EQ ttEstCostDetail.estCostHeaderID
                 AND estCostBlank.estCostFormID EQ ttEstCostDetail.estCostFormID, 
-                FIRST estCostItem NO-LOCK  
-                WHERE estCostItem.estCostHeaderID EQ estCostBlank.estCostHeaderID
-                AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID :
-                RUN pAddCostSummary(estCostItem.rec_key, ttEstCostCategory.estCostGroupID, ttEstCostDetail.estCostHeaderID, ttEstCostDetail.costTotal * estCostBlank.pctOfForm, estCostItem.quantityRequired / 1000).
+                FIRST ttEstCostItem NO-LOCK  
+                WHERE ttEstCostItem.estCostHeaderID EQ estCostBlank.estCostHeaderID
+                AND ttEstCostItem.estCostItemID EQ estCostBlank.estCostItemID :
+                RUN pAddCostSummary(ttEstCostItem.rec_key, ttEstCostCategory.estCostGroupID, ttEstCostDetail.estCostHeaderID, ttEstCostDetail.costTotal * estCostBlank.pctOfForm, ttEstCostItem.quantityRequired / 1000).
            
             END.
         
@@ -5535,16 +5539,16 @@ PROCEDURE pResetCostTotals PRIVATE:
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64.
     
     DEFINE BUFFER bf-ttEstCostForm FOR ttEstCostForm.
-    DEFINE BUFFER bf-estCostItem   FOR estCostItem.
+    DEFINE BUFFER bf-ttEstCostItem   FOR ttEstCostItem.
     DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
     
     FOR EACH bf-ttEstCostForm NO-LOCK 
         WHERE bf-ttEstCostForm.estCostHeaderID EQ ipiEstCostHeaderID:
         RUN pResetCostTotalsForm(BUFFER bf-ttEstCostForm).
     END.
-    FOR EACH bf-estCostItem NO-LOCK 
-        WHERE bf-estCostItem.estCostHeaderID EQ ipiEstCostHeaderID:
-        RUN pResetCostTotalsItem(BUFFER bf-estCostItem).
+    FOR EACH bf-ttEstCostItem NO-LOCK 
+        WHERE bf-ttEstCostItem.estCostHeaderID EQ ipiEstCostHeaderID:
+        RUN pResetCostTotalsItem(BUFFER bf-ttEstCostItem).
     END.
     FOR EACH bf-estCostHeader NO-LOCK 
         WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID:
@@ -5577,7 +5581,7 @@ PROCEDURE pResetCostTotalsItem PRIVATE:
      Purpose: Resets Cost Totals for a given ttEstCostForm
      Notes:
     ------------------------------------------------------------------------------*/
-    {est\EstimateCostTotalReset.i &TableName=estCostItem}
+    {est\EstimateCostTotalReset.i &TableName=ttEstCostItem}
      
 END PROCEDURE.
 
@@ -5723,6 +5727,23 @@ PROCEDURE pUpdateChildTables PRIVATE:
             END.
     
         END.
+        
+        WHEN "estCostItem" THEN
+        DO:
+            FOR EACH bfChild-estCostBlank EXCLUSIVE-LOCK
+                WHERE bfChild-estCostBlank.estCostHeaderID = ipiEstCostHeaderID:
+              
+                IF bfChild-estCostBlank.estCostItemID = ipiSourceKey THEN
+                    bfChild-estCostBlank.estCostItemID = ipiTargetKey.
+            END.
+            
+            FOR EACH bfChild-ttEstCostSummary EXCLUSIVE-LOCK
+                WHERE bfChild-ttEstCostSummary.estCostHeaderID = ipiEstCostHeaderID:
+            
+                IF bfChild-ttEstCostSummary.scopeRecKey = ipcSourceRecKey THEN      
+                    bfChild-ttEstCostSummary.scopeRecKey = ipcTargetRecKey.
+            END.
+        END.
         WHEN "estCostOperation" THEN
         DO:
             FOR EACH bfChild-ttEstCostDetail EXCLUSIVE-LOCK
@@ -5767,7 +5788,9 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
     DEFINE BUFFER bfEx-estCostOperation    FOR estCostOperation.
     DEFINE BUFFER bfEx-estCostMisc         FOR estCostMisc.
     DEFINE BUFFER bfEx-estCostMaterial     FOR estCostMaterial.
+    DEFINE BUFFER bfEx-estCostItem         FOR estCostItem.
     
+    DEFINE BUFFER bfSetHeader-ttEstCostItem FOR ttEstCostItem.
 
     FOR EACH ttEstCostForm
         TRANSACTION:
@@ -5784,6 +5807,46 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
             
     END. /* ttEstCostForm */
     
+    FOR EACH ttEstCostItem
+        TRANSACTION:
+        CREATE bfEx-estCostItem.
+        BUFFER-COPY ttEstCostItem EXCEPT rec_key estCostItemID estCostItemIDParent TO bfEx-estCostItem.
+        
+        RUN pUpdateChildTables ("estCostItem",
+            ttEstCostItem.estCostHeaderID, 
+            ttEstCostItem.estCostItemID, 
+            bfEx-estCostItem.estCostItemID,
+            ttEstCostItem.rec_key,
+            bfEx-estCostItem.rec_key).
+            
+        ASSIGN
+            ttEstCostItem.DBEstCostItemID = bfEx-estCostItem.estCostItemID
+            ttEstCostItem.DBRec_key       = bfEx-estCostItem.rec_key.
+        
+    END. /* ttEstCostItem */
+    
+    /* Process Est Cost Item one more time to align parent key */
+    FOR EACH ttEstCostItem
+        WHERE ttEstCostItem.estCostItemIDParent NE 0
+        TRANSACTION:
+            
+        /* Find and Link with appropriate Parent EstCost Item Id */
+       
+        FIND FIRST bfSetHeader-ttEstCostItem
+            WHERE bfSetHeader-ttEstCostItem.estCostHeaderID  = ttEstCostItem.estCostHeaderID
+            AND bfSetHeader-ttEstCostItem.estCostItemID    = ttEstCostItem.estCostItemIDParent NO-ERROR.
+            
+        IF AVAILABLE bfSetHeader-ttEstCostItem THEN
+        DO:
+            FIND FIRST bfEx-estCostItem EXCLUSIVE-LOCK
+                WHERE bfEx-estCostItem.estCostHeaderID = ttEstCostItem.estCostHeaderID
+                AND bfEx-estCostItem.Rec_key         = ttEstCostItem.DBRec_key NO-ERROR.
+            IF AVAILABLE bfEx-estCostItem THEN    
+                bfEx-estCostItem.estCostItemIDParent = bfSetHeader-ttEstCostItem.DBEstCostItemID.
+        END.
+    END.
+    
+        
     FOR EACH ttEstCostSummary
         TRANSACTION:
         CREATE bfEx-estCostSummary.
@@ -5829,8 +5892,6 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
             ttEstCostMaterial.rec_key,
             bfEx-estCostMaterial.rec_key).
     END. /* ttEstCostOperation */ 
-    
-    
      
     
     /* process this one in the end because its linked table from many tables */
