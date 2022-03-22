@@ -390,9 +390,7 @@ PROCEDURE Formula_ReBuildBoxDesignForEstimate:
                 IF AVAILABLE ttPanel THEN
                     ASSIGN
                         bf-eb.k-len-array2[iExt]    = ttPanel.dPanelSize
-                        bf-eb.k-len-scr-type2[iExt] = ttPanel.cScoreType
-                        .
-             
+                        bf-eb.k-len-scr-type2[iExt] = ttPanel.cScoreType.             
             END.  
         
             IF CAN-FIND(FIRST ttPanel WHERE ttPanel.cPanelType EQ "W"
@@ -499,6 +497,49 @@ PROCEDURE Formula_GetPanelDetailsForPOScores:
                           
 END PROCEDURE.
 
+PROCEDURE pBuildPanelDetailsFromEb PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Build panelDetail records for a given Estimate from eb
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipchCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipchEstNo     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipinFormNo    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipinBlankNo   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelType  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE         FOR ttPanel.
+
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-eb FOR eb.
+
+    EMPTY TEMP-TABLE ttPanel.
+    
+    FIND FIRST bf-eb NO-LOCK
+        WHERE bf-eb.company    = ipchCompany
+        AND TRIM(bf-eb.est-no) = TRIM(ipchEstNo)
+        AND bf-eb.form-no      = ipinFormNo
+        AND bf-eb.blank-no     = ipinBlankNo NO-ERROR.
+        
+    IF AVAILABLE bf-eb THEN
+    DO:
+        DO iCount = 1 TO 20:
+            
+            CREATE ttPanel. 
+                        
+            ASSIGN
+                ttPanel.cPanelType = ipcPanelType
+                ttPanel.iPanelNum  = iCount
+                ttPanel.cScoreType = bf-eb.k-len-scr-type2[iCount]. 
+                
+            IF ipcPanelType = "W" THEN
+                ttPanel.dPanelSize = bf-eb.k-wid-array2[iCount].
+            ELSE
+                ttPanel.dPanelSize = bf-eb.k-len-array2[iCount].       
+        END.
+    END.        
+    
+END PROCEDURE.
+
 PROCEDURE GetPanelDetailsForEstimate PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Fetches panelDetail records for a given Estimate
@@ -520,12 +561,12 @@ PROCEDURE GetPanelDetailsForEstimate PRIVATE:
            AND bf-panelHeader.formNo     EQ ipiFormNo
            AND bf-panelHeader.blankNo    EQ ipiBlankNo
          NO-ERROR.
+         
     IF AVAILABLE bf-panelHeader THEN
         RUN pBuildttPanel (
             INPUT  bf-panelHeader.panelHeaderID,
             OUTPUT TABLE ttPanel
-            ).
-
+            ).        
     RELEASE bf-panelHeader.                       
 END PROCEDURE.
 
@@ -662,6 +703,33 @@ PROCEDURE DeletePanelDetailsForStyle:
             ).
             
     RELEASE bf-panelHeader.  
+END PROCEDURE.
+
+PROCEDURE GetPanelScoreAndTypeForEstimateFromEb:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to fetch panel size and score type from estimate
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateID AS CHARACTE  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelType  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdScores     AS DECIMAL   NO-UNDO EXTENT 20.
+    DEFINE OUTPUT PARAMETER opcScoreTypes AS CHARACTER NO-UNDO EXTENT 20.
+
+    RUN pBuildPanelDetailsFromEb(INPUT ipcCompany,
+                                 INPUT ipcEstimateID,
+                                 INPUT ipiFormNo,
+                                 INPUT ipiBlankNo,     
+                                 INPUT ipcPanelType,   
+                                 OUTPUT TABLE ttPanel).    
+
+    RUN pGetScoreAndTypes (INPUT  ipcPanelType,
+                           OUTPUT opdScores,
+                           OUTPUT opcScoreTypes).
+        
+    
 END PROCEDURE.
 
 PROCEDURE GetPanelScoreAndTypeForEstimate:
@@ -1309,8 +1377,7 @@ PROCEDURE pBuildttPanel PRIVATE:
             ttPanel.cScoreType            = bf-panelDetail.scoreType
             ttPanel.dPanelSize            = bf-panelDetail.panelSize
             ttPanel.dPanelSizeFromFormula = bf-panelDetail.panelSizeFromFormula
-            ttPanel.dPanelSizeDecimal     = bf-panelDetail.panelSize
-            .            
+            ttPanel.dPanelSizeDecimal     = bf-panelDetail.panelSize.                        
     END.    
     
     RELEASE bf-panelDetail.
