@@ -227,6 +227,9 @@ PROCEDURE update-matrix.
                 INPUT ""
                 ). /*From TagProcs Super Proc*/     
   END.
+  ELSE DO:
+     oe-prmtx.exp-date = IF quotehd.expireDate NE ? THEN quotehd.expireDate ELSE 12/31/2099.
+  END.
   DO li = 1 TO EXTENT(oe-prmtx.qty):
     IF oe-prmtx.qty[li] NE 0 THEN DO:
       CREATE w-matrix.
@@ -274,7 +277,7 @@ PROCEDURE update-matrix.
     DELETE w-matrix.
   END.
   
-  IF cPriceMatrixPricingMethod EQ "From" AND lQuotePriceMatrix THEN
+  IF cPriceMatrixPricingMethod EQ "From" THEN
   oe-prmtx.qty = 0.
   ELSE
   FOR EACH w-matrix BREAK BY w-matrix.qty:
@@ -354,6 +357,9 @@ PROCEDURE update-matrix-minus.
                 INPUT ""
                 ). /*From TagProcs Super Proc*/
   END.
+  ELSE DO:
+     oe-prmtx.exp-date = IF quotehd.expireDate NE ? THEN quotehd.expireDate ELSE 12/31/2099.
+  END.
   
   DO li = 1 TO EXTENT(oe-prmtx.qty):
     IF oe-prmtx.qty[li] NE 0 THEN DO:
@@ -402,7 +408,7 @@ PROCEDURE update-matrix-minus.
     DELETE w-matrix.
   END.
 
-  IF cPriceMatrixPricingMethod EQ "From" AND lQuotePriceMatrix THEN
+  IF cPriceMatrixPricingMethod EQ "From" THEN
   oe-prmtx.qty = 0.
   ELSE
   FOR EACH w-matrix BREAK BY w-matrix.qty:
