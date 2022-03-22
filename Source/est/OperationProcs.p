@@ -2770,6 +2770,7 @@ PROCEDURE pProcessOperation PRIVATE:
     
     /* Now calculate spoilage for this pass based upon Qty set above */
     RUN pGetRunSpoil(BUFFER bf-mach, OUTPUT ipbf-ttOperation.quantityInRunWastePercent, OUTPUT lError, OUTPUT cMessage).
+    RUN pGetMRWaste (BUFFER bf-mach, OUTPUT ipbf-ttOperation.quantityInSetupWaste, OUTPUT lError, OUTPUT cMessage).
     
     ASSIGN 
         ipbf-ttOperation.quantityInRunWaste        = (ipbf-ttOperation.quantityInNoWaste / 
