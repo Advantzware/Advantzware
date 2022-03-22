@@ -1153,7 +1153,7 @@ DO:
      /* wfk - to make sure cons-qty was being updated */
     FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
     {po/podisdet.i}
-   
+    po-ordl.cons-cost = decimal(po-ordl.cons-cost:SCREEN-VALUE).
    ASSIGN po-ordl.s-dep = v-dep . 
     
 IF TRIM(po-ordl.job-no) EQ "" THEN po-ordl.job-no2 = 0.
