@@ -2755,12 +2755,6 @@ PROCEDURE local-update-record :
 
   IF probe.spare-char-2 NE "" THEN
     RUN pCalculatePricing(BUFFER probe). 
-  
-  DO WITH FRAME {&FRAME-NAME}:
-    DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
-      APPLY "cursor-left" TO {&BROWSE-NAME}.
-    END.
-  END.
 
    IF LAST-EVENT:LABEL EQ "Choose" THEN RETURN.  
     QUERY br_table:GET-NEXT().
