@@ -8,7 +8,7 @@
 "19 " ~
 "46 " ~
 "tax-group " ~
-"Sales Tax Group " ~
+"Tax Group " ~
 "yes " ~
 "tax-group " ~
 "Tax Group Lookup " ~
@@ -46,6 +46,6 @@
 &Global-define FORMAT-1 x(3)
 &Scoped-define FLDNAME1 stax.tax-group
 &Scoped-define SORTBY-1 BY {&FLDNAME1}
-&Scoped-define DESCRIP1 Sales Tax Group
+&Scoped-define DESCRIP1 Tax Group
 
 {methods/lookup.i}

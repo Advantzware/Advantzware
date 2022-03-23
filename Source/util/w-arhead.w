@@ -415,6 +415,7 @@ DEFINE FRAME fMain
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      ar-inv.tax-code AT ROW 18.38 COL 69 COLON-ALIGNED
+          LABEL "Tax Group"
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
      ar-inv.terms AT ROW 19.57 COL 69 COLON-ALIGNED
@@ -554,6 +555,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN ar-inv.over-pct IN FRAME fMain
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN ar-inv.prod-date IN FRAME fMain
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN ar-inv.tax-code IN FRAME fMain
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ar-inv.x-no IN FRAME fMain
    NO-ENABLE                                                            */

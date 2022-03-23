@@ -140,12 +140,12 @@ DEFINE BUTTON btn_Up
     SIZE 16 BY 1.1.
 
 DEFINE VARIABLE begin_stax-gr  AS CHARACTER FORMAT "x(4)" 
-    LABEL "Beginning Sales Tax Group" 
+    LABEL "Beginning Tax Group" 
     VIEW-AS FILL-IN 
     SIZE 12 BY 1.
 
 DEFINE VARIABLE end_stax-gr    AS CHARACTER FORMAT "x(4)" INITIAL "zzzz" 
-    LABEL "Ending Sales Tax Group" 
+    LABEL "Ending Tax Group" 
     VIEW-AS FILL-IN 
     SIZE 11 BY 1.
 
@@ -226,9 +226,9 @@ DEFINE VARIABLE td-show-parm AS LOGICAL   INITIAL NO
 
 DEFINE FRAME FRAME-A
     begin_stax-gr AT ROW 2.43 COL 34 COLON-ALIGNED HELP
-    "Enter Beginning Sales Tax Group"
+    "Enter Beginning Tax Group"
     end_stax-gr AT ROW 2.43 COL 74 COLON-ALIGNED HELP
-    "Enter Ending Sales Tax Group"
+    "Enter Ending Tax Group"
     sl_avail AT ROW 5.19 COL 4 NO-LABELS WIDGET-ID 26
     Btn_Def AT ROW 5.19 COL 40.6 HELP
     "Add Selected Table to Tables to Audit" WIDGET-ID 56
@@ -412,7 +412,7 @@ ON WINDOW-CLOSE OF C-Win /* Sales Tax List */
 
 &Scoped-define SELF-NAME begin_stax-gr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_stax-gr C-Win
-ON LEAVE OF begin_stax-gr IN FRAME FRAME-A /* Beginning Sales Tax Group */
+ON LEAVE OF begin_stax-gr IN FRAME FRAME-A /* Beginning Tax Group */
     DO:
         ASSIGN {&self-name}.
     END.
@@ -474,8 +474,8 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                     /*run output-to-fax.*/
                     {custom/asifax.i &begin_cust=begin_stax-gr
                             &END_cust=begin_stax-gr
-                            &fax-subject="Beginning Sales Tax Group"
-                            &fax-body="Beginning Sales Tax Group"
+                            &fax-subject="Beginning Tax Group"
+                            &fax-body="Beginning Tax Group"
                             &fax-file=list-name }
                 END.
             WHEN 5 THEN 
@@ -486,8 +486,8 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         {custom/asimail.i &TYPE = ''
                              &begin_cust= begin_stax-gr
                              &END_cust=begin_stax-gr
-                             &mail-subject="Beginning Sales Tax Group"
-                             &mail-body="Beginning Sales Tax Group"
+                             &mail-subject="Beginning Tax Group"
+                             &mail-body="Beginning Tax Group"
                              &mail-file=lv-pdf-file + ".pdf" }
                     END.
                     ELSE 
@@ -495,8 +495,8 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         {custom/asimailr.i &TYPE = ''
                                   &begin_cust=begin_stax-gr
                                   &END_cust=begin_stax-gr
-                                  &mail-subject="Beginning Sales Tax Group"
-                                  &mail-body="Beginning Sales Tax Group"
+                                  &mail-subject="Beginning Tax Group"
+                                  &mail-body="Beginning Tax Group"
                                   &mail-file=list-name }
                     END.
 
@@ -592,7 +592,7 @@ ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 
 &Scoped-define SELF-NAME end_stax-gr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_stax-gr C-Win
-ON LEAVE OF end_stax-gr IN FRAME FRAME-A /* Ending Sales Tax Group */
+ON LEAVE OF end_stax-gr IN FRAME FRAME-A /* Ending Tax Group */
     DO:
         ASSIGN {&self-name}.
     END.
