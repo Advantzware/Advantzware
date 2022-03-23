@@ -463,7 +463,7 @@ END.
 ON CHOOSE OF btGo IN FRAME F-Main /* GO */
 DO:       
     DO WITH FRAME {&FRAME-NAME}: 
-     IF cbType:SCREEN-VALUE EQ "True" OR cbType:SCREEN-VALUE EQ "False" THEN
+     IF cbType:SCREEN-VALUE EQ "True" OR cbType:SCREEN-VALUE EQ "All" THEN
      DO:
          IF fi_memo-no:SCREEN-VALUE EQ "" AND fi_cust-no:SCREEN-VALUE EQ "" AND fi_date:SCREEN-VALUE EQ "" THEN
          DO:
