@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolmet.p  */
 /* PRINT BOL for Metro  */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No).             */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -27,7 +28,7 @@ def var v-part-comp         as   char format "x" NO-UNDO.
 def var v-part-qty          as   DEC NO-UNDO.
 def var v-ord-no            like oe-boll.ord-no NO-UNDO.
 def var v-po-no             like oe-bolh.po-no NO-UNDO.
-def var v-job-no            as   char format "x(9)" no-undo.
+def var v-job-no            as   char format "x(13)" no-undo.
 def var v-phone-num         as   char format "x(13)" no-undo.
 /*DEF VAR v-tot-palls AS INT FORM ">>>9" NO-UNDO.*/
 def var v-ship-name  like shipto.ship-name NO-UNDO.
@@ -256,7 +257,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
       ASSIGN
       v-salesman = trim(v-salesman)
       v-po-no = oe-boll.po-no
-      v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>"))
+      v-job-no = IF oe-boll.job-no = "" THEN "" ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2)))
       v-ord-no = oe-boll.ord-no
       v-ship-from = oe-boll.loc.
 

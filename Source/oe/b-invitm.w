@@ -179,7 +179,7 @@ DEFINE BROWSE Browser-Table
       inv-line.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       inv-line.inv-qty COLUMN-LABEL "Quantity" FORMAT "->>,>>>,>>9":U
             WIDTH 15.6 LABEL-BGCOLOR 14
-      inv-line.ord-no FORMAT ">>>>>9":U WIDTH 9.2 LABEL-BGCOLOR 14
+      inv-line.ord-no FORMAT ">>>>>>>9":U WIDTH 12 LABEL-BGCOLOR 14
       display-bolno() @ lv-bolno COLUMN-LABEL "Bol#" FORMAT "x(8)":U LABEL-BGCOLOR 14
       inv-line.price FORMAT "->>,>>>,>>9.99<<<<":U WIDTH 14.2 LABEL-BGCOLOR 14
       inv-line.pr-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U LABEL-BGCOLOR 14
@@ -305,7 +305,7 @@ ASSIGN
      _FldNameList[4]   > ASI.inv-line.inv-qty
 "inv-line.inv-qty" "Quantity" "->>,>>>,>>9" "decimal" ? ? ? ? ? ? no ? no no "15.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.inv-line.ord-no
-"inv-line.ord-no" ? ? "integer" ? ? ? ? ? ? no ? no no "9.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-line.ord-no" ? ? "integer" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > "_<CALC>"
 "display-bolno() @ lv-bolno" "Bol#" "x(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.inv-line.price

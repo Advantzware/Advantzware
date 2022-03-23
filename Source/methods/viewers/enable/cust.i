@@ -17,7 +17,7 @@ DO WITH FRAME {&FRAME-NAME}:
   RELEASE inv-head.
   RELEASE b-inv-head.
 
-  IF cust.inv-meth EQ ? AND cust.cust-no NE "" THEN
+  IF AVAIL cust AND cust.inv-meth EQ ? AND cust.cust-no NE "" THEN
   FIND FIRST inv-head NO-LOCK
       WHERE inv-head.company       EQ cust.company
         AND inv-head.cust-no       EQ cust.cust-no

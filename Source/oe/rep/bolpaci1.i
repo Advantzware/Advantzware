@@ -1,4 +1,5 @@
 /* oe/rep/bolpaci1.i */      
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No. */
       
       put 
          "<FArial>"  SKIP
@@ -29,11 +30,17 @@
                 "<R21><C1><FROM><R21><C81><LINE>" SKIP    
                 "<R19><C12><FROM><R23><C12><LINE>" SKIP
                 "<R19><C25><FROM><R23><C25><LINE>" SKIP      
-                "<R19><C34><FROM><R23><C34><LINE>" SKIP
-                "<R19><C46><FROM><R23><C46><LINE>" SKIP
-                "<R19><C66><FROM><R23><C66><LINE>" SKIP
-                "<FArial><=4><R+1>    Date                    PO#                               JOB#                 FOB                  Carrier                                                 Freight Terms" SKIP
-                "<FCourier New><=4><R+3> " oe-bolh.bol-date SPACE(3) v-po-no FORM "x(15)" space(2) v-job-no v-fob space(3) carrier.dscr v-frt-terms SKIP
+                "<R19><C35.5><FROM><R23><C35.5><LINE>" SKIP
+                "<R19><C47.5><FROM><R23><C47.5><LINE>" SKIP
+                "<R19><C67><FROM><R23><C67><LINE>" SKIP
+                "<FArial><=4><R+1>
+                              <C3> Date
+                             <C15> PO#
+                             <C27> JOB#
+                             <C36> FOB
+                             <C51> Carrier
+                             <C68> Freight Terms" SKIP
+                "<FCourier New><=4><R+3> " oe-bolh.bol-date SPACE(3) v-po-no FORM "x(15)" space(0) v-job-no v-fob space(3) carrier.dscr v-frt-terms SKIP
                 "<|10><R24><C1><#5><FROM><R26><C81><RECT>" SKIP    
                 "<R24><C13><FROM><R26><C13><LINE>" SKIP
                 "<R24><C27><FROM><R26><C27><LINE>" SKIP

@@ -1,4 +1,6 @@
-   /* oe\rep\oehotsN.i copied from oe/rep/oehots.i and changed for Selectable columns */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.                   */
+/* oe\rep\oehotsN.i copied from oe/rep/oehots.i and changed for Selectable columns */
+
    DEF BUFFER b-oe-ordl FOR oe-ordl.
    DEF BUFFER b-oe-ordl2 FOR oe-ordl.
 
@@ -278,9 +280,9 @@
             job-hdr.i-no LE end_i-no
             NO-LOCK:
 
-       STATUS DEFAULT "Processing Job# " +
-                      TRIM(job-hdr.job-no) + "-" +
-                      STRING(job-hdr.job-no2,"99").
+       STATUS DEFAULT "Processing Job# " + TRIM(STRING(DYNAMIC-FUNCTION
+                      ('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)))
+                      .
 
        CREATE tt-report.
        ASSIGN
@@ -441,7 +443,8 @@
             w-ord.ship-id   = v-ship-id
             w-ord.job-no    = oe-ordl.job-no
             w-ord.job-no2   = oe-ordl.job-no2
-            w-ord.job       = IF w-ord.job-no EQ "" THEN "" ELSE (TRIM(w-ord.job-no) + "-" + STRING(w-ord.job-no2,"99"))
+            w-ord.job       = IF w-ord.job-no EQ "" THEN "" ELSE 
+                              TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)))
             w-ord.po-num    = v-po-no
             w-ord.ord-qty   = v-qty
             w-ord.shp-qty   = oe-ordl.ship-qty
@@ -541,7 +544,8 @@
                w-ord.ship-id   = v-ship-id
                w-ord.job-no    = job-hdr.job-no
                w-ord.job-no2   = job-hdr.job-no2
-               w-ord.job       = IF w-ord.job-no EQ "" THEN "" ELSE (TRIM(w-ord.job-no) + "-" + STRING(w-ord.job-no2,"99"))
+               w-ord.job       = IF w-ord.job-no EQ "" THEN "" ELSE 
+                                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)))
                w-ord.po-num    = job-hdr.po-no
                w-ord.ord-qty   = v-qty
                w-ord.shp-qty   = 0

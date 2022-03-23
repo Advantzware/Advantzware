@@ -1,5 +1,5 @@
  /* oe/rep/boltrilx2.i for Trilakes  */  
- 
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */ 
    put 
       "<FArial>"  SKIP
       "<#1><P10><ADJUST=LPI><C50><B>STRAIGHT BILL OF LADING"  SKIP
@@ -48,13 +48,19 @@
        "<FCourier New><=4><R+3> " oe-bolh.bol-date SPACE(3) v-fob space(10) v-trailer SPACE(12) carrier.dscr FORM "x(25)" v-frt-terms SKIP
        "<|10><R22><C1><#5><FROM><R24><C81><RECT>" SKIP    
        "<R22><C13><FROM><R24><C13><LINE>" SKIP
-       "<R22><C28><FROM><R24><C28><LINE>" SKIP
-       "<R22><C37><FROM><R24><C37><LINE>" SKIP
+       "<R22><C25><FROM><R24><C25><LINE>" SKIP
+       "<R22><C36.5><FROM><R24><C36.5><LINE>" SKIP
        "<R22><C56><FROM><R24><C56><LINE>" SKIP  
        "<R22><C69><FROM><R24><C69><LINE>" SKIP
        "<R22><C73><FROM><R24><C73><LINE>" SKIP
-       "<FArial><=5><C18>Order#/ "
-       "<FArial><=5><R+1>    Item# / Part                Customer " IF lv-print-lot THEN "Lot# " ELSE "PO#" "           JOB#                       Description                     Unit-Quantity           P/C       Weight  " SKIP(1)
+       "<FArial><=5><C16>Order#/ "
+       "<FArial><=5><R+1><C2> Item# / Part                
+                        <C14> Customer " IF lv-print-lot THEN "Lot# " ELSE "PO#" "           
+                        <C28> JOB#
+                        <C42> Description
+                        <C58> Unit-Quantity
+                      <C69.5> P/C
+                        <C75> Weight  " SKIP(1)
         "<FCourier New>".
 
    v-printline = v-printline + 16.

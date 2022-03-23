@@ -3,7 +3,7 @@
 /* Print invoice when sys-ctrl.char-fld eq "BRICK" - O/E Module               */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 def workfile w-sman
@@ -110,8 +110,8 @@ form header
      inv-head.terms-d      at 26   format "x(11)"       
      space (10)                                                   
      v-shipvia             at 48   format "x(6)" when avail carrier 
-     v-fob                 at 58   format "x(4)"             
-     v-ord-no              at 64   format ">>>>>>"
+     v-fob                 at 56   format "x(4)"             
+     v-ord-no              at 62   format ">>>>>>>>"
      v-inv-date            to 80                                 
      skip(2)                                                         
 

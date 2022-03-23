@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
  /* oe/rep/bolchit2.i  */  
  
    put 
@@ -31,10 +32,10 @@
                 "<R19><C1><#4><FROM><R23><C81><RECT>" SKIP
                 "<R21><C1><FROM><R21><C81><LINE>" SKIP    
                 "<R19><C12><FROM><R23><C12><LINE>" SKIP
-                "<R19><C46><FROM><R23><C46><LINE>" SKIP
-                "<R19><C66><FROM><R23><C66><LINE>" SKIP
-                "<FArial><=4><R+1>    Date                    FOB                                                                                   Carrier                                            Freight Terms" SKIP 
-                "<FCourier New><=4><R+3> " oe-bolh.bol-date SPACE(3) v-fob space(30) carrier.dscr v-frt-terms SKIP
+                "<R19><C44><FROM><R23><C44><LINE>" SKIP
+                "<R19><C69><FROM><R23><C69><LINE>" SKIP
+                "<FArial><=4><R+1>    Date                    FOB                                                                                          Carrier                                          Freight Terms" SKIP 
+                "<FCourier New><=4><R+3> " oe-bolh.bol-date SPACE(3) v-fob "<C46>" carrier.dscr v-frt-terms SKIP
                 "<R24><C1><#5><FROM><R26><C81><RECT>" SKIP    
                 "<R24><C13><FROM><R26><C13><LINE>" SKIP
                 "<R24><C26><FROM><R26><C26><LINE>" SKIP

@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -147,10 +148,10 @@ DEFINE BROWSE Browser-Table
       loadtag.tag-no FORMAT "X(23)":U LABEL-BGCOLOR 14
       loadtag.loc-bin FORMAT "x(8)":U LABEL-BGCOLOR 14
       loadtag.loc FORMAT "x(5)":U LABEL-BGCOLOR 14
-      loadtag.job-no2 FORMAT ">9":U LABEL-BGCOLOR 14
-      loadtag.job-no FORMAT "x(6)":U LABEL-BGCOLOR 14
+      loadtag.job-no2 FORMAT ">>9":U LABEL-BGCOLOR 14
+      loadtag.job-no FORMAT "x(9)":U LABEL-BGCOLOR 14
       loadtag.po-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
-      loadtag.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      loadtag.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       loadtag.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       loadtag.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */

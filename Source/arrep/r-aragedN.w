@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -108,7 +109,7 @@ ASSIGN
                             "per-1,per-2,per-3,cust-po,job,bol,inv-note,coll-note,per-4," +
                             "currency,tot-due,arclass"    
 
-    cFieldLength       = "8,30,25,25,15,25,25,10,5,10,14,13,12,12," + "8,4,8,8,15,15,4,4," + "15,15,15,15,9,8,30,30,14," + "10,13,8" 
+    cFieldLength       = "8,30,25,25,15,25,25,10,5,10,14,13,12,12," + "8,4,8,8,15,15,4,4," + "15,15,15,15,13,8,30,30,14," + "10,13,8" 
     cFieldType         = "c,c,c,c,c,c,c,c,c,c,c,c,c,c," + "i,c,i,c,i,i,i,i," + "i,i,i,c,c,c,c,c,i," + "c,i,i" 
     .
 

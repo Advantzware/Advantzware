@@ -1,5 +1,6 @@
 /* ----------------------------------------------- oe/rep/relppi.i  */
 /* Print OE Release/Picking tickets    Preferred Packaging                    */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i} 
@@ -57,16 +58,16 @@ find first company where company.company = cocode no-lock no-error.
 
 format
   tt-rell.ord-no
-  tt-rell.po-no at 8
-  locbin[1]  AT 23
-  tt-rell.i-no at 29  oe-ordl.i-name at 44
+  tt-rell.po-no AT 10
+  locbin[1]  AT 25
+  tt-rell.i-no AT 31  oe-ordl.i-name at 46
   oe-ordl.qty format "->>>>>>>9" to 83
   tt-rell.qty format "->>>>>>>9" SKIP
-  locbin[2] at 23     oe-ordl.part-no
-  locbin[3] at 23
-  oe-ordl.part-dscr1 at 44 format "x(30)" skip
-  locbin[4] at 23
-  oe-ordl.part-dscr2 at 44 format "x(30)"
+  locbin[2] at 25     oe-ordl.part-no
+  locbin[3] at 25
+  oe-ordl.part-dscr1 at 46 format "x(30)" skip
+  locbin[4] at 25
+  oe-ordl.part-dscr2 at 46 format "x(30)"
   with down frame relprint no-box no-label STREAM-IO width 110.
 
 find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
@@ -246,8 +247,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           else do:
             display
               tt-rell.ord-no
-              tt-rell.po-no  AT 8
-              tt-rell.i-no   AT 29
+              tt-rell.po-no  AT 10
+              tt-rell.i-no   AT 31
               /*tt-rell.cases    when v-units-hdr[1] ne "" */
               oe-ordl.qty    TO 83  when avail oe-ordl
               tt-rell.qty
@@ -263,7 +264,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                             if i eq 2 then oe-ordl.part-dscr1
                             else           oe-ordl.part-dscr2.
 
-              IF i = 1 THEN PUT oe-ordl.part-no at 29.
+              IF i = 1 THEN PUT oe-ordl.part-no at 31.
               if v-part-dscr ne "" then do:
                   put v-part-dscr at 46 skip.
                   v-printline = v-printline + 1.
@@ -275,9 +276,9 @@ if v-zone-p then v-zone-hdr = "Route No.:".
         else do:
           display
             tt-rell.ord-no
-            tt-rell.po-no       AT 8
-            tt-rell.loc-bin     AT 23   FORMAT "x(5)"   WHEN v-p-bin
-            tt-rell.i-no        AT 29
+            tt-rell.po-no       AT 10
+            tt-rell.loc-bin     AT 25   FORMAT "x(5)"   WHEN v-p-bin
+            tt-rell.i-no        AT 31
             oe-ordl.qty      TO 83 when avail oe-ordl
             tt-rell.qty
             with frame ln-s.
@@ -291,7 +292,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                           if i eq 2 then oe-ordl.part-dscr1
                           else           oe-ordl.part-dscr2.
             
-            IF i = 1 THEN PUT oe-ordl.part-no AT 29.
+            IF i = 1 THEN PUT oe-ordl.part-no AT 31.
             if v-part-dscr ne "" then do:
                put v-part-dscr at 46 skip.
                v-printline = v-printline + 1.

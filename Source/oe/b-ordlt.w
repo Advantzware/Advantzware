@@ -314,8 +314,8 @@ DEFINE BROWSE Browser-Table
       oe-ordl.po-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.req-date COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
-      oe-ordl.job-no FORMAT "x(6)":U LABEL-BGCOLOR 14
-      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      oe-ordl.job-no FORMAT "x(9)":U LABEL-BGCOLOR 14
+      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
       oe-ordl.vend-no FORMAT "x(8)":U LABEL-BGCOLOR 14
       oe-ordl.disc FORMAT "(>>>,>>9.99)":U LABEL-BGCOLOR 14
       get-extended-price() @ ld-ext-price COLUMN-LABEL "Total Price" FORMAT "->>,>>>,>>9.99":U

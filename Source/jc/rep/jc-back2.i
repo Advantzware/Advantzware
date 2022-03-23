@@ -1,15 +1,16 @@
 /* ---------------------------------------------- jc/rep/jc-back2.i           */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
-
-      and job.job-no     ge substr(v-fjob,1,6)
-      and job.job-no     le substr(v-tjob,1,6)
-      and fill(" ",6 - length(trim(job.job-no))) +
-          trim(job.job-no) + string(job.job-no2,"99")
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
+      
+      and fill(" ",9 - length(trim(job.job-no))) +
+          trim(job.job-no) + string(job.job-no2,"999")
                          ge v-fjob
-      and fill(" ",6 - length(trim(job.job-no))) +
-          trim(job.job-no) + string(job.job-no2,"99")
+      and fill(" ",9 - length(trim(job.job-no))) +
+          trim(job.job-no) + string(job.job-no2,"999")
                          le v-tjob
+      and job.job-no2 ge int(begin_job-no2)
+      and job.job-no2 le int(end_job-no2)
     use-index stat-idx NO-LOCK,
 
     each job-mch
@@ -135,8 +136,7 @@
        tt-report.key-03  = job-hdr.cust-no
        tt-report.key-04  = if avail eb then eb.part-no else
                            if avail itemfg then itemfg.part-no else ""
-       tt-report.key-05  = fill(" ",6 - length(trim(job.job-no))) +
-                           trim(job.job-no) + string(job.job-no2,"99")
+       tt-report.key-05  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', job.job-no, job.job-no2)) 
        tt-report.key-06  = if avail est and
                               (est.est-type eq 2 or est.est-type eq 6) then
                              "SET" else ""

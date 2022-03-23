@@ -55,7 +55,7 @@ find first cust no-lock no-error.
 
 format header
        skip(6)                                         /* ekw02010006 */
-       trim(string(ar-inv.inv-no,">>>>>>>")) to 74
+       trim(string(ar-inv.inv-no,">>>>>>>>")) to 74
        skip(6)                                         /* ekw02010006 */
        cust.name                    at 12
        v-ship-name                  at 51   skip(1)      /* ekw02010006 */
@@ -71,8 +71,8 @@ format header
        ar-inv.terms-d               at 26   format "x(11)"
        space (10)                                         
        carrier.dscr                 at 48   format "x(6)" when avail carrier 
-       v-fob                        at 58   format "x(4)"             
-       v-ord-no                     at 64   format ">>>>>>"
+       v-fob                        at 56   format "x(4)"             
+       v-ord-no                     at 62   format ">>>>>>>>"
        ar-inv.inv-date              to 80   FORMAT "99/99/99" 
        
 

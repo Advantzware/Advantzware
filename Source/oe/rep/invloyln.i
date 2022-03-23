@@ -9,6 +9,7 @@
              space(75) v-comp-add3 FORM "x(60)" SKIP
              space(62) v-comp-add4 FORM "x(60)" "<P10>"SKIP.
 *****************************************************************************/             
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 PUT
   "<C2><R3><#1><R+60><C+50><IMAGE#1=" ls-full-img1 .
 
@@ -68,7 +69,7 @@ PUT
         
 PUT "<FArial><P12><=#3><R-2> <P10>" SKIP
     "<=#3><B>                      INVOICE#                    " SKIP
-    "<=#3><R+1><P14>                 " inv-head.inv-no format ">>>>>>9" "</B><P10>"
+    "<=#3><R+1><P14>                 " inv-head.inv-no format ">>>>>>>9" "</B><P10>"
     "<=#3><R+3>                 DATE           " v-inv-date SKIP 
     "<=#3><R+4>       Customer Id:          " v-custno "<FCourier New>"    
     SKIP(1)
@@ -103,7 +104,7 @@ PUT
   xinv-head.terms-d FORMAT "x(15)" 
  SPACE(6)
   v-salesname FORMAT "x(15)"
-  v-bol-no "</B>"
+  "<C73>"v-bol-no "</B>"
  SKIP.
 
 

@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -167,11 +169,11 @@ DEFINE BROWSE BROWSE-1
       tt-ldtag.tag-no FORMAT "X(23)":U
       tt-ldtag.i-no FORMAT "x(15)":U
       tt-ldtag.i-name FORMAT "x(30)":U
-      tt-ldtag.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U
-      tt-ldtag.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      tt-ldtag.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U
+      tt-ldtag.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
       tt-ldtag.loc FORMAT "x(5)":U
       tt-ldtag.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
-      tt-ldtag.ord-no FORMAT ">>>>>9":U
+      tt-ldtag.ord-no FORMAT ">>>>>>>9":U
       tt-ldtag.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>9":U
       tt-ldtag.qty COLUMN-LABEL "Qty" FORMAT "->>>>>>9.9<<":U
       tt-ldtag.qty-case FORMAT "->,>>>,>>9":U

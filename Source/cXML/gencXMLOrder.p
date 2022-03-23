@@ -594,6 +594,7 @@ PROCEDURE genOrderLinesLocal:
   DEFINE VARIABLE cCostUOM AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
   DEFINE VARIABLE hdCostProcs AS HANDLE.
+  DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
   RUN system\CostProcs.p PERSISTENT SET hdCostProcs.  
   oplSuccess = YES.
   
@@ -704,7 +705,11 @@ PROCEDURE genOrderLinesLocal:
         oe-ordl.ediPrice    = DEC(itemMoney)
         .
 
-      IF oe-ordl.price EQ 0 THEN DO:                      
+      RUN sys/ref/nk1look.p (oe-ord.company, "QuotePriceMatrix", "L",  NO, YES, "", "", OUTPUT cRtnChar, OUTPUT lRecFound).
+      IF lRecFound THEN
+          lQuotePriceMatrix = LOGICAL(cRtnChar) NO-ERROR. 
+        
+      IF oe-ordl.price EQ 0 OR lQuotePriceMatrix THEN DO:                      
         FIND FIRST xoe-ord OF oe-ord NO-LOCK.
         RUN getPrice (
             INPUT ROWID(oe-ordl)

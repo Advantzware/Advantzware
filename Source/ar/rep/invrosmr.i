@@ -73,7 +73,7 @@ v-printline = v-printline + 15.
             /*"<R8><C65><FROM><R10><C65><LINE>" SKIP.*/
         
 PUT "<FArial><P12><=#3><R-2> <P10>" ip-copy-title FORM "x(20)" SKIP
-    "<=#3>          INVOICE#                    " ar-inv.inv-no FORMAT ">>>>>>9"
+    "<=#3>          INVOICE#                    " ar-inv.inv-no FORMAT ">>>>>>>9"
     "<=#3><R+1>              DATE               " v-inv-date "<FCourier New>"    
     SKIP(1)
     .
@@ -120,7 +120,7 @@ PUT
     .   
 /*puT "<FArial><=5><R+1>   Ordered     Shipped       B.O.      Item#                        Description                                              Price     UOM                 Amount" SKIP(1). */
 PUT "<FArial><=5>  CUST PO#              CUST PART#                                                                           <C62> P       PRICE                  " SKIP
-    "  OUR ORDER#        ITEM#                                     DESCRIPTION/LOT#                        SHIPPED        C       (UOM)        AMOUNT" SKIP(1).
+    "  OUR ORDER#        ITEM#                                  DESCRIPTION/LOT#                       SHIPPED        C       (UOM)        AMOUNT" SKIP(1).
 
 v-printline = v-printline + 3.
            

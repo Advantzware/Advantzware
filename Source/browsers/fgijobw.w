@@ -647,7 +647,7 @@ PROCEDURE build-table :
       CREATE w-job.
       ASSIGN w-job.job-no = w-jobs.job-no
              w-job.job-no2 = w-jobs.job-no2
-             w-job.job-no-disp = TRIM(w-job.job-no) + "-" + STRING(w-job.job-no2,"99")
+             w-job.job-no-disp = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-job.job-no, w-job.job-no2)))
              w-job.po-no = w-jobs.po-no
              w-job.i-no  = w-jobs.i-no
              w-job.j-no  = w-jobs.j-no
@@ -669,7 +669,7 @@ PROCEDURE build-table :
              w-job.sell-uom = w-jobs.sell-uom
              w-job.tot-wt  = w-jobs.tot-wt.
 
-      IF w-job.job-no-disp EQ "-00" THEN w-job.job-no-disp = "".
+      IF w-job.job-no-disp EQ "-000" THEN w-job.job-no-disp = "".
                
       DELETE w-jobs.
 

@@ -515,7 +515,8 @@ DEFINE VARIABLE iCaseQty      AS INTEGER   NO-UNDO.
                 v-price  format ">>>,>>9.9999" 
                 ar-invl.amt  format "->>>,>>9.99"                
                 SKIP
-                v-ord-no FORM ">>>>>>" SPACE(10)
+                SPACE(1)
+                TRIM(STRING(v-ord-no,">>>>>>>9")) SPACE(7)
                 v-i-dscr2 space(19)                  
                 v-pc  SPACE(8)
                 v-price-head SPACE(1) SKIP                   

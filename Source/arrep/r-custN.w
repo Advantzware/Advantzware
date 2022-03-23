@@ -91,7 +91,7 @@ ASSIGN
                          + "EDI,Bal Method,Mfg/Whse Days,Pallet,Case/Bundle,Stmnt Freq,"
                          + "Terr,Cr. Acct #,Ord Loc,Carrier,Del Zone,Cr Rating,Hold Days/Inv,Credit Lim,"
                          + "Partial Ship,Fr Pay Meth,Order Lim,Taxable,FOB,Cred Hold,"
-                         + "TAX Code,Fin Chrgs,Inv Per PO,TAX Resale ID#,Exp.,"
+                         + "TAX Group,Fin Chrgs,Inv Per PO,TAX Resale ID#,Exp.,"
                          + "Terms,Credit Hold Term,Date Added,Disc,MarkUp,"
                          + "Underrun,Overrun,E-Mail/Web Address,Load Tags,Fst Inv Dt,Group,Last Ordered,CSR"
     cFieldListToSelect = "cust,name,add1,add2,city,stat,zip,phn,fax,typ,actv,"
@@ -126,7 +126,7 @@ ASSIGN
                            + "Tel #,Contact,Rep,SalesRep Name,Disc,Cust Price Lvl,Tax Resale ID#,Exp.,FAX #,AutoReprice,"
                            + "EDI,Bal Method,Mfg/Whse Days,Pallet,Case/Bundle,Stmnt Freq,Terr,Cr. Acct #,Ord Loc,Carrier,Del Zone,Cr Rating,"
                            + "Hold Days/Inv,Credit Lim,Partial Ship,Fr Pay Meth,Order Lim,Taxable,FOB,Cred Hold,"
-                           + "TAX Code,Fin Chrgs,Inv Per PO,Terms,Credit Hold Term,Date Added,MarkUp,Underrun,Overrun,E-Mail/Web Address,Load Tags"  .
+                           + "TAX Group,Fin Chrgs,Inv Per PO,Terms,Credit Hold Term,Date Added,MarkUp,Underrun,Overrun,E-Mail/Web Address,Load Tags"  .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1859,7 +1859,7 @@ PROCEDURE run-report PRIVATE :
                         + "EDI,Bal Method,Mfg/Whse Days,Pallet,Case/Bundle,Stmnt Freq,"
                         + "Territory,Cr. Acct #,Ord. Loc.,Carrier,Delivery Zone,Cr. Rating,Hold Days/Inv.,Credit Lim,"
                         + "Partial Ship,Fr Pay Meth,Order Lim,Taxable,FOB Orig/Dest,Cred. Hold,"
-                        + "TAX Code,Fin. Chrgs,Invoice Per PO,TAX Resale ID#,Exp.,"
+                        + "TAX Group,Fin. Chrgs,Invoice Per PO,TAX Resale ID#,Exp.,"
                         + "Terms Code,Credit Hold Term,Date Added,Discount,MarkUp,"
                         + "Underrun,Overrun,E-Mail/Web Address,Load Tags".  */
 

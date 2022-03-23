@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -138,16 +139,16 @@ DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)"
      VIEW-AS FILL-IN 
      SIZE 25 BY 1.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)" 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)" 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
      BGCOLOR 15 FONT 4.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end-date AS DATE FORMAT "99/99/9999":U 
      LABEL "Ending Date" 
@@ -160,16 +161,16 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)"
      VIEW-AS FILL-IN 
      SIZE 23 BY 1.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
      BGCOLOR 15 FONT 4.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-prod.csv" 
      LABEL "If Yes, File Name" 
@@ -440,7 +441,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no C-Win
 ON ENTRY OF begin_job-no IN FRAME FRAME-A /* Beginning Job# */
 DO:
-  {&SELF-NAME}:FORMAT = 'XXXXXX-XX'.
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -475,10 +476,8 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   ASSIGN {&displayed-objects}.
   ASSIGN
-      begin_job_number = fill(" ",6 - length(trim(begin_job-no))) +
-                          trim(begin_job-no) + string(int(begin_job-no2),"99")
-      end_job_number  = fill(" ",6 - length(trim(end_job-no)))   +
-                         trim(end_job-no)   + string(int(end_job-no2),"99").
+      begin_job_number = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+      end_job_number  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) .
 
   RUN run-report.
 
@@ -538,7 +537,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no C-Win
 ON ENTRY OF end_job-no IN FRAME FRAME-A /* Ending Job# */
 DO:
-  {&SELF-NAME}:FORMAT = 'XXXXXX-XX'.
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -778,7 +777,7 @@ PROCEDURE init-proc :
          END_i-no    = "zzzzzzzzzzzzzzz"
          begin_job-no    = ""
          begin_job-no2   = "00"
-         end_job-no      = "zzzzzz"
+         end_job-no      = "zzzzzzzzz"
          END_job-no2     = "99".
 END PROCEDURE.
 
@@ -933,8 +932,8 @@ FOR EACH loadtag WHERE loadtag.company = g_company
                    AND loadtag.is-case-tag 
                    AND loadtag.i-no >= begin_i-no
                    AND loadtag.i-no <= END_i-no
-                   AND loadtag.job-no >= begin_job-no
-                   AND loadtag.job-no <= END_job-no
+                   AND fill(" ",9 - length(TRIM(loadtag.job-no))) + trim(loadtag.job-no) + STRING(loadtag.job-no2,"999") >= begin_job_number
+                   AND fill(" ",9 - length(TRIM(loadtag.job-no))) + trim(loadtag.job-no) + STRING(loadtag.job-no2,"999") <= end_job_number
                    AND ((loadtag.tag-date >= begin-date
                    AND loadtag.tag-date <= end-date) OR
                        loadtag.tag-date = ?)  NO-LOCK

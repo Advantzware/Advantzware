@@ -66,7 +66,7 @@ def var v-ord-del-hdr  as char format "x(4)" init "Del#".
 def var v-part-info    as char format "x(30)".
 def var v-beeler-lines as int.
 def var v              as int.
-def var v-ord#         as int format ">>>>>>" no-undo.
+def var v-ord#         as int format ">>>>>>>>" no-undo.
 def var v-qty          like ar-invl.qty no-undo.
 
 def var v-cust-name      like ar-inv.cust-name.
@@ -92,7 +92,7 @@ form header
   v-c-name at 11 skip
   v-c-addr[1] at 11 skip
   v-c-addr[2] at 11
-  "A720" + trim(string(ar-inv.inv-no,">>>>>>>")) at 69 format "x(11)" skip
+  "A720" + trim(string(ar-inv.inv-no,">>>>>>>>")) at 69 format "x(11)" skip
   v-c-city at 11
   v-c-state v-c-zip skip
   v-salesman at 69 skip(3)
@@ -115,7 +115,7 @@ with frame invhead page-top no-labels no-box no-underline stream-io width 90.
 
 form header
   skip(2)
-  "A720" + trim(string(ar-inv.inv-no,">>>>>>>")) to 80 format "x(11)"
+  "A720" + trim(string(ar-inv.inv-no,">>>>>>>>")) to 80 format "x(11)"
   v-inv-date to 80 FORMAT "99/99/99" skip
   "Salesman:" TO 63 v-salesman at 65 skip(3)
   "FOB:" v-fob
@@ -149,7 +149,7 @@ form header
   v-c-addr[1] at 11 skip
   v-c-addr[2] at 11
   "Inv #:" TO 56
-  "A720" + trim(string(ar-inv.inv-no,">>>>>>>")) format "x(11)"
+  "A720" + trim(string(ar-inv.inv-no,">>>>>>>>")) format "x(11)"
   v-c-city at 11
   v-c-state v-c-zip skip
   "Salesman:" TO 56 v-salesman  skip(3)

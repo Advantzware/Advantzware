@@ -397,43 +397,43 @@ DEFINE FRAME Corr
           SIZE 15 BY 1
      est.highlight AT ROW 2.81 COL 2.4 HELP
           "Enter whether to drop slitter if MSF > minimum" WIDGET-ID 6
-          LABEL "Yellow?"
+          LABEL "Highlight"
           VIEW-AS TOGGLE-BOX
-          SIZE 12.6 BY .81
-     eb.cust-no AT ROW 2.67 COL 22.2 COLON-ALIGNED
+          SIZE 13 BY .81
+     eb.cust-no AT ROW 2.67 COL 23.2 COLON-ALIGNED
           LABEL "Cust#"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           FONT 6
-     eb.ship-id AT ROW 2.67 COL 49.2 COLON-ALIGNED HELP
+     eb.ship-id AT ROW 2.67 COL 50.2 COLON-ALIGNED HELP
           ""
           LABEL "Ship To"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           FONT 6
-     eb.ship-name AT ROW 3.81 COL 22.2 COLON-ALIGNED
+     eb.ship-name AT ROW 3.81 COL 23.2 COLON-ALIGNED
           LABEL "Company"
           VIEW-AS FILL-IN 
           SIZE 45.8 BY 1
           FONT 6
-     eb.ship-addr[1] AT ROW 4.71 COL 22.2 COLON-ALIGNED
+     eb.ship-addr[1] AT ROW 4.71 COL 23.2 COLON-ALIGNED
           LABEL "Address"
           VIEW-AS FILL-IN 
           SIZE 45.8 BY 1
-     eb.ship-addr[2] AT ROW 5.57 COL 22.2 COLON-ALIGNED NO-LABEL
+     eb.ship-addr[2] AT ROW 5.57 COL 23.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 45.8 BY 1
-     eb.ship-city AT ROW 6.43 COL 22.2 COLON-ALIGNED
+     eb.ship-city AT ROW 6.43 COL 23.2 COLON-ALIGNED
           LABEL "City/State/Zip"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
-     eb.ship-state AT ROW 6.43 COL 45.6 COLON-ALIGNED NO-LABEL
+     eb.ship-state AT ROW 6.43 COL 46.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     eb.ship-zip AT ROW 6.43 COL 52.2 COLON-ALIGNED NO-LABEL
+     eb.ship-zip AT ROW 6.43 COL 53.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 15.8 BY 1
-     est.csrUser_id AT ROW 7.29 COL 22 COLON-ALIGNED
+     est.csrUser_id AT ROW 7.29 COL 23.2 COLON-ALIGNED
           LABEL "CSR"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
@@ -610,7 +610,7 @@ DEFINE FRAME Corr
      btn_fgitem AT ROW 3.81 COL 115 WIDGET-ID 16
      btn_style AT ROW 10.52 COL 8 WIDGET-ID 16
      btn_board AT ROW 11.71 COL 12 WIDGET-ID 16
-     btn_cust AT ROW 2.67 COL 15 WIDGET-ID 16
+     btn_cust AT ROW 2.67 COL 16 WIDGET-ID 16
      "of" VIEW-AS TEXT
           SIZE 3 BY .95 AT ROW 1.24 COL 70.4
      "of" VIEW-AS TEXT
@@ -1660,10 +1660,7 @@ DO:
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          APPLY "ENTRY" TO SELF.
          RETURN NO-APPLY.      
-      END.
-      ELSE do: 
-          self:screen-value = string( var-num +  op-dec) .
-      END.
+      END.        
    END.
 
    IF ll-auto-calc-selected AND {&self-name} <> dec(self:SCREEN-VALUE )
@@ -3755,7 +3752,9 @@ PROCEDURE local-display-fields :
   DEF VAR lv-eqty AS CHAR NO-UNDO.
   DEF VAR lv-image AS CHAR NO-UNDO.
   DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
-  DEFINE VARIABLE iCount  AS INTEGER     NO-UNDO.
+  DEFINE VARIABLE iCount  AS INTEGER     NO-UNDO.  
+  DEFINE VARIABLE iDecimalValue AS INTEGER NO-UNDO.
+  
   DEF BUFFER b-ef FOR ef.
   DEF BUFFER b-eb FOR eb.
 
@@ -3793,42 +3792,44 @@ DO WITH FRAME {&FRAME-NAME}:
          bt-new-plate:SENSITIVE = FALSE.
 
   IF v-cecscrn-char EQ "Decimal" THEN do:
+     iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .     
+     
      ASSIGN
-        eb.len:FORMAT = ">>9.999999"
+        eb.len:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
         eb.len:WIDTH = 15.2
-        eb.wid:FORMAT = ">>9.999999"
+        eb.wid:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
         eb.wid:WIDTH = 15.2
-        eb.dep:FORMAT = ">>9.999999"
+        eb.dep:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
         eb.dep:WIDTH = 15.2
-        eb.dust:FORMAT = "->>9.999999"
+        eb.dust:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.dust:WIDTH = 15.2
-        eb.fpanel:FORMAT = "->>9.999999"
+        eb.fpanel:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.fpanel:WIDTH = 15.2
-        eb.lock:FORMAT = "->>9.999999"
+        eb.lock:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.lock:WIDTH = 15.2
-        eb.gluelap:FORMAT = "->>9.999999"
+        eb.gluelap:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.gluelap:WIDTH = 15.2
-        eb.k-wid:FORMAT = "->>9.999999"
+        eb.k-wid:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.k-wid:WIDTH = 15.2
-        eb.k-len:FORMAT = "->>9.999999"
+        eb.k-len:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.k-len:WIDTH = 15.2
-        eb.tuck:FORMAT = "->>9.999999"
+        eb.tuck:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.tuck:WIDTH = 15.2
-        eb.lin-in:FORMAT = "->>9.999999"
+        eb.lin-in:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.lin-in:WIDTH = 15.2
-        eb.t-wid:FORMAT = ">>>>9.999999"
+        eb.t-wid:FORMAT = ">>>>9." + FILL("9",INTEGER(iDecimalValue))
         eb.t-wid:WIDTH = 15.2
-        eb.t-len:FORMAT = ">>>>9.999999"
+        eb.t-len:FORMAT = ">>>>9." + FILL("9",INTEGER(iDecimalValue))
         eb.t-len:WIDTH = 15.2
-        eb.t-sqin:FORMAT = ">>>>>9.999999"
+        eb.t-sqin:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
         eb.t-sqin:WIDTH = 15.2.
      IF eb.t-sqin GT 999999  THEN
          ASSIGN
-         eb.t-sqin:FORMAT = ">>>>>>>>>9.99999"
+         eb.t-sqin:FORMAT = ">>>>>>>>>9." + FILL("9",INTEGER(iDecimalValue))
          eb.t-sqin:WIDTH = 17.2 .
      ELSE
          ASSIGN
-             eb.t-sqin:FORMAT = ">>>>>9.999999"
+             eb.t-sqin:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
              eb.t-sqin:WIDTH = 15.2.
 
   END.

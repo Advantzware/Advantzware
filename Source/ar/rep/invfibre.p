@@ -53,7 +53,7 @@ find first cust no-lock no-error.
 
 format header
        skip(3)
-       trim(string(ar-inv.inv-no,">>>>>>>"))     at 73
+       trim(string(ar-inv.inv-no,">>>>>>>>"))     at 73
        skip(1)
        ar-inv.inv-date      format "99/99/99"   at 73
        skip(1)
@@ -79,7 +79,7 @@ format header
     with frame inv-top page-top no-box no-underline stream-io width 85.
     
 form ar-invl.qty            format "->>>>>>>"       to 8
-     ar-invl.ord-no         format ">>>>>>"         at 11   
+     ar-invl.ord-no         format ">>>>>>>>"         at 10   
      w-par                  format "x(30)"          at 19
      ar-invl.inv-qty        format "->>>>>>>"       to 57
      v-p-c                  format "X"            at 59

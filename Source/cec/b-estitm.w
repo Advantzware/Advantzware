@@ -1046,34 +1046,33 @@ DO:
     &scoped-define exclude-row-display true 
     {methods/template/brwrowdisplay.i}    
     
-    DEF VAR lActive AS LOG NO-UNDO.
-   IF v-cefgitem-log AND AVAIL eb THEN
-   DO:
-/*                                                        */
-/*       FIND FIRST reftable WHERE                        */
-/*            reftable.reftable EQ "FGSTATUS" AND         */
-/*            reftable.company  EQ cocode AND             */
-/*            reftable.loc      EQ "" AND                 */
-/*            reftable.code     EQ eb.stock-no            */
-/*            NO-LOCK NO-ERROR.                           */
-/*                                                        */
-/*       IF AVAIL reftable AND reftable.code2 EQ "I" THEN */
-       RUN fg/GetItemfgActInact.p (INPUT cocode,
-                                   INPUT eb.stock-no,
-                                   OUTPUT lActive).
-        IF NOT lActive THEN 
-            eb.stock-no:BGCOLOR IN BROWSE {&browse-name} = 11.
-        ELSE
-            eb.stock-no:BGCOLOR IN BROWSE {&browse-name} = ?.
+    DEFINE VARIABLE cFormat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lActive AS LOGICAL   NO-UNDO.
 
-      RELEASE reftable.
-   END.
+    IF v-cefgitem-log AND AVAIL eb THEN DO:
+        RUN fg/GetItemfgActInact.p (
+         cocode,
+         eb.stock-no,
+         OUTPUT lActive
+         ).
+         eb.stock-no:BGCOLOR IN BROWSE {&browse-name} = IF NOT lActive THEN 11 ELSE ?.
+    END.
+    IF AVAILABLE eb THEN DO:
+        cFormat = "".
 
-  IF v-cecscrn-dec AND AVAIL eb THEN
-     ASSIGN
-        eb.wid:FORMAT IN BROWSE {&browse-name} = ">>9.999999"
-        eb.len:FORMAT IN BROWSE {&browse-name} = ">>9.999999"
-        eb.dep:FORMAT IN BROWSE {&browse-name} = ">>9.999999".
+        IF v-cecscrn-dec THEN
+        cFormat = ">>9.999999".
+
+        IF v-cecscrn-decimals GT 0 THEN
+        cFormat = ">>9." + FILL("9",INTEGER(v-cecscrn-decimals)).
+
+        IF cFormat NE "" THEN
+        ASSIGN
+            eb.wid:FORMAT IN BROWSE {&browse-name} = cFormat
+            eb.len:FORMAT IN BROWSE {&browse-name} = cFormat
+            eb.dep:FORMAT IN BROWSE {&browse-name} = cFormat
+            .
+    END. // if avail
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1911,21 +1910,21 @@ DO:
       RETURN NO-APPLY.
    END.
 
-   IF v-cecscrn-dec THEN
-   DO:
-      len-num = INT(SELF:screen-value) .
-      RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
-      IF op-error THEN DO:
-         MESSAGE "Invalid Dimension."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "ENTRY" TO SELF.
-         RETURN NO-APPLY.
-      END.
-      ELSE DO: 
-          
-          eb.len:screen-value IN BROWSE {&browse-name} = string( len-num +  op-dec) .
-      END.
-   END.
+/*   IF v-cecscrn-dec THEN                                                                 */
+/*   DO:                                                                                   */
+/*      len-num = INT(SELF:screen-value) .                                                 */
+/*      RUN valid-64-dec(INPUT DECIMAL(SELF:SCREEN-VALUE), OUTPUT op-error, OUTPUT op-dec).*/
+/*      IF op-error THEN DO:                                                               */
+/*         MESSAGE "Invalid Dimension."                                                    */
+/*            VIEW-AS ALERT-BOX ERROR BUTTONS OK.                                          */
+/*         APPLY "ENTRY" TO SELF.                                                          */
+/*         RETURN NO-APPLY.                                                                */
+/*      END.                                                                               */
+/*      ELSE DO:                                                                           */
+/*                                                                                         */
+/*          eb.len:screen-value IN BROWSE {&browse-name} = string( len-num +  op-dec) .    */
+/*      END.                                                                               */
+/*   END.                                                                                  */
 
    RUN valid-wid-len (FOCUS) NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1969,20 +1968,20 @@ DO:
       RETURN NO-APPLY.
    END.
 
-   IF v-cecscrn-dec THEN
-   DO:
-      wid-num = INT(SELF:screen-value) .
-      RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
-      IF op-error THEN DO:
-         MESSAGE "Invalid Dimension."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         APPLY "ENTRY" TO SELF.
-         RETURN NO-APPLY.
-      END.
-      ELSE DO: 
-          eb.wid:screen-value IN BROWSE {&browse-name} = string( wid-num +  op-dec) .
-      END.
-   END.
+/*   IF v-cecscrn-dec THEN                                                             */
+/*   DO:                                                                               */
+/*      wid-num = INT(SELF:screen-value) .                                             */
+/*      RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).                 */
+/*      IF op-error THEN DO:                                                           */
+/*         MESSAGE "Invalid Dimension."                                                */
+/*            VIEW-AS ALERT-BOX ERROR BUTTONS OK.                                      */
+/*         APPLY "ENTRY" TO SELF.                                                      */
+/*         RETURN NO-APPLY.                                                            */
+/*      END.                                                                           */
+/*      ELSE DO:                                                                       */
+/*          eb.wid:screen-value IN BROWSE {&browse-name} = string( wid-num +  op-dec) .*/
+/*      END.                                                                           */
+/*   END.                                                                              */
 
    RUN valid-wid-len (FOCUS) NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -2024,20 +2023,20 @@ DO:
          RETURN NO-APPLY.
       END.
   
-   IF v-cecscrn-dec THEN
-       DO:
-       dep-num = INT(SELF:screen-value) .
-       RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
-       IF op-error THEN DO:
-           MESSAGE "Invalid Dimension."
-               VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-           APPLY "ENTRY" TO SELF.
-           RETURN NO-APPLY.
-       END.
-       ELSE DO: 
-           eb.dep:screen-value IN BROWSE {&browse-name} = string( dep-num +  op-dec) .
-       END.
-     END.
+/*   IF v-cecscrn-dec THEN                                                              */
+/*       DO:                                                                            */
+/*       dep-num = INT(SELF:screen-value) .                                             */
+/*       RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).                 */
+/*       IF op-error THEN DO:                                                           */
+/*           MESSAGE "Invalid Dimension."                                               */
+/*               VIEW-AS ALERT-BOX ERROR BUTTONS OK.                                    */
+/*           APPLY "ENTRY" TO SELF.                                                     */
+/*           RETURN NO-APPLY.                                                           */
+/*       END.                                                                           */
+/*       ELSE DO:                                                                       */
+/*           eb.dep:screen-value IN BROWSE {&browse-name} = string( dep-num +  op-dec) .*/
+/*       END.                                                                           */
+/*     END.                                                                             */
    END.
 END.
 
@@ -3377,7 +3376,8 @@ PROCEDURE copy-line :
   IF ls-add-what EQ "form" THEN
     RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT lv-rowid).
   ELSE
-    RUN cec/newblank.p (ROWID(ef), OUTPUT lv-rowid).
+/*    RUN cec/newblank.p (ROWID(ef), OUTPUT lv-rowid).*/
+    RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT lv-rowid).
 
   FIND eb WHERE ROWID(eb) EQ lv-rowid NO-LOCK NO-ERROR.
   lv-eb-recid = RECID(eb).
@@ -4024,7 +4024,8 @@ PROCEDURE createESTfromArtios :
             FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid NO-LOCK NO-ERROR.
             FIND FIRST ef OF eb NO-LOCK NO-ERROR.
  
-            RUN cec/newblank.p (ROWID(ef), OUTPUT lv-crt-est-rowid).
+            /*            RUN cec/newblank.p (ROWID(ef), OUTPUT lv-crt-est-rowid).*/
+            RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT lv-crt-est-rowid).
             
         END.
      END.
@@ -4284,8 +4285,8 @@ PROCEDURE createEstFromImpact :
             FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid NO-LOCK NO-ERROR.
             FIND FIRST ef OF eb NO-LOCK NO-ERROR.
  
-            RUN cec/newblank.p (ROWID(ef), OUTPUT lv-crt-est-rowid).
-            
+            /*            RUN cec/newblank.p (ROWID(ef), OUTPUT lv-crt-est-rowid).*/
+            RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT lv-crt-est-rowid).        
         END.
      END.
      
@@ -4575,7 +4576,8 @@ PROCEDURE crt-new-set :
   IF ls-add-what EQ "form" THEN
      RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT lv-rowid).
   ELSE
-     RUN cec/newblank.p (ROWID(ef), OUTPUT lv-rowid).
+/*     RUN cec/newblank.p (ROWID(ef), OUTPUT lv-rowid).*/
+    RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT lv-rowid).
 
   IF ll-add-set-part-2 THEN
   DO:
@@ -7229,7 +7231,17 @@ PROCEDURE pCreateSetEstimate :
             bf-eb.est-no  = bff-eb.est-no 
             bf-eb.form-no = 0
             bf-eb.company = cocode
-            bf-eb.cust-no = bff-eb.cust-no.
+            bf-eb.cust-no = bff-eb.cust-no. 
+            IF NOT CAN-FIND(FIRST itemfg
+                   WHERE itemfg.company EQ bf-eb.company
+                     AND itemfg.i-no    EQ bf-eb.stock-no) THEN DO:  
+               FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(bf-eb) NO-LOCK NO-ERROR.
+               FIND FIRST xest NO-LOCK 
+                    WHERE xest.company EQ bf-eb.company
+                      AND xest.est-no EQ bf-eb.est-no NO-ERROR.               
+               RUN fg/ce-addfg.p (xeb.stock-no).
+               RELEASE xeb.
+            END.   
        END.
   END.    
   

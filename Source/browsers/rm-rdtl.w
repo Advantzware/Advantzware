@@ -140,7 +140,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      rm-rdtl.s-num
+      rm-rdtl.s-num COLUMN-LABEL "Form #" 
       rm-rdtl.job-no
       rm-rdtl.job-no2
       rm-rdtl.qty COLUMN-LABEL "Qty"

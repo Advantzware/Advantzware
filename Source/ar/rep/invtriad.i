@@ -40,7 +40,7 @@ for each ar-invl
   display {1}
 	  oe-ordl.qty               when avail oe-ordl
 	  ar-invl.qty               when not avail oe-ordl  @ oe-ordl.qty
-	  trim(string(oe-ordl.ord-no,">>>>>9"))
+	  trim(string(oe-ordl.ord-no,">>>>>>>9"))
 				    when avail oe-ordl @ ar-invl.i-no
 	  ar-invl.i-no              when not avail oe-ordl
 	  ar-invl.i-name            when ar-invl.i-no eq "" @ ar-invl.i-no

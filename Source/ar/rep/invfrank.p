@@ -393,7 +393,7 @@ assign
         end.
  */       
         v-inv-date = ar-inv.inv-date.
-        PUT "[@startPage" + TRIM(STRING(ar-inv.inv-no,">>>>>9")) + "]" FORMAT "X(50)".
+        PUT "[@startPage" + TRIM(STRING(ar-inv.inv-no,">>>>>>>9")) + "]" FORMAT "X(50)".
         {ar/rep/invfrank.i}
         v-subtot-lines = 0.
         v-t-tax = 0.
@@ -505,11 +505,11 @@ assign
             PUT /*space(1) v-inv-qty format "->>>>>9" */
                 v-po-no
                 /*SPACE(1)*/
-                v-ship-qty  format "->>>>>9" 
+                v-ship-qty  format "->>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
-                ar-invl.ord-no FORMAT ">>>>>9" SPACE(1)
+                ar-invl.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
-                v-i-dscr  format "x(24)" 
+                v-i-dscr  format "x(22)" 
                 v-price  format "$->,>>9.99" SPACE(1)
                 v-price-head FORM "x(4)"
                 ar-invl.amt  format "$->>>,>>9.99"                      
@@ -532,14 +532,14 @@ assign
                 v-part-info = ar-invl.i-dscr.
               if v-part-info ne "" OR ar-invl.part-no <> "" then do:
                 /*put space(40) v-part-info skip.*/
-                 IF v = 1 THEN PUT SPACE(29) ar-invl.part-no SPACE(1) v-part-info SKIP.
-                 ELSE IF v-part-info NE "" THEN  PUT SPACE(45) v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(32) ar-invl.part-no SPACE(1) v-part-info SKIP.
+                 ELSE IF v-part-info NE "" THEN  PUT SPACE(48) v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.
 
             IF v-spec-dscr NE "" THEN do:       /*task# 11151307*/
-                PUT SPACE(45) v-spec-dscr SKIP.
+                PUT SPACE(48) v-spec-dscr SKIP.
                 v-printline = v-printline + 1.
             END.
 
@@ -615,7 +615,7 @@ assign
            END.
 
         end. /* each ar-invm */
-        PUT "[@endPage" + TRIM(STRING(ar-inv.inv-no,">>>>>9")) + "]" FORMAT "X(50)".
+        PUT "[@endPage" + TRIM(STRING(ar-inv.inv-no,">>>>>>>9")) + "]" FORMAT "X(50)".
 
 /*
         if v-prntinst then do:

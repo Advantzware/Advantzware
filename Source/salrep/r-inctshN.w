@@ -2007,7 +2007,7 @@ PROCEDURE run-report :
                         IF ar-invl.misc THEN ar-invl.i-name ELSE
                         IF ar-invl.i-no NE "" THEN ar-invl.i-no ELSE
                         "AR SALE",
-                        STRING(ar-inv.inv-no,"9999999"), "").
+                        STRING(ar-inv.inv-no,"99999999"), "").
                 END.
 
                 IF v-freight AND ar-inv.f-bill THEN 
@@ -2035,7 +2035,7 @@ PROCEDURE run-report :
                             v-sman-no LE tsman                      THEN
 
                             RUN create-report (RECID(ar-invl), "FREIGHT",
-                                STRING(ar-inv.inv-no,"999999"), "FREIGHT").
+                                STRING(ar-inv.inv-no,"99999999"), "FREIGHT").
                     END.
                 END.
             END.
@@ -2058,7 +2058,7 @@ PROCEDURE run-report :
                              tt-report.key-09
                           ELSE ""
                     tt-report.key-03 = "MEMO"
-                    tt-report.key-04 = STRING(ar-cashl.inv-no,"9999999")
+                    tt-report.key-04 = STRING(ar-cashl.inv-no,"99999999")
                     tt-report.key-05 = tt-report.key-09
                     tt-report.key-06 = cust.sman
                     tt-report.key-07 = tt-report.key-03.
@@ -2404,7 +2404,7 @@ PROCEDURE run-report :
                 WHEN "rep"  THEN 
                     cVarValue = STRING(v-sname,"x(20)") .
                 WHEN "inv"   THEN 
-                    cVarValue = STRING(w-data.inv-no,">>>>>>>") .
+                    cVarValue = STRING(w-data.inv-no,">>>>>>>>") .
                 WHEN "month"  THEN 
                     cVarValue = STRING(v-month,">>>>>") .
                 WHEN "year"    THEN 

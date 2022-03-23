@@ -40,7 +40,7 @@ PUT "<FMS Mincho>"
    "<R25><C62><FROM><R27><C62><LINE>" SKIP
    "<R25><C75><FROM><R27><C75><LINE>" SKIP
    "<=4><R+1>   FOB               SHIP VIA                         TERMS                  SALES PERSON            ORDER#" SKIP
-   "<=4><R+3> " cust.fob-code FORM "x(10)" v-shipvia FORM "x(30)" SPACE(5) oe-ord.terms-d FORM "x(24)" space(1) v-salesman FORM "x(20)" space(8) oe-ord.ord-no SKIP
+   "<=4><R+3> " cust.fob-code FORM "x(10)" v-shipvia FORM "x(30)" SPACE(5) oe-ord.terms-d FORM "x(24)" space(1) v-salesman FORM "x(20)" "<C71>" oe-ord.ord-no SKIP
    "<|10><R25><C1><#5><FROM><R27><C80><RECT>" SKIP
    "<=5><R+1><C1>  LINE     CUSTOMER PART#               ITEM NAME                    QUANTITY                  PRICE        UOM" SKIP(1).
 

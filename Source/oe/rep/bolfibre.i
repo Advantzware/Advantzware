@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolfibre.i 10/00 JLF */
 /* Print Fibre Container BOL                                                  */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 hide {1} frame bol-bot2.
@@ -53,7 +54,7 @@ for each oe-boll where
     FIND FIRST w2 WHERE w2.job-po EQ "" NO-ERROR.
     IF NOT AVAIL w2 THEN CREATE w2.
     ASSIGN
-     w2.job-po = TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")
+     w2.job-po = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
      v-job-po  = w2.job-po.
   END.
 

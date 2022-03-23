@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -182,13 +183,13 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      job-hdr.frm COLUMN-LABEL "S" FORMAT ">>>":U WIDTH 4
+      job-hdr.frm COLUMN-LABEL "F" FORMAT ">>>":U WIDTH 4
       job-hdr.blank-no COLUMN-LABEL "B" FORMAT ">>>":U WIDTH 4
       job-hdr.cust-no FORMAT "x(8)":U
       job-hdr.i-no FORMAT "x(15)":U
       job-hdr.qty FORMAT ">>>,>>>,>>9":U
       job-hdr.sq-in FORMAT ">>9.99":U
-      job-hdr.ord-no FORMAT ">>>>>9":U WIDTH 9
+      job-hdr.ord-no FORMAT ">>>>>>>9":U WIDTH 12
       job-hdr.po-no FORMAT "x(15)":U
       job-hdr.due-date FORMAT "99/99/9999":U WIDTH 15
       job-hdr.std-mat-cost COLUMN-LABEL "Material" FORMAT "->>>,>>9.99<<":U
@@ -197,8 +198,8 @@ DEFINE BROWSE Browser-Table
       job-hdr.std-var-cost COLUMN-LABEL "Var OH" FORMAT "->>>,>>9.99<<":U
       get-total-cost () @ ld-total-cost COLUMN-LABEL "Total Cost" FORMAT "->,>>>,>>>,>>9.99<<":U
       job-hdr.j-no COLUMN-LABEL "" FORMAT ">>>>>>9":U
-      job-hdr.job-no COLUMN-LABEL "" FORMAT "x(6)":U
-      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      job-hdr.job-no COLUMN-LABEL "" FORMAT "x(9)":U
+      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
       job-hdr.keyItem COLUMN-LABEL "Key Item" FORMAT "Yes/No":U
   ENABLE
       job-hdr.frm
@@ -315,7 +316,7 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED, FIRST OUTER"
      _FldNameList[1]   > ASI.job-hdr.frm
-"job-hdr.frm" "S" ">>>" "integer" ? ? ? ? ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.frm" "F" ">>>" "integer" ? ? ? ? ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-hdr.blank-no
 "job-hdr.blank-no" "B" ">>>" "integer" ? ? ? ? ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-hdr.cust-no
@@ -326,7 +327,7 @@ ASSIGN
 "job-hdr.qty" ? ">>>,>>>,>>9" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   = ASI.job-hdr.sq-in
      _FldNameList[7]   > ASI.job-hdr.ord-no
-"job-hdr.ord-no" ? ? "integer" ? ? ? ? ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.ord-no" ? ? "integer" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.job-hdr.po-no
 "job-hdr.po-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.job-hdr.due-date
@@ -502,7 +503,7 @@ END.
 
 &Scoped-define SELF-NAME job-hdr.frm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job-hdr.frm Browser-Table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF job-hdr.frm IN BROWSE Browser-Table /* S */
+ON ENTRY OF job-hdr.frm IN BROWSE Browser-Table /* F */
 DO:
   IF NOT adm-new-record AND job.est-no NE "" THEN RETURN NO-APPLY.
 END.
@@ -1053,7 +1054,7 @@ PROCEDURE local-update-record :
        INPUT  "UpdateJobHeader",                               /* Trigger ID (Mandatory) */
        INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
        INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-       INPUT  job.job-no + "-" + STRING(job.job-no2, "99"),      /* Primary ID for which API is called for (Mandatory) */   
+       INPUT  job.job-no + "-" + STRING(job.job-no2, "999"),      /* Primary ID for which API is called for (Mandatory) */   
        INPUT  "Update Job Header triggered from " + PROGRAM-NAME(1)    /* Event's description (Optional) */
        ) NO-ERROR.
    

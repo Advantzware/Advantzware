@@ -3,7 +3,7 @@
 /* PRINT INVOICE when v-print-fmt eq "1/2 Page" - O/E Module            */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -75,7 +75,7 @@ def var v-t-price as dec format ">>>>9.99" no-undo.
 def var v-ship-i as char format "x(25)" no-undo.
 def var v-rel-po-no like oe-rel.po-no no-undo.
 def var v-hdr as char format "x(80)" extent 4.
-def var v-job as char format "x(9)" no-undo.
+def var v-job as char format "x(13)" no-undo.
 def var v-bol-no like inv-head.bol-no no-undo.
 DEF VAR v-paid-by AS cha FORM "x(14)" NO-UNDO.
 
@@ -198,7 +198,7 @@ form v-inv-qty                 format ">>>>>>9-"
 
 form v-inv-qty                 format ">>>>>>9-"
      v-x               at 10   format "x(4)"
-     v-job             at 15   format "x(9)"
+     v-job             at 15   format "x(13)"
      v-i-no            at 29   format "x(15)"
      v-price           to 67   format ">>>>9.99"
      v-uom             at 68   format "x(2)"
@@ -211,7 +211,7 @@ form v-inv-qty                 format ">>>>>>9-"
 
 form v-inv-qty                 format ">>>>>>9-"
      v-x               at 10   format "x(4)"
-     v-job             at 15   format "x(9)"
+     v-job             at 15   format "x(13)"
      v-i-no            at 29   format "x(15)"
      v-price           to 69   format ">>>>9.99<<"
      v-t-price         to 80   format ">>>>>9.99-" skip
@@ -551,9 +551,7 @@ form " " to 80
            v-price   = inv-line.price
            v-uom     = inv-line.pr-uom
            v-t-price = inv-line.t-price
-           v-job     = fill(" ",6 - length(trim(inv-line.job-no))) +
-                       trim(inv-line.job-no) + "-" +
-                       trim(string(inv-line.job-no2,"99"))
+           v-job     = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', inv-line.job-no, inv-line.job-no2)))
            v-bol-no  = inv-head.bol-no.
 
           if v-print-fmt eq "TriState" then

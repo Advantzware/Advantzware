@@ -9,6 +9,7 @@
     Created     : Mon Nov 25 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
+  /*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 {jc/jcgl-sh.i NEW}
 
 {api\inbound\ttRctd.i}
@@ -337,7 +338,7 @@ PROCEDURE InventoryReceipt_PostRMItems:
   
         FIND FIRST job NO-LOCK
              WHERE job.company EQ rm-rctd.company
-               AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no))) + TRIM(rm-rctd.job-no) /* e.g. W98201 */ 
+               AND trim(job.job-no)  EQ TRIM(rm-rctd.job-no) /* e.g. W98201 */ 
                AND job.job-no2 EQ rm-rctd.job-no2
              NO-ERROR.
   

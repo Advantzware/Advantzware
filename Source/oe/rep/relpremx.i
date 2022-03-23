@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relpremx.i */
 /* Print OE Release/Picking tickets    for PremierX Xprint          */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* -----------------------------------------------------------------*/
 
 {oe/rep/oe-pick1.i}
@@ -9,7 +10,7 @@
 DEF BUFFER ref-lot-no FOR reftable.
 
 def TEMP-TABLE w-oe-rell NO-UNDO
-   FIELD ord-no AS INT FORMAT "ZZZZZ9"
+   FIELD ord-no AS INT FORMAT "ZZZZZZZ9"
    FIELD i-no AS CHAR
    FIELD qty AS INT
    FIELD LINE AS INT
@@ -42,7 +43,7 @@ def TEMP-TABLE w-bin NO-UNDO
    FIELD w-date-time AS CHAR
    FIELD w-cust-qty AS INT
    FIELD w-uom  AS CHAR
-   FIELD w-ord-col AS CHAR FORMAT "X(6)"
+   FIELD w-ord-col AS CHAR FORMAT "X(8)"
    field job like fg-bin.job-no
    field job2 like fg-bin.job-no2
    INDEX w-loc w-loc w-bin
@@ -93,9 +94,9 @@ DEF SHARED VAR s-print-bin-from AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-to AS cha NO-UNDO.
 DEFINE SHARED VARIABLE lSortRelSeq AS LOGICAL NO-UNDO .
 
-format w-bin.w-ord-col                  AT 1    FORMAT "x(6)"
-       w-bin.w-par                      at 8    format "x(25)"
-       v-bin                            at 34   format "x(35)"
+format w-bin.w-ord-col                  AT 1    FORMAT "x(8)"
+       w-bin.w-par                      AT 10    format "x(25)"
+       v-bin                            at 35.5   format "x(35)"
        w-bin.w-units                    to 76   format "->>>>>"
        w-bin.w-unit-count               to 83   format "->>>>>"
        v-cust-value                     to 95   FORMAT "x(11)" /* format "->>>>>>>>>>" */
@@ -125,7 +126,7 @@ DEF VAR lv-save-cust-uom AS CHAR NO-UNDO.
 DEF BUFFER xitemfg FOR itemfg.
 DEF SHARED VAR v-print-components AS LOG NO-UNDO.
 DEF SHARED VAR s-print-part-no AS LOG NO-UNDO.
-DEF VAR v-reljob AS CHAR FORMAT "x(10)" NO-UNDO.
+DEF VAR v-reljob AS CHAR FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE iOrdQtyCust AS INTEGER NO-UNDO.
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl .
 DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
@@ -640,9 +641,9 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                         trim(w-bin.w-loc) + "/" +
                         trim(w-bin.w-bin)  .
              
-             v-reljob = (w-bin.job + "-" + string(w-bin.job2,"99"))   .
+             v-reljob = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-bin.job, w-bin.job2))).
 
-             IF v-reljob EQ "-00" THEN v-reljob = "" .
+             IF v-reljob EQ "-000" THEN v-reljob = "" .
              if trim(v-bin) eq "//" then
                   ASSIGN 
                  v-bin = ""

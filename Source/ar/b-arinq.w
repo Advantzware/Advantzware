@@ -137,7 +137,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ar-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>9":U
+      ar-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>>9":U
       ar-inv.cust-no FORMAT "x(8)":U
       ar-inv.cust-name FORMAT "x(30)":U
       ar-inv.gross COLUMN-LABEL "Invoice!Amount" FORMAT "->,>>>,>>9.99":U

@@ -101,7 +101,7 @@ FOR EACH oe-ordl NO-LOCK
         dOldPriceTot = oe-ordl.t-price.
     
     RUN Price_CalculateLinePrice IN hdPrice (ROWID(oe-ordl),oe-ordl.i-no,oe-ordl.cust-no,oe-ordl.ship-id,0,ipExecute,OUTPUT lFound, INPUT-OUTPUT dNewPrice, INPUT-OUTPUT cNewPriceUOM).
-
+    
     FIND FIRST inv-line NO-LOCK 
          WHERE inv-line.company EQ oe-ordl.company
          AND inv-line.ord-no EQ oe-ordl.ord-no

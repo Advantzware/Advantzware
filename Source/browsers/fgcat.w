@@ -497,7 +497,7 @@ FUNCTION getDscr RETURNS CHARACTER
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cResult    AS CHARACTER NO-UNDO.
-
+     IF AVAILABLE fgcat THEN
      FOR EACH account NO-LOCK
          WHERE  account.company eq gcompany 
            and account.actnum EQ fgcat.glacc :
@@ -523,7 +523,7 @@ FUNCTION getType RETURNS CHARACTER
     ------------------------------------------------------------------------------*/
     
     DEFINE VARIABLE cResult    AS CHARACTER NO-UNDO.
-    
+    IF AVAILABLE fgcat THEN 
     FOR EACH account NO-LOCK
          WHERE  account.company eq gcompany 
            and account.actnum EQ fgcat.glacc :

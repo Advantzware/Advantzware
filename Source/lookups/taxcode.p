@@ -11,7 +11,7 @@
 "Sales Tax Group " ~
 "yes " ~
 "tax-group " ~
-"Tax Codes Lookup " ~
+"Tax Group Lookup " ~
 "~{custom/getcmpny.i} ~{sys/inc/varasgn.i} " ~
 "~{custom/gcompany.i} ~{sys/inc/var.i new shared} " ~
 " " ~
@@ -27,7 +27,7 @@
 &Scoped-define width-size 46
 &Scoped-define show-fields stax.tax-group
 &Scoped-define show-fields-yellow stax.tax-group LABEL-BGCOLOR 14
-&Scoped-define frame-title Tax Codes Lookup
+&Scoped-define frame-title Tax Group Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 

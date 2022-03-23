@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+   
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No. 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -147,7 +149,7 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      ar-invl.ord-no FORMAT ">>>>>9":U
+      ar-invl.ord-no FORMAT ">>>>>>>9":U
       ar-invl.i-no FORMAT "x(15)":U
       ar-invl.i-name FORMAT "x(30)":U
       ar-invl.ship-qty COLUMN-LABEL "Shipped Qty" FORMAT "->>,>>>,>>9.99":U

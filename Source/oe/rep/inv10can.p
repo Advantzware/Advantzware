@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/inv10can.p  */
 /* PRINT INVOICE   Xprint Standard Form             */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -579,8 +579,8 @@ find first company where company.company eq cocode NO-LOCK.
            IF NOT lPrintQtyAll THEN do:
             PUT space(1) v-inv-qty format "->>>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(3)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(2)
                 v-i-dscr  format "x(25)" SPACE(3)
                 v-price  format "->>>>,>>9.99" /*"->>,>>9.99<<"*/ SPACE(2)
                 v-price-head SPACE(1)
@@ -590,8 +590,8 @@ find first company where company.company eq cocode NO-LOCK.
            ELSE DO:
               PUT space(1)iOrdQty  format "->>>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(3)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(2)
                 v-i-dscr  format "x(25)" SPACE(3)
                 v-price  format "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(2)
                 v-price-head 
@@ -614,10 +614,10 @@ find first company where company.company eq cocode NO-LOCK.
                  IF v = 1 THEN do:
                     IF lPrintQtyAll THEN do:
                       PUT SPACE(1) v-inv-qty FORMAT "->>>>>>9" .
-                      PUT SPACE(18) inv-line.part-no SPACE(3) v-part-info SKIP.
+                      PUT SPACE(19) inv-line.part-no SPACE(2) v-part-info SKIP.
                     END.
                     ELSE do:
-                    PUT SPACE(27) inv-line.part-no SPACE(3) v-part-info SKIP.
+                    PUT SPACE(28) inv-line.part-no SPACE(2) v-part-info SKIP.
                     END.
                  END.
                  ELSE

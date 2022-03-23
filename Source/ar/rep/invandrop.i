@@ -15,7 +15,7 @@ v-printline = v-printline + 18.
 PUT "<R3><C50><#3>"
     "<=#3><R-0.8><FArial><C+22><P16><B>Invoice</B><P10>"
     "<=#3><R+1><C+21>Invoice Number:"
-    "<=#3><R+2><C+26>" ar-inv.inv-no FORMAT ">>>>>>9"
+    "<=#3><R+2><C+26>" ar-inv.inv-no FORMAT ">>>>>>>9"
     "<=#3><R+3><C+23>Invoice Date:"
     "<=#3><R+4><C+24>" v-inv-date
     "<=#3><R+5><C+27>Page:" 
@@ -42,7 +42,7 @@ PUT "<FArial><=4><R+1>  Customer ID            Customer Phone/FAX               
     "<FArial><=4><R+5>   Salesman                          Ship Via                                Order#                                Weight/Pallets                        Bill Lading #" SKIP
     "<FCourier New><=4><R+7> " SPACE(3) v-salesman FORM "x(8)" SPACE(3)
     v-shipvia FORM "x(20)" SPACE(6)
-    v-ord-no SPACE(7)
+    v-ord-no FORM ">>>>>>>9" SPACE(5)
     v-t-weight FORM "->>>>,>>9" SPACE(1)  "/" 
     v-tot-pallets FORM "->>>>,>>9" SPACE(11)
     lv-bol-no

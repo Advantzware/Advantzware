@@ -10,6 +10,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -185,7 +186,7 @@ ASSIGN cTextListToSelect = "JOB#,FG ITEM,ITEM DESCRIPTION,FG CATEGORY,CUSTOMER,C
 
     */
 
-       cFieldLength = "9,15,25,11,8,30," + "13,13,13,13,13,13," + "13,13,13,13," + "13,13,13,13," + "13,13,13,13," +
+       cFieldLength = "13,15,25,11,8,30," + "13,13,13,13,13,13," + "13,13,13,13," + "13,13,13,13," + "13,13,13,13," +
                       "13,13,13,13," + "13,13,13,13," + "13,13,13,13," + "13,13,13,13,13," + "13,13,13,13,21,19"
        cFieldType   = "c,c,c,c,c,c," + "i,i,i,i,i,i," + "i,i,i,i," + "i,i,i,i," + "i,i,i,i," + 
                       "i,i,i,i," + "i,i,i,i," + "i,i,i,i," + "i,i,i,i,i," + "i,i,i,i,i,i"
@@ -304,45 +305,45 @@ DEFINE VARIABLE begin_fgcat AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_clsdate AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "To Close Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 18.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "To Cust #" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 18.4 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending InvDate" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 18.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_fgcat AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "To FG Category" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 18.4 BY 1.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-jcost.csv" 
      LABEL "Name" 
@@ -448,11 +449,11 @@ DEFINE VARIABLE tgl_SumTot AS LOGICAL INITIAL no
 DEFINE FRAME FRAME-A
      begin_job-no AT ROW 2.19 COL 20.8 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 2.19 COL 33 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 2.19 COL 34 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 2.29 COL 60.4 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 2.29 COL 72.6 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.29 COL 73.6 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_clsdate AT ROW 3.38 COL 21 COLON-ALIGNED HELP
           "Enter Beginning Date" WIDGET-ID 2
@@ -1457,29 +1458,26 @@ PROCEDURE gather-data :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE v-job-no  LIKE job.job-no  EXTENT 2 INITIAL ["", "zzzzzz"] NO-UNDO.
-DEFINE VARIABLE v-job-no2 LIKE job.job-no2 EXTENT 2 INITIAL [00, 99]       NO-UNDO.
+DEFINE VARIABLE v-job-no  LIKE job.job-no  EXTENT 2 INITIAL ["", "zzzzzzzzz"] NO-UNDO.
+DEFINE VARIABLE v-job-no2 LIKE job.job-no2 EXTENT 2 INITIAL [00, 999]       NO-UNDO.
 
 DEFINE VARIABLE ll AS LOGICAL NO-UNDO.
 
 ASSIGN
-    v-job-no[1] = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-                  TRIM(begin_job-no) + STRING(INTEGER(begin_job-no2),"99")
-    v-job-no[2] = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
-                  TRIM(end_job-no)   + STRING(INTEGER(end_job-no2),"99"). 
-
+    v-job-no[1] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+    v-job-no[2] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) . 
 
 EMPTY TEMP-TABLE tt-report.
 
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ cocode
-          AND job-hdr.opened  EQ NO
-          AND job-hdr.job-no  GE SUBSTRING(v-job-no[1],1,6)
-          AND job-hdr.job-no  LE SUBSTRING(v-job-no[2],1,6)
-          AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-              TRIM(job-hdr.job-no) + STRING(INTEGER(job-hdr.job-no2),"99") GE v-job-no[1]
-          AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no)))   +
-              TRIM(job-hdr.job-no) + STRING(INTEGER(job-hdr.job-no2),"99") LE v-job-no[2]
+          AND job-hdr.opened  EQ NO            
+          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+              TRIM(job-hdr.job-no) + STRING(INTEGER(job-hdr.job-no2),"999") GE v-job-no[1]
+          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no)))   +
+              TRIM(job-hdr.job-no) + STRING(INTEGER(job-hdr.job-no2),"999") LE v-job-no[2]
+          AND job-hdr.job-no2 GE int(begin_job-no2)
+          AND job-hdr.job-no2 LE int(end_job-no2)    
           AND job-hdr.cust-no GE begin_cust-no 
           AND job-hdr.cust-no LE end_cust-no USE-INDEX opened:
         FIND FIRST job NO-LOCK
@@ -1524,9 +1522,7 @@ EMPTY TEMP-TABLE tt-report.
         CREATE tt-report.
         ASSIGN
          tt-report.rec-id = RECID(job-hdr)
-         tt-report.key-01 = FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-                            TRIM(job-hdr.job-no) +
-                            STRING(INTEGER(job-hdr.job-no2),"99").
+         tt-report.key-01 = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)) .
       END.
     END.
 

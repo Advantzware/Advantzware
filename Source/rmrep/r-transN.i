@@ -1,12 +1,12 @@
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
      if first-of(rm-rcpth.rita-code)  then v-first[1] = yes.
      if first-of(rm-rcpth.trans-date) then v-first[2] = yes.
 
      assign
-      v-job-no = fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
-                 trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99")
+      v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', rm-rdtlh.job-no, rm-rdtlh.job-no2)) 
       v-value  = rm-rdtlh.cost * rm-rdtlh.qty.
 
-     if v-job-no begins "-" then v-job-no = "".
+     if trim(v-job-no) begins "-" then v-job-no = "".
      
      /*BV - 07121305*/
      /*IF tb_issue-detail THEN DO:*/
@@ -174,7 +174,7 @@
                      WHEN "i-name" THEN cVarValue = string(rm-rcpth.i-name,"x(30)") .
                      WHEN "po-no" THEN cVarValue = STRING(rm-rcpth.po-no,"x(8)") .
                      WHEN "rita-code" THEN cVarValue = STRING(rm-rcpth.rita-code,"x(2)").
-                     WHEN "v-job-no" THEN cVarValue =     STRING(v-job-no,"x(9)").
+                     WHEN "v-job-no" THEN cVarValue =     STRING(v-job-no,"x(13)").
                      WHEN "tag" THEN cVarValue = STRING(rm-rdtlh.tag,"x(20)").
                      WHEN "qty" THEN cVarValue = STRING(ld-rqty,"->>>>>9.99<<").
                      WHEN "loc" THEN cVarValue = STRING(rm-rdtlh.loc,"x(5)") .

@@ -1,7 +1,7 @@
 /* ------------------------------------------------ oe/rep/invoice.p  9/94 RM */
 /* PRINT INVOICE - O/E MODULE                                                 */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -37,7 +37,7 @@ def var v-tax-code like stax.tax-code.
 def var v-tx-rate like stax.tax-rate.
 def var v-ans as log init no.
 def var v-date-ship as date init today.
-def var v-del-no as int format ">>>>>>".
+def var v-del-no as int format ">>>>>>>>".
 def var v-bol-cases like oe-boll.cases.
 def var v-set-qty as DECIMAL.
 def var v-part-qty as dec format "999.9999".
@@ -57,7 +57,7 @@ def var v-ord-del-hdr  as char format "x(4)" init "Del#".
 def var v-part-info    as char format "x(30)".
 def var v-beeler-lines as int.
 def var v              as int.
-def var v-ord#         as int format ">>>>>>" no-undo.
+def var v-ord#         as int format ">>>>>>>>" no-undo.
 def var v-remit-to     as char format "x(90)".
 
 def var v-c-name         like company.name.
@@ -118,7 +118,7 @@ FORM header
   v-shipvia at 11 format "x(25)"
   inv-head.t-inv-weight to 44 format ">>>>9.99"
   v-del-no to 53
-  inv-head.bol-no to 65 format ">>>>>9"
+  inv-head.bol-no to 65 format ">>>>>>9"
   v-tot-pallets at 69 skip(2)
 with frame invhead page-top no-labels no-box no-underline stream-io width 90.
 
@@ -142,12 +142,12 @@ form header
   v-shipvia at 11 format "x(25)"
   inv-head.t-inv-weight to 44 format ">>>>9.99"
   v-del-no to 53
-  inv-head.bol-no to 65 format ">>>>>9"
+  inv-head.bol-no to 65 format ">>>>>>9"
   v-tot-pallets at 69 skip(2)
 with frame invhead-exp page-top no-labels no-box no-underline stream-io width 90.
 /*************************************************/
 
-form header
+form HEADER
   v-invhead at 24
   "Date:" TO 56 v-inv-date skip
   v-c-name at 11 skip
@@ -179,7 +179,7 @@ form header
   v-shipvia at 11 format "x(25)"
   inv-head.t-inv-weight to 44 format ">>>>9.99"
   v-del-no to 53
-  inv-head.bol-no to 65 format ">>>>>9"
+  inv-head.bol-no to 65 format ">>>>>>9"
   v-tot-pallets at 69 skip
   "--------------------------------------------------------------------------------" skip(1)
   "PO #/Order #" "Item/Description" AT 19 "QInv/QShip" TO 52 "Price" TO 64
@@ -211,7 +211,7 @@ form header
   v-shipvia at 11 format "x(25)"
   inv-head.t-inv-weight to 44 format ">>>>9.99"
   v-del-no to 53
-  inv-head.bol-no to 65 format ">>>>>9"
+  inv-head.bol-no to 65 format ">>>>>>9"
   v-tot-pallets at 69 skip(1)
   "PO #/Order #" "Item/Description" AT 19 "QInv/QShip" TO 52 "Price" TO 64
   "Amount" TO 80 skip
@@ -247,7 +247,7 @@ form header
   v-shipvia at 11 format "x(25)"
   inv-head.t-inv-weight to 44 format ">>>>9.99"
   v-del-no to 53
-  inv-head.bol-no to 65 format ">>>>>9"
+  inv-head.bol-no to 65 format ">>>>>>9"
   v-tot-pallets at 69 skip
   "--------------------------------------------------------------------------------" skip(1)
   "Customer PO#" "Item" AT 24 "Qty Invoiced" TO 53 skip

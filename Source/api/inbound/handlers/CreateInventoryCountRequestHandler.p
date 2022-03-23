@@ -41,9 +41,10 @@
         FIELD locationID         AS CHARACTER
         FIELD jobID              AS CHARACTER
         FIELD jobID2             AS INTEGER
-        FIELD quantity           AS INTEGER
+        FIELD quantity           AS DECIMAL
         FIELD quantityPerSubUnit AS INTEGER
         FIELD quantityPartial    AS INTEGER
+        FIELD quantityUOM        AS CHARACTER
         FIELD poID               AS INTEGER
         FIELD poLine             AS INTEGER
         FIELD post               AS LOGICAL
@@ -133,6 +134,7 @@
         DEFINE VARIABLE cQuantity           AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cQuantityPerSubUnit AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cQuantityPartial    AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cQuantityUOM        AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cPOID               AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cPOLine             AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cPost               AS CHARACTER NO-UNDO.
@@ -197,6 +199,7 @@
                 cQuantity           = ""
                 cQuantityPerSubUnit = ""
                 cQuantityPartial    = ""
+                cQuantityUOM        = ""
                 cPOID               = ""
                 cPost               = ""
                 .
@@ -312,7 +315,7 @@
             IF lRecFound THEN DO:
                 RUN spCommon_ValidateValueByDataType (
                     INPUT  cQuantity,
-                    INPUT  "INTEGER",
+                    INPUT  "DECIMAL",
                     OUTPUT lValidValue
                     ) NO-ERROR.
 
@@ -375,6 +378,14 @@
                 END.
             END.
 
+            /* Fetch inventory Quantity UOM */
+            RUN JSON_GetFieldValueByNameAndParent (
+                INPUT  "QuantityUOM",
+                INPUT  iCountsFieldOrder,
+                OUTPUT lRecFound,
+                OUTPUT cQuantityUOM
+                ) NO-ERROR.
+                
             /* Fetch inventory PO number */
             RUN JSON_GetFieldValueByNameAndParent (
                 INPUT  "POID",
@@ -486,9 +497,10 @@
                 ttCounts.locationID         = cLocationID
                 ttCounts.jobID              = cJobID
                 ttCounts.jobID2             = INTEGER(cJobID2)
-                ttCounts.quantity           = INTEGER(cQuantity)
+                ttCounts.quantity           = DECIMAL(cQuantity)
                 ttCounts.quantityPerSubUnit = INTEGER(cQuantityPerSubUnit)
                 ttCounts.quantityPartial    = INTEGER(cQuantityPartial)
+                ttCounts.quantityUOM        = cQuantityUOM
                 ttCounts.poID               = INTEGER(cPOID)
                 ttCounts.poLine             = INTEGER(cPOLine)
                 ttCounts.post               = LOGICAL(cPost)
@@ -532,6 +544,7 @@
                     INPUT        ttCounts.quantity,
                     INPUT        ttCounts.quantityPerSubUnit,
                     INPUT        ttCounts.quantityPartial,
+                    INPUT        ttCounts.quantityUOM,
                     INPUT        ttCounts.post,
                     INPUT        ttCounts.ZeroOutCount,
                     OUTPUT       ttCounts.sequenceID,

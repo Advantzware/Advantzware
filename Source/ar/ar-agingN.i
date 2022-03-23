@@ -1,5 +1,6 @@
 /* -------------------------------------------------- ar/ar-aging.i 01/97 JLF */
 /* A/R Aged Receivables Report Program - A/R Module                           */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /* -------------------------------------------------------------------------- */
 
 
@@ -95,6 +96,7 @@ DEFINE VARIABLE cTermsCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dOpeningBalance AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dArClassAmount AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iARClassForReceivablesAccount AS INTEGER NO-UNDO.
+DEFINE VARIABLE cSalesPerson AS CHARACTER NO-UNDO.
 
 DEF TEMP-TABLE tt-cust NO-UNDO FIELD curr-code LIKE cust.curr-code
                                FIELD sorter    LIKE cust.cust-no
@@ -187,6 +189,10 @@ DEFINE TEMP-TABLE ttArClass NO-UNDO
 FORM HEADER /*SKIP(1)*/
      lv-page-break FORMAT "x(200)"
 WITH PAGE-TOP FRAME r-top-1 STREAM-IO WIDTH 200 NO-BOX.
+
+FORM HEADER /*SKIP(1)*/
+     cSalesPerson FORMAT "x(200)"
+WITH PAGE-TOP FRAME r-top-sales STREAM-IO WIDTH 200 NO-BOX.
 
 ASSIGN
  str-tit2 = cstrtit
@@ -311,47 +317,51 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                    TRIM(tt-cust.curr-code) + "/" + TRIM(tt-cust.sorter).
     PROCESS EVENTS.
     
-   IF FIRST(tt-cust.curr-code) THEN DO:
-        VIEW FRAME r-top.
-        iLinePerPage = 9 .
-       /* PUT str-tit6 FORMAT "x(400)" SKIP 
-            str-tit7 FORMAT "x(400)" SKIP .*/
-    END.
-    
-    IF FIRST-OF(tt-cust.curr-code) THEN DO:
-      lv-page-break = "Currency: " + TRIM(tt-cust.curr-code).
-
-      IF FIRST(tt-cust.curr-code) THEN DO:
-        IF ll-mult-curr THEN VIEW FRAME r-top-1.
-        /*VIEW FRAME r-top-2.*/
-      END.
-
-      IF ll-mult-curr OR FIRST(tt-cust.curr-code) THEN do:
-           PAGE.
-           PUT str-tit6 FORMAT "x(400)" SKIP 
-            str-tit7 FORMAT "x(400)" SKIP .
-           iLinePerPage = 9 .
-      END.
-    END.
-    
-    
-
-    IF FIRST-OF(tt-cust.sorter)     AND
-       NOT FIRST(tt-cust.curr-code) AND
-       "{&sort-by}" EQ "cust.sman"  THEN do:
-       PAGE.
-        PUT str-tit6 FORMAT "x(400)" SKIP 
-            str-tit7 FORMAT "x(400)" SKIP .
-        iLinePerPage = 9 .
-    END.
-
     FIND FIRST sman NO-LOCK
         WHERE sman.company eq cust.company
           AND sman.sman    eq cust.sman
         NO-ERROR.
     v-sman = cust.sman + "-" + (IF AVAIL sman THEN sman.sname
                                 ELSE "Slsmn not on file").
+    cSalesPerson = "SALESPERSON : " + v-sman + " "  .                             
+    
+    
+   IF FIRST(tt-cust.curr-code) THEN DO:
+        VIEW FRAME r-top.
+        iLinePerPage = 9 .        
+        IF "{&sort-by}" EQ "cust.sman" THEN 
+        DO:              
+            VIEW FRAME r-top-sales.
+        END.      
+    END.
+    
+    IF FIRST-OF(tt-cust.curr-code) THEN DO:
+      lv-page-break = "Currency: " + TRIM(tt-cust.curr-code).
+                 
+      IF FIRST(tt-cust.curr-code) THEN DO:
+        
+        IF ll-mult-curr THEN VIEW FRAME r-top-1.                        
+      END.
 
+      IF ll-mult-curr OR FIRST(tt-cust.curr-code) THEN do:           
+           PAGE.
+           PUT str-tit6 FORMAT "x(400)" SKIP 
+            str-tit7 FORMAT "x(400)" SKIP .
+            iLinePerPage = 9 .              
+      END.
+    END.
+    
+    
+    IF FIRST-OF(tt-cust.sorter)     AND
+       NOT FIRST(tt-cust.curr-code) AND
+       "{&sort-by}" EQ "cust.sman"  THEN do:
+        PAGE.          
+        PUT str-tit6 FORMAT "x(400)" SKIP 
+            str-tit7 FORMAT "x(400)" SKIP .
+        iLinePerPage = 10 .
+    END.
+
+    
     v-first-cust = yes.
 
     EMPTY TEMP-TABLE tt-inv.
@@ -427,7 +437,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
           IF ar-invl.po-no GT "" THEN
              ASSIGN cPoNo   = ar-invl.po-no.
           IF ar-invl.job-no GT "" THEN
-              cJobStr = ar-invl.job-no + "-" + STRING(ar-invl.job-no2, "99").
+              cJobStr = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ar-invl.job-no, ar-invl.job-no2)) .
           IF ar-invl.bol-no NE 0 THEN
               cBolNo = string(ar-invl.bol-no,">>>>>>>>").
 
@@ -1398,8 +1408,8 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
           c1 = sman-t[1] + sman-t[2] + sman-t[3] + sman-t[4].
               
           if "{&sort-by}" eq "cust.sman" THEN DO:
-            IF det-rpt <> 3 THEN
-                RUN total-head("****** SALESREP TOTALS","",c1,sman-t[1],sman-t[2],
+            IF det-rpt <> 3 AND c1 NE 0 THEN
+                RUN total-head("****** SALESREP TOTALS" + " SalesPerson - " + string(v-sman,"x(25)"),"",c1,sman-t[1],sman-t[2],
                                sman-t[3],sman-t[4],0,sman-t[6]).         
           END.
 
@@ -2034,6 +2044,16 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
             IF v-export THEN DO: 
                 PUT STREAM s-temp UNFORMATTED   
                    cust.cust-no FORMAT "x(8)" ','  REPLACE(cust.NAME, ',', ' ')  FORMAT "x(25)" ','  substring(cExcelDisplay,7,400) SKIP(1).
+            END.
+        END.
+        ELSE IF vname BEGINS "****** SALESREP TOTALS" THEN
+        DO:
+            PUT SKIP(1) str-line SKIP . 
+            PUT UNFORMATTED  "          " vname  substring(cDisplay,73,400) SKIP.
+            iLinePerPage = iLinePerPage + 4 .
+            IF v-export THEN DO:
+                PUT STREAM s-temp UNFORMATTED  
+                 '                       ' vname  ','  substring(cExcelDisplay,4,400) SKIP(1).
             END.
         END.
         ELSE DO: 

@@ -145,8 +145,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     
     find first job
         where job.company eq cocode
-          and job.job-no  eq fill(" ",6 - length(trim(po-ordl.job-no))) +
-                                  trim(po-ordl.job-no)
+          and trim(job.job-no)  eq trim(po-ordl.job-no)
           and job.job-no2 eq po-ordl.job-no2
         no-lock no-error.
         
@@ -310,8 +309,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
     find first job
         where job.company eq cocode 
-          and job.job-no eq string(fill(" ",6 - length(trim(po-ordl.job-no)))) +
-                            trim(po-ordl.job-no) 
+          and trim(job.job-no) eq trim(po-ordl.job-no) 
           and job.job-no2 eq po-ordl.job-no2
         no-lock no-error.
 
@@ -339,17 +337,17 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       END.
 
       v-job-no = (IF v-job-no <> "" THEN v-job-no + "-" ELSE "") +
-                 trim(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2,"99").
+                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))).
 
       IF po-ordl.job-no = "" THEN v-job-no = "".
 
       IF v-job-no = "-" THEN v-job-no = "".
     END.
     
-    put v-job-no                                    format "x(13)".
+    put v-job-no                                    format "x(14)".
     
     /* BY */
-    put "BY"                                        format "x(5)".
+    put "BY"                                        format "x(4)".
     
     /* DUE DATE */
     put substr(string(year(po-ordl.due-date),"9999"),3,2)  +

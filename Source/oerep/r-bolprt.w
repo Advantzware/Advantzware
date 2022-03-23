@@ -12,6 +12,7 @@
 
   Created           : 04/23/02
 
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No). 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -190,7 +191,7 @@ DEFINE NEW SHARED TEMP-TABLE w-comm-bol NO-UNDO
     
 /*** Temp Table to store Bols which will not post ***/   
 DEFINE TEMP-TABLE ttExceptionBOL NO-UNDO
-    FIELD ordNo   AS INTEGER   FORMAT ">>>>>9"
+    FIELD ordNo   AS INTEGER   FORMAT ">>>>>>>9"
     FIELD bolDate AS DATE      FORMAT "99/99/9999"
     FIELD bolNo   AS INTEGER   FORMAT ">>>>>>9"
     FIELD relNo   AS INTEGER   FORMAT ">>>>>9"
@@ -984,6 +985,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         DEFINE VARIABLE cFGTagValidation   AS CHARACTER NO-UNDO.
         DEFINE VARIABLE lFGTagValidation   AS LOGICAL   NO-UNDO.
         DEFINE VARIABLE lPrintExceptionBol AS LOGICAL   NO-UNDO.
+        DEFINE VARIABLE lAvailOnHandQty    AS LOGICAL   NO-UNDO.
         /* Initilize temp-table */
         EMPTY TEMP-TABLE tt-filelist.
         EMPTY TEMP-TABLE tt-post.
@@ -1421,24 +1423,40 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DELETE tt-post.
                         NEXT mainblock.           
                     END.  
-           
+                    
+                    FIND FIRST w-except NO-LOCK 
+                        WHERE w-except.bol-no EQ oe-bolh.bol-no
+                          AND w-except.lAvailOnhQty
+                        NO-ERROR. 
+                    IF NOT AVAILABLE w-except THEN    
                     FIND FIRST w-except NO-LOCK 
                         WHERE w-except.bol-no EQ oe-bolh.bol-no 
-                        NO-ERROR. 
+                        NO-ERROR.                         
                     IF AVAILABLE w-except THEN 
                     DO:
-                        IF lSingleBOL THEN
+                        IF lSingleBOL THEN DO:
+                                
+                            IF w-except.lAvailOnhQty THEN
+                            DO:
+                                 lAvailOnHandQty = YES.
+                                 RUN Inventory_UpdateBolBinWithMatchInventory IN hdInventoryProcs (oe-boll.company, oe-boll.b-no, w-except.cLocBin).
+                            END.
+                            ELSE
                             MESSAGE "BOL # " STRING(oe-bolh.bol-no) "cannot be processed because there is not enough inventory to be shipped." SKIP
                                 "Correct actual inventory available, select different tags or reduce the shipped quantity as your settings" SKIP
                                 "Do not allow this condition to be processed."
                                 VIEW-AS ALERT-BOX ERROR.
+                        END.        
                         ELSE 
                             RUN pCreatettExceptionBOL(
                                 INPUT "Not Enough Quantity to be Shipped",
                                 INPUT ROWID(oe-boll)
                                 ). 
-                        DELETE tt-post.
-                        NEXT mainblock.       
+                        IF NOT lAvailOnHandQty THEN 
+                        DO: 
+                            DELETE tt-post.
+                            NEXT mainblock.       
+                        END.
                     END. 
                     IF NOT oe-bolh.deleted THEN 
                     DO:
@@ -1646,10 +1664,11 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         IF ll AND oe-ctrl.u-inv AND v-check-qty THEN 
         DO: 
             FIND FIRST w-except NO-LOCK
-                NO-ERROR.
-            IF AVAILABLE w-except THEN 
+                NO-ERROR.    
+            IF AVAILABLE w-except AND NOT lAvailOnHandQty THEN 
             DO:
                 lv-exception = YES.
+                                                
                 MESSAGE "  Bill(s) of Lading have been found that do not have  " SKIP
                     "  sufficient inventory for posting to be completed.   " SKIP 
                     "  Do you wish to print the exception report?          "
@@ -2376,7 +2395,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     
         ASSIGN 
             begin_ord#:SCREEN-VALUE = "0"
-            end_ord#:SCREEN-VALUE   = "999999"
+            end_ord#:SCREEN-VALUE   = "99999999"
             .
 
         APPLY "entry" TO begin_cust.

@@ -1,4 +1,5 @@
 /* oe/rep/bollanyork23.i*/
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 DEFINE VARIABLE cBolFormat AS CHARACTER NO-UNDO .
 
 IF FIRST-OF(tt-boll.LINE) THEN 
@@ -51,8 +52,8 @@ DO:
                 w2.dscr   = oe-ordl.i-no
                 w2.qty    = oe-ordl.qty.
         ELSE IF i = 2 THEN 
-                ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE
-                             (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
+                ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" 
+                                   ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
                     w2.dscr   = oe-ordl.part-no
                     w2.i-no   = oe-ordl.i-no.
             ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.i-name.
@@ -75,8 +76,8 @@ DO:
                 AND oe-ordl.line    EQ tt-boll.LINE NO-LOCK NO-ERROR.
             w2.i-no = "".
             IF i = 2 THEN 
-                ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE
-                             (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
+                ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" 
+                                   ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
                     w2.dscr   = oe-ordl.part-no
                     w2.i-no   = oe-ordl.i-no.
             ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.i-name.
@@ -117,8 +118,8 @@ DO:
                 AND oe-ordl.line    EQ tt-boll.LINE NO-LOCK NO-ERROR.
             w2.i-no = "".
             IF i = 2 THEN 
-                ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE
-                             (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
+                ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" 
+                                   ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
                     w2.dscr   = oe-ordl.part-no
                     w2.i-no   = oe-ordl.i-no.
             ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.i-name.
@@ -143,7 +144,7 @@ DO:
             PUT "<C35>" w2.job-po FORMAT "x(15)" .
             .
             IF i EQ 1 THEN
-                PUT "<C48>"  oe-ordl.ord-no .
+                PUT "<C48>"  STRING(oe-ordl.ord-no) .
             IF i EQ 2 THEN
             PUT "<C48>" v-lot# FORMAT "x(20)".
             PUT "<C61>" w2.dscr FORMAT "x(23)" SKIP.

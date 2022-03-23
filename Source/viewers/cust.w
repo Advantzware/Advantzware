@@ -560,7 +560,7 @@ DEFINE FRAME F-Main
 "No", "N":U
           SIZE 20 BY .62
      cust.tax-gr AT ROW 17.86 COL 16 COLON-ALIGNED
-          LABEL "Tax Code"
+          LABEL "Tax Group"
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
@@ -1648,7 +1648,7 @@ END.
 
 &Scoped-define SELF-NAME cust.tax-gr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.tax-gr V-table-Win
-ON LEAVE OF cust.tax-gr IN FRAME F-Main /* Tax Code */
+ON LEAVE OF cust.tax-gr IN FRAME F-Main /* Tax Group */
 DO:
   {&methods/lValidateError.i YES}
   if lastkey <> -1 and cust.sort:screen-value = "Y" and 
@@ -1663,7 +1663,7 @@ DO:
      cust.tax-gr:screen-value = ""                    
      )    
   then do:
-     message "Invalid Tax Code. Try Help." self:screen-value view-as alert-box error.
+     message "Invalid Tax Group. Try Help." self:screen-value view-as alert-box error.
      return no-apply.
   end.                                     
 
@@ -2679,7 +2679,7 @@ PROCEDURE local-update-record :
          cust.tax-gr:screen-value = ""                    
         )    
      then do:
-        message "Invalid Tax Code. Try Help." view-as alert-box error.
+        message "Invalid Tax Group. Try Help." view-as alert-box error.
         apply "entry" to cust.tax-gr.
         return no-apply.
      end.                                     

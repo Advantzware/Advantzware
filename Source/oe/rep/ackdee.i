@@ -47,7 +47,7 @@ PUT
    "<=4><R+3> " oe-ord.due-date FORM "99/99/9999" space(4)
    cust.fob-code FORM "x(14)" SPACE(2)
    oe-ord.over-pct "  / " oe-ord.under-pct SPACE(5) 
-   oe-ord.terms-d FORM "x(15)" space(6) v-salesman FORM "x(20)" space(8) oe-ord.ord-no SKIP
+   oe-ord.terms-d FORM "x(15)" space(6) v-salesman FORM "x(20)" "<C72>" oe-ord.ord-no SKIP
    "<|10><R25><C1><#5><FROM><R27><C80><RECT>" SKIP
    "<=5><R+1><C1>  Line     Customer Part#                 Item Name                    Quantity                Price        UOM" SKIP(1).
 

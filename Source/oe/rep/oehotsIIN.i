@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */
    /* oe/rep/oehotsII.i  12/15 GDm*/
    DEF BUFFER b-oe-ordl FOR oe-ordl.
    DEF BUFFER b-itemfg FOR itemfg.
@@ -17,7 +18,7 @@
    DEF VAR v-comp-qty         AS INT                  NO-UNDO.
    DEF VAR v-line             AS CHAR FORM "x(50)"    NO-UNDO.
    DEF VAR v-line2            AS CHAR FORMAT "x(13)"  NO-UNDO INITIAL "Comments</B>". 
-   DEF VAR cFullJobNo         AS CHAR FORM "x(15)"    NO-UNDO.
+   DEF VAR cFullJobNo         AS CHAR FORM "x(19)"    NO-UNDO.
    DEF VAR cLastAction        AS CHAR FORM "x(15)"    NO-UNDO.
    
    ASSIGN 
@@ -375,7 +376,8 @@
             w-ord.ship-id   = v-ship-id
             w-ord.job-no    = oe-ordl.job-no
             w-ord.job-no2   = oe-ordl.job-no2
-            w-ord.job       = IF w-ord.job-no EQ "" THEN "" ELSE (TRIM(w-ord.job-no) + "-" + STRING(w-ord.job-no2,"99"))
+            w-ord.job       = IF w-ord.job-no EQ "" THEN "" ELSE 
+                              TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)))
             w-ord.po-num    = v-po-no
             w-ord.ord-qty   = v-qty
             w-ord.shp-qty   = oe-ordl.ship-qty

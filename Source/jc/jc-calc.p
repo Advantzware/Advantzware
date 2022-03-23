@@ -433,7 +433,8 @@ DO:
 
     RUN pGetJobBuildVersionSettings (BUFFER job, OUTPUT lUseNewCalc, OUTPUT lPromptForNewCalc).
     IF lUseNewCalc AND lPromptForNewCalc THEN 
-        MESSAGE "Build Job With New Calculation?.  Job:" + STRING(job.job-no) + "-" + STRING(job.job-no2,"99") VIEW-AS ALERT-BOX BUTTONS YES-NO UPDATE lUseNewCalc.
+        MESSAGE "Build Job With New Calculation?.  Job: " + 
+        TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) VIEW-AS ALERT-BOX BUTTONS YES-NO UPDATE lUseNewCalc.
 
     IF lUseNewCalc THEN 
         RUN jc\BuildJob.p(ROWID(job), IF AVAILABLE oe-ordl THEN oe-ordl.ord-no ELSE 0, OUTPUT lBuildError, OUTPUT cBuildErrorMessage).
@@ -1231,37 +1232,37 @@ DO:
                 ASSIGN
                     job-mch.company  = cocode
                     job-mch.blank-no = IF (mach.p-type EQ "B" OR
-                                      (xest.est-type EQ 3 AND op.dept EQ "PR"))
-                                   THEN op.blank-no ELSE 0
-                job-mch.job      = job.job
-                job-mch.job-no   = job.job-no
-                job-mch.job-no2  = job.job-no2
-                job-mch.dept     = op.dept
-                job-mch.frm      = op.form-no
-                job-mch.i-no     = /*IF AVAIL itemfg THEN itemfg.i-no ELSE - bpv TASK 12181205*/ op.i-no
-                job-mch.i-name   = /*IF AVAIL itemfg THEN itemfg.i-name ELSE */ op.i-name
-                job-mch.line     = op.line
-                job-mch.m-code   = op.m-code
-                job-mch.mr-fixoh = op.mr-fixoh
-                job-mch.mr-hr    = op.mr-hr
-                job-mch.mr-rate  = op.mr-rate
-                job-mch.mr-varoh = op.mr-varoh
-                job-mch.mr-waste = op.mr-waste
-                job-mch.pass     = op.pass
-                job-mch.run-hr   = op.run-hr
-                job-mch.run-fixoh = op.run-fixoh
-                job-mch.run-rate  = op.run-rate
-                job-mch.run-varoh = op.run-varoh
-                job-mch.speed    = op.speed
-                job-mch.wst-prct = op.wst-prct
-                job-mch.lag-time = mach.daily-prod-hours
-             /* job-mch.start-date = job.start-date */
-                job-mch.run-qty  = op.run-qty
-                job-mch.n-out    = IF AVAIL est-op AND est-op.n-out NE 0 THEN est-op.n-out ELSE 1
-                job-mch.n-on     = IF mach.p-type EQ "B" THEN 1 ELSE
-                                     (v-up * v-out / v-on-f)
-                job-mch.est-op_rec_key = op.rec_key
-                lOverwriteJobPlan-Log  = cOverwriteJobPlan-Char NE "Yes"
+                                          (xest.est-type EQ 3 AND op.dept EQ "PR"))
+                                       THEN op.blank-no ELSE 0
+                    job-mch.job      = job.job
+                    job-mch.job-no   = job.job-no
+                    job-mch.job-no2  = job.job-no2
+                    job-mch.dept     = op.dept
+                    job-mch.frm      = op.form-no
+                    job-mch.i-no     = /*IF AVAIL itemfg THEN itemfg.i-no ELSE - bpv TASK 12181205*/ op.i-no
+                    job-mch.i-name   = /*IF AVAIL itemfg THEN itemfg.i-name ELSE */ op.i-name
+                    job-mch.line     = op.line
+                    job-mch.m-code   = op.m-code
+                    job-mch.mr-fixoh = op.mr-fixoh
+                    job-mch.mr-hr    = op.mr-hr
+                    job-mch.mr-rate  = op.mr-rate
+                    job-mch.mr-varoh = op.mr-varoh
+                    job-mch.mr-waste = op.mr-waste
+                    job-mch.pass     = op.pass
+                    job-mch.run-hr   = op.run-hr
+                    job-mch.run-fixoh = op.run-fixoh
+                    job-mch.run-rate  = op.run-rate
+                    job-mch.run-varoh = op.run-varoh
+                    job-mch.speed    = op.speed
+                    job-mch.wst-prct = op.wst-prct
+                    job-mch.lag-time = mach.daily-prod-hours
+                 /* job-mch.start-date = job.start-date */
+                    job-mch.run-qty  = op.run-qty
+                    job-mch.n-out    = IF AVAIL est-op AND est-op.n-out NE 0 THEN est-op.n-out ELSE 1
+                    job-mch.n-on     = IF mach.p-type EQ "B" THEN 1 ELSE
+                                         (v-up * v-out / v-on-f)
+                    job-mch.est-op_rec_key = op.rec_key
+                    lOverwriteJobPlan-Log  = cOverwriteJobPlan-Char NE "Yes"
                     .
       
                 FIND FIRST tt-job-mch
@@ -1310,6 +1311,7 @@ DO:
                             job-mch.run-complete  = tt-job-mch.run-complete
                             job-mch.sbLiveUpdate  = tt-job-mch.sbLiveUpdate
                             job-mch.anchored      = tt-job-mch.anchored
+                            job-mch.job-mchID     = tt-job-mch.job-mchID
                             .
                     DELETE tt-job-mch.
                 END. /* avail tt-job-mch */
@@ -1807,7 +1809,7 @@ PROCEDURE pUpdateJobQty PRIVATE:
         ASSIGN
             li         = li + 1
             xeb.spc-no = TRIM(job.job-no) + "-" 
-                       + STRING(job.job-no2,"99") + "-"
+                       + STRING(job.job-no2,"999") + "-"
                        + STRING(xeb.form-no,"99") + "-" 
                        + STRING(li,"99").
   

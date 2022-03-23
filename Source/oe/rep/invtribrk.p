@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invtribrk.p  */
 /* PRINT INVOICE   Xprint Standard Form for TriLakes               */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -467,9 +467,9 @@ ELSE lv-comp-color = "BLACK".
 
            PUT v-po-no
                v-ship-qty  format ">>>>>9" SPACE
-               inv-line.ord-no FORMAT ">>>>>9" SPACE(1)
+               inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                v-i-no  format "x(15)" SPACE(1)
-               v-i-dscr  format "x(24)".
+               v-i-dscr  format "x(22)".
 
            IF v-price GE 0 THEN
               PUT v-price format "$>>,>>9.99" SPACE(1).
@@ -493,12 +493,12 @@ ELSE lv-comp-color = "BLACK".
 
                 IF v = 1 THEN
                 DO:
-                   PUT SPACE(29) inv-line.part-no SPACE(1) v-part-info SKIP.
+                   PUT SPACE(31) inv-line.part-no SPACE(1) v-part-info SKIP.
                    v-printline = v-printline + 1.
                 END.
                 ELSE
                 DO:
-                   PUT SPACE(45) v-part-info SKIP.
+                   PUT SPACE(47) v-part-info SKIP.
                    v-printline = v-printline + 1.
                 END.
              end.

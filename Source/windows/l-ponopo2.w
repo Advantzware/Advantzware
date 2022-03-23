@@ -10,6 +10,7 @@
 
   File: windows\l-ponopo2.w
  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -140,8 +141,8 @@ DEFINE BROWSE BROWSE-1
       po-ord.vend-no FORMAT "x(8)":U
       po-ordl.i-no FORMAT "x(15)":U
       po-ordl.i-name FORMAT "x(30)":U
-      po-ordl.job-no FORMAT "x(6)":U
-      po-ordl.job-no2 FORMAT ">9":U
+      po-ordl.job-no FORMAT "x(9)":U
+      po-ordl.job-no2 FORMAT ">>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 145 BY 11.19

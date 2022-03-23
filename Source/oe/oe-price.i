@@ -13,6 +13,7 @@ DEFINE SHARED VARIABLE v-i-item     LIKE itemfg.i-no NO-UNDO. /* INPUT ITEM */
 DEFINE SHARED VARIABLE v-i-qty      LIKE {1}.qty NO-UNDO. /* INPUT QUANTITY */
 DEFINE SHARED VARIABLE price-ent    AS LOG    NO-UNDO.
 DEFINE SHARED VARIABLE matrixExists AS LOG    NO-UNDO.
+
 DEFINE VARIABLE cShipID   AS CHARACTER NO-UNDO.
 DEFINE BUFFER bf-inv-line FOR inv-line . 
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
@@ -49,5 +50,5 @@ ELSE DO:
 END.   
 RUN Price_CalculateLinePrice (ROWID({1}), v-i-item, cust.cust-no, cShipID, v-i-qty, YES,
     OUTPUT matrixExists, INPUT-OUTPUT {1}.price, INPUT-OUTPUT {1}.pr-uom).
-    
+   
  

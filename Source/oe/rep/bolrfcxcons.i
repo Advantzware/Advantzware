@@ -1,5 +1,5 @@
 /* bolrfcxcons.i*/
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 IF FIRST-OF(tt-boll.LINE) THEN DO:
   FOR EACH w2.
       DELETE w2.
@@ -67,8 +67,8 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
       ELSE IF i = 2 THEN 
          ASSIGN
             w2.i-no = string(oe-ordl.ord-no)
-            w2.ord-po-no = if oe-ordl.job-no eq "" then "" else
-                           (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
+            w2.ord-po-no = IF oe-ordl.job-no EQ "" THEN "" ELSE
+                           TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
             w2.dscr = oe-ordl.part-no.                          
             
       else if i eq 3 then
@@ -98,7 +98,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
              w2.i-no = string(oe-ordl.ord-no)
              w2.dscr = oe-ordl.part-no
              w2.ord-po-no = IF oe-ordl.job-no EQ "" THEN "" 
-                            ELSE (TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")).
+                            ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
        ELSE if i eq 3 then ASSIGN w2.dscr = oe-ordl.part-dscr1.
        ELSE if i eq 4 then ASSIGN w2.dscr = oe-ordl.part-dscr2.
     END.
@@ -141,7 +141,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
             w2.i-no = string(oe-ordl.ord-no)
             w2.dscr = oe-ordl.part-no
             w2.ord-po-no = IF oe-ordl.job-no EQ "" THEN "" 
-                           ELSE (TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")).
+                           ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
        ELSE if i eq 3 then ASSIGN w2.dscr = oe-ordl.part-dscr1.
        ELSE if i eq 4 then ASSIGN w2.dscr = oe-ordl.part-dscr2.
     END.

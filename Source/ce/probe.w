@@ -159,6 +159,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 DEFINE VARIABLE glEstimateCalcNew AS LOGICAL NO-UNDO.
 DEFINE VARIABLE glEstimateCalcNewPrompt AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAutoUpdate AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
 DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
 
@@ -656,10 +657,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-LEAVE OF br_table IN FRAME F-Main /* Estimate  Analysis Per Thousand */
 DO:
-
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
-    {est/brsleave.i}   /* same but update will be like add */
+   /*{src/adm/template/brsleave.i} */
+     {est/brsleave.i}   /* same but update will be like add */
      
 END.
 
@@ -853,6 +854,25 @@ END.
 ON VALUE-CHANGED OF probe.sell-price IN BROWSE br_table /* Selling!Price */
 DO:
   RUN new-sell-price.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL probe.do-quote br_table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF probe.do-quote IN BROWSE br_table /*  */
+DO:
+  DEFINE BUFFER bf-probe FOR probe.
+  lAutoUpdate = NO. 
+  FIND LAST bf-probe NO-LOCK
+       WHERE bf-probe.company EQ eb.company 
+         AND bf-probe.est-no EQ eb.est-no 
+         AND bf-probe.probe-date ne ? NO-ERROR.
+  IF AVAIL bf-probe AND ROWID(bf-probe) NE ROWID(probe) THEN 
+  do:        
+      IF KEYFUNCTION(LASTKEY) EQ "TAB" THEN
+      lAutoUpdate = YES.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */

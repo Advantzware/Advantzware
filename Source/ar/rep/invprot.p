@@ -612,7 +612,7 @@ FOR each report
             "<C67>" tt-inv-line.total-price  FORMAT "->,>>>,>>9.99"
             "<C79>" tt-inv-line.taxable        FORMAT "X"
             SKIP
-            "<C2>"  trim(string(tt-inv-line.ord-no), ">>>>>>>")
+            "<C2>"  trim(string(tt-inv-line.ord-no), ">>>>>>>>")
             "<C18>" tt-inv-line.dscr1 FORMAT "x(30)"
             "<C51>" tt-inv-line.ship-qty        FORMAT "->>>>>9"              
             "<C63>" tt-inv-line.price-head 
@@ -648,7 +648,7 @@ FOR each report
            "<C67>" tt-inv-line.total-price       FORMAT "->,>>>,>>9.99"
            "<C79>" tt-inv-line.taxable        FORMAT "X"
            SKIP
-           "<C2>"  trim(string(tt-inv-line.ord-no), ">>>>>>>")
+           "<C2>"  trim(string(tt-inv-line.ord-no), ">>>>>>>>")
 /*                "<C17>" v-i-dscr FORMAT "x(30)"            */
 /*                "<C51>" v-ship-qty        FORMAT "->>>>>9" */
 /*                "<C63>" v-price-head                       */

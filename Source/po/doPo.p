@@ -16,6 +16,7 @@
                   Uncomment update oe-ordl in setPoValues!!!
   ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /*----------------------------------------------------------------------*/
 USING system.SharedConfig.
 
@@ -2769,8 +2770,7 @@ PROCEDURE initJobVals :
     IF AVAILABLE job THEN 
         ASSIGN
             v-job = job.job-no
-            v-job = FILL(" ",6 - length(TRIM(v-job))) + trim(v-job) +
-              "-" + string(job.job-no2,"99").
+            v-job = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job, job.job-no2)) .
 
     opcJob    = v-job.
     opcVendNo = gvcVendNo.

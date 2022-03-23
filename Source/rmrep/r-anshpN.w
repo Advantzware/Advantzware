@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -63,7 +64,7 @@ ASSIGN
                            "QUANTITY,MSF,TONS,COST,VALUE,CATEGORY,CAT DESCRIPTION,CUST #,CUST NAME" 
     cFieldListToSelect = "trn-typ,i-no,dscr,dat,po,vend,job," +
                             "qty,msf,ton,cst,val,cat,cat-desc-val,cust-no,cust-name"
-    cFieldLength       = "10,10,15,10,9,8,10," + "12,13,13,10,17,8,30,8,30" 
+    cFieldLength       = "10,10,15,10,9,8,13," + "12,13,13,10,17,8,30,8,30" 
     cFieldType         = "c,c,c,c,c,c,c," + "i,i,i,i,i,c,c,c,c"  
     .
 
@@ -1603,8 +1604,7 @@ PROCEDURE run-report :
             IF FIRST-OF(rm-rcpth.i-no)       THEN v-first[2] = YES.
     
             ASSIGN
-                v-job-no = FILL(" ",6 - length(TRIM(rm-rdtlh.job-no))) +
-                         trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99")
+                v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', rm-rdtlh.job-no, rm-rdtlh.job-no2))  
                 v-value  = rm-rdtlh.cost * rm-rdtlh.qty
                 v-bwt    = item.basis-w
                 v-wid    = IF item.r-wid EQ 0 THEN item.s-wid ELSE item.r-wid
@@ -1672,7 +1672,7 @@ PROCEDURE run-report :
                     v-bwt, v-len, v-wid, v-dep,
                     rm-rdtlh.qty, OUTPUT v-ton[4]).
     
-            IF v-job-no BEGINS "-" THEN v-job-no = "".
+            IF trim(v-job-no) BEGINS "-" THEN v-job-no = "".
     
     
             /* IF rd-dest EQ 3 THEN DO: */
@@ -2110,8 +2110,7 @@ PROCEDURE run-report :
             END.
     
             ASSIGN
-                v-job-no = FILL(" ",6 - length(TRIM(rm-rdtlh.job-no))) +
-                         trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99")
+                v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', rm-rdtlh.job-no, rm-rdtlh.job-no2)) 
                 v-value  = rm-rdtlh.cost * rm-rdtlh.qty
                 v-bwt    = item.basis-w
                 v-wid    = IF item.r-wid EQ 0 THEN item.s-wid ELSE item.r-wid
@@ -2179,7 +2178,7 @@ PROCEDURE run-report :
                     v-bwt, v-len, v-wid, v-dep,
                     rm-rdtlh.qty, OUTPUT v-ton[4]).
     
-            IF v-job-no BEGINS "-" THEN v-job-no = "".
+            IF trim(v-job-no) BEGINS "-" THEN v-job-no = "".
     
             IF AVAILABLE(po-ord) THEN
                 v-vend-no = po-ord.vend-no.

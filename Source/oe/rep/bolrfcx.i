@@ -1,5 +1,5 @@
 /* bolprem.i - used by bolpremcx.p, bolprempx.p and bolpremx.p */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
 
@@ -52,7 +52,7 @@ def var v-comp-addr3 as   char format "x(30)".
 def var v-cust-addr3 as   char format "x(30)".
 def var v-1          LIKE oe-boll.cases INIT 1 no-undo.
 DEF VAR v-i-part-no  AS CHAR NO-UNDO.
-DEF VAR v-ord-po-no  AS CHAR NO-UNDO.
+DEF VAR v-ord-po-no  AS CHAR FORMAT "x(16)" NO-UNDO.
 DEF VAR v-descr      AS CHAR NO-UNDO.
 def var v-job-po            as   CHAR NO-UNDO.
 DEF VAR v-grand-total-cases as   int format ">>>>9".
@@ -68,7 +68,7 @@ DEFINE VARIABLE iReprint AS INTEGER     NO-UNDO.
 def TEMP-TABLE w2 no-undo
     field cases            as   int format ">9"
     field cas-cnt          as   int format ">>>>9"
-    FIELD ord-po-no        AS CHAR
+    FIELD ord-po-no        AS CHAR FORMAT "x(16)"
     FIELD rec-id AS RECID
     FIELD i-no LIKE oe-ordl.i-no
     FIELD job-po AS cha
@@ -369,7 +369,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
       ASSIGN
          v-salesman = trim(v-salesman)
          v-po-no = oe-boll.po-no
-         v-job-po = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>")).
+         v-job-po = IF oe-boll.job-no = "" THEN "" 
+                    ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
 
       if v-salesman gt '' then
         if substr(v-salesman,length(trim(v-salesman)),1) eq "," then

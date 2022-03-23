@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invcorrc.p 08/01 JLF */
 /* PRINT INVOICE - O/E MODULE                                                 */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -214,7 +214,7 @@ form wf.po-no
      wf.pr-uom                  to 68
      wf.t-price                 to 80 format "->>>,>>9.99"
      
-     wf.job-no                  to 16 format "x(9)"
+     wf.job-no                  to 16 format "x(13)"
      wf.i-name                  at 19 format "x(23)"
      wf.ship-qty                to 52 format "->,>>>,>>9"
      
@@ -687,7 +687,7 @@ form " " to 80
                   wf.pr-uom
                   wf.t-price
                   wf.job-no
-                  wf.job-no + "-" + string(wf.job-no2,"99")
+                  TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', wf.job-no, wf.job-no2)))
                     when wf.job-no ne "" @ wf.job-no
                   wf.i-name
                   wf.ship-qty 

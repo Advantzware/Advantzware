@@ -29,7 +29,7 @@ DEFINE TEMP-TABLE ttPostBOLCreateInvoice NO-UNDO
     FIELD iNo       AS CHARACTER LABEL "Item No"   FORMAT "x(15)"                                                     
     FIELD iName     AS CHARACTER LABEL "Item Name" FORMAT "x(20)"                                   
     FIELD poNo      AS CHARACTER LABEL "PO No"     FORMAT "x(15)"                                                          
-    FIELD ordNo     AS INTEGER   LABEL "Order"     FORMAT ">>>>>>"                                                     
+    FIELD ordNo     AS INTEGER   LABEL "Order"     FORMAT ">>>>>>>>"                                                     
     FIELD relNo     AS INTEGER   LABEL "Release"   FORMAT ">>9"
     FIELD bOrdNo    AS INTEGER   LABEL "B-Ord"     FORMAT "99"                  
     FIELD loc       AS CHARACTER LABEL "Whse"      FORMAT "x(5)"                                                            

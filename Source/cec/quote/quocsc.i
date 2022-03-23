@@ -1,5 +1,6 @@
 /* --------------------------------------------- cec/quote/quocsc.i 11/97 FWK */
 /* print quote items in CSC format                                            */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
@@ -146,8 +147,8 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
         IF v-board EQ "" THEN v-board = xqitm.i-dscr.
       END.
 
-      PUT xqitm.part-dscr2                  TO 31       format "x(25)"
-          v-board                           TO 57       format "x(24)".
+      PUT xqitm.part-dscr2                  TO 34       format "x(25)"
+          v-board                           TO 60       format "x(24)".
     END.
 
     ELSE
@@ -179,9 +180,9 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                   (xqqty.qty * xqqty.price).
               
       IF i EQ 3 THEN
-        PUT xqqty.qty           to 64   format ">>>>>>9"
-            xqqty.price         to 75   format ">>,>>9.99"
-            xqqty.uom           TO 80.
+        PUT xqqty.qty           to 67   format ">>>>>>9"
+            xqqty.price         to 78   format ">>,>>9.99"
+            xqqty.uom           TO 83.
 
       ELSE DISPLAY xqqty.qty xqqty.price xqqty.uom.        
     END.

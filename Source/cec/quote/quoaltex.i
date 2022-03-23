@@ -1,5 +1,6 @@
 /* ------------------------------------------- cec/quote/quoxprnt.i 11/00 JLF */
 /* print quote items in altex format                                          */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 /* Mode : 001, Task # - 01171305 */
 
@@ -110,9 +111,9 @@ FOR EACH xqitm OF xquo NO-LOCK
                 ELSE xqitm.part-dscr1.
 
 
-            PUT TRIM(lv-est-no) FORM "x(5)" AT 2
-                xqitm.part-no AT 8 FORMAT "x(21)"          
-                TRIM(lv-part-dscr1) AT 29 FORMAT "x(28)". 
+            PUT TRIM(lv-est-no) FORM "x(8)" AT 1
+                xqitm.part-no AT 10 FORMAT "x(21)"          
+                TRIM(lv-part-dscr1) AT 31 FORMAT "x(28)". 
 
         END.
         ELSE
@@ -177,25 +178,25 @@ FOR EACH xqitm OF xquo NO-LOCK
                         ELSE trim-size = "".
                 END.
                 lv-part-dscr2 = IF ll-prt-dscr2 THEN xqitm.part-dscr2 ELSE style-dscr.
-                PUT  xquo.q-no trim-size AT 8 FORM "x(21)" lv-part-dscr2 FORM "x(30)" .
+                PUT  xquo.q-no trim-size AT 10 FORM "x(21)" lv-part-dscr2 FORM "x(30)" .
             END.
             ELSE
                 IF i EQ 3 THEN 
                 DO:
                     /* Output color and die description */
                     lv-i-coldscr = IF ll-prt-dscr2 THEN style-dscr ELSE xqitm.i-coldscr.
-                    PUT     "DIE#: " + IF AVAILABLE eb THEN eb.die-no ELSE "" AT 8 FORM "x(21)"
-                        lv-i-coldscr  AT 29 FORM "x(33)".
+                    PUT     "DIE#: " + IF AVAILABLE eb THEN eb.die-no ELSE "" AT 10 FORM "x(21)"
+                        lv-i-coldscr  AT 31 FORM "x(33)".
                 END.
                 ELSE
                     IF i EQ 4 THEN 
                     DO:
                         /* Output CAD or Board Description */
-                        PUT "CAD#: " + (IF AVAILABLE eb THEN eb.cad-no ELSE "") AT 8  FORM "x(21)". 
+                        PUT "CAD#: " + (IF AVAILABLE eb THEN eb.cad-no ELSE "") AT 10  FORM "x(21)". 
                         IF ll-prt-dscr2 THEN 
                         DO:
                             chrX = xqitm.i-coldscr.
-                            PUT xqitm.i-coldscr AT 29 FORM "x(33)".
+                            PUT xqitm.i-coldscr AT 31 FORM "x(33)".
                         END.
                         ELSE IF v-boardDescription EQ 'Est' THEN 
                             DO:
@@ -208,7 +209,7 @@ FOR EACH xqitm OF xquo NO-LOCK
                                             ELSE "" .
                                 END.
           
-                                PUT chrX AT 29 FORMAT "x(28)".
+                                PUT chrX AT 31 FORMAT "x(28)".
                             END.
                             ELSE IF v-boardDescription EQ 'Quote' THEN 
                                 DO:
@@ -216,7 +217,7 @@ FOR EACH xqitm OF xquo NO-LOCK
                                     IF NOT logSetPrinting THEN
                                         chrX = xqitm.i-dscr.
          
-                                    PUT chrX AT 29 FORMAT "x(28)".
+                                    PUT chrX AT 31 FORMAT "x(28)".
                                 END.
                     END.
                     ELSE
@@ -254,7 +255,7 @@ FOR EACH xqitm OF xquo NO-LOCK
                                 ELSE xqitm.part-no.
 
                             IF logSetPrinting THEN
-                                PUT "FG#: " + lv-fg# AT 8 FORM "x(21)" v-board FORM "x(28)".
+                                PUT "FG#: " + lv-fg# AT 10 FORM "x(21)" v-board FORM "x(28)".
                             ELSE 
                             DO:
                                 /*don't print board description twice*/
@@ -268,7 +269,7 @@ FOR EACH xqitm OF xquo NO-LOCK
                                             adder-print = YES.
                                 END.
          
-                                PUT "FG#: " + lv-fg# AT 8 FORM "x(21)" v-board FORM "x(28)".
+                                PUT "FG#: " + lv-fg# AT 10 FORM "x(21)" v-board FORM "x(28)".
                             END.
                         END.
 
@@ -285,13 +286,13 @@ FOR EACH xqitm OF xquo NO-LOCK
                                            v-board = v-over-under
                                            v-over-under = "".
      
-                                IF v-board NE "" THEN PUT  v-board AT 8 FORM "x(28)".
+                                IF v-board NE "" THEN PUT  v-board AT 10 FORM "x(28)".
                                 ELSE numfit = 5.
                             END.
                             ELSE
                             IF i EQ 7 THEN 
                             DO:       
-                                IF v-over-under NE "" AND lMultiItem THEN PUT  v-over-under AT 8 FORM "x(28)".                                
+                                IF v-over-under NE "" AND lMultiItem THEN PUT  v-over-under AT 10 FORM "x(28)".                                
                             END.                            
     
         /* wfk - don't see what the purpose of this is, was causing a problem */
@@ -381,14 +382,14 @@ FOR EACH xqitm OF xquo NO-LOCK
                 END.
                 ELSE temp-trim-size = trim-size.
     
-                PUT eb.part-no AT 8 FORM "x(21)" temp-trim-size   SKIP.
+                PUT eb.part-no AT 10 FORM "x(21)" temp-trim-size   SKIP.
     
                 FIND FIRST style
                     WHERE style.company EQ cocode
                     AND style.style   EQ eb.style
                     NO-LOCK NO-ERROR.
                 style-dscr = IF AVAILABLE style THEN style.dscr ELSE eb.style.      
-                PUT eb.part-dscr1 AT 8 FORM "x(21)"
+                PUT eb.part-dscr1 AT 10 FORM "x(21)"
                     style-dscr SKIP.
     
                 v-board =   ef.board    + " - " +
@@ -410,7 +411,7 @@ FOR EACH xqitm OF xquo NO-LOCK
                             IF item.est-dscr GT "" THEN item.est-dscr  ELSE
                             item.i-dscr.
                 END.
-                PUT eb.part-dscr2  AT 8  FORM "x(21)"
+                PUT eb.part-dscr2  AT 10  FORM "x(21)"
                     v-board  FORM "x(50)"   SKIP .
 
                 PUT "color:" AT 28 eb.i-coldscr AT 35 SKIP.   /*Mode 001*/   

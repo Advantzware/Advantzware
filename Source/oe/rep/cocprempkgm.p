@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/cocprempkg.p */
 /* Print Premiere COC (Certificate of Compliance)                     */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.      */
 /* -------------------------------------------------------------------*/
 
 DEFINE INPUT PARAMETER ip-bol-recid AS RECID NO-UNDO.
@@ -74,7 +75,7 @@ for each report where report.term-id eq v-term-id NO-LOCK,
     IF vi-jobcnt LE 10 THEN DO:
         IF oe-boll.job-no NE "" THEN
             ASSIGN 
-                v-jobs[vi-jobcnt] = trim(oe-boll.job-no + "-" + string(oe-boll.job-no2,"99")).
+                v-jobs[vi-jobcnt] = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
         FIND FIRST fg-rdtlh WHERE
                fg-rdtlh.company EQ "001" AND
                fg-rdtlh.tag EQ oe-boll.tag AND

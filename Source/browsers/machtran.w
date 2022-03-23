@@ -173,8 +173,8 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       machtran.machine FORMAT "x(6)":U LABEL-BGCOLOR 14
-      machtran.job_number FORMAT "X(6)":U LABEL-BGCOLOR 14
-      machtran.job_sub FORMAT ">9":U LABEL-BGCOLOR 14
+      machtran.job_number FORMAT "X(9)":U LABEL-BGCOLOR 14
+      machtran.job_sub FORMAT ">>9":U LABEL-BGCOLOR 14
       machtran.form_number FORMAT ">>9":U LABEL-BGCOLOR 14
       machtran.blank_number COLUMN-LABEL "Blk" FORMAT ">9":U LABEL-BGCOLOR 14
       machtran.pass_sequence FORMAT ">>9":U LABEL-BGCOLOR 14

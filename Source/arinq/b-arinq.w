@@ -23,6 +23,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -350,7 +351,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ar-invl.inv-no COLUMN-LABEL "Inv#" FORMAT ">>>>>>>>":U WIDTH 9
+      ar-invl.inv-no COLUMN-LABEL "Inv#" FORMAT ">>>>>>>>":U WIDTH 12
             LABEL-BGCOLOR 14
       ar-invl.bol-no COLUMN-LABEL "BOL#" FORMAT ">>>>>>>>":U WIDTH 9
             LABEL-BGCOLOR 14
@@ -364,7 +365,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       ar-invl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(15)":U
             WIDTH 20 LABEL-BGCOLOR 14
-      ar-invl.ord-no FORMAT ">>>>>>>>":U WIDTH 9 LABEL-BGCOLOR 14
+      ar-invl.ord-no FORMAT ">>>>>>>>":U WIDTH 11 LABEL-BGCOLOR 14
       ar-invl.po-no COLUMN-LABEL "Cust PO#" FORMAT "x(15)":U WIDTH 20
             LABEL-BGCOLOR 14
       ar-invl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U WIDTH 12
@@ -504,7 +505,7 @@ ASSIGN
      _Where[1]         = "ar-invl.x-no < 0"
      _JoinCode[2]      = "ASI.ar-inv.x-no = ASI.ar-invl.x-no"
      _FldNameList[1]   > ASI.ar-invl.inv-no
-"ar-invl.inv-no" "Inv#" ">>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-invl.inv-no" "Inv#" ">>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.ar-invl.bol-no
 "ar-invl.bol-no" "BOL#" ">>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.ar-invl.cust-no
@@ -518,7 +519,7 @@ ASSIGN
      _FldNameList[7]   > ASI.ar-invl.part-no
 "ar-invl.part-no" "Cust Part#" ? "character" ? ? ? 14 ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.ar-invl.ord-no
-"ar-invl.ord-no" ? ">>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-invl.ord-no" ? ">>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.ar-invl.po-no
 "ar-invl.po-no" "Cust PO#" ? "character" ? ? ? 14 ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.ar-invl.est-no

@@ -215,7 +215,7 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
            + (IF lValidItem   THEN " AND fg-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
            + (IF lValidLoc    THEN " AND fg-bin.loc EQ '" + ipcWarehouseID + "'" ELSE "")
            + (IF lValidBin    THEN " AND fg-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "")
-           + (IF lValidJobNo  THEN " AND fg-bin.job-no EQ '" + ipcJobNo + "'" ELSE "")
+           + (IF lValidJobNo  THEN " AND TRIM(fg-bin.job-no) EQ '" + TRIM(ipcJobNo) + "'" ELSE "")
            + (IF lValidJobNo  THEN " AND fg-bin.job-no2 EQ " + STRING(ipiJobNo2) ELSE "")
            + (IF lValidCustNo THEN " AND fg-bin.cust-no EQ '" + ipcCustNo + "'" ELSE "")
            + (IF lValidPoID   THEN " AND fg-bin.po-no EQ '" + STRING(ipiPoID) + "'" ELSE "")

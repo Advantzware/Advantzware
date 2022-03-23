@@ -17,6 +17,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -47,6 +48,9 @@ DEF TEMP-TABLE temp-rec NO-UNDO
     FIELD qty-uom AS CHARACTER
     FIELD po-price AS DECIMAL 
     FIELD po-price-uom AS CHARACTER
+    FIELD vendor AS CHARACTER
+    FIELD invoice AS CHARACTER    
+    FIELD priceDesc AS CHARACTER 
     INDEX temp-rec-idx trans-date ASC.
 
 DEF BUFFER b-po-ord FOR po-ord.
@@ -83,7 +87,7 @@ DEF VAR v-col-move AS LOG INIT YES NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-4                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-4 temp-rec.po-line temp-rec.item-no temp-rec.trans-date temp-rec.job-no temp-rec.job-no2 temp-rec.whs temp-rec.bin temp-rec.qty temp-rec.tag  temp-rec.qty-uom temp-rec.po-price temp-rec.po-price-uom
+&Scoped-define FIELDS-IN-QUERY-BROWSE-4 temp-rec.po-line temp-rec.item-no temp-rec.trans-date temp-rec.job-no temp-rec.job-no2 temp-rec.whs temp-rec.bin temp-rec.qty temp-rec.tag  temp-rec.qty-uom temp-rec.po-price temp-rec.po-price-uom temp-rec.vendor temp-rec.invoice temp-rec.priceDesc
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-4   
 &Scoped-define SELF-NAME BROWSE-4
 &Scoped-define QUERY-STRING-BROWSE-4 FOR EACH temp-rec  
@@ -124,8 +128,8 @@ DEFINE BROWSE BROWSE-4
     temp-rec.po-line COLUMN-LABEL "PO Line" LABEL-FONT 6 FORMAT ">>9" WIDTH 10
     temp-rec.item-no COLUMN-LABEL "Item No" LABEL-FONT 6 FORMAT "X(15)" WIDTH 20
     temp-rec.trans-date COLUMN-LABEL "Receipt Date" LABEL-FONT 6 FORMAT "99/99/9999" WIDTH 15
-    temp-rec.job-no COLUMN-LABEL "Job #" FORMAT "X(6)" LABEL-FONT 6 WIDTH 8
-    temp-rec.job-no2 COLUMN-LABEL "" FORMAT ">>" LABEL-FONT 6 WIDTH 2.4
+    temp-rec.job-no COLUMN-LABEL "Job #" FORMAT "X(9)" LABEL-FONT 6 WIDTH 13
+    temp-rec.job-no2 COLUMN-LABEL "" FORMAT ">>>" LABEL-FONT 6 WIDTH 5.4
     temp-rec.whs COLUMN-LABEL "Warehouse" FORMAT "X(5)" LABEL-FONT 6 WIDTH 13
     temp-rec.bin COLUMN-LABEL "Bin" FORMAT "X(8)" LABEL-FONT 6
     temp-rec.qty COLUMN-LABEL "Qty." FORMAT "->,>>>,>>9.9<<" LABEL-FONT 6 WIDTH 20
@@ -133,6 +137,9 @@ DEFINE BROWSE BROWSE-4
     temp-rec.qty-uom COLUMN-LABEL "Qty UOM" LABEL-FONT 6 FORMAT "x(3)" WIDTH 10
     temp-rec.po-price COLUMN-LABEL "PO Price" LABEL-FONT 6 FORMAT "->>,>>>,>>9.99<<" WIDTH 20
     temp-rec.po-price-uom COLUMN-LABEL "Price UOM" LABEL-FONT 6 FORMAT "x(3)" WIDTH 15
+    temp-rec.vendor COLUMN-LABEL "Vendor" LABEL-FONT 6 FORMAT "x(10)" WIDTH 13
+    temp-rec.invoice COLUMN-LABEL "Invoice" LABEL-FONT 6 FORMAT "x(20)" WIDTH 30
+    temp-rec.priceDesc COLUMN-LABEL "Quantity Price/Uom" LABEL-FONT 6 FORMAT "x(40)" WIDTH 40
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 145 BY 16.33
@@ -297,7 +304,20 @@ DO:
       WHEN "po-price-uom" THEN DO:
            IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.po-price-uom.
            ELSE OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.po-price-uom {&sortby-des}.
-      END.  
+      END. 
+      WHEN "vendor" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.vendor.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.vendor {&sortby-des}.
+      END.
+      WHEN "invoice" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.invoice.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.invoice {&sortby-des}.
+      END.
+      WHEN "priceDesc" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.priceDesc.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH temp-rec BY temp-rec.priceDesc {&sortby-des}.
+      END.
+       
       
   END CASE.
   {methods/template/sortindicatorend.i}         
@@ -444,11 +464,11 @@ PROCEDURE populate-tt :
 
    EMPTY TEMP-TABLE temp-rec.
 
-   FOR EACH rm-rcpth fields(r-no rita-code i-no job-no job-no2 trans-date po-line pur-uom)NO-LOCK
+   FOR EACH rm-rcpth fields(r-no rita-code i-no job-no job-no2 trans-date po-line pur-uom vend-no)NO-LOCK
        WHERE rm-rcpth.company  EQ cocode 
        AND rm-rcpth.po-no      EQ v-po-no 
        AND rm-rcpth.rita-code  EQ "R",
-       EACH rm-rdtlh FIELDS(loc loc-bin qty tag cost)NO-LOCK
+       EACH rm-rdtlh FIELDS(loc loc-bin qty tag cost rec_key)NO-LOCK
        WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no 
          AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code:
    
@@ -464,8 +484,11 @@ PROCEDURE populate-tt :
               temp-rec.po-line = rm-rcpth.po-line
               temp-rec.qty-uom = rm-rcpth.pur-uom
               temp-rec.po-price = rm-rdtlh.cost
-              temp-rec.po-price-uom = rm-rcpth.pur-uom.
+              temp-rec.po-price-uom = rm-rcpth.pur-uom
+              temp-rec.vendor = rm-rcpth.vend-no 
+              temp-rec.priceDesc = STRING(rm-rdtlh.qty) + "@ $" + STRING(rm-rdtlh.cost) + "/" + rm-rcpth.pur-uom
            .
+           RUN pGetInvoiceNo(INPUT rm-rdtlh.rec_key, OUTPUT temp-rec.invoice).             
 
        RELEASE temp-rec.
    END.
@@ -479,13 +502,13 @@ PROCEDURE populate-tt :
       FOR EACH b-po-ordl NO-LOCK 
          WHERE b-po-ordl.company EQ cocode
            AND b-po-ordl.po-no   EQ ip-po-no,
-          EACH  fg-rcpth FIELDS(r-no rita-code i-no job-no job-no2 trans-date po-line pur-uom) NO-LOCK
+          EACH  fg-rcpth FIELDS(r-no rita-code i-no job-no job-no2 trans-date po-line pur-uom vend-no) NO-LOCK
           WHERE fg-rcpth.company                 EQ cocode 
             AND fg-rcpth.po-no                   EQ v-po-no 
             AND fg-rcpth.i-no                    EQ b-po-ordl.i-no 
             AND LOOKUP(fg-rcpth.rita-code,"R,E") GT 0
             AND fg-rcpth.po-line                 EQ b-po-ordl.LINE,
-          EACH  fg-rdtlh FIELDS(loc loc-bin qty tag cost) NO-LOCK
+          EACH  fg-rdtlh FIELDS(loc loc-bin qty tag cost rec_key) NO-LOCK
           WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no 
             AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code :
 
@@ -501,7 +524,11 @@ PROCEDURE populate-tt :
                  temp-rec.po-line = fg-rcpth.po-line
                  temp-rec.qty-uom = fg-rcpth.pur-uom
                  temp-rec.po-price = fg-rdtlh.cost
-                 temp-rec.po-price-uom = fg-rcpth.pur-uom.
+                 temp-rec.po-price-uom = fg-rcpth.pur-uom
+                 temp-rec.vendor = fg-rcpth.vend-no 
+                 temp-rec.priceDesc = STRING(fg-rdtlh.qty) + "@ $" + STRING(fg-rdtlh.cost) + "/" + fg-rcpth.pur-uom
+                 .
+                 RUN pGetInvoiceNo(INPUT fg-rdtlh.rec_key, OUTPUT temp-rec.invoice).
 
           RELEASE temp-rec.
       END.
@@ -563,6 +590,34 @@ PROCEDURE move-columns :
         v-col-move = NOT v-col-move.
        
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInvoiceNo F-Frame-Win 
+PROCEDURE pGetInvoiceNo :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcRecKey   AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcInvoice AS CHARACTER NO-UNDO.
+  FIND FIRST POReceiptLink NO-LOCK
+       WHERE POReceiptLink.inventoryStockRecKey EQ ipcRecKey NO-ERROR.
+   IF AVAIL POReceiptLink THEN
+   DO:
+        FIND FIRST ap-invl NO-LOCK 
+             WHERE ap-invl.rec_key EQ POReceiptLink.apInvoiceLineRecKey NO-ERROR.
+        IF AVAIL ap-invl THEN do:
+         FIND FIRST ap-inv NO-LOCK 
+              WHERE ap-inv.company EQ cocode
+              AND ap-inv.i-no EQ ap-invl.i-no NO-ERROR.
+         IF avail ap-inv THEN
+             opcInvoice = ap-inv.inv-no .
+        END. 
+   END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

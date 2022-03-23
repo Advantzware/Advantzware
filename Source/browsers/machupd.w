@@ -16,6 +16,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -126,14 +127,14 @@ DEFINE VARIABLE scr-end-date AS DATE FORMAT "99/99/9999":U
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE scr-job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE scr-job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Job" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE scr-job-no-2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE scr-job-no-2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE scr-machine AS CHARACTER FORMAT "X(8)":U 
      LABEL "Machine" 
@@ -151,7 +152,7 @@ DEFINE VARIABLE scr-run-qty AS INTEGER FORMAT "->>,>>>,>>9":U INITIAL 0
      SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE scr-sheet AS INTEGER FORMAT ">>9":U INITIAL 0 
-     LABEL "Sheet" 
+     LABEL "Form" 
      VIEW-AS FILL-IN 
      SIZE 6.8 BY 1 NO-UNDO.
 
@@ -334,7 +335,7 @@ DO:
          end_minute
          end_ampm
          machtran.machine = scr-machine
-         machtran.job_number = FILL(" ",6 - LENGTH(scr-job-no)) + scr-job-no
+         machtran.job_number = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', scr-job-no)) 
          machtran.job_sub = scr-job-no-2
          machtran.form_number = scr-sheet
          machtran.blank_number = scr-blank

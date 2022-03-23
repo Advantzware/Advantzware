@@ -223,8 +223,8 @@ DEFINE BROWSE br_table
       oe-ordm.po-no COLUMN-LABEL "Customer PO#" FORMAT "x(15)":U
             WIDTH 20
       oe-ordm.cost FORMAT "->>,>>>,>>9.99":U
-      oe-ordm.ord-i-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 9
-      oe-ordm.ord-line COLUMN-LABEL "" FORMAT "99":U WIDTH 4
+      oe-ordm.ord-i-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 12
+      oe-ordm.ord-line COLUMN-LABEL "" FORMAT "999":U WIDTH 5.4
       oe-ordm.po-no-po COLUMN-LABEL "Vendor PO#" FORMAT ">>>>>>":U
       oe-ordm.s-man[1] COLUMN-LABEL "Sls Rep" FORMAT "X(5)":U
       oe-ordm.s-pct[1] COLUMN-LABEL "% of Sale" FORMAT ">>9.99":U
@@ -249,7 +249,7 @@ DEFINE BROWSE br_table
             WIDTH 6
       oe-ordm.spare-char-2 COLUMN-LABEL "FG Item Code" FORMAT "x(15)":U
       oe-ordm.est-no COLUMN-LABEL "Estimate" FORMAT "x(12)":U WIDTH 12
-      oe-ordm.form-no COLUMN-LABEL "S" FORMAT ">9":U WIDTH 2
+      oe-ordm.form-no COLUMN-LABEL "F" FORMAT ">9":U WIDTH 2
       oe-ordm.blank-no COLUMN-LABEL "B" FORMAT ">9":U WIDTH 2
   ENABLE
       oe-ordm.charge
@@ -373,9 +373,9 @@ ASSIGN
      _FldNameList[6]   > ASI.oe-ordm.cost
 "oe-ordm.cost" ? ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.oe-ordm.ord-i-no
-"oe-ordm.ord-i-no" "Job#" "x(6)" "character" ? ? ? ? ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordm.ord-i-no" "Job#" "x(9)" "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.oe-ordm.ord-line
-"oe-ordm.ord-line" "" "99" "integer" ? ? ? ? ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordm.ord-line" "" "999" "integer" ? ? ? ? ? ? yes ? no no "5.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-ordm.po-no-po
 "oe-ordm.po-no-po" "Vendor PO#" ">>>>>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.oe-ordm.s-man[1]
@@ -409,7 +409,7 @@ ASSIGN
      _FldNameList[24]   > ASI.oe-ordm.est-no
 "oe-ordm.est-no" "Estimate" "x(12)" "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > ASI.oe-ordm.form-no
-"oe-ordm.form-no" "S" ? "integer" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordm.form-no" "F" ? "integer" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[26]   > ASI.oe-ordm.blank-no
 "oe-ordm.blank-no" "B" ? "integer" ? ? ? ? ? ? yes ? no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED

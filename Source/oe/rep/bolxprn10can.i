@@ -27,7 +27,8 @@
                 "<R19><C66><FROM><R23><C66><LINE>" SKIP
                 /*"<FArial><=4><R+1>    Date                    PO#                               JOB#                 FOB                  Carrier                                                 Freight Terms" SKIP */
                 "<FArial><=4><R+1>    Date                     Destination/FOB                              Tél:                                 Transporteur/Carrier                 Conditions" SKIP 
-                "<FCourier New><=4><R+3> " oe-bolh.bol-date SPACE(3) /*v-po-no FORM "x(15)" space(2) v-job-no*/ v-fob SPACE(10) v-ship-phone SPACE(7) carrier.dscr FORMAT "x(21)" SPACE(4) v-frt-terms SKIP
+                "<FCourier New><=4><R+2> "  "<C67>" v-frt-terms2 SKIP
+                "<FCourier New><=4><R+3> " oe-bolh.bol-date SPACE(3) /*v-po-no FORM "x(15)" space(2) v-job-no*/ v-fob SPACE(10) v-ship-phone SPACE(7) carrier.dscr FORMAT "x(21)" "<C67>" v-frt-terms SKIP
                 "<|10><R24><C1><#5><FROM><R26><C81><RECT>" SKIP    
                 "<R24><C15><FROM><R26><C15><LINE>" SKIP
                 "<R24><C26><FROM><R26><C26><LINE>" SKIP
@@ -37,10 +38,10 @@
                 "<R24><C71><FROM><R26><C71><LINE>" SKIP
                 "<R24><C74><FROM><R26><C74><LINE>" SKIP.
    
-   IF lv-bolfmt-int = 1 THEN PUT "<FArial><=5> Partie#/Commande#                                                                                                                   Unités     Qté/Unités           Poids  <FCourier New>" SKIP(1) 
+   IF lv-bolfmt-int = 1 THEN PUT "<FArial><=5> Partie#/Commande#                                    Produit Fini                                                              Unités     Qté/Unités           Poids  <FCourier New>" SKIP(1) 
                                  "<FArial><=5><R+1> Part#/Order#                  PO#                    Finished Good#            Description                            Unit         Qty/Unit     P/C   Weight  <FCourier New>" SKIP(1).
                        ELSE  PUT
-                                "<FArial><=5> Partie#                                  PO#               Finished Good#              Description                        Unités     Qté/Unités  P/C    Poids  <FCourier New>" SKIP(1) 
+                                "<FArial><=5> Partie#                                  PO#               Produit Fini                     Description                        Unités     Qté/Unités  P/C    Poids  <FCourier New>" SKIP(1) 
                                 "<FArial><=5><R+1> Partie#                                  PO#               Finished Good#              Description                         Unités    Qté/Unités  P/C    Weight  <FCourier New>" SKIP(1).
             .
 

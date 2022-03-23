@@ -111,13 +111,13 @@ PROCEDURE openQuery:
 
 &ELSEIF '{&yellowColumnsName}' EQ 'b-estop' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
-  IF sortColumn EQ 'S' THEN STRING(est-op.s-num,'>>>') ELSE ~
+  IF sortColumn EQ 'F' THEN STRING(est-op.s-num,'>>>') ELSE ~
   IF sortColumn EQ 'Desc' THEN est-op.m-dscr ELSE ~
   est-op.m-code ~{&SORTED} BY STRING(est-op.s-num,'>>>') BY STRING(est-op.b-num,'>>>')
 
 &ELSEIF '{&yellowColumnsName}' EQ 'b-estprp' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
-  IF sortColumn EQ 'Sht #' THEN STRING(est-prep.s-num,'>>>') ELSE ~
+  IF sortColumn EQ 'Form' THEN STRING(est-prep.s-num,'>>>') ELSE ~
   IF sortColumn EQ 'Code' THEN est-prep.code ELSE ~
   IF sortColumn EQ 'Qty' THEN STRING(est-prep.qty,'->>,>>9.9') ELSE ~
   IF sortColumn EQ 'Desc.' THEN est-prep.dscr ELSE ~
@@ -126,7 +126,7 @@ PROCEDURE openQuery:
 
 &ELSEIF '{&yellowColumnsName}' EQ 'b-jobmch' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
-  IF sortColumn EQ 'S' THEN STRING(job-mch.frm,'>>>') ELSE ~
+  IF sortColumn EQ 'F' THEN STRING(job-mch.frm,'>>>') ELSE ~
   job-mch.m-code ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'b-jhdrin' &THEN
@@ -136,7 +136,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'FG Item#' THEN job-hdr.i-no ELSE ~
   IF sortColumn EQ 'Quantity' THEN STRING(job-hdr.qty,'999999') ELSE ~
   IF sortColumn EQ 'SqInch%' THEN STRING(job-hdr.sq-in,'999.99') ELSE ~
-  IF sortColumn EQ 'Order#' THEN STRING(job-hdr.ord-no,'999999') ELSE ~
+  IF sortColumn EQ 'Order#' THEN STRING(job-hdr.ord-no,'99999999') ELSE ~
   IF sortColumn EQ "Mat'l" THEN STRING(job-hdr.std-mat-cost,'-99999.99') ELSE ~
   IF sortColumn EQ 'D.L.' THEN STRING(job-hdr.std-lab-cost,'-99999.99') ELSE ~
   IF sortColumn EQ 'Var OH' THEN STRING(job-hdr.std-var-cost,'-99999.99') ELSE ~
@@ -267,9 +267,9 @@ PROCEDURE openQuery:
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
   IF sortColumn EQ 'Warehouse' THEN loadtag.loc ELSE ~
   IF sortColumn EQ 'Bin' THEN loadtag.loc-bin ELSE ~
-  IF sortColumn EQ 'Job' THEN STRING(loadtag.job-no,'x(6)') ELSE ~
+  IF sortColumn EQ 'Job' THEN STRING(loadtag.job-no,'x(9)') ELSE ~
   IF sortColumn EQ 'PO' THEN STRING(loadtag.po-no,'99999999') ELSE ~
-  IF sortColumn EQ 'Order' THEN STRING(loadtag.ord-no,'999999') ELSE ~
+  IF sortColumn EQ 'Order' THEN STRING(loadtag.ord-no,'99999999') ELSE ~
   IF sortColumn EQ 'Item' THEN loadtag.i-no ELSE ~
   IF sortColumn EQ 'Name' THEN loadtag.i-name ELSE ~
   IF sortColumn EQ 'Vendor Tag#' THEN loadtag.misc-char[1] ELSE ~
@@ -279,10 +279,10 @@ PROCEDURE openQuery:
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
   IF sortColumn EQ 'Primary Bin Loc.'  THEN loadtag.loc-bin ELSE ~
   IF sortColumn EQ 'Warehouse'         THEN loadtag.loc     ELSE ~
-  IF sortColumn EQ 'Run #'             THEN STRING(loadtag.job-no2,'>9')   ELSE ~
-  IF sortColumn EQ 'Job Number'        THEN STRING(loadtag.job-no,'x(6)')  ELSE ~
+  IF sortColumn EQ 'Run #'             THEN STRING(loadtag.job-no2,'>>9')   ELSE ~
+  IF sortColumn EQ 'Job Number'        THEN STRING(loadtag.job-no,'x(9)')  ELSE ~
   IF sortColumn EQ 'Purchase Order#'   THEN STRING(loadtag.po-no,'>>>>>>>9') ELSE ~
-  IF sortColumn EQ 'Order#'            THEN STRING(loadtag.ord-no,'>>>>>9') ELSE ~
+  IF sortColumn EQ 'Order#'            THEN STRING(loadtag.ord-no,'>>>>>>>9') ELSE ~
   IF sortColumn EQ 'Name'              THEN loadtag.i-name  ELSE ~
   IF sortColumn EQ 'Item'              THEN loadtag.i-no    ELSE ~
    loadtag.tag-no ~{&SORTED}
@@ -293,7 +293,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'RM Bin' THEN wiptag.rm-bin ELSE ~
   IF sortColumn EQ 'WIP Whs' THEN wiptag.wip-warehouse ELSE ~
   IF sortColumn EQ 'WIP Bin' THEN wiptag.wip-rm-bin ELSE ~
-  IF sortColumn EQ 'Job' THEN STRING(wiptag.job-no,'x(6)') ELSE ~
+  IF sortColumn EQ 'Job' THEN STRING(wiptag.job-no,'x(9)') ELSE ~
   IF sortColumn EQ 'RM Item#' THEN wiptag.rm-i-no ELSE ~
   IF sortColumn EQ 'RM Name' THEN wiptag.rm-i-name ELSE ~
   IF sortColumn EQ 'FG Item#' THEN wiptag.fg-i-no ELSE ~
@@ -309,7 +309,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Whse' THEN oe-boll.loc ELSE ~
   IF sortColumn EQ 'Bin' THEN oe-boll.loc-bin ELSE ~
   IF sortColumn EQ 'Job #' THEN oe-boll.job-no ELSE ~
-  STRING(oe-boll.ord-no,'999999') ~{&SORTED}
+  STRING(oe-boll.ord-no,'99999999') ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'b-phys' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
@@ -452,7 +452,7 @@ PROCEDURE openQuery:
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
   IF sortColumn EQ 'Item No' THEN  job-hdr.i-no ELSE ~
   IF sortColumn EQ 'Estimate #' THEN job-hdr.est-no ELSE ~
-  IF sortColumn EQ 'Order#' THEN STRING(job-hdr.ord-no,'999999') ELSE ~
+  IF sortColumn EQ 'Order#' THEN STRING(job-hdr.ord-no,'99999999') ELSE ~
   IF sortColumn EQ 'Cust. #' THEN job-hdr.cust-no ELSE ~
   job-hdr.job-no ~{&SORTED}
 
@@ -619,7 +619,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Due Date' THEN STRING(YEAR(oe-ordl.req-date),'9999') + ~
      STRING(MONTH(oe-ordl.req-date),'99') + ~
      STRING(DAY(oe-ordl.req-date),'99') ELSE ~
-  IF sortColumn EQ 'Job Number' THEN STRING(oe-ordl.job-no,'x(6)') ELSE ~
+  IF sortColumn EQ 'Job Number' THEN STRING(oe-ordl.job-no,'x(9)') ELSE ~
   IF sortColumn EQ 'Vendor' THEN oe-ordl.vend-no ELSE ~
   IF sortColumn EQ 'Discount' THEN STRING(oe-ordl.disc,"(>>>,>>9.99)") ELSE ~
   STRING(oe-ordl.t-price,"->>>,>>9.99") ~{&SORTED}
@@ -701,8 +701,8 @@ PROCEDURE openQuery:
    IF sortColumn EQ 'Customers!PO#'       THEN vend-whse-trans.item-po-no ELSE ~
    IF sortColumn EQ 'Suppliers!FG Item'   THEN vend-whse-trans.fg-item-no ELSE ~
    IF sortColumn EQ 'Customers!Part#'     THEN vend-whse-trans.cust-part-no ELSE ~
-   IF sortColumn EQ 'Suppliers!Order#'    THEN STRING(vend-whse-trans.vend-ord-no, ">>>>>9") ELSE ~
-   IF sortColumn EQ 'Suppliers!Job#'      THEN STRING(vend-whse-trans.vend-job-no,'x(6)') ELSE ~
+   IF sortColumn EQ 'Suppliers!Order#'    THEN STRING(vend-whse-trans.vend-ord-no, ">>>>>>>9") ELSE ~
+   IF sortColumn EQ 'Suppliers!Job#'      THEN STRING(vend-whse-trans.vend-job-no,'x(9)') ELSE ~
    IF sortColumn EQ 'Suppliers Items!Sell Price' THEN STRING(vend-whse-trans.sell-price, ">,>>>,>>9.99<<<<") ELSE ~
    IF sortColumn EQ 'Quantity!Used'       THEN STRING(vend-whse-trans.trans-qty, "->>,>>>,>>9.9<<") ELSE ~
    IF sortColumn EQ 'Receipt!Quantity'    THEN STRING(vend-whse-trans.trans-qty, "->>,>>>,>>9.9<<") ELSE ~
@@ -720,8 +720,8 @@ PROCEDURE openQuery:
    IF sortColumn EQ 'Customers!PO#'       THEN vend-whse-trans-hist.item-po-no ELSE ~
    IF sortColumn EQ 'Suppliers!FG Item'   THEN vend-whse-trans-hist.fg-item-no ELSE ~
    IF sortColumn EQ 'Customers!Part#'     THEN vend-whse-trans-hist.cust-part-no ELSE ~
-   IF sortColumn EQ 'Suppliers!Order#'    THEN STRING(vend-whse-trans-hist.vend-ord-no, ">>>>>9") ELSE ~
-   IF sortColumn EQ 'Suppliers!Job#'      THEN STRING(vend-whse-trans-hist.vend-job-no,'x(6)') ELSE ~
+   IF sortColumn EQ 'Suppliers!Order#'    THEN STRING(vend-whse-trans-hist.vend-ord-no, ">>>>>>>9") ELSE ~
+   IF sortColumn EQ 'Suppliers!Job#'      THEN STRING(vend-whse-trans-hist.vend-job-no,'x(9)') ELSE ~
    IF sortColumn EQ 'Suppliers Items!Sell Price' THEN STRING(vend-whse-trans-hist.sell-price, ">,>>>,>>9.99<<<<") ELSE ~
    IF sortColumn EQ 'Quantity!Used'       THEN STRING(vend-whse-trans-hist.trans-qty, "->>,>>>,>>9.9<<") ELSE ~
    IF sortColumn EQ 'Trans!Quantity'    THEN STRING(vend-whse-trans-hist.trans-qty, "->>,>>>,>>9.9<<") ELSE ~
@@ -767,7 +767,7 @@ PROCEDURE openQuery:
    &SCOPED-DEFINE SORTBY-PHRASE BY ~
     IF sortColumn EQ 'Machine'    THEN machtran.machine               ELSE ~
     IF sortColumn EQ 'Job'        THEN machtran.job_number            ELSE ~
-    IF sortColumn EQ 'Sub'        THEN STRING(machtran.job_sub,'>9')        ELSE ~
+    IF sortColumn EQ 'Sub'        THEN STRING(machtran.job_sub,'>>9')        ELSE ~
     IF sortColumn EQ 'Form'       THEN STRING(machtran.form_number,'>>9')   ELSE ~
     IF sortColumn EQ 'Blk'        THEN STRING(machtran.blank_number,'>9')   ELSE ~
     IF sortColumn EQ 'Pass'       THEN STRING(machtran.pass_sequence,'>>9') ELSE ~
@@ -807,7 +807,7 @@ PROCEDURE openQuery:
    &SCOPED-DEFINE SORTBY-PHRASE BY ~
     IF sortColumn EQ 'Machine'    THEN machtran.machine               ELSE ~
     IF sortColumn EQ 'Job'        THEN machtran.job_number            ELSE ~
-    IF sortColumn EQ 'Sub'        THEN STRING(machtran.job_sub,'>9')        ELSE ~
+    IF sortColumn EQ 'Sub'        THEN STRING(machtran.job_sub,'>>9')        ELSE ~
     IF sortColumn EQ 'Form'       THEN STRING(machtran.form_number,'>>9')   ELSE ~
     IF sortColumn EQ 'Blk'        THEN STRING(machtran.blank_number,'>9')   ELSE ~
     IF sortColumn EQ 'Pass'       THEN STRING(machtran.pass_sequence,'>>9') ELSE ~
@@ -835,7 +835,7 @@ PROCEDURE openQuery:
 &ELSEIF '{&yellowColumnsName}' EQ 'pc-prdd' &THEN
    &SCOPED-DEFINE SORTBY-PHRASE BY ~
     IF sortColumn EQ '  Job#'       THEN pc-prdd.job-no                    ELSE ~
-    IF sortColumn EQ 'Sheet'        THEN STRING(pc-prdd.frm, '>>>')        ELSE ~
+    IF sortColumn EQ 'Form'        THEN STRING(pc-prdd.frm, '>>>')        ELSE ~
     IF sortColumn EQ 'Blank'        THEN STRING(pc-prdd.blank-no, '>>>')   ELSE ~
     IF sortColumn EQ 'Pass'         THEN STRING(pc-prdd.pass, '>>>')       ELSE ~
     IF sortColumn EQ 'Item#'        THEN pc-prdd.i-no                      ELSE ~
@@ -852,7 +852,7 @@ PROCEDURE openQuery:
 &ELSEIF '{&yellowColumnsName}' EQ 'pc-prdd2' &THEN
    &SCOPED-DEFINE SORTBY-PHRASE BY ~
     IF sortColumn EQ 'Job Number'   THEN pc-prdd.job-no                 ELSE ~
-    IF sortColumn EQ 'S'            THEN STRING(pc-prdd.frm, '>>9')     ELSE ~
+    IF sortColumn EQ 'F'            THEN STRING(pc-prdd.frm, '>>9')     ELSE ~
     IF sortColumn EQ 'B'            THEN STRING(pc-prdd.blank-no, '>9') ELSE ~
     IF sortColumn EQ 'P'            THEN STRING(pc-prdd.pass, '>>9')    ELSE ~
     IF sortColumn EQ 'Item#'        THEN pc-prdd.i-no                   ELSE ~
@@ -862,7 +862,7 @@ PROCEDURE openQuery:
 &ELSEIF '{&yellowColumnsName}' EQ 'tt-prdd' &THEN
    &SCOPED-DEFINE SORTBY-PHRASE BY ~
     IF sortColumn EQ 'Machine'      THEN tt-prdd.m-code                 ELSE ~
-    IF sortColumn EQ 'S'            THEN STRING(tt-prdd.frm, '>>9')     ELSE ~
+    IF sortColumn EQ 'F'            THEN STRING(tt-prdd.frm, '>>9')     ELSE ~
     IF sortColumn EQ 'B'            THEN STRING(tt-prdd.blank-no, '>9') ELSE ~
     IF sortColumn EQ 'P'            THEN STRING(tt-prdd.pass, '>>9')    ELSE ~
     IF sortColumn EQ 'Item#'        THEN tt-prdd.i-no                   ELSE ~
@@ -978,7 +978,7 @@ PROCEDURE openQuery:
    &SCOPED-DEFINE SORTBY-PHRASE BY ~
     IF sortColumn EQ 'Machine'      THEN cmpltjob.machine                     ELSE ~
     IF sortColumn EQ 'Job'          THEN cmpltjob.job_number                  ELSE ~
-    IF sortColumn EQ 'Sub'          THEN STRING(cmpltjob.job_sub, '>9')       ELSE ~
+    IF sortColumn EQ 'Sub'          THEN STRING(cmpltjob.job_sub, '>>9')       ELSE ~
     IF sortColumn EQ 'Form'         THEN STRING(cmpltjob.form_number, '>>9')  ELSE ~
        STRING(cmpltjob.blank_number, '>9')  ~{&SORTED}
 
@@ -1076,7 +1076,7 @@ PROCEDURE openQuery:
 
 &ELSEIF '{&yellowColumnsName}' EQ 'ar-inv' &THEN
    &SCOPED-DEFINE SORTBY-PHRASE BY ~
-    IF sortColumn EQ 'Invoice#'    THEN STRING(ar-inv.inv-no, '>>>>>9')   ELSE ~
+    IF sortColumn EQ 'Invoice#'    THEN STRING(ar-inv.inv-no, '>>>>>>>9')   ELSE ~
     IF sortColumn EQ 'Cust.#'      THEN ar-inv.cust-no                    ELSE ~
     IF sortColumn EQ 'Customer Name'   THEN ar-inv.cust-name              ELSE ~
     IF sortColumn EQ 'Inv Date' THEN STRING(YEAR(ar-inv.inv-date),'9999') + ~
@@ -1180,7 +1180,7 @@ PROCEDURE openQuery:
      IF sortColumn EQ 'Qty/Set'        THEN STRING(eb.cust-%, '->>,>>>') ELSE ~
      IF sortColumn EQ 'Colors'         THEN STRING(eb.i-col, '>9')       ELSE ~
      IF sortColumn EQ 'Coating'        THEN STRING(eb.i-coat, '>9')      ELSE ~
-     IF sortColumn EQ 'S'              THEN STRING(eb.form-no, '>>>')    ELSE ~
+     IF sortColumn EQ 'F'              THEN STRING(eb.form-no, '>>>')    ELSE ~
      IF sortColumn EQ 'B'              THEN STRING(eb.blank-no, '>>>')   ELSE ~
      IF sortColumn EQ '# on Width'     THEN STRING(eb.num-wid, '>9')     ELSE ~
      IF sortColumn EQ '# on Length'    THEN STRING(eb.num-len, '>9')     ELSE ~

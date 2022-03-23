@@ -155,7 +155,7 @@ DEFINE VARIABLE cbJobType AS CHARACTER FORMAT "X(256)":U INITIAL "--"
      DROP-DOWN-LIST
      SIZE 25.6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "x(9)" 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "x(13)" 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
@@ -447,7 +447,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
         RUN pCreateTempTable(bf-job-hdr.i-no,bf-job-hdr.frm,bf-job-hdr.blank-no ) .
           
-        fi_job-no = TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99").
+        fi_job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
       END.
    
   END.

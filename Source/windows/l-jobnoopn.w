@@ -10,6 +10,7 @@
 
   File: windows\l-jobnoopn.w
   
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -151,12 +152,12 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 9
+      job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 14
             LABEL-BGCOLOR 14
-      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
       job-hdr.i-no FORMAT "x(15)":U WIDTH 19 LABEL-BGCOLOR 14
       job-hdr.est-no FORMAT "x(8)":U WIDTH 14 LABEL-BGCOLOR 14
-      job-hdr.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      job-hdr.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       job-hdr.cust-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -230,7 +231,7 @@ ASSIGN
 ASI.job-hdr.opened = yes"
      _Where[2]         = "job.opened EQ YES"
      _FldNameList[1]   > ASI.job-hdr.job-no
-"job-hdr.job-no" "Job#" ? "character" ? ? ? 14 ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.job-no" "Job#" ? "character" ? ? ? 14 ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-hdr.job-no2
 "job-hdr.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-hdr.i-no
@@ -477,7 +478,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       
     FOR first job-hdr WHERE
          job-hdr.company = ip-company AND
-         job-hdr.job-no BEGINS ip-cur-val AND
+         TRIM(job-hdr.job-no) BEGINS ip-cur-val AND
          job-hdr.opened = YES 
         NO-LOCK,
         FIRST ASI.job OF ASI.job-hdr WHERE

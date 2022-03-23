@@ -2,7 +2,7 @@
 
 DEFINE TEMP-TABLE ttOrdersBookedByOrderNo NO-UNDO
     {aoa/tempTable/ttFields.i}
-    FIELD orderNo      AS INTEGER   LABEL "OrderNo"        FORMAT ">>>>>>"  
+    FIELD orderNo      AS INTEGER   LABEL "OrderNo"        FORMAT ">>>>>>>>"  
     FIELD estNo        AS CHARACTER LABEL "EstNo"          FORMAT "X(8)"
     FIELD jobNo        AS CHARACTER LABEL "JobNo"          FORMAT "X(9)"
     FIELD orddate      AS DATE      LABEL "Date"           FORMAT 99/99/9999
@@ -36,5 +36,5 @@ DEFINE TEMP-TABLE ttOrdersBookedByOrderNo NO-UNDO
     FIELD unitWaste    AS DECIMAL   LABEL "Unit Waste"     FORMAT "->>>>,>>9.99"
     FIELD lossp        AS DECIMAL   LABEL "Loss"           FORMAT ">>9.99%"
     FIELD bolNo        AS INTEGER   LABEL "BOL No"         FORMAT ">>>>>>>9"
-    FIELD invoiceNo    AS INTEGER   LABEL "Invoice No"     FORMAT ">>>>>9"
+    FIELD invoiceNo    AS INTEGER   LABEL "Invoice No"     FORMAT ">>>>>>9"
     .

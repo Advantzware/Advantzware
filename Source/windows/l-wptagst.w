@@ -10,6 +10,7 @@
 
   File: windows\l-wptag1.w
   
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -151,9 +152,9 @@ DEFINE BROWSE BROWSE-1
       wiptag.rm-i-no FORMAT "x(15)":U WIDTH 20
       wiptag.rm-i-name COLUMN-LABEL "RM Item Name" FORMAT "x(30)":U
             WIDTH 40
-      wiptag.job-no COLUMN-LABEL "Job #" FORMAT "x(6)":U WIDTH 9
-      wiptag.job-no2 COLUMN-LABEL "" FORMAT ">9":U WIDTH 3.4
-      wiptag.form-no COLUMN-LABEL "S" FORMAT ">>9":U WIDTH 5
+      wiptag.job-no COLUMN-LABEL "Job #" FORMAT "x(9)":U WIDTH 15
+      wiptag.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 6
+      wiptag.form-no COLUMN-LABEL "F" FORMAT ">>9":U WIDTH 5
       wiptag.blank-no COLUMN-LABEL "B" FORMAT ">9":U WIDTH 3.4
       wiptag.pallet-count COLUMN-LABEL "Qty/Tag" FORMAT "->,>>>,>>9":U
             WIDTH 15.2
@@ -221,11 +222,11 @@ ASSIGN
      _FldNameList[3]   > ASI.wiptag.rm-i-name
 "rm-i-name" "RM Item Name" ? "character" ? ? ? ? ? ? no ? no no "40" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.wiptag.job-no
-"job-no" "Job #" ? "character" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-no" "Job #" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.wiptag.job-no2
-"job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "3.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.wiptag.form-no
-"form-no" "S" ? "integer" ? ? ? ? ? ? no "" no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"form-no" "F" ? "integer" ? ? ? ? ? ? no "" no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.wiptag.blank-no
 "blank-no" "B" ? "integer" ? ? ? ? ? ? no ? no no "3.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.wiptag.pallet-count

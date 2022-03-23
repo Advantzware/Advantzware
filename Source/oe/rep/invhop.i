@@ -1,4 +1,4 @@
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 page {1}.
 
 for each inv-line where inv-line.r-no eq inv-head.r-no no-lock
@@ -33,10 +33,10 @@ for each inv-line where inv-line.r-no eq inv-head.r-no no-lock
    v-unit-price  = inv-line.price
    v-price       = inv-line.t-price
    v-cust-part   = inv-line.part-no
-   v-job-no      = fill(" ",6 - length(trim(inv-line.job-no))) +
-		   trim(inv-line.job-no) +
-		   (if inv-line.job-no ne "" then
-		      ("-" + string(inv-line.job-no2,"99")) else "").
+   v-job-no      = IF inv-line.job-no NE "" THEN
+                   TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', inv-line.job-no, inv-line.job-no2))) 
+                   ELSE ""
+                   .
 
   EMPTY TEMP-TABLE tt-line.
 

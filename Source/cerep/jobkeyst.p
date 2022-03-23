@@ -10,8 +10,8 @@ def input parameter v-format like sys-ctrl.char-fld.
 
 def new shared var save_id as recid.
 def new shared var v-today as date init today.
-def new shared var v-job as char format "x(6)" extent 2 init [" ","zzzzzz"].
-def new shared var v-job2 as int format "99" extent 2 init [00,99].
+def new shared var v-job as char format "x(9)" extent 2 init [" ","zzzzzzzzz"].
+def new shared var v-job2 as int format "999" extent 2 init [000,999].
 def new shared var v-stypart like style.dscr.
 def var v-dsc like oe-ordl.part-dscr1 extent 3.
 def new shared var v-size as char format "x(26)" extent 2.
@@ -232,7 +232,7 @@ DEF TEMP-TABLE tt-ink NO-UNDO
 DEF TEMP-TABLE tt-reftable NO-UNDO LIKE reftable
     FIELD est-type LIKE est.est-type.
 
-PUT "<#1><FGCOLOR=RED><B><LINECOLOR=RED><R3><C65><From><R10><C65><Line><||6>"
+PUT "<#1><FGCOLOR=RED><B><LINECOLOR=RED><R3><C63><From><R10><C63><Line><||6>"
     "<R18><C41><From><R31><C41><Line><||6>"
     "<R25><C41><FROM><R25><C78><LINE><||6>"
     "<R28><C41><FROM><R28><C82><LINE><||6> "
@@ -259,10 +259,10 @@ PUT "<#1><FGCOLOR=RED><B><LINECOLOR=RED><R3><C65><From><R10><C65><Line><||6>"
     "<=1>" .
 
 format header
-       "<FGCOLOR=RED><B>  S.O<FGCOLOR=BLACK>" v-job-no + "-" + STRING(v-job-no2,"99") FORM "X(9)"         
-       "<FGCOLOR=RED>  ORDER<FGCOLOR=BLACK>" v-ord-no
-       "<FGCOLOR=RED>  EST#<FGCOLOR=BLACK>" trim(v-est-no) FORM "x(8)"  "<FGCOLOR=RED>  DATE<FGCOLOR=BLACK>" TODAY
-       "<FGCOLOR=RED>  PO<FGCOLOR=BLACK>" v-po-no "<FGCOLOR=RED>DEL<FGCOLOR=BLACK>" v-del-date SKIP
+       "<FGCOLOR=RED><B>  S.O<FGCOLOR=BLACK>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)"
+       "<FGCOLOR=RED> ORDER<FGCOLOR=BLACK>" TRIM(STRING(v-ord-no,">>>>>>>9")) FORM "x(8)"
+       "<FGCOLOR=RED> EST#<FGCOLOR=BLACK>" trim(v-est-no) FORM "x(8)"  "<FGCOLOR=RED>DATE<FGCOLOR=BLACK>" TODAY
+       "<FGCOLOR=RED> PO<FGCOLOR=BLACK>" v-po-no "<FGCOLOR=RED>DEL<FGCOLOR=BLACK>" v-del-date SKIP
        v-fill
     with no-box frame head no-labels stream-io width 290.
 
@@ -411,7 +411,7 @@ END.
          v-est-no = job-hdr.est-no   
          v-po-no = IF AVAIL oe-ord THEN oe-ord.po-no ELSE ""
          v-ord-no = job-hdr.ord-no
-         v-last-order = "     0".
+         v-last-order = "       0".
 
         if avail oe-ord then
         DO:
@@ -419,7 +419,7 @@ END.
                           ELSE STRING(oe-ord.pord-no).
 
            IF TRIM(v-last-order) EQ "0" THEN
-              v-last-order = "     0".
+              v-last-order = "       0".
 
           if not oe-ctrl.p-fact and (oe-ord.stat eq "H" OR oe-ord.priceHold) then next.
         END.
@@ -460,7 +460,7 @@ END.
         if not first(job-hdr.job-no) then do:
            page.
            put "<B><FGCOLOR=RED><R3><C78><FROM><R65><C78><LINE><||6> "
-               "<R3><C65><From><R10><C65><Line><||6>"
+               "<R3><C63><From><R10><C63><Line><||6>"
                "<R18><C41><From><R31><C41><Line><||6>"
                "<R25><C41><FROM><R25><C78><LINE><||6>"
                "<R28><C41><FROM><R28><C82><LINE><||6> "
@@ -881,7 +881,7 @@ END.
           
           IF LAST-OF(eb.form-no) THEN DO:
             FIND FIRST tt-keyst
-                WHERE tt-keyst.tt-job-no  EQ job-hdr.job-no
+                WHERE TRIM(tt-keyst.tt-job-no)  EQ TRIM(job-hdr.job-no)
                   AND tt-keyst.tt-job-no2 EQ job-hdr.job-no2
                   AND tt-keyst.tt-frm     EQ int(tt-reftable.val[12])
                 NO-ERROR.
@@ -910,10 +910,10 @@ END.
 
              v-po-duedate = IF AVAIL po-ordl THEN po-ordl.due-date ELSE ?.
 
-             PUT "<FGCOLOR=RED>  CUSTOMER                        SHIP TO"            "PAGE<FGCOLOR=BLACK>"  AT 92 PAGE-NUMBER - v-pg-num FORM ">>9" SKIP
+             PUT "<FGCOLOR=RED>  CUSTOMER                        SHIP TO"            "PAGE<FGCOLOR=BLACK>"  AT 90 PAGE-NUMBER - v-pg-num FORM ">>9" SKIP
              v-cust-name            v-shipto[1] AT 35 SKIP
              v-cus[2]  v-shipto[2] AT 35                         SKIP
-             v-cus[3]  v-shipto[3] AT 35                        "<FGCOLOR=RED>LAST SO.<FGCOLOR=BLACK>" AT 79 v-last-order FORM "X(6)" SKIP
+             v-cus[3]  v-shipto[3] AT 35                        "<FGCOLOR=RED>LAST SO.<FGCOLOR=BLACK>" AT 77 v-last-order FORM "X(8)" SKIP
              v-cus[4]  v-shipto[4] AT 35 SKIP(1)
              v-fill78 SKIP
              "<FGCOLOR=RED>TOTAL QUANTITY<FGCOLOR=BLACK>"  v-job-qty2      "<C22><FGCOLOR=RED>PRINT #UP<FGCOLOR=BLACK>"   v-prt-up FORM ">>9"  " <FGCOLOR=RED>Die Cut #UP<FGCOLOR=BLACK>" v-tot-up  FORM ">>9"  "<C51><FGCOLOR=RED>TOTAL COLORS<FGCOLOR=BLACK> "  /*AT 115*/ eb.i-coldscr SKIP
@@ -1195,7 +1195,7 @@ END.
                  END.
 
                  FIND FIRST tt-key2
-                     WHERE tt-key2.tt-job-no  EQ job-hdr.job-no
+                     WHERE TRIM(tt-key2.tt-job-no)  EQ TRIM(job-hdr.job-no)
                        AND tt-key2.tt-job-no2 EQ job-hdr.job-no2
                        AND tt-key2.tt-frm     EQ int(tt-reftable.val[12])
                        AND tt-key2.tt-i-no    EQ bf-eb.stock-no

@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */          
 
 CREATE WIDGET-POOL.
 
@@ -233,8 +234,8 @@ DEFINE BROWSE br_table
       fg-rctd.partial COLUMN-LABEL "Partial" FORMAT "->>>,>>9":U
             WIDTH 10
       fg-rctd.t-qty COLUMN-LABEL "Total!Qty" FORMAT "->>>,>>>,>>9.99":U
-      fg-rctd.job-no FORMAT "x(6)":U
-      fg-rctd.job-no2 FORMAT "99":U
+      fg-rctd.job-no FORMAT "x(9)":U
+      fg-rctd.job-no2 FORMAT "999":U
       fg-rctd.po-no FORMAT "x(9)":U
       fg-rctd.i-no FORMAT "x(15)":U
       fg-rctd.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
@@ -1359,7 +1360,7 @@ PROCEDURE send-fgemail :
                               "========== =============== ============ " SKIP.
        END.
        PUT STREAM st-email UNFORMATTED
-                 tt-email.job-no + "-" + string(tt-email.job-no2,"99") FORM "x(10)"
+                 tt-email.job-no + "-" + string(tt-email.job-no2,"999") FORM "x(13)"
                  " " tt-email.i-no " " tt-email.qty FORM "->>>,>>>,>>9" 
                  SKIP.
        IF LAST-OF(tt-email.cust-no) THEN do:

@@ -427,7 +427,7 @@ find first company where company.company eq cocode NO-LOCK.
             
             PUT v-po-no
                 v-ship-qty  format "->>>>>9" SPACE(1)
-                ar-invl.ord-no FORMAT ">>>>>9" SPACE(5)
+                STRING(ar-invl.ord-no) FORMAT "X(8)" SPACE(3)
                 v-i-no  format "x(15)" SPACE(3)
                 v-i-dscr  format "x(30)" SPACE(2)
                 v-price  format "$->,>>9.99" SPACE(1)

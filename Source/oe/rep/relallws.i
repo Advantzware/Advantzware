@@ -1,5 +1,6 @@
 /* ------------------------------------------- oe/rep/relallws.i GDM 04200906*/
 /* REALSE TICKET PRINT for N-K-1-RELPRINT = Allwest                          */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.             */
 /* ------------------------------------------------------------------------- */
 
 PUT 
@@ -102,21 +103,21 @@ PUT
   SKIP
     "<|10><R24><C1><#5><FROM><R26><C80><RECT>" 
   SKIP    
-    "<R24><C7><FROM><R26><C7><LINE>" 
+    "<R24><C8.5><FROM><R26><C8.5><LINE>" 
   SKIP
-    "<R24><C18><FROM><R26><C18><LINE>" 
+    "<R24><C20.5><FROM><R26><C20.5><LINE>" 
   SKIP
-    "<R24><C24><FROM><R26><C24><LINE>" 
+    "<R24><C26><FROM><R26><C26><LINE>" 
   SKIP
-    "<R24><C35><FROM><R26><C35><LINE>" 
+    "<R24><C37><FROM><R26><C37><LINE>" 
   SKIP
-    "<R24><C57><FROM><R26><C57><LINE>" 
+    "<R24><C60><FROM><R26><C60><LINE>" 
   SKIP
 /*                    "<R24><C64><FROM><R26><C64><LINE>" SKIP */
     "<R24><C71><FROM><R26><C71><LINE>" 
  SKIP                                                                                                     /*job#*/
 /*"<FArial><=5><R+1> Order#            PO#                Bin#           FG#                   Description                                        Units        Order Qty. Release Qty" SKIP(1)*/
-    "<FArial><=5><R+1> Order#            PO#                Bin#           FG#                   Description                                           Units / Count            Release Qty" 
+    "<FArial><=5><R+1> Order#              PO#                     Bin#             FG#                          Description                                Units / Count       Release Qty" 
  SKIP(1)
     "<FCourier New>"          
     .

@@ -1172,7 +1172,7 @@ FORMAT HEADER
        "Freight"                    TO 116
        "Freight"                      TO 131
        SKIP
-       "Tax Code"
+       "Tax Group"
        "Tax Name"
        "Tax Rate"                   TO 38
        "Sales $"                    TO 56
@@ -1198,7 +1198,7 @@ ASSIGN
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName2).
-  cExcelHeader = "Tax Code,Tax Name,Tax Rate,Gross Sales $,"
+  cExcelHeader = "Tax Group,Tax Name,Tax Rate,Gross Sales $,"
               + "Sales Taxable $,Sales Exempt $,Freight $,Freight Taxable $,Freight Exempt $,Tax $".
   PUT STREAM excel UNFORMATTED '"' REPLACE(cExcelHeader,',','","') '"' SKIP.
 END.
@@ -1219,7 +1219,7 @@ FOR EACH cust
           AND ar-inv.posted         
         USE-INDEX inv-date NO-LOCK:
 
-        {custom/statusMsg.i " 'Processing Tax Code:  '  + string(ar-inv.tax-code) "}
+        {custom/statusMsg.i " 'Processing Tax Group:  '  + string(ar-inv.tax-code) "}
 
         CREATE ttRawData.
         ASSIGN
@@ -1250,7 +1250,7 @@ FOR EACH cust
                   AND stax.tax-group  eq ar-inv.tax-code
             NO-LOCK:
 
-            {custom/statusMsg.i " 'Processing Tax Code:  '  + string(ar-inv.tax-code) "}
+            {custom/statusMsg.i " 'Processing Tax Group:  '  + string(ar-inv.tax-code) "}
 
             CREATE ttRawData.
             ASSIGN
@@ -1283,13 +1283,13 @@ FOR EACH stax
         WHERE ttRawData.cTaxGroup EQ stax.tax-group
         BREAK BY ttRawData.cTaxGroup:
 
-        {custom/statusMsg.i " 'Processing Tax Code:  '  + string(ttRawData.cTaxGroup) "}
+        {custom/statusMsg.i " 'Processing Tax Group:  '  + string(ttRawData.cTaxGroup) "}
 
         IF FIRST-OF(ttRawData.cTaxGroup) THEN DO:
             DO iLevel = 1 to EXTENT(stax.tax-code1):
                 IF stax.tax-code1[iLevel] EQ stax.tax-group THEN DO:
                     cTaxDescription = stax.tax-dscr1[iLevel].
-                END. /* primary tax code line */
+                END. /* primary tax group line */
                 dRateTotal = dRateTotal + stax.tax-rate1[iLevel].
                 IF stax.tax-frt1[iLevel] THEN 
                     dRateFreightTotal = dRateFreightTotal + stax.tax-rate1[iLevel].

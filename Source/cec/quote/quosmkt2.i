@@ -1,5 +1,6 @@
 /* ------------------------------------------- cec/quote/quosmkt2.i 05/18 GDM */
 /* N-K = QUOPRINT - SIMKINS Xprint FORmat                                     */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
   ASSIGN
@@ -132,14 +133,14 @@
    sman.sname                   SPACE(2) /*v-over-under*/ SKIP. 
 
    PUT "<|10><R28><C1><#5><FROM><R30><C80><RECT>" SKIP    
-       "<R28><C7><FROM><R30><C7><LINE>"             SKIP 
-       "<R28><C20><FROM><R30><C20><LINE>"           SKIP 
-       "<R28><C45><FROM><R30><C45><LINE>"           SKIP 
+       "<R28><C8><FROM><R30><C8><LINE>"             SKIP 
+       "<R28><C25><FROM><R30><C25><LINE>"           SKIP 
+       "<R28><C50><FROM><R30><C50><LINE>"           SKIP 
        "<R28><C60><FROM><R30><C60><LINE>"           SKIP 
 /*        "<R28><C63><FROM><R30><C63><LINE>"           SKIP */
        "<R28><C72><FROM><R30><C72><LINE>"           SKIP.
   
-   PUT "<FArial><=5><R+1> Est#/Qt#    Part#/Description               Item/Style/Color/Board                             Quantity                          Price                UOM " SKIP.
+   PUT "<FArial><=5><R+1> Est#/Qt#       Part#/Description                   Item/Style/Color/Board                         Quantity                          Price                UOM " SKIP.
    PUT "<FCourier New>".
 
 lv-pg-num = PAGE-NUM.

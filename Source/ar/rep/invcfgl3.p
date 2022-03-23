@@ -516,7 +516,8 @@ FOR EACH report
          v-price  FORMAT "->>,>>9.9999"                
          (IF v-ship-qty1i > 0 THEN v-price2 ELSE ar-invl.amt)   FORMAT "->>>,>>9.99"                
         SKIP
-         v-ord-no SPACE(10)
+         SPACE(1)
+         TRIM(STRING(v-ord-no,">>>>>>>9")) SPACE(7)
          ar-invl.i-no SPACE(1)
          (IF v-tailgate <> "" THEN v-i-dscr2 ELSE "") FORM "x(30)"
          v-ship-qty1 

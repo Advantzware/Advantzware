@@ -27,7 +27,7 @@ PUT "<R6><C50><FROM><R6><C80><LINE>" SKIP
     "<R6><C65><FROM><R8><C65><LINE>" SKIP
     "<R8><C65><FROM><R10><C65><LINE>" SKIP.
         
-PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " ar-inv.inv-no FORMAT ">>>>>>9" "</B><P10>" SKIP
+PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " ar-inv.inv-no FORMAT ">>>>>>>9" "</B><P10>" SKIP
     "<=#3> Customer ID             Contact"
     "<=#3><R+2> Telephone                        Fax" 
     "<=#3><R+4> Customer PO                  Invoice Date <FCourier New>"    
@@ -61,13 +61,19 @@ PUT "<FArial><=4><R+1> Ship Date             FOB                    Ship Via    
 PUT "<|10><R28><C1><#5><FROM><R30><C80><RECT>" SKIP    
                 "<R28><C8><FROM><R30><C8><LINE>" SKIP
                 "<R28><C15><FROM><R30><C15><LINE>" SKIP
-                "<R28><C21><FROM><R30><C21><LINE>" SKIP
-                "<R28><C34><FROM><R30><C34><LINE>" SKIP
-                "<R28><C56><FROM><R30><C56><LINE>" SKIP
-                "<R28><C64><FROM><R30><C64><LINE>" SKIP
-                "<R28><C68><FROM><R30><C68><LINE>" SKIP
+                "<R28><C22><FROM><R30><C22><LINE>" SKIP
+                "<R28><C35><FROM><R30><C35><LINE>" SKIP
+                "<R28><C57><FROM><R30><C57><LINE>" SKIP
+                "<R28><C65><FROM><R30><C65><LINE>" SKIP
+                "<R28><C69><FROM><R30><C69><LINE>" SKIP
                 .   
-PUT "<FArial><=5><R+1>  Invoiced     Shipped     Order#      Item#/CustPart#       Description                                             Price    UOM                  Amount" SKIP(1).
+PUT "<FArial><=5><R+1><C2>Invoiced<C9>Shipped
+                                 <C16> Order#
+                                 <C23> Item#/CustPart#
+                                 <C36> Description
+                                 <C59> Price
+                                 <C65> UOM
+                                 <C73> Amount" SKIP(1).
 v-printline = v-printline + 4.
            
 

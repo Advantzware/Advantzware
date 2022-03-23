@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invlanyork.p  */
 /* PRINT INVOICE   Xprint Standard Form             */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -601,9 +601,9 @@ find first company where company.company eq cocode NO-LOCK.
           IF NOT lPrintQtyAll THEN do:
             PUT space(1) v-inv-qty format "->>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
-                v-i-dscr  format "x(25)" SPACE(1)
+                v-i-dscr  format "x(24)" SPACE(1)
                 v-price  format "$->>,>>9.99<<" SPACE(1)
                 v-price-head 
                 inv-line.t-price  format "$->>>,>>9.99"                     
@@ -612,9 +612,9 @@ find first company where company.company eq cocode NO-LOCK.
           ELSE DO:
               PUT space(1)v-ord-qty  format "->>>>>9" SPACE(1)
                 v-inv-qty  format "->>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
-                v-i-dscr  format "x(25)" SPACE(1)
+                v-i-dscr  format "x(24)" SPACE(1)
                 v-price  format "$->>,>>9.99<<" SPACE(1)
                 v-price-head 
                 inv-line.t-price  format "$->>>,>>9.99"                     
@@ -635,24 +635,24 @@ find first company where company.company eq cocode NO-LOCK.
                    IF lPrintQtyAll THEN do:
                       PUT SPACE(1) v-ship-qty FORMAT "->>>>>9" .
                      IF LENGTH(inv-line.po-no) LE 8 THEN DO:
-                         PUT  SPACE(8) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
+                         PUT  SPACE(8) inv-line.po-no FORMAT "x(8)" SPACE(2)   inv-line.part-no SPACE v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(1) inv-line.po-no FORMAT "x(15)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
+                         PUT  SPACE(1) inv-line.po-no FORMAT "x(15)" SPACE(2)   inv-line.part-no SPACE v-part-info SKIP.
                      END.
                    END.
                    ELSE DO:
                         IF LENGTH(inv-line.po-no) LE 8 THEN DO:
-                         PUT  SPACE(16) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
+                         PUT  SPACE(16) inv-line.po-no FORMAT "x(8)" SPACE(2)   inv-line.part-no SPACE v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(9) inv-line.po-no FORMAT "x(15)" SPACE(1)   inv-line.part-no SPACE v-part-info SKIP.
+                         PUT  SPACE(9) inv-line.po-no FORMAT "x(15)" SPACE(2)   inv-line.part-no SPACE v-part-info SKIP.
                      END.
                    END. /* else do*/
 
                  END.
                  ELSE
-                 IF v = 2 THEN  PUT /*SPACE(10)  v-po-no FORMAT "x(15)"*/ SPACE(41) v-part-info SKIP.
+                 IF v = 2 THEN  PUT /*SPACE(10)  v-po-no FORMAT "x(15)"*/ SPACE(42) v-part-info SKIP.
                  ELSE          PUT SPACE(20) "Previous Invoice(s): " v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.

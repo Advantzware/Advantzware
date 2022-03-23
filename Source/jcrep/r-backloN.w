@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -107,7 +108,7 @@ DEFINE BUFFER b-itemfg FOR itemfg .
 
 ASSIGN cTextListToSelect = "Machine,Job#,Cust#,Die#,Style,Total Hours" 
        cFieldListToSelect = "mch,job,cust,die,style,ttl-hrs"
-       cFieldLength = "7,10,8,15,6,11" 
+       cFieldLength = "7,13,8,15,6,11" 
        cFieldType = "c,c,c,c,c,i"
     .
 
@@ -1576,7 +1577,7 @@ display "" with frame r-top.
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
                          WHEN "mch"            THEN cVarValue =  STRING(tt-job-mch.m-code) .
-                         WHEN "job"        THEN cVarValue =  STRING(tt-job-mch.job-no + "-" + STRING(tt-job-mch.job-no2,"99")) .
+                         WHEN "job"        THEN cVarValue =  STRING(tt-job-mch.job-no + "-" + STRING(tt-job-mch.job-no2,"999")) .
                          WHEN "cust"           THEN cVarValue =  STRING(tt-job-mch.cust-no,"X(8)") .
                          WHEN "die"            THEN cVarValue =  STRING(tt-job-mch.die,"X(15)") .
                          WHEN "style"          THEN cVarValue =  STRING(tt-job-mch.style,"X(6)") .

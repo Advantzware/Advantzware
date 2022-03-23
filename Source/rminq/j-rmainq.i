@@ -1,5 +1,6 @@
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
-IF fi_job-no NE "" THEN fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
+IF fi_job-no NE "" THEN fi_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fi_job-no)) .
 
 IF fi_job-no NE "" THEN DO:
   &SCOPED-DEFINE open-query             ~

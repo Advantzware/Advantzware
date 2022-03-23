@@ -42,7 +42,7 @@ DEFINE TEMP-TABLE ttItemLines
     FIELD lMatrixExists   AS LOGICAL
     FIELD dDiscount       AS DECIMAL 
     FIELD iCaseCount      AS INTEGER
-    FIELD cTableType      AS CHARACTER 
+    FIELD cTableType      AS CHARACTER
     .
 DEFINE TEMP-TABLE ttOePrmtx
     FIELD company       AS CHARACTER LABEL "Company"
@@ -622,7 +622,7 @@ PROCEDURE Price_CheckPriceMatrix:
             RUN pGetQtyMatchInfo(BUFFER bf-oe-prmtx, ipdQuantity, 0, OUTPUT iLevel, OUTPUT lQtyMatch).
             RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, bf-itemfg.sell-price, bf-itemfg.sell-uom, OUTPUT dPriceMtx, OUTPUT cPriceUOM).
             IF dPriceMtx NE ipdPrice THEN 
-                opcMessage = cMessage + " but price should be " + STRING(dPriceMtx) + " not " + STRING(ipdPrice).
+                opcMessage = cMessage + " but price should be " + STRING(dPriceMtx) + " not " + STRING(ipdPrice). 
             ELSE 
             DO:                
                 IF NOT lQtyMatch THEN 
@@ -710,10 +710,9 @@ PROCEDURE Price_CalculateLinePrice:
             ttItemLines.cCustID, 
             ttItemLines.cShipID,
             ttItemLines.dQuantityLookup,  
-            OUTPUT ttItemLines.lMatrixExists, 
             INPUT-OUTPUT ttItemLines.dPrice, 
             INPUT-OUTPUT ttItemLines.cPriceUOM ).    
-                
+
         IF ttItemLines.lIsPrimary THEN 
             ASSIGN 
                 oplMatrixExists = ttItemLines.lMatrixExists
@@ -1027,7 +1026,7 @@ PROCEDURE Price_GetPriceMatrixPrice:
             iLevel = ipiLevelOverride.
         ELSE 
             iLevel = iLevelStart.
-    END.
+    END.     
     IF oplQtyWithinRange THEN
         RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, dItemSellPrice, cItemSellPriceUom, OUTPUT iopdPrice, OUTPUT iopcUom).
     ELSE 
@@ -1760,7 +1759,6 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
 
     DEFINE VARIABLE iLevel AS INTEGER NO-UNDO.
     DEFINE VARIABLE cPriceMatrixPricingMethod AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iLevelQty AS INTEGER NO-UNDO.
     
     ASSIGN 
         opiQtyLevel         = 0
@@ -1775,24 +1773,16 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
       
     /*process matrix array completely, one time*/
     DO iLevel = ipiLevelStart TO EXTENT(ipbf-oe-prmtx.qty): /* IF customer has higher starting level set otherwise start with 1st level*/
+        IF ipdQuantityTarget EQ ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
+            oplQtyDistinctMatch = YES.
         IF cPriceMatrixPricingMethod EQ "From" THEN 
         DO:
-            IF ipdQuantityTarget EQ ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
-                oplQtyDistinctMatch = YES. 
+            IF ipdQuantityTarget GE ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
+                opiQtyLevel = iLevel.
             
-            IF ipdQuantityTarget GE ipbf-oe-prmtx.qty[iLevel] THEN
-            iLevelQty = ipbf-oe-prmtx.qty[iLevel] .
-            
-            IF ipdQuantityTarget LE (ipbf-oe-prmtx.qty[iLevel] - 1) AND ipdQuantityTarget GE iLevelQty AND iLevelQty GT 0 THEN
-            DO:                          
-                IF opiQtyLevel = 0 THEN 
-                    opiQtyLevel = (iLevel - 1).
-            END.        
         END. /* cPriceMatrixPricingMethod EQ "From" */
         ELSE IF cPriceMatrixPricingMethod EQ "Up To" AND ipdQuantityTarget LE ipbf-oe-prmtx.qty[iLevel] THEN /*As soon as a qty level is found, greater than qty, all set*/
         DO:
-            IF ipdQuantityTarget EQ ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
-                oplQtyDistinctMatch = YES.
             IF opiQtyLevel = 0 THEN 
                 opiQtyLevel = iLevel.
         END. /*Qty LE oe-prmtx qty*/

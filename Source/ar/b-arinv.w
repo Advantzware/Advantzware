@@ -148,7 +148,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ar-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>9":U
+      ar-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>>9":U
             LABEL-BGCOLOR 14
       ar-inv.cust-no COLUMN-LABEL "Cust.#" FORMAT "x(8)":U WIDTH 14.2
             LABEL-BGCOLOR 14
@@ -269,7 +269,7 @@ ASSIGN
      _TblOptList       = "USED"
      _Where[1]         = "ASI.ar-inv.company = g_company"
      _FldNameList[1]   > ASI.ar-inv.inv-no
-"inv-no" "Invoice#" ">>>>>>9" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-no" "Invoice#" ">>>>>>>9" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.ar-inv.cust-no
 "cust-no" "Cust.#" ? "character" ? ? ? 14 ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.ar-inv.cust-name

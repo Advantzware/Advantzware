@@ -11,6 +11,7 @@
     Created     : Sun Mar 03 18:31:30 EST 2019
     Notes       :
   ----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 {Inventory/ttInventory.i}
@@ -67,6 +68,14 @@ FUNCTION fGetOverageQuantitySubUnitsPerUnit RETURNS INTEGER
     
 FUNCTION fGetSnapshotCompareStatus RETURNS CHARACTER PRIVATE
     (ipcCompany AS CHARACTER,
+     ipcTag AS CHARACTER,
+     ipdQuantity AS DECIMAL,
+     ipcWarehouseID AS CHARACTER,
+     ipcLocationID AS CHARACTER) FORWARD.
+
+FUNCTION fGetSnapshotCompareStatusBySnapshotID RETURNS CHARACTER
+    (ipcCompany AS CHARACTER,
+     ipiSnapshotID AS INTEGER,
      ipcTag AS CHARACTER,
      ipdQuantity AS DECIMAL,
      ipcWarehouseID AS CHARACTER,
@@ -478,6 +487,61 @@ PROCEDURE Inventory_GetFGReceiptTransaction:
 
 END PROCEDURE.
 
+PROCEDURE pGetRMItemOnHandQuantity PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-loadtag FOR loadtag.    
+    DEFINE OUTPUT PARAMETER opdOnHandQty AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsIssued  AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-bin   FOR rm-bin.
+    DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
+    DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
+
+    RUN pGetLastIssue(
+        BUFFER ipbf-loadtag, 
+        BUFFER bf-rm-rdtlh, 
+        BUFFER bf-rm-rcpth, 
+        OUTPUT oplIsIssued
+        ).
+    IF NOT oplIsIssued THEN
+        RETURN.
+        
+    FIND FIRST bf-rm-bin NO-LOCK
+         WHERE bf-rm-bin.company EQ ipbf-loadtag.company
+           AND bf-rm-bin.i-no    EQ ipbf-loadtag.i-no
+           AND bf-rm-bin.tag     EQ ipbf-loadtag.tag-no
+           AND bf-rm-bin.loc     EQ bf-rm-rdtlh.loc
+           AND bf-rm-bin.loc-bin EQ bf-rm-rdtlh.loc-bin
+         NO-ERROR.
+    IF AVAILABLE bf-rm-bin THEN
+        opdOnHandQty = bf-rm-bin.qty.
+END PROCEDURE.
+
+PROCEDURE Inventory_GetRMReceiptTransaction:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opriRMRctd AS ROWID     NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+       
+    FIND FIRST bf-rm-rctd NO-LOCK  
+         WHERE bf-rm-rctd.company   EQ ipcCompany
+           AND bf-rm-rctd.tag       EQ ipcTag
+           AND bf-rm-rctd.rita-code EQ gcTransactionTypeReceive
+           AND bf-rm-rctd.r-no      NE 0
+         NO-ERROR.
+    IF AVAILABLE bf-rm-rctd THEN
+        opriRMRctd = ROWID(bf-rm-rctd).
+
+END PROCEDURE.
+
 PROCEDURE Inventory_MoveFGTransaction:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -544,6 +608,74 @@ PROCEDURE Inventory_MoveFGTransaction:
         bf-fg-rctd.loc        = ipcLocation
         bf-fg-rctd.loc-bin    = ipcBin
         bf-fg-rctd.created-by = cUserID
+        .
+END PROCEDURE.
+
+PROCEDURE Inventory_MoveRMTransaction:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriRMRctd  AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE lValidLoc AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lValidBin AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cUserID   AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+       
+    FIND FIRST bf-rm-rctd NO-LOCK  
+         WHERE ROWID(bf-rm-rctd) EQ ipriRMRctd
+         NO-ERROR.
+    IF NOT AVAILABLE bf-rm-rctd THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid RM Receipt passed as input"
+            .
+        
+        RETURN. 
+    END.
+    
+    RUN ValidateLoc ( bf-rm-rctd.company, ipcLocation, OUTPUT lValidLoc).
+    
+    IF NOT lValidLoc THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid Location " + ipcLocation                 
+            oplError   = TRUE
+            .
+        RETURN.
+    END.
+    
+    /* Validate location */
+    RUN ValidateBin (bf-rm-rctd.company, ipcLocation, ipcBin, OUTPUT lValidBin).
+    
+    IF ipcBin EQ "" OR NOT lValidBin THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid Bin " + ipcBin
+            oplError   = TRUE 
+            .
+        RETURN.
+    END.
+    
+    FIND CURRENT bf-rm-rctd EXCLUSIVE-LOCK NO-ERROR.
+    IF NOT AVAILABLE bf-rm-rctd THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "FG Receipt is locked. Please try again later"
+            .
+        
+        RETURN.     
+    END.
+    
+    RUN spGetSessionParam ("UserID", OUTPUT cUserID).
+    
+    ASSIGN
+        bf-rm-rctd.loc     = ipcLocation
+        bf-rm-rctd.loc-bin = ipcBin
         .
 END PROCEDURE.
 
@@ -732,7 +864,20 @@ PROCEDURE Inventory_GetQuantityOfSubUnitsPerUnitFromBinAndOrder:
           
      RUN pGetQuantityOfSubUnitsPerUnitFromBinAndOrder(ipcCompany, ipcItemID, ipcJobID, ipiJobID2, ipcLocationID, ipcBin, ipcTag, ipiOrderID,
          OUTPUT opiQuantitySubUnitsPerUnit).  
-END PROCEDURE.        
+END PROCEDURE.     
+
+PROCEDURE Inventory_UpdateBolBinWithMatchInventory:
+    /*------------------------------------------------------------------------------
+     Purpose:  
+     Notes:
+    ------------------------------------------------------------------------------*/ 
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNewLocBin AS CHARACTER NO-UNDO.
+              
+     RUN pUpdateBolBinWithMatchInventory(ipcCompany, ipiBNo, ipcNewLocBin).
+     
+END PROCEDURE.       
 
 PROCEDURE pBuildRMHistory PRIVATE:
 /*------------------------------------------------------------------------------
@@ -755,7 +900,7 @@ PROCEDURE pBuildRMHistory PRIVATE:
         WHERE bf-rm-rcpth.company    EQ ipcCompany
           AND bf-rm-rcpth.i-no       EQ ipcItemID
           AND (bf-rm-rcpth.rita-code EQ ipcTransactionType OR ipcTransactionType EQ "" OR (ipcTransactionType EQ "R" AND bf-rm-rcpth.rita-code = "A"))
-          AND (bf-rm-rcpth.job-no    EQ ipcJobNo OR ipcJobNo EQ "")
+          AND (trim(bf-rm-rcpth.job-no) EQ ipcJobNo OR ipcJobNo EQ "")
           AND (bf-rm-rcpth.job-no2   EQ ipiJobNo2 OR ipiJobNo2 EQ 0 OR ipcJobNo EQ ""),
         EACH bf-rm-rdtlh NO-LOCK
         WHERE bf-rm-rdtlh.r-no      EQ bf-rm-rcpth.r-no
@@ -915,7 +1060,7 @@ PROCEDURE pFGQuantityAdjust PRIVATE:
             WHERE bf-fg-bin.company EQ ipcCompany
               AND bf-fg-bin.i-no    EQ ipcItemID
               AND bf-fg-bin.onHold  EQ NO
-              AND bf-fg-bin.job-no  EQ ipcJobNo
+              AND trim(bf-fg-bin.job-no)  EQ trim(ipcJobNo)
               AND bf-fg-bin.job-no2 EQ ipiJobNo2
               AND bf-fg-bin.qty     GT 0
             USE-INDEX i-no
@@ -1229,6 +1374,7 @@ PROCEDURE Inventory_CreateRMTransaction:
         INPUT  ipdQty, 
         INPUT  ipdCost, 
         INPUT  ipcReasonCode, 
+        INPUT  "", //RMLot
         OUTPUT opriRMRctd, 
         OUTPUT oplError, 
         OUTPUT opcMessage
@@ -1250,6 +1396,7 @@ PROCEDURE Inventory_CreateRMTransactionForDate:
     DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdCost       AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMLot      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
@@ -1265,6 +1412,7 @@ PROCEDURE Inventory_CreateRMTransactionForDate:
         INPUT  ipdQty, 
         INPUT  ipdCost, 
         INPUT  ipcReasonCode, 
+        INPUT  ipcRMLot,
         OUTPUT opriRMRctd, 
         OUTPUT oplError, 
         OUTPUT opcMessage
@@ -1286,6 +1434,7 @@ PROCEDURE pCreateRMTransaction PRIVATE:
     DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdCost       AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMLot      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
@@ -1339,11 +1488,77 @@ PROCEDURE pCreateRMTransaction PRIVATE:
             bf-rm-rctd.pur-uom        = bf-item.cons-uom
             bf-rm-rctd.cost-uom       = bf-item.cons-uom
             bf-rm-rctd.adjustmentCode = ipcReasonCode
+            bf-rm-rctd.tag2           = ipcRMLot
             bf-rm-rctd.enteredBy      = USERID("ASI")
             bf-rm-rctd.enteredDT      = NOW
             opriRMRctd                = ROWID(bf-rm-rctd)
             .
     END.
+END PROCEDURE.
+
+PROCEDURE Inventory_CreateRMTransactionTransfer:
+/*------------------------------------------------------------------------------
+ Purpose: 
+ Notes: 
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriRMBin     AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin        AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-bin  FOR rm-bin.
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+    
+    FIND FIRST bf-rm-bin NO-LOCK
+         WHERE ROWID(bf-rm-bin) EQ ipriRMBin
+         NO-ERROR.
+    IF NOT AVAILABLE bf-rm-bin THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid RM Bin ROWID passed as input"
+            .
+        RETURN.
+    END.
+
+    RUN pCreateRMTransactionFromRMBin (
+        INPUT  ipriRMBin,
+        INPUT  TODAY,
+        INPUT  gcTransactionTypeTransfer,
+        INPUT  bf-rm-bin.qty,
+        INPUT  "",
+        INPUT  FALSE,
+        OUTPUT opriRMRctd,
+        OUTPUT lSuccess,  
+        OUTPUT opcMessage          
+        ).
+        
+    oplError = NOT lSuccess.
+    IF oplError THEN
+        RETURN.
+    
+    FIND FIRST bf-rm-rctd EXCLUSIVE-LOCK
+         WHERE ROWID(bf-rm-rctd) EQ opriRMRctd
+         NO-ERROR.
+    IF NOT AVAILABLE bf-rm-rctd THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Error while creating RM Transaction"
+            .
+        
+        RETURN.
+    END.    
+    
+    ASSIGN
+        bf-rm-rctd.tag2     = bf-rm-rctd.tag
+        bf-rm-rctd.loc2     = ipcLocationID
+        bf-rm-rctd.loc-bin2 = ipcBin
+        bf-rm-rctd.cost     = 0
+        bf-rm-rctd.cost-uom = ""
+        .
 END PROCEDURE.
 
 PROCEDURE Inventory_CreateRMTransactionFromRMBin:
@@ -1456,6 +1671,7 @@ PROCEDURE pCreateRMTransactionFromRMBin PRIVATE:
             INPUT  ipdQty, 
             INPUT  bf-rm-bin.cost, 
             INPUT  ipcReasonCode, 
+            INPUT  "", //RMLot
             OUTPUT opriRMRctd, 
             OUTPUT lError, 
             OUTPUT opcMessage
@@ -1862,7 +2078,7 @@ PROCEDURE pBuildFGBinForItem PRIVATE:
           AND bf-fg-bin.i-no    EQ bf-itemfg.i-no
           AND ((bf-fg-bin.loc     EQ ipcWarehouseID) OR lIsWarehouseEmpty)
           AND ((bf-fg-bin.loc-bin EQ ipcLocationID)  OR lIsLocationEmpty)
-          AND ((bf-fg-bin.job-no  EQ ipcJobNo AND bf-fg-bin.job-no2 EQ ipiJobNo2) OR lIsJobNoEmpty)
+          AND ((trim(bf-fg-bin.job-no)  EQ trim(ipcJobNo) AND bf-fg-bin.job-no2 EQ ipiJobNo2) OR lIsJobNoEmpty)
           AND (((bf-fg-bin.qty NE 0)  AND NOT iplZeroQtyBins) OR iplZeroQtyBins)
           AND (((bf-fg-bin.tag NE "") AND NOT iplEmptyTags)   OR iplEmptyTags):        
         CREATE ttBrowseInventory.
@@ -2135,6 +2351,8 @@ PROCEDURE Inventory_PostRawMaterials:
     EMPTY TEMP-TABLE ttRawMaterialsToPost.
     EMPTY TEMP-TABLE ttRawMaterialsGLTransToPost.
     
+    oplSuccess = TRUE.
+    
     TRANSACTION-BLOCK:    
     DO TRANSACTION ON ERROR UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK:
         FOR EACH ttBrowseInventory 
@@ -2232,9 +2450,13 @@ PROCEDURE Inventory_PostRawMaterials:
                     ) NO-ERROR.
         
                 CREATE bf-create-rm-rctd.
-                BUFFER-COPY bf-rm-rctd TO bf-create-rm-rctd.
+                BUFFER-COPY bf-rm-rctd EXCEPT rec_key r-no TO bf-create-rm-rctd.
+
                 ASSIGN
                    bf-create-rm-rctd.r-no              = iNextRNo
+                   bf-create-rm-rctd.rita-code         = bf-ttRawMaterialsToPost.ritaCode
+                   bf-create-rm-rctd.s-num             = bf-ttRawMaterialsToPost.formNo
+                   bf-create-rm-rctd.qty               = bf-ttRawMaterialsToPost.quantity
                    bf-ttRawMaterialsToPost.rmRctdRowId = ROWID(bf-create-rm-rctd)
                    .
             END.
@@ -2263,10 +2485,6 @@ PROCEDURE Inventory_PostRawMaterials:
     EMPTY TEMP-TABLE ttRawMaterialsToPost.
     EMPTY TEMP-TABLE ttRawMaterialsGLTransToPost.
 
-    ASSIGN
-        oplSuccess = TRUE
-        opcMessage = "Success"
-        .
 END PROCEDURE.
 
 PROCEDURE Inventory_CreateReturnFromTag:
@@ -2360,7 +2578,9 @@ PROCEDURE Inventory_CreateRMReturnFromTag:
         OUTPUT oplError,
         OUTPUT opcMessage
         ).
-
+    
+    EMPTY TEMP-TABLE ttBrowseInventory.
+    
     IF iplPost AND NOT oplError THEN DO:
         RUN Inventory_BuildRawMaterialToPost (
             INPUT  riRmRctd,
@@ -2496,28 +2716,26 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
             IF ttRawMaterialsToPost.ritaCode EQ "R" AND bf-costtype.ap-accrued NE "" THEN DO:
 
                 /* Debit RM Asset */
-                FIND FIRST ttRawMaterialsGLTransToPost 
-                     WHERE ttRawMaterialsGLTransToPost.accountNo EQ bf-costtype.inv-asset
-                     NO-ERROR.
-                IF NOT AVAILABLE ttRawMaterialsGLTransToPost THEN DO:
-                    CREATE ttRawMaterialsGLTransToPost.
-                    ASSIGN 
-                        ttRawMaterialsGLTransToPost.accountNo = bf-costtype.inv-asset
-                        ttRawMaterialsGLTransToPost.memo = "RM Receipt".
-                END.
-                ttRawMaterialsGLTransToPost.debits = ttRawMaterialsGLTransToPost.debits + dExtCost.
+                CREATE ttRawMaterialsGLTransToPost.
+                ASSIGN 
+                    ttRawMaterialsGLTransToPost.accountNo = bf-costtype.inv-asset
+                    ttRawMaterialsGLTransToPost.memo      = "RM Receipt"
+                    ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"99") ELSE "")
+                                                          + (IF bf-rm-rctd.po-no NE "" THEN " PO:" + STRING(bf-rm-rctd.po-no,"999999") + "-" + STRING(bf-rm-rctd.po-line,"999") ELSE "") + " " 
+                                                          + " Cost $" + STRING(bf-rm-rctd.cost) + " / " + bf-rm-rctd.cost-uom
+                    ttRawMaterialsGLTransToPost.debits    = dExtCost
+                    .
 
                 /* Credit RM AP Accrued */
-                FIND FIRST ttRawMaterialsGLTransToPost 
-                     WHERE ttRawMaterialsGLTransToPost.accountNo EQ bf-costtype.ap-accrued 
-                     NO-ERROR.
-                IF NOT AVAILABLE ttRawMaterialsGLTransToPost THEN DO:
-                    CREATE ttRawMaterialsGLTransToPost.
-                    ASSIGN 
-                        ttRawMaterialsGLTransToPost.accountNo = bf-costtype.ap-accrued
-                        ttRawMaterialsGLTransToPost.memo = "RM Receipt".
-                END.
-                ttRawMaterialsGLTransToPost.credits = ttRawMaterialsGLTransToPost.credits + dExtCost.
+                CREATE ttRawMaterialsGLTransToPost.
+                ASSIGN 
+                    ttRawMaterialsGLTransToPost.accountNo = bf-costtype.ap-accrued
+                    ttRawMaterialsGLTransToPost.memo      = "RM Receipt"
+                    ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"99") ELSE "")
+                                                          + (IF bf-rm-rctd.po-no NE "" THEN " PO:" + STRING(bf-rm-rctd.po-no,"999999") + "-" + STRING(bf-rm-rctd.po-line,"999") ELSE "") + " " 
+                                                          + " Cost $" + STRING(bf-rm-rctd.cost) + " / " + bf-rm-rctd.cost-uom
+                    ttRawMaterialsGLTransToPost.credits   = dExtCost.
+                    .
             END.
             ELSE IF bf-rm-rctd.rita-code EQ "I" THEN DO:
                 IF  bf-rm-rctd.job-no NE "" THEN 
@@ -2577,6 +2795,9 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
                                 ttRawMaterialsGLTransToPost.jobNo2    = bf-job-hdr.job-no2
                                 ttRawMaterialsGLTransToPost.accountNo = bf-prod.wip-mat
                                 ttRawMaterialsGLTransToPost.memo      = "RM Issue To Job"
+                                ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"99") ELSE "")
+                                                                      + (IF bf-rm-rctd.po-no NE "" THEN " PO:" + STRING(bf-rm-rctd.po-no,"999999") + "-" + STRING(bf-rm-rctd.po-line,"999") ELSE "") + " " 
+                                                                      + " Cost $" + STRING(bf-rm-rctd.cost) + " / " + bf-rm-rctd.cost-uom
                                 .
                         END.
                         ttRawMaterialsGLTransToPost.debitsAmount = ttRawMaterialsGLTransToPost.debitsAmount + dAmount.
@@ -2596,6 +2817,9 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
                                 ttRawMaterialsGLTransToPost.jobNo2    = bf-job-hdr.job-no2
                                 ttRawMaterialsGLTransToPost.accountNo = bf-costtype.inv-asset
                                 ttRawMaterialsGLTransToPost.memo      = "RM Issue To Job"
+                                ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"99") ELSE "")
+                                                                      + (IF bf-rm-rctd.po-no NE "" THEN " PO:" + STRING(bf-rm-rctd.po-no,"999999") + "-" + STRING(bf-rm-rctd.po-line,"999") ELSE "") + " " 
+                                                                      + " Cost $" + STRING(bf-rm-rctd.cost) + " / " + bf-rm-rctd.cost-uom
                                 .
                         END.
                         ttRawMaterialsGLTransToPost.credits = ttRawMaterialsGLTransToPost.credits + dAmount.
@@ -2720,6 +2944,13 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
          NO-ERROR.         
     IF AVAILABLE bf-rm-bin THEN
         dIssuedQty = bf-rm-bin.qty.
+    ELSE DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Tag '" + ipcTag + "' does not exist in inventory"
+            .
+        RETURN.    
+    END.
         
     IF dIssuedQty EQ 0 THEN DO:
         ASSIGN
@@ -2778,7 +3009,7 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
     IF NOT lSetJob AND bf-loadtag.form-no EQ 0 AND bf-loadtag.job-no NE "" THEN DO:                        
         ASSIGN
             oplSuccess = FALSE
-            opcMessage = "Sheet # may not be 0 for tag " + ipcTag
+            opcMessage = "Form # may not be 0 for tag " + ipcTag
             .
         RETURN.
     END.
@@ -2845,20 +3076,39 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
         .
 END PROCEDURE.
 
-PROCEDURE Inventory_GetFGReceiptTransactions:
+PROCEDURE Inventory_GetFGTransactions:
 /*------------------------------------------------------------------------------
  Purpose: Returns the temp-table of FG transactions
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcUser            AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUser             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTransactTypeList AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     RUN pGetFGTransactions (
         INPUT  ipcCompany,
         INPUT  ipcUser,
-        INPUT  gcTransactionTypeReceive,
-        OUTPUT TABLE ttBrowseInventory
+        INPUT  ipcTransactTypeList,
+        INPUT-OUTPUT TABLE ttBrowseInventory
+        ).
+END PROCEDURE.
+
+PROCEDURE Inventory_GetRMTransactions:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the temp-table of FG transactions
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUser             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTransactTypeList AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+    
+    RUN pGetRMTransactions (
+        INPUT  ipcCompany,
+        INPUT  ipcUser,
+        INPUT  ipcTransactTypeList,
+        INPUT-OUTPUT TABLE ttBrowseInventory
         ).
 END PROCEDURE.
     
@@ -2870,34 +3120,167 @@ PROCEDURE pGetFGTransactions PRIVATE:
     DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcUser            AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTransactionType AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+    
+    DEFINE VARIABLE iTransactionCount AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTransaction      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cTransactionType  AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
     
     EMPTY TEMP-TABLE ttBrowseInventory.
     
-    FOR EACH bf-fg-rctd NO-LOCK
-        WHERE bf-fg-rctd.company     EQ ipcCompany
-          AND (bf-fg-rctd.rita-code  EQ ipcTransactionType OR ipcTransactionType EQ "")
-          AND (bf-fg-rctd.created-by EQ ipcUser OR ipcUser EQ ""):
-        CREATE ttBrowseInventory.
-        ASSIGN
-            ttBrowseInventory.company          = bf-fg-rctd.company
-            ttBrowseInventory.fgItemID         = bf-fg-rctd.i-no
-            ttBrowseInventory.tag              = bf-fg-rctd.tag
-            ttBrowseInventory.warehouse        = bf-fg-rctd.loc
-            ttBrowseInventory.location         = bf-fg-rctd.loc-bin
-            ttBrowseInventory.quantity         = bf-fg-rctd.qty
-            ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-fg-rctd))
-            ttBrowseInventory.inventoryStatus  = "Unposted"
-            ttBrowseInventory.lastTransTime    = NOW
-            .
+    iTransactionCount = NUM-ENTRIES(ipcTransactionType).
+    IF iTransactionCount EQ 0 THEN
+        iTransactionCount = 1.
         
-        IF ipcTransactionType EQ gcTransactionTypeReceive THEN
-            ttBrowseInventory.transactionType  = "Receipt".
-        ELSE IF ipcTransactionType EQ gcTransactionTypeTransfer THEN
-            ttBrowseInventory.transactionType  = "Transfer".
+    DO iTransaction = 1 TO iTransactionCount:
+        cTransactionType = ENTRY(iTransaction, ipcTransactionType).
+        
+        FOR EACH bf-fg-rctd NO-LOCK
+            WHERE bf-fg-rctd.company     EQ ipcCompany
+              AND (bf-fg-rctd.rita-code  EQ cTransactionType OR cTransactionType EQ "")
+              AND (bf-fg-rctd.created-by EQ ipcUser OR ipcUser EQ ""):
+            CREATE ttBrowseInventory.
+            ASSIGN
+                ttBrowseInventory.company          = bf-fg-rctd.company
+                ttBrowseInventory.fgItemID         = bf-fg-rctd.i-no
+                ttBrowseInventory.primaryID        = bf-fg-rctd.i-no
+                ttBrowseInventory.itemType         = 'FG'
+                ttBrowseInventory.tag              = bf-fg-rctd.tag
+                ttBrowseInventory.warehouse        = bf-fg-rctd.loc
+                ttBrowseInventory.location         = bf-fg-rctd.loc-bin
+                ttBrowseInventory.quantity         = bf-fg-rctd.qty
+                ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-fg-rctd))
+                ttBrowseInventory.inventoryStatus  = "Unposted"
+                ttBrowseInventory.lastTransTime    = NOW
+                .
+            
+            IF cTransactionType EQ gcTransactionTypeReceive THEN
+                ttBrowseInventory.transactionType  = "Receipt".
+            ELSE IF cTransactionType EQ gcTransactionTypeTransfer THEN
+                ttBrowseInventory.transactionType  = "Transfer".
+        END.
     END.
+END PROCEDURE.
+
+PROCEDURE pGetRMTransactions PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the temp-table of rm transactions
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUser            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTransactionType AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+
+    DEFINE VARIABLE iTransactionCount AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTransaction      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cTransactionType  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+    
+    EMPTY TEMP-TABLE ttBrowseInventory.
+
+    iTransactionCount = NUM-ENTRIES(ipcTransactionType).
+    IF iTransactionCount EQ 0 THEN
+        iTransactionCount = 1.
+        
+    DO iTransaction = 1 TO iTransactionCount:
+        cTransactionType = ENTRY(iTransaction, ipcTransactionType).    
+        FOR EACH bf-rm-rctd NO-LOCK
+            WHERE bf-rm-rctd.company    EQ ipcCompany
+              AND (bf-rm-rctd.rita-code EQ cTransactionType OR cTransactionType EQ "")
+              AND (bf-rm-rctd.user-id   EQ ipcUser OR ipcUser EQ ""):
+            CREATE ttBrowseInventory.
+            ASSIGN
+                ttBrowseInventory.company          = bf-rm-rctd.company
+                ttBrowseInventory.rmItemID         = bf-rm-rctd.i-no
+                ttBrowseInventory.primaryID        = bf-rm-rctd.i-no
+                ttBrowseInventory.itemType         = 'RM'
+                ttBrowseInventory.tag              = bf-rm-rctd.tag
+                ttBrowseInventory.warehouse        = bf-rm-rctd.loc
+                ttBrowseInventory.location         = bf-rm-rctd.loc-bin
+                ttBrowseInventory.quantity         = bf-rm-rctd.qty
+                ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-rm-rctd))
+                ttBrowseInventory.inventoryStatus  = "Unposted"
+                ttBrowseInventory.lastTransTime    = NOW
+                .
+            
+            IF cTransactionType EQ gcTransactionTypeReceive THEN
+                ttBrowseInventory.transactionType  = "Receipt".
+            ELSE IF cTransactionType EQ gcTransactionTypeTransfer THEN
+                ttBrowseInventory.transactionType  = "Transfer".
+        END.
+    END.
+END PROCEDURE.
+
+PROCEDURE Inventory_GetRMIssuedQuantity:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a loadtag send the issue quantity
+     Notes: 
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag          AS CHARACTER NO-UNDO. 
+    DEFINE OUTPUT PARAMETER opdIssuedQty    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcIssuedQtyUOM AS CHARACTER NO-UNDO.  
+    DEFINE OUTPUT PARAMETER oplError        AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-loadtag  FOR loadtag.
+    DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
+    DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
+    DEFINE BUFFER bf-job-mat  FOR job-mat.
+    DEFINE BUFFER bf-item     FOR item.
+    
+    DEFINE VARIABLE lFound          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dBasisWeight    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dLength         AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dWidth          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dDepth          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    
+    FIND FIRST bf-loadtag NO-LOCK 
+         WHERE bf-loadtag.company   EQ ipcCompany
+           AND bf-loadtag.item-type EQ YES
+           AND bf-loadtag.tag-no    EQ ipcTag
+         NO-ERROR.
+    IF NOT AVAILABLE bf-loadtag THEN DO:
+        ASSIGN
+            oplError = TRUE
+            opcMessage = "Invalid loadtag '" + ipcTag + "'"
+            .
+        RETURN.
+    END.
+    
+    RUN pGetLastIssue(
+        BUFFER bf-loadtag, 
+        BUFFER bf-rm-rdtlh, 
+        BUFFER bf-rm-rcpth, 
+        OUTPUT lFound
+        ).
+    IF NOT lFound THEN DO:
+        ASSIGN
+            oplError  = TRUE
+            opcMessage = "Tag '" + ipcTag + "' not issued yet"
+            .
+       
+        RETURN.
+    END.
+    
+    RUN pGetRMIssuedQuantity (
+        INPUT  bf-loadtag.company,
+        INPUT  bf-loadtag.i-no,
+        INPUT  bf-loadtag.tag-no,
+        INPUT  bf-rm-rcpth.job-no,
+        INPUT  bf-rm-rcpth.job-no2,
+        INPUT  bf-rm-rdtlh.s-num,
+        INPUT  bf-rm-rdtlh.b-num,
+        OUTPUT opdIssuedQty,
+        OUTPUT opcIssuedQtyUOM
+        ).
 END PROCEDURE.
 
 PROCEDURE pGetLastIssue PRIVATE:
@@ -2932,14 +3315,16 @@ PROCEDURE pGetRMIssuedQuantity PRIVATE:
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTag      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcJobID    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiJobID2   AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiFormNo   AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiBlankNo  AS INTEGER   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdQuantity AS DECIMAL   NO-UNDO.
-   
+    DEFINE INPUT  PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobID          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobID2         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo        AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdIssuedQuantity AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcIssuedQtyUOM   AS CHARACTER NO-UNDO.
+    
     DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
     DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
 
@@ -2954,9 +3339,11 @@ PROCEDURE pGetRMIssuedQuantity PRIVATE:
         FIRST bf-rm-rcpth NO-LOCK
         WHERE bf-rm-rcpth.r-no      EQ bf-rm-rdtlh.r-no
           AND bf-rm-rcpth.rita-code EQ bf-rm-rdtlh.rita-code:
-        opdQuantity = opdQuantity + bf-rm-rdtlh.qty.
+        ASSIGN
+            opdIssuedQuantity = opdIssuedQuantity + bf-rm-rdtlh.qty
+            opcIssuedQtyUOM   = bf-rm-rcpth.pur-uom
+            .
     END.
-       
 END PROCEDURE.
 
 PROCEDURE pCreateRMReturnFromTag PRIVATE:
@@ -2981,8 +3368,9 @@ PROCEDURE pCreateRMReturnFromTag PRIVATE:
 
     DEFINE VARIABLE lValidTag       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE dIssuedQty      AS DECIMAL   NO-UNDO.    
+    DEFINE VARIABLE cIssuedQtyUOM   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iNextRNo        AS INTEGER   NO-UNDO.
-
+    
     IF ipdQuantity LE 0 THEN DO:
         ASSIGN
             oplError   = TRUE
@@ -3040,12 +3428,14 @@ PROCEDURE pCreateRMReturnFromTag PRIVATE:
         
     RUN pGetRMIssuedQuantity (
         INPUT  ipcCompany,
+        INPUT  bf-loadtag.i-no,
         INPUT  ipcTag,
         INPUT  bf-rm-rcpth.job-no,
         INPUT  bf-rm-rcpth.job-no2,
         INPUT  bf-rm-rdtlh.s-num,
         INPUT  bf-rm-rdtlh.b-num,
-        OUTPUT dIssuedQty        
+        OUTPUT dIssuedQty,
+        OUTPUT cIssuedQtyUOM
         ).
 
     IF dIssuedQty = 0 THEN DO:
@@ -3371,7 +3761,7 @@ PROCEDURE Inventory_CheckPOUnderOver:
           AND po-ordl.po-no     EQ INTEGER(ipcPoNo)
           AND po-ordl.LINE      EQ ipiPoLine
           AND po-ordl.i-no      EQ ipcItem
-          AND po-ordl.job-no    EQ ipcJobNo
+          AND trim(po-ordl.job-no) EQ ipcJobNo
           AND po-ordl.job-no2   EQ ipiJobNo2
           AND po-ordl.item-type EQ NO
         NO-ERROR.
@@ -3463,7 +3853,7 @@ PROCEDURE Inventory_CheckJobUnderOver:
     FIND FIRST job-hdr NO-LOCK
          WHERE job-hdr.company EQ ipcCompany                       
            AND job-hdr.i-no    EQ ipcItem
-           AND job-hdr.job-no  EQ ipcJobNo
+           AND trim(job-hdr.job-no) EQ ipcJobNo
            AND job-hdr.job-no2 EQ ipiJobNo2
         NO-ERROR.
     IF AVAILABLE job-hdr THEN DO: 
@@ -3603,7 +3993,7 @@ PROCEDURE Inventory_GetReceivedQuantityPO:
     
    FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK 
        WHERE fg-rcpth.company   EQ ipcCompany
-         AND fg-rcpth.job-no    EQ ipcJobNo
+         AND trim(fg-rcpth.job-no) EQ trim(ipcJobNo)
          AND fg-rcpth.job-no2   EQ ipiJobNo2
          AND fg-rcpth.po-no     EQ ipcPoNo
          AND fg-rcpth.po-line   EQ ipiPoLine
@@ -3916,8 +4306,6 @@ PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
     DEFINE VARIABLE cRMPostGL     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iTrNum        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE dDebitsTotal  AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dCreditsTotal AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
     
     DEFINE BUFFER bf-gl-ctrl FOR gl-ctrl.
@@ -3959,31 +4347,19 @@ PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
                 FOR EACH ttRawMaterialsGLTransToPost 
                     WHERE (iCount EQ 1 AND ttRawMaterialsGLTransToPost.jobNo NE "")
                        OR (iCount EQ 2 AND ttRawMaterialsGLTransToPost.jobNo EQ "")
-                    BREAK BY ttRawMaterialsGLTransToPost.accountNo:
-        
-                    ASSIGN
-                        dDebitsTotal  = dDebitsTotal + ttRawMaterialsGLTransToPost.debitsAmount
-                        dCreditsTotal = dCreditsTotal + ttRawMaterialsGLTransToPost.creditsAmount
-                        .
-        
-                    IF LAST-OF(ttRawMaterialsGLTransToPost.accountNo) THEN DO:                        
-                        RUN GL_SpCreateGLHist(ipcCompany,
-                                           ttRawMaterialsGLTransToPost.accountNo,
-                                           "RMPOST",
-                                           ttRawMaterialsGLTransToPost.memo,
-                                           ipdtPostingDate,
-                                           dDebitsTotal - dCreditsTotal,
-                                           bf-gl-ctrl.trnum,
-                                           IF AVAILABLE bf-period THEN bf-period.pnum ELSE 1,
-                                           "A",
-                                           ipdtPostingDate,
-                                           (IF ttRawMaterialsGLTransToPost.jobNo NE "" THEN "Job:" + ttRawMaterialsGLTransToPost.jobNo + "-" + STRING(ttRawMaterialsGLTransToPost.jobNo2,"99") ELSE ""),
-                                           "RM").   
-                       ASSIGN 
-                        dDebitsTotal = 0
-                        dCreditsTotal = 0
-                        .  
-                    END.
+                    BREAK BY ttRawMaterialsGLTransToPost.accountNo:                            
+                    RUN GL_SpCreateGLHist(ipcCompany,
+                                       ttRawMaterialsGLTransToPost.accountNo,
+                                       "RMPOST",
+                                       ttRawMaterialsGLTransToPost.memo,
+                                       ipdtPostingDate,
+                                       ttRawMaterialsGLTransToPost.debitsAmount - ttRawMaterialsGLTransToPost.creditsAmount,
+                                       bf-gl-ctrl.trnum,
+                                       IF AVAILABLE bf-period THEN bf-period.pnum ELSE 1,
+                                       "A",
+                                       ipdtPostingDate,
+                                       ttRawMaterialsGLTransToPost.dscr,
+                                       "RM").   
                 END.
             END.      
                   
@@ -4030,7 +4406,7 @@ PROCEDURE pPostRawMaterials PRIVATE:
     DEFINE VARIABLE dCost           AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE riJobMat        AS RECID     NO-UNDO.
     DEFINE VARIABLE lKeepZeroRMBin  AS LOGICAL   NO-UNDO.
-    
+
     DEFINE BUFFER bf-rm-rctd         FOR rm-rctd.
     DEFINE BUFFER bf-receive-rm-rctd FOR rm-rctd.
     DEFINE BUFFER bf-item            FOR item.    
@@ -4044,6 +4420,8 @@ PROCEDURE pPostRawMaterials PRIVATE:
     DEFINE BUFFER bf-rm-rcpth        FOR rm-rcpth.
     DEFINE BUFFER bf-rm-rdtlh        FOR rm-rdtlh.
     DEFINE BUFFER bf-prep            FOR prep.
+
+    oplSuccess = TRUE.
     
     MAIN-BLOCK:
     DO TRANSACTION ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
@@ -4076,7 +4454,7 @@ PROCEDURE pPostRawMaterials PRIVATE:
         
         FIND FIRST bf-job NO-LOCK
              WHERE bf-job.company EQ bf-rm-rctd.company
-               AND bf-job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(bf-rm-rctd.job-no))) + TRIM(bf-rm-rctd.job-no)
+               AND bf-job.job-no  EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', bf-rm-rctd.job-no)) 
                AND bf-job.job-no2 EQ bf-rm-rctd.job-no2
              NO-ERROR.
 
@@ -4465,11 +4843,6 @@ PROCEDURE pPostRawMaterials PRIVATE:
                     .
         END.
     END.
-
-    ASSIGN
-        oplSuccess = TRUE
-        opcMessage = "Success"
-        .    
 END PROCEDURE.
 
 PROCEDURE pCreateRawMaterialsToPost PRIVATE:
@@ -4618,7 +4991,7 @@ PROCEDURE pCreateRawMaterialsToPost PRIVATE:
         END.
         
         /* Adjust the quantity in the first available record */
-        IF bf-ttRawMaterialsToPost.quantity NE ttRawMaterialsToPost.quantity THEN DO:
+        IF dTotalPostQty NE ttRawMaterialsToPost.quantity THEN DO:
             FIND FIRST bf-ttRawMaterialsToPost
                  WHERE bf-ttRawMaterialsToPost.parentRowID EQ ROWID(ttRawMaterialsToPost)
                  NO-ERROR.
@@ -4710,7 +5083,7 @@ PROCEDURE pRawMaterialPurchaseOrderUpdate PRIVATE:
               AND bf-po-ordl.job-no2   EQ ipbf-rm-rctd.job-no2
               USE-INDEX item-ordno
             BREAK BY bf-po-ordl.s-num DESCENDING:
-            riPOOrdl = ROWID(po-ordl).  
+            riPOOrdl = ROWID(bf-po-ordl).  
             IF LAST(bf-po-ordl.s-num) OR bf-po-ordl.s-num EQ ipbf-rm-rctd.s-num THEN
                 LEAVE.
         END.
@@ -6039,7 +6412,7 @@ PROCEDURE CreatePrintInventory:
 
         ASSIGN
             ttPrintInventoryStock.jobNumber    = LEFT-TRIM(TRIM(inventoryStock.jobID))
-            ttPrintInventoryStock.jobNumber    = FILL(" ",6 - LENGTH(ttPrintInventoryStock.jobNumber)) + ttPrintInventoryStock.jobNumber
+            ttPrintInventoryStock.jobNumber    = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ttPrintInventoryStock.jobNumber)) 
             ttPrintInventoryStock.jobRunNumber = inventoryStock.jobID2
             ttPrintInventoryStock.jobID        = ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"99")
             ttPrintInventoryStock.jobIDTrimmed = LEFT-TRIM(ttPrintInventoryStock.jobID)
@@ -6455,11 +6828,11 @@ PROCEDURE CreatePrintInventoryForFG:
                                                          ELSE
                                                              ""
             cJobNumber                                 = IF inventoryStock.jobID NE "" THEN
-                                                             FILL(" ",6 - LENGTH(cJobNumber)) + cJobNumber
+                                                             STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNumber))                                                             
                                                          ELSE
                                                              ""
             ttPrintInventoryStockFG.jobID              = IF inventoryStock.jobID NE "" THEN
-                                                             cJobNumber + "-" + STRING(inventoryStock.jobID2,"99")
+                                                             cJobNumber + "-" + STRING(inventoryStock.jobID2,"999")
                                                          ELSE
                                                              ""
             ttPrintInventoryStockFG.fgItemID           = inventoryStock.fgItemID
@@ -6563,7 +6936,7 @@ PROCEDURE CreateTransactionInitializedFromJob:
 
     FIND FIRST job-hdr NO-LOCK
          WHERE job-hdr.company  EQ ipcCompany
-           AND job-hdr.job-no   EQ ipcJobno
+           AND trim(job-hdr.job-no)   EQ trim(ipcJobno)
            AND job-hdr.job-no2  EQ ipiJobno2
     NO-ERROR.
     IF NOT AVAILABLE job-hdr THEN DO:
@@ -7076,6 +7449,10 @@ PROCEDURE BuildPhyScanBrowseFromSnapshotLocation:
     DEFINE INPUT PARAMETER ipcLocationID       AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTransactionType  AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
+
+    DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+    
+    RUN Inventory_GetWarehouseLength (ipcCompany, OUTPUT iWarehouseLength).
     
     FOR EACH inventoryStockSnapshot NO-LOCK
         WHERE inventoryStockSnapshot.company     EQ ipcCompany
@@ -7123,14 +7500,14 @@ PROCEDURE BuildPhyScanBrowseFromSnapshotLocation:
                 ttPhysicalBrowseInventory.origWarehouseID  = inventoryStockSnapshot.warehouseID
                 ttPhysicalBrowseInventory.location         = IF AVAILABLE inventoryTransaction THEN
                                                                  inventoryTransaction.warehouseID +
-                                                                 FILL(" ", 5 - LENGTH(inventoryTransaction.warehouseID)) +
+                                                                 FILL(" ", iWarehouseLength - LENGTH(inventoryTransaction.warehouseID)) +
                                                                  inventoryTransaction.locationID            
                                                              ELSE    
                                                                  ttPhysicalBrowseInventory.warehouseID +
-                                                                 FILL(" ", 5 - LENGTH(ttPhysicalBrowseInventory.warehouseID)) +
+                                                                 FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.warehouseID)) +
                                                                  ttPhysicalBrowseInventory.locationID            
                 ttPhysicalBrowseInventory.origLocation     = ttPhysicalBrowseInventory.origWarehouseID +
-                                                             FILL(" ", 5 - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) +
+                                                             FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) +
                                                              ttPhysicalBrowseInventory.origLocationID            
                 ttPhysicalBrowseInventory.inventoryStatus  = IF AVAILABLE inventoryTransaction THEN
                                                                  fGetSnapshotCompareStatus ( 
@@ -7147,6 +7524,75 @@ PROCEDURE BuildPhyScanBrowseFromSnapshotLocation:
     END.
 END PROCEDURE.
 
+PROCEDURE Inventory_GetSnapShotForLocation:
+/*------------------------------------------------------------------------------
+ Purpose: Rebuilds browse temp-table
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSnapshotID AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin        AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
+    
+    DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+    
+    RUN Inventory_GetWarehouseLength (ipcCompany, OUTPUT iWarehouseLength).
+    
+    EMPTY TEMP-TABLE ttPhysicalBrowseInventory.
+    
+    FOR EACH inventoryStockSnapShot NO-LOCK
+        WHERE inventoryStockSnapShot.company             EQ ipcCompany
+          AND inventoryStockSnapshot.inventorysnapshotID EQ ipiSnapShotID
+          AND inventoryStockSnapshot.warehouseID         EQ ipcLocation
+          AND inventoryStockSnapshot.locationID          EQ ipcBin
+          AND inventoryStockSnapshot.inventoryStockID    NE '':
+        FIND FIRST ttPhysicalBrowseInventory NO-LOCK
+             WHERE ttPhysicalBrowseInventory.company EQ inventoryStockSnapshot.company
+               AND ttPhysicalBrowseInventory.tag     EQ inventoryStockSnapshot.inventoryStockID
+             NO-ERROR.
+        IF NOT AVAILABLE ttPhysicalBrowseInventory THEN DO:
+            CREATE ttPhysicalBrowseInventory.
+            ASSIGN
+                ttPhysicalBrowseInventory.company            = inventoryStockSnapshot.company
+                ttPhysicalBrowseInventory.inventoryStockID   = inventoryStockSnapshot.inventoryStockID
+                ttPhysicalBrowseInventory.tag                = inventoryStockSnapshot.inventoryStockID
+                ttPhysicalBrowseInventory.itemType           = inventoryStockSnapshot.itemType
+                ttPhysicalBrowseInventory.itemID             = IF inventoryStockSnapshot.itemType EQ "FG" THEN
+                                                                   inventoryStockSnapshot.fgItemID
+                                                               ELSE IF inventoryStockSnapshot.itemType EQ "RM" THEN /* Should be rmItemID. Needs correction in CycleCountCompareRM.p */
+                                                                   inventoryStockSnapshot.rmItemID
+                                                               ELSE
+                                                                   ""
+                ttPhysicalBrowseInventory.jobID              = inventoryStockSnapshot.jobID
+                ttPhysicalBrowseInventory.jobID2             = inventoryStockSnapshot.jobID2
+                ttPhysicalBrowseInventory.origQuantity       = IF inventoryStockSnapshot.quantityOriginal EQ ? THEN
+                                                                   0
+                                                               ELSE
+                                                                   inventoryStockSnapshot.quantityOriginal
+                ttPhysicalBrowseInventory.quantity           = 0
+                ttPhysicalBrowseInventory.quantityPerSubUnit = IF inventoryStockSnapshot.quantityPerSubUnit EQ 0 THEN 1 ELSE inventoryStockSnapshot.quantityPerSubUnit
+                ttPhysicalBrowseInventory.quantityOfSubUnits = inventoryStockSnapshot.quantityOfSubUnits
+                ttPhysicalBrowseInventory.quantityPartial    = inventoryStockSnapshot.quantityPartial 
+                ttPhysicalBrowseInventory.quantityUOM        = inventoryStockSnapshot.quantityUOM                                                                 
+                ttPhysicalBrowseInventory.customerID         = inventoryStockSnapshot.customerID
+                ttPhysicalBrowseInventory.lastTransTime      = NOW
+                ttPhysicalBrowseInventory.locationID         = ""
+                ttPhysicalBrowseInventory.origLocationID     = inventoryStockSnapshot.locationID
+                ttPhysicalBrowseInventory.warehouseID        = ""
+                ttPhysicalBrowseInventory.origWarehouseID    = inventoryStockSnapshot.warehouseID
+                ttPhysicalBrowseInventory.location           = ttPhysicalBrowseInventory.warehouseID 
+                                                             + FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.warehouseID)) 
+                                                             + ttPhysicalBrowseInventory.locationID            
+                ttPhysicalBrowseInventory.origLocation       = ttPhysicalBrowseInventory.origWarehouseID 
+                                                             + FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) 
+                                                             + ttPhysicalBrowseInventory.origLocationID            
+                ttPhysicalBrowseInventory.inventoryStatus    = gcStatusSnapshotNotScanned                                                         
+                .
+        END.  
+    END.
+END PROCEDURE.
+
 PROCEDURE BuildPhyScanBrowseFromTransactionLocation:
     /*------------------------------------------------------------------------------
      Purpose: Rebuilds browse temp-table
@@ -7157,6 +7603,10 @@ PROCEDURE BuildPhyScanBrowseFromTransactionLocation:
     DEFINE INPUT PARAMETER ipcLocationID       AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTransactionType  AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
+
+    DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+    
+    RUN Inventory_GetWarehouseLength (ipcCompany, OUTPUT iWarehouseLength).
     
     FOR EACH inventoryTransaction NO-LOCK
         WHERE inventoryTransaction.company         EQ ipcCompany
@@ -7178,7 +7628,7 @@ PROCEDURE BuildPhyScanBrowseFromTransactionLocation:
                 ttPhysicalBrowseInventory.locationID       = inventoryTransaction.locationID
                 ttPhysicalBrowseInventory.warehouseID      = inventoryTransaction.warehouseID
                 ttPhysicalBrowseInventory.location         = inventoryTransaction.warehouseID +
-                                                             FILL(" ", 5 - LENGTH(inventoryTransaction.warehouseID)) +
+                                                             FILL(" ", iWarehouseLength - LENGTH(inventoryTransaction.warehouseID)) +
                                                              inventoryTransaction.locationID                                                   
                 . 
                     
@@ -7199,14 +7649,22 @@ PROCEDURE BuildPhyScanBrowseFromTransactionLocation:
                     ttPhysicalBrowseInventory.origLocationID  = inventoryStockSnapshot.locationID
                     ttPhysicalBrowseInventory.origWarehouseID = inventoryStockSnapshot.warehouseID
                     ttPhysicalBrowseInventory.origLocation    = inventoryStockSnapshot.warehouseID +
-                                                                FILL(" ", 5 - LENGTH(inventoryStockSnapshot.warehouseID)) +
+                                                                FILL(" ", iWarehouseLength - LENGTH(inventoryStockSnapshot.warehouseID)) +
                                                                 inventoryStockSnapshot.locationID                                               
                     .
             ELSE DO:
                 FIND FIRST loadtag NO-LOCK
-                    WHERE loadtag.company EQ inventoryTransaction.company
-                      AND loadtag.tag-no  EQ inventoryTransaction.tag
-                    NO-ERROR.
+                     WHERE loadtag.company   EQ inventoryTransaction.company
+                       AND loadtag.tag-no    EQ inventoryTransaction.tag
+                       AND loadtag.item-type EQ NO
+                     NO-ERROR.
+                IF NOT AVAILABLE loadtag THEN
+                    FIND FIRST loadtag NO-LOCK
+                         WHERE loadtag.company   EQ inventoryTransaction.company
+                           AND loadtag.tag-no    EQ inventoryTransaction.tag
+                           AND loadtag.item-type EQ YES
+                         NO-ERROR.
+                    
                 IF AVAILABLE loadtag THEN
                     ASSIGN
                         ttPhysicalBrowseInventory.itemType = IF loadtag.item-type THEN
@@ -7238,6 +7696,10 @@ PROCEDURE BuildPhyScanBrowseFromTransactionUser:
     DEFINE INPUT PARAMETER ipcUser             AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTransactionType  AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
+
+    DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+    
+    RUN Inventory_GetWarehouseLength (ipcCompany, OUTPUT iWarehouseLength).
     
     FOR EACH inventoryTransaction NO-LOCK
         WHERE inventoryTransaction.company         EQ ipcCompany
@@ -7258,7 +7720,7 @@ PROCEDURE BuildPhyScanBrowseFromTransactionUser:
                 ttPhysicalBrowseInventory.locationID       = inventoryTransaction.locationID
                 ttPhysicalBrowseInventory.warehouseID      = inventoryTransaction.warehouseID
                 ttPhysicalBrowseInventory.location         = inventoryTransaction.warehouseID +
-                                                             FILL(" ", 5 - LENGTH(inventoryTransaction.warehouseID)) +
+                                                             FILL(" ", iWarehouseLength - LENGTH(inventoryTransaction.warehouseID)) +
                                                              inventoryTransaction.locationID                                                   
                 . 
                     
@@ -7279,7 +7741,7 @@ PROCEDURE BuildPhyScanBrowseFromTransactionUser:
                     ttPhysicalBrowseInventory.origLocationID  = inventoryStockSnapshot.locationID
                     ttPhysicalBrowseInventory.origWarehouseID = inventoryStockSnapshot.warehouseID
                     ttPhysicalBrowseInventory.origLocation    = inventoryStockSnapshot.warehouseID +
-                                                                FILL(" ", 5 - LENGTH(inventoryStockSnapshot.warehouseID)) +
+                                                                FILL(" ", iWarehouseLength - LENGTH(inventoryStockSnapshot.warehouseID)) +
                                                                 inventoryStockSnapshot.locationID                                               
                     .
             ELSE DO:
@@ -7315,42 +7777,50 @@ PROCEDURE pAdjustTransactionQuantity:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSnapshotID       AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTag              AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQuantity         AS DECIMAL   NO-UNDO.    
     DEFINE OUTPUT PARAMETER oplCreated          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
     
-    FIND FIRST ttPhysicalBrowseInventory EXCLUSIVE-LOCK
+    FIND FIRST ttPhysicalBrowseInventory
          WHERE ttPhysicalBrowseInventory.company EQ ipcCompany
            AND ttPhysicalBrowseInventory.tag     EQ ipcTag
          NO-ERROR.
     
     IF AVAILABLE ttPhysicalBrowseInventory THEN DO:       
-        RUN CreateTransactionCompare (
-            ttPhysicalBrowseInventory.company,
-            ttPhysicalBrowseInventory.tag,
-            ipdQuantity,
-            "",    /* Blank Quantity EOM */
-            ttPhysicalBrowseInventory.warehouseID,
-            ttPhysicalBrowseInventory.locationID,
-            FALSE, /* Post transaction */
-            OUTPUT oplCreated,
-            OUTPUT opcMessage
-            ).
-    
-        IF oplCreated THEN 
+/*        RUN CreateTransactionCompare (            */
+/*            ttPhysicalBrowseInventory.company,    */
+/*            ttPhysicalBrowseInventory.tag,        */
+/*            ipdQuantity,                          */
+/*            "",    /* Blank Quantity EOM */       */
+/*            ttPhysicalBrowseInventory.warehouseID,*/
+/*            ttPhysicalBrowseInventory.locationID, */
+/*            FALSE, /* Post transaction */         */
+/*            OUTPUT oplCreated,                    */
+/*            OUTPUT opcMessage                     */
+/*            ).                                    */
+/*                                                  */
+/*        IF oplCreated THEN                        */
+        ASSIGN
+            ttPhysicalBrowseInventory.lastTransTime   = NOW
+            ttPhysicalBrowseInventory.quantity        = ipdQuantity
+            ttPhysicalBrowseInventory.inventoryStatus = fGetSnapshotCompareStatusBySnapshotID (
+                                                        ipcCompany,
+                                                        ipiSnapshotID,
+                                                        ipcTag,
+                                                        ipdQuantity,
+                                                        ttPhysicalBrowseInventory.warehouseID,
+                                                        ttPhysicalBrowseInventory.locationID
+                                                        )
+            .
+        
+        IF ttPhysicalBrowseInventory.itemType = "FG" THEN
             ASSIGN
-                ttPhysicalBrowseInventory.lastTransTime   = NOW
-                ttPhysicalBrowseInventory.quantity        = ipdQuantity
-                ttPhysicalBrowseInventory.inventoryStatus = fGetSnapshotCompareStatus (
-                                                            ipcCompany,
-                                                            ipcTag,
-                                                            ipdQuantity,
-                                                            ttPhysicalBrowseInventory.warehouseID,
-                                                            ttPhysicalBrowseInventory.locationID
-                                                            )
-                .
+                ttPhysicalBrowseInventory.quantityOfSubUnits = TRUNCATE(ipdQuantity / ttPhysicalBrowseInventory.quantityPerSubUnit, 0)
+                ttPhysicalBrowseInventory.quantityPartial    = ipdQuantity - (ttPhysicalBrowseInventory.quantityOfSubUnits * ttPhysicalBrowseInventory.quantityPerSubUnit)
+                .                             
     END.
 END PROCEDURE.
 
@@ -7558,6 +8028,7 @@ PROCEDURE SubmitPhysicalCountScan:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSnapshotID  AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcWarehouseID AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcLocationID  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTag         AS CHARACTER NO-UNDO.
@@ -7566,9 +8037,19 @@ PROCEDURE SubmitPhysicalCountScan:
     DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPhysicalBrowseInventory.
     
+    DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+    
+    ASSIGN
+        ipcWarehouseID = CAPS(ipcWarehouseID)
+        ipcLocationID  = CAPS(ipcLocationID)
+        .
+        
+    RUN Inventory_GetWarehouseLength (ipcCompany, OUTPUT iWarehouseLength).
+    
     FIND FIRST inventoryStockSnapshot NO-LOCK
-         WHERE inventoryStockSnapshot.company EQ ipcCompany
-           AND inventoryStockSnapshot.tag     EQ ipcTag
+         WHERE inventoryStockSnapshot.company             EQ ipcCompany
+           AND inventoryStockSnapshot.inventorySnapshotID EQ ipiSnapshotID
+           AND inventoryStockSnapshot.tag                 EQ ipcTag
          NO-ERROR.
            
     FIND FIRST ttPhysicalBrowseInventory EXCLUSIVE-LOCK
@@ -7584,19 +8065,19 @@ PROCEDURE SubmitPhysicalCountScan:
                 ttPhysicalBrowseInventory.inventoryStockID = inventoryStockSnapshot.inventoryStockID
                 ttPhysicalBrowseInventory.tag              = inventoryStockSnapshot.tag
                 ttPhysicalBrowseInventory.itemType         = inventoryStockSnapshot.itemType
-                ttPhysicalBrowseInventory.itemID           = IF inventoryStockSnapshot.fgItemID NE "" THEN
+                ttPhysicalBrowseInventory.itemID           = IF inventoryStockSnapshot.itemType EQ 'FG' THEN
                                                                  inventoryStockSnapshot.fgItemID
-                                                             ELSE IF inventoryStockSnapshot.rmItemID NE "" THEN
+                                                             ELSE IF inventoryStockSnapshot.itemType EQ 'RM' THEN
                                                                  inventoryStockSnapshot.rmItemID
                                                              ELSE
                                                                  inventoryStockSnapshot.wipItemID
-                ttPhysicalBrowseInventory.quantity         = inventoryStockSnapshot.quantity
+                ttPhysicalBrowseInventory.origQuantity     = inventoryStockSnapshot.quantityOriginal
+                ttPhysicalBrowseInventory.quantityUOM      = inventoryStockSnapshot.quantityUOM
                 ttPhysicalBrowseInventory.customerID       = inventoryStockSnapshot.customerID
-                ttPhysicalBrowseInventory.origQuantity     = inventoryStockSnapshot.quantity
                 ttPhysicalBrowseInventory.origLocationID   = inventoryStockSnapshot.locationID
                 ttPhysicalBrowseInventory.origWarehouseID  = inventoryStockSnapshot.warehouseID
                 ttPhysicalBrowseInventory.origLocation     = ttPhysicalBrowseInventory.origWarehouseID +
-                                                             FILL(" ", 5 - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) +
+                                                             FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) +
                                                              ttPhysicalBrowseInventory.origLocationID            
                 .
         END.             
@@ -7607,29 +8088,56 @@ PROCEDURE SubmitPhysicalCountScan:
                 ttPhysicalBrowseInventory.locationID       = inventoryStockSnapshot.locationID 
                 ttPhysicalBrowseInventory.warehouseID      = inventoryStockSnapshot.warehouseID 
                 ttPhysicalBrowseInventory.location         = ttPhysicalBrowseInventory.warehouseID +
-                                                             FILL(" ", 5 - LENGTH(ttPhysicalBrowseInventory.warehouseID)) +
+                                                             FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.warehouseID)) +
                                                              ttPhysicalBrowseInventory.locationID
-                .       
+                .
+        
+        /* Set the quantity to the original quantity so that a tag scan would match the original quantity  */
+        ASSIGN
+            ttPhysicalBrowseInventory.quantity = inventoryStockSnapshot.quantityOriginal
+            .
+
+        IF ttPhysicalBrowseInventory.itemType = "FG" THEN
+            ASSIGN
+                ttPhysicalBrowseInventory.quantityOfSubUnits = TRUNCATE(ttPhysicalBrowseInventory.quantity / ttPhysicalBrowseInventory.quantityPerSubUnit, 0)
+                ttPhysicalBrowseInventory.quantityPartial    = ttPhysicalBrowseInventory.quantity - (ttPhysicalBrowseInventory.quantityOfSubUnits * ttPhysicalBrowseInventory.quantityPerSubUnit)
+                .               
     END. 
     ELSE DO:
         FIND FIRST loadtag NO-LOCK
-             WHERE loadtag.company EQ ipcCompany
-			   AND loadtag.tag-no  EQ ipcTag NO-ERROR.
-        IF NOT AVAILABLE loadtag THEN DO:
+             WHERE loadtag.company   EQ ipcCompany
+               AND loadtag.item-type EQ TRUE
+			   AND loadtag.tag-no    EQ ipcTag
+			 NO-ERROR.
+        IF NOT AVAILABLE loadtag THEN
+            FIND FIRST loadtag NO-LOCK
+                 WHERE loadtag.company   EQ ipcCompany
+                   AND loadtag.item-type EQ FALSE
+                   AND loadtag.tag-no    EQ ipcTag
+                 NO-ERROR.
+
+        IF NOT AVAILABLE loadtag THEN DO:         
             ASSIGN
-		  oplCreated = FALSE
-		  opcMessage = "Invalid Tag"
-		  .
+        	    oplCreated = FALSE
+        		opcMessage = "Invalid Tag"
+        		.
+
             RETURN.
         END.
         
         IF NOT AVAILABLE ttPhysicalBrowseInventory THEN DO:
             CREATE ttPhysicalBrowseInventory.
             ASSIGN            
-                ttPhysicalBrowseInventory.company  = loadtag.company
-                ttPhysicalBrowseInventory.tag      = ipcTag
-                ttPhysicalBrowseInventory.itemID   = loadtag.i-no            
-                ttPhysicalBrowseInventory.quantity = loadtag.qty
+                ttPhysicalBrowseInventory.company         = loadtag.company
+                ttPhysicalBrowseInventory.tag             = loadtag.tag-no
+                ttPhysicalBrowseInventory.itemID          = loadtag.i-no
+                ttPhysicalBrowseInventory.itemType        = STRING(loadtag.item-type, 'RM/FG')                            
+                ttPhysicalBrowseInventory.origQuantity    = loadtag.qty
+                ttPhysicalBrowseInventory.origLocationID  = loadtag.loc-bin
+                ttPhysicalBrowseInventory.origWarehouseID = loadtag.loc
+                ttPhysicalBrowseInventory.origLocation    = ttPhysicalBrowseInventory.origWarehouseID +
+                                                            FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) +
+                                                            ttPhysicalBrowseInventory.origLocationID            
                 .
             
             IF NOT iplSetParamLoc THEN
@@ -7637,7 +8145,7 @@ PROCEDURE SubmitPhysicalCountScan:
                     ttPhysicalBrowseInventory.locationID      = loadtag.loc-bin
                     ttPhysicalBrowseInventory.warehouseID     = loadtag.loc 
                     ttPhysicalBrowseInventory.location        = ttPhysicalBrowseInventory.warehouseID +
-                                                                FILL(" ", 5 - LENGTH(ttPhysicalBrowseInventory.warehouseID)) +
+                                                                FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.warehouseID)) +
                                                                 ttPhysicalBrowseInventory.locationID
                     .
         END.    
@@ -7648,31 +8156,32 @@ PROCEDURE SubmitPhysicalCountScan:
             ttPhysicalBrowseInventory.locationID      = ipcLocationID
             ttPhysicalBrowseInventory.warehouseID     = ipcWarehouseID
             ttPhysicalBrowseInventory.location        = ipcWarehouseID +
-                                                        FILL(" ", 5 - LENGTH(ipcWarehouseID)) +
+                                                        FILL(" ", iWarehouseLength - LENGTH(ipcWarehouseID)) +
                                                         ipcLocationID
             .
 
-    RUN CreateTransactionCompare (
-        ipcCompany,
-        ipcTag,
-        ttPhysicalBrowseInventory.quantity,
-        "",    /* Blank Quantity EOM */
-        ttPhysicalBrowseInventory.warehouseID,
-        ttPhysicalBrowseInventory.locationID,
-        FALSE, /* Post transaction */
-        OUTPUT oplCreated,
-        OUTPUT opcMessage
-        ).
-    
+/*    RUN CreateTransactionCompare (            */
+/*        ipcCompany,                           */
+/*        ipcTag,                               */
+/*        ttPhysicalBrowseInventory.quantity,   */
+/*        "",    /* Blank Quantity EOM */       */
+/*        ttPhysicalBrowseInventory.warehouseID,*/
+/*        ttPhysicalBrowseInventory.locationID, */
+/*        FALSE, /* Post transaction */         */
+/*        OUTPUT oplCreated,                    */
+/*        OUTPUT opcMessage                     */
+/*        ).                                    */
+/*                                              */
             
     ASSIGN
         ttPhysicalBrowseInventory.lastTransTime   = NOW
-        ttPhysicalBrowseInventory.inventoryStatus = fGetSnapshotCompareStatus (
+        ttPhysicalBrowseInventory.inventoryStatus = fGetSnapshotCompareStatusBySnapshotID (
                                                     ipcCompany,
+                                                    ipiSnapshotID,
                                                     ttPhysicalBrowseInventory.tag,
                                                     ttPhysicalBrowseInventory.quantity,
-                                                    ttPhysicalBrowseInventory.warehouseID,
-                                                    ttPhysicalBrowseInventory.locationID
+                                                    ipcWarehouseID,
+                                                    ipcLocationID
                                                     )
         .                                           
 END PROCEDURE.
@@ -7763,7 +8272,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
     IF iplUseInventoryTables THEN DO:
         FOR EACH inventoryStock NO-LOCK
            WHERE inventoryStock.company   EQ ipcCompany
-             AND inventoryStock.jobID     EQ ipcJobno
+             AND trim(inventoryStock.jobID) EQ trim(ipcJobno)
              AND inventoryStock.jobID2    EQ ipiJobno2   
              AND (IF ipcMachine           EQ "" THEN TRUE 
                   ELSE inventoryStock.MachineID EQ ipcMachine)
@@ -7782,7 +8291,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
               AND bf-rm-rctd.rita-code EQ ipcTransactionType
               AND bf-rm-rctd.qty       GT 0
               AND bf-rm-rctd.tag       NE ''
-              AND bf-rm-rctd.job-no    EQ ipcJobNo
+              AND trim(bf-rm-rctd.job-no) EQ trim(ipcJobNo)
               AND bf-rm-rctd.job-no2   EQ ipiJobNo2
               AND bf-rm-rctd.s-num     EQ ipiFormNo
               AND bf-rm-rctd.b-num     EQ ipiBlankNo
@@ -7834,6 +8343,10 @@ PROCEDURE RebuildBrowseTTFromPO:
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     EMPTY TEMP-TABLE ttBrowseInventory.
+
+    DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+    
+    RUN Inventory_GetWarehouseLength (ipcCompany, OUTPUT iWarehouseLength).
     
     FOR EACH inventoryStock NO-LOCK
        WHERE inventoryStock.company   EQ ipcCompany
@@ -7858,7 +8371,7 @@ PROCEDURE RebuildBrowseTTFromPO:
         CREATE ttBrowseInventory.
         BUFFER-COPY inventoryStock EXCEPT inventoryStock.locationID TO ttBrowseInventory.
         ttBrowseinventory.locationID = inventoryStock.warehouseID +
-                                       FILL(" ", 5 - LENGTH(inventoryStock.warehouseID)) +
+                                       FILL(" ", iWarehouseLength - LENGTH(inventoryStock.warehouseID)) +
                                        inventoryStock.locationID.         
     END.
         
@@ -7878,12 +8391,16 @@ PROCEDURE RebuildWIPBrowseTT:
     DEFINE OUTPUT PARAMETER opiTotTags    AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opiTotOnHand  AS INTEGER   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
+
+    DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
+    
+    RUN Inventory_GetWarehouseLength (ipcCompany, OUTPUT iWarehouseLength).
     
     EMPTY TEMP-TABLE ttBrowseInventory.
     
     FOR EACH inventoryStock NO-LOCK
        WHERE inventoryStock.company   EQ ipcCompany
-         AND inventoryStock.jobID     EQ ipcJobno
+         AND trim(inventoryStock.jobID) EQ trim(ipcJobno)
          AND inventoryStock.jobID2    EQ ipiJobno2   
          AND (IF ipcMachine           EQ "" THEN TRUE 
               ELSE inventoryStock.MachineID EQ ipcMachine)
@@ -7892,7 +8409,7 @@ PROCEDURE RebuildWIPBrowseTT:
         BUFFER-COPY inventoryStock EXCEPT inventoryStock.locationID TO ttBrowseInventory.
         ASSIGN
             ttBrowseinventory.locationID = inventoryStock.warehouseID +
-                                           FILL(" ", 5 - LENGTH(inventoryStock.warehouseID)) +
+                                           FILL(" ", iWarehouseLength - LENGTH(inventoryStock.warehouseID)) +
                                            inventoryStock.locationID
             opiTotTags                   = opiTotTags + 1.
          
@@ -8338,6 +8855,32 @@ PROCEDURE ValidateBin:
 
 END PROCEDURE.
 
+PROCEDURE ValidateBinRM:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLoc      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValidBin AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE lActiveLoc AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
+
+    RUN ValidateLoc IN THIS-PROCEDURE (INPUT ipcCompany, INPUT ipcLoc, OUTPUT lActiveLoc).
+    
+    lActiveBin = CAN-FIND(FIRST rm-bin NO-LOCK 
+                          WHERE rm-bin.company EQ ipcCompany  
+                            AND rm-bin.loc     EQ ipcLoc 
+                            AND rm-bin.loc-bin EQ ipcBin
+                            AND rm-bin.i-no    EQ "").
+    
+    oplValidBin = lActiveLoc AND lActiveBin.
+    
+
+END PROCEDURE.
+
 PROCEDURE ValidateLoc:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -8527,8 +9070,15 @@ PROCEDURE LocationParser:
     DEFINE OUTPUT PARAMETER opcWarehouseID AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcLocationID  AS CHARACTER NO-UNDO.    
     
+    DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
+    
+    RUN spGetSessionParam("Company", OUTPUT cCompany).
+    
+    RUN Inventory_GetWarehouseLength (cCompany, OUTPUT iWarehouseLength).
+    
     ASSIGN    
-        opcWarehouseID = SUBSTRING(ipcLocation, 1, 5)
+        opcWarehouseID = SUBSTRING(ipcLocation, 1, iWarehouseLength)
         opcLocationID  = SUBSTRING(ipcLocation, 6)
         .
      
@@ -8746,7 +9296,13 @@ PROCEDURE pGetInventoryStockDetails:
             ttInventoryStockDetails.inventoryStockID    = STRING(ROWID(bf-loadtag))
             oplValidInvStock                            = TRUE
             .
-
+        
+        RUN pGetRMItemOnHandQuantity (
+            BUFFER bf-loadtag,
+            OUTPUT ttInventoryStockDetails.quantityOnHand,
+            OUTPUT ttInventoryStockDetails.isIssued
+            ).
+            
         FIND FIRST bf-item NO-LOCK
              WHERE bf-item.company EQ bf-loadtag.company
                AND bf-item.i-no    EQ bf-loadtag.i-no
@@ -9167,6 +9723,27 @@ PROCEDURE Inventory_CreateWIPInventoryStockForIssuedRM:
     RELEASE bf-po-ordl.                 
 END PROCEDURE.
 
+
+PROCEDURE pUpdateBolBinWithMatchInventory PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Updates Loc-bin for oe-boll
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNewLocBin AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-oe-boll FOR oe-boll.
+    
+    FIND FIRST bf-oe-boll EXCLUSIVE-LOCK
+         WHERE bf-oe-boll.company EQ ipcCompany
+           AND bf-oe-boll.b-no    EQ ipiBNo NO-ERROR.
+    IF AVAIL bf-oe-boll THEN
+     ASSIGN
+          bf-oe-boll.loc-bin = ipcNewLocBin.
+    RELEASE bf-oe-boll.      
+END PROCEDURE.
+
+
 PROCEDURE UpdateTagStatusID:
 /*------------------------------------------------------------------------------
  Purpose: Updates statusID for a FG bin
@@ -9459,13 +10036,108 @@ FUNCTION fGetSnapshotCompareStatus RETURNS CHARACTER
         AND inventoryTransaction.scannedTime EQ inventoryTransaction.createdTime THEN
         opcStatus = gcStatusSnapshotNotScannedConf.
     
-    FIND FIRST loadtag NO-LOCK
-         WHERE loadtag.company EQ ipcCompany
-           AND loadtag.tag-no  EQ ipcTag
-         NO-ERROR.
-    IF AVAILABLE loadtag AND NOT AVAILABLE inventoryStockSnapshot THEN
+    IF AVAILABLE inventoryStockSnapshot THEN
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company   EQ ipcCompany
+               AND loadtag.item-type EQ LOGICAL(inventoryStockSnapShot.itemType, "RM/FG")
+               AND loadtag.tag-no    EQ ipcTag
+             NO-ERROR.
+    
+    IF NOT AVAILABLE loadtag THEN
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company   EQ ipcCompany
+               AND loadtag.item-type EQ NO
+               AND loadtag.tag-no    EQ ipcTag
+             NO-ERROR.
+
+    IF NOT AVAILABLE loadtag THEN
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company   EQ ipcCompany
+               AND loadtag.item-type EQ YES
+               AND loadtag.tag-no    EQ ipcTag
+             NO-ERROR.
+
+    IF NOT AVAILABLE loadtag THEN
         opcStatus = gcStatusSnapshotTagNotFound.
 
+    RETURN opcStatus.
+
+END FUNCTION.
+
+FUNCTION fGetSnapshotCompareStatusBySnapshotID RETURNS CHARACTER
+    (ipcCompany AS CHARACTER , ipiSnapshotID AS INTEGER, ipcTag AS CHARACTER , ipdQuantity AS DECIMAL , ipcWarehouseID AS CHARACTER , ipcLocationID AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: Gets the compare status
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE opcStatus                   AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE lLocationChanged            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lQuantityChanged            AS LOGICAL   NO-UNDO.
+    
+    opcStatus = gcStatusSnapshotTagNotFound.
+
+    FIND FIRST inventoryStockSnapshot NO-LOCK
+         WHERE inventoryStockSnapshot.company             EQ ipcCompany
+           AND inventoryStockSnapshot.inventorySnapshotID EQ ipiSnapshotID
+           AND inventoryStockSnapshot.tag                 EQ ipcTag
+         NO-ERROR.
+
+    IF AVAILABLE inventoryStockSnapshot THEN DO:
+        IF ipdQuantity NE inventoryStockSnapshot.quantityOriginal THEN
+            ASSIGN
+                lQuantityChanged = TRUE
+                opcStatus        = gcStatusSnapshotQtyChange.
+        
+        IF ipcWarehouseID NE inventoryStockSnapshot.warehouseID OR
+           ipcLocationID  NE inventoryStockSnapshot.locationID THEN
+            ASSIGN
+                lLocationChanged = TRUE
+                opcStatus        = gcStatusSnapshotLocChange.
+           
+        IF lLocationChanged AND lQuantityChanged THEN
+            opcStatus = gcStatusSnapshotQtyAndLocChange.
+            
+        IF NOT lLocationChanged AND NOT lQuantityChanged THEN
+            opcStatus = gcStatusSnapshotCompleteMatch.    
+    END.
+    
+    FIND FIRST inventoryTransaction NO-LOCK
+         WHERE inventoryTransaction.company         EQ ipcCompany
+           AND inventoryTransaction.tag             EQ ipcTag
+           AND inventoryTransaction.transactionType EQ gcTransactionTypeCompare NO-ERROR.
+    IF AVAILABLE inventoryTransaction
+        AND inventoryTransaction.quantityChange EQ 0
+        AND inventoryTransaction.scannedTime EQ inventoryTransaction.createdTime THEN
+        opcStatus = gcStatusSnapshotNotScannedConf.
+    
+    IF AVAILABLE inventoryStockSnapshot THEN
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company   EQ ipcCompany
+               AND loadtag.item-type EQ LOGICAL(inventoryStockSnapShot.itemType, "RM/FG")
+               AND loadtag.tag-no    EQ ipcTag
+             NO-ERROR.
+    
+    IF NOT AVAILABLE loadtag THEN
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company   EQ ipcCompany
+               AND loadtag.item-type EQ NO
+               AND loadtag.tag-no    EQ ipcTag
+             NO-ERROR.
+
+    IF NOT AVAILABLE loadtag THEN
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company   EQ ipcCompany
+               AND loadtag.item-type EQ YES
+               AND loadtag.tag-no    EQ ipcTag
+             NO-ERROR.
+
+    IF NOT AVAILABLE loadtag THEN
+        opcStatus = gcStatusSnapshotTagNotFound.
+
+    IF NOT AVAILABLE inventoryStockSnapshot AND AVAILABLE loadtag THEN
+        opcStatus = gcStatusSnapshotTagNotOnHand.
+         
     RETURN opcStatus.
 
 END FUNCTION.
@@ -9477,7 +10149,7 @@ FUNCTION fGetRowBGColor RETURNS INTEGER
 
     CASE ipcInventoryStatus:
         WHEN gcStatusSnapshotNotScanned      THEN
-            iColor = 8. /* Grey */            
+            iColor = ?. /* Grey */            
         WHEN gcStatusSnapshotNotScannedConf  THEN
             iColor = 14. /* Yellow */
         WHEN gcStatusSnapshotCompleteMatch   THEN
@@ -9487,8 +10159,12 @@ FUNCTION fGetRowBGColor RETURNS INTEGER
         WHEN gcStatusSnapshotQtyChange       THEN
             iColor = 11. /* Cyan */
         WHEN gcStatusSnapshotQtyAndLocChange THEN
-            iColor = 20. /* Blue */
+            iColor = 11. /* Blue */
         WHEN gcStatusSnapshotTagNotFound     THEN
+            iColor = 12. /* Red */
+        WHEN gcStatusSnapshotTagNotOnHand    THEN
+            iColor = 12. /* Red */
+        WHEN gcStatusSnapshotNotScannedCountingZero THEN
             iColor = 12. /* Red */
     END CASE.
     

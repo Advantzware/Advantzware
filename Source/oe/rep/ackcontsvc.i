@@ -26,7 +26,7 @@ PUT "<R2><C50><FArial><P14><B>Order Acknowledgement" SKIP
     "<=#3> Order Date            Order#        Delivery Date"
     "<=#3><R+2> Contact"
     "<=#3><R+4> Telephone                 Fax</B><FCourier New>" 
-    "<=3><R+1> " oe-ord.ord-date  SPACE(4) oe-ord.ord-no SPACE(3) oe-ord.due-date FORMAT "99/99/9999"
+    "<=3><R+1> " oe-ord.ord-date  "<C61.5>" oe-ord.ord-no SPACE(3) oe-ord.due-date FORMAT "99/99/9999"
     "<=3><R+3> " cust.contact FORMAT "x(25)" space(7) 
     "<=3><R+5> " v-cust-phone  space(6) cust.fax .
 

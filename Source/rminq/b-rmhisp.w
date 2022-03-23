@@ -19,6 +19,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 /*CREATE WIDGET-POOL.*/
 
@@ -65,8 +66,7 @@ DEF BUFFER rm-rdtlh-1 FOR rm-rdtlh.
           AND (rm-rcpth.i-no      EQ fi_rm-i-no OR fi_rm-i-no EQ "") ~
           AND rm-rcpth.rita-code  BEGINS fi_rita-code ~
           AND (rm-rcpth.po-no     EQ TRIM(STRING(fi_po-no,">>>>>>>>")) OR fi_po-no EQ 0) ~
-          AND rm-rcpth.job-no     BEGINS fi_job-no ~
-          AND (rm-rcpth.job-no    EQ fi_job-no OR fi_job-no EQ "")   ~
+          AND (trim(rm-rcpth.job-no) EQ trim(fi_job-no) OR fi_job-no EQ "")   ~
           AND (rm-rcpth.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                           ~
@@ -87,7 +87,7 @@ DEF BUFFER rm-rdtlh-1 FOR rm-rdtlh.
     IF lv-sort-by EQ "pur-uom"    THEN rm-rcpth.pur-uom                                               ELSE ~
     IF lv-sort-by EQ "qty"        THEN STRING(9999999999 + rm-rdtlh.qty,"9999999999.99")              ELSE ~
     IF lv-sort-by EQ "cost"       THEN STRING(rm-rdtlh.cost,"9999999999.99999")                       ELSE ~
-    IF lv-sort-by EQ "job-no"     THEN STRING(rm-rcpth.job-no,"x(6)") + STRING(rm-rcpth.job-no2,"99") ELSE ~
+    IF lv-sort-by EQ "job-no"     THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', rm-rcpth.job-no, rm-rcpth.job-no2))  ELSE ~
                                        STRING(YEAR(rm-rcpth.trans-date),"9999") + STRING(MONTH(rm-rcpth.trans-date),"99") + STRING(DAY(rm-rcpth.trans-date),"99") + STRING(rm-rcpth.r-no,"9999999999")
 
 &SCOPED-DEFINE sortby BY rm-rcpth.i-no BY rm-rcpth.job-no BY rm-rcpth.job-no2
@@ -127,12 +127,12 @@ rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date ~
 rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty ~
 rm-rcpth.pur-uom rm-rdtlh.cost disp-uom () @ rm-rcpth.loc rm-rcpth.loc ~
 disp-uom () @ rm-rcpth.loc rm-rdtlh.qty * rm-rdtlh.cost @ ld-ext-cost ~
-rm-rdtlh.tag2 rm-rdtlh.user-id  
+rm-rdtlh.tag2 rm-rdtlh.user-id 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 rm-rcpth.i-no ~
 rm-rcpth.po-no rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num ~
 rm-rcpth.trans-date rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin ~
 rm-rdtlh.tag rm-rdtlh.qty rm-rcpth.pur-uom rm-rdtlh.cost rm-rdtlh.tag2 ~
-rm-rdtlh.user-id  
+rm-rdtlh.user-id 
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-1 rm-rcpth rm-rdtlh
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-1 rm-rcpth
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-BROWSE-1 rm-rdtlh
@@ -154,9 +154,9 @@ rm-rdtlh.user-id
 fi_job-no2 fi_rita-code fi_date btn_go btn_show btCopy btDelete fi_po-no ~
 BROWSE-1 
 &Scoped-Define DISPLAYED-OBJECTS fi_rm-i-no fi_tag# fi_job-no fi_job-no2 ~
-fi_rita-code fi_date fi_sort-by  fi_po-no fi_name fi_q-onh ~
-fi_q-ton fi_q-lf fi_q-msf 
-//FI_moveCol
+fi_rita-code fi_date fi_sort-by fi_po-no fi_name fi_q-onh fi_q-ton fi_q-lf ~
+fi_q-msf 
+
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 &Scoped-define List-1 fi_tag# fi_po-no 
@@ -202,22 +202,16 @@ DEFINE VARIABLE fi_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/00
      SIZE 16 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
-     SIZE 9 BY 1
+     SIZE 12 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
-     LABEL "-" 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1
+     SIZE 5.4 BY 1
      BGCOLOR 15  NO-UNDO.
-
-/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
-     VIEW-AS FILL-IN 
-     SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_name AS CHARACTER FORMAT "x(30)" 
      LABEL "Item Name" 
@@ -275,7 +269,7 @@ DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fi_tag# AS CHARACTER FORMAT "X(20)":U 
      LABEL "Tag#" 
      VIEW-AS FILL-IN 
-     SIZE 39 BY 1
+     SIZE 36.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
@@ -305,10 +299,9 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
       rm-rcpth.i-no COLUMN-LABEL "Item#" FORMAT "x(10)":U LABEL-BGCOLOR 14
       rm-rcpth.po-no COLUMN-LABEL "Vendor PO#" FORMAT "x(9)":U
-            WIDTH 14 LABEL-BGCOLOR 14
-      rm-rcpth.job-no FORMAT "x(6)":U LABEL-BGCOLOR 14
-      rm-rcpth.job-no2 COLUMN-LABEL "" FORMAT "99":U LABEL-BGCOLOR 14
-      rm-rdtlh.s-num COLUMN-LABEL "S" FORMAT ">9":U WIDTH 3 LABEL-BGCOLOR 14
+      rm-rcpth.job-no FORMAT "x(9)":U LABEL-BGCOLOR 14
+      rm-rcpth.job-no2 COLUMN-LABEL "" FORMAT "999":U LABEL-BGCOLOR 14
+      rm-rdtlh.s-num COLUMN-LABEL "F" FORMAT ">9":U WIDTH 3 LABEL-BGCOLOR 14
       rm-rcpth.trans-date COLUMN-LABEL "TR Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
       rm-rcpth.rita-code COLUMN-LABEL "C" FORMAT "x(1)":U LABEL-BGCOLOR 14
@@ -328,7 +321,7 @@ DEFINE BROWSE BROWSE-1
             LABEL-BGCOLOR 14
       rm-rdtlh.tag2 COLUMN-LABEL "Cert/Lot/Mill#" FORMAT "x(30)":U
             WIDTH 40 LABEL-BGCOLOR 14
-      rm-rdtlh.user-id COLUMN-LABEL "UserID" FORMAT "x(8)":U WIDTH 12      
+      rm-rdtlh.user-id COLUMN-LABEL "UserID" FORMAT "x(8)":U WIDTH 12
   ENABLE
       rm-rcpth.i-no
       rm-rcpth.po-no
@@ -344,7 +337,7 @@ DEFINE BROWSE BROWSE-1
       rm-rcpth.pur-uom
       rm-rdtlh.cost
       rm-rdtlh.tag2
-      rm-rdtlh.USER-ID      
+      rm-rdtlh.user-id
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 148 BY 15
@@ -356,14 +349,13 @@ DEFINE BROWSE BROWSE-1
 DEFINE FRAME Dialog-Frame
      fi_rm-i-no AT ROW 1.48 COL 10.6 COLON-ALIGNED
      fi_tag# AT ROW 1.48 COL 39.6 COLON-ALIGNED
-     fi_job-no AT ROW 1.48 COL 85.2 COLON-ALIGNED
-     fi_job-no2 AT ROW 1.48 COL 96.2 COLON-ALIGNED
+     fi_job-no AT ROW 1.48 COL 82.4 COLON-ALIGNED
+     fi_job-no2 AT ROW 1.48 COL 94.6 COLON-ALIGNED NO-LABEL
      fi_rita-code AT ROW 1.48 COL 112.6 COLON-ALIGNED
      fi_date AT ROW 1.48 COL 130 COLON-ALIGNED
      btn_go AT ROW 2.91 COL 2
      btn_show AT ROW 2.91 COL 15
      fi_sort-by AT ROW 2.91 COL 36.4 COLON-ALIGNED
-    // FI_moveCol AT ROW 2.91 COL 80.4 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      btCopy AT ROW 2.91 COL 92 WIDGET-ID 2
      btDelete AT ROW 2.91 COL 106 WIDGET-ID 4
      fi_po-no AT ROW 2.91 COL 130 COLON-ALIGNED
@@ -375,9 +367,6 @@ DEFINE FRAME Dialog-Frame
      fi_q-msf AT ROW 4.33 COL 131 COLON-ALIGNED
      BROWSE-1 AT ROW 5.76 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-  /*   "BrwsCol. Mode:" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 3.1 COL 64.6 WIDGET-ID 6
-          FONT 6*/
      RECT-1 AT ROW 1 COL 1
      SPACE(0.00) SKIP(15.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -420,8 +409,6 @@ ASSIGN
 ASSIGN 
        BROWSE-1:NUM-LOCKED-COLUMNS IN FRAME Dialog-Frame     = 2.
 
-/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_name IN FRAME Dialog-Frame
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN fi_po-no IN FRAME Dialog-Frame
@@ -452,13 +439,13 @@ ASSIGN
      _FldNameList[1]   > ASI.rm-rcpth.i-no
 "rm-rcpth.i-no" "Item#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.rm-rcpth.po-no
-"rm-rcpth.po-no" "Vendor PO#" ? "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rcpth.po-no" "Vendor PO#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.rm-rcpth.job-no
 "rm-rcpth.job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.rm-rcpth.job-no2
-"rm-rcpth.job-no2" "" "99" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rcpth.job-no2" "" "999" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.rm-rdtlh.s-num
-"rm-rdtlh.s-num" "S" ? "integer" ? ? ? 14 ? ? yes ? no no "3" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rdtlh.s-num" "F" ? "integer" ? ? ? 14 ? ? yes ? no no "3" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.rm-rcpth.trans-date
 "rm-rcpth.trans-date" "TR Date" ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.rm-rcpth.rita-code
@@ -486,27 +473,27 @@ ASSIGN
      _FldNameList[18]   > ASI.rm-rdtlh.tag2
 "rm-rdtlh.tag2" "Cert/Lot/Mill#" "x(30)" "character" ? ? ? 14 ? ? yes ? no no "40" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.rm-rdtlh.user-id
-"rm-rdtlh.user-id" "UserID" ? "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no     
+"rm-rdtlh.user-id" "UserID" ? "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
 /* ************************  Control Triggers  ************************ */
 
-
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Board Information */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Finished Goods Item Inventory(History) */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define BROWSE-NAME BROWSE-1
 &Scoped-define SELF-NAME BROWSE-1
@@ -666,7 +653,7 @@ END.
 
 &Scoped-define SELF-NAME rm-rdtlh.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rdtlh.s-num BROWSE-1 _BROWSE-COLUMN Dialog-Frame
-ON RETURN OF rm-rdtlh.s-num IN BROWSE BROWSE-1 /* S */
+ON RETURN OF rm-rdtlh.s-num IN BROWSE BROWSE-1 /* F */
 DO:
   RUN update-record.
 END.
@@ -953,8 +940,7 @@ END.
 ON LEAVE OF fi_job-no IN FRAME Dialog-Frame /* Job# */
 DO:
   DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN fi_job-no:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(fi_job-no:SCREEN-VALUE)))
-                                  + TRIM(fi_job-no:SCREEN-VALUE).
+    ASSIGN fi_job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fi_job-no)) .
   END.
 END.
 
@@ -1076,6 +1062,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 
 END.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
