@@ -412,6 +412,7 @@ PROCEDURE hold-ar :
         lv-status:SCREEN-VALUE = IF lv-status:SCREEN-VALUE EQ "RELEASED" THEN "ON HOLD"
                                  ELSE "RELEASED".
         RUN reftable-values (NO).
+        RUN pChangeLabel.        
      END.
   END.
 
@@ -516,11 +517,9 @@ PROCEDURE local-display-fields :
   DISPLAY ld-not-applied WITH FRAME {&FRAME-NAME}.
 
   RUN reftable-values (YES).
+    
+  RUN pChangeLabel.            
   
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"hold-source", OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-  RUN pChangeLabel IN WIDGET-HANDLE(char-hdl)(IF AVAILABLE ar-cash THEN ar-cash.stat ELSE "").
-              
   IF AVAILABLE ar-cash AND ar-cash.posted THEN
   DO:   
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"hold-source", OUTPUT char-hdl).
@@ -759,3 +758,19 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeLabel V-table-Win 
+PROCEDURE pChangeLabel :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"hold-source", OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+  RUN pChangeLabel IN WIDGET-HANDLE(char-hdl)(IF AVAILABLE ar-cash THEN ar-cash.stat ELSE "").
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  

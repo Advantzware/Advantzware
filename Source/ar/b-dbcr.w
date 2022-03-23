@@ -80,8 +80,9 @@ DEF BUFFER bf-cashl FOR ar-cashl.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table ar-cash.cust-no ~
-ar-cash.check-no ar-cash.check-date display-app-amt() @ ld-not-applied ~
-display-cust-name() @ cCustomerName display-status() @ cStatus ar-cash.posted 
+display-cust-name() @ cCustomerName display-status() @ cStatus ~
+ar-cash.check-no ar-cash.check-date ar-cash.posted ~
+display-app-amt() @ ld-not-applied 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH ar-cash WHERE ~{&KEY-PHRASE} ~
       AND ar-cash.company = g_company ~
@@ -89,8 +90,8 @@ display-cust-name() @ cCustomerName display-status() @ cStatus ar-cash.posted
  and ar-cash.check-no <= 99999999 ~
  AND (IF fi_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN TRUE ELSE  ar-cash.cust-no BEGINS fi_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) ~
  AND (IF fi_Status:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN TRUE ELSE IF fi_Status:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "R" THEN ar-cash.stat NE "H" ELSE ar-cash.stat EQ fi_Status:SCREEN-VALUE IN FRAME {&FRAME-NAME}) ~
- AND (ar-cash.check-date GE date(fi_date:SCREEN-VALUE IN FRAME {&FRAME-NAME})) ~
- AND (IF fi_memo-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN TRUE ELSE  ar-cash.check-no GE INT64(fi_memo-no:SCREEN-VALUE IN FRAME {&FRAME-NAME})) ~
+ AND (IF fi_date:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN TRUE ELSE ar-cash.check-date GE date(fi_date:SCREEN-VALUE IN FRAME {&FRAME-NAME})) ~
+ AND (IF fi_memo-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN TRUE ELSE  ar-cash.check-no EQ INT64(fi_memo-no:SCREEN-VALUE IN FRAME {&FRAME-NAME})) ~
  AND (ar-cash.posted EQ logical(cbType:screen-value IN FRAME {&FRAME-NAME}) OR cbType:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "ALL") NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH ar-cash WHERE ~{&KEY-PHRASE} ~
@@ -99,8 +100,8 @@ display-cust-name() @ cCustomerName display-status() @ cStatus ar-cash.posted
  and ar-cash.check-no <= 99999999 ~
  AND (IF fi_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN TRUE ELSE  ar-cash.cust-no BEGINS fi_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) ~
  AND (IF fi_Status:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN TRUE ELSE IF fi_Status:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "R" THEN ar-cash.stat NE "H" ELSE ar-cash.stat EQ fi_Status:SCREEN-VALUE IN FRAME {&FRAME-NAME}) ~
- AND (ar-cash.check-date GE date(fi_date:SCREEN-VALUE IN FRAME {&FRAME-NAME})) ~
- AND (IF fi_memo-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN TRUE ELSE  ar-cash.check-no GE INT64(fi_memo-no:SCREEN-VALUE IN FRAME {&FRAME-NAME})) ~
+ AND (IF fi_date:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN TRUE ELSE ar-cash.check-date GE date(fi_date:SCREEN-VALUE IN FRAME {&FRAME-NAME})) ~
+ AND (IF fi_memo-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN TRUE ELSE  ar-cash.check-no EQ INT64(fi_memo-no:SCREEN-VALUE IN FRAME {&FRAME-NAME})) ~
  AND (ar-cash.posted EQ logical(cbType:screen-value IN FRAME {&FRAME-NAME}) OR cbType:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "ALL") NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table ar-cash
@@ -110,11 +111,10 @@ display-cust-name() @ cCustomerName display-status() @ cStatus ar-cash.posted
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fi_memo-no cbType fi_cust-no ~
-fi_Status fi_date Browser-Table browse-order auto_find Btn_Clear_Find ~
-btGo
-&Scoped-Define DISPLAYED-OBJECTS fi_memo-no cbType fi_cust-no fi_Status ~
-fi_date browse-order fi_sortby auto_find 
+&Scoped-Define ENABLED-OBJECTS RECT-4 fi_cust-no fi_date fi_memo-no btGo ~
+fi_Status cbType Browser-Table browse-order auto_find Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS fi_cust-no fi_date fi_memo-no fi_Status ~
+cbType browse-order auto_find fi_sortby 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -128,14 +128,20 @@ fi_date browse-order fi_sortby auto_find
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD display-app-amt B-table-Win 
 FUNCTION display-app-amt RETURNS DECIMAL
   ( /* parameter-definitions */ )  FORWARD.
-  
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD display-cust-name B-table-Win 
 FUNCTION display-cust-name RETURNS CHARACTE
-  ( /* parameter-definitions */ )  FORWARD.  
-  
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD display-status B-table-Win 
 FUNCTION display-status RETURNS CHARACTE
-  ( /* parameter-definitions */ )  FORWARD.  
+  ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -147,7 +153,7 @@ FUNCTION display-status RETURNS CHARACTE
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btGo 
      LABEL "GO" 
-     SIZE 15 BY 1.15
+     SIZE 15 BY 1.14
      FONT 6.
 
 DEFINE BUTTON Btn_Clear_Find 
@@ -155,13 +161,22 @@ DEFINE BUTTON Btn_Clear_Find
      SIZE 13 BY 1
      FONT 4.
 
-DEFINE VARIABLE cbType AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
+DEFINE VARIABLE cbType AS CHARACTER FORMAT "X(256)":U INITIAL "False" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEM-PAIRS "All","All",
                      "Yes","True",
-                     "No","False"     
+                     "No","False"
      DROP-DOWN-LIST
      SIZE 13 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fi_Status AS CHARACTER FORMAT "X(8)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "","",
+                     "On Hold","H",
+                     "Released","R"
+     DROP-DOWN-LIST
+     SIZE 14 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
@@ -173,12 +188,12 @@ DEFINE VARIABLE fi_cust-no AS CHARACTER FORMAT "X(8)":U
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_date AS DATE FORMAT "99/99/9999":U INITIAL ? 
+DEFINE VARIABLE fi_date AS DATE FORMAT "99/99/9999":U 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_memo-no AS INT64 FORMAT ">>>>>>>>>>":U 
+DEFINE VARIABLE fi_memo-no AS INT64 FORMAT ">>>>>>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -188,21 +203,15 @@ DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U
      SIZE 44 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE fi_Status AS CHARACTER FORMAT "X(8)":U  
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEM-PAIRS "","",
-                     "On Hold","H",
-                     "Released","R"
-     DROP-DOWN-LIST
-     SIZE 14 BY 1
-     BGCOLOR 15  NO-UNDO.
-
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
      SIZE 55 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 142 BY 3.14.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -216,56 +225,55 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       ar-cash.cust-no COLUMN-LABEL "Customer Number" FORMAT "x(8)":U
             WIDTH 19.2 LABEL-BGCOLOR 14
-      display-cust-name() @ cCustomerName COLUMN-LABEL "Customer Name" FORMAT "x(30)":U 
+      display-cust-name() @ cCustomerName COLUMN-LABEL "Customer Name" FORMAT "x(30)":U
             WIDTH 32.2
-      display-status() @ cStatus COLUMN-LABEL "Status" FORMAT "x(9)":U 
+      display-status() @ cStatus COLUMN-LABEL "Status" FORMAT "x(9)":U
       ar-cash.check-no COLUMN-LABEL "Memo Number" FORMAT "9999999999":U
             WIDTH 20.2 LABEL-BGCOLOR 14
       ar-cash.check-date COLUMN-LABEL "Memo Date" FORMAT "99/99/9999":U
             WIDTH 16.2 LABEL-BGCOLOR 14
-      ar-cash.posted COLUMN-LABEL "Posted" FORMAT "Yes/No":U
-            WIDTH 10.2 LABEL-BGCOLOR 14      
+      ar-cash.posted FORMAT "Yes/No":U WIDTH 10.2 LABEL-BGCOLOR 14
       display-app-amt() @ ld-not-applied COLUMN-LABEL "Amount" FORMAT "->>>,>>>,>>9.99":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 142 BY 15.62
+    WITH NO-ASSIGN SEPARATORS SIZE 142 BY 17.14
          FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fi_cust-no AT ROW 1.48 COL 14.2 NO-LABEL WIDGET-ID 8
-     fi_Status AT ROW 1.48 COL 35 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     fi_date AT ROW 1.48 COL 65 COLON-ALIGNED NO-LABEL WIDGET-ID 6
-     fi_memo-no AT ROW 1.48 COL 98 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     cbType AT ROW 1.48 COL 128 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     fi_cust-no AT ROW 1.48 COL 18.2 NO-LABEL WIDGET-ID 8
+     fi_date AT ROW 1.48 COL 48.4 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+     fi_memo-no AT ROW 1.48 COL 84 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     btGo AT ROW 1.48 COL 110 WIDGET-ID 24
+     fi_Status AT ROW 2.67 COL 16.2 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     cbType AT ROW 2.67 COL 48.4 COLON-ALIGNED NO-LABEL WIDGET-ID 32
      Browser-Table AT ROW 3.91 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 18.62 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     btGo AT ROW 2.65 COL 3.0 WIDGET-ID 24     
-     fi_sortby AT ROW 18.62 COL 47 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      auto_find AT ROW 18.62 COL 70 COLON-ALIGNED HELP
           "Enter Auto Find Value"
      Btn_Clear_Find AT ROW 18.62 COL 132 HELP
           "CLEAR AUTO FIND Value"
+     fi_sortby AT ROW 18.95 COL 47 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      "Memo Number:" VIEW-AS TEXT
-          SIZE 17 BY .71 AT ROW 1.61 COL 83 WIDGET-ID 18
+          SIZE 17 BY .71 AT ROW 1.62 COL 69 WIDGET-ID 18
           FGCOLOR 9 FONT 22
-     "Status:" VIEW-AS TEXT
-          SIZE 8 BY .71 AT ROW 1.61 COL 29 WIDGET-ID 16
+     "Posted:" VIEW-AS TEXT
+          SIZE 8 BY .71 AT ROW 2.81 COL 42
+          FGCOLOR 9 FONT 22
+     "Starting Date:" VIEW-AS TEXT
+          SIZE 15 BY .71 AT ROW 1.62 COL 35 WIDGET-ID 12
           FGCOLOR 9 FONT 22
      "Customer#:" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.61 COL 2 WIDGET-ID 14
-          FGCOLOR 9 FONT 22       
-     "Starting Date:" VIEW-AS TEXT
-          SIZE 15 BY .71 AT ROW 1.61 COL 51.5 WIDGET-ID 12
+          SIZE 12 BY .71 AT ROW 1.62 COL 6 WIDGET-ID 14
           FGCOLOR 9 FONT 22
-      "Posted:" VIEW-AS TEXT
-          SIZE 8 BY .71 AT ROW 1.61 COL 121 
-          FGCOLOR 9 FONT 22    
-     //RECT-4 AT ROW 18.38 COL 1
+     "Status:" VIEW-AS TEXT
+          SIZE 8 BY .71 AT ROW 2.81 COL 9.5 WIDGET-ID 16
+          FGCOLOR 9 FONT 22
+     RECT-4 AT ROW 1.18 COL 1 WIDGET-ID 36
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -299,7 +307,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 19.52
-         WIDTH              = 145.
+         WIDTH              = 145.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -323,7 +331,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table btGo F-Main */
+/* BROWSE-TAB Browser-Table cbType F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -365,9 +373,9 @@ ASSIGN
  and ar-cash.check-no <= 99999999"
  AND (IF fi_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN TRUE ELSE  ar-cash.cust-no BEGINS fi_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) 
  AND (IF fi_Status:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN TRUE ELSE IF fi_Status:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "R" THEN ar-cash.stat NE "H" ELSE ar-cash.stat EQ fi_Status:SCREEN-VALUE IN FRAME {&FRAME-NAME}) 
- AND (ar-cash.check-date GE date(fi_date:SCREEN-VALUE IN FRAME {&FRAME-NAME})) 
- AND (IF fi_memo-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN TRUE ELSE  ar-cash.check-no GE INT64(fi_memo-no:SCREEN-VALUE IN FRAME {&FRAME-NAME})) 
- AND (ar-cash.posted EQ logical(cbType:screen-value IN FRAME {&FRAME-NAME}) OR cbType:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "ALL")
+ AND (IF fi_date:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN TRUE ELSE ar-cash.check-date GE date(fi_date:SCREEN-VALUE IN FRAME {&FRAME-NAME})) 
+ AND (IF fi_memo-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN TRUE ELSE  ar-cash.check-no EQ INT64(fi_memo-no:SCREEN-VALUE IN FRAME {&FRAME-NAME})) 
+ AND (ar-cash.posted EQ logical(cbType:screen-value IN FRAME {&FRAME-NAME}) OR cbType:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "ALL") 
      _FldNameList[1]   > ASI.ar-cash.cust-no
 "ar-cash.cust-no" "Customer Number" ? "character" ? ? ? 14 ? ? no ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > "_<CALC>"
@@ -379,7 +387,7 @@ ASSIGN
      _FldNameList[5]   > ASI.ar-cash.check-date
 "ar-cash.check-date" "Memo Date" ? "date" ? ? ? 14 ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.ar-cash.posted
-"ar-cash.posted" "Posted" ? "logical" ? ? ? 14 ? ? no ? no no "10.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-cash.posted" ? "Yes/No" "logical" ? ? ? 14 ? ? no ? no no "10.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > "_<CALC>"
 "display-app-amt() @ ld-not-applied" "Amount" "->>>,>>>,>>9.99" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
@@ -431,7 +439,7 @@ DO:
 END.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
@@ -449,11 +457,21 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME btGo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btGo B-table-Win
 ON CHOOSE OF btGo IN FRAME F-Main /* GO */
 DO:       
     DO WITH FRAME {&FRAME-NAME}: 
+     IF cbType:SCREEN-VALUE EQ "True" OR cbType:SCREEN-VALUE EQ "False" THEN
+     DO:
+         IF fi_memo-no:SCREEN-VALUE EQ "" AND fi_cust-no:SCREEN-VALUE EQ "" AND fi_date:SCREEN-VALUE EQ "" THEN
+         DO:
+         
+             MESSAGE "Please enter at least 1 parameter (Customer,Meno, Date (<> ?))" 
+                      VIEW-AS ALERT-BOX .
+         END.         
+     END.
         ASSIGN
          fi_memo-no
          cbType
@@ -481,7 +499,7 @@ END.
 
 &Scoped-define SELF-NAME fi_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
-ON HELP OF fi_cust-no IN FRAME F-Main /* Customer */
+ON HELP OF fi_cust-no IN FRAME F-Main
 DO:
    DEFINE VARIABLE char-val AS cha NO-UNDO.
    RUN windows/l-ordno2.w (INPUT g_company,"", INPUT {&SELF-NAME}:screen-value, OUTPUT char-val).
@@ -493,18 +511,7 @@ END.
 &ANALYZE-RESUME
 
 
-
 &Scoped-define SELF-NAME fi_memo-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_memo-no B-table-Win
-ON HELP OF fi_memo-no IN FRAME F-Main
-DO:
- 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
@@ -524,8 +531,8 @@ fi_sortby:HIDDEN  = TRUE.
 fi_sortby:VISIBLE = FALSE.
 fi_date:SCREEN-VALUE = string(TODAY - 365).
 fi_date = TODAY - 365.
-cbType:SCREEN-VALUE = "ALL".
-cbType = "ALL".
+cbType:SCREEN-VALUE = "False".
+cbType = "False".
 
 {methods/sortByProc.i "pBycust-no" "ar-cash.cust-no"}
 {methods/sortByProc.i "pBycheck-no" "ar-cash.check-no"}
@@ -581,7 +588,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
@@ -596,6 +602,34 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute AFTER standard behavior.    */
   APPLY "value-changed" TO browse-order IN FRAME {&FRAME-NAME}.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenBrowse B-table-Win 
+PROCEDURE pReopenBrowse :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    SESSION:SET-WAIT-STATE("General").
+    CASE cColumnLabel:
+        WHEN "cust-no" THEN
+        RUN pBycust-no.
+        WHEN "check-no" THEN
+        RUN pBycheck-no.
+        WHEN "check-date" THEN
+        RUN pBycheck-date.
+        WHEN "Posted" THEN
+        RUN pByposted.        
+        OTHERWISE
+        {&OPEN-QUERY-{&BROWSE-NAME}}
+    END CASE.
+    {AOA/includes/pReopenBrowse.i}
+    SESSION:SET-WAIT-STATE("").
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -646,6 +680,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-focus B-table-Win 
+PROCEDURE set-focus :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    APPLY "ENTRY" TO BROWSE {&BROWSE-NAME}.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setUserPrint B-table-Win 
 PROCEDURE setUserPrint :
 IF AVAIL ar-cash THEN
@@ -664,7 +711,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -680,47 +726,6 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-focus B-table-Win 
-PROCEDURE set-focus :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    APPLY "ENTRY" TO BROWSE {&BROWSE-NAME}.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenBrowse D-Dialog 
-PROCEDURE pReopenBrowse :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    SESSION:SET-WAIT-STATE("General").
-    CASE cColumnLabel:
-        WHEN "cust-no" THEN
-        RUN pBycust-no.
-        WHEN "check-no" THEN
-        RUN pBycheck-no.
-        WHEN "check-date" THEN
-        RUN pBycheck-date.
-        WHEN "Posted" THEN
-        RUN pByposted.        
-        OTHERWISE
-        {&OPEN-QUERY-{&BROWSE-NAME}}
-    END CASE.
-    {AOA/includes/pReopenBrowse.i}
-    SESSION:SET-WAIT-STATE("").
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
