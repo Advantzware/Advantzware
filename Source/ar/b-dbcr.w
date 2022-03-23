@@ -470,6 +470,7 @@ DO:
          
              MESSAGE "Please enter at least 1 parameter (Customer,Meno, Date (<> ?))" 
                       VIEW-AS ALERT-BOX .
+                      RETURN NO-APPLY.
          END.         
      END.
         ASSIGN
