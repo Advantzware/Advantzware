@@ -322,7 +322,7 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
 DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1
+     SIZE 15 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
@@ -410,8 +410,8 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       fg-rcpth.po-line COLUMN-LABEL "PO Ln" FORMAT ">99":U
             LABEL-BGCOLOR 14
-      fg-rcpth.job-no FORMAT "x(9)":U WIDTH 14 LABEL-BGCOLOR 14
-      fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">>9":U LABEL-BGCOLOR 14
+      fg-rcpth.job-no FORMAT "x(9)":U WIDTH 15 LABEL-BGCOLOR 14
+      fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">>9":U LABEL-BGCOLOR 14 WIDTH 6
       display-bol() @ bol-no COLUMN-LABEL "BOL #" FORMAT ">>>>>>>9":U
       fg-rcpth.trans-date COLUMN-LABEL "TR Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
@@ -633,9 +633,9 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
      _FldNameList[2]   > ASI.fg-rcpth.po-no
 "fg-rcpth.po-no" "Vendor PO#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.fg-rcpth.job-no
-"fg-rcpth.job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rcpth.job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fg-rcpth.job-no2
-"fg-rcpth.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rcpth.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
 "display-bol() @ bol-no" "BOL #" ">>>>>>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.fg-rcpth.trans-date
