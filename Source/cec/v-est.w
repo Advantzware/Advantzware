@@ -4994,7 +4994,7 @@ PROCEDURE valid-board :
         
         IF NOT CAN-FIND(FIRST item
             WHERE item.company   EQ cocode
-            AND  fIsMatlGroup(ITEM.company, ITEM.i-no, "Wood") EQ TRUE           
+            AND  DYNAMIC-FUNCTION ("fIsMatlGroup",ITEM.company, ITEM.i-no, "Wood") EQ TRUE           
             AND  (item.i-code eq lv-i-code OR lv-i-code eq "B")
             AND  item.industry EQ lv-industry
             AND item.i-no EQ ef.board:SCREEN-VALUE) OR

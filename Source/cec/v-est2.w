@@ -1180,7 +1180,7 @@ DO:
        find first item where item.company = gcompany and
                              ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
                               (index("1234",item.mat-type) > 0 and lv-is-foam) OR
-                              (fIsMatlGroup(ITEM.company, ITEM.i-no, "Wood") EQ TRUE AND lWoodStyle) ) and
+                              (DYNAMIC-FUNCTION ("fIsMatlGroup",ITEM.company, ITEM.i-no, "Wood") EQ TRUE AND lWoodStyle) ) and
                               item.industry = lv-industry and
                               item.i-no = self:screen-value
                               no-lock no-error.
@@ -3831,11 +3831,13 @@ IF NOT ll-auto-calc-selected THEN
 
     if EF.BOARD:screen-value <> "" and
        not can-find (first item where item.company = gcompany and
-                                      ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
-                                      (index("1234",item.mat-type) > 0 and lv-is-foam) OR
-                                      (fIsMatlGroup(ITEM.company, ITEM.i-no, "Wood") EQ TRUE AND lWoodStyle) and
-                                      item.industry = lv-industry and
-                                      item.i-no = ef.board:screen-value)
+                                      (
+                                       (index("BPR",item.mat-type) > 0 and not lv-is-foam) or
+                                       (index("1234",item.mat-type) > 0 and lv-is-foam) OR
+                                       (DYNAMIC-FUNCTION ("fIsMatlGroup",ITEM.company, ITEM.i-no, "Wood") EQ TRUE AND lWoodStyle)) and
+                                       item.industry = lv-industry and
+                                       item.i-no = ef.board:screen-value
+                                      )
     then do:
          message "Invalid Board. Try Help." view-as alert-box error.
          apply "entry" to ef.board.
@@ -4177,7 +4179,7 @@ PROCEDURE new-board :
         WHERE item.company  EQ gcompany
           AND ((INDEX("BPR",item.mat-type) GT 0 AND NOT lv-is-foam) OR
                (INDEX("1234",item.mat-type) GT 0 AND lv-is-foam))  OR
-               (fIsMatlGroup(ITEM.company, ITEM.i-no, "Wood") EQ TRUE AND lWoodStyle)
+               (DYNAMIC-FUNCTION ("fIsMatlGroup",ITEM.company, ITEM.i-no, "Wood") EQ TRUE AND lWoodStyle)
           AND item.industry EQ lv-industry
           AND item.i-no     EQ ef.board:SCREEN-VALUE
         NO-LOCK NO-ERROR.
