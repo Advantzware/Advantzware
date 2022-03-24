@@ -49,7 +49,7 @@ CREATE WIDGET-POOL.
 DEF VAR iCtr AS INT NO-UNDO.
 DEF VAR cOutDir AS CHAR NO-UNDO.
 DEF VAR lVerbose AS LOG NO-UNDO INITIAL FALSE.
-
+DEF VAR hPurgeProcs AS HANDLE NO-UNDO.
 ASSIGN
     cocode = gcompany
     locode = gloc.
@@ -400,7 +400,7 @@ DO:
     
     DISABLE TRIGGERS FOR LOAD OF job.
     
-    cPurgeDirectory = DYNAMIC-FUNCTION ("fGetPurgeDir", "job").
+    cPurgeDirectory = DYNAMIC-FUNCTION("fGetPurgeDir" IN hPurgeProcs, "job").
       
     RUN FileSys_CreateDirectory(
         INPUT cPurgeDirectory + "\Csv\",
@@ -650,6 +650,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
 
+    IF NOT VALID-HANDLE(hPurgeProcs) THEN 
+        RUN util/PurgeProcs.p PERSISTENT SET hPurgeProcs.
+
     /* check security */
     IF access-close THEN 
     DO:
@@ -724,7 +727,7 @@ PROCEDURE pSetup :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN 
-            cOutDir = DYNAMIC-FUNCTION ("fGetPurgeDir", "job") 
+            cOutDir = DYNAMIC-FUNCTION("fGetPurgeDir" IN hPurgeProcs, "job") 
             eHelp:SCREEN-VALUE = "- This process will purge all jobs and related records based on the parameters you choose below. " + CHR(10) + CHR(10) +
                                  "- Selecting the 'Closed and Open' option will take longer 'per job' than the 'Closed' option, as these records are found differently." + CHR(10) + CHR(10) +
                                  "- It is not necessary to select a job number range, but if you do, this will be combined with the date option; choose both accordingly." + CHR(10) + 
