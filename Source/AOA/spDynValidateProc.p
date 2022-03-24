@@ -380,14 +380,23 @@ PROCEDURE dynValPostInvDate:
     DEFINE VARIABLE dtDate        AS DATE      NO-UNDO.
     DEFINE VARIABLE hSecureHandle AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lSecure       AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE cAPPostingPassword    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAPPostingPeriodRules AS CHARACTER NO-UNDO.
+
+    RUN spGetSettingByName ("APPostingPassword", OUTPUT cAPPostingPassword).
+    RUN spGetSettingByName ("APPostingPeriodRules", OUTPUT cAPPostingPeriodRules). 
 
     dtDate = DATE(iphWidget:SCREEN-VALUE) NO-ERROR.
     IF dtDate EQ ? THEN RETURN.
     FIND FIRST period NO-LOCK
          WHERE period.company EQ cCompany
            AND period.pst     LE dtDate
-           AND period.pend    GE dtDate
-           AND period.pnum    EQ MONTH(dtDate)
+           AND period.pend    GE dtDate           
+           AND ((period.pnum  EQ MONTH(TODAY) AND cAPPostingPeriodRules EQ "CurrentPeriodOnly")
+           OR cAPPostingPeriodRules EQ "OpenPeriodOnly")
+           AND ((period.yr     EQ YEAR(TODAY) AND cAPPostingPeriodRules EQ "CurrentPeriodOnly")
+           OR cAPPostingPeriodRules EQ "OpenPeriodOnly")
          NO-ERROR.
     IF NOT AVAILABLE period THEN
     ASSIGN
@@ -400,14 +409,14 @@ PROCEDURE dynValPostInvDate:
         cErrorMsg = "Period for " + STRING(dtDate,"99/99/9999") + " is already closed"
         cSessionParam = "PostIntoClosedPeriod"
         .
-    IF cErrorMsg NE "" THEN DO:
+    IF cErrorMsg NE "" AND cAPPostingPassword NE ""  THEN DO:
         RUN spGetSessionParam ("Secure", OUTPUT cSessionValue).
         IF CAN-DO(",NO",cSessionValue) THEN DO:
             MESSAGE
                 cErrorMsg SKIP
                 "Enter Security Password or Enter to Return"
             VIEW-AS ALERT-BOX ERROR.
-            RUN sys/ref/d-passwd.w (1, OUTPUT lSecure).
+            RUN sys/ref/dCheckPasswd.w (cAPPostingPassword, OUTPUT lSecure).
             RUN spSetSessionParam ("Secure", STRING(lSecure)).
             IF lSecure THEN DO:
                 RUN spGetSessionParam (cSessionParam + "-Handle", OUTPUT cSessionValue).

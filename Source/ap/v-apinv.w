@@ -91,7 +91,7 @@ ap-inv.due-date ap-inv.tax-gr ap-inv.disc-% ap-inv.disc-days ap-inv.tax-amt ap-i
 &Scoped-Define DISPLAYED-FIELDS ap-inv.vend-no ap-inv.inv-no ~
 ap-inv.inv-date ap-inv.due-date ap-inv.tax-gr ap-inv.disc-% ~
 ap-inv.disc-days ap-inv.stat ap-inv.tax-amt ap-inv.net ap-inv.paid ~
-ap-inv.freight ap-inv.due ap-inv.user-id ap-inv.runNumber
+ap-inv.freight ap-inv.due ap-inv.user-id ap-inv.runNumber ap-inv.glPostDate
 &Scoped-define DISPLAYED-TABLES ap-inv
 &Scoped-define FIRST-DISPLAYED-TABLE ap-inv
 &Scoped-Define DISPLAYED-OBJECTS vend_name cb_freq scr-manual-check-no ~
@@ -227,13 +227,16 @@ DEFINE FRAME F-Main
           SIZE 11.6 BY 1
      tg_overwrite-tax AT ROW 2.67 COL 129.4
      btTags AT ROW 2.43 COL 85.2 WIDGET-ID 12
-     ap-inv.runNumber AT ROW 4.90 COL 130 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     ap-inv.runNumber AT ROW 4.70 COL 130 COLON-ALIGNED NO-LABEL WIDGET-ID 10
            VIEW-AS FILL-IN
            SIZE 15 BY 1
+     ap-inv.glPostDate AT ROW 5.70 COL 130 COLON-ALIGNED NO-LABEL FORMAT "99/99/9999" 
+           VIEW-AS FILL-IN
+           SIZE 15 BY 1        
      "Manual Check#" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 4.76 COL 72 WIDGET-ID 8
      "GL Run#" VIEW-AS TEXT
-          SIZE 10 BY 1  AT ROW 3.90 COL 132 WIDGET-ID 8
+          SIZE 10 BY 1  AT ROW 3.70 COL 132 WIDGET-ID 8
      RECT-1 AT ROW 1 COL 1
      RECT-5 AT ROW 1.24 COL 90
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -324,6 +327,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ap-inv.user-id IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN ap-inv.glPostDate IN FRAME F-Main
+   NO-ENABLE EXP-FORMAT                                                 */    
 /* SETTINGS FOR FILL-IN ap-inv.vend-no IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN vend_name IN FRAME F-Main
