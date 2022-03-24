@@ -25,7 +25,7 @@
 &Scoped-define font 4
 &Scoped-define height-size 19
 &Scoped-define width-size 46
-&Scoped-define show-fields stax.tax-group
+&Scoped-define show-fields stax.tax-group label "Tax Group"
 &Scoped-define show-fields-yellow stax.tax-group LABEL-BGCOLOR 14
 &Scoped-define frame-title Tax Group Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
