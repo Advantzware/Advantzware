@@ -950,8 +950,7 @@ PROCEDURE buildRptRecs :
         RELEASE report.
                 
         IF gvlChoice THEN 
-        DO:
-      
+        DO:                 
             IF gvlDebug THEN
                 PUT STREAM sDebug UNFORMATTED "buildRptRec - choose vendor " + bf-w-job-mat.i-no SKIP.
             
@@ -970,7 +969,7 @@ PROCEDURE buildRptRecs :
                     OUTPUT cMessage
                     ) NO-ERROR.
             ELSE 
-                DO:
+                DO:                    
                     if lNew then   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++          
                         RUN system/vendorcostSelector.w(
                             INPUT  bf-w-job-mat.company, //ipcCompany ,
@@ -994,16 +993,15 @@ PROCEDURE buildRptRecs :
                             OUTPUT  cMessage 
                             ).  
                     ELSE   //---------------------------------------------------------------------------
-                        DO:            
+                        DO:           
                             IF lNewVendorItemCost THEN 
-                                RUN po/d-vndcstN.w (
-                                    INPUT v-term, 
+                                /*Checking the new logic to call vendor selector*/
+                                RUN VendorSelector(INPUT v-term, 
                                     INPUT bf-w-job-mat.w-recid, 
                                     INPUT bf-w-job-mat.this-is-a-rm, 
                                     INPUT bf-w-job-mat.i-no, 
                                     INPUT v-qty-comp, 
-                                    INPUT v-job-mat-uom
-                                    ).                
+                                    INPUT v-job-mat-uom).               
                             ELSE 
                                 RUN po/d-vndcst.w (
                                     INPUT v-term, 
@@ -1094,6 +1092,67 @@ END. /* avail tt-ei */
 RELEASE bf-ordl.
 
 END PROCEDURE.
+
+PROCEDURE vendorSelector:
+    DEFINE INPUT PARAMETER ipcterm        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipRiJobMat     AS RECID     NO-UNDO.
+    DEFINE INPUT PARAMETER iplRM          AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipci-no        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQty-comp    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJob-mat-uom AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cScopeRMOverride  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Override".
+    DEFINE VARIABLE cScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated".
+    DEFINE VARIABLE iCount            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cAdderList        AS CHARACTER EXTENT 6 NO-UNDO.
+    
+    DEFINE BUFFER bf-ef FOR ef.
+    
+    /*run vendorCostselector.w*/
+    FIND FIRST job-mat NO-LOCK 
+        WHERE RECID(job-mat) = ipRiJobMat NO-ERROR.
+    IF AVAILABLE job-mat THEN 
+        FOR FIRST job NO-LOCK 
+            WHERE job.company = job-mat.company
+              AND job.job = job-mat.job:
+                  ASSIGN 
+                    cEstimateNo = job.est-no.
+        END.
+    IF AVAILABLE job-mat AND cEstimateNo <> "" THEN
+    FOR EACH bf-ef NO-LOCK
+        WHERE bf-ef.company EQ job-mat.company
+        AND bf-ef.est-no  EQ cEstimateNo:
+        DO iCount = 1 TO 6:
+            IF bf-ef.adder[iCount] <> "" THEN 
+                cAdderList[iCount] = bf-ef.adder[iCount].
+        END.
+    END.
+    IF AVAIL job-mat THEN 
+        RUN system/vendorcostSelector.w(
+            INPUT  job-mat.company, //ipcCompany ,
+            INPUT  job-mat.i-no ,
+            INPUT  IF iplRM THEN "RM" ELSE "FG", //ipcItemType ,
+            INPUT  IF iplRM THEN cScopeRMOverride ELSE cScopeFGEstimated, //ipcScope ,
+            INPUT  "Yes", //iplIncludeBlankVendor ,
+            INPUT  cEstimateNo, //ipcEstimateNo,
+            INPUT  job-mat.frm, //ipiFormNo,
+            INPUT  job-mat.blank-no, //ipiBlankNo,
+            INPUT  job-mat.qty , //ipdQuantity ,
+            INPUT  Job-mat.qty-UOM, //ipcQuantityUOM ,
+            INPUT  job-mat.Len, //ipdDimLength ,
+            INPUT  job-mat.Wid, //ipdDimWidth ,
+            INPUT  job-mat.Dep, //ipdDimDepth ,
+            INPUT  job-mat.sc-UOM, //ipcDimUOM ,
+            INPUT  Job-mat.basis-W, //ipdBasisWeight ,
+            INPUT  "", //ipcBasisWeightUOM ,
+            INPUT cAdderList, //adders
+            OUTPUT  TABLE ttVendItemCost,
+            OUTPUT  lError ,
+            OUTPUT  cMessage 
+            ).
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3180,6 +3239,7 @@ PROCEDURE processJobMat :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
+   
     outers:
     FOR EACH w-job-mat    
         WHERE (IF iplPromptRM THEN TRUE ELSE w-job-mat.this-is-a-rm EQ FALSE)
@@ -3572,7 +3632,8 @@ PROCEDURE promptCreatePoLine :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lCheckFgItemPoStatus AS LOGICAL NO-UNDO .
+  DEFINE VARIABLE lCheckFgItemPoStatus AS LOGICAL NO-UNDO .  
+  
     IF gvlDebug THEN             
         PUT STREAM sDebug UNFORMATTED "Prompt create PO line " w-job-mat.i-no  SKIP.
 
