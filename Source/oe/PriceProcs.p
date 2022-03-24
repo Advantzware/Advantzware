@@ -673,6 +673,7 @@ PROCEDURE Price_CalculateLinePrice:
      
     DEFINE VARIABLE cType    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lReprice AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lMatrixFound AS LOGICAL NO-UNDO. 
 
     /*Build the ttItemLines table - will only be one record if not auto-reprice - only FG Items of "Stock"*/
     RUN pBuildLineTable(ipriLine, ipcFGITemID, ipcCustID, ipcShipID, ipdQuantity, OUTPUT cType, OUTPUT lReprice).
@@ -710,6 +711,7 @@ PROCEDURE Price_CalculateLinePrice:
             ttItemLines.cCustID, 
             ttItemLines.cShipID,
             ttItemLines.dQuantityLookup,  
+            OUTPUT lMatrixFound,
             INPUT-OUTPUT ttItemLines.dPrice, 
             INPUT-OUTPUT ttItemLines.cPriceUOM ).    
 
