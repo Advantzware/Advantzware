@@ -158,6 +158,8 @@ DEFINE VARIABLE h_storagecost AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_storagecost-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_wip-bin AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_wip-bin-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_impStroageCost AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_expStroageCost AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -707,6 +709,22 @@ PROCEDURE adm-create-objects :
     END. /* Page 5 */
     WHEN 6 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_expStroageCost ).
+       RUN set-position IN h_expStroageCost ( 1.00 , 34.20 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_impStroageCost ).
+       RUN set-position IN h_impStroageCost ( 1.00 , 26.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/storagecost.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -775,7 +793,15 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-updsav-6 , 'TableIO':U , h_palletsize-2 ).
        RUN add-link IN adm-broker-hdl ( h_palletsize , 'Record':U , h_palletsize-2 ).
 
+       /* Links to SmartObject h_impStroageCost. */
+       RUN add-link IN adm-broker-hdl ( h_storagecost , 'import':U , h_impStroageCost ).
+
+       /* Links to SmartObject h_expStroageCost. */
+       RUN add-link IN adm-broker-hdl ( h_storagecost , 'export-xl':U , h_expStroageCost ).
+
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_expStroageCost ,
+             h_impStroageCost , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_storagecost ,
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_storagecost-2 ,
