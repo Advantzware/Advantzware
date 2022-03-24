@@ -54,10 +54,14 @@ PROCEDURE pValidate PRIVATE:
     DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE dValidWidthRangeBegin  AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dValidWidthRangeEnd    AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dValidLengthRangeBegin AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dValidLengthRangeEnd   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dValidWidthRangeBegin  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dValidWidthRangeEnd    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dValidLengthRangeBegin AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dValidLengthRangeEnd   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iCheckPositionNo       AS INTEGER   NO-UNDO.    
+    DEFINE VARIABLE lAutoNumber            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cPositionNumber        AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE cPositionNoGroup       AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-ttImportStorageCost FOR ttImportStorageCost.
 
@@ -144,7 +148,48 @@ PROCEDURE pValidate PRIVATE:
             RUN pIsValidWarehouse IN hdValidator (ipbf-ttImportStorageCost.Location, NO, ipbf-ttImportStorageCost.Company, OUTPUT oplValid, OUTPUT cValidNote).
         
     END.
-    IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote. 
+    
+    IF oplValid THEN
+    DO:   
+        ASSIGN 
+        cPositionNoGroup = ""
+        lAutoNumber = NO
+        cPositionNumber = ipbf-ttImportStorageCost.positions
+        .
+        
+        IF cPositionNumber BEGINS gcAutoIndicator THEN DO:
+        /*Auto numbering logic*/
+                        
+            /*Get the PoNoGroup as string to the right of the indicator*/
+            IF LENGTH(cPositionNumber) NE LENGTH(gcAutoIndicator) THEN 
+                cPositionNoGroup = SUBSTRING(cPositionNumber,LENGTH(gcAutoIndicator) + 1, LENGTH(cPositionNumber) - LENGTH(gcAutoIndicator)).
+            IF cPositionNoGroup NE "" THEN 
+                FIND FIRST bf-ttImportStorageCost NO-LOCK
+                     WHERE bf-ttImportStorageCost.PoNoGroup EQ cPositionNoGroup
+                    NO-ERROR.
+            IF AVAILABLE bf-ttImportStorageCost THEN
+                ipbf-ttImportStorageCost.positions = bf-ttImportStorageCost.positions.
+            ELSE 
+                lAutoNumber = YES.
+        END.  
+        
+        IF lAutoNumber OR ipbf-ttImportStorageCost.positions EQ "" THEN
+        DO:
+           RUN pGetNextPositionFromTT(INPUT ipbf-ttImportStorageCost.Company, ipbf-ttImportStorageCost.Location, OUTPUT iCheckPositionNo).
+           ipbf-ttImportStorageCost.positions = STRING(iCheckPositionNo).
+        END.
+        IF lAutoNumber AND cPositionNoGroup NE "" THEN
+        ipbf-ttImportStorageCost.PoNoGroup = cPositionNoGroup.
+        
+        IF INTEGER(ipbf-ttImportStorageCost.positions) GT 9 THEN
+        DO:
+            ASSIGN 
+                 oplValid = NO
+                 opcNote  = "Maximum positions is 9, entry rejected" .            
+        END.
+        
+    END.
+    IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.      
     
     DELETE OBJECT hdValidator.   
 END PROCEDURE.
@@ -279,6 +324,30 @@ PROCEDURE pGetNextPosition PRIVATE:
         AND storageCost.location EQ ipcLocation        
         BY storageCost.positions DESC:
         iPosition = storageCost.positions.
+        LEAVE.
+    END.
+    opiPosition = iPosition + 1.    
+    
+END PROCEDURE.    
+
+PROCEDURE pGetNextPositionFromTT PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiPosition AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPosition AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-ttImportStorageCost FOR ttImportStorageCost.
+    Main-loop:
+    FOR EACH bf-ttImportStorageCost NO-LOCK
+        WHERE bf-ttImportStorageCost.company EQ ipcCompany
+        AND bf-ttImportStorageCost.location EQ ipcLocation          
+        BY bf-ttImportStorageCost.positions DESC:
+        IF bf-ttImportStorageCost.positions BEGINS gcAutoIndicator OR bf-ttImportStorageCost.positions EQ "" THEN NEXT Main-loop.
+        iPosition = integer(bf-ttImportStorageCost.positions) NO-ERROR.
         LEAVE.
     END.
     opiPosition = iPosition + 1.    
