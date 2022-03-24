@@ -1888,7 +1888,7 @@ Total Received,~
 Total Quantity Released,~
 Tag Date,~
 Tax,~
-Sales Tax Group,~
+Tax Group,~
 Tax Exempt No.,~
 Payment Terms,~
 Total Tags,~
