@@ -30,23 +30,31 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+
+&SCOPED-DEFINE yellowColumnsName inventorySnapshot
+&SCOPED-DEFINE noSortByField
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE sizeOption HEIGHT
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
+{methods/defines/sortByDefs.i}
 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF VAR v-col-move AS LOG INIT TRUE NO-UNDO.
-DEFINE VARIABLE chLocation AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE cCompany    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lMoveColumn AS LOGICAL   NO-UNDO INITIAL TRUE.
 
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
 
+RUN spGetSessionParam ("Company", OUTPUT cCompany).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
@@ -63,18 +71,23 @@ DEFINE VARIABLE chLocation AS CHARACTER NO-UNDO.
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES inventorySnapshot
-&Scoped-define SORTBY-PHRASE BY inventorySnapshot.inventorySnapshotID DESC
+
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table inventorySnapshot.inventorySnapshotID inventorySnapshot.snapshotDesc inventorySnapshot.snapshotType ~
-inventorySnapshot.ItemType inventorySnapshot.warehouseID inventorySnapshot.LocationId inventorySnapshot.inventoryStockStatus inventorySnapshot.snapshotUser ~
-inventorySnapshot.snapshotTime
+&Scoped-define FIELDS-IN-QUERY-Browser-Table ~
+inventorySnapshot.inventorySnapshotID inventorySnapshot.snapshotDesc ~
+inventorySnapshot.snapshotType inventorySnapshot.itemType ~
+inventorySnapshot.warehouseID inventorySnapshot.locationID ~
+inventorySnapshot.inventoryStockStatus inventorySnapshot.snapshotUser ~
+inventorySnapshot.snapshotTime 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH inventorySnapshot WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH inventorySnapshot WHERE ~{&KEY-PHRASE} ~
+      AND inventorySnapshot.company EQ cCompany NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH inventorySnapshot WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH inventorySnapshot WHERE ~{&KEY-PHRASE} ~
+      AND inventorySnapshot.company EQ cCompany NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table inventorySnapshot
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table inventorySnapshot
@@ -83,8 +96,9 @@ inventorySnapshot.snapshotTime
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 ~
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
 Btn_Delete_invSnapshot 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -93,65 +107,92 @@ Btn_Delete_invSnapshot
 &ANALYZE-RESUME
 
 
+
 /* ***********************  Control Definitions  ********************** */
 
+
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.
 
 DEFINE BUTTON Btn_Delete_invSnapshot 
      LABEL "&Delete" 
      SIZE 23 BY 1.29
-     FONT 4
-     BGCOLOR 14.
+     BGCOLOR 14 FONT 4.
+
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1 NO-UNDO.
+
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 25 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE   
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
      SIZE 25 BY 1.76
-     BGCOLOR 8.
+     BGCOLOR 8 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
       inventorySnapshot
-    FIELDS(
-      inventorySnapshot.inventorySnapshotID
+    FIELDS(inventorySnapshot.inventorySnapshotID
       inventorySnapshot.snapshotDesc
       inventorySnapshot.snapshotType
       inventorySnapshot.itemType
       inventorySnapshot.warehouseID
-      inventorySnapshot.LocationId
+      inventorySnapshot.locationID
       inventorySnapshot.inventoryStockStatus
       inventorySnapshot.snapshotUser
-      inventorySnapshot.snapshotTime
-      ) SCROLLING.
+      inventorySnapshot.snapshotTime) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      inventorySnapshot.inventorySnapshotID COLUMN-LABEL "ID" FORMAT "->,>>>,>>9":U LABEL-BGCOLOR 14
-      inventorySnapshot.snapshotDesc COLUMN-LABEL "Description" FORMAT "x(30)":U LABEL-BGCOLOR 14
-      inventorySnapshot.snapshotType COLUMN-LABEL "Type" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      inventorySnapshot.ItemType COLUMN-LABEL "Item Type" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      inventorySnapshot.warehouseID COLUMN-LABEL "warehouseID" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      inventorySnapshot.locationID  COLUMN-LABEL "LocationId" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      inventorySnapshot.inventoryStockStatus COLUMN-LABEL "Status" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      inventorySnapshot.snapshotUser COLUMN-LABEL "User" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      inventorySnapshot.snapshotTime COLUMN-LABEL "Created" FORMAT "99/99/9999 HH:MM:SS.SSS":U LABEL-BGCOLOR 14
-      
-      
+      inventorySnapshot.inventorySnapshotID COLUMN-LABEL "ID" FORMAT "->,>>>,>>9":U
+            LABEL-BGCOLOR 14
+      inventorySnapshot.snapshotDesc FORMAT "x(40)":U LABEL-BGCOLOR 14
+      inventorySnapshot.snapshotType COLUMN-LABEL "Type" FORMAT "x(8)":U
+            LABEL-BGCOLOR 14
+      inventorySnapshot.itemType COLUMN-LABEL "Item Type" FORMAT "x(8)":U
+            LABEL-BGCOLOR 14
+      inventorySnapshot.warehouseID COLUMN-LABEL "Warehouse" FORMAT "x(8)":U
+            LABEL-BGCOLOR 14
+      inventorySnapshot.locationID COLUMN-LABEL "Location" FORMAT "x(8)":U
+            LABEL-BGCOLOR 14
+      inventorySnapshot.inventoryStockStatus COLUMN-LABEL "Stock Status" FORMAT "x(8)":U
+            LABEL-BGCOLOR 14
+      inventorySnapshot.snapshotUser COLUMN-LABEL "User" FORMAT "x(8)":U
+            LABEL-BGCOLOR 14
+      inventorySnapshot.snapshotTime COLUMN-LABEL "Time" FORMAT "99/99/9999 HH:MM:SS.SSS":U
+            WIDTH 32.2 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 170 BY 15.7
-         BGCOLOR 15 FGCOLOR 0 FONT 6 ROW-HEIGHT-CHARS .75 FIT-LAST-Column.
-         
+    WITH NO-ASSIGN SEPARATORS SIZE 163 BY 15.71
+         BGCOLOR 15 FGCOLOR 0 FONT 6 ROW-HEIGHT-CHARS .76.
+
+
 /* ************************  Frame Definitions  *********************** */
-         
+
 DEFINE FRAME F-Main
-     Browser-Table AT ROW 1 COL 1    
-     HELP "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     Browser-Table AT ROW 1 COL 1 HELP
+          "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 7.91 COL 51 HELP
+          "Select Browser Sort Order" NO-LABEL
+     auto_find AT ROW 7.91 COL 87 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_Clear_Find AT ROW 7.91 COL 110 HELP
+          "CLEAR AUTO FIND Value"
      Btn_Delete_invSnapshot AT ROW 17.24 COL 2 HELP
-          "DELETE Inventory Snapshot"               
+          "DELETE Inventory Snapshot"
      RECT-4 AT ROW 17 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -185,8 +226,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 24.29
-         WIDTH              = 95.
+         HEIGHT             = 17.76
+         WIDTH              = 163.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -195,11 +236,15 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/browser.i}
-//{src/adm/method/query.i}
-//{methods/template/browser.i}
+{src/adm/method/query.i}
+{methods/template/browser.i}
+{custom/yellowColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
@@ -208,18 +253,23 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
 ASSIGN 
        Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 2
-       Browser-Table:COLUMN-RESIZABLE IN FRAME F-Main       = TRUE.
-       
+       Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
+                "1"
+       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+
+/* SETTINGS FOR BUTTON Btn_Clear_Find IN FRAME F-Main
+   NO-ENABLE                                                            */
 ASSIGN 
-       Btn_Delete_invSnapshot:PRIVATE-DATA IN FRAME F-Main = 
-                "panel-image".       
-                
+       Btn_Delete_invSnapshot:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -231,14 +281,25 @@ ASSIGN
      _TblList          = "ASI.inventorySnapshot"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _FldNameList[1]   > ASI.inventorySnapshot.snapshotType
-"inventorySnapshot.snapshotType" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.inventorySnapshot.itemType
-"inventorySnapshot.itemType" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.inventorySnapshot.warehouseID
-"inventorySnapshot.warehouseID" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.inventorySnapshot.locationID
-"inventorySnapshot.locationID" "DMI" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _Where[1]         = "inventorySnapshot.company EQ cCompany"
+     _FldNameList[1]   > ASI.inventorySnapshot.inventorySnapshotID
+"inventorySnapshotID" "ID" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.inventorySnapshot.snapshotDesc
+"snapshotDesc" ? "x(40)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.inventorySnapshot.snapshotType
+"snapshotType" "Type" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.inventorySnapshot.itemType
+"itemType" "Item Type" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ASI.inventorySnapshot.warehouseID
+"warehouseID" "Warehouse" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.inventorySnapshot.locationID
+"locationID" "Location" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > ASI.inventorySnapshot.inventoryStockStatus
+"inventoryStockStatus" "Stock Status" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   > ASI.inventorySnapshot.snapshotUser
+"snapshotUser" "User" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > ASI.inventorySnapshot.snapshotTime
+"snapshotTime" "Time" ? "datetime" ? ? ? 14 ? ? no ? no no "32.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -250,6 +311,8 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
+ 
+
 
 
 /* ************************  Control Triggers  ************************ */
@@ -259,9 +322,9 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
-  /* This code displays initial values for newly added or copied rows. */
+    /* This code displays initial values for newly added or copied rows. */
     {src/adm/template/brsentry.i}
-    END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -272,8 +335,8 @@ ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
 DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
-        {src/adm/template/brsleave.i}
-    END.
+    {src/adm/template/brsleave.i}
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -282,17 +345,19 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
-    
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
-DO:
-    
+    {methods/template/sortindicator.i}
+    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
+        ASSIGN
+            cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME
+            cColLabel    = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL
+            .
+        IF cColumnLabel EQ cSaveLabel THEN
+        lAscending = NOT lAscending.
+        cSaveLabel = cColumnLabel.
+        RUN pReopenBrowse.
+    END.
+    {methods/template/sortindicatorend.i}
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -302,37 +367,27 @@ END.
 &Scoped-define SELF-NAME Btn_Delete_invSnapshot
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Delete_invSnapshot B-table-Win
 ON CHOOSE OF Btn_Delete_invSnapshot IN FRAME F-Main /* Delete */
-    DO: 
-        DEFINE VARIABLE hHandle AS HANDLE NO-UNDO.
-        
-        MESSAGE "Are you sure you want to remove this snapshot and all corresponding snapshot data?"
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO 
-            UPDATE lAnswer AS LOGICAL.
+DO: 
+    DEFINE VARIABLE hHandle AS HANDLE NO-UNDO.
     
-        IF lAnswer THEN
-        DO:
-            IF VALID-HANDLE(hHandle) = FALSE THEN
-            DO:
-                RUN Inventory/InventoryProcs.p PERSISTENT SET hHandle.
-            END.
-            FIND CURRENT InventorySnapshot NO-LOCK NO-ERROR.
-                        
-            IF AVAILABLE InventorySnapshot THEN
-            DO:
-                RUN Inventory_DeleteInventorySnapshot IN hHandle (INPUT ROWID(InventorySnapshot)).                
-            END.
-        END.
-        IF VALID-HANDLE(hHandle) = TRUE THEN
-        DO:
-            DELETE PROCEDURE hHandle.
-        END.
-        {&OPEN-QUERY-Browser-Table}
-        
+    MESSAGE "Are you sure you want to remove this snapshot and all corresponding snapshot data?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO 
+        UPDATE lAnswer AS LOGICAL.
+    IF lAnswer THEN
+    DO:
+        IF VALID-HANDLE(hHandle) = FALSE THEN
+        RUN Inventory/InventoryProcs.p PERSISTENT SET hHandle.
+        FIND CURRENT InventorySnapshot NO-LOCK NO-ERROR.                    
+        IF AVAILABLE InventorySnapshot THEN
+        RUN Inventory_DeleteInventorySnapshot IN hHandle (INPUT ROWID(InventorySnapshot)).                
     END.
+    IF VALID-HANDLE(hHandle) = TRUE THEN
+    DELETE PROCEDURE hHandle.
+    {&OPEN-QUERY-Browser-Table}    
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &UNDEFINE SELF-NAME
@@ -341,13 +396,33 @@ ON CHOOSE OF Btn_Delete_invSnapshot IN FRAME F-Main /* Delete */
 
 
 /* ***************************  Main Block  *************************** */
-{methods/ctrl-a_browser.i}
+
 {sys/inc/f3help.i}
+
+ASSIGN
+    auto_find:HIDDEN      = YES
+    browse-order:HIDDEN   = YES
+    Btn_Clear_Find:HIDDEN = YES
+    .
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
 {methods/winReSize.i}
+
+&SCOPED-DEFINE cellColumnDat inventorySnapshot.w 
+/*{methods/browsers/setCellColumns.i}*/
+/*lAutoSave = YES.                   */
+
+{methods/sortByProc.i "pBySnapshotID" "inventorySnapshot.inventorySnapshotID"}
+{methods/sortByProc.i "pByDescription" "inventorySnapshot.snapshotDesc"}
+{methods/sortByProc.i "pByType" "inventorySnapshot.snapshotType"}
+{methods/sortByProc.i "pByItemType" "inventorySnapshot.itemType"}
+{methods/sortByProc.i "pByWarehouse" "inventorySnapshot.warehouseID"}
+{methods/sortByProc.i "pByLocation" "inventorySnapshot.locationID"}
+{methods/sortByProc.i "pByStockStatus" "inventorySnapshot.inventoryStockStatus"}
+{methods/sortByProc.i "pByUser" "inventorySnapshot.snapshotUser"}
+{methods/sortByProc.i "pByTime" "inventorySnapshot.snapshotTime"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -408,20 +483,54 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
-PROCEDURE local-open-query :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
+PROCEDURE move-columns :
 /*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    /* Code placed here will execute PRIOR to standard behavior. */
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            {&BROWSE-NAME}:COLUMN-MOVABLE   = lMoveColumn
+            {&BROWSE-NAME}:COLUMN-RESIZABLE = lMoveColumn
+            lMoveColumn = NOT lMoveColumn
+            .
+    END.
 
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+END PROCEDURE.
 
-    /* Code placed here will execute AFTER standard behavior.    */
-    APPLY "value-changed" TO BROWSE {&browse-name}.
-    APPLY "entry" TO BROWSE {&browse-name}.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenBrowse B-table-Win 
+PROCEDURE pReopenBrowse :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    CASE cColumnLabel:
+        WHEN "inventorySnapshotID" THEN
+            RUN pBySnapshotID.
+        WHEN "snapshotDesc" THEN
+            RUN pByDescription.
+        WHEN "snapshotType" THEN
+            RUN pByType.
+        WHEN "itemType" THEN
+            RUN pByItemType. 
+        WHEN "warehouseID" THEN
+            RUN pByWarehouse.
+        WHEN "locationID" THEN
+            RUN pByLocation.    
+        WHEN "inventoryStockStatus" THEN
+            RUN pByStockStatus.    
+        WHEN "snapshotUser" THEN
+            RUN pByUser.    
+        WHEN "snapshotTime" THEN
+            RUN pByTime.    
+    END CASE.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -464,27 +573,6 @@ PROCEDURE state-changed :
          or add new cases. */
     {src/adm/template/bstates.i}
     END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
-PROCEDURE move-columns :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DO WITH FRAME {&FRAME-NAME}:
-
-  ASSIGN
-     Browser-Table:COLUMN-MOVABLE = v-col-move
-     Browser-Table:COLUMN-RESIZABLE = v-col-move
-     v-col-move = NOT v-col-move.
-  /*   FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-  DISPLAY FI_moveCol.*/
-END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

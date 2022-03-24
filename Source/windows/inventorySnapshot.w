@@ -48,7 +48,7 @@ CREATE WIDGET-POOL.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartWindow
+&Scoped-define PROCEDURE-TYPE SmartEasyWindow
 &Scoped-define DB-AWARE no
 
 &Scoped-define ADM-CONTAINER WINDOW
@@ -82,12 +82,9 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_inventorySnapshot AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_inventorySnapshot-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_movecol       AS HANDLE NO-UNDO.
+
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -146,7 +143,6 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          THREE-D            = yes
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
-         
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -165,6 +161,9 @@ IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
@@ -222,7 +221,7 @@ THEN W-Win:HIDDEN = yes.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* Machine Charge Codes */
+ON END-ERROR OF W-Win /* Inventory Snapshot */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -235,7 +234,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* Machine Charge Codes */
+ON WINDOW-CLOSE OF W-Win /* Inventory Snapshot */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
@@ -257,6 +256,7 @@ END.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 {custom/initializeprocs.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -279,6 +279,14 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/options.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_options ).
+       RUN set-position IN h_options ( 1.00 , 106.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 55.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/smartmsg.w':U ,
              INPUT  FRAME message-frame:HANDLE ,
              INPUT  '':U ,
@@ -286,24 +294,13 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_smartmsg ( 1.00 , 9.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/options.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_options ).
-       RUN set-size IN h_options ( 20 , 150.00 ) NO-ERROR.
-       RUN set-position IN h_options ( 1.00 , 105.5 ) NO-ERROR.
-       
-       /* Size in UIB:  ( 1.81 , 55.80 ) */
-
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
        RUN set-position IN h_exit ( 1.00 , 162.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
@@ -312,46 +309,34 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 20 , 171.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 20.00 , 171.00 ) NO-ERROR.
+
+       /* Links to SmartObject h_options. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_options , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
-    WHEN 1 THEN DO:     
-    
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/movecol.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_movecol ).
-       RUN set-position IN h_movecol ( 1.00 , 98.1 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-       
+    WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/inventorySnapshot.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_inventorySnapshot ).
-       
-       RUN set-position IN h_inventorySnapshot ( 4.81 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_inventorySnapshot ( 19.52 , 95.00) NO-ERROR.     
-             
-       /* Links to SmartNavBrowser h_inventorySnapshot. */
-       
-       RUN add-link IN adm-broker-hdl ( h_inventorySnapshot , 'move-columns':U , h_movecol ).
-       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_inventorySnapshot ).       
+       RUN set-position IN h_inventorySnapshot ( 4.57 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 18.33 , 170.00 ) */
+
+       /* Links to  h_inventorySnapshot. */
        RUN add-link IN adm-broker-hdl ( h_inventorySnapshot , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_inventorySnapshot ,
-             h_folder , 'AFTER':U ).
-    END. /* Page 1 */   
+    END. /* Page 1 */
 
   END CASE.
   /* Select a Startup page. */
