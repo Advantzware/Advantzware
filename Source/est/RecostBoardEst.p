@@ -148,9 +148,8 @@ PROCEDURE pProcessEstCostMaterial PRIVATE:
             AND bf-eb.form-no   EQ estCostMaterial.Formno NO-ERROR.
             
         IF AVAILABLE bf-eb THEN
-        DO:           
-            
-            RUN GetPanelScoreAndTypeForEstimateFromEb IN hdFormulaProcs (
+        DO: 
+            RUN GetPanelScoreAndTypeForEstimate IN hdFormulaProcs (
                 INPUT bf-eb.company,
                 INPUT bf-eb.est-no,
                 INPUT bf-eb.form-no,
@@ -160,8 +159,9 @@ PROCEDURE pProcessEstCostMaterial PRIVATE:
                 OUTPUT cScoreTypes).
                 
             DO iCount = 1 TO 20:                
-                ASSIGN 
-                    cScoreList = cScoreList + " " + string(dScores[iCount]).                    
+                IF dScores[iCount] NE 0 THEN                
+                    ASSIGN 
+                        cScoreList = cScoreList + " " + string(dScores[iCount]).                    
             END.
             
             ASSIGN 
