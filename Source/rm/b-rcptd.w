@@ -318,8 +318,8 @@ DEFINE BROWSE Browser-Table
       rm-rctd.rct-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       rm-rctd.po-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
       rm-rctd.po-line COLUMN-LABEL "PO Ln#" FORMAT ">>9":U
-      rm-rctd.job-no FORMAT "x(9)":U LABEL-BGCOLOR 14
-      rm-rctd.job-no2 FORMAT "999":U
+      rm-rctd.job-no FORMAT "x(9)":U LABEL-BGCOLOR 14 WIDTH 15
+      rm-rctd.job-no2 FORMAT "999":U WIDTH 5.5
       rm-rctd.s-num COLUMN-LABEL "F" FORMAT ">9":U
       rm-rctd.b-num COLUMN-LABEL "B" FORMAT ">9":U
       rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U LABEL-BGCOLOR 14
@@ -481,9 +481,9 @@ rm-rctd.rita-code = ""R"""
      _FldNameList[4]   > ASI.rm-rctd.po-line
 "po-line" "PO Ln#" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.rm-rctd.job-no
-"job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.rm-rctd.job-no2
-"job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no "5.5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.rm-rctd.s-num
 "s-num" "F" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.rm-rctd.b-num

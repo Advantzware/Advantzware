@@ -288,7 +288,7 @@ DEFINE BROWSE Browser-Table
       oe-boll.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U WIDTH 8 LABEL-BGCOLOR 14
       oe-boll.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
-      oe-boll.job-no COLUMN-LABEL "Job #" FORMAT "x(9)":U WIDTH 12
+      oe-boll.job-no COLUMN-LABEL "Job #" FORMAT "x(9)":U WIDTH 15
             LABEL-BGCOLOR 14
       oe-boll.job-no2 COLUMN-LABEL "" FORMAT "999":U WIDTH 6
       oe-boll.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
@@ -460,7 +460,7 @@ ASSIGN
      _FldNameList[7]   > ASI.oe-boll.loc-bin
 "oe-boll.loc-bin" "Bin" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.oe-boll.job-no
-"oe-boll.job-no" "Job #" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-boll.job-no" "Job #" ? "character" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-boll.job-no2
 "oe-boll.job-no2" "" ? "integer" ? ? ? ? ? ? yes ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.oe-boll.cust-no

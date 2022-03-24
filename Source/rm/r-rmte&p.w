@@ -1156,7 +1156,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     ll-auto = IF v-autoissue = ? THEN NO ELSE v-autoissue.
 
-    iLastJob2 = 99.
+    iLastJob2 = 999.
     iFirstJob2 = 0.
     lFromSS = DYNAMIC-FUNCTION('is-run-from-ss':U).
     FOR EACH rm-rctd
@@ -2078,7 +2078,7 @@ PROCEDURE post-rm :
                     DO:
                         BELL.
                         MESSAGE " Job Mat Record not found for "
-                            STRING(job.job-no + "-" + string(job.job-no2,"99") +
+                        STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2) +
                             "  " + rm-rctd.i-no)
                             VIEW-AS ALERT-BOX.
                         UNDO transblok, NEXT transblok.
