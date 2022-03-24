@@ -59,6 +59,13 @@ DEFINE VARIABLE cFileName      AS CHARACTER NO-UNDO.
 
 DEFINE STREAM excel.
 
+DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAuditdir AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (cocode, "AUDITDIR", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN cAuditdir = cReturn.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -589,6 +596,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+                          OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -1369,9 +1379,9 @@ PROCEDURE run-report :
     /* create a unique filename ... */
     temp_fid = 
         IF OPSYS EQ 'win32' THEN
-        "TryB" + substring(STRING(TODAY,"999999"),1,6) + ".csv"
+        cAuditdir + "TryB" + substring(STRING(TODAY,"999999"),1,6) + ".csv"
         ELSE
-        "TryB" + substring(STRING(TODAY,"999999"),1,4) + ".csv".
+        cAuditdir + "TryB" + substring(STRING(TODAY,"999999"),1,4) + ".csv".
 
     time_stamp = STRING(TIME, "hh:mmam").
 
@@ -1700,8 +1710,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
     SESSION:SET-WAIT-STATE("").
@@ -1802,9 +1810,9 @@ PROCEDURE run-report-detail :
     /* create a unique filename ... */
     temp_fid = 
         IF OPSYS EQ 'win32' THEN
-        "TryB" + substring(STRING(TODAY,"999999"),1,6) + ".csv"
+        cAuditdir + "TryB" + substring(STRING(TODAY,"999999"),1,6) + ".csv"
         ELSE
-        "TryB" + substring(STRING(TODAY,"999999"),1,4) + ".csv".
+        cAuditdir + "TryB" + substring(STRING(TODAY,"999999"),1,4) + ".csv".
 
     time_stamp = STRING(TIME, "hh:mmam").
 
@@ -2080,8 +2088,6 @@ PROCEDURE run-report-detail :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
     SESSION:SET-WAIT-STATE("").

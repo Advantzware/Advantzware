@@ -55,6 +55,13 @@ DEF VAR ls-fax-file AS CHAR NO-UNDO.
 
 DEF STREAM excel.
 
+DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAuditdir AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (cocode, "AUDITDIR", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN cAuditdir = cReturn.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1032,9 +1039,9 @@ END.
 /* create a unique filename ... */
 temp_fid = 
 IF OPSYS eq 'win32' THEN
-"TryB" + substring(string(TODAY,"999999"),1,6) + ".csv"
+cAuditdir + "TryB" + substring(string(TODAY,"999999"),1,6) + ".csv"
   ELSE
-"TryB" + substring(string(TODAY,"999999"),1,4) + ".csv".
+cAuditdir + "TryB" + substring(string(TODAY,"999999"),1,4) + ".csv".
 
 time_stamp = string(TIME, "hh:mmam").
 
