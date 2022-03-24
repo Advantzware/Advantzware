@@ -2407,11 +2407,15 @@ PROCEDURE valid-64-dec :
     DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
     DEFINE OUTPUT PARAMETER op-dec AS DECIMAL DECIMALS 6 NO-UNDO.
     
-    FIND FIRST tt-64-dec WHERE
-        SUBSTRING(STRING(tt-64-dec.DEC),1,3) EQ substring(STRING(ip-dec),1,3) NO-LOCK NO-ERROR.
-    IF NOT AVAILABLE tt-64-dec  THEN
-        op-error = YES.
-    ELSE  op-dec = tt-64-dec.DEC .
+   /* This removes the limitation of entering a decimal that equates to a 64th */
+   ASSIGN 
+    op-dec = ip-dec.
+    
+/*    FIND FIRST tt-64-dec WHERE                                                               */
+/*      substring(string(tt-64-dec.DEC),1,3) EQ substring(string(ip-dec),1,3) NO-LOCK NO-ERROR.*/
+/*    IF NOT AVAIL tt-64-dec THEN ASSIGN                                                       */
+/*      op-error = YES.                                                                        */
+/*    ELSE  op-dec = tt-64-dec.DEC .                                                           */
 
 END PROCEDURE.
 
