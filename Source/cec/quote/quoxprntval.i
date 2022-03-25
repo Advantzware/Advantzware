@@ -1,5 +1,6 @@
 /* ------------------------------------------- cec/quote/quoxprnt.i 11/00 JLF */
-/* print quote items in xPrint format                                          */
+/* print quote items in xPrint format                                         */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 lDataPrint = FALSE .
@@ -74,8 +75,8 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                       THEN itemfg.i-name
                       ELSE xqitm.part-dscr1.
      
-      PUT TRIM(lv-est-no) FORM "x(5)" AT 2
-          xqitm.part-no AT 9 FORMAT "x(15)" SPACE(1)
+      PUT TRIM(lv-est-no) FORM "x(8)" AT 1
+          xqitm.part-no AT 10 FORMAT "x(15)" SPACE(1)
 
           /* gdm - 11040801 deducted 2 char from format, used to be 30 - now 28*/
            TRIM(lv-part-dscr1)  FORMAT "x(30)". 
@@ -85,7 +86,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
     ELSE IF i EQ 2 THEN DO:  
       IF ll-prt-dscr2 AND xqitm.part-dscr2 NE "" THEN DO:
-           PUT xquo.q-no "<C21>" xqitm.part-dscr2  .
+           PUT xquo.q-no "<C22>" xqitm.part-dscr2  .
            lPrintSecDscr = YES .
            lDataPrint = TRUE .
       END.
@@ -117,7 +118,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       END.
       IF lPrintSecDscr THEN DO: 
           IF style-dscr NE "" THEN DO:
-              PUT "<C21>" style-dscr FORM "x(30)" .
+              PUT "<C22>" style-dscr FORM "x(30)" .
               lDataPrint = TRUE .
           END.
           ELSE DO:
@@ -126,7 +127,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
           END.
       END.
       ELSE DO: 
-          PUT  xquo.q-no   "<C21>" style-dscr  FORM "x(30)" .
+          PUT  xquo.q-no   "<C22>" style-dscr  FORM "x(30)" .
           lDataPrint = TRUE .
       END.
     END.
@@ -172,7 +173,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
            ELSE trim-size = "".   
       END.
       IF trim-size NE "" THEN DO:
-          PUT  "<C21>" trim-size  FORM "x(30)" .
+          PUT  "<C22>" trim-size  FORM "x(30)" .
           lDataPrint = TRUE .
       END.
       ELSE DO:
@@ -184,7 +185,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     ELSE
     IF i EQ 5 THEN DO:   
      IF  xqitm.i-coldscr NE "" THEN DO:
-       PUT "<C21>" xqitm.i-coldscr   FORM "x(30)".
+       PUT "<C22>" xqitm.i-coldscr   FORM "x(30)".
        lDataPrint = TRUE .
      END.
      ELSE DO:
@@ -196,7 +197,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     ELSE
     IF i EQ 6 THEN DO:  
        IF xqitm.i-dscr NE "" THEN  DO:
-         PUT "<C21>" xqitm.i-dscr  FORMAT "x(30)".
+         PUT "<C22>" xqitm.i-dscr  FORMAT "x(30)".
          lDataPrint = TRUE .
        END.
        ELSE DO:
@@ -218,7 +219,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
            END.          
            DO j = 1 TO 6:
                IF cAddrDesc[j] NE "" THEN DO:                    
-                   PUT "<C21>" cAddrDesc[j] FORMAT "x(35)" .
+                   PUT "<C22>" cAddrDesc[j] FORMAT "x(35)" .
                      
                    IF AVAILABLE xqqty THEN DO:
                         xxx    = IF xqqty.uom EQ "L" THEN xqqty.price    ELSE
@@ -328,14 +329,14 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       END.
       ELSE temp-trim-size = trim-size.
     
-      PUT eb.part-no AT 8 FORM "x(21)" temp-trim-size   SKIP.
+      PUT eb.part-no AT 10 FORM "x(21)" temp-trim-size   SKIP.
     
       FIND FIRST style
           WHERE style.company EQ cocode
             AND style.style   EQ eb.style
           NO-LOCK NO-ERROR.
       style-dscr = IF AVAILABLE style THEN style.dscr ELSE eb.style.      
-      PUT eb.part-dscr1 AT 8 FORM "x(21)"
+      PUT eb.part-dscr1 AT 10 FORM "x(21)"
           style-dscr SKIP.
 
       DO i = 1 TO 6:
@@ -364,10 +365,10 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                        item.i-dscr.
       END.
       
-      PUT eb.part-dscr2  AT 8  FORM "x(21)"
+      PUT eb.part-dscr2  AT 10  FORM "x(21)"
           v-board  FORM "x(80)"   SKIP .
     
-      PUT eb.i-coldscr   AT 30 SKIP.
+      PUT eb.i-coldscr   AT 31 SKIP.
     END.
   END.    /* disp components */
 

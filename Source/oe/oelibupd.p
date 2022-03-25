@@ -15,6 +15,7 @@
   ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 
@@ -1387,14 +1388,14 @@ IF AVAIL xest THEN DO:
       FIND xoe-ord WHERE RECID(xoe-ord) = recid(oe-ord) NO-LOCK.
       
       IF ll-do-job THEN DO:
-        v-job-no = FILL(" ",6 - length(TRIM(get-sv("oe-ord.ord-no")))) + get-sv("oe-ord.ord-no").
+        v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', get-sv("oe-ord.ord-no"))) .
         RUN jc/job-no.p (INPUT-OUTPUT v-job-no, 
                          INPUT-OUTPUT v-job-no2,
                          INPUT v-prod-cat,
-                         INPUT FILL(" ",6 - length(TRIM(get-sv("oe-ord.est-no")))) + trim(get-sv("oe-ord.est-no"))).
+                         INPUT STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', get-sv("oe-ord.est-no"))) ).
          
         IF v-job-no EQ "" THEN
-          v-job-no = FILL(" ",6 - length(TRIM(get-sv("oe-ord.est-no")))) + trim(get-sv("oe-ord.est-no")).
+          v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', get-sv("oe-ord.est-no")))  .
       
       END.
       ELSE
@@ -2784,8 +2785,7 @@ PROCEDURE valid-job-no :
 ------------------------------------------------------------------------------*/
 
 
-    set-sv("oe-ord.job-no", FILL(" ",6 - LENGTH(TRIM(get-sv("oe-ord.job-no")))) +
-                                 TRIM(get-sv("oe-ord.job-no"))). 
+    set-sv("oe-ord.job-no", STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', get-sv("oe-ord.job-no")))  ). 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

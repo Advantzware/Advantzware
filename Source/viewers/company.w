@@ -815,6 +815,13 @@ PROCEDURE create-controls :
  assign loc.company = company.company
         loc.loc     = "Main"
         loc.dscr    = "Main".
+
+ CREATE location.
+ ASSIGN 
+        location.company      = loc.company
+        location.locationCode = loc.loc
+        loc.addrRecKey        = location.rec_key.
+
  for each loc where loc.company = company.company:
          find first ce-ctrl where ce-ctrl.company = company.company and
                                   ce-ctrl.loc = loc.loc

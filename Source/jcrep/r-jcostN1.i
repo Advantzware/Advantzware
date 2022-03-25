@@ -1,4 +1,5 @@
 /* jcrep/r-jcostN1.i*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 ASSIGN  v-prep-cost = 0 
         v-labor     = 0
@@ -157,7 +158,7 @@ END.
             ELSE DO: 
               cVarValue = "".
               CASE cTmpField:               
-                 WHEN "v-job-no" THEN cVarValue = STRING(job.job-no + "-" + STRING(job.job-no2,"99")).
+                 WHEN "v-job-no" THEN cVarValue = STRING(job.job-no + "-" + STRING(job.job-no2,"999")).
                  WHEN "v-i-name" THEN cVarValue = IF AVAIL itemfg THEN SUBSTRING(itemfg.i-name,1,25) ELSE "".
                  WHEN "v-fgcat" THEN cVarValue = IF AVAIL itemfg THEN itemfg.procat ELSE "".
                  WHEN "v-custname" THEN cVarValue = STRING(cust.name).

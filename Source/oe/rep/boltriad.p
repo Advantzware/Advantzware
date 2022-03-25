@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/boltriad.p 12/98 JLF */
 /* PRINT Triad BOL                                                            */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
 
@@ -210,7 +210,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
     assign
      report.term-id  = v-term
      report.key-01   = oe-boll.i-no
-     report.key-02   = string(oe-boll.ord-no,"999999")
+     report.key-02   = string(oe-boll.ord-no,"99999999")
      report.key-03   = oe-boll.po-no
      report.rec-id   = recid(oe-boll)
      oe-boll.printed = yes.

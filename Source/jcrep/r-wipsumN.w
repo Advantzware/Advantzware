@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -63,7 +64,7 @@ ASSIGN cTextListToSelect = "Trans Type,Trans Date,Job No.,F,B,Item Number,"
        cFieldListToSelect = "trns-typ,trns-dt,job-no,frm,blnk,i-no," +
                                         "dscr,qty-pstd,wst-qty,mch-hrs," +
                                         "mch-cd,job-cd,vc"
-       cFieldLength = "10,10,10,1,1,15," + "30,11,7,7," + "11,11,1" 
+       cFieldLength = "10,10,13,1,1,15," + "30,11,7,7," + "11,11,1" 
        cFieldType = "c,c,c,c,c,c," + "c,i,i,i," + "c,c,c"
     .
 
@@ -149,25 +150,25 @@ DEFINE VARIABLE as-of-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/01
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-wipsum.csv" 
      LABEL "Name" 
@@ -242,11 +243,11 @@ DEFINE FRAME FRAME-A
      as-of-date AT ROW 2.71 COL 42 COLON-ALIGNED
      begin_job-no AT ROW 4.43 COL 23 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 4.43 COL 36 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.43 COL 38 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 4.43 COL 66 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 4.43 COL 78 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.43 COL 80 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      sl_avail AT ROW 6.91 COL 4.4 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 6.91 COL 40.8 HELP
@@ -1310,11 +1311,9 @@ assign
  {sys/inc/ctrtext.i str-tit2 112}
 
   v-date        = as-of-date
-  v-job-no[1]   = fill(" ",6 - length(trim(begin_job-no))) +
-                  trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-job-no[2]   = fill(" ",6 - length(trim(end_job-no)))   +
-                  trim(end_job-no)   + string(int(end_job-no2),"99")
- 
+  v-job-no[1]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+  v-job-no[2]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2))
+  
   /*    hdr-tit = "TRANS  TRANS      JOB                                      " +
              "                     QUANTITY     WASTE      MACH MACH   JOB     "
       hdr-tit2 = "TYPE    DATE      NUMBER  S/ B ITEM NUMBER     DESCRIPTION " +
@@ -1368,15 +1367,18 @@ display "" with frame r-top.
     DELETE work-dly.
   END.
 
-  for each mch-act where mch-act.company = cocode and
-                          mch-act.op-date = v-date
-                          use-index dte-idx
-                          no-lock:
-      if fill(" ",6 - length(trim(mch-act.job-no))) +
-         trim(mch-act.job-no) + string(int(mch-act.job-no2),"99") < v-job-no[1] or 
-         fill(" ",6 - length(trim(mch-act.job-no))) +
-         trim(mch-act.job-no) + string(int(mch-act.job-no2),"99") > v-job-no[2] THEN next.
-        
+  for each mch-act 
+  where mch-act.company = cocode 
+    AND mch-act.op-date = v-date
+    AND fill(" ",9 - length(TRIM(mch-act.job-no))) +
+    trim(mch-act.job-no) + string(int(mch-act.job-no2),"999") GE v-job-no[1] 
+    AND fill(" ",9 - length(TRIM(mch-act.job-no))) +
+    trim(mch-act.job-no) + string(int(mch-act.job-no2),"999") LE v-job-no[2]
+    AND mch-act.job-no2 GE int(begin_job-no2)
+    AND mch-act.job-no2 LE int(end_job-no2)             
+   use-index dte-idx
+      no-lock:
+              
       find first work-dly where work-dly.job = mch-act.job no-error.
 
       if not available work-dly then
@@ -1390,13 +1392,15 @@ display "" with frame r-top.
    
   for each mat-act where mat-act.company = cocode and
                           mat-act.mat-date = v-date
+                          AND fill(" ",9 - length(TRIM(mat-act.job-no))) +
+                          trim(mat-act.job-no) + string(int(mat-act.job-no2),"999") GE v-job-no[1] 
+                          AND fill(" ",9 - length(TRIM(mat-act.job-no))) +
+                          trim(mat-act.job-no) + string(int(mat-act.job-no2),"999") LE v-job-no[2]
+                          AND mat-act.job-no2 GE int(begin_job-no2)
+                          AND mat-act.job-no2 LE int(end_job-no2) 
                           use-index dte-idx
-                          no-lock:
-      if fill(" ",6 - length(trim(mat-act.job-no))) +
-         trim(mat-act.job-no) + string(int(mat-act.job-no2),"99") < v-job-no[1] or 
-         fill(" ",6 - length(trim(mat-act.job-no))) +
-         trim(mat-act.job-no) + string(int(mat-act.job-no2),"99") > v-job-no[2] THEN next.
-
+                          no-lock:   
+                          
       find first work-dly where work-dly.job = mat-act.job no-error.
 
       if not available work-dly then
@@ -1409,14 +1413,15 @@ display "" with frame r-top.
    end.
    for each fg-act where fg-act.company = cocode and
                          fg-act.fg-date = v-date
+                         AND fill(" ",9 - length(TRIM(fg-act.job-no))) +
+                         trim(fg-act.job-no) + string(int(fg-act.job-no2),"999") GE v-job-no[1] 
+                         AND fill(" ",9 - length(TRIM(fg-act.job-no))) +
+                         trim(fg-act.job-no) + string(int(fg-act.job-no2),"999") LE v-job-no[2]
+                         AND fg-act.job-no2 GE int(begin_job-no2)
+                         AND fg-act.job-no2 LE int(end_job-no2)
                          use-index dte-idx
-                         no-lock:
-
-       if fill(" ",6 - length(trim(fg-act.job-no))) +
-          trim(fg-act.job-no) + string(int(fg-act.job-no2),"99") < v-job-no[1] or 
-          fill(" ",6 - length(trim(fg-act.job-no))) +
-          trim(fg-act.job-no) + string(int(fg-act.job-no2),"99") > v-job-no[2] THEN next.
-
+                         no-lock:  
+       
       find first work-dly where work-dly.job = fg-act.job no-error.
 
       if not available work-dly then
@@ -1430,13 +1435,15 @@ display "" with frame r-top.
 
    for each misc-act where misc-act.company = cocode and
                            misc-act.misc-date = v-date
+                           AND fill(" ",9 - length(TRIM(misc-act.job-no))) +
+                           trim(misc-act.job-no) + string(int(misc-act.job-no2),"999") GE v-job-no[1] 
+                           AND fill(" ",9 - length(TRIM(misc-act.job-no))) +
+                           trim(misc-act.job-no) + string(int(misc-act.job-no2),"999") LE v-job-no[2]
+                           AND misc-act.job-no2 GE int(begin_job-no2)
+                           AND misc-act.job-no2 LE int(end_job-no2)
                            use-index date-idx
                            no-lock:
-       if fill(" ",6 - length(trim(misc-act.job-no))) +
-          trim(misc-act.job-no) + string(int(misc-act.job-no2),"99") < v-job-no[1] or 
-          fill(" ",6 - length(trim(misc-act.job-no))) +
-          trim(misc-act.job-no) + string(int(misc-act.job-no2),"99") > v-job-no[2] THEN next.
-
+       
       find first work-dly where work-dly.job = misc-act.job no-error.
 
       if not available work-dly then
@@ -1504,7 +1511,7 @@ display "" with frame r-top.
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING(item.procat) .
                                     WHEN "trns-dt"      THEN cVarValue =  STRING(mat-act.mat-date) .
-                                    WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"99")) .
+                                    WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(mat-act.s-num) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(mat-act.b-num) .
                                     WHEN "i-no"             THEN cVarValue =  mat-act.i-no .
@@ -1595,7 +1602,7 @@ display "" with frame r-top.
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING("HRS") .
                                     WHEN "trns-dt"      THEN cVarValue =  STRING(mch-act.op-date) .
-                                    WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"99")) .
+                                    WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(mch-act.frm) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(mch-act.blank-no) .
                                     WHEN "i-no"             THEN cVarValue =  "" .
@@ -1669,7 +1676,7 @@ display "" with frame r-top.
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING("F.G.") .
                                     WHEN "trns-dt"      THEN cVarValue =  STRING(fg-act.fg-date) .
-                                    WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"99")) .
+                                    WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(fg-act.s-num) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(fg-act.b-num) .
                                     WHEN "i-no"             THEN cVarValue =  fg-act.i-no .
@@ -1743,7 +1750,7 @@ display "" with frame r-top.
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING("MSC-M") .
                                     WHEN "trns-dt"      THEN cVarValue =  STRING(misc-act.misc-date) .
-                                    WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"99")) .
+                                    WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(misc-act.frm) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(misc-act.blank-no) .
                                     WHEN "i-no"             THEN cVarValue =  misc-act.i-no .
@@ -1823,7 +1830,7 @@ display "" with frame r-top.
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING("MSC-H") .
                                     WHEN "trns-dt"      THEN cVarValue =  STRING(misc-act.misc-date) .
-                                    WHEN "job-no"           THEN cVarValue =  STRING(misc-act.job-no + "-" + STRING(misc-act.job-no2,"99")) .
+                                    WHEN "job-no"           THEN cVarValue =  STRING(misc-act.job-no + "-" + STRING(misc-act.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(misc-act.frm) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(misc-act.blank-no) .
                                     WHEN "i-no"             THEN cVarValue =  "" .
@@ -1898,11 +1905,11 @@ display "" with frame r-top.
                                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                        END.
 
-                       PUT UNFORMATTED "JOB TOTALS - " + work-dly.job-no + "-" + string(work-dly.job-no2,"99") + "         BOARD TOTALS: "
-                           substring(cDisplay,45,300) SKIP.
+                       PUT UNFORMATTED "JOB TOTALS - " + work-dly.job-no + "-" + string(work-dly.job-no2,"999") + "         BOARD TOTALS: "
+                           substring(cDisplay,44,300) SKIP.
                        IF rd-dest EQ 3 THEN DO:
                             PUT STREAM excel UNFORMATTED  
-                                  " JOB TOTALS    " work-dly.job-no + "-" + string(work-dly.job-no2,"99") + "         BOARD TOTALS: " substring(cExcelDisplay,3,300) SKIP.
+                                  " JOB TOTALS    " work-dly.job-no + "-" + string(work-dly.job-no2,"999") + "         BOARD TOTALS: " substring(cExcelDisplay,3,300) SKIP.
                        END. 
 
                        PUT SKIP str-line SKIP .

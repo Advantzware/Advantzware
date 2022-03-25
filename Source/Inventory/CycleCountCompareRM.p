@@ -150,8 +150,8 @@ PROCEDURE exportSnapshot:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRMItemStart AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRMItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcValidItemSelect AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcToCycleCode AS CHARACTER NO-UNDO.
@@ -171,9 +171,9 @@ PROCEDURE exportSnapshot:
     
     EMPTY TEMP-TABLE ttProblems.
     
-    RUN pCheckBinDups (INPUT ipcCompany, INPUT ipcFGItemStart, ipcFGItemEnd, ipcWhseList, OUTPUT lBinDups ).    
+    RUN pCheckBinDups (INPUT ipcCompany, INPUT ipcRMItemStart, ipcRMItemEnd, ipcWhseList, OUTPUT lBinDups ).    
          
-    RUN pCheckInvalidItems (INPUT ipcCompany, INPUT ipcFGItemStart, ipcFGItemEnd, ipcWhseList, OUTPUT lNoCostMSF, OUTPUT lInvalidItems ).
+    RUN pCheckInvalidItems (INPUT ipcCompany, INPUT ipcRMItemStart, ipcRMItemEnd, ipcWhseList, OUTPUT lNoCostMSF, OUTPUT lInvalidItems ).
  
     RUN pReportProblems.
     
@@ -195,8 +195,8 @@ PROCEDURE exportSnapshot:
     
     FOR EACH rm-bin NO-LOCK
         WHERE rm-bin.company EQ ipcCompany
-        AND rm-bin.i-no GE ipcFGItemStart
-        AND rm-bin.i-no LE ipcFGItemEnd
+        AND rm-bin.i-no GE ipcRMItemStart
+        AND rm-bin.i-no LE ipcRMItemEnd
         AND lookup(rm-bin.loc, ipcWhseList) GT 0        
         AND rm-bin.qty NE 0
         AND rm-bin.tag NE ""
@@ -217,11 +217,11 @@ PROCEDURE exportSnapshot:
         IF NOT AVAIL inventoryStockSnapshot THEN DO:
         CREATE inventoryStockSnapshot.
         ASSIGN                      
-            inventoryStockSnapshot.inventoryStockID    = rm-bin.tag    
+            inventoryStockSnapshot.inventoryStockID    = rm-bin.tag  
+            inventoryStockSnapshot.tag                 = rm-bin.tag
             inventoryStockSnapshot.company             = rm-bin.company        
-            inventoryStockSnapshot.rmItemID            = ""      
-            inventoryStockSnapshot.fgItemID            = rm-bin.i-no                        
-            inventoryStockSnapshot.itemType            = "RM"                           
+            inventoryStockSnapshot.rmItemID            = rm-bin.i-no      
+            inventoryStockSnapshot.itemType            = "RM"
             inventoryStockSnapshot.warehouseID         = rm-bin.loc    
             inventoryStockSnapshot.locationID          = rm-bin.loc-bin
             inventoryStockSnapshot.zoneID              = ""     
@@ -245,10 +245,11 @@ PROCEDURE exportSnapshot:
             AND rm-rcpth.rita-code EQ rm-rdtlh.rita-code:
 
             ASSIGN
-                inventoryStockSnapshot.jobID   = rm-rdtlh.job-no        
-                inventoryStockSnapshot.jobID2  = rm-rdtlh.job-no2 
-                inventoryStockSnapshot.formNo  = rm-rdtlh.s-num
-                inventoryStockSnapshot.blankNo = rm-rdtlh.b-num
+                inventoryStockSnapshot.jobID       = rm-rdtlh.job-no        
+                inventoryStockSnapshot.jobID2      = rm-rdtlh.job-no2 
+                inventoryStockSnapshot.formNo      = rm-rdtlh.s-num
+                inventoryStockSnapshot.blankNo     = rm-rdtlh.b-num
+                inventoryStockSnapshot.quantityUOM = rm-rcpth.pur-uom
                 .             
         END.            
         FIND FIRST inventoryStockSnapshot NO-LOCK NO-ERROR.

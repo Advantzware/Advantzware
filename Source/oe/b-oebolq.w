@@ -286,7 +286,7 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       oe-bolh.bol-no COLUMN-LABEL "BOL#" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
-      oe-boll.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      oe-boll.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       oe-boll.po-no COLUMN-LABEL "Customer's PO" FORMAT "x(15)":U
             LABEL-BGCOLOR 14
       oe-bolh.cust-no FORMAT "x(8)":U LABEL-BGCOLOR 14

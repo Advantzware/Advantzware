@@ -8,10 +8,10 @@
 "19 " ~
 "95 " ~
 "tax-group,tax-code[1],tax-code[2],tax-code[3],tax-dscr[1] " ~
-"Sales Tax Group " ~
+"Tax Group " ~
 "yes " ~
 "tax-group,tax-dscr[1] " ~
-"Tax Codes Lookup " ~
+"Tax Group Lookup " ~
 "{custom/getcmpny.i} ~{sys/inc/varasgn.i} " ~
 "{custom/gcompany.i} ~{sys/inc/var.i new shared} " ~
 " " ~
@@ -25,9 +25,9 @@
 &Scoped-define font 2
 &Scoped-define height-size 19
 &Scoped-define width-size 120
-&Scoped-define show-fields stax.tax-group stax.tax-code1[1] stax.tax-dscr1[1] stax.tax-code1[2] stax.tax-code1[3] stax.tax-code1[4]stax.tax-dscr1[4]stax.tax-code1[5]stax.tax-dscr1[5]
+&Scoped-define show-fields stax.tax-group label "Tax Group" stax.tax-code1[1] stax.tax-dscr1[1] stax.tax-code1[2] stax.tax-code1[3] stax.tax-code1[4]stax.tax-dscr1[4]stax.tax-code1[5]stax.tax-dscr1[5]
 &Scoped-define show-fields-yellow stax.tax-group LABEL-BGCOLOR 14 stax.tax-code[1] LABEL-BGCOLOR 14 stax.tax-code[2] LABEL-BGCOLOR 14 stax.tax-code[3] LABEL-BGCOLOR 14 stax.tax-dscr[1] LABEL-BGCOLOR 14
-&Scoped-define frame-title Tax Codes Lookup
+&Scoped-define frame-title Tax Group Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
@@ -46,6 +46,6 @@
 &Global-define FORMAT-1 x(3)
 &Scoped-define FLDNAME1 stax.tax-group
 &Scoped-define SORTBY-2 BY {&FLDNAME2} {&SORTBY-1}
-&Scoped-define DESCRIP2 Sales Tax Group
+&Scoped-define DESCRIP2 Tax Group
 
 {methods/lookup.i}

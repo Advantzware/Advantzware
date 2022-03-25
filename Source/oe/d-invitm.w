@@ -10,6 +10,7 @@
 
   File: oe\d-invitm.w
   
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No).
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBulder.       */
 /*----------------------------------------------------------------------*/
@@ -204,16 +205,16 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
      lv-bolno AT ROW 1.48 COL 34 COLON-ALIGNED
-     inv-line.po-no AT ROW 1.48 COL 64 COLON-ALIGNED
+     inv-line.po-no AT ROW 1.48 COL 62.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
-     inv-line.job-no AT ROW 1.48 COL 95 COLON-ALIGNED
+     inv-line.job-no AT ROW 1.48 COL 93.4 COLON-ALIGNED
           LABEL "Job#"
           VIEW-AS FILL-IN 
-          SIZE 11 BY 1
-     inv-line.job-no2 AT ROW 1.48 COL 109 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY 1
+     inv-line.job-no2 AT ROW 1.48 COL 108.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
+          SIZE 6 BY 1
      inv-line.est-no AT ROW 1.48 COL 122 COLON-ALIGNED
           LABEL "Est#" FORMAT "x(8)"
           VIEW-AS FILL-IN 

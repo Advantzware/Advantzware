@@ -17,7 +17,8 @@
      by this procedure. This is a good default which assures
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
-     cleanup will occur on deletion of the procedure. */
+     cleanup will occur on deletion of the procedure. */                 
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -208,10 +209,10 @@ DEFINE FRAME F-Main
           SIZE 16.4 BY 1
      loadtag.job-no AT ROW 6 COL 18 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 13 BY 1
      loadtag.job-no2 AT ROW 6 COL 31 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
+          SIZE 5.4 BY 1
      loadtag.qty AT ROW 6 COL 119 COLON-ALIGNED
           LABEL "Qty(Pallet Count)"
           VIEW-AS FILL-IN 

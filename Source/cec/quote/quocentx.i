@@ -1,5 +1,6 @@
 /* ------------------------------------------- cec/quote/quofibre.i 11/00 JLF */
 /* print quote items in Fibre format                                          */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
@@ -65,9 +66,9 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       /*      IF LINE-COUNTER + numfit GT PAGE-SIZE - 2 THEN PAGE.  */
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
 
-      put trim(lv-est-no) FORM "x(6)" AT 1  /*SPACE(1) */
-          xqitm.part-dscr1 AT 9 /*space(1)*/
-          xqitm.part-no AT 46 .  
+      put trim(lv-est-no) FORM "x(8)" AT 1  /*SPACE(1) */
+          xqitm.part-dscr1 AT 10 /*space(1)*/
+          xqitm.part-no AT 47 .  
     END.
     ELSE IF i EQ 2 THEN DO:
       trim-size = "".
@@ -77,21 +78,21 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
            trim-size = trim(STRING(eb.len)) + " x " + trim(STRING(eb.wid))
                   + " x " + trim(STRING(eb.dep)).
       ELSE trim-size = xqitm.SIZE /*""*/ .
-      PUT     trim-size AT 9 FORM "x(30)"
+      PUT     trim-size AT 10 FORM "x(30)"
               /*xqitm.style*/ /* style-dscr */  .
     END.
     ELSE IF i EQ 3 THEN   do:
        FIND FIRST style WHERE style.company = xqitm.company
                          AND style.style = xqitm.style NO-LOCK NO-ERROR.
        style-dscr = IF AVAIL style THEN style.dscr ELSE xqitm.style.
-       PUT style-dscr AT 9 .
+       PUT style-dscr AT 10 .
     END.
     ELSE IF i EQ 4 THEN
       PUT    /* "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 8 FORM "x(21)"*/
-            xqitm.i-coldscr  AT 9 FORM "x(40)" .
+            xqitm.i-coldscr  AT 10 FORM "x(40)" .
     ELSE IF i EQ 5 THEN DO:
        PUT /*"CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 8  FORM "x(21)"         */
-           IF AVAIL ef THEN ef.brd-dscr  ELSE xqitm.i-dscr  AT 9 FORMAT "x(30)" .
+           IF AVAIL ef THEN ef.brd-dscr  ELSE xqitm.i-dscr  AT 10 FORMAT "x(30)" .
     END.
   /*
     ELSE
@@ -155,7 +156,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        END.
        ELSE DO j = 1 TO 4:
           IF AVAIL ef AND ef.leaf-dscr[j] <> "" THEN 
-             PUT ef.leaf-dscr[j] AT 9 ef.leaf-l[j] "x" ef.leaf-w[j] SKIP.
+             PUT ef.leaf-dscr[j] AT 10 ef.leaf-l[j] "x" ef.leaf-w[j] SKIP.
        END.
        PUT SKIP(1).
     END.
@@ -247,12 +248,12 @@ FOR EACH xqqty OF xquo NO-LOCK,
                .
 
   IF xqchg.bill EQ "N" THEN
-    PUT xqchg.charge AT 9
+    PUT xqchg.charge AT 10
         xqchg.prep-qty at 70
        /* "N/C"        at 88 */ SKIP.
   ELSE
   IF INDEX("TML",xqchg.bill) GT 0 THEN DO:
-     PUT xqchg.charge       AT 9 SPACE(1)
+     PUT xqchg.charge       AT 10 SPACE(1)
    /*     "Time & Materials" /*AT 45*/ */
         xqchg.prep-qty at 70
         xqchg.amt / xqchg.prep-qty FORMAT "$->>,>>9.99" at 88
@@ -260,7 +261,7 @@ FOR EACH xqqty OF xquo NO-LOCK,
   END.
   ELSE
   IF xqchg.bill EQ "W" THEN
-    PUT xqchg.charge    AT 9
+    PUT xqchg.charge    AT 10
         xqchg.prep-qty AT 70
         /*"Will Advise"   at 88 */ skip.
   END.

@@ -6,6 +6,7 @@
       Modify By    : Aj 06/24/2008 Frieght Terms was not printing correctly  *
                      Prior it was from customer now its from oe-bolh table   *       
 * -------------------------------------------------------------------------- */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.             */
 
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
@@ -34,7 +35,7 @@ def var v-part-comp         as   char format "x".
 def var v-part-qty          as   dec.
 def var v-ord-no            like oe-boll.ord-no.
 def var v-po-no             like oe-bolh.po-no.
-def var v-job-no            as   char format "x(9)" no-undo.
+def var v-job-no            as   char format "x(13)" no-undo.
 def var v-phone-num         as   char format "x(13)" no-undo.
 DEF VAR v-ship-phone        AS   CHAR FORMAT "X(13)" NO-UNDO.
 
@@ -112,6 +113,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE SHARED VAR v-print-unassembled AS LOG NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-frt-terms2   AS CHARACTER NO-UNDO.
 
 /*ASSIGN
    ls-image1 = "images\Lovepac_logo.jpg"
@@ -344,6 +346,11 @@ for each xxreport where xxreport.term-id eq v-term-id,
                            else if oe-bolh.frt-pay eq "C" then "Collect"
                            else if oe-bolh.frt-pay eq "T" then "Third Party"
                            else ""
+             v-frt-terms2 = if oe-bolh.frt-pay eq "P" then "Prépayé/"
+                           else if oe-bolh.frt-pay eq "B" then "Facture/"
+                           else if oe-bolh.frt-pay eq "C" then "Collecter/"
+                           else if oe-bolh.frt-pay eq "T" then "Tierce Personne/"
+                           else ""              
              v-zone = cust.del-zone.
              
       if v-terms eq "" then
@@ -355,7 +362,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
       
       v-salesman = trim(v-salesman).
       v-po-no = oe-boll.po-no.
-      v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>")).
+      v-job-no = IF oe-boll.job-no = "" THEN "" ELSE 
+                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
       if v-salesman gt '' then
         if substr(v-salesman,length(trim(v-salesman)),1) eq "," then
           substr(v-salesman,length(trim(v-salesman)),1) = "".

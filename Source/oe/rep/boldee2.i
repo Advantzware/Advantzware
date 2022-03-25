@@ -1,5 +1,6 @@
-/* ---------------------------------------------- oe/rep/boldee2.i YSK     */
-/* PRINT Ott Package BOL                                                           */
+/* ---------------------------------------------- oe/rep/boldee2.i YSK        */
+/* PRINT Ott Package BOL                                                      */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 assign
  /*v-tot-wt = 0*/
@@ -69,9 +70,8 @@ FOR EACH tt-boll,
 
   v-job-no = "".
 /*  if avail oe-ordl and oe-ordl.job-no ne "" then*/
-v-job-no = fill(" ",6 - length(trim(tt-boll.job-no))) +
-           trim(tt-boll.job-no) + "-" + trim(string(tt-boll.job-no2,"99")).
-IF trim(v-job-no) = "-00" THEN v-job-no = "".
+v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-boll.job-no, tt-boll.job-no2))).
+IF trim(v-job-no) = "-000" THEN v-job-no = "".
 
 /*v-part-comp = if v-ship-qty + v-bol-qty ge v-ord-qty or  tt-boll.p-c
                      then "C" else "P"*/
@@ -102,7 +102,7 @@ IF lv-bolfmt-int = 1 THEN DO:  /* show summary per item */
              IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
                 PUT {1}
                     oe-ordl.i-no SPACE(1)
-                    oe-ordl.ord-no /*FORM "x(15)"*/ SPACE(9)
+                    STRING(oe-ordl.ord-no) FORM "x(8)" SPACE(7)
                     oe-ordl.i-name  FORM "x(25)" SPACE(1)
                     /*lv-pal-tot*/ 
                     SPACE(11)
@@ -175,7 +175,7 @@ ELSE DO:
    lv-qty-sum2 = lv-qty-sum2 + lv-qty-tot.
    DISPLAY  {1}
       oe-ordl.i-no WHEN AVAIL oe-ordl
-      /*oe-boll.i-no */ oe-ordl.ord-no /*FORM "x(15)"*/ SPACE(9)
+      /*oe-boll.i-no */ STRING(oe-ordl.ord-no) FORM "x(8)" SPACE(7)
       oe-ordl.i-name  FORM "x(25)" 
       /*lv-pal-tot*/ 
       /*oe-boll.cases*/ lv-cases-tot FORM ">>>>" /*AT 79*/  "@" 

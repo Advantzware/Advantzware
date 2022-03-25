@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invdnbry.p 12/98 JLF */
 /* PRINT Danbury Invoice                                                      */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 def buffer xinv-head for inv-head.
@@ -50,7 +50,7 @@ format header
        inv-head.inv-date            at 1
        inv-head.cust-no             at 11
        v-po-no                      at 24
-       trim(string(v-ord-no,">>>>>>"))
+       trim(string(v-ord-no,">>>>>>>>"))
                                     at 46
        skip(3)
 

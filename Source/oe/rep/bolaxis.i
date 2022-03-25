@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolaxis.i  */
 /* PRINT Capitol City BOL                                             */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* ------------------------------------------------------------------ */
 /*DEF VAR v-jb-nts AS CHAR NO-UNDO.*/
 
@@ -113,9 +114,8 @@ for each report where report.term-id eq v-term-id,
 
   v-job-no = "".
   if avail oe-ordl and oe-ordl.job-no ne "" then
-     v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-                trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
-
+     v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
+     
   ASSIGN v-ship-qty = v-ship-qty + oe-boll.qty
          v-weight   = v-weight + oe-boll.weight.
   IF AVAIL oe-ordl THEN
@@ -129,15 +129,17 @@ ASSIGN  j = 1.
          i = i + 1.
          IF i eq 1 THEN ASSIGN v-part-dscr = (IF avail(oe-ordl) THEN oe-ordl.part-no ELSE "")
                                v-job-po    = (IF AVAIL oe-rell THEN oe-rell.po-no ELSE oe-boll.po-no)
-                               v-job-var   = if oe-boll.job-no eq "" then "" else
-                                             (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99")). 
+                               v-job-var   = if oe-boll.job-no eq "" then "" ELSE 
+                                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
+                                              
                                /*v-jb-nts    = if oe-boll.job-no eq "" then "" else
                                              (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99")).*/
             
          ELSE
          if i eq 2 THEN ASSIGN v-part-dscr = (IF AVAIL(oe-ordl) THEN oe-ordl.part-dscr1 ELSE "")
-                               v-job-var   = if oe-boll.job-no eq "" then "" else
-                                             (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99")).
+                               v-job-var   = if oe-boll.job-no eq "" then "" ELSE 
+                                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
+                                             
          ELSE
          if i eq 3 then ASSIGN v-part-dscr = (IF AVAIL(oe-ordl) THEN oe-ordl.part-dscr1 ELSE "")
                                v-job-var = "".
@@ -164,7 +166,7 @@ ASSIGN  j = 1.
                  /* (IF AVAIL(oe-ordl) THEN oe-ordl.qty ELSE 0)
                   v-job-po  AT 17 FORM "x(15)"*/
                  (IF avail(oe-ordl) THEN oe-ordl.part-no ELSE "") FORM "x(15)"
-                 (IF AVAIL(oe-ordl) THEN oe-ordl.ord-no ELSE 0) AT 17 FORMAT ">>>>>9" 
+                 (IF AVAIL(oe-ordl) THEN oe-ordl.ord-no ELSE 0) AT 17 FORMAT ">>>>>>>9" 
                   /*oe-boll.i-no  AT 17 FORM "x(15)"*/
                  /* v-job-var AT 34 FORM "x(9)"*/
                   IF avail(oe-ordl) THEN oe-ordl.part-dscr1 ELSE "" FORM "x(25)" AT 34
@@ -177,7 +179,7 @@ ASSIGN  j = 1.
            IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
              PUT {1}
                  (IF avail(oe-ordl) THEN oe-ordl.part-no ELSE "") FORM "x(15)"
-                 (IF AVAIL(oe-ordl) THEN oe-ordl.ord-no ELSE 0) AT 17 FORMAT ">>>>>9" 
+                 (IF AVAIL(oe-ordl) THEN oe-ordl.ord-no ELSE 0) AT 17 FORMAT ">>>>>>>9" 
                 /* oe-boll.i-no  AT 17 FORM "x(15)" */
                 /* v-job-var AT 32*/
                  IF AVAIL(oe-ordl) THEN oe-ordl.part-dscr1 ELSE "" FORM "x(25)" AT 34

@@ -224,7 +224,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
      shipto.tax-code AT ROW 6.57 COL 14 COLON-ALIGNED
-          LABEL "Tax Code"
+          LABEL "Tax Group"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
           FONT 4
@@ -748,7 +748,7 @@ END.
 
 &Scoped-define SELF-NAME shipto.tax-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL shipto.tax-code V-table-Win
-ON LEAVE OF shipto.tax-code IN FRAME F-Main /* Tax Code */
+ON LEAVE OF shipto.tax-code IN FRAME F-Main /* Tax Group */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-tax-code NO-ERROR.
@@ -1407,7 +1407,7 @@ PROCEDURE valid-tax-code :
         NOT CAN-FIND(FIRST stax
                      WHERE stax.company   EQ shipto.company
                        AND stax.tax-group EQ shipto.tax-code:SCREEN-VALUE)) THEN DO:
-      MESSAGE "Must enter a valid tax code, try help..." VIEW-AS ALERT-BOX ERROR.
+      MESSAGE "Must enter a valid tax group, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO shipto.tax-code.
       RETURN ERROR.
     END.

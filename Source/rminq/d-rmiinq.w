@@ -189,11 +189,11 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
      rm-rcpth.job-no AT ROW 2.43 COL 105 COLON-ALIGNED 
-          LABEL "Job#" FORMAT "x(6)"
+          LABEL "Job#" FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
           BGCOLOR 15 FONT 1
-    rm-rcpth.job-no2 AT ROW 2.43 COL 120 COLON-ALIGNED NO-LABEL FORMAT "99"
+    rm-rcpth.job-no2 AT ROW 2.43 COL 120 COLON-ALIGNED NO-LABEL FORMAT "999"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           BGCOLOR 15 FONT 1

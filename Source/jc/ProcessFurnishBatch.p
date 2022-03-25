@@ -48,6 +48,7 @@ DEFINE TEMP-TABLE ttRMTransaction NO-UNDO
     FIELD transactionStatus AS CHARACTER
     FIELD transactionType   AS CHARACTER  
     FIELD transactionDate   AS DATETIME
+    FIELD RMLot             AS CHARACTER
     .
 
 DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
@@ -340,7 +341,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
             ttRMTransaction.itemID            = ttRMToProcess.itemID
             ttRMTransaction.transactionType   = ttRMToProcess.transactionType
             ttRMTransaction.quantity          = IF ttRMToProcess.quantity GT 0 THEN ttRMToProcess.quantity ELSE 1
-            ttRMTransaction.tag               = ipcTag
+            ttRMTransaction.RMLot             = ipcTag
             ttRMTransaction.transactionDate   = ipdtTransDate
             ttRMTransaction.quantityUOM       = bf-item.cons-uom
             ttRMTransaction.costPerUOM        = dCostTotal / ttRMTransaction.quantity
@@ -491,6 +492,7 @@ PROCEDURE pProcessTransactions PRIVATE:
                     INPUT  ttRMTransaction.quantity, 
                     INPUT  ttRMTransaction.costPerUOM, 
                     INPUT  "",  /* Reason Code */ 
+                    INPUT  ttRMTransaction.rmLot,
                     OUTPUT ttRMTransaction.rmRctdRowID, 
                     OUTPUT oplError, 
                     OUTPUT opcMessage

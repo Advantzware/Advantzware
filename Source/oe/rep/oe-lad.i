@@ -3,8 +3,8 @@ def {1} shared var v-s-cust as char format "x(8)"       init " " no-undo.
 def {1} shared var v-e-cust as char format "x(8)"       init "zzzzzzzz" no-undo.
 def {1} shared var v-s-bol  as int  format ">>>>>>>>"   init 0 no-undo.
 def {1} shared var v-e-bol  as int  format ">>>>>>>>"   init 99999999 no-undo.
-def {1} shared var v-s-ord  as int  format ">>>>>>>"    init 0 no-undo.
-def {1} shared var v-e-ord  like v-s-ord                init 9999999 no-undo.
+def {1} shared var v-s-ord  as int  format ">>>>>>>>"   init 0 no-undo.
+def {1} shared var v-e-ord  like v-s-ord                init 99999999 no-undo.
 def {1} shared var v-s-date like oe-bolh.bol-date format "99/99/9999" init today.
 def {1} shared var v-e-date like v-s-date.
 def {1} shared var v-printed as log format "Y/N"        init no no-undo.

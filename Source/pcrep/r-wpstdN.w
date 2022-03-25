@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -84,7 +85,7 @@ ASSIGN
                          "gsh-wid,gsh-len,nsh-wid,nsh-len," +
                          "flm-len,flm-wid,inkc,die-in,li-up,n-out,lin-in,tot-job-qty," +
                          "cust-no,name,price,uom,sale-value,user-id,n-cuts"
-    cFieldLength       = "8,2,3,2,3,11,10,8,10,5,8,5,5,2,10,"
+    cFieldLength       = "8,2,3,2,3,11,10,8,13,5,8,5,5,2,10,"
                        + "6,1,15,8,7,7,7,9,9,"
                        + "12,8,9,9,9,10,"
                        + "11,11,11,11,"
@@ -1441,7 +1442,7 @@ DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
         AND job.job-no2 EQ mch-act.job-no2,
         FIRST job-hdr OF job NO-LOCK
         USE-INDEX job BY (IF rd_sort BEGINS "M" THEN mch-act.m-code ELSE "")
-        BY (IF rd_sort BEGINS "J" THEN STRING(mch-act.job-no,"x(6)") + STRING(mch-act.job-no2,"99") ELSE "")
+        BY (IF rd_sort BEGINS "J" THEN STRING(mch-act.job-no,"x(9)") + STRING(mch-act.job-no2,"999") ELSE "")
         BY (IF rd_sort BEGINS "D" THEN STRING(YEAR(mch-act.op-date),"9999") + STRING(MONTH(mch-act.op-date),"99") + STRING(DAY(mch-act.op-date),"99") + STRING(mch-act.start,"999999") ELSE "")
         :
 
@@ -1621,7 +1622,7 @@ DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
                     WHEN "job-code" THEN 
                         cVarValue = IF AVAILABLE job-code THEN STRING(job-code.cat,"x(10)") ELSE "". 
                     WHEN "job-no" THEN 
-                        cVarValue = STRING(TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")) .
+                        cVarValue = STRING(TRIM(job.job-no) + "-" + STRING(job.job-no2,"999")) .
                     WHEN "stock-no" THEN 
                         cVarValue = IF AVAILABLE eb THEN STRING(eb.stock-no) ELSE "".
                     WHEN "style" THEN 

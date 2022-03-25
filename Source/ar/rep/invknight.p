@@ -277,7 +277,8 @@ ASSIGN ls-full-img1 = cRtnChar + ">" .
             v-price  format "->>,>>9.9999"                
             ar-invl.amt  format "->>>,>>9.99"                
             SKIP
-            v-ord-no FORMAT ">>>>>9" SPACE(10)
+            SPACE(1)
+            TRIM(STRING(v-ord-no,">>>>>>>9")) SPACE(7)
             ar-invl.i-no FORMAT "X(15)"
             ar-invl.part-dscr1 FORMAT "x(30)" SPACE(13)
             v-pc  FORM "x" SPACE(6)

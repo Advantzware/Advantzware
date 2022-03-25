@@ -1,4 +1,5 @@
 /* copyOrder.i */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 PROCEDURE copyOrder:
   DEFINE INPUT PARAMETER ipFromCompany AS CHARACTER NO-UNDO.
@@ -140,11 +141,11 @@ PROCEDURE copyJob:
     ASSIGN
         cocode     = ipToCompany.
 
-    v-job-no = fill(" ",6 - length(trim(string(ipOrdno)))) + string(ipOrdno).
+    v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ipOrdno)) .
         RUN jc/job-no.p (INPUT-OUTPUT v-job-no, INPUT-OUTPUT v-job-no2,INPUT v-prod-cat).
          
     IF v-job-no EQ "" THEN
-      v-job-no = fill(" ",6 - length(trim(ipEstno))) + trim(ipEstno).
+      v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ipEstno)) .
 
     IF v-job-no NE "" THEN DO:
           FIND FIRST job NO-LOCK

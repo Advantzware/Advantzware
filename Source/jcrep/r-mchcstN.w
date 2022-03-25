@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -69,7 +70,7 @@ ASSIGN cTextListToSelect = "MACH CODE,JOB #,FG DESCRIPTION,EST M/R,ACT M/R,%VAR 
                                               "ACT RUN,%VAR RUN,EST BRD,ACT BRD,%VAR MAT,FG ITEM#"
        cFieldListToSelect = "mch-cd,job,fg-dsc,est-mr,act-mr,var-mr,est-run," +
                                         "act-run,var-run,est-brd,act-brd,act-mat,fg-item"
-       cFieldLength = "9,10,30,10,10,8,10," + "10,8,10,10,8,15"
+       cFieldLength = "9,13,30,10,10,8,10," + "10,8,10,10,8,15"
        cFieldType = "c,c,c,i,i,i,i," + "i,i,i,i,i,c" 
     .
 
@@ -156,42 +157,42 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY .95 NO-UNDO.
+     SIZE 18.4 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Machine" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 18.4 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 18.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Machine" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 18.4 BY 1.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-mchcst.csv" 
      LABEL "Name" 
@@ -298,11 +299,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Machine"
      begin_job-no AT ROW 5.05 COL 24 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 5.05 COL 36 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 5.05 COL 37 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 5.05 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 5.05 COL 79 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 5.05 COL 80 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_date AT ROW 6 COL 24 COLON-ALIGNED
      end_date AT ROW 6 COL 67 COLON-ALIGNED HELP
@@ -1400,10 +1401,8 @@ assign
   v-fmach                = begin_mach
   v-tmach                = END_mach
 
-  v-fjob                 = fill(" ",6 - length(trim(begin_job-no))) +
-                            trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-tjob                 = fill(" ",6 - length(trim(end_job-no)))   +
-                           trim(end_job-no)   + string(int(end_job-no2),"99") 
+  v-fjob                 = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+  v-tjob                 = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
 
   v-fdate                = begin_date
   v-tdate                = END_date

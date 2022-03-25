@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invcscga.p  */
 /* Invoice for CSC GA Packaging */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -428,8 +428,8 @@ find first company where company.company eq cocode NO-LOCK.
             
              if v-part-info ne "" OR inv-line.part-no <> "" then do:
                 IF v-count = 1 THEN
-                   PUT space(21) inv-line.ord-no FORM ">>>>>>9" space(2) v-i-no SPACE(1) v-part-info format "x(22)" SKIP.
-                ELSE PUT SPACE(46) v-part-info SKIP.
+                   PUT space(21) inv-line.ord-no FORM ">>>>>>>9" space(1) v-i-no SPACE(1) v-part-info format "x(22)" SKIP.
+                ELSE PUT SPACE(47) v-part-info SKIP.
                 v-printline = v-printline + 1.
              end.
           end.

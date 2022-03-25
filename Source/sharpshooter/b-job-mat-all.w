@@ -32,6 +32,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -88,10 +89,10 @@ DEFINE VARIABLE iAvailQty      AS INTEGER   NO-UNDO.
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table job-mat
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table job-mat
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH job-mat WHERE job-mat.company EQ cCompany and job-mat.job-no  EQ cJobNo   AND job-mat.job-no2 EQ iJobNo2 AND (job-mat.frm      EQ iFormNo OR iFormNo EQ ?)         AND (job-mat.blank-no EQ iBlankNo OR iBlankNo EQ ?) USE-INDEX seq-idx NO-LOCK, ~
+&Scoped-define QUERY-STRING-br_table FOR EACH job-mat WHERE job-mat.company EQ cCompany and TRIM(job-mat.job-no)  EQ TRIM(cJobNo)   AND job-mat.job-no2 EQ iJobNo2 AND (job-mat.frm      EQ iFormNo OR iFormNo EQ ?)         AND (job-mat.blank-no EQ iBlankNo OR iBlankNo EQ ?) USE-INDEX seq-idx NO-LOCK, ~
        FIRST job       WHERE job.company EQ job-mat.company         AND job.job     EQ job-mat.job         AND job.job-no  EQ job-mat.job-no         AND job.job-no2 EQ job-mat.job-no2, ~
        FIRST item NO-LOCK WHERE item.company EQ job-mat.company   AND item.i-no    EQ job-mat.rm-i-no and lookup(item.mat-type,"1,2,3,4,A,B,R,P") GT 0 ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH job-mat WHERE job-mat.company EQ cCompany  AND job-mat.job-no  EQ cJobNo   AND job-mat.job-no2 EQ iJobNo2 AND (job-mat.frm      EQ iFormNo OR iFormNo EQ ?)         AND (job-mat.blank-no EQ iBlankNo OR iBlankNo EQ ?) USE-INDEX seq-idx NO-LOCK, ~
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH job-mat WHERE job-mat.company EQ cCompany  AND TRIM(job-mat.job-no)  EQ TRIM(cJobNo)   AND job-mat.job-no2 EQ iJobNo2 AND (job-mat.frm      EQ iFormNo OR iFormNo EQ ?)         AND (job-mat.blank-no EQ iBlankNo OR iBlankNo EQ ?) USE-INDEX seq-idx NO-LOCK, ~
        FIRST job       WHERE job.company EQ job-mat.company         AND job.job     EQ job-mat.job         AND job.job-no  EQ job-mat.job-no         AND job.job-no2 EQ job-mat.job-no2, ~
        FIRST item NO-LOCK WHERE item.company EQ job-mat.company   AND item.i-no    EQ job-mat.rm-i-no  and lookup(item.mat-type,"1,2,3,4,A,B,R,P") GT 0   ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table job-mat job item
@@ -272,7 +273,7 @@ ASSIGN
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH job-mat
 WHERE job-mat.company EQ cCompany  
-  AND job-mat.job-no  EQ cJobNo
+  AND TRIM(job-mat.job-no)  EQ TRIM(cJobNo)
   AND job-mat.job-no2 EQ iJobNo2
   AND (job-mat.frm      EQ iFormNo OR iFormNo EQ ?)
   AND (job-mat.blank-no EQ iBlankNo OR iBlankNo EQ ?)

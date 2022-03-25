@@ -17,6 +17,7 @@
   Output Parameters:
       <none>
 
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -207,8 +208,8 @@ DEFINE BROWSE Browser-Table
       inv-misc.po-no COLUMN-LABEL "Customer PO#" FORMAT "x(15)":U
             WIDTH 20
       inv-misc.cost FORMAT "->>,>>>,>>9.99":U WIDTH 19.6
-      inv-misc.inv-i-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 9
-      inv-misc.inv-line COLUMN-LABEL "" FORMAT "99":U WIDTH 4
+      inv-misc.inv-i-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 14
+      inv-misc.inv-line COLUMN-LABEL "" FORMAT "999":U WIDTH 6
       inv-misc.po-no-po COLUMN-LABEL "Vendor PO#" FORMAT ">>>>>>":U
             WIDTH 14
       inv-misc.s-man[1] COLUMN-LABEL "Slsmn" FORMAT "x(3)":U WIDTH 8
@@ -375,9 +376,9 @@ ASSIGN
      _FldNameList[6]   > ASI.inv-misc.cost
 "inv-misc.cost" ? ? "decimal" ? ? ? ? ? ? yes ? no no "19.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.inv-misc.inv-i-no
-"inv-misc.inv-i-no" "Job#" "x(6)" "character" ? ? ? ? ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-misc.inv-i-no" "Job#" "x(9)" "character" ? ? ? ? ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.inv-misc.inv-line
-"inv-misc.inv-line" "" "99" "integer" ? ? ? ? ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-misc.inv-line" "" "999" "integer" ? ? ? ? ? ? yes ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.inv-misc.po-no-po
 "inv-misc.po-no-po" "Vendor PO#" ">>>>>>" "integer" ? ? ? ? ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.inv-misc.s-man[1]

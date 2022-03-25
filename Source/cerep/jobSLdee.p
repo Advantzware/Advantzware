@@ -1,5 +1,6 @@
 /* ----------------------------------------------- cerep/jobSLdee.p 01/09 gdm */
 /*  Schedule Labels for DEE                                                   */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /* -------------------------------------------------------------------------- */
 
 /************* Parameters ******************/
@@ -173,9 +174,9 @@ PROCEDURE gather_data:
 /* Go through each jobs selected by the user.*/ 
 FOR EACH job-hdr NO-LOCK 
     WHERE job-hdr.company EQ cocode
-      AND job-hdr.job-no  GE icBegJobNo
+      AND fill(" ",9 - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) GE icBegJobNo
       AND job-hdr.job-no2 GE iiBegJobNo2
-      AND job-hdr.job-no  LE icEndJobNo
+      AND fill(" ",9 - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no)  LE icEndJobNo
       AND job-hdr.job-no2 LE iiEndJobNo2,
     FIRST eb NO-LOCK 
     WHERE eb.company  EQ job-hdr.company

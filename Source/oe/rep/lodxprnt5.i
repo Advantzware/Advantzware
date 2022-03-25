@@ -45,7 +45,7 @@ FIND FIRST cust NO-LOCK
         PUT "<||><R36><C3><#7><FROM><R41><C40><RECT>" SKIP.            
         
         PUT "<FArial><=7><R-2><B><p15> Job#                                                               Date </B>" SKIP.
-        PUT "<FArial><=7><R37.3><C3><B><P20>  " tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99")  "</B>" SKIP.
+        PUT "<FArial><=7><R37.3><C3><B><P20>  " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-word-print.job-no, tt-word-print.job-no2))) FORM "x(13)" "</B>" SKIP.
         
         
         PUT "<||><R36><C45><#8><FROM><R41><C80><RECT>" SKIP.           
@@ -110,7 +110,7 @@ FIND FIRST cust NO-LOCK
         PUT "<||><R51><C3><#7><FROM><R56><C40><RECT>" SKIP.            
         
         PUT "<FArial><=7><R-2><B><p15> Job#                                                               Date </B>" SKIP.
-        PUT "<FArial><=7><R52.3><C3><B><P20>  " tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99")  "</B>" SKIP.
+        PUT "<FArial><=7><R52.3><C3><B><P20>  " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-word-print.job-no, tt-word-print.job-no2))) FORM "x(13)" "</B>" SKIP.
         
         
         PUT "<||><R51><C45><#8><FROM><R56><C80><RECT>" SKIP.            

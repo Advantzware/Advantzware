@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolharwl.i 04/01 JLF */
 /* PRINT Harwell BOL                                                          */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 hide {1} frame bol-bot2.
@@ -113,7 +114,7 @@ for each report where report.term-id eq v-term,
       i = i + 1.
 
       if first(w2.cas-cnt) and j eq 0 then
-        v-part-dscr = trim(string(int(report.key-02),">>>>>9")).
+        v-part-dscr = trim(string(int(report.key-02),">>>>>>>9")).
 
       else
       do j = j + 1 to 5:

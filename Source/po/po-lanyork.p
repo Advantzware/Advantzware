@@ -374,9 +374,7 @@ v-printline = 0.
             assign v-num-add = 0.
 
             find first job where job.company eq cocode 
-                             and job.job-no eq string(fill(" ",6 - length(
-                                                trim(po-ordl.job-no)))) +
-                                                trim(po-ordl.job-no) 
+                             and trim(job.job-no) eq trim(po-ordl.job-no) 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
             if avail job then
@@ -463,8 +461,8 @@ v-printline = 0.
                     v-len = po-ordl.s-len.
         END.
        /* v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,">>").*/
-        v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") +
-                   "-" + string(po-ordl.s-num,"99").
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2) +
+                   "-" + string(po-ordl.s-num,"99"))).
 
         IF po-ordl.job-no = "" THEN v-job-no = "".
 
@@ -522,9 +520,7 @@ v-printline = 0.
         DO:
             find first job where job.company eq cocode 
                              AND job.job-no NE ""
-                             and job.job-no eq string(fill(" ",6 - length(
-                                                trim(po-ordl.job-no)))) +
-                                                trim(po-ordl.job-no) 
+                             and trim(job.job-no) eq trim(po-ordl.job-no) 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
 

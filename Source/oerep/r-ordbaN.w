@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */
 
 CREATE WIDGET-POOL.
 
@@ -96,7 +97,7 @@ ASSIGN cTextListToSelect = "Sales Rep,Sales Name,Cust#,Cust Name#,Order PO#,Line
                             "ordjob,jobno,fgitem,i-name,cust-part,ord-date," +
                             "ord-qty,invrel,date-inv,qty-ship,rel-qty,bal-due,inv-amt," +
                             "qty-on-hand" 
-       cFieldLength = "9,25,8,30,15,15,15," + "8,10,15,30,15,8," + "11,7,12,11,11,11,11," + "11"
+       cFieldLength = "9,25,8,30,15,15,15," + "8,13,15,30,15,8," + "11,7,12,11,11,11,11," + "11"
        cFieldType = "c,c,c,c,c,c,c," +  "c,c,c,c,c,c," + "i,i,c,i,i,i,i," + "i" 
     .
 
@@ -204,15 +205,15 @@ DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.5 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_ord-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Order Date" 
@@ -239,15 +240,15 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.5 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_ord-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Order Date" 
@@ -433,11 +434,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Customer PO Number"
      begin_job-no AT ROW 6.19 COL 32 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 6.19 COL 48 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 6.19 COL 47.4 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 6.19 COL 80 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 6.19 COL 96 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 6.19 COL 95.4 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_i-no AT ROW 7.33 COL 32 COLON-ALIGNED HELP
           "Enter Beginning Item Number"
@@ -1692,9 +1693,7 @@ PROCEDURE build-tt :
                           STRING(MONTH(oe-ordl.req-date),"99")  +
                           STRING(DAY(oe-ordl.req-date),"99")    +
                           STRING(oe-ordl.part-no,"x(15)") + STRING(oe-ord.ord-no,"99999999999"))              
-   tt-report.key-04  = FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
-                       TRIM(oe-ordl.job-no) + "-" +
-                       STRING(oe-ordl.job-no2,"99")
+   tt-report.key-04  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))
    tt-report.key-05  = STRING(oe-ord.ord-no,"99999999999")
    tt-report.key-06  = oe-ordl.i-no
    tt-report.key-07  = STRING(YEAR(ip-date),"9999") +
@@ -2267,8 +2266,8 @@ DEF BUFFER b-oe-rell FOR oe-rell.
 def var v-cust  like oe-ord.cust-no  extent 2 init ["","zzzzzzzz"].
 def var v-date  like ar-inv.inv-date format "99/99/9999"
                                      extent 2 init [today, 12/31/9999].
-def var v-job   like oe-ord.job-no   extent 2 init ["","zzzzzz"].
-def var v-job2  like oe-ord.job-no2  format "99" extent 2 init [0,99].
+def var v-job   like oe-ord.job-no   extent 2 init ["","zzzzzzzzz"].
+def var v-job2  like oe-ord.job-no2  format "999" extent 2 init [0,999].
 def var v-item  like oe-ordl.i-no    extent 2 init ["","zzzzzzzzzzzzzzz"].
 def var v-inc   as   log             format "Yes/No" init yes.
 def var v-stat  as   char format "!" init "A".
@@ -2376,10 +2375,8 @@ ASSIGN
  v-date[2]  = end_ord-date
  v-po[1]    = begin_po-no
  v-po[2]    = end_po-no
- v-job[1]   = fill(" ",6 - length(trim(begin_job-no))) +
-              trim(begin_job-no) + string(int(begin_job-no2),"99")
- v-job[2]   = fill(" ",6 - length(trim(end_job-no)))   +
-              trim(end_job-no)   + string(int(end_job-no2),"99")
+ v-job[1]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2))
+ v-job[2]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2))
  v-item[1]  = begin_i-no
  v-item[2]  = end_i-no
  v-sort     = substr(rd_sort,1,1)

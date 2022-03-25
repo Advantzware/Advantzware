@@ -1,6 +1,7 @@
 /* ------------------------------------------- cec/quote/quoxprnt11.i 11/00 JLF */
-/* print quote items in xPrint format                                          */
-/* -------------------------------------------------------------------------- */
+/* print quote items in xPrint format                                           */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.                */
+/* ---------------------------------------------------------------------------- */
 
 
 logSetPrinting = FALSE.
@@ -83,11 +84,11 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
              PUT TRIM(lv-est-no) FORM "x(6)" SPACE(1)
                  xqitm.part-no space(1) lv-part-dscr1.
              */
-            PUT TRIM(lv-est-no) FORM "x(6)" AT 1
-                xqitm.part-no AT 8 FORMAT "x(21)".
+            PUT TRIM(lv-est-no) FORM "x(8)" AT 1
+                xqitm.part-no AT 10 FORMAT "x(21)".
 
             /* gdm - 11040801 deducted 2 char from format, used to be 30 - now 28*/
-            PUT "<C20>" TRIM(lv-part-dscr1) FORMAT "x(30)". 
+            PUT "<C24>" TRIM(lv-part-dscr1) FORMAT "x(28)". 
    
         END.
 
@@ -96,7 +97,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                 IF ll-prt-dscr2 AND xqitm.part-dscr2 NE "" THEN 
                 do:
                     PUT xquo.q-no FORMAT ">>>>>9" AT 1
-                        "<C20>" xqitm.part-dscr2 FORMAT "x(30)". 
+                        "<C24>" xqitm.part-dscr2 FORMAT "x(28)". 
                     lPrintSecDscr = YES .
                 END.
                 ELSE 
@@ -133,7 +134,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                     IF lPrintSecDscr THEN 
                     do: 
                         IF style-dscr NE "" THEN
-                            PUT  "<C20>" style-dscr FORM "x(30)" .
+                            PUT  "<C24>" style-dscr FORM "x(28)" .
                         ELSE 
                         do:
                             numfit = numfit + 1 .
@@ -142,7 +143,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                     END.
                     ELSE 
                         PUT  xquo.q-no FORMAT ">>>>>9" AT 1
-                            "<C20>" style-dscr  FORM "x(30)" .
+                            "<C24>" style-dscr  FORM "x(28)" .
                 END.
 
                 ELSE
@@ -190,7 +191,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                                 ELSE trim-size = "".   
                         END.
                         IF trim-size NE "" THEN
-                            PUT "<C20>" trim-size FORM "x(30)" .
+                            PUT "<C24>" trim-size FORM "x(28)" .
                         ELSE 
                         do:
                             numfit = numfit + 1 .
@@ -202,7 +203,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                         IF i EQ 5 THEN 
                         DO:   
                             IF  xqitm.i-coldscr NE "" THEN
-                                PUT "<C20>" xqitm.i-coldscr  FORM "x(30)".
+                                PUT "<C24>" xqitm.i-coldscr  FORM "x(28)".
                             ELSE 
                             do:
                                 numfit = numfit + 1 .
@@ -215,7 +216,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                             DO:  
                                 IF xqitm.i-dscr NE "" THEN  
                                 DO:
-                                    PUT  "<C20>" xqitm.i-dscr FORMAT "x(30)".
+                                    PUT  "<C24>" xqitm.i-dscr FORMAT "x(28)".
                                 END.
                                 ELSE 
                                 do:
@@ -242,19 +243,19 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                                         ELSE IF AVAILABLE eb THEN eb.stock-no
                                         ELSE xqitm.i-no.
          
-                                    PUT "<C7>FG#: " + lv-fg#  FORM "x(30)" .
+                                    PUT "<C10>FG#: " + lv-fg#  FORM "x(30)" .
       
                                 END.
 
                                 ELSE
                                     IF i EQ 8  THEN 
                                     DO:  
-                                        PUT "<C7>DIE#: " + (IF AVAILABLE eb THEN eb.die-no ELSE "") FORM "x(30)"  .
+                                        PUT "<C10>DIE#: " + (IF AVAILABLE eb THEN eb.die-no ELSE "") FORM "x(30)"  .
                                     END.
                                     ELSE
                                         IF i EQ 9  THEN 
                                         DO: 
-                                            PUT "<C7>CAD#: " + (IF AVAILABLE eb THEN eb.cad-no ELSE "")  FORM "x(30)" .
+                                            PUT "<C10>CAD#: " + (IF AVAILABLE eb THEN eb.cad-no ELSE "")  FORM "x(30)" .
                                         END.
                                         ELSE
                                             IF i EQ 10  THEN 
@@ -269,7 +270,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                                                 v-board = SUBSTRING(v-board,1,LENGTH(v-board) - 1).
        
                                                 IF v-board NE "" THEN 
-                                                    PUT "<C7>" v-board FORMAT "x(72)".
+                                                    PUT "<C10>" v-board FORMAT "x(72)".
       
                                             END.
 
@@ -317,8 +318,8 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                             xxx = (xqqty.qty * xqqty.price).
 
        
-            PUT "<C45>" xqqty.qty FORMAT ">>>>>>>9"  
-               "<C52.5>" xqqty.rels space(1)
+            PUT "<C48>" xqqty.qty FORMAT ">>>>>>>9"  
+               "<C54>" xqqty.rels space(1)
                 xqqty.price FORMAT "->>,>>9.99" space(2)
                 xqqty.uom SPACE(2)
                 xxx FORM "->>>>,>>9.99".
@@ -394,14 +395,14 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                 END.
                 ELSE temp-trim-size = trim-size.
     
-                put eb.part-no AT 8 FORM "x(30)" SPACE temp-trim-size   SKIP.
+                put eb.part-no AT 10 FORM "x(30)" SPACE temp-trim-size   SKIP.
     
                 FIND FIRST style
                     WHERE style.company EQ cocode
                     AND style.style   EQ eb.style
                     NO-LOCK NO-ERROR.
                 style-dscr = IF AVAILABLE style THEN style.dscr ELSE eb.style.      
-                PUT eb.part-dscr1 AT 8 FORM "x(30)" SPACE
+                PUT eb.part-dscr1 AT 10 FORM "x(30)" SPACE
                     style-dscr SKIP.
 
                 DO i = 1 TO 6:
@@ -431,10 +432,10 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                             item.i-dscr.
                 END.
       
-                PUT eb.part-dscr2  AT 8  FORM "x(30)" SPACE
+                PUT eb.part-dscr2  AT 10  FORM "x(30)" SPACE
                     v-board  FORM "x(80)"   SKIP .
     
-                put eb.cad-no AT 8 FORM "x(30)" SPACE eb.i-coldscr SKIP.
+                put eb.cad-no AT 10 FORM "x(30)" SPACE eb.i-coldscr SKIP.
             END.
     END.    /* disp components */
 
@@ -486,13 +487,13 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
         lv-chg-amt = xqchg.amt.   
 
         IF xqchg.bill EQ "N" THEN
-            PUT "<C20>" xqchg.charge 
+            PUT "<C24>" xqchg.charge 
             /*"N/C"        TO 80*/  SKIP.
       
         ELSE
             IF INDEX("TML",xqchg.bill) GT 0 THEN do:
-                PUT "<C20>" xqchg.charge                       
-		"<C42>" xqchg.prep-qty FORMAT ">>>>>>>9" SPACE(1)  
+                PUT "<C24>" xqchg.charge                       
+		"<C48>" xqchg.prep-qty FORMAT ">>>>>>>9" SPACE(1)  
                 space(7)
                 xqchg.spare-dec-1 FORMAT "->>,>>9.99" space(2)
                 "EA " SPACE(2)
@@ -501,7 +502,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
             ELSE
                 IF xqchg.bill EQ "W" THEN
-                    PUT "<C20>" xqchg.charge    
+                    PUT "<C24>" xqchg.charge    
                     /*  "Will Advise "  TO 45 */  skip.
 
         RUN printHeader (12,OUTPUT v-printline).
@@ -568,13 +569,13 @@ FOR EACH xqchg OF xquo NO-LOCK
     lv-chg-amt = xqchg.amt .
 
     IF xqchg.bill EQ "N" THEN
-        PUT "<C20>" xqchg.charge 
+        PUT "<C24>" xqchg.charge 
         /* "N/C"        TO 80 */ SKIP.
       
     ELSE
         IF INDEX("TML",xqchg.bill) GT 0 THEN DO:
-            PUT "<C20>" xqchg.charge 
-		"<C42>" xqchg.prep-qty FORMAT ">>>>>>>9" SPACE(1) 
+            PUT "<C24>" xqchg.charge 
+		"<C48>" xqchg.prep-qty FORMAT ">>>>>>>9" SPACE(1) 
                  space(7)
                 xqchg.spare-dec-1 FORMAT "->>,>>9.99" space(2)
                 "EA " SPACE(2)
@@ -583,7 +584,7 @@ FOR EACH xqchg OF xquo NO-LOCK
      
         ELSE
             IF xqchg.bill EQ "W" THEN
-                PUT "<C20>" xqchg.charge    
+                PUT "<C24>" xqchg.charge    
                 /*"Will Advise "  TO 45 */ SKIP.
 
     /*

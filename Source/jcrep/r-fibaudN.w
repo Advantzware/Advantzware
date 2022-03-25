@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -70,7 +71,7 @@ DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
 
 ASSIGN cTextListToSelect = "Job#,RM Item#,Form#,User1,Date1,Time1,Est#,User2,Date2,Time2,PO#,User3,Date3,Time3"
        cFieldListToSelect = "job,rm-ino,form,usr,date,time,est,user2,date2,time2,po,usr3,date3,time3"
-       cFieldLength = "10,15,5,8,10,8,8,8,10,8,6,8,10,8"
+       cFieldLength = "13,15,5,8,10,8,8,8,10,8,6,8,10,8"
        cFieldType = "c,c,c,c,c,c,c,c,c,c,c,c,c,c" 
     .
 
@@ -149,25 +150,25 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.1.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 4.6 BY 1 NO-UNDO.
+     SIZE 5.6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-fibaud.csv" 
      LABEL "Name" 
@@ -240,11 +241,11 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO
 DEFINE FRAME FRAME-A
      begin_job-no AT ROW 2.67 COL 24 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 2.67 COL 37 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 2.67 COL 38.5 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 2.67 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 2.67 COL 79 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.67 COL 80 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      sl_avail AT ROW 5.67 COL 4 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 5.67 COL 40.8 HELP
@@ -1155,10 +1156,8 @@ ASSIGN
  str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
 
-  v-job-no[1] = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-                TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
-  v-job-no[2] = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
-                TRIM(end_job-no)   + STRING(INT(end_job-no2),"99").
+  v-job-no[1] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+  v-job-no[2] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) .
 
 
 DEF VAR cslist AS cha NO-UNDO.
@@ -1203,13 +1202,13 @@ SESSION:SET-WAIT-STATE ("general").
 DISPLAY "" WITH FRAME r-top.
 
 FOR EACH job NO-LOCK
-    WHERE job.company EQ cocode
-      AND job.job-no  GE SUBSTR(v-job-no[1],1,6)
-      AND job.job-no  LE SUBSTR(v-job-no[2],1,6)
-      AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
-          TRIM(job.job-no) + STRING(INT(job.job-no2),"99") GE v-job-no[1] 
-      AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
-          TRIM(job.job-no) + STRING(INT(job.job-no2),"99") LE v-job-no[2]
+    WHERE job.company EQ cocode        
+      AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
+          TRIM(job.job-no) + STRING(INT(job.job-no2),"999") GE v-job-no[1] 
+      AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
+          TRIM(job.job-no) + STRING(INT(job.job-no2),"999") LE v-job-no[2]
+      AND job.job-no2 GE int(begin_job-no2)
+      AND job.job-no2 LE int(end_job-no2)    
       AND TRIM(job.est-no) NE ""
     USE-INDEX job-no,
 
@@ -1320,7 +1319,7 @@ FOR EACH job NO-LOCK
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "job"       THEN cVarValue =  STRING(TRIM(job-mat.job-no) + "-" + STRING(job-mat.job-no2,"99")) .
+                         WHEN "job"       THEN cVarValue =  STRING(TRIM(job-mat.job-no) + "-" + STRING(job-mat.job-no2,"999")) .
                          WHEN "rm-ino"    THEN cVarValue =  job-mat.i-no.
                          WHEN "form"      THEN cVarValue =  STRING(job-mat.frm) .
                          WHEN "usr"       THEN cVarValue =  IF AVAIL j-audit THEN j-audit.loc ELSE "".

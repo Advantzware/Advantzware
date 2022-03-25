@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -351,9 +352,9 @@ DEFINE BROWSE Browser-Table
       rm-rctd.rct-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       rm-rctd.po-no FORMAT "x(8)":U WIDTH 11 LABEL-BGCOLOR 14
       rm-rctd.po-line FORMAT ">>9":U
-      rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U LABEL-BGCOLOR 14
-      rm-rctd.job-no2 FORMAT "99":U
-      rm-rctd.s-num COLUMN-LABEL "F" FORMAT ">9":U
+      rm-rctd.job-no2 FORMAT "999":U
+      rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U LABEL-BGCOLOR 14 WIDTH 15
+      rm-rctd.s-num COLUMN-LABEL "S" FORMAT ">9":U
       rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U LABEL-BGCOLOR 14
       rm-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
@@ -508,7 +509,7 @@ loadtag.misc-char[1] begins lv-search"
 "rm-rctd.po-no" ? "x(6)" "character" ? ? ? 14 ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   = asi.rm-rctd.po-line
      _FldNameList[10]   > asi.rm-rctd.job-no
-"rm-rctd.job-no" "Job" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rctd.job-no" "Job" ? "character" ? ? ? 14 ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   = asi.rm-rctd.job-no2
      _FldNameList[12]   > asi.rm-rctd.s-num
 "rm-rctd.s-num" "F" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -770,7 +771,7 @@ DO:
             FIND FIRST bpo-ordl NO-LOCK
                  WHERE bpo-ordl.company EQ g_company
                    AND bpo-ordl.po-no EQ loadtag.po-no
-                   AND bpo-ordl.job-no EQ loadtag.job-no
+                   AND trim(bpo-ordl.job-no) EQ trim(loadtag.job-no)
                    AND bpo-ordl.job-no2 EQ loadtag.job-no2
                    AND bpo-ordl.i-no EQ loadtag.i-no
                    AND bpo-ordl.s-num EQ loadtag.form-no NO-ERROR.
@@ -876,7 +877,7 @@ DO:
         FIND FIRST bpo-ordl NO-LOCK
              WHERE bpo-ordl.company EQ g_company
                AND bpo-ordl.po-no EQ loadtag.po-no
-               AND bpo-ordl.job-no EQ loadtag.job-no
+               AND trim(bpo-ordl.job-no) EQ trim(loadtag.job-no)
                AND bpo-ordl.job-no2 EQ loadtag.job-no2
                AND bpo-ordl.i-no EQ loadtag.i-no 
                AND bpo-ordl.s-num EQ loadtag.form-no NO-ERROR.
@@ -1093,7 +1094,7 @@ DO:
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-            AND po-ordl.job-no    EQ {&self-name}:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+            AND trim(po-ordl.job-no) EQ TRIM({&self-name}:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.item-type EQ YES
           NO-LOCK NO-ERROR.
 
@@ -1147,7 +1148,7 @@ DO:
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-            AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+            AND trim(po-ordl.job-no) EQ trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.job-no2   EQ INT({&self-name}:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.item-type EQ YES
           NO-LOCK NO-ERROR.
@@ -1215,7 +1216,7 @@ DO:
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-            AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+            AND trim(po-ordl.job-no) EQ trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.s-num     EQ INT({&self-name}:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.item-type EQ YES
@@ -1282,7 +1283,7 @@ DO:
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-            AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+            AND trim(po-ordl.job-no) EQ trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.i-no      EQ {&self-name}:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
@@ -1766,7 +1767,7 @@ PROCEDURE create-rec-from-vend-tag :
                END.
                work-gl.debits = work-gl.debits + v-ext-cost.
                
-               work-gl.cDesc = work-gl.cDesc +  (IF rm-rctd.job-no NE "" THEN "Job: " + rm-rctd.job-no + "-" + STRING(rm-rctd.job-no2,"99") 
+               work-gl.cDesc = work-gl.cDesc +  (IF rm-rctd.job-no NE "" THEN "Job: " + rm-rctd.job-no + "-" + STRING(rm-rctd.job-no2,"999") 
                                ELSE IF rm-rctd.po-no NE "" THEN "PO: " + string(rm-rctd.po-no,"999999") + "-" + STRING(rm-rctd.po-line,"999") ELSE "")
                                + " Cost $" + string(rm-rctd.cost) + " / " + rm-rctd.cost-uom.
 
@@ -1778,7 +1779,7 @@ PROCEDURE create-rec-from-vend-tag :
                END.
                work-gl.credits = work-gl.credits + v-ext-cost.
                
-               work-gl.cDesc = work-gl.cDesc +  (IF rm-rctd.job-no NE "" THEN "Job: " + rm-rctd.job-no + "-" + STRING(rm-rctd.job-no2,"99") 
+               work-gl.cDesc = work-gl.cDesc +  (IF rm-rctd.job-no NE "" THEN "Job: " + rm-rctd.job-no + "-" + STRING(rm-rctd.job-no2,"999") 
                                ELSE IF rm-rctd.po-no NE "" THEN "PO: " + string(rm-rctd.po-no,"999999") + "-" + STRING(rm-rctd.po-line,"999") ELSE "")
                                + " Cost $" + string(rm-rctd.cost) + " / " + rm-rctd.cost-uom.
            END.
@@ -1801,7 +1802,7 @@ PROCEDURE create-rec-from-vend-tag :
                         where po-ordl.company   eq cocode
                           and po-ordl.i-no      eq tt-rctd.i-no
                           and po-ordl.po-no     eq int(v-po-no)
-                          and po-ordl.job-no    eq tt-rctd.job-no
+                          and trim(po-ordl.job-no) eq trim(tt-rctd.job-no)
                           and po-ordl.job-no2   eq tt-rctd.job-no2
                           and po-ordl.item-type eq yes
                         use-index item-ordno no-lock no-error.
@@ -1819,7 +1820,7 @@ PROCEDURE create-rec-from-vend-tag :
                 IF tt-rctd.job-no NE "" AND tt-rctd.s-num EQ ? THEN
                 FIND FIRST job
                   WHERE job.company EQ cocode
-                  AND job.job-no  EQ tt-rctd.job-no
+                  AND trim(job.job-no)  EQ trim(tt-rctd.job-no)
                   AND job.job-no2 EQ tt-rctd.job-no2 NO-LOCK NO-ERROR.
 
                 IF AVAIL job THEN DO:
@@ -1885,7 +1886,7 @@ PROCEDURE create-rec-from-vend-tag :
          for each tt-rctd where tt-rctd.rita-code eq "I"
                     and tt-rctd.job-no    ne "" no-lock,
              first job where job.company eq cocode
-                    and job.job-no  eq tt-rctd.job-no
+                    and trim(job.job-no)  eq trim(tt-rctd.job-no)
                     and job.job-no2 eq tt-rctd.job-no2 no-lock,
              first ITEM where item.company  eq cocode
                       and item.i-no     eq tt-rctd.i-no
@@ -2118,7 +2119,7 @@ PROCEDURE display-po-job :
         WHERE po-ordl.company   EQ rm-rctd.company
           AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) 
           AND po-ordl.item-type EQ YES
-          AND ((po-ordl.job-no  EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) AND
+          AND (( trim(po-ordl.job-no)  EQ trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) AND
                 po-ordl.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})                                                                                    AND
                 po-ordl.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) OR
                adm-adding-record)
@@ -2263,7 +2264,7 @@ PROCEDURE find-exact-po :
     FIND FIRST po-ordl
         WHERE po-ordl.company   EQ rm-rctd.company
           AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-          AND po-ordl.job-no    EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+          AND trim(po-ordl.job-no) EQ TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
           AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
           AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
           AND po-ordl.i-no      EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
@@ -2312,7 +2313,7 @@ if ip-first-disp  and avail rm-rctd and rm-rctd.i-no <> "" then do: /* for row-d
   find first po-ordl where po-ordl.company = rm-rctd.company
                        and po-ordl.po-no = integer(rm-rctd.po-no)
                        and po-ordl.i-no  = rm-rctd.i-no
-                       and po-ordl.job-no = rm-rctd.job-no
+                       and trim(po-ordl.job-no) = trim(rm-rctd.job-no)
                        and po-ordl.job-no2 = rm-rctd.job-no2
                        and po-ordl.item-type = yes 
                        and po-ordl.s-num = rm-rctd.s-num
@@ -2327,7 +2328,7 @@ if ip-first-disp  and avail rm-rctd and rm-rctd.i-no <> "" then do: /* for row-d
   end.
   else do:
         find first job where job.company eq cocode
-                         and job.job-no  eq rm-rctd.job-no
+                         and trim(job.job-no)  eq trim(rm-rctd.job-no)
                          and job.job-no2 eq rm-rctd.job-no2
                 no-lock no-error.
         if avail job then do :
@@ -2386,7 +2387,7 @@ else if avail rm-rctd and rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} <> 
   find first po-ordl where po-ordl.company = rm-rctd.company
                        and po-ordl.po-no = integer(rm-rctd.po-no:screen-value in browse {&BROWSE-NAME})
                        and po-ordl.i-no  = rm-rctd.i-no:screen-value
-                       and po-ordl.job-no = (rm-rctd.job-no:screen-value)
+                       and trim(po-ordl.job-no) = TRIM(rm-rctd.job-no:screen-value)
                        and po-ordl.job-no2 = integer(rm-rctd.job-no2:screen-value)
                        and po-ordl.item-type = yes
                        and po-ordl.s-num = integer(rm-rctd.s-num:screen-value)
@@ -2402,7 +2403,7 @@ else if avail rm-rctd and rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} <> 
   end.
   else do:
         find first job where job.company eq cocode
-                         and job.job-no  eq rm-rctd.job-no:screen-value
+                         and trim(job.job-no)  eq trim(rm-rctd.job-no:screen-value)
                          and job.job-no2 eq integer(rm-rctd.job-no2:screen-value)
                 no-lock no-error.
         if avail job then do :
@@ -2503,7 +2504,7 @@ PROCEDURE get-matrix-2 :
         po-ordl.company EQ rm-rctd.company AND
         po-ordl.po-no EQ INTEGER(rm-rctd.po-no) AND
         po-ordl.i-no EQ rm-rctd.i-no AND
-        po-ordl.job-no EQ rm-rctd.job-no AND
+        trim(po-ordl.job-no) EQ trim(rm-rctd.job-no) AND
         po-ordl.job-no2 EQ rm-rctd.job-no2 AND
         po-ordl.item-type EQ YES AND
         po-ordl.s-num EQ rm-rctd.s-num
@@ -2521,7 +2522,7 @@ PROCEDURE get-matrix-2 :
    DO:
       FIND FIRST job WHERE
            job.company EQ cocode AND
-           job.job-no EQ rm-rctd.job-no AND
+           trim(job.job-no) EQ trim(rm-rctd.job-no) AND
            job.job-no2 EQ rm-rctd.job-no2
            NO-LOCK NO-ERROR.
      
@@ -2703,7 +2704,7 @@ PROCEDURE leave-i-no-proc :
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-            AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+            AND trim(po-ordl.job-no) EQ trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.i-no      EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
@@ -2768,7 +2769,7 @@ PROCEDURE leave-tag-proc :
         FIND FIRST bpo-ordl NO-LOCK
              WHERE bpo-ordl.company EQ g_company
                AND bpo-ordl.po-no EQ loadtag.po-no
-               AND bpo-ordl.job-no EQ loadtag.job-no
+               AND trim(bpo-ordl.job-no) EQ trim(loadtag.job-no)
                AND bpo-ordl.job-no2 EQ loadtag.job-no2
                AND bpo-ordl.i-no EQ loadtag.i-no 
                AND bpo-ordl.s-num EQ loadtag.form-no NO-ERROR.
@@ -3272,8 +3273,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
 
       FIND FIRST job
           WHERE job.company EQ rm-rctd.company
-            AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no))) +
-                               TRIM(rm-rctd.job-no)
+            AND trim(job.job-no)  EQ TRIM(rm-rctd.job-no)
             AND job.job-no2 EQ rm-rctd.job-no2
           NO-ERROR.
 
@@ -3348,8 +3348,8 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
             if not avail job-mat then do:
                bell.
                message " Job Mat Record not found for "
-                       string(job.job-no + "-" + string(job.job-no2,"99") +
-                              "  " + rm-rctd.i-no)
+                       TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) +
+                              "  " + rm-rctd.i-no
                        VIEW-AS ALERT-BOX.
                undo transblok, next transblok.
             end.
@@ -3835,7 +3835,7 @@ PROCEDURE valid-i-no :
 
         
   DO WITH FRAME {&FRAME-NAME}:
-    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
+    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})) .
 
     IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NE 0 THEN DO:
       RELEASE po-ord.
@@ -3843,7 +3843,7 @@ PROCEDURE valid-i-no :
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ g_company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-            AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+            AND trim(po-ordl.job-no) EQ trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.i-no      EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
@@ -3883,7 +3883,7 @@ PROCEDURE valid-i-no :
     IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:
       FIND FIRST job
           WHERE job.company EQ rm-rctd.company
-            AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+            AND trim(job.job-no)  EQ trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND job.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
           NO-LOCK NO-ERROR.
       IF AVAIL job THEN
@@ -3939,13 +3939,13 @@ PROCEDURE valid-job-no :
 ------------------------------------------------------------------------------*/
   
   DO WITH FRAME {&FRAME-NAME}:
-    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
+    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})) .
 
     IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NE 0 THEN DO:
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-            AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+            AND trim(po-ordl.job-no)    EQ trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.item-type EQ YES
           NO-LOCK NO-ERROR.
       IF NOT AVAIL po-ordl THEN ERROR-STATUS:ERROR = YES.
@@ -3955,7 +3955,7 @@ PROCEDURE valid-job-no :
     IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:
       FIND FIRST job
           WHERE job.company EQ rm-rctd.company
-            AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+            AND trim(job.job-no)  EQ trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
           NO-LOCK NO-ERROR.
       IF NOT AVAIL job THEN ERROR-STATUS:ERROR = YES.
     END.
@@ -3986,13 +3986,13 @@ PROCEDURE valid-job-no2 :
 ------------------------------------------------------------------------------*/
   
   DO WITH FRAME {&FRAME-NAME}:
-    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
+    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})) .
 
     IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NE 0 THEN DO:
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-            AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+            AND trim(po-ordl.job-no) EQ trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.item-type EQ YES
           NO-LOCK NO-ERROR.
@@ -4003,7 +4003,7 @@ PROCEDURE valid-job-no2 :
     IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:
       FIND FIRST job
           WHERE job.company EQ rm-rctd.company
-            AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+            AND trim(job.job-no)  EQ trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND job.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
           NO-LOCK NO-ERROR.
       IF NOT AVAIL job THEN ERROR-STATUS:ERROR = YES. 
@@ -4084,13 +4084,13 @@ PROCEDURE valid-s-num :
 ------------------------------------------------------------------------------*/
   
   DO WITH FRAME {&FRAME-NAME}:
-    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
+    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})) .
 
     IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NE 0 THEN DO:
       FIND FIRST po-ordl
           WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-            AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+            AND trim(po-ordl.job-no) EQ trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND po-ordl.item-type EQ YES
@@ -4102,7 +4102,7 @@ PROCEDURE valid-s-num :
     IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:
       FIND FIRST job
           WHERE job.company EQ rm-rctd.company
-            AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+            AND trim(job.job-no)  EQ trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
             AND job.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
           NO-LOCK NO-ERROR.
       IF AVAIL job THEN
@@ -4294,7 +4294,7 @@ FUNCTION display-dimension RETURNS DECIMAL
       find first po-ordl where po-ordl.company   eq cocode
                            and po-ordl.po-no     eq int(rm-rctd.po-no)
                            and po-ordl.i-no      eq rm-rctd.i-no
-                           and po-ordl.job-no    eq rm-rctd.job-no
+                           and trim(po-ordl.job-no) eq trim(rm-rctd.job-no)
                            and po-ordl.job-no2   eq rm-rctd.job-no2
                            and po-ordl.item-type eq yes
                            and po-ordl.s-num     eq rm-rctd.s-num
@@ -4306,7 +4306,7 @@ FUNCTION display-dimension RETURNS DECIMAL
         if rm-rctd.job-no ne "" then
            find first b-jm where b-jm.company eq cocode
                              and b-jm.rm-i-no eq rm-rctd.i-no
-                             and b-jm.job-no  eq rm-rctd.job-no
+                             and trim(b-jm.job-no)  eq trim(rm-rctd.job-no)
                              and b-jm.job-no2 eq rm-rctd.job-no2
                              and b-jm.frm     eq rm-rctd.s-num
                              no-lock no-error.

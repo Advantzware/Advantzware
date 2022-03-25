@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -61,7 +62,7 @@ ASSIGN cTextListToSelect = "CUSTOMER,JOB#,F,B,DIE#,Plate#,DUE DATE,COMPLETION DA
                             "qty-glu,sht,prntd,die-cut,glue,glu-hrs,mfg-date,rel-date," +
                             "order-no,ord-date,fg-item,po-no,pri-contact,csr,sales-rep,rep-name,contact-name," +
                             "fg-cat,shipto,loc"
-       cFieldLength = "8,10,1,1,20,15,10,15,7," + "13,7,7,7,5,14,11,12," + "7,10,15,15,25,8,9,20,30," + "11,8,9" 
+       cFieldLength = "8,13,1,1,20,15,10,15,7," + "13,7,7,7,5,14,11,12," + "8,10,15,15,25,8,9,20,30," + "11,8,9" 
        cFieldType = "c,c,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c"
     .
 
@@ -143,30 +144,30 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.1.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_end-cust AS CHARACTER FORMAT "X(256)":U 
      LABEL "Ending Customer" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY .95 NO-UNDO.
+     SIZE 18.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-bckmch.csv" 
      LABEL "Name" 
@@ -176,7 +177,7 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-bckmch.c
 DEFINE VARIABLE fi_st-cust AS CHARACTER FORMAT "X(256)":U 
      LABEL "Beginning Customer" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY .95 NO-UNDO.
+     SIZE 18.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -195,7 +196,7 @@ DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11"
 DEFINE VARIABLE thru_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Thru Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY .95 NO-UNDO.
+     SIZE 18.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -263,11 +264,11 @@ DEFINE FRAME FRAME-A
      fi_end-cust AT ROW 3.14 COL 66 COLON-ALIGNED WIDGET-ID 6
      begin_job-no AT ROW 4.1 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 4.1 COL 38 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.1 COL 39 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 4.1 COL 66 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 4.1 COL 78 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.1 COL 79 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      tb_fold AT ROW 6 COL 42 WIDGET-ID 10
      tb_corr AT ROW 6.95 COL 42 WIDGET-ID 12
@@ -1277,10 +1278,8 @@ assign
   v-fcust   = fi_st-cust
   v-tcust   = fi_end-cust
 
-  v-fjob    = fill(" ",6 - length(trim(begin_job-no))) +
-               trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-tjob    = fill(" ",6 - length(trim(end_job-no)))   +
-               trim(end_job-no)   + string(int(end_job-no2),"99") 
+  v-fjob    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+  v-tjob    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
 
    .
 
@@ -1345,7 +1344,7 @@ SESSION:SET-WAIT-STATE ("general").
       delete tt-report.
     end.
 
-    IF TRIM(SUBSTRING(v-fjob, 1, 6)) GT "" THEN DO:    
+    IF TRIM(SUBSTRING(v-fjob, 1, 9)) GT "" THEN DO:    
 
       for each job
           where job.company eq cocode
@@ -1505,8 +1504,7 @@ SESSION:SET-WAIT-STATE ("general").
       end.  
 
       assign
-       v-job   = fill(" ",6 - length(trim(job-hdr.job-no))) +
-                 trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99")
+       v-job   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)) 
        v-date  = date(int(substr(tt-report.key-01,5,2)),
                       int(substr(tt-report.key-01,7,2)),
                       int(substr(tt-report.key-01,1,4)))

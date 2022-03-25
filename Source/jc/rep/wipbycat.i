@@ -1,16 +1,17 @@
 /* ---------------------------------------------- jc/rep/wipbycat.i 11/00 JLF */
 /* WIP by Product Category                                                    */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /* -------------------------------------------------------------------------- */
 
-      and job.company    eq cocode
-      and job.job-no     ge substr(v-fjob,1,6)
-      and job.job-no     le substr(v-tjob,1,6)
-      and fill(" ",6 - length(trim(job.job-no))) +
-          trim(job.job-no) + string(job.job-no2,"99")
+      and job.company    eq cocode      
+      and fill(" ",9 - length(trim(job.job-no))) +
+          trim(job.job-no) + string(job.job-no2,"999")
                          ge v-fjob
-      and fill(" ",6 - length(trim(job.job-no))) +
-          trim(job.job-no) + string(job.job-no2,"99")
+      and fill(" ",9 - length(trim(job.job-no))) +
+          trim(job.job-no) + string(job.job-no2,"999")
                          le v-tjob
+     AND job.job-no2 GE int(begin_job-no2)
+     AND job.job-no2 LE int(end_job-no2)
     {1} no-lock,
     
     each job-hdr

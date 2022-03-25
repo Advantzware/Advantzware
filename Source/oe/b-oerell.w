@@ -224,15 +224,15 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      oe-rell.ord-no FORMAT ">>>>>>":U WIDTH 8
+      oe-rell.ord-no FORMAT ">>>>>>>>":U WIDTH 12
       oe-rell.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 22
       oe-rell.po-no FORMAT "x(15)":U WIDTH 22
       oe-rell.qty COLUMN-LABEL "Qty" FORMAT "->>,>>>,>>>":U WIDTH 12
       oe-rell.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U WIDTH 28
       oe-rell.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U WIDTH 7
       oe-rell.loc-bin COLUMN-LABEL "Bin Loc." FORMAT "x(8)":U WIDTH 10
-      oe-rell.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 9
-      oe-rell.job-no2 COLUMN-LABEL "" FORMAT "99":U WIDTH 3
+      oe-rell.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 12
+      oe-rell.job-no2 COLUMN-LABEL "" FORMAT "999":U WIDTH 6
       oe-rell.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             WIDTH 12
       oe-rell.cases COLUMN-LABEL "Units" FORMAT "->>>,>>>":U WIDTH 9
@@ -371,7 +371,7 @@ oe-ordl.ord-no eq oe-rell.ord-no and
 oe-ordl.i-no eq oe-rell.i-no and
 oe-ordl.line eq oe-rell.line"
      _FldNameList[1]   > ASI.oe-rell.ord-no
-"oe-rell.ord-no" ? ">>>>>>" "integer" ? ? ? ? ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-rell.ord-no" ? ">>>>>>>>" "integer" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.oe-rell.i-no
 "oe-rell.i-no" "FG Item#" ? "character" ? ? ? ? ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-rell.po-no
@@ -385,9 +385,9 @@ oe-ordl.line eq oe-rell.line"
      _FldNameList[7]   > ASI.oe-rell.loc-bin
 "oe-rell.loc-bin" "Bin Loc." ? "character" ? ? ? ? ? ? yes ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.oe-rell.job-no
-"oe-rell.job-no" "Job#" ? "character" ? ? ? ? ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-rell.job-no" "Job#" ? "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-rell.job-no2
-"oe-rell.job-no2" "" ? "integer" ? ? ? ? ? ? yes ? no no "3" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-rell.job-no2" "" ? "integer" ? ? ? ? ? ? yes ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.oe-rell.cust-no
 "oe-rell.cust-no" "Customer#" ? "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.oe-rell.cases
@@ -1962,7 +1962,7 @@ PROCEDURE valid-job-no :
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      lv-job-no = TRIM(oe-rell.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
-     lv-job-no = FILL(" ",6 - LENGTH(lv-job-no)) + lv-job-no
+     lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no))
      oe-rell.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = lv-job-no.
 
     IF relmerge-int EQ 0 THEN DO:

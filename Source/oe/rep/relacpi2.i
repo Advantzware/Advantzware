@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.             */
 /* oe/rep/relacpi2.i */   
    
    PUT "<FArial>" SKIP
@@ -46,15 +47,15 @@
                    "<FArial><=4><R+1>    Delivery Zone             Weight                    FOB                           Ship Via                                        Freight Terms" SKIP
                    "<FCourier New><=4><R+3> " v-zone space(10) v-weight space(10) oe-ord.fob-code SPACE(5) v-carrier space(10) v-frt-terms   SKIP
                    "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
-                   "<R24><C7><FROM><R26><C7><LINE>" SKIP
-                   "<R24><C23><FROM><R26><C23><LINE>" SKIP
-                   "<R24><C49><FROM><R26><C49><LINE>" SKIP                   
-                   "<R24><C51.5><FROM><R26><C51.5><LINE>" SKIP
-                   "<R24><C56><FROM><R26><C56><LINE>" SKIP 
-                   "<R24><C61><FROM><R26><C61><LINE>" SKIP   
-                   "<R24><C67><FROM><R26><C67><LINE>" SKIP 
-                   "<R24><C72><FROM><R26><C72><LINE>" SKIP  
-               "<FArial><=5><R+1> Order# <C10>Item / Desc / Lot #<C28>TAG/Whs/Bin <C50>X   #Pal     #Cas<C62.2>Count<C67.5>Partial <C75>Bin Qty" SKIP(1)
+                   "<R24><C9><FROM><R26><C9><LINE>" SKIP
+                   "<R24><C31><FROM><R26><C31><LINE>" SKIP
+                   "<R24><C51><FROM><R26><C51><LINE>" SKIP                   
+                   "<R24><C53.5><FROM><R26><C53.5><LINE>" SKIP
+                   "<R24><C58><FROM><R26><C58><LINE>" SKIP 
+                   "<R24><C63><FROM><R26><C63><LINE>" SKIP   
+                   "<R24><C69><FROM><R26><C69><LINE>" SKIP 
+                   "<R24><C74><FROM><R26><C74><LINE>" SKIP  
+               "<FArial><=5><R+1> Order# <C14>Item / Desc / Lot #<C35>TAG/Whs/Bin <C52>X     #Pal     #Cas<C64.2>Count<C69.5>Partial <C75>Bin Qty" SKIP(1)
                "<FCourier New>"          
                .
                v-printline = v-printline + 16.

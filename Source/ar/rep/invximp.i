@@ -53,20 +53,26 @@ PUT "<FArial><=4><R+1>     Ship Date               FOB                        Sh
      v-shipvia FORM "x(20)" SPACE(1)
      ar-inv.terms-d FORM "x(15)" space(4) v-salesman FORM "x(8)"
      v-tot-pallets FORM "->>>>,>>9" 
-     lv-bol-no FORM ">>>>>>>>"
+     "<C73>"lv-bol-no FORM ">>>>>>>>"
     SKIP.
 
 
 PUT "<R26><C1><#5><FROM><R28><C80><RECT><||3>" SKIP    
                 "<R26><C8><FROM><R28><C8><LINE><||3>" SKIP
                 "<R26><C15><FROM><R28><C15><LINE><||3>" SKIP
-                "<R26><C21><FROM><R28><C21><LINE><||3>" SKIP
-                "<R26><C34><FROM><R28><C34><LINE><||3>" SKIP
-                "<R26><C56><FROM><R28><C56><LINE><||3>" SKIP
-                "<R26><C64.5><FROM><R28><C64.5><LINE><||3>" SKIP
+                "<R26><C22><FROM><R28><C22><LINE><||3>" SKIP
+                "<R26><C35><FROM><R28><C35><LINE><||3>" SKIP
+                "<R26><C57><FROM><R28><C57><LINE><||3>" SKIP
+                "<R26><C65><FROM><R28><C65><LINE><||3>" SKIP
                 "<R26><C69><FROM><R28><C69><LINE><||3>" SKIP
                 .   
-PUT "<FArial><=5><R+1>   Ordered     Shipped      Order      Item#/CustPart#                       Description                             Price       UOM             Amount" SKIP(1).
+PUT "<FArial><=5><R+1><C2>Ordered<C9>Shipped
+                     <C16> Order#      
+                     <C23> Item#/CustPart#
+                     <C36> Description
+                     <C59> Price
+                     <C65> UOM
+                     <C72> Amount" SKIP(1).
 v-printline = v-printline + 4.
            
 

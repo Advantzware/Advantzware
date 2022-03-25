@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/bolsolmed.i -------- */
 /* PRINT SouleMed BOL                                                           */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 assign
  v-tot-wt    = 0
  v-tot-cases = 0
@@ -87,8 +87,7 @@ for each report where report.term-id eq v-term-id,
 
   v-job-no = "".
   if avail oe-ordl and oe-ordl.job-no ne "" then
-     v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-                trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
+     v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
   ASSIGN v-ship-qty = v-ship-qty + oe-boll.qty
          v-weight   = v-weight + oe-boll.weight
@@ -103,8 +102,8 @@ for each report where report.term-id eq v-term-id,
                               v-job-po    = oe-boll.po-no.
         ELSE
         if i eq 2 THEN ASSIGN v-part-dscr = oe-ordl.part-dscr1 /*i-name*/
-                              v-job-po    = if oe-ordl.job-no eq "" then "" else
-                                (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+                              v-job-po    = IF oe-ordl.job-no EQ "" THEN "" 
+                                            ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
         ELSE
         if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
         ELSE
@@ -129,7 +128,7 @@ for each report where report.term-id eq v-term-id,
         END.
         ELSE DO: 
             PUT {1} 
-                 oe-ordl.ord-no AT 6 
+                 STRING(oe-ordl.ord-no) AT 6 
 /*                  oe-ord.ord-no AT 17 */
                  oe-ordl.part-dscr1 FORM "x(30)" AT 38 
                  w2.cases  AT 71 FORM "->>>9" " "
@@ -143,7 +142,7 @@ for each report where report.term-id eq v-term-id,
         IF LAST(w2.cases * w2.cas-cnt) THEN DO:
           IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
             PUT {1} 
-                oe-ordl.ord-no AT 6
+                STRING(oe-ordl.ord-no) AT 6
 /*                 oe-ord.ord-no AT 17 */
                 oe-ordl.part-dscr1 FORM "x(30)" AT 38 
                 SKIP.

@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invtriad.i 12/98 JLF */
 /* PRINT Triad Invoice                                                        */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 page {1}.
 
 assign
@@ -62,7 +62,7 @@ for each inv-line
   display {1}
           oe-ordl.qty               when avail oe-ordl
           inv-line.ship-qty         when not avail oe-ordl  @ oe-ordl.qty
-          trim(string(oe-ordl.ord-no,">>>>>9"))
+          trim(string(oe-ordl.ord-no,">>>>>>>9"))
                                     when avail oe-ordl      @ inv-line.i-no
           ""                        when not avail oe-ordl  @ inv-line.i-no
           inv-line.po-no

@@ -3,6 +3,7 @@
   meters:  <none>
   Notes:       not used anywhere else but oerep/r-loadtg.w in procedure run-report
                moved here b/c of size in appBuilder section editor
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 --------------------------*/
 
 DEF BUFFER b-itemfg FOR itemfg.
@@ -77,12 +78,11 @@ ASSIGN
       IF ll THEN lv-job-no = lv-job-no + SUBSTR(ENTRY(i,v-job-list),li,1).
             ELSE lv-job-no2 = lv-job-no2 + SUBSTR(ENTRY(i,v-job-list),li,1).
     END.
-    lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no) +
-                STRING(INT(lv-job-no2),"99") NO-ERROR.
+    lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', lv-job-no, lv-job-no2)) NO-ERROR.
 
     IF NOT ERROR-STATUS:ERROR AND
-       lv-job-no NE "" AND NOT(lv-job-no GE FILL(" ",6 - LENGTH(TRIM(begin_job))) + TRIM(begin_job) + STRING(begin_job2,"99") AND
-                               lv-job-no LE FILL(" ",6 - LENGTH(TRIM(end_job))) + TRIM(end_job) + STRING(end_job2,"99")) THEN
+       lv-job-no NE "" AND NOT(lv-job-no GE STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job, begin_job2))  AND
+                               lv-job-no LE STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job, end_job2)) ) THEN
        RUN temp-job (lv-job-no).
   END.
 
@@ -95,19 +95,17 @@ ASSIGN
 
   IF begin_job NE '' OR end_job NE '' THEN
   FOR EACH job
-      WHERE job.company EQ cocode
-        AND job.job-no  GE FILL(" ",6 - LENGTH(TRIM(begin_job))) + TRIM(begin_job)
-        AND job.job-no  LE FILL(" ",6 - LENGTH(TRIM(end_job)))   + TRIM(end_job)
-        AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"99")
+      WHERE job.company EQ cocode        
+        AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
                         GE
-            FILL(" ",6 - LENGTH(TRIM(begin_job))) + TRIM(begin_job) + STRING(begin_job2,"99")
-        AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"99")
+            FILL(" ",9 - LENGTH(TRIM(begin_job))) + TRIM(begin_job) + STRING(begin_job2,"999")
+        AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
                         LE
-            FILL(" ",6 - LENGTH(TRIM(end_job))) + TRIM(end_job) + STRING(end_job2,"99")
+            FILL(" ",9 - LENGTH(TRIM(end_job))) + TRIM(end_job) + STRING(end_job2,"999")
         AND (v-stat EQ "A"                         OR
              (v-stat EQ "C" AND NOT job.opened) OR
              (v-stat EQ "O" AND job.opened))
-      NO-LOCK:
+      NO-LOCK: 
     RUN from-job (ROWID(job),OUTPUT op-warning).
 
     IF op-warning THEN

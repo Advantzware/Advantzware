@@ -118,14 +118,14 @@ ASSIGN
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS v-ord-list v-job-list begin_ord-no ~
+&Scoped-Define ENABLED-OBJECTS RECT-7 v-ord-list v-job-list begin_ord-no ~
 end_ord-no begin_job begin_job2 end_job end_job2 begin_i-no end_i-no tb_rel ~
 tb_16ths rd_print rd_order-sts rd_comps begin_form begin_labels ~
-begin_filename btn-ok btn-cancel RECT-7 
+begin_filename btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS v-ord-list v-job-list begin_ord-no ~
 end_ord-no begin_job begin_job2 end_job end_job2 begin_i-no end_i-no tb_rel ~
 tb_16ths rd_print rd_order-sts rd_comps begin_form begin_labels ~
@@ -176,15 +176,14 @@ DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job AS CHARACTER FORMAT "X(9)":U 
      LABEL "From Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job2 AS INTEGER FORMAT "99":U INITIAL 0 
-     LABEL "-" 
+DEFINE VARIABLE begin_job2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_labels AS INTEGER FORMAT ">>>>":U INITIAL 2 
      LABEL "# of Labels/Pallet" 
@@ -201,15 +200,14 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE end_job AS CHARACTER FORMAT "X(9)":U 
      LABEL "To Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job2 AS INTEGER FORMAT "99":U INITIAL 99 
-     LABEL "-" 
+DEFINE VARIABLE end_job2 AS INTEGER FORMAT "999":U INITIAL 999 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "To Order#" 
@@ -245,7 +243,7 @@ DEFINE VARIABLE rd_print AS CHARACTER INITIAL "Release"
      SIZE 35 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 104 BY 19.76.
 
 DEFINE VARIABLE tb_16ths AS LOGICAL INITIAL no 
@@ -270,12 +268,12 @@ DEFINE FRAME FRAME-A
           "Enter Ending Order Number"
      begin_job AT ROW 9.1 COL 21 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job2 AT ROW 9.1 COL 36 COLON-ALIGNED HELP
-          "Enter Beginning Job Number"
+     begin_job2 AT ROW 9.1 COL 35.2 COLON-ALIGNED HELP
+          "Enter Beginning Job Number" NO-LABEL
      end_job AT ROW 9.1 COL 65 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job2 AT ROW 9.1 COL 80 COLON-ALIGNED HELP
-          "Enter Ending Job Number"
+     end_job2 AT ROW 9.1 COL 79.2 COLON-ALIGNED HELP
+          "Enter Ending Job Number" NO-LABEL
      begin_i-no AT ROW 10.05 COL 21 COLON-ALIGNED HELP
           "Enter Beginning Order Number"
      end_i-no AT ROW 10.05 COL 65 COLON-ALIGNED HELP
@@ -292,19 +290,19 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 21.71 COL 66
      lbl_po-no AT ROW 12.67 COL 23 COLON-ALIGNED HELP
           "Print Customer's PO Number from Header, Line item or Release" NO-LABEL
-     RECT-7 AT ROW 1 COL 1
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 2
-     "Print Set Components for:" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 15.05 COL 14
-     "Order/Job Status:" VIEW-AS TEXT
-          SIZE 17 BY 1 AT ROW 13.86 COL 22
-     " Enter Orders separated by comma" VIEW-AS TEXT
-          SIZE 36 BY .62 AT ROW 2.19 COL 8
-          BGCOLOR 14 
      " Enter Job(s) separated by comma" VIEW-AS TEXT
           SIZE 36 BY .62 AT ROW 2.19 COL 56
           BGCOLOR 14 
+     " Enter Orders separated by comma" VIEW-AS TEXT
+          SIZE 36 BY .62 AT ROW 2.19 COL 8
+          BGCOLOR 14 
+     "Order/Job Status:" VIEW-AS TEXT
+          SIZE 17 BY 1 AT ROW 13.86 COL 22
+     "Print Set Components for:" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 15.05 COL 14
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.24 COL 2
+     RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
@@ -361,17 +359,7 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
-                                                                        */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
+   FRAME-NAME                                                           */
 ASSIGN 
        begin_filename:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -399,6 +387,14 @@ ASSIGN
 ASSIGN 
        begin_ord-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -446,7 +442,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -709,10 +705,10 @@ PROCEDURE enable_UI :
           end_job end_job2 begin_i-no end_i-no tb_rel tb_16ths rd_print 
           rd_order-sts rd_comps begin_form begin_labels begin_filename lbl_po-no 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE v-ord-list v-job-list begin_ord-no end_ord-no begin_job begin_job2 
-         end_job end_job2 begin_i-no end_i-no tb_rel tb_16ths rd_print 
-         rd_order-sts rd_comps begin_form begin_labels begin_filename btn-ok 
-         btn-cancel RECT-7 
+  ENABLE RECT-7 v-ord-list v-job-list begin_ord-no end_ord-no begin_job 
+         begin_job2 end_job end_job2 begin_i-no end_i-no tb_rel tb_16ths 
+         rd_print rd_order-sts rd_comps begin_form begin_labels begin_filename 
+         btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1205,8 +1201,7 @@ ASSIGN
       IF ll THEN lv-job-no = lv-job-no + SUBSTR(ENTRY(i,v-job-list),li,1).
             ELSE lv-job-no2 = lv-job-no2 + SUBSTR(ENTRY(i,v-job-list),li,1).
     END.
-    lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no) +
-                STRING(INT(lv-job-no2),"99") NO-ERROR.
+    lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', lv-job-no, lv-job-no2)) NO-ERROR.
 
     IF NOT ERROR-STATUS:ERROR AND
        lv-job-no NE ""        THEN RUN temp-job (lv-job-no).
@@ -1218,14 +1213,14 @@ ASSIGN
 
   FOR EACH job
       WHERE job.company EQ cocode
-        AND job.job-no  GE FILL(" ",6 - LENGTH(TRIM(begin_job))) + TRIM(begin_job)
-        AND job.job-no  LE FILL(" ",6 - LENGTH(TRIM(end_job)))   + TRIM(end_job)
-        AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"99")
-                        GE
-            FILL(" ",6 - LENGTH(TRIM(begin_job))) + TRIM(begin_job) + STRING(begin_job2,"99")
-        AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"99")
-                        LE
-            FILL(" ",6 - LENGTH(TRIM(end_job))) + TRIM(end_job) + STRING(end_job2,"99")
+        AND job.job-no  GE FILL(" ",9 - LENGTH(TRIM(begin_job))) + TRIM(begin_job)
+        AND job.job-no  LE FILL(" ",9 - LENGTH(TRIM(end_job)))   + TRIM(end_job)
+        AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
+                        GE             
+            STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job, begin_job2))
+        AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
+                        LE            
+            STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job, end_job2))
       NO-LOCK:
     RUN from-job (ROWID(job)).
   END.

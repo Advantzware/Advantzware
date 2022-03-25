@@ -71,12 +71,12 @@ PUT
   "<R7><C65><FROM><R11><C65><LINE>" SKIP.  
         
 PUT "<FArial><P12><=#3><R-2> <P10>" SKIP
-    "<=#3><B>                       INVOICE#                    " SKIP
-    "<=#3><R+1><P14>                 "ar-inv.inv-no FORMAT ">>>>>>>9" "</B><P10>"
-    "<=#3><R+3>                  DATE           " v-inv-date SKIP
-    "<=#3><R+4>        Customer Id:          " v-custno SKIP 
-    "<=#3><R+5>                Order#:                " v-ord-no SKIP
-    "<=#3><R+6>  Purchase Order#:         " v-po-no  "<FCourier New>"
+    "<=#3><B><C61.5>INVOICE#" SKIP
+    "<=#3><R+1><P14>"                       "<C61>"ar-inv.inv-no FORMAT ">>>>>>>9" "</B><P10>"
+    "<=#3><R+3><C60.5> DATE"                "<C67>"v-inv-date SKIP
+    "<=#3><R+4><C56.5> Customer Id:"        "<C67>"v-custno SKIP 
+    "<=#3><R+5><C59> Order#:"               "<C67>" TRIM(STRING(v-ord-no,">>>>>>>9")) SKIP
+    "<=#3><R+6><C53.5> Purchase Order#:"    "<C67>"v-po-no  "<FCourier New>"
     SKIP(1)
     .
 

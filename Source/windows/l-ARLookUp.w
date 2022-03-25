@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -165,7 +167,7 @@ DEFINE BROWSE BROWSE-1
       ar-invl.inv-date FORMAT "99/99/9999":U
       ar-invl.cust-no FORMAT "X(8)":U
       ar-inv.cust-name FORMAT "x(30)":U
-      ar-invl.ord-no FORMAT ">>>>>>9":U
+      ar-invl.ord-no FORMAT ">>>>>>>9":U
       ar-invl.po-no-po FORMAT ">>>>>9":U
       ar-invl.b-no COLUMN-LABEL "BOL No#" FORMAT ">>>>>9":U
       ar-inv.due COLUMN-LABEL "Amount Due" FORMAT "->>,>>>,>>9.99":U

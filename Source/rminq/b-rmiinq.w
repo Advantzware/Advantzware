@@ -23,6 +23,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -80,8 +81,7 @@ IF lRecFound THEN
           AND (rm-rcpth.i-no      EQ fi_rm-i-no OR fi_rm-i-no EQ "") ~
           AND rm-rcpth.rita-code  BEGINS fi_rita-code ~
           AND (rm-rcpth.po-no     EQ TRIM(STRING(fi_po-no,">>>>>>>>")) OR fi_po-no EQ 0) ~
-          AND rm-rcpth.job-no     BEGINS fi_job-no ~
-          AND (rm-rcpth.job-no    EQ fi_job-no OR fi_job-no EQ "")   ~
+          AND (trim(rm-rcpth.job-no)    EQ trim(fi_job-no) OR fi_job-no EQ "")   ~
           AND (rm-rcpth.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                           ~
@@ -104,7 +104,7 @@ IF lRecFound THEN
     IF lv-sort-by EQ "qty"        THEN STRING(rm-rdtlh.qty,"-9999999999.99")                          ELSE ~
     IF lv-sort-by EQ "cost"       THEN STRING(rm-rdtlh.cost,"-9999999999.99")                         ELSE ~
     IF lv-sort-by EQ "ld-ext-cost"       THEN STRING((rm-rdtlh.qty * rm-rdtlh.cost),"-9999999999.99") ELSE ~
-    IF lv-sort-by EQ "job-no"     THEN STRING(rm-rcpth.job-no,"x(6)") + STRING(rm-rcpth.job-no2,"99") ELSE ~
+    IF lv-sort-by EQ "job-no"     THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', rm-rcpth.job-no, rm-rcpth.job-no2))  ELSE ~
                                        STRING(YEAR(rm-rcpth.trans-date),"9999") + STRING(MONTH(rm-rcpth.trans-date),"99") + STRING(DAY(rm-rcpth.trans-date),"99") + STRING(rm-rcpth.r-no,"9999999999")
 
 &SCOPED-DEFINE sortby BY rm-rcpth.i-no BY rm-rcpth.job-no BY rm-rcpth.job-no2
@@ -229,16 +229,16 @@ DEFINE VARIABLE fi_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/00
      SIZE 16 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
-     SIZE 9 BY 1
+     SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1
+     SIZE 5.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
 /*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
@@ -302,7 +302,7 @@ DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fi_tag# AS CHARACTER FORMAT "X(20)":U 
      LABEL "Tag#" 
      VIEW-AS FILL-IN 
-     SIZE 39 BY 1
+     SIZE 36 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
@@ -334,8 +334,8 @@ DEFINE BROWSE Browser-Table
       rm-rcpth.i-no COLUMN-LABEL "Item#" FORMAT "x(10)":U LABEL-BGCOLOR 14
       rm-rcpth.po-no COLUMN-LABEL "Vendor PO#" FORMAT "x(9)":U
             LABEL-BGCOLOR 14
-      rm-rcpth.job-no FORMAT "x(6)":U LABEL-BGCOLOR 14
-      rm-rcpth.job-no2 COLUMN-LABEL "" FORMAT "99":U LABEL-BGCOLOR 14
+      rm-rcpth.job-no FORMAT "x(9)":U LABEL-BGCOLOR 14
+      rm-rcpth.job-no2 COLUMN-LABEL "" FORMAT "999":U LABEL-BGCOLOR 14
       rm-rdtlh.s-num COLUMN-LABEL "F" FORMAT ">9":U WIDTH 3 LABEL-BGCOLOR 14
       rm-rcpth.trans-date COLUMN-LABEL "TR Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
@@ -395,8 +395,8 @@ DEFINE FRAME F-Main
      btDelete AT ROW 2.91 COL 106 WIDGET-ID 4
      fi_rm-i-no AT ROW 1.48 COL 10.6 COLON-ALIGNED
      fi_tag# AT ROW 1.48 COL 39.6 COLON-ALIGNED
-     fi_job-no AT ROW 1.48 COL 85.2 COLON-ALIGNED
-     fi_job-no2 AT ROW 1.48 COL 96.2 COLON-ALIGNED
+     fi_job-no AT ROW 1.48 COL 82.2 COLON-ALIGNED
+     fi_job-no2 AT ROW 1.48 COL 93.2 COLON-ALIGNED
      fi_rita-code AT ROW 1.48 COL 112.6 COLON-ALIGNED
      fi_date AT ROW 1.48 COL 130 COLON-ALIGNED
      btn_go AT ROW 2.91 COL 2
@@ -1046,8 +1046,7 @@ END.
 ON LEAVE OF fi_job-no IN FRAME F-Main /* Job# */
 DO:
   DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN fi_job-no:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(fi_job-no:SCREEN-VALUE)))
-                                  + TRIM(fi_job-no:SCREEN-VALUE).
+    ASSIGN fi_job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fi_job-no:SCREEN-VALUE)) .
   END.
 END.
 
@@ -1269,7 +1268,7 @@ PROCEDURE convert-uoms :
           WHERE po-ordl.company   EQ b-rcpth.company
             AND po-ordl.po-no     EQ lv-po-no
             AND po-ordl.i-no      EQ b-rcpth.i-no
-            AND po-ordl.job-no    EQ b-rcpth.job-no
+            AND trim(po-ordl.job-no)    EQ trim(b-rcpth.job-no)
             AND po-ordl.job-no2   EQ b-rcpth.job-no2
             AND po-ordl.item-type EQ YES 
             AND po-ordl.s-num     EQ b-rdtlh.s-num
@@ -1286,7 +1285,7 @@ PROCEDURE convert-uoms :
 
       FIND FIRST job
           WHERE job.company EQ b-rcpth.company
-            AND job.job-no  EQ b-rcpth.job-no
+            AND trim(job.job-no)  EQ trim(b-rcpth.job-no)
             AND job.job-no2 EQ b-rcpth.job-no2
           NO-LOCK NO-ERROR.
       IF AVAIL job THEN DO:
@@ -1788,7 +1787,7 @@ PROCEDURE update-mat-act-cost :
 
    FIND FIRST job WHERE
         job.company EQ b-rm-rcpth.company AND
-        job.job-no  EQ b-rm-rcpth.job-no AND
+        trim(job.job-no)  EQ trim(b-rm-rcpth.job-no) AND
         job.job-no2 EQ b-rm-rcpth.job-no2
         NO-LOCK NO-ERROR.
 

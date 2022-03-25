@@ -1,4 +1,4 @@
-
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 ASSIGN
     v-qty           = 0
@@ -591,7 +591,7 @@ FOR EACH tt-report
             WHEN "bol-no"      THEN 
                 cVarValue = STRING(iBolNo,">>>>>>>9")  .   
             WHEN "ord-no"      THEN 
-                cVarValue = STRING(iOrdNo,">>>>>9")  .   
+                cVarValue = STRING(iOrdNo,">>>>>>>9")  .   
             WHEN "po-no"       THEN 
                 cVarValue = STRING(cPoNo)  .   
             WHEN "cSoldToName" THEN 

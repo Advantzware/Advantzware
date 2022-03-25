@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -175,8 +176,8 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      pc-prdd.job-no FORMAT "x(6)":U WIDTH 14.2 LABEL-BGCOLOR 14
-      pc-prdd.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      pc-prdd.job-no FORMAT "x(9)":U WIDTH 14.2 LABEL-BGCOLOR 14
+      pc-prdd.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
       pc-prdd.frm COLUMN-LABEL "F" FORMAT ">>9":U LABEL-BGCOLOR 14
       pc-prdd.blank-no COLUMN-LABEL "B" FORMAT ">9":U LABEL-BGCOLOR 14
       pc-prdd.pass COLUMN-LABEL "P" FORMAT ">>9":U LABEL-BGCOLOR 14

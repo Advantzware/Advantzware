@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -95,7 +96,7 @@ ASSIGN
     cFieldListToSelect = "lv-job-no,tt-sched.i-no,tt-sched.i-name,tt-sched.vend-no,tt-sched.vend-name,tt-sched.po-no,tt-sched.po-date,tt-sched.cons-uom," +
                                 "tt-sched.cons-qty,tt-sched.t-rec-qty,tt-sched.due-date,tt-sched.amt-msf,tt-sched.carrier,tt-sched.m-code,tt-sched.buyer,tt-sched.user-id," +
                                 "tt-sched.custno,tt-sched.ordno,tt-sched.costLine,tt-sched.costUom,tt-sched.totCost"
-    cFieldLength       = "10,15,30,8,30,8,10,4," + "15,15,8,13,7,14,10,8,10,8," + "14,8,20"
+    cFieldLength       = "13,15,30,8,30,8,10,4," + "15,15,8,13,7,14,10,8,10,8," + "14,8,20"
     cFieldType         = "c,c,c,c,c,c,c,c," + "i,i,c,i,c,c,c,c,c,i," + "i,c,i"
     .
 ASSIGN 
@@ -1824,7 +1825,7 @@ PROCEDURE run-report :
     {custom/statusMsg.i " 'Processing PO#  '  + string(tt-sched.po-no) "}
 
         lv-job-no = IF tt-sched.job-no EQ "" THEN ""
-        ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"99").
+        ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"999").
         /*MESSAGE "test" STRING(tt-sched.cons-qty)     STRING(tt-sched.amt-msf) VIEW-AS ALERT-BOX ERROR.*/
 
         ASSIGN 

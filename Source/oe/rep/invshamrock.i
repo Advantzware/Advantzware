@@ -1,5 +1,5 @@
 /* oe/rep/invshamrock.i */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 PUT "<FArial>".
 PUT "<C+25><#1>".
 PUT "<=1>" SKIP.
@@ -46,7 +46,7 @@ PUT "<FArial><=4><R+1>     Ship Date               FOB                        Sh
      v-shipvia FORM "x(20)" SPACE(1)
      xinv-head.terms-d FORM "x(15)" space(4) v-salesman FORM "x(8)"
      v-tot-pallets FORM "->>>>,>>9" 
-     xinv-head.bol-no
+     "<C72.5>"xinv-head.bol-no
     SKIP.
 
 

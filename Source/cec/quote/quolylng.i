@@ -1,5 +1,6 @@
-/* ------------------------------------------- cec/quote/quolylng.i */
-/* print quote items in Fibre Xprint format                                          */
+/* ------------------------------------------- cec/quote/quolylng.i           */
+/* print quote items in Fibre Xprint format                                   */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 v-boardDescription = 'Quote'.
@@ -118,7 +119,7 @@ FOR EACH tt-item,
          lv-part-dscr1 = IF AVAIL est AND est.est-type EQ 6 AND AVAIL itemfg THEN itemfg.i-name
                          ELSE xqitm.part-dscr1.
       /*lv-part-dscr1 = IF s-print-2nd-dscr AND AVAIL itemfg THEN ITEMfg.i-NAME ELSE lv-part-dscr1.*/
-      put trim(lv-est-no) FORM "x(6)" SPACE(2) 
+      put trim(lv-est-no) FORM "x(8)" space(1) 
           xqitm.part-no space(1) lv-part-dscr1 .
     END.
 
@@ -187,25 +188,25 @@ FOR EACH tt-item,
       ELSE
           trim-size-d = REPLACE(trim-size," ","") .
       
-      PUT  xquo.q-no FORM ">>>>>9" trim-size-d AT 8 FORM "x(22)"  
+      PUT  xquo.q-no FORM ">>>>>9" trim-size-d AT 10 FORM "x(21)"  
               /*xqitm.style*/ lv-part-dscr2  FORM "x(28)" .
     END.
     ELSE                /*not a set estimate*/
 /*     IF i EQ 3 AND NOT (AVAIL est AND (est.est-type = 2 OR est.est-type = 6)) THEN DO: rtc */
     IF i EQ 3 /*AND NOT (AVAIL est AND (est.est-type = 2 OR est.est-type = 6))*/ THEN DO:
       lv-i-coldscr = IF s-print-2nd-dscr THEN style-dscr ELSE xqitm.i-coldscr.
-      PUT     "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 9 FORM "x(21)"
-              lv-i-coldscr  AT 30 FORM "x(28)".
+      PUT     "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 10 FORM "x(21)"
+              lv-i-coldscr  AT 31 FORM "x(28)".
     END.
     ELSE
 /*     IF i EQ 4 AND NOT (AVAIL est AND (est.est-type = 2 OR est.est-type = 6)) THEN DO: rtc */
     IF i EQ 4 /*AND NOT (AVAIL est AND (est.est-type = 2 OR est.est-type = 6))*/  THEN DO:
-       PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 9  FORM "x(21)".
+       PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 10  FORM "x(21)".
       
        IF AVAIL est AND est.est-type NE 6 THEN
        DO:
-          IF s-print-2nd-dscr THEN PUT xqitm.i-coldscr AT 30 FORM "x(28)".
-          ELSE PUT xqitm.i-dscr AT 30 FORMAT "x(28)".
+          IF s-print-2nd-dscr THEN PUT xqitm.i-coldscr AT 31 FORM "x(28)".
+          ELSE PUT xqitm.i-dscr AT 31 FORMAT "x(28)".
        END.
     END.
     ELSE
@@ -242,7 +243,7 @@ FOR EACH tt-item,
 
          IF est.est-type NE 6 THEN
             put /*"FG#: " + lv-fg# AT 8 FORM "x(21)"*/ 
-                  v-board AT 30 FORM "x(28)".    
+                  v-board AT 31 FORM "x(28)".    
     END.
     IF i > 5 THEN do:
        v-board = "".
@@ -365,12 +366,12 @@ FOR EACH tt-item,
         ELSE temp-trim-size = trim-size.
         
         IF est.est-type EQ 6 THEN
-           put eb.part-no AT 8 FORM "x(21)"
+           put eb.part-no AT 10 FORM "x(21)"
                "  Qty Per Set "
                TRIM(STRING(eb.quantityPerSet,"->>>,>>>"))
                SKIP.
         ELSE
-           put eb.part-no AT 8 FORM "x(21)"
+           put eb.part-no AT 10 FORM "x(21)"
                "  Qty Per Set "
                TRIM(STRING(eb.cust-%,"->>>,>>>"))
                SKIP.
@@ -382,7 +383,7 @@ FOR EACH tt-item,
            {cec/quote/quolylng2.i}
         END.
 
-        PUT temp-trim-size AT 8 SKIP.
+        PUT temp-trim-size AT 10 SKIP.
         
         FIND FIRST style
             WHERE style.company EQ cocode
@@ -400,7 +401,7 @@ FOR EACH tt-item,
            {cec/quote/quolylng2.i}
         END.
 
-        PUT eb.part-dscr1 AT 8 FORM "x(21)"
+        PUT eb.part-dscr1 AT 10 FORM "x(21)"
             style-dscr SKIP.
         
         IF ((AVAIL est AND est.est-type GT 4) OR NOT AVAIL est) THEN
@@ -429,9 +430,9 @@ FOR EACH tt-item,
            {cec/quote/quolylng2.i}
         END.
 
-        PUT eb.part-dscr2  AT 8  FORM "x(21)"
+        PUT eb.part-dscr2  AT 10  FORM "x(21)"
             v-board  FORM "x(50)"   SKIP .
-        put eb.i-coldscr   AT 30 SKIP.  
+        put eb.i-coldscr   AT 31 SKIP.  
     END. /*end for each*/
   END.    /* disp components */
 

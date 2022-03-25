@@ -34,14 +34,21 @@
           .
       
       PUT "<||3><R27><C1><#5><FROM><R29><C81><RECT>" SKIP    
-             "<R27><C6><FROM><R29><C6><LINE>" SKIP
-             "<R27><C15.5><FROM><R29><C15.5><LINE>" SKIP
-             "<R27><C19><FROM><R29><C19><LINE>" SKIP       
-             "<R27><C55><FROM><R29><C55><LINE>" SKIP
+             "<R27><C5><FROM><R29><C5><LINE>" SKIP
+             "<R27><C15><FROM><R29><C15><LINE>" SKIP
+             "<R27><C20><FROM><R29><C20><LINE>" SKIP       
+             "<R27><C51><FROM><R29><C51><LINE>" SKIP
              "<R27><C62><FROM><R29><C62><LINE>" SKIP
              "<R27><C68><FROM><R29><C68><LINE>" 
              "<R27><C72><FROM><R29><C72><LINE>" SKIP
              .
 
-      PUT "<=5><R+1> Line   Quantity  UOM    Our Item/Description/Vendor Item          Job#    Cost   UOM  Ext Cost" SKIP(1).
+      PUT "<=5><R+1> Line
+                <C5> Quantity
+               <C16> UOM
+               <C21> Our Item/Description/Vendor Item
+               <C54> Job#
+               <C62> Cost
+               <C68> UOM
+               <C73> Ext Cost" SKIP(1).
       v-printline = v-printline + 8.

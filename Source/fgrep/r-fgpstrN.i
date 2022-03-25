@@ -353,7 +353,7 @@ FOR EACH tt-report WHERE tt-report.term-id EQ "" NO-LOCK,
             DO:                 
                 cTmpField = SUBSTRING(GetFieldValue(hField),1,int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                 IF ENTRY(i,cSelectedList) = "Job#" THEN
-                    cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-rcpth.job-no2,"99") ELSE "".                  
+                    cTmpField = trim(cTmpField) + IF cTmpField <> "" THEN "-" + string(fg-rcpth.job-no2,"999") ELSE "".                  
                      
                 IF cFieldName <> "fg-rdtld.loc" THEN
                     cDisplay = cDisplay + cTmpField + 

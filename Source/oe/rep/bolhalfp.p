@@ -1,5 +1,5 @@
 /* ---------------------------------------------- oe/rep/bolhalfp.p 01/97 JLF */
-/*                                                                            */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* PRINT BOL when sys-ctrl.char-fld eq "1/2 Page" - O/E Module                */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
@@ -57,13 +57,13 @@ def var v-tot-case    like oe-boll.cases initial 0 no-undo.
 def var v-tot-units   like oe-boll.qty-case initial 0 no-undo.
 def var v-tot-sqft   like itemfg.t-sqft initial 0 format ">>>,>>9.99" no-undo.
 def var v-prt-co as log initial no no-undo.
-def var v-job as char format "x(9)" no-undo.
+def var v-job as char format "x(13)" no-undo.
 DEF VAR v-po-no LIKE oe-bolh.po-no NO-UNDO.
 
 /* Added FWK 8/18/97 */
 form oe-boll.cases             format ">>9"
      oe-boll.qty-case          format ">>>9"
-     v-job             at 15   format "x(9)"
+     v-job             at 14   format "x(13)"
      oe-boll.i-no      at 29   format "x(15)" skip
      v-i-dscr[1]       at 29
   with frame detail no-attr-space no-labels no-box no-underline down stream-io width 80.
@@ -308,8 +308,7 @@ for each report   where report.term-id eq v-term-id,
        v-i-dscr[2] = oe-ordl.i-dscr
        v-i-dscr[3] = oe-ordl.part-dscr1
        v-i-dscr[4] = oe-ordl.part-dscr2
-       v-job = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-	       trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
+       v-job = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)).
 
     else do:
       find first itemfg

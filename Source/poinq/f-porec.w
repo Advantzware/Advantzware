@@ -17,6 +17,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -127,8 +128,8 @@ DEFINE BROWSE BROWSE-4
     temp-rec.po-line COLUMN-LABEL "PO Line" LABEL-FONT 6 FORMAT ">>9" WIDTH 10
     temp-rec.item-no COLUMN-LABEL "Item No" LABEL-FONT 6 FORMAT "X(15)" WIDTH 20
     temp-rec.trans-date COLUMN-LABEL "Receipt Date" LABEL-FONT 6 FORMAT "99/99/9999" WIDTH 15
-    temp-rec.job-no COLUMN-LABEL "Job #" FORMAT "X(6)" LABEL-FONT 6 WIDTH 8
-    temp-rec.job-no2 COLUMN-LABEL "" FORMAT ">>" LABEL-FONT 6 WIDTH 2.4
+    temp-rec.job-no COLUMN-LABEL "Job #" FORMAT "X(9)" LABEL-FONT 6 WIDTH 13
+    temp-rec.job-no2 COLUMN-LABEL "" FORMAT ">>>" LABEL-FONT 6 WIDTH 5.4
     temp-rec.whs COLUMN-LABEL "Warehouse" FORMAT "X(5)" LABEL-FONT 6 WIDTH 13
     temp-rec.bin COLUMN-LABEL "Bin" FORMAT "X(8)" LABEL-FONT 6
     temp-rec.qty COLUMN-LABEL "Qty." FORMAT "->,>>>,>>9.9<<" LABEL-FONT 6 WIDTH 20

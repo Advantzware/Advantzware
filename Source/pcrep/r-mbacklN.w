@@ -11,6 +11,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */  
 
 CREATE WIDGET-POOL.
 
@@ -76,7 +77,7 @@ ASSIGN
                                         "due-dt,strt-dt,job,qty-rmn,st-run,st-mr," +
                                         "acl-run,acl-mr,rmn-run,rmn-mr,ttl-hrs," +
                                         "wk-hrs,ac-hrs"
-    cFieldLength       = "5,30,30,15," + "10,10,10,9,7,7," + "7,7,7,7,7," + "7,7" 
+    cFieldLength       = "5,30,30,15," + "10,10,13,9,7,7," + "7,7,7,7,7," + "7,7" 
     cFieldType         = "c,c,c,c," + "c,c,c,i,i,i," + "i,i,i,i,i," + "i,i"
     .
 
@@ -1830,7 +1831,7 @@ PROCEDURE run-report :
                 WHEN "due-dt"   THEN 
                     cVarValue = (IF FIRST-OF(work-rep.both-date) AND work-rep.due-date NE ? THEN STRING(work-rep.due-date) ELSE "")  .    
                 WHEN "job"        THEN 
-                    cVarValue = STRING(TRIM(work-rep.job-no) + "-" + string(work-rep.job-no2,"99"))  .
+                    cVarValue = STRING(TRIM(work-rep.job-no) + "-" + string(work-rep.job-no2,"999"))  .
                 WHEN "qty-rmn"       THEN 
                     cVarValue = STRING(work-rep.qty-rem,">>>>>>>>9") .
                 WHEN "st-run"       THEN 

@@ -317,15 +317,15 @@ assign
            {po/po-hpb.i}
         END.
 
-        v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99").
-        IF v-job-no = "-00" THEN v-job-no = "".
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))).
+        IF v-job-no = "-000" THEN v-job-no = "".
         v-adder = "".
 
         PUT po-ordl.LINE FORM ">>9"
             po-ordl.ord-qty SPACE(2)
             po-ordl.pr-qty-uom SPACE(1)
-            po-ordl.i-no FORM "x(25)" SPACE(1)
-            v-job-no FORM "x(9)" AT 65 
+            po-ordl.i-no FORM "x(22)" SPACE(1)
+            v-job-no FORM "x(13)" AT 61 
             po-ordl.cost FORM "->>>9.99<<" SPACE(1)
             po-ordl.pr-uom
             po-ordl.t-cost FORM "$>>,>>9.99"  SKIP.

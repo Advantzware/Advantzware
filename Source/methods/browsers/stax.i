@@ -1,6 +1,6 @@
 /* stax.i
 "ASI" "stax"
-"tax-group" "Sales Tax Group" ""
+"tax-group" "Tax Group" ""
 "" "" ""
 "" "" ""
 "" "" ""
@@ -21,7 +21,7 @@
 &Global-define FORMAT-1 X(3)
 &Global-define SORTBY-1 
 &Global-define IDXNAME1 
-&Global-define DESCRIP1 Sales Tax Group
+&Global-define DESCRIP1 Tax Group
 &Global-define FLDNAME2 
 &Global-define SORTBY-2 
 &Global-define IDXNAME2 

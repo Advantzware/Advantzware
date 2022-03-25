@@ -23,6 +23,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */
 DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 
@@ -73,7 +74,7 @@ ASSIGN cTextListToSelect = "Order No,Job Number,Due Date,Customer,Name,Rep,PO #,
                             "est,qty-due,status,std-cst,uom,gp-dolr,gp," +
                             "lst-shp,qty-oh,ord-dt,itm-no,rel-dt,prc-sal," +
                             "stat,po-qty-rec,t-pric,ord-qty"
-       cFieldLength = "8,10,10,8,30,3,15,30," + "8,12,6,15,5,15,9," + "12,12,10,15,10,15," +
+       cFieldLength = "8,13,10,8,30,3,15,30," + "8,12,6,15,5,15,9," + "12,12,10,15,10,15," +
                       "4,12,16,12"
        cFieldType = "c,c,c,c,c,c,c,c," + "c,i,c,i,c,i,i," + "c,i,c,c,c,i," + "c,i,i,i" 
     .
@@ -1556,7 +1557,7 @@ def var v-uom as char format "x(4)".
 def var v-qty-pal as int.
 def var fstat like oe-ord.stat.
 def var tstat like fstat init "".
-def var v-job-no as char format "x(9)".
+def var v-job-no as char format "x(13)".
 DEF VAR li-qty AS INT EXTENT 2 NO-UNDO.
 DEF VAR v-date AS CHAR NO-UNDO.
 DEF VAR lv-tmp-string AS CHAR NO-UNDO.
@@ -1625,7 +1626,7 @@ format
 format
   w-ord.due-date
   w-ord.ord-date
-  v-job-no           format "x(9)"
+  v-job-no           format "x(13)"
   w-ord.po-num
   w-ord.i-name       format "x(23)"
   w-ord.i-no
@@ -1664,7 +1665,7 @@ format
 format
   w-ord.due-date
   w-ord.ord-date
-  v-job-no /* was v-job-no */          format "x(9)"
+  v-job-no /* was v-job-no */          format "x(13)"
   w-ord.po-num
   w-ord.i-name       format "x(23)"
   w-ord.i-no

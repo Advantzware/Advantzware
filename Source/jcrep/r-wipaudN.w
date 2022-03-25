@@ -16,6 +16,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -77,7 +78,7 @@ ASSIGN cTextListToSelect = "Trans Type,Trans Date,Job No.,F,B,Item Number,"
        cFieldListToSelect = "trns-typ,trns-dt,job-no,frm,blnk,i-no," +
                                         "dscr,qty-pstd,wst-qty,mch-hrs," +
                                         "mch-cd,job-cd,vc,trns-tym"
-       cFieldLength = "10,10,10,1,1,15," + "30,11,7,7," + "11,11,3,10" 
+       cFieldLength = "10,10,13,1,1,15," + "30,11,7,7," + "11,11,3,10" 
        cFieldType = "c,c,c,c,c,c," + "c,i,i,i," + "c,c,c,c"
     .
 
@@ -158,25 +159,25 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.1.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-wipaud.csv" 
      LABEL "Name" 
@@ -271,11 +272,11 @@ DEFINE FRAME FRAME-A
      rd_jstat AT ROW 2.43 COL 43 NO-LABELS
      begin_job-no AT ROW 3.81 COL 24 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 3.81 COL 37 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 3.81 COL 38 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 3.81 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 3.81 COL 79 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 3.81 COL 80 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      tb_wip AT ROW 5.48 COL 62 RIGHT-ALIGNED
      sl_avail AT ROW 7.67 COL 4 NO-LABELS WIDGET-ID 26
@@ -1314,12 +1315,9 @@ ASSIGN
  {sys/inc/ctrtext.i str-tit2 112}
 
   v-stat        = SUBSTR(rd_jstat,1,1)
-  v-job-no[1]   = FILL(" ",6 - length(TRIM(begin_job-no))) +
-                  trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-job-no[2]   = FILL(" ",6 - length(TRIM(end_job-no)))   +
-                  trim(end_job-no)   + string(int(end_job-no2),"99") 
-  v-only-opn    = tb_wip
-     
+  v-job-no[1]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2))                     
+  v-job-no[2]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2))    
+  v-only-opn    = tb_wip       
    .
 
 
@@ -1368,13 +1366,13 @@ DISPLAY "" WITH FRAME r-top.
 
 
     FOR EACH job
-          WHERE job.company EQ cocode
-            AND job.job-no  GE SUBSTR(v-job-no[1],1,6)
-            AND job.job-no  LE SUBSTR(v-job-no[2],1,6)
-            AND fill(" ",6 - length(TRIM(job.job-no))) +
-                trim(job.job-no) + string(int(job.job-no2),"99") GE v-job-no[1] 
-            AND fill(" ",6 - length(TRIM(job.job-no))) +
-                trim(job.job-no) + string(int(job.job-no2),"99") LE v-job-no[2]
+          WHERE job.company EQ cocode             
+            AND fill(" ",9 - length(TRIM(job.job-no))) +
+                trim(job.job-no) + string(int(job.job-no2),"999") GE v-job-no[1] 
+            AND fill(" ",9 - length(TRIM(job.job-no))) +
+                trim(job.job-no) + string(int(job.job-no2),"999") LE v-job-no[2]
+            AND job.job-no2 GE int(begin_job-no2)
+            AND job.job-no2 LE int(end_job-no2)    
             AND (v-stat  EQ "A"  OR
                  (v-stat EQ "O" AND job.opened) OR
                  (v-stat EQ "C" AND NOT job.opened))
@@ -1511,7 +1509,7 @@ DISPLAY "" WITH FRAME r-top.
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING(work-aud.procat) .
                                     WHEN "trns-dt"      THEN cVarValue =  STRING(work-aud.tran-date) .
-                                    WHEN "job-no"           THEN cVarValue =  STRING(work-aud.job-no + "-" + STRING(work-aud.job-no2,"99")) .
+                                    WHEN "job-no"           THEN cVarValue =  STRING(work-aud.job-no + "-" + STRING(work-aud.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(work-aud.frm) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(work-aud.blank-no) .
                                     WHEN "i-no"             THEN cVarValue =  "" .
@@ -1561,7 +1559,7 @@ DISPLAY "" WITH FRAME r-top.
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING(work-aud.procat) .
                                     WHEN "trns-dt"      THEN cVarValue =  STRING(work-aud.tran-date) .
-                                    WHEN "job-no"           THEN cVarValue =  STRING(work-aud.job-no + "-" + STRING(work-aud.job-no2,"99")) .
+                                    WHEN "job-no"           THEN cVarValue =  STRING(work-aud.job-no + "-" + STRING(work-aud.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(work-aud.frm) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(work-aud.blank-no) .
                                     WHEN "i-no"             THEN cVarValue =  work-aud.i-no .
@@ -1605,7 +1603,7 @@ DISPLAY "" WITH FRAME r-top.
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING(work-aud.procat) .
                                     WHEN "trns-dt"      THEN cVarValue =  STRING(work-aud.tran-date) .
-                                    WHEN "job-no"           THEN cVarValue =  STRING(work-aud.job-no + "-" + STRING(work-aud.job-no2,"99")) .
+                                    WHEN "job-no"           THEN cVarValue =  STRING(work-aud.job-no + "-" + STRING(work-aud.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(work-aud.frm) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(work-aud.blank-no) .
                                     WHEN "i-no"             THEN cVarValue =  work-aud.i-no .
@@ -1696,11 +1694,11 @@ DISPLAY "" WITH FRAME r-top.
                                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                        END.
 
-                       PUT UNFORMATTED "JOB TOTALS - " + job.job-no + "-" + string(job.job-no2,"99") + "         BOARD TOTALS: "
-                           SUBSTRING(cDisplay,45,300) SKIP.
+                       PUT UNFORMATTED "JOB TOTALS - " + job.job-no + "-" + string(job.job-no2,"999") + "         BOARD TOTALS: "
+                           SUBSTRING(cDisplay,44,300) SKIP.
                        IF rd-dest EQ 3 THEN DO:
                             PUT STREAM excel UNFORMATTED  
-                                  " JOB TOTALS    " job.job-no + "-" + string(job.job-no2,"99") + "         BOARD TOTALS: " SUBSTRING(cExcelDisplay,3,300) SKIP.
+                                  " JOB TOTALS    " job.job-no + "-" + string(job.job-no2,"999") + "         BOARD TOTALS: " SUBSTRING(cExcelDisplay,3,300) SKIP.
                        END. 
 
                        PUT SKIP str-line SKIP .

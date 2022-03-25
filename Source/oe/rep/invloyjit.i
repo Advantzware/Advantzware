@@ -1,7 +1,7 @@
 /* ------------------------------------------- oe/rep/invloyjt.i */
 /* PRINT INVOICE   Xprint form for Loylangjit                                 */
 /* -------------------------------------------------------------------------- */
-             
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */             
 PUT
   "<C2><R3><#1><R+60><C+50><IMAGE#1=" ls-full-img1
   "<=1>" SKIP
@@ -94,7 +94,7 @@ PUT
   xinv-head.terms-d FORMAT "x(15)" 
  SPACE(6)
   v-salesname FORMAT "x(15)"
-  v-bol-no "</B>"
+  "<C73>"v-bol-no "</B>"
  SKIP.
 
 

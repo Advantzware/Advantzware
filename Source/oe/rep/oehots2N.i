@@ -1,5 +1,6 @@
 /* ---------------------------------- oe/rep/oehots2.i <= schdrel.i 12/05 YSK */
 /* Schedule Release Report                                                    */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 IF v-first THEN 
@@ -266,7 +267,8 @@ IF AVAIL itemfg THEN DO:
       lv-vend-no = po-ord.vend-no.
    END.
      /*IF w-ord.ord-no NE 0 THEN STRING(w-ord.ord-no) ELSE*/
-   v-ord-no-text = IF w-ord.job-no <> "" THEN TRIM(w-ord.job-no + "-" + STRING(w-ord.job-no2,"99")) ELSE "".
+   v-ord-no-text = IF w-ord.job-no <> "" THEN 
+                   TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))) ELSE "".
    /* ====
    IF tb_exp-po THEN
       DISPLAY  
@@ -368,7 +370,8 @@ IF AVAIL itemfg THEN DO:
                  IF hField <> ? THEN DO:                 
                      cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                      IF ENTRY(i,cSelectedList) = "Job#" THEN
-                        cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-rcpth.job-no2,"99") ELSE "".                  
+                        cTmpField = IF cTmpField <> "" THEN 
+                                    TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', cTmpField, fg-rcpth.job-no2))) ELSE "".                  
                      IF cFieldName = "w-ord.rel-no" THEN cTmpField = STRING(INT(cTmpField),">>>>>>9").
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))

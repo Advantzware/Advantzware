@@ -620,7 +620,7 @@ FOR EACH job-hdr NO-LOCK
       dueDate   = IF job.due-date NE ? THEN job.due-date ELSE {{&includes}/lastDate.i}
       prodDate  = ?
       jobSort   = job-mch.job-no + '-'
-                + STRING(job-mch.job-no2,'99')
+                + STRING(job-mch.job-no2,'999')
                 + '.' + STRING(job-mch.frm,'99')
       jobNumber = LEFT-TRIM(job-mch.job-no + '-'
                 + STRING(job-mch.job-no2)
@@ -1124,7 +1124,7 @@ FOR EACH job-hdr NO-LOCK
       userField[101] = setUserField(101,STRING(iRunWaste,'>>>,>>9'))
       userField[102] = setUserField(102,specialTime(INTEGER(TRUNCATE(job-mch.mr-hr,0) * 3600 + (job-mch.mr-hr - TRUNCATE(job-mch.mr-hr,0)) * 3600)))
       userField[103] = setUserField(103,specialTime(INTEGER(TRUNCATE(job-mch.run-hr,0) * 3600 + (job-mch.run-hr - TRUNCATE(job-mch.run-hr,0)) * 3600)))
-      userField[104] = setUserField(104,job-mch.job-no + '-' + STRING(job-mch.job-no2,'99'))
+      userField[104] = setUserField(104,job-mch.job-no + '-' + STRING(job-mch.job-no2,'999'))
       userField[105] = setUserField(105,STRING(timeSpan / 3600,">>,>>9.99"))
       userField[107] = setUserField(107,STRING(job-hdr.qty,'>>,>>>,>>9'))
       userField[110] = setUserField(110,STRING(job.promiseDate,'99/99/9999'))

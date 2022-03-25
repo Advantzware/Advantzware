@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -91,7 +92,7 @@ ASSIGN
                                 "qty,ink1,ink2,ink3,ink4,ink5,ink6,ink1rmname,ink2rmname,ink3rmname," +
                                 "ink4rmname,ink5rmname,ink6rmname,ink1rmdscr,ink2rmdscr,ink3rmdscr,ink4rmdscr," +
                                 "ink5rmdscr,ink6rmdscr,qtyperink1,qtyperink2,qtyperink3,qtyperink4,qtyperink5,qtyperink6"
-    cFieldLength       = "9,4,8,20,15,10,10,10,8,7," + "10,11,11,11,11,11,11,30,30,30," + "30,30,30,30,30,30,30," +
+    cFieldLength       = "13,4,8,20,15,10,10,10,8,7," + "10,11,11,11,11,11,11,30,30,30," + "30,30,30,30,30,30,30," +
                           "30,30,12,12,12,12,12,12"
     cFieldType         = "c,i,c,c,c,c,c,c,c,i," + "i,c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c"
     .
@@ -175,15 +176,15 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 15.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 15.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 4.4 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_mach-no AS CHARACTER FORMAT "X(6)":U 
      LABEL "Beginning Machine#" 
@@ -195,15 +196,15 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 15.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 15.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 4.6 BY 1 NO-UNDO.
+     SIZE 5.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_mach-no AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzz" 
      LABEL "Ending Machine#" 
@@ -304,11 +305,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Machine Number"
      begin_job-no AT ROW 5.24 COL 25 COLON-ALIGNED HELP
           "Enter the Beginning Job Number"
-     begin_job-no2 AT ROW 5.24 COL 42 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 5.24 COL 41.6 COLON-ALIGNED HELP
           "Enter Beginning Job number"
      end_job-no AT ROW 5.24 COL 66 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 5.24 COL 83 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 5.24 COL 82.6 COLON-ALIGNED HELP
           "Enter Ending Job number"
      begin_date AT ROW 6.43 COL 25 COLON-ALIGNED
      end_date AT ROW 6.43 COL 66 COLON-ALIGNED
@@ -1361,9 +1362,9 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-fmch         LIKE job-mch.m-code INIT "".
     DEFINE VARIABLE v-tmch         LIKE v-fmch INIT "zzzzzz".
     DEFINE VARIABLE v-fjob         LIKE job.job-no.
-    DEFINE VARIABLE v-tjob         LIKE v-fjob INIT "zzzzzz".
+    DEFINE VARIABLE v-tjob         LIKE v-fjob INIT "zzzzzzzzz".
     DEFINE VARIABLE v-fjob2        LIKE job.job-no2.
-    DEFINE VARIABLE v-tjob2        LIKE v-fjob2 INIT 99.
+    DEFINE VARIABLE v-tjob2        LIKE v-fjob2 INIT 999.
     DEFINE VARIABLE v-fdat         LIKE job.start-date INIT 01/01/0001
         FORMAT "99/99/9999".
     DEFINE VARIABLE v-tdat         LIKE v-fdat INIT 12/31/9999.
@@ -1460,10 +1461,8 @@ PROCEDURE run-report :
 
 
     ASSIGN
-        v-fjob = FILL(" ",6 - length(TRIM(v-fjob))) +
-            trim(v-fjob) + "-" + string(v-fjob2,"99")
-        v-tjob = FILL(" ",6 - length(TRIM(v-tjob))) +
-            trim(v-tjob) + "-" + string(v-tjob2,"99").
+        v-fjob = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', v-fjob, v-fjob2)) 
+        v-tjob = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', v-tjob, v-tjob2)) .
 
     /* {custom/statusMsg.i "'Processing...'"}  */
 
@@ -1592,7 +1591,7 @@ PROCEDURE run-report :
                     DO:            
                         CASE cTmpField:               
                             WHEN "job" THEN 
-                                cVarValue = STRING(TRIM(substr(tt-report.key-02,9,9))) .
+                                cVarValue = STRING(TRIM(substr(tt-report.key-02,9,13))) .
                             WHEN "frm" THEN 
                                 cvarValue = STRING(job-mat.frm,">>9") .
                             WHEN "cust" THEN 

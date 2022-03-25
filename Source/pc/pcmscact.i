@@ -1,5 +1,7 @@
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
+
 find FIRST job where job.company = cocode and
-	       job.job-no = pc-misc.job-no and
+	       trim(job.job-no) = trim(pc-misc.job-no) and
 	       job.job-no2 = pc-misc.job-no2
 	       exclusive-lock no-error.
 

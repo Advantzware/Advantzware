@@ -144,8 +144,8 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      fg-bin.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U
-      fg-bin.job-no2 COLUMN-LABEL "#" FORMAT ">9":U
+      fg-bin.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U
+      fg-bin.job-no2 COLUMN-LABEL "#" FORMAT ">>9":U
       fg-bin.loc COLUMN-LABEL "Location" FORMAT "x(5)":U
       fg-bin.loc-bin COLUMN-LABEL "Bin" FORMAT "x(10)":U
       fg-bin.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U

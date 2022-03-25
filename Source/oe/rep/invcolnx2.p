@@ -1,6 +1,7 @@
 /* ------------------------------------------------------- oe/rep/invcolnx2.p */
 /* PRINT INVOICE   Xprint form for Colonial Carton                            */
 /* -------------------------------------------------------------------------- */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
 
 {sys/inc/var.i shared}
@@ -95,7 +96,7 @@ def var v-billto-addr3 as char format "x(30)" NO-UNDO.
 def var v-billto-city as char format "x(15)" NO-UNDO.
 def var v-billto-state as char format "x(2)" NO-UNDO.
 def var v-billto-zip as char format "x(10)" NO-UNDO.
-def var v-job-no AS CHAR FORMAT "x(13)" no-undo.
+def var v-job-no AS CHAR FORMAT "x(15)" no-undo.
 DEFINE VARIABLE cBillNotes LIKE inv-head.bill-i NO-UNDO.
 DEFINE VARIABLE cNotes AS CHARACTER EXTENT 60 FORMAT "x(80)" NO-UNDO.
 DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
@@ -549,8 +550,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                 AND job-hdr.i-no EQ tt-inv-line.i-no NO-LOCK NO-ERROR.
             
             IF AVAIL tt-inv-line THEN
-            v-job-no = fill(" ",6 - length(trim(tt-inv-line.job-no))) +
-                           trim(tt-inv-line.job-no) .
+            v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', tt-inv-line.job-no))).
 
             IF AVAIL job-hdr THEN
                 v-job-no = v-job-no + "-" + trim(string(job-hdr.frm)) + trim(string(job-hdr.blank-no)) .
@@ -564,9 +564,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
              tt-inv-line.price     FORMAT ">>>,>>9.9999"
              tt-inv-line.total-price  FORMAT "->>>,>>9.99"
             SKIP
-             v-job-no /*tt-inv-line.ord-no*/ 
-            SPACE(3)
-             tt-inv-line.i-no
+             v-job-no  /*tt-inv-line.ord-no*/ 
+             tt-inv-line.i-no AT 17
             SPACE(1)
              tt-inv-line.part-dscr
             SPACE(11)

@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
      
 USING system.sharedConfig.
 
@@ -104,23 +105,23 @@ DEFINE VARIABLE fiDate AS DATE FORMAT "99/99/9999":U
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiEndJob AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fiEndJob AS CHARACTER FORMAT "X(9)":U 
      LABEL "TO" 
      VIEW-AS FILL-IN 
-     SIZE 11.6 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiEndJob2 AS INTEGER FORMAT "99":U INITIAL 99 
+DEFINE VARIABLE fiEndJob2 AS INTEGER FORMAT "999":U INITIAL 999 
      VIEW-AS FILL-IN 
-     SIZE 4.4 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiStartJob AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fiStartJob AS CHARACTER FORMAT "X(9)":U 
      LABEL "(Optional) Job Range - FROM" 
      VIEW-AS FILL-IN 
-     SIZE 11.6 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiStartJob2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fiStartJob2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 4.4 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiText-2 AS CHARACTER FORMAT "X(256)":U INITIAL "Purge all jobs and related records where:" 
      VIEW-AS FILL-IN 
@@ -161,9 +162,9 @@ DEFINE FRAME DEFAULT-FRAME
      fiDate AT ROW 2.67 COL 39 COLON-ALIGNED
      rsOpen AT ROW 4.1 COL 6 NO-LABEL
      fiStartJob AT ROW 5.29 COL 39 COLON-ALIGNED
-     fiStartJob2 AT ROW 5.29 COL 50.8 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     fiEndJob AT ROW 5.29 COL 62 COLON-ALIGNED
-     fiEndJob2 AT ROW 5.29 COL 73.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     fiStartJob2 AT ROW 5.29 COL 52.1 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     fiEndJob AT ROW 5.29 COL 64 COLON-ALIGNED
+     fiEndJob2 AT ROW 5.29 COL 77.1 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      rsPurge AT ROW 6.71 COL 6 NO-LABEL
      tbVerbose AT ROW 7.91 COL 6
      fiText-3 AT ROW 5.29 COL 85 NO-LABEL NO-TAB-STOP 
@@ -423,8 +424,8 @@ DO:
             USE-INDEX close-date:
                 
             IF fiEndJob:SCREEN-VALUE NE "" THEN  DO: 
-                IF (job.job-no LT fiStartJob:SCREEN-VALUE /* Job no outside of range specified */
-                    OR job.job-no GT fiEndJob:SCREEN-VALUE
+                IF (fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) LT fiStartJob:SCREEN-VALUE /* Job no outside of range specified */
+                    OR fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) GT fiEndJob:SCREEN-VALUE
                     OR job.job-no2 LT INTEGER(fiStartJob2:SCREEN-VALUE) /* Job2 no outside of range specified */
                     OR job.job-no2 GT INTEGER(fiEndJob2:SCREEN-VALUE))    
                 AND TRIM(job.job-no) NE "" THEN 
@@ -461,8 +462,8 @@ DO:
             :
             
             IF fiEndJob:SCREEN-VALUE NE "" THEN DO: 
-                IF (job.job-no LT fiStartJob:SCREEN-VALUE /* Job no outside of range specified */
-                    OR job.job-no GT fiEndJob:SCREEN-VALUE
+                IF (fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) LT fiStartJob:SCREEN-VALUE /* Job no outside of range specified */
+                    OR fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) GT fiEndJob:SCREEN-VALUE
                     OR job.job-no2 LT INTEGER(fiStartJob2:SCREEN-VALUE) /* Job2 no outside of range specified */
                     OR job.job-no2 GT INTEGER(fiEndJob2:SCREEN-VALUE)) 
                 AND TRIM(job.job-no) NE "" THEN 
@@ -531,7 +532,7 @@ DO:
             AND fiEndJob:SCREEN-VALUE EQ "" THEN ASSIGN 
                 fiEndJob:SCREEN-VALUE = SELF:SCREEN-VALUE .
             ASSIGN 
-                SELF:SCREEN-VALUE = FILL(" ", 6 - INT(LENGTH(TRIM(SELF:SCREEN-VALUE)))) + TRIM(SELF:SCREEN-VALUE).
+                SELF:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', SELF:SCREEN-VALUE)) .
             IF SELF:SCREEN-VALUE NE "" 
             AND fiEndJob:SCREEN-VALUE NE "" 
             AND SELF:SCREEN-VALUE GT fiEndJob:SCREEN-VALUE THEN DO:
@@ -542,7 +543,7 @@ DO:
         END.
         WHEN 'fiEndJob' THEN DO:
             ASSIGN 
-                SELF:SCREEN-VALUE = FILL(" ", 6 - INT(LENGTH(TRIM(SELF:SCREEN-VALUE)))) + TRIM(SELF:SCREEN-VALUE).
+                SELF:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', SELF:SCREEN-VALUE)).
             IF SELF:SCREEN-VALUE NE "" 
                 AND fiStartJob:SCREEN-VALUE NE "" 
                 AND SELF:SCREEN-VALUE LT fiStartJob:SCREEN-VALUE THEN 

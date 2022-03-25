@@ -23,6 +23,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -582,7 +583,7 @@ DEFINE BROWSE Browser-Table
       display-combo-qty () @ est-qty.eqty
       est-qty.eqty FORMAT "->,>>>,>>9":U LABEL-BGCOLOR 14
       display-combo-qty () @ est-qty.eqty
-      eb.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      eb.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       eb.stock-no COLUMN-LABEL "FG Item #" FORMAT "x(15)":U LABEL-BGCOLOR 14
       eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 LABEL-BGCOLOR 14
       eb.part-dscr1 COLUMN-LABEL "Item Name" FORMAT "x(30)":U LABEL-BGCOLOR 14

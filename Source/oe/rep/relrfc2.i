@@ -1,4 +1,5 @@
 /* oe/rep/relrfc2.i */   
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No. */
    
 PUT "<FMS Sans Serif>" SKIP
     "<P14><C+45><B>Pick Ticket</B> " SKIP
@@ -37,14 +38,14 @@ PUT
     "<FMS Sans Serif><=4><R+1>    Delivery Zone             Weight                    FOB                           Ship Via                                        Freight Terms" SKIP
     "<FMS Sans Serif><=4><R+3> " v-zone "<C14>" v-weight "<C27>" oe-ord.fob-code "<C35>" v-carrier "<C60>" v-frt-terms   SKIP
     "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
-    "<R24><C7><FROM><R26><C7><LINE>" SKIP
+    "<R24><C7.5><FROM><R26><C7.5><LINE>" SKIP
     "<R24><C23><FROM><R26><C23><LINE>" SKIP
     "<R24><C49><FROM><R26><C49><LINE>" SKIP                   
     "<R24><C51.5><FROM><R26><C51.5><LINE>" SKIP
     "<R24><C56><FROM><R26><C56><LINE>" SKIP 
     "<R24><C62><FROM><R26><C62><LINE>" SKIP   
     "<R24><C70><FROM><R26><C70><LINE>" SKIP  
-    "<FMS Sans Serif><=5><R+1> Order# <C10>Item / Desc / Lot #<C28>TAG/Whs/Bin <C50>X   #Pal     #Cas<C64.2>Count<C72>Bin Qty" SKIP(1)
+    "<FMS Sans Serif><=5><R+1> Order# <C9>Item / Desc / Lot #<C28>TAG/Whs/Bin <C50>X   #Pal     #Cas<C64.2>Count<C72>Bin Qty" SKIP(1)
     "<FMS Sans Serif>"          
     .
 v-printline = v-printline + 16.

@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -162,15 +163,15 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(6)" 
      LABEL "Beginning Machine" 
@@ -182,15 +183,15 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
      LABEL "Ending Machine" 
@@ -1350,21 +1351,19 @@ RUN est/rc-seq.p (OUTPUT lv-rc-seq).
 
 
 ASSIGN
-    begin_job-no = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-                  TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
-    END_job-no = FILL(" ",6 - LENGTH(TRIM(END_job-no)))   +
-                  TRIM(END_job-no)   + STRING(INT(END_job-no2),"99"). 
+    begin_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+    END_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', END_job-no, END_job-no2)) . 
 
   FOR EACH mch-act NO-LOCK
       WHERE mch-act.company EQ cocode
         AND mch-act.m-code  GE begin_mach
-        AND mch-act.m-code  LE end_mach
-        AND mch-act.job-no GE SUBSTR(begin_job-no,1,6)
-        AND mch-act.job-no LE SUBSTR(END_job-no,1,6)
-        AND FILL(" ",6 - LENGTH(TRIM(mch-act.job-no))) +
-              TRIM(mch-act.job-no) + STRING(INT(mch-act.job-no2),"99") GE begin_job-no
-        AND FILL(" ",6 - LENGTH(TRIM(mch-act.job-no)))   +
-              TRIM(mch-act.job-no) + STRING(INT(mch-act.job-no2),"99") LE END_job-no
+        AND mch-act.m-code  LE end_mach         
+        AND FILL(" ",9 - LENGTH(TRIM(mch-act.job-no))) +
+              TRIM(mch-act.job-no) + STRING(INT(mch-act.job-no2),"999") GE begin_job-no
+        AND FILL(" ",9 - LENGTH(TRIM(mch-act.job-no)))   +
+              TRIM(mch-act.job-no) + STRING(INT(mch-act.job-no2),"999") LE END_job-no
+        AND mch-act.job-no2 GE int(begin_job-no2)
+        AND mch-act.job-no2 LE int(end_job-no2)      
         AND mch-act.op-date GE begin_date
         AND mch-act.op-date LE end_date
       USE-INDEX dly-idx,

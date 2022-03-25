@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invfrank.p   */
 /* PRINT INVOICE   Xprint Standard Form  for Frankston (from Oracle)          */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -479,13 +479,13 @@ ASSIGN v-comp-add1 = ""
                v-po-no = inv-line.po-no.
 
             PUT /*space(1) v-inv-qty format "->>>>>9" */
-                inv-line.ord-no FORMAT ">>>>>9" SPACE(1)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-po-no
                 /*SPACE(1)*/
                 v-ship-qty  format "->>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
                 v-i-no  format "x(15)"
-                v-i-dscr  format "x(24)"
+                v-i-dscr  format "x(22)"
                 v-price  format "$->,>>9.99" SPACE(1)
                 v-price-head FORM "x(4)"
                 inv-line.t-price  format "$->>>,>>9.99"                      
@@ -498,8 +498,8 @@ ASSIGN v-comp-add1 = ""
 
               if v-part-info ne "" OR inv-line.part-no <> "" then do:
                 /*put space(40) v-part-info skip.*/
-                 IF v = 1 THEN PUT SPACE(30) inv-line.part-no v-part-info SKIP.
-                 ELSE PUT SPACE(45) v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(32) inv-line.part-no v-part-info SKIP.
+                 ELSE PUT SPACE(47) v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.

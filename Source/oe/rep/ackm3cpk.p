@@ -66,7 +66,7 @@ DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 DEF VAR lv-line-print AS INT INIT 44 NO-UNDO.
 DEF VAR lv-due-date AS DATE NO-UNDO.
-DEF VAR v-prev-order AS CHAR FORMAT "x(6)" NO-UNDO.
+DEF VAR v-prev-order AS CHAR FORMAT "x(8)" NO-UNDO.
 
 DEF VAR v-count AS INT FORMAT ">>" INIT 0 NO-UNDO.
 DEF VAR v-note-lin AS CHAR FORMAT "x(50)" NO-UNDO .

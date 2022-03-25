@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolempir.i 12/99 FWK */
-/* PRINT Xprint Inland BOL                                                           */
+/* PRINT Xprint Inland BOL                                                    */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 
@@ -131,15 +132,14 @@ for each report where report.term-id eq v-term-id,
 
   v-job-no = "".
   if avail oe-ordl and oe-ordl.job-no ne "" then
-    v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-               trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
+    v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
   DISPLAY  {1}
           oe-ordl.part-no   WHEN AVAIL oe-ordl 
-          oe-boll.po-no 
+          "<C12.5>" oe-boll.po-no 
          /* oe-boll.i-no      */
-          v-job-no FORM "x(10)"
-          oe-ordl.i-name  FORM "x(21)"
+          "<C25.5>" v-job-no FORM "x(13)"
+          "<C36>"oe-ordl.i-name  FORM "x(21)"
           oe-boll.cases FORM ">>>>" "@"
           oe-boll.qty-case FORM "->>>>>Z" 
           /*SKIP          

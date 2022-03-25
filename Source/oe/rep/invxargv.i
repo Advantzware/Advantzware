@@ -1,5 +1,5 @@
 /* oe/rep/invxargv.i */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 PUT "<FArial>".
 PUT "<C+25><#1>". 
 PUT "<=1>" SKIP.
@@ -54,7 +54,7 @@ PUT "<FArial><=4><R+1>    Ship Date           BOL#                  Ship Via    
      v-shipvia FORM "x(20)" SPACE(1)
      xinv-head.terms-d FORM "x(15)" space(1) v-salesman FORM "x(8)"
      /*v-tot-pallets FORM "->>>,>>>,>>9" SPACE(3)*/
-     space(6) v-ord-no FORM " >>>>>9" SPACE(3)
+     space(4) v-ord-no FORM ">>>>>>>9" SPACE(3)
      v-fob FORM "x(12)"
     SKIP.
 

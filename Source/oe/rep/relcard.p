@@ -1,5 +1,6 @@
 /* ----------------------------------------------- oe/rep/relcard.p */
 /* Print OE Release/Picking tickets                                 */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* ---------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i}
@@ -124,15 +125,15 @@ format header
        skip(1)
          
        "Order#"                         to 6
-       "Item / Descrip"                 at 8
-       "Whs  / Bin"                     at 39
+       "Item / Descrip"                 at 10
+       "Whs  / Bin"                     at 41
        "Units"                          to 59
        "Unit Count"                     to 70
        "Rel Qty"                        to 80
        
        "------"                         to 6
-       "--------------"                 at 8
-       "----------"                     at 39
+       "--------------"                 at 10
+       "----------"                     at 41
        "-----"                          to 59
        "----------"                     to 70
        "-------"                        to 80
@@ -140,8 +141,8 @@ format header
     with frame rel-top no-box no-labels STREAM-IO width 85 page-top.
         
 format oe-rell.ord-no                   to 6
-       w-par                            at 8    format "x(30)"
-       v-bin                            at 39   format "x(14)"
+       w-par                            at 10    format "x(30)"
+       v-bin                            at 41   format "x(14)"
        w-cas                            to 59   format "->>>>"
        w-c-c                            to 70   format "->>>>>>>>"
        v-rel-qty                        to 80   format "->>>>>>>>"

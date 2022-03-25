@@ -15,7 +15,8 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */
+     
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
@@ -45,7 +46,7 @@ ASSIGN
 {sys/ref/CustList.i NEW}
 
 DEFINE VARIABLE v-fcust    LIKE cust.cust-no EXTENT 2 INIT ["","zzzzzzzz"] NO-UNDO.
-DEFINE VARIABLE v-ford-no  AS INTEGER   FORMAT ">>>>>>" EXTENT 2 INIT [0,999999] NO-UNDO.
+DEFINE VARIABLE v-ford-no  AS INTEGER   FORMAT ">>>>>>>9" EXTENT 2 INIT [0,99999999] NO-UNDO.
 DEFINE VARIABLE v-fdate    AS DATE      EXTENT 2 FORMAT "99/99/9999" INIT [TODAY, 12/31/9999] NO-UNDO.
 DEFINE VARIABLE v-fitem    AS CHARACTER FORMAT "x(15)" EXTENT 2 INIT ["","zzzzzzzzzzzzzzz"] NO-UNDO.
 DEFINE VARIABLE v-fsman    AS CHARACTER FORMAT "xxx" EXTENT 2 INIT ["","zzz"] NO-UNDO.
@@ -89,7 +90,7 @@ DEFINE TEMP-TABLE w-ord
     FIELD t-price        LIKE oe-ordl.t-price FORMAT "->>,>>>,>>9"
     FIELD rel-qty        LIKE oe-rel.qty
     FIELD rel-date       AS CHARACTER FORMAT "x(9)"
-    FIELD job            AS CHARACTER FORMAT "x(9)"
+    FIELD job            AS CHARACTER FORMAT "x(13)"
     FIELD job-no         LIKE oe-ordl.job-no
     FIELD job-no2        LIKE oe-ordl.job-no2
     FIELD rel-no         LIKE oe-rel.rel-no
@@ -2222,8 +2223,7 @@ PROCEDURE run-report :
             w-ord.job-no         = oe-ordl.job-no
             w-ord.job-no2        = oe-ordl.job-no2
             w-ord.job            = IF w-ord.job-no EQ "" THEN "" ELSE
-                       (TRIM(w-ord.job-no) + "-" +
-                        STRING(w-ord.job-no2,"99"))
+                                   TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)))
             w-ord.po-num         = oe-rell.po-no
             w-ord.ord-qty        = oe-ordl.qty
             w-ord.shp-qty        = oe-ordl.ship-qty
@@ -2322,7 +2322,7 @@ PROCEDURE run-report :
                         WHEN "carr"   THEN 
                             cVarValue = STRING(w-ord.carrier ,"x(8)") .
                         WHEN "ord"  THEN 
-                            cVarValue = STRING(w-ord.ord-no,">>>>>>>>") .
+                            cVarValue = TRIM(STRING(w-ord.ord-no,">>>>>>>>")) .
                         WHEN "cust-part"   THEN 
                             cVarValue = STRING(w-ord.part-no,"x(15)") .
                         WHEN "desc"  THEN 

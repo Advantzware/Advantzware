@@ -56,7 +56,7 @@ PUT
              "<R24><C15><FROM><R26><C15><LINE>" SKIP
              "<R24><C20><FROM><R26><C20><LINE>" SKIP 
              "<R24><C37.5><FROM><R26><C37.5><LINE>" SKIP
-             "<R24><C52.5><FROM><R26><C52.5><LINE>" SKIP
+             "<R24><C49><FROM><R26><C49><LINE>" SKIP
              "<R24><C63><FROM><R26><C63><LINE>" SKIP
              "<R24><C69><FROM><R26><C69><LINE>" 
              "<R24><C73><FROM><R26><C73><LINE>" SKIP

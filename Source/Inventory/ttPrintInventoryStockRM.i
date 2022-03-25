@@ -71,7 +71,7 @@ DEFINE TEMP-TABLE ttPrintInventoryStockRM NO-UNDO
     FIELDS totalQuantityReleased AS DECIMAL   LABEL 'Total Quantity Released' FORMAT "->>>,>>>,>>9.9<<<<<"                
     FIELDS tagDate               AS DATE      LABEL 'Tag Date'                                                              
     FIELDS tax                   AS DECIMAL   LABEL 'Tax' FORMAT "->,>>9.99"                          
-    FIELDS salesTaxGroup         AS CHARACTER LABEL 'Sales Tax Group'                                                       
+    FIELDS salesTaxGroup         AS CHARACTER LABEL 'Tax Group'                                                       
     FIELDS taxExemptNo           AS CHARACTER LABEL 'Tax Exempt No.'                                                        
     FIELDS paymentTerms          AS CHARACTER LABEL 'Payment Terms'                                                         
     FIELDS totalTags             AS INTEGER   LABEL 'Total Tags'                                                            

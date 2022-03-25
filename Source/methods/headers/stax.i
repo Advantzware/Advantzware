@@ -1,1 +1,1 @@
-'Sales Tax Group: ' + stax.tax-group
+'Tax Group: ' + stax.tax-group
