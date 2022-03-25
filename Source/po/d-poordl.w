@@ -806,6 +806,7 @@ DO:
                   ASSIGN lw-focus:SCREEN-VALUE       = ENTRY(1,char-val)
                          po-ordl.i-name:SCREEN-VALUE = ENTRY(2,char-val).
                   RUN display-rmitem (look-recid).
+                  ll-item-validated = YES.
                 END.
               END.
               ELSE DO:  /* finished good */
@@ -815,6 +816,7 @@ DO:
                          po-ordl.i-name:screen-value = ENTRY(2,char-val).
                   RUN display-fgitem (look-recid) .
                   lCheckFGCustHold = NO.
+                  ll-item-validated = YES.
                 END.                           
               END.
             END.
@@ -1153,7 +1155,7 @@ DO:
      /* wfk - to make sure cons-qty was being updated */
     FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
     {po/podisdet.i}
-   
+    po-ordl.cons-cost = decimal(po-ordl.cons-cost:SCREEN-VALUE).
    ASSIGN po-ordl.s-dep = v-dep . 
     
 IF TRIM(po-ordl.job-no) EQ "" THEN po-ordl.job-no2 = 0.

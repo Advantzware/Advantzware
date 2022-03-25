@@ -662,7 +662,6 @@ DO:
    /*{src/adm/template/brsleave.i} */
      {est/brsleave.i}   /* same but update will be like add */
      
-     if keyfunction(lastkey) = "return" then reposition {&browse-name} forward 0.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2720,6 +2719,8 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
   DEF VAR ld-price LIKE probe.sell-price NO-UNDO.
+   DEFINE VARIABLE phandle AS WIDGET-HANDLE NO-UNDO.
+   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.   
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -2774,21 +2775,17 @@ PROCEDURE local-update-record :
 
   IF probe.spare-char-2 NE "" THEN
     RUN pCalculatePricing(BUFFER probe). 
-  
-  DO WITH FRAME {&FRAME-NAME}:
-    DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
-      APPLY "cursor-left" TO {&BROWSE-NAME}.
-    END.
-  END.
-        
-  IF lAutoUpdate THEN
-  DO:          
-     lAutoUpdate = NO.
-     QUERY br_table:GET-NEXT().     
-     APPLY "default-action" TO BROWSE {&browse-name}.
-     RETURN NO-APPLY.        
-  END.  
 
+   IF LAST-EVENT:LABEL EQ "Choose" THEN RETURN.  
+    QUERY br_table:GET-NEXT().
+    IF QUERY br_table:QUERY-OFF-END THEN RUN dispatch ('cancel-record':U).
+    ELSE DO:
+        RUN get-link-handle IN adm-broker-hdl
+            (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+        phandle = WIDGET-HANDLE(char-hdl).
+        RUN new-state IN phandle ('update-begin':U).
+    END. 
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

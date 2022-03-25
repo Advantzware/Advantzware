@@ -9854,6 +9854,43 @@ PROCEDURE UpdateFGLocationOnHandQty:
     RELEASE bf-itemfg-loc.
     RELEASE bf-itemfg.
 END.
+
+PROCEDURE Inventory_DeleteInventorySnapshot:
+    DEFINE INPUT PARAMETER iproInventorySnapshotRowID AS ROWID   NO-UNDO.
+    DEFINE INPUT PARAMETER iplProgressBar             AS LOGICAL NO-UNDO.
+
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTotal AS INTEGER NO-UNDO.
+
+    FIND FIRST InventorySnapshot EXCLUSIVE-LOCK
+         WHERE ROWID(InventorySnapshot) EQ iproInventorySnapshotRowID
+         NO-ERROR.    
+    IF AVAILABLE InventorySnapshot THEN DO:
+        IF iplProgressBar THEN
+        FOR EACH inventoryStockSnapshot NO-LOCK
+            WHERE inventoryStockSnapshot.company EQ InventorySnapshot.company
+              AND inventoryStockSnapshot.InventorySnapshotID EQ InventorySnapshot.InventorySnapshotID
+            :                 
+            iTotal = iTotal + 1.
+            RUN spProgressBar ("Count Inventory Snapshot Records for Deletion", iTotal, ?).        
+        END. // for each
+        FOR EACH inventoryStockSnapshot EXCLUSIVE-LOCK
+            WHERE inventoryStockSnapshot.company EQ InventorySnapshot.company
+              AND inventoryStockSnapshot.InventorySnapshotID EQ InventorySnapshot.InventorySnapshotID
+            :                 
+            DELETE inventoryStockSnapshot.
+            IF iplProgressBar THEN DO:
+                iCount = iCount + 1.
+                RUN spProgressBar ("Deleting Inventory Snapshot Records", iCount, iTotal).
+            END. // if progress bar
+        END. // for each
+        DELETE InventorySnapshot.
+        IF iplProgressBar THEN
+        RUN spProgressBar (?, ?, 100).
+    END. // if avail
+
+END PROCEDURE.
+
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fCanDeleteInventoryStock RETURNS LOGICAL 

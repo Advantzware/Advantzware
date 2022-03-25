@@ -154,11 +154,11 @@ IF AVAIL quotehd THEN DO:
     IF ip-TransQ = "Q" THEN RUN update-matrix.
     ELSE IF ip-TransQ = "1" THEN RUN update-matrix-minus.
     FIND CURRENT quotehd EXCLUSIVE-LOCK NO-ERROR.
+    quotehd.expireDate = IF quotehd.expireDate EQ ? THEN 12/31/2099 ELSE quotehd.expireDate.
     IF lQuotePriceMatrix THEN
     DO:    
       ASSIGN
-       quotehd.approved = YES
-       quotehd.expireDate = 12/31/2099.
+       quotehd.approved = YES.       
        IF dtEffectiveDate EQ ? THEN
        quotehd.effectiveDate = TODAY.       
        RUN unApprovedDuplicateQuote IN hdQuoteProcs (ROWID(quotehd),quoteitm.part-no,quoteitm.i-no).
@@ -219,7 +219,6 @@ PROCEDURE update-matrix.
   IF lQuotePriceMatrix THEN
   DO:  
       oe-prmtx.quoteID = iQuoteNo.
-      oe-prmtx.exp-date = 12/31/2099.
       RUN AddTagInfo (
                 INPUT quotehd.rec_key,
                 INPUT "quotehd",
@@ -227,6 +226,8 @@ PROCEDURE update-matrix.
                 INPUT ""
                 ). /*From TagProcs Super Proc*/     
   END.
+  oe-prmtx.exp-date = IF quotehd.expireDate NE ? THEN quotehd.expireDate ELSE 12/31/2099.
+  
   DO li = 1 TO EXTENT(oe-prmtx.qty):
     IF oe-prmtx.qty[li] NE 0 THEN DO:
       CREATE w-matrix.
@@ -274,7 +275,7 @@ PROCEDURE update-matrix.
     DELETE w-matrix.
   END.
   
-  IF cPriceMatrixPricingMethod EQ "From" AND lQuotePriceMatrix THEN
+  IF cPriceMatrixPricingMethod EQ "From" THEN
   oe-prmtx.qty = 0.
   ELSE
   FOR EACH w-matrix BREAK BY w-matrix.qty:
@@ -345,15 +346,15 @@ PROCEDURE update-matrix-minus.
   oe-prmtx.meth = YES.
   IF lQuotePriceMatrix THEN
   DO:
-      oe-prmtx.quoteID = iQuoteNo.
-      oe-prmtx.exp-date = 12/31/2099.
+      oe-prmtx.quoteID = iQuoteNo.      
       RUN AddTagInfo (
                 INPUT quotehd.rec_key,
                 INPUT "quotehd",
                 INPUT "The status is set to Approved ",
                 INPUT ""
                 ). /*From TagProcs Super Proc*/
-  END.
+  END.  
+  oe-prmtx.exp-date = IF quotehd.expireDate NE ? THEN quotehd.expireDate ELSE 12/31/2099. 
   
   DO li = 1 TO EXTENT(oe-prmtx.qty):
     IF oe-prmtx.qty[li] NE 0 THEN DO:
@@ -402,7 +403,7 @@ PROCEDURE update-matrix-minus.
     DELETE w-matrix.
   END.
 
-  IF cPriceMatrixPricingMethod EQ "From" AND lQuotePriceMatrix THEN
+  IF cPriceMatrixPricingMethod EQ "From" THEN
   oe-prmtx.qty = 0.
   ELSE
   FOR EACH w-matrix BREAK BY w-matrix.qty:

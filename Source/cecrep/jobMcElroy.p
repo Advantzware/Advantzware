@@ -776,7 +776,111 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=1><R+35><C66>" lv-split[3] FORM "x(70)"
             "<=1><R+36><C66>" lv-split[4] FORM "x(70)" .
         PAGE.
+        
+        IF print-box AND AVAIL xest THEN DO:            
+          
+            PUT "<#11><C1><FROM><C105><R+47><RECT><|3>"  
+            "<=11><C30><FROM><R+4><C30><LINE><|3>"
+            "<=11><C60><FROM><R+4><C60><LINE><|3>"
+            "<=11><R+4><C1><FROM><C105><LINE><|3>"
+            "<=11>Job # <C30> Estimate # <C60> Cust Part #"  SKIP
+            "<P12><C12>" v-job-prt 
+            "<C40>" v-est-no
+            "<C70>" lv-part-no SKIP(4)
+            .            
+            
+            FOR EACH tt-formtext:
+                DELETE tt-formtext.
+            END.
 
+            ASSIGN lv-text = "".
+
+            FOR EACH notes 
+              WHERE notes.rec_key = job.rec_key
+                AND (notes.note_form_no = w-ef.frm OR 
+                     notes.note_form_no = 0)
+                AND notes.note_code = "BN" NO-LOCK:
+
+              ASSIGN lv-text = lv-text + " " + 
+                               TRIM(notes.note_text) + CHR(10).
+            END.            
+
+            IF v-embaflag THEN DO:
+
+              DO li = 1 TO 2:
+                CREATE tt-formtext.
+                ASSIGN tt-line-no = li
+                       tt-length  = 55.
+              END.
+              
+              RUN custom/formtext.p (lv-text).
+
+              ASSIGN i = 0 v-dept-note = "".
+
+              FOR EACH tt-formtext:
+                ASSIGN i = i + 1.
+                IF  i <= 2 THEN v-dept-note[i] = tt-formtext.tt-text.      
+              END.
+              
+              PUT UNFORMATTED 
+                "<UNITS=INCHES><AT=7.2,.35><FROM><AT=+.4,+1.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
+                TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
+                + ">" "<AT=,.4>" 
+                /*IF AVAIL job-hdr THEN*/ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) FORM "X(13)"
+                "<R44><C1><FROM><C85><LINE><|3>" skip
+                "<R44><C19><FROM><R48><C19><LINE><|3>"
+                "<R44><C85><FROM><R48><C85><LINE><|3>"
+                "<R44><C20><B>BN Notes:</B><C30>" v-dept-note[1] SKIP
+                "<C30>" v-dept-note[2] "<=11><R+4>" 
+                SKIP.
+
+              ASSIGN v-out1-id = RECID(xeb).
+
+              RUN cec/desprncap.p (RECID(xef),
+                                   INPUT-OUTPUT v-lines,
+                                   RECID(xest), "").
+              
+            END. /* v-embaflg */
+            ELSE DO:
+
+              DO li = 1 TO 2:
+                CREATE tt-formtext.
+                ASSIGN tt-line-no = li
+                       tt-length  = 80.
+              END.
+
+              RUN custom/formtext.p (lv-text).
+
+              ASSIGN i = 0 v-dept-note = "".
+
+              FOR EACH tt-formtext:
+
+                ASSIGN i = i + 1.
+
+                IF  i <= 2 THEN v-dept-note[i] = tt-formtext.tt-text.      
+              END.
+              
+              PUT UNFORMATTED 
+                "<UNITS=INCHES><AT=7.2,.35><FROM><AT=+.4,+1.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
+                TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
+                + ">" "<AT=,.4>" 
+                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)))
+                "<R44><C1><FROM><C105><LINE><|3>" skip
+                "<R44><C19><FROM><R48><C19><LINE><|3>"
+                "<R44><C20><B>BN Notes:</B><C30>" v-dept-note[1] SKIP
+                "<C30>" v-dept-note[2] "<=11><R+4>" SKIP                 
+                .
+                         
+              ASSIGN v-out1-id = RECID(xeb).
+              RUN cec/desprnL2.p (RECID(xef),
+                                  INPUT-OUTPUT v-lines,
+                                  RECID(xest)).   
+            END.
+
+            PAGE.
+        END.
+        ELSE PAGE.
+        
         ASSIGN
                 FILE-INFO:FILE-NAME = ".\custfiles\Images\quality-check.jpg" .
         

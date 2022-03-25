@@ -297,6 +297,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 49 BY 1
      inv-head.tax-gr AT ROW 9.33 COL 25.6 COLON-ALIGNED
+          LABEL "Tax Group"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
      btnTaxTags AT ROW 9.33 COL 34.5    
@@ -793,7 +794,7 @@ END.
 
 &Scoped-define SELF-NAME inv-head.tax-gr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-head.tax-gr V-table-Win
-ON LEAVE OF inv-head.tax-gr IN FRAME F-Main /* Sales Tax Group */
+ON LEAVE OF inv-head.tax-gr IN FRAME F-Main /* Tax Group */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-tax-gr NO-ERROR.

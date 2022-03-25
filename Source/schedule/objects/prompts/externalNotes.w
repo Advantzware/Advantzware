@@ -18,7 +18,7 @@
 
   Author: Ron Stark
 
-  Created: 7.14.2004
+  Created: 1.31.2022 (copied from schedule/objects/prompts/jobNotes.w)
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
@@ -255,15 +255,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAdd notesFrame
 ON CHOOSE OF btnAdd IN FRAME notesFrame
 DO:
+    DEFINE VARIABLE cChanges   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cResources AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx        AS INTEGER   NO-UNDO.
 
+    DEFINE BUFFER bJobMch FOR job-mch.
+   
     RUN schedule/objects/prompts/resources.w (
         ipcCompany,
         ipcJobNo,
         ipiJobNo2,
         ipiFormNo,
-        OUTPUT cResources
+        OUTPUT cResources,
+        OUTPUT cChanges
         ).
     DO idx = 1 TO NUM-ENTRIES(cResources):
         FOR EACH job-mch NO-LOCK
@@ -279,6 +284,16 @@ DO:
                   AND job-mat.job-no  EQ ipcJobNo
                   AND job-mat.job-no2 EQ ipiJobNo2
                   AND job-mat.frm     EQ ipiFormNo) THEN DO:
+                // check if machine change has been indicated
+                DO jdx = 1 TO NUM-ENTRIES(cChanges) BY 2:
+                    IF ENTRY(jdx,cChanges) EQ job-mch.m-code THEN DO:
+                        // change routing to new machine
+                        FIND FIRST bJobMch EXCLUSIVE-LOCK
+                             WHERE ROWID(bJobMch) EQ ROWID(job-mch).
+                        bJobMch.m-code = ENTRY(jdx + 1,cChanges).
+                        RELEASE bJobMch.
+                    END. // if entry(jdx)
+                END. // do jdx
                 CREATE sbNote.
                 ASSIGN
                     sbNote.company  = job-mch.company

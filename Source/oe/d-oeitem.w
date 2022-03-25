@@ -6870,6 +6870,8 @@ PROCEDURE display-item :
             fi_s-comm-lbl
             oe-ordl.SourceEstimateID            
             oe-ordl.managed
+            oe-ordl.ediPrice            
+            fi_edi-price-uom
             WITH FRAME {&frame-name}.
 
         /*     IF oe-ordl.whsed:HIDDEN = NO THEN                  */

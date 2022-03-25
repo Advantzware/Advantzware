@@ -1,9 +1,30 @@
-/* stax.i
-"ASI" "stax"
-"tax-group" "Tax Group" ""
-"" "" ""
-"" "" ""
-"" "" ""
+
+/*------------------------------------------------------------------------
+    File        : inventorySnapshot.i
+    Purpose     : 
+
+    Syntax      :
+
+    Description : 
+
+    Author(s)   : 
+    Created     : Tue Mar 08 03:05:07 EST 2022
+    Notes       :
+  ----------------------------------------------------------------------*/
+
+/* ***************************  Definitions  ************************** */
+
+
+/* ********************  Preprocessor Definitions  ******************** */
+
+
+/* ***************************  Main Block  *************************** */
+/* job-code.i
+"ASI" "inventorySnapshot"
+"snapshotType" "snapshotType" ""
+"itemType" "itemType" ""
+"warehouseID" "warehouseID" ""
+"locationID" "locationID" ""
 "" "" ""
 "" "" ""
 "" "" ""
@@ -17,23 +38,25 @@
 "no"
 */
 
-&Global-define FLDNAME1 stax.tax-group
-&Global-define FORMAT-1 X(3)
+&Global-define FLDNAME1 inventorySnapshot.SnapshotType
+&Global-define FORMAT-1 X(10)
 &Global-define SORTBY-1 
 &Global-define IDXNAME1 
-&Global-define DESCRIP1 Tax Group
+&Global-define DESCRIP1 SnapshotType
 &Global-define FLDNAME2 
+&Global-define FORMAT-2 
 &Global-define SORTBY-2 
 &Global-define IDXNAME2 
 &Global-define DESCRIP2 
 &Global-define FLDNAME3 
+&Global-define FORMAT-3 
 &Global-define SORTBY-3 
 &Global-define IDXNAME3 
 &Global-define DESCRIP3 
-&Global-define FLDNAME4 
+&Global-define FLDNAME4
 &Global-define SORTBY-4 
 &Global-define IDXNAME4 
-&Global-define DESCRIP4 
+&Global-define DESCRIP4
 &Global-define FLDNAME5 
 &Global-define SORTBY-5 
 &Global-define IDXNAME5 

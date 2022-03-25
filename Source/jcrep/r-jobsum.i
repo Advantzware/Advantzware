@@ -20,12 +20,14 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
   
     for EACH job
         where job.company            eq cocode
-          and job.job-no             ge SUBSTR(v-job-no[1],1,6)
-          and job.job-no             le SUBSTR(v-job-no[2],1,6)
+          and job.job-no             ge SUBSTR(v-job-no[1],1,9)
+          and job.job-no             le SUBSTR(v-job-no[2],1,9)
           AND fill(" ",6 - length(trim(job.job-no))) +
               trim(begin_job-no) + string(int(job.job-no2),"99") GE v-job-no[1]
           AND fill(" ",6 - length(trim(job.job-no))) +
               trim(begin_job-no) + string(int(job.job-no2),"99") LE v-job-no[2]
+          AND job.job-no2 GE int(begin_job-no2)
+	      AND job.job-no2 LE int(end_job-no2)    
           and (v-stat                eq "A"                     or
                (v-stat               eq "O" and job.opened)     or
                (v-stat               eq "C" and NOT job.opened))
@@ -94,7 +96,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
       if not avail work-item then next.
       IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
       put "Job Number: "
-          trim(job.job-no) + "-" + string(job.job-no2,"99") +
+          TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) +
           "     Closing Date: " +
           (IF job.close-date EQ ? THEN "        " ELSE
                                   STRING(job.close-date,"99/99/99"))
@@ -512,7 +514,7 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
 
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED            
-            '"' trim(job.job-no) + "-" + string(job.job-no2,"99") '",'
+            '"' TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) '",'
             '"' STRING(v-cust)                                    '",'
             '"' STRING(work-item.i-no)                            '",'
             '"' STRING(work-item.price,">>>>9.99")                '",'            

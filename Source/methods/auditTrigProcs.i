@@ -6,13 +6,6 @@ CREATE old-{&TABLENAME}.
 &ENDIF
 
 PROCEDURE pAudit{1}:
-/*    &IF "{1}" NE "" &THEN                             */
-/*    DEFINE VARIABLE lBufferCompare AS LOGICAL NO-UNDO.*/
-/*                                                      */
-/*    BUFFER-COMPARE {&TABLENAME} TO old-{&TABLENAME}   */
-/*        SAVE RESULT IN lBufferCompare.                */
-/*    IF lBufferCompare EQ NO THEN RETURN.              */
-/*    &ENDIF                                            */
     FIND FIRST AuditTbl NO-LOCK 
          WHERE AuditTbl.AuditTable EQ "{&TABLENAME}"
          NO-ERROR.
@@ -39,6 +32,9 @@ PROCEDURE pAudit{1}:
         END.
         &ENDIF
     END. /* avail audittbl */
+    // clear error-status so ADM1 does not fire adm-show-errors
+    ELSE
+    ERROR-STATUS:ERROR = NO.
 END PROCEDURE.
 
 PROCEDURE pAuditDetail{1}:

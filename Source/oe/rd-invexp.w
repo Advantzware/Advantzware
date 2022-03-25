@@ -81,7 +81,7 @@ DEF TEMP-TABLE tt-report NO-UNDO
 
 ASSIGN 
     cTextListToSelect  = "Invoice#,Customer#,Customer Name,Invoice Date,Bol#,Order#,Printed,Invoice Total," +
-                                                "Status,Shipto,Shipto Name,Contact,Sales Tax Group,Terms Code,Freight Pay Code," +
+                                                "Status,Shipto,Shipto Name,Contact,Tax Group,Terms Code,Freight Pay Code," +
                                                 "Cust PO#,Carrier,FOB Code,Job#,Job2,Est#,Item#," +
                                                 "Name,Cust Part#,Qty Order,Item Dscr1,Item Dscr2," +
                                                 "Qty Ship,Qty Invoice,UOM,Rep1,Rep Name1,Rep2,Rep Name2,Rep3,Rep Name3," +

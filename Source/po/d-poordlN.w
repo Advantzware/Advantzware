@@ -428,28 +428,28 @@ DEFINE FRAME Dialog-Frame
      fiCount AT ROW 7.67 COL 64 COLON-ALIGNED WIDGET-ID 4
      fi_c-a-hdr AT ROW 17 COL 58 COLON-ALIGNED NO-LABEL
      fi_uom AT ROW 17.95 COL 11 COLON-ALIGNED NO-LABEL
-     po-ordl.i-no AT ROW 1.24 COL 16.6 COLON-ALIGNED
+     po-ordl.i-no AT ROW 1.24 COL 14.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
-     po-ordl.job-no AT ROW 1.24 COL 48.8 COLON-ALIGNED
+     po-ordl.job-no AT ROW 1.24 COL 47 COLON-ALIGNED
           LABEL "Job #"
           VIEW-AS FILL-IN 
-          SIZE 13 BY 1
-     po-ordl.job-no2 AT ROW 1.24 COL 61.8 COLON-ALIGNED NO-LABEL
+          SIZE 16 BY 1
+     po-ordl.job-no2 AT ROW 1.24 COL 63.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     po-ordl.s-num AT ROW 1.24 COL 71.6 COLON-ALIGNED
+     po-ordl.s-num AT ROW 1.24 COL 72.8 COLON-ALIGNED
           LABEL "F"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
-     po-ordl.b-num AT ROW 1.24 COL 80.4 COLON-ALIGNED
+     po-ordl.b-num AT ROW 1.24 COL 81.6 COLON-ALIGNED
           LABEL "B"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
-     po-ordl.due-date AT ROW 1.24 COL 98.6 COLON-ALIGNED
+     po-ordl.due-date AT ROW 1.24 COL 99.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     btnCalendar-1 AT ROW 1.24 COL 117
+     btnCalendar-1 AT ROW 1.24 COL 117.6
      po-ordl.stat AT ROW 1.24 COL 128 COLON-ALIGNED
           LABEL "Stat"
           VIEW-AS FILL-IN 
@@ -821,6 +821,7 @@ DO:
                   ASSIGN lw-focus:SCREEN-VALUE       = ENTRY(1,char-val)
                          po-ordl.i-name:SCREEN-VALUE = ENTRY(2,char-val).
                   RUN display-rmitem (look-recid).
+                  ll-item-validated = YES.
                 END.
               END.
               ELSE DO:  /* finished good */
@@ -830,6 +831,7 @@ DO:
                          po-ordl.i-name:screen-value = ENTRY(2,char-val).
                   RUN display-fgitem (look-recid) .
                   lCheckFGCustHold = NO.
+                  ll-item-validated = YES.
                 END.                           
               END.
             END.
@@ -1194,7 +1196,7 @@ DO:
      /* wfk - to make sure cons-qty was being updated */
     FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
     {po/podisdet.i}
-   
+    po-ordl.cons-cost = decimal(po-ordl.cons-cost:SCREEN-VALUE).
    ASSIGN po-ordl.s-dep = v-dep . 
     
 IF TRIM(po-ordl.job-no) EQ "" THEN po-ordl.job-no2 = 0.
@@ -1586,8 +1588,7 @@ DO:
 
         IF LASTKEY NE -1 THEN 
         DO:
-            {&self-name}:SCREEN-VALUE = FILL(" ", 6 - LENGTH(TRIM({&self-name}:SCREEN-VALUE))) +
-                                TRIM({&self-name}:SCREEN-VALUE).
+            {&self-name}:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', {&self-name}:SCREEN-VALUE)) .
     
             RUN valid-job-no NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
