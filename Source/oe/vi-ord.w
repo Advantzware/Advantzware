@@ -117,6 +117,7 @@ DEFINE VARIABLE cStatus AS CHARACTER FORMAT "X(256)":U
 
 DEFINE FRAME F-Main
      oe-ord.ord-no AT ROW 1.24 COL 11 COLON-ALIGNED
+          FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
      oe-ord.ord-date AT ROW 1.24 COL 35 COLON-ALIGNED
@@ -127,14 +128,14 @@ DEFINE FRAME F-Main
           SIZE 3.2 BY 1
      oe-ord.est-no AT ROW 1.24 COL 85 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 8 BY 1
-     oe-ord.job-no AT ROW 1.24 COL 111 COLON-ALIGNED
+          SIZE 12 BY 1
+     oe-ord.job-no AT ROW 1.24 COL 113 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
      oe-ord.job-no2 AT ROW 1.24 COL 121 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     cStatus AT ROW 1.24 COL 110 COLON-ALIGNED
+     cStatus AT ROW 1.24 COL 113 COLON-ALIGNED
           LABEL "Status"
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
@@ -211,6 +212,8 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN cStatus IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN oe-ord.ord-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 

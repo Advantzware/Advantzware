@@ -114,6 +114,7 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE FRAME F-Main
      oe-rell.ord-no AT ROW 1.71 COL 10 COLON-ALIGNED
+          FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
      oe-relh.rel-date AT ROW 1.71 COL 52.6 COLON-ALIGNED
@@ -190,6 +191,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN oe-relh.ord-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-relh.release# IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* _RUN-TIME-ATTRIBUTES-END */

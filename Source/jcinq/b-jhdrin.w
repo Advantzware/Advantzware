@@ -176,7 +176,7 @@ DEFINE BROWSE br_table
       job-hdr.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       job-hdr.qty FORMAT ">>>,>>>,>>9":U LABEL-BGCOLOR 14
       job-hdr.sq-in COLUMN-LABEL "SqInch%" FORMAT ">>9.99":U LABEL-BGCOLOR 14
-      job-hdr.ord-no FORMAT ">>>>>>":U LABEL-BGCOLOR 14
+      job-hdr.ord-no FORMAT ">>>>>>>>":U LABEL-BGCOLOR 14
       job-hdr.std-mat-cost COLUMN-LABEL "Mat'l" FORMAT "->>,>>9.99":U
             LABEL-BGCOLOR 14
       job-hdr.std-lab-cost COLUMN-LABEL "D.L." FORMAT "->>,>>9.99":U
@@ -286,7 +286,7 @@ ASSIGN
      _FldNameList[6]   > ASI.job-hdr.sq-in
 "job-hdr.sq-in" "SqInch%" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.job-hdr.ord-no
-"job-hdr.ord-no" ? ">>>>>>" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.ord-no" ? ">>>>>>>>" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.job-hdr.std-mat-cost
 "job-hdr.std-mat-cost" "Mat'l" "->>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.job-hdr.std-lab-cost

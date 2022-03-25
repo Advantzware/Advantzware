@@ -422,11 +422,11 @@ DEFINE FRAME Dialog-Frame
      po-ordl.i-no AT ROW 1.24 COL 17 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
-     po-ordl.job-no AT ROW 1.24 COL 48.8 COLON-ALIGNED
-          LABEL "Job #"
+     po-ordl.job-no AT ROW 1.24 COL 48.8 COLON-ALIGNED FORMAT "x(9)"
+          LABEL "Job #" 
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     po-ordl.job-no2 AT ROW 1.24 COL 61.8 COLON-ALIGNED NO-LABEL
+     po-ordl.job-no2 AT ROW 1.24 COL 61.8 COLON-ALIGNED FORMAT "999" NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
      po-ordl.s-num AT ROW 1.24 COL 71.6 COLON-ALIGNED
@@ -696,7 +696,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN po-ordl.item-type IN FRAME Dialog-Frame
    ALIGN-L EXP-LABEL EXP-FORMAT                                         */
 /* SETTINGS FOR FILL-IN po-ordl.job-no IN FRAME Dialog-Frame
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN po-ordl.job-no2 IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT                                                 */   
 /* SETTINGS FOR FILL-IN po-ordl.ord-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN po-ordl.ord-qty IN FRAME Dialog-Frame

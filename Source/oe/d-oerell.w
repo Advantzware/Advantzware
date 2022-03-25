@@ -202,10 +202,12 @@ DEFINE FRAME Dialog-Frame
           BGCOLOR 15 FONT 1
      oe-rell.job-no AT ROW 8.48 COL 29.8 COLON-ALIGNED
           LABEL "Job Number"
+          FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 18.6 BY 1
           BGCOLOR 15 FONT 1
      oe-rell.job-no2 AT ROW 8.48 COL 48.2 COLON-ALIGNED NO-LABEL
+          FORMAT "999"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
           BGCOLOR 15 FONT 1
@@ -310,9 +312,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-rell.i-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN oe-rell.job-no IN FRAME Dialog-Frame
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-rell.job-no2 IN FRAME Dialog-Frame
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-rell.link-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-rell.loc IN FRAME Dialog-Frame

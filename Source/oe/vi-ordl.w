@@ -157,6 +157,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 46 BY 1
      oe-ordl.ord-no AT ROW 1.24 COL 98 COLON-ALIGNED
+          FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
      oe-ordl.est-no AT ROW 1.24 COL 129 COLON-ALIGNED FORMAT "x(8)"
@@ -252,6 +253,8 @@ ASSIGN
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-ordl.i-name IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN oe-ordl.ord-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN li-alloc IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN li-avail IN FRAME F-Main

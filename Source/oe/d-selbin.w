@@ -250,8 +250,8 @@ DEFINE QUERY br-bin FOR
 DEFINE BROWSE br-bin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br-bin Dialog-Frame _FREEFORM
   QUERY br-bin DISPLAY
-      w-bin.job-no        LABEL "Job#"                        LABEL-BGCOLOR  14 WIDTH 15
-    w-bin.job-no2       NO-LABEL                              LABEL-BGCOLOR  14 WIDTH 6
+    w-bin.job-no        LABEL "Job#"           FORMAT "X(9)"  LABEL-BGCOLOR  14 WIDTH 15
+    w-bin.job-no2       NO-LABEL               FORMAT "999"   LABEL-BGCOLOR  14 WIDTH 6
     w-bin.last-rct-date LABEL "Receipt Date"   FORMAT 99/99/9999 LABEL-BGCOLOR 14 
     w-bin.loc           LABEL "Whs"            FORMAT "x(7)"  LABEL-BGCOLOR  14
     w-bin.loc-bin       LABEL "Bin"            FORMAT "x(8)"  LABEL-BGCOLOR  14

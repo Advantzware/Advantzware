@@ -394,7 +394,7 @@ DEFINE VARIABLE begin_i-no     AS CHARACTER FORMAT "X(15)":U
 DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
@@ -429,7 +429,7 @@ DEFINE VARIABLE end_i-no       AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzz
 DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
@@ -579,11 +579,11 @@ DEFINE FRAME FRAME-A
     "Enter Ending Item Number"
     begin_job-no AT ROW 6.95 COL 28 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    begin_job-no2 AT ROW 6.95 COL 40.6 COLON-ALIGNED HELP
+    begin_job-no2 AT ROW 6.95 COL 42.6 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
     end_job-no AT ROW 6.71 COL 68.2 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    end_job-no2 AT ROW 6.71 COL 79.8 COLON-ALIGNED HELP
+    end_job-no2 AT ROW 6.71 COL 81.8 COLON-ALIGNED HELP
     "Enter Ending Job Number"
     begin_whse AT ROW 7.91 COL 28 COLON-ALIGNED HELP
     "Enter Beginning Warehouse" WIDGET-ID 10
