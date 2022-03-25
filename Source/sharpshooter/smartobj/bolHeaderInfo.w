@@ -494,7 +494,7 @@ PROCEDURE pDisplayBOLInfo :
         ASSIGN
             fiBolNo:SCREEN-VALUE     = STRING(bf-oe-bolh.bol-no)
             fiBolDate:SCREEN-VALUE   = STRING(bf-oe-bolh.bol-date)           
-            fiBolStatus:SCREEN-VALUE = IF bf-oe-bolh.stat EQ "R" THEN "Relased" ELSE "Hold"
+            fiBolStatus:SCREEN-VALUE = IF bf-oe-bolh.stat EQ "R" THEN "Released" ELSE "Hold"
             fiRelease:SCREEN-VALUE   = STRING(bf-oe-bolh.release#)
             fiCarrier:SCREEN-VALUE   = bf-oe-bolh.carrier
             fiSeal:SCREEN-VALUE      = bf-oe-bolh.airway-bill
