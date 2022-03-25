@@ -47,7 +47,7 @@ FIND FIRST bf-est
     AND bf-est.est-no EQ bf-eb.est-no  
     NO-ERROR.     
       
-FOR EACH eb  EXCLUSIVE-LOCK
+FOR EACH eb EXCLUSIVE-LOCK
     WHERE eb.company  EQ bf-eb.company
     AND eb.est-no EQ bf-eb.est-no
     AND eb.form-no NE 0 :
@@ -99,7 +99,7 @@ DO:
             bf-set-eb.procat           = tt-eb-set.procat                 
             bf-set-eb.set-is-assembled = tt-eb-set.set-is-assembled 
             /*tt-eb-set.pur-man           = TRUE */  .
-        FIND FIRST itemfg
+        FIND FIRST itemfg EXCLUSIVE-LOCK
             WHERE itemfg.company EQ bf-set-eb.company
             AND itemfg.i-no    EQ bf-set-eb.stock-no
             NO-ERROR.
@@ -123,7 +123,7 @@ END.
 FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo 
     BY ttInputEst.iBlankNo:
     
-    FIND FIRST eb 
+    FIND FIRST eb EXCLUSIVE-LOCK
         WHERE eb.company  EQ bf-est.company
         AND eb.est-no EQ bf-est.est-no
         AND eb.form-no EQ ttInputEst.iFormNo  
@@ -161,16 +161,16 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
     END.
         
         
-    FIND FIRST ef 
+    FIND FIRST ef EXCLUSIVE-LOCK 
         WHERE ef.company EQ eb.company
         AND ef.est-no EQ eb.est-no
         AND ef.form-no EQ eb.form-no  
         NO-ERROR.
-    FIND FIRST est 
+    FIND FIRST est EXCLUSIVE-LOCK 
         WHERE est.company EQ ef.company
         AND est.est-no EQ eb.est-no  
         NO-ERROR.
-    FIND est-qty 
+    FIND est-qty EXCLUSIVE-LOCK 
         WHERE est-qty.company EQ ef.company
         AND est-qty.est-no EQ ef.est-no         
         NO-ERROR.
@@ -386,12 +386,12 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
    
     IF ef.board EQ '' THEN 
     DO:
-        FIND FIRST ITEM NO-LOCK 
+        FIND FIRST item NO-LOCK 
             WHERE item.company EQ ef.company
             AND  item.flute EQ ttInputEst.cFlute
             AND item.reg-no EQ ttInputEst.cTest
             NO-ERROR.
-        IF AVAILABLE ITEM THEN 
+        IF AVAILABLE item THEN 
             ef.board = item.i-no.
     END.
     FIND FIRST item NO-LOCK 
