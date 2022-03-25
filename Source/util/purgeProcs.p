@@ -337,14 +337,13 @@ PROCEDURE pAnalyzePOs:
               
     EMPTY TEMP-TABLE ttPurgeList.
     
-    FOR EACH company WHERE 
+    FOR EACH company NO-LOCK WHERE
         company.company EQ (IF ipcCompanies EQ "*" THEN company.company ELSE ipcCompanies):
-        FOR EACH po-ord WHERE 
+        FOR EACH po-ord NO-LOCK WHERE 
             po-ord.company EQ company.company AND
             po-ord.po-no GE iBeginPoNo AND po-ord.po-no LE iEndPoNo AND 
             po-ord.po-date GE daBeginPoEnterDate AND po-ord.po-date LE daEndPoEnterDate AND 
-            po-ord.vend-no GE cBeginVendNo AND po-ord.vend-no LE cEndVendNo
-            NO-LOCK:
+            po-ord.vend-no GE cBeginVendNo AND po-ord.vend-no LE cEndVendNo:
             CREATE ttPurgeList.
             ASSIGN 
                 ttPurgeList.cTable = "po-ord"
@@ -356,7 +355,7 @@ PROCEDURE pAnalyzePOs:
                 ttPurgeList.cKey4 = ""
                 ttPurgeList.cKey5 = ""
                 .
-            FOR EACH po-ordl WHERE
+            FOR EACH po-ordl NO-LOCK WHERE
                 po-ordl.company EQ po-ord.company AND 
                 po-ordl.po-no EQ po-ord.po-no: 
                 CREATE ttPurgeList.
@@ -371,7 +370,7 @@ PROCEDURE pAnalyzePOs:
                     ttPurgeList.cKey5 = ""
                     .
             END.
-            FOR EACH po-all WHERE
+            FOR EACH po-all NO-LOCK WHERE
                 po-all.company EQ po-ord.company AND 
                 po-all.po-no EQ po-ord.po-no: 
                 CREATE ttPurgeList.
@@ -386,7 +385,7 @@ PROCEDURE pAnalyzePOs:
                     ttPurgeList.cKey5 = ""
                     .
             END.
-            FOR EACH po-ordl-add WHERE
+            FOR EACH po-ordl-add NO-LOCK WHERE
                 po-ordl-add.company EQ po-ord.company AND 
                 po-ordl-add.po-no EQ po-ord.po-no: 
                 CREATE ttPurgeList.
@@ -1037,8 +1036,8 @@ PROCEDURE pGetFieldList:
     asi._file._file-name = ipcFileName 
         NO-ERROR.
 
-    IF AVAILABLE asi._file THEN FOR EACH asi._index OF asi._file, 
-                                EACH asi._index-field OF asi._index, 
+    IF AVAILABLE asi._file THEN FOR EACH asi._index OF asi._file NO-LOCK, 
+                                EACH asi._index-field OF asi._index NO-LOCK,
                                 EACH asi._field OF asi._index-field NO-LOCK 
         BY asi._field._order:
         IF LOOKUP(_field._field-name,opcFieldList) EQ 0 THEN ASSIGN 
@@ -1382,8 +1381,8 @@ PROCEDURE pTestOneFile:
         asi._file._file-name = ipcFileName 
         NO-ERROR.
     IF AVAILABLE asi._file THEN 
-        FOR EACH asi._index OF asi._file, 
-            EACH asi._index-field OF asi._index, 
+        FOR EACH asi._index OF asi._file NO-LOCK, 
+            EACH asi._index-field OF asi._index NO-LOCK, 
             EACH asi._field OF asi._index-field NO-LOCK 
             BY asi._field._order:
             IF LOOKUP(_field._field-name,cFieldList) EQ 0 THEN ASSIGN 
