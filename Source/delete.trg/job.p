@@ -6,13 +6,15 @@ TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
 
 DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hPurgeProcs AS HANDLE NO-UNDO.
 
 /* not delete if estimate exists */
 FIND est WHERE est.rec_key = {&TABLENAME}.rec_key NO-LOCK NO-ERROR.
 IF NOT AVAIL est THEN DO:
     {methods/triggers/delete.i}
 END.
-    
+
+{util/ttPurge.i NEW}
 {sys/inc/var.i NEW SHARED}
 ASSIGN
  cocode = {&TABLENAME}.company
@@ -52,7 +54,11 @@ END.
 */
 {jc/jc-dall.i}
 
-RUN Purge_SimulateAndPurgeJobRecords(
+
+    IF NOT VALID-HANDLE(hPurgeProcs) THEN 
+        RUN util/PurgeProcs.p PERSISTENT SET hPurgeProcs.
+
+RUN Purge_SimulateAndPurgeJobRecords IN hPurgeProcs (
     BUFFER {&TABLENAME},
     INPUT  YES,        /* Delete Records ? */
     INPUT  NO,         /* Create .csv files for child tables? */

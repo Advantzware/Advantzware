@@ -21,74 +21,65 @@ Use this template to create a new Structured Procedure file to compile and run P
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEF STREAM sDump.
-DEF STREAM sReport.
+USING system.sharedConfig.
 
-DEFINE TEMP-TABLE ttFileList
-    FIELD cFileName AS CHAR 
-    FIELD rRowID AS ROWID 
-    FIELD cRule AS CHAR 
-    FIELD cError AS CHAR  
-    FIELD cMessage AS CHAR
-    FIELD lPurge AS LOG
-    FIELD cRec_key AS CHAR
-    FIELD cKeyValues AS CHAR 
-    .
-    
-DEF TEMP-TABLE ttPurgeList
-    FIELD cTable AS CHAR 
-    FIELD rRowid AS ROWID 
-    FIELD lPurge AS LOG
-    .     
-    
-DEF TEMP-TABLE ttGLHistList
-    FIELD lPosted AS LOG FORMAT "POSTED/UNPOSTED"
-    FIELD iYear AS INT
-    FIELD iPeriod AS INT 
-    FIELD cAccount AS CHAR 
-    FIELD cJournal AS CHAR 
-    FIELD daTxnDate AS DATE 
-    FIELD deAmount AS DECIMAL 
-    FIELD cCurrency AS CHAR 
-    FIELD cDescription AS CHAR 
-    FIELD cType AS CHAR 
-    FIELD cCreatedBy AS CHAR 
-    FIELD cFileName AS CHAR 
-    FIELD cReckey AS CHAR 
-    FIELD rRowID AS ROWID.        
-    
-DEF VAR cCompanyList AS CHAR NO-UNDO.
-DEF VAR cFieldName AS CHAR NO-UNDO.
-DEF VAR cLocList AS CHAR NO-UNDO.
-DEF VAR cOutputDir AS CHAR NO-UNDO.
-DEF VAR cRecKeyPrefix AS CHAR NO-UNDO.
-DEF VAR cThisCompany AS CHAR NO-UNDO.
-DEF VAR hActnumField AS HANDLE NO-UNDO.
-DEF VAR hBNoField AS HANDLE NO-UNDO.
-DEF VAR hBolNoField AS HANDLE NO-UNDO.
-DEF VAR hBuffer AS HANDLE NO-UNDO.
-DEF VAR hBufferField AS HANDLE NO-UNDO.
-DEF VAR hCompanyField AS HANDLE NO-UNDO.
-DEF VAR hCustNoField AS HANDLE NO-UNDO.
-DEF VAR hInoField AS HANDLE NO-UNDO.
-DEF VAR hInvNoField AS HANDLE NO-UNDO.
-DEF VAR hLocField AS HANDLE NO-UNDO.
-DEF VAR hOrdNoField AS HANDLE NO-UNDO.
-DEF VAR hPoNoField AS HANDLE NO-UNDO.
-DEF VAR hJobField AS HANDLE NO-UNDO.
-DEF VAR hJobNoField AS HANDLE NO-UNDO.
-DEF VAR hJobNo2Field AS HANDLE NO-UNDO.
-DEF VAR hQuery AS HANDLE NO-UNDO.
-DEF VAR hRecKey AS HANDLE NO-UNDO.
-DEF VAR hRnoField AS HANDLE NO-UNDO.
-DEF VAR hTestField AS HANDLE NO-UNDO.
-DEF VAR hXnoField AS HANDLE NO-UNDO.
-DEF VAR iCtr AS INT NO-UNDO.
-DEF VAR iErrorCount AS INT NO-UNDO.
-DEF VAR iProcessedCount AS INT NO-UNDO.
-DEF VAR iWarningCount AS INT NO-UNDO.
-DEF VAR lPurge AS LOG NO-UNDO.
+DEFINE STREAM datafiles.
+DEFINE STREAM listfile.
+DEFINE STREAM sReftable.
+DEFINE STREAM sDump.
+DEFINE STREAM sReport.
 
+{util/ttPurge.i}
+
+DEFINE VARIABLE cOutDir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cListFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lPurge AS LOG NO-UNDO.
+DEFINE VARIABLE iCtr AS INTEGER NO-UNDO.
+DEFINE VARIABLE cocode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE locode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lVerbose AS LOG NO-UNDO.
+DEFINE VARIABLE hOutputProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE cUserId AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iSecurityLevel AS INTEGER NO-UNDO.
+DEFINE VARIABLE cGroupList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPurgeList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cProgramList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUtilName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cHotkey AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ttCtr AS INTEGER NO-UNDO.
+DEFINE VARIABLE cParm AS CHARACTER EXTENT 10 NO-UNDO.
+DEFINE VARIABLE cCompanyList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOutputDir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRecKeyPrefix AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cThisCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hActnumField AS HANDLE NO-UNDO.
+DEFINE VARIABLE hBNoField AS HANDLE NO-UNDO.
+DEFINE VARIABLE hBolNoField AS HANDLE NO-UNDO.
+DEFINE VARIABLE hBuffer AS HANDLE NO-UNDO.
+DEFINE VARIABLE hBufferField AS HANDLE NO-UNDO.
+DEFINE VARIABLE hCompanyField AS HANDLE NO-UNDO.
+DEFINE VARIABLE hCustNoField AS HANDLE NO-UNDO.
+DEFINE VARIABLE hInoField AS HANDLE NO-UNDO.
+DEFINE VARIABLE hInvNoField AS HANDLE NO-UNDO.
+DEFINE VARIABLE hLocField AS HANDLE NO-UNDO.
+DEFINE VARIABLE hOrdNoField AS HANDLE NO-UNDO.
+DEFINE VARIABLE hPoNoField AS HANDLE NO-UNDO.
+DEFINE VARIABLE hJobField AS HANDLE NO-UNDO.
+DEFINE VARIABLE hJobNoField AS HANDLE NO-UNDO.
+DEFINE VARIABLE hJobNo2Field AS HANDLE NO-UNDO.
+DEFINE VARIABLE hQuery AS HANDLE NO-UNDO.
+DEFINE VARIABLE hRecKey AS HANDLE NO-UNDO.
+DEFINE VARIABLE hRnoField AS HANDLE NO-UNDO.
+DEFINE VARIABLE hTestField AS HANDLE NO-UNDO.
+DEFINE VARIABLE hXnoField AS HANDLE NO-UNDO.
+DEFINE VARIABLE iErrorCount AS INTEGER NO-UNDO.
+DEFINE VARIABLE iProcessedCount AS INTEGER NO-UNDO.
+DEFINE VARIABLE iWarningCount AS INTEGER NO-UNDO.
+DEFINE VARIABLE cTableList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lError AS LOG NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -111,7 +102,87 @@ DEF VAR lPurge AS LOG NO-UNDO.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD dynExport Procedure
 FUNCTION dynExport RETURNS CHARACTER 
   (INPUT hRecord AS HANDLE,
-   INPUT cDelim AS CHAR) FORWARD.
+   INPUT cDelim AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fDateString) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDateString Procedure
+FUNCTION fDateString RETURNS CHARACTER 
+  (INPUT iYrOffset AS INTEGER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fEndPurge) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fEndPurge Procedure
+FUNCTION fEndPurge RETURNS LOGICAL 
+  ( INPUT cTable AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fGetDataDumpDir) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetDataDumpDir Procedure
+FUNCTION fGetDataDumpDir RETURNS CHARACTER 
+  (INPUT ipcInitValue AS CHARACTER,
+   INPUT ipcTable AS CHARACTER,
+   OUTPUT oplError AS LOG,
+   OUTPUT opcMessage AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fGetPurgeDir) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetPurgeDir Procedure
+FUNCTION fGetPurgeDir RETURNS CHARACTER 
+  ( INPUT cTable AS CHARACTER  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fStartPurge) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fStartPurge Procedure
+FUNCTION fStartPurge RETURNS LOGICAL 
+  ( INPUT cTable AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-pfWriteLine) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pfWriteLine Procedure
+FUNCTION pfWriteLine RETURNS LOGICAL PRIVATE
+  ( INPUT cTable AS CHARACTER, INPUT cNames AS CHARACTER, INPUT cData AS CHARACTER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -160,6 +231,540 @@ FUNCTION dynExport RETURNS CHARACTER
 
 /* **********************  Internal Procedures  *********************** */
 
+&IF DEFINED(EXCLUDE-analyzePurge) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE analyzePurge Procedure
+PROCEDURE analyzePurge:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcOutputDir AS CHAR.
+    DEFINE INPUT PARAMETER ipcAnalysisFile AS CHAR.
+    DEFINE INPUT PARAMETER TABLE FOR ttParmsByPurge.
+    DEFINE INPUT PARAMETER ipcCompanyList AS CHAR.
+    DEFINE INPUT PARAMETER iplOrphanPurge AS LOG.
+    DEFINE VARIABLE cKeyList AS CHAR.    
+    DEFINE VARIABLE lCreateOK AS LOG NO-UNDO.
+    /* Make sure the target directory is created */
+    RUN filesys_createDirectory (ipcOutputDir, OUTPUT lCreateOK, OUTPUT cMessage).
+    IF NOT lCreateOK THEN DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+    
+    /* Write a file containing the parameters selected for this run */
+    OUTPUT TO VALUE(ipcOutputDir + "\PurgeParms.csv").
+    FIND FIRST ttParmsByPurge.
+    PUT UNFORMATTED ttParmsByPurge.ttcPurge + CHR(10).
+    PUT UNFORMATTED "Label,Begin Value,End Value" + CHR(10).
+    FOR EACH ttParmsByPurge:
+        PUT UNFORMATTED 
+            ttParmsByPurge.ttcLabel + "," +
+            ttParmsByPurge.ttcStartValue + "," +
+            ttParmsByPurge.ttcEndValue + CHR(10).
+        IF ttParmsByPurge.ttlRange EQ TRUE THEN ASSIGN 
+            cKeyList = cKeyList + ttParmsByPurge.ttcLabel + ",".
+        ELSE ASSIGN 
+            cKeyList = cKeyList + ",".
+    END.
+    PUT UNFORMATTED "This/All Companies" + "," + ipcCompanyList + CHR(10).
+    PUT UNFORMATTED "Include Orphan Purge" + "," + STRING(iplOrphanPurge) + CHR(10).
+    OUTPUT CLOSE.
+    
+    /* Use the temp-table to determine which analysis to run and run it */
+    FIND FIRST ttParmsByPurge.
+    CASE ttParmsByPurge.ttcPurge:
+        WHEN "Purge Jobs (NF!)" THEN RUN pAnalyzeJobs (INPUT ipcCompanyList, INPUT iplOrphanPurge).
+        WHEN "Purge POs (NF9)" THEN RUN pAnalyzePOs (INPUT ipcCompanyList, INPUT iplOrphanPurge).
+    END CASE.
+
+    OUTPUT TO VALUE(ipcOutputDir + "\PurgeList.csv").
+    PUT UNFORMATTED "Table,Company," + cKeyList + "Rowid" + CHR(10). 
+    FOR EACH ttPurgeList:
+        PUT UNFORMATTED 
+            ttPurgeList.cTable + "," +
+            ttPurgeList.cCompany + "," +
+            ttPurgeList.cKey1 + "," +
+            ttPurgeList.cKey2 + "," +
+            ttPurgeList.cKey3 + "," +
+            ttPurgeList.cKey4 + "," +
+            ttPurgeList.cKey5 + "," +
+            STRING(ttPurgeList.rRowid) + CHR(10).
+    END.
+    OUTPUT CLOSE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-pAnalyzePOs) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAnalyzePOs Procedure
+PROCEDURE pAnalyzePOs:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompanies AS CHAR.
+    DEFINE INPUT PARAMETER iplOrphans AS LOG.
+    
+    DEFINE VARIABLE iBeginPoNo AS INT NO-UNDO.
+    DEFINE VARIABLE iEndPoNo AS INT NO-UNDO.
+    DEFINE VARIABLE daBeginPoEnterDate AS DATE NO-UNDO.
+    DEFINE VARIABLE daEndPoEnterDate AS DATE NO-UNDO.
+    DEFINE VARIABLE cBeginVendNo AS CHAR NO-UNDO.
+    DEFINE VARIABLE cEndVendNo AS CHAR NO-UNDO.
+    DEFINE VARIABLE lLinked AS LOG NO-UNDO.
+    DEFINE VARIABLE lOnlyClosed AS LOG NO-UNDO.
+    
+    FOR EACH ttParmsByPurge:
+        IF ttParmsByPurge.ttcParm EQ "po-no" THEN ASSIGN
+            iBeginPoNo = INTEGER(ttParmsByPurge.ttcStartValue)
+            iEndPoNo = INTEGER(ttParmsByPurge.ttcEndValue).
+        IF ttParmsByPurge.ttcParm EQ "po-date" THEN ASSIGN
+            daBeginPoEnterDate = DATE(ttParmsByPurge.ttcStartValue)
+            daEndPoEnterDate = DATE(ttParmsByPurge.ttcEndValue).
+        IF ttParmsByPurge.ttcParm EQ "vend-no" THEN ASSIGN
+            cBeginVendNo = ttParmsByPurge.ttcStartValue
+            cEndVendNo = ttParmsByPurge.ttcEndValue.
+    END. 
+              
+    EMPTY TEMP-TABLE ttPurgeList.
+    
+    FOR EACH company NO-LOCK WHERE
+        company.company EQ (IF ipcCompanies EQ "*" THEN company.company ELSE ipcCompanies):
+        FOR EACH po-ord NO-LOCK WHERE 
+            po-ord.company EQ company.company AND
+            po-ord.po-no GE iBeginPoNo AND po-ord.po-no LE iEndPoNo AND 
+            po-ord.po-date GE daBeginPoEnterDate AND po-ord.po-date LE daEndPoEnterDate AND 
+            po-ord.vend-no GE cBeginVendNo AND po-ord.vend-no LE cEndVendNo:
+            CREATE ttPurgeList.
+            ASSIGN 
+                ttPurgeList.cTable = "po-ord"
+                ttPurgeList.cCompany = po-ord.company
+                ttPurgeList.rRowid = ROWID(po-ord)
+                ttPurgeList.cKey1 = STRING(po-ord.po-no)
+                ttPurgeList.cKey2 = STRING(po-ord.po-date)
+                ttPurgeList.cKey3 = STRING(po-ord.vend-no,"x(24)")
+                ttPurgeList.cKey4 = ""
+                ttPurgeList.cKey5 = ""
+                .
+            FOR EACH po-ordl NO-LOCK WHERE
+                po-ordl.company EQ po-ord.company AND 
+                po-ordl.po-no EQ po-ord.po-no: 
+                CREATE ttPurgeList.
+                ASSIGN 
+                    ttPurgeList.cTable = "po-ordl"
+                    ttPurgeList.cCompany = po-ord.company
+                    ttPurgeList.rRowid = ROWID(po-ordl)
+                    ttPurgeList.cKey1 = STRING(po-ord.po-no)
+                    ttPurgeList.cKey2 = STRING(po-ord.po-date)
+                    ttPurgeList.cKey3 = STRING(po-ord.vend-no,"x(24)")
+                    ttPurgeList.cKey4 = ""
+                    ttPurgeList.cKey5 = ""
+                    .
+            END.
+            FOR EACH po-all NO-LOCK WHERE
+                po-all.company EQ po-ord.company AND 
+                po-all.po-no EQ po-ord.po-no: 
+                CREATE ttPurgeList.
+                ASSIGN 
+                    ttPurgeList.cTable = "po-all"
+                    ttPurgeList.cCompany = po-ord.company
+                    ttPurgeList.rRowid = ROWID(po-all)
+                    ttPurgeList.cKey1 = STRING(po-ord.po-no)
+                    ttPurgeList.cKey2 = STRING(po-ord.po-date)
+                    ttPurgeList.cKey3 = STRING(po-ord.vend-no,"x(24)")
+                    ttPurgeList.cKey4 = ""
+                    ttPurgeList.cKey5 = ""
+                    .
+            END.
+            FOR EACH po-ordl-add NO-LOCK WHERE
+                po-ordl-add.company EQ po-ord.company AND 
+                po-ordl-add.po-no EQ po-ord.po-no: 
+                CREATE ttPurgeList.
+                ASSIGN 
+                    ttPurgeList.cTable = "po-ordl-add"
+                    ttPurgeList.cCompany = po-ord.company
+                    ttPurgeList.rRowid = ROWID(po-ordl-add)
+                    ttPurgeList.cKey1 = STRING(po-ord.po-no)
+                    ttPurgeList.cKey2 = STRING(po-ord.po-date)
+                    ttPurgeList.cKey3 = STRING(po-ord.vend-no,"x(24)")
+                    ttPurgeList.cKey4 = ""
+                    ttPurgeList.cKey5 = ""
+                    .
+            END.
+        END. 
+    END.       
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-pBuildParmsByPurgeTT) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildParmsByPurgeTT Procedure
+PROCEDURE pBuildParmsByPurgeTT:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttParmsByPurge.
+    DO ttCtr = 1 TO 10:
+        IF cParm[ttCtr] EQ "" THEN LEAVE.
+        CREATE ttParmsByPurge.
+        ASSIGN 
+            ttParmsByPurge.ttcPurge = ENTRY(1,cParm[ttCtr])
+            ttParmsByPurge.ttcParm = ENTRY(2,cParm[ttCtr])
+            ttParmsByPurge.ttcLabel = ENTRY(3,cParm[ttCtr])
+            ttParmsByPurge.ttcDataType = ENTRY(4,cParm[ttCtr])
+            ttParmsByPurge.ttcFormat = ENTRY(5,cParm[ttCtr])
+            ttParmsByPurge.ttlRange = LOGICAL(ENTRY(6,cParm[ttCtr]))
+            ttParmsByPurge.ttcStartValue = ENTRY(7,cParm[ttCtr])
+            ttParmsByPurge.ttcEndValue = ENTRY(8,cParm[ttCtr])
+        .
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-BuildPurgesByGroup) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildPurgesByGroup Procedure
+PROCEDURE pBuildPurgesByGroup:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO ttCtr = 1 TO NUM-ENTRIES(cGroupList):
+        CREATE ttPurgeByGroup.
+        ASSIGN 
+            ttPurgeByGroup.ttcGroup = ENTRY(ttCtr,cGroupList)
+            ttPurgeByGroup.ttcPurge = ENTRY(ttCtr,cPurgeList)
+            ttPurgeByGroup.ttcMasterTable = ENTRY(ttCtr,cTableList).
+            
+        IF INDEX(ttPurgeByGroup.ttcPurge,"(") NE 0 THEN DO:
+            ASSIGN 
+                cHotkey = SUBSTRING(ttPurgeByGroup.ttcPurge,INDEX(ttPurgeByGroup.ttcPurge,"(") + 1)
+                cHotkey = REPLACE(cHotkey,")","")
+                cUtilName = SUBSTRING(ttPurgeByGroup.ttcPurge,1,INDEX(ttPurgeByGroup.ttcPurge,"(") - 2).
+            FIND FIRST prgrms NO-LOCK WHERE 
+                prgrms.mnemonic EQ cHotkey
+                NO-ERROR.
+            IF AVAILABLE prgrms THEN ASSIGN 
+                ttPurgeByGroup.ttcUserList = IF prgrms.can_run NE "" THEN prgrms.can_run ELSE "*"
+                ttPurgeByGroup.ttiSecurityLevel = prgrms.securityLevelUser.
+            ELSE DO:
+                FIND FIRST utilities NO-LOCK WHERE 
+                    utilities.description EQ cUtilName
+                    NO-ERROR.
+                ASSIGN 
+                    ttPurgeByGroup.ttcUserList = "*"
+                    ttPurgeByGroup.ttiSecurityLevel = IF AVAILABLE utilities THEN utilities.securityLevel ELSE 900.
+            END. 
+                    
+        END.
+    END.        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-checkPurgeSecurity) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE checkPurgeSecurity Procedure
+PROCEDURE checkPurgeSecurity:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcPurgeName AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOG NO-UNDO.
+    
+    FIND FIRST ttPurgeByGroup WHERE 
+        ttPurgeByGroup.ttcPurge EQ ipcPurgeName
+        NO-ERROR.
+    IF AVAILABLE ttPurgeByGroup THEN DO:
+        IF NOT CAN-DO(ttPurgeByGroup.ttcUserList, cUserID) 
+        OR iSecurityLevel LT ttPurgeByGroup.ttiSecurityLevel THEN ASSIGN 
+            oplError = TRUE. 
+    END.    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-getCurrentUser) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getCurrentUser Procedure
+PROCEDURE getCurrentUser:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplError AS LOG NO-UNDO.
+    
+    FIND FIRST users NO-LOCK WHERE
+        users.user_id EQ USERID(LDBNAME(1))
+        NO-ERROR.
+    IF NOT AVAILABLE users 
+    THEN DO:
+        /* Testing only */
+        ASSIGN 
+        cUserId = "mark"
+        iSecurityLevel = 1000.
+        
+/*        ASSIGN              */
+/*            oplError = TRUE.*/
+/*        RETURN.             */
+    END.
+    ELSE ASSIGN 
+        cUserId = users.user_id
+        iSecurityLevel = users.securityLevel.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-GetPurgeListByGroup) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetPurgeListByGroup Procedure
+PROCEDURE GetPurgeListByGroup:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcGroupName AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ipcPurgeList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCanPurge AS LOG NO-UNDO.
+    
+    FOR EACH ttPurgeByGroup WHERE 
+        ttPurgeByGroup.ttcGroup EQ ipcGroupName:
+            
+        RUN checkPurgeSecurity (INPUT ttPurgeByGroup.ttcPurge, OUTPUT lCanPurge).
+        IF NOT lCanPurge THEN ASSIGN 
+            ipcPurgeList = ipcPurgeList + ttPurgeByGroup.ttcPurge + ",".
+    END.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-initializeProc) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeProc Procedure
+PROCEDURE initializeProc:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lUserError AS LOG NO-UNDO.
+    
+    ASSIGN
+        cGroupList = 
+            "EST,EST,EST" + "," +
+            "ORD,ORD,ORD,ORD,ORD,ORD,ORD" + "," +
+            "INV,INV,INV,INV,INV,INV,INV,INV" + "," +
+            "JOB,JOB,JOB,JOB,JOB,JOB,JOB" + "," +
+            "PUR,PUR" + "," +
+            "FIN,FIN,FIN" + "," +
+            "SYS,SYS,SYS,SYS,SYS,SYS"
+        cPurgeList =
+            "Purge Board in Style File" + "," +
+            "Purge Quotes (NF8)" + "," +
+            "Purge Old eItem Records (NM)" + "," +
+            
+            "Purge Zero Posted A/R (NF6)" + "," +
+            "Purge Customers (NY))" + "," +
+            "Purge Orders (NF7)" + "," +
+            "Purge Purge Releases (NY9)" + "," +
+            "Purge Paid A/R Invoices (NF#)" + "," +
+            "Purge Orders Utility (NM)" + "," +
+            "Purge Orders with no Lines (NM)" + "," +
+            
+            "Purge Finished Goods (NF1)" + "," +
+            "Purge FG History" + "," +
+            "Purge fg-rctd Records" + "," +
+            "Purge Rqw Materials (NY3)" + "," +
+            "FG History Consolidation (NM)" + "," +
+            "Purge SS Load Tags (NM)" + "," +
+            "Purge FG Spec Notes (NM)" + "," +
+            "Purge FG Txns by Type (NM)" + "," +
+            
+            "Purge Employee Transactions (TF#)" + "," +
+            "Purge Zero Time Transactions (TF%)" + "," +
+            "Purge Touch Data" + "," +
+            "Purge Jobs (NF!)" + "," +
+            "Purge History by Job (NM)" + "," +
+            "Purge Job Records with no Headers (NM)" + "," +
+            "Job Purge Program (NM)" + "," +
+            
+            "Purge POs (NF9)" + "," +
+            "Purge Paid A/P Invoices (NF$)" + "," +
+            
+            "Purge GL HIstory Details" + "," +
+            "Consolidate GL Transactions" + "," +
+            "Purge Adjustments" + "," +
+            
+            "Purge Report File (NY2)" + "," +
+            "Purge Contacts" + "," +
+            "Purge Notes" + "," +
+            "Purge Audit History (NM)" + "," +
+            "Purge Blank Record Keys (NM)" + "," +
+            "Purge Orphan Records (NM)"
+            .
+    ASSIGN 
+        cTableList =             
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            "job" + "," +
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            
+            "po" + "," +
+            "" + "," +
+            
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            "" + "," +
+            ""
+            .
+
+    RUN getCurrentUser (OUTPUT lUserError).
+    IF lUserError THEN DO:
+        MESSAGE 
+            "Failure to locate user in users table."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END. 
+    
+    RUN pBuildPurgesByGroup.
+    
+    RUN BuildDetailedPurgeParms ("Purge Jobs (NF!)").
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-BuildDetailedPurgeParms) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildDetailedPurgeParms Procedure
+PROCEDURE BuildDetailedPurgeParms:
+/*------------------------------------------------------------------------------
+ Purpose:   Create Parms for additional purges here
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcPurgeName AS CHARACTER NO-UNDO.
+
+/*  The format of these parameter records is as follows:*/
+/*      Purge Name (from NS8 or NM)                 */
+/*      key field name                              */
+/*      label                                       */
+/*      data type                                   */
+/*      data format                                 */
+/*      range (YES) or fixed item (NO)              */
+/*      beginning value (not required if fixed item)*/
+/*      ending value                                */
+            
+    ASSIGN 
+        cParm = "".
+
+    CASE ipcPurgeName:
+        WHEN "Purge Jobs (NF!)" THEN ASSIGN 
+            cParm[1] = "Purge Jobs (NF!),close-date,Job CLOSE date is Less Than,Date,99/99/9999,NO,''," + fDateString(1)
+            cParm[2] = "Purge Jobs (NF!),job-no,Job Range,Character,x(9),YES,0,9999999".
+        WHEN "Purge POs (NF9)" THEN ASSIGN 
+            cParm[1] = "Purge POs (NF9),po-no,PO Number,Integer,>>>>>>>9,YES,0,99999999"
+            cParm[2] = "Purge POs (NF9),po-date,PO entered date,Date,99/99/9999,YES," + fDateString(40) + "," + fDateString(3)
+            cParm[3] = "Purge POs (NF9),vend-no,Vendor,Character,x(20),YES,,zzzzzzzzzzzz"
+            cParm[4] = "Purge POs (NF9),purgeIfLinked,Purge POs if Linked to Invoices/Receipts,logical,Yes/No,NO,,No"
+            cParm[5] = "Purge POs (NF9),purgeClosedOnly,Purge ONLY Closed POs,logical,Yes/No,NO,,Yes"
+            .
+    END.
+
+    RUN pBuildParmsByPurgeTT.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+
 &IF DEFINED(EXCLUDE-outputGLaccountFile) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE outputGLaccountFile Procedure
@@ -168,9 +773,9 @@ PROCEDURE outputGLaccountFile:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcOutputDir AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcCompany AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcOutputDir AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cWarning AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAmount AS DECIMAL NO-UNDO.
     
@@ -191,7 +796,7 @@ PROCEDURE outputGLaccountFile:
             FIND FIRST account NO-LOCK
                  WHERE account.company EQ ipcCompany 
                  AND account.actnum EQ ttGLHistList.cAccount NO-ERROR .
-            IF NOT AVAIL account THEN
+            IF NOT AVAILABLE account THEN
             cWarning = " Invalid Account number".
             ELSE IF account.inactive THEN
             cWarning = " Account is inactive".              
@@ -230,6 +835,152 @@ END PROCEDURE.
 &ENDIF
 
 
+&IF DEFINED(EXCLUDE-pDeleteJobRecords) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteJobRecords Procedure
+PROCEDURE pDeleteJobRecords PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Delete the job and its child tables 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany           AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJob               AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo             AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2            AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTableList         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPurge             AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplLogChildRecords   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplCalledFromTrigger AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE hdBuffer      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdQuery       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdTempTable   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdTTBuffer    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iIndex        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hdCompany     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdJob         AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdJobNo       AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdJobNo2      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cQueryString  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTableName    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cJobHdrRefTbl AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE iAuditId      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE scInstance    AS CLASS system.SharedConfig NO-UNDO.
+    
+    scInstance = SharedConfig:instance.
+    
+    cJobHdrRefTbl = "JOB-HDR01,JOB-HDR02,JOB-HDR03,JOB-HDR04".  
+
+    DO iCount = 1 TO NUM-ENTRIES(ipcTableList):
+        cTableName = ENTRY(iCount,ipcTableList).
+        CREATE BUFFER hdBuffer FOR TABLE cTableName.
+        CREATE QUERY hdQuery.
+        
+        hdTempTable = HANDLE(scInstance:GetValue("JobPurge-" + TRIM(cTableName))) NO-ERROR.
+        IF NOT VALID-HANDLE(hdTempTable) THEN DO:      
+            CREATE TEMP-TABLE hdTempTable.      
+            hdTempTable:CREATE-LIKE(hdBuffer).
+            hdTempTable:TEMP-TABLE-PREPARE(cTableName).
+            
+            /*Store Dynamic Temp-table handle in shared config object, later used in util/wjobPurge.w */
+            scInstance:SetValue("JobPurge-" + TRIM(cTableName),STRING(hdTempTable)).
+        END.   
+        hdTTBuffer = hdTempTable:DEFAULT-BUFFER-HANDLE.      
+                            
+        ASSIGN 
+            hdCompany = hdBuffer:BUFFER-FIELD("Company")
+            hdJob     = hdBUffer:BUFFER-FIELD("job")
+            hdJobNo   = hdBuffer:BUFFER-FIELD("job-no")
+            hdJobNo2  = hdBuffer:BUFFER-FIELD("job-no2")
+            NO-ERROR.
+            
+        /* IF none of the above fields are available or if only company field is available then skip*/    
+        IF (hdCompany   EQ ? AND hdJob    EQ ? 
+            AND hdJobNo EQ ? AND hdJobNo2 EQ ?) OR 
+           (hdCompany   NE ? AND hdJob    EQ ?
+            AND hdJobNo EQ ? AND hdJobNo2 EQ ?) THEN 
+            NEXT.
+             
+        cQueryString = "FOR EACH " + cTableName + " NO-LOCK WHERE "       
+                       + (IF hdCompany NE ? THEN cTableName + ".company EQ " + QUOTER(ipcCompany) ELSE "")
+                       + (IF hdJob NE ? THEN (IF hdCompany NE ? THEN " AND " + cTableName + ".job EQ " + (IF hdJob:DATA-TYPE EQ "CHARACTER" THEN QUOTER(ipiJob) ELSE STRING(ipiJob)) 
+                          ELSE cTableName + ".job EQ " + (IF hdJob:DATA-TYPE EQ "CHARACTER" THEN QUOTER(ipiJob) ELSE STRING(ipiJob))) ELSE "")
+                       + (IF hdJobNo NE ? THEN (IF hdcompany NE ? OR hdjob NE ? THEN " AND " +  cTableName + ".job-no EQ " + QUOTER(ipcJobNo) ELSE cTableName + ".job-no EQ " + QUOTER(ipcJobNo) ) ELSE "")
+                       + (IF hdjobNo2 NE ? THEN (IF hdcompany NE ? OR hdJob NE ? OR hdJobNo2 NE ? THEN " AND " + cTableName + ".job-no2 EQ " + STRING(ipiJobNo2)  ELSE cTableName + ".job-no2 EQ " + STRING(ipiJobNo2))  ELSE "")
+                       . 
+                            
+        hdQuery:ADD-BUFFER(hdBuffer).
+        hdQuery:QUERY-PREPARE(cQueryString).
+        hdQuery:QUERY-OPEN().
+        hdQuery:GET-FIRST().
+        
+        IF NOT iplCalledFromTrigger THEN 
+            hdBuffer:DISABLE-LOAD-TRIGGERS(FALSE).
+            
+        IF iplPurge AND NOT iplCalledFromTrigger THEN 
+            OUTPUT STREAM datafiles TO VALUE (cOutDir + "\DataFiles\" + cTableName + ".d") APPEND.
+
+        DO WHILE NOT hdQuery:QUERY-OFF-END:                
+            IF cTableName = "job-hdr" AND iplPurge THEN DO:
+                DO iIndex = 1 TO NUM-ENTRIES(cJobHdrRefTbl):
+                    FOR EACH reftable EXCLUSIVE-LOCK
+                        WHERE reftable.reftable EQ ENTRY(iIndex,cJobHdrRefTbl) + ipcCompany
+                          AND reftable.code2    EQ hdBuffer:BUFFER-FIELD ("j-no"):BUFFER-VALUE:
+                        IF iplPurge AND NOT iplCalledFromTrigger THEN
+                        EXPORT STREAM sReftable reftable.                                
+                        DELETE reftable.
+                    END.
+                END.
+            END.
+            IF hdBuffer:NAME EQ "job" AND hdBuffer:BUFFER-FIELD("exported"):BUFFER-VALUE THEN DO:
+                hdQuery:GET-CURRENT(EXCLUSIVE-LOCK).
+                hdBuffer:BUFFER-FIELD("stat"):BUFFER-VALUE= "X".
+                RUN jc/kiwiexp2.p (hdBuffer:RECID).
+            END. 
+             
+            /* Log Child Records*/  
+            IF iplLogChildRecords OR (hdBuffer:NAME EQ "job" AND NOT iplCalledFromTrigger) THEN DO:
+                hdTTBuffer:BUFFER-CREATE().
+                hdTTBuffer:BUFFER-COPY(hdBuffer).
+            END.    
+            IF iplPurge THEN DO:
+                IF NOT iplCalledFromTrigger THEN DO:
+                    IF hdBuffer:NAME EQ "job" THEN 
+                        RUN Session_CreateAuditHistory(
+                            INPUT "DELETE",
+                            INPUT "ASI",
+                            INPUT hdBUffer
+                            ).          
+                    PUT STREAM datafiles UNFORMATTED DynExport(hdBuffer," ") SKIP.
+                END.
+                hdQuery:GET-CURRENT(EXCLUSIVE-LOCK).
+                hdBuffer:BUFFER-DELETE().    
+                hdBuffer:BUFFER-RELEASE(). 
+            END.   
+            hdQuery:GET-NEXT().     
+        END.
+        
+        IF iplPurge AND NOT iplCalledFromTrigger THEN  
+            OUTPUT STREAM datafiles CLOSE.  
+         
+        /* hdTempTable handle deletion in done in util/w-purge.w, do not delete it here */   
+        IF VALID-HANDLE(hdQuery) THEN 
+            DELETE OBJECT hdQuery. 
+        IF VALID-HANDLE(hdBuffer) THEN 
+            DELETE OBJECT hdBuffer.                               
+    END.
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-pDeleteRecordsByRowid) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteRecordsByRowid Procedure
@@ -238,9 +989,9 @@ PROCEDURE pDeleteRecordsByRowid:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOG NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
     CREATE BUFFER hBuffer FOR TABLE ipcFileName.
     CREATE QUERY hQuery.
@@ -278,15 +1029,15 @@ PROCEDURE pGetFieldList:
  Purpose: Returns complete list of indexed fields for this table
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcFileName AS CHAR.
-    DEF OUTPUT PARAMETER opcFieldList AS CHAR.
+    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER.
+    DEFINE OUTPUT PARAMETER opcFieldList AS CHARACTER.
 
     FIND FIRST asi._file NO-LOCK WHERE 
     asi._file._file-name = ipcFileName 
         NO-ERROR.
 
-    IF AVAIL asi._file THEN FOR EACH asi._index OF asi._file, 
-                                EACH asi._index-field OF asi._index, 
+    IF AVAILABLE asi._file THEN FOR EACH asi._index OF asi._file NO-LOCK, 
+                                EACH asi._index-field OF asi._index NO-LOCK,
                                 EACH asi._field OF asi._index-field NO-LOCK 
         BY asi._field._order:
         IF LOOKUP(_field._field-name,opcFieldList) EQ 0 THEN ASSIGN 
@@ -313,20 +1064,20 @@ PROCEDURE pTestGlhist:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcCompany AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipiYear AS INT NO-UNDO.
-    DEF INPUT PARAMETER ipiPeriod AS INT NO-UNDO.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiYear AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPeriod AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOG NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
-    DEF VAR daPeriodStartDate AS DATE NO-UNDO.
-    DEF VAR daPeriodEndDate AS DATE NO-UNDO.
-    DEF VAR cQueryString AS CHAR NO-UNDO.
+    DEFINE VARIABLE daPeriodStartDate AS DATE NO-UNDO.
+    DEFINE VARIABLE daPeriodEndDate AS DATE NO-UNDO.
+    DEFINE VARIABLE cQueryString AS CHARACTER NO-UNDO.
             
-    DEF BUFFER bglHist FOR glHist.
-    DEF BUFFER bPeriod FOR period.
-    DEF BUFFER cPeriod FOR period.
-    DEF BUFFER bf-glhist FOR glHist.
+    DEFINE BUFFER bglHist FOR glHist.
+    DEFINE BUFFER bPeriod FOR period.
+    DEFINE BUFFER cPeriod FOR period.
+    DEFINE BUFFER bf-glhist FOR glHist.
     
     FIND company NO-LOCK WHERE 
         company.company EQ ipcCompany
@@ -340,7 +1091,7 @@ PROCEDURE pTestGlhist:
     /* There's not a period record for this year/period, so create one based on
        the latest year where this period number exists. Make sure the period we
        create here is CLOSED, as are all subledgers.  Let the create.trg assign rec_key. */
-    IF NOT AVAIL period THEN DO:
+    IF NOT AVAILABLE period THEN DO:
         FIND LAST bPeriod NO-LOCK WHERE 
             bPeriod.company EQ ipcCompany AND 
             bPeriod.pnum EQ ipiPeriod
@@ -408,7 +1159,7 @@ PROCEDURE pTestGlhist:
             ttGLHistList.lPosted         = YES
             ttGLHistList.iYear           = IF bglhist.glyear NE 0 THEN bglhist.glyear ELSE          /* First choice = record.glyear */ 
                                            IF bglhist.yr NE 0 THEN bglhist.yr ELSE                  /* Second choice = record.year */ 
-                                           IF AVAIL period AND period.pnum NE 0 THEN period.yr ELSE /* Third choice = period.pnum */   
+                                           IF AVAILABLE period AND period.pnum NE 0 THEN period.yr ELSE /* Third choice = period.pnum */   
                                            YEAR(bglhist.tr-date)                                    /* finally, year of txn date */
             ttGLHistList.iPeriod         = bglhist.period
             ttGLHistList.cAccount        = bglhist.actnum
@@ -427,7 +1178,7 @@ PROCEDURE pTestGlhist:
         DO:
            FIND FIRST bf-glhist EXCLUSIVE-LOCK
                 WHERE ROWID(bf-glhist) EQ ROWID(bglhist) NO-ERROR.
-           IF AVAIL bf-glhist THEN
+           IF AVAILABLE bf-glhist THEN
            bf-glhist.posted = YES.
            RELEASE bf-glhist.
         END.
@@ -450,15 +1201,15 @@ PROCEDURE pTestInvoice:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcRecKeyPrefix AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
-    DEF VAR cFieldList AS CHAR NO-UNDO.
-    DEF VAR lError AS LOG NO-UNDO.
-    DEF VAR lWarning AS LOG NO-UNDO.
-    DEF VAR cMessage AS CHAR NO-UNDO.
-    DEF VAR cRule AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRecKeyPrefix AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOG NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError AS LOG NO-UNDO.
+    DEFINE VARIABLE lWarning AS LOG NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRule AS CHARACTER NO-UNDO.
     
     CREATE BUFFER hBuffer FOR TABLE ipcFileName.
     CREATE QUERY hQuery.
@@ -615,23 +1366,23 @@ PROCEDURE pTestOneFile:
  Purpose:   locates records with blank company code and adds to temp-table
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcRecKeyPrefix AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
-    DEF VAR cFieldList AS CHAR NO-UNDO.
-    DEF VAR lError AS LOG NO-UNDO.
-    DEF VAR lWarning AS LOG NO-UNDO.
-    DEF VAR cMessage AS CHAR NO-UNDO.
-    DEF VAR cRule AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRecKeyPrefix AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOG NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError AS LOG NO-UNDO.
+    DEFINE VARIABLE lWarning AS LOG NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRule AS CHARACTER NO-UNDO.
     
     /* Make a list of indexed fields in this table */
     FIND FIRST asi._file NO-LOCK WHERE 
         asi._file._file-name = ipcFileName 
         NO-ERROR.
-    IF AVAIL asi._file THEN 
-        FOR EACH asi._index OF asi._file, 
-            EACH asi._index-field OF asi._index, 
+    IF AVAILABLE asi._file THEN 
+        FOR EACH asi._index OF asi._file NO-LOCK, 
+            EACH asi._index-field OF asi._index NO-LOCK, 
             EACH asi._field OF asi._index-field NO-LOCK 
             BY asi._field._order:
             IF LOOKUP(_field._field-name,cFieldList) EQ 0 THEN ASSIGN 
@@ -1109,15 +1860,15 @@ PROCEDURE purgeEitemRecords:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcCompany AS CHAR.
-    DEF OUTPUT PARAMETER oplError AS LOG.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER.
+    DEFINE OUTPUT PARAMETER oplError AS LOG.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER.
     
-    DEF VAR cTempDir AS CHAR NO-UNDO.
-    DEF VAR cPurgeDir AS CHAR NO-UNDO.
-    DEF VAR cPurgeFile AS CHAR NO-UNDO.
-    DEF VAR lDirCreated AS LOG NO-UNDO.
-    DEF VAR cDirMsg AS CHAR NO-UNDO.
+    DEFINE VARIABLE cTempDir AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPurgeDir AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPurgeFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lDirCreated AS LOG NO-UNDO.
+    DEFINE VARIABLE cDirMsg AS CHARACTER NO-UNDO.
         
     RUN FileSys_GetTempDirectory (OUTPUT cTempDir).
     ASSIGN 
@@ -1200,20 +1951,20 @@ PROCEDURE purgeGLhistFromFile:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcFileName AS CHAR.
-    DEF INPUT PARAMETER ipcFileNameExt AS CHAR.
-    DEF INPUT PARAMETER ipcCompany AS CHAR.
-    DEF OUTPUT PARAMETER oplError AS LOG.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR.
+    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER.
+    DEFINE INPUT PARAMETER ipcFileNameExt AS CHARACTER.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER.
+    DEFINE OUTPUT PARAMETER oplError AS LOG.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER.
     
-    DEF VAR cHeaderList AS CHAR NO-UNDO.
-    DEF VAR iTableCol AS INT NO-UNDO.
-    DEF VAR iRowidCol AS INT NO-UNDO.
-    DEF VAR cRawRow AS CHAR NO-UNDO.
-    DEF VAR cTableList AS CHAR NO-UNDO.
-    DEF VAR deSummaryAmount AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cHeaderList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iTableCol AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iRowidCol AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cRawRow AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTableList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE deSummaryAmount AS DECIMAL NO-UNDO.
     
-    DEF BUFFER bGlhist FOR glhist.
+    DEFINE BUFFER bGlhist FOR glhist.
     DISABLE TRIGGERS FOR LOAD OF glhist.
     
     ASSIGN 
@@ -1255,7 +2006,7 @@ PROCEDURE purgeGLhistFromFile:
             FIND FIRST bglHist EXCLUSIVE WHERE 
                 ROWID(bglHist) EQ ttGLHistList.rRowid
                 NO-ERROR.
-            IF AVAIL bglHist THEN DO:
+            IF AVAILABLE bglHist THEN DO:
                 EXPORT STREAM sDump bglHist.
                 DELETE bglHist.
             END.
@@ -1274,7 +2025,7 @@ PROCEDURE purgeGLhistFromFile:
                     bglhist.entryType   = "B"
                     bglhist.ex-rate     = 1
                     bglhist.glYear      = IF ttGLHistList.iYear NE 0 THEN ttGLHistList.iYear ELSE 
-                                          IF AVAIL period THEN period.yr ELSE YEAR(ttGLHistList.daTxnDate)
+                                          IF AVAILABLE period THEN period.yr ELSE YEAR(ttGLHistList.daTxnDate)
                     bglhist.jrnl        = ttGLHistList.cJournal
                     bglhist.module      = ""
                     bglhist.period      = ttGLHistList.iPeriod
@@ -1287,11 +2038,11 @@ PROCEDURE purgeGLhistFromFile:
                                           STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
                     bglhist.sourceDate  = ?
                     bglhist.tr-amt      = deSummaryAmount
-                    bglhist.tr-date     = IF AVAIL period THEN period.pend ELSE ttGLHistList.daTxnDate
+                    bglhist.tr-date     = IF AVAILABLE period THEN period.pend ELSE ttGLHistList.daTxnDate
                     bglhist.tr-dscr     = "Balance Forward Total"
                     bglhist.tr-num      = INTEGER(STRING(bglhist.glYear,"9999") + STRING(ttGLHistList.iPeriod,"99"))
                     bglhist.yr          = IF ttGLHistList.iYear NE 0 THEN ttGLHistList.iYear ELSE 
-                                          IF AVAIL period THEN period.yr ELSE YEAR(ttGLHistList.daTxnDate)
+                                          IF AVAILABLE period THEN period.yr ELSE YEAR(ttGLHistList.daTxnDate)
                     .
             END.
         END.
@@ -1317,7 +2068,19 @@ PROCEDURE purgeJobs:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcMode AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMode AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOG NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN Purge_SimulateAndPurgeJobRecords(
+        BUFFER job,
+        INPUT  NO,        /* Delete Records ? */
+        INPUT  YES,         /* Create .csv files for child tables? */
+        INPUT  NO,        /* Called from trigger?  */
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ). 
     
 
 END PROCEDURE.
@@ -1337,15 +2100,15 @@ PROCEDURE purgeOrphansFromFile:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcFileName AS CHAR.
-    DEF OUTPUT PARAMETER oplError AS LOG.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR.
+    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER.
+    DEFINE OUTPUT PARAMETER oplError AS LOG.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER.
     
-    DEF VAR cHeaderList AS CHAR NO-UNDO.
-    DEF VAR iTableCol AS INT NO-UNDO.
-    DEF VAR iRowidCol AS INT NO-UNDO.
-    DEF VAR cRawRow AS CHAR NO-UNDO.
-    DEF VAR cTableList AS CHAR NO-UNDO.
+    DEFINE VARIABLE cHeaderList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iTableCol AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iRowidCol AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cRawRow AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTableList AS CHARACTER NO-UNDO.
     
     ASSIGN 
         cOutputDir = REPLACE(ipcFileName,"\_PurgeReport.csv","").
@@ -1414,6 +2177,102 @@ END PROCEDURE.
 &ENDIF
 
 
+&IF DEFINED(EXCLUDE-Purge_SimulateAndPurgeJobRecords) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Purge_SimulateAndPurgeJobRecords Procedure
+PROCEDURE Purge_SimulateAndPurgeJobRecords:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ip-bf-job            FOR job.
+    DEFINE INPUT  PARAMETER iplPurge             AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER iplgLogChildRecords  AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER iplCalledFromTrigger AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess           AS LOGICAL   INITIAL TRUE.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER INITIAL "OK".
+    
+    DEFINE BUFFER bf-job FOR job.
+    
+    DEFINE VARIABLE cTableList       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOrphanTableList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPurgeDirectory  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+    
+    IF NOT VALID-HANDLE(hOutputProcs) THEN 
+        RUN system/OutputProcs.p PERSISTENT SET hOutputProcs.
+            
+    ASSIGN     
+        cTableList       = "job-hdr,job-mat,job-mch,job-prep,job-farm,job-farm-rctd,mat-act,mch-act,misc-act"        
+        cOrphanTableList = "sbStatus,sbNote,jobMatl,jobMach,sbJob,jobItems,jobStack,jobSheet,jobCad,jobPrep," +
+                           "jobNotes,jobs,asi2corr,corr2asi,job-all,job-brd"
+        .
+        
+    IF NOT iplCalledFromTrigger THEN DO:
+        /*If not called from trigger then delete the job in the end*/       
+        cOrphanTableList = cOrphanTableList + ",job".                                          
+    END.        
+        
+    DO TRANSACTION:
+        IF iplPurge THEN DO:
+            IF NOT iplCalledFromTrigger THEN DO:
+                RUN jc/jc-dall.p (RECID(ip-bf-job)).
+                OUTPUT STREAM sReftable TO VALUE (cOutDir + "\DataFiles\reftable.d") APPEND.
+            END.    
+            FOR EACH reftable EXCLUSIVE-LOCK
+                WHERE reftable.reftable EQ "jc/jc-calc.p"
+                 AND reftable.company   EQ ip-bf-Job.company
+                 AND reftable.loc       EQ ""
+                 AND reftable.code      EQ STRING(ip-bf-Job.job,"999999999"):
+                IF NOT iplCalledFromTrigger THEN
+                EXPORT STREAM sReftable reftable.     
+                DELETE reftable.
+            END.
+            FOR EACH reftable EXCLUSIVE-LOCK
+                WHERE reftable.reftable EQ "job.create-time"
+                  AND reftable.company  EQ ip-bf-Job.company
+                  AND reftable.loc      EQ ""
+                  AND reftable.code     EQ STRING(ip-bf-Job.job,"9999999999"):
+                IF NOT iplCalledFromTrigger THEN
+                EXPORT STREAM sReftable reftable.                      
+                DELETE reftable.
+            END.
+            
+            FOR EACH reftable EXCLUSIVE-LOCK
+                WHERE reftable.reftable EQ "job.qty-changed"
+                  AND reftable.company  EQ ip-bf-Job.company
+                  AND reftable.loc      EQ ""
+                  AND reftable.code     EQ STRING(ip-bf-Job.job,"9999999999"):
+                IF NOT iplCalledFromTrigger THEN
+                EXPORT STREAM sReftable reftable.                      
+                DELETE reftable.
+            END.
+        END.
+        RUN pDeleteJobRecords(
+            INPUT ip-bf-job.company,
+            INPUT ip-bf-job.job,
+            INPUT ip-bf-job.job-no,
+            INPUT ip-bf-job.job-no2,
+            INPUT IF iplCalledFromTrigger THEN cTableList ELSE cTableList + "," + cOrphanTableList, /* Table List */
+            INPUT iplPurge,              /* Purge records? */   
+            INPUT iplgLogChildRecords,   /* Create .csv files for child tables ? */
+            INPUT iplCalledFromTrigger   /* Called from trigger? */
+            ).
+        IF iplPurge AND NOT iplCalledFromTrigger THEN
+        OUTPUT STREAM sReftable CLOSE.                              
+    END. /* Transaction */    
+    PROCESS EVENTS.
+    
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-purgeClearTempTable) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE purgeClearTempTable Procedure
@@ -1433,6 +2292,44 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-purgeProcess) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE purgeProcess Procedure
+PROCEDURE purgeProcess:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcOutputDir AS CHAR.
+    
+    DEFINE VARIABLE cFileList AS CHAR.
+
+    FOR EACH ttPurgeList:
+        IF cFileList EQ "" THEN ASSIGN 
+            cFileList = ttPurgeList.cTable.
+        ELSE IF LOOKUP(ttPurgeList.cTable,cFileList) EQ 0 THEN ASSIGN 
+            cFileList = cFileList + "," + ttPurgeList.cTable.
+    END.
+    ASSIGN 
+        cFileList = TRIM(cFileList,",")
+        cOutputDir = ipcOutputDir.
+    
+    DO iCtr = 1 TO NUM-ENTRIES(cFileList):
+        RUN pDeleteRecordsByRowid (
+            ENTRY(iCtr,cFileList),
+            OUTPUT lError,
+            OUTPUT cMessage).
+    END.            
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-testAccounts) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE testAccounts Procedure
@@ -1441,12 +2338,12 @@ PROCEDURE testAccounts:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcCompany AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipiYear AS INT NO-UNDO.
-    DEF INPUT PARAMETER ipiPeriod AS INT NO-UNDO.
-    DEF INPUT PARAMETER ipcOutputDir AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiYear AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPeriod AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcOutputDir AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOG NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
     OS-CREATE-DIR VALUE(ipcOutputDir).
     ASSIGN 
@@ -1483,18 +2380,18 @@ PROCEDURE testOrphans:
                                         OUTPUT cMessage).
      
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcDateLimit AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcOutputDir AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcCompany AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER opiProcessedCount AS INT NO-UNDO.
-    DEF OUTPUT PARAMETER opiErrorCount AS INT NO-UNDO.
-    DEF OUTPUT PARAMETER opiWarningCount AS INT NO-UNDO.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDateLimit AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcOutputDir AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiProcessedCount AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiErrorCount AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiWarningCount AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOG NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
-    DEF VAR daDateLimit AS DATE NO-UNDO.
-    DEF VAR cFieldNameList AS CHAR NO-UNDO.
+    DEFINE VARIABLE daDateLimit AS DATE NO-UNDO.
+    DEFINE VARIABLE cFieldNameList AS CHARACTER NO-UNDO.
     
     ASSIGN
         cThisCompany = ipcCompany
@@ -1544,7 +2441,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION dynExport Procedure
 FUNCTION dynExport RETURNS CHARACTER 
-  ( INPUT hRecord AS HANDLE , INPUT cDelim AS CHAR ):
+  ( INPUT hRecord AS HANDLE , INPUT cDelim AS CHARACTER ):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -1578,7 +2475,7 @@ FUNCTION dynExport RETURNS CHARACTER
             ELSE 
             DO:
                 cLobname = hFld:NAME +
-                    (IF hFld:DATA-TYPE = "clob" THEN "!" + GET-CODEPAGE(hFld:BUFFER-VALUE) + "!" ELSE "") 
+                    (IF hFld:DATA-TYPE = "clob" THEN "!" + GET-CODEPAGES(hFld:BUFFER-VALUE) + "!" ELSE "") 
                     + hRecord:TABLE + "_" + STRING(hRecord:RECID) + ".blb".
                 COPY-LOB FROM hFld:BUFFER-VALUE TO FILE cLobname NO-CONVERT.
                 cResult = cResult + QUOTER(cLobname) + cDelim.
@@ -1645,4 +2542,228 @@ END FUNCTION.
 
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-fDateString) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDateString Procedure
+FUNCTION fDateString RETURNS CHARACTER 
+  ( iYrOffset AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+		
+    DEFINE VARIABLE result AS CHARACTER NO-UNDO.
+
+    ASSIGN 
+        RESULT = STRING(MONTH(TODAY),"99") + "/" +
+                 STRING(DAY(TODAY),"99") + "/" +
+                 STRING(YEAR(TODAY) - iYrOffset,"9999").
+		
+    RETURN result.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fEndPurge) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fEndPurge Procedure
+FUNCTION fEndPurge RETURNS LOGICAL 
+  ( INPUT cTable AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE result AS LOGICAL NO-UNDO.
+    
+    pfWriteLIne(cTable, "End", "").
+    OUTPUT STREAM listfile CLOSE.
+
+    RETURN result.
+
+END FUNCTION.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fGetDataDumpDir) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetDataDumpDir Procedure
+FUNCTION fGetDataDumpDir RETURNS CHARACTER 
+  ( INPUT ipcInitValue AS CHARACTER, INPUT ipcTable AS CHARACTER, OUTPUT oplError AS LOG, OUTPUT opcMessage AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cDumpDir AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTestDir AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE jCtr AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lCreateError AS LOG NO-UNDO.
+    DEFINE VARIABLE cCreateMessage AS CHARACTER NO-UNDO.
+    
+    IF ipcTable EQ "" THEN DO:
+        ASSIGN 
+            FILE-INFO:FILE-NAME = ipcInitValue
+            cTestDir = FILE-INFO:FULL-PATHNAME.
+        DO iCtr = 1 TO NUM-ENTRIES(cTestDir,"\"):
+            IF ENTRY(iCtr,cTestDir,"\") EQ "Environments"
+            OR ENTRY(iCtr,cTestDir,"\") EQ "Repositories" THEN DO:
+                DO jCtr = 1 TO iCtr - 1:
+                    ASSIGN 
+                        cDumpDir = cDumpDir + ENTRY(jCtr,cTestDir,"\") + "\".
+                END.
+                LEAVE.
+            END.
+        END.    
+        ASSIGN 
+            cDumpDir = cDumpDir + "Backups\Purges\".
+        RUN filesys_createDirectory (INPUT cDumpDir, OUTPUT lCreateError, OUTPUT cCreateMessage).
+        IF lCreateError THEN DO:
+            
+        END.            
+    END.     
+    ELSE DO:
+    END. 
+    
+    RETURN cDumpDir.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fGetPurgeDir) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetPurgeDir Procedure
+FUNCTION fGetPurgeDir RETURNS CHARACTER 
+  ( INPUT cTable AS CHARACTER  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE crOutDir AS CHARACTER NO-UNDO.
+    
+    RUN FileSys_GetTempDirectory(
+        OUTPUT cOutDir
+        ).
+    
+    ASSIGN 
+        cOutDir = cOutDir + "\" + cTable + "purge" + STRING(YEAR(TODAY),"9999") + 
+                                          STRING(MONTH(TODAY),"99") + 
+                                          STRING(DAY(TODAY),"99") + 
+                                          "-" + STRING(TIME)
+        cListFile = cOutDir + "\purgelist.txt"
+        crOutDir = cOutDir.
+
+    RETURN crOutDir.
+
+END FUNCTION.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fStartPurge) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fStartPurge Procedure
+FUNCTION fStartPurge RETURNS LOGICAL 
+  ( INPUT cTable AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE result AS LOGICAL NO-UNDO.
+    
+    OS-CREATE-DIR VALUE(cOutDir).
+    OUTPUT STREAM listfile TO VALUE(cListFile).
+
+    pfWriteLine("job", "Start", "").
+
+    RETURN result.
+
+END FUNCTION.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-pfWriteLine) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pfWriteLine Procedure
+FUNCTION pfWriteLine RETURNS LOGICAL PRIVATE
+    ( INPUT cTable AS CHARACTER, INPUT cNames AS CHARACTER, INPUT cData AS CHARACTER  ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cOutline AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTime AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
+        
+    ASSIGN 
+        cTime = STRING(TIME,"HH:MM:SS") + "  "
+        cAction = IF lPurge THEN "Deleting " ELSE "Simulate deleting ".
+           
+    IF cNames EQ "Start" THEN 
+    DO:
+        ASSIGN 
+            cOutLine = cTime + "Beginning " + cTable + " purge.".
+        PUT STREAM listfile UNFORMATTED cOutline + CHR(10).
+    END.
+    ELSE IF cNames EQ "End" THEN 
+    DO:
+        ASSIGN 
+            cOutLine = cTime + "Ending " + cTable + " purge.".
+        PUT STREAM listfile UNFORMATTED cOutline + CHR(10).
+    END.
+    ELSE IF cNames EQ "Head" THEN DO:
+        ASSIGN 
+            cOutLine = cTime + cAction + "records for " + cTable + ": " + cData.
+        PUT STREAM listfile UNFORMATTED cOutline + CHR(10).
+    END.
+    ELSE 
+    DO:
+        IF lVerbose THEN DO:
+            ASSIGN 
+                cOutline = cTime + "   " + cAction + cTable + " WHERE ".
+            DO iCtr = 1 TO NUM-ENTRIES(cNames,"|"):
+                ASSIGN 
+                    cOutline = cOutline + ENTRY(iCtr,cNames,"|") + "=" + ENTRY(iCtr,cData,"|") + " AND ".
+            END.
+            ASSIGN 
+                cOutline = SUBSTRING(cOutline, 1, LENGTH(cOutline) - 5) + ".".
+            PUT STREAM listfile UNFORMATTED cOutline + CHR(10).
+        END. 
+    END.
+         
+    RETURN TRUE.
+
+END FUNCTION.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
