@@ -370,18 +370,20 @@ ON CHOOSE OF Btn_Delete_invSnapshot IN FRAME F-Main /* Delete */
 DO: 
     DEFINE VARIABLE hHandle AS HANDLE NO-UNDO.
     
-    MESSAGE "Are you sure you want to remove this snapshot and all corresponding snapshot data?"
-        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO 
-        UPDATE lAnswer AS LOGICAL.
-    IF lAnswer THEN
-    DO:
-        IF VALID-HANDLE(hHandle) = FALSE THEN
+    MESSAGE
+        "Are you sure you want to remove this snapshot and all corresponding snapshot data?"
+    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO 
+    UPDATE lAnswer AS LOGICAL.
+    IF lAnswer THEN DO:
+        SESSION:SET-WAIT-STATE("General").
+        IF NOT VALID-HANDLE(hHandle) THEN
         RUN Inventory/InventoryProcs.p PERSISTENT SET hHandle.
         FIND CURRENT InventorySnapshot NO-LOCK NO-ERROR.                    
         IF AVAILABLE InventorySnapshot THEN
-        RUN Inventory_DeleteInventorySnapshot IN hHandle (INPUT ROWID(InventorySnapshot)).                
+        RUN Inventory_DeleteInventorySnapshot IN hHandle (ROWID(InventorySnapshot), YES).
+        SESSION:SET-WAIT-STATE("").                
     END.
-    IF VALID-HANDLE(hHandle) = TRUE THEN
+    IF VALID-HANDLE(hHandle) THEN
     DELETE PROCEDURE hHandle.
     {&OPEN-QUERY-Browser-Table}    
 END.
