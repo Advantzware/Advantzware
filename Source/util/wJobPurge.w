@@ -314,6 +314,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
      application would exit. */
+    IF VALID-HANDLE(hPurgeProcs) THEN DELETE OBJECT hPurgeProcs. 
   IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
 END.
 
@@ -325,6 +326,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Purge Jobs */
 DO:
   /* This event will close the window and terminate the procedure.  */
+    IF VALID-HANDLE(hPurgeProcs) THEN DELETE OBJECT hPurgeProcs. 
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -337,6 +339,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME DEFAULT-FRAME /* Exit */
 DO:
+    IF VALID-HANDLE(hPurgeProcs) THEN DELETE OBJECT hPurgeProcs. 
     APPLY 'close' TO THIS-PROCEDURE. 
 END.
 
