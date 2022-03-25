@@ -2,6 +2,7 @@
 
 TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 
-/*{methods/triggers/create.i}  don't create rec_key here, get it from est*/
+{methods/triggers/create.i}
+
 ASSIGN
     {&TABLENAME}.create-date = TODAY.

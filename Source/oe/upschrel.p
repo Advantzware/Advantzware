@@ -159,7 +159,7 @@ IF AVAIL oe-relh THEN DO:
      oe-rel.frt-pay   = oe-rell.frt-pay
      oe-rel.fob-code  = oe-rell.fob-code.
      
-    RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key).
+    RUN pCopyShipNote (oe-relh.rec_key, oe-rel.rec_key).
     
     IF lv-loc GT "" THEN
         oe-rel.spare-char-1 = lv-loc.
@@ -208,7 +208,7 @@ IF AVAIL oe-relh THEN DO:
   RELEASE oe-rel NO-ERROR.
 END.
 
-PROCEDURE CopyShipNote PRIVATE:
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -216,12 +216,6 @@ PROCEDURE CopyShipNote PRIVATE:
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.

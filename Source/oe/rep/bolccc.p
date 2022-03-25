@@ -144,13 +144,9 @@ DEF VARIABLE li-mm AS INTEGER NO-UNDO.
 
 DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
 DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
-Define Variable hNotesProc as Handle NO-UNDO.
 DEFINE VARIABLE iTotalQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iShipQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iIntValue AS INTEGER NO-UNDO.
-
-RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
-
 
 ASSIGN tmpstore = FILL("-",80).
 
@@ -429,7 +425,7 @@ PUT "<R35.5><C47><#7>Initial"
 v-printline = v-printline + 4.
 
 /*PUT "<R39><C30>" SKIP.*/
-RUN GetNotesArrayForObject IN hNotesProc (INPUT oe-bolh.rec_key, "ES", "", 130, NO,0, OUTPUT opcParsedText, OUTPUT opiArraySize).
+RUN Notes_GetNotesArrayForObject (INPUT oe-bolh.rec_key, "ES", "", 130, NO,0, OUTPUT opcParsedText, OUTPUT opiArraySize).
 
 IF opiArraySize <= 4 THEN DO:
     PUT "<FBook Antiqua><R39.5><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
@@ -601,9 +597,7 @@ END.
      oe-bolh.printed = YES.
 
 END. /* for each oe-bolh */
-
-IF VALID-HANDLE(hNotesProc) THEN  
-  DELETE OBJECT hNotesProc.     
+     
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */
 
 PROCEDURE get-pallets-num:

@@ -61,7 +61,7 @@ assign
   ar-inv.prod-date = {1} /* using prod-date as posted date #53205, pass in tran-date or dtPostDate */
   .
   
-  RUN CopyShipNote IN hNotesProcs (inv-head.rec_key, ar-inv.rec_key).
+  RUN Notes_CopyShipNote (inv-head.rec_key, ar-inv.rec_key).
   
   if inv-head.f-bill then
   assign

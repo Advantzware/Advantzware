@@ -344,7 +344,7 @@ DEF BUFFER b-oe-rell FOR oe-rell.
            oe-rel.frt-pay   = oe-rell.frt-pay
            oe-rel.fob-code  = oe-rell.fob-code.
           
-          RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key).
+          RUN pCopyShipNote (oe-relh.rec_key, oe-rel.rec_key).
           RUN oe/custxship.p (oe-rel.company,
                               oe-rel.cust-no,
                               oe-rel.ship-id,
@@ -425,7 +425,7 @@ IF NOT AVAIL bf-oe-boll THEN
   END.
 END PROCEDURE.
 
-PROCEDURE CopyShipNote PRIVATE:
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -433,13 +433,7 @@ PROCEDURE CopyShipNote PRIVATE:
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
     

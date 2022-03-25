@@ -7,11 +7,7 @@ TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
 DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
-/* not delete if estimate exists */
-FIND est WHERE est.rec_key = {&TABLENAME}.rec_key NO-LOCK NO-ERROR.
-IF NOT AVAIL est THEN DO:
-    {methods/triggers/delete.i}
-END.
+{methods/triggers/delete.i}
     
 {sys/inc/var.i NEW SHARED}
 ASSIGN

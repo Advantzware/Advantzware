@@ -89,9 +89,7 @@ DEFINE TEMP-TABLE ttCEFormatConfig NO-UNDO
 
 DEFINE STREAM sEstOutput.
 DEFINE VARIABLE hdOutputProcs       AS HANDLE.
-DEFINE VARIABLE hdNotesProcs        AS HANDLE.
 DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
-RUN sys/NotesProcs.p PERSISTENT SET hdNotesProcs.
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 RUN est/EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
 /* ********************  Preprocessor Definitions  ******************** */
@@ -139,7 +137,6 @@ FUNCTION fTypeIsWood RETURNS LOGICAL PRIVATE
     
 /* ***************************  Main Block  *************************** */
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdOutputProcs).
-THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdNotesProcs).
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdEstimateCalcProcs).
 
 
@@ -159,7 +156,7 @@ DO:
     RUN Output_PrintXprintFile(ttCEFormatConfig.outputFile).
 END.
 THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hdOutputProcs).
-THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hdNotesProcs).
+
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -861,7 +858,7 @@ PROCEDURE pPrintNotesForRecKey PRIVATE:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], ipcHeader, YES, YES, NO).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN GetNotesTempTableForObject(ipcRecKey, "", "", iTextWidth, OUTPUT TABLE ttNotesFormatted).
+        RUN Notes_GetNotesTempTableForObject(ipcRecKey, "", "", iTextWidth, OUTPUT TABLE ttNotesFormatted).
         FOR EACH ttNotesFormatted:
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN pWriteToCoordinatesString(iopiRowCount, iColumn[1], "Dept:" + ttNotesFormatted.noteCode + " - " + ttNotesFormatted.noteTitle, 40, YES, NO, NO).

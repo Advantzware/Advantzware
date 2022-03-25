@@ -445,7 +445,8 @@ PROCEDURE local-assign-record :
                        AND trim(job.job-no) = trim(pc-prdd.job-no)
                        AND job.job-no2 = pc-prdd.job-no2
                        NO-LOCK NO-ERROR.
-      IF AVAIL job THEN pc-prdd.rec_key = job.rec_key.
+      IF AVAIL job THEN 
+        RUN Notes_CopyNotes(job.rec_key, pc-prdd.rec_key, "", "").
   END.
  
   FOR EACH bf-prdd

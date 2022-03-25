@@ -323,7 +323,7 @@ FOR EACH EDPOTran NO-LOCK WHERE recid(edpotran) = ipEdpotranRecid:
           DO i = 1 TO 4:
             oe-rel.ship-i[i] = shipto.notes[i].
           END.
-          RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+          RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
           
 /*          IF AVAIL itemfg then do:                                            */
 /*            /* 9805 CAH: update the itemfg.q-alloc field, per Joe Hentz ... */*/
@@ -365,8 +365,8 @@ FOR EACH EDPOTran NO-LOCK WHERE recid(edpotran) = ipEdpotranRecid:
   END. /* each edPOTran */ 
 END PROCEDURE.
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
-PROCEDURE CopyShipNote PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote d-oeitem
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -374,13 +374,7 @@ PROCEDURE CopyShipNote PRIVATE:
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
     

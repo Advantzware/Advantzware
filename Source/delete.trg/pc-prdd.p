@@ -4,11 +4,7 @@
 
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
 
-/* not delete if estimate exists */
-FIND est WHERE est.rec_key = pc-prdd.rec_key NO-LOCK NO-ERROR.
-IF NOT AVAIL est THEN DO:
-    {methods/triggers/delete.i}
-END.
+{methods/triggers/delete.i}
 
 DEF BUFFER b-pc-prdd FOR pc-prdd.
 

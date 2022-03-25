@@ -97,7 +97,7 @@ ASSIGN
     oe-relh.w-ord     = v-chkflg
     .
        
-RUN CopyShipNote (oe-rel.rec_key, oe-relh.rec_key).
+RUN pCopyShipNote (oe-rel.rec_key, oe-relh.rec_key).
 
 IF v-chkflg THEN
 DO:
@@ -110,7 +110,7 @@ DO:
             .
 END.
 
-PROCEDURE CopyShipNote PRIVATE:
+PROCEDURE pCopyShipNote PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Copies Ship Note from rec_key to rec_key
      Notes:
@@ -118,13 +118,7 @@ PROCEDURE CopyShipNote PRIVATE:
     DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
 
