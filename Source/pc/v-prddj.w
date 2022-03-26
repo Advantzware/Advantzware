@@ -125,9 +125,11 @@ DEFINE RECTANGLE RECT-5
 
 DEFINE FRAME F-Main
      pc-prdd.job-no AT ROW 1.71 COL 20 COLON-ALIGNED
+          FORMAT "x(9)"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 15 BY 1
      pc-prdd.job-no2 AT ROW 1.71 COL 35 COLON-ALIGNED NO-LABEL
+          FORMAT "999"
           VIEW-AS FILL-IN 
           SIZE 5.4 BY 1
      pc-prdd.op-date AT ROW 1.71 COL 51 COLON-ALIGNED
@@ -202,6 +204,10 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN pc-prdd.op-date IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN pc-prdd.job-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN pc-prdd.job-no2 IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 

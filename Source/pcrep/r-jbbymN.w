@@ -149,12 +149,12 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
     LABEL "Thru Date" 
     VIEW-AS FILL-IN 
-    SIZE 18 BY .95 NO-UNDO.
+    SIZE 20.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
@@ -164,12 +164,12 @@ DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000"
 DEFINE VARIABLE begin_mach     AS CHARACTER FORMAT "X(6)" 
     LABEL "Beginning Machine" 
     VIEW-AS FILL-IN 
-    SIZE 18 BY 1.
+    SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
@@ -179,7 +179,7 @@ DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999"
 DEFINE VARIABLE end_mach       AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
     LABEL "Ending Machine" 
     VIEW-AS FILL-IN 
-    SIZE 18 BY 1.
+    SIZE 20.4 BY 1.
 
 DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\MachineBacklog.csv" 
     LABEL "Name" 
@@ -257,18 +257,18 @@ DEFINE VARIABLE td-show-parm AS LOGICAL   INITIAL YES
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    begin_date AT ROW 2.43 COL 26.8 COLON-ALIGNED
-    begin_mach AT ROW 3.62 COL 26.8 COLON-ALIGNED HELP
+    begin_date AT ROW 2.43 COL 25.8 COLON-ALIGNED
+    begin_mach AT ROW 3.62 COL 25.8 COLON-ALIGNED HELP
     "Enter Beginning Machine"
-    end_mach AT ROW 3.62 COL 68.2 COLON-ALIGNED HELP
+    end_mach AT ROW 3.62 COL 66.2 COLON-ALIGNED HELP
     "Enter Ending Machine"
-    begin_job-no AT ROW 4.81 COL 26.8 COLON-ALIGNED HELP
+    begin_job-no AT ROW 4.81 COL 25.8 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    begin_job-no2 AT ROW 4.81 COL 38.8 COLON-ALIGNED HELP
+    begin_job-no2 AT ROW 4.81 COL 40.8 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    end_job-no AT ROW 4.81 COL 68.2 COLON-ALIGNED HELP
+    end_job-no AT ROW 4.81 COL 66.2 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    end_job-no2 AT ROW 4.81 COL 80.2 COLON-ALIGNED HELP
+    end_job-no2 AT ROW 4.81 COL 81.2 COLON-ALIGNED HELP
     "Enter Ending Job Number"
     sl_avail AT ROW 7.48 COL 4 NO-LABELS WIDGET-ID 26
     Btn_Def AT ROW 7.48 COL 40.6 HELP

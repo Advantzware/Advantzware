@@ -151,7 +151,7 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
-    SIZE 14 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
@@ -161,7 +161,7 @@ DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000"
 DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
@@ -245,11 +245,11 @@ DEFINE VARIABLE td-show-parm AS LOGICAL   INITIAL NO
 DEFINE FRAME FRAME-A
     begin_job-no AT ROW 2.71 COL 23 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    begin_job-no2 AT ROW 2.71 COL 37 COLON-ALIGNED HELP
+    begin_job-no2 AT ROW 2.71 COL 38 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
     end_job-no AT ROW 2.71 COL 62 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    end_job-no2 AT ROW 2.71 COL 75 COLON-ALIGNED HELP
+    end_job-no2 AT ROW 2.71 COL 77 COLON-ALIGNED HELP
     "Enter Ending Job Number"
     sl_avail AT ROW 5.95 COL 4 NO-LABELS WIDGET-ID 26
     Btn_Def AT ROW 5.95 COL 40.8 HELP
@@ -1395,7 +1395,7 @@ PROCEDURE run-report :
 
     FOR EACH mch-act WHERE mch-act.company = cocode AND
         mch-act.job-no2 ge int(begin_job-no2) AND
-        mch-act.job-no2 le int(end_job-no2 AND
+        mch-act.job-no2 le int(end_job-no2) AND
         mch-act.opn = YES
         USE-INDEX opn-idx
         NO-LOCK:
@@ -1415,7 +1415,7 @@ PROCEDURE run-report :
     END.
     FOR EACH mat-act WHERE mat-act.company = cocode AND
         mat-act.job-no2 ge int(begin_job-no2) AND
-        mat-act.job-no2 le int(end_job-no2 AND
+        mat-act.job-no2 le int(end_job-no2) AND
         mat-act.opn = YES
         USE-INDEX opn-idx
         NO-LOCK:
@@ -1436,7 +1436,7 @@ PROCEDURE run-report :
     END.
     FOR EACH fg-act WHERE fg-act.company = cocode AND
         fg-act.job-no2 ge int(begin_job-no2) AND
-        fg-act.job-no2 le int(end_job-no2 AND
+        fg-act.job-no2 le int(end_job-no2) AND
         fg-act.opn = YES
         USE-INDEX opn-idx
         NO-LOCK:
@@ -1458,7 +1458,7 @@ PROCEDURE run-report :
 
     FOR EACH misc-act WHERE misc-act.company = cocode AND
         misc-act.job-no2 ge int(begin_job-no2) AND
-        misc-act.job-no2 le int(end_job-no2 AND
+        misc-act.job-no2 le int(end_job-no2) AND
         misc-act.opn = YES
         USE-INDEX opn-idx
         NO-LOCK:

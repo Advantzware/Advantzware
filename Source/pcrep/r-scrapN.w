@@ -148,12 +148,12 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
     LABEL "Beginning Date" 
     VIEW-AS FILL-IN 
-    SIZE 18 BY .95 NO-UNDO.
+    SIZE 20.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
-    SIZE 14 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
@@ -163,12 +163,12 @@ DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000"
 DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
     LABEL "Ending Date" 
     VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+    SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
-    SIZE 14 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
@@ -295,14 +295,14 @@ DEFINE FRAME FRAME-A
     rd_jstat AT ROW 2.91 COL 43 NO-LABELS
     begin_job-no AT ROW 4.33 COL 24 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    begin_job-no2 AT ROW 4.33 COL 37 COLON-ALIGNED HELP
+    begin_job-no2 AT ROW 4.33 COL 39 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    end_job-no AT ROW 4.33 COL 67 COLON-ALIGNED HELP
+    end_job-no AT ROW 4.33 COL 65 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    end_job-no2 AT ROW 4.33 COL 79 COLON-ALIGNED HELP
+    end_job-no2 AT ROW 4.33 COL 80 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    begin_date AT ROW 5.52 COL 24 COLON-ALIGNED
-    end_date AT ROW 5.52 COL 67 COLON-ALIGNED HELP
+    begin_date AT ROW 5.3 COL 24 COLON-ALIGNED
+    end_date AT ROW 5.3 COL 65 COLON-ALIGNED HELP
     "Enter Ending Due Date"
     tb_off AT ROW 7.67 COL 39
     tb_flex AT ROW 7.67 COL 58
