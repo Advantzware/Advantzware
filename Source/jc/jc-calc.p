@@ -1972,6 +1972,8 @@ PROCEDURE pUpdateJobQty PRIVATE:
     
     opriJobHdr = ROWID(job-hdr).
     
+    RUN fg/chkfgloc.p (INPUT job-hdr.i-no, INPUT job-hdr.loc).
+    
     IF job-hdr.frm EQ 0 THEN 
         job-hdr.frm = 1.
 

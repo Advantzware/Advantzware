@@ -44,7 +44,7 @@ for each oe-rel where oe-rel.company eq oe-ordl.company
  no-lock
  BREAK BY oe-rel.spare-char-1:
   IF FIRST-OF(oe-rel.spare-char-1) THEN DO:
-  
+      RUN fg/chkfgloc.p (INPUT oe-ordl.i-no, INPUT oe-rel.spare-char-1).
       FIND itemfg-loc WHERE itemfg-loc.company EQ oe-ordl.company
           AND itemfg-loc.i-no EQ oe-ordl.i-no
           AND itemfg-loc.loc EQ oe-rel.spare-char-1
