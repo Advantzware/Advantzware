@@ -2486,8 +2486,8 @@ PROCEDURE run-report :
         tt-rctd.po-no                      LABEL "P.O.#"
         tt-rctd.po-line                    LABEL "Line"
         po-ord.vend-no                     LABEL "VENDOR"
-        tt-rctd.job-no                     LABEL "Job #" SPACE(0) "-" SPACE(0)
-        tt-rctd.job-no2                    LABEL ""
+        tt-rctd.job-no FORMAT "x(9)"       LABEL "Job #" SPACE(0) "-" SPACE(0)
+        tt-rctd.job-no2 FORMAT ">>9"       LABEL ""
         tt-rctd.rita-code                  LABEL "T"
         tt-rctd.tag                        LABEL "TAG#" FORM "x(20)"
         tt-rctd.qty FORMAT "->>>>9.99<<"   LABEL "QUANTITY" 
@@ -2496,7 +2496,7 @@ PROCEDURE run-report :
         tt-rctd.cost FORMAT "->>>>9.99"    LABEL "COST"
         v-ext-cost                         LABEL "TOTAL COST"
 
-        WITH NO-BOX FRAME itemx  DOWN STREAM-IO WIDTH 138.
+        WITH NO-BOX FRAME itemx  DOWN STREAM-IO WIDTH 148.
 
     FORM tt-rctd.rct-date                   LABEL "DATE"
         tt-rctd.i-no                       LABEL "ITEM"
@@ -2504,8 +2504,8 @@ PROCEDURE run-report :
         tt-rctd.po-no                      LABEL "P.O.#"
         tt-rctd.po-line                    LABEL "Line"
         po-ord.vend-no                     LABEL "VENDOR"
-        tt-rctd.job-no                     LABEL "Job #" SPACE(0) "-" SPACE(0)
-        tt-rctd.job-no2                    LABEL ""
+        tt-rctd.job-no FORMAT "x(9)"       LABEL "Job #" SPACE(0) "-" SPACE(0)
+        tt-rctd.job-no2 FORMAT ">>9"       LABEL ""
         tt-rctd.rita-code                  LABEL "T"
         tt-rctd.tag                        LABEL "TAG#" FORM "x(20)"
         tt-rctd.vend-tag                   LABEL "VENDOR TAG#" FORM "x(20)"
@@ -2515,7 +2515,7 @@ PROCEDURE run-report :
         tt-rctd.cost FORMAT "->>>>9.99"    LABEL "COST"
         v-ext-cost                         LABEL "TOTAL COST"
 
-        WITH FRAME itemxvend NO-BOX DOWN STREAM-IO WIDTH 168.
+        WITH FRAME itemxvend NO-BOX DOWN STREAM-IO WIDTH 178.
 
     FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
         v-dscr        LABEL "DESCRIPTION"

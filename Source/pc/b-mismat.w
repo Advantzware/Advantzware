@@ -151,9 +151,8 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       pc-misc.ml FORMAT "M/L":U
       pc-misc.misc-date COLUMN-LABEL "Date" FORMAT "99/99/9999":U
-            WIDTH 14
-      pc-misc.job-no COLUMN-LABEL "Job #" FORMAT "x(9)":U
-      pc-misc.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
+      pc-misc.job-no COLUMN-LABEL "Job #" FORMAT "x(9)":U WIDTH 15
+      pc-misc.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 6
       pc-misc.frm FORMAT ">>9":U WIDTH 6.2
       pc-misc.blank-no FORMAT ">9":U WIDTH 7.2
       pc-misc.i-no COLUMN-LABEL "Item #" FORMAT "x(10)":U
@@ -273,9 +272,9 @@ ASSIGN
      _FldNameList[2]   > ASI.pc-misc.misc-date
 "pc-misc.misc-date" "Date" ? "date" ? ? ? ? ? ? yes "Enter Date" no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.pc-misc.job-no
-"pc-misc.job-no" "Job #" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"pc-misc.job-no" "Job #" ? "character" ? ? ? ? ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.pc-misc.job-no2
-"pc-misc.job-no2" "" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"pc-misc.job-no2" "" ? "integer" ? ? ? ? ? ? yes ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.pc-misc.frm
 "pc-misc.frm" ? ? "integer" ? ? ? ? ? ? yes ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.pc-misc.blank-no

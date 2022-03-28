@@ -260,10 +260,12 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      mach_m-dscr AT ROW 1.24 COL 36 COLON-ALIGNED NO-LABEL
      machtran.job_number AT ROW 2.43 COL 24 COLON-ALIGNED
+          FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4
      machtran.job_sub AT ROW 2.43 COL 40 COLON-ALIGNED NO-LABEL
+          FORMAT "999"
           VIEW-AS FILL-IN 
           SIZE 5.5 BY 1
           BGCOLOR 15 FONT 4
@@ -496,13 +498,13 @@ ASSIGN
 /* SETTINGS FOR FILL-IN job-code_dscr IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN machtran.job_number IN FRAME F-Main
-   NO-ENABLE 1                                                          */
+   NO-ENABLE 1 EXP-FORMAT                                               */
 ASSIGN 
        machtran.job_number:PRIVATE-DATA IN FRAME F-Main     = 
                 "Job Number".
 
 /* SETTINGS FOR FILL-IN machtran.job_sub IN FRAME F-Main
-   NO-ENABLE 1 EXP-LABEL                                                */
+   NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN machtran.machine IN FRAME F-Main
    NO-ENABLE 1 4                                                        */
 ASSIGN 

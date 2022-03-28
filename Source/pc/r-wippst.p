@@ -129,12 +129,12 @@ DEFINE BUTTON btn-ok
 DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
     LABEL "Beginning Date" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY .95 NO-UNDO.
+    SIZE 20.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
@@ -144,27 +144,27 @@ DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000"
 DEFINE VARIABLE begin_loc      AS CHARACTER FORMAT "X(6)" 
     LABEL "Beginning Warehouse" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+    SIZE 20.4 BY 1.
 
 DEFINE VARIABLE begin_mach     AS CHARACTER FORMAT "X(5)" 
     LABEL "Beginning Machine#" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+    SIZE 20.4 BY 1.
 
 DEFINE VARIABLE begin_shift    AS INTEGER   FORMAT ">>" INITIAL 1 
     LABEL "Beginning Shift" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+    SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
     LABEL "Ending Date" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+    SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
@@ -174,17 +174,17 @@ DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999"
 DEFINE VARIABLE end_loc        AS CHARACTER FORMAT "X(5)" INITIAL "zzzzz" 
     LABEL "Ending Warehouse" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+    SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_mach       AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
     LABEL "Ending Machine#" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+    SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_shift      AS INTEGER   FORMAT ">>" INITIAL 99 
     LABEL "Ending Shift" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+    SIZE 20.4 BY 1.
 
 DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\TransferWIPtoJobCost.csv" 
     LABEL "Name" 
@@ -263,32 +263,32 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    begin_date AT ROW 2.67 COL 28.8 COLON-ALIGNED HELP
+    begin_date AT ROW 2.67 COL 26.8 COLON-ALIGNED HELP
     "Enter Beginning Date"
-    end_date AT ROW 2.67 COL 69.8 COLON-ALIGNED HELP
+    end_date AT ROW 2.67 COL 68 COLON-ALIGNED HELP
     "Enter Ending Date"
-    begin_mach AT ROW 3.62 COL 28.8 COLON-ALIGNED HELP
+    begin_mach AT ROW 3.62 COL 26.8 COLON-ALIGNED HELP
     "Enter Beginning Machine Number"
-    end_mach AT ROW 3.62 COL 69.8 COLON-ALIGNED HELP
+    end_mach AT ROW 3.62 COL 68 COLON-ALIGNED HELP
     "Enter Ending Machine Number"
-    begin_job-no AT ROW 4.57 COL 28.8 COLON-ALIGNED HELP
+    begin_job-no AT ROW 4.57 COL 26.8 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    begin_job-no2 AT ROW 4.57 COL 40.8 COLON-ALIGNED HELP
+    begin_job-no2 AT ROW 4.57 COL 41.8 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    end_job-no AT ROW 4.57 COL 69.8 COLON-ALIGNED HELP
+    end_job-no AT ROW 4.57 COL 68 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    end_job-no2 AT ROW 4.57 COL 81.8 COLON-ALIGNED HELP
+    end_job-no2 AT ROW 4.57 COL 83 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    begin_shift AT ROW 5.52 COL 28.8 COLON-ALIGNED HELP
+    begin_shift AT ROW 5.52 COL 26.8 COLON-ALIGNED HELP
     "Enter Beginning Machine Number"
-    end_shift AT ROW 5.52 COL 69.8 COLON-ALIGNED HELP
+    end_shift AT ROW 5.52 COL 68 COLON-ALIGNED HELP
     "Enter Beginning Machine Number"
-    begin_loc AT ROW 6.48 COL 28.8 COLON-ALIGNED HELP
+    begin_loc AT ROW 6.48 COL 26.8 COLON-ALIGNED HELP
     "Enter Beginning Machine Number" WIDGET-ID 8
-    end_loc AT ROW 6.48 COL 69.8 COLON-ALIGNED HELP
+    end_loc AT ROW 6.48 COL 68 COLON-ALIGNED HELP
     "Enter Ending Machine Number" WIDGET-ID 10
-    tb_tot-hrs AT ROW 8.48 COL 30.8
-    tb_pg-brk AT ROW 9.67 COL 64.8 RIGHT-ALIGNED
+    tb_tot-hrs AT ROW 8.48 COL 28.8
+    tb_pg-brk AT ROW 9.67 COL 62.8 RIGHT-ALIGNED
     lv-ornt AT ROW 12.1 COL 31 NO-LABELS
     lines-per-page AT ROW 12.1 COL 84 COLON-ALIGNED
     rd-dest AT ROW 12.17 COL 5.4 NO-LABELS
