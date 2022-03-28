@@ -181,7 +181,7 @@ DEFINE VARIABLE fiJobID AS CHARACTER FORMAT "X(9)":U
      VIEW-AS FILL-IN 
      SIZE 16.2 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiJobID2 AS INTEGER FORMAT ">>":U INITIAL 0 
+DEFINE VARIABLE fiJobID2 AS INTEGER FORMAT ">>>":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
@@ -251,7 +251,7 @@ DEFINE BROWSE BROWSE-2
       onHold              COLUMN-LABEL "On Hold"          WIDTH 9  FORMAT "Yes/No"
       PrimaryID           COLUMN-LABEL "Item #"           WIDTH 20 FORMAT "X(30)"
       ItemDesc            COLUMN-LABEL "Item Description" WIDTH 30 FORMAT "X(50)"
-      fGetJobID() @ JobNo COLUMN-LABEL "Job #"            WIDTH 18 FORMAT "X(13)"
+      fGetJobID() @ JobNo COLUMN-LABEL "Job #"            WIDTH 22 FORMAT "X(13)"
       customerID          COLUMN-LABEL "Customer"         WIDTH 15
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

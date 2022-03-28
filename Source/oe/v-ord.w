@@ -953,6 +953,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_type IN FRAME F-Main
    NO-ENABLE 2 5                                                        */
+/* SETTINGS FOR FILL-IN oe-ord.ord-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-ord.job-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ord.job-no2 IN FRAME F-Main

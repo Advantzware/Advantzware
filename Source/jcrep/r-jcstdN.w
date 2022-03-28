@@ -159,22 +159,22 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Job Created" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY .95 NO-UNDO.
+     SIZE 20.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE begin_est AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Estimate#" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U 
      LABEL "Beginning Item#" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
@@ -184,22 +184,22 @@ DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000"
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Job Created" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY .95 NO-UNDO.
+     SIZE 20.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE end_est AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Estimate#" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzz" 
      LABEL "Ending Item#" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
@@ -296,23 +296,23 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO
 DEFINE FRAME FRAME-A
      begin_job-no AT ROW 2.52 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 2.52 COL 40 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 2.52 COL 42 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     end_job-no AT ROW 2.52 COL 69 COLON-ALIGNED HELP
+     end_job-no AT ROW 2.52 COL 70 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 2.52 COL 82 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.52 COL 85 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_est AT ROW 3.62 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Estimate" WIDGET-ID 64
-     end_est AT ROW 3.62 COL 69 COLON-ALIGNED HELP
+     end_est AT ROW 3.62 COL 70 COLON-ALIGNED HELP
           "Enter Ending Estimate" WIDGET-ID 66
      begin_date AT ROW 4.71 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Date"
-     end_date AT ROW 4.71 COL 69 COLON-ALIGNED HELP
+     end_date AT ROW 4.71 COL 70 COLON-ALIGNED HELP
           "Enter Ending Date"
      begin_i-no AT ROW 5.81 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Item Number"
-     end_i-no AT ROW 5.81 COL 69 COLON-ALIGNED HELP
+     end_i-no AT ROW 5.81 COL 70 COLON-ALIGNED HELP
           "Enter Ending Item Number"
      lbl_sort AT ROW 7.1 COL 27.4 COLON-ALIGNED NO-LABEL WIDGET-ID 74
      rd_sort AT ROW 7.1 COL 39.4 NO-LABEL WIDGET-ID 76

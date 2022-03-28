@@ -247,7 +247,7 @@ DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/
 DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
@@ -277,7 +277,7 @@ DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/
 DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
@@ -394,11 +394,11 @@ DEFINE FRAME FRAME-A
     "Enter Beginning Date"
     end_date AT ROW 5.14 COL 69.4 COLON-ALIGNED HELP
     "Enter ending Date"
-    begin_job-no AT ROW 6.1 COL 28.4 COLON-ALIGNED HELP
+    begin_job-no AT ROW 6.1 COL 26 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
     begin_job-no2 AT ROW 6.1 COL 40.0 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    end_job-no AT ROW 6.1 COL 69.4 COLON-ALIGNED HELP
+    end_job-no AT ROW 6.1 COL 67 COLON-ALIGNED HELP
     "Enter Ending Job Number"
     end_job-no2 AT ROW 6.1 COL 81.0 COLON-ALIGNED HELP
     "Enter Ending Job Number"
