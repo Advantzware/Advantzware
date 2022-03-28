@@ -173,9 +173,7 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
     DEFINE VARIABLE dActRunWaste   AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dActCost       AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iBlankNo       AS INTEGER NO-UNDO.
-    
-    DEFINE BUFFER bf-ttOperation FOR ttOperation.
-         
+                 
     IF AVAILABLE ipbf-estCostHeader THEN
     DO:
         FOR EACH estCostOperation NO-LOCK 
@@ -289,30 +287,7 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
         BY ttOperation.iPass
         BY ttOperation.iFormNo
         BY ttOperation.iBlankNo:
-        
-        FIND FIRST bf-ttOperation
-            WHERE bf-ttOperation.cJobNo EQ ttOperation.cJobNo
-            AND bf-ttOperation.iJobNo2 EQ ttOperation.iJobNo2
-            AND bf-ttOperation.cMachine EQ ttOperation.cMachine
-            AND bf-ttOperation.iFormNo EQ ttOperation.iFormNo
-            AND bf-ttOperation.iBlankNo EQ ttOperation.iBlankNo
-            AND bf-ttOperation.iPass EQ ttOperation.iPass
-            AND bf-ttOperation.cStdAct EQ "Actual"
-            NO-ERROR.
-        IF NOT AVAIL bf-ttOperation THEN
-        DO:
-              CREATE bf-ttOperation.
-              ASSIGN
-                bf-ttOperation.cJobNo        = ttOperation.cJobNo
-                bf-ttOperation.iJobNo2       = ttOperation.iJobNo2                                              
-                bf-ttOperation.iFormNo       = ttOperation.iFormNo
-                bf-ttOperation.iBlankNo      = ttOperation.iBlankNo
-                bf-ttOperation.cDept         = ttOperation.cDept
-                bf-ttOperation.cMachine      = ttOperation.cMachine
-                bf-ttOperation.cStdAct       = "Actual"
-                bf-ttOperation.iPass         = ttOperation.iPass.              
-        END.
-               
+                               
         IF FIRST-OF(ttOperation.iBlankNo) THEN
             ASSIGN
                 dActRunQty     = 0            
