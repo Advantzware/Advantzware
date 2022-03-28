@@ -200,10 +200,10 @@ DEFINE BROWSE br_table
     trailerID                COLUMN-LABEL "Trailer #"       
     itemID                   COLUMN-LABEL "Item #"          
     itemName                 COLUMN-LABEL "Item Name"       
-    orderID                  COLUMN-LABEL "Order #"         
+    orderID                  COLUMN-LABEL "Order #" FORMAT ">>>>>>>9" WIDTH 18        
     lineID                   COLUMN-LABEL "Order!Line #"          
-    jobID                    COLUMN-LABEL "Job #"           
-    jobID2                   COLUMN-LABEL "Run"             
+    jobID                    COLUMN-LABEL "Job #" FORMAT "x(9)" WIDTH 25          
+    jobID2                   COLUMN-LABEL "Run" FORMAT "999" WIDTH 8            
     location                 COLUMN-LABEL "Location"       
     bin                      COLUMN-LABEL "Bin" WIDTH 15       
     customerID               COLUMN-LABEL "Customer #" WIDTH 20    

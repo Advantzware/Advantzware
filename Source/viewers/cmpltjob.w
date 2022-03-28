@@ -124,24 +124,26 @@ DEFINE FRAME F-Main
           SIZE 9.2 BY 1
           BGCOLOR 15 FONT 4
      mach_m-dscr AT ROW 1.24 COL 25 COLON-ALIGNED NO-LABEL
-     cmpltjob.job_number AT ROW 2.43 COL 15 COLON-ALIGNED
+     cmpltjob.job_number AT ROW 2.43 COL 14.80 COLON-ALIGNED
+          FORMAT "x(9)"
           VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
+          SIZE 15 BY 1
           BGCOLOR 15 FONT 4
-     cmpltjob.job_sub AT ROW 2.43 COL 27 COLON-ALIGNED NO-LABEL
+     cmpltjob.job_sub AT ROW 2.43 COL 31 COLON-ALIGNED NO-LABEL
+          FORMAT "999"
           VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
+          SIZE 5.4 BY 1
           BGCOLOR 15 FONT 4
-     cmpltjob.form_number AT ROW 2.43 COL 44 COLON-ALIGNED
+     cmpltjob.form_number AT ROW 2.43 COL 47 COLON-ALIGNED
           LABEL "Form #"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
-     cmpltjob.blank_number AT ROW 2.43 COL 63 COLON-ALIGNED
+     cmpltjob.blank_number AT ROW 2.43 COL 63.4 COLON-ALIGNED
           LABEL "Blank #"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
      "-" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 2.67 COL 27
+          SIZE 2 BY .62 AT ROW 2.62 COL 31
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -205,6 +207,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN cmpltjob.job_number IN FRAME F-Main
+   EXP-FORMAT                                                            */
+/* SETTINGS FOR FILL-IN cmpltjob.job_sub IN FRAME F-Main
+   EXP-FORMAT                                                            */
 /* SETTINGS FOR FILL-IN cmpltjob.blank_number IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN cmpltjob.form_number IN FRAME F-Main

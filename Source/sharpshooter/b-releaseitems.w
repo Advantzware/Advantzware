@@ -161,7 +161,7 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
       ttReleaseItem.itemID WIDTH 40
-      ttReleaseItem.orderID WIDTH 15
+      ttReleaseItem.orderID FORMAT ">>>>>>>9" WIDTH 18
       ttReleaseItem.customerPO WIDTH 22 COLUMN-LABEL "Customer!PO #"
       fGetJobPOQuantityReceived() @ iJobPOQuantityReceived COLUMN-LABEL "Job/PO" FORMAT "->>>>>>>9" WIDTH 19
       ttReleaseItem.quantityOnHand COLUMN-LABEL "On Hand" FORMAT "->>>>>>>9" WIDTH 19

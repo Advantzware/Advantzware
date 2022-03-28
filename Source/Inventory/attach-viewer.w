@@ -121,7 +121,7 @@ DEFINE VARIABLE fiJobNo AS CHARACTER FORMAT "X(20)":U
      VIEW-AS FILL-IN 
      SIZE 46.4 BY 1.43 NO-UNDO.
 
-DEFINE VARIABLE fiJobNo2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fiJobNo2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 8.4 BY 1.43 NO-UNDO.
 
@@ -336,7 +336,7 @@ DO:
     
     FOR EACH bf-job-hdr NO-LOCK
         WHERE bf-job-hdr.company EQ cCompany
-          AND bf-job-hdr.job-no  EQ fiJobNo:SCREEN-VALUE 
+          AND TRIM(bf-job-hdr.job-no)  EQ TRIM(fiJobNo:SCREEN-VALUE )
           AND bf-job-hdr.job-no2 EQ INTEGER(fiJobNo2:SCREEN-VALUE),
         EACH bf-job NO-LOCK
         WHERE bf-job.company EQ bf-job-hdr.company
@@ -609,8 +609,8 @@ DO:
     END.
     
     ASSIGN
-        fiJobNo:SCREEN-VALUE  = cJobID
-        fiJobNo2:SCREEN-VALUE = STRING(iJobID2, "99")
+        fiJobNo:SCREEN-VALUE  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobID))
+        fiJobNo2:SCREEN-VALUE = STRING(iJobID2, "999")
         .
 END.
 
