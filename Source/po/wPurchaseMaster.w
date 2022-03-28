@@ -471,7 +471,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-poh ).
-       RUN set-position IN h_p-poh ( 21.24 , 49.00 ) NO-ERROR.
+       RUN set-position IN h_p-poh ( 21.24 , 45.00 ) NO-ERROR.
        RUN set-size IN h_p-poh ( 2.14 , 71.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -479,7 +479,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-pohold ).
-       RUN set-position IN h_v-pohold ( 21.24 , 120.00 ) NO-ERROR.
+       RUN set-position IN h_v-pohold ( 21.24 , 116.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 18.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -495,7 +495,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-clspo ).
-       RUN set-position IN h_vp-clspo ( 21.24 , 107.00 ) NO-ERROR.
+       RUN set-position IN h_vp-clspo ( 21.24 , 137.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 17.00 ) */
        
        RUN init-object IN THIS-PROCEDURE (
@@ -574,7 +574,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-clsp2 ).
-       RUN set-position IN h_vp-clsp2 ( 22.91 , 76.00 ) NO-ERROR.
+       RUN set-position IN h_vp-clsp2 ( 22.91 , 133.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.29 , 15.00 ) */
 
        /* Initialize other pages that this page requires. */
@@ -1122,7 +1122,7 @@ PROCEDURE pDisablePanels:
                 RUN pHideFrame IN h_v-pohold.                               
             END.
             
-            IF ipcScreen NE "PU4" THEN
+            IF ipcScreen NE "PU4" AND ipcScreen NE "PU1" THEN
             RUN pHideFrame IN h_vp-clspo.
             
             IF ipcScreen NE "PQ1" THEN
@@ -1134,11 +1134,13 @@ PROCEDURE pDisablePanels:
             IF ipcScreen NE "PU1" THEN
             RUN pHideFrame IN h_vp-poord.
              
-            IF ipcScreen NE "PU4" THEN DO:
-                RUN pHideFrame IN h_vp-clspo.
-                RUN pHideFrame IN h_vp-viewp.
-                RUN pHideFrame IN h_vp-clsp2.
+            IF ipcScreen NE "PU4" THEN DO:                 
+                RUN pHideFrame IN h_vp-viewp.               
             END.
+            IF ipcScreen NE "PU4" AND ipcScreen NE "PU1" THEN do:
+                RUN pHideFrame IN h_vp-clspo.
+                RUN pHideFrame IN h_vp-clsp2.
+            END.    
         END.
     END CASE.
     
