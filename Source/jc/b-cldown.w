@@ -132,7 +132,7 @@ DEFINE VARIABLE fi_comp-date AS DATE FORMAT "99/99/9999":U
 
 DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1
+     SIZE 15 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
@@ -158,8 +158,8 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      asi2corr.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U
-      asi2corr.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
+      asi2corr.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 15
+      asi2corr.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 6
       asi2corr.download-date COLUMN-LABEL "Download Date" FORMAT "99/99/9999":U
       asi2corr.download-user COLUMN-LABEL "Download User" FORMAT "x(8)":U
 /* _UIB-CODE-BLOCK-END */
@@ -270,9 +270,9 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,"
      _FldNameList[1]   > asi.asi2corr.job-no
-"asi2corr.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"asi2corr.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.asi2corr.job-no2
-"asi2corr.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"asi2corr.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.asi2corr.download-date
 "asi2corr.download-date" "Download Date" ? "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.asi2corr.download-user
