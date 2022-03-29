@@ -1174,13 +1174,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.board V-table-Win
 ON LEAVE OF ef.board IN FRAME Corr /* Board */
 DO:
+   DEF VAR lIsMatlGroup AS LOG NO-UNDO.
+    
    if lastkey <> -1 and self:screen-value <> "" 
    then do:
   {&methods/lValidateError.i YES}
+      ASSIGN lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",ITEM.company, ITEM.i-no, "Wood") EQ TRUE.
        find first item where item.company = gcompany and
                              ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
                               (index("1234",item.mat-type) > 0 and lv-is-foam) OR
-                              (DYNAMIC-FUNCTION ("fIsMatlGroup",ITEM.company, ITEM.i-no, "Wood") EQ TRUE AND lWoodStyle) ) and
+                              (lIsMatlGroup AND lWoodStyle) ) and
                               item.industry = lv-industry and
                               item.i-no = self:screen-value
                               no-lock no-error.
@@ -3793,6 +3796,8 @@ PROCEDURE local-update-record :
   DEF VAR l-fit-len AS DEC NO-UNDO.
   DEF VAR l-fit-wid AS DEC NO-UNDO.
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  DEF VAR lIsMatlGroup AS LOG NO-UNDO.
+  
   def buffer bf-eb for eb.
 {&methods/lValidateError.i YES}
 IF NOT ll-auto-calc-selected THEN
@@ -3828,13 +3833,14 @@ IF NOT ll-auto-calc-selected THEN
     else if ef.m-code:screen-value = "" then ef.m-dscr:screen-value = "". 
 
     RUN new-m-code.
-
+    ASSIGN 
+        lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",ITEM.company, ITEM.i-no, "Wood") EQ TRUE.
     if EF.BOARD:screen-value <> "" and
        not can-find (first item where item.company = gcompany and
                                       (
                                        (index("BPR",item.mat-type) > 0 and not lv-is-foam) or
                                        (index("1234",item.mat-type) > 0 and lv-is-foam) OR
-                                       (DYNAMIC-FUNCTION ("fIsMatlGroup",ITEM.company, ITEM.i-no, "Wood") EQ TRUE AND lWoodStyle)) and
+                                       (lIsMatlGroup AND lWoodStyle)) and
                                        item.industry = lv-industry and
                                        item.i-no = ef.board:screen-value
                                       )
