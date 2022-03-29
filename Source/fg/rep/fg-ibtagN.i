@@ -403,7 +403,7 @@
 
       if zbal or v-qoh ne 0 then do:
         if tt-fg-bin.job-no ne "" then
-          v-job-no = trim(tt-fg-bin.job-no) + "-" + string(tt-fg-bin.job-no2,"99").
+          v-job-no = trim(tt-fg-bin.job-no) + "-" + string(tt-fg-bin.job-no2,"999").
         else
           v-job-no = "".
 
@@ -537,7 +537,7 @@
                 WHEN "tag" THEN cVarValue = tt-fg-bin.tag /*(SUBSTR(tt-fg-bin.tag,16,8))*/ .
                 WHEN "tag#" THEN cVarValue = (SUBSTR(tt-fg-bin.tag,16,6)) .
                 WHEN "fg-lot-val" THEN cvarValue = STRING(fg-lot-val,"x(20)") .
-                WHEN "v-job-no" THEN cVarValue = string(v-job-no) .
+                WHEN "v-job-no" THEN cVarValue = string(v-job-no,"x(13)") .
                 WHEN "recdate" THEN cVarValue = IF lv-rct-date NE ? THEN STRING(lv-rct-date) ELSE "" .
                 WHEN "days-old" THEN cVarValue = STRING(INT(vdat - lv-rct-date),"->>>>>>9") .
                 WHEN "loc" THEN cVarValue = STRING(tt-fg-bin.loc).
@@ -621,7 +621,7 @@
                 WHEN "tag" THEN cVarValue = tt-fg-bin.tag.
                 WHEN "tag#" THEN cVarValue = IF SUBSTR(tt-fg-bin.tag,1,15) EQ tt-fg-bin.i-no THEN (SUBSTR(tt-fg-bin.tag,16,5)) ELSE  "" .
                 WHEN "fg-lot-val" THEN cvarValue = STRING(fg-lot-val,"x(20)") .
-                WHEN "v-job-no" THEN cVarValue = string(v-job-no) .
+                WHEN "v-job-no" THEN cVarValue = string(v-job-no,"x(13)") .
                 WHEN "recdate" THEN cVarValue = IF lv-rct-date NE ? THEN STRING(lv-rct-date) ELSE "" .
                 WHEN "days-old" THEN cVarValue = STRING(INT(vdat - lv-rct-date)) .
                 WHEN "loc" THEN cVarValue = STRING(tt-fg-bin.loc).

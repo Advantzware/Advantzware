@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -187,16 +188,16 @@ DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U
     VIEW-AS FILL-IN 
     SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(6)" 
+DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)" 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
     SIZE 14 BY 1
     BGCOLOR 15 FONT 4.
 
-DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "999":U INITIAL "000" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_machine  AS CHARACTER FORMAT "X(10)" 
     LABEL "Beginning Machine" 
@@ -213,16 +214,16 @@ DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U
     VIEW-AS FILL-IN 
     SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(6)" 
+DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
     SIZE 14 BY 1
     BGCOLOR 15 FONT 4.
 
-DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "999":U INITIAL "999" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_machine    AS CHARACTER FORMAT "X(10)" 
     LABEL "Ending Machine" 
@@ -731,16 +732,10 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
     DO:
         ASSIGN {&displayed-objects}.
         ASSIGN
-            begin_job-no     = IF LENGTH(begin_job-no) < 6 THEN FILL(" ",6 - length(TRIM(begin_job-no))) + trim(begin_job-no)
-                     ELSE begin_job-no
-            end_job-no       = IF LENGTH(end_job-no) < 6 THEN FILL(" ",6 - length(TRIM(end_job-no))) + trim(end_job-no)
-                     ELSE end_job-no
-            begin_job_number = /*fill(" ",6 - length(trim(begin_job-no))) +
-                          trim(begin_job-no) + string(int(begin_job-no2),"99")*/
-                         begin_job-no + "-" + string(int(begin_job-no2),"99")
-            end_job_number   = /*fill(" ",6 - length(trim(end_job-no)))   +
-                         trim(end_job-no)   + string(int(end_job-no2),"99")*/
-                         end_job-no + "-" + string(int(end_job-no2),"99")
+            begin_job-no     = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job-no)) 
+            end_job-no       = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job-no)) 
+            begin_job_number = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', begin_job-no, begin_job-no2)) 
+            end_job_number   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', end_job-no, end_job-no2))  
             .
       
         IF rd-dest = 3 THEN
@@ -1407,8 +1402,8 @@ PROCEDURE do-post :
         WHERE machtran.company = g_company AND
         machtran.machine EQ b-mach.m-code AND
         machtran.posted EQ NO
-        AND machtran.job_number GE begin_job-no
-        AND machtran.job_number LE end_job-no
+        AND fill(" ",9 - length(TRIM(machtran.job_number))) + trim(machtran.job_number) GE begin_job-no
+        AND fill(" ",9 - length(TRIM(machtran.job_number))) + trim(machtran.job_number) LE end_job-no
         AND machtran.job_sub GE int(begin_job-no2)
         AND machtran.job_sub LE int(end_job-no2):
 
@@ -1561,7 +1556,7 @@ PROCEDURE gl-from-work :
                 period.pnum,
                 "A",
                 TODAY,
-                (IF work-gl.job-no NE "" THEN "Job:" + work-gl.job-no + "-" + STRING(work-gl.job-no2,"99") ELSE ""),
+                (IF work-gl.job-no NE "" THEN "Job:" + work-gl.job-no + "-" + STRING(work-gl.job-no2,"999") ELSE ""),
                 "FG"). 
             ASSIGN
                 debits  = 0

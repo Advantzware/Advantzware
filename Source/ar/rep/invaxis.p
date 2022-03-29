@@ -418,7 +418,7 @@ DEFINE BUFFER bf-soldto FOR soldto.
             IF ar-invl.misc THEN
                 PUT SPACE(16).
             ELSE
-                PUT space(1) v-ord-no SPACE(9).
+                PUT space(1) TRIM(STRING(v-ord-no,">>>>>>>9")) SPACE(7).
             PUT
                 ar-invl.i-no SPACE(1)
                 v-i-dscr2 SKIP.

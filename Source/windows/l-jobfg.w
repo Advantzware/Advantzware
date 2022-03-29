@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -83,7 +85,7 @@ fg-bin.tag job-hdr.i-no
 AND (ASI.job-hdr.i-no = ip-i-no or ip-i-no = "") NO-LOCK, ~
       EACH fg-bin WHERE TRUE /* Join to job-hdr incomplete */ ~
       AND fg-bin.company = job-hdr.company ~
-and (fg-bin.job-no = job-hdr.job-no /*or fg-bin.job-no = ""*/) ~
+and (TRIM(fg-bin.job-no) = TRIM(job-hdr.job-no) /*or fg-bin.job-no = ""*/) ~
 and (fg-bin.job-no2 = job-hdr.job-no2 /*or fg-bin.job-no2 = 0*/) ~
 AND fg-bin.i-no = job-hdr.i-no ~
 and fg-bin.qty <> 0 ~
@@ -94,7 +96,7 @@ and fg-bin.qty <> 0 ~
 AND (ASI.job-hdr.i-no = ip-i-no or ip-i-no = "") NO-LOCK, ~
       EACH fg-bin WHERE TRUE /* Join to job-hdr incomplete */ ~
       AND fg-bin.company = job-hdr.company ~
-and (fg-bin.job-no = job-hdr.job-no /*or fg-bin.job-no = ""*/) ~
+and (TRIM(fg-bin.job-no) = TRIM(job-hdr.job-no) /*or fg-bin.job-no = ""*/) ~
 and (fg-bin.job-no2 = job-hdr.job-no2 /*or fg-bin.job-no2 = 0*/) ~
 AND fg-bin.i-no = job-hdr.i-no ~
 and fg-bin.qty <> 0 ~
@@ -177,8 +179,8 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      job-hdr.job-no COLUMN-LABEL "   Job#" FORMAT "x(6)":U WIDTH 9
-      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U WIDTH 3
+      job-hdr.job-no COLUMN-LABEL "   Job#" FORMAT "x(9)":U WIDTH 15
+      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 6
       job-hdr.est-no FORMAT "x(8)":U WIDTH 14
       job-hdr.ord-no FORMAT ">>>>>>>>":U WIDTH 10
       job-hdr.cust-no FORMAT "x(8)":U WIDTH 12
@@ -249,15 +251,15 @@ ASSIGN
      _Where[1]         = "ASI.job-hdr.company = ip-company
 AND (ASI.job-hdr.i-no = ip-i-no or ip-i-no = """")"
      _Where[2]         = "ASI.fg-bin.company = job-hdr.company
-and (fg-bin.job-no = job-hdr.job-no /*or fg-bin.job-no = """"*/)
+and (TRIM(fg-bin.job-no) = TRIM(job-hdr.job-no) /*or fg-bin.job-no = """"*/)
 and (fg-bin.job-no2 = job-hdr.job-no2 /*or fg-bin.job-no2 = 0*/)
 AND ASI.fg-bin.i-no = job-hdr.i-no
 and fg-bin.qty <> 0
 "
      _FldNameList[1]   > ASI.job-hdr.job-no
-"job-hdr.job-no" "   Job#" ? "character" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" ""
+"job-hdr.job-no" "   Job#" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" ""
      _FldNameList[2]   > ASI.job-hdr.job-no2
-"job-hdr.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "3" yes no no "U" "" ""
+"job-hdr.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "6" yes no no "U" "" ""
      _FldNameList[3]   > ASI.job-hdr.est-no
 "job-hdr.est-no" ? "x(8)" "character" ? ? ? ? ? ? no ? no no "14" yes no no "U" "" ""
      _FldNameList[4]   > ASI.job-hdr.ord-no

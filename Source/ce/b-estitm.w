@@ -1935,7 +1935,8 @@ DEF BUFFER bf FOR ef.
 
 FIND bf WHERE RECID(bf) EQ ip-recid.
 
-RUN ce/newblank.p (ROWID(bf), OUTPUT lv-rowid).
+/*RUN ce/newblank.p (ROWID(bf), OUTPUT lv-rowid).*/
+RUN est/NewEstimateBlank.p(ROWID(bf), OUTPUT lv-rowid).
 
 FIND eb WHERE ROWID(eb) EQ lv-rowid NO-LOCK NO-ERROR.
 lv-eb-recid = RECID(eb).

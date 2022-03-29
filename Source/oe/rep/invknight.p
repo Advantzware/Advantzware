@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invknight.p */
 /* PRINT INVOICE   Xprint form for Knight Pkg           */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
  DEF INPUT PARAM ip-copy-title AS cha NO-UNDO. 
 
 {sys/inc/var.i shared}
@@ -330,7 +330,8 @@ ASSIGN ls-full-img1 = cRtnChar + ">" .
               v-price  format ">>>,>>9.9999"                
               inv-line.t-price  format "->>>,>>9.99"             
               SKIP
-              v-ord-no FORMAT ">>>>>9" SPACE(10)
+              SPACE(1)
+              TRIM(STRING(v-ord-no,">>>>>>>9")) SPACE(7)
               inv-line.i-no FORMAT "X(15)"
               inv-line.part-dscr1 FORMAT "x(30)" SPACE(13)
               v-pc  FORMAT "x" SPACE(6)

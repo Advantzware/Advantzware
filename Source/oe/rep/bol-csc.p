@@ -1,7 +1,7 @@
 /* ----------------------------------------------- oe/rep/bol-csc.p 12/97 JLF */
 /*                                                                            */
 /* Print BOL when sys-ctrl.char-fld eq "ContSrvc" - O/E Module                */
-/*                                                                            */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -281,9 +281,9 @@ for each report   where report.term-id eq v-term-id,
         ASSIGN v-i-dscr[5] = "PO #: " + tt-boll.po-no.
 
      IF v-i-dscr[4] = "" AND tt-boll.ord-no <> 0 THEN
-        ASSIGN v-i-dscr[4] = "Ord#: " + trim(string(tt-boll.ord-no,">>>>>9")).
+        ASSIGN v-i-dscr[4] = "Ord#: " + trim(string(tt-boll.ord-no,">>>>>>>9")).
      ELSE IF v-i-dscr[5] = "" AND tt-boll.ord-no <> 0 THEN
-        ASSIGN v-i-dscr[5] = "Ord#: " + trim(string(tt-boll.ord-no,">>>>>9")).
+        ASSIGN v-i-dscr[5] = "Ord#: " + trim(string(tt-boll.ord-no,">>>>>>>9")).
 
      IF v-i-dscr[1] = "" THEN 
         ASSIGN v-i-dscr[1] = v-i-dscr[2]

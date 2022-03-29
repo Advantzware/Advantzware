@@ -10,6 +10,7 @@
     Created     : Tue Jun 07 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */  
     {api/ttArgs.i}
     {api/CommonAPIProcs.i}
     {system/FormulaProcs.i}
@@ -1268,7 +1269,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             /* Fetch Adders for HRMS */
             FIND FIRST job NO-LOCK 
                  WHERE job.company EQ po-ordl.company
-                   AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no))) + TRIM(po-ordl.job-no) 
+                   AND trim(job.job-no)  EQ TRIM(po-ordl.job-no) 
                    AND job.job-no2 EQ po-ordl.job-no2
                  NO-ERROR.            
             IF AVAILABLE job THEN DO:

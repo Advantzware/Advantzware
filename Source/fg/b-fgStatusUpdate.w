@@ -176,7 +176,7 @@ DEFINE VARIABLE fiItemId AS CHARACTER FORMAT "x(15)"
      VIEW-AS FILL-IN 
      SIZE 32 BY 1.
 
-DEFINE VARIABLE fiJobID AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fiJobID AS CHARACTER FORMAT "X(9)":U 
      LABEL "Job #" 
      VIEW-AS FILL-IN 
      SIZE 16.2 BY 1 NO-UNDO.
@@ -251,7 +251,7 @@ DEFINE BROWSE BROWSE-2
       onHold              COLUMN-LABEL "On Hold"          WIDTH 9  FORMAT "Yes/No"
       PrimaryID           COLUMN-LABEL "Item #"           WIDTH 20 FORMAT "X(30)"
       ItemDesc            COLUMN-LABEL "Item Description" WIDTH 30 FORMAT "X(50)"
-      fGetJobID() @ JobNo COLUMN-LABEL "Job #"            WIDTH 12 FORMAT "X(10)"
+      fGetJobID() @ JobNo COLUMN-LABEL "Job #"            WIDTH 18 FORMAT "X(13)"
       customerID          COLUMN-LABEL "Customer"         WIDTH 15
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -427,7 +427,7 @@ DO:
     DEFINE VARIABLE cJobNo AS CHARACTER.
     
     cJobNo = fiJobID:SCREEN-VALUE.
-    RUN spCommon_FillCharacter (INPUT-OUTPUT cJobNo,INPUT 6).  
+    RUN spCommon_FillCharacter (INPUT-OUTPUT cJobNo,INPUT 9).  
     fiJobID:SCREEN-VALUE = cJobNo.
     
     SESSION:SET-WAIT-STATE ("GENERAL").
@@ -883,7 +883,7 @@ FUNCTION fGetJobID RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
     IF ttItem.jobNo NE "" THEN
-        RETURN ttItem.jobNo + "-" + TRIM(STRING(ttItem.jobNo2,"99")).
+        RETURN ttItem.jobNo + "-" + TRIM(STRING(ttItem.jobNo2,"999")).
     ELSE
         RETURN "".
       

@@ -1,5 +1,6 @@
 /* ----------------------------------------------- cerep/jobSLdee.p 01/09 gdm */
 /*  Schedule Labels for DEE                                                   */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /* -------------------------------------------------------------------------- */
 
 /************* Parameters ******************/
@@ -70,8 +71,8 @@ FOR EACH oe-ord
     each oe-ordl
     where oe-ordl.company    eq oe-ord.company
     and oe-ordl.ord-no     eq oe-ord.ord-no
-    AND oe-ordl.job-no  GE icBegJobNo
-    AND oe-ordl.job-no  LE icEndJobNo
+    AND fill(" ",9 - length(TRIM(oe-ordl.job-no))) + trim(oe-ordl.job-no) GE icBegJobNo
+    AND fill(" ",9 - length(TRIM(oe-ordl.job-no))) + trim(oe-ordl.job-no)  LE icEndJobNo
     AND oe-ordl.job-no2  GE INTEGER(iiBegJobNo2)
     AND oe-ordl.job-no2  LE integer(iiEndJobNo2)
     NO-LOCK BREAK BY oe-ord.ord-no :
@@ -220,7 +221,7 @@ FOR EACH oe-ord
 
         PUT "<FArial><R3><C43><p9> Max # of Colors: <B>" string(iColorCount) "</B>" "  # of Forms: <B>" STRING(iFormCount) "</B>" SKIP.
         PUT "<FArial><R4.5><C43.8><p9> Customer: <B>" IF AVAILABLE cust THEN cust.NAME ELSE "" FORMAT "x(30)"  "</B>" SKIP.
-        PUT "<FArial><R5><C68.8><p9> Order # : <B>" oe-ordl.ord-no "</B>" skip  .
+        PUT "<FArial><R5><C68.8><p9> Order # : <B>" TRIM(STRING(oe-ordl.ord-no,">>>>>>>9")) FORM "X(8)" "</B>" skip  .
         PUT "<FArial><R6><C45.9><p9> Carton: <B>" cDieDescr "</B>" SKIP.
 
         PUT "<FArial><R7.5><C42.8><p9> Order Date: <B>" oe-ord.ord-date "</B>" SKIP.

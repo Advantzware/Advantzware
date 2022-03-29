@@ -6,8 +6,8 @@ def var save_id as recid.
 
 def var v-stat  as   char format "!" init "O".
 def var v-ind   as   char format "!" init "".
-def var v-job-no like job.job-no extent 2 init [" ", "zzzzzz"] no-undo.
-def var v-job-no2 like job.job-no2 extent 2 init [00, 99] no-undo.
+def var v-job-no like job.job-no extent 2 init [" ", "zzzzzzzzz"] no-undo.
+def var v-job-no2 like job.job-no2 extent 2 init [000, 999] no-undo.
 def var v-date like job.start-date format "99/99/9999" extent 2
                                       init ["01/01/0001", "12/31/9999"] no-undo.
 DEF VAR v-inv-tot-only AS LOG NO-UNDO.

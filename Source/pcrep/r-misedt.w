@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -94,30 +95,30 @@ DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/
     VIEW-AS FILL-IN 
     SIZE 18 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
     LABEL "Ending Date" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+    SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\MiscellaneousReport.csv" 
     LABEL "Name" 
@@ -875,8 +876,8 @@ PROCEDURE run-report :
     {sys/form/r-top3w.f}   
 
     DEFINE VARIABLE v-date      LIKE pc-misc.misc-date EXTENT 2 FORMAT "99/99/9999" INITIAL TODAY NO-UNDO.
-    DEFINE VARIABLE v-job-no    LIKE job.job-no EXTENT 2 INITIAL ["", "999999"] NO-UNDO.
-    DEFINE VARIABLE v-job-no2   LIKE job.job-no2 EXTENT 2 INITIAL [0, 99] NO-UNDO.
+    DEFINE VARIABLE v-job-no    LIKE job.job-no EXTENT 2 INITIAL ["", "999999999"] NO-UNDO.
+    DEFINE VARIABLE v-job-no2   LIKE job.job-no2 EXTENT 2 INITIAL [0, 999] NO-UNDO.
     DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 
     FORM pc-misc.misc-date COLUMN-LABEL "TRANS DATE"
@@ -893,25 +894,22 @@ PROCEDURE run-report :
         pc-misc.cost COLUMN-LABEL "STD COST"
         pc-misc.cost-m COLUMN-LABEL "COST/M"
 
-        WITH FRAME miscedit NO-BOX DOWN STREAM-IO WIDTH 132.
+        WITH FRAME miscedit NO-BOX DOWN STREAM-IO WIDTH 140.
 
     ASSIGN
         str-tit2    = c-win:TITLE
         {sys/inc/ctrtext.i str-tit2 112}
 
 
-        v-job-no[1] = FILL(" ",6 - length(TRIM(begin_job-no))) +
-                     trim(begin_job-no) + string(int(begin_job-no2),"99")
-        v-job-no[2] = FILL(" ",6 - length(TRIM(end_job-no)))   +
-                     trim(end_job-no)   + string(int(end_job-no2),"99") 
-
+        v-job-no[1] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+        v-job-no[2] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
+        
         v-date[1]   = begin_date
         v-date[2]   = END_date.
 
-    DO x = 1 TO 2:
-        v-job-no[x] = FILL(" ", 6 - integer(LENGTH(TRIM(v-job-no[x])))) +
-            trim(v-job-no[x]).
-    END.
+    /*DO x = 1 TO 2:
+        v-job-no[x] = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', v-job-no[x])) .
+    END.    */
 
     {sys/inc/print1.i}
 
@@ -942,9 +940,8 @@ PROCEDURE run-report :
         IF FIRST-OF(pc-misc.misc-date) THEN
             PUT " " SKIP.
 
-        IF pc-misc.job-no     LT v-job-no[1]  OR pc-misc.job-no GT v-job-no[2]
-            OR pc-misc.job-no2 LT v-job-no2[1] OR
-            pc-misc.job-no2    GT v-job-no2[2]
+        IF fill(" ",9 - length(TRIM(pc-misc.job-no))) + trim(pc-misc.job-no) + STRING(pc-misc.job-no2,"999") LT v-job-no[1]  
+            OR fill(" ",9 - length(TRIM(pc-misc.job-no))) + trim(pc-misc.job-no) + STRING(pc-misc.job-no2,"999") GT v-job-no[2]           
             THEN NEXT.
 
         DISPLAY pc-misc.misc-date

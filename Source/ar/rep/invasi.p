@@ -46,7 +46,7 @@ DEF VAR v-date-ship AS DATE NO-UNDO.
 def var v-salesman as char format "x(14)" NO-UNDO.
 def var v-fob as char format "x(27)" NO-UNDO.
 def var v-shipvia like carrier.dscr NO-UNDO.
-def var v-del-no as int format ">>>>>>" NO-UNDO.
+def var v-del-no as int format ">>>>>>>>" NO-UNDO.
 def var v-tot-pallets as INT NO-UNDO.
 DEF VAR v-bol-no LIKE oe-bolh.bol-no NO-UNDO.
 DEF VAR v-net AS DEC NO-UNDO.

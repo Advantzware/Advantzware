@@ -31,6 +31,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -129,7 +130,7 @@ DEFINE VARIABLE fi_comp-date AS DATE FORMAT "99/99/9999":U
      SIZE 18 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -157,8 +158,8 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      asi2corr.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U
-      asi2corr.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      asi2corr.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U
+      asi2corr.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
       asi2corr.download-date COLUMN-LABEL "Download Date" FORMAT "99/99/9999":U
       asi2corr.download-user COLUMN-LABEL "Download User" FORMAT "x(8)":U
 /* _UIB-CODE-BLOCK-END */

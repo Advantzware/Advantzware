@@ -28,6 +28,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -127,7 +128,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 152.6 BY 24
+         SIZE 156.6 BY 24
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
@@ -165,7 +166,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Purchase Order"
          HEIGHT             = 24
-         WIDTH              = 152.6
+         WIDTH              = 156.6
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -336,7 +337,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 151.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 21.67 , 155.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/f-addbes.w':U ,
@@ -429,7 +430,7 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = ?':U ,
              OUTPUT h_b-po-inq ).
        RUN set-position IN h_b-po-inq ( 4.57 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 20.00 , 148.00 ) */
+       /* Size in UIB:  ( 20.00 , 152.00 ) */
        
        /* Links to SmartViewer h_import. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).

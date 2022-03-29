@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolinlnd.p 06/01 JLF */
 /* PRINT Inland BOL                                                           */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -28,7 +29,7 @@ def var v-part-qty          as   dec.
 def var v-part-comp         as   char format "x".
 def var v-ord-no            like oe-boll.ord-no.
 def var v-po-no             like oe-bolh.po-no.
-def var v-job-no            as   char format "x(9)" no-undo.
+def var v-job-no            as   char format "x(13)" no-undo.
 def var v-phone-num         as   char format "x(13)" no-undo.
 
 def var v-ship-name  like shipto.ship-name.
@@ -274,7 +275,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
     assign
      report.term-id  = v-term-id
      report.key-01   = oe-boll.i-no
-     report.key-02   = string(oe-boll.ord-no,"999999")
+     report.key-02   = string(oe-boll.ord-no,"99999999")
      report.rec-id   = recid(oe-boll)
      oe-boll.printed = yes.
   end.

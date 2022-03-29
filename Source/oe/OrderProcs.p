@@ -1905,6 +1905,8 @@ PROCEDURE pCreateActRelHeader PRIVATE:
 /*                                   INPUT YES,                     */
 /*                                   OUTPUT lCreditHold ).          */
 /*    END.                                                          */
+    g_company = ipbf-oe-rel.company.
+    
     RUN oe/getNextRelNo.p (INPUT "oe-relh", 
                            OUTPUT iNextRNo).
 
@@ -4254,6 +4256,7 @@ PROCEDURE pProcessImportedOrderHeader PRIVATE:
         bf-oe-ord.cc-num        = ipbf-ttOrder.cardNo
         bf-oe-ord.cc-type       = ipbf-ttOrder.cardType
         bf-oe-ord.cc-expiration = ipbf-ttOrder.cardExpiryDate
+        bf-oe-ord.ediSubmitted  = ipbf-ttOrder.ediSubmitted
         .
 
     FIND FIRST bf-cust NO-LOCK
@@ -4428,6 +4431,10 @@ PROCEDURE pProcessImportedOrderLine:
     DEFINE VARIABLE lFound           AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE hdCostProcs      AS HANDLE    NO-UNDO.
     
+    DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL   NO-UNDO.
+      
     DEFINE BUFFER bf-oe-ord  FOR oe-ord.
     DEFINE BUFFER bf-cust    FOR cust.
     DEFINE BUFFER bf-itemfg  FOR itemfg.
@@ -4532,8 +4539,12 @@ PROCEDURE pProcessImportedOrderLine:
             bf-oe-ordl.disc = bf-cust.disc
             bf-oe-ordl.tax  = bf-cust.sort EQ 'Y' AND bf-oe-ord.tax-gr NE ''
             .
-    
-    IF bf-oe-ordl.price EQ 0 THEN DO:                      
+
+    RUN sys/ref/nk1look.p (bf-oe-ord.company, "QuotePriceMatrix", "L",  NO, YES, "", "", OUTPUT cRtnChar, OUTPUT lRecFound).
+    IF lRecFound THEN
+        lQuotePriceMatrix = LOGICAL(cRtnChar) NO-ERROR. 
+              
+    IF bf-oe-ordl.price EQ 0 OR lQuotePriceMatrix THEN DO:                      
         FIND FIRST xoe-ord OF bf-oe-ord NO-LOCK NO-ERROR.
         /* oe/getprice.i */
         RUN getPrice (

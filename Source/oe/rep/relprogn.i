@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relprogn.i */
 /* Print OE Release/Picking tickets    for Protagon PremierX Xprint          */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* -----------------------------------------------------------------*/
 
 {oe/rep/oe-pick1.i}
@@ -9,7 +10,7 @@
 DEF BUFFER ref-lot-no FOR reftable.
 
 def TEMP-TABLE w-oe-rell NO-UNDO
-   FIELD ord-no AS INT FORMAT "ZZZZZ9"
+   FIELD ord-no AS INT FORMAT "ZZZZZZZ9"
    FIELD i-no AS CHAR
    FIELD qty AS INT
    FIELD LINE AS INT
@@ -76,8 +77,8 @@ DEF SHARED VAR s-print-bin-from AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-to AS cha NO-UNDO.
 
 format w-oe-rell.ord-no                 to 6
-       w-bin.w-par                      at 8    format "x(25)"
-       v-bin                            at 34   format "x(35)"
+       w-bin.w-par                      AT 10   format "x(25)"
+       v-bin                            at 35.5 format "x(35)"
        w-bin.w-units                    to 76   format "->>>>>"
        w-bin.w-unit-count               to 83   format "->>>>>"
        v-tot-rqty                       to 93   format "->>>>>>>>"

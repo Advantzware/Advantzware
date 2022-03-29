@@ -12,6 +12,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 
@@ -421,10 +422,10 @@ DEFINE FRAME Dialog-Frame
      po-ordl.i-no AT ROW 1.24 COL 17 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
-     po-ordl.job-no AT ROW 1.24 COL 49.8 COLON-ALIGNED
+     po-ordl.job-no AT ROW 1.24 COL 48.8 COLON-ALIGNED
           LABEL "Job #"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 13 BY 1
      po-ordl.job-no2 AT ROW 1.24 COL 61.8 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
@@ -531,9 +532,9 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      po-ordl.ord-no AT ROW 14.62 COL 18 COLON-ALIGNED
-          LABEL "Order Number" FORMAT ">>>>>9"
+          LABEL "Order Number" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 13 BY 1
      po-ordl.t-cost AT ROW 14.62 COL 49 COLON-ALIGNED
           LABEL "Total Cost" FORMAT "->,>>>,>>9.99<<"
           VIEW-AS FILL-IN 
@@ -785,8 +786,7 @@ DO:
 
     ASSIGN
      lw-focus               = FOCUS
-     lv-job-no              = FILL(" ", 6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
-                 TRIM(po-ordl.job-no:SCREEN-VALUE)
+     lv-job-no              = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no:SCREEN-VALUE)) 
      v-number-rows-selected = 0.
     
     CASE lw-focus:NAME:
@@ -806,6 +806,7 @@ DO:
                   ASSIGN lw-focus:SCREEN-VALUE       = ENTRY(1,char-val)
                          po-ordl.i-name:SCREEN-VALUE = ENTRY(2,char-val).
                   RUN display-rmitem (look-recid).
+                  ll-item-validated = YES.
                 END.
               END.
               ELSE DO:  /* finished good */
@@ -815,6 +816,7 @@ DO:
                          po-ordl.i-name:screen-value = ENTRY(2,char-val).
                   RUN display-fgitem (look-recid) .
                   lCheckFGCustHold = NO.
+                  ll-item-validated = YES.
                 END.                           
               END.
             END.
@@ -1153,7 +1155,7 @@ DO:
      /* wfk - to make sure cons-qty was being updated */
     FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
     {po/podisdet.i}
-   
+    po-ordl.cons-cost = decimal(po-ordl.cons-cost:SCREEN-VALUE).
    ASSIGN po-ordl.s-dep = v-dep . 
     
 IF TRIM(po-ordl.job-no) EQ "" THEN po-ordl.job-no2 = 0.
@@ -1180,7 +1182,7 @@ IF po-ord.type EQ "D"               AND
     FOR EACH oe-ordl NO-LOCK                                              
         WHERE oe-ordl.company  EQ po-ordl.company
         AND oe-ordl.ord-no   EQ po-ordl.ord-no
-        AND oe-ordl.job-no   EQ po-ordl.job-no
+        AND trim(oe-ordl.job-no)   EQ trim(po-ordl.job-no)
         AND oe-ordl.job-no2  EQ po-ordl.job-no2
         AND (oe-ordl.job-no  EQ ""            OR
         oe-ordl.form-no EQ po-ordl.s-num OR
@@ -1543,8 +1545,7 @@ DO:
 
         IF LASTKEY NE -1 THEN 
         DO:
-            {&self-name}:SCREEN-VALUE = FILL(" ", 6 - LENGTH(TRIM({&self-name}:SCREEN-VALUE))) +
-                                TRIM({&self-name}:SCREEN-VALUE).
+            {&self-name}:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', {&self-name}:SCREEN-VALUE)) .
     
             RUN valid-job-no NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1553,7 +1554,7 @@ DO:
 
                 FIND FIRST b-job-mat WHERE
                     b-job-mat.company EQ g_company AND
-                    b-job-mat.job-no  EQ po-ordl.job-no:SCREEN-VALUE AND
+                    trim(b-job-mat.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE) AND
                     b-job-mat.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE) AND
                     b-job-mat.rm-i-no EQ po-ordl.i-no:SCREEN-VALUE AND
                     b-job-mat.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) AND
@@ -2419,14 +2420,13 @@ PROCEDURE check-job-bnum :
     DEFINE VARIABLE lv-job-no LIKE po-ordl.job-no NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
 
-        lv-job-no = FILL(" ", 6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
-            TRIM(po-ordl.job-no:SCREEN-VALUE).
+        lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no:SCREEN-VALUE)) .
 
         RELEASE job-mat.
 
         FIND FIRST job NO-LOCK 
             WHERE job.company EQ g_company
-            AND job.job-no  EQ lv-job-no
+            AND trim(job.job-no)  EQ trim(lv-job-no)
             AND job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
             NO-ERROR.
 
@@ -2443,7 +2443,7 @@ PROCEDURE check-job-bnum :
     IF AVAILABLE job-mat THEN 
     DO WITH FRAME {&FRAME-NAME}:
         IF job-mat.rm-i-no  NE po-ordl.i-no:SCREEN-VALUE            OR
-            job-mat.job-no   NE po-ordl.job-no:SCREEN-VALUE          OR
+            trim(job-mat.job-no)   NE trim(po-ordl.job-no:SCREEN-VALUE)          OR
             job-mat.job-no2  NE INT(po-ordl.job-no2:SCREEN-VALUE)    OR
             (job-mat.frm     NE INT(po-ordl.s-num:SCREEN-VALUE) AND
             po-ordl.s-num:SCREEN-VALUE NE "?")                      OR
@@ -2509,7 +2509,7 @@ PROCEDURE check-workfile :
             DO:
                 w-po-ordl.s-num = ?.
                 FOR EACH b-w-po-ordl
-                    WHERE b-w-po-ordl.job-no  EQ w-po-ordl.job-no
+                    WHERE trim(b-w-po-ordl.job-no)  EQ trim(w-po-ordl.job-no)
                     AND b-w-po-ordl.job-no2 EQ w-po-ordl.job-no2
                     AND b-w-po-ordl.i-no    EQ w-po-ordl.i-no
                     AND ROWID(b-w-po-ordl)  NE ROWID(w-po-ordl):
@@ -2568,7 +2568,7 @@ PROCEDURE check-workfile-2 :
             DO:
                 w-po-ordl.s-num = ?.
                 FOR EACH b-w-po-ordl
-                    WHERE b-w-po-ordl.job-no  EQ w-po-ordl.job-no
+                    WHERE trim(b-w-po-ordl.job-no)  EQ trim(w-po-ordl.job-no)
                     AND b-w-po-ordl.job-no2 EQ w-po-ordl.job-no2
                     AND b-w-po-ordl.i-no    EQ w-po-ordl.i-no
                     AND ROWID(b-w-po-ordl)  NE ROWID(w-po-ordl):
@@ -2725,7 +2725,7 @@ PROCEDURE create-multi-line :
     DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST job
             WHERE job.company EQ po-ordl.company
-            AND job.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+            AND trim(job.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
             AND job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
             NO-LOCK NO-ERROR.
 
@@ -2939,7 +2939,7 @@ PROCEDURE create-multi-line :
             FOR EACH job-mat NO-LOCK
                 WHERE job-mat.company EQ job.company
                 AND job-mat.job     EQ job.job
-                AND job-mat.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+                AND trim(job-mat.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
                 AND job-mat.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                 AND AVAILABLE w-po-ordl
                 AND ROWID(job-mat) EQ w-po-ordl.job-mat-rowid
@@ -3354,7 +3354,7 @@ PROCEDURE display-job-mat :
     
         FIND FIRST job
             WHERE job.company EQ g_company
-            AND job.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+            AND trim(job.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
             AND job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
             NO-LOCK NO-ERROR.
     
@@ -3368,7 +3368,7 @@ PROCEDURE display-job-mat :
             FIND tt-job-mat
                 WHERE tt-job-mat.company EQ g_company
                 AND tt-job-mat.job     EQ job.job
-                AND tt-job-mat.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+                AND trim(tt-job-mat.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
                 AND tt-job-mat.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                 AND tt-job-mat.rm-i-no EQ po-ordl.i-no:SCREEN-VALUE
                 AND tt-job-mat.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) 
@@ -3378,7 +3378,7 @@ PROCEDURE display-job-mat :
                 FIND FIRST job-mat
                     WHERE job-mat.company   EQ g_company
                     AND job-mat.job       EQ job.job
-                    AND job-mat.job-no    EQ po-ordl.job-no:SCREEN-VALUE
+                    AND trim(job-mat.job-no)    EQ trim(po-ordl.job-no:SCREEN-VALUE)
                     AND job-mat.job-no2   EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                     AND (job-mat.rm-i-no  EQ po-ordl.i-no:SCREEN-VALUE        OR
                     po-ordl.i-no:SCREEN-VALUE EQ "")
@@ -3856,7 +3856,7 @@ PROCEDURE enable-disable-blk :
     DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST job NO-LOCK 
             WHERE job.company EQ g_company
-            AND job.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+            AND trim(job.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
             AND job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
             NO-ERROR.
 
@@ -3868,7 +3868,7 @@ PROCEDURE enable-disable-blk :
         FIND FIRST b-job-mat NO-LOCK 
             WHERE b-job-mat.company EQ g_company
             AND b-job-mat.job     EQ job.job
-            AND b-job-mat.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+            AND trim(b-job-mat.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
             AND b-job-mat.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
             AND (b-job-mat.frm    EQ INT(po-ordl.s-num:SCREEN-VALUE) OR
             po-ordl.s-num:SCREEN-VALUE EQ "?")
@@ -3879,7 +3879,7 @@ PROCEDURE enable-disable-blk :
             FOR EACH job-mat NO-LOCK
                 WHERE job-mat.company   EQ g_company
                 AND job-mat.job       EQ job.job
-                AND job-mat.job-no    EQ po-ordl.job-no:SCREEN-VALUE
+                AND trim(job-mat.job-no)    EQ trim(po-ordl.job-no:SCREEN-VALUE)
                 AND job-mat.job-no2   EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                 AND (b-job-mat.frm    EQ INT(po-ordl.s-num:SCREEN-VALUE) OR
                 po-ordl.s-num:SCREEN-VALUE EQ "?")
@@ -3919,7 +3919,7 @@ PROCEDURE enable-disable-frm :
     DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST job NO-LOCK 
             WHERE job.company EQ g_company
-            AND job.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+            AND trim(job.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
             AND job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
             NO-ERROR.
 
@@ -3929,7 +3929,7 @@ PROCEDURE enable-disable-frm :
             FOR EACH job-mat NO-LOCK
                 WHERE job-mat.company   EQ g_company
                 AND job-mat.job       EQ job.job
-                AND job-mat.job-no    EQ po-ordl.job-no:SCREEN-VALUE
+                AND trim(job-mat.job-no)    EQ trim(po-ordl.job-no:SCREEN-VALUE)
                 AND job-mat.job-no2   EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                 AND job-mat.frm       GT 0
                 
@@ -4130,7 +4130,7 @@ PROCEDURE GetFirstMach :
       IF AVAILABLE po-ordl AND po-ordl.job-no:SCREEN-VALUE NE "" THEN
         FOR EACH job-mch NO-LOCK
           WHERE job-mch.company EQ cocode
-            AND job-mch.job-no EQ po-ordl.job-no:SCREEN-VALUE
+            AND trim(job-mch.job-no) EQ trim(po-ordl.job-no:SCREEN-VALUE)
             AND job-mch.job-no2 EQ integer(po-ordl.job-no2:SCREEN-VALUE)
             AND job-mch.frm EQ integer(po-ordl.s-num:SCREEN-VALUE) use-index line-idx :
              ASSIGN opMachine = job-mch.m-code . 
@@ -4165,7 +4165,7 @@ PROCEDURE getJobFarmInfo :
 
         FIND FIRST bfJob-farm NO-LOCK 
             WHERE bfJob-farm.company EQ g_company 
-            AND bfJob-farm.job-no  EQ po-ordl.job-no:SCREEN-VALUE 
+            AND trim(bfJob-farm.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
             AND bfJob-farm.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE) 
             AND bfJob-farm.i-no EQ po-ordl.i-no:SCREEN-VALUE 
             AND bfJob-farm.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) 
@@ -4233,14 +4233,13 @@ PROCEDURE lookup-job :
     DEFINE BUFFER bf-itemfg FOR itemfg.
 
     DO WITH FRAME {&frame-name}:
-        lv-job-no = FILL(" ", 6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
-            TRIM(po-ordl.job-no:SCREEN-VALUE).
+        lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no:SCREEN-VALUE)) .
 
         RELEASE job-mat.
 
         FIND FIRST job NO-LOCK 
             WHERE job.company EQ g_company
-            AND job.job-no  EQ lv-job-no
+            AND trim(job.job-no)  EQ trim(lv-job-no)
             AND job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
             NO-ERROR.
 
@@ -4310,7 +4309,7 @@ PROCEDURE new-job :
     
         FIND FIRST job-hdr NO-LOCK 
             WHERE job-hdr.company   EQ g_company
-            AND job-hdr.job-no    EQ po-ordl.job-no:SCREEN-VALUE
+            AND trim(job-hdr.job-no)    EQ trim(po-ordl.job-no:SCREEN-VALUE)
             AND job-hdr.job-no2   EQ INT(po-ordl.job-no2:SCREEN-VALUE)
             AND (job-hdr.frm      EQ INT(po-ordl.s-num:SCREEN-VALUE) OR
             po-ordl.s-num:SCREEN-VALUE EQ "?"                   OR
@@ -4357,7 +4356,7 @@ PROCEDURE new-job-farm :
     IF AVAILABLE job-farm THEN 
     DO WITH FRAME {&FRAME-NAME}:
         IF job-farm.i-no  NE po-ordl.i-no:SCREEN-VALUE            OR
-            job-farm.job-no   NE po-ordl.job-no:SCREEN-VALUE          OR
+            trim(job-farm.job-no)   NE trim(po-ordl.job-no:SCREEN-VALUE)          OR
             job-farm.job-no2  NE INT(po-ordl.job-no2:SCREEN-VALUE)    OR
             (job-farm.frm     NE INT(po-ordl.s-num:SCREEN-VALUE) AND
             po-ordl.s-num:SCREEN-VALUE NE "?")                      OR
@@ -4404,7 +4403,7 @@ PROCEDURE new-job-line :
 
     IF AVAILABLE job-hdr THEN 
     DO WITH FRAME {&FRAME-NAME}:
-        IF job-hdr.job-no   NE po-ordl.job-no:SCREEN-VALUE          OR
+        IF trim(job-hdr.job-no)   NE trim(po-ordl.job-no:SCREEN-VALUE)          OR
             job-hdr.job-no2  NE INT(po-ordl.job-no2:SCREEN-VALUE)    OR
             (job-hdr.frm     NE INT(po-ordl.s-num:SCREEN-VALUE) AND
             po-ordl.s-num:SCREEN-VALUE NE "?")                      OR
@@ -4422,7 +4421,7 @@ PROCEDURE new-job-line :
          
                 FIND FIRST job-mat NO-LOCK 
                     WHERE job-mat.company EQ g_company
-                    AND job-mat.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+                    AND trim(job-mat.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
                     AND job-mat.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                     AND job-mat.rm-i-no EQ po-ordl.i-no:SCREEN-VALUE
                     AND NOT CAN-FIND(FIRST b-po-ordl
@@ -4438,7 +4437,7 @@ PROCEDURE new-job-line :
             ELSE
                 FIND FIRST job-mat NO-LOCK 
                     WHERE job-mat.company EQ g_company
-                    AND job-mat.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+                    AND trim(job-mat.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
                     AND job-mat.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                     AND job-mat.rm-i-no EQ po-ordl.i-no:SCREEN-VALUE
                     AND job-mat.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE)
@@ -4488,7 +4487,7 @@ PROCEDURE new-job-line-farm :
 
     IF AVAILABLE job-hdr AND avail(job-farm) THEN 
     DO WITH FRAME {&FRAME-NAME}:
-        IF job-farm.job-no   NE po-ordl.job-no:SCREEN-VALUE          OR
+        IF trim(job-farm.job-no)   NE trim(po-ordl.job-no:SCREEN-VALUE)          OR
             job-farm.job-no2  NE INT(po-ordl.job-no2:SCREEN-VALUE)    OR
             (job-farm.frm     NE INT(po-ordl.s-num:SCREEN-VALUE) AND
             po-ordl.s-num:SCREEN-VALUE NE "?")                      OR
@@ -4506,7 +4505,7 @@ PROCEDURE new-job-line-farm :
          
                 FIND FIRST job-farm NO-LOCK 
                     WHERE job-farm.company EQ g_company
-                    AND job-farm.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+                    AND trim(job-farm.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
                     AND job-farm.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                     AND job-farm.i-no EQ po-ordl.i-no:SCREEN-VALUE
                     AND NOT CAN-FIND(FIRST b-po-ordl
@@ -4522,7 +4521,7 @@ PROCEDURE new-job-line-farm :
             ELSE
                 FIND FIRST job-farm NO-LOCK 
                     WHERE job-farm.company EQ g_company
-                    AND job-farm.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+                    AND trim(job-farm.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
                     AND job-farm.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                     AND job-farm.i-no EQ po-ordl.i-no:SCREEN-VALUE
                     AND job-farm.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE)
@@ -4570,7 +4569,7 @@ PROCEDURE new-job-mat :
     IF AVAILABLE job-mat THEN 
     DO WITH FRAME {&FRAME-NAME}:
         IF job-mat.rm-i-no  NE po-ordl.i-no:SCREEN-VALUE            OR
-            job-mat.job-no   NE po-ordl.job-no:SCREEN-VALUE          OR
+            trim(job-mat.job-no)   NE trim(po-ordl.job-no:SCREEN-VALUE)          OR
             job-mat.job-no2  NE INT(po-ordl.job-no2:SCREEN-VALUE)    OR
             (job-mat.frm     NE INT(po-ordl.s-num:SCREEN-VALUE) AND
             po-ordl.s-num:SCREEN-VALUE NE "?")                      OR
@@ -4679,7 +4678,7 @@ PROCEDURE pCreateAndUpdateAdders PRIVATE :
     DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST job NO-LOCK
              WHERE job.company EQ ipcCompany
-               AND job.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+               AND trim(job.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
                AND job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
              NO-ERROR.
         IF AVAILABLE job THEN
@@ -4922,7 +4921,7 @@ PROCEDURE pGetAccountForJobCat:
         cAccountNo = "".
         FIND FIRST b-job-hdr WHERE 
              b-job-hdr.company EQ g_company AND
-             b-job-hdr.job-no  EQ po-ordl.job-no:SCREEN-VALUE AND
+             trim(b-job-hdr.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE) AND
              b-job-hdr.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)  AND
              b-job-hdr.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) NO-LOCK NO-ERROR. 
         IF AVAILABLE b-job-hdr THEN
@@ -5164,7 +5163,7 @@ PROCEDURE replace-job-mat :
         FOR EACH tt-s-num BREAK BY tt-s-num.s-num:
             FIND FIRST job NO-LOCK 
                 WHERE job.company EQ g_company
-                AND job.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+                AND trim(job.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
                 AND job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                 NO-ERROR.
 
@@ -5696,14 +5695,13 @@ PROCEDURE valid-b-num :
         IF po-ordl.job-no:SCREEN-VALUE NE ""  AND
             po-ordl.s-num:SCREEN-VALUE  NE "?" THEN 
         DO:
-            po-ordl.job-no:SCREEN-VALUE =
-                FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
-                TRIM(po-ordl.job-no:SCREEN-VALUE).
+            po-ordl.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no:SCREEN-VALUE))
+                .
             IF NOT ll-pojob-warned THEN
                 FIND FIRST xpo-ordl NO-LOCK
                     WHERE xpo-ordl.company EQ g_company
                     AND xpo-ordl.i-no    EQ po-ordl.i-no:SCREEN-VALUE
-                    AND xpo-ordl.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+                    AND trim(xpo-ordl.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
                     AND xpo-ordl.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                     AND xpo-ordl.s-num   EQ INT(po-ordl.s-num:SCREEN-VALUE)
                     AND xpo-ordl.b-num   EQ INT(po-ordl.b-num:SCREEN-VALUE)
@@ -5725,7 +5723,7 @@ PROCEDURE valid-b-num :
                 CAN-FIND(FIRST xpo-ordl
                 WHERE xpo-ordl.company EQ g_company
                 AND xpo-ordl.po-no   EQ po-ordl.po-no
-                AND xpo-ordl.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+                AND trim(xpo-ordl.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
                 AND xpo-ordl.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                 AND xpo-ordl.i-no    EQ po-ordl.i-no:SCREEN-VALUE
                 AND xpo-ordl.s-num   EQ INT(po-ordl.s-num:SCREEN-VALUE)
@@ -5749,20 +5747,20 @@ PROCEDURE valid-b-num :
                 END.
                 IF NOT CAN-FIND(FIRST job-mat
                     WHERE job-mat.company  EQ g_company
-                    AND job-mat.job-no   EQ po-ordl.job-no:SCREEN-VALUE
+                    AND trim(job-mat.job-no)   EQ trim(po-ordl.job-no:SCREEN-VALUE)
                     AND job-mat.job-no2  EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                     AND job-mat.frm      EQ INT(po-ordl.s-num:SCREEN-VALUE)
                     AND job-mat.blank-no EQ INT(po-ordl.b-num:SCREEN-VALUE)
                     AND job-mat.rm-i-no  EQ po-ordl.i-no:SCREEN-VALUE)        AND
                     NOT CAN-FIND(FIRST tt-job-mat
                     WHERE tt-job-mat.company  EQ g_company
-                    AND tt-job-mat.job-no   EQ po-ordl.job-no:SCREEN-VALUE
+                    AND trim(tt-job-mat.job-no)   EQ trim(po-ordl.job-no:SCREEN-VALUE)
                     AND tt-job-mat.job-no2  EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                     AND tt-job-mat.frm      EQ INT(po-ordl.s-num:SCREEN-VALUE)
                     AND tt-job-mat.rm-i-no  EQ po-ordl.i-no:SCREEN-VALUE)     AND
                     NOT CAN-FIND(FIRST job-farm
                     WHERE job-farm.company  EQ g_company
-                    AND job-farm.job-no   EQ po-ordl.job-no:SCREEN-VALUE
+                    AND trim(job-farm.job-no)   EQ trim(po-ordl.job-no:SCREEN-VALUE)
                     AND job-farm.job-no2  EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                     AND job-farm.frm      EQ INT(po-ordl.s-num:SCREEN-VALUE)
                     AND job-farm.blank-no EQ INT(po-ordl.b-num:SCREEN-VALUE)
@@ -5820,7 +5818,7 @@ PROCEDURE valid-job-mat :
         DO:
             FIND FIRST job NO-LOCK 
                 WHERE job.company EQ g_company
-                AND job.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+                AND trim(job.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
                 AND job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                 NO-ERROR.
             FIND FIRST item NO-LOCK 
@@ -5832,7 +5830,7 @@ PROCEDURE valid-job-mat :
                 FOR EACH job-mat NO-LOCK
                     WHERE job-mat.company  EQ g_company
                     AND job-mat.job      EQ job.job
-                    AND job-mat.job-no   EQ po-ordl.job-no:SCREEN-VALUE
+                    AND trim(job-mat.job-no)   EQ trim(po-ordl.job-no:SCREEN-VALUE)
                     AND job-mat.job-no2  EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                     AND (job-mat.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) OR
                     po-ordl.s-num:SCREEN-VALUE EQ "?")
@@ -5855,7 +5853,7 @@ PROCEDURE valid-job-mat :
                 END.
                 FOR EACH b-po-ordl NO-LOCK
                     WHERE b-po-ordl.company EQ g_company
-                    AND b-po-ordl.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+                    AND trim(b-po-ordl.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
                     AND b-po-ordl.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                     AND b-po-ordl.s-num   EQ INT(po-ordl.s-num:SCREEN-VALUE)
                     AND ROWID(b-po-ordl)  NE ROWID(po-ordl)
@@ -5912,13 +5910,12 @@ PROCEDURE valid-job-no :
             AND item.i-no    EQ po-ordl.i-no:SCREEN-VALUE
             AND item.i-code  EQ "E"))                        THEN 
         DO:
-            po-ordl.job-no:SCREEN-VALUE =
-                FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
-                TRIM(po-ordl.job-no:SCREEN-VALUE).
+            po-ordl.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no:SCREEN-VALUE))
+                .
             IF TRIM(po-ordl.job-no:SCREEN-VALUE) EQ ""                            OR
                 NOT CAN-FIND(FIRST job-hdr
                 WHERE job-hdr.company EQ g_company
-                AND job-hdr.job-no  EQ po-ordl.job-no:SCREEN-VALUE) THEN 
+                AND trim(job-hdr.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)) THEN 
             DO:
                 MESSAGE "Invalid Job, try help..."
                     VIEW-AS ALERT-BOX ERROR.
@@ -5960,12 +5957,11 @@ PROCEDURE valid-job-no2 :
     DO WITH FRAME {&frame-name}:
         IF po-ordl.job-no:SCREEN-VALUE NE "" THEN 
         DO:
-            po-ordl.job-no:SCREEN-VALUE =
-                FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
-                TRIM(po-ordl.job-no:SCREEN-VALUE).
+            po-ordl.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no:SCREEN-VALUE))
+                .
             IF NOT CAN-FIND(FIRST job-hdr
                 WHERE job-hdr.company EQ g_company
-                AND job-hdr.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+                AND trim(job-hdr.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
                 AND job-hdr.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE))
                 THEN 
             DO:
@@ -6265,26 +6261,25 @@ PROCEDURE valid-s-num :
     DO WITH FRAME {&frame-name}:
         IF po-ordl.job-no:SCREEN-VALUE NE "" THEN 
         DO:
-            po-ordl.job-no:SCREEN-VALUE =
-                FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
-                TRIM(po-ordl.job-no:SCREEN-VALUE).
+            po-ordl.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no:SCREEN-VALUE))
+                .
             IF po-ordl.s-num:SCREEN-VALUE EQ "?" AND
                 NOT CAN-FIND(FIRST tt-job-mat)    THEN RUN create-multi-line.
             IF po-ordl.s-num:SCREEN-VALUE NE "?" AND
                 NOT CAN-FIND(FIRST job-mat
                 WHERE job-mat.company EQ g_company
-                AND job-mat.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+                AND trim(job-mat.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
                 AND job-mat.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                 AND job-mat.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE)) AND
                 NOT CAN-FIND(FIRST job-farm
                 WHERE job-farm.company EQ g_company
                 AND job-farm.i-no    EQ po-ordl.i-no :SCREEN-VALUE
-                AND job-farm.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+                AND trim(job-farm.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
                 AND job-farm.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                 AND job-farm.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE)) AND
                 NOT CAN-FIND(FIRST tt-job-mat
                 WHERE tt-job-mat.company  EQ g_company
-                AND tt-job-mat.job-no   EQ po-ordl.job-no:SCREEN-VALUE
+                AND trim(tt-job-mat.job-no)   EQ trim(po-ordl.job-no:SCREEN-VALUE)
                 AND tt-job-mat.job-no2  EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                 AND tt-job-mat.frm      EQ INT(po-ordl.s-num:SCREEN-VALUE)
                 AND tt-job-mat.rm-i-no  EQ po-ordl.i-no:SCREEN-VALUE) 
@@ -6470,7 +6465,7 @@ PROCEDURE valid-vend-cost :
          
     FIND FIRST bf-job NO-LOCK 
          WHERE bf-job.company EQ po-ordl.company
-           AND bf-job.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+           AND trim(bf-job.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
            AND bf-job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
          NO-ERROR.
     IF AVAILABLE bf-job THEN DO:
@@ -6663,7 +6658,7 @@ PROCEDURE vend-cost :
         RELEASE job-mat.
         FIND FIRST job NO-LOCK
             WHERE job.company EQ po-ordl.company
-            AND job.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+            AND trim(job.job-no)  EQ trim(po-ordl.job-no:SCREEN-VALUE)
             AND job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
             NO-ERROR.
         IF AVAILABLE job THEN
@@ -7104,7 +7099,7 @@ PROCEDURE writeJobFarmInfo :
             RETURN.
         FIND FIRST bfJob-farm EXCLUSIVE-LOCK  
             WHERE bfJob-farm.company EQ g_company 
-            AND bfJob-farm.job-no  EQ cJob 
+            AND trim(bfJob-farm.job-no)  EQ trim(cJob)
             AND bfJob-farm.job-no2 EQ iJobNo2 
             AND bfJob-farm.i-no EQ po-ordl.i-no:SCREEN-VALUE 
             AND (bfJob-farm.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) OR lFromOrd)

@@ -24,6 +24,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -293,15 +294,15 @@ DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 22 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_loc-bin AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning Bin" 
@@ -328,15 +329,15 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 22 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_loc-bin AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
      LABEL "Ending Bin" 
@@ -523,7 +524,7 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Job Number"
      end_job-no AT ROW 4.81 COL 68.2 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 4.81 COL 80.2 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.81 COL 81.2 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_whse AT ROW 6 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Warehouse" WIDGET-ID 10
@@ -1442,12 +1443,12 @@ DEF INPUT PARAMETER begin_i-no AS CHARACTER FORMAT "X(15)":U
 
      NO-UNDO.
 
-DEF INPUT PARAMETER begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEF INPUT PARAMETER begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
 
      NO-UNDO.
 
-DEF INPUT PARAMETER begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEF INPUT PARAMETER begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
 
      NO-UNDO.
@@ -1477,12 +1478,12 @@ DEF INPUT PARAMETER end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzz
 
      NO-UNDO.
 
-DEF INPUT PARAMETER end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEF INPUT PARAMETER end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
 
      NO-UNDO.
 
-DEF INPUT PARAMETER end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEF INPUT PARAMETER end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
 
      NO-UNDO.
@@ -2060,10 +2061,8 @@ assign
  tcus      = end_cust-no
  fitm      = begin_i-no
  titm      = end_i-no
- fjob      = fill(" ",6 - length(trim(begin_job-no))) +
-                trim(begin_job-no) + string(int(begin_job-no2),"99")
- tjob      = fill(" ",6 - length(trim(end_job-no)))   +
-                trim(end_job-no)   + string(int(end_job-no2),"99") 
+ fjob      =  STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+ tjob      = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
  v-q-or-v  = rd_show EQ "Quantity"
  v-sub-t   = tb_val-cust
  v-break   = tb_break
@@ -2660,10 +2659,8 @@ PROCEDURE produce-report :
     tcus       = end_cust-no
     fitm       = begin_i-no
     titm       = end_i-no
-    fjob       = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-  TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
-    tjob       = FILL(" ",6 - LENGTH(TRIM(end_job-no))) +
-  TRIM(end_job-no)   + STRING(INT(end_job-no2),"99")
+    fjob       = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+    tjob       = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
     v-q-or-v   = rd_show EQ "Quantity"
     v-sub-t    = tb_val-cust
     v-break    = tb_break

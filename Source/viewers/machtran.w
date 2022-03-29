@@ -261,11 +261,11 @@ DEFINE FRAME F-Main
      mach_m-dscr AT ROW 1.24 COL 36 COLON-ALIGNED NO-LABEL
      machtran.job_number AT ROW 2.43 COL 24 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
+          SIZE 14 BY 1
           BGCOLOR 15 FONT 4
-     machtran.job_sub AT ROW 2.43 COL 36 COLON-ALIGNED NO-LABEL
+     machtran.job_sub AT ROW 2.43 COL 40 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
+          SIZE 5.5 BY 1
           BGCOLOR 15 FONT 4
      machtran.form_number AT ROW 2.43 COL 62 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -331,7 +331,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
      "-" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 2.67 COL 36
+          SIZE 1.3 BY .62 AT ROW 2.67 COL 40.5
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 

@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */
 
 CREATE WIDGET-POOL.
 
@@ -1865,7 +1866,7 @@ DEF BUFFER b-itemfg FOR itemfg.
 
 def var v-fcust like cust.cust-no extent 2 init ["","zzzzzzzz"].
 def var v-fship like shipto.ship-id extent 2 init ["","zzzzzzzz"].
-def var v-ford-no as int format ">>>>>>" extent 2 init [0,999999].
+def var v-ford-no as int format ">>>>>>>9" extent 2 init [0,99999999].
 def var v-fitem as char format "x(15)" extent 2 init ["","zzzzzzzzzzzzzzz"].
 def var v-fsman as char format "xxx" extent 2 init ["","zzz"] no-undo.
 def var v-fdate as date extent 2 format "99/99/9999" init [today, 12/31/9999].

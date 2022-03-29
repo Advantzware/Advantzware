@@ -257,7 +257,7 @@ PURPOSE:
 
       if last-of(tt-rdtlh.tag) /*and (zbal or v-qoh ne 0)*/ then do:
         if tt-fg-bin.job-no ne "" then
-          v-job-no = trim(tt-fg-bin.job-no) + "-" + string(tt-fg-bin.job-no2,"99").
+          v-job-no = trim(tt-fg-bin.job-no) + "-" + string(tt-fg-bin.job-no2,"999").
         else
           v-job-no = "".
 

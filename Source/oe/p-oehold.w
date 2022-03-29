@@ -313,6 +313,7 @@ PROCEDURE enable-all :
 
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE ALL.
+    IF NOT v-can-update THEN ASSIGN btnHold:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
   END.
 
 END PROCEDURE.
@@ -396,15 +397,18 @@ PROCEDURE local-row-available :
       btnHold:LABEL = IF oe-ord.stat EQ "H" THEN "Re&lease" ELSE "&Hold".  
   END.
   {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
-  
-   IF cScreenType EQ "OW" OR cScreenType EQ "OQ1" OR cScreenType EQ "OU6" OR cScreenType EQ "OC" OR NOT AVAILABLE oe-ord THEN 
-        btnHold:SENSITIVE = NO.
-   ELSE IF cScreenType EQ "OU1" AND AVAILABLE oe-ord THEN DO:
-       IF oe-ord.stat EQ "C" THEN 
-           btnHold:SENSITIVE = NO.
-       ELSE 
-           btnHold:SENSITIVE = YES.                
-   END.                       
+   IF v-can-update THEN 
+   DO:
+       IF cScreenType EQ "OW" OR cScreenType EQ "OQ1" OR cScreenType EQ "OU6" OR cScreenType EQ "OC" OR NOT AVAILABLE oe-ord THEN 
+            btnHold:SENSITIVE = NO.
+       ELSE IF cScreenType EQ "OU1" AND AVAILABLE oe-ord THEN DO:
+           IF oe-ord.stat EQ "C" THEN 
+               btnHold:SENSITIVE = NO.
+           ELSE 
+               btnHold:SENSITIVE = YES.                
+       END. 
+   END.   
+             
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -1,5 +1,6 @@
 /* ------------------------------------------- cec/quote/quofibre.p 11/00 JLF */
 /* print quotes in Fibre format                                               */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -42,16 +43,16 @@ FIND first xquo  where recid(xquo) eq report.rec-id NO-LOCK NO-ERROR.
 IF NOT AVAIL xquo THEN RETURN.
 
 format xquo.est-no        to 5
-       xqitm.part-no    to 31   format "x(25)"
-       trim-size          to 55   format "x(23)"
-       xqqty.qty           to 63   format ">>>>>>9"
-       xqqty.rels             to 67   format ">>9"
-       xqqty.price         to 77   format ">>,>>9.99"
-       xqqty.uom         to 80
+       xqitm.part-no    to 34   format "x(25)"
+       trim-size          to 58   format "x(23)"
+       xqqty.qty           to 66   format ">>>>>>9"
+       xqqty.rels             TO 70   format ">>9"
+       xqqty.price         TO 80   format ">>,>>9.99"
+       xqqty.uom         to 83
 
-      header "Est # Description               Siz/Styl/Brd/Co" +
-             "lors         QTY Rel     PriceUOM" format "x(80)"
-      with frame item-10p no-box no-labels down width 80 STREAM-IO.
+      header "Est #    Description               Siz/Styl/Brd/Co" +
+             "lors         QTY Rel     PriceUOM" format "x(83)"
+      with frame item-10p no-box no-labels down width 83 STREAM-IO.
 
   find first est where est.company = xquo.company
                    AND est.est-no eq xquo.est-no no-lock no-error.
@@ -156,7 +157,7 @@ format xquo.est-no        to 5
      terms.dscr                 at 28   format "x(30)" 
      v-over-under               at 69   format "x(12)"
      skip(1)     
-  with frame quote page-top width 80 no-labels no-box STREAM-IO.
+  with frame quote page-top width 83 no-labels no-box STREAM-IO.
     
   v-first-q-no = xquo.q-no.
 

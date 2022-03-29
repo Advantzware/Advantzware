@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -36,7 +38,7 @@ def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
-&scoped-define fld-name-1 pc-prdd.job-no
+&scoped-define fld-name-1 TRIM(pc-prdd.job-no)
 &scoped-define fld-name-2 pc-prdd.i-no
 &scoped-define SORTBY-1 BY pc-prdd.job-no
 &scoped-define SORTBY-2 BY pc-prdd.i-no
@@ -137,8 +139,8 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      pc-prdd.job-no FORMAT "x(8)":U
-      pc-prdd.job-no2 COLUMN-LABEL " " FORMAT "99":U
+      pc-prdd.job-no FORMAT "x(9)":U
+      pc-prdd.job-no2 COLUMN-LABEL " " FORMAT "999":U
       pc-prdd.frm FORMAT "99":U
       pc-prdd.blank-no FORMAT "99":U
       pc-prdd.pass FORMAT "99":U
@@ -247,7 +249,7 @@ END.
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
     op-char-val = pc-prdd.job-no + "," +
-                 string(pc-prdd.job-no2,"99") 
+                 string(pc-prdd.job-no2,"999") 
                  .
    apply "window-close" to frame {&frame-name}. 
       
@@ -279,7 +281,7 @@ END.
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
    op-char-val = pc-prdd.job-no + "," +
-                 string(pc-prdd.job-no2,"99" )
+                 string(pc-prdd.job-no2,"999" )
                  .
    apply "window-close" to frame {&frame-name}. 
       

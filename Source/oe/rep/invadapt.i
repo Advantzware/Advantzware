@@ -1,5 +1,5 @@
 /* oe/rep/invadapt.i */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 PUT "<FArial>".
 PUT "<C+25><#1>".
 PUT "<=1>" SKIP.
@@ -60,11 +60,17 @@ PUT "<FArial><=4><R+1> Ship Date              BOL#                  Ship Via    
 PUT "<|10><R28><C1><#5><FROM><R30><C80><RECT>" SKIP    
     "<R28><C8><FROM><R30><C8><LINE>" SKIP
     "<R28><C15><FROM><R30><C15><LINE>" SKIP
-    "<R28><C21><FROM><R30><C21><LINE>" SKIP
-    "<R28><C34><FROM><R30><C34><LINE>" SKIP
-    "<R28><C56><FROM><R30><C56><LINE>" SKIP
-    "<R28><C64><FROM><R30><C64><LINE>" SKIP
-    "<R28><C68><FROM><R30><C68><LINE>" SKIP.   
-PUT "<FArial><=5><R+1>   Ordered     Shipped     Order#      Item#/CustPart#       Description                                             Price    UOM                  Amount" SKIP(1).
+    "<R28><C22><FROM><R30><C22><LINE>" SKIP
+    "<R28><C35><FROM><R30><C35><LINE>" SKIP
+    "<R28><C57><FROM><R30><C57><LINE>" SKIP
+    "<R28><C65><FROM><R30><C65><LINE>" SKIP
+    "<R28><C69><FROM><R30><C69><LINE>" SKIP.   
+PUT "<FArial><=5><R+1><C2>Ordered<C9>Shipped
+                     <C16> Order#      
+                     <C23> Item#/CustPart#
+                     <C36> Description
+                     <C59> Price
+                     <C65> UOM
+                     <C72> Amount" SKIP(1).
 v-printline = v-printline + 4.
 PUT "<FCourier New>".

@@ -8,7 +8,6 @@
 
 DEFINE SHARED BUFFER x{2} FOR {2}. /* BUFFER WITH ORDER HEADER */
 DEFINE VARIABLE lMatrixExists AS LOGICAL NO-UNDO.
-DEFINE VARIABLE iMatrixLevel  AS INTEGER NO-UNDO.
 
 DISABLE TRIGGERS FOR LOAD OF {1}.
 
@@ -23,4 +22,4 @@ IF cust.auto-reprice THEN
 IF NOT AVAILABLE {1} THEN RETURN.
 
 RUN Price_CalculateLinePrice(ROWID({1}), {1}.i-no, {1}.cust-no, {1}.ship-id, {1}.qty, YES,
-    OUTPUT lMatrixExists, OUTPUT iMatrixLevel, INPUT-OUTPUT {1}.price, INPUT-OUTPUT {1}.pr-uom).
+    OUTPUT lMatrixExists, INPUT-OUTPUT {1}.price, INPUT-OUTPUT {1}.pr-uom).

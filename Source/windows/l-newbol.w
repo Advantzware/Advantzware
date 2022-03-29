@@ -168,7 +168,7 @@ DEFINE BROWSE BROWSE-1
       oe-bolh.release# FORMAT "->,>>>,>>9":U
       oe-bolh.carrier FORMAT "x(5)":U
       oe-bolh.trailer FORMAT "x(8)":U
-      oe-boll.ord-no FORMAT ">>>>>9":U
+      oe-boll.ord-no FORMAT ">>>>>>>9":U
       oe-boll.i-no FORMAT "x(15)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

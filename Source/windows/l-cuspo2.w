@@ -20,6 +20,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -137,7 +139,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
       tt-oe-rel.po-no FORMAT "x(15)":U WIDTH 21.2
 tt-oe-rel.i-no FORMAT "x(15)":U WIDTH 29.2
-tt-oe-rel.ord-no FORMAT ">>>>>9":U WIDTH 19.2
+tt-oe-rel.ord-no FORMAT ">>>>>>>9":U WIDTH 19.2
 tt-oe-rel.line FORMAT "99":U WIDTH 6.2
 tt-oe-rel.qty COLUMN-LABEL "Quantity"
 /* _UIB-CODE-BLOCK-END */

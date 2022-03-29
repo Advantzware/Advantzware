@@ -84,7 +84,6 @@ DEFINE NEW SHARED VARIABLE nufile              AS LOG       NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-qty-mod           AS LOG       NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-fr-tax            LIKE oe-ctrl.f-tax NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-create-job        AS LOG       NO-UNDO.
-DEFINE NEW SHARED VARIABLE iMatrixLevel        AS INTEGER   NO-UNDO.
 
 DEFINE            VARIABLE lv-ordl-recid       AS RECID     NO-UNDO.
 DEFINE            VARIABLE lv-change-prom-date AS LOG       NO-UNDO.  /* flag for updating oe-ordl.prom-date*/
@@ -1057,10 +1056,10 @@ DEFINE BROWSE browseAllocated
 DEFINE BROWSE browseJobs
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browseJobs d-oeitem _STRUCTURED
   QUERY browseJobs NO-LOCK DISPLAY
-      job-hdr.job-no FORMAT "x(6)":U
-      job-hdr.job-no2 FORMAT ">9":U
-      job-hdr.est-no FORMAT "x(5)":U
-      job-hdr.ord-no FORMAT ">>>>>9":U
+      job-hdr.job-no FORMAT "x(9)":U
+      job-hdr.job-no2 FORMAT ">>9":U
+      job-hdr.est-no FORMAT "x(8)":U
+      job-hdr.ord-no FORMAT ">>>>>>>9":U
       job-hdr.cust-no FORMAT "x(8)":U
       job-hdr.due-date FORMAT "99/99/9999":U
       job.stat FORMAT "x":U
@@ -1096,7 +1095,7 @@ DEFINE BROWSE browsePOs
       po-ordl.po-no FORMAT ">>>>>>>9":U
       po-ordl.vend-no FORMAT "x(8)":U
       po-ordl.due-date FORMAT "99/99/9999":U
-      po-ordl.job-no FORMAT "x(6)":U
+      po-ordl.job-no FORMAT "x(9)":U
       po-ordl.ord-qty FORMAT "->>>,>>>,>>9.9<<<<<":U
       po-ordl.t-rec-qty FORMAT "->>>,>>>,>>9.9<<<<<":U
       po-ordl.cost FORMAT "->,>>>,>>9.99<<<<":U
@@ -1114,7 +1113,7 @@ DEFINE BROWSE browseReleases
   QUERY browseReleases NO-LOCK DISPLAY
       oe-rel.spare-char-1 COLUMN-LABEL "From" FORMAT "x(8)":U
       oe-ord.cust-no COLUMN-LABEL "Customer" FORMAT "x(8)":U
-      oe-ord.ord-no COLUMN-LABEL "Order" FORMAT ">>>>>9":U
+      oe-ord.ord-no COLUMN-LABEL "Order" FORMAT ">>>>>>>9":U
       oe-rel.tot-qty COLUMN-LABEL "Release!Qty" FORMAT "->>,>>>,>>9":U
       oe-rel.stat FORMAT "X":U
       oe-ordl.qty FORMAT "->>,>>>,>>9.9<<":U
@@ -1130,8 +1129,8 @@ DEFINE BROWSE browseReleases
       oe-ordl.po-no COLUMN-LABEL "Customer PO" FORMAT "x(15)":U
       oe-ord.po-no COLUMN-LABEL "Order PO" FORMAT "x(15)":U
       oe-ordl.est-no COLUMN-LABEL "Estimate" FORMAT "x(5)":U
-      oe-ordl.job-no COLUMN-LABEL "Job!Number" FORMAT "x(6)":U
-      oe-ordl.job-no2 COLUMN-LABEL "Run" FORMAT ">9":U
+      oe-ordl.job-no COLUMN-LABEL "Job!Number" FORMAT "x(9)":U
+      oe-ordl.job-no2 COLUMN-LABEL "Run" FORMAT ">>9":U
       oe-ord.ord-date COLUMN-LABEL "Order Date" FORMAT "99/99/9999":U
       oe-ord.stat COLUMN-LABEL "Order!Status" FORMAT "x":U
       oe-ordl.inv-qty COLUMN-LABEL "Invoice!Quantity" FORMAT "->>,>>>,>>9.99":U
@@ -1175,13 +1174,13 @@ DEFINE FRAME d-oeitem
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.job-no AT ROW 1.38 COL 95.2 COLON-ALIGNED FORMAT "x(6)"
+     oe-ordl.job-no AT ROW 1.38 COL 95.2 COLON-ALIGNED FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 16.6 BY 1
           BGCOLOR 15 FGCOLOR 1 
      oe-ordl.job-no2 AT ROW 1.38 COL 112.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
+          SIZE 6.8 BY 1
           BGCOLOR 15 FGCOLOR 1 
      oe-ordl.qty AT ROW 2.43 COL 15.8 COLON-ALIGNED
           LABEL "Quantity" FORMAT "->>>,>>>,>>9"
@@ -3042,13 +3041,12 @@ DO:
    
         ASSIGN 
             v-bld-job = "".
-        DO i = 1 TO 6:
+        DO i = 1 TO 9:
             IF SUBSTRING(INPUT oe-ordl.job-no,i,1) NE " " THEN
                 ASSIGN v-bld-job = v-bld-job +     substring(INPUT oe-ordl.job-no,i,1).
-        END. /* 1 - 6 */
+        END. /* 1 - 9 */
         ASSIGN 
-            oe-ordl.job-no:screen-value = STRING(FILL(" ",6 - length(v-bld-job))) +
-                   (TRIM(v-bld-job)).
+            oe-ordl.job-no:screen-value = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', v-bld-job)).
 
     END.
 
@@ -3060,7 +3058,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.job-no2 d-oeitem
 ON LEAVE OF oe-ordl.job-no2 IN FRAME d-oeitem /* Run # */
 DO:
-        RUN util/rjust.p (INPUT-OUTPUT v-bld-job, INPUT 6).
+        RUN util/rjust.p (INPUT-OUTPUT v-bld-job, INPUT 9).
         FIND FIRST job-hdr WHERE job-hdr.company = cocode AND
             job-hdr.job-no = v-bld-job AND
             job-hdr.job-no2 = INPUT oe-ordl.job-no2
@@ -4997,11 +4995,11 @@ PROCEDURE create-job :
                     AND eb.cust-no  EQ oe-ord.cust-no NO-LOCK NO-ERROR.
             IF AVAILABLE eb THEN 
                 v-prod-cat = eb.procat.
-            v-job-no = FILL(" ",6 - length(TRIM(STRING(oe-ordl.ord-no)))) + string(oe-ordl.ord-no).
+            v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.ord-no)).
             RUN jc/job-no.p (INPUT-OUTPUT v-job-no, 
                 INPUT-OUTPUT v-job-no2,
                 INPUT v-prod-cat,
-                INPUT FILL(" ",6 - LENGTH(TRIM(oe-ordl.est-no))) + TRIM(oe-ordl.est-no)).
+                INPUT FILL(" ",8 - LENGTH(TRIM(oe-ordl.est-no))) + TRIM(oe-ordl.est-no)).
      
             IF v-job-no NE "" THEN 
             DO:
@@ -6017,12 +6015,12 @@ PROCEDURE display-est-detail :
         
             ASSIGN
                 v-disp-prod-cat = eb.procat
-                v-job-no        = FILL(" ",6 - length(TRIM(STRING(oe-ordl.ord-no)))) + string(oe-ordl.ord-no).
+                v-job-no        = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.ord-no)).
 
             RUN jc/job-no.p (INPUT-OUTPUT v-job-no, 
                 INPUT-OUTPUT v-job-no2,
                 INPUT v-disp-prod-cat,
-                INPUT FILL(" ",6 - LENGTH(TRIM(oe-ordl.est-no:SCREEN-VALUE))) + TRIM(oe-ordl.est-no:SCREEN-VALUE)).
+                INPUT FILL(" ",8 - LENGTH(TRIM(oe-ordl.est-no:SCREEN-VALUE))) + TRIM(oe-ordl.est-no:SCREEN-VALUE)).
             IF v-job-no NE "" THEN 
             DO:
                 ASSIGN
@@ -6878,6 +6876,8 @@ PROCEDURE display-item :
             fi_s-comm-lbl
             oe-ordl.SourceEstimateID            
             oe-ordl.managed
+            oe-ordl.ediPrice            
+            fi_edi-price-uom
             WITH FRAME {&frame-name}.
 
         /*     IF oe-ordl.whsed:HIDDEN = NO THEN                  */
@@ -7586,7 +7586,7 @@ PROCEDURE get-price :
                 RUN oe/oe-price.p.
                 IF matrixExists THEN 
                 DO:  
-                    matrixTag = "Item No:" + string(v-i-item) + " Customer No:" + string(oe-ordl.cust-no) + " Ship ID:" + oe-ordl.ship-id + " Quantity:" + string(v-i-qty) + " Price Level:" + STRING(iMatrixLevel,"99"). 
+                    matrixTag = "Item No:" + string(v-i-item) + " Customer No:" + string(oe-ordl.cust-no) + " Ship ID:" + oe-ordl.ship-id + " Quantity:" + string(v-i-qty). 
 
                     RUN pAddTagInfoForGroup(
                         INPUT oe-ordl.rec_key,

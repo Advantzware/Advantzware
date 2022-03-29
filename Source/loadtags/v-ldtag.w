@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -179,7 +180,7 @@ DEFINE FRAME F-Main
           LABEL "RFID" FORMAT "x(50)"
      loadtag.ord-no AT ROW 3.62 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 13 BY 1
      loadtag.po-no AT ROW 3.62 COL 42 COLON-ALIGNED
           LABEL "PO #"
           VIEW-AS FILL-IN 
@@ -208,10 +209,10 @@ DEFINE FRAME F-Main
           SIZE 16.4 BY 1
      loadtag.job-no AT ROW 6 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 13 BY 1
      loadtag.job-no2 AT ROW 6 COL 29 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
+          SIZE 5.4 BY 1
      v-tagtime AT ROW 6 COL 93 COLON-ALIGNED
      loadtag.qty AT ROW 6 COL 129 COLON-ALIGNED
           LABEL "Qty(Pallet Cnt)"

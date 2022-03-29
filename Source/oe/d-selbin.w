@@ -70,7 +70,7 @@ ll-sort-asc = NO.
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
 /*&SCOPED-DEFINE sortby-log                                                                                                                                  ~
-    IF lv-sort-by EQ "job-no"    THEN w-bin.job-no + STRING(w-bin.job-no2, "99") ELSE ~
+    IF lv-sort-by EQ "job-no"    THEN w-bin.job-no + STRING(w-bin.job-no2, "999") ELSE ~
     IF lv-sort-by EQ "loc"       THEN w-bin.loc                                  ELSE ~
     IF lv-sort-by EQ "last-rct-date" THEN STRING(w-bin.last-rct-date)            ELSE ~
     IF lv-sort-by EQ "loc-bin"   THEN w-bin.loc-bin                              ELSE ~
@@ -250,8 +250,8 @@ DEFINE QUERY br-bin FOR
 DEFINE BROWSE br-bin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br-bin Dialog-Frame _FREEFORM
   QUERY br-bin DISPLAY
-      w-bin.job-no        LABEL "Job#"                          LABEL-BGCOLOR  14
-    w-bin.job-no2       NO-LABEL                              LABEL-BGCOLOR  14
+      w-bin.job-no        LABEL "Job#"                        LABEL-BGCOLOR  14 WIDTH 15
+    w-bin.job-no2       NO-LABEL                              LABEL-BGCOLOR  14 WIDTH 6
     w-bin.last-rct-date LABEL "Receipt Date"   FORMAT 99/99/9999 LABEL-BGCOLOR 14 
     w-bin.loc           LABEL "Whs"            FORMAT "x(7)"  LABEL-BGCOLOR  14
     w-bin.loc-bin       LABEL "Bin"            FORMAT "x(8)"  LABEL-BGCOLOR  14

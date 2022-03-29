@@ -459,8 +459,8 @@ for each report where report.term-id eq v-term-id no-lock,
                 v-inv-qty format  "->>>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
-                ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(3)
+                ar-invl.ord-no FORM ">>>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(2)
                 v-i-dscr  format "x(25)" SPACE(3)
                 v-price  format "->>>>,>>9.99" /*"->,>>9.99<<"*/ SPACE(1)
                 v-price-head SPACE(1)
@@ -471,8 +471,8 @@ for each report where report.term-id eq v-term-id no-lock,
                 v-inv-qty format  "->>>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
-                ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(3)
+                ar-invl.ord-no FORM ">>>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(2)
                 v-i-dscr  format "x(25)" SPACE(3)
                 
                 SKIP.
@@ -487,7 +487,7 @@ for each report where report.term-id eq v-term-id no-lock,
                             else           trim(lv-inv-list).
 
               if v-part-info ne "" OR (v = 1 AND ar-invl.part-no <> "") then do:
-                 IF v = 1 THEN PUT SPACE(27) ar-invl.part-no SPACE(3) v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(28) ar-invl.part-no SPACE(2) v-part-info SKIP.
                  ELSE
                  IF v = 2 THEN PUT SPACE(45) v-part-info SKIP.
                  ELSE          PUT SPACE(24) "Previous Invoice(s): " v-part-info SKIP.

@@ -611,9 +611,12 @@ DO:
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
-          
+    
+    /* Assigning from edRequestData:SCREEN-VALUE can cause an error if the data in edRequestData is more than 32k */
+    ASSIGN edRequestData.
+           
     ASSIGN
-        lcRequestData     = edRequestData:SCREEN-VALUE
+        lcRequestData     = edRequestData
         cAPIID            = fiAPIId:SCREEN-VALUE
         cClientID         = fiClientID:SCREEN-VALUE
         cTriggerID        = fiTriggerID:SCREEN-VALUE
@@ -876,7 +879,7 @@ DO:
         WHEN "SendJobAMS" THEN DO:
             FIND FIRST job NO-LOCK
                  WHERE job.company EQ cCompany
-                   AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-")))) + TRIM(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-"))
+                   AND job.job-no  EQ FILL(" ",9 - LENGTH(TRIM(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-")))) + TRIM(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-"))
                    AND job.job-no2 EQ INTEGER(TRIM((ENTRY(2,fiPrimaryKey:SCREEN-VALUE,"-"))))
                  NO-ERROR.
             IF NOT AVAILABLE job THEN DO:

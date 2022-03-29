@@ -1,7 +1,7 @@
 /* ---------------------------------------------- */
 /*  cecrep/jobcapcity.p  factory ticket  for Capital City landscape */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 def input parameter v-format as char.
@@ -169,16 +169,14 @@ do v-local-loop = 1 to v-local-copies:
           and (production OR
                job-hdr.ftick-prnt           eq reprint OR
                PROGRAM-NAME(2) MATCHES "*r-tickt2*")
-          and job-hdr.job-no                ge substr(fjob-no,1,6)
-          and job-hdr.job-no                le substr(tjob-no,1,6)
-
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  ge fjob-no
-
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  le tjob-no
+          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+	  	TRIM(job-hdr.job-no) +
+	  	STRING(job-hdr.job-no2,"999")  GE fjob-no
+	  AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+	  	TRIM(job-hdr.job-no) +
+	  	STRING(job-hdr.job-no2,"999")  LE tjob-no
+	  AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2
         USE-INDEX job-no,
 
         first job
@@ -376,7 +374,7 @@ do v-local-loop = 1 to v-local-copies:
          lv-cust-set = lv-part-no
          lv-au = IF itemfg.alloc THEN "U" ELSE "A".
 
-       ASSIGN cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .  
+       ASSIGN cBarCodeVal = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .  
          
        IF est.est-type = 6 THEN lv-au = lv-au + "    " + job-hdr.i-no.
        ELSE
@@ -431,7 +429,7 @@ do v-local-loop = 1 to v-local-copies:
                                                               FILL(" ",22 - LENGTH(v-due-date))) 
                    + "Bin: "
                    + STRING(v-loc-bin,"X(14)") + "<P12><B>"
-                   + FILL(" ",4) + "Job#:" + STRING(v-job-prt,"X(9)") + "</B><P10>" + FILL(" ",3)
+                   + FILL(" ",3) + "Job#:" + STRING(v-job-prt,"X(13)") + "</B><P10>" + FILL(" ",2)
                    + "Overrun:" + " " + STRING(lv-over-run,"x(7)").
        
        view frame head.  /* factory header display  */  
@@ -926,7 +924,7 @@ do v-local-loop = 1 to v-local-copies:
                        + " Printed: " + STRING(TODAY,"99/99/99") + " " + STRING(TIME,"HH:MM").
 
     IF s-prt-ship-split THEN
-       FIND FIRST tt-fibre WHERE tt-fibre.tt-job-no = job-hdr.job-no
+       FIND FIRST tt-fibre WHERE TRIM(tt-fibre.tt-job-no) = TRIM(job-hdr.job-no)
                      AND tt-fibre.tt-job-no2 = job-hdr.job-no2
                      AND tt-fibre.tt-frm = w-ef.frm
                      AND tt-fibre.tt-blank = b-eb.blank-no NO-LOCK NO-ERROR.
@@ -1130,7 +1128,7 @@ do v-local-loop = 1 to v-local-copies:
                    ELSE IF avail xeb THEN xeb.ship-id
                    ELSE IF avail xoe-ord THEN xoe-ord.sold-id 
                    ELSE "".
-        FIND FIRST tt-prem WHERE tt-prem.tt-job-no  EQ job-hdr.job-no
+        FIND FIRST tt-prem WHERE TRIM(tt-prem.tt-job-no)  EQ TRIM(job-hdr.job-no)
                               AND tt-prem.tt-job-no2  EQ job-hdr.job-no2 NO-LOCK NO-ERROR.
         IF NOT AVAIL tt-prem THEN do:
            FIND FIRST bf-eb WHERE bf-eb.company = est.company

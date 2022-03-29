@@ -73,8 +73,8 @@ FOR EACH ttCustList
         AND oe-ordl.cust-no EQ cust.cust-no
         AND oe-ordl.po-no   GE fpo#
         AND oe-ordl.po-no   LE tpo#
-        AND oe-ordl.job-no GE begin_job-no
-        AND oe-ordl.job-no LE END_job-no,
+        AND fill(" ",9 - length(TRIM(oe-ordl.job-no))) + trim(oe-ordl.job-no) GE begin_job-no
+        AND fill(" ",9 - length(TRIM(oe-ordl.job-no))) + trim(oe-ordl.job-no) LE END_job-no,
 
         FIRST oe-ord 
         WHERE oe-ord.company EQ oe-ordl.company 
@@ -403,12 +403,12 @@ FOR EACH ttCustList
 
                                 /* v-job-no = "".
                                 if oe-ordl.job-no ne "" then
-                                v-job-no = trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99").
+                                v-job-no = trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"999").
                                 v-ext-job = (oe-ordl.t-price / oe-ordl.qty) * v-qty-job.*/
                                 IF xbin.job-no = "" AND xbin.job-no2 = 0 THEN
                                     v-job-no = "".
                                 ELSE
-                                    v-job-no = STRING(xbin.job-no,"x(6)") + "-" + string(xbin.job-no2,"99").
+                                    v-job-no = trim(xbin.job-no) + "-" + string(xbin.job-no2,"999").
                                 v-ext-job = (oe-ordl.t-price / oe-ordl.qty) * v-qty-job.
                                 /* Task 11221301 */
                                 ASSIGN 
@@ -763,7 +763,7 @@ FOR EACH ttCustList
            
                 v-job-no = "".
                 IF oe-ordl.job-no NE "" THEN
-                    v-job-no = STRING(oe-ordl.job-no,"x(6)") + "-" + string(oe-ordl.job-no2,"99").
+                    v-job-no = trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"999").
                 v-ext-job = (oe-ordl.t-price / oe-ordl.qty) * v-qty-job.
                 /* Task 11221301 */
                 ASSIGN 
@@ -1131,12 +1131,12 @@ FOR EACH ttCustList
           
                                 /* v-job-no = "".
                                  if oe-ordl.job-no ne "" then
-                                       v-job-no = trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99").
+                                       v-job-no = trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"999").
                                  v-ext-job = (oe-ordl.t-price / oe-ordl.qty) * v-qty-job.*/
                                 IF xbin.job-no = "" AND xbin.job-no2 = 0 THEN
                                     v-job-no = "".
                                 ELSE
-                                    v-job-no = STRING(xbin.job-no,"x(6)") + "-" + string(xbin.job-no2,"99").
+                                    v-job-no = trim(xbin.job-no) + "-" + string(xbin.job-no2,"999").
                                 v-ext-job = (oe-ordl.t-price / oe-ordl.qty) * v-qty-job.
                                 /* Task 11221301 */
                                 ASSIGN 
@@ -1385,7 +1385,7 @@ FOR EACH ttCustList
             
                 v-job-no = "".
                 IF oe-ordl.job-no NE "" THEN
-                    v-job-no = STRING(oe-ordl.job-no,"x(6)") + "-" + string(oe-ordl.job-no2,"99").
+                    v-job-no = trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"999").
                 v-ext-job = (oe-ordl.t-price / oe-ordl.qty) * v-qty-job.
                 /* Task 11221301 */
                 ASSIGN 

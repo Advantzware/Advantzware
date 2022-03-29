@@ -17,7 +17,9 @@
 
   Author: 
 
-  Created: 
+  Created:
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No).
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
@@ -79,13 +81,13 @@ DEF TEMP-TABLE tt-report NO-UNDO
 
 ASSIGN 
     cTextListToSelect  = "Invoice#,Customer#,Customer Name,Invoice Date,Bol#,Order#,Printed,Invoice Total," +
-                                                "Status,Shipto,Shipto Name,Contact,Sales Tax Group,Terms Code,Freight Pay Code," +
+                                                "Status,Shipto,Shipto Name,Contact,Tax Group,Terms Code,Freight Pay Code," +
                                                 "Cust PO#,Carrier,FOB Code,Job#,Job2,Est#,Item#," +
                                                 "Name,Cust Part#,Qty Order,Item Dscr1,Item Dscr2," +
                                                 "Qty Ship,Qty Invoice,UOM,Rep1,Rep Name1,Rep2,Rep Name2,Rep3,Rep Name3," +
                                                 "Comm1,Comm2,Comm3,Cost,Case,Discount,Taxable,Ext. Price," +
                                                 "CSR,Line Item Tax,OrderHeader ShipTo State,Order Line No,Billing Note,Auto Approval,Tag,Accountant,Invoice Comment,Tax Amount,Freight Amount," +
-.                                                "Customer Tax Status,Customer Tax Group,Customer Tax Id,Customer Tax Expiration Date,Ship To Tax Group,Ship To Taxable Status," +
+                                                "Customer Tax Status,Customer Tax Group,Customer Tax Id,Customer Tax Expiration Date,Ship To Tax Group,Ship To Taxable Status," +
                                                 "Edi Price,Edi Price UOM"
     cFieldListToSelect = "inv-head.inv-no,inv-head.cust-no,inv-head.cust-name,inv-head.inv-date,inv-head.bol-no,ord-no,inv-head.printed,inv-head.t-inv-rev," +
                                         "stat,inv-head.sold-no,inv-head.sold-name,inv-head.contact,inv-head.tax-gr,inv-head.terms,inv-head.frt-pay," +
@@ -96,7 +98,7 @@ ASSIGN
                                         "csr,line-sales-tax,ord-head-ship-stat,ord-line,bill-note,Auto,reason,cAccountant,cInvComment,inv-head.t-inv-tax,inv-head.t-inv-freight," +
                                         "custTaxStatus,custTaxCode,custTaxId,taxExpDate,shiptoTaxCode,shiptoStatus," +
                                         "ediPrice,ediPriceUom"
-    cFieldLength       = "15,15,15,20,15,30,15,15," + "15,15,15,20,15,30,15," + "15,15,15,8,2,6,15," +
+    cFieldLength       = "15,15,15,20,15,30,15,15," + "15,15,15,20,15,30,15," + "15,15,15,9,3,8,15," +
                        "30,15,10,30,30," + "15,15,5,4,25,4,25,4,25," + "7,7,7,10,10,10,10,10," + "15,15,15,15,15,10,100,12,60,10,10," +
                        "6,8,20,10,14,6," + "10,13"
     cFieldType         = "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c," + "c,c,c,c,i,c,c," +
@@ -197,7 +199,7 @@ DEFINE VARIABLE begin_item    AS CHARACTER FORMAT "X(15)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_order   AS INTEGER   FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE begin_order   AS INTEGER   FORMAT ">>>>>>>9" INITIAL 0 
     LABEL "From Order#" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
@@ -227,7 +229,7 @@ DEFINE VARIABLE end_item      AS CHARACTER FORMAT "X(15)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_order     AS INTEGER   FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE end_order     AS INTEGER   FORMAT ">>>>>>>9" INITIAL 99999999 
     LABEL "To Order#" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.

@@ -165,7 +165,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
       oe-relh.release# FORMAT "->,>>>,>>9":U
       oe-relh.rel-date FORMAT "99/99/9999":U
-      oe-relh.ord-no FORMAT ">>>>>9":U
+      oe-relh.ord-no FORMAT ">>>>>>>9":U
       oe-relh.cust-no FORMAT "x(8)":U
       oe-relh.ship-id FORMAT "x(8)":U
       oe-relh.po-no FORMAT "x(15)":U
@@ -268,7 +268,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-   op-char-val = string(oe-ord.ord-no,">>>>>9") + "," +
+   op-char-val = string(oe-ord.ord-no,">>>>>>>9") + "," +
                  oe-ord.cust-no
                  .
    op-rec-id = recid(oe-ord).                 
@@ -300,7 +300,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
-   op-char-val = string(oe-ord.ord-no,">>>>>9") + "," +
+   op-char-val = string(oe-ord.ord-no,">>>>>>>9") + "," +
                  oe-ord.cust-no
                  .
    op-rec-id = recid(oe-ord).                 

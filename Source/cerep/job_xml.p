@@ -10,8 +10,8 @@ DEFINE VARIABLE cSide AS CHARACTER NO-UNDO.
 
 DEFINE NEW SHARED VARIABLE save_id                  AS RECID.
 DEFINE NEW SHARED VARIABLE v-today                  AS DATE      INITIAL TODAY.
-DEFINE NEW SHARED VARIABLE v-job                    AS CHARACTER FORMAT "x(6)" EXTENT 2 INITIAL [" ","zzzzzz"].
-DEFINE NEW SHARED VARIABLE v-job2                   AS INTEGER   FORMAT "99" EXTENT 2 INITIAL [00,99].
+DEFINE NEW SHARED VARIABLE v-job                    AS CHARACTER FORMAT "x(9)" EXTENT 2 INITIAL [" ","zzzzzzzzz"].
+DEFINE NEW SHARED VARIABLE v-job2                   AS INTEGER   FORMAT "999" EXTENT 2 INITIAL [000,999].
 DEFINE NEW SHARED VARIABLE v-stypart                LIKE style.dscr.
 DEFINE NEW SHARED VARIABLE v-dsc                    LIKE oe-ordl.part-dscr1 EXTENT 2.
 DEFINE NEW SHARED VARIABLE v-size                   AS CHARACTER FORMAT "x(26)" EXTENT 2.
@@ -348,14 +348,14 @@ ASSIGN
 
 FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company               EQ cocode
-          AND job-hdr.job-no                GE SUBSTRING(fjob-no,1,6)
-          AND job-hdr.job-no                LE SUBSTRING(tjob-no,1,6)
-          AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-              TRIM(job-hdr.job-no) +
-              STRING(job-hdr.job-no2,"99")  GE fjob-no
-          AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-              TRIM(job-hdr.job-no) +
-              STRING(job-hdr.job-no2,"99")  LE tjob-no
+          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+	  	TRIM(job-hdr.job-no) +
+	  	STRING(job-hdr.job-no2,"999")  GE fjob-no
+	  AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+	  	TRIM(job-hdr.job-no) +
+	  	STRING(job-hdr.job-no2,"999")  LE tjob-no
+	  AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2
           AND (production OR
                job-hdr.ftick-prnt           EQ v-reprint OR
                PROGRAM-NAME(2) MATCHES "*r-tickt2*")
@@ -464,7 +464,7 @@ FOR EACH job-hdr NO-LOCK
         ASSIGN
             v-job-no       = job-hdr.job-no
             v-job-no2      = job-hdr.job-no2
-            cJobNo         = v-job-no + "-" + STRING(v-job-no2,"99")
+            cJobNo         = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2)))
             iOrder         = job-hdr.ord-no
             cCSRID         = IF AVAILABLE job THEN job.csrUser_id ELSE ""
             cJobHdrDueDate = STRING(job-hdr.due-date)
@@ -719,7 +719,7 @@ FOR EACH job-hdr NO-LOCK
         FIND FIRST job NO-LOCK
             WHERE job.company EQ cocode
               AND job.job     EQ job-hdr.job
-              AND job.job-no  EQ v-job-no
+              AND TRIM(job.job-no)  EQ TRIM(v-job-no)
               AND job.job-no2 EQ v-job-no2
             NO-ERROR.
             
@@ -1084,7 +1084,7 @@ FOR EACH job-hdr NO-LOCK
                     AND item.i-no    EQ wrk-sheet.i-no NO-LOCK NO-ERROR.
                 FIND FIRST job-mat NO-LOCK 
                     WHERE job-mat.company EQ cocode 
-                      AND job-mat.job-no  EQ v-job-no
+                      AND TRIM(job-mat.job-no)  EQ TRIM(v-job-no)
                       AND job-mat.job-no2 EQ v-job-no2
                       AND job-mat.frm     EQ wrk-sheet.form-no
                       AND job-mat.i-no    EQ wrk-sheet.i-no

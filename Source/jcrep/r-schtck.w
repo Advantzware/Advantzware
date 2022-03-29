@@ -25,6 +25,7 @@
     that this procedure's triggers and internal procedures 
     will execute in this procedure's storage, and that proper
     cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */    
 
 CREATE WIDGET-POOL.
 
@@ -143,15 +144,15 @@ DEFINE VARIABLE begin_form     AS INTEGER   FORMAT ">>9" INITIAL 0
     VIEW-AS FILL-IN 
     SIZE 14 BY 1.
 
-DEFINE VARIABLE begin_job1     AS CHARACTER FORMAT "x(6)" 
+DEFINE VARIABLE begin_job1     AS CHARACTER FORMAT "x(9)" 
     LABEL "From Job#" 
     VIEW-AS FILL-IN 
     SIZE 14 BY 1.
 
-DEFINE VARIABLE begin_job2     AS INTEGER   FORMAT ">9" INITIAL 0 
+DEFINE VARIABLE begin_job2     AS INTEGER   FORMAT ">>9" INITIAL 0 
     LABEL "-" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1.
+    SIZE 5.4 BY 1.
 
 DEFINE VARIABLE begin_mach     AS CHARACTER FORMAT "x(6)" 
     LABEL "From Machine" 
@@ -173,15 +174,15 @@ DEFINE VARIABLE end_form       AS INTEGER   FORMAT ">>9" INITIAL 99
     VIEW-AS FILL-IN 
     SIZE 14 BY 1.
 
-DEFINE VARIABLE end_job1       AS CHARACTER FORMAT "x(6)" INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job1       AS CHARACTER FORMAT "x(9)" INITIAL "zzzzzzzzz" 
     LABEL "to Job#" 
     VIEW-AS FILL-IN 
     SIZE 14 BY 1.
 
-DEFINE VARIABLE end_job2       AS INTEGER   FORMAT ">9" INITIAL 99 
+DEFINE VARIABLE end_job2       AS INTEGER   FORMAT ">>9" INITIAL 999 
     LABEL "-" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1.
+    SIZE 5.4 BY 1.
 
 DEFINE VARIABLE end_mach       AS CHARACTER FORMAT "x(6)" INITIAL "zzzzzz" 
     LABEL "to Machine" 
@@ -1245,18 +1246,14 @@ PROCEDURE new-job-no :
 
         IF ll-fold AND ll-corr THEN
             FOR EACH job-hdr
-                WHERE job-hdr.company               EQ cocode
+                WHERE job-hdr.company               EQ cocode                   
+                AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+                TRIM(job-hdr.job-no) GE fjob-no
 
-                AND job-hdr.job-no                GE SUBSTR(fjob-no,1,6)
-                AND job-hdr.job-no                LE SUBSTR(tjob-no,1,6)
-
-                AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-                TRIM(job-hdr.job-no) +
-                STRING(job-hdr.job-no2,"99")  GE fjob-no
-
-                AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-                TRIM(job-hdr.job-no) +
-                STRING(job-hdr.job-no2,"99")  LE tjob-no
+                AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+                TRIM(job-hdr.job-no) LE tjob-no
+                AND job-hdr.job-no2 GE int(begin_job2)
+                AND job-hdr.job-no2 LE int(end_job2)
                 NO-LOCK,
 
                 FIRST job
@@ -1592,10 +1589,8 @@ PROCEDURE set-job-vars :
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            fjob-no  = FILL(" ",6 - LENGTH(TRIM(begin_job1:SCREEN-VALUE))) +
-                 TRIM(begin_job1:SCREEN-VALUE)
-            tjob-no  = FILL(" ",6 - LENGTH(TRIM(end_job1:SCREEN-VALUE))) +
-                 trim(end_job1:SCREEN-VALUE)
+            fjob-no  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1)) 
+            tjob-no  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job1)) 
             fjob-no2 = INT(begin_job2:SCREEN-VALUE)
             tjob-no2 = INT(end_job2:SCREEN-VALUE)
             /*      fjob-no   = FILL(" ",6 - LENGTH(TRIM(fjob-no))) + TRIM(fjob-no) + */

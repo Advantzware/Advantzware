@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */          
 
 CREATE WIDGET-POOL.
 
@@ -159,7 +160,7 @@ DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
@@ -184,7 +185,7 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
@@ -2204,10 +2205,10 @@ form v-disp-actnum label "G/L ACCOUNT NUMBER"
 
 SESSION:SET-WAIT-STATE ("general").
 
-IF length(begin_job-no) < 6 THEN
-   begin_job-no = FILL(" ",6 - LENGTH(trim(begin_job-no))) + TRIM(begin_job-no).
-IF length(end_job-no) < 6 THEN
-   end_job-no = FILL(" ",6 - LENGTH(trim(end_job-no))) + TRIM(end_job-no).
+IF length(begin_job-no) < 9 THEN
+   begin_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job-no)).
+IF length(end_job-no) < 9 THEN
+   end_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job-no)).
 
 /* Only save user selections if the UI was enabled */
 IF ip-run-what EQ "" THEN
@@ -2259,8 +2260,8 @@ DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
         AND fg-rctd.i-no      LE end_i-no
         AND fg-rctd.rct-date  GE ldt-from
         AND fg-rctd.rct-date  LE ldt-to
-        AND fg-rctd.job-no    GE begin_job-no
-        AND fg-rctd.job-no    LE end_job-no
+        AND fill(" ",9 - length(TRIM(fg-rctd.job-no))) + trim(fg-rctd.job-no) GE begin_job-no
+        AND fill(" ",9 - length(TRIM(fg-rctd.job-no))) + trim(fg-rctd.job-no) LE end_job-no
         AND fg-rctd.loc-bin   NE ""
         AND fg-rctd.loc       GE begin_whs
         AND fg-rctd.loc       LE end_whs
@@ -2490,7 +2491,7 @@ PROCEDURE send-fgemail :
                               "========== =============== ============ " SKIP.
        END.
        PUT STREAM st-email UNFORMATTED
-                 tt-email.job-no + "-" + string(tt-email.job-no2,"99") FORM "x(10)"
+                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-email.job-no, tt-email.job-no2))) FORM "x(13)"
                  " " tt-email.i-no " " tt-email.qty FORM "->>>,>>>,>>9" 
                  SKIP.
        IF LAST-OF(tt-email.cust-no) THEN do:

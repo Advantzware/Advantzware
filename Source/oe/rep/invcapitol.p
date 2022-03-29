@@ -1,7 +1,7 @@
 /* ------------------------------------------ oe/rep/invcapitol.p 04200903 GDM */
 /* INVOICE PRINT  Program for N-K-1-INVPRINT = Allwest                       */
 /* ------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -464,8 +464,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
            SPACE(1)               
              inv-line.t-price  FORMAT "->>>,>>9.99"                
            SKIP
-           SPACE(1) v-ord-no 
-           SPACE(8) v-i-dscr          FORMAT "x(25)"              
+           SPACE(1) STRING(v-ord-no) FORMAT "x(8)"
+           SPACE(6) v-i-dscr          FORMAT "x(25)"              
            SPACE(26)
              v-pc  
            SPACE(4) v-price-head 

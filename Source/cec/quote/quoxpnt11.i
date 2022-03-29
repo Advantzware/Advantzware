@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* cec/quote/quoxpnt11.i */
  
 PUT "<C2><R2><#1><R+10><C+45><IMAGE#1=" ls-full-img1  SKIP
@@ -37,15 +38,15 @@ PUT "<FArial><=4><R+1> Quote Date         FOB                     Ship Via      
     terms.dscr FORM "x(15)" space(1) sman.sname space(2) v-over-under SKIP.
 
 PUT "<|10><R28><C1><#5><FROM><R30><C80><RECT>" SKIP    
-    "<R28><C7><FROM><R30><C7><LINE>"   SKIP
-    "<R28><C20><FROM><R30><C20><LINE>" SKIP
-    "<R28><C46><FROM><R30><C46><LINE>" SKIP
-    "<R28><C53><FROM><R30><C53><LINE>" SKIP
-    "<R28><C56><FROM><R30><C56><LINE>" SKIP
-    "<R28><C64><FROM><R30><C64><LINE>" SKIP
-    "<R28><C69><FROM><R30><C69><LINE>" SKIP.
+    "<R28><C8><FROM><R30><C8><LINE>"   SKIP
+    "<R28><C24><FROM><R30><C24><LINE>" SKIP
+    "<R28><C48><FROM><R30><C48><LINE>" SKIP
+    "<R28><C55><FROM><R30><C55><LINE>" SKIP
+    "<R28><C58><FROM><R30><C58><LINE>" SKIP
+    "<R28><C66><FROM><R30><C66><LINE>" SKIP
+    "<R28><C70><FROM><R30><C70><LINE>" SKIP.
   
-PUT "<FArial><=5><R+1> Est#/Qt#    Part#/Description               Item/Style/Color/Board                     Quantity     Rel         Price       UOM        Extended" SKIP.
+PUT "<FArial><=5><R+1> Est#/Qt#    Part#/Description               Item/Style/Color/Board                          Quantity     Rel         Price      UOM       Extended" SKIP.
 PUT "<FCourier New>".
 
 lv-pg-num = PAGE-NUMBER.

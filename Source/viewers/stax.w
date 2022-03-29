@@ -346,8 +346,6 @@ DEFINE FRAME F-Main
           SIZE 13.2 BY .81
      "Freight?" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 2.05 COL 112
-     "Sales" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 4
      "Tax" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 1.33 COL 112
      "$ Limit" VIEW-AS TEXT
@@ -362,7 +360,7 @@ DEFINE FRAME F-Main
           SIZE 14.8 BY .62 AT ROW 1.48 COL 83.2
      "Tax" VIEW-AS TEXT
           SIZE 6 BY .71 AT ROW 1.24 COL 66
-     "Group" VIEW-AS TEXT
+     "Code" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.95 COL 19
      "Rate" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.95 COL 66
@@ -1186,7 +1184,7 @@ END.
 
 &Scoped-define SELF-NAME stax.tax-group
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-group V-table-Win
-ON LEAVE OF stax.tax-group IN FRAME F-Main /* Sales Tax Group */
+ON LEAVE OF stax.tax-group IN FRAME F-Main /* Tax Group */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-tax-group NO-ERROR.

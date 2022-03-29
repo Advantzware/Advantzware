@@ -57,7 +57,6 @@ system/OSProcs.p yes
 system/OutputProcs.p no
 system/PgmMstrSecur.p no
 system/ProgramMasterSecurity.p no
-system/PurgeProcs.p yes
 system/Session.p no
 system/TagProcs.p yes
 system/TaxProcs.p yes

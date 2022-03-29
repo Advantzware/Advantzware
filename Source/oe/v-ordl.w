@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -761,13 +762,12 @@ DO:
    def var i as int no-undo.
 
    assign v-bld-job = "".
-   do i = 1 to 6:
+   do i = 1 TO 9:
       if substring(input oe-ordl.job-no,i,1) ne " " then
              assign v-bld-job  = v-bld-job +     substring(input oe-ordl.job-no,i,1).
-   end. /* 1 - 6 */
-   assign oe-ordl.job-no:screen-value =
-                   string(fill(" ",6 - length(v-bld-job))) +
-                   (trim(v-bld-job)).
+   end. /* 1 - 9 */
+   assign oe-ordl.job-no:screen-value = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', v-bld-job))
+                   .
 
 END.
 
@@ -780,7 +780,7 @@ END.
 ON LEAVE OF oe-ordl.job-no2 IN FRAME F-Main /* Run # */
 DO:
     {&methods/lValidateError.i YES}
-    run util/rjust.p (input-output v-bld-job, input 6).
+    run util/rjust.p (input-output v-bld-job, INPUT 9).
     find first job-hdr where job-hdr.company = cocode and
                              job-hdr.job-no = v-bld-job and
                              job-hdr.job-no2 = input oe-ordl.job-no2

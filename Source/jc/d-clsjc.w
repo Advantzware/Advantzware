@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -108,15 +109,15 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 10 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE begin_job2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_ord AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "Beginning Order#" 
@@ -133,15 +134,15 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE end_job AS CHARACTER FORMAT "X(9)":U 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 10 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job2 AS INTEGER FORMAT "99":U INITIAL 99 
+DEFINE VARIABLE end_job2 AS INTEGER FORMAT "999":U INITIAL 999 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_ord AS INTEGER FORMAT ">>>>>>>>":U INITIAL 99999999 
      LABEL "Ending Order#" 
@@ -167,11 +168,11 @@ DEFINE VARIABLE tb_only AS LOGICAL INITIAL yes
 DEFINE FRAME D-Dialog
      begin_job AT ROW 2.19 COL 29 COLON-ALIGNED HELP
           "Enter Beginning Job#"
-     begin_job2 AT ROW 2.19 COL 41 COLON-ALIGNED HELP
+     begin_job2 AT ROW 2.19 COL 43 COLON-ALIGNED HELP
           "Enter Beginning Job#"
      end_job AT ROW 2.19 COL 73 COLON-ALIGNED HELP
           "Enter Endng Job#"
-     end_job2 AT ROW 2.19 COL 85 COLON-ALIGNED HELP
+     end_job2 AT ROW 2.19 COL 87 COLON-ALIGNED HELP
           "Enter Ending Job#"
      begin_ord AT ROW 4.1 COL 29 COLON-ALIGNED HELP
           "Enter Beginning Order#"
@@ -326,10 +327,8 @@ DO:
   IF v-process THEN DO WITH FRAME {&FRAME-NAME}:
     SESSION:SET-WAIT-STATE("general").
     ASSIGN
-     begin_job = FILL(" ",6 - LENGTH(TRIM(begin_job))) +
-                 TRIM(begin_job) + STRING(begin_job2,"99")
-     end_job   = FILL(" ",6 - LENGTH(TRIM(end_job))) +
-                 TRIM(end_job) + STRING(end_job2,"99")
+     begin_job = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job, begin_job2))  
+     end_job   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job, end_job2)) 
      .
     IF ll-close THEN
     FOR EACH job EXCLUSIVE-LOCK
@@ -351,22 +350,22 @@ DO:
                         WHERE misc-act.company EQ job.company
                           AND misc-act.job     EQ job.job
                           AND misc-act.job-no  EQ job.job-no
-                          AND misc-act.job-no2 EQ job.job-no2))
-          AND job.job-no                       GE SUBSTR(begin_job,1,6)
-          AND job.job-no                       LE SUBSTR(end_job,1,6)
-          AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
+                          AND misc-act.job-no2 EQ job.job-no2))          
+          AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
               TRIM(job.job-no) +
-              STRING(job.job-no2,"99")         GE begin_job
-          AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
+              STRING(job.job-no2,"999")         GE begin_job
+          AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
               TRIM(job.job-no) +
-              STRING(job.job-no2,"99")         LE end_job
+              STRING(job.job-no2,"999")         LE end_job
+          AND job.job-no2                       GE int(begin_job2)
+          AND job.job-no2                       LE int(end_job2)    
           AND job.start-date                   GE begin_date
           AND job.start-date                   LE end_date
         USE-INDEX opened:
         {jc/jc-close.i}
         FOR EACH rm-rctd EXCLUSIVE-LOCK
             WHERE rm-rctd.company = job.company
-              AND rm-rctd.job-no = FILL(" ",6 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no)  
+              AND trim(rm-rctd.job-no) = TRIM(job.job-no)  
               AND rm-rctd.job-no2 = job.job-no2
               AND rm-rctd.rita-code = "I"
             :
@@ -374,21 +373,21 @@ DO:
         END.  
         DISPLAY "Job Closing: " +
               TRIM(job.job-no) + "-" +
-              STRING(job.job-no2,"99") FORMAT "x(30)" @ fi_status
+              STRING(job.job-no2,"999") FORMAT "x(30)" @ fi_status
         WITH FRAME {&FRAME-NAME}.
     END.
     ELSE
     FOR EACH job NO-LOCK
         WHERE job.company              EQ cocode
-          AND job.opened               EQ ll-close
-          AND job.job-no               GE SUBSTR(begin_job,1,6)
-          AND job.job-no               LE SUBSTR(end_job,1,6)
-          AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
+          AND job.opened               EQ ll-close          
+          AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
               TRIM(job.job-no) +
-              STRING(job.job-no2,"99") GE begin_job
-              AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
+              STRING(job.job-no2,"999") GE begin_job
+              AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
               TRIM(job.job-no) +
-              STRING(job.job-no2,"99") LE end_job
+              STRING(job.job-no2,"999") LE end_job
+          AND job.job-no2               GE int(begin_job2)
+          AND job.job-no2               LE int(end_job2)    
           AND job.start-date           GE begin_date
           AND job.start-date           LE end_date
         USE-INDEX opened
@@ -396,7 +395,7 @@ DO:
         RUN jc/jc-reopn.p (ROWID(job)).
         DISPLAY "Job Opening: " +
               TRIM(job.job-no) + "-" +
-              STRING(job.job-no2,"99") FORMAT "x(30)" @ fi_status
+              STRING(job.job-no2,"999") FORMAT "x(30)" @ fi_status
         WITH FRAME {&FRAME-NAME}.
     END.    
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).     

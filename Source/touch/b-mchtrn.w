@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -88,7 +89,7 @@ machtran.completed display-run-total() @ lv-run-total
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH machtran WHERE ~{&KEY-PHRASE} ~
       AND machtran.company = company_code AND ~
 machtran.machine = machine_code AND ~
-machtran.job_number = job_number AND ~
+trim(machtran.job_number) = trim(job_number) AND ~
 machtran.job_sub = INTEGER(job_sub) AND ~
 machtran.form_number = INTEGER(form_number) AND ~
 machtran.blank_number = INTEGER(blank_number) AND ~
@@ -97,7 +98,7 @@ machtran.pass_sequence = INTEGER(pass_sequence) NO-LOCK ~
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH machtran WHERE ~{&KEY-PHRASE} ~
       AND machtran.company = company_code AND ~
 machtran.machine = machine_code AND ~
-machtran.job_number = job_number AND ~
+trim(machtran.job_number) = trim(job_number) AND ~
 machtran.job_sub = INTEGER(job_sub) AND ~
 machtran.form_number = INTEGER(form_number) AND ~
 machtran.blank_number = INTEGER(blank_number) AND ~
@@ -297,7 +298,7 @@ ASSIGN
      _TblOptList       = "USED"
      _Where[1]         = "machtran.company = company_code AND
 machtran.machine = machine_code AND
-machtran.job_number = job_number AND
+trim(machtran.job_number) = trim(job_number) AND
 machtran.job_sub = INTEGER(job_sub) AND
 machtran.form_number = INTEGER(form_number) AND
 machtran.blank_number = INTEGER(blank_number) AND
@@ -338,7 +339,7 @@ machtran.pass_sequence = INTEGER(pass_sequence)"
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL auto_find B-table-Win
 ON LEAVE OF auto_find IN FRAME F-Main /* Auto Find */
 DO:
-   {&self-name}:screen-value = fill(" ",6 - length({&self-name}:screen-value)).
+   {&self-name}:screen-value = fill(" ",9 - length({&self-name}:screen-value)).
 END.
 
 /* _UIB-CODE-BLOCK-END */

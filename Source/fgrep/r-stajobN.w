@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */          
 
 CREATE WIDGET-POOL.
 
@@ -100,7 +101,7 @@ ASSIGN
                                 "qty-pro,qty-bal,ord-date,ship-date,loc," +
                                 "relpo,rellot,fg-lot,shipto,shipname,prodqty," +
                                 "fac-costm,tot-fac-cost,on-hand-cost,ord-price"
-    cFieldLength       = "8,15,4,15,15,15,9," + "9,11,10,13,11,11," + "11,12,11,15,11," + "10,11,10,9,5," +
+    cFieldLength       = "8,15,4,15,15,15,13," + "9,11,10,13,11,11," + "11,12,11,15,11," + "10,11,10,9,5," +
                           "15,15,16,8,30,11," + "14,16,13,11"
     cFieldType         = "c,c,c,c,c,c,c," + "c,c,c,i,i,i," + "i,c,i,i,i," + "i,i,c,c,c," +
                         "c,c,c,c,c,i," + "i,i,i,i" 
@@ -207,15 +208,15 @@ DEFINE VARIABLE begin_cust-po  AS CHARACTER FORMAT "X(15)":U
     VIEW-AS FILL-IN 
     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_slm      AS CHARACTER FORMAT "XXX":U 
     LABEL "Beginning Sales Rep#" 
@@ -232,15 +233,15 @@ DEFINE VARIABLE end_cust-po    AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzz
     VIEW-AS FILL-IN 
     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
     SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_slm        AS CHARACTER FORMAT "XXX":U INITIAL "zzz" 
     LABEL "Ending Sales Rep#" 
@@ -394,11 +395,11 @@ DEFINE FRAME FRAME-A
     "Enter Ending Sales Rep Number"
     begin_job-no AT ROW 5.76 COL 29 COLON-ALIGNED HELP
     "Enter Beginning Job Number" WIDGET-ID 46
-    begin_job-no2 AT ROW 5.76 COL 42 COLON-ALIGNED HELP
+    begin_job-no2 AT ROW 5.76 COL 41.6 COLON-ALIGNED HELP
     "Enter Beginning Job Number" WIDGET-ID 48
     end_job-no AT ROW 5.76 COL 72 COLON-ALIGNED HELP
     "Enter Ending Job Number" WIDGET-ID 50
-    end_job-no2 AT ROW 5.76 COL 84 COLON-ALIGNED HELP
+    end_job-no2 AT ROW 5.76 COL 83.6 COLON-ALIGNED HELP
     "Enter Ending Job Number" WIDGET-ID 52
     lbl_itm-code AT ROW 7.19 COL 15.4 COLON-ALIGNED NO-LABELS
     rd_itm-code AT ROW 7.19 COL 32.6 NO-LABELS
@@ -681,8 +682,7 @@ ON LEAVE OF begin_job-no IN FRAME FRAME-A /* Beginning Job# */
     DO:
         ASSIGN {&self-name}.
         ASSIGN 
-            {&self-name}:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM({&self-name}:SCREEN-VALUE))) +
-                 TRIM({&self-name}:SCREEN-VALUE)  .
+            {&self-name}:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', {&self-name}:SCREEN-VALUE)) .
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -740,12 +740,11 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
   
         /*task 11221301  */
         IF STRING(begin_job-no:SCREEN-VALUE) <> "" THEN
-            ASSIGN begin_job-no:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(begin_job-no:SCREEN-VALUE))) +
-                 TRIM(begin_job-no:SCREEN-VALUE)  .
-
+            ASSIGN begin_job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job-no:SCREEN-VALUE)) .
+            
         IF STRING(end_job-no:SCREEN-VALUE) <> "" THEN
-            ASSIGN end_job-no:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(end_job-no:SCREEN-VALUE))) +
-                 TRIM(end_job-no:SCREEN-VALUE)  . /* Task 11221301  */
+            ASSIGN end_job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job-no:SCREEN-VALUE)) . 
+            
         RUN GetSelectionList.
         FIND FIRST  ttCustList NO-LOCK NO-ERROR.
         IF NOT tb_cust-list OR  NOT AVAILABLE ttCustList THEN 
@@ -938,7 +937,7 @@ ON LEAVE OF end_job-no IN FRAME FRAME-A /* Ending Job# */
     DO:
         ASSIGN {&self-name}.
         ASSIGN 
-            {&self-name}:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM({&self-name}:SCREEN-VALUE))) +
+            {&self-name}:SCREEN-VALUE = FILL(" ",9 - LENGTH(TRIM({&self-name}:SCREEN-VALUE))) +
                  TRIM({&self-name}:SCREEN-VALUE)  .
     END.
 
@@ -1731,7 +1730,7 @@ PROCEDURE run-report PRIVATE :
     cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
     DEFINE VARIABLE v-sortby         AS LOG       FORMAT "Y/N" INIT "N".
-    DEFINE VARIABLE v-job-no         AS CHARACTER FORMAT "x(9)".
+    DEFINE VARIABLE v-job-no         AS CHARACTER FORMAT "x(13)".
     DEFINE VARIABLE v-ext            AS DECIMAL   FORMAT "->>>,>>>,>>9.99".
     DEFINE VARIABLE fcst             AS ch        INIT " ".
     DEFINE VARIABLE tcst             LIKE fcst INIT "zzzzzzzzz".

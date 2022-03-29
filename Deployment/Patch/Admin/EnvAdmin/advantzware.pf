@@ -6,6 +6,7 @@
 -ipver IPv4         # Internet Protocal Version
 -Mf 10              # Delayed BI File Write
 -sw                 # SESSION:SUPPRESS-WARNINGS
+-assemblies ..\..\Assemblies
 #
 # Client Performance Parameters
 -Bt 20000           # Temptable buffer size (10,10,50000)
@@ -14,7 +15,7 @@
 -l 40000            # Local buffer size
 -Mm 8192            # Message buffer size (3,1K,32K) (must be same in database startup)
 -mmax 65534         # Maximum memory (1,512,65K)
--q                  # Quick Request
+#-q                  # Quick Request
 -rereadnolock
 -s 2048             # Stack size (9,40,5M)
 -stsh 5             # Stash Area

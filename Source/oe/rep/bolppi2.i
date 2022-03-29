@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/bolppi2.i            */
 /* PRINT Preferred BOL                                                           */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 
 assign
  /*v-tot-wt = 0*/
@@ -145,9 +145,8 @@ FOR EACH tt-boll,
 
   v-job-no = "".
 /*  if avail oe-ordl and oe-ordl.job-no ne "" then*/
-v-job-no = fill(" ",6 - length(trim(tt-boll.job-no))) +
-           trim(tt-boll.job-no) + "-" + trim(string(tt-boll.job-no2,"99")).
-IF trim(v-job-no) = "-00" THEN v-job-no = "".
+v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-boll.job-no, tt-boll.job-no2))).
+IF trim(v-job-no) = "-000" THEN v-job-no = "".
 
 /*v-part-comp = if v-ship-qty + v-bol-qty ge v-ord-qty or  tt-boll.p-c
                      then "C" else "P"*/

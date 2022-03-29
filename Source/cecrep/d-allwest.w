@@ -24,7 +24,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
@@ -104,7 +104,7 @@ DEFINE VARIABLE FI-num-samples AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "x(9)" 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "x(13)" 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
@@ -273,7 +273,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND b-reftable WHERE ROWID(b-reftable) EQ ip-ref-rowid NO-LOCK NO-ERROR. 
 
   IF AVAIL job-hdr THEN
-     fi_job-no = TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99").  
+     fi_job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
 
   IF AVAIL b-reftable THEN
      ASSIGN v-form-no   = INT(b-reftable.code2)

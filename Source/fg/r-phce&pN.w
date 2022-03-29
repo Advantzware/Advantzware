@@ -126,7 +126,7 @@ ASSIGN
     cFieldListToSelect = "tt-fg-bin.rct-date,tt-fg-bin.i-no,tt-fg-bin.i-name,tt-fg-bin.part-no," +
                             "tt-fg-bin.job-no,tt-fg-bin.loc,tt-fg-bin.loc-bin,tt-fg-bin.tag,tt-fg-bin.on-hand-qty," +
                             "tt-fg-bin.sell-price,tt-fg-bin.std-cost,tt-fg-bin.tot-value,tt-fg-bin.counted-qty,v-variance,over-under"    
-    cFieldLength       = "11,15,20,15," + "9,5,8,8,8," + "10,10,10,10,10,12"
+    cFieldLength       = "11,15,20,15," + "13,5,8,8,8," + "10,10,10,10,10,12"
     cFieldType         = "C,c,c,c," + "c,c,c,c,i," + "i,i,i,i,i,i".
 
 {sys/inc/ttRptSel.i}
@@ -1772,7 +1772,7 @@ DEFINE VARIABLE cDisplay      AS CHARACTER NO-UNDO.
                 DO:
                     cTmpField = SUBSTRING(GetFieldValue(hField),1,int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                     IF ENTRY(i,cSelectedList) = "Job#" THEN
-                        cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-rctd.job-no2,"99") ELSE "".                  
+                        cTmpField = IF cTmpField <> "" THEN TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', cTmpField, fg-rctd.job-no2))) ELSE "".                  
 
                     IF ENTRY(i,cSelectedList) BEGINS "TAG" THEN 
                         cTmpField = SUBSTRING(fg-rctd.tag, LENGTH(fg-rctd.tag) - 4).
@@ -1822,8 +1822,9 @@ DEFINE VARIABLE cDisplay      AS CHARACTER NO-UNDO.
 
         v-adj-qty = (IF AVAILABLE fg-bin THEN fg-bin.qty ELSE 0) - fg-rctd.t-qty.
         
-        cDescription = IF fg-rctd.job-no NE "" THEN "Job: " + fg-rctd.job-no + "-" + STRING(fg-rctd.job-no2,"99") 
-        ELSE IF fg-rctd.po-no NE "" THEN "PO: " + string(fg-rctd.po-no,"999999") + "-" + STRING(fg-rctd.po-line,"999") ELSE "".
+        cDescription = IF fg-rctd.job-no NE "" THEN "Job: " + 
+                       TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rctd.job-no, fg-rctd.job-no2)))
+                       ELSE IF fg-rctd.po-no NE "" THEN "PO: " + string(fg-rctd.po-no,"999999") + "-" + STRING(fg-rctd.po-line,"999") ELSE "".
 
         /*Invoicing  - Post Invoicing Transactions - Job Costing*/
         RUN oe/invposty.p (0, itemfg.i-no, v-adj-qty, v-uom,
@@ -1921,7 +1922,7 @@ PROCEDURE run-report-inv :
         tt-fg-bin.i-name   FORMAT "x(20)" LABEL "DESCRIPTION"
         tt-fg-bin.part-no  FORMAT "x(15)" LABEL "Customer Part#"
         tt-fg-bin.job-no   LABEL "   JOB" SPACE(0) "-" SPACE(0)
-        tt-fg-bin.job-no2  LABEL "# " FORMAT "99"
+        tt-fg-bin.job-no2  LABEL "# " FORMAT "999"
         tt-fg-bin.loc      LABEL "WHSE"
         tt-fg-bin.loc-bin  LABEL "BIN"
         tt-fg-bin.tag      LABEL "TAG" FORM "x(8)"
@@ -2178,7 +2179,8 @@ PROCEDURE run-report-inv :
                 DO: 
                     cTmpField = SUBSTRING(GetFieldValue(hField),1,int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                     IF ENTRY(i,cSelectedList) = "Job#" THEN
-                        cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-rctd.job-no2,"99") ELSE "".                  
+                        cTmpField = IF cTmpField <> "" THEN 
+                                    TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', cTmpField, fg-rctd.job-no2))) ELSE "".                  
 
                     IF ENTRY(i,cSelectedList) BEGINS "TAG" AND LENGTH(tt-fg-bin.tag) GE 4 THEN 
                     DO:
@@ -2242,11 +2244,10 @@ PROCEDURE run-report-inv :
                 v-cum-qty  = v-cum-qty + tt-fg-bin.counted-qty
                 v-item-tot = v-item-tot + tt-fg-bin.tot-value.
                 
-            cDescription = IF fg-rctd.job-no NE "" THEN "Job: " + fg-rctd.job-no + "-" + STRING(fg-rctd.job-no2,"99") 
-            ELSE IF fg-rctd.po-no NE "" THEN "PO: " + string(fg-rctd.po-no,"999999") + "-" + STRING(fg-rctd.po-line,"999") ELSE "" NO-ERROR. 
-            
-            tt-fg-bin.glDscr = cDescription.
-            
+                cDescription = IF fg-rctd.job-no NE "" THEN "Job: " + 
+                               TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rctd.job-no, fg-rctd.job-no2)))
+                               ELSE IF fg-rctd.po-no NE "" THEN "PO: " + string(fg-rctd.po-no,"999999") + "-" + STRING(fg-rctd.po-line,"999") ELSE "" NO-ERROR. 
+
             /*Invoicing  - Post Invoicing Transactions - Job Costing*/
             RUN oe/invposty.p (0, tt-fg-bin.i-no, tt-fg-bin.v-adj-qty, tt-fg-bin.v-uom,
                 tt-fg-bin.v-cost[1], tt-fg-bin.v-cost[2], tt-fg-bin.v-cost[3], tt-fg-bin.v-cost[4], cDescription).

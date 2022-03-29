@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -940,7 +941,7 @@ PROCEDURE create-reg-txtfile :
     DEFINE VARIABLE lv-how-many-tags AS INTEGER   NO-UNDO.
 
     DEFINE VARIABLE v-totpcs         LIKE w-ord.pcs NO-UNDO.
-
+       
     OUTPUT TO VALUE(v-out).
 
     PUT UNFORMATTED
@@ -965,7 +966,7 @@ PROCEDURE create-reg-txtfile :
         ",LINE#".
 
     PUT SKIP.
-
+          
     FOR EACH w-ord 
         BREAK BY w-ord.bol-no BY w-ord.i-no: 
 
@@ -1031,24 +1032,24 @@ PROCEDURE create-reg-txtfile :
 
         ASSIGN
             w-ord.gross-wt = w-ord.net-wt + w-ord.tare-wt
-            v-job          = w-ord.job-no + "-" + STRING(w-ord.job-no2,"99").
+            v-job          = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))  .
 
         IF v-job BEGINS "-" THEN v-job = "".
 
         ASSIGN
-            lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,6)
+            lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,9)
             lv-middlesex-job = IF lv-middlesex-job EQ "" 
                              THEN "" 
                              ELSE "%MX" +
-                                   FILL("0",6 - LENGTH(TRIM(lv-middlesex-job))) 
+                                   FILL("0",9 - LENGTH(TRIM(lv-middlesex-job))) 
                                  + TRIM(lv-middlesex-job)
-            lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,6)
+            lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,9)
             lv-middlesex-po  = IF lv-middlesex-po EQ "" 
                              THEN "" 
                              ELSE "BNJ" +
-                                  FILL("0",6 - LENGTH(TRIM(lv-middlesex-po))) 
+                                  FILL("0",9 - LENGTH(TRIM(lv-middlesex-po))) 
                                 + TRIM(lv-middlesex-po).
-
+               
         IF w-ord.total-tags GT 0 THEN 
         DO:
 
@@ -1069,7 +1070,7 @@ PROCEDURE create-reg-txtfile :
 
                     RUN create-loadtag (INPUT-OUTPUT lv-tag-no, w-ord.total-unit).
                 END.
-
+                           
                 PUT UNFORMATTED 
                     "~""  removeChars(w-ord.cust-name)  "~","
                     w-ord.bol-no  ","
@@ -1255,7 +1256,7 @@ PROCEDURE create-reg-txtfile :
         DELETE w-ord.
 
     END. /* FOR EACH w-ord*/
-
+          
     OUTPUT CLOSE.
 
 
@@ -1374,22 +1375,22 @@ PROCEDURE create-regDetail-txtfile :
 
         ASSIGN
             w-ord.gross-wt = w-ord.net-wt + w-ord.tare-wt
-            v-job          = w-ord.job-no + "-" + STRING(w-ord.job-no2,"99").
+            v-job          = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)) .
 
         IF v-job BEGINS "-" THEN v-job = "".
 
         ASSIGN
-            lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,6)
+            lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,9)
             lv-middlesex-job = IF lv-middlesex-job EQ "" 
                              THEN "" 
                              ELSE "%MX" +
-                                   FILL("0",6 - LENGTH(TRIM(lv-middlesex-job))) 
+                                   FILL("0",9 - LENGTH(TRIM(lv-middlesex-job))) 
                                  + TRIM(lv-middlesex-job)
-            lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,6)
+            lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,9)
             lv-middlesex-po  = IF lv-middlesex-po EQ "" 
                              THEN "" 
                              ELSE "BNJ" +
-                                  FILL("0",6 - LENGTH(TRIM(lv-middlesex-po))) 
+                                  FILL("0",9 - LENGTH(TRIM(lv-middlesex-po))) 
                                 + TRIM(lv-middlesex-po).
 
         IF w-ord.total-tags GT 0 THEN 
@@ -1613,7 +1614,7 @@ PROCEDURE create-text-file :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-
+       
 
     IF v-loadtag = "TRIAD" 
         THEN RUN create-TRIAD-txtfile.
@@ -1658,7 +1659,7 @@ PROCEDURE create-TRIAD-txtfile :
         FOR EACH w-ord BY w-ord.bol-no:
 
             ASSIGN 
-                v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+                v-job = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)).
 
             /* 9901 CAH */
             IF v-job BEGINS "-" OR v-job = ? 

@@ -1,7 +1,7 @@
 /* ---------------------------------------------- */
 /*  cecrep/jobptree.p  factory ticket  for PEACHTREE landscape */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 DEFINE INPUT PARAMETER v-format AS CHARACTER.
@@ -287,16 +287,14 @@ ASSIGN
           AND (production OR
                job-hdr.ftick-prnt           EQ reprint OR
                PROGRAM-NAME(2) MATCHES "*r-tickt2*")
-          AND job-hdr.job-no                GE substr(fjob-no,1,6)
-          AND job-hdr.job-no                LE substr(tjob-no,1,6)
-
-          AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  GE fjob-no
-
-          AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  LE tjob-no
+          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  GE fjob-no
+	  AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  LE tjob-no
+	  AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2
         USE-INDEX job-no,
 
         FIRST job
@@ -1151,7 +1149,7 @@ ASSIGN
             "<=11><C60><FROM><R+3><C60><LINE><||3>"
             "<=11><R+3><C1><FROM><C106><LINE><||3>"
             "<=11>Job # <C30> Estimate # <C60> Cust Part #"  SKIP
-            "<P12><C12>" cJobNumber FORMAT "x(16)"
+            "<P12><C12>" cJobNumber FORMAT "x(19)"
             "<C40>" v-est-no
             "<C70>" lv-part-no SKIP /*(2)*/.
 
@@ -1440,10 +1438,10 @@ ASSIGN
                  cShipto[4] = trim(shipto.ship-city) + ", " +
                               shipto.ship-state + "  " + shipto.ship-zip.
 
-             v-bar-no = trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99"). 
+             v-bar-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))). 
              
                 PUT  "<P10>" skip
-                          "JOB NUMBER:<B>" job-hdr.job-no space(0) "-" space(0) job-hdr.job-no2 format "99" "</B>"
+                          "JOB NUMBER:<B>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) FORM "X(13)" "</B>"
                                  "<B><P12>DMI BarCodes</B><P10>" at 52  "ORDER DATE:" at 100 dtStartDate SKIP
                                   v-fill .
                                   
@@ -1532,10 +1530,10 @@ ASSIGN
                        "<R+2><C44><FROM><R+2><C70><RECT><R-4>"
                        "<R+2><C70><FROM><R+2><C108><RECT><R-2>" .
                     cItemName = IF job-mch.blank-no NE 0 THEN display-i-name() ELSE "" .
-                     cJobMchID = LEFT-TRIM(job-mch.job-no) + "-"
-                        + STRING(job-mch.job-no2) + "."
-                        + STRING(job-mch.job-mchID,"999999999")
-                        .
+                     cJobMchID = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-mch.job-no, job-mch.job-no2)))
+                     		+ "."
+                        	+ STRING(job-mch.job-mchID,"999999999")
+                        	.
                    PUT "<R+0.5><C4>" job-mch.frm
                         "<C10>" job-mch.blank-no FORMAT ">>>" 
                         "<C18>" job-mch.pass

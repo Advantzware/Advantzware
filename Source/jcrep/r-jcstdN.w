@@ -13,6 +13,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -69,7 +70,7 @@ ASSIGN
                             "std-net-prft,std-net-mar,std-sel-price,ord-itm-s-price,book-std-price," +
                             "std-net-margin-act-pr,std-gross-margin-act-pr,act-sell-pri-msf,sales-grp,job-create,job-start,job-qty-msf-fg,std-sell-price-msf,cust-type,job-stat,order-stat," +
                             "std-mr-hrs,std-run-hrs,sales-grp-ord,sales-grp-name,ext-std-sel-price,ext-book-std-price,ext-std-ful-cst"
-    cFieldLength       = "9,15,25,11,15,6,13,8,4,5,7,8,30," + "23,8,17,17,14,14,19,16," + "16,18,17,14,11,13,16,16," + "14,14,14,13,16," + "25,27,19,11,16,14,16,18,20,10,12," + "12,13,19,30,18,23,26"
+    cFieldLength       = "13,15,25,11,15,6,13,8,4,5,8,8,30," + "23,8,17,17,14,14,19,16," + "16,18,17,14,11,13,16,16," + "14,14,14,13,16," + "25,27,19,11,16,14,16,18,20,10,12," + "12,13,19,30,18,23,26"
     cFieldType         = "c,c,c,c,c,c,c,i,i,i,i,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c," + "i,i,i,c,c,c,i,i,c,c,c," + "i,i,c,c,i,i,i" 
     .
 
@@ -158,52 +159,52 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Job Created" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY .95 NO-UNDO.
+     SIZE 18.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE begin_est AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Estimate#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 18.4 BY 1.
 
 DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U 
      LABEL "Beginning Item#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 18.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Job Created" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY .95 NO-UNDO.
+     SIZE 18.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE end_est AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Estimate#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 18.4 BY 1.
 
 DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzz" 
      LABEL "Ending Item#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 18.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-jobcstdet.csv" 
      LABEL "Name" 
@@ -295,11 +296,11 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO
 DEFINE FRAME FRAME-A
      begin_job-no AT ROW 2.52 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 2.52 COL 39 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 2.52 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 2.52 COL 69 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 2.52 COL 81 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.52 COL 82 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_est AT ROW 3.62 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Estimate" WIDGET-ID 64
@@ -1511,10 +1512,8 @@ PROCEDURE run-report :
         v-fdate  = begin_date
         v-tdate  = end_date
 
-        v-fjob   = FILL(" ",6 - length(TRIM(begin_job-no))) +
-              trim(begin_job-no) + string(int(begin_job-no2),"99")
-        v-tjob   = FILL(" ",6 - length(TRIM(end_job-no)))   +
-              trim(end_job-no)   + string(int(end_job-no2),"99")
+        v-fjob   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+        v-tjob   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
         fest     = FILL(" ",8 - LENGTH(TRIM(begin_est))) + TRIM(begin_est)
         test     = FILL(" ",8 - LENGTH(TRIM(end_est))) + TRIM(end_est)
         v-sort   = SUBSTR(rd_sort,1,1)  .
@@ -1540,15 +1539,15 @@ PROCEDURE run-report :
 
     iLineCount = 0 .
     FOR EACH costHeader NO-LOCK 
-        WHERE costHeader.company EQ gcompany
-        AND costHeader.jobNo  GE substr(v-fjob,1,6)
-        AND costHeader.jobNo  LE substr(v-tjob,1,6)
-        AND fill(" ",6 - length(TRIM(costHeader.jobNo))) +
-        trim(costHeader.jobNo) + string(costHeader.jobNo2,"99")
+        WHERE costHeader.company EQ gcompany        
+        AND fill(" ",9 - length(TRIM(costHeader.jobNo))) +
+        trim(costHeader.jobNo) + string(costHeader.jobNo2,"999")
         GE v-fjob
-        AND fill(" ",6 - length(TRIM(costHeader.jobNo))) +
-        trim(costHeader.jobNo) + string(costHeader.jobNo2,"99")
+        AND fill(" ",9 - length(TRIM(costHeader.jobNo))) +
+        trim(costHeader.jobNo) + string(costHeader.jobNo2,"999")
         LE v-tjob
+        AND costHeader.jobNo2 GE int(begin_job-no2)
+        AND costHeader.jobNo2 LE int(end_job-no2)
         AND costHeader.estimateNo GE fest
         AND costHeader.estimateNo LE test
         AND costHeader.fgItemID GE begin_i-no
@@ -1699,7 +1698,7 @@ PROCEDURE run-report :
             cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
             CASE cTmpField:             
                 WHEN "job"       THEN 
-                    cVarValue = STRING(costHeader.jobNo + "-" + STRING(costHeader.jobNo2,"99")).
+                    cVarValue = STRING(costHeader.jobNo + "-" + STRING(costHeader.jobNo2,"999")).
                 WHEN "item"      THEN 
                     cVarValue = STRING(costHeader.fgItemID,"X(15)").
                 WHEN "item-name"    THEN 

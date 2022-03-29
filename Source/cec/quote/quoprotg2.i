@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */ 
  /* cec/quote/quoprotg2.i */
  
      PUT "<C1><R2><#1><R+7><C+65><IMAGE#1=" ls-full-img1 SKIP 
@@ -63,13 +64,13 @@
        terms.dscr FORM "x(15)" space(1) sman.sname space(2) v-over-under SKIP.
 
    PUT "<|10><R28><C1><#5><FROM><R30><C80><RECT>" SKIP    
-             "<R28><C7><FROM><R30><C7><LINE>" SKIP
-             "<R28><C23><FROM><R30><C23><LINE>" SKIP
-             "<R28><C45><FROM><R30><C45><LINE>" SKIP
+             "<R28><C8><FROM><R30><C8><LINE>" SKIP
+             "<R28><C25><FROM><R30><C25><LINE>" SKIP
+             "<R28><C47><FROM><R30><C47><LINE>" SKIP
              "<R28><C54><FROM><R30><C54><LINE>" SKIP
              "<R28><C58><FROM><R30><C58><LINE>" SKIP
              "<R28><C66><FROM><R30><C66><LINE>" SKIP
              "<R28><C70><FROM><R30><C70><LINE>" SKIP
              .
-   PUT "<FArial><=5><R+1> Est#/Qt#        Part#/Description                      Specifications                        Quantity        Rel         Price       UOM    Extended $<FCourier New>" SKIP(1).
+   PUT "<FArial><=5><R+1> Est#/Qt#        Part#/Description                      Specifications                           Quantity     Rel         Price       UOM    Extended $<FCourier New>" SKIP(1).
    

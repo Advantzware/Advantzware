@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -80,7 +81,7 @@ ASSIGN
                          + "Job Qty Allocated,RM Qty Allocated,Job Due Date,Item Description,Customer,Customer Name" 
     cFieldListToSelect = "job,ino,uom,reqr,ord,rece,vend," +
                             "wid,len,scr,dt,bal,po,name,cmtd," + "job-qty,rm-qty,job-due-date,item-desc,cust,custname" 
-    cFieldLength       = "10,15,3,15,15,15,8," + "8,8,40,11,15,6,20,9," + "17,16,12,30,8,30"
+    cFieldLength       = "13,15,3,15,15,15,8," + "8,8,40,11,15,6,20,9," + "17,16,12,30,8,30"
     cFieldType         = "c,c,c,i,i,i,c," + "i,i,c,c,i,c,c,c," + "c,c,c,c,c,c"  
     .
 
@@ -165,15 +166,15 @@ DEFINE VARIABLE begin_job-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE begin_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_due-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending PO Due Date" 
@@ -185,15 +186,15 @@ DEFINE VARIABLE end_job-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS INTEGER FORMAT "99":U INITIAL 99 
+DEFINE VARIABLE end_job-no2 AS INTEGER FORMAT "999":U INITIAL 999 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-matjob.csv" 
      LABEL "Name" 
@@ -1500,13 +1501,8 @@ PROCEDURE run-report :
         v-job-no2[2]   = end_job-no2
         v-sort-by-size = tb_sort
 
-        v-job-no[1]    = FILL(" ",6 - LENGTH(TRIM(v-job-no[1]))) +
-               TRIM(v-job-no[1])                       +
-               STRING(v-job-no2[1],"99")
-
-        v-job-no[2]    = FILL(" ",6 - LENGTH(TRIM(v-job-no[2]))) +
-               TRIM(v-job-no[2])                       +
-               STRING(v-job-no2[2],"99")
+        v-job-no[1]    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', v-job-no[1], v-job-no2[1])) 
+        v-job-no[2]    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', v-job-no[2], v-job-no2[2])) 
         v-mattype-list = "".
 
     DO WITH FRAME {&FRAME-NAME}:          

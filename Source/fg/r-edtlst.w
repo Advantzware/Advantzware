@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -750,7 +751,7 @@ PROCEDURE run-report :
         "BIN" AT 70  "CASES" AT 81
         "QTY/CASE" AT 88  "UOM" AT 97 "TOTAL" AT 108 "COST" AT 117 "VALUE" AT 131
         FILL("=",135) FORMAT "x(135)"  
-        WITH FRAME f-top PAGE-TOP NO-BOX NO-LABELS STREAM-IO WIDTH 135.
+        WITH FRAME f-top PAGE-TOP NO-BOX NO-LABELS STREAM-IO WIDTH 140.
 
     FORM
         fg-rctd.rct-date AT 4 SPACE(1)
@@ -758,7 +759,7 @@ PROCEDURE run-report :
         v-tran-type
         fg-rctd.tag       FORMAT "x(20)" /* gdm - 12090821 */
         fg-rctd.job-no SPACE(0) "-" SPACE(0)
-        fg-rctd.job-no2 FORMAT "99" SPACE(2)
+        fg-rctd.job-no2 FORMAT "999" SPACE(2)
         fg-rctd.po-no        FORMAT "x(8)"  AT 55                                                            
         po-ord.vend-no       AT 61
         fg-rctd.loc-bin      AT 70       
@@ -771,7 +772,7 @@ PROCEDURE run-report :
         */
         fg-rctd.std-cost         AT 114 FORMAT "->>,>>9"
         v-fg-value           FORMAT "->,>>>,>>9.99" TO 135
-        WITH FRAME detail NO-BOX NO-LABELS DOWN STREAM-IO WIDTH 135.
+        WITH FRAME detail NO-BOX NO-LABELS DOWN STREAM-IO WIDTH 140.
 
     FORM
         fg-rctd.rct-date AT 4 SPACE(1)
@@ -779,7 +780,7 @@ PROCEDURE run-report :
         v-tran-type
         fg-rctd.tag       FORMAT "x(20)" /* gdm - 12090821 */
         fg-rctd.job-no SPACE(0) "-" SPACE(0)
-        fg-rctd.job-no2 FORMAT "99" SPACE(2)
+        fg-rctd.job-no2 FORMAT "999" SPACE(2)
         fg-rctd.po-no        FORMAT "x(6)" AT 55                                                            
         po-ord.vend-no       AT 61                                                              
         fg-rctd.loc-bin      AT 70  
@@ -792,7 +793,7 @@ PROCEDURE run-report :
         */ 
         fg-rctd.std-cost         AT 114 FORMAT "->>,>>9"
         v-fg-value           FORMAT "->,>>>,>>9.99" TO 135
-        WITH FRAME pdetail NO-BOX NO-LABELS DOWN STREAM-IO WIDTH 135.
+        WITH FRAME pdetail NO-BOX NO-LABELS DOWN STREAM-IO WIDTH 140.
 
     ASSIGN 
         str-tit2  = c-win:TITLE
@@ -832,9 +833,7 @@ PROCEDURE run-report :
         CREATE report.
         ASSIGN
             report.term-id = v-term
-            report.key-01  = IF v-sort THEN
-                          FILL(" ",6 - length(TRIM(fg-rctd.job-no))) +
-                          trim(fg-rctd.job-no) + string(fg-rctd.job-no2,"99")
+            report.key-01  = IF v-sort THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', fg-rctd.job-no, fg-rctd.job-no2))                          
                         ELSE fg-rctd.loc                                                               
             report.key-02  = fg-rctd.i-no
             report.key-03  = STRING( YEAR(fg-rctd.rct-date),"9999") +

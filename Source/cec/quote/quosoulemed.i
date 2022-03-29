@@ -1,5 +1,6 @@
 /* ------------------------------------------- cec/quote/quosoule.i 04/09 GDM */
 /* print quote items in xPrint format                                         */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 logSetPrinting = FALSE.
@@ -83,9 +84,9 @@ FOR EACH xqitm OF xquo NO-LOCK
                                  AVAIL itemfg 
                                 THEN itemfg.i-name ELSE xqitm.part-dscr1.
             PUT 
-                TRIM(lv-est-no) FORM "x(5)" AT 2
-                xqitm.part-no AT 8 FORMAT "x(21)"
-                TRIM(lv-part-dscr1) AT 29 FORMAT "x(28)".
+                TRIM(lv-est-no) FORM "x(8)" AT 1
+                xqitm.part-no AT 10 FORMAT "x(21)"
+                TRIM(lv-part-dscr1) AT 31 FORMAT "x(28)".
         END. /* IF i EQ 1 */
         ELSE
         IF i EQ 2 THEN DO:            
@@ -100,7 +101,7 @@ FOR EACH xqitm OF xquo NO-LOCK
                xquo.q-no  
                IF AVAIL eb 
                  THEN eb.cad-no 
-                 ELSE ""            AT 8 FORMAT "x(21)"
+                 ELSE ""            AT 10 FORMAT "x(21)"
                lv-part-dscr2             FORMAT "x(28)" .
         END. /* IF i EQ 2 */
         ELSE
@@ -185,8 +186,8 @@ FOR EACH xqitm OF xquo NO-LOCK
             IF TRIM(lv-i-coldscr) NE "" 
               THEN
                PUT     
-                trim-size  AT 8 FORMAT "x(21)"
-                lv-i-coldscr  AT 29 FORM "x(28)".
+                trim-size  AT 10 FORMAT "x(21)"
+                lv-i-coldscr  AT 31 FORM "x(28)".
 /*             "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 8 FORM "x(21)" */
                 
         END. /* IF i EQ 3*/
@@ -210,7 +211,7 @@ FOR EACH xqitm OF xquo NO-LOCK
             ASSIGN chrX = xqitm.i-coldscr.
             IF TRIM(xqitm.i-coldscr) NE "" 
               THEN
-               PUT xqitm.i-coldscr AT 29 FORM "x(28)".
+               PUT xqitm.i-coldscr AT 31 FORM "x(28)".
           END.
           ELSE 
           IF v-boardDescription EQ 'Est' THEN DO:
@@ -221,7 +222,7 @@ FOR EACH xqitm OF xquo NO-LOCK
                                         THEN ef.brd-dscr  ELSE "" .
             END.
             IF TRIM(chrX) NE "" 
-              THEN PUT chrX AT 29 FORMAT "x(30)".
+              THEN PUT chrX AT 31 FORMAT "x(30)".
           END.
           ELSE 
           IF v-boardDescription EQ 'Quote' THEN DO:
@@ -229,7 +230,7 @@ FOR EACH xqitm OF xquo NO-LOCK
             IF NOT logSetPrinting 
               THEN ASSIGN chrX = xqitm.i-dscr.
             IF TRIM(chrX) NE "" 
-              THEN PUT chrX AT 29 FORMAT "x(28)".
+              THEN PUT chrX AT 31 FORMAT "x(28)".
           END.
         END. /* IF i EQ 4 */
         ELSE
@@ -273,7 +274,7 @@ FOR EACH xqitm OF xquo NO-LOCK
 
             IF logSetPrinting 
               THEN 
-                PUT FILL(" ",21) AT 8.
+                PUT FILL(" ",21) AT 10.
 /*                PUT "FG#: " + lv-fg# AT 8 FORM "x(21)". */
               ELSE DO:
                /*don't print board description twice*/
@@ -291,7 +292,7 @@ FOR EACH xqitm OF xquo NO-LOCK
                IF TRIM(v-board) NE "" 
                  THEN
                   PUT 
-                   FILL(" ",21) AT 8
+                   FILL(" ",21) AT 10
 /*                    "FG#: " + lv-fg# AT 8 FORM "x(21)" */
                    v-board FORM "x(28)".
 
@@ -331,10 +332,10 @@ FOR EACH xqitm OF xquo NO-LOCK
 
           /* gdm - 11040801 - added 1 char(int) to format to fit 10 million + qty */
           PUT
-              xqqty.qty FORMAT ">>>>>>>9" TO 65
-              xqqty.rels space(5)
-              xqqty.price FORM "->>>,>>9.999" space(6)
-              xqqty.uom.   
+              "<C50>" xqqty.qty FORMAT ">>>>>>>9" 
+              "<C59>" xqqty.rels 
+              "<C64>" xqqty.price FORM "->>>,>>9.999" 
+              "<C77>" xqqty.uom.   
 
           v-line-total = v-line-total + xqqty.price.
         END. /* IF AVAIL xqqty */
@@ -432,7 +433,7 @@ FOR EACH xqitm OF xquo NO-LOCK
            ELSE ASSIGN temp-trim-size = trim-size.
 
            PUT 
-               eb.part-no AT 8 FORMAT "x(21)" temp-trim-size   SKIP.
+               eb.part-no AT 10 FORMAT "x(21)" temp-trim-size   SKIP.
 
            FIND FIRST style NO-LOCK
              WHERE style.company EQ cocode
@@ -440,7 +441,7 @@ FOR EACH xqitm OF xquo NO-LOCK
            ASSIGN style-dscr = IF AVAIL style THEN style.dscr ELSE eb.style.
 
            PUT 
-               eb.part-dscr1 AT 8 FORM "x(21)"
+               eb.part-dscr1 AT 10 FORM "x(21)"
                style-dscr SKIP.
 
            ASSIGN
@@ -467,7 +468,7 @@ FOR EACH xqitm OF xquo NO-LOCK
            END. /* IF v-board EQ "" */
 
            PUT 
-              eb.part-dscr2  AT 8  FORM "x(21)"
+              eb.part-dscr2  AT 10  FORM "x(21)"
               v-board  FORM "x(50)"   SKIP .
 
            PUT eb.i-coldscr   AT 30 SKIP.

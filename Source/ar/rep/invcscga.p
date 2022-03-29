@@ -354,8 +354,8 @@ find first company where company.company eq cocode NO-LOCK.
                                      ELSE ar-invl.part-dscr2.
 
              if v-part-info ne "" OR ar-invl.part-no <> "" then do:
-                IF v = 1 THEN PUT space(21) ar-invl.ord-no FORM ">>>>>>9" space(2) v-i-no SPACE(1) v-part-info format "x(22)" SKIP.
-                ELSE PUT SPACE(46) v-part-info SKIP.
+                IF v = 1 THEN PUT space(21) ar-invl.ord-no FORM ">>>>>>>9" space(1) v-i-no SPACE(1) v-part-info format "x(22)" SKIP.
+                ELSE PUT SPACE(47) v-part-info SKIP.
                 v-printline = v-printline + 1.
              end.
            end.

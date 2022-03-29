@@ -10,8 +10,8 @@ DEFINE INPUT PARAMETER v-format LIKE sys-ctrl.char-fld.
 
 DEFINE NEW SHARED VARIABLE save_id          AS RECID.
 DEFINE NEW SHARED VARIABLE v-today          AS DATE      INIT TODAY.
-DEFINE NEW SHARED VARIABLE v-job            AS CHARACTER FORMAT "x(6)" EXTENT 2 INIT [" ","zzzzzz"].
-DEFINE NEW SHARED VARIABLE v-job2           AS INTEGER   FORMAT "99" EXTENT 2 INIT [00,99].
+DEFINE NEW SHARED VARIABLE v-job            AS CHARACTER FORMAT "x(9)" EXTENT 2 INIT [" ","zzzzzzzzz"].
+DEFINE NEW SHARED VARIABLE v-job2           AS INTEGER   FORMAT "999" EXTENT 2 INIT [000,999].
 DEFINE NEW SHARED VARIABLE v-stypart        LIKE style.dscr.
 DEFINE            VARIABLE v-dsc            LIKE oe-ordl.part-dscr1 EXTENT 3.
 DEFINE NEW SHARED VARIABLE v-size           AS CHARACTER FORMAT "x(26)" EXTENT 2.
@@ -481,7 +481,7 @@ DO:
         
     IF FIRST-OF(job-hdr.job-no2) THEN 
         v-pg-num = IF PAGE-NUMBER >= 2 THEN PAGE-NUMBER - 1 ELSE 0.
-    cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") .
+    cBarCodeVal = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
     /*v-pg-num = IF PAGE-NUMBER >= 2 THEN PAGE-NUMBER - 1 ELSE 0.*/
      /*VIEW FRAME head.*/       
 
@@ -1022,9 +1022,9 @@ PROCEDURE pPrintHeader :
 
     DEFINE INPUT PARAMETER ipiType AS INTEGER NO-UNDO .
     IF ipiType EQ 0 THEN
-         cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(eb.form-no,"99") + "-" + STRING(eb.blank-no,"99") .
+         cBarCodeVal = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2) + "-" + STRING(eb.form-no,"99") + "-" + STRING(eb.blank-no,"99"))) .
     IF ipiType EQ 1 THEN
-         cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99")  .
+         cBarCodeVal = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
          PUT 
             "<FGCOLOR=GREEN><LINECOLOR=GREEN><R5><C58.5><From><R11><C58.5><Line><||6>"
             "<=1>" .
@@ -1043,12 +1043,12 @@ PROCEDURE pPrintData:
        ASSIGN cDieNo = bf-xeb.die-no.
          RUN pPrintHeader(1) .
         
-          PUT "<R5><C1><FGCOLOR=GREEN>CUSTOMER                          SHIP TO"            "<P12><C60>Job#: <FGCOLOR=BLACK>"  string(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") + "-" + STRING(bf-xeb.form-no,"99")) FORM "x(14)" "<P10>" SKIP
-            v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN>  ORDER#: <FGCOLOR=BLACK>"  job-hdr.ord-no  FORMAT ">>>>>9"  SKIP          
+          PUT "<R5><C1><FGCOLOR=GREEN>CUSTOMER                          SHIP TO"            "<P12><C59>Job#: <FGCOLOR=BLACK>"  TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2) + "-" + STRING(bf-xeb.form-no,"99"))) FORM "x(16)" "<P10>" SKIP
+            v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN>  ORDER#: <FGCOLOR=BLACK>"  TRIM(STRING(job-hdr.ord-no,">>>>>>>9")) FORMAT "X(8)"  SKIP          
             v-cus[2]  v-shipto[2] AT 35                                 "<C60><FGCOLOR=GREEN> CUST PO: <FGCOLOR=BLACK>" (if avail oe-ord THEN oe-ord.po-no ELSE "")  FORMAT "x(15)"   SKIP
             v-cus[3]  v-shipto[3] AT 35                                 "<C60><FGCOLOR=GREEN>ORD DATE: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.ord-date) ELSE "")  FORMAT "x(10)"        SKIP
             v-cus[4]  v-shipto[4] AT 35                                 "<C60><FGCOLOR=GREEN>DUE DATE: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.due-date) ELSE "")  FORMAT "x(10)" SKIP
-            "<C60><FGCOLOR=GREEN>Estimate#: <FGCOLOR=BLACK>"   trim(job-hdr.est-no) FORM "X(6)"        SKIP 
+            "<C60><FGCOLOR=GREEN>Estimate#: <FGCOLOR=BLACK>"   trim(job-hdr.est-no) FORM "X(8)"        SKIP 
             v-fill SKIP
             "<R-0.5><C1><FGCOLOR=GREEN>Item On Job:" SKIP
             "<C4><P9>ITEM#  <C16>CUST PART# <C28>DESCRIPTION  <C50>FORM <C54>BLANK <C59>#UP <C64>ORDER QTY <C72>OVERS <C77>UNDERS <FGCOLOR=BLACK>" SKIP .
@@ -1356,12 +1356,12 @@ PROCEDURE pPrintDetail:
          END.
                   
 
-        PUT "<FGCOLOR=GREEN><C1>CUSTOMER                          SHIP TO"            "<P12><C60>Job#: <FGCOLOR=BLACK>"  string(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") + "-" + STRING(bf-xeb.form-no,"99") + "-" + STRING(bf-xeb.blank-no,"99") ) FORM "x(16)" "<P10>" SKIP
+        PUT "<FGCOLOR=GREEN><C1>CUSTOMER                          SHIP TO"            "<P12><C59>Job#: <FGCOLOR=BLACK>"  TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2) + "-" + STRING(bf-xeb.form-no,"99") + "-" + STRING(bf-xeb.blank-no,"99"))) FORM "x(19)" "<P10>" SKIP
             v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN>  ORDER#: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.ord-no) ELSE "")  SKIP        
             v-cus[2]  v-shipto[2] AT 35                                 "<C60><FGCOLOR=GREEN> Cust Po: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.po-no) ELSE "")  FORMAT "x(15)"         SKIP 
             v-cus[3]  v-shipto[3] AT 35                                 "<C60><FGCOLOR=GREEN>Ord Date: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.ord-date) ELSE "")  FORMAT "x(10)"         SKIP
             v-cus[4]  v-shipto[4] AT 35                                 "<C60><FGCOLOR=GREEN>Due Date: <FGCOLOR=BLACK>"   (if avail oe-ord THEN string(oe-ord.due-date) ELSE "")  FORMAT "x(10)"   SKIP
-            "<C60><FGCOLOR=GREEN>Estimate#: <FGCOLOR=BLACK>"   trim(job-hdr.est-no) FORM "X(6)"        SKIP
+            "<C60><FGCOLOR=GREEN>Estimate#: <FGCOLOR=BLACK>"   trim(job-hdr.est-no) FORM "X(8)"        SKIP
             v-fill SKIP
             "<FGCOLOR=GREEN>ORDER QUANTITY:<FGCOLOR=BLACK>" iDisplayOrderQty   "<C25><FGCOLOR=GREEN>OVER:<FGCOLOR=BLACK>" v-over-pct FORMAT ">>>>%" "<C36><FGCOLOR=GREEN>UNDER:<FGCOLOR=BLACK>" dUnderPct FORMAT ">>>>%" 
              "<C54><FGCOLOR=GREEN>PRINT #UP:<FGCOLOR=BLACK>"bf-xeb.num-UP FORM ">>9" "    <FGCOLOR=GREEN>DIE CUT #UP:<FGCOLOR=BLACK>" v-tot-up  FORM ">>9"  /*"<C51><FGCOLOR=GREEN>TOTAL COLORS<FGCOLOR=BLACK> "   eb.i-coldscr*/ SKIP

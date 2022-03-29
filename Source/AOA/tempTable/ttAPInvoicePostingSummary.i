@@ -14,8 +14,8 @@ DEFINE TEMP-TABLE ttAPInvoicePostingSummary NO-UNDO
     FIELD qty       AS INTEGER   LABEL "Qty"            FORMAT "->>>,>>>,>>9.9<<<<<"
     FIELD unitPrice AS DECIMAL   LABEL "Unit Price"     FORMAT "->,>>>,>>9.99<<<<"  
     FIELD glAmount  AS DECIMAL   LABEL "Amount"         FORMAT "->,>>>,>>9.99"
-    FIELD xxID      AS INTEGER   LABEL "ID"             FORMAT ">>>>>9" INITIAL 999999
-    FIELD xxOrder   AS INTEGER   LABEL "Order"          FORMAT ">>>>>9" INITIAL 999999
+    FIELD xxID      AS INTEGER   LABEL "ID"             FORMAT ">>>>>9"   INITIAL 999999
+    FIELD xxOrder   AS INTEGER   LABEL "Order"          FORMAT ">>>>>>>9" INITIAL 99999999
         INDEX ID IS PRIMARY
               xxID
               xxOrder

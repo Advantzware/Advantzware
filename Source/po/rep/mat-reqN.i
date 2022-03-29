@@ -1,24 +1,25 @@
 /* ----------------------------------------------- po/rep/mat-req.i 01/98 JLF */
 /* Material Requirements Report                                               */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /* -------------------------------------------------------------------------- */
 
 DEF VAR ll-no-po AS LOG NO-UNDO.
 
   for each job
       where job.company eq cocode
-        AND (job.opened  EQ YES OR tb_include-job )
-        and job.job-no  ge substr(v-job-no[1],1,6)
-        and job.job-no  le substr(v-job-no[2],1,6)
+        AND (job.opened  EQ YES OR tb_include-job )        
         AND job.due-date GE begin_job-date
         AND job.due-date LE end_job-date 
         
-        and (fill(" ",6 - length(trim(job.job-no))) +
+        and (fill(" ",9 - length(trim(job.job-no))) +
              trim(job.job-no)                       +
-             string(job.job-no2,"99"))                 ge v-job-no[1]
+             string(job.job-no2,"999"))                 ge v-job-no[1]
 
-        and (fill(" ",6 - length(trim(job.job-no))) +
+        and (fill(" ",9 - length(trim(job.job-no))) +
              trim(job.job-no)                       +
-             string(job.job-no2,"99"))                 le v-job-no[2]
+             string(job.job-no2,"999"))                 le v-job-no[2]
+        AND job.job-no2 GE int(v-job-no2[1])
+	AND job.job-no2 LE int(v-job-no2[2])
              
         and can-find(first job-hdr where job-hdr.company eq job.company
                                      and job-hdr.job     eq job.job
@@ -29,8 +30,7 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
     create {1}report.
     assign
      {1}report.term-id = v-term
-     {1}report.key-01  = fill(" ",6 - length(trim(job.job-no))) +
-                         trim(job.job-no) + "-" + string(job.job-no2,"99")
+     {1}report.key-01  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)) 
      {1}report.rec-id  = recid(job).
 
     for each job-mat
@@ -53,8 +53,7 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
           create {1}report.
           assign
            {1}report.term-id = v-term
-           {1}report.key-01  = fill(" ",6 - length(trim(job.job-no))) +
-                               trim(job.job-no) + "-" + string(job.job-no2,"99")
+           {1}report.key-01  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)) 
            {1}report.rec-id  = recid(job).
         end.
 
@@ -147,8 +146,7 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
           create {1}report.
           assign
            {1}report.term-id = v-term
-           {1}report.key-01  = fill(" ",6 - length(trim(job.job-no))) +
-                               trim(job.job-no) + "-" + string(job.job-no2,"99")
+           {1}report.key-01  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)) 
            {1}report.key-02  = job-mat.rm-i-no
            {1}report.rec-id  = recid(job).
         end.
@@ -203,8 +201,7 @@ for each {1}report where {1}report.term-id eq v-term,
     transaction:   
     
   assign
-   v-job = fill(" ",6 - length(trim(job.job-no))) +
-           trim(job.job-no) + "-" + string(job.job-no2,"99")
+   v-job = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)) 
    v-itm = {1}report.key-02.
 
    {custom/statusMsg.i " 'Processing Job#  '  + v-job "}

@@ -1084,8 +1084,9 @@ PROCEDURE run-report :
                         AND po-ordl.LINE = ap-invl.LINE - (ap-invl.po-no * 1000)
                         NO-LOCK NO-ERROR.
                    
-                IF AVAILABLE po-ordl THEN 
-                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(po-ordl.job-no + "-" + STRING(po-ordl.job-no2,">9"))).
+                IF AVAILABLE po-ordl and po-ordl.job-no ne "" THEN 
+                    v-excel-detail-lines = v-excel-detail-lines + 
+                                           appendXLLine(TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2)))).
                 ELSE
                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING("")).
             END.

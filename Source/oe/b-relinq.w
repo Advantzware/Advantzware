@@ -91,7 +91,7 @@ END.
           AND oe-rell.i-no      BEGINS fi_i-no      ~
           AND (oe-rell.ord-no   EQ fi_ord-no OR fi_ord-no EQ 0) ~
           AND oe-rell.po-no     BEGINS fi_po-no     ~
-          AND oe-rell.job-no    BEGINS fi_job-no    ~
+          AND fill(" ",9 - length(TRIM(oe-rell.job-no))) + trim(oe-rell.job-no) BEGINS fi_job-no    ~
           AND (oe-rell.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ ""), ~
        FIRST itemfg OF oe-rell NO-LOCK
 
@@ -122,7 +122,7 @@ END.
     IF lv-sort-by EQ "i-no"      THEN oe-rell.i-no                                                                                                      ELSE ~
     IF lv-sort-by EQ "po-no"     THEN oe-rell.po-no                                                                                                     ELSE ~
     IF lv-sort-by EQ "rel-date"  THEN STRING(YEAR(oe-relh.rel-date),"9999") + STRING(MONTH(oe-relh.rel-date),"99") + STRING(DAY(oe-relh.rel-date),"99") ELSE ~
-    IF lv-sort-by EQ "job-no"    THEN STRING(oe-rell.job-no,"x(6)") + STRING(oe-rell.job-no2,"99")                                                      ELSE ~
+    IF lv-sort-by EQ "job-no"    THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', oe-rell.job-no, oe-rell.job-no2))                                   ELSE ~
     IF lv-sort-by EQ "qty"       THEN STRING(oe-rell.qty,"9999999999")                                                                                  ELSE ~
     IF lv-sort-by EQ "q-onh"     THEN STRING(itemfg.q-onh,"9999999999")                                                                                 ELSE ~
     IF lv-sort-by EQ "v-shipto-zone"  THEN get-shipto-zone()                                                                                            ELSE ~
@@ -297,15 +297,15 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      VIEW-AS FILL-IN 
-     SIZE 10 BY 1
+     SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1
+     SIZE 6.2 BY 1
      BGCOLOR 15  NO-UNDO.
 
 /*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
@@ -360,7 +360,7 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       oe-relh.release# FORMAT ">>>>>>>>>>":U WIDTH 15 LABEL-BGCOLOR 14
-      oe-rell.ord-no FORMAT ">>>>>9":U WIDTH 9 LABEL-BGCOLOR 14
+      oe-rell.ord-no FORMAT ">>>>>>>9":U WIDTH 14 LABEL-BGCOLOR 14
       getRS() @ lc-rs COLUMN-LABEL "R&S" FORMAT "X":U WIDTH 4 LABEL-BGCOLOR 14
       getMI() @ lc-mi COLUMN-LABEL "MI" FORMAT "X":U WIDTH 4 LABEL-BGCOLOR 14
       oe-rell.po-no FORMAT "x(15)":U WIDTH 22 LABEL-BGCOLOR 14
@@ -373,9 +373,9 @@ DEFINE BROWSE Browser-Table
             WIDTH 22 LABEL-BGCOLOR 14
       oe-relh.rel-date COLUMN-LABEL "Release Date" FORMAT "99/99/9999":U
             WIDTH 15 LABEL-BGCOLOR 14
-      oe-rell.job-no COLUMN-LABEL "Job #" FORMAT "x(6)":U WIDTH 9
+      oe-rell.job-no COLUMN-LABEL "Job #" FORMAT "x(9)":U WIDTH 14
             LABEL-BGCOLOR 14
-      oe-rell.job-no2 COLUMN-LABEL "" FORMAT "99":U LABEL-BGCOLOR 14
+      oe-rell.job-no2 COLUMN-LABEL "" FORMAT "999":U LABEL-BGCOLOR 14
       oe-relh.printed FORMAT "Y/N":U LABEL-BGCOLOR 14
       oe-rell.qty COLUMN-LABEL "Scheduled Qty" FORMAT "->>,>>>,>>9":U
             LABEL-BGCOLOR 14
@@ -407,14 +407,14 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     tb_posted AT ROW 2.19 COL 118 WIDGET-ID 2
+     tb_posted AT ROW 2.19 COL 120 WIDGET-ID 2
      fi_rel-no AT ROW 2.19 COL 1 COLON-ALIGNED NO-LABEL
      fi_ord-no AT ROW 2.19 COL 20 NO-LABEL
      fi_cust-no AT ROW 2.19 COL 34 COLON-ALIGNED NO-LABEL
      fi_i-no AT ROW 2.19 COL 50 COLON-ALIGNED NO-LABEL
      fi_po-no AT ROW 2.19 COL 72 COLON-ALIGNED NO-LABEL
      fi_job-no AT ROW 2.19 COL 94 COLON-ALIGNED NO-LABEL
-     fi_job-no2 AT ROW 2.19 COL 106 COLON-ALIGNED
+     fi_job-no2 AT ROW 2.19 COL 108 COLON-ALIGNED
      btn_go AT ROW 3.62 COL 2
      fi_sort-by AT ROW 3.62 COL 70 COLON-ALIGNED NO-LABEL
    //  FI_moveCol AT ROW 3.62 COL 125 COLON-ALIGNED NO-LABEL WIDGET-ID 4
@@ -540,7 +540,7 @@ use-index r-no"
      _FldNameList[1]   > ASI.oe-relh.release#
 "oe-relh.release#" ? ">>>>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.oe-rell.ord-no
-"oe-rell.ord-no" ? ? "integer" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-rell.ord-no" ? ? "integer" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-rell.po-no
 "getRS() @ lc-rs" "R&S" "X" ? ? ?  14 ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > "_<CALC>"
@@ -558,7 +558,7 @@ use-index r-no"
      _FldNameList[10]   > ASI.oe-relh.rel-date
 "oe-relh.rel-date" "Release Date" ? "date" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.oe-rell.job-no
-"oe-rell.job-no" "Job #" ? "character" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-rell.job-no" "Job #" ? "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.oe-rell.job-no2
 "oe-rell.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.oe-relh.printed

@@ -130,8 +130,7 @@ DEFINE VARIABLE lv-disc            LIKE cust.disc        NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix  AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE lRecFound          AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE cRtnChar           AS CHARACTER        NO-UNDO.
-DEFINE VARIABLE lMatrixExists      AS LOGICAL          NO-UNDO.
-DEFINE VARIABLE iMatrixLevel       AS INTEGER          NO-UNDO.
+DEFINE VARIABLE lMatrixExists AS LOGICAL NO-UNDO.
 
 DEF BUFFER b-oe-ord FOR oe-ord.
 DEF BUFFER b-oe-ordl FOR oe-ordl.
@@ -958,12 +957,12 @@ PROCEDURE create-order-lines.
         oe-ordl.qty = IF eb.bl-qty NE 0 THEN eb.bl-qty ELSE eb.eqty .
         
         RUN Price_CalculateLinePrice (ROWID(oe-ordl), oe-ordl.i-no, xoe-ord.cust-no ,  xoe-ord.ship-id , oe-ordl.qty, YES,
-                                      OUTPUT lMatrixExists, OUTPUT iMatrixLevel, INPUT-OUTPUT oe-ordl.price, INPUT-OUTPUT oe-ordl.pr-uom).
+                                      OUTPUT lMatrixExists, INPUT-OUTPUT oe-ordl.price, INPUT-OUTPUT oe-ordl.pr-uom).
        IF lMatrixExists THEN
        RUN pAddTagInfoForGroup(
                         INPUT ROWID(oe-ordl),
                         INPUT "Price-Source",
-                        INPUT "Price Matrix " + "Item No:" + string(oe-ordl.i-no) + " Customer No:" + string(oe-ordl.cust-no) + " Ship ID:" + oe-ordl.ship-id + " Quantity:" + string(oe-ordl.qty) + " Price Level:" + STRING(iMatrixLevel,"99")
+                        INPUT "Price Matrix " + "Item No:" + string(oe-ordl.i-no) + " Customer No:" + string(oe-ordl.cust-no) + " Ship ID:" + oe-ordl.ship-id + " Quantity:" + string(oe-ordl.qty)
                         ).    
     END. /* lQuotePriceMatrix*/
    

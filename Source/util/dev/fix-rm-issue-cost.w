@@ -11,6 +11,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -78,15 +79,14 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
-     LABEL "" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_rm-no AS CHARACTER FORMAT "X(10)":U 
      LABEL "Beginning RM Item#" 
@@ -98,15 +98,14 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
-     LABEL "" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_rm-no AS CHARACTER FORMAT "X(10)":U INITIAL "zzzzzzzzzz" 
      LABEL "Ending RM Item#" 
@@ -124,11 +123,11 @@ DEFINE FRAME FRAME-A
      begin_job-no AT ROW 6.48 COL 23 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      begin_job-no2 AT ROW 6.48 COL 36 COLON-ALIGNED HELP
-          "Enter Beginning Job Number"
+          "Enter Beginning Job Number" NO-LABEL
      end_job-no AT ROW 6.48 COL 62 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      end_job-no2 AT ROW 6.48 COL 75 COLON-ALIGNED HELP
-          "Enter Ending Job Number"
+          "Enter Ending Job Number" NO-LABEL
      begin_rm-no AT ROW 7.67 COL 23 COLON-ALIGNED HELP
           "Enter Beginning Item Number"
      end_rm-no AT ROW 7.67 COL 62 COLON-ALIGNED HELP
@@ -217,16 +216,6 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -242,6 +231,14 @@ ASSIGN
 ASSIGN 
        begin_rm-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -267,7 +264,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -530,19 +527,17 @@ DEF VAR ld-cst      AS   DEC                    NO-UNDO.
 SESSION:SET-WAIT-STATE("general").
 
 ASSIGN
- v-job-no[1] = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-               TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
- v-job-no[2] = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
-               TRIM(end_job-no)   + STRING(INT(end_job-no2),"99").
+ v-job-no[1] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+ v-job-no[2] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) .
 
 FOR EACH b-rh NO-LOCK
-    WHERE b-rh.company    EQ cocode
-      AND b-rh.job-no     GE SUBSTR(v-job-no[1],1,6)
-      AND b-rh.job-no     LE SUBSTR(v-job-no[2],1,6)
-      AND FILL(" ",6 - LENGTH(TRIM(b-rh.job-no))) +
-          TRIM(b-rh.job-no) + STRING(INT(b-rh.job-no2),"99") GE v-job-no[1]
-      AND FILL(" ",6 - LENGTH(TRIM(b-rh.job-no)))   +
-          TRIM(b-rh.job-no) + STRING(INT(b-rh.job-no2),"99") LE v-job-no[2]
+    WHERE b-rh.company    EQ cocode       
+      AND FILL(" ",9 - LENGTH(TRIM(b-rh.job-no))) +
+          TRIM(b-rh.job-no) + STRING(INT(b-rh.job-no2),"999") GE v-job-no[1]
+      AND FILL(" ",9 - LENGTH(TRIM(b-rh.job-no)))   +
+          TRIM(b-rh.job-no) + STRING(INT(b-rh.job-no2),"999") LE v-job-no[2]
+      AND b-rh.job-no2 GE int(begin_job-no2)
+      AND b-rh.job-no2 LE int(end_job-no2)    
       AND b-rh.i-no       GE begin_rm-no
       AND b-rh.i-no       LE end_rm-no
       AND b-rh.trans-date GE begin_date
@@ -566,7 +561,7 @@ FOR EACH b-rh NO-LOCK
 
   STATUS DEFAULT "Processing Job/RMItem#: " +
                  TRIM(b-rh.job-no)          + "-" +
-                 STRING(b-rh.job-no2,"99")  + "/" +
+                 STRING(b-rh.job-no2,"999")  + "/" +
                  TRIM(b-rh.i-no).
 
   EMPTY TEMP-TABLE tt-rm-bin.
