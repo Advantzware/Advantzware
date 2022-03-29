@@ -436,19 +436,10 @@ DO:
                 APPLY "ENTRY":U TO board.
               END.
            END.
-           IF AVAIL style AND style.type = "W" THEN  DO: /* foam */    
-              RUN system/openlookup.p (
-                cocode, 
-                "", /* lookup field */
-                155,   /* Subject ID */
-                "",  /* User ID */
-                0,   /* Param value ID */
-                OUTPUT returnFields, 
-                OUTPUT lookupField, 
-                OUTPUT recVal
-                ). 
-              IF lookupField NE "" AND lookupField NE board:SCREEN-VALUE THEN DO:
-                board:SCREEN-VALUE = lookupField.                
+           IF AVAIL style AND style.type = "W" THEN  DO: /* foam */                  
+              RUN AOA/dynLookupSetParam.p (155, ROWID(style), OUTPUT char-val).  
+              IF char-val NE "" AND DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val) NE board:SCREEN-VALUE THEN DO:
+                board:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val).                
                 APPLY "ENTRY":U TO board.
               END.
            END.
