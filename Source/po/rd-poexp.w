@@ -1836,6 +1836,7 @@ PROCEDURE pGetRecCost :
         FOR EACH rm-rcpth fields(r-no rita-code i-no)NO-LOCK
             WHERE rm-rcpth.company  EQ cocode 
             AND rm-rcpth.po-no      EQ string(ipiPoNo)
+            AND rm-rcpth.po-line    EQ ipiPoLine
             AND rm-rcpth.i-no       EQ ipcItem
             AND rm-rcpth.rita-code  EQ "R",
             EACH rm-rdtlh FIELDS(qty cost )NO-LOCK
