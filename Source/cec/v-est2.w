@@ -1179,8 +1179,7 @@ DO:
    if lastkey <> -1 and self:screen-value <> "" 
    then do:
   {&methods/lValidateError.i YES}
-      ASSIGN lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",gcompany, self:screen-value, "Wood") EQ TRUE.
-     
+      ASSIGN lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",ITEM.company, ITEM.i-no, "Wood") EQ TRUE.
        find first item where item.company = gcompany and
                              ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
                               (index("1234",item.mat-type) > 0 and lv-is-foam) OR
@@ -1188,7 +1187,6 @@ DO:
                               item.industry = lv-industry and
                               item.i-no = self:screen-value
                               no-lock no-error.
-                              
        if not avail item then do:
           message "Invalid Board. Try Help." view-as alert-box error.
           return no-apply.
@@ -3836,13 +3834,13 @@ IF NOT ll-auto-calc-selected THEN
 
     RUN new-m-code.
     ASSIGN 
-        lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",gcompany, ef.board:screen-value, "Wood") EQ TRUE.
+        lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",ITEM.company, ITEM.i-no, "Wood") EQ TRUE.
     if EF.BOARD:screen-value <> "" and
        not can-find (first item where item.company = gcompany and
                                       (
                                        (index("BPR",item.mat-type) > 0 and not lv-is-foam) or
                                        (index("1234",item.mat-type) > 0 and lv-is-foam) OR
-                                       (lIsMatlGroup AND lWoodStyle)) AND 
+                                       (lIsMatlGroup AND lWoodStyle)) and
                                        item.industry = lv-industry and
                                        item.i-no = ef.board:screen-value
                                       )
@@ -4184,7 +4182,7 @@ PROCEDURE new-board :
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN 
-        lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",gcompany, ef.board:SCREEN-VALUE, "Wood") EQ TRUE.
+        lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",ITEM.company, ITEM.i-no, "Wood") EQ TRUE.
     FIND FIRST item
         WHERE item.company  EQ gcompany
           AND ((INDEX("BPR",item.mat-type) GT 0 AND NOT lv-is-foam) OR
