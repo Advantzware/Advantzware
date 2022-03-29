@@ -4434,7 +4434,9 @@ PROCEDURE pProcessImportedOrderLine:
     DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound         AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL   NO-UNDO.
-      
+    DEFINE VARIABLE cImportedUOM      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dPriceInEA        AS DECIMAL   NO-UNDO.      
+    
     DEFINE BUFFER bf-oe-ord  FOR oe-ord.
     DEFINE BUFFER bf-cust    FOR cust.
     DEFINE BUFFER bf-itemfg  FOR itemfg.
@@ -4532,6 +4534,7 @@ PROCEDURE pProcessImportedOrderLine:
         bf-oe-ordl.part-dscr2 = bf-itemfg.part-dscr2 
         bf-oe-ordl.ediPriceUOM = ipbf-ttOrderLine.uom
         bf-oe-ordl.ediPrice    = ipbf-ttOrderLine.unitPrice
+        cImportedUOM           = ipbf-ttOrderLine.uom
         .
           
     IF AVAILABLE bf-cust THEN
@@ -4575,29 +4578,40 @@ PROCEDURE pProcessImportedOrderLine:
         bf-oe-ordl.t-cost = bf-oe-ordl.cost * bf-oe-ordl.qty / 1000
         .
     
-    IF bf-oe-ordl.pr-uom NE "EA" THEN DO:  /*This assumes the qty uom is the same as the price uom on imported orders*/
+    /* Logic if price matrix does not exist. Price matrix may not exist but price and pr-uom may still get updated from itemfg */
+    IF NOT matrixExists AND bf-oe-ordl.price EQ bf-oe-ordl.ediPrice AND bf-oe-ordl.pr-uom EQ bf-oe-ordl.ediPriceUOM THEN DO:
+        IF bf-oe-ordl.pr-uom NE "EA" THEN DO:  /*This assumes the qty uom is the same as the price uom on imported orders*/
+            ASSIGN 
+                bf-oe-ordl.spare-dec-1  = bf-oe-ordl.qty
+                bf-oe-ordl.spare-char-2 = bf-oe-ordl.pr-uom
+                bf-oe-ordl.t-price      = bf-oe-ordl.spare-dec-1 * bf-oe-ordl.price
+                bf-oe-ordl.pr-uom       = IF LOOKUP(bf-oe-ordl.pr-uom, gcCaseUOMList) GT 0 THEN "CS" ELSE bf-oe-ordl.pr-uom
+                .
+            
+            RUN Conv_QtyToEA(bf-oe-ordl.company, bf-oe-ordl.i-no, bf-oe-ordl.qty, bf-oe-ordl.pr-uom, bf-itemfg.case-count, OUTPUT bf-oe-ordl.qty).
+        END.
+        ELSE 
+            bf-oe-ordl.t-price = bf-oe-ordl.qty * bf-oe-ordl.price.
+    END.
+    ELSE DO:
+        cImportedUOM = IF LOOKUP(cImportedUOM, gcCaseUOMList) GT 0 THEN "CS" ELSE cImportedUOM.
+        
         ASSIGN 
             bf-oe-ordl.spare-dec-1  = bf-oe-ordl.qty
-            bf-oe-ordl.spare-char-2 = bf-oe-ordl.pr-uom
-            bf-oe-ordl.t-price      = bf-oe-ordl.spare-dec-1 * bf-oe-ordl.price
-            bf-oe-ordl.pr-uom       = IF LOOKUP(bf-oe-ordl.pr-uom, gcCaseUOMList) GT 0 THEN 
-                                          "CS" 
-                                      ELSE 
-                                          bf-oe-ordl.pr-uom
-            bf-oe-ordl.ediPriceUOM = (IF LOOKUP(bf-oe-ordl.ediPriceUOM, gcCaseUOMList) GT 0 THEN "CS" ELSE bf-oe-ordl.ediPriceUOM).                              
+            bf-oe-ordl.spare-char-2 = bf-oe-ordl.ediPriceUOM
+            dPriceInEA              = bf-oe-ordl.price
             .
-            
-        RUN Conv_QtyToEA (
-            INPUT  bf-oe-ordl.company,
-            INPUT  bf-oe-ordl.i-no, 
-            INPUT  bf-oe-ordl.qty, 
-            INPUT  bf-oe-ordl.pr-uom, 
-            INPUT  bf-itemfg.case-count, 
-            OUTPUT bf-oe-ordl.qty
-            ).
+
+        /* If imported UOM is not "EA" then convert to EA */
+        IF cImportedUOM NE "EA" THEN
+            RUN Conv_QtyToEA(bf-oe-ordl.company, bf-oe-ordl.i-no, bf-oe-ordl.qty, cImportedUOM, bf-itemfg.case-count, OUTPUT bf-oe-ordl.qty).
+        
+        /* If price matrix UOM is not EA then convert the price of price matrix UOM to EA */
+        IF bf-oe-ordl.pr-uom NE "EA" THEN
+            RUN Conv_ValueToEA(bf-oe-ordl.company, bf-oe-ordl.i-no, dPriceInEA, bf-oe-ordl.pr-uom, dPriceInEA, OUTPUT dPriceInEA).
+
+        bf-oe-ordl.t-price = bf-oe-ordl.qty * dPriceInEA.      
     END.
-    ELSE 
-        bf-oe-ordl.t-price = bf-oe-ordl.qty * bf-oe-ordl.price.
      
     bf-oe-ordl.cas-cnt = IF bf-oe-ordl.qty LT bf-itemfg.case-count THEN 
                              bf-oe-ordl.qty 
