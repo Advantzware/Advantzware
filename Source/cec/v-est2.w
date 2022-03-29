@@ -3834,7 +3834,7 @@ IF NOT ll-auto-calc-selected THEN
     
     else if ef.m-code:screen-value = "" then ef.m-dscr:screen-value = "". 
 
-    RUN new-m-code.
+    RUN new-m-code. 
     ASSIGN 
         lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",gcompany, ef.board:screen-value, "Wood") EQ TRUE.
     if EF.BOARD:screen-value <> "" and
