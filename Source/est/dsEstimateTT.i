@@ -40,7 +40,10 @@ DEFINE TEMP-TABLE ttEstCostItem NO-UNDO
     FIELD DBEstCostItemID LIKE estCostItem.estCostItemID
     FIELD DBRec_key       LIKE estCostItem.rec_key
     .     
-     
+
+DEFINE TEMP-TABLE ttEstCostBlank NO-UNDO
+    LIKE estCostBlank
+    .     
      
          
 /* ********************  Preprocessor Definitions  ******************** */
