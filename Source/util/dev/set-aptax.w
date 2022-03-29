@@ -69,7 +69,7 @@ DEFINE BUTTON btn-process
      SIZE 18 BY 1.14.
 
 DEFINE VARIABLE begin_tax AS CHARACTER FORMAT "X(4)":U 
-     LABEL "New Tax Code" 
+     LABEL "New Tax Group" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
@@ -88,7 +88,7 @@ DEFINE RECTANGLE RECT-17
      SIZE 89 BY 6.67.
 
 DEFINE VARIABLE tb_blank AS LOGICAL INITIAL no 
-     LABEL "Update vendors with blank tax code only?" 
+     LABEL "Update vendors with blank tax group only?" 
      VIEW-AS TOGGLE-BOX
      SIZE 45 BY .81 NO-UNDO.
 
@@ -144,7 +144,7 @@ DEFINE FRAME FRAME-B
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Set Vendor Tax Code"
+         TITLE              = "Set Vendor Tax Group"
          HEIGHT             = 12.67
          WIDTH              = 90.2
          MAX-HEIGHT         = 19.76
@@ -216,7 +216,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Set Vendor Tax Code */
+ON END-ERROR OF C-Win /* Set Vendor Tax Group */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -229,7 +229,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Set Vendor Tax Code */
+ON WINDOW-CLOSE OF C-Win /* Set Vendor Tax Group */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.

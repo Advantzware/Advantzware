@@ -536,6 +536,7 @@ PROCEDURE genOrderLines:
   DEFINE VARIABLE dCostPerUOMDM AS DECIMAL NO-UNDO.
   DEFINE VARIABLE cCostUOM AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
   DEFINE VARIABLE hdCostProcs AS HANDLE.
   RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
   
@@ -642,8 +643,12 @@ PROCEDURE genOrderLines:
         oe-ordl.ediPriceUOM = TRIM(itemUnitOfMeasure)
         oe-ordl.ediPrice    = DEC(itemMoney)
         .
-    
-      IF oe-ordl.price EQ 0 THEN DO:                      
+
+      RUN sys/ref/nk1look.p (oe-ord.company, "QuotePriceMatrix", "L",  NO, YES, "", "", OUTPUT cRtnChar, OUTPUT lRecFound).
+      IF lRecFound THEN
+          lQuotePriceMatrix = LOGICAL(cRtnChar) NO-ERROR.  
+                        
+      IF oe-ordl.price EQ 0 OR lQuotePriceMatrix THEN DO:                      
         FIND FIRST xoe-ord OF oe-ord NO-LOCK.
         RUN getPrice (ROWID(oe-ordl)).
       END.
@@ -911,6 +916,9 @@ PROCEDURE gencXMLOrder:
       IF lFound THEN
         lOEAutoApproval = LOGICAL(cResult) NO-ERROR.
       
+      IF NOT VALID-HANDLE (hOrderProcs) THEN
+          RUN oe/OrderProcs.p PERSISTENT SET hOrderProcs.
+          
       /* 52995 DSG Automated Ship To Creation */
       IF lOeAutoApproval THEN 
         RUN ProcessImportedOrder IN hOrderProcs (rOrdRec, OUTPUT lError, OUTPUT cMessage).

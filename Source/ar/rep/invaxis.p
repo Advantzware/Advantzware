@@ -322,7 +322,7 @@ DEFINE BUFFER bf-soldto FOR soldto.
                   lv-bol-no = ar-invl.bol-no.
                   .
         END.
-    PUT "[@startPage" + trim(STRING(ar-inv.inv-no,">>>>>9")) + "]" FORMAT "x(20)".
+    PUT "[@startPage" + trim(STRING(ar-inv.inv-no,">>>>>>>9")) + "]" FORMAT "x(20)".
  {ar/rep/invaxis.i}  /* xprint form */
 
         ASSIGN
@@ -418,7 +418,7 @@ DEFINE BUFFER bf-soldto FOR soldto.
             IF ar-invl.misc THEN
                 PUT SPACE(16).
             ELSE
-                PUT space(1) v-ord-no SPACE(9).
+                PUT space(1) TRIM(STRING(v-ord-no,">>>>>>>9")) SPACE(7).
             PUT
                 ar-invl.i-no SPACE(1)
                 v-i-dscr2 SKIP.
@@ -507,7 +507,7 @@ DEFINE BUFFER bf-soldto FOR soldto.
         .
     v-printline = v-printline + 6.
 
-    PUT "[@endPage" + trim(STRING(ar-inv.inv-no,">>>>>9")) + "]" FORMAT "x(20)".
+    PUT "[@endPage" + trim(STRING(ar-inv.inv-no,">>>>>>>9")) + "]" FORMAT "x(20)".
     IF v-printline <= 66 THEN page.
     lv-page = 0.
     DO TRANSACTION:

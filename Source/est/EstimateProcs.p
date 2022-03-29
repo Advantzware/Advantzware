@@ -16,6 +16,15 @@
 {est/ttCalcLayoutSize.i}
 {est/ttEstSysConfig.i}
 
+DEFINE VARIABLE gcBoardMatTypes  AS CHARACTER NO-UNDO INITIAL "1,2,3,4,A,B,P,R".
+DEFINE VARIABLE gcGlueMatTypes   AS CHARACTER NO-UNDO INITIAL "G,S,T".
+DEFINE VARIABLE gcInkMatTypes    AS CHARACTER NO-UNDO INITIAL "I,V".
+DEFINE VARIABLE gcPackMatTypes   AS CHARACTER NO-UNDO INITIAL "5,6,C,D,J,M".
+DEFINE VARIABLE gcLeafMatTypes   AS CHARACTER NO-UNDO INITIAL "F,W".
+DEFINE VARIABLE gcWindowMatTypes AS CHARACTER NO-UNDO INITIAL "W".
+DEFINE VARIABLE gcWaxMatTypes    AS CHARACTER NO-UNDO INITIAL "W".
+DEFINE VARIABLE gcAdderMatTypes  AS CHARACTER NO-UNDO INITIAL "A".
+
 DEFINE VARIABLE gcTypeSingle AS CHARACTER NO-UNDO INITIAL "Single".
 DEFINE VARIABLE gcTypeSet    AS CHARACTER NO-UNDO INITIAL "Set".
 DEFINE VARIABLE gcTypeCombo  AS CHARACTER NO-UNDO INITIAL "Combo/Tandem".
@@ -47,6 +56,27 @@ FUNCTION fEstimate_IsInk RETURNS LOGICAL
 
 FUNCTION fEstimate_IsMiscType RETURNS LOGICAL 
     (ipcEstType AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsBoardMaterial RETURNS LOGICAL 
+    (ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsGlueMaterial RETURNS LOGICAL 
+    (ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsInkMaterial RETURNS LOGICAL 
+    (ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsLeafMaterial RETURNS LOGICAL 
+    (ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsPackingMaterial RETURNS LOGICAL 
+	(ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsWaxMaterial RETURNS LOGICAL 
+    (ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsWindowMaterial RETURNS LOGICAL 
+    (ipcMaterialTypeID AS CHARACTER) FORWARD.
 
 FUNCTION fEstimate_IsSetType RETURNS LOGICAL 
     (ipcEstType AS CHARACTER) FORWARD.
@@ -818,7 +848,7 @@ END PROCEDURE.
 PROCEDURE Estimate_UpdateEfFormLayout:
     /*------------------------------------------------------------------------------
      Purpose: This procedure will update the ef record's dimension fields for a given
-              estimate number. This code is to replace calc-dim.p programs,
+              estimate number. This code is to replace calc-dim.p and calc-dim1.p programs,
               where it updates the EF and eb fields for an estimate.
               It calculates EF Gross, net, die size and other dimension fields
      Notes: This will be called across codebase to calculate layout fields
@@ -830,30 +860,46 @@ PROCEDURE Estimate_UpdateEfFormLayout:
     IF NOT AVAILABLE ipbf-ef OR NOT AVAILABLE ipbf-eb THEN
         RETURN.
 
-    RUN pUpdateEfFormLayout (BUFFER ipbf-ef, BUFFER ipbf-eb, INPUT NO).
+    RUN est/CalcLayoutSize.p (INPUT ROWID(ipbf-ef),
+        INPUT ROWID(ipbf-eb),
+        OUTPUT TABLE ttLayoutSize).
     
-    
+        
+    FOR FIRST ttLayoutSize:
+        
+        ASSIGN
+            ipbf-ef.lsh-len  = ttLayoutSize.dLayoutSheetLength    
+            ipbf-ef.lsh-wid  = ttLayoutSize.dLayoutSheetWidth     
+            ipbf-ef.nsh-len  = ttLayoutSize.dNetSheetLength       
+            ipbf-ef.nsh-wid  = ttLayoutSize.dNetSheetWidth        
+            ipbf-ef.nsh-dep  = ttLayoutSize.dNetSheetDepth        
+            ipbf-ef.gsh-len  = ttLayoutSize.dGrossSheetLength     
+            ipbf-ef.gsh-wid  = ttLayoutSize.dGrossSheetWidth      
+            ipbf-ef.gsh-dep  = ttLayoutSize.dGrossSheetDepth      
+            ipbf-ef.trim-l   = ttLayoutSize.dDieSizeLength        
+            ipbf-ef.trim-w   = ttLayoutSize.dDieSizeWidth         
+            ipbf-ef.trim-d   = ttLayoutSize.dDieSizeDepth         
+            ipbf-ef.roll-wid = ttLayoutSize.dRollWidth            
+            ipbf-ef.die-in   = ttLayoutSize.dDieInchesRequired    
+            ipbf-ef.i-code   = ttLayoutSize.cBoardItemCode        
+            ipbf-ef.weight   = ttLayoutSize.cBoardItemBasisWeight 
+            ipbf-ef.cal      = ttLayoutSize.dBoardItemCaliper     
+            ipbf-ef.roll     = ttLayoutSize.IsRollMaterial        
+            ipbf-ef.n-out    = ttLayoutSize.iNumOutWidth          
+            ipbf-ef.n-out-l  = ttLayoutSize.iNumOutLength         
+            ipbf-ef.n-out-d  = ttLayoutSize.iNumOutDepth          
+            ipbf-ef.n-cuts   = ttLayoutSize.iNumberCuts           
+            ipbf-eb.num-up   = ttLayoutSize.iBlankNumUp           
+            ipbf-eb.num-wid  = ttLayoutSize.iBlankNumOnWidth      
+            ipbf-eb.num-len  = ttLayoutSize.iBlankNumOnLength     
+            ipbf-eb.num-dep  = ttLayoutSize.iBlankNumOnDepth 
+            .     
+   
+    END.     
+
+
 
 END PROCEDURE.
-
-PROCEDURE Estimate_UpdateEfFormLayoutSizeOnly:
-    /*------------------------------------------------------------------------------
-     Purpose: This procedure will update the ef record's dimension fields for a given
-              estimate number. This code is to replace calc-dim1.p programs,
-              where it updates the EF fields for an estimate.
-              It calculates EF Gross, net, die size and other dimension fields
-     Notes: It won't update Num On or Num Out fields
-    ------------------------------------------------------------------------------*/
-
-    DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
-    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
-    
-    
-    RUN pUpdateEfFormLayout (BUFFER ipbf-ef, BUFFER ipbf-eb, INPUT YES).
-
-END PROCEDURE.
-
-
 
 PROCEDURE Estimate_UpdateEfFormQty PRIVATE:
 /*------------------------------------------------------------------------------
@@ -919,64 +965,6 @@ PROCEDURE pBuildQuantityList PRIVATE:
     
     opcQtyList = TRIM(opcQtyList, ipcDelimiter).
     
-END PROCEDURE.
-
-PROCEDURE pUpdateEfFormLayout PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
-    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
-    DEFINE INPUT  PARAMETER iplCalcSizeOnly AS LOGICAL NO-UNDO.
-    
-    IF NOT AVAILABLE ipbf-ef OR NOT AVAILABLE ipbf-eb THEN
-        RETURN.
-
-    RUN est/CalcLayoutSize.p (INPUT ROWID(ipbf-ef),
-        INPUT ROWID(ipbf-eb),
-        INPUT iplCalcSizeOnly,
-        OUTPUT TABLE ttLayoutSize).
-    
-        
-    FOR FIRST ttLayoutSize:
-        
-        ASSIGN
-            ipbf-ef.lsh-len  = ttLayoutSize.dLayoutSheetLength    
-            ipbf-ef.lsh-wid  = ttLayoutSize.dLayoutSheetWidth     
-            ipbf-ef.nsh-len  = ttLayoutSize.dNetSheetLength       
-            ipbf-ef.nsh-wid  = ttLayoutSize.dNetSheetWidth        
-            ipbf-ef.nsh-dep  = ttLayoutSize.dNetSheetDepth        
-            ipbf-ef.gsh-len  = ttLayoutSize.dGrossSheetLength     
-            ipbf-ef.gsh-wid  = ttLayoutSize.dGrossSheetWidth      
-            ipbf-ef.gsh-dep  = ttLayoutSize.dGrossSheetDepth      
-            ipbf-ef.trim-l   = ttLayoutSize.dDieSizeLength        
-            ipbf-ef.trim-w   = ttLayoutSize.dDieSizeWidth         
-            ipbf-ef.trim-d   = ttLayoutSize.dDieSizeDepth         
-            ipbf-ef.roll-wid = ttLayoutSize.dRollWidth            
-            ipbf-ef.die-in   = ttLayoutSize.dDieInchesRequired
-            ipbf-eb.num-up   = ttLayoutSize.iBlankNumUp           
-            . 
-            
-        /* Assign Num ON and Num Out fields only. In case error calculating Size only use full layout calc */    
-        IF iplCalcSizeOnly = NO OR (iplCalcSizeOnly = YES AND ttLayoutSize.lRecalcFullLayout = YES) THEN 
-            ASSIGN
-                ipbf-ef.i-code  = ttLayoutSize.cBoardItemCode        
-                ipbf-ef.weight  = ttLayoutSize.cBoardItemBasisWeight 
-                ipbf-ef.cal     = ttLayoutSize.dBoardItemCaliper     
-                ipbf-ef.roll    = ttLayoutSize.IsRollMaterial        
-                ipbf-ef.n-out   = ttLayoutSize.iNumOutWidth          
-                ipbf-ef.n-out-l = ttLayoutSize.iNumOutLength         
-                ipbf-ef.n-out-d = ttLayoutSize.iNumOutDepth          
-                ipbf-ef.n-cuts  = ttLayoutSize.iNumberCuts 
-                ipbf-eb.num-wid = ttLayoutSize.iBlankNumOnWidth      
-                ipbf-eb.num-len = ttLayoutSize.iBlankNumOnLength     
-                ipbf-eb.num-dep = ttLayoutSize.iBlankNumOnDepth 
-                .    
-   
-    END.     
-
-
 END PROCEDURE.
 
 PROCEDURE pUpdateFormBoard PRIVATE:
@@ -1094,7 +1082,7 @@ FUNCTION fEstimate_IsInk RETURNS LOGICAL
     Notes:
     ------------------------------------------------------------------------------*/	
     
-    RETURN INDEX("IV",ipcMaterialType) GT 0 AND ipcInkType NE "A".
+    RETURN fEstimate_IsInkMaterial(ipcMaterialType) AND ipcInkType NE "A".
     		
 END FUNCTION.
 
@@ -1106,6 +1094,70 @@ FUNCTION fEstimate_IsMiscType RETURNS LOGICAL
     ------------------------------------------------------------------------------*/    
     RETURN ipcEstType EQ gcTypeMisc.
         
+END FUNCTION.
+
+FUNCTION fEstimate_IsAdderMaterial RETURNS LOGICAL 
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given material type, return if the material type is adders
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN CAN-DO(gcAdderMatTypes, ipcMaterialTypeID).
+        
+END FUNCTION.
+
+
+FUNCTION fEstimate_IsBoardMaterial RETURNS LOGICAL 
+	( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given material type, return if the material type is board/paper
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    RETURN CAN-DO(gcBoardMatTypes, ipcMaterialTypeID).
+		
+END FUNCTION.
+
+
+FUNCTION fEstimate_IsGlueMaterial RETURNS LOGICAL 
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given material type, return if the material type is glue
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN CAN-DO(gcGlueMatTypes, ipcMaterialTypeID).
+        
+END FUNCTION.
+
+FUNCTION fEstimate_IsInkMaterial RETURNS LOGICAL 
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given material type, return if the material type is ink
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN CAN-DO(gcInkMatTypes, ipcMaterialTypeID).
+        
+END FUNCTION.
+
+FUNCTION fEstimate_IsLeafMaterial RETURNS LOGICAL 
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given material type, return if the material type is leaf/film
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN CAN-DO(gcLeafMatTypes, ipcMaterialTypeID).
+        
+END FUNCTION.
+
+
+
+FUNCTION fEstimate_IsPackingMaterial RETURNS LOGICAL 
+	( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given material type, return if the material type is packing
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    RETURN CAN-DO(gcPackMatTypes, ipcMaterialTypeID).
+		
 END FUNCTION.
 
 FUNCTION fEstimate_IsSetType RETURNS LOGICAL 
@@ -1126,6 +1178,26 @@ FUNCTION fEstimate_IsSingleType RETURNS LOGICAL
     ------------------------------------------------------------------------------*/    
     RETURN ipcEstType EQ gcTypeSingle.
     
+END FUNCTION.
+
+FUNCTION fEstimate_IsWaxMaterial RETURNS LOGICAL 
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given material type, return if the material type is wax
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN CAN-DO(gcWaxMatTypes, ipcMaterialTypeID).
+        
+END FUNCTION.
+
+FUNCTION fEstimate_IsWindowMaterial RETURNS LOGICAL 
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given material type, return if the material type is window
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN CAN-DO(gcWindowMatTypes, ipcMaterialTypeID).
+        
 END FUNCTION.
 
 FUNCTION fEstimate_IsWoodType RETURNS LOGICAL 

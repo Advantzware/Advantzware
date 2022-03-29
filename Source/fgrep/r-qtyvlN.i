@@ -201,7 +201,7 @@ FOR EACH tt-cust,
                     IF xbin.job-no = "" AND xbin.job-no2 = 0 THEN
                           v-job = "".
                        ELSE
-                          v-job = xbin.job-no + "-" + string(xbin.job-no2).
+                          v-job = xbin.job-no + "-" + string(xbin.job-no2,"999").
 
                      FIND FIRST oe-ordl
                          WHERE oe-ordl.company EQ cocode

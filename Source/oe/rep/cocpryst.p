@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/cocpryst.p 07/06 YSK */
-/* Print Xprint COC (Certificate of Compliance)                                */
+/* Print Xprint COC (Certificate of Compliance)                               */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i SHARED}
@@ -19,7 +20,7 @@ DEFINE VARIABLE v-price             AS   INTEGER FORMAT ">>>>>>>>".
 DEFINE VARIABLE v-tot-price         AS   INTEGER FORMAT ">>>>>>>>>>".
 DEFINE VARIABLE v-dscr              AS   CHARACTER FORMAT "x(30)".
 DEFINE VARIABLE v-ord-bol           AS   CHARACTER FORMAT "x(15)".
-DEFINE VARIABLE v-ord-no            AS   INTEGER  FORMAT ">>>>>>>".
+DEFINE VARIABLE v-ord-no            AS   INTEGER  FORMAT ">>>>>>>9".
 DEFINE VARIABLE v-ord-date          LIKE oe-ord.ord-date.
 DEFINE VARIABLE v-part-qty          AS   DECIMAL.
 DEFINE VARIABLE v-po-no             LIKE oe-bolh.po-no EXTENT 2.
@@ -213,7 +214,7 @@ FOR EACH report   NO-LOCK WHERE report.term-id EQ v-term-id,
      v-terms    = ""
      v-price    = 0
      v-tot-price  = 0 
-     v-ord-bol  = TRIM(STRING(oe-bolh.ord-no,">>>>>9")) + " / " +
+     v-ord-bol  = TRIM(STRING(oe-bolh.ord-no,">>>>>>>9")) + " / " +
                   TRIM(STRING(oe-bolh.bol-no,">>>>>>9"))
      v-ord-date = oe-bolh.bol-date
      cases      = 0   

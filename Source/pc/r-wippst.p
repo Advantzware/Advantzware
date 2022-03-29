@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -128,62 +129,62 @@ DEFINE BUTTON btn-ok
 DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
     LABEL "Beginning Date" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY .95 NO-UNDO.
+    SIZE 20.4 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_loc      AS CHARACTER FORMAT "X(6)" 
     LABEL "Beginning Warehouse" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+    SIZE 20.4 BY 1.
 
 DEFINE VARIABLE begin_mach     AS CHARACTER FORMAT "X(5)" 
     LABEL "Beginning Machine#" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+    SIZE 20.4 BY 1.
 
 DEFINE VARIABLE begin_shift    AS INTEGER   FORMAT ">>" INITIAL 1 
     LABEL "Beginning Shift" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+    SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
     LABEL "Ending Date" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+    SIZE 20.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_loc        AS CHARACTER FORMAT "X(5)" INITIAL "zzzzz" 
     LABEL "Ending Warehouse" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+    SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_mach       AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
     LABEL "Ending Machine#" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+    SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_shift      AS INTEGER   FORMAT ">>" INITIAL 99 
     LABEL "Ending Shift" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+    SIZE 20.4 BY 1.
 
 DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\TransferWIPtoJobCost.csv" 
     LABEL "Name" 
@@ -262,32 +263,32 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    begin_date AT ROW 2.67 COL 28.8 COLON-ALIGNED HELP
+    begin_date AT ROW 2.67 COL 26.8 COLON-ALIGNED HELP
     "Enter Beginning Date"
-    end_date AT ROW 2.67 COL 69.8 COLON-ALIGNED HELP
+    end_date AT ROW 2.67 COL 68 COLON-ALIGNED HELP
     "Enter Ending Date"
-    begin_mach AT ROW 3.62 COL 28.8 COLON-ALIGNED HELP
+    begin_mach AT ROW 3.62 COL 26.8 COLON-ALIGNED HELP
     "Enter Beginning Machine Number"
-    end_mach AT ROW 3.62 COL 69.8 COLON-ALIGNED HELP
+    end_mach AT ROW 3.62 COL 68 COLON-ALIGNED HELP
     "Enter Ending Machine Number"
-    begin_job-no AT ROW 4.57 COL 28.8 COLON-ALIGNED HELP
+    begin_job-no AT ROW 4.57 COL 26.8 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    begin_job-no2 AT ROW 4.57 COL 40.8 COLON-ALIGNED HELP
+    begin_job-no2 AT ROW 4.57 COL 41.8 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    end_job-no AT ROW 4.57 COL 69.8 COLON-ALIGNED HELP
+    end_job-no AT ROW 4.57 COL 68 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    end_job-no2 AT ROW 4.57 COL 81.8 COLON-ALIGNED HELP
+    end_job-no2 AT ROW 4.57 COL 83 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    begin_shift AT ROW 5.52 COL 28.8 COLON-ALIGNED HELP
+    begin_shift AT ROW 5.52 COL 26.8 COLON-ALIGNED HELP
     "Enter Beginning Machine Number"
-    end_shift AT ROW 5.52 COL 69.8 COLON-ALIGNED HELP
+    end_shift AT ROW 5.52 COL 68 COLON-ALIGNED HELP
     "Enter Beginning Machine Number"
-    begin_loc AT ROW 6.48 COL 28.8 COLON-ALIGNED HELP
+    begin_loc AT ROW 6.48 COL 26.8 COLON-ALIGNED HELP
     "Enter Beginning Machine Number" WIDGET-ID 8
-    end_loc AT ROW 6.48 COL 69.8 COLON-ALIGNED HELP
+    end_loc AT ROW 6.48 COL 68 COLON-ALIGNED HELP
     "Enter Ending Machine Number" WIDGET-ID 10
-    tb_tot-hrs AT ROW 8.48 COL 30.8
-    tb_pg-brk AT ROW 9.67 COL 64.8 RIGHT-ALIGNED
+    tb_tot-hrs AT ROW 8.48 COL 28.8
+    tb_pg-brk AT ROW 9.67 COL 62.8 RIGHT-ALIGNED
     lv-ornt AT ROW 12.1 COL 31 NO-LABELS
     lines-per-page AT ROW 12.1 COL 84 COLON-ALIGNED
     rd-dest AT ROW 12.17 COL 5.4 NO-LABELS
@@ -2641,7 +2642,7 @@ PROCEDURE run-report :
         SPACE(0)
         pc-prdd.shift COLUMN-LABEL "SH" FORMAT ">>"
         pc-prdd.job-no COLUMN-LABEL "  JOB #" SPACE(0) "-" SPACE(0)
-        pc-prdd.job-no2 NO-LABELS FORMAT "99"
+        pc-prdd.job-no2 NO-LABELS FORMAT "999"
         pc-prdd.frm COLUMN-LABEL " S" SPACE(0) "/" SPACE(0)
         pc-prdd.blank-no COLUMN-LABEL "/B"
         pc-prdd.pass COLUMN-LABEL "P"
@@ -2655,16 +2656,16 @@ PROCEDURE run-report :
         pc-prdd.qty FORMAT "->>>>>>>9" COLUMN-LABEL "RUN QTY"
         pc-prdd.waste FORMAT "->>>>9" COLUMN-LABEL "WASTE"
         v-comp COLUMN-LABEL "C"
-        WITH FRAME mch-edit NO-BOX DOWN STREAM-IO WIDTH 136.
+        WITH FRAME mch-edit NO-BOX DOWN STREAM-IO WIDTH 142.
 
     FORM v-disp-actnum  LABEL "G/L ACCOUNT NUMBER"
         v-dscr         LABEL "DESCRIPTION"
-        v-disp-job     LABEL "Job#" FORMAT "x(9)"
+        v-disp-job     LABEL "Job#" FORMAT "x(13)"
         v-dscr         LABEL "DESCRIPTION"
         udate          LABEL "DATE"   
         v-disp-amt     LABEL "AMOUNT" SKIP
 
-        WITH DOWN STREAM-IO WIDTH 130 FRAME gldetail.
+        WITH DOWN STREAM-IO WIDTH 136 FRAME gldetail.
 
 
     ASSIGN
@@ -2674,10 +2675,8 @@ PROCEDURE run-report :
         v-m-code[2]   = end_mach
         v-date[1]     = begin_date
         v-date[2]     = end_date
-        v-job-no[1]   = FILL(" ",6 - length(TRIM(begin_job-no))) +
-                 trim(begin_job-no) + string(int(begin_job-no2),"99")
-        v-job-no[2]   = FILL(" ",6 - length(TRIM(end_job-no)))   +
-                 trim(end_job-no)   + string(int(end_job-no2),"99")
+        v-job-no[1]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+        v-job-no[2]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
         v-shift[1]    = begin_shift
         v-shift[2]    = end_shift
         v-toth        = tb_tot-hrs
@@ -2693,7 +2692,7 @@ PROCEDURE run-report :
     DO:                                    
         OUTPUT STREAM excel TO VALUE(cFileName).                        /*Task# 02101407*/                  
         excelheader = "MACH,DESCRIPT,DP,DATE,SH,JOB #,"
-            + "S,B,P,ITEM #,ITEM DESCRIPTION,CODE,"
+            + "F,B,P,ITEM #,ITEM DESCRIPTION,CODE,"
             + "HOURS,START,STOP,CR,RUN QTY,WASTE,C".
         PUT STREAM excel UNFORMATTED 
             '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -2710,17 +2709,15 @@ PROCEDURE run-report :
         AND pc-prdd.op-date GE v-date[1]
         AND pc-prdd.op-date LE v-date[2]
         AND pc-prdd.shift   GE v-shift[1]
-        AND pc-prdd.shift   LE v-shift[2]
-        AND TRIM(pc-prdd.job-no)  GE TRIM(substr(v-job-no[1],1,6))
-        AND TRIM(pc-prdd.job-no)  GE trim(begin_job-no)
-        AND TRIM(pc-prdd.job-no)  LE TRIM(substr(v-job-no[2],1,6))
+        AND pc-prdd.shift   LE v-shift[2]         
+        AND TRIM(pc-prdd.job-no)  GE trim(begin_job-no)         
         AND TRIM(pc-prdd.job-no)  LE trim(end_job-no)
-        AND fill(" ",6 - length(TRIM(pc-prdd.job-no))) +
-        trim(pc-prdd.job-no) + string(int(pc-prdd.job-no2),"99")
+        AND fill(" ",9 - length(TRIM(pc-prdd.job-no))) +
+        trim(pc-prdd.job-no) + string(int(pc-prdd.job-no2),"999")
         GE v-job-no[1]
-        AND fill(" ",6 - length(TRIM(pc-prdd.job-no))) +
-        trim(pc-prdd.job-no) + string(int(pc-prdd.job-no2),"99")
-        LE v-job-no[2]
+        AND fill(" ",9 - length(TRIM(pc-prdd.job-no))) +
+        trim(pc-prdd.job-no) + string(int(pc-prdd.job-no2),"999")
+        LE v-job-no[2]   
         AND ((pc-prdd.stopp - pc-prdd.start
         NE 0) OR
         (pc-prdd.qty   NE 0) OR
@@ -2737,7 +2734,7 @@ PROCEDURE run-report :
         FIRST job
         WHERE job.company EQ cocode
         AND job.job     EQ pc-prdd.job
-        AND job.job-no  EQ pc-prdd.job-no
+        AND trim(job.job-no)  EQ trim(pc-prdd.job-no)
         AND job.job-no2 EQ pc-prdd.job-no2
         NO-LOCK:
 
@@ -2892,7 +2889,7 @@ PROCEDURE run-report :
                 v-dscr        = IF AVAILABLE account THEN account.dscr
                    ELSE "ACCOUNT NOT FOUND - " + work-gl.actnum
                 v-disp-actnum = work-gl.actnum
-                v-disp-job    = TRIM(work-gl.job-no) + "-" + STRING(work-gl.job-no2,"99")
+                v-disp-job    = TRIM(work-gl.job-no) + "-" + STRING(work-gl.job-no2,"999")
                 v-disp-amt    = work-gl.debits - work-gl.credits.
 
             DISPLAY v-disp-actnum v-dscr v-disp-job udate v-disp-amt

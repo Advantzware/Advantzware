@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -73,23 +74,23 @@ DEFINE BUTTON btn-process
      LABEL "&Start Process" 
      SIZE 18 BY 1.14.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 15 BY 1 NO-UNDO.
+     SIZE 15.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_days AS INTEGER FORMAT ">>,>>>":U INITIAL 99999 
      LABEL "Days Past Due Date?" 
@@ -370,23 +371,22 @@ DISABLE TRIGGERS FOR LOAD OF itemfg.
 SESSION:SET-WAIT-STATE("General").
 
 ASSIGN
- begin_job-no = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-                TRIM(begin_job-no) + STRING(begin_job-no2,"99")
- end_job-no   = FILL(" ",6 - LENGTH(TRIM(end_job-no))) +
-                TRIM(end_job-no) + STRING(end_job-no2,"99")
+ begin_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+ end_job-no   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
  close_date = TODAY.
 
 FOR EACH job
     WHERE job.company                               EQ cocode
-      AND job.opened                                EQ YES
-      AND job.job-no                                GE SUBSTR(begin_job-no,1,6)
-      AND job.job-no                                LE SUBSTR(end_job-no,1,6)
-      AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
+      AND job.opened                                EQ YES       
+      AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
           TRIM(job.job-no) +
-          STRING(job.job-no2,"99")                  GE begin_job-no
-      AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
+          STRING(job.job-no2,"999")                  GE begin_job-no
+      AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
           TRIM(job.job-no) +
-          STRING(job.job-no2,"99")                  LE end_job-no
+          STRING(job.job-no2,"999")                  LE end_job-no
+      AND job.job-no2 GE int(begin_job-no2)
+      AND job.job-no2 LE int(end_job-no2)     
+          
       AND job.due-date LE TODAY - fi_days
       AND job.due-date NE ?,
 
@@ -399,7 +399,7 @@ FOR EACH job
     TRANSACTION:
 
   STATUS DEFAULT "Job Closing: " + TRIM(job.job-no) + "-" +
-                                   STRING(job.job-no2,"99").
+                                   STRING(job.job-no2,"999").
 
   {jc/job-clos.i}
 

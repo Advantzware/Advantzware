@@ -147,10 +147,10 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      job-hdr.job-no FORMAT "x(6)":U
-      job-hdr.job-no2 COLUMN-LABEL "#" FORMAT ">9":U
+      job-hdr.job-no FORMAT "x(9)":U
+      job-hdr.job-no2 COLUMN-LABEL "#" FORMAT ">>9":U
       job-hdr.est-no FORMAT "x(8)":U WIDTH 14
-      job-hdr.ord-no FORMAT ">>>>>9":U
+      job-hdr.ord-no FORMAT ">>>>>>>9":U
       job-hdr.cust-no FORMAT "x(8)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

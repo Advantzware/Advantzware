@@ -63,13 +63,13 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
 ASSIGN 
-    cTextListToSelect  = "RM Item#,Job#,Job2,S,B,Required,Allocated,Job UOM,Allocated2,RM UOM,Width,Length,Due Date"
+    cTextListToSelect  = "RM Item#,Job#,Job2,F,B,Required,Allocated,Job UOM,Allocated2,RM UOM,Width,Length,Due Date"
 
     cFieldListToSelect = "rm-ino,job,job2,s,b,requrd,alloc,job-uom,alloc2,rm-uom,wid,len,due-dt" .
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
-    cTextListToDefault = "RM Item#,Job#,Job2,S,B,Required,Allocated,Job UOM,Allocated2,RM UOM,Width,Length,Due Date" .
+    cTextListToDefault = "RM Item#,Job#,Job2,F,B,Required,Allocated,Job UOM,Allocated2,RM UOM,Width,Length,Due Date" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

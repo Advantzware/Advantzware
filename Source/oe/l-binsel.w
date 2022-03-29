@@ -158,7 +158,7 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table Dialog-Frame _FREEFORM
   QUERY Browser-Table NO-LOCK DISPLAY
       tt-binsel.i-no                            LABEL "FG Item#"    WIDTH 23
-      tt-binsel.job#          FORMAT "x(9)"     LABEL "Job#"        WIDTH 13
+      tt-binsel.job#          FORMAT "x(13)"    LABEL "Job#"        WIDTH 20
       tt-binsel.loc                             LABEL "Whse"        WIDTH 10
       tt-binsel.loc-bin                         LABEL "Bin"         WIDTH 14
       tt-binsel.tag           FORMAT "x(25)"    LABEL "Tag"         WIDTH 32
@@ -510,14 +510,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ASSIGN
          tt-binsel.row-id      = ROWID(fg-bin)
          tt-binsel.job#        = TRIM(fg-bin.job-no) + "-" +
-                                 STRING(fg-bin.job-no2,"99")
+                                 STRING(fg-bin.job-no2,"999")
          tt-binsel.cases       = TRUNC((fg-bin.qty - fg-bin.partial-count) /
                                        fg-bin.case-count,0)
          tt-binsel.cases-out   = tt-binsel.cases
          tt-binsel.partial-out = tt-binsel.partial-count
          tt-binsel.qty-out     = tt-binsel.qty.
 
-        IF TRIM(tt-binsel.job#) EQ "-00" THEN tt-binsel.job# = "".
+        IF TRIM(tt-binsel.job#) EQ "-000" THEN tt-binsel.job# = "".
         END.
         
       END.

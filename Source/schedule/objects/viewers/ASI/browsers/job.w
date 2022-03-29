@@ -158,7 +158,7 @@ DEFINE VARIABLE jobPhrase AS CHARACTER FORMAT "X(6)":U
      SIZE 14 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 21 BY 7.43.
 
 /* Query definitions                                                    */
@@ -171,9 +171,9 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      job.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U WIDTH 9
-      job.job-no2 COLUMN-LABEL "#" FORMAT ">9":U WIDTH 3
-      job.est-no COLUMN-LABEL "Estimate" FORMAT "x(8)":U
+      job.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U WIDTH 10
+      job.job-no2 COLUMN-LABEL "#" FORMAT ">>9":U WIDTH 4
+      job.est-no COLUMN-LABEL "Estimate" FORMAT "x(8)":U WIDTH 9
       job.stat COLUMN-LABEL "Status" FORMAT "x":U
       job.opened COLUMN-LABEL "Status" FORMAT "Open/Closed":U WIDTH 7
       job.complete-date COLUMN-LABEL "Completed" FORMAT "99.99.9999":U
@@ -248,7 +248,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB br_table 1 F-Main */
+/* BROWSE-TAB br_table RECT-6 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -271,21 +271,21 @@ AND job.job-no GT ''
 AND (job.job-no BEGINS jobPhrase
 OR jobPhrase EQ '')"
      _FldNameList[1]   > asi.job.job-no
-"job.job-no" "Job" ? "character" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" ""
+"job.job-no" "Job" "x(9)" "character" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.job.job-no2
-"job.job-no2" "#" ? "integer" ? ? ? ? ? ? no ? no no "3" yes no no "U" "" ""
+"job.job-no2" "#" ">>9" "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.job.est-no
-"job.est-no" "Estimate" "x(8)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"job.est-no" "Estimate" "x(8)" "character" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.job.stat
-"job.stat" "Status" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"job.stat" "Status" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.job.opened
-"job.opened" "Status" ? "logical" ? ? ? ? ? ? no ? no no "7" yes no no "U" "" ""
+"job.opened" "Status" ? "logical" ? ? ? ? ? ? no ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.job.complete-date
-"job.complete-date" "Completed" "99.99.9999" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"job.complete-date" "Completed" "99.99.9999" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.job.cancel-date
-"job.cancel-date" "Canceled" "99.99.9999" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"job.cancel-date" "Canceled" "99.99.9999" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.job.close-date
-"job.close-date" "Closed" "99.99.9999" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"job.close-date" "Closed" "99.99.9999" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME

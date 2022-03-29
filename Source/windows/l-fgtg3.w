@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -148,8 +150,8 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      oe-boll.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U
-      oe-boll.job-no2 COLUMN-LABEL "#" FORMAT ">9":U
+      oe-boll.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U
+      oe-boll.job-no2 COLUMN-LABEL "#" FORMAT ">>9":U
       oe-boll.loc FORMAT "x(5)":U
       oe-boll.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       oe-boll.tag COLUMN-LABEL "Tag#" FORMAT "x(22)":U

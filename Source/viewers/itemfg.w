@@ -1720,7 +1720,7 @@ PROCEDURE enable-itemfg-field :
             itemfg.style-desc itemfg.setupDate iCount cSourceEstimate
             fi_type-dscr itemfg.setupBy itemfg.modifiedBy itemfg.modifiedDate .
 
-        IF itemfg.trNo NE "" THEN
+        IF AVAIL itemfg AND itemfg.trNo NE "" THEN
             DISABLE itemfg.trNo .
 
         IF NOT adm-new-record THEN 

@@ -12,8 +12,8 @@ DEFINE INPUT PARAMETER v-format LIKE sys-ctrl.char-fld.
 
 DEFINE NEW SHARED VARIABLE save_id AS RECID.
 DEFINE NEW SHARED VARIABLE v-today AS DATE INITIAL TODAY.
-DEFINE NEW SHARED VARIABLE v-job AS CHARACTER FORMAT "x(6)" EXTENT 2 INITIAL [" ","zzzzzz"].
-DEFINE NEW SHARED VARIABLE v-job2 AS INTEGER FORMAT "99" EXTENT 2 INITIAL [00,99].
+DEFINE NEW SHARED VARIABLE v-job AS CHARACTER FORMAT "x(9)" EXTENT 2 INITIAL [" ","zzzzzzzzz"].
+DEFINE NEW SHARED VARIABLE v-job2 AS INTEGER FORMAT "999" EXTENT 2 INITIAL [000,999].
 DEFINE NEW SHARED VARIABLE v-stypart LIKE style.dscr.
 DEFINE NEW SHARED VARIABLE v-dsc LIKE oe-ordl.part-dscr1 EXTENT 2.
 DEFINE NEW SHARED VARIABLE v-size AS CHARACTER FORMAT "x(26)" EXTENT 2.
@@ -258,7 +258,7 @@ cDraftImageFull = IF lDraft
 
 FORMAT HEADER
         cDraftImageFull FORMAT "x(200)" SKIP 
-       "<C1><R2>JOB NUMBER:<B>" v-job-no SPACE(0) "-" SPACE(0) v-job-no2 FORMAT "99" "</B>" SPACE(1)
+       "<C1><R2>JOB NUMBER:<B>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)" "</B>" SPACE(1)
        "CSR:" v-pricnt-id
        "<B><P12>F A C T O R Y  T I C K E T</B><P10>" AT 54  "JOB START DATE:" AT 124 v-start-date SKIP
        v-fill
@@ -282,14 +282,14 @@ ASSIGN
 
 FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company               EQ cocode
-          AND job-hdr.job-no                GE SUBSTRING(fjob-no,1,6)
-          AND job-hdr.job-no                LE SUBSTRING(tjob-no,1,6)
-          AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-              TRIM(job-hdr.job-no) +
-              STRING(job-hdr.job-no2,"99")  GE fjob-no
-          AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-              TRIM(job-hdr.job-no) +
-              STRING(job-hdr.job-no2,"99")  LE tjob-no
+          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  GE fjob-no
+	  AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  LE tjob-no
+	  AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2
           AND (production OR
                job-hdr.ftick-prnt           EQ v-reprint OR
                PROGRAM-NAME(2) MATCHES "*r-tickt2*")
@@ -556,7 +556,7 @@ FOR EACH job-hdr NO-LOCK
                v-job-qty = v-job-qty + xjob-hdr.qty.
            END.
 
-        cBarCode = TRIM(v-job-no) + "-" + STRING(v-job-no2,"99").
+        cBarCode = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
         PUT "<AT=-.5,6.3><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cBarCode FORMAT "X(11)" ">"
             "<C1><R4><B>Customer Name:</B>" v-cust-name  "Code: " job-hdr.cust-no
             "   <B>    REL.DATE:    QTY DUE:     PO#:           Print Date:" SKIP                       
@@ -920,8 +920,8 @@ FOR EACH job-hdr NO-LOCK
           ELSE v-cas-wt = 0.
 
             
-           DISPLAY v-job-no + "-" + TRIM(STRING(eb.form-no,">>9")) + 
-                    trim(STRING(eb.blank-no,">>9")) FORMAT "x(11)" 
+           DISPLAY  TRIM(v-job-no) + "-" + TRIM(STRING(eb.form-no,">>9")) + 
+                    trim(STRING(eb.blank-no,">>9")) FORMAT "x(16)" 
                     eb.stock-no @ job-hdr.i-no 
                     (IF AVAILABLE oe-ordl  THEN oe-ordl.part-no ELSE IF AVAILABLE itemfg THEN itemfg.part-no ELSE "") FORMAT "x(15)"   
                     (IF eb.plate-no NE "" THEN eb.plate-no  ELSE IF AVAILABLE itemfg THEN itemfg.plate-no ELSE "" ) FORMAT "x(15)"
@@ -1343,8 +1343,8 @@ FOR EACH job-hdr NO-LOCK
                                est-op.company EQ job-hdr.company AND
                                est-op.est-no EQ est.est-no AND
                                est-op.dept = "SW").
-          PUT v-job-no + "-" + trim(STRING(bff-eb.form-no,">>9")) + 
-                    trim(STRING(bff-eb.blank-no,">>9")) FORM "x(11)"
+          PUT TRIM(v-job-no) + "-" + trim(STRING(bff-eb.form-no,">>9")) + 
+              trim(STRING(bff-eb.blank-no,">>9")) FORM "x(16)"
 
               bff-eb.layer-pad  AT 18 /* tray */
               ( IF v-lp-qty GT 0 THEN eb.cas-cnt / v-lp-qty ELSE 0) FORMAT "->>>>>9.99"  AT 36
@@ -1812,11 +1812,11 @@ ELSE  DO:
                "<U>LABEL ITEM" + TRIM(STRING(j - 1)) + "</U>" FORMAT "x(20)" WHEN v-fgitm[2] <> "" AT 55
                "<U>LABEL ITEM" + TRIM(STRING(j)) + "</U></B>" FORMAT "x(23)" WHEN v-fgitm[3] <> "" AT 107
                SKIP
-               "Job#:" v-job-no + "-" + STRING(v-job-no2)
+               "Job#:" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)"
                "Job#:" WHEN v-fgitm[2] <> ""  AT 45
-                v-job-no + "-" + STRING(v-job-no2)   WHEN v-fgitm[2] <> "" 
+                TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)"   WHEN v-fgitm[2] <> "" 
                "Job#:" WHEN v-fgitm[3] <> "" AT 90  
-               v-job-no + "-" + STRING(v-job-no2) WHEN v-fgitm[3] <> "" 
+                TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)" WHEN v-fgitm[3] <> "" 
                SKIP
                "Customer:" v-cust-name 
                "Customer:"  WHEN v-fgitm[2] <> ""  AT 45 v-cust-name2  WHEN v-fgitm[2] <> "" 
@@ -1900,11 +1900,11 @@ ELSE  DO:
                "<U>LABEL ITEM" + TRIM(STRING(v-last-j + 2)) + "</U>" FORMAT "x(20)" WHEN v-fgitm[2] <> "" AT 55
                "<U>LABEL ITEM" + TRIM(STRING(v-last-j + 3)) + "</U></B>" FORMAT "x(23)" WHEN v-fgitm[3] <> "" AT 107
                SKIP
-               "Job#:" v-job-no + "-" + STRING(v-job-no2)
+               "Job#:" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)"
                "Job#:" WHEN v-fgitm[2] <> ""  AT 45
-                v-job-no + "-" + STRING(v-job-no2) WHEN v-fgitm[2] <> "" 
+                TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)" WHEN v-fgitm[2] <> "" 
                "Job#:" WHEN v-fgitm[3] <> "" AT 90  
-               v-job-no + "-" + STRING(v-job-no2) WHEN v-fgitm[3] <> "" 
+                TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)" WHEN v-fgitm[3] <> "" 
                SKIP
                "Customer:" v-cust-name 
                "Customer:"  WHEN v-fgitm[2] <> ""  AT 45 v-cust-name2  WHEN v-fgitm[2] <> "" 

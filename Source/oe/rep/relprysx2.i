@@ -1,4 +1,5 @@
 /* oe/rep/relprysx2.i */   
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No. */
 
    PUT "<FArial>" SKIP
        "<P14><C35><B>Pick Ticket</B> " SKIP
@@ -46,14 +47,17 @@
          "<FArial><=4><R+1>    Delivery Zone             Weight                    FOB                           Ship Via                                        Freight Terms" SKIP
          "<FCourier New><=4><R+3> " v-zone space(10) v-weight space(10) oe-ord.fob-code SPACE(5) v-carrier space(10) v-frt-terms   SKIP
          "<|10><R24><C1><#5><FROM><R26><C79.5><RECT>" SKIP    
-         "<R24><C7><FROM><R26><C7><LINE>" SKIP
-         "<R24><C27><FROM><R26><C27><LINE>" SKIP
-         "<R24><C53><FROM><R26><C53><LINE>" SKIP 
+         "<R24><C7.5><FROM><R26><C7.5><LINE>" SKIP
+         "<R24><C29><FROM><R26><C29><LINE>" SKIP
+         "<R24><C53.5><FROM><R26><C53.5><LINE>" SKIP 
          "<R24><C59><FROM><R26><C59><LINE>" SKIP 
          "<R24><C65><FROM><R26><C65><LINE>" SKIP   
          "<R24><C70><FROM><R26><C70><LINE>" SKIP
          "<FArial><=5><C65.8>Case<C71>EA Qty/UOM" SKIP
-         "<=5><R+1> Order# <C10>Item / Desc / RFQ #<C28>TAG / Whs / Bin <C53.5>Skids<C59.5>Cases<C65.8>Count<C70.5>Ord Qty/UOM" SKIP(1)
+         "<=5><R+1>   Order#
+               <C7>   Item / Desc / RFQ #
+              <C29>   TAG / Whs / Bin 
+              <C54>   Skids<C60>Cases<C65.8>Count<C70.5>Ord Qty/UOM" SKIP(1)
          "<FCourier New>".
       v-printline = v-printline + 16.
 

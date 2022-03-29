@@ -260,9 +260,7 @@ find first company where company.company eq cocode NO-LOCK.
         END.*/
 
             find first job where job.company eq cocode 
-                             and job.job-no eq string(fill(" ",6 - length(
-                                                trim(po-ordl.job-no)))) +
-                                                trim(po-ordl.job-no) 
+                             and trim(job.job-no) eq trim(po-ordl.job-no) 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
 
@@ -351,7 +349,7 @@ find first company where company.company eq cocode NO-LOCK.
 
         RUN GetOperation IN hdJobProcs (cocode, po-ordl.job-no, INTEGER(po-ordl.job-no2),INTEGER(po-ordl.s-num),"Internal", INPUT-OUTPUT cMachCode).
 
-        v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") +
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))) +
                    (IF po-ordl.s-num NE ? THEN "-" + string(po-ordl.s-num,"99")
                     ELSE "").
 
@@ -383,8 +381,8 @@ find first company where company.company eq cocode NO-LOCK.
             po-ordl.ord-qty SPACE(2)
             po-ordl.pr-qty-uom SPACE(1)
             po-ordl.i-name FORMAT "x(30)"
-            SPACE(5)
-            v-job-no FORM "x(12)"  /*AT 75*/ SPACE(1)
+            SPACE(2)
+            v-job-no FORM "x(16)"  /*AT 75*/ SPACE(1)
             po-ordl.cost FORM "->>>9.99<<" SPACE(1)
             po-ordl.pr-uom FORM "x(3)"
             po-ordl.t-cost FORM "->>>>,>>9.99"  
@@ -393,10 +391,10 @@ find first company where company.company eq cocode NO-LOCK.
             PUT po-ordl.LINE FORM ">>9"
                 po-ordl.ord-qty SPACE(2)
                 po-ordl.pr-qty-uom SPACE(1)
-                po-ordl.i-name FORMAT "x(20)"
+                po-ordl.i-name FORMAT "x(16)"
                 SPACE(1)
                 v-adder[1] SPACE(1)
-                v-job-no FORM "x(12)" /*SPACE(1)*/
+                v-job-no FORM "x(16)" /*SPACE(1)*/
                 po-ordl.cost FORM "->>>9.99<<" SPACE(1)
                 po-ordl.pr-uom
                 po-ordl.t-cost FORM "->>,>>9.99"  

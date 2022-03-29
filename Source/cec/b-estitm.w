@@ -2867,7 +2867,7 @@ PROCEDURE calc-layout :
        xeb.num-len  = 1.
 
         IF lCEUseNewLayoutCalc THEN
-            RUN Estimate_UpdateEfFormLayoutSizeOnly (BUFFER xef, BUFFER xeb).
+            RUN pCalcDimensions.
         ELSE
             RUN cec/calc-dim1.p NO-ERROR.
 
@@ -3376,7 +3376,8 @@ PROCEDURE copy-line :
   IF ls-add-what EQ "form" THEN
     RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT lv-rowid).
   ELSE
-    RUN cec/newblank.p (ROWID(ef), OUTPUT lv-rowid).
+/*    RUN cec/newblank.p (ROWID(ef), OUTPUT lv-rowid).*/
+    RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT lv-rowid).
 
   FIND eb WHERE ROWID(eb) EQ lv-rowid NO-LOCK NO-ERROR.
   lv-eb-recid = RECID(eb).
@@ -4023,7 +4024,8 @@ PROCEDURE createESTfromArtios :
             FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid NO-LOCK NO-ERROR.
             FIND FIRST ef OF eb NO-LOCK NO-ERROR.
  
-            RUN cec/newblank.p (ROWID(ef), OUTPUT lv-crt-est-rowid).
+            /*            RUN cec/newblank.p (ROWID(ef), OUTPUT lv-crt-est-rowid).*/
+            RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT lv-crt-est-rowid).
             
         END.
      END.
@@ -4283,8 +4285,8 @@ PROCEDURE createEstFromImpact :
             FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid NO-LOCK NO-ERROR.
             FIND FIRST ef OF eb NO-LOCK NO-ERROR.
  
-            RUN cec/newblank.p (ROWID(ef), OUTPUT lv-crt-est-rowid).
-            
+            /*            RUN cec/newblank.p (ROWID(ef), OUTPUT lv-crt-est-rowid).*/
+            RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT lv-crt-est-rowid).        
         END.
      END.
      
@@ -4574,7 +4576,8 @@ PROCEDURE crt-new-set :
   IF ls-add-what EQ "form" THEN
      RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT lv-rowid).
   ELSE
-     RUN cec/newblank.p (ROWID(ef), OUTPUT lv-rowid).
+/*     RUN cec/newblank.p (ROWID(ef), OUTPUT lv-rowid).*/
+    RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT lv-rowid).
 
   IF ll-add-set-part-2 THEN
   DO:
@@ -7228,7 +7231,17 @@ PROCEDURE pCreateSetEstimate :
             bf-eb.est-no  = bff-eb.est-no 
             bf-eb.form-no = 0
             bf-eb.company = cocode
-            bf-eb.cust-no = bff-eb.cust-no.
+            bf-eb.cust-no = bff-eb.cust-no. 
+            IF NOT CAN-FIND(FIRST itemfg
+                   WHERE itemfg.company EQ bf-eb.company
+                     AND itemfg.i-no    EQ bf-eb.stock-no) THEN DO:  
+               FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(bf-eb) NO-LOCK NO-ERROR.
+               FIND FIRST xest NO-LOCK 
+                    WHERE xest.company EQ bf-eb.company
+                      AND xest.est-no EQ bf-eb.est-no NO-ERROR.               
+               RUN fg/ce-addfg.p (xeb.stock-no).
+               RELEASE xeb.
+            END.   
        END.
   END.    
   

@@ -1061,7 +1061,7 @@ assign
      hdr-tit  = "       MACH                        ACTUAL     ACTUAL  " +
                 " DOWNTIME   DOWNTIME      TOTAL   ESTIMATE   ESTIMATE   " +
                 "   TOTAL      LABOR"
-     hdr-tit2 = "CHARGE           JOB #    S/ B    RUN HRS     MR HRS  " +
+     hdr-tit2 = "CHARGE           JOB #    F/ B    RUN HRS     MR HRS  " +
                 " CHARGED    NOCHARGE  ACT HOURS    RUN HRS   MR HOURS  E" +
                 "ST HOURS   VARIANCE"
      hdr-tit3 = fill("-", 130).
@@ -1140,7 +1140,7 @@ if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
-  excelheader = "CHARGE,MACH,JOB #,S,B,ACTUAL RUN HRS,ACTUAL MR HRS,"
+  excelheader = "CHARGE,MACH,JOB #,F,B,ACTUAL RUN HRS,ACTUAL MR HRS,"
               + "DOWNTIME CHARGED,DOWNTIME NO CHARGE,TOTAL ACT HOURS,"
               + "ESTIMATE RUN HRS,ESTIMATE MR HOURS,TOTAL EST HOURS,"
               + "LABOR VARIANCE".

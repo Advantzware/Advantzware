@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No. 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -45,7 +47,7 @@ def var lv-type-dscr as cha no-undo.
 
 FIND FIRST job
     WHERE job.company EQ ip-company
-      AND job.job-no  EQ ip-job-no
+      AND TRIM(job.job-no)  EQ TRIM(ip-job-no)
       AND job.job-no2 EQ INT(ip-job-no2)
     NO-LOCK NO-ERROR.
 

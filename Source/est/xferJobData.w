@@ -73,7 +73,7 @@ DEFINE VARIABLE opSpoilCol AS LOGICAL NO-UNDO.
 DEFINE VARIABLE mrStdCol AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE ttblEstOp NO-UNDO
-  FIELD s-num LIKE est-op.s-num LABEL 'S'
+  FIELD s-num LIKE est-op.s-num LABEL 'F'
   FIELD d-seq LIKE est-op.d-seq
   FIELD b-num LIKE est-op.b-num LABEL 'B'
   FIELD p-num LIKE est-op.op-pass LABEL 'P'
@@ -356,7 +356,7 @@ DEFINE QUERY ttblEstOp FOR
 DEFINE BROWSE estOpBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS estOpBrowse C-Win _STRUCTURED
   QUERY estOpBrowse NO-LOCK DISPLAY
-      est-op.s-num COLUMN-LABEL "S" FORMAT ">9":U WIDTH 6.2
+      est-op.s-num COLUMN-LABEL "F" FORMAT ">9":U WIDTH 6.2
       est-op.b-num COLUMN-LABEL "B" FORMAT ">9":U WIDTH 2.2
       est-op.op-pass COLUMN-LABEL "P" FORMAT ">9":U
       est-op.m-code COLUMN-LABEL "Machine" FORMAT "x(10)":U
@@ -573,7 +573,7 @@ THEN C-Win:HIDDEN = no.
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Where[1]         = "{&estOpWhere}"
      _FldNameList[1]   > asi.est-op.s-num
-"est-op.s-num" "S" ? "integer" ? ? ? ? ? ? no ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"est-op.s-num" "F" ? "integer" ? ? ? ? ? ? no ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.est-op.b-num
 "est-op.b-num" "B" ? "integer" ? ? ? ? ? ? no ? no no "2.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.est-op.op-pass

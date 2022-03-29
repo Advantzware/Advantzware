@@ -25,7 +25,7 @@ def var v-saddr like shipto.ship-addr.
 def var v-scity like shipto.ship-city.
 def var v-sstate like shipto.ship-state.
 def var v-szip like shipto.ship-zip.
-def var v-job as char format "x(9)".
+def var v-job as char format "x(13)".
 def var v-po-tot like po-ord.t-cost.
 def var v-sqft as dec.
 def var v-tot-sqft as dec.
@@ -50,7 +50,7 @@ form po-ordl.line
      po-ordl.ord-qty        to 10   format "->>>,>>9"
      po-ordl.i-no           at 15
      v-adder[1]                    at 31   format "x(10)"
-     v-job                  at 45
+     v-job                  at 41
      po-ordl.cost            to 65   format ">>,>>9.999"
      po-ordl.pr-uom            to 70
      po-ordl.t-cost         to 80   format ">>,>>9.99"
@@ -191,8 +191,7 @@ find first po-ctrl where po-ctrl.company eq cocode no-lock.
 
         assign
          v-print-lines = 6
-         v-job         = fill(" ",6 - length(trim(po-ordl.job-no))) +
-                         trim(po-ordl.job-no)
+         v-job         = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no))
          v-adder[1]    = ""
          v-adder[2]    = ""
          xg-flag       = no.
@@ -224,7 +223,7 @@ find first po-ctrl where po-ctrl.company eq cocode no-lock.
         if v-job ne "" then
           find last oe-ordl
               where oe-ordl.company eq cocode
-                and oe-ordl.job-no  eq v-job
+                and trim(oe-ordl.job-no)  eq trim(v-job)
                 and oe-ordl.job-no2 eq po-ordl.job-no2
               use-index job no-lock no-error.
 
@@ -247,7 +246,7 @@ find first po-ctrl where po-ctrl.company eq cocode no-lock.
 
         if (line-counter + v-print-lines) gt page-size then page.
 
-        v-job = trim(v-job) + "-" + trim(string(po-ordl.job-no2,"99")).
+        v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job, po-ordl.job-no2))).
         if trim(v-job) begins "-" then v-job = "".
 
         v-po-tot = v-po-tot + po-ordl.t-cost.
@@ -263,9 +262,7 @@ find first po-ctrl where po-ctrl.company eq cocode no-lock.
              v-len = trunc(po-ordl.s-len,0) + v-len.
 
             FIND FIRST job WHERE job.company = cocode AND
-                                      job.job-no = STRING(FILL(" ",6 - LENGTH(
-                                                  TRIM(po-ordl.job-no)))) +
-                                                  TRIM(po-ordl.job-no) AND
+                                      TRIM(job.job-no) = TRIM(po-ordl.job-no) AND
                                       job.job-no2 = po-ordl.job-no2
                                  NO-LOCK NO-ERROR.
             IF AVAIL job THEN

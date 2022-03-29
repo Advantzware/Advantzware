@@ -21,13 +21,15 @@ DEFINE VARIABLE gcStatusStockReceived      AS CHARACTER NO-UNDO INITIAL "On-Hand
 DEFINE VARIABLE gcStatusStockConsumed      AS CHARACTER NO-UNDO INITIAL "Consumed".
 DEFINE VARIABLE gcStatusStockScanned       AS CHARACTER NO-UNDO INITIAL "Scanned".
 
-DEFINE VARIABLE gcStatusSnapshotNotScanned      AS CHARACTER NO-UNDO INITIAL "Not Scanned".
-DEFINE VARIABLE gcStatusSnapshotNotScannedConf  AS CHARACTER NO-UNDO INITIAL "Not Scanned - Confirmed".
-DEFINE VARIABLE gcStatusSnapshotCompleteMatch   AS CHARACTER NO-UNDO INITIAL "Complete Match".
-DEFINE VARIABLE gcStatusSnapshotLocChange       AS CHARACTER NO-UNDO INITIAL "Location Change".
-DEFINE VARIABLE gcStatusSnapshotQtyChange       AS CHARACTER NO-UNDO INITIAL "Quantity Change".
-DEFINE VARIABLE gcStatusSnapshotQtyAndLocChange AS CHARACTER NO-UNDO INITIAL "Quantity and Location Change".
-DEFINE VARIABLE gcStatusSnapshotTagNotFound     AS CHARACTER NO-UNDO INITIAL "Tag Not Found".
+DEFINE VARIABLE gcStatusSnapshotNotScanned             AS CHARACTER NO-UNDO INITIAL "In Snapshot - Not Scanned".
+DEFINE VARIABLE gcStatusSnapshotNotScannedConf         AS CHARACTER NO-UNDO INITIAL "Not Scanned - Confirmed".
+DEFINE VARIABLE gcStatusSnapshotNotScannedCountingZero AS CHARACTER NO-UNDO INITIAL "Not Scanned - Counting 0".
+DEFINE VARIABLE gcStatusSnapshotCompleteMatch          AS CHARACTER NO-UNDO INITIAL "Confirmed".
+DEFINE VARIABLE gcStatusSnapshotLocChange              AS CHARACTER NO-UNDO INITIAL "Location Mismatch".
+DEFINE VARIABLE gcStatusSnapshotQtyChange              AS CHARACTER NO-UNDO INITIAL "Quantity Mismatch".
+DEFINE VARIABLE gcStatusSnapshotQtyAndLocChange        AS CHARACTER NO-UNDO INITIAL "Quantity and Location Mismatch".
+DEFINE VARIABLE gcStatusSnapshotTagNotOnHand           AS CHARACTER NO-UNDO INITIAL "Tag not on hand".
+DEFINE VARIABLE gcStatusSnapshotTagNotFound            AS CHARACTER NO-UNDO INITIAL "Error - Invalid Loadtag".
 
 DEFINE VARIABLE gcSourceTypeSnapshot       AS CHARACTER NO-UNDO INITIAL "Snapshot".
 

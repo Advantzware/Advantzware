@@ -11,8 +11,8 @@ def input parameter v-format like sys-ctrl.char-fld.
 
 def new shared var save_id as recid.
 def new shared var v-today as date init today.
-def new shared var v-job as char format "x(6)" extent 2 init [" ","zzzzzz"].
-def new shared var v-job2 as int format "99" extent 2 init [00,99].
+def new shared var v-job as char format "x(9)" extent 2 init [" ","zzzzzzzzz"].
+def new shared var v-job2 as int format "999" extent 2 init [000,999].
 def new shared var v-stypart like style.dscr.
 def new shared var v-dsc like oe-ordl.part-dscr1 extent 2.
 def new shared var v-size as char format "x(26)" extent 2.
@@ -159,9 +159,8 @@ format header
        "===========================" at 52 skip(1)
       "[  ] JACKET" at 5 space(10) "[  ] PRODUCTION" space(10) "[  ] PLATE ROOM"
        space(10) "[  ] DIE ROOM" space(10) "[  ] PURCHASING" skip
-       "JOB NUMBER:" v-job-no space(0) "-" space(0)
-       v-job-no2 format "99"
-       space(10) "COMPLETION DATE:" space(10)
+       "JOB NUMBER:" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)"
+       space(6) "COMPLETION DATE:" space(10)
        "BOARD P.O. #:" space(10)  "VENDOR #:"
        "DUE DATE:" at 113 v-due-date skip
        v-fill
@@ -184,34 +183,34 @@ ASSIGN
  v-reprint   = reprint
  v-spec-list = spec-list.
 
-    for each job-hdr NO-LOCK
-        where job-hdr.company               eq cocode
-          and job-hdr.job-no                ge substr(fjob-no,1,6)
-          and job-hdr.job-no                le substr(tjob-no,1,6)
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  ge fjob-no
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  le tjob-no
-          and (job-hdr.ftick-prnt            eq v-reprint OR
+    FOR EACH job-hdr NO-LOCK
+        WHERE job-hdr.company                EQ cocode
+          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+              TRIM(job-hdr.job-no) +
+              STRING(job-hdr.job-no2,"999")  GE fjob-no
+          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+              TRIM(job-hdr.job-no) +
+              STRING(job-hdr.job-no2,"999")  LE tjob-no
+          AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2
+          AND (job-hdr.ftick-prnt            EQ v-reprint OR
                PROGRAM-NAME(2) MATCHES "*r-tickt2*")
-          and can-find(first job where job.company eq cocode
-                                   and job.job     eq job-hdr.job
-                                   and job.job-no  eq job-hdr.job-no
-                                   and job.job-no2 eq job-hdr.job-no2
-                                   and job.stat    ne "H")
-        use-index job-no,
+          AND CAN-FIND(FIRST job WHERE job.company EQ cocode
+                                   AND job.job     EQ job-hdr.job
+                                   AND job.job-no  EQ job-hdr.job-no
+                                   AND job.job-no2 EQ job-hdr.job-no2
+                                   AND job.stat    NE "H")
+        USE-INDEX job-no,
 
-        first est
-        where est.company  eq job-hdr.company
+        FIRST est
+        WHERE est.company  EQ job-hdr.company
           AND est.est-no   EQ job-hdr.est-no
-          and est.est-type le 4  
-        no-lock
+          AND est.est-type LE 4  
+        NO-LOCK
 
-        break by job-hdr.job
-              by job-hdr.job-no
-              by job-hdr.job-no2:
+        BREAK BY job-hdr.job
+              BY job-hdr.job-no
+              BY job-hdr.job-no2:
 
       IF NOT job-hdr.ftick-prnt THEN DO WHILE TRUE:
         li = li + 1.

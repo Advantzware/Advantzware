@@ -1,3 +1,4 @@
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME C-Win
@@ -44,7 +45,7 @@ ASSIGN cTextListToSelect = "Customer,Customer Name,Due Date,Job#,Prep,Code Descr
 
        cFieldListToSelect = "cust,cust-name,due-date,job,prep,code-desc,qty,cost,extended"
 
-       cFieldLength = "8,30,8,9,15,30,10,10,14" 
+       cFieldLength = "8,30,8,13,15,30,10,10,14" 
        cFieldType = "c,c,c,c,c,c,i,i,i"
     .
 
@@ -129,42 +130,42 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_prep AS CHARACTER FORMAT "X(15)":U 
      LABEL "Beginning Prep Code" 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Customer#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_prep AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz" 
      LABEL "Ending Prep Code" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-jobprp.csv" 
      LABEL "Name" 
@@ -175,7 +176,7 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-jobprp.c
 DEFINE VARIABLE from_date AS DATE FORMAT "99/99/9999":U 
      LABEL "Beginning Due Date" 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -194,7 +195,7 @@ DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "10"
 DEFINE VARIABLE to_date AS DATE FORMAT "99/99/9999":U 
      LABEL "Ending Due Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -268,11 +269,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Customer Number" WIDGET-ID 4
      begin_job-no AT ROW 4.52 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 30
-     begin_job-no2 AT ROW 4.52 COL 39 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.52 COL 42 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 32
      end_job-no AT ROW 4.52 COL 68 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 34
-     end_job-no2 AT ROW 4.52 COL 80 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.52 COL 83.3 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 36
      begin_prep AT ROW 5.52 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Order Number" WIDGET-ID 26
@@ -1424,11 +1425,8 @@ assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
 
-  v-fjob        = fill(" ",6 - length(trim(begin_job-no))) +
-                  trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-tjob        = fill(" ",6 - length(trim(end_job-no)))   +
-                  trim(end_job-no)   + string(int(end_job-no2),"99")  
-
+  v-fjob        = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+  v-tjob        = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
   v-fcust       = begin_cust
   v-tcust       = END_cust
   v-fdate       = from_date
@@ -1475,15 +1473,15 @@ SESSION:SET-WAIT-STATE ("general").
 display "" with frame r-top.
 
 IF rsGroupBy BEGINS "Customer" THEN
-for EACH ASI.job-prep WHERE job-prep.company eq cocode
-                    and job-prep.job-no  ge substr(v-fjob,1,6)
-                    and job-prep.job-no  le substr(v-tjob,1,6)
-                    and fill(" ",6 - length(trim(job-PREP.job-no))) +
-                  trim(job-prep.job-no) + string(job-prep.job-no2,"99")
+for EACH ASI.job-prep WHERE job-prep.company eq cocode                      
+                    and fill(" ",9 - length(trim(job-PREP.job-no))) +
+                  trim(job-prep.job-no) + string(job-prep.job-no2,"999")
                               ge v-fjob
-              and fill(" ",6 - length(trim(job-prep.job-no))) +
-                  trim(job-prep.job-no) + string(job-prep.job-no2,"99")
+              and fill(" ",9 - length(trim(job-prep.job-no))) +
+                  trim(job-prep.job-no) + string(job-prep.job-no2,"999")
                               le v-tjob
+                    AND job-prep.job-no2 GE int(begin_job-no2)
+                    AND job-prep.job-no2 LE int(end_job-no2)                
                     /*job-prep.blank-no = job-hdr.blank-no AND*/
                     AND job-prep.CODE GE begin_prep 
                     AND job-prep.CODE LE END_prep NO-LOCK,
@@ -1549,7 +1547,7 @@ for EACH ASI.job-prep WHERE job-prep.company eq cocode
                          WHEN "cust"    THEN cVarValue = string(job-hdr.cust-no,"x(8)") .
                          WHEN "cust-name"   THEN cVarValue = string(cCustomerName,"x(30)").
                          WHEN "due-date"   THEN cVarValue = STRING(job-hdr.due-date,"99/99/99").
-                         WHEN "job"  THEN cVarValue = STRING(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99")) .
+                         WHEN "job"  THEN cVarValue = STRING(job-hdr.job-no + "-" + string(job-hdr.job-no2,"999")) .
                          WHEN "prep"   THEN cVarValue = STRING(job-prep.CODE,"x(15)") .
                          WHEN "code-desc"  THEN cVarValue = STRING(cPrepDscr,"x(30)") .
                          WHEN "qty"   THEN cVarValue = STRING(liQty,">>,>>>,>>9") .
@@ -1588,15 +1586,15 @@ for EACH ASI.job-prep WHERE job-prep.company eq cocode
 END.
 
 ELSE /* prep code */
-    for EACH ASI.job-prep WHERE job-prep.company eq cocode
-                        and job-prep.job-no  ge substr(v-fjob,1,6)
-                        and job-prep.job-no  le substr(v-tjob,1,6)
+    for EACH ASI.job-prep WHERE job-prep.company eq cocode                          
                         and fill(" ",6 - length(trim(job-PREP.job-no))) +
                       trim(job-prep.job-no) + string(job-prep.job-no2,"99")
                                   ge v-fjob
                   and fill(" ",6 - length(trim(job-prep.job-no))) +
                       trim(job-prep.job-no) + string(job-prep.job-no2,"99")
                                   le v-tjob
+                         AND job-prep.job-no2 GE int(begin_job-no2)
+                         AND job-prep.job-no2 LE int(end_job-no2)          
                         /*job-prep.blank-no = job-hdr.blank-no AND*/
                         AND job-prep.CODE GE begin_prep 
                         AND job-prep.CODE LE END_prep NO-LOCK,
@@ -1660,7 +1658,7 @@ ELSE /* prep code */
                          WHEN "cust"    THEN cVarValue = string(job-hdr.cust-no,"x(8)") .
                          WHEN "cust-name"   THEN cVarValue = string(cCustomerName,"x(30)").
                          WHEN "due-date"   THEN cVarValue = STRING(job-hdr.due-date,"99/99/99").
-                         WHEN "job"  THEN cVarValue = STRING(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99")) .
+                         WHEN "job"  THEN cVarValue = STRING(job-hdr.job-no + "-" + string(job-hdr.job-no2,"999")) .
                          WHEN "prep"   THEN cVarValue = STRING(job-prep.CODE,"x(15)") .
                          WHEN "code-desc"  THEN cVarValue = STRING(cPrepDscr,"x(30)") .
                          WHEN "qty"   THEN cVarValue = STRING(liQty,">>,>>>,>>9") .

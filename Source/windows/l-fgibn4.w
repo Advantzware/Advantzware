@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No. 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -164,9 +166,9 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      fg-bin.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 9
+      fg-bin.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 15
             LABEL-BGCOLOR 14
-      fg-bin.job-no2 COLUMN-LABEL "" FORMAT "99":U WIDTH 3
+      fg-bin.job-no2 COLUMN-LABEL "" FORMAT "999":U WIDTH 6
       fg-bin.loc COLUMN-LABEL "Whs" FORMAT "x(5)":U WIDTH 8 LABEL-BGCOLOR 14
       fg-bin.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
@@ -246,9 +248,9 @@ ASSIGN
 AND (ASI.fg-bin.i-no = ip-i-no )
 and fg-bin.qty <> 0"
      _FldNameList[1]   > ASI.fg-bin.job-no
-"job-no" "Job#" ? "character" ? ? ? 14 ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-no" "Job#" ? "character" ? ? ? 14 ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-bin.job-no2
-"job-no2" "" "99" "integer" ? ? ? ? ? ? no ? no no "3" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-no2" "" "999" "integer" ? ? ? ? ? ? no ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.fg-bin.loc
 "loc" "Whs" ? "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fg-bin.loc-bin

@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -290,7 +291,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
     QUERY br_table NO-LOCK DISPLAY
-    w-job.job-no-disp          LABEL "Job#"                   FORMAT "x(9)"        WIDTH 13   LABEL-BGCOLOR 14
+    w-job.job-no-disp          LABEL "Job#"                   FORMAT "x(13)"       WIDTH 18   LABEL-BGCOLOR 14
     w-job.po-no                LABEL "PO#"                    FORMAT "x(9)"        WIDTH 13   LABEL-BGCOLOR 14
     w-job.loc                  LABEL "Whse"                                        WIDTH 10   LABEL-BGCOLOR 14
     w-job.loc-bin              LABEL "Bin"                                         WIDTH 14   LABEL-BGCOLOR 14
@@ -801,7 +802,7 @@ PROCEDURE build-table :
         ASSIGN 
             w-job.job-no               = w-jobs.job-no
             w-job.job-no2              = w-jobs.job-no2
-            w-job.job-no-disp          = TRIM(w-job.job-no) + "-" + STRING(w-job.job-no2,"99")
+            w-job.job-no-disp          = TRIM(w-job.job-no) + "-" + STRING(w-job.job-no2,"999")
             w-job.po-no                = w-jobs.po-no
             w-job.i-no                 = w-jobs.i-no
             w-job.j-no                 = w-jobs.j-no
@@ -829,7 +830,7 @@ PROCEDURE build-table :
             w-job.rRowID               = w-jobs.rRowID
             .
 
-        IF w-job.job-no-disp EQ "-00" THEN w-job.job-no-disp = "".
+        IF trim(w-job.job-no-disp) BEGINS "-00" THEN w-job.job-no-disp = "".
        
         DELETE w-jobs.
 

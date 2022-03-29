@@ -11,8 +11,8 @@ DEFINE INPUT PARAMETER v-format LIKE sys-ctrl.char-fld.
 
 DEFINE NEW SHARED VARIABLE save_id        AS RECID.
 DEFINE NEW SHARED VARIABLE v-today        AS DATE      INIT TODAY FORMAT 99/99/9999.
-DEFINE NEW SHARED VARIABLE v-job          AS CHARACTER FORMAT "x(6)" EXTENT 2 INIT [" ","zzzzzz"].
-DEFINE NEW SHARED VARIABLE v-job2         AS INTEGER   FORMAT "99" EXTENT 2 INIT [00,99].
+DEFINE NEW SHARED VARIABLE v-job          AS CHARACTER FORMAT "x(9)" EXTENT 2 INIT [" ","zzzzzzzzz"].
+DEFINE NEW SHARED VARIABLE v-job2         AS INTEGER   FORMAT "999" EXTENT 2 INIT [000,999].
 DEFINE NEW SHARED VARIABLE v-stypart      LIKE style.dscr.
 DEFINE NEW SHARED VARIABLE v-dsc          LIKE oe-ordl.part-dscr1 EXTENT 2.
 DEFINE NEW SHARED VARIABLE v-size         AS CHARACTER FORMAT "x(26)" EXTENT 2.
@@ -234,10 +234,10 @@ DEFINE NEW SHARED FRAME head.
 
 FORMAT HEADER
          "<C45>HENRY MOLDED PRODUCTS,INC."   SKIP
-         "<C47>Job/Head Especificación"  
+         "<C47>Job/Head Especificaciï¿½n"  
          "<C84>Fecha:"  v-today  SKIP
-         "<P16><C24>Número de orden:<B>" STRING(v-job-no)"</B>" 
-         "<C52>Máquina: " "<B>" cJobMachCode "</B>"
+         "<P16><C22>Nï¿½mero de orden:<B>" STRING(v-job-no)"</B>" 
+         "<C50>Mï¿½quina: " "<B>" cJobMachCode "</B>"
          "<C68>Ciclos: " "<B>" cCycleValue "</B>"
          "<P10><C84>Fecha De Vencimiento:"  v-due-date SKIP(1)
          /*v-fill*/
@@ -273,14 +273,14 @@ ASSIGN
 
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company               EQ cocode
-    AND job-hdr.job-no                GE substr(fjob-no,1,6)
-    AND job-hdr.job-no                LE substr(tjob-no,1,6)
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
+    AND fill(" ",9 - length(TRIM(job-hdr.job-no))) +
     trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  GE fjob-no
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
+    string(job-hdr.job-no2,"999")  GE fjob-no
+    AND fill(" ",9 - length(TRIM(job-hdr.job-no))) +
     trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  LE tjob-no
+    string(job-hdr.job-no2,"999")  LE tjob-no
+    AND job-hdr.job-no2 GE fjob-no2
+    AND job-hdr.job-no2 LE tjob-no2
     AND (job-hdr.ftick-prnt            EQ v-reprint OR
     PROGRAM-NAME(2) MATCHES "*r-tickt2*")
     AND CAN-FIND(FIRST job WHERE job.company EQ cocode
@@ -344,14 +344,14 @@ END.
 
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company               EQ cocode
-    AND job-hdr.job-no                GE substr(fjob-no,1,6)
-    AND job-hdr.job-no                LE substr(tjob-no,1,6)
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
+    AND fill(" ",9 - length(TRIM(job-hdr.job-no))) +
     trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  GE fjob-no
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
+    string(job-hdr.job-no2,"999")  GE fjob-no
+    AND fill(" ",9 - length(TRIM(job-hdr.job-no))) +
     trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  LE tjob-no
+    string(job-hdr.job-no2,"999")  LE tjob-no
+    AND job-hdr.job-no2 GE fjob-no2
+    AND job-hdr.job-no2 LE tjob-no2
     AND (job-hdr.ftick-prnt            EQ v-reprint OR
     PROGRAM-NAME(2) MATCHES "*r-tickt2*")
     AND CAN-FIND(FIRST job WHERE job.company EQ cocode
@@ -894,12 +894,12 @@ FOR EACH ef
             "<C65>" cFiberContentLabel FORMAT "x(20)" "<C74><B>" STRING(fGetMiscFields(itemfg.rec_key,"00006")) "</B>" SKIP
             .
         IF AVAILABLE bff-job-hdr THEN
-        cBarCode = STRING(TRIM(bff-job-hdr.job-no) + "-" + STRING(bff-job-hdr.job-no2,"99") + "-" + STRING(bff-job-hdr.frm,"99") + "-" + STRING(bff-job-hdr.blank-no,"99")).
+        cBarCode = STRING(TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', bff-job-hdr.job-no, bff-job-hdr.job-no2))) + "-" + STRING(bff-job-hdr.frm,"99") + "-" + STRING(bff-job-hdr.blank-no,"99")).
         ELSE
-        cBarCode = STRING(TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(job-hdr.frm,"99") + "-" + STRING(job-hdr.blank-no,"99")).
+        cBarCode = STRING(TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) + "-" + STRING(job-hdr.frm,"99") + "-" + STRING(job-hdr.blank-no,"99")).
                
         PUT "<=#5><R+0.5><UNITS=INCHES><C80><FROM><C105><r+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
-        cBarCode FORMAT "x(15)" "><R-3>" . 
+        cBarCode FORMAT "x(19)" "><R-3>" . 
                
         PUT "<=#6><R-1> <C3><B>" cPackingLabel FORMAT "x(8)"  "</B>" SKIP
             "<C3>" cTotalCount                 FORMAT "x(23)" "<B><C15>" TRIM(STRING((IF AVAILABLE bff-job-hdr THEN bff-job-hdr.qty ELSE job-hdr.qty), ">>>,>>>,>>9")) "</B>"
@@ -987,7 +987,7 @@ DO:
                            "<=12><C30><FROM><R+4><C30><LINE><|3>"
                            "<=12><C60><FROM><R+4><C60><LINE><|3>"
                           "<=12><R+1><C5>Job # <C30> Estimate #" "<C60> FG Item:" itemfg.i-no
-                          "<=12><R+2><C8>" string(bf-jobhdr.job-no + "-" + STRING(bf-jobhdr.job-no,"99")) FORMAT "x(12)"   "<C35>"  bf-jobhdr.est-no  
+                          "<=12><R+2><C8>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', bf-jobhdr.job-no, bf-jobhdr.job-no2))) FORM "x(13)"   "<C35>"  bf-jobhdr.est-no  
                           "<C60> File Name: " STRING( SUBSTR(attach.attach-file,r-INDEX(attach.attach-file,'\') + 1)) FORMAT "x(50)"
                           "<=12><R+4><C1><FROM><C106><LINE><||3>"
                           "<=12><R+5><C5><#21><R+42><C+90><IMAGE#21=" attach.attach-file ">" SKIP.  
@@ -1088,20 +1088,20 @@ PROCEDURE pGetPrintLabel1:
    
     IF iplSpanish THEN DO:
      ASSIGN
-         opcJobLabel      = "Número de orden: "
-         opcMachineLabel  = "Máquina: "
+         opcJobLabel      = "Nï¿½mero de orden: "
+         opcMachineLabel  = "Mï¿½quina: "
          opcCycles        = "Ciclos: "
          opcFurnish       = "Material de pulpa: "
          opcConsistency   = "Consistencia de pulpa: "
          opcMoldTime      = "Tiempo de molde: "
-         opcAgitation     = "Agitación: "
+         opcAgitation     = "Agitaciï¿½n: "
          opcDelay         = "Retrasar: "
          opcOverTemp      = "Temperatura del horno:"
          opcBeltSpeed     = "Velocidad de la Correa: "
          opcDryTime       = "Tiempo seco:"
          opcItemList      = "Lista de articulos "
-         opcItemID        = "Identificación del artículo"
-         opcItemName      = "Nombre del árticulo "
+         opcItemID        = "Identificaciï¿½n del artï¿½culo"
+         opcItemName      = "Nombre del ï¿½rticulo "
          opcMoldCount     = "Cantidad de moldes "
          opcGeneralNotes  = "Notas generales"
          opcPreAgitate    = "Pre-agitar: "
@@ -1169,24 +1169,24 @@ PROCEDURE pGetPrintLabel2:
       
     IF iplSpanish THEN DO:
      ASSIGN
-      opcItemSpecLabel     = "Específico del artículo" /* 23*/
+      opcItemSpecLabel     = "Especï¿½fico del artï¿½culo" /* 23*/
       opcFGItemLabel       = "Articulo: "    /* 10*/
-      opcKeyItemLabel      = "Artículo clave: "   /* 15*/
+      opcKeyItemLabel      = "Artï¿½culo clave: "   /* 15*/
       opcMoldsLabel        = "Moldes: "     /*8*/
       opcWetWeightLabel    = "Peso Mojado: "   /*13*/
       opcFirstDryLabel     = "Primero seco: " /* 14*/
-      opcDscrLabel         = "Descripción: "  /*13*/
-      opcMoldIDsLabel      = "Identificación del molde:"  /*25*/
+      opcDscrLabel         = "Descripciï¿½n: "  /*13*/
+      opcMoldIDsLabel      = "Identificaciï¿½n del molde:"  /*25*/
       opcBoneDryLabel      = "Peso seco:"  /*10*/
       opMoistureLabel      = "Humedad:" /*8*/
       opcSizeLabel         = "Talla: "  /*7*/
       opcJigAvailableLabel = "Plantilla disponible:"  /*21*/
-      opcMinWeightLabel    = "Peso mínimo:"    /*12*/
+      opcMinWeightLabel    = "Peso mï¿½nimo:"    /*12*/
       opcFiberContentLabel = "Contenido de fibra: " /*20*/
       opcPackingLabel      = "Embalaje"  /*8*/
       opcPalletCountLabel  = "Cantidad en la paleta: " /*23*/
-      opcPalletSizeLabel   = "Tamaño de la paleta: "  /*21*/
-      opcCartonCodeLabel   = "Código de cartón:"  /*18*/
+      opcPalletSizeLabel   = "Tamaï¿½o de la paleta: "  /*21*/
+      opcCartonCodeLabel   = "Cï¿½digo de cartï¿½n:"  /*18*/
       opcPalletLabel       = "Paleta:"     /*7*/
       opcInstructionsLabel = "Instrucciones"  /*13*/
       opcTotalCount        = "Cuenta total:"  /*14*/

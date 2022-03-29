@@ -382,11 +382,11 @@ find first company where company.company eq cocode NO-LOCK.
                v-price-head = ar-invl.pr-uom
                v-po-no = ar-invl.po-no.
 
-            PUT ar-invl.ord-no FORMAT ">>>>>9" SPACE(1)
+            PUT ar-invl.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-po-no
                 v-ship-qty  format "->>>>>9" SPACE(1)
                 v-i-no  format "x(15)"
-                v-i-dscr  format "x(24)"
+                v-i-dscr  format "x(22)"
                 v-price  format "$->,>>9.99" SPACE(1)
                 v-price-head FORM "x(4)"
                 ar-invl.amt  format "$->>>,>>9.99"                      
@@ -401,8 +401,8 @@ find first company where company.company eq cocode NO-LOCK.
                             ar-invl.part-dscr2 EQ "" THEN
                 v-part-info = ar-invl.i-dscr.
               if v-part-info ne "" OR ar-invl.part-no <> "" then do:
-                 IF v = 1 THEN PUT SPACE(30) ar-invl.part-no v-part-info SKIP.
-                 ELSE PUT SPACE(45) v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(32) ar-invl.part-no v-part-info SKIP.
+                 ELSE PUT SPACE(47) v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.

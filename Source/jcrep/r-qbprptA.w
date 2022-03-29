@@ -909,7 +909,7 @@ assign
   v-date[1]     = begin_date
   v-date[2]     = END_date
   v-hdr[1]  =  fill(" ",122) 
-  v-hdr[2]  =  "   JOB#        S  B DUE DATE CUSTOMER ID BOARD CODE    SHEET WIDTH  SHEET LENGTH      SHEETS         LBS          LF"
+  v-hdr[2]  =  "   JOB#        F  B DUE DATE CUSTOMER ID BOARD CODE    SHEET WIDTH  SHEET LENGTH      SHEETS         LBS          LF"
   v-hdr[3]  = fill("-",122).
 
 {sys/inc/print1.i}
@@ -918,7 +918,7 @@ assign
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
-  excelheader = "JOB#,S,B,DUE DATE,CUSTOMER ID,BOARD CODE,SHEET WIDTH,SHEET LENGTH,SHEETS,LBS,LF".
+  excelheader = "JOB#,F,B,DUE DATE,CUSTOMER ID,BOARD CODE,SHEET WIDTH,SHEET LENGTH,SHEETS,LBS,LF".
 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.

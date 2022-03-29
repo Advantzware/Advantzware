@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -134,7 +135,7 @@ ASSIGN cTextListToSelect = "Job#,Job#2,Item Code,Description,Cust. #,Customer Na
                                         "mat-usg,brd-usg,oth-usg,lbr-eff,fix-oh-eff,var-on-eff,ttl-var," + 
                                         "sp-stnd,sp-act,cos-stnd,cos-act," + 
                                         "cnt-stnd,cnt-acl,%-cnt-stnd,%cnt-acl,ttl-varnc,job-cls-date,shp-to,rel-date,prd-cmp-date,mfg-date,orderType,Job-Description" 
-       cFieldLength = "6,5,15,30,8,30,13,13,15," + "15,15,9,15,15,15,15,15,"  + "15,11,11,15,15,15," + "9,18,19,"  
+       cFieldLength = "9,5,15,30,8,30,13,13,15," + "15,15,9,15,15,15,15,15,"  + "15,11,11,15,15,15," + "9,18,19,"  
                                 + "15,15,16," + "17,15,13,"  + "15,15,15,10," + "15,15,15,15,15,15,15,"  + "15,15,15,15," + "15,15,15,15,15,14,8,12,15,18,1,18"  
        cFieldType = "c,c,c,c,c,c,i,i,i," + "i,i,i,i,i,i,i,i,"  + "i,i,i,i,i,i," + "i,i,i,"  + "i,i,i," + "i,i,i,"  + "i,i,i,i," + "i,i,i,i,i,i,i,"  + "i,i,i,i," + "i,i,i,i,i,c,c,c,c,18,c,c" 
     .
@@ -212,52 +213,52 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_clsdate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "From Close Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY .95 NO-UNDO.
+     SIZE 20.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
      LABEL "From Cust #" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning InvDate" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 18.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_clsdate AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "To Close Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "To Cust #" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending InvDate" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 18.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-cstshp.csv" 
      LABEL "Name" 
@@ -368,11 +369,11 @@ DEFINE VARIABLE tgl_SumTot AS LOGICAL INITIAL no
 DEFINE FRAME FRAME-A
      begin_job-no AT ROW 2.19 COL 20.8 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 2.19 COL 33 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 2.19 COL 35.8 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 2.29 COL 60.4 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 2.29 COL 72.6 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.29 COL 75.4 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_cust-no AT ROW 3.38 COL 20.8 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 4
@@ -1360,23 +1361,21 @@ DEF VAR v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [00, 99]       NO-UNDO.
 DEF VAR ll AS LOG NO-UNDO.
 
 ASSIGN
-    v-job-no[1] = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-                  TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
-    v-job-no[2] = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
-                  TRIM(end_job-no)   + STRING(INT(end_job-no2),"99"). 
+    v-job-no[1] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+    v-job-no[2] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) . 
 
 
 EMPTY TEMP-TABLE tt-report.
 
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ cocode
-          AND (job-hdr.opened  EQ NO OR tb_open_job) 
-          AND job-hdr.job-no  GE SUBSTR(v-job-no[1],1,6)
-          AND job-hdr.job-no  LE SUBSTR(v-job-no[2],1,6)
-          AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-              TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"99") GE v-job-no[1]
-          AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no)))   +
-              TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"99") LE v-job-no[2]
+          AND (job-hdr.opened  EQ NO OR tb_open_job)            
+          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+              TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"999") GE v-job-no[1]
+          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no)))   +
+              TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"999") LE v-job-no[2]
+          AND job-hdr.job-no2 GE int(begin_job-no2)
+          AND job-hdr.job-no2 LE int(end_job-no2)    
           AND job-hdr.cust-no GE begin_cust-no 
           AND job-hdr.cust-no LE end_cust-no USE-INDEX opened:
         FIND FIRST job NO-LOCK
@@ -1424,9 +1423,7 @@ EMPTY TEMP-TABLE tt-report.
         CREATE tt-report.
         ASSIGN
          tt-report.rec-id = RECID(job-hdr)
-         tt-report.key-01 = FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-                            TRIM(job-hdr.job-no) +
-                            STRING(INT(job-hdr.job-no2),"99").
+         tt-report.key-01 = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', job-hdr.job-no, job-hdr.job-no2)) .
       END.
     END.
 

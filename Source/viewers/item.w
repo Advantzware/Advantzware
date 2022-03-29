@@ -1353,12 +1353,12 @@ PROCEDURE enable-item :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF AVAILABLE item THEN
+  
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE fi_mat-type.
-    IF INDEX("DC",item.mat-type) GT 0 THEN ENABLE fi_cas-pal-w.
-    IF item.mat-type EQ "C" THEN ENABLE item.flute fi_reg-no.
-    IF INDEX("BAPR1234",item.mat-type) GT 0 THEN do:
+    IF AVAIL ITEM AND INDEX("DC",item.mat-type) GT 0 THEN ENABLE fi_cas-pal-w.
+    IF AVAIL ITEM AND item.mat-type EQ "C" THEN ENABLE item.flute fi_reg-no.
+    IF AVAIL ITEM AND INDEX("BAPR1234",item.mat-type) GT 0 THEN do:
          ENABLE fi_ect.
          IF fi_mat-type = "R" THEN do:
             ASSIGN

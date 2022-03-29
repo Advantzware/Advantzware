@@ -959,7 +959,7 @@ assign
                  "MACH                                RUN    WASTE  MR STD " +
                  " MR ACT       MR RUN STD RUN ACT      RUN OVER STD OVER ACT"
                  + "     OVER"
-      hdr-tit2 = "  S/ B " +
+      hdr-tit2 = "  F/ B " +
                  "CODE   DESCRIPTION             QUANTITY QUANTITY PERCENT " +
                  "PERCENT VARIANCE PERCENT PERCENT VARIANCE  PERCENT  PERCENT"
                  + " VARIANCE"
@@ -969,7 +969,7 @@ SESSION:SET-WAIT-STATE ("general").
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
-  excelheader = "JOB #,STATUS,S,B,MACH CODE,DESCRIPTION,RUN QUANTITY,WASTE QUANTITY,"
+  excelheader = "JOB #,STATUS,F,B,MACH CODE,DESCRIPTION,RUN QUANTITY,WASTE QUANTITY,"
               + "MR STD PERCENT,MR ACT PERCENT,MR VARIANCE,RUN STD PERCENT,"
               + "RUN ACT PERCENT,RUN VARIANCE,OVER STD PERCENT,OVER ACT PERCENT,"
               + "OVER VARIANCE".

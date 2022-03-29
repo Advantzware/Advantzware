@@ -20,6 +20,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -79,7 +80,7 @@ ASSIGN
                            "Bought $,Diff $,MPV %,Overs %,Adder code1,Adder code2"
     cFieldListToSelect = "po-no,vend,job,item,due-dt,rcd-dt,msf,vend-$," +
                                 "bught,diff,mpv,ovr,addr,addr2"
-    cFieldLength       = "6,8,9,15,10,10,10,14," + "13,14,11,11,15,15"
+    cFieldLength       = "6,8,13,15,10,10,10,14," + "13,14,11,11,15,15"
     cFieldType         = "i,c,c,c,c,c,i,i," + "i,i,i,i,c,c"
     .
 
@@ -170,7 +171,7 @@ DEFINE BUTTON btn_Up
     LABEL "Move Up" 
     SIZE 16 BY 1.1.
 
-DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1 NO-UNDO.
@@ -200,7 +201,7 @@ DEFINE VARIABLE begin_vend-no  AS CHARACTER FORMAT "X(8)":U
     VIEW-AS FILL-IN 
     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1 NO-UNDO.
@@ -1670,7 +1671,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-s-item       LIKE po-ordl.i-no.
     DEFINE VARIABLE v-tt-ei        LIKE v-s-item INIT "zzzzzzzzzzzzzzz".
     DEFINE VARIABLE v-s-job        LIKE po-ordl.job-no.
-    DEFINE VARIABLE v-e-job        LIKE v-s-job INIT "zzzzzz".
+    DEFINE VARIABLE v-e-job        LIKE v-s-job INIT "zzzzzzzzz".
     DEFINE VARIABLE v-stat         AS CHARACTER FORMAT "!" INIT "A".
     DEFINE VARIABLE v-type         AS CHARACTER FORMAT "!" INIT "B".
     DEFINE VARIABLE v-sort         AS CHARACTER FORMAT "!" INIT "V".
@@ -1787,8 +1788,8 @@ PROCEDURE run-report :
         v-e-vend    = end_vend-no
         v-s-item    = begin_po-i-no
         v-tt-ei     = end_po-i-no
-        v-s-job     = begin_job-no
-        v-e-job     = END_job-no
+        v-s-job     = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job-no)) 
+        v-e-job     = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', END_job-no)) 
         vb-rec-date = begin_rec-date
         ve-rec-date = end_rec-date .
 
@@ -1885,8 +1886,8 @@ PROCEDURE run-report :
         AND po-ordl.po-no EQ po-ord.po-no
         AND po-ordl.i-no      GE v-s-item
         AND po-ordl.i-no      LE v-tt-ei
-        AND po-ordl.job-no GE v-s-job
-        AND po-ordl.job-no LE v-e-job
+        AND fill(" ",9 - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) GE v-s-job
+        AND fill(" ",9 - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) LE v-e-job
         NO-LOCK BREAK BY po-ord.po-no
         BY po-ord.po-date
         BY po-ordl.po-no 
@@ -1910,8 +1911,7 @@ PROCEDURE run-report :
            substring(po-ordl.job-no,ii,1)).
         END. 
         IF v-bld-job NE "      " THEN
-            ASSIGN v-bld-job = STRING(FILL(" ",6 - length(v-bld-job))) +
-            (TRIM(v-bld-job)) +  "-" + string(po-ordl.job-no2,"99").
+            ASSIGN v-bld-job = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-bld-job, po-ordl.job-no2)) .
 
         IF po-ordl.pr-qty-uom EQ "MSF" THEN
             v-tot-msf = po-ordl.ord-qty.

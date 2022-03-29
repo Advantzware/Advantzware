@@ -936,7 +936,7 @@ assign
 
        hdr-tit = "TRANS  TRANS      JOB                                      " +
              "                     QUANTITY     WASTE      MACH MACH   JOB     "
-      hdr-tit2 = "TYPE    DATE      NUMBER  S/ B ITEM NUMBER     DESCRIPTION " +
+      hdr-tit2 = "TYPE    DATE      NUMBER  F/ B ITEM NUMBER     DESCRIPTION " +
              "                       POSTED       QTY     HOURS CODE   CODE  C ".
       hdr-tit3 = fill("-", 131).
 
@@ -948,7 +948,7 @@ assign
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
-  excelheader = "Trans Type,Trans Date,Job Number,S,B,Item Number,"
+  excelheader = "Trans Type,Trans Date,Job Number,F,B,Item Number,"
               + "Description,Quantity Posted,Waste Qty,Mach Hours,"
               + "Mach Code,Job Code,C".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.

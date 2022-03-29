@@ -11,6 +11,7 @@
     Created     : Wed Mar 27 14:59:24 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */  
 
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO. 
@@ -166,8 +167,8 @@ PROCEDURE pBuildFGLabels PRIVATE:
         .     
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ ipcCompany
-        AND job-hdr.job-no GE ipcJobStart
-        AND job-hdr.job-no LE ipcJobEnd
+        AND fill(" ",9 - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) GE ipcJobStart
+        AND fill(" ",9 - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) LE ipcJobEnd
         AND job-hdr.job-no2 GE ipiJob2Start
         AND job-hdr.job-no2 LE ipiJob2End
         AND job-hdr.i-no GE ipcFGItemIDStart
@@ -211,7 +212,7 @@ PROCEDURE pBuildFGLabels PRIVATE:
                 ttFGLabel.iBlank            = job-hdr.blank-no
                 ttFGLabel.cJobNumber        = job-hdr.job-no
                 ttFGLabel.iJobID2           = job-hdr.job-no2
-                ttFGLabel.cJobID            = job-hdr.job-no + "-" + STRING(job-hdr.job-no2, "99")
+                ttFGLabel.cJobID            = job-hdr.job-no + "-" + STRING(job-hdr.job-no2, "999")
                 ttFGLabel.cJobIDTrimmed     = TRIM(ttFGLabel.cJobID)
                 ttFGLabel.cJobIDFull        = ttFGLabel.cJobID + "." + STRING(job-hdr.frm,"99") + "." + STRING(job-hdr.blank-no,"99")
                 ttFGLabel.cJobIDFullTrimmed = TRIM(ttFGLabel.cJobIDFull) 

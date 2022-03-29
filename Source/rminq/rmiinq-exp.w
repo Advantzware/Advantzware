@@ -21,6 +21,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 
@@ -63,18 +64,18 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
 ASSIGN 
-    cTextListToSelect  = "Item#,TR Date,C,Tag,Vendor Po#,Job#,S,WHS," +
+    cTextListToSelect  = "Item#,TR Date,C,Tag,Vendor Po#,Job#,F,WHS," +
                            "Bin,Qty,Qty/UOM,Cost,Cost/UOM,Ext Cost,Cert/Lot/Mill#," +
                            "UserID,Item Name,OH: EA,TON,LF,MSF" 
 
-    cFieldListToSelect = "item,tr-date,c,tag,vendor-po,job,s,whs," +
+    cFieldListToSelect = "item,tr-date,c,tag,vendor-po,job,f,whs," +
                            "bin,qty,qty-uom,cost,cost-uom,ext-cost,cert-lot," +
                            "userid,item-name,oh-ea,ton,lf,msf" .
 
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
-    cTextListToDefault = "Item#,TR Date,C,Tag,Vendor Po#,Job#,S,WHS," +
+    cTextListToDefault = "Item#,TR Date,C,Tag,Vendor Po#,Job#,F,WHS," +
                            "Bin,Qty,Qty/UOM,Cost,Cost/UOM,Ext Cost,Cert/Lot/Mill#," +
                            "UserID" .
 
@@ -182,14 +183,14 @@ DEFINE VARIABLE begin_i-no     AS CHARACTER FORMAT "x(10)"
     VIEW-AS FILL-IN 
     SIZE 20 BY 1.
 
-DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "x(6)" 
+DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "x(9)" 
     LABEL "From Job No#" 
     VIEW-AS FILL-IN 
     SIZE 15 BY 1.
 
-DEFINE VARIABLE begin_job-no-2 AS INTEGER   FORMAT ">9" INITIAL 0 
+DEFINE VARIABLE begin_job-no-2 AS INTEGER   FORMAT ">>9" INITIAL 0 
     VIEW-AS FILL-IN 
-    SIZE 4.8 BY 1.
+    SIZE 5.4 BY 1.
 
 DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999" INITIAL 01/01/2099 
     LABEL "To Date" 
@@ -201,14 +202,14 @@ DEFINE VARIABLE end_i-no       AS CHARACTER FORMAT "X(10)" INITIAL "zzzzzzzzzzz"
     VIEW-AS FILL-IN 
     SIZE 21 BY 1.
 
-DEFINE VARIABLE end_job        AS CHARACTER FORMAT "X(6)" INITIAL "999999" 
+DEFINE VARIABLE end_job        AS CHARACTER FORMAT "X(9)" INITIAL "999999999" 
     LABEL "To Job No#" 
     VIEW-AS FILL-IN 
     SIZE 15 BY 1.
 
-DEFINE VARIABLE end_job-2      AS INTEGER   FORMAT ">9" INITIAL 99 
+DEFINE VARIABLE end_job-2      AS INTEGER   FORMAT ">>9" INITIAL 999 
     VIEW-AS FILL-IN 
-    SIZE 4.8 BY 1.
+    SIZE 5.4 BY 1.
 
 DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\RMHistoryInquiry.csv" 
     LABEL "Name" 
@@ -1103,23 +1104,21 @@ PROCEDURE run-report :
 
     IF tb_excel THEN OUTPUT STREAM excel TO VALUE(cFileName).
     IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
-    cJobNo[1]   = FILL(" ",6 - length(TRIM(begin_job-no))) +
-        trim(begin_job-no) + string(int(begin_job-no-2),"99") .
-    cJobNo[2]   = FILL(" ",6 - length(TRIM(end_job)))   +
-        trim(end_job)   + string(int(end_job-2),"99")  .
+    cJobNo[1]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no-2)) .
+    cJobNo[2]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job, end_job-2))   .
  
     FOR EACH rm-rcpth                     
         WHERE rm-rcpth.company = cocode
         AND rm-rcpth.trans-date GE begin_date  
         AND rm-rcpth.trans-date LE end_date   
         AND rm-rcpth.i-no       GE begin_i-no  
-        AND rm-rcpth.i-no       LE end_i-no  
-        AND rm-rcpth.job-no     GE SUBSTR(cJobNo[1],1,6)
-        AND rm-rcpth.job-no     LE SUBSTR(cJobNo[2],1,6)
-        AND fill(" ",6 - length(TRIM(rm-rcpth.job-no))) +
-        trim(rm-rcpth.job-no) + string(int(rm-rcpth.job-no2),"99") GE cJobNo[1]
-        AND fill(" ",6 - length(TRIM(rm-rcpth.job-no))) +
-        trim(rm-rcpth.job-no) + string(int(rm-rcpth.job-no2),"99") LE cJobNo[2] NO-LOCK,
+        AND rm-rcpth.i-no       LE end_i-no          
+        AND fill(" ",9 - length(TRIM(rm-rcpth.job-no))) +
+        trim(rm-rcpth.job-no) + string(int(rm-rcpth.job-no2),"999") GE cJobNo[1]
+        AND fill(" ",9 - length(TRIM(rm-rcpth.job-no))) +
+        trim(rm-rcpth.job-no) + string(int(rm-rcpth.job-no2),"999") LE cJobNo[2]
+        AND rm-rcpth.job-no2 GE int(begin_job-no-2)
+        AND rm-rcpth.job-no2 LE int(end_job-2) NO-LOCK,
     
         EACH rm-rdtlh   
         WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no  
@@ -1153,7 +1152,7 @@ PROCEDURE run-report :
                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(rm-rcpth.po-no).        
                 WHEN "job" THEN                                                               
                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(rm-rcpth.job-no + "-" + STRING(rm-rcpth.job-no2)).          
-                WHEN "s" THEN                                                            
+                WHEN "f" THEN                                                            
                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(rm-rdtlh.s-num)).       
                 WHEN "whs" THEN                                                         
                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(rm-rdtlh.loc).    

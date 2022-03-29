@@ -16,6 +16,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -59,19 +60,19 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
 ASSIGN 
-    cTextListToSelect  = "Trans Type,Trans Date,Job No.,S,B,Item Number,"
+    cTextListToSelect  = "Trans Type,Trans Date,Job No.,F,B,Item Number,"
                                             + "Description,Qty Posted,Wst Qty,Mch Hrs,"
                                             + "Mach Code,Job Code,C"
     cFieldListToSelect = "trns-typ,trns-dt,job-no,frm,blnk,i-no," +
                                         "dscr,qty-pstd,wst-qty,mch-hrs," +
                                         "mch-cd,job-cd,vc"
-    cFieldLength       = "10,10,10,1,1,15," + "30,11,7,7," + "11,11,1" 
+    cFieldLength       = "10,10,13,1,1,15," + "30,11,7,7," + "11,11,1" 
     cFieldType         = "c,c,c,c,c,c," + "c,i,i,i," + "c,c,c"
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN 
-    cTextListToDefault = "Trans Type,Trans Date,Job No.,S,B,Item Number,"
+    cTextListToDefault = "Trans Type,Trans Date,Job No.,F,B,Item Number,"
                                             + "Description,Qty Posted,Wst Qty,Mch Hrs,"
                                             + "Mach Code,Job Code,C"  .
 
@@ -147,25 +148,25 @@ DEFINE BUTTON btn_Up
     LABEL "Move Up" 
     SIZE 16 BY 1.1.
 
-DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\WIPPosting.csv" 
     LABEL "Name" 
@@ -244,11 +245,11 @@ DEFINE VARIABLE td-show-parm AS LOGICAL   INITIAL NO
 DEFINE FRAME FRAME-A
     begin_job-no AT ROW 2.71 COL 23 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    begin_job-no2 AT ROW 2.71 COL 36 COLON-ALIGNED HELP
+    begin_job-no2 AT ROW 2.71 COL 38 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
     end_job-no AT ROW 2.71 COL 62 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    end_job-no2 AT ROW 2.71 COL 74 COLON-ALIGNED HELP
+    end_job-no2 AT ROW 2.71 COL 77 COLON-ALIGNED HELP
     "Enter Ending Job Number"
     sl_avail AT ROW 5.95 COL 4 NO-LABELS WIDGET-ID 26
     Btn_Def AT ROW 5.95 COL 40.8 HELP
@@ -1334,10 +1335,8 @@ PROCEDURE run-report :
         str-tit2    = c-win:TITLE
         {sys/inc/ctrtext.i str-tit2 112}
 
-        v-job-no[1] = FILL(" ",6 - length(TRIM(begin_job-no))) +
-                  trim(begin_job-no) + string(int(begin_job-no2),"99")
-        v-job-no[2] = FILL(" ",6 - length(TRIM(end_job-no)))   +
-                  trim(end_job-no)   + string(int(end_job-no2),"99") 
+        v-job-no[1] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+        v-job-no[2] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
         /*
         v-job-no[1]    = begin_job-no
         v-job-no[2]    = end_job-no
@@ -1395,14 +1394,14 @@ PROCEDURE run-report :
     EMPTY TEMP-TABLE work-edit.
 
     FOR EACH mch-act WHERE mch-act.company = cocode AND
+        mch-act.job-no2 ge int(begin_job-no2) AND
+        mch-act.job-no2 le int(end_job-no2) AND
         mch-act.opn = YES
         USE-INDEX opn-idx
         NO-LOCK:
-        IF FILL(" ",6 - length(TRIM(mch-act.job-no))) +
-            trim(mch-act.job-no) + string(int(mch-act.job-no2),"99") < v-job-no[1] OR 
-            fill(" ",6 - length(TRIM(mch-act.job-no))) +
-            trim(mch-act.job-no) + string(int(mch-act.job-no2),"99") > v-job-no[2] THEN NEXT.
-
+        IF STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', mch-act.job-no, mch-act.job-no2))  < v-job-no[1] OR 
+           STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', mch-act.job-no, mch-act.job-no2))  > v-job-no[2] THEN NEXT.
+                 
         FIND FIRST work-edit WHERE work-edit.job = mch-act.job NO-ERROR.
 
         IF NOT AVAILABLE work-edit THEN
@@ -1415,15 +1414,15 @@ PROCEDURE run-report :
         END.
     END.
     FOR EACH mat-act WHERE mat-act.company = cocode AND
+        mat-act.job-no2 ge int(begin_job-no2) AND
+        mat-act.job-no2 le int(end_job-no2) AND
         mat-act.opn = YES
         USE-INDEX opn-idx
         NO-LOCK:
 
-        IF FILL(" ",6 - length(TRIM(mat-act.job-no))) +
-            trim(mat-act.job-no) + string(int(mat-act.job-no2),"99") < v-job-no[1] OR 
-            fill(" ",6 - length(TRIM(mat-act.job-no))) +
-            trim(mat-act.job-no) + string(int(mat-act.job-no2),"99") > v-job-no[2] THEN NEXT.
-
+        IF STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', mat-act.job-no, mat-act.job-no2)) < v-job-no[1] OR 
+            STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', mat-act.job-no, mat-act.job-no2)) > v-job-no[2] THEN NEXT.
+           
         FIND FIRST work-edit WHERE work-edit.job = mat-act.job NO-ERROR.
 
         IF NOT AVAILABLE work-edit THEN
@@ -1436,15 +1435,15 @@ PROCEDURE run-report :
         END.
     END.
     FOR EACH fg-act WHERE fg-act.company = cocode AND
+        fg-act.job-no2 ge int(begin_job-no2) AND
+        fg-act.job-no2 le int(end_job-no2) AND
         fg-act.opn = YES
         USE-INDEX opn-idx
         NO-LOCK:
 
-        IF FILL(" ",6 - length(TRIM(fg-act.job-no))) +
-            trim(fg-act.job-no) + string(int(fg-act.job-no2),"99") < v-job-no[1] OR 
-            fill(" ",6 - length(TRIM(fg-act.job-no))) +
-            trim(fg-act.job-no) + string(int(fg-act.job-no2),"99") > v-job-no[2] THEN NEXT.
-
+        IF STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', fg-act.job-no, fg-act.job-no2)) < v-job-no[1] OR 
+          STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', fg-act.job-no, fg-act.job-no2)) > v-job-no[2] THEN NEXT.
+          
         FIND FIRST work-edit WHERE work-edit.job = fg-act.job NO-ERROR.
 
         IF NOT AVAILABLE work-edit THEN
@@ -1458,15 +1457,15 @@ PROCEDURE run-report :
     END.
 
     FOR EACH misc-act WHERE misc-act.company = cocode AND
+        misc-act.job-no2 ge int(begin_job-no2) AND
+        misc-act.job-no2 le int(end_job-no2) AND
         misc-act.opn = YES
         USE-INDEX opn-idx
         NO-LOCK:
 
-        IF FILL(" ",6 - length(TRIM(misc-act.job-no))) +
-            trim(misc-act.job-no) + string(int(misc-act.job-no2),"99") < v-job-no[1] OR 
-            fill(" ",6 - length(TRIM(misc-act.job-no))) +
-            trim(misc-act.job-no) + string(int(misc-act.job-no2),"99") > v-job-no[2] THEN NEXT.
-
+        IF STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', misc-act.job-no, misc-act.job-no2))  < v-job-no[1] OR 
+           STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', misc-act.job-no, misc-act.job-no2)) > v-job-no[2] THEN NEXT.
+             
         FIND FIRST work-edit WHERE work-edit.job = misc-act.job NO-ERROR.
 
         IF NOT AVAILABLE work-edit THEN
@@ -1543,7 +1542,7 @@ PROCEDURE run-report :
                     WHEN "trns-dt"      THEN 
                         cVarValue =  (IF mat-act.mat-date NE ? THEN STRING(mat-act.mat-date) ELSE "")  .
                     WHEN "job-no"           THEN 
-                        cVarValue =  (STRING(work-edit.job-no) + "-" + STRING(work-edit.job-no2)) .
+                        cVarValue =  (STRING(work-edit.job-no) + "-" + STRING(work-edit.job-no2,"999")) .
                     WHEN "frm"              THEN 
                         cVarValue =  STRING(mat-act.s-num) .
                     WHEN "blnk"             THEN 
@@ -1650,7 +1649,7 @@ PROCEDURE run-report :
                     WHEN "trns-dt"      THEN 
                         cVarValue =  (IF mch-act.op-date NE ? THEN STRING(mch-act.op-date) ELSE "")  .
                     WHEN "job-no"           THEN 
-                        cVarValue =  (STRING(work-edit.job-no) + "-" + STRING(work-edit.job-no2)) .
+                        cVarValue =  (STRING(work-edit.job-no) + "-" + STRING(work-edit.job-no2,"999")) .
                     WHEN "frm"              THEN 
                         cVarValue =  STRING(mch-act.frm) .
                     WHEN "blnk"             THEN 
@@ -1742,7 +1741,7 @@ PROCEDURE run-report :
                     WHEN "trns-dt"      THEN 
                         cVarValue =  (IF fg-act.fg-date NE ? THEN STRING(fg-act.fg-date) ELSE "")  .
                     WHEN "job-no"           THEN 
-                        cVarValue =  (STRING(work-edit.job-no) + "-" + STRING(work-edit.job-no2)) .
+                        cVarValue =  (STRING(work-edit.job-no) + "-" + STRING(work-edit.job-no2,"999")) .
                     WHEN "frm"              THEN 
                         cVarValue =  STRING(fg-act.s-num) .
                     WHEN "blnk"             THEN 
@@ -1832,7 +1831,7 @@ PROCEDURE run-report :
                         WHEN "trns-dt"      THEN 
                             cVarValue =  (IF misc-act.misc-date NE ? THEN STRING(misc-act.misc-date) ELSE "")  .
                         WHEN "job-no"           THEN 
-                            cVarValue =  (STRING(work-edit.job-no) + "-" + STRING(work-edit.job-no2)) .
+                            cVarValue =  (STRING(work-edit.job-no) + "-" + STRING(work-edit.job-no2,"999")) .
                         WHEN "frm"              THEN 
                             cVarValue =  STRING(misc-act.frm) .
                         WHEN "blnk"             THEN 
@@ -1925,7 +1924,7 @@ PROCEDURE run-report :
                         WHEN "trns-dt"      THEN 
                             cVarValue =  (IF misc-act.misc-date NE ? THEN STRING(misc-act.misc-date) ELSE "")  .
                         WHEN "job-no"           THEN 
-                            cVarValue =  (STRING(work-edit.job-no) + "-" + STRING(work-edit.job-no2)) .
+                            cVarValue =  (STRING(work-edit.job-no) + "-" + STRING(work-edit.job-no2,"999")) .
                         WHEN "frm"              THEN 
                             cVarValue =  STRING(misc-act.frm) .
                         WHEN "blnk"             THEN 
@@ -2022,12 +2021,12 @@ PROCEDURE run-report :
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
         END.
 
-        PUT UNFORMATTED "JOB TOTALS - " + work-edit.job-no + "-" + string(work-edit.job-no2,"99") + "         BOARD TOTALS: "
-            SUBSTRING(cDisplay,45,300) SKIP.
+        PUT UNFORMATTED "JOB TOTALS - " + work-edit.job-no + "-" + string(work-edit.job-no2,"999") + "         BOARD TOTALS: "
+            SUBSTRING(cDisplay,44,300) SKIP.
         IF tb_excel THEN 
         DO:
             PUT STREAM excel UNFORMATTED  
-                " JOB TOTALS    " work-edit.job-no + "-" + string(work-edit.job-no2,"99") + "         BOARD TOTALS: " SUBSTRING(cExcelDisplay,3,300) SKIP.
+                " JOB TOTALS    " work-edit.job-no + "-" + string(work-edit.job-no2,"999") + "         BOARD TOTALS: " SUBSTRING(cExcelDisplay,3,300) SKIP.
         END. 
 
         PUT SKIP str-line SKIP .

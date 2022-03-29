@@ -1,5 +1,6 @@
-/* ---------------------------------------------- oe/rep/bolorax.i YSK     */
-/* PRINT Metro BOL                                                           */
+/* ---------------------------------------------- oe/rep/bolorax.i YSK        */
+/* PRINT Metro BOL                                                            */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No).             */
 /* -------------------------------------------------------------------------- */
 
 
@@ -56,10 +57,9 @@ FOR EACH tt-boll,
          lv-qcase-tot = lv-qcase-tot + tt-boll.qty-case
          lv-partial-tot = lv-partial-tot + tt-boll.partial
          lv-pal-tot = lv-pal-tot + tt-boll2.pallets
-         v-job-no = fill(" ",6 - length(trim(tt-boll.job-no))) +
-                    trim(tt-boll.job-no) + "-" + trim(string(tt-boll.job-no2,"99")).
+         v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-boll.job-no, tt-boll.job-no2))).
 
-  IF trim(v-job-no) = "-00" THEN v-job-no = "".
+  IF trim(v-job-no) = "-000" THEN v-job-no = "".
 
   ASSIGN
      tt-boll.printed = YES

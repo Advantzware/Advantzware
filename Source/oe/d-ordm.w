@@ -218,11 +218,11 @@ DEFINE FRAME Dialog-Frame
     SIZE 23.6 BY 1
     BGCOLOR 15 FONT 1
     oe-ordm.ord-i-no AT ROW 4.81 COL 29.8 COLON-ALIGNED
-    LABEL "Job Number" FORMAT "x(6)"
+    LABEL "Job Number" FORMAT "x(9)"
     VIEW-AS FILL-IN 
     SIZE 19.2 BY 1
     BGCOLOR 15 FONT 1
-    oe-ordm.ord-line AT ROW 4.81 COL 50.2 COLON-ALIGNED NO-LABELS FORMAT "99"
+    oe-ordm.ord-line AT ROW 4.81 COL 50.2 COLON-ALIGNED NO-LABELS FORMAT "999"
     VIEW-AS FILL-IN 
     SIZE 5 BY 1
     BGCOLOR 15 FONT 1
@@ -309,7 +309,7 @@ DEFINE FRAME Dialog-Frame
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
     oe-ordm.form-no AT ROW 10.57 COL 102.8 COLON-ALIGNED
-    LABEL "S" FORMAT ">9"
+    LABEL "F" FORMAT ">9"
     VIEW-AS FILL-IN 
     SIZE 8 BY 1
     BGCOLOR 15 FONT 1
@@ -1917,14 +1917,14 @@ PROCEDURE valid-ord-i-no :
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             lv-job-no                     = oe-ordm.ord-i-no:SCREEN-VALUE
-            lv-job-no                     = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
+            lv-job-no                     = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no))
             oe-ordm.ord-i-no:SCREEN-VALUE = lv-job-no.
 
         IF lv-job-no NE "" THEN 
         DO:
             FIND FIRST job NO-LOCK
                 WHERE job.company EQ cocode
-                AND job.job-no  EQ lv-job-no
+                AND TRIM(job.job-no)  EQ TRIM(lv-job-no)
                 NO-ERROR.
             IF NOT AVAILABLE job THEN 
             DO:
@@ -1955,14 +1955,14 @@ PROCEDURE valid-ord-line :
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             lv-job-no                     = oe-ordm.ord-i-no:SCREEN-VALUE
-            lv-job-no                     = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
+            lv-job-no                     = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no))
             oe-ordm.ord-i-no:SCREEN-VALUE = lv-job-no.
 
         IF lv-job-no NE "" THEN 
         DO:
             FIND FIRST job
                 WHERE job.company EQ cocode
-                AND job.job-no  EQ lv-job-no
+                AND TRIM(job.job-no)  EQ TRIM(lv-job-no)
                 AND job.job-no2 EQ INT(oe-ordm.ord-line:SCREEN-VALUE)
                 NO-LOCK NO-ERROR.
             IF NOT AVAILABLE job THEN 
@@ -2140,8 +2140,8 @@ PROCEDURE valid-tax :
         AND oe-ord.tax-gr EQ "" THEN DO:
             MESSAGE /*"Order has no tax group! " */
                 "Misc. charge cannot be taxable if the order is not taxable." SKIP 
-                "Ensure that the order is taxable (has a valid tax code)." SKIP 
-                "Normally the tax code will be pulled from the Ship To ID or" SKIP 
+                "Ensure that the order is taxable (has a valid tax Group)." SKIP 
+                "Normally the tax Group will be pulled from the Ship To ID or" SKIP 
                 "from the Customer record when the order is created."
                 VIEW-AS ALERT-BOX ERROR.
             ASSIGN 

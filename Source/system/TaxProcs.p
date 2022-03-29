@@ -478,7 +478,7 @@ PROCEDURE pCalculate PRIVATE :
     DO:
         ASSIGN
             oplError   = TRUE
-            opcMessage = "Sales tax does not exist for tax code '" + ipcTaxCode + "'"
+            opcMessage = "Sales tax does not exist for tax group '" + ipcTaxCode + "'"
             .
         RETURN. 
     END.
@@ -498,7 +498,7 @@ PROCEDURE pCalculate PRIVATE :
         lIsNegative = ipdTaxableAmount LT 0.
     
     DO iCount = 1 TO EXTENT(bf-stax.tax-rate1):
-        /* Skip if tax code is blank. */
+        /* Skip if tax group is blank. */
         IF bf-stax.tax-code1[iCount] EQ "" THEN
             NEXT.
 

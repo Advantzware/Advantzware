@@ -237,7 +237,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 13.2 BY 1
      oe-ord.tax-gr AT ROW 17.19 COL 116 COLON-ALIGNED
-          LABEL "Tax Code"
+          LABEL "Tax Group"
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
      oe-ord.contact AT ROW 18.38 COL 19 COLON-ALIGNED

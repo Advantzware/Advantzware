@@ -138,7 +138,7 @@ DEFINE VARIABLE fi_Form AS CHARACTER FORMAT "x(9)"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "x(9)" 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "x(13)" 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
@@ -378,7 +378,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         RUN enable_UI.
 
         assign
-          fi_job-no:screen-value  = icJobNo + '-' + string (iiJobNo2, '99')
+          fi_job-no:screen-value  = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', icJobNo, iiJobNo2)))
             fi_Form:screen-value  = string (iiForm).
  
         apply 'entry':u to fi_bmill_no1.

@@ -1,7 +1,7 @@
 /* ------------------------------------------------ oe/rep/invoice.p  9/94 RM */
 /* PRINT INVOICE - O/E MODULE                                                 */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -57,7 +57,7 @@ def var v-ord-del-hdr  as char format "x(4)" init "Del#".
 def var v-part-info    as char format "x(30)".
 def var v-beeler-lines as int.
 def var v              as int.
-def var v-ord#         as int format ">>>>>>" no-undo.
+def var v-ord#         as int format ">>>>>>>>" no-undo.
 def var v-remit-to     as char format "x(90)".
 
 def var v-c-name         like company.name.

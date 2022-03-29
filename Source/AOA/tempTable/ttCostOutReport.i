@@ -3,7 +3,7 @@
 /* Cost Out Report.rpa */
 DEFINE TEMP-TABLE ttCostOutReport NO-UNDO
     {aoa/tempTable/ttFields.i}
-    FIELD jobNo        AS CHARACTER     LABEL "Job"            FORMAT "x(6)"
+    FIELD jobNo        AS CHARACTER     LABEL "Job"            FORMAT "x(9)"
     FIELD dieNo      LIKE itemfg.die-no LABEL "Die No"
     FIELD salesRep   LIKE sman.sname
     FIELD custName   LIKE cust.name

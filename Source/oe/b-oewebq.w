@@ -26,6 +26,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -125,7 +126,7 @@ ll-sort-asc = NO.
           AND oe-ordl.part-no   BEGINS fi_part-no   ~
           AND oe-ordl.po-no     BEGINS fi_po-no-2   ~
           AND oe-ordl.est-no    BEGINS fi_est-no    ~
-          AND oe-ordl.job-no    BEGINS fi_job-no    ~
+          AND fill(" ",9 - length(TRIM(oe-ordl.job-no))) + trim(oe-ordl.job-no) BEGINS fi_job-no    ~
           AND (oe-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                              ~
@@ -154,7 +155,7 @@ ll-sort-asc = NO.
     IF lv-sort-by EQ "price"     THEN STRING(get-price-disc(),'-9999999999.9999999999')                                                                ELSE ~
     IF lv-sort-by EQ "pr-uom"    THEN get-pr-uom()                                                                                                     ELSE ~
     IF lv-sort-by EQ "t-price"   THEN string(get-extended-price(),'-9999999999.9999999999')                                                            ELSE ~
-    IF lv-sort-by EQ "job-no"    THEN STRING(oe-ordl.job-no,"x(6)") + STRING(oe-ordl.job-no2,"99")                                                     ELSE ~
+    IF lv-sort-by EQ "job-no"    THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', oe-ordl.job-no, oe-ordl.job-no2))                                  ELSE ~
     IF lv-sort-by EQ "e-num"     THEN string(oe-ordl.e-num)                                                                                            ELSE ~
     IF lv-sort-by EQ "i-name"    THEN oe-ordl.i-name                                                                                                   ELSE ~
                                       STRING(YEAR(oe-ordl.req-date),"9999") + STRING(MONTH(oe-ordl.req-date),"99") + STRING(DAY(oe-ordl.req-date),"99")
@@ -437,14 +438,14 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1
+     SIZE 5.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
 /*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
@@ -546,9 +547,9 @@ DEFINE BROWSE Browser-Table
                  WIDTH 21 LABEL-BGCOLOR 14
       oe-ordl.est-no COLUMN-LABEL "Est #" FORMAT "x(8)":U WIDTH 13.8
             LABEL-BGCOLOR 14
-      oe-ordl.job-no COLUMN-LABEL "Job #" FORMAT "x(6)":U WIDTH 12
+      oe-ordl.job-no COLUMN-LABEL "Job #" FORMAT "x(9)":U WIDTH 13
             LABEL-BGCOLOR 14
-      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14   
+      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">>9":U LABEL-BGCOLOR 14   
       oe-ordl.qty COLUMN-LABEL "Order!Quantity" FORMAT "->>,>>>,>>>":U
             WIDTH 15.4 LABEL-BGCOLOR 14
       oe-ordl.ship-qty COLUMN-LABEL "Shipped!Quantity" FORMAT "->>,>>>,>>>":U
@@ -793,7 +794,7 @@ oe-ordl.ord-no eq 999999999"
      _FldNameList[14]   > ASI.oe-ordl.est-no
 "oe-ordl.est-no" "Est #" "x(8)" "character" ? ? ? 14 ? ? yes ? no no "13.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.oe-ordl.job-no
-"oe-ordl.job-no" "Job #" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.job-no" "Job #" ? "character" ? ? ? 14 ? ? yes ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.oe-ordl.job-no2
 "oe-ordl.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.oe-ord.ord-date
@@ -1941,7 +1942,7 @@ PROCEDURE query-go :
   end.
 
   IF fi_est-no NE "" THEN fi_est-no = FILL(" ",8 - LENGTH(TRIM(fi_est-no))) + TRIM(fi_est-no).
-  IF fi_job-no NE "" THEN fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
+  IF fi_job-no NE "" THEN fi_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fi_job-no)) .
 
   IF fi_ord-no NE 0 THEN DO:
 
@@ -2485,7 +2486,7 @@ PROCEDURE show-prev-next :
   DEF VAR lv-ord-no AS INT NO-UNDO.
 
   IF fi_est-no NE "" THEN fi_est-no = FILL(" ",8 - LENGTH(TRIM(fi_est-no))) + TRIM(fi_est-no).
-  IF fi_job-no NE "" THEN fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
+  IF fi_job-no NE "" THEN fi_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fi_job-no)) .
 
   find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "OEBROWSE"

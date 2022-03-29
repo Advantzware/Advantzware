@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
  /* oe/rep/cocxprnt.i  */  
 PUT "<FArial>"  SKIP
     "<P15><C+40><B>Packing Slip</B> " SKIP
@@ -42,7 +43,7 @@ PUT "<FArial>"  SKIP
      "<R21><C67><FROM><R25><C67><LINE>" SKIP
      "<FArial><=4><B>                             DATE            ORDER NO.     PURCHASE                TERMS            F.O.B         SALES         SHIPPED VIA   " SKIP 
      "<FArial><=4><R+1>    DATE               SHIPPED                                ORDER NO.                                                           PERSON      </b>" SKIP 
-     "<FCourier New><=4><R+3> " TODAY SPACE(3) oe-bolh.bol-date SPACE(3) oe-boll.ord-no SPACE(3) oe-boll.po-no SPACE(1) v-terms SPACE(1)  v-fob SPACE(1)  "Prystup" SPACE(3)  oe-bolh.carrier      SKIP
+     "<FCourier New><=4><R+3> " TODAY SPACE(3) oe-bolh.bol-date SPACE(2) STRING(oe-boll.ord-no) FORM "X(8)" SPACE(2) oe-boll.po-no SPACE(1) v-terms SPACE(1)  v-fob SPACE(1)  "Prystup" SPACE(3)  oe-bolh.carrier      SKIP
      "<|10><R26><C1><#5><FROM><R60><C78><RECT>" SKIP 
      "<R28><C1><FROM><R28><C78><LINE>" SKIP 
      "<R26><C18><FROM><R60><C18><LINE>" SKIP

@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -175,7 +177,7 @@ DEFINE BROWSE BROWSE-1
       oe-relh.release# FORMAT "->,>>>,>>9":U
       oe-relh.rel-date FORMAT "99/99/9999":U
       /*get-ordno() @ ord-no          *//* mod 001*/
-      oe-rell.ord-no FORMAT ">>>>>9":U  /* mod 001*/
+      oe-rell.ord-no FORMAT ">>>>>>>9":U  /* mod 001*/
       oe-relh.cust-no FORMAT "x(8)":U
       oe-relh.ship-id FORMAT "x(8)":U
       oe-relh.po-no FORMAT "x(15)":U

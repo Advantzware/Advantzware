@@ -3,7 +3,7 @@
 "ASI"
 "stax"
 "tax-group"
-"Sales Tax Group"
+"Tax Group"
 "begin_tax-group"
 "yes"
 "end_tax-group"
@@ -77,7 +77,7 @@
 &{&DEFINETYPE}-define BEGIN-DEFAULT-5 no
 &{&DEFINETYPE}-define ENDFLD5 
 &{&DEFINETYPE}-define END-DEFAULT-5 no
-&{&DEFINETYPE}-define LISTORDER Sales Tax Group
+&{&DEFINETYPE}-define LISTORDER Tax Group
 &{&DEFINETYPE}-define ADDFLD-1 
 &{&DEFINETYPE}-define ADD-DEFAULT-1 no
 &{&DEFINETYPE}-define ADDFLD-2 

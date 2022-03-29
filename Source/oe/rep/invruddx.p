@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invruddx.p  */
 /* PRINT INVOICE   Container Services Corp, South Bend,IN            */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -501,10 +501,10 @@ assign
                 v-po-no FORM "x(10)" SPACE(1)
                 v-ship-qty  format "->>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
                 v-i-dscr  format "x(22)" SPACE(1)
-                v-price  format ">>,>>9.99" SPACE(2)
+                v-price  format ">>,>>9.99" SPACE(1)
                 v-price-head SPACE(1)
                 inv-line.t-price  format "->>>,>>9.99"                   
                 SKIP.
@@ -531,11 +531,11 @@ assign
                  END.
                 /*put space(40) v-part-info skip.*/
                  IF v = 1 THEN do:
-                    PUT SPACE(28) inv-line.part-no SPACE v-part-info SKIP.
+                    PUT SPACE(29) inv-line.part-no SPACE v-part-info SKIP.
                     v-printline = v-printline + 1.
                  END.
                  ELSE IF v-part-info <> "" THEN DO:
-                    PUT SPACE(44) /*v-po-no SPACE*/  v-part-info SKIP.
+                    PUT SPACE(45) /*v-po-no SPACE*/  v-part-info SKIP.
                     v-printline = v-printline + 1.
                  END.
                  

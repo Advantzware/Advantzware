@@ -31,6 +31,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -65,7 +66,7 @@ DEF BUFFER rm-rdtlh-1 FOR rm-rdtlh.
           AND rm-rcpth.trans-date GE fi_date          ~
           AND rm-rcpth.i-no       BEGINS fi_rm-i-no   ~
           AND rm-rcpth.rita-code  BEGINS fi_rita-code ~
-          AND rm-rcpth.job-no     BEGINS fi_job-no    ~
+          AND fill(" ",9 - length(TRIM(rm-rcpth.job-no))) + trim(rm-rcpth.job-no)  BEGINS fi_job-no    ~
           AND (rm-rcpth.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                           ~
@@ -186,16 +187,15 @@ DEFINE VARIABLE fi_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/00
      SIZE 16 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
-     SIZE 9 BY 1
+     SIZE 13 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
-     LABEL "-" 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1
+     SIZE 5.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_name AS CHARACTER FORMAT "x(30)" 
@@ -248,7 +248,7 @@ DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fi_tag# AS CHARACTER FORMAT "X(20)":U 
      LABEL "Tag#" 
      VIEW-AS FILL-IN 
-     SIZE 39 BY 1
+     SIZE 37.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
@@ -272,8 +272,8 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       rm-rcpth.i-no COLUMN-LABEL "Item#" FORMAT "x(10)":U
-      rm-rcpth.job-no FORMAT "x(6)":U
-      rm-rcpth.job-no2 COLUMN-LABEL "" FORMAT "99":U
+      rm-rcpth.job-no FORMAT "x(9)":U
+      rm-rcpth.job-no2 COLUMN-LABEL "" FORMAT "999":U
       rm-rcpth.trans-date COLUMN-LABEL "TR Date" FORMAT "99/99/99":U
       rm-rcpth.rita-code COLUMN-LABEL "C" FORMAT "x(1)":U
       rm-rdtlh.loc COLUMN-LABEL "Whs" FORMAT "x(5)":U
@@ -314,11 +314,11 @@ DEFINE FRAME F-Main
      fi_q-lf AT ROW 4.33 COL 110 COLON-ALIGNED
      fi_q-msf AT ROW 4.33 COL 131 COLON-ALIGNED
      fi_rm-i-no AT ROW 1.48 COL 10.6 COLON-ALIGNED
-     fi_tag# AT ROW 1.48 COL 39.6 COLON-ALIGNED
-     fi_job-no AT ROW 1.48 COL 85.2 COLON-ALIGNED
-     fi_job-no2 AT ROW 1.48 COL 96.2 COLON-ALIGNED
-     fi_rita-code AT ROW 1.48 COL 112.6 COLON-ALIGNED
-     fi_date AT ROW 1.48 COL 129.6 COLON-ALIGNED
+     fi_tag# AT ROW 1.48 COL 39.4 COLON-ALIGNED
+     fi_job-no AT ROW 1.48 COL 83 COLON-ALIGNED
+     fi_job-no2 AT ROW 1.48 COL 95.8 COLON-ALIGNED NO-LABEL
+     fi_rita-code AT ROW 1.48 COL 113.8 COLON-ALIGNED
+     fi_date AT ROW 1.48 COL 130 COLON-ALIGNED
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -412,7 +412,7 @@ ASSIGN
      _FldNameList[2]   > ASI.rm-rcpth.job-no
 "rm-rcpth.job-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.rm-rcpth.job-no2
-"rm-rcpth.job-no2" "" "99" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rcpth.job-no2" "" "999" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.rm-rcpth.trans-date
 "rm-rcpth.trans-date" "TR Date" "99/99/99" "date" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.rm-rcpth.rita-code
@@ -440,7 +440,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartBrowserCues" B-table-Win _INLINE
 /* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
@@ -640,8 +640,7 @@ END.
 ON LEAVE OF fi_job-no IN FRAME F-Main /* Job# */
 DO:
   DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN fi_job-no:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(fi_job-no:SCREEN-VALUE)))
-                                  + TRIM(fi_job-no:SCREEN-VALUE).
+    ASSIGN fi_job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fi_job-no)) .
   END.
 END.
 
@@ -730,6 +729,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sort-by:HIDDEN  = TRUE.
 fi_sort-by:VISIBLE = FALSE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

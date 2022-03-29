@@ -770,6 +770,7 @@ PROCEDURE pPrepareInputsCXMLMonitor PRIVATE:
         ttOrder.action          = cOrderActionCreate
         ttOrder.importType      = cOrderImportType
         ttOrder.stat            = "W"
+        ttOrder.ediSubmitted    = 1
         NO-ERROR. 
     IF ERROR-STATUS:ERROR THEN DO:
         ASSIGN

@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -118,25 +119,25 @@ DEFINE BUTTON btn-ok
     LABEL "&OK" 
     SIZE 16 BY 1.29.
 
-DEFINE VARIABLE begin_job1     AS CHARACTER FORMAT "x(6)" 
+DEFINE VARIABLE begin_job1     AS CHARACTER FORMAT "x(9)" 
     LABEL "Beginning  Job#" 
     VIEW-AS FILL-IN 
     SIZE 13 BY 1.
 
-DEFINE VARIABLE begin_job2     AS INTEGER   FORMAT ">9" INITIAL 0 
+DEFINE VARIABLE begin_job2     AS INTEGER   FORMAT ">>9" INITIAL 0 
     LABEL "-" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1.
+    SIZE 5.4 BY 1.
 
-DEFINE VARIABLE end_job1       AS CHARACTER FORMAT "x(6)" INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job1       AS CHARACTER FORMAT "x(9)" INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
     SIZE 13 BY 1.
 
-DEFINE VARIABLE end_job2       AS INTEGER   FORMAT ">9" INITIAL 99 
+DEFINE VARIABLE end_job2       AS INTEGER   FORMAT ">>9" INITIAL 999 
     LABEL "-" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1.
+    SIZE 5.4 BY 1.
 
 DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(50)" INITIAL "c:~\tmp~\r-bilmat.csv" 
     LABEL "Name" 
@@ -1020,16 +1021,12 @@ PROCEDURE set-job-vars :
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            fjob-no  = FILL(" ",6 - LENGTH(TRIM(begin_job1:SCREEN-VALUE))) +
-                 TRIM(begin_job1:SCREEN-VALUE)
-            tjob-no  = FILL(" ",6 - LENGTH(TRIM(end_job1:SCREEN-VALUE))) +
-                 trim(end_job1:SCREEN-VALUE)
+            fjob-no  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
+            tjob-no  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job1:SCREEN-VALUE)) 
             fjob-no2 = INT(begin_job2:SCREEN-VALUE)
             tjob-no2 = INT(end_job2:SCREEN-VALUE)
-            fjob-no  = FILL(" ",6 - LENGTH(TRIM(fjob-no))) + TRIM(fjob-no) +
-                 STRING(fjob-no2,"99")
-            tjob-no  = FILL(" ",6 - LENGTH(TRIM(tjob-no))) + TRIM(tjob-no) +
-                 STRING(tjob-no2,"99").
+            fjob-no  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', fjob-no, fjob-no2)) 
+            tjob-no  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', tjob-no, tjob-no2)) .
     END.
 
 
