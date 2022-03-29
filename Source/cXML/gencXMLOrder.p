@@ -595,6 +595,8 @@ PROCEDURE genOrderLinesLocal:
   DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
   DEFINE VARIABLE hdCostProcs AS HANDLE.
   DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cImportedUOM      AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE dPriceInEA        AS DECIMAL   NO-UNDO.
   RUN system\CostProcs.p PERSISTENT SET hdCostProcs.  
   oplSuccess = YES.
   
@@ -703,6 +705,7 @@ PROCEDURE genOrderLinesLocal:
         oe-ordl.prom-date = oe-ord.due-date
         oe-ordl.ediPriceUOM = TRIM(itemUnitOfMeasure)
         oe-ordl.ediPrice    = DEC(itemMoney)
+        cImportedUOM        = TRIM(itemUnitOfMeasure)
         .
 
       RUN sys/ref/nk1look.p (oe-ord.company, "QuotePriceMatrix", "L",  NO, YES, "", "", OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -735,18 +738,39 @@ PROCEDURE genOrderLinesLocal:
        oe-ordl.cost = dCostPerUOMTotal .
        oe-ordl.t-cost = oe-ordl.cost * oe-ordl.qty / 1000 .
       
-      IF oe-ordl.pr-uom NE "EA" THEN 
-      DO:  /*This assumes the qty uom is the same as the price uom on imported orders*/
+      /* Logic if price matrix does not exist. Price matrix may not exist but price and pr-uom may still get updated from itemfg */
+      IF NOT matrixExists AND oe-ordl.price EQ oe-ordl.ediPrice AND oe-ordl.pr-uom EQ oe-ordl.ediPriceUOM THEN DO:
+          IF oe-ordl.pr-uom NE "EA" THEN DO:  /*This assumes the qty uom is the same as the price uom on imported orders*/
+                ASSIGN 
+                    oe-ordl.spare-dec-1 = oe-ordl.qty
+                    oe-ordl.spare-char-2 = oe-ordl.pr-uom
+                    oe-ordl.t-price = oe-ordl.spare-dec-1 * oe-ordl.price
+                    oe-ordl.pr-uom = (IF LOOKUP(oe-ordl.pr-uom, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.pr-uom)
+                    .
+                RUN Conv_QtyToEA(oe-ordl.company, oe-ordl.i-no, oe-ordl.qty, oe-ordl.pr-uom, itemfg.case-count, OUTPUT oe-ordl.qty).
+          END. /*oe-ordl.pr-uom ne "EA"*/
+          ELSE 
+              oe-ordl.t-price = oe-ordl.qty * oe-ordl.price.
+      END.
+      ELSE DO:
+          cImportedUOM = IF LOOKUP(cImportedUOM, cCaseUOMList) GT 0 THEN "CS" ELSE cImportedUOM.
+          
           ASSIGN 
               oe-ordl.spare-dec-1  = oe-ordl.qty
-              oe-ordl.spare-char-2 = oe-ordl.pr-uom
-              oe-ordl.t-price      = oe-ordl.spare-dec-1 * oe-ordl.price
-              oe-ordl.pr-uom       = (IF LOOKUP(oe-ordl.pr-uom, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.pr-uom)
+              oe-ordl.spare-char-2 = oe-ordl.ediPriceUOM
+              dPriceInEA           = oe-ordl.price
               .
-          RUN Conv_QtyToEA(oe-ordl.company, oe-ordl.i-no, oe-ordl.qty, oe-ordl.pr-uom, itemfg.case-count, OUTPUT oe-ordl.qty).
-      END. /*oe-ordl.pr-uom ne "EA"*/
-      ELSE 
-          oe-ordl.t-price = oe-ordl.qty * oe-ordl.price.
+
+          /* If imported UOM is not "EA" then convert to EA */
+          IF cImportedUOM NE "EA" THEN
+              RUN Conv_QtyToEA(oe-ordl.company, oe-ordl.i-no, oe-ordl.qty, cImportedUOM, itemfg.case-count, OUTPUT oe-ordl.qty).
+          
+          /* If price matrix UOM is not EA then convert the price of price matrix UOM to EA */
+          IF oe-ordl.pr-uom NE "EA" THEN
+              RUN Conv_ValueToEA(oe-ordl.company, oe-ordl.i-no, dPriceInEA, oe-ordl.pr-uom, dPriceInEA, OUTPUT dPriceInEA).
+
+          oe-ordl.t-price = oe-ordl.qty * dPriceInEA.      
+      END.
        
       oe-ordl.cas-cnt = IF oe-ordl.qty LT itemfg.case-count THEN oe-ordl.qty ELSE itemfg.case-count.
       /* {oe/defwhsed.i oe-ordl} */
