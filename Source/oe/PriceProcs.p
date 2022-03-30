@@ -714,7 +714,7 @@ PROCEDURE Price_CalculateLinePrice:
             OUTPUT ttItemLines.lMatrixExists,
             INPUT-OUTPUT ttItemLines.dPrice, 
             INPUT-OUTPUT ttItemLines.cPriceUOM ).    
-
+                
         IF ttItemLines.lIsPrimary THEN 
             ASSIGN 
                 oplMatrixExists = ttItemLines.lMatrixExists
