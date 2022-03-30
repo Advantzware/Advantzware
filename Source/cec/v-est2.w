@@ -3841,7 +3841,7 @@ IF NOT ll-auto-calc-selected THEN
             item.company = gcompany AND 
             (INDEX("BPR1234",item.mat-type) > 0 OR (lIsMatlGroup AND lWoodStyle)) AND 
             item.industry = lv-industry AND 
-            item.i-no = SELF:SCREEN-VALUE) 
+            item.i-no = ef.board:SCREEN-VALUE) 
     then do:
          message "Invalid Board. Try Help." view-as alert-box error.
          apply "entry" to ef.board.
@@ -4185,7 +4185,7 @@ PROCEDURE new-board :
         item.company = gcompany AND 
         (INDEX("BPR1234",item.mat-type) > 0 OR (lIsMatlGroup AND lWoodStyle)) AND 
         item.industry = lv-industry AND 
-        item.i-no = SELF:SCREEN-VALUE)
+        item.i-no = ef.board:SCREEN-VALUE
         NO-LOCK NO-ERROR. 
     IF AVAIL item AND TRIM(ef.board:SCREEN-VALUE) NE "" THEN DO:
       ASSIGN
