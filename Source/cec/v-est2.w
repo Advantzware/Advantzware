@@ -4185,7 +4185,7 @@ PROCEDURE new-board :
         item.company = gcompany AND 
         (INDEX("BPR1234",item.mat-type) > 0 OR (lIsMatlGroup AND lWoodStyle)) AND 
         item.industry = lv-industry AND 
-        item.i-no = SELF:SCREEN-VALUE)
+        item.i-no = SELF:SCREEN-VALUE
         NO-LOCK NO-ERROR. 
     IF AVAIL item AND TRIM(ef.board:SCREEN-VALUE) NE "" THEN DO:
       ASSIGN
