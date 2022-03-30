@@ -5767,6 +5767,41 @@ PROCEDURE pUpdateChildTables PRIVATE:
                     bfChild-ttEstCostSummary.scopeRecKey = ipcTargetRecKey.
             END.
         END.
+        
+        WHEN "estCostBlank" THEN
+        DO:
+            
+            FOR EACH bfChild-ttEstCostDetail EXCLUSIVE-LOCK
+                WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID:              
+                IF bfChild-ttEstCostDetail.estCostBlankID = ipiSourceKey THEN
+                    bfChild-ttEstCostDetail.estCostBlankID = ipiTargetKey.
+                    
+                IF bfChild-ttEstCostDetail.sourceID = ipiSourceKey THEN
+                    bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
+            END.
+            
+            FOR EACH bfChild-ttEstCostOperation EXCLUSIVE-LOCK
+                WHERE bfChild-ttEstCostOperation.estCostHeaderID = ipiEstCostHeaderID:
+                
+                IF bfChild-ttEstCostOperation.estCostBlankID = ipiSourceKey THEN  
+                    bfChild-ttEstCostOperation.estCostBlankID = ipiTargetKey.
+            END.
+        
+            FOR EACH bfChild-ttEstCostMaterial EXCLUSIVE-LOCK
+                WHERE bfChild-ttEstCostMaterial.estCostHeaderID = ipiEstCostHeaderID:
+                IF bfChild-ttEstCostMaterial.estCostBlankID = ipiSourceKey THEN  
+                    bfChild-ttEstCostMaterial.estCostBlankID = ipiTargetKey.
+            END.
+        
+            FOR EACH bfChild-ttEstCostMisc EXCLUSIVE-LOCK
+                WHERE bfChild-ttEstCostMisc.estCostHeaderID = ipiEstCostHeaderID:
+                
+                IF bfChild-ttEstCostMisc.estCostBlankID = ipiSourceKey THEN  
+                    bfChild-ttEstCostMisc.estCostBlankID = ipiTargetKey.
+            END.
+            
+        END.
+        
         WHEN "estCostOperation" THEN
         DO:
             FOR EACH bfChild-ttEstCostDetail EXCLUSIVE-LOCK
@@ -5871,7 +5906,20 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
         END.
     END.
     
-    
+    FOR EACH ttEstCostBlank
+        TRANSACTION:
+        CREATE bfEx-estCostBlank.
+        BUFFER-COPY ttEstCostBlank EXCEPT rec_key estCostBlankID TO bfEx-estCostBlank.
+        
+         /* Update parent key in child Tables */
+        RUN pUpdateChildTables ("estCostBlank", 
+            ttEstCostBlank.estCostHeaderID, 
+            ttEstCostBlank.estCostBlankID, 
+            bfEx-estCostBlank.estCostBlankID,
+            ttEstCostBlank.rec_key,
+            bfEx-estCostBlank.rec_key).
+        
+    END. /* ttEstCostBlank */
         
     FOR EACH ttEstCostSummary
         TRANSACTION:
@@ -5934,6 +5982,7 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
     RELEASE bfEx-estCostOperation.
     RELEASE bfEx-estCostMisc.
     RELEASE bfEx-estCostMaterial.
+    RELEASE bfEx-estCostBlank.
     
     EMPTY TEMP-TABLE ttEstCostForm.
     EMPTY TEMP-TABLE ttEstCostDetail.
@@ -5941,6 +5990,7 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
     EMPTY TEMP-TABLE ttEstCostOperation.
     EMPTY TEMP-TABLE ttEstCostMisc.
     EMPTY TEMP-TABLE ttEstCostMaterial.
+    EMPTY TEMP-TABLE ttEstCostBlank.
     
 END PROCEDURE.
 
