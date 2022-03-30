@@ -339,7 +339,7 @@ machtran.pass_sequence = INTEGER(pass_sequence)"
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL auto_find B-table-Win
 ON LEAVE OF auto_find IN FRAME F-Main /* Auto Find */
 DO:
-   {&self-name}:screen-value = fill(" ",9 - length({&self-name}:screen-value)).
+   {&self-name}:screen-value = FILL(" ", iJobLen - length({&self-name}:screen-value)).
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -428,8 +428,8 @@ DO:
             USE-INDEX close-date:
                 
             IF fiEndJob:SCREEN-VALUE NE "" THEN  DO: 
-                IF (fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) LT fiStartJob:SCREEN-VALUE /* Job no outside of range specified */
-                    OR fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) GT fiEndJob:SCREEN-VALUE
+                IF (FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) LT fiStartJob:SCREEN-VALUE /* Job no outside of range specified */
+                    OR FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) GT fiEndJob:SCREEN-VALUE
                     OR job.job-no2 LT INTEGER(fiStartJob2:SCREEN-VALUE) /* Job2 no outside of range specified */
                     OR job.job-no2 GT INTEGER(fiEndJob2:SCREEN-VALUE))    
                 AND TRIM(job.job-no) NE "" THEN 
@@ -466,8 +466,8 @@ DO:
             :
             
             IF fiEndJob:SCREEN-VALUE NE "" THEN DO: 
-                IF (fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) LT fiStartJob:SCREEN-VALUE /* Job no outside of range specified */
-                    OR fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) GT fiEndJob:SCREEN-VALUE
+                IF (FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) LT fiStartJob:SCREEN-VALUE /* Job no outside of range specified */
+                    OR FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) GT fiEndJob:SCREEN-VALUE
                     OR job.job-no2 LT INTEGER(fiStartJob2:SCREEN-VALUE) /* Job2 no outside of range specified */
                     OR job.job-no2 GT INTEGER(fiEndJob2:SCREEN-VALUE)) 
                 AND TRIM(job.job-no) NE "" THEN 

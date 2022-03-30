@@ -1418,8 +1418,8 @@ PROCEDURE run-report :
         AND po-ordl.i-no LE end_item
         AND po-ordl.vend-i-no GE begin_vend-i-no
         AND po-ordl.vend-i-no LE end_vend-i-no
-        AND fill(" ",9 - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) GE begin_job
-        AND fill(" ",9 - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) LE end_job
+        AND FILL(" ", iJobLen - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) GE begin_job
+        AND FILL(" ", iJobLen - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) LE end_job
         AND po-ordl.job-no2 GE begin_job2
         AND po-ordl.job-no2 LE end_job2
         AND po-ordl.due-date  GE begin_date
@@ -1622,7 +1622,7 @@ PROCEDURE run-report :
                             v-adder = "" .
 
                             FIND FIRST job WHERE job.company EQ cocode 
-                                AND job.job-no EQ STRING(FILL(" ",6 - 
+                                AND job.job-no EQ STRING(FILL(" ", iJobLen - 
                                 LENGTH(TRIM(po-ordl.job-no)))) +
                                 TRIM(po-ordl.job-no) 
                                 AND job.job-no2 EQ po-ordl.job-no2 NO-LOCK NO-ERROR.

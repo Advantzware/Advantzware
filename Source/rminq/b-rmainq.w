@@ -64,7 +64,7 @@ DEF VAR ld-cons-uom AS CHAR NO-UNDO.
 &SCOPED-DEFINE for-each1                       ~
     FOR EACH job                               ~
         WHERE {&key-phrase}                    ~
-          AND fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) BEGINS fi_job-no  ~
+          AND FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) BEGINS fi_job-no  ~
           AND (job.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                     ~

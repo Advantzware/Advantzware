@@ -1351,9 +1351,9 @@ PROCEDURE build-tt :
   IF temp-job1 = "" THEN
       temp-job1 = "zzzzzz".
   ASSIGN
-  v-job[1]   = fill(" ",6 - length(trim(begin_job-no))) +
+  v-job[1]   = FILL(" ", iJobLen - length(trim(begin_job-no))) +
               trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-job[2]   = fill(" ",6 - length(trim(temp-job1)))   +
+  v-job[2]   = FILL(" ", iJobLen - length(trim(temp-job1)))   +
               temp-job1   + string(int(end_job-no2),"99").
 
   IF rd_prt-po EQ "Line" THEN
@@ -1444,9 +1444,9 @@ PROCEDURE build-tt :
         where job-hdr.company eq cocode
           and job-hdr.ord-no  EQ oe-ordl.ord-no
           AND job-hdr.i-no    EQ oe-ordl.i-no
-          AND (fill(" ",6 - length(trim(job-hdr.job-no))) +
+          AND (FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
               trim(job-hdr.job-no) + string(job-hdr.job-no2,"99") ge v-job[1]
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
+          and FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
               trim(job-hdr.job-no) + string(job-hdr.job-no2,"99") le v-job[2])
          use-index opened NO-LOCK NO-ERROR.
 
@@ -1487,7 +1487,7 @@ END.
                           STRING(MONTH(oe-ordl.req-date),"99")  +
                           STRING(DAY(oe-ordl.req-date),"99")    +
                           STRING(oe-ordl.part-no,"x(15)") + STRING(oe-ord.ord-no,"99999999999"))              
-   tt-report.key-04  = FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
+   tt-report.key-04  = FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
                        TRIM(job-hdr.job-no) + "-" +
                        STRING(job-hdr.job-no2,"99")
    tt-report.key-05  = STRING(oe-ord.ord-no,"99999999999")
@@ -2005,9 +2005,9 @@ ASSIGN
  v-date[2]  = end_ord-date
  v-po[1]    = begin_po-no
  v-po[2]    = end_po-no
- v-job[1]   = fill(" ",6 - length(trim(begin_job-no))) +
+ v-job[1]   = FILL(" ", iJobLen - length(trim(begin_job-no))) +
               trim(begin_job-no) + string(int(begin_job-no2),"99")
- v-job[2]   = fill(" ",6 - length(trim(end_job-no)))   +
+ v-job[2]   = FILL(" ", iJobLen - length(trim(end_job-no)))   +
               trim(end_job-no)   + string(int(end_job-no2),"99")
  v-item[1]  = begin_i-no
  v-item[2]  = end_i-no

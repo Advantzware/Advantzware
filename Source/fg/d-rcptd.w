@@ -3260,7 +3260,7 @@ DEFINE BUFFER bf-job-hdr FOR job-hdr .
         IF fg-rctd.job-no:SCREEN-VALUE  NE "" THEN
             FOR EACH bf-job-hdr NO-LOCK
                 WHERE bf-job-hdr.company EQ cocode
-                AND fill(" ",9 - length(TRIM(bf-job-hdr.job-no))) + trim(bf-job-hdr.job-no) EQ fg-rctd.job-no:SCREEN-VALUE 
+                AND FILL(" ", iJobLen - length(TRIM(bf-job-hdr.job-no))) + trim(bf-job-hdr.job-no) EQ fg-rctd.job-no:SCREEN-VALUE 
                 AND bf-job-hdr.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE )
                 BREAK BY bf-job-hdr.frm      DESCENDING
                 BY bf-job-hdr.blank-no DESCENDING:
@@ -3360,7 +3360,7 @@ PROCEDURE new-tag :
                 DO:
                     ASSIGN
                         fg-rctd.job-no:SCREEN-VALUE  = loadtag.job-no
-                        fg-rctd.job-no2:SCREEN-VALUE = FILL(" ",9 - LENGTH(TRIM(STRING(loadtag.job-no2)))) +
+                        fg-rctd.job-no2:SCREEN-VALUE = FILL(" ", iJobLen - LENGTH(TRIM(STRING(loadtag.job-no)))) +
                                                                            TRIM(STRING(loadtag.job-no2)).
                     IF NOT glFGReceiptPassWord THEN
                         RUN get-job-no (INPUT YES) NO-ERROR.
@@ -3418,7 +3418,7 @@ PROCEDURE new-tag :
                 IF fg-bin.job-no <> "" THEN
                     ASSIGN
                         fg-rctd.job-no:SCREEN-VALUE  = fg-bin.job-no
-                        fg-rctd.job-no2:SCREEN-VALUE = FILL(" ",9 - LENGTH(TRIM(STRING(fg-bin.job-no2)))) +
+                        fg-rctd.job-no2:SCREEN-VALUE = FILL(" ", iJobLen - LENGTH(TRIM(STRING(fg-bin.job-no)))) +
                                                                           TRIM(STRING(fg-bin.job-no2)).
             END.
         END.
@@ -4167,7 +4167,7 @@ PROCEDURE valid-job-no :
             END.
             FIND FIRST job-hdr
                 WHERE job-hdr.company EQ cocode
-                AND fill(" ",9 - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) EQ fg-rctd.job-no:SCREEN-VALUE
+                AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) EQ fg-rctd.job-no:SCREEN-VALUE
                 NO-LOCK NO-ERROR.
             IF NOT AVAILABLE job-hdr THEN 
             DO:
@@ -4209,7 +4209,7 @@ PROCEDURE valid-job-no2 :
         DO:
             FOR EACH job-hdr
                 WHERE job-hdr.company EQ cocode
-                AND fill(" ",9 - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) EQ fg-rctd.job-no:SCREEN-VALUE
+                AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) EQ fg-rctd.job-no:SCREEN-VALUE
                 AND job-hdr.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE)
                 NO-LOCK,
                 FIRST job
@@ -4224,7 +4224,7 @@ PROCEDURE valid-job-no2 :
             IF NOT AVAILABLE job-hdr THEN
                 FOR EACH job
                     WHERE job.company EQ cocode
-                    AND fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) EQ fg-rctd.job-no:SCREEN-VALUE
+                    AND FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) EQ fg-rctd.job-no:SCREEN-VALUE
                     AND job.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE)
                     NO-LOCK,
                     FIRST job-hdr

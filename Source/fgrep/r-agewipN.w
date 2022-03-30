@@ -2648,9 +2648,9 @@ PROCEDURE print_report :
         tcus               = end_cust-no
         fitm               = begin_i-no
         titm               = end_i-no
-        fjob               = FILL(" ",9 - length(TRIM(begin_job-no))) +
+        fjob               = FILL(" ", iJobLen - length(TRIM(begin_job-no))) +
                 trim(begin_job-no) + string(int(begin_job-no2),"99")
-        tjob               = FILL(" ",9 - length(TRIM(end_job-no)))   +
+        tjob               = FILL(" ", iJobLen - length(TRIM(end_job-no)))   +
                 trim(end_job-no)   + string(int(end_job-no2),"99") 
         v-q-or-v           = YES /*rd_show EQ "Quantity"*/
         v-sub-t            = NO /*tb_val-cust*/

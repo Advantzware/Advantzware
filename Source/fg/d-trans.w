@@ -1287,7 +1287,7 @@ PROCEDURE valid-job-loc-bin-tag :
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             li-fieldc                   = TRIM(fg-rctd.job-no:SCREEN-VALUE )
-            li-fieldc                   = FILL(" ",9 - LENGTH(li-fieldc)) + li-fieldc
+            li-fieldc                   = FILL(" ", iJobLen - LENGTH(li-fieldc)) + li-fieldc
             fg-rctd.job-no:SCREEN-VALUE = li-fieldc
 
             li-field#                   = LOOKUP(FOCUS:NAME ,lv-fields).

@@ -86,7 +86,7 @@ ll-sort-asc = NOT oeinq.
           AND (fg-rcpth.i-no EQ fi_i-no OR fi_i-no EQ "") ~
           AND fg-rcpth.rita-code  BEGINS fi_rita-code ~
           AND (fg-rcpth.po-no     EQ TRIM(STRING(fi_po-no,">>>>>>>>")) OR fi_po-no EQ 0) ~
-          AND (fill(" ",9 - length(TRIM(fg-rcpth.job-no))) + trim(fg-rcpth.job-no) EQ fi_job-no OR fi_job-no EQ "")  ~
+          AND (FILL(" ", iJobLen - length(TRIM(fg-rcpth.job-no))) + trim(fg-rcpth.job-no) EQ fi_job-no OR fi_job-no EQ "")  ~
           AND (fg-rcpth.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                           ~

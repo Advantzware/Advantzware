@@ -1203,9 +1203,9 @@ DISPLAY "" WITH FRAME r-top.
 
 FOR EACH job NO-LOCK
     WHERE job.company EQ cocode        
-      AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) +
           TRIM(job.job-no) + STRING(INT(job.job-no2),"999") GE v-job-no[1] 
-      AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) +
           TRIM(job.job-no) + STRING(INT(job.job-no2),"999") LE v-job-no[2]
       AND job.job-no2 GE int(begin_job-no2)
       AND job.job-no2 LE int(end_job-no2)    

@@ -20,6 +20,8 @@ BLOCK-LEVEL ON ERROR UNDO, THROW.
 USING Progress.Json.ObjectModel.*.
 
 /* ***************************  Definitions  ************************** */
+{sys/inc/var.i}
+
 /* The values of the below variables need to be in upper case and modifying them will cause inaccurate output */ 
 DEFINE VARIABLE gcMonthShort AS CHARACTER EXTENT 12 NO-UNDO INITIAL ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"].
 DEFINE VARIABLE gcMonthLong  AS CHARACTER EXTENT 12 NO-UNDO INITIAL ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"]. 
@@ -868,7 +870,7 @@ PROCEDURE pJobFormat PRIVATE:
     DEFINE OUTPUT PARAMETER opcJobValue  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcJob2Value AS CHARACTER NO-UNDO.
 
-    opcJobValue = fill(" ",9 - length(trim(ipcJobValue))) + trim(ipcJobValue).
+    opcJobValue = FILL(" ", iJobLen - length(trim(ipcJobValue))) + trim(ipcJobValue).
 
     opcJob2Value = STRING(ipiJob2Value,"999").
     

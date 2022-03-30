@@ -1167,7 +1167,7 @@ DO:
                     AND (bf-oe-ordl.i-no BEGINS fi_i-no OR fi_i-no EQ "")
                     AND (bf-oe-ordl.ord-no EQ fi_ord-no OR fi_ord-no EQ 0)
                     AND (bf-oe-ordl.est-no BEGINS fi_est-no OR fi_est-no EQ "")
-                    AND ( fill(" ",9 - length(TRIM(bf-oe-ordl.job-no))) + trim(bf-oe-ordl.job-no) BEGINS fi_job-no OR fi_job-no EQ "")
+                    AND ( FILL(" ", iJobLen - length(TRIM(bf-oe-ordl.job-no))) + trim(bf-oe-ordl.job-no) BEGINS fi_job-no OR fi_job-no EQ "")
                     AND (bf-oe-ordl.po-no BEGINS fi_po-no1 OR fi_po-no1 = "")
                     AND (bf-oe-ordl.s-man[1] BEGINS fi_sman OR fi_sman EQ "")
                   NO-ERROR.
@@ -3664,7 +3664,7 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
                          + (IF fi_ord-no  NE 0  THEN " AND oe-ordl.ord-no  EQ "       + STRING(fi_ord-no)   ELSE "")
                          + (IF fi_cust-no NE "" THEN " AND oe-ordl.cust-no BEGINS "   + QUOTER(fi_cust-no)  ELSE "")
                          + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "    + QUOTER(fi_est-no)   ELSE "")
-                         + (IF fi_job-no  NE "" THEN " AND " + 'fill(" ",9 - length(TRIM(oe-ordl.job-no))) +' + " trim(oe-ordl.job-no) BEGINS "    + QUOTER(fi_job-no)   ELSE "")
+                         + (IF fi_job-no  NE "" THEN " AND " + 'FILL(" ", iJobLen - length(TRIM(oe-ordl.job-no))) +' + " trim(oe-ordl.job-no) BEGINS "    + QUOTER(fi_job-no)   ELSE "")
                          + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
                          + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "    + QUOTER (fi_i-no)    ELSE "")
                          + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS "   + QUOTER(fi_part-no)  ELSE "")

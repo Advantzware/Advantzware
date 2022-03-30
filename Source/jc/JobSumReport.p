@@ -71,9 +71,9 @@ PROCEDURE pBuildTempTables PRIVATE:
     
     FOR EACH job NO-LOCK 
         WHERE job.company EQ ipcCompany         
-        AND fill(" ",9 - length(trim(job.job-no))) +
+        AND FILL(" ", iJobLen - length(trim(job.job-no))) +
         trim(job.job-no) + string(int(job.job-no2),"999") GE cJobNo[1]
-        AND fill(" ",9 - length(trim(job.job-no))) +
+        AND FILL(" ", iJobLen - length(trim(job.job-no))) +
         trim(job.job-no) + string(int(job.job-no2),"999") LE cJobNo[2]
         AND job.job-no2 GE int(ipiFromJobNo2)
         AND job.job-no2 LE int(ipiToJobNo2)

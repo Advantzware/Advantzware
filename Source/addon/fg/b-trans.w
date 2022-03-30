@@ -1111,7 +1111,7 @@ DEF VAR lv-rowid AS ROWID NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",9 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
+        FILL(" ", iJobLen - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
         TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
     RUN windows/l-fgibn2.w (gcompany, fg-rctd.i-no:screen-value in browse {&browse-name}, fg-rctd.job-no:screen-value in browse {&browse-name}, INT(fg-rctd.job-no2:screen-value in browse {&browse-name}), fg-rctd.loc:screen-value in browse {&browse-name}, fg-rctd.loc-bin:screen-value in browse {&browse-name}, fg-rctd.tag:screen-value in browse {&browse-name}, output lv-rowid).
@@ -2229,7 +2229,7 @@ PROCEDURE valid-job-loc-bin-tag :
 
      ASSIGN
       li-fieldc = TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
-      li-fieldc = FILL(" ",9 - LENGTH(li-fieldc)) + li-fieldc
+      li-fieldc = FILL(" ", iJobLen - LENGTH(li-fieldc)) + li-fieldc
       fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = li-fieldc
 
       li-field# = LOOKUP(FOCUS:NAME IN BROWSE {&browse-name},lv-fields).

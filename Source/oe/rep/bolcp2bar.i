@@ -167,7 +167,7 @@ FOR EACH tt-boll,
          lv-qcase-tot = lv-qcase-tot + tt-boll.qty-case
          lv-partial-tot = lv-partial-tot + tt-boll.partial
          lv-pal-tot = lv-pal-tot + tt-boll2.pallets
-         v-job-no = fill(" ",6 - length(trim(tt-boll.job-no))) +
+         v-job-no = FILL(" ", iJobLen - length(trim(tt-boll.job-no))) +
                     trim(tt-boll.job-no) + "-" +
                     trim(string(tt-boll.job-no2,"99"))
          tt-boll.printed = yes.

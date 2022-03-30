@@ -23,9 +23,9 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
 
     for EACH job
         where job.company            eq cocode          
-          AND fill(" ",9 - length(trim(job.job-no))) +
+          AND FILL(" ", iJobLen - length(trim(job.job-no))) +
               trim(job.job-no) + string(int(job.job-no2),"999") GE v-job-no[1]
-          AND fill(" ",9 - length(trim(job.job-no))) +
+          AND FILL(" ", iJobLen - length(trim(job.job-no))) +
               trim(job.job-no) + string(int(job.job-no2),"999") LE v-job-no[2]
           AND job.job-no2 GE int(begin_job-no2)
 	  AND job.job-no2 LE int(end_job-no2)

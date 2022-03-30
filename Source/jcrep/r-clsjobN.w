@@ -1370,9 +1370,9 @@ EMPTY TEMP-TABLE tt-report.
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ cocode
           AND (job-hdr.opened  EQ NO OR tb_open_job)            
-          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
               TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"999") GE v-job-no[1]
-          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no)))   +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no)))   +
               TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"999") LE v-job-no[2]
           AND job-hdr.job-no2 GE int(begin_job-no2)
           AND job-hdr.job-no2 LE int(end_job-no2)    

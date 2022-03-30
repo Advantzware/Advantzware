@@ -100,7 +100,7 @@ END.
           AND {system/brMatches.i  job-hdr.cust-no fi_cust-no}   ~
           AND {system/brMatches.i  job-hdr.i-no fi_i-no}   ~
           AND job-hdr.est-no    BEGINS fi_est-no    ~
-          AND fill(" ",9 - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) BEGINS fi_job-no    ~
+          AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) BEGINS fi_job-no    ~
           AND (job-hdr.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "") ~
           AND (job-hdr.due-date GE fiBeginDate OR fiBeginDate EQ ?) ~
           AND (job-hdr.due-date LE fiEndDate OR fiEndDate EQ ?)

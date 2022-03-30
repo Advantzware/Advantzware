@@ -560,8 +560,8 @@ PROCEDURE run-process :
                 fg-rcpth.trans-date LE tdat AND 
                 fg-rcpth.rita-code  GE ftyp AND 
                 fg-rcpth.rita-code  LE ttyp AND 
-                FILL(" ",9 - LENGTH(TRIM(fg-rcpth.job-no))) + TRIM(fg-rcpth.job-no) + STRING(fg-rcpth.job-no2,"999") GE fjob AND 
-                FILL(" ",9 - LENGTH(TRIM(fg-rcpth.job-no))) + TRIM(fg-rcpth.job-no) + STRING(fg-rcpth.job-no2,"999") LE tjob AND
+                FILL(" ", iJobLen - LENGTH(TRIM(fg-rcpth.job-no))) + TRIM(fg-rcpth.job-no) + STRING(fg-rcpth.job-no2,"999") GE fjob AND 
+                FILL(" ", iJobLen - LENGTH(TRIM(fg-rcpth.job-no))) + TRIM(fg-rcpth.job-no) + STRING(fg-rcpth.job-no2,"999") LE tjob AND
                 fg-rcpth.job-no2 GE int(begin_job-no2) AND
                 fg-rcpth.job-no2 LE int(end_job-no2)
                 USE-INDEX tran:

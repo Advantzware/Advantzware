@@ -475,10 +475,10 @@ PROCEDURE pBuildBinsForItem PRIVATE:
             AND fg-rcpth.i-no       EQ itemfg.i-no
             AND fg-rcpth.trans-date LE ipdtAsOf
             /*
-            AND STRING(FILL(" ",6 - LENGTH(TRIM(fg-rcpth.job-no))) +
+            AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(fg-rcpth.job-no))) +
                 TRIM(fg-rcpth.job-no) + STRING(fg-rcpth.job-no2,"99"))
              GE ""
-            AND STRING(FILL(" ",6 - LENGTH(TRIM(fg-rcpth.job-no))) +
+            AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(fg-rcpth.job-no))) +
                 TRIM(fg-rcpth.job-no) + STRING(fg-rcpth.job-no2,"99"))
              LE "ZZZZZZZZZZZZ"
             */

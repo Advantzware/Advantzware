@@ -1358,10 +1358,10 @@ for each pc-prdd
       and pc-prdd.op-date le v-date[2]
       and pc-prdd.shift   ge v-shift[1]
       and pc-prdd.shift   le v-shift[2]       
-      and fill(" ",9 - length(trim(pc-prdd.job-no))) +
+      and FILL(" ", iJobLen - length(trim(pc-prdd.job-no))) +
           trim(pc-prdd.job-no) + string(int(pc-prdd.job-no2),"999")
                           ge v-job-no[1]
-      and fill(" ",9 - length(trim(pc-prdd.job-no))) +
+      and FILL(" ", iJobLen - length(trim(pc-prdd.job-no))) +
           trim(pc-prdd.job-no) + string(int(pc-prdd.job-no2),"999")
                           le v-job-no[2]
       AND pc-prdd.job-no2 GE int(begin_job-no2)

@@ -67,7 +67,7 @@ ll-sort-asc = NO /*oeinq*/  .
           AND oe-ordl.part-no   BEGINS fi_part-no   ~
           AND oe-ordl.po-no     BEGINS fi_po-no     ~
           AND oe-ordl.est-no    BEGINS fi_est-no    ~
-          AND fill(" ",9 - length(TRIM(oe-ordl.job-no))) + trim(oe-ordl.job-no) BEGINS fi_job-no    ~
+          AND FILL(" ", iJobLen - length(TRIM(oe-ordl.job-no))) + trim(oe-ordl.job-no) BEGINS fi_job-no    ~
           AND (oe-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "") ~
           AND oe-ordl.opened    EQ YES
 

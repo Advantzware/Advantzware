@@ -1442,10 +1442,10 @@ ON LEAVE OF end_i-no IN FRAME FRAME-A /* To Item# */
             IF begin_job2 = 0 AND END_job2 = 0 THEN END_job2 = 999.
             FIND FIRST job-hdr NO-LOCK
                 WHERE job-hdr.company EQ cocode                 
-                AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) + 
+                AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) + 
                 TRIM(job-hdr.job-no) + STRING(job-hdr.job-no2,"999")  
                 GE (begin_job + STRING(begin_job2,"999"))
-                AND FILL(" ",9 - length(TRIM(job-hdr.job-no))) +
+                AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) +
                 TRIM(job-hdr.job-no) + STRING(job-hdr.job-no2,"999")  
                 LE (end_job + STRING(end_job2,"999"))
                 AND job-hdr.job-no2    EQ INT(begin_job2:SCREEN-VALUE) NO-ERROR.
@@ -7318,9 +7318,9 @@ PROCEDURE leave-job-label :
 
         FOR EACH b-job-hdr-2  WHERE
             b-job-hdr-2.company EQ cocode AND
-            fill(" ",9 - length(TRIM(b-job-hdr-2.job-no))) + trim(b-job-hdr-2.job-no) GE trim(v-job-no) AND
+            FILL(" ", iJobLen - length(TRIM(b-job-hdr-2.job-no))) + trim(b-job-hdr-2.job-no) GE trim(v-job-no) AND
             b-job-hdr-2.job-no2 GE INT(begin_job2:SCREEN-VALUE) AND
-            fill(" ",9 - length(TRIM(b-job-hdr-2.job-no))) + trim(b-job-hdr-2.job-no)  LE v-job-no-end AND                
+            FILL(" ", iJobLen - length(TRIM(b-job-hdr-2.job-no))) + trim(b-job-hdr-2.job-no)  LE v-job-no-end AND                
             b-job-hdr-2.job-no2 LE INT(end_job2:SCREEN-VALUE) AND
             b-job-hdr-2.i-no    GE begin_i-no:SCREEN-VALUE AND
             b-job-hdr-2.i-no    LE end_i-no:SCREEN-VALUE

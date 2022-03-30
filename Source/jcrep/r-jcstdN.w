@@ -1540,10 +1540,10 @@ PROCEDURE run-report :
     iLineCount = 0 .
     FOR EACH costHeader NO-LOCK 
         WHERE costHeader.company EQ gcompany        
-        AND fill(" ",9 - length(TRIM(costHeader.jobNo))) +
+        AND FILL(" ", iJobLen - length(TRIM(costHeader.jobNo))) +
         trim(costHeader.jobNo) + string(costHeader.jobNo2,"999")
         GE v-fjob
-        AND fill(" ",9 - length(TRIM(costHeader.jobNo))) +
+        AND FILL(" ", iJobLen - length(TRIM(costHeader.jobNo))) +
         trim(costHeader.jobNo) + string(costHeader.jobNo2,"999")
         LE v-tjob
         AND costHeader.jobNo2 GE int(begin_job-no2)

@@ -11,11 +11,11 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
         AND job.due-date GE begin_job-date
         AND job.due-date LE end_job-date 
         
-        and (fill(" ",9 - length(trim(job.job-no))) +
+        and (FILL(" ", iJobLen - length(trim(job.job-no))) +
              trim(job.job-no)                       +
              string(job.job-no2,"999"))                 ge v-job-no[1]
 
-        and (fill(" ",9 - length(trim(job.job-no))) +
+        and (FILL(" ", iJobLen - length(trim(job.job-no))) +
              trim(job.job-no)                       +
              string(job.job-no2,"999"))                 le v-job-no[2]
         AND job.job-no2 GE int(v-job-no2[1])

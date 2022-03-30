@@ -902,9 +902,9 @@ assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
 
-   v-job-no[1]   = fill(" ",6 - length(trim(begin_job-no))) +
+   v-job-no[1]   = FILL(" ", iJobLen - length(trim(begin_job-no))) +
                   trim(begin_job-no) + string(int(begin_job-no2),"99")
-   v-job-no[2]   = fill(" ",6 - length(trim(end_job-no)))   +
+   v-job-no[2]   = FILL(" ", iJobLen - length(trim(end_job-no)))   +
                   trim(end_job-no)   + string(int(end_job-no2),"99") 
  /*
  v-job-no[1]    = begin_job-no
@@ -939,9 +939,9 @@ display "" with frame r-top.
                           mch-act.opn = yes
                           use-index opn-idx
                           no-lock:
-      if fill(" ",6 - length(trim(mch-act.job-no))) +
+      if FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
          trim(mch-act.job-no) + string(int(mch-act.job-no2),"99") < v-job-no[1] or 
-         fill(" ",6 - length(trim(mch-act.job-no))) +
+         FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
          trim(mch-act.job-no) + string(int(mch-act.job-no2),"99") > v-job-no[2] THEN next.
 
       find first work-edit where work-edit.job = mch-act.job no-error.
@@ -959,9 +959,9 @@ display "" with frame r-top.
                           use-index opn-idx
                           no-lock:
 
-      if fill(" ",6 - length(trim(mat-act.job-no))) +
+      if FILL(" ", iJobLen - length(trim(mat-act.job-no))) +
          trim(mat-act.job-no) + string(int(mat-act.job-no2),"99") < v-job-no[1] or 
-         fill(" ",6 - length(trim(mat-act.job-no))) +
+         FILL(" ", iJobLen - length(trim(mat-act.job-no))) +
          trim(mat-act.job-no) + string(int(mat-act.job-no2),"99") > v-job-no[2] THEN next.
 
       find first work-edit where work-edit.job = mat-act.job no-error.
@@ -979,9 +979,9 @@ display "" with frame r-top.
                          use-index opn-idx
                          no-lock:
 
-      if fill(" ",6 - length(trim(fg-act.job-no))) +
+      if FILL(" ", iJobLen - length(trim(fg-act.job-no))) +
          trim(fg-act.job-no) + string(int(fg-act.job-no2),"99") < v-job-no[1] or 
-         fill(" ",6 - length(trim(fg-act.job-no))) +
+         FILL(" ", iJobLen - length(trim(fg-act.job-no))) +
          trim(fg-act.job-no) + string(int(fg-act.job-no2),"99") > v-job-no[2] THEN next.
 
       find first work-edit where work-edit.job = fg-act.job no-error.
@@ -1000,9 +1000,9 @@ display "" with frame r-top.
                           use-index opn-idx
                           no-lock:
 
-      if fill(" ",6 - length(trim(misc-act.job-no))) +
+      if FILL(" ", iJobLen - length(trim(misc-act.job-no))) +
          trim(misc-act.job-no) + string(int(misc-act.job-no2),"99") < v-job-no[1] or 
-         fill(" ",6 - length(trim(misc-act.job-no))) +
+         FILL(" ", iJobLen - length(trim(misc-act.job-no))) +
          trim(misc-act.job-no) + string(int(misc-act.job-no2),"99") > v-job-no[2] THEN next.
 
       find first work-edit where work-edit.job = misc-act.job no-error.

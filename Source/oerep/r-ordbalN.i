@@ -20,9 +20,9 @@
         each oe-ordl of oe-ord
         where oe-ordl.i-no     ge v-item[1]
           and oe-ordl.i-no     le v-item[2]
-          AND fill(" ",9 - length(trim(oe-ordl.job-no))) +
+          AND FILL(" ", iJobLen - length(trim(oe-ordl.job-no))) +
               trim(oe-ordl.job-no) + string(oe-ordl.job-no2,"999") GE v-job[1]
-          AND fill(" ",9 - length(trim(oe-ordl.job-no))) +
+          AND FILL(" ", iJobLen - length(trim(oe-ordl.job-no))) +
               trim(oe-ordl.job-no) + string(oe-ordl.job-no2,"999") LE v-job[2]
           AND oe-ordl.job-no2 GE int(begin_job-no2)
           AND oe-ordl.job-no2 LE int(end_job-no2)    

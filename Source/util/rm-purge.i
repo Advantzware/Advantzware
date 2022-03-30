@@ -10,9 +10,9 @@ for each rm-rcpth
       and rm-rcpth.trans-date le v-e-date
       and rm-rcpth.i-no       ge b-item
       and rm-rcpth.i-no       le e-item     
-      AND FILL(" ",9 - LENGTH(TRIM(rm-rcpth.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rcpth.job-no))) +
           TRIM(rm-rcpth.job-no) + STRING(INT(rm-rcpth.job-no2),"999") GE v-job-no[1] 
-      AND FILL(" ",9 - LENGTH(TRIM(rm-rcpth.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rcpth.job-no))) +
           TRIM(rm-rcpth.job-no) + STRING(INT(rm-rcpth.job-no2),"999") LE v-job-no[2]
       AND rm-rcpth.job-no2 GE int(begin_job-no2)
       AND rm-rcpth.job-no2 LE int(end_job-no2)

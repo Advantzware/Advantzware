@@ -532,9 +532,9 @@ ASSIGN
 
 FOR EACH b-rh NO-LOCK
     WHERE b-rh.company    EQ cocode       
-      AND FILL(" ",9 - LENGTH(TRIM(b-rh.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(b-rh.job-no))) +
           TRIM(b-rh.job-no) + STRING(INT(b-rh.job-no2),"999") GE v-job-no[1]
-      AND FILL(" ",9 - LENGTH(TRIM(b-rh.job-no)))   +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(b-rh.job-no)))   +
           TRIM(b-rh.job-no) + STRING(INT(b-rh.job-no2),"999") LE v-job-no[2]
       AND b-rh.job-no2 GE int(begin_job-no2)
       AND b-rh.job-no2 LE int(end_job-no2)    

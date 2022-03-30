@@ -843,10 +843,10 @@ for each job-hdr
     where job-hdr.company       eq cocode
       and job-hdr.cust-no       ge fcus
       and job-hdr.cust-no       le tcus
-      and string(fill(" ",9 - length(trim(job-hdr.job-no))) +
+      and string(FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
                    trim(job-hdr.job-no) + string(job-hdr.job-no2,"999"))
                                   ge fjob
-      and string(fill(" ",9 - length(trim(job-hdr.job-no))) +
+      and string(FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
                    trim(job-hdr.job-no) + string(job-hdr.job-no2,"999"))
                                     le tjob
       AND job-hdr.job-no2 GE int(begin_job-no2)

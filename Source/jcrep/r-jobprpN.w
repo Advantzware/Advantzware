@@ -1474,10 +1474,10 @@ display "" with frame r-top.
 
 IF rsGroupBy BEGINS "Customer" THEN
 for EACH ASI.job-prep WHERE job-prep.company eq cocode                      
-                    and fill(" ",9 - length(trim(job-PREP.job-no))) +
+                    and FILL(" ", iJobLen - length(trim(job-PREP.job-no))) +
                   trim(job-prep.job-no) + string(job-prep.job-no2,"999")
                               ge v-fjob
-              and fill(" ",9 - length(trim(job-prep.job-no))) +
+              and FILL(" ", iJobLen - length(trim(job-prep.job-no))) +
                   trim(job-prep.job-no) + string(job-prep.job-no2,"999")
                               le v-tjob
                     AND job-prep.job-no2 GE int(begin_job-no2)
@@ -1587,10 +1587,10 @@ END.
 
 ELSE /* prep code */
     for EACH ASI.job-prep WHERE job-prep.company eq cocode                          
-                        and fill(" ",6 - length(trim(job-PREP.job-no))) +
+                        and FILL(" ", iJobLen - length(trim(job-PREP.job-no))) +
                       trim(job-prep.job-no) + string(job-prep.job-no2,"99")
                                   ge v-fjob
-                  and fill(" ",6 - length(trim(job-prep.job-no))) +
+                  and FILL(" ", iJobLen - length(trim(job-prep.job-no))) +
                       trim(job-prep.job-no) + string(job-prep.job-no2,"99")
                                   le v-tjob
                          AND job-prep.job-no2 GE int(begin_job-no2)
