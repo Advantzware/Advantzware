@@ -213,12 +213,12 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_clsdate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "From Close Date" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY .95 NO-UNDO.
+     SIZE 20.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
      LABEL "From Cust #" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning InvDate" 
@@ -228,7 +228,7 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
 DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
@@ -238,12 +238,12 @@ DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000"
 DEFINE VARIABLE end_clsdate AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "To Close Date" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "To Cust #" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending InvDate" 
@@ -253,7 +253,7 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
 DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
@@ -369,11 +369,11 @@ DEFINE VARIABLE tgl_SumTot AS LOGICAL INITIAL no
 DEFINE FRAME FRAME-A
      begin_job-no AT ROW 2.19 COL 20.8 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 2.19 COL 34 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 2.19 COL 35.8 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 2.29 COL 60.4 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 2.29 COL 73.6 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.29 COL 75.4 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_cust-no AT ROW 3.38 COL 20.8 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 4

@@ -4259,6 +4259,9 @@ PROCEDURE pProcessImportedOrderHeader PRIVATE:
         bf-oe-ord.ediSubmitted  = ipbf-ttOrder.ediSubmitted
         .
 
+    system.SharedConfig:Instance:SetValue("APIInboundEvent_UserField1", ipbf-ttOrder.poID).
+    system.SharedConfig:Instance:SetValue("APIInboundEvent_UserField2", ipbf-ttOrder.shipToID).
+
     FIND FIRST bf-cust NO-LOCK
          WHERE bf-cust.company EQ ipbf-ttOrder.company
            AND bf-cust.cust-no EQ ipbf-ttOrder.customerID
@@ -4434,14 +4437,19 @@ PROCEDURE pProcessImportedOrderLine:
     DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound         AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL   NO-UNDO.
-      
+    DEFINE VARIABLE cImportedUOM      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dPriceInEA        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dImportedQuantity AS DECIMAL   NO-UNDO.      
+    
     DEFINE BUFFER bf-oe-ord  FOR oe-ord.
     DEFINE BUFFER bf-cust    FOR cust.
     DEFINE BUFFER bf-itemfg  FOR itemfg.
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
         
     RUN system\CostProcs.p PERSISTENT SET hdCostProcs.  
-
+    
+    system.SharedConfig:Instance:SetValue("APIInboundEvent_UserField3", ipbf-ttOrderLine.manufacturerPartID).
+    
     FIND FIRST bf-oe-ord NO-LOCK
          WHERE bf-oe-ord.company EQ ipcCompany
            AND bf-oe-ord.ord-no  EQ ipiOrderID
@@ -4532,6 +4540,8 @@ PROCEDURE pProcessImportedOrderLine:
         bf-oe-ordl.part-dscr2 = bf-itemfg.part-dscr2 
         bf-oe-ordl.ediPriceUOM = ipbf-ttOrderLine.uom
         bf-oe-ordl.ediPrice    = ipbf-ttOrderLine.unitPrice
+        cImportedUOM           = ipbf-ttOrderLine.uom
+        dImportedQuantity      = bf-oe-ordl.qty
         .
           
     IF AVAILABLE bf-cust THEN
@@ -4540,16 +4550,66 @@ PROCEDURE pProcessImportedOrderLine:
             bf-oe-ordl.tax  = bf-cust.sort EQ 'Y' AND bf-oe-ord.tax-gr NE ''
             .
 
+    cImportedUOM = IF LOOKUP(cImportedUOM, gcCaseUOMList) GT 0 THEN "CS" ELSE cImportedUOM.
+    
+    /* Convert the quantity into Eaches as Price Matrix always considers itemfg quantity uom to be eaches */
+    IF cImportedUOM NE "EA" THEN
+        RUN Conv_QtyToEA(bf-oe-ordl.company, bf-oe-ordl.i-no, bf-oe-ordl.qty, cImportedUOM, bf-itemfg.case-count, OUTPUT bf-oe-ordl.qty).
+  
     RUN sys/ref/nk1look.p (bf-oe-ord.company, "QuotePriceMatrix", "L",  NO, YES, "", "", OUTPUT cRtnChar, OUTPUT lRecFound).
     IF lRecFound THEN
         lQuotePriceMatrix = LOGICAL(cRtnChar) NO-ERROR. 
+    
+    matrixExists = FALSE.
               
     IF bf-oe-ordl.price EQ 0 OR lQuotePriceMatrix THEN DO:                      
-        FIND FIRST xoe-ord OF bf-oe-ord NO-LOCK NO-ERROR.
-        /* oe/getprice.i */
-        RUN getPrice (
-            INPUT ROWID(bf-oe-ordl)
-            ).
+        FIND FIRST xoe-ord OF bf-oe-ord NO-LOCK.
+        RUN getPrice (ROWID(bf-oe-ordl)).
+        
+        /* Add tags to order line */
+        IF matrixExists THEN DO:
+            RUN AddTagInfoForGroup(
+                INPUT STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
+                INPUT "oe-ordl",
+                INPUT "Price Matrix - Item No:" + bf-oe-ordl.i-no + " Customer No:" + bf-oe-ordl.cust-no + " Ship ID:" + bf-oe-ordl.ship-id + " Quantity:" + STRING(bf-oe-ordl.qty),
+                INPUT "",
+                INPUT "Price-Source"
+                ). /*From TagProcs Super Proc*/ 
+        END.
+        /* If price matrix does not exist and price is different from imported price then price source is item fg */
+        ELSE IF bf-oe-ordl.price NE bf-oe-ordl.ediPrice AND bf-oe-ordl.price NE 0 THEN DO:
+            RUN AddTagInfoForGroup(
+                INPUT STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
+                INPUT "oe-ordl",
+                INPUT "Item FG - Sell price Item-No:" + bf-oe-ordl.i-no,
+                INPUT "",
+                INPUT "Price-Source"
+                ). 
+        END.
+                    
+        /* If the price returned is 0 then revert back the price */
+        IF bf-oe-ordl.price EQ 0 THEN DO:
+            ASSIGN
+                bf-oe-ordl.price  = bf-oe-ordl.ediPrice
+                bf-oe-ordl.pr-uom = bf-oe-ordl.ediPriceUOM
+                .
+            RUN AddTagInfoForGroup(
+                INPUT STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
+                INPUT "oe-ordl",
+                INPUT "cXML imported price - Orde PO#:" + bf-oe-ordl.po-no,
+                INPUT "",
+                INPUT "Price-Source"
+                ).                   
+        END.
+    END.
+    ELSE DO:
+        RUN AddTagInfoForGroup(
+            INPUT STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
+            INPUT "oe-ordl",
+            INPUT "cXML imported price - Order PO#:" + bf-oe-ordl.po-no,
+            INPUT "",
+            INPUT "Price-Source"
+            ).        
     END.
     
     ASSIGN
@@ -4575,29 +4635,32 @@ PROCEDURE pProcessImportedOrderLine:
         bf-oe-ordl.t-cost = bf-oe-ordl.cost * bf-oe-ordl.qty / 1000
         .
     
-    IF bf-oe-ordl.pr-uom NE "EA" THEN DO:  /*This assumes the qty uom is the same as the price uom on imported orders*/
-        ASSIGN 
-            bf-oe-ordl.spare-dec-1  = bf-oe-ordl.qty
-            bf-oe-ordl.spare-char-2 = bf-oe-ordl.pr-uom
-            bf-oe-ordl.t-price      = bf-oe-ordl.spare-dec-1 * bf-oe-ordl.price
-            bf-oe-ordl.pr-uom       = IF LOOKUP(bf-oe-ordl.pr-uom, gcCaseUOMList) GT 0 THEN 
-                                          "CS" 
-                                      ELSE 
-                                          bf-oe-ordl.pr-uom
-            bf-oe-ordl.ediPriceUOM = (IF LOOKUP(bf-oe-ordl.ediPriceUOM, gcCaseUOMList) GT 0 THEN "CS" ELSE bf-oe-ordl.ediPriceUOM).                              
-            .
-            
-        RUN Conv_QtyToEA (
-            INPUT  bf-oe-ordl.company,
-            INPUT  bf-oe-ordl.i-no, 
-            INPUT  bf-oe-ordl.qty, 
-            INPUT  bf-oe-ordl.pr-uom, 
-            INPUT  bf-itemfg.case-count, 
-            OUTPUT bf-oe-ordl.qty
-            ).
+    /* Logic if price matrix does not exist. Price matrix may not exist but price and pr-uom may still get updated from itemfg */
+    IF NOT matrixExists AND bf-oe-ordl.price EQ bf-oe-ordl.ediPrice AND bf-oe-ordl.pr-uom EQ bf-oe-ordl.ediPriceUOM THEN DO:
+        IF bf-oe-ordl.pr-uom NE "EA" THEN DO:  /*This assumes the qty uom is the same as the price uom on imported orders*/
+              ASSIGN 
+                  bf-oe-ordl.spare-dec-1  = dImportedQuantity /* Save original imported quantity */
+                  bf-oe-ordl.spare-char-2 = bf-oe-ordl.pr-uom
+                  bf-oe-ordl.t-price      = bf-oe-ordl.spare-dec-1 * bf-oe-ordl.price
+                  bf-oe-ordl.pr-uom       = (IF LOOKUP(bf-oe-ordl.pr-uom, gcCaseUOMList) GT 0 THEN "CS" ELSE bf-oe-ordl.pr-uom)
+                  .
+        END. /*bf-oe-ordl.pr-uom ne "EA"*/
+        ELSE 
+            bf-oe-ordl.t-price = bf-oe-ordl.qty * bf-oe-ordl.price.
     END.
-    ELSE 
-        bf-oe-ordl.t-price = bf-oe-ordl.qty * bf-oe-ordl.price.
+    ELSE DO:
+        ASSIGN 
+            bf-oe-ordl.spare-dec-1  = dImportedQuantity     /* Save original imported quantity */
+            bf-oe-ordl.spare-char-2 = bf-oe-ordl.ediPriceUOM
+            dPriceInEA              = bf-oe-ordl.price
+            .
+
+        /* If price matrix UOM is not EA then convert the price of price matrix UOM to EA */
+        IF bf-oe-ordl.pr-uom NE "EA" THEN
+            RUN Conv_ValueToEA(bf-oe-ordl.company, bf-oe-ordl.i-no, dPriceInEA, bf-oe-ordl.pr-uom, dPriceInEA, OUTPUT dPriceInEA).
+
+        bf-oe-ordl.t-price = bf-oe-ordl.qty * dPriceInEA.      
+    END.
      
     bf-oe-ordl.cas-cnt = IF bf-oe-ordl.qty LT bf-itemfg.case-count THEN 
                              bf-oe-ordl.qty 

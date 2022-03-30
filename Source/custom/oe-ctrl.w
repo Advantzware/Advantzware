@@ -195,11 +195,11 @@ DEFINE FRAME oe-ctrl
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 7 FGCOLOR 15 
-     Btn_OrdType  AT ROW 1.24 COL 70 HELP
-          "Update/Save Order Type"      
+     Btn_OrdType AT ROW 1.24 COL 70 HELP
+          "Update/Save Order Type"
      n-ord AT ROW 2.43 COL 31 COLON-ALIGNED HELP
           "Enter order number to be used for next order"
-          LABEL "Next Order Number"
+          LABEL "Next Order Number" FORMAT ">>>>>>>9"
           BGCOLOR 15 
      oe-ctrl.n-bol AT ROW 3.62 COL 31 COLON-ALIGNED
           LABEL "Next Bill of Lading Number" FORMAT ">>>>>>>9"
@@ -315,7 +315,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ctrl.n-bol IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN n-ord IN FRAME oe-ctrl
-   1 LIKE = asi.oe-ctrl. EXP-LABEL EXP-SIZE                             */
+   1 LIKE = asi.oe-ctrl. EXP-LABEL EXP-FORMAT                           */
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.p-bol IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.p-fact IN FRAME oe-ctrl

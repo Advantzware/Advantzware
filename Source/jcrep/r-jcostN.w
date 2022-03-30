@@ -288,27 +288,27 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_clsdate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "From Close Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY .95 NO-UNDO.
+     SIZE 20.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
      LABEL "From Cust #" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning InvDate" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_fgcat AS CHARACTER FORMAT "X(8)" 
      LABEL "From FG Category" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
@@ -318,27 +318,27 @@ DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000"
 DEFINE VARIABLE end_clsdate AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "To Close Date" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "To Cust #" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending InvDate" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_fgcat AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "To FG Category" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
@@ -447,27 +447,27 @@ DEFINE VARIABLE tgl_SumTot AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_job-no AT ROW 2.19 COL 20.8 COLON-ALIGNED HELP
+     begin_job-no AT ROW 2.19 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 2.19 COL 34 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 2.19 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     end_job-no AT ROW 2.29 COL 60.4 COLON-ALIGNED HELP
+     end_job-no AT ROW 2.29 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 2.29 COL 73.6 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.29 COL 82 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     begin_clsdate AT ROW 3.38 COL 21 COLON-ALIGNED HELP
+     begin_clsdate AT ROW 3.38 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Date" WIDGET-ID 2
-     end_clsdate AT ROW 3.43 COL 60.6 COLON-ALIGNED HELP
+     end_clsdate AT ROW 3.43 COL 67 COLON-ALIGNED HELP
           "Enter Ending Date" WIDGET-ID 6
      lbl_qty AT ROW 3.62 COL 97 COLON-ALIGNED NO-LABEL
-     begin_cust-no AT ROW 4.57 COL 21 COLON-ALIGNED HELP
+     begin_cust-no AT ROW 4.57 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 4
-     end_cust-no AT ROW 4.57 COL 60.6 COLON-ALIGNED HELP
+     end_cust-no AT ROW 4.57 COL 67 COLON-ALIGNED HELP
           "Enter Ending Customer Number" WIDGET-ID 8
      rd_qty AT ROW 5.05 COL 106 NO-LABEL
-     begin_fgcat AT ROW 6 COL 21 COLON-ALIGNED HELP
+     begin_fgcat AT ROW 6 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 46
-     end_fgcat AT ROW 6 COL 59.6 COLON-ALIGNED HELP
+     end_fgcat AT ROW 6 COL 67 COLON-ALIGNED HELP
           "Enter Ending Customer Number" WIDGET-ID 48
      tgl_SumTot AT ROW 6.24 COL 99 WIDGET-ID 10
      tb_sep_board AT ROW 7.43 COL 103 WIDGET-ID 12
