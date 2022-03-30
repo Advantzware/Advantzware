@@ -20,6 +20,8 @@ ASSIGN
   gcompany  = ip-co-code
   g_company = ip-co-code
   .
+
+IF g_company NE "" THEN
 RUN spSetSessionParam ("Company", g_company).
 
 /*add new NK1 to v-std-list first, then add it to the "When" clause below */
