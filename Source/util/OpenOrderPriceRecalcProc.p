@@ -127,9 +127,11 @@ FOR EACH oe-ordl NO-LOCK
        
     IF iplZeroOrderLine AND NOT lFound THEN
        dNewPrice = 0.
+    ELSE IF NOT lFound THEN 
+    dNewPrice = oe-ordl.price.
     
     dPriceChange = (dNewPrice / dOldPrice - 1 ) * 100.
-    IF (dOldPrice NE dNewPrice OR NOT ipExecute)         
+    IF (dOldPrice NE dNewPrice OR NOT ipExecute) OR ( iplZeroOrderLine AND NOT lFound ) OR (NOT lFound AND lQuotePriceMatrix)         
         THEN 
     DO:
         j = j + 1.
@@ -171,14 +173,26 @@ FOR EACH oe-ordl NO-LOCK
             oe-ordl.price = 0.
             oe-ordl.t-price = 0.
             FIND CURRENT oe-ordl NO-LOCK NO-ERROR.
+            IF AVAILABLE ttOrderLineChange THEN
+            ttOrderLineChange.note = ttOrderLineChange.note + ", Price Set to zero" .
         END.
         
-        IF lQuotePriceMatrix OR iplZeroOrderLine THEN
-        RUN Price_CheckPriceHoldForOrder(ROWID(oe-ord),
-            NO, /*Prompt*/
-            YES, /*Set oe-ord hold fields*/
-            OUTPUT lPriceHold, 
-            OUTPUT cPriceHoldMessage).
+        IF lQuotePriceMatrix OR iplZeroOrderLine THEN do: 
+            IF NOT oe-ord.priceHold THEN
+            DO:
+                FIND CURRENT oe-ord EXCLUSIVE-LOCK NO-ERROR.
+                 ASSIGN
+                     oe-ord.priceHold = YES
+                     oe-ord.priceHoldReason = "No matrix found".
+                FIND CURRENT oe-ord NO-LOCK NO-ERROR.
+                IF AVAILABLE ttOrderLineChange THEN
+                 ttOrderLineChange.note = ttOrderLineChange.note + ", Order put on Price Hold".
+            END.  
+            ELSE DO:
+                IF AVAILABLE ttOrderLineChange THEN
+                    ttOrderLineChange.note = ttOrderLineChange.note + ", Order already on Price Hold".
+            END.
+        END.    
     END.
 END.
 RUN Output_TempTableToCSV IN hdOutput (TEMP-TABLE ttOrderLineChange:HANDLE, ipFilePath ,YES,YES, OUTPUT lError, OUTPUT cMessage).
