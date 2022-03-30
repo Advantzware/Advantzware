@@ -608,7 +608,7 @@ PROCEDURE pAddEstOPFromRouting PRIVATE:
          
         END.
               
-        RUN GetOperationStandardsForEstOp(riRowid, OUTPUT dSpeed, OUTPUT dMRHrs, OUTPUT dSpoilPrct, OUTPUT dMRWaste, OUTPUT iNumSheets).
+        RUN GetOperationStandardsForEstOp(riRowid, 0, OUTPUT dSpeed, OUTPUT dMRHrs, OUTPUT dSpoilPrct, OUTPUT dMRWaste, OUTPUT iNumSheets).
          
         DO TRANSACTION:
             FIND FIRST bfExcl-est-op EXCLUSIVE-LOCK
@@ -675,6 +675,7 @@ PROCEDURE Operations_ImportMachineStandards:
     DEFINE INPUT  PARAMETER ipiBlankNo      AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiPass         AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQty          AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdProbeQty     AS DECIMAL NO-UNDO.
     DEFINE INPUT  PARAMETER ipcMachCode     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdSpeed        AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdMRHrs        AS DECIMAL NO-UNDO.
@@ -696,7 +697,7 @@ PROCEDURE Operations_ImportMachineStandards:
         AND bf-est-op.qty EQ ipdQty NO-ERROR.
         
     IF AVAILABLE bf-est-op THEN
-        RUN GetOperationStandardsForEstOp(ROWID(bf-est-op), OUTPUT opdSpeed, OUTPUT opdMRHrs, OUTPUT opdSpoilPrct, OUTPUT opdMRWaste, OUTPUT iNumSheets).
+        RUN GetOperationStandardsForEstOp(ROWID(bf-est-op), ipdProbeQty, OUTPUT opdSpeed, OUTPUT opdMRHrs, OUTPUT opdSpoilPrct, OUTPUT opdMRWaste, OUTPUT iNumSheets).
        
 END PROCEDURE.
 
@@ -896,6 +897,11 @@ PROCEDURE pCollectDataForEstimate PRIVATE:
     
     DEFINE VARIABLE dQtyYield           AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyFGOnFormYielded AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cQtyValue           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAttrName           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cError              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE opdProbQty          AS DECIMAL NO-UNDO.
     
     DEFINE BUFFER bf-est-op FOR est-op.
     DEFINE BUFFER bf-eb     FOR eb.
@@ -916,7 +922,14 @@ PROCEDURE pCollectDataForEstimate PRIVATE:
         
     RUN pGetEstOPDataFromEstimate (BUFFER ipbf-ef, opdTargetQty,OUTPUT TABLE ttEstOp).
     
-    opdBlankQty = fGetRequiredQtyUsingEstOp (BUFFER ipbf-eb, bf-est-op.qty, ipcEstimateType ,"").
+    /* Get Qty for which Probe is being processed */
+    RUN pGetAttribute(giAttributeIDEstQtyPerFeed, OUTPUT cQtyValue, OUTPUT cAttrName, OUTPUT cError, OUTPUT cMessage). //Get colors attribute
+    ASSIGN opdProbQty = DECIMAL(cQtyValue) NO-ERROR.
+    
+    IF opdProbQty EQ 0 THEN    
+        opdProbQty = bf-est-op.qty.
+    
+    opdBlankQty = fGetRequiredQtyUsingEstOp (BUFFER ipbf-eb, opdProbQty, ipcEstimateType ,"").
         
     FOR EACH bf-eb NO-LOCK
         OF ipbf-ef:
@@ -1716,6 +1729,7 @@ PROCEDURE GetOperationStandardsForEstOp PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipriRowid       AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdProbeQty     AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdSpeed        AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdMRHrs        AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdSpoilPrct    AS DECIMAL NO-UNDO.
@@ -1760,7 +1774,7 @@ PROCEDURE GetOperationStandardsForEstOp PRIVATE:
             
         IF NOT AVAILABLE bf-eb THEN RETURN.
                 
-        RUN SetAttributesFromEstOP (ipriRowid, bf-est.loc, OUTPUT lError, OUTPUT cMessage).
+        RUN SetAttributesFromEstOP (ipriRowid, bf-est.loc, ipdProbeQty, OUTPUT lError, OUTPUT cMessage).
             
         RUN pBuildMessage("", INPUT-OUTPUT cMessage).
         
@@ -3509,6 +3523,7 @@ PROCEDURE SetAttributesFromEstOP PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipriRowid       AS ROWID NO-UNDO.
     DEFINE INPUT  PARAMETER ipcLocation     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdProbeQty     AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError        AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
     
@@ -3535,8 +3550,18 @@ PROCEDURE SetAttributesFromEstOP PRIVATE:
         RUN pSetAttributesBlank(BUFFER bf-eb).
         RUN pSetAttributeForColors(BUFFER bf-eb, ipcLocation, bf-est-op.m-code, bf-est-op.dept ,bf-est-op.op-pass).  //Maxco
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDDieNumberUp, STRING(fGetDieNumberUp(BUFFER bf-eb,bf-est-op.m-code))). //v-up  
-        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFeed, bf-est-op.qty).  //qty
-        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFG, bf-est-op.qty).  //qty
+        
+        IF ipdProbeQty NE 0 THEN
+        DO:
+            RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFeed, ipdProbeQty).  //qty
+            RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFG, ipdProbeQty).  //qty
+        END.
+        ELSE
+        DO:
+            RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFeed, bf-est-op.qty).  //qty
+            RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFG, bf-est-op.qty).  //qty
+        END.
+           
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER bf-eb, bf-est-op.m-code, bf-est-op.op-pass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDNoOutGShtWid, STRING(fGetOperationsGrsShtWid(BUFFER bf-eb, bf-est-op.m-code, bf-est-op.op-pass))). //v-out
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDSetPartsperForm, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,2,""))). //ld-parts[2]
@@ -4119,6 +4144,7 @@ FUNCTION fGetOperationsEstSheet RETURNS DECIMAL PRIVATE
     DEFINE VARIABLE cAttrName     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cError        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQuantityPerSet AS DECIMAL NO-UNDO.
     
     RUN pGetAttribute(giAttributeIDEstQtyPerFeed, OUTPUT cQtyValue, OUTPUT cAttrName, OUTPUT cError, OUTPUT cMessage). //Get colors attribute
     ASSIGN dOperationQty = DECIMAL(cQtyValue) NO-ERROR.
@@ -4151,11 +4177,15 @@ FUNCTION fGetOperationsEstSheet RETURNS DECIMAL PRIVATE
         END.
         ELSE 
         DO:
+            dQuantityPerSet = ipbf-eb.quantityPerSet.
+            IF dQuantityPerSet EQ 0 THEN
+                dQuantityPerSet = DYNAMIC-FUNCTION("fEstimate_GetQuantityPerSet", BUFFER ipbf-eb).
+            
             RUN est/ef-#out.p (ROWID(ef), OUTPUT iNOut).
             IF ipbf-eb.est-type EQ 8 THEN
                 iYldQty =  1.
             ELSE
-                iYldQty = IF ipbf-eb.quantityPerSet GE 0 THEN ipbf-eb.quantityPerSet ELSE (-1 / ipbf-eb.quantityPerSet) .
+                iYldQty = IF dQuantityPerSet GE 0 THEN dQuantityPerSet ELSE (-1 / dQuantityPerSet) .
                 
         END.        
     END.

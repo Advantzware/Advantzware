@@ -248,10 +248,10 @@ PROCEDURE pTestImportMachineStandards:
     
     FOR EACH bf-est-op NO-LOCk
         WHERE bf-est-op.Company = "001"
-        AND bf-est-op.est-no  = "  103439"
-        AND bf-est-op.qty  = 1000
+        AND bf-est-op.est-no  = "  104045"
+        //AND bf-est-op.qty  = 1000
         
-        //and bf-est-op.m-code = "BMA"
+        and bf-est-op.m-code = "408"
             by bf-est-op.line desc:
               
         FOR FIRST bf-estCostOperation NO-LOCK
@@ -262,11 +262,12 @@ PROCEDURE pTestImportMachineStandards:
             AND bf-estCostOperation.operationID  = bf-est-op.m-code:
        
             RUN Operations_ImportMachineStandards IN ghOperation
-                (bf-est-op.company, bf-est-op.est-no, bf-est-op.s-num, bf-est-op.b-num, bf-est-op.op-pass,bf-est-op.qty, bf-est-op.m-code, OUTPUT dSpeed, OUTPUT dMRHrs, OUTPUT dMRWaste, OUTPUT dSpoilPrct).
+                (bf-est-op.company, bf-est-op.est-no, bf-est-op.s-num, bf-est-op.b-num, bf-est-op.op-pass,bf-est-op.qty, 600000, bf-est-op.m-code, OUTPUT dSpeed, OUTPUT dMRHrs, OUTPUT dMRWaste, OUTPUT dSpoilPrct).
     
     
             MESSAGE
             bf-est-op.m-code skip
+           
                 bf-estCostOperation.quantityInSetupWaste  dMRWaste skip 
                 bf-estCostOperation.hoursSetup           dMRHrs skip
                 bf-estCostOperation.speed   dSpeed skip

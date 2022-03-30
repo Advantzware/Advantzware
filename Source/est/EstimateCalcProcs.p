@@ -3407,6 +3407,7 @@ PROCEDURE pImportMachineStandards PRIVATE:
      Purpose: Import Machine Standards on each operation that isn't flagged as locked
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-estCostHeader    FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-est-op           FOR est-op.
     DEFINE PARAMETER BUFFER opbf-estCostOperation FOR estCostOperation.
     
@@ -3417,7 +3418,7 @@ PROCEDURE pImportMachineStandards PRIVATE:
     
        
     RUN Operations_ImportMachineStandards IN ghOperation
-        (ipbf-est-op.company, ipbf-est-op.est-no, ipbf-est-op.s-num, ipbf-est-op.b-num, ipbf-est-op.op-pass,ipbf-est-op.qty, ipbf-est-op.m-code, OUTPUT dSpeed, OUTPUT dMRHrs, OUTPUT dMRWaste, OUTPUT dSpoilPrct).
+        (ipbf-est-op.company, ipbf-est-op.est-no, ipbf-est-op.s-num, ipbf-est-op.b-num, ipbf-est-op.op-pass,ipbf-est-op.qty, ipbf-estCostHeader.quantityMaster, ipbf-est-op.m-code, OUTPUT dSpeed, OUTPUT dMRHrs, OUTPUT dMRWaste, OUTPUT dSpoilPrct).
     
     IF AVAILABLE opbf-estCostOperation THEN
         ASSIGN
@@ -3910,7 +3911,7 @@ PROCEDURE pProcessOperations PRIVATE:
     DO:
         /* Import Machine Standards */
         IF glCalcSourceForMachineStd AND NOT est-op.isLocked THEN
-            RUN pImportMachineStandards (BUFFER est-op, BUFFER bf-estCostOperation).
+            RUN pImportMachineStandards (BUFFER ipbf-estCostHeader, BUFFER est-op, BUFFER bf-estCostOperation).
         
         /*REFACTOR to calculate quantities for combos*/        
         IF est-op.b-num NE 0 AND bf-estCostOperation.feedType EQ "B" THEN
