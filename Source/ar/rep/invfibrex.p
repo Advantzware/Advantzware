@@ -82,7 +82,7 @@ FOR EACH report NO-LOCK
 
       FIND FIRST terms WHERE terms.t-code EQ ar-inv.terms NO-LOCK NO-ERROR.
       IF AVAIL terms THEN
-        v-terms = FILL(" ", iJobLen - INT(LENGTH(terms.dscr) / 2)) + terms.dscr .
+        v-terms = FILL(" ",9 - INT(LENGTH(terms.dscr) / 2)) + terms.dscr .
       ELSE v-terms = "" .
 
     FIND FIRST shipto NO-LOCK 

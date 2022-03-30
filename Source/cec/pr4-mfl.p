@@ -459,7 +459,7 @@ DO WITH NO-BOX NO-LABELS FRAME adh-frame STREAM-IO:
 
         ASSIGN
             vqty = STRING(gqty,">>>>>9.99")
-            vqty = FILL(" ", iJobLen - length(TRIM(vqty))) + trim(vqty).
+            vqty = FILL(" ",9 - length(TRIM(vqty))) + trim(vqty).
 
         DISPLAY item.i-name
             vqty                     FORMAT "x(9)"           TO 48
@@ -538,7 +538,7 @@ DO WITH NO-BOX NO-LABELS FRAME lam-frame STREAM-IO:
 
         ASSIGN
             vqty = STRING(gqty,">>>>>9.99")
-            vqty = FILL(" ", iJobLen - length(TRIM(vqty))) + trim(vqty).
+            vqty = FILL(" ",9 - length(TRIM(vqty))) + trim(vqty).
 
         DISPLAY item.i-name
             vqty  FORMAT "x(9)" TO 48

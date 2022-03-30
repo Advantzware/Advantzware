@@ -3360,7 +3360,7 @@ PROCEDURE new-tag :
                 DO:
                     ASSIGN
                         fg-rctd.job-no:SCREEN-VALUE  = loadtag.job-no
-                        fg-rctd.job-no2:SCREEN-VALUE = FILL(" ", iJobLen - LENGTH(TRIM(STRING(loadtag.job-no2)))) +
+                        fg-rctd.job-no2:SCREEN-VALUE = FILL(" ", iJobLen - LENGTH(TRIM(STRING(loadtag.job-no)))) +
                                                                            TRIM(STRING(loadtag.job-no2)).
                     IF NOT glFGReceiptPassWord THEN
                         RUN get-job-no (INPUT YES) NO-ERROR.
@@ -3418,7 +3418,7 @@ PROCEDURE new-tag :
                 IF fg-bin.job-no <> "" THEN
                     ASSIGN
                         fg-rctd.job-no:SCREEN-VALUE  = fg-bin.job-no
-                        fg-rctd.job-no2:SCREEN-VALUE = FILL(" ", iJobLen - LENGTH(TRIM(STRING(fg-bin.job-no2)))) +
+                        fg-rctd.job-no2:SCREEN-VALUE = FILL(" ", iJobLen - LENGTH(TRIM(STRING(fg-bin.job-no)))) +
                                                                           TRIM(STRING(fg-bin.job-no2)).
             END.
         END.

@@ -171,7 +171,7 @@ do with frame ab2 down no-labels no-box:
    brd.cost = g-cost / g-qty
    brd.cost-m = g-cost / (qty / 1000)
    vqty = string(g-qty,">>>>>9.<<")
-   vqty = FILL(" ", iJobLen - length(trim(vqty))) + trim(vqty).
+   vqty = fill(" ",6 - length(trim(vqty))) + trim(vqty).
 
    display item.i-name
            vqty format "x(6)" to 48 " LB"

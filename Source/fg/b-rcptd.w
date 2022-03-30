@@ -1706,7 +1706,7 @@ IF AVAIL bfFgBin  THEN DO:
       IF iprFgRctd EQ ? THEN
         ASSIGN
           fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = bfFgBin.job-no
-          fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",iJobLen - LENGTH(TRIM(STRING(bfFgBin.job-no2)))) +
+          fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",iJobLen - LENGTH(TRIM(STRING(bfFgBin.job-no)))) +
                                                             TRIM(STRING(bfFgBin.job-no2)).
       ELSE
         ASSIGN

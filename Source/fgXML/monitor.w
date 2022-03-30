@@ -625,7 +625,7 @@ PROCEDURE new-tag:
             IF loadtag.job-no <> "" THEN DO:
                 ASSIGN
                     fg-rctd.job-no = loadtag.job-no
-                    fg-rctd.job-no2 = /* FILL(" ", iJobLen - LENGTH(TRIM(string(loadtag.job-no2)))) +
+                    fg-rctd.job-no2 = /* FILL(" ", iJobLen - LENGTH(TRIM(string(loadtag.job-no)))) +
                                                                            TRIM(string(loadtag.job-no2))*/
                                       loadtag.job-no2.
 /*                IF NOT fgRecptPassWord-log THEN                 */
@@ -681,7 +681,7 @@ PROCEDURE new-tag:
             IF fg-bin.job-no <> "" THEN
                 ASSIGN
                   fg-rctd.job-no = fg-bin.job-no
-                  fg-rctd.job-no2 = fg-bin.job-no2 /*FILL(" ", iJobLen - LENGTH(TRIM(string(fg-bin.job-no2)))) +
+                  fg-rctd.job-no2 = fg-bin.job-no2 /*FILL(" ", iJobLen - LENGTH(TRIM(string(fg-bin.job-no)))) +
                                                                           TRIM(string(fg-bin.job-no2)) */
                   .
         END.

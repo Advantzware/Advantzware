@@ -1181,13 +1181,12 @@ DO:
   {&methods/lValidateError.i YES}
       ASSIGN lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",gcompany, self:screen-value, "Wood") EQ TRUE.
      
-       find first item where item.company = gcompany and
-                             ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
-                              (index("1234",item.mat-type) > 0 and lv-is-foam) OR
-                              (lIsMatlGroup AND lWoodStyle) ) and
-                              item.industry = lv-industry and
-                              item.i-no = self:screen-value
-                              no-lock no-error.
+        FIND FIRST item WHERE 
+            item.company = gcompany AND 
+            (INDEX("BPR1234",item.mat-type) > 0 OR (lIsMatlGroup AND lWoodStyle)) AND 
+            item.industry = lv-industry AND 
+            item.i-no = SELF:SCREEN-VALUE 
+            NO-LOCK NO-ERROR.
                               
        if not avail item then do:
           message "Invalid Board. Try Help." view-as alert-box error.
@@ -3834,18 +3833,15 @@ IF NOT ll-auto-calc-selected THEN
     
     else if ef.m-code:screen-value = "" then ef.m-dscr:screen-value = "". 
 
-    RUN new-m-code.
+    RUN new-m-code. 
     ASSIGN 
         lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",gcompany, ef.board:screen-value, "Wood") EQ TRUE.
     if EF.BOARD:screen-value <> "" and
-       not can-find (first item where item.company = gcompany and
-                                      (
-                                       (index("BPR",item.mat-type) > 0 and not lv-is-foam) or
-                                       (index("1234",item.mat-type) > 0 and lv-is-foam) OR
-                                       (lIsMatlGroup AND lWoodStyle)) AND 
-                                       item.industry = lv-industry and
-                                       item.i-no = ef.board:screen-value
-                                      )
+       not CAN-FIND (FIRST item WHERE 
+            item.company = gcompany AND 
+            (INDEX("BPR1234",item.mat-type) > 0 OR (lIsMatlGroup AND lWoodStyle)) AND 
+            item.industry = lv-industry AND 
+            item.i-no = SELF:SCREEN-VALUE) 
     then do:
          message "Invalid Board. Try Help." view-as alert-box error.
          apply "entry" to ef.board.
@@ -4185,14 +4181,12 @@ PROCEDURE new-board :
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN 
         lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",gcompany, ef.board:SCREEN-VALUE, "Wood") EQ TRUE.
-    FIND FIRST item
-        WHERE item.company  EQ gcompany
-          AND ((INDEX("BPR",item.mat-type) GT 0 AND NOT lv-is-foam) OR
-               (INDEX("1234",item.mat-type) GT 0 AND lv-is-foam))  OR
-               (lIsMatlGroup AND lWoodStyle)
-          AND item.industry EQ lv-industry
-          AND item.i-no     EQ ef.board:SCREEN-VALUE
-        NO-LOCK NO-ERROR.
+    FIND FIRST item WHERE 
+        item.company = gcompany AND 
+        (INDEX("BPR1234",item.mat-type) > 0 OR (lIsMatlGroup AND lWoodStyle)) AND 
+        item.industry = lv-industry AND 
+        item.i-no = ef.board:SCREEN-VALUE
+        NO-LOCK NO-ERROR. 
     IF AVAIL item AND TRIM(ef.board:SCREEN-VALUE) NE "" THEN DO:
       ASSIGN
        ef.test:SCREEN-VALUE     = item.reg-no

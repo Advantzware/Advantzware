@@ -654,7 +654,7 @@ DO:
   
   ASSIGN
    lv-part-no = TRIM({&self-name}:SCREEN-VALUE IN BROWSE {&browse-name})  
-   lv-part-no = FILL(" ", iJobLen - LENGTH(lv-part-no)) + lv-part-no
+   lv-part-no = FILL(" ",6 - LENGTH(lv-part-no)) + lv-part-no
    {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} = lv-part-no .
    
 END.

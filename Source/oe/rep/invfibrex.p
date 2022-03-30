@@ -126,7 +126,7 @@ DEF VAR v-sold-addr3a  AS CHAR FORMAT "x(30)"                 NO-UNDO.
 
       FIND FIRST terms WHERE terms.t-code EQ inv-head.terms NO-LOCK NO-ERROR.
       IF AVAIL terms THEN
-        v-terms = FILL(" ", iJobLen - INT(LENGTH(terms.dscr) / 2)) + terms.dscr .
+        v-terms = FILL(" ",9 - INT(LENGTH(terms.dscr) / 2)) + terms.dscr .
       ELSE v-terms = "" .
   
       for each xinv-line FIELDS(sman) no-lock where
