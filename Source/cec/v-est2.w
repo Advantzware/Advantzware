@@ -3843,6 +3843,14 @@ IF NOT ll-auto-calc-selected THEN
             item.industry = lv-industry AND 
             item.i-no = ef.board:SCREEN-VALUE) 
     then do:
+         MESSAGE 
+            "Company: " gcompany skip
+            "lIsMatlGroup:" lIsMatlGroup SKIP 
+            "lWoodStyle:" lWoodStyle SKIP 
+            "lv-industry:" lv-industry SKIP 
+            "i-no:" ef.board:SCREEN-VALUE 
+            VIEW-AS ALERT-BOX.
+            
          message "Invalid Board. Try Help." view-as alert-box error.
          apply "entry" to ef.board.
          return no-apply.
