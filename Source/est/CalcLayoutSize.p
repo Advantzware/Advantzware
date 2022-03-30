@@ -113,6 +113,21 @@ PROCEDURE pCalcLayoutSizeOnly:
     /* Create Temp-table record and populate the fields later */    
     CREATE ttLayoutSize.    
     
+    /* Initializing the fields using previous calculated DB values and then re-assigning as per logic below */
+    ASSIGN
+        ttLayoutSize.dGrossSheetLength  = bf-ef.gsh-len
+        ttLayoutSize.dGrossSheetWidth   = bf-ef.gsh-wid
+        ttLayoutSize.dGrossSheetDepth   = bf-ef.gsh-dep
+        ttLayoutSize.dNetSheetLength    = bf-ef.nsh-len
+        ttLayoutSize.dNetSheetWidth     = bf-ef.nsh-wid 
+        ttLayoutSize.dNetSheetDepth     = bf-ef.nsh-dep
+        ttLayoutSize.dDieSizeWidth      = bf-ef.trim-w
+        ttLayoutSize.dDieSizeLength     = bf-ef.trim-l
+        ttLayoutSize.dDieSizeDepth      = bf-ef.trim-d 
+        ttLayoutSize.dLayoutSheetLength = bf-ef.lsh-len
+        ttLayoutSize.dLayoutSheetWidth  = bf-ef.lsh-wid
+        . 
+    
     
     IF bf-ef.m-code NE "" THEN
     DO:
