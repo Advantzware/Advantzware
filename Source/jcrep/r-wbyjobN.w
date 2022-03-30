@@ -1533,9 +1533,9 @@ for each mch-act
       where mch-act.company                                 eq cocode
         and mch-act.op-date                                 ge v-date[1]
         and mch-act.op-date                                 le v-date[2]
-        and fill(" ",9 - length(trim(mch-act.job-no))) +
+        and FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
             trim(mch-act.job-no) + string(mch-act.job-no2,"999") ge v-job[1]
-        and fill(" ",9 - length(trim(mch-act.job-no))) +
+        and FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
             trim(mch-act.job-no) + string(mch-act.job-no2,"999") le v-job[2]
         AND mch-act.job-no2                                 GE int(begin_job-no2)
         AND mch-act.job-no2                                 LE int(end_job-no2)    

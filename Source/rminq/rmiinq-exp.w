@@ -1113,9 +1113,9 @@ PROCEDURE run-report :
         AND rm-rcpth.trans-date LE end_date   
         AND rm-rcpth.i-no       GE begin_i-no  
         AND rm-rcpth.i-no       LE end_i-no          
-        AND fill(" ",9 - length(TRIM(rm-rcpth.job-no))) +
+        AND FILL(" ", iJobLen - length(TRIM(rm-rcpth.job-no))) +
         trim(rm-rcpth.job-no) + string(int(rm-rcpth.job-no2),"999") GE cJobNo[1]
-        AND fill(" ",9 - length(TRIM(rm-rcpth.job-no))) +
+        AND FILL(" ", iJobLen - length(TRIM(rm-rcpth.job-no))) +
         trim(rm-rcpth.job-no) + string(int(rm-rcpth.job-no2),"999") LE cJobNo[2]
         AND rm-rcpth.job-no2 GE int(begin_job-no-2)
         AND rm-rcpth.job-no2 LE int(end_job-2) NO-LOCK,

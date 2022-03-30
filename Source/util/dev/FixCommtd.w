@@ -540,10 +540,10 @@ PROCEDURE check-job :
 EMPTY TEMP-TABLE tt-job-mat.
 FOR EACH job NO-LOCK
   WHERE job.company                    EQ cocode    
-    AND FILL(" ",9 - length(trim(job.job-no))) +
+    AND FILL(" ", iJobLen - length(trim(job.job-no))) +
                TRIM(job.job-no) +
                STRING(job.job-no2,"999")  GE fjob-no
-   AND FILL(" ",9 - length(trim(job.job-no))) +
+   AND FILL(" ", iJobLen - length(trim(job.job-no))) +
                TRIM(job.job-no) +
                STRING(job.job-no2,"999")  LE tjob-no
    AND job.job-no2 GE int(fjob-no2)

@@ -1577,9 +1577,9 @@ PROCEDURE print-coat-wax :
         USE-INDEX i-no NO-LOCK,
         EACH rm-rdtlh WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
         AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code         
-        AND FILL(" ",9 - LENGTH(TRIM(rm-rdtlh.job-no))) +
+        AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
         TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"999") GE v-fjob
-        AND FILL(" ",9 - LENGTH(TRIM(rm-rdtlh.job-no))) +
+        AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
         TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"999") LE v-tjob NO-LOCK,
         FIRST item WHERE item.company EQ cocode
         AND item.i-no    EQ rm-rcpth.i-no
@@ -2317,9 +2317,9 @@ PROCEDURE print-inks-glues :
         USE-INDEX i-no NO-LOCK,
         EACH rm-rdtlh WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
         AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code          
-        AND FILL(" ",9 - LENGTH(TRIM(rm-rdtlh.job-no))) +
+        AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
         TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"999") GE v-fjob
-        AND FILL(" ",9 - LENGTH(TRIM(rm-rdtlh.job-no))) +
+        AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
         TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"999") LE v-tjob NO-LOCK,
         FIRST item WHERE item.company EQ cocode
         AND item.i-no    EQ rm-rcpth.i-no

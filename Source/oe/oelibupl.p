@@ -1347,7 +1347,7 @@ PROCEDURE create-job :
     AND eb.cust-no  EQ oe-ord.cust-no NO-LOCK NO-ERROR.
     IF AVAIL eb THEN
     v-prod-cat = eb.procat.
-    v-job-no = FILL(" ",6 - LENGTH(TRIM(STRING(oe-ordl.ord-no)))) + STRING(oe-ordl.ord-no).
+    v-job-no = FILL(" ", iJobLen - LENGTH(TRIM(STRING(oe-ordl.ord-no)))) + STRING(oe-ordl.ord-no).
     
     RUN jc/job-no.p (INPUT-OUTPUT v-job-no, 
                      INPUT-OUTPUT v-job-no2,

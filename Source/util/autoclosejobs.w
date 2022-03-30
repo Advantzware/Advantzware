@@ -378,10 +378,10 @@ ASSIGN
 FOR EACH job
     WHERE job.company                               EQ cocode
       AND job.opened                                EQ YES       
-      AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) +
           TRIM(job.job-no) +
           STRING(job.job-no2,"999")                  GE begin_job-no
-      AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) +
           TRIM(job.job-no) +
           STRING(job.job-no2,"999")                  LE end_job-no
       AND job.job-no2 GE int(begin_job-no2)

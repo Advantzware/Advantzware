@@ -2275,7 +2275,7 @@ ELSE
 
 ASSIGN
    v-head-1 = "SM #     SalesRep nm." + FILL(" ",28 - v-space) + "Month" + FILL(" ",10 - v-space) + "Month" + FILL(" ",10 - v-space) + "Month" + FILL(" ",12 - v-space) + "YTD" + FILL(" ",12 - v-space) + "YTD" + FILL(" ",12 - v-space) + "YTD"
-   v-head-2 = cHeadTemp1 + FILL(" ",31 - v-space) + "Actual" + FILL(" ",9 - v-space) + "Budget" + FILL(" ",11 - v-space) + "Var." + FILL(" ",9 - v-space) + "Actual" + FILL(" ",9 - v-space) +  "Budget" + FILL(" ",12 - v-space)  + "Var."
+   v-head-2 = cHeadTemp1 + FILL(" ",31 - v-space) + "Actual" + FILL(" ", iJobLen - v-space) + "Budget" + FILL(" ",11 - v-space) + "Var." + FILL(" ", iJobLen - v-space) + "Actual" + FILL(" ", iJobLen - v-space) +  "Budget" + FILL(" ",12 - v-space)  + "Var."
    v-head-3 = cHeadTemp2 .
 
 DISPLAY "" WITH FRAME f-top.

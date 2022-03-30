@@ -453,7 +453,7 @@ if v-add-to-est AND
 
       ASSIGN
          vqty = string(gqty,">>>>>9.99")
-         vqty = fill(" ",9 - length(trim(vqty))) + trim(vqty).
+         vqty = FILL(" ", iJobLen - length(trim(vqty))) + trim(vqty).
 
       display item.i-name
            vqty                                   format "x(9)"         to 50
@@ -547,7 +547,7 @@ if v-add-to-est AND
 
       ASSIGN
          vqty = string(gqty,">>>>>9.99")
-         vqty = fill(" ",9 - length(trim(vqty))) + trim(vqty).
+         vqty = FILL(" ", iJobLen - length(trim(vqty))) + trim(vqty).
 
       display item.i-name
               vqty  format "x(9)" to 50

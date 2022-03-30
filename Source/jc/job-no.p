@@ -34,7 +34,7 @@ ELSE IF v-job-meth = "PLine&Order#" AND
      DO: 
         FIND FIRST prodl WHERE prodl.procat = ip-prod-cat NO-LOCK NO-ERROR.
         IF AVAIL prodl THEN 
-           io-job-no =  FILL(" ",9 - LENGTH( SUBSTRING(prodl.prolin,1,1) + trim(io-job-no)))
+           io-job-no =  FILL(" ", iJobLen - LENGTH( SUBSTRING(prodl.prolin,1,1) + trim(io-job-no)))
                      + SUBSTRING(prodl.prolin,1,1) + trim(io-job-no) .
         
      END.

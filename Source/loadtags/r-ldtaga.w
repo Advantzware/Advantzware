@@ -1264,12 +1264,12 @@ ASSIGN
 
   FOR EACH job
       WHERE job.company EQ cocode
-        AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) GE STRING(DYNAMIC-FUNCTION('begin_job', begin_job)) 
-        AND FILL(" ",9 - LENGTH(TRIM(job.job-no)))   + TRIM(job.job-no) LE STRING(DYNAMIC-FUNCTION('begin_job', end_job)) 
-        AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) GE STRING(DYNAMIC-FUNCTION('begin_job', begin_job)) 
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no)))   + TRIM(job.job-no) LE STRING(DYNAMIC-FUNCTION('begin_job', end_job)) 
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
                         GE
             STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job, begin_job2)) 
-        AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
                         LE
             STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job, end_job2)) 
       NO-LOCK:

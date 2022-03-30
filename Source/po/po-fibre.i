@@ -208,7 +208,7 @@ for each po-ordl WHERE
    v-ord-qty = if po-ordl.ord-qty - trunc(po-ordl.ord-qty,0) gt 0
                then string(po-ordl.ord-qty,">>>9.9<<<")
                else string(po-ordl.ord-qty,">>>>>9")
-   v-ord-qty = fill(" ",6 - length(trim(v-ord-qty))) + trim(v-ord-qty).
+   v-ord-qty = FILL(" ", iJobLen - length(trim(v-ord-qty))) + trim(v-ord-qty).
   
   if v-job ne "" then v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job, po-ordl.job-no2))).
     

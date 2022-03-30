@@ -70,6 +70,6 @@ for each glu break by glu.i-code with frame abc down no-labels no-box:
       substr(vqty,length(vqty) - 2,3) eq ".00" then
      substr(vqty,length(vqty) - 2,3) = "".
 
-   vqty = fill(" ",9 - length(trim(vqty))) + trim(vqty).
+   vqty = FILL(" ", iJobLen - length(trim(vqty))) + trim(vqty).
 
 /* end ---------------------------------- copr. 1996  advanced software, inc. */

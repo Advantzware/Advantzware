@@ -408,8 +408,8 @@ DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
         AND fg-rctd.i-no      LE end_i-no
         AND fg-rctd.rct-date  GE ldt-from
         AND fg-rctd.rct-date  LE ldt-to
-        AND fill(" ",9 - length(TRIM(fg-rctd.job-no))) + trim(fg-rctd.job-no) GE begin_job-no
-        AND fill(" ",9 - length(TRIM(fg-rctd.job-no))) + trim(fg-rctd.job-no) LE end_job-no        
+        AND FILL(" ", iJobLen - length(TRIM(fg-rctd.job-no))) + trim(fg-rctd.job-no) GE begin_job-no
+        AND FILL(" ", iJobLen - length(TRIM(fg-rctd.job-no))) + trim(fg-rctd.job-no) LE end_job-no        
         AND fg-rctd.loc       GE begin_whs
         AND fg-rctd.loc       LE end_whs
         AND ((begin_userid    LE "" AND

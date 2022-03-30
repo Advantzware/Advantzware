@@ -2712,10 +2712,10 @@ PROCEDURE run-report :
         AND pc-prdd.shift   LE v-shift[2]         
         AND TRIM(pc-prdd.job-no)  GE trim(begin_job-no)         
         AND TRIM(pc-prdd.job-no)  LE trim(end_job-no)
-        AND fill(" ",9 - length(TRIM(pc-prdd.job-no))) +
+        AND FILL(" ", iJobLen - length(TRIM(pc-prdd.job-no))) +
         trim(pc-prdd.job-no) + string(int(pc-prdd.job-no2),"999")
         GE v-job-no[1]
-        AND fill(" ",9 - length(TRIM(pc-prdd.job-no))) +
+        AND FILL(" ", iJobLen - length(TRIM(pc-prdd.job-no))) +
         trim(pc-prdd.job-no) + string(int(pc-prdd.job-no2),"999")
         LE v-job-no[2]   
         AND ((pc-prdd.stopp - pc-prdd.start

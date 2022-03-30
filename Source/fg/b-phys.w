@@ -2270,7 +2270,7 @@ PROCEDURE valid-job-loc-bin-tag :
 
   DO WITH FRAME {&FRAME-NAME}:
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",9 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
+        FILL(" ", iJobLen - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
         TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
     IF NOT CAN-FIND(FIRST fg-bin 
@@ -2315,7 +2315,7 @@ PROCEDURE valid-job-no :
         RETURN.
             
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",9 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
+        FILL(" ", iJobLen - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
         TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
     IF TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE TRIM(lv-job-no)  OR

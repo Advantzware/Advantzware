@@ -1758,9 +1758,9 @@ PROCEDURE build-tt :
         WHERE job-hdr.company EQ cocode
         AND job-hdr.ord-no  EQ oe-ordl.ord-no
         AND job-hdr.i-no    EQ oe-ordl.i-no
-        AND (FILL(" ",9 - length(TRIM(job-hdr.job-no))) +
+        AND (FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) +
         trim(job-hdr.job-no) + string(job-hdr.job-no2,"999") GE v-job[1]
-        AND fill(" ",9 - length(TRIM(job-hdr.job-no))) +
+        AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) +
         trim(job-hdr.job-no) + string(job-hdr.job-no2,"999") LE v-job[2])
         AND job-hdr.job-no2 GE int(begin_job-no2)
         AND job-hdr.job-no2 LE int(end_job-no2)

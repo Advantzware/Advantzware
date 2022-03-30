@@ -1402,8 +1402,8 @@ PROCEDURE do-post :
         WHERE machtran.company = g_company AND
         machtran.machine EQ b-mach.m-code AND
         machtran.posted EQ NO
-        AND fill(" ",9 - length(TRIM(machtran.job_number))) + trim(machtran.job_number) GE begin_job-no
-        AND fill(" ",9 - length(TRIM(machtran.job_number))) + trim(machtran.job_number) LE end_job-no
+        AND FILL(" ", iJobLen - length(TRIM(machtran.job_number))) + trim(machtran.job_number) GE begin_job-no
+        AND FILL(" ", iJobLen - length(TRIM(machtran.job_number))) + trim(machtran.job_number) LE end_job-no
         AND machtran.job_sub GE int(begin_job-no2)
         AND machtran.job_sub LE int(end_job-no2):
 

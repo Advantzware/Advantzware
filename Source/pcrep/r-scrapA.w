@@ -931,9 +931,9 @@ assign
     ASSIGN
   v-stat        = SUBSTR(rd_jstat,1,1)
 
-  v-fjob        = fill(" ",6 - length(trim(begin_job-no))) +
+  v-fjob        = FILL(" ", iJobLen - length(trim(begin_job-no))) +
                   trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-tjob        = fill(" ",6 - length(trim(end_job-no)))   +
+  v-tjob        = FILL(" ", iJobLen - length(trim(end_job-no)))   +
                   trim(end_job-no)   + string(int(end_job-no2),"99")
 
   v-fdate       = DATE(begin_date:SCREEN-VALUE)
@@ -975,10 +975,10 @@ display "" with frame r-top.
       where job.company            eq cocode
         and job.job-no             ge substr(v-fjob,1,6)
         and job.job-no             le substr(v-tjob,1,6)
-        and fill(" ",6 - length(trim(job.job-no))) +
+        and FILL(" ", iJobLen - length(trim(job.job-no))) +
             trim(job.job-no) +  string(job.job-no2,"99")
                                    ge v-fjob
-        and fill(" ",6 - length(trim(job.job-no))) +
+        and FILL(" ", iJobLen - length(trim(job.job-no))) +
             trim(job.job-no) +  string(job.job-no2,"99")
                                    le v-tjob
         and (v-stat                eq "A"                   or

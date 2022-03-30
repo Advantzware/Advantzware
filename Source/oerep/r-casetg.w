@@ -2987,7 +2987,7 @@ PROCEDURE run-report :
         IF ll THEN lv-job-no = lv-job-no + SUBSTR(ENTRY(i,v-job-list),li,1).
               ELSE lv-job-no2 = lv-job-no2 + SUBSTR(ENTRY(i,v-job-list),li,1).
       END.
-      lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no) +
+      lv-job-no = FILL(" ", iJobLen - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no) +
                   STRING(INT(lv-job-no2),"99") NO-ERROR.
   
       IF NOT ERROR-STATUS:ERROR AND

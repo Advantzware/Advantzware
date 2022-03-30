@@ -2335,8 +2335,8 @@ PROCEDURE post-rm :
     FOR EACH rm-rctd
         WHERE rm-rctd.company   EQ cocode
         AND rm-rctd.rita-code EQ "ADDER"
-        AND fill(" ",9 - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) GE v-from-job
-        AND fill(" ",9 - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) LE v-to-job
+        AND FILL(" ", iJobLen - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) GE v-from-job
+        AND FILL(" ", iJobLen - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) LE v-to-job
         AND rm-rctd.job-no2   GE begin_job-no2
         AND rm-rctd.job-no2   LE end_job-no2
         AND ((begin_userid    LE "" AND
@@ -2533,8 +2533,8 @@ PROCEDURE run-report :
 
     FOR EACH rm-rctd 
         WHERE rm-rctd.company   EQ cocode
-        AND fill(" ",9 - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) GE v-from-job
-        AND fill(" ",9 - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) LE v-to-job
+        AND FILL(" ", iJobLen - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) GE v-from-job
+        AND FILL(" ", iJobLen - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) LE v-to-job
         AND rm-rctd.job-no2   GE begin_job-no2
         AND rm-rctd.job-no2   LE end_job-no2
         AND rm-rctd.rct-date  GE ldt-from

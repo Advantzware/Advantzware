@@ -879,7 +879,7 @@ DO:
         WHEN "SendJobAMS" THEN DO:
             FIND FIRST job NO-LOCK
                  WHERE job.company EQ cCompany
-                   AND job.job-no  EQ FILL(" ",9 - LENGTH(TRIM(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-")))) + TRIM(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-"))
+                   AND job.job-no  EQ FILL(" ", iJobLen - LENGTH(TRIM(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-")))) + TRIM(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-"))
                    AND job.job-no2 EQ INTEGER(TRIM((ENTRY(2,fiPrimaryKey:SCREEN-VALUE,"-"))))
                  NO-ERROR.
             IF NOT AVAILABLE job THEN DO:

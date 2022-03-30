@@ -1673,7 +1673,7 @@ for each tt-job-mch
      DO:
 /*         DISPLAY SKIP(1)                                                                                               */
 /*            SPACE(18)                                                                                                  */
-/*            "Machine " + FILL(" ",6 - LENGTH(tt-job-mch.m-code)) + tt-job-mch.m-code + " Total Hours: " FORMAT "X(29)" */
+/*            "Machine " + FILL(" ", iJobLen - LENGTH(tt-job-mch.m-code)) + tt-job-mch.m-code + " Total Hours: " FORMAT "X(29)" */
 /*            v-total-mach-hrs FORMAT "ZZZ,ZZ9.99"                                                                       */
 /*            WITH FRAME tot-job STREAM-IO width 180 NO-LABELS no-box down.                                              */
 /*                                                                                                                       */

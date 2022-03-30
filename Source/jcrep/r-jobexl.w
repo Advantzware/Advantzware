@@ -1123,8 +1123,8 @@ PROCEDURE run-report :
         AND (job-hdr.cust-no GE begin_cust-no AND job-hdr.cust-no LE end_cust-no) 
         AND (job-hdr.i-no GE begin_item AND job-hdr.i-no LE END_item) 
         AND (TRIM(job-hdr.est-no) GE trim(begin_est) AND TRIM(job-hdr.est-no) LE trim(end_est))
-        AND (fill(" ",9 - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) GE begin_job 
-        AND fill(" ",9 - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) LE END_job) 
+        AND (FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) GE begin_job 
+        AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) LE END_job) 
         AND job-hdr.job-no2 GE begin_job-2 AND job-hdr.job-no2 LE end_job-2 NO-LOCK, 
         EACH job OF job-hdr NO-LOCK BY job-hdr.job-no DESCENDING
         BY job-hdr.job-no2 DESCENDING:

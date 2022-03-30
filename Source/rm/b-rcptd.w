@@ -2423,7 +2423,7 @@ PROCEDURE display-po-job :
         
        IF li-po-cnt >= 2 THEN RUN rm/d-selpo.w (rm-rctd.company,
                                              INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}),
-                                             FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}),
+                                             FILL(" ", iJobLen - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}),
                                              INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
                                              rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
                                              OUTPUT lv-rowid

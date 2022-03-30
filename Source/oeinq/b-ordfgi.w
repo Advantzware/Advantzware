@@ -91,7 +91,7 @@ ll-sort-asc = NOT oeinq.
           AND fg-rcpth.i-no       BEGINS fi_i-no                ~
           AND fg-rcpth.rita-code  BEGINS fi_rita-code           ~
           AND (fg-rcpth.po-no     EQ TRIM(STRING(fi_po-no,">>>>>>>>")) OR fi_po-no EQ 0) ~
-          AND fill(" ",9 - length(TRIM(fg-rcpth.job-no))) + trim(fg-rcpth.job-no) BEGINS fi_job-no              ~
+          AND FILL(" ", iJobLen - length(TRIM(fg-rcpth.job-no))) + trim(fg-rcpth.job-no) BEGINS fi_job-no              ~
           AND (fg-rcpth.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                           ~
@@ -927,7 +927,7 @@ DO:
             AND b-fg-rcpth2.i-no       BEGINS fi_i-no
             AND b-fg-rcpth2.rita-code  BEGINS fi_rita-code
             AND (b-fg-rcpth2.po-no     EQ TRIM(STRING(fi_po-no,">>>>>>>>")) OR fi_po-no EQ 0)
-            AND fill(" ",9 - length(TRIM(b-fg-rcpth2.job-no))) + trim(b-fg-rcpth2.job-no) BEGINS fi_job-no           
+            AND FILL(" ", iJobLen - length(TRIM(b-fg-rcpth2.job-no))) + trim(b-fg-rcpth2.job-no) BEGINS fi_job-no           
             AND (b-fg-rcpth2.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ ""),
             EACH b-fg-rdtlh2 EXCLUSIVE-LOCK   
             WHERE b-fg-rdtlh2.r-no      EQ b-fg-rcpth2.r-no     

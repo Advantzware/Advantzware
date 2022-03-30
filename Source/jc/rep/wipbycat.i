@@ -4,10 +4,10 @@
 /* -------------------------------------------------------------------------- */
 
       and job.company    eq cocode      
-      and fill(" ",9 - length(trim(job.job-no))) +
+      and FILL(" ", iJobLen - length(trim(job.job-no))) +
           trim(job.job-no) + string(job.job-no2,"999")
                          ge v-fjob
-      and fill(" ",9 - length(trim(job.job-no))) +
+      and FILL(" ", iJobLen - length(trim(job.job-no))) +
           trim(job.job-no) + string(job.job-no2,"999")
                          le v-tjob
      AND job.job-no2 GE int(begin_job-no2)
@@ -45,7 +45,7 @@
    tt-report.key-02  = job-hdr.cust-no
    tt-report.key-03  = job-hdr.i-no
    tt-report.key-04  = itemfg.part-no
-   tt-report.key-05  = fill(" ",6 - length(trim(job.job-no))) +
+   tt-report.key-05  = FILL(" ", iJobLen - length(trim(job.job-no))) +
                        trim(job.job-no) + "-" + string(job.job-no2,"99")
    tt-report.key-06  = if avail est                                and
                           (est.est-type eq 2 or est.est-type eq 6) then

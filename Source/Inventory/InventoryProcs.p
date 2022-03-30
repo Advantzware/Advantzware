@@ -5548,7 +5548,7 @@ PROCEDURE pBuildFGInventoryStockForItem PRIVATE:
                     inventoryStock.costStandardVOH            = fg-rdtlh.std-var-cost
                     inventoryStock.costStandardFOH            = fg-rdtlh.std-fix-cost
 /*                     inventoryStock.sourceID                   = IF fg-rcpth.job-no NE "" THEN */
-/*                                                                     FILL(" ",6 - LENGTH(LEFT-TRIM(TRIM(fg-rcpth.job-no)))) + STRING(fg-rcpth.job-no2,"99") */
+/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(fg-rcpth.job-no)))) + STRING(fg-rcpth.job-no2,"99") */
 /*                                                                 ELSE */
 /*                                                                     "" */
                     inventoryStock.sourceID                   = fg-rdtlh.rec_key
@@ -5693,7 +5693,7 @@ PROCEDURE pBuildRMInventoryStockForItem PRIVATE:
                     inventoryStock.basisWeightUOM             = gcUOMWeightBasis
                     inventoryStock.weightUOM                  = gcUOMWeight
 /*                     inventoryStock.sourceID                   = IF rm-rcpth.job-no NE "" THEN */
-/*                                                                     FILL(" ",6 - LENGTH(LEFT-TRIM(TRIM(rm-rcpth.job-no)))) + STRING(rm-rcpth.job-no2,"99") */
+/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(rm-rcpth.job-no)))) + STRING(rm-rcpth.job-no2,"99") */
 /*                                                                 ELSE */
 /*                                                                     "" */
                     inventoryStock.sourceID                   = rm-rdtlh.rec_key

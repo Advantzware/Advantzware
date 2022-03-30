@@ -167,8 +167,8 @@ PROCEDURE pBuildFGLabels PRIVATE:
         .     
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ ipcCompany
-        AND fill(" ",9 - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) GE ipcJobStart
-        AND fill(" ",9 - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) LE ipcJobEnd
+        AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) GE ipcJobStart
+        AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) LE ipcJobEnd
         AND job-hdr.job-no2 GE ipiJob2Start
         AND job-hdr.job-no2 LE ipiJob2End
         AND job-hdr.i-no GE ipcFGItemIDStart

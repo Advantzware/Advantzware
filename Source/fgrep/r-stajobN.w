@@ -960,7 +960,7 @@ ON LEAVE OF end_job-no IN FRAME FRAME-A /* Ending Job# */
 DO:
         ASSIGN {&self-name}.
         ASSIGN 
-            {&self-name}:SCREEN-VALUE = FILL(" ",9 - LENGTH(TRIM({&self-name}:SCREEN-VALUE))) +
+            {&self-name}:SCREEN-VALUE = FILL(" ", iJobLen - LENGTH(TRIM({&self-name}:SCREEN-VALUE))) +
                  TRIM({&self-name}:SCREEN-VALUE)  .
     END.
 

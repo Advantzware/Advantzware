@@ -932,8 +932,8 @@ FOR EACH loadtag WHERE loadtag.company = g_company
                    AND loadtag.is-case-tag 
                    AND loadtag.i-no >= begin_i-no
                    AND loadtag.i-no <= END_i-no
-                   AND fill(" ",9 - length(TRIM(loadtag.job-no))) + trim(loadtag.job-no) + STRING(loadtag.job-no2,"999") >= begin_job_number
-                   AND fill(" ",9 - length(TRIM(loadtag.job-no))) + trim(loadtag.job-no) + STRING(loadtag.job-no2,"999") <= end_job_number
+                   AND FILL(" ", iJobLen - length(TRIM(loadtag.job-no))) + trim(loadtag.job-no) + STRING(loadtag.job-no2,"999") >= begin_job_number
+                   AND FILL(" ", iJobLen - length(TRIM(loadtag.job-no))) + trim(loadtag.job-no) + STRING(loadtag.job-no2,"999") <= end_job_number
                    AND ((loadtag.tag-date >= begin-date
                    AND loadtag.tag-date <= end-date) OR
                        loadtag.tag-date = ?)  NO-LOCK

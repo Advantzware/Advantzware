@@ -372,7 +372,7 @@ for each report   where report.term-id eq v-term-id,
         ASSIGN
         v-unit-qty = trim(string(tt-boll.cases,">>>9")) + "/" +
                      trim(string(tt-boll.qty-case,">>>9"))
-        v-unit-qty = fill(" ",9 - length(trim(v-unit-qty))) + trim(v-unit-qty).
+        v-unit-qty = FILL(" ", iJobLen - length(trim(v-unit-qty))) + trim(v-unit-qty).
 
         DISPLAY v-qty       
                 tt-boll.i-no v-part-info
@@ -387,7 +387,7 @@ for each report   where report.term-id eq v-term-id,
         ASSIGN
         v-unit-qty = trim(string(tt-boll.cases,">>>9")) + "/" +
                        trim(string(tt-boll.qty-case,">>>9"))
-        v-unit-qty = fill(" ",9 - length(trim(v-unit-qty))) + trim(v-unit-qty).
+        v-unit-qty = FILL(" ", iJobLen - length(trim(v-unit-qty))) + trim(v-unit-qty).
      
         IF NOT last-of(tt-boll.line) OR li GT 5  THEN do:
            DISPLAY v-part-info v-unit-qty .

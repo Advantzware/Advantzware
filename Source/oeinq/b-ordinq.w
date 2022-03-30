@@ -137,7 +137,7 @@ ASSIGN
           AND {system/brMatches.i oe-ordl.part-no fi_part-no} ~
           AND {system/brMatches.i oe-ordl.po-no fi_po-no-2} ~
           AND oe-ordl.est-no    BEGINS fi_est-no    ~
-          AND FILL(" ",9 - LENGTH(TRIM(oe-ordl.job-no))) + TRIM(oe-ordl.job-no)    BEGINS fi_job-no    ~
+          AND FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) + TRIM(oe-ordl.job-no)    BEGINS fi_job-no    ~
           AND (oe-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                              ~

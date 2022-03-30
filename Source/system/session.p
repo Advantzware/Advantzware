@@ -208,7 +208,6 @@ FUNCTION sfGetBeginSearch RETURNS CHARACTER
 
 
 &ENDIF
-
 &IF DEFINED(EXCLUDE-sfGetRecKeyPrefix) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetRecKeyPrefix Procedure
@@ -473,7 +472,6 @@ FOR EACH ttSuperProcedure
     RUN VALUE(ttSuperProcedure.superProcedure) PERSISTENT SET hSuperProcedure.
     SESSION:ADD-SUPER-PROCEDURE (hSuperProcedure).
 END. /* each ttSuperProcedure */
-
 INPUT FROM VALUE(SEARCH("ProgramTagsList.dat")) NO-ECHO.
 IMPORT ^.
 REPEAT:
@@ -3576,7 +3574,6 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
-
 &IF DEFINED(EXCLUDE-sfGetRecKeyPrefix) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfGetRecKeyPrefix Procedure

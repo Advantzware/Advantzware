@@ -1395,7 +1395,7 @@ VIEW frame r-top.
                   v-msf-rem                          
             WITH FRAME sh-ord.
 
-        DISPLAY FILL(" ",9 - LENGTH(TRIM(rd_break))) +
+        DISPLAY FILL(" ", iJobLen - LENGTH(TRIM(rd_break))) +
                 TRIM(IF rd_break EQ "Vendor#" THEN rd_break ELSE "Machine")
                                @ v-job-no
                 "Totals"       @ po-ordl.po-no

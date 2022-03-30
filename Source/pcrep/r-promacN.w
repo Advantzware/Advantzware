@@ -1859,7 +1859,7 @@ PROCEDURE run-report :
         BUFFER-COPY mch-srt TO tt-mch-srt .
         ASSIGN
             tt-mch-srt.i-no = b
-            /*         tt-mch-srt.job-no = FILL(" ",6 - LENGTH(TRIM(tt-mch-srt.job-no))) + TRIM(tt-mch-srt.job-no) */
+            /*         tt-mch-srt.job-no = FILL(" ", iJobLen - LENGTH(TRIM(tt-mch-srt.job-no))) + TRIM(tt-mch-srt.job-no) */
             .
         IF rd-job-timedt EQ "2" THEN 
         DO:  

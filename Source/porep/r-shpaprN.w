@@ -1850,7 +1850,7 @@ PROCEDURE run-report :
                            v-msf-rem                          
                      WITH FRAME sh-ord.
          
-                 DISPLAY FILL(" ",9 - LENGTH(TRIM(rd_break))) +
+                 DISPLAY FILL(" ", iJobLen - LENGTH(TRIM(rd_break))) +
                          TRIM(IF rd_break EQ "Vendor#" THEN rd_break ELSE "Machine")
                                         @ v-job-no
                          "Totals"       @ po-ordl.po-no
@@ -1913,7 +1913,7 @@ PROCEDURE run-report :
                     TRIM(IF rd_break EQ "Vendor#" THEN rd_break ELSE "Machine") + "   Totals" + SUBSTRING(cDisplay,20,300) SKIP.
                 IF rd-dest = 3 THEN 
                 DO:
-                    PUT STREAM excel UNFORMATTED FILL(" ",9 - LENGTH(TRIM(rd_break))) +
+                    PUT STREAM excel UNFORMATTED FILL(" ", iJobLen - LENGTH(TRIM(rd_break))) +
                         TRIM(IF rd_break EQ "Vendor#" THEN rd_break ELSE "Machine") ' Totals ,'  SUBSTRING(cExcelDisplay,4,300) SKIP.
                 END.
 
