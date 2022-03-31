@@ -985,7 +985,11 @@ PROCEDURE pUpdateEfFormLayout PRIVATE:
             ipbf-ef.trim-d   = ttLayoutSize.dDieSizeDepth         
             ipbf-ef.roll-wid = ttLayoutSize.dRollWidth            
             ipbf-ef.die-in   = ttLayoutSize.dDieInchesRequired
-            ipbf-eb.num-up   = ttLayoutSize.iBlankNumUp           
+            ipbf-eb.num-up   = ttLayoutSize.iBlankNumUp  
+            ipbf-ef.n-out    = ttLayoutSize.iNumOutWidth          
+            ipbf-ef.n-out-l  = ttLayoutSize.iNumOutLength         
+            ipbf-ef.n-out-d  = ttLayoutSize.iNumOutDepth          
+            ipbf-ef.n-cuts   = ttLayoutSize.iNumberCuts          
             . 
             
         /* Assign Num ON and Num Out fields only. In case error calculating Size only use full layout calc */    
@@ -1002,7 +1006,7 @@ PROCEDURE pUpdateEfFormLayout PRIVATE:
                 ipbf-eb.num-wid = ttLayoutSize.iBlankNumOnWidth      
                 ipbf-eb.num-len = ttLayoutSize.iBlankNumOnLength     
                 ipbf-eb.num-dep = ttLayoutSize.iBlankNumOnDepth 
-                .    
+                .  
    
     END.     
 

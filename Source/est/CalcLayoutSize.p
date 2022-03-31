@@ -126,6 +126,10 @@ PROCEDURE pCalcLayoutSizeOnly:
         ttLayoutSize.dDieSizeDepth      = bf-ef.trim-d 
         ttLayoutSize.dLayoutSheetLength = bf-ef.lsh-len
         ttLayoutSize.dLayoutSheetWidth  = bf-ef.lsh-wid
+        ttLayoutSize.iNumOutWidth       = bf-ef.n-out         
+        ttLayoutSize.iNumOutLength      = bf-ef.n-out-l        
+        ttLayoutSize.iNumOutDepth       = bf-ef.n-out-d         
+        ttLayoutSize.iNumberCuts        = bf-ef.n-cuts
         . 
     
     
