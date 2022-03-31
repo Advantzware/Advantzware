@@ -4381,7 +4381,8 @@ PROCEDURE pProcessBoard PRIVATE:
         IF glVendItemCost THEN
             ASSIGN 
                 cScope              = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM-Over")
-                lIncludeBlankVendor = YES.
+                lIncludeBlankVendor = glUseBlankVendor.
+                
         RUN pGetRequiredTotal(bf-estCostMaterial.quantityRequiredNoWaste,
             bf-estCostMaterial.quantityRequiredSetupWaste,
             bf-estCostMaterial.quantityRequiredRunWaste,

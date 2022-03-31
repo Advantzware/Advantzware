@@ -893,6 +893,74 @@ PROCEDURE Estimate_UpdateEfFormQty PRIVATE:
     RELEASE bf-eb.
 END PROCEDURE.
 
+PROCEDURE Estmate_GetAddersList:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipchCompanyId  LIKE  estCostMaterial.company.
+    DEFINE INPUT  PARAMETER ipchestimateNo LIKE  estCostMaterial.estimateNo.
+    DEFINE INPUT  PARAMETER ipchformNo     LIKE  estCostMaterial.formNo.
+    DEFINE OUTPUT PARAMETER opcAdders      AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-ef FOR ef.
+
+    DEFINE VARIABLE iCount      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lAvailAdder AS LOGICAL NO-UNDO.
+
+    FIND FIRST bf-ef NO-LOCK
+        WHERE bf-ef.company = ipchCompanyId
+        AND bf-ef.est-no    = ipchestimateNo
+        AND bf-ef.form-no   = ipchformNo NO-ERROR.
+
+    IF AVAILABLE bf-ef THEN 
+    DO:
+        DO iCount = 1 TO 6:
+            IF bf-ef.adder[iCount] <> "" THEN
+                ASSIGN
+                    lAvailAdder = TRUE
+                    opcAdders   = opcAdders + "," + bf-ef.adder[iCount].        
+        END.
+
+        ASSIGN 
+            opcAdders = TRIM(opcAdders,",").        
+
+    END. /*avail bf-ef*/
+
+END PROCEDURE.
+
+PROCEDURE Estmate_GetAdders:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipchCompanyId  LIKE  estCostMaterial.company.
+    DEFINE INPUT  PARAMETER ipchestimateNo LIKE  estCostMaterial.estimateNo.
+    DEFINE INPUT  PARAMETER ipchformNo     LIKE  estCostMaterial.formNo.
+    DEFINE OUTPUT PARAMETER opcAdders      AS CHARACTER EXTENT 6 NO-UNDO.
+
+    DEFINE BUFFER bf-ef FOR ef.
+
+    DEFINE VARIABLE iCount      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lAvailAdder AS LOGICAL NO-UNDO.
+
+    FIND FIRST bf-ef NO-LOCK
+        WHERE bf-ef.company = ipchCompanyId
+        AND bf-ef.est-no    = ipchestimateNo
+        AND bf-ef.form-no   = ipchformNo NO-ERROR.
+
+    IF AVAILABLE bf-ef THEN 
+    DO:
+        DO iCount = 1 TO 6:
+            IF bf-ef.adder[iCount] <> "" THEN
+                ASSIGN
+                    lAvailAdder = TRUE
+                    opcAdders[iCount]   = bf-ef.adder[iCount].        
+        END.
+    END. /*avail bf-ef*/
+
+END PROCEDURE.
+
 PROCEDURE pBuildQuantityList PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:  Given an est-qty buffer, multiplier and delimiter, return a delimeter

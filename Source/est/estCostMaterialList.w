@@ -420,7 +420,7 @@ ON CHOOSE OF btnCopyVendorToAll IN FRAME DEFAULT-FRAME /* Copy Vendor to All */
 DO:
     DEFINE BUFFER bf-estCostMaterialForAll FOR estCostMaterial.
     DEFINE BUFFER bb-ttEstCostHeaderToCalc FOR ttEstCostHeaderToCalc.
-    DEFINE BUFFER bb-estCostHeaderForAll   FOR esTCostHeader.  
+    DEFINE BUFFER bb-estCostHeaderForAll   FOR esTCostHeader.
         
     DEFINE VARIABLE gcScopeRMOverride  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Override".
     DEFINE VARIABLE gcScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated".
@@ -428,8 +428,7 @@ DO:
     DEFINE VARIABLE oplError           AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE opcMessage         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE chErrorList        AS CHARACTER NO-UNDO.
-                            
-    
+        
     IF AVAILABLE estCostMaterial THEN
     DO:                              
         FOR EACH bb-ttEstCostHeaderToCalc,
@@ -438,9 +437,14 @@ DO:
             EACH bf-estCostMaterialForAll EXCLUSIVE-LOCK
             WHERE bf-estCostMaterialForAll.estCostHeaderID = bb-estCostHeaderForAll.estCostHeaderID
             AND bf-estCostMaterialForAll.estimateNo        = bb-estCostHeaderForAll.estimateNo            
-			AND (bf-estCostMaterialForAll.isPrimarySubstrate OR bf-estCostMaterialForAll.isPurchased)
+            AND (bf-estCostMaterialForAll.isPrimarySubstrate OR bf-estCostMaterialForAll.isPurchased)
             AND bf-estCostMaterialForAll.estCostMaterialID <> estCostMaterial.estCostMaterialID
-            AND bf-estCostMaterialForAll.vendorId          <> estCostMaterial.vendorID:                
+            AND bf-estCostMaterialForAll.vendorId          <> estCostMaterial.vendorID:    
+    
+            RUN Estmate_GetAdders(INPUT bf-estCostMaterialForAll.Company, // Internal procedure in est/EstimateProcs.p
+                INPUT bf-estCostMaterialForAll.estimateNo,
+                INPUT bf-estCostMaterialForAll.formNo,
+                OUTPUT cAdderList).
                 
             EMPTY TEMP-TABLE ttVendItemCost.
                   
