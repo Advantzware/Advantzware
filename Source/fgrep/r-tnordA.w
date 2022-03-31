@@ -132,15 +132,15 @@ DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job# on Order" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "Beginning Order#" 
@@ -172,15 +172,15 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job# On Order" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 99999999 
      LABEL "Ending Order#" 
@@ -1324,9 +1324,9 @@ def var tp-o        like fp-o               init "zzzzzzzzzzzzzzz" NO-UNDO.
 def var ford        like oe-ord.ord-no      format ">>>>>>" NO-UNDO.
 def var tord        like ford               init 999999 NO-UNDO.
 def var fjob        like oe-ordl.job-no NO-UNDO.
-def var tjob        like fjob               init "zzzzzz" NO-UNDO.
-def var fjob2       like oe-ordl.job-no2    format "99" NO-UNDO.
-def var tjob2       like fjob2              init 99 NO-UNDO.
+def var tjob        like fjob               init "zzzzzzzzz" NO-UNDO.
+def var fjob2       like oe-ordl.job-no2    format "999" NO-UNDO.
+def var tjob2       like fjob2              init 999 NO-UNDO.
 def var vdet        as   log   init yes    format "Detail/Summary" NO-UNDO.
 def var vinc        as   log   init yes    format "Yes/No" NO-UNDO.
 def var vinc1       as   log   init yes    format "Yes/No" NO-UNDO.
@@ -1335,7 +1335,7 @@ def var v-qop       as   INT NO-UNDO.
 def var v-qoh       as   INT NO-UNDO.
 def var v-bal       as   INT NO-UNDO.
 def var v-val       as   DEC NO-UNDO.
-def var v-job       as   char format "x(9)" NO-UNDO.
+def var v-job       as   char format "x(13)" NO-UNDO.
 def var v-cus       like itemfg.cust-no NO-UNDO.
 def var v-itm       like itemfg.i-no NO-UNDO.
 def var v-price     like oe-ordl.price NO-UNDO.
@@ -1401,9 +1401,9 @@ ASSIGN
    fp-o   = begin_cust-po
    tp-o   = END_cust-po
    fjob   = FILL(" ", iJobLen - length(trim(begin_job-no))) +
-            trim(begin_job-no) + STRING(int(begin_job-no2),"99")
+            trim(begin_job-no) + STRING(int(begin_job-no2),"999")
    tjob   = FILL(" ", iJobLen - length(trim(end_job-no)))   +
-            trim(end_job-no)   + STRING(int(end_job-no2),"99")
+            trim(end_job-no)   + STRING(int(end_job-no2),"999")
    ford   = begin_ord-no
    tord   = end_ord-no
    vdet   = tb_detailed
@@ -1447,9 +1447,9 @@ FOR EACH ttCustList
                           AND oe-ordl.po-no     GE fp-o
                           AND oe-ordl.po-no     LE tp-o      
                           AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
-                              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99")) GE fjob
+                              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999")) GE fjob
                           AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
-                              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99")) LE tjob
+                              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999")) LE tjob
                           AND oe-ordl.ord-no    GE ford
                           AND oe-ordl.ord-no    LE tord USE-INDEX item,
    FIRST oe-ord NO-LOCK WHERE oe-ord.company        EQ oe-ordl.company
@@ -1470,7 +1470,7 @@ FOR EACH ttCustList
 
    ASSIGN
       v-job     = FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
-                  TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")
+                  TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"999")
       v-price   = oe-ordl.t-price / oe-ordl.qty * 1000
       v-printed = NO.
 
@@ -1609,13 +1609,13 @@ FOR EACH ttCustList
                v-qoh = tt-report.qty
                v-val = round(v-qoh * (oe-ordl.t-price / oe-ordl.qty),2)
                v-job = FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
-                       TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99").
+                       TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"999").
 
             DISPLAY 
                v-cus
                v-itm
                oe-ordl.po-no
-               v-job                            FORMAT "x(9)"
+               v-job                            FORMAT "x(13)"
                v-qty WHEN v-qty NE 0            FORMAT ">,>>>,>>9"
                fg-rcpth.trans-date WHEN vdet    FORMAT "99/99/99"
                fg-rcpth.rita-code WHEN vdet
@@ -1634,7 +1634,7 @@ FOR EACH ttCustList
                   '"' v-itm                                         '",'
                   '"' oe-ordl.po-no                                 '",'
                   '"' FILL(" ", iJobLen - LENGTH(TRIM(fg-rcpth.job-no))) +
-                      TRIM(fg-rcpth.job-no) + "-" + STRING(fg-rcpth.job-no2,"99") '",'
+                      TRIM(fg-rcpth.job-no) + "-" + STRING(fg-rcpth.job-no2,"999") '",'
                   '"' (IF v-qty NE 0 THEN v-qty ELSE 0)             '",'
                   '"' (IF vdet AND fg-rcpth.trans-date <> ? THEN
                         STRING(fg-rcpth.trans-date,"99/99/99")
@@ -1722,9 +1722,9 @@ DEF VAR tp-o    LIKE fp-o INIT "zzzzzzzzzzzzzzz"   NO-UNDO.
 DEF VAR ford    LIKE oe-ord.ord-no FORMAT ">>>>>>" NO-UNDO.
 DEF VAR tord    LIKE ford INIT 999999              NO-UNDO.
 DEF VAR fjob    LIKE oe-ordl.job-no                NO-UNDO.
-DEF VAR tjob    LIKE fjob INIT "zzzzzz"            NO-UNDO.
-DEF VAR fjob2   LIKE oe-ordl.job-no2  FORMAT  "99" NO-UNDO.
-DEF VAR tjob2   LIKE fjob2 INIT 99                 NO-UNDO.
+DEF VAR tjob    LIKE fjob INIT "zzzzzzzzz"         NO-UNDO.
+DEF VAR fjob2   LIKE oe-ordl.job-no2  FORMAT "999" NO-UNDO.
+DEF VAR tjob2   LIKE fjob2 INIT 999                NO-UNDO.
 DEF VAR v-cus   LIKE itemfg.cust-no                NO-UNDO.
 DEF VAR v-itm   LIKE itemfg.i-no                   NO-UNDO.
 DEF VAR v-price LIKE oe-ordl.price                 NO-UNDO.
@@ -1748,7 +1748,7 @@ DEF VAR li-tqty   AS INT NO-UNDO.
 
 DEF VAR v-val     AS DEC NO-UNDO.
 
-DEF VAR v-job       AS CHAR FORMAT "x(9)"  NO-UNDO.
+DEF VAR v-job       AS CHAR FORMAT "x(13)"  NO-UNDO.
 DEF VAR v-shp       AS CHAR FORMAT "x(10)" NO-UNDO.
 DEF VAR excelheader AS CHAR                NO-UNDO.
 
@@ -1814,9 +1814,9 @@ ASSIGN
    fp-o   = begin_cust-po
    tp-o   = END_cust-po
    fjob   = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
-            TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
+            TRIM(begin_job-no) + STRING(INT(begin_job-no2),"999")
    tjob   = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no)))   +
-            TRIM(end_job-no)   + STRING(INT(end_job-no2),"99")
+            TRIM(end_job-no)   + STRING(INT(end_job-no2),"999")
    ford   = begin_ord-no
    tord   = end_ord-no
    vdet   = tb_detailed
@@ -1870,9 +1870,9 @@ FOR EACH ttCustList
                           AND oe-ordl.po-no     GE fp-o
                           AND oe-ordl.po-no     LE tp-o      
                           AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
-                              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99")) GE fjob
+                              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999")) GE fjob
                           AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
-                              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99")) LE tjob
+                              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999")) LE tjob
                           AND oe-ordl.ord-no    GE ford
                           AND oe-ordl.ord-no    LE tord USE-INDEX item,
    FIRST oe-ord NO-LOCK WHERE oe-ord.company        EQ oe-ordl.company
@@ -1893,7 +1893,7 @@ FOR EACH ttCustList
 
    ASSIGN
       v-job     = FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
-                  TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")
+                  TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"999")
       v-price   = oe-ordl.t-price / oe-ordl.qty * 1000
       v-printed = NO.
 
@@ -2048,9 +2048,9 @@ FOR EACH ttCustList
 
              ASSIGN v-job = FILL(" ", iJobLen - LENGTH(TRIM(fg-rcpth.job-no))) +
                             TRIM(fg-rcpth.job-no) + "-" + 
-                            STRING(fg-rcpth.job-no2,"99")
+                            STRING(fg-rcpth.job-no2,"999")
                     v-job = TRIM(v-job)
-                    v-job = IF v-job = "-00" THEN " " ELSE v-job
+                    v-job = IF v-job = "-000" THEN " " ELSE v-job
                     v-shp = IF v-shpdays EQ 0 THEN " " ELSE STRING(v-shpdays,">>,>>>,>>9").
 
             /* gdm - 10260906 */
@@ -2059,7 +2059,7 @@ FOR EACH ttCustList
                v-cus
                v-itm
                oe-ordl.po-no
-               v-job                            FORMAT "x(9)"
+               v-job                            FORMAT "x(13)"
                v-qty WHEN v-qty NE 0            FORMAT ">,>>>,>>9"
                fg-rcpth.trans-date WHEN vdet    FORMAT "99/99/99"
                fg-rcpth.rita-code WHEN vdet
@@ -2080,7 +2080,7 @@ FOR EACH ttCustList
                   '"' v-itm                                         '",'
                   '"' oe-ordl.po-no                                 '",'
                   '"' FILL(" ", iJobLen - LENGTH(TRIM(fg-rcpth.job-no))) +
-                      TRIM(fg-rcpth.job-no) + "-" + STRING(fg-rcpth.job-no2,"99") '",'
+                      TRIM(fg-rcpth.job-no) + "-" + STRING(fg-rcpth.job-no2,"999") '",'
                   '"' (IF v-qty NE 0 THEN v-qty ELSE 0)             '",'
                   '"' (IF vdet AND fg-rcpth.trans-date <> ? THEN
                         STRING(fg-rcpth.trans-date,"99/99/99")
@@ -2121,7 +2121,7 @@ FOR EACH ttCustList
                       v-shpdays = (TODAY - bf-fg-rcpth.trans-date).
 
         ASSIGN v-job = TRIM(v-job)
-               v-job = IF v-job = "-00" THEN " " ELSE v-job
+               v-job = IF v-job = "-000" THEN " " ELSE v-job
                v-shp = IF v-shpdays EQ 0 THEN " " ELSE STRING(v-shpdays,">>,>>>,>>9").
 
          DISPLAY 

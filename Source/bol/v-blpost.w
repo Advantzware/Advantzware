@@ -527,7 +527,7 @@ PROCEDURE rm-post-issue :
              find job-mat where recid(job-mat) eq v-recid no-error.          
              if not avail job-mat then do:
                 message " Job Mat Record not found for "
-                      string(job.job-no + "-" + string(job.job-no2,"99") +
+                      string(job.job-no + "-" + string(job.job-no2,"999") +
                              "  " + rm-rcpt.i-no).
                 return error.
              end.
