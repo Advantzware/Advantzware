@@ -30,6 +30,7 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/var.i}
 
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
   def var ip-company like itemfg.company init "001" no-undo.

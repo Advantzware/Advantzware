@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/var.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

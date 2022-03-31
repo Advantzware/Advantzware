@@ -73,7 +73,7 @@ DEF VAR v-fob-code AS CHAR NO-UNDO FORM "x(12)".
 /* gdm - 07070908 */
 DEF VAR v-rel-qty1 LIKE v-rel-qty NO-UNDO.
 
-format w-oe-rell.ord-no                 to 6
+format w-oe-rell.ord-no                 to 8
        w-par                            AT 10    format "x(46)"
        v-bin                            AT 61   format "x(20)"
        /*w-x                              at 60   format "X/"*/
@@ -83,14 +83,14 @@ format w-oe-rell.ord-no                 to 6
 /*        w-qty[1]                         to 88   FORMAT "->>>>>>>>" */
     with down frame rel-mid no-box no-label STREAM-IO width 97.
 
-format w-oe-rell.ord-no                 to 6
+format w-oe-rell.ord-no                 to 8
        w-par                            AT 10    format "x(26)"
        v-bin                            AT 61   format "x(20)"
        w-pal                            to 85   format "->>>>"
 /*        w-cas                            to 68   format "->>>>>"    */
 /*        w-c-c                            to 76   format "->>>>>>>>" */
 /*        w-qty[1]                         to 86   FORMAT "->>>>>>>>" */
-       w-descr                          AT 10    format "x(110)"
+       w-descr                          AT 8    format "x(110)"
     with down frame consol no-box no-label STREAM-IO width 118.
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.

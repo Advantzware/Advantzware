@@ -590,7 +590,7 @@ PROCEDURE DieData :
       RUN SetCellValue ("F" + STRING (viLine + 3), b-prep.received-date)       NO-ERROR.
       RUN SetCellVAlue ("H" + STRING (viLine + 3), b-prep.no-of-impressions)   NO-ERROR.
       RUN SetCellValue ("J" + STRING (viLine + 3), b-prep.last-date)           NO-ERROR. 
-      vcJobNum = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', b-prep.last-job-no, b-prep.last-job-no2)))
+      vcJobNum = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', b-prep.last-job-no, b-prep.last-job-no2))).
       RUN SetCellValue ("M" + STRING (viLIne + 3), vcJobNum)                   NO-ERROR.
   END. /*IF AVAIL b-prep THEN DO:*/
 

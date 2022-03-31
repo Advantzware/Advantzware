@@ -40,6 +40,7 @@ def output param op-rec-val as recid no-undo.
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
 DEF VAR lv-unit AS INT NO-UNDO.
+{sys/inc/var.i}
 
 &scoped-define SORTBY-1 BY job-hdr.job-no DESC BY job-hdr.job-no2 DESC
 &scoped-define SORTBY-2 BY job-hdr.est-no {&SORTBY-1}

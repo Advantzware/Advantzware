@@ -37,6 +37,7 @@ DEF INPUT PARAM ip-loc like rm-bin.loc no-undo.
 DEF INPUT PARAM ip-loc-bin like rm-bin.loc-bin no-undo.
 DEF INPUT PARAM ip-tag like rm-bin.tag no-undo.
 DEF OUTPUT PARAM op-rowid-val AS ROWID no-undo.
+{sys/inc/var.i}
 
 DEF var lv-type-dscr as cha no-undo.
 DEF var lv-first-time as log init yes no-undo.

@@ -53,7 +53,7 @@ DEF SHARED VAR s-print-loc-to AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-from AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-to AS cha NO-UNDO.
 
-format w-oe-rell.ord-no                 to 6
+format w-oe-rell.ord-no                 to 8
        w-par                            at 10    format "x(20)"
        v-bin                            at 31   format "x(20)"
        w-x                              at 60   format "X/"

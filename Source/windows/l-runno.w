@@ -31,6 +31,7 @@
 def input param ip-company like itemfg.company no-undo.
 def input param ip-cur-val as char no-undo.
 def output param op-char-val as char no-undo.
+{sys/inc/var.i}
 
 /* Local Variable Definitions ---                                       */
 def var lv-first-time as log init yes no-undo.

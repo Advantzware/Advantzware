@@ -40,6 +40,8 @@ def input param ip-ship-id like oe-relh.ship-id no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-id as recid no-undo.     /* recid output */
+{sys/inc/var.i}
+
 &scoped-define SORTBY-1 BY oe-relh.release# descending
 &scoped-define SORTBY-2 BY oe-relh.cust-no
 &scoped-define fld-name-1 oe-relh.release#

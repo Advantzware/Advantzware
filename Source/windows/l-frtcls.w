@@ -32,6 +32,7 @@
 /* Local Variable Definitions ---                                       */
 def input param ip-frt-class AS cha no-undo.
 def output param op-char-val as cha no-undo.
+{sys/inc/var.i}
 
 DEFIN TEMP-TABLE tt-frt FIELD frt-class AS cha FORM "x(3)"
                         FIELD frt-class-dscr AS cha FORM "x(50)" .

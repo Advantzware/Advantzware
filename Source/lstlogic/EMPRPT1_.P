@@ -8,6 +8,7 @@
 &Scoped-define SHOWADDRESSES no
 &Scoped-define SHOWPHONES no
 
+{sys/inc/var.i}
 DEFINE QUERY machemp-query FOR machemp.
 
 DEFINE VARIABLE selected-company AS CHARACTER FORMAT "X(3)" LABEL "Company" NO-UNDO.
@@ -19,7 +20,7 @@ DEFINE VARIABLE begin_job-no2 AS INT FORMAT "99" LABEL "Beginning Job Number" NO
 DEFINE VARIABLE end_job-no2 AS INT FORMAT "99" LABEL "Ending Job Number" NO-UNDO.
 DEFINE VARIABLE begin-date AS DATE FORMAT "99/99/9999" LABEL "Beginning Date" NO-UNDO.
 DEFINE VARIABLE end-date AS DATE FORMAT "99/99/9999" LABEL "Ending Date" NO-UNDO.
-DEFINE VARIABLE cocode AS CHARACTER NO-UNDO .
+/*DEFINE VARIABLE cocode AS CHARACTER NO-UNDO .*/
 DEFINE VARIABLE tb_excel AS LOGICAL NO-UNDO .
 DEFINE STREAM excel.
 

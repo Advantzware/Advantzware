@@ -14,6 +14,7 @@
 /*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */  
 
 /* ***************************  Definitions  ************************** */
+{sys/inc/var.i}
 {jc\ttJobReport.i}
 
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
