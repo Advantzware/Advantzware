@@ -75,6 +75,7 @@ for each report where report.term-id eq v-term-id,
     
   find first oe-ordl where oe-ordl.company eq cocode
        and oe-ordl.ord-no  eq int(report.key-02)
+       and (oe-ordl.line    EQ oe-boll.line OR oe-boll.line EQ 0)
        and oe-ordl.i-no    eq report.key-01
        no-lock no-error.
 
