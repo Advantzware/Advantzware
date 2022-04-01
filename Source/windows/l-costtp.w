@@ -34,6 +34,7 @@ def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 
+{sys/inc/var.i}
 def var lv-first-time as log init yes no-undo.
 &scoped-define fld-name-1 costtype.cost-type
 &scoped-define fld-name-2 costtype.descr

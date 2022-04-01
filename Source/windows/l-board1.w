@@ -34,6 +34,7 @@ def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-industry like style.industry no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-rowid as rowid no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.

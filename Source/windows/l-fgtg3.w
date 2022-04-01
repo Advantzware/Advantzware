@@ -38,6 +38,7 @@ def input parameter ip-cur-val as cha no-undo.
 def input parameter ip-inv-val as INT no-undo.
 DEF INPUT PARAMETER ip-selection AS CHAR NO-UNDO.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.

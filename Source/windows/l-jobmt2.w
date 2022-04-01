@@ -25,6 +25,7 @@ DEF INPUT PARAMETER ip-cur-val   AS CHAR NO-UNDO.
 DEF OUTPUT PARAMETER op-char-val AS CHAR NO-UNDO. /* string i-code + i-name */
 DEF OUTPUT PARAMETER op-rec-val  AS RECID NO-UNDO.
 DEF OUTPUT PARAMETER op-number-rows-selected AS INTEGER NO-UNDO.
+{sys/inc/var.i}
 
 /* Local Variable Definitions ---                                       */
 DEF VAR lv-type-dscr AS CHAR NO-UNDO.

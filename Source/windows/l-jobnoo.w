@@ -36,6 +36,8 @@ def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output PARAMETER op-char-val as CHAR no-undo.
 def output PARAMETER op-rec-val as recid no-undo.
+{sys/inc/var.i}
+
 def var lv-type-dscr as cha no-undo.
 
 &scoped-define SORTBY-1 BY job-hdr.job-no DESC BY job-hdr.job-no2 DESC

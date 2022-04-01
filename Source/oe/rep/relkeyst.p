@@ -130,7 +130,7 @@ format header
        "Count"                          to 72
        "Bin Qty"                        to 82
        "Job#"                           TO 6
-       "--------"                       to 6
+       "--------"                       to 8
        "--------------"                 at 10
        "----------"                     at 31
        "-"                              at 52
@@ -141,7 +141,7 @@ format header
        
     with frame rel-top no-box no-labels STREAM-IO width 85 page-top.
         
-format w-oe-rell.ord-no                 to 6
+format w-oe-rell.ord-no                 to 8
        w-par                            at 10    format "x(20)"
        v-bin                            at 31   format "x(20)"
        w-x                              at 52   format "X/"

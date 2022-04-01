@@ -37,6 +37,7 @@ def input parameter ip-loc-bin like wiptag.rm-bin no-undo.
 def input parameter ip-tag like wiptag.rm-tag-no no-undo.
 def input parameter ip-job like wiptag.job-no no-undo.
 def output parameter op-rowid-val AS ROWID no-undo.
+{sys/inc/var.i}
 
 /* Local Variable Definitions ---                                       */
 DEF SHARED TEMP-TABLE tt-selected FIELD tt-rowid AS ROWID.

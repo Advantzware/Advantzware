@@ -69,7 +69,7 @@ DEF VAR v-fob-code AS CHAR NO-UNDO FORM "x(12)".
 /* gdm - 07070908 */
 DEF VAR v-rel-qty1 LIKE v-rel-qty NO-UNDO.
 
-format w-oe-rell.ord-no                 to 6
+format w-oe-rell.ord-no                 to 8
        w-par                            at 10   format "x(26)"
        v-bin                            at 38   format "x(20)"
        /*w-x                              at 60   format "X/"*/

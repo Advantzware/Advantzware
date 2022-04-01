@@ -40,6 +40,7 @@ def input parameter ip-loc like fg-bin.loc no-undo.
 def input parameter ip-loc-bin like fg-bin.loc-bin no-undo.
 def input parameter ip-tag like fg-bin.tag no-undo.
 def output parameter op-rowid-val AS ROWID no-undo.
+{sys/inc/var.i}
 
 DEF BUFFER b-fg-bin FOR fg-bin.
 

@@ -22,6 +22,7 @@ def input param ip-rowid AS ROWID no-undo.
 
 def output param op-char-val as cha no-undo.
 
+{sys/inc/var.i}
 DEF BUFFER bf-eb FOR eb.
 
 DEFINE TEMP-TABLE tt-temp

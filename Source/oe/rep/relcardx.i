@@ -57,7 +57,7 @@ DEFINE VARIABLE iRelCase AS INTEGER NO-UNDO .
 DEFINE VARIABLE TotOnHand AS INTEGER NO-UNDO .
 DEFINE VARIABLE dTotalWeight AS DECIMAL NO-UNDO .
 
-format w-oe-rell.ord-no                 to 6
+format w-oe-rell.ord-no                 to 8
        w-par                            at 10    format "x(20)"
        v-bin                            at 31   format "x(12)"
        w-pal                            AT 45   format "->>>"

@@ -30,6 +30,8 @@
 
 /* Local Variable Definitions ---                                       */
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
+
 def var v-codelist as cha init "Writing,Printing,Cover,PBristol,IBristol,NPrint" no-undo.
 def var v-deslist as cha init " Writing Paper, Printing  Paper,Cover Paper,Printing Bristol, Index Bristol,Newsprint,Tag & Tissue" no-undo.
 def var v-widlist as cha init "17,25,20,22.5,25.5,24" no-undo.
