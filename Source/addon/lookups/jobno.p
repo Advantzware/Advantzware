@@ -25,7 +25,7 @@
 &Scoped-define font 4
 &Scoped-define height-size 19
 &Scoped-define width-size 46
-&Scoped-define show-fields job-hdr.job-no job-hdr.job-no2 job-hdr.est-no job-hdr.ftick-prnt
+&Scoped-define show-fields job-hdr.job-no FORMAT "X(9)" job-hdr.job-no2 FORMAT "999" job-hdr.est-no job-hdr.ftick-prnt
 &Scoped-define show-fields-yellow job-hdr.job-no LABEL-BGCOLOR 14 job-hdr.job-no2 LABEL-BGCOLOR 14 job-hdr.est-no LABEL-BGCOLOR 14 job-hdr.ftick-prnt LABEL-BGCOLOR 14
 &Scoped-define frame-title Job# Lookups
 &Scoped-define top-include ~{custom/getcmpny.i}~{custom/getloc.i}~{sys/inc/varasgn.i}
@@ -43,7 +43,7 @@
 &Scoped-define btn-cancel-col 32
 &Scoped-define auto-find-row 23.65
 
-&Global-define FORMAT-1 x(6)
+&Global-define FORMAT-1 x(9)
 &Scoped-define FLDNAME1 job-hdr.job-no
 &Scoped-define SORTBY-1 BY {&FLDNAME1}
 &Scoped-define DESCRIP1 Job Number

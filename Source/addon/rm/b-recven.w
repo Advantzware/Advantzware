@@ -1767,7 +1767,8 @@ PROCEDURE create-rec-from-vend-tag :
                END.
                work-gl.debits = work-gl.debits + v-ext-cost.
                
-               work-gl.cDesc = work-gl.cDesc +  (IF rm-rctd.job-no NE "" THEN "Job: " + rm-rctd.job-no + "-" + STRING(rm-rctd.job-no2,"999") 
+               work-gl.cDesc = work-gl.cDesc +  (IF rm-rctd.job-no NE "" THEN "Job: " + 
+                               TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', rm-rctd.job-no, rm-rctd.job-no2))) 
                                ELSE IF rm-rctd.po-no NE "" THEN "PO: " + string(rm-rctd.po-no,"999999") + "-" + STRING(rm-rctd.po-line,"999") ELSE "")
                                + " Cost $" + string(rm-rctd.cost) + " / " + rm-rctd.cost-uom.
 
@@ -1779,7 +1780,8 @@ PROCEDURE create-rec-from-vend-tag :
                END.
                work-gl.credits = work-gl.credits + v-ext-cost.
                
-               work-gl.cDesc = work-gl.cDesc +  (IF rm-rctd.job-no NE "" THEN "Job: " + rm-rctd.job-no + "-" + STRING(rm-rctd.job-no2,"999") 
+               work-gl.cDesc = work-gl.cDesc +  (IF rm-rctd.job-no NE "" THEN "Job: " + 
+                               TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', rm-rctd.job-no, rm-rctd.job-no2)))
                                ELSE IF rm-rctd.po-no NE "" THEN "PO: " + string(rm-rctd.po-no,"999999") + "-" + STRING(rm-rctd.po-line,"999") ELSE "")
                                + " Cost $" + string(rm-rctd.cost) + " / " + rm-rctd.cost-uom.
            END.

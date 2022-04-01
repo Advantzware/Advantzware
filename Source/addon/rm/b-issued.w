@@ -969,7 +969,7 @@ DO:
                    ).
                IF lParse THEN 
                     ASSIGN 
-                        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = cJobNo
+                        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo))
                         rm-rctd.job-no2:SCREEN-VALUE = IF cJobNo2 NE "" THEN cJobNo2 ELSE rm-rctd.job-no2:SCREEN-VALUE  
                         rm-rctd.s-num:SCREEN-VALUE = IF cFormNo NE "" THEN cFormNo ELSE rm-rctd.s-num:SCREEN-VALUE
                         rm-rctd.b-num:SCREEN-VALUE = IF cBlankNo NE "" THEN cBlankNo ELSE rm-rctd.b-num:SCREEN-VALUE 

@@ -177,11 +177,11 @@ DEFINE BROWSE BROWSE-1
       loadtag.tag-no FORMAT "X(23)":U
       loadtag.i-no FORMAT "x(15)":U
       loadtag.i-name FORMAT "x(30)":U
-      loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U
-      loadtag.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U
+      loadtag.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
       loadtag.loc FORMAT "x(5)":U
       loadtag.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
-      loadtag.ord-no FORMAT ">>>>>9":U
+      loadtag.ord-no FORMAT ">>>>>>>9":U
       loadtag.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>>>9":U
       loadtag.qty COLUMN-LABEL "On Hand" FORMAT "->>>,>>>,>>9.9<<<<<":U
 /* _UIB-CODE-BLOCK-END */

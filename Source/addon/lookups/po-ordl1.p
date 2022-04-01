@@ -25,7 +25,7 @@
 &Scoped-define font 4
 &Scoped-define height-size 19
 &Scoped-define width-size 95
-&Scoped-define show-fields po-ordl.i-no po-ordl.i-name po-ordl.job-no po-ordl.job-no2 po-ordl.s-wid po-ordl.s-len
+&Scoped-define show-fields po-ordl.i-no po-ordl.i-name po-ordl.job-no FORMAT "X(9)" po-ordl.job-no2 FORMAT "999" po-ordl.s-wid po-ordl.s-len
 &Scoped-define show-fields-yellow po-ordl.i-no LABEL-BGCOLOR 14 po-ordl.i-name LABEL-BGCOLOR 14 po-ordl.job-no LABEL-BGCOLOR 14 po-ordl.job-no2 LABEL-BGCOLOR 14 po-ordl.s-wid LABEL-BGCOLOR 14 po-ordl.s-len LABEL-BGCOLOR 14
 &Scoped-define frame-title 
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}

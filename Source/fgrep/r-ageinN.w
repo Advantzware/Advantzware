@@ -161,9 +161,9 @@ DEFINE VARIABLE tcus           LIKE fcus INIT "zzzzzzzz" NO-UNDO.
 DEFINE VARIABLE fitm           LIKE itemfg.i-no NO-UNDO.
 DEFINE VARIABLE titm           LIKE fitm INIT "zzzzzzzzzzzzzzz" NO-UNDO.
 DEFINE VARIABLE fjob           LIKE fg-bin.job-no NO-UNDO.
-DEFINE VARIABLE tjob           LIKE fjob INIT "zzzzzz" NO-UNDO.
-DEFINE VARIABLE fjob2          LIKE fg-bin.job-no2 FORMAT "99" NO-UNDO.
-DEFINE VARIABLE tjob2          LIKE fjob2 INIT 99 NO-UNDO.
+DEFINE VARIABLE tjob           LIKE fjob INIT "zzzzzzzzz" NO-UNDO.
+DEFINE VARIABLE fjob2          LIKE fg-bin.job-no2 FORMAT "999" NO-UNDO.
+DEFINE VARIABLE tjob2          LIKE fjob2 INIT 999 NO-UNDO.
 DEFINE VARIABLE v-q-or-v       AS LOG       FORMAT "Qty/Value" INIT YES NO-UNDO.
 DEFINE VARIABLE v-sub-t        AS LOG       FORMAT "Yes/No" INIT NO NO-UNDO.
 DEFINE VARIABLE v-break        AS LOG       FORMAT "Yes/No" INIT YES NO-UNDO.

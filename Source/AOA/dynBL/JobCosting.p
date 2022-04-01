@@ -167,7 +167,7 @@ PROCEDURE pBusinessLogic:
             ttJobCosting.oh-qty      = iOhQty 
             ttJobCosting.ship-qty    = iShipQty
             ttJobCosting.inv-qty     = IF AVAIL oe-ordl THEN oe-ordl.inv-qty ELSE 0
-            ttJobCosting.job         = STRING(TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99"))
+            ttJobCosting.job         = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)))
             ttJobCosting.wip-qty     = iWipQty
             ttJobCosting.ou-pct      = iOuPct
             ttJobCosting.job-qty     = job-hdr.qty 

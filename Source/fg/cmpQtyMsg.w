@@ -433,7 +433,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       FRAME {&FRAME-NAME}:TITLE = "Set: " + TRIM(CAPS(v-set)) +
                                   " / Components" + " " +
                                   (IF ip-job-no NE "" THEN 
-                                     "For Job#: " + TRIM(ip-job-no) + "-" + STRING(ip-job-no2,"99")
+                                     "For Job#: " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ip-job-no, ip-job-no2)))
                                    ELSE "").
       RUN enable_UI.
 
