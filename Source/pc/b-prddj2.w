@@ -748,16 +748,19 @@ PROCEDURE auto-add-next :
   */
   FIND FIRST bf-prev NO-LOCK NO-ERROR.
 
-  RUN auto-add.
-  ASSIGN tt-prdd.m-code:SCREEN-VALUE IN BROWSE {&browse-name} = bf-prev.m-code         
-         tt-prdd.blank-no:SCREEN-VALUE = STRING(bf-prev.blank-no)
-         tt-prdd.frm:SCREEN-VALUE = STRING(bf-prev.frm)
-         tt-prdd.pass:SCREEN-VALUE = STRING(bf-prev.pass)
-         tt-prdd.i-no:SCREEN-VALUE = bf-prev.i-no
-         tt-prdd.i-name:SCREEN-VALUE = bf-prev.i-name
+  RUN auto-add.  
+  
+  ASSIGN tt-prdd.m-code = bf-prev.m-code         
+         tt-prdd.blank-no = bf-prev.blank-no
+         tt-prdd.frm = bf-prev.frm
+         tt-prdd.pass = bf-prev.pass
+         tt-prdd.i-no = bf-prev.i-no
+         tt-prdd.i-name = bf-prev.i-name
          tt-prdd.job = bf-prev.job
          lv-dept = "".
+         
   APPLY "entry" TO tt-prdd.CODE IN BROWSE {&browse-name}.
+  RUN dispatch ('display-fields').    
 
 END PROCEDURE.
 
@@ -1105,7 +1108,7 @@ PROCEDURE local-assign-record :
                        NO-LOCK NO-ERROR.
   IF AVAIL job THEN bf-prdd.rec_key = job.rec_key.
 
-  FIND CURRENT bf-prdd NO-LOCK.
+  FIND CURRENT bf-prdd NO-LOCK NO-ERROR.
 
   FIND FIRST pc-prdh
       WHERE pc-prdh.company    EQ g_company
