@@ -21,6 +21,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -273,15 +274,15 @@ DEFINE VARIABLE begin_form         AS INTEGER   FORMAT ">>>":U INITIAL 3
     VIEW-AS FILL-IN 
     SIZE 8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job          AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job          AS CHARACTER FORMAT "X(9)":U 
     LABEL "From Job#" 
     VIEW-AS FILL-IN 
     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job2         AS INTEGER   FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE begin_job2         AS INTEGER   FORMAT "999":U INITIAL 0 
     LABEL "-" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_labels       AS INTEGER   FORMAT ">>>>":U INITIAL 2 
     LABEL "# of Labels/Pallet" 
@@ -298,15 +299,15 @@ DEFINE VARIABLE begin_rm-i-no      AS CHARACTER FORMAT "X(15)":U
     VIEW-AS FILL-IN 
     SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job            AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE end_job            AS CHARACTER FORMAT "X(9)":U 
     LABEL "To Job#" 
     VIEW-AS FILL-IN 
     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job2           AS INTEGER   FORMAT "99":U INITIAL 99 
+DEFINE VARIABLE end_job2           AS INTEGER   FORMAT "999":U INITIAL 999 
     LABEL "-" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_po-no          AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 0 
     LABEL "To PO#" 
@@ -380,11 +381,11 @@ DEFINE FRAME FRAME-A
     "Enter Ending PO Number"
     begin_job AT ROW 9.38 COL 21 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    begin_job2 AT ROW 9.38 COL 36 COLON-ALIGNED HELP
+    begin_job2 AT ROW 9.38 COL 35.6 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
     end_job AT ROW 9.38 COL 65 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    end_job2 AT ROW 9.38 COL 80 COLON-ALIGNED HELP
+    end_job2 AT ROW 9.38 COL 79.6 COLON-ALIGNED HELP
     "Enter Ending Job Number"
     begin_rm-i-no AT ROW 10.33 COL 21 COLON-ALIGNED HELP
     "Enter Beginning Order Number"
@@ -1576,7 +1577,7 @@ PROCEDURE from-po :
         AND (v-stat EQ "A"                         OR
         (v-stat EQ "C" AND NOT po-ord.opened) OR
         (v-stat EQ "O" AND po-ord.opened))
-        AND (CAN-FIND(ttblJob WHERE ttblJob.job-no EQ po-ordl.job-no
+        AND (CAN-FIND(ttblJob WHERE trim(ttblJob.job-no) EQ trim(po-ordl.job-no)
         AND ttblJob.job-no2 EQ po-ordl.job-no2) OR
         NOT CAN-FIND(FIRST ttblJob))
         USE-INDEX po-no /*BREAK BY po-ordl.i-no*/:
@@ -1620,7 +1621,7 @@ PROCEDURE get-matrix :
     FIND FIRST po-ordl NO-LOCK WHERE po-ordl.company EQ rm-rctd.company
         AND po-ordl.po-no EQ INTEGER(rm-rctd.po-no)
         AND po-ordl.i-no EQ rm-rctd.i-no
-        AND po-ordl.job-no EQ rm-rctd.job-no
+        AND trim(po-ordl.job-no) EQ trim(rm-rctd.job-no)
         AND po-ordl.job-no2 EQ rm-rctd.job-no2
         AND po-ordl.item-type EQ YES
         AND po-ordl.s-num EQ rm-rctd.s-num NO-ERROR.
@@ -1635,7 +1636,7 @@ PROCEDURE get-matrix :
     ELSE
     DO:
         FIND FIRST job NO-LOCK WHERE job.company EQ cocode
-            AND job.job-no EQ rm-rctd.job-no
+            AND trim(job.job-no) EQ trim(rm-rctd.job-no)
             AND job.job-no2 EQ rm-rctd.job-no2 NO-ERROR.
         IF AVAILABLE job THEN
         DO:
@@ -1887,7 +1888,7 @@ Total Received,~
 Total Quantity Released,~
 Tag Date,~
 Tax,~
-Sales Tax Group,~
+Tax Group,~
 Tax Exempt No.,~
 Payment Terms,~
 Total Tags,~
@@ -2378,8 +2379,7 @@ PROCEDURE run-report :
                 ELSE lv-job-no2 = lv-job-no2 + SUBSTR(ENTRY(i,v-job-list),li,1).
         END. /* do li */
 
-        lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no) +
-            STRING(INT(lv-job-no2),"99") NO-ERROR.
+        lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', lv-job-no, lv-job-no2)) NO-ERROR.
 
         IF NOT ERROR-STATUS:ERROR AND
             lv-job-no NE "" THEN
@@ -2389,20 +2389,20 @@ PROCEDURE run-report :
     IF begin_job NE '' OR end_job NE '' THEN
         FOR EACH job NO-LOCK
             WHERE job.company EQ cocode
-            AND job.job-no  GE FILL(" ",6 - LENGTH(TRIM(begin_job))) + TRIM(begin_job)
-            AND job.job-no  LE FILL(" ",6 - LENGTH(TRIM(end_job)))   + TRIM(end_job)
-            AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"99")
+            AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no)  GE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job)) 
+            AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no)  LE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job)) 
+            AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
             GE
-            FILL(" ",6 - LENGTH(TRIM(begin_job))) + TRIM(begin_job) + STRING(begin_job2,"99")
-            AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"99")
+            STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job, begin_job2)) 
+            AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
             LE
-            FILL(" ",6 - LENGTH(TRIM(end_job))) + TRIM(end_job) + STRING(end_job2,"99")
+            STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job, end_job2)) 
             AND (v-stat EQ "A"                      OR
             (v-stat EQ "C" AND NOT job.opened) OR
             (v-stat EQ "O" AND job.opened))
             AND NOT CAN-FIND(FIRST ttblJob
-            WHERE ttblJob.job-no  EQ job.job-no
-            AND ttblJob.job-no2 EQ job.job-no2):
+            WHERE trim(ttblJob.job-no)  EQ trim(job.job-no)
+            AND ttblJob.job-no2 EQ job.job-no2): 
             CREATE ttblJob.
             ASSIGN
                 ttblJob.job-no  = job.job-no
@@ -2515,14 +2515,14 @@ PROCEDURE run-report :
                 w-po.s-len = ROUND((w-po.s-len - TRUNC(w-po.s-len,0)) / 6.25,2) + TRUNC(w-po.s-len,0)
                 w-po.s-wid = ROUND((w-po.s-wid - TRUNC(w-po.s-wid,0)) / 6.25,2) + TRUNC(w-po.s-wid,0).
 
-        v-job = w-po.job-no + "-" + STRING(w-po.job-no2,"99").
+        v-job = w-po.job-no + "-" + STRING(w-po.job-no2,"999").
         IF v-job BEGINS "-" THEN v-job = "".
 
         ASSIGN
-            lv-middlesex-po  = SUBSTR(TRIM(w-po.job-no),1,6)
+            lv-middlesex-po  = SUBSTR(TRIM(w-po.job-no),1,9)
             lv-middlesex-job = IF lv-middlesex-job EQ "" THEN "" ELSE
                         "%MX" +
-                        FILL("0",6 - LENGTH(TRIM(lv-middlesex-job))) +
+                        FILL("0",9 - LENGTH(TRIM(lv-middlesex-job))) +
                         TRIM(lv-middlesex-job)
             lv-middlesex-po  = SUBSTR(STRING(w-po.po-no),1,6)
             lv-middlesex-po  = IF lv-middlesex-po EQ "" THEN "" ELSE
@@ -2731,12 +2731,12 @@ PROCEDURE temp-job :
     DEFINE INPUT PARAMETER ip-job-no LIKE job.job-no NO-UNDO.
 
     IF NOT CAN-FIND(FIRST ttblJob
-        WHERE ttblJob.job-no  EQ SUBSTR(ip-job-no,1,6)
-        AND ttblJob.job-no2 EQ INT(SUBSTR(ip-job-no,7,2))) AND
+        WHERE ttblJob.job-no  EQ SUBSTR(ip-job-no,1,9)
+        AND ttblJob.job-no2 EQ INT(SUBSTR(ip-job-no,10,3))) AND
         CAN-FIND(FIRST job
         WHERE job.company EQ cocode
-        AND job.job-no  EQ SUBSTR(ip-job-no,1,6)
-        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,7,2))
+        AND trim(job.job-no)  EQ SUBSTR(ip-job-no,1,9)
+        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,10,3))
         AND (v-stat EQ "A"                      OR
         (v-stat EQ "C" AND NOT job.opened) OR
         (v-stat EQ "O" AND job.opened)))
@@ -2744,8 +2744,8 @@ PROCEDURE temp-job :
     DO:
         CREATE ttblJob.
         ASSIGN
-            ttblJob.job-no  = SUBSTR(ip-job-no,1,6)
-            ttblJob.job-no2 = INT(SUBSTR(ip-job-no,7,2)).
+            ttblJob.job-no  = SUBSTR(ip-job-no,1,9)
+            ttblJob.job-no2 = INT(SUBSTR(ip-job-no,10,3)).
     END.
 
 END PROCEDURE.

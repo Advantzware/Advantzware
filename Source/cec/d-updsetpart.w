@@ -397,8 +397,9 @@ DO:
 
          RUN UpdateSetUnitize.
 
-         IF eb.set-is-assembled NE ? THEN
-            eb.set-is-assembled = NOT eb.set-is-assembled.
+
+/*         IF eb.set-is-assembled NE ? THEN                 */
+/*            eb.set-is-assembled = NOT eb.set-is-assembled.*/
 
          IF eb.stock-no NE "" THEN DO:
              FIND FIRST itemfg WHERE
@@ -848,7 +849,11 @@ PROCEDURE local-initialize :
      eb.wid:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING({sys/inc/k16.i eb.wid})
      eb.dep:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING({sys/inc/k16.i eb.dep})
      rd_alloc   = bf-set.set-is-assembled
-     tb_unitize = bf-set.pur-man.            
+     tb_unitize = bf-set.pur-man.  
+  DISPLAY  
+    rd_alloc
+    tb_unitize
+    WITH FRAME {&frame-name}. 
 
 END PROCEDURE.
 

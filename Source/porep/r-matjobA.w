@@ -1044,11 +1044,11 @@ assign
  v-job-no2[2]   = end_job-no2
  v-sort-by-size = tb_sort
 
- v-job-no[1] = fill(" ",6 - length(trim(v-job-no[1]))) +
+ v-job-no[1] = FILL(" ", iJobLen - length(trim(v-job-no[1]))) +
                trim(v-job-no[1])                       +
                string(v-job-no2[1],"99")
 
- v-job-no[2] = fill(" ",6 - length(trim(v-job-no[2]))) +
+ v-job-no[2] = FILL(" ", iJobLen - length(trim(v-job-no[2]))) +
                trim(v-job-no[2])                       +
                string(v-job-no2[2],"99")
  v-mattype-list = "".

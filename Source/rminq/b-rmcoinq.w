@@ -286,7 +286,7 @@ DEFINE BROWSE Browser-Table
       tt-job-mat.job-no COLUMN-LABEL "  Job#" FORMAT "x(6)":U WIDTH 9
             LABEL-BGCOLOR 14
       tt-job-mat.job-no2 COLUMN-LABEL "" FORMAT "99":U WIDTH 4 LABEL-BGCOLOR 14
-      tt-job-mat.frm COLUMN-LABEL "S" FORMAT ">>>":U WIDTH 5 LABEL-BGCOLOR 14
+      tt-job-mat.frm COLUMN-LABEL "F" FORMAT ">>>":U WIDTH 5 LABEL-BGCOLOR 14
       tt-job-mat.blank-no COLUMN-LABEL "B" FORMAT ">>>":U WIDTH 5
             LABEL-BGCOLOR 14 
       tt-job-mat.po-no-po COLUMN-LABEL "PO#" FORMAT ">>>>>>>>>>":U WIDTH 10
@@ -442,7 +442,7 @@ ASSIGN
      _FldNameList[3]   > ASI.tt-job-mat.job-no2
 "tt-job-mat.job-no2" "" "99" "integer" ? ? ? 14 ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.tt-job-mat.frm
-"tt-job-mat.frm" "S" ">>>" "integer" ? ? ? 14 ? ? yes ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tt-job-mat.frm" "F" ">>>" "integer" ? ? ? 14 ? ? yes ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.tt-job-mat.blank-no
 "tt-job-mat.blank-no" "B" ">>>" "integer" ? ? ? 14 ? ? yes ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.tt-job-mat.qty

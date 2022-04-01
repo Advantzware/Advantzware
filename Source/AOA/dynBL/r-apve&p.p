@@ -961,7 +961,7 @@ PROCEDURE pPostGL:
                                     iPeriod,
                                     "A",
                                     dtPostDate,
-                                    "Vendor:" + STRING(vend.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
+                                    "Vendor:" + STRING(vend.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"99999999"),
                                     "AP").
 
                 ASSIGN
@@ -1174,7 +1174,7 @@ PROCEDURE pPostGL:
                                     iPeriod,
                                     "A",
                                     dtPostDate,
-                                    (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + string(ap-inv.inv-no,"9999999"),
+                                    (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + string(ap-inv.inv-no,"99999999"),
                                     "AP").
             END. /* last-of actnum */
         END. /* for each ap-inv */
@@ -1190,7 +1190,7 @@ PROCEDURE pPostGL:
                                iPeriod,
                                "A",
                                dtPostDate,
-                               (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
+                               (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"99999999"),
                                "AP").
         END. /* dfrttotal ne 0 */
         FOR EACH tt-ap-tax
@@ -1208,7 +1208,7 @@ PROCEDURE pPostGL:
                                iPeriod,
                                "A",
                                dtPostDate,
-                               (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
+                               (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"99999999"),
                                "AP").
             END. /* last-of actnum */
         END. /* each tt-ap-tax */
@@ -1222,7 +1222,7 @@ PROCEDURE pPostGL:
                           iPeriod,
                           "A",
                           dtPostDate,
-                          (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
+                          (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"99999999"),
                           "AP").
     END. /* postit: transaction */
 END PROCEDURE.

@@ -1,7 +1,7 @@
 /* --------------------------------------------- oe/rep/bollprnt12.i 10/09 GDM */
 /* N-K BOLFMT = Loylang - FORM for Loylang                                    */
 /* -------------------------------------------------------------------------- */ 
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 IF NOT v-broker
   THEN PUT "<FArial>"  SKIP
            "<P14><R37><C+50><B>Bill Of Lading</B> "
@@ -38,14 +38,20 @@ PUT  "<R40><C55><#3>" SKIP
 
 PUT  
      "<|10><R51><C1><#5><FROM><R53><C81><RECT>" SKIP    
-     "<R51><C9.5><FROM><R53><C9.5><LINE>" SKIP
-     "<R51><C22.5><FROM><R53><C22.5><LINE>" SKIP
-     "<R51><C34.5><FROM><R53><C34.5><LINE>" SKIP
+     "<R51><C11.5><FROM><R53><C11.5><LINE>" SKIP
+     "<R51><C24.5><FROM><R53><C24.5><LINE>" SKIP
+     "<R51><C37><FROM><R53><C37><LINE>" SKIP
      "<R51><C61><FROM><R53><C61><LINE>" SKIP  
      "<R51><C73><FROM><R53><C73><LINE>" SKIP
      "<R51><C76><FROM><R53><C76><LINE>" SKIP.
  
- PUT "<FArial><=5><R+1> Order#/Job#     PO# / Lot#              FG # / Cust Part            Item Name                                                Unit-Quantity       P/C  Weight  <FCourier New>" SKIP(1).
+ PUT "<FArial><=5><R+1>  Order#/Job#
+                   <C13> PO# / Lot#
+                   <C25> FG # / Cust Part
+                   <C38> Item Name
+                   <C62> Unit-Quantity
+                   <C73> P/C  
+                   <C76> Weight  <FCourier New>" SKIP(1).
                                                                        
  v-printline = v-printline + 12.
  
@@ -91,13 +97,13 @@ PUT
          i = i + 1.
          IF i eq 1 THEN ASSIGN v-job-po    = oe-boll.po-no                                                              
                                v-job-var   = if oe-boll.job-no eq "" then "" else
-                                             (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99"))
+                                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2)))
                                v-fgitem    = oe-boll.i-no
                                v-part-dscr = oe-ordl.i-name. 
          ELSE
          if i eq 2 THEN ASSIGN v-part-dscr = oe-ordl.part-dscr1
                                v-job-var   = if oe-boll.job-no eq "" then "" else
-                                             (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99"))
+                                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2)))
                                v-job-po    = oe-rel.lot-no
                                v-fgitem    = oe-ordl.part-no.
          ELSE
@@ -113,18 +119,18 @@ PUT
    
 
          IF FIRST(tt-w2.cases * tt-w2.cas-cnt) THEN 
-           PUT {1} oe-ordl.ord-no FORM ">>>>>9"
-                   v-job-po FORM "x(15)" AT 11
-                   v-fgitem  AT 27 
-                   v-part-dscr FORMAT "x(30)" AT 42
+           PUT {1} STRING(oe-ordl.ord-no)
+                   v-job-po FORM "x(15)" AT 14
+                   v-fgitem  AT 30 
+                   v-part-dscr FORMAT "x(26)" AT 45
                    tt-w2.cases    AT 72 FORMAT "->>>9" " @"
                    tt-w2.cas-cnt    FORM "->>>>9"
                    SKIP.
          ELSE PUT {1} 
-                  v-job-var FORM "x(9)"
-                  v-job-po  FORM "x(15)" AT 11
-                  v-fgitem   AT 27
-                  v-part-dscr FORMAT "x(30)" AT 42
+                  v-job-var FORM "x(13)"
+                  v-job-po  FORM "x(15)" AT 14
+                  v-fgitem   AT 30
+                  v-part-dscr FORMAT "x(26)" AT 45
                   tt-w2.cases  AT 72 FORMAT "->>>9" " @"
                   tt-w2.cas-cnt FORMAT "->>>>9" SKIP.
 
@@ -133,10 +139,10 @@ PUT
          IF LAST(tt-w2.cases * tt-w2.cas-cnt) THEN DO:
            IF FIRST(tt-w2.cases * tt-w2.cas-cnt) THEN DO:
              PUT {1} 
-                 v-job-var  FORMAT "x(9)"
-                 oe-rel.lot-no FORMAT "x(15)" AT 11
-                 oe-ordl.part-no AT 27
-                 oe-ordl.part-dscr1 FORMAT "x(30)" AT 42
+                 v-job-var  FORMAT "x(13)"
+                 oe-rel.lot-no FORMAT "x(15)" AT 14
+                 oe-ordl.part-no AT 30
+                 oe-ordl.part-dscr1 FORMAT "x(26)" AT 45
                  SKIP.
              v-printline = v-printline + 1.
            END.
@@ -261,13 +267,13 @@ PUT
          i = i + 1.
          IF i eq 1 THEN ASSIGN v-job-po    = oe-boll.po-no                                                              
                                v-job-var   = if oe-boll.job-no eq "" then "" else
-                                             (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99"))
+                                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2)))
                                v-fgitem    = oe-boll.i-no
                                v-part-dscr = oe-ordl.i-name. 
          ELSE
          if i eq 2 THEN ASSIGN v-part-dscr = oe-ordl.part-dscr1
                                v-job-var   = if oe-boll.job-no eq "" then "" else
-                                             (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99"))
+                                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2)))
                                v-job-po    = oe-rel.lot-no
                                v-fgitem    = oe-ordl.part-no.
          ELSE
@@ -283,18 +289,18 @@ PUT
    
 
          IF FIRST(tt-w2.cases * tt-w2.cas-cnt) THEN 
-           PUT {1} oe-ordl.ord-no FORM ">>>>>9"
-                   v-job-po FORM "x(15)" AT 11
-                   v-fgitem  AT 27 
-                   v-part-dscr FORMAT "x(30)" AT 42
+           PUT {1} STRING(oe-ordl.ord-no)
+                   v-job-po FORM "x(15)" AT 14
+                   v-fgitem  AT 30 
+                   v-part-dscr FORMAT "x(26)" AT 45
                    tt-w2.cases    AT 72 FORMAT "->>>9" " @"
                    tt-w2.cas-cnt    FORM "->>>>9"
                    SKIP.
          ELSE PUT {1} 
-                  v-job-var FORM "x(9)"
-                  v-job-po  FORM "x(15)" AT 11
-                  v-fgitem   AT 27
-                  v-part-dscr FORMAT "x(30)" AT 42
+                  v-job-var FORM "x(13)"
+                  v-job-po  FORM "x(15)" AT 14
+                  v-fgitem   AT 30
+                  v-part-dscr FORMAT "x(26)" AT 45
                   tt-w2.cases  AT 72 FORMAT "->>>9" " @"
                   tt-w2.cas-cnt FORMAT "->>>>9" SKIP.
 
@@ -303,10 +309,10 @@ PUT
          IF LAST(tt-w2.cases * tt-w2.cas-cnt) THEN DO:
            IF FIRST(tt-w2.cases * tt-w2.cas-cnt) THEN DO:
              PUT {1} 
-                 v-job-var  FORMAT "x(9)"
-                 oe-rel.lot-no FORMAT "x(15)" AT 11
-                 oe-ordl.part-no AT 27
-                 oe-ordl.part-dscr1 FORMAT "x(30)" AT 42
+                 v-job-var  FORMAT "x(13)"
+                 oe-rel.lot-no FORMAT "x(15)" AT 14
+                 oe-ordl.part-no AT 30
+                 oe-ordl.part-dscr1 FORMAT "x(26)" AT 45
                  SKIP.
              v-printline = v-printline + 1.
            END.

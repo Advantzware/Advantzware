@@ -171,6 +171,7 @@ DEFINE VARIABLE lCEVersion AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iQuoteExpirationDays AS INTEGER NO-UNDO. 
 DEFINE VARIABLE lQuoteExpirationDays AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAutoUpdate AS LOGICAL NO-UNDO.
              
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 
@@ -777,21 +778,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-LEAVE OF br_table IN FRAME F-Main /* Estimate  Analysis Per Thousand */
 DO:
-    DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
-    DEF VAR char-hdl AS CHAR NO-UNDO.   
-
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
-    {est/brsleave.i}   /* same but update will be LIKE add */
+   /*{src/adm/template/brsleave.i} */
+     {est/brsleave.i}   /* same but update will be LIKE add */
      
-    IF KEYFUNCTION(LASTKEY) EQ "return" 
-    OR KEYFUNCTION(LASTKEY) EQ "tab" THEN DO:
-        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
-        phandle = WIDGET-HANDLE(char-hdl).
-        RUN new-state IN phandle ('update-begin':U).
-    END.
-    QUERY br_table:GET-NEXT().
-    IF QUERY br_table:QUERY-OFF-END THEN RUN dispatch ('cancel-record':U).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1091,9 +1082,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL probe.boardContributionTotal br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF probe.boardContributionTotal IN BROWSE br_table /* Board!Contrib$ */
 DO:
+  DEFINE BUFFER bf-probe FOR probe.
   IF LASTKEY NE -1 THEN DO:
     RUN calc-fields NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    lAutoUpdate = NO. 
+    FIND LAST bf-probe NO-LOCK
+          WHERE bf-probe.company EQ eb.company 
+            AND bf-probe.est-no EQ eb.est-no 
+            AND bf-probe.probe-date ne ? NO-ERROR.
+    IF AVAIL bf-probe AND ROWID(bf-probe) NE ROWID(probe) THEN 
+    do:        
+        IF KEYFUNCTION(LASTKEY) EQ "TAB" THEN
+        lAutoUpdate = YES.
+    END.
   END.
 END.
 
@@ -2706,8 +2708,48 @@ PROCEDURE pGetCEVersionCalcSettings PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-est FOR est.
 
-    RUN Estimate_GetVersionSettings(ipbf-est.company, ipbf-est.estimateTypeID, OUTPUT glEstimateCalcNew, OUTPUT glEstimateCalcNewPrompt).
+    DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iCEVersion AS INTEGER   NO-UNDO.
 
+    RUN sys/ref/nk1look.p (ipbf-est.company, "CEVersion", "C" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    glEstimateCalcNew = lFound AND cReturn EQ "New".
+ 
+    RUN sys/ref/nk1look.p (ipbf-est.company, "CEVersion", "I" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    IF lRecFound THEN 
+        iCEVersion = INTEGER(cReturn).
+        
+    IF glEstimateCalcNew THEN 
+        CASE iCEVersion:
+            WHEN 1 THEN 
+                ASSIGN 
+                    glEstimateCalcNewPrompt = glEstimateCalcNew.
+            WHEN 2 THEN 
+                DO:
+                    IF NOT DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
+                        glEstimateCalcNew = NO.            
+                    ASSIGN 
+                        glEstimateCalcNewPrompt = glEstimateCalcNew.
+                END.
+            WHEN 3 THEN 
+                DO:
+                    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
+                        glEstimateCalcNewPrompt = YES.
+                    ELSE 
+                        glEstimateCalcNewPrompt = NO.            
+                END.
+            WHEN 4 THEN 
+                DO:
+                    IF NOT ipbf-est.estimateTypeID EQ "MISC" THEN 
+                        ASSIGN 
+                            glEstimateCalcNew       = NO
+                            glEstimateCalcNewPrompt = NO.
+                END.
+        END CASE.
 
 END PROCEDURE.
 
@@ -2763,6 +2805,9 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE li AS INTEGER NO-UNDO.
+   DEFINE VARIABLE phandle AS WIDGET-HANDLE NO-UNDO.
+   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.   
+  
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
@@ -2796,13 +2841,16 @@ PROCEDURE local-update-record :
   IF probe.spare-char-2 NE "" THEN
     RUN pCalculatePricing(BUFFER probe). 
 
-/*
-  DO WITH FRAME {&FRAME-NAME}:
-    DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
-      APPLY "cursor-left" TO {&BROWSE-NAME}.
-    END.
-  END.
-  */
+    IF LAST-EVENT:LABEL EQ "Choose" THEN RETURN.  
+    QUERY br_table:GET-NEXT().
+    IF QUERY br_table:QUERY-OFF-END THEN RUN dispatch ('cancel-record':U).
+    ELSE DO:
+        RUN get-link-handle IN adm-broker-hdl
+            (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+        phandle = WIDGET-HANDLE(char-hdl).
+        RUN new-state IN phandle ('update-begin':U).
+    END. 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

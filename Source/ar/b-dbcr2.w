@@ -184,7 +184,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ar-cashl.inv-no FORMAT ">>>>>>9":U WIDTH 14.2
+      ar-cashl.inv-no FORMAT ">>>>>>>9":U WIDTH 14.2
       ar-cashl.inv-date COLUMN-LABEL "Invoice Date" FORMAT "99/99/9999":U
             WIDTH 18.2
       ar-cashl.amt-due COLUMN-LABEL "Balance Due" FORMAT "->>,>>>,>>9.99":U
@@ -304,7 +304,7 @@ ASSIGN
      _TblOptList       = "USED,"
      _JoinCode[1]      = "ar-cashl.c-no eq ar-cash.c-no"
      _FldNameList[1]   > ASI.ar-cashl.inv-no
-"ar-cashl.inv-no" ? ">>>>>>9" "integer" ? ? ? ? ? ? yes ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-cashl.inv-no" ? ">>>>>>>9" "integer" ? ? ? ? ? ? yes ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.ar-cashl.inv-date
 "ar-cashl.inv-date" "Invoice Date" ? "date" ? ? ? ? ? ? yes ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.ar-cashl.amt-due

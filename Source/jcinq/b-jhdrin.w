@@ -169,14 +169,14 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      job-hdr.frm COLUMN-LABEL "Sheet" FORMAT ">>>":U LABEL-BGCOLOR 14
+      job-hdr.frm COLUMN-LABEL "Form" FORMAT ">>>":U LABEL-BGCOLOR 14
       job-hdr.blank-no COLUMN-LABEL "Blank" FORMAT ">>>":U LABEL-BGCOLOR 14
       job-hdr.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
       job-hdr.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       job-hdr.qty FORMAT ">>>,>>>,>>9":U LABEL-BGCOLOR 14
       job-hdr.sq-in COLUMN-LABEL "SqInch%" FORMAT ">>9.99":U LABEL-BGCOLOR 14
-      job-hdr.ord-no FORMAT ">>>>>>":U LABEL-BGCOLOR 14
+      job-hdr.ord-no FORMAT ">>>>>>>>":U LABEL-BGCOLOR 14
       job-hdr.std-mat-cost COLUMN-LABEL "Mat'l" FORMAT "->>,>>9.99":U
             LABEL-BGCOLOR 14
       job-hdr.std-lab-cost COLUMN-LABEL "D.L." FORMAT "->>,>>9.99":U
@@ -274,7 +274,7 @@ ASSIGN
      _TblList          = "ASI.job-hdr OF ASI.job"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _FldNameList[1]   > ASI.job-hdr.frm
-"job-hdr.frm" "Sheet" ">>>" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.frm" "Form" ">>>" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-hdr.blank-no
 "job-hdr.blank-no" "Blank" ">>>" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-hdr.cust-no
@@ -286,7 +286,7 @@ ASSIGN
      _FldNameList[6]   > ASI.job-hdr.sq-in
 "job-hdr.sq-in" "SqInch%" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.job-hdr.ord-no
-"job-hdr.ord-no" ? ">>>>>>" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.ord-no" ? ">>>>>>>>" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.job-hdr.std-mat-cost
 "job-hdr.std-mat-cost" "Mat'l" "->>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.job-hdr.std-lab-cost

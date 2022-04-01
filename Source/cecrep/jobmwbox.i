@@ -1,7 +1,7 @@
 /* ---------------------------------------------- cec/rep/jobmwbox.i 04/97 JLF */
 /* factory ticket                                                             */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 def {1} var save_id as recid.
 
 def {1} buffer xest     for est.
@@ -14,10 +14,10 @@ def {1} buffer xstyle   for style.
 def {1} buffer xxprep   for prep.
 
 def {1} var v-break         as   log                                    no-undo.
-def {1} var v-job-prt       as   char format "x(9)"                     no-undo.
+def {1} var v-job-prt       as   char format "x(13)"                     no-undo.
 def {1} var v-ord-no        as   char format "x(8)"                     no-undo.
 def {1} var v-ord-date      as   char format "x(10)"                     no-undo.
-def {1} var v-est-no        as   char format "x(6)"                     no-undo.
+def {1} var v-est-no        as   char format "x(8)"                     no-undo.
 def {1} var v-fg            as   char format "x(37)"                    no-undo.
 DEF {1} var v-due-date      as   char format "x(13)"                    no-undo.
 

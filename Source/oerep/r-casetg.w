@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -214,10 +215,10 @@ DEFINE VARIABLE begin_job      AS CHARACTER FORMAT "X(12)":U
     VIEW-AS FILL-IN 
     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job2     AS INTEGER   FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE begin_job2     AS INTEGER   FORMAT "999":U INITIAL 0 
     LABEL "-" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_labels   AS INTEGER   FORMAT ">>>>":U INITIAL 2 
     LABEL "# of Labels/Pallet" 
@@ -578,8 +579,8 @@ ON HELP OF FRAME FRAME-A
             begin_job2
             begin_i-no .
 
-        IF begin_job NE "" AND LENGTH(begin_job) LT 6 THEN
-            begin_job = FILL(" ",6 - LENGTH(TRIM(begin_job))) + TRIM(begin_job).
+        
+            begin_job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job)) .
 
         lv-handle = FOCUS:HANDLE.
 
@@ -683,7 +684,7 @@ ON LEAVE OF begin_i-no IN FRAME FRAME-A /* Item# */
 
             FIND FIRST job-hdr WHERE
                 job-hdr.company EQ cocode AND
-                job-hdr.job-no EQ begin_job:SCREEN-VALUE AND
+                trim(job-hdr.job-no) EQ trim(begin_job:SCREEN-VALUE) AND
                 job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE) AND
                 begin_job:SCREEN-VALUE NE ""
                 NO-LOCK NO-ERROR.
@@ -1083,9 +1084,9 @@ ON LEAVE OF fi_cas-lab IN FRAME FRAME-A /* Scan Label */
             DO:
                 ASSIGN
                     fi_cas-lab:SCREEN-VALUE   = TRIM(fi_cas-lab:SCREEN-VALUE)
-                    begin_ord-no:SCREEN-VALUE = SUBSTRING(fi_cas-lab:SCREEN-VALUE,16,6)
-                    begin_job:SCREEN-VALUE    = FILL(" ",6 - LENGTH(TRIM(begin_ord-no:SCREEN-VALUE))) + begin_ord-no:SCREEN-VALUE
-                    begin_job2:SCREEN-VALUE   = SUBSTRING(fi_cas-lab:SCREEN-VALUE,22,2)
+                    begin_ord-no:SCREEN-VALUE = SUBSTRING(fi_cas-lab:SCREEN-VALUE,16,8)
+                    begin_job:SCREEN-VALUE    = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_ord-no:SCREEN-VALUE)) 
+                    begin_job2:SCREEN-VALUE   = SUBSTRING(fi_cas-lab:SCREEN-VALUE,24,2)
                     begin_i-no:SCREEN-VALUE   = SUBSTRING(fi_cas-lab:SCREEN-VALUE,1,15).
             END.
             ELSE 
@@ -1105,14 +1106,14 @@ ON LEAVE OF fi_cas-lab IN FRAME FRAME-A /* Scan Label */
               
                 END.
                 ASSIGN
-                    lv-job-no               = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + lv-job-no
+                    lv-job-no               = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no)) 
                     begin_job:SCREEN-VALUE  = lv-job-no
                     begin_job2:SCREEN-VALUE = lv-job-no2
                     .    
          
                 FIND FIRST job-hdr 
                     WHERE job-hdr.company  EQ cocode 
-                    AND job-hdr.job-no   EQ begin_job:SCREEN-VALUE 
+                    AND trim(job-hdr.job-no) EQ trim(begin_job:SCREEN-VALUE)
                     AND job-hdr.job-no2  EQ INT(begin_job2:SCREEN-VALUE) 
                     AND job-hdr.frm      EQ INT(iForm)
                     AND job-hdr.blank-no EQ INT(iBlank-no)
@@ -1129,7 +1130,7 @@ ON LEAVE OF fi_cas-lab IN FRAME FRAME-A /* Scan Label */
             DO:
                 FIND FIRST job-hdr WHERE
                     job-hdr.company EQ cocode AND
-                    job-hdr.job-no EQ begin_job:SCREEN-VALUE AND
+                    trim(job-hdr.job-no) EQ trim(begin_job:SCREEN-VALUE) AND
                     job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
                     NO-LOCK NO-ERROR.
 
@@ -1762,7 +1763,7 @@ PROCEDURE from-job :
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
     DEFINE OUTPUT PARAMETER vlWarning AS LOG NO-UNDO.
-
+            
     FIND FIRST job
         WHERE ROWID(job) EQ ip-rowid
         AND (v-stat EQ "A"                      OR
@@ -2036,7 +2037,7 @@ PROCEDURE from-ord :
     DEFINE VARIABLE iRelNo  AS INTEGER NO-UNDO .
 
     DEFINE VARIABLE ld-over AS DECIMAL NO-UNDO.
-
+           
     FIND FIRST oe-ord
         WHERE ROWID(oe-ord) EQ ip-rowid
         AND (v-stat EQ "A"                                    OR
@@ -2385,7 +2386,7 @@ PROCEDURE get-jobord-info :
         lCheckBlank = NO .
 
     ASSIGN
-        lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + lv-job-no
+        lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no)) 
         v-job2    = INT(lv-job-no2).
     RUN dispJobInfo (INPUT cocode, INPUT lv-job-no, INPUT v-job2,INPUT iForm, INPUT iBlank-no, INPUT lCheckForm, INPUT lCheckBlank, OUTPUT oplCheckForm ).
   
@@ -2556,8 +2557,7 @@ PROCEDURE new-job :
             IF TRIM(begin_job:SCREEN-VALUE) NE "" THEN
                 FIND FIRST job NO-LOCK
                     WHERE job.company  EQ cocode
-                    AND job.job-no   EQ FILL(" ",6 - LENGTH(TRIM(begin_job:SCREEN-VALUE))) +
-                    TRIM(begin_job:SCREEN-VALUE)
+                    AND trim(job.job-no) EQ TRIM(begin_job:SCREEN-VALUE)
                     AND job.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
                     NO-ERROR.
 
@@ -2987,7 +2987,7 @@ PROCEDURE run-report :
         IF ll THEN lv-job-no = lv-job-no + SUBSTR(ENTRY(i,v-job-list),li,1).
               ELSE lv-job-no2 = lv-job-no2 + SUBSTR(ENTRY(i,v-job-list),li,1).
       END.
-      lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no) +
+      lv-job-no = FILL(" ", iJobLen - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no) +
                   STRING(INT(lv-job-no2),"99") NO-ERROR.
   
       IF NOT ERROR-STATUS:ERROR AND
@@ -3002,17 +3002,10 @@ PROCEDURE run-report :
     IF begin_job NE "" THEN
         FOR EACH job
             WHERE job.company EQ cocode
-            AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(begin_job))) + TRIM(begin_job)
-            /*AND job.job-no  LE FILL(" ",6 - LENGTH(TRIM(end_job)))   + TRIM(end_job) */
-            AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"99")
-            EQ
-            FILL(" ",6 - LENGTH(TRIM(begin_job))) + TRIM(begin_job) + STRING(begin_job2,"99")
-
-            /*  AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"99")
-                              LE
-                  FILL(" ",6 - LENGTH(TRIM(end_job))) + TRIM(end_job) + STRING(end_job2,"99") */
+            AND trim(job.job-no)  EQ TRIM(begin_job)
+            AND job.job-no2 EQ INT(begin_job2)            
             NO-LOCK:
-
+               
             RUN from-job (ROWID(job),OUTPUT op-warning).
         END.
 
@@ -3162,7 +3155,7 @@ PROCEDURE run-report :
         END. 
 
         FOR EACH w-ord:
-            v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99") .
+            v-job = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))  .
             IF v-job BEGINS "-" OR v-job = ? /* 9901 CAH */
                 THEN v-job = STRING(W-ORD.ORD-NO).   /* 9812 CAH in case blank */
 
@@ -3271,7 +3264,7 @@ PROCEDURE run-report :
 
             w-ord.gross-wt = w-ord.net-wt + w-ord.tare-wt.
 
-            v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99") .
+            v-job = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen',  w-ord.job-no,  w-ord.job-no2))  .
             IF v-job BEGINS "-" THEN v-job = "".
 
             IF AVAILABLE w-ord THEN 
@@ -3287,10 +3280,10 @@ PROCEDURE run-report :
             END. 
 
             ASSIGN
-                lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,6)
+                lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,9)
                 lv-middlesex-job = IF lv-middlesex-job EQ "" THEN "" ELSE
                           "%MX" +
-                          FILL("0",6 - LENGTH(TRIM(lv-middlesex-job))) +
+                          FILL("0",9 - LENGTH(TRIM(lv-middlesex-job))) +
                           TRIM(lv-middlesex-job)
                 lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,6)
                 lv-middlesex-po  = IF lv-middlesex-po EQ "" THEN "" ELSE
@@ -3305,10 +3298,8 @@ PROCEDURE run-report :
                     w-ord.total-tags.
                 lv-tag-no = "".
 
-                /*IF v-case-tag THEN do:*/
-                IF LENGTH(TRIM(w-ord.job-no)) < 6 THEN
-                    lv-casetag-no = FILL(" ", 6 - LENGTH(TRIM(w-ord.job-no)) ) + TRIM(w-ord.job-no) + STRING(w-ord.job-no2,"99").
-                ELSE  lv-casetag-no = w-ord.job-no + STRING(w-ord.job-no2,"99").
+                /*IF v-case-tag THEN do:*/                 
+                 lv-casetag-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', w-ord.job-no, w-ord.job-no2)) .                
 
                 FIND FIRST loadtag
                     WHERE loadtag.company     EQ cocode
@@ -3555,11 +3546,11 @@ PROCEDURE temp-job :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-job-no LIKE job.job-no NO-UNDO.
-
+         
     FOR EACH job
         WHERE job.company EQ cocode
-        AND job.job-no  EQ SUBSTR(ip-job-no,1,6)
-        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,7,2))
+        AND trim(job.job-no)  EQ trim(SUBSTR(ip-job-no,1,9))
+        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,10,3))
         NO-LOCK:
         RUN temp-create (ROWID(job)).
     END.

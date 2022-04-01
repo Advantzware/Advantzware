@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -80,7 +81,7 @@ mch-act.qty mch-act.waste job-mch.n-on job-mch.n-out
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br_table job-mch
 &Scoped-define QUERY-STRING-br_table FOR EACH job WHERE ~{&KEY-PHRASE} ~
       AND job.company = cocode ~
- AND job.job-no = begin_job-no ~
+ AND trim(job.job-no) = trim(begin_job-no) ~
  AND job.job-no2 = int(begin_job-no2) NO-LOCK, ~
       EACH mch-act WHERE mch-act.company = job.company ~
   AND mch-act.job = job.job ~
@@ -97,7 +98,7 @@ mch-act.qty mch-act.waste job-mch.n-on job-mch.n-out
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH job WHERE ~{&KEY-PHRASE} ~
       AND job.company = cocode ~
- AND job.job-no = begin_job-no ~
+ AND trim(job.job-no) = trim(begin_job-no) ~
  AND job.job-no2 = int(begin_job-no2) NO-LOCK, ~
       EACH mch-act WHERE mch-act.company = job.company ~
   AND mch-act.job = job.job ~
@@ -182,15 +183,15 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -237,7 +238,7 @@ DEFINE BROWSE br_table
 DEFINE FRAME F-Main
      begin_job-no AT ROW 1 COL 15 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 1 COL 29 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 1 COL 30 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      br_table AT ROW 2.19 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -320,7 +321,7 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = ",, FIRST"
      _Where[1]         = "asi.job.company = cocode
- AND asi.job.job-no = begin_job-no
+ AND trim(asi.job.job-no) = trim(begin_job-no)
  AND asi.job.job-no2 = int(begin_job-no2)"
      _JoinCode[2]      = "asi.mch-act.company = asi.job.company
   AND asi.mch-act.job = asi.job.job
@@ -505,8 +506,8 @@ PROCEDURE get-job :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    begin_job-no:SCREEN-VALUE = 
-        FILL(" ",6 - LENGTH(begin_job-no:SCREEN-VALUE)) + begin_job-no:SCREEN-VALUE.
+    begin_job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job-no)) 
+        .
 
     ASSIGN
      begin_job-no
@@ -514,7 +515,7 @@ PROCEDURE get-job :
 
     FIND FIRST job NO-LOCK
         WHERE job.company EQ cocode
-          AND job.job-no  EQ begin_job-no
+          AND trim(job.job-no)  EQ trim(begin_job-no)
           AND job.job-no2 EQ INT(begin_job-no2)
           AND CAN-FIND(FIRST mch-act
                        WHERE mch-act.company EQ job.company
@@ -584,7 +585,7 @@ PROCEDURE local-open-query :
   /* Code placed here will execute PRIOR to standard behavior. */
   FOR EACH job NO-LOCK
       WHERE job.company EQ cocode
-        AND job.job-no  EQ begin_job-no
+        AND trim(job.job-no)  EQ trim(begin_job-no)
         AND job.job-no2 EQ INT(begin_job-no2),
 
       EACH mch-act NO-LOCK

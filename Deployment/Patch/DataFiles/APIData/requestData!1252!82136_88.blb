@@ -1,0 +1,7 @@
+{
+    "receiptNumber": "$APITransCounter$",
+    "receiptDate": "$CurrentDateTime|yyyy-MM-ddThh:mm:ss|DATE|$",
+    "lines": [
+        $LineDetail$
+    ]
+}

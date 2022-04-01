@@ -442,8 +442,8 @@ FOR EACH report WHERE
             v-inv-qty FORMAT "->>>>>>9" SPACE(1)
             v-ship-qty  FORMAT "->>>>>>9" SPACE(1)
             /*v-bo-qty  format "->>>>>9" SPACE(1) */
-            ttar-invl.ord-no FORM ">>>>>>9" SPACE(1)
-            v-i-no  FORMAT "x(15)" SPACE(2)
+            ttar-invl.ord-no FORM ">>>>>>>9" SPACE(1)
+            v-i-no  FORMAT "x(15)" SPACE(1)
             v-i-dscr  FORMAT "x(25)" SPACE(4)
             v-price  FORMAT "->>>>,>>9.99" /*"->,>>9.99<<"*/ SPACE(1)
             v-price-head SPACE(1)
@@ -460,7 +460,7 @@ FOR EACH report WHERE
                 ELSE           TRIM(lv-inv-list).
 
             IF v-part-info NE "" OR (v = 1 AND ttar-invl.part-no <> "") THEN DO:
-                IF v = 1 THEN PUT SPACE(27) ttar-invl.part-no SPACE(2) v-part-info SKIP.
+                IF v = 1 THEN PUT SPACE(28) ttar-invl.part-no SPACE(1) v-part-info SKIP.
                 ELSE
                     IF v = 2 THEN PUT SPACE(44) v-part-info SKIP.
                     ELSE          PUT SPACE(23) "Previous Invoice(s): " v-part-info SKIP.

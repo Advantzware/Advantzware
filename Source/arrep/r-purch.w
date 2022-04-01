@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -105,15 +106,15 @@ DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "x(6)" 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "x(9)" 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1.
+     SIZE 12 BY 1.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_po-no AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      LABEL "Beginning PO#" 
@@ -125,15 +126,15 @@ DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "x(6)" INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "x(9)" INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1.
+     SIZE 12 BY 1.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_po-no AS INTEGER FORMAT ">>>>>>":U INITIAL 999999 
      LABEL "Ending PO#" 
@@ -195,11 +196,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Customer Number"
      begin_job-no AT ROW 4.33 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 4.33 COL 39 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.33 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 4.33 COL 70 COLON-ALIGNED HELP
           "Enter Ending JobNumber"
-     end_job-no2 AT ROW 4.33 COL 82 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.33 COL 83 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_po-no AT ROW 5.76 COL 27 COLON-ALIGNED HELP
           "Enter Beginning PO Number"
@@ -823,10 +824,8 @@ assign
 
  fcus         = begin_cust-no
  tcus         = end_cust-no
- fjob         = fill(" ",6 - length(trim(begin_job-no))) +
-                trim(begin_job-no) + string(int(begin_job-no2),"99")
- tjob         = fill(" ",6 - length(trim(end_job-no)))   +
-                trim(end_job-no)   + string(int(end_job-no2),"99")
+ fjob         = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+ tjob         = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
  fpo          = begin_po-no
  tpo          = end_po-no.
 
@@ -844,12 +843,14 @@ for each job-hdr
     where job-hdr.company       eq cocode
       and job-hdr.cust-no       ge fcus
       and job-hdr.cust-no       le tcus
-      and string(fill(" ",6 - length(trim(job-hdr.job-no))) +
-                   trim(job-hdr.job-no) + string(job-hdr.job-no2,"99"))
+      and string(FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
+                   trim(job-hdr.job-no) + string(job-hdr.job-no2,"999"))
                                   ge fjob
-      and string(fill(" ",6 - length(trim(job-hdr.job-no))) +
-                   trim(job-hdr.job-no) + string(job-hdr.job-no2,"99"))
+      and string(FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
+                   trim(job-hdr.job-no) + string(job-hdr.job-no2,"999"))
                                     le tjob
+      AND job-hdr.job-no2 GE int(begin_job-no2)
+      AND job-hdr.job-no2 LE int(end_job-no2)                              
     use-index cust-idx no-lock,
 
     first job
@@ -887,11 +888,7 @@ for each job-hdr
           and po-ordl.po-no         ge fpo
           and po-ordl.po-no         le tpo
 
-          and string(fill(" ",6 - length(trim(po-ordl.job-no))) +
-                     trim(po-ordl.job-no))
-                                    eq
-              string(fill(" ",6 - length(trim(job-hdr.job-no))) +
-                     trim(job-hdr.job-no))
+          AND trim(po-ordl.job-no)  EQ trim(job-hdr.job-no)
           and po-ordl.job-no2       eq job-hdr.job-no2
 
         use-index item-ordno no-lock

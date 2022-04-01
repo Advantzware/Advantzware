@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="UTF-8"?><AmsData FileName="ScheduleOrder.xml" MessageId="2" Machine="AMSSERVER" SendDate="2021-02-22T19:02:52.6124871-05:00" Version="1.0.0.0" ProgramName="IntegrationSamples.exe" Sender="Administrator" CompanyId="1"><Schedule NextInLine="$IsPriority$" OrderCode="$JobNumber1|X(6)|||TRIM|$-$JobNumber2|999|INTEGER|$"/></AmsData>

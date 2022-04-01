@@ -47,6 +47,8 @@ DEFINE VARIABLE iLineNo             AS INTEGER          NO-UNDO.
 DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+DEFINE VARIABLE lPosted             AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cPriceDesc          AS CHARACTER        NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT g_company, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -80,7 +82,7 @@ IF lRecFound THEN
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR po-ordl.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES reftable ap-invl ap-inv
+&Scoped-define INTERNAL-TABLES ap-invl ap-inv
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
@@ -88,38 +90,26 @@ DEFINE QUERY external_tables FOR po-ordl.
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table ap-inv.inv-no ap-inv.inv-date ~
 get-acct-dscr() @ cf-acct-dscr ap-invl.qty ap-invl.cons-uom ap-invl.amt ~
-is-it-paid() @ v-paidflg fPoLine() @ iLineNo
+is-it-paid() @ v-paidflg fPoLine() @ iLineNo  ap-invl.vend-no ~
+fPosted() @ lPosted fPriceDesc() @ cPriceDesc
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
-&Scoped-define QUERY-STRING-br_table FOR EACH reftable WHERE TRUE /* Join to po-ordl incomplete */ ~
-      AND reftable.reftable eq "AP-INVL" and ~
-reftable.company  eq ""        and ~
-reftable.loc      eq ""        and ~
-reftable.code     EQ string(po-ordl.po-no,"9999999999") NO-LOCK, ~
-      EACH ap-invl WHERE TRUE /* Join to reftable incomplete */ ~
-      AND ap-invl.company EQ g_company ~
-      AND ap-invl.i-no       eq int(reftable.code2) and ~
+&Scoped-define QUERY-STRING-br_table FOR EACH ap-invl WHERE TRUE /* Join to reftable incomplete */ ~
+      AND ap-invl.company EQ g_company AND ~
 ap-invl.po-no = po-ordl.po-no and ~
 (ap-invl.line + (ap-invl.po-no * -1000)) eq po-ordl.line NO-LOCK, ~
       EACH ap-inv WHERE TRUE /* Join to ap-invl incomplete */ ~
       AND ap-inv.i-no eq ap-invl.i-no NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH reftable WHERE TRUE /* Join to po-ordl incomplete */ ~
-      AND reftable.reftable eq "AP-INVL" and ~
-reftable.company  eq ""        and ~
-reftable.loc      eq ""        and ~
-reftable.code     EQ string(po-ordl.po-no,"9999999999") NO-LOCK, ~
-      EACH ap-invl WHERE TRUE /* Join to reftable incomplete */ ~
-      AND ap-invl.company EQ g_company ~
-      AND ap-invl.i-no       eq int(reftable.code2) and ~
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH ap-invl WHERE TRUE /* Join to reftable incomplete */ ~
+      AND ap-invl.company EQ g_company AND ~
 ap-invl.po-no = po-ordl.po-no and ~
 (ap-invl.line + (ap-invl.po-no * -1000)) eq po-ordl.line NO-LOCK, ~
       EACH ap-inv WHERE TRUE /* Join to ap-invl incomplete */ ~
       AND ap-inv.i-no eq ap-invl.i-no NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-br_table reftable ap-invl ap-inv
-&Scoped-define FIRST-TABLE-IN-QUERY-br_table reftable
-&Scoped-define SECOND-TABLE-IN-QUERY-br_table ap-invl
-&Scoped-define THIRD-TABLE-IN-QUERY-br_table ap-inv
+&Scoped-define TABLES-IN-QUERY-br_table ap-invl ap-inv
+&Scoped-define FIRST-TABLE-IN-QUERY-br_table ap-invl
+&Scoped-define SECOND-TABLE-IN-QUERY-br_table ap-inv
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -199,7 +189,19 @@ FUNCTION fPoLine RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fPosted B-table-Win 
+FUNCTION fPosted RETURNS LOGICAL
+  ( /* parameter-definitions */ )  FORWARD.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+      
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fPriceDesc B-table-Win 
+FUNCTION fPriceDesc RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
 /* ***********************  Control Definitions  ********************** */
 
 
@@ -207,7 +209,6 @@ FUNCTION fPoLine RETURNS INTEGER
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
-      reftable, 
       ap-invl, 
       ap-inv SCROLLING.
 &ANALYZE-RESUME
@@ -225,6 +226,9 @@ DEFINE BROWSE br_table
       ap-invl.amt FORMAT "->>>>,>>9.99":U
       is-it-paid() @ v-paidflg COLUMN-LABEL "Paid" FORMAT "YES / NO":U
       fPoLine() @ iLineNo    COLUMN-LABEL "Line No" FORMAT ">>>9":U
+      ap-invl.vend-no COLUMN-LABEL "Vendor" FORMAT "x(10)":U
+      fPosted() @ lPosted COLUMN-LABEL "Posted" FORMAT "Yes/No":U
+      fPriceDesc() @ cPriceDesc COLUMN-LABEL "Quantity Price/Uom" FORMAT "x(40)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 144 BY 12.62
@@ -305,17 +309,12 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
-     _TblList          = "ASI.reftable Where ASI.po-ordl ...,ASI.ap-invl WHERE ASI.reftable ...,ASI.ap-inv WHERE ASI.ap-invl ..."
+     _TblList          = "ASI.ap-inv WHERE ASI.ap-invl ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _Where[1]         = "reftable.reftable eq ""AP-INVL"" and
-reftable.company  eq """"        and
-reftable.loc      eq """"        and
-reftable.code     eq string(po-ordl.po-no,""9999999999"")"
-     _Where[2]         =  "ap-invl.company EQ g_company and
-      ap-invl.i-no       eq int(reftable.code2) and
+     _Where[1]         =  "ap-invl.company EQ g_company and      
 ap-invl.po-no = po-ordl.po-no and
 (ap-invl.line + (ap-invl.po-no * -1000)) eq po-ordl.line"
-     _Where[3]         = "ap-inv.i-no eq ap-invl.i-no"
+     _Where[2]         = "ap-inv.i-no eq ap-invl.i-no"
      _FldNameList[1]   > ASI.ap-inv.inv-no
 "ap-inv.inv-no" "Invoice#" ? "character" ? ? ? ? ? ? no ? no no "16" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   = ASI.ap-inv.inv-date
@@ -330,6 +329,12 @@ ap-invl.po-no = po-ordl.po-no and
 "is-it-paid() @ v-paidflg" "Paid" "YES / NO" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
 "fPoLine() @ iLineNo" "Line No" ">>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > ASI.ap-invl.vend-no
+"ap-invl.vend-no" "Vendor" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   > "_<CALC>"
+"fPosted() @ lPosted" "Posted" "Yes/No" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > "_<CALC>"
+"fPriceDesc() @ cPriceDesc" "Quantity Price/Uom" "x(40)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -522,8 +527,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "po-ordl"}
-  {src/adm/template/snd-list.i "reftable"}
+  {src/adm/template/snd-list.i "po-ordl"}   
   {src/adm/template/snd-list.i "ap-invl"}
   {src/adm/template/snd-list.i "ap-inv"}
 
@@ -613,6 +617,47 @@ FUNCTION fPoLine RETURNS INTEGER
   IF AVAIL po-ordl 
     THEN RETURN po-ordl.LINE.
     ELSE RETURN 0.        
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fPosted B-table-Win 
+FUNCTION fPosted RETURNS LOGICAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+ FIND FIRST reftable NO-LOCK 
+      WHERE reftable.reftable eq "AP-INVL" 
+        AND reftable.company  eq ""     
+        AND reftable.loc      eq ""     
+        AND reftable.code     EQ string(po-ordl.po-no,"9999999999") 
+        AND int(reftable.code2) EQ ap-invl.i-no NO-ERROR.
+        
+  IF AVAIL reftable 
+    THEN RETURN YES.
+    ELSE RETURN NO.        
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fPriceDesc B-table-Win 
+FUNCTION fPriceDesc RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+         
+  IF AVAIL ap-invl THEN 
+  RETURN string(ap-invl.qty) + " @ " + STRING(ap-invl.unit-pr) + "/" + ap-invl.pr-qty-uom .
+    ELSE RETURN "".        
 
 END FUNCTION.
 

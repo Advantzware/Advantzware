@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /*cec/quote/quocent1.i */
         PUT "<C3><R2><#1><R+8><C+45><IMAGE#1=" ls-full-img1 SKIP /* pacific package */ 
         "<FMS Mincho><P12>"
@@ -36,14 +37,14 @@
    terms.dscr FORM "x(15)" space(5) sman.sname space(5) v-over-under SKIP.
 
 PUT "<||3><R23><C1><#5><FROM><R25><C80><RECT>" SKIP    
-             "<R23><C6><FROM><R25><C6><LINE>" SKIP
-             "<R23><C32><FROM><R25><C32><LINE>" SKIP
-             "<R23><C48><FROM><R25><C48><LINE>" SKIP
-             "<R23><C55><FROM><R25><C55><LINE>" SKIP
-             "<R23><C62><FROM><R25><C62><LINE>" SKIP
-             "<R23><C72><FROM><R25><C72><LINE>" SKIP
+             "<R23><C7><FROM><R25><C7><LINE>" SKIP
+             "<R23><C33><FROM><R25><C33><LINE>" SKIP
+             "<R23><C49><FROM><R25><C49><LINE>" SKIP
+             "<R23><C56><FROM><R25><C56><LINE>" SKIP
+             "<R23><C63><FROM><R25><C63><LINE>" SKIP
+             "<R23><C74><FROM><R25><C74><LINE>" SKIP
              .
-  PUT "<FMS Mincho><=5><R+1> Est#      Description/Style/Color/Board            Item            Quantity   Release       Price       UOM "
+  PUT "<FMS Mincho><=5><R+1> Est#         Description/Style/Color/Board            Item           Quantity   Release       Price       UOM "
        /*"<FCourier New>"*/
        "<FMS Mincho>"
        SKIP(1).

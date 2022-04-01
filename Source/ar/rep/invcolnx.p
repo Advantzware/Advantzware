@@ -72,7 +72,7 @@ def var v-t-price as dec format ">>>>>>9.99" no-undo.
 def var v-po-no like ar-invl.po-no no-undo.
 def var v-bill-i as char format "x(25)" no-undo.
 def var v-ord-no like oe-ord.ord-no no-undo.
-def var v-job-no AS CHAR FORMAT "x(13)" no-undo.
+def var v-job-no AS CHAR FORMAT "x(15)" no-undo.
 def var v-ord-date like oe-ord.ord-date no-undo.
 def var v-ship-i as char format "x(25)" no-undo.
 def var v-rel-po-no like oe-rel.po-no no-undo.
@@ -475,12 +475,11 @@ ASSIGN
                 AND job-hdr.i-no EQ ar-invl.i-no NO-LOCK NO-ERROR.
             END.
             
-            v-job-no = fill(" ",6 - length(trim(ar-invl.job-no))) +
-               trim(ar-invl.job-no) .
+            v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ar-invl.job-no))).
             
             IF v-job-no EQ "" AND AVAIL job-hdr THEN
-                v-job-no = fill(" ",6 - length(trim(job-hdr.job-no))) +
-                          trim(job-hdr.job-no) .
+                v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', job-hdr.job-no))).
+                
             IF AVAIL job-hdr THEN
                 v-job-no = v-job-no + "-" + trim(string(job-hdr.frm)) + trim(string(job-hdr.blank-no)) .
 
@@ -493,8 +492,8 @@ ASSIGN
                 ar-invl.amt  format "->>>,>>9.99"                
                 SKIP
                 SPACE(1)
-                v-job-no /*v-ord-no*/ SPACE(2)
-                ar-invl.i-no SPACE(1)
+                v-job-no /*v-ord-no*/ 
+                ar-invl.i-no AT 17 SPACE(1)
                 v-i-dscr2  SPACE(11)
                 v-pc  FORM "x" SPACE(7)
                 v-price-head 

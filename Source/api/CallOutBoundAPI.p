@@ -55,6 +55,7 @@ DEFINE VARIABLE lAPIOutboundTestMode AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cRequestFile         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResponseFile        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAPIRequestMethod    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFTPRequestMethod    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound               AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cHeadersData         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUrlEncodedData      AS CHARACTER NO-UNDO.
@@ -62,6 +63,7 @@ DEFINE VARIABLE cResponseCode        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFilePath            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRequestDateTime     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lError               AS LOGICAL   NO-UNDO.
 
 DEFINE VARIABLE oAPIHandler          AS API.APIHandler NO-UNDO. 
 DEFINE VARIABLE scInstance           AS CLASS System.SharedConfig NO-UNDO. 
@@ -252,27 +254,59 @@ IF gcRequestType EQ "SAVE" THEN DO:
     RETURN.
 END.
 
+RUN spGetSettingByName ("FTPRequestMethod", OUTPUT cFTPRequestMethod).
+IF cFTPRequestMethod EQ ? OR cFTPRequestMethod EQ "" THEN
+    cFTPRequestMethod = "cURL".
+    
 /* Request for FTP transfer of the request data */
 IF gcRequestType EQ "FTP" OR gcRequestType EQ "SFTP" THEN DO:
     RUN system/ftpProcs.p PERSISTENT SET hdFTPProcs.
     
-    RUN FTP_SendFileWithCurl IN hdFTPProcs (
-        INPUT  gcEndPoint,
-        INPUT  gcRequestType,
-        INPUT  gcUserName,
-        INPUT  gcPassword,
-        INPUT  gcRequestFile,
-        INPUT  gcResponseFile,
-        INPUT  glIsSSLEnabled,
-        INPUT  gcHostSSHKey,
-        OUTPUT oplSuccess,
-        OUTPUT opcMessage
-        ).
+    IF cFTPRequestMethod EQ "Internal" THEN DO:
+        IF gcRequestType EQ "FTP" THEN
+            RUN FTP_UploadFileUsingFTP in hdFTPProcs (
+                INPUT  gcEndPoint, 
+                INPUT  gcRequestFile, 
+                INPUT  gcUserName, 
+                INPUT  gcPassword, 
+                OUTPUT lError, 
+                OUTPUT opcMessage
+                ).  
+        ELSE IF gcRequestType EQ "SFTP" THEN
+            RUN FTP_UploadFileUsingSFTP in hdFTPProcs (
+                INPUT  gcEndPoint, 
+                INPUT  gcRequestFile, 
+                INPUT  gcUserName, 
+                INPUT  gcPassword,
+                INPUT  glIsSSLEnabled,
+                INPUT  gcHostSSHKey, 
+                OUTPUT lError, 
+                OUTPUT opcMessage
+                ).  
 
+        oplSuccess = NOT lError.
+        
+        oplcResponseData = opcMessage.
+    END.
+    ELSE DO:
+        RUN FTP_SendFileWithCurl IN hdFTPProcs (
+            INPUT  gcEndPoint,
+            INPUT  gcRequestType,
+            INPUT  gcUserName,
+            INPUT  gcPassword,
+            INPUT  gcRequestFile,
+            INPUT  gcResponseFile,
+            INPUT  glIsSSLEnabled,
+            INPUT  gcHostSSHKey,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ).
+        
+        oplcResponseData = "FTP transfer status is saved to file " + gcResponseFile.
+    END.
+    
     DELETE PROCEDURE hdFTPProcs.
     
-    oplcResponseData = "FTP transfer status is saved to file " + gcResponseFile.
-     
     RETURN.
 END.
 

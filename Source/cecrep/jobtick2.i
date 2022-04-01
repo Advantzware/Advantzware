@@ -2,7 +2,7 @@
 /* factory ticket                                                             */
 
 /* Also update other includes that call cecrep/jobtick2.p for example*/
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
                                                                   
@@ -19,10 +19,10 @@ def {1} buffer xstyle   for style.
 def {1} buffer xxprep   for prep.
 
 def {1} var v-break         as   log                                    no-undo.
-def {1} var v-job-prt       as   char format "x(10)"                    no-undo.
+def {1} var v-job-prt       as   char format "x(13)"                    no-undo.
 def {1} var v-ord-no        as   char format "x(8)"                     no-undo.
 def {1} var v-ord-date      as   char format "x(8)"                     no-undo.
-def {1} var v-est-no        as   char format "x(6)"                     no-undo.
+def {1} var v-est-no        as   char format "x(8)"                     no-undo.
 def {1} var v-fg            as   char format "x(37)"                    no-undo.
 def {1} var v-due-date      as   char format "x(13)"                    no-undo.
 

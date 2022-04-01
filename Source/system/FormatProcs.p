@@ -20,6 +20,8 @@ BLOCK-LEVEL ON ERROR UNDO, THROW.
 USING Progress.Json.ObjectModel.*.
 
 /* ***************************  Definitions  ************************** */
+{sys/inc/var.i}
+
 /* The values of the below variables need to be in upper case and modifying them will cause inaccurate output */ 
 DEFINE VARIABLE gcMonthShort AS CHARACTER EXTENT 12 NO-UNDO INITIAL ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"].
 DEFINE VARIABLE gcMonthLong  AS CHARACTER EXTENT 12 NO-UNDO INITIAL ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"]. 
@@ -55,7 +57,17 @@ FUNCTION fEscapeExceptionCharactersXML RETURNS CHARACTER
 	( INPUT ipcValue AS CHARACTER ) FORWARD.
 
 FUNCTION fGetReplaceString RETURNS CHARACTER PRIVATE
-	( INPUT ipiCount AS INTEGER ) FORWARD.
+	( INPUT ipiCount AS INTEGER ) FORWARD.  
+
+FUNCTION sfFormat_JobFormat RETURNS CHARACTER
+  ( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ) FORWARD.
+  
+FUNCTION sfFormat_SingleJob RETURNS CHARACTER
+  ( ipcJobNo AS CHARACTER ) FORWARD.
+  
+FUNCTION sfFormat_JobFormatWithHyphen RETURNS CHARACTER
+  ( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ) FORWARD.  
+  
 
 
 /* ***************************  Main Block  *************************** */
@@ -848,6 +860,22 @@ PROCEDURE pFormatMonth PRIVATE:
             .
 END PROCEDURE.
 
+PROCEDURE pJobFormat PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcJobValue   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJob2Value  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcJobValue  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcJob2Value AS CHARACTER NO-UNDO.
+
+    opcJobValue = FILL(" ", iJobLen - length(trim(ipcJobValue))) + trim(ipcJobValue).
+
+    opcJob2Value = STRING(ipiJob2Value,"999").
+    
+END PROCEDURE.
+
 PROCEDURE Format_UpdateLineCount:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -960,3 +988,49 @@ FUNCTION fGetReplaceString RETURNS CHARACTER PRIVATE
     RETURN cReplaceChar.
 END FUNCTION.
 
+   
+FUNCTION sfFormat_JobFormat RETURNS CHARACTER
+  ( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cBeginJob  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBeginJob2 AS CHARACTER NO-UNDO.
+    
+    RUN pJobFormat(INPUT ipcJobNo, INPUT ipiJobNo2, OUTPUT cBeginJob, OUTPUT cBeginJob2).
+     
+     RETURN STRING(cBeginJob + cBeginJob2) .
+
+END FUNCTION.
+
+     
+FUNCTION sfFormat_SingleJob RETURNS CHARACTER
+  ( ipcJobNo AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cBeginJob  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBeginJob2 AS CHARACTER NO-UNDO.
+    
+    RUN pJobFormat(INPUT ipcJobNo, INPUT 0, OUTPUT cBeginJob, OUTPUT cBeginJob2).
+     
+    RETURN STRING(cBeginJob) .
+
+END FUNCTION.
+
+FUNCTION sfFormat_JobFormatWithHyphen RETURNS CHARACTER
+  ( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cBeginJob  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBeginJob2 AS CHARACTER NO-UNDO.
+    
+    RUN pJobFormat(INPUT ipcJobNo, INPUT ipiJobNo2, OUTPUT cBeginJob, OUTPUT cBeginJob2).
+     
+     RETURN STRING(cBeginJob + "-" + cBeginJob2) .
+
+END FUNCTION.

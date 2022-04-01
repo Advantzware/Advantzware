@@ -158,8 +158,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     
     FIND FIRST job NO-LOCK
         WHERE job.company EQ cocode
-          AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no))) +
-                                  TRIM(po-ordl.job-no)
+          AND TRIM(job.job-no)  EQ TRIM(po-ordl.job-no)
           AND job.job-no2 EQ po-ordl.job-no2
         NO-ERROR.
         
@@ -666,8 +665,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     put v-instr     format "x(240)".
     
     /* JOB NO */
-    put trim(po-ordl.job-no) + "-" +
-        string(po-ordl.job-no2,"99") format "x(9)".
+    put TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))) format "x(13)".
         
     /* FIRST MACHINE CODE & INITIAL */
     {po/po-fibr1.i v-mach[1] v-mach[2] v-mach[3] v-mach[4]}

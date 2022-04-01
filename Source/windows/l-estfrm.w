@@ -22,6 +22,7 @@ def input param ip-recid AS RECID no-undo.
 
 def output param op-char-val as cha no-undo.
 
+{sys/inc/var.i}
 DEF BUFFER bf-ef FOR ef.
 
 DEFIN TEMP-TABLE tt-temp FIELD est-no LIKE est.est-no

@@ -91,9 +91,9 @@ DELETE OBJECT hdPgmSecurity.
 &Scoped-define FIELDS-IN-QUERY-br_table job-hdr.cust-no job-hdr.i-no job-hdr.qty job-hdr.ord-no job-hdr.po-no job-hdr.due-date   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company EQ cCompany         AND job-hdr.job-no  EQ cJobNo         AND job-hdr.job-no2 EQ iJobNo2, ~
+&Scoped-define QUERY-STRING-br_table FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company EQ cCompany         AND TRIM(job-hdr.job-no)  EQ TRIM(cJobNo)         AND job-hdr.job-no2 EQ iJobNo2, ~
              FIRST job       WHERE job.company EQ job-hdr.company         AND job.job     EQ job-hdr.job         AND job.job-no  EQ job-hdr.job-no         AND job.job-no2 EQ job-hdr.job-no2     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company EQ cCompany         AND job-hdr.job-no  EQ cJobNo         AND job-hdr.job-no2 EQ iJobNo2, ~
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company EQ cCompany         AND TRIM(job-hdr.job-no)  EQ TRIM(cJobNo)         AND job-hdr.job-no2 EQ iJobNo2, ~
              FIRST job       WHERE job.company EQ job-hdr.company         AND job.job     EQ job-hdr.job         AND job.job-no  EQ job-hdr.job-no         AND job.job-no2 EQ job-hdr.job-no2     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table job-hdr job
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table job-hdr
@@ -259,7 +259,7 @@ ASSIGN
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK
       WHERE job-hdr.company EQ cCompany
-        AND job-hdr.job-no  EQ cJobNo
+        AND TRIM(job-hdr.job-no)  EQ TRIM(cJobNo)
         AND job-hdr.job-no2 EQ iJobNo2,
       FIRST job
       WHERE job.company EQ job-hdr.company

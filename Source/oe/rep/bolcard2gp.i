@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolcard2.p 11/09 GDM */
 /* N-K BOLFMT = Carded - FORM for Carded Graphics                             */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 v-tot-cases = 0.
@@ -371,7 +372,7 @@ FOR EACH tt-boll,
     
             IF i = 2 AND v-job-po = "" THEN
                 v-job-po = IF tt-boll.job-no EQ "" THEN "" ELSE
-                    (TRIM(tt-boll.job-no) + "-" + string(tt-boll.job-no2,"99"))                 
+                           TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-boll.job-no, tt-boll.job-no2)))
                     .
 
             IF v-part-dscr NE "" OR v-job-po NE "" OR i LE 2 THEN 

@@ -1,5 +1,6 @@
 /* ------------------------------------------- cec/quote/quohughes.i 3/13 BPV */
-/* print quote items in xPrint format                                          */
+/* print quote items in xPrint format                                         */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 
@@ -79,11 +80,11 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       PUT TRIM(lv-est-no) FORM "x(6)" SPACE(1)
           xqitm.part-no space(1) lv-part-dscr1.
       */
-      PUT TRIM(lv-est-no) FORM "x(5)" AT 2
-          xqitm.part-no AT 8 FORMAT "x(21)"
+      PUT TRIM(lv-est-no) FORM "x(8)" AT 1
+          xqitm.part-no AT 10 FORMAT "x(21)"
 
           /* gdm - 11040801 deducted 2 char from format, used to be 30 - now 28*/
-           TRIM(lv-part-dscr1) AT 29 FORMAT "x(28)". 
+           TRIM(lv-part-dscr1) AT 31 FORMAT "x(28)". 
 
     END.
     ELSE
@@ -141,21 +142,21 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
            ELSE trim-size = "".
       END.
       lv-part-dscr2 = IF ll-prt-dscr2 THEN xqitm.part-dscr2 ELSE style-dscr.
-      PUT  xquo.q-no  trim-size AT 8 FORM "x(21)"
+      PUT  xquo.q-no  trim-size AT 10 FORM "x(21)"
           /* gdm - 11170804 deducted 2 char from format, used to be 30 */
               /*xqitm.style*/ lv-part-dscr2 /* style-dscr*/  FORM "x(28)" .
     END.
     ELSE
     IF i EQ 3 THEN DO:
       lv-i-coldscr = IF ll-prt-dscr2 THEN style-dscr ELSE xqitm.i-coldscr.
-      PUT     "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 8 FORM "x(21)"
+      PUT     "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 10 FORM "x(21)"
           /* gdm - 11170804 deducted 2 char from format, used to be 30 */
-              lv-i-coldscr  AT 29 FORM "x(28)".
+              lv-i-coldscr  AT 31 FORM "x(28)".
     END.
     ELSE
     IF i EQ 4 THEN DO:
        
-       PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 8  FORM "x(21)".
+       PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 10  FORM "x(21)".
 
       /*  rdb 01/31/07 12060608
         IF ll-prt-dscr2 THEN PUT xqitm.i-coldscr AT 29 FORM "x(30)".
@@ -168,7 +169,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        IF ll-prt-dscr2 THEN DO:
          chrX = xqitm.i-coldscr.
          /* gdm - 11170804 deducted 2 char from format, used to be 30 */
-         PUT xqitm.i-coldscr AT 29 FORM "x(28)".
+         PUT xqitm.i-coldscr AT 31 FORM "x(28)".
        END.
        ELSE IF v-boardDescription EQ 'Est' THEN DO:
           chrX = "".
@@ -179,14 +180,14 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                         ELSE "" .
           END.
           /* gdm - 11170804 deducted 2 char from format, used to be 30 */
-          PUT chrX AT 29 FORMAT "x(28)".
+          PUT chrX AT 31 FORMAT "x(28)".
        END.
        ELSE IF v-boardDescription EQ 'Quote' THEN DO:
          chrX = "".
          IF NOT logSetPrinting THEN
            chrX = xqitm.i-dscr.
          /* gdm - 11170804 deducted 2 char from format, used to be 30 */
-         PUT chrX AT 29 FORMAT "x(28)".
+         PUT chrX AT 31 FORMAT "x(28)".
        END.
     END.
     ELSE
@@ -240,7 +241,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        */
 
        IF logSetPrinting THEN
-         PUT "FG#: " + lv-fg# AT 8 FORM "x(21)" v-board FORM "x(28)".
+         PUT "FG#: " + lv-fg# AT 10 FORM "x(21)" v-board FORM "x(28)".
        ELSE DO:
          /*don't print board description twice*/
          IF v-board EQ chrX THEN DO:
@@ -252,7 +253,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                 adder-print = YES.
          END.
          /* gdm - 11170804 deducted 2 char from format, used to be 30 */
-         PUT "FG#: " + lv-fg# AT 8 FORM "x(21)" v-board FORM "x(28)".
+         PUT "FG#: " + lv-fg# AT 10 FORM "x(21)" v-board FORM "x(28)".
        END.
     END.
 
@@ -294,10 +295,10 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        put xqqty.qty FORMAT ">>>>>>>9" TO 65
        */
        /* gdm - 11040801 - added 1 char(int) to format to fit 10 million + qty */
-       put xqqty.qty FORMAT ">>>>>>>9" TO 65
-           xqqty.rels space(5)
-           xqqty.price FORM "->>,>>9.99" space(6)
-           xqqty.uom.   
+       put "<C50>" xqqty.qty FORMAT ">>>>>>>9" 
+           "<C60>" xqqty.rels 
+           "<C66>" xqqty.price FORM "->>,>>9.99" 
+           "<C77>" xqqty.uom.   
        
        v-line-total = v-line-total + xqqty.price.
     END.

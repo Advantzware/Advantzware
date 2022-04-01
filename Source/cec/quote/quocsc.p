@@ -1,5 +1,6 @@
 /* --------------------------------------------- cec/quote/quocsc.p 11/97 FWK */
 /* print quotes in 10 Pitch format                                            */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -42,16 +43,16 @@ FIND first report where report.term-id eq v-term-id NO-LOCK NO-ERROR.
 FIND first xquo  where recid(xquo) eq report.rec-id NO-LOCK NO-ERROR.
 IF NOT AVAIL xquo THEN RETURN.
 
-format xquo.est-no        to 5
-       xqitm.part-no      to 31   format "x(25)"
-       trim-size          to 57   format "x(24)"
-       xqqty.qty          to 64   format ">>>>>>9"
-       xqqty.price        to 75   format ">>,>>9.99"
-       xqqty.uom          to 80
+format xquo.est-no        to 8
+       xqitm.part-no      to 34   format "x(25)"
+       trim-size          TO 60   format "x(24)"
+       xqqty.qty          to 67   format ">>>>>>9"
+       xqqty.price        to 78   format ">>,>>9.99"
+       xqqty.uom          to 83
 
-      header "Est # Description                Siz/Styl/Brd/C" +
-             "olors         QTY      Price  UOM" format "x(80)"
-      with frame item-10p no-box no-labels down width 80 STREAM-IO.
+      header "Est #    Description                Siz/Styl/Brd/C" +
+             "olors         QTY      Price  UOM" format "x(83)"
+      with frame item-10p no-box no-labels down width 83 STREAM-IO.
 
   find first est where est.company = xquo.company
                    AND est.est-no eq xquo.est-no no-lock no-error.
@@ -161,7 +162,7 @@ format xquo.est-no        to 5
      terms.dscr                 at 28   format "x(30)"
      v-over-under               at 69   format "x(12)"
      skip(1)
-  with frame quote page-top width 80 no-labels no-box STREAM-IO.
+  with frame quote page-top width 83 no-labels no-box STREAM-IO.
     
   v-first-q-no = xquo.q-no.
 

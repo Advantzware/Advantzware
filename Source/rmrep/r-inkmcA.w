@@ -982,9 +982,9 @@ FOR EACH tt-report:
 END.
 
   assign
-   v-fjob = fill(" ",6 - length(trim(v-fjob))) +
+   v-fjob = FILL(" ", iJobLen - length(trim(v-fjob))) +
             trim(v-fjob) + "-" + string(v-fjob2,"99")
-   v-tjob = fill(" ",6 - length(trim(v-tjob))) +
+   v-tjob = FILL(" ", iJobLen - length(trim(v-tjob))) +
             trim(v-tjob) + "-" + string(v-tjob2,"99").
 
     /*for each job

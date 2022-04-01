@@ -1,4 +1,5 @@
 /* oe/rep/relmcell2.i */   
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */   
    
    PUT "<FArial>" SKIP
            "<P14><C+35><B>Pick Ticket</B>                                     <P10>Page: " string(PAGE-NUM - v-page-num,">>9")  SKIP
@@ -46,14 +47,14 @@
                    "<FArial><=4><R+1>    Delivery Zone             Weight                    FOB                           Ship Via                                        Freight Terms" SKIP
                    "<FCourier New><=4><R+3> " v-zone space(10) v-weight space(10) oe-ord.fob-code SPACE(5) v-carrier space(10) v-frt-terms   SKIP
                    "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
-                   "<R24><C10><FROM><R26><C10><LINE>" SKIP
-                   "<R24><C36><FROM><R26><C36><LINE>" SKIP
-                   "<R24><C55><FROM><R26><C55><LINE>" SKIP                   
-                   "<R24><C56.5><FROM><R26><C56.5><LINE>" SKIP
-                   "<R24><C60><FROM><R26><C60><LINE>" SKIP 
-                   "<R24><C64><FROM><R26><C64><LINE>" SKIP   
+                   "<R24><C12><FROM><R26><C12><LINE>" SKIP
+                   "<R24><C36.5><FROM><R26><C36.5><LINE>" SKIP
+                   "<R24><C57><FROM><R26><C57><LINE>" SKIP                   
+                   "<R24><C58.5><FROM><R26><C58.5><LINE>" SKIP
+                   "<R24><C62><FROM><R26><C62><LINE>" SKIP 
+                   "<R24><C66.5><FROM><R26><C66.5><LINE>" SKIP   
                    "<R24><C72><FROM><R26><C72><LINE>" SKIP  
-               "<FArial><=5><R24><C2>Order #<R+1><C3>Job# <C11>Cust Part#/FG#/PO# <C36.5>TAG/Whs/Bin <C55.5>X<C57>#Pal<C60.5>#Cas<C65>Count<C73>Bin Qty" SKIP(1)
+               "<FArial><=5><R24><C2>Order #<R+1><C3>Job# <C13>Cust Part#/FG#/PO# <C38.5>TAG/Whs/Bin <C57.5>X<C59>#Pal<C62.5>#Cas<C67>Count<C73.5>Bin Qty" SKIP(1)
                "<FCourier New>"          
                .
                v-printline = v-printline + 16.

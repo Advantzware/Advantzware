@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No. 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -38,6 +40,7 @@ def input parameter ip-loc like fg-bin.loc no-undo.
 def input parameter ip-loc-bin like fg-bin.loc-bin no-undo.
 def input parameter ip-tag like fg-bin.tag no-undo.
 def output parameter op-rowid-val AS ROWID no-undo.
+{sys/inc/var.i}
 
 DEF BUFFER b-fg-bin FOR fg-bin.
 
@@ -172,8 +175,8 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      fg-bin.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 9
-      fg-bin.job-no2 COLUMN-LABEL "" FORMAT "99":U WIDTH 3
+      fg-bin.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 15
+      fg-bin.job-no2 COLUMN-LABEL "" FORMAT "999":U WIDTH 6
       fg-bin.loc COLUMN-LABEL "Whs" FORMAT "x(5)":U WIDTH 8
       fg-bin.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 12
       fg-bin.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U WIDTH 30
@@ -242,9 +245,9 @@ ASSIGN
 AND (ASI.fg-bin.i-no = ip-i-no )
 and fg-bin.qty <> 0"
      _FldNameList[1]   > ASI.fg-bin.job-no
-"fg-bin.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-bin.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-bin.job-no2
-"fg-bin.job-no2" "" "99" "integer" ? ? ? ? ? ? no ? no no "3" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-bin.job-no2" "" "999" "integer" ? ? ? ? ? ? no ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.fg-bin.loc
 "fg-bin.loc" "Whs" ? "character" ? ? ? ? ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fg-bin.loc-bin

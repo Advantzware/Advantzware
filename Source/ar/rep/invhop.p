@@ -24,7 +24,7 @@ def var v-tot-inv           as   dec  format "->>>>>>9.99".
 def var v-bol-no            as   int  format ">>>>>>" no-undo.
 def var v-ship-date         as   date format "99/99/9999" init today no-undo.
 def var v-cust-phone        like cust.phone no-undo.
-def var v-ord-no            as   int  format ">>>>>>" no-undo.
+def var v-ord-no            as   int  format ">>>>>>>>" no-undo.
 
 def var v-lines             as   int.
 def var v-inv-price         as   dec  format "->>>>9.99".
@@ -47,7 +47,7 @@ def var v-item-number like ar-invl.i-no no-undo.
 def var v-price as dec format "$->>,>>9.99" no-undo.
 def var v-item-size as char no-undo format "x(20)".
 def var v-backorder as dec format ">>,>>>,>>9" no-undo.
-def var v-job-no as char format "x(9)" no-undo.
+def var v-job-no as char format "x(13)" no-undo.
 def var v-freight like inv-head.t-inv-cost no-undo.
 def var v-tax like inv-head.t-inv-cost no-undo.
 def var v-discount as char format "x(24)" no-undo.
@@ -69,7 +69,7 @@ format header
        v-ship-name                  at 37
        v-fob                        at 69
        v-salesman                   at 85
-       trim(string(ar-inv.inv-no,">>>>>>>"))
+       trim(string(ar-inv.inv-no,">>>>>>>>"))
                                     at 101
        v-bol-no                     at 117
        cust.addr[1]                 at 4

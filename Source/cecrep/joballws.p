@@ -2,7 +2,7 @@
 /* Job Ticket Xprint form for Allwest                                         */
 /* cecrep/joballws.p  factory ticket  for Allwest - landscape                 */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &SCOPED-DEFINE PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 DEF INPUT PARAM v-FORMAT AS CHAR.
@@ -140,12 +140,14 @@ DO v-local-loop = 1 TO v-local-copies:
   FOR EACH job-hdr 
     WHERE job-hdr.company               EQ cocode
       AND job-hdr.ftick-prnt            EQ reprint
-      AND job-hdr.job-no                GE SUBSTR(fjob-no,1,6)
-      AND job-hdr.job-no                LE SUBSTR(tjob-no,1,6)
-      AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) + TRIM(job-hdr.job-no) +
-          STRING(job-hdr.job-no2,"99")  GE fjob-no
-      AND FILL(" ",6 - length(trim(job-hdr.job-no))) + TRIM(job-hdr.job-no) +
-          STRING(job-hdr.job-no2,"99")  LE tjob-no,
+      AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	  TRIM(job-hdr.job-no) +
+	  STRING(job-hdr.job-no2,"999")  GE fjob-no
+      AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	  TRIM(job-hdr.job-no) +
+	  STRING(job-hdr.job-no2,"999")  LE tjob-no
+      AND job-hdr.job-no2 GE fjob-no2
+      AND job-hdr.job-no2 LE tjob-no2,
 
     FIRST job NO-LOCK
     WHERE job.company EQ cocode
@@ -700,7 +702,7 @@ DO v-local-loop = 1 TO v-local-copies:
         IF s-prt-ship-split 
           THEN
            FIND FIRST tt-fibre NO-LOCK 
-             WHERE tt-fibre.tt-job-no  EQ job-hdr.job-no
+             WHERE trim(tt-fibre.tt-job-no)  EQ trim(job-hdr.job-no)
                AND tt-fibre.tt-job-no2 EQ job-hdr.job-no2
                AND tt-fibre.tt-frm     EQ w-ef.frm
                AND tt-fibre.tt-blank   EQ b-eb.blank-no NO-ERROR.
@@ -823,8 +825,9 @@ DO v-local-loop = 1 TO v-local-copies:
 
               PUT UNFORMATTED 
                 "<UNITS=INCHES><AT=7.5,.54><FROM><AT=+.4,+1.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
-                (job.job-no) + STRING(job.job-no2,"99") + ">" "<AT=,.6>" 
-                (job-hdr.job-no) "-" STRING(job-hdr.job-no2,"99") 
+                TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
+                + ">" "<AT=,.6>" 
+                TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) FORM "X(13)"
                 "<R44><C1><FROM><C85><LINE><|3>" skip
                 "<R44><C19><FROM><R48><C19><LINE><|3>"
                 "<R44><C85><FROM><R48><C85><LINE><|3>"
@@ -860,8 +863,9 @@ DO v-local-loop = 1 TO v-local-copies:
            
               PUT UNFORMATTED 
                 "<UNITS=INCHES><AT=7.5,.54><FROM><AT=+.4,+1.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
-                (job.job-no) + STRING(job.job-no2,"99") + ">" "<AT=,.6>" 
-                    (job-hdr.job-no) "-" STRING(job-hdr.job-no2,"99")            
+                TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
+                + ">" "<AT=,.6>" 
+                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)))
                 "<R44><C1><FROM><C105><LINE><|3>" skip
                 "<R44><C19><FROM><R48><C19><LINE><|3>"
                 "<R44><C20><B>BN Notes:</B><C30>" v-dept-note[1] SKIP

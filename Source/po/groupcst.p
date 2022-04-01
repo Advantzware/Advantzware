@@ -1,4 +1,4 @@
-
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 DEF INPUT        PARAM ip-job-no LIKE job-mat.job-no NO-UNDO.
 DEF INPUT        PARAM ip-job-no2 LIKE job-mat.job-no2 NO-UNDO.
 DEF INPUT        PARAM ip-i-no LIKE job-mat.rm-i-no NO-UNDO.
@@ -13,7 +13,7 @@ DEF VAR ld-save-qty AS DEC NO-UNDO.
 
 FIND FIRST job
     WHERE job.company EQ cocode
-      AND job.job-no  EQ ip-job-no
+      AND trim(job.job-no)  EQ trim(ip-job-no)
       AND job.job-no2 EQ ip-job-no2
     NO-LOCK NO-ERROR.
 

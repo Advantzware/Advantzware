@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */ 
  /* cec/quote/quocorc2.i */
    PUT "<R1><C1><#1><R+5><C+40><IMAGE#1=" ls-full-img1 SKIP.  /*new*/
 /*    PUT "<R2><C2><#1><R+10><C+80><IMAGE#1=" ls-full-img1 SKIP.  /*concepts*/ */
@@ -83,12 +84,12 @@
 
 
    PUT "<|10><R28><C1><#5><FROM><R30><C80><RECT>" SKIP    
-             "<R28><C6><FROM><R30><C6><LINE>" SKIP
-             "<R28><C20><FROM><R30><C20><LINE>" SKIP
-             "<R28><C49><FROM><R30><C49><LINE>" SKIP
-             "<R28><C59><FROM><R30><C59><LINE>" SKIP
-             "<R28><C66><FROM><R30><C66><LINE>" SKIP
-             "<R28><C74><FROM><R30><C74><LINE>" SKIP
+             "<R28><C8><FROM><R30><C8><LINE>" SKIP
+             "<R28><C26><FROM><R30><C26><LINE>" SKIP
+             "<R28><C51><FROM><R30><C51><LINE>" SKIP
+             "<R28><C60><FROM><R30><C60><LINE>" SKIP
+             "<R28><C67><FROM><R30><C67><LINE>" SKIP
+             "<R28><C75><FROM><R30><C75><LINE>" SKIP
              .
-   PUT "<FArial><=5><R+1> Est#      Description/Size                   Item/Style/Color/Board                               Quantity          Release       Price           UOM " SKIP(1).
+   PUT "<FArial><=5><R+1> Est#                   Description/Size                      Item/Style/Color/Board                        Quantity        Release       Price           UOM " SKIP(1).
    PUT "<FCourier New>".

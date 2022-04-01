@@ -109,7 +109,7 @@ DEFINE VARIABLE lSortAsc AS LOGICAL   NO-UNDO.
   IF cSortBy  EQ 'spare-char-5'  THEN STRING(inv-head.spare-char-5) ELSE ~
   IF cSortBy  EQ 'cFreight'      THEN inv-head.frt-pay ELSE ~
   IF cSortBy  EQ 'accountant'    THEN cust.accountant ELSE ~
-  STRING(inv-head.inv-no,'>>>>>>9') ~  
+  STRING(inv-head.inv-no,'>>>>>>>9') ~  
   
 &SCOPED-DEFINE sortby-phrase-asc ~
     {&sortby-log}                ~
@@ -348,7 +348,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       inv-head.r-no COLUMN-LABEL "InvoiceId" FORMAT ">>>>>>>9":U
             LABEL-BGCOLOR 14
-      inv-head.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>9":U
+      inv-head.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>>9":U
             LABEL-BGCOLOR 14
       inv-head.cust-no COLUMN-LABEL "Cust #" FORMAT "x(8)":U WIDTH 10.6
             LABEL-BGCOLOR 14
@@ -537,7 +537,7 @@ ASI.inv-head.multi-invoice = no"
      _FldNameList[1]   > ASI.inv-head.r-no
 "inv-head.r-no" "InvoiceId" ">>>>>>>9" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.inv-head.inv-no
-"inv-head.inv-no" "Invoice#" ">>>>>>9" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-head.inv-no" "Invoice#" ">>>>>>>9" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.inv-head.cust-no
 "inv-head.cust-no" "Cust #" ? "character" ? ? ? 14 ? ? no ? no no "10.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.inv-head.cust-name

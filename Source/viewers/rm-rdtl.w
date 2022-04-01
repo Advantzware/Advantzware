@@ -152,6 +152,7 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE FRAME F-Main
      rm-rdtl.s-num AT ROW 1.48 COL 14 COLON-ALIGNED
+          LABEL "Form #"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
           FONT 4

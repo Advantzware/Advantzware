@@ -1,5 +1,5 @@
 /* oe/rep/invlanyork.i */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 PUT "<FArial>".
 PUT "<C+25><#1>".
 PUT "<=1>" SKIP.
@@ -19,7 +19,7 @@ PUT "<R6><C50><FROM><R6><C80><LINE><||3>" SKIP
     "<R6><C65><FROM><R8><C65><LINE><||3>" SKIP
     "<R8><C65><FROM><R10><C65><LINE><||3>" SKIP.
         
-PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " inv-head.inv-no "</B><P10>                            Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
+PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " inv-head.inv-no FORMAT ">>>>>>>9" "</B><P10>                            Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
     "<=#3> Customer ID             Contact"
     "<=#3><R+2> Telephone                        Fax" 
     "<=#3><R+4> Customer PO                  Invoice Date <FCourier New>"    
@@ -46,27 +46,34 @@ PUT "<FArial><=4><R+1>     Ship Date               FOB                          
      v-shipvia FORM "x(30)" SPACE(1)
      xinv-head.terms-d FORM "x(15)" space(1) v-salesman FORM "x(8)"
      v-tot-pallets FORM "->>>,>>9" 
-     xinv-head.bol-no FORMAT ">>>>>9"
+     "<C75>"xinv-head.bol-no FORMAT ">>>>>>9"
     SKIP.
 
 
 PUT "<R26><C1><#5><FROM><R28><C81><RECT><||3>" SKIP    
                 "<R26><C8><FROM><R28><C8><LINE><||3>" SKIP
                 "<R26><C15><FROM><R28><C15><LINE><||3>" SKIP
-                "<R26><C21><FROM><R28><C21><LINE><||3>" SKIP
-                "<R26><C34><FROM><R28><C34><LINE><||3>" SKIP
-                "<R26><C56><FROM><R28><C56><LINE><||3>" SKIP
+                "<R26><C22><FROM><R28><C22><LINE><||3>" SKIP
+                "<R26><C35><FROM><R28><C35><LINE><||3>" SKIP
+                "<R26><C57><FROM><R28><C57><LINE><||3>" SKIP
                 "<R26><C66><FROM><R28><C66><LINE><||3>" SKIP
                 "<R26><C70><FROM><R28><C70><LINE><||3>" SKIP
                 . 
 IF NOT lPrintQtyAll THEN DO:  
-PUT "<FArial><=5>"  space(37) " Order /" SKIP
-                   " Ordered     Shipped     Cust PO      Item#/CustPart#                       Description                             Price         UOM             Amount" SKIP(1).
+PUT "<FArial><=5>"          "<C16> Order /" SKIP
+                   "  Ordered     Shipped ".
 END.
 ELSE DO:
-PUT "<FArial><=5>" " Ordered" space(25) " Order /" SKIP
-                   " Shipped     Invoiced     Cust PO      Item#/CustPart#                       Description                             Price         UOM             Amount" SKIP(1).
+PUT "<FArial><=5>" "  Ordered <C16> Order /" SKIP
+                   "  Shipped     Invoiced ".
 END.
+                PUT "<C16> Cust PO
+                     <C23> Item#/CustPart#
+                     <C36> Description
+                     <C59> Price
+                     <C66> UOM
+                     <C73> Amount" SKIP(1).
+
 v-printline = v-printline + 4.
            
 

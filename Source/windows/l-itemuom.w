@@ -25,6 +25,7 @@ DEFINE INPUT PARAMETER ip-cur-val AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER TABLE FOR ttUOMEffective.
 
 def output param op-char-val as cha no-undo.
+{sys/inc/var.i}
 
 &scoped-define fld-name-1 ttUOMEffective.uom
 &scoped-define fld-name-2 ttUOMEffective.uomDescription

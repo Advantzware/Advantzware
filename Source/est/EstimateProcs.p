@@ -16,6 +16,15 @@
 {est/ttCalcLayoutSize.i}
 {est/ttEstSysConfig.i}
 
+DEFINE VARIABLE gcBoardMatTypes  AS CHARACTER NO-UNDO INITIAL "1,2,3,4,A,B,P,R".
+DEFINE VARIABLE gcGlueMatTypes   AS CHARACTER NO-UNDO INITIAL "G,S,T".
+DEFINE VARIABLE gcInkMatTypes    AS CHARACTER NO-UNDO INITIAL "I,V".
+DEFINE VARIABLE gcPackMatTypes   AS CHARACTER NO-UNDO INITIAL "5,6,C,D,J,M".
+DEFINE VARIABLE gcLeafMatTypes   AS CHARACTER NO-UNDO INITIAL "F,W".
+DEFINE VARIABLE gcWindowMatTypes AS CHARACTER NO-UNDO INITIAL "W".
+DEFINE VARIABLE gcWaxMatTypes    AS CHARACTER NO-UNDO INITIAL "W".
+DEFINE VARIABLE gcAdderMatTypes  AS CHARACTER NO-UNDO INITIAL "A".
+
 DEFINE VARIABLE gcTypeSingle AS CHARACTER NO-UNDO INITIAL "Single".
 DEFINE VARIABLE gcTypeSet    AS CHARACTER NO-UNDO INITIAL "Set".
 DEFINE VARIABLE gcTypeCombo  AS CHARACTER NO-UNDO INITIAL "Combo/Tandem".
@@ -47,6 +56,27 @@ FUNCTION fEstimate_IsInk RETURNS LOGICAL
 
 FUNCTION fEstimate_IsMiscType RETURNS LOGICAL 
     (ipcEstType AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsBoardMaterial RETURNS LOGICAL 
+    (ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsGlueMaterial RETURNS LOGICAL 
+    (ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsInkMaterial RETURNS LOGICAL 
+    (ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsLeafMaterial RETURNS LOGICAL 
+    (ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsPackingMaterial RETURNS LOGICAL 
+	(ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsWaxMaterial RETURNS LOGICAL 
+    (ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsWindowMaterial RETURNS LOGICAL 
+    (ipcMaterialTypeID AS CHARACTER) FORWARD.
 
 FUNCTION fEstimate_IsSetType RETURNS LOGICAL 
     (ipcEstType AS CHARACTER) FORWARD.
@@ -1052,7 +1082,7 @@ FUNCTION fEstimate_IsInk RETURNS LOGICAL
     Notes:
     ------------------------------------------------------------------------------*/	
     
-    RETURN INDEX("IV",ipcMaterialType) GT 0 AND ipcInkType NE "A".
+    RETURN fEstimate_IsInkMaterial(ipcMaterialType) AND ipcInkType NE "A".
     		
 END FUNCTION.
 
@@ -1064,6 +1094,70 @@ FUNCTION fEstimate_IsMiscType RETURNS LOGICAL
     ------------------------------------------------------------------------------*/    
     RETURN ipcEstType EQ gcTypeMisc.
         
+END FUNCTION.
+
+FUNCTION fEstimate_IsAdderMaterial RETURNS LOGICAL 
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given material type, return if the material type is adders
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN CAN-DO(gcAdderMatTypes, ipcMaterialTypeID).
+        
+END FUNCTION.
+
+
+FUNCTION fEstimate_IsBoardMaterial RETURNS LOGICAL 
+	( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given material type, return if the material type is board/paper
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    RETURN CAN-DO(gcBoardMatTypes, ipcMaterialTypeID).
+		
+END FUNCTION.
+
+
+FUNCTION fEstimate_IsGlueMaterial RETURNS LOGICAL 
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given material type, return if the material type is glue
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN CAN-DO(gcGlueMatTypes, ipcMaterialTypeID).
+        
+END FUNCTION.
+
+FUNCTION fEstimate_IsInkMaterial RETURNS LOGICAL 
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given material type, return if the material type is ink
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN CAN-DO(gcInkMatTypes, ipcMaterialTypeID).
+        
+END FUNCTION.
+
+FUNCTION fEstimate_IsLeafMaterial RETURNS LOGICAL 
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given material type, return if the material type is leaf/film
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN CAN-DO(gcLeafMatTypes, ipcMaterialTypeID).
+        
+END FUNCTION.
+
+
+
+FUNCTION fEstimate_IsPackingMaterial RETURNS LOGICAL 
+	( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given material type, return if the material type is packing
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    RETURN CAN-DO(gcPackMatTypes, ipcMaterialTypeID).
+		
 END FUNCTION.
 
 FUNCTION fEstimate_IsSetType RETURNS LOGICAL 
@@ -1084,6 +1178,26 @@ FUNCTION fEstimate_IsSingleType RETURNS LOGICAL
     ------------------------------------------------------------------------------*/    
     RETURN ipcEstType EQ gcTypeSingle.
     
+END FUNCTION.
+
+FUNCTION fEstimate_IsWaxMaterial RETURNS LOGICAL 
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given material type, return if the material type is wax
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN CAN-DO(gcWaxMatTypes, ipcMaterialTypeID).
+        
+END FUNCTION.
+
+FUNCTION fEstimate_IsWindowMaterial RETURNS LOGICAL 
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given material type, return if the material type is window
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN CAN-DO(gcWindowMatTypes, ipcMaterialTypeID).
+        
 END FUNCTION.
 
 FUNCTION fEstimate_IsWoodType RETURNS LOGICAL 

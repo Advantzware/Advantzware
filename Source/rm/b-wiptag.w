@@ -165,9 +165,9 @@ DEFINE BROWSE Browser-Table
             WIDTH 11 LABEL-BGCOLOR 14
       wiptag.wip-rm-bin COLUMN-LABEL "WIP Bin" FORMAT "x(8)":U
             WIDTH 12 LABEL-BGCOLOR 14
-      wiptag.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U WIDTH 10
+      wiptag.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U WIDTH 15
             LABEL-BGCOLOR 14
-      wiptag.job-no2 COLUMN-LABEL "#" FORMAT ">9":U WIDTH 3.4
+      wiptag.job-no2 COLUMN-LABEL "#" FORMAT ">>9":U WIDTH 6
       wiptag.rm-i-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       wiptag.rm-i-name COLUMN-LABEL "RM Name" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
@@ -300,9 +300,9 @@ ASSIGN
      _FldNameList[5]   > ASI.wiptag.wip-rm-bin
 "wiptag.wip-rm-bin" "WIP Bin" ? "character" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.wiptag.job-no
-"wiptag.job-no" "Job" ? "character" ? ? ? 14 ? ? no "" no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"wiptag.job-no" "Job" ? "character" ? ? ? 14 ? ? yes "" no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.wiptag.job-no2
-"wiptag.job-no2" "#" ? "integer" ? ? ? ? ? ? no "" no no "3.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"wiptag.job-no2" "#" ? "integer" ? ? ? ? ? ? no "" no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.wiptag.rm-i-no
 "wiptag.rm-i-no" ? ? "character" ? ? ? 14 ? ? no "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.wiptag.rm-i-name

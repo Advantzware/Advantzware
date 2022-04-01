@@ -728,7 +728,7 @@ assign
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
-  excelheader = "Group,Code,Description,Rate,G/L Account#".
+  excelheader = "Tax Group,Tax Code,Description,Rate,G/L Account#".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -763,11 +763,11 @@ for each stax
              '"' stax.tax-dscr1[i]                      '",'
              '"' STRING(stax.tax-rate1[i],'>>>9.99<<<') '",'
              '"' stax.tax-acc1[i]                       '",' SKIP.
-      END. /* tax code in use */
+      END. /* tax Group in use */
   END. /* each extent */
   IF tb_excel AND NOT l-codes-exist THEN PUT STREAM excel SKIP.
   DOWN WITH FRAME stax.
-END. /* each tax code. */
+END. /* each tax Group. */
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.

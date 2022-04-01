@@ -1,7 +1,7 @@
 /* ----------------------------------------------  */
 /*  cecrep/jobsoule.p  Corrugated factory ticket  for Xprint landscape */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 def input parameter v-format as char.
@@ -109,14 +109,14 @@ FORM HEADER
        "Production ID:" AT 58
        "Date:" AT 108
        "" AT 145  "<P10>"       
-       "Job#:"                         at 2
+       "Job#:"                         at 1
        v-job-prt
-       "Overrun:"  AT 17 lv-over-run format "x(7)"       
+       "Overrun:"  AT 22 lv-over-run format "x(7)"       
        "Our Order#:" AT 40 v-ord-no
        "Ord Date:" AT 80  v-ord-date
        "Production:" AT 109 /*v-loc*/ "[ ]" 
        "Est#:" AT 2 v-est-no
-        "Underrun:" AT 17 lv-under-run FORMAT "x(7)"
+        "Underrun:" AT 22 lv-under-run FORMAT "x(7)"
        "FG#:" AT 40 v-fg FORM "x(15)"
        "Due Date: " AT 80 v-due-date
        "Shipping:  " AT 109 /*v-loc-bin*/ "[ ]"  SKIP
@@ -191,16 +191,14 @@ do v-local-loop = 1 to v-local-copies:
         where job-hdr.company               eq cocode
           and job-hdr.ftick-prnt            eq reprint
 
-          and job-hdr.job-no                ge substr(fjob-no,1,6)
-          and job-hdr.job-no                le substr(tjob-no,1,6)
-
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  ge fjob-no
-
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  le tjob-no,
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  GE fjob-no
+	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  LE tjob-no
+	  AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2,
 
         first job
         where job.company                   eq cocode
@@ -257,7 +255,7 @@ do v-local-loop = 1 to v-local-copies:
         
         /*Process results from d-Soule.w prompt*/
         FIND FIRST ttSoule 
-                        WHERE ttSoule.job-no = job-hdr.job-no
+                        WHERE TRIM(ttSoule.job-no) = TRIM(job-hdr.job-no)
                         AND ttSoule.job-no2  = job-hdr.job-no2
                         AND ttSoule.frm      = w-ef.frm
                         AND ttSoule.i-no     = xeb.stock-no
@@ -868,8 +866,8 @@ do v-local-loop = 1 to v-local-copies:
 
         PUT "<#11><C1><FROM><C105><R+47><RECT><|3>"  
             "<=11><C2><B> Customer: </B>" cust.NAME + " - " + cust.cust-no FORMAT "X(40)"
-            "<C50><B> Job#: </B>" v-job-prt FORMAT "X(9)"
-            "<C65><B> Estimate#: </B>" v-est-no FORMAT "X(6)" SKIP
+            "<C50><B> Job#: </B>" v-job-prt FORMAT "X(13)"
+            "<C67><B> Estimate#: </B>" v-est-no FORMAT "X(8)" SKIP
             "<C2><B> Cust Part#: </B>" v-cp FORMAT "X(15)"
             "<C25><B> FG#: </B>" v-fg FORMAT "X(15)"
             "<C50><B> Order#: </B>" v-ord-no 
@@ -1102,7 +1100,7 @@ do v-local-loop = 1 to v-local-copies:
                        ELSE IF avail xeb THEN xeb.ship-id
                        ELSE IF avail xoe-ord THEN xoe-ord.sold-id 
                        ELSE "".
-            FIND FIRST tt-prem WHERE tt-prem.tt-job-no  EQ job-hdr.job-no
+            FIND FIRST tt-prem WHERE TRIM(tt-prem.tt-job-no)  EQ TRIM(job-hdr.job-no)
                                   AND tt-prem.tt-job-no2  EQ job-hdr.job-no2 NO-LOCK NO-ERROR.
             IF NOT AVAIL tt-prem THEN do:
                FIND FIRST bf-eb WHERE bf-eb.company = est.company

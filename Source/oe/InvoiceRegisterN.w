@@ -110,8 +110,8 @@ DEFINE            VARIABLE v-line-tot-w      AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE v-post-zero-cgs   AS LOG       NO-UNDO.
 
 
-DEFINE            VARIABLE v-s-inv-no        LIKE inv-head.inv-no INIT 0 NO-UNDO FORMAT ">>>>>>9".
-DEFINE            VARIABLE v-e-inv-no        LIKE v-s-inv-no INIT 9999999.
+DEFINE            VARIABLE v-s-inv-no        LIKE inv-head.inv-no INIT 0 NO-UNDO FORMAT ">>>>>>>9".
+DEFINE            VARIABLE v-e-inv-no        LIKE v-s-inv-no INIT 99999999.
 DEFINE            VARIABLE v-s-date          LIKE inv-head.inv-date FORMAT "99/99/9999"
     INIT 01/01/0001 NO-UNDO.
 DEFINE            VARIABLE v-e-date          LIKE v-s-date INIT TODAY.
@@ -1136,7 +1136,7 @@ PROCEDURE calc-tax-gr :
                     tt-report.term-id = ""
                     tt-report.key-01  = "work-tax"
                     tt-report.key-02  = account.actnum
-                    tt-report.key-03  = STRING(ipi-inv-no,"9999999")
+                    tt-report.key-03  = STRING(ipi-inv-no,"99999999")
                     tt-report.key-04  = bf-inv-head.tax-gr
                     tt-report.key-05  = STRING(v-tax-rate[i] *
                                       (IF AVAILABLE bf-currency  THEN
@@ -1422,7 +1422,7 @@ PROCEDURE list-gl :
                          
                 DISPLAY ttGLTransaction.account @ account.actnum
                     v-dscr
-                    ttGLTransaction.invoiceID @ inv-head.inv-no FORMAT ">>>>>>9"
+                    ttGLTransaction.invoiceID @ inv-head.inv-no FORMAT ">>>>>>>9"
                     ttGLTransaction.itemID   @ inv-line.i-no
                     v-tmp-amt
                     ld-pton FORMAT "->>>>>>9.999" 
@@ -1528,7 +1528,7 @@ PROCEDURE list-gl :
 
                     DISPLAY ttGLTransaction.account  @ account.actnum
                         v-dscr
-                        int(ttGLTransaction.invoiceID) @ inv-head.inv-no FORMAT ">>>>>>9"
+                        int(ttGLTransaction.invoiceID) @ inv-head.inv-no FORMAT ">>>>>>>9"
                         "FREIGHT"             @ inv-line.i-no
                         dec(ttGLTransaction.amount) @ v-tmp-amt
                         ld-pton FORMAT "->>>>>>9.999" 
@@ -1605,7 +1605,7 @@ PROCEDURE list-gl :
 
                     DISPLAY ttGLTransaction.account             @ account.actnum
                         v-dscr
-                        int(ttGLTransaction.invoiceID) @ inv-head.inv-no FORMAT ">>>>>>9"
+                        int(ttGLTransaction.invoiceID) @ inv-head.inv-no FORMAT ">>>>>>>9"
                         "DISCOUNT"            @ inv-line.i-no
                         dec(ttGLTransaction.amount) @ v-tmp-amt
                         ld-pton FORMAT "->>>>>>9.999" 
@@ -1689,7 +1689,7 @@ PROCEDURE list-gl :
 
                         DISPLAY ttGLTransaction.account    @ account.actnum
                             v-dscr
-                            int(ttGLTransaction.invoiceID)  @ inv-head.inv-no FORMAT ">>>>>>9"
+                            int(ttGLTransaction.invoiceID)  @ inv-head.inv-no FORMAT ">>>>>>>9"
                             "CASH INVOICE"      @ inv-line.i-no
                             dec(ttGLTransaction.amount)  @ v-tmp-amt
                             ld-pton FORMAT "->>>>>>9.999" 
@@ -1880,7 +1880,7 @@ PROCEDURE list-post-inv :
     DEFINE BUFFER bf-inv-misc FOR inv-misc.
   
     FORMAT
-        inv-head.inv-no FORMAT ">>>>>>9" AT 1
+        inv-head.inv-no FORMAT ">>>>>>>9" AT 1
         inv-head.inv-date AT 9 FORMAT "99/99/99"
         inv-head.cust-no AT 18
         inv-head.cust-name FORMAT "x(25)" AT 27

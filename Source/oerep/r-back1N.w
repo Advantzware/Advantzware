@@ -15,7 +15,8 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */
+     
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
@@ -1530,7 +1531,7 @@ def buffer xoe-ord for oe-ord.
 
 def var v-fcust like oe-ord.cust-no extent 2 init ["","zzzzzzzz"] NO-UNDO.
 def var v-fslsm like oe-ord.sman extent 2 init ["","zzz"] NO-UNDO.
-def var v-ford-no as int format ">>>>>>" extent 2 init [0,999999].
+def var v-ford-no as int format ">>>>>>>9" extent 2 init [0,99999999].
 def var v-fdate as date format "99/99/9999" extent 2 init [01/01/01,today] NO-UNDO.
 def var v-fitem as char format "x(15)" extent 2 init ["","zzzzzzzzzzzzzzz"] NO-UNDO.
 DEF VAR v-sort AS CHAR NO-UNDO.

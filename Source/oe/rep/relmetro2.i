@@ -1,4 +1,5 @@
 /* oe/rep/relmetro2.i */   
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */   
    
    PUT "<FArial>" SKIP
            "<P14><C+35><B>Pick Ticket</B> " SKIP
@@ -48,13 +49,13 @@
                    "<FArial><=4><R+1>    Delivery Zone             Weight                    FOB                              Ship Via                                            Freight Terms" SKIP
                    "<FCourier New><=4><R+3> " v-zone space(9) v-weight FORM ">>>>>>9" space(8) v-fob-code SPACE(1) v-carrier space(8) v-frt-terms   SKIP
                    "<|10><R26><C1><#5><FROM><R28><C80><RECT>" SKIP    
-                   "<R26><C7><FROM><R28><C7><LINE>" SKIP
+                   "<R26><C9><FROM><R28><C9><LINE>" SKIP
 /*                    "<R26><C33><FROM><R28><C33><LINE>" SKIP */
-                   "<R26><C51><FROM><R28><C51><LINE>" SKIP
+                   "<R26><C53><FROM><R28><C53><LINE>" SKIP
 /*                    "<R26><C57><FROM><R28><C57><LINE>" SKIP     */
 /*                    "<R26><C62.5><FROM><R28><C62.5><LINE>" SKIP */
-                   "<R26><C71><FROM><R28><C71><LINE>" SKIP  
-               "<FArial><=5><R+1>   Order# <C15>Item / Description<C57>Whse/Bin <C73.5>#Pal" SKIP
+                   "<R26><C72><FROM><R28><C72><LINE>" SKIP  
+               "<FArial><=5><R+1>   Order# <C18>Item / Description<C60>Whse/Bin <C75.5>#Pal" SKIP
                "<FCourier New><P11>".
 
 ASSIGN v-printline = v-printline + 18

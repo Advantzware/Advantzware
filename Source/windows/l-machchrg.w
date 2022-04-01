@@ -23,6 +23,7 @@ def input parameter ip-company AS CHAR no-undo.
 DEF INPUT PARAMETER ip-machine AS CHAR NO-UNDO.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.

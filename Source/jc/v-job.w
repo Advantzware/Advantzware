@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -272,13 +273,13 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE FRAME F-Main
      job.job-no AT ROW 1.24 COL 19 COLON-ALIGNED
-          LABEL "Job Number" FORMAT "x(6)"
+          LABEL "Job Number" FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
           BGCOLOR 15 
-     job.job-no2 AT ROW 1.24 COL 37 COLON-ALIGNED NO-LABEL
+     job.job-no2 AT ROW 1.24 COL 37 COLON-ALIGNED NO-LABEL FORMAT "999"
           VIEW-AS FILL-IN 
-          SIZE 11 BY 1
+          SIZE 7 BY 1
           BGCOLOR 15 
      job.est-no AT ROW 1.24 COL 65 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
@@ -428,7 +429,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN job.job-no IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN job.job-no2 IN FRAME F-Main
-   NO-ENABLE 2                                                          */
+   NO-ENABLE 2 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN job.orderType IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
@@ -810,7 +811,7 @@ PROCEDURE add-job :
      DO:
          FIND FIRST bf-job-hdr NO-LOCK
              WHERE bf-job-hdr.company EQ cocode
-             AND bf-job-hdr.job-no EQ cJobNo
+             AND TRIM(bf-job-hdr.job-no) EQ TRIM(cJobNo)
              AND bf-job-hdr.job-no2 EQ iJobNo2 NO-ERROR .
 
          RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl). 
@@ -974,7 +975,7 @@ PROCEDURE get-due-date :
     IF ip-rowid EQ ? THEN
       FIND FIRST oe-ordl
           WHERE oe-ordl.company EQ cocode
-            AND oe-ordl.job-no  EQ job.job-no:SCREEN-VALUE
+            AND TRIM(oe-ordl.job-no)  EQ TRIM(job.job-no:SCREEN-VALUE)
             AND oe-ordl.job-no2 EQ INT(job.job-no2:SCREEN-VALUE)
             AND (NOT AVAILABLE job-hdr OR
                  (AVAILABLE job-hdr AND oe-ordl.i-no EQ job-hdr.i-no))
@@ -1907,7 +1908,7 @@ PROCEDURE local-update-record :
              INPUT  "AddJob",                                        /* Trigger ID (Mandatory) */
              INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
              INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-             INPUT  job.job-no + "-" + STRING(job.job-no2, "99"),      /* Primary ID for which API is called for (Mandatory) */   
+             INPUT  job.job-no + "-" + STRING(job.job-no2, "999"),      /* Primary ID for which API is called for (Mandatory) */   
              INPUT  "Job add triggered from " + PROGRAM-NAME(1)    /* Event's description (Optional) */
              ) NO-ERROR.
       
@@ -2662,9 +2663,8 @@ PROCEDURE valid-job-no :
   ll-valid = YES.
 
   DO WITH FRAME {&frame-name}:
-    job.job-no:SCREEN-VALUE =
-        FILL(" ",6 - LENGTH(TRIM(job.job-no:SCREEN-VALUE))) +
-        TRIM(job.job-no:SCREEN-VALUE).
+    job.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', job.job-no:SCREEN-VALUE))
+        .
 
     IF TRIM(job.job-no:SCREEN-VALUE) EQ "" THEN DO:
       MESSAGE "Job# Cannot be BLANK..."
@@ -2886,18 +2886,18 @@ PROCEDURE validate-est :
             
            /* Use last 5 digits of estimate# */
            IF LENGTH(TRIM(v-bld-job)) GT 5 THEN 
-             v-bld-job = " " + SUBSTRING(TRIM(v-bld-job), 2).
+             v-bld-job = " " + SUBSTRING(TRIM(v-bld-job), 1).
              
            IF AVAILABLE sys-ctrl THEN
              v-bld-job = SUBSTR(sys-ctrl.char-fld,1,1) + TRIM(v-bld-job).
 
            ASSIGN
-              v-bld-job = FILL(" ",6 - LENGTH(TRIM(v-bld-job))) + TRIM(v-bld-job)
+              v-bld-job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', v-bld-job))
               ll = NO.
 
            IF CAN-FIND(FIRST xjob WHERE
               xjob.company EQ cocode AND
-              xjob.job-no  EQ v-bld-job AND
+              TRIM(xjob.job-no)  EQ TRIM(v-bld-job) AND
               ROWID(xjob)  NE ROWID(job) AND
               xjob.opened EQ YES) THEN
               DO:
@@ -2913,7 +2913,7 @@ PROCEDURE validate-est :
 
            FOR EACH xjob FIELDS(job-no2) NO-LOCK
                WHERE xjob.company EQ cocode
-                 AND xjob.job-no  EQ v-bld-job
+                 AND TRIM(xjob.job-no)  EQ TRIM(v-bld-job)
                  AND ROWID(xjob)  NE ROWID(job)
                USE-INDEX job-no
                BY xjob.job-no2 DESCENDING:
@@ -2940,7 +2940,7 @@ PROCEDURE validate-est :
 
       ASSIGN
        job.job-no:SCREEN-VALUE  = v-bld-job
-       job.job-no2:SCREEN-VALUE = STRING(li,"99").
+       job.job-no2:SCREEN-VALUE = STRING(li,"999").
     END.
 
     /*FIND FIRST job-hdr OF job NO-LOCK NO-ERROR.

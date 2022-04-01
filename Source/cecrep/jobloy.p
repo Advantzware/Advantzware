@@ -1,8 +1,7 @@
 /* ----------------------------------------------  */
 /*  cecrep/jobloy.p  Corrugated factory ticket  for Loy Lang */
 /* -------------------------------------------------------------------------- */
-/*Mode : 001 Task# 10111316*/
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 def input parameter v-format as char.
@@ -783,8 +782,8 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
 
         PUT "<#11><C1><FROM><C105><R+47><RECT><|3>"  
             "<=11><C2><B> Customer: </B>" cust.NAME + " - " + cust.cust-no FORMAT "X(40)"
-            "<C50><B> Job#: </B>" v-job-prt FORMAT "X(9)"
-            "<C65><B> Estimate#: </B>" v-est-no FORMAT "X(6)" SKIP
+            "<C50><B> Job#: </B>" v-job-prt FORMAT "X(13)"
+            "<C65><B> Estimate#: </B>" v-est-no FORMAT "X(8)" SKIP
             "<C2><B> Cust Part#: </B>" v-cp FORMAT "X(15)"
             "<C25><B> FG#: </B>" v-fg FORMAT "X(15)"
             "<C50><B> Order#: </B>" v-ord-no 

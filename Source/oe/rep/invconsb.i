@@ -1,4 +1,5 @@
 /* oe/rep/invconsb.i */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 PUT "<FArial>".
 PUT "<C2><#1><R+9><C+75><IMAGE#1=" ls-full-img1 SKIP. 
 PUT "<=1>" 
@@ -72,7 +73,7 @@ PUT "<FArial><=4><R+1>  Customer ID            Customer Phone/FAX               
     "<FArial><=4><R+5>   Salesman                          Ship Via                                Order#                                Weight/Pallets                        Bill Lading #" SKIP
     "<FCourier New><=4><R+7> " SPACE(3) v-salesman FORM "x(8)" SPACE(3)
     v-shipvia FORM "x(20)" SPACE(6)
-    v-ord-no SPACE(7)
+    v-ord-no FORM ">>>>>>>9" SPACE(5)
     v-t-weight FORM "->>>>,>>9" SPACE(1)  "/" 
     v-tot-pallets FORM "->>>>,>>9" SPACE(11)
     xinv-head.bol-no

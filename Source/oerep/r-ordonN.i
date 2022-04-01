@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 
     FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
     
@@ -19,10 +20,12 @@
         EACH oe-ordl OF oe-ord
         WHERE oe-ordl.i-no      GE v-item[1]
           AND oe-ordl.i-no      LE v-item[2]
-          AND FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
-              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99") GE v-job[1]
-          AND FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
-              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99") LE v-job[2]
+          AND FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
+              TRIM(oe-ordl.job-no) + STRING(INT(oe-ordl.job-no2),"999") GE v-job[1]
+          AND FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
+              TRIM(oe-ordl.job-no) + STRING(INT(oe-ordl.job-no2),"999") LE v-job[2]
+          AND oe-ordl.job-no2 GE int(begin_job-no2)
+          AND oe-ordl.job-no2 LE int(end_job-no2)    
           AND oe-ordl.po-no     GE v-po[1]
           AND oe-ordl.po-no     LE v-po[2]
           AND oe-ordl.s-man[1]  GE begin_slsmn
@@ -68,8 +71,7 @@
                 transaction:
                 
                 IF job-hdr.job-no NE "" THEN
-                 tt-report.job-no   = fill(" ",6 - length(trim(job-hdr.job-no))) +
-                                      trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99")
+                 tt-report.job-no   = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)))
                                       .
                 
                 ASSIGN tt-report.sht     = " "
@@ -456,7 +458,7 @@
                    WHEN "bin"      THEN cVarValue = STRING(v-bin)              .
                    WHEN "tag"      THEN cVarValue = STRING(v-tab,"x(8)")              .
                    WHEN "qty"      THEN cVarValue = STRING(v-qty,">>>,>>>,>>9")              . */
-                   WHEN "job"         THEN cVarValue =  STRING(tt-report.job-no,"x(10)") .
+                   WHEN "job"         THEN cVarValue =  STRING(tt-report.job-no,"x(13)") .
                    WHEN "die"         THEN cVarValue =  STRING(tt-report.die) .
                    WHEN "due-dt"      THEN cVarValue =  IF tt-report.due-dt NE ? THEN STRING(tt-report.due-dt) ELSE ""  .
                    WHEN "comp-dt"     THEN cVarValue =  IF tt-report.run-end-date NE ? THEN STRING(tt-report.run-end-date) ELSE ""     .
@@ -487,7 +489,7 @@
             AND tt-fg-bin.i-no    EQ tt-report.key-06
             AND tt-fg-bin.qty     GT 0
             AND (tt-fg-bin.ord-no EQ oe-ord.ord-no OR
-                 SUBSTR(tt-report.key-04,1,6) EQ "")
+                 SUBSTR(tt-report.key-04,1,9) EQ "")
             AND tt-fg-bin.cust EQ ""
           NO-LOCK
           BREAK BY tt-fg-bin.job-no
@@ -506,7 +508,7 @@
               "        Qty"
               SKIP
               SPACE(34)
-              "--------- "
+              "------------- "
               "----- "
               "-------- "
               "-------- "
@@ -514,11 +516,9 @@
               SKIP.
         
         PUT SPACE(34)
-            FILL(" ",6 - LENGTH(TRIM(tt-fg-bin.job-no))) +
-            TRIM(tt-fg-bin.job-no) + 
-                 (IF tt-fg-bin.job-no NE ""
-                  THEN ("-" + STRING(tt-fg-bin.job-no2,"99"))
-                  ELSE "")              FORMAT "x(9)"
+            IF tt-fg-bin.job-no NE "" THEN TRIM(STRING(DYNAMIC-FUNCTION
+            ('sfFormat_JobFormatWithHyphen', tt-fg-bin.job-no, tt-fg-bin.job-no2)))
+            ELSE "" FORMAT "x(13)"
             SPACE(1)
             tt-fg-bin.loc
             SPACE(1)

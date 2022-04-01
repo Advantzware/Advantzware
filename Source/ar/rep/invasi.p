@@ -46,7 +46,7 @@ DEF VAR v-date-ship AS DATE NO-UNDO.
 def var v-salesman as char format "x(14)" NO-UNDO.
 def var v-fob as char format "x(27)" NO-UNDO.
 def var v-shipvia like carrier.dscr NO-UNDO.
-def var v-del-no as int format ">>>>>>" NO-UNDO.
+def var v-del-no as int format ">>>>>>>>" NO-UNDO.
 def var v-tot-pallets as INT NO-UNDO.
 DEF VAR v-bol-no LIKE oe-bolh.bol-no NO-UNDO.
 DEF VAR v-net AS DEC NO-UNDO.
@@ -62,7 +62,7 @@ big_ul2 = big_ul.
 format skip (7)
       v-invhead AT 24
       ar-inv.inv-date        AT 70 FORMAT "99/99/99" skip
-      ar-inv.inv-no          AT 70 format "zzzzzz9" skip
+      ar-inv.inv-no          AT 70 format "zzzzzzz9" skip
       sman.sman              AT 72
       skip (3)
       ar-inv.fob-code        AT 13
@@ -91,7 +91,7 @@ format skip (2)
       v-c-name AT 11 skip
       v-c-addr[1] AT 11 skip
       v-c-addr[2] AT 11
-      ar-inv.inv-no          AT 70 format "zzzzzz9" skip
+      ar-inv.inv-no          AT 70 format "zzzzzzz9" skip
       v-c-city AT 11
       v-c-state v-c-zip skip
       v-c-phone at 11
@@ -126,7 +126,7 @@ form
   v-c-name at 11 skip
   v-c-addr[1] at 11 skip
   v-c-addr[2] at 11 
-  "Inv #:" TO 56 ar-inv.inv-no FORMAT ">>>>>>9" skip
+  "Inv #:" TO 56 ar-inv.inv-no FORMAT ">>>>>>>9" skip
   v-c-city at 11
   v-c-state v-c-zip skip
   v-c-phone at 11
@@ -186,7 +186,7 @@ format skip (7)
       "     Date:" TO 70 ar-inv.inv-date FORMAT "99/99/99" skip
       letterhead[2] AT 5
       letterhead[3] AT 5
-      "Invoice #:" TO 70 ar-inv.inv-no FORMAT ">>>>>>9" skip
+      "Invoice #:" TO 70 ar-inv.inv-no FORMAT ">>>>>>>9" skip
       letterhead[4] AT 5
       letterhead[5] AT 5
       skip (3)
@@ -211,7 +211,7 @@ format skip (2)
       "     Date:" TO 70 ar-inv.inv-date FORMAT "99/99/99" skip
       letterhead[2] AT 5
       letterhead[3] AT 5
-      "Invoice #:" TO 70 ar-inv.inv-no FORMAT ">>>>>>9" skip
+      "Invoice #:" TO 70 ar-inv.inv-no FORMAT ">>>>>>>9" skip
       letterhead[4] AT 5
       letterhead[5] AT 5
       letterhead[6] AT 5

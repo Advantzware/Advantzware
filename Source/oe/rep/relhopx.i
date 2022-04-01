@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relhopx.i  03/05 YSK*/
 /* Print OE Release/Picking tickets    for HOP Xprint                         */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i}
@@ -52,9 +53,9 @@ DEF SHARED VAR s-print-loc-to AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-from AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-to AS cha NO-UNDO.
 
-format w-oe-rell.ord-no                 to 6
-       w-par                            at 8    format "x(20)"
-       v-bin                            at 29   format "x(20)"
+format w-oe-rell.ord-no                 to 8
+       w-par                            at 10    format "x(20)"
+       v-bin                            at 31   format "x(20)"
        w-x                              at 60   format "X/"
        w-pal                            to 65   format "->>>"
        w-cas                            to 70   format "->>>"
@@ -139,15 +140,15 @@ IF ll-display-comp THEN DO:
 
 format
   tt-rell.ord-no
-  tt-rell.po-no at 8
-  tt-rell.loc-bin  AT 23  FORM "x(5)"
-  tt-rell.i-no at 29  oe-ordl.i-name at 44
+  tt-rell.po-no at 10
+  tt-rell.loc-bin  AT 25  FORM "x(5)"
+  tt-rell.i-no AT 31  oe-ordl.i-name at 46
   /*tt-rell.cases format ">>>>>9" to 73                    */
   oe-ordl.qty format "->>>>>>>9" to 83
   tt-rell.qty format "->>>>>>>9" SKIP
-  tt-rell.tag AT 29 FORM "x(15)"
+  tt-rell.tag AT 31 FORM "x(15)"
   oe-ordl.part-dscr1 at 44 format "x(30)" skip
-    oe-ordl.part-no AT 29
+    oe-ordl.part-no AT 31
     oe-ordl.part-dscr2 at 44 format "x(30)"
   /*locbin[2] at 23     
   locbin[3] at 23

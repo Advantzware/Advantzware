@@ -222,9 +222,7 @@ assign
 
         if v-print-fmt eq "RFC" then
           if po-ordl.job-no ne "" then
-            v-ino-job = string(fill(" ",6 - length( trim(po-ordl.job-no)))) +
-                                        trim(po-ordl.job-no) + "-" +
-                                 string(po-ordl.job-no2).
+            v-ino-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))).
           else
             assign v-ino-job = "".
         else
@@ -299,11 +297,9 @@ assign
               assign v-len = ( v-len * 16 ) / 100.
               assign v-len = truncate(po-ordl.s-len,0) + v-len.
 
-              find first job where job.company eq cocode and
-                                 job.job-no eq string(fill(" ",6 - length(
-                                                trim(po-ordl.job-no)))) +
-                                                trim(po-ordl.job-no) and
-                                 job.job-no2 eq po-ordl.job-no2
+              find first job WHERE job.company EQ cocode AND
+                                 TRIM(job.job-no) EQ TRIM(po-ordl.job-no) AND
+                                 job.job-no2 EQ po-ordl.job-no2
                                  no-lock no-error.
               if avail job then
               do:

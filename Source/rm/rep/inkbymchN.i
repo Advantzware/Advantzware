@@ -1,15 +1,14 @@
 /* ---------------------------------------------- rm/rep/inkbymchN.i 12/00 JLF */
 /* Ink by Machine                                                             */
 /* -------------------------------------------------------------------------- */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
-      and job-hdr.company eq cocode
-      and job-hdr.job-no  ge substr(v-fjob,1,6)
-      and job-hdr.job-no  le substr(v-tjob,1,6)
-      and fill(" ",6 - length(trim(job-hdr.job-no))) +
-          trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99")
+      and job-hdr.company eq cocode      
+      and FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
+          trim(job-hdr.job-no) + string(job-hdr.job-no2,"999")
                           ge v-fjob
-      and fill(" ",6 - length(trim(job-hdr.job-no))) +
-          trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99")
+      and FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
+          trim(job-hdr.job-no) + string(job-hdr.job-no2,"999")
                           le v-tjob
     use-index opened no-lock,
     
@@ -144,8 +143,8 @@
         AND tt-report.key-02 EQ (string(year(v-date),"9999") +
                                  string(month(v-date),"99") + 
                                  string(day(v-date),"99") +
-                                 fill(" ",6 - length(trim(job.job-no))) +
-                                 trim(job.job-no) + "-" + string(job.job-no2,"99")) 
+                                 FILL(" ", iJobLen - length(trim(job.job-no))) +
+                                 trim(job.job-no) + "-" + string(job.job-no2,"999")) 
          NO-LOCK NO-ERROR.
 
     IF NOT AVAIL tt-report THEN do:
@@ -156,8 +155,8 @@
              tt-report.key-02  = string(year(v-date),"9999") +
                                  string(month(v-date),"99") + 
                                  string(day(v-date),"99") +
-                                 fill(" ",6 - length(trim(job.job-no))) +
-                                 trim(job.job-no) + "-" + string(job.job-no2,"99")
+                                 FILL(" ", iJobLen - length(trim(job.job-no))) +
+                                 trim(job.job-no) + "-" + string(job.job-no2,"999")
              tt-report.key-03  = string(job-mch.frm,"9999999999")
              tt-report.key-04  = string(9999999999 - job-mch.pass,"9999999999")
              tt-report.key-05  = job-mat.i-no

@@ -1211,7 +1211,7 @@ display "" with frame r-top.
 
      IF mch-srt.run-std-hr EQ ? THEN mch-srt.run-std-hr = 0.
 
-     a = fill(" ",6 - length(trim(mch-srt.job-no))) +
+     a = FILL(" ", iJobLen - length(trim(mch-srt.job-no))) +
          trim(mch-srt.job-no) + "-" +
          string(mch-srt.job-no2,"99").
 

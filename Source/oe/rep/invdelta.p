@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invdelta.p  */
 /* PRINT INVOICE   delta             */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -620,7 +620,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
           
             PUT SPACE(1) v-ship-qty FORMAT "->>>>>>9" SPACE(1)
                 inv-line.inv-qty  FORMAT "->>>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(2)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  FORMAT "x(15)" SPACE(3)
                 v-i-dscr  FORMAT "x(25)" SPACE(3)
                 v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(1)

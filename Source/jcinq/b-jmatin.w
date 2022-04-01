@@ -177,7 +177,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      tt-mat.form-no  COLUMN-LABEL "Sheet" FORMAT ">>>":U LABEL-BGCOLOR 14
+      tt-mat.form-no  COLUMN-LABEL "Form" FORMAT ">>>":U LABEL-BGCOLOR 14
       tt-mat.blank-no COLUMN-LABEL "Blank" FORMAT ">>>":U LABEL-BGCOLOR 14
       tt-mat.rm-i-no  COLUMN-LABEL "RM Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       tt-mat.qty-std  COLUMN-LABEL "Standard Qty" FORMAT "->>>,>>>.<<<<":U LABEL-BGCOLOR 14

@@ -1,10 +1,10 @@
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /*{sys/form/r-top3w.f}*/
 
 /*form header skip(1) with frame r-top.*/
 
 def var v-fcust like cust.cust-no extent 2 init ["","zzzzzzzz"] no-undo.
-def var v-ford-no as int format ">>>>>>" extent 2 init [0,999999] no-undo.
+def var v-ford-no as int format ">>>>>>>9" extent 2 init [0,99999999] no-undo.
 def var v-fdate as date extent 2 format "99/99/9999" init [today, 12/31/9999] no-undo.
 def var v-fitem as char format "x(15)" extent 2 init ["","zzzzzzzzzzzzzzz"] no-undo.
 def var v-fsman as char format "xxx" extent 2 init ["","zzz"] no-undo.
@@ -52,7 +52,7 @@ def temp-table w-ord
   field t-price like oe-ordl.t-price format "->>,>>>,>>9"
   field rel-qty like oe-rel.qty
   field rel-date as char format "x(9)"
-  field job as char format "x(9)"
+  field job as char format "x(13)"
   field job-no like oe-ordl.job-no
   field job-no2 like oe-ordl.job-no2
   field rel-no like oe-rel.rel-no

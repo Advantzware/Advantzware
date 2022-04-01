@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -35,6 +37,7 @@ def input parameter ip-loc-bin like wiptag.rm-bin no-undo.
 def input parameter ip-tag like wiptag.rm-tag-no no-undo.
 def input parameter ip-job like wiptag.job-no no-undo.
 def output parameter op-rowid-val AS ROWID no-undo.
+{sys/inc/var.i}
 
 /* Local Variable Definitions ---                                       */
 DEF SHARED TEMP-TABLE tt-selected FIELD tt-rowid AS ROWID.
@@ -77,12 +80,12 @@ wiptag.rm-tag-no /*rm-bin.qty */
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH wiptag WHERE ~{&KEY-PHRASE} ~
       AND wiptag.company = ip-company ~
       AND wiptag.sts          EQ "Printed" ~
-      AND wiptag.rm-i-no = ip-i-no AND wiptag.job-no = ip-job NO-LOCK ~
+      AND wiptag.rm-i-no = ip-i-no AND TRIM(wiptag.job-no) = TRIM(ip-job) NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH wiptag WHERE ~{&KEY-PHRASE} ~
       AND wiptag.company = ip-company ~
       AND wiptag.sts          EQ "Printed" ~
-      AND wiptag.rm-i-no = ip-i-no AND wiptag.job-no = ip-job NO-LOCK ~
+      AND wiptag.rm-i-no = ip-i-no AND TRIM(wiptag.job-no) = TRIM(ip-job) NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 wiptag
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 wiptag
@@ -425,7 +428,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     FOR EACH b-wiptag
         WHERE b-wiptag.company EQ ip-company
           AND b-wiptag.rm-i-no    EQ ip-i-no
-          AND b-wiptag.job-no     EQ ip-job
+          AND TRIM(b-wiptag.job-no)     EQ TRIM(ip-job)
           AND b-wiptag.sts          EQ "Printed"
           AND STRING(b-wiptag.rm-whs,"x(20)")     +
               STRING(b-wiptag.rm-bin,"x(20)") +

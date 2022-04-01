@@ -103,7 +103,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     form header
      "INVOICE" at 40
      ar-inv.inv-date       to 66 FORMAT "99/99/99" 
-     ar-inv.inv-no         to 77
+     ar-inv.inv-no         to 77 FORMAT ">>>>>>>9"
      skip(7)
      "SOLD TO" at 2 "SHIP TO" at 47 skip(1)
      cust.name             at 2

@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolxprt30.i           */
 /* PRINT detail                                                               */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 v-tot-cases = 0.
@@ -79,9 +80,9 @@ FOR EACH tt-boll,
                 IF i EQ 2 THEN
                     ASSIGN
                         v-part-dscr = oe-ordl.i-name
-                        v-job-po    = IF oe-ordl.job-no EQ "" THEN "" ELSE
-                    (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
-    
+                        v-job-po    = IF oe-ordl.job-no EQ "" THEN "" ELSE 
+                                      TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
+                        
                 ELSE
                     IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr1.
 
@@ -110,9 +111,9 @@ FOR EACH tt-boll,
                 IF i EQ 2 THEN
                     ASSIGN
                         v-part-dscr = oe-ordl.i-name
-                        v-job-po    = IF oe-ordl.job-no EQ "" THEN "" ELSE
-                    (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
-
+                        v-job-po    = IF oe-ordl.job-no EQ "" THEN "" ELSE 
+                                      TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
+                    
                 ELSE IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr1.
 
                     ELSE IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr2.
@@ -160,9 +161,9 @@ FOR EACH tt-boll,
                 IF i EQ 2 THEN
                     ASSIGN
                         v-part-dscr = oe-ordl.i-name
-                        v-job-po    = IF oe-ordl.job-no EQ "" THEN "" ELSE
-                    (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
-
+                        v-job-po    = IF oe-ordl.job-no EQ "" THEN "" ELSE 
+                                      TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
+                    
                 ELSE
                     IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr1.
 
@@ -171,8 +172,8 @@ FOR EACH tt-boll,
     
             IF i = 2 AND v-job-po = "" THEN
                 v-job-po = IF tt-boll.job-no EQ "" THEN "" ELSE
-                    (TRIM(tt-boll.job-no) + "-" + string(tt-boll.job-no2,"99"))                 .
-
+                           TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-boll.job-no, tt-boll.job-no2))).
+                    
             IF v-part-dscr NE "" OR v-job-po NE "" OR i LE 2 THEN 
             DO:
                 IF v-printline >= 48 THEN 

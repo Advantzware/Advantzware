@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */     
 
 CREATE WIDGET-POOL.
 
@@ -268,15 +269,15 @@ DEFINE VARIABLE begin_i-no     AS CHARACTER FORMAT "X(15)":U
     VIEW-AS FILL-IN 
     SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.5 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_ord-date AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
     LABEL "Beginning Order Date" 
@@ -303,15 +304,15 @@ DEFINE VARIABLE end_i-no       AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzz
     VIEW-AS FILL-IN 
     SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.5 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_ord-date   AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
     LABEL "Ending Order Date" 
@@ -501,11 +502,11 @@ DEFINE FRAME FRAME-A
     "Enter Ending Customer PO Number"
     begin_job-no AT ROW 5.62 COL 29.2 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    begin_job-no2 AT ROW 5.62 COL 45.2 COLON-ALIGNED HELP
+    begin_job-no2 AT ROW 5.62 COL 44.6 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
     end_job-no AT ROW 5.62 COL 77.2 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    end_job-no2 AT ROW 5.62 COL 93.2 COLON-ALIGNED HELP
+    end_job-no2 AT ROW 5.62 COL 92.6 COLON-ALIGNED HELP
     "Enter Ending Job Number"
     begin_i-no AT ROW 6.57 COL 29.2 COLON-ALIGNED HELP
     "Enter Beginning Item Number"
@@ -1652,17 +1653,15 @@ PROCEDURE build-tt :
     DEFINE BUFFER b-inv-line FOR inv-line.
 
     DEFINE VARIABLE v-po-no   LIKE oe-ord.po-no NO-UNDO.
-    DEFINE VARIABLE v-job     LIKE oe-ord.job-no EXTENT 2 INIT ["","zzzzzz"].
-    DEFINE VARIABLE v-job2    LIKE oe-ord.job-no2 FORMAT "99" EXTENT 2 INIT [0,99].
+    DEFINE VARIABLE v-job     LIKE oe-ord.job-no EXTENT 2 INIT ["","zzzzzzzzz"].
+    DEFINE VARIABLE v-job2    LIKE oe-ord.job-no2 FORMAT "999" EXTENT 2 INIT [0,999].
     DEFINE VARIABLE temp-job1 AS CHARACTER NO-UNDO.
     temp-job1 = TRIM(END_job-no).
     IF temp-job1 = "" THEN
-        temp-job1 = "zzzzzz".
+        temp-job1 = "zzzzzzzzz".
     ASSIGN
-        v-job[1] = FILL(" ",6 - length(TRIM(begin_job-no))) +
-              trim(begin_job-no) + string(int(begin_job-no2),"99")
-        v-job[2] = FILL(" ",6 - length(TRIM(temp-job1)))   +
-              temp-job1   + string(int(end_job-no2),"99").
+        v-job[1] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2))
+        v-job[2] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', temp-job1, end_job-no2)).
 
     /* IF rd_prt-po EQ "Line" THEN
         v-po-no = oe-ordl.po-no.
@@ -1759,10 +1758,12 @@ PROCEDURE build-tt :
         WHERE job-hdr.company EQ cocode
         AND job-hdr.ord-no  EQ oe-ordl.ord-no
         AND job-hdr.i-no    EQ oe-ordl.i-no
-        AND (FILL(" ",6 - length(TRIM(job-hdr.job-no))) +
-        trim(job-hdr.job-no) + string(job-hdr.job-no2,"99") GE v-job[1]
-        AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
-        trim(job-hdr.job-no) + string(job-hdr.job-no2,"99") LE v-job[2])
+        AND (FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) +
+        trim(job-hdr.job-no) + string(job-hdr.job-no2,"999") GE v-job[1]
+        AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) +
+        trim(job-hdr.job-no) + string(job-hdr.job-no2,"999") LE v-job[2])
+        AND job-hdr.job-no2 GE int(begin_job-no2)
+        AND job-hdr.job-no2 LE int(end_job-no2)
         USE-INDEX opened NO-LOCK NO-ERROR.
 
 
@@ -1802,9 +1803,7 @@ PROCEDURE build-tt :
                           STRING(MONTH(oe-ordl.req-date),"99")  +
                           STRING(DAY(oe-ordl.req-date),"99")    +
                           STRING(oe-ordl.part-no,"x(15)") + STRING(oe-ord.ord-no,"99999999999"))              
-        tt-report.key-04  = FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-                       TRIM(job-hdr.job-no) + "-" +
-                       STRING(job-hdr.job-no2,"99")
+        tt-report.key-04  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))
         tt-report.key-05  = STRING(oe-ord.ord-no,"99999999999")
         tt-report.key-06  = oe-ordl.i-no
         tt-report.key-07  = STRING(YEAR(ip-date),"9999") +
@@ -2450,8 +2449,8 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-cust         LIKE oe-ord.cust-no EXTENT 2 INIT ["","zzzzzzzz"].
     DEFINE VARIABLE v-date         LIKE ar-inv.inv-date FORMAT "99/99/9999"
         EXTENT 2 INIT [TODAY, 12/31/9999].
-    DEFINE VARIABLE v-job          LIKE oe-ord.job-no EXTENT 2 INIT ["","zzzzzz"].
-    DEFINE VARIABLE v-job2         LIKE oe-ord.job-no2 FORMAT "99" EXTENT 2 INIT [0,99].
+    DEFINE VARIABLE v-job          LIKE oe-ord.job-no EXTENT 2 INIT ["","zzzzzzzzz"].
+    DEFINE VARIABLE v-job2         LIKE oe-ord.job-no2 FORMAT "999" EXTENT 2 INIT [0,999].
     DEFINE VARIABLE v-item         LIKE oe-ordl.i-no EXTENT 2 INIT ["","zzzzzzzzzzzzzzz"].
     DEFINE VARIABLE v-inc          AS LOG       FORMAT "Yes/No" INIT YES.
     DEFINE VARIABLE v-stat         AS CHARACTER FORMAT "!" INIT "A".
@@ -2531,7 +2530,7 @@ PROCEDURE run-report :
         "Qty On-Hand"
         SKIP
         "---------------"
-        "-----------"
+        "-------------"
         "---------------"
         "---------------"
         "---------------"
@@ -2563,10 +2562,8 @@ PROCEDURE run-report :
         v-date[2] = end_ord-date
         v-po[1]   = begin_po-no
         v-po[2]   = end_po-no
-        v-job[1]  = FILL(" ",6 - length(TRIM(begin_job-no))) +
-              trim(begin_job-no) + string(int(begin_job-no2),"99")
-        v-job[2]  = FILL(" ",6 - length(TRIM(end_job-no)))   +
-              trim(end_job-no)   + string(int(end_job-no2),"99")
+        v-job[1]  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2))
+        v-job[2]  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2))
         v-item[1] = begin_i-no
         v-item[2] = end_i-no
         v-sort    = substr(rd_sort,1,1)

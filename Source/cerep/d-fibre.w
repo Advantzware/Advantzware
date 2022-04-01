@@ -129,7 +129,7 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "x(9)" 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "x(13)" 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
@@ -372,7 +372,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
               BY job-mat.j-no:
 
       IF FIRST-OF(job-mch.frm) THEN DO:
-        fi_job-no = TRIM(job-mch.job-no) + "-" + STRING(job-mch.job-no2,"99").
+        fi_job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-mch.job-no, job-mch.job-no2))).
 
         RUN enable_UI.
  

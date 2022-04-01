@@ -193,7 +193,7 @@ FOR EACH tt-report,
            tt-ap-tax.amt      = v-jd-taxamt
            tt-ap-tax.curr-amt = v-jd-taxamt *
                                 (IF AVAIL currency THEN currency.ex-rate ELSE 1)
-           tt-ap-tax.cDescription = "Vendor:" + STRING(vend.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"9999999").
+           tt-ap-tax.cDescription = "Vendor:" + STRING(vend.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"99999999").
            .
 
           PUT tt-ap-tax.actnum AT 96 FORMAT "x(19)"
@@ -211,7 +211,7 @@ FOR EACH tt-report,
        tt-ap-tax.amt      = ap-inv.tax-amt
        tt-ap-tax.curr-amt = ap-inv.tax-amt *
                             (IF AVAIL currency THEN currency.ex-rate ELSE 1)
-       tt-ap-tax.cDescription = (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999")
+       tt-ap-tax.cDescription = (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"99999999")
        .
 
       PUT tt-ap-tax.actnum AT 96 FORMAT "x(19)"

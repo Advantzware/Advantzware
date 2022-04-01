@@ -290,7 +290,7 @@ DEFINE FRAME Corr
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Normal","N",
                      "Blank","B",
-                     "Sheet","S"
+                     "Form","S"
           DROP-DOWN-LIST
           SIZE 13 BY 1
      ef.board AT ROW 2.43 COL 12 COLON-ALIGNED
@@ -546,7 +546,7 @@ DEFINE FRAME Corr
      "Adders" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 10.05 COL 5
           FGCOLOR 9 
-     "S  /  B" VIEW-AS TEXT
+     "F  /  B" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 10.29 COL 106
           FGCOLOR 9 
      "Cost/" VIEW-AS TEXT
@@ -1174,16 +1174,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.board V-table-Win
 ON LEAVE OF ef.board IN FRAME Corr /* Board */
 DO:
+   DEF VAR lIsMatlGroup AS LOG NO-UNDO.
+    
    if lastkey <> -1 and self:screen-value <> "" 
    then do:
   {&methods/lValidateError.i YES}
-       find first item where item.company = gcompany and
-                             ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
-                              (index("1234",item.mat-type) > 0 and lv-is-foam) OR
-                              (item.materialType EQ "Wood" AND lWoodStyle) ) and
-                              item.industry = lv-industry and
-                              item.i-no = self:screen-value
-                              no-lock no-error.
+      ASSIGN lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",gcompany, self:screen-value, "Wood") EQ TRUE.
+     
+        FIND FIRST item WHERE 
+            item.company = gcompany AND 
+            (INDEX("BPR1234",item.mat-type) > 0 OR (lIsMatlGroup AND lWoodStyle)) AND 
+            item.industry = lv-industry AND 
+            item.i-no = SELF:SCREEN-VALUE 
+            NO-LOCK NO-ERROR.
+                              
        if not avail item then do:
           message "Invalid Board. Try Help." view-as alert-box error.
           return no-apply.
@@ -3793,6 +3797,8 @@ PROCEDURE local-update-record :
   DEF VAR l-fit-len AS DEC NO-UNDO.
   DEF VAR l-fit-wid AS DEC NO-UNDO.
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  DEF VAR lIsMatlGroup AS LOG NO-UNDO.
+  
   def buffer bf-eb for eb.
 {&methods/lValidateError.i YES}
 IF NOT ll-auto-calc-selected THEN
@@ -3827,15 +3833,15 @@ IF NOT ll-auto-calc-selected THEN
     
     else if ef.m-code:screen-value = "" then ef.m-dscr:screen-value = "". 
 
-    RUN new-m-code.
-
+    RUN new-m-code. 
+    ASSIGN 
+        lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",gcompany, ef.board:screen-value, "Wood") EQ TRUE.
     if EF.BOARD:screen-value <> "" and
-       not can-find (first item where item.company = gcompany and
-                                      ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
-                                      (index("1234",item.mat-type) > 0 and lv-is-foam) OR
-                                      (item.materialType   EQ "Wood" AND lWoodStyle)) and
-                                      item.industry = lv-industry and
-                                      item.i-no = ef.board:screen-value)
+       not CAN-FIND (FIRST item WHERE 
+            item.company = gcompany AND 
+            (INDEX("BPR1234",item.mat-type) > 0 OR (lIsMatlGroup AND lWoodStyle)) AND 
+            item.industry = lv-industry AND 
+            item.i-no = ef.board:SCREEN-VALUE) 
     then do:
          message "Invalid Board. Try Help." view-as alert-box error.
          apply "entry" to ef.board.
@@ -4170,17 +4176,17 @@ PROCEDURE new-board :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lv AS CHAR NO-UNDO.
-
+  DEF VAR lIsMatlGroup AS LOG NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST item
-        WHERE item.company  EQ gcompany
-          AND ((INDEX("BPR",item.mat-type) GT 0 AND NOT lv-is-foam) OR
-               (INDEX("1234",item.mat-type) GT 0 AND lv-is-foam))  OR
-               (item.materialType EQ "Wood" AND lWoodStyle)
-          AND item.industry EQ lv-industry
-          AND item.i-no     EQ ef.board:SCREEN-VALUE
-        NO-LOCK NO-ERROR.
+    ASSIGN 
+        lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",gcompany, ef.board:SCREEN-VALUE, "Wood") EQ TRUE.
+    FIND FIRST item WHERE 
+        item.company = gcompany AND 
+        (INDEX("BPR1234",item.mat-type) > 0 OR (lIsMatlGroup AND lWoodStyle)) AND 
+        item.industry = lv-industry AND 
+        item.i-no = ef.board:SCREEN-VALUE
+        NO-LOCK NO-ERROR. 
     IF AVAIL item AND TRIM(ef.board:SCREEN-VALUE) NE "" THEN DO:
       ASSIGN
        ef.test:SCREEN-VALUE     = item.reg-no

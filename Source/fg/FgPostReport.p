@@ -12,6 +12,7 @@
     Created     : Tue Aug 15 18:32:59 EDT 2017
     Notes       :
   ----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 DEF TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd
@@ -29,13 +30,13 @@ DEF INPUT PARAMETER ip-post-eom-date AS DATE NO-UNDO.
 DEF INPUT PARAMETER ip-run-what AS CHAR NO-UNDO. 
 DEFINE INPUT PARAMETER begin_fg-r-no  AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 0. 
 DEFINE INPUT PARAMETER begin_i-no     AS CHARACTER FORMAT "X(15)":U. 
-DEFINE INPUT PARAMETER begin_job-no   AS CHARACTER FORMAT "X(6)":U. 
+DEFINE INPUT PARAMETER begin_job-no   AS CHARACTER FORMAT "X(9)":U. 
 DEFINE INPUT PARAMETER begin_userid   AS CHARACTER FORMAT "X(8)":U. 
 DEFINE INPUT PARAMETER begin_created  AS CHARACTER FORMAT "X(8)":U.
 DEFINE INPUT PARAMETER begin_whs      AS CHARACTER FORMAT "X(5)":U. 
 DEFINE INPUT PARAMETER end_fg-r-no    AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 99999999. 
 DEFINE INPUT PARAMETER end_i-no       AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz". 
-DEFINE INPUT PARAMETER end_job-no     AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" .
+DEFINE INPUT PARAMETER end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" .
 DEFINE INPUT PARAMETER end_userid     AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz". 
 DEFINE INPUT PARAMETER end_created    AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz". 
 DEFINE INPUT PARAMETER end_whs        AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz". 
@@ -357,10 +358,10 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
 
 SESSION:SET-WAIT-STATE ("general").
 
-IF LENGTH(begin_job-no) < 6 THEN
-    begin_job-no = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) + TRIM(begin_job-no).
-IF LENGTH(end_job-no) < 6 THEN
-    end_job-no = FILL(" ",6 - LENGTH(TRIM(end_job-no))) + TRIM(end_job-no).
+IF LENGTH(begin_job-no) < 9 THEN     
+    begin_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job-no)).
+IF LENGTH(end_job-no) < 9 THEN
+    end_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job-no)) .
 
 /*    IF ip-run-what EQ "" THEN                                    */
 /*        DISPLAY begin_job-no END_job-no WITH FRAME {&FRAME-NAME}.*/
@@ -407,8 +408,8 @@ DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
         AND fg-rctd.i-no      LE end_i-no
         AND fg-rctd.rct-date  GE ldt-from
         AND fg-rctd.rct-date  LE ldt-to
-        AND fg-rctd.job-no    GE begin_job-no
-        AND fg-rctd.job-no    LE end_job-no        
+        AND FILL(" ", iJobLen - length(TRIM(fg-rctd.job-no))) + trim(fg-rctd.job-no) GE begin_job-no
+        AND FILL(" ", iJobLen - length(TRIM(fg-rctd.job-no))) + trim(fg-rctd.job-no) LE end_job-no        
         AND fg-rctd.loc       GE begin_whs
         AND fg-rctd.loc       LE end_whs
         AND ((begin_userid    LE "" AND

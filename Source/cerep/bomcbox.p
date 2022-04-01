@@ -10,8 +10,8 @@ DEFINE INPUT PARAMETER ipl-part-no AS LOG INIT NO NO-UNDO.
 
 def new shared var save_id as recid.
 def new shared var v-today as date init today.
-def new shared var v-job as char format "x(6)" extent 2 init [" ","zzzzzz"].
-def new shared var v-job2 as int format "99" extent 2 init [00,99].
+def new shared var v-job as char format "x(9)" extent 2 init [" ","zzzzzzzzz"].
+def new shared var v-job2 as int format "999" extent 2 init [000,999].
 def new shared var v-stypart like style.dscr.
 def new shared var v-dsc like oe-ordl.part-dscr1 extent 2.
 def new shared var v-size as char format "x(26)" extent 2.
@@ -263,7 +263,7 @@ find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
 FIND FIRST job-hdr NO-LOCK NO-ERROR.
 
 FORM header "<#1><P14> <C30><B>Bill of Materials<P9>" skip(1)
-          "<C3>JOB NUMBER:</B> " trim(v-job-no) + "-" + string(v-job-no2,"99") format "x(9)" 
+          "<C3>JOB NUMBER:</B> " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)"
           "<C40><B>Customer Name:</B> <C53>" v-cust-name SKIP
           "<C3><B>Due Date:</B>   " v-due-date  "<C40><B>Ship To:</B><C53>" v-shipto[1] SKIP
           "<C3><B>Estimate:</B>   " trim(job-hdr.est-no) FORM "x(8)" "<C53>" v-shipto[2] SKIP
@@ -283,15 +283,15 @@ ASSIGN
 PUT "<FCourier New>".
 
 for each job-hdr
-        where job-hdr.company               eq cocode
-          and job-hdr.job-no                ge substr(fjob-no,1,6)
-          and job-hdr.job-no                le substr(tjob-no,1,6)
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  ge fjob-no
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  le tjob-no
+        where job-hdr.company                  eq cocode
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	  	TRIM(job-hdr.job-no) +
+	  	STRING(job-hdr.job-no2,"999")  GE fjob-no
+	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	  	TRIM(job-hdr.job-no) +
+	  	STRING(job-hdr.job-no2,"999")  LE tjob-no
+	  AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2
           /*and job-hdr.ftick-prnt            eq v-reprint
           and can-find(first job where job.company eq cocode
                                    and job.job     eq job-hdr.job
@@ -379,12 +379,13 @@ for each job-hdr
                       AND eb.est-no      eq job-hdr.est-no
                       and eb.form-no     eq job-hdr.frm
                       AND eb.blank-no > 0 NO-LOCK NO-ERROR.
-         v-bar-no = IF AVAIL eb THEN eb.spc-no ELSE trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99").
+         v-bar-no = IF AVAIL eb THEN eb.spc-no 
+         	    ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
          
 
          if first(job-hdr.job-no) then 
             PUT "<#1><P14> <C30><B>Bill of Materials<P9>" skip(1)
-              "<C3>JOB NUMBER:</B> " trim(v-job-no) + "-" + string(v-job-no2,"99") format "x(9)" 
+              "<C3>JOB NUMBER:</B> " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)"
               "<C40><B>Customer Name:</B> <C53>" v-cust-name SKIP
               "<C3><B>Due Date:</B>   " v-due-date  "<C40><B>Ship To:</B><C53>" v-shipto[1] SKIP
               "<C3><B>Estimate:</B>   " trim(job-hdr.est-no) FORM "x(8)" "<C53>" v-shipto[2] SKIP

@@ -205,7 +205,7 @@ PROCEDURE pBusinessLogic:
                     IF ar-invl.misc THEN ar-invl.i-name ELSE
                     IF ar-invl.i-no NE "" THEN ar-invl.i-no ELSE
                     "AR SALE",
-                    STRING(ar-inv.inv-no,"9999999"), "").
+                    STRING(ar-inv.inv-no,"99999999"), "").
             END.
                                        
             DELETE tt-report.

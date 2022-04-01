@@ -32,6 +32,7 @@ DEF INPUT PARAM ip-company LIKE itemfg.company NO-UNDO.
 DEF INPUT PARAM ip-m-code AS cha NO-UNDO.
 DEF INPUT PARAM ip-cur-val AS cha NO-UNDO.
 DEF OUTPUT PARAM op-char-val AS cha NO-UNDO. /* string i-code + i-name */
+{sys/inc/var.i}
 
 /* Local Variable Definitions ---                                       */
 DEF VAR lv-type-dscr AS cha NO-UNDO.

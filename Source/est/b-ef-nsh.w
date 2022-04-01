@@ -176,7 +176,7 @@ DEFINE BROWSE br_table
       ef-nsh.pass-no FORMAT ">>>>>>":U
       ef-nsh.orig-no COLUMN-LABEL "Dropped!from Pass#" FORMAT ">>>>>>":U
             WIDTH 12
-      ef-nsh.sheet-no FORMAT ">>>>>>":U WIDTH 8
+      ef-nsh.sheet-no COLUMN-LABEL "Form #" FORMAT ">>>>>>":U WIDTH 8
       ef-nsh.dept FORMAT "x(2)":U
       ef-nsh.wid-in COLUMN-LABEL "Width IN" FORMAT ">,>>9.99<<":U
             WIDTH 12
@@ -423,7 +423,7 @@ END.
 
 &Scoped-define SELF-NAME ef-nsh.sheet-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef-nsh.sheet-no br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF ef-nsh.sheet-no IN BROWSE br_table /* Sheet# */
+ON ENTRY OF ef-nsh.sheet-no IN BROWSE br_table /* Form# */
 DO:
   IF INT(ef-nsh.pass-no:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 1 THEN DO:
     APPLY "tab" TO {&self-name}.
@@ -436,7 +436,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef-nsh.sheet-no br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF ef-nsh.sheet-no IN BROWSE br_table /* Sheet# */
+ON LEAVE OF ef-nsh.sheet-no IN BROWSE br_table /* Form# */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-sheet-no NO-ERROR.

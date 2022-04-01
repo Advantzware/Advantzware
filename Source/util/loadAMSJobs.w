@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -105,15 +106,15 @@ DEFINE VARIABLE begin_date    AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/0
     VIEW-AS FILL-IN 
     SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no  AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no  AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+    SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_date      AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
     LABEL "Ending Date" 
@@ -518,10 +519,8 @@ PROCEDURE pRunProcess :
     ASSIGN
         v-stat  = SUBSTR(rd_jstat,1,1)
 
-        v-fjob  = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-                      TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
-        v-tjob  = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
-                      TRIM(end_job-no)   + STRING(INT(end_job-no2),"99")  
+        v-fjob  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+        v-tjob  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
         v-fdate = begin_date
         v-tdate = END_date.
     
@@ -530,15 +529,15 @@ PROCEDURE pRunProcess :
         EMPTY TEMP-TABLE  ttJob. 
           
         FOR EACH job-hdr
-            WHERE job-hdr.company EQ cocode
-            AND job-hdr.job-no  GE SUBSTR(v-fjob,1,6)
-            AND job-hdr.job-no  LE SUBSTR(v-tjob,1,6)
-            AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-            TRIM(job-hdr.job-no) + STRING(job-hdr.job-no2,"99")
+            WHERE job-hdr.company EQ cocode             
+            AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+            TRIM(job-hdr.job-no) + STRING(job-hdr.job-no2,"999")
             GE v-fjob
-            AND fill(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-            TRIM(job-hdr.job-no) + STRING(job-hdr.job-no2,"99")
+            AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+            TRIM(job-hdr.job-no) + STRING(job-hdr.job-no2,"999")
             LE v-tjob
+            AND job-hdr.job-no2 GE int(begin_job-no2)
+            AND job-hdr.job-no2 LE int(end_job-no2)
             NO-LOCK,
 
             FIRST job

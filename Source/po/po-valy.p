@@ -451,8 +451,8 @@ assign
                v-len = po-ordl.s-len
                v-vend-item = po-ordl.vend-i-no.
 
-        v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99").
-        IF v-job-no = "-00" THEN v-job-no = "".
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))).
+        IF v-job-no = "-000" THEN v-job-no = "".
         v-adder = "".
         ASSIGN v-basis-w = 0
                v-dep     = 0.
@@ -520,8 +520,7 @@ assign
         if avail item and item.mat-type eq "B" then do:
           find first job
               where job.company eq cocode
-                and job.job-no  eq fill(" ",6 - length(trim(po-ordl.job-no))) +
-                                   trim(po-ordl.job-no)
+                and trim(job.job-no)  eq trim(po-ordl.job-no)
                 and job.job-no2 eq po-ordl.job-no2
               no-lock no-error.
         
@@ -589,7 +588,7 @@ assign
                po-ordl.pr-qty-uom SPACE(1)
                po-ordl.i-no FORM "x(30)" SPACE(1)
                /*v-adder[1] */
-               v-job-no FORM "x(9)" AT 80 SPACE(1)
+               v-job-no FORM "x(13)" AT 78 SPACE(1)
                po-ordl.cost FORM "->>>9.99<<"
                po-ordl.pr-uom
                v-t-cost /*po-ordl.t-cost*/ FORM "$>>>,>>9.99" SKIP.
@@ -606,9 +605,9 @@ assign
                /*v-ord-qty FORM "->>>>,>>>,>>9"*/
                vs-ord-qty FORM "x(13)" /*"->>>>>>,>>9.9<<"*/ SPACE(3) /* no qty display space(16) */                               
                po-ordl.pr-qty-uom SPACE(1)
-               po-ordl.i-no FORM "x(30)" SPACE(1)
+               po-ordl.i-no FORM "x(26)" SPACE(1)
                v-adder[1]
-               v-job-no FORM "x(9)" AT 79 SPACE(1)
+               v-job-no FORM "x(13)" AT 78 SPACE(1)
                v-po-cost FORM "->>>9.99<<" SPACE(1)
                po-ordl.pr-uom
                v-t-cost /*po-ordl.t-cost*/ FORM "$>>>,>>9.99"  SKIP. 

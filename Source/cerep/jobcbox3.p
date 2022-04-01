@@ -136,7 +136,7 @@ FOR EACH tt-job-hdr BY tt-job-hdr.job:
     IF ld-mach-qty LT ld-undr-qty OR
        ld-mach-qty GT ld-over-qty THEN
       MESSAGE "Job#/Form#/Blank# "                                            +
-              TRIM(job-mch.job-no) + "-" + STRING(job-mch.job-no2,"99") + "/" +
+              TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-mch.job-no, job-mch.job-no2))) + "/" +
               STRING(job-mch.frm,"99")                                  + "/" +
               STRING(job-mch.blank-no,"99")                                   +
               " requires between "                                            +

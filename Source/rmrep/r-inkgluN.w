@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -51,9 +52,9 @@ DEFINE VARIABLE v-tpcat                     LIKE v-fpcat INIT "zzzzz".
 DEFINE VARIABLE v-fdate                     AS DATE      FORMAT "99/99/9999" INIT 01/01/0001.
 DEFINE VARIABLE v-tdate                     LIKE v-fdate INIT TODAY.
 DEFINE VARIABLE v-fjob                      LIKE job.job-no.
-DEFINE VARIABLE v-tjob                      LIKE v-fjob INIT "zzzzzz".
-DEFINE VARIABLE v-fjob2                     LIKE job.job-no2 FORMAT "99".
-DEFINE VARIABLE v-tjob2                     LIKE v-fjob2 INIT 99.
+DEFINE VARIABLE v-tjob                      LIKE v-fjob INIT "zzzzzzzzz".
+DEFINE VARIABLE v-fjob2                     LIKE job.job-no2 FORMAT "999".
+DEFINE VARIABLE v-tjob2                     LIKE v-fjob2 INIT 999.
 DEFINE VARIABLE v-mtype                     AS CHARACTER FORMAT "x(47)".
 DEFINE VARIABLE v-export                    AS LOG       INIT NO FORMAT "Y/N".
 DEFINE VARIABLE v-exp-name                  AS CHARACTER FORMAT "x(40)" INIT "rmtrans3.csv".
@@ -164,7 +165,7 @@ ASSIGN
                            "Pickup%,Wax-Coat Weight,Produced,Qty Issued/Lbs,Machine,FG Category"
     cFieldListToSelect = "rm-item,date,job,board,sht-iss,brd-msf,brd-wit," +
                             "pck,wax-coat,prod,qty-iss,mach,fg-cat"
-    cFieldLength       = "10,10,9,10,13,10,12," + "8,15,14,16,7,11"
+    cFieldLength       = "10,10,13,10,13,10,12," + "8,15,14,16,7,11"
     cFieldType         = "c,c,c,c,i,i,i," + "i,i,i,i,c,c" 
     .
 
@@ -243,15 +244,15 @@ DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/
     VIEW-AS FILL-IN 
     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_procat   AS CHARACTER FORMAT "X(5)":U 
     LABEL "Beginning RM Category" 
@@ -273,15 +274,15 @@ DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/
     VIEW-AS FILL-IN 
     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_procat     AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
     LABEL "Ending RM Category" 
@@ -393,13 +394,13 @@ DEFINE FRAME FRAME-A
     "Enter Beginning Date"
     end_date AT ROW 5.14 COL 69.4 COLON-ALIGNED HELP
     "Enter ending Date"
-    begin_job-no AT ROW 6.1 COL 28.4 COLON-ALIGNED HELP
+    begin_job-no AT ROW 6.1 COL 26 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    begin_job-no2 AT ROW 6.1 COL 40.4 COLON-ALIGNED HELP
+    begin_job-no2 AT ROW 6.1 COL 40.0 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    end_job-no AT ROW 6.1 COL 69.4 COLON-ALIGNED HELP
+    end_job-no AT ROW 6.1 COL 67 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    end_job-no2 AT ROW 6.1 COL 81.4 COLON-ALIGNED HELP
+    end_job-no2 AT ROW 6.1 COL 81.0 COLON-ALIGNED HELP
     "Enter Ending Job Number"
     select-mat AT ROW 8.14 COL 25 HELP
     "Enter description of this Material Type." NO-LABELS
@@ -1524,10 +1525,8 @@ PROCEDURE print-coat-wax :
         v-tpcat    = end_procat
         v-fdate    = begin_date
         v-tdate    = end_date
-        v-fjob     = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-              TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
-        v-tjob     = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
-              TRIM(end_job-no)   + STRING(INT(end_job-no2),"99")
+        v-fjob     = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+        v-tjob     = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2))  
         v-export   = rd-dest EQ 3
         v-exp-name = cFileName
         v-fCat     = begin_cat
@@ -1568,7 +1567,7 @@ PROCEDURE print-coat-wax :
         OUTPUT STREAM s-temp TO VALUE(v-exp-name).
         PUT STREAM s-temp UNFORMATTED excelheader SKIP.
     END.
-
+             
     FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
         AND rm-rcpth.i-no       GE v-fitem
         AND rm-rcpth.i-no       LE v-titem
@@ -1577,13 +1576,11 @@ PROCEDURE print-coat-wax :
         AND rm-rcpth.rita-code  EQ "I"
         USE-INDEX i-no NO-LOCK,
         EACH rm-rdtlh WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
-        AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
-        AND rm-rdtlh.job-no    GE substr(v-fjob,1,6)
-        AND rm-rdtlh.job-no    LE substr(v-tjob,1,6)
-        AND FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
-        TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"99") GE v-fjob
-        AND FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
-        TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"99") LE v-tjob NO-LOCK,
+        AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code         
+        AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
+        TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"999") GE v-fjob
+        AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
+        TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"999") LE v-tjob NO-LOCK,
         FIRST item WHERE item.company EQ cocode
         AND item.i-no    EQ rm-rcpth.i-no
         AND item.procat  GE v-fpcat
@@ -1602,10 +1599,9 @@ PROCEDURE print-coat-wax :
 
         IF FIRST-OF(rm-rcpth.trans-date) THEN v-first[1] = YES.
 
-        v-job-no = FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
-            TRIM(rm-rdtlh.job-no) + "-" + STRING(rm-rdtlh.job-no2,"99").
+        v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', rm-rdtlh.job-no, rm-rdtlh.job-no2)) .
 
-        IF v-job-no BEGINS "-" THEN v-job-no = "".
+        IF trim(v-job-no) BEGINS "-" THEN v-job-no = "".
 
         v-rm-qty = rm-rdtlh.qty.
 
@@ -1816,7 +1812,7 @@ PROCEDURE print-coat-wax :
                     WHEN "date"   THEN 
                         cVarValue =  STRING(tt-wax-coats.trans-date,"99/99/9999").
                     WHEN "job"   THEN 
-                        cVarValue = STRING(tt-wax-coats.job-no,"x(9)").
+                        cVarValue = STRING(tt-wax-coats.job-no,"x(13)").
                     WHEN "board"  THEN 
                         cVarValue = STRING(tt-wax-coats.board,"x(8)") .
                     WHEN "sht-iss"   THEN 
@@ -2015,7 +2011,7 @@ PROCEDURE print-coat-wax :
                     WHEN "date"   THEN 
                         cVarValue =  STRING(tt-wax-coats.trans-date,"99/99/9999").
                     WHEN "job"   THEN 
-                        cVarValue = STRING(tt-wax-coats.job-no,"x(9)").
+                        cVarValue = STRING(tt-wax-coats.job-no,"x(13)").
                     WHEN "board"  THEN 
                         cVarValue = STRING(tt-wax-coats.board,"x(8)") .
                     WHEN "sht-iss"   THEN 
@@ -2261,10 +2257,8 @@ PROCEDURE print-inks-glues :
         v-tpcat    = end_procat
         v-fdate    = begin_date
         v-tdate    = end_date
-        v-fjob     = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-              TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
-        v-tjob     = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
-              TRIM(end_job-no)   + STRING(INT(end_job-no2),"99")
+        v-fjob     = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+        v-tjob     = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
         v-exp-name = cFileName
         v-fCat     = begin_cat
         v-tCat     = END_cat
@@ -2312,7 +2306,7 @@ PROCEDURE print-inks-glues :
         OUTPUT STREAM s-temp TO VALUE(v-exp-name).
         PUT STREAM s-temp UNFORMATTED v-hdr SKIP.
     END.
-
+           
 
     FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
         AND rm-rcpth.i-no       GE v-fitem
@@ -2322,13 +2316,11 @@ PROCEDURE print-inks-glues :
         AND rm-rcpth.rita-code  EQ "I"
         USE-INDEX i-no NO-LOCK,
         EACH rm-rdtlh WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
-        AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
-        AND rm-rdtlh.job-no    GE substr(v-fjob,1,6)
-        AND rm-rdtlh.job-no    LE substr(v-tjob,1,6)
-        AND FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
-        TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"99") GE v-fjob
-        AND FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
-        TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"99") LE v-tjob NO-LOCK,
+        AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code          
+        AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
+        TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"999") GE v-fjob
+        AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
+        TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"999") LE v-tjob NO-LOCK,
         FIRST item WHERE item.company EQ cocode
         AND item.i-no    EQ rm-rcpth.i-no
         AND item.procat  GE v-fpcat
@@ -2345,10 +2337,9 @@ PROCEDURE print-inks-glues :
 
         IF FIRST-OF(rm-rcpth.trans-date) THEN v-first[1] = YES.
 
-        v-job-no = FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
-            TRIM(rm-rdtlh.job-no) + "-" + STRING(rm-rdtlh.job-no2,"99").
+        v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', rm-rdtlh.job-no, rm-rdtlh.job-no2)) .
 
-        IF v-job-no BEGINS "-" THEN v-job-no = "".
+        IF trim(v-job-no) BEGINS "-" THEN v-job-no = "".
 
         v-rm-qty = rm-rdtlh.qty.
 

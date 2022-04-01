@@ -33,6 +33,8 @@ def input param ip-value as cha no-undo.
 DEFINE INPUT PARAMETER ip-list AS CHARACTER NO-UNDO .
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 
+{sys/inc/var.i}
+
 def var v-duelist as cha init "" no-undo.
 ASSIGN v-duelist = ip-list .
 def temp-table tt-table field code as cha form "x(8)"

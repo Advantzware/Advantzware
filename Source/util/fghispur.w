@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -107,15 +108,15 @@ DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U
     VIEW-AS FILL-IN 
     SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_type AS CHARACTER FORMAT "X(1)":U 
     LABEL "From Trans Type" 
@@ -132,15 +133,15 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz"
     VIEW-AS FILL-IN 
     SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_type AS CHARACTER FORMAT "X(1)":U INITIAL "z" 
     LABEL "To Trans Type" 
@@ -535,8 +536,8 @@ PROCEDURE run-process :
         titm      = end_i-no
         fdat      = begin_date
         tdat      = end_date
-        fjob      = FILL(" ",6 - length(TRIM(begin_job-no))) + trim(begin_job-no) + string(int(begin_job-no2),"99")
-        tjob      = FILL(" ",6 - length(TRIM(end_job-no)))   + trim(end_job-no)   + string(int(end_job-no2),"99")
+        fjob      = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+        tjob      = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
         v-process = NO
         ftyp     = begin_type
         ttyp     = END_type
@@ -559,14 +560,13 @@ PROCEDURE run-process :
                 fg-rcpth.trans-date LE tdat AND 
                 fg-rcpth.rita-code  GE ftyp AND 
                 fg-rcpth.rita-code  LE ttyp AND 
-                fg-rcpth.job-no     GE FILL(" ",6 - LENGTH(TRIM(begin_job-no))) + TRIM(begin_job-no) AND 
-                fg-rcpth.job-no     LE FILL(" ",6 - LENGTH(TRIM(end_job-no))) + TRIM(end_job-no) 
+                FILL(" ", iJobLen - LENGTH(TRIM(fg-rcpth.job-no))) + TRIM(fg-rcpth.job-no) + STRING(fg-rcpth.job-no2,"999") GE fjob AND 
+                FILL(" ", iJobLen - LENGTH(TRIM(fg-rcpth.job-no))) + TRIM(fg-rcpth.job-no) + STRING(fg-rcpth.job-no2,"999") LE tjob AND
+                fg-rcpth.job-no2 GE int(begin_job-no2) AND
+                fg-rcpth.job-no2 LE int(end_job-no2)
                 USE-INDEX tran:
             
-            IF (fg-rcpth.job-no EQ TRIM(begin_job-no) AND STRING(fg-rcpth.job-no2,"99") LT end_job-no2)
-            OR (fg-rcpth.job-no EQ TRIM(end_job-no) AND STRING(fg-rcpth.job-no2,"99") GT end_job-no2)
-            THEN NEXT.
-
+           
             FOR EACH fg-rdtlh EXCLUSIVE WHERE 
                 fg-rdtlh.r-no EQ fg-rcpth.r-no AND 
                 fg-rdtlh.rita-code EQ fg-rcpth.rita-code

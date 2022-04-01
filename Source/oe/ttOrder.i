@@ -49,6 +49,7 @@ DEFINE TEMP-TABLE ttOrder NO-UNDO
     FIELD stat            AS CHARACTER LABEL "Status"
     FIELD importType      AS CHARACTER LABEL "ImportType"       /* cXML, Importer, EDI. Default - Importer */
     FIELD action          AS CHARACTER LABEL "Action"           /* Create, Update, Delete. Default - Create */
+    FIELD ediSubmitted    AS INTEGER   LABEL "EDI Order"
     INDEX orderSeqID IS PRIMARY UNIQUE orderSeqID
     .
 

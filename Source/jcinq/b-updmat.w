@@ -174,7 +174,7 @@ DEFINE BROWSE BROWSE-2
    tt-mat-tran.tran-date    COLUMN-LABEL "Date" FORMAT "99/99/99"
    tt-mat-tran.job-no       COLUMN-LABEL "Job #" FORMAT "X(6)" WIDTH 8.5
    tt-mat-tran.job-no2      COLUMN-LABEL "" FORMAT ">9" WIDTH 2.8
-   tt-mat-tran.sheet-no     COLUMN-LABEL "Sheet" FORMAT "ZZ9" WIDTH 7
+   tt-mat-tran.sheet-no     COLUMN-LABEL "Form" FORMAT "ZZ9" WIDTH 7
    tt-mat-tran.blank-no     COLUMN-LABEL "Blank" FORMAT "ZZ9" WIDTH 7
    tt-mat-tran.tag          COLUMN-LABEL "Tag" FORMAT "X(20)" WIDTH 27
    tt-mat-tran.qty-posted   COLUMN-LABEL "Qty. Posted" FORMAT "->>,>>>,>>9.9<<<<<" WIDTH 23
@@ -875,7 +875,7 @@ PROCEDURE valid-job-no :
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      lv-job-no = TRIM(tt-mat-tran.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
-     lv-job-no = FILL(" ",6 - LENGTH(lv-job-no)) + lv-job-no
+     lv-job-no = FILL(" ", iJobLen - LENGTH(lv-job-no)) + lv-job-no
      tt-mat-tran.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = lv-job-no.
 
     FIND FIRST job-hdr 

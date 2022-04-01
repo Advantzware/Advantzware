@@ -35,6 +35,7 @@ def input param ip-cur-val as char no-undo.
 def input param ip-type as int no-undo.
 def output param op-char-val as char no-undo.
 def output param op-rec-id as recid no-undo.     /* recid output */
+{sys/inc/var.i}
 
 /* Local Variable Definitions ---                                       */
 &scoped-define SORTBY-1 BY oe-rell.ord-no DESC
@@ -253,7 +254,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-   op-char-val = string(oe-rell.ord-no,">>>>>9") + "," + oe-rell.i-no
+   op-char-val = string(oe-rell.ord-no,">>>>>>>9") + "," + oe-rell.i-no
                  .
    op-rec-id = recid(oe-rell).
 
@@ -284,7 +285,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
-   op-char-val = string(oe-rell.ord-no,">>>>>9") + "," + oe-rell.i-no
+   op-char-val = string(oe-rell.ord-no,">>>>>>>9") + "," + oe-rell.i-no
                  .
    op-rec-id = recid(oe-rell).
 

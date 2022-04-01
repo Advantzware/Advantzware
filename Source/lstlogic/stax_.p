@@ -2,7 +2,7 @@
 /* remove this comment to prevent auto creating, saving custom changes */
 
 &Scoped-define PROGNAME stax_.
-&Scoped-define LISTORDER Sales Tax Group
+&Scoped-define LISTORDER Tax Group
 &Scoped-define WHERE-STATEMENT stax.company = gcompany
 &Scoped-define SHOWNOTES yes
 &Scoped-define SHOWMISCFLDS yes

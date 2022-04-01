@@ -94,6 +94,7 @@ DEFINE VARIABLE h_navigatenext AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigateprev AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_printcopies AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_bolHeaderInfo AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btClear 
@@ -118,7 +119,7 @@ DEFINE VARIABLE btnExitText AS CHARACTER FORMAT "X(256)":U INITIAL "EXIT"
      SIZE 8 BY 1.43
      BGCOLOR 21  NO-UNDO.
 
-DEFINE VARIABLE btnPrintText AS CHARACTER FORMAT "X(256)":U INITIAL "PRINT TAGS" 
+DEFINE VARIABLE btnPrintText AS CHARACTER FORMAT "X(256)":U INITIAL "PRINT BOL" 
       VIEW-AS TEXT 
      SIZE 19 BY 1.43
      BGCOLOR 21  NO-UNDO.
@@ -258,6 +259,8 @@ DO:
     {methods/run_link.i "LOADTAG-SOURCE" "EmptyTTLoadTag"}
     
     {methods/run_link.i "BOL-SOURCE" "EmptyBOL"}
+    
+    {methods/run_link.i "BolHeaderInfo-SOURCE" "EmptyBOL"}
 
     RUN Set-Focus.
 END.
@@ -393,11 +396,19 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 2.05 , 49.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/bolHeaderInfo.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_bolHeaderInfo ).
+       RUN set-position IN h_bolHeaderInfo ( 4.67 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_bolHeaderInfo ( 10.05 , 182.00 ) NO-ERROR.
+       
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/b-loadtags.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-loadtags ).
-       RUN set-position IN h_b-loadtags ( 4.67 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_b-loadtags ( 14.97 , 2.00 ) NO-ERROR.
        RUN set-size IN h_b-loadtags ( 15.05 , 182.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -449,7 +460,10 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartBrowser h_b-loadtags. */
        RUN add-link IN adm-broker-hdl ( h_b-loadtags , 'LOADTAG':U , THIS-PROCEDURE ).
-
+              
+       /* Links to SmartBrowser h_b-loadtags. */
+       RUN add-link IN adm-broker-hdl ( h_bolHeaderInfo , 'BolHeaderInfo':U , THIS-PROCEDURE ).
+       
        /* Links to SmartObject h_navigatefirst. */
        RUN add-link IN adm-broker-hdl ( h_b-loadtags , 'NAV-FIRST':U , h_navigatefirst ).
 
@@ -639,6 +653,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pShowBolHeaderInfo W-Win 
+PROCEDURE pShowBolHeaderInfo PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iBOLID   AS INTEGER   NO-UNDO.
+        
+    DEFINE VARIABLE oBOLHeader AS bol.BOLHeader NO-UNDO.
+    
+    {methods/run_link.i "BOL-SOURCE" "GetBOLHeader" "(OUTPUT oBOLHeader)"}    
+    IF VALID-OBJECT(oBOLHeader) THEN
+        ASSIGN
+            cCompany    = oBOLHeader:GetValue("Company")
+            iBOLID      = INTEGER(oBOLHeader:GetValue("BOLID"))
+            .
+    {methods/run_link.i "BolHeaderInfo-SOURCE" "pDisplayBOLInfo" "(INPUT cCompany, INPUT iBOLID )"}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateTTLoadtags W-Win 
 PROCEDURE pCreateTTLoadtags PRIVATE :
 /*------------------------------------------------------------------------------
@@ -818,6 +857,8 @@ PROCEDURE state-changed :
         END.
         WHEN "bol-valid" THEN DO:
             RUN pStatusMessage ("", 0).
+            
+            RUN pShowBolHeaderInfo.
             
             RUN pCreateTTLoadtags (
                 OUTPUT lError,

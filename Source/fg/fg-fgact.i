@@ -1,5 +1,6 @@
 /* --------------------------------------------------- fg/fg-fgact.i 10/94 gb */
 /* Finished Goods - Create Job Costing F/G WIP Record */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /* -------------------------------------------------------------------------- */
 
 DEF VAR li-t-qty AS INT.
@@ -125,7 +126,7 @@ IF AVAIL job THEN DO:
 /*        IF choice THEN DO:                                                   */
 /*          CREATE w-job.                                                      */
 /*          ASSIGN                                                             */
-/*           w-job.job-no = FILL(" ",6 - LENGTH(TRIM(job.job-no))) +           */
+/*           w-job.job-no = FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) +           */
 /*                          TRIM(job.job-no) +                                 */
 /*                          STRING(job.job-no2,"99")                           */
 /*           w-job.rec-id = RECID(job).                                        */
@@ -137,17 +138,13 @@ IF AVAIL job THEN DO:
 
     /* existence of w-job will indicate that the job should be checked to be closed */ 
     FIND FIRST w-job NO-LOCK
-        WHERE w-job.job-no EQ FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
-                  TRIM(job.job-no) +
-                  STRING(job.job-no2,"99")
+        WHERE w-job.job-no EQ STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', job.job-no, job.job-no2)) 
           AND w-job.rec-id = RECID(job)
           NO-ERROR.
     IF NOT AVAIL w-job THEN DO:
         CREATE w-job.
         ASSIGN
-          w-job.job-no = FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
-                      TRIM(job.job-no) +
-                      STRING(job.job-no2,"99")
+          w-job.job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', job.job-no, job.job-no2))
           w-job.rec-id = RECID(job)
           .
     END.

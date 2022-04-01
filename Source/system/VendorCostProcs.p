@@ -1593,6 +1593,8 @@ PROCEDURE pAddTTVendItemCost PRIVATE:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
+    DEFINE BUFFER bf-ttVendItemCost FOR ttVendItemCost.
+    
     FIND FIRST TTVendItemCost WHERE TTVendItemCost.company = ipbf-vendItemCost.Company
         AND TTVendItemCost.itemID         = ipbf-vendItemCost.ItemID
         AND TTVendItemCost.itemType       = ipbf-vendItemCost.ItemType
@@ -1608,6 +1610,7 @@ PROCEDURE pAddTTVendItemCost PRIVATE:
         CREATE ttVendItemCost.
         BUFFER-COPY ipbf-vendItemCost TO ttVendItemCost.
     END.
+
     ASSIGN 
         ttVendItemCost.isExpired                 = ipbf-vendItemCost.expirationDate LT TODAY AND ipbf-vendItemCost.expirationDate NE ? AND ipbf-vendItemCost.expirationDate NE 01/01/0001
         ttVendItemCost.isNotEffective            = ipbf-vendItemCost.effectiveDate GT TODAY
@@ -1686,6 +1689,18 @@ PROCEDURE pAddTTVendItemCost PRIVATE:
                 ttVendItemCost.isValid        = NO 
                 ttVendItemCost.reasonNotValid = opcMessage
                 .
+    END.
+    FOR EACH bf-ttVendItemCost 
+        WHERE bf-ttVendItemCost.company EQ ipbf-vendItemCost.company
+        AND bf-ttVendItemCost.itemID EQ ipbf-vendItemCost.itemID
+        AND bf-ttVendItemCost.vendorID EQ ipbf-vendItemCost.vendorID
+        AND bf-ttVendItemCost.estimateNo EQ ipbf-vendItemCost.estimateNo
+        AND bf-ttVendItemCost.formNo EQ ipbf-vendItemCost.formNo
+        AND bf-ttVendItemCost.blankNo EQ ipbf-vendItemCost.blankNo
+        AND bf-ttVendItemCost.effectiveDate LT ipbf-vendItemCost.effectiveDate 
+        :
+        bf-ttVendItemCost.reasonNotValid = "Not Recent".
+        bf-ttVendItemCost.isValid = NO.          
     END.
 
 END PROCEDURE.
@@ -2584,14 +2599,18 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
     DEFINE VARIABLE cMsgFGInputs    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMsgUsing       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEstNoFromItem  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDefaultVendorCostStatusFGIApproval AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-itemfg FOR itemfg.
+    
+    RUN spGetSettingByName ("DefaultVendorCostStatusFGIApproval", OUTPUT cDefaultVendorCostStatusFGIApproval).
         
     &SCOPED-DEFINE RequiredCriteria WHERE opbf-vendItemCost.company EQ ipcCompany ~
                                 AND opbf-vendItemCost.itemID EQ ipcItemID ~
                                 AND opbf-vendItemCost.itemType EQ ipcItemType ~
                                 AND opbf-vendItemCost.effectiveDate LE TODAY ~
-                                AND (opbf-vendItemCost.expirationDate GE TODAY OR opbf-vendItemCost.expirationDate EQ ? OR opbf-vendItemCost.expirationDate EQ 01/01/0001) 
+                                AND (opbf-vendItemCost.expirationDate GE TODAY OR opbf-vendItemCost.expirationDate EQ ? OR opbf-vendItemCost.expirationDate EQ 01/01/0001) ~
+                                AND ((opbf-vendItemCost.approved and cDefaultVendorCostStatusFGIApproval EQ "Yes" AND opbf-vendItemCost.itemType EQ "FG") OR cDefaultVendorCostStatusFGIApproval EQ "No" OR opbf-vendItemCost.itemType EQ "RM" )
 
     ASSIGN 
         lIsRM        = ipcItemType EQ gcItemTypeRM
