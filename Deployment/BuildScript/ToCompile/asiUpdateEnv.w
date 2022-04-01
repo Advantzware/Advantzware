@@ -3914,7 +3914,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipCleanEstSystemData.
     RUN ipDeleteAudit.
     RUN ipRefTableConv.
-    RUN util/dAOAFormatUpate.p.
+    RUN util/dAOAFormatUpdate.p.
     RUN ipDeleteAudit.
 
     
