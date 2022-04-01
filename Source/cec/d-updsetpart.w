@@ -376,50 +376,50 @@ DO:
        END.
     END.
     ELSE DO WITH FRAME {&FRAME-NAME}:
-         RUN valid-part-no(OUTPUT op-error).
-         IF op-error THEN RETURN NO-APPLY. 
-         RUN valid-procat(OUTPUT op-error).
-         IF op-error THEN RETURN NO-APPLY. 
-         FIND CURRENT eb EXCLUSIVE-LOCK.
-         ASSIGN {&DISPLAYED-FIELDS}.
+        RUN valid-part-no(OUTPUT op-error).
+        IF op-error THEN RETURN NO-APPLY. 
+        
+        RUN valid-procat(OUTPUT op-error).
+        IF op-error THEN RETURN NO-APPLY. 
+        
+        FIND CURRENT eb EXCLUSIVE-LOCK.
+        ASSIGN {&DISPLAYED-FIELDS}.
 
-         /*IF eb.est-type GE 5 THEN DO:*/
+        /*IF eb.est-type GE 5 THEN DO:*/
             {sys/inc/k16bb.i eb.len  } 
             {sys/inc/k16bb.i eb.wid  } 
             {sys/inc/k16bb.i eb.dep  } 
-         /*END.*/
+        /*END.*/
 
-         ASSIGN
-            rd_alloc
-            tb_unitize
+        ASSIGN
+           rd_alloc
+           tb_unitize.
+
+        RUN UpdateSetUnitize.
+
+        IF eb.stock-no NE "" THEN DO:
+            FIND FIRST itemfg WHERE
+                itemfg.company EQ eb.company AND
+                itemfg.i-no    EQ eb.stock-no
+                EXCLUSIVE-LOCK  NO-ERROR.
+
+            IF AVAIL itemfg THEN
+            DO: 
+                ASSIGN
+                    itemfg.alloc = rd_alloc
+                    itemfg.procat = eb.procat.
+                FIND CURRENT itemfg NO-LOCK NO-ERROR.
+            END.
+        END.
+
+        ASSIGN 
             eb.set-is-assembled = rd_alloc
             eb.pur-man          = tb_unitize.
 
-         RUN UpdateSetUnitize.
+        FIND CURRENT eb NO-LOCK.
 
-
-/*         IF eb.set-is-assembled NE ? THEN                 */
-/*            eb.set-is-assembled = NOT eb.set-is-assembled.*/
-
-         IF eb.stock-no NE "" THEN DO:
-             FIND FIRST itemfg WHERE
-                 itemfg.company EQ eb.company AND
-                 itemfg.i-no    EQ eb.stock-no
-                 EXCLUSIVE-LOCK  NO-ERROR.
-
-             IF AVAIL itemfg THEN
-                 DO: 
-                 ASSIGN
-                     itemfg.alloc = rd_alloc
-                     itemfg.procat = eb.procat.
-                 FIND CURRENT itemfg NO-LOCK NO-ERROR.
-                 END.
-         END.
-         FIND CURRENT eb NO-LOCK.
-
-         APPLY "go" TO FRAME {&frame-name}.
+        APPLY "go" TO FRAME {&frame-name}.
     END.
-      
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -636,6 +636,11 @@ FIND FIRST bf-set WHERE
      bf-set.est-no = eb.est-no AND
      bf-set.form-no = 0
      NO-LOCK NO-ERROR.
+FIND eb WHERE ROWID(eb) EQ ROWID(bf-set) NO-LOCK NO-ERROR.
+IF NOT AVAIL eb THEN DO:
+    MESSAGE "Set header not found" VIEW-AS ALERT-BOX.
+    RETURN.
+END.
 
 FIND FIRST b-eb1 WHERE 
      b-eb1.company EQ eb.company AND
@@ -710,6 +715,7 @@ IF bf-set.stock-no NE "" THEN
 
 IF AVAIL itemfg THEN
    rd_alloc = itemfg.alloc.
+rd_alloc = eb.set-is-assembled.
 
 {src/adm/template/dialogmn.i}
 
