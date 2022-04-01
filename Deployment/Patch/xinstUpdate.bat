@@ -78,6 +78,8 @@ CD Backups
 MKDIR PatchFiles
 MKDIR Databases
 CD ..
+MKDIR Assemblies
+CD ..
 CD Updates
 
 :: Copy files/dirs from Patch to "regular" directories
@@ -86,6 +88,7 @@ XCOPY /S /Y .\Admin\*.* ..\Admin > NUL
 XCOPY /S /Y .\Desktop\*.* ..\Desktop > NUL
 XCOPY /S /Y .\Documentation\*.* ..\Documentation > NUL
 XCOPY /S /Y .\Install\*.* ..\Install > NUL
+XCOPY /S /Y .\Assemblies\*.* ..\Assemblies > NUL
 XCOPY /S /Y .\Structure\*.* ..\Databases\Structure > NUL
 IF NOT EXIST ..\Admin\EnvAdmin\updateHist.txt (
     COPY /Y .\UpdateHist.txt ..\Admin\EnvAdmin\UpdateHist.txt > NUL
@@ -103,7 +106,6 @@ CACLS !DLCDir!\progress.cfg /e /p Everyone:f
 
 :: Now move into envadmin and run the update program(s)
 CD ..\Admin\Envadmin
-
 CALL !DLCDir!\bin\prowin.exe -basekey INI -ininame dbms.ini -pf advantzware.pf -p asiUpdate.w  
 
 CD ..\..\Updates
