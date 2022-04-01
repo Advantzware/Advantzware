@@ -621,8 +621,8 @@ PROCEDURE Price_CheckPriceMatrix:
         DO:
             RUN pGetQtyMatchInfo(BUFFER bf-oe-prmtx, ipdQuantity, 0, OUTPUT iLevel, OUTPUT lQtyMatch).
             RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, bf-itemfg.sell-price, bf-itemfg.sell-uom, OUTPUT dPriceMtx, OUTPUT cPriceUOM).
-            IF dPriceMtx NE ipdPrice THEN 
-                opcMessage = cMessage + " but price should be " + STRING(dPriceMtx) + " not " + STRING(ipdPrice). 
+            IF dPriceMtx NE ipdPrice THEN                  
+                opcMessage = cMessage + "  Price Level:" + ( IF bf-cust.cust-level GT iLevel THEN STRING(bf-cust.cust-level,"99") ELSE STRING(iLevel,"99")). 
             ELSE 
             DO:                
                 IF NOT lQtyMatch THEN 
