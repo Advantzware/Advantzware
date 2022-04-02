@@ -2344,15 +2344,35 @@ PROCEDURE Inventory_PostRawMaterials:
     DEFINE BUFFER bf-wiptag               FOR wiptag.
     DEFINE BUFFER bf-ttRawMaterialsToPost FOR ttRawMaterialsToPost.
     
-    DEFINE VARIABLE iNextRNo AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dAvgCost AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE lError   AS LOGICAL NO-UNDO.
-
+    DEFINE VARIABLE iNextRNo   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dAvgCost   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lError     AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cRtnChr    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lRecFound  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lAutoIssue AS LOGICAL NO-UNDO.
+    
     EMPTY TEMP-TABLE ttRawMaterialsToPost.
     EMPTY TEMP-TABLE ttRawMaterialsGLTransToPost.
     
     oplSuccess = TRUE.
     
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany, /* Company Code */ 
+        INPUT "AUTOISSU", /* sys-ctrl name */
+        INPUT "L",        /* Output return value */
+        INPUT NO,         /* Use ship-to */
+        INPUT NO,         /* ship-to vendor */
+        INPUT "",         /* ship-to vendor value */
+        INPUT "",         /* shi-id value */
+        OUTPUT cRtnChr, 
+        OUTPUT lRecFound
+        ).
+    IF lRecFound THEN
+        lAutoIssue = LOGICAL(cRtnChr).
+    
+    IF lAutoIssue EQ ? THEN
+        lAutoIssue = FALSE.
+        
     TRANSACTION-BLOCK:    
     DO TRANSACTION ON ERROR UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK:
         FOR EACH ttBrowseInventory 
@@ -2361,7 +2381,7 @@ PROCEDURE Inventory_PostRawMaterials:
                            WHERE ROWID(rm-rctd) EQ TO-ROWID(ttBrowseInventory.inventoryStockID)):
             RUN pCreateRawMaterialsToPost (
                 INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),
-                INPUT  TRUE, /* AutoIssue */
+                INPUT  lAutoIssue, /* AutoIssue */
                 OUTPUT lError,
                 OUTPUT opcMessage
                 ).
@@ -2374,11 +2394,15 @@ PROCEDURE Inventory_PostRawMaterials:
         RUN pCreateRawMaterialsGLTrans.
         
         FOR EACH ttRawMaterialsToPost
-            WHERE ttRawMaterialsToPost.processed EQ FALSE,
-            FIRST bf-rm-rctd EXCLUSIVE-LOCK
-            WHERE ROWID(bf-rm-rctd) EQ ttRawMaterialsToPost.rmRctdRowID
+            WHERE ttRawMaterialsToPost.processed EQ FALSE
             BREAK BY ttRawMaterialsToPost.sequenceID
                   BY ttRawMaterialsToPost.itemID:
+            /* Joining the below query to for each ttRawMaterialToPost would skip the issues created */                      
+            FIND FIRST bf-rm-rctd EXCLUSIVE-LOCK
+                 WHERE ROWID(bf-rm-rctd) EQ ttRawMaterialsToPost.rmRctdRowID 
+                 NO-ERROR.
+            IF NOT AVAILABLE bf-rm-rctd THEN
+                NEXT.
             
             RUN pPostRawMaterials(
                 INPUT  ttRawmaterialsToPost.rmRctdRowID,
@@ -4917,16 +4941,31 @@ PROCEDURE pCreateRawMaterialsToPost PRIVATE:
                    AND bf-po-ordl.job-no2   EQ bf-rm-rctd.job-no2
                    AND bf-po-ordl.item-type EQ YES
                  USE-INDEX item-ordno NO-ERROR.
+            IF NOT AVAILABLE bf-po-ordl THEN
+                FIND FIRST bf-po-ordl NO-LOCK 
+                     WHERE bf-po-ordl.company   EQ bf-rm-rctd.company
+                       AND bf-po-ordl.i-no      EQ bf-rm-rctd.i-no
+                       AND bf-po-ordl.po-no     EQ INTEGER(bf-rm-rctd.po-no)
+                       AND bf-po-ordl.job-no    EQ TRIM(bf-rm-rctd.job-no)
+                       AND bf-po-ordl.job-no2   EQ bf-rm-rctd.job-no2
+                       AND bf-po-ordl.item-type EQ YES
+                     USE-INDEX item-ordno NO-ERROR.
         END.
         
         IF bf-item.mat-type NE "I" OR AVAILABLE bf-po-ordl THEN DO:
             IF bf-item.i-code EQ "E" AND NOT AVAILABLE bf-po-ordl THEN
-                LEAVE.
+                RETURN.
 
             IF bf-item.i-code EQ "R" AND NOT iplAutoIssue THEN
-                LEAVE.
+                RETURN.
         END.
-                
+        
+        /* Added additional logic with AutoIssue */
+        IF NOT iplAutoIssue THEN DO:
+            IF NOT (bf-item.i-code EQ "E" AND bf-rm-rctd.tag EQ "") THEN
+                RETURN.
+        END.
+        
         IF bf-rm-rctd.job-no NE "" AND bf-rm-rctd.s-num EQ ? THEN
             FIND FIRST bf-job NO-LOCK
                  WHERE bf-job.company EQ bf-rm-rctd.company
@@ -4978,8 +5017,10 @@ PROCEDURE pCreateRawMaterialsToPost PRIVATE:
 
             IF AVAILABLE bf-po-ord AND bf-po-ord.TYPE <> "S" THEN
                 bf-ttRawMaterialsToPost.poID = "".
+            
+            IF dTotalJobMatQty NE 0 THEN /* Verifying value is 0, so quantity is not updated with ? */
+                bf-ttRawMaterialsToPost.quantity = ttRawMaterialsToPost.quantity * ( bf-ttRawMaterialsToPost.quantity / dTotalJobMatQty).
                 
-            bf-ttRawMaterialsToPost.quantity = ttRawMaterialsToPost.quantity * ( bf-ttRawMaterialsToPost.quantity / dTotalJobMatQty).
             IF bf-rm-rctd.pur-uom EQ "EA" THEN DO:
                 IF (bf-ttRawMaterialsToPost.quantity - INTEGER(bf-ttRawMaterialsToPost.quantity)) > 0 THEN
                     bf-ttRawMaterialsToPost.quantity = INTEGER(bf-ttRawMaterialsToPost.quantity) + 1.
