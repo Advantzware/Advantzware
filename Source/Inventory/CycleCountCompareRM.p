@@ -1372,14 +1372,14 @@ PROCEDURE pGetCostMSF:
 
         IF AVAILABLE po-ordl THEN                    
             ASSIGN 
-                cJobNo  = IF po-ordl.job-no NE "" THEN STRING(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2) ELSE ""
+                cJobNo  = IF po-ordl.job-no NE "" THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2)) ELSE ""
                 cJobNo2 = STRING(po-ordl.job-no2)
                 cSNum   = STRING(po-ordl.s-num)
                 cBNum   = STRING(po-ordl.b-num )
                 .
         FIND FIRST job-mat NO-LOCK
             WHERE job-mat.company EQ rm-bin.company
-            AND job-mat.job-no  EQ SUBSTRING(cJobNo,1,6)
+            AND job-mat.job-no EQ SUBSTRING(cJobNo,1,iJobLen)
             AND job-mat.job-no2 EQ INTEGER(cJobNo2)
             AND job-mat.i-no EQ ITEM.i-no
             AND job-mat.frm EQ INTEGER(cSNum)

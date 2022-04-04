@@ -1,5 +1,5 @@
 /* r-prodlys.i - used by AOA/dynBL/r-prodlys.p & AOA/dynBL/machprod.p (not yet converted from DataPA AOA) */
-
+{sys/inc/var.i}
 PROCEDURE pBusinessLogic:
     DEFINE VARIABLE hDynCalcField   AS HANDLE  NO-UNDO.
     DEFINE VARIABLE iStartShift     AS INTEGER NO-UNDO.
@@ -447,7 +447,7 @@ PROCEDURE pProductionAnalysis2:
             .
         FIND FIRST job NO-LOCK
              WHERE job.company EQ ipcCompany
-               AND TRIM(job.job-no)  EQ TRIM(SUBSTRING(ttProductionAnalysis.jobNo,1,9))
+               AND job.job-no  EQ SUBSTRING(ttProductionAnalysis.jobNo,1,iJobLen)
                AND job.job-no2 EQ ttProductionAnalysis.jobNo2
              NO-ERROR.
         ttProductionAnalysis.custNo = "" .
@@ -495,7 +495,7 @@ PROCEDURE pProductionAnalysis2:
         FIND FIRST job-mch NO-LOCK
              WHERE job-mch.company   EQ ipcCompany
                AND job-mch.job       EQ ttProductionAnalysis.xxJob
-               AND TRIM(job-mch.job-no)    EQ TRIM(SUBSTRING(ttProductionAnalysis.jobNo,1,9))
+               AND job-mch.job-no    EQ SUBSTRING(ttProductionAnalysis.jobNo,1,iJobLen)
                AND job-mch.job-no2   EQ ttProductionAnalysis.jobNo2
                AND job-mch.frm       EQ ttProductionAnalysis.frm
                AND (job-mch.blank-no EQ ttProductionAnalysis.blankNo
@@ -507,7 +507,7 @@ PROCEDURE pProductionAnalysis2:
         FIND FIRST job-mch NO-LOCK
              WHERE job-mch.company   EQ ipcCompany
                AND job-mch.job       EQ ttProductionAnalysis.xxJob
-               AND TRIM(job-mch.job-no)    EQ TRIM(SUBSTRING(ttProductionAnalysis.jobNo,1,9))
+               AND job-mch.job-no    EQ SUBSTRING(ttProductionAnalysis.jobNo,1,iJobLen)
                AND job-mch.job-no2   EQ ttProductionAnalysis.jobNo2
                AND job-mch.frm       EQ ttProductionAnalysis.frm
                AND (job-mch.blank-no EQ ttProductionAnalysis.blankNo
@@ -518,7 +518,7 @@ PROCEDURE pProductionAnalysis2:
         FIND FIRST job-mch NO-LOCK
              WHERE job-mch.company EQ ipcCompany
                AND job-mch.job     EQ ttProductionAnalysis.xxJob
-               AND TRIM(job-mch.job-no)  EQ TRIM(SUBSTRING(ttProductionAnalysis.jobNo,1,9))
+               AND job-mch.job-no  EQ SUBSTRING(ttProductionAnalysis.jobNo,1,iJobLen)
                AND job-mch.job-no2 EQ ttProductionAnalysis.jobNo2
                AND job-mch.frm     EQ ttProductionAnalysis.frm
                AND job-mch.m-code  EQ ttProductionAnalysis.machine
@@ -528,7 +528,7 @@ PROCEDURE pProductionAnalysis2:
         FIND FIRST job-mch NO-LOCK
              WHERE job-mch.company EQ ipcCompany
                AND job-mch.job     EQ ttProductionAnalysis.xxJob
-               AND TRIM(job-mch.job-no)  EQ TRIM(SUBSTRING(ttProductionAnalysis.jobNo,1,9))
+               AND job-mch.job-no  EQ SUBSTRING(ttProductionAnalysis.jobNo,1,iJobLen)
                AND job-mch.job-no2 EQ ttProductionAnalysis.jobNo2
                AND job-mch.frm     EQ ttProductionAnalysis.frm
                AND job-mch.m-code  EQ ttProductionAnalysis.machine
@@ -549,7 +549,7 @@ PROCEDURE pProductionAnalysis2:
               AND bMchAct.dept      EQ ttProductionAnalysis.dept
               AND bMchAct.m-code    EQ ttProductionAnalysis.machine
               AND bMchAct.job       EQ ttProductionAnalysis.xxJob
-              AND TRIM(bMchAct.job-no)    EQ TRIM(SUBSTRING(ttProductionAnalysis.jobNo,1,9))
+              AND bMchAct.job-no    EQ SUBSTRING(ttProductionAnalysis.jobNo,1,iJobLen)
               AND bMchAct.job-no2   EQ ttProductionAnalysis.jobNo2
               AND bMchAct.frm       EQ ttProductionAnalysis.frm
               AND (bMchAct.blank-no EQ ttProductionAnalysis.blankNo
