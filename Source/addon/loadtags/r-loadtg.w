@@ -66,7 +66,7 @@ DEF var v-po-no-source AS char FORMAT "!" init "R".
 def var v-stat as char format "!" init "O".
 
 DEF var v-out AS char FORMAT "x(40)" NO-UNDO.
-DEF var v-job AS char FORMAT "x(9)" NO-UNDO.
+DEF var v-job AS char FORMAT "x(13)" NO-UNDO.
 DEF var num-rec AS int init 0 NO-UNDO.
 DEF var by-release AS log init NO NO-UNDO.
 
@@ -1371,7 +1371,7 @@ v-out = "c:~\ba~\label~\loadtag.txt".
         end.
 
         FOR EACH w-ord:
-           v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+           v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))).
            IF v-job BEGINS "-" or v-job = ? /* 9901 CAH */
                 THEN v-job = string(W-ORD.ORD-NO).   /* 9812 CAH in case blank */
 
@@ -1477,7 +1477,7 @@ v-out = "c:~\ba~\label~\loadtag.txt".
 
         w-ord.gross-wt = w-ord.net-wt + w-ord.tare-wt.
 
-        v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+        v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))).
         IF v-job BEGINS "-" THEN v-job = "".
 
         ASSIGN
@@ -1735,8 +1735,8 @@ PROCEDURE temp-job :
 
   FOR EACH job
       WHERE job.company EQ cocode
-        AND job.job-no  EQ SUBSTR(ip-job-no,1,6)
-        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,7,2))
+        AND TRIM(job.job-no)  EQ TRIM(SUBSTR(ip-job-no,1,iJobLen))
+        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,(iJobLen + 1),3))
       NO-LOCK:
     RUN temp-create (ROWID(job)).
   END.

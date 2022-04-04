@@ -20,12 +20,12 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
   
     for EACH job
         where job.company            eq cocode
-          and job.job-no             ge SUBSTR(v-job-no[1],1,9)
-          and job.job-no             le SUBSTR(v-job-no[2],1,9)
+          and job.job-no             ge SUBSTR(v-job-no[1],1,iJobLen)
+          and job.job-no             le SUBSTR(v-job-no[2],1,iJobLen)
           AND FILL(" ", iJobLen - length(trim(job.job-no))) +
-              trim(begin_job-no) + string(int(job.job-no2),"99") GE v-job-no[1]
+              trim(begin_job-no) + string(int(job.job-no2),"999") GE v-job-no[1]
           AND FILL(" ", iJobLen - length(trim(job.job-no))) +
-              trim(begin_job-no) + string(int(job.job-no2),"99") LE v-job-no[2]
+              trim(begin_job-no) + string(int(job.job-no2),"999") LE v-job-no[2]
           AND job.job-no2 GE int(begin_job-no2)
 	      AND job.job-no2 LE int(end_job-no2)    
           and (v-stat                eq "A"                     or

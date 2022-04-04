@@ -1383,9 +1383,9 @@ def buffer b-jh for job-hdr.
 
 def var v-stat  as   char format "!"          init "O".
 def var v-fjob  like job.job-no.
-def var v-tjob  like v-fjob                   init "zzzzzz".
+def var v-tjob  like v-fjob                   init "zzzzzzzzz".
 def var v-fjob2 like job.job-no2.
-def var v-tjob2 like v-fjob2                  init 99.
+def var v-tjob2 like v-fjob2                  init 999.
 def var v-fcust like job-hdr.cust-no          init "".
 def var v-tcust like v-fcust                  init "zzzzzzzz".
 def var v-fdate as   date format "99/99/9999" init 01/01/0001.
@@ -1588,10 +1588,10 @@ END.
 ELSE /* prep code */
     for EACH ASI.job-prep WHERE job-prep.company eq cocode                          
                         and FILL(" ", iJobLen - length(trim(job-PREP.job-no))) +
-                      trim(job-prep.job-no) + string(job-prep.job-no2,"99")
+                      trim(job-prep.job-no) + string(job-prep.job-no2,"999")
                                   ge v-fjob
                   and FILL(" ", iJobLen - length(trim(job-prep.job-no))) +
-                      trim(job-prep.job-no) + string(job-prep.job-no2,"99")
+                      trim(job-prep.job-no) + string(job-prep.job-no2,"999")
                                   le v-tjob
                          AND job-prep.job-no2 GE int(begin_job-no2)
                          AND job-prep.job-no2 LE int(end_job-no2)          

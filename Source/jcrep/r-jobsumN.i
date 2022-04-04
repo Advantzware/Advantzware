@@ -110,7 +110,7 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
        IF rd-dest EQ 3 THEN
          PUT STREAM excel2 UNFORMATTED                       
             '"' "Job Number: "                '",'           
-            '"' STRING(trim(job.job-no) + "-" + string(job.job-no2,"99"))               '",'
+            '"' STRING(trim(job.job-no) + "-" + string(job.job-no2,"999"))               '",'
             '"' "Closing Date: "                '",' 
          '"' (IF job.close-date EQ ? THEN " " ELSE STRING(job.close-date,"99/99/99"))               '",'  
            SKIP
@@ -667,7 +667,7 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
 
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED            
-            '"' trim(job.job-no) + "-" + string(job.job-no2,"99") '",'
+            '"' trim(job.job-no) + "-" + string(job.job-no2,"999") '",'
             '"' STRING(work-item.sales-rep,"x(3)")                '",'
             '"' STRING(v-cust)                                    '",'
             '"' STRING(work-item.i-no)                            '",'

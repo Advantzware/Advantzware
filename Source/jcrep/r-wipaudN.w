@@ -1268,8 +1268,8 @@ PROCEDURE run-report :
 
 /*{sys/form/r-topw.f}*/
 
-DEFINE VARIABLE v-job-no LIKE job.job-no EXTENT 2 INIT ["","zzzzzz"] NO-UNDO.
-DEFINE VARIABLE v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [00,99] NO-UNDO.
+DEFINE VARIABLE v-job-no LIKE job.job-no EXTENT 2 INIT ["","zzzzzzzzz"] NO-UNDO.
+DEFINE VARIABLE v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [000,999] NO-UNDO.
 DEFINE VARIABLE v-stat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-only-opn AS LOGICAL FORMAT "Y/N" NO-UNDO.
 DEFINE VARIABLE v-brd-job AS INTEGER FORMAT ">>>>>>>>9-" NO-UNDO.
