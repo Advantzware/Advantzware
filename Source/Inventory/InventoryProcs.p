@@ -487,6 +487,95 @@ PROCEDURE Inventory_GetFGReceiptTransaction:
 
 END PROCEDURE.
 
+PROCEDURE Inventory_AdjustRMIssueTransactionQuantity:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriRMRctd       AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdIssueQuantity AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE dTotalIssuedQty AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dBinQuantity    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cCompany        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTag            AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-bin  FOR rm-bin.
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+
+    FIND FIRST bf-rm-rctd NO-LOCK
+         WHERE ROWID(bf-rm-rctd) EQ ipriRMRctd
+         NO-ERROR.
+    IF NOT AVAILABLE bf-rm-rctd THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Error updating the transaction"
+            .
+        
+        RETURN.
+    END.
+    
+    ASSIGN
+        cCompany = bf-rm-rctd.company
+        cTag     = bf-rm-rctd.tag
+        .
+        
+    FIND FIRST bf-rm-bin NO-LOCK
+         WHERE bf-rm-bin.company EQ bf-rm-rctd.company
+           AND bf-rm-bin.i-no    EQ bf-rm-rctd.i-no
+           AND bf-rm-bin.loc     EQ bf-rm-rctd.loc
+           AND bf-rm-bin.loc-bin EQ bf-rm-rctd.loc-bin
+           AND bf-rm-bin.tag     EQ bf-rm-rctd.tag
+         NO-ERROR.
+    IF NOT AVAILABLE bf-rm-bin THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid RM Bin"
+            .
+        
+        RETURN.        
+    END.
+                     
+    dBinQuantity = bf-rm-bin.qty.
+                 
+    FOR EACH bf-rm-rctd FIELDS(qty) NO-LOCK
+        WHERE bf-rm-rctd.company   EQ cCompany
+          AND bf-rm-rctd.rita-code EQ 'I'
+          AND bf-rm-rctd.qty       GT 0 
+          AND bf-rm-rctd.tag       EQ cTag
+          AND ROWID(bf-rm-rctd)    NE ipriRMRctd:
+        dTotalIssuedQty = dTotalIssuedQty + bf-rm-rctd.qty.
+    END.
+
+    IF ipdIssueQuantity GT dBinQuantity - dTotalIssuedQty THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Quantity to issue cannot be greater than " + STRING(dBinQuantity - dTotalIssuedQty)
+            .        
+        
+        RETURN.        
+    END.    
+    
+    FIND FIRST bf-rm-rctd EXCLUSIVE-LOCK
+         WHERE ROWID(bf-rm-rctd) EQ ipriRMRctd
+         NO-ERROR.
+    IF AVAILABLE bf-rm-rctd THEN DO:
+        ASSIGN
+            bf-rm-rctd.qty = ipdIssueQuantity
+            opcMessage     = "Quantity adjust to " + STRING(ipdIssueQuantity)
+            .
+    END.
+    ELSE DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Error updating the transaction"
+            .
+    END.
+
+END PROCEDURE.
+
 PROCEDURE pGetRMItemOnHandQuantity PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -900,7 +989,7 @@ PROCEDURE pBuildRMHistory PRIVATE:
         WHERE bf-rm-rcpth.company    EQ ipcCompany
           AND bf-rm-rcpth.i-no       EQ ipcItemID
           AND (bf-rm-rcpth.rita-code EQ ipcTransactionType OR ipcTransactionType EQ "" OR (ipcTransactionType EQ "R" AND bf-rm-rcpth.rita-code = "A"))
-          AND (trim(bf-rm-rcpth.job-no) EQ ipcJobNo OR ipcJobNo EQ "")
+          AND (bf-rm-rcpth.job-no    EQ ipcJobNo OR ipcJobNo EQ "")
           AND (bf-rm-rcpth.job-no2   EQ ipiJobNo2 OR ipiJobNo2 EQ 0 OR ipcJobNo EQ ""),
         EACH bf-rm-rdtlh NO-LOCK
         WHERE bf-rm-rdtlh.r-no      EQ bf-rm-rcpth.r-no
@@ -2638,15 +2727,17 @@ PROCEDURE Inventory_CreateRMIssueFromTag:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTag      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcJobID    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiJobID2   AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiFormNo   AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiBlankNo  AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER iplPost     AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobID2      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdIssueQty    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplQtyOverride AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPost        AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     RUN pCreateRMIssueFromTag (
@@ -2656,6 +2747,8 @@ PROCEDURE Inventory_CreateRMIssueFromTag:
         INPUT  ipiJobID2,
         INPUT  ipiFormNo,
         INPUT  ipiBlankNo,
+        INPUT  ipdIssueQty,
+        INPUT  iplQtyOverride,
         OUTPUT oplSuccess,
         OUTPUT opcMessage,
         INPUT-OUTPUT TABLE ttBrowseInventory
@@ -2866,14 +2959,16 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTag      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcJobID    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiJobID2   AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiFormNo   AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiBlankNo  AS INTEGER   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobID2      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdIssueQty    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplQtyOverride AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     DEFINE BUFFER bf-loadtag FOR loadtag.
@@ -2895,6 +2990,7 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
     DEFINE VARIABLE dTotalIssuedQty AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dIssuedQty      AS DECIMAL NO-UNDO.
     DEFINE VARIABLE lSetJob         AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dBinQty         AS DECIMAL NO-UNDO.
     
     FIND FIRST bf-loadtag NO-LOCK 
          WHERE bf-loadtag.company   EQ ipcCompany
@@ -2943,7 +3039,7 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
          WHERE ROWID(bf-rm-bin) EQ riRMBin
          NO-ERROR.         
     IF AVAILABLE bf-rm-bin THEN
-        dIssuedQty = bf-rm-bin.qty.
+        dBinQty = bf-rm-bin.qty.
     ELSE DO:
         ASSIGN
             oplSuccess = FALSE
@@ -2951,7 +3047,12 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
             .
         RETURN.    
     END.
-        
+    
+    IF iplQtyOverride THEN
+        dIssuedQty = ipdIssueQty.
+    ELSE
+        dIssuedQty = dBinQty.
+                
     IF dIssuedQty EQ 0 THEN DO:
         ASSIGN
             oplSuccess = FALSE
@@ -2967,8 +3068,17 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
           AND bf-rm-rctd.tag       EQ ipcTag:
         dTotalIssuedQty = dTotalIssuedQty + bf-rm-rctd.qty.
     END.
-
-    dIssuedQty = dIssuedQty - dTotalIssuedQty.
+    
+    IF iplQtyOverride AND dIssuedQty GT (dBinQty - dTotalIssuedQty) THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Quantity to issue cannot be greater than " + STRING(dBinQty - dTotalIssuedQty)
+            .
+        RETURN.    
+    END.
+    
+    IF NOT iplQtyOverride THEN
+        dIssuedQty = dBinQty - dTotalIssuedQty.
       
     IF dIssuedQty LT 0 THEN
         dIssuedQty = 0.
@@ -8320,6 +8430,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
                 ttBrowseInventory.locationID          = bf-rm-rctd.loc-bin
                 ttBrowseInventory.quantityOriginal    = bf-rm-rctd.qty
                 ttBrowseInventory.quantity            = bf-rm-rctd.qty
+                ttBrowseInventory.quantityUOM         = bf-rm-rctd.pur-uom
                 ttBrowseInventory.inventoryStatus     = gcStatusStockScanned
                 ttBrowseInventory.rec_key             = bf-rm-rctd.rec_key
                 ttBrowseInventory.sourceType          = gcInventorySourceTypeRMRCTD
@@ -9308,7 +9419,10 @@ PROCEDURE pGetInventoryStockDetails:
                AND bf-item.i-no    EQ bf-loadtag.i-no
              NO-ERROR.
         IF AVAILABLE bf-item THEN
-            ttInventoryStockDetails.itemCode = bf-item.i-code.
+            ASSIGN
+                ttInventoryStockDetails.itemCode    = bf-item.i-code
+                ttInventoryStockDetails.quantityUOM = bf-item.cons-uom.
+                .
     END.    
     ELSE IF AVAILABLE inventoryStock THEN DO:
         CREATE ttInventoryStockDetails.
