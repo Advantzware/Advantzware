@@ -54,6 +54,7 @@ DEF VAR lWarned AS LOG NO-UNDO.
 DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .
 {src/adm2/widgetprto.i}
+{util/ttPurge.i NEW}
 
 ASSIGN
     cocode = g_company
@@ -675,13 +676,26 @@ PROCEDURE valid-year :
   
     {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:        
-        IF INTEGER(fiEndYear:SCREEN-VALUE) GT (YEAR(TODAY) - 7) THEN DO:         
-            MESSAGE 
-                "Advantzware requires the last 7 years for prior period comparison purposes. Process not allowed.."
-                VIEW-AS ALERT-BOX .
-            IF USERID("ASI") NE "ASI" THEN DO:
+        IF INTEGER(fiEndYear:SCREEN-VALUE) GT (YEAR(TODAY) - 7) THEN DO:   
+            FIND FIRST users NO-LOCK WHERE 
+                users.user_id EQ USERID("ASI")
+                NO-ERROR.       
+            IF NOT AVAIL users 
+            OR users.securityLevel LT 1000 THEN DO:
+                MESSAGE 
+                    "Advantzware requires the last 7 years for prior period comparison purposes. Process not allowed.."
+                    VIEW-AS ALERT-BOX .
                 oplReturn = YES.
                 APPLY "entry" TO fiEndYear.
+            END.
+            ELSE DO:
+                MESSAGE 
+                    "Warning: Deleting/consolidating GL history records less than 7 years old is NOT recommended. Are you sure?"
+                    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue AS LOG.
+                IF NOT lContinue THEN DO:
+                    oplReturn = YES.
+                    APPLY 'entry' TO fiEndYear.
+                END.
             END.
         END. 
     END. 
