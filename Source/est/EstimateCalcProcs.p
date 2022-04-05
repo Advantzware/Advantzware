@@ -63,6 +63,7 @@ DEFINE VARIABLE glApplyOperationMinimumChargeRunOnly  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glRoundPriceToDollar                  AS LOGICAL   NO-UNDO.  /*CEROUND*/
 DEFINE VARIABLE glPromptForMaterialVendor             AS LOGICAL   NO-UNDO.  /*CEVENDOR*/
 DEFINE VARIABLE glUseBlankVendor                      AS LOGICAL   NO-UNDO.  /*CEVendorDefault*/
+DEFINE VARIABLE glCalcSourceForMachineStd             AS LOGICAL   NO-UNDO.  /*CEOpStandards*/
 DEFINE VARIABLE glUseGrossWeight                      AS LOGICAL   NO-UNDO.  /*CEShipWeight*/
 DEFINE VARIABLE glCalcFoamCostFromBlank               AS LOGICAL   NO-UNDO.  /*FOAMCOST*/
 
@@ -151,11 +152,11 @@ FUNCTION fIsWoodType RETURNS LOGICAL PRIVATE
     (ipcEstType AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
-
 RUN system\FreightProcs.p PERSISTENT SET ghFreight.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFreight).
 RUN system\FormulaProcs.p PERSISTENT SET ghFormula.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFormula).
+
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE CalculateEstimate:
@@ -170,7 +171,7 @@ PROCEDURE CalculateEstimate:
     DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
     
     RUN pCalcEstimate(ipcCompany, ipcEstimateNo, "", 0, 0, iplPurge, NO, OUTPUT iEstCostHeaderID).
-
+    
 END PROCEDURE.
 
 PROCEDURE CalculateEstimateWithPrompts:
@@ -202,7 +203,7 @@ PROCEDURE CalculateJob:
     DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
 
     RUN pCalcEstimate(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2, ipiQuantity, iplPurge, NO, OUTPUT opiEstCostHeaderID).
-
+    
 END PROCEDURE.
 
 PROCEDURE CalculateJobWithPrompts:
@@ -219,7 +220,7 @@ PROCEDURE CalculateJobWithPrompts:
     DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
 
     RUN pCalcEstimate(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2, ipiQuantity, iplPurge, YES, OUTPUT opiEstCostHeaderID).
-
+    
 END PROCEDURE.
 
 PROCEDURE ChangeSellPrice:
@@ -3409,7 +3410,34 @@ PROCEDURE pBuildSystemData PRIVATE:
         OUTPUT TABLE ttEstCostCategory,
         OUTPUT TABLE ttEstCostGroup,
         OUTPUT TABLE ttEstCostGroupLevel). 
+END PROCEDURE.
        
+PROCEDURE pImportMachineStandards PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Import Machine Standards on each operation that isn't flagged as locked
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-estCostHeader    FOR estCostHeader.
+    DEFINE PARAMETER BUFFER ipbf-est-op           FOR est-op.
+    DEFINE PARAMETER BUFFER opbf-estCostOperation FOR estCostOperation.
+    
+    DEFINE VARIABLE dMRWaste   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dMRHrs     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dSpeed     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dSpoilPrct AS DECIMAL NO-UNDO.
+    
+       
+    RUN Operations_ImportMachineStandards IN ghOperation
+        (ipbf-est-op.company, ipbf-est-op.est-no, ipbf-est-op.s-num, ipbf-est-op.b-num, ipbf-est-op.op-pass,ipbf-est-op.qty, ipbf-estCostHeader.quantityMaster, ipbf-est-op.m-code, OUTPUT dSpeed, OUTPUT dMRHrs, OUTPUT dMRWaste, OUTPUT dSpoilPrct).
+    
+    IF AVAILABLE opbf-estCostOperation THEN
+        ASSIGN
+            opbf-estCostOperation.quantityInSetupWaste      = dMRWaste
+            opbf-estCostOperation.hoursSetup                = dMRHrs
+            opbf-estCostOperation.speed                     = dSpeed
+            opbf-estCostOperation.quantityInRunWastePercent = dSpoilPrct
+            . 
+        
 END PROCEDURE.
 
 PROCEDURE pProcessAdders PRIVATE:
@@ -3857,6 +3885,7 @@ PROCEDURE pProcessOperations PRIVATE:
             IF est-op.qty GE ipbf-estCostHeader.quantityMaster THEN LEAVE.
         END.
     END.
+    
     EMPTY TEMP-TABLE ttEstBlank.
     
     FOR EACH estCostBlank NO-LOCK 
@@ -3888,8 +3917,13 @@ PROCEDURE pProcessOperations PRIVATE:
         GROUP BY est-op.line DESCENDING:
 
     RUN pAddEstOperationFromEstOp(BUFFER est-op, BUFFER ipbf-estCostForm, BUFFER bf-estCostOperation).                    
+    
     IF AVAILABLE bf-estCostOperation THEN 
     DO:
+        /* Import Machine Standards */
+        IF glCalcSourceForMachineStd AND NOT est-op.isLocked THEN
+            RUN pImportMachineStandards (BUFFER ipbf-estCostHeader, BUFFER est-op, BUFFER bf-estCostOperation).
+        
         /*REFACTOR to calculate quantities for combos*/        
         IF est-op.b-num NE 0 AND bf-estCostOperation.feedType EQ "B" THEN
         DO:  
@@ -5636,6 +5670,10 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     
     RUN sys/ref/nk1look.p (ipcCompany, "FOAMCOST", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
     glCalcFoamCostFromBlank = lFound AND cReturn EQ "Blank".
+    
+	RUN sys/ref/nk1look.p (ipcCompany, "CEOpStandards", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    glCalcSourceForMachineStd = lFound AND cReturn EQ "Machine if Not Locked".
+    
     
 END PROCEDURE.
 

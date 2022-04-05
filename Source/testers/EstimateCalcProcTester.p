@@ -50,13 +50,12 @@ IF glCheckPerformace THEN
     RUN pOnOffProfiler.
    
    
-//RUN pBuildFreightForBoardCost (4798) .
-
-RUN pBuildFreightForBoardCost (4800) . 
-    
+//RUN pBuildFreightForBoardCost (4800) . 
 //RUN pTestEstimate.
-
 // RUN pTestCalculateJobOrEst.    
+
+RUN pTestImportMachineStandards.
+
     
 // Turn Off    
 IF glCheckPerformace THEN
@@ -228,4 +227,54 @@ PROCEDURE pBuildFreightForBoardCost PRIVATE:
     
     END.
     
+END PROCEDURE.
+
+PROCEDURE pTestImportMachineStandards:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-est-op           FOR est-op.
+    DEFINE BUFFER bf-estCostOperation FOR estCostOperation.
+    
+    
+    DEFINE VARIABLE dMRWaste   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dMRHrs     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dSpeed     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dSpoilPrct AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE ghOperation AS HANDLE NO-UNDO.
+    
+    RUN est\OperationProcs.p PERSISTENT SET ghOperation.
+    
+    FOR EACH bf-est-op NO-LOCk
+        WHERE bf-est-op.Company = "001"
+        AND bf-est-op.est-no  = "  104045"
+        //AND bf-est-op.qty  = 1000
+        
+        and bf-est-op.m-code = "408"
+            by bf-est-op.line desc:
+              
+        FOR FIRST bf-estCostOperation NO-LOCK
+            WHERE bf-estCostOperation.company    = bf-est-op.company
+            AND bf-estCostOperation.estimateNo   = bf-est-op.est-No
+            AND bf-estCostOperation.formNo       = bf-est-op.s-num
+            AND bf-estCostOperation.blankNo      = bf-est-op.b-num
+            AND bf-estCostOperation.operationID  = bf-est-op.m-code:
+       
+            RUN Operations_ImportMachineStandards IN ghOperation
+                (bf-est-op.company, bf-est-op.est-no, bf-est-op.s-num, bf-est-op.b-num, bf-est-op.op-pass,bf-est-op.qty, 600000, bf-est-op.m-code, OUTPUT dSpeed, OUTPUT dMRHrs, OUTPUT dMRWaste, OUTPUT dSpoilPrct).
+    
+    
+            MESSAGE
+            bf-est-op.m-code skip
+           
+                bf-estCostOperation.quantityInSetupWaste  dMRWaste skip 
+                bf-estCostOperation.hoursSetup           dMRHrs skip
+                bf-estCostOperation.speed   dSpeed skip
+                bf-estCostOperation.quantityInRunWastePercent dSpoilPrct skip
+                VIEW-AS ALERT-BOX.
+                
+        END.
+    END.
+   
 END PROCEDURE.
