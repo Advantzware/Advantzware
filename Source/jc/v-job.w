@@ -1371,7 +1371,6 @@ PROCEDURE local-delete-record :
   DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
   DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
-  DEFINE VARIABLE cFGItemList     AS CHARACTER NO-UNDO.
   
   {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -1443,7 +1442,7 @@ PROCEDURE local-delete-record :
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
   RUN set-attribute-list IN WIDGET-HANDLE(char-hdl) ("REC-DELETED=yes").
 
-  RUN pUpdateFGItemQty(BUFFER job, OUTPUT cFGItemList).
+  RUN pUpdateFGItemQty(BUFFER job).
   
   RUN pUpdateCommittedQty(recid(job)).
 
@@ -1467,8 +1466,6 @@ PROCEDURE local-delete-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
-  RUN pReSetFgItemQty(cFGItemList).
-  
   /* Verifying if the job is deleted */
   IF NOT AVAILABLE job THEN
       RUN Outbound_Execute IN hdOutboundProcs (
@@ -3166,7 +3163,6 @@ PROCEDURE pUpdateFGItemQty :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE PARAMETER BUFFER ipbf-job FOR job.
-   DEFINE OUTPUT PARAMETER opcFGItem AS CHARACTER NO-UNDO.
    DEFINE VARIABLE lRecalcOnHand AS LOGICAL INIT NO NO-UNDO.
    DEFINE VARIABLE lRecalcOnOrder AS LOGICAL INIT YES NO-UNDO.
    DEFINE VARIABLE lRecalcAllocated AS LOGICAL INIT NO NO-UNDO.
@@ -3180,7 +3176,7 @@ PROCEDURE pUpdateFGItemQty :
         AND bf-job-hdr.job-no EQ ipbf-job.job-no
         AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
         AND bf-job-hdr.ord-no EQ 0:
-        opcFGItem = opcFGItem + bf-job-hdr.i-no + "," .     
+             
         RUN util/upditmfg.p (
                    INPUT ROWID(bf-job-hdr),
                    INPUT -1
@@ -3202,33 +3198,6 @@ PROCEDURE pUpdateCommittedQty :
    DEFINE INPUT PARAMETER iprcRecid AS RECID NO-UNDO.           
      
    RUN jc/jc-dall.p(iprcRecid).     
-             
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReSetFgItemQty V-table-Win 
-PROCEDURE pReSetFgItemQty :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ipcFGItemList AS CHARACTER NO-UNDO.           
-   
-   DEFINE BUFFER bf-itemfg FOR itemfg.
-   
-   DO i = 1 TO NUM-ENTRIES(ipcFGItemList):
-    IF  ENTRY(i,ipcFGItemList)  NE "" THEN 
-    DO:
-         FIND FIRST bf-itemfg NO-LOCK
-              WHERE bf-itemfg.company EQ cocode
-              AND bf-itemfg.i-no EQ ENTRY(i,ipcFGItemList) NO-ERROR.
-         IF AVAILABLE bf-itemfg AND NOT bf-itemfg.pur-man THEN 
-         RUN fg/fg-reset.p (recid(bf-itemfg)).
-    END.   
-   END.
              
 END PROCEDURE.
 
