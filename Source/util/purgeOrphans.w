@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 {sys/inc/var.i "new shared"}
+{util/ttPurge.i NEW}
 
 DEF VAR cMessage AS CHAR NO-UNDO.
 DEF VAR daTargetDate AS DATE NO-UNDO.
