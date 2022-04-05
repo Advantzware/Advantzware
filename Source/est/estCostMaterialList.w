@@ -441,7 +441,7 @@ DO:
             AND bf-estCostMaterialForAll.estCostMaterialID <> estCostMaterial.estCostMaterialID
             AND bf-estCostMaterialForAll.vendorId          <> estCostMaterial.vendorID:    
     
-            RUN Estmate_GetAdders(INPUT bf-estCostMaterialForAll.Company, // Internal procedure in est/EstimateProcs.p
+            RUN Estmate_GetAddersArray(INPUT bf-estCostMaterialForAll.Company, // Internal procedure in est/EstimateProcs.p
                 INPUT bf-estCostMaterialForAll.estimateNo,
                 INPUT bf-estCostMaterialForAll.formNo,
                 OUTPUT cAdderList).
