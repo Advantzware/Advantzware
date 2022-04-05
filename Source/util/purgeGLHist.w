@@ -691,8 +691,8 @@ PROCEDURE valid-year :
             ELSE DO:
                 MESSAGE 
                     "Warning: Deleting/consolidating GL history records less than 7 years old is NOT recommended. Are you sure?"
-                    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue AS LOG.
-                IF NOT lContinue THEN DO:
+                    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue2 AS LOG.
+                IF NOT lContinue2 THEN DO:
                     oplReturn = YES.
                     APPLY 'entry' TO fiEndYear.
                 END.
