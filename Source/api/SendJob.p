@@ -178,12 +178,12 @@ DO:
                 
             lcJobMatData = bf-APIOutboundDetail.data.
                         
-            FOR EACH job-hdr 
+            FOR EACH job-hdr NO-LOCK
                 WHERE job-hdr.company EQ job-mat.company
                   AND job-hdr.job-no  EQ job-mat.job-no
                   AND job-hdr.job-no2 EQ job-mat.job-no2
                   AND job-hdr.frm     EQ job-mat.frm,
-                EACH ef
+                EACH ef NO-LOCK
                 WHERE ef.company EQ job-hdr.company
                   AND ef.est-no   EQ job-hdr.est-no
                   AND ef.form-no  EQ job-hdr.frm,
