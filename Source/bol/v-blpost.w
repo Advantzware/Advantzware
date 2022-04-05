@@ -518,7 +518,7 @@ PROCEDURE rm-post-issue :
       
       else  if asi.rm-rctd.rita-code eq "I" then do:  /** ISSUES **/
             find first job  where job.company eq asi.rm-rctd.company
-                and trim(job.job-no)  eq trim(asi.rm-rctd.job-no)
+                and job.job-no  eq asi.rm-rctd.job-no
                 and job.job-no2 eq asi.rm-rctd.job-no2
               no-error.
 
@@ -735,7 +735,7 @@ PROCEDURE rm-post-receipt :
       if avail job and avail item and item.mat-type eq "B" then {rm/rm-addcr.i E b-rm-h b-rm-d}
       else if asi.rm-rctd.rita-code eq "I" then do:  /** ISSUES **/
            find first job where job.company eq asi.rm-rcth.company
-                            and trim(job.job-no)  eq trim(rm-rcpt.job-no)
+                            and job.job-no  eq rm-rcpt.job-no
                             and job.job-no2 eq rm-rcpt.job-no2
                             no-error.
            if avail job and job.job-no ne "" then do:

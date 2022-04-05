@@ -763,7 +763,7 @@ PROCEDURE new-bin :
     FIND FIRST fg-bin 
         WHERE fg-bin.company EQ cocode
           AND fg-bin.i-no    EQ oe-boll.i-no
-          AND TRIM(fg-bin.job-no)  EQ TRIM(oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+          AND fg-bin.job-no  EQ oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
           AND fg-bin.job-no2 EQ INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           AND fg-bin.loc     EQ oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name}
           AND fg-bin.loc-bin EQ oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -804,7 +804,7 @@ PROCEDURE old-valid-job-loc-bin-tag :
     FIND FIRST fg-bin
         WHERE fg-bin.company  EQ cocode
           AND fg-bin.i-no     EQ oe-boll.i-no
-          AND TRIM(fg-bin.job-no)   EQ TRIM(oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+          AND fg-bin.job-no   EQ oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
           AND (fg-bin.job-no2 EQ INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) OR
                (li-field#     LT 2 AND INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0))
           AND (fg-bin.loc     EQ oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name}          OR
@@ -970,7 +970,7 @@ PROCEDURE valid-job-loc-bin-tag :
     IF NOT CAN-FIND(FIRST fg-bin 
                     WHERE fg-bin.company  EQ cocode
                       AND fg-bin.i-no     EQ oe-boll.i-no
-                      AND (TRIM(fg-bin.job-no)  EQ TRIM(oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name})       OR ip-int LT 1)
+                      AND (fg-bin.job-no  EQ oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}       OR ip-int LT 1)
                       AND (fg-bin.job-no2 EQ INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) OR ip-int LT 2)
                       AND (fg-bin.loc     EQ oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name}          OR ip-int LT 3)
                       AND (fg-bin.loc-bin EQ oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}      OR ip-int LT 4)

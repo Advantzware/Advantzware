@@ -684,7 +684,7 @@ ON LEAVE OF begin_i-no IN FRAME FRAME-A /* Item# */
 
             FIND FIRST job-hdr WHERE
                 job-hdr.company EQ cocode AND
-                trim(job-hdr.job-no) EQ trim(begin_job:SCREEN-VALUE) AND
+                job-hdr.job-no  EQ begin_job:SCREEN-VALUE AND
                 job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE) AND
                 begin_job:SCREEN-VALUE NE ""
                 NO-LOCK NO-ERROR.
@@ -1113,7 +1113,7 @@ ON LEAVE OF fi_cas-lab IN FRAME FRAME-A /* Scan Label */
          
                 FIND FIRST job-hdr 
                     WHERE job-hdr.company  EQ cocode 
-                    AND trim(job-hdr.job-no) EQ trim(begin_job:SCREEN-VALUE)
+                    AND job-hdr.job-no     EQ begin_job:SCREEN-VALUE
                     AND job-hdr.job-no2  EQ INT(begin_job2:SCREEN-VALUE) 
                     AND job-hdr.frm      EQ INT(iForm)
                     AND job-hdr.blank-no EQ INT(iBlank-no)
@@ -1130,7 +1130,7 @@ ON LEAVE OF fi_cas-lab IN FRAME FRAME-A /* Scan Label */
             DO:
                 FIND FIRST job-hdr WHERE
                     job-hdr.company EQ cocode AND
-                    trim(job-hdr.job-no) EQ trim(begin_job:SCREEN-VALUE) AND
+                    job-hdr.job-no  EQ begin_job:SCREEN-VALUE AND
                     job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
                     NO-LOCK NO-ERROR.
 
@@ -2557,7 +2557,7 @@ PROCEDURE new-job :
             IF TRIM(begin_job:SCREEN-VALUE) NE "" THEN
                 FIND FIRST job NO-LOCK
                     WHERE job.company  EQ cocode
-                    AND trim(job.job-no) EQ TRIM(begin_job:SCREEN-VALUE)
+                    AND job.job-no  EQ begin_job:SCREEN-VALUE
                     AND job.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
                     NO-ERROR.
 
@@ -3002,7 +3002,7 @@ PROCEDURE run-report :
     IF begin_job NE "" THEN
         FOR EACH job
             WHERE job.company EQ cocode
-            AND trim(job.job-no)  EQ TRIM(begin_job)
+            AND job.job-no  EQ begin_job
             AND job.job-no2 EQ INT(begin_job2)            
             NO-LOCK:
                
@@ -3280,10 +3280,10 @@ PROCEDURE run-report :
             END. 
 
             ASSIGN
-                lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,9)
+                lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,iJobLen)
                 lv-middlesex-job = IF lv-middlesex-job EQ "" THEN "" ELSE
                           "%MX" +
-                          FILL("0",9 - LENGTH(TRIM(lv-middlesex-job))) +
+                          FILL("0",iJobLen - LENGTH(TRIM(lv-middlesex-job))) +
                           TRIM(lv-middlesex-job)
                 lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,6)
                 lv-middlesex-po  = IF lv-middlesex-po EQ "" THEN "" ELSE
@@ -3549,8 +3549,8 @@ PROCEDURE temp-job :
          
     FOR EACH job
         WHERE job.company EQ cocode
-        AND trim(job.job-no)  EQ trim(SUBSTR(ip-job-no,1,9))
-        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,10,3))
+        AND job.job-no  EQ SUBSTR(ip-job-no,1,iJobLen)
+        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,(iJobLen + 1),3))
         NO-LOCK:
         RUN temp-create (ROWID(job)).
     END.

@@ -75,14 +75,14 @@ DEF VAR loop-limit AS INT NO-UNDO.
     find first fg-rcpts use-index cust-no
         where fg-rcpts.company eq oe-ord.company
           and fg-rcpts.cust-no eq oe-ord.cust-no
-          and trim(fg-rcpts.job-no)  EQ trim(oe-ordl.job-no)
+          and fg-rcpts.job-no  EQ oe-ordl.job-no
           and fg-rcpts.job-no2 eq oe-ordl.job-no2
           and fg-rcpts.i-no    eq oe-ordl.i-no
         no-lock no-error.
     if not avail fg-rcpts then
     find first fg-rcpth use-index job
         where fg-rcpth.company eq oe-ord.company
-          and trim(fg-rcpth.job-no)  EQ trim(oe-ordl.job-no)
+          and fg-rcpth.job-no  EQ oe-ordl.job-no
           and fg-rcpth.job-no2 eq oe-ordl.job-no2
           and fg-rcpth.i-no    eq oe-ordl.i-no
         no-lock no-error.

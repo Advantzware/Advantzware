@@ -37,9 +37,9 @@ DEFINE STREAM excel.
 {custom/getcmpny.i}
 {custom/getloc.i}
 
-/*{sys/inc/var.i new shared} */
-def new shared var cocode as cha no-undo.
-def new shared var locode as cha no-undo.
+{sys/inc/var.i} 
+/*def new shared var cocode as cha no-undo.*/
+/*def new shared var locode as cha no-undo.*/
 
 assign
  cocode = gcompany
@@ -74,7 +74,7 @@ DEFINE TEMP-TABLE ttbl_rowid NO-UNDO
 */  
 DEFINE VARIABLE machtotaltime AS DECIMAL NO-UNDO.
 DEFINE VARIABLE shiftpct AS DECIMAL NO-UNDO.
-DEFINE VARIABLE i AS INTEGER NO-UNDO.
+/*DEFINE VARIABLE i AS INTEGER NO-UNDO.*/
 DEFINE VARIABLE waste-qty AS DECIMAL NO-UNDO.
 DEFINE VARIABLE run-qty AS DECIMAL NO-UNDO.
 DEFINE VARIABLE selected-company AS CHARACTER FORMAT "X(3)" LABEL "Company" NO-UNDO.

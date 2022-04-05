@@ -185,7 +185,7 @@ PROCEDURE checkset :
         WHERE b-fg-rctd.company   EQ cocode   
           AND b-fg-rctd.i-no      EQ b-itemfg.i-no
           AND b-fg-rctd.rita-code EQ "R"
-          AND ((trim(b-fg-rctd.job-no)  EQ trim(ip-job-no) AND
+          AND ((b-fg-rctd.job-no  EQ ip-job-no AND
                 b-fg-rctd.job-no2 EQ ip-job-no2) OR
                NOT tb_use-job)
           AND (IF lFGSetAssembly THEN b-fg-rctd.loc EQ ipcLoc ELSE TRUE)
@@ -279,7 +279,7 @@ PROCEDURE main-procedure :
     FOR EACH fg-bin FIELDS(qty)
         WHERE fg-bin.company EQ itemfg.company
           AND fg-bin.i-no    EQ itemfg.i-no
-          AND trim(fg-bin.job-no)  EQ trim(ip-job-no)
+          AND fg-bin.job-no  EQ ip-job-no
           AND fg-bin.job-no2 EQ ip-job-no2
         NO-LOCK:
       v-set-use = v-set-use + fg-bin.qty.

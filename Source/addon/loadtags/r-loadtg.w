@@ -1735,7 +1735,7 @@ PROCEDURE temp-job :
 
   FOR EACH job
       WHERE job.company EQ cocode
-        AND TRIM(job.job-no)  EQ TRIM(SUBSTR(ip-job-no,1,iJobLen))
+        AND job.job-no  EQ SUBSTR(ip-job-no,1,iJobLen)
         AND job.job-no2 EQ INT(SUBSTR(ip-job-no,(iJobLen + 1),3))
       NO-LOCK:
     RUN temp-create (ROWID(job)).

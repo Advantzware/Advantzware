@@ -77,7 +77,7 @@ AND loadtag.is-case-tag EQ NO            ~
 AND loadtag.tag-no BEGINS tb_tag-no       ~
 AND loadtag.loc BEGINS tb_loc             ~
 AND loadtag.loc-bin BEGINS tb_loc-bin      ~
-AND (trim(loadtag.job-no) EQ trim(tb_job-no) OR tb_job-no EQ '')  ~
+AND (loadtag.job-no EQ tb_job-no OR tb_job-no EQ '')  ~
 AND (loadtag.job-no2 EQ tb_job-no2 OR tb_job-no EQ '')  ~
 AND (loadtag.po-no EQ tb_po-no OR tb_po-no EQ 0)       ~
 AND (loadtag.ord-no EQ tb_ord-no OR tb_ord-no EQ 0)    ~
@@ -92,7 +92,7 @@ AND loadtag.is-case-tag EQ NO            ~
 AND loadtag.tag-no BEGINS tb_tag-no       ~
 AND loadtag.loc BEGINS tb_loc             ~
 AND loadtag.loc-bin BEGINS tb_loc-bin      ~
-AND (trim(loadtag.job-no) EQ trim(tb_job-no) OR tb_job-no EQ '')  ~
+AND (loadtag.job-no EQ tb_job-no OR tb_job-no EQ '')  ~
 AND (loadtag.job-no2 EQ tb_job-no2 OR tb_job-no EQ '')  ~
 AND (loadtag.po-no EQ tb_po-no OR tb_po-no EQ 0)       ~
 AND (loadtag.ord-no EQ tb_ord-no OR tb_ord-no EQ 0)    ~
@@ -163,7 +163,7 @@ AND loadtag.is-case-tag EQ NO ~
 AND loadtag.tag-no BEGINS tb_tag-no ~
 AND loadtag.loc BEGINS tb_loc ~
 AND loadtag.loc-bin BEGINS tb_loc-bin ~
-AND (trim(loadtag.job-no) EQ trim(tb_job-no) OR tb_job-no EQ '') ~
+AND (loadtag.job-no EQ tb_job-no OR tb_job-no EQ '') ~
 AND (loadtag.job-no2 EQ tb_job-no2 OR tb_job-no EQ '') ~
 AND (loadtag.po-no EQ tb_po-no OR tb_po-no EQ 0) ~
 AND (loadtag.ord-no EQ tb_ord-no OR tb_ord-no EQ 0) ~
@@ -179,7 +179,7 @@ AND loadtag.is-case-tag EQ NO ~
 AND loadtag.tag-no BEGINS tb_tag-no ~
 AND loadtag.loc BEGINS tb_loc ~
 AND loadtag.loc-bin BEGINS tb_loc-bin ~
-AND (trim(loadtag.job-no) EQ trim(tb_job-no) OR tb_job-no EQ '') ~
+AND (loadtag.job-no EQ tb_job-no OR tb_job-no EQ '') ~
 AND (loadtag.job-no2 EQ tb_job-no2 OR tb_job-no EQ '') ~
 AND (loadtag.po-no EQ tb_po-no OR tb_po-no EQ 0) ~
 AND (loadtag.ord-no EQ tb_ord-no OR tb_ord-no EQ 0) ~
@@ -508,7 +508,7 @@ AND loadtag.is-case-tag EQ NO
 AND loadtag.tag-no BEGINS tb_tag-no
 AND loadtag.loc BEGINS tb_loc
 AND loadtag.loc-bin BEGINS tb_loc-bin
-AND (trim(loadtag.job-no) EQ trim(tb_job-no) OR tb_job-no EQ '')
+AND (loadtag.job-no EQ tb_job-no OR tb_job-no EQ '')
 AND (loadtag.job-no2 EQ tb_job-no2 OR tb_job-no EQ '')
 AND (loadtag.po-no EQ tb_po-no OR tb_po-no EQ 0)
 AND (loadtag.ord-no EQ tb_ord-no OR tb_ord-no EQ 0)

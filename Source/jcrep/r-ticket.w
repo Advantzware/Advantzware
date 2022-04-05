@@ -963,7 +963,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             DO:
 
                 FIND FIRST job-hdr WHERE job-hdr.company EQ cocode
-                    AND TRIM(job-hdr.job-no) EQ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))) NO-LOCK NO-ERROR.
+                    AND job-hdr.job-no EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)) NO-LOCK NO-ERROR.
 
                 IF NOT AVAILABLE job-hdr THEN 
                 DO:
@@ -973,9 +973,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             END.
 
             FOR EACH job-hdr 
-                WHERE job-hdr.company               EQ cocode
-                AND TRIM(job-hdr.job-no)            GE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)))
-                AND TRIM(job-hdr.job-no)            LE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)))
+                WHERE job-hdr.company         EQ cocode
+                AND job-hdr.job-no            GE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
+                AND job-hdr.job-no            LE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
                 NO-LOCK :
                 /*  FIND FIRST cust WHERE cust.company EQ cocode 
                       AND cust.cust-no EQ job-hdr.cust-no NO-LOCK NO-ERROR.
@@ -1857,7 +1857,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DO:
         FIND FIRST job-hdr NO-LOCK
             WHERE job-hdr.company EQ cocode
-            AND TRIM(job-hdr.job-no) EQ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)))
+            AND job-hdr.job-no EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
             AND job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
             NO-ERROR.
 
@@ -1983,7 +1983,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         DO:
             FIND FIRST job-hdr NO-LOCK
                 WHERE job-hdr.company       EQ cocode
-                AND TRIM(job-hdr.job-no)    EQ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)))
+                AND job-hdr.job-no          EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
                 AND job-hdr.job-no2         EQ INT(begin_job2:SCREEN-VALUE)
                 NO-ERROR.
             IF AVAILABLE job-hdr THEN 
@@ -2029,7 +2029,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         DO:
             FIND FIRST job-hdr NO-LOCK
                 WHERE job-hdr.company       EQ cocode
-                AND TRIM(job-hdr.job-no)    EQ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)))
+                AND job-hdr.job-no          EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
                 AND job-hdr.job-no2         EQ INT(begin_job2:SCREEN-VALUE)
                 NO-ERROR.
             IF AVAILABLE job-hdr THEN 
@@ -2828,7 +2828,7 @@ PROCEDURE new-job-no :
 
         FIND FIRST job NO-LOCK
             WHERE job.company EQ cocode
-            AND TRIM(job.job-no) EQ TRIM(SUBSTR(fjob-no,1,9)) NO-ERROR.
+            AND job.job-no    EQ SUBSTR(fjob-no,1,iJobLen) NO-ERROR.
         /*          IF AVAIL job AND job.opened = YES  THEN DO : */
         /*                                                       */
         /*             if job.cs-to-pr = YES THEN                */
@@ -3680,8 +3680,8 @@ PROCEDURE split-ship-proc :
 
         FIND FIRST job-hdr NO-LOCK
             WHERE job-hdr.company EQ cocode
-            AND TRIM(job-hdr.job-no) EQ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)))
-            AND job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
+            AND job-hdr.job-no    EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
+            AND job-hdr.job-no2   EQ INT(begin_job2:SCREEN-VALUE)
             NO-ERROR.
         IF AVAILABLE job-hdr AND  job-hdr.splitShip EQ YES THEN
             tb_prompt-ship:CHECKED = YES.

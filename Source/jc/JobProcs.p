@@ -44,7 +44,7 @@ PROCEDURE CheckJobStatus:
     
     FIND FIRST job NO-LOCK 
          WHERE job.company EQ ipcCompany
-           AND trim(job.job-No)  EQ trim(ipcJobNo)
+           AND job.job-No  EQ ipcJobNo
            AND job.job-No2 EQ ipiJobNo2
          NO-ERROR.  
     IF AVAILABLE job AND NOT job.opened THEN DO:
@@ -66,7 +66,7 @@ PROCEDURE IsJobClosed:
     
     oplClosed = CAN-FIND(FIRST job NO-LOCK
                          WHERE job.company EQ ipcCompany
-                           AND trim(job.job-No)  EQ trim(ipcJobNo)
+                           AND job.job-No  EQ ipcJobNo
                            AND job.job-No2 EQ ipiJobNo2
                            AND NOT job.opened).
 END PROCEDURE.
@@ -88,7 +88,7 @@ PROCEDURE GetFormAndBlankFromJobAndFGItem:
 
     FOR EACH bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
-          AND trim(bf-job.job-no)  EQ trim(ipcJobno)
+          AND bf-job.job-no  EQ ipcJobno
           AND bf-job.job-no2 EQ ipiJobno2,
             EACH bf-job-hdr NO-LOCK
             WHERE bf-job-hdr.company EQ bf-job.company
@@ -185,7 +185,7 @@ PROCEDURE Job_GetNextOperation:
     Main-Loop-Mach:
     FOR EACH bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
-          AND trim(bf-job.job-no)  EQ trim(ipcJobno)
+          AND bf-job.job-no  EQ ipcJobno
           AND bf-job.job-no2 EQ ipiJobno2,
         EACH bf-job-mch NO-LOCK
         WHERE bf-job-mch.company EQ bf-job.company
@@ -328,7 +328,7 @@ PROCEDURE pGetSecondaryJobForJob PRIVATE:
 
     FOR EACH bf-job-hdr NO-LOCK
         WHERE bf-job-hdr.company EQ ipcCompany
-          AND trim(bf-job-hdr.job-no)  EQ trim(ipcJobno)
+          AND bf-job-hdr.job-no  EQ ipcJobno
           AND (bf-job-hdr.opened EQ iplJobStatus OR iplJobStatus EQ ?)
            BY bf-job-hdr.opened DESCENDING
            BY bf-job-hdr.job-no2:
@@ -398,13 +398,13 @@ PROCEDURE pGetFormNoForJobHeader PRIVATE:
     
     FOR EACH bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
-          AND trim(bf-job.job-no)  EQ trim(ipcJobno)
+          AND bf-job.job-no  EQ ipcJobno
           AND bf-job.job-no2 EQ ipiJobno2
           AND (bf-job.opened EQ iplJobStatus OR iplJobStatus EQ ?),
     EACH bf-job-hdr NO-LOCK
         WHERE bf-job-hdr.company EQ ipcCompany
           AND bf-job-hdr.job     EQ bf-job.job
-          AND trim(bf-job-hdr.job-no)  EQ trim(ipcJobno)
+          AND bf-job-hdr.job-no  EQ ipcJobno
           AND bf-job-hdr.job-no2 EQ ipiJobNo2
           AND (bf-job-hdr.opened EQ iplJobStatus OR iplJobStatus EQ ?)
            BY bf-job-hdr.job-no2:
@@ -472,13 +472,13 @@ PROCEDURE pGetBlankNoForJobHeader PRIVATE:
     
     FOR EACH bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
-          AND trim(bf-job.job-no)  EQ trim(ipcJobno)
+          AND bf-job.job-no  EQ ipcJobno
           AND bf-job.job-no2 EQ ipiJobno2
           AND (bf-job.opened EQ iplJobStatus OR iplJobStatus EQ ?),
     EACH bf-job-hdr NO-LOCK
         WHERE bf-job-hdr.company EQ ipcCompany
           AND bf-job-hdr.job     EQ bf-job.job
-          AND trim(bf-job-hdr.job-no)  EQ trim(ipcJobno)
+          AND bf-job-hdr.job-no  EQ ipcJobno
           AND bf-job-hdr.job-no2 EQ ipiJobNo2
           AND (bf-job-hdr.opened EQ iplJobStatus OR iplJobStatus EQ ?)
            BY bf-job-hdr.job-no2:
@@ -506,7 +506,7 @@ PROCEDURE GetFormnoForJob:
     
     FOR EACH bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
-          AND trim(bf-job.job-no)  EQ trim(ipcJobno)
+          AND bf-job.job-no  EQ ipcJobno
           AND bf-job.job-no2 EQ ipiJobno2
           AND bf-job.opened,
             EACH bf-job-mat NO-LOCK
@@ -719,7 +719,7 @@ PROCEDURE pCopyMaterialPreviousJob PRIVATE:
      
     FOR EACH bf-job-mat NO-LOCK
         WHERE bf-job-mat.company EQ ipcCompany
-        and trim(bf-job-mat.job-no)  EQ trim(ipcJobNo) 
+        and bf-job-mat.job-no    EQ ipcJobNo 
         AND bf-job-mat.job-no ne ""   
         AND bf-job-mat.job-no2 EQ ipiJobNo2 
         AND (bf-job-mat.frm      EQ ipiFormNo OR ipiFormNo EQ ?)         
@@ -764,7 +764,7 @@ PROCEDURE GetBlanknoForJob:
 
     FOR EACH bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
-          AND trim(bf-job.job-no)  EQ trim(ipcJobno)
+          AND bf-job.job-no  EQ ipcJobno
           AND bf-job.job-no2 EQ ipiJobno2
           AND bf-job.opened,
             EACH bf-job-mat NO-LOCK
@@ -802,7 +802,7 @@ PROCEDURE GetOperationsForJob:
 
     FOR EACH bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
-          AND trim(bf-job.job-no)  EQ trim(ipcJobno)
+          AND bf-job.job-no  EQ ipcJobno
           AND bf-job.job-no2 EQ ipiJobno2,
             EACH bf-job-mch NO-LOCK
             WHERE bf-job-mch.company EQ bf-job.company
@@ -841,7 +841,7 @@ PROCEDURE GetOperationsForJobNotCompleted:
 
     FOR EACH bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
-          AND trim(bf-job.job-no)  EQ trim(ipcJobno)
+          AND bf-job.job-no  EQ ipcJobno
           AND bf-job.job-no2 EQ ipiJobno2,
             EACH bf-job-mch NO-LOCK
             WHERE bf-job-mch.company EQ bf-job.company
@@ -881,7 +881,7 @@ PROCEDURE GetFGItemForJob:
 
     FOR EACH bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
-          AND trim(bf-job.job-no)  EQ trim(ipcJobno)
+          AND bf-job.job-no  EQ ipcJobno
           AND bf-job.job-no2 EQ ipiJobno2,
             EACH bf-job-hdr NO-LOCK
             WHERE bf-job-hdr.company EQ bf-job.company
@@ -938,7 +938,7 @@ PROCEDURE GetRMItemsForJob:
     
     FOR EACH bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
-          AND trim(bf-job.job-no)  EQ trim(ipcJobno)
+          AND bf-job.job-no  EQ ipcJobno
           AND bf-job.job-no2 EQ ipiJobno2,
             EACH bf-job-mat NO-LOCK
             WHERE bf-job-mat.company  EQ bf-job.company
@@ -995,7 +995,7 @@ PROCEDURE GetOperation:
     Main-Loop-Mach:
     FOR EACH bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
-          AND trim(bf-job.job-no)  EQ trim(ipcJobno)
+          AND bf-job.job-no  EQ ipcJobno
           AND bf-job.job-no2 EQ ipiJobno2,
         EACH bf-job-mch NO-LOCK
         WHERE bf-job-mch.company EQ bf-job.company
@@ -1213,7 +1213,7 @@ PROCEDURE pGetMachRunComplete PRIVATE:
     
     FOR EACH job-mch NO-LOCK
         WHERE job-mch.company EQ ipcCompany
-        AND trim(job-mch.job-no) EQ trim(ipcJobNo)
+        AND job-mch.job-no EQ ipcJobNo
         AND job-mch.job-no2 EQ ipiJobNo2
         BREAK BY job-mch.frm
         BY job-mch.line:
@@ -1309,7 +1309,7 @@ PROCEDURE ValidateJob:
     Main-Loop-Mach:
     FOR EACH bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
-          AND trim(bf-job.job-no)  EQ trim(ipcJobno)
+          AND bf-job.job-no  EQ ipcJobno
           AND bf-job.job-no2 EQ ipiJobno2:
         
         IF ipcMachine NE "" THEN
@@ -1347,7 +1347,7 @@ PROCEDURE ValidateJobHdr:
     
     oplValidJob = CAN-FIND(FIRST job-hdr NO-LOCK
             WHERE job-hdr.company  EQ ipcCompany
-              AND trim(job-hdr.job-no)   EQ trim(ipcJobno)
+              AND job-hdr.job-no   EQ ipcJobno
               AND job-hdr.job-no2  EQ ipiJobno2).          
 END PROCEDURE.
 
@@ -1366,7 +1366,7 @@ PROCEDURE GetJobHdrDetails:
     
     FIND FIRST job-hdr NO-LOCK 
          WHERE job-hdr.company EQ ipcCompany
-           AND trim(job-hdr.job-no)  EQ trim(ipcJobno)
+           AND job-hdr.job-no  EQ ipcJobno
            AND job-hdr.job-no2 EQ ipiJobno2
            AND job-hdr.frm     EQ ipiFormno NO-ERROR.
     IF AVAILABLE job-hdr THEN
@@ -1399,7 +1399,7 @@ PROCEDURE getLastActivity:
 /*         opcLastActivity = "Unposted".            */
     FOR EACH mch-act NO-LOCK 
         WHERE mch-act.company EQ ipcCompany
-          AND trim(mch-act.job-no)  EQ trim(ipcJobno)
+          AND mch-act.job-no  EQ ipcJobno
           AND mch-act.job-no2 EQ ipiJobno2
         BREAK BY mch-act.op-date
               BY mch-act.stopp

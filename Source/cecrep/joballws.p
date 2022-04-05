@@ -702,7 +702,7 @@ DO v-local-loop = 1 TO v-local-copies:
         IF s-prt-ship-split 
           THEN
            FIND FIRST tt-fibre NO-LOCK 
-             WHERE trim(tt-fibre.tt-job-no)  EQ trim(job-hdr.job-no)
+             WHERE tt-fibre.tt-job-no  EQ job-hdr.job-no
                AND tt-fibre.tt-job-no2 EQ job-hdr.job-no2
                AND tt-fibre.tt-frm     EQ w-ef.frm
                AND tt-fibre.tt-blank   EQ b-eb.blank-no NO-ERROR.

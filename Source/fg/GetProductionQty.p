@@ -84,7 +84,7 @@ IF iplUseFGAct THEN DO:
         NO-LOCK NO-ERROR.
     FIND FIRST job 
         WHERE job.company EQ ipcCompany
-          AND trim(job.job-no) EQ trim(ipcJobNo)
+          AND job.job-no  EQ ipcJobNo
           AND job.job-no2 EQ ipiJobNo2
     NO-LOCK NO-ERROR.
     IF AVAIL job AND AVAIL itemfg THEN DO:
@@ -108,7 +108,7 @@ ELSE DO:
     FOR EACH fg-rcpth 
         FIELDS(r-no rita-code)
         WHERE fg-rcpth.company EQ ipcCompany
-          AND trim(fg-rcpth.job-no) EQ trim(ipcJobNo)
+          AND fg-rcpth.job-no  EQ ipcJobNo
           AND fg-rcpth.job-no2 EQ ipiJobNo2
           AND fg-rcpth.i-no EQ ipcINo
           AND fg-rcpth.rita-code EQ 'R' 

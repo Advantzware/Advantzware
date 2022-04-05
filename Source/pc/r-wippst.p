@@ -2710,8 +2710,6 @@ PROCEDURE run-report :
         AND pc-prdd.op-date LE v-date[2]
         AND pc-prdd.shift   GE v-shift[1]
         AND pc-prdd.shift   LE v-shift[2]         
-        AND TRIM(pc-prdd.job-no)  GE trim(begin_job-no)         
-        AND TRIM(pc-prdd.job-no)  LE trim(end_job-no)
         AND FILL(" ", iJobLen - length(TRIM(pc-prdd.job-no))) +
         trim(pc-prdd.job-no) + string(int(pc-prdd.job-no2),"999")
         GE v-job-no[1]
@@ -2734,7 +2732,7 @@ PROCEDURE run-report :
         FIRST job
         WHERE job.company EQ cocode
         AND job.job     EQ pc-prdd.job
-        AND trim(job.job-no)  EQ trim(pc-prdd.job-no)
+        AND job.job-no  EQ pc-prdd.job-no
         AND job.job-no2 EQ pc-prdd.job-no2
         NO-LOCK:
 

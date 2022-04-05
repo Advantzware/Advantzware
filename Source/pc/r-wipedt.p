@@ -2332,7 +2332,7 @@ PROCEDURE run-report :
         SPACE(0)
         pc-prdd.shift COLUMN-LABEL "SH" FORMAT ">>"
         pc-prdd.job-no COLUMN-LABEL "  JOB #" SPACE(0) "-" SPACE(0)
-        pc-prdd.job-no2 NO-LABELS FORMAT "99"
+        pc-prdd.job-no2 NO-LABELS FORMAT "999"
         pc-prdd.frm COLUMN-LABEL " S" SPACE(0) "/" SPACE(0)
         pc-prdd.blank-no COLUMN-LABEL "/B"
         pc-prdd.pass COLUMN-LABEL "P"
@@ -2346,16 +2346,16 @@ PROCEDURE run-report :
         pc-prdd.qty FORMAT "->>>>>>>9" COLUMN-LABEL "RUN QTY"
         pc-prdd.waste FORMAT "->>>>9" COLUMN-LABEL "WASTE"
         v-comp COLUMN-LABEL "C"
-        WITH FRAME mch-edit NO-BOX DOWN STREAM-IO WIDTH 136.
+        WITH FRAME mch-edit NO-BOX DOWN STREAM-IO WIDTH 141.
 
     FORM v-disp-actnum  LABEL "G/L ACCOUNT NUMBER"
         v-dscr         LABEL "DESCRIPTION"
-        v-disp-job     LABEL "Job#" FORMAT "x(9)"
+        v-disp-job     LABEL "Job#" FORMAT "x(13)"
         v-dscr         LABEL "DESCRIPTION"
         udate          LABEL "DATE"   
         v-disp-amt     LABEL "AMOUNT" SKIP
 
-        WITH DOWN STREAM-IO WIDTH 130 FRAME gldetail.
+        WITH DOWN STREAM-IO WIDTH 135 FRAME gldetail.
 
 
     ASSIGN
@@ -2399,8 +2399,6 @@ PROCEDURE run-report :
         AND pc-prdd.op-date LE v-date[2]
         AND pc-prdd.shift   GE v-shift[1]
         AND pc-prdd.shift   LE v-shift[2]        
-        AND TRIM(pc-prdd.job-no)  GE trim(begin_job-no)
-        AND TRIM(pc-prdd.job-no)  LE trim(end_job-no) 
         AND FILL(" ", iJobLen - length(TRIM(pc-prdd.job-no))) +
         trim(pc-prdd.job-no) + string(int(pc-prdd.job-no2),"999")
         GE v-job-no[1]

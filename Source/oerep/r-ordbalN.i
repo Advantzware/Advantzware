@@ -41,8 +41,8 @@
       FOR EACH tt-fg-bin
           WHERE tt-fg-bin.company   EQ cocode
             AND tt-fg-bin.i-no      EQ tt-report.key-06
-            AND ((TRIM(tt-fg-bin.job-no)  EQ TRIM(SUBSTR(tt-report.key-04,1,9)) AND
-                  tt-fg-bin.job-no2 EQ INT(SUBSTR(tt-report.key-04,11,3))) OR
+            AND ((tt-fg-bin.job-no  EQ SUBSTR(tt-report.key-04,1,iJobLen) AND
+                  tt-fg-bin.job-no2 EQ INT(SUBSTR(tt-report.key-04,(iJobLen + 2),3))) OR
                  TRIM(SUBSTR(tt-report.key-04,1,9)) EQ ""):
         tt-report.q-onh = tt-report.q-onh + tt-fg-bin.qty.
       END.
@@ -353,8 +353,8 @@
             where tt-fg-bin.company           eq cocode
               and tt-fg-bin.i-no              eq tt-report.key-06
               and tt-fg-bin.qty               gt 0
-              and ((TRIM(tt-fg-bin.job-no)    eq TRIM(substr(tt-report.key-04,1,9)) and
-                    tt-fg-bin.job-no2         eq int(substr(tt-report.key-04,11,3))) or
+              and ((tt-fg-bin.job-no          eq substr(tt-report.key-04,1,iJobLen) and
+                    tt-fg-bin.job-no2         eq int(substr(tt-report.key-04,(iJobLen + 2),3))) or
                    TRIM(substr(tt-report.key-04,1,9)) eq "")
             no-lock
             break by tt-fg-bin.job-no
