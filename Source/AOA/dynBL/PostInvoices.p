@@ -24,8 +24,7 @@ END FUNCTION.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE NEW SHARED VARIABLE cocode AS CHARACTER NO-UNDO.
-DEFINE NEW SHARED VARIABLE locode AS CHARACTER NO-UNDO.
+{sys/inc/var.i NEW SHARED}
 
 ASSIGN
     cocode = cCompany

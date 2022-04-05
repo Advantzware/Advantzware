@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */    
     /* wfk - test */    
     FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
     
@@ -19,10 +20,12 @@
         each oe-ordl of oe-ord
         where oe-ordl.i-no     ge v-item[1]
           and oe-ordl.i-no     le v-item[2]
-          and fill(" ",6 - length(trim(oe-ordl.job-no))) +
-              trim(oe-ordl.job-no) + string(oe-ordl.job-no2,"99") ge v-job[1]
-          and fill(" ",6 - length(trim(oe-ordl.job-no))) +
-              trim(oe-ordl.job-no) + string(oe-ordl.job-no2,"99") le v-job[2]
+          AND FILL(" ", iJobLen - length(trim(oe-ordl.job-no))) +
+              trim(oe-ordl.job-no) + string(oe-ordl.job-no2,"999") GE v-job[1]
+          AND FILL(" ", iJobLen - length(trim(oe-ordl.job-no))) +
+              trim(oe-ordl.job-no) + string(oe-ordl.job-no2,"999") LE v-job[2]
+          AND oe-ordl.job-no2 GE int(begin_job-no2)
+          AND oe-ordl.job-no2 LE int(end_job-no2)    
           AND oe-ordl.s-man[1] GE begin_slmn
           AND oe-ordl.s-man[1] LE end_slmn
           AND ((oe-ordl.po-no  GE v-po[1] AND
@@ -38,9 +41,9 @@
       FOR EACH tt-fg-bin
           WHERE tt-fg-bin.company   EQ cocode
             AND tt-fg-bin.i-no      EQ tt-report.key-06
-            AND ((tt-fg-bin.job-no  EQ SUBSTR(tt-report.key-04,1,6) AND
-                  tt-fg-bin.job-no2 EQ INT(SUBSTR(tt-report.key-04,8,2))) OR
-                 SUBSTR(tt-report.key-04,1,6) EQ ""):
+            AND ((TRIM(tt-fg-bin.job-no)  EQ TRIM(SUBSTR(tt-report.key-04,1,9)) AND
+                  tt-fg-bin.job-no2 EQ INT(SUBSTR(tt-report.key-04,11,3))) OR
+                 TRIM(SUBSTR(tt-report.key-04,1,9)) EQ ""):
         tt-report.q-onh = tt-report.q-onh + tt-fg-bin.qty.
       END.
     END.
@@ -217,7 +220,7 @@
                            WHEN "item-po"  THEN cVarValue = STRING(oe-ordl.po-no,"x(15)") .
                            WHEN "rel-po"   THEN cVarValue = STRING(tt-report.po-no,"x(15)") .
                            WHEN "ordjob"   THEN cVarValue = STRING(v-ord-no) .
-                           WHEN "jobno"    THEN cVarValue = IF trim(tt-report.key-04) NE "-00" THEN STRING(tt-report.key-04) ELSE "" .
+                           WHEN "jobno"    THEN cVarValue = IF trim(tt-report.key-04) NE "-000" THEN STRING(tt-report.key-04) ELSE "" .
                            WHEN "fgitem"    THEN cVarValue = STRING(tt-report.key-06) . 
                            WHEN "i-name"    THEN cVarValue = STRING(oe-ordl.i-name,"x(25)") .
                            WHEN "cust-part" THEN cVarValue = STRING(oe-ordl.part-no) .
@@ -350,9 +353,9 @@
             where tt-fg-bin.company           eq cocode
               and tt-fg-bin.i-no              eq tt-report.key-06
               and tt-fg-bin.qty               gt 0
-              and ((tt-fg-bin.job-no          eq substr(tt-report.key-04,1,6) and
-                    tt-fg-bin.job-no2         eq int(substr(tt-report.key-04,8,2))) or
-                   substr(tt-report.key-04,1,6) eq "")
+              and ((TRIM(tt-fg-bin.job-no)    eq TRIM(substr(tt-report.key-04,1,9)) and
+                    tt-fg-bin.job-no2         eq int(substr(tt-report.key-04,11,3))) or
+                   TRIM(substr(tt-report.key-04,1,9)) eq "")
             no-lock
             break by tt-fg-bin.job-no
                   by tt-fg-bin.job-no2
@@ -409,9 +412,8 @@
         
         
           put space(34)
-              fill(" ",6 - length(trim(tt-fg-bin.job-no))) +
-              trim(tt-fg-bin.job-no) + 
-              (if tt-fg-bin.job-no ne "" then ("-" + string(tt-fg-bin.job-no2,"99"))
+              (if tt-fg-bin.job-no ne "" then
+               TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-fg-bin.job-no, tt-fg-bin.job-no2)))
                else "")                   format "x(9)"
               space(1)
               tt-fg-bin.loc
@@ -437,9 +439,9 @@
                   '"' ""                                                '",'
                   '"' ""                                                '",'
                   '"' ""                                                '",'
-                  '"' trim(tt-fg-bin.job-no) + 
-                      (if tt-fg-bin.job-no ne "" then "-"
-                      + string(tt-fg-bin.job-no2,"99") ELSE "")         '",'
+                  '"' (if tt-fg-bin.job-no ne "" THEN TRIM(STRING(DYNAMIC-FUNCTION
+                      ('sfFormat_JobFormatWithHyphen', tt-fg-bin.job-no, tt-fg-bin.job-no2)))
+                       else "")                                         '",'
                   '"' tt-fg-bin.loc                                     '",'
                   '"' tt-fg-bin.loc-bin                                 '",'
                   '"' (IF SUBSTR(tt-fg-bin.tag,1,15) EQ tt-fg-bin.i-no
@@ -452,9 +454,9 @@
                   '"' ""                                               '",'
                   '"' ""                                               '",'
                   '"' ""                                                '",'
-                  '"' trim(tt-fg-bin.job-no) + 
-                      (if tt-fg-bin.job-no ne "" then "-"
-                      + string(tt-fg-bin.job-no2,"99") ELSE "")         '",'
+                  '"' (if tt-fg-bin.job-no ne "" THEN TRIM(STRING(DYNAMIC-FUNCTION
+                      ('sfFormat_JobFormatWithHyphen', tt-fg-bin.job-no, tt-fg-bin.job-no2)))
+                       else "")                                         '",'
                   '"' tt-fg-bin.loc                                     '",'
                   '"' tt-fg-bin.loc-bin                                 '",'
                   '"' (IF SUBSTR(tt-fg-bin.tag,1,15) EQ tt-fg-bin.i-no

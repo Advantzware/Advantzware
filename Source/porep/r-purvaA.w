@@ -1407,7 +1407,7 @@ for each po-ord
    end. 
    if v-bld-job ne "      " then
    assign v-bld-job =
-            string(fill(" ",6 - length(v-bld-job))) +
+            string(FILL(" ", iJobLen - length(v-bld-job))) +
             (trim(v-bld-job)) +  "-" + string(po-ordl.job-no2,"99").
      if po-ordl.pr-qty-uom eq "MSF" then
      v-tot-msf = po-ordl.ord-qty.

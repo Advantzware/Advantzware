@@ -399,8 +399,8 @@ PROCEDURE CreateSheets :
 
   FOR  EACH job-hdr NO-LOCK
       WHERE job-hdr.company    = cocode
-        AND job-hdr.job-no    >= substring (icBegJobNo,1,6)
-        AND job-hdr.job-no    <= substring (icEndJobNo,1,6)
+        AND TRIM(job-hdr.job-no)    >= TRIM(SUBSTRING(icBegJobNo,1,9))
+        AND TRIM(job-hdr.job-no)    <= TRIM(SUBSTRING(icEndJobNo,1,9))
         AND job-hdr.job-no2   >= iiBegJobNo2
         AND job-hdr.job-no2   <= iiEndJobNo2
       BREAK
@@ -590,7 +590,7 @@ PROCEDURE DieData :
       RUN SetCellValue ("F" + STRING (viLine + 3), b-prep.received-date)       NO-ERROR.
       RUN SetCellVAlue ("H" + STRING (viLine + 3), b-prep.no-of-impressions)   NO-ERROR.
       RUN SetCellValue ("J" + STRING (viLine + 3), b-prep.last-date)           NO-ERROR. 
-      vcJobNum = b-prep.last-job-no + '-' + STRING (b-prep.last-job-no2, '99').
+      vcJobNum = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', b-prep.last-job-no, b-prep.last-job-no2))).
       RUN SetCellValue ("M" + STRING (viLIne + 3), vcJobNum)                   NO-ERROR.
   END. /*IF AVAIL b-prep THEN DO:*/
 
@@ -1370,8 +1370,8 @@ PROCEDURE ProcessJobs :
   /* For each jobs within selected range: */
   FOR  EACH job-hdr NO-LOCK
       WHERE job-hdr.company    = cocode
-        AND job-hdr.job-no    >= substring (icBegJobNo,1,6)
-        AND job-hdr.job-no    <= substring (icEndJobNo,1,6)
+        AND TRIM(job-hdr.job-no)    >= TRIM(SUBSTRING(icBegJobNo,1,9))
+        AND TRIM(job-hdr.job-no)    <= TRIM(SUBSTRING(icEndJobNo,1,9))
         AND job-hdr.job-no2   >= iiBegJobNo2
         AND job-hdr.job-no2   <= iiEndJobNo2,
       FIRST eb NO-LOCK
@@ -1403,8 +1403,8 @@ PROCEDURE ProcessJobs :
                    ELSE vcRecKey = ?.
 
       /* Set the Job-No. */
-      vcJobNo = job-hdr.job-no + '-' +  string (job-hdr.job-no2, '99') + '-' +
-                                        string (job-hdr.frm, '99').
+      vcJobNo = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)))
+                + '-' + STRING (job-hdr.frm, '99').
 
       /* Get the last Blank-No to determine # of Items. */
       FIND LAST b-job-hdr NO-LOCK

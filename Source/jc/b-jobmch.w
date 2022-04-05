@@ -235,7 +235,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      job-mch.frm COLUMN-LABEL "S" FORMAT ">>>":U WIDTH 4 COLUMN-FONT 0
+      job-mch.frm COLUMN-LABEL "F" FORMAT ">>>":U WIDTH 4 COLUMN-FONT 0
             LABEL-BGCOLOR 14
       job-mch.blank-no COLUMN-LABEL "B" FORMAT ">>>":U WIDTH 4
             COLUMN-FONT 0
@@ -389,7 +389,7 @@ ASSIGN
   AND ASI.job-mch.job-no2 = ASI.job.job-no2
 use-index line-idx"
      _FldNameList[1]   > ASI.job-mch.frm
-"job-mch.frm" "S" ">>>" "integer" ? ? 0 14 ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mch.frm" "F" ">>>" "integer" ? ? 0 14 ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-mch.blank-no
 "job-mch.blank-no" "B" ">>>" "integer" ? ? 0 ? ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-mch.pass
@@ -543,7 +543,7 @@ END.
 
 &Scoped-define SELF-NAME job-mch.frm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job-mch.frm br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF job-mch.frm IN BROWSE br_table /* S */
+ON LEAVE OF job-mch.frm IN BROWSE br_table /* F */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-frm NO-ERROR.

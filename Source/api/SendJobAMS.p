@@ -1365,6 +1365,7 @@ PROCEDURE pCreateParts PRIVATE:
                 cForm     = STRING(eb.form-no)
                 cBlank    = STRING(eb.blank-no)
                 cQuantity = STRING(job-hdr.qty * (IF eb.quantityperSet EQ 0 THEN 1 ELSE eb.quantityperSet))
+                cKeyItem  = STRING(INTEGER(job-hdr.keyItem))
                 cNumberOn = STRING(eb.num-up)
                 cLock     = STRING(job-hdr.lock, "TRUE/FALSE")
                 .
@@ -1505,6 +1506,7 @@ PROCEDURE pCreateParts PRIVATE:
                 cForm     = STRING(job-hdr.frm)
                 cBlank    = STRING(job-hdr.blank-no)
                 cQuantity = STRING(job-hdr.qty)
+                cKeyItem  = STRING(INTEGER(job-hdr.keyItem))
                 cNumberOn = STRING(job-hdr.n-on)
                 cLock     = STRING(job-hdr.lock, "TRUE/FALSE")
                 .

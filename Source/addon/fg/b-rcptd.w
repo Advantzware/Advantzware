@@ -20,6 +20,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */          
 
 CREATE WIDGET-POOL.
 
@@ -373,8 +374,8 @@ DEFINE BROWSE Browser-Table
       fg-rctd.t-qty COLUMN-LABEL "Total!Qty" FORMAT "->>>,>>>,>>9.99":U
       fg-rctd.stack-code COLUMN-LABEL "FG Lot#" FORMAT "x(20)":U
             WIDTH 21.8
-      fg-rctd.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 10
-      fg-rctd.job-no2 FORMAT "99":U
+      fg-rctd.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 14
+      fg-rctd.job-no2 FORMAT "999":U
       fg-rctd.po-no FORMAT "x(9)":U WIDTH 14
       fg-rctd.i-no COLUMN-LABEL "Item#" FORMAT "X(15)":U WIDTH 22
       fg-rctd.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
@@ -516,7 +517,7 @@ use-index fg-rctd"
      _FldNameList[9]   > ASI.fg-rctd.stack-code
 "fg-rctd.stack-code" "FG Lot#" "x(20)" "character" ? ? ? ? ? ? yes ? no no "21.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.fg-rctd.job-no
-"fg-rctd.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   = ASI.fg-rctd.job-no2
      _FldNameList[12]   > ASI.fg-rctd.po-no
 "fg-rctd.po-no" ? ? "character" ? ? ? ? ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -1511,7 +1512,7 @@ PROCEDURE get-fg-bin-cost :
     FIND FIRST fg-bin
         WHERE fg-bin.company EQ cocode
           AND fg-bin.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND fg-bin.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND trim(fg-bin.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
           AND fg-bin.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           AND fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
           AND fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1593,7 +1594,7 @@ PROCEDURE get-freight-cost :
         WHERE po-ordl.company   EQ cocode
           AND po-ordl.po-no     EQ INT(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
           AND po-ordl.i-no      EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND po-ordl.job-no    EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND trim(po-ordl.job-no) EQ trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
           AND po-ordl.job-no2   EQ INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           AND po-ordl.item-type EQ NO
         NO-LOCK NO-ERROR.
@@ -1673,7 +1674,7 @@ IF ip-first-disp  AND AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&br
   FIND FIRST po-ordl WHERE po-ordl.company = cocode
                        AND po-ordl.po-no = int(fg-rctd.po-no)
                        AND po-ordl.i-no  = fg-rctd.i-no
-                       AND po-ordl.job-no = fg-rctd.job-no
+                       AND trim(po-ordl.job-no) = trim(fg-rctd.job-no)
                        AND po-ordl.job-no2 = fg-rctd.job-no2
                        AND po-ordl.item-type = NO
                        NO-LOCK NO-ERROR.
@@ -1701,7 +1702,7 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
   FIND FIRST po-ordl WHERE po-ordl.company = cocode
                        AND po-ordl.po-no = integer(fg-rctd.po-no:screen-value IN BROWSE {&browse-name}) 
                        AND po-ordl.i-no  = fg-rctd.i-no:screen-value
-                       AND po-ordl.job-no = (fg-rctd.job-no:screen-value)
+                       AND trim(po-ordl.job-no) = trim(fg-rctd.job-no:screen-value)
                        AND po-ordl.job-no2 = integer(fg-rctd.job-no2:screen-value)
                        AND po-ordl.item-type = NO
                        NO-LOCK NO-ERROR.
@@ -1790,7 +1791,7 @@ PROCEDURE get-matrix-all :
              WHERE po-ordl.company   EQ cocode
                AND po-ordl.po-no     EQ INTEGER(fg-rctd.po-no:screen-value IN BROWSE {&browse-name}) 
                AND po-ordl.i-no      EQ fg-rctd.i-no:screen-value
-               AND po-ordl.job-no    EQ (fg-rctd.job-no:screen-value)
+               AND trim(po-ordl.job-no)    EQ trim(fg-rctd.job-no:screen-value)
                AND po-ordl.job-no2   EQ INTEGER(fg-rctd.job-no2:screen-value)
                AND po-ordl.item-type EQ NO
              NO-ERROR.
@@ -1914,14 +1915,14 @@ PROCEDURE get-values :
     FIND FIRST job-hdr
         WHERE job-hdr.company EQ cocode
           AND job-hdr.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND trim(job-hdr.job-no)  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
           AND job-hdr.job-no2 EQ int(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
         NO-LOCK NO-ERROR.
 
     IF NOT AVAIL job-hdr THEN DO:
       FIND FIRST job
           WHERE job.company EQ cocode
-            AND job.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
+            AND trim(job.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
             AND job.job-no2 EQ int(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
         NO-LOCK NO-ERROR.
       IF AVAIL job THEN
@@ -2352,7 +2353,7 @@ PROCEDURE local-enable-fields :
     ELSE
       ASSIGN
        lv-job-no  = ""
-       lv-job-no2 = "00".  
+       lv-job-no2 = "000".  
 
     lv-closed-checked = NO.
 
@@ -2596,7 +2597,7 @@ PROCEDURE new-job-no :
     IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ cocode
-          AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND trim(job-hdr.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
           AND job-hdr.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
         BREAK BY job-hdr.frm      DESC
               BY job-hdr.blank-no DESC:
@@ -2899,7 +2900,7 @@ DEF INPUT PARAM ip-fgemail-file AS cha NO-UNDO.
                               "========== =============== ============ " SKIP.
        END.
        PUT STREAM st-email UNFORMATTED
-                 tt-email.job-no + "-" + string(tt-email.job-no2,"99") FORM "x(10)"
+                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-email.job-no, tt-email.job-no2))) FORM "x(13)"
                  " " tt-email.i-no " " tt-email.qty FORM "->>>,>>>,>>9" 
                  SKIP.
        IF LAST-OF(tt-email.cust-no) THEN DO:
@@ -3229,8 +3230,8 @@ PROCEDURE valid-job-no :
 
   DO WITH FRAME {&frame-name}:
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+        STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))
+        .
 
     IF TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE TRIM(lv-job-no)  OR
        DEC(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) NE DEC(lv-job-no2) THEN
@@ -3256,7 +3257,7 @@ PROCEDURE valid-job-no :
 
       IF NOT CAN-FIND(FIRST job-hdr WHERE
          job-hdr.company EQ cocode AND
-         job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE) THEN
+         trim(job-hdr.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE)) THEN
          DO:
             MESSAGE "Invalid Job#. Try Help..." VIEW-AS ALERT-BOX ERROR.
             op-error = YES.
@@ -3290,7 +3291,7 @@ PROCEDURE valid-job-no2 :
     IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
       FOR EACH job-hdr
           WHERE job-hdr.company EQ cocode
-            AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
+            AND trim(job-hdr.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE)
             AND job-hdr.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE)
           NO-LOCK,
           FIRST job
@@ -3305,7 +3306,7 @@ PROCEDURE valid-job-no2 :
       IF NOT AVAIL job-hdr THEN
       FOR EACH job
           WHERE job.company EQ cocode
-            AND job.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
+            AND trim(job.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE)
             AND job.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE)
           NO-LOCK,
           FIRST job-hdr

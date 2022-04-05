@@ -567,7 +567,6 @@ PROCEDURE pInit :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cCalculationTypeList AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hdMaterialProcs      AS HANDLE    NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -577,14 +576,10 @@ PROCEDURE pInit :
         OUTPUT cCompany
         ).
         
-    RUN rm/MaterialProcs.p PERSISTENT SET hdMaterialProcs.
-    
-    RUN Material_GetCalculationTypeList IN hdMaterialProcs (
+    RUN Material_GetCalculationTypeList (
         OUTPUT cCalculationTypeList
         ).
         
-    DELETE PROCEDURE hdMaterialProcs.
-    
     cbCalculationType:LIST-ITEM-PAIRS = "ALL,ALL," + cCalculationTypeList.
 END PROCEDURE.
 

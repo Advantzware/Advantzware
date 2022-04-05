@@ -428,7 +428,7 @@ DEFINE BROWSE br_table
   tt-relbol.trailer COLUMN-LABEL "Trailer" FORMAT "x(20)":U
   tt-relbol.i-no COLUMN-LABEL "Item#" 
   tt-relbol.i-name COLUMN-LABEL "Name" 
-  tt-relbol.ord-no COLUMN-LABEL "Order#" 
+  tt-relbol.ord-no COLUMN-LABEL "Order#" FORMAT ">>>>>>>9" WIDTH 12
   tt-relbol.loc COLUMN-LABEL "Location" 
   tt-relbol.loc-bin COLUMN-LABEL "Bin"
   tt-relbol.cust-no COLUMN-LABEL "Customer#"

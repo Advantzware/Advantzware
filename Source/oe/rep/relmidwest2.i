@@ -1,4 +1,5 @@
 /* oe/rep/relmidwest2.i */   
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */   
    
    PUT "<FArial>" SKIP
        "<P14><C+42><B>Pick     Ticket</B> " SKIP
@@ -58,17 +59,17 @@
    END.
    PUT
          "<|10><R22><C1><#5><FROM><R24><C104><RECT>" SKIP    
-         "<R22><C7><FROM><R24><C7><LINE>" SKIP
-         "<R22><C30.5><FROM><R24><C30.5><LINE>" SKIP
-         "<R22><C47><FROM><R24><C47><LINE>" SKIP 
-         "<R22><C59><FROM><R24><C59><LINE>" SKIP   
-         "<R22><C64><FROM><R24><C64><LINE>" SKIP   
-         "<R22><C73><FROM><R24><C73><LINE>" SKIP
+         "<R22><C8><FROM><R24><C8><LINE>" SKIP
+         "<R22><C32.5><FROM><R24><C32.5><LINE>" SKIP
+         "<R22><C49><FROM><R24><C49><LINE>" SKIP 
+         "<R22><C61><FROM><R24><C61><LINE>" SKIP   
+         "<R22><C66><FROM><R24><C66><LINE>" SKIP   
+         "<R22><C74><FROM><R24><C74><LINE>" SKIP
          "<R22><C80><FROM><R24><C80><LINE>" SKIP
          "<R22><C93><FROM><R24><C93><LINE>" SKIP
 
-         "<FArial><=5><C31>TAG/Whs/Bin<C48>Receipt Date<C81>QOH: RelQty: Ship<C94>Pallets:   Total" SKIP
-         "<=5><R+1> Order# <C8>Item/Desc/Lot#<C31>Vendor Name/PO#(Job#)<C60>Units<C65>Unit Count<C74>Partial<C81>Qty<C94>Pallets" SKIP
+         "<FArial><=5><C33>TAG/Whs/Bin<C50>Receipt Date<C81>QOH: RelQty: Ship<C94>Pallets:   Total" SKIP
+         "<=5><R+1>   Order# <C9>Item/Desc/Lot#<C33>Vendor Name/PO#(Job#)<C62>Units<C66.5>Unit Count<C75>Partial<C81>Qty<C94>Pallets" SKIP
          "<FCourier New>"
          "<|10><R24><C1><#7><FROM><R45><C104><RECT><=5><R+2>" SKIP    
          "<R24><C93><FROM><R45><C93><LINE>" "<R24><C80><FROM><R45><C80><LINE>" /*qty vert line*/

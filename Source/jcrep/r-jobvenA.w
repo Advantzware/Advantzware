@@ -888,9 +888,9 @@ assign
 
   v-stat        = SUBSTR(rd_jstat,1,1)
 
-  v-fjob        = fill(" ",6 - length(trim(begin_job-no))) +
+  v-fjob        = FILL(" ", iJobLen - length(trim(begin_job-no))) +
                   trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-tjob        = fill(" ",6 - length(trim(end_job-no)))   +
+  v-tjob        = FILL(" ", iJobLen - length(trim(end_job-no)))   +
                   trim(end_job-no)   + string(int(end_job-no2),"99")  
 
   v-fcust       = begin_cust
@@ -923,10 +923,10 @@ display "" with frame r-top.
           and job-hdr.cust-no le v-tcust
           and job-hdr.job-no  ge substr(v-fjob,1,6)
           and job-hdr.job-no  le substr(v-tjob,1,6)
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
+          and FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
               trim(job-hdr.job-no) + string(job-hdr.job-no2,"99")
                           ge v-fjob
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
+          and FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
               trim(job-hdr.job-no) + string(job-hdr.job-no2,"99")
                           le v-tjob
         use-index cust-idx no-lock,
@@ -962,7 +962,7 @@ display "" with frame r-top.
       if job.start-date + 60 lt v-fdate or
          job.start-date + 60 gt v-tdate then next.
 
-      v-job = fill(" ",6 - length(trim(job.job-no))) +
+      v-job = FILL(" ", iJobLen - length(trim(job.job-no))) +
               trim(job.job-no) + "-" + string(job.job-no2,"99").
 
       create report.

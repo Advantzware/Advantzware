@@ -239,7 +239,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   FOR EACH job
       WHERE job.company EQ cocode
-        AND job.job-no  EQ ip-job-no
+        AND TRIM(job.job-no)  EQ TRIM(ip-job-no)
         AND job.job-no2 EQ ip-job-no2
         AND job.est-no  NE ""
       NO-LOCK,
@@ -255,7 +255,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN get-upd-reft (YES).
 
   FRAME {&FRAME-NAME}:TITLE = TRIM(FRAME {&FRAME-NAME}:TITLE) + " for Job#/Form: " +
-                              TRIM(ip-job-no) + "-" + STRING(ip-job-no2,"99") /*+
+                              TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ip-job-no, ip-job-no2))) /*+
                               "/" + TRIM(STRING(ip-frm,">>>>"))*/.
 
   RUN enable_UI.

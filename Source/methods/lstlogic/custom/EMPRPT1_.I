@@ -24,6 +24,7 @@
    {methods/lstlogic/showphon.i &db_table="employee" &col="5" &frame-name="f-phones"}
 
 ---------------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 DEFINE VARIABLE line-cnt AS INTEGER FORMAT '>9' LABEL 'Ln' NO-UNDO.
 DEFINE VARIABLE total-time AS CHARACTER FORMAT 'X(5)' LABEL 'Time' NO-UNDO.
@@ -42,8 +43,8 @@ FOR EACH employee WHERE
       AND machemp.start_date GE begin-date
       AND machemp.start_date LE end-date,
     FIRST machtran WHERE machtran.rec_key = machemp.table_rec_key
-                   AND machtran.job_number GE begin_job-no
-                   AND machtran.job_number LE end_job-no
+                   AND FILL(" ", iJobLen - length(TRIM(machtran.job_number))) + trim(machtran.job_number) GE begin_job-no
+                   AND FILL(" ", iJobLen - length(TRIM(machtran.job_number))) + trim(machtran.job_number) LE end_job-no
                    AND machtran.job_sub GE int(begin_job-no2)
                    AND machtran.job_sub LE int(end_job-no2)
      NO-LOCK

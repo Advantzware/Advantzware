@@ -98,8 +98,8 @@ taskEmail.recipients
 /* Definitions for BROWSE TaskBrowse                                    */
 &Scoped-define FIELDS-IN-QUERY-TaskBrowse Task.runNow Task.taskName ~
 Task.nextDate Task.cNextTime Task.lastDate Task.cLastTime Task.isRunning ~
-Task.subjectID Task.taskID Task.user-id Task.runSync Task.taskStart ~
-Task.expired 
+Task.subjectID Task.paramValueID Task.taskID Task.user-id Task.runSync ~
+Task.taskStart Task.expired 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-TaskBrowse 
 &Scoped-define QUERY-STRING-TaskBrowse FOR EACH Task ~
       WHERE Task.scheduled EQ YES OR Task.runNow EQ YES NO-LOCK ~
@@ -123,7 +123,7 @@ Task.expired
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS showLogging TaskBrowse btnClearIsRunning ~
-EmailBrowse btnClearPendingEmails AuditBrowse 
+btnClearPendingEmails EmailBrowse AuditBrowse 
 &Scoped-Define DISPLAYED-OBJECTS showLogging 
 
 /* Custom List Definitions                                              */
@@ -154,8 +154,8 @@ DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnClearIsRunning 
-     LABEL "Clear Is Running" 
-     SIZE 18 BY .91 TOOLTIP "Click to Clear Is Running".
+     LABEL "Clear Running Flag" 
+     SIZE 21 BY .91 TOOLTIP "Click to Clear Is Running".
 
 DEFINE BUTTON btnClearPendingEmails 
      LABEL "Clear" 
@@ -189,7 +189,7 @@ DEFINE BROWSE AuditBrowse
       fTaskLog(AuditHdr.AuditID) @ cTaskLog COLUMN-LABEL "Values" FORMAT "x(256)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 192 BY 14.29
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 205 BY 14.29
          TITLE "Task Logging".
 
 DEFINE BROWSE EmailBrowse
@@ -213,6 +213,7 @@ DEFINE BROWSE TaskBrowse
       Task.cLastTime FORMAT "99:99":U
       Task.isRunning FORMAT "yes/no":U VIEW-AS TOGGLE-BOX
       Task.subjectID FORMAT ">,>>>,>>9":U
+      Task.paramValueID COLUMN-LABEL "Sched ID" FORMAT "->,>>>,>>9":U
       Task.taskID FORMAT "->,>>>,>>9":U
       Task.user-id FORMAT "x(10)":U
       Task.runSync FORMAT "yes/no":U
@@ -220,7 +221,7 @@ DEFINE BROWSE TaskBrowse
       Task.expired FORMAT "yes/no":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 149.2 BY 14.29
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 162 BY 14.29
          TITLE "Tasks".
 
 
@@ -232,14 +233,14 @@ DEFINE FRAME DEFAULT-FRAME
      TaskBrowse AT ROW 1 COL 1 WIDGET-ID 200
      btnClearIsRunning AT ROW 1 COL 98 HELP
           "Click to Clear Is Running" WIDGET-ID 8
-     EmailBrowse AT ROW 1 COL 150 WIDGET-ID 300
-     btnClearPendingEmails AT ROW 1 COL 153 HELP
+     btnClearPendingEmails AT ROW 1 COL 163 HELP
           "Click to Clear Pending Emails" WIDGET-ID 10
+     EmailBrowse AT ROW 1 COL 163 WIDGET-ID 300
      AuditBrowse AT ROW 15.29 COL 1 WIDGET-ID 400
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 192.2 BY 28.57
+         SIZE 205.2 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 
@@ -261,7 +262,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Task Monitor"
          HEIGHT             = 28.57
-         WIDTH              = 192.2
+         WIDTH              = 205.2
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -295,8 +296,8 @@ IF NOT C-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
 /* BROWSE-TAB TaskBrowse showLogging DEFAULT-FRAME */
-/* BROWSE-TAB EmailBrowse btnClearIsRunning DEFAULT-FRAME */
-/* BROWSE-TAB AuditBrowse btnClearPendingEmails DEFAULT-FRAME */
+/* BROWSE-TAB EmailBrowse btnClearPendingEmails DEFAULT-FRAME */
+/* BROWSE-TAB AuditBrowse EmailBrowse DEFAULT-FRAME */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -340,20 +341,22 @@ AuditHdr.AuditDateTime GE dttOpenDateTime"
      _OrdList          = "ASI.Task.runNow|no,ASI.Task.nextDate|yes,ASI.Task.nextTime|yes"
      _Where[1]         = "Task.scheduled EQ YES OR Task.runNow EQ YES"
      _FldNameList[1]   > ASI.Task.runNow
-"runNow" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+"Task.runNow" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _FldNameList[2]   = ASI.Task.taskName
      _FldNameList[3]   = ASI.Task.nextDate
      _FldNameList[4]   = ASI.Task.cNextTime
      _FldNameList[5]   = ASI.Task.lastDate
      _FldNameList[6]   = ASI.Task.cLastTime
      _FldNameList[7]   > ASI.Task.isRunning
-"isRunning" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+"Task.isRunning" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _FldNameList[8]   = ASI.Task.subjectID
-     _FldNameList[9]   = ASI.Task.taskID
-     _FldNameList[10]   = ASI.Task.user-id
-     _FldNameList[11]   = ASI.Task.runSync
-     _FldNameList[12]   = ASI.Task.taskStart
-     _FldNameList[13]   = ASI.Task.expired
+     _FldNameList[9]   > ASI.Task.paramValueID
+"Task.paramValueID" "Sched ID" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   = ASI.Task.taskID
+     _FldNameList[11]   = ASI.Task.user-id
+     _FldNameList[12]   = ASI.Task.runSync
+     _FldNameList[13]   = ASI.Task.taskStart
+     _FldNameList[14]   = ASI.Task.expired
      _Query            is OPENED
 */  /* BROWSE TaskBrowse */
 &ANALYZE-RESUME
@@ -377,7 +380,7 @@ CREATE CONTROL-FRAME CtrlFrame ASSIGN
        HIDDEN          = yes
        SENSITIVE       = yes.
 /* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
-      CtrlFrame:MOVE-AFTER(btnClearPendingEmails:HANDLE IN FRAME DEFAULT-FRAME).
+      CtrlFrame:MOVE-AFTER(EmailBrowse:HANDLE IN FRAME DEFAULT-FRAME).
 
 &ENDIF
 
@@ -425,7 +428,7 @@ END.
 
 &Scoped-define SELF-NAME btnClearIsRunning
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearIsRunning C-Win
-ON CHOOSE OF btnClearIsRunning IN FRAME DEFAULT-FRAME /* Clear Is Running */
+ON CHOOSE OF btnClearIsRunning IN FRAME DEFAULT-FRAME /* Clear Running Flag */
 DO:
     RUN pClearRunNow.
 END.
@@ -599,8 +602,8 @@ PROCEDURE enable_UI :
   RUN control_load.
   DISPLAY showLogging 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE showLogging TaskBrowse btnClearIsRunning EmailBrowse 
-         btnClearPendingEmails AuditBrowse 
+  ENABLE showLogging TaskBrowse btnClearIsRunning btnClearPendingEmails 
+         EmailBrowse AuditBrowse 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -766,8 +769,8 @@ PROCEDURE pWinReSize :
         HIDE FRAME {&FRAME-NAME}.
         IF {&WINDOW-NAME}:HEIGHT LT 28.57 THEN
         {&WINDOW-NAME}:HEIGHT = 28.57.
-        IF {&WINDOW-NAME}:WIDTH  LT 192.2 THEN
-        {&WINDOW-NAME}:WIDTH  = 192.2.
+        IF {&WINDOW-NAME}:WIDTH  LT 205.2 THEN
+        {&WINDOW-NAME}:WIDTH  = 205.2.
         ASSIGN
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH

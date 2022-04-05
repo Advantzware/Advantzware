@@ -70,7 +70,7 @@ ll-sort-asc = NO.
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
 &SCOPED-DEFINE sortby-log                                                                                                                                  ~
-    IF lv-sort-by EQ "job-no"    THEN w-bin.job-no + STRING(w-bin.job-no2, "99") ELSE ~
+    IF lv-sort-by EQ "job-no"    THEN w-bin.job-no + STRING(w-bin.job-no2, "999") ELSE ~
     IF lv-sort-by EQ "loc"       THEN w-bin.loc                                  ELSE ~
     IF lv-sort-by EQ "last-rct-date" THEN STRING(w-bin.last-rct-date)            ELSE ~
     IF lv-sort-by EQ "loc-bin"   THEN w-bin.loc-bin                              ELSE ~
@@ -885,7 +885,7 @@ ELSE
 FOR EACH fg-bin
     WHERE fg-bin.company EQ cocode
       AND fg-bin.i-no    EQ v-i-no
-      AND fg-bin.job-no  EQ v-job-no
+      AND trim(fg-bin.job-no)  EQ trim(v-job-no)
       AND fg-bin.job-no2 EQ v-job-no2
       AND fg-bin.qty     GT 0
     NO-LOCK:

@@ -21,7 +21,7 @@ PUT "<P10><=#3>" SKIP
     "<=#3> Customer ID   Invoice#"
     "<=#3><R+2> Telephone         Fax" 
     "<=#3><R+4> Contact                Invoice Date"    
-    "<=3><R+1> " ar-inv.cust-no  space(8) ar-inv.inv-no FORM ">>>>>>9"
+    "<=3><R+1> " ar-inv.cust-no  space(8) ar-inv.inv-no FORM ">>>>>>>9"
     "<=3><R+3> " cust.area-code + cust.phone format "(999) 999-9999" space(4) cust.fax
     "<=3><R+5> " cust.contact FORM "x(22)" SPACE (3) v-inv-date .
 
@@ -47,15 +47,22 @@ PUT "<=4><R+1> Ship Date       FOB           Ship Via             Terms         
 
 
 PUT "<R27><C1><#5><FROM><R29><C81><RECT><||3>" SKIP    
-    "<=5><C6><FROM><R+2><C6><LINE><||3>" SKIP
-    "<=5><C19><FROM><R+2><C19><LINE><||3>" SKIP
-    "<=5><C25><FROM><R+2><C25><LINE><||3>" SKIP
-    "<=5><C38><FROM><R+2><C38><LINE><||3>" SKIP
+    "<=5><C8><FROM><R+2><C8><LINE><||3>" SKIP
+    "<=5><C21><FROM><R+2><C21><LINE><||3>" SKIP
+    "<=5><C26.5><FROM><R+2><C26.5><LINE><||3>" SKIP
+    "<=5><C40><FROM><R+2><C40><LINE><||3>" SKIP
     "<=5><C59><FROM><R+2><C59><LINE><||3>" SKIP
     "<=5><C67><FROM><R+2><C67><LINE><||3>" SKIP
     "<=5><C72><FROM><R+2><C72><LINE><||3>" SKIP.
 
-PUT "<=5><R+1> Order    Cust PO#     Ship  Item#/CustPart#        Description         Price    UOM    Amount" SKIP(1).
+PUT "<=5><R+1><C3>Order
+            <C10> Cust PO#
+            <C22>Ship
+          <C26.5> Item#/CustPart#
+            <C41> Description
+            <C60> Price
+            <C67> UOM
+            <C73> Amount" SKIP(1).
 v-printline = v-printline + 4.
           
 

@@ -1,4 +1,5 @@
  /* oe/rep/bolmsbx2.i  */  
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 
    PUT {1}
          "<FArial>"  SKIP
@@ -57,7 +58,7 @@
                 "<R24><C56><FROM><R26><C56><LINE>" SKIP  
                 "<R24><C65><FROM><R26><C65><LINE>" SKIP
                 "<R24><C76><FROM><R26><C76><LINE>" SKIP            
-            "<FArial><=5><R+1> Part#                        PO#                            Finished Good#        Our Order#                          Unit-Quantity Partial/Complete Weight" SKIP(1)
+            "<FArial><=5><R+1> Part#                        PO#                            Finished Good#        Our Order#                         Unit-Quantity Partial/Complete  Weight" SKIP(1)
             "<FCourier New>"                                  
             .
 

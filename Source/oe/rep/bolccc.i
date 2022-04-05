@@ -1,5 +1,6 @@
-/* ---------------------------------------------- oe/rep/bolccc.i RDR     */
-/* PRINT Colonial Carton BOL                                                           */
+/* ---------------------------------------------- oe/rep/bolccc.i RDR         */
+/* PRINT Colonial Carton BOL                                                  */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 
@@ -132,8 +133,8 @@ for each report where report.term-id eq v-term-id,
 
     v-job-no = "".
     if avail oe-ordl and oe-ordl.job-no ne "" then
-       v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-               trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
+       v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
+       
 
     lv-cases = lv-cases-tot.
     

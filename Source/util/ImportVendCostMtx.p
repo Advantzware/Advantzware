@@ -89,6 +89,7 @@ DEFINE TEMP-TABLE ttImportVendCostMtx
     FIELD DeviationCost10         AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 10" HELP "Optional - Decimal"
     FIELD LeadTime10              AS INTEGER   FORMAT ">,>>>,>>9":U INITIAL 0 COLUMN-LABEL "Lead Time 10" HELP "Optional - Integer"
     FIELD useQuantityFromBase     AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Quantity Basis" HELP "Optional - From/Up To"
+    FIELD approved                AS CHARACTER FORMAT "Yes/No" COLUMN-LABEL "Approved" HELP "Optional - Yes/No"
     .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
 DEFINE VARIABLE hVendorProcs  AS HANDLE  NO-UNDO.
@@ -168,6 +169,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportVendCostMtx.quantityMinimumOrder, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.quantityMinimumOrder).                             
     RUN pAssignValueD (ipbf-ttImportVendCostMtx.quantityMaximumOrder, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.quantityMaximumOrder). 
     RUN pAssignValueCtoL (ipbf-ttImportVendCostMtx.useQuantityFromBase,"From", iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.useQuantityFromBase).
+    RUN pAssignValueCtoL (ipbf-ttImportVendCostMtx.approved,"Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.approved).
     
     FOR EACH  bf-vendItemCostLevel EXCLUSIVE-LOCK
         WHERE bf-vendItemCostLevel.vendItemCostID EQ bf-vendItemCost.vendItemCostID :

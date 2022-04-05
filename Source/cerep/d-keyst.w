@@ -254,7 +254,7 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
 DO:
     FIND FIRST tt-keyst
-      WHERE tt-keyst.tt-job-no  EQ ip-job-no
+      WHERE TRIM(tt-keyst.tt-job-no)  EQ TRIM(ip-job-no)
         AND tt-keyst.tt-job-no2 EQ ip-job-no2
         AND tt-keyst.tt-frm     EQ ip-frm
         NO-ERROR.
@@ -312,7 +312,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN get-upd-reft (YES).
 
   FRAME {&FRAME-NAME}:TITLE = TRIM(FRAME {&FRAME-NAME}:TITLE) + " for Job#/Form: " +
-                              TRIM(ip-job-no) + "-" + STRING(ip-job-no2,"99") +
+                              TRIM(ip-job-no) + "-" + STRING(ip-job-no2,"999") +
                               "/" + TRIM(STRING(ip-frm,">>>>")).
 
   RUN enable_UI.
@@ -383,7 +383,7 @@ PROCEDURE get-upd-reft :
     FIND FIRST reftable
         WHERE reftable.reftable EQ "cerep/d-keyst.w"
           AND reftable.company  EQ cocode
-          AND reftable.loc      EQ TRIM(ip-job-no)
+          AND TRIM(reftable.loc)      EQ TRIM(ip-job-no)
           AND reftable.code     EQ STRING(ip-job-no2,"9999999999")
           AND reftable.code2    EQ ""
           AND reftable.val[1]   EQ li

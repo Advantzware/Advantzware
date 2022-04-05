@@ -747,7 +747,7 @@ FOR each report
                 "<C10>" tt-inv-line-item.i-name       FORMAT "x(30)"
                 "<C54>" tt-inv-line-item.price    FORMAT "->,>>>,>>9.99"
                 "<C64>" tt-inv-line-item.amount   FORMAT "->,>>>,>>9.99"
-                "<C75>" trim(string(tt-inv-line-item.ord-no,">>>>>>>"))
+                "<C75>" trim(string(tt-inv-line-item.ord-no,">>>>>>>>"))
                 SKIP.
             v-printline = v-printline + 1.
             RUN checkPage(NO).

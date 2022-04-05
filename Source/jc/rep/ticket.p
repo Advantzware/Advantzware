@@ -152,7 +152,7 @@ repeat on error undo outers, leave outers with frame head:
         substr(input v-job[j],i,1)).
     end. /* 1 - 6 */
      v-job[j] =
-      string(fill(" ",6 - length(v-bld-job))) + (trim(v-bld-job)).
+      string(FILL(" ", iJobLen - length(v-bld-job))) + (trim(v-bld-job)).
     display v-job[j] with frame selec.
   end. /* 1 - 2 */
   update v-numcopy v-reprint with frame selec.

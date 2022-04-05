@@ -71,7 +71,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
          
-                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                /* RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
+                RUN est/NewEstimateBlank.p(ROWID(ef),OUTPUT opriEb).
                     
             END.
         END.        
@@ -94,7 +95,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
          
-                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                /* RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
+                RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT opriEb).
                     
             END.
         END.        
@@ -118,7 +120,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
          
-                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                /* RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
+                RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT opriEb).
                     
             END.
         END.        
@@ -142,7 +145,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
          
-                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                /*                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
+                RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT opriEb).
                     
             END.
         END.        
@@ -471,6 +475,11 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
     IF ttInputEst.cEstType EQ "NewSetEstimate" THEN DO:
       ASSIGN
          est.estimateTypeID = "WOOD" .
+      IF NOT CAN-FIND(FIRST itemfg
+                  WHERE itemfg.company EQ eb.company
+                    AND itemfg.i-no    EQ eb.stock-no) THEN DO:                   
+        RUN fg/ce-addfg.p (eb.stock-no).
+      END.
          
     END.     
     ELSE IF ttInputEst.cEstType EQ "MoldTandem" THEN

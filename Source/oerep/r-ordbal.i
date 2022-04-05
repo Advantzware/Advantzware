@@ -18,9 +18,9 @@
         each oe-ordl of oe-ord
         where oe-ordl.i-no     ge v-item[1]
           and oe-ordl.i-no     le v-item[2]
-          and fill(" ",6 - length(trim(oe-ordl.job-no))) +
+          and FILL(" ", iJobLen - length(trim(oe-ordl.job-no))) +
               trim(oe-ordl.job-no) + string(oe-ordl.job-no2,"99") ge v-job[1]
-          and fill(" ",6 - length(trim(oe-ordl.job-no))) +
+          and FILL(" ", iJobLen - length(trim(oe-ordl.job-no))) +
               trim(oe-ordl.job-no) + string(oe-ordl.job-no2,"99") le v-job[2]
           AND oe-ordl.s-man[1] GE begin_slmn
           AND oe-ordl.s-man[1] LE end_slmn
@@ -366,7 +366,7 @@
         
         
           put space(34)
-              fill(" ",6 - length(trim(tt-fg-bin.job-no))) +
+              FILL(" ", iJobLen - length(trim(tt-fg-bin.job-no))) +
               trim(tt-fg-bin.job-no) + 
               (if tt-fg-bin.job-no ne "" then ("-" + string(tt-fg-bin.job-no2,"99"))
                else "")                   format "x(9)"

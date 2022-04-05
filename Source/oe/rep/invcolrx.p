@@ -1,7 +1,7 @@
 /* ------------------------------------------ oe/rep/invcolrx.p 08040901 GDM */
 /* INVOICE PRINT  Program for N-K-1-INVPRINT = ColorX                        */
 /* ------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
 
 {sys/inc/var.i shared}
@@ -451,7 +451,8 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                 v-price  format ">>>,>>9.9999"                
                 inv-line.t-price  format "->>>,>>9.99"                
                 SKIP
-                v-ord-no SPACE(10)
+                SPACE(1)
+                STRING(v-ord-no) FORM "x(8)" SPACE(7)
                 inv-line.i-no SPACE(1)
                 inv-line.part-dscr1  FORMAT "x(30)"
                 v-ship-qty  format "->>>,>>9" SPACE(8)

@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolcolor.p 07/09 GDM */
 /* N-K BOLFMT = COLOR                                                         */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -29,7 +30,7 @@ def var v-part-comp         as   char format "x".
 def var v-part-qty          as   dec.
 def var v-ord-no            like oe-boll.ord-no.
 def var v-po-no             like oe-bolh.po-no.
-def var v-job-no            as   char format "x(9)" no-undo.
+def var v-job-no            as   char format "x(13)" no-undo.
 def var v-phone-num         as   char format "x(13)" no-undo.
 
 def var v-ship-id    like shipto.ship-id.
@@ -311,8 +312,9 @@ for each xxreport where xxreport.term-id eq v-term-id,
       ASSIGN
         v-salesman = trim(v-salesman)
         v-po-no = oe-boll.po-no
-        v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>")).
-
+        v-job-no = IF oe-boll.job-no = "" THEN "" ELSE 
+                   TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
+        
       FIND FIRST reftable WHERE
            reftable.reftable EQ "oe-bolh.lot-no" AND
            reftable.rec_key  EQ oe-bolh.rec_key

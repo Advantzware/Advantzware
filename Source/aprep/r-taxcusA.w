@@ -1049,10 +1049,8 @@ if td-show-parm then run show-param.
              
              IF tb_excel THEN
                  PUT STREAM excel UNFORMATTED
-                 '"' (IF FIRST-OF(tt-report.key-02) THEN v-tax-dscr[1]
-                     ELSE "")                                             '",'
-                 '"' (IF FIRST-OF(tt-report.key-02) THEN tt-report.key-02
-                     ELSE "")                                             '",'
+                 '"' v-tax-dscr[1]                                            '",'
+                 '"' tt-report.key-02                                         '",'
                  '"' (IF AVAIL ar-cash AND ar-cash.check-date NE ? THEN
                      STRING(ar-cash.check-date,"99/99/9999")
                      ELSE IF AVAIL ar-inv AND ar-inv.inv-date NE ? THEN

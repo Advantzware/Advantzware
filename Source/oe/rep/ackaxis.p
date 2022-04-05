@@ -345,7 +345,7 @@ ASSIGN lv-prt-sts = /*IF NOT oe-ord.ack-prnt THEN "ORIGINAL" ELSE "REVISED"*/
                                       ELSE "<FGCOLOR=BLACK>ORIGINAL<FGCOLOR=BLACK>" 
        lv-prt-date = TODAY
        lv-prt-time = STRING(TIME,"hh:mm am").
-PUT "[@startPage" + trim(STRING(oe-ord.ord-no,">>>>>9")) + "]" FORMAT "x(20)".
+PUT "[@startPage" + trim(STRING(oe-ord.ord-no,">>>>>>>9")) + "]" FORMAT "x(20)".
 {oe/rep/ackaxis.i}
 
       for each oe-ordl
@@ -808,7 +808,7 @@ PUT "[@startPage" + trim(STRING(oe-ord.ord-no,">>>>>9")) + "]" FORMAT "x(20)".
             assign v-printline = 20.          
       end.
 */
-      PUT "[@endPage" + trim(STRING(oe-ord.ord-no,">>>>>9")) + "]" FORMAT "x(20)".
+      PUT "[@endPage" + trim(STRING(oe-ord.ord-no,">>>>>>>9")) + "]" FORMAT "x(20)".
       PUT "<R53><C1><#10><P12><B> Comments </B> <P10> " 
         "<R54><C1>" v-billinst[1] 
         "<R55><C1>" v-billinst[2] 

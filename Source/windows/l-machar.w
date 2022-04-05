@@ -33,6 +33,7 @@ DEF INPUT PARAM ip-m-code LIKE mach.m-code NO-UNDO.
 DEF INPUT PARAM ip-header AS CHAR NO-UNDO.
 DEF INPUT PARAM ip-cur-val AS CHAR NO-UNDO.
 DEF OUTPUT PARAM op-char-val AS CHAR NO-UNDO.
+{sys/inc/var.i}
 
 /* Local Variable Definitions ---                                       */
 DEF VAR lv-rowid AS ROWID NO-UNDO.

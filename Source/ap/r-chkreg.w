@@ -1782,7 +1782,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                "Vendor:" + string(ap-sel.vend-no,"x(8)") + " Inv:" + STRING(ap-sel.inv-no,"9999999"),
+                "Vendor:" + string(ap-sel.vend-no,"x(8)") + " Inv:" + STRING(ap-sel.inv-no,"99999999"),
                 "AP").
 
             RUN GL_SpCreateGLHist(cocode,
@@ -1795,7 +1795,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                "Vendor:" + string(ap-sel.vend-no,"x(8)") + " Inv:" + STRING(ap-sel.inv-no,"9999999"),
+                "Vendor:" + string(ap-sel.vend-no,"x(8)") + " Inv:" + STRING(ap-sel.inv-no,"99999999"),
                 "AP").
         END.
     END.
@@ -1977,7 +1977,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                "Vendor:" + string(ap-inv.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
+                "Vendor:" + string(ap-inv.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"99999999"),
                 "AP").
         END.
 

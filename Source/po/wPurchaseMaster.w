@@ -28,6 +28,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -127,7 +128,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 152.6 BY 24
+         SIZE 156.6 BY 24
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
@@ -165,7 +166,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Purchase Order"
          HEIGHT             = 24
-         WIDTH              = 152.6
+         WIDTH              = 156.6
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -336,7 +337,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 151.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 21.67 , 155.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/f-addbes.w':U ,
@@ -429,7 +430,7 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = ?':U ,
              OUTPUT h_b-po-inq ).
        RUN set-position IN h_b-po-inq ( 4.57 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 20.00 , 148.00 ) */
+       /* Size in UIB:  ( 20.00 , 152.00 ) */
        
        /* Links to SmartViewer h_import. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
@@ -470,7 +471,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-poh ).
-       RUN set-position IN h_p-poh ( 21.24 , 49.00 ) NO-ERROR.
+       RUN set-position IN h_p-poh ( 21.24 , 45.00 ) NO-ERROR.
        RUN set-size IN h_p-poh ( 2.14 , 71.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -478,7 +479,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-pohold ).
-       RUN set-position IN h_v-pohold ( 21.24 , 120.00 ) NO-ERROR.
+       RUN set-position IN h_v-pohold ( 21.24 , 116.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 18.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -494,7 +495,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-clspo ).
-       RUN set-position IN h_vp-clspo ( 21.24 , 107.00 ) NO-ERROR.
+       RUN set-position IN h_vp-clspo ( 21.24 , 137.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 17.00 ) */
        
        RUN init-object IN THIS-PROCEDURE (
@@ -573,7 +574,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-clsp2 ).
-       RUN set-position IN h_vp-clsp2 ( 22.91 , 76.00 ) NO-ERROR.
+       RUN set-position IN h_vp-clsp2 ( 22.91 , 133.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.29 , 15.00 ) */
 
        /* Initialize other pages that this page requires. */
@@ -1121,7 +1122,7 @@ PROCEDURE pDisablePanels:
                 RUN pHideFrame IN h_v-pohold.                               
             END.
             
-            IF ipcScreen NE "PU4" THEN
+            IF ipcScreen NE "PU4" AND ipcScreen NE "PU1" THEN
             RUN pHideFrame IN h_vp-clspo.
             
             IF ipcScreen NE "PQ1" THEN
@@ -1133,11 +1134,13 @@ PROCEDURE pDisablePanels:
             IF ipcScreen NE "PU1" THEN
             RUN pHideFrame IN h_vp-poord.
              
-            IF ipcScreen NE "PU4" THEN DO:
-                RUN pHideFrame IN h_vp-clspo.
-                RUN pHideFrame IN h_vp-viewp.
-                RUN pHideFrame IN h_vp-clsp2.
+            IF ipcScreen NE "PU4" THEN DO:                 
+                RUN pHideFrame IN h_vp-viewp.               
             END.
+            IF ipcScreen NE "PU4" AND ipcScreen NE "PU1" THEN do:
+                RUN pHideFrame IN h_vp-clspo.
+                RUN pHideFrame IN h_vp-clsp2.
+            END.    
         END.
     END CASE.
     

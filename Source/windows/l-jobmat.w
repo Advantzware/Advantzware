@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No. 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -36,6 +38,8 @@ DEF INPUT PARAM ip-job-no2 AS cha NO-UNDO.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-val as recid no-undo.
+{sys/inc/var.i}
+
 def var lv-type-dscr as cha no-undo.
 
 &scoped-define SORTBY-1 BY job-mat.rm-i-no
@@ -45,7 +49,7 @@ def var lv-type-dscr as cha no-undo.
 
 FIND FIRST job
     WHERE job.company EQ ip-company
-      AND job.job-no  EQ ip-job-no
+      AND TRIM(job.job-no)  EQ TRIM(ip-job-no)
       AND job.job-no2 EQ INT(ip-job-no2)
     NO-LOCK NO-ERROR.
 

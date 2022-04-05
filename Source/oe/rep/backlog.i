@@ -1,5 +1,6 @@
 /* ----------------------------------------------- oe/rep/backlog.i 12/97 JLF */
 /* Order Backlog Summary / Detail Report                                      */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 def var v-stat as char no-undo.
@@ -29,7 +30,7 @@ if avail oe-ordl then do:
 
   create w-ord.
   assign
-   w-ord.ord-no    = if avail oe-ord then trim(string(oe-ord.ord-no,">>>>>9")) else ""
+   w-ord.ord-no    = if avail oe-ord then trim(string(oe-ord.ord-no,">>>>>>>9")) else ""
    w-ord.est-no    = oe-ordl.est-no
    w-ord.due-date  = oe-ordl.req-date
    w-ord.ord-date  = if avail oe-ord then oe-ord.ord-date else ?
@@ -158,7 +159,7 @@ if avail job then do:
       
   create w-ord.
   assign
-   w-ord.ord-no    = trim(job.job-no) + "-" + string(job.job-no2,"99")
+   w-ord.ord-no    = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
    w-ord.est-no    = job.est-no
    w-ord.due-date  = IF job.due-date NE ? THEN job.due-date ELSE job.start-date
    w-ord.cust-no   = tt-report.key-05

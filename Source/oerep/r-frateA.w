@@ -948,9 +948,9 @@ assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
 
- v-job[1] = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
+ v-job[1] = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
             TRIM(begin_job-no) + STRING(begin_job-no2,"99")    
- v-job[2] = FILL(" ",6 - LENGTH(TRIM(end_job-no))) +
+ v-job[2] = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no))) +
             TRIM(end_job-no) + STRING(end_job-no2,"99").
 
 {sys/inc/print1.i}
@@ -1002,10 +1002,10 @@ for each ar-inv
 
     each ar-invl
     where ar-invl.x-no eq ar-inv.x-no
-      and FILL(" ",6 - LENGTH(TRIM(ar-invl.job-no))) +
+      and FILL(" ", iJobLen - LENGTH(TRIM(ar-invl.job-no))) +
           TRIM(ar-invl.job-no) +
           STRING(ar-invl.job-no2,"99") GE v-job[1]
-      and FILL(" ",6 - LENGTH(TRIM(ar-invl.job-no))) +
+      and FILL(" ", iJobLen - LENGTH(TRIM(ar-invl.job-no))) +
           TRIM(ar-invl.job-no) +
           STRING(ar-invl.job-no2,"99") LE v-job[2]
       and not ar-invl.misc

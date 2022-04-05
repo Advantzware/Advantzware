@@ -1,7 +1,7 @@
 /* ----------------------------------------------  */
 /*  cecrep/jobPkgAtl.p  Corrugated factory ticket  for Xprint landscape */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 DEFINE INPUT PARAMETER v-format AS CHARACTER.
@@ -240,7 +240,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
             iover-run    = DECIMAL(cust.over-pct)
             .
     ASSIGN 
-        cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .
+        cBarCodeVal = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .
     ASSIGN  
         cCustName = cust.NAME 
         {sys/inc/ctrtext.i cCustName 30}.
@@ -248,9 +248,9 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
     PUT "<C1><R1.2><#Start>"
         "<=Start><FROM><C108><R50><RECT><|1>"
         "<=Start><#JobStart>"
-        "<=JobStart><C+20><#JobTR>"
+        "<=JobStart><C+23><#JobTR>"
         "<=JobStart><R+3><#JobBL> "
-        "<=JobStart><C+20><R+3><#JobEnd>"
+        "<=JobStart><C+23><R+3><#JobEnd>"
         "<=JobStart><FROM><RECT#JobEnd><|1>"
         "<=JobTR><#HeaderStart>"
         "<=HeaderStart><C+58><#HeaderTR>"
@@ -274,7 +274,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<P14>                  "
         "<=JobLabel>Job #:"
         "<FGColor=Blue><B>   "
-        "<=JobNum>" job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") FORMAT "x(10)"
+        "<=JobNum>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) FORMAT "x(13)"
         "</B><FGColor=Black>"
         "<P8> "
         "<=BlankLabel>Blank:"
@@ -844,9 +844,9 @@ IF AVAILABLE xeb  THEN
 PUT  /*"<C1><R1.2><#Start>"
               "<=Start><FROM><C108><R50><RECT><|1>  "
               "<=Start><#JobStart>"
-              "<=JobStart><C+20><#JobTR>"
+              "<=JobStart><C+23><#JobTR>"
               "<=JobStart><R+3><#JobBL> "
-              "<=JobStart><C+20><R+3><#JobEnd>"
+              "<=JobStart><C+23><R+3><#JobEnd>"
               "<=JobStart><FROM><RECT#JobEnd><|1>"
               "<=JobTR><#HeaderStart>"
               "<=HeaderStart><C+58><#HeaderTR>"
@@ -872,7 +872,7 @@ PUT  /*"<C1><R1.2><#Start>"
               "<P14>"
               "<=JobLabel>Job #:"
               "<FGColor=Blue><B> "
-              "<=JobNum>" job-hdr.job-no + "-" + string(job-hdr.job-no2)
+              "<=JobNum>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) FORMAT "x(13)"
               "</B><FGColor=Black>"
               "<P8>"
               "<=BlankLabel>Blank:"

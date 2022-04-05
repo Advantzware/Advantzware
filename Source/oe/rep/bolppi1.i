@@ -1,4 +1,5 @@
 /* oe/rep/bolppi1.i */      
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */     
       put 
          "<FCourier New>"
            "<C3><R2><#1><R+8><C+45><IMAGE#1=" ls-full-img1 
@@ -20,10 +21,10 @@
                 "<R21><C1><FROM><R21><C81><LINE>" SKIP    
                 "<R19><C12><FROM><R23><C12><LINE>" SKIP
                 "<R19><C24><FROM><R23><C24><LINE>" SKIP      
-                "<R19><C34><FROM><R23><C34><LINE>" SKIP
+                "<R19><C35><FROM><R23><C35><LINE>" SKIP
                 "<R19><C57><FROM><R23><C57><LINE>" SKIP
                 "<=4><R+1>    Date          ORDER#        FOB              Carrier                    Freight Terms    " SKIP
-                "<=4><R+3> " oe-bolh.bol-date /*v-po-no FORM "x(15)" */ space(4) v-ord-no space(7) v-fob space(1) carrier.dscr space(1) v-frt-terms /*SPACE(1) v-tot-wt*/ SKIP
+                "<=4><R+3> " oe-bolh.bol-date /*v-po-no FORM "x(15)" */ space(5) v-ord-no space(4) v-fob space(2) carrier.dscr space(1) v-frt-terms /*SPACE(1) v-tot-wt*/ SKIP
                 "<||5><R24><C1><#5><FROM><R26><C81><RECT>" SKIP    
                 "<R24><C12><FROM><R26><C12><LINE>" SKIP
                 "<R24><C25><FROM><R26><C25><LINE>" SKIP

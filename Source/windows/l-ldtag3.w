@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -177,11 +179,11 @@ DEFINE BROWSE BROWSE-1
       tt-loadtag.tag-no FORMAT "X(23)":U
       tt-loadtag.i-no FORMAT "x(15)":U
       tt-loadtag.i-name FORMAT "x(30)":U
-      tt-loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U
-      tt-loadtag.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      tt-loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U
+      tt-loadtag.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
       tt-loadtag.loc COLUMN-LABEL "Location" FORMAT "x(5)":U
       tt-loadtag.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
-      tt-loadtag.ord-no FORMAT ">>>>>9":U
+      tt-loadtag.ord-no FORMAT ">>>>>>>9":U
       tt-loadtag.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>>>9":U
       tt-loadtag.qty COLUMN-LABEL "Qty" FORMAT "->>>>>>9.9<<":U
       tt-loadtag.qty-case FORMAT "->,>>>,>>9":U
@@ -579,7 +581,7 @@ PROCEDURE pBuildSearch :
         FOR EACH loadtag NO-LOCK WHERE 
             loadtag.company = ip-company AND 
             loadtag.item-type = ip-itemtype AND
-            loadtag.job-no BEGINS iJobNo, 
+            TRIM(loadtag.job-no) BEGINS iJobNo, 
             FIRST fg-bin NO-LOCK WHERE 
             fg-bin.company = loadtag.company AND 
             fg-bin.i-no = loadtag.i-no AND 

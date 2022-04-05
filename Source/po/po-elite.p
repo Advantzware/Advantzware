@@ -216,9 +216,7 @@ assign
             assign v-num-add = 0.
             
             find first job where job.company eq cocode 
-                             and job.job-no eq string(fill(" ",6 - length(
-                                                trim(po-ordl.job-no)))) +
-                                                trim(po-ordl.job-no) 
+                             and trim(job.job-no) eq trim(po-ordl.job-no) 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
             if avail job then
@@ -276,7 +274,7 @@ assign
           end. /* v-shtsiz */        
         end. /* avail item and item.mat-type eq "B" */
         ASSIGN
-        v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,">>")
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2)))
         v-basis-w = 0
         v-dep     = 0.
 
@@ -344,9 +342,9 @@ assign
         PUT po-ordl.LINE FORM ">>9"
             po-ordl.ord-qty SPACE(2)
             po-ordl.pr-qty-uom SPACE(1)
-            po-ordl.i-no FORM "x(23)" SPACE(1)
+            po-ordl.i-no FORM "x(19)" SPACE(1)
             v-adder[1] 
-            v-job-no FORM "x(9)" SPACE(1)
+            v-job-no FORM "x(13)" SPACE(1)
             v-cost  /*po-ordl.cost*/ FORM "->>>9.99<<"
             po-ordl.pr-uom
             vt-cost /* po--ordl.t-cost */ FORM "->>,>>9.99"             

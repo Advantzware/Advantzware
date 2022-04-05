@@ -1,7 +1,7 @@
 /* ------------------------------------------ oe/rep/invloyln.p 11200902 GDM */
 /* INVOICE PRINT  Program for N-K-1-INVPRINT = Loylang & LoylangBSF                      */
 /* ------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -759,7 +759,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                 "<C67>" tt-inv-line.total-price  FORMAT "->,>>>,>>9.99"
                 "<C79>" tt-inv-line.taxable        FORMAT "X"
                 SKIP
-                "<C2>"  trim(string(tt-inv-line.ord-no), ">>>>>>>")
+                "<C2>"  trim(string(tt-inv-line.ord-no), ">>>>>>>9")
                 "<C18>" tt-inv-line.dscr1 FORMAT "x(30)"
                 "<C51>" tt-inv-line.ship-qty        FORMAT "->>>>>9"              
                 "<C63>" tt-inv-line.price-head 
@@ -812,7 +812,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
             PUT  "<C67>" inv-misc.amt FORMAT "->,>>>,>>9.99"
                  "<C79>" inv-misc.tax FORMAT "Y/N" SKIP
-                 "<C2>" inv-misc.ord-no SKIP.
+                 "<C2>"  TRIM(STRING(inv-misc.ord-no,">>>>>>>9")) SKIP.
 
             ASSIGN 
               v-subtot-lines = v-subtot-lines + inv-misc.amt

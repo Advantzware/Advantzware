@@ -49,31 +49,8 @@ DEFINE VARIABLE hFieldColumn AS HANDLE  NO-UNDO EXTENT 20.
 DEFINE VARIABLE hTableColumn AS HANDLE  NO-UNDO EXTENT 20.
 DEFINE VARIABLE lContinue    AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lSave        AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lSuperAdmin  AS LOGICAL NO-UNDO.
 
-DEFINE TEMP-TABLE ttTable NO-UNDO
-    FIELD auditTable        AS CHARACTER FORMAT "x(20)" LABEL "Table"
-    FIELD description       AS CHARACTER FORMAT "x(30)" LABEL "Description"
-    FIELD saveHolder        AS CHARACTER FORMAT "x(2)"  LABEL "Save"
-    FIELD resetHolder       AS CHARACTER FORMAT "x(2)"  LABEL "Reset"
-    FIELD expireDays        AS INTEGER   FORMAT ">>>9"  LABEL "Expire"
-    FIELD expireDaysDefault AS INTEGER   FORMAT ">>>9"  LABEL "Default"
-    FIELD audit             AS LOGICAL   EXTENT 4
-    FIELD auditDefault      AS LOGICAL   EXTENT 4
-        INDEX ttTable IS PRIMARY auditTable
-        .
-DEFINE TEMP-TABLE ttField NO-UNDO
-    FIELD auditTable   AS CHARACTER
-    FIELD auditField   AS CHARACTER FORMAT "x(30)" LABEL "Field"
-    FIELD description  AS CHARACTER FORMAT "x(30)" LABEL "Description"
-    FIELD saveHolder   AS CHARACTER FORMAT "x(2)"  LABEL "Save"
-    FIELD resetHolder  AS CHARACTER FORMAT "x(2)"  LABEL "Reset"
-    FIELD audit        AS LOGICAL                  LABEL "Update"
-    FIELD auditDefault AS LOGICAL                  LABEL "Default"
-        INDEX ttField IS PRIMARY 
-            auditTable
-            auditField
-            .
+{nosweat/ttAuditTable.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -94,7 +71,7 @@ DEFINE TEMP-TABLE ttField NO-UNDO
 &Scoped-define INTERNAL-TABLES ttField ttTable
 
 /* Definitions for BROWSE dbFields                                      */
-&Scoped-define FIELDS-IN-QUERY-dbFields ttField.saveHolder ttField.resetHolder ttField.auditField ttField.description ttField.audit ttField.auditDefault   
+&Scoped-define FIELDS-IN-QUERY-dbFields ttField.audit ttField.auditDefault ttField.auditField ttField.description   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-dbFields ttField.audit   
 &Scoped-define ENABLED-TABLES-IN-QUERY-dbFields ttField
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-dbFields ttField
@@ -106,7 +83,7 @@ DEFINE TEMP-TABLE ttField NO-UNDO
 
 
 /* Definitions for BROWSE dbTables                                      */
-&Scoped-define FIELDS-IN-QUERY-dbTables ttTable.saveHolder ttTable.resetHolder ttTable.auditTable ttTable.description ttTable.expireDays ttTable.expireDaysDefault ttTable.audit[1] ttTable.auditDefault[1] ttTable.audit[2] ttTable.auditDefault[2] ttTable.audit[3] ttTable.auditDefault[3] ttTable.audit[4] ttTable.auditDefault[4]   
+&Scoped-define FIELDS-IN-QUERY-dbTables ttTable.audit[1] ttTable.auditDefault[1] ttTable.audit[2] ttTable.auditDefault[2] ttTable.audit[3] ttTable.auditDefault[3] ttTable.audit[4] ttTable.auditDefault[4] ttTable.auditTable ttTable.description ttTable.expireDays ttTable.expireDaysDefault   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-dbTables ttTable.expireDays ttTable.audit[1] ttTable.audit[2] ttTable.audit[3] ttTable.audit[4]   
 &Scoped-define ENABLED-TABLES-IN-QUERY-dbTables ttTable
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-dbTables ttTable
@@ -123,10 +100,9 @@ DEFINE TEMP-TABLE ttField NO-UNDO
     ~{&OPEN-QUERY-dbTables}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnResetField btnSaveField ~
-btnBeforeValueFilterClear svFilter dbTables dbFields svToggleAuditCreate ~
-svToggleAuditDelete svToggleAuditUpdate svStackTrace toggleFields btnExit ~
-btnResetTable btnSaveTable ResetFromDefault 
+&Scoped-Define ENABLED-OBJECTS svFilter dbTables dbFields ~
+svToggleAuditCreate svToggleAuditDelete btnBeforeValueFilterClear ~
+svToggleAuditUpdate svStackTrace toggleFields btnExit 
 &Scoped-Define DISPLAYED-OBJECTS svFilter svToggleAuditCreate ~
 svToggleAuditDelete svToggleAuditUpdate svStackTrace toggleFields 
 
@@ -170,44 +146,19 @@ DEFINE BUTTON btnOK AUTO-GO DEFAULT
      SIZE 8 BY 1.91 TOOLTIP "Save"
      BGCOLOR 8 FONT 4.
 
-DEFINE BUTTON btnResetField 
-     IMAGE-UP FILE "Graphics/16x16/undo.gif":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 4.4 BY 1.05 TOOLTIP "Reset From Default".
-
-DEFINE BUTTON btnResetTable 
-     IMAGE-UP FILE "Graphics/16x16/undo.gif":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 4.4 BY 1.05 TOOLTIP "Reset From Default".
-
-DEFINE BUTTON btnSaveAsDefault 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Save As Defaults" 
-     SIZE 8 BY 1.91 TOOLTIP "Save As Defaults".
-
-DEFINE BUTTON btnSaveField 
-     IMAGE-UP FILE "Graphics/16x16/floppy_disk.gif":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 4.4 BY 1.05 TOOLTIP "Save To Default".
-
-DEFINE BUTTON btnSaveTable 
-     IMAGE-UP FILE "Graphics/16x16/floppy_disk.gif":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 4.4 BY 1.05 TOOLTIP "Save To Default".
-
-DEFINE BUTTON ResetFromDefault 
+DEFINE BUTTON btnReset DEFAULT 
      IMAGE-UP FILE "Graphics/32x32/undo_32.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Reset ALL From Defaults" 
+     LABEL "Reset" 
      SIZE 8 BY 1.91.
 
 DEFINE VARIABLE svFilter AS CHARACTER FORMAT "X(256)":U 
      LABEL "Filter" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1 NO-UNDO.
+     SIZE 52 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-11
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 237 BY 2.38.
+     SIZE 213 BY 2.38.
 
 DEFINE VARIABLE svStackTrace AS LOGICAL INITIAL no 
      LABEL "Stack" 
@@ -247,29 +198,21 @@ DEFINE QUERY dbTables FOR
 DEFINE BROWSE dbFields
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS dbFields C-Win _FREEFORM
   QUERY dbFields DISPLAY
-      ttField.saveHolder
-ttField.resetHolder
+      ttField.audit VIEW-AS TOGGLE-BOX
+ttField.auditDefault VIEW-AS TOGGLE-BOX
 ttField.auditField
 ttField.description
-ttField.audit VIEW-AS TOGGLE-BOX
-ttField.auditDefault VIEW-AS TOGGLE-BOX
 ENABLE
 ttField.audit
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 93 BY 30.48
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 82 BY 30.48
          TITLE "Fields" ROW-HEIGHT-CHARS .84.
 
 DEFINE BROWSE dbTables
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS dbTables C-Win _FREEFORM
   QUERY dbTables DISPLAY
-      ttTable.saveHolder
-ttTable.resetHolder
-ttTable.auditTable
-ttTable.description
-ttTable.expireDays
-ttTable.expireDaysDefault
-ttTable.audit[1] COLUMN-LABEL "Create" VIEW-AS TOGGLE-BOX
+      ttTable.audit[1] COLUMN-LABEL "Create" VIEW-AS TOGGLE-BOX
 ttTable.auditDefault[1] COLUMN-LABEL "Default" VIEW-AS TOGGLE-BOX
 ttTable.audit[2] COLUMN-LABEL "Delete" VIEW-AS TOGGLE-BOX
 ttTable.auditDefault[2] COLUMN-LABEL "Default" VIEW-AS TOGGLE-BOX
@@ -277,6 +220,10 @@ ttTable.audit[3] COLUMN-LABEL "Update" VIEW-AS TOGGLE-BOX
 ttTable.auditDefault[3] COLUMN-LABEL "Default" VIEW-AS TOGGLE-BOX
 ttTable.audit[4] COLUMN-LABEL "Stack"  VIEW-AS TOGGLE-BOX
 ttTable.auditDefault[4] COLUMN-LABEL "Default" VIEW-AS TOGGLE-BOX
+ttTable.auditTable
+ttTable.description
+ttTable.expireDays
+ttTable.expireDaysDefault
 ENABLE
 ttTable.expireDays
 ttTable.audit[1]
@@ -285,58 +232,52 @@ ttTable.audit[3]
 ttTable.audit[4]
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 142 BY 30.48
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 130 BY 30.48
          TITLE "Database Tables" ROW-HEIGHT-CHARS .84.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnResetField AT ROW 1.48 COL 151 WIDGET-ID 62
-     btnSaveField AT ROW 1.48 COL 146 WIDGET-ID 64
-     btnBeforeValueFilterClear AT ROW 2.43 COL 66 HELP
-          "Click to Clear Value Filter" WIDGET-ID 40
-     svFilter AT ROW 2.43 COL 32 COLON-ALIGNED HELP
+     btnReset AT ROW 1.48 COL 197 HELP
+          "Reset" WIDGET-ID 48
+     svFilter AT ROW 2.43 COL 7 COLON-ALIGNED HELP
           "Enter Filter Value" WIDGET-ID 6
      dbTables AT ROW 3.86 COL 2 WIDGET-ID 100
-     dbFields AT ROW 3.86 COL 145 WIDGET-ID 200
-     svToggleAuditCreate AT ROW 3.91 COL 83 HELP
+     dbFields AT ROW 3.86 COL 132 WIDGET-ID 200
+     svToggleAuditCreate AT ROW 3.91 COL 5 HELP
           "Select to Toggle Audit Create" WIDGET-ID 4
-     svToggleAuditDelete AT ROW 3.91 COL 98 HELP
+     svToggleAuditDelete AT ROW 3.91 COL 20 HELP
           "Select to Toggle Audit Delete" WIDGET-ID 8
-     svToggleAuditUpdate AT ROW 3.91 COL 113 HELP
+     btnBeforeValueFilterClear AT ROW 2.43 COL 61 HELP
+          "Click to Clear Value Filter" WIDGET-ID 40
+     svToggleAuditUpdate AT ROW 3.91 COL 35 HELP
           "Select to Toggle Audit Update" WIDGET-ID 10
-     svStackTrace AT ROW 3.91 COL 128 HELP
+     svStackTrace AT ROW 3.91 COL 50 HELP
           "Select to Toggle Audit Stack Trace" WIDGET-ID 42
-     btnOK AT ROW 1.48 COL 221 HELP
-          "Use this function to ACCEPT selected field"
-     toggleFields AT ROW 3.91 COL 221.6 HELP
+     toggleFields AT ROW 3.91 COL 135 HELP
           "Toggle ON/OFF" WIDGET-ID 44
-     btnExit AT ROW 1.48 COL 229 HELP
+     btnOK AT ROW 1.48 COL 189 HELP
+          "Use this function to ACCEPT selected field"
+     btnExit AT ROW 1.48 COL 205 HELP
           "Use this function to CANCEL field selecition"
-     btnSaveAsDefault AT ROW 1.48 COL 11 HELP
-          "Save As Defaults" WIDGET-ID 46
-     btnResetTable AT ROW 2.91 COL 8 WIDGET-ID 60
-     btnSaveTable AT ROW 2.91 COL 3 WIDGET-ID 58
-     ResetFromDefault AT ROW 1.48 COL 3 HELP
-          "Reset From Defaults" WIDGET-ID 48
      " RED : Default Value is OFF" VIEW-AS TEXT
-          SIZE 27 BY .62 AT ROW 2.91 COL 87 WIDGET-ID 50
+          SIZE 27 BY .62 AT ROW 2.91 COL 66 WIDGET-ID 50
           BGCOLOR 12 FGCOLOR 15 
      " GREEN : Default Value is ON" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 2.91 COL 145 WIDGET-ID 52
+          SIZE 29 BY .62 AT ROW 2.91 COL 124 WIDGET-ID 52
           BGCOLOR 10 
      " CYAN : Field Audit Overrides Exist" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 2.91 COL 175 WIDGET-ID 56
+          SIZE 34 BY .62 AT ROW 2.91 COL 154 WIDGET-ID 56
           BGCOLOR 11 
      " PURPLE: Default Overridden" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 2.91 COL 115 WIDGET-ID 54
+          SIZE 29 BY .62 AT ROW 2.91 COL 94 WIDGET-ID 54
           BGCOLOR 13 FGCOLOR 15 
      RECT-11 AT ROW 1.24 COL 1 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 238 BY 33.33.
+         SIZE 213.2 BY 33.33.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -357,11 +298,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Audit Table Selections"
          HEIGHT             = 33.33
-         WIDTH              = 238
+         WIDTH              = 213.2
          MAX-HEIGHT         = 33.33
-         MAX-WIDTH          = 238
+         MAX-WIDTH          = 213.2
          VIRTUAL-HEIGHT     = 33.33
-         VIRTUAL-WIDTH      = 238
+         VIRTUAL-WIDTH      = 213.2
          MAX-BUTTON         = no
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -392,10 +333,10 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 ASSIGN 
        btnOK:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
-/* SETTINGS FOR BUTTON btnSaveAsDefault IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR BUTTON btnReset IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 ASSIGN 
-       btnSaveAsDefault:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+       btnReset:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
 /* SETTINGS FOR RECTANGLE RECT-11 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
@@ -498,65 +439,12 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnResetField
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnResetField C-Win
-ON CHOOSE OF btnResetField IN FRAME DEFAULT-FRAME
+&Scoped-define SELF-NAME btnReset
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset C-Win
+ON CHOOSE OF btnReset IN FRAME DEFAULT-FRAME /* Reset */
 DO:
-    RUN pResetDefault2Field.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnResetTable
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnResetTable C-Win
-ON CHOOSE OF btnResetTable IN FRAME DEFAULT-FRAME
-DO:
-    RUN pResetDefault2Table.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnSaveAsDefault
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSaveAsDefault C-Win
-ON CHOOSE OF btnSaveAsDefault IN FRAME DEFAULT-FRAME /* Save As Defaults */
-DO:
-    RUN pSaveAsDefault.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSaveAsDefault C-Win
-ON RIGHT-MOUSE-CLICK OF btnSaveAsDefault IN FRAME DEFAULT-FRAME /* Save As Defaults */
-DO:
-    RUN pUpdateAuditTables.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnSaveField
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSaveField C-Win
-ON CHOOSE OF btnSaveField IN FRAME DEFAULT-FRAME
-DO:
-    RUN pSaveField2Default.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnSaveTable
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSaveTable C-Win
-ON CHOOSE OF btnSaveTable IN FRAME DEFAULT-FRAME
-DO:
-    RUN pSaveTable2Default.  
+    RUN pGetTables.
+    fSetSaveButton (NO).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -571,24 +459,9 @@ DO:
     &scoped-define exclude-row-display true 
     {methods/template/brwrowdisplay.i}    
     ASSIGN
-        hFieldColumn[5]:BGCOLOR = IF ttField.audit NE ttField.auditDefault THEN 13 ELSE ?
-        hFieldColumn[6]:BGCOLOR = IF ttField.auditDefault THEN 10 ELSE 12
+        hFieldColumn[1]:BGCOLOR = IF ttField.audit NE ttField.auditDefault THEN 13 ELSE ?
+        hFieldColumn[2]:BGCOLOR = IF ttField.auditDefault THEN 10 ELSE 12
         .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dbFields C-Win
-ON VALUE-CHANGED OF dbFields IN FRAME DEFAULT-FRAME /* Fields */
-DO:
-    ASSIGN
-        btnSaveField:ROW  = SELF:ROW + {&addRow} + SELF:FOCUSED-ROW * {&focusedRow}
-        btnResetField:ROW = SELF:ROW + {&addRow} + SELF:FOCUSED-ROW * {&focusedRow}
-        .
-    btnSaveField:MOVE-TO-TOP().
-    btnResetField:MOVE-TO-TOP().
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -603,24 +476,24 @@ DO:
     &scoped-define exclude-row-display true 
     {methods/template/brwrowdisplay.i}    
     ASSIGN
-        hTableColumn[5]:BGCOLOR  = IF ttTable.expireDays NE ttTable.expireDaysDefault THEN 13 ELSE ?
+        hTableColumn[3]:BGCOLOR = IF ttTable.expireDays NE ttTable.expireDaysDefault THEN 13 ELSE ?
         /* create */
-        hTableColumn[7]:BGCOLOR  = IF ttTable.audit[1] NE ttTable.auditDefault[1] THEN 13 ELSE ?
-        hTableColumn[8]:BGCOLOR  = IF ttTable.auditDefault[1] THEN 10 ELSE 12
+        hTableColumn[1]:BGCOLOR = IF ttTable.audit[1] NE ttTable.auditDefault[1] THEN 13 ELSE ?
+        hTableColumn[2]:BGCOLOR = IF ttTable.auditDefault[1] THEN 10 ELSE 12
         /* delete */
-        hTableColumn[9]:BGCOLOR  = IF ttTable.audit[2] NE ttTable.auditDefault[2] THEN 13 ELSE ?
-        hTableColumn[10]:BGCOLOR = IF ttTable.auditDefault[2] THEN 10 ELSE 12
+        hTableColumn[3]:BGCOLOR = IF ttTable.audit[2] NE ttTable.auditDefault[2] THEN 13 ELSE ?
+        hTableColumn[4]:BGCOLOR = IF ttTable.auditDefault[2] THEN 10 ELSE 12
         /* update */
-        hTableColumn[11]:BGCOLOR = IF ttTable.audit[3] NE ttTable.auditDefault[3] THEN 13 ELSE ?
-        hTableColumn[12]:BGCOLOR = IF ttTable.auditDefault[3] THEN 10 ELSE 12
-        hTableColumn[11]:BGCOLOR = IF CAN-FIND(FIRST ttField
+        hTableColumn[5]:BGCOLOR = IF ttTable.audit[3] NE ttTable.auditDefault[3] THEN 13 ELSE ?
+        hTableColumn[6]:BGCOLOR = IF ttTable.auditDefault[3] THEN 10 ELSE 12
+        hTableColumn[5]:BGCOLOR = IF CAN-FIND(FIRST ttField
                                                WHERE ttField.AuditTable EQ ttTable.AuditTable
                                                  AND ttField.Audit NE ttField.AuditDefault) THEN 11
                                    ELSE IF ttTable.audit[3] NE ttTable.auditDefault[3] THEN 13
                                    ELSE ?
         /* stack trace */
-        hTableColumn[13]:BGCOLOR = IF ttTable.audit[4] NE ttTable.auditDefault[4] THEN 13 ELSE ?
-        hTableColumn[14]:BGCOLOR = IF ttTable.auditDefault[4] THEN 10 ELSE 12
+        hTableColumn[7]:BGCOLOR = IF ttTable.audit[4] NE ttTable.auditDefault[4] THEN 13 ELSE ?
+        hTableColumn[8]:BGCOLOR = IF ttTable.auditDefault[4] THEN 10 ELSE 12
         .
 END.
 
@@ -643,26 +516,8 @@ END.
 ON VALUE-CHANGED OF dbTables IN FRAME DEFAULT-FRAME /* Database Tables */
 DO:
     {&OPEN-QUERY-dbFields}
-    ASSIGN
-        btnSaveTable:ROW  = SELF:ROW + {&addRow} + SELF:FOCUSED-ROW * {&focusedRow}
-        btnResetTable:ROW = SELF:ROW + {&addRow} + SELF:FOCUSED-ROW * {&focusedRow}
-        .
-    btnSaveTable:MOVE-TO-TOP().
-    btnResetTable:MOVE-TO-TOP().
     APPLY "VALUE-CHANGED":U TO BROWSE dbFields.
     APPLY "ROW-LEAVE":U TO BROWSE dbTables.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME ResetFromDefault
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ResetFromDefault C-Win
-ON CHOOSE OF ResetFromDefault IN FRAME DEFAULT-FRAME /* Reset ALL From Defaults */
-DO:
-    RUN pResetFromDefault.
-    fSetSaveButton (NO).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -737,7 +592,7 @@ END.
 ON VALUE-CHANGED OF toggleFields IN FRAME DEFAULT-FRAME
 DO:
     ASSIGN {&SELF-NAME}.
-    RUN pSetAuditField ({&SELF-NAME}).  
+    RUN pSetAuditField ({&SELF-NAME}).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -816,12 +671,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       svToggleAuditUpdate:MOVE-TO-TOP().
       svStackTrace:MOVE-TO-TOP().
       toggleFields:MOVE-TO-TOP().
-      ASSIGN
-        lSuperAdmin              = DYNAMIC-FUNCTION("sfIsUserSuperAdmin")
-        btnSaveTable:HIDDEN      = NOT lSuperAdmin
-        btnSaveField:HIDDEN      = NOT lSuperAdmin
-        BROWSE dbtables:MODIFIED = NO
-        .
+      BROWSE dbtables:MODIFIED = NO.
   END. /* if lcontinue */
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -869,10 +719,9 @@ PROCEDURE enable_UI :
   DISPLAY svFilter svToggleAuditCreate svToggleAuditDelete svToggleAuditUpdate 
           svStackTrace toggleFields 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnResetField btnSaveField btnBeforeValueFilterClear svFilter dbTables 
-         dbFields svToggleAuditCreate svToggleAuditDelete svToggleAuditUpdate 
-         svStackTrace toggleFields btnExit btnResetTable btnSaveTable 
-         ResetFromDefault 
+  ENABLE svFilter dbTables dbFields svToggleAuditCreate svToggleAuditDelete 
+         btnBeforeValueFilterClear svToggleAuditUpdate svStackTrace 
+         toggleFields btnExit 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -911,6 +760,8 @@ PROCEDURE pGetTables :
   Notes:       
 -------------------------------------------------------------*/
     SESSION:SET-WAIT-STATE("General").
+    EMPTY TEMP-TABLE ttTable.
+    EMPTY TEMP-TABLE ttField.
     FOR EACH AuditTbl NO-LOCK:
         CREATE ttTable.
         ASSIGN
@@ -967,77 +818,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetDefault2Field C-Win 
-PROCEDURE pResetDefault2Field :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    ASSIGN
-        ttField.Audit:SCREEN-VALUE IN BROWSE dbFields = STRING(ttField.AuditDefault)
-        ttField.Audit
-        .
-    BROWSE dbFields:REFRESH().
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetDefault2Table C-Win 
-PROCEDURE pResetDefault2Table :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    ASSIGN
-        ttTable.expireDays:SCREEN-VALUE IN BROWSE dbTables = STRING(ttTable.expireDaysDefault)
-        ttTable.Audit[1]:SCREEN-VALUE = STRING(ttTable.AuditDefault[1])
-        ttTable.Audit[2]:SCREEN-VALUE = STRING(ttTable.AuditDefault[2])
-        ttTable.Audit[3]:SCREEN-VALUE = STRING(ttTable.AuditDefault[3])
-        ttTable.Audit[4]:SCREEN-VALUE = STRING(ttTable.AuditDefault[4])
-        ttTable.expireDays
-        ttTable.Audit[1]
-        ttTable.Audit[2]
-        ttTable.Audit[3]
-        ttTable.Audit[4]
-        .
-    BROWSE dbTables:REFRESH().
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetFromDefault C-Win 
-PROCEDURE pResetFromDefault :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
-
-    SESSION:SET-WAIT-STATE("General").
-    FOR EACH ttTable:
-        ttTable.expireDays = ttTable.expireDaysDefault.
-        DO idx = 1 TO EXTENT(ttTable.audit):
-            ttTable.audit[idx] = ttTable.auditDefault[idx].
-        END. /* do idx */
-    END. /* each tttable */
-    FOR EACH ttField:
-        ttField.audit = ttField.auditDefault.
-    END. /* each tttable */
-    {&OPEN-QUERY-dbTables}
-    APPLY "VALUE-CHANGED":U TO BROWSE dbTables.
-    SESSION:SET-WAIT-STATE("").
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSave C-Win 
 PROCEDURE pSave :
 /*------------------------------------------------------------------------------
@@ -1083,142 +863,6 @@ PROCEDURE pSave :
     fSetSaveButton (NO).
     BROWSE dbTables:MODIFIED = NO.
     SESSION:SET-WAIT-STATE("").
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveAsDefault C-Win 
-PROCEDURE pSaveAsDefault :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
-
-    SESSION:SET-WAIT-STATE("General").
-    FOR EACH ttTable,
-        FIRST AuditTbl EXCLUSIVE-LOCK
-        WHERE AuditTbl.AuditTable EQ ttTable.auditTable
-        :
-        ASSIGN
-            ttTable.expireDaysDefault  = ttTable.expireDays
-            AuditTbl.expireDaysDefault = ttTable.expireDays
-            .
-        DO idx = 1 TO EXTENT(ttTable.auditDefault):
-            ttTable.auditDefault[idx] = ttTable.audit[idx].
-            CASE idx:
-                WHEN 1 THEN
-                AuditTbl.AuditCreateDefault = ttTable.auditDefault[idx].
-                WHEN 2 THEN
-                AuditTbl.AuditDeleteDefault = ttTable.auditDefault[idx].
-                WHEN 3 THEN
-                AuditTbl.AuditUpdateDefault = ttTable.auditDefault[idx].
-                WHEN 4 THEN
-                AuditTbl.AuditStackDefault  = ttTable.auditDefault[idx].
-            END CASE.
-        END. /* do idx */
-    END. /* each tttable */
-    FOR EACH ttField,
-        FIRST AuditFld EXCLUSIVE-LOCK
-        WHERE AuditFld.AuditTable EQ ttField.auditTable
-          AND AuditFld.AuditField EQ ttField.auditField
-        :
-        ASSIGN
-            ttField.auditDefault  = ttField.audit
-            AuditFld.AuditDefault = ttField.auditDefault
-            .
-    END. /* each tttable */
-    RELEASE AuditTbl.
-    RELEASE AuditFld.
-    {&OPEN-QUERY-dbTables}
-    fSetSaveButton (NO).
-    BROWSE dbTables:MODIFIED = NO.
-    APPLY "VALUE-CHANGED":U TO BROWSE dbTables.
-    SESSION:SET-WAIT-STATE("").
-    MESSAGE 
-        "Audit Table and Field Defaults Saved"
-    VIEW-AS ALERT-BOX.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveField2Default C-Win 
-PROCEDURE pSaveField2Default :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DO TRANSACTION:
-        ASSIGN
-            BROWSE dbFields
-            ttField.Audit
-            .
-        FIND FIRST AuditFld EXCLUSIVE-LOCK
-             WHERE AuditFld.AuditTable EQ ttField.AuditTable
-               AND AuditFld.AuditField EQ ttField.AuditField
-             NO-ERROR.
-        IF AVAILABLE AuditFld THEN
-        AuditFld.AuditDefault = ttField.Audit.
-        ASSIGN
-            ttField.AuditDefault:SCREEN-VALUE IN BROWSE dbFields = STRING(ttField.Audit)
-            ttField.AuditDefault
-            .
-    END. /* do trans */
-    RELEASE AuditFld.
-    BROWSE dbFields:REFRESH().
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveTable2Default C-Win 
-PROCEDURE pSaveTable2Default :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DO TRANSACTION:
-        ASSIGN
-            BROWSE dbTables
-            ttTable.Audit[1]
-            ttTable.Audit[2]
-            ttTable.Audit[3]
-            ttTable.Audit[4]
-            ttTable.expireDays
-            .
-        FIND FIRST AuditTbl EXCLUSIVE-LOCK
-             WHERE AuditTbl.AuditTable EQ ttTable.AuditTable
-             NO-ERROR.
-        IF AVAILABLE AuditTbl THEN
-        ASSIGN
-            AuditTbl.AuditCreateDefault = ttTable.Audit[1]
-            AuditTbl.AuditDeleteDefault = ttTable.Audit[2]
-            AuditTbl.AuditUpdateDefault = ttTable.Audit[3]
-            AuditTbl.AuditStackDefault  = ttTable.Audit[4]
-            AuditTbl.expireDaysDefault  = ttTable.expireDays
-            .
-        ASSIGN
-            ttTable.expireDaysDefault:SCREEN-VALUE IN BROWSE dbTables = STRING(ttTable.expireDays)
-            ttTable.AuditDefault[1]:SCREEN-VALUE = STRING(ttTable.Audit[1])
-            ttTable.AuditDefault[2]:SCREEN-VALUE = STRING(ttTable.Audit[2])
-            ttTable.AuditDefault[3]:SCREEN-VALUE = STRING(ttTable.Audit[3])
-            ttTable.AuditDefault[4]:SCREEN-VALUE = STRING(ttTable.Audit[4])
-            ttTable.AuditDefault[1]
-            ttTable.AuditDefault[2]
-            ttTable.AuditDefault[3]
-            ttTable.AuditDefault[4]
-            ttTable.expireDaysDefault
-            .
-    END. /* do trans */
-    RELEASE AuditTbl.
-    BROWSE dbTables:REFRESH().
 
 END PROCEDURE.
 
@@ -1272,6 +916,7 @@ PROCEDURE pSetAuditField :
         ttField.audit = iplAudit.
     END. /* each ttField */
     BROWSE dbFields:REFRESH().
+    fSetSaveButton (YES).
 
 END PROCEDURE.
 
@@ -1380,14 +1025,11 @@ FUNCTION fSetSaveButton RETURNS LOGICAL
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            lSave                      = iplSave
-            btnOK:HIDDEN               = NOT lSave
-            btnOK:SENSITIVE            = lSave
-            .
-        IF lSuperAdmin THEN
-        ASSIGN
-            btnSaveAsDefault:HIDDEN    = btnOK:HIDDEN
-            btnSaveAsDefault:SENSITIVE = btnOK:SENSITIVE
+            lSave              = iplSave
+            btnOK:HIDDEN       = NOT lSave
+            btnOK:SENSITIVE    = lSave
+            btnReset:HIDDEN    = NOT lSave
+            btnReset:SENSITIVE = lSave
             .
     END. /* with frame */
     RETURN lSave.

@@ -1,7 +1,7 @@
 /* ----------------------------------------------  */
 /*  cecrep/jobAtlBox.p(Copy of jobcard20)  Corrugated factory ticket  for AtlanticBox landscape */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 DEFINE INPUT PARAMETER v-format AS CHARACTER.
@@ -233,16 +233,16 @@ DO v-local-loop = 1 TO v-local-copies:
                     iunder-run   = DECIMAL(cust.under-pct)
                     iover-run    = DECIMAL(cust.over-pct)
                              .
-               ASSIGN cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .
+               ASSIGN cBarCodeVal = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .
              ASSIGN  cCustName = cust.NAME 
                {sys/inc/ctrtext.i cCustName 30}.
       
         PUT "<C1><R1.2><#Start>"
             "<=Start><FROM><C108><R50><RECT><|1>"
             "<=Start><#JobStart>"
-            "<=JobStart><C+20><#JobTR>"
+            "<=JobStart><C+23><#JobTR>"
             "<=JobStart><R+3><#JobBL> "
-            "<=JobStart><C+20><R+3><#JobEnd>"
+            "<=JobStart><C+23><R+3><#JobEnd>"
             "<=JobStart><FROM><RECT#JobEnd><|1>"
             "<=JobTR><#HeaderStart>"
             "<=HeaderStart><C+58><#HeaderTR>"
@@ -266,7 +266,7 @@ DO v-local-loop = 1 TO v-local-copies:
             "<P14>                  "
             "<=JobLabel>Job #:"
             "<FGColor=Blue><B>   "
-            "<=JobNum>" job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") FORMAT "x(10)"
+            "<=JobNum>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) FORMAT "x(13)"
             "</B><FGColor=Black>"
             "<P8> "
             "<=BlankLabel>Blank:"
@@ -913,9 +913,9 @@ DO v-local-loop = 1 TO v-local-copies:
         PUT  /*"<C1><R1.2><#Start>"
               "<=Start><FROM><C108><R50><RECT><|1>  "
               "<=Start><#JobStart>"
-              "<=JobStart><C+20><#JobTR>"
+              "<=JobStart><C+23><#JobTR>"
               "<=JobStart><R+3><#JobBL> "
-              "<=JobStart><C+20><R+3><#JobEnd>"
+              "<=JobStart><C+23><R+3><#JobEnd>"
               "<=JobStart><FROM><RECT#JobEnd><|1>"
               "<=JobTR><#HeaderStart>"
               "<=HeaderStart><C+58><#HeaderTR>"
@@ -941,7 +941,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<P14>"
               "<=JobLabel>Job #:"
               "<FGColor=Blue><B> "
-              "<=JobNum>" job-hdr.job-no + "-" + string(job-hdr.job-no2)
+              "<=JobNum>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) FORMAT "x(13)"
               "</B><FGColor=Black>"
               "<P8>"
               "<=BlankLabel>Blank:"
@@ -1166,7 +1166,7 @@ DO v-local-loop = 1 TO v-local-copies:
             ELSE IF AVAILABLE xeb THEN xeb.ship-id
             ELSE IF AVAILABLE xoe-ord THEN xoe-ord.sold-id 
             ELSE "".
-            FIND FIRST tt-prem WHERE tt-prem.tt-job-no  EQ job-hdr.job-no
+            FIND FIRST tt-prem WHERE TRIM(tt-prem.tt-job-no)  EQ TRIM(job-hdr.job-no)
                 AND tt-prem.tt-job-no2  EQ job-hdr.job-no2 NO-LOCK NO-ERROR.
             IF NOT AVAILABLE tt-prem THEN CREATE tt-prem.
         

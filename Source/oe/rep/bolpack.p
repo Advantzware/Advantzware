@@ -3,7 +3,7 @@
 /* PRINT BOL when sys-ctrl.char-fld eq "PAC 1/2" - O/E Module                 */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No. */
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
 
@@ -58,7 +58,7 @@ def var v-tot-case    like oe-boll.cases initial 0 no-undo.
 def var v-tot-units   like oe-boll.qty-case initial 0 no-undo.
 def var v-tot-sqft   like itemfg.t-sqft initial 0 format ">>>,>>9.99" no-undo.
 def var v-prt-co as log initial no no-undo.
-def var v-job as char format "x(9)" no-undo.
+def var v-job as char format "x(13)" no-undo.
 def var v-tot-wt like oe-bolh.tot-wt.
 
 find first oe-bolh no-lock no-error.
@@ -100,7 +100,7 @@ form header
 
 form oe-boll.cases             format ">>9"
      oe-boll.qty-case          format ">>>>9"
-     v-job             at 15   format "x(9)"
+     v-job             at 15   format "x(13)"
      oe-boll.i-no      at 29   format "x(15)" skip
      v-i-dscr[1]       at 29
      skip(1)
@@ -278,7 +278,7 @@ for each xreport  where xreport.term-id eq v-term-id,
     assign
      report.term-id  = v-term-id
      report.key-01   = oe-boll.i-no
-     report.key-02   = string(oe-boll.ord-no,"999999")
+     report.key-02   = string(oe-boll.ord-no,"99999999")
      report.rec-id   = recid(oe-boll)
      oe-boll.printed = yes.
   end.
@@ -310,8 +310,7 @@ for each xreport  where xreport.term-id eq v-term-id,
 	 v-i-dscr[2] = oe-ordl.i-dscr
 	 v-i-dscr[3] = oe-ordl.part-dscr1
 	 v-i-dscr[4] = oe-ordl.part-dscr2
-	 v-job = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-		trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
+	 v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
       else
 	assign

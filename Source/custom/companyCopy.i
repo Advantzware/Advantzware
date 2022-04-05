@@ -166,9 +166,7 @@ PROCEDURE startCopy:
   IF tg_terms THEN
       RUN termsCopy.
   IF tg_terr THEN
-      RUN terrCopy.
-  IF tg_test-red THEN
-      RUN test-redCopy.
+      RUN terrCopy.   
   IF tg_usercomp THEN
       RUN usercompCopy.
   IF tg_vend THEN
@@ -273,6 +271,8 @@ PROCEDURE startCopy:
       RUN mach-partCopy. 
   IF tg_box-design THEN
       RUN box-design .
+  IF tg_venditemcost THEN
+      RUN VendItemCost.
 END PROCEDURE.
 
 PROCEDURE accountCopy:
@@ -281,7 +281,7 @@ PROCEDURE accountCopy:
   
   RUN showMsg ('account',NO).
   IF CAN-FIND(FIRST account WHERE account.company EQ ipCompanyTo) THEN
-  FOR EACH account EXCLUSIVE-LOCK WHERE account.company EQ ipCompanyTo:
+  FOR EACH account EXCLUSIVE-LOCK WHERE account.company EQ ipCompanyTo:  
     DELETE account.
   END.
   FOR EACH account NO-LOCK WHERE account.company EQ ipCompanyFrom:
@@ -587,6 +587,7 @@ END PROCEDURE.
 PROCEDURE currencyCopy:
   DEFINE BUFFER bcurrency FOR currency.
   DEFINE BUFFER bnotes FOR notes.
+  DEFINE BUFFER bf-exchangeRate FOR exchangeRate.
 
   RUN showMsg ('currency',NO).
   IF CAN-FIND(FIRST currency WHERE currency.company EQ ipCompanyTo) THEN
@@ -609,7 +610,16 @@ PROCEDURE currencyCopy:
                bnotes.rec_key = bcurrency.rec_key.
 
     END.
+    FOR EACH exchangeRate NO-LOCK
+        WHERE exchangeRate.company = currency.company
+        AND exchangeRate.baseCurrencyCode = currency.c-code 
+        : 
+        CREATE bf-exchangeRate.
+        BUFFER-COPY exchangeRate EXCEPT company rec_key TO bf-exchangeRate
+        ASSIGN bf-exchangeRate.company = ipCompanyTo.
 
+        {custom\rec_key.i bf-exchangeRate}
+    END.
   END.
   RUN showMsg ('',YES).
 END PROCEDURE.
@@ -1221,12 +1231,17 @@ PROCEDURE pMaterialTypesCopy:
     DELETE materialType.
   END.
   FOR EACH materialType NO-LOCK WHERE materialType.company EQ ipCompanyFrom:
-    CREATE bf-materialType.
-    BUFFER-COPY materialType EXCEPT company rec_key TO bf-materialType
-      ASSIGN bf-materialType.company = ipCompanyTo.
+    FIND FIRST bf-materialType NO-LOCK
+         WHERE bf-materialType.company EQ ipCompanyTo
+           AND bf-materialType.materialType EQ materialType.materialType NO-ERROR.
+    IF NOT AVAIL bf-materialType then
+    DO:      
+        CREATE bf-materialType.
+        BUFFER-COPY materialType EXCEPT materialTypeID company rec_key TO bf-materialType
+          ASSIGN bf-materialType.company = ipCompanyTo.
 
-    {custom\rec_key.i bf-materialType}
-
+        {custom\rec_key.i bf-materialType}
+    END.
   END.
   RUN showMsg ('',YES).
 END PROCEDURE.
@@ -1254,30 +1269,30 @@ PROCEDURE locCopy:
   DEFINE BUFFER bloc FOR loc.
   DEFINE BUFFER blocation FOR location.
 
-  RUN showMsg ('loc',NO).
-  IF CAN-FIND(FIRST loc WHERE loc.company EQ ipCompanyTo) THEN
-  FOR EACH loc EXCLUSIVE-LOCK WHERE loc.company EQ ipCompanyTo:
-    DELETE loc.
-  END.
+  RUN showMsg ('loc',NO).  
   FOR EACH loc NO-LOCK WHERE loc.company EQ ipCompanyFrom:
-    CREATE bloc.
-    BUFFER-COPY loc EXCEPT company rec_key TO bloc
-      ASSIGN bloc.company = ipCompanyTo.
+    FIND FIRST bloc NO-LOCK
+         WHERE bloc.company EQ ipCompanyTo NO-ERROR.
+    IF NOT AVAIL bloc THEN
+    DO:    
+        CREATE bloc.
+        BUFFER-COPY loc EXCEPT company rec_key TO bloc
+          ASSIGN bloc.company = ipCompanyTo.
 
-    {custom\rec_key.i bloc}
-    
-    FIND FIRST location NO-LOCK WHERE 
-        location.company EQ loc.company AND 
-        location.locationCode EQ loc.loc
-        NO-ERROR.
-    IF AVAIL location THEN DO:
-        BUFFER-COPY location EXCEPT company rec_key TO blocation
-          ASSIGN blocation.company = ipCompanyTo.
-        {custom\rec_key.i blocation}
-        ASSIGN 
-            bloc.addrRecKey = blocation.rec_key.
+        {custom\rec_key.i bloc}
+        
+        FIND FIRST location NO-LOCK WHERE 
+            location.company EQ loc.company AND 
+            location.locationCode EQ loc.loc
+            NO-ERROR.
+        IF AVAIL location THEN DO:
+            BUFFER-COPY location EXCEPT company rec_key TO blocation
+              ASSIGN blocation.company = ipCompanyTo.
+            {custom\rec_key.i blocation}
+            ASSIGN 
+                bloc.addrRecKey = blocation.rec_key.
+        END.
     END.
-
   END.
   RUN showMsg ('',YES).
 END PROCEDURE.
@@ -1756,28 +1771,28 @@ PROCEDURE routing-mtxCopy:
 END PROCEDURE.
 
 PROCEDURE shiftCopy:
-  DEFINE BUFFER bshift FOR shift.
+  DEFINE BUFFER bshifts FOR shifts.
   DEFINE BUFFER bnotes FOR notes.
 
   RUN showMsg ('shift',NO).
-  IF CAN-FIND(FIRST shift WHERE shift.company EQ ipCompanyTo) THEN
-  FOR EACH shift EXCLUSIVE-LOCK WHERE shift.company EQ ipCompanyTo:
-    DELETE shift.
+  IF CAN-FIND(FIRST shifts WHERE shifts.company EQ ipCompanyTo) THEN
+  FOR EACH shifts EXCLUSIVE-LOCK WHERE shifts.company EQ ipCompanyTo:
+    DELETE shifts.
   END.
-  FOR EACH shift NO-LOCK WHERE shift.company EQ ipCompanyFrom:
-    CREATE bshift.
-    BUFFER-COPY shift EXCEPT company rec_key TO bshift
-      ASSIGN bshift.company = ipCompanyTo.
+  FOR EACH shifts NO-LOCK WHERE shifts.company EQ ipCompanyFrom:
+    CREATE bshifts.
+    BUFFER-COPY shifts EXCEPT company rec_key TO bshifts
+      ASSIGN bshifts.company = ipCompanyTo.
 
-    {custom\rec_key.i bshift}
+    {custom\rec_key.i bshifts}
 
     FOR EACH notes NO-LOCK
-        WHERE notes.rec_key EQ shift.rec_key:
+        WHERE notes.rec_key EQ shifts.rec_key:
         
         CREATE bnotes.
         BUFFER-COPY notes EXCEPT rec_key TO bnotes
             ASSIGN 
-               bnotes.rec_key = bshift.rec_key.
+               bnotes.rec_key = bshifts.rec_key.
 
     END.
 
@@ -1912,22 +1927,30 @@ PROCEDURE stack-fluteCopy:
     DELETE stack-flute.
   END.
   FOR EACH stack-flute NO-LOCK WHERE stack-flute.company EQ ipCompanyFrom:
-    CREATE bstack-flute.
-    BUFFER-COPY stack-flute EXCEPT company rec_key TO bstack-flute
-      ASSIGN bstack-flute.company = ipCompanyTo.
+    FIND FIRST bstack-flute NO-LOCK
+         WHERE bstack-flute.company EQ stack-flute.company
+           AND bstack-flute.loc EQ stack-flute.loc
+           AND bstack-flute.CODE EQ stack-flute.CODE
+           AND bstack-flute.pallet EQ stack-flute.pallet
+           AND bstack-flute.page-no EQ stack-flute.page-no NO-ERROR.
+    IF not AVAIL bstack-flute then
+    DO:      
+        CREATE bstack-flute.
+        BUFFER-COPY stack-flute EXCEPT company rec_key TO bstack-flute
+          ASSIGN bstack-flute.company = ipCompanyTo.
 
-    {custom\rec_key.i bstack-flute}
+        {custom\rec_key.i bstack-flute}
 
-    FOR EACH notes NO-LOCK
-        WHERE notes.rec_key EQ stack-flute.rec_key:
-        
-        CREATE bnotes.
-        BUFFER-COPY notes EXCEPT rec_key TO bnotes
-            ASSIGN 
-               bnotes.rec_key = bstack-flute.rec_key.
+        FOR EACH notes NO-LOCK
+            WHERE notes.rec_key EQ stack-flute.rec_key:
+            
+            CREATE bnotes.
+            BUFFER-COPY notes EXCEPT rec_key TO bnotes
+                ASSIGN 
+                   bnotes.rec_key = bstack-flute.rec_key.
 
+        END.
     END.
-
   END.
   RUN showMsg ('',YES).
 END PROCEDURE.
@@ -2134,25 +2157,6 @@ PROCEDURE terrCopy:
                bnotes.rec_key = bterr.rec_key.
 
     END.
-
-  END.
-  RUN showMsg ('',YES).
-END PROCEDURE.
-
-PROCEDURE test-redCopy:
-  DEFINE BUFFER btest-red FOR test-red.
-
-  RUN showMsg ('test-red',NO).
-  IF CAN-FIND(FIRST test-red WHERE test-red.company EQ ipCompanyTo) THEN
-  FOR EACH test-red EXCLUSIVE-LOCK WHERE test-red.company EQ ipCompanyTo:
-    DELETE test-red.
-  END.
-  FOR EACH test-red NO-LOCK WHERE test-red.company EQ ipCompanyFrom:
-    CREATE btest-red.
-    BUFFER-COPY test-red EXCEPT company rec_key TO btest-red
-      ASSIGN btest-red.company = ipCompanyTo.
-
-    {custom\rec_key.i btest-red}
 
   END.
   RUN showMsg ('',YES).
@@ -3892,6 +3896,37 @@ PROCEDURE box-design:
 
     {custom\rec_key.i bbox-design-hdr}
 
+  END.
+  RUN showMsg ('',YES).
+END PROCEDURE.
+
+PROCEDURE VendItemCost:
+  DEFINE BUFFER bvendItemCost FOR vendItemCost.
+  DEFINE BUFFER bvendItemCostLevel FOR vendItemCostLevel.
+
+  RUN showMsg ('vendItemCost',NO).
+  IF CAN-FIND(FIRST vendItemCost WHERE vendItemCost.company EQ ipCompanyTo) THEN
+  FOR EACH vendItemCost EXCLUSIVE-LOCK WHERE vendItemCost.company EQ ipCompanyTo:
+    FOR EACH vendItemCostLevel EXCLUSIVE-LOCK 
+        WHERE vendItemCostLevel.vendItemCostId = vendItemCost.vendItemCostID:
+        DELETE vendItemCostLevel.
+    END.     
+    DELETE vendItemCost.
+  END.
+  FOR EACH vendItemCost NO-LOCK WHERE vendItemCost.company EQ ipCompanyFrom:
+    CREATE bvendItemCost.
+    BUFFER-COPY vendItemCost EXCEPT vendItemCostID company rec_key TO bvendItemCost
+      ASSIGN bvendItemCost.company = ipCompanyTo.
+
+    {custom\rec_key.i bvendItemCost}
+
+    FOR EACH vendItemCostLevel EXCLUSIVE-LOCK 
+        WHERE vendItemCostLevel.vendItemCostId = vendItemCost.vendItemCostID:
+        CREATE bvendItemCostLevel.
+        BUFFER-COPY vendItemCostLevel EXCEPT vendItemCostLevelID rec_key TO bvendItemCostLevel
+        ASSIGN bvendItemCostLevel.vendItemCostId = bvendItemCost.vendItemCostID .
+        {custom\rec_key.i bvendItemCost}
+    END.  
   END.
   RUN showMsg ('',YES).
 END PROCEDURE.

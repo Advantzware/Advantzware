@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -74,7 +75,7 @@ ASSIGN
     cFieldListToSelect = "trans-date,i-no,i-name,po-no,rita-code,v-job-no,tag,qty,loc,loc-bin,loc2,loc-bin2,cost,v-value," +
                                 "poqty,due,vend,per,form,cust,fgitem,itemdesc,ovrpct,undpct,tons,qty,Reason,Reason-cd,Reason-dscr," +
                                 "sheet-size,vend-tag"
-    cFieldLength       = "8,10,30,8,2,9,20,10,5,8,6,8,10,10," + "12,8,20,12,4,25,15,30,7,7,12,10,30,11,25," + "25,20"
+    cFieldLength       = "8,10,30,8,2,13,20,10,5,8,6,8,10,10," + "12,8,20,12,4,25,15,30,7,7,12,10,30,11,25," + "25,20"
     cFieldType         = "c,c,c,c,c,c,c,i,c,c,c,c,i,i," + "i,c,c,c,i,c,c,c,i,i,i,i,c,c,c," + "c,c"
     .
 
@@ -168,15 +169,14 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
-     LABEL "" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000"      
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_procat AS CHARACTER FORMAT "X(5)":U 
      LABEL "Beginning Category" 
@@ -198,15 +198,14 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
-     LABEL "" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999"      
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_procat AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
      LABEL "Ending Category" 
@@ -362,11 +361,11 @@ DEFINE FRAME FRAME-A
           "Enter Endng Warehouse"
      begin_job-no AT ROW 6 COL 27.6 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 6 COL 39.6 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 6 COL 39.6 COLON-ALIGNED NO-LABEL HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 6 COL 71.8 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 6 COL 83.8 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 6 COL 83.8 COLON-ALIGNED NO-LABEL HELP
           "Enter Ending Job Number"
      mat-types AT ROW 7 COL 17.4 COLON-ALIGNED
      select-mat AT ROW 8.14 COL 6.4 HELP
@@ -555,6 +554,11 @@ ASSIGN
        mat-types:HIDDEN IN FRAME FRAME-A           = TRUE
        mat-types:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+ 
+/* SETTINGS FOR FILL-IN begin_job-no2 IN FRAME FRAME-A
+   NO-LABEL                                                             */
+/* SETTINGS FOR FILL-IN end_job-no2 IN FRAME FRAME-A
+   NO-LABEL                                                             */   
 
 ASSIGN 
        tb_adjustments:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -1636,7 +1640,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-code       LIKE rm-rcpth.rita-code NO-UNDO.
 
     DEFINE VARIABLE v-value      AS DECIMAL   FORMAT "->>,>>>,>>9.99" NO-UNDO.
-    DEFINE VARIABLE v-job-no     AS CHARACTER FORMAT "x(9)" NO-UNDO.
+    DEFINE VARIABLE v-job-no     AS CHARACTER FORMAT "x(13)" NO-UNDO.
     DEFINE VARIABLE v-qty        LIKE rm-rdtlh.qty EXTENT 3 NO-UNDO.
     DEFINE VARIABLE v-t-ton      AS DECIMAL   EXTENT 3 NO-UNDO.
     DEFINE VARIABLE v-val        LIKE v-value EXTENT 3 NO-UNDO.
@@ -1744,10 +1748,8 @@ PROCEDURE run-report :
            (IF tb_transfers   THEN "T" ELSE "") +
            (IF tb_adjustments THEN "A" ELSE "") +
            (IF tb_counts      THEN "C" ELSE "")
-        v-fjob   = FILL(" ",6 - length(TRIM(begin_job-no))) +
-           trim(begin_job-no) + string(int(begin_job-no2),"99")
-        v-tjob   = FILL(" ",6 - length(TRIM(end_job-no)))   +
-           trim(end_job-no)   + string(int(end_job-no2),"99").
+        v-fjob   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+        v-tjob   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) .
 
     DO WITH FRAME {&frame-name}:          
         DO i = 1 TO select-mat:num-items:
@@ -1859,8 +1861,8 @@ PROCEDURE run-report :
 
     ASSIGN
         v-type    = CAPS(v-type)
-        v-fjob1   = substr(v-fjob,1,6)
-        v-tjob1   = substr(v-tjob,1,6)
+        v-fjob1   = substr(v-fjob,1,9)
+        v-tjob1   = substr(v-tjob,1,9)
         v-job1sub = int(end_job-no2).
 
     IF tb_sort OR tb_subtot THEN 
@@ -1880,11 +1882,11 @@ PROCEDURE run-report :
             AND rm-rdtlh.loc       LE v-tloc
             AND rm-rdtlh.job-no    GE v-fjob1 
             AND rm-rdtlh.job-no    LE v-tjob1
-            AND fill(" ",6 - length(TRIM(rm-rdtlh.job-no))) +
-            trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
+            AND FILL(" ", iJobLen - length(TRIM(rm-rdtlh.job-no))) +
+            trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
             GE v-fjob
-            AND fill(" ",6 - length(TRIM(rm-rdtlh.job-no))) +
-            trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
+            AND FILL(" ", iJobLen - length(TRIM(rm-rdtlh.job-no))) +
+            trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
             LE v-tjob
             NO-LOCK,
             FIRST item
@@ -1945,11 +1947,11 @@ PROCEDURE run-report :
                 FOR EACH rm-rdtlh WHERE
                     rm-rdtlh.company EQ cocode AND
                     rm-rdtlh.job-no  EQ v-fjob1 AND 
-                    fill(" ",6 - length(TRIM(rm-rdtlh.job-no))) +
-                    trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
+                    FILL(" ", iJobLen - length(TRIM(rm-rdtlh.job-no))) +
+                    trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                     GE v-fjob AND
-                    fill(" ",6 - length(TRIM(rm-rdtlh.job-no))) +
-                    trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
+                    FILL(" ", iJobLen - length(TRIM(rm-rdtlh.job-no))) +
+                    trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                     LE v-tjob AND
           index(v-type,rm-rdtlh.rita-code) GT 0 AND
                     rm-rdtlh.loc       GE v-floc AND
@@ -1994,11 +1996,11 @@ PROCEDURE run-report :
                         AND rm-rdtlh.loc       LE v-tloc
                         AND rm-rdtlh.job-no    GE v-fjob1 
                         AND rm-rdtlh.job-no    LE v-tjob1
-                        AND fill(" ",6 - length(TRIM(rm-rdtlh.job-no))) +
-                        trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
+                        AND FILL(" ", iJobLen - length(TRIM(rm-rdtlh.job-no))) +
+                        trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                         GE v-fjob
-                        AND fill(" ",6 - length(TRIM(rm-rdtlh.job-no))) +
-                        trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
+                        AND FILL(" ", iJobLen - length(TRIM(rm-rdtlh.job-no))) +
+                        trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                         LE v-tjob
                         NO-LOCK,
                         FIRST item
@@ -2034,11 +2036,11 @@ PROCEDURE run-report :
                         AND rm-rdtlh.loc       LE v-tloc
                         AND rm-rdtlh.job-no    GE v-fjob1 
                         AND rm-rdtlh.job-no    LE v-tjob1
-                        AND fill(" ",6 - length(TRIM(rm-rdtlh.job-no))) +
-                        trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
+                        AND FILL(" ", iJobLen - length(TRIM(rm-rdtlh.job-no))) +
+                        trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                         GE v-fjob
-                        AND fill(" ",6 - length(TRIM(rm-rdtlh.job-no))) +
-                        trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
+                        AND FILL(" ", iJobLen - length(TRIM(rm-rdtlh.job-no))) +
+                        trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                         LE v-tjob
                         NO-LOCK,
                         FIRST item

@@ -1,4 +1,5 @@
 /* oe/rep/relxpr22.i for xprint2 form */   
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No. */
    
    PUT "<FArial>" SKIP
            "<P14><C+35><B>Pick Ticket</B> " SKIP
@@ -45,14 +46,21 @@
                    "<FArial><=4><R+1>    Pallets/Bags              Weight                    FOB               Ship Via                                                    Freight Terms" SKIP
                    "<FCourier New><=4><R+3> " space(2) v-pallets FORM ">>>>>9" SPACE(7) v-weight FORM "->>>>>>9" space(8) oe-ord.fob-code SPACE(5) v-carrier space(10) v-frt-terms   SKIP
                    "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
-                   "<R24><C7><FROM><R26><C7><LINE>" SKIP
-                   "<R24><C18><FROM><R26><C18><LINE>" SKIP
-                   "<R24><C24><FROM><R26><C24><LINE>" SKIP
-                   "<R24><C35><FROM><R26><C35><LINE>" SKIP                   
-                   "<R24><C57><FROM><R26><C57><LINE>" SKIP
+                   "<R24><C7.5><FROM><R26><C7.5><LINE>" SKIP
+                   "<R24><C20><FROM><R26><C20><LINE>" SKIP
+                   "<R24><C25><FROM><R26><C25><LINE>" SKIP
+                   "<R24><C38><FROM><R26><C38><LINE>" SKIP                   
+                   "<R24><C58><FROM><R26><C58><LINE>" SKIP
                    "<R24><C64><FROM><R26><C64><LINE>" SKIP 
                    "<R24><C72><FROM><R26><C72><LINE>" SKIP                                                                                                     /*job#*/
-               "<FArial><=5><R+1> Order#            PO#                Bin#           FG#                   Description                                        Units        Order Qty. Release Qty" SKIP(1)
+               "<FArial><=5><R+1> Order#
+                            <C10> PO#
+                            <C21> Bin#
+                            <C26> FG#
+                            <C40> Description
+                            <C59> Units
+                            <C65> Order Qty.
+                            <C72> Release Qty" SKIP(1)
                "<FCourier New>"          
            .
                v-printline = v-printline + 16.

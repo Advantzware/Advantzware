@@ -125,8 +125,8 @@ RUN spSetSettingContext.
     ~{&OPEN-QUERY-br-table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btJobReset btPost cbRMItem btTotal btClear ~
-btScanned btConsumed btnNumPad br-table btnExitText btnClearText ~
+&Scoped-Define ENABLED-OBJECTS btJobReset btPost cbRMItem btClear btTotal ~
+btScanned btConsumed br-table btnNumPad btnExitText btnClearText ~
 btnSettingsText statusMessage 
 &Scoped-Define DISPLAYED-OBJECTS cbRMItem fiUOM fiTotalQty fiScannedQty ~
 fiConsumedQty btnExitText btnClearText btnSettingsText statusMessage 
@@ -180,7 +180,7 @@ DEFINE BUTTON btClear
 
 DEFINE BUTTON btConsumed 
      LABEL "Consumed: 0" 
-     SIZE 27 BY 2 TOOLTIP "Filter Consumed Tags".
+     SIZE 30 BY 2 TOOLTIP "Filter Consumed Tags".
 
 DEFINE BUTTON btJobReset 
      IMAGE-UP FILE "Graphics/32x32/back_white.png":U
@@ -200,11 +200,11 @@ DEFINE BUTTON btPost
 
 DEFINE BUTTON btScanned 
      LABEL "Scanned: 0" 
-     SIZE 27 BY 2 TOOLTIP "Filter Scanned Tags".
+     SIZE 30 BY 2 TOOLTIP "Filter Scanned Tags".
 
 DEFINE BUTTON btTotal 
      LABEL "On Hand: 0" 
-     SIZE 27 BY 2 TOOLTIP "Filter All Tags".
+     SIZE 30 BY 2 TOOLTIP "Filter All Tags".
 
 DEFINE VARIABLE cbRMItem AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -284,23 +284,23 @@ DEFINE FRAME F-Main
      btPost AT ROW 3.24 COL 160.6 WIDGET-ID 38
      cbRMItem AT ROW 5.52 COL 16.6 COLON-ALIGNED NO-LABEL WIDGET-ID 152
      fiUOM AT ROW 5.62 COL 73.6 COLON-ALIGNED NO-LABEL WIDGET-ID 176
-     btTotal AT ROW 6.48 COL 111 WIDGET-ID 162 NO-TAB-STOP 
      btClear AT ROW 3.38 COL 194.8 WIDGET-ID 146
+     btTotal AT ROW 6.48 COL 108 WIDGET-ID 162 NO-TAB-STOP 
      btScanned AT ROW 6.48 COL 139.6 WIDGET-ID 164
-     btConsumed AT ROW 6.48 COL 168.2 WIDGET-ID 166
-     fiTotalQty AT ROW 8.76 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 170
+     btConsumed AT ROW 6.48 COL 171.4 WIDGET-ID 166
+     fiTotalQty AT ROW 8.76 COL 106.2 COLON-ALIGNED NO-LABEL WIDGET-ID 170
      fiScannedQty AT ROW 8.76 COL 137.6 COLON-ALIGNED NO-LABEL WIDGET-ID 174
-     fiConsumedQty AT ROW 8.76 COL 166.2 COLON-ALIGNED NO-LABEL WIDGET-ID 172
-     btnNumPad AT ROW 3.48 COL 182.8 WIDGET-ID 120 NO-TAB-STOP 
+     fiConsumedQty AT ROW 8.76 COL 169.6 COLON-ALIGNED NO-LABEL WIDGET-ID 172
      br-table AT ROW 10.05 COL 1.4 WIDGET-ID 200
+     btnNumPad AT ROW 3.48 COL 182.8 WIDGET-ID 120 NO-TAB-STOP 
      btnExitText AT ROW 1.24 COL 189 COLON-ALIGNED NO-LABEL WIDGET-ID 70
      btnClearText AT ROW 3.57 COL 182 NO-LABEL WIDGET-ID 148
      btnSettingsText AT ROW 19.81 COL 180.2 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      statusMessage AT ROW 19.95 COL 2.8 NO-LABEL WIDGET-ID 66
-     "UOM:" VIEW-AS TEXT
-          SIZE 10.4 BY .95 AT ROW 5.76 COL 65 WIDGET-ID 178
      "RM ITEM:" VIEW-AS TEXT
           SIZE 17 BY .95 AT ROW 5.76 COL 1.6 WIDGET-ID 154
+     "UOM:" VIEW-AS TEXT
+          SIZE 10.4 BY .95 AT ROW 5.76 COL 65 WIDGET-ID 178
      RECT-2 AT ROW 3.29 COL 181.8 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -362,7 +362,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-/* BROWSE-TAB br-table btnNumPad F-Main */
+/* BROWSE-TAB br-table fiConsumedQty F-Main */
 ASSIGN 
        br-table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
@@ -672,7 +672,6 @@ DO:
     RUN pStatusMessage ("", 0).
     
     {methods/run_link.i "TAG-SOURCE" "EmptyTag"}
-    {methods/run_link.i "TAG-SOURCE" "ScanNextTag"}   
     {methods/run_link.i "TAG-SOURCE" "EnableAll"}
     {methods/run_link.i "TAG-SOURCE" "Set-Focus"}
 
@@ -831,8 +830,6 @@ PROCEDURE adm-create-objects :
              btConsumed:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
              br-table:HANDLE IN FRAME F-Main , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
-             h_navigatefirst , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext ,
              h_navigateprev , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
@@ -906,8 +903,8 @@ PROCEDURE enable_UI :
   DISPLAY cbRMItem fiUOM fiTotalQty fiScannedQty fiConsumedQty btnExitText 
           btnClearText btnSettingsText statusMessage 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btJobReset btPost cbRMItem btTotal btClear btScanned btConsumed 
-         btnNumPad br-table btnExitText btnClearText btnSettingsText 
+  ENABLE btJobReset btPost cbRMItem btClear btTotal btScanned btConsumed 
+         br-table btnNumPad btnExitText btnClearText btnSettingsText 
          statusMessage 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
@@ -1186,7 +1183,7 @@ PROCEDURE pRebuildBrowse PRIVATE :
             INPUT-OUTPUT cItemName,
             INPUT        ipcJobNo,
             INPUT        ipiJobNo2,
-            INPUT        FALSE,  /* Include Zero qty bins */
+            INPUT        TRUE,   /* Include Zero qty bins */
             INPUT        TRUE,   /* Include empty tag bins */
             OUTPUT       cConsUOM,
             OUTPUT       lError,
@@ -1270,6 +1267,7 @@ PROCEDURE pRebuildBrowse PRIVATE :
         .
     
     {&OPEN-QUERY-{&BROWSE-NAME}}   
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1284,21 +1282,32 @@ PROCEDURE pTagScan :
     DEFINE INPUT PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTag           AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE lValidInv     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lChoice       AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lCreated      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cJobNoLocal   AS CHARACTER NO-UNDO. 
-    DEFINE VARIABLE cRMItemLocal  AS CHARACTER NO-UNDO. 
-    DEFINE VARIABLE iJobNo2Local  AS INTEGER   NO-UNDO. 
-    DEFINE VARIABLE iFormNoLocal  AS INTEGER   NO-UNDO. 
-    DEFINE VARIABLE iBlankNoLocal AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE lValidInv         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lChoice           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCreated          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cJobNoLocal       AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cRMItemLocal      AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE iJobNo2Local      AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE iFormNoLocal      AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE iBlankNoLocal     AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE lIsReturn         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dReturnQuantity   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dIssuedQty        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dUsedQty          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cIssuedQtyUOM     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValueReturned    AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-item FOR item.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
     cMessage = "".
+
+    RUN pStatusMessage("", 0). 
 
     RUN pGetInventoryStockDetails IN hdInventoryProcs (
         INPUT  ipcCompany,
@@ -1312,7 +1321,9 @@ PROCEDURE pTagScan :
         FIND FIRST ttInventoryStockDetails
              WHERE ttInventoryStockDetails.tag EQ ipcTag
              NO-ERROR.
-        IF AVAILABLE ttInventoryStockDetails THEN
+        IF AVAILABLE ttInventoryStockDetails THEN DO:
+            lIsReturn = ttInventoryStockDetails.isIssued AND ttInventoryStockDetails.quantityOnHand EQ 0.
+                
             ASSIGN
                 cJobNoLocal   = ttInventoryStockDetails.jobID
                 cRMItemLocal  = ttInventoryStockDetails.rmItemID
@@ -1320,6 +1331,7 @@ PROCEDURE pTagScan :
                 iFormNoLocal  = ttInventoryStockDetails.formNo
                 iBlankNoLocal = ttInventoryStockDetails.blankNo
                 .
+        END.
         
         IF cbRMItem:SCREEN-VALUE NE cRMItemLocal THEN DO:
             system.SharedConfig:Instance:SetValue("Tag", ipcTag).
@@ -1331,20 +1343,68 @@ PROCEDURE pTagScan :
                 RETURN.
         END.
         
-        IF ttInventoryStockDetails.itemCode EQ "E" AND
+        IF ttInventoryStockDetails.itemCode EQ "E" AND NOT lIsReturn AND
            (cJobno   NE cJobNoLocal  OR
             iJobno2  NE iJobNo2Local OR
             iFormno  NE iFormNoLocal OR
             iBlankno NE iBlankNoLocal) AND
             cJobNoLocal NE "" THEN DO:
-            MESSAGE "Tag belongs to different Job. Do you want to continue?"
-                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
-                TITLE "Continue?" UPDATE lIssue AS LOGICAL.
-            IF NOT lIssue THEN
+            RUN sharpShooter/messageDialog.w (
+                INPUT  "Tag belongs to different Job. Do you want to continue?",
+                INPUT  TRUE,
+                INPUT  TRUE,
+                INPUT  FALSE,
+                OUTPUT lChoice
+                ).
+            IF NOT lChoice THEN
                 RETURN.
         END.
         
-        IF AVAILABLE ttInventoryStockDetails THEN DO:  
+        IF lIsReturn THEN DO:
+            RUN Inventory_GetRMIssuedQuantity IN hdInventoryProcs (
+                INPUT  ttInventoryStockDetails.company,
+                INPUT  ttInventoryStockDetails.primaryID,
+                INPUT  ttInventoryStockDetails.tag,
+                OUTPUT dIssuedQty,
+                OUTPUT cIssuedQtyUOM,
+                OUTPUT lError,
+                OUTPUT cMessage
+                ).
+            IF lError THEN DO:
+                RUN pStatusMessage(cMessage, 3). 
+                
+                RETURN.
+            END.
+            
+            RUN inventory/adjustQuantityReturn.w (
+                INPUT  dIssuedQty,
+                INPUT  cIssuedQtyUOM,
+                OUTPUT lValueReturned,
+                OUTPUT dReturnQuantity
+                ).
+                
+            IF NOT lValueReturned THEN
+                RETURN.
+
+            IF dReturnQuantity NE 0 THEN DO:                
+                RUN Inventory_CreateReturnFromTag IN hdInventoryProcs(
+                    INPUT  ttInventoryStockDetails.company,
+                    INPUT  ttInventoryStockDetails.tag,
+                    INPUT  dReturnQuantity,
+                    INPUT  TRUE,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).  
+            END.
+            ELSE
+                cMessage = "Return quantity should be greater than 0".
+                
+            IF NOT lError THEN  
+                cMessage = "Tag '" + ttInventoryStockDetails.tag + "' is returned".
+
+            RUN pStatusMessage(INPUT cMessage, INPUT IF lError THEN 3 ELSE 1). 
+        END.
+        ELSE IF AVAILABLE ttInventoryStockDetails THEN DO:  
             RUN Inventory_CreateRMIssueFromTag in hdInventoryProcs (
                 INPUT  ipcCompany,
                 INPUT  ttInventoryStockDetails.tag,

@@ -962,9 +962,9 @@ ASSIGN
  v-export   = tb_exp-exel
  v-exp-name = cFileName
 
- v-fjob     = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
+ v-fjob     = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
               TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
- v-tjob     = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
+ v-tjob     = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no)))   +
               TRIM(end_job-no)   + STRING(INT(end_job-no2),"99"). 
 
 {sys/inc/print1.i}
@@ -994,10 +994,10 @@ IF td-show-parm THEN RUN show-param.
         AND mch-act.op-date LE v-tdat
         AND mch-act.job-no  GE SUBSTR(v-fjob,1,6)
         AND mch-act.job-no  LE SUBSTR(v-tjob,1,6)
-        AND FILL(" ",6 - LENGTH(TRIM(mch-act.job-no))) +
+        AND FILL(" ", iJobLen - LENGTH(TRIM(mch-act.job-no))) +
             TRIM(mch-act.job-no) + STRING(mch-act.job-no2,"99")
                             GE v-fjob
-        AND FILL(" ",6 - LENGTH(TRIM(mch-act.job-no))) +
+        AND FILL(" ", iJobLen - LENGTH(TRIM(mch-act.job-no))) +
             TRIM(mch-act.job-no) + STRING(mch-act.job-no2,"99")
                             LE v-tjob
       USE-INDEX operation,
@@ -1150,7 +1150,7 @@ IF td-show-parm THEN RUN show-param.
                STRING(mch-act.op-date,"99/99/9999")
      ld-time = (mch-act.stopp - mch-act.start) / 3600 *
                mch-act.crew * (tt-report.pct / 100)
-     lv-job# = FILL(" ",6 - LENGTH(TRIM(mch-act.job-no))) +
+     lv-job# = FILL(" ", iJobLen - LENGTH(TRIM(mch-act.job-no))) +
                TRIM(mch-act.job-no) + "-" + STRING(INT(mch-act.job-no2),"99")
      ld-sqft = tt-report.qty * tt-report.sqft.
 

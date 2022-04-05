@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -88,7 +89,7 @@ ASSIGN
                            "Cost Due,MSF Due,Machine#,P/O#,FG Item#,RM Item#,Width,Length,UOM,Job#,Job Due" 
     cFieldListToSelect = "wk-sh-ord.due-date,v-ord-no,v-cust-name,v-vend-name,ld-oqty,ld-rqty," +
                             "v-cst-rem,v-msf-rem,wk-sh-ord.machine,po-ordl.po-no,vFGItem#,po-ordl.i-no,v-wid,v-len,lv-uom,v-job-no,v-jobDueDate"
-    cFieldLength       = "8,6,30,30,15,15," + "10,10,8,6,15,15,10,10,4,12,10" 
+    cFieldLength       = "8,8,30,30,15,15," + "10,10,8,6,15,15,10,10,4,13,10" 
     cFieldType         = "i,i,c,c,i,i," + "i,i,c,i,c,c,i,i,c,c,c"
     .
 
@@ -1735,7 +1736,7 @@ PROCEDURE run-report :
                 DO:                 
                     cTmpField = SUBSTRING(GetFieldValue(hField),1,INT(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                     IF ENTRY(i,cSelectedList) = "Job#" THEN
-                        cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + STRING(job-hdr.job-no2,"99") ELSE "".                  
+                        cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + STRING(job-hdr.job-no2,"999") ELSE "".                  
 
                     cDisplay = cDisplay + cTmpField + 
                         FILL(" ",INT(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))

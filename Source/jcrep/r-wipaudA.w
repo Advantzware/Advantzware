@@ -921,9 +921,9 @@ assign
  {sys/inc/ctrtext.i str-tit2 112}
 
   v-stat        = SUBSTR(rd_jstat,1,1)
-  v-job-no[1]   = fill(" ",6 - length(trim(begin_job-no))) +
+  v-job-no[1]   = FILL(" ", iJobLen - length(trim(begin_job-no))) +
                   trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-job-no[2]   = fill(" ",6 - length(trim(end_job-no)))   +
+  v-job-no[2]   = FILL(" ", iJobLen - length(trim(end_job-no)))   +
                   trim(end_job-no)   + string(int(end_job-no2),"99") 
   v-only-opn    = tb_wip
 
@@ -936,7 +936,7 @@ assign
 
        hdr-tit = "TRANS  TRANS      JOB                                      " +
              "                     QUANTITY     WASTE      MACH MACH   JOB     "
-      hdr-tit2 = "TYPE    DATE      NUMBER  S/ B ITEM NUMBER     DESCRIPTION " +
+      hdr-tit2 = "TYPE    DATE      NUMBER  F/ B ITEM NUMBER     DESCRIPTION " +
              "                       POSTED       QTY     HOURS CODE   CODE  C ".
       hdr-tit3 = fill("-", 131).
 
@@ -948,7 +948,7 @@ assign
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
-  excelheader = "Trans Type,Trans Date,Job Number,S,B,Item Number,"
+  excelheader = "Trans Type,Trans Date,Job Number,F,B,Item Number,"
               + "Description,Quantity Posted,Waste Qty,Mach Hours,"
               + "Mach Code,Job Code,C".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -965,9 +965,9 @@ display "" with frame r-top.
           where job.company eq cocode
             and job.job-no  ge SUBSTR(v-job-no[1],1,6)
             and job.job-no  le SUBSTR(v-job-no[2],1,6)
-            AND fill(" ",6 - length(trim(job.job-no))) +
+            AND FILL(" ", iJobLen - length(trim(job.job-no))) +
                 trim(job.job-no) + string(int(job.job-no2),"99") GE v-job-no[1] 
-            AND fill(" ",6 - length(trim(job.job-no))) +
+            AND FILL(" ", iJobLen - length(trim(job.job-no))) +
                 trim(job.job-no) + string(int(job.job-no2),"99") LE v-job-no[2]
             and (v-stat  eq "A"  or
                  (v-stat eq "O" and job.opened) or

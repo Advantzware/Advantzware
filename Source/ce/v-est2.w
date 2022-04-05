@@ -253,7 +253,7 @@ DEFINE FRAME fold
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Normal","N",
                      "Blank","B",
-                     "Sheet","S"
+                     "Form","S"
           DROP-DOWN-LIST
           SIZE 13 BY 1
      ef.board AT ROW 2.43 COL 12 COLON-ALIGNED
@@ -469,7 +469,7 @@ DEFINE FRAME fold
      "Description" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 11 COL 24
           FGCOLOR 9 
-     "S  /  B" VIEW-AS TEXT
+     "F  /  B" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 11 COL 50
           FGCOLOR 9 
      RECT-20 AT ROW 1 COL 1

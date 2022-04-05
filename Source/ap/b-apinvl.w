@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -250,6 +251,10 @@ FUNCTION display-snum RETURNS INTEGER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-actdscr B-table-Win 
 FUNCTION get-actdscr RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
+  
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getcurrentpo B-table-Win 
+FUNCTION getcurrentpo RETURNS INTEGER
+  ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -316,7 +321,7 @@ DEFINE BROWSE Browser-Table
       display-item-no() @ lv-item-no
       ap-invl.dscr COLUMN-LABEL "Description" FORMAT "x(35)":U
             LABEL-BGCOLOR 14
-      display-job() @ lv-job-no COLUMN-LABEL "Job#" FORMAT "x(10)":U
+      display-job() @ lv-job-no COLUMN-LABEL "Job#" FORMAT "x(13)":U
       display-snum() @ lv-snum
       display-bnum() @ lv-bnum
   ENABLE
@@ -467,7 +472,7 @@ ASSIGN
      _FldNameList[15]   > ASI.ap-invl.dscr
 "ap-invl.dscr" "Description" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > "_<CALC>"
-"display-job() @ lv-job-no" "Job#" "x(10)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-job() @ lv-job-no" "Job#" "x(13)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > "_<CALC>"
 "display-snum() @ lv-snum" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
@@ -3922,7 +3927,7 @@ FUNCTION display-job RETURNS CHARACTER
                        AND po-ordl.po-no = ap-invl.po-no
                        AND po-ordl.LINE = ap-invl.LINE - (ap-invl.po-no * 1000)
                        NO-LOCK NO-ERROR.
-  IF AVAIL po-ordl THEN RETURN po-ordl.job-no + "-" + STRING(po-ordl.job-no2,">9").
+  IF AVAIL po-ordl THEN RETURN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2)) .
   ELSE RETURN "".   /* Function return value. */
 
 END FUNCTION.
@@ -3998,6 +4003,23 @@ FUNCTION get-actdscr RETURNS CHARACTER
      ELSE RETURN "".
   END.
   ELSE RETURN "".   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getcurrentpo B-table-Win 
+FUNCTION getcurrentpo RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+
+  IF AVAIL ap-invl THEN
+    RETURN ap-invl.po-no.
+  ELSE RETURN -1.  /* Function return value. */
 
 END FUNCTION.
 

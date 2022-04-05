@@ -41,7 +41,7 @@ DEFINE TEMP-TABLE ttInvoiceExport
     FIELD amount  		        AS CHARACTER LABEL "Total Amount"
     FIELD freight  		        AS CHARACTER LABEL "Freight"
     FIELD freight_adj  		    AS CHARACTER LABEL "Freight Adj."
-    FIELD tax-code  		    LIKE ar-inv.tax-code  LABEL "Sales Tax Code"
+    FIELD tax-code  		    LIKE ar-inv.tax-code  LABEL "Tax Group"
     FIELD tax-amt  		        AS CHARACTER LABEL "Sales Tax Amount"
     FIELD accountType  		    LIKE cust.accountType
     FIELD splitType  		    LIKE cust.splitType

@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+   
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No. 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -36,6 +38,7 @@ DEF INPUT PARAM ip-inv-no AS INT NO-UNDO.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 DEF OUTPUT PARAM op-rec-val AS RECID NO-UNDO.
+{sys/inc/var.i}
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
@@ -147,7 +150,7 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      ar-invl.ord-no FORMAT ">>>>>9":U
+      ar-invl.ord-no FORMAT ">>>>>>>9":U
       ar-invl.i-no FORMAT "x(15)":U
       ar-invl.i-name FORMAT "x(30)":U
       ar-invl.ship-qty COLUMN-LABEL "Shipped Qty" FORMAT "->>,>>>,>>9.99":U

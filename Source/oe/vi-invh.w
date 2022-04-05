@@ -111,10 +111,10 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     inv-head.inv-no AT ROW 1.71 COL 22 COLON-ALIGNED FORMAT ">>>>>>9"
+     inv-head.inv-no AT ROW 1.71 COL 22 COLON-ALIGNED FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 13 BY 1
-     inv-head.inv-date AT ROW 1.71 COL 53 COLON-ALIGNED
+          SIZE 14 BY 1
+     inv-head.inv-date AT ROW 1.71 COL 54.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
      inv-head.cust-no AT ROW 1.71 COL 86 COLON-ALIGNED

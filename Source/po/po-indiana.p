@@ -208,9 +208,7 @@ assign v-hdr = "VEND ITEM".
                    v-len = po-ordl.s-len.
 
             find first job where job.company eq cocode 
-                             and job.job-no eq string(fill(" ",6 - length(
-                                                trim(po-ordl.job-no)))) +
-                                                trim(po-ordl.job-no) 
+                             and trim(job.job-no) eq trim(po-ordl.job-no) 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
             if avail job then

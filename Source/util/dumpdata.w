@@ -484,7 +484,7 @@ PROCEDURE dump-cust :
 
   v-heading = "Company,Customer#,Name,Status,Address,Address2,City,State,Zip,Email,Type,Contact,SalesRep,Phone," +
               "Fax,Terms,Cr Acct#,Credit Rating,Credit Limit,Order Limit,Discount%,Currency,Grace Days,$," +
-              "Credit Hold,Finance Charges,Auto Reprice,EDI,Factored,Invoice Per,Taxable,Tax Code,Tax Resale#," +
+              "Credit Hold,Finance Charges,Auto Reprice,EDI,Factored,Invoice Per,Taxable,Tax Group,Tax Resale#," +
               "Exp Date,Freight Payment,FOB,Partial Ship,Location,Carrier,Delivery Zone,Territory," +
               "Underrun%,Overrun%,Mark-Up,Whse Days,Pallet,Case/Bundle,No. Load tags"
               .
@@ -574,7 +574,7 @@ PROCEDURE dump-cust :
   OUTPUT CLOSE.
 
   v-heading = "Company,Customer#,Shipto id,Name,Address,Address2,City,State,Zip,Contact,Phone,Fax,Export ID#," +
-                     "Tax Code,Mandatory Tax?,Broker?,Billable?,Dock#,Dock Hours,Warehouse,Bin,Carrier,Zone,Pallet," +
+                     "Tax Group,Mandatory Tax?,Broker?,Billable?,Dock#,Dock Hours,Warehouse,Bin,Carrier,Zone,Pallet," +
                      "Notes1,Notes2,Notes3,notes4".
 
   OUTPUT TO VALUE (v-dumpfile + "Shipto.csv").
@@ -717,7 +717,7 @@ PROCEDURE dump-invoiceH :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  v-heading = "Company,Invoice#,Customer#,Customer Name,Ship To,PO#,Invoice Date,Due Date,Tax Code,Terms Code,Terms Description," +
+  v-heading = "Company,Invoice#,Customer#,Customer Name,Ship To,PO#,Invoice Date,Due Date,Tax Group,Terms Code,Terms Description," +
               "Discount%,Disc Days,Carrier,Currency Code,Exchange Rate,Invoice Amount,Freight Amount,Tax Amount," +
               "Discount Amount,Amount Paid,Balance Due"
              .
@@ -933,7 +933,7 @@ PROCEDURE dump-orderH :
 ------------------------------------------------------------------------------*/
   v-heading = "Company,Order#,Estimate#,Job#,Last User,Status,Bill To,Bill To Name,Bill To Address1,Bill To Address2,Bill To City,Bill To State, Bill To Zip," +
               "Sold To,Sold To Name,Sold To Address1,Sold To Address2,Sold To City,Sold To State,Sold To Zip," +
-              "Order Date,Due Date,Last Ship Date,Prod Date,Cust PO#,Contact,Previous Order,Overrun%,Underrun%,Pay Terms,Terms Description,Tax Code," +
+              "Order Date,Due Date,Last Ship Date,Prod Date,Cust PO#,Contact,Previous Order,Overrun%,Underrun%,Pay Terms,Terms Description,Tax Group," +
               "SalesRep1,SalesRep Name1,% of Sales1,Comm%1,SalesRep2,SalesRep Name2,% of Sales2,Comm%2,SalesRep3,SalesRep Name3,% of Sales3,Comm%3," +
               "Freight Charge,Carrier,FOB,Payment Type,Expiration Date,Account#,Ref#"
               .

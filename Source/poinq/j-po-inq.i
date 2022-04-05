@@ -1,5 +1,5 @@
 
-IF fi_job-no NE "" THEN fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
+IF fi_job-no NE "" THEN fi_job-no = FILL(" ", iJobLen - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
 
 IF fi_po-no NE 0 THEN DO:
   &SCOPED-DEFINE open-query                     ~

@@ -1450,8 +1450,11 @@ DO:
     FIND FIRST materialType NO-LOCK
          WHERE materialType.company EQ cocode 
          AND materialType.materialType EQ fi_mat-type:SCREEN-VALUE NO-ERROR.
-    IF AVAIL materialType THEN
-    mat_dscr:SCREEN-VALUE = materialType.materialDescription.
+    IF AVAIL materialType THEN DO:
+        ASSIGN 
+            mat_dscr:SCREEN-VALUE = materialType.materialDescription.
+    END. 
+    
     IF LOOKUP(fi_mat-type:SCREEN-VALUE IN FRAME {&frame-name},"B,P") = 0 THEN
       asi.item.spare-char-1:HIDDEN = TRUE.
     ELSE
@@ -1843,13 +1846,13 @@ PROCEDURE enable-item :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE fi_mat-type.
-    IF INDEX("DC",item.mat-type) GT 0 THEN ENABLE fi_cas-pal-w. 
-    IF item.mat-type EQ "C" THEN ENABLE fi_flute fi_reg-no.
-    IF INDEX("BAP",item.mat-type) GT 0 THEN ENABLE fi_ect.
-    IF INDEX("1234",item.mat-type) GT 0 THEN ENABLE fi_ect.
+    IF AVAIL ITEM AND INDEX("DC",item.mat-type) GT 0 THEN ENABLE fi_cas-pal-w. 
+    IF AVAIL ITEM AND item.mat-type EQ "C" THEN ENABLE fi_flute fi_reg-no.
+    IF AVAIL ITEM AND INDEX("BAP",item.mat-type) GT 0 THEN ENABLE fi_ect.
+    IF AVAIL ITEM AND INDEX("1234",item.mat-type) GT 0 THEN ENABLE fi_ect.
   END.
 
 END PROCEDURE.

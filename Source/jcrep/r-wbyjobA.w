@@ -950,16 +950,16 @@ assign
   v-mach[2]  = end_mach
   v-shts     = rd_qty BEGINS "Sheets"
 
-  v-job[1]   = fill(" ",6 - length(trim(begin_job-no))) +
+  v-job[1]   = FILL(" ", iJobLen - length(trim(begin_job-no))) +
                 trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-job[2]   = fill(" ",6 - length(trim(end_job-no)))   +
+  v-job[2]   = FILL(" ", iJobLen - length(trim(end_job-no)))   +
                 trim(end_job-no)   + string(int(end_job-no2),"99"). 
 
  assign hdr-tit = "       " +
                  "MACH                                RUN    WASTE  MR STD " +
                  " MR ACT       MR RUN STD RUN ACT      RUN OVER STD OVER ACT"
                  + "     OVER"
-      hdr-tit2 = "  S/ B " +
+      hdr-tit2 = "  F/ B " +
                  "CODE   DESCRIPTION             QUANTITY QUANTITY PERCENT " +
                  "PERCENT VARIANCE PERCENT PERCENT VARIANCE  PERCENT  PERCENT"
                  + " VARIANCE"
@@ -969,7 +969,7 @@ SESSION:SET-WAIT-STATE ("general").
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
-  excelheader = "JOB #,STATUS,S,B,MACH CODE,DESCRIPTION,RUN QUANTITY,WASTE QUANTITY,"
+  excelheader = "JOB #,STATUS,F,B,MACH CODE,DESCRIPTION,RUN QUANTITY,WASTE QUANTITY,"
               + "MR STD PERCENT,MR ACT PERCENT,MR VARIANCE,RUN STD PERCENT,"
               + "RUN ACT PERCENT,RUN VARIANCE,OVER STD PERCENT,OVER ACT PERCENT,"
               + "OVER VARIANCE".
@@ -983,9 +983,9 @@ for each mch-act
       where mch-act.company                                 eq cocode
         and mch-act.op-date                                 ge v-date[1]
         and mch-act.op-date                                 le v-date[2]
-        and fill(" ",6 - length(trim(mch-act.job-no))) +
+        and FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
             trim(mch-act.job-no) + string(mch-act.job-no2,"99") ge v-job[1]
-        and fill(" ",6 - length(trim(mch-act.job-no))) +
+        and FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
             trim(mch-act.job-no) + string(mch-act.job-no2,"99") le v-job[2]
         and mch-act.dept                                    ge v-dept[1]
         and mch-act.dept                                    le v-dept[2]

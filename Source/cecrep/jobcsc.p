@@ -2,7 +2,7 @@
 /*  factory ticket for copied from Adapt-a-pak                    */
 /* -------------------------------------------------------------------------- */
 /*  BPV 03/18/13  */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 def input parameter v-format as char.
@@ -84,16 +84,14 @@ do v-local-loop = 1 to v-local-copies:
         where job-hdr.company               eq cocode
           and job-hdr.ftick-prnt            eq reprint
 
-          and job-hdr.job-no                ge substr(fjob-no,1,6)
-          and job-hdr.job-no                le substr(tjob-no,1,6)
-
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  ge fjob-no
-
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  le tjob-no,
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  GE fjob-no
+	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  LE tjob-no
+	  AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2,
 
         first job
         where job.company                   eq cocode
@@ -282,19 +280,19 @@ do v-local-loop = 1 to v-local-copies:
               xoe-ord.sold-id when avail xoe-ord
               xeb.ship-id when avail xeb @ xoe-ord.sold-id
               xoe-rel.ship-id when avail xoe-rel @ xoe-ord.sold-id               
-              "ORDER QTY" AT 70 "CUST P.O." AT 82 "JOB#" AT 97 SKIP
+              "ORDER QTY" AT 68 "CUST P.O." AT 80 "JOB#" AT 95 SKIP
               v-cus[1] AT 2 v-shp[1] FORM "x(27)"             
               trim(string( (if avail xoe-ordl then xoe-ordl.qty
                                            else job-hdr.qty) *
                                           if est.form-qty le 1 then 1
                                           else v-pqty,">>>,>>9"))
                                           format "x(7)" AT 61             
-              lv-ord-po AT 72 FORMAT "x(13)"
-              v-job-prt AT 86 FORM "x(10)"
+              lv-ord-po AT 69 FORMAT "x(13)"
+              v-job-prt AT 82 FORM "x(14)"
               SKIP
               v-cus[2] AT 2  v-shp[2] FORM "x(27)"
-             "ORDER DATE" AT 61 "DUE DATE" AT 73 "TOTAL SQ FT" AT 83 SKIP
-              v-cus[3] AT 2 v-shp[3] FORM "x(28)" v-ord-date  AT 61 v-due-date  AT 73    
+             "ORDER DATE" AT 60 "DUE DATE" AT 72 "TOTAL SQ FT" AT 83 SKIP
+              v-cus[3] AT 2 v-shp[3] FORM "x(28)" v-ord-date  AT 61 v-due-date  AT 72    
               trim(string(v-sht-qty * v-form-sqft,">>>,>>9.9<")) format "x(10)" AT 85
               SKIP
               v-cus[4] AT 2  v-shp[4] SKIP

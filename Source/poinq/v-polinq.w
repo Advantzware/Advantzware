@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -145,11 +146,11 @@ DEFINE FRAME F-Main
      po-ordl.job-no AT ROW 2.43 COL 111 COLON-ALIGNED
           LABEL "Job#"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 13 BY 1
      po-ordl.job-no2 AT ROW 2.43 COL 125 COLON-ALIGNED
-          LABEL "-" FORMAT "99"
+          LABEL "-" FORMAT "999"
           VIEW-AS FILL-IN 
-          SIZE 4.8 BY 1
+          SIZE 5.4 BY 1
      po-ordl.s-num AT ROW 2.43 COL 139 COLON-ALIGNED
           LABEL "Frm#" FORMAT ">>>"
           VIEW-AS FILL-IN 

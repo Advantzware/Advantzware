@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */     
 
 CREATE WIDGET-POOL.
 
@@ -96,7 +97,7 @@ ASSIGN cTextListToSelect  = "Rep,Customer,Name,Type,FG Item#,Cust Part#,Order#,I
                             "v-gp,v-camt,v-comm,grp,curr,inv-date,ware-house,ship-id,msf," +
                             "fre-cost,ware-cost,manu-cost,devi-cost"
 
-       cFieldLength = "4,8,19,8,15,15,6,7,8,10,12,12," + "9,10,8,8,8,12,9,8,10," + "12,14,16,14"
+       cFieldLength = "4,8,19,8,15,15,8,7,8,10,12,12," + "9,10,8,8,8,12,9,8,10," + "12,14,16,14"
        .
 
 {sys/inc/ttRptSel.i}
@@ -1400,7 +1401,7 @@ def var v-gp        as   dec format ">>9.99" NO-UNDO.
 def var v-slsm      like ar-invl.sman extent 1 NO-UNDO.
 def var v-slsc      like ar-invl.s-comm extent 1 NO-UNDO.
 def var v-slsp      like ar-invl.s-pct extent 1 NO-UNDO.
-def var v-inv-no    like ar-invl.inv-no NO-UNDO FORMAT ">>>>>>9".
+def var v-inv-no    like ar-invl.inv-no NO-UNDO FORMAT ">>>>>>>9".
 def var dFreightCost     AS DECIMAL NO-UNDO .
 def var dWarehouseCost   AS DECIMAL NO-UNDO .
 def var dManufactureCost AS DECIMAL NO-UNDO .

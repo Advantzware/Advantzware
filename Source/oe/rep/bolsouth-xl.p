@@ -2,6 +2,7 @@
 /* PRINT Xprint BOL 2 like Dayton                                             */
 /* -------------------------------------------------------------------------- */
 /* Output selection for the report */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 DEFINE SHARED VARIABLE LvOutputSelection AS CHAR NO-UNDO.
 
 {sys/inc/var.i shared}
@@ -31,7 +32,7 @@ def var v-part-qty          as   dec.
 def var v-ord-no            like oe-boll.ord-no.
 def var v-ord-date            like oe-ord.ord-date.
 def var v-po-no             like oe-bolh.po-no.
-def var v-job-no            as   char format "x(9)" no-undo.
+def var v-job-no            as   char format "x(13)" no-undo.
 def var v-phone-num         as   char format "x(13)" no-undo.
 
 def var v-ship-id    like shipto.ship-id.
@@ -365,7 +366,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
       
       v-salesman = trim(v-salesman).
       v-po-no = oe-boll.po-no.
-      v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>")).
+      v-job-no = IF oe-boll.job-no = "" THEN "" 
+                 ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
       if v-salesman gt '' then
         if substr(v-salesman,length(trim(v-salesman)),1) eq "," then
           substr(v-salesman,length(trim(v-salesman)),1) = "".

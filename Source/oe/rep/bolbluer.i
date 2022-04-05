@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolbluer.i 01/99 JLF */
 /* Print Blue Ridge BOL                                                       */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 hide {1} frame bol-bot2.
@@ -54,9 +55,9 @@ for each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe
     if i eq 2 then
       assign
        v-part-dscr = oe-ordl.part-dscr1
-       v-job-po    = if oe-ordl.job-no eq "" then "" else
-		    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
-
+       v-job-po    = if oe-ordl.job-no eq "" then "" ELSE 
+                     TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
+		    
     else
     if i eq 3 then v-part-dscr = oe-ordl.part-dscr2.
 
@@ -89,9 +90,9 @@ for each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe
     if i eq 2 then
       assign
        v-part-dscr = oe-ordl.part-dscr1
-       v-job-po    = if oe-ordl.job-no eq "" then "" else
-		    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
-
+       v-job-po    = if oe-ordl.job-no eq "" then "" ELSE 
+                     TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
+		    
     else
     if i eq 3 then v-part-dscr = oe-ordl.part-dscr2.
 

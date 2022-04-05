@@ -94,6 +94,9 @@
     DEFINE VARIABLE cIsPriority                   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cKeyItem                      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cNumberOn                     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUnitPrice                    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPriceUom                     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cExtPrice                     AS CHARACTER NO-UNDO.
     
     /*Job Material variables*/
     
@@ -291,6 +294,9 @@
             ASSIGN 
                 cOrderQty = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.qty) ELSE "0"
                 cMfgDate  = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.prom-date) ELSE ""
+                cUnitPrice = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.price) ELSE "0"
+                cPriceUom = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.pr-uom) ELSE "0"
+                cExtPrice = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.t-price) ELSE "0"
                 .                                            
                 ASSIGN 
                     lcJobHeaderData               = bf-APIOutboundDetail.data
@@ -332,7 +338,10 @@
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "MfgDate",cMfgDate).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "OrderQty",cOrderQty). 
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "KeyItem",cKeyItem). 
-                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "NumberOn",cNumberOn).       
+                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "NumberOn",cNumberOn).                
+                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "UnitSellPrice",cUnitPrice).
+                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "SellPriceUOM",cPriceUom).
+                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "ExtendedSellingPrice",cExtPrice).
                 lcConcatJobHeaderData = lcConcatJobHeaderData + lcJobHeaderData.
             END.
         END. 

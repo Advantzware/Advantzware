@@ -17,6 +17,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -76,7 +77,7 @@ ASSIGN
     cFieldType         = "c,c,c,c,c,c,i,i,i,i," + "i,i,i,c,c,c,c,i" 
     .
 IF lAPInvoiceLength THEN
-    ASSIGN cFieldLength = "25,30,8,8,35,8,20,7,7,13," + "10,10,14,13,10,12,6,7".
+    ASSIGN cFieldLength = "25,30,8,8,35,8,20,7,8,13," + "10,10,14,13,10,12,6,7".
 ELSE
     ASSIGN cFieldLength = "25,30,8,8,35,8,12,7,7,13," + "10,10,14,13,10,12,6,7".
       
@@ -2014,7 +2015,7 @@ PROCEDURE run-report :
                         WHEN "chk"  THEN 
                             cVarValue = STRING(ws_check-no,">>>>>>>") .
                         WHEN "ord"   THEN 
-                            cVarValue = STRING(ws_order-no,">>>>>>>") .
+                            cVarValue = STRING(ws_order-no,">>>>>>>>") .
                         WHEN "qty"  THEN 
                             cVarValue = IF ap-invl.qty <> 0 THEN STRING(ap-invl.qty,"->,>>>,>>9.99") ELSE "" .
 

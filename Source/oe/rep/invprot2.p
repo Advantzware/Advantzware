@@ -1,7 +1,7 @@
 /* ------------------------------------------ oe/rep/invprot2.p 11/2012 */
 /* INVOICE PRINT  Program for N-K-1-INVPRINT = Protagon2                      */
 /* ------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -858,7 +858,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                 "<C10>" tt-inv-line-item.i-name       FORMAT "x(30)"
                 "<C54>" tt-inv-line-item.price    FORMAT "->,>>>,>>9.99"
                 "<C64>" tt-inv-line-item.amount   FORMAT "->,>>>,>>9.99"
-                "<C75>" trim(string(tt-inv-line-item.ord-no,">>>>>>>"))
+                "<C75>" trim(string(tt-inv-line-item.ord-no,">>>>>>>9"))
                 SKIP.
             v-printline = v-printline + 1.
             RUN checkPage(NO).

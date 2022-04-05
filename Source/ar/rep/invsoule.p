@@ -341,7 +341,7 @@ FOR each report
 
      END.
 
-     PUT "[@startPage" + TRIM(STRING(ar-inv.inv-no,">>>>>>9")) + "]" FORMAT "X(50)". 
+     PUT "[@startPage" + TRIM(STRING(ar-inv.inv-no,">>>>>>>9")) + "]" FORMAT "X(50)". 
      {ar/rep/invsoule.i}  /* xprint form */
      ASSIGN 
        v-printline = 29
@@ -511,7 +511,7 @@ FOR each report
  
     
     iPageNum = PAGE-NUM.
-    PUT "[@endPage" + TRIM(STRING(ar-inv.inv-no,">>>>>>9")) + "]" FORMAT "X(50)".
+    PUT "[@endPage" + TRIM(STRING(ar-inv.inv-no,">>>>>>>9")) + "]" FORMAT "X(50)".
   
     page. /*PUT SKIP(74 - v-printline). */
      

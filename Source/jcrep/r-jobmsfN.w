@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -76,7 +77,7 @@ ASSIGN cTextListToSelect = "FG Item#,Mach#,Charge,Start Date,End Date,Total Time
               + "Job#,Run Qty,Waste,Shift,SQF"
        cFieldListToSelect = "ino,mch,chrg,strt-dt,end-dt,ttl-time," 
               + "job,run-qty,whst,shft,sqf"  
-       cFieldLength = "15,6,6,10,10,10," + "10,11,11,5,12"
+       cFieldLength = "15,6,6,10,10,10," + "13,11,11,5,12"
        cFieldType = "c,c,c,c,c,i," + "c,i,i,i,i" 
     .
 
@@ -161,42 +162,42 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY .95 NO-UNDO.
+     SIZE 20.4 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(6)" 
      LABEL "Beginning Machine" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
      LABEL "Ending Machine" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE exp-name AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-jobmsf.csv" 
      LABEL "Name" 
@@ -267,20 +268,20 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_mach AT ROW 2.91 COL 28 COLON-ALIGNED HELP
+     begin_mach AT ROW 2.91 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Machine"
-     end_mach AT ROW 2.91 COL 66 COLON-ALIGNED HELP
+     end_mach AT ROW 2.91 COL 67 COLON-ALIGNED HELP
           "Enter Ending Machine"
-     begin_job-no AT ROW 3.86 COL 28 COLON-ALIGNED HELP
+     begin_job-no AT ROW 3.86 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 3.86 COL 40 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 3.86 COL 41 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     end_job-no AT ROW 3.86 COL 66 COLON-ALIGNED HELP
+     end_job-no AT ROW 3.86 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 3.86 COL 78 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 3.86 COL 82 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     begin_date AT ROW 4.81 COL 28 COLON-ALIGNED
-     end_date AT ROW 4.81 COL 66 COLON-ALIGNED HELP
+     begin_date AT ROW 4.81 COL 26 COLON-ALIGNED
+     end_date AT ROW 4.81 COL 67 COLON-ALIGNED HELP
           "Enter Ending Due Date"
      sl_avail AT ROW 7.81 COL 4 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 7.81 COL 41.2 HELP
@@ -1404,10 +1405,8 @@ ASSIGN
  v-tdat     = end_date  
  v-exp-name = cFileName
 
- v-fjob     = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-              TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
- v-tjob     = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
-              TRIM(end_job-no)   + STRING(INT(end_job-no2),"99"). 
+ v-fjob     = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+ v-tjob     = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) . 
 
 
 DEF VAR cslist AS cha NO-UNDO.
@@ -1458,15 +1457,15 @@ IF td-show-parm THEN RUN show-param.
         AND mch-act.m-code  GE v-fmch
         AND mch-act.m-code  LE v-tmch
         AND mch-act.op-date GE v-fdat
-        AND mch-act.op-date LE v-tdat
-        AND mch-act.job-no  GE SUBSTR(v-fjob,1,6)
-        AND mch-act.job-no  LE SUBSTR(v-tjob,1,6)
-        AND FILL(" ",6 - LENGTH(TRIM(mch-act.job-no))) +
-            TRIM(mch-act.job-no) + STRING(mch-act.job-no2,"99")
+        AND mch-act.op-date LE v-tdat         
+        AND FILL(" ", iJobLen - LENGTH(TRIM(mch-act.job-no))) +
+            TRIM(mch-act.job-no) + STRING(mch-act.job-no2,"999")
                             GE v-fjob
-        AND FILL(" ",6 - LENGTH(TRIM(mch-act.job-no))) +
-            TRIM(mch-act.job-no) + STRING(mch-act.job-no2,"99")
+        AND FILL(" ", iJobLen - LENGTH(TRIM(mch-act.job-no))) +
+            TRIM(mch-act.job-no) + STRING(mch-act.job-no2,"999")
                             LE v-tjob
+        AND mch-act.job-no2 GE int(begin_job-no2)
+        AND mch-act.job-no2 LE int(end_job-no2)                    
       USE-INDEX operation,
 
       FIRST mach
@@ -1617,8 +1616,7 @@ IF td-show-parm THEN RUN show-param.
                STRING(mch-act.op-date,"99/99/9999")
      ld-time = (mch-act.stopp - mch-act.start) / 3600 *
                mch-act.crew * (tt-report.pct / 100)
-     lv-job# = FILL(" ",6 - LENGTH(TRIM(mch-act.job-no))) +
-               TRIM(mch-act.job-no) + "-" + STRING(INT(mch-act.job-no2),"99")
+     lv-job# = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', mch-act.job-no, mch-act.job-no2)) 
      ld-sqft = tt-report.qty * tt-report.sqft.
 
     IF ld-time EQ ? THEN ld-time = 0.

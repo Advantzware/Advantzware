@@ -14,6 +14,7 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /*Gets rid of stack trace window when pressing F1*/
 SESSION:DEBUG-ALERT = FALSE.
@@ -343,11 +344,11 @@ DEFINE FRAME Dialog-Frame
           SIZE 30 BY 1
           BGCOLOR 15 FONT 1
      fg-rcpth.job-no AT ROW 4.1 COL 17 COLON-ALIGNED
-          LABEL "Job" FORMAT "x(6)"
+          LABEL "Job" FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 FONT 1
-     fg-rcpth.job-no2 AT ROW 4.1 COL 33.2 COLON-ALIGNED NO-LABEL FORMAT ">9"
+     fg-rcpth.job-no2 AT ROW 4.1 COL 33.2 COLON-ALIGNED NO-LABEL FORMAT ">>9"
           VIEW-AS FILL-IN 
           SIZE 6.6 BY 1
           BGCOLOR 15 FONT 1
@@ -1005,7 +1006,7 @@ DO:
 
         ASSIGN
             lv-job-no = TRIM({&self-name}:SCREEN-VALUE )
-           lv-job-no = FILL(" ",6 - LENGTH(lv-job-no)) + lv-job-no
+           lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no)) 
             {&self-name}:SCREEN-VALUE  = lv-job-no.
     END.
 END.

@@ -23,11 +23,11 @@ PROCEDURE pBusinessLogic:
         cStartShift,
         cEndShift,
         cEndTime,
-        OUTPUT iShiftStartTime
+        OUTPUT iShiftEndTime
         ).
     IF dtStartDate   EQ dtEndDate AND
        iShiftEndTime LT iShiftStartTime THEN
-    iShiftEndTime = 86400.
+    iShiftEndTime = 86400000.
     IF cEndShift EQ CHR(254) THEN
     cEndShift = "99".
     RUN pProductionAnalysis1 (

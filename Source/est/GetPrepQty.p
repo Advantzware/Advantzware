@@ -152,22 +152,18 @@ DEFINE VARIABLE iCount AS INTEGER     NO-UNDO.
 IF AVAIL ipbf-est AND AVAIL ipbf-ef THEN DO:
     
     /*If not a combo*/
-    IF ipbf-est.est-type NE 4 
-        AND ipbf-est.est-type NE 8 THEN
-        FOR EACH bf-eb 
-            WHERE bf-eb.company EQ ipbf-ef.company
-              AND bf-eb.est-no  EQ ipbf-ef.est-no
-              AND bf-eb.form-no EQ ipbf-ef.form-no
+    FOR EACH bf-eb 
+        WHERE bf-eb.company EQ ipbf-ef.company
+        AND bf-eb.est-no  EQ ipbf-ef.est-no
+        AND bf-eb.form-no EQ ipbf-ef.form-no
         NO-LOCK 
         BREAK BY bf-eb.form-no:
-            /*sum up the coating and color counts for blanks*/
-            opiQtyP = opiQtyP + 
-                (IF ipbf-est.est-type NE 3 OR FIRST(bf-eb.form-no) THEN
-                   bf-eb.i-coat + bf-eb.i-col ELSE bf-eb.yld-qty).
-        END. /*each bf-eb*/
-    ELSE /*If a combo just add form coating and form color fields*/
-        opiQtyP = opiQtyP + ipbf-ef.f-coat + ipbf-ef.f-col.
-
+        /*sum up the coating and color counts for blanks*/
+        opiQtyP = opiQtyP + 
+            (IF ipbf-est.est-type NE 3 OR FIRST(bf-eb.form-no) THEN
+            bf-eb.i-coat + bf-eb.i-col ELSE bf-eb.yld-qty).
+    END. /*each bf-eb*/
+    
     /*subtract out any aqueous ink types from the count*/
     FOR EACH bf-eb 
         WHERE bf-eb.company EQ ipbf-ef.company 

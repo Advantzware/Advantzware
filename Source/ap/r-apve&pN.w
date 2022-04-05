@@ -1424,6 +1424,13 @@ PROCEDURE post-gl :
                 total-msf      = total-msf + ap-invl.amt-msf
                 ap-invl.posted = YES.
        
+FIND FIRST currency NO-LOCK
+      WHERE currency.company     EQ ap-inv.company
+        AND currency.c-code      EQ ap-inv.curr-code[1]
+        AND currency.ar-ast-acct NE ""
+        AND currency.ex-rate     GT 0
+      NO-ERROR.
+            
       RUN GL_SpCreateGLHist(cocode,
                 tt-ap-invl.actnum,
                 "ACPAY",
@@ -1434,19 +1441,19 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999") + " PO:" + STRING(ap-invl.po-no,"999999") ,
+                (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"99999999") + " PO:" + STRING(ap-invl.po-no,"999999") ,
                 "AP").
       RUN GL_SpCreateGLHist(cocode,
                  xap-acct,
                  "ACPAY",
                  vend.name  + "  " + string(ap-inv.inv-date),
                  tran-date,
-                 tt-ap-invl.amt * -1,
+                 tt-ap-invl.amt * -1 / (IF AVAIL currency THEN currency.ex-rate ELSE 1),
                  v-trnum,
                  tran-period,
                  "A",
                  tran-date,
-                 (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999") + " PO:" + STRING(ap-invl.po-no,"999999") ,
+                 (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"99999999") + " PO:" + STRING(ap-invl.po-no,"999999") ,
                  "AP").                     
 
             FIND FIRST po-ordl
@@ -1799,7 +1806,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
+                (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"99999999"),
                 "AP").    
         END.
     END. /* for each ap-inv */
@@ -1820,7 +1827,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
+                (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"99999999"),
                 "AP").
             RUN GL_SpCreateGLHist(cocode,
                 xap-acct,
@@ -1832,7 +1839,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
+                (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"99999999"),
                 "AP").
         END.
 

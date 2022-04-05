@@ -22,6 +22,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 
@@ -84,14 +85,14 @@ DEFINE TEMP-TABLE tt-report NO-UNDO
 
 ASSIGN 
     cTextListToSelect  = "Job#," +
-                            "S#,B#,RM Item#,Item Name,Costs,Cost/M,Tot MRP,Qty UOM," +
+                            "F#,B#,RM Item#,Item Name,Costs,Cost/M,Tot MRP,Qty UOM," +
                             "Width,Length,#Up,MSF Weight,AutoPost?,Qty,Committed"
 
     cFieldListToSelect = "job," +
                             "job-mat.frm,job-mat.blank-no,job-mat.rm-i-no,i-name,job-mat.std-cost,job-mat.cost-m,job-mat.qty,job-mat.qty-uom," +
                             "job-mat.wid,job-mat.len,job-mat.n-up,job-mat.basis-w,job-mat.post,job-mat.qty-all,job-mat.all-flg"
 
-    cFieldLength       = "10," + "3,3,10,30,11,9,15,7," + "8,8,4,9,8,15,4" 
+    cFieldLength       = "13," + "3,3,10,30,11,9,15,7," + "8,8,4,9,8,15,4" 
     cFieldType         = "c," + "i,i,c,c,i,i,i,c,"  + "i,i,i,i,c,i,c"  
     .
 
@@ -176,14 +177,14 @@ DEFINE VARIABLE begin_item     AS CHARACTER FORMAT "X(15)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_job      AS CHARACTER FORMAT "X(8)" 
+DEFINE VARIABLE begin_job      AS CHARACTER FORMAT "X(9)" 
     LABEL "From Job#" 
     VIEW-AS FILL-IN 
     SIZE 12.6 BY 1.
 
 DEFINE VARIABLE begin_job-2    AS INTEGER   FORMAT "->,>>>,>>9" INITIAL 0 
     VIEW-AS FILL-IN 
-    SIZE 4.2 BY 1.
+    SIZE 5.4 BY 1.
 
 DEFINE VARIABLE end_cust-no    AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
     LABEL "To Customer#" 
@@ -195,14 +196,14 @@ DEFINE VARIABLE end_item       AS CHARACTER FORMAT "X(15)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_job        AS CHARACTER FORMAT "X(8)" 
+DEFINE VARIABLE end_job        AS CHARACTER FORMAT "X(9)" 
     LABEL "To Job#" 
     VIEW-AS FILL-IN 
     SIZE 12.6 BY 1.
 
-DEFINE VARIABLE end_job-2      AS INTEGER   FORMAT ">9" INITIAL 99 
+DEFINE VARIABLE end_job-2      AS INTEGER   FORMAT ">>9" INITIAL 999 
     VIEW-AS FILL-IN 
-    SIZE 4.2 BY 1.
+    SIZE 5.4 BY 1.
 
 DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\JobCostingMaterial.csv" 
     LABEL "Name" 
@@ -500,10 +501,8 @@ ON CHOOSE OF btn-ok IN FRAME Dialog-Frame /* OK */
     DO:
  
         ASSIGN 
-            begin_job:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(begin_job:SCREEN-VALUE))) +
-                 TRIM(begin_job:SCREEN-VALUE) 
-            end_job:SCREEN-VALUE   = FILL(" ",6 - LENGTH(TRIM(end_job:SCREEN-VALUE))) +
-                 TRIM(end_job:SCREEN-VALUE) .
+            begin_job:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job:SCREEN-VALUE)) 
+            end_job:SCREEN-VALUE   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job:SCREEN-VALUE))   .
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
@@ -1069,7 +1068,8 @@ PROCEDURE run-report :
         PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
    
     FOR EACH job WHERE job.company EQ cocode
-        AND  (job.job-no >= begin_job AND job.job-no <= END_job) 
+        AND  FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) >= begin_job 
+        AND  FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) <= END_job 
         AND  job.job-no2 GE begin_job-2 AND job.job-no2 LE end_job-2
         AND ((job.opened EQ YES AND v-open) OR (job.opened EQ NO AND v-closed)) NO-LOCK,
         FIRST job-hdr WHERE job-hdr.company = cocode
@@ -1145,7 +1145,7 @@ PROCEDURE run-report :
                 CASE cTmpField:
                  
                     WHEN "job" THEN 
-                        cVarValue = STRING(TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99")).
+                        cVarValue = STRING(TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"999")).
                     WHEN "i-name" THEN 
                         cVarValue = IF AVAILABLE ITEM THEN STRING(ITEM.i-name,"x(30)") ELSE "" .
                 END CASE.

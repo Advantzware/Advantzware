@@ -130,7 +130,7 @@ DEFINE BROWSE browse-route
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browse-route Dialog-Frame _FREEFORM
     QUERY browse-route NO-LOCK DISPLAY
     tt-oe-route.IS-SELECTED COLUMN-LABEL ''  VIEW-AS TOGGLE-BOX 
-    tt-oe-route.s-num FORMAT ">9" COLUMN-LABEL "S" WIDTH 6 
+    tt-oe-route.s-num FORMAT ">9" COLUMN-LABEL "F" WIDTH 6 
     tt-oe-route.b-num FORMAT ">9" COLUMN-LABEL "B" WIDTH 6 
     tt-oe-route.m-code FORMAT "X(6)" COLUMN-LABEL "Machine"  
     tt-oe-route.m-dscr FORMAT "X(20)" COLUMN-LABEL "Description" 

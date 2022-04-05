@@ -231,7 +231,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 18.2 LABEL-BGCOLOR 14
       ar-cash.check-date COLUMN-LABEL "Date" FORMAT "99/99/9999":U
             WIDTH 14.2 LABEL-BGCOLOR 14
-      ar-cashl.inv-no FORMAT ">>>>>>9":U WIDTH 19 LABEL-BGCOLOR 14
+      ar-cashl.inv-no FORMAT ">>>>>>>9":U WIDTH 19 LABEL-BGCOLOR 14
       ar-cashl.amt-due COLUMN-LABEL "Balance Due" FORMAT "->>,>>>,>>9.99":U
             WIDTH 21.2 LABEL-BGCOLOR 14
       ar-cashl.amt-disc FORMAT "->>,>>9.99":U WIDTH 16 LABEL-BGCOLOR 14
@@ -364,7 +364,7 @@ ASSIGN
      _FldNameList[3]   > asi.ar-cash.check-date
 "ar-cash.check-date" "Date" ? "date" ? ? ? 14 ? ? yes ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.ar-cashl.inv-no
-"ar-cashl.inv-no" ? ">>>>>>9" "integer" ? ? ? 14 ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-cashl.inv-no" ? ">>>>>>>9" "integer" ? ? ? 14 ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.ar-cashl.amt-due
 "ar-cashl.amt-due" "Balance Due" ? "decimal" ? ? ? 14 ? ? yes ? no no "21.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.ar-cashl.amt-disc

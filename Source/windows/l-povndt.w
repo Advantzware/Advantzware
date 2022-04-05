@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -184,8 +186,8 @@ DEFINE BROWSE BROWSE-1
       po-ord.ship-id FORMAT "x(8)":U WIDTH 12
       po-ordl.i-no FORMAT "x(15)":U WIDTH 22
       po-ordl.i-name FORMAT "x(30)":U
-      po-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 9
-      po-ordl.job-no2 COLUMN-LABEL "" FORMAT "99":U
+      po-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 15
+      po-ordl.job-no2 COLUMN-LABEL "" FORMAT "999":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 145 BY 11.19
@@ -262,9 +264,9 @@ ASI.po-ordl.po-no   = po-ord.po-no"
 "po-ordl.i-no" ? ? "character" ? ? ? ? ? ? no ? no no "22" yes no no "U" "" ""
      _FldNameList[7]   = ASI.po-ordl.i-name
      _FldNameList[8]   > ASI.po-ordl.job-no
-"po-ordl.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" ""
+"po-ordl.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" ""
      _FldNameList[9]   > ASI.po-ordl.job-no2
-"po-ordl.job-no2" "" "99" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"po-ordl.job-no2" "" "999" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME

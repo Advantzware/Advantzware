@@ -23,6 +23,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -124,12 +125,12 @@ DEFINE VARIABLE fi_comp-date AS DATE FORMAT "99/99/9999":U
      SIZE 18 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1
@@ -171,8 +172,8 @@ DEFINE BROWSE Browser-Table
       corr2asi.cl-order-id FORMAT "x(20)":U
       corr2asi.cl-total-start-blanks COLUMN-LABEL "Total Blanks" FORMAT "x(8)":U
       corr2asi.import-user COLUMN-LABEL "Import User" FORMAT "x(8)":U
-      corr2asi.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 10
-      corr2asi.job-no2 COLUMN-LABEL "" FORMAT ">9":U WIDTH 4
+      corr2asi.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 14
+      corr2asi.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 5.4
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 15.48
@@ -295,9 +296,9 @@ ASSIGN
      _FldNameList[7]   > asi.corr2asi.import-user
 "corr2asi.import-user" "Import User" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.corr2asi.job-no
-"corr2asi.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"corr2asi.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.corr2asi.job-no2
-"corr2asi.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"corr2asi.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "5.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -626,13 +627,13 @@ PROCEDURE local-open-query :
            OPEN QUERY {&browse-name}
              FOR EACH corr2asi WHERE
                  corr2asi.company EQ cocode AND
-                 corr2asi.job-no BEGINS fi_job-no
+                 trim(corr2asi.job-no) BEGINS trim(fi_job-no)
                  NO-LOCK.
         ELSE
         OPEN QUERY {&browse-name}
              FOR EACH corr2asi WHERE
                  corr2asi.company EQ cocode AND
-                 corr2asi.job-no BEGINS fi_job-no AND
+                 trim(corr2asi.job-no) BEGINS trim(fi_job-no) AND
                  corr2asi.job-no2 EQ fi_job-no2
                  NO-LOCK.
      END.
@@ -642,14 +643,14 @@ PROCEDURE local-open-query :
            OPEN QUERY {&browse-name}
              FOR EACH corr2asi WHERE
                  corr2asi.company EQ cocode AND
-                 corr2asi.job-no BEGINS fi_job-no AND
+                 trim(corr2asi.job-no) BEGINS trim(fi_job-no) AND
                  corr2asi.cl-completion-date EQ fi_comp-date
                  NO-LOCK.
         ELSE
         OPEN QUERY {&browse-name}
              FOR EACH corr2asi WHERE
                  corr2asi.company EQ cocode AND
-                 corr2asi.job-no BEGINS fi_job-no AND
+                 trim(corr2asi.job-no) BEGINS trim(fi_job-no) AND
                  corr2asi.job-no2 EQ fi_job-no2 AND
                  corr2asi.cl-completion-date EQ fi_comp-date
                  NO-LOCK.

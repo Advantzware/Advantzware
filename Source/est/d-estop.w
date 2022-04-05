@@ -77,6 +77,7 @@ DEFINE            VARIABLE ll-foam             AS LOG       NO-UNDO.
 DEFINE            VARIABLE lv-eqty             LIKE est-qty.eqty NO-UNDO.
 DEFINE            VARIABLE v-override-mode     AS LOG       NO-UNDO.
 DEFINE            VARIABLE ll-add-record       AS LOG       NO-UNDO.
+DEFINE            VARIABLE hdOpProcs           AS HANDLE    NO-UNDO.
 
 {est/d-machex.i NEW}
 
@@ -210,7 +211,7 @@ DEFINE FRAME Dialog-Frame
           SIZE 13.4 BY .81
           BGCOLOR 15 FONT 1
      est-op.s-num AT ROW 1.43 COL 63.4 COLON-ALIGNED
-          LABEL "Sheet #" FORMAT ">>>"
+          LABEL "Form" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
@@ -530,6 +531,8 @@ DO:
 
         /* APPLY "END-ERROR":U TO SELF.*/
         APPLY 'GO':U TO FRAME {&FRAME-NAME}.
+        
+        DELETE PROCEDURE hdOpProcs.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1171,7 +1174,7 @@ DO:
 
 &Scoped-define SELF-NAME est-op.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.s-num Dialog-Frame
-ON ENTRY OF est-op.s-num IN FRAME Dialog-Frame /* Sheet # */
+ON ENTRY OF est-op.s-num IN FRAME Dialog-Frame /* Form */
 DO:
         IF est.est-type EQ 5 THEN 
         DO:
@@ -1185,7 +1188,7 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.s-num Dialog-Frame
-ON LEAVE OF est-op.s-num IN FRAME Dialog-Frame /* Sheet # */
+ON LEAVE OF est-op.s-num IN FRAME Dialog-Frame /* Form */
 DO:
         IF LASTKEY NE -1 THEN 
         DO:
@@ -1889,6 +1892,7 @@ PROCEDURE valid-mach :
     DEFINE VARIABLE dTrimL      AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE dMachMaxLen AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE dMachMaxWid AS DECIMAL   NO-UNDO .
+    DEFINE VARIABLE iNumOut     AS INTEGER NO-UNDO.
 
     DEFINE BUFFER b-est-op FOR est-op.
     DEFINE BUFFER b-mach   FOR mach.

@@ -65,7 +65,7 @@ DEFINE VARIABLE ipcCompany AS CHARACTER NO-UNDO INITIAL "001".
 &Scoped-define INTERNAL-TABLES ttCRMCustomers
 
 /* Definitions for BROWSE crmAccounts                                   */
-&Scoped-define FIELDS-IN-QUERY-crmAccounts ttCRMCustomers.tickerSymbol ttCRMCustomers.crmName ttCRMCustomers.crmPhone ttCRMCustomers.xxApplyAction ttCRMCustomers.action ttCRMCustomers.custName ttCRMCustomers.custAreaCode ttCRMCustomers.custPhone ttCRMCustomers.custStreet ttCRMCustomers.custStreet2 ttCRMCustomers.custCity ttCRMCustomers.custState ttCRMCustomers.custCode   
+&Scoped-define FIELDS-IN-QUERY-crmAccounts ttCRMCustomers.tickerSymbol ttCRMCustomers.crmName ttCRMCustomers.crmPhone ttCRMCustomers.crmStreet ttCRMCustomers.crmStreet2 ttCRMCustomers.crmCity ttCRMCustomers.crmState ttCRMCustomers.crmCode ttCRMCustomers.xxApplyAction ttCRMCustomers.action ttCRMCustomers.custName ttCRMCustomers.custAreaCode ttCRMCustomers.custPhone ttCRMCustomers.custStreet ttCRMCustomers.custStreet2 ttCRMCustomers.custCity ttCRMCustomers.custState ttCRMCustomers.custCode   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-crmAccounts ttCRMCustomers.xxApplyAction   
 &Scoped-define ENABLED-TABLES-IN-QUERY-crmAccounts ttCRMCustomers
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-crmAccounts ttCRMCustomers
@@ -140,6 +140,11 @@ DEFINE BROWSE crmAccounts
       ttCRMCustomers.tickerSymbol
     ttCRMCustomers.crmName
     ttCRMCustomers.crmPhone
+    ttCRMCustomers.crmStreet
+    ttCRMCustomers.crmStreet2
+    ttCRMCustomers.crmCity
+    ttCRMCustomers.crmState
+    ttCRMCustomers.crmCode
     ttCRMCustomers.xxApplyAction VIEW-AS TOGGLE-BOX
     ttCRMCustomers.action
     ttCRMCustomers.custName
@@ -154,28 +159,28 @@ DEFINE BROWSE crmAccounts
     ttCRMCustomers.xxApplyAction
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 225 BY 5.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 264 BY 5.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     svSelect AT ROW 1 COL 67 WIDGET-ID 2
+     svSelect AT ROW 1 COL 165.4 WIDGET-ID 2
      crmAccounts AT ROW 1.95 COL 2 WIDGET-ID 200
-     btnApply AT ROW 7.19 COL 95 HELP
+     btnApply AT ROW 7.19 COL 128 HELP
           "Apply Selected Actions" WIDGET-ID 76
-     btnReset AT ROW 7.19 COL 100 HELP
+     btnReset AT ROW 7.19 COL 133 HELP
           "Reset" WIDGET-ID 16
-     btnSave AT ROW 7.19 COL 105 HELP
+     btnSave AT ROW 7.19 COL 138 HELP
           "Save Selected Actions" WIDGET-ID 18
-     btnCancel AT ROW 7.19 COL 110 HELP
+     btnCancel AT ROW 7.19 COL 143 HELP
           "Cancel" WIDGET-ID 4
      svStatus AT ROW 7.19 COL 2 NO-LABEL WIDGET-ID 78
      "CRM Accounts" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 1.24 COL 26 WIDGET-ID 80
      "Advantzware Customers" VIEW-AS TEXT
-          SIZE 24 BY .62 AT ROW 1.24 COL 126 WIDGET-ID 82
-     SPACE(77.00) SKIP(6.56)
+          SIZE 24 BY .62 AT ROW 1.24 COL 213.6 WIDGET-ID 82
+     SPACE(28.40) SKIP(6.56)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "CRM (Customers)" WIDGET-ID 100.

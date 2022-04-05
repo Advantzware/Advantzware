@@ -11,7 +11,7 @@ v-label1 = if mach.dept[1] eq "HS"
 display v-label /*v-label1 */ .
 
 head[4] = (if mach.p-type eq "B"                then "Blanks" else 
-           if mach.therm and mach.p-type eq "R" then "Lin.Ft" else "Sheets") +
+           if mach.therm and mach.p-type eq "R" then "Lin.Ft" else "Forms") +
           "/Run:".
 
 display

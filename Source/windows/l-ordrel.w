@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -173,7 +175,7 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
     QUERY BROWSE-1 NO-LOCK DISPLAY
-    tt-rel-order.ord-no COLUMN-LABEL "Order" FORMAT ">>>>>>9":U
+    tt-rel-order.ord-no COLUMN-LABEL "Order" FORMAT ">>>>>>>9":U
     tt-rel-order.release# COLUMN-LABEL "Release" 
     tt-rel-order.s-code COLUMN-LABEL "S/I"  FORMAT "x(10)":U
     VIEW-AS COMBO-BOX INNER-LINES 4 

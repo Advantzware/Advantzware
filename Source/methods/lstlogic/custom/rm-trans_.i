@@ -25,6 +25,7 @@
 /* ---------------------------------------------- rm/rep/rm-trans.p 07/98 JLF */
 /* raw materials - transactions edit list                                     */
 /* -------------------------------------------------------------------------- */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /*
 {sys/inc/var.i shared}
 {sys/form/s-top.f}
@@ -47,7 +48,7 @@ def var v-type  as   char format "x(5)"       init "RITAC".
 def var v-code  like rm-rcpth.rita-code.
 
 def var v-value as dec format "->>,>>>,>>9.99".
-def var v-job-no as char format "x(9)".
+def var v-job-no as char format "x(13)".
 def var v-qty like rm-rdtlh.qty extent 3.
 def var v-val like v-value extent 3.
 def var v-first as log extent 3.
@@ -167,8 +168,7 @@ repeat:
       if first-of(rm-rcpth.trans-date) then v-first[2] = yes.
 
       assign
-       v-job-no = fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
-		  trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99")
+       v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', rm-rdtlh.job-no, rm-rdtlh.job-no2)) 
        v-value  = rm-rdtlh.cost * rm-rdtlh.qty.
 
       if v-job-no begins "-" then v-job-no = "".

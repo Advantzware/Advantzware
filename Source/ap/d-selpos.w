@@ -175,7 +175,7 @@ DEFINE BROWSE BROWSE-2
      po-ordl.line
      po-ordl.job-no
      po-ordl.job-no2
-     po-ordl.s-num
+     po-ordl.s-num      LABEL "Form #" 
      po-ordl.i-no WIDTH 19
      tt-rec.s-len FORMAT ">>>>>.99<<<<"
      po-ordl.s-wid FORMAT ">>>>>.99<<<<"

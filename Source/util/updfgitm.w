@@ -439,7 +439,8 @@ def buffer b-itemfg for itemfg.
 def var v-item      like itemfg.i-no init "".
 def var v-new-item  like itemfg.i-no.
 def var v-char      as   char.
-
+DEFINE VARIABLE lMsgResponse AS LOGICAL INIT YES NO-UNDO.
+DEFINE BUFFER bf-itemfg FOR itemfg.
 
 assign
  v-item     = begin_i-no
@@ -473,12 +474,22 @@ IF v-item BEGINS "!"                            AND
       update v-process.
 end.
 
-else
+ELSE  
   message "Are you sure you want change FG Item#" trim(caps(v-item))
           "to" trim((v-new-item)) + "?"       
       view-as alert-box question button yes-no update v-process.
 
 if v-process then do:
+
+  FIND FIRST bf-itemfg NO-LOCK 
+       WHERE bf-itemfg.company  EQ cocode
+         AND bf-itemfg.i-no EQ v-item NO-ERROR.
+  
+  IF AVAIL bf-itemfg AND bf-itemfg.q-onh NE 0 THEN
+  RUN displayMessageQuestion ("75", OUTPUT lMsgResponse).
+  
+  IF NOT lMsgResponse THEN RETURN NO-APPLY.
+  
   session:set-wait-state("General").
 
   if index("/*!",v-item) gt 0 then

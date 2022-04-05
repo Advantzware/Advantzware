@@ -67,7 +67,7 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
 ASSIGN 
-    cTextListToSelect  = "Customer #,customer Name,Ship To #,Ship To Name,Address 1,Address 2,Contact,City,State,Zip,Country,Phone,Fax,Tax Code,Warehouse,Bin,Carrier," +
+    cTextListToSelect  = "Customer #,customer Name,Ship To #,Ship To Name,Address 1,Address 2,Contact,City,State,Zip,Country,Phone,Fax,Tax Group,Warehouse,Bin,Carrier," +
                            "Zone,Pallet,Broker,Billable,Shipper ID,Member #,Dock #,Dock hours,Charge,Transit Days,Samples," +
                            "Dock Appt,Earliest Allowed,Latest Allowed,Ship Method,Ship Notes 1,Ship Notes 2,Ship Notes 3,Ship Notes 4,Sales Rep (Ship to),Sales Rep (cust),Export ID#,Taxable," +
                            "Area Code,Sales Rep Code (ShipTo),Inactive,Site ID"
@@ -79,7 +79,7 @@ ASSIGN
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
-    cTextListToDefault = "Customer #,Ship To #,Ship To Name,Address 1,Address 2,City,State,Zip,Country,Contact,Area Code,Phone,Fax,Sales Rep Code (ShipTo),Tax Code," +
+    cTextListToDefault = "Customer #,Ship To #,Ship To Name,Address 1,Address 2,City,State,Zip,Country,Contact,Area Code,Phone,Fax,Sales Rep Code (ShipTo),Tax Group," +
                                 "Ship Notes 1,Ship Notes 2,Ship Notes 3,Ship Notes 4," +
                                 "Warehouse,Bin,Carrier,Zone,Pallet,Shipper ID,Member #,Export ID#,Dock #,Dock hours,Charge," +
                                 "Transit Days,Samples,Dock Appt,Earliest Allowed,Latest Allowed,Ship Method,Broker,Billable,Taxable,Inactive, Site ID"

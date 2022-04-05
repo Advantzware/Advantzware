@@ -1,7 +1,7 @@
 /* --------------------------------------------- oe/rep/bollprnt12.i 10/09 GDM */
 /* N-K BOLFMT = Loylang - FORM for Loylang                                    */
 /* -------------------------------------------------------------------------- */ 
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 IF NOT v-broker
   THEN PUT "<FArial>"  SKIP
            "<P14><C+50><B>Bill Of Lading</B> "
@@ -45,13 +45,19 @@ PUT  /*"<|10><R19><C1><#4><FROM><R23><C81><RECT>" SKIP
      "<FArial><=4><R+1>    Date                    FOB                                        Phone                                 Carrier                                          Freight Terms" SKIP 
      "<FCourier New><=4><R+3> " oe-bolh.bol-date SPACE(2) v-fob space(10) v-ship-phone space(7) carrier.dscr v-frt-terms SKIP */
      "<|10><R16><C1><#5><FROM><R18><C81><RECT>" SKIP    
-     "<R16><C9.5><FROM><R18><C9.5><LINE>" SKIP
-     "<R16><C22.5><FROM><R18><C22.5><LINE>" SKIP
-     "<R16><C34.5><FROM><R18><C34.5><LINE>" SKIP
+     "<R16><C11.5><FROM><R18><C11.5><LINE>" SKIP
+     "<R16><C24.5><FROM><R18><C24.5><LINE>" SKIP
+     "<R16><C37><FROM><R18><C37><LINE>" SKIP
      "<R16><C61><FROM><R18><C61><LINE>" SKIP  
      "<R16><C73><FROM><R18><C73><LINE>" SKIP
      "<R16><C76><FROM><R18><C76><LINE>" SKIP.
  /*PUT "<FArial><=5><R+1> Order#       PO# / Job#             FG # / Cust Part            Item Name                                                  Unit-Quantity            P/C  Weight  <FCourier New>" SKIP(1). */
- PUT "<FArial><=5><R+1> Order#/Job#     PO# / Lot#              FG # / Cust Part            Item Name                                                Unit-Quantity       P/C  Weight  <FCourier New>" SKIP(1).
+ PUT "<FArial><=5><R+1>  Order#/Job#
+                   <C13> PO# / Lot#
+                   <C25> FG # / Cust Part
+                   <C38> Item Name
+                   <C62> Unit-Quantity
+                   <C73> P/C
+                   <C76> Weight  <FCourier New>" SKIP(1).
                                                                        
  v-printline = v-printline + 12.
