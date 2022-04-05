@@ -29,6 +29,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEF VAR tmp-dir AS cha NO-UNDO.
 DEFINE STREAM excel.
 
+{sys/inc/var.i new shared}
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
@@ -37,7 +38,7 @@ DEFINE STREAM excel.
 {custom/getcmpny.i}
 {custom/getloc.i}
 
-{sys/inc/var.i} 
+/*{sys/inc/var.i new shared} */
 /*def new shared var cocode as cha no-undo.*/
 /*def new shared var locode as cha no-undo.*/
 

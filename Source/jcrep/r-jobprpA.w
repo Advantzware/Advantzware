@@ -77,15 +77,15 @@ DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_prep AS CHARACTER FORMAT "X(15)":U 
      LABEL "Beginning Prep Code" 
@@ -97,15 +97,15 @@ DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_prep AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz" 
      LABEL "Ending Prep Code" 
@@ -209,11 +209,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Customer Number" WIDGET-ID 4
      begin_job-no AT ROW 4.52 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 30
-     begin_job-no2 AT ROW 4.52 COL 39 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.52 COL 41 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 32
      end_job-no AT ROW 4.52 COL 68 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 34
-     end_job-no2 AT ROW 4.52 COL 80 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.52 COL 82 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 36
      begin_prep AT ROW 5.52 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Order Number" WIDGET-ID 26
@@ -885,9 +885,9 @@ def buffer b-jh for job-hdr.
 
 def var v-stat  as   char format "!"          init "O".
 def var v-fjob  like job.job-no.
-def var v-tjob  like v-fjob                   init "zzzzzz".
+def var v-tjob  like v-fjob                   init "zzzzzzzzz".
 def var v-fjob2 like job.job-no2.
-def var v-tjob2 like v-fjob2                  init 99.
+def var v-tjob2 like v-fjob2                  init 999.
 def var v-fcust like job-hdr.cust-no          init "".
 def var v-tcust like v-fcust                  init "zzzzzzzz".
 def var v-fdate as   date format "99/99/9999" init 01/01/0001.
@@ -912,14 +912,14 @@ DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 IF rsGroupBy BEGINS "Customer" THEN
-   lcHeader = "Customer Customer Name             Due Date   Job#       Prep            Code Description                 Qty       Cost       Extended".
+   lcHeader = "Customer Customer Name             Due Date   Job#          Prep            Code Description                 Qty       Cost       Extended".
 ELSE 
-   lcHeader = "Prep            Code Description          Customer Customer Name             Due Date   Job#              Qty       Cost       Extended".
+   lcHeader = "Prep            Code Description          Customer Customer Name             Due Date   Job#                 Qty       Cost       Extended".
 
 
 form header skip(1)
           lcHeader FORM "x(139)" SKIP
-            fill("-",135)           format "x(135)"
+            fill("-",138)           format "x(138)"
          with frame r-top.
 
 assign
@@ -927,9 +927,9 @@ assign
  {sys/inc/ctrtext.i str-tit2 112}
 
   v-fjob        = FILL(" ", iJobLen - length(trim(begin_job-no))) +
-                  trim(begin_job-no) + string(int(begin_job-no2),"99")
+                  trim(begin_job-no) + string(int(begin_job-no2),"999")
   v-tjob        = FILL(" ", iJobLen - length(trim(end_job-no)))   +
-                  trim(end_job-no)   + string(int(end_job-no2),"99")  
+                  trim(end_job-no)   + string(int(end_job-no2),"999")  
 
   v-fcust       = begin_cust
   v-tcust       = END_cust
@@ -958,13 +958,13 @@ display "" with frame r-top.
 
 IF rsGroupBy BEGINS "Customer" THEN
 for EACH ASI.job-prep WHERE job-prep.company eq cocode
-                    and job-prep.job-no  ge substr(v-fjob,1,6)
-                    and job-prep.job-no  le substr(v-tjob,1,6)
+                    and job-prep.job-no  ge substr(v-fjob,1,iJobLen)
+                    and job-prep.job-no  le substr(v-tjob,1,iJobLen)
                     and FILL(" ", iJobLen - length(trim(job-PREP.job-no))) +
-                  trim(job-prep.job-no) + string(job-prep.job-no2,"99")
+                  trim(job-prep.job-no) + string(job-prep.job-no2,"999")
                               ge v-fjob
               and FILL(" ", iJobLen - length(trim(job-prep.job-no))) +
-                  trim(job-prep.job-no) + string(job-prep.job-no2,"99")
+                  trim(job-prep.job-no) + string(job-prep.job-no2,"999")
                               le v-tjob
                     /*job-prep.blank-no = job-hdr.blank-no AND*/
                     AND job-prep.CODE GE begin_prep 
@@ -1011,7 +1011,7 @@ for EACH ASI.job-prep WHERE job-prep.company eq cocode
        display job-hdr.cust-no
             cCustomerName
             job-hdr.due-date
-            job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") FORM "x(10)"
+            TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) FORM "x(13)"
             job-prep.CODE FORM "x(15)"
             cPrepDscr  
             liQty
@@ -1024,7 +1024,7 @@ for EACH ASI.job-prep WHERE job-prep.company eq cocode
            job-hdr.cust-no
             cCustomerName
             job-hdr.due-date
-            job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") FORM "x(10)"
+            TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) FORM "x(13)"
             job-prep.CODE FORM "x(15)"
             cPrepDscr  
             liQty
@@ -1065,8 +1065,8 @@ END.
 
 ELSE /* prep code */
     for EACH ASI.job-prep WHERE job-prep.company eq cocode
-                        and job-prep.job-no  ge substr(v-fjob,1,6)
-                        and job-prep.job-no  le substr(v-tjob,1,6)
+                        and job-prep.job-no  ge substr(v-fjob,1,iJobLen)
+                        and job-prep.job-no  le substr(v-tjob,1,iJobLen)
                         and FILL(" ", iJobLen - length(trim(job-PREP.job-no))) +
                       trim(job-prep.job-no) + string(job-prep.job-no2,"99")
                                   ge v-fjob
@@ -1119,7 +1119,7 @@ ELSE /* prep code */
             job-hdr.cust-no
             cCustomerName
             job-hdr.due-date
-            job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") @ job-hdr.job-no FORM "x(10)"
+            TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) @ job-hdr.job-no FORM "x(13)"
             liQty
             ldExtCost / liQty @ ldStdCost
             ldExtCost FORM "->>,>>>,>>9.99"
@@ -1132,7 +1132,7 @@ ELSE /* prep code */
             job-hdr.cust-no
             cCustomerName
             job-hdr.due-date
-            job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") FORM "x(10)"
+            TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) FORM "x(13)"
             liQty
             ldExtCost / liQty 
             ldExtCost FORM "->>,>>>,>>9.99"

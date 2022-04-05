@@ -1222,8 +1222,8 @@ PROCEDURE run-report :
 
 /*{sys/form/r-topw.f}*/
 
-def var v-job-no like job.job-no extent 2 initial [" ", "ZZZZZZ"] no-undo.
-def var v-job-no2 like job.job-no2 extent 2 initial [00, 99] no-undo.
+def var v-job-no like job.job-no extent 2 initial [" ", "ZZZZZZZZZ"] no-undo.
+def var v-job-no2 like job.job-no2 extent 2 initial [000, 999] no-undo.
 def var v-date as date format "99/99/9999" no-undo.
 def var v-brd-job as int format ">>>>>>>>>9" no-undo.
 def var v-brd-tot as int format ">>>>>>>>>9" no-undo.
