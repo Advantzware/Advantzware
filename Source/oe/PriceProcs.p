@@ -611,8 +611,7 @@ PROCEDURE Price_CheckPriceMatrix:
     DEFINE VARIABLE lBlockEntry    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE dPriceMtx      AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE cPriceUOM      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iStartLevel    AS INTEGER   NO-UNDO.
-        
+            
     RUN pGetOEPriceMatrixCheckSettings(ipcCompany, OUTPUT oplPrompt, OUTPUT lAllowMax, OUTPUT oplBlockEntry).
     IF oplPrompt THEN 
     DO:
@@ -621,14 +620,11 @@ PROCEDURE Price_CheckPriceMatrix:
         IF lMatrixFound THEN 
         DO:
             RUN pGetQtyMatchInfo(BUFFER bf-oe-prmtx, ipdQuantity, 0, OUTPUT iLevel, OUTPUT lQtyMatch).
+            iLevel = IF AVAIL bf-cust AND iLevel LT MAXIMUM(1, bf-cust.cust-level) THEN MAXIMUM(1, bf-cust.cust-level) ELSE iLevel . /* force price level*/
             RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, bf-itemfg.sell-price, bf-itemfg.sell-uom, OUTPUT dPriceMtx, OUTPUT cPriceUOM).             
-            iStartLevel = IF bf-cust.cust-level GT iLevel THEN bf-cust.cust-level ELSE iLevel.             
             IF dPriceMtx NE ipdPrice THEN 
-            DO: 
-                IF ipdPrice NE bf-oe-prmtx.price[iStartLevel] THEN
-                opcMessage = cMessage + " but price should be " + STRING(bf-oe-prmtx.price[iStartLevel]) + " at level " + STRING(iStartLevel,"99") + " not " + STRING(ipdPrice). 
-                ELSE
-                opcMessage = cMessage + " but Quantity should be " + STRING(bf-oe-prmtx.qty[iStartLevel]) + " at level " + STRING(iStartLevel,"99") + " not " + STRING(ipdQuantity). 
+            DO:                 
+                opcMessage = cMessage + " but price should be " + STRING(bf-oe-prmtx.price[iLevel]) + " at level " + STRING(iLevel,"99") + " not " + STRING(ipdPrice).                 
             END.    
             ELSE 
             DO:                
@@ -1004,7 +1000,7 @@ PROCEDURE Price_GetPriceMatrixPrice:
     /*for calculation of discount method*/
     DEFINE VARIABLE dItemSellPrice    AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cItemSellPriceUOM AS CHARACTER NO-UNDO.
-    
+    DEFINE VARIABLE lPriceForceLevel  AS LOGICAL   NO-UNDO.
     
     RUN pSetBuffers(ipcCompany, ipcFGItemId, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).
         
@@ -1024,10 +1020,15 @@ PROCEDURE Price_GetPriceMatrixPrice:
             dItemSellPrice    = bf-itemfg.sell-price
             cItemSellPriceUOM = bf-itemfg.sell-uom
             .       
-             
+       
     RUN pGetQtyMatchInfo(BUFFER bf-oe-prmtx, ipdQuantity, iLevelStart, OUTPUT iLevel, OUTPUT oplQtyDistinctMatch).
     IF iLevel GT 0 THEN 
         oplQtyWithinRange = YES.
+        
+    IF NOT oplQtyDistinctMatch AND iLevel EQ 0 AND iLevelStart GT 0 THEN   /* force price level*/
+        assign
+        lPriceForceLevel = YES
+        iLevel           = iLevelStart.
     
     IF ipiLevelOverride NE 0 THEN 
     DO:
@@ -1035,8 +1036,8 @@ PROCEDURE Price_GetPriceMatrixPrice:
             iLevel = ipiLevelOverride.
         ELSE 
             iLevel = iLevelStart.
-    END.     
-    IF oplQtyWithinRange THEN
+    END.               
+    IF oplQtyWithinRange OR lPriceForceLevel THEN
         RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, dItemSellPrice, cItemSellPriceUom, OUTPUT iopdPrice, OUTPUT iopcUom).
     ELSE 
         ASSIGN 
