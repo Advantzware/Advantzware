@@ -35,6 +35,7 @@ DEF VAR lv-rm-i-no LIKE item.i-no NO-UNDO.
 
 &scoped-define IAMWHAT LOOKUP
 
+{sys/inc/var.i new shared}
 {windows/l-jobmt1.i}
 
 {sa/sa-sls01.i}
@@ -313,7 +314,7 @@ DO:
      DO:
         FIND FIRST job-hdr WHERE
              job-hdr.company EQ ip-company AND
-             TRIM(job-hdr.job-no) EQ TRIM(ip-job-no) AND
+             job-hdr.job-no  EQ ip-job-no AND
              job-hdr.job-no2 EQ ip-job-no2
              NO-LOCK NO-ERROR.
        
@@ -578,7 +579,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     FIND FIRST job
         WHERE job.company  EQ ip-company
-          AND TRIM(job.job-no)   EQ TRIM(ip-job-no)
+          AND job.job-no   EQ ip-job-no
           AND (job.job-no2 EQ ip-job-no2 OR ip-job-no2 EQ ?)
         NO-LOCK NO-ERROR.
 

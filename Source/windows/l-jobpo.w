@@ -47,6 +47,8 @@ def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
 DEFINE VARIABLE custPart AS CHARACTER NO-UNDO.
 
+{sys/inc/var.i new shared}
+
 &scoped-define SORTBY-1 BY job-hdr.job-no DESCENDING
 &scoped-define SORTBY-2 BY job-hdr.i-no
 &scoped-define SORTBY-3 BY job-hdr.est-no
@@ -342,7 +344,7 @@ DO:
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
                 AND (job-hdr.est-no eq cEstimateNo or cEstimateNo EQ "")
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
 
@@ -431,7 +433,7 @@ DO:
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
                 AND (job-hdr.est-no eq cEstimateNo or cEstimateNo EQ "")
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
 
@@ -470,7 +472,7 @@ DO:
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
                 AND (job-hdr.est-no eq cEstimateNo or cEstimateNo EQ "")
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
 

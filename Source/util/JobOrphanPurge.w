@@ -247,7 +247,7 @@ DO:
             FOR EACH job NO-LOCK WHERE
                 job.company EQ (IF rsCompany:SCREEN-VALUE = "All" THEN job.company ELSE cocode) AND 
                 job.create-date LT DATE(fiEndDate:SCREEN-VALUE) AND 
-                TRIM(job.job-no) LT (IF fiThroughJob:SCREEN-VALUE EQ "" THEN "zzzzzzzz" ELSE fiThroughJob:SCREEN-VALUE) AND  
+                job.job-no LT (IF fiThroughJob:SCREEN-VALUE EQ "" THEN "zzzzzzzzz" ELSE fiThroughJob:SCREEN-VALUE) AND  
                 NOT CAN-FIND(FIRST job-hdr WHERE 
                     job-hdr.company EQ job.company AND 
                     job-hdr.job-no EQ job.job-no AND 
@@ -265,7 +265,7 @@ DO:
             FOR EACH job EXCLUSIVE WHERE
                 job.company EQ (IF rsCompany:SCREEN-VALUE = "All" THEN job.company ELSE cocode) AND 
                 job.create-date LT DATE(fiEndDate:SCREEN-VALUE) AND 
-                TRIM(job.job-no) LT (IF fiThroughJob:SCREEN-VALUE EQ "" THEN "zzzzzzzz" ELSE fiThroughJob:SCREEN-VALUE) AND  
+                job.job-no LT (IF fiThroughJob:SCREEN-VALUE EQ "" THEN "zzzzzzzzz" ELSE fiThroughJob:SCREEN-VALUE) AND  
                 NOT CAN-FIND(FIRST job-hdr WHERE 
                     job-hdr.company EQ job.company AND 
                     job-hdr.job-no EQ job.job-no AND 

@@ -866,7 +866,7 @@ PROCEDURE rm-post-issue :
       
 
       find first job  where job.company eq rm-rctd.company
-                and trim(job.job-no)  eq trim(rm-rctd.job-no)
+                and job.job-no  eq rm-rctd.job-no
                 and job.job-no2 eq rm-rctd.job-no2
               no-error.
 

@@ -2419,7 +2419,7 @@ PROCEDURE run-report :
         FIRST job
         WHERE job.company EQ cocode
         AND job.job     EQ pc-prdd.job
-        AND trim(job.job-no)  EQ trim(pc-prdd.job-no)
+        AND job.job-no  EQ pc-prdd.job-no
         AND job.job-no2 EQ pc-prdd.job-no2
         NO-LOCK:
 

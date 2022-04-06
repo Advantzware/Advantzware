@@ -1100,7 +1100,7 @@ PROCEDURE add-po-best :
    DO:
       FIND FIRST job WHERE
            job.company EQ cocode AND
-           trim(job.job-no) EQ trim(op-job-no) AND
+           job.job-no EQ op-job-no AND
            job.job-no2 EQ op-job-no2
            NO-LOCK NO-ERROR.
 

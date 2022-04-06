@@ -299,7 +299,7 @@ print-po-blok:
           ASSIGN v-num-add = 0.
 
           FIND FIRST job WHERE job.company EQ cocode 
-                           and trim(job.job-no) EQ TRIM(po-ordl.job-no) 
+                           and job.job-no EQ po-ordl.job-no 
                            AND job.job-no2 EQ po-ordl.job-no2 NO-LOCK NO-ERROR.
           IF AVAIL job THEN DO:
 

@@ -504,7 +504,7 @@ SESSION:SET-WAIT-STATE ("general").
 
 FOR EACH job NO-LOCK
    WHERE job.company  EQ cocode
-      AND trim(job.job-no)  EQ trim(ip-job-no)
+      AND job.job-no  EQ ip-job-no
       AND job.job-no2 EQ ip-job-no2,
  EACH job-mat NO-LOCK
    WHERE job-mat.company EQ job.company

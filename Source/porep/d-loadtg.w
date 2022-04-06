@@ -558,7 +558,7 @@ PROCEDURE get-matrix :
   FIND FIRST po-ordl NO-LOCK WHERE po-ordl.company EQ w-po.company
                                AND po-ordl.po-no EQ INTEGER(w-po.po-no)
                                AND po-ordl.i-no EQ w-po.i-no
-                               AND trim(po-ordl.job-no) EQ trim(w-po.job-no)
+                               AND po-ordl.job-no EQ w-po.job-no
                                AND po-ordl.job-no2 EQ w-po.job-no2
                                AND po-ordl.item-type EQ YES
                                AND po-ordl.s-num EQ w-po.s-num NO-ERROR.
@@ -573,7 +573,7 @@ PROCEDURE get-matrix :
   ELSE
   DO:
     FIND FIRST job NO-LOCK WHERE job.company EQ cocode
-                             AND trim(job.job-no) EQ trim(w-po.job-no)
+                             AND job.job-no  EQ w-po.job-no
                              AND job.job-no2 EQ w-po.job-no2 NO-ERROR.
     IF AVAIL job THEN
     DO:

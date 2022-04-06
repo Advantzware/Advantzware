@@ -424,7 +424,7 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
-   old-job-no  = pc-prdd.job-no
+   old-job-no  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-prdd.job-no))
    old-job-no2 = pc-prdd.job-no2
    old-op-date = pc-prdd.op-date
    old-shift   = pc-prdd.shift.
@@ -435,7 +435,7 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   pc-prdd.job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-prdd.job-no)) .
 
-  ll-new-record = trim(pc-prdd.job-no)  NE trim(old-job-no)  OR
+  ll-new-record = pc-prdd.job-no  NE old-job-no  OR
                   pc-prdd.job-no2 NE old-job-no2 OR
                   pc-prdd.op-date NE old-op-date OR
                   pc-prdd.shift   NE old-shift.

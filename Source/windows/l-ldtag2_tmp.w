@@ -39,10 +39,12 @@ def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 DEF OUTPUT PARAM op-rec-val AS RECID NO-UNDO.
 
+{sys/inc/var.i new shared}
+
 def var lv-type-dscr as cha no-undo.
 &scoped-define fld-name-1 loadtag.tag-no
 &scoped-define fld-name-2 loadtag.i-no
-&scoped-define fld-name-3 TRIM(loadtag.job-no)
+&scoped-define fld-name-3 loadtag.job-no
 &scoped-define SORTBY-1 BY loadtag.tag-no
 &scoped-define SORTBY-2 BY loadtag.i-no
 &scoped-define SORTBY-3 BY loadtag.job-no

@@ -684,7 +684,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
 
       FIND FIRST job
           WHERE job.company EQ rm-rctd.company
-            AND trim(job.job-no) EQ TRIM(rm-rctd.job-no)
+            AND job.job-no  EQ rm-rctd.job-no
             AND job.job-no2 EQ rm-rctd.job-no2
           NO-ERROR.
 

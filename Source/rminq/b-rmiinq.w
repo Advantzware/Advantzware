@@ -81,7 +81,7 @@ IF lRecFound THEN
           AND (rm-rcpth.i-no      EQ fi_rm-i-no OR fi_rm-i-no EQ "") ~
           AND rm-rcpth.rita-code  BEGINS fi_rita-code ~
           AND (rm-rcpth.po-no     EQ TRIM(STRING(fi_po-no,">>>>>>>>")) OR fi_po-no EQ 0) ~
-          AND (trim(rm-rcpth.job-no)    EQ trim(fi_job-no) OR fi_job-no EQ "")   ~
+          AND (rm-rcpth.job-no    EQ fi_job-no OR fi_job-no EQ "")   ~
           AND (rm-rcpth.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                           ~
@@ -1268,7 +1268,7 @@ PROCEDURE convert-uoms :
           WHERE po-ordl.company   EQ b-rcpth.company
             AND po-ordl.po-no     EQ lv-po-no
             AND po-ordl.i-no      EQ b-rcpth.i-no
-            AND trim(po-ordl.job-no)    EQ trim(b-rcpth.job-no)
+            AND po-ordl.job-no    EQ b-rcpth.job-no
             AND po-ordl.job-no2   EQ b-rcpth.job-no2
             AND po-ordl.item-type EQ YES 
             AND po-ordl.s-num     EQ b-rdtlh.s-num
@@ -1285,7 +1285,7 @@ PROCEDURE convert-uoms :
 
       FIND FIRST job
           WHERE job.company EQ b-rcpth.company
-            AND trim(job.job-no)  EQ trim(b-rcpth.job-no)
+            AND job.job-no  EQ b-rcpth.job-no
             AND job.job-no2 EQ b-rcpth.job-no2
           NO-LOCK NO-ERROR.
       IF AVAIL job THEN DO:
@@ -1787,7 +1787,7 @@ PROCEDURE update-mat-act-cost :
 
    FIND FIRST job WHERE
         job.company EQ b-rm-rcpth.company AND
-        trim(job.job-no)  EQ trim(b-rm-rcpth.job-no) AND
+        job.job-no  EQ b-rm-rcpth.job-no AND
         job.job-no2 EQ b-rm-rcpth.job-no2
         NO-LOCK NO-ERROR.
 

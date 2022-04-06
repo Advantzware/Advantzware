@@ -320,7 +320,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
 
@@ -383,7 +383,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
 
@@ -438,7 +438,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
 
