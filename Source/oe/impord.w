@@ -951,6 +951,7 @@ PROCEDURE CreateOrder :
             oe-ord.sman[1]   = cust.sman
             oe-ord.s-pct[1]  = 100.00
             oe-ord.carrier   = cust.carrier
+            oe-ord.csrUser_id = cust.csrUser_id
             .
         /*IF cust.cr-hold THEN oe-ord.stat = "H".*/
 
