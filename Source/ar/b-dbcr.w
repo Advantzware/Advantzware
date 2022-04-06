@@ -468,7 +468,7 @@ DO:
          IF fi_memo-no:SCREEN-VALUE EQ "" AND fi_cust-no:SCREEN-VALUE EQ "" AND fi_date:SCREEN-VALUE EQ "" THEN
          DO:
          
-             MESSAGE "Please enter at least 1 parameter (Customer,Meno, Date (<> ?))" 
+             MESSAGE "Please enter at least 1 parameter (Customer, Memo, Date (Date is a valid entry))" 
                       VIEW-AS ALERT-BOX .
                       RETURN NO-APPLY.
          END.         
