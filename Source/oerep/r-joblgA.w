@@ -925,7 +925,7 @@ def var v-fdate as date format "99/99/9999" extent 2 init [01/01/0001, today] NO
 def var v-fitem as char format "x(15)" extent 2 init ["", "zzzzzzzzzzzzzzz"] NO-UNDO.
 def var v-frst as log init NO NO-UNDO.
 def var changed as log init NO NO-UNDO.
-def var job-num as char format "x(9)" NO-UNDO.
+def var job-num as char format "x(13)" NO-UNDO.
 def var v-i-no like oe-ordl.i-no no-undo.
 def var v-i-name like oe-ordl.i-name no-undo.
 DEF VAR v-cust AS CHAR FORMAT "X(17)" NO-UNDO.
@@ -1121,7 +1121,7 @@ DISPLAY "" WITH FRAME r-top.
 
         assign
           v-i-no  = job-hdr.i-no
-          job-num = trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99").
+          job-num = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
 
         IF tb_cust-name EQ "#" THEN
            v-cust = job-hdr.cust-no.

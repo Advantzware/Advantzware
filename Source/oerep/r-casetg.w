@@ -58,7 +58,7 @@ DEFINE VARIABLE v-stat         AS CHARACTER FORMAT "!" INIT "O".
 
 DEFINE VARIABLE v-out          AS CHARACTER FORMAT "x(40)" NO-UNDO.
 DEFINE VARIABLE v-init-dir     AS CHARACTER FORMAT "x(40)" NO-UNDO.
-DEFINE VARIABLE v-job          AS CHARACTER FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE v-job          AS CHARACTER FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE v-frm-no       AS CHARACTER FORMAT "x(3)" NO-UNDO.
 DEFINE VARIABLE v-blnk-no      AS CHARACTER FORMAT "x(3)" NO-UNDO.
 DEFINE VARIABLE num-rec        AS INTEGER   INIT 0 NO-UNDO.
@@ -213,7 +213,7 @@ DEFINE VARIABLE begin_i-no     AS CHARACTER FORMAT "X(15)":U
 DEFINE VARIABLE begin_job      AS CHARACTER FORMAT "X(12)":U 
     LABEL "Job#" 
     VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job2     AS INTEGER   FORMAT "999":U INITIAL 0 
     LABEL "-" 
@@ -1709,7 +1709,7 @@ PROCEDURE dispJobInfo :
             ASSIGN
                 begin_ord-no:SCREEN-VALUE = STRING(v-first-order)
                 begin_job:SCREEN-VALUE    = ipcJobNo         
-                begin_job2:SCREEN-VALUE   = STRING(ipiJobNo2,"99")
+                begin_job2:SCREEN-VALUE   = STRING(ipiJobNo2,"999")
                 begin_i-no:SCREEN-VALUE   = v-lastitem.           
 
             APPLY "LEAVE" TO begin_i-no.
