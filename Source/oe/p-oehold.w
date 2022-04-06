@@ -364,19 +364,19 @@ PROCEDURE Process-Hold-Status :
 
     IF btnHold:label IN FRAME F-Main = "Re&lease" THEN
     DO:        
-        FIND FIRST oe-ordl NO-LOCK
-            WHERE oe-ordl.company EQ viCompany
-            AND oe-ordl.ord-no    EQ viOrdNum NO-ERROR.
-               
-        IF AVAILABLE  oe-ordl THEN
-            fil_id = RECID(oe-ordl).
-        ELSE 
-            fil_id = ?.        
-           
-        ASSIGN cocode = viCompany.
+        ASSIGN 
+            cocode = viCompany.
         
-        RUN po/doPo.p (YES).
+        FOR EACH oe-ordl NO-LOCK
+            WHERE oe-ordl.company EQ viCompany
+            AND oe-ordl.ord-no    EQ viOrdNum:
+                
+            fil_id = RECID(oe-ordl).
+                
+            RUN po/doPo.p (YES).                
+        END.
     END.
+    
    /* Refresh the viewer to get updated information. */
      IF VALID-HANDLE(hViewer) THEN
       RUN dispatch IN hViewer  ('row-available':U).
