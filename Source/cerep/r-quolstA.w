@@ -993,7 +993,7 @@ SESSION:SET-WAIT-STATE("general").
                                     format ">>,>>9.99"
                 quoteqty.rels       label "Rel"         FORMAT ">>>"
                 quoteitm.part-no    label "Cust Part#"
-                                    format "x(15)"
+                                    format "x(32)"
                 quoteitm.part-dscr1 label "Item Name"
                                     format "x(20)"
                 quoteitm.size       label "Size"
@@ -1009,7 +1009,7 @@ SESSION:SET-WAIT-STATE("general").
                 quotehd.est-no      label "    Est#"    FORMAT "x(8)"
                 quotehd.quo-date    label "Date"        FORMAT "99/99/99"
 
-            with frame detail down no-attr-space no-box STREAM-IO width 150.
+            with frame detail down no-attr-space no-box STREAM-IO width 167.
 
         down with frame detail.
 

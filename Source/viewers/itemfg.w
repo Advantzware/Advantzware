@@ -250,9 +250,9 @@ DEFINE FRAME F-Main
           VIEW-AS TOGGLE-BOX
           SIZE 19 BY 1.19
      itemfg.part-no AT ROW 2.43 COL 15.4 COLON-ALIGNED
-          LABEL "Cust Part #" FORMAT "x(15)"
+          LABEL "Cust Part #" FORMAT "x(32)"
           VIEW-AS FILL-IN 
-          SIZE 26 BY 1
+          SIZE 50 BY 1
      itemfg.i-name AT ROW 3.38 COL 15.4 COLON-ALIGNED
           LABEL " Name"
           VIEW-AS FILL-IN 

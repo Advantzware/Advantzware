@@ -195,7 +195,7 @@ DEFINE BROWSE BROWSE-1
       eb.est-no FORMAT "x(8)":U WIDTH 14 COLUMN-FONT 0
       eb.cust-no FORMAT "x(8)":U COLUMN-FONT 0
       eb.part-dscr1 COLUMN-LABEL "Item Name" FORMAT "x(30)":U COLUMN-FONT 0
-      eb.part-no FORMAT "x(15)":U COLUMN-FONT 0
+      eb.part-no FORMAT "x(32)":U COLUMN-FONT 0
       eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U COLUMN-FONT 0
       eb.die-no FORMAT "x(15)":U COLUMN-FONT 0
       eb.cad-no COLUMN-LABEL "CAD #" FORMAT "x(15)":U COLUMN-FONT 0

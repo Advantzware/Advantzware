@@ -195,7 +195,7 @@ DEFINE BROWSE Browser-Table
       est.est-date FORMAT "99/99/9999":U
       eb.cust-no FORMAT "x(8)":U
       eb.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U
-      eb.part-no FORMAT "x(15)":U
+      eb.part-no FORMAT "x(32)":U
       eb.part-dscr1 COLUMN-LABEL "Description" FORMAT "x(30)":U
       eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U
       est-qty.eqty FORMAT ">>>>>>9":U

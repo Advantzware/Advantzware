@@ -51,7 +51,7 @@ DEFINE PARAMETER BUFFER ar-invl FOR ar-invl.
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME fMain
 
 /* Standard List Definitions                                            */
@@ -139,7 +139,7 @@ DEFINE BUTTON btn-update
      SIZE 22 BY 1.19.
 
 DEFINE RECTANGLE RECT-19
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 172 BY 24.76.
 
 
@@ -155,7 +155,7 @@ DEFINE FRAME fMain
      ar-invl.sname[1] AT ROW 3.14 COL 153 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
-     ar-invl.pr-qty-uom AT ROW 3.38 COL 103 COLON-ALIGNED
+     ar-invl.pr-qty-uom AT ROW 3.38 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 9.6 BY 1
      ar-invl.amt AT ROW 3.43 COL 24 COLON-ALIGNED
@@ -167,7 +167,7 @@ DEFINE FRAME fMain
      ar-invl.sname[2] AT ROW 4.14 COL 153 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
-     ar-invl.pr-uom AT ROW 4.33 COL 103 COLON-ALIGNED
+     ar-invl.pr-uom AT ROW 4.33 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 9.6 BY 1
      ar-invl.amt-msf AT ROW 4.43 COL 24 COLON-ALIGNED
@@ -179,7 +179,7 @@ DEFINE FRAME fMain
      ar-invl.sname[3] AT ROW 5.14 COL 153 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
-     ar-invl.prep AT ROW 5.33 COL 103 COLON-ALIGNED
+     ar-invl.prep AT ROW 5.33 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
      ar-invl.b-no AT ROW 5.43 COL 24 COLON-ALIGNED
@@ -191,7 +191,7 @@ DEFINE FRAME fMain
      ar-invl.std-fix-cost AT ROW 6.14 COL 153 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 17.4 BY 1
-     ar-invl.prep-amt AT ROW 6.33 COL 103 COLON-ALIGNED
+     ar-invl.prep-amt AT ROW 6.33 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 20.2 BY 1
      ar-invl.billable AT ROW 6.43 COL 24 COLON-ALIGNED
@@ -203,7 +203,7 @@ DEFINE FRAME fMain
      ar-invl.std-lab-cost AT ROW 7.14 COL 153 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 17.4 BY 1
-     ar-invl.prep-charge AT ROW 7.33 COL 103 COLON-ALIGNED
+     ar-invl.prep-charge AT ROW 7.33 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
      ar-invl.blank-no AT ROW 7.43 COL 24 COLON-ALIGNED
@@ -215,7 +215,7 @@ DEFINE FRAME fMain
      ar-invl.std-mat-cost AT ROW 8.14 COL 153 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 17.4 BY 1
-     ar-invl.prep-code AT ROW 8.33 COL 103 COLON-ALIGNED
+     ar-invl.prep-code AT ROW 8.33 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.6 BY 1
      ar-invl.bol-no AT ROW 8.43 COL 24 COLON-ALIGNED
@@ -227,7 +227,7 @@ DEFINE FRAME fMain
      ar-invl.std-tot-cost AT ROW 9.14 COL 153 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 17.4 BY 1
-     ar-invl.prep-cost AT ROW 9.33 COL 103 COLON-ALIGNED
+     ar-invl.prep-cost AT ROW 9.33 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      ar-invl.cas-cnt AT ROW 9.43 COL 24 COLON-ALIGNED
@@ -236,9 +236,6 @@ DEFINE FRAME fMain
      ar-invl.loc AT ROW 9.67 COL 64 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.6 BY 1
-     ar-invl.std-var-cost AT ROW 10.14 COL 153 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 17.4 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -246,7 +243,10 @@ DEFINE FRAME fMain
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fMain
-     ar-invl.prep-dscr AT ROW 10.33 COL 103 COLON-ALIGNED
+     ar-invl.std-var-cost AT ROW 10.14 COL 153 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 17.4 BY 1
+     ar-invl.prep-dscr AT ROW 10.33 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
      ar-invl.company AT ROW 10.43 COL 24 COLON-ALIGNED
@@ -258,7 +258,7 @@ DEFINE FRAME fMain
      ar-invl.t-cost AT ROW 11.14 COL 153 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 21.6 BY 1
-     ar-invl.prom-code AT ROW 11.33 COL 103 COLON-ALIGNED
+     ar-invl.prom-code AT ROW 11.33 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 6.4 BY 1
      ar-invl.cons-uom AT ROW 11.43 COL 24 COLON-ALIGNED
@@ -267,7 +267,7 @@ DEFINE FRAME fMain
      ar-invl.misc AT ROW 11.67 COL 64 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
-     ar-invl.prom-date AT ROW 12.33 COL 103 COLON-ALIGNED
+     ar-invl.prom-date AT ROW 12.33 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      ar-invl.cost AT ROW 12.43 COL 24 COLON-ALIGNED
@@ -279,7 +279,7 @@ DEFINE FRAME fMain
      ar-invl.ord-line AT ROW 12.67 COL 64 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 4.8 BY 1
-     ar-invl.qty AT ROW 13.33 COL 103 COLON-ALIGNED
+     ar-invl.qty AT ROW 13.33 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 17.4 BY 1
      ar-invl.cust-no AT ROW 13.43 COL 24 COLON-ALIGNED
@@ -291,7 +291,7 @@ DEFINE FRAME fMain
      ar-invl.ord-no AT ROW 13.67 COL 64 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     ar-invl.rec_key AT ROW 14.33 COL 103 COLON-ALIGNED
+     ar-invl.rec_key AT ROW 14.33 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
      ar-invl.disc AT ROW 14.43 COL 24 COLON-ALIGNED
@@ -306,7 +306,7 @@ DEFINE FRAME fMain
      ar-invl.e-num AT ROW 15.29 COL 24 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     ar-invl.req-code AT ROW 15.33 COL 103 COLON-ALIGNED
+     ar-invl.req-code AT ROW 15.33 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 6.4 BY 1
      ar-invl.t-weight AT ROW 15.43 COL 153 COLON-ALIGNED
@@ -318,7 +318,7 @@ DEFINE FRAME fMain
      ar-invl.est-no AT ROW 16.24 COL 24 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.6 BY 1
-     ar-invl.req-date AT ROW 16.33 COL 103 COLON-ALIGNED
+     ar-invl.req-date AT ROW 16.33 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      ar-invl.tax AT ROW 16.43 COL 153 COLON-ALIGNED
@@ -327,12 +327,6 @@ DEFINE FRAME fMain
      ar-invl.pal-i-no AT ROW 16.67 COL 64 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
-     ar-invl.est-type AT ROW 17.19 COL 24 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 3.4 BY 1
-     ar-invl.unit-pr AT ROW 17.43 COL 153 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 20.2 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -340,12 +334,18 @@ DEFINE FRAME fMain
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fMain
-     ar-invl.s-pct[1] AT ROW 17.52 COL 103 COLON-ALIGNED
+     ar-invl.est-type AT ROW 17.19 COL 24 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 3.4 BY 1
+     ar-invl.unit-pr AT ROW 17.43 COL 153 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 20.2 BY 1
+     ar-invl.s-pct[1] AT ROW 17.52 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
      ar-invl.part-no AT ROW 17.67 COL 64 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 17 BY 1
+          SIZE 32 BY 1
      ar-invl.dscr[1] AT ROW 18.14 COL 24 COLON-ALIGNED
           LABEL "Cost UOM"
           VIEW-AS FILL-IN 
@@ -353,7 +353,7 @@ DEFINE FRAME fMain
      ar-invl.upd-date AT ROW 18.43 COL 153 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     ar-invl.s-pct[2] AT ROW 18.52 COL 103 COLON-ALIGNED
+     ar-invl.s-pct[2] AT ROW 18.52 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
      ar-invl.period AT ROW 18.67 COL 64 COLON-ALIGNED
@@ -365,7 +365,7 @@ DEFINE FRAME fMain
      ar-invl.upd-time AT ROW 19.43 COL 153 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     ar-invl.s-pct[3] AT ROW 19.52 COL 103 COLON-ALIGNED
+     ar-invl.s-pct[3] AT ROW 19.52 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
      ar-invl.po-no AT ROW 19.67 COL 64 COLON-ALIGNED
@@ -377,7 +377,7 @@ DEFINE FRAME fMain
      ar-invl.varoh AT ROW 20.43 COL 153 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 17.4 BY 1
-     ar-invl.sf-sht AT ROW 20.52 COL 103 COLON-ALIGNED
+     ar-invl.sf-sht AT ROW 20.52 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
      ar-invl.po-no-po AT ROW 20.67 COL 64 COLON-ALIGNED
@@ -389,7 +389,7 @@ DEFINE FRAME fMain
      ar-invl.x-no AT ROW 21.43 COL 153 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
-     ar-invl.ship-qty AT ROW 21.57 COL 103 COLON-ALIGNED
+     ar-invl.ship-qty AT ROW 21.57 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 21.6 BY 1
      ar-invl.part-dscr2 AT ROW 21.86 COL 63 COLON-ALIGNED
@@ -398,7 +398,7 @@ DEFINE FRAME fMain
      ar-invl.form-no AT ROW 21.95 COL 24 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 4.8 BY 1
-     ar-invl.sman[1] AT ROW 22.67 COL 103 COLON-ALIGNED
+     ar-invl.sman[1] AT ROW 22.67 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
      ar-invl.part-dscr1 AT ROW 22.81 COL 63 COLON-ALIGNED
@@ -407,7 +407,7 @@ DEFINE FRAME fMain
      ar-invl.i-name AT ROW 22.91 COL 24 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
-     ar-invl.sman[2] AT ROW 23.67 COL 103 COLON-ALIGNED
+     ar-invl.sman[2] AT ROW 23.67 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
      ar-invl.i-no AT ROW 23.86 COL 24 COLON-ALIGNED
@@ -416,15 +416,9 @@ DEFINE FRAME fMain
      ar-invl.po-no2 AT ROW 23.86 COL 63 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     ar-invl.sman[3] AT ROW 24.67 COL 103 COLON-ALIGNED
+     ar-invl.sman[3] AT ROW 24.67 COL 111.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
-     ar-invl.inv-date AT ROW 24.81 COL 24 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-     ar-invl.posted AT ROW 24.86 COL 63 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 4.2 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -432,6 +426,12 @@ DEFINE FRAME fMain
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fMain
+     ar-invl.inv-date AT ROW 24.81 COL 24 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+     ar-invl.posted AT ROW 24.86 COL 63 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 4.2 BY 1
      ar-invl.inv-i-no AT ROW 25.76 COL 24 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -492,7 +492,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME fMain
-                                                                        */
+   FRAME-NAME                                                           */
 /* SETTINGS FOR FILL-IN ar-invl.dscr[1] IN FRAME fMain
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ar-invl.inv-line IN FRAME fMain

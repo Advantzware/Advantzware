@@ -1110,7 +1110,7 @@ SESSION:SET-WAIT-STATE ("general").
               v-gp                    format "->>>9.99"
                                       COLUMN-LABEL "GP"
 
-          with frame detail NO-BOX STREAM-IO width 132.
+          with frame detail NO-BOX STREAM-IO width 140.
         DOWN WITH FRAME detail.
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED

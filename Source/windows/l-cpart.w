@@ -176,7 +176,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
       tt-cust-part.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             WIDTH 12
-      tt-cust-part.part-no COLUMN-LABEL "Cust Part #" FORMAT "x(15)":U WIDTH 23
+      tt-cust-part.part-no COLUMN-LABEL "Cust Part #" FORMAT "x(32)":U WIDTH 33
       tt-cust-part.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 23
       tt-cust-part.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
       tt-cust-part.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 8
@@ -251,7 +251,7 @@ ASI.cust-part.cust-no EQ custX)"
      _FldNameList[1]   > ASI.cust-part.cust-no
 "cust-part.cust-no" "Customer#" ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" ""
      _FldNameList[2]   > ASI.cust-part.part-no
-"cust-part.part-no" ? "x(15)" "character" ? ? ? ? ? ? no ? no no "23" yes no no "U" "" ""
+"cust-part.part-no" ? "x(32)" "character" ? ? ? ? ? ? no ? no no "33" yes no no "U" "" ""
      _FldNameList[3]   > ASI.cust-part.i-no
 "cust-part.i-no" "FG Item#" ? "character" ? ? ? ? ? ? no ? no no "23" yes no no "U" "" ""
      _FldNameList[4]   = ASI.itemfg.i-name

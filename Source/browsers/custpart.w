@@ -182,8 +182,8 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       cust-part.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             WIDTH 13
-      cust-part.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(15)":U
-            WIDTH 23
+      cust-part.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(32)":U
+            WIDTH 40
       cust-part.spare-char-1 COLUMN-LABEL "Sls Rep" FORMAT "x(7)":U
       cust-part.forcedCommissionPercent COLUMN-LABEL "Forced Commission" FORMAT ">>>>9.99":U
       cust-part.labelCase COLUMN-LABEL "Case Label" FORMAT "X(80)":U

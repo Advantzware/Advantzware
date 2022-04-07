@@ -37,7 +37,7 @@ CREATE WIDGET-POOL.
 
 /* The below variables are used in run_link.i */
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO. 
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -52,7 +52,7 @@ DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -112,8 +112,8 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 146 BY 1.67.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 160 BY 1.67.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -141,8 +141,7 @@ DEFINE FRAME F-Main
           SIZE 7 BY 1
      eb.part-no AT ROW 1.71 COL 124 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 20 BY 1
-     RECT-1 AT ROW 1.24 COL 1
+          SIZE 34 BY 1
      "of" VIEW-AS TEXT
           SIZE 3 BY .95 AT ROW 1.71 COL 75
      "of" VIEW-AS TEXT
@@ -150,6 +149,7 @@ DEFINE FRAME F-Main
      "Reference Information" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 1 COL 3
           FONT 1
+     RECT-1 AT ROW 1.24 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -184,7 +184,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
          HEIGHT             = 1.91
-         WIDTH              = 147.6.
+         WIDTH              = 161.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -206,7 +206,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -307,9 +307,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win
-PROCEDURE local-disable-fields:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
+PROCEDURE local-disable-fields :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -324,11 +323,9 @@ PROCEDURE local-disable-fields:
   {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}  
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
@@ -384,9 +381,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields V-table-Win
-PROCEDURE local-enable-fields:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields V-table-Win 
+PROCEDURE local-enable-fields :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -400,11 +396,9 @@ PROCEDURE local-enable-fields:
   
   {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}  
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

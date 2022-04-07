@@ -1326,7 +1326,7 @@ form space(8)
      v-qty[1]             format "->>,>>>,>>>"          label "Qty"
      v-amt[1]             format "->>,>>>,>>9.99"       label "Inv Amt"
 
-    with no-box frame detail down STREAM-IO WIDTH 132.
+    with no-box frame detail down STREAM-IO WIDTH 150.
 
 form header
      skip(1)

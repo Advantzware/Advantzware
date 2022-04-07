@@ -360,12 +360,12 @@ DEFINE VARIABLE tb-set AS LOGICAL INITIAL no
 
 DEFINE FRAME Corr
      tb-set AT ROW 11.71 COL 132 WIDGET-ID 12
-     bt-new-die AT ROW 6.95 COL 80 WIDGET-ID 8
-     btn_qty-msf AT ROW 2.67 COL 73.2
-     fi_msf AT ROW 2.67 COL 134.6 COLON-ALIGNED
+     bt-new-die AT ROW 7.33 COL 80 WIDGET-ID 8
+     btn_qty-msf AT ROW 2.57 COL 73.2
+     fi_msf AT ROW 2.57 COL 134.6 COLON-ALIGNED
      fi_per-set AT ROW 2.67 COL 114 COLON-ALIGNED
      fi_lf-blank AT ROW 16 COL 91 COLON-ALIGNED
-     fi_tot-lf-blank AT ROW 2.67 COL 114 COLON-ALIGNED
+     fi_tot-lf-blank AT ROW 2.57 COL 114 COLON-ALIGNED
      est.est-no AT ROW 1.24 COL 9.2 COLON-ALIGNED
           LABEL "Est #" FORMAT "x(8)"
           VIEW-AS FILL-IN 
@@ -437,26 +437,21 @@ DEFINE FRAME Corr
           LABEL "CSR"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     est-qty.eqty AT ROW 2.67 COL 90 COLON-ALIGNED
+     est-qty.eqty AT ROW 2.57 COL 90 COLON-ALIGNED
           LABEL "Qty" FORMAT ">>>>>>>"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-     eb.part-no AT ROW 3.86 COL 90 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 23 BY 1
-          FONT 6
-     eb.stock-no AT ROW 3.86 COL 126 COLON-ALIGNED
+          SIZE 12 BY 1     
+     eb.stock-no AT ROW 3.62 COL 90 COLON-ALIGNED
           LABEL "FG Item#"
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
           FONT 6
-     eb.part-dscr1 AT ROW 5.05 COL 90 COLON-ALIGNED
-          LABEL "Item Name"
+     eb.part-no AT ROW 4.52 COL 90 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 50 BY 1
-          FONT 6
-     eb.part-dscr2 AT ROW 6 COL 90 COLON-ALIGNED
-          LABEL "Description"
+          FONT 6     
+     eb.part-dscr1 AT ROW 5.48 COL 90 COLON-ALIGNED
+          LABEL "Item Name"
           VIEW-AS FILL-IN 
           SIZE 50 BY 1
           FONT 6
@@ -467,14 +462,19 @@ DEFINE FRAME Corr
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Corr
-     btnDieLookup AT ROW 6.95 COL 75
-     eb.die-no AT ROW 6.95 COL 90 COLON-ALIGNED HELP
+     eb.part-dscr2 AT ROW 6.38 COL 90 COLON-ALIGNED
+          LABEL "Description"
+          VIEW-AS FILL-IN 
+          SIZE 50 BY 1
+          FONT 6
+     btnDieLookup AT ROW 7.33 COL 75
+     eb.die-no AT ROW 7.33 COL 90 COLON-ALIGNED HELP
           ""
           LABEL "Die #" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
           FONT 6
-     ef.cad-image AT ROW 6.95 COL 127 COLON-ALIGNED
+     ef.cad-image AT ROW 7.33 COL 127 COLON-ALIGNED
           LABEL "Image" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
@@ -487,13 +487,13 @@ DEFINE FRAME Corr
           LABEL "%"
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     btnCadLookup AT ROW 7.91 COL 75
-     eb.cad-no AT ROW 7.91 COL 114 RIGHT-ALIGNED
+     btnCadLookup AT ROW 8.24 COL 75
+     eb.cad-no AT ROW 8.24 COL 114 RIGHT-ALIGNED
           LABEL "CAD#"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
           FONT 6
-     eb.plate-no AT ROW 7.95 COL 127 COLON-ALIGNED
+     eb.plate-no AT ROW 8.29 COL 127 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
           FONT 6
@@ -503,11 +503,11 @@ DEFINE FRAME Corr
           SIZE 10 BY 1
           FONT 6
      procat_desc AT ROW 9.14 COL 26.8 COLON-ALIGNED NO-LABEL
-     eb.spc-no AT ROW 8.86 COL 90 COLON-ALIGNED
+     eb.spc-no AT ROW 9.14 COL 90 COLON-ALIGNED
           LABEL "SPC/QC #"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
-     eb.upc-no AT ROW 8.91 COL 121 COLON-ALIGNED
+     eb.upc-no AT ROW 9.19 COL 121 COLON-ALIGNED
           LABEL "UPC#"
           VIEW-AS FILL-IN 
           SIZE 29 BY 1
@@ -518,7 +518,7 @@ DEFINE FRAME Corr
      style_dscr AT ROW 10.52 COL 35 COLON-ALIGNED NO-LABEL
      eb.flute AT ROW 10.52 COL 88 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 8.3 BY 1
+          SIZE 8.4 BY 1
      eb.test AT ROW 10.52 COL 103.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.2 BY 1
@@ -532,9 +532,9 @@ DEFINE FRAME Corr
      ef.brd-dscr AT ROW 11.71 COL 45 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
-     eb.lockLayout AT ROW 11.71 COL 108 COLON-ALIGNED 
-          VIEW-AS TOGGLE-BOX 
-          SIZE 20 BY 1     
+     eb.lockLayout AT ROW 11.71 COL 110
+          VIEW-AS TOGGLE-BOX
+          SIZE 20 BY 1
      eb.len AT ROW 12.91 COL 26 COLON-ALIGNED
           LABEL "Length" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
@@ -555,10 +555,6 @@ DEFINE FRAME Corr
           LABEL "Top/Dust Flap" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     eb.fpanel AT ROW 13.86 COL 61 COLON-ALIGNED
-          LABEL "Bottom Flap" FORMAT "->>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -566,6 +562,10 @@ DEFINE FRAME Corr
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Corr
+     eb.fpanel AT ROW 13.86 COL 61 COLON-ALIGNED
+          LABEL "Bottom Flap" FORMAT "->>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
      eb.lock AT ROW 13.86 COL 88 COLON-ALIGNED
           LABEL "Lock Tab" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
@@ -602,12 +602,12 @@ DEFINE FRAME Corr
           LABEL "Square Ft" FORMAT ">>>9.999<<"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     bt-new-plate AT ROW 7.91 COL 115.6 WIDGET-ID 10
+     bt-new-plate AT ROW 8.24 COL 115.6 WIDGET-ID 10
      eb.loc AT ROW 9.19 COL 62.2 COLON-ALIGNED WIDGET-ID 14
           LABEL "Loc"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     btn_fgitem AT ROW 3.81 COL 115 WIDGET-ID 16
+     btn_fgitem AT ROW 3.57 COL 79 WIDGET-ID 16
      btn_style AT ROW 10.52 COL 8 WIDGET-ID 16
      btn_board AT ROW 11.71 COL 12 WIDGET-ID 16
      btn_cust AT ROW 2.67 COL 16 WIDGET-ID 16

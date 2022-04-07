@@ -447,7 +447,7 @@ DEFINE BROWSE br-estitm
   QUERY br-estitm NO-LOCK DISPLAY
       est.est-no FORMAT "x(8)":U WIDTH 12 COLUMN-FONT 22
       eb.cust-no FORMAT "x(8)":U COLUMN-FONT 22 LABEL-BGCOLOR 14
-      eb.part-no FORMAT "x(15)":U COLUMN-FONT 22 
+      eb.part-no FORMAT "x(32)":U COLUMN-FONT 22 
       eb.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 12
             COLUMN-FONT 22 
       eb.part-dscr1 COLUMN-LABEL "Item Name" FORMAT "x(30)":U COLUMN-FONT 22

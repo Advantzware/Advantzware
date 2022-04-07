@@ -186,7 +186,7 @@ DEFINE BROWSE Browser-Table
       est-qty.eqty FORMAT "->>,>>9.99":U
       eb.ord-no FORMAT ">>>>>9":U
       eb.cust-no FORMAT "x(8)":U
-      eb.part-no FORMAT "x(15)":U
+      eb.part-no FORMAT "x(32)":U
       eb.stock-no COLUMN-LABEL "FG Item #" FORMAT "x(15)":U
       eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9
       eb.part-dscr1 COLUMN-LABEL "Item Name" FORMAT "x(30)":U

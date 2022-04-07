@@ -264,7 +264,7 @@ DEFINE VARIABLE begin_cust         AS CHARACTER FORMAT "X(8)"
     VIEW-AS FILL-IN 
     SIZE 20 BY 1.
 
-DEFINE VARIABLE begin_cust-part-no AS CHARACTER FORMAT "X(15)" 
+DEFINE VARIABLE begin_cust-part-no AS CHARACTER FORMAT "X(32)" 
     LABEL "From Customer Part #" 
     VIEW-AS FILL-IN 
     SIZE 20 BY 1.
@@ -299,7 +299,7 @@ DEFINE VARIABLE end_cust           AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzzz
     VIEW-AS FILL-IN 
     SIZE 21 BY 1.
 
-DEFINE VARIABLE end_cust-part-no   AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzzzzzz" 
+DEFINE VARIABLE end_cust-part-no   AS CHARACTER FORMAT "X(32)" INITIAL "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz" 
     LABEL "To Customer Part #" 
     VIEW-AS FILL-IN 
     SIZE 21 BY 1.

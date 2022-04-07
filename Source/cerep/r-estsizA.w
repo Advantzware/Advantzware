@@ -1108,7 +1108,7 @@ for each eb
           est.updated-id              COLUMN-LABEL "Last User"
           v-num-up                    COLUMN-LABEL "# Up"
 
-       WITH FRAME detail NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 154.
+       WITH FRAME detail NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 170.
 
   /* gdm - 10130806 */
   IF tb_excel THEN

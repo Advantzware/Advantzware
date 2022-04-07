@@ -273,10 +273,10 @@ DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(32)":U 
      LABEL "Cust Part#" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1
+     SIZE 31 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_po-no AS CHARACTER FORMAT "X(15)":U 
@@ -312,7 +312,7 @@ DEFINE BROWSE BROWSE-3
       ar-inv.due FORMAT "->>,>>>,>>9.99":U
       ar-invl.actnum COLUMN-LABEL "GL Acct#" FORMAT "x(25)":U
       ar-invl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U
-      ar-invl.part-no FORMAT "x(15)":U
+      ar-invl.part-no FORMAT "x(32)":U
       ar-invl.ord-no FORMAT ">>>>>9":U
       ar-invl.po-no COLUMN-LABEL "Cust PO#" FORMAT "x(15)":U
       ar-invl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U

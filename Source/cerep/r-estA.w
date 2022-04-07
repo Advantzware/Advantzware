@@ -1083,9 +1083,9 @@ form skip(1)
      eb.est-no                      format "x(8)"
      cust.name                    at 10
      eb.part-no                    at 41
-     style.dscr                     at 72
-     v-blk-dim format "x(27)" at 99
-     v-booked                      to 138 format "x(6)"
+     style.dscr                     AT 74
+     v-blk-dim format "x(27)" AT 101
+     v-booked                      to 140 format "x(6)"
      skip
      "Last used:"                 at 10
      est.mod-date
@@ -1099,9 +1099,9 @@ form skip(1)
      "Board:" at 99
      item.i-name format "x(26)"
      skip
-header "Est#     Customer Name                  Part # / Description           Style/Blank size           Item Size/Print/Board             Status"
+header "Est#     Customer Name                  Part # / Description             Style/Blank size           Item Size/Print/Board             Status"
 
-    with frame est no-labels no-box centered width 150 down stream-io.
+    with frame est no-labels no-box centered width 170 down stream-io.
 
 
 

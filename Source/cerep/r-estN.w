@@ -65,7 +65,7 @@ ASSIGN cTextListToSelect  = "Est#,Customer Name,Last used,Part #,Description 1,D
                             "v_blksz,v-blk-dim,eb.i-coldscr,v_i-name,v-booked,eb.ord-no,ord-date,eb.cust-no,eb.sman,comm," +
                             "add1,add2,add3,add4,add5,fg-item,job-no"
 
-       cFieldLength = "8,30,10,15,30,30,25," + "20,27,30,30,6,11,10,8,9,12," + "10,10,10,10,10,15,13"
+       cFieldLength = "8,30,10,32,30,30,25," + "20,27,30,30,6,11,10,8,9,12," + "10,10,10,10,10,15,13"
        .
 
 {sys/inc/ttRptSel.i}

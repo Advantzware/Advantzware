@@ -344,7 +344,7 @@ DEFINE BROWSE br-estitm
       eb.cust-no FORMAT "x(8)":U COLUMN-FONT 2
       eb.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 12
             COLUMN-FONT 2
-      eb.part-no FORMAT "x(15)":U COLUMN-FONT 2
+      eb.part-no FORMAT "x(32)":U COLUMN-FONT 2
       eb.part-dscr1 FORMAT "x(30)":U COLUMN-FONT 2
       eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U COLUMN-FONT 2
       eb.bl-qty COLUMN-LABEL "Qty" FORMAT ">>>,>>>,>>>":U WIDTH 15

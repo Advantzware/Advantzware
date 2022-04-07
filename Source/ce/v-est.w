@@ -364,15 +364,15 @@ DEFINE FRAME fold
           SIZE 10 BY 1
           FONT 6
      procat_desc AT ROW 9.1 COL 31 COLON-ALIGNED NO-LABEL
-     eb.part-no AT ROW 3.86 COL 86 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 23 BY 1
-          FONT 6
-     eb.stock-no AT ROW 3.86 COL 128.2 COLON-ALIGNED
+     eb.stock-no AT ROW 2.67 COL 128.2 COLON-ALIGNED
           LABEL "FG Item#"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
           FONT 6
+     eb.part-no AT ROW 3.86 COL 86 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 50 BY 1
+          FONT 6     
      eb.part-dscr1 AT ROW 5.05 COL 86 COLON-ALIGNED
           LABEL "Item Name"
           VIEW-AS FILL-IN 
@@ -507,7 +507,7 @@ DEFINE FRAME fold
           LABEL "Last Order#" FORMAT ">>>>>>>>"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     btn_fgitem AT ROW 3.81 COL 115 WIDGET-ID 16
+     btn_fgitem AT ROW 2.71 COL 115 WIDGET-ID 16
      btn_from AT ROW 1.19 COL 24.8 WIDGET-ID 16
      btn_style AT ROW 10.52 COL 11 WIDGET-ID 16
      btn_board AT ROW 11.71 COL 16 WIDGET-ID 16

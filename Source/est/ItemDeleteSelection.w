@@ -113,14 +113,14 @@ DEFINE BROWSE BROWSE-1
       tt-eb.selected COLUMN-LABEL '' WIDTH 6 VIEW-AS TOGGLE-BOX 
       tt-eb.form-no COLUMN-LABEL "Form" FORMAT ">9":U
       tt-eb.blank-no COLUMN-LABEL "Blank" FORMAT ">9":U
-      tt-eb.part-no FORMAT "x(15)":U WIDTH 17
+      tt-eb.part-no FORMAT "x(32)":U WIDTH 32
       tt-eb.part-dscr1 FORMAT "x(20)":U WIDTH 15.2
       tt-eb.stock-no FORMAT "x(15)":U WIDTH 15.2
       ENABLE 
         tt-eb.selected
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 95 BY 8.57 ROW-HEIGHT-CHARS .81 FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 110 BY 8.57 ROW-HEIGHT-CHARS .81 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */

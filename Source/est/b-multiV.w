@@ -248,7 +248,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       tt-eb.form-no COLUMN-LABEL "Form" FORMAT ">>9":U
       tt-eb.blank-no COLUMN-LABEL "Blank" FORMAT ">>9":U
-      tt-eb.part-no FORMAT "x(20)":U
+      tt-eb.part-no FORMAT "x(32)":U
       tt-eb.num-wid COLUMN-LABEL "# on!Width" FORMAT ">9":U
       tt-eb.num-len COLUMN-LABEL "# on! Length" FORMAT ">9":U
       tt-eb.num-up FORMAT ">>9":U
@@ -372,7 +372,7 @@ ASSIGN
      _FldNameList[2]   > Temp-Tables.tt-eb.blank-no
 "tt-eb.blank-no" "Blank" ">>9" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > Temp-Tables.tt-eb.part-no
-"tt-eb.part-no" ? "x(20)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tt-eb.part-no" ? "x(32)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > Temp-Tables.tt-eb.num-wid
 "tt-eb.num-wid" "# on!Width" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > Temp-Tables.tt-eb.num-len

@@ -84,7 +84,7 @@ DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 ASSIGN 
     cTextListToSelect  = "Carrier,Cust #,Name,Part #,Invoice #,Cat.,Amount,Cost,GP" 
     cFieldListToSelect = "carr,cust,name,part,inv,cat,amt,cost,gp"  
-    cFieldLength       = "7,8,30,15,9,5,12,12,8" 
+    cFieldLength       = "7,8,30,32,9,5,12,12,8" 
     cFieldType         = "c,c,c,c,i,c,i,i,i"
     .
 

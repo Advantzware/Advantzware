@@ -297,9 +297,9 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.*/
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(32)":U 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1
+     SIZE 33 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_procat AS CHARACTER FORMAT "X(8)":U 
@@ -359,7 +359,7 @@ DEFINE BROWSE r_table
       itemfg.stocked COLUMN-LABEL "Stocked?" FORMAT "Yes/No":U
             LABEL-BGCOLOR 14
       itemfg.q-onh FORMAT "->>,>>>,>>9":U LABEL-BGCOLOR 14
-      itemfg.part-no FORMAT "x(20)":U WIDTH 22 LABEL-BGCOLOR 14
+      itemfg.part-no FORMAT "x(32)":U WIDTH 32 LABEL-BGCOLOR 14
   ENABLE
       itemfg.i-no
       itemfg.i-name
@@ -385,42 +385,42 @@ DEFINE FRAME F-Main
      tb_act AT ROW 1 COL 157 WIDGET-ID 48
      fi_i-no AT ROW 1.95 COL 4 NO-LABEL WIDGET-ID 2
      fi_part-no AT ROW 1.95 COL 26 NO-LABEL WIDGET-ID 40
-     fi_cust-no AT ROW 1.95 COL 47 NO-LABEL WIDGET-ID 16
-     fi_i-name AT ROW 1.95 COL 63.8 NO-LABEL WIDGET-ID 20
-     fi_est-no AT ROW 1.95 COL 99.6 NO-LABEL WIDGET-ID 18
-     fi_style AT ROW 1.95 COL 114.6 NO-LABEL WIDGET-ID 32
-     fi_procat AT ROW 1.95 COL 125.6 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+     fi_cust-no AT ROW 1.95 COL 60.6 NO-LABEL WIDGET-ID 16
+     fi_i-name AT ROW 1.95 COL 77.4 NO-LABEL WIDGET-ID 20
+     fi_est-no AT ROW 1.95 COL 113.2 NO-LABEL WIDGET-ID 18
+     fi_style AT ROW 1.95 COL 128.2 NO-LABEL WIDGET-ID 32
+     fi_procat AT ROW 1.95 COL 139.2 COLON-ALIGNED NO-LABEL WIDGET-ID 36
      tb_in-act AT ROW 2 COL 157.2 WIDGET-ID 50
      btn_go AT ROW 3.14 COL 4 WIDGET-ID 4
      btn_prev AT ROW 3.14 COL 26 WIDGET-ID 8
      btn_next AT ROW 3.14 COL 47 WIDGET-ID 6
      btn_show AT ROW 3.14 COL 64 WIDGET-ID 10
      fi_sort-by AT ROW 3.14 COL 93 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     fi_FGMaster AT ROW 3.14 COL 94 COLON-ALIGNED NO-LABEL NO-TAB-STOP
+     fi_FGMaster AT ROW 3.14 COL 94 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      r_table AT ROW 4.33 COL 1
      "Cust Part#" VIEW-AS TEXT
           SIZE 18 BY .71 AT ROW 1.24 COL 26 WIDGET-ID 42
           FGCOLOR 9 FONT 6
-     "Estimate" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 100 WIDGET-ID 28
-          FGCOLOR 9 FONT 6
-     "Cust. #" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 47 WIDGET-ID 22
-          FGCOLOR 9 FONT 6
-     "Category" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 128 WIDGET-ID 38
-          FGCOLOR 9 FONT 6
-     "Style" VIEW-AS TEXT
-          SIZE 10 BY .71 AT ROW 1.24 COL 115 WIDGET-ID 34
-          FGCOLOR 9 FONT 6
-     "Name" VIEW-AS TEXT
-          SIZE 7.2 BY .71 AT ROW 1.24 COL 64 WIDGET-ID 26
+     "Default FG:" VIEW-AS TEXT
+          SIZE 13 BY .81 AT ROW 3.24 COL 83 WIDGET-ID 58
           FGCOLOR 9 FONT 6
      "Item No" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 4 WIDGET-ID 24
           FGCOLOR 9 FONT 6
-     "Default FG:" VIEW-AS TEXT
-          SIZE 13 BY .82 AT ROW 3.26 COL 83 WIDGET-ID 58
+     "Name" VIEW-AS TEXT
+          SIZE 7.2 BY .71 AT ROW 1.24 COL 77.6 WIDGET-ID 26
+          FGCOLOR 9 FONT 6
+     "Style" VIEW-AS TEXT
+          SIZE 10 BY .71 AT ROW 1.24 COL 128.6 WIDGET-ID 34
+          FGCOLOR 9 FONT 6
+     "Category" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 1.24 COL 141.6 WIDGET-ID 38
+          FGCOLOR 9 FONT 6
+     "Cust. #" VIEW-AS TEXT
+          SIZE 13 BY .71 AT ROW 1.24 COL 60.6 WIDGET-ID 22
+          FGCOLOR 9 FONT 6
+     "Estimate" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 1.24 COL 113.6 WIDGET-ID 28
           FGCOLOR 9 FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -552,7 +552,7 @@ asi.itemfg.i-no eq ""###"""
      _FldNameList[12]   > asi.itemfg.q-onh
 "itemfg.q-onh" ? "->>,>>>,>>9" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > asi.itemfg.part-no
-"itemfg.part-no" ? "x(20)" "character" ? ? ? 14 ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.part-no" ? "x(32)" "character" ? ? ? 14 ? ? no ? no no "32" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE r_table */
 &ANALYZE-RESUME

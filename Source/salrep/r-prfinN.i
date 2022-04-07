@@ -560,7 +560,7 @@ IF NOT v-smr THEN
                  WHEN "mbr-no" THEN cVarValue = IF AVAIL shipto THEN STRING(shipto.spare-char-5,"x(10)") ELSE "".                   
                  WHEN "inv-uom" THEN cVarValue = STRING(v-uom,"x(3)").
                  WHEN "board-code" THEN cVarValue = STRING(cBoardCode,"x(10)").
-                 WHEN "customer-part" THEN cVarValue = STRING(cCustPart,"x(15)").
+                 WHEN "customer-part" THEN cVarValue = STRING(cCustPart,"x(32)").
                  WHEN "bol" THEN cVarValue = STRING(iBolNo,">>>>>>").
                  WHEN "sqft" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.t-sqft,"->>>>9.999") ELSE "" .
                  WHEN "cust-lot" THEN cVarValue =  STRING(cCustLot,"x(15)")  .
@@ -1128,7 +1128,7 @@ IF NOT v-smr THEN
                  WHEN "mbr-no" THEN cVarValue = IF AVAIL shipto THEN STRING(shipto.spare-char-5,"x(10)") ELSE "".                   
                  WHEN "inv-uom" THEN cVarValue = STRING(v-uom,"x(3)").
                  WHEN "board-code" THEN cVarValue = STRING(cBoardCode,"x(10)").
-                 WHEN "customer-part" THEN cVarValue = STRING(cCustPart,"x(15)").
+                 WHEN "customer-part" THEN cVarValue = STRING(cCustPart,"x(32)").
                  WHEN "bol" THEN cVarValue = STRING(iBolNo,">>>>>>").
                  WHEN "sqft" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.t-sqft,"->>>>9.999") ELSE "".
                  WHEN "cust-lot" THEN cVarValue =  STRING(cCustLot,"x(15)")  .

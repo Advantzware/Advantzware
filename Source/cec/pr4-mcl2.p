@@ -270,11 +270,8 @@ DO:
           if mclean.cost[v] ne 0 then leave.
           if v ge vhld + vhld-last then next mclean-loop.
         end.
-    
-        IF LOOKUP(cerunc,"Protagon,CERunC 3,Atlantic") EQ 0 THEN
-           put eb.part-no format "x(30)".
-        ELSE
-           PUT eb.part-no format "x(18)"
+           
+           PUT eb.part-no format "x(32)"
                eb.part-dscr1 FORMAT "x(30)"
                eb.quantityPerSet FORMAT "->>>>>9.9<".
     
@@ -314,7 +311,7 @@ ELSE DO: /* Protagon */
               BY eb.blank-no:
 
 
-            PUT eb.part-no format "x(18)"
+            PUT eb.part-no format "x(32)"
                 eb.part-dscr1 FORMAT "x(30)"
                 eb.quantityPerSet FORMAT "->>>>>9.9<".
             v-count = 0. 

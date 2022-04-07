@@ -733,7 +733,7 @@ if v-det then do:
                  WHEN "cust.cust-no" THEN cVarValue = string(cust.cust-no). 
                  WHEN "cust.name" THEN cVarValue = string(cust.name,"X(20)").
                  WHEN "v-name" THEN cVarValue = STRING(v-name,"X(20)"). 
-                 WHEN "v-part-no" THEN cVarValue = STRING(v-part-no,"X(20)").
+                 WHEN "v-part-no" THEN cVarValue = STRING(v-part-no,"X(32)").
                  WHEN "tt-report.key-03" THEN cVarValue = string(tt-report.key-03).
                  WHEN "w-data.inv-no" THEN cVarValue = string(w-data.inv-no,">>>>>>>>").
                  WHEN "v-date" THEN cVarValue = string(v-date).
@@ -775,7 +775,7 @@ ELSE if (LAST-OF(tt-report.key-01) and v-sort1)     or
                  WHEN "cust.cust-no" THEN cVarValue = "". 
                  WHEN "cust.name" THEN cVarValue = "".
                  WHEN "v-name" THEN cVarValue = STRING(v-name,"X(20)").  
-                 WHEN "v-part-no" THEN cVarValue = STRING(v-part-no,"X(20)").
+                 WHEN "v-part-no" THEN cVarValue = STRING(v-part-no,"X(32)").
                  WHEN "tt-report.key-03" THEN cVarValue = "".
                  WHEN "w-data.inv-no" THEN cVarValue = "".
                  WHEN "v-date" THEN cVarValue = "".

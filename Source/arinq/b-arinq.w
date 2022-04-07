@@ -297,10 +297,10 @@ DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(32)":U 
      LABEL "Cust Part#" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1
+     SIZE 34 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_po-no AS CHARACTER FORMAT "X(15)":U 
@@ -363,8 +363,8 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       ar-invl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 20
             LABEL-BGCOLOR 14
-      ar-invl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(15)":U
-            WIDTH 20 LABEL-BGCOLOR 14
+      ar-invl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(32)":U
+            WIDTH 40 LABEL-BGCOLOR 14
       ar-invl.ord-no FORMAT ">>>>>>>>":U WIDTH 11 LABEL-BGCOLOR 14
       ar-invl.po-no COLUMN-LABEL "Cust PO#" FORMAT "x(15)":U WIDTH 20
             LABEL-BGCOLOR 14
@@ -517,7 +517,7 @@ ASSIGN
      _FldNameList[6]   > ASI.ar-invl.i-no
 "ar-invl.i-no" "FG Item#" ? "character" ? ? ? 14 ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.ar-invl.part-no
-"ar-invl.part-no" "Cust Part#" ? "character" ? ? ? 14 ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-invl.part-no" "Cust Part#" ? "character" ? ? ? 14 ? ? yes ? no no "40" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.ar-invl.ord-no
 "ar-invl.ord-no" ? ">>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.ar-invl.po-no

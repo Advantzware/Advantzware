@@ -191,7 +191,7 @@ DEFINE BROWSE Browser-Table
       ar-invl.actnum COLUMN-LABEL "Account Number" FORMAT "x(25)":U
       get-actdscr() @ v-actdscr COLUMN-LABEL "Account Description" FORMAT "x(45)":U
       ar-invl.i-no FORMAT "x(15)":U
-      ar-invl.part-no FORMAT "x(15)":U
+      ar-invl.part-no FORMAT "x(32)":U
       ar-invl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
       get-i-dscr () @ ar-invl.i-dscr
       ar-invl.i-dscr FORMAT "x(30)":U

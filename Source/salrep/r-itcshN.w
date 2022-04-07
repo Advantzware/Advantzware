@@ -83,7 +83,7 @@ ASSIGN
     "Bol #,Qty Shipped,Unit Price,Uom,Invoice Amt.,Rep,Rep Name,PO#,Ship From" /*5*/
     cFieldListToSelect = "w-data.i-no,v-name,cust.cust-no,cust.name,v-part-no,tt-report.key-03,w-data.inv-no,v-date,v-ord,v-est," +
                                 "v-bol,v-qty[1],v-pric,v-uom,v-amt[1],rep,rep-name,v-po,loc"
-    cFieldLength       = "15,20,9,20,20,8,10,10,8,8," + "8,12,15,3,17,3,25,15,9"
+    cFieldLength       = "15,20,9,20,32,8,10,10,8,8," + "8,12,15,3,17,3,25,15,9"
     cFieldType         = "c,c,c,c,c,c,i,c,i,c," + "i,i,i,c,i,c,c,c,c"
     .
 ASSIGN 
@@ -1871,7 +1871,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-amt         AS DECIMAL   EXTENT 5 NO-UNDO.
     DEFINE VARIABLE v-exc         AS LOG       NO-UNDO.
     DEFINE VARIABLE v-name        LIKE cust.name FORMAT "x(21)" NO-UNDO.
-    DEFINE VARIABLE v-part-no     LIKE cust.name FORMAT "x(21)" NO-UNDO.
+    DEFINE VARIABLE v-part-no     LIKE cust.name FORMAT "x(32)" NO-UNDO.
     DEFINE VARIABLE v-hdr         AS CHARACTER EXTENT 10 NO-UNDO.
 
     DEFINE VARIABLE v-pct         AS DECIMAL   FORMAT "99.99" NO-UNDO.

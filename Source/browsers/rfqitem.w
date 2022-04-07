@@ -203,7 +203,7 @@ DEFINE BROWSE br_table
       rfqitem.stock-no COLUMN-LABEL "F.G. Item#" FORMAT "x(15)":U
             COLUMN-FONT 0
       rfqitem.i-name FORMAT "x(30)":U COLUMN-FONT 0
-      rfqitem.part-no FORMAT "x(15)":U COLUMN-FONT 0
+      rfqitem.part-no FORMAT "x(32)":U COLUMN-FONT 0
       rfqitem.style COLUMN-LABEL "Style" FORMAT "x(6)":U COLUMN-FONT 0
       rfqitem.procat FORMAT "x(5)":U COLUMN-FONT 0
       rfqitem.i-col FORMAT ">9":U COLUMN-FONT 0

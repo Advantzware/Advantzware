@@ -177,7 +177,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
      tt-cust-part.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             WIDTH 12
-      tt-cust-part.part-no COLUMN-LABEL "Cust Part #" FORMAT "x(15)":U WIDTH 23
+      tt-cust-part.part-no COLUMN-LABEL "Cust Part #" FORMAT "x(32)":U WIDTH 33
       tt-cust-part.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 23
       tt-cust-part.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
       tt-cust-part.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 8

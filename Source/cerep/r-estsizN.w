@@ -58,7 +58,7 @@ ASSIGN cTextListToSelect = "Length,Width,Depth,Style,Material,Adder 1,Adder 2,Ad
                            "Customer Part#,Est#,Last Ord Date,Customer Name,Last User,# Up,Sales Rep,Commission %" 
        cFieldListToSelect = "len,wid,dep,style,mate,add1,add2,add3," +
                             "cust-part,est,ord-date,cust-name,last-usr,up,sman,comm" 
-       cFieldLength = "8,8,8,6,10,10,10,10," + "15,8,13,24,9,4,9,12" 
+       cFieldLength = "8,8,8,6,10,10,10,10," + "32,8,13,24,9,4,9,12" 
        cFieldType = "i,i,i,c,c,c,c,c," + "c,c,c,c,c,i,c,i" 
     .
 
@@ -1584,7 +1584,7 @@ for each eb
                          WHEN "add1"  THEN cVarValue = STRING(ef.adder[1],"x(10)") .
                          WHEN "add2"   THEN cVarValue = STRING(ef.adder[2],"x(10)") .
                          WHEN "add3"  THEN cVarValue = STRING(ef.adder[3],"x(10)") .
-                         WHEN "cust-part"   THEN cVarValue = string(eb.part-no,"x(15)").
+                         WHEN "cust-part"   THEN cVarValue = string(eb.part-no,"x(32)").
                          WHEN "est"   THEN cVarValue = STRING(trim(est.est-no),"x(8)").
                          WHEN "ord-date"  THEN cVarValue = IF est.ord-date NE ?  THEN STRING(est.ord-date) ELSE "" .
                          WHEN "cust-name"   THEN cVarValue = STRING( eb.ship-name,"x(24)") .

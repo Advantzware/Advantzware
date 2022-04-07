@@ -168,7 +168,7 @@ DEFINE BROWSE br_table
       eb.form-no COLUMN-LABEL "F#" FORMAT ">9":U WIDTH 4
       eb.blank-no COLUMN-LABEL "B#" FORMAT ">9":U WIDTH 4
       eb.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U WIDTH 12
-      eb.part-no FORMAT "x(15)":U WIDTH 22.2
+      eb.part-no FORMAT "x(32)":U WIDTH 32.2
       eb.bl-qty COLUMN-LABEL "Req Qty" FORMAT ">>,>>>,>>9":U
       eb.yld-qty FORMAT ">>,>>>,>>9":U
       eb.releaseCount COLUMN-LABEL "Releases" FORMAT "->>,>>9":U
@@ -268,7 +268,7 @@ asi.eb.form-no NE 0"
      _FldNameList[3]   > asi.eb.cust-no
 "eb.cust-no" "Cust#" ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.eb.part-no
-"eb.part-no" ? ? "character" ? ? ? ? ? ? no ? no no "22.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.part-no" ? ? "character" ? ? ? ? ? ? no ? no no "32.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.eb.bl-qty
 "eb.bl-qty" "Req Qty" ">>,>>>,>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.eb.yld-qty

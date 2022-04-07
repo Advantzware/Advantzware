@@ -229,7 +229,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
       eb.est-no FORMAT "x(8)":U COLUMN-FONT 0  LABEL-BGCOLOR 14
       eb.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U COLUMN-FONT 0  LABEL-BGCOLOR 14
-      eb.part-no FORMAT "x(16)":U WIDTH 22 COLUMN-FONT 0 LABEL-BGCOLOR 14
+      eb.part-no FORMAT "x(32)":U WIDTH 32 COLUMN-FONT 0 LABEL-BGCOLOR 14
       eb.part-dscr1 COLUMN-LABEL "Description" FORMAT "x(30)":U
             WIDTH 35 COLUMN-FONT 1 LABEL-BGCOLOR 14
       eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(16)":U WIDTH 22
@@ -325,7 +325,7 @@ and itemfg.stat eq ""A"""
      _FldNameList[2]   > ASI.eb.cust-no
 "eb.cust-no" "Cust#" ? "character" ? ? 0 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.eb.part-no
-"eb.part-no" ? "x(16)" "character" ? ? 0 14 ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.part-no" ? "x(32)" "character" ? ? 0 14 ? ? no ? no no "32" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.eb.part-dscr1
 "eb.part-dscr1" "Description" ? "character" ? ? 1 14 ? ? no ? no no "35" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.eb.stock-no

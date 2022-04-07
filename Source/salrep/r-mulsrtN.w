@@ -114,7 +114,7 @@ ASSIGN
     cFieldListToSelect = "cust,name,rep,shipto,ship-zip,inv#,inv-date," +
                             "ord,item-no,item-name,desc,cust-part," +
                             "price,uom,qty,inv-amt,inv-wt"
-    cFieldLength       = "8,30,4,8,8,6,8," + "8,15,30,30,15," + "13,4,11,14,10"
+    cFieldLength       = "8,30,4,8,8,6,8," + "8,15,30,30,32," + "13,4,11,14,10"
     cFieldType         = "c,c,c,c,c,i,c," + "i,c,c,c,c," + "i,c,i,i,i" 
     .
 
@@ -2358,7 +2358,7 @@ PROCEDURE run-report :
                 WHEN "desc"   THEN 
                     cVarValue = IF AVAILABLE itemfg THEN STRING(itemfg.part-dscr1,"x(30)")  ELSE IF AVAILABLE ar-invl AND ar-invl.i-dscr EQ "" THEN STRING(ar-invl.part-dscr1,"x(30)") ELSE IF AVAILABLE ar-invl THEN STRING(ar-invl.i-dscr,"x(30)")  ELSE "" .
                 WHEN "cust-part"  THEN 
-                    cVarValue = IF AVAILABLE ar-invl THEN STRING(ar-invl.part-no,"x(15)") ELSE "".
+                    cVarValue = IF AVAILABLE ar-invl THEN STRING(ar-invl.part-no,"x(32)") ELSE "".
                 WHEN "price"   THEN 
                     cVarValue = STRING(v-pric,"->,>>>,>>9.99<<") .
                 WHEN "uom"  THEN 

@@ -8809,7 +8809,7 @@ PROCEDURE write-loadtag-line :
             cLoftString           = FILL(",",86)
             ENTRY(1,cLoftString)  = "!" + scr-label-file
             ENTRY(2,cLoftString)  = '"' + STRING(REPLACE(REPLACE(w-ord.cust-name,","," "),'"',""),"x(30)") + '"'
-            ENTRY(3,cLoftString)  = '"' + STRING(REPLACE(REPLACE(w-ord.cust-part-no,","," "),'"',""),"x(30)") + '"'
+            ENTRY(3,cLoftString)  = '"' + STRING(REPLACE(REPLACE(w-ord.cust-part-no,","," "),'"',""),"x(32)") + '"'
             ENTRY(4,cLoftString)  = '"' + STRING(REPLACE(REPLACE(w-ord.cust-po-no,","," "),'"',""),"x(15)") + '"'
             ENTRY(5,cLoftString)  = '"' + STRING(REPLACE(REPLACE(w-ord.ship-city,","," "),'"',"") + " " + REPLACE(w-ord.ship-state,'"',""),"x(30)") + '"'
             ENTRY(6,cLoftString)  = '"' + STRING(w-ord.est-no,"9999999") + '"'

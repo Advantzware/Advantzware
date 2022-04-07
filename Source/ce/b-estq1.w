@@ -378,7 +378,7 @@ DEFINE VARIABLE vi_part-dscr1 AS CHARACTER FORMAT "X(30)":U
     SIZE 36 BY 1
     BGCOLOR 15 NO-UNDO.
 
-DEFINE VARIABLE vi_part-no    AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE vi_part-no    AS CHARACTER FORMAT "X(32)":U 
     VIEW-AS FILL-IN 
     SIZE 20 BY 1
     BGCOLOR 15 NO-UNDO.
@@ -452,7 +452,7 @@ DEFINE BROWSE Browser-Table
     QUERY Browser-Table NO-LOCK DISPLAY
     est.est-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
     eb.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U LABEL-BGCOLOR 14
-    eb.part-no FORMAT "x(15)":U LABEL-BGCOLOR 14
+    eb.part-no FORMAT "x(32)":U LABEL-BGCOLOR 14
     display-qty() @ est-qty.eqty LABEL-BGCOLOR 14
     est-qty.eqty FORMAT ">>>,>>>,>>9":U WIDTH 14 LABEL-BGCOLOR 14
     eb.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14

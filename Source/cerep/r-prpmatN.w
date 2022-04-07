@@ -60,7 +60,7 @@ DEFINE BUFFER b-itemfg FOR itemfg .
 
 ASSIGN cTextListToSelect = "Prep Code,Description,Est #,Customer Part #,Est Mod,Ord Date,Order#,Customer,Name,Date Last Used"
        cFieldListToSelect = "prp-cod,dscr,est,cust-part,est-mod,ord-dt,ord,cust,name,last-date"
-       cFieldLength = "15,30,8,15,10,10,8,8,30,14" 
+       cFieldLength = "15,30,8,32,10,10,8,8,30,14" 
        cFieldType = "c,c,c,c,c,c,c,c,c,c" 
     .
 

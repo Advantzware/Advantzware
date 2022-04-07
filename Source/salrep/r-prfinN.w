@@ -80,7 +80,7 @@ ASSIGN
                             "msf,sal-amt,ful-cst,proft,grp-no,mbr-no,inv-uom,cust-po,board-code,customer-part,bol,sqft," +
                             "cust-lot"
     cFieldLength       = "3,20,30,8,30,8,8,15,5,14,9,8," +
-                      "8,15,11,11,8,10,3,15,14,15,6,10," + "15"
+                      "8,15,11,11,8,10,3,15,14,32,6,10," + "15"
     cFieldType         = "c,c,c,c,c,i,c,c,c,i,i,i," + "i,i,i,i,c,c,c,c,c,c,i,i," + "c"
     .
 ASSIGN 

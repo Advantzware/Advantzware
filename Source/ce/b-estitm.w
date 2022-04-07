@@ -354,7 +354,7 @@ DEFINE BROWSE br-estitm
   QUERY br-estitm NO-LOCK DISPLAY
       est.est-no FORMAT "99999999":U WIDTH 12 
       eb.cust-no FORMAT "x(8)":U 
-      eb.part-no FORMAT "x(15)":U 
+      eb.part-no FORMAT "x(32)":U 
       eb.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 12
       eb.part-dscr1 COLUMN-LABEL "Item Name" FORMAT "x(30)":U 
       eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U 

@@ -251,8 +251,8 @@ DEFINE BROWSE br_table
             WIDTH 7 LABEL-BGCOLOR 14
       reftable.val[2] COLUMN-LABEL "Blank#" FORMAT ">>>>>>>>>>":U
             WIDTH 7 LABEL-BGCOLOR 14
-      eb.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(15)":U
-            WIDTH 20 LABEL-BGCOLOR 14
+      eb.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(32)":U
+            WIDTH 33 LABEL-BGCOLOR 14
       display-bl-qty () @ eb.bl-qty
       eb.bl-qty COLUMN-LABEL "Request Qty" FORMAT "->>>,>>>,>>>":U
             WIDTH 13
@@ -377,7 +377,7 @@ reftable.val[3]   eq dec(recid(eb))"
      _FldNameList[2]   > ASI.reftable.val[2]
 "reftable.val[2]" "Blank#" ">>>>>>>>>>" "decimal" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.eb.part-no
-"eb.part-no" "Customer Part#" ? "character" ? ? ? 14 ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.part-no" "Customer Part#" ? "character" ? ? ? 14 ? ? yes ? no no "33" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > "_<CALC>"
 "display-bl-qty () @ eb.bl-qty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.eb.bl-qty

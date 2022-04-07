@@ -133,7 +133,7 @@ DEFINE VARIABLE begin_fg-cat  AS CHARACTER FORMAT "X(5)":U
     VIEW-AS FILL-IN 
     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE begin_part-no AS CHARACTER FORMAT "X(32)":U 
     LABEL "Beginning Cust Part#" 
     VIEW-AS FILL-IN 
     SIZE 18 BY 1 NO-UNDO.
@@ -158,7 +158,7 @@ DEFINE VARIABLE end_fg-cat    AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz"
     VIEW-AS FILL-IN 
     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_part-no   AS CHARACTER FORMAT "x(15)":U INITIAL "zzzzzzzzzzzzzzz" 
+DEFINE VARIABLE end_part-no   AS CHARACTER FORMAT "x(32)":U INITIAL "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz" 
     LABEL "Ending Cust Part#" 
     VIEW-AS FILL-IN 
     SIZE 18 BY 1 NO-UNDO.

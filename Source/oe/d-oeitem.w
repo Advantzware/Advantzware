@@ -1132,7 +1132,7 @@ DEFINE BROWSE browseReleases
       fGetPrUOM() @ cUOM
       oe-ordl.t-price COLUMN-LABEL "Extended!Price" FORMAT "->>,>>>,>>9.99":U
       oe-ordl.i-no COLUMN-LABEL "Item" FORMAT "x(15)":U
-      oe-ordl.part-no COLUMN-LABEL "Customer Part" FORMAT "x(15)":U
+      oe-ordl.part-no COLUMN-LABEL "Customer Part" FORMAT "x(32)":U
       oe-ordl.po-no COLUMN-LABEL "Customer PO" FORMAT "x(15)":U
       oe-ord.po-no COLUMN-LABEL "Order PO" FORMAT "x(15)":U
       oe-ordl.est-no COLUMN-LABEL "Estimate" FORMAT "X(8)":U
@@ -1203,9 +1203,9 @@ DEFINE FRAME d-oeitem
           SIZE 28 BY 1
           BGCOLOR 15 FGCOLOR 1 
      oe-ordl.part-no AT ROW 4.33 COL 15.8 COLON-ALIGNED
-          LABEL "Cust Part #" FORMAT "x(15)"
+          LABEL "Cust Part #" FORMAT "x(32)"
           VIEW-AS FILL-IN 
-          SIZE 28 BY 1
+          SIZE 51 BY 1
           BGCOLOR 15 FGCOLOR 1 
      oe-ordl.i-name AT ROW 5.29 COL 15.6 COLON-ALIGNED
           LABEL "Name"

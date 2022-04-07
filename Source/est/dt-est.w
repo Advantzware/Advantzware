@@ -233,7 +233,7 @@ ASI.est.est-type >= 1 and est.est-type <= 4"
      _FldNameList[13]   > ASI.eb.part-dscr1
 "part-dscr1" "part-dscr1" ? ? "character" ? ? ? ? ? ? yes ? no 30 yes
      _FldNameList[14]   > ASI.eb.part-no
-"part-no" "part-no" ? ? "character" ? ? ? ? ? ? yes ? no 15 yes
+"part-no" "part-no" ? ? "character" ? ? ? ? ? ? yes ? no 32 yes
      _FldNameList[15]   > ASI.eb.procat
 "procat" "procat" ? ? "character" ? ? ? ? ? ? yes ? no 8.4 yes
      _FldNameList[16]   > ASI.eb.ship-id

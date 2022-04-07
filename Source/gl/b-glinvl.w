@@ -255,10 +255,10 @@ DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(32)":U 
      LABEL "Cust Part#" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1
+     SIZE 37.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_po-no AS CHARACTER FORMAT "X(15)":U 
@@ -305,8 +305,8 @@ DEFINE BROWSE Browser-Table
             WIDTH 15
       ar-invl.actnum COLUMN-LABEL "GL Acct#" FORMAT "x(25)":U WIDTH 30
       ar-invl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 20
-      ar-invl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(15)":U
-            WIDTH 20
+      ar-invl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(32)":U
+            WIDTH 40
       ar-invl.ord-no FORMAT ">>>>>>>>":U WIDTH 9
       ar-invl.po-no COLUMN-LABEL "Cust PO#" FORMAT "x(15)":U WIDTH 20
       ar-invl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U WIDTH 12
@@ -339,11 +339,11 @@ DEFINE FRAME F-Main
      fi_cust-no AT ROW 1.24 COL 59 COLON-ALIGNED
      fi_date AT ROW 1.24 COL 84 COLON-ALIGNED
      fi_actnum AT ROW 1.24 COL 112 COLON-ALIGNED
-     fi_i-no AT ROW 2.43 COL 59 COLON-ALIGNED
-     fi_part-no AT ROW 2.43 COL 97 COLON-ALIGNED
+     fi_i-no AT ROW 2.43 COL 47.8 COLON-ALIGNED
+     fi_part-no AT ROW 2.43 COL 82.4 COLON-ALIGNED
      fi_ord-no AT ROW 2.43 COL 130 COLON-ALIGNED
-     fi_po-no AT ROW 3.62 COL 59 COLON-ALIGNED
-     fi_bol-no AT ROW 3.62 COL 100 COLON-ALIGNED
+     fi_po-no AT ROW 3.62 COL 47.8 COLON-ALIGNED
+     fi_bol-no AT ROW 3.62 COL 82.4 COLON-ALIGNED
      fi_est-no AT ROW 3.62 COL 130 COLON-ALIGNED
      btn_go AT ROW 4.81 COL 21
      btn_show AT ROW 4.81 COL 36
@@ -455,7 +455,7 @@ ASSIGN
      _FldNameList[6]   > ASI.ar-invl.i-no
 "ar-invl.i-no" "FG Item#" ? "character" ? ? ? ? ? ? yes ? no no "20" yes yes no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.ar-invl.part-no
-"ar-invl.part-no" "Cust Part#" ? "character" ? ? ? ? ? ? yes ? no no "20" yes yes no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-invl.part-no" "Cust Part#" ? "character" ? ? ? ? ? ? yes ? no no "40" yes yes no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.ar-invl.ord-no
 "ar-invl.ord-no" ? ">>>>>>>>" "integer" ? ? ? ? ? ? yes ? no no "9" yes yes no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.ar-invl.po-no

@@ -197,7 +197,7 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      cust-part.part-no FORMAT "x(15)":U WIDTH 22
+      cust-part.part-no FORMAT "x(32)":U WIDTH 33
       itemfg.part-dscr1 FORMAT "x(30)":U WIDTH 40
       itemfg.q-onh FORMAT "->>,>>>,>>9.999":U WIDTH 20
       cust-part.cust-no FORMAT "x(8)":U WIDTH 12
@@ -265,7 +265,7 @@ ASI.itemfg.i-no    EQ ASI.cust-part.i-no AND
  ASI.cust-part.cust-no EQ ip-cust-no)"
      _Where[2]         = "ASI.itemfg.stat = ""A"""
      _FldNameList[1]   > ASI.cust-part.part-no
-"cust-part.part-no" ? "x(15)" "character" ? ? ? ? ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-part.part-no" ? "x(32)" "character" ? ? ? ? ? ? no ? no no "33" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.itemfg.part-dscr1
 "itemfg.part-dscr1" ? ? "character" ? ? ? ? ? ? no ? no no "40" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.itemfg.q-onh
