@@ -38,6 +38,8 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {custom/globdefs.i}
 {sys/inc/var.i "new shared"}
+{util/ttPurge.i NEW}
+
 ASSIGN
     cocode = g_company
     locode = g_loc.
