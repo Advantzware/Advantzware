@@ -8132,12 +8132,7 @@ PROCEDURE SubmitPhysicalCountScan:
                 ttPhysicalBrowseInventory.tag             = loadtag.tag-no
                 ttPhysicalBrowseInventory.itemID          = loadtag.i-no
                 ttPhysicalBrowseInventory.itemType        = STRING(loadtag.item-type, 'RM/FG')                            
-                ttPhysicalBrowseInventory.origQuantity    = loadtag.qty
-                ttPhysicalBrowseInventory.origLocationID  = loadtag.loc-bin
-                ttPhysicalBrowseInventory.origWarehouseID = loadtag.loc
-                ttPhysicalBrowseInventory.origLocation    = ttPhysicalBrowseInventory.origWarehouseID +
-                                                            FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) +
-                                                            ttPhysicalBrowseInventory.origLocationID            
+                ttPhysicalBrowseInventory.quantity        = loadtag.qty
                 .
             
             IF NOT iplSetParamLoc THEN
