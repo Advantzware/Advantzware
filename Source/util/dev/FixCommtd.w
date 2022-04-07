@@ -38,8 +38,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF VAR fjob-no AS CHAR FORMAT "x(8)" NO-UNDO.
-DEF VAR tjob-no AS CHAR FORMAT "x(8)" NO-UNDO.
+DEF VAR fjob-no AS CHAR FORMAT "x(12)" NO-UNDO.
+DEF VAR tjob-no AS CHAR FORMAT "x(12)" NO-UNDO.
 
 DEF VAR fjob-no2 AS INT NO-UNDO.
 DEF VAR tjob-no2 AS INT NO-UNDO.

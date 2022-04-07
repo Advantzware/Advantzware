@@ -1201,9 +1201,9 @@ DEF BUFFER b-est FOR est.
 
 def var v-fdate as   date format "99/99/9999" init TODAY NO-UNDO.
 def var v-fjob  like job.job-no NO-UNDO.
-def var v-tjob  like v-fjob                   init "zzzzzz" NO-UNDO.
+def var v-tjob  like v-fjob                   init "zzzzzzzzz" NO-UNDO.
 def var v-fjob2 like job.job-no2 NO-UNDO.
-def var v-tjob2 like v-fjob2                  init 99 NO-UNDO.
+def var v-tjob2 like v-fjob2                  init 999 NO-UNDO.
 def var v-indus as   char format "x" NO-UNDO.
 DEF VAR v-fcust AS   CHAR NO-UNDO.
 DEF VAR v-tcust AS   CHAR NO-UNDO.
@@ -1344,7 +1344,7 @@ SESSION:SET-WAIT-STATE ("general").
       delete tt-report.
     end.
 
-    IF TRIM(SUBSTRING(v-fjob, 1, 9)) GT "" THEN DO:    
+    IF TRIM(SUBSTRING(v-fjob, 1, iJobLen)) GT "" THEN DO:    
 
       for each job
           where job.company eq cocode

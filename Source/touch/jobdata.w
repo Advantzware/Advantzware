@@ -820,7 +820,7 @@ PROCEDURE close-job :
     FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ ip-company
                                  AND sys-ctrl.name    EQ "CLOSEJOB" NO-ERROR.
     IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "TS" THEN 
-       MESSAGE "Do you want to close job " TRIM(ip-job_number) + "-" + ip-job_sub
+       MESSAGE "Do you want to close job " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ip-job_number, ip-job_sub)))
                      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
     IF ll-ans THEN DO:
 
@@ -838,7 +838,7 @@ PROCEDURE close-job :
            {jc/job-clos.i}
            FIND CURRENT reftable NO-LOCK NO-ERROR.
        END.
-       MESSAGE "Job " TRIM(ip-job_number) + "-" + ip-job_sub " is closed." VIEW-AS ALERT-BOX.
+       MESSAGE "Job " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ip-job_number, ip-job_sub))) " is closed." VIEW-AS ALERT-BOX.
        SESSION:SET-WAIT-STATE("").
     END.
     
@@ -2037,8 +2037,7 @@ PROCEDURE pClick :
                  
                   IF AVAIL bf-machtran THEN DO:
                      MESSAGE "Machine " + "is running for a job " +
-                             TRIM(bf-machtran.job_number) +
-                             "-" + TRIM(STRING(bf-machtran.job_sub,"99")) +  
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', bf-machtran.job_number, bf-machtran.job_sub))) +  
                              ".   Must end data collection for the job " +
                              TRIM(bf-machtran.job_number)
                          VIEW-AS ALERT-BOX ERROR.
@@ -2126,8 +2125,7 @@ PROCEDURE pClick :
                    IF NOT v-valid THEN
                    DO:
                       MESSAGE "Machine transaction " + TRIM(bf-machtran.charge_code) +
-                              " exists for Job#: " + TRIM(bf-machtran.job_number) + "-" +
-                              TRIM(STRING(bf-machtran.job_sub,"99")) +
+                              " exists for Job#: " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', bf-machtran.job_number, bf-machtran.job_sub))) +
                               " Form#: " + STRING(bf-machtran.form_number) +
                               " Blank#: " + STRING(bf-machtran.blank_number) +
                               " From " + STRING(bf-machtran.start_date,"99/99/99") + "@" +

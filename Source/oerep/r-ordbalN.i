@@ -43,7 +43,7 @@
             AND tt-fg-bin.i-no      EQ tt-report.key-06
             AND ((tt-fg-bin.job-no  EQ SUBSTR(tt-report.key-04,1,iJobLen) AND
                   tt-fg-bin.job-no2 EQ INT(SUBSTR(tt-report.key-04,(iJobLen + 2),3))) OR
-                 TRIM(SUBSTR(tt-report.key-04,1,9)) EQ ""):
+                 TRIM(SUBSTR(tt-report.key-04,1,iJobLen)) EQ ""):
         tt-report.q-onh = tt-report.q-onh + tt-fg-bin.qty.
       END.
     END.
@@ -341,7 +341,7 @@
           IF v-part THEN
               DISPLAY oe-ordl.part-no @ tt-report.po-no .
 
-          if trim(tt-report.key-04) ne "-00" then
+          if trim(tt-report.key-04) ne "-000" then
             display trim(tt-report.key-04) @ v-ord-no.
 
           if (/*first-of(tt-report.row-id) and*/ v-field1 ne "") then
@@ -355,7 +355,7 @@
               and tt-fg-bin.qty               gt 0
               and ((tt-fg-bin.job-no          eq substr(tt-report.key-04,1,iJobLen) and
                     tt-fg-bin.job-no2         eq int(substr(tt-report.key-04,(iJobLen + 2),3))) or
-                   TRIM(substr(tt-report.key-04,1,9)) eq "")
+                   TRIM(substr(tt-report.key-04,1,iJobLen)) eq "")
             no-lock
             break by tt-fg-bin.job-no
                   by tt-fg-bin.job-no2

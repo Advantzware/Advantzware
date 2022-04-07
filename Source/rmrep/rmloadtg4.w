@@ -2732,11 +2732,11 @@ PROCEDURE temp-job :
 
     IF NOT CAN-FIND(FIRST ttblJob
         WHERE ttblJob.job-no  EQ SUBSTR(ip-job-no,1,iJobLen)
-        AND ttblJob.job-no2 EQ INT(SUBSTR(ip-job-no,10,3))) AND
+        AND ttblJob.job-no2 EQ INT(SUBSTR(ip-job-no,(iJobLen + 1),3))) AND
         CAN-FIND(FIRST job
         WHERE job.company EQ cocode
         AND job.job-no  EQ SUBSTR(ip-job-no,1,iJobLen)
-        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,10,3))
+        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,(iJobLen + 1),3))
         AND (v-stat EQ "A"                      OR
         (v-stat EQ "C" AND NOT job.opened) OR
         (v-stat EQ "O" AND job.opened)))
@@ -2744,8 +2744,8 @@ PROCEDURE temp-job :
     DO:
         CREATE ttblJob.
         ASSIGN
-            ttblJob.job-no  = SUBSTR(ip-job-no,1,9)
-            ttblJob.job-no2 = INT(SUBSTR(ip-job-no,10,3)).
+            ttblJob.job-no  = SUBSTR(ip-job-no,1,iJobLen)
+            ttblJob.job-no2 = INT(SUBSTR(ip-job-no,(iJobLen + 1),3)).
     END.
 
 END PROCEDURE.

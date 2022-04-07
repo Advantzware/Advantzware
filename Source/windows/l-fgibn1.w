@@ -239,7 +239,7 @@ and fg-bin.qty <> 0"
      _FldNameList[1]   > ASI.fg-bin.job-no
 "fg-bin.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" ""
      _FldNameList[2]   > ASI.fg-bin.job-no2
-"fg-bin.job-no2" "" "99" "integer" ? ? ? ? ? ? no ? no no "6" yes no no "U" "" ""
+"fg-bin.job-no2" "" "999" "integer" ? ? ? ? ? ? no ? no no "6" yes no no "U" "" ""
      _FldNameList[3]   > ASI.fg-bin.loc
 "fg-bin.loc" "Whs" ? "character" ? ? ? ? ? ? no ? no no "8" yes no no "U" "" ""
      _FldNameList[4]   > ASI.fg-bin.loc-bin

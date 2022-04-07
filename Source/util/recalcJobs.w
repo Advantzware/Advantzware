@@ -450,7 +450,7 @@ DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
                 IF dQty NE 0 THEN 
                     NEXT.
           
-                STATUS DEFAULT job.job-no + "-" + STRING(job.job-no2, "99").
+                STATUS DEFAULT STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)).
                 FOR EACH job-hdr NO-LOCK
                     WHERE job-hdr.company EQ cocode
                     AND job-hdr.job     EQ job.job

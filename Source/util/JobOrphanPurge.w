@@ -255,8 +255,7 @@ DO:
                 BY job.company BY job.job-no BY job.job-no2:
                 slJobList:ADD-LAST(
                         STRING(job.company,"x(4)") + "   " +
-                        STRING(job.job-no,"x(7)") + "-" +
-                        STRING(job.job-no2,"99") + "   " +
+                        STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)) + "   " +
                         STRING(job.create-date,"99/99/99")
                         ).
             END. 

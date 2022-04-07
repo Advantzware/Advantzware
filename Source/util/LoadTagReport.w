@@ -800,7 +800,7 @@ PROCEDURE run-report :
             dOrderQtyUnit = oe-ordl.cas-cnt.
             iOrderPartial = (IF AVAILABLE oe-ordl THEN oe-ordl.partial ELSE 0).
             iOrderCasesUnit  = (IF AVAILABLE oe-ordl THEN oe-ordl.cases-unit ELSE 0).
-            cJobNo = loadtag.job-no + "-" + string(loadtag.job-no,"99") .
+            cJobNo = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', loadtag.job-no, loadtag.job-no))) .
             IF cJobNo EQ "-" THEN cJobNo = "" .
             DISPLAY
                 cEstNo 

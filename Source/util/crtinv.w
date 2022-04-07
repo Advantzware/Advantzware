@@ -206,8 +206,8 @@ DEFINE BROWSE BROWSE-2
       oe-boll.tag COLUMN-LABEL "Tag#" FORMAT "x(15)":U WIDTH 20
       oe-boll.loc FORMAT "x(5)":U
       oe-boll.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 18
-      oe-boll.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U
-      oe-boll.job-no2 COLUMN-LABEL "" FORMAT "99":U WIDTH 5
+      oe-boll.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 15
+      oe-boll.job-no2 COLUMN-LABEL "" FORMAT "999":U WIDTH 5.4
       oe-boll.qty COLUMN-LABEL "Qty Shipped" FORMAT "->>,>>>,>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -339,9 +339,9 @@ THEN C-Win:HIDDEN = no.
      _FldNameList[6]   > asi.oe-boll.loc-bin
 "oe-boll.loc-bin" "Bin" ? "character" ? ? ? ? ? ? no "" no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.oe-boll.job-no
-"oe-boll.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-boll.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.oe-boll.job-no2
-"oe-boll.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-boll.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "5.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.oe-boll.qty
 "oe-boll.qty" "Qty Shipped" ? "integer" ? ? ? ? ? ? no "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
