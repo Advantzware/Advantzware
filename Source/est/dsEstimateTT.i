@@ -43,7 +43,11 @@ DEFINE TEMP-TABLE ttEstCostItem NO-UNDO
 
 DEFINE TEMP-TABLE ttEstCostBlank NO-UNDO
     LIKE estCostBlank
-    .     
+    .  
+    
+DEFINE TEMP-TABLE ttEstCostHeader NO-UNDO
+    LIKE estCostHeader
+    .    
      
          
 /* ********************  Preprocessor Definitions  ******************** */

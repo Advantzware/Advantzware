@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstCostHeaderToCalc. 
 DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstCostMaterial.
+DEFINE INPUT PARAMETER TABLE FOR ttEstCostHeader.
 /* Local Variable Definitions ---                                       */
 
 /* _UIB-CODE-BLOCK-END */
@@ -58,23 +59,23 @@ DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstCostMaterial.
 &Scoped-define BROWSE-NAME brEstCostMaterial
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttEstCostHeaderToCalc estCostHeader ~
+&Scoped-define INTERNAL-TABLES ttEstCostHeaderToCalc ttEstCostHeader ~
 ttEstCostMaterial
 
 /* Definitions for BROWSE brEstCostMaterial                             */
-&Scoped-define FIELDS-IN-QUERY-brEstCostMaterial estCostHeader.quantityMaster ttEstCostMaterial.formNo ttEstCostMaterial.blankNo ttEstCostMaterial.itemID ttEstCostMaterial.vendorID ttEstCostMaterial.quantityRequiredTotal ttEstCostMaterial.quantityUOM ttEstCostMaterial.costPerUOM ttEstCostMaterial.costUOM ttEstCostMaterial.costSetup ttEstCostMaterial.costTotal   
+&Scoped-define FIELDS-IN-QUERY-brEstCostMaterial ttEstCostHeader.quantityMaster ttEstCostMaterial.formNo ttEstCostMaterial.blankNo ttEstCostMaterial.itemID ttEstCostMaterial.vendorID ttEstCostMaterial.quantityRequiredTotal ttEstCostMaterial.quantityUOM ttEstCostMaterial.costPerUOM ttEstCostMaterial.costUOM ttEstCostMaterial.costSetup ttEstCostMaterial.costTotal   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brEstCostMaterial   
 &Scoped-define SELF-NAME brEstCostMaterial
 &Scoped-define QUERY-STRING-brEstCostMaterial FOR EACH ttEstCostHeaderToCalc, ~
-           FIRST estCostHeader NO-LOCK     WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID, ~
-           EACH ttEstCostMaterial NO-LOCK     WHERE ttEstCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID     AND ttEstCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}
+           FIRST ttEstCostHeader NO-LOCK     WHERE ttEstCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID, ~
+           EACH ttEstCostMaterial NO-LOCK     WHERE ttEstCostMaterial.estCostHeaderID EQ ttEstCostHeader.estCostHeaderID     AND ttEstCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-brEstCostMaterial OPEN QUERY {&SELF-NAME} FOR EACH ttEstCostHeaderToCalc, ~
-           FIRST estCostHeader NO-LOCK     WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID, ~
-           EACH ttEstCostMaterial NO-LOCK     WHERE ttEstCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID     AND ttEstCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
+           FIRST ttEstCostHeader NO-LOCK     WHERE ttEstCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID, ~
+           EACH ttEstCostMaterial NO-LOCK     WHERE ttEstCostMaterial.estCostHeaderID EQ ttEstCostHeader.estCostHeaderID     AND ttEstCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-brEstCostMaterial ttEstCostHeaderToCalc ~
-estCostHeader ttEstCostMaterial
+ttEstCostHeader ttEstCostMaterial
 &Scoped-define FIRST-TABLE-IN-QUERY-brEstCostMaterial ttEstCostHeaderToCalc
-&Scoped-define SECOND-TABLE-IN-QUERY-brEstCostMaterial estCostHeader
+&Scoped-define SECOND-TABLE-IN-QUERY-brEstCostMaterial ttEstCostHeader
 &Scoped-define THIRD-TABLE-IN-QUERY-brEstCostMaterial ttEstCostMaterial
 
 
@@ -128,7 +129,7 @@ DEFINE RECTANGLE RECT-13
 &ANALYZE-SUSPEND
 DEFINE QUERY brEstCostMaterial FOR 
       ttEstCostHeaderToCalc, 
-      estCostHeader, 
+      ttEstCostHeader, 
       ttEstCostMaterial SCROLLING.
 &ANALYZE-RESUME
 
@@ -136,7 +137,7 @@ DEFINE QUERY brEstCostMaterial FOR
 DEFINE BROWSE brEstCostMaterial
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS brEstCostMaterial C-Win _FREEFORM
   QUERY brEstCostMaterial NO-LOCK DISPLAY
-      estCostHeader.quantityMaster              COLUMN-LABEL "Master Qty"
+      ttEstCostHeader.quantityMaster              COLUMN-LABEL "Master Qty"
             LABEL-BGCOLOR 14    FORMAT '>,>>>,>>9'
       ttEstCostMaterial.formNo                    COLUMN-LABEL "Form"       
             LABEL-BGCOLOR 14    FORMAT '>9'
@@ -253,10 +254,10 @@ THEN C-Win:HIDDEN = no.
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME}
 FOR EACH ttEstCostHeaderToCalc,
-    FIRST estCostHeader NO-LOCK
-    WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID,
+    FIRST ttEstCostHeader NO-LOCK
+    WHERE ttEstCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID,
     EACH ttEstCostMaterial NO-LOCK
-    WHERE ttEstCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID
+    WHERE ttEstCostMaterial.estCostHeaderID EQ ttEstCostHeader.estCostHeaderID
     AND ttEstCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION"
@@ -437,10 +438,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RUN enable_UI.
     FOR FIRST ttEstCostHeaderToCalc,
-        FIRST estCostHeader NO-LOCK 
-            WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID:
+        FIRST ttEstCostHeader NO-LOCK 
+            WHERE ttEstCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID:
         ASSIGN
-            fiEstimateNo:SCREEN-VALUE = estCostHeader.estimateNo
+            fiEstimateNo:SCREEN-VALUE = ttEstCostHeader.estimateNo
             .
 
     END.
@@ -449,7 +450,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 END.
 
 &Scoped-define sdBrowseName brEstCostMaterial
-{methods/sortByProc.i "pByQtyMaster" "estCostHeader.quantityMaster"}
+{methods/sortByProc.i "pByQtyMaster" "ttEstCostHeader.quantityMaster"}
 {methods/sortByProc.i "pByFormNo" "ttEstCostMaterial.formNo"}
 {methods/sortByProc.i "pByBlankNo" "ttEstCostMaterial.blankNo"}
 {methods/sortByProc.i "pByItemID" "ttEstCostMaterial.itemID"}
