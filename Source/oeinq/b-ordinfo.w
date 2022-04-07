@@ -382,7 +382,7 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _FREEFORM
   QUERY BROWSE-1 DISPLAY
-      oe-ordl.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      oe-ordl.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
     oe-ordl.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
     LABEL-BGCOLOR 14
     oe-ord.cust-name FORMAT "x(30)":U LABEL-BGCOLOR 14
@@ -405,9 +405,9 @@ DEFINE BROWSE BROWSE-1
     WIDTH 21 LABEL-BGCOLOR 14
     oe-ordl.est-no COLUMN-LABEL "Est #" FORMAT "x(8)":U WIDTH 13.8
     LABEL-BGCOLOR 14
-    oe-ordl.job-no COLUMN-LABEL "Job #" FORMAT "x(6)":U WIDTH 12
+    oe-ordl.job-no COLUMN-LABEL "Job #" FORMAT "x(9)":U WIDTH 12
     LABEL-BGCOLOR 14
-    oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">9":U 
+    oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">>9":U 
     oe-ord.ord-date COLUMN-LABEL "Order Date" FORMAT "99/99/9999":U
     LABEL-BGCOLOR 14
     oe-ord.stat COLUMN-LABEL "Status" FORMAT "x":U LABEL-BGCOLOR 14

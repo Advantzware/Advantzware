@@ -314,8 +314,8 @@ DEFINE BROWSE Browser-Table
       oe-ordl.po-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.req-date COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
-      oe-ordl.job-no FORMAT "x(6)":U LABEL-BGCOLOR 14
-      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      oe-ordl.job-no FORMAT "x(9)":U LABEL-BGCOLOR 14 WIDTH 15
+      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">>9":U  WIDTH 6
       oe-ordl.vend-no FORMAT "x(8)":U LABEL-BGCOLOR 14
       oe-ordl.disc FORMAT "(>>>,>>9.99)":U LABEL-BGCOLOR 14
       get-extended-price() @ ld-ext-price COLUMN-LABEL "Total Price" FORMAT "->>,>>>,>>9.99":U
@@ -457,9 +457,9 @@ ASI.oe-ordl.line LT 99999999"
      _FldNameList[12]   > ASI.oe-ordl.req-date
 "oe-ordl.req-date" "Due Date" ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.oe-ordl.job-no
-"oe-ordl.job-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.job-no" ? ? "character" ? ? ? 14 ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.oe-ordl.job-no2
-"oe-ordl.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.oe-ordl.vend-no
 "oe-ordl.vend-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.oe-ordl.disc

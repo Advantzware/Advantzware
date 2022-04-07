@@ -20,6 +20,8 @@ ASSIGN
   gcompany  = ip-co-code
   g_company = ip-co-code
   .
+
+IF g_company NE "" THEN
 RUN spSetSessionParam ("Company", g_company).
 
 /*add new NK1 to v-std-list first, then add it to the "When" clause below */
@@ -50,7 +52,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,POPriceHold,SearchLimits,SSIssueDefaultRM,PlateFile,APInvoiceLength,DeleteBinsAllowed,InvoiceApprovalOrderlineChange,QuotePriceMatrix,"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,CEVendorDefault"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,PriceMatrixPricingMethod,CaseLabel,InterCompanyBilling,"
-           + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST,CENewLayoutCalc,OEUseMatrixForNonstock"
+           + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST,CENewLayoutCalc,OEUseMatrixForNonstock,CEOpStandards,CEShipWeight,JobNoLength"
            .
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -1683,6 +1685,39 @@ CASE ip-nk1-value:
         INPUT NO,                                   /* Logical value */ 
         INPUT 0                                     /* Dec value*/
         ).    
+    WHEN "CEOpStandards" THEN     
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Calc source for Machine Standards",     /* Description */
+            INPUT "Estimate",                     /* Char Value */
+            INPUT 0,                              /* Int value */
+            INPUT NO,                             /* Logical value */ 
+            INPUT 0                               /* Dec value*/
+            ).  
+    WHEN "CEShipWeight" THEN     
+    RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Ship Weight Calculation - Net or Gross (include Tare)",     /* Description */
+            INPUT "Net",                             /* Char Value */
+            INPUT 0,                              /* Int value */
+            INPUT NO,                             /* Logical value */ 
+            INPUT 0                               /* Dec value*/
+            ).                        
+    WHEN "JobNoLength" THEN     
+    RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Length of JobNo in Database (6 or 9)",     /* Description */
+            INPUT "",                             /* Char Value */
+            INPUT 6,                              /* Int value */
+            INPUT NO,                             /* Logical value */ 
+            INPUT 0                               /* Dec value*/
+            ).                        
 END CASE.
 ELSE
 CASE ip-nk1-value:

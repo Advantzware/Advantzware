@@ -875,7 +875,7 @@ PROCEDURE valid-job-no :
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      lv-job-no = TRIM(tt-mat-tran.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
-     lv-job-no = FILL(" ",6 - LENGTH(lv-job-no)) + lv-job-no
+     lv-job-no = FILL(" ", iJobLen - LENGTH(lv-job-no)) + lv-job-no
      tt-mat-tran.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = lv-job-no.
 
     FIND FIRST job-hdr 

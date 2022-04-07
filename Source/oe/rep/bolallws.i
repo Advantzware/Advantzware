@@ -1,5 +1,6 @@
 /* ------------------------------------------- oe/rep/bolallws.i GDM 04200904*/
 /* BOL PRINT for N-K-1-BOLFMT = Allwest                                      */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.             */
 /* ------------------------------------------------------------------------- */
 
 assign
@@ -84,8 +85,7 @@ for each report where report.term-id eq v-term-id,
 
   v-job-no = "".
   if avail oe-ordl and oe-ordl.job-no ne "" then
-     v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-                trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
+     v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
   ASSIGN v-ship-qty = v-ship-qty + oe-boll.qty
          v-weight   = v-weight + oe-boll.weight
@@ -98,12 +98,14 @@ for each report where report.term-id eq v-term-id,
          i = i + 1.
          IF i eq 1 THEN ASSIGN v-part-dscr = oe-ordl.part-no
                                v-job-po    = oe-boll.po-no
-                               v-job-var   = if oe-boll.job-no eq "" then "" else
-                                             (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99")). 
+                               v-job-var   = if oe-boll.job-no eq "" then ""
+                               ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
+                                              
          ELSE
          if i eq 2 THEN ASSIGN v-part-dscr = oe-ordl.part-dscr1
-                               v-job-var   = if oe-boll.job-no eq "" then "" else
-                                             (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99")).
+                               v-job-var   = if oe-boll.job-no eq "" then ""
+                               ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
+                                             
          ELSE
          if i eq 3 then ASSIGN v-part-dscr = oe-ordl.part-dscr1
                                v-job-var = "".
@@ -218,8 +220,8 @@ for each report where report.term-id eq v-term-id,
           oe-boll.cases FORM "->>,>>>" AT 71 "@"
           oe-boll.qty-case FORM "->>>>>Z" SKIP
           oe-ordl.ord-no
-          (if oe-boll.job-no eq "" then "" else
-           (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99")))  AT 17 FORM "x(15)"
+          (if oe-boll.job-no eq "" then "" ELSE
+          TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2)))) AT 17 FORM "x(15)"
           oe-ordl.part-dscr1 AT 33 FORM "x(25)"
           v-1    FORM "->>,>>9"  when oe-boll.partial gt 0 AT 71 "@"
           oe-boll.partial   when oe-boll.partial gt 0 FORM "->>>>>z"  SKIP

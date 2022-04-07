@@ -5,6 +5,7 @@ DEFINE INPUT PARAMETER ipcBeginRelDate AS DATE NO-UNDO.
 DEFINE INPUT PARAMETER ipcEndRelDate AS DATE NO-UNDO.
 DEFINE INPUT PARAMETER ipcBeginFGItem AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcEndFGItem AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER iplZeroOrderLine AS LOGICAL NO-UNDO.
 DEFINE INPUT PARAMETER ipExecute AS LOGICAL NO-UNDO.
 DEFINE INPUT PARAMETER ipFilePath AS CHARACTER NO-UNDO.
 
@@ -46,6 +47,19 @@ DEFINE VARIABLE dNewPriceInv AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cNewPriceUOMInv AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dOldPrice    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dOldPriceTot AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lPriceHold   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cPriceHoldMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL   NO-UNDO.
+
+
+RUN sys/ref/nk1look.p (INPUT ipcCompany, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cReturnValue, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = LOGICAL(cReturnValue) NO-ERROR. 
+    
 
 MAIN-LOOP:
 FOR EACH oe-ordl NO-LOCK
@@ -101,7 +115,7 @@ FOR EACH oe-ordl NO-LOCK
         dOldPriceTot = oe-ordl.t-price.
     
     RUN Price_CalculateLinePrice IN hdPrice (ROWID(oe-ordl),oe-ordl.i-no,oe-ordl.cust-no,oe-ordl.ship-id,0,ipExecute,OUTPUT lFound, INPUT-OUTPUT dNewPrice, INPUT-OUTPUT cNewPriceUOM).
-
+    
     FIND FIRST inv-line NO-LOCK 
          WHERE inv-line.company EQ oe-ordl.company
          AND inv-line.ord-no EQ oe-ordl.ord-no
@@ -110,10 +124,14 @@ FOR EACH oe-ordl NO-LOCK
          
     IF AVAILABLE inv-line AND ipExecute THEN     
     RUN Price_CalculateLinePrice IN hdPrice (ROWID(inv-line),oe-ordl.i-no,oe-ordl.cust-no,oe-ordl.ship-id,0,ipExecute,OUTPUT lFoundInv, INPUT-OUTPUT dNewPriceInv, INPUT-OUTPUT cNewPriceUOMInv).
+       
+    IF iplZeroOrderLine AND NOT lFound THEN
+       dNewPrice = 0.
+    ELSE IF NOT lFound THEN 
+    dNewPrice = oe-ordl.price.
     
     dPriceChange = (dNewPrice / dOldPrice - 1 ) * 100.
-    IF lFound 
-        AND (dOldPrice NE dNewPrice OR NOT ipExecute)         
+    IF (dOldPrice NE dNewPrice OR NOT ipExecute) OR ( iplZeroOrderLine AND NOT lFound ) OR (NOT lFound AND lQuotePriceMatrix)         
         THEN 
     DO:
         j = j + 1.
@@ -147,6 +165,34 @@ FOR EACH oe-ordl NO-LOCK
             oe-ordl.cas-cnt,
             OUTPUT ttOrderLineChange.totalPriceNew).
 
+    END.
+    IF NOT lFound AND ipExecute THEN
+    DO:
+        IF iplZeroOrderLine THEN do:
+            FIND CURRENT oe-ordl EXCLUSIVE-LOCK NO-ERROR.
+            oe-ordl.price = 0.
+            oe-ordl.t-price = 0.
+            FIND CURRENT oe-ordl NO-LOCK NO-ERROR.
+            IF AVAILABLE ttOrderLineChange THEN
+            ttOrderLineChange.note = ttOrderLineChange.note + ", Price Set to zero" .
+        END.
+        
+        IF lQuotePriceMatrix OR iplZeroOrderLine THEN do: 
+            IF NOT oe-ord.priceHold THEN
+            DO:
+                FIND CURRENT oe-ord EXCLUSIVE-LOCK NO-ERROR.
+                 ASSIGN
+                     oe-ord.priceHold = YES
+                     oe-ord.priceHoldReason = "No matrix found".
+                FIND CURRENT oe-ord NO-LOCK NO-ERROR.
+                IF AVAILABLE ttOrderLineChange THEN
+                 ttOrderLineChange.note = ttOrderLineChange.note + ", Order put on Price Hold".
+            END.  
+            ELSE DO:
+                IF AVAILABLE ttOrderLineChange THEN
+                    ttOrderLineChange.note = ttOrderLineChange.note + ", Order already on Price Hold".
+            END.
+        END.    
     END.
 END.
 RUN Output_TempTableToCSV IN hdOutput (TEMP-TABLE ttOrderLineChange:HANDLE, ipFilePath ,YES,YES, OUTPUT lError, OUTPUT cMessage).

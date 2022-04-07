@@ -1,6 +1,7 @@
 /* ---------------------------------------------- oe/rep/bolcpbc2.i YSK     */
-/* PRINT Consolidated Box                                                  */
-/* -------------------------------------------------------------------------- */
+/* PRINT Consolidated Box                                                   */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.            */
+/* ------------------------------------------------------------------------ */
 assign
  v-tot-cases = 0
  v-tot-palls = 0.
@@ -56,13 +57,11 @@ FOR EACH tt-boll,
          lv-qcase-tot = lv-qcase-tot + tt-boll.qty-case
          lv-partial-tot = lv-partial-tot + tt-boll.partial
          lv-pal-tot = lv-pal-tot + tt-boll2.pallets
-         v-job-no = fill(" ",6 - length(trim(tt-boll.job-no))) +
-                    trim(tt-boll.job-no) + "-" +
-                    trim(string(tt-boll.job-no2,"99"))
+         v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-boll.job-no, tt-boll.job-no2)))
          tt-boll.printed = yes.
          lv-cases = lv-cases-tot.
 
-  IF trim(v-job-no) = "-00" THEN v-job-no = "".
+  IF trim(v-job-no) = "-000" THEN v-job-no = "".
 
   IF lv-bolfmt-int = 1 THEN DO:  /* show summary per item */
      IF LAST-OF(tt-boll.ord-no) THEN DO:
@@ -89,7 +88,7 @@ FOR EACH tt-boll,
              IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
                 PUT {1}
                     oe-ordl.i-no SPACE(1)
-                    oe-ordl.ord-no /*FORM "x(15)"*/ SPACE(9)
+                    STRING(oe-ordl.ord-no) FORM "x(8)" SPACE(7)
                     oe-ordl.i-name  FORM "x(25)" SPACE(1)
                     lv-pal-tot SPACE(1)
                     w2.cases    FORM "->>>9" " @ " 
@@ -162,7 +161,7 @@ ELSE DO:
    lv-qty-sum2 = lv-qty-sum2 + lv-qty-tot.
    DISPLAY  {1}
       oe-ordl.i-no WHEN AVAIL oe-ordl
-      oe-ordl.ord-no /*FORM "x(15)"*/ SPACE(9)
+      STRING(oe-ordl.ord-no) FORM "x(8)" SPACE(7)
       oe-ordl.i-name  FORM "x(25)" 
       lv-pal-tot 
       lv-cases-tot FORM ">>>>" "@" 

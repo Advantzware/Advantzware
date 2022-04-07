@@ -33,4 +33,5 @@ DEFINE {1} TEMP-TABLE ttSetting NO-UNDO
     .
 DEFINE TEMP-TABLE ttSettingUsage NO-UNDO LIKE ttSetting
     FIELD stackTrace AS CHARACTER
+    INDEX settingName settingTypeID settingName scopeTable scopeField1 scopeField2 scopeField3
     .

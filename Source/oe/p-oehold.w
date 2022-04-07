@@ -35,13 +35,14 @@ CREATE WIDGET-POOL.
 
 DEFINE VARIABLE hViewer  AS HANDLE NO-UNDO.
 DEFINE VARIABLE char-hdl AS CHAR NO-UNDO.
+DEFINE NEW SHARED VARIABLE fil_id              AS RECID     NO-UNDO.
 /* DEFINE VARIABLE char-val AS CHAR NO-UNDO INIT "".  */
 /*                                                    */
 /* DEFINE BUFFER b-oe-ord FOR oe-ord.                 */
 /* DEFINE BUFFER b-oe-ordl FOR oe-ordl.               */
 
 {oe/ordholdstat.i}
-
+{sys/inc/var.i new shared}
 {methods/prgsecdt.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -313,6 +314,7 @@ PROCEDURE enable-all :
 
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE ALL.
+    IF NOT v-can-update THEN ASSIGN btnHold:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
   END.
 
 END PROCEDURE.
@@ -358,8 +360,23 @@ PROCEDURE Process-Hold-Status :
    /* Get the order number from the viewer. */
    RUN Get-current-order IN hViewer (OUTPUT viCompany, OUTPUT viOrdNum) NO-ERROR.
 
-   RUN os-Process-Hold-Status (INPUT viCompany, INPUT viOrdNum).
+    RUN os-Process-Hold-Status (INPUT viCompany, INPUT viOrdNum).
 
+    IF btnHold:label IN FRAME F-Main = "Re&lease" THEN
+    DO:        
+        ASSIGN 
+            cocode = viCompany.
+        
+        FOR EACH oe-ordl NO-LOCK
+            WHERE oe-ordl.company EQ viCompany
+            AND oe-ordl.ord-no    EQ viOrdNum:
+                
+            fil_id = RECID(oe-ordl).
+                
+            RUN po/doPo.p (YES).                
+        END.
+    END.
+    
    /* Refresh the viewer to get updated information. */
      IF VALID-HANDLE(hViewer) THEN
       RUN dispatch IN hViewer  ('row-available':U).
@@ -396,15 +413,18 @@ PROCEDURE local-row-available :
       btnHold:LABEL = IF oe-ord.stat EQ "H" THEN "Re&lease" ELSE "&Hold".  
   END.
   {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
-  
-   IF cScreenType EQ "OW" OR cScreenType EQ "OQ1" OR cScreenType EQ "OU6" OR cScreenType EQ "OC" OR NOT AVAILABLE oe-ord THEN 
-        btnHold:SENSITIVE = NO.
-   ELSE IF cScreenType EQ "OU1" AND AVAILABLE oe-ord THEN DO:
-       IF oe-ord.stat EQ "C" THEN 
-           btnHold:SENSITIVE = NO.
-       ELSE 
-           btnHold:SENSITIVE = YES.                
-   END.                       
+   IF v-can-update THEN 
+   DO:
+       IF cScreenType EQ "OW" OR cScreenType EQ "OQ1" OR cScreenType EQ "OU6" OR cScreenType EQ "OC" OR NOT AVAILABLE oe-ord THEN 
+            btnHold:SENSITIVE = NO.
+       ELSE IF cScreenType EQ "OU1" AND AVAILABLE oe-ord THEN DO:
+           IF oe-ord.stat EQ "C" THEN 
+               btnHold:SENSITIVE = NO.
+           ELSE 
+               btnHold:SENSITIVE = YES.                
+       END. 
+   END.   
+             
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

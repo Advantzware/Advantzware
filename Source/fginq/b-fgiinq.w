@@ -31,6 +31,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -85,7 +86,7 @@ ll-sort-asc = NOT oeinq.
           AND (fg-rcpth.i-no EQ fi_i-no OR fi_i-no EQ "") ~
           AND fg-rcpth.rita-code  BEGINS fi_rita-code ~
           AND (fg-rcpth.po-no     EQ TRIM(STRING(fi_po-no,">>>>>>>>")) OR fi_po-no EQ 0) ~
-          AND (fg-rcpth.job-no EQ fi_job-no OR fi_job-no EQ "")  ~
+          AND (FILL(" ", iJobLen - length(TRIM(fg-rcpth.job-no))) + trim(fg-rcpth.job-no) EQ fi_job-no OR fi_job-no EQ "")  ~
           AND (fg-rcpth.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                           ~
@@ -102,7 +103,7 @@ ll-sort-asc = NOT oeinq.
     IF lv-sort-by EQ "tag"        THEN fg-rdtlh.tag                                                   ELSE ~
     IF lv-sort-by EQ "qty"        THEN STRING(fg-rdtlh.qty,"9999999999")                              ELSE ~
     IF lv-sort-by EQ "cost"       THEN STRING(fg-rdtlh.cost,"9999999999.99999")                       ELSE ~
-    IF lv-sort-by EQ "job-no"     THEN STRING(fg-rcpth.job-no,"x(6)") + STRING(fg-rcpth.job-no2,"99") ELSE ~
+    IF lv-sort-by EQ "job-no"     THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', fg-rcpth.job-no, fg-rcpth.job-no2)) ELSE ~
     IF lv-sort-by EQ "po-no"      THEN STRING(INT(fg-rcpth.po-no),"9999999999")                       ELSE ~
                                        STRING(INT(fg-rcpth.trans-date),"9999999999") + fg-rdtlh.rec_key + STRING(fg-rcpth.r-no,"9999999999")
 
@@ -221,16 +222,16 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 39 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1
+     SIZE 15 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1
+     SIZE 5.8 BY 1
      BGCOLOR 15  NO-UNDO.
 
 /*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
@@ -305,8 +306,8 @@ DEFINE BROWSE Browser-Table
             COLUMN-FONT 2 LABEL-BGCOLOR 14
       fg-rcpth.po-no COLUMN-LABEL "Vendor PO#" FORMAT "x(9)":U
             LABEL-BGCOLOR 14
-      fg-rcpth.job-no FORMAT "x(6)":U COLUMN-FONT 2 LABEL-BGCOLOR 14
-      fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
+      fg-rcpth.job-no FORMAT "x(9)":U COLUMN-FONT 2 LABEL-BGCOLOR 14
+      fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">>9":U LABEL-BGCOLOR 14
       fg-rcpth.trans-date COLUMN-LABEL "TR Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
       fg-rcpth.rita-code COLUMN-LABEL "TR Code" FORMAT "x(1)":U
@@ -706,9 +707,9 @@ DO:
 
   IF fi_job-no <> "" THEN DO:
      IF fi_job-no NE "" THEN 
-        fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
+        fi_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fi_job-no)).
      FOR EACH job-hdr WHERE job-hdr.company = cocode 
-                        AND job-hdr.job-no = fi_job-no
+                        AND TRIM(job-hdr.job-no) = TRIM(fi_job-no)
                         AND job-hdr.job-no2 = fi_job-no2 NO-LOCK: 
          lv-item-list = lv-item-list + job-hdr.i-no + ",".
      END.
@@ -1232,12 +1233,12 @@ IF ou-log THEN
         END.
       END.
       ELSE IF i EQ 2  THEN DO:
-          IF fi_job-no NE "" AND length(fi_job-no) < 6 THEN 
-          fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
+          IF fi_job-no NE "" AND length(fi_job-no) < 9 THEN 
+          fi_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fi_job-no)).
 
           FIND FIRST job-hdr no-lock
               WHERE job-hdr.company = cocode
-              AND job-hdr.job-no =  fi_job-no
+              AND TRIM(job-hdr.job-no) = TRIM(fi_job-no)
               AND job-hdr.job-no  NE "" 
               AND job-hdr.job-no2 = fi_job-no2 NO-ERROR.
           
@@ -1304,15 +1305,15 @@ DEF INPUT PARAM ip-what AS INT NO-UNDO.
 DEF VAR lv-i-no AS cha NO-UNDO.
 DEF VAR lv-cnt AS INT NO-UNDO.
 
-IF fi_job-no NE "" AND length(fi_job-no) < 6 THEN 
-        fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
+IF fi_job-no NE "" AND length(fi_job-no) < 9 THEN 
+        fi_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fi_job-no)) .
 
 IF ip-what = 1 THEN DO:
    ASSIGN lv-cnt = 0
           lv-i-no = "".
 
    FOR EACH job-hdr WHERE job-hdr.company = g_company
-                      AND job-hdr.job-no = fi_job-no
+                      AND trim(job-hdr.job-no) = trim(fi_job-no)
                       AND job-hdr.job-no2 = fi_job-no2 NO-LOCK:
        lv-cnt = lv-cnt + 1.
        lv-i-no = job-hdr.i-no.
@@ -1330,7 +1331,7 @@ ELSE IF ip-what = 2 THEN DO:
           lv-i-no = "".
 
    FOR EACH job-hdr WHERE job-hdr.company = g_company
-                      AND job-hdr.job-no = fi_job-no 
+                      AND trim(job-hdr.job-no) = trim(fi_job-no)
                       AND job-hdr.job-no2 = fi_job-no2 NO-LOCK:
        lv-cnt = lv-cnt + 1.
        lv-i-no = job-hdr.i-no.
@@ -1362,7 +1363,7 @@ FUNCTION get-pallet-info RETURNS INTEGER
 find first fg-bin
     where fg-bin.company eq cocode
       and fg-bin.i-no    eq fg-rcpth.i-no
-      and fg-bin.job-no  eq fg-rcpth.job-no
+      and TRIM(fg-bin.job-no) eq TRIM(fg-rcpth.job-no)
       and fg-bin.job-no2 eq fg-rcpth.job-no2
       and fg-bin.loc     eq fg-rdtlh.loc
       and fg-bin.loc-bin eq fg-rdtlh.loc-bin

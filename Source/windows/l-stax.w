@@ -33,6 +33,7 @@
 def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 def var lv-first-time as log init yes no-undo.
 &scoped-define fld-name-1 stax.tax-code1[1]
@@ -165,7 +166,7 @@ DEFINE FRAME Dialog-Frame
      SPACE(0.59) SKIP(1.51)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Tax Code Information".
+         TITLE "Tax Group Information".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -221,7 +222,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Tax Code Information */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Tax Group Information */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.

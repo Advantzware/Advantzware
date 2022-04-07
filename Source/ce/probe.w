@@ -159,6 +159,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 DEFINE VARIABLE glEstimateCalcNew AS LOGICAL NO-UNDO.
 DEFINE VARIABLE glEstimateCalcNewPrompt AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAutoUpdate AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
 DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
 
@@ -661,7 +662,6 @@ DO:
    /*{src/adm/template/brsleave.i} */
      {est/brsleave.i}   /* same but update will be like add */
      
-     if keyfunction(lastkey) = "return" then reposition {&browse-name} forward 0.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -854,6 +854,25 @@ END.
 ON VALUE-CHANGED OF probe.sell-price IN BROWSE br_table /* Selling!Price */
 DO:
   RUN new-sell-price.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL probe.do-quote br_table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF probe.do-quote IN BROWSE br_table /*  */
+DO:
+  DEFINE BUFFER bf-probe FOR probe.
+  lAutoUpdate = NO. 
+  FIND LAST bf-probe NO-LOCK
+       WHERE bf-probe.company EQ eb.company 
+         AND bf-probe.est-no EQ eb.est-no 
+         AND bf-probe.probe-date ne ? NO-ERROR.
+  IF AVAIL bf-probe AND ROWID(bf-probe) NE ROWID(probe) THEN 
+  do:        
+      IF KEYFUNCTION(LASTKEY) EQ "TAB" THEN
+      lAutoUpdate = YES.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2700,6 +2719,8 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
   DEF VAR ld-price LIKE probe.sell-price NO-UNDO.
+   DEFINE VARIABLE phandle AS WIDGET-HANDLE NO-UNDO.
+   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.   
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -2754,13 +2775,17 @@ PROCEDURE local-update-record :
 
   IF probe.spare-char-2 NE "" THEN
     RUN pCalculatePricing(BUFFER probe). 
-  
-  DO WITH FRAME {&FRAME-NAME}:
-    DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
-      APPLY "cursor-left" TO {&BROWSE-NAME}.
-    END.
-  END.
 
+   IF LAST-EVENT:LABEL EQ "Choose" THEN RETURN.  
+    QUERY br_table:GET-NEXT().
+    IF QUERY br_table:QUERY-OFF-END THEN RUN dispatch ('cancel-record':U).
+    ELSE DO:
+        RUN get-link-handle IN adm-broker-hdl
+            (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+        phandle = WIDGET-HANDLE(char-hdl).
+        RUN new-state IN phandle ('update-begin':U).
+    END. 
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

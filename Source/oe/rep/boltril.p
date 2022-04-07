@@ -1,7 +1,7 @@
 /* ----------------------------------------------- oe/rep/boltril.p  11/98 FWK */
 /* PRINT TriLakes BOL                                                          */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
 
@@ -51,7 +51,7 @@ FORM
   space(1) tt-oe-boll.qty  format ">>>>>>>>>"
   space(0) tt-oe-boll.cases format ">>>>"
   space(0) tt-oe-boll.qty-case format ">>>>>>"
-  space(2) tt-oe-boll.po-no format "x(36)"
+  space(2) tt-oe-boll.po-no format "x(34)"
   space(2) tt-oe-boll.ord-no
   space(2) tt-oe-boll.p-c
   space(1) tt-oe-boll.weight format ">>>>>>9" skip
@@ -210,8 +210,8 @@ do:     /* production mode */
                  "P.O. No. / Item / Description  "
                  "Order# P/C  Wt." skip
                  "--------- ---------- -- ------"
-                 "-------------------------------------"
-                 "------ --- -------" skip
+                 "-----------------------------------"
+                 "-------- --- -------" skip
               with frame hd-top-comp no-box no-labels page-top stream-io width 90.
           VIEW frame hd-top-comp.
         end.

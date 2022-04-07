@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolempir.i 12/99 FWK */
 /* PRINT Empire BOL                                                           */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 DEF BUFFER bf-oe-ord FOR  oe-ord.
 DEF BUFFER bf-oe-ordl FOR  oe-ordl.
@@ -99,8 +100,8 @@ for each report where report.term-id eq v-term-id,
 
   v-job-no = "".
   if avail oe-ordl and oe-ordl.job-no ne "" then
-     v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-                trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
+     v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
+     
   IF avail oe-ordl AND oe-ordl.po-no-po NE ? THEN
         ASSIGN cRefnum = "Ref # " + string(oe-ordl.po-no-po).
         ELSE cRefnum = "".
@@ -119,8 +120,9 @@ for each report where report.term-id eq v-term-id,
                               v-job-po    = oe-boll.po-no.
         ELSE
         if i eq 2 THEN ASSIGN v-part-dscr = oe-ordl.part-dscr1 /*i-name*/
-                              v-job-po    = if oe-ordl.job-no eq "" then "" else
-                                (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+                              v-job-po    = if oe-ordl.job-no eq "" then "" ELSE 
+                                            TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
+                                
         ELSE
         if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
         ELSE

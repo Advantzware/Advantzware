@@ -1,16 +1,17 @@
 /* ---------------------------------------------- jc/rep/wipbycat.i 11/00 JLF */
 /* WIP by Product Category                                                    */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /* -------------------------------------------------------------------------- */
 
-      and job.company    eq cocode
-      and job.job-no     ge substr(v-fjob,1,6)
-      and job.job-no     le substr(v-tjob,1,6)
-      and fill(" ",6 - length(trim(job.job-no))) +
-          trim(job.job-no) + string(job.job-no2,"99")
+      and job.company    eq cocode      
+      and FILL(" ", iJobLen - length(trim(job.job-no))) +
+          trim(job.job-no) + string(job.job-no2,"999")
                          ge v-fjob
-      and fill(" ",6 - length(trim(job.job-no))) +
-          trim(job.job-no) + string(job.job-no2,"99")
+      and FILL(" ", iJobLen - length(trim(job.job-no))) +
+          trim(job.job-no) + string(job.job-no2,"999")
                          le v-tjob
+     AND job.job-no2 GE int(begin_job-no2)
+     AND job.job-no2 LE int(end_job-no2)
     {1} no-lock,
     
     each job-hdr
@@ -44,7 +45,7 @@
    tt-report.key-02  = job-hdr.cust-no
    tt-report.key-03  = job-hdr.i-no
    tt-report.key-04  = itemfg.part-no
-   tt-report.key-05  = fill(" ",6 - length(trim(job.job-no))) +
+   tt-report.key-05  = FILL(" ", iJobLen - length(trim(job.job-no))) +
                        trim(job.job-no) + "-" + string(job.job-no2,"99")
    tt-report.key-06  = if avail est                                and
                           (est.est-type eq 2 or est.est-type eq 6) then

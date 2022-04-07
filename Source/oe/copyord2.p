@@ -15,6 +15,7 @@
   ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 
@@ -828,17 +829,17 @@ PROCEDURE copyJob :
 
     cocode     = ipToCompany.
 
-    v-job-no = FILL(" ",6 - length(TRIM(STRING(ipOrdno)))) + string(ipOrdno).
+    v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ipOrdno)) .
         RUN jc/job-no.p (INPUT-OUTPUT v-job-no, 
                          INPUT-OUTPUT v-job-no2,
                          INPUT v-prod-cat,
-                         FILL(" ",6 - length(TRIM(ipEstno))) + trim(ipEstno)).
+                         STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ipEstno)) ).
    
    IF ipcOrderHeaderEstimate NE "" THEN
     v-job-no2 = 0.
          
     IF v-job-no EQ "" THEN
-      v-job-no = FILL(" ",6 - length(TRIM(ipEstno))) + trim(ipEstno).
+      v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ipEstno)) .
 
     IF v-job-no NE "" THEN DO:
           FIND FIRST job NO-LOCK

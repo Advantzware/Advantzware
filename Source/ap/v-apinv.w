@@ -189,7 +189,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
      ap-inv.tax-gr AT ROW 2.43 COL 59.8 COLON-ALIGNED
-          LABEL "Tax Code"
+          LABEL "Tax Group"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
      btn-exrate AT ROW 5.52 COL 2 NO-TAB-STOP 
@@ -439,7 +439,7 @@ END.
 
 &Scoped-define SELF-NAME ap-inv.tax-gr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-inv.tax-gr V-table-Win
-ON LEAVE OF ap-inv.tax-gr IN FRAME F-Main /* Tax Code */
+ON LEAVE OF ap-inv.tax-gr IN FRAME F-Main /* Tax Group */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-tax-gr (FOCUS) NO-ERROR.

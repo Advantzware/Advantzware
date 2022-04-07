@@ -167,9 +167,9 @@ DEFINE BROWSE br_table
       ttLoadTag.isSelected COLUMN-LABEL "[]All" WIDTH 10 VIEW-AS TOGGLE-BOX
       ttLoadTag.tagStatus COLUMN-LABEL "Status" WIDTH 15
       ttLoadTag.custID COLUMN-LABEL "Cust #" WIDTH 30
-      ttLoadTag.orderID  COLUMN-LABEL "Order#" WIDTH 15
-      ttLoadTag.jobID COLUMN-LABEL "  Job#" WIDTH 17
-      ttLoadTag.jobID2 NO-LABEL FORMAT "99" WIDTH 9
+      ttLoadTag.orderID  COLUMN-LABEL "Order#" FORMAT ">>>>>>>9" WIDTH 18
+      ttLoadTag.jobID COLUMN-LABEL "  Job#" FORMAT "x(9)" WIDTH 22
+      ttLoadTag.jobID2 NO-LABEL FORMAT "999" WIDTH 9
       ttLoadTag.itemID COLUMN-LABEL "Item #" WIDTH 50
       ttLoadTag.itemName COLUMN-LABEL "Item!Name" WIDTH 60
       ttLoadTag.tag COLUMN-LABEL "Tag#" WIDTH 50

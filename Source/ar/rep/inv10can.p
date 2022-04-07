@@ -470,8 +470,8 @@ ELSE lv-comp-color = "BLACK".
                 v-inv-qty format  "->>>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
-                ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(3)
+                ar-invl.ord-no FORM ">>>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(2)
                 v-i-dscr  format "x(25)" SPACE(2)
                 v-price  format "->>>>,>>9.99" /*"->,>>9.99<<"*/ SPACE(2)
                 v-price-head SPACE(1)
@@ -483,8 +483,8 @@ ELSE lv-comp-color = "BLACK".
                 iOrdQty format  "->>>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
-                ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(3)
+                ar-invl.ord-no FORM ">>>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(2)
                 v-i-dscr  format "x(25)" SPACE(2)
                 v-price  format "->>>>,>>9.99" /*"->,>>9.99<<"*/ SPACE(2)
                 v-price-head SPACE(1)
@@ -505,10 +505,10 @@ ELSE lv-comp-color = "BLACK".
                  IF v = 1 THEN do:
                      IF lPrintQtyAll THEN do:
                       PUT SPACE(1) v-inv-qty FORMAT "->>>>>>9" .
-                       PUT SPACE(18) ar-invl.part-no SPACE(3) v-part-info SKIP.
+                       PUT SPACE(19) ar-invl.part-no SPACE(2) v-part-info SKIP.
                      END.
                      ELSE do:
-                       PUT SPACE(27) ar-invl.part-no SPACE(3) v-part-info SKIP.
+                       PUT SPACE(28) ar-invl.part-no SPACE(2) v-part-info SKIP.
                      END. 
                  END.    
                  ELSE 

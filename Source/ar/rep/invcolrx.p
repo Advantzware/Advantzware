@@ -511,7 +511,8 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                 v-price  format "->>,>>9.9999"                
                 ar-invl.amt  format "->>>,>>9.99"                
                 SKIP
-                v-ord-no SPACE(10)
+                SPACE(1)
+                TRIM(STRING(v-ord-no,">>>>>>>9")) SPACE(7)
                 ar-invl.i-no SPACE(1)
                 v-i-dscr2  FORMAT "x(30)"
                 v-ship-qty  format "->>>,>>9" SPACE(8)

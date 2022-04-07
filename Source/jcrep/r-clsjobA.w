@@ -944,9 +944,9 @@ DEF VAR v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [00, 99]       NO-UNDO.
 DEF VAR ll AS LOG NO-UNDO.
 
 ASSIGN
-    v-job-no[1] = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
+    v-job-no[1] = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
                   TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
-    v-job-no[2] = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
+    v-job-no[2] = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no)))   +
                   TRIM(end_job-no)   + STRING(INT(end_job-no2),"99"). 
 
 
@@ -957,9 +957,9 @@ EMPTY TEMP-TABLE tt-report.
           AND job-hdr.opened  EQ NO
           AND job-hdr.job-no  GE SUBSTR(v-job-no[1],1,6)
           AND job-hdr.job-no  LE SUBSTR(v-job-no[2],1,6)
-          AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
               TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"99") GE v-job-no[1]
-          AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no)))   +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no)))   +
               TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"99") LE v-job-no[2]
           AND job-hdr.cust-no GE begin_cust-no 
           AND job-hdr.cust-no LE end_cust-no USE-INDEX opened:
@@ -1005,7 +1005,7 @@ EMPTY TEMP-TABLE tt-report.
         CREATE tt-report.
         ASSIGN
          tt-report.rec-id = RECID(job-hdr)
-         tt-report.key-01 = FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
+         tt-report.key-01 = FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
                             TRIM(job-hdr.job-no) +
                             STRING(INT(job-hdr.job-no2),"99").
       END.

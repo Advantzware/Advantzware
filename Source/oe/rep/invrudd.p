@@ -3,7 +3,7 @@
 /* PRINT INVOICE when sys-ctrl.char-fld eq "Rudd" - O/E Module                */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -71,7 +71,7 @@ def var v-t-price as dec format ">>>>9.99" no-undo.
 def var v-ship-i as char format "x(25)" no-undo.
 def var v-rel-po-no like oe-rel.po-no no-undo.
 def var v-hdr as char format "x(80)" extent 4.
-def var v-job as char format "x(9)" no-undo.
+def var v-job as char format "x(13)" no-undo.
 def var v-bol-no like inv-head.bol-no no-undo.
 
 assign
@@ -104,7 +104,7 @@ form header
      v-sold-addr3          at 48
      skip(2)
      "CUST ORDER#" at 1 v-rel-po-no
-     "RUDD ORDER#" v-ord-no
+     "RUDD ORDER#" TRIM(STRING(v-ord-no,">>>>>>>9"))
      "TERM:" inv-head.terms-d
      skip(1)
      "QUANTITY" at 1 "DESCRIPTION" at 15 "PRICE" at 51 "TOTAL " to 79
@@ -422,9 +422,7 @@ form " " to 80
                    v-cust-part = inv-line.part-no
                    v-price = inv-line.price
                    v-t-price = inv-line.t-price
-                   v-job = fill(" ",6 - length(trim(inv-line.job-no))) +
-                           trim(inv-line.job-no) + "-" +
-                           trim(string(inv-line.job-no2,"99"))
+                   v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', inv-line.job-no, inv-line.job-no2)))
                    v-bol-no = inv-head.bol-no.
 
             if trim(v-job) begins "-" then assign v-job = "".

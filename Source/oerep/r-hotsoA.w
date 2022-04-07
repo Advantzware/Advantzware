@@ -1462,7 +1462,7 @@ PROCEDURE build-tt :
                            STRING(MONTH(lv-due-date),"99")  +
                            STRING(DAY(lv-due-date),"99")    +
                            STRING(oe-ordl.part-no,"x(15)") + STRING(oe-ord.ord-no,"99999999999"))              
-   tt-report.key-04   = FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
+   tt-report.key-04   = FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
                         TRIM(oe-ordl.job-no) + "-" +
                         STRING(oe-ordl.job-no2,"99")
    tt-report.key-05   = STRING(oe-ord.ord-no,"99999999999")
@@ -1986,9 +1986,9 @@ ASSIGN
  v-cust[2]  = end_cust-no
  v-date[1]  = begin_ord-date
  v-date[2]  = end_ord-date
- v-job[1]   = fill(" ",6 - length(trim(begin_job-no))) +
+ v-job[1]   = FILL(" ", iJobLen - length(trim(begin_job-no))) +
               trim(begin_job-no) + string(int(begin_job-no2),"99")
- v-job[2]   = fill(" ",6 - length(trim(end_job-no)))   +
+ v-job[2]   = FILL(" ", iJobLen - length(trim(end_job-no)))   +
               trim(end_job-no)   + string(int(end_job-no2),"99")
 
  v-sort     = substr(rd_sort,1,2).

@@ -30,6 +30,7 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/var.i}
 &IF DEFINED(UIB_is_Running) NE 0 &THEN  
   def VAR ip-cur-val as cha no-undo.
   def VAR op-char-val as cha no-undo. /* string i-code + i-name */

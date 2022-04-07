@@ -36,6 +36,7 @@ def input param ip-eqty like ef.eqty no-undo.
 /*DEF INPUT PARAM ip-form LIKE ef.form-no NO-UNDO. */
 
 def output param op-char-val as cha no-undo.
+{sys/inc/var.i}
 
 DEF TEMP-TABLE tt-tbl FIELD form-no AS INT
                       FIELD blank-no AS INT

@@ -529,9 +529,9 @@ DEFINE VARIABLE tg_stack-size AS LOGICAL INITIAL yes
      SIZE 18 BY .81 TOOLTIP "Stacking Matrix by Box Size" NO-UNDO.
 
 DEFINE VARIABLE tg_stax AS LOGICAL INITIAL yes 
-     LABEL "Tax Codes" 
+     LABEL "Tax Group" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 TOOLTIP "Tax Codes" NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Tax Group" NO-UNDO.
 
 DEFINE VARIABLE tg_stax-group AS LOGICAL INITIAL yes 
      LABEL "stax-group" 

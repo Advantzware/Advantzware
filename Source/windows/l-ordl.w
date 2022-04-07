@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -201,10 +203,10 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      oe-ordl.ord-no FORMAT ">>>>>9":U WIDTH 8
+      oe-ordl.ord-no FORMAT ">>>>>>>9":U WIDTH 12
       oe-ordl.est-no COLUMN-LABEL "Estimate#" FORMAT "x(8)":U WIDTH 14
-      oe-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 8
-      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT "99":U
+      oe-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 14
+      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT "999":U
       oe-ordl.i-no FORMAT "x(15)":U WIDTH 18
       oe-ordl.part-no FORMAT "x(15)":U WIDTH 18
       oe-ordl.qty COLUMN-LABEL "Order!Quantity" FORMAT "->>,>>>,>>9.9<<":U
@@ -279,13 +281,13 @@ ASSIGN
 ASI.oe-ordl.opened eq yes
 use-index opened"
      _FldNameList[1]   > ASI.oe-ordl.ord-no
-"oe-ordl.ord-no" ? ? "integer" ? ? ? ? ? ? no ? no no "8" yes no no "U" "" ""
+"oe-ordl.ord-no" ? ? "integer" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" ""
      _FldNameList[2]   > ASI.oe-ordl.est-no
 "oe-ordl.est-no" "Estimate#" "x(8)" "character" ? ? ? ? ? ? no ? no no "14" yes no no "U" "" ""
      _FldNameList[3]   > ASI.oe-ordl.job-no
-"oe-ordl.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "8" yes no no "U" "" ""
+"oe-ordl.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "14" yes no no "U" "" ""
      _FldNameList[4]   > ASI.oe-ordl.job-no2
-"oe-ordl.job-no2" "" "99" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"oe-ordl.job-no2" "" "999" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[5]   > ASI.oe-ordl.i-no
 "oe-ordl.i-no" ? ? "character" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" ""
      _FldNameList[6]   > ASI.oe-ordl.part-no

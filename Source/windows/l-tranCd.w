@@ -31,6 +31,7 @@
 /* Local Variable Definitions ---                                       */
 DEF INPUT PARAMETER ip-cur-val   AS CHAR NO-UNDO.
 DEF OUTPUT PARAMETER op-char-val AS CHAR NO-UNDO. 
+{sys/inc/var.i}
 
 DEF TEMP-TABLE tt-trans FIELD trans-code  AS CHAR LABEL "Trans!Code"
                         FIELD trans-dscrs AS CHAR LABEL "Description".

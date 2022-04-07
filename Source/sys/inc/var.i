@@ -6,21 +6,23 @@
 
 /* should be {1} {2} {3}, out of order for backward compatibility */
 
-def {1} {3} {2} var cocode     as   char  format "x(3)"  no-undo.
-def {1} {3} {2} var locode     as   char  format "x(5)"  no-undo.
+DEFINE {1} {3} {2} VARIABLE cocode   AS CHARACTER NO-UNDO FORMAT "x(3)".
+DEFINE {1} {3} {2} VARIABLE locode   AS CHARACTER NO-UNDO FORMAT "x(5)".
+DEFINE {1} {3} {2} VARIABLE x        AS INTEGER   NO-UNDO.
+DEFINE {1} {3} {2} VARIABLE y        AS INTEGER   NO-UNDO.
+DEFINE {1} {3} {2} VARIABLE k        AS INTEGER   NO-UNDO.
+DEFINE             VARIABLE i        AS INTEGER   NO-UNDO.
+DEFINE             VARIABLE j        AS INTEGER   NO-UNDO.
+DEFINE             VARIABLE z        AS INTEGER   NO-UNDO.
+DEFINE             VARIABLE xxx      AS DECIMAL   NO-UNDO.
+DEFINE             VARIABLE yyy      AS DECIMAL   NO-UNDO.
+DEFINE             VARIABLE zzz      AS DECIMAL   NO-UNDO.
+DEFINE             VARIABLE tmpstore AS CHARACTER NO-UNDO.
+DEFINE             VARIABLE iJobLen  AS INTEGER   NO-UNDO.
 
-def {1} {3} {2} var  x  as   int no-undo.
-def {1} {3} {2} var  y  as   int no-undo.
-DEF {1} {3} {2} VAR  k  as   int no-undo.
 
-def var i          as   int no-undo.
-def var j          as   int no-undo.
-
-def var z          as   int no-undo.
-def var xxx        as   dec no-undo.
-def var yyy        as   dec no-undo.
-def var zzz        as   dec no-undo.
-def var tmpstore   as   cha no-undo.
+&IF DEFINED(NoJobLen) EQ 0 &THEN
+iJobLen = DYNAMIC-FUNCTION("sfCommon_GetJobLen", cocode).
+&ENDIF
 
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
-

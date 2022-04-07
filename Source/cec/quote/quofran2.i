@@ -55,12 +55,12 @@
 
 
    PUT "<|10><R22><C1><#5><FROM><R24><C80><RECT>" SKIP    
-             "<R22><C7><FROM><R24><C7><LINE>" SKIP
-             "<R22><C24.5><FROM><R24><C24.5><LINE>" SKIP
+             "<R22><C8><FROM><R24><C8><LINE>" SKIP
+             "<R22><C26><FROM><R24><C26><LINE>" SKIP
              "<R22><C50><FROM><R24><C50><LINE>" SKIP
             /* "<R28><C56><FROM><R30><C56><LINE>" SKIP*/
              "<R22><C61.5><FROM><R24><C61.5><LINE>" SKIP
              "<R22><C72><FROM><R24><C72><LINE>" SKIP
              .
-   PUT "<FArial><=5><R+1>  Est#        Part#/Description                   Item/Style/Board/Color                                     Quantity                  Price           UOM " SKIP(1).
+   PUT "<FArial><=5><R+1>  Est#              Part#/Description                   Item/Style/Board/Color                               Quantity                  Price           UOM " SKIP(1).
    PUT "<FCourier New>".

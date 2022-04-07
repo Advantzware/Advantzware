@@ -1,3 +1,4 @@
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 DEF VAR ll-act-rate AS LOG NO-UNDO.
 DEF VAR ld-tot-rate AS DEC NO-UNDO.
@@ -6,15 +7,15 @@ DEF VAR ld-tot-rate AS DEC NO-UNDO.
     for each mch-act
         where mch-act.company eq cocode
           and mch-act.m-code  ge v-fmach
-          and mch-act.m-code  le v-tmach
-          and mch-act.job-no  ge substr(v-fjob,1,6)
-          and mch-act.job-no  le substr(v-tjob,1,6)
-          and fill(" ",6 - length(trim(mch-act.job-no))) +
-              trim(mch-act.job-no) + string(mch-act.job-no2,"99")
+          and mch-act.m-code  le v-tmach          
+          and FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
+              trim(mch-act.job-no) + string(mch-act.job-no2,"999")
                               ge v-fjob
-          and fill(" ",6 - length(trim(mch-act.job-no))) +
-              trim(mch-act.job-no) + string(mch-act.job-no2,"99")
+          and FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
+              trim(mch-act.job-no) + string(mch-act.job-no2,"999")
                               le v-tjob
+         AND mch-act.job-no2 GE int(begin_job-no2)
+	 AND mch-act.job-no2 LE int(end_job-no2)
         use-index operation no-lock,
 
         first job
@@ -283,8 +284,7 @@ DEF VAR ld-tot-rate AS DEC NO-UNDO.
             no-lock no-error.
 
         assign
-         v-job = fill(" ",6 - length(trim(mch-act.job-no))) +
-                 trim(mch-act.job-no) + "-" + string(mch-act.job-no2,"99")
+         v-job = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', mch-act.job-no, mch-act.job-no2)) 
 
          v-mr-act[1]  = v-mr-act-dl[1]  + v-mr-act-fo[1]  + v-mr-act-vo[1]
          v-run-act[1] = v-run-act-dl[1] + v-run-act-fo[1] + v-run-act-vo[1]

@@ -52,15 +52,15 @@ PUT "<|10><R19><C1><#4><FROM><R23><C80><RECT>" SKIP
 "<R19><C33.5><FROM><R23><C33.5><LINE>" SKIP
 "<R19><C48><FROM><R23><C48><LINE>" SKIP
 /*"<R19><C49><FROM><R23><C49><LINE>" SKIP*/
-"<R19><C65><FROM><R23><C65><LINE>" SKIP
-"<R19><C72><FROM><R23><C72><LINE>" SKIP
+"<R19><C64><FROM><R23><C64><LINE>" SKIP
+"<R19><C73><FROM><R23><C73><LINE>" SKIP
 .
 
 PUT "<=4><R+1>   FOB           Ship Via                 Terms            Sales Person       Order#    Quote#" SKIP
 "<=4><R+3> " SPACE(1)
 cust.fob-code FORM "x(14)" SPACE(1)
 v-shipvia /*carrier.carrier*/ FORM "x(22)" SPACE(1)
-oe-ord.terms-d /*terms.dscr*/ FORM "x(16)" SPACE(1) v-salesman FORM "x(20)" space(1) oe-ord.ord-no space(4) v-q-no SKIP.
+oe-ord.terms-d /*terms.dscr*/ FORM "x(16)" SPACE(1) v-salesman FORM "x(20)" "<C65>" oe-ord.ord-no space(3) v-q-no SKIP.
 
 PUT "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
        "<R24><C14.2><FROM><R26><C14.2><LINE>" SKIP

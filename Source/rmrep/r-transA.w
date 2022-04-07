@@ -1185,9 +1185,9 @@ assign
            (if tb_transfers   then "T" else "") +
            (if tb_adjustments then "A" else "") +
            (if tb_counts      then "C" else "")
- v-fjob  = fill(" ",6 - length(trim(begin_job-no))) +
+ v-fjob  = FILL(" ", iJobLen - length(trim(begin_job-no))) +
            trim(begin_job-no) + string(int(begin_job-no2),"99")
- v-tjob  = fill(" ",6 - length(trim(end_job-no)))   +
+ v-tjob  = FILL(" ", iJobLen - length(trim(end_job-no)))   +
            trim(end_job-no)   + string(int(end_job-no2),"99").
 
 do with frame {&frame-name}:          
@@ -1307,10 +1307,10 @@ SESSION:SET-WAIT-STATE ("general").
       FOR each rm-rdtlh WHERE
           rm-rdtlh.company EQ cocode AND
           rm-rdtlh.job-no  EQ v-fjob1 AND 
-          fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
+          FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
               trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
                                  ge v-fjob AND
-          fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
+          FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
               trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
                                  le v-tjob AND
           index(v-type,rm-rdtlh.rita-code) gt 0 AND
@@ -1354,10 +1354,10 @@ SESSION:SET-WAIT-STATE ("general").
           and rm-rdtlh.loc       le v-tloc
           and rm-rdtlh.job-no    ge v-fjob1 
           and rm-rdtlh.job-no    le v-tjob1
-          and fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
+          and FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
               trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
                                  ge v-fjob
-          and fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
+          and FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
               trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
                                  le v-tjob
         no-lock,
@@ -1392,10 +1392,10 @@ SESSION:SET-WAIT-STATE ("general").
           and rm-rdtlh.loc       le v-tloc
           and rm-rdtlh.job-no    ge v-fjob1 
           and rm-rdtlh.job-no    le v-tjob1
-          and fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
+          and FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
               trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
                                  ge v-fjob
-          and fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
+          and FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
               trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
                                  le v-tjob
         no-lock,

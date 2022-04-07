@@ -926,9 +926,9 @@ assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
 
-  v-fjob        = fill(" ",6 - length(trim(begin_job-no))) +
+  v-fjob        = FILL(" ", iJobLen - length(trim(begin_job-no))) +
                   trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-tjob        = fill(" ",6 - length(trim(end_job-no)))   +
+  v-tjob        = FILL(" ", iJobLen - length(trim(end_job-no)))   +
                   trim(end_job-no)   + string(int(end_job-no2),"99")  
 
   v-fcust       = begin_cust
@@ -960,10 +960,10 @@ IF rsGroupBy BEGINS "Customer" THEN
 for EACH ASI.job-prep WHERE job-prep.company eq cocode
                     and job-prep.job-no  ge substr(v-fjob,1,6)
                     and job-prep.job-no  le substr(v-tjob,1,6)
-                    and fill(" ",6 - length(trim(job-PREP.job-no))) +
+                    and FILL(" ", iJobLen - length(trim(job-PREP.job-no))) +
                   trim(job-prep.job-no) + string(job-prep.job-no2,"99")
                               ge v-fjob
-              and fill(" ",6 - length(trim(job-prep.job-no))) +
+              and FILL(" ", iJobLen - length(trim(job-prep.job-no))) +
                   trim(job-prep.job-no) + string(job-prep.job-no2,"99")
                               le v-tjob
                     /*job-prep.blank-no = job-hdr.blank-no AND*/
@@ -1067,10 +1067,10 @@ ELSE /* prep code */
     for EACH ASI.job-prep WHERE job-prep.company eq cocode
                         and job-prep.job-no  ge substr(v-fjob,1,6)
                         and job-prep.job-no  le substr(v-tjob,1,6)
-                        and fill(" ",6 - length(trim(job-PREP.job-no))) +
+                        and FILL(" ", iJobLen - length(trim(job-PREP.job-no))) +
                       trim(job-prep.job-no) + string(job-prep.job-no2,"99")
                                   ge v-fjob
-                  and fill(" ",6 - length(trim(job-prep.job-no))) +
+                  and FILL(" ", iJobLen - length(trim(job-prep.job-no))) +
                       trim(job-prep.job-no) + string(job-prep.job-no2,"99")
                                   le v-tjob
                         /*job-prep.blank-no = job-hdr.blank-no AND*/

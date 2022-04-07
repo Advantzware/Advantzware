@@ -1,8 +1,9 @@
 /* oe/rep/invxprnt.i */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 DEFINE VARIABLE cEmail AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPhone AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTagno   AS CHARACTER NO-UNDO.
-ASSIGN cTagno = STRING(w-ord.i-no,"x(15)") + STRING(w-ord.job-no,"x(6)") + STRING(w-ord.job-no2,"99") .
+ASSIGN cTagno = STRING(w-ord.i-no,"x(15)") + STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))   .
 
 PUT  "<FArial>".
 PUT  "<C+25><#1>".
@@ -33,7 +34,7 @@ PUT "<FArial><R17><C22><P20><B>  "  caps(w-ord.i-no) FORMAT "x(15)"   "</B>" SKI
 PUT "<FArial><R17><C67><B>  "  TODAY    "</B>" SKIP.
 
 PUT "<FArial><R19><C10><P16><B> JOB#: </B>" SKIP.
-PUT "<FArial><R19><C22><P16><B>  "  w-ord.job-no FORMAT "x(6)" "-" STRING(w-ord.job-no2,"99")  "</B>" SKIP.
+PUT "<FArial><R19><C22><P16><B>  "  STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)) format "x(13)"  "</B>" SKIP.
 
 PUT "<FArial><R21><C10><P16><B> CUSTOM1: </B>" SKIP.
 PUT "<FArial><R21><C22><P16><B>  "  w-ord.customField FORMAT "x(32)"  "</B>" SKIP.
@@ -41,6 +42,6 @@ PUT "<FArial><R21><C22><P16><B>  "  w-ord.customField FORMAT "x(32)"  "</B>" SKI
 PUT "<FArial><R23><C28><B> QTY: </B>" SKIP.
 PUT "<FArial><R23><C35><B>  "  w-ord.pcs " /CS"  "</B>" SKIP(5).
 
-PUT   "<#=100><AT=,2><FROM><AT=+.8,+4><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE= " cTagno FORMAT "x(24)"  ">"
-    "<AT=,2.5>" cTagno FORMAT "x(24)"  .
+PUT   "<#=100><AT=,2><FROM><AT=+.8,+4><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE= " cTagno FORMAT "x(28)"  ">"
+    "<AT=,2.5>" cTagno FORMAT "x(28)"  .
 

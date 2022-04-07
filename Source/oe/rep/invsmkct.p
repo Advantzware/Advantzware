@@ -1,7 +1,7 @@
 /* ------------------------------------------ oe/rep/invsmkct.p 04270902 GDM */
 /* INVOICE PRINT  Program for N-K-1-INVPRINT = Simkct                        */
 /* ------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -607,9 +607,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
            PUT 
             v-ship-qty       FORMAT "->>>>>>>9"  
             v-inv-qty        FORMAT "->>>>>>>9"    SPACE(1)  
-            inv-line.ord-no  FORMAT ">>>>>>9"      SPACE(1)
+            TRIM(STRING(inv-line.ord-no,">>>>>>>9"))     SPACE(1)
             v-i-no           FORMAT "x(15)"        SPACE(1)  
-            v-i-dscr         FORMAT "x(25)"        SPACE(2)  
+            v-i-dscr         FORMAT "x(25)"        SPACE(1)  
             "<C59>"v-price   FORMAT "->>,>>9.99<<" SPACE(3)
             v-price-head                           SPACE(1)
             "<C71>" 
@@ -620,9 +620,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         PUT 
             v-ship-qty       FORMAT "->>>,>>9"     SPACE(1)  
             v-inv-qty        FORMAT "->>>,>>9"     SPACE(2)  
-            inv-line.ord-no  FORMAT ">>>>>>9"      SPACE(1)
+            TRIM(STRING(inv-line.ord-no,">>>>>>>9"))     SPACE(1)
             v-i-no           FORMAT "x(15)"        SPACE(1)  
-            v-i-dscr         FORMAT "x(25)"        SPACE(2)  
+            v-i-dscr         FORMAT "x(25)"        SPACE(1)  
             "<C59>"v-price   FORMAT "->>,>>9.99<<" SPACE(3)
             v-price-head                           SPACE(1)
             "<C71>" 
@@ -648,15 +648,15 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                FIND FIRST oe-bolh WHERE oe-bolh.company = inv-line.company AND
                               oe-bolh.b-no = inv-line.b-no NO-LOCK NO-ERROR.
              IF v = 1 
-               THEN  PUT SPACE(17) oe-bolh.bol-no SPACE(2)
+               THEN  PUT SPACE(18) oe-bolh.bol-no SPACE(2)
                                    inv-line.part-no SPACE 
                                    v-part-info  SKIP.
                ELSE 
                 IF v = 2 
-                  THEN PUT SPACE(27) inv-line.po-no SPACE
+                  THEN PUT SPACE(28) inv-line.po-no SPACE
                                      v-part-info    SKIP.
 
-                  ELSE PUT SPACE(22) "Previous Invoice(s): " v-part-info SKIP.
+                  ELSE PUT SPACE(23) "Previous Invoice(s): " v-part-info SKIP.
 
 
              v-printline = v-printline + 1.

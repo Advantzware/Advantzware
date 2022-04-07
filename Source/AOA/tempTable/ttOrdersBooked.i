@@ -6,7 +6,7 @@ DEFINE TEMP-TABLE ttOrdersBooked NO-UNDO
     FIELD salesRep     AS CHARACTER LABEL "Sales Rep"      FORMAT "X(3)"
     FIELD salesRepName AS CHARACTER LABEL "Sales Rep Name" FORMAT "X(30)"
     FIELD dueDate      AS DATE      LABEL "Due Date"       FORMAT 99/99/9999
-    FIELD orderNo      AS INTEGER   LABEL "Order No"       FORMAT ">>>>>>>"
+    FIELD orderNo      AS INTEGER   LABEL "Order No"       FORMAT ">>>>>>>>"
     FIELD custNo       AS CHARACTER LABEL "Cust No"        FORMAT "X(8)"
     FIELD custName     AS CHARACTER LABEL "Customer Name"  FORMAT "X(30)"
     FIELD commPer      AS DECIMAL   LABEL "Comm Pct"       FORMAT ">>>>>9.99"

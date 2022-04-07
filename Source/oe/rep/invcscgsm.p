@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invcscgsm.p  */
 /* Invoice for CSC GA Packaging */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -469,7 +469,7 @@ END.
             
              if v-part-info ne "" OR tt-inv-line.part-no <> "" then do:
                 IF v-count = 1 THEN
-                   PUT space(21) tt-inv-line.ord-no FORM ">>>>>>9" space(2) tt-inv-line.i-no format "x(15)"  SPACE(1) v-part-info format "x(22)" SKIP.
+                   PUT space(21) tt-inv-line.ord-no FORM ">>>>>>>9" space(1) tt-inv-line.i-no format "x(15)"  SPACE(1) v-part-info format "x(22)" SKIP.
                 ELSE PUT SPACE(46) v-part-info SKIP.
                 v-printline = v-printline + 1.
              end.

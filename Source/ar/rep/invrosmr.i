@@ -120,7 +120,7 @@ PUT
     .   
 /*puT "<FArial><=5><R+1>   Ordered     Shipped       B.O.      Item#                        Description                                              Price     UOM                 Amount" SKIP(1). */
 PUT "<FArial><=5>  CUST PO#              CUST PART#                                                                           <C62> P       PRICE                  " SKIP
-    "  OUR ORDER#        ITEM#                                     DESCRIPTION/LOT#                        SHIPPED        C       (UOM)        AMOUNT" SKIP(1).
+    "  OUR ORDER#        ITEM#                                  DESCRIPTION/LOT#                       SHIPPED        C       (UOM)        AMOUNT" SKIP(1).
 
 v-printline = v-printline + 3.
            

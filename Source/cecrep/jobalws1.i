@@ -2,7 +2,7 @@
 /* Job Ticket Xprint form for Allwest                                         */
 /* cecrep/joballws.p  factory ticket  for Allwest - landscape                 */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 def {1} var save_id as recid.
 
 def {1} buffer xest     for est.
@@ -15,10 +15,10 @@ def {1} buffer xstyle   for style.
 def {1} buffer xxprep   for prep.
 
 def {1} var v-break         as   log                                    no-undo.
-def {1} var v-job-prt       as   char format "x(9)"                     no-undo.
+def {1} var v-job-prt       as   char format "x(13)"                    no-undo.
 def {1} var v-ord-no        as   char format "x(8)"                     no-undo.
 def {1} var v-ord-date      as   char format "x(10)"                     no-undo.
-def {1} var v-est-no        as   char format "x(6)"                     no-undo.
+def {1} var v-est-no        as   char format "x(8)"                     no-undo.
 def {1} var v-fg            as   char format "x(37)"                    no-undo.
 def {1} var v-cp            as   char format "x(37)"                    no-undo.
 def {1} var v-due-date      as   char format "x(8)"                    no-undo.
@@ -86,14 +86,14 @@ FORM HEADER
        "<U>Production ID:</U>" AT 92
        "<U>Date:</U>" AT 148
        "<U>Location:</U>" AT 181 "</U><P12><B>"       
-       "Job#:"                         at 2
+       "Job#:"                         at 1
        v-job-prt 
-       "</B><P10>Overrun:"  AT 17 lv-over-run format "x(7)"       
-       "Our Order#:"  at 46 v-ord-no "CAD#:" v-cad-no
-       "<P12><B>Due Date:" AT 86 v-due-code  v-due-date  "</B><P10>" 
+       "</B><P10>Overrun:"  AT 20 lv-over-run format "x(7)"       
+       "Our Order#:"  at 45 v-ord-no "CAD#:" v-cad-no
+       "<P12><B>Due Date:" AT 85 v-due-code  v-due-date  "</B><P10>" 
        "Loc:" AT 128 v-loc 
        "Est#:" AT 2 v-est-no
-        "Underrun:" AT 20 lv-under-run FORMAT "x(7)"
+        "Underrun:" AT 23 lv-under-run FORMAT "x(7)"
        "FG#:" AT 40 v-fg FORM "x(15)"  v-blk-per-frm    
        "<C67>Ord Date:"   v-ord-date   
        "  Bin:" AT 110  v-loc-bin  SKIP

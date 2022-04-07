@@ -4,12 +4,14 @@
   Author:       Ron Stark
   Date Created: 6.21.2019
 ------------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 
 /* Temp-Table Definitions ---                                           */
 
 &Scoped-define ttTempTable ttOpenOrderReport 
+{sys/inc/var.i}
 {aoa/tempTable/ttOpenOrderReport.i}
 {aoa/tempTable/ttOpenOrderReportDetail.i}
 
@@ -102,8 +104,8 @@ PROCEDURE pBusinessLogic:
     ASSIGN
         cStartJobNo  = LEFT-TRIM(cStartJobNo)
         cEndJobNo    = LEFT-TRIM(cEndJobNo)
-        cStartJobNo  = FILL(" ",6 - LENGTH(TRIM(cStartJobNo))) + TRIM(cStartJobNo) + STRING(INTEGER(iStartJobNo2),"99")
-        cEndJobNo    = FILL(" ",6 - LENGTH(TRIM(cEndJobNo))) + TRIM(cEndJobNo) + STRING(INTEGER(iEndJobNo2),"99") 
+        cStartJobNo  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', cStartJobNo, iStartJobNo2)) 
+        cEndJobNo    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', cEndJobNo, iEndJobNo2)) 
         cStat        = SUBSTRING(cJobStatus,1,2)
         cOrderStatus = SUBSTRING(cOrderStatus,1,1)
         lInc         = lIncludeZeroOrderBalanceItems
@@ -129,8 +131,8 @@ PROCEDURE pBusinessLogic:
         EACH oe-ordl OF oe-ord NO-LOCK
         WHERE oe-ordl.i-no     GE cStartItemNo
           AND oe-ordl.i-no     LE cEndItemNo
-          AND FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) + TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99") GE cStartJobNo
-          AND FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) + TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99") LE cEndJobNo
+          AND FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) + TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999") GE cStartJobNo
+          AND FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) + TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999") LE cEndJobNo
           AND oe-ordl.po-no    GE cStartPONumber
           AND oe-ordl.po-no    LE cEndPONumber
           AND oe-ordl.s-man[1] GE cStartSalesRep
@@ -432,8 +434,7 @@ PROCEDURE pBusinessLogic:
                       BY job-hdr.blank-no
                 TRANSACTION:                
                 IF job-hdr.job-no NE "" THEN
-                tt-report.job-no = FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no)))
-                                 + TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99")
+                tt-report.job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)) 
                                  .
                 ASSIGN
                     tt-report.sht     = " "
@@ -801,9 +802,7 @@ PROCEDURE pBuildttReport:
     ASSIGN
         tt-report.term-id  = ""
         tt-report.key-02   = oe-ord.cust-no
-        tt-report.key-04   = FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no)))
-                           + TRIM(oe-ordl.job-no) + "-"
-                           + STRING(oe-ordl.job-no2,"99")
+        tt-report.key-04   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)) 
         tt-report.key-05   = STRING(oe-ord.ord-no,"99999999999")
         tt-report.key-06   = oe-ordl.i-no
         tt-report.key-07   = STRING(YEAR(ipdtDate),"9999")

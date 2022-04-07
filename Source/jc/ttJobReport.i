@@ -75,7 +75,8 @@ DEFINE TEMP-TABLE ttOperation NO-UNDO
     FIELD iSeq             AS INTEGER   FORMAT ">>9" LABEL "Sequence"
     FIELD iPass            AS INTEGER   FORMAT ">>9" LABEL "Pass"
     FIELD dMRCrew          AS DECIMAL   FORMAT "->>,>>9.99" LABEL "MR Crew" 
-    FIELD dRunCrew         AS DECIMAL   FORMAT "->>,>>9.99" LABEL "Run Crew" 
+    FIELD dRunCrew         AS DECIMAL   FORMAT "->>,>>9.99" LABEL "Run Crew"     
+    FIELD dDTCost          AS DECIMAL   FORMAT "->,>>>,>>9.9999" LABEL "DT Cost"
     .
 
 DEFINE TEMP-TABLE ttMaterial NO-UNDO 

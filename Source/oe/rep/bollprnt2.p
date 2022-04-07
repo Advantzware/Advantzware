@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/bolprint.p 10/09 GDM */
 /* N-K BOLFMT = Printers - FORM for Loylang                                    */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
 
@@ -30,7 +30,7 @@ def var v-part-comp         as   char format "x" NO-UNDO.
 def var v-part-qty          as   DEC NO-UNDO.
 def var v-ord-no            like oe-boll.ord-no NO-UNDO.
 def var v-po-no             like oe-bolh.po-no NO-UNDO.
-def var v-job-no            as   char format "x(9)" no-undo.
+def var v-job-no            as   char format "x(13)" no-undo.
 def var v-phone-num         as   char format "x(13)" no-undo.
 DEF VAR v-ship-phone        AS   CHAR FORMAT "X(13)" NO-UNDO.
 
@@ -293,7 +293,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
       ASSIGN
          v-salesman = trim(v-salesman)
          v-po-no = oe-boll.po-no
-         v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>")).
+         v-job-no = IF oe-boll.job-no = "" THEN "" 
+                    ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
 
       if v-salesman gt '' then
         if substr(v-salesman,length(trim(v-salesman)),1) eq "," then

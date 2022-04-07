@@ -118,26 +118,28 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE FRAME F-Main
      machtran.job_number AT ROW 1.71 COL 15 COLON-ALIGNED
+          FORMAT "x(9)"
           VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
+          SIZE 14 BY 1
           BGCOLOR 15 FONT 4
-     machtran.job_sub AT ROW 1.71 COL 25 COLON-ALIGNED NO-LABEL
+     machtran.job_sub AT ROW 1.71 COL 29.5 COLON-ALIGNED NO-LABEL
+          FORMAT "999"
           VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
+          SIZE 5.5 BY 1
           BGCOLOR 15 FONT 4
-     machtran.form_number AT ROW 1.71 COL 47 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
-          BGCOLOR 15 FONT 4
-     machtran.blank_number AT ROW 1.71 COL 71 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
-          BGCOLOR 15 FONT 4
-     machtran.pass_sequence AT ROW 1.71 COL 96 COLON-ALIGNED
+     machtran.form_number AT ROW 1.71 COL 52 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
           BGCOLOR 15 FONT 4
-     machtran.charge_code AT ROW 1.71 COL 119 COLON-ALIGNED
+     machtran.blank_number AT ROW 1.71 COL 75 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY 1
+          BGCOLOR 15 FONT 4
+     machtran.pass_sequence AT ROW 1.71 COL 98 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 5.6 BY 1
+          BGCOLOR 15 FONT 4
+     machtran.charge_code AT ROW 1.71 COL 120 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
@@ -199,6 +201,11 @@ END.
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
+/* SETTINGS FOR FILL-IN machtran.job_number IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN machtran.job_sub IN FRAME F-Main
+   EXP-FORMAT                                                           */
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME

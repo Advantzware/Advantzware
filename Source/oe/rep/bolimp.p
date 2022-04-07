@@ -6,6 +6,7 @@
 **
 *****************************************************************************
 \***************************************************************************/
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.           */
 
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
@@ -42,7 +43,7 @@ form
   space(0) oe-boll.qty-case format ">>>>>>"
   space(2) oe-boll.po-no space(0) "/" space(0) itemfg.i-no format "x(20)"
   space(2) oe-boll.ord-no
-  space(1) oe-ord.frt-pay FORMAT "X(1)"
+  space(2) oe-ord.frt-pay FORMAT "X(1)" 
   oe-boll.weight skip
   itemfg.i-name at 28 skip
   with frame ln-s down no-box no-labels stream-io width 90.
@@ -158,10 +159,10 @@ form
                  skip(4)
                  "Ord Bal Qty Ship Cs Pcs/Cs      "
                  "P.O. No. / Item / Description  "
-                 "Order# P/C  Wt." skip
+                 "Order#   P/C  Wt." skip
                  "------- -------- -- ------"
                  "-------------------------------------"
-                 "------ --- ----" skip
+                 "-------- --- ----" skip
               with frame hd-top-comp no-box no-labels page-top stream-io width 90.
           view frame hd-top-comp.
         end.

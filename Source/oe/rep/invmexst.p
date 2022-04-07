@@ -1,6 +1,7 @@
 /* ---------------------------------------------- oe/rep/invmexst.p */
 /* PRINT INVOICE   Xprint form for Premier Pkg  (PremierX and PremierS)       */
 /* -------------------------------------------------------------------------- */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
 DEF INPUT PARAM ip-print-s AS LOG NO-UNDO. /* for PremierS */
 {sys/inc/var.i shared}
@@ -710,7 +711,8 @@ END.
             PUT v-price  format ">>>,>>9.99999"                
                 inv-line.t-price  format "->>>,>>9.99"                
                 SKIP
-                v-ord-no SPACE(10)
+                SPACE(1)
+                TRIM(STRING(v-ord-no,">>>>>>>9")) SPACE(7)
                 inv-line.i-no SPACE(1)
                 inv-line.part-dscr1  SPACE(11)
                 v-pc  FORM "x" SPACE(7)

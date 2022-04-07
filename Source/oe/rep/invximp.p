@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invximp.p  */
 /* PRINT INVOICE   Xprint for Imperail             */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -561,10 +561,10 @@ assign
             PUT v-inv-qty format "->>>,>>9" SPACE(1)
                 v-ship-qty  format "->>,>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
                 v-i-dscr  format "x(23)" SPACE(1)
-                v-price  format "$>>,>>9.99" SPACE(3)
+                v-price  format "$>>,>>9.99" SPACE(2)
                 v-price-head SPACE(1)
                 inv-line.t-price  format "$->>,>>9.99"                    
                 SKIP.
@@ -586,10 +586,10 @@ assign
 
               if v-part-info ne "" OR (v = 1 AND inv-line.part-no <> "") then do:
                 /*put space(40) v-part-info skip.*/
-                 IF v = 1 THEN PUT SPACE(25) inv-line.part-no SPACE v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(26) inv-line.part-no SPACE v-part-info SKIP.
                  ELSE
-                 IF v = 2 THEN PUT SPACE(41) v-part-info SKIP.
-                 ELSE          PUT SPACE(20) "Previous Invoice(s): " v-part-info SKIP.
+                 IF v = 2 THEN PUT SPACE(42) v-part-info SKIP.
+                 ELSE          PUT SPACE(21) "Previous Invoice(s): " v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.

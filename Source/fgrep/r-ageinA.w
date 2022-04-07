@@ -2378,9 +2378,9 @@ ASSIGN
  tcus      = end_cust-no
  fitm      = begin_i-no
  titm      = end_i-no
- fjob      = FILL(" ",6 - length(TRIM(begin_job-no))) +
+ fjob      = FILL(" ", iJobLen - length(TRIM(begin_job-no))) +
                 trim(begin_job-no) + string(int(begin_job-no2),"99")
- tjob      = FILL(" ",6 - length(TRIM(end_job-no)))   +
+ tjob      = FILL(" ", iJobLen - length(TRIM(end_job-no)))   +
                 trim(end_job-no)   + string(int(end_job-no2),"99") 
  v-q-or-v  = rd_show EQ "Quantity"
  v-sub-t   = tb_val-cust
@@ -3068,9 +3068,9 @@ PROCEDURE produce-report :
     tloc       = END_whse
     floc-bin   = begin_loc-bin
     tloc-bin   = end_loc-bin
-    fjob       = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
+    fjob       = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
   TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
-    tjob       = FILL(" ",6 - LENGTH(TRIM(end_job-no))) +
+    tjob       = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no))) +
   TRIM(end_job-no)   + STRING(INT(end_job-no2),"99")
     v-q-or-v   = rd_show EQ "Quantity"
     v-sub-t    = tb_val-cust

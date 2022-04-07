@@ -35,6 +35,8 @@ DEF INPUT PARAM ip-posted AS LOG NO-UNDO.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as CHAR no-undo. /* string i-code + i-name */
 def output param op-rec-id as recid no-undo.     /* recid output */
+{sys/inc/var.i}
+
 &scoped-define SORTBY-1 BY oe-bolh.bol-no descending
 /*&scoped-define SORTBY-2 BY */
 &scoped-define fld-name-1 oe-bolh.bol-no

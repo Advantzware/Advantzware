@@ -1161,7 +1161,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        TRIM(begin_job1) EQ TRIM(end_job1)  THEN DO:
       FIND FIRST job-hdr NO-LOCK
           WHERE job-hdr.company EQ cocode
-            AND job-hdr.job-no  EQ FILL(" ",6 - LENGTH(begin_job1)) +
+            AND job-hdr.job-no  EQ FILL(" ", iJobLen - LENGTH(begin_job1)) +
                                    TRIM(begin_job1)
             AND job-hdr.job-no2 EQ INT(begin_job2)
           NO-ERROR.
@@ -1580,13 +1580,13 @@ IF locode = "" THEN locode = "MAIN".
 {sys/form/r-top.i}
 
 ASSIGN
- fjob-no   = fill(" ",6 - length(trim(begin_job1))) + trim(begin_job1)
- tjob-no   = fill(" ",6 - length(trim(end_job1))) + trim(end_job1)
+ fjob-no   = FILL(" ", iJobLen - length(trim(begin_job1))) + trim(begin_job1)
+ tjob-no   = FILL(" ", iJobLen - length(trim(end_job1))) + trim(end_job1)
  fjob-no2  = begin_job2
  tjob-no2  = end_job2
- fjob-no   = fill(" ",6 - length(trim(fjob-no))) + trim(fjob-no) +
+ fjob-no   = FILL(" ", iJobLen - length(trim(fjob-no))) + trim(fjob-no) +
              string(fjob-no2,"99")
- tjob-no   = fill(" ",6 - length(trim(tjob-no))) + trim(tjob-no) +
+ tjob-no   = FILL(" ", iJobLen - length(trim(tjob-no))) + trim(tjob-no) +
              string(tjob-no2,"99")
  print-box = tb_box
  reprint   = tb_reprint

@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */ 
  /* cec/quote/quoaltex2.i */
  
  
@@ -54,14 +55,14 @@
    terms.dscr FORM "x(15)" space(1) sman.sname space(2) (if v-over-under eq "" then "See Below" else v-over-under) format "x(10)" SKIP.
 
    PUT "<|10><R28><C1><#5><FROM><R30><C80><RECT>" SKIP    
-             "<R28><C7><FROM><R30><C7><LINE>" SKIP
-             "<R28><C24><FROM><R30><C24><LINE>" SKIP
+             "<R28><C8><FROM><R30><C8><LINE>" SKIP
+             "<R28><C26><FROM><R30><C26><LINE>" SKIP
              "<R28><C52><FROM><R30><C52><LINE>" SKIP
              "<R28><C60><FROM><R30><C60><LINE>" SKIP
              "<R28><C67><FROM><R30><C67><LINE>" SKIP
              "<R28><C75><FROM><R30><C75><LINE>" SKIP.
   
-   PUT "<FArial><=5><R+1><C1.5>Est#/Qt#<C8>Part#/Description<C25>Item/Style/Color/Board<C53>Quantity<C61>Release<C68>Price<C76>UOM" "<FCourier New>" SKIP(1).
+   PUT "<FArial><=5><R+1><C1.5>Est#/Qt#<C9>Part#/Description<C27>Item/Style/Color/Board<C53>Quantity<C61>Release<C68>Price<C76>UOM" "<FCourier New>" SKIP(1).
    /* PUT "<FCourier New>".*/
 
 lv-pg-num = PAGE-NUM.

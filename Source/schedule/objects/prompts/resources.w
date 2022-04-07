@@ -11,7 +11,7 @@
 
   Input Parameters: Company, Job Number
 
-  Output Parameters: Continue Logical
+  Output Parameters: Resource List
 
   Author: Ron Stark
 
@@ -30,12 +30,14 @@ DEFINE INPUT  PARAMETER ipcJobNo     AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipiJobNo2    AS INTEGER   NO-UNDO.
 DEFINE INPUT  PARAMETER ipiForm      AS INTEGER   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcResources AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcChanges   AS CHARACTER NO-UNDO.
 &ELSE
 DEFINE VARIABLE ipcCompany   AS CHARACTER NO-UNDO INIT "001".
 DEFINE VARIABLE ipcJobNo     AS CHARACTER NO-UNDO INIT "W14349".
 DEFINE VARIABLE ipiJobNo2    AS INTEGER   NO-UNDO INIT 0.
 DEFINE VARIABLE ipiForm      AS INTEGER   NO-UNDO INIT 1.
 DEFINE VARIABLE opcResources AS CHARACTER NO-UNDO.
+DEFINE VARIABLE opcChanges   AS CHARACTER NO-UNDO.
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
@@ -86,9 +88,13 @@ DEFINE BUTTON btnOK AUTO-END-KEY
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     btnOK AT ROW 1 COL 2
-     btnCancel AT ROW 1 COL 8
-     SPACE(63.99) SKIP(0.00)
+     btnOK AT ROW 1.95 COL 2
+     btnCancel AT ROW 1.95 COL 8
+     "Replace With:" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 1.24 COL 56
+     "Routing:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1.24 COL 6
+     SPACE(90.99) SKIP(1.51)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Job Routing(s)".
@@ -139,7 +145,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel Dialog-Frame
 ON CHOOSE OF btnCancel IN FRAME Dialog-Frame /* Cancel Move */
 DO:
-    opcResources = "".
+    ASSIGN
+        opcResources = ""
+        opcChanges   = ""
+        .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -198,12 +207,30 @@ PROCEDURE createJobsToggleBoxes :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE jobWidget AS WIDGET NO-UNDO.
-  DEFINE VARIABLE xPos AS INTEGER NO-UNDO.
-  DEFINE VARIABLE yPos AS INTEGER NO-UNDO INIT 5.
+  DEFINE VARIABLE cMachineList  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE machineWidget AS WIDGET    NO-UNDO.
+  DEFINE VARIABLE routingWidget AS WIDGET    NO-UNDO.
+  DEFINE VARIABLE xPos          AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE yPos          AS INTEGER   NO-UNDO INIT 20.
 
-  DELETE WIDGET-POOL 'jobs' NO-ERROR.
-  CREATE WIDGET-POOL 'jobs' PERSISTENT.
+  DELETE WIDGET-POOL 'routing' NO-ERROR.
+  CREATE WIDGET-POOL 'routing' PERSISTENT.
+
+  FOR EACH mach NO-LOCK
+      WHERE mach.company EQ ipcCompany
+      BREAK BY mach.sch-m-code
+      :
+      IF FIRST-OF(mach.sch-m-code) THEN
+      cMachineList = cMachineList
+                   + mach.sch-m-code
+                   + ' - '
+                   + REPLACE(mach.m-dscr,',','')
+                   + ','
+                   + mach.sch-m-code
+                   + ','
+                   .
+  END. // each mach
+  cMachineList = TRIM(cMachineList,',').
 
   DISABLE btnOk btnCancel WITH FRAME {&FRAME-NAME}.
   ASSIGN
@@ -220,27 +247,43 @@ PROCEDURE createJobsToggleBoxes :
         AND mach.m-code  EQ job-mch.m-code
          BY job-mch.seq
       :
-    CREATE TOGGLE-BOX jobWidget IN WIDGET-POOL 'jobs'
+    CREATE TOGGLE-BOX routingWidget IN WIDGET-POOL 'routing'
         ASSIGN
           FRAME = FRAME {&FRAME-NAME}:HANDLE
           FORMAT = 'X(256)'
           X = 5
           Y = yPos
-          WIDTH-PIXELS = 300
-          HEIGHT-PIXELS = 17
+          WIDTH-PIXELS = 250
+          HEIGHT-PIXELS = 21
           SENSITIVE = NO
           HIDDEN = YES
           PRIVATE-DATA = job-mch.m-code
           LABEL = '[ ' + job-mch.m-code + ' - ' + mach.m-dscr + ' ]'
           .
+    CREATE COMBO-BOX machineWidget IN WIDGET-POOL 'routing'
+        ASSIGN
+          FRAME = FRAME {&FRAME-NAME}:HANDLE
+          FORMAT = 'X(256)'
+          X = routingWidget:X + routingWidget:WIDTH-PIXELS + 20
+          Y = yPos
+          WIDTH-PIXELS = 250
+          INNER-LINES = 100
+          LIST-ITEM-PAIRS = cMachineList
+          SENSITIVE = NO
+          HIDDEN = YES
+          PRIVATE-DATA = routingWidget:PRIVATE-DATA
+          .
     ASSIGN
-      yPos = yPos + jobWidget:HEIGHT-PIXELS + 5
+      yPos = yPos + routingWidget:HEIGHT-PIXELS + 5
       FRAME {&FRAME-NAME}:HEIGHT-PIXELS = yPos + 65
       btnOK:Y = yPos
       btnCancel:Y = yPos
-      jobWidget:HIDDEN = NO
-      jobWidget:SENSITIVE = YES
-      jobWidget:CHECKED = YES
+      routingWidget:HIDDEN = NO
+      routingWidget:SENSITIVE = YES
+      routingWidget:CHECKED = YES
+      machineWidget:HIDDEN = NO
+      machineWidget:SENSITIVE = YES
+      machineWidget:SCREEN-VALUE = routingWidget:PRIVATE-DATA
       .
   END. /* each job-mch */
   ENABLE btnOk btnCancel WITH FRAME {&FRAME-NAME}.
@@ -287,8 +330,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResourceList Dialog-Frame
-PROCEDURE pResourceList:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResourceList Dialog-Frame 
+PROCEDURE pResourceList :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -304,10 +347,18 @@ PROCEDURE pResourceList:
         IF hWidget:TYPE EQ "TOGGLE-BOX" AND
            hWidget:CHECKED THEN
         opcResources = opcResources + hWidget:PRIVATE-DATA + ",".
+        IF hWidget:TYPE EQ "COMBO-BOX" AND
+           hWidget:PRIVATE-DATA NE hWidget:SCREEN-VALUE THEN
+        opcChanges = opcChanges + hWidget:PRIVATE-DATA + "," + hWidget:SCREEN-VALUE + ",".
         hWidget = hWidget:NEXT-SIBLING.
     END. // do while
+    ASSIGN
+        opcResources = TRIM(opcResources,",")
+        opcChanges   = TRIM(opcChanges,",")
+        .
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
