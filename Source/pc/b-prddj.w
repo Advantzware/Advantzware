@@ -60,8 +60,9 @@ FOR EACH pc-prdd
                        WHERE pc-prdh.company    EQ pc-prdd.company
                          AND pc-prdh.m-code     EQ pc-prdd.m-code
                          AND pc-prdh.trans-date EQ pc-prdd.op-date
-                         AND pc-prdh.shift      EQ pc-prdd.shift):
+                         AND pc-prdh.shift      EQ pc-prdd.shift) NO-LOCK:
     IF LOOKUP(STRING(RECID(pc-prdd)),cRecId ) > 0 THEN LEAVE .
+    FIND CURRENT pc-prdd EXCLUSIVE-LOCK NO-ERROR.
     DELETE pc-prdd.
 END.
    
