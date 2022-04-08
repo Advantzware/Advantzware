@@ -21,14 +21,14 @@
              ld-under-per = 0 .
          FIND FIRST bf-job-hdr 
                 WHERE bf-job-hdr.company EQ rm-rdtlh.company
-                    AND trim(bf-job-hdr.job-no) EQ trim(rm-rdtlh.job-no)
+                    AND bf-job-hdr.job-no  EQ rm-rdtlh.job-no
                     AND bf-job-hdr.job-no2 EQ rm-rdtlh.job-no2
                     AND bf-job-hdr.frm     EQ rm-rdtlh.s-num
                 NO-LOCK NO-ERROR.
         IF NOT AVAIL bf-job-hdr THEN
             FIND FIRST bf-job-hdr 
-                WHERE bf-job-hdr.company EQ rm-rdtlh.company
-                    AND trim(bf-job-hdr.job-no) EQ trim(rm-rdtlh.job-no)
+                WHERE bf-job-hdr.company   EQ rm-rdtlh.company
+                    AND bf-job-hdr.job-no  EQ rm-rdtlh.job-no
                     AND bf-job-hdr.job-no2 EQ rm-rdtlh.job-no2
                 NO-LOCK NO-ERROR.
         IF AVAIL bf-job-hdr THEN DO:
@@ -53,7 +53,7 @@
      FIND FIRST po-ordl 
          WHERE po-ordl.company EQ cocode
            AND po-ordl.po-no EQ int(rm-rcpth.po-no) 
-           AND trim(po-ordl.job-no) EQ trim(rm-rcpth.job-no)
+           AND po-ordl.job-no  EQ rm-rcpth.job-no
            AND po-ordl.job-no2 EQ rm-rcpth.job-no2
            AND po-ordl.i-no EQ rm-rcpth.i-no 
 	       AND (po-ordl.LINE EQ rm-rcpth.po-line OR rm-rcpth.po-line EQ 0  )
@@ -99,7 +99,7 @@
             ELSE IF ITEM.i-code EQ "E" THEN do:
                FIND FIRST job-mat WHERE
                  job-mat.company EQ rm-rcpth.company AND
-                 trim(job-mat.job-no) EQ trim(rm-rcpth.job-no) AND
+                 job-mat.job-no  EQ rm-rcpth.job-no AND
                  job-mat.job-no2 EQ rm-rcpth.job-no2 AND
                  job-mat.i-no EQ rm-rcpth.i-no AND
                  job-mat.frm EQ rm-rdtlh.s-num

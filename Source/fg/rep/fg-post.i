@@ -72,7 +72,7 @@
     if w-fg-rctd.rita-code eq "R" then do:
       find first job-hdr
           where job-hdr.company eq cocode
-            and trim(job-hdr.job-no)  eq trim(w-fg-rctd.job-no)
+            and job-hdr.job-no  eq w-fg-rctd.job-no
             and job-hdr.job-no2 eq w-fg-rctd.job-no2
             and job-hdr.i-no    eq w-fg-rctd.i-no
           use-index job-no no-lock no-error.
@@ -212,7 +212,7 @@
       find first fg-bin
           where fg-bin.company eq cocode
             and fg-bin.i-no    eq w-fg-rctd.i-no
-            and trim(fg-bin.job-no)  eq trim(w-fg-rctd.job-no)
+            and fg-bin.job-no  eq w-fg-rctd.job-no
             and fg-bin.job-no2 eq w-fg-rctd.job-no2
             and fg-bin.loc     eq w-fg-rctd.loc
             and fg-bin.loc-bin eq w-fg-rctd.loc-bin

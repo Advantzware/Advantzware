@@ -1413,7 +1413,7 @@ PROCEDURE local-assign-record :
   FIND FIRST fg-bin 
       WHERE fg-bin.company EQ cocode
         AND fg-bin.i-no    EQ fg-rctd.i-no
-        AND trim(fg-bin.job-no)  EQ trim(fg-rctd.job-no)
+        AND fg-bin.job-no  EQ fg-rctd.job-no
         AND fg-bin.job-no2 EQ fg-rctd.job-no2
         AND fg-bin.loc     EQ fg-rctd.loc
         AND fg-bin.loc-bin EQ fg-rctd.loc-bin
@@ -1792,7 +1792,7 @@ PROCEDURE new-bin :
     FIND FIRST fg-bin 
         WHERE fg-bin.company EQ cocode
           AND fg-bin.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND trim(fg-bin.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+          AND fg-bin.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
           AND fg-bin.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           AND fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
           AND fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1969,7 +1969,7 @@ PROCEDURE post-finish-goods :
               AND loadtag.item-type EQ NO
               AND loadtag.tag-no    EQ w-fg-rctd.tag
               AND loadtag.i-no      EQ w-fg-rctd.i-no
-              AND trim(loadtag.job-no)    EQ trim(w-fg-rctd.job-no)
+              AND loadtag.job-no    EQ w-fg-rctd.job-no
             USE-INDEX tag EXCLUSIVE-LOCK NO-ERROR.
 
         IF AVAIL loadtag THEN DO:

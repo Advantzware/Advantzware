@@ -365,7 +365,7 @@ DO:
         {jc/jc-close.i}
         FOR EACH rm-rctd EXCLUSIVE-LOCK
             WHERE rm-rctd.company = job.company
-              AND trim(rm-rctd.job-no) = TRIM(job.job-no)  
+              AND rm-rctd.job-no  = job.job-no  
               AND rm-rctd.job-no2 = job.job-no2
               AND rm-rctd.rita-code = "I"
             :

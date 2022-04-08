@@ -1081,7 +1081,7 @@ DO v-local-loop = 1 TO v-local-copies:
             ELSE IF AVAILABLE xeb THEN xeb.ship-id
             ELSE IF AVAILABLE xoe-ord THEN xoe-ord.sold-id 
             ELSE "".
-            FIND FIRST tt-prem WHERE TRIM(tt-prem.tt-job-no)  EQ TRIM(job-hdr.job-no)
+            FIND FIRST tt-prem WHERE tt-prem.tt-job-no  EQ job-hdr.job-no
                 AND tt-prem.tt-job-no2  EQ job-hdr.job-no2 NO-LOCK NO-ERROR.
             IF NOT AVAILABLE tt-prem THEN CREATE tt-prem.
         
