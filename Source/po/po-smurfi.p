@@ -159,7 +159,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     
     find first job
         where job.company eq cocode
-          and trim(job.job-no)  eq trim(po-ordl.job-no)
+          and job.job-no  eq po-ordl.job-no
           and job.job-no2 eq po-ordl.job-no2
         no-lock no-error.
         
@@ -354,7 +354,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
     find first job
         where job.company eq cocode 
-          and trim(job.job-no) eq trim(po-ordl.job-no) 
+          and job.job-no eq po-ordl.job-no 
           and job.job-no2 eq po-ordl.job-no2
         no-lock no-error.
 

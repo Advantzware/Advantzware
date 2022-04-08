@@ -359,7 +359,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                     v-num-add = 0.
 
                 FIND FIRST job WHERE job.company EQ cocode 
-                    AND TRIM(job.job-no) EQ TRIM(po-ordl.job-no) 
+                    AND job.job-no EQ po-ordl.job-no 
                     AND job.job-no2 EQ po-ordl.job-no2
                     NO-LOCK NO-ERROR.
                 IF AVAILABLE job THEN

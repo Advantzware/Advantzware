@@ -36,9 +36,9 @@ def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output PARAMETER op-char-val as CHAR no-undo.
 def output PARAMETER op-rec-val as recid no-undo.
-{sys/inc/var.i}
-
 def var lv-type-dscr as cha no-undo.
+
+{sys/inc/var.i new shared}
 
 &scoped-define SORTBY-1 BY job-hdr.job-no DESC BY job-hdr.job-no2 DESC
 &scoped-define SORTBY-2 BY job-hdr.i-no {&SORTBY-1}
@@ -299,7 +299,7 @@ DO:
         IF rd-sort EQ 1 THEN DO:
       OPEN QUERY {&browse-name} FOR EACH ASI.job-hdr WHERE {&KEY-PHRASE}
                            AND ASI.job-hdr.company = ip-company 
-                           AND TRIM(job-hdr.job-no) BEGINS lv-search
+                           AND job-hdr.job-no BEGINS lv-search
                            AND job-hdr.opened
                            NO-LOCK,
           EACH ASI.job OF ASI.job-hdr NO-LOCK
@@ -315,7 +315,7 @@ DO:
     ELSE IF rd-sort EQ 3 THEN DO:
       OPEN QUERY {&browse-name} FOR EACH ASI.job-hdr WHERE {&KEY-PHRASE}
                            AND ASI.job-hdr.company = ip-company 
-                           AND TRIM(job-hdr.est-no) BEGINS lv-search
+                           AND job-hdr.est-no BEGINS lv-search
                            AND job-hdr.opened
                            NO-LOCK,
           EACH ASI.job OF ASI.job-hdr NO-LOCK
@@ -368,7 +368,7 @@ DO:
     IF rd-sort EQ 1 THEN DO:
       OPEN QUERY {&browse-name} FOR EACH ASI.job-hdr WHERE {&KEY-PHRASE}
                            AND ASI.job-hdr.company = ip-company 
-                           AND TRIM(job-hdr.job-no) BEGINS lv-search
+                           AND job-hdr.job-no BEGINS lv-search
                            AND job-hdr.opened
                            NO-LOCK,
           EACH ASI.job OF ASI.job-hdr NO-LOCK
@@ -419,7 +419,7 @@ DO:
     IF rd-sort EQ 1 THEN DO:
       OPEN QUERY {&browse-name} FOR EACH ASI.job-hdr WHERE {&KEY-PHRASE}
                            AND ASI.job-hdr.company = ip-company 
-                           AND TRIM(job-hdr.job-no) BEGINS lv-search
+                           AND job-hdr.job-no BEGINS lv-search
                            AND job-hdr.opened
                            NO-LOCK,
           EACH ASI.job OF ASI.job-hdr NO-LOCK
@@ -429,7 +429,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
                  */

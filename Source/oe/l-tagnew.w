@@ -885,7 +885,7 @@ ELSE
 FOR EACH fg-bin
     WHERE fg-bin.company EQ cocode
       AND fg-bin.i-no    EQ v-i-no
-      AND trim(fg-bin.job-no)  EQ trim(v-job-no)
+      AND fg-bin.job-no  EQ v-job-no
       AND fg-bin.job-no2 EQ v-job-no2
       AND fg-bin.qty     GT 0
     NO-LOCK:

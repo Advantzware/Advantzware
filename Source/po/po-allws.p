@@ -220,7 +220,7 @@ v-printline = 0.
              v-num-add = 0.
 
             find first job where job.company eq cocode 
-                             and TRIM(job.job-no) EQ TRIM(po-ordl.job-no) 
+                             and job.job-no EQ po-ordl.job-no 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
             if avail job then

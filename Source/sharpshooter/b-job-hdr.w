@@ -96,10 +96,10 @@ DELETE OBJECT hdPgmSecurity.
 &Scoped-define FIELDS-IN-QUERY-br_table job-hdr.frm job-hdr.blank-no job-hdr.cust-no job-hdr.i-no itemfg.i-name job-hdr.qty fGetTotalReceived() @ iTotalRcvd itemfg.q-onh cEmptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company   EQ cCompany         AND TRIM(job-hdr.job-no)   EQ TRIM(cJobNo)         AND job-hdr.job-no2   EQ iJobNo2         AND (job-hdr.frm      EQ iFormNo OR iFormNo EQ ?)         AND (job-hdr.blank-no EQ iBlankNo OR iBlankNo EQ ?), ~
+&Scoped-define QUERY-STRING-br_table FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company   EQ cCompany         AND job-hdr.job-no   EQ cJobNo         AND job-hdr.job-no2   EQ iJobNo2         AND (job-hdr.frm      EQ iFormNo OR iFormNo EQ ?)         AND (job-hdr.blank-no EQ iBlankNo OR iBlankNo EQ ?), ~
              FIRST job       WHERE job.company EQ job-hdr.company         AND job.job     EQ job-hdr.job         AND job.job-no  EQ job-hdr.job-no         AND job.job-no2 EQ job-hdr.job-no2, ~
              FIRST itemfg       WHERE itemfg.company EQ job-hdr.company         AND itemfg.i-no    EQ job-hdr.i-no     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company   EQ cCompany         AND TRIM(job-hdr.job-no)    EQ TRIM(cJobNo)         AND job-hdr.job-no2   EQ iJobNo2         AND (job-hdr.frm      EQ iFormNo OR iFormNo EQ ?)         AND (job-hdr.blank-no EQ iBlankNo OR iBlankNo EQ ?), ~
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company   EQ cCompany         AND job-hdr.job-no    EQ cJobNo         AND job-hdr.job-no2   EQ iJobNo2         AND (job-hdr.frm      EQ iFormNo OR iFormNo EQ ?)         AND (job-hdr.blank-no EQ iBlankNo OR iBlankNo EQ ?), ~
              FIRST job       WHERE job.company EQ job-hdr.company         AND job.job     EQ job-hdr.job         AND job.job-no  EQ job-hdr.job-no         AND job.job-no2 EQ job-hdr.job-no2, ~
              FIRST itemfg       WHERE itemfg.company EQ job-hdr.company         AND itemfg.i-no    EQ job-hdr.i-no     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table job-hdr job itemfg
@@ -280,7 +280,7 @@ ASSIGN
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK
       WHERE job-hdr.company   EQ cCompany
-        AND TRIM(job-hdr.job-no)    EQ TRIM(cJobNo)
+        AND job-hdr.job-no    EQ cJobNo
         AND job-hdr.job-no2   EQ iJobNo2
         AND (job-hdr.frm      EQ iFormNo OR iFormNo EQ ?)
         AND (job-hdr.blank-no EQ iBlankNo OR iBlankNo EQ ?),

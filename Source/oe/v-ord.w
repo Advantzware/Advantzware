@@ -6681,7 +6681,7 @@ FOR EACH oe-ordl OF oe-ord NO-LOCK:
         FIND FIRST fg-rcpts USE-INDEX cust-no
             WHERE fg-rcpts.company EQ oe-ord.company
                 AND fg-rcpts.cust-no EQ oe-ord.cust-no
-                AND TRIM(fg-rcpts.job-no)  EQ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.job-no)))
+                AND fg-rcpts.job-no  EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.job-no))
                 AND fg-rcpts.job-no2 EQ oe-ordl.job-no2
                 AND fg-rcpts.i-no    EQ oe-ordl.i-no
             NO-LOCK NO-ERROR.
@@ -6689,7 +6689,7 @@ FOR EACH oe-ordl OF oe-ord NO-LOCK:
         IF NOT AVAIL fg-rcpts THEN
         FIND FIRST fg-rcpth USE-INDEX job
             WHERE fg-rcpth.company EQ oe-ord.company
-                AND TRIM(fg-rcpth.job-no)  EQ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.job-no)))
+                AND fg-rcpth.job-no  EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.job-no))
                 AND fg-rcpth.job-no2 EQ oe-ordl.job-no2
                 AND fg-rcpth.i-no    EQ oe-ordl.i-no
             NO-LOCK NO-ERROR.
