@@ -185,7 +185,7 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
       eb.est-no FORMAT "x(8)":U
-      eb.part-no FORMAT "x(15)":U WIDTH 22
+      eb.part-no FORMAT "x(32)":U WIDTH 22
       eb.part-dscr1 FORMAT "x(30)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

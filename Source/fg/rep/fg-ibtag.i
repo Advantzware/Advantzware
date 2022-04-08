@@ -387,7 +387,7 @@
            IF v-summ-bin AND LAST-OF(tt-itemfg.job-no2) THEN DO:
                
              display itemfg.cust-no when v-first[2]
-                     itemfg.part-no when V-first[1]
+                     itemfg.part-no format "x(32)" when V-first[1]
                      itemfg.i-no    when v-first[1]
                      /*tt-fg-bin.tag
                        SUBSTR(tt-fg-bin.tag,16,8)
@@ -413,7 +413,7 @@
            ELSE IF NOT v-summ-bin THEN DO:        
                
              display itemfg.cust-no when v-first[2]
-                     itemfg.part-no when v-first[1]
+                     itemfg.part-no format "x(32)" when v-first[1]
                      itemfg.i-no    when v-first[1]
                      tt-fg-bin.tag
                        SUBSTR(tt-fg-bin.tag,16,8)
@@ -589,7 +589,7 @@
                       /*SUBSTR(tt-fg-bin.tag,16,8)
                                    WHEN SUBSTR(tt-fg-bin.tag,1,15) EQ tt-fg-bin.i-no
                                    @ tt-fg-bin.tag*/ " "
-                      itemfg.part-no when v-first[1]
+                      itemfg.part-no format "x(32)" when v-first[1]
                       itemfg.i-name  when v-first[1]
                       tt-fg-bin.loc
                       tt-fg-bin.loc-bin
@@ -613,7 +613,7 @@
                                  WHEN SUBSTR(tt-fg-bin.tag,1,15) EQ tt-fg-bin.i-no
                                  @ tt-fg-bin.tag
                     fg-lot-val WHEN v-fg-lot
-                    itemfg.part-no when v-first[1]
+                    itemfg.part-no format "x(32)" when v-first[1]
                     itemfg.i-name  when v-first[1]
                     tt-fg-bin.loc
                     tt-fg-bin.loc-bin
@@ -774,7 +774,7 @@
                 (IF v-prt-arqty 	THEN STRING(v-arq) ELSE " ").
 
         display itemfg.cust-no      when v-first[2]
-                itemfg.part-no      when v-first[1]
+                itemfg.part-no format "x(32)"     when v-first[1]
                 itemfg.i-no         when v-first[1]
                 ""                  @ tt-fg-bin.tag
                 ""                  @ lv-rct-date
@@ -868,7 +868,7 @@
                 " "
                 (IF v-prt-arqty 	THEN STRING(v-arq) ELSE " ").        
         display itemfg.cust-no      when v-first[2]
-                itemfg.part-no      when v-first[1]
+                itemfg.part-no format "x(32)"     when v-first[1]
                 itemfg.i-no         when v-first[1]
                 itemfg.i-name       when v-first[1]
                 itemfg.def-loc      @ tt-fg-bin.loc
@@ -952,29 +952,29 @@
                 if v-prt-c then put "----------" to 153.
                 if v-prt-p then put "-----------" to 166 skip.
                 
-                put "ITEM TOTALS" to 113.
-                
-                IF v-prt-msf THEN
-                    PUT v-tot-qty[1] FORMAT "->>>,>>9.999" TO 127.
-                ELSE
-                    PUT v-tot-qty[1] TO 127.
-                    if v-prt-c then put v-tot-cst[1] to 153.
-                    if v-prt-p then put v-tot-ext[1] to 166.
-            END.
-            ELSE do:
-                put "-----------" to 134.
-                if v-prt-c then put "----------" to 160.
-                if v-prt-p then put "-----------" to 173 skip.
-                
                 put "ITEM TOTALS" to 120.
                 
                 IF v-prt-msf THEN
-                    PUT v-tot-qty[1] FORMAT "->>>,>>9.999" TO 134.
+                    PUT v-tot-qty[1] FORMAT "->>>,>>9.999" TO 144.
                 ELSE
-                    PUT v-tot-qty[1] TO 134.
+                    PUT v-tot-qty[1] TO 144.
+                    if v-prt-c then put v-tot-cst[1] to 170.
+                    if v-prt-p then put v-tot-ext[1] to 183.
+            END.
+            ELSE do:
+                put "-----------" to 151.
+                if v-prt-c then put "----------" to 177.
+                if v-prt-p then put "-----------" to 190 skip.
+                
+                put "ITEM TOTALS" to 137.
+                
+                IF v-prt-msf THEN
+                    PUT v-tot-qty[1] FORMAT "->>>,>>9.999" TO 151.
+                ELSE
+                    PUT v-tot-qty[1] TO 151.
                     
-                    if v-prt-c then put v-tot-cst[1] to 160.
-                    if v-prt-p then put v-tot-ext[1] to 173.
+                    if v-prt-c then put v-tot-cst[1] to 177.
+                    if v-prt-p then put v-tot-ext[1] to 190.
             END.
         end.
 
@@ -996,19 +996,19 @@
     
         ELSE
         if v-prt-cpn then do:
-          put "-----------" to 125.
-          if v-prt-c then put "----------" to 151.
-          if v-prt-p then put "-----------" to 164 skip.
+          put "-----------" to 142.
+          if v-prt-c then put "----------" to 168.
+          if v-prt-p then put "-----------" to 181 skip.
 
-          put "ITEM TOTALS" to 110.
+          put "ITEM TOTALS" to 127.
 
           IF v-prt-msf THEN
-            PUT v-tot-qty[1] FORMAT "->>>,>>9.999" TO 125.
+            PUT v-tot-qty[1] FORMAT "->>>,>>9.999" TO 142.
           ELSE
-            PUT v-tot-qty[1] TO 125.
+            PUT v-tot-qty[1] TO 142.
 
-          if v-prt-c then put v-tot-cst[1] to 151.
-          if v-prt-p then put v-tot-ext[1] to 164.
+          if v-prt-c then put v-tot-cst[1] to 168.
+          if v-prt-p then put v-tot-ext[1] to 181.
         end.
 
         else do:
@@ -1127,30 +1127,30 @@
         IF v-rct-date THEN
         if v-prt-cpn then do:
             IF v-summ-bin THEN DO:
-                put "-----------" to 127.
-                if v-prt-c then put "----------" to 153.
-                if v-prt-p then put "-----------" to 166 skip.
+                put "-----------" to 144.
+                if v-prt-c then put "----------" to 170.
+                if v-prt-p then put "-----------" to 183 skip.
 
                 if v-sort-by-cust eq "Cu" then
-                    put "CUST TOTALS" to 113.
+                    put "CUST TOTALS" to 130.
                 else
                 if v-sort-by-cust eq "FG" then
-                    put "ITEM TOTALS" to 113.
+                    put "ITEM TOTALS" to 130.
                 else
                 if v-sort-by-cust eq "Pa" then
-                    put "PART TOTALS" to 113.
+                    put "PART TOTALS" to 130.
                 else
                 if v-sort-by-cust eq "Pr" then
                     put fill(" ",5 - length(trim(v-procat))) +
-                    v-procat + " PROD CAT TOTALS" to 113 format "x(21)".
+                    v-procat + " PROD CAT TOTALS" to 130 format "x(21)".
                 else
-                    put "WHS/BIN TOTALS" to 113.
+                    put "WHS/BIN TOTALS" to 130.
                 IF v-prt-msf THEN
-                    PUT v-tot-qty[2] FORMAT "->>>,>>9.999" TO 127.
+                    PUT v-tot-qty[2] FORMAT "->>>,>>9.999" TO 144.
                 ELSE
-                    PUT v-tot-qty[2] TO 127.
-                if v-prt-c then put v-tot-cst[2] to 153.
-                if v-prt-p then put v-tot-ext[2] to 166.
+                    PUT v-tot-qty[2] TO 144.
+                if v-prt-c then put v-tot-cst[2] to 170.
+                if v-prt-p then put v-tot-ext[2] to 183.
             END.
             ELSE do:
                 put "-----------" to 134.
@@ -1221,36 +1221,36 @@
 
         ELSE
         if v-prt-cpn then do:
-          put "-----------" to 125.
-          if v-prt-c then put "----------" to 151.
-          if v-prt-p then put "-----------" to 164 skip.
+          put "-----------" to 142.
+          if v-prt-c then put "----------" to 168.
+          if v-prt-p then put "-----------" to 181 skip.
    
           if v-sort-by-cust eq "Cu" then
-            put "CUST TOTALS" to 110.
+            put "CUST TOTALS" to 127.
 
           else
           if v-sort-by-cust eq "FG" then
-            put "ITEM TOTALS" to 110.
+            put "ITEM TOTALS" to 127.
           
           else
           if v-sort-by-cust eq "Pa" then
-            put "PART TOTALS" to 110.
+            put "PART TOTALS" to 127.
 
           else
           if v-sort-by-cust eq "Pr" then
             put fill(" ",5 - length(trim(v-procat))) +
-                v-procat + " PROD CAT TOTALS" to 110 format "x(21)".
+                v-procat + " PROD CAT TOTALS" to 127 format "x(21)".
 
           else
-            put "WHS/BIN TOTALS" to 110.
+            put "WHS/BIN TOTALS" to 127.
 
           IF v-prt-msf THEN
-            PUT v-tot-qty[2] FORMAT "->>>,>>9.999" TO 125.
+            PUT v-tot-qty[2] FORMAT "->>>,>>9.999" TO 142.
           ELSE
-            PUT v-tot-qty[2] TO 125.
+            PUT v-tot-qty[2] TO 142.
 
-          if v-prt-c then put v-tot-cst[2] to 151.
-          if v-prt-p then put v-tot-ext[2] to 164.
+          if v-prt-c then put v-tot-cst[2] to 168.
+          if v-prt-p then put v-tot-ext[2] to 181.
         end.
 
         else do:

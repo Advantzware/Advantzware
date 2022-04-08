@@ -48,7 +48,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -107,10 +107,10 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE fi_blank-qty AS INTEGER FORMAT ">>9" INITIAL 1 
      VIEW-AS FILL-IN 
-     SIZE 7 BY 1.
+     SIZE 5 BY 1.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 146 BY 1.67.
 
 
@@ -119,33 +119,33 @@ DEFINE RECTANGLE RECT-1
 DEFINE FRAME F-Main
      est.est-no AT ROW 1.71 COL 14 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-     est.est-date AT ROW 1.71 COL 43 COLON-ALIGNED
+          SIZE 15 BY 1
+     est.est-date AT ROW 1.71 COL 41 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-     eb.form-no AT ROW 1.71 COL 67 COLON-ALIGNED
+          SIZE 14.8 BY 1
+     eb.form-no AT ROW 1.71 COL 62.6 COLON-ALIGNED
           LABEL "Frm" FORMAT ">>>"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-     est.form-qty AT ROW 1.71 COL 77 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          SIZE 5 BY 1
+     est.form-qty AT ROW 1.71 COL 70.8 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-     eb.blank-no AT ROW 1.71 COL 91 COLON-ALIGNED
+          SIZE 5 BY 1
+     eb.blank-no AT ROW 1.71 COL 82.8 COLON-ALIGNED
           LABEL "Blk" FORMAT ">>9"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-     fi_blank-qty AT ROW 1.71 COL 101 COLON-ALIGNED NO-LABEL
-     eb.part-no AT ROW 1.71 COL 122 COLON-ALIGNED
+          SIZE 5 BY 1
+     fi_blank-qty AT ROW 1.71 COL 90.8 COLON-ALIGNED NO-LABEL
+     eb.part-no AT ROW 1.71 COL 111.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 22 BY 1
-     RECT-1 AT ROW 1.24 COL 1
+          SIZE 32.8 BY 1
      "Reference Information" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 1 COL 3
           FONT 1
      "of" VIEW-AS TEXT
-          SIZE 3 BY .95 AT ROW 1.71 COL 75
+          SIZE 3 BY .95 AT ROW 1.71 COL 69.8
      "of" VIEW-AS TEXT
-          SIZE 3 BY .95 AT ROW 1.71 COL 99
+          SIZE 3 BY .95 AT ROW 1.71 COL 90
+     RECT-1 AT ROW 1.24 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -202,7 +202,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.

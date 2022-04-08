@@ -74,7 +74,7 @@ ASSIGN cTextListToSelect =  "MACHINE,DUE DATE - JOB,DUE DATE OL,CUSTOMER,CUSTOME
        cFieldListToSelect = "mach,st-date,due-date,cust,cust-part,job," +
                             "job-qty,board,sheet-size,vend,board-rec,gl-st,fg-ship,board-issued," +
                             "dStartJob,dStartOL,dProdOH"
-       cFieldLength = "8,14,11,8,15,13," + "10,10,30,8,14,5,12,12," + "16,15,14"
+       cFieldLength = "8,14,11,8,32,13," + "10,10,30,8,14,5,12,12," + "16,15,14"
        cFieldType = "c,c,c,c,c,c," + "i,c,c,c,i,c,i,i,i," + "c,c,c" 
     .
 
@@ -1757,7 +1757,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "st-date"   THEN cVarValue = IF v-date <> ? THEN string(v-date,"99/99/9999") ELSE "".
                          WHEN "due-date"   THEN cVarValue = IF v-due-date <> ? THEN string(v-due-date,"99/99/9999") ELSE "".
                          WHEN "cust"   THEN cVarValue = STRING(tt-report.key-03,"x(8)").
-                         WHEN "cust-part"  THEN cVarValue = IF AVAIL eb THEN  STRING(eb.part-no,"x(15)") ELSE STRING(job-hdr.i-no,"x(15)") .
+                         WHEN "cust-part"  THEN cVarValue = IF AVAIL eb THEN  STRING(eb.part-no,"x(32)") ELSE STRING(job-hdr.i-no,"x(15)") .
                          WHEN "job"   THEN cVarValue = STRING(v-job) .
                          WHEN "job-qty"  THEN cVarValue = STRING(job-hdr.qty,">>,>>>,>>9") .
                          WHEN "board"   THEN cVarValue = IF AVAIL job-mat THEN  STRING(job-mat.i-no,"x(10)") ELSE "" .

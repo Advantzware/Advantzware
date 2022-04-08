@@ -7,7 +7,7 @@
 if cerunc-dec eq 0 then
    display
      probeit.cust-no at 2
-     probeit.part-no at 10 form "x(15)"
+     probeit.part-no at 10 form "x(32)"
      eb.part-dscr1 at 26 form "x(20)"
      probeit.bl-qty @ probeit.yld-qty at 49
      probeit.fact-cost
@@ -16,7 +16,7 @@ if cerunc-dec eq 0 then
 else     
    display
       probeit.cust-no at 2
-      probeit.part-no at 10 form "x(15)"
+      probeit.part-no at 10 form "x(32)"
       eb.part-dscr1 at 26 form "x(20)"
       probeit.bl-qty @ probeit.yld-qty at 49
       probeit.fact-cost

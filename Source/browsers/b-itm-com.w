@@ -179,7 +179,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       item-comm.cust-no FORMAT "x(8)":U WIDTH 11.2 LABEL-BGCOLOR 14
       item-comm.i-no FORMAT "x(15)":U WIDTH 21.2 LABEL-BGCOLOR 14
-      item-comm.part-no FORMAT "x(15)":U WIDTH 21.2 LABEL-BGCOLOR 14
+      item-comm.part-no FORMAT "x(32)":U WIDTH 33.2 LABEL-BGCOLOR 14
       item-comm.set-sales-price COLUMN-LABEL "Set!Sales Price" FORMAT ">>,>>>,>>9.99<<<<":U
             WIDTH 16.2
       item-comm.base-cost FORMAT ">>,>>>,>>9.99<<<<":U WIDTH 13.2
@@ -308,7 +308,7 @@ ASSIGN
      _FldNameList[2]   > ASI.item-comm.i-no
 "item-comm.i-no" ? ? "character" ? ? ? 14 ? ? no ? no no "21.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.item-comm.part-no
-"item-comm.part-no" ? "x(15)" "character" ? ? ? 14 ? ? no ? no no "21.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"item-comm.part-no" ? "x(32)" "character" ? ? ? 14 ? ? no ? no no "33.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.item-comm.set-sales-price
 "item-comm.set-sales-price" "Set!Sales Price" ? "decimal" ? ? ? ? ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.item-comm.base-cost

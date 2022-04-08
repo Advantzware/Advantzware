@@ -119,7 +119,7 @@ for each eb
           eb.ship-name                column-label "Customer Name"
                                       format "x(24)"
                                                       
-        with down no-box width 132.
+        with down no-box width 147.
 end.
 
 /* end ---------------------------------- copr. 2001  advanced software, inc. */

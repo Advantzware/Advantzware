@@ -917,7 +917,7 @@ form fg-rctd.rct-date     column-label "TRANS.!DATE"
      v-std-cost        label "COST/UOM"
      v-tot-value             label "TOTAL COST"
      SKIP
-     with frame itemx no-box down width 175 STREAM-IO.
+     with frame itemx no-box down width 192 STREAM-IO.
 
 form v-disp-actnum label "G/L ACCOUNT NUMBER"
      v-dscr        label "DESCRIPTION"

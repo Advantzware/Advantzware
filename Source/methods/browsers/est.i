@@ -28,7 +28,7 @@
 &Global-define IDXNAME2 
 &Global-define DESCRIP2 Cust#
 &Global-define FLDNAME3 eb.part-no
-&Global-define FORMAT-3 X(15)
+&Global-define FORMAT-3 X(32)
 &Global-define SORTBY-3 by {&FLDNAME3}
 &Global-define IDXNAME3 
 &Global-define DESCRIP3 Cust Part#

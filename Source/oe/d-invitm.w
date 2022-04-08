@@ -224,7 +224,7 @@ DEFINE FRAME Dialog-Frame
           SIZE 28 BY 1
      inv-line.part-no AT ROW 3.14 COL 82 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 28 BY 1
+          SIZE 38 BY 1
      inv-line.i-name AT ROW 4.1 COL 82 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 38 BY 1

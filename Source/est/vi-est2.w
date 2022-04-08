@@ -121,21 +121,21 @@ DEFINE FRAME F-Main
      est.est-date AT ROW 1.71 COL 43 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     ef.form-no AT ROW 1.71 COL 84 COLON-ALIGNED FORMAT ">>>"
+     ef.form-no AT ROW 1.71 COL 73.60 COLON-ALIGNED FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     est.form-qty AT ROW 1.71 COL 94 COLON-ALIGNED NO-LABEL
+     est.form-qty AT ROW 1.71 COL 83.60 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     eb.part-no AT ROW 1.71 COL 124 COLON-ALIGNED
+     eb.part-no AT ROW 1.71 COL 107.60 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 20 BY 1
+          SIZE 35 BY 1
      RECT-1 AT ROW 1.24 COL 1
      "Reference Information" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 1 COL 3
           FONT 1
      "of" VIEW-AS TEXT
-          SIZE 3 BY .95 AT ROW 1.71 COL 93
+          SIZE 3 BY .95 AT ROW 1.71 COL 82.60
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 

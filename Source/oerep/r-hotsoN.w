@@ -132,7 +132,7 @@ ASSIGN
                            "Rel Qty,#/Unit,Rel MSF,Ord MSF"
     cFieldListToSelect = "due-dt,cust,cust-prt,rout,brd,job,shipto,ord-qty," +
                             "rel-qty,unt,rel-msf,ord-msf"
-    cFieldLength       = "10,8,15,20,20,13,7,9," + "9,8,11,11" 
+    cFieldLength       = "10,8,32,20,20,13,7,9," + "9,8,11,11" 
     cFieldType         = "c,c,c,c,c,c,c,i," + "i,i,i,i"
     .
 
@@ -2443,7 +2443,7 @@ PROCEDURE run-report :
         WITH FRAME r-top2 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP STREAM-IO WIDTH 200.
 
     FORMAT s-b-line
-        tt-fg-set.part-no FORMAT "X(15)" 
+        tt-fg-set.part-no FORMAT "X(32)" 
         tt-fg-set.routing FORMAT "X(20)"
         tt-fg-set.rm-no   FORMAT "X(15)"
         WITH FRAME tt-fg-set-frame NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP STREAM-IO WIDTH 200.

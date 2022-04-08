@@ -1633,8 +1633,8 @@ form header
      "               "
      "               "
      v-label4[3]
-     "                         "
-     "     "
+     "                                "
+     "               "
      "        "
      "        "
      "         "
@@ -1649,7 +1649,7 @@ form header
      "ITEM #         "
      "TAG #   "
      v-label4[1]
-     "CUST PART #    "
+     "CUST PART #                     "
      "DESCRIPTION              "
      "WHSE "
      "BIN     "
@@ -1665,7 +1665,7 @@ form header
      "---------------"
      "--------"
      v-label4[2]
-     "---------------"
+     "--------------------------------"
      "-------------------------"
      "-----"
      "--------"
@@ -1677,7 +1677,7 @@ form header
      v-label2[6] format "x(27)"
      v-label3[3]
 
-    with frame r-top2 stream-io width 200
+    with frame r-top2 stream-io width 240
          no-labels no-box no-underline page-top.
 
 form header
@@ -1738,7 +1738,7 @@ form header
      "        "
       v-label4[3]
      "RECEIPT "
-     "               "
+     "                                "
      "                         "
      "     "
      "        "
@@ -1755,7 +1755,7 @@ form header
      "TAG #   "
       v-label4[1]
      "  DATE  "
-     "CUST PART #    "
+     "CUST PART #                     "
      "DESCRIPTION              "
      "WHSE "
      "BIN     "
@@ -1772,7 +1772,7 @@ form header
      "--------"
       v-label4[2]
      "--------"
-     "---------------"
+     "--------------------------------"
      "-------------------------"
      "-----"
      "--------"
@@ -1784,12 +1784,12 @@ form header
      v-label2[6] format "x(27)"
      v-label3[3]
 
-    with frame r-top4 stream-io width 200
+    with frame r-top4 stream-io width 217
          no-labels no-box no-underline page-top.
 
 form header
      "        "
-     "               "
+     "                                "
      "               "
       v-label4[3]
      "RECEIPT "
@@ -1805,7 +1805,7 @@ form header
      v-label3[1]
      skip
      "CUSTOMER"
-     "CUST PART #    "
+     "CUST PART #                     "
      "ITEM #         "
       v-label4[1]
      "  DATE  "
@@ -1818,10 +1818,10 @@ form header
      v-label1[2]
      v-label2[3] space(2)
      v-label2[4] format "x(27)"
-     v-label3[2]
+     v-label3[2] 
      skip
      "--------"
-     "---------------"
+     "--------------------------------"
      "---------------"
       v-label4[2]
      "--------"
@@ -1836,7 +1836,7 @@ form header
      v-label2[6] format "x(27)"
      v-label3[3]
 
-    with frame r-top5 stream-io width 200
+    with frame r-top5 stream-io width 240
          no-labels no-box no-underline page-top.
 
 /*
@@ -2003,7 +2003,7 @@ if td-show-parm then do:
 END.
 
 VIEW FRAME r-top.
-
+         
 IF v-rct-date THEN DO:
   IF v-prt-cpn THEN do:
       IF v-summ-bin THEN 
@@ -2015,7 +2015,7 @@ IF v-rct-date THEN DO:
 END.
 ELSE
   IF v-prt-cpn THEN VIEW FRAME r-top2.
-               ELSE VIEW FRAME r-top1.
+               ELSE VIEW FRAME r-top1. 
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel TO VALUE(cFileName).
@@ -2253,25 +2253,25 @@ END. /* IF tb_excel THEN DO: */
     IF v-rct-date THEN
     if v-prt-cpn then do:
         IF v-summ-bin THEN DO:
-            PUT "GRAND TOTALS" TO 113.
+            PUT "GRAND TOTALS" TO 130.
 
             IF v-prt-msf THEN
-                PUT v-tot-qty[3] FORMAT "->>>,>>9.999" TO 125.
+                PUT v-tot-qty[3] FORMAT "->>>,>>9.999" TO 142.
             ELSE
-                PUT v-tot-qty[3] TO 125.
-            if v-prt-c then put v-tot-cst[3] to 151.
-            if v-prt-p then put v-tot-ext[3] to 164 skip(1).
+                PUT v-tot-qty[3] TO 142.
+            if v-prt-c then put v-tot-cst[3] to 168.
+            if v-prt-p then put v-tot-ext[3] to 181 skip(1).
         END.
         ELSE do:
-            PUT "GRAND TOTALS" TO 120.
+            PUT "GRAND TOTALS" TO 137.
 
             IF v-prt-msf THEN
-              PUT v-tot-qty[3] FORMAT "->>>,>>9.999" TO 134.
+              PUT v-tot-qty[3] FORMAT "->>>,>>9.999" TO 151.
             ELSE
-              PUT v-tot-qty[3] TO 134.
+              PUT v-tot-qty[3] TO 151.
 
-            if v-prt-c then put v-tot-cst[3] to 160.
-            if v-prt-p then put v-tot-ext[3] to 173 skip(1).
+            if v-prt-c then put v-tot-cst[3] to 177.
+            if v-prt-p then put v-tot-ext[3] to 190 skip(1).
         END.
     end.
 
@@ -2289,15 +2289,15 @@ END. /* IF tb_excel THEN DO: */
 
     ELSE
     if v-prt-cpn then do:
-      PUT "GRAND TOTALS" TO 110.
+      PUT "GRAND TOTALS" TO 127.
 
       IF v-prt-msf THEN
-        PUT v-tot-qty[3] FORMAT "->>>,>>9.999" TO 125.
+        PUT v-tot-qty[3] FORMAT "->>>,>>9.999" TO 142.
       ELSE
-        PUT v-tot-qty[3] TO 125.
+        PUT v-tot-qty[3] TO 142.
 
-      if v-prt-c then put v-tot-cst[3] to 151.
-      if v-prt-p then put v-tot-ext[3] to 164 skip(1).
+      if v-prt-c then put v-tot-cst[3] to 168.
+      if v-prt-p then put v-tot-ext[3] to 181 skip(1).
     end.
 
     else do:

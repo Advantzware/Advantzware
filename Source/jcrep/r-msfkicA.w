@@ -981,7 +981,7 @@ SESSION:SET-WAIT-STATE ("general").
         display v-date              column-label "PROMISED/!JOB DATE"
                 tt-report.key-03       column-label "CUSTOMER"
                 tt-report.key-04       column-label "CUSTOMER PART #"
-                                    format "x(15)"
+                                    format "x(32)"
                 v-job               column-label "    JOB #"
                 v-t-qty[1]          column-label "TOTAL!KICKS" 
                 v-t-rem[1]          column-label "KICKS!REMAINING"
@@ -990,7 +990,7 @@ SESSION:SET-WAIT-STATE ("general").
                 v-sheet             column-label "SHEET SIZE"
                 v-mat-qty           column-label "BOARD!RECEIVED"
 
-            with frame det STREAM-IO width 132 no-box down.
+            with frame det STREAM-IO width 149 no-box down.
 
         IF tb_excel THEN
            PUT STREAM excel UNFORMATTED

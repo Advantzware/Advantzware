@@ -147,15 +147,15 @@ DEFINE BUTTON btn_itemfg
      LABEL "&Add" 
      SIZE 11 BY 1.8.
 
-DEFINE VARIABLE part-no AS CHARACTER FORMAT "x(15)" 
+DEFINE VARIABLE part-no AS CHARACTER FORMAT "x(32)" 
      LABEL "Cust Part#" 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1 NO-UNDO.
+     SIZE 29.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE stock-no LIKE eb.stock-no
      LABEL "Enter New &FG Item" 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1 NO-UNDO.
+     SIZE 29.6 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -169,7 +169,7 @@ DEFINE BROWSE BROWSE-3
   QUERY BROWSE-3 NO-LOCK DISPLAY
       itemfg.i-no COLUMN-LABEL "Existing!FG Items" FORMAT "x(15)":U
       itemfg.i-name FORMAT "x(30)":U
-      itemfg.part-no FORMAT "x(12)":U
+      itemfg.part-no FORMAT "x(32)":U
       itemfg.est-no FORMAT "x(8)":U WIDTH 11
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -181,12 +181,12 @@ DEFINE BROWSE BROWSE-3
 
 DEFINE FRAME Dialog-Frame
      btn_itemfg AT ROW 1.19 COL 3 WIDGET-ID 4
-     stock-no AT ROW 1.24 COL 36 COLON-ALIGNED HELP
+     stock-no AT ROW 1.24 COL 32.4 COLON-ALIGNED HELP
           ""
           LABEL "Enter New &FG Item"
      btnOK AT ROW 1.24 COL 65.6
      btn_cancel AT ROW 1.24 COL 79.4 WIDGET-ID 2
-     part-no AT ROW 2.1 COL 36.2 COLON-ALIGNED
+     part-no AT ROW 2.1 COL 32.4 COLON-ALIGNED
      BROWSE-3 AT ROW 3.1 COL 1.6
      SPACE(2.59) SKIP(0.13)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 

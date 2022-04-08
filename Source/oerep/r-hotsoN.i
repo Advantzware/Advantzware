@@ -200,7 +200,7 @@
                     CASE cTmpField:             
                          WHEN "due-dt"    THEN cVarValue = string(tt-report.due-date,"99/99/9999").
                          WHEN "cust"      THEN cVarValue = STRING(cust.cust-no,"x(8)").
-                         WHEN "cust-prt"  THEN cVarValue = STRING(oe-ordl.part-no,"x(15)") .
+                         WHEN "cust-prt"  THEN cVarValue = STRING(oe-ordl.part-no,"x(32)") .
                          WHEN "rout"      THEN cVarValue = STRING(lv-routing,"x(20)") .
                          WHEN "brd"       THEN cVarValue = STRING(tt-report.rm-no,"x(20)") .
                          WHEN "job"       THEN cVarValue = STRING(lv-job-no) .
@@ -314,7 +314,7 @@
                     CASE cTmpField:             
                          WHEN "due-dt"    THEN cVarValue = "" .
                          WHEN "cust"      THEN cVarValue = "" .
-                         WHEN "cust-prt"  THEN cVarValue = STRING(tt-fg-set.part-no,"x(15)") .
+                         WHEN "cust-prt"  THEN cVarValue = STRING(tt-fg-set.part-no,"x(32)") .
                          WHEN "rout"      THEN cVarValue = STRING(REPLACE(tt-fg-set.routing,","," "),"x(20)") .
                          WHEN "brd"       THEN cVarValue = STRING(tt-fg-set.rm-no,"x(20)") .
                          WHEN "job"       THEN cVarValue = "" .

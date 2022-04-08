@@ -155,9 +155,9 @@ DEFINE FRAME F-Main
      item-comm.i-no AT ROW 2.38 COL 25 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
-     item-comm.part-no AT ROW 3.38 COL 25 COLON-ALIGNED FORMAT "x(15)"
+     item-comm.part-no AT ROW 3.38 COL 25 COLON-ALIGNED FORMAT "x(32)"
           VIEW-AS FILL-IN 
-          SIZE 26 BY 1
+          SIZE 48 BY 1
      item-comm.i-name AT ROW 4.38 COL 25 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 48 BY 1

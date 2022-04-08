@@ -644,7 +644,7 @@ PROCEDURE pPrintItemInfoDetail PRIVATE:
     RUN pWriteToCoordinates(iopiRowCount, iItemColumn1, fFormatNumber(ipbf-estCostBlank.formNo,2, 0, YES, NO) + "-" + fFormatNumber(ipbf-estCostBlank.blankNo,2, 0, YES, NO), NO, NO, NO).
     RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn2, ipbf-estCostItem.itemDescription1, 30 , NO, NO, NO).
     RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-estCostItem.colorDesc, 40, NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn4, ipbf-estCostItem.customerPart, 30, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn4, ipbf-estCostItem.customerPart, 32, NO, NO, NO).
     
     RUN pPrintItemInfoDetailForSourceEstimate(BUFFER ipbf-estCostBlank, iItemColumn2, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     

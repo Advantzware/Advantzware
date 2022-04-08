@@ -147,7 +147,7 @@ DEFINE BROWSE BROWSE-1
       eb.est-no FORMAT "x(5)":U
       eb.cust-no FORMAT "x(8)":U COLUMN-FONT 2
       eb.part-dscr1 FORMAT "x(30)":U COLUMN-FONT 2
-      eb.part-no FORMAT "x(15)":U COLUMN-FONT 2
+      eb.part-no FORMAT "x(32)":U COLUMN-FONT 2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 92 BY 11.19

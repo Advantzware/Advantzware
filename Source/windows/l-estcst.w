@@ -179,7 +179,7 @@ DEFINE BROWSE BROWSE-1
       eb.est-no FORMAT "x(8)":U WIDTH 14 LABEL-BGCOLOR 14
       eb.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U LABEL-BGCOLOR 14
       eb.part-dscr1 FORMAT "x(30)":U LABEL-BGCOLOR 14
-      eb.part-no FORMAT "x(15)":U LABEL-BGCOLOR 14
+      eb.part-no FORMAT "x(32)":U LABEL-BGCOLOR 14
       eb.style FORMAT "x(6)":U LABEL-BGCOLOR 14
       eb.len FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
       eb.wid FORMAT ">>>9.99999":U LABEL-BGCOLOR 14

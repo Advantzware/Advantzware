@@ -1229,7 +1229,7 @@ for each tt-report,
             tt-report.key-03    column-label "FG ITEM #"
                                 format "x(15)"
             tt-report.key-04    column-label "CUSTOMER PART #"
-                                format "x(15)"
+                                format "x(32)"
             tt-report.key-05    column-label "    JOB #"
                                 format "x(9)"
             v-t-lab[1]          COLUMN-LABEL "ACT LABOR" 
@@ -1238,7 +1238,7 @@ for each tt-report,
             v-rec-qty[1]        COLUMN-LABEL "RCPT QTY"
             v-order-qty[1]      COLUMN-LABEL "ORDER QTY"
 
-        with frame det STREAM-IO width 132 no-box down.
+        with frame det STREAM-IO width 149 no-box down.
 
     IF tb_excel THEN
       PUT STREAM excel UNFORMATTED

@@ -150,7 +150,7 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
       tt-itemfgUpd.i-no FORMAT "x(22)":U
-      tt-itemfgUpd.part-no FORMAT "x(21)":U
+      tt-itemfgUpd.part-no FORMAT "x(32)":U
       tt-itemfgUpd.i-name FORMAT "x(30)":U
       tt-itemfgUpd.part-dscr1 COLUMN-LABEL "Desc 1" FORMAT "x(30)":U
       tt-itemfgUpd.part-dscr2 COLUMN-LABEL "Desc 2" FORMAT "x(30)":U
@@ -276,7 +276,7 @@ ASSIGN
      _FldNameList[1]   > Temp-Tables.tt-itemfgUpd.i-no
 "tt-itemfgUpd.i-no" ? "x(22)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > Temp-Tables.tt-itemfgUpd.part-no
-"tt-itemfgUpd.part-no" ? "x(21)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tt-itemfgUpd.part-no" ? "x(32)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   = Temp-Tables.tt-itemfgUpd.i-name
      _FldNameList[4]   > Temp-Tables.tt-itemfgUpd.part-dscr1
 "tt-itemfgUpd.part-dscr1" "Desc 1" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no

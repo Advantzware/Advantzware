@@ -236,9 +236,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      oe-ordl.part-no AT ROW 4.1 COL 17 COLON-ALIGNED
-          LABEL "Cust Part #" FORMAT "x(15)"
+          LABEL "Cust Part #" FORMAT "x(32)"
           VIEW-AS FILL-IN 
-          SIZE 28 BY 1
+          SIZE 45 BY 1
      oe-ordl.i-name AT ROW 5.05 COL 17 COLON-ALIGNED
           LABEL "Item Name"
           VIEW-AS FILL-IN 

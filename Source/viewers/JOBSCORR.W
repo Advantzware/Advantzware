@@ -207,7 +207,7 @@ DEFINE FRAME F-Main
      jobitems.part_number AT ROW 3.62 COL 16 COLON-ALIGNED
           LABEL "Customer Part"
           VIEW-AS FILL-IN 
-          SIZE 17 BY 1
+          SIZE 29 BY 1
           BGCOLOR 15 
      jobitems.style AT ROW 3.62 COL 52 COLON-ALIGNED
           VIEW-AS FILL-IN 

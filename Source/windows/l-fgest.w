@@ -144,7 +144,7 @@ DEFINE BROWSE BROWSE-1
       eb.est-no FORMAT "x(8)":U WIDTH 14
       eb.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
       eb.part-dscr1 FORMAT "x(30)":U
-      eb.part-no FORMAT "x(15)":U WIDTH 20
+      eb.part-no FORMAT "x(32)":U WIDTH 40
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 115 BY 11.19

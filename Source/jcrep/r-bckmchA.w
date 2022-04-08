@@ -1265,7 +1265,7 @@ SESSION:SET-WAIT-STATE ("general").
                 space(2)
                 v-fg-qty
 
-            with frame det STREAM-IO width 132 no-labels no-box down.
+            with frame det STREAM-IO width 177 no-labels no-box down.
 
         IF tb_excel THEN
         DO:

@@ -200,7 +200,7 @@ DEFINE BROWSE BROWSE-1
       tt-eb.cust-NAME COLUMN-LABEL "Cust Name" FORMAT "x(30)":U COLUMN-FONT 2
             LABEL-BGCOLOR 14
       tt-eb.part-dscr1 FORMAT "x(30)":U COLUMN-FONT 2 LABEL-BGCOLOR 14
-      tt-eb.part-no FORMAT "x(15)":U COLUMN-FONT 2 LABEL-BGCOLOR 14
+      tt-eb.part-no FORMAT "x(32)":U COLUMN-FONT 2 LABEL-BGCOLOR 14
       tt-eb.style FORMAT "x(6)":U LABEL-BGCOLOR 14
       tt-eb.len FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
       tt-eb.wid FORMAT ">>>9.99999":U LABEL-BGCOLOR 14

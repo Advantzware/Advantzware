@@ -70,7 +70,7 @@ ASSIGN cTextListToSelect = "MACHINE,PROM/JOB DT,CUSTOMER,CUSTOMER PART#,JOB #,TO
                           + "KICKS REMAIN,MSF BALANCE,SHEET SIZE,BOARD RECE."
        cFieldListToSelect = "mch,job-dt,cust,cust-prt,job,ttl-kiks," +
                             "kiks-rmn,msf-bal,sht-sz,brd-rece"
-       cFieldLength = "7,11,8,15,13,12," + "12,12,21,12" 
+       cFieldLength = "7,11,8,32,13,12," + "12,12,21,12" 
        cFieldType = "c,c,c,c,c,i," + "i,i,c,i"
     .
 

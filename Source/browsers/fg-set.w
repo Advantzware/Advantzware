@@ -180,7 +180,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       fg-set.qtyPerSet FORMAT "->>,>>9.99<<<<":U WIDTH 15.2
       fg-set.noReceipt COLUMN-LABEL "No Receipt" VIEW-AS TOGGLE-BOX 
-      fg-set.part-no FORMAT "x(15)":U
+      fg-set.part-no FORMAT "x(32)":U
       get-itemfg () @ lv-i-name COLUMN-LABEL "Name" FORMAT "x(25)":U
       lv-q-onh @ lv-q-onh COLUMN-LABEL "On Hand" FORMAT "->,>>>,>>9":U
             WIDTH 13

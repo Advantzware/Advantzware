@@ -158,8 +158,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
       eb.form-no COLUMN-LABEL "Form#" FORMAT ">9":U
       eb.blank-no COLUMN-LABEL "Blank#" FORMAT ">9":U
-      eb.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(15)":U
-            WIDTH 20
+      eb.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(32)":U            
       eb.part-dscr1 COLUMN-LABEL "Description" FORMAT "x(30)":U
             WIDTH 40
       eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 20
@@ -228,7 +227,7 @@ and eb.form-no ne 0"
      _FldNameList[2]   > ASI.eb.blank-no
 "blank-no" "Blank#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[3]   > ASI.eb.part-no
-"part-no" "Customer Part#" ? "character" ? ? ? ? ? ? no ? no no "20" yes no no "U" "" ""
+"part-no" "Customer Part#" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[4]   > ASI.eb.part-dscr1
 "part-dscr1" "Description" ? "character" ? ? ? ? ? ? no ? no no "40" yes no no "U" "" ""
      _FldNameList[5]   > ASI.eb.stock-no

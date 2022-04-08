@@ -155,7 +155,7 @@ DEFINE BROWSE br_table
       jobitems.form_number COLUMN-LABEL "Form" FORMAT ">>9":U
       jobitems.blank_number COLUMN-LABEL "Blank" FORMAT ">9":U
       jobitems.fg_item COLUMN-LABEL "Item" FORMAT "X(10)":U
-      jobitems.part_number COLUMN-LABEL "Part Number" FORMAT "X(15)":U
+      jobitems.part_number COLUMN-LABEL "Part Number" FORMAT "X(32)":U
       jobitems.qty FORMAT ">>,>>>,>>9":U
       jobitems.order_number COLUMN-LABEL "Order #" FORMAT ">>>>>9":U
       jobitems.po FORMAT "X(15)":U

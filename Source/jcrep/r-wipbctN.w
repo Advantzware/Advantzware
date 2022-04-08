@@ -59,7 +59,7 @@ ASSIGN cTextListToSelect = "CAT,CUSTOMER,FG ITEM #,CUSTOMER PART #,JOB #,"
               + "ACT LABOR,ACT MAT'L,MSF,RCPT QTY,ORDER QTY"
        cFieldListToSelect = "cat,cust,fgitem,cust-part,job," +
                             "act-lab,act-mat,msf,rcpt-qty,ord-qty"
-       cFieldLength = "5,8,15,15,13," + "17,17,9,14,14"
+       cFieldLength = "5,8,15,32,13," + "17,17,9,14,14"
        cFieldType = "c,c,c,c,c," + "i,i,i,i,i" 
     .
 
@@ -1730,7 +1730,7 @@ for each tt-report,
                          WHEN "cat"    THEN cVarValue = string(tt-report.key-01,"x(5)") .
                          WHEN "cust"   THEN cVarValue = string(tt-report.key-02,"x(8)").
                          WHEN "fgitem"   THEN cVarValue = STRING(tt-report.key-03,"x(15)").
-                         WHEN "cust-part"  THEN cVarValue = STRING(tt-report.key-04,"x(15)") .
+                         WHEN "cust-part"  THEN cVarValue = STRING(tt-report.key-04,"x(32)") .
                          WHEN "job"   THEN cVarValue = STRING(tt-report.key-05,"x(13)") .
                          WHEN "act-lab"  THEN cVarValue = STRING(v-t-lab[1],"->,>>>,>>>,>>9.99") .
                          WHEN "act-mat"   THEN cVarValue = STRING(v-t-mat[1],"->,>>>,>>>,>>9.99") .
@@ -1805,7 +1805,7 @@ for each tt-report,
                          WHEN "cat"    THEN cVarValue = IF NOT v-detl THEN string(tt-report.key-01,"x(5)")  ELSE "".
                          WHEN "cust"   THEN cVarValue = IF NOT v-detl THEN string(tt-report.key-02,"x(8)") ELSE "".
                          WHEN "fgitem"   THEN cVarValue = IF NOT v-detl THEN STRING(tt-report.key-03,"x(15)") ELSE "".
-                         WHEN "cust-part"  THEN cVarValue = IF NOT v-detl THEN STRING(tt-report.key-04,"x(15)")  ELSE "".
+                         WHEN "cust-part"  THEN cVarValue = IF NOT v-detl THEN STRING(tt-report.key-04,"x(32)")  ELSE "".
                          WHEN "job"   THEN cVarValue = IF NOT v-detl THEN STRING("ALL","x(13)") ELSE "" .
                          WHEN "act-lab"  THEN cVarValue = STRING(v-t-lab[2],"->,>>>,>>>,>>9.99") .
                          WHEN "act-mat"   THEN cVarValue = STRING(v-t-mat[2],"->,>>>,>>>,>>9.99") .

@@ -1941,7 +1941,7 @@ FORMAT HEADER
     WITH FRAME r-top2 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP STREAM-IO WIDTH 200.
 
 FORMAT s-b-line
-       tt-fg-set.part-no FORMAT "X(15)" 
+       tt-fg-set.part-no FORMAT "X(32)" 
        tt-fg-set.routing FORMAT "X(20)"
        tt-fg-set.rm-no   FORMAT "X(15)"
     WITH FRAME tt-fg-set-frame NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP STREAM-IO WIDTH 200.

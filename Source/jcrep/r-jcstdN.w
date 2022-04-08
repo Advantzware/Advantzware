@@ -70,7 +70,7 @@ ASSIGN
                             "std-net-prft,std-net-mar,std-sel-price,ord-itm-s-price,book-std-price," +
                             "std-net-margin-act-pr,std-gross-margin-act-pr,act-sell-pri-msf,sales-grp,job-create,job-start,job-qty-msf-fg,std-sell-price-msf,cust-type,job-stat,order-stat," +
                             "std-mr-hrs,std-run-hrs,sales-grp-ord,sales-grp-name,ext-std-sel-price,ext-book-std-price,ext-std-ful-cst"
-    cFieldLength       = "13,15,25,11,15,6,13,8,4,5,8,8,30," + "23,8,17,17,14,14,19,16," + "16,18,17,14,11,13,16,16," + "14,14,14,13,16," + "25,27,19,11,16,14,16,18,20,10,12," + "12,13,19,30,18,23,26"
+    cFieldLength       = "13,15,25,11,32,6,13,8,4,5,8,8,30," + "23,8,17,17,14,14,19,16," + "16,18,17,14,11,13,16,16," + "14,14,14,13,16," + "25,27,19,11,16,14,16,18,20,10,12," + "12,13,19,30,18,23,26"
     cFieldType         = "c,c,c,c,c,c,c,i,i,i,i,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c," + "i,i,i,c,c,c,i,i,c,c,c," + "i,i,c,c,i,i,i" 
     .
 

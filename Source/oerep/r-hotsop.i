@@ -164,7 +164,7 @@
               tt-report.q-rel    FORMAT "->,>>>,>>9"
               tt-report.NumOfUnit
               tt-report.msf              
-          WITH FRAME summ-re NO-BOX STREAM-IO WIDTH 180
+          WITH FRAME summ-re NO-BOX STREAM-IO WIDTH 197
                 NO-ATTR-SPACE NO-LABELS DOWN. 
 
       DOWN WITH FRAME summ-re.

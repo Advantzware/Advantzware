@@ -166,7 +166,7 @@ DEFINE BROWSE BROWSE-1
       eb.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U COLUMN-FONT 2
       eb.ship-name FORMAT "x(30)":U COLUMN-FONT 2
       eb.part-dscr1 FORMAT "x(30)":U COLUMN-FONT 2
-      eb.part-no FORMAT "x(15)":U COLUMN-FONT 2
+      eb.part-no FORMAT "x(32)":U COLUMN-FONT 2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 133 BY 11.43

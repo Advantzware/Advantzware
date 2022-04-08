@@ -175,7 +175,7 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
       probeit.cust-no FORMAT "x(8)":U
-      probeit.part-no COLUMN-LABEL "Part Number" FORMAT "x(20)":U
+      probeit.part-no COLUMN-LABEL "Part Number" FORMAT "x(32)":U
             LABEL-BGCOLOR 14
       probeit.bl-qty COLUMN-LABEL "Requested Qty" FORMAT ">>>,>>>,>>>":U
       probeit.yld-qty FORMAT ">>>,>>>,>>>":U

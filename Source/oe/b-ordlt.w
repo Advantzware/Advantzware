@@ -305,7 +305,7 @@ DEFINE BROWSE Browser-Table
       oe-ordl.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.qty FORMAT "->>,>>>,>>9":U LABEL-BGCOLOR 14
       oe-ordl.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
-      oe-ordl.part-no COLUMN-LABEL "Part #" FORMAT "x(15)":U LABEL-BGCOLOR 14
+      oe-ordl.part-no COLUMN-LABEL "Part #" FORMAT "x(32)":U LABEL-BGCOLOR 14
       oe-ordl.price COLUMN-LABEL "Order Price" FORMAT ">>,>>>,>>9.99<<<<":U
       get-price-disc () @ ld-price COLUMN-LABEL "Sell Price" FORMAT "->>,>>>,>>9.99<<<<":U
             WIDTH 14.4

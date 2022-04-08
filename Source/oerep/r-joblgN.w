@@ -70,7 +70,7 @@ ASSIGN cTextListToSelect = "Job#,Order#,Cust#,Cust Name#,Item Number,Item Name,C
                            "Due Date,Cust Part#,Est#,Die#,Cad#,CSR"
        cFieldListToSelect = "job,ord,cust,cust-name,item,item-name,cust-po,ord-qty,ord-date," +
                             "due-date,cust-part,est,die,cad,csr"
-       cFieldLength = "13,8,8,30,15,30,15,11,10," + "10,15,8,15,15,8"
+       cFieldLength = "13,8,8,30,15,30,15,11,10," + "10,32,8,15,15,8"
        cFieldType = "c,c,c,c,c,c,c,i,c," + "c,c,c,c,c,c" 
     .
 
@@ -1780,7 +1780,7 @@ DISPLAY "" WITH FRAME r-top.
                          WHEN "ord-date"  THEN cVarValue = IF AVAIL oe-ord AND oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date,"99/99/9999") ELSE  "" .
 
                          WHEN "due-date"    THEN cVarValue = IF v-date NE ? THEN STRING(v-date,"99/99/9999") ELSE  "" .
-                         WHEN "cust-part"   THEN cVarValue = IF AVAIL oe-ordl THEN string(oe-ordl.part-no,"x(15)") ELSE "".
+                         WHEN "cust-part"   THEN cVarValue = IF AVAIL oe-ordl THEN string(oe-ordl.part-no,"x(32)") ELSE "".
                          WHEN "est"   THEN cVarValue =  STRING(est-num) .
                          WHEN "die"  THEN cVarValue = IF AVAIL eb AND eb.die-no NE "" THEN STRING(eb.die-no,"x(15)") ELSE "" .
                          WHEN "cad"   THEN cVarValue = IF AVAIL eb AND eb.cad-no NE "" THEN STRING(eb.cad-no,"x(15)") ELSE "" .

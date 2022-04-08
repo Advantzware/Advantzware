@@ -21,7 +21,7 @@
                 trim(string(eb.ord-no,">>>>>>>>")) format "x(8)"              
                 eb.cust-no
                 cust.name       when avail cust
-                with frame prep no-box no-labels STREAM-IO width 132.
+                with frame prep no-box no-labels STREAM-IO width 149.
                 
           IF tb_excel THEN 
              EXPORT STREAM excel DELIMITER "," 
@@ -47,6 +47,6 @@
                  
                 eb.cust-no
                 cust.name       when avail cust
-                WITH FRAME prep2 WIDTH 132 DOWN STREAM-IO NO-BOX NO-LABELS.
+                WITH FRAME prep2 WIDTH 149 DOWN STREAM-IO NO-BOX NO-LABELS.
 
 /* end ---------------------------------- copr. 1997  advanced software, inc. */

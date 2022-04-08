@@ -102,7 +102,7 @@ ASSIGN
                             "w-ord.ord-no,v-ord-no-text,w-ord.rel-no,lv-vend-no,lv-board-po-no,lc-style-xl,lc-test-xl,v-qtyAvail," +
                             "ld-qty-rec,lv-routing,w-ord.ord-qty,v-comp-qty,w-ord.onh-qty,v-job-qty,v-ship-city,lv-text," + 
                             "w-ord.v-note1,w-ord.v-note2,w-ord.v-note3,w-ord.v-note4,skids,w-ord.cust-name,ship-zip,lot-no"
-    cFieldLength       = "5,3,7,15,15,15," +
+    cFieldLength       = "5,3,7,15,32,15," +
                       "8,13,7,8,7,10,10,13," +
                       "8,15,7,7,8,7,15,26," + "60,60,60,60,8,30,11,15"
     cFieldType         = "c,c,c,c,c,c," + "c,c,i,c,i,c,c,i," + "i,c,i,i,i,i,c,c,"  + "c,c,c,c,i,c,c,c"

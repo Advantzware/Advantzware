@@ -206,7 +206,7 @@ DEFINE VARIABLE ls-i-no AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE ls-part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE ls-part-no AS CHARACTER FORMAT "X(32)":U 
      LABEL "Cust Part" 
      VIEW-AS FILL-IN 
      SIZE 39 BY 1 NO-UNDO.
@@ -223,7 +223,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       eb.form-no COLUMN-LABEL "F#" FORMAT ">9":U WIDTH 4
       eb.blank-no COLUMN-LABEL "B#" FORMAT ">9":U WIDTH 4
-      eb.part-no FORMAT "x(15)":U WIDTH 23.2
+      eb.part-no FORMAT "x(32)":U WIDTH 33.2
       eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 22
   ENABLE
       eb.stock-no
@@ -341,7 +341,7 @@ eb.est-no  eq ls-est-no"
      _FldNameList[2]   > asi.eb.blank-no
 "eb.blank-no" "B#" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.eb.part-no
-"eb.part-no" ? ? "character" ? ? ? ? ? ? no ? no no "23.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.part-no" ? ? "character" ? ? ? ? ? ? no ? no no "33.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.eb.stock-no
 "eb.stock-no" "FG Item#" ? "character" ? ? ? ? ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED

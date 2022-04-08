@@ -190,7 +190,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      quoteitm.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(20)":U
+      quoteitm.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(32)":U
       quoteitm.i-no FORMAT "x(15)":U WIDTH 22
       quoteitm.part-dscr1 FORMAT "x(30)":U
       quoteitm.part-dscr2 COLUMN-LABEL "Item Description 2" FORMAT "x(30)":U

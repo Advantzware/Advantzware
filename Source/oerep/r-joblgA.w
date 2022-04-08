@@ -965,7 +965,7 @@ FORMAT job-num              COLUMN-LABEL "Job!Number"
        eb.die-no            COLUMN-LABEL "!Die#"
        eb.cad-no            COLUMN-LABEL "!Cad#"                         
        SKIP
-    WITH FRAME detail-w STREAM-IO WIDTH 230 DOWN. /*180*/
+    WITH FRAME detail-w STREAM-IO WIDTH 247 DOWN. /*180*/
 
 FORMAT job-num              COLUMN-LABEL "Job!Number"
        job-hdr.ord-no       COLUMN-LABEL "Order!Number"
@@ -993,7 +993,7 @@ FORMAT job-num              COLUMN-LABEL "Job!Number"
        eb.die-no            COLUMN-LABEL "!Die#"
        eb.cad-no            COLUMN-LABEL "!Cad#"                         
        SKIP
-    WITH FRAME detail-z STREAM-IO WIDTH 230 DOWN. /*180*/
+    WITH FRAME detail-z STREAM-IO WIDTH 247 DOWN. /*180*/
 
 ASSIGN
  str-tit2 = c-win:TITLE + " by Job#"

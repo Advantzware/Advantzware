@@ -32,7 +32,7 @@ DEFINE TEMP-TABLE ttImportEstimate
     FIELD BlankNo         AS INTEGER   FORMAT ">9" COLUMN-LABEL "Blank #" HELP "Defaults to 1 if blank - Integer"
     FIELD CustomerID      AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Cust ID" HELP "Required - Must be valid - Size:8"
     FIELD ShipToID        AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "ShipTo ID" HELP "Defaults to Cust ID if blank - Field validated - Size:8"
-    FIELD PartID          AS CHARACTER FORMAT "x(15)" COLUMN-LABEL "Cust Part #" HELP "Required - Size:15"
+    FIELD PartID          AS CHARACTER FORMAT "x(32)" COLUMN-LABEL "Cust Part #" HELP "Required - Size:32"
     FIELD PartName        AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Part Name" HELP "Optional - Size:30"
     FIELD PartDescription AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Part Desc" HELP "Optional - Size:30"
     FIELD FGItemID        AS CHARACTER FORMAT "x(15)" COLUMN-LABEL "FG Item #" HELP "Optional - Use <AUTO> to auto create - Size:15"
