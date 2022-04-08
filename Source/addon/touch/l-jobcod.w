@@ -30,7 +30,6 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{sys/inc/var.i}
 &IF DEFINED(UIB_is_Running) NE 0 &THEN  
   def VAR ip-cur-val as cha no-undo.
   def VAR op-char-val as cha no-undo. /* string i-code + i-name */
@@ -39,6 +38,8 @@
   def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 &endif
 
+
+{sys/inc/var.i}
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.

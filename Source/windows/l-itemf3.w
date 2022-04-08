@@ -38,10 +38,10 @@ DEF INPUT PARAMETER ip-job-no2 LIKE job.job-no2 NO-UNDO.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-recid as recid no-undo.
-{sys/inc/var.i}
-
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
+
+{sys/inc/var.i new shared}
 
 DEF TEMP-TABLE tt-itg FIELD i-no LIKE itemfg.i-no
                       FIELD i-name LIKE itemfg.i-name
@@ -439,7 +439,7 @@ PROCEDURE build-table :
     /* gdm - 08260916 end */
   END.
   ELSE IF ip-job-no <> "" THEN FOR EACH job-hdr WHERE job-hdr.company = ip-company
-                                                  AND TRIM(job-hdr.job-no) = TRIM(ip-job-no)
+                                                  AND job-hdr.job-no = ip-job-no
                                                   AND job-hdr.job-no2 = ip-job-no2 NO-LOCK:
        FIND FIRST itemfg WHERE itemfg.company = job-hdr.company
                            AND itemfg.i-no = job-hdr.i-no NO-LOCK NO-ERROR.

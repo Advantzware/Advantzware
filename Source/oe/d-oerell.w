@@ -1513,7 +1513,7 @@ PROCEDURE valid-job-no :
             AND bf-ordl.ord-no   EQ INTEGER(oe-rell.ord-no:SCREEN-VALUE )
             AND bf-ordl.i-no     EQ oe-rell.i-no:SCREEN-VALUE 
             AND (TRIM(bf-ordl.job-no) EQ "" OR
-                 (TRIM(bf-ordl.job-no) EQ TRIM(lv-job-no) AND
+                 (bf-ordl.job-no EQ lv-job-no AND
                   (bf-ordl.job-no2 EQ INTEGER(oe-rell.job-no2:SCREEN-VALUE ) OR
                    FOCUS:NAME EQ "job-no")))
           NO-LOCK NO-ERROR.

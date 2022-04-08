@@ -399,8 +399,8 @@ PROCEDURE CreateSheets :
 
   FOR  EACH job-hdr NO-LOCK
       WHERE job-hdr.company    = cocode
-        AND TRIM(job-hdr.job-no)    >= TRIM(SUBSTRING(icBegJobNo,1,9))
-        AND TRIM(job-hdr.job-no)    <= TRIM(SUBSTRING(icEndJobNo,1,9))
+        AND job-hdr.job-no    >= SUBSTRING(icBegJobNo,1,iJobLen)
+        AND job-hdr.job-no    <= SUBSTRING(icEndJobNo,1,iJobLen)
         AND job-hdr.job-no2   >= iiBegJobNo2
         AND job-hdr.job-no2   <= iiEndJobNo2
       BREAK
@@ -1370,8 +1370,8 @@ PROCEDURE ProcessJobs :
   /* For each jobs within selected range: */
   FOR  EACH job-hdr NO-LOCK
       WHERE job-hdr.company    = cocode
-        AND TRIM(job-hdr.job-no)    >= TRIM(SUBSTRING(icBegJobNo,1,9))
-        AND TRIM(job-hdr.job-no)    <= TRIM(SUBSTRING(icEndJobNo,1,9))
+        AND job-hdr.job-no    >= SUBSTRING(icBegJobNo,1,iJobLen)
+        AND job-hdr.job-no    <= SUBSTRING(icEndJobNo,1,iJobLen)
         AND job-hdr.job-no2   >= iiBegJobNo2
         AND job-hdr.job-no2   <= iiEndJobNo2,
       FIRST eb NO-LOCK

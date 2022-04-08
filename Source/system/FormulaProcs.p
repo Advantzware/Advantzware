@@ -1438,7 +1438,7 @@ PROCEDURE pGetBuffersForPOLine:
             FIND FIRST bf-job-mat NO-LOCK 
                  WHERE bf-job-mat.company    EQ ipbf-po-ordl.company
                    AND bf-job-mat.rm-i-no    EQ ipbf-po-ordl.i-no
-                   AND trim(bf-job-mat.job-no) EQ trim(ipbf-po-ordl.job-no)  
+                   AND bf-job-mat.job-no     EQ ipbf-po-ordl.job-no  
                    AND bf-job-mat.job-no2    EQ ipbf-po-ordl.job-no2
                    AND bf-job-mat.i-no       EQ ipbf-po-ordl.i-no
                    AND ((bf-job-mat.frm      EQ ipbf-po-ordl.s-num AND ipbf-po-ordl.s-num NE 0) OR

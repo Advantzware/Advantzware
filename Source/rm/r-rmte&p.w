@@ -1993,7 +1993,7 @@ PROCEDURE post-rm :
 
         FIND FIRST job NO-LOCK
             WHERE job.company EQ rm-rctd.company
-            AND trim(job.job-no) EQ TRIM(rm-rctd.job-no)
+            AND job.job-no  EQ rm-rctd.job-no
             AND job.job-no2 EQ rm-rctd.job-no2
             NO-ERROR.
 
@@ -2583,7 +2583,7 @@ PROCEDURE run-report :
                     WHERE po-ordl.company   EQ cocode
                     AND po-ordl.i-no      EQ tt-rctd.i-no
                     AND po-ordl.po-no     EQ int(v-po-no)
-                    AND trim(po-ordl.job-no) EQ trim(tt-rctd.job-no)
+                    AND po-ordl.job-no    EQ tt-rctd.job-no
                     AND po-ordl.job-no2   EQ tt-rctd.job-no2
                     AND po-ordl.item-type EQ YES
                     USE-INDEX item-ordno NO-LOCK NO-ERROR.
@@ -2600,7 +2600,7 @@ PROCEDURE run-report :
             IF tt-rctd.job-no NE "" AND tt-rctd.s-num EQ ? THEN
                 FIND FIRST job
                     WHERE job.company EQ cocode
-                    AND trim(job.job-no)  EQ trim(tt-rctd.job-no)
+                    AND job.job-no  EQ tt-rctd.job-no
                     AND job.job-no2 EQ tt-rctd.job-no2
                     NO-LOCK NO-ERROR.
 
@@ -2686,7 +2686,7 @@ PROCEDURE run-report :
         NO-LOCK,
         FIRST job
         WHERE job.company EQ cocode
-        AND trim(job.job-no)  EQ trim(tt-rctd.job-no)
+        AND job.job-no  EQ tt-rctd.job-no
         AND job.job-no2 EQ tt-rctd.job-no2
         NO-LOCK,
 
@@ -2774,7 +2774,7 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
             WHERE po-ordl.company   EQ cocode
             AND po-ordl.po-no     EQ po-ord.po-no
             AND po-ordl.i-no      EQ tt-rctd.i-no
-            AND trim(po-ordl.job-no) EQ trim(tt-rctd.job-no)
+            AND po-ordl.job-no    EQ tt-rctd.job-no
             AND po-ordl.job-no2   EQ tt-rctd.job-no2
             AND po-ordl.s-num     EQ tt-rctd.s-num
             AND po-ordl.b-num     EQ tt-rctd.b-num
@@ -2820,7 +2820,7 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
 
                 FOR EACH job-hdr
                     WHERE job-hdr.company EQ cocode
-                    AND trim(job-hdr.job-no)  EQ trim(tt-rctd.job-no)
+                    AND job-hdr.job-no  EQ tt-rctd.job-no
                     AND job-hdr.job-no2 EQ tt-rctd.job-no2
                     NO-LOCK,
                     FIRST job OF job-hdr NO-LOCK
@@ -2830,8 +2830,8 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                 END.
 
                 FOR EACH job-hdr
-                    WHERE job-hdr.company     EQ cocode
-                    AND trim(job-hdr.job-no)  EQ trim(tt-rctd.job-no)
+                    WHERE job-hdr.company   EQ cocode
+                    AND job-hdr.job-no      EQ tt-rctd.job-no
                     AND job-hdr.job-no2     EQ tt-rctd.job-no2
                     AND ((job-hdr.frm       EQ tt-rctd.s-num AND
                     (job-hdr.blank-no EQ tt-rctd.b-num OR tt-rctd.b-num EQ 0))

@@ -40,10 +40,10 @@ def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-val as recid no-undo.
-{sys/inc/var.i}
-
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
+
+{sys/inc/var.i new shared}
 
 &scoped-define SORTBY-1 BY job-hdr.job-no DESCENDING
 &scoped-define SORTBY-2 BY job-hdr.i-no
@@ -387,7 +387,7 @@ DO:
           FOR EACH ASI.job WHERE {&KEY-PHRASE}
               and ASI.job.company = ip-company AND ASI.job.stat > "C" NO-LOCK,
               EACH ASI.job-hdr OF ASI.job 
-              WHERE TRIM(job-hdr.job-no) BEGINS lv-search 
+              WHERE job-hdr.job-no BEGINS lv-search 
               NO-LOCK
               {&sortby-1}.
 
@@ -425,7 +425,7 @@ DO:
           FOR EACH ASI.job WHERE {&KEY-PHRASE}
               and ASI.job.company = ip-company AND ASI.job.stat > "C" NO-LOCK,
               EACH ASI.job-hdr OF ASI.job 
-              WHERE TRIM(job-hdr.job-no) BEGINS lv-search 
+              WHERE job-hdr.job-no BEGINS lv-search 
               NO-LOCK
               {&sortby-1}.
 

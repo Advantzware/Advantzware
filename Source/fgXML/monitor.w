@@ -362,7 +362,7 @@ PROCEDURE get-set-full-qty:
   lv-out-qty = 0.
   FOR EACH b-fg-rctd WHERE b-fg-rctd.company eq g_company and
            (b-fg-rctd.rita-code eq "R" or b-fg-rctd.rita-code eq "E")
-           AND trim(b-fg-rctd.job-no) = trim(fg-rctd.job-no)
+           AND b-fg-rctd.job-no = fg-rctd.job-no
            AND b-fg-rctd.job-no2 = (fg-rctd.job-no2)
            AND b-fg-rctd.i-no = fg-rctd.i-no 
            AND recid(b-fg-rctd) <> recid(fg-rctd)

@@ -39,7 +39,7 @@ IF AVAIL itemfg THEN DO:
       FIND FIRST fg-bin
           WHERE fg-bin.company EQ itemfg.company
             AND fg-bin.i-no    EQ itemfg.i-no
-            AND trim(fg-bin.job-no)  EQ trim(ip-job-no)
+            AND fg-bin.job-no  EQ ip-job-no
             AND ((ip-job-no NE "" AND
                   fg-bin.job-no2 EQ ip-job-no2) OR
                  ip-job-no EQ "")
