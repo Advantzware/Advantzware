@@ -5090,55 +5090,55 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
     ASSIGN
         lCostFound = NO
         opdCost    = 0
-        opdSetup   = 0.
-    
-    IF gcCECostSourceLookup = "VendorCostOnly" THEN
-    DO: 
-        IF glVendItemCost THEN 
+        opdSetup   = 0.    
+     
+    IF glVendItemCost THEN 
+    DO:
+        ASSIGN 
+            cScope              = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM-Over")
+            lIncludeBlankVendor = YES
+            .
+        IF ipbf-estCostMaterial.vendorID NE "" OR glUseBlankVendor THEN 
         DO:
-            ASSIGN 
-                cScope              = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM-Over")
-                lIncludeBlankVendor = YES
-                .
-            IF ipbf-estCostMaterial.vendorID NE "" OR glUseBlankVendor THEN 
-            DO:
-                opcVendorID = ipbf-estCostMaterial.vendorID.
-                RUN GetVendorCost(ipbf-estCostMaterial.company, ipbf-estCostMaterial.itemID, "RM", 
-                    opcVendorID, "", ipbf-estCostMaterial.estimateNo, ipbf-estCostMaterial.formNo, ipbf-estCostMaterial.blankNo, 
-                    ipdQty, ipcQtyUOM, 
-                    ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
-                    ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM, 
-                    NO,
-                    OUTPUT opdCost, OUTPUT opdSetup, OUTPUT opcCostUOM, OUTPUT dCostTotal, OUTPUT lError, OUTPUT cMessage).
-            END.
-            ELSE 
-            DO:                        
-                RUN VendCost_GetBestCost(ipbf-estCostMaterial.company, 
-                    ipbf-estCostMaterial.itemID, 
-                    "RM", 
-                    cScope, 
-                    lIncludeBlankVendor, 
-                    ipbf-estCostMaterial.estimateNo, 
-                    ipbf-estCostMaterial.formNo, 
-                    ipbf-estCostMaterial.blankNo,
-                    ipdQty, 
-                    ipcQtyUOM, 
-                    ipbf-estCostMaterial.dimLength,  
-                    ipbf-estCostMaterial.dimWidth, 
-                    ipbf-estCostMaterial.dimDepth, 
-                    ipbf-estCostMaterial.dimUOM, 
-                    ipbf-estCostMaterial.basisWeight, 
-                    ipbf-estCostMaterial.basisWeightUOM,
-                    OUTPUT opdCost, 
-                    OUTPUT opcCostUOM, 
-                    OUTPUT opdSetup, 
-                    OUTPUT opcVendorID, 
-                    OUTPUT opdCostDeviation, 
-                    OUTPUT dCostTotal,
-                    OUTPUT lError, 
-                    OUTPUT cMessage).
-            END.
+            opcVendorID = ipbf-estCostMaterial.vendorID.
+            RUN GetVendorCost(ipbf-estCostMaterial.company, ipbf-estCostMaterial.itemID, "RM", 
+                opcVendorID, "", ipbf-estCostMaterial.estimateNo, ipbf-estCostMaterial.formNo, ipbf-estCostMaterial.blankNo, 
+                ipdQty, ipcQtyUOM, 
+                ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
+                ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM, 
+                NO,
+                OUTPUT opdCost, OUTPUT opdSetup, OUTPUT opcCostUOM, OUTPUT dCostTotal, OUTPUT lError, OUTPUT cMessage).
         END.
+        ELSE 
+        DO:                        
+            RUN VendCost_GetBestCost(ipbf-estCostMaterial.company, 
+                ipbf-estCostMaterial.itemID, 
+                "RM", 
+                cScope, 
+                lIncludeBlankVendor, 
+                ipbf-estCostMaterial.estimateNo, 
+                ipbf-estCostMaterial.formNo, 
+                ipbf-estCostMaterial.blankNo,
+                ipdQty, 
+                ipcQtyUOM, 
+                ipbf-estCostMaterial.dimLength,  
+                ipbf-estCostMaterial.dimWidth, 
+                ipbf-estCostMaterial.dimDepth, 
+                ipbf-estCostMaterial.dimUOM, 
+                ipbf-estCostMaterial.basisWeight, 
+                ipbf-estCostMaterial.basisWeightUOM,
+                OUTPUT opdCost, 
+                OUTPUT opcCostUOM, 
+                OUTPUT opdSetup, 
+                OUTPUT opcVendorID, 
+                OUTPUT opdCostDeviation, 
+                OUTPUT dCostTotal,
+                OUTPUT lError, 
+                OUTPUT cMessage).
+        END.
+    END.
+    ELSE 
+    DO:
         
         FIND FIRST e-item NO-LOCK
             WHERE e-item.company EQ ipbf-estCostMaterial.company
@@ -5166,12 +5166,12 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
                     BY e-item-vend.vend-no:
                     LEAVE.
                 END.
-    
+        
             IF AVAILABLE e-item-vend THEN
             DO:
                 IF e-item-vend.std-uom NE "" THEN
                     opcCostUom = e-item-vend.std-uom.
-    
+        
                 DO iIndex = 1 TO 10:
                     ASSIGN
                         dRunQty[iIndex]  = e-item-vend.run-qty[iIndex]
@@ -5205,16 +5205,16 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
             END.
         END.
     END.
-    ELSE IF ipbf-estCostMaterial.isRealMaterial THEN
-        DO:
-            IF gcCECostSourceLookup = "VendorCostThenLast" THEN
-                ASSIGN opdCost = ipbf-estCostMaterial.costPerUOMLast.
-            ELSE IF gcCECostSourceLookup = "VendorCostThenAverage" THEN
-                    ASSIGN 
-                        opdCost = ipbf-estCostMaterial.costPerUOMAvg.                    
-            ASSIGN 
-                opcCostUOM = ipbf-estCostMaterial.quantityUOM.  /*REFACTOR? - What uom is avg and last cost in*/            
-        END.        
+    
+    IF gcCECostSourceLookup NE "VendorCostOnly" AND ipbf-estCostMaterial.isRealMaterial AND (opdCost EQ 0 OR lError) THEN
+    DO:
+        IF gcCECostSourceLookup EQ "VendorCostThenLast" THEN
+            ASSIGN opdCost = ipbf-estCostMaterial.costPerUOMLast.
+        ELSE IF gcCECostSourceLookup EQ "VendorCostThenAverage" THEN
+                ASSIGN opdCost = ipbf-estCostMaterial.costPerUOMAvg.                    
+        ASSIGN 
+            opcCostUOM = ipbf-estCostMaterial.quantityUOM.  /*REFACTOR? - What uom is avg and last cost in*/            
+    END.        
 END PROCEDURE.
 
 PROCEDURE pGetMiscCostPerM PRIVATE:
