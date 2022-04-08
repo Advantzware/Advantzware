@@ -1116,7 +1116,7 @@ PROCEDURE gl-from-work :
                 period.pnum,
                 "A",
                 TODAY,
-                (IF work-gl.job-no NE "" THEN "Job:" + STRING(work-gl.job-no) + "-" + STRING(work-gl.job-no2,"99") ELSE ""),
+                (IF work-gl.job-no NE "" THEN "Job:" + STRING(work-gl.job-no) + "-" + STRING(work-gl.job-no2,"999") ELSE ""),
                 "WIP"). 
             ASSIGN
                 debits  = 0
@@ -2593,8 +2593,8 @@ PROCEDURE run-report :
     {sys/form/r-topw.f}
 
     DEFINE VARIABLE v-date           LIKE pc-prdd.op-date EXTENT 2 FORMAT "99/99/9999" INIT TODAY NO-UNDO.
-    DEFINE VARIABLE v-job-no         LIKE job.job-no EXTENT 2 INIT ["","zzzzzz"] NO-UNDO.
-    DEFINE VARIABLE v-job-no2        LIKE job.job-no2 EXTENT 2 FORMAT "99" INIT [0,99] NO-UNDO.
+    DEFINE VARIABLE v-job-no         LIKE job.job-no EXTENT 2 INIT ["","zzzzzzzzz"] NO-UNDO.
+    DEFINE VARIABLE v-job-no2        LIKE job.job-no2 EXTENT 2 FORMAT "999" INIT [0,999] NO-UNDO.
     DEFINE VARIABLE v-m-code         LIKE mach.m-code EXTENT 2 INIT ["","zzzzzz"] NO-UNDO. 
     DEFINE VARIABLE cLoc             AS CHARACTER EXTENT 2 INIT ["","zzzzz"] NO-UNDO. 
     DEFINE VARIABLE v-shift          LIKE pc-prdd.shift EXTENT 2 NO-UNDO.

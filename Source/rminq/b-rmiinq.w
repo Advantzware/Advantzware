@@ -515,7 +515,7 @@ ASSIGN
      _FldNameList[3]   > ASI.rm-rcpth.job-no
 "rm-rcpth.job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.rm-rcpth.job-no2
-"rm-rcpth.job-no2" "" "99" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rcpth.job-no2" "" "999" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.rm-rdtlh.s-num
 "rm-rdtlh.s-num" "F" ? "integer" ? ? ? 14 ? ? yes ? no no "3" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.rm-rcpth.trans-date

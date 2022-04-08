@@ -883,7 +883,7 @@ PROCEDURE run-report :
     FORM pc-misc.misc-date COLUMN-LABEL "TRANS DATE"
         pc-misc.ml COLUMN-LABEL "MATL/LABOR"
         pc-misc.job-no COLUMN-LABEL "JOB #" SPACE(0) "-" SPACE(0)
-        pc-misc.job-no2 NO-LABELS FORMAT "99"
+        pc-misc.job-no2 NO-LABELS FORMAT "999"
         pc-misc.frm COLUMN-LABEL "F /" SPACE(0) "/" SPACE(0)
         pc-misc.blank-no COLUMN-LABEL "B"
         pc-misc.i-no COLUMN-LABEL "ITEM #"

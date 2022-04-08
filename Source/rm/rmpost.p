@@ -759,8 +759,8 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
             if not avail job-mat then do:
                bell.
                message " Job Mat Record not found for "
-                       string(job.job-no + "-" + string(job.job-no2,"99") +
-                              "  " + rm-rctd.i-no)
+                       TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) +
+                              "  " + rm-rctd.i-no
                        VIEW-AS ALERT-BOX.
                undo transblok, next transblok.
             end.

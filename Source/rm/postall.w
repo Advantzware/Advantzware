@@ -875,8 +875,8 @@ PROCEDURE rm-post-issue :
              find job-mat where recid(job-mat) eq v-recid no-error.          
              if not avail job-mat then do:
                 message " Job Mat Record not found for "
-                      string(job.job-no + "-" + string(job.job-no2,"99") +
-                             "  " + rm-rcpt.i-no).
+                      TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) +
+                             "  " + rm-rcpt.i-no.
                 return error.
              end.
 
