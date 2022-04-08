@@ -8039,6 +8039,8 @@ PROCEDURE SubmitPhysicalCountScan:
     
     DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
     
+    DEFINE BUFFER bf-item FOR item.
+    
     ASSIGN
         ipcWarehouseID = CAPS(ipcWarehouseID)
         ipcLocationID  = CAPS(ipcLocationID)
@@ -8061,24 +8063,28 @@ PROCEDURE SubmitPhysicalCountScan:
         IF NOT AVAILABLE ttPhysicalBrowseInventory THEN DO:
             CREATE ttPhysicalBrowseInventory.
             ASSIGN
-                ttPhysicalBrowseInventory.company          = inventoryStockSnapshot.company
-                ttPhysicalBrowseInventory.inventoryStockID = inventoryStockSnapshot.inventoryStockID
-                ttPhysicalBrowseInventory.tag              = inventoryStockSnapshot.tag
-                ttPhysicalBrowseInventory.itemType         = inventoryStockSnapshot.itemType
-                ttPhysicalBrowseInventory.itemID           = IF inventoryStockSnapshot.itemType EQ 'FG' THEN
-                                                                 inventoryStockSnapshot.fgItemID
-                                                             ELSE IF inventoryStockSnapshot.itemType EQ 'RM' THEN
-                                                                 inventoryStockSnapshot.rmItemID
-                                                             ELSE
-                                                                 inventoryStockSnapshot.wipItemID
-                ttPhysicalBrowseInventory.origQuantity     = inventoryStockSnapshot.quantityOriginal
-                ttPhysicalBrowseInventory.quantityUOM      = inventoryStockSnapshot.quantityUOM
-                ttPhysicalBrowseInventory.customerID       = inventoryStockSnapshot.customerID
-                ttPhysicalBrowseInventory.origLocationID   = inventoryStockSnapshot.locationID
-                ttPhysicalBrowseInventory.origWarehouseID  = inventoryStockSnapshot.warehouseID
-                ttPhysicalBrowseInventory.origLocation     = ttPhysicalBrowseInventory.origWarehouseID +
-                                                             FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) +
-                                                             ttPhysicalBrowseInventory.origLocationID            
+                ttPhysicalBrowseInventory.company            = inventoryStockSnapshot.company
+                ttPhysicalBrowseInventory.inventoryStockID   = inventoryStockSnapshot.inventoryStockID
+                ttPhysicalBrowseInventory.tag                = inventoryStockSnapshot.tag
+                ttPhysicalBrowseInventory.itemType           = inventoryStockSnapshot.itemType
+                ttPhysicalBrowseInventory.itemID             = IF inventoryStockSnapshot.itemType EQ 'FG' THEN
+                                                                   inventoryStockSnapshot.fgItemID
+                                                               ELSE IF inventoryStockSnapshot.itemType EQ 'RM' THEN
+                                                                   inventoryStockSnapshot.rmItemID
+                                                               ELSE
+                                                                   inventoryStockSnapshot.wipItemID
+                ttPhysicalBrowseInventory.origQuantity       = inventoryStockSnapshot.quantityOriginal
+                ttPhysicalBrowseInventory.quantityUOM        = inventoryStockSnapshot.quantityUOM
+                ttPhysicalBrowseInventory.customerID         = inventoryStockSnapshot.customerID
+                ttPhysicalBrowseInventory.origLocationID     = inventoryStockSnapshot.locationID
+                ttPhysicalBrowseInventory.origWarehouseID    = inventoryStockSnapshot.warehouseID
+                ttPhysicalBrowseInventory.origLocation       = ttPhysicalBrowseInventory.origWarehouseID +
+                                                               FILL(" ", iWarehouseLength - LENGTH(ttPhysicalBrowseInventory.origWarehouseID)) +
+                                                               ttPhysicalBrowseInventory.origLocationID            
+                ttPhysicalBrowseInventory.quantityPerSubUnit = IF inventoryStockSnapshot.quantityPerSubUnit EQ 0 THEN 1 ELSE inventoryStockSnapshot.quantityPerSubUnit
+                ttPhysicalBrowseInventory.quantityOfSubUnits = inventoryStockSnapshot.quantityOfSubUnits
+                ttPhysicalBrowseInventory.quantityPartial    = inventoryStockSnapshot.quantityPartial 
+                ttPhysicalBrowseInventory.quantityUOM        = inventoryStockSnapshot.quantityUOM                                                                 
                 .
         END.             
         
@@ -8128,12 +8134,32 @@ PROCEDURE SubmitPhysicalCountScan:
         IF NOT AVAILABLE ttPhysicalBrowseInventory THEN DO:
             CREATE ttPhysicalBrowseInventory.
             ASSIGN            
-                ttPhysicalBrowseInventory.company         = loadtag.company
-                ttPhysicalBrowseInventory.tag             = loadtag.tag-no
-                ttPhysicalBrowseInventory.itemID          = loadtag.i-no
-                ttPhysicalBrowseInventory.itemType        = STRING(loadtag.item-type, 'RM/FG')                            
-                ttPhysicalBrowseInventory.quantity        = loadtag.qty
+                ttPhysicalBrowseInventory.company            = loadtag.company
+                ttPhysicalBrowseInventory.tag                = loadtag.tag-no
+                ttPhysicalBrowseInventory.itemID             = loadtag.i-no
+                ttPhysicalBrowseInventory.itemType           = STRING(loadtag.item-type, 'RM/FG')                            
+                ttPhysicalBrowseInventory.quantity           = loadtag.qty
+                ttPhysicalBrowseInventory.quantityPerSubUnit = loadtag.qty-case
+                ttPhysicalBrowseInventory.quantityOfSubUnits = loadtag.case-bundle
+                ttPhysicalBrowseInventory.quantityPartial    = loadtag.partial
                 .
+            
+            IF loadtag.item-type THEN DO:
+                FIND FIRST bf-item NO-LOCK
+                     WHERE bf-item.company EQ loadtag.company
+                       AND bf-item.i-no    EQ loadtag.i-no
+                     NO-ERROR.
+                IF AVAILABLE bf-item THEN
+                    ttPhysicalBrowseInventory.quantityUOM = bf-item.cons-uom.
+            END.
+            ELSE
+                ttPhysicalBrowseInventory.quantityUOM = "EA".
+
+            IF ttPhysicalBrowseInventory.itemType = "FG" THEN
+                ASSIGN
+                    ttPhysicalBrowseInventory.quantityOfSubUnits = TRUNCATE(ttPhysicalBrowseInventory.quantity / ttPhysicalBrowseInventory.quantityPerSubUnit, 0)
+                    ttPhysicalBrowseInventory.quantityPartial    = ttPhysicalBrowseInventory.quantity - (ttPhysicalBrowseInventory.quantityOfSubUnits * ttPhysicalBrowseInventory.quantityPerSubUnit)
+                    .               
             
             IF NOT iplSetParamLoc THEN
                 ASSIGN
