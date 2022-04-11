@@ -956,7 +956,7 @@ def var v-fg like po-ordl.i-no.
 
 def var v-cust-vend as char format "x(26)" init "--------- VENDOR ---------".
 
-def var v-job-no as char format "x(9)".
+def var v-job-no as char format "x(13)".
 
 def var tot-cons-qty like po-ordl.cons-qty no-undo.
 def var tot-rec-qty as dec no-undo.
@@ -984,38 +984,38 @@ form header
      lv-label[1]                            FORMAT "x(20)" 
      skip(1)
      "Job#"                     at 1
-     "PO#"                      to 16
-     "Qty Ord"                  to 25
-     "Receivd"                  to 33
-     "Customer Name"            at 35
-     "   Due  "                 at 56
-     "Units"                    at 65
-     "Sht W"                    to 77
-     "Sht L"                    to 84
-     lv-label[2]                at 86       FORMAT "x(8)"
-     "FGItem#"                  at 95
-     "RMItem#"                  at 110
-     "MSF Rem"                  to 128
-     "Ship?"                    at 130
+     "PO#"                      to 20
+     "Qty Ord"                  to 29
+     "Receivd"                  to 37
+     "Customer Name"            at 39
+     "   Due  "                 AT 60
+     "Units"                    at 69
+     "Sht W"                    to 81
+     "Sht L"                    to 88
+     lv-label[2]                at 90       FORMAT "x(8)"
+     "FGItem#"                  at 99
+     "RMItem#"                  at 114
+     "MSF Rem"                  to 132
+     "Ship?"                    at 134
      skip
-     fill("-",134) format "x(134)"
+     fill("-",138) format "x(138)"
 
     with frame r-top.
 
 form v-job-no                   at 1     
-     po-ordl.po-no              to 16
-     v-char-ord-qty             to 25
-     v-trcv                     to 33
-     v-cust-name                at 35  format "x(20)"
-     tt-report.key-07           at 56
-     lv-under[1]                at 65
-     po-ordl.s-wid              to 77  format "->>9.99"
-     po-ordl.s-len              to 84  format "->>9.99"
-     tt-report.mach-vend        at 86
-     v-fg                       at 95  format "x(15)"       
-     v-raw                      at 110 format "x(10)"
-     v-msf-rem                  to 128
-     lv-under[2]                at 130
+     po-ordl.po-no              to 20
+     v-char-ord-qty             to 29
+     v-trcv                     to 37
+     v-cust-name                at 39  format "x(20)"
+     tt-report.key-07           at 60
+     lv-under[1]                at 69
+     po-ordl.s-wid              to 81  format "->>9.99"
+     po-ordl.s-len              to 88  format "->>9.99"
+     tt-report.mach-vend        at 90
+     v-fg                       at 99  format "x(15)"       
+     v-raw                      at 114 format "x(10)"
+     v-msf-rem                  to 132
+     lv-under[2]                at 134
 
     with down STREAM-IO WIDTH 200 no-labels no-box no-underline frame sh-ord.
 
@@ -1088,12 +1088,12 @@ VIEW frame r-top.
       release oe-ordl.
 
       assign
-       v-job-no    = trim(po-ordl.job-no) + "-" + string(po-ordl.job-no2,"99")
+       v-job-no    = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2)))
        v-raw       = ""
        v-fg        = ""
        v-cust-name = "".
 
-      if trim(v-job-no) eq "-00" then v-job-no = "".
+      if trim(v-job-no) eq "-000" then v-job-no = "".
 
       if po-ordl.item-type then do:
         v-raw = po-ordl.i-no.

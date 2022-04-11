@@ -13,11 +13,11 @@
         PUT  SKIP(3) "<R32.5><C3><FROM><R32.5><C80><LINE>" SKIP .        
         PUT  "<R32.5><C70><FROM><R65><C70><LINE>" SKIP .            
         PUT  "<R34><C10><P16> <b>WIP #:  </b> " ttPrintInventoryStock.tag FORMAT "x(30)".
-        PUT  "<R36><C10><P16> <b>Job #:  </b> " ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"99") FORMAT "x(12)".
+        PUT  "<R36><C10><P16> <b>Job #:  </b> " ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"999") FORMAT "x(13)".
         PUT  "<R38><C10><P16> <b>Form #:</b>" ttPrintInventoryStock.formNo FORMAT ">>9" .
          
-        PUT   "<#=100><C40><R36><FROM><C68><R+3><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"99") FORMAT "x(10)" ">"
-              "<C52><R39>" ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"99") FORMAT "x(10)" .
+        PUT   "<#=100><C40><R36><FROM><C68><R+3><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"999") FORMAT "x(13)" ">"
+              "<C52><R39>" ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"999") FORMAT "x(13)" .
          
         PUT  "<R41><C3><FROM><R41><C70><LINE>" SKIP .          
         PUT  "<R43><C10><P16><b>Date / Time Created:</b> " .            

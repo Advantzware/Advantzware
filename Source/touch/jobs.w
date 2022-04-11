@@ -890,7 +890,7 @@ PROCEDURE Get_Jobs :
 
     IF ip-sort-by EQ "JOB" THEN
     &Scoped-define sortBy
-    &Scoped-define sortKey job.job-no + STRING(job.job-no2,"99")
+    &Scoped-define sortKey job.job-no + STRING(job.job-no2,"999")
     {addon/touch/Get_Jobs.i}
     ELSE
     &Scoped-define sortBy BY job.start-date
@@ -901,7 +901,7 @@ IF job-mch.start-date NE ? AND ~
   + STRING(MONTH(job-mch.start-date),"99") ~
   + STRING(DAY(job-mch.start-date),"99") ~
   + STRING(job-mch.start-time,"99999") ~
-    ELSE "9999999999999" + job.job-no + STRING(job.job-no2,"99")
+    ELSE "9999999999999" + job.job-no + STRING(job.job-no2,"999")
     {addon/touch/Get_Jobs.i}
 
     FOR EACH tt-job BY tt-job.sortKey:

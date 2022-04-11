@@ -1366,14 +1366,14 @@ PROCEDURE run-report :
     DEFINE BUFFER b-ref2 FOR reftable.
 
     DEFINE VARIABLE v-job-no       LIKE job.job-no EXTENT 2
-        INIT ["", "zzzzzz"] NO-UNDO.
-    DEFINE VARIABLE v-job-no2      LIKE job.job-no2 EXTENT 2 FORMAT "99"
-        INIT [00, 99] NO-UNDO.
+        INIT ["", "zzzzzzzzz"] NO-UNDO.
+    DEFINE VARIABLE v-job-no2      LIKE job.job-no2 EXTENT 2 FORMAT "999"
+        INIT [000, 999] NO-UNDO.
     DEFINE VARIABLE v-sort-by-size AS LOG       INIT NO FORMAT "yes/no" NO-UNDO.
     DEFINE VARIABLE v-mattype-list AS CHARACTER FORMAT "x(36)" NO-UNDO.
     DEFINE VARIABLE v-mat-dscr     AS CHARACTER FORMAT "x(21)" EXTENT 21 NO-UNDO.
 
-    DEFINE VARIABLE v-job          AS CHARACTER FORMAT "x(9)" NO-UNDO.
+    DEFINE VARIABLE v-job          AS CHARACTER FORMAT "x(13)" NO-UNDO.
     DEFINE VARIABLE v-itm          AS CHARACTER FORMAT "x(10)" NO-UNDO.
     DEFINE VARIABLE v-qty          LIKE ITEM.q-onh EXTENT 4 NO-UNDO.
     DEFINE VARIABLE v-uom          LIKE job-mat.qty-uom NO-UNDO.
@@ -1420,7 +1420,7 @@ PROCEDURE run-report :
         "Scoring"                      AT 100
         "Date Due"                     AT 134
         SKIP
-        "---------"                    TO 9
+        "-------------"                TO 9
         "----------"                   AT 13
         "---"                          AT 24
         "--------------"               TO 41
@@ -1448,7 +1448,7 @@ PROCEDURE run-report :
         "Name"                         AT 104
         "Date Due"                     AT 125
         SKIP
-        "---------"                    TO 9
+        "-------------"                TO 9
         "----------"                   AT 13
         "---"                          AT 24
         "--------------"               TO 41

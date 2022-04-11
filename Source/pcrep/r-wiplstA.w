@@ -91,25 +91,25 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-wiplst.csv" 
      LABEL "If Yes, File Name" 
@@ -177,11 +177,11 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 DEFINE FRAME FRAME-A
      begin_job-no AT ROW 3.38 COL 23 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 3.38 COL 36 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 3.38 COL 38 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 3.38 COL 62 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 3.38 COL 74 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 3.38 COL 76 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      rd-dest AT ROW 11 COL 6 NO-LABEL
      lv-ornt AT ROW 11.24 COL 31 NO-LABEL
@@ -566,9 +566,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     {custom/usrprint.i}
     IF end_job-no:SCREEN-VALUE = "" THEN
-        end_job-no:SCREEN-VALUE = "zzzzzz".
+        end_job-no:SCREEN-VALUE = "zzzzzzzzz".
     IF end_job-no2:SCREEN-VALUE = "" THEN
-        end_job-no2:SCREEN-VALUE = "99".
+        end_job-no2:SCREEN-VALUE = "999".
     APPLY "entry" TO begin_job-no .
 
    END.
@@ -829,8 +829,8 @@ PROCEDURE run-report :
 
 {sys/form/r-topw.f}
 
-def var v-job-no like job.job-no extent 2 initial [" ", "ZZZZZZ"] no-undo.
-def var v-job-no2 like job.job-no2 extent 2 initial [00, 99] no-undo.
+def var v-job-no like job.job-no extent 2 initial [" ", "ZZZZZZZZZ"] no-undo.
+def var v-job-no2 like job.job-no2 extent 2 initial [000, 999] no-undo.
 def var v-date as date extent 2 no-undo.
 def var v-brd-job as int format ">>>>>>>>>9" no-undo.
 def var v-brd-tot as int format ">>>>>>>>>9" no-undo.
@@ -862,8 +862,7 @@ FORM HEADER
 
 form item.procat
      mat-act.mat-date FORMAT "99/99/99"
-     work-edit.job-no space(0) "-" space(0)
-     work-edit.job-no2 format "99"
+     work-edit.job-no format "x(13)"
      mat-act.s-num space(0) "/" space(0)
      mat-act.b-num
      mat-act.i-no
@@ -873,8 +872,7 @@ form item.procat
 
 form item.procat
      mch-act.op-date FORMAT "99/99/99"
-     work-edit.job-no space(0) "-" space(0)
-     work-edit.job-no2 format "99"
+     work-edit.job-no format "x(13)"
      mch-act.frm format ">9" space(0) "/" space(0)
      mch-act.blank-no
      mch-act.i-no /*"               "*/
@@ -889,8 +887,7 @@ form item.procat
 
 form item.procat
      fg-act.fg-date  FORMAT "99/99/99"
-     work-edit.job-no space(0) "-" space(0)
-     work-edit.job-no2 format "99"
+     work-edit.job-no format "x(13)"
      fg-act.s-num space(0) "/" space(0)
      fg-act.b-num
      fg-act.i-no
@@ -903,18 +900,18 @@ assign
  {sys/inc/ctrtext.i str-tit2 112}
 
    v-job-no[1]   = FILL(" ", iJobLen - length(trim(begin_job-no))) +
-                  trim(begin_job-no) + string(int(begin_job-no2),"99")
+                  trim(begin_job-no) + string(int(begin_job-no2),"999")
    v-job-no[2]   = FILL(" ", iJobLen - length(trim(end_job-no)))   +
-                  trim(end_job-no)   + string(int(end_job-no2),"99") 
+                  trim(end_job-no)   + string(int(end_job-no2),"999") 
  /*
  v-job-no[1]    = begin_job-no
  v-job-no[2]    = end_job-no
  v-job-no2[1]   = begin_rel
  v-job-no2[2]   = end_rel
    */
-       hdr-tit = "TRANS  TRANS      JOB                                      " +
+       hdr-tit = "TRANS  TRANS      JOB                                          " +
              "                     QUANTITY     WASTE      MACH MACH   JOB     "
-       hdr-tit2 = "TYPE    DATE      NUMBER  F/ B ITEM NUMBER     DESCRIPTION " +
+       hdr-tit2 = "TYPE    DATE      NUMBER      F/ B ITEM NUMBER     DESCRIPTION " +
              "                       POSTED       QTY     HOURS CODE   CODE  C "
        hdr-tit3 = fill("-", 131).
 
@@ -940,9 +937,9 @@ display "" with frame r-top.
                           use-index opn-idx
                           no-lock:
       if FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
-         trim(mch-act.job-no) + string(int(mch-act.job-no2),"99") < v-job-no[1] or 
+         trim(mch-act.job-no) + string(int(mch-act.job-no2),"999") < v-job-no[1] or 
          FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
-         trim(mch-act.job-no) + string(int(mch-act.job-no2),"99") > v-job-no[2] THEN next.
+         trim(mch-act.job-no) + string(int(mch-act.job-no2),"999") > v-job-no[2] THEN next.
 
       find first work-edit where work-edit.job = mch-act.job no-error.
 
@@ -960,9 +957,9 @@ display "" with frame r-top.
                           no-lock:
 
       if FILL(" ", iJobLen - length(trim(mat-act.job-no))) +
-         trim(mat-act.job-no) + string(int(mat-act.job-no2),"99") < v-job-no[1] or 
+         trim(mat-act.job-no) + string(int(mat-act.job-no2),"999") < v-job-no[1] or 
          FILL(" ", iJobLen - length(trim(mat-act.job-no))) +
-         trim(mat-act.job-no) + string(int(mat-act.job-no2),"99") > v-job-no[2] THEN next.
+         trim(mat-act.job-no) + string(int(mat-act.job-no2),"999") > v-job-no[2] THEN next.
 
       find first work-edit where work-edit.job = mat-act.job no-error.
 
@@ -980,9 +977,9 @@ display "" with frame r-top.
                          no-lock:
 
       if FILL(" ", iJobLen - length(trim(fg-act.job-no))) +
-         trim(fg-act.job-no) + string(int(fg-act.job-no2),"99") < v-job-no[1] or 
+         trim(fg-act.job-no) + string(int(fg-act.job-no2),"999") < v-job-no[1] or 
          FILL(" ", iJobLen - length(trim(fg-act.job-no))) +
-         trim(fg-act.job-no) + string(int(fg-act.job-no2),"99") > v-job-no[2] THEN next.
+         trim(fg-act.job-no) + string(int(fg-act.job-no2),"999") > v-job-no[2] THEN next.
 
       find first work-edit where work-edit.job = fg-act.job no-error.
 
@@ -1001,9 +998,9 @@ display "" with frame r-top.
                           no-lock:
 
       if FILL(" ", iJobLen - length(trim(misc-act.job-no))) +
-         trim(misc-act.job-no) + string(int(misc-act.job-no2),"99") < v-job-no[1] or 
+         trim(misc-act.job-no) + string(int(misc-act.job-no2),"999") < v-job-no[1] or 
          FILL(" ", iJobLen - length(trim(misc-act.job-no))) +
-         trim(misc-act.job-no) + string(int(misc-act.job-no2),"99") > v-job-no[2] THEN next.
+         trim(misc-act.job-no) + string(int(misc-act.job-no2),"999") > v-job-no[2] THEN next.
 
       find first work-edit where work-edit.job = misc-act.job no-error.
 
@@ -1040,8 +1037,7 @@ display "" with frame r-top.
 
             display item.procat
                     mat-act.mat-date
-                    work-edit.job-no
-                    work-edit.job-no2
+                    TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', work-edit.job-no, work-edit.job-no2))) @ work-edit.job-no
                     mat-act.s-num
                     mat-act.b-num
                     mat-act.i-no
@@ -1086,8 +1082,7 @@ display "" with frame r-top.
 
             display "HRS" @ item.procat
                     mch-act.op-date
-                    work-edit.job-no
-                    work-edit.job-no2
+                    TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', work-edit.job-no, work-edit.job-no2))) @ work-edit.job-no
                     mch-act.frm
                     mch-act.blank-no
                     mch-act.i-no
@@ -1135,8 +1130,7 @@ display "" with frame r-top.
 
             display "F.G." @ item.procat
                     fg-act.fg-date
-                    work-edit.job-no
-                    work-edit.job-no2
+                    TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', work-edit.job-no, work-edit.job-no2))) @ work-edit.job-no
                     fg-act.s-num
                     fg-act.b-num
                     fg-act.i-no
@@ -1173,8 +1167,7 @@ display "" with frame r-top.
             do:
                display "MSC-M" @ item.procat
                        misc-act.misc-date @ mat-act.mat-date
-                       work-edit.job-no @ mat-act.job-no
-                       work-edit.job-no2 @ mat-act.job-no2
+                       TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', work-edit.job-no, work-edit.job-no2))) @ work-edit.job-no
                        misc-act.frm @ mat-act.s-num
                        misc-act.blank-no @ mat-act.b-num
                        misc-act.i-no @ mat-act.i-no
@@ -1201,8 +1194,7 @@ display "" with frame r-top.
             do:
                display "MSC-H" @ item.procat
                        misc-act.misc-date @ mch-act.op-date
-                       misc-act.job-no @ work-edit.job-no
-                       misc-act.job-no2 @ work-edit.job-no2
+                       TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', misc-act.job-no, misc-act.job-no2))) @ work-edit.job-no
                        misc-act.frm @ mch-act.frm
                        misc-act.blank-no @ mch-act.blank-no
                        misc-act.i-no @ mat-act.i-no
@@ -1241,13 +1233,13 @@ display "" with frame r-top.
             end.
          end.
 
-         put skip(1) "JOB TOTALS - " at 20 work-edit.job-no
-             space(0) "-" space(0) work-edit.job-no2 format "99"
-             "         BOARD TOTALS: " at 56 v-brd-job skip
-             "       MACHINE TOTALS: " at 56 v-mch-job " " v-wst-job " "
+         put skip(1) "JOB TOTALS - " at 20 
+             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', work-edit.job-no, work-edit.job-no2))) FORMAT "x(13)" 
+             "         BOARD TOTALS: " at 62 v-brd-job skip
+             "       MACHINE TOTALS: " at 62 v-mch-job " " v-wst-job " "
                                              v-hrs-job skip
-             "FINISHED GOODS TOTALS: " at 56 v-fg-job skip
-             "OTHER MATERIAL TOTALS: " at 56 v-oth-job skip(2).
+             "FINISHED GOODS TOTALS: " at 62 v-fg-job skip
+             "OTHER MATERIAL TOTALS: " at 62 v-oth-job skip(2).
 
          IF tb_excel THEN
             RUN print-job-tot-excel(INPUT v-brd-job, INPUT v-mch-job,
@@ -1256,11 +1248,11 @@ display "" with frame r-top.
 
       end.
       put skip(1) "REPORT TOTALS" at 20
-             "         BOARD TOTALS: " at 56 v-brd-tot skip
-             "       MACHINE TOTALS: " at 56 v-mch-tot " " v-wst-tot " "
+             "         BOARD TOTALS: " at 62 v-brd-tot skip
+             "       MACHINE TOTALS: " at 62 v-mch-tot " " v-wst-tot " "
                                              v-hrs-tot skip
-             "FINISHED GOODS TOTALS: " at 56 v-fg-tot skip
-             "OTHER MATERIAL TOTALS: " at 56 v-oth-tot skip.
+             "FINISHED GOODS TOTALS: " at 62 v-fg-tot skip
+             "OTHER MATERIAL TOTALS: " at 62 v-oth-tot skip.
 
       IF tb_excel THEN
          RUN print-rep-tot-excel(INPUT v-brd-tot, INPUT v-mch-tot,
