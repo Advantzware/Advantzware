@@ -35,6 +35,7 @@ def input parameter ip-loc like rm-bin.loc no-undo.
 def input parameter ip-i-no like rm-bin.i-no no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-rowid-val AS ROWID no-undo.
+{sys/inc/var.i}
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.

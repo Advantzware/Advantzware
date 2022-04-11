@@ -126,7 +126,7 @@ DEFINE SHARED VARIABLE v-print-components AS LOGICAL          NO-UNDO.
 DEFINE SHARED VARIABLE s-print-part-no    AS LOGICAL          NO-UNDO.
 
 
-FORMAT w-oe-rell.ord-no          TO 6
+FORMAT w-oe-rell.ord-no          TO 8
 v-bin                            AT 10   FORMAT "x(34)"
 w-bin.w-par                      AT 44   FORMAT "x(25)"
 w-bin.w-unit-count               TO 76   FORMAT "->>>>>"

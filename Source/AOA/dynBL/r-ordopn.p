@@ -11,6 +11,7 @@
 /* Temp-Table Definitions ---                                           */
 
 &Scoped-define ttTempTable ttOpenOrderReport 
+{sys/inc/var.i}
 {aoa/tempTable/ttOpenOrderReport.i}
 {aoa/tempTable/ttOpenOrderReportDetail.i}
 

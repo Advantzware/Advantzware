@@ -38,6 +38,7 @@ DEF INPUT PARAM ip-release# AS cha NO-UNDO.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 DEF OUTPUT PARAM op-rec-val AS RECID NO-UNDO.
+{sys/inc/var.i}
 
 {sys/inc/var.i new shared}
 

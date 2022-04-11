@@ -36,6 +36,7 @@ def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def var lv-first-time as log init yes no-undo.
 def var lv-type-dscr as cha no-undo.
+{sys/inc/var.i}
 &scoped-define fld-name-1 eb.est-no
 &scoped-define fld-name-2 eb.part-no
 &scoped-define SORTBY-1 BY eb.est-no

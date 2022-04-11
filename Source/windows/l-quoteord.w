@@ -22,6 +22,7 @@ DEF INPUT PARAMETER ip-cur-val AS INT NO-UNDO.
 DEF OUTPUT PARAM op-int-val AS INT NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/var.i}
 
 DEFINE TEMP-TABLE tt-quote
     FIELD q-no AS INT

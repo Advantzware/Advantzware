@@ -28,6 +28,7 @@
 USING System.SharedConfig.
 
 /* ***************************  Definitions  ************************** */
+{sys/inc/var.i}
 {api/ttArgs.i}
 
 {methods/defines/hndldefs.i}

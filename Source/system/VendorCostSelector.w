@@ -91,7 +91,7 @@ DEFINE BUFFER bf-item FOR ITEM.
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brVendItemCost   
 &Scoped-define SELF-NAME brVendItemCost
 &Scoped-define QUERY-STRING-brVendItemCost FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = (IF tbShowAll:CHECKED in frame {&frame-name} THEN ttVendItemCost.isValid else TRUE) by ttVendItemCost.costTotal ~{&SORTBY-PHRASE}.
+&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = (IF tbShowAll:CHECKED in frame {&frame-name} THEN ttVendItemCost.isValid else TRUE) AND (ttVendItemCost.estimateNo = ipcEstimateNo OR ttVendItemCost.estimateNo = "") by ttVendItemCost.costTotal ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-brVendItemCost ttVendItemCost
 &Scoped-define FIRST-TABLE-IN-QUERY-brVendItemCost ttVendItemCost
 
@@ -233,7 +233,7 @@ DEFINE BROWSE brVendItemCost
             LABEL-BGCOLOR 14    FORMAT "x(10)"
       ttvendItemCost.estimateNo +  
         (IF  ttvendItemCost.formNo  =  0 THEN '' ELSE  ('-' + string(ttvendItemCost.formNo ) )) +
-        (IF  ttvendItemCost.blankNo  =  0 THEN '' ELSE  ('-' + string(ttvendItemCost.blankNo ) ))   COLUMN-LABEL "Estimate" 
+        (IF  ttvendItemCost.blankNo  =  0 THEN '' ELSE  ('-' + string(ttvendItemCost.blankNo ) )) LABEL-BGCOLOR 14  COLUMN-LABEL "Estimate" 
       ttVendItemCost.costPerVendorUOM   COLUMN-LABEL "Cost"    
              LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"  
       ttVendItemCost.vendorUOM    COLUMN-LABEL "UOM"  
@@ -464,8 +464,18 @@ END.
 ON CHOOSE OF bOk IN FRAME DEFAULT-FRAME /* Ok */
 DO:
     IF AVAILABLE ttVendItemCost THEN
-    ttVendItemCost.isSelected = TRUE.
-    APPLY 'CLOSE' TO THIS-PROCEDURE.
+    DO:
+        IF ttVendItemCost.IsValid = FALSE THEN 
+            MESSAGE "This Vendor cost is invalid." SKIP
+                "Reason: " + ttVendItemCost.Reason SKIP
+                "Please select a valid Vendor Cost."        
+                VIEW-AS ALERT-BOX. 
+        ELSE    
+        DO:
+            ttVendItemCost.isSelected = TRUE.
+            APPLY 'CLOSE' TO THIS-PROCEDURE.
+        END.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -542,7 +552,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      INPUT  ipcCompany,
      INPUT  ipcItemID,
      INPUT  ipcItemType,
-     INPUT  ipcScope,
+     INPUT  "All", //ipcScope,
      INPUT  iplIncludeBlankVendor,
      INPUT  ipcEstimateNo,
      INPUT  ipiFormNo,
@@ -580,6 +590,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 FOR FIRST bf-item NO-LOCK 
                     WHERE bf-item.company = ipcCompany
                       AND bf-item.i-no    = ipcAdderList[iIndex]: 
+                          
                     IF cAdderValue = "" THEN 
                         cAdderValue = ipcAdderList[iIndex] + " - " + bf-item.i-name.
                     ELSE  

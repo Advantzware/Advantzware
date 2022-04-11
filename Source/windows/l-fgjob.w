@@ -35,6 +35,7 @@ DEF INPUT PARAMETER ip-i-no LIKE job-hdr.i-no NO-UNDO.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def var lv-type-dscr as cha no-undo.
+{sys/inc/var.i}
 
 &scoped-define SORTBY-1 BY job-hdr.job-no DESCENDING
 &scoped-define SORTBY-2 BY job-hdr.est-no

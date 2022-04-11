@@ -13,6 +13,7 @@
 &SCOPED-DEFINE where-phrase-jobID WHERE SUBSTR(jobID,9,1) EQ ""
 &SCOPED-DEFINE where-phrase-vend-job-no WHERE SUBSTR(vend-job-no,9,1) EQ ""
 
+{sys/inc/var.i}
 
 SESSION:SET-WAIT-STATE ("general").
 

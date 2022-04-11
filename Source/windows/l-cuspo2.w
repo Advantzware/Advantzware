@@ -35,6 +35,8 @@ DEF INPUT PARAMETER ip-company      LIKE itemfg.company NO-UNDO.
 DEF INPUT PARAMETER ip-cur-val      AS CHAR NO-UNDO.
 DEF OUTPUT PARAMETER op-char-val    AS CHAR NO-UNDO.
 
+{sys/inc/var.i}
+
 DEF TEMP-TABLE tt-oe-rel LIKE oe-rel
    FIELD selected-flag AS LOG INIT FALSE.
 
