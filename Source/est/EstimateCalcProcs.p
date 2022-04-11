@@ -2362,6 +2362,7 @@ PROCEDURE pCalcHeaderCosts PRIVATE:
     
     RUN pBuildFactoryCostDetails(ipiEstCostHeaderID).
     RUN pBuildNonFactoryCostDetails(ipiEstCostHeaderID).
+    RUN pBuildFreightCostDetails(ipiEstCostHeaderID).
 
     RUN pBuildPriceRelatedCostDetails(ipiEstCostHeaderID).
     RUN pBuildCostSummary(ipiEstCostHeaderID).
@@ -2516,13 +2517,7 @@ PROCEDURE pCalcHeader PRIVATE:
         RUN pCalcWeightsAndSizes(bf-estCostHeader.estCostHeaderID).
         RUN pBuildFreightForBoardCost(bf-estCostHeader.estCostHeaderID).
         RUN pBuildEstHandlingCharges(bf-estCostHeader.estCostHeaderID).
-        RUN pBuildFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
-        RUN pBuildNonFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
-        RUN pBuildFreightCostDetails(bf-estCostHeader.estCostHeaderID).
-        RUN pBuildPriceRelatedCostDetails(bf-estCostHeader.estCostHeaderID).
-        RUN pBuildCostSummary(bf-estCostHeader.estCostHeaderID).
-        RUN pCopyHeaderCostsToSetItem(BUFFER bf-estCostHeader).
-        RUN pBuildProbe(BUFFER bf-estCostHeader).
+        RUN pCalcHeaderCosts(bf-estCostHeader.estCostHeaderID).
         
     END. /*each bf-estCostHeader*/
 
@@ -4523,14 +4518,16 @@ PROCEDURE pProcessGlues PRIVATE:
         EACH ttGlue NO-LOCK
         WHERE ttGlue.estHeaderID EQ estCostOperation.estCostHeaderID
         AND ttGlue.estFormID EQ estCostOperation.estCostFormID
-        AND ttGlue.estBlankID EQ estCostOperation.estCostBlankID
+        AND (ttGlue.estBlankID EQ estCostOperation.estCostBlankID 
+        OR (estCostOperation.estCostBlankID EQ ? 
+        AND estCostOperation.FeedType EQ "S"))
         ,
         FIRST estCostBlank NO-LOCK 
         WHERE estCostBlank.estCostHeaderID EQ ttGlue.estHeaderID
         AND estCostBlank.estCostFormID EQ ttGlue.estFormID 
         AND estCostBlank.estCostBlankID EQ ttGlue.estBlankID 
-        BY estCostOperation.sequenceOfOperation DESCENDING:
-        
+        BY estCostOperation.sequenceOfOperation DESCENDING: 
+
         RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ttGlue.cItemID, estCostBlank.estCostBlankID, BUFFER bf-estCostMaterial).
         
         ASSIGN    
@@ -4645,12 +4642,12 @@ PROCEDURE pProcessInk PRIVATE:
         ipbf-ttInk.dQtyRequiredPerBlank               = ipbf-ttInk.dCoveragePercent * ipbf-estCostBlank.blankAreaNetWindow / ipbf-ttInk.dCoverageRate
         dQtyRequiredPerForm                           = ipbf-estCostBlank.numOut * ipbf-ttInk.dQtyRequiredPerBlank
         bf-estCostMaterial.quantityRequiredNoWaste    = ipbf-estCostOperation.quantityInNoWaste * dQtyRequiredPerForm
-        bf-estCostMaterial.quantityRequiredRunWaste   = ipbf-estCostOperation.quantityInRunWaste * dQtyRequiredPerForm
+        bf-estCostMaterial.quantityRequiredRunWaste   = ipbf-estCostOperation.quantityInRunWaste * dQtyRequiredPerForm + (ipbf-estCostOperation.quantityInkLbsWastedPerColor * (ipbf-ttInk.iCountInks + ipbf-ttInk.iCountCoatings))
         bf-estCostMaterial.quantityRequiredSetupWaste = ipbf-estCostOperation.quantityInSetupWaste * dQtyRequiredPerForm + ipbf-estCostOperation.quantityInkLbsWastedPerSetup
         dQtyRequiredMinDiff                           = ipbf-ttInk.dMinLbsPerJob - (bf-estCostMaterial.quantityRequiredNoWaste + bf-estCostMaterial.quantityRequiredRunWaste + bf-estCostMaterial.quantityRequiredSetupWaste)
         bf-estCostMaterial.quantityUOM                = ipbf-ttInk.cQtyUOM
         bf-estCostMaterial.noCharge                   = ipbf-ttInk.lNoCharge
-        .             
+        .            
     IF dQtyRequiredMinDiff GT 0 THEN 
         bf-estCostMaterial.quantityRequiredMinDiff = dQtyRequiredMinDiff.
     
