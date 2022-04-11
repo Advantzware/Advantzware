@@ -2351,7 +2351,7 @@ DEF VAR li-tqty   AS INT NO-UNDO.
 
 DEF VAR v-val     AS DEC NO-UNDO.
 
-DEF VAR v-job       AS CHAR FORMAT "x(9)"  NO-UNDO.
+DEF VAR v-job       AS CHAR FORMAT "x(13)"  NO-UNDO.
 DEF VAR v-shp       AS CHAR FORMAT "x(10)" NO-UNDO.
 /*DEF VAR excelheader AS CHAR                NO-UNDO.*/
 
@@ -2693,7 +2693,7 @@ FOR EACH ttCustList
              ASSIGN v-job = TRIM(fg-rcpth.job-no) + "-" + 
                             STRING(fg-rcpth.job-no2,"999")
                     v-job = TRIM(v-job)
-                    v-job = IF v-job = "-00" THEN " " ELSE v-job
+                    v-job = IF v-job = "-000" THEN " " ELSE v-job
                     v-shp = IF v-shpdays EQ 0 THEN " " ELSE STRING(v-shpdays,">>,>>>,>>9").
 
             /* gdm - 10260906 */
@@ -2764,7 +2764,7 @@ FOR EACH ttCustList
                       v-shpdays = (TODAY - bf-fg-rcpth.trans-date).
 
         ASSIGN v-job = TRIM(v-job)
-               v-job = IF v-job = "-00" THEN " " ELSE v-job
+               v-job = IF v-job = "-000" THEN " " ELSE v-job
                v-shp = IF v-shpdays EQ 0 THEN " " ELSE STRING(v-shpdays,">>,>>>,>>9").
 
          DISPLAY 

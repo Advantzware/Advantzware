@@ -55,7 +55,7 @@ DEF var v-po-no-source AS char FORMAT "!" init "R".
 def var v-stat as char format "!" init "O".
 
 DEF var v-out AS char FORMAT "x(40)" NO-UNDO.
-DEF var v-job AS char FORMAT "x(9)" NO-UNDO.
+DEF var v-job AS char FORMAT "x(13)" NO-UNDO.
 DEF var num-rec AS int init 0 NO-UNDO.
 DEF var by-release AS log init NO NO-UNDO.
 
@@ -1429,7 +1429,7 @@ if td-show-parm then run show-param.
         end.
 
         FOR EACH w-ord:
-           v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+           v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"999").
            IF v-job BEGINS "-" or v-job = ? /* 9901 CAH */
                 THEN v-job = string(W-ORD.ORD-NO).   /* 9812 CAH in case blank */
 

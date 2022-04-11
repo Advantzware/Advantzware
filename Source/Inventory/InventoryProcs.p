@@ -2720,7 +2720,7 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
                 ASSIGN 
                     ttRawMaterialsGLTransToPost.accountNo = bf-costtype.inv-asset
                     ttRawMaterialsGLTransToPost.memo      = "RM Receipt"
-                    ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"99") ELSE "")
+                    ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"999") ELSE "")
                                                           + (IF bf-rm-rctd.po-no NE "" THEN " PO:" + STRING(bf-rm-rctd.po-no,"999999") + "-" + STRING(bf-rm-rctd.po-line,"999") ELSE "") + " " 
                                                           + " Cost $" + STRING(bf-rm-rctd.cost) + " / " + bf-rm-rctd.cost-uom
                     ttRawMaterialsGLTransToPost.debits    = dExtCost
@@ -2731,7 +2731,7 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
                 ASSIGN 
                     ttRawMaterialsGLTransToPost.accountNo = bf-costtype.ap-accrued
                     ttRawMaterialsGLTransToPost.memo      = "RM Receipt"
-                    ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"99") ELSE "")
+                    ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"999") ELSE "")
                                                           + (IF bf-rm-rctd.po-no NE "" THEN " PO:" + STRING(bf-rm-rctd.po-no,"999999") + "-" + STRING(bf-rm-rctd.po-line,"999") ELSE "") + " " 
                                                           + " Cost $" + STRING(bf-rm-rctd.cost) + " / " + bf-rm-rctd.cost-uom
                     ttRawMaterialsGLTransToPost.credits   = dExtCost.
@@ -2795,7 +2795,7 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
                                 ttRawMaterialsGLTransToPost.jobNo2    = bf-job-hdr.job-no2
                                 ttRawMaterialsGLTransToPost.accountNo = bf-prod.wip-mat
                                 ttRawMaterialsGLTransToPost.memo      = "RM Issue To Job"
-                                ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"99") ELSE "")
+                                ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"999") ELSE "")
                                                                       + (IF bf-rm-rctd.po-no NE "" THEN " PO:" + STRING(bf-rm-rctd.po-no,"999999") + "-" + STRING(bf-rm-rctd.po-line,"999") ELSE "") + " " 
                                                                       + " Cost $" + STRING(bf-rm-rctd.cost) + " / " + bf-rm-rctd.cost-uom
                                 .
@@ -2817,7 +2817,7 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
                                 ttRawMaterialsGLTransToPost.jobNo2    = bf-job-hdr.job-no2
                                 ttRawMaterialsGLTransToPost.accountNo = bf-costtype.inv-asset
                                 ttRawMaterialsGLTransToPost.memo      = "RM Issue To Job"
-                                ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"99") ELSE "")
+                                ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"999") ELSE "")
                                                                       + (IF bf-rm-rctd.po-no NE "" THEN " PO:" + STRING(bf-rm-rctd.po-no,"999999") + "-" + STRING(bf-rm-rctd.po-line,"999") ELSE "") + " " 
                                                                       + " Cost $" + STRING(bf-rm-rctd.cost) + " / " + bf-rm-rctd.cost-uom
                                 .
@@ -5548,7 +5548,7 @@ PROCEDURE pBuildFGInventoryStockForItem PRIVATE:
                     inventoryStock.costStandardVOH            = fg-rdtlh.std-var-cost
                     inventoryStock.costStandardFOH            = fg-rdtlh.std-fix-cost
 /*                     inventoryStock.sourceID                   = IF fg-rcpth.job-no NE "" THEN */
-/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(fg-rcpth.job-no)))) + STRING(fg-rcpth.job-no2,"99") */
+/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(fg-rcpth.job-no)))) + STRING(fg-rcpth.job-no2,"999") */
 /*                                                                 ELSE */
 /*                                                                     "" */
                     inventoryStock.sourceID                   = fg-rdtlh.rec_key
@@ -5693,7 +5693,7 @@ PROCEDURE pBuildRMInventoryStockForItem PRIVATE:
                     inventoryStock.basisWeightUOM             = gcUOMWeightBasis
                     inventoryStock.weightUOM                  = gcUOMWeight
 /*                     inventoryStock.sourceID                   = IF rm-rcpth.job-no NE "" THEN */
-/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(rm-rcpth.job-no)))) + STRING(rm-rcpth.job-no2,"99") */
+/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(rm-rcpth.job-no)))) + STRING(rm-rcpth.job-no2,"999") */
 /*                                                                 ELSE */
 /*                                                                     "" */
                     inventoryStock.sourceID                   = rm-rdtlh.rec_key
@@ -6414,7 +6414,7 @@ PROCEDURE CreatePrintInventory:
             ttPrintInventoryStock.jobNumber    = LEFT-TRIM(TRIM(inventoryStock.jobID))
             ttPrintInventoryStock.jobNumber    = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ttPrintInventoryStock.jobNumber)) 
             ttPrintInventoryStock.jobRunNumber = inventoryStock.jobID2
-            ttPrintInventoryStock.jobID        = ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"99")
+            ttPrintInventoryStock.jobID        = ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"999")
             ttPrintInventoryStock.jobIDTrimmed = LEFT-TRIM(ttPrintInventoryStock.jobID)
             ttPrintInventoryStock.jobIDFull    = ttPrintInventoryStock.jobID + "." + STRING(inventoryStock.formNo,"99") + "." + STRING(inventoryStock.blankNo,"99")
             ttPrintInventoryStock.jobIDFullTrimmed = LEFT-TRIM(ttPrintInventoryStock.jobIDFull) 
@@ -8671,8 +8671,8 @@ PROCEDURE pGetWIPID PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttInventoryStockPreLoadtag FOR ttInventoryStockPreLoadtag.
     DEFINE OUTPUT PARAMETER opcWIPID AS CHARACTER NO-UNDO.
 
-    opcWIPID = STRING(ipbf-ttInventoryStockPreLoadtag.machineID,"x(6)") + STRING(ipbf-ttInventoryStockPreLoadtag.jobID,"x(6)") 
-        + STRING(ipbf-ttInventoryStockPreLoadtag.jobID2,"99") + STRING(ipbf-ttInventoryStockPreLoadtag.formNo,"99")  
+    opcWIPID = STRING(ipbf-ttInventoryStockPreLoadtag.machineID,"x(6)") + STRING(ipbf-ttInventoryStockPreLoadtag.jobID,"x(9)") 
+        + STRING(ipbf-ttInventoryStockPreLoadtag.jobID2,"999") + STRING(ipbf-ttInventoryStockPreLoadtag.formNo,"99")  
         + STRING(ipbf-ttInventoryStockPreLoadtag.blankNo,"99").
 
     IF TRIM(opcWIPID) EQ "" THEN opcWIPID = "WIPITEM".

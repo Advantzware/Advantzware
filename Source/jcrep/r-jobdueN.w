@@ -1215,7 +1215,7 @@ def var v-on     like v-up NO-UNDO.
 def var v-hdr     as   char format "x(150)" extent 3 NO-UNDO.
 def var v-mach    like job-mch.m-code format "x(8)" NO-UNDO.
 def var v-date    as   date format "99/99/99" NO-UNDO.
-def var v-job     as   char format "x(9)" NO-UNDO.
+def var v-job     as   char format "x(13)" NO-UNDO.
 def var v-sheet   as   char format "x(19)" NO-UNDO.
 def var v-gl      as   char format "x(5)" NO-UNDO.
 def var v-qty     as   DEC NO-UNDO.
