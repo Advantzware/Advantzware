@@ -226,7 +226,7 @@ DEFINE BROWSE BROWSE-1
       itemfg.part-dscr1 FORMAT "x(30)":U WIDTH 35 LABEL-BGCOLOR 14
       itemfg.cust-no FORMAT "x(8)":U WIDTH 10 LABEL-BGCOLOR 14
       get-cust () @ itemfg.cust-no
-      itemfg.part-no FORMAT "x(15)":U WIDTH 22 LABEL-BGCOLOR 14
+      itemfg.part-no FORMAT "x(32)":U WIDTH 34 LABEL-BGCOLOR 14
       get-part () @ itemfg.part-no 
       itemfg.est-no FORMAT "x(10)":U  LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
@@ -312,7 +312,7 @@ AND ASI.itemfg.stat = ""A""
      _FldNameList[4]   > ASI.itemfg.cust-no
 "cust-no" ? ? "character" ? ? ? 14 ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.itemfg.part-no
-"part-no" ? "x(15)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"part-no" ? "x(32)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > "_<CALC>"
 "get-part () @ itemfg.part-no" ? ? ? 14 ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   = ASI.itemfg.part-dscr1

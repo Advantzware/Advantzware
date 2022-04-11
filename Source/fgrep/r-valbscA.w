@@ -1064,7 +1064,7 @@ FORM HEADER
 FORM HEADER
      "        "
      "               "
-     "               "
+     "                                "
      "                      "
      "               "
      "         "
@@ -1078,7 +1078,7 @@ FORM HEADER
 
      "CUST#   "
      "FG ITEM#       "
-     "CUSTOMER PART# "
+     "CUSTOMER PART#                  "
      "DESCRIPTION           "
      "CUST PO#       "
      "     JOB#"
@@ -1092,7 +1092,7 @@ FORM HEADER
 
      "--------"
      "---------------"
-     "---------------"
+     "--------------------------------"
      "----------------------"
      "---------------"
      "---------"
@@ -1103,7 +1103,7 @@ FORM HEADER
      "----------"
      "---------------"
 
-    WITH NO-BOX FRAME r-top2 PAGE-TOP DOWN STREAM-IO WIDTH 180.
+    WITH NO-BOX FRAME r-top2 PAGE-TOP DOWN STREAM-IO WIDTH 197.
 
 FORM cust.cust-no
      itemfg.i-no
@@ -1120,7 +1120,7 @@ FORM cust.cust-no
 
 FORM cust.cust-no
      itemfg.i-no
-     oe-ordl.part-no
+     oe-ordl.part-no        FORMAT "x(32)"
      itemfg.i-name          FORMAT "x(22)"
      oe-ordl.po-no
      v-job
@@ -1131,7 +1131,7 @@ FORM cust.cust-no
      oe-ordl.price          FORMAT ">>>,>>9.99"
      v-ext[1]               FORMAT "->>>,>>>,>>9.99"
 
-    WITH NO-BOX NO-LABELS FRAME detail2 DOWN STREAM-IO WIDTH 180.
+    WITH NO-BOX NO-LABELS FRAME detail2 DOWN STREAM-IO WIDTH 197.
 
 ASSIGN
  str-tit2 = c-win:TITLE
@@ -1551,9 +1551,9 @@ END.
            (v-qoh[2] NE 0 OR vzer) THEN DO:
 
           IF tb_detail THEN
-            PUT "--------------" TO 164 SKIP
-                "Customer Total" AT 126 v-ext[2] TO 164 FORMAT "->>,>>>,>>9.99".
-
+            PUT "--------------" TO 181 SKIP
+                "Customer Total" AT 143 v-ext[2] TO 181 FORMAT "->>,>>>,>>9.99".
+                                                       
           ELSE
             PUT "--------------" TO 132 SKIP
                 "Customer Total" AT 94  v-ext[2] TO 132 FORMAT "->>,>>>,>>9.99".
@@ -1578,8 +1578,8 @@ END.
            (v-qoh[3] NE 0 OR vzer) THEN DO:
 
           IF tb_detail THEN
-            PUT "--------------" TO 164 SKIP
-                "SalesRep Total" AT 126 v-ext[3] TO 164 FORMAT "->>,>>>,>>9.99".
+            PUT "--------------" TO 181 SKIP
+                "SalesRep Total" AT 143 v-ext[3] TO 181 FORMAT "->>,>>>,>>9.99".
 
           ELSE
             PUT "--------------" TO 132 SKIP
@@ -1604,8 +1604,8 @@ END.
          (v-qoh[4] NE 0 OR vzer) THEN DO:
 
         IF tb_detail THEN
-          PUT "--------------" TO 164 SKIP
-              "   Grand Total" AT 126 v-ext[4] TO 164 FORMAT "->>,>>>,>>9.99".
+          PUT "--------------" TO 181 SKIP
+              "   Grand Total" AT 143 v-ext[4] TO 181 FORMAT "->>,>>>,>>9.99".
 
         ELSE
           PUT "--------------" TO 132 SKIP

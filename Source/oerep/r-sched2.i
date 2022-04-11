@@ -511,7 +511,7 @@ DEF VAR v-value-head AS LOG NO-UNDO.
                     tt-report.key-01  COLUMN-LABEL "FG Item Name"                   
                                       FORMAT "x(25)" 
                     v-custpart        COLUMN-LABEL "Cust Part #"                   
-                                      FORMAT "x(20)" 
+                                      FORMAT "x(32)" 
                     v-qty             COLUMN-LABEL "Release Qty"
                     v-date            COLUMN-LABEL "Date"
                                       FORMAT "99/99/99"
@@ -521,7 +521,7 @@ DEF VAR v-value-head AS LOG NO-UNDO.
                     v-notes[1]        COLUMN-LABEL "Notes"
                                       FORMAT "x(25)"  
                  SKIP
-                with down frame schdrel1NTC no-box stream-io width 185.
+                with down frame schdrel1NTC no-box stream-io width 197.
 
                 IF TRIM(v-notes[2]) NE "" 
                     THEN

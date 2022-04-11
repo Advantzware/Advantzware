@@ -126,7 +126,7 @@ ASSIGN
     cFieldListToSelect = "tt-fg-bin.rct-date,tt-fg-bin.i-no,tt-fg-bin.i-name,tt-fg-bin.part-no," +
                             "tt-fg-bin.job-no,tt-fg-bin.loc,tt-fg-bin.loc-bin,tt-fg-bin.tag,tt-fg-bin.on-hand-qty," +
                             "tt-fg-bin.sell-price,tt-fg-bin.std-cost,tt-fg-bin.tot-value,tt-fg-bin.counted-qty,v-variance,over-under"    
-    cFieldLength       = "11,15,20,15," + "13,5,8,8,8," + "10,10,10,10,10,12"
+    cFieldLength       = "11,15,20,32," + "13,5,8,8,8," + "10,10,10,10,10,12"
     cFieldType         = "C,c,c,c," + "c,c,c,c,i," + "i,i,i,i,i,i".
 
 {sys/inc/ttRptSel.i}
@@ -162,7 +162,7 @@ display tt-fg-bin.rct-date when first-of(tt-fg-bin.i-no)
     form fg-rctd.rct-date     column-label "TRANS.!DATE"
          fg-rctd.i-no           label "ITEM"
          fg-rctd.i-name         format "x(20)" label "DESCRIPTION"
-         itemfg.part-no         format "x(15)" label "Customer Part#"
+         itemfg.part-no         format "x(32)" label "Customer Part#"
          fg-rctd.job-no         label "   JOB" space(0) "-" space(0)
          fg-rctd.job-no2        label "# " format "99"
          fg-rctd.loc             label "WHSE"
@@ -1920,7 +1920,7 @@ PROCEDURE run-report-inv :
     FORM tt-fg-bin.rct-date FORMAT "99/99/99" COLUMN-LABEL "TRANS.!DATE"
         tt-fg-bin.i-no     LABEL "ITEM"
         tt-fg-bin.i-name   FORMAT "x(20)" LABEL "DESCRIPTION"
-        tt-fg-bin.part-no  FORMAT "x(15)" LABEL "Customer Part#"
+        tt-fg-bin.part-no  FORMAT "x(32)" LABEL "Customer Part#"
         tt-fg-bin.job-no   LABEL "   JOB" SPACE(0) "-" SPACE(0)
         tt-fg-bin.job-no2  LABEL "# " FORMAT "999"
         tt-fg-bin.loc      LABEL "WHSE"

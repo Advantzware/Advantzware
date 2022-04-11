@@ -161,7 +161,7 @@ ASSIGN
     cFieldListToSelect = "cust,rel-date,rel-num,ship,carr,ord,cust-part,desc,fg-item," +
                             "po-num,Qty-hand,rel-qty,sales,skid,stat,proj-qty,due-date,lot-no," +
                             "cTrailer,dtDockDate,cDockTime,cShipNotes"
-    cFieldLength       = "9,8,7,8,7,8,15,25,15," + "15,11,11,15,7,6,13,8,15," + "20,16,5,256"
+    cFieldLength       = "9,8,7,8,7,8,32,25,15," + "15,11,11,15,7,6,13,8,15," + "20,16,5,256"
     cFieldType         = "c,c,i,c,c,i,c,c,c," + "c,i,i,i,i,c,i,c,c," + "c,c,c,c" 
     .
 
@@ -2324,7 +2324,7 @@ PROCEDURE run-report :
                         WHEN "ord"  THEN 
                             cVarValue = TRIM(STRING(w-ord.ord-no,">>>>>>>>")) .
                         WHEN "cust-part"   THEN 
-                            cVarValue = STRING(w-ord.part-no,"x(15)") .
+                            cVarValue = STRING(w-ord.part-no,"x(32)") .
                         WHEN "desc"  THEN 
                             cVarValue = STRING(w-ord.i-name,"x(25)") .
 

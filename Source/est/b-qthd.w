@@ -225,9 +225,9 @@ DEFINE VARIABLE fi_item-decr AS CHARACTER FORMAT "X(20)"
      SIZE 32 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(20)" 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(32)" 
      VIEW-AS FILL-IN 
-     SIZE 21.8 BY 1
+     SIZE 31.8 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_q-no AS INTEGER FORMAT ">>>>>>" INITIAL 0 
@@ -293,7 +293,7 @@ DEFINE BROWSE Browser-Table
       quotehd.est-no COLUMN-LABEL "Estimate" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
       quotehd.expireDate FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      quoteitm.part-no COLUMN-LABEL "Cust Part" FORMAT "x(20)":U
+      quoteitm.part-no COLUMN-LABEL "Cust Part" FORMAT "x(32)":U
             LABEL-BGCOLOR 14
       quoteitm.part-dscr1 FORMAT "x(30)":U LABEL-BGCOLOR 14
       quotehd.upd-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
@@ -322,7 +322,7 @@ DEFINE FRAME F-Main
      fi_contact AT ROW 1.71 COL 36 NO-LABEL
      fi_est-no AT ROW 1.71 COL 61.4 NO-LABEL
      fi_part-no AT ROW 1.71 COL 72.1 NO-LABEL
-     fi_item-decr AT ROW 1.71 COL 93.8 NO-LABEL
+     fi_item-decr AT ROW 1.71 COL 103.8 NO-LABEL
      btnGO AT ROW 2.91 COL 2
      btnShowPrevious AT ROW 2.91 COL 14
      btnShowNext AT ROW 2.91 COL 35
@@ -352,7 +352,7 @@ DEFINE FRAME F-Main
           SIZE 11 BY .62 AT ROW 1 COL 24.4
           FGCOLOR 9 FONT 22
      "Item Description" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 1 COL 93.8
+          SIZE 20 BY .62 AT ROW 1 COL 103.80
           FGCOLOR 9 FONT 22
      "Quote" VIEW-AS TEXT
           SIZE 7.6 BY .62 AT ROW 1 COL 1.4

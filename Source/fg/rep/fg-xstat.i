@@ -1091,11 +1091,11 @@ FOR EACH ttCustList
        (v-tot-onh NE 0 OR zbal)     THEN
       IF v-rec-dat THEN
         IF v-prt-cpn THEN
-          PUT "------------"        TO 126
-              "--------------"      TO 166 SKIP
-              "CUSTOMER TOTALS:"    TO 106
-              v-tot-onh             TO 126
-              v-tot-ext             TO 166 SKIP(1).
+          PUT "------------"        TO 143
+              "--------------"      TO 183 SKIP
+              "CUSTOMER TOTALS:"    TO 123
+              v-tot-onh             TO 143
+              v-tot-ext             TO 183 SKIP(1).
         ELSE
           PUT "------------"        TO 104
               "--------------"      TO 144 SKIP
@@ -1104,15 +1104,15 @@ FOR EACH ttCustList
               v-tot-ext             TO 144 SKIP(1).
       ELSE
         IF v-prt-cpn THEN
-          PUT "-----------"         TO 94
-              "----------"          TO 108
-              "------------"        TO 121
-              "--------------"      TO 151 SKIP
-              "CUSTOMER TOTALS:"    TO 77
-              v-tot-ord             TO 94
-              v-tot-ship            TO 108
-              v-tot-onh             TO 121
-              v-tot-ext             TO 151
+          PUT "-----------"         TO 111
+              "----------"          TO 125
+              "------------"        TO 138
+              "--------------"      TO 168 SKIP
+              "CUSTOMER TOTALS:"    TO 94
+              v-tot-ord             TO 111
+              v-tot-ship            TO 125
+              v-tot-onh             TO 138
+              v-tot-ext             TO 168
               SKIP(1).
         ELSE
           PUT "-----------"         TO 79
@@ -1129,11 +1129,11 @@ END.  /* for each cust */
 
       IF v-rec-dat THEN
         IF v-prt-cpn THEN
-          PUT "------------"        TO 126
-              "--------------"      TO 166 SKIP
-              "GRAND TOTALS:"       TO 106
-              v-grand-tot-onh       TO 126
-              v-grand-tot-ext       TO 166 SKIP(1).
+          PUT "------------"        TO 143
+              "--------------"      TO 183 SKIP
+              "GRAND TOTALS:"       TO 123
+              v-grand-tot-onh       TO 143
+              v-grand-tot-ext       TO 183 SKIP(1).
         ELSE
           PUT "------------"        TO 104
               "--------------"      TO 144 SKIP
@@ -1142,15 +1142,15 @@ END.  /* for each cust */
               v-grand-tot-ext       TO 144 SKIP(1).
       ELSE
         IF v-prt-cpn THEN
-          PUT "------------"        TO 94
-              "----------"          TO 108
-              "------------"        TO 121
-              "--------------"      TO 151 SKIP
-              "GRAND TOTALS:"       TO 77
-              v-grand-tot-ord       TO 94
-              v-grand-tot-ship      TO 108
-              v-grand-tot-onh       TO 121
-              v-grand-tot-ext       TO 144
+          PUT "------------"        TO 111
+              "----------"          TO 125
+              "------------"        TO 138
+              "--------------"      TO 168 SKIP
+              "GRAND TOTALS:"       TO 94
+              v-grand-tot-ord       TO 111
+              v-grand-tot-ship      TO 125
+              v-grand-tot-onh       TO 138
+              v-grand-tot-ext       TO 168
               SKIP(1).
         ELSE
           PUT "------------"        TO 79

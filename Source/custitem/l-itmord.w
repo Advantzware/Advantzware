@@ -143,8 +143,8 @@ DEFINE BROWSE BROWSE-1
       oe-ordl.ord-no COLUMN-LABEL "Suppliers Order#" FORMAT ">>>>>9":U
             WIDTH 17.4
       oe-ordl.line COLUMN-LABEL "Line#" FORMAT "99":U WIDTH 7.8
-      oe-ordl.part-no COLUMN-LABEL "Customers Part #" FORMAT "x(15)":U
-            WIDTH 25.8
+      oe-ordl.part-no COLUMN-LABEL "Customers Part #" FORMAT "x(32)":U
+            WIDTH 33.8
       oe-ordl.i-no COLUMN-LABEL "Suppliers FG Item" FORMAT "x(15)":U
             WIDTH 28.6
       oe-ordl.qty FORMAT "->>,>>>,>>9.9<<":U WIDTH 13.6
@@ -213,7 +213,7 @@ AND ASI.oe-ordl.ord-no >= ip-ord-no
      _FldNameList[2]   > ASI.oe-ordl.line
 "oe-ordl.line" "Line#" ? "integer" ? ? ? ? ? ? no ? no no "7.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-ordl.part-no
-"oe-ordl.part-no" "Customers Part #" ? "character" ? ? ? ? ? ? no ? no no "25.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.part-no" "Customers Part #" ? "character" ? ? ? ? ? ? no ? no no "33.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.oe-ordl.i-no
 "oe-ordl.i-no" "Suppliers FG Item" ? "character" ? ? ? ? ? ? no ? no no "28.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.oe-ordl.qty

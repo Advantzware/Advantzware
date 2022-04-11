@@ -1393,7 +1393,7 @@ IF v-QOH     THEN PUT UNFORMATTED "Qty OnHand ".
 
 IF v-Value   THEN PUT UNFORMATTED "        Value ".
 
-IF v-Cstprt  THEN PUT UNFORMATTED "Cust Part#   ".
+IF v-Cstprt  THEN PUT UNFORMATTED "Cust Part#                      ".
 
 IF v-Weight  THEN PUT UNFORMATTED "Weight ".
 
@@ -1416,7 +1416,7 @@ IF v-QOH     THEN PUT UNFORMATTED "---------- ".
 
 IF v-Value   THEN PUT UNFORMATTED "------------- ".
 
-IF v-Cstprt  THEN PUT UNFORMATTED "------------ ".
+IF v-Cstprt  THEN PUT UNFORMATTED "-------------------------------- ".
 
 IF v-Weight  THEN PUT UNFORMATTED "------ ".
 

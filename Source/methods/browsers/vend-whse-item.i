@@ -28,7 +28,7 @@
 &Global-define IDXNAME2 
 &Global-define DESCRIP2 Suppliers FG Item 
 &Global-define FLDNAME3 vend-whse-item.cust-part-no
-&Global-define FORMAT-3 x(12)
+&Global-define FORMAT-3 x(32)
 &Global-define SORTBY-3 BY {&FLDNAME3}
 &Global-define IDXNAME3 
 &Global-define DESCRIP3 Customers Part#

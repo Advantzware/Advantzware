@@ -126,7 +126,7 @@
          tt-report.key-01  = (IF v-sort EQ "Item" THEN "        "
                               ELSE if v-sort EQ "Cust" then string(job-hdr.cust-no,"x(8)")
                               ELSE STRING(cust.sman,"X(8)")) +
-                             string(itemfg.part-no,"x(20)") +
+                             string(itemfg.part-no,"x(32)") +
                              string(job-hdr.i-no,  "x(20)")
          tt-report.key-02  = (trim(job.job-no) + "-" + string(job.job-no2,"99"))
          tt-report.key-03  = job-hdr.i-no

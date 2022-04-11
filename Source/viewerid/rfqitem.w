@@ -1,7 +1,7 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          rfq              PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -44,10 +44,11 @@ CREATE WIDGET-POOL.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE SmartViewer
+&Scoped-define DB-AWARE no
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -59,15 +60,13 @@ CREATE WIDGET-POOL.
 DEFINE QUERY external_tables FOR rfqitem.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS rfqitem.rfq-no rfqitem.part-no rfqitem.style 
-&Scoped-define FIELD-PAIRS~
- ~{&FP1}rfq-no ~{&FP2}rfq-no ~{&FP3}~
- ~{&FP1}part-no ~{&FP2}part-no ~{&FP3}~
- ~{&FP1}style ~{&FP2}style ~{&FP3}
 &Scoped-define ENABLED-TABLES rfqitem
 &Scoped-define FIRST-ENABLED-TABLE rfqitem
 &Scoped-Define ENABLED-OBJECTS RECT-13 
 &Scoped-Define DISPLAYED-FIELDS rfqitem.rfq-no rfqitem.part-no ~
 rfqitem.style 
+&Scoped-define DISPLAYED-TABLES rfqitem
+&Scoped-define FIRST-DISPLAYED-TABLE rfqitem
 &Scoped-Define DISPLAYED-OBJECTS style_dscr 
 
 /* Custom List Definitions                                              */
@@ -109,7 +108,7 @@ DEFINE VARIABLE style_dscr AS CHARACTER FORMAT "X(25)":U
      BGCOLOR 7 FGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-13
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 139 BY 1.43.
 
 
@@ -119,14 +118,14 @@ DEFINE FRAME F-Main
      rfqitem.rfq-no AT ROW 1.48 COL 9 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     rfqitem.part-no AT ROW 1.48 COL 38 COLON-ALIGNED FORMAT "x(15)"
+     rfqitem.part-no AT ROW 1.48 COL 37.2 COLON-ALIGNED FORMAT "x(15)"
           VIEW-AS FILL-IN 
-          SIZE 31 BY 1
-     rfqitem.style AT ROW 1.48 COL 77 COLON-ALIGNED
+          SIZE 32.8 BY 1
+     rfqitem.style AT ROW 1.48 COL 78.2 COLON-ALIGNED
           LABEL "Style" FORMAT "x(4)"
           VIEW-AS FILL-IN 
           SIZE 9.6 BY 1
-     style_dscr AT ROW 1.48 COL 87 COLON-ALIGNED NO-LABEL
+     style_dscr AT ROW 1.48 COL 88.2 COLON-ALIGNED NO-LABEL
      RECT-13 AT ROW 1.24 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -149,7 +148,7 @@ DEFINE FRAME F-Main
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
 IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
-  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT."
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
   RETURN.
 END.
@@ -167,14 +166,24 @@ END.
                                                                         */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{src/adm/method/viewer.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -201,16 +210,6 @@ ASSIGN
  
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
-/* ************************* Included-Libraries *********************** */
-
-{src/adm/method/viewer.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
 
@@ -228,7 +227,7 @@ ASSIGN
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win _ADM-ROW-AVAILABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
   Purpose:     Dispatched to this procedure when the Record-
@@ -259,8 +258,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -277,7 +275,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
@@ -304,8 +301,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win _ADM-SEND-RECORDS
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
   Purpose:     Send record ROWID's for all tables used by
@@ -327,7 +323,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -347,5 +342,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

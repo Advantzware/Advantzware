@@ -48,7 +48,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -106,7 +106,7 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 144 BY 1.67.
 
 
@@ -116,14 +116,14 @@ DEFINE FRAME F-Main
      quoteqty.q-no AT ROW 1.71 COL 12 COLON-ALIGNED FORMAT ">>>>>9"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     quoteitm.part-no AT ROW 1.71 COL 43 COLON-ALIGNED
+     quoteitm.part-no AT ROW 1.71 COL 36.6 COLON-ALIGNED
           LABEL "Part#"
           VIEW-AS FILL-IN 
-          SIZE 26 BY 1
-     quoteitm.part-dscr1 AT ROW 1.71 COL 70 COLON-ALIGNED NO-LABEL
+          SIZE 40.4 BY 1
+     quoteitm.part-dscr1 AT ROW 1.71 COL 78 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     quoteqty.qty AT ROW 1.71 COL 117 COLON-ALIGNED
+     quoteqty.qty AT ROW 1.71 COL 124.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
      "Reference Information" VIEW-AS TEXT
@@ -186,7 +186,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.

@@ -92,7 +92,7 @@ ASSIGN
                            "TOTAL VALUE,REQ DATE,ORDER DATE,REC DATE,LAST SHIP DATE,REP"
     cFieldListToSelect = "cust,po,item,part,desc,job,qty-hand,pall,sell-pr," +
                             "tot-val,q-date,ord-date,rec-date,ship-date,rep"
-    cFieldLength       = "8,15,15,15,30,10,11,7,10," + "14,8,10,8,14,3"
+    cFieldLength       = "8,15,15,32,30,10,11,7,10," + "14,8,10,8,14,3"
     cFieldType         = "c,c,c,c,c,c,i,c,i," + "i,c,c,c,c,c" 
     .
 

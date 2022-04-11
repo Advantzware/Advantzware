@@ -1958,7 +1958,7 @@ FORMAT HEADER
        SKIP(1)
        "PO Number      "
        "Order#/Job#"
-       "Customer P/N   "
+       "Customer P/N                    "
        "FG Item #      "
        "Item Name #    "
        "Ord Date"
@@ -1974,7 +1974,7 @@ FORMAT HEADER
        SKIP
        "---------------"
        "-----------"
-       "---------------"
+       "--------------------------------"
        "---------------"
        "---------------"
        "--------"

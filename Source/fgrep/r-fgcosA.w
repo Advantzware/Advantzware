@@ -1204,7 +1204,7 @@ form header
 form header
      "        "
      "               "
-     "               "
+     "                                "
      "                         "
      "     "
      "        "
@@ -1221,7 +1221,7 @@ form header
      skip
      "CUSTOMER"
      "ITEM #         "
-     "CUST PART #    "
+     "CUST PART #                     "
      "DESCRIPTION              "
      "WHSE "
      "BIN     "
@@ -1238,7 +1238,7 @@ form header
      skip
      "--------"
      "---------------"
-     "---------------"
+     "--------------------------------"
      "-------------------------"
      "-----"
      "--------"
@@ -1253,7 +1253,7 @@ form header
      "-----------"
      "-----------"
 
-    with frame r-top2 row 1 column 1 stream-io width 183
+    with frame r-top2 row 1 column 1 stream-io WIDTH 200
          no-labels no-box no-underline page-top.
 
 /* rdb 02/05/07  01090713 - moved down
@@ -1509,7 +1509,7 @@ IF lselected THEN DO:
          tt-itemfg.loc         = tt-fg-bin.loc
          tt-itemfg.loc-bin     = tt-fg-bin.loc-bin
          tt-itemfg.tag         = tt-fg-bin.tag
-         tt-itemfg.part-cust   = STRING(tt-itemfg.part-no,"x(20)") +
+         tt-itemfg.part-cust   = STRING(tt-itemfg.part-no,"x(32)") +
                                  STRING(tt-itemfg.cust-no,"x(20)")
          tt-itemfg.loc-bin-tag = STRING(tt-itemfg.loc,"x(10)")     +
                                  STRING(tt-itemfg.loc-bin,"x(10)") +

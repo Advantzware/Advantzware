@@ -177,7 +177,7 @@ DEFINE BROWSE Browser-Table
       vend-whse-item.revision COLUMN-LABEL "REV" FORMAT "x(8)":U
             WIDTH 5.2 LABEL-BGCOLOR 14
       vend-whse-item.fg-item-no FORMAT "x(15)":U WIDTH 19.2 LABEL-BGCOLOR 14
-      vend-whse-item.cust-part-no FORMAT "x(15)":U WIDTH 19.2 LABEL-BGCOLOR 14
+      vend-whse-item.cust-part-no FORMAT "x(32)":U WIDTH 33.2 LABEL-BGCOLOR 14
       vend-whse-item.vendor-code FORMAT "x(8)":U WIDTH 13.2 LABEL-BGCOLOR 14
       vend-whse-item.vendor-plant-code FORMAT "x(8)":U WIDTH 13.2
             LABEL-BGCOLOR 14
@@ -310,7 +310,7 @@ ASSIGN
      _FldNameList[3]   > vend-whse-item.fg-item-no
 "fg-item-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > vend-whse-item.cust-part-no
-"cust-part-no" ? "x(15)" "character" ? ? ? 14 ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-part-no" ? "x(15)" "character" ? ? ? 14 ? ? yes ? no no "33.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > vend-whse-item.vendor-code
 "vendor-code" ? ? "character" ? ? ? 14 ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > vend-whse-item.vendor-plant-code

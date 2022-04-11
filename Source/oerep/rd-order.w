@@ -93,7 +93,7 @@ ASSIGN
                             "sname,reldate,carrier,shipid,fg-oh,oe-ord.due-date,oe-ordl.req-date,oe-ord.user-id,oe-ord.spare-char-2,approved-date," +
                             "sch-rel-qty,ship-from,ship-name,post-date,weight-100,tot-wt,Pallet"
                             
-    cFieldLength       = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18," + "18,9,30,15,15,15,15"
+    cFieldLength       = "15,15,15,20,32,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18," + "18,9,30,15,15,15,15"
     cFieldType         = "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c"
     .
 

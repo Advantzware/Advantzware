@@ -131,7 +131,7 @@ ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER,CUSTOMER NAME,PROD CODE," 
                             "oe-ordl.pr-uom,Ship-from,v-mach,v-ink,print-sheet,v-cost,v-t-cost,full-cost,oe-ord.entered-id,status,po-recvdt,prev-order," +
                             "approved-date"
 
-       cFieldLength = "8,14,8,13,9," + "16,14,10,13," + "10,10,13,9,10,14," + "15,8,15,15,15,10,7,14,8,10," + "6,9,30,40,20,14,14,14,10,20,11,11," + "13"
+       cFieldLength = "8,14,8,13,9," + "16,14,10,13," + "10,10,13,9,10,14," + "15,8,32,15,15,10,7,14,8,10," + "6,9,30,40,20,14,14,14,10,20,11,11," + "13"
        .
 
 {sys/inc/ttRptSel.i}

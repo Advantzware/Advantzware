@@ -82,7 +82,7 @@ ASSIGN
                            "Cases/Pallet,Pack/Ctn"
     cFieldListToSelect = "item,name,uom,sell-pr,qty-hand,val,cust-part,weight," +
                             "cas-pal,pack/ctn"
-    cFieldLength       = "15,30,3,12,10,13,15,6," + "12,10"
+    cFieldLength       = "15,30,3,12,10,13,32,6," + "12,10"
     cFieldType         = "c,c,c,i,i,i,c,i," + "i,c" 
     .
 

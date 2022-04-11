@@ -149,7 +149,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
       itemfg.i-no FORMAT "x(15)":U WIDTH 30
       itemfg.i-name FORMAT "x(30)":U WIDTH 50
-      itemfg.part-no FORMAT "x(15)":U WIDTH 30
+      itemfg.part-no FORMAT "x(32)":U WIDTH 34
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 117 BY 11.19
@@ -212,7 +212,7 @@ ASSIGN
      _FldNameList[2]   > ASI.itemfg.i-name
 "i-name" ? ? "character" ? ? ? ? ? ? no ? no no "50" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.itemfg.part-no
-"part-no" ? "x(15)" "character" ? ? ? ? ? ? no ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"part-no" ? "x(32)" "character" ? ? ? ? ? ? no ? no no "34" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME

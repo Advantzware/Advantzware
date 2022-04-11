@@ -248,7 +248,7 @@
               tt-report.q-rel    FORMAT "->,>>>,>>9"
               tt-report.q-wip    FORMAT "->,>>>,>>9"
               tt-report.q-avl    FORMAT "->,>>>,>>9"                
-          WITH FRAME summ-re NO-BOX STREAM-IO WIDTH 180
+          WITH FRAME summ-re NO-BOX STREAM-IO WIDTH 197
           NO-ATTR-SPACE NO-UNDERLINE NO-LABELS.
 
       DOWN WITH FRAME summ-re.

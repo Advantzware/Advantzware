@@ -510,7 +510,7 @@ DEF VAR v-value-head AS LOG NO-UNDO.
 
                          WHEN "r"    THEN cVarValue = string(v-rel-no) .
                          WHEN "fgitem"   THEN cVarValue = string(oe-ordl.i-no,"x(15)").
-                         WHEN "custpart"   THEN cVarValue = STRING(v-custpart,"x(15)").
+                         WHEN "custpart"   THEN cVarValue = STRING(v-custpart,"x(32)").
                          WHEN "rel-qty"  THEN cVarValue = STRING(v-qty,"->>,>>>,>>9") .
                          WHEN "date"   THEN cVarValue = STRING(v-date,"99/99/9999") .
                          WHEN "t"  THEN cVarValue = STRING(tt-report.key-06,"x(1)") .

@@ -81,7 +81,7 @@ DEF VAR v-last-receipt-unit-qty AS INT NO-UNDO.
     IF lv-sort-by EQ "part-dscr1"   THEN itemfg.part-dscr1                                             ELSE ~
     IF lv-sort-by EQ "part-dscr2"     THEN itemfg.part-dscr2                                               ELSE ~
     IF lv-sort-by EQ "case-count"    THEN STRING(itemfg.case-count,"-9999999999.99999")                  ELSE ~
-    IF lv-sort-by EQ "part-no"      THEN STRING(itemfg.part-no,"x(6)")                                ELSE ~
+    IF lv-sort-by EQ "part-no"      THEN STRING(itemfg.part-no,"x(32)")                                ELSE ~
     itemfg.i-name
 
 &SCOPED-DEFINE sortby BY itemfg.i-no BY itemfg.part-no
@@ -231,7 +231,7 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 39 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(18)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(32)":U 
      LABEL "Part #" 
      VIEW-AS FILL-IN 
      SIZE 30 BY 1
@@ -303,7 +303,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       itemfg.i-name COLUMN-LABEL "Name" FORMAT "x(32)":U
             WIDTH 32 LABEL-BGCOLOR 14
-      itemfg.part-no FORMAT "x(32)":U WIDTH 32 LABEL-BGCOLOR 14      
+      itemfg.part-no FORMAT "x(32)":U WIDTH 34 LABEL-BGCOLOR 14      
       itemfg.part-dscr1 COLUMN-LABEL "Dscr1" FORMAT "x(32)":U
             WIDTH 32 LABEL-BGCOLOR 14
       itemfg.part-dscr2 COLUMN-LABEL "Dscr2" FORMAT "x(32)":U WIDTH 32
@@ -457,7 +457,7 @@ AND itemfg.part-dscr1 EQ itemfg.part-dscr1"
      _FldNameList[2]   > ASI.itemfg.i-name
 "itemfg.i-name" "Vendor PO#" ? "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.itemfg.part-no
-"itemfg.part-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.part-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "34" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.itemfg.job-date
 "itemfg.job-date" "TR Date" ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > "_<CALC>"

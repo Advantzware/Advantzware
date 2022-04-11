@@ -244,7 +244,7 @@ for each itemfg
                if v-prt-qty then
                    if v-prt-prc eq "P" then do:
                        display itemfg.i-no           column-label "ITEM #"
-                               itemfg.part-no        format "x(15)"
+                               itemfg.part-no        format "x(32)"
                                                      column-label "CUST PART #"
                                itemfg.i-name         format "x(20)"
                                                      column-label "DESCRIPTION"
@@ -264,7 +264,7 @@ for each itemfg
                                                      column-label "QTY!AVAIL"
                                itemfg.sell-price     column-label "SELLING PRICE"
                                v-reord-qty           column-label "SUGGESTED!REORDER"
-                          with frame itemx100 no-box down stream-io width 150.
+                          with frame itemx100 no-box down stream-io width 167.
                        down with frame itemx100.
 
                        IF tb_excel THEN 
@@ -278,7 +278,7 @@ for each itemfg
                    else
                      if v-prt-prc eq "V" then do:
                        display itemfg.i-no           column-label "ITEM #"
-                               itemfg.part-no        format "x(15)"
+                               itemfg.part-no        format "x(32)"
                                                      column-label "CUST PART #"
                                itemfg.i-name         format "x(20)"
                                                      column-label "DESCRIPTION"
@@ -299,7 +299,7 @@ for each itemfg
                                itemfg.vend-item      FORMAT "x(15)"
                                                      column-label "VENDOR!ITEM NUMBER"
                                v-reord-qty           column-label "SUGGESTED!REORDER"
-                           with frame itemx200 no-box down stream-io width 150.
+                           with frame itemx200 no-box down stream-io width 167.
                        down with frame itemx200.
 
                        IF tb_excel THEN 
@@ -313,7 +313,7 @@ for each itemfg
                      end.
                    else do:
                        display itemfg.i-no           column-label "ITEM #"
-                               itemfg.part-no        format "x(15)"
+                               itemfg.part-no        format "x(32)"
                                                      column-label "CUST PART #"
                                itemfg.i-name         format "x(20)"
                                                      column-label "DESCRIPTION"
@@ -334,7 +334,7 @@ for each itemfg
                                itemfg.ord-max        format ">>>>>>>9"
                                                      column-label "MAXIMUM!ORDER"
                                v-reord-qty           column-label "SUGGESTED!REORDER"
-                           with frame itemx250 no-box down stream-io width 150.
+                           with frame itemx250 no-box down stream-io width 167.
                        down with frame itemx250.
 
                        IF tb_excel THEN 
@@ -348,7 +348,7 @@ for each itemfg
                else
                  if v-prt-prc eq "P" then do:
                      display itemfg.i-no           column-label "ITEM #"
-                             itemfg.part-no        format "x(15)"
+                             itemfg.part-no        format "x(32)"
                                                    column-label "CUST PART #"
                              itemfg.i-name         format "x(20)"
                                                    column-label "DESCRIPTION"
@@ -368,7 +368,7 @@ for each itemfg
                                                    column-label "!VENDOR"
                              itemfg.sell-price     column-label "SELLING PRICE"
                              v-reord-qty           column-label "SUGGESTED!REORDER"
-                         with frame itemx300 no-box down stream-io width 150.
+                         with frame itemx300 no-box down stream-io width 167.
                      down with frame itemx300.
 
                      IF tb_excel THEN 
@@ -382,7 +382,7 @@ for each itemfg
                else
                  if v-prt-prc eq "V" then do:
                      display itemfg.i-no           column-label "ITEM #"
-                             itemfg.part-no        format "x(15)"
+                             itemfg.part-no        format "x(32)"
                                                    column-label "CUST PART #"
                              itemfg.i-name         format "x(20)"
                                                    column-label "DESCRIPTION"
@@ -403,7 +403,7 @@ for each itemfg
                              itemfg.vend-item      format "x(15)"
                                                    column-label "VENDOR!ITEM NUMBER"
                              v-reord-qty           column-label "SUGGESTED!REORDER"
-                         with frame itemx400 no-box down stream-io width 150.
+                         with frame itemx400 no-box down stream-io width 167.
                      down with frame itemx400.
 
                      IF tb_excel THEN 
@@ -416,7 +416,7 @@ for each itemfg
                  end.
                  else do:
                      display itemfg.i-no           column-label "ITEM #"
-                             itemfg.part-no        format "x(15)"
+                             itemfg.part-no        format "x(32)"
                                                    column-label "CUST PART #"
                              itemfg.i-name         format "x(20)"
                                                    column-label "DESCRIPTION"
@@ -437,7 +437,7 @@ for each itemfg
                              itemfg.ord-max        format ">>>>>>>9"
                                                    column-label "MAXIMUM!ORDER"
                              v-reord-qty           column-label "SUGGESTED!REORDER"
-                         with frame itemx450 no-box down stream-io width 150.
+                         with frame itemx450 no-box down stream-io width 167.
                      down with frame itemx450.
 
                      IF tb_excel THEN 

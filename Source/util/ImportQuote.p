@@ -16,7 +16,7 @@ DEFINE TEMP-TABLE ttImportQuote
     FIELD Company        AS CHARACTER 
     FIELD Location       AS CHARACTER
     FIELD QuoteGroup     AS CHARACTER 
-    FIELD CustPart       AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Part #" HELP "Required - Size:30" 
+    FIELD CustPart       AS CHARACTER FORMAT "X(32)" COLUMN-LABEL "Part #" HELP "Required - Size:30" 
     FIELD CustNo         AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Customer" HELP "Required - Size:30"
     FIELD Quote          AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Quote#" HELP "Optional - Integer or <AUTO> to auto-number.  Use <AUTO>#### where # is a unique group number."
     FIELD Qty            AS INTEGER   FORMAT ">>>,>>>,>>9" COLUMN-LABEL "Quantity" HELP "Required - Size:30"

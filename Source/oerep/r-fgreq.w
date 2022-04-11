@@ -1022,7 +1022,7 @@ PROCEDURE run-report :
             v-fax[2]                   NO-LABELS
             v-contact[2]      COLON 40 LABEL "Contact"
 
-            WITH NO-BOX STREAM-IO WIDTH 132 NO-ATTR-SPACE NO-UNDERLINE SIDE-LABELS.
+            WITH NO-BOX STREAM-IO WIDTH 149 NO-ATTR-SPACE NO-UNDERLINE SIDE-LABELS.
 
         oe-ordl.ftick-prnt = YES.
     END. /* each itemfg */

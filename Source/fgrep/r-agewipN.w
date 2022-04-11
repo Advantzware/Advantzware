@@ -260,7 +260,7 @@ ASSIGN
     cFieldListToSelect = "v-job#,v-order#,v-custpo#,v-orderDesc,v-cust,v-cust-name," +
                                 "v-cad#,v-custpart#,v-item#,v-RcptDate," +
                                 "v-qtyonh,v-qtySkid,v-qtyRel,v-qtyBal,v-qtyWip,v-qtyBalWip,v-sellPrice,v-uom,v-total,v-daysOld,rep"
-    cFieldLength       = "13,8,15,25,8,25," + "15,15,15,10," + "15,15,15,15,15,15,15,8,15,8,3"
+    cFieldLength       = "13,8,15,25,8,25," + "15,32,15,10," + "15,15,15,15,15,15,15,8,15,8,3"
     cFieldType         = "c,i,c,c,c,c," + "c,c,c,c," + "i,i,i,i,i,i,i,c,i,i,c"
     .
 
@@ -3460,8 +3460,8 @@ PROCEDURE produce-report :
                     tt-itemfg.loc-bin     = tt-fg-bin.loc-bin
                     tt-itemfg.tag         = tt-fg-bin.tag
                     tt-itemfg.bin-cust-no = tt-fg-bin.cust-no
-                    tt-itemfg.part-cust   = STRING(tt-itemfg.part-no,"x(20)") +
-                                   STRING(tt-itemfg.cust-no,"x(20)")
+                    tt-itemfg.part-cust   = STRING(tt-itemfg.part-no,"x(32)") +
+                                   STRING(tt-itemfg.cust-no,"x(32)")
                     tt-itemfg.loc-bin-tag = STRING(tt-itemfg.loc,"x(10)")         +
                                    STRING(tt-itemfg.loc-bin,"x(10)")     +
                                    STRING(tt-itemfg.tag,"x(20)").

@@ -1084,7 +1084,7 @@ SESSION:SET-WAIT-STATE ("general").
                                     FORMAT "x(13)"
               lv-status             COLUMN-LABEL "Status"
 
-            WITH DOWN NO-BOX STREAM-IO WIDTH 200 NO-ATTR-SPACE.
+            WITH DOWN NO-BOX STREAM-IO WIDTH 217 NO-ATTR-SPACE.
 
       IF tb_excel THEN  
         PUT STREAM excel UNFORMATTED

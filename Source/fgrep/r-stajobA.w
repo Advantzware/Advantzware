@@ -1233,7 +1233,7 @@ IF rd_smry-dtl = "S" THEN DO:
     oe-ordl.po-no label "PO #"
 /*    cust.sman label "SMAN"*/
     oe-ordl.i-no  label "ITEM #"
-    oe-ordl.part-no label "CUST PART #" format "x(15)"
+    oe-ordl.part-no label "CUST PART #" format "x(32)"
     oe-ordl.i-name label "DESCRIPTION" format "x(15)"
 
 /********    NEED JOB-NUMBER HERE!!!!! *************/
@@ -1245,21 +1245,21 @@ IF rd_smry-dtl = "S" THEN DO:
     v-qty-onh  column-label "QUANTITY! ON HAND"
     oe-ordl.price format ">>,>>>,>>9.99" column-label "SELLING! PRICE"
     v-ext format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
-    with frame itemx1 no-box down STREAM-IO width 150.
+    with frame itemx1 no-box down STREAM-IO width 167.
 
 form
     cust.cust-no label "CUSTOMER"
     itemfg.cust-po-no label "PO #" FORMAT "x(15)"
     v-sales-rep label "SREP"
     itemfg.i-no  label "ITEM #"
-    itemfg.part-no label "CUST PART #" format "x(15)"
+    itemfg.part-no label "CUST PART #" format "x(32)"
     itemfg.i-name label "DESCRIPTION" format "x(15)"
     v-job column-label "  JOB"
     v-qty-job  column-label "QUANTITY! ON HAND"
     trans-date column-label "RECEIPT!DATE"
     itemfg.sell-price format ">>>,>>9.99" column-label "SELLING! PRICE"
     v-ext-job format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
-    with frame itemx2 no-box down STREAM-IO width 150.
+    with frame itemx2 no-box down STREAM-IO width 167.
 
 form
     cust.cust-no label "CUSTOMER"
@@ -1294,7 +1294,7 @@ ELSE DO:
        oe-ordl.po-no label "PO #"
    /*    cust.sman label "SMAN"*/
        oe-ordl.i-no  label "ITEM #"
-       oe-ordl.part-no label "CUST PART #" format "x(15)"
+       oe-ordl.part-no label "CUST PART #" format "x(32)"
        oe-ordl.i-name label "DESCRIPTION" format "x(15)"
 
    /********    NEED JOB-NUMBER HERE!!!!! *************/
@@ -1306,13 +1306,13 @@ ELSE DO:
        v-qty-onh  column-label "QUANTITY! ON HAND"
        oe-ordl.price format ">>,>>>,>>9.99" column-label "SELLING! PRICE"
        v-ext format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
-       with frame itemx5 no-box down STREAM-IO width 160.
+       with frame itemx5 no-box down STREAM-IO width 177.
 form
     cust.cust-no label "CUSTOMER"
     itemfg.cust-po-no label "PO #" FORMAT "x(15)"
     v-sales-rep label "SREP"
     itemfg.i-no  label "ITEM #"
-    itemfg.part-no label "CUST PART #" format "x(15)"
+    itemfg.part-no label "CUST PART #" format "x(32)"
     itemfg.i-name label "DESCRIPTION" format "x(15)"
     v-job column-label "JOB!REL#"
     oe-ordl.qty format "->,>>>,>>9" column-label "QTY ORDERED!REL DATE"
@@ -1321,7 +1321,7 @@ form
     trans-date column-label "RECEIPT DATE"
     itemfg.sell-price format ">>>,>>9.99" column-label "SELLING! PRICE"
     v-ext-job format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
-    with frame itemx6 no-box down STREAM-IO width 190.
+    with frame itemx6 no-box down STREAM-IO width 107.
 
 form
     cust.cust-no label "CUSTOMER"

@@ -97,7 +97,7 @@ ASSIGN
     cFieldListToSelect = "cust,i-no,cust-prt,dscr,whse,bin,tag,job," +
                             "msf-oh,qty-oh,cst-uom,dl-cst,mat-cst," +
                             "gs-lbr,gs-mat,ttl-cst"
-    cFieldLength       = "8,15,15,25,5,8,8,10," + "12,10,3,11,11," + "11,11,11"
+    cFieldLength       = "8,15,32,25,5,8,8,10," + "12,10,3,11,11," + "11,11,11"
     cFieldType         = "c,c,c,c,c,c,c,c," + "i,i,c,i,i," + "i,i,i" 
     .
 

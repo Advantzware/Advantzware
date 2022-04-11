@@ -102,7 +102,7 @@ FOR each itemfg
       THEN PUT UNFORMATTED STRING(v-val[1],"->,>>>,>>9.99") " ".
                                       
     IF v-Cstprt  
-      THEN PUT UNFORMATTED itemfg.part-no FORMAT "x(13)".
+      THEN PUT UNFORMATTED itemfg.part-no FORMAT "x(32)".
                                       
     IF v-Weight  
       THEN PUT UNFORMATTED STRING(itemfg.weight-100 / 100,">>>9.9<<<") " ".

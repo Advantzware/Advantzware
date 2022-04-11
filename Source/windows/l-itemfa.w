@@ -207,7 +207,7 @@ DEFINE BROWSE BROWSE-1
       itemfg.q-onh FORMAT "->>,>>>,>>9.999":U
       get-cust () @ itemfg.cust-no
       itemfg.cust-no FORMAT "x(8)":U WIDTH 10
-      itemfg.part-no FORMAT "x(15)":U
+      itemfg.part-no FORMAT "x(32)":U
       get-part () @ itemfg.part-no
       itemfg.part-dscr1 FORMAT "x(30)":U
       itemfg.stocked FORMAT "Yes/No":U
@@ -280,7 +280,7 @@ AND ASI.itemfg.stat = ""A""
      _FldNameList[5]   > ASI.itemfg.cust-no
 "cust-no" ? ? "character" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.itemfg.part-no
-"part-no" ? "x(15)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"part-no" ? "x(32)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > "_<CALC>"
 "get-part () @ itemfg.part-no" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   = ASI.itemfg.part-dscr1

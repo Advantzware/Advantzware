@@ -111,7 +111,7 @@ DEFINE FRAME Dialog-Frame
           SIZE 17 BY 1
      oe-ordl.part-no AT ROW 2.43 COL 15 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 17 BY 1
+          SIZE 36 BY 1
      Btn_OK AT ROW 10.52 COL 16
      Btn_Cancel AT ROW 10.52 COL 40
      SPACE(10.13) SKIP(0.62)

@@ -195,7 +195,7 @@ DEFINE BROWSE BROWSE-1
       get-cust () @ itemfg.cust-no
       itemfg.cust-no FORMAT "x(8)":U WIDTH 10
       get-part () @ itemfg.part-no
-      itemfg.part-no FORMAT "x(15)":U
+      itemfg.part-no FORMAT "x(32)":U
       itemfg.part-dscr1 FORMAT "x(30)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -270,7 +270,7 @@ ASSIGN
      _FldNameList[6]   > "_<CALC>"
 "get-part () @ itemfg.part-no" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[7]   > ASI.itemfg.part-no
-"itemfg.part-no" ? "x(15)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"itemfg.part-no" ? "x(32)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[8]   = ASI.itemfg.part-dscr1
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */

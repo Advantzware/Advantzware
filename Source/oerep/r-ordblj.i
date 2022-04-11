@@ -170,9 +170,9 @@
         display tt-report.po-no   when first-of(tt-report.key-03) OR rd_prt-po EQ "Release"
                                   format "x(15)"                      
                 v-ord-no          format "x(11)"
-                oe-ordl.part-no   FORMAT "x(15)"
+                oe-ordl.part-no   FORMAT "x(32)"
              
-         with frame detail no-box stream-io width 220
+         with frame detail no-box stream-io width 237
               no-attr-space no-underline no-labels.
           
         if first-of(tt-report.row-id) THEN

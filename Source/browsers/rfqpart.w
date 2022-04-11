@@ -155,7 +155,7 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       rfq.rfq-no FORMAT "->,>>>,>>9":U
-      rfqitem.part-no FORMAT "x(15)":U
+      rfqitem.part-no FORMAT "x(32)":U
       rfq.cust-no FORMAT "X(8)":U
       rfq.req-date FORMAT "99/99/9999":U
       rfqitem.style FORMAT "x(4)":U

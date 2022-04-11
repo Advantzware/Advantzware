@@ -125,7 +125,7 @@ PROCEDURE pBusinessLogic:
                     tt-itemfg.loc-bin     = tt-fg-bin.loc-bin
                     tt-itemfg.tag         = tt-fg-bin.tag
                     tt-itemfg.bin-cust-no = tt-fg-bin.cust-no
-                    tt-itemfg.part-cust   = STRING(tt-itemfg.part-no,"x(20)")
+                    tt-itemfg.part-cust   = STRING(tt-itemfg.part-no,"x(32)")
                                           + STRING(tt-itemfg.cust-no,"x(20)") 
                     tt-itemfg.loc-bin-tag = STRING(tt-itemfg.loc,"x(10)")
                                           + STRING(tt-itemfg.loc-bin,"x(10)")

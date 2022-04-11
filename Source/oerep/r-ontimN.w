@@ -81,7 +81,7 @@ ASSIGN cTextListToSelect = "Customer Part#,FG Item#,Order#,Ord Date,Due Date,BOL
                             "cLastReceiptDate,iOrderQuantity,cCustomerName,dItemUnitPrice,dItemPriceUOM," +
                             "iPalletCount,dtManufactureDate,dtCompletionDate,cFGCategory,iBOLNumber,cBOLCarrier," +
                             "iBOLShippedQuantity,dShipmentValue,iReleaseQuantity,dtReleaseDueDate,dtReleaseDate,iReleaseNumber"
-       cFieldLength = "15,15,8,8,8,8,7," + "10,8,15,6,20,14," + "17,14,30,16,14," + "12,16,15,11,10,11," + "19,14,15,15,12,13"
+       cFieldLength = "32,15,8,8,8,8,7," + "10,8,15,6,20,14," + "17,14,30,16,14," + "12,16,15,11,10,11," + "19,14,15,15,12,13"
        cFieldType = "c,c,i,c,c,c,c," + "c,c,i,i,c,c," + "c,i,c,i,c," + "i,c,c,c,i,c," + "i,i,i,c,c,i"
     .
 
@@ -1756,7 +1756,7 @@ SESSION:SET-WAIT-STATE ("general").
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "cust-part"    THEN cVarValue = STRING(oe-ordl.part-no ,"x(15)") .
+                         WHEN "cust-part"    THEN cVarValue = STRING(oe-ordl.part-no ,"x(32)") .
                          WHEN "fgitem"   THEN cVarValue = STRING(oe-ordl.i-no,"x(15)").
                          WHEN "order"   THEN cVarValue = STRING(oe-ord.ord-no,">>>>>>>9").
                          WHEN "ord-date"  THEN cVarValue = STRING(oe-ord.ord-date,"99/99/99") .

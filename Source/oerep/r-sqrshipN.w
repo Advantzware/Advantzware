@@ -63,7 +63,7 @@ ASSIGN
     cFieldListToSelect = "cust-no,cust-name,po-num,ord-no,rel-no,i-no,i-name," +
                                 "job,shp-qty,ord-qty,part-no,v-del-zone,v-terr," +
                                 "v-trailer,v-totl-sq,v-bol-no,ship-id,ship-name,bol-date"
-    cFieldLength       = "8,30,15,8,6,15,30," + "13,11,11,15,8,4," + "21,12,7,8,30,10"
+    cFieldLength       = "8,30,15,8,6,15,30," + "13,11,11,32,8,4," + "21,12,7,8,30,10"
     cFieldType         = "c,c,c,i,i,c,c," + "c,i,i,c,c,c," + "c,i,i,c,c,c"
     .
 

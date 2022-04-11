@@ -1078,7 +1078,7 @@ FOR EACH tt-vend-whse-item
    DISPLAY
       tt-vend-whse-item.vendor-plant-code FORMAT "X(8)"
       SPACE(1)
-      tt-vend-whse-item.cust-part-no      FORMAT "X(12)"
+      tt-vend-whse-item.cust-part-no      FORMAT "X(32)"
       b-itemfg.i-name                     FORMAT "X(25)"
       tt-vend-whse-item.fg-item-no        FORMAT "X(15)"
       b-itemfg.style                      FORMAT "X(6)"
@@ -1100,7 +1100,7 @@ FOR EACH tt-vend-whse-item
       tt-vend-whse-item.obsolete-date
       b-itemfg.case-count                 FORMAT ">>>9"
       tt-vend-whse-item.piap-scan
-      WITH FRAME a NO-BOX NO-LABELS STREAM-IO DOWN  WIDTH 280.
+      WITH FRAME a NO-BOX NO-LABELS STREAM-IO DOWN  WIDTH 300.
 
    DISPLAY
       SPACE(22)

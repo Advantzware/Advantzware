@@ -256,7 +256,7 @@ ASSIGN
     cFieldListToSelect = "rep,rep-name,cust,i-no,dscr,cst,sell-val," +
                             "dys,cst-prt,lst-shp,qty1,qty2,qty3,qty4,qty5," +
                             "val1,val2,val3,val4,val5,cust-no,whse,bin"
-    cFieldLength       = "3,25,30,15,30,13,13," +  "4,15,10,9,9,10,10,9," + "11,11,12,12,11,8,6,6"  
+    cFieldLength       = "3,25,30,15,30,13,13," +  "4,32,10,9,9,10,10,9," + "11,11,12,12,11,8,6,6"  
     cFieldType         = "c,c,c,c,c,i,i," + "i,c,c,i,i,i,i,i," + "i,i,i,i,i,c,c,c" 
     .
 
@@ -3104,7 +3104,7 @@ PROCEDURE print_report :
                 WHEN "dys"       THEN 
                     cVarValue = STRING(tt-days,">>>9") .
                 WHEN "cst-prt"   THEN 
-                    cVarValue = STRING(itemfg.part-no,"x(15)") .
+                    cVarValue = STRING(itemfg.part-no,"x(32)") .
                 WHEN "lst-shp"   THEN 
                     cVarValue = STRING(v-shipdt[1]) .
                 WHEN "qty1"      THEN 

@@ -157,7 +157,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 12
       quotehd.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U WIDTH 12
       cust.name COLUMN-LABEL "Cust Name" FORMAT "x(30)":U
-      quoteitm.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(20)":U
+      quoteitm.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(30)":U
             WIDTH 22
       quoteqty.qty FORMAT ">>>,>>>,>>9":U WIDTH 15
       quoteqty.rels COLUMN-LABEL "R" FORMAT ">>9":U WIDTH 4
@@ -276,7 +276,7 @@ ASSIGN
      _FldNameList[4]   > asi.cust.name
 "cust.name" "Cust Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.quoteitm.part-no
-"quoteitm.part-no" "Cust Part#" ? "character" ? ? ? ? ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"quoteitm.part-no" "Cust Part#" ? "character" ? ? ? ? ? ? no ? no no "32" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.quoteqty.qty
 "quoteqty.qty" ? ">>>,>>>,>>9" "decimal" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.quoteqty.rels

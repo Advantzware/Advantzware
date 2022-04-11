@@ -24,7 +24,7 @@
 &Global-define IDXNAME1 
 &Global-define DESCRIP1 RFQ#
 &Global-define FLDNAME2 rfqitem.part-no
-&Global-define FORMAT-2 X(15)
+&Global-define FORMAT-2 X(32)
 &Global-define SORTBY-2 
 &Global-define IDXNAME2 
 &Global-define DESCRIP2 Cust Part#

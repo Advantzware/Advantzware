@@ -2006,7 +2006,7 @@ FORMAT HEADER
        SKIP(1)
        "Cust#   "
        "Due Date  "
-       "Cust Part#     "
+       "Cust Part#                      "
        "Item Description              "
        "FG Item #      "
        "Order#"
@@ -2021,7 +2021,7 @@ FORMAT HEADER
        SKIP
        "--------"
        "----------"
-       "---------------"
+       "--------------------------------"
        "------------------------------"
        "---------------"
        "------"
@@ -2034,7 +2034,7 @@ FORMAT HEADER
        "----------"
        "----------"
 
-    WITH FRAME r-top3 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP STREAM-IO WIDTH 200.
+    WITH FRAME r-top3 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP STREAM-IO WIDTH 217.
 
 
 SESSION:SET-WAIT-STATE ("general").

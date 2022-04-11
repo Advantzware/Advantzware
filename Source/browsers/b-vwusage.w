@@ -160,7 +160,7 @@ DEFINE BROWSE Browser-Table
       vend-whse-trans.plant-tot-oh-qty FORMAT "->>,>>>,>>9":U WIDTH 15.6
             LABEL-BGCOLOR 14
       vend-whse-trans.item-po-no FORMAT "x(15)":U WIDTH 14.8 LABEL-BGCOLOR 14
-      vend-whse-trans.cust-part-no FORMAT "x(20)":U WIDTH 14 LABEL-BGCOLOR 14
+      vend-whse-trans.cust-part-no FORMAT "x(32)":U WIDTH 33 LABEL-BGCOLOR 14
       vend-whse-trans.fg-item-no FORMAT "x(20)":U LABEL-BGCOLOR 14
       vend-whse-trans.vendor-code FORMAT "x(8)":U WIDTH 12.6 LABEL-BGCOLOR 14
       vend-whse-trans.vendor-plant-code FORMAT "x(8)":U WIDTH 13.2
@@ -302,7 +302,7 @@ ASSIGN
      _FldNameList[5]   > vend-whse-trans.item-po-no
 "vend-whse-trans.item-po-no" ? "x(15)" "character" ? ? ? 14 ? ? yes "Purchase Order Number for Customers Part" no no "14.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > vend-whse-trans.cust-part-no
-"vend-whse-trans.cust-part-no" ? "x(20)" "character" ? ? ? 14 ? ? yes "Customers Part Number" no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vend-whse-trans.cust-part-no" ? "x(32)" "character" ? ? ? 14 ? ? yes "Customers Part Number" no no "33" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > vend-whse-trans.fg-item-no
 "vend-whse-trans.fg-item-no" ? "x(20)" "character" ? ? ? 14 ? ? no "Suppliers Finished Goods Part Number" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > vend-whse-trans.vendor-code

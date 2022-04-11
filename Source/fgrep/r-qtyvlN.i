@@ -275,7 +275,7 @@ FOR EACH tt-cust,
                           WHEN "po"         THEN cVarValue = IF AVAIL oe-ordl THEN STRING(oe-ordl.po-no,"x(15)") ELSE STRING(itemfg.cust-po-no,"x(15)") .                           
                           WHEN "sman"       THEN cVarValue = STRING(v-sales-rep) .                                            
                           WHEN "itm"        THEN cVarValue = STRING(itemfg.i-no,"x(15)") .                                                                         
-                          WHEN "cust-prt"   THEN cVarValue = STRING(itemfg.part-no,"x(15)") .                                                           
+                          WHEN "cust-prt"   THEN cVarValue = STRING(itemfg.part-no,"x(32)") .                                                           
                           WHEN "dscr"       THEN cVarValue = STRING(itemfg.i-name,"x(15)") .                                                                                   
                           WHEN "job"        THEN cVarValue = STRING(v-job) .                                                                                         
                           WHEN "qty-oh"     THEN cVarValue = STRING(v-qty-job,"->>>,>>>,>>9") .                                                                            

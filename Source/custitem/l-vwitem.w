@@ -139,7 +139,7 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      vend-whse-item.cust-part-no FORMAT "x(12)":U WIDTH 27.6
+      vend-whse-item.cust-part-no FORMAT "x(32)":U WIDTH 33.6
       vend-whse-item.fg-item-no FORMAT "x(15)":U WIDTH 27.6
       vend-whse-item.vendor-code FORMAT "x(8)":U WIDTH 13.8
       vend-whse-item.vendor-plant-code FORMAT "x(8)":U WIDTH 15.4
@@ -203,7 +203,7 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "vend-whse-item.company = ip-company"
      _FldNameList[1]   > vend-whse-item.cust-part-no
-"vend-whse-item.cust-part-no" ? ? "character" ? ? ? ? ? ? no ? no no "27.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vend-whse-item.cust-part-no" ? ? "character" ? ? ? ? ? ? no ? no no "33.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > vend-whse-item.fg-item-no
 "vend-whse-item.fg-item-no" ? ? "character" ? ? ? ? ? ? no ? no no "27.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > vend-whse-item.vendor-code

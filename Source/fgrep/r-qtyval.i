@@ -457,15 +457,15 @@
          (v-tot-onh ne 0 or zbal)     then
         IF NOT v-rec-dat THEN
           IF v-prt-cpn THEN
-            PUT "------------"      TO 94
-                "----------"        TO 105
-                "------------"      TO 118
-                "--------------"    TO 148 SKIP
-                "CUSTOMER TOTALS:"  TO 77
-                v-tot-ord           TO 94
-                v-tot-ship          TO 105
-                v-tot-onh           TO 118
-                v-tot-ext           TO 148 SKIP(1).
+            PUT "------------"      TO 111
+                "----------"        TO 122
+                "------------"      TO 135
+                "--------------"    TO 169 SKIP
+                "CUSTOMER TOTALS:"  TO 94
+                v-tot-ord           TO 111
+                v-tot-ship          TO 122
+                v-tot-onh           TO 135
+                v-tot-ext           TO 169 SKIP(1).
 
           ELSE
             PUT "------------"      TO 78
@@ -480,31 +480,31 @@
 
         ELSE
           IF v-prt-cpn THEN
-            PUT "-----------"       TO 94
-                "--------------"    TO 132 SKIP
-                "CUSTOMER TOTALS:"  TO 77
-                v-tot-onh           TO 94
-                v-tot-ext           TO 132 SKIP(1).
+            PUT "-----------"       TO 121
+                "--------------"    TO 159 SKIP
+                "CUSTOMER TOTALS:"  TO 94
+                v-tot-onh           TO 121
+                v-tot-ext           TO 159 SKIP(1).
 
           ELSE
-            PUT "-----------"       TO 78
-                "--------------"    TO 116 SKIP
+            PUT "-----------"       TO 88
+                "--------------"    TO 126 SKIP
                 "CUSTOMER TOTALS:"  TO 61
-                v-tot-onh           TO 78
-                v-tot-ext           TO 116 SKIP(1).
+                v-tot-onh           TO 88
+                v-tot-ext           TO 126 SKIP(1).
     end.  /* for each cust */
 
     IF NOT v-rec-dat THEN
       IF v-prt-cpn THEN
-        PUT "------------"      TO 94
-            "----------"        TO 105
-            "------------"      TO 118
-            "--------------"    TO 148 SKIP
-            "GRAND TOTALS:"     TO 77
-            v-grand-tot-ord     TO 94
-            v-grand-tot-ship    TO 105
-            v-grand-tot-onh     TO 118
-            v-grand-tot-ext     TO 148 SKIP(1).
+        PUT "------------"      TO 111
+            "----------"        TO 122
+            "------------"      TO 135
+            "--------------"    TO 169 SKIP
+            "GRAND TOTALS:"     TO 94
+            v-grand-tot-ord     TO 111
+            v-grand-tot-ship    TO 122
+            v-grand-tot-onh     TO 135
+            v-grand-tot-ext     TO 169 SKIP(1).
 
       ELSE
         PUT "------------"      TO 78
@@ -519,15 +519,15 @@
 
     ELSE
       IF v-prt-cpn THEN
-        PUT "-----------"       TO 94
-            "--------------"    TO 132 SKIP
-            "GRAND TOTALS:"     TO 76
-            v-grand-tot-onh     TO 94
-            v-grand-tot-ext     TO 132 SKIP(1).
+        PUT "-----------"       TO 121
+            "--------------"    TO 159 SKIP
+            "GRAND TOTALS:"     TO 93
+            v-grand-tot-onh     TO 121
+            v-grand-tot-ext     TO 159 SKIP(1).
 
       ELSE
-        PUT "-----------"       TO 78
-            "--------------"    TO 116 SKIP
+        PUT "-----------"       TO 88
+            "--------------"    TO 126 SKIP
             "GRAND TOTALS:"     TO 61
-            v-grand-tot-onh     TO 78
-            v-grand-tot-ext     TO 116 SKIP(1).
+            v-grand-tot-onh     TO 88
+            v-grand-tot-ext     TO 126 SKIP(1).

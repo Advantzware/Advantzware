@@ -175,8 +175,8 @@ DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
       itemfg.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U WIDTH 10
-      itemfg.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(15)":U
-            WIDTH 18
+      itemfg.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(32)":U
+            WIDTH 34
       itemfg.i-no FORMAT "x(15)":U WIDTH 18
       itemfg.i-name FORMAT "x(30)":U
       itemfg.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 8
@@ -251,7 +251,7 @@ OR ASI.itemfg.i-code EQ ""S"")"
      _FldNameList[1]   > ASI.itemfg.cust-no
 "itemfg.cust-no" "Customer#" ? "character" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.itemfg.part-no
-"itemfg.part-no" "Customer Part#" "x(15)" "character" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.part-no" "Customer Part#" "x(32)" "character" ? ? ? ? ? ? no ? no no "34" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.itemfg.i-no
 "itemfg.i-no" ? ? "character" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   = ASI.itemfg.i-name

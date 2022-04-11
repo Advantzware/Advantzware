@@ -796,6 +796,7 @@ IF chosen EQ 3 THEN DO:
           w-ord.carrier     COLUMN-LABEL "Carrier"
           w-ord.ord-no      COLUMN-LABEL "Order!Number"
           w-ord.part-no     COLUMN-LABEL "Customer!Part#"
+                            FORMAT "x(32)"
           w-ord.i-name      COLUMN-LABEL "Description"
                             FORMAT "x(24)"
           w-ord.i-no        COLUMN-LABEL "FG Item#"
@@ -813,7 +814,7 @@ IF chosen EQ 3 THEN DO:
           lv-issue          COLUMN-LABEL "Status"
           SKIP
         
-      WITH DOWN FRAME sched-rel3 NO-BOX STREAM-IO WIDTH 200.
+      WITH DOWN FRAME sched-rel3 NO-BOX STREAM-IO WIDTH 217.
         
   DOWN WITH FRAME sched-rel3.
 
@@ -851,6 +852,7 @@ ELSE DO:
                   w-ord.po-num      COLUMN-LABEL "PO!Number"
                   w-ord.job         COLUMN-LABEL "Job No"
                   w-ord.part-no     COLUMN-LABEL "Part!Number"
+                                    FORMAT "x(32)"
                   w-ord.i-no        COLUMN-LABEL "Item"
                   w-ord.i-name      COLUMN-LABEL "Description"
                                     FORMAT "x(20)"
@@ -859,7 +861,7 @@ ELSE DO:
                   itemfg.style      COLUMN-LABEL "Style"
                                     FORMAT "x(6)"
         
-              WITH DOWN FRAME jobhead1-po-mf NO-BOX STREAM-IO WIDTH 200.
+              WITH DOWN FRAME jobhead1-po-mf NO-BOX STREAM-IO WIDTH 217.
         
           DOWN WITH FRAME jobhead1-po-mf.
         END.
@@ -874,6 +876,7 @@ ELSE DO:
                   w-ord.po-num      COLUMN-LABEL "PO!Number"
                   w-ord.job         COLUMN-LABEL "Job No"
                   w-ord.part-no     COLUMN-LABEL "Part!Number"
+                                    FORMAT "x(32)"
                   (IF rs-item-option EQ "#" THEN w-ord.i-no ELSE w-ord.i-name)
                   COLUMN-LABEL "Item" FORMAT "x(30)"
                   w-ord.rel-qty     COLUMN-LABEL "Release!Quantity"
@@ -915,13 +918,14 @@ ELSE DO:
                   w-ord.po-num      COLUMN-LABEL "PO!Number"
                   w-ord.job         COLUMN-LABEL "Job No"
                   w-ord.part-no     COLUMN-LABEL "Part!Number"
+                                    FORMAT "x(32)"
                   w-ord.i-no        COLUMN-LABEL "Item"
                   w-ord.i-name      COLUMN-LABEL "Description"
                                     FORMAT "x(20)"
                   w-ord.rel-qty     COLUMN-LABEL "Release!Quantity"
                   w-ord.palls       COLUMN-LABEL "Pallet!  Qty"
         
-              WITH DOWN FRAME jobhead1-po-pf NO-BOX STREAM-IO WIDTH 200.
+              WITH DOWN FRAME jobhead1-po-pf NO-BOX STREAM-IO WIDTH 217.
         
           DOWN WITH FRAME jobhead1-po-pf.
         END.
@@ -936,12 +940,13 @@ ELSE DO:
                   w-ord.po-num      COLUMN-LABEL "PO!Number"
                   w-ord.job         COLUMN-LABEL "Job No"
                   w-ord.part-no     COLUMN-LABEL "Part!Number"
+                                    FORMAT "x(32)"
                   (IF rs-item-option EQ "#" THEN w-ord.i-no ELSE w-ord.i-name)
                    COLUMN-LABEL "Item" FORMAT "x(30)"
                   w-ord.rel-qty     COLUMN-LABEL "Release!Quantity"
                   w-ord.palls       COLUMN-LABEL "Pallet!  Qty"
         
-              WITH DOWN FRAME jobhead1-po-pe NO-BOX STREAM-IO WIDTH 200.
+              WITH DOWN FRAME jobhead1-po-pe NO-BOX STREAM-IO WIDTH 217.
         
           DOWN WITH FRAME jobhead1-po-pe.
         END.
@@ -974,6 +979,7 @@ ELSE DO:
                   w-ord.po-num      COLUMN-LABEL "PO!Number"
                   w-ord.job         COLUMN-LABEL "Job No"
                   w-ord.part-no     COLUMN-LABEL "Part!Number"
+                                    FORMAT "x(32)"
                   w-ord.i-no        COLUMN-LABEL "Item"
                   w-ord.i-name      COLUMN-LABEL "Description"
                                     FORMAT "x(20)"
@@ -982,7 +988,7 @@ ELSE DO:
                   itemfg.style      COLUMN-LABEL "Style"
                                     FORMAT "x(6)"
         
-              WITH DOWN FRAME jobhead2-po-mf NO-BOX STREAM-IO WIDTH 200.
+              WITH DOWN FRAME jobhead2-po-mf NO-BOX STREAM-IO WIDTH 217.
         
           DOWN WITH FRAME jobhead2-po-mf.
         END.
@@ -996,6 +1002,7 @@ ELSE DO:
                   w-ord.po-num      COLUMN-LABEL "PO!Number"
                   w-ord.job         COLUMN-LABEL "Job No"
                   w-ord.part-no     COLUMN-LABEL "Part!Number"
+                                    FORMAT "x(32)"
                   (IF rs-item-option EQ "#" THEN w-ord.i-no ELSE w-ord.i-name)
                   COLUMN-LABEL "Item" FORMAT "x(30)"
                   w-ord.rel-qty     COLUMN-LABEL "Release!Quantity"
@@ -1003,7 +1010,7 @@ ELSE DO:
                   itemfg.style      COLUMN-LABEL "Style"
                                     FORMAT "x(6)"
         
-              WITH DOWN FRAME jobhead2-po-me NO-BOX STREAM-IO WIDTH 200.
+              WITH DOWN FRAME jobhead2-po-me NO-BOX STREAM-IO WIDTH 217.
         
           DOWN WITH FRAME jobhead2-po-me.
         END.
@@ -1034,14 +1041,15 @@ ELSE DO:
                   w-ord.rel-date    COLUMN-LABEL "Release! Date"
                   w-ord.po-num      COLUMN-LABEL "PO!Number"
                   w-ord.job         COLUMN-LABEL "Job No"
-                  w-ord.part-no     COLUMN-LABEL "Part!Number"
+                  w-ord.part-no     COLUMN-LABEL "Part!Number"  
+                                    FORMAT "x(32)"
                   w-ord.i-no        COLUMN-LABEL "Item"
                   w-ord.i-name      COLUMN-LABEL "Description"
                                     FORMAT "x(20)"
                   w-ord.rel-qty     COLUMN-LABEL "Release!Quantity"
                   w-ord.palls       COLUMN-LABEL "Pallet!  Qty"
         
-              WITH DOWN FRAME jobhead2-po-pf NO-BOX STREAM-IO WIDTH 200.
+              WITH DOWN FRAME jobhead2-po-pf NO-BOX STREAM-IO WIDTH 217.
         
           DOWN WITH FRAME jobhead2-po-pf.
         END.
@@ -1055,12 +1063,13 @@ ELSE DO:
                   w-ord.po-num      COLUMN-LABEL "PO!Number"
                   w-ord.job         COLUMN-LABEL "Job No"
                   w-ord.part-no     COLUMN-LABEL "Part!Number"
+                                    FORMAT "x(32)"
                   (IF rs-item-option EQ "#" THEN w-ord.i-no ELSE w-ord.i-name)
                    COLUMN-LABEL "Item" FORMAT "x(30)"
                   w-ord.rel-qty     COLUMN-LABEL "Release!Quantity"
                   w-ord.palls       COLUMN-LABEL "Pallet!  Qty"
         
-              WITH DOWN FRAME jobhead2-po-pe NO-BOX STREAM-IO WIDTH 200.
+              WITH DOWN FRAME jobhead2-po-pe NO-BOX STREAM-IO WIDTH 217.
         
           DOWN WITH FRAME jobhead2-po-pe.
         END.
@@ -1093,6 +1102,7 @@ ELSE DO:
                   w-ord.po-num      COLUMN-LABEL "PO!Number"
                   w-ord.job         COLUMN-LABEL "Job No"
                   w-ord.part-no     COLUMN-LABEL "Part!Number"
+				    FORMAT "x(32)"
                   w-ord.i-no        COLUMN-LABEL "Item"
                   w-ord.i-name      COLUMN-LABEL "Description"
                                     FORMAT "x(20)"
@@ -1101,7 +1111,7 @@ ELSE DO:
                   itemfg.style      COLUMN-LABEL "Style"
                                     FORMAT "x(6)"
         
-              WITH DOWN FRAME jobhead3-po-mf NO-BOX STREAM-IO WIDTH 200.
+              WITH DOWN FRAME jobhead3-po-mf NO-BOX STREAM-IO WIDTH 217.
         
           DOWN WITH FRAME jobhead3-po-mf.
         END.
@@ -1114,6 +1124,7 @@ ELSE DO:
                   w-ord.po-num      COLUMN-LABEL "PO!Number"
                   w-ord.job         COLUMN-LABEL "Job No"
                   w-ord.part-no     COLUMN-LABEL "Part!Number"
+                                    FORMAT "x(32)"
                   (IF rs-item-option EQ "#" THEN w-ord.i-no ELSE w-ord.i-name)
                   COLUMN-LABEL "Item" FORMAT "x(30)"
                   w-ord.rel-qty     COLUMN-LABEL "Release!Quantity"
@@ -1121,7 +1132,7 @@ ELSE DO:
                   itemfg.style      COLUMN-LABEL "Style"
                                     FORMAT "x(6)"
         
-              WITH DOWN FRAME jobhead3-po-me NO-BOX STREAM-IO WIDTH 200.
+              WITH DOWN FRAME jobhead3-po-me NO-BOX STREAM-IO WIDTH 217.
         
           DOWN WITH FRAME jobhead3-po-me.
         END.
@@ -1152,13 +1163,14 @@ ELSE DO:
                   w-ord.po-num      COLUMN-LABEL "PO!Number"
                   w-ord.job         COLUMN-LABEL "Job No"
                   w-ord.part-no     COLUMN-LABEL "Part!Number"
+                                    FORMAT "x(32)"
                   w-ord.i-no        COLUMN-LABEL "Item"
                   w-ord.i-name      COLUMN-LABEL "Description"
                                     FORMAT "x(20)"
                   w-ord.rel-qty     COLUMN-LABEL "Release!Quantity"
                   w-ord.palls       COLUMN-LABEL "Pallet!  Qty"
         
-              WITH DOWN FRAME jobhead3-po-pf NO-BOX STREAM-IO WIDTH 200.
+              WITH DOWN FRAME jobhead3-po-pf NO-BOX STREAM-IO WIDTH 217.
         
           DOWN WITH FRAME jobhead3-po-pf.
         END.
@@ -1171,12 +1183,13 @@ ELSE DO:
                   w-ord.po-num      COLUMN-LABEL "PO!Number"
                   w-ord.job         COLUMN-LABEL "Job No"
                   w-ord.part-no     COLUMN-LABEL "Part!Number"
+                                    FORMAT "x(32)"
                   (IF rs-item-option EQ "#" THEN w-ord.i-no ELSE w-ord.i-name)
                    COLUMN-LABEL "Description" FORMAT "x(30)"
                   w-ord.rel-qty     COLUMN-LABEL "Release!Quantity"
                   w-ord.palls       COLUMN-LABEL "Pallet!  Qty"
         
-              WITH DOWN FRAME jobhead3-po-pe NO-BOX STREAM-IO WIDTH 200.
+              WITH DOWN FRAME jobhead3-po-pe NO-BOX STREAM-IO WIDTH 217.
         
           DOWN WITH FRAME jobhead3-po-pe.
         END.
@@ -1206,6 +1219,7 @@ ELSE DO:
                   w-ord.po-num      COLUMN-LABEL "PO!Number"
                   w-ord.job         COLUMN-LABEL "Job No"
                   w-ord.part-no     COLUMN-LABEL "Part!Number"
+                                    FORMAT "x(32)"
                   w-ord.i-no        COLUMN-LABEL "Item"
                   w-ord.i-name      COLUMN-LABEL "Description"
                                     FORMAT "x(20)"
@@ -1214,7 +1228,7 @@ ELSE DO:
                   itemfg.style      COLUMN-LABEL "Style"
                                     FORMAT "x(6)"
         
-              WITH DOWN FRAME jobhead4-po-mf NO-BOX STREAM-IO WIDTH 200.
+              WITH DOWN FRAME jobhead4-po-mf NO-BOX STREAM-IO WIDTH 217.
         
           DOWN WITH FRAME jobhead4-po-mf.
         END.
@@ -1226,6 +1240,7 @@ ELSE DO:
                   w-ord.po-num      COLUMN-LABEL "PO!Number"
                   w-ord.job         COLUMN-LABEL "Job No"
                   w-ord.part-no     COLUMN-LABEL "Part!Number"
+                                    FORMAT "x(32)"
                   (IF rs-item-option EQ "#" THEN w-ord.i-no ELSE w-ord.i-name)
                    COLUMN-LABEL "Item" FORMAT "x(30)"
                   w-ord.rel-qty     COLUMN-LABEL "Release!Quantity"
@@ -1233,7 +1248,7 @@ ELSE DO:
                   itemfg.style      COLUMN-LABEL "Style"
                                     FORMAT "x(6)"
         
-              WITH DOWN FRAME jobhead4-po-me NO-BOX STREAM-IO WIDTH 200.
+              WITH DOWN FRAME jobhead4-po-me NO-BOX STREAM-IO WIDTH 217.
         
           DOWN WITH FRAME jobhead4-po-me.
         END.
@@ -1262,13 +1277,14 @@ ELSE DO:
                   w-ord.po-num      COLUMN-LABEL "PO!Number"
                   w-ord.job         COLUMN-LABEL "Job No"
                   w-ord.part-no     COLUMN-LABEL "Part!Number"
+                                    FORMAT "x(32)"
                   w-ord.i-no        COLUMN-LABEL "Item"
                   w-ord.i-name      COLUMN-LABEL "Description"
                                     FORMAT "x(20)"
                   w-ord.rel-qty     COLUMN-LABEL "Release!Quantity"
                   w-ord.palls       COLUMN-LABEL "Pallet!  Qty"
         
-              WITH DOWN FRAME jobhead4-po-pf NO-BOX STREAM-IO WIDTH 200.
+              WITH DOWN FRAME jobhead4-po-pf NO-BOX STREAM-IO WIDTH 217.
         
           DOWN WITH FRAME jobhead4-po-pf.
         END.
@@ -1280,12 +1296,13 @@ ELSE DO:
                   w-ord.po-num      COLUMN-LABEL "PO!Number"
                   w-ord.job         COLUMN-LABEL "Job No"
                   w-ord.part-no     COLUMN-LABEL "Part!Number"
+                                    FORMAT "x(32)"
                   (IF rs-item-option EQ "#" THEN w-ord.i-no ELSE w-ord.i-name)
                    COLUMN-LABEL "Item" FORMAT "x(30)"
                   w-ord.rel-qty     COLUMN-LABEL "Release!Quantity"
                   w-ord.palls       COLUMN-LABEL "Pallet!  Qty"
         
-              WITH DOWN FRAME jobhead4-po-pe NO-BOX STREAM-IO WIDTH 200.
+              WITH DOWN FRAME jobhead4-po-pe NO-BOX STREAM-IO WIDTH 217.
         
           DOWN WITH FRAME jobhead4-po-pe.
         END.

@@ -113,7 +113,7 @@ DEFINE VARIABLE begin_cust-po AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_part AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE begin_part AS CHARACTER FORMAT "X(32)":U 
      LABEL "Beginning Customer Part#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
@@ -133,7 +133,7 @@ DEFINE VARIABLE end_cust-po AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzz
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_part AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz" 
+DEFINE VARIABLE end_part AS CHARACTER FORMAT "X(32)":U INITIAL "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz" 
      LABEL "Ending Customer Part#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
@@ -1117,7 +1117,7 @@ DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form oe-ordl.part-no    column-label "CUST PART #"
-                        format "x(15)"
+                        format "x(32)"
      oe-ordl.po-no      column-label "PO #"
      oe-ordl.qty        column-label "QUANTITY! ORDERED"
                         format "->,>>>,>>9"
@@ -1132,7 +1132,7 @@ form oe-ordl.part-no    column-label "CUST PART #"
                         format "->>>,>>>,>>9"
      oe-ordl.i-no       column-label "ITEM #"
 
-    with frame itemx1 no-box down STREAM-IO width 132.
+    with frame itemx1 no-box down STREAM-IO width 149.
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).

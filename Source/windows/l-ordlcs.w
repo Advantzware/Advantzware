@@ -216,7 +216,7 @@ DEFINE BROWSE BROWSE-1
       oe-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 14
       oe-ordl.job-no2 COLUMN-LABEL "" FORMAT "999":U
       oe-ordl.i-no FORMAT "x(15)":U WIDTH 18
-      oe-ordl.part-no FORMAT "x(15)":U WIDTH 18
+      oe-ordl.part-no FORMAT "x(32)":U WIDTH 34
       oe-ordl.qty COLUMN-LABEL "Order!Quantity" FORMAT "->>,>>>,>>9.9<<":U
       oe-ordl.inv-qty COLUMN-LABEL "Invoice!Quantity" FORMAT "->>,>>>,>>>":U
             WIDTH 15
@@ -301,7 +301,7 @@ use-index opened"
      _FldNameList[5]   > ASI.oe-ordl.i-no
 "oe-ordl.i-no" ? ? "character" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" ""
      _FldNameList[6]   > ASI.oe-ordl.part-no
-"oe-ordl.part-no" ? ? "character" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" ""
+"oe-ordl.part-no" ? ? "character" ? ? ? ? ? ? no ? no no "34" yes no no "U" "" ""
      _FldNameList[7]   > ASI.oe-ordl.qty
 "oe-ordl.qty" "Order!Quantity" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[8]   > ASI.oe-ordl.inv-qty

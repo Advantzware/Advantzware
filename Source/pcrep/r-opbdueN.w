@@ -82,7 +82,7 @@ ASSIGN
     cFieldListToSelect = "due-date,ord-date,job,ord,cust-name,fgitem," +
                             "item-name,job-qty,msf,rm-item-name,job-board," + 
                             "cust-part,has-foam"
-    cFieldLength       = "8,8,13,6,30,15," + "30,10,8,30,13," + "15,12"
+    cFieldLength       = "8,8,13,6,30,15," + "30,10,8,30,13," + "32,12"
     cFieldType         = "c,c,c,i,c,c," + "c,i,i,c,c," + "c,c" 
     .
 
@@ -1433,7 +1433,7 @@ PROCEDURE run-report :
                 WHEN "job-board"  THEN 
                     cVarValue = STRING(lBoard) . 
                 WHEN "cust-part" THEN 
-                    cVarValue = IF AVAILABLE itemfg THEN STRING(itemfg.part-no,"x(15)") ELSE "" .
+                    cVarValue = IF AVAILABLE itemfg THEN STRING(itemfg.part-no,"x(32)") ELSE "" .
                 WHEN "has-foam" THEN 
                     cVarValue = STRING(lCheckFoam).
 

@@ -67,7 +67,7 @@ ASSIGN
                            "Pallet/Count,Release Qty,Date Req"
     cFieldListToSelect = "item,cust-part,desc,re-ord,rel-po,tot-hand," +
                             "pal-co,rel-qty,date"
-    cFieldLength       = "15,15,30,14,15,13," + "12,11,8"
+    cFieldLength       = "15,32,30,14,15,13," + "12,11,8"
     cFieldType         = "c,c,c,i,c,i," + "i,i,c" 
     .
 
@@ -1608,7 +1608,7 @@ PROCEDURE run-report :
                 WHEN "item"    THEN 
                     cVarValue = STRING(itemfg.i-no,"x(15)") .
                 WHEN "cust-part"   THEN 
-                    cVarValue = STRING(itemfg.part-no,"x(15)").
+                    cVarValue = STRING(itemfg.part-no,"x(32)").
                 WHEN "desc"   THEN 
                     cVarValue = STRING(itemfg.i-name,"x(30)").
                 WHEN "re-ord"  THEN 

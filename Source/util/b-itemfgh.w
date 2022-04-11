@@ -317,7 +317,7 @@ DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 4 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(32)":U 
      VIEW-AS FILL-IN 
      SIZE 30 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -365,7 +365,7 @@ DEFINE BROWSE r_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS r_table B-table-Win _STRUCTURED
   QUERY r_table NO-LOCK DISPLAY
       itemfg.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14
-      itemfg.part-no FORMAT "x(12)":U
+      itemfg.part-no FORMAT "x(32)":U
       itemfg.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       itemfg.part-dscr1 COLUMN-LABEL "Description" FORMAT "x(30)":U
             LABEL-BGCOLOR 14

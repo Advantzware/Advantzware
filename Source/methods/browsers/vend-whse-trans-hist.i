@@ -35,7 +35,7 @@
 &Global-define IDXNAME3 
 &Global-define DESCRIP3 Cust PO#
 &Global-define FLDNAME4 vend-whse-trans-hist.cust-part-no
-&Global-define FORMAT-4 X(12)
+&Global-define FORMAT-4 X(32)
 &Global-define SORTBY-4 BY {&FLDNAME4}
 &Global-define IDXNAME4 
 &Global-define DESCRIP4 Cust Part#

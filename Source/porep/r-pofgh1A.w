@@ -1388,7 +1388,7 @@ form cust.cust-no           column-label "Customer"
      vend.name              column-label "Vendor"
                             format "x(23)"
      tt-report.key-04 
-                            format "x(15)"
+                            format "x(32)"
      po-ordl.i-name            column-label "Item Name"
                             format "x(25)"
      po-ordl.s-wid          column-label "Width"
@@ -1400,14 +1400,14 @@ form cust.cust-no           column-label "Customer"
                             format "99/99/9999"
      v-fg-rdtlhqty          column-label "Recpt Qty"
 
-    with frame main no-box no-attr-space down STREAM-IO width 136.
+    with frame main no-box no-attr-space down STREAM-IO width 153.
 
 form cust.cust-no           column-label "Customer"
      po-ord.po-no           column-label "PO #"
      vend.name              column-label "Vendor"
                             format "x(23)"
      tt-report.key-04 
-                            format "x(15)"
+                            format "x(32)"
      po-ordl.i-name            column-label "Item Name"
                             format "x(25)"
      po-ordl.s-wid          column-label "Width"
@@ -1419,14 +1419,14 @@ form cust.cust-no           column-label "Customer"
                             format "99/99/9999"
      v-fg-rdtlhqty          column-label "Recpt Qty"
 
-    with frame main-2 no-box no-attr-space down STREAM-IO width 136.
+    with frame main-2 no-box no-attr-space down STREAM-IO width 153.
 
 form cust.cust-no           column-label "Customer"
      po-ord.po-no           column-label "PO #"
      vend.name              column-label "Vendor"
                             format "x(23)"
      tt-report.key-04 
-                            format "x(15)"
+                            format "x(32)"
      po-ordl.i-name            column-label "Item Name"
                             format "x(25)"
      po-ordl.s-wid          column-label "Width"
@@ -1439,14 +1439,14 @@ form cust.cust-no           column-label "Customer"
                             format "99/99/9999"
      v-fg-rdtlhqty          column-label "Recpt Qty"
 
-    with frame main2 no-box no-attr-space down STREAM-IO width 146.
+    with frame main2 no-box no-attr-space down STREAM-IO width 163.
 
 form cust.cust-no           column-label "Customer"
      po-ord.po-no           column-label "PO #"
      vend.name              column-label "Vendor"
                             format "x(23)"
      tt-report.key-04 
-                            format "x(15)"
+                            format "x(32)"
      po-ordl.i-name            column-label "Item Name"
                             format "x(25)"
      po-ordl.s-wid          column-label "Width"
@@ -1459,7 +1459,7 @@ form cust.cust-no           column-label "Customer"
                             format "99/99/9999"
      v-fg-rdtlhqty          column-label "Recpt Qty"
 
-    with frame main2-2 no-box no-attr-space down STREAM-IO width 146.
+    with frame main2-2 no-box no-attr-space down STREAM-IO width 163.
 
  {ce/msfcalc.i} 
 

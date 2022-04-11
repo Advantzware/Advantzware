@@ -80,7 +80,7 @@ ASSIGN
                            "PO Cost,UOM,Due Date,Recpt Date,Recpt Qty" 
     cFieldListToSelect = "cust,po,vend,vend-nam,cst-prt,ino,iname,wid,len," +
                             "po-cst,uom,du-dt,rcp-dt,rcp-qty"
-    cFieldLength       = "8,6,8,25,15,15,30,8,8," + "9,5,10,10,12"
+    cFieldLength       = "8,6,8,25,32,15,30,8,8," + "9,5,10,10,12"
     cFieldType         = "c,c,c,c,c,c,c,i,i," + "i,c,c,c,i"  
     .
 

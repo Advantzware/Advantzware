@@ -1572,7 +1572,7 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                 IF AVAILABLE ITEMfg THEN 
                 DO:
                     ASSIGN 
-                        lc-return = STRING(itemfg.part-no,"x(15)")    .
+                        lc-return = STRING(itemfg.part-no,"x(32)")    .
                 END.
                 ELSE lc-return = "" .
             END. 

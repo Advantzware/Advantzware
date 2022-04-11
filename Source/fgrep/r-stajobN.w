@@ -101,7 +101,7 @@ ASSIGN
                                 "qty-pro,qty-bal,ord-date,ship-date,loc," +
                                 "relpo,rellot,fg-lot,shipto,shipname,prodqty," +
                                 "fac-costm,tot-fac-cost,on-hand-cost,ord-price"
-    cFieldLength       = "8,15,4,15,15,15,13," + "9,11,10,13,11,11," + "11,12,11,15,11," + "10,11,10,9,5," +
+    cFieldLength       = "8,15,4,15,32,15,13," + "9,11,10,13,11,11," + "11,12,11,15,11," + "10,11,10,9,5," +
                           "15,15,16,8,30,11," + "14,16,13,11"
     cFieldType         = "c,c,c,c,c,c,c," + "c,c,c,i,i,i," + "i,c,i,i,i," + "i,i,c,c,c," +
                         "c,c,c,c,c,i," + "i,i,i,i" 

@@ -97,7 +97,7 @@ ASSIGN cTextListToSelect = "Sales Rep,Sales Name,Cust#,Cust Name#,Order PO#,Line
                             "ordjob,jobno,fgitem,i-name,cust-part,ord-date," +
                             "ord-qty,invrel,date-inv,qty-ship,rel-qty,bal-due,inv-amt," +
                             "qty-on-hand" 
-       cFieldLength = "9,25,8,30,15,15,15," + "8,13,15,30,15,8," + "11,7,12,11,11,11,11," + "11"
+       cFieldLength = "9,25,8,30,15,15,15," + "8,13,15,30,32,8," + "11,7,12,11,11,11,11," + "11"
        cFieldType = "c,c,c,c,c,c,c," +  "c,c,c,c,c,c," + "i,i,c,i,i,i,i," + "i" 
     .
 

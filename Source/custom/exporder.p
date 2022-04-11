@@ -152,7 +152,7 @@ FOR EACH oe-ord NO-LOCK
         v-comma
         oe-ordl.i-no FORM "x(15)"
         v-comma
-        oe-ordl.part-no FORM "x(20)"
+        oe-ordl.part-no FORM "x(32)"
         v-comma
         /*oe-ordl.part-dscr1 FORM "x(40)"*/
         itemfg.i-name FORM "x(40)"

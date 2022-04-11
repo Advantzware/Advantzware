@@ -128,7 +128,7 @@
          tt-report.key-01  = (IF v-sort EQ "Item" THEN "        "
                               ELSE if v-sort EQ "Cust" then string(job-hdr.cust-no,"x(8)")
                               ELSE STRING(cust.sman,"X(8)")) +
-                             string(itemfg.part-no,"x(20)") +
+                             string(itemfg.part-no,"x(32)") +
                              string(job-hdr.i-no,  "x(20)")
          tt-report.key-02  = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
          tt-report.key-03  = job-hdr.i-no
@@ -202,7 +202,7 @@
                      WHEN "ord-dt"   THEN cVarValue = IF w-ord.ord-date NE ? THEN STRING(w-ord.ord-date) ELSE "". 
                      WHEN "ord"      THEN cVarValue = STRING(w-ord.ord-no) .
                      WHEN "po-no"    THEN cVarValue = STRING(w-ord.po-num,"x(15)") .
-                     WHEN "cust-prt" THEN cVarValue = string(w-ord.part-no,"x(15)") .
+                     WHEN "cust-prt" THEN cVarValue = string(w-ord.part-no,"x(32)") .
                      WHEN "palt"     THEN cVarValue = IF v-get-qty THEN STRING(w-ord.pallets) ELSE ""  .
                      WHEN "qty-oh"   THEN cVarValue = IF v-get-qty THEN STRING(w-ord.qty-onh,"->,>>>,>>9.9<<<") ELSE "" .
                      WHEN "qty-due"  THEN cVarValue = STRING(w-ord.qty-due,"->,>>>,>>9") .

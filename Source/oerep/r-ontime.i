@@ -86,7 +86,7 @@ FOR each oe-ordl WHERE
              oe-boll.weight         COLUMN-LABEL  "WT"  WHEN tb_pw   SPACE(2)
              oe-bolh.trailer        COLUMN-LABEL  "Trailer#"  WHEN tb_ptr
                 
-            with down no-box stream-io width 200 no-attr-space.
+            with down no-box stream-io width 217 no-attr-space.
             
       IF tb_excel THEN 
         PUT STREAM excel UNFORMATTED

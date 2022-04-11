@@ -346,7 +346,7 @@ PURPOSE:
                         CASE cTmpField:             
                              WHEN "cust"     THEN cVarValue = IF v-first[2] THEN STRING(itemfg.cust-no) ELSE "".
                              WHEN "i-no"     THEN cVarValue = IF v-first[1] THEN string(itemfg.i-no) ELSE "" .
-                             WHEN "cust-prt" THEN cVarValue = IF v-first[1] THEN STRING(itemfg.part-no,"x(15)") ELSE "" .
+                             WHEN "cust-prt" THEN cVarValue = IF v-first[1] THEN STRING(itemfg.part-no,"x(32)") ELSE "" .
                              WHEN "dscr"     THEN cVarValue = IF v-first[1] THEN STRING(itemfg.i-name,"x(25)") ELSE "" .
                              WHEN "whse"     THEN cVarValue = string(tt-fg-bin.loc).
                              WHEN "bin"      THEN cVarValue = STRING(tt-fg-bin.loc-bin)  .
@@ -380,7 +380,7 @@ PURPOSE:
 
           display itemfg.cust-no when v-first[2]
                   itemfg.i-no    when v-first[1]
-                  itemfg.part-no when v-first[1] format "x(15)"  
+                  itemfg.part-no when v-first[1] format "x(32)"  
                   itemfg.i-name  when v-first[1] format "x(25)"
                   tt-fg-bin.loc
                   tt-fg-bin.loc-bin

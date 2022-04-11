@@ -155,7 +155,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       vend-whse-trans.vend-bol-no COLUMN-LABEL "Suppliers!BOL No" FORMAT ">>>>>>>9":U
             WIDTH 13.2 LABEL-BGCOLOR 14
-      vend-whse-trans.cust-part-no FORMAT "x(12)":U WIDTH 14 LABEL-BGCOLOR 14
+      vend-whse-trans.cust-part-no FORMAT "x(32)":U WIDTH 33.9 LABEL-BGCOLOR 14
       vend-whse-trans.trans-qty COLUMN-LABEL "Receipt!Quantity" FORMAT "->>,>>>,>>9":U
             LABEL-BGCOLOR 14
       vend-whse-trans.plant-tot-oh-qty FORMAT "->>,>>>,>>9":U WIDTH 15.6
@@ -295,7 +295,7 @@ ASSIGN
      _FldNameList[2]   > vend-whse-trans.vend-bol-no
 "vend-whse-trans.vend-bol-no" "Suppliers!BOL No" ? "integer" ? ? ? 14 ? ? yes ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > vend-whse-trans.cust-part-no
-"vend-whse-trans.cust-part-no" ? ? "character" ? ? ? 14 ? ? no "Customers Part Number" no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vend-whse-trans.cust-part-no" ? ? "character" ? ? ? 14 ? ? no "Customers Part Number" no no "33.9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > vend-whse-trans.trans-qty
 "vend-whse-trans.trans-qty" "Receipt!Quantity" "->>,>>>,>>9" "decimal" ? ? ? 14 ? ? yes "Quantity Consummed" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > vend-whse-trans.plant-tot-oh-qty

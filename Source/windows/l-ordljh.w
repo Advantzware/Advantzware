@@ -172,7 +172,7 @@ DEFINE BROWSE BROWSE-1
       oe-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 14
       oe-ordl.job-no2 COLUMN-LABEL "" FORMAT "999":U
       oe-ordl.i-no FORMAT "x(15)":U WIDTH 18
-      oe-ordl.part-no FORMAT "x(15)":U WIDTH 18
+      oe-ordl.part-no FORMAT "x(36)":U 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 145 BY 11.19
@@ -248,7 +248,7 @@ LOOKUP(ASI.oe-ordl.i-no,ip-i-no) GT 0 and
      _FldNameList[5]   > ASI.oe-ordl.i-no
 "oe-ordl.i-no" ? ? "character" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" ""
      _FldNameList[6]   > ASI.oe-ordl.part-no
-"oe-ordl.part-no" ? ? "character" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" ""
+"oe-ordl.part-no" ? ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME

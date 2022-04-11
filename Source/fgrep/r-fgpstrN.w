@@ -87,7 +87,7 @@ ASSIGN
                             "itemfg.procat,unt-cst,unt-sel,suom,prom-date,due-date,job-start,shipto,shipname,order-no," +
                             "bef-qty,bin-qty,bol-no,Reason,Reason-cd,Reason-dscr,itemfg.cust-name," + 
                             "itemfg.std-mat-cost,itemfg.std-lab-cost,itemfg.std-var-cost,itemfg.std-fix-cost,bin-mat-cost,bin-dl-cost,bin-voh-cost,bin-foh-cost"
-    cFieldLength       = "9,16,11,9,13,11,1,20,24,8," + "8,9,9,10,10,13," + "15,15,4,15,15,13,15,7,10,10,9,8,8," +
+    cFieldLength       = "9,16,11,9,13,11,1,20,24,8," + "8,9,9,10,10,13," + "32,15,4,15,15,13,15,7,10,10,9,8,8," +
                       "5,11,14,4,12,12,10,8,30,7," + "10,10,8,30,11,25,30," + "11,15,15,15,15,15,15,15"
     .
 

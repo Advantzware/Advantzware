@@ -1489,7 +1489,7 @@ RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 FORM itemfg.cust-no COLUMN-LABEL "CUSTOMER!   ID"
      v-po-no COLUMN-LABEL " P.O.!NUMBER"
      itemfg.i-no COLUMN-LABEL " ITEM!NUMBER"
-     itemfg.part-no LABEL "CUST PART #" FORMAT "x(15)"
+     itemfg.part-no LABEL "CUST PART #" FORMAT "x(32)"
      itemfg.i-name LABEL "DESCRIPTION" FORMAT "x(20)"
      fg-bin.job-no COLUMN-LABEL "  JOB!NUMBER"
      SPACE(0) "-" SPACE(0) fg-bin.job-no2 COLUMN-LABEL "" FORMAT ">9"
@@ -1500,7 +1500,7 @@ FORM itemfg.cust-no COLUMN-LABEL "CUSTOMER!   ID"
      v-date COLUMN-LABEL "DATE" FORMAT "99/99/99"
      v-rct-date COLUMN-LABEL "RECEIPT! DATE" FORMAT "99/99/99"
      v-ship-date COLUMN-LABEL "LASTSHIP!  DATE" FORMAT "99/99/99"
-     WITH NO-BOX FRAME itemx1 DOWN STREAM-IO WIDTH 200.
+     WITH NO-BOX FRAME itemx1 DOWN STREAM-IO WIDTH 217.
 
 FORM itemfg.cust-no COLUMN-LABEL "CUSTOMER!   ID"
      v-po-no COLUMN-LABEL " P.O.!NUMBER"

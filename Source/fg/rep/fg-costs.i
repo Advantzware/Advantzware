@@ -336,7 +336,7 @@ PURPOSE:
 
           display itemfg.cust-no when v-first[2]
                   itemfg.i-no    when v-first[1]
-                  itemfg.part-no when v-first[1] format "x(15)"  
+                  itemfg.part-no when v-first[1] format "x(32)"  
                   itemfg.i-name  when v-first[1] format "x(25)"
                   tt-fg-bin.loc
                   tt-fg-bin.loc-bin
@@ -353,7 +353,7 @@ PURPOSE:
                   v-gsl-sum when v-prt-c
                   v-gsm-sum when v-prt-c
                   v-all-sum when v-prt-c
-              with frame item-cost1 no-labels no-box down stream-io width 183.
+              with frame item-cost1 no-labels no-box down stream-io width 200.
           down with frame item-cost1.
 
           IF logExcelDump THEN DO: /* rdb 02/05/07  01090713 */

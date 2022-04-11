@@ -250,9 +250,9 @@ DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(12)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(32)":U 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1
+     SIZE 36 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_po-no AS CHARACTER FORMAT "X(15)":U 
@@ -292,7 +292,7 @@ DEFINE BROWSE Browser-Table
       oe-boll.po-no COLUMN-LABEL "Customer's PO" FORMAT "x(15)":U
             LABEL-BGCOLOR 14
       oe-bolh.cust-no FORMAT "x(8)":U LABEL-BGCOLOR 14
-      oe-ordl.part-no FORMAT "x(15)":U LABEL-BGCOLOR 14
+      oe-ordl.part-no FORMAT "x(32)":U LABEL-BGCOLOR 14
       oe-boll.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.i-name COLUMN-LABEL "FG Item Name" FORMAT "x(28)":U
             WIDTH 22 LABEL-BGCOLOR 14

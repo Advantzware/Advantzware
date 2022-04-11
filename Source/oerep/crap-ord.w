@@ -78,7 +78,7 @@ ASSIGN cTextListToSelect  = "Order#,Customer#,Order Date,FG Item#,Cust Part#,Ite
                             "oe-ord.cust-name,oe-ordl.est-no,job,cad-no,oe-ordl.inv-qty,act-rel-qty,wip-qty,pct,sman," +
                             "sname,reldate,carrier,shipid,fg-oh,oe-ord.due-date,oe-ordl.req-date,oe-ord.user-id,oe-ord.spare-char-2,approved-date"
                             
-        cFieldLength = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18"
+        cFieldLength = "15,15,15,20,32,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18"
            cFieldType = "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c"
        .
 
@@ -175,7 +175,7 @@ DEFINE VARIABLE begin_order AS INTEGER FORMAT ">>>>>9" INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_part AS CHARACTER FORMAT "X(15)" 
+DEFINE VARIABLE begin_part AS CHARACTER FORMAT "X(32)" 
      LABEL "From Customer Part#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
@@ -205,7 +205,7 @@ DEFINE VARIABLE end_order AS INTEGER FORMAT ">>>>>9" INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE end_part AS CHARACTER FORMAT "X(15)" 
+DEFINE VARIABLE end_part AS CHARACTER FORMAT "X(32)" 
      LABEL "To Customer Part#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.

@@ -75,7 +75,7 @@ ASSIGN
                            "Qty Onhand,Rect. Date,Sell Price,Total Value,Committed,Qty/Case,FG Lot #,Customer Lot #,Order Due Date,Job Due Date,CSR"
     cFieldListToSelect = "cust,po,sman,itm,cust-prt,dscr,job," +
                             "qty-oh,rcpt-dt,sel-prc,ttl-val,commtd,qty-case,fg-lot,cust-lot,due-date,job-due-date,csr"
-    cFieldLength       = "8,15,4,15,15,15,13," + "12,10,13,15,12,7,20,15,14,12,8"  
+    cFieldLength       = "8,15,4,15,32,15,13," + "12,10,13,15,12,7,20,15,14,12,8"  
     cFieldType         = "c,c,c,c,c,c,c," + "i,c,i,i,i,i,c,c,c,c,c" 
     .
 

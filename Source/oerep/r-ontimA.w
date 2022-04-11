@@ -1075,7 +1075,7 @@ SESSION:SET-WAIT-STATE ("general").
              oe-boll.weight         COLUMN-LABEL  "WT"  WHEN tb_pw   SPACE(2)
              oe-bolh.trailer        COLUMN-LABEL  "Trailer#"  WHEN tb_ptr
 
-            with down no-box stream-io width 200 no-attr-space.
+            with down no-box stream-io width 217 no-attr-space.
       ELSE DO:
         display oe-ordl.part-no       column-label "Customer Part#"
               space(2)
@@ -1100,7 +1100,7 @@ SESSION:SET-WAIT-STATE ("general").
              oe-boll.weight         COLUMN-LABEL  "WT"  WHEN tb_pw   SPACE(2)
              oe-bolh.trailer        COLUMN-LABEL  "Trailer#"  WHEN tb_ptr
 
-            with FRAME f-promise down no-box stream-io width 200 no-attr-space.
+            with FRAME f-promise down no-box stream-io width 217 no-attr-space.
          DOWN WITH FRAME f-promise.
       END.
       IF tb_excel THEN 

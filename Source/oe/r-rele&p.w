@@ -1319,7 +1319,7 @@ PROCEDURE run-report :
         oe-relh.cust-no LABEL "Cust #"
         oe-relh.ship-id LABEL "Ship #"
         oe-rell.i-no LABEL "FG Item #"
-        itemfg.part-no LABEL "Customer Part #"
+        itemfg.part-no FORMAT "x(32)" LABEL "Customer Part #"
         itemfg.i-name FORMAT "x(20)" LABEL "Item Name"
         oe-rell.loc LABEL "Whse"
         oe-rell.loc-bin LABEL "Bin Loc"
@@ -1327,7 +1327,7 @@ PROCEDURE run-report :
         oe-rell.qty LABEL "Tot Qty" FORMAT "->,>>>,>>>"
         v-s-code FORMAT "x" LABEL "C"
         oe-rell.link-no LABEL "Seq. #" FORMAT ">>>>>>>>>"
-        WITH STREAM-IO WIDTH 145 DOWN FRAME rell.
+        WITH STREAM-IO WIDTH 162 DOWN FRAME rell.
 
 
     FIND FIRST period                   

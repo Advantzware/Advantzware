@@ -43,7 +43,7 @@
 &Scoped-define btn-cancel-col 55
 &Scoped-define auto-find-row 23.65
 
-&Global-define FORMAT-1 x(15)
+&Global-define FORMAT-1 x(32)
 &Scoped-define FLDNAME1 oe-ordl.part-no
 &Scoped-define SORTBY-1 BY {&FLDNAME1}
 &Scoped-define DESCRIP1 Cust Part #

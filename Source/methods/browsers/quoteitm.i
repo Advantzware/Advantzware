@@ -18,7 +18,7 @@
 */
 
 &Global-define FLDNAME1 quoteitm.part-no
-&Global-define FORMAT-1 X(20)
+&Global-define FORMAT-1 X(32)
 &Global-define SORTBY-1 
 &Global-define IDXNAME1 
 &Global-define DESCRIP1 Cust Part #

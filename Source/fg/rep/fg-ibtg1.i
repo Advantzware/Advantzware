@@ -134,7 +134,7 @@ form itemfg.cust-no
      itemfg.i-no
      tt-fg-bin.tag
      fg-lot-val FORMAT "x(15)"
-     itemfg.part-no format "x(15)"
+     itemfg.part-no format "x(32)"
      itemfg.i-name format "x(25)"
      tt-fg-bin.loc
      tt-fg-bin.loc-bin
@@ -146,13 +146,13 @@ form itemfg.cust-no
      v-ext-sum format "->>>,>>9.99<<"
      v-po-no
      v-arq
-   with frame itemx2 no-labels no-box down stream-io width 230.
+   with frame itemx2 no-labels no-box down stream-io width 247.
 
 form itemfg.cust-no
      itemfg.i-no
      tt-fg-bin.tag
      fg-lot-val FORMAT "x(15)"
-     itemfg.part-no format "x(15)"
+     itemfg.part-no format "x(32)"
      itemfg.i-name format "x(25)"
      tt-fg-bin.loc
      tt-fg-bin.loc-bin
@@ -164,7 +164,7 @@ form itemfg.cust-no
      v-ext-bin-sum format "->>>,>>9.99<<"
      v-po-no
      v-bin-arq
-   with frame itemx22 no-labels no-box down stream-io width 230.
+   with frame itemx22 no-labels no-box down stream-io width 247.
 
 form itemfg.cust-no
      itemfg.i-no
@@ -207,7 +207,7 @@ form itemfg.cust-no
      tt-fg-bin.tag
      fg-lot-val FORMAT "x(15)"
      lv-rct-date
-     itemfg.part-no format "x(15)"
+     itemfg.part-no format "x(32)"
      itemfg.i-name format "x(25)"
      tt-fg-bin.loc
      tt-fg-bin.loc-bin
@@ -219,7 +219,7 @@ form itemfg.cust-no
      v-ext-sum format "->>>,>>9.99<<"
      v-po-no
      v-arq
-   with frame itemx4 no-labels no-box down stream-io width 250.
+   with frame itemx4 no-labels no-box down stream-io width 267.
 
 
 form itemfg.cust-no
@@ -227,7 +227,7 @@ form itemfg.cust-no
      tt-fg-bin.tag
      fg-lot-val FORMAT "x(15)"
      lv-rct-date
-     itemfg.part-no format "x(15)"
+     itemfg.part-no format "x(32)"
      itemfg.i-name format "x(25)"
      tt-fg-bin.loc
      tt-fg-bin.loc-bin
@@ -239,11 +239,11 @@ form itemfg.cust-no
      v-ext-bin-sum format "->>>,>>9.99<<"
      v-po-no
      v-bin-arq
-   with frame itemx44 no-labels no-box down stream-io width 230.
+   with frame itemx44 no-labels no-box down stream-io width 247.
 
 
 form itemfg.cust-no
-     itemfg.part-no format "x(15)"
+     itemfg.part-no format "x(32)"
      itemfg.i-no
    /*  tt-fg-bin.tag*/
      fg-lot-val FORMAT "x(15)"
@@ -260,7 +260,7 @@ form itemfg.cust-no
      v-ext-bin-sum format "->>>,>>9.99<<"
      v-po-no
      v-bin-arq
-   with frame itemx5 no-labels no-box down stream-io width 230.
+   with frame itemx5 no-labels no-box down stream-io width 247.
 
 DEF TEMP-TABLE tt-rdtlh NO-UNDO LIKE fg-rdtlh
     

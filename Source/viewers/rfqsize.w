@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          rfq              PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -59,7 +59,7 @@ assign cocode = g_company.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -130,7 +130,7 @@ DEFINE VARIABLE style-desc AS CHARACTER FORMAT "X(256)":U
      BGCOLOR 7 FGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 103.8 BY 9.29.
 
 
@@ -139,9 +139,9 @@ DEFINE RECTANGLE RECT-1
 DEFINE FRAME F-Main
      rfqitem.part-no AT ROW 1.24 COL 18 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 17 BY 1
+          SIZE 37.6 BY 1
           BGCOLOR 7 
-     rfqitem.i-name AT ROW 1.24 COL 36 COLON-ALIGNED NO-LABEL
+     rfqitem.i-name AT ROW 1.24 COL 56 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 40 BY 1
           BGCOLOR 7 
@@ -251,7 +251,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -279,7 +279,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -365,7 +365,6 @@ DO:
     END.
   END.
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

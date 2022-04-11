@@ -1146,7 +1146,7 @@ def var v-tot-qty as int format "->>>,>>>,>>9" extent 3 NO-UNDO.
 def var v-tot-cost as dec format  "->>>,>>>,>>9.99" extent 3 NO-UNDO.
 def var v-tot-sales as dec format "->>>,>>>,>>9.99" extent 3 NO-UNDO.
 def var v-tot-pct as dec format "->>,>>9.99" NO-UNDO.
-def var v-head as char format "x(132)" extent 2 NO-UNDO.
+def var v-head as char format "x(149)" extent 2 NO-UNDO.
 def var v-gpdollar as dec format  "->>>,>>>,>>9.99" NO-UNDO.
 def var v-gp as DEC NO-UNDO.
 def var v-uom as char format "x(4)" NO-UNDO.
@@ -1172,16 +1172,16 @@ format header
        lv-top-label FORMAT "X(9)"
        v-name
 
-    with frame r-top-1 stream-io width 132 no-labels
+    with frame r-top-1 stream-io width 149 no-labels
          no-box no-underline page-top.
 
 format header
        skip(1)
        v-head[1] skip
        v-head[2]
-       fill("-",132) format "x(132)"
+       fill("-",149) format "x(149)"
 
-    with frame r-top-2 stream-io width 132 no-labels
+    with frame r-top-2 stream-io WIDTH 149 no-labels
          no-box no-underline page-top.
 
 format w-ord.due-date     format "99/99/99"
@@ -1197,7 +1197,7 @@ format w-ord.due-date     format "99/99/99"
        v-uom
        w-ord.t-price      format ">>,>>>,>>9.99"
 
-    with frame ordhead-po down no-labels no-box stream-io width 132.
+    with frame ordhead-po down no-labels no-box stream-io width 149.
 
 format w-ord.due-date     format "99/99/99"
        w-ord.ord-date     format "99/99/99"
@@ -1211,7 +1211,7 @@ format w-ord.due-date     format "99/99/99"
        v-uom
        w-ord.t-price      format ">>,>>>,>>9.99"  
 
-    with frame ordhead down no-labels no-box stream-io width 132.
+    with frame ordhead down no-labels no-box stream-io width 149.
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1276,19 +1276,19 @@ END.
 if v-ponum then
   assign
    v-head[1] =
-       "Due      Order    Order     PO              Customer               " +
+       "Due      Order    Order     PO              Customer                                " +
        "               Qty          Qty                             "
    v-head[2] =
-       "Date     Date     Number    Number          Part Number          Pa" +
+       "Date     Date     Number    Number          Part Number                           Pa" +
        "llets      On-hand          Due       Price            Sales".
 
 else
   assign
    v-head[1] =
-       "Due      Order    Order     Customer               " +
+       "Due      Order    Order     Customer                                " +
        "               Qty          Qty                             "
    v-head[2] =
-       "Date     Date     Number    Part Number          Pa" +
+       "Date     Date     Number    Part Number                           Pa" +
        "llets      On-hand          Due       Price            Sales".
 
 {sys/inc/print1.i}

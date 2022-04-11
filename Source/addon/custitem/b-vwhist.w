@@ -166,7 +166,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       vend-whse-trans-hist.item-line-no FORMAT "99":U WIDTH 13.4
             LABEL-BGCOLOR 14
-      vend-whse-trans-hist.cust-part-no FORMAT "x(12)":U WIDTH 13.4
+      vend-whse-trans-hist.cust-part-no FORMAT "x(32)":U WIDTH 33.4
             LABEL-BGCOLOR 14
       vend-whse-trans-hist.fg-item-no COLUMN-LABEL "Suppliers!FG Item" FORMAT "x(15)":U
             WIDTH 14 LABEL-BGCOLOR 14
@@ -304,7 +304,7 @@ ASSIGN
      _FldNameList[6]   > vend-whse-trans-hist.item-line-no
 "vend-whse-trans-hist.item-line-no" ? ? "integer" ? ? ? 14 ? ? no ? no no "13.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > vend-whse-trans-hist.cust-part-no
-"vend-whse-trans-hist.cust-part-no" ? ? "character" ? ? ? 14 ? ? no ? no no "13.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"vend-whse-trans-hist.cust-part-no" ? ? "character" ? ? ? 14 ? ? no ? no no "33.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > vend-whse-trans-hist.fg-item-no
 "vend-whse-trans-hist.fg-item-no" "Suppliers!FG Item" ? "character" ? ? ? 14 ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > vend-whse-trans-hist.vendor-code

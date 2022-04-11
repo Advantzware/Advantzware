@@ -1136,7 +1136,7 @@ form
     oe-ordl.po-no label "PO #" format "x(15)"
     /*cust.sman label*/ v-sales-rep LABEL "REP"
     oe-ordl.i-no  label "ITEM #"
-    oe-ordl.part-no label "CUST PART #" format "x(15)"
+    oe-ordl.part-no label "CUST PART #" format "x(32)"
     oe-ordl.i-name label "DESCRIPTION" format "x(15)"
     fg-bin.loc label "WHSE"
     oe-ordl.qty format "->,>>>,>>9" column-label "QUANTITY! ORDERED"
@@ -1145,14 +1145,14 @@ form
     oe-ordl.price format ">>,>>>,>>9.99" column-label "SELLING! PRICE"
     v-ext format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
     cCust-lot FORMAT "x(15)" 
-    with frame itemx1 no-box down STREAM-IO width 170.
+    with frame itemx1 no-box down STREAM-IO width 187.
 
 form
     cust.cust-no label "CUSTOMER"
     itemfg.cust-po-no label "PO #" format "x(15)"
     /*cust.sman*/ v-sales-rep label "REP"
     itemfg.i-no  label "ITEM #"
-    itemfg.part-no label "CUST PART #" format "x(15)"
+    itemfg.part-no label "CUST PART #" format "x(32)"
     itemfg.i-name label "DESCRIPTION" format "x(15)"
     v-job column-label "  JOB"
     v-qty-job  column-label "QUANTITY! ON HAND"
@@ -1160,7 +1160,7 @@ form
     itemfg.sell-price format ">>>,>>9.99" column-label "SELLING! PRICE"
     v-ext-job format "->>>,>>>,>>9.99"  column-label "TOTAL!VALUE"
     cCust-lot FORMAT "x(15)" 
-    with frame itemx2 no-box down STREAM-IO width 170.
+    with frame itemx2 no-box down STREAM-IO width 187.
 
 form
     cust.cust-no label "CUSTOMER"

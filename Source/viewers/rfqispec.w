@@ -125,7 +125,7 @@ DEFINE FRAME F-Main
           SIZE 18 BY 1
      rfqitem.part-no AT ROW 1.48 COL 13 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 20 BY 1
+          SIZE 50 BY 1
           BGCOLOR 7 FGCOLOR 15 FONT 4
      rfqitem.i-name AT ROW 2.67 COL 13 COLON-ALIGNED
           VIEW-AS FILL-IN 

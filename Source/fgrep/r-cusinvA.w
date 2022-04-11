@@ -1059,7 +1059,7 @@ FOR each itemfg
 
   DISPLAY itemfg.i-no                           COLUMN-LABEL "Item#"
           itemfg.part-no                        COLUMN-LABEL "Customer Part#"
-                                                FORMAT "x(15)"
+                                                FORMAT "x(32)"
           itemfg.i-name                         COLUMN-LABEL "Description"
           itemfg.ord-level                      COLUMN-LABEL "Re-Order!Point"
                                                 FORMAT "->>>,>>>,>>>"
@@ -1073,7 +1073,7 @@ FOR each itemfg
                                                 FORMAT "99/99/99"
           skip(1)
 
-      with frame detail{1} no-box no-attr-space stream-io width 132 down.
+      with frame detail{1} no-box no-attr-space stream-io width 149 down.
   down with frame detail{1}.
 
   IF tb_excel THEN 

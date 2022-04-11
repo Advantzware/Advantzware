@@ -117,7 +117,7 @@
           CASE cTmpField:             
               WHEN "cust-no"     THEN cVarValue =  string(itemfg.cust-no)  .
               WHEN "fgitem"    THEN cVarValue = string(itemfg.i-no) .
-              WHEN "custpart"      THEN cVarValue = STRING(itemfg.part-no,"x(15)").
+              WHEN "custpart"      THEN cVarValue = STRING(itemfg.part-no,"x(32)").
               WHEN "whse"     THEN cVarValue = IF AVAIL tt-fg-bin THEN tt-fg-bin.loc ELSE "" .
               WHEN "tot-qty"     THEN cVarValue = string(v-tot-qty[1],"->,>>>,>>>,>>9") .
               WHEN "tot-msf" THEN cVarValue = string(v-tot-msf[1],"->>>,>>9.999")  .

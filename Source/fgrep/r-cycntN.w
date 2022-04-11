@@ -126,7 +126,7 @@ ASSIGN
                             "lv-job-no,fg-bin.loc,fg-bin.loc-bin,v-tag," +
                             "lv-date,fg-bin.qty,li-palls,v-writein,v-counted-date,v-costM,v-sellValue,itemfg.part-no," +
                             "v-sellUom,cFirstTrxDt,cFirstTrxTyp,po-no,sales-code,sales-name,count" 
-    cFieldLength       = "15,25,8," + "9,5,8,20," + "10,11,7,21,12,10,10,15," + "8,14,14,9,16,30,10"
+    cFieldLength       = "15,25,8," + "9,5,8,20," + "10,11,7,21,12,10,10,32," + "8,14,14,9,16,30,10"
     cFieldType         = "c,c,c," + "c,c,c,c," + "c,i,i,i,c,i,i,c," + "c,c,c,c,c,c,i" 
     .
 ASSIGN 

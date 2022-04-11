@@ -75,7 +75,7 @@ ASSIGN
                 "Order Date,Due Date,Dys-Produce,Order Qty,Qty Produced,Lst Rcpt Dt,Status"
     cFieldListToSelect = "ord,cust-name,cust-part,i-name,i-no," +
                 "ord-dt,due-dt,dys-pro,ord-qty,qty-pro,lst-rcpt,stat"
-    cFieldLength       = "6,30,15,30,15," + "10,10,11,11,12,13,8"
+    cFieldLength       = "6,30,32,30,15," + "10,10,11,11,12,13,8"
     cFieldType         = "c,c,c,c,c," + "c,c,i,i,i,c,c" 
     .
 

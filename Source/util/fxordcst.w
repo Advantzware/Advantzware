@@ -105,7 +105,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 DISPLAY
       tt-oe-ordl.LINE COLUMN-LABEL "Line#"
  tt-oe-ordl.i-no FORMAT "X(15)" COLUMN-LABEL "FG Item#" WIDTH 20
- tt-oe-ordl.part-no FORMAT "X(15)" COLUMN-LABEL "Part#" WIDTH 20
+ tt-oe-ordl.part-no FORMAT "X(32)" COLUMN-LABEL "Part#" WIDTH 34
  tt-oe-ordl.cost COLUMN-LABEL "Cost/M"
  tt-oe-ordl.q-qty FORMAT "->>,>>9.9" COLUMN-LABEL "Margin%"
 

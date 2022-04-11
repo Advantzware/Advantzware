@@ -91,7 +91,7 @@ ASSIGN cTextListToSelect = "Customer,FG Item#,Cust Part#,Whse,Total Qty,Total MS
                             "Total Cost,Total Sell Value,$$$/MSF,Customer Name" 
        cFieldListToSelect = "cust-no,fgitem,custpart,whse,tot-qty,tot-msf," +
                             "tot-cost,tot-sal,msf,cust-name" 
-       cFieldLength = "8,15,15,6,14,12," + "14,16,11,30"
+       cFieldLength = "8,15,32,6,14,12," + "14,16,11,30"
        cFieldType = "c,c,c,c,i,i," + "i,i,i,c" 
     .
 
@@ -1687,7 +1687,7 @@ STATUS DEFAULT "Processing...".
            tt-itemfg.loc-bin     = tt-fg-bin.loc-bin
            tt-itemfg.tag         = tt-fg-bin.tag
            tt-itemfg.bin-cust-no = tt-fg-bin.cust-no
-           tt-itemfg.part-cust   = STRING(tt-itemfg.part-no,"x(20)") +
+           tt-itemfg.part-cust   = STRING(tt-itemfg.part-no,"x(32)") +
                                    STRING(tt-itemfg.cust-no,"x(20)")
            tt-itemfg.loc-bin-tag = STRING(tt-itemfg.loc,"x(10)")         +
                                    STRING(tt-itemfg.loc-bin,"x(10)")     +

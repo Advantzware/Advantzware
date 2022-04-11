@@ -461,7 +461,7 @@ assign
 form fg-rctd.rct-date     column-label "Trans.!Date"
      fg-rctd.i-no           label "Item" FORMAT "X(15)"
      fg-rctd.i-name         format "x(20)" label "Description"
-     itemfg.part-no         format "x(15)" label "Customer Part#"
+     itemfg.part-no         format "x(32)" label "Customer Part#"
      fg-rctd.job-no         label "   Job" space(0) "-" space(0)
      fg-rctd.job-no2        label "# " format "99"
      fg-rctd.loc             label "Whse" FORMAT "x(5)"
@@ -473,7 +473,7 @@ form fg-rctd.rct-date     column-label "Trans.!Date"
      v-std-cost        label "Cost/M"
      v-tot-value             label "Total Cost"
      SKIP
-     with frame itemx no-box down width 175 STREAM-IO.
+     with frame itemx no-box down width 192 STREAM-IO.
 
 form v-disp-actnum label "G/L Account Number"
      v-dscr        label "Description"

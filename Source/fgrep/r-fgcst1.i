@@ -37,14 +37,14 @@ DEF VAR lv-case-count LIKE itemfg.case-count NO-UNDO.
 FORM itemfg.cust-no                 COLUMN-LABEL "Customer"
      itemfg.i-no                    COLUMN-LABEL "FG Item#"
      itemfg.part-no                 COLUMN-LABEL "Cust Part#"
-                                    FORMAT "x(15)"
+                                    FORMAT "x(32)"
      tt-fg-bin.loc                  COLUMN-LABEL "Whse"
      v-tot-qty[1]                   COLUMN-LABEL "Total Qty"
      v-tot-msf[1]                   COLUMN-LABEL "Total MSF"
      v-tot-cst[1]                   COLUMN-LABEL "Total Cost"
      v-tot-ext[1]                   COLUMN-LABEL "Total Sell Value"
      v-tot-per                      COLUMN-LABEL "$$$/MSF"
-   WITH FRAME itemx NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 200.
+   WITH FRAME itemx NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 217.
 
 DEF TEMP-TABLE tt-rdtlh NO-UNDO LIKE fg-rdtlh
     INDEX tt-rdtlh job-no job-no2 loc loc-bin trans-date r-no rec_key.

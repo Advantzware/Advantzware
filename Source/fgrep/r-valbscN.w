@@ -74,7 +74,7 @@ ASSIGN
                            "ON-HAND QTY,RECEIPT DATE,SELL PRICE,TOTAL VALUE"
     cFieldListToSelect = "cust,fgitem,cust-part,desc,cust-po,job,ord-qty,ship-qty," +
                             "oh-hand-qty,rec-date,sell-pr,tot-val"
-    cFieldLength       = "8,15,15,30,15,13,12,12," + "12,12,12,15"
+    cFieldLength       = "8,15,32,30,15,13,12,12," + "12,12,12,15"
     cFieldType         = "c,c,c,c,c,c,i,i," + "i,c,i,i" 
     .
 
@@ -1799,7 +1799,7 @@ PROCEDURE run-report :
                                 WHEN "fgitem"   THEN 
                                     cVarValue = IF FIRST(oe-ordl.company) THEN STRING(itemfg.i-no,"x(15)") ELSE "".
                                 WHEN "cust-part"   THEN 
-                                    cVarValue = IF FIRST(oe-ordl.company) THEN STRING(oe-ordl.part-no,"x(15)") ELSE "".
+                                    cVarValue = IF FIRST(oe-ordl.company) THEN STRING(oe-ordl.part-no,"x(32)") ELSE "".
                                 WHEN "desc"  THEN 
                                     cVarValue = IF FIRST(oe-ordl.company) THEN STRING(itemfg.i-name,"x(30)") ELSE "".
                                 WHEN "cust-po"   THEN 
@@ -1951,7 +1951,7 @@ PROCEDURE run-report :
                     WHEN "fgitem"   THEN 
                         cVarValue = STRING(itemfg.i-no,"x(15)").
                     WHEN "cust-part"   THEN 
-                        cVarValue = STRING(itemfg.part-no,"x(15)").
+                        cVarValue = STRING(itemfg.part-no,"x(32)").
                     WHEN "desc"  THEN 
                         cVarValue = STRING(itemfg.i-name,"x(30)") .
                     WHEN "cust-po"   THEN 
