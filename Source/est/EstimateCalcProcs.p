@@ -21,7 +21,7 @@
 
 {est/ttEstCost.i}
 {est/ttEstSysConfig.i}
-{est/dsEstimate.i}
+{est/ttEstimateCalc.i}
 
    
 DEFINE VARIABLE giID                                  AS INT64 NO-UNDO.
@@ -5711,14 +5711,14 @@ PROCEDURE pUpdateChildTables PRIVATE:
     CASE(ipcParentTable):
         WHEN "estCostForm" THEN
         DO:
-            FOR EACH bfChild-ttEstCostBlank EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostBlank FIELDS(estCostFormID)  
                 WHERE bfChild-ttEstCostBlank.estCostHeaderID = ipiEstCostHeaderID:
               
                 IF bfChild-ttEstCostBlank.estCostFormID = ipiSourceKey THEN
                     bfChild-ttEstCostBlank.estCostFormID = ipiTargetKey.
             END.
         
-            FOR EACH bfChild-ttEstCostDetail EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostDetail FIELDS(estCostFormID sourceID)
                 WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID:              
                 IF bfChild-ttEstCostDetail.estCostFormID = ipiSourceKey THEN
                     bfChild-ttEstCostDetail.estCostFormID = ipiTargetKey.
@@ -5727,27 +5727,27 @@ PROCEDURE pUpdateChildTables PRIVATE:
                     bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
             END.
         
-            FOR EACH bfChild-ttEstCostOperation EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostOperation FIELDS(estCostFormID)
                 WHERE bfChild-ttEstCostOperation.estCostHeaderID = ipiEstCostHeaderID:
                 
                 IF bfChild-ttEstCostOperation.estCostFormID = ipiSourceKey THEN  
                     bfChild-ttEstCostOperation.estCostFormID = ipiTargetKey.
             END.
         
-            FOR EACH bfChild-ttEstCostMaterial EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostMaterial FIELDS(estCostFormID)
                 WHERE bfChild-ttEstCostMaterial.estCostHeaderID = ipiEstCostHeaderID:
                 IF bfChild-ttEstCostMaterial.estCostFormID = ipiSourceKey THEN  
                     bfChild-ttEstCostMaterial.estCostFormID = ipiTargetKey.
             END.
         
-            FOR EACH bfChild-ttEstCostMisc EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostMisc FIELDS(estCostFormID)
                 WHERE bfChild-ttEstCostMisc.estCostHeaderID = ipiEstCostHeaderID:
                 
                 IF bfChild-ttEstCostMisc.estCostFormID = ipiSourceKey THEN  
                     bfChild-ttEstCostMisc.estCostFormID = ipiTargetKey.
             END.
         
-            FOR EACH bfChild-ttEstCostSummary EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostSummary FIELDS(scopeRecKey)
                 WHERE bfChild-ttEstCostSummary.estCostHeaderID = ipiEstCostHeaderID:
             
                 IF bfChild-ttEstCostSummary.scopeRecKey = ipcSourceRecKey THEN      
@@ -5758,14 +5758,14 @@ PROCEDURE pUpdateChildTables PRIVATE:
         
         WHEN "estCostItem" THEN
         DO:
-            FOR EACH bfChild-ttEstCostBlank EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostBlank FIELDS(estCostItemID)
                 WHERE bfChild-ttEstCostBlank.estCostHeaderID = ipiEstCostHeaderID:
               
                 IF bfChild-ttEstCostBlank.estCostItemID = ipiSourceKey THEN
                     bfChild-ttEstCostBlank.estCostItemID = ipiTargetKey.
             END.
             
-            FOR EACH bfChild-ttEstCostSummary EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostSummary FIELDS(scopeRecKey)
                 WHERE bfChild-ttEstCostSummary.estCostHeaderID = ipiEstCostHeaderID:
             
                 IF bfChild-ttEstCostSummary.scopeRecKey = ipcSourceRecKey THEN      
@@ -5776,7 +5776,7 @@ PROCEDURE pUpdateChildTables PRIVATE:
         WHEN "estCostBlank" THEN
         DO:
             
-            FOR EACH bfChild-ttEstCostDetail EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostDetail FIELDS(estCostBlankID sourceID)
                 WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID:              
                 IF bfChild-ttEstCostDetail.estCostBlankID = ipiSourceKey THEN
                     bfChild-ttEstCostDetail.estCostBlankID = ipiTargetKey.
@@ -5785,20 +5785,20 @@ PROCEDURE pUpdateChildTables PRIVATE:
                     bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
             END.
             
-            FOR EACH bfChild-ttEstCostOperation EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostOperation FIELDS(estCostBlankID)
                 WHERE bfChild-ttEstCostOperation.estCostHeaderID = ipiEstCostHeaderID:
                 
                 IF bfChild-ttEstCostOperation.estCostBlankID = ipiSourceKey THEN  
                     bfChild-ttEstCostOperation.estCostBlankID = ipiTargetKey.
             END.
         
-            FOR EACH bfChild-ttEstCostMaterial EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostMaterial FIELDS(estCostBlankID)
                 WHERE bfChild-ttEstCostMaterial.estCostHeaderID = ipiEstCostHeaderID:
                 IF bfChild-ttEstCostMaterial.estCostBlankID = ipiSourceKey THEN  
                     bfChild-ttEstCostMaterial.estCostBlankID = ipiTargetKey.
             END.
         
-            FOR EACH bfChild-ttEstCostMisc EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostMisc FIELDS(estCostBlankID)
                 WHERE bfChild-ttEstCostMisc.estCostHeaderID = ipiEstCostHeaderID:
                 
                 IF bfChild-ttEstCostMisc.estCostBlankID = ipiSourceKey THEN  
@@ -5810,7 +5810,7 @@ PROCEDURE pUpdateChildTables PRIVATE:
         WHEN "estCostHeader" THEN
         DO:
             
-            FOR EACH bfChild-ttEstCostDetail EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostDetail FIELDS(estCostHeaderID sourceID)
                 WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID:              
                 IF bfChild-ttEstCostDetail.estCostHeaderID = ipiSourceKey THEN
                     bfChild-ttEstCostDetail.estCostHeaderID = ipiTargetKey.
@@ -5819,32 +5819,32 @@ PROCEDURE pUpdateChildTables PRIVATE:
                     bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
             END.
             
-            FOR EACH bfChild-ttEstCostForm EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostForm FIELDS(estCostHeaderID)
                 WHERE bfChild-ttEstCostForm.estCostHeaderID = ipiEstCostHeaderID:              
                 IF bfChild-ttEstCostForm.estCostHeaderID = ipiSourceKey THEN
                     bfChild-ttEstCostForm.estCostHeaderID = ipiTargetKey.               
             END.
             
-            FOR EACH bfChild-ttEstCostBlank EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostBlank FIELDS(estCostHeaderID)
                 WHERE bfChild-ttEstCostBlank.estCostHeaderID = ipiEstCostHeaderID:              
                 IF bfChild-ttEstCostBlank.estCostHeaderID = ipiSourceKey THEN
                     bfChild-ttEstCostBlank.estCostHeaderID = ipiTargetKey.               
             END.
             
-            FOR EACH bfChild-ttEstCostOperation EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostOperation FIELDS(estCostHeaderID)
                 WHERE bfChild-ttEstCostOperation.estCostHeaderID = ipiEstCostHeaderID:
                 
                 IF bfChild-ttEstCostOperation.estCostHeaderID = ipiSourceKey THEN  
                     bfChild-ttEstCostOperation.estCostHeaderID = ipiTargetKey.
             END.
         
-            FOR EACH bfChild-ttEstCostMaterial EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostMaterial FIELDS(estCostHeaderID)
                 WHERE bfChild-ttEstCostMaterial.estCostHeaderID = ipiEstCostHeaderID:
                 IF bfChild-ttEstCostMaterial.estCostHeaderID = ipiSourceKey THEN  
                     bfChild-ttEstCostMaterial.estCostHeaderID = ipiTargetKey.
             END.
         
-            FOR EACH bfChild-ttEstCostMisc EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostMisc FIELDS(estCostHeaderID)
                 WHERE bfChild-ttEstCostMisc.estCostHeaderID = ipiEstCostHeaderID:
                 
                 IF bfChild-ttEstCostMisc.estCostHeaderID = ipiSourceKey THEN  
@@ -5855,15 +5855,16 @@ PROCEDURE pUpdateChildTables PRIVATE:
         
         WHEN "estCostOperation" THEN
         DO:
-            FOR EACH bfChild-ttEstCostDetail EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostDetail FIELDS(sourceID)
                 WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID:              
                 IF bfChild-ttEstCostDetail.sourceID = ipiSourceKey THEN
                     bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
             END.
         END.
+        
         WHEN "estCostMisc" THEN
         DO:
-            FOR EACH bfChild-ttEstCostDetail EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostDetail FIELDS(sourceID)
                 WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID              
                   AND bfChild-ttEstCostDetail.sourceType = gcSourceTypeMisc:
                       
@@ -5871,9 +5872,10 @@ PROCEDURE pUpdateChildTables PRIVATE:
                     bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
             END.
         END.
+        
         WHEN "estCostMaterial" THEN
         DO:
-            FOR EACH bfChild-ttEstCostDetail EXCLUSIVE-LOCK
+            FOR EACH bfChild-ttEstCostDetail FIELDS(sourceID)
                 WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID              
                   AND bfChild-ttEstCostDetail.sourceType = gcSourceTypeMaterial:
                       

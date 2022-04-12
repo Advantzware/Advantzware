@@ -35,7 +35,7 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/defines/sortByDefs.i}
 {system/VendorCostProcs.i}
-{est\dsEstimatett.i}
+{est\ttEstimateCalc.i}
 
 /* Parameters Definitions ---                                           */
 DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstCostHeaderToCalc. 
