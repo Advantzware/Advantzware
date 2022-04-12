@@ -20,7 +20,7 @@ DEFINE TEMP-TABLE ttImportFG
     FIELD Location                AS CHARACTER 
     FIELD FGItemID                AS CHARACTER FORMAT "x(15)" COLUMN-LABEL "FG Item #" HELP "Required - Size:15" 
     FIELD CustomerID              AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Cust ID" HELP "Required & Must Be Valid - Size:8"
-    FIELD PartID                  AS CHARACTER FORMAT "x(32)" COLUMN-LABEL "Cust Part #" HELP "Defaults to FG Item # - Size:15"
+    FIELD PartID                  AS CHARACTER FORMAT "x(32)" COLUMN-LABEL "Cust Part #" HELP "Defaults to FG Item # - Size:32"
     FIELD PartName                AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Part Name" HELP "Optional - Size:30"
     FIELD PartDescription1        AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Part Desc 1" HELP "Optional - Size:30"
     FIELD PartDescription2        AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Part Desc 2" HELP "Optional - Size:30"

@@ -816,9 +816,9 @@ FOR EACH rfq WHERE /* rfq.company */
              "  Customer:" rfq.cust-no rfq.ship-name form "x(30)"
              "     Req-Date: " rfq.req-date
              with frame hd no-box no-labels width 126. 
-     PUT "Ln Customer Part#  FG Item#        Item Name                             Qty Style Category   Length    Width    Depth Ink Coat"
+     PUT "Ln Customer Part#                   FG Item#        Item Name                             Qty Style Category   Length    Width    Depth Ink Coat"
          SKIP
-         "-- --------------- --------------- ------------------------------ ---------- ----- -------- -------- -------- -------- --- ----"
+         "-- -------------------------------- --------------- ------------------------------ ---------- ----- -------- -------- -------- -------- --- ----"
          SKIP.
 
     end.              
@@ -841,7 +841,7 @@ FOR EACH rfq WHERE /* rfq.company */
     IF LL-IS-CORR-STYLE THEN
       PUT rfqitem.seq /*label "Ln"*/ form ">9"         
           lv-delimiter
-          rfqitem.part-no /*label "Customer Part#" */
+          rfqitem.part-no form "x(32)" /*label "Customer Part#" */
           lv-delimiter
           rfqitem.stock-no /*label "FG Item#"*/
           lv-delimiter
@@ -866,7 +866,7 @@ FOR EACH rfq WHERE /* rfq.company */
           .
    ELSE PUT rfqitem.seq /*label "Ln"*/ form ">9"         
             lv-delimiter
-            rfqitem.part-no /*label "Customer Part#" */
+            rfqitem.part-no form "x(332)" /*label "Customer Part#" */
             lv-delimiter
             rfqitem.stock-no /*label "FG Item#"*/
             lv-delimiter

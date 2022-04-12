@@ -184,39 +184,39 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     ar-invl.line AT ROW 1.95 COL 29 COLON-ALIGNED
+     ar-invl.line AT ROW 1.95 COL 22.20 COLON-ALIGNED
           LABEL "Line"
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     ar-invl.tax AT ROW 1.95 COL 50.2 COLON-ALIGNED
+     ar-invl.tax AT ROW 1.95 COL 45.40 COLON-ALIGNED
           LABEL "Taxable" 
           VIEW-AS TOGGLE-BOX
           SIZE 14 BY 1
-     ar-invl.actnum AT ROW 2.95 COL 29 COLON-ALIGNED
+     ar-invl.actnum AT ROW 2.95 COL 22.20 COLON-ALIGNED
           LABEL "Account Number"
           VIEW-AS FILL-IN 
           SIZE 33.6 BY 1
-     ar-invl.i-no AT ROW 4.95 COL 29 COLON-ALIGNED
+     ar-invl.i-no AT ROW 4.95 COL 22.20 COLON-ALIGNED
           LABEL "Item No"
           VIEW-AS FILL-IN 
           SIZE 33.6 BY 1
-     ar-invl.part-no AT ROW 5.95 COL 29 COLON-ALIGNED HELP
+     ar-invl.part-no AT ROW 5.95 COL 22.20 COLON-ALIGNED HELP
           ""
           LABEL "Cust Part #"
           VIEW-AS FILL-IN 
-          SIZE 33.6 BY 1
-     ar-invl.i-name AT ROW 6.95 COL 29 COLON-ALIGNED
+          SIZE 46.6 BY 1
+     ar-invl.i-name AT ROW 6.95 COL 22.20 COLON-ALIGNED
           LABEL "Item Name"
           VIEW-AS FILL-IN 
-          SIZE 33.6 BY 1
-     ar-invl.i-dscr AT ROW 7.95 COL 29 COLON-ALIGNED
+          SIZE 46.6 BY 1
+     ar-invl.i-dscr AT ROW 7.95 COL 22.20 COLON-ALIGNED
           LABEL "Item Description"
           VIEW-AS FILL-IN 
-          SIZE 33.6 BY 1
-     ar-invl.lot-no AT ROW 8.95 COL 29 COLON-ALIGNED
+          SIZE 46.6 BY 1
+     ar-invl.lot-no AT ROW 8.95 COL 22.20 COLON-ALIGNED
           LABEL "Customer Lot#" FORMAT "x(15)"
           VIEW-AS FILL-IN 
-          SIZE 33.6 BY 1
+          SIZE 46.6 BY 1
      ar-invl.inv-qty AT ROW 1.95 COL 85 COLON-ALIGNED
           LABEL "Invoice Qty"
           VIEW-AS FILL-IN 

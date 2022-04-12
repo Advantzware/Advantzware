@@ -111,7 +111,7 @@ DEFINE VARIABLE fi_blank-qty AS INTEGER FORMAT ">>9" INITIAL 1
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 146 BY 1.67.
+     SIZE 147.3 BY 1.67.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -119,32 +119,32 @@ DEFINE RECTANGLE RECT-1
 DEFINE FRAME F-Main
      est.est-no AT ROW 1.71 COL 14 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1
-     est.est-date AT ROW 1.71 COL 41 COLON-ALIGNED
+          SIZE 13 BY 1
+     est.est-date AT ROW 1.71 COL 39.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 14.8 BY 1
-     eb.form-no AT ROW 1.71 COL 62.6 COLON-ALIGNED
+     eb.form-no AT ROW 1.71 COL 60.4 COLON-ALIGNED
           LABEL "Frm" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
-     est.form-qty AT ROW 1.71 COL 70.8 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+     est.form-qty AT ROW 1.71 COL 68.6 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
-     eb.blank-no AT ROW 1.71 COL 82.8 COLON-ALIGNED
+     eb.blank-no AT ROW 1.71 COL 79.6 COLON-ALIGNED
           LABEL "Blk" FORMAT ">>9"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
-     fi_blank-qty AT ROW 1.71 COL 90.8 COLON-ALIGNED NO-LABEL
-     eb.part-no AT ROW 1.71 COL 111.2 COLON-ALIGNED
+     fi_blank-qty AT ROW 1.71 COL 87.6 COLON-ALIGNED NO-LABEL
+     eb.part-no AT ROW 1.71 COL 107.4 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 32.8 BY 1
+          SIZE 38.4 BY 1
      "Reference Information" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 1 COL 3
           FONT 1
      "of" VIEW-AS TEXT
-          SIZE 3 BY .95 AT ROW 1.71 COL 69.8
+          SIZE 3 BY .95 AT ROW 1.71 COL 67.4
      "of" VIEW-AS TEXT
-          SIZE 3 BY .95 AT ROW 1.71 COL 90
+          SIZE 3 BY .95 AT ROW 1.71 COL 86.6
      RECT-1 AT ROW 1.24 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 

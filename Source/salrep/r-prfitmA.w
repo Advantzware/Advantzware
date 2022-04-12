@@ -1480,7 +1480,7 @@ form v-cust-no            column-label "Customer"
      v-dep 
      SPACE(4)
      x-v-color FORMAT "x(2)"
-    with no-labels frame itemb down stream-io width 195.
+    with no-labels frame itemb down stream-io WIDTH 212.
 
 find first fg-ctrl where fg-ctrl.company eq cocode no-lock.
 
@@ -1513,7 +1513,7 @@ END.
   ELSE
      ASSIGN
          v-label6 = "Customer       "
-         v-label7 = "Part No        ". 
+         v-label7 = "Part No                         ". 
 
   IF TB_style-flute-test-lwd = NO THEN DO:
      if v-unit eq "E" then 

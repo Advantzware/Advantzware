@@ -72,7 +72,7 @@ ASSIGN
     cFieldListToSelect = "part-no,po-no,ord-qty,shp-qty," 
                          + "qty-onh,price,ext,pal,"
                          + "ino,ordno"  
-    cFieldLength       = "15,15,11,11," + "12,13,15,12," + "15,8"
+    cFieldLength       = "32,15,11,11," + "12,13,15,12," + "15,8"
     cFieldType         = "c,c,i,i," + "i,i,i,i," + "c,c" 
     .
 

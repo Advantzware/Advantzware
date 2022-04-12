@@ -113,7 +113,7 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 160 BY 1.67.
+     SIZE 156.4 BY 1.67.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -122,30 +122,30 @@ DEFINE FRAME F-Main
      est.est-no AT ROW 1.71 COL 14 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     est.est-date AT ROW 1.71 COL 43 COLON-ALIGNED
+     est.est-date AT ROW 1.71 COL 42.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     ef.form-no AT ROW 1.71 COL 67 COLON-ALIGNED
+     ef.form-no AT ROW 1.71 COL 64.6 COLON-ALIGNED
           LABEL "Frm" FORMAT ">9"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-     est.form-qty AT ROW 1.71 COL 77 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          SIZE 5 BY 1
+     est.form-qty AT ROW 1.71 COL 72.8 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-     eb.blank-no AT ROW 1.71 COL 91 COLON-ALIGNED
+          SIZE 5 BY 1
+     eb.blank-no AT ROW 1.71 COL 84.4 COLON-ALIGNED
           LABEL "Blk" FORMAT ">>>"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-     ef.blank-qty AT ROW 1.71 COL 101 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          SIZE 5 BY 1
+     ef.blank-qty AT ROW 1.71 COL 93 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-     eb.part-no AT ROW 1.71 COL 124 COLON-ALIGNED
+          SIZE 5 BY 1
+     eb.part-no AT ROW 1.71 COL 113 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 34 BY 1
+          SIZE 42 BY 1
      "of" VIEW-AS TEXT
-          SIZE 3 BY .95 AT ROW 1.71 COL 75
+          SIZE 3 BY .95 AT ROW 1.71 COL 72
      "of" VIEW-AS TEXT
-          SIZE 3 BY .95 AT ROW 1.71 COL 99
+          SIZE 3 BY .95 AT ROW 1.71 COL 92
      "Reference Information" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 1 COL 3
           FONT 1
@@ -184,7 +184,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
          HEIGHT             = 1.91
-         WIDTH              = 161.
+         WIDTH              = 157.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

@@ -309,7 +309,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 20
       get-cost() @ li-cost COLUMN-LABEL "Cost/M" FORMAT "->>>,>>>,>>9.99":U
             WIDTH 12
-      display-cust-item(0) @ lv-part-no FORMAT "x(15)":U
+      display-cust-item(0) @ lv-part-no FORMAT "x(32)":U
       get-release() @ lv-relase COLUMN-LABEL "Release" FORMAT "x(8)":U
   ENABLE
       oe-boll.ord-no
@@ -488,7 +488,7 @@ ASSIGN
      _FldNameList[21]   > "_<CALC>"
 "get-cost() @ li-cost" "Cost/M" "->>>,>>>,>>9.99" ? ? ? ? ? ? ? no ? no no "12" no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"
-"display-cust-item(0) @ lv-part-no" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-cust-item(0) @ lv-part-no" ? "x(32)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > "_<CALC>"
 "get-release() @ lv-relase" "Release" "x(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED

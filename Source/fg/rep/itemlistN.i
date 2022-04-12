@@ -215,7 +215,7 @@ DO:
             WHEN "cust-name" THEN 
                 cvarValue = itemfg.cust-name.
             WHEN "part-no" THEN 
-                cVarValue = STRING(itemfg.part-no,"x(15)") .
+                cVarValue = STRING(itemfg.part-no,"x(32)") .
             WHEN "part-dscr1" THEN 
                 cvarValue = STRING(itemfg.part-dscr1,"x(28)").
             WHEN "part-dscr2" THEN 

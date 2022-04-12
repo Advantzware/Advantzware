@@ -117,7 +117,7 @@ ASSIGN
                             "ord-no,cust-part,fgitem,i-name,ord-date,ord-qty," +
                             "invrel-dt,inv-no,qty-pro,qty-to-pro," +
                             "qty-shp,rel-qty,inv-amt,bal-due,qty-on-hand" 
-    cFieldLength       = "3,25,8,30,15,15,15," +  "8,15,15,30,10,11," + "12,6,11,14," + "11,11,11,11,11" 
+    cFieldLength       = "3,25,8,30,15,15,15," +  "8,32,15,30,10,11," + "12,6,11,14," + "11,11,11,11,11" 
     cFieldType         = "c,c,c,c,c,c,c," + "c,c,c,c,c,i," + "c,c,i,i," + "i,i,i,i,i" 
     .
 

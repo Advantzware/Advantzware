@@ -365,8 +365,8 @@ DEFINE BROWSE Browser-Table
       getMI() @ lc-mi COLUMN-LABEL "MI" FORMAT "X":U WIDTH 4 LABEL-BGCOLOR 14
       oe-rell.po-no FORMAT "x(15)":U WIDTH 22 LABEL-BGCOLOR 14
       oe-relh.cust-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
-      get-part-no() @ cPartno COLUMN-LABEL "Cust Part #" FORMAT "x(15)":U
-            WIDTH 22 LABEL-BGCOLOR 14
+      get-part-no() @ cPartno COLUMN-LABEL "Cust Part #" FORMAT "x(32)":U
+            WIDTH 36 LABEL-BGCOLOR 14
       oe-relh.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
       oe-rell.i-no COLUMN-LABEL "FG Item Number" FORMAT "x(15)":U
@@ -550,7 +550,7 @@ use-index r-no"
      _FldNameList[6]   > ASI.oe-relh.cust-no
 "oe-relh.cust-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > "_<CALC>"
-"get-part-no() @ cPartno" "Cust Part #" "x(15)" "character" ? ? ? 14 ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-part-no() @ cPartno" "Cust Part #" "x(32)" "character" ? ? ? 14 ? ? no ? no no "36" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.oe-relh.ship-id
 "oe-relh.ship-id" "Ship To" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-rell.i-no

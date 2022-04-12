@@ -74,7 +74,7 @@ ASSIGN cTextListToSelect = "FG ITEM #,NAME,PROD CAT,UOM,CUST. #,CUST NAME,QTY ON
                                 "ink-cod1,ink-cod2,ink-cod3,ink-cod4,ink-cod5,ink-cod6,ink-cod7,ink-cod8,ink-cod9,ink-cod10," +
                                 "ink-nam1,ink-nam2,ink-nam3,ink-nam4,ink-nam5,ink-nam6,ink-nam7,ink-nam8,ink-nam9,ink-nam10," +
                                 "job,po,group"
-           cFieldLength = "15,30,8,3,8,30,12," + "15,28,28,28,8,12,12,12," + "8,8,8,10,10,30,7," +
+           cFieldLength = "15,30,8,3,8,30,12," + "32,28,28,28,8,12,12,12," + "8,8,8,10,10,30,7," +
                           "10,10,10,10,10,10,10,10,10,11," + "19,19,19,19,19,19,19,19,19,19,9,20,15" 
 
            cFieldType = "c,c,c,c,c,c,i," + "c,c,c,c,c,i,i,i," + "i,i,i,i,c,c,i," +

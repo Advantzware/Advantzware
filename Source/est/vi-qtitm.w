@@ -116,11 +116,11 @@ DEFINE FRAME F-Main
           SIZE 13 BY 1
      quoteitm.part-no AT ROW 1.71 COL 42.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 35.8 BY 1
-     quoteitm.part-dscr1 AT ROW 1.71 COL 78.6 COLON-ALIGNED NO-LABEL
+          SIZE 38.8 BY 1
+     quoteitm.part-dscr1 AT ROW 1.71 COL 81.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     quoteitm.style AT ROW 1.71 COL 132.4 COLON-ALIGNED
+     quoteitm.style AT ROW 1.71 COL 134.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 6.8 BY 1
      "Reference Information" VIEW-AS TEXT

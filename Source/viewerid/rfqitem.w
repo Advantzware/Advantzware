@@ -104,7 +104,7 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE style_dscr AS CHARACTER FORMAT "X(25)":U 
      VIEW-AS FILL-IN 
-     SIZE 49 BY 1
+     SIZE 43.2 BY 1
      BGCOLOR 7 FGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-13
@@ -115,17 +115,17 @@ DEFINE RECTANGLE RECT-13
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     rfqitem.rfq-no AT ROW 1.48 COL 9 COLON-ALIGNED
+     rfqitem.rfq-no AT ROW 1.48 COL 8.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     rfqitem.part-no AT ROW 1.48 COL 37.2 COLON-ALIGNED FORMAT "x(15)"
+          SIZE 12 BY 1
+     rfqitem.part-no AT ROW 1.48 COL 35.2 COLON-ALIGNED FORMAT "x(32)"
           VIEW-AS FILL-IN 
-          SIZE 32.8 BY 1
-     rfqitem.style AT ROW 1.48 COL 78.2 COLON-ALIGNED
+          SIZE 41.8 BY 1
+     rfqitem.style AT ROW 1.48 COL 84.4 COLON-ALIGNED
           LABEL "Style" FORMAT "x(4)"
           VIEW-AS FILL-IN 
           SIZE 9.6 BY 1
-     style_dscr AT ROW 1.48 COL 88.2 COLON-ALIGNED NO-LABEL
+     style_dscr AT ROW 1.48 COL 94 COLON-ALIGNED NO-LABEL
      RECT-13 AT ROW 1.24 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 

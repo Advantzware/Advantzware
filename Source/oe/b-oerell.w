@@ -249,7 +249,7 @@ DEFINE BROWSE br_table
                      "I-Invoice","I",
                      "T-Transfer","T"
           DROP-DOWN-LIST
-      oe-ordl.part-no FORMAT "x(32)":U WIDTH 34
+      oe-ordl.part-no FORMAT "x(32)":U WIDTH 40
       oe-rell.link-no COLUMN-LABEL "Rel. Seq. #" FORMAT ">>>>>>>>9":U
             WIDTH 15
       oe-rell.lot-no FORMAT "x(15)":U WIDTH 22

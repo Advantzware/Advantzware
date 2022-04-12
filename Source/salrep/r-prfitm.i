@@ -484,7 +484,7 @@
                '"' v-order-date                                   '",'
                '"' v-date                                         '",'  
                '"' w-data.inv-no  format ">>>>>>>9"                '",'
-               '"' REPLACE(v-cust-part-no, '"', "") FORMAT "X(15)"                 '",'  
+               '"' REPLACE(v-cust-part-no, '"', "") FORMAT "X(32)"                 '",'  
                '"' (IF AVAIL itemfg THEN itemfg.procat ELSE "")   '",' 
                '"' v-qty[1]                                       '",'
                '"' (IF AVAIL itemfg THEN itemfg.t-sqft ELSE 0)    '",'
@@ -506,7 +506,7 @@
             PUT STREAM excel 
                '"' v-cust-no                                      '",'
                '"' w-data.inv-no  FORMAT ">>>>>>>9"                '",'
-               '"' REPLACE(v-cust-part-no, '"', "")  FORMAT "X(15)"                '",'  
+               '"' REPLACE(v-cust-part-no, '"', "")  FORMAT "X(32)"                '",'  
                '"' (IF AVAIL itemfg THEN itemfg.procat ELSE "")   '",' 
                '"' v-qty[1]                                       '",'
                '"' (IF AVAIL itemfg THEN itemfg.t-sqft ELSE 0)    '",'

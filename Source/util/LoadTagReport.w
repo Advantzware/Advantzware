@@ -706,7 +706,7 @@ PROCEDURE run-report :
         cJobNo          FORMAT "x(9)"
         loadtag.i-no    FORMAT "x(15)"
         loadtag.i-name  FORMAT "x(30)"
-        cCustPart        FORMAT "x(15)"
+        cCustPart        FORMAT "x(32)"
         iOrderQty  FORMAT ">>>,>>>,>>9"
         dOrderQtyUnit FORMAT ">>>,>>>,>>9" 
         iOrderPartial SPACE(6)
@@ -717,10 +717,10 @@ PROCEDURE run-report :
         loadtag.case-bundle  FORMAT ">>>,>>>,>>9"  SPACE(4)
         loadtag.qty   FORMAT ">>>,>>>,>>9"
 
-        HEADER "                                                                                                   Order   Order     Order Line   Order Line                              Loadtag     Loadtag   Loadtag            Loadtag"
-        "Estimate #  Order # Job #     Item #          Item Name                      Customer Part #       Qty     Qty/ Unit Partial      Units per Pallet  Loadtag #             Qty / Unit  Partial   Units per Pallet   Total Qty"
+        HEADER "                                                                                                                    Order   Order     Order Line   Order Line                              Loadtag     Loadtag   Loadtag            Loadtag"
+        "Estimate #  Order # Job #     Item #          Item Name                      Customer Part #                        Qty     Qty/ Unit Partial      Units per Pallet  Loadtag #             Qty / Unit  Partial   Units per Pallet   Total Qty"
 
-        WITH FRAME loadtag-frame NO-LABELS NO-ATTR-SPACE STREAM-IO WIDTH 230 DOWN.
+        WITH FRAME loadtag-frame NO-LABELS NO-ATTR-SPACE STREAM-IO WIDTH 247 DOWN.
 
     SESSION:SET-WAIT-STATE ("general").
 

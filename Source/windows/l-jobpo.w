@@ -184,7 +184,7 @@ DEFINE BROWSE BROWSE-1
       job-hdr.i-no FORMAT "x(15)":U WIDTH 19 LABEL-BGCOLOR 14
       job-hdr.est-no FORMAT "x(8)":U WIDTH 14 LABEL-BGCOLOR 14
       job-hdr.ftick-prnt LABEL-BGCOLOR 14
-      custPart() @ custPart COLUMN-LABEL "Customer Part" FORMAT "X(15)":U WIDTH 19 LABEL-BGCOLOR 14
+      custPart() @ custPart COLUMN-LABEL "Customer Part" FORMAT "X(32)":U LABEL-BGCOLOR 14
       /*job-hdr.cust-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14*/
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -265,8 +265,8 @@ ASSIGN
 "job-hdr.est-no" ? "x(8)" "character" ? ? ? 14 ? ? no ? no no "14" yes no no "U" "" ""
      _FldNameList[5]   > ASI.job-hdr.ftick-prnt
 "job-hdr.ftick-prnt" ? ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[6]   > ASI.job-hdr.cust-no
-"job-hdr.cust-no" ? ? "character" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" ""
+     _FldNameList[6]   > "_<CALC>"
+"custPart() @ custPart" ? "x(32)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" ""
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME

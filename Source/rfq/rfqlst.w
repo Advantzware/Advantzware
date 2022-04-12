@@ -839,12 +839,12 @@ FOR EACH rfq WHERE /* rfq.company */
                   "Req-Date:" rfq.req-date
             */
                  fill("=",137) form "x(137)"  /* 126 for font9 (size 10) */ skip
- "Ln Customer Part#  FG Item#        Item Name                      Style"
+ "Ln Customer Part#                    FG Item#        Item Name                      Style"
  "  Length    Width    Depth Ink Coat Board      Caliper" skip
- "-- --------------- --------------- ------------------------------ -----"
+ "-- -------------------------------- --------------- ------------------------------ -----"
  "-------- -------- -------- --- ---- ---------- -------"skip                
 
-                  with frame rfq-hd no-labels width 137 no-box stream-io.
+                  with frame rfq-hd no-labels width 154 no-box stream-io.
     end.              
 
 
@@ -867,7 +867,7 @@ FOR EACH rfq WHERE /* rfq.company */
    IF LL-IS-CORR-STYLE THEN
       PUT rfqitem.seq /*label "Ln"*/ form ">9"         
           lv-delimiter
-          rfqitem.part-no /*label "Customer Part#" */
+          rfqitem.part-no form "x(32)" /*label "Customer Part#" */
           lv-delimiter
           rfqitem.stock-no /*label "FG Item#"*/
           lv-delimiter
@@ -892,7 +892,7 @@ FOR EACH rfq WHERE /* rfq.company */
           .
    ELSE PUT rfqitem.seq /*label "Ln"*/ form ">9"         
             lv-delimiter
-            rfqitem.part-no /*label "Customer Part#" */
+            rfqitem.part-no form "x(32)" /*label "Customer Part#" */
             lv-delimiter
             rfqitem.stock-no /*label "FG Item#"*/
             lv-delimiter
@@ -1066,11 +1066,11 @@ FOR EACH rfq WHERE /* rfq.company */
                   with frame rfq-hd no-labels width 150 no-box stream-io.
     end.              
     disp       fill("=",146) form "x(146)"  at 2  /* for font9 (size 10) */ skip
-         "Ln Customer Part#  FG Item#        Item Name                      Style" at 2
+         "Ln Customer Part#                  FG Item#        Item Name                      Style" at 2
          "  Length    Width    Depth Ink Coat Estimate#  Last Order#           PO #" skip
-         "-- --------------- --------------- ------------------------------ -----" at 2
+         "-- -------------------------------- --------------- ------------------------------ -----" at 2
          "-------- -------- -------- --- ---- ---------- ----------- --------------"skip                   
-         with frame lbl no-label no-box stream-io width 147.
+         with frame lbl no-label no-box stream-io width 164.
 
      find first est where est.company = rfq.company and  est.est-no = rfqitem.est-no
                             no-lock no-error.
@@ -1108,7 +1108,7 @@ FOR EACH rfq WHERE /* rfq.company */
    IF ll-is-corr-style THEN
        PUT rfqitem.seq /*label "Ln"*/ form ">9" at 2
            lv-delimiter
-           rfqitem.part-no /*label "Customer Part#" */
+           rfqitem.part-no form "x(32)" /*label "Customer Part#" */
            lv-delimiter
            rfqitem.stock-no /*label "FG Item#"*/
            lv-delimiter
@@ -1132,7 +1132,7 @@ FOR EACH rfq WHERE /* rfq.company */
 
    ELSE PUT rfqitem.seq /*label "Ln"*/ form ">9" at 2
             lv-delimiter
-            rfqitem.part-no /*label "Customer Part#" */
+            rfqitem.part-no form "x(32)" /*label "Customer Part#" */
             lv-delimiter
             rfqitem.stock-no /*label "FG Item#"*/
             lv-delimiter

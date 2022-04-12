@@ -85,7 +85,7 @@ ASSIGN cTextListToSelect = "Qty OnHand,Customer Name,Ship To,PO#,Order#,Rel#,Ite
            cFieldListToSelect = "w-ord.onh-qty,w-ord.cust-name,w-ord.ship-id,w-ord.po-num,w-ord.ord-no,w-ord.rel-no,w-ord.i-no,w-ord.i-name,style," +
                                 "w-ord.rel-qty,w-ord.xls-rel-date,w-ord-last-date,w-ord.prom-code,w-ord.carrier,w-ord.t-price,w-ord.ord-qty,w-ord.msf,w-ord.job,w-ord.shp-qty,w-ord.cust-no,w-ord.part-no," +
                                 "v-del-zone,v-terr,w-ord.palls" /* v-crRate,routing,w-ord.xls-status,w-ord.tot-qty*/
-           cFieldLength = "10,30,8,15,8,6,15,25,8," + "11,8,9,9,7,11,13,8,13,14,9,15," + "8,4,6"  /*13,25,8,10*/
+           cFieldLength = "10,30,8,15,8,6,15,25,8," + "11,8,9,9,7,11,13,8,13,14,9,32," + "8,4,6"  /*13,25,8,10*/
            cFieldType = "i,c,c,c,i,i,c,c,c," + "i,c,c,c,c,i,i,i,c,i,c,c," + "c,c,i"  /* c,c,c,i*/
            .
 

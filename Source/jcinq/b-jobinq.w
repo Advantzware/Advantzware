@@ -390,7 +390,7 @@ DEFINE BROWSE Browser-Table
       job.close-date COLUMN-LABEL "Close Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
       job.stat COLUMN-LABEL "Status" FORMAT "x":U LABEL-BGCOLOR 14
-      custPart() @ custPart COLUMN-LABEL "Customer Part" FORMAT "X(15)":U
+      custPart() @ custPart COLUMN-LABEL "Customer Part" FORMAT "X(32)":U
       job-hdr.qty COLUMN-LABEL "Job Qty" FORMAT "->>>,>>>,>>9":U
       orderQty() @ orderQty COLUMN-LABEL "Ordered Qty" FORMAT "->>,>>>,>>>":U
       producedQty(onHandQty) @ producedQty COLUMN-LABEL "Prod. Qty" FORMAT "->>,>>>,>>>":U
@@ -562,7 +562,7 @@ ASSIGN
      _FldNameList[9]   > ASI.job.stat
 "job.stat" "Status" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > "_<CALC>"
-"custPart() @ custPart" "Customer Part" "X(15)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"custPart() @ custPart" "Customer Part" "X(32)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.job-hdr.qty
 "job-hdr.qty" "Job Qty" "->>>,>>>,>>9" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > "_<CALC>"

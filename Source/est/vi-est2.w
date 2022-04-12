@@ -48,7 +48,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -108,7 +108,7 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 146 BY 1.67.
 
 
@@ -118,24 +118,24 @@ DEFINE FRAME F-Main
      est.est-no AT ROW 1.71 COL 14 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     est.est-date AT ROW 1.71 COL 43 COLON-ALIGNED
+     est.est-date AT ROW 1.71 COL 42.4 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     ef.form-no AT ROW 1.71 COL 73.60 COLON-ALIGNED FORMAT ">>>"
+     ef.form-no AT ROW 1.71 COL 67.8 COLON-ALIGNED FORMAT ">>>"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-     est.form-qty AT ROW 1.71 COL 83.60 COLON-ALIGNED NO-LABEL
+          SIZE 5 BY 1
+     est.form-qty AT ROW 1.71 COL 76.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-     eb.part-no AT ROW 1.71 COL 107.60 COLON-ALIGNED
+          SIZE 5 BY 1
+     eb.part-no AT ROW 1.71 COL 97.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 35 BY 1
-     RECT-1 AT ROW 1.24 COL 1
+          SIZE 45.8 BY 1
      "Reference Information" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 1 COL 3
           FONT 1
      "of" VIEW-AS TEXT
-          SIZE 3 BY .95 AT ROW 1.71 COL 82.60
+          SIZE 3 BY .95 AT ROW 1.71 COL 75.4
+     RECT-1 AT ROW 1.24 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -192,7 +192,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.

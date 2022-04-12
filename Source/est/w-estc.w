@@ -760,7 +760,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_vi-est-4 ).
        RUN set-position IN h_vi-est-4 ( 4.57 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 146.00 ) */
+       /* Size in UIB:  ( 1.91 , 166.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/b-estprp.w':U ,
@@ -840,7 +840,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_vi-est ).
        RUN set-position IN h_vi-est ( 4.81 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 146.00 ) */
+       /* Size in UIB:  ( 1.91 , 186.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updc&c.w':U ,

@@ -298,7 +298,7 @@ DEFINE BROWSE BROWSE-1
     job.due-date   FORMAT "99/99/9999":U LABEL-BGCOLOR 14
     job.close-date COLUMN-LABEL "Close Date" FORMAT "99/99/9999":U
     LABEL-BGCOLOR 14
-    custPart() @ custPart COLUMN-LABEL "Customer Part" FORMAT "X(15)":U
+    custPart() @ custPart COLUMN-LABEL "Customer Part" FORMAT "X(32)":U
     onHandQty(qtyOnHand) @ onHandQty COLUMN-LABEL "On Hand Qty" FORMAT "->>,>>>,>>>":U
     wipQty() @ wipQty COLUMN-LABEL "WIP Qty" FORMAT "->>,>>>,>>>":U
     overUnderPct(onHandQty) @ overUnderPct COLUMN-LABEL "O/U%" FORMAT "->>>>>%":U

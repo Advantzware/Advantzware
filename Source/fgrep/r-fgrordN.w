@@ -93,14 +93,14 @@ ASSIGN
                             "mo-avg,sug-avg,msf-reord,itemfg.stat,est-rout,opt-qty,csr-name," +
                             "est-style,est-board,est-length,est-wid,est-depth,est-plate,item-count," +
                             "item-location,group"
-    cFieldLength       = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17,47,8,10,11,12,9,20,11,8," + "8,10,16,6,200,17,30," + "9,10,10,10,10,15,10," + "15,15"  .
+    cFieldLength       = "15,32,20,8,3,12,13,5,11,9,12,12,9,9,16,17,47,8,10,11,12,9,20,11,8," + "8,10,16,6,200,17,30," + "9,10,10,10,10,15,10," + "15,15"  .
 
 {sys/inc/ttRptSel.i}
 ASSIGN 
     cTextListToDefault = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND," + 
                            "QTY ALLOC,QTY ORD,MIN ORD QTY,QTY AVAIL,VENDOR ITEM#,SUGT REORDER QTY" 
     .
-
+          
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -205,7 +205,7 @@ DEFINE VARIABLE begin_cust      AS CHARACTER FORMAT "X(8)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_cust-part AS CHARACTER FORMAT "X(15)" 
+DEFINE VARIABLE begin_cust-part AS CHARACTER FORMAT "X(32)" 
     LABEL "Beginning Customer Part#" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
@@ -245,7 +245,7 @@ DEFINE VARIABLE end_cust        AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_cust-part   AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzz" 
+DEFINE VARIABLE end_cust-part   AS CHARACTER FORMAT "X(32)" INITIAL "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz" 
     LABEL "Ending Customer Part#" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
@@ -1011,7 +1011,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
   
         SESSION:SET-WAIT-STATE("general").
   
-        cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17," + STRING(8 * display_hist)  + ",8,10,11,12,9,20,11,8," + "8,10,16,6,200,17,30," +  "9,10,10,10,10,15,10," + "15,15" .
+        cFieldLength = "15,32,20,8,3,12,13,5,11,9,12,12,9,9,16,17," + STRING(8 * display_hist)  + ",8,10,11,12,9,20,11,8," + "8,10,16,6,200,17,30," +  "9,10,10,10,10,15,10," + "15,15" .
   
         RUN GetSelectionList.
         FIND FIRST  ttCustList NO-LOCK NO-ERROR.

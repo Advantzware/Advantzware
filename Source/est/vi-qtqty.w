@@ -119,11 +119,11 @@ DEFINE FRAME F-Main
      quoteitm.part-no AT ROW 1.71 COL 36.6 COLON-ALIGNED
           LABEL "Part#"
           VIEW-AS FILL-IN 
-          SIZE 40.4 BY 1
-     quoteitm.part-dscr1 AT ROW 1.71 COL 78 COLON-ALIGNED NO-LABEL
+          SIZE 43.4 BY 1
+     quoteitm.part-dscr1 AT ROW 1.71 COL 81 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     quoteqty.qty AT ROW 1.71 COL 124.2 COLON-ALIGNED
+     quoteqty.qty AT ROW 1.71 COL 128.4 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
      "Reference Information" VIEW-AS TEXT
