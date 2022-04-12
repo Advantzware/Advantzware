@@ -166,15 +166,15 @@ DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job AS CHARACTER FORMAT "X(9)":U 
      LABEL "From Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE begin_job2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_labels AS INTEGER FORMAT ">>>>":U INITIAL 2 
      LABEL "# of Labels/Pallet" 
@@ -191,15 +191,15 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE end_job AS CHARACTER FORMAT "X(9)":U 
      LABEL "To Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job2 AS INTEGER FORMAT "99":U INITIAL 99 
+DEFINE VARIABLE end_job2 AS INTEGER FORMAT "999":U INITIAL 999 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "To Order#" 
@@ -260,11 +260,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Order Number"
      begin_job AT ROW 9.1 COL 21 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job2 AT ROW 9.1 COL 36 COLON-ALIGNED HELP
+     begin_job2 AT ROW 9.1 COL 38 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job AT ROW 9.1 COL 65 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job2 AT ROW 9.1 COL 80 COLON-ALIGNED HELP
+     end_job2 AT ROW 9.1 COL 82 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_i-no AT ROW 10.05 COL 21 COLON-ALIGNED HELP
           "Enter Beginning Order Number"

@@ -1068,10 +1068,10 @@ ELSE /* prep code */
                         and job-prep.job-no  ge substr(v-fjob,1,iJobLen)
                         and job-prep.job-no  le substr(v-tjob,1,iJobLen)
                         and FILL(" ", iJobLen - length(trim(job-PREP.job-no))) +
-                      trim(job-prep.job-no) + string(job-prep.job-no2,"99")
+                      trim(job-prep.job-no) + string(job-prep.job-no2,"999")
                                   ge v-fjob
                   and FILL(" ", iJobLen - length(trim(job-prep.job-no))) +
-                      trim(job-prep.job-no) + string(job-prep.job-no2,"99")
+                      trim(job-prep.job-no) + string(job-prep.job-no2,"999")
                                   le v-tjob
                         /*job-prep.blank-no = job-hdr.blank-no AND*/
                         AND job-prep.CODE GE begin_prep 
