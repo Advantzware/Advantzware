@@ -102,7 +102,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD matrixPrecision AS INTEGER FORMAT "9"   COLUMN-LABEL "Matrix Precision" HELP "Optional - default 0"
     FIELD matrixRounding  AS CHARACTER FORMAT "X" COLUMN-LABEL "Matrix Rounding"  HELP "Optional - N/U/D (Default 'U' if 'write blank and zero' flag is selected)"
     FIELD industryID      AS CHArACTER FORMAT "x(16)" COLUMN-LABEL "Industry"  HELP "Industry name"
-    FIELD tagStatus      AS CHArACTER FORMAT "x(40)" COLUMN-LABEL "Tag Status"  HELP "Optional- Only tags that are not on hold, Only on Hold tags, Any tag status"
+    FIELD tagStatus      AS CHArACTER FORMAT "x(40)" COLUMN-LABEL "Tag Status"  HELP "Optional- Only tags that are not on hold/Only on Hold tags/Any tag status"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -281,6 +281,13 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN
                 oplValid = NO
                 opcNote  = "Invalid Rounding method"
+                .
+    END.
+    IF oplValid THEN DO:
+        IF LOOKUP(ipbf-ttImportCust.tagStatus,",Only tags that are not on hold,Only on Hold tags,Any tag status") EQ 0 THEN
+            ASSIGN
+                oplValid = NO
+                opcNote  = "Invalid Tag Status"
                 .
     END.
     IF oplValid THEN 
