@@ -70,10 +70,11 @@ DO:
         po-ord.company EQ itemfg.company AND
         po-ord.po-no   EQ po-ordl.po-no
         NO-LOCK:
-        
+            
         IF po-ordl.job-no <> "" AND NOT CAN-FIND(FIRST job WHERE job.company EQ po-ordl.company 
             AND job.job-no  EQ po-ordl.job-no) THEN 
             NEXT.    
+                
         /*craete temp table data*/
         RUN pCreatettOnOrder(INPUT po-ordl.i-no,
         INPUT po-ordl.item-type,
@@ -92,6 +93,7 @@ DO:
         INPUT po-ordl.t-rec-qty
         ).
     END. /*each po-ordl*/  
+    
     /*check for availability of job-hdr*/  
     FIND FIRST job-hdr WHERE job-hdr.company EQ itemfg.company 
         AND job-hdr.i-no    EQ itemfg.i-no 
@@ -110,7 +112,7 @@ DO:
             AND job.job-no2 EQ job-hdr.job-no2)
             USE-INDEX i-no:
                 
-            IF NOT itemfg.isaset THEN
+            IF NOT itemfg.isaset THEN           
                 FIND FIRST eb WHERE 
                     eb.company  EQ job-hdr.company AND
                     eb.est-no   EQ job-hdr.est-no AND
@@ -118,8 +120,8 @@ DO:
                     eb.blank-no EQ job-hdr.blank-no
                     NO-LOCK NO-ERROR.
 
-            IF NOT(itemfg.isaset OR (AVAIL eb AND NOT eb.pur-man)) THEN
-                NEXT.
+            IF NOT(itemfg.isaset OR (AVAIL eb AND NOT eb.pur-man) OR (NOT AVAIL eb AND NOT itemfg.pur-man)) THEN
+                NEXT.   
             
             /*record with job,form and blank already exist*/
             IF CAN-FIND(FIRST ttOnOrder WHERE ttOnOrder.jobID   = job-hdr.job-no
@@ -151,10 +153,11 @@ DO:
                 INPUT job-hdr.qty,
                 INPUT 0,
                 INPUT 0,
-                INPUT 0
+                INPUT ld-qty
                 ).              
         END. /* FOR EACH job-hdr */
     END. /*available job-hdr*/
+    ELSE
     FOR EACH reftable NO-LOCK
         WHERE reftable.reftable EQ "jc/jc-calc.p"
         AND reftable.company  EQ itemfg.company
@@ -170,21 +173,21 @@ DO:
         WHERE bf-set-job-hdr.company EQ bf-job.company
         AND bf-set-job-hdr.job     EQ bf-job.job
         AND bf-set-job-hdr.job-no  EQ bf-job.job-no
-        AND bf-set-job-hdr.job-no2 EQ bf-job.job-no2
+        AND bf-set-job-hdr.job-no2 EQ bf-job.job-no2        
         USE-INDEX job-no,
         FIRST bf-set-itemfg NO-LOCK
         WHERE bf-set-itemfg.company EQ bf-set-job-hdr.company
         AND bf-set-itemfg.i-no    EQ bf-set-job-hdr.i-no
         AND bf-set-itemfg.isaset  EQ YES:
-            
+                    
         IF CAN-FIND(FIRST ttOnOrder WHERE ttOnOrder.jobID   = bf-set-job-hdr.job-no
             AND ttOnOrder.jobID2  = bf-set-job-hdr.job-no2
             AND ttOnOrder.formNo  = bf-set-job-hdr.frm
             AND ttOnOrder.blankNo = bf-set-job-hdr.blank-no) THEN 
             NEXT.
             
-        RUN fg/fullset.p (ROWID(bf-set-itemfg)).
-            
+        RUN fg/fullset.p (ROWID(bf-set-itemfg)).               
+                           
         /*create temp-table*/ 
         RUN pCreatettOnOrder(INPUT bf-set-job-hdr.i-no,
             NO,
@@ -209,6 +212,7 @@ DO:
         op-q-ono = op-q-ono + ttOnOrder.quantity.
     END.  
     IF op-q-ono LT 0 THEN op-q-ono = 0.
+        
   
 END. /*item*/
 
@@ -229,7 +233,8 @@ PROCEDURE pCreatettOnOrder PRIVATE:
     DEFINE INPUT PARAMETER iSWid         AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER drec-qty    AS DECIMAL NO-UNDO.
     
-    DEFINE VARIABLE dJobQty AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dJobQty          AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE deQuantityPerSet AS DECIMAL NO-UNDO.
     
     CREATE ttOnOrder.
     ASSIGN
@@ -244,6 +249,7 @@ PROCEDURE pCreatettOnOrder PRIVATE:
         ttOnOrder.blankNo     = iBlankNo
         ttOnOrder.quantityUOM = cQuantityUOM
         ttOnOrder.warehouseID = cWarehouseID. /*when creating from Job header job.loc*/
+     
     IF cSource = "PO" THEN 
     DO: 
         IF cQuantityUOM = "EA" THEN     
@@ -283,18 +289,25 @@ PROCEDURE pCreatettOnOrder PRIVATE:
             ttOnOrder.quantity = dqty - dJobQty.
     END.
     IF cSource = "SetJob" THEN 
-    DO:
-        FOR EACH tt-fg-set WHERE tt-fg-set.part-no EQ itemfg.i-no:
-            ld-qty = 0.
-            RUN fg/GetProductionQty.p (INPUT bf-set-job-hdr.company,
+    DO: 
+        FOR FIRST fg-set NO-LOCK
+            WHERE fg-set.company EQ itemfg.company
+              AND fg-set.part-no EQ itemfg.i-no
+              AND fg-set.set-no  EQ cItemID:
+                     
+            ASSIGN 
+                deQuantityPerSet = IF fg-set.qtyPerSet LT 0 THEN (1 / (fg-set.qtyPerSet * -1)) ELSE fg-set.qtyPerSet.
+            
+            RUN fg/GetProductionQty.p (INPUT itemfg.company,
                 INPUT cJobID,
                 INPUT iJobID2,
                 INPUT cItemID,
                 INPUT NO,
                 OUTPUT dJobQty).
-            IF dJobQty LT dqty * tt-fg-set.part-qty-dec THEN
-                        ttOnOrder.quantity = ttOnOrder.quantity + ((dqty * tt-fg-set.part-qty-dec) - dJobQty).
+                
+            IF dJobQty LT dqty * deQuantityPerSet THEN
+                ttOnOrder.quantity = ttOnOrder.quantity + ((dqty * deQuantityPerSet) - dJobQty).
               
-        END. 
+        END. /* FOR EACH tt-fg-set*/ 
     END.
 END.
