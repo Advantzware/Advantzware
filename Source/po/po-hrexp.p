@@ -210,7 +210,7 @@ FOR EACH report NO-LOCK WHERE
 
         FIND FIRST job NO-LOCK WHERE 
             job.company EQ cocode AND 
-            job.job-no  EQ po-ordl.job-no AND 
+            job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no))) + TRIM(po-ordl.job-no) AND 
             job.job-no2 EQ po-ordl.job-no2
             NO-ERROR.
         
@@ -491,10 +491,12 @@ FOR EACH report NO-LOCK WHERE
         /* Job# */
         IF po-ordl.job-no NE "" THEN DO:
             IF hrms-int = 1 THEN ASSIGN 
-                v-jobno = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2) + "-" +
-                          v-form)).
+                v-jobno = STRING(po-ordl.job-no,"x(6)") + "-" +
+                          STRING(po-ordl.job-no2,"99") + "-" +
+                          v-form.
             ELSE ASSIGN 
-                v-jobno = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))).
+                v-jobno = STRING(po-ordl.job-no,"x(6)") + "-" +
+                          STRING(po-ordl.job-no2,"99").
         END.
         ELSE ASSIGN 
             v-jobno = "         ".
@@ -583,14 +585,14 @@ FOR EACH report NO-LOCK WHERE
         /* Tri-lakes / EFI */
         IF hrms-int EQ 1 THEN PUT 
             v-instr             FORMAT "x(64)"      /* Notes */
-            v-jobno             FORMAT "x(16)"       /* Job No */
-            FILL(" ",48)        FORMAT "x(48)"       
+            v-jobno             FORMAT "x(12)"       /* Job No */
+            FILL(" ",52)        FORMAT "x(55)"       
             SKIP.
         /* Valley */
         ELSE PUT 
             v-instr             FORMAT "x(64)"      /* Notes */
-            v-jobno             FORMAT "x(13)"       /* Job No */
-            FILL(" ",51)        FORMAT "x(51)"       
+            v-jobno             FORMAT "x(9)"       /* Job No */
+            FILL(" ",55)        FORMAT "x(55)"       
             SKIP.
 
     END. /* for each po-ordl record */

@@ -238,7 +238,8 @@ IF AVAILABLE cust AND iPaper-log AND iPaper-dir NE "" THEN
 
             FIND FIRST job NO-LOCK
                 WHERE job.company EQ cocode
-                AND job.job-no  EQ po-ordl.job-no
+                AND job.job-no  EQ fill(" ",6 - length(TRIM(po-ordl.job-no))) +
+                trim(po-ordl.job-no)
                 AND job.job-no2 EQ po-ordl.job-no2
                 NO-ERROR.
         
@@ -658,13 +659,13 @@ IF AVAILABLE cust AND iPaper-log AND iPaper-dir NE "" THEN
 
             /* Job# */
             IF po-ordl.job-no NE "" THEN
-                PUT TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2)))
-                                                              FORMAT "x(13)".
+                PUT STRING(po-ordl.job-no,"x(6)") + "-" +
+                    string(po-ordl.job-no2,"99")              FORMAT "x(9)".
             ELSE
-                PUT FILL(" ",13)                               FORMAT "x(13)".
+                PUT FILL(" ",9)                               FORMAT "x(9)".
 
             /* 64 blank spaces */
-            PUT FILL(" ",51)                                FORMAT "x(51)"       SKIP
+            PUT FILL(" ",55)                                FORMAT "x(55)"       SKIP
                 FILL(" ",128) FORM "x(128)"  SKIP
                 FILL(" ",128) FORM "x(128)"  SKIP
                 FILL(" ",128) FORM "x(128)"  SKIP
