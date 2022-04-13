@@ -3521,6 +3521,8 @@ PROCEDURE pProcessBoardBOM PRIVATE:
     DEFINE           BUFFER bf-item                 FOR ITEM.
     
     DEFINE VARIABLE dShrinkPct AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dWidth AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dDepth AS DECIMAL NO-UNDO.
     
     FIND FIRST bf-item NO-LOCK 
         WHERE bf-item.company EQ ipbf-estCostForm.company
@@ -3533,6 +3535,19 @@ PROCEDURE pProcessBoardBOM PRIVATE:
     END.
     oplValidBom = YES.
     RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ipbf-item-bom.i-no, 0, BUFFER bf-estCostMaterial).
+    
+    //Override Form Dimensions for real material.  Length needs to vary depending on Shrink
+    IF bf-item.i-code EQ 'R' THEN 
+        ASSIGN 
+            dWidth = IF bf-item.r-wid NE 0 THEN bf-item.r-wid ELSE bf-item.s-wid
+            dDepth = bf-item.s-dep
+            .
+    ELSE 
+        ASSIGN 
+            dWidth = ipbf-estCostForm.grossWidth
+            dDepth = ipbf-estCostForm.grossDepth
+            .
+        
     ASSIGN 
         bf-estCostMaterial.isPrimarySubstrate         = YES
         bf-estCostMaterial.addToWeightNet             = YES
@@ -3545,9 +3560,9 @@ PROCEDURE pProcessBoardBOM PRIVATE:
         bf-estCostMaterial.quantityUOM                = "EA"
         bf-estCostMaterial.basisWeight                = bf-item.basis-w
         dShrinkPct                                    = (IF ipbf-item-bom.shrink NE 100 THEN ipbf-item-bom.shrink ELSE 0) / 100
-        bf-estCostMaterial.dimWidth                   = ipbf-estCostForm.grossWidth
+        bf-estCostMaterial.dimWidth                   = dWidth
         bf-estCostMaterial.dimLength                  = ipbf-estCostForm.grossLength / ( 1 - dShrinkPct)
-        bf-estCostMaterial.dimDepth                   = ipbf-estCostForm.grossDepth
+        bf-estCostMaterial.dimDepth                   = dDepth
         bf-estCostMaterial.noCharge                   = ipbf-estCostForm.noCost
         .
     FIND FIRST bfBoard-estCostMaterial NO-LOCK 
