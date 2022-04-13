@@ -1207,6 +1207,7 @@ PROCEDURE pJasperLastPageFooter :
     DEFINE VARIABLE cValue         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx            AS INTEGER   NO-UNDO INITIAL 1.
     DEFINE VARIABLE iParameterRow  AS INTEGER   NO-UNDO INITIAL 1.
     
     DEFINE BUFFER bDynValueParam FOR dynValueParam.
@@ -1277,7 +1278,7 @@ PROCEDURE pJasperLastPageFooter :
                        AND bDynValueParam.user-id      EQ dynValueParam.user-id
                        AND bDynValueParam.prgmName     EQ dynValueParam.prgmName
                        AND bDynValueParam.paramValueID EQ dynValueParam.paramValueID
-                       AND bDynValueParam.sortOrder    EQ dynValueParam.sortOrder + 1
+                       AND bDynValueParam.sortOrder    EQ dynValueParam.sortOrder + 500 + jdx
                      NO-ERROR.
                 IF AVAILABLE bDynValueParam AND
                    bDynValueParam.paramLabel EQ ? AND
@@ -1288,6 +1289,7 @@ PROCEDURE pJasperLastPageFooter :
                     ASSIGN
                         cParameter[iParameterRow] = cParameter[iParameterRow] + " (" + bDynValueParam.paramValue + ")"
                         cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, bDynValueParam.paramValue, dtDate),"99/99/9999")
+                        jdx    = jdx + 1
                         .
                 END. /* if avail */
                 IF cValue EQ ? THEN

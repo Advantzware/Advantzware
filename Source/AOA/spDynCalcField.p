@@ -9,6 +9,7 @@
 /* **********************  Internal Functions  ************************ */
 
 /* ************************  Function Implementations ***************** */
+
 FUNCTION fCalcTime RETURNS INTEGER (ipcTime AS CHARACTER):
     DEFINE VARIABLE iHours   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iMinutes AS INTEGER NO-UNDO.
@@ -89,6 +90,17 @@ FUNCTION fMathOperation RETURNS DECIMAL
 		
 END FUNCTION.
 
+/*------------------------------------------------------------------------------
+  Purpose:  calculate time span between 2 dates & times in seconds
+------------------------------------------------------------------------------*/
+FUNCTION fTimeSpan RETURNS INTEGER
+    (ipdtStartDate AS DATE, ipiStartTime AS INTEGER, ipdtEndDate AS DATE, ipiEndTime AS INTEGER):
+    RETURN IF ipdtStartDate EQ ipdtEndDate THEN ipiEndTime - ipiStartTime
+           ELSE (86400 - ipiStartTime) + (ipdtEndDate - ipdtStartDate - 1) * 86400 + ipiEndTime.
+END FUNCTION.
+
+/* ************************  Function Prototypes ********************** */
+
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE calcAPIType:
@@ -97,6 +109,43 @@ PROCEDURE calcAPIType:
     
     opcCalcValue = IF ipiAPIOutboundID GT 5000 THEN "Custom"
                    ELSE "System".
+END PROCEDURE.
+
+PROCEDURE calcAvgRunQty:
+    DEFINE INPUT  PARAMETER ipdtStartDate AS DATE      NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiStartTime  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtEndDate   AS DATE      NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiEndTime    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCycleTime  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcValue  AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE iTimeSpan  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dAvgRunQty AS DECIMAL NO-UNDO.
+
+    ASSIGN
+        iTimeSpan    = fTimeSpan(ipdtStartDate, ipiStartTime, ipdtEndDate, ipiEndTime)
+        dAvgRunQty   = iTimeSpan / ipiCycleTime
+        opcCalcValue = STRING(dAvgRunQty,">>>>9.9<<<<")
+        .
+END PROCEDURE.
+
+PROCEDURE calcDifferentail:
+    DEFINE INPUT  PARAMETER ipdtStartDate AS DATE      NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiStartTime  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtEndDate   AS DATE      NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiEndTime    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCycleTime  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantity   AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcValue  AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE iTimeSpan  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dAvgRunQty AS DECIMAL NO-UNDO.
+
+    ASSIGN
+        iTimeSpan    = fTimeSpan(ipdtStartDate, ipiStartTime, ipdtEndDate, ipiEndTime)
+        dAvgRunQty   = iTimeSpan / ipiCycleTime
+        opcCalcValue = STRING(ipiQuantity - dAvgRunQty,"->>>>9.9<<<<")
+        .
 END PROCEDURE.
 
 PROCEDURE calcDropShipment:
@@ -251,6 +300,32 @@ PROCEDURE calcStringTime:
                    ELSE "".
 END PROCEDURE.
 	
+PROCEDURE calcTimeSpan:
+/*------------------------------------------------------------------------------
+  Purpose:  calculate time span between 2 dates & times in seconds
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipdtStartDate AS DATE      NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiStartTime  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtEndDate   AS DATE      NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiEndTime    AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcValue  AS CHARACTER NO-UNDO.
+
+    opcCalcValue = STRING(fTimeSpan(ipdtStartDate, ipiStartTime, ipdtEndDate, ipiEndTime),">>>>>9").
+END PROCEDURE.
+
+PROCEDURE calcTimeSpanString:
+/*------------------------------------------------------------------------------
+  Purpose:  calculate time span between 2 dates & times in seconds
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipdtStartDate AS DATE      NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiStartTime  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtEndDate   AS DATE      NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiEndTime    AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcValue  AS CHARACTER NO-UNDO.
+
+    opcCalcValue = STRING(fTimeSpan(ipdtStartDate, ipiStartTime, ipdtEndDate, ipiEndTime),"hh:mm:ss").
+END PROCEDURE.
+
 PROCEDURE calcTimeString:
     DEFINE INPUT  PARAMETER ipiTime      AS INTEGER   NO-UNDO.    
     DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
@@ -428,6 +503,23 @@ PROCEDURE spDynCalcField:
         RUN VALUE(ipcCalcProc) (
             INTEGER(ipcCalcParam),
             OUTPUT opcCalcValue).
+        WHEN "calcAvgRunQty" THEN
+        RUN VALUE(ipcCalcProc) (
+            DATE(ENTRY(1,ipcCalcParam,"|")),
+            INTEGER(ENTRY(2,ipcCalcParam,"|")),
+            DATE(ENTRY(3,ipcCalcParam,"|")),
+            INTEGER(ENTRY(4,ipcCalcParam,"|")),
+            INTEGER(ENTRY(5,ipcCalcParam,"|")),
+            OUTPUT opcCalcValue).
+        WHEN "calcDifferentail" THEN
+        RUN VALUE(ipcCalcProc) (
+            DATE(ENTRY(1,ipcCalcParam,"|")),
+            INTEGER(ENTRY(2,ipcCalcParam,"|")),
+            DATE(ENTRY(3,ipcCalcParam,"|")),
+            INTEGER(ENTRY(4,ipcCalcParam,"|")),
+            INTEGER(ENTRY(5,ipcCalcParam,"|")),
+            INTEGER(ENTRY(6,ipcCalcParam,"|")),
+            OUTPUT opcCalcValue).
         WHEN "calcDropShipment" THEN
         RUN VALUE(ipcCalcProc) (
             ENTRY(1,ipcCalcParam,"|"),
@@ -480,6 +572,20 @@ PROCEDURE spDynCalcField:
         WHEN "calcStringTime" THEN
         RUN VALUE(ipcCalcProc) (
             INTEGER(ipcCalcParam),
+            OUTPUT opcCalcValue).
+        WHEN "calcTimeSpan" THEN
+        RUN VALUE(ipcCalcProc) (
+            DATE(ENTRY(1,ipcCalcParam,"|")),
+            INTEGER(ENTRY(2,ipcCalcParam,"|")),
+            DATE(ENTRY(3,ipcCalcParam,"|")),
+            INTEGER(ENTRY(4,ipcCalcParam,"|")),
+            OUTPUT opcCalcValue).
+        WHEN "calcTimeSpanString" THEN
+        RUN VALUE(ipcCalcProc) (
+            DATE(ENTRY(1,ipcCalcParam,"|")),
+            INTEGER(ENTRY(2,ipcCalcParam,"|")),
+            DATE(ENTRY(3,ipcCalcParam,"|")),
+            INTEGER(ENTRY(4,ipcCalcParam,"|")),
             OUTPUT opcCalcValue).
         WHEN "calcTimeString" THEN
         RUN VALUE(ipcCalcProc) (

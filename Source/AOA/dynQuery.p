@@ -211,6 +211,7 @@ PROCEDURE pSetValueParam:
     DEFINE VARIABLE cParam AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtDate AS DATE      NO-UNDO.
+    DEFINE VARIABLE idx    AS INTEGER   NO-UNDO INITIAL 1.
 
     DEFINE BUFFER bDynValueParam FOR dynValueParam.
 
@@ -228,7 +229,7 @@ PROCEDURE pSetValueParam:
                AND bDynValueParam.user-id      EQ dynValueParam.user-id
                AND bDynValueParam.prgmName     EQ dynValueParam.prgmName
                AND bDynValueParam.paramValueID EQ dynValueParam.paramValueID
-               AND bDynValueParam.sortOrder    EQ dynValueParam.sortOrder + 1
+               AND bDynValueParam.sortOrder    EQ dynValueParam.sortOrder + 500 + idx
              NO-ERROR.
         IF AVAILABLE bDynValueParam AND
            bDynValueParam.paramLabel EQ ? AND
@@ -236,7 +237,10 @@ PROCEDURE pSetValueParam:
             dtDate = DATE(dynValueParam.paramValue) NO-ERROR.
             IF ERROR-STATUS:ERROR THEN
             dtDate = ?.
-            cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, bDynValueParam.paramValue, dtDate),"99/99/9999").
+            ASSIGN
+                cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, bDynValueParam.paramValue, dtDate),"99/99/9999")
+                idx    = idx + 1
+                .
         END. /* if avail */
         DO TRANSACTION:
             FIND FIRST bDynValueParam EXCLUSIVE-LOCK
