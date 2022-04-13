@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i "new shared"}
 
 DEF STREAM outFile.
+DEF STREAM dumpFile.
 
 DEF VAR cMessage AS CHAR NO-UNDO.
 DEF VAR daTargetDate AS DATE NO-UNDO.
@@ -439,6 +440,8 @@ DO:
         fiOutput:SCREEN-VALUE = cOutputFile.  
     OUTPUT STREAM outFile TO VALUE(cOutputFile).
     fWriteToFile("Header").
+    IF rsAction:SCREEN-VALUE EQ "Delete" THEN 
+        OUTPUT STREAM dumpfile TO VALUE(REPLACE(cOutputFile,".CSV",".d")).
 
     ASSIGN 
         bProcess:SENSITIVE = FALSE  
@@ -452,6 +455,7 @@ DO:
         bExit:SENSITIVE = TRUE.
     STATUS INPUT "".
     OUTPUT STREAM outFile CLOSE. 
+    OUTPUT STREAM dumpFile CLOSE.
 
 END.
 
@@ -584,12 +588,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         
     STATUS INPUT "Determining total note count.".
     STATUS DEFAULT "Determining total note count.".
+    SESSION:SET-WAIT-STATE("General").
     FOR EACH notes NO-LOCK.
         ASSIGN 
             iNoteCount = iNoteCount + 1.
     END.
     ASSIGN 
         fiNoteCount:SCREEN-VALUE = STRING(iNoteCount).
+    SESSION:SET-WAIT-STATE("").
     STATUS DEFAULT "".
     STATUS INPUT "".
 
@@ -681,6 +687,7 @@ PROCEDURE pProcess :
                         NO-ERROR.
                     IF AVAIL bNotes THEN DO:
                         IF rsAction:SCREEN-VALUE EQ "Delete" THEN DO:
+                            EXPORT STREAM dumpFile bNotes.
                             DELETE bNotes.
                             ASSIGN 
                                 fiNoteCount:SCREEN-VALUE = STRING(INTEGER(fiNoteCount:SCREEN-VALUE) - 1).
@@ -713,9 +720,15 @@ PROCEDURE pProcess :
             
             IF INDEX(notes.note_text,"AMEX") NE 0 
             OR INDEX(notes.note_text,"American Express") NE 0
-            OR INDEX(notes.note_text,"MC ") NE 0
+            OR INDEX(notes.note_text," MC ") NE 0
+            OR INDEX(notes.note_text,"MC ") EQ 1
             OR INDEX(notes.note_text,"Mastercard") NE 0
-            OR (INDEX(notes.note_text,"Credit Card") NE 0 AND INDEX(notes.note_text,"by Credit Card") EQ 0) 
+            OR INDEX(notes.note_text,"Master card") NE 0
+            OR (INDEX(notes.note_text,"Credit Card") NE 0 
+                AND INDEX(notes.note_text,"by Credit Card") EQ 0
+                AND INDEX(notes.note_text,"via Credit Card") EQ 0
+                AND INDEX(notes.note_text,"Credit Card.") EQ 0
+                ) 
             OR INDEX(notes.note_text,"VISA") NE 0 
             OR INDEX(notes.note_text," CVC") NE 0 
             OR INDEX(notes.note_text," CVV") NE 0 
@@ -736,6 +749,7 @@ PROCEDURE pProcess :
                         NO-ERROR.
                     IF AVAIL bNotes THEN DO:
                         IF rsAction:SCREEN-VALUE EQ "Delete" THEN DO: 
+                            EXPORT STREAM dumpFile bNotes.
                             DELETE bNotes.
                             ASSIGN 
                                 fiNoteCount:SCREEN-VALUE = STRING(INTEGER(fiNoteCount:SCREEN-VALUE) - 1).
