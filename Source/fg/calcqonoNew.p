@@ -73,7 +73,7 @@ DO:
             
         IF po-ordl.job-no <> "" AND NOT CAN-FIND(FIRST job WHERE job.company EQ po-ordl.company 
             AND job.job-no  EQ po-ordl.job-no) THEN 
-            NEXT.    
+            NEXT.
                 
         /*craete temp table data*/
         RUN pCreatettOnOrder(INPUT po-ordl.i-no,
@@ -179,6 +179,15 @@ DO:
         WHERE bf-set-itemfg.company EQ bf-set-job-hdr.company
         AND bf-set-itemfg.i-no    EQ bf-set-job-hdr.i-no
         AND bf-set-itemfg.isaset  EQ YES:
+            
+        FIND FIRST eb 
+            WHERE eb.company EQ bf-set-job-hdr.company
+            AND eb.est-no    EQ bf-set-job-hdr.est-no 
+            AND eb.stock-no  EQ itemfg.i-no
+            NO-LOCK NO-ERROR.
+        
+        IF NOT(itemfg.isaset OR (AVAIL eb AND NOT eb.pur-man) OR (NOT AVAIL eb AND NOT itemfg.pur-man)) THEN
+            NEXT.
                     
         IF CAN-FIND(FIRST ttOnOrder WHERE ttOnOrder.jobID   = bf-set-job-hdr.job-no
             AND ttOnOrder.jobID2  = bf-set-job-hdr.job-no2
@@ -233,7 +242,7 @@ PROCEDURE pCreatettOnOrder PRIVATE:
     DEFINE INPUT PARAMETER iSWid         AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER drec-qty    AS DECIMAL NO-UNDO.
     
-    DEFINE VARIABLE dJobQty          AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dJobQty          AS DECIMAL NO-UNDO.    
     DEFINE VARIABLE deQuantityPerSet AS DECIMAL NO-UNDO.
     
     CREATE ttOnOrder.
@@ -248,12 +257,12 @@ PROCEDURE pCreatettOnOrder PRIVATE:
         ttOnOrder.formNo      = iFormNo
         ttOnOrder.blankNo     = iBlankNo
         ttOnOrder.quantityUOM = cQuantityUOM
-        ttOnOrder.warehouseID = cWarehouseID. /*when creating from Job header job.loc*/
-     
+        ttOnOrder.warehouseID = cWarehouseID. /*when creating from Job header job.loc*/     
+    
     IF cSource = "PO" THEN 
     DO: 
         IF cQuantityUOM = "EA" THEN     
-            dJobQty = dQty.
+            dJobQty = dQty.                   
         ELSE 
         DO:
             /*Convert the quantity as per Unit of Measure*/
@@ -271,8 +280,9 @@ PROCEDURE pCreatettOnOrder PRIVATE:
                 0, 
                 OUTPUT dJobQty,
                 OUTPUT lError,
-                OUTPUT cMessage).  
+                OUTPUT cMessage).
         END.
+        
         IF dJobQty - drec-qty GT 0 THEN    
             ttOnOrder.quantity = dJobQty - drec-qty.
     END. /*if PO*/
