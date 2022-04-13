@@ -99,7 +99,7 @@ FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
     INPUT ipdEstOPQty AS DECIMAL) FORWARD.
 
 FUNCTION fGetNextID RETURNS INT64 PRIVATE
-    (  ) FORWARD.
+    ( ipcTableName AS CHARACTER ) FORWARD.
 
 FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
     (ipcCompany AS CHARACTER,
@@ -348,7 +348,7 @@ PROCEDURE pAddCostDetail PRIVATE:
         opbf-ttEstCostDetail.profitPercentType = "Margin"
         .
         
-    RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostDetail.estCostDetailID, INPUT-OUTPUT opbf-ttEstCostDetail.rec_key).
+    RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostDetail.estCostDetailID, INPUT-OUTPUT opbf-ttEstCostDetail.rec_key, "estCostDetail").
 
 END PROCEDURE.
 
@@ -435,7 +435,7 @@ PROCEDURE pAddCostSummary PRIVATE:
             bf-ttEstCostSummary.estCostHeaderID = ipiEstCostHeaderID
             .
             
-        RUN pSetKeyFields(INPUT-OUTPUT bf-ttEstCostSummary.estCostSummaryID, INPUT-OUTPUT bf-ttEstCostSummary.rec_key).
+        RUN pSetKeyFields(INPUT-OUTPUT bf-ttEstCostSummary.estCostSummaryID, INPUT-OUTPUT bf-ttEstCostSummary.rec_key, "estCostSummary").
         
     END.
     bf-ttEstCostSummary.costTotal = bf-ttEstCostSummary.costTotal + ipdCost.
@@ -484,7 +484,7 @@ PROCEDURE pAddEstBlank PRIVATE:
     DEFINE           BUFFER bf-SetHeader-ttEstCostBlank FOR ttEstCostBlank.
     
     CREATE opbf-ttEstCostBlank.
-    RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostBlank.estCostBlankID, INPUT-OUTPUT opbf-ttEstCostBlank.rec_key).
+    RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostBlank.estCostBlankID, INPUT-OUTPUT opbf-ttEstCostBlank.rec_key, "estCostBlank").
     
     ASSIGN 
         opbf-ttEstCostBlank.company                 = ipbf-ttEstCostForm.company
@@ -581,7 +581,7 @@ PROCEDURE pAddEstForm PRIVATE:
         opbf-ttEstCostForm.formNo          = ipiFormNo
         .
         
-    RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostForm.estCostFormID, INPUT-OUTPUT opbf-ttEstCostForm.rec_key).
+    RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostForm.estCostFormID, INPUT-OUTPUT opbf-ttEstCostForm.rec_key, "estCostForm").
         
 END PROCEDURE.
 
@@ -648,7 +648,7 @@ PROCEDURE pAddEstItem PRIVATE:
     DEFINE PARAMETER BUFFER opbf-ttEstCostItem   FOR ttEstCostItem.
 
     CREATE opbf-ttEstCostItem.
-    RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostItem.estCostItemID, INPUT-OUTPUT opbf-ttEstCostItem.rec_key).
+    RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostItem.estCostItemID, INPUT-OUTPUT opbf-ttEstCostItem.rec_key, "estCostItem").
     
     ASSIGN 
         opbf-ttEstCostItem.estCostHeaderID           = ipbf-ttEstCostHeader.estCostHeaderID
@@ -820,7 +820,7 @@ PROCEDURE pAddEstMaterial PRIVATE:
     IF AVAILABLE bf-item THEN 
     DO:
         CREATE opbf-ttEstCostMaterial.
-        RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostMaterial.estCostMaterialID, INPUT-OUTPUT opbf-ttEstCostMaterial.rec_key).
+        RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostMaterial.estCostMaterialID, INPUT-OUTPUT opbf-ttEstCostMaterial.rec_key, "estCostMaterial").
         
         ASSIGN 
             opbf-ttEstCostMaterial.estCostFormID    = ipbf-ttEstCostForm.estCostFormID
@@ -904,7 +904,7 @@ PROCEDURE pAddEstMisc PRIVATE:
         opbf-ttEstCostMisc.estimateNo      = ipbf-ttEstCostForm.estimateNo
         .
     
-    RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostMisc.estCostMiscID, INPUT-OUTPUT opbf-ttEstCostMisc.rec_key).
+    RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostMisc.estCostMiscID, INPUT-OUTPUT opbf-ttEstCostMisc.rec_key, "estCostMisc").
     
 END PROCEDURE.
 
@@ -1119,7 +1119,7 @@ PROCEDURE pAddEstOperation PRIVATE:
         opbf-ttEstCostOperation.formNo          = ipbf-ttEstCostForm.formNo
         .
     
-    RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostOperation.estCostOperationID, INPUT-OUTPUT opbf-ttEstCostOperation.rec_key).
+    RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostOperation.estCostOperationID, INPUT-OUTPUT opbf-ttEstCostOperation.rec_key, "estCostOperation").
         
 END PROCEDURE.
 
@@ -1353,7 +1353,7 @@ PROCEDURE pAddHeader PRIVATE:
     DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
        
     CREATE ttEstCostHeader.
-    RUN pSetKeyFields(INPUT-OUTPUT ttEstCostHeader.estCostHeaderID, INPUT-OUTPUT ttEstCostHeader.rec_key).
+    RUN pSetKeyFields(INPUT-OUTPUT ttEstCostHeader.estCostHeaderID, INPUT-OUTPUT ttEstCostHeader.rec_key, "estCostHeader").
     ASSIGN 
         ttEstCostHeader.calcDateTime   = NOW
         ttEstCostHeader.calculatedBy   = USERID("ASI")
@@ -5678,221 +5678,23 @@ PROCEDURE pSetKeyFields PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT-OUTPUT  PARAMETER ipiKeyField   AS INT64 NO-UNDO.
     DEFINE INPUT-OUTPUT  PARAMETER ipcRecKeyField AS CHARACTER NO-UNDO.
-
+    DEFINE INPUT         PARAMETER ipcTableName AS CHARACTER NO-UNDO.
 
     ASSIGN
-        ipiKeyField    = fGetNextID() 
-        ipcRecKeyField = "00000000" + STRING(ipiKeyField).
-
-END PROCEDURE.
-
-PROCEDURE pUpdateChildTables PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Assign Parent Key in Child Tables
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcParentTable      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiEstCostHeaderID  AS INT64 NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiSourceKey        AS INT64 NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiTargetKey        AS INT64 NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcSourceRecKey     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTargetRecKey     AS CHARACTER NO-UNDO.
-    
-    DEFINE BUFFER bfChild-ttEstCostForm      FOR ttEstCostForm.
-    DEFINE BUFFER bfChild-ttEstCostHeader    FOR ttEstCostHeader.
-    DEFINE BUFFER bfChild-ttEstCostBlank     FOR ttEstCostBlank.
-    DEFINE BUFFER bfChild-ttEstCostOperation FOR ttEstCostOperation.
-    DEFINE BUFFER bfChild-ttEstCostMaterial  FOR ttEstCostMaterial.
-    DEFINE BUFFER bfChild-ttEstCostMisc      FOR ttEstCostMisc.
-    DEFINE BUFFER bfChild-ttEstCostDetail    FOR ttEstCostDetail.
-    DEFINE BUFFER bfChild-ttEstCostSummary   FOR ttEstCostSummary.
-    
-    
-    CASE(ipcParentTable):
-        WHEN "estCostForm" THEN
-        DO:
-            FOR EACH bfChild-ttEstCostBlank FIELDS(estCostFormID)  
-                WHERE bfChild-ttEstCostBlank.estCostHeaderID = ipiEstCostHeaderID:
-              
-                IF bfChild-ttEstCostBlank.estCostFormID = ipiSourceKey THEN
-                    bfChild-ttEstCostBlank.estCostFormID = ipiTargetKey.
-            END.
-        
-            FOR EACH bfChild-ttEstCostDetail FIELDS(estCostFormID sourceID)
-                WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID:              
-                IF bfChild-ttEstCostDetail.estCostFormID = ipiSourceKey THEN
-                    bfChild-ttEstCostDetail.estCostFormID = ipiTargetKey.
-                    
-                IF bfChild-ttEstCostDetail.sourceID = ipiSourceKey THEN
-                    bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
-            END.
-        
-            FOR EACH bfChild-ttEstCostOperation FIELDS(estCostFormID)
-                WHERE bfChild-ttEstCostOperation.estCostHeaderID = ipiEstCostHeaderID:
-                
-                IF bfChild-ttEstCostOperation.estCostFormID = ipiSourceKey THEN  
-                    bfChild-ttEstCostOperation.estCostFormID = ipiTargetKey.
-            END.
-        
-            FOR EACH bfChild-ttEstCostMaterial FIELDS(estCostFormID)
-                WHERE bfChild-ttEstCostMaterial.estCostHeaderID = ipiEstCostHeaderID:
-                IF bfChild-ttEstCostMaterial.estCostFormID = ipiSourceKey THEN  
-                    bfChild-ttEstCostMaterial.estCostFormID = ipiTargetKey.
-            END.
-        
-            FOR EACH bfChild-ttEstCostMisc FIELDS(estCostFormID)
-                WHERE bfChild-ttEstCostMisc.estCostHeaderID = ipiEstCostHeaderID:
-                
-                IF bfChild-ttEstCostMisc.estCostFormID = ipiSourceKey THEN  
-                    bfChild-ttEstCostMisc.estCostFormID = ipiTargetKey.
-            END.
-        
-            FOR EACH bfChild-ttEstCostSummary FIELDS(scopeRecKey)
-                WHERE bfChild-ttEstCostSummary.estCostHeaderID = ipiEstCostHeaderID:
-            
-                IF bfChild-ttEstCostSummary.scopeRecKey = ipcSourceRecKey THEN      
-                    bfChild-ttEstCostSummary.scopeRecKey = ipcTargetRecKey.
-            END.
-    
-        END.
-        
-        WHEN "estCostItem" THEN
-        DO:
-            FOR EACH bfChild-ttEstCostBlank FIELDS(estCostItemID)
-                WHERE bfChild-ttEstCostBlank.estCostHeaderID = ipiEstCostHeaderID:
-              
-                IF bfChild-ttEstCostBlank.estCostItemID = ipiSourceKey THEN
-                    bfChild-ttEstCostBlank.estCostItemID = ipiTargetKey.
-            END.
-            
-            FOR EACH bfChild-ttEstCostSummary FIELDS(scopeRecKey)
-                WHERE bfChild-ttEstCostSummary.estCostHeaderID = ipiEstCostHeaderID:
-            
-                IF bfChild-ttEstCostSummary.scopeRecKey = ipcSourceRecKey THEN      
-                    bfChild-ttEstCostSummary.scopeRecKey = ipcTargetRecKey.
-            END.
-        END.
-        
-        WHEN "estCostBlank" THEN
-        DO:
-            
-            FOR EACH bfChild-ttEstCostDetail FIELDS(estCostBlankID sourceID)
-                WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID:              
-                IF bfChild-ttEstCostDetail.estCostBlankID = ipiSourceKey THEN
-                    bfChild-ttEstCostDetail.estCostBlankID = ipiTargetKey.
-                    
-                IF bfChild-ttEstCostDetail.sourceID = ipiSourceKey THEN
-                    bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
-            END.
-            
-            FOR EACH bfChild-ttEstCostOperation FIELDS(estCostBlankID)
-                WHERE bfChild-ttEstCostOperation.estCostHeaderID = ipiEstCostHeaderID:
-                
-                IF bfChild-ttEstCostOperation.estCostBlankID = ipiSourceKey THEN  
-                    bfChild-ttEstCostOperation.estCostBlankID = ipiTargetKey.
-            END.
-        
-            FOR EACH bfChild-ttEstCostMaterial FIELDS(estCostBlankID)
-                WHERE bfChild-ttEstCostMaterial.estCostHeaderID = ipiEstCostHeaderID:
-                IF bfChild-ttEstCostMaterial.estCostBlankID = ipiSourceKey THEN  
-                    bfChild-ttEstCostMaterial.estCostBlankID = ipiTargetKey.
-            END.
-        
-            FOR EACH bfChild-ttEstCostMisc FIELDS(estCostBlankID)
-                WHERE bfChild-ttEstCostMisc.estCostHeaderID = ipiEstCostHeaderID:
-                
-                IF bfChild-ttEstCostMisc.estCostBlankID = ipiSourceKey THEN  
-                    bfChild-ttEstCostMisc.estCostBlankID = ipiTargetKey.
-            END.
-            
-        END.
-        
-        WHEN "estCostHeader" THEN
-        DO:
-            
-            FOR EACH bfChild-ttEstCostDetail FIELDS(estCostHeaderID sourceID)
-                WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID:              
-                IF bfChild-ttEstCostDetail.estCostHeaderID = ipiSourceKey THEN
-                    bfChild-ttEstCostDetail.estCostHeaderID = ipiTargetKey.
-                    
-                IF bfChild-ttEstCostDetail.sourceID = ipiSourceKey THEN
-                    bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
-            END.
-            
-            FOR EACH bfChild-ttEstCostForm FIELDS(estCostHeaderID)
-                WHERE bfChild-ttEstCostForm.estCostHeaderID = ipiEstCostHeaderID:              
-                IF bfChild-ttEstCostForm.estCostHeaderID = ipiSourceKey THEN
-                    bfChild-ttEstCostForm.estCostHeaderID = ipiTargetKey.               
-            END.
-            
-            FOR EACH bfChild-ttEstCostBlank FIELDS(estCostHeaderID)
-                WHERE bfChild-ttEstCostBlank.estCostHeaderID = ipiEstCostHeaderID:              
-                IF bfChild-ttEstCostBlank.estCostHeaderID = ipiSourceKey THEN
-                    bfChild-ttEstCostBlank.estCostHeaderID = ipiTargetKey.               
-            END.
-            
-            FOR EACH bfChild-ttEstCostOperation FIELDS(estCostHeaderID)
-                WHERE bfChild-ttEstCostOperation.estCostHeaderID = ipiEstCostHeaderID:
-                
-                IF bfChild-ttEstCostOperation.estCostHeaderID = ipiSourceKey THEN  
-                    bfChild-ttEstCostOperation.estCostHeaderID = ipiTargetKey.
-            END.
-        
-            FOR EACH bfChild-ttEstCostMaterial FIELDS(estCostHeaderID)
-                WHERE bfChild-ttEstCostMaterial.estCostHeaderID = ipiEstCostHeaderID:
-                IF bfChild-ttEstCostMaterial.estCostHeaderID = ipiSourceKey THEN  
-                    bfChild-ttEstCostMaterial.estCostHeaderID = ipiTargetKey.
-            END.
-        
-            FOR EACH bfChild-ttEstCostMisc FIELDS(estCostHeaderID)
-                WHERE bfChild-ttEstCostMisc.estCostHeaderID = ipiEstCostHeaderID:
-                
-                IF bfChild-ttEstCostMisc.estCostHeaderID = ipiSourceKey THEN  
-                    bfChild-ttEstCostMisc.estCostHeaderID = ipiTargetKey.
-            END.
-            
-        END.
-        
-        WHEN "estCostOperation" THEN
-        DO:
-            FOR EACH bfChild-ttEstCostDetail FIELDS(sourceID)
-                WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID:              
-                IF bfChild-ttEstCostDetail.sourceID = ipiSourceKey THEN
-                    bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
-            END.
-        END.
-        
-        WHEN "estCostMisc" THEN
-        DO:
-            FOR EACH bfChild-ttEstCostDetail FIELDS(sourceID)
-                WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID              
-                  AND bfChild-ttEstCostDetail.sourceType = gcSourceTypeMisc:
-                      
-                IF bfChild-ttEstCostDetail.sourceID = ipiSourceKey THEN
-                    bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
-            END.
-        END.
-        
-        WHEN "estCostMaterial" THEN
-        DO:
-            FOR EACH bfChild-ttEstCostDetail FIELDS(sourceID)
-                WHERE bfChild-ttEstCostDetail.estCostHeaderID = ipiEstCostHeaderID              
-                  AND bfChild-ttEstCostDetail.sourceType = gcSourceTypeMaterial:
-                      
-                IF bfChild-ttEstCostDetail.sourceID = ipiSourceKey THEN
-                    bfChild-ttEstCostDetail.sourceID = ipiTargetKey.
-            END.
-        END.
-        
-    END CASE.
-
+        ipiKeyField    = fGetNextID(ipcTableName) 
+        ipcRecKeyField = STRING(YEAR(TODAY),"9999") + 
+                         STRING(MONTH(TODAY),"99") + 
+                         STRING(DAY(TODAY),"99") + 
+                         STRING(TIME,"99999") + 
+                         STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999").
+                         
 END PROCEDURE.
 
 PROCEDURE pWriteDatasetIntoDB PRIVATE:
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
         Purpose:This procedure will create records in DB tables
         Notes:
-       ------------------------------------------------------------------------------*/
+------------------------------------------------------------------------------*/
     DEFINE BUFFER bfEx-estCostForm         FOR estCostForm.
     DEFINE BUFFER bfEx-EstCostDetail       FOR EstCostDetail.
     DEFINE BUFFER bfEx-estCostSummary      FOR estCostSummary.
@@ -5903,50 +5705,26 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
     DEFINE BUFFER bfEx-estCostBlank        FOR estCostBlank.
     DEFINE BUFFER bfEx-estCostHeader       FOR estCostHeader.
     
-    
     DEFINE BUFFER bfSetHeader-ttEstCostItem FOR ttEstCostItem.
     
     FOR EACH ttEstCostHeader
         TRANSACTION:
         CREATE bfEx-estCostHeader.
-        BUFFER-COPY ttEstCostHeader EXCEPT rec_key estCostHeaderID TO bfEx-estCostHeader.
-        
-        /* Update parent key in child Tables */
-        RUN pUpdateChildTables ("estCostHeader", 
-            ttEstCostHeader.estCostHeaderID, 
-            ttEstCostHeader.estCostHeaderID, 
-            bfEx-estCostHeader.estCostHeaderID,
-            ttEstCostHeader.rec_key,
-            bfEx-estCostHeader.rec_key).
-        
+        BUFFER-COPY ttEstCostHeader TO bfEx-estCostHeader.
+                
     END. /* ttEstCostHeader */
     
     FOR EACH ttEstCostForm
         TRANSACTION:
         CREATE bfEx-estCostForm.
-        BUFFER-COPY ttEstCostForm EXCEPT rec_key estCostFormID TO bfEx-estCostForm.
-        
-        /* Update parent key in child Tables */
-        RUN pUpdateChildTables ("estCostForm", 
-            ttEstCostForm.estCostHeaderID, 
-            ttEstCostForm.estCostFormID, 
-            bfEx-estCostForm.estCostFormID,
-            ttEstCostForm.rec_key,
-            bfEx-estCostForm.rec_key).
+        BUFFER-COPY ttEstCostForm TO bfEx-estCostForm.
             
     END. /* ttEstCostForm */
     
     FOR EACH ttEstCostItem
         TRANSACTION:
         CREATE bfEx-estCostItem.
-        BUFFER-COPY ttEstCostItem EXCEPT rec_key estCostItemID estCostItemIDParent TO bfEx-estCostItem.
-        
-        RUN pUpdateChildTables ("estCostItem",
-            ttEstCostItem.estCostHeaderID, 
-            ttEstCostItem.estCostItemID, 
-            bfEx-estCostItem.estCostItemID,
-            ttEstCostItem.rec_key,
-            bfEx-estCostItem.rec_key).
+        BUFFER-COPY ttEstCostItem TO bfEx-estCostItem.
             
         ASSIGN
             ttEstCostItem.DBEstCostItemID = bfEx-estCostItem.estCostItemID
@@ -5959,8 +5737,7 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
         WHERE ttEstCostItem.estCostItemIDParent NE 0
         TRANSACTION:
             
-        /* Find and Link with appropriate Parent EstCost Item Id */
-       
+        /* Find and Link with appropriate Parent EstCost Item Id */       
         FIND FIRST bfSetHeader-ttEstCostItem
             WHERE bfSetHeader-ttEstCostItem.estCostHeaderID  = ttEstCostItem.estCostHeaderID
             AND bfSetHeader-ttEstCostItem.estCostItemID    = ttEstCostItem.estCostItemIDParent NO-ERROR.
@@ -5978,71 +5755,38 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
     FOR EACH ttEstCostBlank
         TRANSACTION:
         CREATE bfEx-estCostBlank.
-        BUFFER-COPY ttEstCostBlank EXCEPT rec_key estCostBlankID TO bfEx-estCostBlank.
-        
-         /* Update parent key in child Tables */
-        RUN pUpdateChildTables ("estCostBlank", 
-            ttEstCostBlank.estCostHeaderID, 
-            ttEstCostBlank.estCostBlankID, 
-            bfEx-estCostBlank.estCostBlankID,
-            ttEstCostBlank.rec_key,
-            bfEx-estCostBlank.rec_key).
-        
+        BUFFER-COPY ttEstCostBlank TO bfEx-estCostBlank.        
     END. /* ttEstCostBlank */
         
     FOR EACH ttEstCostSummary
         TRANSACTION:
         CREATE bfEx-estCostSummary.
-        BUFFER-COPY ttEstCostSummary EXCEPT rec_key estCostSummaryID TO bfEx-estCostSummary.
-        
+        BUFFER-COPY ttEstCostSummary TO bfEx-estCostSummary.        
     END. /* ttEstCostSummary */
      
     FOR EACH ttEstCostOperation
         TRANSACTION:
         CREATE bfEx-estCostOperation.
-        BUFFER-COPY ttEstCostOperation EXCEPT rec_key estCostOperationID TO bfEx-estCostOperation.
-        
-        RUN pUpdateChildTables ("estCostOperation", 
-            ttEstCostOperation.estCostHeaderID, 
-            ttEstCostOperation.estCostOperationID, 
-            bfEx-estCostOperation.estCostOperationID,
-            ttEstCostOperation.rec_key,
-            bfEx-estCostOperation.rec_key).
+        BUFFER-COPY ttEstCostOperation TO bfEx-estCostOperation.
     END. /* ttEstCostOperation */    
         
     FOR EACH ttEstCostMisc
         TRANSACTION:
         CREATE bfEx-estCostMisc.
-        BUFFER-COPY ttEstCostMisc EXCEPT rec_key estCostMiscID TO bfEx-estCostMisc.
-        
-        RUN pUpdateChildTables ("estCostMisc", 
-            ttEstCostMisc.estCostHeaderID, 
-            ttEstCostMisc.estCostMiscID, 
-            bfEx-estCostMisc.estCostMiscID,
-            ttEstCostMisc.rec_key,
-            bfEx-estCostMisc.rec_key).
+        BUFFER-COPY ttEstCostMisc TO bfEx-estCostMisc.
     END. /* ttEstCostMisc */    
     
     FOR EACH ttEstCostMaterial
         TRANSACTION:
         CREATE bfEx-estCostMaterial.
-        BUFFER-COPY ttEstCostMaterial EXCEPT rec_key estCostMaterialID TO bfEx-estCostMaterial.
-        
-        RUN pUpdateChildTables ("estCostMaterial",
-            ttEstCostMaterial.estCostHeaderID, 
-            ttEstCostMaterial.estCostMaterialID, 
-            bfEx-estCostMaterial.estCostMaterialID,
-            ttEstCostMaterial.rec_key,
-            bfEx-estCostMaterial.rec_key).
+        BUFFER-COPY ttEstCostMaterial TO bfEx-estCostMaterial.
     END. /* ttEstCostMaterial */ 
      
-    
     /* process this one in the end because its linked table from many tables */
     FOR EACH ttEstCostDetail
         TRANSACTION:
         CREATE bfEx-estCostDetail.
-        BUFFER-COPY ttEstCostDetail EXCEPT rec_key estCostDetailID TO bfEx-estCostDetail.
-        
+        BUFFER-COPY ttEstCostDetail TO bfEx-estCostDetail.     
     END. /* ttEstCostDetail */ 
     
     RELEASE bfEx-estCostForm.
@@ -6052,6 +5796,8 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
     RELEASE bfEx-estCostMisc.
     RELEASE bfEx-estCostMaterial.
     RELEASE bfEx-estCostBlank.
+    RELEASE bfEx-estCostItem.
+    RELEASE bfEx-estCostHeader.
     
     EMPTY TEMP-TABLE ttEstCostForm.
     EMPTY TEMP-TABLE ttEstCostDetail.
@@ -6060,9 +5806,10 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
     EMPTY TEMP-TABLE ttEstCostMisc.
     EMPTY TEMP-TABLE ttEstCostMaterial.
     EMPTY TEMP-TABLE ttEstCostBlank.
+    EMPTY TEMP-TABLE ttEstCostItem.
+    EMPTY TEMP-TABLE ttEstCostHeader.
     
 END PROCEDURE.
-
 
 /* ************************  Function Implementations ***************** */
 
@@ -6173,14 +5920,43 @@ FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
 END FUNCTION.
 
 FUNCTION fGetNextID RETURNS INT64 PRIVATE
-    (  ):
+    ( ipcTableName AS CHARACTER  ):
     /*------------------------------------------------------------------------------
          Purpose: increment the ID for a unique id
          Notes:
-        ------------------------------------------------------------------------------*/    
+        ------------------------------------------------------------------------------*/  
+    CASE (ipcTableName) :  
+        
+    WHEN ("estCostForm") THEN     
+    giID = NEXT-VALUE(estCostFormID_seq,ASI). 
+        
+    WHEN ("estCostMaterial") THEN     
+    giID = NEXT-VALUE(estCostMaterialID_seq,ASI).
     
-    giID = giID + 1.
+    WHEN ("estCostBlank") THEN     
+    giID = NEXT-VALUE(estCostBlankID_seq,ASI).
+    
+    WHEN ("estCostHeader") THEN     
+    giID = NEXT-VALUE(estCostHeaderID_seq,ASI).
+    
+    WHEN ("estCostSummary") THEN     
+    giID = NEXT-VALUE(estCostSummaryID_seq,ASI).
+    
+    WHEN ("estCostItem") THEN     
+    giID = NEXT-VALUE(estCostItemID_seq,ASI).
+    
+    WHEN ("estCostDetail") THEN     
+    giID = NEXT-VALUE(estCostDetailID_seq,ASI).
+    
+    WHEN ("estCostMisc") THEN     
+    giID = NEXT-VALUE(estCostMiscID_seq,ASI).
+    
+    WHEN ("estCostOperation") THEN     
+    giID = NEXT-VALUE(estCostOperationID_seq,ASI).
+    
+    END.
     RETURN giID.
+    
             
 END FUNCTION.
 
