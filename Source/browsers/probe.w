@@ -549,7 +549,7 @@ DEFINE BROWSE br_table
       probe.boardContributionTotal
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 143 BY 13.1
+    WITH NO-ASSIGN SEPARATORS SIZE 156 BY 13.1
          FONT 0
          TITLE "Estimate  Analysis Per Thousand".
 
@@ -601,7 +601,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 13.14
-         WIDTH              = 143.
+         WIDTH              = 156.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

@@ -191,7 +191,7 @@ DEFINE VARIABLE begin_order    AS INTEGER   FORMAT ">>>>>>>9" INITIAL 0
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_part     AS CHARACTER FORMAT "X(15)" 
+DEFINE VARIABLE begin_part     AS CHARACTER FORMAT "X(32)" 
     LABEL "From Customer Part#" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
@@ -226,7 +226,7 @@ DEFINE VARIABLE end_order      AS INTEGER   FORMAT ">>>>>>>9" INITIAL 0
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_part       AS CHARACTER FORMAT "X(15)" 
+DEFINE VARIABLE end_part       AS CHARACTER FORMAT "X(32)" 
     LABEL "To Customer Part#" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.

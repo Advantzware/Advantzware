@@ -88,7 +88,7 @@ ASSIGN
     cFieldListToSelect = "cat,rep,name,cust,ino,cust-prt,dly-sf,dly-amt," +
                             "dly-cst,dly-mar,ptd-sf,ptd-amt,ptd-cst,ptd-mar," +
                             "ytd-sf,ytd-amt,ytd-cst,ytd-mar"
-    cFieldLength       = "5,3,25,8,15,15,9,11," + "10,8,9,11,10,8," + "9,11,11,10"
+    cFieldLength       = "5,3,25,8,15,32,9,11," + "10,8,9,11,10,8," + "9,11,11,10"
     cFieldType         = "c,c,c,c,c,c,i,i," + "i,i,i,i,i,i," + "i,i,i,i" 
     .
 

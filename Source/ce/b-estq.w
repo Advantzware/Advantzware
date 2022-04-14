@@ -379,7 +379,7 @@ DEFINE VARIABLE vi_part-dscr1 AS CHARACTER FORMAT "X(30)":U
 
 DEFINE VARIABLE vi_part-no AS CHARACTER FORMAT "X(32)":U 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1
+     SIZE 28 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE vi_plate-no AS CHARACTER FORMAT "x(15)":U 
@@ -409,7 +409,7 @@ DEFINE VARIABLE vi_wid-2 AS DECIMAL FORMAT "->>,>>9.99999":U INITIAL 9999.99999
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 150 BY 5.24.
+     SIZE 160 BY 5.24.
 
 DEFINE VARIABLE tb_set AS LOGICAL INITIAL YES 
      LABEL "Set" 
@@ -491,7 +491,7 @@ DEFINE BROWSE Browser-Table
       est.est-date
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 150 BY 14.76
+    WITH NO-ASSIGN SEPARATORS SIZE 160 BY 14.76
          FONT 2.
 
 
@@ -501,20 +501,20 @@ DEFINE FRAME F-Main
      vi_est-no AT ROW 1.95 COL 2 NO-LABEL
      begin_cust-no AT ROW 1.95 COL 15 COLON-ALIGNED NO-LABEL
      vi_part-no AT ROW 1.95 COL 29 COLON-ALIGNED NO-LABEL
-     vi_stock-no AT ROW 1.95 COL 49 COLON-ALIGNED NO-LABEL
-     vi_style AT ROW 1.95 COL 71 COLON-ALIGNED NO-LABEL
-     vi_len AT ROW 1.95 COL 86 COLON-ALIGNED NO-LABEL
-     vi_len-2 AT ROW 1.95 COL 103 COLON-ALIGNED NO-LABEL
-     vi_die-no AT ROW 1.95 COL 116 COLON-ALIGNED NO-LABEL
-     TG_exact-match AT ROW 1.95 COL 140.2 WIDGET-ID 8
-     vi_wid AT ROW 2.91 COL 86 COLON-ALIGNED NO-LABEL
-     vi_wid-2 AT ROW 2.91 COL 103 COLON-ALIGNED NO-LABEL
-     vi_cad-no AT ROW 2.91 COL 116 COLON-ALIGNED NO-LABEL
+     vi_stock-no AT ROW 1.95 COL 57.2 COLON-ALIGNED NO-LABEL
+     vi_style AT ROW 1.95 COL 79.2 COLON-ALIGNED NO-LABEL
+     vi_len AT ROW 1.95 COL 94.2 COLON-ALIGNED NO-LABEL
+     vi_len-2 AT ROW 1.95 COL 111.2 COLON-ALIGNED NO-LABEL
+     vi_die-no AT ROW 1.95 COL 124.2 COLON-ALIGNED NO-LABEL
+     TG_exact-match AT ROW 1.95 COL 148.4 WIDGET-ID 8
+     vi_wid AT ROW 2.91 COL 94.2 COLON-ALIGNED NO-LABEL
+     vi_wid-2 AT ROW 2.91 COL 111.2 COLON-ALIGNED NO-LABEL
+     vi_cad-no AT ROW 2.91 COL 124.2 COLON-ALIGNED NO-LABEL
      begin_ship AT ROW 3 COL 15 COLON-ALIGNED NO-LABEL
-     vi_part-dscr1 AT ROW 3.14 COL 49 COLON-ALIGNED NO-LABEL
-     vi_dep AT ROW 3.86 COL 86 COLON-ALIGNED NO-LABEL
-     vi_dep-2 AT ROW 3.86 COL 103 COLON-ALIGNED NO-LABEL
-     vi_plate-no AT ROW 3.86 COL 116 COLON-ALIGNED NO-LABEL
+     vi_part-dscr1 AT ROW 3.14 COL 57.2 COLON-ALIGNED NO-LABEL
+     vi_dep AT ROW 3.86 COL 94.2 COLON-ALIGNED NO-LABEL
+     vi_dep-2 AT ROW 3.86 COL 111.2 COLON-ALIGNED NO-LABEL
+     vi_plate-no AT ROW 3.86 COL 124.2 COLON-ALIGNED NO-LABEL
      tb_single AT ROW 4.19 COL 3
      tb_set AT ROW 4.19 COL 17
      tb_tancom AT ROW 4.19 COL 30
@@ -523,44 +523,37 @@ DEFINE FRAME F-Main
      btn_next AT ROW 5.05 COL 39
      vi_est-date AT ROW 5.05 COL 54 COLON-ALIGNED NO-LABEL
      fi_sort-by AT ROW 5.05 COL 80.6 COLON-ALIGNED NO-LABEL
-  //   FI_moveCol AT ROW 5.1 COL 135 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      Browser-Table AT ROW 6.24 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "Style" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.24 COL 73
-          FGCOLOR 9 FONT 22
-              /* "Sort By:" VIEW-AS TEXT
-          SIZE 9.8 BY .62 AT ROW 5.29 COL 73
-          FONT 6 */
-     "to" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 1.95 COL 101
-     "to" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 3.86 COL 101
-     "Match" VIEW-AS TEXT
-          SIZE 6.8 BY .62 AT ROW 2.71 COL 143.6 WIDGET-ID 10
-   /*  "Browser Col. Mode:" VIEW-AS TEXT
-          SIZE 22.6 BY .62 AT ROW 5.33 COL 114.2 WIDGET-ID 6
-          FONT 6*/
-     "Customer" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 17
-          FGCOLOR 9 FONT 22
-     "Die # / Cad # / Plate #" VIEW-AS TEXT
-          SIZE 28 BY .62 AT ROW 1.24 COL 118
-          FGCOLOR 9 FONT 22
-     "L x W x D" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 96
-          FGCOLOR 9 FONT 22
-     "FG Item# / Name" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 1.24 COL 51
-          FGCOLOR 9 FONT 22
-     "Estimate" VIEW-AS TEXT
-          SIZE 11 BY .67 AT ROW 1.24 COL 3
+          SIZE 9 BY .62 AT ROW 1.24 COL 81.2
           FGCOLOR 9 FONT 22
      "to" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 2.91 COL 101
+          SIZE 3 BY 1 AT ROW 3.86 COL 109.2
      "Customer Part#" VIEW-AS TEXT
           SIZE 19 BY .62 AT ROW 1.24 COL 31
           FGCOLOR 9 FONT 22
+     "to" VIEW-AS TEXT
+          SIZE 3 BY 1 AT ROW 2.91 COL 109.2
+     "Estimate" VIEW-AS TEXT
+          SIZE 11 BY .67 AT ROW 1.24 COL 3
+          FGCOLOR 9 FONT 22
+     "FG Item# / Name" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 1.24 COL 59.2
+          FGCOLOR 9 FONT 22
+     "L x W x D" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 104.2
+          FGCOLOR 9 FONT 22
+     "Die # / Cad # / Plate #" VIEW-AS TEXT
+          SIZE 28 BY .62 AT ROW 1.24 COL 126.2
+          FGCOLOR 9 FONT 22
+     "Customer" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 17
+          FGCOLOR 9 FONT 22
+     "Match" VIEW-AS TEXT
+          SIZE 6.8 BY .62 AT ROW 2.71 COL 151.8 WIDGET-ID 10
+     "to" VIEW-AS TEXT
+          SIZE 3 BY 1 AT ROW 1.95 COL 109.2
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -596,7 +589,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 20.05
-         WIDTH              = 151.
+         WIDTH              = 161.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

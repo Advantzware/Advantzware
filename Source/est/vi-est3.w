@@ -111,7 +111,7 @@ DEFINE VARIABLE fi_blank-qty AS INTEGER FORMAT ">>9" INITIAL 1
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 147.3 BY 1.67.
+     SIZE 158 BY 1.67.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -137,7 +137,7 @@ DEFINE FRAME F-Main
      fi_blank-qty AT ROW 1.71 COL 87.6 COLON-ALIGNED NO-LABEL
      eb.part-no AT ROW 1.71 COL 107.4 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 38.4 BY 1
+          SIZE 48.6 BY 1
      "Reference Information" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 1 COL 3
           FONT 1
@@ -180,7 +180,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
          HEIGHT             = 1.91
-         WIDTH              = 147.6.
+         WIDTH              = 158.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

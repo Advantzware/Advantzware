@@ -200,15 +200,15 @@ DEFINE FRAME D-Dialog
      eb.part-no AT ROW 2.29 COL 20.2 COLON-ALIGNED WIDGET-ID 48
           LABEL "Set Cust Part#"
           VIEW-AS FILL-IN 
-          SIZE 32 BY 1
+          SIZE 49 BY 1
      eb.part-dscr1 AT ROW 3.29 COL 20.2 COLON-ALIGNED WIDGET-ID 44
           LABEL "Item Name"
           VIEW-AS FILL-IN 
-          SIZE 44 BY 1
+          SIZE 49 BY 1
      eb.part-dscr2 AT ROW 4.29 COL 20.2 COLON-ALIGNED WIDGET-ID 46
           LABEL "Part Description"
           VIEW-AS FILL-IN 
-          SIZE 44 BY 1
+          SIZE 49 BY 1
      eb.procat AT ROW 5.33 COL 20.2 COLON-ALIGNED WIDGET-ID 50
           VIEW-AS FILL-IN 
           SIZE 12 BY 1

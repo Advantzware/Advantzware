@@ -185,7 +185,7 @@ DEFINE FRAME est
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 159.6 BY 23.91
+         SIZE 168 BY 23.91
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
@@ -222,7 +222,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Estimate - Corrugated Box"
          HEIGHT             = 23.86
-         WIDTH              = 159.2
+         WIDTH              = 168
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -453,7 +453,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 159.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 21.67 , 168.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -678,8 +678,8 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_vi-est3 ).
        RUN set-position IN h_vi-est3 ( 4.81 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 146.00 ) */
-
+       RUN set-size IN h_vi-est3 ( 1.91 , 156.00 ) NO-ERROR.
+       
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'cec/v-est3.w':U ,
              INPUT  FRAME est:HANDLE ,
@@ -760,7 +760,8 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_vi-est-4 ).
        RUN set-position IN h_vi-est-4 ( 4.57 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 166.00 ) */
+       RUN set-size IN h_vi-est-4 ( 1.91 , 166 ) NO-ERROR.
+       
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/b-estprp.w':U ,
@@ -1048,7 +1049,7 @@ PROCEDURE adm-create-objects :
              INPUT  {&WINDOW-NAME} ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vi-est-5 ).
-       RUN set-position IN h_vi-est-5 ( 4.95 , 3.40 ) NO-ERROR.
+       RUN set-position IN h_vi-est-5 ( 4.57 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 146.00 ) */
 
        /* Initialize other pages that this page requires. */

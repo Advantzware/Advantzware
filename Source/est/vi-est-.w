@@ -113,7 +113,7 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 156.4 BY 1.67.
+     SIZE 166 BY 1.67.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -141,7 +141,7 @@ DEFINE FRAME F-Main
           SIZE 5 BY 1
      eb.part-no AT ROW 1.71 COL 113 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 42 BY 1
+          SIZE 51 BY 1
      "of" VIEW-AS TEXT
           SIZE 3 BY .95 AT ROW 1.71 COL 72
      "of" VIEW-AS TEXT
@@ -184,7 +184,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
          HEIGHT             = 1.91
-         WIDTH              = 157.
+         WIDTH              = 166.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

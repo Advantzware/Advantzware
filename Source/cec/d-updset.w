@@ -172,15 +172,15 @@ DEFINE FRAME d-updset
      eb.part-no AT ROW 2.95 COL 24 COLON-ALIGNED
           LABEL "Set Cust Part#"
           VIEW-AS FILL-IN 
-          SIZE 32 BY 1
+          SIZE 49 BY 1
      eb.part-dscr1 AT ROW 3.95 COL 24 COLON-ALIGNED
           LABEL "Item Name"
           VIEW-AS FILL-IN 
-          SIZE 44 BY 1
+          SIZE 49 BY 1
      eb.part-dscr2 AT ROW 4.95 COL 24 COLON-ALIGNED
           LABEL "Part Description"
           VIEW-AS FILL-IN 
-          SIZE 44 BY 1
+          SIZE 49 BY 1
      eb.procat AT ROW 6 COL 24 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12 BY 1

@@ -41,7 +41,7 @@ DEFINE TEMP-TABLE ttAllocated NO-UNDO
     FIELD due-date  LIKE oe-ord.due-date
     FIELD price     LIKE oe-ordl.price
     FIELD pr-uom    LIKE oe-ordl.pr-uom
-    FIELD part-no   LIKE oe-ordl.part-no
+    FIELD part-no   LIKE oe-ordl.part-no  FORMAT "x(32)"
     FIELD po-no     LIKE oe-ordl.po-no
     FIELD allocated AS DECIMAL LABEL "Allocated" FORMAT "->>,>>>,>>9.9<<"
     FIELD loc       LIKE oe-ord.loc LABEL "Whse"

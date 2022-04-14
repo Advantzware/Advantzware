@@ -111,16 +111,16 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     quoteitm.q-no AT ROW 1.71 COL 13 COLON-ALIGNED FORMAT ">>>>>9"
+     quoteitm.q-no AT ROW 1.71 COL 10.6 COLON-ALIGNED FORMAT ">>>>>9"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     quoteitm.part-no AT ROW 1.71 COL 42.2 COLON-ALIGNED
+     quoteitm.part-no AT ROW 1.71 COL 38.4 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 38.8 BY 1
-     quoteitm.part-dscr1 AT ROW 1.71 COL 81.6 COLON-ALIGNED NO-LABEL
+          SIZE 44.6 BY 1
+     quoteitm.part-dscr1 AT ROW 1.71 COL 83.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     quoteitm.style AT ROW 1.71 COL 134.6 COLON-ALIGNED
+     quoteitm.style AT ROW 1.71 COL 135.4 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 6.8 BY 1
      "Reference Information" VIEW-AS TEXT

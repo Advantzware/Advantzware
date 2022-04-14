@@ -407,7 +407,7 @@ DEFINE BROWSE br-estitm
       est.est-date
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 148 BY 17.62
+    WITH NO-ASSIGN SEPARATORS SIZE 158 BY 17.62
          FONT 1.
 
 
@@ -449,7 +449,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 17.62
-         WIDTH              = 148.
+         WIDTH              = 158.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

@@ -621,7 +621,7 @@ PROCEDURE pPrintItemInfoDetail PRIVATE:
     DEFINE VARIABLE iItemColumn1 AS INTEGER INITIAL 2.
     DEFINE VARIABLE iItemColumn2 AS INTEGER INITIAL 13.
     DEFINE VARIABLE iItemColumn3 AS INTEGER INITIAL 37.
-    DEFINE VARIABLE iItemColumn4 AS INTEGER INITIAL 64.
+    DEFINE VARIABLE iItemColumn4 AS INTEGER INITIAL 58.
     
     DEFINE VARIABLE dQty         AS DECIMAL NO-UNDO.
     
@@ -638,12 +638,12 @@ PROCEDURE pPrintItemInfoDetail PRIVATE:
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinatesNum(iopiRowCount, iItemColumn1, dQty, 9, 0, YES, YES, YES, NO, NO).
     RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn2, ipbf-estCostItem.itemName , 30, NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-estCostItem.sizeDesc , 40, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-estCostItem.sizeDesc , 35, NO, NO, NO).
     RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn4, ipbf-estCostItem.styleDesc, 30, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iItemColumn1, fFormatNumber(ipbf-estCostBlank.formNo,2, 0, YES, NO) + "-" + fFormatNumber(ipbf-estCostBlank.blankNo,2, 0, YES, NO), NO, NO, NO).
     RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn2, ipbf-estCostItem.itemDescription1, 30 , NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-estCostItem.colorDesc, 40, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-estCostItem.colorDesc, 35, NO, NO, NO).
     RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn4, ipbf-estCostItem.customerPart, 32, NO, NO, NO).
     
     RUN pPrintItemInfoDetailForSourceEstimate(BUFFER ipbf-estCostBlank, iItemColumn2, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
