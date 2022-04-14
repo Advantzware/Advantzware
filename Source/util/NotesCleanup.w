@@ -80,12 +80,11 @@ ASSIGN
 &Scoped-define FRAME-NAME fMain
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS bExit RECT-5 bProcess RECT-6 RECT-7 RECT-8 ~
-fiSearchText fiReplaceWith rsMode rsAction tbTitles tbText eInstructions ~
-rsProcess fiOutput 
-&Scoped-Define DISPLAYED-OBJECTS fiSearchText fiReplaceWith rsMode rsAction ~
-tbTitles tbText eInstructions rsProcess fiOutput fiNoteCount tType tAction ~
-tContext fiInstructionsLabel tMode tTotalCount tText1 tProgress 
+&Scoped-Define ENABLED-OBJECTS bExit RECT-5 bProcess fiSearchText tbTitles ~
+tbText rsAction fiReplaceWith fiOutput rsProcess rsMode 
+&Scoped-Define DISPLAYED-OBJECTS fiSearchText tbTitles tbText rsAction ~
+fiReplaceWith fiOutput fiNoteCount rsProcess rsMode tText2 tText3 tAction ~
+tText1 tProgress tTotalCount tMode 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -127,17 +126,9 @@ DEFINE BUTTON bProcess  NO-FOCUS
      SIZE 20 BY 2 TOOLTIP "Process"
      FONT 37.
 
-DEFINE VARIABLE eInstructions AS CHARACTER 
-     VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 99 BY 8.57 NO-UNDO.
-
-DEFINE VARIABLE fiInstructionsLabel AS CHARACTER FORMAT "X(256)":U INITIAL " Instructions:" 
-      VIEW-AS TEXT 
-     SIZE 14 BY .95 NO-UNDO.
-
 DEFINE VARIABLE fiNoteCount AS INTEGER FORMAT ">>>>>>>9":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+     SIZE 11 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiOutput AS CHARACTER FORMAT "X(256)":U 
      LABEL "List file for processed Notes" 
@@ -145,22 +136,18 @@ DEFINE VARIABLE fiOutput AS CHARACTER FORMAT "X(256)":U
      SIZE 71 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiReplaceWith AS CHARACTER FORMAT "X(256)":U 
-     LABEL "and Replace it with" 
+     LABEL "with (leave blank to delete text)" 
      VIEW-AS FILL-IN 
      SIZE 39 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiSearchText AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Search for notes containing" 
+     LABEL "Search for notes containing the text" 
      VIEW-AS FILL-IN 
      SIZE 37 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tAction AS CHARACTER FORMAT "X(256)":U INITIAL "  Action" 
+DEFINE VARIABLE tAction AS CHARACTER FORMAT "X(256)":U INITIAL "If found, then" 
       VIEW-AS TEXT 
-     SIZE 8 BY .62 NO-UNDO.
-
-DEFINE VARIABLE tContext AS CHARACTER FORMAT "X(256)":U INITIAL " Context" 
-      VIEW-AS TEXT 
-     SIZE 10 BY .62 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tMode AS CHARACTER FORMAT "X(256)":U INITIAL "  Mode" 
       VIEW-AS TEXT 
@@ -174,27 +161,31 @@ DEFINE VARIABLE tText1 AS CHARACTER FORMAT "X(256)":U INITIAL "(dbl-click to ope
       VIEW-AS TEXT 
      SIZE 21 BY .62 NO-UNDO.
 
+DEFINE VARIABLE tText2 AS CHARACTER FORMAT "X(256)":U INITIAL "in" 
+      VIEW-AS TEXT 
+     SIZE 3 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tText3 AS CHARACTER FORMAT "X(256)":U INITIAL "and/or" 
+      VIEW-AS TEXT 
+     SIZE 8 BY 1 NO-UNDO.
+
 DEFINE VARIABLE tTotalCount AS CHARACTER FORMAT "X(256)":U INITIAL "Note count:" 
       VIEW-AS TEXT 
-     SIZE 20 BY .62 NO-UNDO.
+     SIZE 13 BY .62 NO-UNDO.
 
-DEFINE VARIABLE tType AS CHARACTER FORMAT "X(256)":U INITIAL "  Replacement Type" 
-      VIEW-AS TEXT 
-     SIZE 20 BY .62 NO-UNDO.
-
-DEFINE VARIABLE rsAction AS CHARACTER 
+DEFINE VARIABLE rsAction AS CHARACTER INITIAL "Replace" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
-          "Replace", "Replace",
-"Delete Note", "Delete"
-     SIZE 29 BY .95 NO-UNDO.
+          "Delete the Note", "Delete",
+"Replace the text", "Replace"
+     SIZE 40 BY 1 NO-UNDO.
 
 DEFINE VARIABLE rsMode AS CHARACTER 
-     VIEW-AS RADIO-SET HORIZONTAL
+     VIEW-AS RADIO-SET VERTICAL
      RADIO-BUTTONS 
           "Simple", "Simple",
 "Credit Card", "Credit"
-     SIZE 29 BY .95 NO-UNDO.
+     SIZE 15 BY 1.43 NO-UNDO.
 
 DEFINE VARIABLE rsProcess AS CHARACTER 
      VIEW-AS RADIO-SET VERTICAL
@@ -206,18 +197,6 @@ DEFINE VARIABLE rsProcess AS CHARACTER
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 20 BY 3.1.
-
-DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 36 BY 2.14.
-
-DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 36 BY 2.14.
-
-DEFINE RECTANGLE RECT-8
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 36 BY 2.14.
 
 DEFINE RECTANGLE rProgress1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
@@ -231,47 +210,42 @@ DEFINE RECTANGLE rProgress2
 DEFINE VARIABLE tbText AS LOGICAL INITIAL yes 
      LABEL "Note Text" 
      VIEW-AS TOGGLE-BOX
-     SIZE 15 BY .81 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tbTitles AS LOGICAL INITIAL yes 
      LABEL "Note Titles" 
      VIEW-AS TOGGLE-BOX
-     SIZE 16 BY .81 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME fMain
-     bExit AT ROW 11.71 COL 111 WIDGET-ID 2
-     bProcess AT ROW 9.33 COL 111 WIDGET-ID 18
-     fiSearchText AT ROW 1.48 COL 32 COLON-ALIGNED WIDGET-ID 20
-     fiReplaceWith AT ROW 1.48 COL 90 COLON-ALIGNED WIDGET-ID 26
-     rsMode AT ROW 3.86 COL 11 NO-LABEL WIDGET-ID 22
-     rsAction AT ROW 3.86 COL 55 NO-LABEL WIDGET-ID 50
-     tbTitles AT ROW 3.86 COL 97 WIDGET-ID 28
-     tbText AT ROW 3.86 COL 115 WIDGET-ID 30
-     eInstructions AT ROW 6.24 COL 7 NO-LABEL WIDGET-ID 12 NO-TAB-STOP 
-     rsProcess AT ROW 6.71 COL 116 NO-LABEL WIDGET-ID 32
-     fiOutput AT ROW 15.29 COL 33 COLON-ALIGNED WIDGET-ID 16
-     fiNoteCount AT ROW 15.29 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 58 NO-TAB-STOP 
-     tType AT ROW 2.91 COL 7 COLON-ALIGNED NO-LABEL WIDGET-ID 42 NO-TAB-STOP 
-     tAction AT ROW 2.91 COL 51 COLON-ALIGNED NO-LABEL WIDGET-ID 54 NO-TAB-STOP 
-     tContext AT ROW 2.91 COL 94 COLON-ALIGNED NO-LABEL WIDGET-ID 46 NO-TAB-STOP 
-     fiInstructionsLabel AT ROW 5.76 COL 7 COLON-ALIGNED NO-LABEL WIDGET-ID 14 NO-TAB-STOP 
-     tMode AT ROW 5.76 COL 111 COLON-ALIGNED NO-LABEL WIDGET-ID 38 NO-TAB-STOP 
-     tTotalCount AT ROW 14.57 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 56 NO-TAB-STOP 
-     tText1 AT ROW 16.48 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 66 NO-TAB-STOP 
-     tProgress AT ROW 17.43 COL 23 COLON-ALIGNED NO-LABEL WIDGET-ID 64 NO-TAB-STOP 
-     RECT-5 AT ROW 6 COL 111 WIDGET-ID 36
-     RECT-6 AT ROW 3.14 COL 7 WIDGET-ID 40
-     RECT-7 AT ROW 3.14 COL 95 WIDGET-ID 44
-     RECT-8 AT ROW 3.14 COL 51 WIDGET-ID 48
-     rProgress1 AT ROW 17.43 COL 35 WIDGET-ID 60
-     rProgress2 AT ROW 17.43 COL 35 WIDGET-ID 62
+     bExit AT ROW 9.1 COL 87 WIDGET-ID 2
+     bProcess AT ROW 9.1 COL 36 WIDGET-ID 18
+     fiSearchText AT ROW 1.48 COL 40 COLON-ALIGNED WIDGET-ID 20
+     tbTitles AT ROW 1.48 COL 84 WIDGET-ID 28
+     tbText AT ROW 1.48 COL 107 WIDGET-ID 30
+     rsAction AT ROW 2.91 COL 21 NO-LABEL WIDGET-ID 50
+     fiReplaceWith AT ROW 2.91 COL 93 COLON-ALIGNED WIDGET-ID 26
+     fiOutput AT ROW 4.81 COL 34 COLON-ALIGNED WIDGET-ID 16
+     fiNoteCount AT ROW 8.14 COL 119 COLON-ALIGNED NO-LABEL WIDGET-ID 58 NO-TAB-STOP 
+     rsProcess AT ROW 9.1 COL 14 NO-LABEL WIDGET-ID 32
+     rsMode AT ROW 10.29 COL 118 NO-LABEL WIDGET-ID 22
+     tText2 AT ROW 1.48 COL 78 COLON-ALIGNED NO-LABEL WIDGET-ID 46 NO-TAB-STOP 
+     tText3 AT ROW 1.48 COL 97 COLON-ALIGNED NO-LABEL WIDGET-ID 68 NO-TAB-STOP 
+     tAction AT ROW 2.91 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 54 NO-TAB-STOP 
+     tText1 AT ROW 5.05 COL 107 COLON-ALIGNED NO-LABEL WIDGET-ID 66 NO-TAB-STOP 
+     tProgress AT ROW 6.95 COL 24 COLON-ALIGNED NO-LABEL WIDGET-ID 64 NO-TAB-STOP 
+     tTotalCount AT ROW 7.43 COL 119 COLON-ALIGNED NO-LABEL WIDGET-ID 56 NO-TAB-STOP 
+     tMode AT ROW 8.38 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 38 NO-TAB-STOP 
+     RECT-5 AT ROW 8.62 COL 9 WIDGET-ID 36
+     rProgress1 AT ROW 6.95 COL 36 WIDGET-ID 60
+     rProgress2 AT ROW 6.95 COL 36 WIDGET-ID 62
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 134.8 BY 17.91 WIDGET-ID 100.
+         SIZE 144.6 BY 11.1 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -291,8 +265,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW wWin ASSIGN
          HIDDEN             = YES
          TITLE              = "Note Cleanup Utility"
-         HEIGHT             = 17.91
-         WIDTH              = 134.8
+         HEIGHT             = 11.1
+         WIDTH              = 144.6
          MAX-HEIGHT         = 20
          MAX-WIDTH          = 149.4
          VIRTUAL-HEIGHT     = 20
@@ -319,14 +293,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME fMain
    FRAME-NAME                                                           */
-ASSIGN 
-       eInstructions:READ-ONLY IN FRAME fMain        = TRUE.
-
-/* SETTINGS FOR FILL-IN fiInstructionsLabel IN FRAME fMain
-   NO-ENABLE                                                            */
-ASSIGN 
-       fiInstructionsLabel:READ-ONLY IN FRAME fMain        = TRUE.
-
 /* SETTINGS FOR FILL-IN fiNoteCount IN FRAME fMain
    NO-ENABLE                                                            */
 ASSIGN 
@@ -344,11 +310,6 @@ ASSIGN
 ASSIGN 
        tAction:READ-ONLY IN FRAME fMain        = TRUE.
 
-/* SETTINGS FOR FILL-IN tContext IN FRAME fMain
-   NO-ENABLE                                                            */
-ASSIGN 
-       tContext:READ-ONLY IN FRAME fMain        = TRUE.
-
 /* SETTINGS FOR FILL-IN tMode IN FRAME fMain
    NO-ENABLE                                                            */
 ASSIGN 
@@ -364,15 +325,20 @@ ASSIGN
 ASSIGN 
        tText1:READ-ONLY IN FRAME fMain        = TRUE.
 
+/* SETTINGS FOR FILL-IN tText2 IN FRAME fMain
+   NO-ENABLE                                                            */
+ASSIGN 
+       tText2:READ-ONLY IN FRAME fMain        = TRUE.
+
+/* SETTINGS FOR FILL-IN tText3 IN FRAME fMain
+   NO-ENABLE                                                            */
+ASSIGN 
+       tText3:READ-ONLY IN FRAME fMain        = TRUE.
+
 /* SETTINGS FOR FILL-IN tTotalCount IN FRAME fMain
    NO-ENABLE                                                            */
 ASSIGN 
        tTotalCount:READ-ONLY IN FRAME fMain        = TRUE.
-
-/* SETTINGS FOR FILL-IN tType IN FRAME fMain
-   NO-ENABLE                                                            */
-ASSIGN 
-       tType:READ-ONLY IN FRAME fMain        = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
 THEN wWin:HIDDEN = no.
@@ -447,8 +413,15 @@ DO:
         bProcess:SENSITIVE = FALSE  
         bExit:SENSITIVE = FALSE.
     STATUS INPUT "Processing...". 
-            
-    RUN pProcess.      
+    
+    MESSAGE rsMode:SCREEN-VALUE VIEW-AS ALERT-BOX.
+//    RUN pProcess.     
+    
+    IF fiSearchText:SCREEN-VALUE BEGINS "<Credi" THEN DO:
+        ASSIGN 
+            fiSearchText:SCREEN-VALUE = "".
+        APPLY 'leave' TO fiSearchText.
+    END. 
     
     ASSIGN 
         bProcess:SENSITIVE = TRUE   
@@ -485,6 +458,28 @@ END.
 ON MOUSE-SELECT-DBLCLICK OF fiOutput IN FRAME fMain /* List file for processed Notes */
 DO:
     OS-COMMAND SILENT VALUE(fiOutput:SCREEN-VALUE IN FRAME {&frame-name}).  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiSearchText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSearchText wWin
+ON LEAVE OF fiSearchText IN FRAME fMain /* Search for notes containing the text */
+DO:
+    ASSIGN 
+        rsMode:SCREEN-VALUE = IF SELF:SCREEN-VALUE BEGINS "<Credit" THEN "Credit" ELSE "Simple".  
+    IF rsMode:SCREEN-VALUE = "Credit" THEN DO:
+        ASSIGN 
+            fiReplaceWith:VISIBLE = FALSE
+            rsAction:SCREEN-VALUE = "Delete".
+    END.
+    ELSE IF rsMode:SCREEN-VALUE = "Simple" THEN DO:
+        ASSIGN 
+            fiReplaceWith:VISIBLE  = TRUE.
+    END.
+    APPLY 'value-chaged' TO rsAction.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -572,20 +567,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
-
+    
     ASSIGN 
-        eInstructions:SCREEN-VALUE IN FRAME {&frame-name} = CHR(10) + 
-            "This function will review all note headers and note text and allow you to replace or remove any " +  
-            "instances of characters/data that you select." + CHR(10) + CHR(10) + 
-            "In SIMPLE mode, you can specify a literal value (like '12345') and remove it, or replace it with " +  
-            "another value (like 'abcde')." + CHR(10) +
-            "In CREDIT CARD mode, the function will search for 'credit card data' " +
-            "and replace this with anonymizing characters (like 'XXXX XXXX XXXX XXXX')." + CHR(10) + 
-            "If you choose the Delete Note action, the note will be completely removed from the database." + CHR(10) + CHR(10) +
-            "You can elect to SIMULATE or PURGE the data, and in all cases a file listed the records processed " + 
-            "will be generated in the listed directory." + CHR(10) +
-            "The actual data records will be changed only if you elect to PURGE.".  
-        
+        rsMode:VISIBLE = FALSE.
+
     STATUS INPUT "Determining total note count.".
     STATUS DEFAULT "Determining total note count.".
     SESSION:SET-WAIT-STATE("General").
@@ -639,12 +624,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiSearchText fiReplaceWith rsMode rsAction tbTitles tbText 
-          eInstructions rsProcess fiOutput fiNoteCount tType tAction tContext 
-          fiInstructionsLabel tMode tTotalCount tText1 tProgress 
+  DISPLAY fiSearchText tbTitles tbText rsAction fiReplaceWith fiOutput 
+          fiNoteCount rsProcess rsMode tText2 tText3 tAction tText1 tProgress 
+          tTotalCount tMode 
       WITH FRAME fMain IN WINDOW wWin.
-  ENABLE bExit RECT-5 bProcess RECT-6 RECT-7 RECT-8 fiSearchText fiReplaceWith 
-         rsMode rsAction tbTitles tbText eInstructions rsProcess fiOutput 
+  ENABLE bExit RECT-5 bProcess fiSearchText tbTitles tbText rsAction 
+         fiReplaceWith fiOutput rsProcess rsMode 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.
