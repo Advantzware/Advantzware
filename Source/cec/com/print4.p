@@ -740,14 +740,14 @@ FOR EACH xef
 
   DISPLAY SKIP(1)
 "   Qty      --- Description ------ -- Size / Color ----- --- Style / Part No ---"
-      WITH NO-BOX NO-LABELS WIDTH 80 FRAME aa5 DOWN STREAM-IO.
+      WITH NO-BOX NO-LABELS WIDTH 100 FRAME aa5 DOWN STREAM-IO.
 
   FOR EACH xeb
       WHERE xeb.company EQ xest.company
         AND xeb.est-no  EQ xest.est-no
         AND xeb.form-no EQ xef.form-no
       BY xeb.blank-no
-      WITH STREAM-IO FRAME blk NO-BOX NO-LABELS WIDTH 80 DOWN:
+      WITH STREAM-IO FRAME blk NO-BOX NO-LABELS WIDTH 115 DOWN:
 
     FIND FIRST style
         WHERE style.company EQ cocode
@@ -795,7 +795,7 @@ FOR EACH xef
             "#UP= " + STRING(xeb.num-up,">>9")
             dsc[2] FORMAT "x(22)"
             sizcol[2] FORMAT "x(21)"
-            stypart[2] FORMAT "x(23)" SKIP WITH STREAM-IO.
+            stypart[2] FORMAT "x(32)" SKIP WITH STREAM-IO.  
          IF cProcat NE "" THEN
              PUT SKIP SPACE(12)
              cProcat .

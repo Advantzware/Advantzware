@@ -617,8 +617,8 @@ with STREAM-IO frame brd no-labels no-box width 80 down:
                    /*xef.trim-l when v-layout @ brd-w[1]
                    xef.trim-w when v-layout @ brd-l[1]*/
    with no-box no-labels width 80 frame aa3 DOWN STREAM-IO.
-   IF LOOKUP(cerunf,"ASI,CERunF 1") NE 0 /*cerunf = "ASI"*/ THEN v-header = "   Qty      --- Desc/FG Item ----- -- Size / Color ----- --- Style / Part No ---".
-   ELSE v-header = "   Qty      --- Description ------ -- Size / Color ----- --- Style / Part No ---".
+   IF LOOKUP(cerunf,"ASI,CERunF 1") NE 0 /*cerunf = "ASI"*/ THEN v-header = "  Qty      --- Desc/FG Item --- -- Size / Color ---- --- Style / Part No ---".
+   ELSE v-header = "  Qty      --- Description ---- -- Size / Color ---- --- Style / Part No ---".
    if cerunf ne "HOP" then display
    " Feed Size :" lv-brd-w to 21 lv-brd-l to 30 lv-brd-sq to 42
             " #out:" xef.n-out FORMAT ">>9" lv-brd-wu to 70 space(0) "/M Shts" skip
@@ -644,7 +644,7 @@ with no-box no-labels width 80 frame aa5 DOWN STREAM-IO.
                   and ( (xeb.form-no = xef.form-no AND NOT gEstSummaryOnly) OR
                         (gEstSummaryOnly AND LAST(xef.form-no) )  )
        BY xeb.form-no BY xeb.blank-no
-   with STREAM-IO frame blk no-box no-labels width 80 down:
+   with STREAM-IO frame blk no-box no-labels width 100 down:
       find first style  where  style.company = cocode and
                                  style.style = xeb.style no-lock no-error.
 
@@ -676,19 +676,19 @@ with no-box no-labels width 80 frame aa5 DOWN STREAM-IO.
         ELSE
             ASSIGN v-i-no = xeb.stock-no 
                 v-2desc = YES.
-       END.
+       END.  
       /*IF NOT gEstSummaryOnly THEN */ DO:
          display /*xeb.cust-no*/
-              xeb.yld-qty format ">>>,>>>,>>9"
+              xeb.yld-qty format ">>,>>>,>>9"
                 xeb.bl-qty when not xeb.yrprice @ xeb.yld-qty space(1)
-              dsc[1] format "x(22)"  
-              sizcol[1] format "x(21)"   
+              dsc[1] format "x(20)"  
+              sizcol[1] format "x(20)"   
               stypart[1] format "x(23)" skip
-              space(3) /* 10*/
+              space(2) /* 10*/
               "#UP= " + string(xeb.num-up,">>9")
-              dsc[2] format "x(22)"
-              sizcol[2] format "x(21)"
-              stypart[2] format "x(23)"WITH STREAM-IO.
+              dsc[2] format "x(20)"
+              sizcol[2] format "x(20)"
+              stypart[2] format "x(32)"WITH STREAM-IO.
          IF LOOKUP(cerunf,"ASI,CERunF 1") NE 0 /*cerunf = "ASI"*/ AND v-2desc THEN      
             PUT  SPACE(12) v-i-no FORMAT "x(22)" SKIP(1).
          ELSE

@@ -508,24 +508,24 @@ end.
   if cust-ad[4] ne "" OR ship-ad[4] ne "" then
     put cust-ad[4] FORMAT "x(29)" TO 44
         ship-ad[4] FORMAT "x(29)" TO 80 SKIP.
-  IF lookup(cerunf,"ASI,CERunF 1") NE 0  /*cerunf = "ASI"*/ THEN v-header = "   Qty      --- Desc/FG Item ----- -- Size / Color ----- --- Style / Part No ---".
-    ELSE v-header = "   Qty      --- Description ------ -- Size / Color ----- --- Style / Part No ---".
+  IF lookup(cerunf,"ASI,CERunF 1") NE 0  /*cerunf = "ASI"*/ THEN v-header = "  Qty      --- Desc/FG Item --- -- Size / Color ---- --- Style / Part No ---".
+    ELSE v-header = "  Qty      --- Description ---- -- Size / Color ---- --- Style / Part No ---".
   DISPLAY skip(1)
-    v-header FORMAT "x(80)"
+    v-header FORMAT "x(80)" SKIP
 
-    qty format ">>>,>>>,>>>"
-    dsc[1] FORMAT "x(22)"
-    sizcol[1] FORMAT "x(21)"
+    qty format ">>,>>>,>>>"
+    dsc[1] FORMAT "x(20)"
+    sizcol[1] FORMAT "x(20)"
     stypart[1] FORMAT "x(23)" SKIP
-    space(12)
-    dsc[2] FORMAT "x(22)"
-    sizcol[2] FORMAT "x(21)"
-    stypart[2] FORMAT "x(23)" /*SKIP
+    space(11)
+    dsc[2] FORMAT "x(20)"
+    sizcol[2] FORMAT "x(20)"
+    stypart[2] FORMAT "x(32)" /*SKIP
     SPACE(12)
     v-i-no FORMAT "x(22)"       */
 /*    SKIP(1)*/
 /*    IF cerunf = "ASI" AND v-2desc THEN SPACE(12) v-i-no FORMAT "x(22)"*/
-    with no-box no-labels color value("blu/brown") width 80 frame aa1 STREAM-IO.
+    with no-box no-labels color value("blu/brown") WIDTH 100 frame aa1 STREAM-IO.
     IF lookup(cerunf,"ASI,CERunF 1") NE 0 /*cerunf = "ASI"*/ AND v-2desc THEN      
        PUT  SPACE(12) v-i-no FORMAT "x(22)" SKIP(1).
     ELSE

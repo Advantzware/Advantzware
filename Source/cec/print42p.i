@@ -765,14 +765,14 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
            display skip(1)
                    "- # UP - -- Qty --- --- Description ----"
                    "-- Size/Color --- --- Style/Part # --"
-                   with no-box no-labels color value(col-norm) width 80 frame aa4 stream-io.
+                   with no-box no-labels color value(col-norm) width 150 frame aa4 stream-io.
 
            tmpstore = "".
            for each xeb where xeb.company = xest.company 
                           and xeb.est-no eq xest.est-no 
                           and xeb.form-no eq xef.form-no
                NO-LOCK
-                       with frame blk no-box no-labels width 80 down stream-io:
+                       with frame blk no-box no-labels width 220 down stream-io:
               v-yld = if xeb.quantityPerSet lt 0 then -1 / xeb.quantityPerSet else xeb.quantityPerSet.
               find first style  where  style.company eq cocode and
                                        style.style eq xeb.style no-lock no-error.
@@ -801,7 +801,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                   space(1)
                   sizcol[2] format "x(17)"
                   space(1)
-                  stypart[2] .
+                  stypart[2] FORMAT "x(32)"  . 
                IF cProcat NE "" THEN
                    PUT SKIP SPACE(20)
                    cProcat .
