@@ -128,7 +128,7 @@ PROCEDURE calcAvgRunQty:
         .
 END PROCEDURE.
 
-PROCEDURE calcDifferentail:
+PROCEDURE calcDifferential:
     DEFINE INPUT  PARAMETER ipdtStartDate AS DATE      NO-UNDO.
     DEFINE INPUT  PARAMETER ipiStartTime  AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdtEndDate   AS DATE      NO-UNDO.
@@ -510,7 +510,7 @@ PROCEDURE spDynCalcField:
             INTEGER(ENTRY(4,ipcCalcParam,"|")),
             INTEGER(ENTRY(5,ipcCalcParam,"|")),
             OUTPUT opcCalcValue).
-        WHEN "calcDifferentail" THEN
+        WHEN "calcDifferential" THEN
         RUN VALUE(ipcCalcProc) (
             DATE(ENTRY(1,ipcCalcParam,"|")),
             INTEGER(ENTRY(2,ipcCalcParam,"|")),
