@@ -95,8 +95,7 @@ END FUNCTION.
 ------------------------------------------------------------------------------*/
 FUNCTION fTimeSpan RETURNS INTEGER
     (ipdtStartDate AS DATE, ipiStartTime AS INTEGER, ipdtEndDate AS DATE, ipiEndTime AS INTEGER):
-    RETURN IF ipdtStartDate EQ ipdtEndDate THEN ipiEndTime - ipiStartTime
-           ELSE (86400 - ipiStartTime) + (ipdtEndDate - ipdtStartDate - 1) * 86400 + ipiEndTime.
+    RETURN DYNAMIC-FUNCTION("sfCommon_TimeSpan", ipdtStartDate, ipiStartTime, ipdtEndDate, ipiEndTime). 
 END FUNCTION.
 
 /* ************************  Function Prototypes ********************** */
