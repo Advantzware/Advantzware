@@ -269,8 +269,7 @@ IF gp-log AND gp-dir NE "" THEN
     
             FIND FIRST job NO-LOCK
                 WHERE job.company EQ cocode
-                AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no))) +
-                TRIM(po-ordl.job-no)
+                AND job.job-no  EQ po-ordl.job-no
                 AND job.job-no2 EQ po-ordl.job-no2
                 NO-ERROR.
         
