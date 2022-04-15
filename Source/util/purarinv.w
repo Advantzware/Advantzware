@@ -573,8 +573,7 @@ PROCEDURE pPurgeArLedger PRIVATE :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcRefNum       AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcExecute      AS LOGICAL NO-UNDO.
-                  
+                      
     FOR EACH ar-ledger EXCLUSIVE WHERE
                 ar-ledger.company EQ ipcCompany AND
                 ar-ledger.ref-num EQ ipcRefNum:
@@ -582,24 +581,19 @@ PROCEDURE pPurgeArLedger PRIVATE :
                 FOR EACH ar-mcash NO-LOCK
                     WHERE ar-mcash.company   EQ ipcCompany
                       AND STRING(ar-mcash.m-no) + " " + ar-mcash.payer EQ ar-ledger.ref-num
-                      :
+                      USE-INDEX m-no:                  
                   
-                  IF ipcExecute THEN 
-                  DO:
                      EXPORT STREAM out6 ar-mcash.
                      FIND CURRENT ar-mcash EXCLUSIVE-LOCK NO-ERROR.                 
                      DELETE ar-mcash.
                      iPurgeCount6 = iPurgeCount6 + 1.
-                  END.                        
+                                          
                 END.         
-         
-                
-                IF ipcExecute THEN 
-                DO:
+                                
                 EXPORT STREAM out5 ar-ledger.
                 FIND CURRENT ar-ledger EXCLUSIVE-LOCK NO-ERROR.                 
                 DELETE ar-ledger.
-                END.
+               
                 ASSIGN
                     iPurgeCount5 = iPurgeCount5 + 1.
     END. 
@@ -615,36 +609,29 @@ PROCEDURE pPurgeOrphanRecords PRIVATE :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcExecute      AS LOGICAL NO-UNDO.
-    
+        
     /* Delete ar-ledger records with no customer ,*/
     FOR EACH ar-ledger EXCLUSIVE-LOCK 
         WHERE ar-ledger.company EQ ipcCompany
           AND ar-ledger.cust-no  EQ ""         
           : 
-               FOR EACH ar-mcash NO-LOCK
-                    WHERE ar-mcash.company   EQ ipcCompany
-                      AND STRING(ar-mcash.m-no) + " " + ar-mcash.payer EQ ar-ledger.ref-num
-                      :
-                  
-                  IF ipcExecute THEN 
-                  DO:
-                     EXPORT STREAM out6 ar-mcash.
-                     FIND CURRENT ar-mcash EXCLUSIVE-LOCK NO-ERROR.                 
-                     DELETE ar-mcash.
-                     iPurgeCount6 = iPurgeCount6 + 1.
-                  END.                        
-                END.   
-               
-               IF ipcExecute THEN 
-               DO:
-                EXPORT STREAM out5 ar-ledger.
-                FIND CURRENT ar-ledger EXCLUSIVE-LOCK NO-ERROR.                
-                DELETE ar-ledger.
-               END.
-                ASSIGN
-                    iPurgeCount5 = iPurgeCount5 + 1. 
+           FOR EACH ar-mcash NO-LOCK
+                WHERE ar-mcash.company   EQ ipcCompany
+                  AND STRING(ar-mcash.m-no) + " " + ar-mcash.payer EQ ar-ledger.ref-num
+                  :
                                    
+                 EXPORT STREAM out6 ar-mcash.
+                 FIND CURRENT ar-mcash EXCLUSIVE-LOCK NO-ERROR.                 
+                 DELETE ar-mcash.
+                 iPurgeCount6 = iPurgeCount6 + 1.                                        
+            END.   
+                         
+            EXPORT STREAM out5 ar-ledger.
+            FIND CURRENT ar-ledger EXCLUSIVE-LOCK NO-ERROR.                
+            DELETE ar-ledger.
+
+            ASSIGN
+                iPurgeCount5 = iPurgeCount5 + 1.                                     
     END. 
 END PROCEDURE.
 
@@ -857,7 +844,8 @@ PROCEDURE pRunProcess :
         
             ASSIGN
                 totWriteOff = totWriteOff + invBalAmt.
-                
+            
+            IF ipcExecute THEN    
             FOR EACH ar-cashl NO-LOCK WHERE
                 ar-cashl.company  EQ bf-ar-inv.company AND
                 ar-cashl.posted   EQ yes AND
@@ -875,45 +863,41 @@ PROCEDURE pRunProcess :
                         ROWID(b-ar-cashl) NE ROWID(ar-cashl)
                         NO-ERROR.
                     IF NOT AVAIL b-ar-cashl THEN DO:
-                        RUN pPurgeArLedger(cocode, "Memo#" + STRING(ar-cash.check-no,">>>>99999999") + "A/R", ipcExecute).
+                        RUN pPurgeArLedger(cocode, "Memo#" + STRING(ar-cash.check-no,">>>>99999999") + "A/R").
+                                                 
+                        EXPORT STREAM out3 ar-cash.
+                        FIND CURRENT ar-cash EXCLUSIVE-LOCK NO-ERROR.
+                        DELETE ar-cash.
                         
-                        IF ipcExecute THEN 
-                        DO:
-                            EXPORT STREAM out3 ar-cash.
-                            FIND CURRENT ar-cash EXCLUSIVE-LOCK NO-ERROR.
-                            DELETE ar-cash.
-                        END.
                         ASSIGN
                             iPurgeCount = iPurgeCount + 1.
                     END.
                 END. 
+                                   
+                EXPORT STREAM out4 ar-cashl.
+                FIND CURRENT ar-cashl EXCLUSIVE-LOCK NO-ERROR.
+                DELETE ar-cashl.
                 
-                IF ipcExecute THEN 
-                DO:
-                    EXPORT STREAM out4 ar-cashl.
-                    FIND CURRENT ar-cashl EXCLUSIVE-LOCK NO-ERROR.
-                    DELETE ar-cashl.
-                END.
                 ASSIGN
                     iPurgeCount2 = iPurgeCount2 + 1.
             END.
 
+            IF ipcExecute THEN
             FOR EACH bf-ar-invl NO-LOCK WHERE
                 bf-ar-invl.company EQ cocode AND
-                bf-ar-invl.x-no EQ bf-ar-inv.x-no:
+                bf-ar-invl.x-no EQ bf-ar-inv.x-no USE-INDEX x-no:
+                               
+                EXPORT STREAM out2 bf-ar-invl.
+                FIND FIRST ar-invl WHERE ROWID(ar-invl) EQ ROWID(bf-ar-invl) EXCLUSIVE-LOCK NO-ERROR.
+                DELETE ar-invl.
+                ttPurgeInvCsv.cNote      = "Invoice Deleted".
                 
-                IF ipcExecute THEN 
-                DO:
-                    EXPORT STREAM out2 bf-ar-invl.
-                    FIND FIRST ar-invl WHERE ROWID(ar-invl) EQ ROWID(bf-ar-invl) EXCLUSIVE-LOCK NO-ERROR.
-                    DELETE ar-invl.
-                    ttPurgeInvCsv.cNote      = "Invoice Deleted".
-                END.
                 ASSIGN
                     iPurgeCount3 = iPurgeCount3 + 1.
             END.
-                                    
-            RUN pPurgeArLedger(cocode, "INV# " + STRING(bf-ar-inv.inv-no), ipcExecute). 
+            
+            IF ipcExecute THEN                         
+            RUN pPurgeArLedger(cocode, "INV# " + STRING(bf-ar-inv.inv-no)). 
                         
             IF ipcExecute THEN 
             DO:
@@ -927,10 +911,11 @@ PROCEDURE pRunProcess :
             END.
             ASSIGN
                 iPurgeCount4 = iPurgeCount4 + 1.
-        END.
+        END.  
     END.
     
-    RUN pPurgeOrphanRecords(cocode, ipcExecute).
+    IF ipcExecute THEN
+    RUN pPurgeOrphanRecords(cocode).
         
     SESSION:SET-WAIT-STATE("").
     
