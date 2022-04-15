@@ -208,12 +208,13 @@ END PROCEDURE.
 PROCEDURE pSetValueParam:
     DEFINE INPUT PARAMETER ipcWhereClause AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cParam AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dtDate AS DATE      NO-UNDO.
-    DEFINE VARIABLE idx    AS INTEGER   NO-UNDO INITIAL 1.
+    DEFINE VARIABLE cParam     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParamName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cValue     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtDate     AS DATE      NO-UNDO.
 
-    DEFINE BUFFER bDynValueParam FOR dynValueParam.
+    DEFINE BUFFER bDynValueParam     FOR dynValueParam.
+    DEFINE BUFFER bDynValueParamName FOR dynValueParam.
 
     FOR EACH dynValueParam NO-LOCK
         WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
@@ -224,24 +225,43 @@ PROCEDURE pSetValueParam:
         cParam = "[[" + dynValueParam.paramName + "]]".
         IF INDEX(ipcWhereClause,cParam) EQ 0 THEN NEXT.
         cValue = dynValueParam.paramValue.
-        FIND FIRST bDynValueParam NO-LOCK
-             WHERE bDynValueParam.subjectID    EQ dynValueParam.subjectID
-               AND bDynValueParam.user-id      EQ dynValueParam.user-id
-               AND bDynValueParam.prgmName     EQ dynValueParam.prgmName
-               AND bDynValueParam.paramValueID EQ dynValueParam.paramValueID
-               AND bDynValueParam.sortOrder    EQ dynValueParam.sortOrder + 500 + idx
+        /* find default record for the parameter */
+        FIND FIRST bDynValueParamName NO-LOCK
+             WHERE bDynValueParamName.subjectID    EQ dynValueParam.subjectID
+               AND bDynValueParamName.user-id      EQ "_default"
+               AND bDynValueParamName.prgmName     EQ "dynSubjct."
+               AND bDynValueParamName.paramValueID EQ 0
+               AND bDynValueParamName.paramName    EQ dynValueParam.paramName
              NO-ERROR.
-        IF AVAILABLE bDynValueParam AND
-           bDynValueParam.paramLabel EQ ? AND
-           INDEX(bDynValueParam.paramName,"DatePickList") NE 0 THEN DO:
-            dtDate = DATE(dynValueParam.paramValue) NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN
-            dtDate = ?.
-            ASSIGN
-                cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, bDynValueParam.paramValue, dtDate),"99/99/9999")
-                idx    = idx + 1
-                .
-        END. /* if avail */
+        IF AVAILABLE bDynValueParamName THEN DO:
+            /* find next default record of the parameter looking for data pick list */
+            FIND FIRST bDynValueParam NO-LOCK
+                 WHERE bDynValueParam.subjectID    EQ bDynValueParamName.subjectID
+                   AND bDynValueParam.user-id      EQ bDynValueParamName.user-id
+                   AND bDynValueParam.prgmName     EQ bDynValueParamName.prgmName
+                   AND bDynValueParam.paramValueID EQ bDynValueParamName.paramValueID
+                   AND bDynValueParam.sortOrder    EQ bDynValueParamName.sortOrder + 1
+                   AND bDynValueParam.paramLabel   EQ ?
+                   AND bDynValueParam.paramName    BEGINS "DatePickList"
+                 NO-ERROR.
+            IF AVAILABLE bDynValueParam THEN DO:
+                /* find user record for the date option chosen */
+                cParamName = bDynValueParam.paramName.
+                FIND FIRST bDynValueParam NO-LOCK
+                     WHERE bDynValueParam.subjectID    EQ dynValueParam.subjectID
+                       AND bDynValueParam.user-id      EQ dynValueParam.user-id
+                       AND bDynValueParam.prgmName     EQ dynValueParam.prgmName
+                       AND bDynValueParam.paramValueID EQ dynValueParam.paramValueID
+                       AND bDynValueParam.paramName    EQ cParamName
+                     NO-ERROR.
+                IF AVAILABLE bDynValueParam THEN DO:
+                    dtDate = DATE(dynValueParam.paramValue) NO-ERROR.
+                    IF ERROR-STATUS:ERROR THEN
+                    dtDate = ?.
+                    cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, bDynValueParam.paramValue, dtDate),"99/99/9999").
+                END. /* if avail */
+            END. /* if avail */
+        END. /* avail bdynvalueparamname */
         DO TRANSACTION:
             FIND FIRST bDynValueParam EXCLUSIVE-LOCK
                  WHERE ROWID(bDynValueParam) EQ ROWID(dynValueParam).
