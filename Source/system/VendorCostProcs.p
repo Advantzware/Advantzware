@@ -1207,6 +1207,9 @@ PROCEDURE VendCost_CreateVendItemCostLevel:
     DEFINE INPUT PARAMETER iplUseForBestCost AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opriVendItemCostLevel AS ROWID NO-UNDO.
     
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO.
+    
     RUN pCreateVendItemCostLevel (ipiVendItemCostID,
         ipdQuantityBase,
         ipdCostPerUOM,
@@ -1215,6 +1218,8 @@ PROCEDURE VendCost_CreateVendItemCostLevel:
         ipiLeadTimeDays,
         iplUseForBestCost,
         OUTPUT opriVendItemCostLevel).
+    
+    RUN RecalculateFromAndTo (ipiVendItemCostID, OUTPUT lReturnError, OUTPUT cReturnMessage).
     
 END PROCEDURE.
 
