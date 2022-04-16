@@ -26,7 +26,6 @@ DEFINE VARIABLE glDoJob             AS LOGICAL   INITIAL NO.
 DEFINE VARIABLE glPurge             AS LOGICAL   INITIAL YES.
 DEFINE VARIABLE glDoPrompts         AS LOGICAL   INITIAL YES.
 DEFINE VARIABLE glCheckPerformace  AS LOGICAL   INITIAL No.
-DEFINE VARIABLE ghEstimateCalcProcsAlt AS HANDLE NO-UNDO.
 
 DEFINE VARIABLE cJobID              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iJobID2             AS INTEGER   NO-UNDO.
@@ -42,7 +41,6 @@ RUN system\session.p PERSISTENT SET ghSession.
 SESSION:ADD-SUPER-PROCEDURE (ghSession).
 
 RUN est\EstimateCalcProcs.p PERSISTENT SET ghEstimateCalcProcs.
-RUN est\EstimateCalcProcsAlt.p PERSISTENT SET ghEstimateCalcProcsAlt.
 
 RUN spSetSessionParam ("Company",  gcCompany).
 
@@ -121,29 +119,7 @@ PROCEDURE pCompareNewVsRefactoredProc:
             WHERE estCostHeader.estCostHeaderID EQ INT64(probe.spare-char-2):
             iSrcHeaderID = estCostHeader.estCostHeaderID.
         END. 
-    
-        eTime(Yes).
-        RUN CalculateEstimate IN ghEstimateCalcProcsAlt(cCompany,cEstID1, NO).     
-        cTime = cTime + " - " + STRING(eTime).
-    
-        FOR LAST PROBE NO-LOCK
-            WHERE probe.company = cCompany  
-            AND probe.est-no = cEstID1,    
-            FIRST estCostHeader NO-LOCK 
-            WHERE estCostHeader.estCostHeaderID EQ INT64(probe.spare-char-2):
-                
-            iTrgHeaderID = estCostHeader.estCostHeaderID.       
-        END. 
-        
-        IF iSrcHeaderID = iTrgHeaderID THEN
-        DO:
-            MESSAGE
-            "Est" cEstID1 skip
-             "Source Id and Target ID same"
-                VIEW-AS ALERT-BOX.
-            NEXT.
-        END.
-        
+      
         /*
         IF NOT CAN-FIND(FIRST bf-SrcEstCostForm WHERE bf-SrcEstCostForm.estCostHeaderID = iSrcHeaderID) THEN
         DO:
