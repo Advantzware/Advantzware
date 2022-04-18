@@ -66,6 +66,7 @@ DEFINE VARIABLE glUseBlankVendor                      AS LOGICAL   NO-UNDO.  /*C
 DEFINE VARIABLE glCalcSourceForMachineStd             AS LOGICAL   NO-UNDO.  /*CEOpStandards*/
 DEFINE VARIABLE glUseGrossWeight                      AS LOGICAL   NO-UNDO.  /*CEShipWeight*/
 DEFINE VARIABLE glCalcFoamCostFromBlank               AS LOGICAL   NO-UNDO.  /*FOAMCOST*/
+DEFINE VARIABLE gcShowErrorsAndWarnings               AS CHARACTER NO-UNDO.  /*CEShowErrorsAndWarnings*/
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -2404,7 +2405,10 @@ PROCEDURE pCalcEstimate PRIVATE:
     END.
     IF iplPrompt THEN 
         RUN pPromptForCalculationChanges.
-    
+        
+    IF iplPrompt AND LOOKUP (gcShowErrorsAndWarnings,"1,2,3") > 0 THEN 
+        RUN est/estCalcErrorList.w(INPUT TABLE ttEstError,gcShowErrorsAndWarnings).
+ 
     IF VALID-HANDLE(ghOperation) THEN
         DELETE PROCEDURE ghOperation.
 
@@ -5674,7 +5678,9 @@ PROCEDURE pSetGlobalSettings PRIVATE:
 	RUN sys/ref/nk1look.p (ipcCompany, "CEOpStandards", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
     glCalcSourceForMachineStd = lFound AND cReturn EQ "Machine if Not Locked".
     
-    
+    RUN sys/ref/nk1look.p (ipcCompany, "CEShowErrorsAndWarnings", "I" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    gcShowErrorsAndWarnings = IF lFound THEN cReturn ELSE "".
+       
 END PROCEDURE.
 
 
