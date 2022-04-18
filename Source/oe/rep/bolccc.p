@@ -148,6 +148,7 @@ Define Variable hNotesProc as Handle NO-UNDO.
 DEFINE VARIABLE iTotalQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iShipQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iIntValue AS INTEGER NO-UNDO.
+DEFINE VARIABLE cAddress AS CHARACTER NO-UNDO.
 
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
 
@@ -175,7 +176,9 @@ ASSIGN v-comp-add1 = company.addr[1]
        v-comp-add2 = company.city + ", " + company.st + "  " + company.zip
        v-comp-add3 = "Phone: 604.533.2545" 
        v-comp-add4 = "Fax  : 604.533.2633"
-       v-printline = 0.
+       v-printline = 0
+       cAddress    = company.NAME + " - " + v-comp-add1 + " - " + v-comp-add2
+       .
 
 FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
     FIRST oe-bolh WHERE RECID(oe-bolh)   EQ xxreport.rec-id,
