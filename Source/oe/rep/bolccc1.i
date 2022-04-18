@@ -12,8 +12,10 @@
           "<C3><R4><#1><C+3><R+6><C+45><IMAGE#1=" ls-full-img1
            "<C30><R4><#1><C+3><R+6><C+45><IMAGE#1=" ls-full-img2 SKIP .
 
+      PUT "<R9><C1>" cAddress FORMAT "x(115)" SKIP.
+      
       PUT
-              "<R10><C1>" cAddress FORMAT "x(115)" SKIP 
+              "<R10><C1>" 
                space(4) "Sold To:" SPACE(49) "Ship To:"  SKIP
                SPACE(4) v-comp-name v-ship-name AT 65 skip
                SPACE(4) v-comp-addr[1] v-ship-addr[1] AT 65 SKIP
