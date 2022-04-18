@@ -92,7 +92,7 @@ FOR EACH ap-inv NO-LOCK
 
   ASSIGN
    d     = as_of_date - v-date
-   v-amt = v-amt + ap-inv.net + ap-inv.freight
+   v-amt = IF ap-inv.net + ap-inv.freight GT 0 THEN (v-amt + ap-inv.net + ap-inv.freight) ELSE v-amt
    t1    = t1 + v-amt
    ni    = ni + 1.
 
