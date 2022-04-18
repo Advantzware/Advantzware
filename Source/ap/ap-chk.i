@@ -10,6 +10,8 @@ def {1} shared var x-bank       like bank.bank-code label "Enter Bank Code".
 def {1} shared var xdate        like wdate.
 def {1} shared var laser-chk    as   log no-undo.
 def {1} shared var max-per-chk  as   int no-undo.
+def {1} shared var iBeginCheckNo AS INTEGER NO-UNDO.
+def {1} shared var iEndCheckNo   AS INTEGER NO-UNDO.
 
 def var v-sort-name as   log  no-undo.
 def var v-print-fmt as   char no-undo.
