@@ -136,6 +136,8 @@ DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
 DEFINE VARIABLE lAccessClose        AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE cAccessList         AS CHARACTER        NO-UNDO.
+DEFINE VARIABLE hPgmSecurity        AS HANDLE           NO-UNDO.
+DEFINE VARIABLE lCheckAdmin         AS LOGICAL          NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -167,6 +169,9 @@ RUN methods/prgsecur.p
              OUTPUT lAPSecure, /* Allowed? Yes/NO */
              OUTPUT lAccessClose, /* used in template/windows.i  */
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+             
+RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+RUN epCanAccess IN hPgmSecurity ("ap/r-apve&pN.w", "", OUTPUT lCheckAdmin).             
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -501,6 +506,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 ON WINDOW-CLOSE OF C-Win /* Vendor Invoices Edit/Post Register */
 DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE OBJECT hPgmSecurity.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -558,21 +564,24 @@ DO:
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO: 
   DEF VAR lv-post AS LOG NO-UNDO.
-
-  run check-date.
-  if v-invalid then return no-apply. 
+      
+  IF NOT lCheckAdmin THEN
+  DO:
+      run check-date.
+      IF v-invalid then return no-apply. 
   
-  RUN pCheckInvDatePeriod(begin_date:SCREEN-VALUE).
-  if v-invalid-inv then return no-apply. 
-  
-  RUN pCheckInvDatePeriod(end_date:SCREEN-VALUE).
-  if v-invalid-inv then return no-apply.
+      RUN pCheckInvDatePeriod(begin_date:SCREEN-VALUE).
+      if v-invalid-inv then return no-apply. 
+      
+      RUN pCheckInvDatePeriod(end_date:SCREEN-VALUE).
+      if v-invalid-inv then return no-apply.         
 
-  IF lv-fgpost-dir THEN DO:
-  RUN check-inv-date(begin_date:SCREEN-VALUE).
-  if v-invalid-inv then return no-apply. 
-  RUN check-inv-date(end_date:SCREEN-VALUE).
-  if v-invalid-inv then return no-apply.
+      IF lv-fgpost-dir THEN DO:
+      RUN check-inv-date(begin_date:SCREEN-VALUE).
+      if v-invalid-inv then return no-apply. 
+      RUN check-inv-date(end_date:SCREEN-VALUE).
+      if v-invalid-inv then return no-apply.
+      END.
   END.
 
         DO WITH FRAME {&FRAME-NAME}:
@@ -899,6 +908,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         IF postdate-log THEN 
         DO:
             tran-date:SCREEN-VALUE = STRING(TODAY).
+            IF NOT lCheckAdmin THEN
             RUN check-date.
         END.
         ELSE
