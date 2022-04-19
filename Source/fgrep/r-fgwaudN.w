@@ -1722,10 +1722,10 @@ PROCEDURE BuildTTBin :
         FOR EACH fg-bin NO-LOCK
             WHERE fg-bin.company   EQ itemfg.company
             AND fg-bin.i-no      EQ itemfg.i-no
-            AND STRING(FILL(" ",9 - LENGTH(TRIM(fg-bin.job-no))) +
+            AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(fg-bin.job-no))) +
             TRIM(fg-bin.job-no) + STRING(fg-bin.job-no2,"999"))
             GE ip-fjob
-            AND STRING(FILL(" ",9 - LENGTH(TRIM(fg-bin.job-no))) +
+            AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(fg-bin.job-no))) +
             TRIM(fg-bin.job-no) + STRING(fg-bin.job-no2,"999"))
             LE ip-tjob
             AND fg-bin.loc       GE ip-floc

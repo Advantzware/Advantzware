@@ -18,7 +18,8 @@ DEFINE TEMP-TABLE ttOperation NO-UNDO {&REFONLY}
     LIKE estCostOperation
     FIELD linealFeetPerFeed AS DECIMAL
     FIELD estType           AS CHARACTER
-    FIELD quantityMaster    AS DECIMAL 
+    FIELD quantityMaster    AS DECIMAL
+    FIELD FGCumulativeNumOut AS INTEGER 
     .
 DEFINE TEMP-TABLE ttEstBlank NO-UNDO {&REFONLY}
     FIELD BlankID             AS INTEGER

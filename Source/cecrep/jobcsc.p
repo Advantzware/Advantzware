@@ -84,10 +84,10 @@ do v-local-loop = 1 to v-local-copies:
         where job-hdr.company               eq cocode
           and job-hdr.ftick-prnt            eq reprint
 
-          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
 	      TRIM(job-hdr.job-no) +
 	      STRING(job-hdr.job-no2,"999")  GE fjob-no
-	  AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
 	      TRIM(job-hdr.job-no) +
 	      STRING(job-hdr.job-no2,"999")  LE tjob-no
 	  AND job-hdr.job-no2 GE fjob-no2

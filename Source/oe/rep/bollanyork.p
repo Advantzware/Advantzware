@@ -594,8 +594,8 @@ PROCEDURE get_lot_no:
                     v-lot# = fg-rdtlh.stack-code.
                     FIND FIRST job-hdr NO-LOCK
                          WHERE job-hdr.company EQ tt-boll.company
-                           AND TRIM(job-hdr.job-no) EQ TRIM(SUBSTRING(fg-rdtlh.stack-code,1,9))
-                           AND job-hdr.job-no2 EQ  int(SUBSTRING(fg-rdtlh.stack-code,11,3))
+                           AND job-hdr.job-no  EQ SUBSTRING(fg-rdtlh.stack-code,1,iJobLen)
+                           AND job-hdr.job-no2 EQ  int(SUBSTRING(fg-rdtlh.stack-code,(iJobLen + 2),3))
                            AND job-hdr.i-no EQ tt-boll.i-no NO-ERROR . 
                      IF AVAIL job-hdr THEN
                          v-lot# = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rcpth.job-no, fg-rcpth.job-no2))) + "-" + string(job-hdr.frm,"99") .

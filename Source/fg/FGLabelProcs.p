@@ -24,6 +24,7 @@ DEFINE INPUT PARAMETER ipcFGItemIDEnd AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER iplPrompt AS LOGICAL NO-UNDO.
 DEFINE INPUT PARAMETER iplAutoPrint AS LOGICAL NO-UNDO.
 
+{sys/inc/var.i}
 {fg/ttFGLabels.i}
 
 DEFINE VARIABLE hdOutputProcs AS HANDLE.
@@ -167,8 +168,8 @@ PROCEDURE pBuildFGLabels PRIVATE:
         .     
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ ipcCompany
-        AND fill(" ",9 - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) GE ipcJobStart
-        AND fill(" ",9 - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) LE ipcJobEnd
+        AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) GE ipcJobStart
+        AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) LE ipcJobEnd
         AND job-hdr.job-no2 GE ipiJob2Start
         AND job-hdr.job-no2 LE ipiJob2End
         AND job-hdr.i-no GE ipcFGItemIDStart

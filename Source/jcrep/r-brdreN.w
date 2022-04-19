@@ -1515,10 +1515,10 @@ ASSIGN
 
         each ar-invl
         where ar-invl.x-no    eq ar-inv.x-no             
-          and fill(" ",9 - length(trim(ar-invl.job-no))) +
+          and FILL(" ", iJobLen - length(trim(ar-invl.job-no))) +
               trim(ar-invl.job-no) + string(ar-invl.job-no2,"999")
                           ge v-fjob
-          and fill(" ",9 - length(trim(ar-invl.job-no))) +
+          and FILL(" ", iJobLen - length(trim(ar-invl.job-no))) +
               trim(ar-invl.job-no) + string(ar-invl.job-no2,"999")
                           le v-tjob
           AND ar-invl.job-no2 GE int(begin_job-no2)

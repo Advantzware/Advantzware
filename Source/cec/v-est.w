@@ -4986,30 +4986,23 @@ PROCEDURE valid-board :
   
   DO WITH FRAME {&FRAME-NAME}:
     ef.board:SCREEN-VALUE = CAPS(ef.board:SCREEN-VALUE).
-
-    IF NOT lWoodStyle AND NOT CAN-FIND(FIRST item
+    IF ef.board:SCREEN-VALUE EQ "" THEN DO:
+            MESSAGE "Board cannot be blank" VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO ef.board.
+            RETURN ERROR. 
+        END.
+    ELSE IF NOT lWoodStyle AND  NOT CAN-FIND(FIRST item
                     {sys/look/itemb1W.i}
-                      AND item.i-no EQ ef.board:SCREEN-VALUE) OR
-       ef.board:SCREEN-VALUE EQ ""                            THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO ef.board.
-      RETURN ERROR.
-    END.    
-    IF lWoodStyle THEN DO:
-        
-        IF NOT CAN-FIND(FIRST item
-            WHERE item.company   EQ cocode
-            AND  DYNAMIC-FUNCTION ("fIsMatlGroup",ITEM.company, ITEM.i-no, "Wood") EQ TRUE           
-            AND  (item.i-code eq lv-i-code OR lv-i-code eq "B")
-            AND  item.industry EQ lv-industry
-            AND item.i-no EQ ef.board:SCREEN-VALUE) OR
-            ef.board:SCREEN-VALUE EQ "" THEN DO:
-        
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+                      AND item.i-no EQ ef.board:SCREEN-VALUE) THEN DO:
+            MESSAGE "Board is not a valid item" VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO ef.board.
+            RETURN ERROR.
+        END.    
+    ELSE IF lWoodStyle AND NOT DYNAMIC-FUNCTION ("fIsMatlGroup",cocode, ef.board:SCREEN-VALUE, "Wood") THEN DO:
+            MESSAGE "Board must be Wood material type" VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO ef.board.
             RETURN ERROR.
         END.        
-    END.
 
     IF ef.brd-dscr:SCREEN-VALUE EQ "" THEN RUN new-board.
   END.

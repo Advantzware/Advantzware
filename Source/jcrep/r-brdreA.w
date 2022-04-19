@@ -964,9 +964,9 @@ assign
   v-fdate   = begin_inv-date
   v-tdate   = END_inv-date
 
-  v-fjob    = fill(" ",6 - length(trim(begin_job-no))) +
+  v-fjob    = FILL(" ", iJobLen - length(trim(begin_job-no))) +
               trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-tjob    = fill(" ",6 - length(trim(end_job-no)))   +
+  v-tjob    = FILL(" ", iJobLen - length(trim(end_job-no)))   +
               trim(end_job-no)   + string(int(end_job-no2),"99").
 
 
@@ -1023,10 +1023,10 @@ display with frame r-top.
         where ar-invl.x-no    eq ar-inv.x-no
           and ar-invl.job-no  ge substr(v-fjob,1,6)
           and ar-invl.job-no  le substr(v-tjob,1,6)
-          and fill(" ",6 - length(trim(ar-invl.job-no))) +
+          and FILL(" ", iJobLen - length(trim(ar-invl.job-no))) +
               trim(ar-invl.job-no) + string(ar-invl.job-no2,"99")
                           ge v-fjob
-          and fill(" ",6 - length(trim(ar-invl.job-no))) +
+          and FILL(" ", iJobLen - length(trim(ar-invl.job-no))) +
               trim(ar-invl.job-no) + string(ar-invl.job-no2,"99")
                           le v-tjob
           and ar-invl.inv-qty ne 0
@@ -1060,7 +1060,7 @@ display with frame r-top.
              ELSE IF cOrdStat EQ "O" AND oe-ordl.stat EQ "C" THEN NEXT.
          END.
 
-      v-job = fill(" ",6 - length(trim(job.job-no))) +
+      v-job = FILL(" ", iJobLen - length(trim(job.job-no))) +
               trim(job.job-no) + "-" + string(job.job-no2,"99").
 
       find first tt-report

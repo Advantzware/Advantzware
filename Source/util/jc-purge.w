@@ -494,8 +494,8 @@ end.
 
 for each job
     where job.company eq cocode
-      and fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) ge v-job-no[1]
-      and fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) le v-job-no[2]
+      and FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) ge v-job-no[1]
+      and FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) le v-job-no[2]
       and job.job-no2 ge v-job-no2[1]
       and job.job-no2 le v-job-no2[2]
       and index(v-status,job.stat) gt 0

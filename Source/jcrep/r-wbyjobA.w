@@ -950,9 +950,9 @@ assign
   v-mach[2]  = end_mach
   v-shts     = rd_qty BEGINS "Sheets"
 
-  v-job[1]   = fill(" ",6 - length(trim(begin_job-no))) +
+  v-job[1]   = FILL(" ", iJobLen - length(trim(begin_job-no))) +
                 trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-job[2]   = fill(" ",6 - length(trim(end_job-no)))   +
+  v-job[2]   = FILL(" ", iJobLen - length(trim(end_job-no)))   +
                 trim(end_job-no)   + string(int(end_job-no2),"99"). 
 
  assign hdr-tit = "       " +
@@ -983,9 +983,9 @@ for each mch-act
       where mch-act.company                                 eq cocode
         and mch-act.op-date                                 ge v-date[1]
         and mch-act.op-date                                 le v-date[2]
-        and fill(" ",6 - length(trim(mch-act.job-no))) +
+        and FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
             trim(mch-act.job-no) + string(mch-act.job-no2,"99") ge v-job[1]
-        and fill(" ",6 - length(trim(mch-act.job-no))) +
+        and FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
             trim(mch-act.job-no) + string(mch-act.job-no2,"99") le v-job[2]
         and mch-act.dept                                    ge v-dept[1]
         and mch-act.dept                                    le v-dept[2]

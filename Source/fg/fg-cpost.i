@@ -74,7 +74,7 @@ for each {1}fg-rctd
         find first job-hdr
             where job-hdr.company      eq cocode
               and job-hdr.i-no         eq {1}fg-rctd.i-no
-              and trim(job-hdr.job-no) eq trim({1}fg-rctd.job-no)
+              and job-hdr.job-no       eq {1}fg-rctd.job-no
               and job-hdr.job-no2      eq {1}fg-rctd.job-no2
             use-index i-no no-lock no-error.
                    

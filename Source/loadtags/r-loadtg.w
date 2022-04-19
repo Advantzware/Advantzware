@@ -1218,10 +1218,10 @@ ASSIGN
 
   FOR EACH job
       WHERE job.company EQ cocode        
-        AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
                         GE
             STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job, begin_job2)) 
-        AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
                         LE
             STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job, end_job2)) 
       NO-LOCK:
@@ -1484,10 +1484,10 @@ v-out = "c:~\ba~\label~\loadtag.txt".
         IF v-job BEGINS "-" THEN v-job = "".
 
         ASSIGN
-         lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,9)
+         lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,iJobLen)
          lv-middlesex-job = IF lv-middlesex-job EQ "" THEN "" ELSE
                             "%MX" +
-                            FILL("0",9 - LENGTH(TRIM(lv-middlesex-job))) +
+                            FILL("0",iJobLen - LENGTH(TRIM(lv-middlesex-job))) +
                             TRIM(lv-middlesex-job)
          lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,6)
          lv-middlesex-po  = IF lv-middlesex-po EQ "" THEN "" ELSE
@@ -1738,8 +1738,8 @@ PROCEDURE temp-job :
 
   FOR EACH job
       WHERE job.company EQ cocode
-        AND trim(job.job-no)  EQ trim(SUBSTR(ip-job-no,1,9))
-        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,10,3))
+        AND trim(job.job-no)  EQ trim(SUBSTR(ip-job-no,1,iJobLen))
+        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,(iJobLen + 1),3))
       NO-LOCK:
     RUN temp-create (ROWID(job)).
   END.

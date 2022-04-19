@@ -96,12 +96,12 @@ ASSIGN
   IF begin_job NE '' OR end_job NE '' THEN
   FOR EACH job
       WHERE job.company EQ cocode        
-        AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
                         GE
-            FILL(" ",9 - LENGTH(TRIM(begin_job))) + TRIM(begin_job) + STRING(begin_job2,"999")
-        AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
+            FILL(" ", iJobLen - LENGTH(TRIM(begin_job))) + TRIM(begin_job) + STRING(begin_job2,"999")
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
                         LE
-            FILL(" ",9 - LENGTH(TRIM(end_job))) + TRIM(end_job) + STRING(end_job2,"999")
+            FILL(" ", iJobLen - LENGTH(TRIM(end_job))) + TRIM(end_job) + STRING(end_job2,"999")
         AND (v-stat EQ "A"                         OR
              (v-stat EQ "C" AND NOT job.opened) OR
              (v-stat EQ "O" AND job.opened))

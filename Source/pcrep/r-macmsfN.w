@@ -1441,10 +1441,10 @@ IF rsQty = "A" THEN DO:
       WHERE mch-act.company EQ cocode
         AND mch-act.m-code  GE begin_mach
         AND mch-act.m-code  LE end_mach
-        AND fill(" ",9 - length(trim(mch-act.job-no))) +
+        AND FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
           trim(mch-act.job-no) + string(mch-act.job-no2,"999")
                           GE cFjob
-        AND fill(" ",9 - length(trim(mch-act.job-no))) +
+        AND FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
           trim(mch-act.job-no) + string(mch-act.job-no2,"999")
                          LE cTjob
         AND mch-act.job-no2 GE int(begin_job-no2)
@@ -1664,10 +1664,10 @@ ELSE DO:   /* rsQty = "E" */
 
       FOR EACH job-mch NO-LOCK
       WHERE job-mch.company EQ cocode
-        AND fill(" ",9 - length(trim(job-mch.job-no))) +
+        AND FILL(" ", iJobLen - length(trim(job-mch.job-no))) +
           trim(job-mch.job-no) + string(job-mch.job-no2,"999")
                           GE cFjob
-        AND fill(" ",9 - length(trim(job-mch.job-no))) +
+        AND FILL(" ", iJobLen - length(trim(job-mch.job-no))) +
           trim(job-mch.job-no) + string(job-mch.job-no2,"999")
                          LE cTjob
         AND job-mch.job-no2 GE int(begin_job-no2)

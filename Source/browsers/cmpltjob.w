@@ -333,7 +333,7 @@ END.
 ON LEAVE OF auto_find IN FRAME F-Main
 DO:
    /* IF browse-order = 2  THEN
-    ASSIGN auto_find:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(auto_find:SCREEN-VALUE))) +
+    ASSIGN auto_find:SCREEN-VALUE = FILL(" ", iJobLen - LENGTH(TRIM(auto_find:SCREEN-VALUE))) +
                  TRIM(auto_find:SCREEN-VALUE)  .*/
    ASSIGN  
     auto_find

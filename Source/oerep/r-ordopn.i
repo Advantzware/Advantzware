@@ -19,9 +19,9 @@
         EACH oe-ordl OF oe-ord
         WHERE oe-ordl.i-no      GE v-item[1]
           AND oe-ordl.i-no      LE v-item[2]
-          AND FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
               TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99") GE v-job[1]
-          AND FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
               TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99") LE v-job[2]
           AND oe-ordl.po-no     GE v-po[1]
           AND oe-ordl.po-no     LE v-po[2]
@@ -313,7 +313,7 @@
               SKIP.
         
         PUT SPACE(34)
-            FILL(" ",6 - LENGTH(TRIM(tt-fg-bin.job-no))) +
+            FILL(" ", iJobLen - LENGTH(TRIM(tt-fg-bin.job-no))) +
             TRIM(tt-fg-bin.job-no) + 
                  (IF tt-fg-bin.job-no NE ""
                   THEN ("-" + STRING(tt-fg-bin.job-no2,"99"))

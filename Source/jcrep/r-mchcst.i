@@ -9,10 +9,10 @@ DEF VAR ld-tot-rate AS DEC NO-UNDO.
           and mch-act.m-code  le v-tmach
           and mch-act.job-no  ge substr(v-fjob,1,6)
           and mch-act.job-no  le substr(v-tjob,1,6)
-          and fill(" ",6 - length(trim(mch-act.job-no))) +
+          and FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
               trim(mch-act.job-no) + string(mch-act.job-no2,"99")
                               ge v-fjob
-          and fill(" ",6 - length(trim(mch-act.job-no))) +
+          and FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
               trim(mch-act.job-no) + string(mch-act.job-no2,"99")
                               le v-tjob
         use-index operation no-lock,
@@ -285,7 +285,7 @@ DEF VAR ld-tot-rate AS DEC NO-UNDO.
             no-lock no-error.
 
         assign
-         v-job = fill(" ",6 - length(trim(mch-act.job-no))) +
+         v-job = FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
                  trim(mch-act.job-no) + "-" + string(mch-act.job-no2,"99")
 
          v-mr-act[1]  = v-mr-act-dl[1]  + v-mr-act-fo[1]  + v-mr-act-vo[1]

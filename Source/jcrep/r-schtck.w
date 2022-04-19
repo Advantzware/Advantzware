@@ -1247,10 +1247,10 @@ PROCEDURE new-job-no :
         IF ll-fold AND ll-corr THEN
             FOR EACH job-hdr
                 WHERE job-hdr.company               EQ cocode                   
-                AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+                AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
                 TRIM(job-hdr.job-no) GE fjob-no
 
-                AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+                AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
                 TRIM(job-hdr.job-no) LE tjob-no
                 AND job-hdr.job-no2 GE int(begin_job2)
                 AND job-hdr.job-no2 LE int(end_job2)
@@ -1593,9 +1593,9 @@ PROCEDURE set-job-vars :
             tjob-no  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job1)) 
             fjob-no2 = INT(begin_job2:SCREEN-VALUE)
             tjob-no2 = INT(end_job2:SCREEN-VALUE)
-            /*      fjob-no   = FILL(" ",6 - LENGTH(TRIM(fjob-no))) + TRIM(fjob-no) + */
+            /*      fjob-no   = FILL(" ", iJobLen - LENGTH(TRIM(fjob-no))) + TRIM(fjob-no) + */
             /*                  STRING(fjob-no2,"99")                                 */
-            /*      tjob-no   = FILL(" ",6 - LENGTH(TRIM(tjob-no))) + TRIM(tjob-no) + */
+            /*      tjob-no   = FILL(" ", iJobLen - LENGTH(TRIM(tjob-no))) + TRIM(tjob-no) + */
             /*                  STRING(tjob-no2,"99")                                 */
             fform    = int (begin_form:screen-value)
             tform    = int (end_form:screen-value)

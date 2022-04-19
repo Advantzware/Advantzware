@@ -32,6 +32,7 @@
 /* Local Variable Definitions ---                                       */
 DEF INPUT PARAM ip-company AS CHAR NO-UNDO.
 def output param op-char-val as cha no-undo.
+{sys/inc/var.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

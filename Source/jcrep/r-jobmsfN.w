@@ -1458,10 +1458,10 @@ IF td-show-parm THEN RUN show-param.
         AND mch-act.m-code  LE v-tmch
         AND mch-act.op-date GE v-fdat
         AND mch-act.op-date LE v-tdat         
-        AND FILL(" ",9 - LENGTH(TRIM(mch-act.job-no))) +
+        AND FILL(" ", iJobLen - LENGTH(TRIM(mch-act.job-no))) +
             TRIM(mch-act.job-no) + STRING(mch-act.job-no2,"999")
                             GE v-fjob
-        AND FILL(" ",9 - LENGTH(TRIM(mch-act.job-no))) +
+        AND FILL(" ", iJobLen - LENGTH(TRIM(mch-act.job-no))) +
             TRIM(mch-act.job-no) + STRING(mch-act.job-no2,"999")
                             LE v-tjob
         AND mch-act.job-no2 GE int(begin_job-no2)

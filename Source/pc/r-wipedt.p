@@ -1006,7 +1006,7 @@ PROCEDURE gl-from-work :
                 period.pnum,
                 "A",
                 TODAY,
-                (IF work-gl.job-no NE "" THEN "Job:" + STRING(work-gl.job-no) + "-" + STRING(work-gl.job-no2,"99") ELSE ""),
+                (IF work-gl.job-no NE "" THEN "Job:" + STRING(work-gl.job-no) + "-" + STRING(work-gl.job-no2,"999") ELSE ""),
                 "RM").    
             ASSIGN
                 debits  = 0
@@ -2284,8 +2284,8 @@ PROCEDURE run-report :
     {sys/form/r-topw.f}
 
     DEFINE VARIABLE v-date           LIKE pc-prdd.op-date EXTENT 2 FORMAT "99/99/9999" INIT TODAY NO-UNDO.
-    DEFINE VARIABLE v-job-no         LIKE job.job-no EXTENT 2 INIT ["","zzzzzz"] NO-UNDO.
-    DEFINE VARIABLE v-job-no2        LIKE job.job-no2 EXTENT 2 FORMAT "99" INIT [0,99] NO-UNDO.
+    DEFINE VARIABLE v-job-no         LIKE job.job-no EXTENT 2 INIT ["","zzzzzzzzz"] NO-UNDO.
+    DEFINE VARIABLE v-job-no2        LIKE job.job-no2 EXTENT 2 FORMAT "999" INIT [0,999] NO-UNDO.
     DEFINE VARIABLE v-m-code         LIKE mach.m-code EXTENT 2 INIT ["","zzzzzz"] NO-UNDO.
     DEFINE VARIABLE v-shift          LIKE pc-prdd.shift EXTENT 2 NO-UNDO.
 
@@ -2332,7 +2332,7 @@ PROCEDURE run-report :
         SPACE(0)
         pc-prdd.shift COLUMN-LABEL "SH" FORMAT ">>"
         pc-prdd.job-no COLUMN-LABEL "  JOB #" SPACE(0) "-" SPACE(0)
-        pc-prdd.job-no2 NO-LABELS FORMAT "99"
+        pc-prdd.job-no2 NO-LABELS FORMAT "999"
         pc-prdd.frm COLUMN-LABEL " S" SPACE(0) "/" SPACE(0)
         pc-prdd.blank-no COLUMN-LABEL "/B"
         pc-prdd.pass COLUMN-LABEL "P"
@@ -2346,16 +2346,16 @@ PROCEDURE run-report :
         pc-prdd.qty FORMAT "->>>>>>>9" COLUMN-LABEL "RUN QTY"
         pc-prdd.waste FORMAT "->>>>9" COLUMN-LABEL "WASTE"
         v-comp COLUMN-LABEL "C"
-        WITH FRAME mch-edit NO-BOX DOWN STREAM-IO WIDTH 136.
+        WITH FRAME mch-edit NO-BOX DOWN STREAM-IO WIDTH 141.
 
     FORM v-disp-actnum  LABEL "G/L ACCOUNT NUMBER"
         v-dscr         LABEL "DESCRIPTION"
-        v-disp-job     LABEL "Job#" FORMAT "x(9)"
+        v-disp-job     LABEL "Job#" FORMAT "x(13)"
         v-dscr         LABEL "DESCRIPTION"
         udate          LABEL "DATE"   
         v-disp-amt     LABEL "AMOUNT" SKIP
 
-        WITH DOWN STREAM-IO WIDTH 130 FRAME gldetail.
+        WITH DOWN STREAM-IO WIDTH 135 FRAME gldetail.
 
 
     ASSIGN
@@ -2399,12 +2399,10 @@ PROCEDURE run-report :
         AND pc-prdd.op-date LE v-date[2]
         AND pc-prdd.shift   GE v-shift[1]
         AND pc-prdd.shift   LE v-shift[2]        
-        AND TRIM(pc-prdd.job-no)  GE trim(begin_job-no)
-        AND TRIM(pc-prdd.job-no)  LE trim(end_job-no) 
-        AND fill(" ",9 - length(TRIM(pc-prdd.job-no))) +
+        AND FILL(" ", iJobLen - length(TRIM(pc-prdd.job-no))) +
         trim(pc-prdd.job-no) + string(int(pc-prdd.job-no2),"999")
         GE v-job-no[1]
-        AND fill(" ",9 - length(TRIM(pc-prdd.job-no))) +
+        AND FILL(" ", iJobLen - length(TRIM(pc-prdd.job-no))) +
         trim(pc-prdd.job-no) + string(int(pc-prdd.job-no2),"999")
         LE v-job-no[2]  
         AND ((pc-prdd.stopp - pc-prdd.start
@@ -2421,7 +2419,7 @@ PROCEDURE run-report :
         FIRST job
         WHERE job.company EQ cocode
         AND job.job     EQ pc-prdd.job
-        AND trim(job.job-no)  EQ trim(pc-prdd.job-no)
+        AND job.job-no  EQ pc-prdd.job-no
         AND job.job-no2 EQ pc-prdd.job-no2
         NO-LOCK:
 

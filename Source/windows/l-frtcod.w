@@ -30,6 +30,7 @@
 
 /* Local Variable Definitions ---                                       */
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 def var v-codelst as cha init "B,C,T,P" no-undo.
 def var v-dscrlst as cha init "Bill / Invoice Customer for Freight Costs,Freight Costs Collected by Shipping Company,Freight Costs Billed by Third Party,Prepaid / Freight Charge Included in Sales Price" no-undo.

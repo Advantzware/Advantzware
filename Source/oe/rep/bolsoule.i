@@ -75,6 +75,7 @@ for each report where report.term-id eq v-term-id,
     
   find first oe-ordl where oe-ordl.company eq cocode
        and oe-ordl.ord-no  eq int(report.key-02)
+       and (oe-ordl.line    EQ oe-boll.line OR oe-boll.line EQ 0)
        and oe-ordl.i-no    eq report.key-01
        no-lock no-error.
     
@@ -108,7 +109,7 @@ for each report where report.term-id eq v-term-id,
         
         IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
             PUT {1} oe-ordl.LINE SPACE(3)
-                    oe-ordl.part-no SPACE                /* x(15) */
+                    oe-ordl.part-no FORMAT "x(15)" SPACE                /* x(15) */
                     v-job-po FORM "x(15)"   /* x(15) */
                     /*oe-boll.i-no AT 33             /* x(15) */*/
                     oe-ordl.i-name AT 38 FORM "x(22)"    /* x(22) not 30 */
@@ -206,11 +207,11 @@ for each report where report.term-id eq v-term-id,
   
      v-printline = v-printline + 4.
      RUN pCheckPageBreak(INPUT 4, LAST(report.key-01)).
-     
+                  
      DISPLAY  {1}
           oe-ordl.LINE SPACE(3)
-          oe-ordl.part-no   WHEN AVAIL oe-ordl /* 15 */
-          oe-boll.po-no                        /* 15 */
+          oe-ordl.part-no FORMAT "x(15)"   WHEN AVAIL oe-ordl /* 15 */
+          oe-boll.po-no FORMAT "x(15)"                       /* 15 */
           oe-ordl.i-name  FORM "x(22)" SPACE(9)         /* 19 not 30 */
           oe-boll.cases FORM "->>,>>>" "@" SPACE(0)
           oe-boll.qty-case FORM "->>>>>Z" SKIP  

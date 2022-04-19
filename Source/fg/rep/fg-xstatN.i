@@ -73,8 +73,8 @@ FOR EACH ttCustList
         AND oe-ordl.cust-no EQ cust.cust-no
         AND oe-ordl.po-no   GE fpo#
         AND oe-ordl.po-no   LE tpo#
-        AND fill(" ",9 - length(TRIM(oe-ordl.job-no))) + trim(oe-ordl.job-no) GE begin_job-no
-        AND fill(" ",9 - length(TRIM(oe-ordl.job-no))) + trim(oe-ordl.job-no) LE END_job-no,
+        AND FILL(" ", iJobLen - length(TRIM(oe-ordl.job-no))) + trim(oe-ordl.job-no) GE begin_job-no
+        AND FILL(" ", iJobLen - length(TRIM(oe-ordl.job-no))) + trim(oe-ordl.job-no) LE END_job-no,
 
         FIRST oe-ord 
         WHERE oe-ord.company EQ oe-ordl.company 

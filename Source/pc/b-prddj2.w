@@ -77,6 +77,7 @@ DEFINE VARIABLE iJobRecalc AS INTEGER NO-UNDO.
 DEFINE VARIABLE iQtyProduced AS INTEGER NO-UNDO.
 DEFINE VARIABLE hdOpProcs    AS HANDLE.
 DEFINE VARIABLE hdJobProcs   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 
 DEF TEMP-TABLE tt-prdd2 NO-UNDO LIKE tt-prdd.
 
@@ -389,7 +390,7 @@ DO:
     RUN get-link-handle IN adm-broker-hdl
        (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
     phandle = WIDGET-HANDLE(char-hdl).
-
+       
     RUN new-state IN phandle ('update-begin':U).
 END.
 
@@ -409,15 +410,15 @@ DO:
 
     CASE lw-focus:NAME:
          WHEN "m-code" THEN DO:
-             RUN windows/l-mach.w (g_company,g_loc,lw-focus:SCREEN-VALUE, OUTPUT char-val).
-             IF char-val NE "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val). 
+             RUN windows/l-mach.w (g_company,g_loc,tt-prdd.m-code:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
+             IF char-val NE "" THEN tt-prdd.m-code:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val). 
         END.
         WHEN "frm"      THEN RUN item-help (lw-focus).
         WHEN "blank-no" THEN RUN item-help (lw-focus).
         WHEN "i-no"     THEN RUN item-help (lw-focus).
         WHEN "code" THEN DO:
-            RUN windows/l-jobcod.w (lw-focus:SCREEN-VALUE , OUTPUT char-val).
-            IF char-val NE "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+            RUN windows/l-jobcod.w (tt-prdd.CODE:SCREEN-VALUE IN BROWSE {&browse-name} , OUTPUT char-val).
+            IF char-val NE "" THEN tt-prdd.CODE:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
         END.        
     END CASE.
     RETURN NO-APPLY.
@@ -500,7 +501,7 @@ END.
 
 ON 'entry':U OF  tt-prdd.m-code IN BROWSE {&browse-name}
 DO:
-   IF SELF:SCREEN-VALUE <> "" AND lv-adding-mode AND ll-skip THEN DO:
+   IF SELF:SCREEN-VALUE IN BROWSE {&browse-name} <> "" AND lv-adding-mode AND ll-skip THEN DO:
       APPLY "entry" TO tt-prdd.CODE IN BROWSE {&browse-name}.
       RETURN NO-APPLY.
    END.
@@ -511,8 +512,8 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     IF SELF:MODIFIED THEN RUN new-m-code.
 
-    RUN valid-m-code NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-m-code(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.  
 END.
 
@@ -527,8 +528,8 @@ END.
 ON 'leave':U OF tt-prdd.frm IN BROWSE {&browse-name}
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-frm (SELF:MODIFIED) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-frm (SELF:MODIFIED, OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -543,8 +544,8 @@ END.
 ON 'leave':U OF tt-prdd.blank-no IN BROWSE {&browse-name}
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-blank-no (SELF:MODIFIED) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-blank-no (SELF:MODIFIED, OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -562,8 +563,8 @@ END.
 ON 'leave':U OF tt-prdd.pass IN BROWSE {&browse-name}
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-pass NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-pass(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -578,8 +579,8 @@ END.
 ON 'leave':U OF tt-prdd.i-no IN BROWSE {&browse-name}
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-i-no (SELF:MODIFIED) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-i-no (SELF:MODIFIED, OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -593,7 +594,7 @@ DO:
       MESSAGE "Invalid Job Code. Try Help. " VIEW-AS ALERT-BOX ERROR.
       RETURN NO-APPLY.
    END.
-   tt-prdd.CODE:SCREEN-VALUE = CAPS(tt-prdd.CODE:SCREEN-VALUE).
+   tt-prdd.CODE:SCREEN-VALUE IN BROWSE {&browse-name} = CAPS(tt-prdd.CODE:SCREEN-VALUE IN BROWSE {&browse-name}).
 END.
 
 ON 'value-changed':U OF tt-prdd.CODE  IN BROWSE {&browse-name}
@@ -611,17 +612,17 @@ ON LEAVE OF tt-prdd.startx IN BROWSE {&browse-name} DO:
                 VIEW-AS ALERT-BOX ERROR.
         RETURN NO-APPLY.
      END.
-     IF int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,4,2)) < 0 OR 
-        int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,4,2)) >= 60 THEN DO:
+     IF int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) < 0 OR 
+        int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) >= 60 THEN DO:
         MESSAGE "Invalid Minites." VIEW-AS ALERT-BOX ERROR.
         RETURN NO-APPLY.
      END.
      tt-prdd.hours:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(
         ROUND(( 
-                (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,1,2)) * 3600 +
-           INT(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) * 60 ) -
-         ( int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,1,2)) * 3600 +
-           INT(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,4,2)) * 60 )
+                (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) * 3600 +
+           INT(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) * 60 ) -
+         ( int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) * 3600 +
+           INT(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) * 60 )
         ) / 3600 ,2) ).
 END.
 
@@ -635,20 +636,20 @@ ON 'leave':U OF tt-prdd.stopx IN BROWSE {&browse-name} DO:
         MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
         RETURN NO-APPLY.
      END.
-     IF int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) < 0 OR 
-        int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) >= 60 OR
+     IF int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) < 0 OR 
+        int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) >= 60 OR
         (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) EQ 24 AND
-         int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) NE 0) THEN DO:
+         int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) NE 0) THEN DO:
         MESSAGE "Invalid Minites." VIEW-AS ALERT-BOX ERROR.        
         RETURN NO-APPLY.
      END.
 
      tt-prdd.hours:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(
         ROUND(( 
-                (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,1,2)) * 3600 +
-           INT(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) * 60 ) -
-         ( int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,1,2)) * 3600 +
-           INT(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,4,2)) * 60 )
+                (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) * 3600 +
+           INT(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) * 60 ) -
+         ( int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) * 3600 +
+           INT(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) * 60 )
         ) / 3600 ,2) ).
 END.
 
@@ -659,8 +660,8 @@ END.
 ON 'leave':U OF tt-prdd.crew IN BROWSE {&browse-name}
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-crew NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-crew(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -748,16 +749,19 @@ PROCEDURE auto-add-next :
   */
   FIND FIRST bf-prev NO-LOCK NO-ERROR.
 
-  RUN auto-add.
-  ASSIGN tt-prdd.m-code:SCREEN-VALUE IN BROWSE {&browse-name} = bf-prev.m-code         
-         tt-prdd.blank-no:SCREEN-VALUE = STRING(bf-prev.blank-no)
-         tt-prdd.frm:SCREEN-VALUE = STRING(bf-prev.frm)
-         tt-prdd.pass:SCREEN-VALUE = STRING(bf-prev.pass)
-         tt-prdd.i-no:SCREEN-VALUE = bf-prev.i-no
-         tt-prdd.i-name:SCREEN-VALUE = bf-prev.i-name
+  RUN auto-add.  
+  
+  ASSIGN tt-prdd.m-code = bf-prev.m-code         
+         tt-prdd.blank-no = bf-prev.blank-no
+         tt-prdd.frm = bf-prev.frm
+         tt-prdd.pass = bf-prev.pass
+         tt-prdd.i-no = bf-prev.i-no
+         tt-prdd.i-name = bf-prev.i-name
          tt-prdd.job = bf-prev.job
          lv-dept = "".
+         
   APPLY "entry" TO tt-prdd.CODE IN BROWSE {&browse-name}.
+  RUN dispatch ('display-fields'). 
 
 END PROCEDURE.
 
@@ -800,7 +804,7 @@ FOR EACH tt-prdd:
 END.
 
 FOR EACH bf-prdd WHERE bf-prdd.company = pc-prdd.company 
-                   AND trim(bf-prdd.job-no) = trim(pc-prdd.job-no)
+                   AND bf-prdd.job-no  = pc-prdd.job-no
                    AND bf-prdd.job-no2 = pc-prdd.job-no2
                    AND bf-prdd.op-date = pc-prdd.op-date
                    AND bf-prdd.shift = pc-prdd.shift NO-LOCK:
@@ -845,7 +849,7 @@ PROCEDURE display-item :
     FIND FIRST job-hdr
         WHERE job-hdr.company EQ pc-prdd.company
           AND job-hdr.job     EQ pc-prdd.job
-          AND trim(job-hdr.job-no)  EQ trim(pc-prdd.job-no)
+          AND job-hdr.job-no  EQ pc-prdd.job-no
           AND job-hdr.job-no2 EQ pc-prdd.job-no2
           AND (job-hdr.frm    EQ INT(tt-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name}) OR
                v-est-type EQ 2 OR v-est-type EQ 6)
@@ -859,7 +863,7 @@ PROCEDURE display-item :
       FIND FIRST mach
           WHERE mach.company EQ cocode
             AND mach.loc     EQ locode
-            AND mach.m-code  EQ tt-prdd.m-code:SCREEN-VALUE
+            AND mach.m-code  EQ tt-prdd.m-code:SCREEN-VALUE IN BROWSE {&browse-name}
           NO-LOCK NO-ERROR.
 
       IF (v-est-type EQ 2 OR v-est-type EQ 6)             AND
@@ -1100,12 +1104,12 @@ PROCEDURE local-assign-record :
    v-bf-prdd-rowid = ROWID(bf-prdd)   .
   /* for notes - same as job and estimate */
   FIND FIRST job WHERE job.company = bf-prdd.company
-                       AND trim(job.job-no) = trim(bf-prdd.job-no)
+                       AND job.job-no  = bf-prdd.job-no
                        AND job.job-no2 = bf-prdd.job-no2
                        NO-LOCK NO-ERROR.
   IF AVAIL job THEN bf-prdd.rec_key = job.rec_key.
 
-  FIND CURRENT bf-prdd NO-LOCK.
+  FIND CURRENT bf-prdd NO-LOCK NO-ERROR.
 
   FIND FIRST pc-prdh
       WHERE pc-prdh.company    EQ g_company
@@ -1126,7 +1130,7 @@ PROCEDURE local-assign-record :
   ll-job-mch = NO.
   FIND FIRST job NO-LOCK 
         WHERE job.company EQ cocode
-        AND trim(job.job-no) EQ trim(pc-prdd.job-no)
+        AND job.job-no  EQ pc-prdd.job-no
         AND job.job-no2 EQ pc-prdd.job-no2
         NO-ERROR.
           
@@ -1143,7 +1147,7 @@ PROCEDURE local-assign-record :
         FIND FIRST job-mch NO-LOCK
             WHERE job-mch.company EQ tt-prdd.company
               AND job-mch.job     EQ tt-prdd.job
-              AND trim(job-mch.job-no)  EQ trim(tt-prdd.job-no)
+              AND job-mch.job-no  EQ tt-prdd.job-no
               AND job-mch.job-no2 EQ tt-prdd.job-no2
               AND job-mch.frm     EQ INT(tt-prdd.frm)
               AND (job-mch.blank-no EQ INT(tt-prdd.blank-no) OR
@@ -1157,7 +1161,7 @@ PROCEDURE local-assign-record :
         FIND FIRST job-mch NO-LOCK
             WHERE job-mch.company EQ tt-prdd.company
               AND job-mch.job     EQ tt-prdd.job
-              AND trim(job-mch.job-no)  EQ trim(tt-prdd.job-no)
+              AND job-mch.job-no  EQ tt-prdd.job-no
               AND job-mch.job-no2 EQ tt-prdd.job-no2
               AND job-mch.m-code  EQ tt-prdd.m-code
               AND job-mch.frm     EQ INT(tt-prdd.frm)
@@ -1204,7 +1208,7 @@ PROCEDURE local-assign-record :
     FOR EACH job-mch
         WHERE job-mch.company EQ tt-prdd.company
           AND job-mch.job     EQ tt-prdd.job
-          AND trim(job-mch.job-no)  EQ trim(tt-prdd.job-no)
+          AND job-mch.job-no  EQ tt-prdd.job-no
           AND job-mch.job-no2 EQ tt-prdd.job-no2
         NO-LOCK:
       FIND FIRST mach
@@ -1307,7 +1311,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   lv-adding-mode = YES.
-
+               
   /* Dispatch standard ADM method.                             */
   IF NOT lv-is-first-prdd THEN
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ).
@@ -1413,7 +1417,7 @@ PROCEDURE local-enable-fields :
 
   FIND FIRST job
       WHERE job.company EQ cocode
-        AND trim(job.job-no)  EQ trim(pc-prdd.job-no)
+        AND job.job-no  EQ pc-prdd.job-no
         AND job.job-no2 EQ pc-prdd.job-no2
       USE-INDEX job-no NO-LOCK NO-ERROR.
 
@@ -1511,20 +1515,20 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   lv-rowid = ROWID(tt-prdd).
 
-  RUN valid-m-code NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-m-code( OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
-  RUN valid-frm (NO) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-frm (NO, OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
-  RUN valid-blank-no (NO) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-blank-no (NO, OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
-  RUN valid-pass NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-pass ( OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
-  RUN valid-i-no (NO) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-i-no (NO, OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
   IF int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name} ,1,2)) >= 24 THEN DO:
         MESSAGE "Invalid Hours." 
@@ -1532,8 +1536,8 @@ PROCEDURE local-update-record :
         APPLY "entry" TO tt-prdd.startx.
         RETURN NO-APPLY.
      END.
-     IF int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,4,2)) < 0 OR 
-        int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,4,2)) >= 60 THEN DO:
+     IF int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) < 0 OR 
+        int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) >= 60 THEN DO:
         MESSAGE "Invalid Minites." VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO tt-prdd.startx.
         RETURN .
@@ -1543,10 +1547,10 @@ PROCEDURE local-update-record :
         APPLY "entry" TO tt-prdd.stopx.
         RETURN NO-APPLY.
      END.
-     IF int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) < 0 OR 
-        int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) >= 60 OR
+     IF int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) < 0 OR 
+        int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) >= 60 OR
         (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) EQ 24 AND
-         int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) NE 0) THEN DO:
+         int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) NE 0) THEN DO:
         MESSAGE "Invalid Minites." VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO tt-prdd.stopx.        
         RETURN NO-APPLY.
@@ -1554,10 +1558,10 @@ PROCEDURE local-update-record :
 
      tt-prdd.hours:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(
         ROUND(( 
-                (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,1,2)) * 3600 +
-           INT(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) * 60 ) -
-         ( int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,1,2)) * 3600 +
-           INT(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,4,2)) * 60 )
+                (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) * 3600 +
+           INT(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) * 60 ) -
+         ( int(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) * 3600 +
+           INT(SUBSTRING(tt-prdd.startx:SCREEN-VALUE IN BROWSE {&browse-name},4,2)) * 60 )
         ) / 3600 ,2) ).
      IF INT(tt-prdd.hours:SCREEN-VALUE IN BROWSE {&browse-name}) < 0 THEN DO:
         MESSAGE "Time entered will create negative hours, OK to proceed? "
@@ -1567,9 +1571,17 @@ PROCEDURE local-update-record :
            RETURN .
         END.
      END.
+  
+  FIND FIRST job-code WHERE job-code.CODE = tt-prdd.CODE:SCREEN-VALUE IN BROWSE {&browse-name}
+              NO-LOCK NO-ERROR.
+   IF NOT AVAIL job-code THEN DO:
+      MESSAGE "Invalid Job Code. Try Help. " VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO tt-prdd.CODE.
+      RETURN NO-APPLY.
+   END.   
 
-  RUN valid-crew NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-crew( OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -1622,7 +1634,7 @@ PROCEDURE new-job-hdr :
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST job-hdr
         WHERE job-hdr.company    EQ pc-prdd.company
-          AND trim(job-hdr.job-no)     EQ trim(pc-prdd.job-no)
+          AND job-hdr.job-no     EQ pc-prdd.job-no
           AND job-hdr.job-no2    EQ pc-prdd.job-no2
           AND (job-hdr.frm       EQ INT(tt-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name}) OR
                v-est-type EQ 2 OR v-est-type EQ 6)
@@ -1678,7 +1690,7 @@ PROCEDURE new-m-code :
 
     FIND FIRST job-mch
         WHERE job-mch.company EQ pc-prdd.company
-          AND trim(job-mch.job-no)  EQ trim(pc-prdd.job-no)
+          AND job-mch.job-no  EQ pc-prdd.job-no
           AND job-mch.job-no2 EQ pc-prdd.job-no2
           AND job-mch.m-code  EQ tt-prdd.m-code:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
@@ -1690,7 +1702,7 @@ PROCEDURE new-m-code :
         
     FIND FIRST job-hdr
         WHERE job-hdr.company   EQ pc-prdd.company
-          AND trim(job-hdr.job-no)    EQ trim(pc-prdd.job-no)
+          AND job-hdr.job-no    EQ pc-prdd.job-no
           AND job-hdr.job-no2   EQ pc-prdd.job-no2
           AND job-hdr.frm       EQ lv-frm
           AND (job-hdr.blank-no EQ lv-blk OR lv-blk EQ 0)
@@ -1702,7 +1714,7 @@ PROCEDURE new-m-code :
           WHERE itemfg.company EQ job-hdr.company
             AND itemfg.i-no    EQ job-hdr.i-no
           NO-LOCK NO-ERROR.
-      IF AVAIL itemfg THEN tt-prdd.i-name:SCREEN-VALUE = itemfg.i-name.
+      IF AVAIL itemfg THEN tt-prdd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name.
     END.
 
     ASSIGN
@@ -1788,7 +1800,7 @@ PROCEDURE proc-form-cmplt :
    DEF BUFFER b-reftable FOR reftable.
 
    FIND FIRST job WHERE job.company EQ tt-prdd.company
-        AND trim(job.job-no)  EQ trim(tt-prdd.job-no)
+        AND job.job-no  EQ tt-prdd.job-no
         AND job.job-no2 EQ tt-prdd.job-no2
       USE-INDEX job-no NO-LOCK NO-ERROR.
 
@@ -1847,7 +1859,7 @@ PROCEDURE proc-form-cmplt :
           AND fg-bin.loc     EQ v-loc
           AND fg-bin.loc-bin EQ v-loc-bin  
           AND fg-bin.tag     EQ ""
-          AND trim(fg-bin.job-no)  EQ trim(job-hdr.job-no)
+          AND fg-bin.job-no  EQ job-hdr.job-no
           AND fg-bin.job-no2 EQ job-hdr.job-no2
         NO-ERROR.
     IF NOT AVAIL fg-bin THEN DO:
@@ -1889,7 +1901,7 @@ PROCEDURE proc-form-cmplt :
 
     FOR EACH bf-prdd FIELDS(qty) WHERE bf-prdd.company = tt-prdd.company 
                        AND bf-prdd.m-code = tt-prdd.m-code
-                       AND trim(bf-prdd.job-no) = trim(tt-prdd.job-no)
+                       AND bf-prdd.job-no  = tt-prdd.job-no
                        AND bf-prdd.job-no2 = tt-prdd.job-no2
                        AND bf-prdd.FRM = tt-prdd.frm
                        AND bf-prdd.blank-no = tt-prdd.blank-no
@@ -1909,7 +1921,7 @@ PROCEDURE proc-form-cmplt :
   END.  /* v-assembled */
 
     FIND FIRST job WHERE job.company EQ cocode
-                        AND trim(job.job-no)  EQ trim(tt-prdd.job-no)
+                        AND job.job-no  EQ tt-prdd.job-no
                         AND job.job-no2 EQ tt-prdd.job-no2
                         USE-INDEX job-no NO-ERROR.
     ASSIGN v-up  = 1
@@ -2183,7 +2195,7 @@ PROCEDURE proc-set-cmplt :
    DEF BUFFER b-reftable FOR reftable.
 
    FIND FIRST job WHERE job.company EQ cocode
-        AND trim(job.job-no)  EQ trim(tt-prdd.job-no)
+        AND job.job-no  EQ tt-prdd.job-no
         AND job.job-no2 EQ tt-prdd.job-no2
       USE-INDEX job-no NO-LOCK NO-ERROR.
 
@@ -2244,7 +2256,7 @@ PROCEDURE proc-set-cmplt :
           AND fg-bin.loc     EQ v-loc
           AND fg-bin.loc-bin EQ v-loc-bin  
           AND fg-bin.tag     EQ ""
-          AND trim(fg-bin.job-no)  EQ trim(job-hdr.job-no)
+          AND fg-bin.job-no  EQ job-hdr.job-no
           AND fg-bin.job-no2 EQ job-hdr.job-no2
         NO-ERROR.
     IF NOT AVAIL fg-bin THEN DO:
@@ -2286,7 +2298,7 @@ PROCEDURE proc-set-cmplt :
 
     FOR EACH bf-prdd FIELDS(qty) WHERE bf-prdd.company = tt-prdd.company 
                        AND bf-prdd.m-code = tt-prdd.m-code
-                       AND trim(bf-prdd.job-no) = trim(tt-prdd.job-no)
+                       AND bf-prdd.job-no  = tt-prdd.job-no
                        AND bf-prdd.job-no2 = tt-prdd.job-no2
                        AND bf-prdd.FRM = tt-prdd.frm
                        AND bf-prdd.blank-no = tt-prdd.blank-no
@@ -2324,7 +2336,7 @@ PROCEDURE proc-set-cmplt :
                                       bf-machtran.pass_sequence = INTEGER(pass_sequence) NO-LOCK:
                                       */
     FIND FIRST job WHERE job.company EQ cocode
-                        AND trim(job.job-no)  EQ trim(tt-prdd.job-no)
+                        AND job.job-no  EQ tt-prdd.job-no
                         AND job.job-no2 EQ tt-prdd.job-no2
                         USE-INDEX job-no NO-ERROR.
     ASSIGN v-up  = 1
@@ -2535,7 +2547,7 @@ PROCEDURE proc-set-cmplt :
       FIND FIRST fg-bin
           WHERE fg-bin.company EQ fg-rctd.company
             AND fg-bin.i-no    EQ fg-rctd.i-no
-            AND trim(fg-bin.job-no)  EQ trim(job-hdr.job-no)
+            AND fg-bin.job-no  EQ job-hdr.job-no
             AND fg-bin.job-no2 EQ job-hdr.job-no2
             AND fg-bin.loc     EQ fg-rctd.loc
             AND fg-bin.loc-bin EQ fg-rctd.loc-bin
@@ -2650,7 +2662,7 @@ PROCEDURE show-crew :
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST job
         WHERE job.company EQ tt-prdd.company
-          AND trim(job.job-no)  EQ trim(tt-prdd.job-no)
+          AND job.job-no  EQ tt-prdd.job-no
           AND job.job-no2 EQ tt-prdd.job-no2
         NO-LOCK NO-ERROR.
 
@@ -2726,7 +2738,7 @@ DEFINE VARIABLE cRecId AS CHARACTER NO-UNDO .
   IF adm-new-record THEN RUN dispatch ("cancel-record").
 
   FOR EACH bf-prdd WHERE bf-prdd.company = pc-prdd.company 
-                   AND trim(bf-prdd.job-no) = trim(pc-prdd.job-no)
+                   AND bf-prdd.job-no  = pc-prdd.job-no
                    AND bf-prdd.job-no2 = pc-prdd.job-no2
                    AND bf-prdd.op-date = pc-prdd.op-date
                    AND bf-prdd.shift = pc-prdd.shift
@@ -2789,12 +2801,13 @@ PROCEDURE valid-blank-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-changed AS LOG NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
 
   IF NOT ll-no-blk THEN DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST job-mch
                     WHERE job-mch.company  EQ pc-prdd.company
                       AND job-mch.job      EQ pc-prdd.job
-                      AND trim(job-mch.job-no)   EQ trim(pc-prdd.job-no)
+                      AND job-mch.job-no   EQ pc-prdd.job-no
                       AND job-mch.job-no2  EQ pc-prdd.job-no2
                       AND job-mch.frm      EQ INT(tt-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
                       AND job-mch.blank-no EQ INT(tt-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}))
@@ -2803,7 +2816,7 @@ PROCEDURE valid-blank-no :
       FIND FIRST job
           WHERE job.company EQ pc-prdd.company
             AND job.job     EQ pc-prdd.job
-            AND trim(job.job-no)  EQ trim(pc-prdd.job-no)
+            AND job.job-no  EQ pc-prdd.job-no
             AND job.job-no2 EQ pc-prdd.job-no2
           NO-LOCK NO-ERROR.
       IF NOT AVAIL job OR
@@ -2815,12 +2828,13 @@ PROCEDURE valid-blank-no :
       THEN DO:
         MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO tt-prdd.blank-no IN BROWSE {&browse-name}.
-        RETURN ERROR.
+        oplReturnError = YES.
+        RETURN .
       END.
     END.
 
     IF ip-changed THEN DO:
-      tt-prdd.i-no:SCREEN-VALUE = "".
+      tt-prdd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = "".
       RUN new-job-hdr.
     END.
   END.
@@ -2839,14 +2853,15 @@ PROCEDURE valid-crew :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(tt-prdd.crew:SCREEN-VALUE IN BROWSE {&browse-name}) LE 0 THEN DO:
       MESSAGE TRIM(tt-prdd.crew:LABEL IN BROWSE {&browse-name}) +
               " must be greater than 0..."
           VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO tt-prdd.crew IN BROWSE {&browse-name}.
-      RETURN ERROR.
+      oplReturnError = yes.
+      RETURN .
     END.
   END.
 
@@ -2863,22 +2878,24 @@ PROCEDURE valid-frm :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-changed AS LOG NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
 
   IF NOT ll-no-frm THEN DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST job-mch
                     WHERE job-mch.company EQ pc-prdd.company
                       AND job-mch.job     EQ pc-prdd.job
-                      AND trim(job-mch.job-no)  EQ trim(pc-prdd.job-no)
+                      AND job-mch.job-no  EQ pc-prdd.job-no
                       AND job-mch.job-no2 EQ pc-prdd.job-no2
                       AND job-mch.frm     EQ INT(tt-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name}))
     THEN DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO tt-prdd.frm IN BROWSE {&browse-name}.
-      RETURN ERROR.
+      oplReturnError = yes.
+      RETURN .
     END.
 
     IF ip-changed THEN DO:
-      tt-prdd.i-no:SCREEN-VALUE = "".
+      tt-prdd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = "".
       RUN new-job-hdr.
     END.
   END.
@@ -2898,13 +2915,13 @@ PROCEDURE valid-i-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-changed AS LOG NO-UNDO.
-
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
 
   IF NOT ll-no-blk THEN DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST job-hdr
                     WHERE job-hdr.company  EQ pc-prdd.company
                       AND job-hdr.job      EQ pc-prdd.job
-                      AND trim(job-hdr.job-no)   EQ trim(pc-prdd.job-no)
+                      AND job-hdr.job-no   EQ pc-prdd.job-no
                       AND job-hdr.job-no2  EQ pc-prdd.job-no2
                       AND (job-hdr.frm     EQ INT(tt-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name}) OR
                            v-est-type EQ 2 OR v-est-type EQ 6)
@@ -2914,7 +2931,7 @@ PROCEDURE valid-i-no :
       FIND FIRST job
           WHERE job.company EQ pc-prdd.company
             AND job.job     EQ pc-prdd.job
-            AND trim(job.job-no)  EQ trim(pc-prdd.job-no)
+            AND job.job-no  EQ pc-prdd.job-no
             AND job.job-no2 EQ pc-prdd.job-no2
           NO-LOCK NO-ERROR.
       IF NOT AVAIL job OR
@@ -2926,7 +2943,8 @@ PROCEDURE valid-i-no :
       THEN DO:
         MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO tt-prdd.i-no IN BROWSE {&browse-name}.
-        RETURN ERROR.
+        oplReturnError = yes.
+        RETURN .
       END.
     END.
 
@@ -2945,8 +2963,8 @@ PROCEDURE valid-m-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-msg AS CHAR NO-UNDO.
-
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  DEF VAR lv-msg AS CHAR NO-UNDO.                            
 
   DO WITH FRAME {&FRAME-NAME}:
     ll-skip = NO.
@@ -2964,7 +2982,8 @@ PROCEDURE valid-m-code :
     IF lv-msg NE "" THEN DO:
       MESSAGE TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO tt-prdd.m-code IN BROWSE {&browse-name}.
-      RETURN ERROR.
+      oplReturnError = yes.
+      RETURN .
     END.
 
     ll-skip = YES.
@@ -2979,7 +2998,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-pass B-table-Win 
 PROCEDURE valid-pass :
-
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DEF VAR choice AS LOG NO-UNDO.
   DEF VAR lv-m-code AS CHAR NO-UNDO.
   DEF VAR lv-msg AS CHAR EXTENT 2 NO-UNDO.
@@ -3001,7 +3020,7 @@ PROCEDURE valid-pass :
            CAN-FIND(FIRST job-mch
                     WHERE job-mch.company EQ tt-prdd.company
                       AND job-mch.job     EQ tt-prdd.job
-                      AND trim(job-mch.job-no)  EQ trim(tt-prdd.job-no)
+                      AND job-mch.job-no  EQ tt-prdd.job-no
                       AND job-mch.job-no2 EQ tt-prdd.job-no2
                       AND job-mch.frm     EQ INT(tt-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
                       AND (job-mch.blank-no EQ INT(tt-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) OR
@@ -3024,7 +3043,8 @@ PROCEDURE valid-pass :
 
       IF lv-dept EQ "" THEN DO:
         APPLY "entry" TO tt-prdd.pass.
-        RETURN ERROR.
+        oplReturnError = yes.
+        RETURN .
       END.
     END.  
     

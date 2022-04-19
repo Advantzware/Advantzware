@@ -32,6 +32,8 @@
 def input param ip-value as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 
+{sys/inc/var.i}
+
 def var v-duelist as cha init "AM Delivery,As Soon As Possible,BY,Customer P/U,Credit Hold,Hold For Release,Hold,Hot,W/F Ink,Make & Hold,Must,Not Before,New customer,New Item,New customer and New item,Or Earlier,On,Partial Production Run,Rework,Rush,Tooling,Work Order,$$$" no-undo.
 
 def temp-table tt-table field code as cha form "x(8)"

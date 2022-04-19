@@ -1859,7 +1859,7 @@ PROCEDURE run-report :
         BUFFER-COPY mch-srt TO tt-mch-srt .
         ASSIGN
             tt-mch-srt.i-no = b
-            /*         tt-mch-srt.job-no = FILL(" ",6 - LENGTH(TRIM(tt-mch-srt.job-no))) + TRIM(tt-mch-srt.job-no) */
+            /*         tt-mch-srt.job-no = FILL(" ", iJobLen - LENGTH(TRIM(tt-mch-srt.job-no))) + TRIM(tt-mch-srt.job-no) */
             .
         IF rd-job-timedt EQ "2" THEN 
         DO:  
@@ -1900,7 +1900,7 @@ PROCEDURE run-report :
 
         FIND FIRST job WHERE 
             job.company EQ cocode AND
-            trim(job.job-no)  EQ TRIM(SUBSTRING(tt-mch-srt.job-no,1,9)) AND
+            job.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen) AND
             job.job-no2 EQ tt-mch-srt.job-no2 NO-LOCK NO-ERROR .
         ASSIGN 
             v-cust-no = "" .
@@ -1935,8 +1935,8 @@ PROCEDURE run-report :
 
         FIND FIRST job-mch WHERE job-mch.company  = cocode  AND
             job-mch.job      EQ tt-mch-srt.job  AND 
-            trim(job-mch.job-no) EQ TRIM(SUBSTRING(tt-mch-srt.job-no,1,9))  AND
-            job-mch.job-no2 EQ tt-mch-srt.job-no2  AND 
+            job-mch.job-no   EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen)  AND
+            job-mch.job-no2  EQ tt-mch-srt.job-no2  AND 
             job-mch.frm      = tt-mch-srt.frm AND 
             (job-mch.blank-no = tt-mch-srt.blank-no OR
             mch-srt.blank-no = 0) AND              
@@ -1946,8 +1946,8 @@ PROCEDURE run-report :
         IF NOT AVAILABLE job-mch THEN
             FIND FIRST job-mch WHERE job-mch.company EQ cocode AND
                 job-mch.job      EQ tt-mch-srt.job AND
-                trim(job-mch.job-no)  EQ TRIM(SUBSTRING(tt-mch-srt.job-no,1,9)) AND
-                job-mch.job-no2 EQ tt-mch-srt.job-no2 AND 
+                job-mch.job-no   EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen) AND
+                job-mch.job-no2  EQ tt-mch-srt.job-no2 AND 
                 job-mch.frm      EQ tt-mch-srt.frm AND
                 (job-mch.blank-no = tt-mch-srt.blank-no OR
                 mch-srt.blank-no = 0) AND
@@ -1956,7 +1956,7 @@ PROCEDURE run-report :
         IF NOT AVAILABLE job-mch THEN
             FIND FIRST job-mch WHERE job-mch.company EQ cocode AND
                 job-mch.job     EQ tt-mch-srt.job AND
-                trim(job-mch.job-no) EQ TRIM(SUBSTRING(tt-mch-srt.job-no,1,9)) AND
+                job-mch.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen) AND
                 job-mch.job-no2 EQ tt-mch-srt.job-no2 AND 
                 job-mch.frm     EQ tt-mch-srt.frm AND
                 job-mch.m-code  EQ tt-mch-srt.m-code AND
@@ -1965,7 +1965,7 @@ PROCEDURE run-report :
         IF NOT AVAILABLE job-mch THEN
             FIND FIRST job-mch WHERE job-mch.company EQ cocode AND
                 job-mch.job     EQ tt-mch-srt.job AND 
-                trim(job-mch.job-no)  EQ TRIM(SUBSTRING(tt-mch-srt.job-no,1,9))  AND
+                job-mch.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen)  AND
                 job-mch.job-no2 EQ tt-mch-srt.job-no2 AND  
                 job-mch.frm     EQ tt-mch-srt.frm AND
                 job-mch.m-code  EQ tt-mch-srt.m-code        
@@ -1990,7 +1990,7 @@ PROCEDURE run-report :
             bf-mch-act.dept EQ tt-mch-srt.dept AND
             bf-mch-act.m-code EQ tt-mch-srt.m-code AND
             bf-mch-act.job EQ tt-mch-srt.job AND 
-            trim(bf-mch-act.job-no) EQ TRIM(SUBSTRING(tt-mch-srt.job-no,1,9)) AND
+            bf-mch-act.job-no EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen) AND
             bf-mch-act.job-no2 EQ tt-mch-srt.job-no2 AND
             bf-mch-act.frm EQ tt-mch-srt.frm AND
             (bf-mch-act.blank-no = tt-mch-srt.blank-no  OR

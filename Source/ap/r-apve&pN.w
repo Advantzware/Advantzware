@@ -1495,6 +1495,7 @@ FIND FIRST currency NO-LOCK
                     FOR EACH rm-rcpth NO-LOCK
                         WHERE rm-rcpth.company   EQ po-ordl.company
                         AND rm-rcpth.po-no     EQ STRING(po-ordl.po-no)
+                        AND rm-rcpth.po-line   EQ po-ordl.LINE
                         AND rm-rcpth.i-no      EQ po-ordl.i-no
                         AND rm-rcpth.rita-code EQ "R",
                         EACH rm-rdtlh NO-LOCK

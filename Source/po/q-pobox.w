@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/var.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -66,7 +67,7 @@ DEFINE QUERY external_tables FOR po-ordl.
 /* Definitions for QUERY Query-Main                                     */
 &Scoped-define QUERY-STRING-Query-Main FOR EACH job-mat WHERE job-mat.company    eq po-ordl.company ~
       and job-mat.rm-i-no    eq po-ordl.i-no ~
-      and job-mat.job-no     eq string(fill(" ",6 - ~
+      and job-mat.job-no     eq string(FILL(" ", iJobLen - ~
                                             length(trim(po-ordl.job-no)))) + ~
                                 trim(po-ordl.job-no) ~
       and job-mat.job-no2    eq po-ordl.job-no2 ~
@@ -93,7 +94,7 @@ DEFINE QUERY external_tables FOR po-ordl.
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Query-Main OPEN QUERY Query-Main FOR EACH job-mat WHERE job-mat.company    eq po-ordl.company ~
       and job-mat.rm-i-no    eq po-ordl.i-no ~
-      and job-mat.job-no     eq string(fill(" ",6 - ~
+      and job-mat.job-no     eq string(FILL(" ", iJobLen - ~
                                             length(trim(po-ordl.job-no)))) + ~
                                 trim(po-ordl.job-no) ~
       and job-mat.job-no2    eq po-ordl.job-no2 ~

@@ -34,6 +34,7 @@ DEF INPUT PARAM ip-dscrs AS CHAR NO-UNDO.
 DEF INPUT PARAM ip-cur-val AS CHAR NO-UNDO.
 DEF OUTPUT PARAM op-char-val AS CHAR NO-UNDO. /* string code + dscr */
 
+{sys/inc/var.i}
 /* Local Variable Definitions ---                                       */
 DEF TEMP-TABLE tt-code FIELD code AS CHAR
                        FIELD dscr AS CHAR

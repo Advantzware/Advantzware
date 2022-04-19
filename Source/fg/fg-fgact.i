@@ -126,7 +126,7 @@ IF AVAIL job THEN DO:
 /*        IF choice THEN DO:                                                   */
 /*          CREATE w-job.                                                      */
 /*          ASSIGN                                                             */
-/*           w-job.job-no = FILL(" ",6 - LENGTH(TRIM(job.job-no))) +           */
+/*           w-job.job-no = FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) +           */
 /*                          TRIM(job.job-no) +                                 */
 /*                          STRING(job.job-no2,"99")                           */
 /*           w-job.rec-id = RECID(job).                                        */

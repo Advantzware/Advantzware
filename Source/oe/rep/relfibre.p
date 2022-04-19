@@ -131,7 +131,7 @@ format header
        
     with frame rel-top no-box no-labels STREAM-IO width 85 page-top.
         
-format w-oe-rell.ord-no                 to 6
+format w-oe-rell.ord-no                 to 8
        w-par                            at 10    format "x(30)"
        v-bin                            at 41   format "x(14)"
        w-cas                            to 59   format "->>>>"

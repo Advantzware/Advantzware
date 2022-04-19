@@ -62,7 +62,7 @@ DEFINE TEMP-TABLE tt-loadtag-temp
 
 &scoped-define fld-name-1 tt-loadtag-temp.tag-no
 &scoped-define fld-name-2 tt-loadtag-temp.i-no
-&scoped-define fld-name-3 trim(tt-loadtag-temp.job-no)
+&scoped-define fld-name-3 tt-loadtag-temp.job-no
 &scoped-define SORTBY-1 BY tt-loadtag-temp.tag-no
 &scoped-define SORTBY-2 BY tt-loadtag-temp.i-no
 &scoped-define SORTBY-3 BY tt-loadtag-temp.job-no
@@ -616,7 +616,7 @@ PROCEDURE pBuildSearch :
         FOR EACH loadtag NO-LOCK WHERE 
             loadtag.company = ip-company AND 
             loadtag.item-type = ip-itemtype AND
-            TRIM(loadtag.job-no) BEGINS iJobNo, 
+            loadtag.job-no BEGINS iJobNo, 
             FIRST fg-bin NO-LOCK WHERE 
             fg-bin.company = loadtag.company AND 
             fg-bin.i-no = loadtag.i-no AND 

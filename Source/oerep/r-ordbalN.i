@@ -20,9 +20,9 @@
         each oe-ordl of oe-ord
         where oe-ordl.i-no     ge v-item[1]
           and oe-ordl.i-no     le v-item[2]
-          AND fill(" ",9 - length(trim(oe-ordl.job-no))) +
+          AND FILL(" ", iJobLen - length(trim(oe-ordl.job-no))) +
               trim(oe-ordl.job-no) + string(oe-ordl.job-no2,"999") GE v-job[1]
-          AND fill(" ",9 - length(trim(oe-ordl.job-no))) +
+          AND FILL(" ", iJobLen - length(trim(oe-ordl.job-no))) +
               trim(oe-ordl.job-no) + string(oe-ordl.job-no2,"999") LE v-job[2]
           AND oe-ordl.job-no2 GE int(begin_job-no2)
           AND oe-ordl.job-no2 LE int(end_job-no2)    
@@ -41,9 +41,9 @@
       FOR EACH tt-fg-bin
           WHERE tt-fg-bin.company   EQ cocode
             AND tt-fg-bin.i-no      EQ tt-report.key-06
-            AND ((TRIM(tt-fg-bin.job-no)  EQ TRIM(SUBSTR(tt-report.key-04,1,9)) AND
-                  tt-fg-bin.job-no2 EQ INT(SUBSTR(tt-report.key-04,11,3))) OR
-                 TRIM(SUBSTR(tt-report.key-04,1,9)) EQ ""):
+            AND ((tt-fg-bin.job-no  EQ SUBSTR(tt-report.key-04,1,iJobLen) AND
+                  tt-fg-bin.job-no2 EQ INT(SUBSTR(tt-report.key-04,(iJobLen + 2),3))) OR
+                 TRIM(SUBSTR(tt-report.key-04,1,iJobLen)) EQ ""):
         tt-report.q-onh = tt-report.q-onh + tt-fg-bin.qty.
       END.
     END.
@@ -341,7 +341,7 @@
           IF v-part THEN
               DISPLAY oe-ordl.part-no @ tt-report.po-no .
 
-          if trim(tt-report.key-04) ne "-00" then
+          if trim(tt-report.key-04) ne "-000" then
             display trim(tt-report.key-04) @ v-ord-no.
 
           if (/*first-of(tt-report.row-id) and*/ v-field1 ne "") then
@@ -353,9 +353,9 @@
             where tt-fg-bin.company           eq cocode
               and tt-fg-bin.i-no              eq tt-report.key-06
               and tt-fg-bin.qty               gt 0
-              and ((TRIM(tt-fg-bin.job-no)    eq TRIM(substr(tt-report.key-04,1,9)) and
-                    tt-fg-bin.job-no2         eq int(substr(tt-report.key-04,11,3))) or
-                   TRIM(substr(tt-report.key-04,1,9)) eq "")
+              and ((tt-fg-bin.job-no          eq substr(tt-report.key-04,1,iJobLen) and
+                    tt-fg-bin.job-no2         eq int(substr(tt-report.key-04,(iJobLen + 2),3))) or
+                   TRIM(substr(tt-report.key-04,1,iJobLen)) eq "")
             no-lock
             break by tt-fg-bin.job-no
                   by tt-fg-bin.job-no2

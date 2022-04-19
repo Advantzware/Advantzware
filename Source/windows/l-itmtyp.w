@@ -29,6 +29,7 @@
 /* Local Variable Definitions ---                                       */
 
 DEF OUTPUT PARAMETER op-item-type AS cha NO-UNDO.  /* "rm" or "fg" */
+{sys/inc/var.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

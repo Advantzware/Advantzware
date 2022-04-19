@@ -940,8 +940,8 @@ PROCEDURE run-report :
         IF FIRST-OF(pc-misc.misc-date) THEN
             PUT " " SKIP.
 
-        IF fill(" ",9 - length(TRIM(pc-misc.job-no))) + trim(pc-misc.job-no) + STRING(pc-misc.job-no2,"999") LT v-job-no[1]  
-            OR fill(" ",9 - length(TRIM(pc-misc.job-no))) + trim(pc-misc.job-no) + STRING(pc-misc.job-no2,"999") GT v-job-no[2]           
+        IF FILL(" ", iJobLen - length(TRIM(pc-misc.job-no))) + trim(pc-misc.job-no) + STRING(pc-misc.job-no2,"999") LT v-job-no[1]  
+            OR FILL(" ", iJobLen - length(TRIM(pc-misc.job-no))) + trim(pc-misc.job-no) + STRING(pc-misc.job-no2,"999") GT v-job-no[2]           
             THEN NEXT.
 
         DISPLAY pc-misc.misc-date

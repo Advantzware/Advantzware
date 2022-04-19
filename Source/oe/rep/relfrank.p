@@ -120,15 +120,15 @@ format header
        "-----" /*"-------" */           to 80       
     with frame rel-top no-box no-labels STREAM-IO width 85 page-top.
         
-format w-oe-rell.ord-no                 to 6
-       w-par                            at 8    format "x(18)" 
-       w-job-no                         AT 27   FORM "x(9)"
-       v-bin                            at 37   format "x(20)"
-       w-x                              at 58   format "X/"
-       w-pal                            to 63   format "->>>"
-       w-cas                            to 68   format "->>>"
-       w-c-c                            to 74   format ">>>>>" /*"->>>>>>>>"*/
-       w-qty[1]                         to 80   format ">>>>>>" /*"->>>>>>>>"*/
+format w-oe-rell.ord-no                 to 8
+       w-par                            at 10   format "x(18)" 
+       w-job-no                         AT 29   FORM "x(9)"
+       v-bin                            at 39   format "x(20)"
+       w-x                              at 60   format "X/"
+       w-pal                            to 66   format "->>>"
+       w-cas                            to 70   format "->>>"
+       w-c-c                            to 76   format ">>>>>" /*"->>>>>>>>"*/
+       w-qty[1]                         to 82   format ">>>>>>" /*"->>>>>>>>"*/
     with down frame rel-mid no-box no-label STREAM-IO width 85.
 
 def stream last-page.   

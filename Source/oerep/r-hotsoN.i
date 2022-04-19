@@ -18,9 +18,9 @@
 
         EACH oe-ordl OF oe-ord
         WHERE 
-           FILL(" ",9 - LENGTH(TRIM(oe-ordl.job-no))) +
+           FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
               TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999") GE v-job[1]
-          AND FILL(" ",9 - LENGTH(TRIM(oe-ordl.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
               TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999") LE v-job[2]
           AND oe-ordl.job-no2 GE int(begin_job-no2)
           AND oe-ordl.job-no2 LE int(end_job-no2)    

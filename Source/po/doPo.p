@@ -261,7 +261,7 @@ DEFINE TEMP-TABLE tt-eiv NO-UNDO
     INDEX vend-no company i-no      vend-no.
 
 DEF VAR cScope AS CHAR NO-UNDO.
-DEF VAR lIncludeBlankVendor AS LOG NO-UNDO.
+DEF VAR lIncludeBlankVendor AS LOG NO-UNDO INITIAL TRUE.
 DEF VAR cMessage AS CHAR NO-UNDO.
 {system/VendorCostProcs.i}
    
@@ -272,8 +272,18 @@ IF INDEX(PROGRAM-NAME(2),"add-po-best") GT 0 THEN
 IF INDEX(PROGRAM-NAME(2),"w-purord") GT 0
     OR INDEX(PROGRAM-NAME(3),"w-purord") GT 0
     OR INDEX(PROGRAM-NAME(4),"w-purord") GT 0 THEN
-    v-from-po-entry = TRUE.
-
+    ASSIGN v-from-po-entry     = TRUE.
+    
+    
+IF INDEX(PROGRAM-NAME(2),"b-po-inq.w") GT 0
+    OR INDEX(PROGRAM-NAME(3),"b-po-inq.w") GT 0
+    OR INDEX(PROGRAM-NAME(4),"b-po-inq.w") GT 0
+    OR INDEX(PROGRAM-NAME(2),"ordfrest.p") GT 0
+    OR INDEX(PROGRAM-NAME(3),"ordfrest.p") GT 0
+    OR INDEX(PROGRAM-NAME(4),"ordfrest.p") GT 0
+     THEN
+     ASSIGN lIncludeBlankVendor = FALSE. //Blank Vendor is not a valid vendor for PO
+            
 {fg/fullset.i NEW}
 
 {sys/ref/pocost.i}
@@ -419,7 +429,7 @@ RUN sys/ref/nk1look.p (
     ).
 IF lRecFound THEN
     dOeAutoFG = DECIMAL(cRtnChar).
-    
+  
 FIND FIRST company NO-LOCK WHERE company.company EQ cocode NO-ERROR.
 
 
@@ -977,7 +987,7 @@ PROCEDURE buildRptRecs :
                             INPUT  bf-w-job-mat.i-no , //ipcItemID
                             INPUT  IF bf-w-job-mat.this-is-a-rm THEN "RM" ELSE "FG", //ipcItemType ,
                             INPUT  IF bf-w-job-mat.this-is-a-rm THEN gcScopeRMOverride ELSE  gcScopeFGEstimated, //ipcScope ,
-                            INPUT  "Yes", //iplIncludeBlankVendor ,
+                            INPUT  lIncludeBlankVendor,
                             INPUT  job-hdr.e-num,  //ipcEstimateNo,
                             INPUT  bf-w-job-mat.frm, //ipiFormNo,
                             INPUT  bf-w-job-mat.blank-no, //ipiBlankNo,
@@ -1014,12 +1024,43 @@ PROCEDURE buildRptRecs :
                                     ).
                         END.
                 END.
-            IF lNew THEN
-            DO: //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                
+            IF lNew OR lNewVendorItemCost THEN
+            DO: 
                 FIND FIRST ttVendItemCost WHERE ttVendItemCost.isSelected NO-ERROR.
-                    IF AVAILABLE ttVendItemCost THEN          
-                        FIND report WHERE report.key-03 eq ttVendItemCost.vendorID NO-LOCK NO-ERROR.                       
-                    ELSE
+                IF AVAILABLE ttVendItemCost THEN
+                DO:                          
+                    RUN RevCreateTtEiv (INPUT iprItemfg, INPUT ROWID(bf-w-job-mat)) NO-ERROR.
+                    
+                    ASSIGN
+                        fil_id       = RECID(ttVendItemCost)
+                        v-item-cost  = ttVendItemCost.costPerVendorUOM                       
+                        v-setup-cost = ttVendItemCost.costSetup
+                        v-setup      = ttVendItemCost.costTotal
+                        v-vend-item  = ttVendItemCost.itemID.   
+                        
+                    FIND FIRST vend
+                        WHERE vend.company EQ cocode
+                        AND vend.vend-no EQ ttVendItemCost.vendorID 
+                        NO-LOCK NO-ERROR.
+                    IF AVAILABLE vend THEN 
+                    DO:   
+                        oprVend = ROWID(vend).
+                        gvcVendNo = vend.vend-no.  
+                                
+                        IF AVAILABLE bf-ordl AND iplFirstFrm THEN
+                            FOR EACH b-oe-ordl
+                                WHERE b-oe-ordl.company EQ bf-ordl.company
+                                AND b-oe-ordl.ord-no  EQ bf-ordl.ord-no
+                                AND b-oe-ordl.job-no  EQ bf-ordl.job-no
+                                AND b-oe-ordl.job-no2 EQ bf-ordl.job-no2
+                                EXCLUSIVE-LOCK:
+                                /* for testing, uncomment this when live */
+                                b-oe-ordl.vend-no = vend.vend-no. 
+                            END. /* each b-oe-ordl */
+                    END. /* if avail vend */
+                END.                       
+                ELSE
                     ll-canceled = YES.
             END.
             ELSE
@@ -1030,14 +1071,14 @@ PROCEDURE buildRptRecs :
             
             IF AVAILABLE report THEN 
             DO:
-                v-vendor-chosen-report = report.REC-ID.
+                    v-vendor-chosen-report = report.REC-ID.
                 /* create tt-eiv for a specific itemfg (from e-itemfg-vend records) */
                 FIND itemfg WHERE ROWID(itemfg) EQ iprItemfg NO-LOCK NO-ERROR.
           
                 IF lNewVendorItemCost THEN RUN RevCreateTtEiv (INPUT iprItemfg, INPUT ROWID(bf-w-job-mat)) NO-ERROR.
                 ELSE RUN createTtEiv (INPUT iprItemfg, INPUT ROWID(bf-w-job-mat)) NO-ERROR.
 
-            END.
+            END.      
       
         END. /* If gvlChoice = true */
 
@@ -1052,7 +1093,7 @@ PROCEDURE buildRptRecs :
         END. /* If not gvlChoice = true */
 
         IF AVAILABLE report THEN 
-        DO:
+        DO:        
         
             ASSIGN
                 fil_id       = report.rec-id
@@ -1060,7 +1101,7 @@ PROCEDURE buildRptRecs :
                 v-setup-cost = DEC(report.key-05)
                 v-setup      = DEC(report.key-06)
                 v-vend-item  = report.key-07.
-       
+            
             FIND FIRST vend
                 WHERE vend.company EQ cocode
                 AND vend.vend-no EQ report.key-03 
@@ -1081,7 +1122,7 @@ PROCEDURE buildRptRecs :
                     END. /* each b-oe-ordl */
             END. /* if avail vend */
         END. /* If avail report */
-    
+        
 
         FOR EACH report
             {sys/look/reportW.i}
@@ -1130,13 +1171,14 @@ PROCEDURE vendorSelector:
                 cAdderList[iCount] = bf-ef.adder[iCount].
         END.
     END.
+                    
     IF AVAIL job-mat THEN 
         RUN system/vendorcostSelector.w(
             INPUT  job-mat.company, //ipcCompany ,
             INPUT  job-mat.i-no ,
             INPUT  IF iplRM THEN "RM" ELSE "FG", //ipcItemType ,
             INPUT  IF iplRM THEN cScopeRMOverride ELSE cScopeFGEstimated, //ipcScope ,
-            INPUT  "Yes", //iplIncludeBlankVendor ,
+            INPUT  lIncludeBlankVendor,
             INPUT  cEstimateNo, //ipcEstimateNo,
             INPUT  job-mat.frm, //ipiFormNo,
             INPUT  job-mat.blank-no, //ipiBlankNo,
@@ -3320,7 +3362,7 @@ PROCEDURE processJobMat :
         /* Get v-len, v-wid, v-dep, v-job-mat-qty, v-qty-comp, v-uom-comp */         
         RUN initRptRecs (INPUT cocode,
             INPUT ROWID(w-job-mat),
-            OUTPUT gvrTT-ei) .
+            OUTPUT gvrTT-ei) .  
   
 
   
@@ -3337,15 +3379,15 @@ PROCEDURE processJobMat :
 
         /* Warning message that vendor matrix does not exist */
         IF gvcVendNo EQ "" AND gvlChoice AND NOT ll-canceled THEN 
-            RUN cancelMessage.        
+            RUN cancelMessage.   
          
         IF gvcVendNo EQ "" OR ll-canceled THEN 
         DO:
             IF gvlDebug THEN             
                 PUT STREAM sDebug UNFORMATTED "Skip Item for canceled or gvcVendNo " w-job-mat.i-no " gvcVendNo " gvcVendNo SKIP.
             NEXT.
-        END.
-    
+        END.    
+        
         /* Set po dates from oe-ord or job */
         RUN setPoDates (INPUT gvrVend, INPUT gvrOeOrd, INPUT gvrJob).
 
@@ -3395,7 +3437,7 @@ PROCEDURE processJobMat :
 
         FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrPoOrd NO-ERROR.
         FIND oe-ord NO-LOCK WHERE ROWID(oe-ord) EQ gvrOeOrd NO-ERROR.
-  
+          
         IF NOT lPoExists THEN 
         DO:
             IF AVAILABLE po-ord THEN 
@@ -3404,10 +3446,10 @@ PROCEDURE processJobMat :
                 RUN PromptExistingPo. /* release current po-ord buffer if they say no */      
             END.
             IF NOT AVAILABLE po-ord THEN 
-            DO:
+            DO:                
                 RUN createPoOrd (INPUT gvrOeOrd, OUTPUT gvrPoOrd, OUTPUT lNextOuters).
                 IF lNextOuters THEN 
-                DO:
+                DO:                   
                     IF gvlDebug THEN             
                         PUT STREAM sDebug UNFORMATTED "Skip do to createPoOrd " w-job-mat.i-no  SKIP.
                     NEXT outers.

@@ -35,6 +35,8 @@ def input param ip-cust-no like oe-bolh.cust-no no-undo.
 def input param ip-ship-id like oe-bolh.ship-id no-undo.
 def input param ip-cur-val as char no-undo.
 def output param op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
+
 &scoped-define SORTBY-1 BY oe-bolh.bol-no
 &scoped-define SORTBY-2 BY oe-bolh.carrier
 &scoped-define SORTBY-3 BY oe-bolh.release#
