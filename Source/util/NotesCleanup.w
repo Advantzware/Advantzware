@@ -414,8 +414,7 @@ DO:
         bExit:SENSITIVE = FALSE.
     STATUS INPUT "Processing...". 
     
-    MESSAGE rsMode:SCREEN-VALUE VIEW-AS ALERT-BOX.
-//    RUN pProcess.     
+    RUN pProcess.     
     
     IF fiSearchText:SCREEN-VALUE BEGINS "<Credi" THEN DO:
         ASSIGN 
