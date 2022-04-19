@@ -702,7 +702,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
           AND job.job-no2 EQ po-ordl.job-no2
         NO-ERROR.
     IF AVAILABLE job THEN DO:
-     v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))).
+     v-job-no = TRIM(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2,"99").
 
       IF po-ordl.job-no EQ "" THEN v-job-no = "".
 
@@ -710,10 +710,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       v-desc-no = STRING(po-ordl.po-no,"999999") + "-" + STRING(po-ordl.LINE,"99") + "/" + v-job-no + "-" + STRING(po-ordl.s-num,"99") . 
     END.
 
-    PUT v-desc-no                                   FORMAT "x(25)".
+    PUT v-desc-no                                   FORMAT "x(21)".
 
     /* 53 blank spaces */
-    PUT FILL(" ",49)                                FORMAT "x(49)"       SKIP.
+    PUT FILL(" ",53)                                FORMAT "x(53)"       SKIP.
   END. /* FOR EACH po-ordl record */
 
   po-ord.printed = YES.
