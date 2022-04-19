@@ -78,7 +78,6 @@ DEFINE {1} TEMP-TABLE ttGlue
     FIELD dQtyRequiredPerBlank AS DECIMAL
     FIELD cQtyUOM AS CHARACTER
     FIELD dMinLbsPerJob AS DECIMAL
-    FIELD iebNumUp AS INTEGER 
     . 
 DEFINE {1} TEMP-TABLE ttLeaf
     FIELD rec_key AS CHARACTER 

@@ -1270,7 +1270,6 @@ PROCEDURE pAddGlue PRIVATE:
                 ttGlue.cMaterialType = bf-item.mat-type
                 ttGlue.cQtyUOM       = bf-item.cons-uom   
                 ttGlue.dMinLbsPerJob = bf-item.min-lbs
-                ttGlue.iebNumUp      = ipbf-eb.num-up
                 .
         END.
         
@@ -4533,9 +4532,9 @@ PROCEDURE pProcessGlues PRIVATE:
         
         ASSIGN    
             bf-estCostMaterial.addToWeightNet             = YES
-            bf-estCostMaterial.quantityRequiredNoWaste    = estCostOperation.quantityInNoWaste * ttGlue.dQtyRequiredPerBlank * (IF estCostOperation.FeedType EQ "S" THEN ttGlue.iebNumUp ELSE 1)
-            bf-estCostMaterial.quantityRequiredRunWaste   = estCostOperation.quantityInRunWaste * ttGlue.dQtyRequiredPerBlank * (IF estCostOperation.FeedType EQ "S" THEN ttGlue.iebNumUp ELSE 1)
-            bf-estCostMaterial.quantityRequiredSetupWaste = estCostOperation.quantityInSetupWaste * ttGlue.dQtyRequiredPerBlank * (IF estCostOperation.FeedType EQ "S" THEN ttGlue.iebNumUp ELSE 1)
+            bf-estCostMaterial.quantityRequiredNoWaste    = estCostOperation.quantityInNoWaste * ttGlue.dQtyRequiredPerBlank * (IF estCostOperation.FeedType EQ "S" THEN estcostblank.numout ELSE 1)
+            bf-estCostMaterial.quantityRequiredRunWaste   = estCostOperation.quantityInRunWaste * ttGlue.dQtyRequiredPerBlank * (IF estCostOperation.FeedType EQ "S" THEN estcostblank.numout ELSE 1)
+            bf-estCostMaterial.quantityRequiredSetupWaste = estCostOperation.quantityInSetupWaste * ttGlue.dQtyRequiredPerBlank * (IF estCostOperation.FeedType EQ "S" THEN estcostblank.numout ELSE 1)
             dQtyRequiredMinDiff                           = ttGlue.dMinLbsPerJob - 
                                                     (bf-estCostMaterial.quantityRequiredNoWaste + bf-estCostMaterial.quantityRequiredRunWaste + bf-estCostMaterial.quantityRequiredSetupWaste)
             bf-estCostMaterial.quantityUOM                = ttGlue.cQtyUOM
