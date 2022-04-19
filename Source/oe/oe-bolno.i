@@ -72,7 +72,7 @@ end.*/
          cRellLoc  = IF AVAIL bf-rell and bf-rell.loc NE "" THEN bf-rell.loc ElSE locode .
 
 
-    IF bf-rell.lot-no <> "" THEN DO:   
+       
      ASSIGN vfrt-pay = (IF vfrt-pay = "" THEN bf-rell.frt-pay ELSE vfrt-pay)
             vfob-code = (IF vfob-code = "" THEN bf-rell.fob-code ELSE vfob-code).        
 
@@ -99,7 +99,7 @@ end.*/
         ASSIGN vfrt-pay =  substr(vfrt-pay,1,1).
      IF length(vfob-code) > 1 THEN
         ASSIGN vfob-code =  substr(vfob-code,1,1).
-  END.
+ 
   RELEASE reftable.
   /***************************************************************************/
   
