@@ -2406,9 +2406,9 @@ PROCEDURE pCalcEstimate PRIVATE:
     IF iplPrompt THEN 
         RUN pPromptForCalculationChanges.
         
-    IF iplPrompt AND LOOKUP (gcShowErrorsAndWarnings,"1,2,3") > 0 THEN 
-        RUN est/estCalcErrorList.w(INPUT TABLE ttEstError,gcShowErrorsAndWarnings).
- 
+    IF iplPrompt AND LOOKUP (gcShowErrorsAndWarnings,"1,2,3") > 0 AND AVAILABLE ttEstError THEN 
+        RUN est/estCalcErrorList.w(INPUT TABLE ttEstError,gcShowErrorsAndWarnings,ipiQuantity).
+   
     IF VALID-HANDLE(ghOperation) THEN
         DELETE PROCEDURE ghOperation.
 
