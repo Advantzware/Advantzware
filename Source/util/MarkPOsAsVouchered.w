@@ -354,17 +354,22 @@ DEF VAR ict AS INT NO-UNDO.
 DEF VAR jct AS INT NO-UNDO.
 DEF VAR iColumn AS INT NO-UNDO.
 DISABLE TRIGGERS FOR LOAD OF po-ord.
+DISABLE TRIGGERS FOR LOAD OF po-ordl.
 
 INPUT FROM VALUE(cFileToProcess).
 
 IMPORT UNFORMATTED cRaw.
 DO ict = 1 TO NUM-ENTRIES(cRaw):
-    IF ENTRY(iCt,cRaw) EQ "PO#" THEN ASSIGN 
+    IF ENTRY(iCt,cRaw) EQ "PO#" 
+    OR ENTRY(iCt,cRaw) EQ "PO #" THEN ASSIGN 
         iColumn = iCt.
 END.
 
+ASSIGN 
+    iCt = 0
+    jct = 0.
+    
 REPEAT:
-    ASSIGN jct = jct + 1.
     IMPORT UNFORMATTED cRaw.
     FIND FIRST po-ord WHERE 
     po-ord.company EQ cbCompany:SCREEN-VALUE IN FRAME {&frame-name} AND
@@ -380,6 +385,7 @@ REPEAT:
                 po-ordl.excludeFromVoucher = TRUE.
         END.
     END.
+    ASSIGN jct = jct + 1.
 END.
 INPUT CLOSE.
 MESSAGE  
