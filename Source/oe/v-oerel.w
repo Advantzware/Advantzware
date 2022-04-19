@@ -1096,7 +1096,13 @@ PROCEDURE display-items :
   cGenTime = REPLACE(cGenTime, ":","") .
   cDockTime  = trim(cGenTime).
   
-  display qty-ordered qty-rel qty-ship qty-oh dtDockDate cDockTime with frame {&frame-name}.
+  IF AVAIL b-oe-rell-2 AND b-oe-rell-2.frt-pay NE "" THEN
+  freight_term = IF b-oe-rell-2.frt-pay EQ "P" THEN "Prepaid"
+                 ELSE IF b-oe-rell-2.frt-pay EQ "B" THEN "Bill"
+                 ELSE IF b-oe-rell-2.frt-pay EQ "T" THEN "3rd Party"
+                 ELSE "Collect" .
+  
+  display qty-ordered qty-rel qty-ship qty-oh dtDockDate cDockTime freight_term with frame {&frame-name}.
 
 END PROCEDURE.
 
