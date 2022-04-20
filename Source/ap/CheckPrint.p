@@ -455,7 +455,7 @@ PROCEDURE pBuildPostedCheckData PRIVATE:
                 AND ap-inv.inv-no  EQ ap-payl.inv-no
                 USE-INDEX inv-no                                  
                 BREAK BY ap-payl.inv-no:                              
-                FIND FIRST ap-invl
+                FIND FIRST ap-invl NO-LOCK
                     WHERE ap-invl.company EQ ap-inv.company
                     AND ap-invl.i-no EQ ap-inv.i-no
                     USE-INDEX i-no 
