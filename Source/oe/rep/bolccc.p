@@ -698,7 +698,7 @@ PUT "<R55><C48><FROM><R55><C80><LINE><||3>" SKIP
   PUT 
     "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
     "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
-      
+    PUT cAddress FORMAT "x(115)" SKIP.  
     PUT "<FGCOLOR=RED><BGCOLOR=RED><LINECOLOR=RED>"
       /*"<=9><C+10><FROM><R+4><C+20><RECT> " */
       "<R56><C5><#15><FROM><R+4><C+25><RECT>" 
