@@ -1372,7 +1372,7 @@ PROCEDURE run-report :
  
     SESSION:SET-WAIT-STATE("general").
  
-    cPeriodLabel = " Period " + string(MONTH(tran-date),"99") + " Total".
+    cPeriodLabel = " Period " + string(tran-period,"99") + " Total".
     cYtdLabel = "  " + string(YEAR(tran-date)) + " YTD Total".
     cAsofDateLabel = "As of Date: " + string(tran-date) .
 
@@ -1813,7 +1813,7 @@ PROCEDURE run-report-detail :
 
     SESSION:SET-WAIT-STATE("general").
  
-    cPeriodLabel = " Period " + string(MONTH(tran-date),"99") + " Total".
+    cPeriodLabel = " Period " + string(tran-period,"99") + " Total".
     cYtdLabel = "  " + string(YEAR(tran-date)) + " YTD Total".
     cAsofDateLabel = "As of Date: " + string(tran-date) .
     str-line = FILL(" ",45) + "  " + "---------------" + " " + FILL(" ",51) + "--------------" + " " + "--------------" + " " + "--------------" + FILL(" ",57) + "-----------------" .                                                 
