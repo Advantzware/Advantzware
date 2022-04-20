@@ -132,7 +132,7 @@ DEF VAR iPallets AS INT NO-UNDO.
 DEF VAR iPalletsPartial AS INT NO-UNDO.
 DEFINE VARIABLE cSalRepName AS CHARACTER  NO-UNDO.
 
-format w-oe-rell.ord-no                 TO 6
+format w-oe-rell.ord-no                 TO 8
        w-bin.w-par                      AT 10   FORMAT "X(30)"
        v-bin                            AT 40   FORMAT "X(20)"
        cDate                            AT 61   FORMAT "X(10)"

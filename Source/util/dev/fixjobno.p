@@ -1,16 +1,17 @@
 /*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
-&SCOPED-DEFINE fix job-no = FILL(" ",9 - LENGTH(TRIM(job-no))) + TRIM(job-no).
-&SCOPED-DEFINE fix-jobNo jobNo = FILL(" ",9 - LENGTH(TRIM(jobNo))) + TRIM(jobNo).
-&SCOPED-DEFINE fix-job-number job_number = FILL(" ",9 - LENGTH(TRIM(job_number))) + TRIM(job_number).
-&SCOPED-DEFINE fix-jobID jobID = FILL(" ",9 - LENGTH(TRIM(jobID))) + TRIM(jobID).
-&SCOPED-DEFINE fix-vend-job-no vend-job-no = FILL(" ",9 - LENGTH(TRIM(vend-job-no))) + TRIM(vend-job-no).
+&SCOPED-DEFINE fix job-no = FILL(" ", iJobLen - LENGTH(TRIM(job-no))) + TRIM(job-no).
+&SCOPED-DEFINE fix-jobNo jobNo = FILL(" ", iJobLen - LENGTH(TRIM(jobNo))) + TRIM(jobNo).
+&SCOPED-DEFINE fix-job-number job_number = FILL(" ", iJobLen - LENGTH(TRIM(job_number))) + TRIM(job_number).
+&SCOPED-DEFINE fix-jobID jobID = FILL(" ", iJobLen - LENGTH(TRIM(jobID))) + TRIM(jobID).
+&SCOPED-DEFINE fix-vend-job-no vend-job-no = FILL(" ", iJobLen - LENGTH(TRIM(vend-job-no))) + TRIM(vend-job-no).
 &SCOPED-DEFINE where-phrase WHERE SUBSTR(job-no,9,1) EQ ""
 &SCOPED-DEFINE where-phrase-jobNo WHERE SUBSTR(jobNo,9,1) EQ ""
 &SCOPED-DEFINE where-phrase-job-number WHERE SUBSTR(job_number,9,1) EQ ""
 &SCOPED-DEFINE where-phrase-jobID WHERE SUBSTR(jobID,9,1) EQ ""
 &SCOPED-DEFINE where-phrase-vend-job-no WHERE SUBSTR(vend-job-no,9,1) EQ ""
 
+{sys/inc/var.i}
 
 SESSION:SET-WAIT-STATE ("general").
 

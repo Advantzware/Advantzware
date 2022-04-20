@@ -280,7 +280,7 @@ DEFINE BROWSE Browser-Table
             COLUMN-FGCOLOR 9 LABEL-BGCOLOR 14
       oe-boll.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 21
             LABEL-BGCOLOR 14
-      display-i-name (0) @ lv-i-name COLUMN-LABEL "FG Item Name" FORMAT "x(15)":U
+      display-i-name (0) @ lv-i-name COLUMN-LABEL "FG Item Name" FORMAT "x(28)":U
             WIDTH 21
       oe-boll.po-no FORMAT "x(15)":U WIDTH 20 LABEL-BGCOLOR 14
       oe-boll.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U WIDTH 30
@@ -288,7 +288,7 @@ DEFINE BROWSE Browser-Table
       oe-boll.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U WIDTH 8 LABEL-BGCOLOR 14
       oe-boll.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
-      oe-boll.job-no COLUMN-LABEL "Job #" FORMAT "x(9)":U WIDTH 12
+      oe-boll.job-no COLUMN-LABEL "Job #" FORMAT "x(9)":U WIDTH 15
             LABEL-BGCOLOR 14
       oe-boll.job-no2 COLUMN-LABEL "" FORMAT "999":U WIDTH 6
       oe-boll.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
@@ -450,7 +450,7 @@ ASSIGN
      _FldNameList[2]   > ASI.oe-boll.i-no
 "oe-boll.i-no" "FG Item#" ? "character" ? ? ? 14 ? ? yes ? no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"
-"display-i-name (0) @ lv-i-name" "FG Item Name" "x(15)" ? ? ? ? ? ? ? no "Enter Finished Goods Name used for Alpha Numeric Searches." no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-i-name (0) @ lv-i-name" "FG Item Name" "x(28)" ? ? ? ? ? ? ? no "Enter Finished Goods Name used for Alpha Numeric Searches." no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.oe-boll.po-no
 "oe-boll.po-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.oe-boll.tag
@@ -460,7 +460,7 @@ ASSIGN
      _FldNameList[7]   > ASI.oe-boll.loc-bin
 "oe-boll.loc-bin" "Bin" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.oe-boll.job-no
-"oe-boll.job-no" "Job #" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-boll.job-no" "Job #" ? "character" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-boll.job-no2
 "oe-boll.job-no2" "" ? "integer" ? ? ? ? ? ? yes ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.oe-boll.cust-no
@@ -1246,6 +1246,7 @@ DEF BUFFER xoe-boll FOR oe-boll.
      if not avail oe-ordl then
      find first oe-ordl where oe-ordl.company eq cocode
                           and oe-ordl.ord-no  eq xoe-boll.ord-no
+                          AND oe-ordl.line    EQ xoe-boll.line
                           and oe-ordl.i-no    eq xoe-boll.i-no 
                         no-lock no-error.     
 
@@ -3681,8 +3682,14 @@ FUNCTION display-i-name RETURNS CHARACTER
       WHERE itemfg.company EQ cocode
         AND itemfg.i-no    EQ IF ip-int EQ 0 THEN oe-boll.i-no ELSE oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
       NO-LOCK NO-ERROR.
+           
+  FIND FIRST oe-ordl NO-LOCK 
+       WHERE oe-ordl.company EQ oe-boll.company 
+         AND oe-ordl.i-no    EQ (IF ip-int EQ 0 THEN oe-boll.i-no ELSE oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name})   
+         AND oe-ordl.line    EQ oe-boll.line   
+         AND oe-ordl.ord-no   EQ oe-boll.ord-no  NO-ERROR .          
 
-  RETURN IF AVAIL itemfg THEN itemfg.i-name ELSE "".   /* Function return value. */
+  RETURN IF AVAIL oe-ordl THEN oe-ordl.i-name ELSE IF AVAIL itemfg THEN itemfg.i-name ELSE "".   /* Function return value. */
 
 END FUNCTION.
 
@@ -3710,6 +3717,7 @@ FUNCTION fgBin RETURNS INTEGER
      FIND FIRST oe-ordl NO-LOCK
            WHERE oe-ordl.company EQ oe-boll.company 
              AND oe-ordl.ord-no EQ oe-boll.ord-no 
+             AND oe-ordl.line    EQ oe-boll.line
              AND oe-ordl.i-no EQ oe-boll.i-no NO-ERROR.
       IF AVAIL oe-ordl THEN
           ASSIGN
@@ -3743,6 +3751,7 @@ FUNCTION fgBinScreen RETURNS INTEGER
       FIND FIRST oe-ordl NO-LOCK
            WHERE oe-ordl.company EQ oe-boll.company 
              AND oe-ordl.ord-no EQ int(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name}) 
+             AND oe-ordl.line   EQ oe-boll.line
              AND oe-ordl.i-no EQ oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NO-ERROR.
       IF AVAIL oe-ordl THEN
           ASSIGN

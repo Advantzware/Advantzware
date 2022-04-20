@@ -30,6 +30,7 @@
 
 /* Local Variable Definitions ---                                       */
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 def var v-codelst as cha init "B,C,D,F,P,R,W" no-undo.
 def var v-dscrlst as cha init "Boxes,Clear Poly Bags,Die Cuts,Foam,Sheet Fed Partitions,Roll Fed Partitions,Wood" no-undo.

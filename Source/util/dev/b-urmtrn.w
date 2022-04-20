@@ -66,7 +66,7 @@ DEF BUFFER rm-rdtlh-1 FOR rm-rdtlh.
           AND rm-rcpth.trans-date GE fi_date          ~
           AND rm-rcpth.i-no       BEGINS fi_rm-i-no   ~
           AND rm-rcpth.rita-code  BEGINS fi_rita-code ~
-          AND fill(" ",9 - length(TRIM(rm-rcpth.job-no))) + trim(rm-rcpth.job-no)  BEGINS fi_job-no    ~
+          AND FILL(" ", iJobLen - length(TRIM(rm-rcpth.job-no))) + trim(rm-rcpth.job-no)  BEGINS fi_job-no    ~
           AND (rm-rcpth.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                           ~

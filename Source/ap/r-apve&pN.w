@@ -1332,6 +1332,13 @@ PROCEDURE post-gl :
                 total-msf      = total-msf + ap-invl.amt-msf
                 ap-invl.posted = YES.
        
+FIND FIRST currency NO-LOCK
+      WHERE currency.company     EQ ap-inv.company
+        AND currency.c-code      EQ ap-inv.curr-code[1]
+        AND currency.ar-ast-acct NE ""
+        AND currency.ex-rate     GT 0
+      NO-ERROR.
+            
       RUN GL_SpCreateGLHist(cocode,
                 tt-ap-invl.actnum,
                 "ACPAY",
@@ -1349,7 +1356,7 @@ PROCEDURE post-gl :
                  "ACPAY",
                  vend.name  + "  " + string(ap-inv.inv-date),
                  tran-date,
-                 tt-ap-invl.amt * -1,
+                 tt-ap-invl.amt * -1 / (IF AVAIL currency THEN currency.ex-rate ELSE 1),
                  v-trnum,
                  tran-period,
                  "A",
@@ -1396,6 +1403,7 @@ PROCEDURE post-gl :
                     FOR EACH rm-rcpth NO-LOCK
                         WHERE rm-rcpth.company   EQ po-ordl.company
                         AND rm-rcpth.po-no     EQ STRING(po-ordl.po-no)
+                        AND rm-rcpth.po-line   EQ po-ordl.LINE
                         AND rm-rcpth.i-no      EQ po-ordl.i-no
                         AND rm-rcpth.rita-code EQ "R",
                         EACH rm-rdtlh NO-LOCK

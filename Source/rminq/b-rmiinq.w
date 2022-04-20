@@ -81,7 +81,7 @@ IF lRecFound THEN
           AND (rm-rcpth.i-no      EQ fi_rm-i-no OR fi_rm-i-no EQ "") ~
           AND rm-rcpth.rita-code  BEGINS fi_rita-code ~
           AND (rm-rcpth.po-no     EQ TRIM(STRING(fi_po-no,">>>>>>>>")) OR fi_po-no EQ 0) ~
-          AND (trim(rm-rcpth.job-no)    EQ trim(fi_job-no) OR fi_job-no EQ "")   ~
+          AND (rm-rcpth.job-no    EQ fi_job-no OR fi_job-no EQ "")   ~
           AND (rm-rcpth.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                           ~
@@ -302,7 +302,7 @@ DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fi_tag# AS CHARACTER FORMAT "X(20)":U 
      LABEL "Tag#" 
      VIEW-AS FILL-IN 
-     SIZE 36 BY 1
+     SIZE 35 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
@@ -395,8 +395,8 @@ DEFINE FRAME F-Main
      btDelete AT ROW 2.91 COL 106 WIDGET-ID 4
      fi_rm-i-no AT ROW 1.48 COL 10.6 COLON-ALIGNED
      fi_tag# AT ROW 1.48 COL 39.6 COLON-ALIGNED
-     fi_job-no AT ROW 1.48 COL 82.2 COLON-ALIGNED
-     fi_job-no2 AT ROW 1.48 COL 93.2 COLON-ALIGNED
+     fi_job-no AT ROW 1.48 COL 81.2 COLON-ALIGNED
+     fi_job-no2 AT ROW 1.48 COL 94.6 COLON-ALIGNED
      fi_rita-code AT ROW 1.48 COL 112.6 COLON-ALIGNED
      fi_date AT ROW 1.48 COL 130 COLON-ALIGNED
      btn_go AT ROW 2.91 COL 2
@@ -515,7 +515,7 @@ ASSIGN
      _FldNameList[3]   > ASI.rm-rcpth.job-no
 "rm-rcpth.job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.rm-rcpth.job-no2
-"rm-rcpth.job-no2" "" "99" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rcpth.job-no2" "" "999" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.rm-rdtlh.s-num
 "rm-rdtlh.s-num" "F" ? "integer" ? ? ? 14 ? ? yes ? no no "3" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.rm-rcpth.trans-date
@@ -1268,7 +1268,7 @@ PROCEDURE convert-uoms :
           WHERE po-ordl.company   EQ b-rcpth.company
             AND po-ordl.po-no     EQ lv-po-no
             AND po-ordl.i-no      EQ b-rcpth.i-no
-            AND trim(po-ordl.job-no)    EQ trim(b-rcpth.job-no)
+            AND po-ordl.job-no    EQ b-rcpth.job-no
             AND po-ordl.job-no2   EQ b-rcpth.job-no2
             AND po-ordl.item-type EQ YES 
             AND po-ordl.s-num     EQ b-rdtlh.s-num
@@ -1285,7 +1285,7 @@ PROCEDURE convert-uoms :
 
       FIND FIRST job
           WHERE job.company EQ b-rcpth.company
-            AND trim(job.job-no)  EQ trim(b-rcpth.job-no)
+            AND job.job-no  EQ b-rcpth.job-no
             AND job.job-no2 EQ b-rcpth.job-no2
           NO-LOCK NO-ERROR.
       IF AVAIL job THEN DO:
@@ -1787,7 +1787,7 @@ PROCEDURE update-mat-act-cost :
 
    FIND FIRST job WHERE
         job.company EQ b-rm-rcpth.company AND
-        trim(job.job-no)  EQ trim(b-rm-rcpth.job-no) AND
+        job.job-no  EQ b-rm-rcpth.job-no AND
         job.job-no2 EQ b-rm-rcpth.job-no2
         NO-LOCK NO-ERROR.
 

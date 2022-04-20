@@ -18,10 +18,10 @@
         each oe-ordl of oe-ord
         where oe-ordl.i-no     ge v-item[1]
           and oe-ordl.i-no     le v-item[2]
-          and fill(" ",6 - length(trim(oe-ordl.job-no))) +
-              trim(oe-ordl.job-no) + string(oe-ordl.job-no2,"99") ge v-job[1]
-          and fill(" ",6 - length(trim(oe-ordl.job-no))) +
-              trim(oe-ordl.job-no) + string(oe-ordl.job-no2,"99") le v-job[2]
+          and FILL(" ", iJobLen - length(trim(oe-ordl.job-no))) +
+              trim(oe-ordl.job-no) + string(oe-ordl.job-no2,"999") ge v-job[1]
+          and FILL(" ", iJobLen - length(trim(oe-ordl.job-no))) +
+              trim(oe-ordl.job-no) + string(oe-ordl.job-no2,"999") le v-job[2]
           AND oe-ordl.s-man[1] GE begin_slmn
           AND oe-ordl.s-man[1] LE end_slmn
           AND (rd_prt-po       NE "Line" OR
@@ -37,9 +37,9 @@
       FOR EACH tt-fg-bin
           WHERE tt-fg-bin.company   EQ cocode
             AND tt-fg-bin.i-no      EQ tt-report.key-06
-            AND ((tt-fg-bin.job-no  EQ SUBSTR(tt-report.key-04,1,6) AND
-                  tt-fg-bin.job-no2 EQ INT(SUBSTR(tt-report.key-04,8,2))) OR
-                 SUBSTR(tt-report.key-04,1,6) EQ ""):
+            AND ((tt-fg-bin.job-no  EQ SUBSTR(tt-report.key-04,1,iJobLen) AND
+                  tt-fg-bin.job-no2 EQ INT(SUBSTR(tt-report.key-04,(iJobLen + 1),3))) OR
+                 SUBSTR(tt-report.key-04,1,iJobLen) EQ ""):
         tt-report.q-onh = tt-report.q-onh + tt-fg-bin.qty.
       END.
     END.
@@ -170,7 +170,7 @@
 
         display tt-report.po-no   when first-of(tt-report.key-03) OR rd_prt-po EQ "Release"
                                   format "x(15)"                      
-                v-ord-no          format "x(11)"
+                v-ord-no          format "x(13)"
              
          with frame detail no-box stream-io width 180
               no-attr-space no-underline no-labels.
@@ -295,7 +295,7 @@
           IF v-part THEN
               DISPLAY oe-ordl.part-no @ tt-report.po-no .
 
-          if trim(tt-report.key-04) ne "-00" then
+          if trim(tt-report.key-04) ne "-000" then
             display trim(tt-report.key-04) @ v-ord-no.
 
           if (/*first-of(tt-report.row-id) and*/ v-field1 ne "") then
@@ -307,9 +307,9 @@
             where tt-fg-bin.company           eq cocode
               and tt-fg-bin.i-no              eq tt-report.key-06
               and tt-fg-bin.qty               gt 0
-              and ((tt-fg-bin.job-no          eq substr(tt-report.key-04,1,6) and
-                    tt-fg-bin.job-no2         eq int(substr(tt-report.key-04,8,2))) or
-                   substr(tt-report.key-04,1,6) eq "")
+              and ((tt-fg-bin.job-no          eq substr(tt-report.key-04,1,iJobLen) and
+                    tt-fg-bin.job-no2         eq int(substr(tt-report.key-04,(iJobLen + 1),3))) or
+                   substr(tt-report.key-04,1,iJobLen) eq "")
             no-lock
             break by tt-fg-bin.job-no
                   by tt-fg-bin.job-no2
@@ -320,14 +320,14 @@
           if first(tt-fg-bin.job-no2) THEN DO:
             put skip(1)
                 space(34)
-                "Bins: Job "
+                "Bins: Job    "
                 "Whs   "
                 "Bin      "
                 "Tag      "
                 "        Qty"
                 skip
                 space(34)
-                "--------- "
+                "------------- "
                 "----- "
                 "-------- "
                 "-------- "
@@ -366,10 +366,10 @@
         
         
           put space(34)
-              fill(" ",6 - length(trim(tt-fg-bin.job-no))) +
+              FILL(" ", iJobLen - length(trim(tt-fg-bin.job-no))) +
               trim(tt-fg-bin.job-no) + 
-              (if tt-fg-bin.job-no ne "" then ("-" + string(tt-fg-bin.job-no2,"99"))
-               else "")                   format "x(9)"
+              (if tt-fg-bin.job-no ne "" then ("-" + string(tt-fg-bin.job-no2,"999"))
+               else "")                   format "x(13)"
               space(1)
               tt-fg-bin.loc
               space(1)
@@ -396,7 +396,7 @@
                   '"' ""                                                '",'
                   '"' trim(tt-fg-bin.job-no) + 
                       (if tt-fg-bin.job-no ne "" then "-"
-                      + string(tt-fg-bin.job-no2,"99") ELSE "")         '",'
+                      + string(tt-fg-bin.job-no2,"999") ELSE "")         '",'
                   '"' tt-fg-bin.loc                                     '",'
                   '"' tt-fg-bin.loc-bin                                 '",'
                   '"' (IF SUBSTR(tt-fg-bin.tag,1,15) EQ tt-fg-bin.i-no
@@ -411,7 +411,7 @@
                   '"' ""                                                '",'
                   '"' trim(tt-fg-bin.job-no) + 
                       (if tt-fg-bin.job-no ne "" then "-"
-                      + string(tt-fg-bin.job-no2,"99") ELSE "")         '",'
+                      + string(tt-fg-bin.job-no2,"999") ELSE "")         '",'
                   '"' tt-fg-bin.loc                                     '",'
                   '"' tt-fg-bin.loc-bin                                 '",'
                   '"' (IF SUBSTR(tt-fg-bin.tag,1,15) EQ tt-fg-bin.i-no

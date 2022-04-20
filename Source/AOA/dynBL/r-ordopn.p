@@ -11,6 +11,7 @@
 /* Temp-Table Definitions ---                                           */
 
 &Scoped-define ttTempTable ttOpenOrderReport 
+{sys/inc/var.i}
 {aoa/tempTable/ttOpenOrderReport.i}
 {aoa/tempTable/ttOpenOrderReportDetail.i}
 
@@ -130,8 +131,8 @@ PROCEDURE pBusinessLogic:
         EACH oe-ordl OF oe-ord NO-LOCK
         WHERE oe-ordl.i-no     GE cStartItemNo
           AND oe-ordl.i-no     LE cEndItemNo
-          AND FILL(" ",9 - LENGTH(TRIM(oe-ordl.job-no))) + TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999") GE cStartJobNo
-          AND FILL(" ",9 - LENGTH(TRIM(oe-ordl.job-no))) + TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999") LE cEndJobNo
+          AND FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) + TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999") GE cStartJobNo
+          AND FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) + TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999") LE cEndJobNo
           AND oe-ordl.po-no    GE cStartPONumber
           AND oe-ordl.po-no    LE cEndPONumber
           AND oe-ordl.s-man[1] GE cStartSalesRep

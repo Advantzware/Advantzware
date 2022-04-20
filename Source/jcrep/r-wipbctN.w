@@ -146,12 +146,12 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_cat AS CHARACTER FORMAT "X(5)" 
      LABEL "Beginning Category" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
@@ -166,12 +166,12 @@ DEFINE VARIABLE clsd_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
 DEFINE VARIABLE end_cat AS CHARACTER FORMAT "X(5)" INITIAL "zzzzz" 
      LABEL "Ending Category" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
@@ -292,17 +292,17 @@ DEFINE FRAME FRAME-A
      rd_mch-ind AT ROW 5.76 COL 39 NO-LABEL
      lbl_mch-rate AT ROW 6.71 COL 20 COLON-ALIGNED NO-LABEL
      rd_mch-rate AT ROW 6.71 COL 39 NO-LABEL
-     begin_cat AT ROW 8.62 COL 28 COLON-ALIGNED HELP
+     begin_cat AT ROW 8.62 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Category"
-     end_cat AT ROW 8.62 COL 65 COLON-ALIGNED HELP
+     end_cat AT ROW 8.62 COL 67 COLON-ALIGNED HELP
           "Enter Ending Category"
-     begin_job-no AT ROW 9.57 COL 28 COLON-ALIGNED HELP
+     begin_job-no AT ROW 9.57 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      begin_job-no2 AT ROW 9.57 COL 41 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     end_job-no AT ROW 9.57 COL 65 COLON-ALIGNED HELP
+     end_job-no AT ROW 9.57 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 9.57 COL 78 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 9.57 COL 82 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      sl_avail AT ROW 11.95 COL 4 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 11.95 COL 40.6 HELP

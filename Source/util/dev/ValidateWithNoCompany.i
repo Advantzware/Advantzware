@@ -48,4 +48,9 @@ IF oplIsValid THEN DO:
             oplIsValid = NO 
             opcMessage = cMessage + " is not valid."
             .
+    IF AVAILABLE {&ValidateTable} and "{&ValidateTable}" EQ "arClass" and  "{&ValidateField}" EQ "classID"
+          AND arclass.inActive EQ YES  THEN
+          ASSIGN     
+            oplIsValid = NO 
+            opcMessage = cMessage + " is Inactive." .
 END.

@@ -1060,7 +1060,7 @@ PROCEDURE pFGQuantityAdjust PRIVATE:
             WHERE bf-fg-bin.company EQ ipcCompany
               AND bf-fg-bin.i-no    EQ ipcItemID
               AND bf-fg-bin.onHold  EQ NO
-              AND trim(bf-fg-bin.job-no)  EQ trim(ipcJobNo)
+              AND bf-fg-bin.job-no  EQ ipcJobNo
               AND bf-fg-bin.job-no2 EQ ipiJobNo2
               AND bf-fg-bin.qty     GT 0
             USE-INDEX i-no
@@ -2078,7 +2078,7 @@ PROCEDURE pBuildFGBinForItem PRIVATE:
           AND bf-fg-bin.i-no    EQ bf-itemfg.i-no
           AND ((bf-fg-bin.loc     EQ ipcWarehouseID) OR lIsWarehouseEmpty)
           AND ((bf-fg-bin.loc-bin EQ ipcLocationID)  OR lIsLocationEmpty)
-          AND ((trim(bf-fg-bin.job-no)  EQ trim(ipcJobNo) AND bf-fg-bin.job-no2 EQ ipiJobNo2) OR lIsJobNoEmpty)
+          AND ((bf-fg-bin.job-no  EQ ipcJobNo AND bf-fg-bin.job-no2 EQ ipiJobNo2) OR lIsJobNoEmpty)
           AND (((bf-fg-bin.qty NE 0)  AND NOT iplZeroQtyBins) OR iplZeroQtyBins)
           AND (((bf-fg-bin.tag NE "") AND NOT iplEmptyTags)   OR iplEmptyTags):        
         CREATE ttBrowseInventory.
@@ -3745,7 +3745,7 @@ PROCEDURE Inventory_CheckPOUnderOver:
     FOR EACH fg-rctd NO-LOCK
         WHERE fg-rctd.company     EQ ipcCompany 
           AND(fg-rctd.rita-code   EQ "R" OR fg-rctd.rita-code EQ "E")
-          AND TRIM(fg-rctd.job-no)EQ ipcJobNo
+          AND fg-rctd.job-no      EQ ipcJobNo
           AND fg-rctd.job-no2     EQ ipiJobNo2
           AND fg-rctd.i-no        EQ ipcItem
           AND fg-rctd.po-no       EQ ipcPoNo
@@ -3761,7 +3761,7 @@ PROCEDURE Inventory_CheckPOUnderOver:
           AND po-ordl.po-no     EQ INTEGER(ipcPoNo)
           AND po-ordl.LINE      EQ ipiPoLine
           AND po-ordl.i-no      EQ ipcItem
-          AND trim(po-ordl.job-no) EQ ipcJobNo
+          AND po-ordl.job-no    EQ ipcJobNo
           AND po-ordl.job-no2   EQ ipiJobNo2
           AND po-ordl.item-type EQ NO
         NO-ERROR.
@@ -3841,7 +3841,7 @@ PROCEDURE Inventory_CheckJobUnderOver:
     FOR EACH fg-rctd NO-LOCK
         WHERE fg-rctd.company     EQ ipcCompany 
           AND(fg-rctd.rita-code   EQ "R" OR fg-rctd.rita-code EQ "E")
-          AND TRIM(fg-rctd.job-no)EQ ipcJobNo
+          AND fg-rctd.job-no      EQ ipcJobNo
           AND fg-rctd.job-no2     EQ ipiJobNo2
           AND fg-rctd.i-no        EQ ipcItem
           AND fg-rctd.po-no       EQ ipcPoNo
@@ -3853,7 +3853,7 @@ PROCEDURE Inventory_CheckJobUnderOver:
     FIND FIRST job-hdr NO-LOCK
          WHERE job-hdr.company EQ ipcCompany                       
            AND job-hdr.i-no    EQ ipcItem
-           AND trim(job-hdr.job-no) EQ ipcJobNo
+           AND job-hdr.job-no  EQ ipcJobNo
            AND job-hdr.job-no2 EQ ipiJobNo2
         NO-ERROR.
     IF AVAILABLE job-hdr THEN DO: 
@@ -3993,7 +3993,7 @@ PROCEDURE Inventory_GetReceivedQuantityPO:
     
    FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK 
        WHERE fg-rcpth.company   EQ ipcCompany
-         AND trim(fg-rcpth.job-no) EQ trim(ipcJobNo)
+         AND fg-rcpth.job-no    EQ ipcJobNo
          AND fg-rcpth.job-no2   EQ ipiJobNo2
          AND fg-rcpth.po-no     EQ ipcPoNo
          AND fg-rcpth.po-line   EQ ipiPoLine
@@ -4563,7 +4563,7 @@ PROCEDURE pPostRawMaterials PRIVATE:
                     ASSIGN
                         oplSuccess = FALSE
                         opcMessage = "Job Mat Record not found for "
-                                   + STRING(bf-job.job-no + "-" + STRING(bf-job.job-no2,"99") + "  " + bf-rm-rctd.i-no)
+                                   + STRING(bf-job.job-no + "-" + STRING(bf-job.job-no2,"999") + "  " + bf-rm-rctd.i-no)
                         .
 
                     UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
@@ -5548,7 +5548,7 @@ PROCEDURE pBuildFGInventoryStockForItem PRIVATE:
                     inventoryStock.costStandardVOH            = fg-rdtlh.std-var-cost
                     inventoryStock.costStandardFOH            = fg-rdtlh.std-fix-cost
 /*                     inventoryStock.sourceID                   = IF fg-rcpth.job-no NE "" THEN */
-/*                                                                     FILL(" ",6 - LENGTH(LEFT-TRIM(TRIM(fg-rcpth.job-no)))) + STRING(fg-rcpth.job-no2,"99") */
+/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(fg-rcpth.job-no)))) + STRING(fg-rcpth.job-no2,"99") */
 /*                                                                 ELSE */
 /*                                                                     "" */
                     inventoryStock.sourceID                   = fg-rdtlh.rec_key
@@ -5693,7 +5693,7 @@ PROCEDURE pBuildRMInventoryStockForItem PRIVATE:
                     inventoryStock.basisWeightUOM             = gcUOMWeightBasis
                     inventoryStock.weightUOM                  = gcUOMWeight
 /*                     inventoryStock.sourceID                   = IF rm-rcpth.job-no NE "" THEN */
-/*                                                                     FILL(" ",6 - LENGTH(LEFT-TRIM(TRIM(rm-rcpth.job-no)))) + STRING(rm-rcpth.job-no2,"99") */
+/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(rm-rcpth.job-no)))) + STRING(rm-rcpth.job-no2,"99") */
 /*                                                                 ELSE */
 /*                                                                     "" */
                     inventoryStock.sourceID                   = rm-rdtlh.rec_key
@@ -6936,7 +6936,7 @@ PROCEDURE CreateTransactionInitializedFromJob:
 
     FIND FIRST job-hdr NO-LOCK
          WHERE job-hdr.company  EQ ipcCompany
-           AND trim(job-hdr.job-no)   EQ trim(ipcJobno)
+           AND job-hdr.job-no   EQ ipcJobno
            AND job-hdr.job-no2  EQ ipiJobno2
     NO-ERROR.
     IF NOT AVAILABLE job-hdr THEN DO:
@@ -8272,7 +8272,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
     IF iplUseInventoryTables THEN DO:
         FOR EACH inventoryStock NO-LOCK
            WHERE inventoryStock.company   EQ ipcCompany
-             AND trim(inventoryStock.jobID) EQ trim(ipcJobno)
+             AND inventoryStock.jobID     EQ ipcJobno
              AND inventoryStock.jobID2    EQ ipiJobno2   
              AND (IF ipcMachine           EQ "" THEN TRUE 
                   ELSE inventoryStock.MachineID EQ ipcMachine)
@@ -8291,7 +8291,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
               AND bf-rm-rctd.rita-code EQ ipcTransactionType
               AND bf-rm-rctd.qty       GT 0
               AND bf-rm-rctd.tag       NE ''
-              AND trim(bf-rm-rctd.job-no) EQ trim(ipcJobNo)
+              AND bf-rm-rctd.job-no    EQ ipcJobNo
               AND bf-rm-rctd.job-no2   EQ ipiJobNo2
               AND bf-rm-rctd.s-num     EQ ipiFormNo
               AND bf-rm-rctd.b-num     EQ ipiBlankNo
@@ -8400,7 +8400,7 @@ PROCEDURE RebuildWIPBrowseTT:
     
     FOR EACH inventoryStock NO-LOCK
        WHERE inventoryStock.company   EQ ipcCompany
-         AND trim(inventoryStock.jobID) EQ trim(ipcJobno)
+         AND inventoryStock.jobID     EQ ipcJobno
          AND inventoryStock.jobID2    EQ ipiJobno2   
          AND (IF ipcMachine           EQ "" THEN TRUE 
               ELSE inventoryStock.MachineID EQ ipcMachine)
@@ -9854,6 +9854,43 @@ PROCEDURE UpdateFGLocationOnHandQty:
     RELEASE bf-itemfg-loc.
     RELEASE bf-itemfg.
 END.
+
+PROCEDURE Inventory_DeleteInventorySnapshot:
+    DEFINE INPUT PARAMETER iproInventorySnapshotRowID AS ROWID   NO-UNDO.
+    DEFINE INPUT PARAMETER iplProgressBar             AS LOGICAL NO-UNDO.
+
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTotal AS INTEGER NO-UNDO.
+
+    FIND FIRST InventorySnapshot EXCLUSIVE-LOCK
+         WHERE ROWID(InventorySnapshot) EQ iproInventorySnapshotRowID
+         NO-ERROR.    
+    IF AVAILABLE InventorySnapshot THEN DO:
+        IF iplProgressBar THEN
+        FOR EACH inventoryStockSnapshot NO-LOCK
+            WHERE inventoryStockSnapshot.company EQ InventorySnapshot.company
+              AND inventoryStockSnapshot.InventorySnapshotID EQ InventorySnapshot.InventorySnapshotID
+            :                 
+            iTotal = iTotal + 1.
+            RUN spProgressBar ("Count Inventory Snapshot Records for Deletion", iTotal, ?).        
+        END. // for each
+        FOR EACH inventoryStockSnapshot EXCLUSIVE-LOCK
+            WHERE inventoryStockSnapshot.company EQ InventorySnapshot.company
+              AND inventoryStockSnapshot.InventorySnapshotID EQ InventorySnapshot.InventorySnapshotID
+            :                 
+            DELETE inventoryStockSnapshot.
+            IF iplProgressBar THEN DO:
+                iCount = iCount + 1.
+                RUN spProgressBar ("Deleting Inventory Snapshot Records", iCount, iTotal).
+            END. // if progress bar
+        END. // for each
+        DELETE InventorySnapshot.
+        IF iplProgressBar THEN
+        RUN spProgressBar (?, ?, 100).
+    END. // if avail
+
+END PROCEDURE.
+
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fCanDeleteInventoryStock RETURNS LOGICAL 

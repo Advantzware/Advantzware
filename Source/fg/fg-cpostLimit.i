@@ -62,9 +62,9 @@ DO:
     ELSE 
     DO:
         FIND FIRST job-hdr NO-LOCK
-            WHERE job-hdr.company      EQ cocode
+            WHERE job-hdr.company     EQ cocode
             AND job-hdr.i-no         EQ {1}fg-rctd.i-no
-            AND trim(job-hdr.job-no) EQ trim({1}fg-rctd.job-no)
+            AND job-hdr.job-no       EQ {1}fg-rctd.job-no
             AND job-hdr.job-no2      EQ {1}fg-rctd.job-no2
             USE-INDEX i-no
             NO-ERROR.                   

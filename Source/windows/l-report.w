@@ -36,6 +36,8 @@ def input param ip-item like oe-ordl.i-no no-undo.
 def input param ip-uom like oe-ordl.pr-uom no-undo.
 
 def output param op-char-val as cha no-undo.
+{sys/inc/var.i}
+
 def var v-term as cha no-undo.
 def var v-term-2 as cha no-undo.
 

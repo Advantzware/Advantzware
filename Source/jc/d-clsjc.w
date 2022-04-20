@@ -351,10 +351,10 @@ DO:
                           AND misc-act.job     EQ job.job
                           AND misc-act.job-no  EQ job.job-no
                           AND misc-act.job-no2 EQ job.job-no2))          
-          AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) +
               TRIM(job.job-no) +
               STRING(job.job-no2,"999")         GE begin_job
-          AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) +
               TRIM(job.job-no) +
               STRING(job.job-no2,"999")         LE end_job
           AND job.job-no2                       GE int(begin_job2)
@@ -365,7 +365,7 @@ DO:
         {jc/jc-close.i}
         FOR EACH rm-rctd EXCLUSIVE-LOCK
             WHERE rm-rctd.company = job.company
-              AND trim(rm-rctd.job-no) = TRIM(job.job-no)  
+              AND rm-rctd.job-no  = job.job-no  
               AND rm-rctd.job-no2 = job.job-no2
               AND rm-rctd.rita-code = "I"
             :
@@ -380,10 +380,10 @@ DO:
     FOR EACH job NO-LOCK
         WHERE job.company              EQ cocode
           AND job.opened               EQ ll-close          
-          AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) +
               TRIM(job.job-no) +
               STRING(job.job-no2,"999") GE begin_job
-              AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
+              AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) +
               TRIM(job.job-no) +
               STRING(job.job-no2,"999") LE end_job
           AND job.job-no2               GE int(begin_job2)

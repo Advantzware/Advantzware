@@ -1370,9 +1370,9 @@ display "" with frame r-top.
   for each mch-act 
   where mch-act.company = cocode 
     AND mch-act.op-date = v-date
-    AND fill(" ",9 - length(TRIM(mch-act.job-no))) +
+    AND FILL(" ", iJobLen - length(TRIM(mch-act.job-no))) +
     trim(mch-act.job-no) + string(int(mch-act.job-no2),"999") GE v-job-no[1] 
-    AND fill(" ",9 - length(TRIM(mch-act.job-no))) +
+    AND FILL(" ", iJobLen - length(TRIM(mch-act.job-no))) +
     trim(mch-act.job-no) + string(int(mch-act.job-no2),"999") LE v-job-no[2]
     AND mch-act.job-no2 GE int(begin_job-no2)
     AND mch-act.job-no2 LE int(end_job-no2)             
@@ -1392,9 +1392,9 @@ display "" with frame r-top.
    
   for each mat-act where mat-act.company = cocode and
                           mat-act.mat-date = v-date
-                          AND fill(" ",9 - length(TRIM(mat-act.job-no))) +
+                          AND FILL(" ", iJobLen - length(TRIM(mat-act.job-no))) +
                           trim(mat-act.job-no) + string(int(mat-act.job-no2),"999") GE v-job-no[1] 
-                          AND fill(" ",9 - length(TRIM(mat-act.job-no))) +
+                          AND FILL(" ", iJobLen - length(TRIM(mat-act.job-no))) +
                           trim(mat-act.job-no) + string(int(mat-act.job-no2),"999") LE v-job-no[2]
                           AND mat-act.job-no2 GE int(begin_job-no2)
                           AND mat-act.job-no2 LE int(end_job-no2) 
@@ -1413,9 +1413,9 @@ display "" with frame r-top.
    end.
    for each fg-act where fg-act.company = cocode and
                          fg-act.fg-date = v-date
-                         AND fill(" ",9 - length(TRIM(fg-act.job-no))) +
+                         AND FILL(" ", iJobLen - length(TRIM(fg-act.job-no))) +
                          trim(fg-act.job-no) + string(int(fg-act.job-no2),"999") GE v-job-no[1] 
-                         AND fill(" ",9 - length(TRIM(fg-act.job-no))) +
+                         AND FILL(" ", iJobLen - length(TRIM(fg-act.job-no))) +
                          trim(fg-act.job-no) + string(int(fg-act.job-no2),"999") LE v-job-no[2]
                          AND fg-act.job-no2 GE int(begin_job-no2)
                          AND fg-act.job-no2 LE int(end_job-no2)
@@ -1435,9 +1435,9 @@ display "" with frame r-top.
 
    for each misc-act where misc-act.company = cocode and
                            misc-act.misc-date = v-date
-                           AND fill(" ",9 - length(TRIM(misc-act.job-no))) +
+                           AND FILL(" ", iJobLen - length(TRIM(misc-act.job-no))) +
                            trim(misc-act.job-no) + string(int(misc-act.job-no2),"999") GE v-job-no[1] 
-                           AND fill(" ",9 - length(TRIM(misc-act.job-no))) +
+                           AND FILL(" ", iJobLen - length(TRIM(misc-act.job-no))) +
                            trim(misc-act.job-no) + string(int(misc-act.job-no2),"999") LE v-job-no[2]
                            AND misc-act.job-no2 GE int(begin_job-no2)
                            AND misc-act.job-no2 LE int(end_job-no2)

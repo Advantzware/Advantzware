@@ -1882,10 +1882,10 @@ PROCEDURE run-report :
             AND rm-rdtlh.loc       LE v-tloc
             AND rm-rdtlh.job-no    GE v-fjob1 
             AND rm-rdtlh.job-no    LE v-tjob1
-            AND fill(" ",9 - length(TRIM(rm-rdtlh.job-no))) +
+            AND FILL(" ", iJobLen - length(TRIM(rm-rdtlh.job-no))) +
             trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
             GE v-fjob
-            AND fill(" ",9 - length(TRIM(rm-rdtlh.job-no))) +
+            AND FILL(" ", iJobLen - length(TRIM(rm-rdtlh.job-no))) +
             trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
             LE v-tjob
             NO-LOCK,
@@ -1947,10 +1947,10 @@ PROCEDURE run-report :
                 FOR EACH rm-rdtlh WHERE
                     rm-rdtlh.company EQ cocode AND
                     rm-rdtlh.job-no  EQ v-fjob1 AND 
-                    fill(" ",9 - length(TRIM(rm-rdtlh.job-no))) +
+                    FILL(" ", iJobLen - length(TRIM(rm-rdtlh.job-no))) +
                     trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                     GE v-fjob AND
-                    fill(" ",9 - length(TRIM(rm-rdtlh.job-no))) +
+                    FILL(" ", iJobLen - length(TRIM(rm-rdtlh.job-no))) +
                     trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                     LE v-tjob AND
           index(v-type,rm-rdtlh.rita-code) GT 0 AND
@@ -1996,10 +1996,10 @@ PROCEDURE run-report :
                         AND rm-rdtlh.loc       LE v-tloc
                         AND rm-rdtlh.job-no    GE v-fjob1 
                         AND rm-rdtlh.job-no    LE v-tjob1
-                        AND fill(" ",9 - length(TRIM(rm-rdtlh.job-no))) +
+                        AND FILL(" ", iJobLen - length(TRIM(rm-rdtlh.job-no))) +
                         trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                         GE v-fjob
-                        AND fill(" ",9 - length(TRIM(rm-rdtlh.job-no))) +
+                        AND FILL(" ", iJobLen - length(TRIM(rm-rdtlh.job-no))) +
                         trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                         LE v-tjob
                         NO-LOCK,
@@ -2036,10 +2036,10 @@ PROCEDURE run-report :
                         AND rm-rdtlh.loc       LE v-tloc
                         AND rm-rdtlh.job-no    GE v-fjob1 
                         AND rm-rdtlh.job-no    LE v-tjob1
-                        AND fill(" ",9 - length(TRIM(rm-rdtlh.job-no))) +
+                        AND FILL(" ", iJobLen - length(TRIM(rm-rdtlh.job-no))) +
                         trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                         GE v-fjob
-                        AND fill(" ",9 - length(TRIM(rm-rdtlh.job-no))) +
+                        AND FILL(" ", iJobLen - length(TRIM(rm-rdtlh.job-no))) +
                         trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                         LE v-tjob
                         NO-LOCK,

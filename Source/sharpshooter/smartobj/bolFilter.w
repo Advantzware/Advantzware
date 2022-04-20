@@ -59,7 +59,7 @@ oBOLHeader = NEW bol.BOLHeader().
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnKeyboardBOL fiBOL 
+&Scoped-Define ENABLED-OBJECTS btFind btnKeyboardBOL fiBOL 
 &Scoped-Define DISPLAYED-OBJECTS fiBOL 
 
 /* Custom List Definitions                                              */
@@ -74,6 +74,11 @@ oBOLHeader = NEW bol.BOLHeader().
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btFind 
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Find" 
+     SIZE 8 BY 1.91.
+     
 DEFINE BUTTON btnKeyboardBOL 
      IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS
      LABEL "Keyboard" 
@@ -89,6 +94,7 @@ DEFINE VARIABLE fiBOL AS INTEGER FORMAT ">>>>>>>":U INITIAL 0
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btFind AT ROW 1 COL 44 WIDGET-ID 4
      btnKeyboardBOL AT ROW 1.24 COL 43.8 WIDGET-ID 136 NO-TAB-STOP 
      fiBOL AT ROW 1.24 COL 8.6 COLON-ALIGNED WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -173,6 +179,16 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
+&Scoped-define SELF-NAME btFind
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btFind s-object
+ON CHOOSE OF btFind IN FRAME F-Main /* Find */
+DO:
+    APPLY "HELP" TO fiBOL.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &Scoped-define SELF-NAME btnKeyboardBOL
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardBOL s-object
 ON CHOOSE OF btnKeyboardBOL IN FRAME F-Main /* Keyboard */
@@ -215,7 +231,29 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBOL s-object
 ON HELP OF fiBOL IN FRAME F-Main /* BOL */
 DO:
-    RUN applhelp.p.  
+    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
+  
+    RUN system/openlookup.p (
+        INPUT  "",  /* company */ 
+        INPUT  "",  /* lookup field */
+        INPUT  38, /* Subject ID */
+        INPUT  "",  /* User ID */
+        INPUT  0,   /* Param value ID */
+        OUTPUT returnFields, 
+        OUTPUT lookupField, 
+        OUTPUT recVal
+        ). 
+
+    IF lookupField NE "" THEN DO:
+        SELF:SCREEN-VALUE = IF NUM-ENTRIES(returnFields,"|") GE 2 THEN
+                                ENTRY(2, returnFields, "|")
+                            ELSE
+                                "".
+        
+        APPLY "LEAVE" TO SELF.
+    END.   
 END.
 
 /* _UIB-CODE-BLOCK-END */

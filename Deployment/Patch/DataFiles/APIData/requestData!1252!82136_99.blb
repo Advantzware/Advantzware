@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AmsData CompanyCode="$CompanyID$_$Location$" LocationCode="$Location$" ProgramName="IntegrationSamples.exe" Version="1.0.0.3" SendDate="$CurrentDateTime|YYYY-MM-DDThh:mm:ss|DATE|$" Machine="HMPAPP02" MessageId="2" FileName="PartReceivedQty.xml">
+   <Order Code="$JobID|X(6)|||TRIM|$-$JobID2|999|INT|$" Action="None">
+    <Parts>
+        <Part Code="$Item$" Action="Update">
+        <Attributes>
+          <Attribute Name="QtyReceived" Value="$QuantityReceivedJobTotal$" />
+        </Attributes>
+      </Part>
+    </Parts>
+   </Order>
+</AmsData>

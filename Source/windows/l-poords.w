@@ -36,6 +36,7 @@ def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def input parameter ip-po-no like po-ordl.po-no no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 &scoped-define SORTBY-1 BY po-ordl.po-no
 &scoped-define SORTBY-2 BY po-ordl.i-name

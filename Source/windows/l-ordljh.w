@@ -85,7 +85,7 @@ ASI.oe-ordl.opened  eq yes and ~
 ASI.oe-ordl.cust-no eq ip-cust-no and ~
 LOOKUP(ASI.oe-ordl.i-no,ip-i-no) GT 0 and ~
 (ASI.oe-ordl.job-no eq "" or ~
- (TRIM(ASI.oe-ordl.job-no) eq TRIM(ip-job-no) and ~
+ (ASI.oe-ordl.job-no eq ip-job-no and ~
   oe-ordl.job-no2 eq ip-job-no2)) NO-LOCK, ~
       FIRST oe-ord OF oe-ordl NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -95,7 +95,7 @@ ASI.oe-ordl.opened  eq yes and ~
 ASI.oe-ordl.cust-no eq ip-cust-no and ~
 LOOKUP(ASI.oe-ordl.i-no,ip-i-no) GT 0 and ~
 (ASI.oe-ordl.job-no eq "" or ~
- (TRIM(ASI.oe-ordl.job-no) eq TRIM(ip-job-no) and ~
+ (ASI.oe-ordl.job-no eq ip-job-no and ~
   oe-ordl.job-no2 eq ip-job-no2)) NO-LOCK, ~
       FIRST oe-ord OF oe-ordl NO-LOCK ~
     ~{&SORTBY-PHRASE}.
@@ -234,7 +234,7 @@ ASI.oe-ordl.opened  eq yes and
 ASI.oe-ordl.cust-no eq ip-cust-no and
 LOOKUP(ASI.oe-ordl.i-no,ip-i-no) GT 0 and
 (ASI.oe-ordl.job-no eq """" or
- (TRIM(ASI.oe-ordl.job-no) eq TRIM(ip-job-no) and
+ (ASI.oe-ordl.job-no eq ip-job-no and
   ASI.oe-ordl.job-no2 eq ip-job-no2))"
      _FldNameList[1]   > ASI.oe-ordl.ord-no
 "oe-ordl.ord-no" ? ? "integer" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" ""

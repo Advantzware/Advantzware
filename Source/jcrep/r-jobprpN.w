@@ -130,12 +130,12 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer#" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
@@ -145,17 +145,17 @@ DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000"
 DEFINE VARIABLE begin_prep AS CHARACTER FORMAT "X(15)":U 
      LABEL "Beginning Prep Code" 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Customer#" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
@@ -165,7 +165,7 @@ DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999"
 DEFINE VARIABLE end_prep AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz" 
      LABEL "Ending Prep Code" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-jobprp.csv" 
      LABEL "Name" 
@@ -176,7 +176,7 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-jobprp.c
 DEFINE VARIABLE from_date AS DATE FORMAT "99/99/9999":U 
      LABEL "Beginning Due Date" 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -195,7 +195,7 @@ DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "10"
 DEFINE VARIABLE to_date AS DATE FORMAT "99/99/9999":U 
      LABEL "Ending Due Date" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -269,11 +269,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Customer Number" WIDGET-ID 4
      begin_job-no AT ROW 4.52 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 30
-     begin_job-no2 AT ROW 4.52 COL 40 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.52 COL 42 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 32
      end_job-no AT ROW 4.52 COL 68 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 34
-     end_job-no2 AT ROW 4.52 COL 81 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.52 COL 83.3 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 36
      begin_prep AT ROW 5.52 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Order Number" WIDGET-ID 26
@@ -1474,10 +1474,10 @@ display "" with frame r-top.
 
 IF rsGroupBy BEGINS "Customer" THEN
 for EACH ASI.job-prep WHERE job-prep.company eq cocode                      
-                    and fill(" ",9 - length(trim(job-PREP.job-no))) +
+                    and FILL(" ", iJobLen - length(trim(job-PREP.job-no))) +
                   trim(job-prep.job-no) + string(job-prep.job-no2,"999")
                               ge v-fjob
-              and fill(" ",9 - length(trim(job-prep.job-no))) +
+              and FILL(" ", iJobLen - length(trim(job-prep.job-no))) +
                   trim(job-prep.job-no) + string(job-prep.job-no2,"999")
                               le v-tjob
                     AND job-prep.job-no2 GE int(begin_job-no2)
@@ -1587,10 +1587,10 @@ END.
 
 ELSE /* prep code */
     for EACH ASI.job-prep WHERE job-prep.company eq cocode                          
-                        and fill(" ",6 - length(trim(job-PREP.job-no))) +
+                        and FILL(" ", iJobLen - length(trim(job-PREP.job-no))) +
                       trim(job-prep.job-no) + string(job-prep.job-no2,"99")
                                   ge v-fjob
-                  and fill(" ",6 - length(trim(job-prep.job-no))) +
+                  and FILL(" ", iJobLen - length(trim(job-prep.job-no))) +
                       trim(job-prep.job-no) + string(job-prep.job-no2,"99")
                                   le v-tjob
                          AND job-prep.job-no2 GE int(begin_job-no2)

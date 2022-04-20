@@ -306,7 +306,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
     
             FIND FIRST job
                 WHERE job.company EQ cocode
-                  AND trim(job.job-no)  EQ trim(po-ordl.job-no)
+                  AND job.job-no  EQ po-ordl.job-no
                   AND job.job-no2 EQ po-ordl.job-no2
                 NO-LOCK NO-ERROR.
         

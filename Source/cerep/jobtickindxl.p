@@ -1167,9 +1167,9 @@ PROCEDURE MainLoop :
   /* Go through each jobs selected by the user. */
   for  each job-hdr no-lock
       where job-hdr.company   = cocode
-        and FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) + TRIM(job-hdr.job-no) ge icBegJobNo
+        and FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) + TRIM(job-hdr.job-no) ge icBegJobNo
         and job-hdr.job-no2   ge iiBegJobNo2
-        and FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) + TRIM(job-hdr.job-no) le icEndJobNo
+        and FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) + TRIM(job-hdr.job-no) le icEndJobNo
         and job-hdr.job-no2   le iiEndJobNo2,
       first eb no-lock
       where eb.company        = job-hdr.company

@@ -131,7 +131,7 @@ DEF VAR cPallet AS CHAR NO-UNDO.
 DEF VAR iPallets AS INT NO-UNDO.
 DEF VAR iPalletsPartial AS INT NO-UNDO.
 
-format w-oe-rell.ord-no                 to 6
+format w-oe-rell.ord-no                 to 8
        w-bin.w-par                      AT 10   format "x(30)"
        v-bin                            AT 40   format "x(20)"
        cDate                            AT 61   FORMAT "x(10)"

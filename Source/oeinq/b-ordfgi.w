@@ -91,7 +91,7 @@ ll-sort-asc = NOT oeinq.
           AND fg-rcpth.i-no       BEGINS fi_i-no                ~
           AND fg-rcpth.rita-code  BEGINS fi_rita-code           ~
           AND (fg-rcpth.po-no     EQ TRIM(STRING(fi_po-no,">>>>>>>>")) OR fi_po-no EQ 0) ~
-          AND fill(" ",9 - length(TRIM(fg-rcpth.job-no))) + trim(fg-rcpth.job-no) BEGINS fi_job-no              ~
+          AND FILL(" ", iJobLen - length(TRIM(fg-rcpth.job-no))) + trim(fg-rcpth.job-no) BEGINS fi_job-no              ~
           AND (fg-rcpth.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                           ~
@@ -322,7 +322,7 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
 DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1
+     SIZE 15 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
@@ -410,8 +410,8 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       fg-rcpth.po-line COLUMN-LABEL "PO Ln" FORMAT ">99":U
             LABEL-BGCOLOR 14
-      fg-rcpth.job-no FORMAT "x(9)":U WIDTH 14 LABEL-BGCOLOR 14
-      fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">>9":U LABEL-BGCOLOR 14
+      fg-rcpth.job-no FORMAT "x(9)":U WIDTH 15 LABEL-BGCOLOR 14
+      fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">>9":U LABEL-BGCOLOR 14 WIDTH 6
       display-bol() @ bol-no COLUMN-LABEL "BOL #" FORMAT ">>>>>>>9":U
       fg-rcpth.trans-date COLUMN-LABEL "TR Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
@@ -505,7 +505,7 @@ DEFINE FRAME F-Main
      btCompress AT ROW 4.81 COL 139.4 WIDGET-ID 12
      BTN-updt-trans-time AT ROW 3.57 COL 135.4 WIDGET-ID 8
      fi_i-no AT ROW 1.24 COL 12 COLON-ALIGNED
-     fi_job-no AT ROW 1.24 COL 62 COLON-ALIGNED
+     fi_job-no AT ROW 1.24 COL 58 COLON-ALIGNED
      fi_job-no2 AT ROW 1.24 COL 75 COLON-ALIGNED
      fi_rita-code AT ROW 1.24 COL 94 COLON-ALIGNED
      fi_date AT ROW 1.24 COL 116 COLON-ALIGNED
@@ -633,9 +633,9 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
      _FldNameList[2]   > ASI.fg-rcpth.po-no
 "fg-rcpth.po-no" "Vendor PO#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.fg-rcpth.job-no
-"fg-rcpth.job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rcpth.job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fg-rcpth.job-no2
-"fg-rcpth.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rcpth.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
 "display-bol() @ bol-no" "BOL #" ">>>>>>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.fg-rcpth.trans-date
@@ -927,7 +927,7 @@ DO:
             AND b-fg-rcpth2.i-no       BEGINS fi_i-no
             AND b-fg-rcpth2.rita-code  BEGINS fi_rita-code
             AND (b-fg-rcpth2.po-no     EQ TRIM(STRING(fi_po-no,">>>>>>>>")) OR fi_po-no EQ 0)
-            AND fill(" ",9 - length(TRIM(b-fg-rcpth2.job-no))) + trim(b-fg-rcpth2.job-no) BEGINS fi_job-no           
+            AND FILL(" ", iJobLen - length(TRIM(b-fg-rcpth2.job-no))) + trim(b-fg-rcpth2.job-no) BEGINS fi_job-no           
             AND (b-fg-rcpth2.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ ""),
             EACH b-fg-rdtlh2 EXCLUSIVE-LOCK   
             WHERE b-fg-rdtlh2.r-no      EQ b-fg-rcpth2.r-no     

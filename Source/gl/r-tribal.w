@@ -59,6 +59,17 @@ DEFINE VARIABLE cFileName      AS CHARACTER NO-UNDO.
 
 DEFINE STREAM excel.
 
+DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAuditdir AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (cocode, "AUDITDIR", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN cAuditdir = cReturn.
+
+IF LOOKUP(SUBSTR(cAuditdir,LENGTH(cAuditdir),1),"/,\") > 0 THEN
+    cAuditdir = SUBSTR(cAuditdir,1,LENGTH(cAuditdir) - 1).
+
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -590,6 +601,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
                     END.
+                    ELSE DO:
+                          OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
+                    END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
                 DO:
@@ -1010,6 +1024,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateAuditDir C-Win 
+PROCEDURE pCreateAuditDir :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE temp_fid   AS CHARACTER FORMAT "X(50)" NO-UNDO.
+    DEFINE VARIABLE dirname1   AS CHARACTER FORMAT "X(30)" NO-UNDO.
+    DEFINE VARIABLE dirname2   AS CHARACTER FORMAT "X(30)" NO-UNDO.
+  
+    ASSIGN
+        dirname1   = cAuditdir
+        dirname2   = cAuditdir + "\GT".
+
+    IF SEARCH(temp_fid) EQ ? THEN 
+    DO:
+        OS-CREATE-DIR VALUE(dirname1).
+        OS-CREATE-DIR VALUE(dirname2).
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
     /*------------------------------------------------------------------------------
@@ -1369,10 +1408,12 @@ PROCEDURE run-report :
     /* create a unique filename ... */
     temp_fid = 
         IF OPSYS EQ 'win32' THEN
-        "TryB" + substring(STRING(TODAY,"999999"),1,6) + ".csv"
+        cAuditdir + "\GT\" + "TryB" + substring(STRING(TODAY,"999999"),1,6) + ".csv"
         ELSE
-        "TryB" + substring(STRING(TODAY,"999999"),1,4) + ".csv".
+        cAuditdir + "\GT\" + "TryB" + substring(STRING(TODAY,"999999"),1,4) + ".csv".
 
+    RUN pCreateAuditDir.
+        
     time_stamp = STRING(TIME, "hh:mmam").
 
     {sys/form/r-topw3.f}
@@ -1700,8 +1741,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
     SESSION:SET-WAIT-STATE("").
@@ -1802,10 +1841,12 @@ PROCEDURE run-report-detail :
     /* create a unique filename ... */
     temp_fid = 
         IF OPSYS EQ 'win32' THEN
-        "TryB" + substring(STRING(TODAY,"999999"),1,6) + ".csv"
+        cAuditdir + "\GT\" + "TryB" + substring(STRING(TODAY,"999999"),1,6) + ".csv"
         ELSE
-        "TryB" + substring(STRING(TODAY,"999999"),1,4) + ".csv".
+        cAuditdir + "\GT\" + "TryB" + substring(STRING(TODAY,"999999"),1,4) + ".csv".
 
+    RUN pCreateAuditDir.
+        
     time_stamp = STRING(TIME, "hh:mmam").
 
     {sys/form/r-topw3.f}
@@ -2080,8 +2121,6 @@ PROCEDURE run-report-detail :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
     SESSION:SET-WAIT-STATE("").

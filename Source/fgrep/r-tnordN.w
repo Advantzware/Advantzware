@@ -167,82 +167,80 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_cat AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning Category" 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer#" 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE begin_cust-po AS CHARACTER FORMAT "X(15)":U 
      LABEL "Beginning Customer PO#" 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U 
      LABEL "Beginning Item#" 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job# on Order" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
-     LABEL "" 
      VIEW-AS FILL-IN 
      SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "Beginning Order#" 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_slm AS CHARACTER FORMAT "XXX":U 
      LABEL "Beginning Sales Rep#" 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_cat AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
      LABEL "Ending Category" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Customer#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_cust-po AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz" 
      LABEL "Ending Customer PO#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz" 
      LABEL "Ending Item#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job# On Order" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
-     LABEL "" 
      VIEW-AS FILL-IN 
      SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 99999999 
      LABEL "Ending Order#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_slm AS CHARACTER FORMAT "XXX":U INITIAL "zzz" 
      LABEL "Ending Sales Rep#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\FGTransactionByOrder.csv" 
      LABEL "Name" 
@@ -332,39 +330,39 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 DEFINE FRAME FRAME-A
      tb_cust-list AT ROW 2.24 COL 32.4 WIDGET-ID 6
      btnCustList AT ROW 2.29 COL 64.4 WIDGET-ID 8
-     begin_cust-no AT ROW 3.52 COL 28.8 COLON-ALIGNED HELP
+     begin_cust-no AT ROW 3.52 COL 26.6 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     end_cust-no AT ROW 3.52 COL 71.8 COLON-ALIGNED HELP
+     end_cust-no AT ROW 3.52 COL 71.6 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     begin_i-no AT ROW 4.48 COL 28.8 COLON-ALIGNED HELP
+     begin_i-no AT ROW 4.48 COL 26.6 COLON-ALIGNED HELP
           "Enter Beginning Order Number"
-     end_i-no AT ROW 4.48 COL 71.8 COLON-ALIGNED HELP
+     end_i-no AT ROW 4.48 COL 71.6 COLON-ALIGNED HELP
           "Enter Ending Item Number"
-     begin_cust-po AT ROW 5.43 COL 28.8 COLON-ALIGNED HELP
+     begin_cust-po AT ROW 5.43 COL 26.6 COLON-ALIGNED HELP
           "Enter Beginning Customer PO Number"
-     end_cust-po AT ROW 5.43 COL 71.8 COLON-ALIGNED HELP
+     end_cust-po AT ROW 5.43 COL 71.6 COLON-ALIGNED HELP
           "Enter Ending Customer PO Number"
-     begin_job-no AT ROW 6.38 COL 28.8 COLON-ALIGNED HELP
+     begin_job-no AT ROW 6.38 COL 26.6 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 6.38 COL 41.4 COLON-ALIGNED HELP
-          "Enter Beginning Job Number"
-     end_job-no AT ROW 6.38 COL 71.8 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 6.38 COL 41.6 COLON-ALIGNED HELP
+          "Enter Beginning Job Number" NO-LABEL
+     end_job-no AT ROW 6.38 COL 71.6 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 6.38 COL 83.4 COLON-ALIGNED HELP
-          "Enter Ending Job Number"
-     begin_ord-no AT ROW 7.33 COL 28.8 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 6.38 COL 86.6 COLON-ALIGNED HELP
+          "Enter Ending Job Number" NO-LABEL
+     begin_ord-no AT ROW 7.33 COL 26.6 COLON-ALIGNED HELP
           "Enter Beginning Order Number"
-     end_ord-no AT ROW 7.33 COL 71.8 COLON-ALIGNED HELP
+     end_ord-no AT ROW 7.33 COL 71.6 COLON-ALIGNED HELP
           "Enter Ending Order Number"
-     begin_cat AT ROW 8.38 COL 28.8 COLON-ALIGNED HELP
+     begin_cat AT ROW 8.38 COL 26.6 COLON-ALIGNED HELP
           "Enter Beginning Category" WIDGET-ID 2
-     end_cat AT ROW 8.38 COL 71.8 COLON-ALIGNED HELP
+     end_cat AT ROW 8.38 COL 71.6 COLON-ALIGNED HELP
           "Enter Ending Order Number" WIDGET-ID 4
-     begin_slm AT ROW 9.48 COL 28.8 COLON-ALIGNED HELP
+     begin_slm AT ROW 9.48 COL 26.6 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep Number" WIDGET-ID 6
-     end_slm AT ROW 9.48 COL 71.8 COLON-ALIGNED HELP
+     end_slm AT ROW 9.48 COL 71.6 COLON-ALIGNED HELP
           "Enter Ending Sales Rep Number" WIDGET-ID 8
-     tb_clo-ord AT ROW 10.62 COL 31
+     tb_clo-ord AT ROW 10.62 COL 28.8
      tb_new-ord AT ROW 10.67 COL 60.6
      sl_avail AT ROW 13.05 COL 3 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 13.05 COL 41 HELP
@@ -390,13 +388,13 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 25.05 COL 58
      " Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 18.57 COL 4.4
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 12.33 COL 3 WIDGET-ID 38
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 12.33 COL 61 WIDGET-ID 44
      " Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.1 COL 4.8
           BGCOLOR 15 
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 12.33 COL 61 WIDGET-ID 44
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 12.33 COL 3 WIDGET-ID 38
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -1927,9 +1925,9 @@ FOR EACH ttCustList
                           AND (oe-ordl.opened   EQ YES OR vinc)      
                           AND oe-ordl.po-no     GE fp-o
                           AND oe-ordl.po-no     LE tp-o      
-                          AND STRING(FILL(" ",9 - LENGTH(TRIM(oe-ordl.job-no))) +
+                          AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
                               TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999")) GE fjob
-                          AND STRING(FILL(" ",9 - LENGTH(TRIM(oe-ordl.job-no))) +
+                          AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
                               TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999")) LE tjob
                           AND oe-ordl.ord-no    GE ford
                           AND oe-ordl.ord-no    LE tord USE-INDEX item,
@@ -2195,7 +2193,7 @@ FOR EACH ttCustList
                   '"' v-cus                                         '",'
                   '"' v-itm                                         '",'
                   '"' oe-ordl.po-no                                 '",'
-                  '"' FILL(" ",9 - LENGTH(TRIM(fg-rcpth.job-no))) +
+                  '"' FILL(" ", iJobLen - LENGTH(TRIM(fg-rcpth.job-no))) +
                       TRIM(fg-rcpth.job-no) + "-" + STRING(fg-rcpth.job-no2,"999") '",'
                   '"' (IF v-qty NE 0 THEN v-qty ELSE 0)             '",'
                   '"' (IF vdet AND fg-rcpth.trans-date <> ? THEN
@@ -2431,9 +2429,9 @@ ASSIGN
    titm   = end_i-no
    fp-o   = begin_cust-po
    tp-o   = END_cust-po
-   fjob   = FILL(" ",9 - LENGTH(TRIM(begin_job-no))) +
+   fjob   = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
             TRIM(begin_job-no) + STRING(INT(begin_job-no2),"999")
-   tjob   = FILL(" ",9 - LENGTH(TRIM(end_job-no)))   +
+   tjob   = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no)))   +
             TRIM(end_job-no)   + STRING(INT(end_job-no2),"999")
    ford   = begin_ord-no
    tord   = end_ord-no
@@ -2516,9 +2514,9 @@ FOR EACH ttCustList
                           AND (oe-ordl.opened   EQ YES OR vinc)      
                           AND oe-ordl.po-no     GE fp-o
                           AND oe-ordl.po-no     LE tp-o      
-                          AND STRING(FILL(" ",9 - LENGTH(TRIM(oe-ordl.job-no))) +
+                          AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
                               TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999")) GE fjob
-                          AND STRING(FILL(" ",9 - LENGTH(TRIM(oe-ordl.job-no))) +
+                          AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
                               TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999")) LE tjob
                           AND oe-ordl.ord-no    GE ford
                           AND oe-ordl.ord-no    LE tord USE-INDEX item,
@@ -2724,7 +2722,7 @@ FOR EACH ttCustList
                   '"' v-cus                                         '",'
                   '"' v-itm                                         '",'
                   '"' oe-ordl.po-no                                 '",'
-                  '"' FILL(" ",9 - LENGTH(TRIM(fg-rcpth.job-no))) +
+                  '"' FILL(" ", iJobLen - LENGTH(TRIM(fg-rcpth.job-no))) +
                       TRIM(fg-rcpth.job-no) + "-" + STRING(fg-rcpth.job-no2,"999") '",'
                   '"' (IF v-qty NE 0 THEN v-qty ELSE 0)             '",'
                   '"' (IF vdet AND fg-rcpth.trans-date <> ? THEN

@@ -200,7 +200,7 @@ assign
             assign v-num-add = 0.
             v-adder = "".
             find first job where job.company eq cocode 
-                             and trim(job.job-no) eq trim(po-ordl.job-no) 
+                             and job.job-no eq po-ordl.job-no 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
             if avail job then

@@ -1109,8 +1109,7 @@ DO:
                             ll-all-warn = YES.
                         END.
         
-                    job-mat.post = CAN-DO("J",type-mat) OR 
-                                   CAN-FIND(FIRST materialType 
+                    job-mat.post = CAN-FIND(FIRST materialType 
                                             WHERE materialType.company      EQ job-mat.company 
                                               AND materialType.materialType EQ type-mat
                                               AND materialType.autoIssue    EQ TRUE).

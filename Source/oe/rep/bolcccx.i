@@ -151,7 +151,7 @@ for each report where report.term-id eq v-term-id,
         v-job-no = v-job-no + "-" + trim(string(job-hdr.frm)) + trim(string(job-hdr.blank-no)) .
     END.
 
-      /* v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
+      /* v-job-no = FILL(" ", iJobLen - length(trim(oe-ordl.job-no))) +
                trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")). */
     
     lv-cases = lv-cases-tot.

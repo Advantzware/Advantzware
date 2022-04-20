@@ -39,6 +39,8 @@ def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-val as recid no-undo.
 def var lv-type-dscr as cha no-undo.
 
+{sys/inc/var.i new shared}
+
 &scoped-define SORTBY-1 BY job-hdr.job-no DESCENDING
 &scoped-define SORTBY-2 BY job-hdr.i-no
 &scoped-define SORTBY-3 BY job-hdr.est-no
@@ -81,11 +83,11 @@ job-hdr.i-no job-hdr.est-no job-hdr.ord-no job-hdr.cust-no
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH job-hdr WHERE ~{&KEY-PHRASE} ~
       AND job-hdr.company = ip-company ~
-and TRIM(job-hdr.job-no) = TRIM(ip-job-no) NO-LOCK ~
+and job-hdr.job-no = ip-job-no NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH job-hdr WHERE ~{&KEY-PHRASE} ~
       AND job-hdr.company = ip-company ~
-and TRIM(job-hdr.job-no) = TRIM(ip-job-no) NO-LOCK ~
+and job-hdr.job-no = ip-job-no NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 job-hdr
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 job-hdr
@@ -217,7 +219,7 @@ ASSIGN
      _TblList          = "ASI.job-hdr"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.job-hdr.company = ip-company
-and TRIM(job-hdr.job-no) = TRIM(ip-job-no)"
+and job-hdr.job-no     = ip-job-no"
      _FldNameList[1]   = ASI.job-hdr.job-no
      _FldNameList[2]   > ASI.job-hdr.job-no2
 "job-no2" "#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""

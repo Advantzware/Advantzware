@@ -2151,7 +2151,7 @@ PROCEDURE valid-tag :
                                 ,"->>>,>>>,>>9.99").
 
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",9 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
+        FILL(" ", iJobLen - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
         TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 /*
       FIND FIRST fg-bin WHERE fg-bin.company EQ cocode 

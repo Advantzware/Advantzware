@@ -41,11 +41,13 @@ def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
 DEF VAR lv-unit AS INT NO-UNDO.
 
+{sys/inc/var.i new shared}
+
 &scoped-define SORTBY-1 BY job-hdr.job-no DESC BY job-hdr.job-no2 DESC
 &scoped-define SORTBY-2 BY job-hdr.est-no {&SORTBY-1}
 &scoped-define SORTBY-3 BY job-hdr.ord-no {&SORTBY-1}
 &scoped-define SORTBY-4 BY job-hdr.cust-no {&SORTBY-1}
-&scoped-define fld-name-1  trim(job-hdr.job-no)
+&scoped-define fld-name-1  job-hdr.job-no
 &scoped-define fld-name-2  trim(job-hdr.est-no)
 &scoped-define fld-name-3  job-hdr.ord-no
 &scoped-define fld-name-4  job-hdr.cust-no
@@ -85,7 +87,7 @@ fg-bin.tag job-hdr.i-no
 AND (ASI.job-hdr.i-no = ip-i-no or ip-i-no = "") NO-LOCK, ~
       EACH fg-bin WHERE TRUE /* Join to job-hdr incomplete */ ~
       AND fg-bin.company = job-hdr.company ~
-and (TRIM(fg-bin.job-no) = TRIM(job-hdr.job-no) /*or fg-bin.job-no = ""*/) ~
+and (fg-bin.job-no = job-hdr.job-no /*or fg-bin.job-no = ""*/) ~
 and (fg-bin.job-no2 = job-hdr.job-no2 /*or fg-bin.job-no2 = 0*/) ~
 AND fg-bin.i-no = job-hdr.i-no ~
 and fg-bin.qty <> 0 ~
@@ -96,7 +98,7 @@ and fg-bin.qty <> 0 ~
 AND (ASI.job-hdr.i-no = ip-i-no or ip-i-no = "") NO-LOCK, ~
       EACH fg-bin WHERE TRUE /* Join to job-hdr incomplete */ ~
       AND fg-bin.company = job-hdr.company ~
-and (TRIM(fg-bin.job-no) = TRIM(job-hdr.job-no) /*or fg-bin.job-no = ""*/) ~
+and (fg-bin.job-no = job-hdr.job-no /*or fg-bin.job-no = ""*/) ~
 and (fg-bin.job-no2 = job-hdr.job-no2 /*or fg-bin.job-no2 = 0*/) ~
 AND fg-bin.i-no = job-hdr.i-no ~
 and fg-bin.qty <> 0 ~
@@ -251,7 +253,7 @@ ASSIGN
      _Where[1]         = "ASI.job-hdr.company = ip-company
 AND (ASI.job-hdr.i-no = ip-i-no or ip-i-no = """")"
      _Where[2]         = "ASI.fg-bin.company = job-hdr.company
-and (TRIM(fg-bin.job-no) = TRIM(job-hdr.job-no) /*or fg-bin.job-no = """"*/)
+and (fg-bin.job-no = job-hdr.job-no /*or fg-bin.job-no = """"*/)
 and (fg-bin.job-no2 = job-hdr.job-no2 /*or fg-bin.job-no2 = 0*/)
 AND ASI.fg-bin.i-no = job-hdr.i-no
 and fg-bin.qty <> 0
@@ -349,7 +351,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK,
          EACH ASI.fg-bin WHERE ASI.fg-bin.company = job-hdr.company
              and fg-bin.job-no = job-hdr.job-no

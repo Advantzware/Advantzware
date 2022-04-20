@@ -142,6 +142,9 @@ ipfil_id = fil_id.
 ipv-qty-mod = v-qty-mod.
 ipnufile = nufile.
 
+g_company = ipFromCompany.
+RUN spSetSessionParam ("Company", g_company).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

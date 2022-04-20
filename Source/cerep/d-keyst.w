@@ -254,7 +254,7 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
 DO:
     FIND FIRST tt-keyst
-      WHERE TRIM(tt-keyst.tt-job-no)  EQ TRIM(ip-job-no)
+      WHERE tt-keyst.tt-job-no  EQ ip-job-no
         AND tt-keyst.tt-job-no2 EQ ip-job-no2
         AND tt-keyst.tt-frm     EQ ip-frm
         NO-ERROR.

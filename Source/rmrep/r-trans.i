@@ -2,7 +2,7 @@
      if first-of(rm-rcpth.trans-date) then v-first[2] = yes.
 
      assign
-      v-job-no = fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
+      v-job-no = FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
                  trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99")
       v-value  = rm-rdtlh.cost * rm-rdtlh.qty.
 

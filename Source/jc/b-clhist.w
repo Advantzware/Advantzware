@@ -627,13 +627,13 @@ PROCEDURE local-open-query :
            OPEN QUERY {&browse-name}
              FOR EACH corr2asi WHERE
                  corr2asi.company EQ cocode AND
-                 trim(corr2asi.job-no) BEGINS trim(fi_job-no)
+                 corr2asi.job-no BEGINS fi_job-no
                  NO-LOCK.
         ELSE
         OPEN QUERY {&browse-name}
              FOR EACH corr2asi WHERE
                  corr2asi.company EQ cocode AND
-                 trim(corr2asi.job-no) BEGINS trim(fi_job-no) AND
+                 corr2asi.job-no BEGINS fi_job-no AND
                  corr2asi.job-no2 EQ fi_job-no2
                  NO-LOCK.
      END.
@@ -643,14 +643,14 @@ PROCEDURE local-open-query :
            OPEN QUERY {&browse-name}
              FOR EACH corr2asi WHERE
                  corr2asi.company EQ cocode AND
-                 trim(corr2asi.job-no) BEGINS trim(fi_job-no) AND
+                 corr2asi.job-no BEGINS fi_job-no AND
                  corr2asi.cl-completion-date EQ fi_comp-date
                  NO-LOCK.
         ELSE
         OPEN QUERY {&browse-name}
              FOR EACH corr2asi WHERE
                  corr2asi.company EQ cocode AND
-                 trim(corr2asi.job-no) BEGINS trim(fi_job-no) AND
+                 corr2asi.job-no BEGINS fi_job-no AND
                  corr2asi.job-no2 EQ fi_job-no2 AND
                  corr2asi.cl-completion-date EQ fi_comp-date
                  NO-LOCK.

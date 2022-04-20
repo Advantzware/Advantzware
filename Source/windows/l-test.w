@@ -34,6 +34,7 @@ def input param ip-company like cust.company no-undo.
 def input param ip-loc like est.loc no-undo.
 def input param ip-flute like ef.flute no-undo.
 def output param op-char-val as cha no-undo.
+{sys/inc/var.i}
 
   def var v-term as cha no-undo.
 

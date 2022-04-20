@@ -45,9 +45,11 @@ def var lv-type-dscr as cha no-undo.
 
 &scoped-define IAMWHAT LOOKUP
 
+{sys/inc/var.i new shared}
+
 FIND FIRST job
     WHERE job.company EQ ip-company
-      AND TRIM(job.job-no)  EQ TRIM(ip-job-no)
+      AND job.job-no  EQ ip-job-no
       AND job.job-no2 EQ INT(ip-job-no2)
     NO-LOCK NO-ERROR.
 

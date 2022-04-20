@@ -56,7 +56,7 @@ DEF SHARED VAR s-print-bin-from AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-to AS cha NO-UNDO.
 DEF VAR v-page-num AS INT NO-UNDO.
 
-format w-oe-rell.ord-no                 to 6    FORMAT ">>>>>>>9"
+format w-oe-rell.ord-no                 to 8    FORMAT ">>>>>>>9"
        w-par                            AT 10    FORMAT "x(30)" "</B>"
        v-bin                            AT 47   format "x(23)" 
        w-x                              AT 70   format "X/"

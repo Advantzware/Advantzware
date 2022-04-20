@@ -38,7 +38,7 @@ CLASS jc.JobHeader:
 
         FIND FIRST bf-job NO-LOCK
              WHERE bf-job.company EQ ipcCompany
-               AND TRIM(bf-job.job-no) EQ TRIM(ipcJobno)
+               AND bf-job.job-no  EQ ipcJobno
                AND bf-job.job-no2 EQ ipiJobNo2
              NO-ERROR.
         IF AVAILABLE bf-job THEN

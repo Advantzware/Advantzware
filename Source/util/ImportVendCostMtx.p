@@ -89,6 +89,7 @@ DEFINE TEMP-TABLE ttImportVendCostMtx
     FIELD DeviationCost10         AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 10" HELP "Optional - Decimal"
     FIELD LeadTime10              AS INTEGER   FORMAT ">,>>>,>>9":U INITIAL 0 COLUMN-LABEL "Lead Time 10" HELP "Optional - Integer"
     FIELD useQuantityFromBase     AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Quantity Basis" HELP "Optional - From/Up To"
+    FIELD approved                AS CHARACTER FORMAT "Yes/No" COLUMN-LABEL "Approved" HELP "Optional - Yes/No"
     .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
 DEFINE VARIABLE hVendorProcs  AS HANDLE  NO-UNDO.
@@ -168,6 +169,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportVendCostMtx.quantityMinimumOrder, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.quantityMinimumOrder).                             
     RUN pAssignValueD (ipbf-ttImportVendCostMtx.quantityMaximumOrder, iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.quantityMaximumOrder). 
     RUN pAssignValueCtoL (ipbf-ttImportVendCostMtx.useQuantityFromBase,"From", iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.useQuantityFromBase).
+    RUN pAssignValueCtoL (ipbf-ttImportVendCostMtx.approved,"Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-vendItemCost.approved).
     
     FOR EACH  bf-vendItemCostLevel EXCLUSIVE-LOCK
         WHERE bf-vendItemCostLevel.vendItemCostID EQ bf-vendItemCost.vendItemCostID :
@@ -175,25 +177,25 @@ PROCEDURE pProcessRecord PRIVATE:
     END.
     
    DO iCount = 1 TO 10:
-       IF iCount EQ 1 AND ipbf-ttImportVendCostMtx.LevelQuantity01 NE 0 THEN
+       IF iCount EQ 1 AND ipbf-ttImportVendCostMtx.LevelQuantity01 GT 0 THEN
            RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity01,ipbf-ttImportVendCostMtx.LevelCostPerUOM01,ipbf-ttImportVendCostMtx.LevelSetup01,ipbf-ttImportVendCostMtx.DeviationCost1,ipbf-ttImportVendCostMtx.LeadTime1) .
-       ELSE IF iCount EQ 2 AND ipbf-ttImportVendCostMtx.LevelQuantity02 NE 0 THEN
+       ELSE IF iCount EQ 2 AND ipbf-ttImportVendCostMtx.LevelQuantity02 GT 0 THEN
            RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity02, ipbf-ttImportVendCostMtx.LevelCostPerUOM02,ipbf-ttImportVendCostMtx.LevelSetup02,ipbf-ttImportVendCostMtx.DeviationCost2,ipbf-ttImportVendCostMtx.LeadTime2) .
-       ELSE IF iCount EQ 3 AND ipbf-ttImportVendCostMtx.LevelQuantity03 NE 0 THEN                                                                                                                                                                                           
+       ELSE IF iCount EQ 3 AND ipbf-ttImportVendCostMtx.LevelQuantity03 GT 0 THEN                                                                                                                                                                                           
            RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity03, ipbf-ttImportVendCostMtx.LevelCostPerUOM03,ipbf-ttImportVendCostMtx.LevelSetup03,ipbf-ttImportVendCostMtx.DeviationCost3,ipbf-ttImportVendCostMtx.LeadTime3) .
-       ELSE IF iCount EQ 4 AND ipbf-ttImportVendCostMtx.LevelQuantity04 NE 0 THEN                                                                                                                                                                                           
+       ELSE IF iCount EQ 4 AND ipbf-ttImportVendCostMtx.LevelQuantity04 GT 0 THEN                                                                                                                                                                                           
            RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity04, ipbf-ttImportVendCostMtx.LevelCostPerUOM04,ipbf-ttImportVendCostMtx.LevelSetup04,ipbf-ttImportVendCostMtx.DeviationCost4,ipbf-ttImportVendCostMtx.LeadTime4) .
-       ELSE IF iCount EQ 5 AND ipbf-ttImportVendCostMtx.LevelQuantity05 NE 0 THEN                                                                                                                                                                                           
+       ELSE IF iCount EQ 5 AND ipbf-ttImportVendCostMtx.LevelQuantity05 GT 0 THEN                                                                                                                                                                                           
            RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity05, ipbf-ttImportVendCostMtx.LevelCostPerUOM05,ipbf-ttImportVendCostMtx.LevelSetup05,ipbf-ttImportVendCostMtx.DeviationCost5,ipbf-ttImportVendCostMtx.LeadTime5) .
-       ELSE IF iCount EQ 6 AND ipbf-ttImportVendCostMtx.LevelQuantity06 NE 0 THEN                                                                                                                                                                                           
+       ELSE IF iCount EQ 6 AND ipbf-ttImportVendCostMtx.LevelQuantity06 GT 0 THEN                                                                                                                                                                                           
            RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity06, ipbf-ttImportVendCostMtx.LevelCostPerUOM06,ipbf-ttImportVendCostMtx.LevelSetup06,ipbf-ttImportVendCostMtx.DeviationCost6,ipbf-ttImportVendCostMtx.LeadTime6) .
-       ELSE IF iCount EQ 7 AND ipbf-ttImportVendCostMtx.LevelQuantity07 NE 0 THEN                                                                                                                                                                                           
+       ELSE IF iCount EQ 7 AND ipbf-ttImportVendCostMtx.LevelQuantity07 GT 0 THEN                                                                                                                                                                                           
            RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity07, ipbf-ttImportVendCostMtx.LevelCostPerUOM07,ipbf-ttImportVendCostMtx.LevelSetup07,ipbf-ttImportVendCostMtx.DeviationCost7,ipbf-ttImportVendCostMtx.LeadTime7) .
-       ELSE IF iCount EQ 8 AND ipbf-ttImportVendCostMtx.LevelQuantity08 NE 0 THEN                                                                                                                                                                                           
+       ELSE IF iCount EQ 8 AND ipbf-ttImportVendCostMtx.LevelQuantity08 GT 0 THEN                                                                                                                                                                                           
            RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity08, ipbf-ttImportVendCostMtx.LevelCostPerUOM08,ipbf-ttImportVendCostMtx.LevelSetup08,ipbf-ttImportVendCostMtx.DeviationCost8,ipbf-ttImportVendCostMtx.LeadTime8) .
-       ELSE IF iCount EQ 9 AND ipbf-ttImportVendCostMtx.LevelQuantity09 NE 0 THEN                                                                                                                                                                                           
+       ELSE IF iCount EQ 9 AND ipbf-ttImportVendCostMtx.LevelQuantity09 GT 0 THEN                                                                                                                                                                                           
            RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity09, ipbf-ttImportVendCostMtx.LevelCostPerUOM09,ipbf-ttImportVendCostMtx.LevelSetup09,ipbf-ttImportVendCostMtx.DeviationCost9,ipbf-ttImportVendCostMtx.LeadTime9) .
-       ELSE IF iCount EQ 10 AND ipbf-ttImportVendCostMtx.LevelQuantity10 NE 0 THEN                                                                                                                                                                                           
+       ELSE IF iCount EQ 10 AND ipbf-ttImportVendCostMtx.LevelQuantity10 GT 0 THEN                                                                                                                                                                                           
            RUN pAssignVendCostValue(bf-vendItemCost.vendItemCostID ,ipbf-ttImportVendCostMtx.LevelQuantity10, ipbf-ttImportVendCostMtx.LevelCostPerUOM10,ipbf-ttImportVendCostMtx.LevelSetup10,ipbf-ttImportVendCostMtx.DeviationCost10,ipbf-ttImportVendCostMtx.LeadTime10) .
    END.
               
@@ -231,10 +233,14 @@ PROCEDURE pValidate PRIVATE:
     DEFINE VARIABLE hdValidator AS HANDLE NO-UNDO.
     DEFINE VARIABLE cValidNote AS CHARACTER NO-UNDO.
     DEFINE VARIABLE uom-list AS CHARACTER INIT "M,EA,L,CS,C,LB,DRM,ROL,PKG,SET,DOZ,BDL" NO-UNDO.
+    DEFINE VARIABLE hdVendorCostProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE dMaxQty AS DECIMAL   NO-UNDO.
     DEFINE BUFFER bf-ttImportVendCostMtx FOR ttImportVendCostMtx.
 
     RUN util/Validate.p PERSISTENT SET hdValidator.
-
+    RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
+    
+    dMaxQty = DYNAMIC-FUNCTION("VendCost_GetUnlimitedQuantity" IN hdVendorCostProcs). 
     oplValid = YES.
     
     /*Check for Key Field(s) to be not blank*/
@@ -295,6 +301,30 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Item Type must be FG or RM".
+    END.
+    
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportVendCostMtx.LevelQuantity01 LT 0 OR ipbf-ttImportVendCostMtx.LevelQuantity02 LT 0 OR
+           ipbf-ttImportVendCostMtx.LevelQuantity03 LT 0 OR ipbf-ttImportVendCostMtx.LevelQuantity04 LT 0 OR 
+           ipbf-ttImportVendCostMtx.LevelQuantity05 LT 0 OR ipbf-ttImportVendCostMtx.LevelQuantity06 LT 0 OR 
+           ipbf-ttImportVendCostMtx.LevelQuantity07 LT 0 OR ipbf-ttImportVendCostMtx.LevelQuantity08 LT 0 OR 
+           ipbf-ttImportVendCostMtx.LevelQuantity09 LT 0 OR ipbf-ttImportVendCostMtx.LevelQuantity10 LT 0 THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Quantity level is negative".
+    END.
+    
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportVendCostMtx.LevelQuantity01 GT dMaxQty OR ipbf-ttImportVendCostMtx.LevelQuantity02 GT dMaxQty OR
+           ipbf-ttImportVendCostMtx.LevelQuantity03 GT dMaxQty OR ipbf-ttImportVendCostMtx.LevelQuantity04 GT dMaxQty OR 
+           ipbf-ttImportVendCostMtx.LevelQuantity05 GT dMaxQty OR ipbf-ttImportVendCostMtx.LevelQuantity06 GT dMaxQty OR 
+           ipbf-ttImportVendCostMtx.LevelQuantity07 GT dMaxQty OR ipbf-ttImportVendCostMtx.LevelQuantity08 GT dMaxQty OR 
+           ipbf-ttImportVendCostMtx.LevelQuantity09 GT dMaxQty OR ipbf-ttImportVendCostMtx.LevelQuantity10 GT dMaxQty THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Quantity level is greater than " + STRING(dMaxQty).
     END.
     
     ipbf-ttImportVendCostMtx.estimateNo =  FILL(" ",8 - LENGTH(TRIM(ipbf-ttImportVendCostMtx.estimateNo))) + TRIM(ipbf-ttImportVendCostMtx.estimateNo).
@@ -383,7 +413,7 @@ PROCEDURE pValidate PRIVATE:
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
 
     DELETE OBJECT hdValidator.
-    
+    DELETE OBJECT hdVendorCostProcs.
 END PROCEDURE.
 
 

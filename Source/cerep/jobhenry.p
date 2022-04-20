@@ -273,10 +273,10 @@ ASSIGN
 
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company               EQ cocode
-    AND fill(" ",9 - length(TRIM(job-hdr.job-no))) +
+    AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) +
     trim(job-hdr.job-no) +
     string(job-hdr.job-no2,"999")  GE fjob-no
-    AND fill(" ",9 - length(TRIM(job-hdr.job-no))) +
+    AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) +
     trim(job-hdr.job-no) +
     string(job-hdr.job-no2,"999")  LE tjob-no
     AND job-hdr.job-no2 GE fjob-no2
@@ -344,10 +344,10 @@ END.
 
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company               EQ cocode
-    AND fill(" ",9 - length(TRIM(job-hdr.job-no))) +
+    AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) +
     trim(job-hdr.job-no) +
     string(job-hdr.job-no2,"999")  GE fjob-no
-    AND fill(" ",9 - length(TRIM(job-hdr.job-no))) +
+    AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) +
     trim(job-hdr.job-no) +
     string(job-hdr.job-no2,"999")  LE tjob-no
     AND job-hdr.job-no2 GE fjob-no2

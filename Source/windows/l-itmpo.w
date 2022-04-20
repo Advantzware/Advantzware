@@ -36,6 +36,7 @@ def input parameter ip-po-no like po-ord.po-no no-undo.
 def input parameter ip-cur-val LIKE po-ord.po-no no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 DEF OUTPUT PARAM op-rec-val AS RECID NO-UNDO.
+{sys/inc/var.i}
 
 DEFINE TEMP-TABLE ttItemLine 
     FIELD i-no AS CHARACTER 
