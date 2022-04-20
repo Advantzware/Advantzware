@@ -3548,6 +3548,8 @@ PROCEDURE pProcessBoardBOM PRIVATE:
     DEFINE           BUFFER bf-item                 FOR ITEM.
     
     DEFINE VARIABLE dShrinkPct AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dWidth AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dDepth AS DECIMAL NO-UNDO.
     
     FIND FIRST bf-item NO-LOCK 
         WHERE bf-item.company EQ ipbf-ttEstCostForm.company
@@ -3559,23 +3561,35 @@ PROCEDURE pProcessBoardBOM PRIVATE:
         RETURN.
     END.
     oplValidBom = YES.
-    RUN pAddEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER ipbf-ttEstCostForm, ipbf-item-bom.i-no, 0, BUFFER bf-ttEstCostMaterial).
+    RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ipbf-item-bom.i-no, 0, BUFFER bf-estCostMaterial).
+    
+    //Override Form Dimensions for real material.  Length needs to vary depending on Shrink
+    IF bf-item.i-code EQ 'R' THEN 
+        ASSIGN 
+            dWidth = IF bf-item.r-wid NE 0 THEN bf-item.r-wid ELSE bf-item.s-wid
+            dDepth = bf-item.s-dep
+            .
+    ELSE 
+        ASSIGN 
+            dWidth = ipbf-estCostForm.grossWidth
+            dDepth = ipbf-estCostForm.grossDepth
+            .
+        
     ASSIGN 
         bf-ttEstCostMaterial.isPrimarySubstrate         = YES
         bf-ttEstCostMaterial.addToWeightNet             = YES
-        bf-ttEstCostMaterial.addToWeightTare            = NO
-                                       
+        bf-ttEstCostMaterial.addToWeightTare            = NO                                       
         bf-ttEstCostMaterial.quantityRequiredNoWaste    = ipbf-ttEstCostForm.grossQtyRequiredNoWaste
         bf-ttEstCostMaterial.quantityRequiredSetupWaste = ipbf-ttEstCostForm.grossQtyRequiredSetupWaste
         bf-ttEstCostMaterial.quantityRequiredRunWaste   = ipbf-ttEstCostForm.grossQtyRequiredRunWaste
         bf-ttEstCostMaterial.quantityUOMWaste           = "EA"
         bf-ttEstCostMaterial.quantityUOM                = "EA"
         bf-ttEstCostMaterial.basisWeight                = bf-item.basis-w
-        dShrinkPct                                    = (IF ipbf-item-bom.shrink NE 100 THEN ipbf-item-bom.shrink ELSE 0) / 100
-        bf-ttEstCostMaterial.dimWidth                   = ipbf-ttEstCostForm.grossWidth
-        bf-ttEstCostMaterial.dimLength                  = ipbf-ttEstCostForm.grossLength / ( 1 - dShrinkPct)
-        bf-ttEstCostMaterial.dimDepth                   = ipbf-ttEstCostForm.grossDepth
-        bf-ttEstCostMaterial.noCharge                   = ipbf-ttEstCostForm.noCost
+        dShrinkPct                                      = (IF ipbf-item-bom.shrink NE 100 THEN ipbf-item-bom.shrink ELSE 0) / 100
+        bf-estCostMaterial.dimWidth                     = dWidth
+        bf-estCostMaterial.dimLength                    = ipbf-estCostForm.grossLength / ( 1 - dShrinkPct)
+        bf-estCostMaterial.dimDepth                     = dDepth
+        bf-estCostMaterial.noCharge                     = ipbf-estCostForm.noCost
         .
     FIND FIRST bfBoard-ttEstCostMaterial NO-LOCK 
         WHERE bfBoard-ttEstCostMaterial.estCostHeaderID EQ ipbf-ttEstCostHeader.estCostHeaderID
