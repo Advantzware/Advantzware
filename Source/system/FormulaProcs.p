@@ -11,6 +11,7 @@
     Created     : Tue Dec 03 15:44:36 EST 2019
     Notes       :
   ----------------------------------------------------------------------*/
+  /*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 /*DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
@@ -1489,18 +1490,18 @@ PROCEDURE pGetBuffersForPOLine:
             
         IF ipbf-po-ordl.job-no NE "" THEN
             FIND FIRST bf-job-mat NO-LOCK 
-                WHERE bf-job-mat.company    EQ ipbf-po-ordl.company
-                AND bf-job-mat.rm-i-no    EQ ipbf-po-ordl.i-no
-                AND bf-job-mat.job-no     EQ STRING(FILL(" ",6 - LENGTH(TRIM(ipbf-po-ordl.job-no)))) + TRIM(ipbf-po-ordl.job-no)
-                AND bf-job-mat.job-no2    EQ ipbf-po-ordl.job-no2
-                AND bf-job-mat.i-no       EQ ipbf-po-ordl.i-no
-                AND ((bf-job-mat.frm      EQ ipbf-po-ordl.s-num AND ipbf-po-ordl.s-num NE 0) OR
-                ipbf-po-ordl.s-num    EQ 0 OR 
-                ipbf-po-ordl.s-num    EQ ?)
-                AND ((bf-job-mat.blank-no EQ ipbf-po-ordl.b-num AND ipbf-po-ordl.b-num NE 0) OR
-                ipbf-po-ordl.b-num    EQ 0)
-                USE-INDEX i-no 
-                NO-ERROR.
+                 WHERE bf-job-mat.company    EQ ipbf-po-ordl.company
+                   AND bf-job-mat.rm-i-no    EQ ipbf-po-ordl.i-no
+                   AND bf-job-mat.job-no     EQ ipbf-po-ordl.job-no  
+                   AND bf-job-mat.job-no2    EQ ipbf-po-ordl.job-no2
+                   AND bf-job-mat.i-no       EQ ipbf-po-ordl.i-no
+                   AND ((bf-job-mat.frm      EQ ipbf-po-ordl.s-num AND ipbf-po-ordl.s-num NE 0) OR
+                         ipbf-po-ordl.s-num    EQ 0 OR 
+                         ipbf-po-ordl.s-num    EQ ?)
+                   AND ((bf-job-mat.blank-no EQ ipbf-po-ordl.b-num AND ipbf-po-ordl.b-num NE 0) OR
+                         ipbf-po-ordl.b-num    EQ 0)
+                 USE-INDEX i-no 
+                 NO-ERROR.
 
         IF AVAILABLE bf-job-mat THEN
             FIND FIRST bf-job NO-LOCK 
