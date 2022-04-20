@@ -2571,14 +2571,17 @@ PROCEDURE pCalcHeader PRIVATE:
         
         IF glAutoRecostBoard = TRUE THEN
         DO:
-            RUN RecostBoardEst_RecostBoard IN ghRecostBoardEst(INPUT bf-ttEstCostHeader.estCostHeaderID,            
-                                                               OUTPUT chMessage,
-                                                               OUTPUT TABLE ttRecostBoardGroups).
+            RUN RecostBoardEst_RecostBoard IN ghRecostBoardEst(INPUT TABLE ttEstCostHeaderToCalc,
+                INPUT TABLE ttEstCostMaterial,
+                INPUT TABLE ttEstCostHeader,
+                OUTPUT chMessage,
+                OUTPUT TABLE ttRecostBoardGroups).
                 
             IF chMessage = "" THEN
-            DO:                       
+            DO:  
                 RUN RecostBoardEst_UpdateEstCostMaterial IN ghRecostBoardEst(INPUT NO,
-                    INPUT TABLE ttRecostBoardGroups).  /*Update the EstCostMaterial costs with better costs*/
+                    INPUT-OUTPUT TABLE ttEstCostMaterial BY-REFERENCE,
+                    INPUT TABLE ttRecostBoardGroups). /*Update the EstCostMaterial costs with better costs*/
             END.
         END.
         

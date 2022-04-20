@@ -551,27 +551,27 @@ PROCEDURE ipRecostBoard:
     
     DEFINE VARIABLE hdRecostBoardEst AS HANDLE NO-UNDO.
     DEFINE VARIABLE chMessage        AS CHARACTER NO-UNDO.
-    
+        
     IF VALID-HANDLE(hdRecostBoardEst) = FALSE THEN
-        RUN est\RecostBoardEst.p PERSISTENT SET hdRecostBoardEst.   
-        
-    FOR EACH ttEstCostHeaderToCalc:
-            
-        RUN RecostBoardEst_RecostBoard IN hdRecostBoardEst(INPUT ttEstCostHeaderToCalc.iEstCostHeaderID,
-                                              OUTPUT chMessage,
-                                              OUTPUT TABLE ttRecostBoardGroups).
+        RUN est\RecostBoardEst.p PERSISTENT SET hdRecostBoardEst.
+    
+    RUN RecostBoardEst_RecostBoard IN hdRecostBoardEst(INPUT TABLE ttEstCostHeaderToCalc,
+        INPUT TABLE ttEstCostMaterial,
+        INPUT TABLE ttEstCostHeader,
+        OUTPUT chMessage,
+        OUTPUT TABLE ttRecostBoardGroups).
                                               
-        IF iplMessage AND chMessage <> "" THEN 
-            MESSAGE chMessage
-                VIEW-AS ALERT-BOX.
+    IF iplMessage AND chMessage <> "" THEN 
+        MESSAGE chMessage
+            VIEW-AS ALERT-BOX.
                 
-        IF chMessage = "" THEN
-        DO:
-            IF iplMessage THEN RUN ShowCostUpdates. /*Present updates to user and get confirmation*/
+    IF chMessage = "" THEN
+    DO:        
+        IF iplMessage THEN RUN ShowCostUpdates. /*Present updates to user and get confirmation*/
         
-            RUN RecostBoardEst_UpdateEstCostMaterial IN hdRecostBoardEst(INPUT NO,
-                INPUT TABLE ttRecostBoardGroups).  /*Update the EstCostMaterial costs with better costs*/
-        END.        
+        RUN RecostBoardEst_UpdateEstCostMaterial IN hdRecostBoardEst(INPUT NO,
+                                                                     INPUT-OUTPUT TABLE ttEstCostMaterial BY-REFERENCE,
+                                                                     INPUT TABLE ttRecostBoardGroups).  /*Update the EstCostMaterial costs with better costs*/
     END.
     
     {&OPEN-QUERY-{&BROWSE-NAME}}

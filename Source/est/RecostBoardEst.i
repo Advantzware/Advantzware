@@ -43,7 +43,7 @@ DEFINE TEMP-TABLE ttRecostBoardGroups NO-UNDO
 
 DEFINE TEMP-TABLE ttRecostBoardLineXRef /*allows for easy re-finding of EstCostMaterial*/ NO-UNDO 
     FIELD RecostBoardGroupRowId        AS ROWID
-    FIELD EstCostMaterialRowID         AS ROWID.
+    FIELD EstCostMaterialID            AS INT64.
         
 /* ********************  Preprocessor Definitions  ******************** */
 

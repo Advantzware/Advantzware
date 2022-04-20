@@ -19,16 +19,22 @@
                                          
 {est\RecostBoardEst.i}
 {system\FormulaProcs.i}
+{est\ttEstimateCalc.i}
+{est\ttEstCostHeaderToCalc.i}
 
 DEFINE VARIABLE loUpdate AS LOG     NO-UNDO INITIAL FALSE.
 
 /* **********************  Internal Procedures  *********************** */
 PROCEDURE RecostBoardEst_RecostBoard:
-    DEFINE INPUT  PARAMETER ipinEstCostHeaderID AS INT64.
+    DEFINE INPUT PARAMETER TABLE FOR ttEstCostHeaderToCalc. 
+    DEFINE INPUT PARAMETER TABLE FOR ttEstCostMaterial.
+    DEFINE INPUT PARAMETER TABLE FOR ttEstCostHeader.        
     DEFINE OUTPUT PARAMETER opchErrorMessage    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE FOR ttRecostBoardGroups.    
 
-    RUN pProcessEstCostMaterial(INPUT ipinEstCostHeaderID). /*Build internal temp-tables*/
+    RUN pProcessEstCostMaterial(INPUT TABLE ttEstCostHeaderToCalc, 
+                                INPUT TABLE ttEstCostMaterial,
+                                INPUT TABLE ttEstCostHeader). /*Build internal temp-tables*/
 
     FIND FIRST ttRecostBoardGroups WHERE ttRecostBoardGroups.Multi EQ YES NO-LOCK NO-ERROR.
     
@@ -42,7 +48,8 @@ PROCEDURE RecostBoardEst_RecostBoard:
     RUN pGetNewCosts.
     
     RUN RecostBoardEst_UpdateEstCostMaterial(INPUT YES,
-                              INPUT TABLE ttRecostBoardGroups).  /*See if cost is better than current EstCostMaterial, YES = Compare only*/             
+        INPUT-OUTPUT TABLE ttEstCostMaterial BY-REFERENCE,
+        INPUT TABLE ttRecostBoardGroups).  /*See if cost is better than current EstCostMaterial, YES = Compare only*/             
             
     IF NOT loUpdate THEN
         ASSIGN opchErrorMessage = "No board cost or setup improvements available after grouping purchase order items.". 
@@ -105,7 +112,9 @@ PROCEDURE pProcessEstCostMaterial PRIVATE:
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipinEstCostHeaderID AS INT64 NO-UNDO.    
+    DEFINE INPUT PARAMETER TABLE FOR ttEstCostHeaderToCalc. 
+    DEFINE INPUT PARAMETER TABLE FOR ttEstCostMaterial.
+    DEFINE INPUT PARAMETER TABLE FOR ttEstCostHeader.    
     
     DEFINE BUFFER bf-Item FOR ITEM.
     DEFINE BUFFER bf-eb   FOR eb.        
@@ -129,23 +138,24 @@ PROCEDURE pProcessEstCostMaterial PRIVATE:
         RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
     
     IF VALID-HANDLE(hdConversionProcs) = FALSE THEN
-        RUN system/ConversionProcs.p   PERSISTENT SET hdConversionProcs.   
+        RUN system/ConversionProcs.p   PERSISTENT SET hdConversionProcs.
     
-    FOR EACH estCostHeader NO-LOCK     
-        WHERE estCostHeader.estCostHeaderID EQ ipinEstCostHeaderID ,
-        EACH estCostMaterial NO-LOCK     
-        WHERE estCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID     
-        AND estCostMaterial.isPrimarySubstrate
-         BY estCostHeader.quantityMaster BY estCostMaterial.Formno:
-            
+    FOR EACH ttEstCostHeaderToCalc,
+        EACH ttEstCostHeader NO-LOCK     
+        WHERE ttEstCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID,
+        EACH ttestCostMaterial NO-LOCK     
+        WHERE ttEstCostMaterial.estCostHeaderID EQ ttEstCostHeader.estCostHeaderID     
+        AND ttEstCostMaterial.isPrimarySubstrate
+         BY ttEstCostHeader.quantityMaster BY ttEstCostMaterial.Formno:
+           
         ASSIGN 
             cScoreList = ""
             iCount     = 0.           
                     
         FIND FIRST bf-eb NO-LOCK
-            WHERE bf-eb.company EQ estCostMaterial.company
-            AND bf-eb.est-no    EQ estCostMaterial.estimateNo
-            AND bf-eb.form-no   EQ estCostMaterial.Formno NO-ERROR.
+            WHERE bf-eb.company EQ ttEstCostMaterial.company
+            AND bf-eb.est-no    EQ ttEstCostMaterial.estimateNo
+            AND bf-eb.form-no   EQ ttEstCostMaterial.Formno NO-ERROR.
             
         IF AVAILABLE bf-eb THEN
         DO: 
@@ -168,45 +178,45 @@ PROCEDURE pProcessEstCostMaterial PRIVATE:
                 cScoreList = TRIM(cScoreList," ").            
         END.
                         
-        RUN pGetAdders(INPUT estCostMaterial.company,
-            INPUT estCostMaterial.estimateNo,
-            INPUT estCostMaterial.formNo,
+        RUN pGetAdders(INPUT ttEstCostMaterial.company,
+            INPUT ttEstCostMaterial.estimateNo,
+            INPUT ttEstCostMaterial.formNo,
             OUTPUT cAdders,
             OUTPUT dAdderCost).
            
         FIND FIRST bf-Item NO-LOCK
-            WHERE bf-Item.company EQ estCostHeader.company
-            AND bf-Item.i-no    EQ estCostMaterial.itemID NO-ERROR.
+            WHERE bf-Item.company EQ ttEstCostHeader.company
+            AND bf-Item.i-no    EQ ttEstCostMaterial.itemID NO-ERROR.
                    
         IF NOT AVAILABLE bf-Item THEN 
             NEXT.          
                        
         FIND FIRST ttRecostBoardGroups 
-            WHERE ttRecostBoardGroups.INo  EQ estCostMaterial.itemID
-            AND ttRecostBoardGroups.VendNo EQ estCostMaterial.vendorID
-            AND ttRecostBoardGroups.Len    EQ estCostMaterial.dimLength
-            AND ttRecostBoardGroups.Wid    EQ estCostMaterial.dimWidth
-            AND ttRecostBoardGroups.Dep    EQ estCostMaterial.dimdepth
+            WHERE ttRecostBoardGroups.INo  EQ ttEstCostMaterial.itemID
+            AND ttRecostBoardGroups.VendNo EQ ttEstCostMaterial.vendorID
+            AND ttRecostBoardGroups.Len    EQ ttEstCostMaterial.dimLength
+            AND ttRecostBoardGroups.Wid    EQ ttEstCostMaterial.dimWidth
+            AND ttRecostBoardGroups.Dep    EQ ttEstCostMaterial.dimdepth
             AND ttRecostBoardGroups.Scores EQ cScoreList
             AND ttRecostBoardGroups.Adders EQ cAdders NO-ERROR.
             
         IF AVAILABLE ttRecostBoardGroups THEN 
         DO:                   
-            dQty = estCostMaterial.quantityRequiredTotal.                        
+            dQty = ttEstCostMaterial.quantityRequiredTotal.                        
                         
-            IF estCostMaterial.quantityUOM NE ttRecostBoardGroups.TotalQtyUOM THEN 
+            IF ttEstCostMaterial.quantityUOM NE ttRecostBoardGroups.TotalQtyUOM THEN 
             DO:     
                 RUN Conv_QuantityFromUOMtoUOM IN hdConversionProcs(
-                    INPUT estCostMaterial.company,
-                    INPUT estCostMaterial.itemID,
+                    INPUT ttEstCostMaterial.company,
+                    INPUT ttEstCostMaterial.itemID,
                     INPUT ttRecostBoardGroups.itemType,
-                    INPUT estCostMaterial.quantityRequiredTotal,
-                    INPUT estCostMaterial.quantityUOM,
+                    INPUT ttEstCostMaterial.quantityRequiredTotal,
+                    INPUT ttEstCostMaterial.quantityUOM,
                     INPUT ttRecostBoardGroups.TotalQtyUOM,
-                    INPUT estCostMaterial.basisWeight,
-                    INPUT estCostMaterial.dimLength,
-                    INPUT estCostMaterial.dimWidth,
-                    INPUT estCostMaterial.dimdepth,
+                    INPUT ttEstCostMaterial.basisWeight,
+                    INPUT ttEstCostMaterial.dimLength,
+                    INPUT ttEstCostMaterial.dimWidth,
+                    INPUT ttEstCostMaterial.dimdepth,
                     INPUT 0,
                     OUTPUT dQty,
                     OUTPUT loError,
@@ -217,40 +227,39 @@ PROCEDURE pProcessEstCostMaterial PRIVATE:
                 ttRecostBoardGroups.Multi      = YES
                 ttRecostBoardGroups.TotalQty   = ttRecostBoardGroups.TotalQty + dQty
                 ttRecostBoardGroups.LineCount  = ttRecostBoardGroups.LineCount + 1
-                ttRecostBoardGroups.FormIdList = ttRecostBoardGroups.FormIdList + "," + string(estCostMaterial.formNo).            
+                ttRecostBoardGroups.FormIdList = ttRecostBoardGroups.FormIdList + "," + string(ttEstCostMaterial.formNo).                
         END.
         ELSE 
-        DO:
+        DO:            
             CREATE ttRecostBoardGroups.
             ASSIGN
-                ttRecostBoardGroups.CompanyId      = estCostMaterial.company
-                ttRecostBoardGroups.INo            = estCostMaterial.itemID
+                ttRecostBoardGroups.CompanyId      = ttEstCostMaterial.company
+                ttRecostBoardGroups.INo            = ttEstCostMaterial.itemID
                 ttRecostBoardGroups.ItemName       = bf-Item.i-name
-                ttRecostBoardGroups.VendNo         = estCostMaterial.vendorID
-                ttRecostBoardGroups.Len            = estCostMaterial.dimLength
-                ttRecostBoardGroups.Wid            = estCostMaterial.dimWidth
-                ttRecostBoardGroups.Dep            = estCostMaterial.dimDepth 
-                ttRecostBoardGroups.UOM            = estCostMaterial.dimUOM                
+                ttRecostBoardGroups.VendNo         = ttEstCostMaterial.vendorID
+                ttRecostBoardGroups.Len            = ttEstCostMaterial.dimLength
+                ttRecostBoardGroups.Wid            = ttEstCostMaterial.dimWidth
+                ttRecostBoardGroups.Dep            = ttEstCostMaterial.dimDepth 
+                ttRecostBoardGroups.UOM            = ttEstCostMaterial.dimUOM                
                 ttRecostBoardGroups.Scores         = cScoreList
                 ttRecostBoardGroups.Adders         = cAdders
                 ttRecostBoardGroups.AdderCost      = dAdderCost
-                ttRecostBoardGroups.TotalQty       = estCostMaterial.quantityRequiredTotal
-                ttRecostBoardGroups.TotalQtyUOM    = estCostMaterial.quantityUOM                
+                ttRecostBoardGroups.TotalQty       = ttEstCostMaterial.quantityRequiredTotal
+                ttRecostBoardGroups.TotalQtyUOM    = ttEstCostMaterial.quantityUOM                
                 ttRecostBoardGroups.Multi          = NO
-                ttRecostBoardGroups.BasisWeight    = estCostMaterial.basisWeight
-                ttRecostBoardGroups.BasisWeightUOM = estCostMaterial.basisWeightUOM                
+                ttRecostBoardGroups.BasisWeight    = ttEstCostMaterial.basisWeight
+                ttRecostBoardGroups.BasisWeightUOM = ttEstCostMaterial.basisWeightUOM                
                 ttRecostBoardGroups.LineCount      = 1
-                ttRecostBoardGroups.itemType       = IF estCostMaterial.isPurchasedFG THEN "FG" ELSE "RM" 
-                ttRecostBoardGroups.quantityMaster = estCostHeader.quantityMaster
+                ttRecostBoardGroups.itemType       = IF ttEstCostMaterial.isPurchasedFG THEN "FG" ELSE "RM" 
+                ttRecostBoardGroups.quantityMaster = ttEstCostHeader.quantityMaster
                 ttRecostBoardGroups.customerID     = bf-Item.cust-no
-                ttRecostBoardGroups.FormIdList     = STRING(estCostMaterial.formNo).
+                ttRecostBoardGroups.FormIdList     = STRING(ttEstCostMaterial.formNo).
         END.
         
         CREATE ttRecostBoardLineXRef.
         ASSIGN        
             ttRecostBoardLineXRef.RecostBoardGroupRowId = ROWID(ttRecostBoardGroups)
-            ttRecostBoardLineXRef.EstCostMaterialRowID     = ROWID(estCostMaterial).             
-    
+            ttRecostBoardLineXRef.EstCostMaterialID     = ttEstCostMaterial.EstCostMaterialID.     
     END.
     IF VALID-HANDLE(hdFormulaProcs) THEN
         DELETE PROCEDURE hdFormulaProcs.
@@ -267,12 +276,13 @@ PROCEDURE RecostBoardEst_UpdateEstCostMaterial:
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iplCompareOnly AS LOG NO-UNDO.
+    DEFINE INPUT PARAMETER iplCompareOnly AS LOGICAL NO-UNDO. 
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstCostMaterial.
     DEFINE INPUT PARAMETER TABLE FOR ttRecostBoardGroups.
 
-    DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
-    DEFINE VARIABLE dEstGroupCost     LIKE estCostMaterial.costTotal NO-UNDO.
-    DEFINE VARIABLE dNewEstLineSetup  LIKE estCostMaterial.costSetup NO-UNDO.
+    DEFINE BUFFER bf-estCostMaterial  FOR ttEstCostMaterial.
+    DEFINE VARIABLE dEstGroupCost     LIKE ttEstCostMaterial.costTotal NO-UNDO.
+    DEFINE VARIABLE dNewEstLineSetup  LIKE ttEstCostMaterial.costSetup NO-UNDO.
     DEFINE VARIABLE cAdders           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdConversionProcs AS HANDLE    NO-UNDO.
     DEFINE VARIABLE loError           AS LOGICAL   NO-UNDO.
@@ -285,24 +295,26 @@ PROCEDURE RecostBoardEst_UpdateEstCostMaterial:
         WHERE ttRecostBoardGroups.Multi
         AND (iplCompareOnly OR ttRecostBoardGroups.UpdateCost),
         EACH ttRecostBoardLineXRef
-        WHERE ttRecostBoardLineXRef.RecostBoardGroupRowId EQ ROWID(ttRecostBoardGroups) NO-LOCK:
-        FIND FIRST estCostMaterial 
-            WHERE ROWID(estCostMaterial) EQ ttRecostBoardLineXRef.EstCostMaterialRowID NO-LOCK NO-ERROR.
+        WHERE ttRecostBoardLineXRef.RecostBoardGroupRowId EQ ROWID(ttRecostBoardGroups) NO-LOCK:            
         
-        IF AVAILABLE estCostMaterial THEN 
-        DO:
+        FIND FIRST ttestCostMaterial 
+            WHERE ttestCostMaterial.EstCostMaterialID EQ ttRecostBoardLineXRef.EstCostMaterialID
+              AND ttestCostMaterial.isPrimarySubstrate NO-LOCK NO-ERROR.
+        
+        IF AVAILABLE ttestCostMaterial THEN 
+        DO:            
             ASSIGN 
                 dEstGroupCost    = ttRecostBoardGroups.NewCost
                 dNewEstLineSetup = ttRecostBoardGroups.NewSetup / ttRecostBoardGroups.LineCount.
              
-           IF estCostMaterial.costUOM NE ttRecostBoardGroups.NewCostUom THEN       
+           IF ttEstCostMaterial.costUOM NE ttRecostBoardGroups.NewCostUom THEN       
             RUN Conv_QuantityFromUOMtoUOM IN hdConversionProcs(
                 INPUT ttRecostBoardGroups.company,
                 INPUT ttRecostBoardGroups.INO,
                 INPUT ttRecostBoardGroups.itemType,
-                INPUT estCostMaterial.quantityRequiredTotal,
+                INPUT ttEstCostMaterial.quantityRequiredTotal,
                 INPUT ttRecostBoardGroups.NewCostUom,
-                INPUT estCostMaterial.quantityUOM,
+                INPUT ttEstCostMaterial.quantityUOM,
                 INPUT ttRecostBoardGroups.BasisWeight,
                 INPUT ttRecostBoardGroups.len,
                 INPUT ttRecostBoardGroups.wid,
@@ -312,21 +324,20 @@ PROCEDURE RecostBoardEst_UpdateEstCostMaterial:
                 OUTPUT loError,
                 OUTPUT chMessage).  
         
-            IF dEstGroupCost LT estCostMaterial.costTotal OR dNewEstLineSetup LT estCostMaterial.costSetup THEN 
-            DO:
+            IF dEstGroupCost LT ttEstCostMaterial.costTotal OR dNewEstLineSetup LT ttEstCostMaterial.costSetup THEN 
+            DO:                
                 ASSIGN 
                     loUpdate               = YES 
                     ttRecostBoardGroups.UpdateCost = YES.
                     
                 IF NOT iplCompareOnly THEN 
                 DO:  /*Update estCostMaterial*/
-                    FIND CURRENT estCostMaterial EXCLUSIVE-LOCK.
-                    IF  estCostMaterial.costPerUOM > dEstGroupCost THEN  
-                        ASSIGN estCostMaterial.costPerUOM = dEstGroupCost
-                            estCostMaterial.costTotal  = estCostMaterial.quantityRequiredTotal * estCostMaterial.costPerUOM.
-                    IF estCostMaterial.costSetup > dNewEstLineSetup THEN 
-                        ASSIGN estCostMaterial.costSetup = dNewEstLineSetup.
-                    FIND CURRENT estCostMaterial NO-LOCK.                    
+                    FIND CURRENT ttestCostMaterial NO-ERROR.
+                    IF  ttEstCostMaterial.costPerUOM > dEstGroupCost THEN  
+                        ASSIGN ttEstCostMaterial.costPerUOM = dEstGroupCost
+                            ttEstCostMaterial.costTotal  = ttEstCostMaterial.quantityRequiredTotal * ttEstCostMaterial.costPerUOM.
+                    IF ttEstCostMaterial.costSetup > dNewEstLineSetup THEN 
+                        ASSIGN ttEstCostMaterial.costSetup = dNewEstLineSetup.                    
                 END.
             END.
         END. /*avail bf-estCostMaterial*/
@@ -343,9 +354,9 @@ PROCEDURE pGetAdders PRIVATE:
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipchCompanyId  LIKE  estCostMaterial.company.
-    DEFINE INPUT  PARAMETER ipchestimateNo LIKE  estCostMaterial.estimateNo.
-    DEFINE INPUT  PARAMETER ipchformNo     LIKE  estCostMaterial.formNo.
+    DEFINE INPUT  PARAMETER ipchCompanyId  LIKE  ttEstCostMaterial.company.
+    DEFINE INPUT  PARAMETER ipchestimateNo LIKE  ttEstCostMaterial.estimateNo.
+    DEFINE INPUT  PARAMETER ipchformNo     LIKE  ttEstCostMaterial.formNo.
     DEFINE OUTPUT PARAMETER opcAdders      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdCost        AS DECIMAL NO-UNDO.
 
