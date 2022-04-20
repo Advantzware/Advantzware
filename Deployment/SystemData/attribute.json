@@ -133,6 +133,20 @@
     "rec_key": "202111190040008130282"
   },
   {
+    "dbFieldName": "i-coat",
+    "dbFieldExtent": 0,
+    "attributeName": "Coats",
+    "dbTableName": "eb",
+    "rec_key": "202204076141409190831"
+  },
+  {
+    "dbFieldName": "i-coldscr",
+    "dbFieldExtent": 0,
+    "attributeName": "ColorDescription",
+    "dbTableName": "eb",
+    "rec_key": "202204076156409190832"
+  },
+  {
     "dbFieldName": "len",
     "dbFieldExtent": 0,
     "attributeName": "Length",
@@ -182,6 +196,13 @@
     "rec_key": "202111190040008130284"
   },
   {
+    "dbFieldName": "style",
+    "dbFieldExtent": 0,
+    "attributeName": "Style",
+    "dbTableName": "eb",
+    "rec_key": "202204075991509190830"
+  },
+  {
     "dbFieldName": "t-dep",
     "dbFieldExtent": 0,
     "attributeName": "BlankDepth",
@@ -203,6 +224,13 @@
     "rec_key": "202111190040008130296"
   },
   {
+    "dbFieldName": "tab-in",
+    "dbFieldExtent": 0,
+    "attributeName": "Tab",
+    "dbTableName": "eb",
+    "rec_key": "202204076161409190833"
+  },
+  {
     "dbFieldName": "tr-no",
     "dbFieldExtent": 0,
     "attributeName": "PalletNo",
@@ -215,6 +243,13 @@
     "attributeName": "Width",
     "dbTableName": "eb",
     "rec_key": "202111190040008130291"
+  },
+  {
+    "dbFieldName": "cal",
+    "dbFieldExtent": 0,
+    "attributeName": "Caliper",
+    "dbTableName": "ef",
+    "rec_key": "202204076201209190835"
   },
   {
     "dbFieldName": "form-no",
@@ -3311,6 +3346,13 @@
     "rec_key": "202203315979508577094"
   },
   {
+    "dbFieldName": "create-date",
+    "dbFieldExtent": 0,
+    "attributeName": "CreateDate",
+    "dbTableName": "job",
+    "rec_key": "202204145678409191919"
+  },
+  {
     "dbFieldName": "csrUser_id",
     "dbFieldExtent": 0,
     "attributeName": "CSRID",
@@ -3386,6 +3428,13 @@
     "attributeName": "Priority",
     "dbTableName": "job",
     "rec_key": "202203315979508577101"
+  },
+  {
+    "dbFieldName": "promiseDate",
+    "dbFieldExtent": 0,
+    "attributeName": "PromiseDate",
+    "dbTableName": "job",
+    "rec_key": "202204076244509190837"
   },
   {
     "dbFieldName": "start-date",
@@ -4067,6 +4116,13 @@
     "rec_key": "202203318231808577178"
   },
   {
+    "dbFieldName": "pass",
+    "dbFieldExtent": 0,
+    "attributeName": "Pass",
+    "dbTableName": "job-mch",
+    "rec_key": "202204076215809190836"
+  },
+  {
     "dbFieldName": "queue-time",
     "dbFieldExtent": 0,
     "attributeName": "QueueTime",
@@ -4487,6 +4543,13 @@
     "rec_key": "202111190040508130749"
   },
   {
+    "dbFieldName": "po-no",
+    "dbFieldExtent": 0,
+    "attributeName": "POID",
+    "dbTableName": "oe-ordl",
+    "rec_key": "202204076459209190838"
+  },
+  {
     "dbFieldName": "pr-uom",
     "dbFieldExtent": 0,
     "attributeName": "SellPriceUOM",
@@ -4590,6 +4653,20 @@
     "attributeName": "POBuyer",
     "dbTableName": "po-ord",
     "rec_key": "202201114188908455004"
+  },
+  {
+    "dbFieldName": "vend-no",
+    "dbFieldExtent": 0,
+    "attributeName": "VendorID",
+    "dbTableName": "po-ord",
+    "rec_key": "202204138545209191908"
+  },
+  {
+    "dbFieldName": "due-date",
+    "dbFieldExtent": 0,
+    "attributeName": "DueDate",
+    "dbTableName": "po-ordl",
+    "rec_key": "202204138526509191907"
   },
   {
     "dbFieldName": "po-no",
