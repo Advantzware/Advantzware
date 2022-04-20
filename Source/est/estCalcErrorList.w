@@ -47,28 +47,31 @@ DEFINE TEMP-TABLE ttEstErrorList LIKE ttEstError
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
-&Scoped-define BROWSE-NAME BROWSE-2
+&Scoped-define BROWSE-NAME Browse-ErrList
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES ttEstErrorList
 
-/* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttEstErrorList.iFormNo ttEstErrorList.iBlankNo ttEstErrorList.iQuantity ttEstErrorList.cErrorType ttEstErrorList.cError   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2   
-&Scoped-define SELF-NAME BROWSE-2
-&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH ttEstErrorList
-&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH ttEstErrorList.
-&Scoped-define TABLES-IN-QUERY-BROWSE-2 ttEstErrorList
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 ttEstErrorList
+/* Definitions for BROWSE Browse-ErrList                                */
+&Scoped-define FIELDS-IN-QUERY-Browse-ErrList ttEstErrorList.iFormNo ttEstErrorList.iBlankNo ttEstErrorList.iQuantity ttEstErrorList.cErrorType ttEstErrorList.cError   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Browse-ErrList ttEstErrorList.iFormNo   
+&Scoped-define ENABLED-TABLES-IN-QUERY-Browse-ErrList ttEstErrorList
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browse-ErrList ttEstErrorList
+&Scoped-define SELF-NAME Browse-ErrList
+&Scoped-define QUERY-STRING-Browse-ErrList FOR EACH ttEstErrorList
+&Scoped-define OPEN-QUERY-Browse-ErrList OPEN QUERY {&SELF-NAME} FOR EACH ttEstErrorList.
+&Scoped-define TABLES-IN-QUERY-Browse-ErrList ttEstErrorList
+&Scoped-define FIRST-TABLE-IN-QUERY-Browse-ErrList ttEstErrorList
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
-    ~{&OPEN-QUERY-BROWSE-2}
+    ~{&OPEN-QUERY-Browse-ErrList}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS COMBO-BOX-1 BROWSE-2 Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS COMBO-BOX-1 
+&Scoped-Define ENABLED-OBJECTS RECT-1 ComboBox-ErrTypes Browse-ErrList ~
+Btn_OK Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS ComboBox-ErrTypes 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -93,28 +96,33 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE VARIABLE COMBO-BOX-1 AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE ComboBox-ErrTypes AS CHARACTER FORMAT "X(256)":U 
      LABEL "ErrorTypes" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "All","Critical Errors","Important Errors","Warning" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 153 BY 14.76.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY BROWSE-2 FOR 
+DEFINE QUERY Browse-ErrList FOR 
       ttEstErrorList SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
-DEFINE BROWSE BROWSE-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 Dialog-Frame _FREEFORM
-  QUERY BROWSE-2 DISPLAY
-      ttEstErrorList.iFormNo
-      ttEstErrorList.iBlankNo
-      ttEstErrorList.iQuantity
-      ttEstErrorList.cErrorType
-      ttEstErrorList.cError
+DEFINE BROWSE Browse-ErrList
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browse-ErrList Dialog-Frame _FREEFORM
+  QUERY Browse-ErrList DISPLAY
+      ttEstErrorList.iFormNo COLUMN-LABEL "FormNo" WIDTH 8
+      ttEstErrorList.iBlankNo COLUMN-LABEL "BlankNo" WIDTH 8
+      ttEstErrorList.iQuantity COLUMN-LABEL "Quantity" WIDTH 10
+      ttEstErrorList.cErrorType COLUMN-LABEL "ErrorType" WIDTH 10
+      ttEstErrorList.cError COLUMN-LABEL "Error Description" WIDTH 30
+      ENABLE ttEstErrorList.iFormNo
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 151 BY 8.33 FIT-LAST-COLUMN.
@@ -123,11 +131,12 @@ DEFINE BROWSE BROWSE-2
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     COMBO-BOX-1 AT ROW 2.19 COL 13 COLON-ALIGNED WIDGET-ID 2
-     BROWSE-2 AT ROW 5.43 COL 2 WIDGET-ID 200
-     Btn_OK AT ROW 14.71 COL 49.2
-     Btn_Cancel AT ROW 14.71 COL 79
-     SPACE(59.19) SKIP(0.28)
+     ComboBox-ErrTypes AT ROW 2.1 COL 57.4 COLON-ALIGNED WIDGET-ID 2
+     Browse-ErrList AT ROW 6.1 COL 2.8 WIDGET-ID 200
+     Btn_OK AT ROW 14.67 COL 49.2
+     Btn_Cancel AT ROW 14.67 COL 79
+     RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 4
+     SPACE(0.79) SKIP(0.13)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "EstimateCalcErrorList"
@@ -151,10 +160,13 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
-/* BROWSE-TAB BROWSE-2 COMBO-BOX-1 Dialog-Frame */
+/* BROWSE-TAB Browse-ErrList ComboBox-ErrTypes Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
+
+ASSIGN 
+       Browse-ErrList:SEPARATOR-FGCOLOR IN FRAME Dialog-Frame      = 20.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -162,13 +174,13 @@ ASSIGN
 
 /* Setting information for Queries and Browse Widgets fields            */
 
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-2
-/* Query rebuild information for BROWSE BROWSE-2
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browse-ErrList
+/* Query rebuild information for BROWSE Browse-ErrList
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH ttEstErrorList.
      _END_FREEFORM
      _Query            is OPENED
-*/  /* BROWSE BROWSE-2 */
+*/  /* BROWSE Browse-ErrList */
 &ANALYZE-RESUME
 
  
@@ -188,18 +200,34 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define BROWSE-NAME BROWSE-2
+&Scoped-define BROWSE-NAME Browse-ErrList
+&Scoped-define SELF-NAME Browse-ErrList
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browse-ErrList Dialog-Frame
+ON START-SEARCH OF Browse-ErrList IN FRAME Dialog-Frame
+DO:
+    DEFINE VARIABLE hSortColumn  AS WIDGET-HANDLE.
+    
+    hSortColumn = Browse-ErrList:CURRENT-COLUMN.
+    CASE hSortColumn:LABEL:
+        WHEN "FormNo" THEN
+            OPEN QUERY Browse-ErrList FOR EACH ttEstErrorList BY iFormNo.
+        WHEN "BlankNo" THEN
+            OPEN QUERY Browse-ErrList FOR EACH ttEstErrorList BY iBlankNo.
+    END CASE. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
-
-&Scoped-define SELF-NAME COMBO-BOX-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL COMBO-BOX-1 Dialog-Frame
-ON VALUE-CHANGED OF COMBO-BOX-1 IN FRAME Dialog-Frame /* ErrorTypes */
+&Scoped-define SELF-NAME ComboBox-ErrTypes
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ComboBox-ErrTypes Dialog-Frame
+ON VALUE-CHANGED OF ComboBox-ErrTypes IN FRAME Dialog-Frame /* ErrorTypes */
 DO: 
-    IF COMBO-BOX-1:SCREEN-VALUE NE "All" THEN 
-    OPEN QUERY BROWSE-2 FOR EACH ttEstErrorList WHERE ttEstErrorList.cErrorType = COMBO-BOX-1:SCREEN-VALUE.  
+    IF ComboBox-ErrTypes:SCREEN-VALUE NE "All" THEN 
+    OPEN QUERY Browse-ErrList FOR EACH ttEstErrorList WHERE ttEstErrorList.cErrorType = ComboBox-ErrTypes:SCREEN-VALUE.  
     ELSE 
-    OPEN QUERY BROWSE-2 FOR EACH ttEstErrorList. 
+    OPEN QUERY Browse-ErrList FOR EACH ttEstErrorList. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -249,6 +277,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    END.
 
   RUN enable_UI.
+  ASSIGN ttEstErrorList.iFormNo:READ-ONLY IN BROWSE Browse-ErrList = TRUE.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
@@ -287,9 +316,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY COMBO-BOX-1 
+  DISPLAY ComboBox-ErrTypes 
       WITH FRAME Dialog-Frame.
-  ENABLE COMBO-BOX-1 BROWSE-2 Btn_OK Btn_Cancel 
+  ENABLE RECT-1 ComboBox-ErrTypes Browse-ErrList Btn_OK Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
