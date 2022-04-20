@@ -4,7 +4,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: util/estCostMaterialList.w
+  File: util/estCostMaterialListAlt.w
 
   Description: 
 
@@ -17,6 +17,8 @@
   Author: Anjly
 
   Created:04th Jun 2021
+  
+  Notes: Original copy of estCostMaterialList.w before refactor
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
@@ -35,12 +37,9 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/defines/sortByDefs.i}
 {system/VendorCostProcs.i}
-{est\ttEstimateCalc.i}
 
 /* Parameters Definitions ---                                           */
 DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstCostHeaderToCalc. 
-DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstCostMaterial.
-DEFINE INPUT PARAMETER TABLE FOR ttEstCostHeader.
 /* Local Variable Definitions ---                                       */
 
 /* _UIB-CODE-BLOCK-END */
@@ -59,24 +58,24 @@ DEFINE INPUT PARAMETER TABLE FOR ttEstCostHeader.
 &Scoped-define BROWSE-NAME brEstCostMaterial
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttEstCostHeaderToCalc ttEstCostHeader ~
-ttEstCostMaterial
+&Scoped-define INTERNAL-TABLES ttEstCostHeaderToCalc estCostHeader ~
+estCostMaterial
 
 /* Definitions for BROWSE brEstCostMaterial                             */
-&Scoped-define FIELDS-IN-QUERY-brEstCostMaterial ttEstCostHeader.quantityMaster ttEstCostMaterial.formNo ttEstCostMaterial.blankNo ttEstCostMaterial.itemID ttEstCostMaterial.vendorID ttEstCostMaterial.quantityRequiredTotal ttEstCostMaterial.quantityUOM ttEstCostMaterial.costPerUOM ttEstCostMaterial.costUOM ttEstCostMaterial.costSetup ttEstCostMaterial.costTotal   
+&Scoped-define FIELDS-IN-QUERY-brEstCostMaterial estCostHeader.quantityMaster estCostMaterial.formNo estCostMaterial.blankNo estCostMaterial.itemID estCostMaterial.vendorID estCostMaterial.quantityRequiredTotal estCostMaterial.quantityUOM estCostMaterial.costPerUOM estCostMaterial.costUOM estCostMaterial.costSetup estCostMaterial.costTotal   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brEstCostMaterial   
 &Scoped-define SELF-NAME brEstCostMaterial
 &Scoped-define QUERY-STRING-brEstCostMaterial FOR EACH ttEstCostHeaderToCalc, ~
-           FIRST ttEstCostHeader NO-LOCK     WHERE ttEstCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID, ~
-           EACH ttEstCostMaterial NO-LOCK     WHERE ttEstCostMaterial.estCostHeaderID EQ ttEstCostHeader.estCostHeaderID     AND ttEstCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}
+           FIRST estCostHeader NO-LOCK     WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID, ~
+           EACH estCostMaterial NO-LOCK     WHERE estCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID     AND estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-brEstCostMaterial OPEN QUERY {&SELF-NAME} FOR EACH ttEstCostHeaderToCalc, ~
-           FIRST ttEstCostHeader NO-LOCK     WHERE ttEstCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID, ~
-           EACH ttEstCostMaterial NO-LOCK     WHERE ttEstCostMaterial.estCostHeaderID EQ ttEstCostHeader.estCostHeaderID     AND ttEstCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
+           FIRST estCostHeader NO-LOCK     WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID, ~
+           EACH estCostMaterial NO-LOCK     WHERE estCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID     AND estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-brEstCostMaterial ttEstCostHeaderToCalc ~
-ttEstCostHeader ttEstCostMaterial
+estCostHeader estCostMaterial
 &Scoped-define FIRST-TABLE-IN-QUERY-brEstCostMaterial ttEstCostHeaderToCalc
-&Scoped-define SECOND-TABLE-IN-QUERY-brEstCostMaterial ttEstCostHeader
-&Scoped-define THIRD-TABLE-IN-QUERY-brEstCostMaterial ttEstCostMaterial
+&Scoped-define SECOND-TABLE-IN-QUERY-brEstCostMaterial estCostHeader
+&Scoped-define THIRD-TABLE-IN-QUERY-brEstCostMaterial estCostMaterial
 
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
@@ -129,35 +128,35 @@ DEFINE RECTANGLE RECT-13
 &ANALYZE-SUSPEND
 DEFINE QUERY brEstCostMaterial FOR 
       ttEstCostHeaderToCalc, 
-      ttEstCostHeader, 
-      ttEstCostMaterial SCROLLING.
+      estCostHeader, 
+      estCostMaterial SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE brEstCostMaterial
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS brEstCostMaterial C-Win _FREEFORM
   QUERY brEstCostMaterial NO-LOCK DISPLAY
-      ttEstCostHeader.quantityMaster              COLUMN-LABEL "Master Qty"
+      estCostHeader.quantityMaster              COLUMN-LABEL "Master Qty"
             LABEL-BGCOLOR 14    FORMAT '>,>>>,>>9'
-      ttEstCostMaterial.formNo                    COLUMN-LABEL "Form"       
+      estCostMaterial.formNo                    COLUMN-LABEL "Form"       
             LABEL-BGCOLOR 14    FORMAT '>9'
-      ttEstCostMaterial.blankNo                   COLUMN-LABEL "Blank"    
+      estCostMaterial.blankNo                   COLUMN-LABEL "Blank"    
              LABEL-BGCOLOR 14   FORMAT ">9"
-      ttEstCostMaterial.itemID                    COLUMN-LABEL "Item ID"  
+      estCostMaterial.itemID                    COLUMN-LABEL "Item ID"  
              LABEL-BGCOLOR 14   FORMAT "x(20)" 
-      ttEstCostMaterial.vendorID                  COLUMN-LABEL "Current Vendor" 
+      estCostMaterial.vendorID                  COLUMN-LABEL "Current Vendor" 
              LABEL-BGCOLOR 14   FORMAT "x(10)"
-      ttEstCostMaterial.quantityRequiredTotal     COLUMN-LABEL "Quantity Required" 
+      estCostMaterial.quantityRequiredTotal     COLUMN-LABEL "Quantity Required" 
              LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"
-      ttEstCostMaterial.quantityUOM COLUMN-LABEL "Quantity UOM" 
+      estCostMaterial.quantityUOM COLUMN-LABEL "Quantity UOM" 
              LABEL-BGCOLOR 14   FORMAT "x(5)"  
-      ttEstCostMaterial.costPerUOM                COLUMN-LABEL "Per UOM Cost" 
+      estCostMaterial.costPerUOM                COLUMN-LABEL "Per UOM Cost" 
              LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"
-      ttEstCostMaterial.costUOM                   COLUMN-LABEL "Cost UOM"        
+      estCostMaterial.costUOM                   COLUMN-LABEL "Cost UOM"        
              LABEL-BGCOLOR 14   FORMAT "x(5)"          
-      ttEstCostMaterial.costSetup                 COLUMN-LABEL "Setup Cost"        
+      estCostMaterial.costSetup                 COLUMN-LABEL "Setup Cost"        
              LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"
-      ttEstCostMaterial.costTotal                COLUMN-LABEL "Total Cost" 
+      estCostMaterial.costTotal                COLUMN-LABEL "Total Cost" 
              LABEL-BGCOLOR 14   FORMAT "->,>>>,>>9.99"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -254,11 +253,11 @@ THEN C-Win:HIDDEN = no.
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME}
 FOR EACH ttEstCostHeaderToCalc,
-    FIRST ttEstCostHeader NO-LOCK
-    WHERE ttEstCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID,
-    EACH ttEstCostMaterial NO-LOCK
-    WHERE ttEstCostMaterial.estCostHeaderID EQ ttEstCostHeader.estCostHeaderID
-    AND ttEstCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
+    FIRST estCostHeader NO-LOCK
+    WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID,
+    EACH estCostMaterial NO-LOCK
+    WHERE estCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID
+    AND estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Query            is OPENED
@@ -312,6 +311,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bOk C-Win
 ON CHOOSE OF bOk IN FRAME DEFAULT-FRAME /* Choose Vendor */
 DO:
+    DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
     DEFINE BUFFER bf-ef              FOR ef.
     
     DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
@@ -319,35 +319,36 @@ DO:
     DEFINE VARIABLE gcScopeRMOverride  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Override".
     DEFINE VARIABLE gcScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated".
     DEFINE VARIABLE cAdderList         AS CHARACTER EXTENT 6 NO-UNDO.
-    DEFINE VARIABLE iCount             AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE iCount             AS INTEGER   NO-UNDO.
      
-    IF AVAILABLE ttEstCostMaterial THEN
-    DO: 
+     
+    IF AVAILABLE estCostMaterial THEN
+    DO:
         FOR EACH bf-ef NO-LOCK
-            WHERE bf-ef.company EQ ttEstCostMaterial.company
-            AND bf-ef.est-no  EQ ttEstCostMaterial.estimateNo:
+            WHERE bf-ef.company EQ estCostMaterial.company
+            AND bf-ef.est-no  EQ estCostMaterial.estimateNo:
             DO iCount = 1 TO 6:
                 IF bf-ef.adder[iCount] <> "" THEN 
                     cAdderList[iCount] = bf-ef.adder[iCount].
             END.
         END.
         RUN system/vendorcostSelector.w(
-         INPUT  ttEstCostMaterial.company, //ipcCompany ,
-         INPUT  ttEstCostMaterial.itemID ,
+         INPUT  estCostMaterial.company, //ipcCompany ,
+         INPUT  estCostMaterial.itemID ,
          INPUT  IF isPurchasedFG THEN "FG" ELSE "RM", //ipcItemType ,
          INPUT  IF isPurchasedFG THEN gcScopeFGEstimated ELSE gcScopeRMOverride, //ipcScope ,
          INPUT  "Yes", //iplIncludeBlankVendor ,
-         INPUT  ttEstCostMaterial.estimateNo, //ipcEstimateNo,
-         INPUT  ttEstCostMaterial.formNo, //ipiFormNo,
-         INPUT  ttEstCostMaterial.blankNo, //ipiBlankNo,
-         INPUT  ttEstCostMaterial.quantityRequiredTotal , //ipdQuantity ,
-         INPUT  ttEstCostMaterial.quantityUOM, //ipcQuantityUOM ,
-         INPUT  ttEstCostMaterial.dimLength, //ipdDimLength ,
-         INPUT  ttEstCostMaterial.dimWidth, //ipdDimWidth ,
-         INPUT  ttEstCostMaterial.dimDepth, //ipdDimDepth ,
-         INPUT  ttEstCostMaterial.dimUOM, //ipcDimUOM ,
-         INPUT  ttEstCostMaterial.basisWeight, //ipdBasisWeight ,
-         INPUT  ttEstCostMaterial.basisWeightUOM, //ipcBasisWeightUOM ,
+         INPUT  estCostMaterial.estimateNo, //ipcEstimateNo,
+         INPUT  estCostMaterial.formNo, //ipiFormNo,
+         INPUT  estCostMaterial.blankNo, //ipiBlankNo,
+         INPUT  estCostMaterial.quantityRequiredTotal , //ipdQuantity ,
+         INPUT  estCostMaterial.quantityUOM, //ipcQuantityUOM ,
+         INPUT  estCostMaterial.dimLength, //ipdDimLength ,
+         INPUT  estCostMaterial.dimWidth, //ipdDimWidth ,
+         INPUT  estCostMaterial.dimDepth, //ipdDimDepth ,
+         INPUT  estCostMaterial.dimUOM, //ipcDimUOM ,
+         INPUT  estCostMaterial.basisWeight, //ipdBasisWeight ,
+         INPUT  estCostMaterial.basisWeightUOM, //ipcBasisWeightUOM ,
          INPUT  cAdderList,
          OUTPUT  TABLE ttVendItemCost,
          OUTPUT  lError ,
@@ -356,20 +357,21 @@ DO:
     END.
     
     FOR FIRST ttVendItemCost WHERE ttVendItemCost.isSelected :
-        
-        IF AVAILABLE ttEstCostMaterial THEN 
+        FIND bf-estCostMaterial EXCLUSIVE-LOCK
+            WHERE ROWID(bf-estCostMaterial) EQ ROWID(estCostMaterial) NO-ERROR.
+        IF AVAILABLE bf-estCostMaterial THEN 
         DO:          
             ASSIGN 
-                ttEstCostMaterial.vendorId   = ttVendItemCost.vendorID  
-                ttEstCostMaterial.costUOM    = ttVendItemCost.vendorUOM 
-                ttEstCostMaterial.costPerUOM = ttVendItemCost.costPerVendorUOM
-                ttEstCostMaterial.costSetup  = ttVendItemCost.costSetup
-                ttEstCostMaterial.costTotal  = ttVendItemCost.costTotal
+                bf-estCostMaterial.vendorId = ttVendItemCost.vendorID  
+                bf-estCostMaterial.costUOM = ttVendItemCost.vendorUOM 
+                bf-estCostMaterial.costPerUOM = ttVendItemCost.costPerVendorUOM
+                bf-estCostMaterial.costSetup = ttVendItemCost.costSetup
+                bf-estCostMaterial.costTotal = ttVendItemCost.costTotal
                 .
             IF AVAILABLE ttEstCostHeaderToCalc THEN 
-                ttEstCostHeaderToCalc.lRecalcRequired = TRUE. 
+                ttEstCostHeaderToCalc.lRecalcRequired = TRUE.
         END.
-         
+        RELEASE bf-estCostMaterial.  
     END.
     {&OPEN-QUERY-{&BROWSE-NAME}}
 END.
@@ -438,10 +440,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RUN enable_UI.
     FOR FIRST ttEstCostHeaderToCalc,
-        FIRST ttEstCostHeader NO-LOCK 
-            WHERE ttEstCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID:
+        FIRST estCostHeader NO-LOCK 
+            WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID:
         ASSIGN
-            fiEstimateNo:SCREEN-VALUE = ttEstCostHeader.estimateNo
+            fiEstimateNo:SCREEN-VALUE = estCostHeader.estimateNo
             .
 
     END.
@@ -450,17 +452,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 END.
 
 &Scoped-define sdBrowseName brEstCostMaterial
-{methods/sortByProc.i "pByQtyMaster" "ttEstCostHeader.quantityMaster"}
-{methods/sortByProc.i "pByFormNo" "ttEstCostMaterial.formNo"}
-{methods/sortByProc.i "pByBlankNo" "ttEstCostMaterial.blankNo"}
-{methods/sortByProc.i "pByItemID" "ttEstCostMaterial.itemID"}
-{methods/sortByProc.i "pByVendorID" "ttEstCostMaterial.vendorID"}
-{methods/sortByProc.i "pByQuantityRequiredTotal" "ttEstCostMaterial.quantityRequiredTotal"}
-{methods/sortByProc.i "pByQuantityRequiredTotalInCUOM" "ttEstCostMaterial.quantityRequiredTotalInCUOM"}
-{methods/sortByProc.i "pByCostPerUOM" "ttEstCostMaterial.costPerUOM"}
-{methods/sortByProc.i "pByCostUOM" "ttEstCostMaterial.costUOM"}
-{methods/sortByProc.i "pByCostSetup" "ttEstCostMaterial.costSetup"}
-{methods/sortByProc.i "pByCostTotal" "ttEstCostMaterial.costTotal"}
+{methods/sortByProc.i "pByQtyMaster" "estCostHeader.quantityMaster"}
+{methods/sortByProc.i "pByFormNo" "estCostMaterial.formNo"}
+{methods/sortByProc.i "pByBlankNo" "estCostMaterial.blankNo"}
+{methods/sortByProc.i "pByItemID" "estCostMaterial.itemID"}
+{methods/sortByProc.i "pByVendorID" "estCostMaterial.vendorID"}
+{methods/sortByProc.i "pByQuantityRequiredTotal" "estCostMaterial.quantityRequiredTotal"}
+{methods/sortByProc.i "pByQuantityRequiredTotalInCUOM" "estCostMaterial.quantityRequiredTotalInCUOM"}
+{methods/sortByProc.i "pByCostPerUOM" "estCostMaterial.costPerUOM"}
+{methods/sortByProc.i "pByCostUOM" "estCostMaterial.costUOM"}
+{methods/sortByProc.i "pByCostSetup" "estCostMaterial.costSetup"}
+{methods/sortByProc.i "pByCostTotal" "estCostMaterial.costTotal"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -545,4 +547,3 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
