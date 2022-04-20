@@ -266,25 +266,19 @@ PROCEDURE pGetJobMaterialInfo PRIVATE:
             CASE item.mat-type:
                 WHEN '5' THEN DO:
                     IF NOT CAN-DO(opMatType5,job-mat.i-no) THEN
-                        opMatType5 = opMatType5 + job-mat.i-no.
+                        opMatType5 = opMatType5 + "," + job-mat.i-no.
                     IF ipBlankNo EQ job-mat.blank-no THEN
                         matType5Qty = matType5Qty + job-mat.qty.
-                        
-                    opMatType5 = TRIM(opMatType5, ",").
                 END.
                 WHEN '6' THEN DO:
                     IF NOT CAN-DO(opMatType6,job-mat.i-no) THEN
-                        opMatType6 = opMatType6 + job-mat.i-no.
+                        opMatType6 = opMatType6 + "," + job-mat.i-no.
                     IF ipBlankNo EQ job-mat.blank-no THEN
                         matType6Qty = matType6Qty + job-mat.qty.
-                        
-                    opMatType6 = TRIM(opMatType6, ",").
                 END.
                 WHEN 'A' THEN DO:
                     IF NOT CAN-DO(opAdders,job-mat.i-no) THEN
-                        opAdders = opAdders + job-mat.i-no.
-                        
-                    opAdders = TRIM(opAdders, ",").
+                        opAdders = opAdders + "," + job-mat.i-no.
                 END.
                 WHEN 'B' THEN DO:
                     IF NOT opjobBoardIssued THEN
@@ -301,9 +295,7 @@ PROCEDURE pGetJobMaterialInfo PRIVATE:
                                                           AND mat-act.b-num   EQ job-mat.blank-no
                                                         USE-INDEX job).
                     IF NOT CAN-DO(opBoard,job-mat.i-no) THEN
-                        opBoard = opBoard + job-mat.i-no.
-                    
-                    opBoard = TRIM(opBoard, ",").
+                        opBoard = opBoard + "," + job-mat.i-no.
                 END. /* B */
                 WHEN 'C' THEN
                     IF ipBlankNo EQ job-mat.blank-no THEN
@@ -319,18 +311,13 @@ PROCEDURE pGetJobMaterialInfo PRIVATE:
                             .
                 WHEN 'I' THEN DO:
                     IF NOT CAN-DO(opInk,job-mat.i-no) THEN
-                        opInk = opInk + job-mat.i-no.
+                        opInk = opInk + "," + job-mat.i-no.
 
-                    ASSIGN
-                        opInkQty = opInkQty + job-mat.qty.
-                        opInk    = TRIM(opInk, ",")
-                        .
+                    opInkQty = opInkQty + job-mat.qty.
                 END. /* I */
                 WHEN 'V' THEN DO:
                     IF NOT CAN-DO(opVarnish,job-mat.i-no) THEN
                         opVarnish = opVarnish + job-mat.i-no.
-                    
-                    opVarnish = TRIM(opVarnish, ",").
                 END.
                 WHEN 'W' THEN
                     opFilmName = REPLACE(item.i-name,'"','').
@@ -347,6 +334,12 @@ PROCEDURE pGetJobMaterialInfo PRIVATE:
         requiredQty   = TRUNCATE(requiredQty,0)
                       + IF requiredQty - TRUNCATE(requiredQty,0) GT 0 THEN 1 ELSE 0
         opRequiredQty = requiredQty
+        opVarnish     = TRIM(opVarnish, ",")
+        opInk         = TRIM(opInk, ",")
+        opBoard       = TRIM(opBoard, ",")
+        opAdders      = TRIM(opAdders, ",")
+        opMatType6    = TRIM(opMatType6, ",")
+        opMatType5    = TRIM(opMatType5, ",")
         .
 END PROCEDURE.
 
