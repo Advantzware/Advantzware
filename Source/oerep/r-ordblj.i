@@ -430,7 +430,7 @@
         
         
           put space(34)
-              fill(" ",6 - length(trim(tt-fg-bin.job-no))) +
+              FILL(" ", iJobLen - length(trim(tt-fg-bin.job-no))) +
               trim(tt-fg-bin.job-no) + 
               (if tt-fg-bin.job-no ne "" then ("-" + string(tt-fg-bin.job-no2,"99"))
                else "")                   format "x(9)"

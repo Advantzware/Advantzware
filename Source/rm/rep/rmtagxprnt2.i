@@ -1,4 +1,5 @@
 /* oe/rep/invxprnt.i */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 DEFINE VARIABLE cCustName AS CHARACTER NO-UNDO.
 ASSIGN cTagno = tt-po-print.tag-no 
        cVendorTagno = tt-po-print.vend-tag 

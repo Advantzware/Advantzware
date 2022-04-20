@@ -11,6 +11,7 @@
     Created     : Wed Aug 16 09:05:30 EDT 2017
     Notes       :
   ----------------------------------------------------------------------*/
+  /*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */
 {fg/invrecpt.i NEW}
 {fg/fgPostBatch.i}
 
@@ -951,7 +952,7 @@ PROCEDURE fg-post:
       lAnyJobCloses = NO.
       FOR EACH w-fg-rctd NO-LOCK
         WHERE w-fg-rctd.company EQ job.company
-          AND w-fg-rctd.job-no EQ job.job-no
+          AND w-fg-rctd.job-no  EQ job.job-no
           AND w-fg-rctd.job-no2 EQ job.job-no2
           BREAK BY w-fg-rctd.job-no 
                 BY w-fg-rctd.job-no2 
@@ -1825,9 +1826,9 @@ FUNCTION get-tot-rcv-qty RETURNS INTEGER
     DEF VAR v-tot-qty AS INT NO-UNDO.           
     FOR EACH fg-rcpth
         WHERE fg-rcpth.company    EQ oe-ordl.company
-        AND fg-rcpth.i-no       EQ oe-ordl.i-no
-        AND fg-rcpth.job-no     EQ oe-ordl.job-no
-        AND fg-rcpth.rita-code  EQ "R"
+        AND fg-rcpth.i-no         EQ oe-ordl.i-no
+        AND fg-rcpth.job-no      EQ oe-ordl.job-no
+        AND fg-rcpth.rita-code    EQ "R"
         USE-INDEX tran NO-LOCK,
         EACH fg-rdtlh
         WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no

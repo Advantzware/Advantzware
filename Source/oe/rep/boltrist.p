@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/boltrist.p 12/98 JLF */
 /* Print Tri-State BOL                                                        */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 {sys/form/r-top.f}
 
@@ -49,7 +49,7 @@ format header
        v-ship-addr3                     at 46
        skip(1)
        "OUR ORDER#"
-       v-ord-no                                                       skip
+       STRING(v-ord-no)                                                       skip
        "BOL#"
        oe-bolh.bol-no                   format "9999999"
        "TO SHIP VIA"                    at 14

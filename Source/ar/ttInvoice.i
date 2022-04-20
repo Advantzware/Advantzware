@@ -129,7 +129,7 @@ DEFINE TEMP-TABLE ttTaxDetail NO-UNDO
     FIELD isFreight              AS LOGICAL   FORMAT "Yes/No"     LABEL "Freight"
     FIELD isTaxOnFreight         AS LOGICAL   FORMAT "Yes/No"     LABEL "Tax on Freight"
     FIELD isTaxOnTax             AS LOGICAL   FORMAT "Yes/No"     LABEL "Tax on Tax"
-    FIELD taxCode                AS CHARACTER FORMAT "x(8)"       LABEL "Tax Code"
+    FIELD taxCode                AS CHARACTER FORMAT "x(8)"       LABEL "Tax Group"
     FIELD taxCodeDescription     AS CHARACTER FORMAT "x(25)"      LABEL "Tax Code Description"
     FIELD taxCodeRate            AS DECIMAL   FORMAT "->>,>>9.99" LABEL "Tax Rate"
     FIELD taxCodeAccount         AS CHARACTER FORMAT "x(21)"      LABEL "Tax Code Account"

@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -34,6 +36,7 @@ def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val1 as cha no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 &scoped-define SORTBY-1 BY po-ordl.i-no
 &scoped-define SORTBY-2 BY po-ordl.i-name
@@ -151,8 +154,8 @@ DEFINE BROWSE BROWSE-1
       po-ordl.i-no FORMAT "x(15)":U WIDTH 23
       po-ordl.s-num COLUMN-LABEL "Form #" FORMAT ">9":U
       po-ordl.i-name FORMAT "x(30)":U
-      po-ordl.job-no FORMAT "x(6)":U
-      po-ordl.job-no2 FORMAT ">9":U
+      po-ordl.job-no FORMAT "x(9)":U
+      po-ordl.job-no2 FORMAT ">>9":U
       po-ordl.s-wid FORMAT ">>9.9999":U
       po-ordl.s-len FORMAT ">>9.9999":U
 /* _UIB-CODE-BLOCK-END */

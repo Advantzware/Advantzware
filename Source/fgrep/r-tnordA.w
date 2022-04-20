@@ -1400,9 +1400,9 @@ ASSIGN
    titm   = end_i-no
    fp-o   = begin_cust-po
    tp-o   = END_cust-po
-   fjob   = fill(" ",6 - length(trim(begin_job-no))) +
+   fjob   = FILL(" ", iJobLen - length(trim(begin_job-no))) +
             trim(begin_job-no) + STRING(int(begin_job-no2),"99")
-   tjob   = fill(" ",6 - length(trim(end_job-no)))   +
+   tjob   = FILL(" ", iJobLen - length(trim(end_job-no)))   +
             trim(end_job-no)   + STRING(int(end_job-no2),"99")
    ford   = begin_ord-no
    tord   = end_ord-no
@@ -1446,9 +1446,9 @@ FOR EACH ttCustList
                           AND (oe-ordl.opened   EQ YES OR vinc)      
                           AND oe-ordl.po-no     GE fp-o
                           AND oe-ordl.po-no     LE tp-o      
-                          AND STRING(FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
+                          AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
                               TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99")) GE fjob
-                          AND STRING(FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
+                          AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
                               TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99")) LE tjob
                           AND oe-ordl.ord-no    GE ford
                           AND oe-ordl.ord-no    LE tord USE-INDEX item,
@@ -1469,7 +1469,7 @@ FOR EACH ttCustList
    IF FIRST-OF(oe-ordl.ord-no) THEN EMPTY TEMP-TABLE tt-report.
 
    ASSIGN
-      v-job     = FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
+      v-job     = FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
                   TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")
       v-price   = oe-ordl.t-price / oe-ordl.qty * 1000
       v-printed = NO.
@@ -1608,7 +1608,7 @@ FOR EACH ttCustList
             ASSIGN
                v-qoh = tt-report.qty
                v-val = round(v-qoh * (oe-ordl.t-price / oe-ordl.qty),2)
-               v-job = FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
+               v-job = FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
                        TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99").
 
             DISPLAY 
@@ -1633,7 +1633,7 @@ FOR EACH ttCustList
                   '"' v-cus                                         '",'
                   '"' v-itm                                         '",'
                   '"' oe-ordl.po-no                                 '",'
-                  '"' FILL(" ",6 - LENGTH(TRIM(fg-rcpth.job-no))) +
+                  '"' FILL(" ", iJobLen - LENGTH(TRIM(fg-rcpth.job-no))) +
                       TRIM(fg-rcpth.job-no) + "-" + STRING(fg-rcpth.job-no2,"99") '",'
                   '"' (IF v-qty NE 0 THEN v-qty ELSE 0)             '",'
                   '"' (IF vdet AND fg-rcpth.trans-date <> ? THEN
@@ -1813,9 +1813,9 @@ ASSIGN
    titm   = end_i-no
    fp-o   = begin_cust-po
    tp-o   = END_cust-po
-   fjob   = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
+   fjob   = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
             TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
-   tjob   = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
+   tjob   = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no)))   +
             TRIM(end_job-no)   + STRING(INT(end_job-no2),"99")
    ford   = begin_ord-no
    tord   = end_ord-no
@@ -1869,9 +1869,9 @@ FOR EACH ttCustList
                           AND (oe-ordl.opened   EQ YES OR vinc)      
                           AND oe-ordl.po-no     GE fp-o
                           AND oe-ordl.po-no     LE tp-o      
-                          AND STRING(FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
+                          AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
                               TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99")) GE fjob
-                          AND STRING(FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
+                          AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
                               TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99")) LE tjob
                           AND oe-ordl.ord-no    GE ford
                           AND oe-ordl.ord-no    LE tord USE-INDEX item,
@@ -1892,7 +1892,7 @@ FOR EACH ttCustList
    IF FIRST-OF(oe-ordl.ord-no) THEN EMPTY TEMP-TABLE tt-report.
 
    ASSIGN
-      v-job     = FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
+      v-job     = FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
                   TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")
       v-price   = oe-ordl.t-price / oe-ordl.qty * 1000
       v-printed = NO.
@@ -2046,7 +2046,7 @@ FOR EACH ttCustList
                THEN ASSIGN v-shpdate = bf-fg-rcpth.trans-date
                            v-shpdays = (TODAY - bf-fg-rcpth.trans-date).
 
-             ASSIGN v-job = FILL(" ",6 - LENGTH(TRIM(fg-rcpth.job-no))) +
+             ASSIGN v-job = FILL(" ", iJobLen - LENGTH(TRIM(fg-rcpth.job-no))) +
                             TRIM(fg-rcpth.job-no) + "-" + 
                             STRING(fg-rcpth.job-no2,"99")
                     v-job = TRIM(v-job)
@@ -2079,7 +2079,7 @@ FOR EACH ttCustList
                   '"' v-cus                                         '",'
                   '"' v-itm                                         '",'
                   '"' oe-ordl.po-no                                 '",'
-                  '"' FILL(" ",6 - LENGTH(TRIM(fg-rcpth.job-no))) +
+                  '"' FILL(" ", iJobLen - LENGTH(TRIM(fg-rcpth.job-no))) +
                       TRIM(fg-rcpth.job-no) + "-" + STRING(fg-rcpth.job-no2,"99") '",'
                   '"' (IF v-qty NE 0 THEN v-qty ELSE 0)             '",'
                   '"' (IF vdet AND fg-rcpth.trans-date <> ? THEN

@@ -6,6 +6,7 @@
 **
 *****************************************************************************
 \***************************************************************************/
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.           */
 
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
@@ -190,10 +191,10 @@ for each report   where report.term-id eq v-term-id,
              skip(4)
              "  Qty Ord   Qty Ship Cs Pcs/Cs      "
              "P.O. No. / Item / Description  "
-             "Order# P/C  Wt." skip
+             "Order#   P/C  Wt." skip
              "--------- ---------- -- ------"
              "-------------------------------------"
-             "------ --- ----" skip
+             "-------- --- ----" skip
           with frame hd-top-comp no-box no-labels page-top stream-io width 90.
       view frame hd-top-comp.
     end.

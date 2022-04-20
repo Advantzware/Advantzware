@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -204,8 +205,8 @@ DEFINE BROWSE br_table
             WIDTH 16
       fg-rctd.inv-no COLUMN-LABEL "Counted Qty" FORMAT ">>>,>>>,>>9":U
             WIDTH 16
-      fg-rctd.job-no FORMAT "x(6)":U
-      fg-rctd.job-no2 FORMAT "99":U
+      fg-rctd.job-no FORMAT "x(9)":U
+      fg-rctd.job-no2 FORMAT "999":U
       fg-rctd.i-no FORMAT "x(15)":U
       fg-rctd.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
       fg-rctd.std-cost COLUMN-LABEL "Cost" FORMAT ">>>,>>9.99<<":U
@@ -843,14 +844,14 @@ DEF VAR lv-rowid AS ROWID NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+        STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))
+        .
 
     
     RUN windows/l-fgibn2.w (g_company, fg-rctd.i-no:screen-value in browse {&browse-name}, fg-rctd.job-no:screen-value in browse {&browse-name}, INT(fg-rctd.job-no2:screen-value in browse {&browse-name}), fg-rctd.loc:screen-value in browse {&browse-name}, fg-rctd.loc-bin:screen-value in browse {&browse-name}, fg-rctd.tag:screen-value in browse {&browse-name}, output lv-rowid).
     FIND fg-bin WHERE ROWID(fg-bin) EQ lv-rowid NO-LOCK NO-ERROR.
 
-    IF AVAIL fg-bin AND (fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}      NE fg-bin.job-no  OR
+    IF AVAIL fg-bin AND (trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})      NE trim(fg-bin.job-no)  OR
                          INT(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE fg-bin.job-no2 OR
                          fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}         NE fg-bin.loc     OR
                          fg-rctd.loc-bin:SCREEN-VALUE IN browse {&browse-name}     NE fg-bin.loc-bin OR
@@ -1022,7 +1023,7 @@ PROCEDURE get-fg-bin-cost :
 
   FIND FIRST job-hdr WHERE
        job-hdr.company = g_company
-                  AND job-hdr.job-no = loadtag.job-no
+                  AND job-hdr.job-no  = loadtag.job-no
                   AND job-hdr.job-no2 = loadtag.job-no2
                   AND job-hdr.i-no = loadtag.i-no NO-LOCK NO-ERROR.
    /*IF AVAIL job-hdr THEN 
@@ -1485,8 +1486,8 @@ PROCEDURE new-bin :
 ------------------------------------------------------------------------------*/
  DO WITH FRAME {&FRAME-NAME}:
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+        STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))
+        .
 
     FIND FIRST fg-bin 
         WHERE fg-bin.company EQ cocode
@@ -1672,8 +1673,8 @@ DEF INPUT PARAM ip-int AS INT NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+        STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))
+        .
 
     IF NOT CAN-FIND(FIRST fg-bin 
                     WHERE fg-bin.company  EQ cocode

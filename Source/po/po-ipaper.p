@@ -238,8 +238,7 @@ IF AVAILABLE cust AND iPaper-log AND iPaper-dir NE "" THEN
 
             FIND FIRST job NO-LOCK
                 WHERE job.company EQ cocode
-                AND job.job-no  EQ fill(" ",6 - length(TRIM(po-ordl.job-no))) +
-                trim(po-ordl.job-no)
+                AND job.job-no  EQ po-ordl.job-no
                 AND job.job-no2 EQ po-ordl.job-no2
                 NO-ERROR.
         

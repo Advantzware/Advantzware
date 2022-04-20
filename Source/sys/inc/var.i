@@ -18,5 +18,11 @@ DEFINE             VARIABLE xxx      AS DECIMAL   NO-UNDO.
 DEFINE             VARIABLE yyy      AS DECIMAL   NO-UNDO.
 DEFINE             VARIABLE zzz      AS DECIMAL   NO-UNDO.
 DEFINE             VARIABLE tmpstore AS CHARACTER NO-UNDO.
+DEFINE             VARIABLE iJobLen  AS INTEGER   NO-UNDO.
+
+
+&IF DEFINED(NoJobLen) EQ 0 &THEN
+iJobLen = DYNAMIC-FUNCTION("sfCommon_GetJobLen", cocode).
+&ENDIF
 
 /* end ---------------------------------- copr. 2001  advanced software, inc. */

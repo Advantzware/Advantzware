@@ -46,7 +46,6 @@ DEFINE VARIABLE cCompany             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobBuildVersion     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalculationTypeList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMaterialTypeGroup   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdMaterialProcs      AS HANDLE    NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -269,7 +268,6 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
   
-      RUN rm/MaterialProcs.p PERSISTENT SET hdMaterialProcs.
   
   /************************ INTERNAL PROCEDURES ********************/
 
@@ -360,7 +358,7 @@ PROCEDURE local-assign-statement :
 
     /* Code placed here will execute AFTER standard behavior.    */
     IF AVAILABLE materialType THEN
-    RUN Material_UpdateMaterialSystemType IN hdMaterialProcs (
+    RUN Material_UpdateMaterialSystemType (
                            cCompany,
                            materialType.materialType,
                            materialType.materialTypeGroup
@@ -430,6 +428,46 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
+PROCEDURE local-update-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lAutoPost AS LOGICAL NO-UNDO.  
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  assign
+   lAutoPost = materialType.autoIssue
+   .        
+  
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  IF lAutoPost NE materialType.autoIssue AND materialType.autoIssue THEN
+  DO:
+       MESSAGE "Update the Auto Issue flag for all open jobs?"
+                 VIEW-AS ALERT-BOX QUESTION 
+                 BUTTONS OK-CANCEL UPDATE lcheckflg as logical .
+       IF lcheckflg THEN
+       DO:
+           RUN spProgressBar ("Update the Auto Issue flag for all open jobs", 90, 100). 
+           RUN Material_UpdateJobMaterialAutoIssue (
+                           cCompany,
+                           materialType.materialType,
+                           YES
+                           ).   
+           RUN spProgressBar (?, ?, 100).                 
+       END.
+  END.
+
+ 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
 PROCEDURE local-destroy:
 /*------------------------------------------------------------------------------
@@ -437,8 +475,6 @@ PROCEDURE local-destroy:
  Notes:
 ------------------------------------------------------------------------------*/
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF VALID-HANDLE (hdMaterialProcs) THEN
-        DELETE PROCEDURE hdMaterialProcs.
                 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
@@ -467,11 +503,11 @@ PROCEDURE pInit :
         OUTPUT cCompany
         ).
         
-    RUN Material_GetCalculationTypeList IN hdMaterialProcs (
+    RUN Material_GetCalculationTypeList (
         OUTPUT cCalculationTypeList
         ).
         
-    RUN Material_GetSystemTypeList IN hdMaterialProcs (
+    RUN Material_GetSystemTypeList (
         OUTPUT cMaterialTypeGroup
         ).    
         

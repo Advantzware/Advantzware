@@ -7,7 +7,10 @@
 &Scoped-define FRAME-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*----------------------------------------------------------------------*/
-/*          This .W file was created with the Progress UIB.             */
+/*          This .W file was created with the Progress UIB.             
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
+*/
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
@@ -22,7 +25,7 @@ def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-val as recid no-undo.
 def var lv-type-dscr as cha no-undo.
-
+{sys/inc/var.i new shared}
 {pc/pcprdd4u.i}
 
 &scoped-define SORTBY-1 BY tt-job-hdr.frm BY tt-job-hdr.blank-no
@@ -143,7 +146,7 @@ DEFINE BROWSE BROWSE-1
       tt-job-hdr.blank-no COLUMN-LABEL "Blank#" FORMAT ">>9":U
       tt-job-hdr.i-no FORMAT "x(23)":U COLUMN-FONT 0
       tt-job-hdr.est-no FORMAT "x(8)":U COLUMN-FONT 0
-      tt-job-hdr.ord-no FORMAT ">>>>>9":U COLUMN-FONT 0
+      tt-job-hdr.ord-no FORMAT ">>>>>>>9":U COLUMN-FONT 0
       tt-job-hdr.cust-no FORMAT "x(8)":U COLUMN-FONT 0
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -344,7 +347,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   
   FRAME dialog-frame:TITLE = TRIM(FRAME dialog-frame:TITLE) + " Job: " +
-                             TRIM(ip-job-no) + "-" + STRING(INT(ip-job-no2),"99").
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ip-job-no, ip-job-no2))).
 
   RUN build-table.
 

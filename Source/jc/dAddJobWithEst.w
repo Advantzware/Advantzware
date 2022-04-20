@@ -17,6 +17,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -230,7 +231,7 @@ DEFINE VARIABLE cEstNo AS CHARACTER FORMAT "X(10)":U
      SIZE 18.8 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cJobNo AS CHARACTER FORMAT "X(10)":U 
+DEFINE VARIABLE cJobNo AS CHARACTER FORMAT "X(13)":U 
      LABEL "Head ID" 
      VIEW-AS FILL-IN 
      SIZE 18.8 BY 1
@@ -828,7 +829,7 @@ DO:
         IF AVAIL bf-job THEN
         DO:
          ASSIGN
-           cJobNo:SCREEN-VALUE         =  STRING(bf-job.job-no) + "-" + STRING(bf-job.job-no2,"99")
+           cJobNo:SCREEN-VALUE         =  STRING(bf-job.job-no) + "-" + STRING(bf-job.job-no2,"999")
            dtCreatedDate:SCREEN-VALUE  =  STRING(bf-job.create-date)
            cUserID:SCREEN-VALUE        = STRING(bf-job.user-id)
            cStatus:SCREEN-VALUE        = STRING(bf-job.stat)  

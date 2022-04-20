@@ -33,6 +33,7 @@
 DEF INPUT  PARAM ip-company LIKE stax.company NO-UNDO.
 DEF INPUT  PARAM ip-cur-val AS CHAR NO-UNDO.
 DEF OUTPUT PARAM op-row-val AS ROWID NO-UNDO.
+{sys/inc/var.i}
 
 &scoped-define SORTBY-1 BY stax.tax-group
 &scoped-define fld-name-1  stax.tax-group

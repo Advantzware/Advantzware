@@ -1,4 +1,4 @@
-
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 {sys/inc/var.i NEW SHARED}
 
 DEF VAR out-cost AS DEC DECIMALS 10 NO-UNDO.
@@ -16,8 +16,7 @@ FOR EACH mat-act,
 
     FIRST job
     WHERE job.company EQ mat-act.company
-      AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(mat-act.job-no))) +
-                         TRIM(mat-act.job-no)
+      AND job.job-no  EQ mat-act.job-no
       AND job.job-no2 EQ mat-act.job-no2
     NO-LOCK,
 

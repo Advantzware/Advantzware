@@ -278,7 +278,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF AVAIL tt-key2 THEN v-i-no = tt-key2.tt-i-no.
 
   FRAME {&FRAME-NAME}:TITLE = TRIM(FRAME {&FRAME-NAME}:TITLE) + " for Job#/Form: " +
-                              TRIM(ip-job-no) + "-" + STRING(ip-job-no2,"99") +
+                              TRIM(ip-job-no) + "-" + STRING(ip-job-no2,"999") +
                               "/" + TRIM(STRING(ip-frm,">>>>")).
 
   RUN get-upd-reft (YES).
@@ -352,7 +352,7 @@ PROCEDURE get-upd-reft :
     FIND FIRST reftable
         WHERE reftable.reftable EQ "cerep/d-keys2.w"
           AND reftable.company  EQ cocode
-          AND reftable.loc      EQ TRIM(ip-job-no)
+          AND TRIM(reftable.loc)      EQ TRIM(ip-job-no)
           AND reftable.code     EQ STRING(ip-job-no2,"9999999999")
           AND reftable.code2    EQ ip-i-no
           AND reftable.val[1]   EQ ip-frm

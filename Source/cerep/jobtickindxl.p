@@ -18,6 +18,7 @@
   ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 
@@ -1166,9 +1167,9 @@ PROCEDURE MainLoop :
   /* Go through each jobs selected by the user. */
   for  each job-hdr no-lock
       where job-hdr.company   = cocode
-        and job-hdr.job-no    ge icBegJobNo
+        and FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) + TRIM(job-hdr.job-no) ge icBegJobNo
         and job-hdr.job-no2   ge iiBegJobNo2
-        and job-hdr.job-no    le icEndJobNo
+        and FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) + TRIM(job-hdr.job-no) le icEndJobNo
         and job-hdr.job-no2   le iiEndJobNo2,
       first eb no-lock
       where eb.company        = job-hdr.company
@@ -1192,7 +1193,7 @@ PROCEDURE MainLoop :
     
       /* Combine Job-No + Job-No2 + Form. */
       assign 
-        vcJobNo           = job-hdr.job-no + '-' +  string (job-hdr.job-no2, '99') + '-' +
+        vcJobNo           = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)) + '-' +
                                                     string (job-hdr.frm, '99')
         vcBarCode         = job-hdr.job-no + "-"
                           + STRING(job-hdr.job-no2) + "."

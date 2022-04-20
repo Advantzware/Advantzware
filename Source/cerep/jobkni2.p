@@ -10,8 +10,8 @@ DEFINE INPUT PARAMETER v-format like sys-ctrl.char-fld.
 
 def new shared var save_id as recid.
 def new shared var v-today as date init today.
-def new shared var v-job as char format "x(6)" extent 2 init [" ","zzzzzz"].
-def new shared var v-job2 as int format "99" extent 2 init [00,99].
+def new shared var v-job as char format "x(9)" extent 2 init [" ","zzzzzzzzz"].
+def new shared var v-job2 as int format "999" extent 2 init [000,999].
 def new shared var v-stypart like style.dscr.
 def new shared var v-dsc like oe-ordl.part-dscr1 extent 2.
 def new shared var v-size as char format "x(26)" extent 2.
@@ -276,7 +276,7 @@ DEFINE TEMP-TABLE tt-ink-print NO-UNDO
 
 format HEADER 
        "<OLANDSCAPE><P10>" skip
-        "JOB NUMBER:<B>" v-job-no space(0) "-" space(0) v-job-no2 format "99" "</B>"
+        "JOB NUMBER:<B>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)" "</B>"
        "<B><P12>F A C T O R Y   T I C K E T</B><P10>" at 52  "ORDER DATE:" at 100 v-start-date SKIP
         v-fill
     with no-box frame head no-labels stream-io width 155.
@@ -567,7 +567,7 @@ END FUNCTION.
                           AND eb.blank-no > 0 
                         NO-LOCK NO-ERROR.
         v-bar-no = IF AVAIL eb THEN eb.spc-no ELSE "".
-        IF v-bar-no = "" THEN v-bar-no = trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99").
+        IF v-bar-no = "" THEN v-bar-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
         v-bar-no = barCode(v-bar-no).
         v-label-item-no = 1.
         IF AVAIL oe-ord THEN
@@ -583,11 +583,11 @@ END FUNCTION.
             v-fill SKIP.   
         /* barcode print */
         
-        PUT UNFORMATTED "<UNITS=INCHES><AT=.54,7><FROM><AT=+.6,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
+        PUT UNFORMATTED "<r-5.6><#1><UNITS=INCHES><C70.5><FROM><c90.8><r+3.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
               /*v-bar-no ">" "   Page#:" string(lv-pg-num2,">>9") + " of " + string(lv-tot-pg) FORM "x(20)"*/
                v-bar-no ">" 
 
-            "<AT=,7.8>" v-bar-no "<=#1><R+5>".
+            "<C71>" v-bar-no "<=#1><R+5>".
         v-line = if avail est and est.est-type gt 2 and est.est-type lt 5 
                  then 500 
                  else 50.
@@ -2039,10 +2039,10 @@ END FUNCTION.
 
                    chrBarcode[1] = TRIM(v-fgitm[1]) + 
                                    chrDummy + 
-                                   v-job-no + string(v-job-no2,"99").
+                                   " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
 
                    v-fgitm[1] = 
-                     v-fgitm[1] + " " + v-job-no + "-" + string(v-job-no2,"99").
+                     v-fgitm[1] + " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
                 END.
 
                 IF v-fgitm[2] NE "" THEN DO:
@@ -2052,10 +2052,10 @@ END FUNCTION.
 
                    chrBarcode[2] = TRIM(v-fgitm[2]) + 
                                    chrDummy + 
-                                   v-job-no + string(v-job-no2,"99").
+                                   " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
 
                    v-fgitm[2] = 
-                    v-fgitm[2] + " " + v-job-no + "-" + string(v-job-no2,"99").
+                    v-fgitm[2] + " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
                 END.
 
                 IF v-fgitm[3] NE "" THEN DO:
@@ -2065,10 +2065,10 @@ END FUNCTION.
 
                     chrBarcode[3] = TRIM(v-fgitm[3]) + 
                                     chrDummy + 
-                                    v-job-no + string(v-job-no2,"99").
+                                    " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
 
                     v-fgitm[3] = 
-                     v-fgitm[3] + " " + v-job-no + "-" + string(v-job-no2,"99").
+                     v-fgitm[3] + " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
                 END.
 
                 PUT UNFORMATTED 
@@ -2211,10 +2211,10 @@ END FUNCTION.
 
                chrBarcode[1] = TRIM(v-fgitm[1]) + 
                                chrDummy + 
-                               v-job-no + string(v-job-no2,"99").
+                               " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
                
                v-fgitm[1] = 
-                  v-fgitm[1] + " " + v-job-no + "-" + string(v-job-no2,"99").
+                  v-fgitm[1] + " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
             END.
            
             IF v-fgitm[2] NE "" THEN 
@@ -2225,10 +2225,10 @@ END FUNCTION.
 
                chrBarcode[2] = TRIM(v-fgitm[2]) + 
                                chrDummy + 
-                               v-job-no + string(v-job-no2,"99").
+                               " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
                
                v-fgitm[2] = 
-                  v-fgitm[2] + " " + v-job-no + "-" + string(v-job-no2,"99").
+                  v-fgitm[2] + " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
             END.
                
             IF v-fgitm[3] NE "" THEN 
@@ -2239,10 +2239,10 @@ END FUNCTION.
 
                chrBarcode[3] = TRIM(v-fgitm[3]) + 
                                chrDummy + 
-                               v-job-no + string(v-job-no2,"99").
+                               " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
                
                v-fgitm[3] = 
-                  v-fgitm[3] + " " + v-job-no + "-" + string(v-job-no2,"99").
+                  v-fgitm[3] + " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
             END.
             
             PUT UNFORMATTED "<#=200><AT=,1><FROM><AT=+.6,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" chrBarcode[1] ">".

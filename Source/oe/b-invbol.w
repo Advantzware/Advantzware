@@ -169,8 +169,8 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      oe-boll.job-no COLUMN-LABEL "   Job#" FORMAT "x(6)":U WIDTH 9
-      oe-boll.job-no2 COLUMN-LABEL "" FORMAT "99":U WIDTH 3
+      oe-boll.job-no COLUMN-LABEL "   Job#" FORMAT "x(9)":U WIDTH 14
+      oe-boll.job-no2 COLUMN-LABEL "" FORMAT "999":U WIDTH 5
       oe-boll.loc COLUMN-LABEL "Whs" FORMAT "x(5)":U WIDTH 8
       oe-boll.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 11
       oe-boll.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U WIDTH 25
@@ -275,9 +275,9 @@ ASSIGN
   AND ASI.oe-boll.i-no = ASI.inv-line.i-no
   AND ASI.oe-boll.line = ASI.inv-line.line"
      _FldNameList[1]   > ASI.oe-boll.job-no
-"oe-boll.job-no" "   Job#" ? "character" ? ? ? ? ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-boll.job-no" "   Job#" ? "character" ? ? ? ? ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.oe-boll.job-no2
-"oe-boll.job-no2" "" ? "integer" ? ? ? ? ? ? yes ? no no "3" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-boll.job-no2" "" ? "integer" ? ? ? ? ? ? yes ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-boll.loc
 "oe-boll.loc" "Whs" ? "character" ? ? ? ? ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.oe-boll.loc-bin
@@ -577,22 +577,20 @@ PROCEDURE fgbin-help :
 
 
   DO WITH FRAME {&FRAME-NAME}:
-    oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+    oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name})).
 
     RUN windows/l-fgibn4.w (oe-boll.company, oe-boll.i-no, oe-boll.job-no:screen-value in browse {&browse-name}, INT(oe-boll.job-no2:screen-value in browse {&browse-name}), oe-boll.loc:screen-value in browse {&browse-name}, oe-boll.loc-bin:screen-value in browse {&browse-name}, oe-boll.tag:screen-value in browse {&browse-name}, output lv-rowid).
 
     FIND fg-bin WHERE ROWID(fg-bin) EQ lv-rowid NO-LOCK NO-ERROR.
 
-    IF AVAIL fg-bin AND (oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}      NE fg-bin.job-no  OR
+    IF AVAIL fg-bin AND (TRIM(oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name})      NE TRIM(fg-bin.job-no)  OR
                          INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) NE fg-bin.job-no2 OR
                          oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name}         NE fg-bin.loc     OR
                          oe-boll.loc-bin:SCREEN-VALUE IN browse {&browse-name}     NE fg-bin.loc-bin OR
                          oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name}         NE fg-bin.tag)
     THEN DO:
       ASSIGN
-       oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}  = fg-bin.job-no
+       oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-bin.job-no))
        oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fg-bin.job-no2)
        oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = fg-bin.loc
        oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.loc-bin
@@ -760,9 +758,7 @@ PROCEDURE new-bin :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+    oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name})).
 
     FIND FIRST fg-bin 
         WHERE fg-bin.company EQ cocode
@@ -776,7 +772,7 @@ PROCEDURE new-bin :
     IF AVAIL fg-bin THEN
       ASSIGN
        oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fg-bin.case-count)
-       oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}   = fg-bin.job-no
+       oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-bin.job-no))
        oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(fg-bin.job-no2)
        oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name}      = CAPS(fg-bin.loc)
        oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}  = CAPS(fg-bin.loc-bin)
@@ -969,9 +965,7 @@ PROCEDURE valid-job-loc-bin-tag :
 
   DO WITH FRAME {&FRAME-NAME}:
     IF ip-int LT 99 THEN
-      oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-          FILL(" ",6 - LENGTH(TRIM(oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-          TRIM(oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+      oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name})).
 
     IF NOT CAN-FIND(FIRST fg-bin 
                     WHERE fg-bin.company  EQ cocode

@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -33,6 +35,7 @@
 def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
@@ -141,8 +144,8 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
       fg-bin.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U
       fg-bin.i-no FORMAT "x(22)":U
-      fg-bin.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U
-      fg-bin.job-no2 COLUMN-LABEL "#" FORMAT ">9":U
+      fg-bin.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U
+      fg-bin.job-no2 COLUMN-LABEL "#" FORMAT ">>9":U
       fg-bin.loc FORMAT "x(5)":U
       fg-bin.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       fg-bin.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U WIDTH 12

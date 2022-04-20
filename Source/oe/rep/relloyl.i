@@ -1,5 +1,6 @@
 /* ------------------------------------------ oe/rep/relloyl.i 09220907 GDM */
 /* RELEASE PRINT  Program for N-K-1 RELPRINT = LoyLang                      */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.            */
 /* ------------------------------------------------------------------------ */
 
 DEF VAR v-fob AS CHAR FORMAT "x(12)" NO-UNDO.
@@ -70,18 +71,18 @@ DEF VAR v-lot-no AS CHAR NO-UNDO.
 /* gdm - 07070908 */
 DEF VAR v-rel-qty1 LIKE v-rel-qty NO-UNDO.
 
-format w-oe-rell.ord-no                 to 6
-       w-par                            at 8    format "x(26)"
-       v-bin                            at 36   format "x(20)"
-       w-cas                            to 61   format "->>>>>"  /*68*/
+format w-oe-rell.ord-no                 to 8
+       w-par                            at 10    format "x(26)"
+       v-bin                            at 38   format "x(20)"
+       w-cas                            to 63   format "->>>>>"  /*68*/
        w-c-c                            to 75   format "->>>>>>>>"
        w-qty[1]                         to 86   FORMAT "->>>>>>>>"
     with down frame rel-mid no-box no-label STREAM-IO width 97.
 
-format w-oe-rell.ord-no                 to 6
-       w-par                            at 8    format "x(26)"
-       v-bin                            at 36   format "x(20)"
-       w-cas                            to 61   format "->>>>>"
+format w-oe-rell.ord-no                 to 8
+       w-par                            at 10    format "x(26)"
+       v-bin                            at 38   format "x(20)"
+       w-cas                            to 63   format "->>>>>"
        w-c-c                            to 73   format "->>>>>>>>"
        w-qty[1]                         to 86   FORMAT "->>>>>>>>"
        w-descr                          at 8    format "x(110)"
@@ -365,8 +366,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                                 AND oe-rell.loc      EQ fg-bin.loc
                                 AND oe-rell.loc-bin  EQ fg-bin.loc-bin
                                 AND oe-rell.tag      EQ fg-bin.tag) OR
-                  fg-bin.job-no + "-" + STRING(fg-bin.job-no2,"99") <>
-                  w-oe-rell.job-no + "-" + STRING(w-oe-rell.job-no2,"99")) THEN NEXT.
+                  fg-bin.job-no + "-" + STRING(fg-bin.job-no2,"999") <>
+                  w-oe-rell.job-no + "-" + STRING(w-oe-rell.job-no2,"999")) THEN NEXT.
 
             IF ll-consol-rells THEN DO:                
 

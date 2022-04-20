@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
  /* cec/quote/quopnts2.i */
  
   /*PUT "<C+25><#1>"
@@ -53,14 +54,14 @@
    terms.dscr FORM "x(15)" space(1) sman.sname space(2) v-over-under SKIP.
 
    PUT "<|10><R26><C1><#5><FROM><R28><C80><RECT>" SKIP    
-             "<R26><C7><FROM><R28><C7><LINE>" SKIP
-             "<R26><C20><FROM><R28><C20><LINE>" SKIP
-             "<R26><C45><FROM><R28><C45><LINE>" SKIP
-             "<R26><C56><FROM><R28><C56><LINE>" SKIP
-             "<R26><C63><FROM><R28><C63><LINE>" SKIP
-             "<R26><C73><FROM><R28><C73><LINE>" SKIP.
+             "<R26><C8><FROM><R28><C8><LINE>" SKIP
+             "<R26><C25.5><FROM><R28><C25.5><LINE>" SKIP
+             "<R26><C51.5><FROM><R28><C51.5><LINE>" SKIP
+             "<R26><C59><FROM><R28><C59><LINE>" SKIP
+             "<R26><C66><FROM><R28><C66><LINE>" SKIP
+             "<R26><C75.5><FROM><R28><C75.5><LINE>" SKIP.
   
-   PUT "<FArial><=5><R+1> Est#/Qt#    Part#/Description               Item / Board                                              Quantity      Release             Price           UOM " SKIP.
+   PUT "<FArial><=5><R+1> Est#/Qt#           Part#/Description                      Item / Board                                        Quantity      Release        Price           UOM " SKIP.
    PUT "<FCourier New>".
 
 lv-pg-num = PAGE-NUM.

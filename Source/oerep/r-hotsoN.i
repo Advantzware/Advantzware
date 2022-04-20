@@ -1,4 +1,5 @@
-    
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */ 
+
     FIND FIRST oe-ctrl NO-LOCK WHERE oe-ctrl.company EQ cocode  NO-ERROR.
     
     FOR EACH oe-ord
@@ -17,10 +18,12 @@
 
         EACH oe-ordl OF oe-ord
         WHERE 
-           FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
-              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99") GE v-job[1]
-          AND FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
-              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99") LE v-job[2]
+           FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
+              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999") GE v-job[1]
+          AND FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
+              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999") LE v-job[2]
+          AND oe-ordl.job-no2 GE int(begin_job-no2)
+          AND oe-ordl.job-no2 LE int(end_job-no2)    
           AND oe-ordl.s-man[1]  GE begin_slsmn
           AND oe-ordl.s-man[1]  LE end_slsmn
           AND (v-ostat EQ "A"                           OR
@@ -137,7 +140,7 @@
 
       ASSIGN lv-due-dt =  SUBSTRING(tt-report.key-01,5,2) + "/" + SUBSTRING(tt-report.key-01,7,2) +
                               "/" +  SUBSTRING(tt-report.key-01,1,4) 
-             lv-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")
+             lv-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
              lv-routing = REPLACE(tt-report.routing,","," ") .
 
       ASSIGN lv-date-msf = lv-date-msf + tt-report.msf
@@ -231,7 +234,7 @@
             AND tt-fg-bin.i-no    EQ tt-report.key-06
             AND tt-fg-bin.qty     GT 0
             AND (tt-fg-bin.ord-no EQ oe-ord.ord-no OR
-                 SUBSTRING(tt-report.key-04,1,6) EQ "")
+                 SUBSTRING(tt-report.key-04,1,9) EQ "")
           NO-LOCK
           BREAK BY tt-fg-bin.job-no
                 BY tt-fg-bin.job-no2
@@ -257,11 +260,9 @@
               SKIP.
         
         PUT SPACE(34)
-            FILL(" ",6 - LENGTH(TRIM(tt-fg-bin.job-no))) +
-            TRIM(tt-fg-bin.job-no) + 
-                 (IF tt-fg-bin.job-no NE ""
-                  THEN ("-" + STRING(tt-fg-bin.job-no2,"99"))
-                  ELSE "")              FORMAT "x(9)"
+            IF tt-fg-bin.job-no NE "" THEN
+            TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-fg-bin.job-no, tt-fg-bin.job-no2)))
+            ELSE ""              FORMAT "x(13)"
             SPACE(1)
             tt-fg-bin.loc
             SPACE(1)

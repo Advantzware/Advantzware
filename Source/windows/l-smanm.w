@@ -21,6 +21,8 @@
 /* Local Variable Definitions ---                                       */
 def input parameter ip-company like itemfg.company no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
+
 DEFINE VARIABLE counter AS INTEGER     NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */

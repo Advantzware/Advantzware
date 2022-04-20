@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -35,6 +37,7 @@ DEF INPUT PARAM ip-cust-no AS cha NO-UNDO.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 DEF OUTPUT PARAM op-rec-val AS RECID NO-UNDO.
+{sys/inc/var.i}
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
@@ -165,7 +168,7 @@ DEFINE BROWSE BROWSE-1
       ar-invl.inv-date FORMAT "99/99/9999":U
       ar-invl.cust-no FORMAT "X(8)":U
       ar-inv.cust-name FORMAT "x(30)":U
-      ar-invl.ord-no FORMAT ">>>>>>9":U
+      ar-invl.ord-no FORMAT ">>>>>>>9":U
       ar-invl.po-no-po FORMAT ">>>>>9":U
       ar-invl.b-no COLUMN-LABEL "BOL No#" FORMAT ">>>>>9":U
       ar-inv.due COLUMN-LABEL "Amount Due" FORMAT "->>,>>>,>>9.99":U

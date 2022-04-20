@@ -510,8 +510,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             ar-invl.ship-qty FORMAT  "->>>>>>9" SPACE(1)
             ar-invl.inv-qty  FORMAT "->>>>>>9" SPACE(1)
             /*v-bo-qty  format "->>>>>9" SPACE(1) */
-            ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
-            v-i-no  FORMAT "x(15)" SPACE(3)
+            ar-invl.ord-no FORM ">>>>>>>9" SPACE(1)
+            v-i-no  FORMAT "x(15)" SPACE(2)
             v-i-dscr  FORMAT "x(25)" SPACE(3)
             v-price  FORMAT "$->>>,>>9.99" /*"$->,>>9.99<<"*/ SPACE(1)
             v-price-head SPACE(1)
@@ -533,11 +533,11 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
                     IF LENGTH(ar-invl.po-no) LE 8 THEN 
                     DO:
-                        PUT  SPACE(18) ar-invl.po-no FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE(3) v-part-info SKIP.
+                        PUT  SPACE(18) ar-invl.po-no FORMAT "x(8)" SPACE(2)   ar-invl.part-no SPACE(2) v-part-info SKIP.
                     END.
                     ELSE 
                     DO: 
-                        PUT SPACE(11) ar-invl.po-no FORMAT "x(15)" SPACE(1)   ar-invl.part-no SPACE(3) v-part-info SKIP.
+                        PUT SPACE(11) ar-invl.po-no FORMAT "x(15)" SPACE(2)   ar-invl.part-no SPACE(2) v-part-info SKIP.
                     END.                     
                 END.
                 ELSE 

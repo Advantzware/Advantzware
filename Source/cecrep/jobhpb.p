@@ -1,7 +1,7 @@
 /* ---------------------------------------------- */
 /*  cecrep/jobfibre.p  factory ticket  for Fibre landscape */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 def input parameter v-format as char.
@@ -133,16 +133,14 @@ FOR EACH job-hdr NO-LOCK
         where job-hdr.company               eq cocode
           and (job-hdr.ftick-prnt           eq reprint OR
               PROGRAM-NAME(2) MATCHES "*r-tickt2*"  )
-          and job-hdr.job-no                ge substr(fjob-no,1,6)
-          and job-hdr.job-no                le substr(tjob-no,1,6)
-
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  ge fjob-no
-
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  le tjob-no
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  GE fjob-no
+	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  LE tjob-no
+	  AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2
         USE-INDEX job-no,
 
         first job
@@ -247,7 +245,7 @@ assign
 
        PUT "<P10></PROGRESS>" SKIP "<FCourier New><C2>" SKIP      
        "<#1><C1><FROM><C106><R+45><RECT><||3><C80><P10>" 
-       "<=1><R-2><C33><B><P12>JOB #: " job-hdr.job-no "-" STRING(job.job-no2,"99") "    FORM #: " job-hdr.frm "</B><P10>"  cocode
+       "<=1><R-2><C33><B><P12>JOB #: " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) FORM "X(13)" "    FORM #: " job-hdr.frm "</B><P10>"  cocode
        "<=1><C2>DATE:" TODAY "<C20>CUSTOMER:" v-cus[1] "<C70>SHIPPING DATE:" SKIP
        "<=1><R+1><C2>PO: " vpono "<C20>ADDRESS :" v-cus[2] "<C70>SHIP TO:" v-shp[1] SKIP
        "<=1><R+2><C28>" v-cus[3] "<C77>" v-shp[2] SKIP 

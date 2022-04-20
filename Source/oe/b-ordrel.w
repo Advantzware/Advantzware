@@ -19,6 +19,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 USING system.SharedConfig.
 
 CREATE WIDGET-POOL.
@@ -2412,7 +2413,7 @@ PROCEDURE create-job :
            IF AVAIL sys-ctrl THEN
               v-bld-job = SUBSTR(sys-ctrl.char-fld,1,1) + TRIM(v-bld-job).
           
-           v-bld-job = FILL(" ",6 - LENGTH(TRIM(v-bld-job))) + TRIM(v-bld-job).
+           v-bld-job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', v-bld-job)) .
 
            FIND LAST b-job NO-LOCK
                WHERE b-job.company EQ itemfg.company
@@ -2668,9 +2669,9 @@ ll-bin-tag = AVAIL oe-ordl             AND
 IF ll-bin-tag THEN DO:
   ASSIGN
    ll        = NO
-   lv-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99").
+   lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)) .
 
-  IF lv-job-no EQ "-00" THEN lv-job-no = "".
+  IF trim(lv-job-no) BEGINS "-000" THEN lv-job-no = "".
 
 
  v-s-code  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE

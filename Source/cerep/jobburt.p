@@ -24,8 +24,8 @@ FIND FIRST users WHERE
 {sys/inc/var.i shared}
 {jcrep/r-ticket.i "shared"}
 
-DEFINE VARIABLE v-job           AS CHARACTER FORMAT "x(6)" EXTENT 2 INIT [" ","zzzzzz"].
-DEFINE VARIABLE v-job2          AS INTEGER   FORMAT "99" EXTENT 2 INIT [00,99].
+DEFINE VARIABLE v-job           AS CHARACTER FORMAT "x(9)" EXTENT 2 INIT [" ","zzzzzzzzz"].
+DEFINE VARIABLE v-job2          AS INTEGER   FORMAT "999" EXTENT 2 INIT [000,999].
 DEFINE VARIABLE v-reprint       AS LOG.
 DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
@@ -50,14 +50,14 @@ DEFINE TEMP-TABLE ttEstCostHeaderID NO-UNDO
 /* build tt-reftable */
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company               EQ cocode
-    AND job-hdr.job-no                GE substr(fjob-no,1,6)
-    AND job-hdr.job-no                LE substr(tjob-no,1,6)
-    AND FILL (" ",6 - length(TRIM(job-hdr.job-no))) +
-    TRIM (job-hdr.job-no) +
-    STRING (job-hdr.job-no2,"99")  GE fjob-no
-    AND FILL (" ",6 - length(TRIM(job-hdr.job-no))) +
-    TRIM (job-hdr.job-no) +
-    STRING (job-hdr.job-no2,"99")  LE tjob-no
+    AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+        TRIM(job-hdr.job-no) +
+        STRING(job-hdr.job-no2,"999")  GE fjob-no
+    AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+        TRIM(job-hdr.job-no) +
+        STRING(job-hdr.job-no2,"999")  LE tjob-no
+    AND job-hdr.job-no2 GE fjob-no2
+    AND job-hdr.job-no2 LE tjob-no2
     AND (production OR
     job-hdr.ftick-prnt           EQ v-reprint OR
     PROGRAM-NAME(2) MATCHES "*r-tickt2*")

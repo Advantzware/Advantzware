@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invPacific.p  */
 /* PRINT INVOICE   Pacific Packaging Custom Form             */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 {oe/rep/invoice.i}
 {custom/notesdef.i}
@@ -538,7 +538,7 @@ FOR EACH report WHERE
             PUT SPACE(1) 
                 v-inv-qty FORMAT "->>>>>>9" SPACE(1)
                 v-ship-qty  FORMAT "->>>>>>9" SPACE(1)
-                ttinv-line.ord-no FORMAT ">>>>>>9" SPACE(2)
+                ttinv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  FORMAT "x(15)" SPACE(2)
                 v-i-dscr  FORMAT "x(25)" SPACE(3)
                 v-price  FORMAT "->>>>,>>9.99" /*"->>,>>9.99<<"*/ SPACE(1)

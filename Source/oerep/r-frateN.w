@@ -27,7 +27,8 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */
+     
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
@@ -83,7 +84,7 @@ DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
 
 ASSIGN cTextListToSelect = "Invoice#,Inv Date,Job#,FG Item#,Qty Shipped,# of Skids,Wgt/100,Freight Charge" 
        cFieldListToSelect = "inv,inv-date,job,fgitem,qty-ship,skid,wgt,frt" 
-       cFieldLength = "8,8,10,15,14,11," + "11,14"
+       cFieldLength = "8,8,13,15,14,11," + "11,14"
        cFieldType = "1,c,c,c,i,i," + "i,i" 
     .
 
@@ -191,15 +192,15 @@ DEFINE VARIABLE begin_inv-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 10 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.5 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Customer#" 
@@ -211,15 +212,15 @@ DEFINE VARIABLE end_inv-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 10 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.5 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -302,11 +303,11 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Customer Number"
      begin_job-no AT ROW 4.76 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 4.76 COL 40 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.76 COL 42.5 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 4.76 COL 70 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 4.76 COL 82 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.76 COL 84.5 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      sl_avail AT ROW 7.38 COL 3.4 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 7.38 COL 40.8 HELP
@@ -1386,10 +1387,8 @@ assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
 
- v-job[1] = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-            TRIM(begin_job-no) + STRING(begin_job-no2,"99")    
- v-job[2] = FILL(" ",6 - LENGTH(TRIM(end_job-no))) +
-            TRIM(end_job-no) + STRING(end_job-no2,"99").
+ v-job[1] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2))
+ v-job[2] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)).
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1469,12 +1468,14 @@ for each ar-inv
 
     each ar-invl
     where ar-invl.x-no eq ar-inv.x-no
-      and FILL(" ",6 - LENGTH(TRIM(ar-invl.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(ar-invl.job-no))) +
           TRIM(ar-invl.job-no) +
-          STRING(ar-invl.job-no2,"99") GE v-job[1]
-      and FILL(" ",6 - LENGTH(TRIM(ar-invl.job-no))) +
+          STRING(ar-invl.job-no2,"999") GE v-job[1]
+      AND FILL(" ", iJobLen - LENGTH(TRIM(ar-invl.job-no))) +
           TRIM(ar-invl.job-no) +
-          STRING(ar-invl.job-no2,"99") LE v-job[2]
+          STRING(ar-invl.job-no2,"999") LE v-job[2]
+      AND ar-invl.job-no2 GE int(begin_job-no2)
+      AND ar-invl.job-no2 LE int(end_job-no2)    
       and not ar-invl.misc
     no-lock,
 
@@ -1567,8 +1568,8 @@ for each ar-inv
     v-frate[1] = v-frate[1] + v-frt-chg.
   END.
 
-  v-job-no = TRIM(ar-invl.job-no) + "-" + STRING(ar-invl.job-no2,"99").
-  IF v-job-no EQ "-00" THEN v-job-no = "".
+  v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ar-invl.job-no, ar-invl.job-no2))).
+  IF v-job-no EQ "-000" THEN v-job-no = "".
 
            ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1581,7 +1582,7 @@ for each ar-inv
                     CASE cTmpField:             
                          WHEN "inv"    THEN cVarValue = string(ar-inv.inv-no) .
                          WHEN "inv-date"   THEN cVarValue = string(ar-inv.inv-date,"99/99/99").
-                         WHEN "job"   THEN cVarValue = STRING(v-job-no,"x(10)").
+                         WHEN "job"   THEN cVarValue = STRING(v-job-no,"x(13)").
                          WHEN "fgitem"  THEN cVarValue = STRING(ar-invl.i-no,"x(15)") .
                          WHEN "qty-ship"   THEN cVarValue = STRING(ar-invl.ship-qty,"->,>>>,>>>,>>>") .
                          WHEN "skid"  THEN cVarValue = STRING(v-pallets,"->>,>>>,>>9") .

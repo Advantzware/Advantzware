@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -272,9 +273,9 @@ DEFINE BROWSE Browser-Table
       rm-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       rm-rctd.rct-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       rm-rctd.po-no FORMAT "x(6)":U WIDTH 9 LABEL-BGCOLOR 14
-      rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U LABEL-BGCOLOR 14
-      rm-rctd.job-no2 FORMAT "99":U
-      rm-rctd.s-num COLUMN-LABEL "F" FORMAT ">9":U
+      rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U LABEL-BGCOLOR 14
+      rm-rctd.job-no2 FORMAT "999":U
+      rm-rctd.s-num COLUMN-LABEL "S" FORMAT ">9":U
       rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U LABEL-BGCOLOR 14
       rm-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
@@ -1610,7 +1611,7 @@ PROCEDURE display-po-job :
         WHERE po-ordl.company   EQ rm-rctd.company
           AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) 
           AND po-ordl.item-type EQ YES
-          AND ((po-ordl.job-no  EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) AND
+          AND (( po-ordl.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} AND
                 po-ordl.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})                                                                                    AND
                 po-ordl.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) OR
                adm-adding-record)
@@ -1646,7 +1647,7 @@ PROCEDURE find-exact-po :
     FIND FIRST po-ordl
         WHERE po-ordl.company   EQ rm-rctd.company
           AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
-          AND po-ordl.job-no    EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+          AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
           AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
           AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
           AND po-ordl.i-no      EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
@@ -1813,7 +1814,7 @@ if NOT ip-first-disp                                        AND
   find first po-ordl where po-ordl.company = rm-rctd.company
                        and po-ordl.po-no = integer(rm-rctd.po-no:screen-value in browse {&browse-name})
                        and po-ordl.i-no  = rm-rctd.i-no:screen-value
-                       and po-ordl.job-no = (rm-rctd.job-no:screen-value)
+                       and po-ordl.job-no = rm-rctd.job-no:screen-value
                        and po-ordl.job-no2 = integer(rm-rctd.job-no2:screen-value)
                        and po-ordl.item-type = yes
                        and po-ordl.s-num = integer(rm-rctd.s-num:screen-value)
@@ -2647,7 +2648,7 @@ PROCEDURE valid-i-no :
 
         
   DO WITH FRAME {&FRAME-NAME}:
-    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
+    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})) .
 
     IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NE 0 THEN DO:
       RELEASE po-ord.
@@ -2751,7 +2752,7 @@ PROCEDURE valid-job-no :
 ------------------------------------------------------------------------------*/
   
   DO WITH FRAME {&FRAME-NAME}:
-    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
+    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})) .
 
     IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NE 0 THEN DO:
       FIND FIRST po-ordl
@@ -2798,7 +2799,7 @@ PROCEDURE valid-job-no2 :
 ------------------------------------------------------------------------------*/
   
   DO WITH FRAME {&FRAME-NAME}:
-    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
+    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})) .
 
     IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NE 0 THEN DO:
       FIND FIRST po-ordl
@@ -2896,7 +2897,7 @@ PROCEDURE valid-s-num :
 ------------------------------------------------------------------------------*/
   
   DO WITH FRAME {&FRAME-NAME}:
-    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
+    rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})) .
 
     IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NE 0 THEN DO:
       FIND FIRST po-ordl

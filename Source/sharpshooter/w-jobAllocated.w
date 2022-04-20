@@ -34,6 +34,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 USING system.SharedConfig.
 
 CREATE WIDGET-POOL.
@@ -226,7 +227,7 @@ DEFINE VARIABLE fiDueLabel AS CHARACTER FORMAT "X(256)":U INITIAL "DUE:"
 
 DEFINE VARIABLE fiJob AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1.43
+     SIZE 30 BY 1.43
      FONT 38 NO-UNDO.
 
 DEFINE VARIABLE fiJobLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Job:" 
@@ -244,7 +245,7 @@ DEFINE VARIABLE fiJobQtyLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Job Qty:"
 
 DEFINE VARIABLE fiLastJob AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 23 BY 1.43
+     SIZE 30 BY 1.43
      FONT 38 NO-UNDO.
 
 DEFINE VARIABLE fiLastJobLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Job:" 
@@ -297,7 +298,7 @@ DEFINE FRAME F-Main
      fiCSRLabel AT ROW 5.52 COL 85 COLON-ALIGNED NO-LABEL WIDGET-ID 102
      fiCSR AT ROW 5.52 COL 94.2 COLON-ALIGNED NO-LABEL WIDGET-ID 100
      fiLastRunLabel AT ROW 7.52 COL 2 NO-LABEL
-     fiLastRun AT ROW 7.52 COL 16.6 COLON-ALIGNED NO-LABEL
+     fiLastRun AT ROW 7.52 COL 17 COLON-ALIGNED NO-LABEL
      fiLastJobLabel AT ROW 7.52 COL 62.2 NO-LABEL
      fiLastJob AT ROW 7.52 COL 68.6 COLON-ALIGNED NO-LABEL
      fiAllocatedLabel AT ROW 19.71 COL 4 NO-LABEL
@@ -315,7 +316,7 @@ DEFINE FRAME F-Main
      btnViewRM AT ROW 2.91 COL 138.2 COLON-ALIGNED NO-LABEL WIDGET-ID 138
      btClear AT ROW 3.14 COL 197 WIDGET-ID 146
      btnClearText AT ROW 3.33 COL 184.2 NO-LABEL WIDGET-ID 148
-     imJobLookup AT ROW 7.52 COL 94.6 WIDGET-ID 182
+     imJobLookup AT ROW 7.52 COL 100.6 WIDGET-ID 182
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -756,8 +757,8 @@ DO:
         
         IF cFoundValue NE "" THEN do:
             ASSIGN
-            fiLastJob:SCREEN-VALUE = ENTRY(1,cFoundValue) + "-" + STRING(ENTRY(2,cFoundValue),"99")
-            cPerJob = ENTRY(1,cFoundValue) 
+            fiLastJob:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ENTRY(1,cFoundValue), ENTRY(2,cFoundValue)))
+            cPerJob = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ENTRY(1,cFoundValue))) 
             iPreJob2 =  INTEGER(ENTRY(2,cFoundValue)).        
             
            {methods\run_link.i "LastAll-SOURCE" "OpenQuery" "(cCompany,cPerJob,iPreJob2,giFormNo,giBlankNo)"}
@@ -861,8 +862,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-job-mat , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat-last-all ,
-             h_viewrminquiry , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat ,
              h_b-job-mat-last-all , 'AFTER':U ).
     END. /* Page 1 */
@@ -1118,7 +1117,7 @@ PROCEDURE pGetPrevoiusJob :
    
    FIND FIRST bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
-        AND bf-job.job-no EQ ipcJobNo 
+        AND bf-job.job-no  EQ ipcJobNo 
         AND bf-job.job-no2 EQ (ipiJobNo2 - 1) NO-ERROR.
         
    IF NOT AVAIL bf-job THEN
@@ -1207,10 +1206,10 @@ PROCEDURE pJobScan :
                                      ELSE
                                          STRING(job.due-date)
             fiCSR:SCREEN-VALUE     = csrUser_id
-            fiJob:SCREEN-VALUE     = job.job-no + "-" + STRING(job.job-no2,"99").              
+            fiJob:SCREEN-VALUE     = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)).              
        END.
        ELSE DO:
-            fiJob:SCREEN-VALUE     = cJobNo + "-" + STRING(iJobNo2,"99").
+            fiJob:SCREEN-VALUE     = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', cJobNo, iJobNo2)).
             fiStatus:SCREEN-VALUE  = "".
        END.
        
@@ -1379,7 +1378,7 @@ PROCEDURE pUpdateBrowse :
     IF cPerJob NE "" THEN
     ASSIGN
         fiLastRun:SCREEN-VALUE = string(dLastRun)
-        fiLastJob:SCREEN-VALUE = cPerJob + "-" + STRING(iPreJob2,"99") .
+        fiLastJob:SCREEN-VALUE =  STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', cPerJob, iPreJob2)).
      ELSE 
      ASSIGN
      fiLastRun:SCREEN-VALUE = ""

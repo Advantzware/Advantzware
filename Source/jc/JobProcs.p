@@ -11,6 +11,7 @@
     Created     : Tue Apr 09 18:31:30 EST 2019
     Notes       :
   ----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */       
 
 /* ***************************  Definitions  ************************** */
 
@@ -332,11 +333,11 @@ PROCEDURE pGetSecondaryJobForJob PRIVATE:
            BY bf-job-hdr.opened DESCENDING
            BY bf-job-hdr.job-no2:
         opcJobno2List = IF opcJobno2List EQ "" THEN 
-                            STRING(bf-job-hdr.job-no2,"99")
-                        ELSE IF INDEX(opcJobno2List,STRING(bf-job-hdr.job-no2,"99")) GT 0 THEN 
+                            STRING(bf-job-hdr.job-no2,"999")
+                        ELSE IF INDEX(opcJobno2List,STRING(bf-job-hdr.job-no2,"999")) GT 0 THEN 
                             opcJobno2List
                         ELSE 
-                            opcJobno2List + "," + STRING(bf-job-hdr.job-no2,"99").        
+                            opcJobno2List + "," + STRING(bf-job-hdr.job-no2,"999").        
     END.
 
     RELEASE bf-job-hdr.
@@ -718,7 +719,7 @@ PROCEDURE pCopyMaterialPreviousJob PRIVATE:
      
     FOR EACH bf-job-mat NO-LOCK
         WHERE bf-job-mat.company EQ ipcCompany
-        and bf-job-mat.job-no  EQ ipcJobNo 
+        and bf-job-mat.job-no    EQ ipcJobNo 
         AND bf-job-mat.job-no ne ""   
         AND bf-job-mat.job-no2 EQ ipiJobNo2 
         AND (bf-job-mat.frm      EQ ipiFormNo OR ipiFormNo EQ ?)         

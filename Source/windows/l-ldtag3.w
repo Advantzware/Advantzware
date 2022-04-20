@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -43,7 +45,7 @@ DEFINE TEMP-TABLE tt-loadtag LIKE loadtag .
 
 &scoped-define fld-name-1 tt-loadtag.tag-no
 &scoped-define fld-name-2 tt-loadtag.i-no
-&scoped-define fld-name-3 trim(tt-loadtag.job-no)
+&scoped-define fld-name-3 tt-loadtag.job-no
 &scoped-define SORTBY-1 BY tt-loadtag.tag-no
 &scoped-define SORTBY-2 BY tt-loadtag.i-no
 &scoped-define SORTBY-3 BY tt-loadtag.job-no
@@ -177,11 +179,11 @@ DEFINE BROWSE BROWSE-1
       tt-loadtag.tag-no FORMAT "X(23)":U
       tt-loadtag.i-no FORMAT "x(15)":U
       tt-loadtag.i-name FORMAT "x(30)":U
-      tt-loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U
-      tt-loadtag.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      tt-loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U
+      tt-loadtag.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
       tt-loadtag.loc COLUMN-LABEL "Location" FORMAT "x(5)":U
       tt-loadtag.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
-      tt-loadtag.ord-no FORMAT ">>>>>9":U
+      tt-loadtag.ord-no FORMAT ">>>>>>>9":U
       tt-loadtag.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>>>9":U
       tt-loadtag.qty COLUMN-LABEL "Qty" FORMAT "->>>>>>9.9<<":U
       tt-loadtag.qty-case FORMAT "->,>>>,>>9":U

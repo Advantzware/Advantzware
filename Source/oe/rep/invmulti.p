@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invmulti.p 02/98 FWK */
 /* PRINT INVOICE when sys-ctrl.char-fld eq "MultiWall" - O/E Module           */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -110,7 +110,7 @@ form header
   v-shipto-addr[2] at 50 format "x(25)" skip
   v-addr3            at 10 format "x(25)"
   v-sold-addr3     at 50 format "x(25)" skip(2)
-  "ORD#" v-ord-no at 6 /* "CUSTOMER PO" at 13 v-po-no at 25 */
+  "ORD#" TRIM(STRING(v-ord-no,">>>>>>>9")) at 6 /* "CUSTOMER PO" at 13 v-po-no at 25 */
   "TERMS" AT 44 inv-head.terms-d at 50 format "x(30)" skip
   "BOL#" inv-head.bol-no format "999999"
   "SHIPPED VIA" at 13 v-shipvia format "x(30)"

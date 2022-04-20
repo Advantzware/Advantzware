@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolcard.p  11/09 GDM */
-/* N-K BOLFMT = Loylang - FORM for Carded                                    */
+/* N-K BOLFMT = Loylang - FORM for Carded                                     */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -31,7 +32,7 @@ DEFINE VARIABLE v-part-comp  AS CHARACTER FORMAT "x".
 DEFINE VARIABLE v-part-qty   AS DECIMAL.
 DEFINE VARIABLE v-ord-no     LIKE oe-boll.ord-no.
 DEFINE VARIABLE v-po-no      LIKE oe-bolh.po-no.
-DEFINE VARIABLE v-job-no     AS CHARACTER FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE v-job-no     AS CHARACTER FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE v-phone-num  AS CHARACTER FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE v-cntct-nam  AS CHARACTER FORMAT "x(22)" NO-UNDO.
 
@@ -357,7 +358,8 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
       
             v-salesman = TRIM(v-salesman).
             v-po-no = oe-boll.po-no.
-            v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>")).
+            v-job-no = IF oe-boll.job-no = "" THEN "" ELSE 
+                       TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
             IF v-salesman GT '' THEN
                 IF substr(v-salesman,LENGTH(TRIM(v-salesman)),1) EQ "," THEN
                     substr(v-salesman,LENGTH(TRIM(v-salesman)),1) = "".

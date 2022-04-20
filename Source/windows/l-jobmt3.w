@@ -10,6 +10,7 @@
 
   File: windows\l-jobmt1.w
   
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -34,7 +35,7 @@ DEF VAR lv-rm-i-no LIKE item.i-no NO-UNDO.
 &scoped-define fld-name-1  job-mat.rm-i-no
 
 &scoped-define IAMWHAT LOOKUP
-
+{sys/inc/var.i new shared}
 {windows/l-jobmt3.i}
 
 {sa/sa-sls01.i}
@@ -159,8 +160,8 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      job-mat.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 10
-      job-mat.job-no2 COLUMN-LABEL "" FORMAT ">9":U WIDTH 3
+      job-mat.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 15
+      job-mat.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 6
       job-mat.rm-i-no COLUMN-LABEL "RM Item#" FORMAT "x(10)":U
             WIDTH 20
       item.i-name FORMAT "x(30)":U
@@ -235,9 +236,9 @@ and job-mat.job-no2 = job.job-no2"
      _JoinCode[3]      = "ASI.report.rec_key = string(rowid(ASI.job-mat))"
      _Where[3]         = "ASI.report.term-id eq v-term + USERID(""nosweat"")"
      _FldNameList[1]   > ASI.job-mat.job-no
-"job-mat.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mat.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-mat.job-no2
-"job-mat.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "3" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mat.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-mat.rm-i-no
 "job-mat.rm-i-no" "RM Item#" ? "character" ? ? ? ? ? ? no ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   = ASI.item.i-name
@@ -325,7 +326,7 @@ DO:
 
         FIND FIRST job-hdr WHERE
              job-hdr.company EQ ip-company AND
-             job-hdr.job-no EQ ip-job-no AND
+             job-hdr.job-no  EQ ip-job-no AND
              job-hdr.job-no2 EQ ip-job-no2
              NO-LOCK NO-ERROR.
        

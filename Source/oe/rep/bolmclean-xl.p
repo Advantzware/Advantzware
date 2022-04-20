@@ -1,5 +1,6 @@
 /*----------------------------------------------- oe/rep/cocacpi.p */
 /* Print Soule COC (Certificate of Compliance)                   */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 /*----------------------------------------------------------------*/
 
 {sys/inc/var.i shared}    
@@ -34,7 +35,7 @@ DEFINE VARIABLE v-tot-wt        AS DECIMAL   FORMAT "->>,>>>,>>9".
 DEFINE VARIABLE v-tot-pkgs      AS INTEGER   FORMAT ">>9". 
 DEFINE VARIABLE v-ord-date      LIKE oe-ord.ord-date.
 DEFINE VARIABLE v-po-no         LIKE oe-bolh.po-no.
-DEFINE VARIABLE v-job-no        AS CHARACTER FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE v-job-no        AS CHARACTER FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE v-phone-num     AS CHARACTER FORMAT "x(13)" NO-UNDO. 
 DEFINE VARIABLE v-ship-id       LIKE shipto.ship-id.
 DEFINE VARIABLE v-ship-name     LIKE shipto.ship-name.
@@ -371,7 +372,7 @@ PROCEDURE FillData:
       
                 v-salesman = TRIM(v-salesman).
                 v-po-no = oe-boll.po-no.
-                v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>")).
+                v-job-no = IF oe-boll.job-no = "" THEN "" ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
                 IF v-salesman GT '' THEN
                     IF substr(v-salesman,LENGTH(TRIM(v-salesman)),1) EQ "," THEN
                         substr(v-salesman,LENGTH(TRIM(v-salesman)),1) = "".

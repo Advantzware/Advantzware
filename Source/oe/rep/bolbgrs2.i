@@ -7,6 +7,7 @@
 *     Modify By    :                                                         *
 *                                                                            *       
 * -------------------------------------------------------------------------- */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.             */
 
 assign
  v-tot-wt    = 0
@@ -91,9 +92,8 @@ for each report where report.term-id eq v-term-id,
 
   v-job-no = "".
   if avail oe-ordl and oe-ordl.job-no ne "" then
-     v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-                trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
-
+     v-job-no =  TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
+     
   ASSIGN v-ship-qty = v-ship-qty + oe-boll.qty
          v-weight   = v-weight + oe-boll.weight
          v-ord-qty = v-ord-qty + oe-ordl.qty.
@@ -107,8 +107,9 @@ for each report where report.term-id eq v-term-id,
                               v-job-po    = oe-boll.po-no.
         ELSE
         if i eq 2 THEN ASSIGN v-part-dscr = oe-ordl.part-dscr1 /*i-name*/
-                              v-job-po    = if oe-ordl.job-no eq "" then "" else
-                                (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+                              v-job-po    = if oe-ordl.job-no eq "" then "" ELSE 
+                                            TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
+                                
         ELSE
         if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
         ELSE

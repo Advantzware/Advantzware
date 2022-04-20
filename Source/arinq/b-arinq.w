@@ -23,6 +23,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -364,7 +365,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       ar-invl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(15)":U
             WIDTH 20 LABEL-BGCOLOR 14
-      ar-invl.ord-no FORMAT ">>>>>>>>":U WIDTH 9 LABEL-BGCOLOR 14
+      ar-invl.ord-no FORMAT ">>>>>>>>":U WIDTH 11 LABEL-BGCOLOR 14
       ar-invl.po-no COLUMN-LABEL "Cust PO#" FORMAT "x(15)":U WIDTH 20
             LABEL-BGCOLOR 14
       ar-invl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U WIDTH 12
@@ -518,7 +519,7 @@ ASSIGN
      _FldNameList[7]   > ASI.ar-invl.part-no
 "ar-invl.part-no" "Cust Part#" ? "character" ? ? ? 14 ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.ar-invl.ord-no
-"ar-invl.ord-no" ? ">>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-invl.ord-no" ? ">>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.ar-invl.po-no
 "ar-invl.po-no" "Cust PO#" ? "character" ? ? ? 14 ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.ar-invl.est-no

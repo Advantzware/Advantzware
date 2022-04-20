@@ -61,14 +61,21 @@ PUT "<=4><R+1> Ship Date       FOB           Ship Via           Terms           
 
 PUT "<R27><C1><#5><FROM><R29><C81><RECT><||3>" SKIP    
                 "<=5><C13><FROM><R+2><C13><LINE><||3>" SKIP
-                "<=5><C19><FROM><R+2><C19><LINE><||3>" SKIP
-                "<=5><C24><FROM><R+2><C24><LINE><||3>" SKIP
-                "<=5><C37><FROM><R+2><C37><LINE><||3>" SKIP
-                "<=5><C60><FROM><R+2><C60><LINE><||3>" SKIP
+                "<=5><C20><FROM><R+2><C20><LINE><||3>" SKIP
+                "<=5><C27><FROM><R+2><C27><LINE><||3>" SKIP
+                "<=5><C41><FROM><R+2><C41><LINE><||3>" SKIP
+                "<=5><C59><FROM><R+2><C59><LINE><||3>" SKIP
                 "<=5><C67><FROM><R+2><C67><LINE><||3>" SKIP
                 "<=5><C72><FROM><R+2><C72><LINE><||3>" SKIP
                 .   
-PUT "<=5><R+1>  Cust PO#      Ship  Order Item#/CustPart#        Description           Price   UOM    Amount" SKIP(1).
+PUT "<=5><R+1><C3>Cust PO#
+            <C14> Ship
+            <C21> Order
+            <C27> Item#/CustPart#
+            <C42> Description
+            <C60> Price
+            <C67> UOM
+            <C74> Amount" SKIP(1).
 v-printline = v-printline + 4.
           
 

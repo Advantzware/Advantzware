@@ -46,7 +46,7 @@ form
   "Taxable:"                to 49   cust.sort format "X"
   "FOB Orig/Dest:"          to 67   cust.fob-code                           skip
   " Cred. Hold:"                    cust.cr-hold
-  "TAX Code:"               to 49   cust.tax-gr
+  "TAX Group:"               to 49   cust.tax-gr
   "  Fin. Chrgs:"                   cust.fin-chg                            skip
   " Invoice Per PO:"                cust.inv-meth       format "Yes/No"
   "TAX Resale ID#:"         to 41   cust.tax-id

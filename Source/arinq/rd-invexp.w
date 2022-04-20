@@ -85,7 +85,7 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 
 ASSIGN 
     cTextListToSelect  = "Invoice#,Bol#,Customer,Cust Name,Inv Date,GL Account#,Acc Desc,FG Item#,Item Name," +
-                            "Item Desccription,Cust Part#,Order#,Cust Po#,Est#,Shipto,Tax Code,Term Code,Term Desc," +
+                            "Item Desccription,Cust Part#,Order#,Cust Po#,Est#,Shipto,Tax Group,Term Code,Term Desc," +
                             "Due Date,Discount%,Discount,Disc Days,Carrier,Invoice Amt,Freight Cost,Freight Billable,Tax,Amount Paid," +
                             "Balance Due,Line,Customer Lot#,Invoice Qty,Ship Qty,Cons Uom,Sqft,Price,Uom," +
                             "Dsct%,Amount,Amount MSF,Cost,Cost UOM,Sls Rep,% of Sales,Comm,Sls Rep2,% of Sales2,Comm2,Sls Rep3,% of Sales3,Comm3," + 
@@ -108,7 +108,7 @@ ASSIGN
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
-    cTextListToDefault = "Customer,Shipto,Invoice#,Cust Po#,Inv Date,Due Date,Tax Code,Term Code,Discount,Disc Days," +
+    cTextListToDefault = "Customer,Shipto,Invoice#,Cust Po#,Inv Date,Due Date,Tax Group,Term Code,Discount,Disc Days," +
                                  "Carrier,Freight Cost, Freight Billable,Line,GL Account#,FG Item#,Item Name,Item Desccription,Customer Lot#,Invoice Qty," +
                                  "Cons Uom,Price,Uom,Amount,Line Discount,Cost,Cost UOM,Sls Rep,% of Sales,Comm,Sls Rep2,% of Sales2," + 
                                  "Comm2,Sls Rep3,% of Sales3,Comm3,Tax" .

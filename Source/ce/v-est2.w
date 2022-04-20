@@ -3192,7 +3192,7 @@ PROCEDURE num-wid-len-changed :
 
       
         IF lCEUseNewLayoutCalc THEN
-            RUN Estimate_UpdateEfFormLayoutSizeOnly (BUFFER xef, BUFFER xeb).
+            RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
         ELSE
             RUN ce/calc-dim1.p NO-ERROR.
 

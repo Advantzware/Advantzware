@@ -15,7 +15,8 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */
+     
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
@@ -875,7 +876,7 @@ PROCEDURE run-report :
             IF rd_prtjob = 1 THEN 
             DO:
                 DISPLAY cust.name           FORMAT "x(40)"  COLUMN-LABEL "Customer Name"
-                    TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")
+                    TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
                     FORMAT "x(20)"  COLUMN-LABEL "Job#"
                     STRING(job-hdr.ftick-prnt)
                     FORMAT "x(10)"  COLUMN-LABEL "Ticket Printed"
@@ -886,7 +887,8 @@ PROCEDURE run-report :
                 DO:
                     PUT STREAM s-temp 
                         '"' cust.name           '",'
-                        '"' TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")     '",'
+                        '"' TRIM(STRING(DYNAMIC-FUNCTION
+                        ('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))'",'
                         '"' job-hdr.ftick-prn   '",'
                         '"' oe-ord.USER-ID      '",'
                         '"' STRING(v-pushpin,"Y/N") '"'
@@ -898,7 +900,7 @@ PROCEDURE run-report :
                     ASSIGN 
                         v-appjobs = (IF job.cs-to-pr THEN job.cs-user-id-t ELSE "no").
                     DISPLAY cust.name           FORMAT "x(40)"  COLUMN-LABEL "Customer Name"
-                        TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")
+                        TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
                         FORMAT "x(20)"  COLUMN-LABEL "Job#"
                         v-appjobs               FORMAT "x(15)"  COLUMN-LABEL "Approved Job"
                         oe-ord.user-id      FORMAT "x(20)"  COLUMN-LABEL "User ID on Order"
@@ -908,7 +910,8 @@ PROCEDURE run-report :
                     DO:
                         PUT STREAM s-temp 
                             '"' cust.name           '",'
-                            '"' TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")     '",'
+                            '"' TRIM(STRING(DYNAMIC-FUNCTION
+                            ('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) '",'
                             '"' v-appjobs   '",'
                             '"' oe-ord.user-id   '",'
                             '"' STRING(v-pushpin,"Y/N") '"'

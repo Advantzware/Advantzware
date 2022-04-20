@@ -1,5 +1,6 @@
 /* -------------------------------------------------- ar/ar-aging.i 01/97 JLF */
 /* A/R Aged Receivables Report Program - A/R Module                           */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /* -------------------------------------------------------------------------- */
 
 
@@ -436,7 +437,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
           IF ar-invl.po-no GT "" THEN
              ASSIGN cPoNo   = ar-invl.po-no.
           IF ar-invl.job-no GT "" THEN
-              cJobStr = ar-invl.job-no + "-" + STRING(ar-invl.job-no2, "99").
+              cJobStr = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ar-invl.job-no, ar-invl.job-no2)) .
           IF ar-invl.bol-no NE 0 THEN
               cBolNo = string(ar-invl.bol-no,">>>>>>>>").
 

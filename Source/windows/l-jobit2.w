@@ -10,6 +10,7 @@
 
   File: windows\l-jobit2.w
   
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -26,6 +27,8 @@ def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha NO-UNDO.
 def output param op-rec-val as recid no-undo.
 def var lv-type-dscr as cha no-undo.
+
+{sys/inc/var.i new shared}
 
 DEF TEMP-TABLE tt-job-hdr LIKE job-hdr
     FIELD rec-id AS RECID
@@ -381,7 +384,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   
   FRAME dialog-frame:TITLE = TRIM(FRAME dialog-frame:TITLE) + " Job: " +
-                             TRIM(ip-job-no) + STRING(INT(ip-job-no2),"99").
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ip-job-no, ip-job-no2))).
 
   FOR EACH job-hdr
       WHERE job-hdr.company EQ ip-company

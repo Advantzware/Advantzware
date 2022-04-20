@@ -78,6 +78,7 @@ ll-sort-asc = NO /*oeinq*/  .
      FIRST ASI.oe-ordl NO-LOCK WHERE oe-ordl.company EQ oe-boll.company ~
                                AND oe-ordl.ord-no    EQ oe-boll.ord-no ~
                                AND oe-ordl.i-no    EQ oe-boll.i-no    ~
+                               AND oe-ordl.line    EQ oe-boll.line    ~
                                AND oe-ordl.part-no BEGINS fi_part-no  ~
                                AND oe-ordl.i-name  BEGINS fi_i-name 
 
@@ -95,6 +96,7 @@ ll-sort-asc = NO /*oeinq*/  .
 &SCOPED-DEFINE for-each31                                            ~
      EACH ASI.oe-ordl NO-LOCK WHERE oe-ordl.company EQ oe-boll.company ~
                                AND oe-ordl.i-no    EQ oe-boll.i-no   ~
+                               AND oe-ordl.line    EQ oe-boll.line   ~
                                AND oe-ordl.ord-no    EQ oe-boll.ord-no   ~
                                AND oe-ordl.part-no BEGINS fi_part-no
 
@@ -286,13 +288,13 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       oe-bolh.bol-no COLUMN-LABEL "BOL#" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
-      oe-boll.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      oe-boll.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       oe-boll.po-no COLUMN-LABEL "Customer's PO" FORMAT "x(15)":U
             LABEL-BGCOLOR 14
       oe-bolh.cust-no FORMAT "x(8)":U LABEL-BGCOLOR 14
       oe-ordl.part-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-boll.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      oe-ordl.i-name COLUMN-LABEL "FG Item Name" FORMAT "x(15)":U
+      oe-ordl.i-name COLUMN-LABEL "FG Item Name" FORMAT "x(28)":U
             WIDTH 22 LABEL-BGCOLOR 14
       oe-bolh.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 10
             LABEL-BGCOLOR 14
@@ -455,7 +457,7 @@ ASSIGN
      _FldNameList[6]   > ASI.oe-boll.i-no
 "oe-boll.i-no" "FG Item#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.oe-ordl.i-name
-"oe-ordl.i-name" "FG Item Name" "x(15)" "character" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.i-name" "FG Item Name" "x(28)" "character" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.oe-bolh.ship-id
 "oe-bolh.ship-id" "Ship To" ? "character" ? ? ? 14 ? ? yes ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-boll.bol-date

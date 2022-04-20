@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/bollanyork.p 10/02 YSK */
 /* PRINT Lancoyork                                            */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
 
@@ -29,7 +29,7 @@ DEFINE VARIABLE v-part-comp  AS CHARACTER FORMAT "x".
 DEFINE VARIABLE v-part-qty   AS DECIMAL.
 DEFINE VARIABLE v-ord-no     LIKE oe-boll.ord-no.
 DEFINE VARIABLE v-po-no      LIKE oe-bolh.po-no.
-DEFINE VARIABLE v-job-no     AS CHARACTER FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE v-job-no     AS CHARACTER FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE v-phone-num  AS CHARACTER FORMAT "x(13)" NO-UNDO.
 
 DEFINE VARIABLE v-ship-name  LIKE shipto.ship-name.
@@ -357,7 +357,8 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
             ASSIGN
                 v-salesman = TRIM(v-salesman)
                 v-po-no    = oe-boll.po-no
-                v-job-no   = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>"))
+                v-job-no   = IF oe-boll.job-no = "" THEN "" 
+                             ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2)))
                 v-fob      = IF oe-ord.fob-code BEGINS "ORIG" THEN "Origin" ELSE "Destination".
 
             IF v-salesman GT '' THEN
@@ -542,7 +543,7 @@ PROCEDURE create-tt-boll.
 
     IF oe-boll.p-c THEN tt-boll.p-c = YES.
     IF tt-boll.job-diff EQ "" THEN
-        tt-boll.job-diff = oe-boll.job-no .
+        tt-boll.job-diff = TRIM(oe-boll.job-no) .
     ELSE IF tt-boll.job-diff NE oe-boll.job-no THEN
         tt-boll.job-diff = "diff-job" .
 
@@ -593,11 +594,11 @@ PROCEDURE get_lot_no:
                     v-lot# = fg-rdtlh.stack-code.
                     FIND FIRST job-hdr NO-LOCK
                          WHERE job-hdr.company EQ tt-boll.company
-                           AND job-hdr.job-no EQ SUBSTRING(fg-rdtlh.stack-code,1,6)
-                           AND job-hdr.job-no2 EQ  int(SUBSTRING(fg-rdtlh.stack-code,8,2))
+                           AND job-hdr.job-no  EQ SUBSTRING(fg-rdtlh.stack-code,1,iJobLen)
+                           AND job-hdr.job-no2 EQ  int(SUBSTRING(fg-rdtlh.stack-code,(iJobLen + 2),3))
                            AND job-hdr.i-no EQ tt-boll.i-no NO-ERROR . 
                      IF AVAIL job-hdr THEN
-                         v-lot# = fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2,"99") + "-" + string(job-hdr.frm,"99") .
+                         v-lot# = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rcpth.job-no, fg-rcpth.job-no2))) + "-" + string(job-hdr.frm,"99") .
 
                 END.
                 ELSE IF fg-rcpth.po-no NE "" THEN do:
@@ -617,9 +618,9 @@ PROCEDURE get_lot_no:
                            AND job-hdr.job-no2 EQ fg-rcpth.job-no2
                            AND job-hdr.i-no EQ tt-boll.i-no NO-ERROR . 
                      IF AVAIL job-hdr THEN
-                     v-lot# = fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2,"99") + "-" + string(job-hdr.frm,"99") .
+                     v-lot# = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rcpth.job-no, fg-rcpth.job-no2))) + "-" + string(job-hdr.frm,"99") .
                      ELSE
-                     v-lot# = fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2)  .
+                     v-lot# = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rcpth.job-no, fg-rcpth.job-no2))) .
                 END.
                      LEAVE.
             END.

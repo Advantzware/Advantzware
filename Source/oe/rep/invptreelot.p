@@ -1,6 +1,7 @@
 /* ------------------------------------------------------- oe/rep/invptreelot.p */
 /* PRINT INVOICE   Xprint form for PEACHTREE with FG Lot                       */ 
 /* -------------------------------------------------------------------------- */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
 {sys/inc/var.i shared}
 
@@ -669,8 +670,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
              v-price     FORMAT ">>>,>>9.9999"                
              (IF v-ship-qty1i > 0 THEN v-price2 ELSE inv-line.t-price)  FORMAT "->>>,>>9.99"                
             SKIP
-             v-ord-no 
-            SPACE(10) 
+            SPACE(1)
+             TRIM(STRING(v-ord-no,">>>>>>>9")) 
+            SPACE(7) 
              inv-line.i-no 
             SPACE(1)
              (IF v-tailgate <> "" THEN v-i-dscr ELSE "") FORM "x(30)"

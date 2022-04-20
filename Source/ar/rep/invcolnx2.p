@@ -100,7 +100,7 @@ DEF VAR v-date-ship AS DATE INITIAL TODAY                     NO-UNDO.
 DEF VAR tmp2        AS DATE                                   NO-UNDO.
 
 DEF VAR v-ans AS LOGICAL INITIAL NO NO-UNDO.
-def var v-job-no AS CHAR FORMAT "x(13)" no-undo.
+def var v-job-no AS CHAR FORMAT "x(15)" no-undo.
 
 DEF BUFFER xar-inv FOR ar-inv.
 
@@ -495,12 +495,11 @@ FOR EACH report
        AND job-hdr.i-no EQ tt-inv-line.i-no NO-LOCK NO-ERROR.
    END.
    
-   v-job-no = fill(" ",6 - length(trim(tt-inv-line.job-no))) +
-      trim(tt-inv-line.job-no) .
+   v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', tt-inv-line.job-no))).
 
    IF v-job-no EQ "" AND AVAIL job-hdr THEN
-       v-job-no = fill(" ",6 - length(trim(job-hdr.job-no))) +
-                 trim(job-hdr.job-no) .
+       v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', job-hdr.job-no))).
+       
    IF AVAIL job-hdr THEN
        v-job-no = v-job-no + "-" + trim(string(job-hdr.frm)) + trim(string(job-hdr.blank-no)) .
 
@@ -522,8 +521,8 @@ FOR EACH report
          tt-inv-line.total-price  FORMAT "->>>,>>9.99"                
         SKIP
          SPACE(1)
-         v-job-no /*tt-inv-line.ord-no*/ SPACE(2)
-         tt-inv-line.i-no SPACE(1)
+         v-job-no /*tt-inv-line.ord-no*/ 
+         tt-inv-line.i-no AT 17 SPACE(1)
          tt-inv-line.part-dscr  SPACE(11)
          tt-inv-line.pc  FORM "x" SPACE(7)
          tt-inv-line.price-head 

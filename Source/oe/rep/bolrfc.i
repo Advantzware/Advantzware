@@ -1,4 +1,4 @@
-  
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */  
     v-printlines = 1.
 
     for each report where report.term-id eq v-term-id,
@@ -48,9 +48,8 @@
         assign
          i        = 0
          j        = 0
-         v-job-no = if oe-ordl.job-no eq "" then ""
-                    else (trim(oe-ordl.job-no) + "-" +
-                          string(oe-ordl.job-no2,"99")).
+         v-job-no = IF oe-ordl.job-no EQ "" THEN ""
+                    ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
                           
         for each w-cas break by w-cases * w-qty-case desc:
           j = j + 1.

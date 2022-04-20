@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -517,8 +518,7 @@ PROCEDURE rm-post-issue :
       
       else  if asi.rm-rctd.rita-code eq "I" then do:  /** ISSUES **/
             find first job  where job.company eq asi.rm-rctd.company
-                and job.job-no  eq fill(" ",6 - length(trim(asi.rm-rctd.job-no))) +
-                                   trim(asi.rm-rctd.job-no)
+                and job.job-no  eq asi.rm-rctd.job-no
                 and job.job-no2 eq asi.rm-rctd.job-no2
               no-error.
 
@@ -527,7 +527,7 @@ PROCEDURE rm-post-issue :
              find job-mat where recid(job-mat) eq v-recid no-error.          
              if not avail job-mat then do:
                 message " Job Mat Record not found for "
-                      string(job.job-no + "-" + string(job.job-no2,"99") +
+                      string(job.job-no + "-" + string(job.job-no2,"999") +
                              "  " + rm-rcpt.i-no).
                 return error.
              end.
@@ -735,7 +735,7 @@ PROCEDURE rm-post-receipt :
       if avail job and avail item and item.mat-type eq "B" then {rm/rm-addcr.i E b-rm-h b-rm-d}
       else if asi.rm-rctd.rita-code eq "I" then do:  /** ISSUES **/
            find first job where job.company eq asi.rm-rcth.company
-                            and job.job-no  eq fill(" ",6 - length(trim(rm-rcpt.job-no))) + trim(rm-rcpt.job-no)
+                            and job.job-no  eq rm-rcpt.job-no
                             and job.job-no2 eq rm-rcpt.job-no2
                             no-error.
            if avail job and job.job-no ne "" then do:
@@ -743,7 +743,7 @@ PROCEDURE rm-post-receipt :
               find job-mat where recid(job-mat) eq v-recid no-error.          
               if not avail job-mat then do:
                  message " Job Mat Record not found for "
-                      string(job.job-no + "-" + string(job.job-no2,"99") +
+                      TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) +
                              "  " + rm-rcpt.i-no) view-as alert-box..
                  undo transblok, next transblok.
             end.

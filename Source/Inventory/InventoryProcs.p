@@ -11,6 +11,7 @@
     Created     : Sun Mar 03 18:31:30 EST 2019
     Notes       :
   ----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 {Inventory/ttInventory.i}
@@ -899,7 +900,7 @@ PROCEDURE pBuildRMHistory PRIVATE:
         WHERE bf-rm-rcpth.company    EQ ipcCompany
           AND bf-rm-rcpth.i-no       EQ ipcItemID
           AND (bf-rm-rcpth.rita-code EQ ipcTransactionType OR ipcTransactionType EQ "" OR (ipcTransactionType EQ "R" AND bf-rm-rcpth.rita-code = "A"))
-          AND (bf-rm-rcpth.job-no    EQ ipcJobNo OR ipcJobNo EQ "")
+          AND (trim(bf-rm-rcpth.job-no) EQ ipcJobNo OR ipcJobNo EQ "")
           AND (bf-rm-rcpth.job-no2   EQ ipiJobNo2 OR ipiJobNo2 EQ 0 OR ipcJobNo EQ ""),
         EACH bf-rm-rdtlh NO-LOCK
         WHERE bf-rm-rdtlh.r-no      EQ bf-rm-rcpth.r-no
@@ -1373,6 +1374,7 @@ PROCEDURE Inventory_CreateRMTransaction:
         INPUT  ipdQty, 
         INPUT  ipdCost, 
         INPUT  ipcReasonCode, 
+        INPUT  "", //RMLot
         OUTPUT opriRMRctd, 
         OUTPUT oplError, 
         OUTPUT opcMessage
@@ -1394,6 +1396,7 @@ PROCEDURE Inventory_CreateRMTransactionForDate:
     DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdCost       AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMLot      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
@@ -1409,6 +1412,7 @@ PROCEDURE Inventory_CreateRMTransactionForDate:
         INPUT  ipdQty, 
         INPUT  ipdCost, 
         INPUT  ipcReasonCode, 
+        INPUT  ipcRMLot,
         OUTPUT opriRMRctd, 
         OUTPUT oplError, 
         OUTPUT opcMessage
@@ -1430,6 +1434,7 @@ PROCEDURE pCreateRMTransaction PRIVATE:
     DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdCost       AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMLot      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
@@ -1483,6 +1488,7 @@ PROCEDURE pCreateRMTransaction PRIVATE:
             bf-rm-rctd.pur-uom        = bf-item.cons-uom
             bf-rm-rctd.cost-uom       = bf-item.cons-uom
             bf-rm-rctd.adjustmentCode = ipcReasonCode
+            bf-rm-rctd.tag2           = ipcRMLot
             bf-rm-rctd.enteredBy      = USERID("ASI")
             bf-rm-rctd.enteredDT      = NOW
             opriRMRctd                = ROWID(bf-rm-rctd)
@@ -1665,6 +1671,7 @@ PROCEDURE pCreateRMTransactionFromRMBin PRIVATE:
             INPUT  ipdQty, 
             INPUT  bf-rm-bin.cost, 
             INPUT  ipcReasonCode, 
+            INPUT  "", //RMLot
             OUTPUT opriRMRctd, 
             OUTPUT lError, 
             OUTPUT opcMessage
@@ -3738,7 +3745,7 @@ PROCEDURE Inventory_CheckPOUnderOver:
     FOR EACH fg-rctd NO-LOCK
         WHERE fg-rctd.company     EQ ipcCompany 
           AND(fg-rctd.rita-code   EQ "R" OR fg-rctd.rita-code EQ "E")
-          AND TRIM(fg-rctd.job-no)EQ ipcJobNo
+          AND fg-rctd.job-no      EQ ipcJobNo
           AND fg-rctd.job-no2     EQ ipiJobNo2
           AND fg-rctd.i-no        EQ ipcItem
           AND fg-rctd.po-no       EQ ipcPoNo
@@ -3834,7 +3841,7 @@ PROCEDURE Inventory_CheckJobUnderOver:
     FOR EACH fg-rctd NO-LOCK
         WHERE fg-rctd.company     EQ ipcCompany 
           AND(fg-rctd.rita-code   EQ "R" OR fg-rctd.rita-code EQ "E")
-          AND TRIM(fg-rctd.job-no)EQ ipcJobNo
+          AND fg-rctd.job-no      EQ ipcJobNo
           AND fg-rctd.job-no2     EQ ipiJobNo2
           AND fg-rctd.i-no        EQ ipcItem
           AND fg-rctd.po-no       EQ ipcPoNo
@@ -4447,7 +4454,7 @@ PROCEDURE pPostRawMaterials PRIVATE:
         
         FIND FIRST bf-job NO-LOCK
              WHERE bf-job.company EQ bf-rm-rctd.company
-               AND bf-job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(bf-rm-rctd.job-no))) + TRIM(bf-rm-rctd.job-no)
+               AND bf-job.job-no  EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', bf-rm-rctd.job-no)) 
                AND bf-job.job-no2 EQ bf-rm-rctd.job-no2
              NO-ERROR.
 
@@ -4556,7 +4563,7 @@ PROCEDURE pPostRawMaterials PRIVATE:
                     ASSIGN
                         oplSuccess = FALSE
                         opcMessage = "Job Mat Record not found for "
-                                   + STRING(bf-job.job-no + "-" + STRING(bf-job.job-no2,"99") + "  " + bf-rm-rctd.i-no)
+                                   + STRING(bf-job.job-no + "-" + STRING(bf-job.job-no2,"999") + "  " + bf-rm-rctd.i-no)
                         .
 
                     UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
@@ -5541,7 +5548,7 @@ PROCEDURE pBuildFGInventoryStockForItem PRIVATE:
                     inventoryStock.costStandardVOH            = fg-rdtlh.std-var-cost
                     inventoryStock.costStandardFOH            = fg-rdtlh.std-fix-cost
 /*                     inventoryStock.sourceID                   = IF fg-rcpth.job-no NE "" THEN */
-/*                                                                     FILL(" ",6 - LENGTH(LEFT-TRIM(TRIM(fg-rcpth.job-no)))) + STRING(fg-rcpth.job-no2,"99") */
+/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(fg-rcpth.job-no)))) + STRING(fg-rcpth.job-no2,"99") */
 /*                                                                 ELSE */
 /*                                                                     "" */
                     inventoryStock.sourceID                   = fg-rdtlh.rec_key
@@ -5686,7 +5693,7 @@ PROCEDURE pBuildRMInventoryStockForItem PRIVATE:
                     inventoryStock.basisWeightUOM             = gcUOMWeightBasis
                     inventoryStock.weightUOM                  = gcUOMWeight
 /*                     inventoryStock.sourceID                   = IF rm-rcpth.job-no NE "" THEN */
-/*                                                                     FILL(" ",6 - LENGTH(LEFT-TRIM(TRIM(rm-rcpth.job-no)))) + STRING(rm-rcpth.job-no2,"99") */
+/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(rm-rcpth.job-no)))) + STRING(rm-rcpth.job-no2,"99") */
 /*                                                                 ELSE */
 /*                                                                     "" */
                     inventoryStock.sourceID                   = rm-rdtlh.rec_key
@@ -6405,7 +6412,7 @@ PROCEDURE CreatePrintInventory:
 
         ASSIGN
             ttPrintInventoryStock.jobNumber    = LEFT-TRIM(TRIM(inventoryStock.jobID))
-            ttPrintInventoryStock.jobNumber    = FILL(" ",6 - LENGTH(ttPrintInventoryStock.jobNumber)) + ttPrintInventoryStock.jobNumber
+            ttPrintInventoryStock.jobNumber    = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ttPrintInventoryStock.jobNumber)) 
             ttPrintInventoryStock.jobRunNumber = inventoryStock.jobID2
             ttPrintInventoryStock.jobID        = ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"99")
             ttPrintInventoryStock.jobIDTrimmed = LEFT-TRIM(ttPrintInventoryStock.jobID)
@@ -6821,11 +6828,11 @@ PROCEDURE CreatePrintInventoryForFG:
                                                          ELSE
                                                              ""
             cJobNumber                                 = IF inventoryStock.jobID NE "" THEN
-                                                             FILL(" ",6 - LENGTH(cJobNumber)) + cJobNumber
+                                                             STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNumber))                                                             
                                                          ELSE
                                                              ""
             ttPrintInventoryStockFG.jobID              = IF inventoryStock.jobID NE "" THEN
-                                                             cJobNumber + "-" + STRING(inventoryStock.jobID2,"99")
+                                                             cJobNumber + "-" + STRING(inventoryStock.jobID2,"999")
                                                          ELSE
                                                              ""
             ttPrintInventoryStockFG.fgItemID           = inventoryStock.fgItemID
@@ -9847,6 +9854,43 @@ PROCEDURE UpdateFGLocationOnHandQty:
     RELEASE bf-itemfg-loc.
     RELEASE bf-itemfg.
 END.
+
+PROCEDURE Inventory_DeleteInventorySnapshot:
+    DEFINE INPUT PARAMETER iproInventorySnapshotRowID AS ROWID   NO-UNDO.
+    DEFINE INPUT PARAMETER iplProgressBar             AS LOGICAL NO-UNDO.
+
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTotal AS INTEGER NO-UNDO.
+
+    FIND FIRST InventorySnapshot EXCLUSIVE-LOCK
+         WHERE ROWID(InventorySnapshot) EQ iproInventorySnapshotRowID
+         NO-ERROR.    
+    IF AVAILABLE InventorySnapshot THEN DO:
+        IF iplProgressBar THEN
+        FOR EACH inventoryStockSnapshot NO-LOCK
+            WHERE inventoryStockSnapshot.company EQ InventorySnapshot.company
+              AND inventoryStockSnapshot.InventorySnapshotID EQ InventorySnapshot.InventorySnapshotID
+            :                 
+            iTotal = iTotal + 1.
+            RUN spProgressBar ("Count Inventory Snapshot Records for Deletion", iTotal, ?).        
+        END. // for each
+        FOR EACH inventoryStockSnapshot EXCLUSIVE-LOCK
+            WHERE inventoryStockSnapshot.company EQ InventorySnapshot.company
+              AND inventoryStockSnapshot.InventorySnapshotID EQ InventorySnapshot.InventorySnapshotID
+            :                 
+            DELETE inventoryStockSnapshot.
+            IF iplProgressBar THEN DO:
+                iCount = iCount + 1.
+                RUN spProgressBar ("Deleting Inventory Snapshot Records", iCount, iTotal).
+            END. // if progress bar
+        END. // for each
+        DELETE InventorySnapshot.
+        IF iplProgressBar THEN
+        RUN spProgressBar (?, ?, 100).
+    END. // if avail
+
+END PROCEDURE.
+
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fCanDeleteInventoryStock RETURNS LOGICAL 

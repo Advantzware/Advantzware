@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -302,7 +303,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       rm-rctd.po-no FORMAT "x(6)":U LABEL-BGCOLOR 14
       rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      rm-rctd.job-no2 FORMAT "99":U
+      rm-rctd.job-no2 FORMAT "999":U
       rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U LABEL-BGCOLOR 14
       rm-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
@@ -807,9 +808,9 @@ DO:
      
         IF rm-rctd.job-no:SCREEN-VALUE = "" AND rm-rctd.i-no:SCREEN-VALUE = gv-item-no THEN DO:        
             ASSIGN rm-rctd.job-no:SCREEN-VALUE = gv-job-no
-                   rm-rctd.job-no2:SCREEN-VALUE = STRING(gv-job-no2, "99").
+                   rm-rctd.job-no2:SCREEN-VALUE = STRING(gv-job-no2, "999").
             rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} =
-                  FILL(" ",6 - LENGTH(TRIM(gv-job-no))) + TRIM(gv-job-no).
+                  STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', gv-job-no)).
             
             IF rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN
                RUN set-s-b-proc.
@@ -968,7 +969,7 @@ DO:
                    ).
                IF lParse THEN 
                     ASSIGN 
-                        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = cJobNo
+                        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo))
                         rm-rctd.job-no2:SCREEN-VALUE = IF cJobNo2 NE "" THEN cJobNo2 ELSE rm-rctd.job-no2:SCREEN-VALUE  
                         rm-rctd.s-num:SCREEN-VALUE = IF cFormNo NE "" THEN cFormNo ELSE rm-rctd.s-num:SCREEN-VALUE
                         rm-rctd.b-num:SCREEN-VALUE = IF cBlankNo NE "" THEN cBlankNo ELSE rm-rctd.b-num:SCREEN-VALUE 
@@ -979,12 +980,11 @@ DO:
       ASSIGN gv-job-no = trim(rm-rctd.job-no:SCREEN-VALUE) /* stacey */
              gv-job-no2 = INTEGER(rm-rctd.job-no2:SCREEN-VALUE)
              gv-item-no = rm-rctd.i-no:SCREEN-VALUE /* stacey */
-             v-job-no = fill(" ",6 - length(trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-                 trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+             v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})).
    
       FOR EACH b-job FIELDS(job-no2) WHERE
           b-job.company EQ cocode AND
-          b-job.job-no EQ v-job-no
+          b-job.job-no  EQ v-job-no
           NO-LOCK:
      
           IF v-job-no-2 EQ -1 THEN
@@ -2343,7 +2343,7 @@ PROCEDURE lookup-job-mat :
       FOR EACH job-mat
           WHERE job-mat.company    EQ cocode
             AND job-mat.job        EQ job.job 
-            AND job-mat.job-no     EQ INPUT rm-rctd.job-no
+            AND job-mat.job-no     EQ rm-rctd.job-no:SCREEN-VALUE
             AND job-mat.job-no2    EQ INPUT rm-rctd.job-no2 
             AND (ip-for-item-only OR
                  (job-mat.frm      EQ INT(rm-rctd.s-num:SCREEN-VALUE) AND
@@ -2597,7 +2597,7 @@ PROCEDURE new-job-no :
     IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:
       ASSIGN
        lv-job-no = rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-       lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no).
+       lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no)) .
 
       RELEASE job-hdr.
 
@@ -2830,7 +2830,7 @@ PROCEDURE set-s-b-proc :
    
    ASSIGN
        cJobNo = rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-       cJobNo = FILL(" ",6 - LENGTH(TRIM(cJobNo))) + TRIM(cJobNo).           
+       cJobNo = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo)).           
            
    FOR EACH job
        WHERE job.company EQ cocode
@@ -3190,7 +3190,7 @@ PROCEDURE valid-job-no :
       ASSIGN
        lv-job-no = rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} =
-           FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
+           STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no))           
        lv-po-no = INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
 
       IF NOT CAN-FIND(FIRST job
@@ -3468,7 +3468,7 @@ DEFINE BUFFER bf-job-hdr FOR job-hdr .
   DO WITH FRAME {&FRAME-NAME}:  
      ASSIGN
        cJobNo = rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-       cJobNo = FILL(" ",6 - LENGTH(TRIM(cJobNo))) + TRIM(cJobNo).
+       cJobNo = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo)).
 
       RELEASE bf-job-hdr.
 
@@ -3584,7 +3584,7 @@ PROCEDURE validate-jobmat :
                      BUTTON YES-NO UPDATE ll-ans AS LOG.
        IF ll-ans THEN DO:
             FIND FIRST job WHERE job.company = cocode
-                             AND job.job-no =  rm-rctd.job-no:SCREEN-VALUE
+                             AND job.job-no  = rm-rctd.job-no:SCREEN-VALUE
                              AND job.job-no2 = int(rm-rctd.job-no2:SCREEN-VALUE)
                              NO-LOCK NO-ERROR.
             v-job-up = 0.
@@ -3848,7 +3848,7 @@ FUNCTION onlyOneForm RETURNS LOGICAL
 
   FIND FIRST bJob NO-LOCK
       WHERE bJob.company EQ cocode
-        AND bJob.job-no EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+        AND bJob.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
         AND bJob.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE) NO-ERROR.
   IF AVAILABLE bJob THEN DO:
     FIND FIRST bJobMat NO-LOCK

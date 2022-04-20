@@ -50,7 +50,7 @@ format header
        ar-inv.inv-date              at 1  FORMAT "99/99/99" 
        ar-invl.cust-no              at 11
        ar-invl.po-no                at 24
-       trim(string(ar-invl.ord-no,">>>>>>")) when ar-invl.ord-no ne 0
+       trim(string(ar-invl.ord-no,">>>>>>>>")) when ar-invl.ord-no ne 0
                                     at 46
        skip(3)
 

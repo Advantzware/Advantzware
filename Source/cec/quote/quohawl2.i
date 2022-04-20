@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
  /* cec/quote/quohawl2.i */
  
      PUT "<C1><#1><R+6><C+35><IMAGE#1=" ls-full-img1 SKIP. 
@@ -77,12 +78,12 @@
 
 
    PUT "<|10><R28><C1><#5><FROM><R30><C81><RECT>" SKIP    
-             "<R28><C7><FROM><R30><C7><LINE>"  SKIP
-             "<R28><C20><FROM><R30><C20><LINE>" SKIP
-             "<R28><C45><FROM><R30><C45><LINE>" SKIP
-             "<R28><C56><FROM><R30><C56><LINE>" SKIP
+             "<R28><C8><FROM><R30><C8><LINE>"  SKIP
+             "<R28><C25><FROM><R30><C25><LINE>" SKIP
+             "<R28><C51><FROM><R30><C51><LINE>" SKIP
+             "<R28><C63><FROM><R30><C63><LINE>" SKIP
              /*"<R28><C63><FROM><R30><C63><LINE>" SKIP*/
-             "<R28><C72><FROM><R30><C72><LINE>" 
+             "<R28><C74><FROM><R30><C74><LINE>" 
              .
-   PUT "<FArial><=5><R+1> Est#/Qt#        Description                           Specifications                                  Qte / Qty                  Prix  /  Price           UM / UOM" SKIP(1).
+   PUT "<FArial><=5><R+1> Est#/Qt#           Description                           Specifications                                      Qte / Qty                  Prix  /  Price        UM / UOM" SKIP(1).
    PUT "<FCourier New>".

@@ -481,6 +481,7 @@ PROCEDURE pAddEstBlank PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttEstCostHeader      FOR ttEstCostHeader.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm        FOR ttEstCostForm.
     DEFINE PARAMETER BUFFER opbf-ttEstCostBlank       FOR ttEstCostBlank.
+
     
     DEFINE           BUFFER bf-ttEstCostItem            FOR ttEstCostItem.
     DEFINE           BUFFER bf-SetHeader-ttEstCostBlank FOR ttEstCostBlank.
@@ -2566,7 +2567,7 @@ PROCEDURE pCalcHeader PRIVATE:
             FIND CURRENT bf-ttEstCostHeader EXCLUSIVE-LOCK.
             bf-ttEstCostHeader.quantityMaster = dQtyMaster.
             FIND CURRENT bf-ttEstCostHeader NO-LOCK.
-        END.    
+        END.
         
         IF glAutoRecostBoard = TRUE THEN
         DO:
@@ -3458,6 +3459,7 @@ PROCEDURE pBuildSystemData PRIVATE:
         OUTPUT TABLE ttEstCostGroup,
         OUTPUT TABLE ttEstCostGroupLevel). 
 END PROCEDURE.
+
        
 PROCEDURE pImportMachineStandards PRIVATE:
     /*------------------------------------------------------------------------------
@@ -3472,7 +3474,6 @@ PROCEDURE pImportMachineStandards PRIVATE:
     DEFINE VARIABLE dMRHrs     AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dSpeed     AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dSpoilPrct AS DECIMAL NO-UNDO.
-    
        
     RUN Operations_ImportMachineStandards IN ghOperation
         (ipbf-est-op.company, ipbf-est-op.est-no, ipbf-est-op.s-num, ipbf-est-op.b-num, ipbf-est-op.op-pass,ipbf-est-op.qty, ipbf-ttEstCostHeader.quantityMaster, ipbf-est-op.m-code, OUTPUT dSpeed, OUTPUT dMRHrs, OUTPUT dMRWaste, OUTPUT dSpoilPrct).
@@ -3558,6 +3559,7 @@ PROCEDURE pProcessBoardBOM PRIVATE:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
+
     DEFINE PARAMETER BUFFER ipbf-ttEstCostHeader    FOR ttEstCostHeader.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm      FOR ttEstCostForm.
     DEFINE PARAMETER BUFFER ipbf-item-bom           FOR item-bom.
@@ -3581,6 +3583,7 @@ PROCEDURE pProcessBoardBOM PRIVATE:
         RETURN.
     END.
     oplValidBom = YES.
+
     RUN pAddEstMaterial(BUFFER ipbf-ttestCostHeader, BUFFER ipbf-ttestCostForm, ipbf-item-bom.i-no, 0, BUFFER bf-ttestCostMaterial).
     
     //Override Form Dimensions for real material.  Length needs to vary depending on Shrink
@@ -3609,8 +3612,8 @@ PROCEDURE pProcessBoardBOM PRIVATE:
     bf-ttestCostMaterial.dimWidth                   = dWidth
     bf-ttestCostMaterial.dimLength                  = ipbf-ttestCostForm.grossLength / ( 1 - dShrinkPct)
     bf-ttestCostMaterial.dimDepth                   = dDepth
-    bf-ttestCostMaterial.noCharge                   = ipbf-ttestCostForm.noCost.
-    
+    bf-ttestCostMaterial.noCharge                   = ipbf-ttestCostForm.noCost.    
+
     FIND FIRST bfBoard-ttEstCostMaterial NO-LOCK 
         WHERE bfBoard-ttEstCostMaterial.estCostHeaderID EQ ipbf-ttEstCostHeader.estCostHeaderID
         AND bfBoard-ttEstCostMaterial.estCostFormID EQ ipbf-ttEstCostForm.estCostFormID
@@ -5736,13 +5739,12 @@ PROCEDURE pSetGlobalSettings PRIVATE:
         
     RUN sys/ref/nk1look.p (ipcCompany, "FOAMCOST", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
     glCalcFoamCostFromBlank = lFound AND cReturn EQ "Blank".
-    
+
     RUN sys/ref/nk1look.p (ipcCompany, "CEAutoRecostBoard", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     glAutoRecostBoard = lFound AND cReturn EQ "YES".    
 
 	RUN sys/ref/nk1look.p (ipcCompany, "CEOpStandards", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
     glCalcSourceForMachineStd = lFound AND cReturn EQ "Machine if Not Locked".
-    
     
 END PROCEDURE.
 

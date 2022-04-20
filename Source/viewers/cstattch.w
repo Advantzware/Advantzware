@@ -18,7 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
@@ -149,9 +149,9 @@ DEFINE FRAME F-Main
           SIZE 16 BY 1
      attach.est-no AT ROW 6.71 COL 50.2 COLON-ALIGNED HELP
           "" WIDGET-ID 12
-          LABEL "Order #" FORMAT "x(6)"
+          LABEL "Order #" FORMAT "x(8)"
           VIEW-AS FILL-IN 
-          SIZE 10 BY 1
+          SIZE 14 BY 1
      RECT-8 AT ROW 1 COL 1.2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 

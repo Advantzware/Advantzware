@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+     /*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 CREATE WIDGET-POOL.
 
@@ -89,7 +90,7 @@ ASSIGN
     cFieldListToSelect = "sman,cust-no,inv-no,ar-inv.inv-date,i-no,ord-no,qty," +
                             "amt,cash-date,amtp,delta,v-gp,v-camt,v-comm,basis,ttl-cst"
 
-    cFieldLength       = "4,8,8,10,15,6,9," + "12,13,12,12,12,12,8,5,15"
+    cFieldLength       = "4,8,7,10,15,8,9," + "12,13,12,12,12,12,8,5,15"
     .
 
 {sys/inc/ttRptSel.i}

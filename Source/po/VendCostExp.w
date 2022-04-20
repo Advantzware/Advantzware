@@ -68,7 +68,7 @@ ASSIGN
                             "Level Quantity 3,Level Quantity 4," + /*2*/
                             "Level Quantity 5,Level Quantity 6," + /*2*/
                             "Level Quantity 7,Level Quantity 8," + /*2*/
-    "Level Quantity 9,Level Quantity 10,Product Category,Quantity Basis"  /*2*/
+    "Level Quantity 9,Level Quantity 10,Product Category,Quantity Basis,Approved"  /*5*/
                             
     cFieldListToSelect = "itemType,itemID,vendorID,customerID,estimateNo,formNo,blankNo," +
                             "vendorItemID,effectiveDate,expirationDate,vendorUOM," +
@@ -78,7 +78,7 @@ ASSIGN
                             "levelQuantity3,levelQuantity4," +
                             "levelQuantity5,levelQuantity6," +
                             "levelQuantity7,levelQuantity8," +
-                            "levelQuantity9,levelQuantity10,pro-cat,quantityBasis".
+                            "levelQuantity9,levelQuantity10,pro-cat,quantityBasis,approved".
 
 {sys/inc/ttRptSel.i}
 
@@ -91,7 +91,7 @@ ASSIGN
                             "Level Quantity 3,Level Quantity 4,"  + /*2*/
                             "Level Quantity 5,Level Quantity 6,"  + /*2*/
                             "Level Quantity 7,Level Quantity 8,"  + /*2*/
-    "Level Quantity 9,Level Quantity 10"  /*2*/ .
+    "Level Quantity 9,Level Quantity 10,Quantity Basis,Approved"  /*3*/ .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

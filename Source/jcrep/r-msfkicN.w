@@ -70,7 +70,7 @@ ASSIGN cTextListToSelect = "MACHINE,PROM/JOB DT,CUSTOMER,CUSTOMER PART#,JOB #,TO
                           + "KICKS REMAIN,MSF BALANCE,SHEET SIZE,BOARD RECE."
        cFieldListToSelect = "mch,job-dt,cust,cust-prt,job,ttl-kiks," +
                             "kiks-rmn,msf-bal,sht-sz,brd-rece"
-       cFieldLength = "7,11,8,15,10,12," + "12,12,21,12" 
+       cFieldLength = "7,11,8,15,13,12," + "12,12,21,12" 
        cFieldType = "c,c,c,c,c,i," + "i,i,c,i"
     .
 
@@ -152,35 +152,35 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.1.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Machine" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Machine" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-msfkic.csv" 
      LABEL "Name" 
@@ -204,7 +204,7 @@ DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11"
 DEFINE VARIABLE thru_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Thru Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY .95 NO-UNDO.
+     SIZE 20.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -263,11 +263,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Machine"
      begin_job-no AT ROW 4.57 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 4.57 COL 38 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.57 COL 41 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 4.57 COL 66 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 4.57 COL 78 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.57 COL 81 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      sl_avail AT ROW 7.43 COL 4 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 7.43 COL 40.8 HELP
@@ -1260,10 +1260,8 @@ assign
   v-fmach   = begin_mach
   v-tmach   = END_mach
 
-  v-fjob    = fill(" ",6 - length(trim(begin_job-no))) +
-               trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-tjob    = fill(" ",6 - length(trim(end_job-no)))   +
-               trim(end_job-no)   + string(int(end_job-no2),"99"). 
+  v-fjob    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+  v-tjob    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) . 
 
 
 DEF VAR cslist AS cha NO-UNDO.
@@ -1409,8 +1407,7 @@ SESSION:SET-WAIT-STATE ("general").
       end.
 
       assign
-       v-job    = fill(" ",6 - length(trim(job-hdr.job-no))) +
-                  trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99")
+       v-job    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)) 
        v-date   = date(int(substr(tt-report.key-02,5,2)),
                        int(substr(tt-report.key-02,7,2)),
                        int(substr(tt-report.key-02,1,4)))

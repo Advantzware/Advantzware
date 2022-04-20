@@ -30,6 +30,7 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/var.i}
 def input parameter ip-company like itemfg.company no-undo.
 DEF INPUT PARAM ip-cust-no LIKE ar-inv.cust-no NO-UNDO.
 def input parameter ip-cur-val as cha no-undo.

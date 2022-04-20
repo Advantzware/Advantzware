@@ -171,9 +171,9 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     oe-rell.ord-no AT ROW 1.24 COL 29.8 COLON-ALIGNED FORMAT ">>>>>>"
+     oe-rell.ord-no AT ROW 1.24 COL 29.8 COLON-ALIGNED FORMAT ">>>>>>>>"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 14 BY 1
           BGCOLOR 15 FONT 1
      oe-rell.i-no AT ROW 2.43 COL 29.8 COLON-ALIGNED HELP
           ""
@@ -202,12 +202,14 @@ DEFINE FRAME Dialog-Frame
           BGCOLOR 15 FONT 1
      oe-rell.job-no AT ROW 8.48 COL 29.8 COLON-ALIGNED
           LABEL "Job Number"
+          FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 18.6 BY 1
           BGCOLOR 15 FONT 1
      oe-rell.job-no2 AT ROW 8.48 COL 48.2 COLON-ALIGNED NO-LABEL
+          FORMAT "999"
           VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
+          SIZE 5 BY 1
           BGCOLOR 15 FONT 1
      oe-rell.cust-no AT ROW 9.62 COL 29.8 COLON-ALIGNED
           LABEL "Customer"
@@ -310,9 +312,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-rell.i-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN oe-rell.job-no IN FRAME Dialog-Frame
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-rell.job-no2 IN FRAME Dialog-Frame
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-rell.link-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-rell.loc IN FRAME Dialog-Frame
@@ -1502,7 +1504,7 @@ PROCEDURE valid-job-no :
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN lv-job-no = TRIM(oe-rell.job-no:SCREEN-VALUE )
-     lv-job-no = FILL(" ",6 - LENGTH(lv-job-no)) + lv-job-no
+     lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no))
      oe-rell.job-no:SCREEN-VALUE  = lv-job-no.
 
     IF relmerge-int EQ 0 THEN DO:

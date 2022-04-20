@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invlovepac-CAN.p  */
 /* PRINT INVOICE   Xprint Standard Form             */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -572,9 +572,9 @@ find first company where company.company eq cocode NO-LOCK.
 
             PUT space(1) v-inv-qty format "->>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
-                v-i-dscr  format "x(25)" SPACE(1)
+                v-i-dscr  format "x(24)" SPACE(1)
                 v-price  format "->>,>>9.99<<" SPACE(1)
                 v-price-head SPACE(1)
                 inv-line.t-price  format "->>>,>>9.99"                     
@@ -590,9 +590,9 @@ find first company where company.company eq cocode NO-LOCK.
                             else           trim(lv-inv-list).
 
               if v-part-info ne "" OR (v = 1 AND inv-line.part-no <> "") then do:
-                 IF v = 1 THEN PUT SPACE(25) inv-line.part-no SPACE v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(26) inv-line.part-no SPACE v-part-info SKIP.
                  ELSE
-                 IF v = 2 THEN PUT SPACE(41) v-part-info SKIP.
+                 IF v = 2 THEN PUT SPACE(42) v-part-info SKIP.
                  ELSE          PUT SPACE(20) "Previous Invoice(s): " v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.

@@ -24,7 +24,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
@@ -100,7 +100,7 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "x(9)" 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "x(13)" 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
@@ -296,7 +296,7 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
 DO:
    ASSIGN {&displayed-objects}.
-   FIND FIRST tt-fibre WHERE tt-fibre.tt-job-no = job-hdr.job-no
+   FIND FIRST tt-fibre WHERE tt-fibre.tt-job-no  = job-hdr.job-no
                          AND tt-fibre.tt-job-no2 = job-hdr.job-no2
                          AND tt-fibre.tt-frm = v-form-no
                          AND tt-fibre.tt-blank = v-blank-no NO-LOCK NO-ERROR.
@@ -380,7 +380,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND job-hdr WHERE ROWID(job-hdr) EQ ip-rowid NO-LOCK NO-ERROR.
   FIND job-reft WHERE ROWID(job-reft) EQ ip-ref-rowid NO-LOCK NO-ERROR.
   IF AVAIL job-hdr THEN
-     fi_job-no = TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99").
+     fi_job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
 
   IF AVAIL job-hdr THEN FIND FIRST d-fibre
         WHERE d-fibre.reftable EQ "cecrep/d-fibre.w"

@@ -212,9 +212,9 @@ FOR EACH report NO-LOCK
         PUT
           "<P9><C0.2>" ar-invl.qty FORMAT "->,>>>,>>9"
           "<C8>"       v-ship-qty  FORMAT "->,>>>,>>9"
-          "<C17>"      ar-invl.ord-no FORMAT ">>>>>>9"
+          "<C17.4>"    ar-invl.ord-no FORMAT ">>>>>>>9"
           "<C24>"      STRING(ar-invl.part-no) FORMAT "x(15)"
-          "<C37>"      STRING(ar-invl.i-name) FORMAT "x(25)"
+          "<C36.8>"    STRING(ar-invl.i-name) FORMAT "x(25)"
           "<C57>"      STRING(v-p-c,"x")
           "<C60.5>"     v-price FORMAT "$>>>,>>9.99<<"
           "<C70>"      STRING(v-price-head) FORMAT "x(4)"
@@ -224,8 +224,8 @@ FOR EACH report NO-LOCK
         ASSIGN v-printline = v-printline + 1.
         
         PUT "<C8>"     STRING(ar-invl.inv-qty,"->,>>>,>>9") FORMAT "X(10)"
-            "<C17.75>" TRIM(STRING(INT(ar-invl.est-no),">>>>>>>"))
-            "<C23.75>" STRING(ar-invl.i-no) FORMAT "x(15)".
+            "<C17.4>" TRIM(STRING(INT(ar-invl.est-no),">>>>>>>>"))
+            "<C24>" STRING(ar-invl.i-no) FORMAT "x(15)".
         
         IF TRIM(ar-invl.part-dscr1) NE "" THEN
            PUT "<C36.8>" ar-invl.part-dscr1 FORMAT "x(25)".
@@ -238,7 +238,7 @@ FOR EACH report NO-LOCK
         PUT SKIP.
         ASSIGN v-printline = v-printline + 1.
        
-        PUT "<C23.75>" ar-invl.po-no.
+        PUT "<C24>" ar-invl.po-no.
 
         IF TRIM(ar-invl.part-dscr2) NE "" 
           THEN PUT "<C36.8>" ar-invl.part-dscr2 FORMAT "X(25)".
@@ -288,8 +288,8 @@ FOR EACH report NO-LOCK
                {ar/rep/invfibrex.i}
         END.
 
-        PUT "<C17.4>"  TRIM(STRING(ar-invl.ord-no,">>>>>>>")) 
-            "<C23.75>" ar-invl.prep-charge FORMAT "x(20)"
+        PUT "<C17.4>"  TRIM(STRING(ar-invl.ord-no,">>>>>>>>")) 
+            "<C24>"    ar-invl.prep-charge FORMAT "x(20)"
             "<C38.8>"  ar-invl.prep-dscr   FORMAT "x(30)"
             "<C71>"    ar-invl.prep-amt    FORMAT "$->>>,>>9.99"
             SKIP.
@@ -302,8 +302,8 @@ FOR EACH report NO-LOCK
            ar-invl.po-no NE "" 
           THEN DO:
 
-           PUT "<C17.4>" TRIM(STRING(INT(ar-invl.est-no),">>>>>>>"))
-               "<C23.75>" "PO#: " ar-invl.po-no 
+           PUT "<C17.4>" TRIM(STRING(INT(ar-invl.est-no),">>>>>>>>"))
+               "<C24>" "PO#: " ar-invl.po-no 
                SKIP.
            ASSIGN
               v-printline = v-printline + 1.

@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relcardx.i  */
 /* Print OE Release/Picking tickets    for Carded Xprint             */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.     */
 /* ----------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i}
@@ -56,9 +57,9 @@ DEFINE VARIABLE iRelCase AS INTEGER NO-UNDO .
 DEFINE VARIABLE TotOnHand AS INTEGER NO-UNDO .
 DEFINE VARIABLE dTotalWeight AS DECIMAL NO-UNDO .
 
-format w-oe-rell.ord-no                 to 6
-       w-par                            at 8    format "x(20)"
-       v-bin                            at 29   format "x(12)"
+format w-oe-rell.ord-no                 to 8
+       w-par                            at 10    format "x(20)"
+       v-bin                            at 31   format "x(12)"
        w-pal                            AT 45   format "->>>"
        w-cas                            AT 51   format "->>>"
        w-c-c                            AT 55   format "->>>>>>>>"
@@ -169,15 +170,15 @@ IF ll-display-comp THEN DO:
 
 format
   tt-rell.ord-no
-  tt-rell.po-no at 8
-  tt-rell.loc-bin  AT 23  FORM "x(5)"
-  tt-rell.i-no at 29  oe-ordl.i-name at 44
+  tt-rell.po-no at 10
+  tt-rell.loc-bin  AT 25  FORM "x(5)"
+  tt-rell.i-no at 31  oe-ordl.i-name at 46
   oe-ordl.qty format "->>>>>>>9" to 83
   tt-rell.qty format "->>>>>>>9" SKIP
-  tt-rell.tag AT 29 FORM "x(15)"
-  oe-ordl.part-dscr1 at 44 format "x(30)" skip
-    oe-ordl.part-no AT 29
-    oe-ordl.part-dscr2 at 44 format "x(30)"
+  tt-rell.tag AT 31 FORM "x(15)"
+  oe-ordl.part-dscr1 at 46 format "x(30)" skip
+    oe-ordl.part-no AT 31
+    oe-ordl.part-dscr2 at 46 format "x(30)"
   with down frame relprint no-box no-label STREAM-IO width 110.
 
 find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
@@ -504,7 +505,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
 
             IF v-printline > 44 THEN DO:
                PUT "<C1><R-" + trim(string(iLineCount + 1)) + "><FROM><C1><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
-               PUT "<C23.5><R-" + trim(string(iLineCount + 1)) + "><FROM><C23.5><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
+               PUT "<C25><R-" + trim(string(iLineCount + 1)) + "><FROM><C25><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
                   PUT "<C36><R-" + trim(string(iLineCount + 1)) + "><FROM><C36><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
                   PUT "<C62><R-" + trim(string(iLineCount + 1)) + "><FROM><C62><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
                   PUT "<C80><R-" + trim(string(iLineCount + 1)) + "><FROM><C80><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
@@ -540,7 +541,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
 
               IF v-printline > 44 THEN DO:
                   PUT "<C1><R-" + trim(string(iLineCount + 1)) + "><FROM><C1><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
-                  PUT "<C23.5><R-" + trim(string(iLineCount + 1)) + "><FROM><C23.5><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
+                  PUT "<C25><R-" + trim(string(iLineCount + 1)) + "><FROM><C25><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
                   PUT "<C36><R-" + trim(string(iLineCount + 1)) + "><FROM><C36><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
                   PUT "<C62><R-" + trim(string(iLineCount + 1)) + "><FROM><C62><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
                   PUT "<C80><R-" + trim(string(iLineCount + 1)) + "><FROM><C80><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
@@ -560,7 +561,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               iLineCount = iLineCount + 2 .
               PUT "<C1><FROM><C80><LINE><R-1>" SKIP .
               PUT "<C1><R-" + trim(string(iLineCount + 1)) + "><FROM><C1><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
-              PUT "<C23.5><R-" + trim(string(iLineCount + 1)) + "><FROM><C23.5><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
+              PUT "<C25><R-" + trim(string(iLineCount + 1)) + "><FROM><C25><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
               PUT "<C36><R-" + trim(string(iLineCount + 1)) + "><FROM><C36><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
               PUT "<C62><R-" + trim(string(iLineCount + 1)) + "><FROM><C62><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      
               PUT "<C80><R-" + trim(string(iLineCount + 1)) + "><FROM><C80><R+" + trim(string(iLineCount + 1)) + "><LINE><R-1>" FORMAT "x(250)" SKIP .      

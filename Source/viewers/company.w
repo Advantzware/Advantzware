@@ -820,7 +820,6 @@ PROCEDURE create-controls :
  ASSIGN 
         location.company      = loc.company
         location.locationCode = loc.loc
-        location.rec_key      = DYNAMIC-FUNCTION("sfGetNextRecKey") 
         loc.addrRecKey        = location.rec_key.
 
  for each loc where loc.company = company.company:

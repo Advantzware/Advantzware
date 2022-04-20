@@ -34,6 +34,7 @@ def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-id as recid no-undo.     /* recid output */
+{sys/inc/var.i}
 
 &scoped-define ascdsc-1 DESC
 &scoped-define SORTBY-1 BY oe-bolh.bol-no {&ascdsc-1}

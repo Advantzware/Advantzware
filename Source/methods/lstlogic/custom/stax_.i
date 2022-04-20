@@ -29,7 +29,7 @@ INDEXLOOP: DO li-tax-index = 1 to extent(stax.tax-code1):
   If li-tax-index = 1 then
      DISPLAY
 	  stax.tax-group when li-tax-index = 1
-	  stax.tax-code1[li-tax-index] LABEL 'Tax Code'           
+	  stax.tax-code1[li-tax-index] LABEL 'Tax Group'           
 	  stax.tax-dscr1[li-tax-index] LABEL 'Description'        
 	  stax.tax-rate1[li-tax-index] LABEL 'Rate'                
 	  stax.tax-frt1 [li-tax-index] COLUMN-LABEL 'Tax Freight?' 

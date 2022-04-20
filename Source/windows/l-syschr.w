@@ -34,6 +34,8 @@ def input param ip-company like sys-ctrl.company no-undo.
 def input param ip-name like sys-ctrl.name no-undo.
 def input param ip-cur-value as cha no-undo.
 def output param op-char-val as cha no-undo.
+{sys/inc/var.i}
+
 def var lv-rowid as rowid no-undo.
 def temp-table tt-sys-val field name like sys-ctrl.name
                           field name-val as cha.

@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolinlnd.p 06/01 JLF */
 /* PRINT Inland BOL                                                           */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 hide {1} frame bol-bot2.
@@ -131,9 +132,8 @@ for each report where report.term-id eq v-term-id,
       no-lock no-error.
 
   v-job-no = "".
-  if avail oe-ordl and oe-ordl.job-no ne "" then
-    v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-               trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
+  if avail oe-ordl and oe-ordl.job-no ne "" THEN 
+    v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
   display {1}
           oe-ordl.part-no   when avail oe-ordl

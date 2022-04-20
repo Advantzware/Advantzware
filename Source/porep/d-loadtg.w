@@ -19,6 +19,7 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 {rmrep/rmloadtg.i}
 {custom/globdefs.i}
@@ -134,7 +135,7 @@ DEFINE BROWSE BROWSE-1
   w-po.pr-qty-uom LABEL 'UOM'
   w-po.line LABEL 'Line'
   w-po.job-no  LABEL '  Job#'
-  w-po.job-no2 NO-LABEL FORMAT '99'
+  w-po.job-no2 NO-LABEL FORMAT '999'
   w-po.vend-no LABEL 'Vendor'
   w-po.i-no LABEL 'Item #'
   w-po.s-wid LABEL 'Width'  FORMAT '>>,>>9.9999'
@@ -572,7 +573,7 @@ PROCEDURE get-matrix :
   ELSE
   DO:
     FIND FIRST job NO-LOCK WHERE job.company EQ cocode
-                             AND job.job-no EQ w-po.job-no
+                             AND job.job-no  EQ w-po.job-no
                              AND job.job-no2 EQ w-po.job-no2 NO-ERROR.
     IF AVAIL job THEN
     DO:

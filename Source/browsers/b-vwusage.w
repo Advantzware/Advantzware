@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -169,9 +170,9 @@ DEFINE BROWSE Browser-Table
       vend-whse-trans.vend-ord-no FORMAT ">>>>>9":U WIDTH 12.6
             LABEL-BGCOLOR 14
       vend-whse-trans.item-line-no FORMAT "99":U WIDTH 7.2
-      vend-whse-trans.vend-job-no COLUMN-LABEL "Suppliers!Job#" FORMAT "x(6)":U
+      vend-whse-trans.vend-job-no COLUMN-LABEL "Suppliers!Job#" FORMAT "x(9)":U
             WIDTH 13.2 LABEL-BGCOLOR 14
-      vend-whse-trans.vend-job-no2 FORMAT ">9":U
+      vend-whse-trans.vend-job-no2 FORMAT ">>9":U
       vend-whse-trans.sell-price FORMAT ">,>>>,>>9.99<<<<":U WIDTH 20
             LABEL-BGCOLOR 14
   ENABLE
@@ -1946,8 +1947,7 @@ PROCEDURE val-job-no :
 ------------------------------------------------------------------------------*/
 DO WITH FRAME {&FRAME-NAME}:
    IF vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN DO:
-      vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) 
-                                                                   + TRIM(vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+      vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name})) .
    
       IF NOT CAN-FIND(FIRST oe-ordl WHERE oe-ordl.company  = cocode
                                       AND oe-ordl.i-no     = vend-whse-trans.fg-item-no:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1974,8 +1974,7 @@ PROCEDURE val-job-no-2 :
 ------------------------------------------------------------------------------*/
 DO WITH FRAME {&FRAME-NAME}:
    IF INT(vend-whse-trans.vend-job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) > 0 THEN DO:
-      vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) 
-                                                                   + TRIM(vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+      vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name})) .
    
       IF NOT CAN-FIND(FIRST oe-ordl WHERE oe-ordl.company  = cocode
                                       AND oe-ordl.i-no     = vend-whse-trans.fg-item-no:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -2003,8 +2002,7 @@ PROCEDURE val-sell-price :
 ------------------------------------------------------------------------------*/
 DO WITH FRAME {&FRAME-NAME}:
    IF DEC(vend-whse-trans.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}) > 0 THEN DO:
-      vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) 
-                                                                   + TRIM(vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+      vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name})) .
    
       IF NOT CAN-FIND(FIRST oe-ordl WHERE oe-ordl.company  = cocode
                                       AND oe-ordl.i-no     = vend-whse-trans.fg-item-no:SCREEN-VALUE IN BROWSE {&browse-name}

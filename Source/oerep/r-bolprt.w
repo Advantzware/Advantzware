@@ -12,6 +12,7 @@
 
   Created           : 04/23/02
 
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No). 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -190,7 +191,7 @@ DEFINE NEW SHARED TEMP-TABLE w-comm-bol NO-UNDO
     
 /*** Temp Table to store Bols which will not post ***/   
 DEFINE TEMP-TABLE ttExceptionBOL NO-UNDO
-    FIELD ordNo   AS INTEGER   FORMAT ">>>>>9"
+    FIELD ordNo   AS INTEGER   FORMAT ">>>>>>>9"
     FIELD bolDate AS DATE      FORMAT "99/99/9999"
     FIELD bolNo   AS INTEGER   FORMAT ">>>>>>9"
     FIELD relNo   AS INTEGER   FORMAT ">>>>>9"
@@ -2394,7 +2395,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     
         ASSIGN 
             begin_ord#:SCREEN-VALUE = "0"
-            end_ord#:SCREEN-VALUE   = "999999"
+            end_ord#:SCREEN-VALUE   = "99999999"
             .
 
         APPLY "entry" TO begin_cust.

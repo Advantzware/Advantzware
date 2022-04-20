@@ -1,4 +1,5 @@
 /* oe/rep/invfibrex.i */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 ASSIGN
   v-addr3a      = v-addr3
   v-sold-addr3a = v-sold-addr3
@@ -91,7 +92,7 @@ PUT "<=4><B> CUSTOMER PO       FOB            SHIP VIA             TERMS        
     "<R26><C68><FROM><R29><C68><LINE><||3>" SKIP
     "<R26><C73><FROM><R29><C73><LINE><||3>" SKIP
     "<P10><=5><B>" SPACE(29) "CUST PART #" SKIP
-    "   QTY    SHIPPED   ORDER#   FG ITEM #          DESCRIPTION    P/C    PRICE    UOM   AMOUNT" SKIP
+    "   QTY    SHIPPED   ORDER#   FG ITEM #          DESCRIPTION     P/C    PRICE    UOM   AMOUNT" SKIP
     " ORDERED  INVOICED  EST #      P.O. #" space(15) "LOT</B>" SKIP(1).
 
 

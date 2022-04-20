@@ -24,6 +24,7 @@ USING system.SharedConfig.
 def input parameter ip-company AS CHAR no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* recid(item) */
+{sys/inc/var.i}
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.

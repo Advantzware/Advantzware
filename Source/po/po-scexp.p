@@ -164,8 +164,7 @@ FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
     
     FIND FIRST job NO-LOCK
         WHERE job.company EQ cocode
-          AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no))) +
-                                  TRIM(po-ordl.job-no)
+          AND job.job-no  EQ po-ordl.job-no
           AND job.job-no2 EQ po-ordl.job-no2
         NO-ERROR.
         
@@ -247,7 +246,7 @@ FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
         "</customerponbr>"
 
         "<customerpolineseqnbr>"
-        po-ordl.job-no "-" + STRING(po-ordl.job-no2,"99") + "-" + STRING(po-ordl.s-num,"99")
+        TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))) + "-" + STRING(po-ordl.s-num,"99")
         "</customerpolineseqnbr>"
 
         "<custitemname>"

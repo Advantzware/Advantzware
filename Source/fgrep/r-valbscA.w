@@ -1344,7 +1344,7 @@ END.
          v-price   = itemfg.sell-price
          v-uom     = itemfg.sell-uom
          v-cas-cnt = itemfg.case-count
-         v-job     = FILL(" ",6 - LENGTH(TRIM(fg-bin.job-no))) +
+         v-job     = FILL(" ", iJobLen - LENGTH(TRIM(fg-bin.job-no))) +
                      TRIM(fg-bin.job-no) + "-" + STRING(fg-bin.job-no2,"99").
 
         IF TRIM(v-job) EQ "-00" THEN v-job = "".
