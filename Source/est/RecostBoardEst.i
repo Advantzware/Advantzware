@@ -39,11 +39,13 @@ DEFINE TEMP-TABLE ttRecostBoardGroups NO-UNDO
     FIELD customerID     AS CHARACTER
     FIELD quantityMaster AS INTEGER
     FIELD CompanyId      AS CHARACTER
-    FIELD FormIdList     AS CHARACTER.
+    FIELD FormIdList     AS CHARACTER
+    .
 
 DEFINE TEMP-TABLE ttRecostBoardLineXRef /*allows for easy re-finding of EstCostMaterial*/ NO-UNDO 
-    FIELD RecostBoardGroupRowId        AS ROWID
-    FIELD EstCostMaterialID            AS INT64.
+    FIELD RecostBoardGroupRowId AS ROWID
+    FIELD EstCostMaterialID     AS INT64
+    .
         
 /* ********************  Preprocessor Definitions  ******************** */
 
