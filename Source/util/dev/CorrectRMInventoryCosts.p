@@ -44,21 +44,21 @@ FOR EACH ttCartonTag:
         rm-rctd.i-no EQ ttCartonTag.cItem AND 
         rm-rctd.tag EQ cTag:
         ASSIGN 
-            rm-rctd.cost = ttCartonTag.deCostPerMSF.
+            rm-rctd.cost = ttCartonTag.deCorrUnitCost.
     END.
     FOR EACH rm-rdtlh WHERE 
         rm-rdtlh.company EQ "001" AND 
         rm-rdtlh.i-no EQ ttCartonTag.cItem AND 
         rm-rdtlh.tag EQ cTag:
         ASSIGN 
-            rm-rdtlh.cost = ttCartonTag.deCostPerMSF.
+            rm-rdtlh.cost = ttCartonTag.deCorrUnitCost.
     END.
     FOR EACH rm-bin WHERE 
         rm-bin.company EQ "001" AND 
         rm-bin.i-no EQ ttCartonTag.cItem AND 
         rm-bin.tag EQ cTag:
         ASSIGN 
-            rm-bin.cost = ttCartonTag.deCostPerMSF.
+            rm-bin.cost = ttCartonTag.deCorrUnitCost.
     END.
 END.
     
