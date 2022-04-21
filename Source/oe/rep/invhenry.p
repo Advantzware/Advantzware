@@ -623,8 +623,8 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
                 v-i-no  FORMAT "x(15)" SPACE(3)
                 v-i-dscr  FORMAT "x(25)" SPACE(3)
                 v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(1)
-                v-price-head 
-                inv-line.t-price  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"*/                     
+                //v-price-head 
+                inv-line.t-price  FORMAT "$->>>,>>>,>>9.99" /*"$->>>,>>9.99"*/                     
                 SKIP.
           END.
           ELSE DO:
@@ -634,8 +634,8 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
                 v-i-no  FORMAT "x(15)" SPACE(3)
                 v-i-dscr  FORMAT "x(25)" SPACE(2)
                 v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(2)
-                v-price-head 
-                inv-line.t-price  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"                     */
+                //v-price-head 
+                inv-line.t-price  FORMAT "$->>>,>>>,>>9.99" /*"$->>>,>>9.99"                     */
                 SKIP.
 
           END.

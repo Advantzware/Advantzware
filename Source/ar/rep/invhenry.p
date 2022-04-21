@@ -500,9 +500,9 @@ ELSE lv-comp-color = "BLACK".
                 ar-invl.ord-no FORM ">>>>>>>9" SPACE(1)
                 v-i-no  FORMAT "x(15)" SPACE(2)
                 v-i-dscr  FORMAT "x(25)" SPACE(3)
-                v-price  FORMAT "$->>>,>>9.99" /*"$->,>>9.99<<"*/ SPACE(1)
-                v-price-head SPACE(1)
-                ar-invl.amt  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99" */               
+                v-price  FORMAT "$->>>,>>9.99" /*"$->,>>9.99<<"*/ SPACE(2)
+                //v-price-head SPACE(1)
+                ar-invl.amt  FORMAT "$->>>,>>>,>>9.99" /*"$->>>,>>9.99" */               
                 SKIP.
           END.
           ELSE DO:
@@ -513,9 +513,9 @@ ELSE lv-comp-color = "BLACK".
                 ar-invl.ord-no FORM ">>>>>>>9" SPACE(1)
                 v-i-no  FORMAT "x(15)" SPACE(2)
                 v-i-dscr  FORMAT "x(25)" SPACE(3)
-                v-price  FORMAT "$->>>,>>9.99" /*"$->,>>9.99<<"*/ SPACE(1)
-                v-price-head SPACE(1)
-                ar-invl.amt  FORMAT "$->>>>,>>9.99" /*"$->,>>9.99<<"*/                
+                v-price  FORMAT "$->>>,>>9.99" /*"$->,>>9.99<<"*/ SPACE(2)
+                //v-price-head SPACE(1)
+                ar-invl.amt  FORMAT "$->>>,>>>,>>9.99" /*"$->,>>9.99<<"*/                
                 SKIP.
 
           END.    /* else do */
