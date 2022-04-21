@@ -1524,17 +1524,6 @@ for EACH ASI.job-prep WHERE job-prep.company eq cocode
                          AND prep.code    EQ job-prep.CODE NO-LOCK NO-ERROR.
        cPrepDscr = IF AVAIL prep THEN prep.dscr ELSE job-prep.CODE.
 
-       /*display job-hdr.cust-no
-            cCustomerName
-            job-hdr.due-date
-            job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") FORM "x(10)"
-            job-prep.CODE FORM "x(15)"
-            cPrepDscr  
-            liQty
-            ldExtCost / liQty @ ldStdCost
-            ldExtCost FORM "->>,>>>,>>9.99"
-            with frame det STREAM-IO width 140 no-box no-labels down.*/
-
             ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -1635,17 +1624,6 @@ ELSE /* prep code */
                            AND prep.code    EQ job-prep.CODE NO-LOCK NO-ERROR.
          cPrepDscr = IF AVAIL prep THEN prep.dscr ELSE job-prep.CODE.
 
-      /* display 
-            job-prep.CODE FORM "x(15)"
-            cPrepDscr
-            job-hdr.cust-no
-            cCustomerName
-            job-hdr.due-date
-            job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") @ job-hdr.job-no FORM "x(10)"
-            liQty
-            ldExtCost / liQty @ ldStdCost
-            ldExtCost FORM "->>,>>>,>>9.99"
-            with frame detPrep STREAM-IO width 140 no-box no-labels down.*/
           ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""

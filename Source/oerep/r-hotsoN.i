@@ -148,46 +148,6 @@
              lv-date-msf2 = lv-date-msf2 + tt-report.msf2
                 lv-tot-msf2 = lv-tot-msf2 + tt-report.msf2.
                 
-      /*DISPLAY cust.cust-no       FORMAT "x(8)"
-              oe-ordl.part-no
-              tt-report.routing form "x(20)"
-              tt-report.rm-no form "x(20)"
-              trim(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99") WHEN oe-ordl.job-no <> "" @ v-job# FORM "x(10)" 
-              
-              tt-report.ship-to
-              oe-ordl.qty        FORMAT "->,>>>,>>9"
-              tt-report.q-rel    FORMAT "->,>>>,>>9"
-              tt-report.NumOfUnit
-              tt-report.msf              
-          WITH FRAME summ-re NO-BOX STREAM-IO WIDTH 180
-                NO-ATTR-SPACE NO-LABELS DOWN. 
-
-      DOWN WITH FRAME summ-re.
-      UNDERLINE cust.cust-no
-          oe-ordl.part-no tt-report.routing tt-report.rm-no
-          v-job# tt-report.ship-to oe-ordl.qty tt-report.q-rel
-          tt-report.numofunit tt-report.msf
-          WITH FRAME summ-re.
-      DOWN WITH FRAME summ-re.
-
-      IF tb_excel THEN
-      DO:
-         PUT STREAM st-excel
-             tt-report.due-date FORMAT "99/99/9999" v-comma
-             cust.cust-no       FORMAT "x(8)" v-comma             
-             oe-ordl.part-no FORMAT "X(15)" v-comma
-             REPLACE(tt-report.routing,","," ") FORMAT "X(20)" v-comma
-             tt-report.rm-no form "x(20)" v-comma
-             oe-ordl.job-no + "-" + STRING(oe-ordl.job-no2,"99") v-comma
-             tt-report.ship-to    v-comma
-             oe-ordl.qty        FORMAT "->>>>>>9" v-comma
-             tt-report.q-rel    FORMAT "->>>>>>9" v-comma
-             tt-report.NumOfUnit  FORMAT "->>>>>>9" v-comma
-             tt-report.msf    FORMAT "->>>>>>9".
-
-         PUT STREAM st-excel SKIP.
-      END.*/
-
       ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""

@@ -1356,25 +1356,6 @@ PROCEDURE run-report :
                      int(substr(tt-report.key-01,7,2)),
                      int(substr(tt-report.key-01,1,4))).
 
-        /* display v-date            column-label "!Due Date"
-                 oe-ord.ord-date FORMAT "99/99/99"  column-label "!Ord Date"
-                                   when avail oe-ord
-                 trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99")
-                                   column-label "!Job #"
-                                   format "x(9)"
-                 oe-ord.ord-no     column-label "Our   ! Ord #"
-                                   when avail oe-ord
-                 tt-report.key-02     column-label "!Customer Name"
-                                   format "x(30)"
-                 job-hdr.i-no      column-label "!FG Item #"
-                 itemfg.i-name     column-label "!FG Item Name"
-                                   when avail itemfg
-                 job-hdr.qty       column-label "!   Job Qty"
-                                   format ">>,>>>,>>9"
-                 v-msf             column-label "!    MSF"
-                                   format ">>>9.9"
-   
-             with no-box STREAM-IO width 132 no-attr-space.*/
         i = 0.
         lBoard = NO.
         cRmItemName = "".

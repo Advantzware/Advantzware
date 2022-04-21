@@ -2084,10 +2084,6 @@ PROCEDURE run-report :
                     IF hField <> ? THEN 
                     DO:                 
                         cTmpField = SUBSTRING(GetFieldValue(hField),1,int(ENTRY(iEntryNumber, cFieldLength))).
-                        /*IF ENTRY(i,cSelectedList) = "Job#" THEN
-                           cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-bin.job-no2,"99") ELSE "".                  
-                         */
-                        /*IF ENTRY(i,cSelectedList) = "Tag" THEN cTmpField = SUBSTRING(cTmpField,16,8).*/
 
                         cDisplay = cDisplay + 
                             IF ENTRY(iEntryNumber, cFieldType) = "C" THEN
@@ -2416,10 +2412,6 @@ PROCEDURE run-reportCust :
                 IF hField <> ? THEN 
                 DO:                 
                     cTmpField = SUBSTRING(GetFieldValue(hField),1,int(ENTRY(iEntryNumber, cFieldLength))).
-                    /*IF ENTRY(i,cSelectedList) = "Job#" THEN
-                       cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-bin.job-no2,"99") ELSE "".                  
-                     */
-                    /*IF ENTRY(i,cSelectedList) = "Tag" THEN cTmpField = SUBSTRING(cTmpField,16,8).*/
 
                     cDisplay = cDisplay + 
                         IF ENTRY(iEntryNumber, cFieldType) = "C" THEN

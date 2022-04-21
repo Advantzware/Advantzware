@@ -1009,17 +1009,6 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
       END.
         
       
-      /*PUT skip(1)
-          "Job Number: "
-          trim(job.job-no) + "-" + string(job.job-no2,"99") +
-          "     Closing Date: " +
-          (IF job.close-date EQ ? THEN "        " ELSE
-                         STRING(job.close-date,"99/99/99"))
-         FORMAT "X(36)" SKIP
-         "Customer:   "
-         v-cust.
-
-      page.*/ /* ticket 26126 */
      end.
 
      if v-mch and last(job.job-no) then do:

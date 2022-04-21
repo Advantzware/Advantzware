@@ -340,8 +340,6 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           
            i = 0.
 
-           /*v-reljob = (w-oe-rell.job-no + "-" + string(w-oe-rell.job-no2,"99"))   .*/
-
            for each fg-bin
                where fg-bin.company  eq cocode
                  and fg-bin.i-no     eq w-oe-rell.i-no
