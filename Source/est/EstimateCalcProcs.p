@@ -3587,7 +3587,7 @@ PROCEDURE pProcessBoardBOM PRIVATE:
     END.
     oplValidBom = YES.
 
-    RUN pAddEstMaterial(BUFFER ipbf-ttestCostHeader, BUFFER ipbf-ttestCostForm, ipbf-item-bom.i-no, 0, BUFFER bf-ttestCostMaterial).
+    RUN pAddEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER ipbf-ttEstCostForm, ipbf-item-bom.i-no, 0, BUFFER bf-ttEstCostMaterial).
     
     //Override Form Dimensions for real material.  Length needs to vary depending on Shrink
     IF bf-item.i-code EQ 'R' THEN 
@@ -3597,26 +3597,26 @@ PROCEDURE pProcessBoardBOM PRIVATE:
             .
     ELSE 
         ASSIGN 
-            dWidth = ipbf-ttestCostForm.grossWidth
-            dDepth = ipbf-ttestCostForm.grossDepth
+            dWidth = ipbf-ttEstCostForm.grossWidth
+            dDepth = ipbf-ttEstCostForm.grossDepth
             .
         
     ASSIGN 
-    bf-ttEstCostMaterial.isPrimarySubstrate         = YES
-    bf-ttEstCostMaterial.addToWeightNet             = YES
-    bf-ttEstCostMaterial.addToWeightTare            = NO                                       
-    bf-ttEstCostMaterial.quantityRequiredNoWaste    = ipbf-ttEstCostForm.grossQtyRequiredNoWaste
-    bf-ttEstCostMaterial.quantityRequiredSetupWaste = ipbf-ttEstCostForm.grossQtyRequiredSetupWaste
-    bf-ttEstCostMaterial.quantityRequiredRunWaste   = ipbf-ttEstCostForm.grossQtyRequiredRunWaste
-    bf-ttEstCostMaterial.quantityUOMWaste           = "EA"
-    bf-ttEstCostMaterial.quantityUOM                = "EA"
-    bf-ttEstCostMaterial.basisWeight                = bf-item.basis-w
-    dShrinkPct                                      = (IF ipbf-item-bom.shrink NE 100 THEN ipbf-item-bom.shrink ELSE 0) / 100
-    bf-ttestCostMaterial.dimWidth                   = dWidth
-    bf-ttestCostMaterial.dimLength                  = ipbf-ttestCostForm.grossLength / ( 1 - dShrinkPct)
-    bf-ttestCostMaterial.dimDepth                   = dDepth
-    bf-ttestCostMaterial.noCharge                   = ipbf-ttestCostForm.noCost.    
-
+        bf-ttEstCostMaterial.isPrimarySubstrate         = YES
+        bf-ttEstCostMaterial.addToWeightNet             = YES
+        bf-ttEstCostMaterial.addToWeightTare            = NO                                       
+        bf-ttEstCostMaterial.quantityRequiredNoWaste    = ipbf-ttEstCostForm.grossQtyRequiredNoWaste
+        bf-ttEstCostMaterial.quantityRequiredSetupWaste = ipbf-ttEstCostForm.grossQtyRequiredSetupWaste
+        bf-ttEstCostMaterial.quantityRequiredRunWaste   = ipbf-ttEstCostForm.grossQtyRequiredRunWaste
+        bf-ttEstCostMaterial.quantityUOMWaste           = "EA"
+        bf-ttEstCostMaterial.quantityUOM                = "EA"
+        bf-ttEstCostMaterial.basisWeight                = bf-item.basis-w
+        dShrinkPct                                      = (IF ipbf-item-bom.shrink NE 100 THEN ipbf-item-bom.shrink ELSE 0) / 100
+        bf-ttEstCostMaterial.dimWidth                     = dWidth
+        bf-ttEstCostMaterial.dimLength                    = ipbf-ttEstCostForm.grossLength / ( 1 - dShrinkPct)
+        bf-ttEstCostMaterial.dimDepth                     = dDepth
+        bf-ttEstCostMaterial.noCharge                     = ipbf-ttEstCostForm.noCost
+        .
     FIND FIRST bfBoard-ttEstCostMaterial NO-LOCK 
         WHERE bfBoard-ttEstCostMaterial.estCostHeaderID EQ ipbf-ttEstCostHeader.estCostHeaderID
         AND bfBoard-ttEstCostMaterial.estCostFormID EQ ipbf-ttEstCostForm.estCostFormID
