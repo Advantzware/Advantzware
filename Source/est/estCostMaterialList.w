@@ -1,5 +1,8 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
+/* Connected Databases 
+          asi              PROGRESS
+*/
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
@@ -35,6 +38,8 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/defines/sortByDefs.i}
 {system/VendorCostProcs.i}
+{custom/globdefs.i}
+{est\RecostBoardEst.i}
 {est\ttEstimateCalc.i}
 
 /* Parameters Definitions ---                                           */
@@ -42,6 +47,9 @@ DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstCostHeaderToCalc.
 DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstCostMaterial.
 DEFINE INPUT PARAMETER TABLE FOR ttEstCostHeader.
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+ 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -84,8 +92,8 @@ ttEstCostHeader ttEstCostMaterial
     ~{&OPEN-QUERY-brEstCostMaterial}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-13 brEstCostMaterial bOk bCancel ~
-fiEstimateNo 
+&Scoped-Define ENABLED-OBJECTS RECT-13 brEstCostMaterial bOk ~
+btnRecostboard bCancel fiEstimateNo 
 &Scoped-Define DISPLAYED-OBJECTS fiEstimateNo estimate 
 
 /* Custom List Definitions                                              */
@@ -109,6 +117,10 @@ DEFINE BUTTON bCancel
 DEFINE BUTTON bOk 
      LABEL "Choose Vendor" 
      SIZE 17.6 BY 1.38.
+
+DEFINE BUTTON btnRecostboard 
+     LABEL "Recost Board" 
+     SIZE 18.6 BY 1.38.
 
 DEFINE VARIABLE estimate AS CHARACTER FORMAT "X(8)":U INITIAL "Estimate#:" 
       VIEW-AS TEXT 
@@ -169,7 +181,8 @@ DEFINE BROWSE brEstCostMaterial
 
 DEFINE FRAME DEFAULT-FRAME
      brEstCostMaterial AT ROW 3.67 COL 171 RIGHT-ALIGNED WIDGET-ID 200
-     bOk AT ROW 19.19 COL 3 WIDGET-ID 342
+     bOk AT ROW 19.19 COL 3 WIDGET-ID 342     
+     btnRecostboard AT ROW 19.19 COL 44.2 WIDGET-ID 360
      bCancel AT ROW 19.19 COL 155.8 WIDGET-ID 356
      fiEstimateNo AT ROW 1.67 COL 17.8 NO-LABEL WIDGET-ID 66
      estimate AT ROW 1.91 COL 4.4 NO-LABEL WIDGET-ID 64
@@ -364,8 +377,8 @@ DO:
                 ttEstCostMaterial.costUOM    = ttVendItemCost.vendorUOM 
                 ttEstCostMaterial.costPerUOM = ttVendItemCost.costPerVendorUOM
                 ttEstCostMaterial.costSetup  = ttVendItemCost.costSetup
-                ttEstCostMaterial.costTotal  = ttVendItemCost.costTotal
-                .
+                ttEstCostMaterial.costTotal  = ttVendItemCost.costTotal.
+                
             IF AVAILABLE ttEstCostHeaderToCalc THEN 
                 ttEstCostHeaderToCalc.lRecalcRequired = TRUE. 
         END.
@@ -404,6 +417,17 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME btnRecostboard
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRecostboard C-Win
+ON CHOOSE OF btnRecostboard IN FRAME DEFAULT-FRAME /* Recost Board */
+    DO: 
+        RUN ipRecostBoard(INPUT YES).                
+        
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -420,6 +444,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 bOk:LOAD-IMAGE("Graphics/32x32/choosevendor.png").
 bCancel:LOAD-IMAGE("Graphics/32x32/calculate.png").
+btnRecostboard:LOAD-IMAGE("Graphics/32x32/RecostBoard.png").
+
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
@@ -441,10 +467,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         FIRST ttEstCostHeader NO-LOCK 
             WHERE ttEstCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID:
         ASSIGN
-            fiEstimateNo:SCREEN-VALUE = ttEstCostHeader.estimateNo
-            .
-
+            fiEstimateNo:SCREEN-VALUE = ttEstCostHeader.estimateNo.
     END.
+    
+    RUN sys/ref/nk1look.p (g_company, "CEAutoRecostBoard", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    
+    IF lFound = TRUE AND cReturn EQ "YES" THEN
+        btnRecostboard:HIDDEN IN FRAME DEFAULT-FRAME = TRUE.
+    
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -500,7 +530,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiEstimateNo estimate 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-13 brEstCostMaterial bOk bCancel fiEstimateNo 
+  ENABLE RECT-13 brEstCostMaterial bOk btnRecostboard 
+         bCancel fiEstimateNo 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -508,6 +539,53 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRecostBoard C-Win
+PROCEDURE ipRecostBoard:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iplMessage AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE hdRecostBoardEst AS HANDLE NO-UNDO.
+    DEFINE VARIABLE chMessage        AS CHARACTER NO-UNDO.
+        
+    IF VALID-HANDLE(hdRecostBoardEst) = FALSE THEN
+        RUN est\RecostBoardEst.p PERSISTENT SET hdRecostBoardEst.
+    
+    RUN RecostBoardEst_RecostBoard IN hdRecostBoardEst(INPUT TABLE ttEstCostHeaderToCalc,
+        INPUT TABLE ttEstCostMaterial,
+        INPUT TABLE ttEstCostHeader,
+        OUTPUT chMessage,
+        OUTPUT TABLE ttRecostBoardGroups).
+                                              
+    IF iplMessage AND chMessage <> "" THEN 
+        MESSAGE chMessage
+            VIEW-AS ALERT-BOX.
+                
+    IF chMessage = "" THEN
+    DO:        
+        IF iplMessage THEN RUN ShowCostUpdates. /*Present updates to user and get confirmation*/
+        
+        RUN RecostBoardEst_UpdateEstCostMaterial IN hdRecostBoardEst(INPUT NO,
+                                                                     INPUT-OUTPUT TABLE ttEstCostMaterial BY-REFERENCE,
+                                                                     INPUT TABLE ttRecostBoardGroups).  /*Update the EstCostMaterial costs with better costs*/
+    END.
+    
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+
+    IF VALID-HANDLE(hdRecostBoardEst) THEN
+        DELETE PROCEDURE hdRecostBoardEst.
+        
+END PROCEDURE.
+
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReOpenBrowse C-Win 
 PROCEDURE pReOpenBrowse :
@@ -542,6 +620,43 @@ PROCEDURE pReOpenBrowse :
             {&OPEN-QUERY-{&BROWSE-NAME}}
     END CASE.
 END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowCostUpdates C-Win
+PROCEDURE ShowCostUpdates:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lUpdateCost   AS LOGICAL NO-UNDO.
+DEFINE VARIABLE chMessageText AS CHARACTER NO-UNDO.
+
+
+    FOR EACH ttRecostBoardGroups
+        WHERE ttRecostBoardGroups.Multi
+          AND ttRecostBoardGroups.UpdateCost:
+          
+        ASSIGN 
+            chMessageText = "A reduced cost of " + STRING(ttRecostBoardGroups.NewCost) + " per " + ttRecostBoardGroups.NewCostUOM + " was found." + CHR(10) + 
+            "Forms: " + ttRecostBoardGroups.FormIdList + CHR(10) +
+            "Master quantity: " + String(ttRecostBoardGroups.quantityMaster) + CHR(10) +                                  
+            "Item #: " + ttRecostBoardGroups.INo + " " + ttRecostBoardGroups.ItemName + CHR(10) +
+            "Vendor: " + ttRecostBoardGroups.VendNo + CHR(10) +
+            "Size: " + STRING(ttRecostBoardGroups.Wid) + " x " + STRING(ttRecostBoardGroups.Len) + CHR(10) +            
+            "Scores: " + ttRecostBoardGroups.Scores + CHR(10) + 
+            (IF ttRecostBoardGroups.Adders <> "" THEN "Adders: " + ttRecostBoardGroups.Adders + CHR(10) ELSE "")  + 
+            "Total Combined Quantity: " + STRING(ttRecostBoardGroups.TotalQty) + " " + ttRecostBoardGroups.TotalQtyUom + CHR(10) +                                
+            "Do you want to apply this cost to the order lines?".
+
+        MESSAGE chMessageText
+            VIEW-AS ALERT-BOX INFORMATION BUTTONS YES-NO UPDATE lUpdateCost.
+        ttRecostBoardGroups.UpdateCost = lUpdateCost.
+
+    END. /*each ttRecostBoardGroups*/
+END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
