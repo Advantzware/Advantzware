@@ -951,7 +951,7 @@ DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header
-     "Job No"                       to 9
+     "Job No"                       at 1
      "Item No"                      at 17
      "UOM"                          at 28
      "Required"                     to 45
@@ -963,7 +963,7 @@ form header
      "Scoring"                      at 104
      "Date Due"                     at 138
      skip
-     "-------------"                to 9
+     "-------------"                AT 1
      "----------"                   at 17
      "---"                          at 28
      "--------------"               to 45

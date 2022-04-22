@@ -1408,7 +1408,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 
     FORM HEADER
-        "Job No"                       TO 9
+        "Job No"                       AT 1
         "Item No"                      AT 13
         "UOM"                          AT 24
         "Required"                     TO 41
@@ -1420,7 +1420,7 @@ PROCEDURE run-report :
         "Scoring"                      AT 100
         "Date Due"                     AT 134
         SKIP
-        "-------------"                TO 9
+        "-------------"                AT 1
         "----------"                   AT 13
         "---"                          AT 24
         "--------------"               TO 41
