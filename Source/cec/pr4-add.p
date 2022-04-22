@@ -12,6 +12,7 @@ def shared buffer xef  for ef.
 def shared buffer xeb  for eb.
 
 {cec/print4.i shared shared}
+{sys/inc/venditemcost.i}
 
 def buffer xitem        for   item.
 def buffer xe-item      for e-item.
