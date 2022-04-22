@@ -564,6 +564,7 @@ FOR EACH tt-pol,
         WHERE rm-rcpth.company   EQ cocode
           AND rm-rcpth.i-no      EQ po-ordl.i-no
           AND rm-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
+          AND rm-rcpth.po-line   EQ po-ordl.LINE 
           AND rm-rcpth.job-no    EQ po-ordl.job-no
           AND rm-rcpth.job-no2   EQ po-ordl.job-no2
           AND rm-rcpth.rita-code EQ "R"
