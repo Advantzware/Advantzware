@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No. 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -42,6 +44,8 @@ def var lv-type-dscr as cha no-undo.
 &scoped-define fld-name-1  job-mat.rm-i-no
 
 &scoped-define IAMWHAT LOOKUP
+
+{sys/inc/var.i new shared}
 
 FIND FIRST job
     WHERE job.company EQ ip-company

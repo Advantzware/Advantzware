@@ -12,8 +12,8 @@ DEFINE VARIABLE cSide AS CHARACTER NO-UNDO.
 
 DEFINE NEW SHARED VARIABLE save_id                  AS RECID.
 DEFINE NEW SHARED VARIABLE v-today                  AS DATE      INITIAL TODAY.
-DEFINE NEW SHARED VARIABLE v-job                    AS CHARACTER FORMAT "x(6)" EXTENT 2 INITIAL [" ","zzzzzz"].
-DEFINE NEW SHARED VARIABLE v-job2                   AS INTEGER   FORMAT "99" EXTENT 2 INITIAL [00,99].
+DEFINE NEW SHARED VARIABLE v-job                    AS CHARACTER FORMAT "x(9)" EXTENT 2 INITIAL [" ","zzzzzzzzz"].
+DEFINE NEW SHARED VARIABLE v-job2                   AS INTEGER   FORMAT "999" EXTENT 2 INITIAL [000,999].
 DEFINE NEW SHARED VARIABLE v-stypart                LIKE style.dscr.
 DEFINE NEW SHARED VARIABLE v-dsc                    LIKE oe-ordl.part-dscr1 EXTENT 2.
 DEFINE NEW SHARED VARIABLE v-size                   AS CHARACTER FORMAT "x(26)" EXTENT 2.
@@ -271,9 +271,9 @@ cDraftImageFull = IF lDraft
 
 FORMAT HEADER 
     cDraftImageFull FORMAT "x(100)" SKIP
-    "<R1><C68><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cJobNo FORMAT "x(9)" /*v-job-no space(0) "-" space(0) v-job-no2 format "99"*/ ">"
+    "<R1><C68><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cJobNo FORMAT "x(13)" ">"
     /*        "<AT=-.5,6.3><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cJobNo FORMAT "x(9)" /*v-job-no space(0) "-" space(0) v-job-no2 format "99"*/ ">" */
-    "<P12><C2><R2>JOB NUMBER:<B>" v-job-no SPACE(0) "-" SPACE(0) v-job-no2 FORMAT "99" "</B>"      SPACE(1) /* v-reprun   */
+    "<P12><C2><R2>JOB NUMBER:<B>" cJobNo FORMAT "x(13)" "</B>"      SPACE(1) /* v-reprun   */
     "CSR:" v-pricnt-id
     "<C40><R2><B><P12>F A C T O R Y   T I C K E T</B><P10>" AT 52  
     "START DATE:" AT 128 v-start-date SKIP
@@ -401,7 +401,7 @@ FOR  EACH job-hdr NO-LOCK
         ASSIGN
             v-job-no  = job-hdr.job-no
             v-job-no2 = job-hdr.job-no2
-            cJobNo    = v-job-no + "-" + STRING(v-job-no2,"99").
+            cJobNo    = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
 
         IF AVAILABLE oe-ord THEN
             IF NOT oe-ctrl.p-fact AND (oe-ord.stat EQ "H" OR oe-ord.priceHold) THEN NEXT.
@@ -878,8 +878,8 @@ FOR  EACH job-hdr NO-LOCK
         FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ job-hdr.company
                                     AND itemfg.i-no    EQ job-hdr.i-no NO-ERROR.
 
-        DISPLAY SPACE(1) v-job-no + "-" + TRIM(STRING(eb.form-no,">>9")) +
-            TRIM(STRING(eb.blank-no,">>9")) FORMAT "x(11)" 
+        DISPLAY SPACE(1) TRIM(v-job-no) + "-" + TRIM(STRING(eb.form-no,">>9")) +
+            TRIM(STRING(eb.blank-no,">>9")) FORMAT "x(16)" 
             SPACE(1) eb.stock-no @ job-hdr.i-no 
                     (IF AVAILABLE oe-ordl  THEN oe-ordl.part-no ELSE IF AVAILABLE itemfg THEN itemfg.part-no ELSE "") FORMAT "x(15)"   SPACE(1)
                     (IF eb.plate-no NE "" THEN eb.plate-no  ELSE IF AVAILABLE itemfg THEN itemfg.plate-no ELSE "" ) FORMAT "x(15)"
@@ -1831,14 +1831,14 @@ DO:
                     "<U>LABEL ITEM" + TRIM(STRING(j)) + "</U></B>" FORMAT "x(23)" 
                     WHEN v-fgitm[3] <> "" AT 107
                     SKIP
-                    "Job#:" v-job-no + "-" + STRING(v-job-no2)
+                    "Job#:" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)"
                     "Job#:" 
                     WHEN v-fgitm[2] <> ""  AT 45
-                    v-job-no + "-" + STRING(v-job-no2)   
+                     TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)"
                     WHEN v-fgitm[2] <> "" 
                     "Job#:" 
                     WHEN v-fgitm[3] <> "" AT 90  
-                    v-job-no + "-" + STRING(v-job-no2) 
+                     TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)"
                     WHEN v-fgitm[3] <> "" 
                     SKIP
                     "Customer:" v-cust-name 
@@ -1959,14 +1959,14 @@ DO:
                 "<U>LABEL ITEM" + TRIM(STRING(v-last-j + 3)) + "</U></B>" FORMAT "x(23)" 
                 WHEN v-fgitm[3] <> "" AT 107
                 SKIP
-                "Job#:" v-job-no + "-" + STRING(v-job-no2)
+                "Job#:" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)"
                 "Job#:" 
                 WHEN v-fgitm[2] <> ""  AT 45
-                v-job-no + "-" + STRING(v-job-no2) 
+                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)"
                 WHEN v-fgitm[2] <> "" 
                 "Job#:" 
                 WHEN v-fgitm[3] <> "" AT 90  
-                v-job-no + "-" + STRING(v-job-no2) 
+                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)"
                 WHEN v-fgitm[3] <> "" 
                 SKIP
                 "Customer:" v-cust-name 

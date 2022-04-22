@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -241,8 +242,8 @@ DEFINE BROWSE Browser-Table
       fg-rctd.loc-bin2 COLUMN-LABEL "To!Bin" FORMAT "x(8)":U
       fg-rctd.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             WIDTH 12
-      fg-rctd.job-no FORMAT "x(6)":U
-      fg-rctd.job-no2 FORMAT "99":U
+      fg-rctd.job-no FORMAT "x(9)":U
+      fg-rctd.job-no2 FORMAT "999":U
       fg-rctd.i-no FORMAT "x(15)":U WIDTH 18
       fg-rctd.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
       fg-rctd.created-by COLUMN-LABEL "User!Created" FORMAT "x(8)":U
@@ -537,7 +538,7 @@ DO:
                       VIEW-AS ALERT-BOX ERROR.
                       RETURN NO-APPLY.
                END.
-               IF fg-rctd.job-no:SCREEN-VALUE <> loadtag.job-no THEN DO:
+               IF trim(fg-rctd.job-no:SCREEN-VALUE) <> trim(loadtag.job-no) THEN DO:
                   MESSAGE "Warning: Tags entered are from different jobs. This may result in multiple bins for the same tag. Continue?"
                       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
                       UPDATE lConfirm .
@@ -999,15 +1000,13 @@ DEF VAR lv-rowid AS ROWID NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
-    fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
-
+    fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})).
+        
     RUN windows/l-fgibn2.w (gcompany, fg-rctd.i-no:screen-value IN BROWSE {&browse-name}, fg-rctd.job-no:screen-value IN BROWSE {&browse-name}, INT(fg-rctd.job-no2:screen-value IN BROWSE {&browse-name}), fg-rctd.loc:screen-value IN BROWSE {&browse-name}, fg-rctd.loc-bin:screen-value IN BROWSE {&browse-name}, fg-rctd.tag:screen-value IN BROWSE {&browse-name}, OUTPUT lv-rowid).
 
     FIND fg-bin WHERE ROWID(fg-bin) EQ lv-rowid NO-LOCK NO-ERROR.
 
-    IF AVAIL fg-bin AND (fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}       NE fg-bin.job-no  OR
+    IF AVAIL fg-bin AND ( trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})   NE trim(fg-bin.job-no)  OR
                          INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) NE fg-bin.job-no2 OR
                          fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}          NE fg-bin.loc     OR
                          fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}      NE fg-bin.loc-bin OR
@@ -1300,7 +1299,7 @@ PROCEDURE leave-tag2 :
                       APPLY "entry" TO fg-rctd.tag2.
                       RETURN "ERROR".
      END.
-     IF fg-rctd.job-no:SCREEN-VALUE <> loadtag.job-no THEN DO:
+     IF trim(fg-rctd.job-no:SCREEN-VALUE) <> trim(loadtag.job-no) THEN DO:
          IF NOT lCheckConf THEN do:
                   MESSAGE "Warning: Tags entered are from different jobs. This may result in multiple bins for the same tag. Continue?"
                       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
@@ -1788,10 +1787,8 @@ PROCEDURE new-bin :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
-
+    fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})).
+        
     FIND FIRST fg-bin 
         WHERE fg-bin.company EQ cocode
           AND fg-bin.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -2188,7 +2185,7 @@ DEF INPUT PARAM ip-fgemail-file AS cha NO-UNDO.
                               "========== =============== ============ " SKIP.
        END.
        PUT STREAM st-email UNFORMATTED
-                 tt-email.job-no + "-" + string(tt-email.job-no2,"99") FORM "x(10)"
+                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-email.job-no, tt-email.job-no2))) FORM "x(13)"
                  " " tt-email.i-no " " tt-email.qty FORM "->>>,>>>,>>9" 
                  SKIP.
        IF LAST-OF(tt-email.cust-no) THEN DO:
@@ -2361,7 +2358,7 @@ PROCEDURE valid-job-loc-bin-tag :
      
      ASSIGN
       li-fieldc = TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
-      li-fieldc = FILL(" ",6 - LENGTH(li-fieldc)) + li-fieldc
+      li-fieldc = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', li-fieldc)) 
       fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = li-fieldc
 
       li-field# = LOOKUP(FOCUS:NAME IN BROWSE {&browse-name},lv-fields).

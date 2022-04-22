@@ -707,9 +707,9 @@ ASSIGN
  str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
 
-  v-job-no[1] = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
+  v-job-no[1] = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
                 TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
-  v-job-no[2] = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
+  v-job-no[2] = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no)))   +
                 TRIM(end_job-no)   + STRING(INT(end_job-no2),"99").
 
 {sys/inc/print1.i}
@@ -733,9 +733,9 @@ FOR EACH job NO-LOCK
     WHERE job.company EQ cocode
       AND job.job-no  GE SUBSTR(v-job-no[1],1,6)
       AND job.job-no  LE SUBSTR(v-job-no[2],1,6)
-      AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) +
           TRIM(job.job-no) + STRING(INT(job.job-no2),"99") GE v-job-no[1] 
-      AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) +
           TRIM(job.job-no) + STRING(INT(job.job-no2),"99") LE v-job-no[2]
       AND TRIM(job.est-no) NE ""
     USE-INDEX job-no,

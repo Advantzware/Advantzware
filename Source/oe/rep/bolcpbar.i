@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolcapbc.p 12/05 YSK */
-/* PRINT BOL for Consolidated Box  */
+/* PRINT BOL for Consolidated Box                                             */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 DEF VAR vcarrdesc AS CHAR NO-UNDO.
@@ -160,7 +161,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
       ASSIGN
          v-salesman = trim(v-salesman)
          /*v-po-no = oe-boll.po-no*/
-         v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>"))
+         v-job-no = IF oe-boll.job-no = "" THEN "" ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2)))
          v-ord-no = oe-boll.ord-no
          v-fob = if oe-ord.fob-code begins "ORIG" then "Origin" else "Destination".
         

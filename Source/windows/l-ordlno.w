@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -38,6 +40,7 @@ def input parameter ip-cur-val as cha no-undo.
 
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-id as recid no-undo.     /* recid output */
+{sys/inc/var.i}
 
 &scoped-define SORTBY-1 BY oe-ord.ord-no descending
 &scoped-define SORTBY-2 BY oe-ord.cust-no 
@@ -162,10 +165,10 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      oe-ord.ord-no FORMAT ">>>>>9":U
+      oe-ord.ord-no FORMAT ">>>>>>>9":U
       oe-ord.est-no COLUMN-LABEL "Estimate#" FORMAT "x(8)":U WIDTH 14
-      oe-ord.job-no FORMAT "x(6)":U
-      oe-ord.job-no2 FORMAT ">9":U
+      oe-ord.job-no FORMAT "x(9)":U
+      oe-ord.job-no2 FORMAT ">>9":U
       oe-ord.cust-no FORMAT "x(8)":U
       oe-ord.cust-name FORMAT "x(30)":U
       oe-ord.ord-date FORMAT "99/99/9999":U
@@ -273,7 +276,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-   op-char-val = string(oe-ord.ord-no,">>>>>9") + "," +
+   op-char-val = string(oe-ord.ord-no,">>>>>>>9") + "," +
                  oe-ord.cust-no
                  .
    op-rec-id = recid(oe-ord).                 
@@ -305,7 +308,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
-   op-char-val = string(oe-ord.ord-no,">>>>>9") + "," +
+   op-char-val = string(oe-ord.ord-no,">>>>>>>9") + "," +
                  oe-ord.cust-no
                  .
    op-rec-id = recid(oe-ord).                 

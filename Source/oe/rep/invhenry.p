@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invhenry.p  */
 /* PRINT INVOICE   Henry  Form                         */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -619,23 +619,23 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
           IF NOT lPrintQtyAll THEN DO:
             PUT SPACE(1) v-inv-qty FORMAT "->>>>>>9" SPACE(1)
                 v-ship-qty  FORMAT "->>>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(2)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  FORMAT "x(15)" SPACE(3)
                 v-i-dscr  FORMAT "x(25)" SPACE(3)
                 v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(1)
-                v-price-head 
-                inv-line.t-price  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"*/                     
+                //v-price-head 
+                inv-line.t-price  FORMAT "$->>>,>>>,>>9.99" /*"$->>>,>>9.99"*/                     
                 SKIP.
           END.
           ELSE DO:
               PUT SPACE(1)v-ord-qty  FORMAT "->>>>>>9" SPACE(1)
                 v-inv-qty  FORMAT "->>>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(3)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(2)
                 v-i-no  FORMAT "x(15)" SPACE(3)
                 v-i-dscr  FORMAT "x(25)" SPACE(2)
                 v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(2)
-                v-price-head 
-                inv-line.t-price  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"                     */
+                //v-price-head 
+                inv-line.t-price  FORMAT "$->>>,>>>,>>9.99" /*"$->>>,>>9.99"                     */
                 SKIP.
 
           END.
@@ -664,18 +664,18 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
                    IF lPrintQtyAll THEN DO:
                       PUT SPACE(1) v-ship-qty FORMAT "->>>>>>9" .
                      IF LENGTH(inv-line.po-no) LE 8 THEN DO:
-                         PUT  SPACE(11) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                         PUT  SPACE(11) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no FORMAT "X(15)" SPACE(3) v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(2) inv-line.po-no FORMAT "x(15)" SPACE(3)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                         PUT  SPACE(2) inv-line.po-no FORMAT "x(15)" SPACE(3)   inv-line.part-no FORMAT "X(15)" SPACE(3) v-part-info SKIP.
                      END.
                    END.
                    ELSE DO:
                         IF LENGTH(inv-line.po-no) LE 8 THEN DO:
-                         PUT  SPACE(19) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                         PUT  SPACE(19) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no FORMAT "X(15)" SPACE(3) v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(10) inv-line.po-no FORMAT "x(15)" SPACE(3)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                         PUT  SPACE(10) inv-line.po-no FORMAT "x(15)" SPACE(3)   inv-line.part-no FORMAT "X(15)" SPACE(3) v-part-info SKIP.
                      END.
                    END. /* else do*/
 

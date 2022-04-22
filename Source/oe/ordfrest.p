@@ -130,7 +130,7 @@ DEFINE VARIABLE lv-disc            LIKE cust.disc        NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix  AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE lRecFound          AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE cRtnChar           AS CHARACTER        NO-UNDO.
-DEFINE VARIABLE lMatrixExists       AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lMatrixExists AS LOGICAL NO-UNDO.
 
 DEF BUFFER b-oe-ord FOR oe-ord.
 DEF BUFFER b-oe-ordl FOR oe-ordl.

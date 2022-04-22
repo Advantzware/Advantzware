@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
     
     FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
    
@@ -35,9 +36,9 @@
       FOR EACH tt-fg-bin
           WHERE tt-fg-bin.company   EQ cocode
             AND tt-fg-bin.i-no      EQ tt-report.key-06
-            AND ((tt-fg-bin.job-no  EQ SUBSTR(tt-report.key-04,1,6) AND
-                  tt-fg-bin.job-no2 EQ INT(SUBSTR(tt-report.key-04,8,2))) OR
-                 SUBSTR(tt-report.key-04,1,6) EQ ""):
+            AND ((tt-fg-bin.job-no  EQ SUBSTR(tt-report.key-04,1,9) AND
+                  tt-fg-bin.job-no2 EQ INT(SUBSTR(tt-report.key-04,11,3))) OR
+                 SUBSTR(tt-report.key-04,1,9) EQ ""):
         tt-report.q-onh = tt-report.q-onh + tt-fg-bin.qty.
       END.
     END.
@@ -414,9 +415,9 @@
             where tt-fg-bin.company           eq cocode
               and tt-fg-bin.i-no              eq tt-report.key-06
               and tt-fg-bin.qty               gt 0
-              and ((tt-fg-bin.job-no          eq substr(tt-report.key-04,1,6) and
-                    tt-fg-bin.job-no2         eq int(substr(tt-report.key-04,8,2))) or
-                   substr(tt-report.key-04,1,6) eq "")
+              and ((tt-fg-bin.job-no          eq substr(tt-report.key-04,1,9) and
+                    tt-fg-bin.job-no2         eq int(substr(tt-report.key-04,11,3))) or
+                   substr(tt-report.key-04,1,9) eq "")
             no-lock
             break by tt-fg-bin.job-no
                   by tt-fg-bin.job-no2
@@ -473,10 +474,9 @@
         
         
           put space(34)
-              fill(" ",6 - length(trim(tt-fg-bin.job-no))) +
-              trim(tt-fg-bin.job-no) + 
-              (if tt-fg-bin.job-no ne "" then ("-" + string(tt-fg-bin.job-no2,"99"))
-               else "")                   format "x(9)"
+              if tt-fg-bin.job-no ne "" then
+              TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-fg-bin.job-no, tt-fg-bin.job-no2)))
+              else ""                   format "x(13)"
               space(1)
               tt-fg-bin.loc
               space(1)
@@ -501,9 +501,9 @@
                    ""                                                
                    ""                                                
                    ""                                                
-                   trim(tt-fg-bin.job-no) + 
-                      (if tt-fg-bin.job-no ne "" then "-"
-                      + string(tt-fg-bin.job-no2,"99") ELSE "")         
+                   if tt-fg-bin.job-no ne "" THEN 
+                   TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-fg-bin.job-no, tt-fg-bin.job-no2))) 
+                   ELSE ""         
                    tt-fg-bin.loc                                     
                    tt-fg-bin.loc-bin                                 
                    (IF SUBSTR(tt-fg-bin.tag,1,15) EQ tt-fg-bin.i-no
@@ -516,9 +516,9 @@
                    ""                                               
                    ""                                               
                    ""                                                
-                   trim(tt-fg-bin.job-no) + 
-                      (if tt-fg-bin.job-no ne "" then "-"
-                      + string(tt-fg-bin.job-no2,"99") ELSE "")         
+                   if tt-fg-bin.job-no ne "" THEN 
+                   TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-fg-bin.job-no, tt-fg-bin.job-no2))) 
+                   ELSE ""         
                    tt-fg-bin.loc                                     
                    tt-fg-bin.loc-bin                                 
                    (IF SUBSTR(tt-fg-bin.tag,1,15) EQ tt-fg-bin.i-no

@@ -14,6 +14,7 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */
 
 /*Gets rid of stack trace window when pressing F1*/
 SESSION:DEBUG-ALERT = FALSE.
@@ -187,13 +188,13 @@ DEFINE FRAME Dialog-Frame
           SIZE 31.2 BY 1
           BGCOLOR 15 FONT 1
      fg-rctd.job-no AT ROW 7.19 COL 29.8 COLON-ALIGNED
-          LABEL "Job#" FORMAT "x(6)"
+          LABEL "Job#" FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-    fg-rctd.job-no2 AT ROW 7.19 COL 49.2 COLON-ALIGNED NO-LABELS FORMAT "99"
+    fg-rctd.job-no2 AT ROW 7.19 COL 49.2 COLON-ALIGNED NO-LABELS FORMAT "999"
           VIEW-AS FILL-IN 
-          SIZE 4.8 BY 1
+          SIZE 5.8 BY 1
           BGCOLOR 15 FONT 1
      fg-rctd.loc AT ROW 8.48 COL 29.8 COLON-ALIGNED
           LABEL "From Whs" FORMAT "x(5)"
@@ -1098,15 +1099,14 @@ PROCEDURE fgbin-help :
 
 
     DO WITH FRAME {&FRAME-NAME}:
-        fg-rctd.job-no:SCREEN-VALUE  =
-            FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE ))) +
-            TRIM(fg-rctd.job-no:SCREEN-VALUE ).
+        fg-rctd.job-no:SCREEN-VALUE  =  STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE))
+            .
 
         RUN windows/l-fgibn4.w (fg-rctd.company, fg-rctd.i-no:screen-value , fg-rctd.job-no:screen-value , INT(fg-rctd.job-no2:screen-value ), fg-rctd.loc:screen-value , fg-rctd.loc-bin:screen-value , fg-rctd.tag:screen-value , OUTPUT lv-rowid).
 
         FIND fg-bin WHERE ROWID(fg-bin) EQ lv-rowid NO-LOCK NO-ERROR.
 
-        IF AVAILABLE fg-bin AND (fg-rctd.job-no:SCREEN-VALUE        NE fg-bin.job-no  OR
+        IF AVAILABLE fg-bin AND (trim(fg-rctd.job-no:SCREEN-VALUE)        NE trim(fg-bin.job-no)  OR
             INT(fg-rctd.job-no2:SCREEN-VALUE ) NE fg-bin.job-no2 OR
             fg-rctd.loc:SCREEN-VALUE           NE fg-bin.loc     OR
             fg-rctd.loc-bin:SCREEN-VALUE       NE fg-bin.loc-bin OR
@@ -1166,14 +1166,12 @@ PROCEDURE new-bin :
     ------------------------------------------------------------------------------*/
 
     DO WITH FRAME {&FRAME-NAME}:
-        fg-rctd.job-no:SCREEN-VALUE  =
-            FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE ))) +
-            TRIM(fg-rctd.job-no:SCREEN-VALUE ).
-
+        fg-rctd.job-no:SCREEN-VALUE  =  STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE)).
+           
         FIND FIRST fg-bin 
             WHERE fg-bin.company EQ cocode
             AND fg-bin.i-no    EQ fg-rctd.i-no:SCREEN-VALUE 
-            AND fg-bin.job-no  EQ fg-rctd.job-no:SCREEN-VALUE 
+            AND fg-bin.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
             AND fg-bin.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE )
             AND fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE 
             AND fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE 
@@ -1289,7 +1287,7 @@ PROCEDURE valid-job-loc-bin-tag :
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             li-fieldc                   = TRIM(fg-rctd.job-no:SCREEN-VALUE )
-            li-fieldc                   = FILL(" ",6 - LENGTH(li-fieldc)) + li-fieldc
+            li-fieldc                   = FILL(" ", iJobLen - LENGTH(li-fieldc)) + li-fieldc
             fg-rctd.job-no:SCREEN-VALUE = li-fieldc
 
             li-field#                   = LOOKUP(FOCUS:NAME ,lv-fields).
@@ -1312,7 +1310,7 @@ PROCEDURE valid-job-loc-bin-tag :
             WHERE fg-bin.company  EQ cocode
             AND fg-bin.active   EQ TRUE
             AND fg-bin.i-no     EQ fg-rctd.i-no:SCREEN-VALUE 
-            AND fg-bin.job-no   EQ fg-rctd.job-no:SCREEN-VALUE 
+            AND fg-bin.job-no   EQ fg-rctd.job-no:SCREEN-VALUE
             AND (fg-bin.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE ) OR
             li-field#      LT 2)
             AND (fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE           OR

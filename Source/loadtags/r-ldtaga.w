@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -1182,7 +1183,7 @@ DEF VAR lv-job-no2 LIKE job.job-no NO-UNDO.
 DEF VAR ll AS LOG NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR choice AS LOG NO-UNDO.
-DEF VAR lv-middlesex-job AS CHAR FORMAT "x(9)" NO-UNDO.
+DEF VAR lv-middlesex-job AS CHAR FORMAT "x(13)" NO-UNDO.
 DEF VAR lv-middlesex-po AS CHAR FORMAT "x(9)" NO-UNDO.
 
 DEF BUFFER b-itemfg FOR itemfg.
@@ -1251,8 +1252,7 @@ ASSIGN
       IF ll THEN lv-job-no = lv-job-no + SUBSTR(ENTRY(i,v-job-list),li,1).
             ELSE lv-job-no2 = lv-job-no2 + SUBSTR(ENTRY(i,v-job-list),li,1).
     END.
-    lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no) +
-                STRING(INT(lv-job-no2),"99") NO-ERROR.
+    lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', lv-job-no, lv-job-no2))  NO-ERROR.
 
     IF NOT ERROR-STATUS:ERROR AND
        lv-job-no NE ""        THEN RUN temp-job (lv-job-no).
@@ -1264,14 +1264,14 @@ ASSIGN
 
   FOR EACH job
       WHERE job.company EQ cocode
-        AND job.job-no  GE FILL(" ",6 - LENGTH(TRIM(begin_job))) + TRIM(begin_job)
-        AND job.job-no  LE FILL(" ",6 - LENGTH(TRIM(end_job)))   + TRIM(end_job)
-        AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"99")
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) GE STRING(DYNAMIC-FUNCTION('begin_job', begin_job)) 
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no)))   + TRIM(job.job-no) LE STRING(DYNAMIC-FUNCTION('begin_job', end_job)) 
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
                         GE
-            FILL(" ",6 - LENGTH(TRIM(begin_job))) + TRIM(begin_job) + STRING(begin_job2,"99")
-        AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"99")
+            STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job, begin_job2)) 
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
                         LE
-            FILL(" ",6 - LENGTH(TRIM(end_job))) + TRIM(end_job) + STRING(end_job2,"99")
+            STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job, end_job2)) 
       NO-LOCK:
     RUN from-job (ROWID(job)).
   END.
@@ -1535,14 +1535,14 @@ if td-show-parm then run show-param.
 
         w-ord.gross-wt = w-ord.net-wt + w-ord.tare-wt.
 
-        v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+        v-job = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)) .
         IF v-job BEGINS "-" THEN v-job = "".
 
         ASSIGN
-         lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,6)
+         lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,iJobLen)
          lv-middlesex-job = IF lv-middlesex-job EQ "" THEN "" ELSE
                             "%MX" +
-                            FILL("0",6 - LENGTH(TRIM(lv-middlesex-job))) +
+                            FILL("0",iJobLen - LENGTH(TRIM(lv-middlesex-job))) +
                             TRIM(lv-middlesex-job)
          lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,6)
          lv-middlesex-po  = IF lv-middlesex-po EQ "" THEN "" ELSE
@@ -1806,8 +1806,8 @@ PROCEDURE temp-job :
 
   FOR EACH job
       WHERE job.company EQ cocode
-        AND job.job-no  EQ SUBSTR(ip-job-no,1,6)
-        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,7,2))
+        AND job.job-no  EQ SUBSTR(ip-job-no,1,iJobLen)
+        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,(iJobLen + 1),3))
       NO-LOCK:
     RUN temp-create (ROWID(job)).
   END.

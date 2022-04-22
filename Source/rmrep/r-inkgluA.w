@@ -1172,9 +1172,9 @@ ASSIGN
    v-tpcat    = end_procat
    v-fdate    = begin_date
    v-tdate    = end_date
-   v-fjob     = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
+   v-fjob     = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
               TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
-   v-tjob     = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
+   v-tjob     = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no)))   +
               TRIM(end_job-no)   + STRING(INT(end_job-no2),"99")
    v-export   = tb_excel
    v-exp-name = cFileName
@@ -1227,9 +1227,9 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                    AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
                    AND rm-rdtlh.job-no    GE substr(v-fjob,1,6)
                    AND rm-rdtlh.job-no    LE substr(v-tjob,1,6)
-                   AND FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
+                   AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
                        TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"99") GE v-fjob
-                   AND FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
+                   AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
                        TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"99") LE v-tjob NO-LOCK,
       FIRST item WHERE item.company EQ cocode
                    AND item.i-no    EQ rm-rcpth.i-no
@@ -1249,7 +1249,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
 
       IF FIRST-of(rm-rcpth.trans-date) THEN v-first[1] = yes.
 
-      v-job-no = FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
+      v-job-no = FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
                  TRIM(rm-rdtlh.job-no) + "-" + STRING(rm-rdtlh.job-no2,"99").
 
       IF v-job-no begins "-" THEN v-job-no = "".
@@ -1635,9 +1635,9 @@ ASSIGN
    v-tpcat    = end_procat
    v-fdate    = begin_date
    v-tdate    = end_date
-   v-fjob     = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
+   v-fjob     = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
               TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
-   v-tjob     = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
+   v-tjob     = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no)))   +
               TRIM(end_job-no)   + STRING(INT(end_job-no2),"99")
    v-export   = tb_excel
    v-exp-name = cFileName
@@ -1699,9 +1699,9 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                    AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
                    AND rm-rdtlh.job-no    GE substr(v-fjob,1,6)
                    AND rm-rdtlh.job-no    LE substr(v-tjob,1,6)
-                   AND FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
+                   AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
                        TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"99") GE v-fjob
-                   AND FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
+                   AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
                        TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"99") LE v-tjob NO-LOCK,
       FIRST item WHERE item.company EQ cocode
                    AND item.i-no    EQ rm-rcpth.i-no
@@ -1721,7 +1721,7 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
 
       IF FIRST-of(rm-rcpth.trans-date) THEN v-first[1] = yes.
 
-      v-job-no = FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
+      v-job-no = FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
                  TRIM(rm-rdtlh.job-no) + "-" + STRING(rm-rdtlh.job-no2,"99").
 
       IF v-job-no begins "-" THEN v-job-no = "".
@@ -2088,9 +2088,9 @@ assign
  v-tpcat    = end_procat
  v-fdate    = begin_date
  v-tdate    = end_date
- v-fjob     = fill(" ",6 - length(trim(begin_job-no))) +
+ v-fjob     = FILL(" ", iJobLen - length(trim(begin_job-no))) +
               trim(begin_job-no) + string(int(begin_job-no2),"99")
- v-tjob     = fill(" ",6 - length(trim(end_job-no)))   +
+ v-tjob     = FILL(" ", iJobLen - length(trim(end_job-no)))   +
               trim(end_job-no)   + string(int(end_job-no2),"99")
  v-export   = tb_excel
  v-exp-name = cFileName.
@@ -2146,10 +2146,10 @@ display "" with frame r-top.
           and rm-rdtlh.rita-code eq rm-rcpth.rita-code
           and rm-rdtlh.job-no    ge substr(v-fjob,1,6)
           and rm-rdtlh.job-no    le substr(v-tjob,1,6)
-          and fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
+          and FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
               trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
                                  ge v-fjob
-          and fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
+          and FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
               trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
                                  le v-tjob
         no-lock,
@@ -2175,7 +2175,7 @@ display "" with frame r-top.
 
       if first-of(rm-rcpth.trans-date) then v-first[1] = yes.
 
-      v-job-no = fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
+      v-job-no = FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
                  trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99").
 
       if v-job-no begins "-" then v-job-no = "".

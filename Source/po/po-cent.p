@@ -27,7 +27,7 @@ def var v-saddr like shipto.ship-addr.
 def var v-scity like shipto.ship-city.
 def var v-sstate like shipto.ship-state.
 def var v-szip like shipto.ship-zip.
-def var v-job as char format "x(9)".
+def var v-job as char format "x(13)".
 def var v-po-tot like po-ord.t-cost.
 def var v-sqft as dec.
 def var v-tot-sqft as dec extent 2.

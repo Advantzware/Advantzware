@@ -586,7 +586,7 @@ ELSE lv-comp-color = "BLACK".
                 v-price  format ">>>>>9.999<" SPACE(1)               
                 ar-invl.amt  format "->,>>>,>>9.99"                
                 SKIP
-                SPACE(1) v-ord-no FORM ">>>>>>" SPACE(9)
+                SPACE(1) TRIM(STRING(v-ord-no,">>>>>>>>")) SPACE(7)
                 ar-invl.part-no format "x(15)" SPACE(1)
                 v-i-dscr2 space(19)
                 v-price-head SPACE(1) SKIP

@@ -852,7 +852,7 @@ PROCEDURE pAddUOMsFromWeight PRIVATE:
     DEFINE INPUT PARAMETER ipcSource AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiSourceLevel AS INTEGER NO-UNDO.
     
-    IF ipdWeightPerEA EQ 0 THEN ipdWeightPerEA = 1.
+    IF ipdWeightPerEA EQ 0 THEN RETURN.
     CASE ipcWeightUOM:
         WHEN "LB" THEN 
             DO: 
@@ -906,9 +906,6 @@ PROCEDURE pBuildUOMsForItemFG PRIVATE:
         END.    
         RUN pAddUOMsFromDimensions(ipbf-itemfg.t-len, ipbf-itemfg.t-wid, ipbf-itemfg.t-dep, "IN", cSourceItemMaster, 3).
         RUN pAddUOMsFromWeight(ipbf-itemfg.weight-100 / 100, "LB", cSourceItemMaster, 3).    
-        /*            IF ipbf-itemfg.weight-100 GT 0 THEN DO:                                                                                  */
-        /*                RUN pAddUOM("LB", YES, "EA","Pounds", 100 / ipbf-itemfg.weight-100 , cSourceItemMaster, "Price,OrderQty,POQty,Cost").*/
-        /*            END.                                                                                                                     */
         /*Add UOMs from itemUOM table*/
         RUN pAddUOMsFromItemUOM(ipbf-itemfg.company, ipbf-itemfg.i-no, "FG", YES).
     END.

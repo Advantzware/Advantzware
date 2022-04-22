@@ -28,6 +28,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -83,7 +84,7 @@ ASSIGN cTextListToSelect = "Date,Job#,Machine,Form#,Board,Adder,Style,Blank Widt
                             "gro-sht-wid,gro-sht-len,net-sht-wid,net-sht-len," +     /*4*/
                             "qty,msf-pro,cust,len,wid,dep,total-up-die,color" /*9*/
 
-       cFieldLength = "8,9,10,5,10,12,6,11,12," + "15,15,13,13," + "10,10,8,8,7,7,7,6"  
+       cFieldLength = "8,13,10,5,10,12,6,11,12," + "15,15,13,13," + "10,10,8,8,7,7,7,6"  
          cFieldType = "c,c,c,i,c,c,c,i,i," + "i,i,i,i," + "i,i,c,i,i,i,i,i" .
 
 {sys/inc/ttRptSel.i}
@@ -169,42 +170,42 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(6)" 
      LABEL "Beginning Machine" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
      LABEL "Ending Machine" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE fi-styles AS CHARACTER FORMAT "X(256)":U 
      LABEL "Selected styles" 
@@ -300,18 +301,18 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 DEFINE FRAME FRAME-A
      begin_mach AT ROW 2.33 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Machine"
-     end_mach AT ROW 2.33 COL 64 COLON-ALIGNED HELP
+     end_mach AT ROW 2.33 COL 67 COLON-ALIGNED HELP
           "Enter Ending Machine"
      begin_job-no AT ROW 3.38 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 2
-     begin_job-no2 AT ROW 3.38 COL 38 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 3.38 COL 41 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 4
-     end_job-no AT ROW 3.38 COL 64 COLON-ALIGNED HELP
+     end_job-no AT ROW 3.38 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 6
-     end_job-no2 AT ROW 3.38 COL 77 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 3.38 COL 82 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 8
      begin_date AT ROW 4.43 COL 26 COLON-ALIGNED
-     end_date AT ROW 4.43 COL 64 COLON-ALIGNED HELP
+     end_date AT ROW 4.43 COL 67 COLON-ALIGNED HELP
           "Enter Ending Due Date"
      rsQty AT ROW 5.52 COL 28 NO-LABEL WIDGET-ID 10
      tb_styles AT ROW 6.76 COL 24 WIDGET-ID 20
@@ -1379,6 +1380,8 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFjob AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTjob AS CHARACTER NO-UNDO.
 
 
 ASSIGN
@@ -1429,15 +1432,23 @@ SESSION:SET-WAIT-STATE ("general").
 display "" with frame r-top.
 
 RUN est/rc-seq.p (OUTPUT lv-rc-seq).
-
+ assign
+  cFjob    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+  cTjob    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) .
 
 IF rsQty = "A" THEN DO:
   FOR EACH mch-act NO-LOCK
       WHERE mch-act.company EQ cocode
         AND mch-act.m-code  GE begin_mach
         AND mch-act.m-code  LE end_mach
-        AND mch-act.job-no GE begin_job-no
-        AND mch-act.job-no LE END_job-no
+        AND FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
+          trim(mch-act.job-no) + string(mch-act.job-no2,"999")
+                          GE cFjob
+        AND FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
+          trim(mch-act.job-no) + string(mch-act.job-no2,"999")
+                         LE cTjob
+        AND mch-act.job-no2 GE int(begin_job-no2)
+        AND mch-act.job-no2 LE int(end_job-no2)
         AND mch-act.op-date GE begin_date
         AND mch-act.op-date LE end_date
       USE-INDEX dly-idx,
@@ -1577,7 +1588,7 @@ IF rsQty = "A" THEN DO:
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
                          WHEN "date"    THEN cVarValue = STRING(mch-act.op-date,"99/99/99") .
-                         WHEN "job"   THEN cVarValue = TRIM(job.job-no) + "-" + STRING(job.job-no2,"99").
+                         WHEN "job"   THEN cVarValue = TRIM(job.job-no) + "-" + STRING(job.job-no2,"999").
                          WHEN "mach"   THEN cVarValue = STRING(mch-act.m-code) .
                          WHEN "form"  THEN cVarValue = IF AVAIL eb THEN string(eb.form-no) ELSE "" .
                          WHEN "board"   THEN cVarValue = IF AVAIL ef THEN STRING(ef.board) ELSE "".
@@ -1653,6 +1664,14 @@ ELSE DO:   /* rsQty = "E" */
 
       FOR EACH job-mch NO-LOCK
       WHERE job-mch.company EQ cocode
+        AND FILL(" ", iJobLen - length(trim(job-mch.job-no))) +
+          trim(job-mch.job-no) + string(job-mch.job-no2,"999")
+                          GE cFjob
+        AND FILL(" ", iJobLen - length(trim(job-mch.job-no))) +
+          trim(job-mch.job-no) + string(job-mch.job-no2,"999")
+                         LE cTjob
+        AND job-mch.job-no2 GE int(begin_job-no2)
+        AND job-mch.job-no2 LE int(end_job-no2)                 
         AND job-mch.job-no  GE begin_job-no
         AND job-mch.job-no LE END_job-no
         AND job-mch.m-code GE begin_mach
@@ -1720,7 +1739,7 @@ ELSE DO:   /* rsQty = "E" */
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
                          WHEN "date"    THEN cVarValue = STRING(job.close-date,"99/99/99") .
-                         WHEN "job"   THEN cVarValue = TRIM(job.job-no) + "-" + STRING(job.job-no2,"99").
+                         WHEN "job"   THEN cVarValue = TRIM(job.job-no) + "-" + STRING(job.job-no2,"999").
                          WHEN "mach"   THEN cVarValue = STRING(job-mch.m-code) .
                          WHEN "form"  THEN cVarValue = IF AVAIL eb THEN string(eb.form-no) ELSE "" .
                          WHEN "board"   THEN cVarValue = IF AVAIL ef THEN STRING(ef.board) ELSE "".

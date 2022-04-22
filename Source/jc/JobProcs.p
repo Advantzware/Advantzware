@@ -11,6 +11,7 @@
     Created     : Tue Apr 09 18:31:30 EST 2019
     Notes       :
   ----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */       
 
 /* ***************************  Definitions  ************************** */
 
@@ -110,6 +111,57 @@ PROCEDURE GetFormAndBlankFromJobAndFGItem:
     RELEASE bf-job.
     RELEASE bf-job-hdr.
 
+END PROCEDURE.
+
+
+PROCEDURE Job_GetMatActQuantity:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantity    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcQuantityUOM AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-job FOR job.
+    
+    FIND FIRST bf-job NO-LOCK
+         WHERE bf-job.company EQ ipcCompany
+           AND bf-job.job-no  EQ ipcJobNo
+           AND bf-job.job-no2 EQ ipiJobNo2
+         NO-ERROR.
+    IF AVAILABLE bf-job THEN
+        RUN pGetMatActQuantity (bf-job.company, bf-job.job, ipcItemID, ipcTag, OUTPUT opdQuantity, OUTPUT opcQuantityUOM).
+END PROCEDURE.
+
+PROCEDURE pGetMatActQuantity PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJob         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantity    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcQuantityUOM AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-mat-act FOR mat-act.
+    
+    FOR EACH bf-mat-act NO-LOCK
+        WHERE bf-mat-act.company EQ ipcCompany
+          AND bf-mat-act.job     EQ ipiJob
+          AND bf-mat-act.i-no    EQ ipcItemID
+          AND bf-mat-act.tag     EQ ipcTag:
+        ASSIGN
+            opdQuantity    = opdQuantity + bf-mat-act.qty
+            opcQuantityUOM = bf-mat-act.qty-uom
+            .
+    END.
 END PROCEDURE.
 
 PROCEDURE Job_GetNextOperation:
@@ -281,11 +333,11 @@ PROCEDURE pGetSecondaryJobForJob PRIVATE:
            BY bf-job-hdr.opened DESCENDING
            BY bf-job-hdr.job-no2:
         opcJobno2List = IF opcJobno2List EQ "" THEN 
-                            STRING(bf-job-hdr.job-no2,"99")
-                        ELSE IF INDEX(opcJobno2List,STRING(bf-job-hdr.job-no2,"99")) GT 0 THEN 
+                            STRING(bf-job-hdr.job-no2,"999")
+                        ELSE IF INDEX(opcJobno2List,STRING(bf-job-hdr.job-no2,"999")) GT 0 THEN 
                             opcJobno2List
                         ELSE 
-                            opcJobno2List + "," + STRING(bf-job-hdr.job-no2,"99").        
+                            opcJobno2List + "," + STRING(bf-job-hdr.job-no2,"999").        
     END.
 
     RELEASE bf-job-hdr.
@@ -667,7 +719,7 @@ PROCEDURE pCopyMaterialPreviousJob PRIVATE:
      
     FOR EACH bf-job-mat NO-LOCK
         WHERE bf-job-mat.company EQ ipcCompany
-        and bf-job-mat.job-no  EQ ipcJobNo 
+        and bf-job-mat.job-no    EQ ipcJobNo 
         AND bf-job-mat.job-no ne ""   
         AND bf-job-mat.job-no2 EQ ipiJobNo2 
         AND (bf-job-mat.frm      EQ ipiFormNo OR ipiFormNo EQ ?)         

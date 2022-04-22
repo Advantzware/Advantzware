@@ -1,5 +1,6 @@
 /* ------------------------------------------- cec/quote/quofibre.i 11/00 JLF */
 /* print quote items in Fibre format                                          */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
@@ -83,8 +84,8 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
       IF v-board EQ "" THEN v-board = xqitm.i-dscr.
 
-      PUT xqitm.part-dscr2                  TO 31       FORMAT "x(25)"
-          v-board                           TO 55       FORMAT "x(23)".
+      PUT xqitm.part-dscr2                  TO 34       FORMAT "x(25)"
+          v-board                           TO 58       FORMAT "x(23)".
     END.
 
     ELSE
@@ -109,10 +110,10 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                   (xqqty.qty * xqqty.price).
               
       IF i EQ 3 THEN
-        PUT xqqty.qty           TO 63   FORMAT ">>>>>>9"
-            xqqty.rels          TO 67   FORMAT ">>9"
-            xqqty.price         TO 77   FORMAT ">>,>>9.99"
-            xqqty.uom           TO 80.
+        PUT xqqty.qty           TO 66   FORMAT ">>>>>>9"
+            xqqty.rels          TO 70   FORMAT ">>9"
+            xqqty.price         TO 80   FORMAT ">>,>>9.99"
+            xqqty.uom           TO 83.
 
       ELSE DISPLAY xqqty.qty xqqty.rels xqqty.price xqqty.uom.        
     END.

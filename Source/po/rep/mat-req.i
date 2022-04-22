@@ -10,11 +10,11 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
         and job.job-no  ge substr(v-job-no[1],1,6)
         and job.job-no  le substr(v-job-no[2],1,6)
         
-        and (fill(" ",6 - length(trim(job.job-no))) +
+        and (FILL(" ", iJobLen - length(trim(job.job-no))) +
              trim(job.job-no)                       +
              string(job.job-no2,"99"))                 ge v-job-no[1]
 
-        and (fill(" ",6 - length(trim(job.job-no))) +
+        and (FILL(" ", iJobLen - length(trim(job.job-no))) +
              trim(job.job-no)                       +
              string(job.job-no2,"99"))                 le v-job-no[2]
              
@@ -28,7 +28,7 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
     create {1}report.
     assign
      {1}report.term-id = v-term
-     {1}report.key-01  = fill(" ",6 - length(trim(job.job-no))) +
+     {1}report.key-01  = FILL(" ", iJobLen - length(trim(job.job-no))) +
                          trim(job.job-no) + "-" + string(job.job-no2,"99")
      {1}report.rec-id  = recid(job).
 
@@ -52,7 +52,7 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
           create {1}report.
           assign
            {1}report.term-id = v-term
-           {1}report.key-01  = fill(" ",6 - length(trim(job.job-no))) +
+           {1}report.key-01  = FILL(" ", iJobLen - length(trim(job.job-no))) +
                                trim(job.job-no) + "-" + string(job.job-no2,"99")
            {1}report.rec-id  = recid(job).
         end.
@@ -146,7 +146,7 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
           create {1}report.
           assign
            {1}report.term-id = v-term
-           {1}report.key-01  = fill(" ",6 - length(trim(job.job-no))) +
+           {1}report.key-01  = FILL(" ", iJobLen - length(trim(job.job-no))) +
                                trim(job.job-no) + "-" + string(job.job-no2,"99")
            {1}report.key-02  = job-mat.rm-i-no
            {1}report.rec-id  = recid(job).
@@ -201,7 +201,7 @@ for each {1}report where {1}report.term-id eq v-term,
     transaction:
 
   assign
-   v-job = fill(" ",6 - length(trim(job.job-no))) +
+   v-job = FILL(" ", iJobLen - length(trim(job.job-no))) +
            trim(job.job-no) + "-" + string(job.job-no2,"99")
    v-itm = {1}report.key-02.
 

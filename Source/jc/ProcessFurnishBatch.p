@@ -48,6 +48,7 @@ DEFINE TEMP-TABLE ttRMTransaction NO-UNDO
     FIELD transactionStatus AS CHARACTER
     FIELD transactionType   AS CHARACTER  
     FIELD transactionDate   AS DATETIME
+    FIELD RMLot             AS CHARACTER
     .
 
 DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
@@ -176,9 +177,10 @@ PROCEDURE pBuildRMToProcess PRIVATE:
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-est     FOR est.
-    DEFINE BUFFER bf-ef      FOR ef.
-    DEFINE BUFFER bf-est-qty FOR est-qty.
+    DEFINE BUFFER bf-est         FOR est.
+    DEFINE BUFFER bf-ef          FOR ef.
+    DEFINE BUFFER bf-est-qty     FOR est-qty.
+    DEFINE BUFFER bf-estMaterial FOR estMaterial.
     
     DEFINE VARIABLE iIndex     AS INTEGER NO-UNDO.
     DEFINE VARIABLE dMasterQty AS DECIMAL NO-UNDO.
@@ -220,6 +222,24 @@ PROCEDURE pBuildRMToProcess PRIVATE:
                         RETURN.
                 END.  /*bf-ef.spec-no[iIndex] NE ""*/
             END. /* iIndex = 1 to 8 */
+            FOR EACH bf-estMaterial NO-LOCK 
+                WHERE bf-estMaterial.company EQ bf-est.company
+                AND bf-estMaterial.estimateNo EQ bf-est.est-no:
+                
+                IF bf-estMaterial.quantityPer EQ "Lot" THEN 
+                    dSpecQty = bf-estMaterial.quantity.
+                ELSE 
+                    dSpecQty = bf-estMaterial.quantity * dMasterQty.
+                    
+                RUN pAddRMToProcess(
+                    INPUT ipcCompany, 
+                    INPUT bf-estMaterial.itemID,
+                    INPUT dSpecQty,
+                    INPUT "I",
+                    OUTPUT oplError,
+                    OUTPUT opcMessage
+                    ).
+            END.    
             RUN pAddRMToProcess(
                 INPUT  ipcCompany, 
                 INPUT  bf-ef.board, 
@@ -326,7 +346,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
             ttRMTransaction.itemID            = ttRMToProcess.itemID
             ttRMTransaction.transactionType   = ttRMToProcess.transactionType
             ttRMTransaction.quantity          = IF ttRMToProcess.quantity GT 0 THEN ttRMToProcess.quantity ELSE 1
-            ttRMTransaction.tag               = ipcTag
+            ttRMTransaction.RMLot             = ipcTag
             ttRMTransaction.transactionDate   = ipdtTransDate
             ttRMTransaction.quantityUOM       = bf-item.cons-uom
             ttRMTransaction.costPerUOM        = dCostTotal / ttRMTransaction.quantity
@@ -477,6 +497,7 @@ PROCEDURE pProcessTransactions PRIVATE:
                     INPUT  ttRMTransaction.quantity, 
                     INPUT  ttRMTransaction.costPerUOM, 
                     INPUT  "",  /* Reason Code */ 
+                    INPUT  ttRMTransaction.rmLot,
                     OUTPUT ttRMTransaction.rmRctdRowID, 
                     OUTPUT oplError, 
                     OUTPUT opcMessage

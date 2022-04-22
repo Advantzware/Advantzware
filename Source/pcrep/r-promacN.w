@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -69,7 +70,7 @@ ASSIGN
                             "run-eff,mr&-stnd,mr&-acl,mr&-eff,dt-acl,dt-eff,acl-qty,exp-qty,mr-comp,run-comp," +
                             "ttl-mch-hrs,ttl-lbr-hrs,pic-per-hrs,msf,msf-per-hrs,nbr-on," +
                             "kik-per-hrs,pic-per-man-hrs,mr-wst,run-wst,ttl-wst,%wst,date,user-id"
-    cFieldLength       = "6,15,10,8,8,8,8,8,8," + "8,10,10,11,8,8,11,11,4,4," + "19,17,15,9,12,10," + "14,19,9,9,11,9,10,10"
+    cFieldLength       = "6,15,13,8,8,8,8,8,8," + "8,10,10,11,8,8,11,11,4,4," + "19,17,15,9,12,10," + "14,19,9,9,11,9,10,10"
     cFieldType         = "c,c,c,c,i,i,i,i,i," + "i,i,i,i,i,i,i,i,c,c," + "i,i,i,i,i,i," + "i,i,i,i,i,i,c,c"
     .
 
@@ -1815,10 +1816,7 @@ PROCEDURE run-report :
 
         IF mch-srt.run-std-hr EQ ? THEN mch-srt.run-std-hr = 0.
                                     
-        a = FILL(" ",6 - length(TRIM(mch-srt.job-no))) +
-            trim(mch-srt.job-no) + "-" +
-            string(mch-srt.job-no2,"99").
-
+        a = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', mch-srt.job-no, mch-srt.job-no2)) .
      
         /*  if not v-prt-job AND NOT v-prt-both then
           for each job-hdr
@@ -1861,7 +1859,7 @@ PROCEDURE run-report :
         BUFFER-COPY mch-srt TO tt-mch-srt .
         ASSIGN
             tt-mch-srt.i-no = b
-            /*         tt-mch-srt.job-no = FILL(" ",6 - LENGTH(TRIM(tt-mch-srt.job-no))) + TRIM(tt-mch-srt.job-no) */
+            /*         tt-mch-srt.job-no = FILL(" ", iJobLen - LENGTH(TRIM(tt-mch-srt.job-no))) + TRIM(tt-mch-srt.job-no) */
             .
         IF rd-job-timedt EQ "2" THEN 
         DO:  
@@ -1902,7 +1900,7 @@ PROCEDURE run-report :
 
         FIND FIRST job WHERE 
             job.company EQ cocode AND
-            job.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,6) AND
+            job.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen) AND
             job.job-no2 EQ tt-mch-srt.job-no2 NO-LOCK NO-ERROR .
         ASSIGN 
             v-cust-no = "" .
@@ -1937,8 +1935,8 @@ PROCEDURE run-report :
 
         FIND FIRST job-mch WHERE job-mch.company  = cocode  AND
             job-mch.job      EQ tt-mch-srt.job  AND 
-            job-mch.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,6)  AND
-            job-mch.job-no2 EQ tt-mch-srt.job-no2  AND 
+            job-mch.job-no   EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen)  AND
+            job-mch.job-no2  EQ tt-mch-srt.job-no2  AND 
             job-mch.frm      = tt-mch-srt.frm AND 
             (job-mch.blank-no = tt-mch-srt.blank-no OR
             mch-srt.blank-no = 0) AND              
@@ -1948,8 +1946,8 @@ PROCEDURE run-report :
         IF NOT AVAILABLE job-mch THEN
             FIND FIRST job-mch WHERE job-mch.company EQ cocode AND
                 job-mch.job      EQ tt-mch-srt.job AND
-                job-mch.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,6) AND
-                job-mch.job-no2 EQ tt-mch-srt.job-no2 AND 
+                job-mch.job-no   EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen) AND
+                job-mch.job-no2  EQ tt-mch-srt.job-no2 AND 
                 job-mch.frm      EQ tt-mch-srt.frm AND
                 (job-mch.blank-no = tt-mch-srt.blank-no OR
                 mch-srt.blank-no = 0) AND
@@ -1958,7 +1956,7 @@ PROCEDURE run-report :
         IF NOT AVAILABLE job-mch THEN
             FIND FIRST job-mch WHERE job-mch.company EQ cocode AND
                 job-mch.job     EQ tt-mch-srt.job AND
-                job-mch.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,6) AND
+                job-mch.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen) AND
                 job-mch.job-no2 EQ tt-mch-srt.job-no2 AND 
                 job-mch.frm     EQ tt-mch-srt.frm AND
                 job-mch.m-code  EQ tt-mch-srt.m-code AND
@@ -1967,7 +1965,7 @@ PROCEDURE run-report :
         IF NOT AVAILABLE job-mch THEN
             FIND FIRST job-mch WHERE job-mch.company EQ cocode AND
                 job-mch.job     EQ tt-mch-srt.job AND 
-                job-mch.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,6)  AND
+                job-mch.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen)  AND
                 job-mch.job-no2 EQ tt-mch-srt.job-no2 AND  
                 job-mch.frm     EQ tt-mch-srt.frm AND
                 job-mch.m-code  EQ tt-mch-srt.m-code        
@@ -1992,7 +1990,7 @@ PROCEDURE run-report :
             bf-mch-act.dept EQ tt-mch-srt.dept AND
             bf-mch-act.m-code EQ tt-mch-srt.m-code AND
             bf-mch-act.job EQ tt-mch-srt.job AND 
-            bf-mch-act.job-no EQ SUBSTRING(tt-mch-srt.job-no,1,6) AND
+            bf-mch-act.job-no EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen) AND
             bf-mch-act.job-no2 EQ tt-mch-srt.job-no2 AND
             bf-mch-act.frm EQ tt-mch-srt.frm AND
             (bf-mch-act.blank-no = tt-mch-srt.blank-no  OR

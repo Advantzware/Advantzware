@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -82,7 +83,7 @@ ASSIGN
     cFieldListToSelect = "mach,shift,job,form,no-sht,sht-msf,no-up," +
                                         "no-fg,no-msf,scrp-sht,scrp-msf,tot-scrp,tot-scrp-msf,job-qty," +
                                         "job-msf,rec-var,rec-var-msf,rece,rece-msf"
-    cFieldLength       = "8,5,10,5,13,14,4," + "13,13,13,14,11,11,13," + "13,13,13,11,11"
+    cFieldLength       = "8,5,13,5,13,14,4," + "13,13,13,14,11,11,13," + "13,13,13,11,11"
     cFieldType         = "c,c,c,c,i,i,i," + "i,i,i,i,i,i,i," + "i,i,i,i,i" 
     .
 
@@ -1664,7 +1665,7 @@ PROCEDURE run-report :
                     WHEN "shift"        THEN 
                         cVarValue = STRING(mch-act.shift,">>") .
                     WHEN "job"            THEN 
-                        cVarValue = STRING((job.job-no) + "-" + string(job.job-no2,"99"))  .
+                        cVarValue = STRING((job.job-no) + "-" + string(job.job-no2,"999"))  .
                     WHEN "form"       THEN 
                         cVarValue = STRING(mch-act.frm,">>>>>").
 

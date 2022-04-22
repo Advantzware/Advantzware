@@ -815,6 +815,13 @@ PROCEDURE create-controls :
  assign loc.company = company.company
         loc.loc     = "Main"
         loc.dscr    = "Main".
+
+ CREATE location.
+ ASSIGN 
+        location.company      = loc.company
+        location.locationCode = loc.loc
+        loc.addrRecKey        = location.rec_key.
+
  for each loc where loc.company = company.company:
          find first ce-ctrl where ce-ctrl.company = company.company and
                                   ce-ctrl.loc = loc.loc
@@ -939,15 +946,18 @@ PROCEDURE local-assign-record :
     END.
 
   END.
+  
+  IF adm-new-record AND NOT adm-adding-record THEN.
+  ELSE do:
+      FIND FIRST account WHERE account.company EQ company.company NO-LOCK NO-ERROR.
 
-  FIND FIRST account WHERE account.company EQ company.company NO-LOCK NO-ERROR.
-
-  IF NOT AVAIL account AND company.co-acc NE "" THEN
-  FOR EACH account WHERE account.company EQ company.co-acc NO-LOCK:
-    CREATE bf-account.
-    BUFFER-COPY account TO bf-account
-      ASSIGN
-       bf-account.company = company.company.
+      IF NOT AVAIL account AND company.co-acc NE "" THEN
+      FOR EACH account WHERE account.company EQ company.co-acc NO-LOCK:
+        CREATE bf-account.
+        BUFFER-COPY account TO bf-account
+          ASSIGN
+           bf-account.company = company.company.
+      END.
   END.
 
   SESSION:SET-WAIT-STATE ("").

@@ -369,8 +369,8 @@ DEFINE BROWSE br-estitm
       eb.cust-% COLUMN-LABEL "Qty/Set" FORMAT "->>,>>>":U WIDTH 10
       eb.i-col FORMAT ">9":U
       eb.i-coat FORMAT ">9":U
-      eb.form-no COLUMN-LABEL "S" FORMAT ">>>":U
-      eb.blank-no COLUMN-LABEL "B" FORMAT ">>>":U
+      eb.form-no COLUMN-LABEL "Form" FORMAT ">>>":U WIDTH 6.5
+      eb.blank-no COLUMN-LABEL "Blank" FORMAT ">>>":U WIDTH 6.5
       eb.num-wid FORMAT ">9":U
       eb.num-len FORMAT ">9":U
       eb.num-up COLUMN-LABEL "# Up" FORMAT ">>>,>>9":U
@@ -533,9 +533,9 @@ ASSIGN
      _FldNameList[17]   > ASI.eb.i-coat
 "eb.i-coat" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.eb.form-no
-"eb.form-no" "S" ">>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.form-no" "Form" ">>>" "integer" ? ? ? ? ? ? no ? no no "6.5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.eb.blank-no
-"eb.blank-no" "B" ">>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.blank-no" "Blank" ">>>" "integer" ? ? ? ? ? ? no ? no no "6.5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   = ASI.eb.num-wid
      _FldNameList[21]   = ASI.eb.num-len
      _FldNameList[22]   > ASI.eb.num-up
@@ -1935,7 +1935,8 @@ DEF BUFFER bf FOR ef.
 
 FIND bf WHERE RECID(bf) EQ ip-recid.
 
-RUN ce/newblank.p (ROWID(bf), OUTPUT lv-rowid).
+/*RUN ce/newblank.p (ROWID(bf), OUTPUT lv-rowid).*/
+RUN est/NewEstimateBlank.p(ROWID(bf), OUTPUT lv-rowid).
 
 FIND eb WHERE ROWID(eb) EQ lv-rowid NO-LOCK NO-ERROR.
 lv-eb-recid = RECID(eb).

@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invpkrt.p */
 /* PRINT INVOICE   Xprint form for Packrite            */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -455,8 +455,8 @@ ASSIGN ls-image1 = "images\packrite.jpg"
                   v-price-head            FORMAT "X(4)"                     
                   inv-line.t-price        FORMAT "->>>,>>9.99"
                   SKIP
-                  SPACE(34)
-                  v-ord-no                FORMAT ">>>>>>"      SPACE(1)
+                  SPACE(32)
+                  v-ord-no                FORMAT ">>>>>>>>"    SPACE(1)
                   v-i-dscr                FORMAT "x(21)"       SPACE(1)
                   SKIP.
                

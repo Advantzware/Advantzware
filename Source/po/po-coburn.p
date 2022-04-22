@@ -257,9 +257,7 @@ find first company where company.company eq cocode NO-LOCK.
         END.*/
 
             find first job where job.company eq cocode 
-                             and job.job-no eq string(fill(" ",6 - length(
-                                                trim(po-ordl.job-no)))) +
-                                                trim(po-ordl.job-no) 
+                             and job.job-no eq po-ordl.job-no 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
 
@@ -343,7 +341,7 @@ find first company where company.company eq cocode NO-LOCK.
           
         end. /* avail item and item.mat-type eq "B" */
        
-        v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") +
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))) +
                    (IF po-ordl.s-num NE ? THEN "-" + string(po-ordl.s-num,"99")
                     ELSE "").
 
@@ -375,8 +373,8 @@ find first company where company.company eq cocode NO-LOCK.
             po-ordl.ord-qty SPACE(2)
             po-ordl.pr-qty-uom SPACE(1)
             po-ordl.i-name FORMAT "x(30)"
-            SPACE(5)
-            v-job-no FORM "x(12)"  /*AT 75*/ SPACE(1)
+            SPACE(1)
+            v-job-no FORM "x(16)"  /*AT 75*/ SPACE(1)
             po-ordl.cost FORM "->>>9.99<<" SPACE(1)
             po-ordl.pr-uom FORM "x(3)"
             po-ordl.t-cost FORM "->>>>,>>9.99"  
@@ -388,7 +386,7 @@ find first company where company.company eq cocode NO-LOCK.
                 po-ordl.i-name FORMAT "x(20)"
                 SPACE(1)
                 v-adder[1] SPACE(1)
-                v-job-no FORM "x(12)" /*SPACE(1)*/
+                v-job-no FORM "x(16)" /*SPACE(1)*/
                 po-ordl.cost FORM "->>>9.99<<" SPACE(1)
                 po-ordl.pr-uom
                 po-ordl.t-cost FORM "->>,>>9.99"  
@@ -445,7 +443,7 @@ find first company where company.company eq cocode NO-LOCK.
         /* output v-vend-no */
         IF v-vend-no <> "" OR v-vend-no <> "" THEN do:
         PUT v-vend-no FORM "x(30)" AT 25
-            v-ord-no AT 65
+            v-ord-no AT 63
             SPACE(2)
             /*v-change-dscr*/ SKIP.
         ASSIGN

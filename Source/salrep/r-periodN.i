@@ -589,7 +589,7 @@
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "inv"           THEN cVarValue = STRING(w-inv.inv-no,">>>>>>>") .
+                         WHEN "inv"           THEN cVarValue = STRING(w-inv.inv-no,">>>>>>>>") .
                          WHEN "inv-date"      THEN cVarValue = STRING(w-inv.inv-date,"99/99/9999").
                          WHEN "firstInvDate"  THEN cVarValue = STRING(w-inv.firstInvDate,"99/99/9999") .
                          WHEN "post-date"     THEN cVarValue = STRING(w-inv.pst-date,"99/99/9999").

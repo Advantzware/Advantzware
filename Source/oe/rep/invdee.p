@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invdee.p   */
 /* PRINT INVOICE   Xprint Standard Form  for Frankston (from Oracle)          */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -494,9 +494,9 @@ ASSIGN v-comp-add1 = ""
            PUT /*space(1) v-inv-qty format "->>>>>9" */
                 v-po-no
                 /*SPACE(1)*/
-                v-ship-qty  format "->>>>>9" AT 13 SPACE(3) 
+                v-ship-qty  format "->>>>>9" AT 13 SPACE(1) 
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
-                inv-line.ord-no FORMAT ">>>>>9" SPACE(1)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
                 v-i-dscr  format "x(24)" 
                 v-price  format "$->,>>9.99" SPACE (-1)
@@ -553,7 +553,7 @@ ASSIGN v-comp-add1 = ""
             
           
           put inv-misc.po-no FORMAT "x(15)"
-              inv-misc.ord-no FORMAT ">>>>>9" SPACE(2)
+              inv-misc.ord-no FORMAT ">>>>>>>9" SPACE(1)
               inv-misc.charge  inv-misc.dscr inv-misc.amt SKIP.
               v-subtot-lines = v-subtot-lines + inv-misc.amt.
               v-printline = v-printline + 1.

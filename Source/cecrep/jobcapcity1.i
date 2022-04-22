@@ -1,7 +1,7 @@
 /* ---------------------------------------------- cecrep/jobcapcity1.i        */
 /* factory ticket                                                             */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 def {1} var save_id as recid.
 
 def {1} buffer xest     for est.
@@ -14,7 +14,7 @@ def {1} buffer xstyle   for style.
 def {1} buffer xxprep   for prep.
 
 def {1} var v-break         as   log                                    no-undo.
-def {1} var v-job-prt       as   char format "x(9)"                     no-undo.
+def {1} var v-job-prt       as   char format "x(13)"                    no-undo.
 def {1} var v-ord-no        as   char format "x(8)"                     no-undo.
 def {1} var v-ord-date      as   char format "x(10)"                     no-undo.
 def {1} var v-est-no        as   char format "x(8)"                     no-undo.
@@ -82,7 +82,7 @@ FORM HEADER
        "<P8><=1>" 
        "<U>Sold To:</U>" at 23        "<U>Location:</U>" AT 105 "<U>Job Information:</U><P10>" AT 145 SKIP
        v-head-1 FORMAT "X(161)" SKIP
-       v-cus[2] AT 2 "<P12><B>Pack Date:</B><P10>" AT 39 v-pack-date "Est#:" AT 105 v-est-no  "Underrun:" AT 125 lv-under-run FORMAT "x(7)"
+       v-cus[2] AT 2 "<P12><B>Pack Date:</B><P10>" AT 39 v-pack-date "Est#:" AT 105 v-est-no  "Underrun:" AT 127 lv-under-run FORMAT "x(7)"
        SKIP
        v-cus[3] AT 2 "Ord Date:" AT 39 v-ord-date "_____ _____ @ _____" AT 67   "Salesman:" AT 90 v-sman
        SKIP

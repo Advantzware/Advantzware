@@ -12,6 +12,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 
@@ -427,28 +428,28 @@ DEFINE FRAME Dialog-Frame
      fiCount AT ROW 7.67 COL 64 COLON-ALIGNED WIDGET-ID 4
      fi_c-a-hdr AT ROW 17 COL 58 COLON-ALIGNED NO-LABEL
      fi_uom AT ROW 17.95 COL 11 COLON-ALIGNED NO-LABEL
-     po-ordl.i-no AT ROW 1.24 COL 17 COLON-ALIGNED
+     po-ordl.i-no AT ROW 1.24 COL 14.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
-     po-ordl.job-no AT ROW 1.24 COL 49.8 COLON-ALIGNED
-          LABEL "Job #"
+     po-ordl.job-no AT ROW 1.24 COL 47 COLON-ALIGNED FORMAT "x(9)"
+          LABEL "Job #" 
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-     po-ordl.job-no2 AT ROW 1.24 COL 61.8 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+     po-ordl.job-no2 AT ROW 1.24 COL 63.2 COLON-ALIGNED FORMAT "999" NO-LABEL
+          VIEW-AS FILL-IN  
           SIZE 6 BY 1
-     po-ordl.s-num AT ROW 1.24 COL 71.6 COLON-ALIGNED
-          LABEL "S"
+     po-ordl.s-num AT ROW 1.24 COL 72.8 COLON-ALIGNED
+          LABEL "F"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
-     po-ordl.b-num AT ROW 1.24 COL 80.4 COLON-ALIGNED
+     po-ordl.b-num AT ROW 1.24 COL 81.6 COLON-ALIGNED
           LABEL "B"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
-     po-ordl.due-date AT ROW 1.24 COL 98.6 COLON-ALIGNED
+     po-ordl.due-date AT ROW 1.24 COL 99.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     btnCalendar-1 AT ROW 1.24 COL 117
+     btnCalendar-1 AT ROW 1.24 COL 117.6
      po-ordl.stat AT ROW 1.24 COL 128 COLON-ALIGNED
           LABEL "Stat"
           VIEW-AS FILL-IN 
@@ -544,9 +545,9 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      po-ordl.ord-no AT ROW 14.62 COL 18 COLON-ALIGNED
-          LABEL "Order Number" FORMAT ">>>>>9"
+          LABEL "Order Number" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 13 BY 1
      po-ordl.t-cost AT ROW 14.62 COL 49 COLON-ALIGNED
           LABEL "Total Cost" FORMAT "->,>>>,>>9.99<<"
           VIEW-AS FILL-IN 
@@ -705,7 +706,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN po-ordl.item-type IN FRAME Dialog-Frame
    ALIGN-L EXP-LABEL EXP-FORMAT                                         */
 /* SETTINGS FOR FILL-IN po-ordl.job-no IN FRAME Dialog-Frame
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN po-ordl.job-no2 IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT                                                 */   
 /* SETTINGS FOR FILL-IN po-ordl.ord-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN po-ordl.ord-qty IN FRAME Dialog-Frame
@@ -800,8 +803,7 @@ DO:
 
     ASSIGN
      lw-focus               = FOCUS
-     lv-job-no              = FILL(" ", 6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
-                 TRIM(po-ordl.job-no:SCREEN-VALUE)
+     lv-job-no              = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no:SCREEN-VALUE)) 
      v-number-rows-selected = 0.
     
     CASE lw-focus:NAME:
@@ -821,6 +823,7 @@ DO:
                   ASSIGN lw-focus:SCREEN-VALUE       = ENTRY(1,char-val)
                          po-ordl.i-name:SCREEN-VALUE = ENTRY(2,char-val).
                   RUN display-rmitem (look-recid).
+                  ll-item-validated = YES.
                 END.
               END.
               ELSE DO:  /* finished good */
@@ -830,6 +833,7 @@ DO:
                          po-ordl.i-name:screen-value = ENTRY(2,char-val).
                   RUN display-fgitem (look-recid) .
                   lCheckFGCustHold = NO.
+                  ll-item-validated = YES.
                 END.                           
               END.
             END.
@@ -1194,7 +1198,7 @@ DO:
      /* wfk - to make sure cons-qty was being updated */
     FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
     {po/podisdet.i}
-   
+    po-ordl.cons-cost = decimal(po-ordl.cons-cost:SCREEN-VALUE).
    ASSIGN po-ordl.s-dep = v-dep . 
     
 IF TRIM(po-ordl.job-no) EQ "" THEN po-ordl.job-no2 = 0.
@@ -1586,8 +1590,7 @@ DO:
 
         IF LASTKEY NE -1 THEN 
         DO:
-            {&self-name}:SCREEN-VALUE = FILL(" ", 6 - LENGTH(TRIM({&self-name}:SCREEN-VALUE))) +
-                                TRIM({&self-name}:SCREEN-VALUE).
+            {&self-name}:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', {&self-name}:SCREEN-VALUE)) .
     
             RUN valid-job-no NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -2014,7 +2017,7 @@ END.
 
 &Scoped-define SELF-NAME po-ordl.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.s-num Dialog-Frame
-ON ENTRY OF po-ordl.s-num IN FRAME Dialog-Frame /* S */
+ON ENTRY OF po-ordl.s-num IN FRAME Dialog-Frame /* F */
 DO:
         IF lv-save-s-num NE "" THEN lv-save-s-num = {&self-name}:SCREEN-VALUE.
     END.
@@ -2024,7 +2027,7 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.s-num Dialog-Frame
-ON LEAVE OF po-ordl.s-num IN FRAME Dialog-Frame /* S */
+ON LEAVE OF po-ordl.s-num IN FRAME Dialog-Frame /* F */
 DO:
         DEFINE BUFFER b-job-mat FOR job-mat.
         DEFINE BUFFER b-job-hdr FOR job-hdr.
@@ -2056,7 +2059,7 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ordl.s-num Dialog-Frame
-ON VALUE-CHANGED OF po-ordl.s-num IN FRAME Dialog-Frame /* S */
+ON VALUE-CHANGED OF po-ordl.s-num IN FRAME Dialog-Frame /* F */
 DO:
         ASSIGN
             ll-poord-warned = NO
@@ -2405,8 +2408,7 @@ PROCEDURE check-job-bnum :
     DEFINE VARIABLE lv-job-no LIKE po-ordl.job-no NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
 
-        lv-job-no = FILL(" ", 6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
-            TRIM(po-ordl.job-no:SCREEN-VALUE).
+        lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no:SCREEN-VALUE)) .
 
         RELEASE job-mat.
 
@@ -2429,7 +2431,7 @@ PROCEDURE check-job-bnum :
     IF AVAILABLE job-mat THEN 
     DO WITH FRAME {&FRAME-NAME}:
         IF job-mat.rm-i-no  NE po-ordl.i-no:SCREEN-VALUE            OR
-            job-mat.job-no   NE po-ordl.job-no:SCREEN-VALUE          OR
+            trim(job-mat.job-no)   NE trim(po-ordl.job-no:SCREEN-VALUE)          OR
             job-mat.job-no2  NE INT(po-ordl.job-no2:SCREEN-VALUE)    OR
             (job-mat.frm     NE INT(po-ordl.s-num:SCREEN-VALUE) AND
             po-ordl.s-num:SCREEN-VALUE NE "?")                      OR
@@ -4154,7 +4156,7 @@ PROCEDURE GetFirstMach :
       IF AVAILABLE po-ordl THEN
         FOR EACH job-mch NO-LOCK
           WHERE job-mch.company EQ cocode
-            AND job-mch.job-no EQ po-ordl.job-no:SCREEN-VALUE
+            AND job-mch.job-no  EQ po-ordl.job-no:SCREEN-VALUE
             AND job-mch.job-no2 EQ integer(po-ordl.job-no2:SCREEN-VALUE)
             AND job-mch.frm EQ integer(po-ordl.s-num:SCREEN-VALUE) use-index line-idx :
              ASSIGN opMachine = job-mch.m-code . 
@@ -4189,7 +4191,7 @@ PROCEDURE getJobFarmInfo :
 
         FIND FIRST bfJob-farm NO-LOCK 
             WHERE bfJob-farm.company EQ g_company 
-            AND bfJob-farm.job-no  EQ po-ordl.job-no:SCREEN-VALUE 
+            AND bfJob-farm.job-no  EQ po-ordl.job-no:SCREEN-VALUE
             AND bfJob-farm.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE) 
             AND bfJob-farm.i-no EQ po-ordl.i-no:SCREEN-VALUE 
             AND bfJob-farm.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) 
@@ -4317,8 +4319,7 @@ PROCEDURE lookup-job :
     DEFINE BUFFER bf-itemfg FOR itemfg.
 
     DO WITH FRAME {&frame-name}:
-        lv-job-no = FILL(" ", 6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
-            TRIM(po-ordl.job-no:SCREEN-VALUE).
+        lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no:SCREEN-VALUE)) .
 
         RELEASE job-mat.
 
@@ -4441,7 +4442,7 @@ PROCEDURE new-job-farm :
     IF AVAILABLE job-farm THEN 
     DO WITH FRAME {&FRAME-NAME}:
         IF job-farm.i-no  NE po-ordl.i-no:SCREEN-VALUE            OR
-            job-farm.job-no   NE po-ordl.job-no:SCREEN-VALUE          OR
+            trim(job-farm.job-no)   NE trim(po-ordl.job-no:SCREEN-VALUE)          OR
             job-farm.job-no2  NE INT(po-ordl.job-no2:SCREEN-VALUE)    OR
             (job-farm.frm     NE INT(po-ordl.s-num:SCREEN-VALUE) AND
             po-ordl.s-num:SCREEN-VALUE NE "?")                      OR
@@ -4488,7 +4489,7 @@ PROCEDURE new-job-line :
 
     IF AVAILABLE job-hdr THEN 
     DO WITH FRAME {&FRAME-NAME}:
-        IF job-hdr.job-no   NE po-ordl.job-no:SCREEN-VALUE          OR
+        IF trim(job-hdr.job-no)   NE trim(po-ordl.job-no:SCREEN-VALUE)          OR
             job-hdr.job-no2  NE INT(po-ordl.job-no2:SCREEN-VALUE)    OR
             (job-hdr.frm     NE INT(po-ordl.s-num:SCREEN-VALUE) AND
             po-ordl.s-num:SCREEN-VALUE NE "?")                      OR
@@ -4572,7 +4573,7 @@ PROCEDURE new-job-line-farm :
 
     IF AVAILABLE job-hdr AND avail(job-farm) THEN 
     DO WITH FRAME {&FRAME-NAME}:
-        IF job-farm.job-no   NE po-ordl.job-no:SCREEN-VALUE          OR
+        IF trim(job-farm.job-no)   NE trim(po-ordl.job-no:SCREEN-VALUE)          OR
             job-farm.job-no2  NE INT(po-ordl.job-no2:SCREEN-VALUE)    OR
             (job-farm.frm     NE INT(po-ordl.s-num:SCREEN-VALUE) AND
             po-ordl.s-num:SCREEN-VALUE NE "?")                      OR
@@ -4654,7 +4655,7 @@ PROCEDURE new-job-mat :
     IF AVAILABLE job-mat THEN 
     DO WITH FRAME {&FRAME-NAME}:
         IF job-mat.rm-i-no  NE po-ordl.i-no:SCREEN-VALUE            OR
-            job-mat.job-no   NE po-ordl.job-no:SCREEN-VALUE          OR
+            trim(job-mat.job-no)   NE trim(po-ordl.job-no:SCREEN-VALUE)          OR
             job-mat.job-no2  NE INT(po-ordl.job-no2:SCREEN-VALUE)    OR
             (job-mat.frm     NE INT(po-ordl.s-num:SCREEN-VALUE) AND
             po-ordl.s-num:SCREEN-VALUE NE "?")                      OR
@@ -5792,9 +5793,8 @@ PROCEDURE valid-b-num :
         IF po-ordl.job-no:SCREEN-VALUE NE ""  AND
             po-ordl.s-num:SCREEN-VALUE  NE "?" THEN 
         DO:
-            po-ordl.job-no:SCREEN-VALUE =
-                FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
-                TRIM(po-ordl.job-no:SCREEN-VALUE).
+            po-ordl.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no:SCREEN-VALUE))
+               .
             IF NOT ll-pojob-warned THEN
                 FIND FIRST xpo-ordl NO-LOCK
                     WHERE xpo-ordl.company EQ g_company
@@ -6009,9 +6009,8 @@ PROCEDURE valid-job-no :
             AND item.i-no    EQ po-ordl.i-no:SCREEN-VALUE
             AND item.i-code  EQ "E"))                        THEN 
         DO:
-            po-ordl.job-no:SCREEN-VALUE =
-                FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
-                TRIM(po-ordl.job-no:SCREEN-VALUE).
+            po-ordl.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no:SCREEN-VALUE))
+                .
             IF TRIM(po-ordl.job-no:SCREEN-VALUE) EQ ""                            OR
                 NOT CAN-FIND(FIRST job-hdr
                 WHERE job-hdr.company EQ g_company
@@ -6057,9 +6056,8 @@ PROCEDURE valid-job-no2 :
     DO WITH FRAME {&frame-name}:
         IF po-ordl.job-no:SCREEN-VALUE NE "" THEN 
         DO:
-            po-ordl.job-no:SCREEN-VALUE =
-                FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
-                TRIM(po-ordl.job-no:SCREEN-VALUE).
+            po-ordl.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no:SCREEN-VALUE))
+               .
             IF NOT CAN-FIND(FIRST job-hdr
                 WHERE job-hdr.company EQ g_company
                 AND job-hdr.job-no  EQ po-ordl.job-no:SCREEN-VALUE
@@ -6380,9 +6378,8 @@ PROCEDURE valid-s-num :
     DO WITH FRAME {&frame-name}:
         IF po-ordl.job-no:SCREEN-VALUE NE "" THEN 
         DO:
-            po-ordl.job-no:SCREEN-VALUE =
-                FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no:SCREEN-VALUE))) +
-                TRIM(po-ordl.job-no:SCREEN-VALUE).
+            po-ordl.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no:SCREEN-VALUE))
+                .
             IF po-ordl.s-num:SCREEN-VALUE EQ "?" AND
                 NOT CAN-FIND(FIRST tt-job-mat)    THEN RUN create-multi-line.
 
@@ -6985,7 +6982,7 @@ PROCEDURE writeJobFarmInfo :
             RETURN.
         FIND FIRST bfJob-farm EXCLUSIVE-LOCK  
             WHERE bfJob-farm.company EQ g_company 
-            AND bfJob-farm.job-no  EQ cJob 
+            AND bfJob-farm.job-no  EQ cJob
             AND bfJob-farm.job-no2 EQ iJobNo2 
             AND bfJob-farm.i-no EQ po-ordl.i-no:SCREEN-VALUE 
             AND (bfJob-farm.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) OR lFromOrd)

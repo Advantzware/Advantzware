@@ -249,31 +249,31 @@ DEFINE BUTTON btn-ok
     LABEL "&OK" 
     SIZE 16 BY 1.29.
 
-DEFINE VARIABLE begin_job1     AS CHARACTER FORMAT "x(6)" 
+DEFINE VARIABLE begin_job1     AS CHARACTER FORMAT "x(9)" 
     LABEL "Beginning  Job#" 
     VIEW-AS FILL-IN 
     SIZE 14 BY 1
     BGCOLOR 3 FGCOLOR 15 .
 
-DEFINE VARIABLE begin_job2     AS INTEGER   FORMAT ">9" INITIAL 0 
+DEFINE VARIABLE begin_job2     AS INTEGER   FORMAT ">>9" INITIAL 0 
     LABEL "-" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1.
+    SIZE 5.4 BY 1.
 
 DEFINE VARIABLE dept_codes     AS CHARACTER FORMAT "X(256)":U INITIAL "QA" 
     VIEW-AS FILL-IN 
     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job1       AS CHARACTER FORMAT "x(6)" INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job1       AS CHARACTER FORMAT "x(9)" INITIAL "zzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
     SIZE 14 BY 1
     BGCOLOR 3 FGCOLOR 15 .
 
-DEFINE VARIABLE end_job2       AS INTEGER   FORMAT ">9" INITIAL 99 
+DEFINE VARIABLE end_job2       AS INTEGER   FORMAT ">>9" INITIAL 99 
     LABEL "-" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1.
+    SIZE 5.4 BY 1.
 
 DEFINE VARIABLE fl-jobord      AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 0 
     VIEW-AS FILL-IN 
@@ -885,8 +885,7 @@ ON LEAVE OF begin_job1 IN FRAME FRAME-A /* Beginning  Job# */
     DO:
         IF {&self-name}:MODIFIED THEN RUN new-job-no (INPUT "begin-only").
         ASSIGN 
-            {&self-name}:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM({&self-name}:SCREEN-VALUE))) +
-                 TRIM({&self-name}:SCREEN-VALUE)  .   /* Task 10181302  */
+            {&self-name}:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', {&self-name}:SCREEN-VALUE)).
 
         IF lv-format-f = "FibreFC" AND lv-format-c = "Artios" THEN
             RUN split-ship-proc.
@@ -947,12 +946,10 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
     
             /* Task 10181302  */
             IF STRING(begin_job1:SCREEN-VALUE) <> "" THEN
-                ASSIGN begin_job1:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(begin_job1:SCREEN-VALUE))) +
-                 TRIM(begin_job1:SCREEN-VALUE)  .
+                ASSIGN begin_job1:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)).
 
             IF STRING(end_job1:SCREEN-VALUE) <> "" THEN
-                ASSIGN end_job1:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(end_job1:SCREEN-VALUE))) +
-                 TRIM(end_job1:SCREEN-VALUE)  . /* Task 10181302  */
+                ASSIGN end_job1:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job1:SCREEN-VALUE)).
 
             IF tb_tray-2:HIDDEN = NO THEN
                 ASSIGN tb_tray-2.
@@ -966,7 +963,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             DO:
 
                 FIND FIRST job-hdr WHERE job-hdr.company EQ cocode
-                    AND trim(job-hdr.job-no) EQ trim(SUBSTR(begin_job1:SCREEN-VALUE,1,6)) NO-LOCK NO-ERROR.
+                    AND job-hdr.job-no EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE)) NO-LOCK NO-ERROR.
 
                 IF NOT AVAILABLE job-hdr THEN 
                 DO:
@@ -976,9 +973,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             END.
 
             FOR EACH job-hdr 
-                WHERE job-hdr.company               EQ cocode
-                AND job-hdr.job-no                GE trim(SUBSTR(begin_job1:SCREEN-VALUE,1,6))
-                AND job-hdr.job-no                LE trim(SUBSTR(begin_job1:SCREEN-VALUE,1,6))
+                WHERE job-hdr.company         EQ cocode
+                AND job-hdr.job-no            GE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
+                AND job-hdr.job-no            LE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
                 NO-LOCK :
                 /*  FIND FIRST cust WHERE cust.company EQ cocode 
                       AND cust.cust-no EQ job-hdr.cust-no NO-LOCK NO-ERROR.
@@ -1004,7 +1001,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         END.  
 
         ASSIGN 
-            lv-pdf-file       = INIT-dir +  "\Job" + STRING(begin_job1 + "-" + STRING(begin_job2, "99"))
+            lv-pdf-file       = INIT-dir +  "\Job" + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', begin_job1, begin_job2)))
             s-prt-mstandard   = tb_prt-mch
             s-prt-shipto      = tb_prt-shipto
             s-prt-sellprc     = tb_prt-sellprc
@@ -1158,8 +1155,7 @@ ON LEAVE OF end_job1 IN FRAME FRAME-A /* Ending Job# */
     DO:
         IF {&self-name}:MODIFIED THEN RUN new-job-no (INPUT "All").
         ASSIGN 
-            {&self-name}:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM({&self-name}:SCREEN-VALUE))) +
-                 TRIM({&self-name}:SCREEN-VALUE)  . /* Task 10181302  */
+            {&self-name}:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', {&self-name}:SCREEN-VALUE)).
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1372,7 +1368,7 @@ ON VALUE-CHANGED OF tb_app-unprinted IN FRAME FRAME-A /* Print All Unprinted App
         DEFINE BUFFER b-job-hdr FOR job-hdr.
         DEFINE BUFFER b-job     FOR job.
 
-        DEFINE VARIABLE v-min-job-no AS CHARACTER INIT "zzzzzz00" NO-UNDO.
+        DEFINE VARIABLE v-min-job-no AS CHARACTER INIT "zzzzzzzzz000" NO-UNDO.
         DEFINE VARIABLE v-max-job-no AS CHARACTER NO-UNDO.
 
         ASSIGN {&self-name}.
@@ -1395,18 +1391,18 @@ ON VALUE-CHANGED OF tb_app-unprinted IN FRAME FRAME-A /* Print All Unprinted App
                 b-job.cs-to-pr EQ YES
                 NO-LOCK:
 
-                IF b-job-hdr.job-no + STRING(b-job-hdr.job-no2,"99") LT v-min-job-no THEN
-                    v-min-job-no = b-job-hdr.job-no + STRING(b-job-hdr.job-no2,"99").
+                IF STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', b-job-hdr.job-no, b-job-hdr.job-no2)) LT v-min-job-no THEN
+                    v-min-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', b-job-hdr.job-no, b-job-hdr.job-no2)).
 
-                IF b-job-hdr.job-no + STRING(b-job-hdr.job-no2,"99") GT v-max-job-no THEN
-                    v-max-job-no = b-job-hdr.job-no + STRING(b-job-hdr.job-no2,"99").
+                IF STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', b-job-hdr.job-no, b-job-hdr.job-no2)) GT v-max-job-no THEN
+                    v-max-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', b-job-hdr.job-no, b-job-hdr.job-no2)).
             END.
 
             ASSIGN 
-                begin_job1:SCREEN-VALUE = SUBSTRING(v-min-job-no,1,6)
-                begin_job2:SCREEN-VALUE = SUBSTRING(v-min-job-no,7)
-                end_job1:SCREEN-VALUE   = SUBSTRING(v-max-job-no,1,6)
-                end_job2:SCREEN-VALUE   = SUBSTRING(v-max-job-no,7)
+                begin_job1:SCREEN-VALUE = SUBSTRING(v-min-job-no,1,9)
+                begin_job2:SCREEN-VALUE = SUBSTRING(v-min-job-no,10)
+                end_job1:SCREEN-VALUE   = SUBSTRING(v-max-job-no,1,9)
+                end_job2:SCREEN-VALUE   = SUBSTRING(v-max-job-no,10)
                 tb_reprint:SCREEN-VALUE = "NO".
 
             APPLY "LEAVE" TO end_job2 IN FRAME {&FRAME-NAME}.
@@ -1861,8 +1857,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DO:
         FIND FIRST job-hdr NO-LOCK
             WHERE job-hdr.company EQ cocode
-            AND job-hdr.job-no  EQ FILL(" ",6 - LENGTH(begin_job1:SCREEN-VALUE)) +
-            TRIM(begin_job1:SCREEN-VALUE)
+            AND job-hdr.job-no EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
             AND job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
             NO-ERROR.
 
@@ -1987,10 +1982,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             INT(begin_job2:SCREEN-VALUE)  EQ INT(end_job2:SCREEN-VALUE)  THEN 
         DO:
             FIND FIRST job-hdr NO-LOCK
-                WHERE job-hdr.company EQ cocode
-                AND job-hdr.job-no  EQ FILL(" ",6 - LENGTH(begin_job1:SCREEN-VALUE)) +
-                TRIM(begin_job1:SCREEN-VALUE)
-                AND job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
+                WHERE job-hdr.company       EQ cocode
+                AND job-hdr.job-no          EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
+                AND job-hdr.job-no2         EQ INT(begin_job2:SCREEN-VALUE)
                 NO-ERROR.
             IF AVAILABLE job-hdr THEN 
             DO:
@@ -2034,10 +2028,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             INT(begin_job2:SCREEN-VALUE)  EQ INT(end_job2:SCREEN-VALUE)  THEN 
         DO:
             FIND FIRST job-hdr NO-LOCK
-                WHERE job-hdr.company EQ cocode
-                AND job-hdr.job-no  EQ FILL(" ",6 - LENGTH(begin_job1:SCREEN-VALUE)) +
-                TRIM(begin_job1:SCREEN-VALUE)
-                AND job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
+                WHERE job-hdr.company       EQ cocode
+                AND job-hdr.job-no          EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
+                AND job-hdr.job-no2         EQ INT(begin_job2:SCREEN-VALUE)
                 NO-ERROR.
             IF AVAILABLE job-hdr THEN 
             DO:
@@ -2835,7 +2828,7 @@ PROCEDURE new-job-no :
 
         FIND FIRST job NO-LOCK
             WHERE job.company EQ cocode
-            AND job.job-no EQ SUBSTR(fjob-no,1,6) NO-ERROR.
+            AND job.job-no    EQ SUBSTR(fjob-no,1,iJobLen) NO-ERROR.
         /*          IF AVAIL job AND job.opened = YES  THEN DO : */
         /*                                                       */
         /*             if job.cs-to-pr = YES THEN                */
@@ -2861,16 +2854,15 @@ PROCEDURE new-job-no :
             FOR EACH job-hdr
                 WHERE job-hdr.company               EQ cocode
 
-                AND job-hdr.job-no                GE SUBSTR(fjob-no,1,6)
-                AND job-hdr.job-no                LE SUBSTR(IF ipcRunType EQ "All" THEN tjob-no ELSE fJob-no,1,6)
-
-                AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
+                AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
                 TRIM(job-hdr.job-no) +
-                STRING(job-hdr.job-no2,"99")  GE fjob-no
+                STRING(job-hdr.job-no2,"999")  GE fjob-no
 
-                AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
+                AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
                 TRIM(job-hdr.job-no) +
-                STRING(job-hdr.job-no2,"99")  LE IF ipcRunType EQ "All" THEN tjob-no ELSE fJob-no
+                STRING(job-hdr.job-no2,"999")  LE (IF ipcRunType EQ "All" THEN tjob-no ELSE fJob-no)
+                AND job-hdr.job-no2 GE fjob-no2
+                AND job-hdr.job-no2 LE tjob-no2
                 NO-LOCK,
 
                 FIRST job
@@ -2902,7 +2894,7 @@ PROCEDURE new-job-no :
                     sys-ctrl-shipto.char-fld > ''
                     NO-LOCK NO-ERROR.
 
-                IF AVAILABLE sys-ctrl-shipto AND substr(fjob-no,1,6) EQ substr(tjob-no,1,6) THEN 
+                IF AVAILABLE sys-ctrl-shipto AND substr(fjob-no,1,9) EQ substr(tjob-no,1,9) THEN
                 DO:
                     lv-format-c = sys-ctrl-shipto.char-fld .
                 END.
@@ -2942,7 +2934,7 @@ PROCEDURE new-job-no :
                     /*sys-ctrl-shipto.ship-id = job-hdr.ship-id AND*/
                     sys-ctrl-shipto.char-fld > ''
                     NO-LOCK NO-ERROR.
-                IF AVAILABLE sys-ctrl-shipto AND substr(fjob-no,1,6) EQ substr(tjob-no,1,6) THEN 
+                IF AVAILABLE sys-ctrl-shipto AND substr(fjob-no,1,9) EQ substr(tjob-no,1,9) THEN 
                     lv-format-f = sys-ctrl-shipto.char-fld .
                 ELSE 
                     lv-format-f = lv-default-f .
@@ -3211,7 +3203,7 @@ PROCEDURE pCallOutboundAPI PRIVATE :
             
         ASSIGN  
             cAPIId       = "SendJob"
-            cPrimaryID   = ipbf-job.job-no + "-" + STRING(ipbf-job.job-no2)
+            cPrimaryID   = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ipbf-job.job-no, ipbf-job.job-no2)))
             cDescription = cAPIID + " triggered by " + cTriggerID + " from r-ticket.w for Job: " + cPrimaryID
             .
         
@@ -3585,16 +3577,13 @@ PROCEDURE set-job-vars :
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            fjob-no  = FILL(" ",6 - LENGTH(TRIM(begin_job1:SCREEN-VALUE))) +
-                 TRIM(begin_job1:SCREEN-VALUE)
-            tjob-no  = FILL(" ",6 - LENGTH(TRIM(end_job1:SCREEN-VALUE))) +
-                 trim(end_job1:SCREEN-VALUE)
+            fjob-no  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
+            tjob-no  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job1:SCREEN-VALUE))
             fjob-no2 = INT(begin_job2:SCREEN-VALUE)
             tjob-no2 = INT(end_job2:SCREEN-VALUE)
-            fjob-no  = FILL(" ",6 - LENGTH(TRIM(fjob-no))) + TRIM(fjob-no) +
-                 STRING(fjob-no2,"99")
-            tjob-no  = FILL(" ",6 - LENGTH(TRIM(tjob-no))) + TRIM(tjob-no) +
-                 STRING(tjob-no2,"99").
+            fjob-no  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', fjob-no, fjob-no2))
+            tjob-no  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', tjob-no, tjob-no2))
+            .
     END.
 
 
@@ -3691,9 +3680,8 @@ PROCEDURE split-ship-proc :
 
         FIND FIRST job-hdr NO-LOCK
             WHERE job-hdr.company EQ cocode
-            AND job-hdr.job-no  EQ FILL(" ",6 - LENGTH(begin_job1:SCREEN-VALUE)) +
-            TRIM(begin_job1:SCREEN-VALUE)
-            AND job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
+            AND job-hdr.job-no    EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
+            AND job-hdr.job-no2   EQ INT(begin_job2:SCREEN-VALUE)
             NO-ERROR.
         IF AVAILABLE job-hdr AND  job-hdr.splitShip EQ YES THEN
             tb_prompt-ship:CHECKED = YES.

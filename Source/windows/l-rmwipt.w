@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -37,6 +39,8 @@ def input parameter ip-job like wiptag.job-no no-undo.
 def output parameter op-rowid-val AS ROWID no-undo.
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/var.i new shared}
+
 DEF SHARED TEMP-TABLE tt-selected FIELD tt-rowid AS ROWID.
 
 def var lv-type-dscr as cha no-undo.

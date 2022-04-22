@@ -2417,7 +2417,6 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
-
 find first sys-ctrl where sys-ctrl.company eq cocode
                         and sys-ctrl.name    eq "CE W>L"
        no-lock no-error.
@@ -4607,6 +4606,11 @@ PROCEDURE proc-enable :
     ENABLE btnDieLookup btnCadLookup.
 
     ef.cad-image:SCREEN-VALUE = ef.cad-image.
+    IF est.estimateTypeID EQ "WOOD" THEN
+    ASSIGN  
+      eb.test:SCREEN-VALUE = ""
+      eb.test:HIDDEN      = YES
+      eb.test:SENSITIVE   = NO.
   END.
 
   RUN set-hold-values.
@@ -4869,7 +4873,7 @@ PROCEDURE update-sheet :
        xeb.num-len  = 1.
 
         IF lCEUseNewLayoutCalc THEN
-            RUN Estimate_UpdateEfFormLayoutSizeOnly (BUFFER xef, BUFFER xeb).
+            RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
         ELSE
             RUN cec/calc-dim1.p NO-ERROR.
 
@@ -4978,29 +4982,27 @@ PROCEDURE valid-board :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
+  
+  
   DO WITH FRAME {&FRAME-NAME}:
     ef.board:SCREEN-VALUE = CAPS(ef.board:SCREEN-VALUE).
-
-    IF NOT lWoodStyle AND NOT CAN-FIND(FIRST item
+    IF ef.board:SCREEN-VALUE EQ "" THEN DO:
+            MESSAGE "Board cannot be blank" VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO ef.board.
+            RETURN ERROR. 
+        END.
+    ELSE IF NOT lWoodStyle AND  NOT CAN-FIND(FIRST item
                     {sys/look/itemb1W.i}
-                      AND item.i-no EQ ef.board:SCREEN-VALUE) OR
-       ef.board:SCREEN-VALUE EQ ""                            THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO ef.board.
-      RETURN ERROR.
-    END.    
-    IF lWoodStyle AND NOT CAN-FIND(FIRST item
-        WHERE item.company   EQ cocode
-        AND   item.materialType   EQ "Wood"          
-        AND  (item.i-code eq lv-i-code OR lv-i-code eq "B")
-        AND  item.industry EQ lv-industry
-        AND item.i-no EQ ef.board:SCREEN-VALUE) OR
-        ef.board:SCREEN-VALUE EQ "" THEN DO:
-        
-       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-       APPLY "entry" TO ef.board.
-       RETURN ERROR.        
-    END.
+                      AND item.i-no EQ ef.board:SCREEN-VALUE) THEN DO:
+            MESSAGE "Board is not a valid item" VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO ef.board.
+            RETURN ERROR.
+        END.    
+    ELSE IF lWoodStyle AND NOT DYNAMIC-FUNCTION ("fIsMatlGroup",cocode, ef.board:SCREEN-VALUE, "Wood") THEN DO:
+            MESSAGE "Board must be Wood material type" VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO ef.board.
+            RETURN ERROR.
+        END.        
 
     IF ef.brd-dscr:SCREEN-VALUE EQ "" THEN RUN new-board.
   END.
@@ -5340,7 +5342,7 @@ PROCEDURE valid-test :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  IF NOT lv-foam THEN DO:
+  IF NOT lv-foam AND NOT lWoodStyle THEN DO:
     {est/valtest.i "eb.flute" "eb.test" ":SCREEN-VALUE"}
   END.
 

@@ -1,5 +1,6 @@
-/* ---------------------------------------------- oe/rep/bolcrbc2.i YSK     */
-/* PRINT Consolidated Box                                                  */
+/* ---------------------------------------------- oe/rep/bolcrbc2.i YSK       */
+/* PRINT Consolidated Box                                                     */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 assign
  v-tot-cases = 0
@@ -56,13 +57,11 @@ FOR EACH tt-boll,
          lv-qcase-tot = lv-qcase-tot + tt-boll.qty-case
          lv-partial-tot = lv-partial-tot + tt-boll.partial
          lv-pal-tot = lv-pal-tot + tt-boll2.pallets
-         v-job-no = fill(" ",6 - length(trim(tt-boll.job-no))) +
-                    trim(tt-boll.job-no) + "-" +
-                    trim(string(tt-boll.job-no2,"99"))
+         v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-boll.job-no, tt-boll.job-no2)))
          tt-boll.printed = yes.
          lv-cases = lv-cases-tot.
 
-  IF trim(v-job-no) = "-00" THEN v-job-no = "".
+  IF trim(v-job-no) = "-000" THEN v-job-no = "".
 
   
       IF v-printline >= 39 THEN DO:
@@ -178,7 +177,7 @@ FOR EACH tt-boll,
          lv-qcase-tot = lv-qcase-tot + tt-boll.qty-case
          lv-partial-tot = lv-partial-tot + tt-boll.partial
          lv-pal-tot = lv-pal-tot + tt-boll2.pallets
-         v-job-no = fill(" ",6 - length(trim(tt-boll.job-no))) +
+         v-job-no = FILL(" ", iJobLen - length(trim(tt-boll.job-no))) +
                     trim(tt-boll.job-no) + "-" +
                     trim(string(tt-boll.job-no2,"99"))
          tt-boll.printed = yes.

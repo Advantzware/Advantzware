@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -36,6 +38,7 @@ def input parameter ip-cur-val as cha no-undo.
 def input parameter ip-inv-val as INT no-undo.
 DEF INPUT PARAMETER ip-selection AS CHAR NO-UNDO.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
@@ -148,8 +151,8 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      oe-boll.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U
-      oe-boll.job-no2 COLUMN-LABEL "#" FORMAT ">9":U
+      oe-boll.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U
+      oe-boll.job-no2 COLUMN-LABEL "#" FORMAT ">>9":U
       oe-boll.loc FORMAT "x(5)":U
       oe-boll.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       oe-boll.tag COLUMN-LABEL "Tag#" FORMAT "x(22)":U

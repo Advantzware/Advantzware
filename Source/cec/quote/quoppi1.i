@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /*cec/quote/quoppi1.i */
         PUT "<C3><R2><#1><R+8><C+45><IMAGE#1=" ls-full-img1 SKIP /* preferred package */ 
    
@@ -37,14 +38,14 @@
    terms.dscr FORM "x(15)" space(5) sman.sname space(5) v-over-under SKIP.
 
 PUT "<||3><R23><C1><#5><FROM><R25><C80><RECT>" SKIP    
-             "<R23><C6><FROM><R25><C6><LINE>" SKIP
-             "<R23><C32><FROM><R25><C32><LINE>" SKIP
-             "<R23><C48><FROM><R25><C48><LINE>" SKIP
+             "<R23><C7><FROM><R25><C7><LINE>" SKIP
+             "<R23><C31><FROM><R25><C31><LINE>" SKIP
+             "<R23><C47><FROM><R25><C47><LINE>" SKIP
              "<R23><C55><FROM><R25><C55><LINE>" SKIP
              "<R23><C62><FROM><R25><C62><LINE>" SKIP
              "<R23><C72><FROM><R25><C72><LINE>" SKIP
              .
-  PUT "<FMS Mincho><=5><R+1> Est#      Description/Style/Color/Board            Item            Quantity   Release       Price       UOM "
+  PUT "<FMS Mincho><=5><R+1> Est#      Description/Style/Color/Board            Item           Quantity    Release       Price       UOM "
        SKIP(1).
   
 

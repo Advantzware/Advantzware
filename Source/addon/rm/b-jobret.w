@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -206,11 +207,11 @@ DEFINE BROWSE Browser-Table
       rm-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       rm-rctd.rct-date COLUMN-LABEL "Return Date" FORMAT "99/99/9999":U
       rm-rctd.po-no FORMAT "x(6)":U
-      rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U
-      rm-rctd.job-no2 FORMAT "99":U
+      rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U
+      rm-rctd.job-no2 FORMAT "999":U
       rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U
       rm-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
-      rm-rctd.s-num COLUMN-LABEL "S" FORMAT ">9":U
+      rm-rctd.s-num COLUMN-LABEL "F" FORMAT ">9":U
       rm-rctd.b-num COLUMN-LABEL "B" FORMAT ">9":U
       rm-rctd.qty COLUMN-LABEL "Qty" FORMAT "->>>>>>9.9<<<<<":U
       rm-rctd.pur-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U WIDTH 7
@@ -348,7 +349,7 @@ AND rm-rctd.qty LT 0"
      _FldNameList[10]   > asi.rm-rctd.i-name
 "i-name" "Name/Desc" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > asi.rm-rctd.s-num
-"s-num" "S" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"s-num" "F" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > asi.rm-rctd.b-num
 "b-num" "B" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > asi.rm-rctd.qty
@@ -849,7 +850,7 @@ END.
 
 &Scoped-define SELF-NAME rm-rctd.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON ENTRY OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:    
   IF onlyOneForm() THEN DO:
     APPLY 'TAB' TO SELF.
@@ -862,7 +863,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:
    IF rm-rctd.s-num NE INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
       RUN update-qty-proc.
@@ -1652,7 +1653,7 @@ PROCEDURE lookup-job-mat :
       FOR EACH job-mat
           WHERE job-mat.company    EQ cocode
             AND job-mat.job        EQ job.job 
-            AND job-mat.job-no     EQ INPUT rm-rctd.job-no
+            AND job-mat.job-no     EQ rm-rctd.job-no:SCREEN-VALUE
             AND job-mat.job-no2    EQ INPUT rm-rctd.job-no2 
             AND (ip-for-item-only OR
                  (job-mat.frm      EQ INT(rm-rctd.s-num:SCREEN-VALUE) AND
@@ -1868,7 +1869,7 @@ PROCEDURE new-job-no :
     IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:
       ASSIGN
        lv-job-no = rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-       lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no).
+       lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no)) .
 
       RELEASE job-hdr.
 
@@ -2424,7 +2425,7 @@ PROCEDURE valid-job-no :
       ASSIGN
        lv-job-no = rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} =
-           FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
+           STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no))           
        lv-po-no = INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
 
       IF NOT CAN-FIND(FIRST job
@@ -2957,7 +2958,7 @@ FUNCTION onlyOneForm RETURNS LOGICAL
 
   FIND FIRST bJob NO-LOCK
       WHERE bJob.company EQ cocode
-        AND bJob.job-no EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+        AND bJob.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
         AND bJob.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE) NO-ERROR.
   IF AVAILABLE bJob THEN DO:
     FIND FIRST bJobMat NO-LOCK

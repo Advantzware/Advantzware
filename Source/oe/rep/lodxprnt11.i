@@ -70,7 +70,7 @@ IF iplPrintView THEN do:
         PUT "<||><R58><C51><#14><FROM><R63><C80><RECT>" SKIP.            
         
         PUT "<FArial><=10><R56><C50><B><P22> Job# </B>" SKIP.
-        PUT "<FArial><=10><R59><C55><B><P24>  " tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99")  "</B><P12>" SKIP.
+        PUT "<FArial><=10><R59><C55><B><P24>  " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-word-print.job-no, tt-word-print.job-no2))) FORM "x(13)" "</B><P12>" SKIP.
         .
         
         PUT "<FCourier New>".
@@ -133,7 +133,7 @@ ELSE DO:
         PUT "<||><R78><C51><#14><FROM><R83><C80><RECT>" SKIP.            
         
         PUT "<FArial><=10><R76><C50><B><P22> Job# </B>" SKIP.
-        PUT "<FArial><=10><R79><C55><B><P24>  " tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99")  "</B><P12>" SKIP.
+        PUT "<FArial><=10><R79><C55><B><P24>  " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-word-print.job-no, tt-word-print.job-no2))) FORM "x(13)" "</B><P12>" SKIP.
         .
         
         PUT "<FCourier New>".

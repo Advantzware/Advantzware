@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -302,11 +303,11 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       rm-rctd.po-no FORMAT "x(6)":U LABEL-BGCOLOR 14
       rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      rm-rctd.job-no2 FORMAT "99":U
+      rm-rctd.job-no2 FORMAT "999":U
       rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U LABEL-BGCOLOR 14
       rm-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
-      rm-rctd.s-num COLUMN-LABEL "S" FORMAT ">9":U
+      rm-rctd.s-num COLUMN-LABEL "F" FORMAT ">9":U
       rm-rctd.b-num COLUMN-LABEL "B" FORMAT ">9":U
       rm-rctd.qty COLUMN-LABEL "Qty" FORMAT "->>>>>>9.9<<<<<":U
             LABEL-BGCOLOR 14
@@ -456,7 +457,7 @@ AND rm-rctd.tag NE ''"
      _FldNameList[10]   > asi.rm-rctd.i-name
 "i-name" "Name/Desc" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > asi.rm-rctd.s-num
-"s-num" "S" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"s-num" "F" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > asi.rm-rctd.b-num
 "b-num" "B" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > asi.rm-rctd.qty
@@ -807,9 +808,9 @@ DO:
      
         IF rm-rctd.job-no:SCREEN-VALUE = "" AND rm-rctd.i-no:SCREEN-VALUE = gv-item-no THEN DO:        
             ASSIGN rm-rctd.job-no:SCREEN-VALUE = gv-job-no
-                   rm-rctd.job-no2:SCREEN-VALUE = STRING(gv-job-no2, "99").
+                   rm-rctd.job-no2:SCREEN-VALUE = STRING(gv-job-no2, "999").
             rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} =
-                  FILL(" ",6 - LENGTH(TRIM(gv-job-no))) + TRIM(gv-job-no).
+                  STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', gv-job-no)).
             
             IF rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN
                RUN set-s-b-proc.
@@ -968,7 +969,7 @@ DO:
                    ).
                IF lParse THEN 
                     ASSIGN 
-                        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = cJobNo
+                        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo))
                         rm-rctd.job-no2:SCREEN-VALUE = IF cJobNo2 NE "" THEN cJobNo2 ELSE rm-rctd.job-no2:SCREEN-VALUE  
                         rm-rctd.s-num:SCREEN-VALUE = IF cFormNo NE "" THEN cFormNo ELSE rm-rctd.s-num:SCREEN-VALUE
                         rm-rctd.b-num:SCREEN-VALUE = IF cBlankNo NE "" THEN cBlankNo ELSE rm-rctd.b-num:SCREEN-VALUE 
@@ -979,12 +980,11 @@ DO:
       ASSIGN gv-job-no = trim(rm-rctd.job-no:SCREEN-VALUE) /* stacey */
              gv-job-no2 = INTEGER(rm-rctd.job-no2:SCREEN-VALUE)
              gv-item-no = rm-rctd.i-no:SCREEN-VALUE /* stacey */
-             v-job-no = fill(" ",6 - length(trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-                 trim(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+             v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})).
    
       FOR EACH b-job FIELDS(job-no2) WHERE
           b-job.company EQ cocode AND
-          b-job.job-no EQ v-job-no
+          b-job.job-no  EQ v-job-no
           NO-LOCK:
      
           IF v-job-no-2 EQ -1 THEN
@@ -1124,7 +1124,7 @@ END.
 
 &Scoped-define SELF-NAME rm-rctd.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON ENTRY OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:    
   IF onlyOneForm() THEN DO:
     APPLY 'TAB' TO SELF.
@@ -1137,7 +1137,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:
    IF LASTKEY NE -1 THEN DO:      
       RUN valid-s-num NO-ERROR.
@@ -2343,7 +2343,7 @@ PROCEDURE lookup-job-mat :
       FOR EACH job-mat
           WHERE job-mat.company    EQ cocode
             AND job-mat.job        EQ job.job 
-            AND job-mat.job-no     EQ INPUT rm-rctd.job-no
+            AND job-mat.job-no     EQ rm-rctd.job-no:SCREEN-VALUE
             AND job-mat.job-no2    EQ INPUT rm-rctd.job-no2 
             AND (ip-for-item-only OR
                  (job-mat.frm      EQ INT(rm-rctd.s-num:SCREEN-VALUE) AND
@@ -2597,7 +2597,7 @@ PROCEDURE new-job-no :
     IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:
       ASSIGN
        lv-job-no = rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-       lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no).
+       lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no)) .
 
       RELEASE job-hdr.
 
@@ -2830,7 +2830,7 @@ PROCEDURE set-s-b-proc :
    
    ASSIGN
        cJobNo = rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-       cJobNo = FILL(" ",6 - LENGTH(TRIM(cJobNo))) + TRIM(cJobNo).           
+       cJobNo = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo)).           
            
    FOR EACH job
        WHERE job.company EQ cocode
@@ -3190,7 +3190,7 @@ PROCEDURE valid-job-no :
       ASSIGN
        lv-job-no = rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} =
-           FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
+           STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no))           
        lv-po-no = INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
 
       IF NOT CAN-FIND(FIRST job
@@ -3468,7 +3468,7 @@ DEFINE BUFFER bf-job-hdr FOR job-hdr .
   DO WITH FRAME {&FRAME-NAME}:  
      ASSIGN
        cJobNo = rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-       cJobNo = FILL(" ",6 - LENGTH(TRIM(cJobNo))) + TRIM(cJobNo).
+       cJobNo = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo)).
 
       RELEASE bf-job-hdr.
 
@@ -3497,7 +3497,7 @@ DEFINE BUFFER bf-job-hdr FOR job-hdr .
       
     IF NOT lSetJob AND INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) EQ 0 AND 
         rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:                        
-      MESSAGE "Sheet # may not be 0..." VIEW-AS ALERT-BOX.
+      MESSAGE "Form # may not be 0..." VIEW-AS ALERT-BOX.
       APPLY "entry" TO rm-rctd.s-num IN BROWSE {&BROWSE-NAME}.
       RETURN ERROR.
     END.
@@ -3584,7 +3584,7 @@ PROCEDURE validate-jobmat :
                      BUTTON YES-NO UPDATE ll-ans AS LOG.
        IF ll-ans THEN DO:
             FIND FIRST job WHERE job.company = cocode
-                             AND job.job-no =  rm-rctd.job-no:SCREEN-VALUE
+                             AND job.job-no  = rm-rctd.job-no:SCREEN-VALUE
                              AND job.job-no2 = int(rm-rctd.job-no2:SCREEN-VALUE)
                              NO-LOCK NO-ERROR.
             v-job-up = 0.
@@ -3848,7 +3848,7 @@ FUNCTION onlyOneForm RETURNS LOGICAL
 
   FIND FIRST bJob NO-LOCK
       WHERE bJob.company EQ cocode
-        AND bJob.job-no EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+        AND bJob.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
         AND bJob.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE) NO-ERROR.
   IF AVAILABLE bJob THEN DO:
     FIND FIRST bJobMat NO-LOCK

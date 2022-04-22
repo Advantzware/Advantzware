@@ -12,7 +12,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 /* Create an unnamed pool to store all the widgets created 
      by this procedure. This is a good default which assures
      that this procedure's triggers and internal procedures 
@@ -498,7 +498,7 @@ DEFINE VARIABLE fiText2 AS CHARACTER FORMAT "X(256)":U INITIAL "FOB:"
      VIEW-AS FILL-IN 
      SIZE 6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_prev_order AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_prev_order AS CHARACTER FORMAT "X(8)":U 
      LABEL "Previous Order #" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1.
@@ -574,23 +574,23 @@ DEFINE FRAME F-Main
      fiStatDesc AT ROW 9.33 COL 87 COLON-ALIGNED NO-TAB-STOP 
      fiShipName AT ROW 6.86 COL 23.8 COLON-ALIGNED NO-LABEL WIDGET-ID 28
      fiText1 AT ROW 12.91 COL 79 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     oe-ord.ord-no AT ROW 1.24 COL 10 COLON-ALIGNED
+     oe-ord.ord-no AT ROW 1.24 COL 10 COLON-ALIGNED FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
+          SIZE 14 BY 1
      fiText2 AT ROW 13.95 COL 109 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     fi_type AT ROW 1.24 COL 29 COLON-ALIGNED HELP
+     fi_type AT ROW 1.24 COL 31.4 COLON-ALIGNED HELP
           "Enter Order Type (O)riginal, (R)epeat, repeat with (C)hange"
-     oe-ord.est-no AT ROW 1.24 COL 47.2 COLON-ALIGNED FORMAT "x(8)"
+     oe-ord.est-no AT ROW 1.24 COL 49 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     oe-ord.job-no AT ROW 1.24 COL 76.8 COLON-ALIGNED
-          LABEL "Job Number" FORMAT "x(6)"
+     oe-ord.job-no AT ROW 1.24 COL 78 COLON-ALIGNED
+          LABEL "Job Number" FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 16.6 BY 1
-     oe-ord.job-no2 AT ROW 1.24 COL 93.8 COLON-ALIGNED NO-LABEL
+     oe-ord.job-no2 AT ROW 1.24 COL 95 COLON-ALIGNED NO-LABEL FORMAT ">>9"
           VIEW-AS FILL-IN 
-          SIZE 4.8 BY 1
-     oe-ord.priority AT ROW 1.24 COL 111 COLON-ALIGNED
+          SIZE 7 BY 1
+     oe-ord.priority AT ROW 1.24 COL 112 COLON-ALIGNED
           LABEL "Priority" FORMAT "9"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
@@ -684,7 +684,7 @@ DEFINE FRAME F-Main
           SIZE 47 BY 1
      fi_prev_order AT ROW 9.33 COL 60 COLON-ALIGNED WIDGET-ID 2
      oe-ord.tax-gr AT ROW 10.33 COL 60 COLON-ALIGNED
-          LABEL "Tax Code"
+          LABEL "Tax Group"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      oe-ord.managed AT ROW 11.38 COL 50
@@ -953,16 +953,20 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_type IN FRAME F-Main
    NO-ENABLE 2 5                                                        */
+/* SETTINGS FOR FILL-IN oe-ord.ord-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-ord.job-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ord.job-no2 IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ord.last-date IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR TOGGLE-BOX oe-ord.managed IN FRAME F-Main
    2 5                                                                  */
 /* SETTINGS FOR FILL-IN oe-ord.ord-date IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN oe-ord.ord-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-ord.po-no IN FRAME F-Main
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN oe-ord.poReceivedDate IN FRAME F-Main
@@ -2054,7 +2058,7 @@ END.
 
 &Scoped-define SELF-NAME oe-ord.tax-gr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.tax-gr V-table-Win
-ON LEAVE OF oe-ord.tax-gr IN FRAME F-Main /* Tax Code */
+ON LEAVE OF oe-ord.tax-gr IN FRAME F-Main /* Tax Group */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-tax-gr NO-ERROR.
@@ -3463,14 +3467,10 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
         job-hdr.ord-no  EQ 0)
         USE-INDEX enum:
 
-        DO loop-limit = 1 TO 1000:
           FIND del-job-hdr WHERE ROWID(del-job-hdr) EQ ROWID(job-hdr)
-          EXCLUSIVE NO-WAIT NO-ERROR.
-          IF AVAIL del-job-hdr THEN DO:
+          EXCLUSIVE NO-ERROR.
+          IF AVAIL del-job-hdr THEN
             DELETE del-job-hdr.
-            LEAVE.
-          END.
-        END.
       END. /* Each Job-hdr */
 
       FIND FIRST job
@@ -3677,14 +3677,10 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
     AND job-hdr.ord-no  EQ oe-ord.ord-no
     AND job-hdr.est-no  EQ oe-ord.est-no:
 
-    DO loop-limit = 1 TO 1000:
       FIND del-job-hdr WHERE ROWID(del-job-hdr) EQ ROWID(job-hdr)
-      EXCLUSIVE NO-WAIT NO-ERROR.
-      IF AVAIL del-job-hdr THEN DO:
+      EXCLUSIVE NO-ERROR.
+      IF AVAIL del-job-hdr THEN
         DELETE del-job-hdr.
-        LEAVE.
-      END.
-    END.
   END.
   RELEASE job.
   RELEASE job-hdr.
@@ -4147,13 +4143,13 @@ IF AVAIL xest THEN DO:
       FIND xoe-ord WHERE RECID(xoe-ord) = recid(oe-ord) NO-LOCK.
 
       IF ll-do-job THEN DO:
-          cEstNo = FILL(" ",6 - length(TRIM(oe-ord.est-no:screen-value))) + trim(oe-ord.est-no:screen-value).
-        v-job-no = FILL(" ",6 - length(TRIM(oe-ord.ord-no:screen-value))) + oe-ord.ord-no:screen-value.
+          cEstNo = FILL(" ",8 - length(TRIM(oe-ord.est-no:screen-value))) + trim(oe-ord.est-no:screen-value).
+        v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ord.ord-no:screen-value)).
         RUN jc/job-no.p (INPUT-OUTPUT v-job-no, INPUT-OUTPUT v-job-no2,INPUT v-prod-cat,
                          INPUT cEstNo).
 
         IF v-job-no EQ "" THEN
-          v-job-no = cEstNo.
+          v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cEstNo)).
 
       END.
       ELSE
@@ -6685,8 +6681,7 @@ FOR EACH oe-ordl OF oe-ord NO-LOCK:
         FIND FIRST fg-rcpts USE-INDEX cust-no
             WHERE fg-rcpts.company EQ oe-ord.company
                 AND fg-rcpts.cust-no EQ oe-ord.cust-no
-                AND fg-rcpts.job-no  EQ FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
-                TRIM(oe-ordl.job-no)
+                AND fg-rcpts.job-no  EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.job-no))
                 AND fg-rcpts.job-no2 EQ oe-ordl.job-no2
                 AND fg-rcpts.i-no    EQ oe-ordl.i-no
             NO-LOCK NO-ERROR.
@@ -6694,8 +6689,7 @@ FOR EACH oe-ordl OF oe-ord NO-LOCK:
         IF NOT AVAIL fg-rcpts THEN
         FIND FIRST fg-rcpth USE-INDEX job
             WHERE fg-rcpth.company EQ oe-ord.company
-                AND fg-rcpth.job-no  EQ FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
-                TRIM(oe-ordl.job-no)
+                AND fg-rcpth.job-no  EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.job-no))
                 AND fg-rcpth.job-no2 EQ oe-ordl.job-no2
                 AND fg-rcpth.i-no    EQ oe-ordl.i-no
             NO-LOCK NO-ERROR.
@@ -6780,13 +6774,13 @@ DEF VAR op-values AS CHAR NO-UNDO.
 DEF VAR lValid AS LOG NO-UNDO.
 DEF VAR i AS INT.
 DEF VAR ip-parms AS CHAR.
-DEF VAR lcUserPrompt AS CHAR INIT "Enter the order number to use:".
+DEF VAR lcUserPrompt AS CHAR INIT "Enter the order number to add:".
 
 DEF VAR lcNewOrder AS CHAR.
 
 ip-parms = 
    "type=literal,name=fi4,row=4,col=18,enable=false,width=58,scrval=" + lcUserPrompt + ",FORMAT=X(58)"
-    + "|type=fill-in,name=tg2,row=5,col=18,enable=true,width=10"
+    + "|type=fill-in,name=tg2,row=5,col=18,enable=true,width=15,format=X(8)"
     + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true " 
     + "|type=win,name=fi3,enable=true,label=Question,FORMAT=X(30),height=11".
 prompt-loop:
@@ -7632,8 +7626,7 @@ PROCEDURE valid-job-no :
 
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-    oe-ord.job-no:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(oe-ord.job-no:SCREEN-VALUE))) +
-                                 TRIM(oe-ord.job-no:SCREEN-VALUE).
+    oe-ord.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ord.job-no:SCREEN-VALUE)).
   END.
 
   {methods/lValidateError.i NO}

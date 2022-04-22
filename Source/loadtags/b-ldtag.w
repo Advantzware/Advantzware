@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -105,7 +106,7 @@ AND loadtag.i-name BEGINS tb_i-name USE-INDEX tag  NO-LOCK, ~
     IF lv-sort-by EQ "loc-bin"    THEN loadtag.loc-bin         ELSE ~
     IF lv-sort-by EQ "i-no"       THEN loadtag.i-no            ELSE ~
     IF lv-sort-by EQ "i-name"     THEN loadtag.i-name          ELSE ~
-    IF lv-sort-by EQ "job-no"     THEN STRING(loadtag.job-no,"x(6)") + STRING(loadtag.job-no2,"99")   ELSE ~
+    IF lv-sort-by EQ "job-no"     THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', loadtag.job-no, loadtag.job-no2)) ELSE ~
     IF lv-sort-by EQ "po-no" THEN STRING(loadtag.po-no)   ELSE ~
     IF lv-sort-by EQ "rfidtag" THEN STRING(rfidtag.rfidtag)   ELSE ~
         loadtag.tag-no
@@ -246,7 +247,7 @@ DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE tb_i-name AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
-     SIZE 30 BY 1
+     SIZE 28 BY 1
      BGCOLOR 15 .
 
 DEFINE VARIABLE tb_i-no AS CHARACTER FORMAT "x(15)" 
@@ -254,14 +255,14 @@ DEFINE VARIABLE tb_i-no AS CHARACTER FORMAT "x(15)"
      SIZE 19 BY 1
      BGCOLOR 15 .
 
-DEFINE VARIABLE tb_job-no AS CHARACTER FORMAT "x(6)" 
+DEFINE VARIABLE tb_job-no AS CHARACTER FORMAT "x(9)" 
      VIEW-AS FILL-IN 
-     SIZE 8.6 BY 1
+     SIZE 11.6 BY 1
      BGCOLOR 15 .
 
-DEFINE VARIABLE tb_job-no2 AS INTEGER FORMAT ">9" INITIAL 0 
+DEFINE VARIABLE tb_job-no2 AS INTEGER FORMAT ">>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 3.8 BY 1
+     SIZE 5.4 BY 1
      BGCOLOR 15 .
 
 DEFINE VARIABLE tb_loc AS CHARACTER FORMAT "x(5)" 
@@ -274,14 +275,14 @@ DEFINE VARIABLE tb_loc-bin AS CHARACTER FORMAT "x(8)"
      SIZE 12 BY 1
      BGCOLOR 15 .
 
-DEFINE VARIABLE tb_ord-no AS INTEGER FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE tb_ord-no AS INTEGER FORMAT ">>>>>>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 8.8 BY 1
+     SIZE 10.8 BY 1
      BGCOLOR 15 .
 
-DEFINE VARIABLE tb_po-no AS INTEGER FORMAT ">>>>>>>9" INITIAL 0 
+DEFINE VARIABLE tb_po-no AS INTEGER FORMAT ">>>>>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1
+     SIZE 11 BY 1
      BGCOLOR 15 .
 
 DEFINE VARIABLE tb_rfidtag AS CHARACTER FORMAT "X(24)" 
@@ -316,10 +317,10 @@ DEFINE BROWSE Browser-Table
       loadtag.tag-no COLUMN-LABEL "Tag" FORMAT "X(23)":U LABEL-BGCOLOR 14
       loadtag.loc FORMAT "x(5)":U LABEL-BGCOLOR 14
       loadtag.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U LABEL-BGCOLOR 14
-      loadtag.job-no2 COLUMN-LABEL "#" FORMAT ">9":U
+      loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U LABEL-BGCOLOR 14
+      loadtag.job-no2 COLUMN-LABEL "#" FORMAT ">>9":U
       loadtag.po-no COLUMN-LABEL "PO" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
-      loadtag.ord-no COLUMN-LABEL "Order" FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      loadtag.ord-no COLUMN-LABEL "Order" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       loadtag.i-no COLUMN-LABEL "Item" FORMAT "x(15)":U LABEL-BGCOLOR 14
       loadtag.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       loadtag.qty-case COLUMN-LABEL "Unit!Count" FORMAT "->,>>>,>>9":U
@@ -354,15 +355,15 @@ DEFINE FRAME F-Main
           "Enter the plant/warehouse location" NO-LABEL
      tb_loc-bin AT ROW 1.71 COL 46 COLON-ALIGNED HELP
           "Enter Bin Location where Item is Stocked" NO-LABEL
-     tb_job-no AT ROW 1.71 COL 58 COLON-ALIGNED HELP
+     tb_job-no AT ROW 1.71 COL 58.1 COLON-ALIGNED HELP
           "Job Number." NO-LABEL
-     tb_job-no2 AT ROW 1.71 COL 66.6 COLON-ALIGNED HELP
+     tb_job-no2 AT ROW 1.71 COL 70.0 COLON-ALIGNED HELP
           "Enter Job sub-number." NO-LABEL
-     tb_po-no AT ROW 1.71 COL 70.4 COLON-ALIGNED NO-LABEL
-     tb_ord-no AT ROW 1.71 COL 84 COLON-ALIGNED NO-LABEL
-     tb_i-no AT ROW 1.71 COL 92 COLON-ALIGNED HELP
+     tb_po-no AT ROW 1.71 COL 75.8 COLON-ALIGNED NO-LABEL
+     tb_ord-no AT ROW 1.71 COL 87 COLON-ALIGNED NO-LABEL
+     tb_i-no AT ROW 1.71 COL 98 COLON-ALIGNED HELP
           "Enter Item Number." NO-LABEL
-     tb_i-name AT ROW 1.71 COL 111 COLON-ALIGNED HELP
+     tb_i-name AT ROW 1.71 COL 115.4 COLON-ALIGNED HELP
           "Enter finished goods item name." NO-LABEL
      tb_rfidtag AT ROW 2.91 COL 2 NO-LABEL WIDGET-ID 10
      btn_go AT ROW 4.33 COL 2 WIDGET-ID 2
@@ -375,7 +376,7 @@ DEFINE FRAME F-Main
           SIZE 7 BY .62 AT ROW 1.05 COL 126
           FGCOLOR 9 FONT 6
      "Order" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.05 COL 87
+          SIZE 8 BY .62 AT ROW 1.05 COL 90
           FGCOLOR 9 FONT 6
      "Tag#/RFID#" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 1.05 COL 10
@@ -384,10 +385,10 @@ DEFINE FRAME F-Main
           SIZE 4 BY .62 AT ROW 1.05 COL 52
           FGCOLOR 9 FONT 6
      "Item" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.05 COL 98
+          SIZE 7 BY .62 AT ROW 1.05 COL 101
           FGCOLOR 9 FONT 6
      "PO" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 1.05 COL 75
+          SIZE 5 BY .62 AT ROW 1.05 COL 78
           FGCOLOR 9 FONT 6
      "Job" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.05 COL 64
@@ -708,7 +709,7 @@ ON LEAVE OF tb_job-no IN FRAME F-Main
 DO:
   DEF VAR lv-job-no AS CHAR NO-UNDO.
   lv-job-no = SELF:SCREEN-VALUE.
-  lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + lv-job-no.
+  lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no)) .
   SELF:SCREEN-VALUE = lv-job-no.
 END.
 

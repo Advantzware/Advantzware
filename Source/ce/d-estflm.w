@@ -150,7 +150,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
       est-flm.i-no FORMAT "x(25)":U
       est-flm.dscr FORMAT "x(30)":U
-      est-flm.snum FORMAT ">>>":U
+      est-flm.snum COLUMN-LABEL "Form #" FORMAT ">>>":U
       est-flm.bnum FORMAT ">>>":U
       est-flm.len FORMAT ">9.9999":U
       est-flm.wid FORMAT ">9.9999":U WIDTH 7.8
@@ -341,7 +341,7 @@ END.
 
 &Scoped-define SELF-NAME est-flm.snum
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-flm.snum BROWSE-1 _BROWSE-COLUMN Dialog-Frame
-ON ENTRY OF est-flm.snum IN BROWSE BROWSE-1 /* Sheet # */
+ON ENTRY OF est-flm.snum IN BROWSE BROWSE-1 /* Form # */
 DO:
     IF NOT ll-update-record  AND NOT ll-new-record
       THEN RETURN NO-APPLY.
@@ -353,7 +353,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-flm.snum BROWSE-1 _BROWSE-COLUMN Dialog-Frame
-ON HELP OF est-flm.snum IN BROWSE BROWSE-1 /* Sheet # */
+ON HELP OF est-flm.snum IN BROWSE BROWSE-1 /* Form # */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
 
@@ -372,7 +372,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-flm.snum BROWSE-1 _BROWSE-COLUMN Dialog-Frame
-ON LEAVE OF est-flm.snum IN BROWSE BROWSE-1 /* Sheet # */
+ON LEAVE OF est-flm.snum IN BROWSE BROWSE-1 /* Form # */
 DO:
  
  IF LASTKEY = -1 THEN RETURN.
@@ -393,7 +393,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-flm.snum BROWSE-1 _BROWSE-COLUMN Dialog-Frame
-ON VALUE-CHANGED OF est-flm.snum IN BROWSE BROWSE-1 /* Sheet # */
+ON VALUE-CHANGED OF est-flm.snum IN BROWSE BROWSE-1 /* Form # */
 DO:
   RUN new-blank-no (1).
 END.

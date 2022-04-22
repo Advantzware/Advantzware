@@ -214,7 +214,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      est-op.s-num COLUMN-LABEL "S" FORMAT ">>>":U LABEL-BGCOLOR 14
+      est-op.s-num COLUMN-LABEL "F" FORMAT ">>>":U LABEL-BGCOLOR 14
       est-op.b-num COLUMN-LABEL "B" FORMAT ">>>":U
       est-op.m-code COLUMN-LABEL "Machine" FORMAT "x(6)":U COLUMN-FONT 0
             LABEL-BGCOLOR 14
@@ -353,7 +353,7 @@ ASSIGN
  (ASI.est-op.qty eq lv-eqty and est.est-type ge 3)) 
   "
      _FldNameList[1]   > ASI.est-op.s-num
-"est-op.s-num" "S" ">>>" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"est-op.s-num" "F" ">>>" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.est-op.b-num
 "est-op.b-num" "B" ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.est-op.m-code

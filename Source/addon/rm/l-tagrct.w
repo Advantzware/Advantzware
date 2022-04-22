@@ -28,7 +28,7 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-
+{sys/inc/var.i}
 /* Local Variable Definitions ---                                       */
 def input parameter ip-company like itemfg.company no-undo.
 DEF INPUT PARAM ip-item-type AS LOG NO-UNDO.
@@ -154,9 +154,9 @@ DEFINE BROWSE BROWSE-1
       loadtag.i-no FORMAT "x(15)":U
       loadtag.i-name FORMAT "x(30)":U
       loadtag.po-no FORMAT ">>>>>>>9":U
-      loadtag.ord-no FORMAT ">>>>>9":U
-      loadtag.job-no FORMAT "x(6)":U
-      loadtag.job-no2 FORMAT ">9":U
+      loadtag.ord-no FORMAT ">>>>>>>9":U
+      loadtag.job-no FORMAT "x(9)":U
+      loadtag.job-no2 FORMAT ">>9":U
       loadtag.loc COLUMN-LABEL "Location" FORMAT "x(5)":U
       loadtag.loc-bin FORMAT "x(8)":U
 /* _UIB-CODE-BLOCK-END */

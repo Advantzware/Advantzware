@@ -3,6 +3,7 @@
 /* GDM - 12/23/08                                                     */
 /* TASK# 12150808                                                     */
 /* ------------------------------------------------------------------ */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
     
 {sys/inc/var.i shared}
@@ -463,7 +464,8 @@ def var v-sh-addr3 as char format "x(30)" NO-UNDO.
                 v-price  format ">>>,>>9.9999"                
                 inv-line.t-price  format "->>>,>>9.99"                
                 SKIP
-                v-ord-no SPACE(10)
+                SPACE(1)
+                TRIM(STRING(v-ord-no,">>>>>>>9")) SPACE(7)
                 inv-line.i-no SPACE(1)
                 inv-line.part-dscr1  SPACE(11)
                 v-pc  FORM "x" SPACE(7)

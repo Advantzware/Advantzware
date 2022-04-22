@@ -26,6 +26,7 @@
 /* Local Variable Definitions ---                                       */
 DEF INPUT PARAM ip-company AS CHAR NO-UNDO.
 def output param op-char-val as cha no-undo.
+{sys/inc/var.i}
 
 DEF TEMP-TABLE tt-zone NO-UNDO
     FIELD zone AS CHAR

@@ -349,7 +349,7 @@ ELSE lv-comp-color = "BLACK".
 
             PUT SPACE(1) v-po-no FORM "x(10)" SPACE(1)
                 v-ship-qty  format "->>>>>9" SPACE(1)
-                ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
+                ar-invl.ord-no FORM ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
                 v-i-dscr  format "x(22)" SPACE(1)
                 v-price  format "->>,>>9.99" SPACE(1)
@@ -372,11 +372,11 @@ ELSE lv-comp-color = "BLACK".
                     {ar/rep/invcscin.i}
                  END.
                  IF v = 1 THEN do:
-                    PUT SPACE(28) ar-invl.part-no SPACE v-part-info SKIP.
+                    PUT SPACE(29) ar-invl.part-no SPACE v-part-info SKIP.
                     v-printline = v-printline + 1.
                  END.
                  ELSE IF v-part-info <> "" THEN do:
-                     put space(42) v-part-info skip.
+                     put space(43) v-part-info skip.
                      v-printline = v-printline + 1.
                  END.
               end.

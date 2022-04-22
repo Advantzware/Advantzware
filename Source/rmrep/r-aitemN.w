@@ -73,11 +73,11 @@ DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
 
 ASSIGN 
     cTextListToSelect  = "ITEM,DESCRIPTION,CAT,UOM,COST,ON HAND,ON ORDER,QTY ALLOCATED," +
-                           "REORDER LEVEL,QTY AVAILABLE,VALUE,TON,Item Name,Available On Hand" 
+                           "REORDER LEVEL,QTY AVAILABLE,VALUE,ON HAND TON,Item Name,Available On Hand,TON Avail OH" 
     cFieldListToSelect = "item,desc,cat,uom,cost,on-hand,on-order,qty-all," +
-                            "reord-l,qty-avail,value,ton,itemName,avail-on-hand"
-    cFieldLength       = "10,20,5,3,9,14,14,14," + "13,14,11,11,30,17"
-    cFieldType         = "c,c,c,c,i,i,i,i," + "i,i,i,i,c,i" 
+                            "reord-l,qty-avail,value,ton,itemName,avail-on-hand,ton-avail-oh"
+    cFieldLength       = "10,20,5,3,9,14,14,14," + "13,14,11,11,30,17,13"
+    cFieldType         = "c,c,c,c,i,i,i,i," + "i,i,i,i,c,i,i" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1550,6 +1550,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-tons2        LIKE rm-bin.qty NO-UNDO.
     DEFINE VARIABLE v-MSF          AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE v-Tons         AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTonsAvailOH   AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE v-sqr-inch     AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE v-sq-feet      AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE v-wid          AS DECIMAL   NO-UNDO.
@@ -1709,11 +1710,18 @@ PROCEDURE run-report :
         ASSIGN lv-q-onh-avail = (lv-q-onh - item.q-comm).
             
         IF ITEM.cons-uom EQ "TON" THEN
-            v-tons = lv-q-onh .
-        ELSE
+            ASSIGN 
+                v-tons       = lv-q-onh 
+                dTonsAvailOH = lv-q-onh-avail
+                .
+        ELSE DO:
             RUN sys/ref/convquom.p (ITEM.cons-uom, "TON",
                 item.basis-w, v-len, v-wid, item.s-dep,
                 lv-q-onh, OUTPUT v-tons).
+            RUN sys/ref/convquom.p (ITEM.cons-uom, "TON",
+                item.basis-w, v-len, v-wid, item.s-dep,
+                lv-q-onh-avail, OUTPUT dTonsAvailOH).    
+        END.
 
         ASSIGN 
             cDisplay       = ""
@@ -1754,6 +1762,8 @@ PROCEDURE run-report :
                     cVarValue = STRING(item.i-name,"x(30)").
                 WHEN "avail-on-hand"  THEN 
                     cVarValue = STRING(lv-q-onh-avail,"->,>>>,>>9.999") .
+                WHEN "ton-avail-oh"  THEN 
+                    cVarValue = STRING(dTonsAvailOH,"->>>>>>9.99") .
 
             END CASE.
 

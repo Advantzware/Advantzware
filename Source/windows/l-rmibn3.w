@@ -34,6 +34,7 @@ def input parameter ip-loc like rm-bin.loc no-undo.
 def input parameter ip-loc-bin like rm-bin.loc-bin no-undo.
 def input parameter ip-tag like rm-bin.tag no-undo.
 def output parameter op-rowid-val AS ROWID no-undo.
+{sys/inc/var.i}
 
 /* Local Variable Definitions ---                                       */
 def var lv-type-dscr as cha no-undo.

@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -82,7 +83,7 @@ ASSIGN cTextListToSelect  = "CUST #,CUST NAME,JOB #,FG ITEM,QUANTITY,PRICE,UOM,V
        cFieldType         = "c,c,c,c,i,i,c,c,c," + "i,i,i,i,i,i" 
     .
 IF lAPInvoiceLength THEN
-      ASSIGN cFieldLength = "8,30,9,15,8,10,3,30,20," + "10,10,8,6,10,5".
+      ASSIGN cFieldLength = "8,30,13,15,8,10,3,30,20," + "10,10,8,6,10,5".
 ELSE
       ASSIGN cFieldLength = "8,30,9,15,8,10,3,30,12," + "10,10,8,6,10,5".
       
@@ -168,42 +169,42 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY .95 NO-UNDO.
+     SIZE 20.4 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Customer" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-jobven.csv" 
      LABEL "Name" 
@@ -291,11 +292,11 @@ DEFINE FRAME FRAME-A
      rd_jstat AT ROW 2.43 COL 43 NO-LABEL
      begin_job-no AT ROW 4.1 COL 24 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 4.1 COL 36 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.1 COL 39 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 4.1 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 4.1 COL 79 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.1 COL 82 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_cust AT ROW 5.05 COL 24 COLON-ALIGNED HELP
           "Enter Beginning Customer"
@@ -1326,11 +1327,8 @@ assign
 
   v-stat        = SUBSTR(rd_jstat,1,1)
 
-  v-fjob        = fill(" ",6 - length(trim(begin_job-no))) +
-                  trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-tjob        = fill(" ",6 - length(trim(end_job-no)))   +
-                  trim(end_job-no)   + string(int(end_job-no2),"99")  
-
+  v-fjob    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2))
+  v-tjob    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2))   
   v-fcust       = begin_cust
   v-tcust       = END_cust
   v-fdate       = begin_date
@@ -1406,14 +1404,14 @@ display "" with frame r-top.
         where job-hdr.company eq cocode
           and job-hdr.cust-no ge v-fcust
           and job-hdr.cust-no le v-tcust
-          and job-hdr.job-no  ge substr(v-fjob,1,6)
-          and job-hdr.job-no  le substr(v-tjob,1,6)
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) + string(job-hdr.job-no2,"99")
+          and FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
+              trim(job-hdr.job-no) + string(job-hdr.job-no2,"999")
                           ge v-fjob
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) + string(job-hdr.job-no2,"99")
+          and FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
+              trim(job-hdr.job-no) + string(job-hdr.job-no2,"999")
                           le v-tjob
+          AND job-hdr.job-no2 GE int(begin_job-no2)
+          AND job-hdr.job-no2 LE int(end_job-no2)                
         use-index cust-idx no-lock,
 
         first job
@@ -1447,8 +1445,7 @@ display "" with frame r-top.
       if job.start-date + 60 lt v-fdate or
          job.start-date + 60 gt v-tdate then next.
 
-      v-job = fill(" ",6 - length(trim(job.job-no))) +
-              trim(job.job-no) + "-" + string(job.job-no2,"99").
+      v-job = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)) .
 
       create report.
       assign
@@ -1537,7 +1534,7 @@ display "" with frame r-top.
                     CASE cTmpField:             
                          WHEN "cust"    THEN cVarValue = string(job-hdr.cust-no,"x(8)") .
                          WHEN "cust-name"   THEN cVarValue = IF AVAIL cust THEN string(cust.NAME,"x(30)") ELSE "".
-                         WHEN "job"   THEN cVarValue = STRING(report.key-03,"x(9)").
+                         WHEN "job"   THEN cVarValue = STRING(report.key-03,"x(13)").
                          WHEN "fgitem"  THEN cVarValue = STRING(job-hdr.i-no,"x(15)") .
                          WHEN "qty"   THEN cVarValue = STRING(job-hdr.qty,">>>>>>>9") .
                          WHEN "price"  THEN cVarValue = IF AVAIL oe-ordl THEN STRING(oe-ordl.price,">>>>>>9.99<<<<") ELSE "".

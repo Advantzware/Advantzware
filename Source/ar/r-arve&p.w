@@ -74,7 +74,7 @@ DEFINE            VARIABLE lorow           AS INTEGER   NO-UNDO INIT 21.
 DEFINE            VARIABLE v-post-ok       AS LOG       NO-UNDO.
 DEFINE            VARIABLE total-msf       LIKE ar-invl.amt-msf NO-UNDO.
 DEFINE            VARIABLE v-s-inv-no      LIKE inv-head.inv-no INIT 0 NO-UNDO.
-DEFINE            VARIABLE v-e-inv-no      LIKE v-s-inv-no INIT 9999999 NO-UNDO.
+DEFINE            VARIABLE v-e-inv-no      LIKE v-s-inv-no INIT 99999999 NO-UNDO.
 DEFINE            VARIABLE v-s-date        LIKE inv-head.inv-date FORMAT "99/99/9999"
     INIT 01/01/0001 NO-UNDO.
 DEFINE            VARIABLE v-e-date        LIKE v-s-date INIT TODAY NO-UNDO.
@@ -1236,7 +1236,7 @@ PROCEDURE post-inv :
             AND CAN-FIND(FIRST ar-invl WHERE ar-invl.x-no = ar-inv.x-no )
             ON ERROR UNDO post-1, LEAVE post-1:
 
-            PUT SCREEN ROW lorow COLUMNS 70 STRING(ar-inv.inv-no,">>>>>>9") .
+            PUT SCREEN ROW lorow COLUMNS 70 STRING(ar-inv.inv-no,">>>>>>>9") .
 
             ASSIGN
                 ar-inv.period     = tran-period
@@ -1615,11 +1615,11 @@ PROCEDURE run-report :
                 END.
             END.
 
-        PUT SCREEN ROW lorow COLUMNS 70 STRING(ar-inv.inv-no,">>>>>>9") .
+        PUT SCREEN ROW lorow COLUMNS 70 STRING(ar-inv.inv-no,">>>>>>>9") .
         IF FIRST-OF(cust.cust-no) THEN PUT cust.cust-no SPACE(1) cust.name.
 
 
-        PUT ar-inv.inv-no   TO 47 FORM ">>>>>>9"
+        PUT ar-inv.inv-no   TO 47 FORM ">>>>>>>9"
             ar-inv.inv-date AT 49 FORM "99/99/99"
             ar-inv.net      AT 58.
 

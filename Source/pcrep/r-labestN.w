@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -77,19 +78,19 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
 ASSIGN 
-    cTextListToSelect  = "CHARGE,MACH,JOB #,S,B,ACTL RUN HRS,ACTL MR HRS,"
+    cTextListToSelect  = "CHARGE,MACH,JOB #,F,B,ACTL RUN HRS,ACTL MR HRS,"
               + "CHARGED,NO CHARGED,TTL ACT HRS,"
               + "EST RUN HRS,EST MR HRS,TTL EST HRS,LBR VAR"
     cFieldListToSelect = "chrg,mach,job,frm,blnk,act-run,act-mr," +
                                         "dwn-chrg,dwn-no,ttl-act," +    
                                         "est-run,est-mr,ttl-est,lbr-var"    
-    cFieldLength       = "6,8,10,2,2,12,11," + "10,10,11," + "11,10,11,11"
+    cFieldLength       = "6,8,13,2,2,12,11," + "10,10,11," + "11,10,11,11"
     cFieldType         = "c,c,c,c,c,i,i," + "i,i,i," + "i,i,i,i" 
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN 
-    cTextListToDefault = "CHARGE,MACH,JOB #,S,B,ACTL RUN HRS,ACTL MR HRS,"
+    cTextListToDefault = "CHARGE,MACH,JOB #,F,B,ACTL RUN HRS,ACTL MR HRS,"
               + "CHARGED,NO CHARGED,TTL ACT HRS,"
               + "EST RUN HRS,EST MR HRS,TTL EST HRS,LBR VAR" .
 
@@ -1740,7 +1741,7 @@ PROCEDURE run-report :
                     WHEN "mach"        THEN 
                         cVarValue = work-rep.m-code.
                     WHEN "job"           THEN 
-                        cVarValue = STRING(STRING(work-rep.job-no) + "-" + STRING(work-rep.job-no2))  .
+                        cVarValue = STRING(STRING(work-rep.job-no) + "-" + STRING(work-rep.job-no2,"999"))  .
                     WHEN "frm"          THEN 
                         cVarValue = STRING(work-rep.form-no) .
                     WHEN "blnk"          THEN 

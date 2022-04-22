@@ -901,15 +901,15 @@ assign
                     IF tb_corr THEN "B" ELSE "F"
                   ELSE
                     IF tb_corr THEN "C" ELSE ""
-  v-job-no[1]   = fill(" ",6 - length(trim(begin_job-no))) +
+  v-job-no[1]   = FILL(" ", iJobLen - length(trim(begin_job-no))) +
                   trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-job-no[2]   = fill(" ",6 - length(trim(end_job-no)))   +
+  v-job-no[2]   = FILL(" ", iJobLen - length(trim(end_job-no)))   +
                   trim(end_job-no)   + string(int(end_job-no2),"99") 
 
   v-date[1]     = begin_date
   v-date[2]     = END_date
   v-hdr[1]  =  fill(" ",122) 
-  v-hdr[2]  =  "   JOB#        S  B DUE DATE CUSTOMER ID BOARD CODE    SHEET WIDTH  SHEET LENGTH      SHEETS         LBS          LF"
+  v-hdr[2]  =  "   JOB#        F  B DUE DATE CUSTOMER ID BOARD CODE    SHEET WIDTH  SHEET LENGTH      SHEETS         LBS          LF"
   v-hdr[3]  = fill("-",122).
 
 {sys/inc/print1.i}
@@ -918,7 +918,7 @@ assign
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
-  excelheader = "JOB#,S,B,DUE DATE,CUSTOMER ID,BOARD CODE,SHEET WIDTH,SHEET LENGTH,SHEETS,LBS,LF".
+  excelheader = "JOB#,F,B,DUE DATE,CUSTOMER ID,BOARD CODE,SHEET WIDTH,SHEET LENGTH,SHEETS,LBS,LF".
 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.

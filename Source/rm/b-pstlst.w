@@ -145,7 +145,7 @@ DEFINE BROWSE Browser-Table
       rm-rctd.po-no
       rm-rctd.i-no COLUMN-LABEL "Item#"
       rm-rctd.i-name COLUMN-LABEL "Name/Description"
-      rm-rctd.s-num
+      rm-rctd.s-num COLUMN-LABEL "Form #"
       rm-rctd.job-no
       rm-rctd.job-no2
       rm-rctd.loc COLUMN-LABEL "Whse"

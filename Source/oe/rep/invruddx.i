@@ -1,5 +1,5 @@
 /* oe/rep/invruddx.i */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 PUT "<FArial>".
 PUT "<C2><R2><#1><R+7><C+65><IMAGE#1=" ls-full-img1 SKIP.
 PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
@@ -35,7 +35,7 @@ PUT "<R6><C50><FROM><R6><C80><LINE><||3>" SKIP
     "<R6><C65><FROM><R8><C65><LINE><||3>" SKIP
     "<R8><C65><FROM><R10><C65><LINE><||3>" SKIP. 
 */        
-PUT "</B><P10><R4><C50><#3><FArial><P12><=#3><R-2> <B>Invoice#: " inv-head.inv-no "</B><P10>" SKIP
+PUT "</B><P10><R4><C50><#3><FArial><P12><=#3><R-2> <B>Invoice#: " inv-head.inv-no FORMAT ">>>>>>>9" "</B><P10>" SKIP
     "<=#3> Invoice Date: " v-inv-date SKIP  .        
   /*  "<=#3> Customer ID             Contact"
     "<=#3><R+2> Telephone                        Fax" 
@@ -63,7 +63,7 @@ PUT "<FArial><=4><R+1>     Ship Date               FOB                        Sh
      v-shipvia FORM "x(20)" SPACE(1)
      xinv-head.terms-d FORM "x(15)" space(4) v-salesman FORM "x(8)"
      v-tot-pallets FORM "->>>>,>>9" 
-     xinv-head.bol-no
+     "<C73>"xinv-head.bol-no
     SKIP.
 
 

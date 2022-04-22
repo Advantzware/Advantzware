@@ -44,7 +44,7 @@ def var v-c-fax          as   char format "x(30)".
 def var v-c-email        like cust.email.
 DEF VAR v-date-ship AS DATE FORM "99/99/99" NO-UNDO.
 DEF VAR v-shipvia AS cha FORM "x(30)" NO-UNDO.
-def var v-del-no as int format ">>>>>>" NO-UNDO.
+def var v-del-no as int format ">>>>>>>>" NO-UNDO.
 DEF VAR v-bol-no LIKE oe-bolh.bol-no NO-UNDO.
 def var v-tot-pallets as INT NO-UNDO.
 def var v-tax-rate as dec format "->>>.99" NO-UNDO.

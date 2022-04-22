@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* oe/rep/bolstnd23.i*/
 DEFINE VARIABLE cBolFormat AS CHARACTER NO-UNDO .
 
@@ -45,9 +46,9 @@ DO:
                 w2.dscr   = oe-ordl.part-no
                 w2.qty    = oe-ordl.qty.
         ELSE IF i = 2 THEN 
-                ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE
-                             (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
-                    w2.dscr   = oe-ordl.i-name .
+                ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE 
+                                   TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
+                       w2.dscr   = oe-ordl.i-name .
                  
             ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
                 ELSE IF i EQ 4 THEN ASSIGN w2.dscr = oe-ordl.part-dscr2.
@@ -69,9 +70,9 @@ DO:
                 AND oe-ordl.line    EQ tt-boll.LINE NO-LOCK NO-ERROR.
             w2.i-no = "".
             IF i = 2 THEN 
-                ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE
-                             (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
-                    w2.dscr   = oe-ordl.i-name .
+                ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE 
+                                   TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
+                       w2.dscr   = oe-ordl.i-name .
                  
             ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
                 ELSE IF i EQ 4 THEN ASSIGN w2.dscr = oe-ordl.part-dscr2.
@@ -100,9 +101,9 @@ DO:
                 AND oe-ordl.line    EQ tt-boll.LINE NO-LOCK NO-ERROR.
             w2.i-no = "".
             IF i = 2 THEN 
-                ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE
-                             (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
-                    w2.dscr   = oe-ordl.i-name .
+                ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE 
+                                   TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
+                       w2.dscr   = oe-ordl.i-name .
                  
             ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
                 ELSE IF i EQ 4 THEN ASSIGN w2.dscr = oe-ordl.part-dscr2.

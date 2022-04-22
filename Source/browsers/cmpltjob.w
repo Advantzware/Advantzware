@@ -139,8 +139,8 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       cmpltjob.machine FORMAT "x(6)":U LABEL-BGCOLOR 14
-      cmpltjob.job_number FORMAT "X(6)":U LABEL-BGCOLOR 14
-      cmpltjob.job_sub FORMAT ">9":U LABEL-BGCOLOR 14
+      cmpltjob.job_number FORMAT "X(9)":U LABEL-BGCOLOR 14 WIDTH 15
+      cmpltjob.job_sub FORMAT "999":U LABEL-BGCOLOR 14 WIDTH 6
       cmpltjob.form_number FORMAT ">>9":U LABEL-BGCOLOR 14
       cmpltjob.blank_number FORMAT ">9":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
@@ -256,9 +256,9 @@ AND ~{&KEY-PHRASE}"
      _FldNameList[1]   > cmpltjob.machine
 "machine" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > cmpltjob.job_number
-"job_number" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job_number" ? ? "character" ? ? ? 14 ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > cmpltjob.job_sub
-"job_sub" ? ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job_sub" ? ? "integer" ? ? ? 14 ? ? no ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > cmpltjob.form_number
 "form_number" ? ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > cmpltjob.blank_number
@@ -333,7 +333,7 @@ END.
 ON LEAVE OF auto_find IN FRAME F-Main
 DO:
    /* IF browse-order = 2  THEN
-    ASSIGN auto_find:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(auto_find:SCREEN-VALUE))) +
+    ASSIGN auto_find:SCREEN-VALUE = FILL(" ", iJobLen - LENGTH(TRIM(auto_find:SCREEN-VALUE))) +
                  TRIM(auto_find:SCREEN-VALUE)  .*/
    ASSIGN  
     auto_find

@@ -25,7 +25,8 @@
      by this procedure. This is a good default which assures
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
-     cleanup will occur on deletion of the procedure. */
+     cleanup will occur on deletion of the procedure. */   
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -152,17 +153,17 @@ DEFINE VARIABLE tb_i-name AS CHARACTER FORMAT "x(30)"
 
 DEFINE VARIABLE tb_i-no AS CHARACTER FORMAT "x(15)" 
      VIEW-AS FILL-IN 
-     SIZE 21.8 BY 1
+     SIZE 19.8 BY 1
      BGCOLOR 15 .
 
-DEFINE VARIABLE tb_job-no AS CHARACTER FORMAT "x(6)" 
+DEFINE VARIABLE tb_job-no AS CHARACTER FORMAT "x(9)" 
      VIEW-AS FILL-IN 
-     SIZE 8.6 BY 1
+     SIZE 11 BY 1
      BGCOLOR 15 .
 
-DEFINE VARIABLE tb_job-no2 AS INTEGER FORMAT ">9" INITIAL 0 
+DEFINE VARIABLE tb_job-no2 AS INTEGER FORMAT ">>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 3.8 BY 1
+     SIZE 5.4 BY 1
      BGCOLOR 15 .
 
 DEFINE VARIABLE tb_loc AS CHARACTER FORMAT "x(5)" 
@@ -175,14 +176,14 @@ DEFINE VARIABLE tb_loc-bin AS CHARACTER FORMAT "x(8)"
      SIZE 12 BY 1
      BGCOLOR 15 .
 
-DEFINE VARIABLE tb_ord-no AS INTEGER FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE tb_ord-no AS INTEGER FORMAT ">>>>>>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 8.8 BY 1
+     SIZE 11 BY 1
      BGCOLOR 15 .
 
 DEFINE VARIABLE tb_po-no AS INTEGER FORMAT ">>>>>>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1
+     SIZE 10 BY 1
      BGCOLOR 15 .
 
 DEFINE VARIABLE tb_tag-no AS CHARACTER FORMAT "X(20)" 
@@ -237,10 +238,10 @@ DEFINE BROWSE Browser-Table
       loadtag.tag-no COLUMN-LABEL "Tag" FORMAT "X(23)":U LABEL-BGCOLOR 14
       loadtag.loc FORMAT "x(5)":U LABEL-BGCOLOR 14
       loadtag.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U LABEL-BGCOLOR 14
-      loadtag.job-no2 COLUMN-LABEL "#" FORMAT ">9":U
+      loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U LABEL-BGCOLOR 14
+      loadtag.job-no2 COLUMN-LABEL "#" FORMAT ">>9":U
       loadtag.po-no COLUMN-LABEL "PO" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
-      loadtag.ord-no COLUMN-LABEL "Order" FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      loadtag.ord-no COLUMN-LABEL "Order" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       loadtag.i-no COLUMN-LABEL "Item" FORMAT "x(15)":U LABEL-BGCOLOR 14
       loadtag.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       loadtag.qty-case COLUMN-LABEL "Unit!Count" FORMAT "->,>>>,>>9":U
@@ -264,15 +265,15 @@ DEFINE FRAME F-Main
           "Enter the plant/warehouse location" NO-LABEL
      tb_loc-bin AT ROW 1.71 COL 46 COLON-ALIGNED HELP
           "Enter Bin Location where Item is Stocked" NO-LABEL
-     tb_job-no AT ROW 1.71 COL 58 COLON-ALIGNED HELP
+     tb_job-no AT ROW 1.71 COL 58.4 COLON-ALIGNED HELP
           "Job Number." NO-LABEL
-     tb_job-no2 AT ROW 1.71 COL 67 COLON-ALIGNED HELP
+     tb_job-no2 AT ROW 1.71 COL 69 COLON-ALIGNED HELP
           "Enter Job sub-number." NO-LABEL
-     tb_po-no AT ROW 1.71 COL 71 COLON-ALIGNED NO-LABEL
-     tb_ord-no AT ROW 1.71 COL 84 COLON-ALIGNED NO-LABEL
-     tb_i-no AT ROW 1.71 COL 93 COLON-ALIGNED HELP
+     tb_po-no AT ROW 1.71 COL 74.5 COLON-ALIGNED NO-LABEL
+     tb_ord-no AT ROW 1.71 COL 85 COLON-ALIGNED NO-LABEL
+     tb_i-no AT ROW 1.71 COL 96.1 COLON-ALIGNED HELP
           "Enter Item Number." NO-LABEL
-     tb_i-name AT ROW 1.71 COL 115 COLON-ALIGNED HELP
+     tb_i-name AT ROW 1.71 COL 115.5 COLON-ALIGNED HELP
           "Enter finished goods item name." NO-LABEL
      tb_vend-tag AT ROW 2.86 COL 2 NO-LABEL WIDGET-ID 2
      Browser-Table AT ROW 4.33 COL 1 HELP
@@ -291,7 +292,7 @@ DEFINE FRAME F-Main
           SIZE 7 BY .62 AT ROW 1.05 COL 126
           FGCOLOR 9 FONT 6
      "Item" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.05 COL 98
+          SIZE 7 BY .62 AT ROW 1.05 COL 99
           FGCOLOR 9 FONT 6
      "Bin" VIEW-AS TEXT
           SIZE 4 BY .62 AT ROW 1.05 COL 52
@@ -305,10 +306,10 @@ DEFINE FRAME F-Main
      "By:" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 19.33 COL 2
      "Order" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.05 COL 86
+          SIZE 8 BY .62 AT ROW 1.05 COL 87
           FGCOLOR 9 FONT 6
      "PO" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 1.05 COL 75
+          SIZE 5 BY .62 AT ROW 1.05 COL 77
           FGCOLOR 9 FONT 6
      RECT-4 AT ROW 19.1 COL 1
      RECT-5 AT ROW 1 COL 1
@@ -533,7 +534,7 @@ ON RETURN OF tb_tag-no IN FRAME F-Main
 DO:
   ASSIGN {&filterFields}.
   IF tb_job-no NE '' THEN
-     tb_job-no = FILL(' ',6 - LENGTH(TRIM(tb_job-no))) + TRIM(tb_job-no).
+     tb_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', tb_job-no)) . 
   RUN openQuery.
   APPLY 'VALUE-CHANGED':U TO BROWSE {&BROWSE-NAME}.
   APPLY 'ENTRY':U TO BROWSE {&BROWSE-NAME}.
@@ -550,7 +551,7 @@ ON RETURN OF tb_vend-tag IN FRAME F-Main
 DO:
   ASSIGN {&filterFields}.
   IF tb_job-no NE '' THEN
-  tb_job-no = FILL(' ',6 - LENGTH(TRIM(tb_job-no))) + TRIM(tb_job-no).
+  tb_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', tb_job-no)) .   
   RUN openQuery.
   APPLY 'VALUE-CHANGED':U TO BROWSE {&BROWSE-NAME}.
   APPLY 'ENTRY':U TO BROWSE {&BROWSE-NAME}.

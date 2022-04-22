@@ -142,11 +142,11 @@ DEFINE BUTTON btRoutings  NO-FOCUS
      SIZE 30 BY 2.52
      FONT 37.
 
-DEFINE VARIABLE cbJobNo2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE cbJobNo2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "00" 
+     LIST-ITEMS "000" 
      DROP-DOWN-LIST
-     SIZE 9.8 BY 1
+     SIZE 11 BY 1
      BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE btnExitText AS CHARACTER FORMAT "X(256)":U INITIAL "EXIT" 
@@ -864,7 +864,7 @@ PROCEDURE pJobScan :
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN 
             cbJobNo2:LIST-ITEMS    = cJobno2ListItems
-            cbJobNo2:SCREEN-VALUE  = STRING(ipiJobno2,"99")
+            cbJobNo2:SCREEN-VALUE  = STRING(ipiJobno2,"999")
             NO-ERROR.
     END.
     
@@ -962,9 +962,9 @@ PROCEDURE pUpdateComboBoxes :
     
     IF cJobno2ListItems EQ "" THEN
         ASSIGN 
-            cJobNo2ListItems      = "00"
+            cJobNo2ListItems      = "000"
             cbJobNo2:LIST-ITEMS   = cJobno2ListItems 
-            cbJobNo2:SCREEN-VALUE = "00".
+            cbJobNo2:SCREEN-VALUE = "000".
     ELSE
         cbJobNo2:LIST-ITEMS = cJobno2ListItems.
 END PROCEDURE.

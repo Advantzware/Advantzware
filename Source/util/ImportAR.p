@@ -25,7 +25,7 @@ DEFINE TEMP-TABLE ttImportAR
     FIELD PONum                   AS CHARACTER FORMAT "x(15)" COLUMN-LABEL "Po#"     HELP "Optional - Size:15"
     FIELD InvDate                 AS DATE FORMAT "99/99/99" COLUMN-LABEL "Inv Date"  HELP "Optional - Date" 
     FIELD DueDate                 AS DATE FORMAT "99/99/99" COLUMN-LABEL "Due Date"  HELP "Optional - Date" 
-    FIELD TaxCode                 AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Tax Code" HELP "Optional - Size:3"  
+    FIELD TaxCode                 AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Tax Group" HELP "Optional - Size:3"  
     FIELD TermsCode               AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Terms"       HELP "Required - Size:8" 
     FIELD Discount                AS DECIMAL FORMAT ">>9.99%" COLUMN-LABEL "Discount%"  HELP "Optional - Decimal" 
     FIELD DiscountDays            AS DECIMAL FORMAT "z9" COLUMN-LABEL "Disc Days"       HELP "Optional - Integer"

@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -79,16 +80,16 @@ DEFINE BUTTON Btn_OK
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Job #" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1
+     SIZE 5.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
 
@@ -96,7 +97,7 @@ DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0
 
 DEFINE FRAME DEFAULT-FRAME
      fi_job-no AT ROW 2.67 COL 20.4 COLON-ALIGNED
-     fi_job-no2 AT ROW 2.67 COL 35.8 COLON-ALIGNED
+     fi_job-no2 AT ROW 2.67 COL 36.8 COLON-ALIGNED
      Btn_OK AT ROW 4.33 COL 16
      Btn_Can AT ROW 4.33 COL 31.6
      "Best Buy Auto Create Board P.O." VIEW-AS TEXT
@@ -222,13 +223,12 @@ DO:
       ASSIGN
          fi_job-no
          fi_job-no2
-         op-job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no)))
-                   + TRIM(fi_job-no)
+         op-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fi_job-no)) 
          op-job-no2 = fi_job-no2.
 
       IF NOT CAN-FIND(FIRST job WHERE
          job.company EQ cocode AND
-         job.job-no EQ op-job-no AND
+         job.job-no  EQ op-job-no AND
          job.job-no2 EQ op-job-no2) THEN
          DO:
             MESSAGE "Invalid Job #."

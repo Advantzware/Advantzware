@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolcolr1.i 07/09 GDM */
 /* N-K BOLFMT = COLOR                                                         */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 v-tot-cases = 0.
@@ -85,7 +86,7 @@ ELSE DO:
     else
     if i eq 2 then
       assign
-       v-vfgord    = STRING(oe-ordl.ord-no,">>>>>9")
+       v-vfgord    = STRING(oe-ordl.ord-no,">>>>>>>9")
        v-part-dscr = oe-ordl.i-name.       
                                
     else
@@ -122,7 +123,7 @@ ELSE DO:
     else
     if i eq 2 then
       assign
-       v-vfgord    = STRING(oe-ordl.ord-no,">>>>>9")
+       v-vfgord    = STRING(oe-ordl.ord-no,">>>>>>>9")
        v-part-dscr = oe-ordl.i-name.
 
     else if i eq 3 then assign /*v-vfgord    = oe-rel.carrier*/
@@ -172,7 +173,7 @@ ELSE DO:
     else
     if i eq 2 then
       assign
-       v-vfgord    = STRING(oe-ordl.ord-no,">>>>>9")
+       v-vfgord    = STRING(oe-ordl.ord-no,">>>>>>>9")
        v-part-dscr = oe-ordl.i-name.
 
     else if i eq 3 then assign /*v-vfgord    = oe-rel.carrier*/

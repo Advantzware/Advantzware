@@ -1000,9 +1000,9 @@ assign
   v-fmach   = begin_mach
   v-tmach   = END_mach
 
-  v-fjob    = fill(" ",6 - length(trim(begin_job-no))) +
+  v-fjob    = FILL(" ", iJobLen - length(trim(begin_job-no))) +
                trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-tjob    = fill(" ",6 - length(trim(end_job-no)))   +
+  v-tjob    = FILL(" ", iJobLen - length(trim(end_job-no)))   +
                trim(end_job-no)   + string(int(end_job-no2),"99") 
 
   v-hdr[1]  = "START/" + fill(" ",102) + "BOARD"
@@ -1193,7 +1193,7 @@ SESSION:SET-WAIT-STATE ("general").
       end.
 
       assign
-       v-job   = fill(" ",6 - length(trim(job-hdr.job-no))) +
+       v-job   = FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
                  trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99")
        v-date  = date(int(substr(tt-report.key-02,5,2)),
                       int(substr(tt-report.key-02,7,2)),

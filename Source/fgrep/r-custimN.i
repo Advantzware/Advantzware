@@ -87,7 +87,7 @@ FOR EACH tt-report NO-LOCK,
                          WHEN "item"   THEN cVarValue = STRING(itemfg.i-no,"x(15)").
                          WHEN "part"  THEN cVarValue = STRING(itemfg.part-no,"x(15)") .
                          WHEN "desc"   THEN cVarValue = STRING(itemfg.i-name,"x(30)") .
-                         WHEN "job"  THEN cVarValue = IF TRIM(vjob-no) NE "-0" THEN STRING(vjob-no,"x(10)") ELSE "" .
+                         WHEN "job"  THEN cVarValue = IF TRIM(vjob-no) NE "-0" THEN STRING(vjob-no,"x(13)") ELSE "" .
                          WHEN "qty-hand"   THEN cVarValue = STRING(v-qty[1],"->>,>>>,>>>") .
                          WHEN "pall"  THEN cVarValue = STRING(v-pallets,"->>>>>>") .
                          WHEN "sell-pr"    THEN cVarValue = STRING(v-price,"->>,>>9.99") .

@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -72,7 +73,7 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
 ASSIGN 
-    cTextListToSelect  = "Machine#,DP,S,B,P,Charge Code,Charge Cat,Date,Job#,Shift,Hours,Start,Stop,CR,Qty," +  /*14*/     
+    cTextListToSelect  = "Machine#,DP,F,B,P,Charge Code,Charge Cat,Date,Job#,Shift,Hours,Start,Stop,CR,Qty," +  /*14*/     
                          "Waste,C,FG Item,Style,Length,Width,Depth,Blank Len,Blank Wid," +  /*9*/     
                          "Blank Sq In.,Board,Board Cal,MSF,Wgt/MSF,Roll Width," +  /*6*/     
                          "Gross S Wid,Gross S Len,Net Sht Wid,Net Sht Len," +  /*4*/     
@@ -84,7 +85,7 @@ ASSIGN
                          "gsh-wid,gsh-len,nsh-wid,nsh-len," +
                          "flm-len,flm-wid,inkc,die-in,li-up,n-out,lin-in,tot-job-qty," +
                          "cust-no,name,price,uom,sale-value,user-id,n-cuts"
-    cFieldLength       = "8,2,3,2,3,11,10,8,10,5,8,5,5,2,10,"
+    cFieldLength       = "8,2,3,2,3,11,10,8,13,5,8,5,5,2,10,"
                        + "6,1,15,8,7,7,7,9,9,"
                        + "12,8,9,9,9,10,"
                        + "11,11,11,11,"
@@ -99,7 +100,7 @@ ASSIGN
                        .
 
 {sys/inc/ttRptSel.i}
-cTextListToDefault = "Machine#,S,B,Charge Code,Charge Cat,Date,Job#,Shift,Hours,Qty," +  /*14*/     
+cTextListToDefault = "Machine#,F,B,Charge Code,Charge Cat,Date,Job#,Shift,Hours,Qty," +  /*14*/     
                      "Waste,FG Item,Style,Length,Width,Depth,Blank Len,Blank Wid," +  /*9*/     
                      "Blank Sq In.,Board,Board Cal,MSF,Wgt/MSF,Roll Width," +  /*6*/     
                      "Gross S Wid,Gross S Len,Net Sht Wid,Net Sht Len," +  /*4*/     
@@ -1362,7 +1363,7 @@ DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
         str-tit2 = c-win:TITLE
         {sys/inc/ctrtext.i str-tit2 112}
 
-        v-hdr    = "Machine#,S,B,Charge Code,Charge Category,Date,Job#,Shift,Hours,Qt" +
+        v-hdr    = "Machine#,F,B,Charge Code,Charge Category,Date,Job#,Shift,Hours,Qt" +
          "y,Waste,FG Item,Style,Length,Width,Depth,Blank Length,Blank Width" +
          ",Blank Square Inches,Board Code,Board Caliper,MSF,Wgt/MSF,Roll Wi" +
          "dth,Gross Sheet Width,Gross Sheet Length,Net Sheet Width,Net Shee" +
@@ -1441,7 +1442,7 @@ DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
         AND job.job-no2 EQ mch-act.job-no2,
         FIRST job-hdr OF job NO-LOCK
         USE-INDEX job BY (IF rd_sort BEGINS "M" THEN mch-act.m-code ELSE "")
-        BY (IF rd_sort BEGINS "J" THEN STRING(mch-act.job-no,"x(6)") + STRING(mch-act.job-no2,"99") ELSE "")
+        BY (IF rd_sort BEGINS "J" THEN STRING(mch-act.job-no,"x(9)") + STRING(mch-act.job-no2,"999") ELSE "")
         BY (IF rd_sort BEGINS "D" THEN STRING(YEAR(mch-act.op-date),"9999") + STRING(MONTH(mch-act.op-date),"99") + STRING(DAY(mch-act.op-date),"99") + STRING(mch-act.start,"999999") ELSE "")
         :
 
@@ -1595,7 +1596,7 @@ DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
                         cTmpField =  IF cTmpField <> "" THEN  STRING(mch-act.qty,"->>>>>>>>>") ELSE "".
                     IF ENTRY(i,cSelectedList) = "Waste" THEN  
                         cTmpField =  IF cTmpField <> "" THEN  STRING(mch-act.waste,"->>>>>") ELSE "".
-                    IF ENTRY(i,cSelectedList) = "S" THEN  
+                    IF ENTRY(i,cSelectedList) = "F" THEN  
                         cTmpField =  IF cTmpField <> "" THEN  STRING(mch-act.frm,">>9") ELSE "".
                     IF ENTRY(i,cSelectedList) = "B" THEN  
                         cTmpField =  IF cTmpField <> "" THEN  STRING(mch-act.blank-no,">9") ELSE "".  
@@ -1621,7 +1622,7 @@ DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
                     WHEN "job-code" THEN 
                         cVarValue = IF AVAILABLE job-code THEN STRING(job-code.cat,"x(10)") ELSE "". 
                     WHEN "job-no" THEN 
-                        cVarValue = STRING(TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")) .
+                        cVarValue = STRING(TRIM(job.job-no) + "-" + STRING(job.job-no2,"999")) .
                     WHEN "stock-no" THEN 
                         cVarValue = IF AVAILABLE eb THEN STRING(eb.stock-no) ELSE "".
                     WHEN "style" THEN 

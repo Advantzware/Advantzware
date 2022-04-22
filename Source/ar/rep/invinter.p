@@ -83,7 +83,7 @@ form header
   v-c-name at 11 skip
   v-c-addr[1] at 11 skip
   v-c-addr[2] at 11
-  xar-inv.inv-no at 70 skip
+  xar-inv.inv-no at 70 format ">>>>>>>9" skip
   v-c-city at 11
   v-c-state v-c-zip skip
   v-salesman at 70 skip(3)
@@ -109,7 +109,7 @@ form header
   v-c-name at 11 skip
   v-c-addr[1] at 11 skip
   v-c-addr[2] at 11
-  "Inv #:" TO 56 xar-inv.inv-no skip
+  "Inv #:" TO 56 xar-inv.inv-no format ">>>>>>>9" skip
   v-c-city at 11
   v-c-state v-c-zip skip
   "Salesman:" TO 56 v-salesman  skip(3)

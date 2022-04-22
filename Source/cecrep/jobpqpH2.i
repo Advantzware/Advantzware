@@ -1,7 +1,7 @@
 /* ******************************************************* cecrep/jobpqpH2.i  */
 /*  N-K = JOBCARDC - FACTORY TICKET FOR PQP                                   */
 /* ************************************************************************** */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 DEF {1} VAR save_id AS RECID NO-UNDO.
 
 DEF {1} BUFFER xest     FOR est.
@@ -14,10 +14,10 @@ DEF {1} BUFFER xstyle   FOR style.
 DEF {1} BUFFER xxprep   FOR prep.
 
 DEF {1} VAR v-break         AS   LOG                                    NO-UNDO.
-DEF {1} VAR v-job-prt       AS   CHAR FORMAT "x(9)"                     NO-UNDO.
+DEF {1} VAR v-job-prt       AS   CHAR FORMAT "x(13)"                     NO-UNDO.
 DEF {1} VAR v-ord-no        AS   CHAR FORMAT "x(8)"                     NO-UNDO.
 DEF {1} VAR v-ord-date      AS   CHAR FORMAT "x(8)"                     NO-UNDO.
-DEF {1} VAR v-est-no        AS   CHAR FORMAT "x(6)"                     NO-UNDO.
+DEF {1} VAR v-est-no        AS   CHAR FORMAT "x(8)"                     NO-UNDO.
 DEF {1} VAR v-fg            AS   CHAR FORMAT "x(37)"                    NO-UNDO.
 DEF {1} VAR v-due-date      AS   CHAR FORMAT "x(13)"                    NO-UNDO.
 

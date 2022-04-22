@@ -19,7 +19,7 @@ PUT "<R6><C50><FROM><R6><C80><LINE><||3>" SKIP
     "<R6><C65><FROM><R8><C65><LINE><||3>" SKIP
     "<R8><C65><FROM><R10><C65><LINE><||3>" SKIP.
         
-PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " inv-head.inv-no FORMAT ">>>>>>9" "</B><P10>                            Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
+PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " inv-head.inv-no FORMAT ">>>>>>>9" "</B><P10>                            Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
     "<=#3> Customer ID             Contact"
     "<=#3><R+2> Telephone                        Fax" 
     "<=#3><R+4> Customer PO                  Invoice Date <FCourier New>"    
@@ -57,15 +57,15 @@ PUT "<R26><C1><#5><FROM><R28><C81><RECT><||3>" SKIP
                 "<R26><C34><FROM><R28><C34><LINE><||3>" SKIP
                 "<R26><C56><FROM><R28><C56><LINE><||3>" SKIP
                 "<R26><C66><FROM><R28><C66><LINE><||3>" SKIP
-                "<R26><C70><FROM><R28><C70><LINE><||3>" SKIP
+                //"<R26><C70><FROM><R28><C70><LINE><||3>" SKIP
                 . 
 IF NOT lPrintQtyAll THEN DO:  
 PUT "<FArial><=5>"  space(37) " Order /" SKIP
-                   " Ordered     Shipped     Cust PO      Item#/CustPart#                       Description                             Price         UOM             Amount <P9>" SKIP(1).
+                   " Ordered     Shipped     Cust PO      Item#/CustPart#                       Description                             Price                         Amount <P9>" SKIP(1).
 END.
 ELSE DO:
 PUT "<FArial><=5>" " Ordered" space(25) " Order /" SKIP
-                   " Shipped     Invoiced     Cust PO      Item#/CustPart#                       Description                             Price         UOM             Amount <P9>" SKIP(1).
+                   " Shipped     Invoiced     Cust PO      Item#/CustPart#                       Description                             Price                         Amount <P9>" SKIP(1).
 END.
 v-printline = v-printline + 4.
            

@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /*cec/quote/quoabox2.i*/
      
      PUT "<R2><C5><#1><R+5><C+45><IMAGE#1=" ls-full-img1 SKIP. /* Abox logo */ 
@@ -46,12 +47,12 @@
 
 
    PUT "<|10><R21><C1><#5><FROM><R23><C80><RECT>" SKIP    
-             "<R21><C6><FROM><R23><C6><LINE>" SKIP
-             "<R21><C20><FROM><R23><C20><LINE>" SKIP
-             "<R21><C45><FROM><R23><C45><LINE>" SKIP
-             "<R21><C57><FROM><R23><C57><LINE>" SKIP
-             "<R21><C65><FROM><R23><C65><LINE>" SKIP
+             "<R21><C8><FROM><R23><C8><LINE>" SKIP
+             "<R21><C25><FROM><R23><C25><LINE>" SKIP
+             "<R21><C48><FROM><R23><C48><LINE>" SKIP
+             "<R21><C58><FROM><R23><C58><LINE>" SKIP
+             "<R21><C66><FROM><R23><C66><LINE>" SKIP
              "<R21><C71><FROM><R23><C71><LINE>" SKIP
              .
-   PUT "<FArial><=5><R+1> Est#      Description                    Item/Style/Color/Board                                        Quantity             Price       UOM       Ext. Price" SKIP(1).
+   PUT "<FArial><=5><R+1> Est#                Description                          Item/Style/Color/Board                       Quantity              Price        UOM       Ext. Price" SKIP(1).
    PUT "<FCourier New>".

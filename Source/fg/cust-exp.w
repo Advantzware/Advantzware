@@ -73,12 +73,12 @@ DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
 
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
-/* Removed Prep Tax Code - 16.8.9 - Tkt#48289 - MYT - 4/30/19 */
+/* Removed Prep Tax Group - 16.8.9 - Tkt#48289 - MYT - 4/30/19 */
 ASSIGN 
     cTextListToSelect  = "Customer,Name,Status,Address1,Address2,City,State,Zip,Email,Group,Date Added,Type,Type Dscr,Contact,Sales Rep,Sales Rep Name," +
                            "Flat Comm%,Area Code,Phone#,Broker Comm%,Fax#,Prefix,Country,Terms,Terms Dscr,Cr Acct#,Grace Days,$,Credit Rating," +
                            "Price Level,Credit Limit,Credit Hold,Order Limit,Finance Charges,Discount%,Auto Reprice,Currency,EDI,Factored,Invoice Per," +
-                           "Taxable,Tax Prep Code,Tax Code,Tax Dscr,Tax Resale#,Exp,Freight Payment,FOB,Partial Ship,Location,Location Dscr,Carrier,Carrier Dscr," +
+                           "Taxable,Tax Prep Code,Tax Group,Tax Dscr,Tax Resale#,Exp,Freight Payment,FOB,Partial Ship,Location,Location Dscr,Carrier,Carrier Dscr," +
                            "Delivery Zone,Delivery Dscr,Territory,Territory Dscr,Pallet ID,Underrun%,Pallet,Overrun%,Case/Bundle,Mark-up,No Load Tags,Whse Days," +
                            "PO# Mandatory,Pallet Positions,Show Set Parts,Sales PTD,Sales YDT,Sales LYear,Cost PTD,Cost YDT,Cost LYear,Profits PTD,Profits YDT,Profits LYear," +
                            "Profit Percent PTD,Profit Percent YDT,Profit Percent LYear,Commissions PTD,Commissions YDT,Commissions LYear,MSF PTD,MSF YDT,MSF LYear," +
@@ -107,7 +107,7 @@ ASSIGN
                                  "Contact,Date Added,CSR,Cr Acct#,Credit Rating,Order Limit,Discount%,Currency,Finance Charges," +
                                  "Auto Reprice,EDI,Factored,Grace Days,$,Invoice Per,Freight Payment,FOB,Location,Carrier,Delivery Zone," + 
                                  "Territory,Pallet ID,Overrun%,Underrun%,Pallet,Case/Bundle,Mark-up,No Load Tags,Whse Days,Pallet Positions," +
-                                 "PO# Mandatory,Show Set Parts,Paperless Invoice?,Partial Ship,Taxable,Tax Prep Code,Tax Code,Tax Resale#,Exp," +
+                                 "PO# Mandatory,Show Set Parts,Paperless Invoice?,Partial Ship,Taxable,Tax Prep Code,Tax Group,Tax Resale#,Exp," +
                                  "Email,Group,Broker Comm%,Flat Comm%,Prefix,Contract Pricing,Bank Account,Swift Code,Routing,Account Type," + 
                                  "Split Type,Parent Cust,Market segment,NAICS Code,AR ClassId,Accountant,Matrix Precision,Matrix Rounding," +
                                  "Industry,Tag Status,Internal" .
@@ -1484,9 +1484,9 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                     WHEN "" THEN
                         lc-return = "Only tags that are not on hold".
                     WHEN "H" THEN
-                        lc-return = "Only on Hold tags".
+                        lc-return = "H-Only on Hold tags".
                     WHEN "A" THEN
-                        lc-return = "Any tag status".     
+                        lc-return = "A-Any tag status".     
                 END CASE.
             END.
         

@@ -1260,7 +1260,7 @@ FOR EACH bank
            DISPLAY lv-name     @ bank.actnum
                    "Chk " + TRIM(STRING(lv-check-no,">>>>>>>>>>>>")) + " " +
                    (IF lv-inv-no NE 0 THEN
-                      "Inv " + TRIM(STRING(lv-inv-no,">>>>>>>")) ELSE "")
+                      "Inv " + TRIM(STRING(lv-inv-no,">>>>>>>>")) ELSE "")
                                @ v-tr-num
                    lv-amt      @ tot-daily[2]
 
@@ -1274,7 +1274,7 @@ FOR EACH bank
                  '"' ""      '",'
                  '"' "Chk " + TRIM(STRING(lv-check-no,">>>>>>>>>>>>")) + " " +
                      (IF lv-inv-no NE 0 THEN
-                     "Inv " + TRIM(STRING(lv-inv-no,">>>>>>>")) ELSE "")  '",'
+                     "Inv " + TRIM(STRING(lv-inv-no,">>>>>>>>")) ELSE "")  '",'
                  '"' STRING(lv-amt,"->>,>>>,>>9.99") '",'
                 SKIP.
          END.

@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -190,9 +192,9 @@ DEFINE BROWSE BROWSE-1
       po-ordl.LINE FORMAT ">>9":U COLUMN-FONT 0 LABEL-BGCOLOR 14
       po-ordl.i-no FORMAT "x(15)":U COLUMN-FONT 0 LABEL-BGCOLOR 14
       po-ordl.i-name FORMAT "x(30)":U COLUMN-FONT 0 LABEL-BGCOLOR 14
-      po-ordl.job-no COLUMN-LABEL "Job #" FORMAT "x(6)":U COLUMN-FONT 0
+      po-ordl.job-no COLUMN-LABEL "Job #" FORMAT "x(9)":U COLUMN-FONT 0
             LABEL-BGCOLOR 14
-      po-ordl.job-no2 COLUMN-LABEL "" FORMAT ">9":U COLUMN-FONT 0
+      po-ordl.job-no2 COLUMN-LABEL "" FORMAT ">>9":U COLUMN-FONT 0
       po-ordl.vend-i-no FORMAT "x(15)":U COLUMN-FONT 0 LABEL-BGCOLOR 14
       po-ord.vend-no FORMAT "x(8)":U COLUMN-FONT 0 LABEL-BGCOLOR 14
       po-ordl.s-wid COLUMN-LABEL "Sheet!Wid" FORMAT ">>9.9999":U

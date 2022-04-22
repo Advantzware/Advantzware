@@ -130,7 +130,7 @@ DEFINE BROWSE BROWSE-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-3 Dialog-Frame _STRUCTURED
     QUERY BROWSE-3 NO-LOCK DISPLAY
     tt-job-item.IS-SELECTED COLUMN-LABEL ''  VIEW-AS TOGGLE-BOX 
-    tt-job-item.frm FORMAT ">>>" COLUMN-LABEL "S" WIDTH 7
+    tt-job-item.frm FORMAT ">>>" COLUMN-LABEL "F" WIDTH 7
     tt-job-item.blank-no FORMAT ">>>" COLUMN-LABEL "B" WIDTH 7
     tt-job-item.rm-i-no FORMAT "X(20)" 
     tt-job-item.mach-id FORMAT "x(20)"
