@@ -34,8 +34,6 @@ def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 {sys/inc/var.i}
 
-{sys/inc/var.i}
-
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
 &scoped-define SORTBY-1 BY job-code.code

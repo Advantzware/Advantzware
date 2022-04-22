@@ -1436,8 +1436,8 @@ PROCEDURE run-report :
         WITH STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP FRAME top1.
 
     FORM HEADER
-        "Job No"                       TO 9
-        "Item No"                      AT 13
+        "Job No"                       at 1
+        "Item No"                      AT 15
         "UOM"                          AT 24
         "Required"                     TO 41
         "Ordered"                      TO 56
@@ -1448,7 +1448,7 @@ PROCEDURE run-report :
         "Name"                         AT 104
         "Date Due"                     AT 125
         SKIP
-        "-------------"                TO 9
+        "-------------"                at 1
         "----------"                   AT 13
         "---"                          AT 24
         "--------------"               TO 41
@@ -1463,8 +1463,8 @@ PROCEDURE run-report :
 
         WITH STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP FRAME top2.
 
-    FORM v-job                  TO 9
-        v-itm                  AT 13
+    FORM v-job                 at 1
+        v-itm                  AT 15
         v-uom                  AT 24
         v-qty[1]               TO 41                           /* required */
         v-qty[2]               TO 56  FORMAT "->>>,>>>,>>9.99" /* ordered  */
@@ -1477,8 +1477,8 @@ PROCEDURE run-report :
 
         WITH DOWN STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE FRAME detail1.
 
-    FORM v-job                  TO 9
-        v-itm                  AT 13
+    FORM v-job                 at 1
+        v-itm                  AT 15
         v-uom                  AT 24
         v-qty[1]               TO 41                           /* required */
         v-qty[2]               TO 56  FORMAT "->>>,>>>,>>9.99" /* ordered  */

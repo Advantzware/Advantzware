@@ -2237,6 +2237,258 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report-old C-Win 
 PROCEDURE run-report-old :
+DEF VAR str-tit4 AS cha NO-UNDO.
+DEF VAR str-tit5 AS cha NO-UNDO.
+{sys/form/r-top5DL.f}
+/*{sys/form/r-topw.f}*/
+
+
+def buffer b-oe-ordl for oe-ordl.
+
+def var v-cust like oe-ord.cust-no extent 2 init ["","zzzzzzzz"].
+def var v-ord-no as int format ">>>>>>" extent 2 init [0,999999].
+def var v-date as date format "99/99/9999" extent 2 init [today,today].
+def var v-item as char format "x(15)" extent 2 init ["","zzzzzzzzzzzzzzz"].
+def var v-ord-qty as log format "Ordered/Remaining" init yes.
+
+def var v-unline as char format "x(80)" init
+  "--------------- ------------------------- ------- ----------- ---".
+def var v-tot-ord as dec format "->,>>>,>>9.99" extent 2.
+def var v-tax-rate     as dec format ">,>>9.99<<<".
+def var v-inv as log init no.
+def var v-ship as log init no.
+def var v-tot-tax like oe-ord.tax.
+def var v-tot-freight like oe-ord.t-freight.
+def var v-qty-lft like oe-ordl.qty.
+def var v-ext-price like oe-ordl.t-price.
+def var v-prt-cont as log init no.
+def var v-margin as dec.
+def var v-margin-tot as dec format "->>>,>>>,>>>,>>9.99".
+def var v-password like sys-ctrl.char-fld label "Please Enter Password".
+def var v-ext-cost as dec.
+DEF VAR excelheader AS CHAR NO-UNDO.
+
+DEF VAR cDisplay AS cha NO-UNDO.
+DEF VAR cExcelDisplay AS cha NO-UNDO.
+DEF VAR hField AS HANDLE NO-UNDO.
+DEF VAR cTmpField AS CHA NO-UNDO.
+DEF VAR cVarValue AS cha NO-UNDO.
+DEF VAR cExcelVarValue AS cha NO-UNDO.
+DEF VAR cFieldName AS cha NO-UNDO.
+DEF VAR cSelectedList AS cha NO-UNDO.
+cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
+DEF BUFFER boe-ord FOR oe-ord.
+DEF BUFFER boe-ordl FOR oe-ordl.
+
+
+format header
+  "Order#  Est#         Job#     Date       Cust#    Name" skip
+  fill("-",105) format "x(105)"
+  with frame r-top .
+
+format  /* frame ord */
+   oe-ord.ord-no
+   oe-ord.est-no format "x(8)"
+   oe-ord.job-no space(0) "-" space(0)
+   oe-ord.job-no2 format "99"
+   space(3) 
+   oe-ord.ord-date
+   space(3) 
+   oe-ord.cust-no 
+   oe-ord.cust-name skip
+  WITH frame ord no-labels no-box no-underline stream-io width 132.
+
+FORMAT  /* frame ord1 */
+    oe-ordl.i-no                          label "Item"  at 10
+    oe-ordl.i-name format "x(25)"         label "Description"
+    v-qty-lft      format "->>>,>>9"      label "Quantity"
+    oe-ordl.cost   format "->>>,>>9.99"   label "Cost/M"
+    oe-ordl.price  format "->>>,>>9.99"   label "Price"
+    oe-ordl.pr-uom                        label "UOM"
+    v-ext-price    format "->,>>>,>>9.99" label "Ext Price"
+    v-margin       format "->,>>>,>>9.99" label "Margin$"
+  WITH frame ordl no-labels no-box down stream-io width 132.
+
+format /* frame ordl2 */
+    oe-ordl.i-no                          label "Item"  at 10
+    oe-ordl.i-name format "x(25)"         label "Description"
+    v-qty-lft      format "->>>,>>9"      label "Quantity"
+    oe-ordl.cost   format "->>>,>>9.99"   label "Cost/M"
+    oe-ordl.price  format "->>>,>>9.99"   label "Price"
+    oe-ordl.pr-uom                        label "UOM"
+    v-ext-price    format "->,>>>,>>9.99" label "Ext Price"
+  WITH frame ordl2  no-labels no-box down stream-io width 132.
+
+format /* frame ordm */
+    oe-ordm.charge                       label "Charge"      at 10
+    oe-ordm.dscr                         label "Description"
+    oe-ordm.amt    format "->>>,>>9.99"  label "Price"       to 102 skip
+  WITH frame ordm no-labels no-box down stream-io width 132.
+
+find first oe-ctrl where oe-ctrl.company eq cocode no-lock.
+v-fr-tax = oe-ctrl.f-tax.
+
+assign
+ str-tit2 = c-win:title
+ {sys/inc/ctrtext.i str-tit2 112}
+
+ v-ord-no[1] = begin_ord-no
+ v-ord-no[2] = end_ord-no
+ v-cust[1]   = begin_cust-no
+ v-cust[2]   = end_cust-no
+ v-item[1]   = begin_i-no
+ v-item[2]   = end_i-no
+ v-date[1]   = begin_ord-date
+ v-date[2]   = end_ord-date
+ v-ord-qty   = rd_qty eq "Ordered"
+ v-prt-cont  = can-do(cSelectedList,"Margin$")  /*tb_contr*/.
+
+IF v-prt-cont AND NOT security-flag THEN DO:
+  RUN sys/ref/d-passwd.w (3, OUTPUT security-flag).
+  v-prt-cont = security-flag.
+END.
+
+
+FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
+
+    ASSIGN str-tit4 = str-tit4 + 
+               ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength + 1 - LENGTH(ttRptSelected.TextList))
+            str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+            excelheader = excelHeader + ttRptSelected.TextList + ",".        
+END.
+
+{sys/inc/print1.i}
+
+{sys/inc/outprint.i value(lines-per-page)}
+
+if td-show-parm then run show-param.
+
+IF tb_excel THEN 
+DO:
+   excelheader = "Order#,Est#,Job#,Date,Cust,Name,".
+   IF v-prt-cont THEN
+     excelheader = excelheader + "Item/Misc Chg,Description,Quantity,Cost/M,Price,UOM,Ext Price,Margin$".
+   ELSE
+     excelheader = excelheader + "Item/Misc Chg,Description,Quantity,Cost/M,Price,UOM,Ext Price".
+
+  OUTPUT STREAM excel TO VALUE(fi_file).
+
+  PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+END.
+
+SESSION:SET-WAIT-STATE ("general").
+
+display "" with frame r-top.
+
+EMPTY TEMP-TABLE ExtList.
+
+for each oe-ord
+    where oe-ord.company  eq cocode
+      and oe-ord.ord-no   ge v-ord-no[1]
+      and oe-ord.ord-no   le v-ord-no[2]
+      and oe-ord.cust-no  ge v-cust[1]
+      and oe-ord.cust-no  le v-cust[2]
+      and oe-ord.ord-date ge v-date[1]
+      and oe-ord.ord-date le v-date[2]
+      and (oe-ord.stat    eq "N" or
+           oe-ord.stat    eq "A" or
+           oe-ord.stat    eq "U" or
+           oe-ord.stat    eq "H" or
+           oe-ord.stat    eq "D" or
+           oe-ord.stat    eq "C" or
+           oe-ord.stat    eq "P")
+      and oe-ord.type     ne "T"
+    use-index ord-no no-lock,
+
+    first b-oe-ordl
+    where b-oe-ordl.company eq cocode
+      and b-oe-ordl.ord-no  eq oe-ord.ord-no
+      and b-oe-ordl.i-no    ge v-item[1]
+      and b-oe-ordl.i-no    le v-item[2]
+    no-lock,
+
+    first cust
+    {sys/ref/custW.i}
+      and cust.cust-no eq oe-ord.cust-no
+    no-lock
+
+    break by oe-ord.ord-no:
+
+    display 
+        oe-ord.ord-no
+        trim(oe-ord.est-no)   @ oe-ord.est-no
+        oe-ord.job-no
+        oe-ord.job-no2
+        oe-ord.ord-date       format "99/99/9999"
+        oe-ord.cust-no
+        oe-ord.cust-name
+      with frame ord.
+
+    v-tot-ord[1] = 0.
+
+    for each oe-ordl
+       where oe-ordl.company eq oe-ord.company
+         and oe-ordl.ord-no  eq oe-ord.ord-no
+         and oe-ordl.i-no    ge v-item[1]
+         and oe-ordl.i-no    le v-item[2]
+      no-lock
+      break by oe-ordl.ord-no:
+
+        if first-of(oe-ordl.ord-no) then put skip(1).
+
+        assign
+          v-ship      = oe-ordl.stat ne "I" and oe-ordl.stat ne "B"
+          v-qty-lft   = oe-ordl.qty - (if v-ord-qty then 0 else oe-ordl.inv-qty)
+          v-ext-price = 0.
+
+        if v-qty-lft lt 0 then v-qty-lft = 0.  
+
+        if oe-ordl.pr-uom begins "L" then
+          v-ext-price = 
+            oe-ordl.price - round((oe-ordl.price * oe-ordl.disc) / 100, 2).
+        else if oe-ordl.pr-uom eq "CS" then 
+        do:
+            find first itemfg {sys/look/itemfgrlW.i} 
+                   and itemfg.i-no eq oe-ordl.i-no
+                no-lock no-error.
+
+            if avail itemfg and itemfg.case-count ne 0 then
+              v-ext-price = ((v-qty-lft / itemfg.case-count) * oe-ordl.price) -
+                      round((((v-qty-lft / itemfg.case-count) *
+                              oe-ordl.price) * oe-ordl.disc) / 100, 2).
+            else
+              v-ext-price = (v-qty-lft * oe-ordl.price) -
+                      round(((v-qty-lft * oe-ordl.price) *
+                             oe-ordl.disc) / 100, 2).
+        end.
+        else if oe-ordl.pr-uom eq "C" then
+          v-ext-price = ((v-qty-lft / 100) * oe-ordl.price) -
+                    round((((v-qty-lft / 100) *
+                            oe-ordl.price) * oe-ordl.disc) / 100, 2).
+
+        else if oe-ordl.pr-uom eq "EA" then
+          v-ext-price = (v-qty-lft * oe-ordl.price) -
+                    round(((v-qty-lft * oe-ordl.price) *
+                           oe-ordl.disc) / 100, 2).
+
+        else /** DEFAULT PER THOUSAND **/
+          v-ext-price = ((v-qty-lft / 1000) * oe-ordl.price) -
+                    round((((v-qty-lft / 1000) *
+                            oe-ordl.price) * oe-ordl.disc) / 100, 2).
+
+       /** CALCULATE FREIGHT CHARGES **/
+        v-tot-freight = v-tot-freight +
+                    (round(oe-ordl.t-freight / oe-ordl.qty, 2) * v-qty-lft).
+
+       /** CALCULATE TAX CHARGES **/
+        if oe-ordl.tax and v-tax-rate gt 0 then
+          v-tot-tax = v-tot-tax + round((v-ext-price * v-tax-rate) / 100,2).
+
+        if v-prt-cont then 
+          assign
+            v-ext-cost = (oe-ordl.cost * oe-ordl.qty) / 1000
+            v-margin = v-ext-price - v-ext-cost.
+
         IF tb_excel THEN
             DO:
                CREATE ExtList.

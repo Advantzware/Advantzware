@@ -979,7 +979,7 @@ form header
     with STREAM-IO width 200 no-labels no-box no-underline page-top frame top1.
 
 form header
-     "Job No"                       to 9
+     "Job No"                       AT 1
      "Item No"                      at 17
      "UOM"                          at 28
      "Required"                     to 45
@@ -991,7 +991,7 @@ form header
      "Name"                         at 108
      "Date Due"                     at 129
      skip
-     "-------------"                to 9
+     "-------------"                AT 1
      "----------"                   at 17
      "---"                          at 28
      "--------------"               to 45
@@ -1006,7 +1006,7 @@ form header
 
     with STREAM-IO width 200 no-labels no-box no-underline page-top frame top2.
 
-form v-job                  to 9
+form v-job                  AT 1
      v-itm                  at 17
      v-uom                  at 28
      v-qty[1]               to 45                           /* required */
@@ -1020,7 +1020,7 @@ form v-job                  to 9
 
     with down STREAM-IO width 200 no-labels no-box no-underline frame detail1.
 
-form v-job                  to 9
+form v-job                  AT 1
      v-itm                  at 17
      v-uom                  at 28
      v-qty[1]               to 45                           /* required */

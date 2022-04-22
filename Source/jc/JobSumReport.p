@@ -16,7 +16,6 @@
 /* ***************************  Definitions  ************************** */
 {sys/inc/var.i}
 {jc\ttJobReport.i}
-{sys/inc/var.i}
 
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcFromJobNo AS CHARACTER NO-UNDO.

@@ -1,7 +1,5 @@
 /*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
-{sys/inc/var.i}
-
 &SCOPED-DEFINE fix job-no = FILL(" ", iJobLen - LENGTH(TRIM(job-no))) + TRIM(job-no).
 &SCOPED-DEFINE fix-jobNo jobNo = FILL(" ", iJobLen - LENGTH(TRIM(jobNo))) + TRIM(jobNo).
 &SCOPED-DEFINE fix-job-number job_number = FILL(" ", iJobLen - LENGTH(TRIM(job_number))) + TRIM(job_number).
