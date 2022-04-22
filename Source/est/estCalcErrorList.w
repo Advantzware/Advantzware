@@ -28,7 +28,7 @@
 {est/ttEstCost.i}
 /* Parameters Definitions ---                                           */
 DEFINE INPUT PARAMETER TABLE FOR ttEstError.
-DEFINE INPUT PARAMETER ipiShowErrorandWarning AS INTEGER NO-UNDO.
+DEFINE INPUT PARAMETER ipiDefaultFilterLevel AS INTEGER NO-UNDO.
 DEFINE INPUT PARAMETER ipiQuantity            AS INTEGER NO-UNDO.
 /* Local Variable Definitions ---                                       */
 DEFINE TEMP-TABLE ttEstErrorList LIKE ttEstError
@@ -242,7 +242,7 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
-IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
 
@@ -251,7 +251,7 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   IF ipiShowErrorandWarning EQ 1 THEN
+   IF ipiDefaultFilterLevel EQ 1 THEN
    DO:
        FOR EACH ttEstError WHERE ttEstError.iErrorLevel EQ 1:
            CREATE ttEstErrorList.
@@ -260,7 +260,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                   ttEstErrorList.cErrorLevel = "Critical".
        END.    
    END.
-   IF ipiShowErrorandWarning EQ 2 THEN 
+   IF ipiDefaultFilterLevel EQ 2 THEN 
    DO:
        FOR EACH ttEstError WHERE ttEstError.iErrorLevel EQ 1 OR ttEstError.iErrorLevel EQ 2:
            CREATE ttEstErrorList.
@@ -269,7 +269,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                   ttEstErrorList.cErrorLevel = (IF ttEstError.iErrorLevel EQ 1 THEN "Critical" ELSE "Important"  ).
        END.  
    END.
-   IF ipiShowErrorandWarning EQ 3 THEN 
+   IF ipiDefaultFilterLevel EQ 3 THEN 
    DO:
        FOR EACH ttEstError:
            CREATE ttEstErrorList.
