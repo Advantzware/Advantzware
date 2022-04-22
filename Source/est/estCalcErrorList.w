@@ -6,7 +6,7 @@
 &Scoped-define FRAME-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
-
+    
   File: 
 
   Description: 
@@ -28,11 +28,12 @@
 {est/ttEstCost.i}
 /* Parameters Definitions ---                                           */
 DEFINE INPUT PARAMETER TABLE FOR ttEstError.
-DEFINE INPUT PARAMETER ipcShowErrorandWarning AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipiShowErrorandWarning AS INTEGER NO-UNDO.
 DEFINE INPUT PARAMETER ipiQuantity            AS INTEGER NO-UNDO.
 /* Local Variable Definitions ---                                       */
 DEFINE TEMP-TABLE ttEstErrorList LIKE ttEstError
-       FIELD iQuantity AS INTEGER.
+       FIELD iQuantity AS INTEGER
+       FIELD cErrorLevel AS CHARACTER.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -97,11 +98,11 @@ DEFINE BUTTON Btn_OK AUTO-GO
      BGCOLOR 8 .
 
 DEFINE VARIABLE ComboBox-ErrTypes AS CHARACTER FORMAT "X(256)":U 
-     LABEL "ErrorTypes" 
+     LABEL "Error Level" 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "All","Critical Errors","Important Errors","Warning" 
+     LIST-ITEMS "Critical Only","Important and Critical Only","All Errors and Warnings" 
      DROP-DOWN-LIST
-     SIZE 25 BY 1 NO-UNDO.
+     SIZE 38.6 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
@@ -117,11 +118,11 @@ DEFINE QUERY Browse-ErrList FOR
 DEFINE BROWSE Browse-ErrList
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browse-ErrList Dialog-Frame _FREEFORM
   QUERY Browse-ErrList DISPLAY
-      ttEstErrorList.iFormNo COLUMN-LABEL "FormNo" WIDTH 8
-      ttEstErrorList.iBlankNo COLUMN-LABEL "BlankNo" WIDTH 8
+      ttEstErrorList.iFormNo COLUMN-LABEL "Form" WIDTH 7
+      ttEstErrorList.iBlankNo COLUMN-LABEL "Blank" WIDTH 7
       ttEstErrorList.iQuantity COLUMN-LABEL "Quantity" WIDTH 10
-      ttEstErrorList.cErrorType COLUMN-LABEL "ErrorType" WIDTH 10
-      ttEstErrorList.cError COLUMN-LABEL "Error Description" WIDTH 30
+      ttEstErrorList.cErrorLevel COLUMN-LABEL "Error Level" WIDTH 13
+      ttEstErrorList.cError FORMAT "X(100)" COLUMN-LABEL "Error Description" WIDTH 30
       ENABLE ttEstErrorList.iFormNo
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -131,7 +132,7 @@ DEFINE BROWSE Browse-ErrList
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     ComboBox-ErrTypes AT ROW 2.1 COL 57.4 COLON-ALIGNED WIDGET-ID 2
+     ComboBox-ErrTypes AT ROW 2.91 COL 58 COLON-ALIGNED WIDGET-ID 2
      Browse-ErrList AT ROW 6.1 COL 2.8 WIDGET-ID 200
      Btn_OK AT ROW 14.67 COL 49.2
      Btn_Cancel AT ROW 14.67 COL 79
@@ -139,7 +140,7 @@ DEFINE FRAME Dialog-Frame
      SPACE(0.79) SKIP(0.13)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "EstimateCalcErrorList"
+         TITLE "Errors and Warnings Found During Estimate Calculation"
          DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
 
 
@@ -164,9 +165,6 @@ DEFINE FRAME Dialog-Frame
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
-
-ASSIGN 
-       Browse-ErrList:SEPARATOR-FGCOLOR IN FRAME Dialog-Frame      = 20.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -209,9 +207,9 @@ DO:
     
     hSortColumn = Browse-ErrList:CURRENT-COLUMN.
     CASE hSortColumn:LABEL:
-        WHEN "FormNo" THEN
+        WHEN "Form" THEN
             OPEN QUERY Browse-ErrList FOR EACH ttEstErrorList BY iFormNo.
-        WHEN "BlankNo" THEN
+        WHEN "Blank" THEN
             OPEN QUERY Browse-ErrList FOR EACH ttEstErrorList BY iBlankNo.
     END CASE. 
 END.
@@ -222,12 +220,14 @@ END.
 
 &Scoped-define SELF-NAME ComboBox-ErrTypes
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ComboBox-ErrTypes Dialog-Frame
-ON VALUE-CHANGED OF ComboBox-ErrTypes IN FRAME Dialog-Frame /* ErrorTypes */
+ON VALUE-CHANGED OF ComboBox-ErrTypes IN FRAME Dialog-Frame /* Error Level */
 DO: 
-    IF ComboBox-ErrTypes:SCREEN-VALUE NE "All" THEN 
-    OPEN QUERY Browse-ErrList FOR EACH ttEstErrorList WHERE ttEstErrorList.cErrorType = ComboBox-ErrTypes:SCREEN-VALUE.  
+    IF ComboBox-ErrTypes:SCREEN-VALUE EQ "Critical Only" THEN 
+    OPEN QUERY Browse-ErrList FOR EACH ttEstErrorList WHERE ttEstErrorList.iErrorLevel EQ 1.  
+    ELSE IF ComboBox-ErrTypes:SCREEN-VALUE EQ "Important and Critical Only" THEN  
+    OPEN QUERY Browse-ErrList FOR EACH ttEstErrorList WHERE ttEstErrorList.iErrorLevel EQ 1 OR ttEstErrorList.iErrorLevel EQ 2. 
     ELSE 
-    OPEN QUERY Browse-ErrList FOR EACH ttEstErrorList. 
+    OPEN QUERY Browse-ErrList FOR EACH ttEstErrorList.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -251,28 +251,33 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   IF ipcShowErrorandWarning = "1" THEN
+   IF ipiShowErrorandWarning EQ 1 THEN
    DO:
-       FOR EACH ttEstError WHERE ttEstError.cErrorType = "Critical":
+       FOR EACH ttEstError WHERE ttEstError.iErrorLevel EQ 1:
            CREATE ttEstErrorList.
            BUFFER-COPY ttEstError EXCEPT estHeaderId TO ttEstErrorList.
-           ASSIGN ttEstErrorList.iQuantity = ipiQuantity.
+           ASSIGN ttEstErrorList.iQuantity = ipiQuantity
+                  ttEstErrorList.cErrorLevel = "Critical".
        END.    
    END.
-   IF ipcShowErrorandWarning = "2" THEN 
+   IF ipiShowErrorandWarning EQ 2 THEN 
    DO:
-       FOR EACH ttEstError WHERE ttEstError.cErrorType = "Critical" OR ttEstError.cErrorType = "Important":
+       FOR EACH ttEstError WHERE ttEstError.iErrorLevel EQ 1 OR ttEstError.iErrorLevel EQ 2:
            CREATE ttEstErrorList.
            BUFFER-COPY ttEstError EXCEPT estHeaderId TO ttEstErrorList.
-           ASSIGN ttEstErrorList.iQuantity = ipiQuantity.
+           ASSIGN ttEstErrorList.iQuantity = ipiQuantity
+                  ttEstErrorList.cErrorLevel = (IF ttEstError.iErrorLevel EQ 1 THEN "Critical" ELSE "Important"  ).
        END.  
    END.
-   IF ipcShowErrorandWarning = "3" THEN 
+   IF ipiShowErrorandWarning EQ 3 THEN 
    DO:
        FOR EACH ttEstError:
            CREATE ttEstErrorList.
            BUFFER-COPY ttEstError EXCEPT estHeaderId TO ttEstErrorList.
-           ASSIGN ttEstErrorList.iQuantity = ipiQuantity.
+           ASSIGN ttEstErrorList.iQuantity = ipiQuantity
+           ttEstErrorList.cErrorLevel = (IF ttEstError.iErrorLevel EQ 1 THEN "Critical" 
+                                         ELSE IF ttEstError.iErrorLevel EQ 2 THEN "Important"
+                                         ELSE "Warning").
        END.  
    END.
 

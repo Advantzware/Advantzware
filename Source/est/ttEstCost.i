@@ -29,7 +29,7 @@ DEFINE {1} TEMP-TABLE ttEstError
     FIELD estHeaderID AS INT64
     FIELD iFormNo AS INTEGER 
     FIELD iBlankNo AS INTEGER
-    FIELD cErrorType AS CHARACTER
+    FIELD iErrorLevel AS INTEGER
     FIELD cError AS CHARACTER
     .  
     
