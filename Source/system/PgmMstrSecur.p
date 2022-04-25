@@ -41,6 +41,7 @@ PROCEDURE epCanAccessUser:
             /* new entries should be added alphabetically */
             IF users.securityLevel LT 1000 AND (                
                 (ipProgName EQ "AOA/dynSubjct.w" AND ipFunction EQ "SuperAdmin") OR /* Check security for Admin */
+                (ipProgName EQ "ap/r-apve&pN.w" AND ipFunction EQ "") OR /*VU3 Vendor invoice post*/
                 (ipProgName EQ "ap/r-prnchk.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "arrep/r-stmt.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "browsers/APIOutbound.w" AND ipFunction EQ "") OR /* Check security for Admin */
@@ -88,7 +89,6 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "windows/message.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "windows/std-code.w" AND ipFunction EQ "") OR /*NZ7 (NZ6) Standards Matrix*/
                 (ipProgName EQ "windows/uom.w" AND ipFunction EQ "") OR /*NZ8 (NZ7) Units of Measure*/                   
-                (ipProgName EQ "ap/r-apve&pN.w" AND ipFunction EQ "") OR /*VU3 Vendor invoice post*/
                 (ipProgName EQ "" AND ipFunction EQ "")
                 ) THEN ASSIGN opCanAccess = FALSE.
             /* Second group - programs/functions ONLY available to Administrators */
