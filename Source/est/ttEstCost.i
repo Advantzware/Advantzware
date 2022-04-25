@@ -31,6 +31,7 @@ DEFINE {1} TEMP-TABLE ttEstError
     FIELD iBlankNo AS INTEGER
     FIELD iErrorLevel AS INTEGER
     FIELD cError AS CHARACTER
+    FIELD dQuantityMaster AS DECIMAL
     .  
     
 DEFINE {1} TEMP-TABLE ttInk
