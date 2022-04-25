@@ -48,7 +48,7 @@ DEFINE VARIABLE hJobChecklist AS HANDLE NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Change_Company Btn_tag RECT-1 
+&Scoped-Define ENABLED-OBJECTS Btn_SharpShooter Btn_Change_Company RECT-1 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -94,10 +94,11 @@ DEFINE BUTTON Btn_Change_Company
      IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Exit" 
      SIZE 8 BY 1.91 TOOLTIP "Exit".
-     
-DEFINE BUTTON Btn_tag      
-     LABEL "Bar Codes" 
-     SIZE 14 BY 1.91 TOOLTIP "Bar Codes".     
+
+DEFINE BUTTON Btn_SharpShooter 
+     IMAGE-UP FILE "Graphics/32x32/barcodesharpshooter.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Sharp Shooter" 
+     SIZE 8.6 BY 1.9 TOOLTIP "Sharp Shooter".
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -107,8 +108,8 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     Btn_SharpShooter AT ROW 1.95 COL 71
      Btn_Change_Company AT ROW 1.24 COL 116
-     Btn_tag AT ROW 1.24 COL 101.60
      btnLanguage-7 AT ROW 1.24 COL 56 WIDGET-ID 22
      btnLanguage-1 AT ROW 1.24 COL 2
      btnLanguage-2 AT ROW 1.24 COL 11
@@ -116,6 +117,8 @@ DEFINE FRAME F-Main
      btnLanguage-4 AT ROW 1.24 COL 29
      btnLanguage-5 AT ROW 1.24 COL 38
      btnLanguage-6 AT ROW 1.24 COL 47
+     "Sharp Shooter" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 2.67 COL 80
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -258,9 +261,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_tag
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_tag s-object
-ON CHOOSE OF Btn_tag IN FRAME F-Main /* Exit */
+&Scoped-define SELF-NAME Btn_SharpShooter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_SharpShooter s-object
+ON CHOOSE OF Btn_SharpShooter IN FRAME F-Main /* Sharp Shooter */
 DO:      
     {methods/run_link.i "CONTAINER" "open_sharp-shooter"}
 END.
