@@ -24,6 +24,30 @@ FUNCTION fGetClientTransactionCounter RETURNS INTEGER PRIVATE
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE pGetNumLinesInPage PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiAPIOutboundID AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiNumLines      AS INTEGER NO-UNDO.
+
+    DEFINE BUFFER bf-APIOutboundContent FOR APIOutboundContent.
+
+    opiNumLines = 62.
+        
+    FIND FIRST bf-APIOutboundContent NO-LOCK
+         WHERE bf-APIOutboundContent.apiOutboundID EQ ipiAPIOutboundID
+           AND bf-APIOutboundContent.contentType   EQ "User"
+           AND bf-APIOutboundContent.contentKey    EQ "NumberOfLinesInPage"
+         NO-ERROR.
+    IF AVAILABLE bf-APIOutboundContent THEN
+        opiNumLines = INTEGER(bf-APIOutboundContent.contentValue).
+    
+    IF opiNumLines EQ 0 THEN
+        opiNumLines = 62.
+END PROCEDURE.
+
 PROCEDURE pSetRequestDataType PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
