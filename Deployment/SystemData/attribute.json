@@ -1,5 +1,54 @@
 [
   {
+    "dbFieldName": "description",
+    "dbFieldExtent": 0,
+    "attributeName": "BoxDesignDescription",
+    "dbTableName": "box-design-hdr",
+    "rec_key": "202204240705109192704"
+  },
+  {
+    "dbFieldName": "design-no",
+    "dbFieldExtent": 0,
+    "attributeName": "DesignNo",
+    "dbTableName": "box-design-hdr",
+    "rec_key": "202204240714109192705"
+  },
+  {
+    "dbFieldName": "lcum-score",
+    "dbFieldExtent": 0,
+    "attributeName": "LengthCumulativeScore",
+    "dbTableName": "box-design-hdr",
+    "rec_key": "202204240625509192694"
+  },
+  {
+    "dbFieldName": "lscore",
+    "dbFieldExtent": 0,
+    "attributeName": "LengthScore",
+    "dbTableName": "box-design-hdr",
+    "rec_key": "202204240627209192695"
+  },
+  {
+    "dbFieldName": "wcum-score",
+    "dbFieldExtent": 0,
+    "attributeName": "WidthCumulativeScore",
+    "dbTableName": "box-design-line",
+    "rec_key": "202204240527109192690"
+  },
+  {
+    "dbFieldName": "wscore",
+    "dbFieldExtent": 0,
+    "attributeName": "WidthScore",
+    "dbTableName": "box-design-line",
+    "rec_key": "202204240525609192689"
+  },
+  {
+    "dbFieldName": "dscr",
+    "dbFieldExtent": 0,
+    "attributeName": "CarrierDescription",
+    "dbTableName": "carrier",
+    "rec_key": "202204216305309192258"
+  },
+  {
     "dbFieldName": "company",
     "dbFieldExtent": 0,
     "attributeName": "CompanyID",
@@ -14,6 +63,13 @@
     "rec_key": "202201057376708435960"
   },
   {
+    "dbFieldName": "area-code",
+    "dbFieldExtent": 0,
+    "attributeName": "AreaCode",
+    "dbTableName": "cust",
+    "rec_key": "202204216182209192233"
+  },
+  {
     "dbFieldName": "cust-no",
     "dbFieldExtent": 0,
     "attributeName": "CustomerID",
@@ -21,11 +77,46 @@
     "rec_key": "202201204375008475662"
   },
   {
+    "dbFieldName": "fax",
+    "dbFieldExtent": 0,
+    "attributeName": "Fax",
+    "dbTableName": "cust",
+    "rec_key": "202204216184409192235"
+  },
+  {
+    "dbFieldName": "fob-code",
+    "dbFieldExtent": 0,
+    "attributeName": "FOBCode",
+    "dbTableName": "cust",
+    "rec_key": "202204216302809192257"
+  },
+  {
     "dbFieldName": "name",
     "dbFieldExtent": 0,
     "attributeName": "CustomerName",
     "dbTableName": "cust",
     "rec_key": "202201204375908475663"
+  },
+  {
+    "dbFieldName": "over-pct",
+    "dbFieldExtent": 0,
+    "attributeName": "OverPercent",
+    "dbTableName": "cust",
+    "rec_key": "202204216326309192264"
+  },
+  {
+    "dbFieldName": "Phone",
+    "dbFieldExtent": 0,
+    "attributeName": "Phone",
+    "dbTableName": "cust",
+    "rec_key": "202204216183609192234"
+  },
+  {
+    "dbFieldName": "under-pct",
+    "dbFieldExtent": 0,
+    "attributeName": "UnderPercent",
+    "dbTableName": "cust",
+    "rec_key": "202204216327609192265"
   },
   {
     "dbFieldName": "code",
@@ -124,6 +215,13 @@
     "attributeName": "DieNo",
     "dbTableName": "eb",
     "rec_key": "202111190040008130299"
+  },
+  {
+    "dbFieldName": "est-no",
+    "dbFieldExtent": 0,
+    "attributeName": "EstimateID",
+    "dbTableName": "eb",
+    "rec_key": "202204217845409192353"
   },
   {
     "dbFieldName": "form-no",
@@ -245,6 +343,13 @@
     "rec_key": "202111190040008130291"
   },
   {
+    "dbFieldName": "board",
+    "dbFieldExtent": 0,
+    "attributeName": "Board",
+    "dbTableName": "ef",
+    "rec_key": "202204240700009192702"
+  },
+  {
     "dbFieldName": "cal",
     "dbFieldExtent": 0,
     "attributeName": "Caliper",
@@ -355,6 +460,20 @@
     "attributeName": "TrimWidth",
     "dbTableName": "ef",
     "rec_key": "202111190040308130322"
+  },
+  {
+    "dbFieldName": "xgrain",
+    "dbFieldExtent": 0,
+    "attributeName": "CrossGrain",
+    "dbTableName": "ef",
+    "rec_key": "202204240702009192703"
+  },
+  {
+    "dbFieldName": "metric",
+    "dbFieldExtent": 0,
+    "attributeName": "Metric",
+    "dbTableName": "est",
+    "rec_key": "202204224146009192510"
   },
   {
     "dbFieldName": "",
@@ -4681,5 +4800,194 @@
     "attributeName": "VendorID",
     "dbTableName": "po-ordl",
     "rec_key": "202201208271808475753"
+  },
+  {
+    "dbFieldName": "billto",
+    "dbFieldExtent": 1,
+    "attributeName": "BillTo1",
+    "dbTableName": "quotehd",
+    "rec_key": "202204216108909192219"
+  },
+  {
+    "dbFieldName": "billto",
+    "dbFieldExtent": 2,
+    "attributeName": "BillTo2",
+    "dbTableName": "quotehd",
+    "rec_key": "202204216109409192220"
+  },
+  {
+    "dbFieldName": "billto",
+    "dbFieldExtent": 3,
+    "attributeName": "BillTo3",
+    "dbTableName": "quotehd",
+    "rec_key": "202204216109909192221"
+  },
+  {
+    "dbFieldName": "billto",
+    "dbFieldExtent": 4,
+    "attributeName": "BillTo4",
+    "dbTableName": "quotehd",
+    "rec_key": "202204216110409192222"
+  },
+  {
+    "dbFieldName": "billto",
+    "dbFieldExtent": 5,
+    "attributeName": "BillTo5",
+    "dbTableName": "quotehd",
+    "rec_key": "202204216111209192223"
+  },
+  {
+    "dbFieldName": "contact",
+    "dbFieldExtent": 0,
+    "attributeName": "contact",
+    "dbTableName": "quotehd",
+    "rec_key": "202204216201809192240"
+  },
+  {
+    "dbFieldName": "q-no",
+    "dbFieldExtent": 0,
+    "attributeName": "QuoteID",
+    "dbTableName": "quotehd",
+    "rec_key": "202204216186309192236"
+  },
+  {
+    "dbFieldName": "quo-date",
+    "dbFieldExtent": 0,
+    "attributeName": "QuoteDate",
+    "dbTableName": "quotehd",
+    "rec_key": "202204216298709192256"
+  },
+  {
+    "dbFieldName": "shipto",
+    "dbFieldExtent": 1,
+    "attributeName": "ShipTo1",
+    "dbTableName": "quotehd",
+    "rec_key": "202204216107809192218"
+  },
+  {
+    "dbFieldName": "shipto",
+    "dbFieldExtent": 2,
+    "attributeName": "ShipTo2",
+    "dbTableName": "quotehd",
+    "rec_key": "202204216107309192217"
+  },
+  {
+    "dbFieldName": "shipto",
+    "dbFieldExtent": 3,
+    "attributeName": "ShipTo3",
+    "dbTableName": "quotehd",
+    "rec_key": "202204216106709192216"
+  },
+  {
+    "dbFieldName": "shipto",
+    "dbFieldExtent": 4,
+    "attributeName": "ShipTo4",
+    "dbTableName": "quotehd",
+    "rec_key": "202204216106209192215"
+  },
+  {
+    "dbFieldName": "shipto",
+    "dbFieldExtent": 5,
+    "attributeName": "ShipTo5",
+    "dbTableName": "quotehd",
+    "rec_key": "202204216105309192214"
+  },
+  {
+    "dbFieldName": "i-coldscr",
+    "dbFieldExtent": 0,
+    "attributeName": "ColorDescription",
+    "dbTableName": "quoteitm",
+    "rec_key": "202204220134109192414"
+  },
+  {
+    "dbFieldName": "i-dscr",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemDescription",
+    "dbTableName": "quoteitm",
+    "rec_key": "202204220138009192415"
+  },
+  {
+    "dbFieldName": "i-no",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemID",
+    "dbTableName": "quoteitm",
+    "rec_key": "202204220314909192438"
+  },
+  {
+    "dbFieldName": "part-dscr1",
+    "dbFieldExtent": 0,
+    "attributeName": "PartDescription1",
+    "dbTableName": "quoteitm",
+    "rec_key": "202204217883209192375"
+  },
+  {
+    "dbFieldName": "part-dscr2",
+    "dbFieldExtent": 0,
+    "attributeName": "PartDescription2",
+    "dbTableName": "quoteitm",
+    "rec_key": "202204218144809192386"
+  },
+  {
+    "dbFieldName": "part-no",
+    "dbFieldExtent": 0,
+    "attributeName": "PartID",
+    "dbTableName": "quoteitm",
+    "rec_key": "202204217899309192376"
+  },
+  {
+    "dbFieldName": "price",
+    "dbFieldExtent": 0,
+    "attributeName": "Price",
+    "dbTableName": "quoteqty",
+    "rec_key": "202204220233009192423"
+  },
+  {
+    "dbFieldName": "qty",
+    "dbFieldExtent": 0,
+    "attributeName": "Quantity",
+    "dbTableName": "quoteqty",
+    "rec_key": "202204220232309192422"
+  },
+  {
+    "dbFieldName": "rels",
+    "dbFieldExtent": 0,
+    "attributeName": "Release",
+    "dbTableName": "quoteqty",
+    "rec_key": "202204220234009192424"
+  },
+  {
+    "dbFieldName": "uom",
+    "dbFieldExtent": 0,
+    "attributeName": "UOM",
+    "dbTableName": "quoteqty",
+    "rec_key": "202204220234809192425"
+  },
+  {
+    "dbFieldName": "sname",
+    "dbFieldExtent": 0,
+    "attributeName": "SalesPersonName",
+    "dbTableName": "sman",
+    "rec_key": "202204216308409192260"
+  },
+  {
+    "dbFieldName": "design-no",
+    "dbFieldExtent": 0,
+    "attributeName": "DesignNo",
+    "dbTableName": "style",
+    "rec_key": "202204240726909192709"
+  },
+  {
+    "dbFieldName": "dscr",
+    "dbFieldExtent": 0,
+    "attributeName": "StyleDescription",
+    "dbTableName": "style",
+    "rec_key": "202204218195409192387"
+  },
+  {
+    "dbFieldName": "dscr",
+    "dbFieldExtent": 0,
+    "attributeName": "TermsDescription",
+    "dbTableName": "terms",
+    "rec_key": "202204216306409192259"
   }
 ]

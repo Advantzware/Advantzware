@@ -2074,6 +2074,10 @@ PROCEDURE pCallAPIOutbound PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcFormat    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeID   AS CHARACTER NO-UNDO.
+    
     DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     
@@ -2085,19 +2089,20 @@ PROCEDURE pCallAPIOutbound PRIVATE:
         system.SharedConfig:Instance:SetValue("SendQuote_PrintBoxDesign", STRING(tb_prt-box:CHECKED)).
         system.SharedConfig:Instance:SetValue("SendQuote_PrintSetComponents", STRING(tb_prt-comp:CHECKED)).
         
-        RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
-            INPUT  cocode,                             /* Company Code (Mandatory) */
-            INPUT  "",                                /* Location Code (Mandatory) */
-            INPUT  "SendQuote",                    /* API ID (Mandatory) */
-            INPUT  "",                                     /* Scope ID */
-            INPUT  "",                                     /* Scope Type */
-            INPUT  "PrintQuote",                         /* Trigger ID (Mandatory) */
-            INPUT  "TTQuote",                           /* Comma separated list of table names for which data being sent (Mandatory) */
-            INPUT  STRING(TEMP-TABLE tt-quote:HANDLE),                   /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-            INPUT  "Quote Print",                          /* Primary ID for which API is called for (Mandatory) */   
-            INPUT  "Quote print",    /* Event's description (Optional) */
-            OUTPUT lSuccess,                               /* Success/Failure flag */
-            OUTPUT cMessage                                /* Status message */
+        RUN Outbound_PrepareAndExecuteForScopeAndClient IN hdOutboundProcs (
+            INPUT  cocode,                                         /* Company Code (Mandatory) */
+            INPUT  "",                                             /* Location Code (Mandatory) */
+            INPUT  "SendQuote",                                    /* API ID (Mandatory) */
+            INPUT  ipcFormat,                                      /* Client ID */
+            INPUT  ipcScopeID,                                     /* Scope ID */
+            INPUT  ipcScopeType,                                   /* Scope Type */
+            INPUT  "PrintQuote",                                   /* Trigger ID (Mandatory) */
+            INPUT  "TTQuote",                                      /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(TEMP-TABLE tt-quote:HANDLE),             /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  "Quote Print",                                  /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  "Quote print",                                  /* Event's description (Optional) */
+            OUTPUT lSuccess,                                       /* Success/Failure flag */
+            OUTPUT cMessage                                        /* Status message */
             ).
 
         system.SharedConfig:Instance:DeleteValue("SendQuote_Print2ndItemDescription").
@@ -2118,7 +2123,9 @@ PROCEDURE pCallAPIOutbound PRIVATE:
         END.    
         
         IF lcRequestData NE "" THEN
-            COPY-LOB FROM lcRequestData TO FILE list-name. 
+            COPY-LOB FROM lcRequestData TO FILE list-name.
+            
+        RUN Outbound_ResetContext IN hdOutboundProcs. 
     END.   
 END PROCEDURE.
 	
@@ -2334,10 +2341,10 @@ PROCEDURE run-report :
         MESSAGE "Format is invalid or not found - Set the proper format in NK1 - "  v-print-fmt VIEW-AS ALERT-BOX INFORMATION.
         RETURN.
     END.
-
-    RUN Outbound_IsApiScopeActive IN hdOutboundProcs (cocode, "", "SendQuote", "", "", "PrintQuote", OUTPUT lIsAPIActive).
     
-    IF NOT (lIsAPIActive AND v-print-fmt EQ "quoprint 11") THEN
+    RUN Outbound_IsApiClientAndScopeActive IN hdOutboundProcs (cocode, "", "SendQuote", v-print-fmt, "", "", "PrintQuote", OUTPUT lIsAPIActive).
+    
+    IF NOT lIsAPIActive THEN
         {sys/inc/outprint.i value(lines-per-page)}
 
     IF td-show-parm THEN RUN show-param.
@@ -2615,10 +2622,10 @@ PROCEDURE run-report :
             END CASE.
         END.
     
-    RUN pCallAPIOutbound.
+    RUN pCallAPIOutbound(v-print-fmt, "", "").
     
-    IF NOT (lIsAPIActive AND v-print-fmt EQ "quoprint 11") THEN
-        RUN value(v-program).
+    IF NOT lIsAPIActive THEN
+        RUN VALUE(v-program).
     
     FOR EACH report WHERE report.term-id EQ v-term-id:
         DELETE report.
