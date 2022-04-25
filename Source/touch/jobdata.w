@@ -121,7 +121,7 @@ DEFINE BUFFER bMachTran FOR machtran.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Hour Btn_Minute Btn_AMPM ~
+&Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Hour Btn_Minute Btn_AMPM Btn_tag ~
 Btn_Quantity Btn_Waste Btn_complete 
 &Scoped-Define DISPLAYED-OBJECTS time-hour time-minute run-qty waste-qty ~
 v-completed timerStatus 
@@ -200,6 +200,10 @@ DEFINE BUTTON Btn_Quantity
      LABEL "Quantity" 
      SIZE 16 BY 1.67 TOOLTIP "Quantity".
 
+DEFINE BUTTON Btn_tag 
+     LABEL "Tags" 
+     SIZE 12.8 BY 1.05 TOOLTIP "Bar Codes".
+
 DEFINE BUTTON Btn_Waste 
      LABEL "Waste" 
      SIZE 16 BY 1.67 TOOLTIP "Waste".
@@ -246,6 +250,7 @@ DEFINE FRAME F-Main
      Btn_AMPM AT ROW 1.71 COL 73
      time-hour AT ROW 1.95 COL 37 COLON-ALIGNED NO-LABEL
      time-minute AT ROW 1.95 COL 62 COLON-ALIGNED NO-LABEL
+     Btn_tag AT ROW 4.90 COL 110.8 WIDGET-ID 2
      Btn_Quantity AT ROW 4.1 COL 22
      run-qty AT ROW 4.33 COL 37 COLON-ALIGNED NO-LABEL
      Btn_Waste AT ROW 6.24 COL 22
@@ -482,6 +487,17 @@ DO:
   RUN Reset_Field_Colors.
   h_field = run-qty:HANDLE.
   RUN Set_Field_Colors.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_tag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_tag s-object
+ON CHOOSE OF Btn_tag IN FRAME F-Main /* Tags */
+DO:
+    RUN sharpshooter/ssmenu.w .
 END.
 
 /* _UIB-CODE-BLOCK-END */
