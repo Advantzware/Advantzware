@@ -220,7 +220,7 @@ PROCEDURE adm-create-objects :
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'touch/employee.w':U ,
-             INPUT  {&WINDOW-NAME} ,
+             INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_employee ).
        RUN set-position IN h_employee ( 1.00 , 1.00 ) NO-ERROR.
@@ -303,7 +303,7 @@ PROCEDURE adm-create-objects :
     WHEN 12 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'touch/pass.w':U ,
-             INPUT  {&WINDOW-NAME} ,
+             INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_pass ).
        RUN set-position IN h_pass ( 1.00 , 1.00 ) NO-ERROR.
@@ -313,7 +313,7 @@ PROCEDURE adm-create-objects :
     WHEN 13 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'touch/jobseq.w':U ,
-             INPUT  {&WINDOW-NAME} ,
+             INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_jobseq ).
        RUN set-position IN h_jobseq ( 1.00 , 1.00 ) NO-ERROR.
@@ -705,6 +705,20 @@ PROCEDURE Delete_Keyboard :
   IF VALID-HANDLE(h_keyboard) THEN
   DELETE PROCEDURE h_keyboard.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE open_sharp-shooter F-Frame-Win 
+PROCEDURE open_sharp-shooter :
+/*------------------------------------------------------------------------------
+  Purpose:     apply close window to container window
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  RUN sharpshooter/ssmenu.w .
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
