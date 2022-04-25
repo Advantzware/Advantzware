@@ -52,7 +52,8 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,POPriceHold,SearchLimits,SSIssueDefaultRM,PlateFile,APInvoiceLength,DeleteBinsAllowed,InvoiceApprovalOrderlineChange,QuotePriceMatrix,"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,CEVendorDefault"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,PriceMatrixPricingMethod,CaseLabel,InterCompanyBilling,"
-           + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST,CENewLayoutCalc,OEUseMatrixForNonstock,CEShipWeight,JobNoLength"
+           + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST,CENewLayoutCalc,OEUseMatrixForNonstock,CEShipWeight,JobNoLength,"
+           + "OEAUTOPREP"
            .
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -1706,8 +1707,19 @@ CASE ip-nk1-value:
             INPUT 6,                              /* Int value */
             INPUT NO,                             /* Logical value */ 
             INPUT 0                               /* Dec value*/
-            ).                        
-        
+            ).
+                             
+    WHEN "OEAUTOPREP" THEN     
+    RUN sys/inc/addnk1.p (
+        INPUT cocode, 
+        INPUT ip-nk1-value, 
+        INPUT NO,           
+        INPUT "Auto Prep PO Creation from Order Entry?",     /* Description */
+        INPUT "",                             /* Char Value */
+        INPUT 0,                              /* Int value */
+        INPUT NO,                             /* Logical value */ 
+        INPUT 0                               /* Dec value*/
+        ).
 END CASE.
 ELSE
 CASE ip-nk1-value:
@@ -1909,4 +1921,7 @@ CASE ip-nk1-value:
     WHEN "xmlorder" THEN DO: {sys\inc\xmlorder.i} END.
     WHEN "OverwriteJobPlan" THEN DO: {sys\inc\overwriteJobPlan.i} END.
     WHEN "CapacityPage" THEN DO: {sys\inc\capacityPage.i} END.
+    WHEN "POSTATUS" THEN DO: {sys\ref\poStatus.i} END.
+    WHEN "OEAUTOPO" THEN DO: {sys\inc\oeautopo.i} END.
+    WHEN "POCOST" THEN DO: {sys\ref\pocost.i} END.
 END CASE.

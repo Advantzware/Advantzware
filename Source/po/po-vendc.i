@@ -2,29 +2,29 @@
 /* po detail line - vendor cost                                               */
 /* ---------------------------------------------------------------------------*/
 
-do with frame po-ordlf:
-  find first tt-ei
-      where tt-ei.company eq cocode
-        and tt-ei.i-no    eq {1} po-ordl.i-no
-      no-lock no-error.
+DO WITH FRAME po-ordlf:
+  FIND FIRST tt-ei
+      WHERE tt-ei.company EQ cocode
+        AND tt-ei.i-no    EQ {1} po-ordl.i-no
+      NO-LOCK NO-ERROR.
 
-  if avail tt-ei then
-  find first tt-eiv WHERE
+  IF AVAIL tt-ei THEN
+  FIND FIRST tt-eiv WHERE
       tt-eiv.company EQ tt-ei.company AND
       tt-eiv.i-no    EQ tt-ei.i-no AND
-      tt-eiv.vend-no eq po-ord.vend-no
-      no-lock no-error.
+      tt-eiv.vend-no EQ po-ord.vend-no
+      NO-LOCK NO-ERROR.
 
-  if avail tt-eiv then do:
-    v-cost = po-ordl.cost.
+  IF AVAIL tt-eiv THEN DO:
+    deCost = po-ordl.cost.
 
-    if tt-ei.std-uom eq {1} po-ordl.pr-qty-uom then
-      v-qty = {1} po-ordl.ord-qty.
+    IF tt-ei.std-uom EQ {1} po-ordl.pr-qty-uom then
+      deqty = {1} po-ordl.ord-qty.
     else
       run sys/ref/convquom.p(({1} po-ordl.pr-qty-uom),
-                             tt-ei.std-uom, v-basis-w,
-                             ({1} v-len), ({1} v-wid), v-dep,
-                             ({1} po-ordl.ord-qty), output v-qty).
+                             tt-ei.std-uom, debasis-w,
+                             ({1} deS-Len), ({1} deS-wid), deS-dep,
+                             ({1} po-ordl.ord-qty), output deqty).
 
     IF {1} po-ordl.job-no NE "" THEN
       RUN po/groupcst.p (({1} po-ordl.job-no),
@@ -32,64 +32,64 @@ do with frame po-ordlf:
                          ({1} po-ordl.i-no),
                          ({1} po-ordl.s-num),
                          ({1} po-ordl.b-num),
-                         INPUT-OUTPUT v-qty).
+                         INPUT-OUTPUT deqty).
 
-    v-setup = 0.
-    do j = 1 to 20:
-       if tt-eiv.run-qty[j] le v-qty then next.
+    deSetup = 0.
+    DO iCount5 = 1 TO 20:
+       IF tt-eiv.run-qty[iCount5] LE deqty THEN NEXT.
        ASSIGN
-          v-cost = tt-eiv.run-cost[j]
-          v-setup = tt-eiv.setups[j].
-       leave.
-    end.
+          deCost = tt-eiv.run-cost[iCount5]
+          deSetup = tt-eiv.setups[iCount5].
+       LEAVE.
+    END.
 
-    if j LE 20 and {1} po-ordl.job-no ne "" then v-cost = tt-eiv.run-cost[j].
+    IF iCount5 LE 20 AND {1} po-ordl.job-no NE "" then deCost = tt-eiv.run-cost[iCount5].
 
     RUN est/dim-charge.p (tt-eiv.rec_key,
-                          ({1} v-wid),
-                          ({1} v-len),
-                          INPUT-OUTPUT v-cost).
+                          ({1} deS-wid),
+                          ({1} deS-Len),
+                          INPUT-OUTPUT deCost).
     
-    if frame-field eq "ord-qty" or frame-field eq "pr-qty-uom" or
-       frame-field begins "job-no" or "input" ne "{1}"           then do:
-      if tt-ei.std-uom eq {1} po-ordl.pr-uom then
-        po-ordl.cost = v-cost.
+    IF frame-field EQ "ord-qty" OR frame-field EQ "pr-qty-uom" OR
+       frame-field BEGINS "job-no" OR "input" NE "{1}"           THEN DO:
+      IF tt-ei.std-uom EQ {1} po-ordl.pr-uom then
+        po-ordl.cost = deCost.
       else
         run sys/ref/convquom.p(tt-ei.std-uom,
-                               ({1} po-ordl.pr-uom), v-basis-w,
-                               ({1} v-len), ({1} v-wid), v-dep,
-                               v-cost, output po-ordl.cost).
+                               ({1} po-ordl.pr-uom), debasis-w,
+                               ({1} deS-Len), ({1} deS-wid), deS-dep,
+                               deCost, output po-ordl.cost).
 
-      if {1} po-ordl.pr-uom eq {1} po-ordl.cons-uom then
+      IF {1} po-ordl.pr-uom EQ {1} po-ordl.cons-uom then
         po-ordl.cons-cost = po-ordl.cost.
       else
         run sys/ref/convquom.p(({1} po-ordl.pr-uom),
-                               ({1} po-ordl.cons-uom), v-basis-w,
-                               ({1} v-len), ({1} v-wid), v-dep,
+                               ({1} po-ordl.cons-uom), debasis-w,
+                               ({1} deS-Len), ({1} deS-wid), deS-dep,
                                po-ordl.cost, output po-ordl.cons-cost).
 
-      assign
-       po-ordl.cost      = po-ordl.cost      + v-adder[1]
-       po-ordl.cons-cost = po-ordl.cons-cost + v-adder[2].
+      ASSIGN
+       po-ordl.cost      = po-ordl.cost      + deAdder[1]
+       po-ordl.cons-cost = po-ordl.cons-cost + deAdder[2].
 
   /*    display po-ordl.cost po-ordl.cons-cost.  ??? */
-    end.
+    END.
 
 
-    else
-    if v-hold-op1 then do:
-      if tt-ei.std-uom ne {1} po-ordl.pr-uom then
+    ELSE
+    IF loHoldop1 THEN DO:
+      IF tt-ei.std-uom NE {1} po-ordl.pr-uom then
         run sys/ref/convquom.p(tt-ei.std-uom,
-                               ({1} po-ordl.pr-uom), v-basis-w,
-                               ({1} v-len), ({1} v-wid), v-dep,
-                               v-cost, output v-cost).
+                               ({1} po-ordl.pr-uom), debasis-w,
+                               ({1} deS-Len), ({1} deS-wid), deS-dep,
+                               deCost, output deCost).
 
-      v-cost = v-cost + v-adder[1].
+      deCost = deCost + deAdder[1].
 
-      if {1} po-ordl.cost gt v-cost then po-ord.stat = "H".
-    end.
-  end.
-end.
+      IF {1} po-ordl.cost GT deCost then po-ord.stat = "H".
+    END.
+  END.
+END.
 
 /* end ---------------------------------- copr. 1998  advanced software, inc. */
 

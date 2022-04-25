@@ -2,8 +2,6 @@ DEF INPUT        PARAM ip-rowid AS ROWID NO-UNDO.
 DEF INPUT-OUTPUT PARAM io-save-qty AS DEC NO-UNDO.
 DEF INPUT-OUTPUT PARAM io-b-qty AS DEC NO-UNDO.
 
-{sys/inc/var.i SHARED}
-
 {cec/print4.i "NEW SHARED" "NEW SHARED"}
 {cec/print42.i "NEW SHARED"}
 
@@ -27,12 +25,11 @@ DEF VAR max-w AS de NO-UNDO.
 DEF VAR hold-gsh-qty LIKE ef.gsh-qty.
 DEF VAR v-num-up AS INT NO-UNDO. 
 def var v-num-out as int NO-UNDO.
+def var v-corr as log.
 
 DEF TEMP-TABLE tt-est-op NO-UNDO LIKE est-op.
 
 DISABLE TRIGGERS FOR LOAD OF est-op.
-
-{cec/msfcalc.i}
 
 FIND eb WHERE ROWID(eb) EQ ip-rowid NO-LOCK NO-ERROR.
 
@@ -51,6 +48,11 @@ FIND FIRST est NO-LOCK
 
 IF AVAIL est THEN DO:
 
+    FIND FIRST sys-ctrl
+        WHERE sys-ctrl.company EQ est.company
+        AND sys-ctrl.name      EQ "MSFCALC"
+        NO-LOCK NO-ERROR.
+    
   FIND FIRST groupcst NO-LOCK
       WHERE groupcst.reftable EQ "est/getqty.w"
         AND groupcst.company  EQ est.company
