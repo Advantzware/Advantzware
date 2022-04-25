@@ -128,7 +128,7 @@ with frame invhead-comp page-top no-labels no-box no-underline stream-io width 8
 
 form
   inv-line.i-no at 1
-  v-cust-part-no at 17
+  v-cust-part-no at 17 FORMAT "x(15)"
   v-cs-qty to 53 format ">>>>>>9"
   v-cs-ship-qty to 61 format ">>>>>>9"
   v-price to 70 format ">>>>9.99" skip

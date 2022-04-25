@@ -498,7 +498,7 @@ ASSIGN v-comp-add1 = ""
 
               if v-part-info ne "" OR inv-line.part-no <> "" then do:
                 /*put space(40) v-part-info skip.*/
-                 IF v = 1 THEN PUT SPACE(32) inv-line.part-no v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(32) inv-line.part-no FORMAT "x(15)" v-part-info SKIP.
                  ELSE PUT SPACE(47) v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.

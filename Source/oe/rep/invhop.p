@@ -91,7 +91,7 @@ FORM header
      
     with frame inv-top page-top no-box no-underline stream-io width 132.
 
-form v-cust-part at 1
+FORM v-cust-part at 1 FORMAT "x(30)"
      tt-i-name at 33
      v-order-qty at 70
      v-ship-qty at 90

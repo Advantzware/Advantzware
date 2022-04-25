@@ -447,7 +447,7 @@ DEFINE VARIABLE iCaseQty      AS INTEGER   NO-UNDO.
                 
             PUT space(1)
                 v-po-no                  
-                inv-line.part-no SPACE(17)
+                inv-line.part-no FORMAT "x(30)" SPACE(2)
                 (IF inv-line.pr-uom EQ "CS" THEN iCaseQty ELSE v-inv-qty)  format "->>>>>9" SPACE(1)
                 space(15)      
                 v-price  format ">>>,>>9.9999"                

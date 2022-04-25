@@ -509,7 +509,7 @@ find first company where company.company eq cocode NO-LOCK.
                             else           trim(lv-inv-list).
 
               if v-part-info ne "" OR (v = 1 AND inv-line.part-no <> "") then do:
-                 IF v = 1 THEN PUT SPACE(26) inv-line.part-no SPACE v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(26) inv-line.part-no FORMAT "x(15)" SPACE v-part-info SKIP.
                  ELSE
                  IF v = 2 THEN PUT SPACE(42) v-part-info SKIP.
                  ELSE          PUT SPACE(20) "Previous Invoice(s): " v-part-info SKIP.

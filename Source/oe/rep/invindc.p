@@ -526,7 +526,7 @@ assign
                   PUT v-cases-order
                       v-cases-ship
                       SPACE(10)
-                      inv-line.part-no.
+                      inv-line.part-no FORMAT "x(15)".
 
                 ELSE PUT SPACE(41).
 

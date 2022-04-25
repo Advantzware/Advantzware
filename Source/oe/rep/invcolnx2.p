@@ -556,7 +556,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                 v-job-no = v-job-no + "-" + trim(string(job-hdr.frm)) + trim(string(job-hdr.blank-no)) .
            
         PUT tt-inv-line.po-no SPACE(1)
-             tt-inv-line.part-no
+             tt-inv-line.part-no FORMAT "x(15)"
             SPACE(1)
              tt-inv-line.i-dscr    FORMAT "x(30)"
              tt-inv-line.ship-qty  FORMAT "->>>>>>9"

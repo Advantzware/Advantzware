@@ -643,11 +643,11 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                     DO:
                         IF LENGTH(inv-line.po-no) LE 8 THEN 
                         DO:
-                            PUT  SPACE(19) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                            PUT  SPACE(19) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no FORMAT "x(15)" SPACE(3) v-part-info SKIP.
                         END.
                         ELSE 
                         DO: 
-                            PUT  SPACE(10) inv-line.po-no FORMAT "x(15)" SPACE(3)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                            PUT  SPACE(10) inv-line.po-no FORMAT "x(15)" SPACE(3)   inv-line.part-no FORMAT "x(15)" SPACE(3) v-part-info SKIP.
                         END.                   
 
                     END.

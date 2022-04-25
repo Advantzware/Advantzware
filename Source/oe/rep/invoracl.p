@@ -529,7 +529,7 @@ assign
 
               if v-part-info ne "" OR inv-line.part-no <> "" then do:
                 /*put space(40) v-part-info skip.*/
-                 IF v = 1 THEN PUT SPACE(32) inv-line.part-no SPACE(1) v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(32) inv-line.part-no FORMAT "x(15)" SPACE(1) v-part-info SKIP.
                  ELSE   PUT SPACE(48) v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.

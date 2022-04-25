@@ -584,7 +584,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             ASSIGN v-net2 = v-net2 + inv-line.t-price. 
 
         PUT v-po-no SPACE(1)
-             inv-line.part-no  
+             inv-line.part-no FORMAT "x(15)" 
             SPACE(1)
              v-i-dscr    FORMAT "x(30)" 
              (IF v-ship-qty1i > 0 THEN v-ship-qty - v-ship-qty1i ELSE v-ship-qty) FORMAT "->>>>>>9" 

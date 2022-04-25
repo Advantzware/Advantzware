@@ -542,7 +542,7 @@ ELSE lv-comp-color = "BLACK".
                 inv-line.t-price  format "->,>>>,>>9.99"                
                 SKIP
                 STRING(v-ord-no)
-                inv-line.part-no AT 17 SPACE(1)
+                inv-line.part-no format "x(15)" AT 17 SPACE(1)
                 v-i-dscr-2 space(20)
                 v-price-head SPACE(1) SKIP.
             

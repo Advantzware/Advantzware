@@ -570,7 +570,7 @@ lv-pg-num = 0.
                     {oe/rep/invxabox.i}
                  END.
                  IF v = 1 THEN do:
-                    PUT SPACE(34) inv-line.part-no SPACE(3) v-part-info SKIP.
+                    PUT SPACE(34) inv-line.part-no FORMAT "x(15)"SPACE(3) v-part-info SKIP.
                     v-printline = v-printline + 1.
                  END.
                  ELSE IF v-part-info <> "" THEN do:

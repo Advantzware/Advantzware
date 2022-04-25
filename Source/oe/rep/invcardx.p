@@ -392,7 +392,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
 
           PUT space(1)
               v-po-no 
-              inv-line.part-no  SPACE(1)
+              inv-line.part-no FORMAT "x(15)" SPACE(1)
               v-i-dscr FORM "x(30)" 
               v-inv-qty  format "->>>>>>9" SPACE(2)
               v-price  format ">>>,>>9.9999"                

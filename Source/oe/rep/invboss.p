@@ -522,7 +522,7 @@ find first company where company.company eq cocode NO-LOCK.
 
               if v-part-info ne "" OR (v = 1 AND inv-line.part-no <> "") OR (v = 1 AND inv-line.po-no <> "") OR (v = 1 AND v-inv-qty <> 0)  then do:
                  IF v = 1 THEN do:
-                     PUT v-inv-qty format "->>>>>9" SPACE inv-line.po-no FORMAT "x(15)" SPACE(1) inv-line.part-no SPACE(1) v-part-info SKIP.
+                     PUT v-inv-qty format "->>>>>9" SPACE inv-line.po-no FORMAT "x(15)" SPACE(1) inv-line.part-no FORMAT "x(15)" SPACE(1) v-part-info SKIP.
                  END.
                  ELSE
                  IF v = 2 THEN PUT SPACE(40) v-part-info SKIP.

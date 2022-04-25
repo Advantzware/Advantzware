@@ -557,7 +557,7 @@ FOR EACH report WHERE
 
                 IF v-part-info NE "" 
                 OR (v = 1 AND ttinv-line.part-no <> "") THEN DO:
-                    IF v = 1 THEN PUT SPACE(28) ttinv-line.part-no SPACE(2) v-part-info SKIP.
+                    IF v = 1 THEN PUT SPACE(28) ttinv-line.part-no FORMAT "x(15)" SPACE(2) v-part-info SKIP.
                     ELSE IF v = 2 THEN PUT SPACE(45) v-part-info SKIP.
                     ELSE PUT SPACE(24) "Previous Invoice(s): " v-part-info SKIP.
                     ASSIGN 

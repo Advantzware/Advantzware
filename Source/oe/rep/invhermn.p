@@ -118,7 +118,7 @@ with frame invhead-comp page-top no-labels no-box no-underline stream-io width 8
 form
   inv-line.qty at 2 format "->>>,>>9"
   inv-line.inv-qty at 12 format "->>>,>>9"
-  inv-line.part-no at 23
+  inv-line.part-no at 23 FORMAT "x(15)"
   v-price to 63 format "->>>,>>9.99"
   inv-line.pr-uom to 68 format "x(4)"
   v-t-price to 80 format "->>>>9.99" skip

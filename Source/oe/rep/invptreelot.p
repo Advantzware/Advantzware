@@ -662,7 +662,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
         PUT SPACE(1)
              v-po-no 
-             inv-line.part-no  
+             inv-line.part-no FORMAT "x(15)" 
             SPACE(1)
              v-i-dscr    FORMAT "x(30)" 
              (IF v-qty NE "" THEN v-qty ELSE " ") /*FORMAT "->>>>>>9" */

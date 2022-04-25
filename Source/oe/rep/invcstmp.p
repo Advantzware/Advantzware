@@ -425,7 +425,7 @@ ASSIGN ls-image1 = "images\CSCIN-SFI.jpg"
                  END.
                 
                  IF v = 1 THEN do:
-                    PUT SPACE(29) inv-line.part-no SPACE v-part-info SKIP.
+                    PUT SPACE(29) inv-line.part-no FORMAT "x(15)" SPACE v-part-info SKIP.
                     v-printline = v-printline + 1.
                  END.
                  ELSE IF v-part-info <> "" THEN DO:

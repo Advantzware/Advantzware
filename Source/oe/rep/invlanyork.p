@@ -635,18 +635,18 @@ find first company where company.company eq cocode NO-LOCK.
                    IF lPrintQtyAll THEN do:
                       PUT SPACE(1) v-ship-qty FORMAT "->>>>>9" .
                      IF LENGTH(inv-line.po-no) LE 8 THEN DO:
-                         PUT  SPACE(8) inv-line.po-no FORMAT "x(8)" SPACE(2)   inv-line.part-no SPACE v-part-info SKIP.
+                         PUT  SPACE(8) inv-line.po-no FORMAT "x(8)" SPACE(2)   inv-line.part-no FORMAT "x(15)" SPACE v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(1) inv-line.po-no FORMAT "x(15)" SPACE(2)   inv-line.part-no SPACE v-part-info SKIP.
+                         PUT  SPACE(1) inv-line.po-no FORMAT "x(15)" SPACE(2)   inv-line.part-no FORMAT "x(15)" SPACE v-part-info SKIP.
                      END.
                    END.
                    ELSE DO:
                         IF LENGTH(inv-line.po-no) LE 8 THEN DO:
-                         PUT  SPACE(16) inv-line.po-no FORMAT "x(8)" SPACE(2)   inv-line.part-no SPACE v-part-info SKIP.
+                         PUT  SPACE(16) inv-line.po-no FORMAT "x(8)" SPACE(2)   inv-line.part-no FORMAT "x(15)" SPACE v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(9) inv-line.po-no FORMAT "x(15)" SPACE(2)   inv-line.part-no SPACE v-part-info SKIP.
+                         PUT  SPACE(9) inv-line.po-no FORMAT "x(15)" SPACE(2)   inv-line.part-no FORMAT "x(15)" SPACE v-part-info SKIP.
                      END.
                    END. /* else do*/
 

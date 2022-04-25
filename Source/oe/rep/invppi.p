@@ -496,7 +496,7 @@ IF lv-display-comp THEN DO:
                             else           inv-line.part-dscr2.
 
               if v-part-info ne "" OR inv-line.part-no <> "" then do:
-                 IF v = 1 THEN PUT SPACE(30) inv-line.part-no SPACE(1) v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(30) inv-line.part-no FORMAT "x(15)" SPACE(1) v-part-info SKIP.
                  ELSE   PUT SPACE(46) v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.

@@ -631,7 +631,7 @@ RUN XMLOutput (lXMLOutput,'','','Header').
 
             PUT space(1)
                 v-po-no 
-                inv-line.part-no  SPACE(1)
+                inv-line.part-no FORMAT "x(15)" SPACE(1)
                 v-i-dscr FORM "x(30)". 
             /* PremierS switch*/
             IF ip-print-s THEN

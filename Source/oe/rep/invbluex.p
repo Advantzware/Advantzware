@@ -442,7 +442,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                 v-po-no 
                 /*v-i-dscr  format "x(25)" SPACE(1)
                 v-inv-qty format "->>>>>9" SPACE(1) */ 
-                inv-line.part-no  SPACE(1)
+                inv-line.part-no FORMAT "x(15)" SPACE(1)
                 v-i-dscr FORM "x(30)" 
                 v-ship-qty  format "->>>>>9" SPACE(3)
               /*  v-bo-qty  format "->>>>>9" SPACE(1)

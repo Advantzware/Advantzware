@@ -614,10 +614,10 @@ find first company where company.company eq cocode NO-LOCK.
                  IF v = 1 THEN do:
                     IF lPrintQtyAll THEN do:
                       PUT SPACE(1) v-inv-qty FORMAT "->>>>>>9" .
-                      PUT SPACE(19) inv-line.part-no SPACE(2) v-part-info SKIP.
+                      PUT SPACE(19) inv-line.part-no FORMAT "x(15)" SPACE(2) v-part-info SKIP.
                     END.
                     ELSE do:
-                    PUT SPACE(28) inv-line.part-no SPACE(2) v-part-info SKIP.
+                    PUT SPACE(28) inv-line.part-no FORMAT "x(15)" SPACE(2) v-part-info SKIP.
                     END.
                  END.
                  ELSE
