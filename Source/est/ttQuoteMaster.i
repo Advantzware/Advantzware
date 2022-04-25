@@ -5,5 +5,5 @@ DEFINE TEMP-TABLE ttQuoteMaster NO-UNDO
     FIELD beginQuoteID    AS INTEGER
     FIELD endQuoteID      AS INTEGER
     FIELD locationID      AS CHARACTER
-    FIELD sequenceID AS INTEGER
+    FIELD sequenceID      AS INTEGER
     .
