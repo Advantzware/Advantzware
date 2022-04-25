@@ -690,8 +690,8 @@
         
         RUN pGetRequestData(INPUT "JobGroupHeader", OUTPUT lcJobGroupHeader).
         RUN pGetRequestData(INPUT "JobGroupFooter", OUTPUT lcJobGroupFooter).
-        RUN pGetRequestData(INPUT "ReportGroupHeader", OUTPUT lcReportHeader).
-        RUN pGetRequestData(INPUT "ReportGroupFooter", OUTPUT lcReportFooter).
+        RUN pGetRequestData(INPUT "ReportHeader", OUTPUT lcReportHeader).
+        RUN pGetRequestData(INPUT "ReportFooter", OUTPUT lcReportFooter).
         
         ioplcRequestData = REPLACE(ioplcRequestData, "$Jobs$", lcConcatJob).
         ioplcRequestData = REPLACE(ioplcRequestData, "$JobGroupHeader$", lcJobGroupHeader).
