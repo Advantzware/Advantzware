@@ -1049,10 +1049,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cPoNotesKiwi1 = TRIM(po-ordl.dscr[1]) + " " + TRIM(po-ordl.dscr[2]) + " " + cPoNotesKiwi
                 cPoLineNotes  = REPLACE(cPoLineNotes, CHR(10)," ")
                 cPoLineNotes  = REPLACE(cPoLineNotes, CHR(13)," ")
-                cPoNotesHRMS  = IF cPoNotesHRMS EQ "" THEN
-                                    cPoLineNotes
-                                ELSE
-                                    cPoNotesHRMS + " " + cPoLineNotes
+                cPoNotesHRMS  = cPoNotes + " " + cPoLineNotes
                 .      
             cPoLineNotes1 = cPoLineNotes.
             IF cPoLineNotes EQ "" THEN
