@@ -1089,7 +1089,7 @@ PROCEDURE pUpdateRMCostAndUOM:
     lRMOverrunCost = LOGICAL(cRtnChr) NO-ERROR.
      
 
-    FIND FIRST item 
+    FIND FIRST item EXCLUSIVE-LOCK
          WHERE item.company EQ ipbf-rm-rctd.company
            AND item.i-no    EQ ipbf-rm-rctd.i-no
          USE-INDEX i-no NO-ERROR.
@@ -1099,7 +1099,7 @@ PROCEDURE pUpdateRMCostAndUOM:
     IF item.cons-uom EQ "" THEN 
         item.cons-uom = ipbf-rm-rctd.pur-uom.
 
-    FIND CURRENT ITEM NO-LOCK.
+    FIND CURRENT item NO-LOCK.
 
     ASSIGN
         cQuantityUOM = item.cons-uom
