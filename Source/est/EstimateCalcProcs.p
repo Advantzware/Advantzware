@@ -1205,6 +1205,8 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
             opbf-ttEstCostOperation.isGluer = YES.
         IF fIsDepartment(gcDeptsForLeafers, opbf-ttEstCostOperation.departmentID)  THEN 
             opbf-ttEstCostOperation.isLeafer = YES.
+        IF fIsDepartment(gcDeptsForSheeters, opbf-ttEstCostOperation.departmentID)  THEN 
+            opbf-ttEstCostOperation.isNetSheetMaker = YES.
         
         IF VALID-HANDLE(ghOperation) THEN
             RUN Operations_GetOutputType IN ghOperation( INPUT ipbf-est-op.company, 
@@ -4010,7 +4012,7 @@ PROCEDURE pProcessOperations PRIVATE:
         END. /*BlankNo not 0*/
         ELSE 
         DO:                  
-            IF bf-ttEstCostOperation.isBlankMaker THEN 
+            IF bf-ttEstCostOperation.isBlankMaker AND NOT bf-ttEstCostOperation.isNetSheetMaker THEN 
             DO:
                 /*Find the most forms required to support each blank operations*/
                 FOR EACH ttEstBlank NO-LOCK 
