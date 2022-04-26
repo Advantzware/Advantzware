@@ -35,11 +35,12 @@ CREATE WIDGET-POOL.
 {custom/emprate.i}
 
 {custom/globdefs.i}
+{sys/inc/var.i NEW SHARED}
 
 DEF BUFFER b-emplogin FOR emplogin.
 DEF BUFFER bf-machemp FOR machemp.
 
-DEF VAR cocode AS CHAR NO-UNDO.
+/*DEF VAR cocode AS CHAR NO-UNDO.*/
 
 cocode = g_company.
 
@@ -1500,7 +1501,7 @@ PROCEDURE Set_Value :
     ASSIGN
       job# = field_value
       job_number = SUBSTR(job#,1,INDEX(job#,'-') - 1)
-      job_number = FILL(' ',6 - LENGTH(job_number)) + job_number
+      job_number = FILL(' ',iJobLen - LENGTH(job_number)) + job_number
       job_sub = SUBSTR(job#,INDEX(job#,'-') + 1).
     WHEN 'job_number' THEN
     job_number = field_value.

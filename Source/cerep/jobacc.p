@@ -438,8 +438,6 @@ ASSIGN
             v-fill SKIP.     
         /* barcode print */
         PUT UNFORMATTED "<r-5.6><#1><UNITS=INCHES><C70.5><FROM><c90.8><r+3.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
-        /*    trim(job-hdr.job-no) "-" STRING(job-hdr.job-no2,"99") ">"
-            "<AT=,8.8>" trim(job-hdr.job-no) "-" STRING(job-hdr.job-no2,"99") */
               v-bar-no ">" "   Page#:" string(lv-pg-num2,">>9") + " of " + string(lv-tot-pg) FORM "x(20)"
             "<C71>" v-bar-no "<=#1><R+5>".
 

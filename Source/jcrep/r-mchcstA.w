@@ -105,15 +105,15 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Machine" 
@@ -125,15 +125,15 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Machine" 
@@ -238,11 +238,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Machine"
      begin_job-no AT ROW 5.76 COL 24 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 5.76 COL 36 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 5.76 COL 38 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 5.76 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 5.76 COL 79 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 5.76 COL 81 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_date AT ROW 6.71 COL 24 COLON-ALIGNED
      end_date AT ROW 6.71 COL 67 COLON-ALIGNED HELP
@@ -902,9 +902,9 @@ def var v-run-est-vo like v-mr-act-dl no-undo.
 def var v-fmach like mach.m-code.
 def var v-tmach like v-fmach            init "zzzzzz".
 def var v-fjob  like mch-act.job-no.
-def var v-tjob  like v-fjob             init "zzzzzz".
+def var v-tjob  like v-fjob             init "zzzzzzzzz".
 def var v-fjob2 like mch-act.job-no2.
-def var v-tjob2 like v-fjob2            init 99.
+def var v-tjob2 like v-fjob2            init 999.
 def var v-fdate like job.start-date     init 01/01/0001     format "99/99/9999".
 def var v-tdate like v-fdate            init 12/31/9999.
 def var v-stat  as   char format "!"    init "O".
@@ -927,7 +927,7 @@ def var v-cost   like job-mat.std-cost.
 def var v-tcost  like v-cost.
 
 def var v-frst    as   log.
-def var v-job     as   char format "x(9)".
+def var v-job     as   char format "x(13)".
 def var v-mr-var  as   dec format "->>>9.99".
 def var v-run-var like v-mr-var.
 def var v-mat-var like v-mr-var.
@@ -951,9 +951,9 @@ assign
   v-tmach                = END_mach
 
   v-fjob                 = FILL(" ", iJobLen - length(trim(begin_job-no))) +
-                            trim(begin_job-no) + string(int(begin_job-no2),"99")
+                            trim(begin_job-no) + string(int(begin_job-no2),"999")
   v-tjob                 = FILL(" ", iJobLen - length(trim(end_job-no)))   +
-                           trim(end_job-no)   + string(int(end_job-no2),"99") 
+                           trim(end_job-no)   + string(int(end_job-no2),"999") 
 
   v-fdate                = begin_date
   v-tdate                = END_date

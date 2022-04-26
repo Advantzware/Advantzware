@@ -391,7 +391,7 @@ PROCEDURE do-download :
     SESSION:SET-WAIT-STATE("general").
 
     DEFINE VARIABLE v-job-no  LIKE job.job-no EXTENT 2 INIT ["", "zzzzzzzzz"] NO-UNDO.
-    DEFINE VARIABLE v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [00, 999] NO-UNDO.
+    DEFINE VARIABLE v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [000, 999] NO-UNDO.
 
     ASSIGN
         v-job-no[1] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 

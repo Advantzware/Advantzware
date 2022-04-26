@@ -509,7 +509,7 @@ PROCEDURE pClick :
                      AND bf-machtran.total_time  EQ 0
                    NO-ERROR.
               IF AVAIL bf-machtran THEN do:
-                 MESSAGE "Job " + trim(bf-machtran.job_number) + "-" + TRIM(string(bf-machtran.job_sub,"99")) +
+                 MESSAGE "Job " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', bf-machtran.job_number, bf-machtran.job_sub))) +
                          " has data collection transaction started. You must end that job's operation before selecting a new job."
                          VIEW-AS ALERT-BOX ERROR.
                  RELEASE job.

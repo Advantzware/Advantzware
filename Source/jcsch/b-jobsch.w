@@ -97,22 +97,6 @@ DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 DEF VAR lv-sort-by AS CHAR INIT "start-date"  NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "Start Date"  NO-UNDO.
 DEF VAR ll-sort-asc AS LOG NO-UNDO.
-/*
-&SCOPED-DEFINE sortby-log                                          ~
-    IF lv-sort-by EQ "due-date" THEN STRing(year(tt-sch.due-date)) + STRING(MONTH(tt-sch.due-date),"99") + STRING(DAY(tt-sch.due-date),"99")   ELSE ~
-    IF lv-sort-by EQ "board"    THEN tt-sch.board           ELSE ~
-    IF lv-sort-by EQ "Die"     THEN tt-sch.die                 ELSE ~
-    IF lv-sort-by EQ "seq-no"   THEN tt-sch.seq-no              ELSE ~
-    IF lv-sort-by EQ "Cust-no"  THEN tt-sch.cust-no            ELSE ~
-    IF lv-sort-by EQ "Plate"   THEN tt-sch.plate               ELSE ~
-                 STRING(YEAR(tt-sch.start-date),"9999") + STRING(MONTH(tt-sch.start-date),"99") + STRING(DAY(tt-sch.start-date),"99")
-
-     /*
-    IF lv-sort-by EQ "job-no"    THEN STRING(oe-ordl.job-no,"x(6)") + STRING(oe-ordl.job-no2,"99")                                                     ELSE ~
-                                      STRING(YEAR(oe-ordl.req-date),"9999") + STRING(MONTH(oe-ordl.req-date),"99") + STRING(DAY(oe-ordl.req-date),"99")
-    */
-
-*/                           /*     string(tt-sch.len,">>>>9.99<<<")*/
 
 &SCOPED-DEFINE sortby-log                                          ~
     IF lv-sort-by EQ "due-date" THEN STRing(year(tt-sch.due-date)) + STRING(MONTH(tt-sch.due-date),"99") + STRING(DAY(tt-sch.due-date),"99")   ELSE ~

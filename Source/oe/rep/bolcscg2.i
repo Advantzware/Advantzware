@@ -212,9 +212,7 @@ find first oe-ordl
     if i eq 2 then
       assign
        v-part-dscr = oe-ordl.i-name
-       v-job-po    = STRING(oe-ordl.ord-no) 
-                    /*if oe-ordl.job-no eq "" then "" else
-                    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))*/.
+       v-job-po    = STRING(oe-ordl.ord-no). 
     
     else
     if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
@@ -245,9 +243,7 @@ find first oe-ordl
     if i eq 2 then
       assign
        v-part-dscr = oe-ordl.i-name
-       v-job-po    = STRING(oe-ordl.ord-no)
-                     /*if oe-ordl.job-no eq "" then "" else
-                    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))*/.
+       v-job-po    = STRING(oe-ordl.ord-no).
 
     else if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
 
@@ -294,9 +290,7 @@ find first oe-ordl
     if i eq 2 then
       assign
        v-part-dscr = oe-ordl.i-name
-       v-job-po    = STRING(oe-ordl.ord-no)
-                     /*if oe-ordl.job-no eq "" then "" else
-                    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))*/.
+       v-job-po    = STRING(oe-ordl.ord-no).
 
     else
     if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.

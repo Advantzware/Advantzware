@@ -292,7 +292,7 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
             cSheetBlank = STRING(job-hdr.frm, "9") + string(job-hdr.blank-no, "9") .
     
             FIND FIRST ttTempJob EXCLUSIVE-LOCK WHERE ttTempJob.company EQ job-hdr.company
-                AND ttTempJob.jobID = trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2, "99") + "-" + cSheetBlank
+                AND ttTempJob.jobID = trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2, "999") + "-" + cSheetBlank
                 AND ttTempJob.newProject EQ 1
                 NO-ERROR.
     
@@ -302,7 +302,7 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
                 CREATE ttTempJob.
                 ASSIGN
                     ttTempjob.company    = job-hdr.company
-                    ttTempjob.jobID      = TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2, "99") + "-" + cSheetBlank
+                    ttTempjob.jobID      = TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2, "999") + "-" + cSheetBlank
                     ttTempjob.jobNo      = job-hdr.job-no
                     ttTempjob.jobNo2     = job-hdr.job-no2
                     ttTempJob.QuantityJob = job-hdr.qty

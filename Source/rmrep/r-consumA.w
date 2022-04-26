@@ -990,7 +990,7 @@ def var v-type  as   char format "x(5)"       init "RITAC".
 def var v-code  like rm-rcpth.rita-code.
 
 def var v-value as dec format "->>,>>>,>>9.99".
-def var v-job-no as char format "x(9)".
+def var v-job-no as char format "x(13)".
 def var v-qty like rm-rdtlh.qty extent 3.
 def var v-val like v-value extent 3.
 
@@ -1080,7 +1080,7 @@ END.
 
       assign
        v-job-no = FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
-                  trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99")
+                  trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"999")
        v-value  = rm-rdtlh.cost * rm-rdtlh.qty.
 
       if v-job-no begins "-" then v-job-no = "".

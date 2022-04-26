@@ -1504,7 +1504,7 @@ def var v-frst-i-no as log.
 def var v-print as log.
 def var trans-date like fg-rcpts.trans-date.
 def var rec-date as log init no.
-def var v-job as char format "x(9)".
+def var v-job as char format "x(13)".
 def var v-rec-found as log.
 def var v-qty-job like v-qty-onh.
 def var v-ext-job like v-ext.

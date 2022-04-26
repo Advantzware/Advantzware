@@ -172,8 +172,8 @@ DEFINE BROWSE BROWSE-2
   QUERY BROWSE-2 DISPLAY
       tt-mat-tran.i-no      COLUMN-LABEL "RM Item #" FORMAT "X(15)" WIDTH 15   
    tt-mat-tran.tran-date    COLUMN-LABEL "Date" FORMAT "99/99/99"
-   tt-mat-tran.job-no       COLUMN-LABEL "Job #" FORMAT "X(6)" WIDTH 8.5
-   tt-mat-tran.job-no2      COLUMN-LABEL "" FORMAT ">9" WIDTH 2.8
+   tt-mat-tran.job-no       COLUMN-LABEL "Job #" FORMAT "X(9)" WIDTH 15
+   tt-mat-tran.job-no2      COLUMN-LABEL "" FORMAT ">>9" WIDTH 5.4
    tt-mat-tran.sheet-no     COLUMN-LABEL "Form" FORMAT "ZZ9" WIDTH 7
    tt-mat-tran.blank-no     COLUMN-LABEL "Blank" FORMAT "ZZ9" WIDTH 7
    tt-mat-tran.tag          COLUMN-LABEL "Tag" FORMAT "X(20)" WIDTH 27

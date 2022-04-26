@@ -1647,7 +1647,7 @@ PROCEDURE run-report :
             v-first-24 = STRING(mch-act.m-code,"x(8)") + " "         +
                 string(mch-act.shift,">>")    + fill(" ",4) +
                 string(TRIM(job.job-no) + "-" +
-                string(job.job-no2,"99"),"x(9)").
+                TRIM(string(job.job-no2,">99")),"x(9)").
 
 
             ASSIGN 

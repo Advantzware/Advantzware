@@ -703,7 +703,7 @@ PROCEDURE run-report :
     FORM SPACE(1)
         cEstNo          FORMAT "X(10)"
         loadtag.ord-no  FORMAT ">>>>>>>"
-        cJobNo          FORMAT "x(9)"
+        cJobNo          FORMAT "x(13)"
         loadtag.i-no    FORMAT "x(15)"
         loadtag.i-name  FORMAT "x(30)"
         cCustPart        FORMAT "x(15)"
@@ -717,8 +717,8 @@ PROCEDURE run-report :
         loadtag.case-bundle  FORMAT ">>>,>>>,>>9"  SPACE(4)
         loadtag.qty   FORMAT ">>>,>>>,>>9"
 
-        HEADER "                                                                                                   Order   Order     Order Line   Order Line                              Loadtag     Loadtag   Loadtag            Loadtag"
-        "Estimate #  Order # Job #     Item #          Item Name                      Customer Part #       Qty     Qty/ Unit Partial      Units per Pallet  Loadtag #             Qty / Unit  Partial   Units per Pallet   Total Qty"
+        HEADER "                                                                                                       Order   Order     Order Line   Order Line                              Loadtag     Loadtag   Loadtag            Loadtag"
+        "Estimate #  Order # Job #         Item #          Item Name                      Customer Part #       Qty     Qty/ Unit Partial      Units per Pallet  Loadtag #             Qty / Unit  Partial   Units per Pallet   Total Qty"
 
         WITH FRAME loadtag-frame NO-LABELS NO-ATTR-SPACE STREAM-IO WIDTH 230 DOWN.
 
@@ -800,7 +800,7 @@ PROCEDURE run-report :
             dOrderQtyUnit = oe-ordl.cas-cnt.
             iOrderPartial = (IF AVAILABLE oe-ordl THEN oe-ordl.partial ELSE 0).
             iOrderCasesUnit  = (IF AVAILABLE oe-ordl THEN oe-ordl.cases-unit ELSE 0).
-            cJobNo = loadtag.job-no + "-" + string(loadtag.job-no,"99") .
+            cJobNo = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', loadtag.job-no, loadtag.job-no))) .
             IF cJobNo EQ "-" THEN cJobNo = "" .
             DISPLAY
                 cEstNo 

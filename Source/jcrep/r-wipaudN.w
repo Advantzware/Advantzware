@@ -1268,8 +1268,8 @@ PROCEDURE run-report :
 
 /*{sys/form/r-topw.f}*/
 
-DEFINE VARIABLE v-job-no LIKE job.job-no EXTENT 2 INIT ["","zzzzzz"] NO-UNDO.
-DEFINE VARIABLE v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [00,99] NO-UNDO.
+DEFINE VARIABLE v-job-no LIKE job.job-no EXTENT 2 INIT ["","zzzzzzzzz"] NO-UNDO.
+DEFINE VARIABLE v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [000,999] NO-UNDO.
 DEFINE VARIABLE v-stat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-only-opn AS LOGICAL FORMAT "Y/N" NO-UNDO.
 DEFINE VARIABLE v-brd-job AS INTEGER FORMAT ">>>>>>>>9-" NO-UNDO.
@@ -1646,21 +1646,6 @@ DISPLAY "" WITH FRAME r-top.
             END.
             IF LAST-OF(work-aud.tran-date) THEN
             DO:
-              /* put skip(1) "JOB TOTALS - " at 20 job.job-no
-                   space(0) "-" space(0) job.job-no2 format "99"
-                   "         BOARD TOTALS: " at 56 v-brd-job skip
-                   "       MACHINE TOTALS: " at 56 v-mch-job " " v-wst-job " "
-                   v-hrs-job skip
-                   "FINISHED GOODS TOTALS: " at 56 v-fg-job skip
-                   "OTHER MATERIAL TOTALS: " at 56 v-oth-job skip(2).
-
-               IF rd-dest EQ 3 THEN
-                  RUN excel-job-totals-proc(INPUT "JOB TOTALS - " + job.job-no +
-                                            "-" + STRING(job.job-no2,"99"),
-                                            INPUT v-brd-job, INPUT v-mch-job,
-                                            INPUT v-wst-job, INPUT v-hrs-job,
-                                            INPUT v-fg-job, INPUT v-oth-job). */
-
                PUT SKIP str-line SKIP .
                ASSIGN cDisplay = ""
                               cTmpField = ""

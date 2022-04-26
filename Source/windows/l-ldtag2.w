@@ -42,7 +42,7 @@ DEF OUTPUT PARAM op-rec-val AS RECID NO-UNDO.
 def var lv-type-dscr as cha no-undo.
 &scoped-define fld-name-1 loadtag.tag-no
 &scoped-define fld-name-2 loadtag.i-no
-&scoped-define fld-name-3 trim(loadtag.job-no)
+&scoped-define fld-name-3 loadtag.job-no
 &scoped-define SORTBY-1 BY loadtag.tag-no
 &scoped-define SORTBY-2 BY loadtag.i-no
 &scoped-define SORTBY-3 BY loadtag.job-no

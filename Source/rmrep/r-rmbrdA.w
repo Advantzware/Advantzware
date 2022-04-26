@@ -1529,7 +1529,7 @@ assign
                IF FIRST(tt-job.i-no) THEN
                DO:
                   PUT space(45) "Jobs            Resource   Start Date  Allocation    Alloc. Total" SKIP
-                      SPACE(45) "---------       ---------- ----------  ------------- ---------------" SKIP.
+                      SPACE(45) "-------------   ---------- ----------  ------------- ---------------" SKIP.
 
                   IF tb_excel THEN
                      PUT STREAM excel UNFORMATTED
@@ -1544,10 +1544,8 @@ assign
                          SKIP.
                END.
 
-               PUT space(45) tt-job.job-no FORMAT "X(6)"
-                   "-"
-                   tt-job.job-no2 FORMAT "99"
-                   space(7) tt-job.resource FORMAT "X(10)" SPACE(1)
+               PUT space(45) TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-job.job-no, tt-job.job-no2))) FORM "x(13)"
+                   space(3) tt-job.resource FORMAT "X(10)" SPACE(1)
                    tt-job.print-date SPACE(1) tt-job.alloc-qty FORMAT "->>,>>>,>>9.99" space(2)
                    v-alloc-total FORMAT "->>,>>>,>>9.99" SKIP.
 

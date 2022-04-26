@@ -1110,9 +1110,7 @@ DEF VAR lv-rowid AS ROWID NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
-    fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ", iJobLen - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+    fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})).
 
     RUN windows/l-fgibn2.w (gcompany, fg-rctd.i-no:screen-value in browse {&browse-name}, fg-rctd.job-no:screen-value in browse {&browse-name}, INT(fg-rctd.job-no2:screen-value in browse {&browse-name}), fg-rctd.loc:screen-value in browse {&browse-name}, fg-rctd.loc-bin:screen-value in browse {&browse-name}, fg-rctd.tag:screen-value in browse {&browse-name}, output lv-rowid).
 
@@ -1949,7 +1947,7 @@ PROCEDURE new-bin :
     IF AVAIL fg-bin THEN
       ASSIGN
        fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fg-bin.case-count)
-       fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}   = fg-bin.job-no
+       fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-bin.job-no))
        fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(fg-bin.job-no2)
        fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}      = CAPS(fg-bin.loc)
        fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}  = CAPS(fg-bin.loc-bin)
@@ -2229,7 +2227,7 @@ PROCEDURE valid-job-loc-bin-tag :
 
      ASSIGN
       li-fieldc = TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
-      li-fieldc = FILL(" ", iJobLen - LENGTH(li-fieldc)) + li-fieldc
+      li-fieldc = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', li-fieldc))
       fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = li-fieldc
 
       li-field# = LOOKUP(FOCUS:NAME IN BROWSE {&browse-name},lv-fields).

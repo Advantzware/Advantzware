@@ -160,8 +160,8 @@ DEFINE BROWSE Browser-Table
             WIDTH 12
       wiptag.wip-rm-bin COLUMN-LABEL "WIP Bin" FORMAT "x(8)":U
             WIDTH 12
-      wiptag.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U WIDTH 10
-      wiptag.job-no2 COLUMN-LABEL "" FORMAT ">9":U WIDTH 3
+      wiptag.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U WIDTH 15
+      wiptag.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 5.4
       wiptag-mch.produced-qty COLUMN-LABEL "Tag Qty Produced" FORMAT "->>>,>>>,>>9.9<<<<<":U
             WIDTH 26
       dept.seq FORMAT ">9":U

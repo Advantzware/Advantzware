@@ -946,7 +946,7 @@ def var v-floc  like rm-rcpth.loc.
 def var v-tloc  like v-floc                   initial "zzzzz".
 def var v-type  as   char format "x(5)"       init "RITAC".
 def var v-code  like rm-rcpth.rita-code.
-def var v-job-no as char format "x(9)".
+def var v-job-no as char format "x(13)".
 def var v-fvend like item.vend-no.
 def var v-tvend like item.vend-no init "zzzzzzzzzz".
 def var v-qty as dec.         
@@ -978,7 +978,7 @@ FORM
    v-msf format  "->>,>>9.9999"           LABEL "Total MSF" /*15*/
    v-stocked-qty                          LABEL "Stocked Qty"
    item.cons-uom                          LABEL "Cons. UOM"
-   WITH FRAME itemx DOWN NO-BOX STREAM-IO WIDTH 132.
+   WITH FRAME itemx DOWN NO-BOX STREAM-IO WIDTH 136.
 
 
 {sa/sa-sls01.i}
@@ -1093,7 +1093,7 @@ SESSION:SET-WAIT-STATE ("general").
        v-stocked-qty = 0.
 
       if trim(rm-rdtlh.job-no) ne "" then 
-        v-job-no = trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99").
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', rm-rdtlh.job-no, rm-rdtlh.job-no2))).
 
       /* run do-items. */
 

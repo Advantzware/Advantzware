@@ -50,7 +50,7 @@ DEF VAR lv-fax-image AS cha NO-UNDO.  /* fax imge file */
 DEF VAR lv-prt-bypass AS LOG NO-UNDO.  /* bypass window's printer driver */
 
 DEF VAR lv-date      AS DATE                 NO-UNDO.
-DEF VAR lv-job-no    AS CHAR FORMAT "x(9)"   NO-UNDO.
+DEF VAR lv-job-no    AS CHAR FORMAT "x(13)"   NO-UNDO.
 DEF VAR li-palls     AS DEC FORMAT "->>,>>9" NO-UNDO.
 DEF VAR v-cnt        AS INT                  NO-UNDO.
 DEF VAR v-item-no    LIKE fg-bin.i-no        NO-UNDO.
@@ -1328,7 +1328,7 @@ ELSE DO:
    lv-job-no = TRIM(fg-bin.job-no).
 
    IF lv-job-no NE "" THEN 
-      lv-job-no = lv-job-no + STRING(fg-bin.job-no2,"99").
+      lv-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', lv-job-no, fg-bin.job-no2))).
 
    ASSIGN
       li-palls = (IF fg-bin.case-count   EQ 0 THEN 1 ELSE fg-bin.case-count)   *
@@ -1498,7 +1498,7 @@ FOR EACH tt-report
   ASSIGN lv-job-no = TRIM(fg-bin.job-no).
 
   IF lv-job-no NE "" THEN
-     ASSIGN lv-job-no = lv-job-no + STRING(fg-bin.job-no2,"99").
+     ASSIGN lv-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', lv-job-no, fg-bin.job-no2))).
 
   ASSIGN li-palls = (IF fg-bin.case-count   EQ 0 THEN 1 ELSE fg-bin.case-count) 
                   * (IF fg-bin.cases-unit   EQ 0 THEN 1 ELSE fg-bin.cases-unit)   
