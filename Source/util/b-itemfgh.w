@@ -317,7 +317,7 @@ DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0
      SIZE 5.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(30)":U 
      VIEW-AS FILL-IN 
      SIZE 30 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -365,11 +365,13 @@ DEFINE BROWSE r_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS r_table B-table-Win _STRUCTURED
   QUERY r_table NO-LOCK DISPLAY
       itemfg.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14
-      itemfg.part-no FORMAT "x(12)":U
+      itemfg.part-no FORMAT "x(30)":U WIDTH 36.4
       itemfg.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       itemfg.part-dscr1 COLUMN-LABEL "Description" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
       itemfg.part-dscr2 COLUMN-LABEL "Description 2" FORMAT "x(30)":U
+      fg-rcpth.job-no FORMAT "x(9)":U WIDTH 11.8
+      fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 3.2
       fg-rcpth.job-no FORMAT "x(9)":U WIDTH 15
       fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 5.4
       fg-rdtlh.tag COLUMN-LABEL "Tag" FORMAT "x(8)":U WIDTH 26.2
@@ -417,8 +419,8 @@ DEFINE FRAME F-Main
      btn_next AT ROW 4.62 COL 34 WIDGET-ID 6
      btn_show AT ROW 4.62 COL 49.2 WIDGET-ID 10
      r_table AT ROW 6 COL 2
-     "Category" VIEW-AS TEXT
-          SIZE 18 BY .95 AT ROW 1.24 COL 156 WIDGET-ID 82
+     "Job No" VIEW-AS TEXT
+          SIZE 14 BY .95 AT ROW 1.24 COL 199 WIDGET-ID 86
           FGCOLOR 9 FONT 6
      "Date" VIEW-AS TEXT
           SIZE 9 BY .95 AT ROW 1.24 COL 179.6 WIDGET-ID 84
@@ -570,7 +572,8 @@ asi.itemfg.i-no eq ""###"""
   AND asi.fg-rdtlh.rita-code = asi.fg-rcpth.rita-code"
      _FldNameList[1]   > asi.itemfg.i-no
 "itemfg.i-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   = asi.itemfg.part-no
+     _FldNameList[2]   > asi.itemfg.part-no
+"itemfg.part-no" ? "x(30)" "character" ? ? ? ? ? ? no ? no no "36.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.itemfg.i-name
 "itemfg.i-name" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.itemfg.part-dscr1
@@ -599,7 +602,7 @@ asi.itemfg.i-no eq ""###"""
 */  /* BROWSE r_table */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -774,7 +777,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME fi_cust-no
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
 DO:
@@ -1085,6 +1088,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sort-by:HIDDEN  = TRUE.
 fi_sort-by:VISIBLE = FALSE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
