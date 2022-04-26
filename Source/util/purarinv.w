@@ -572,31 +572,29 @@ PROCEDURE pPurgeArLedger PRIVATE :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcRefNum       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtDate        AS DATE NO-UNDO.
                       
     FOR EACH ar-ledger EXCLUSIVE WHERE
                 ar-ledger.company EQ ipcCompany AND
-                ar-ledger.ref-num EQ ipcRefNum:
-               
-                FOR EACH ar-mcash NO-LOCK
-                    WHERE ar-mcash.company   EQ ipcCompany
-                      AND STRING(ar-mcash.m-no) + " " + ar-mcash.payer EQ ar-ledger.ref-num
-                      USE-INDEX m-no:                  
-                  
-                     EXPORT STREAM out6 ar-mcash.
-                     FIND CURRENT ar-mcash EXCLUSIVE-LOCK NO-ERROR.                 
-                     DELETE ar-mcash.
-                     iPurgeCount6 = iPurgeCount6 + 1.
-                                          
-                END.         
-                                
-                EXPORT STREAM out5 ar-ledger.
-                FIND CURRENT ar-ledger EXCLUSIVE-LOCK NO-ERROR.                 
+                ar-ledger.tr-date LE ipdtDate:                        
+                       
+                {custom/statusMsg.i " 'Customer:'  + ar-ledger.cust-no "}       
+                EXPORT STREAM out5 ar-ledger.                                  
                 DELETE ar-ledger.
                
                 ASSIGN
                     iPurgeCount5 = iPurgeCount5 + 1.
     END. 
+    FOR EACH ar-mcash EXCLUSIVE-LOCK
+        WHERE ar-mcash.company   EQ ipcCompany
+          AND check-date LE ipdtDate
+          USE-INDEX m-cash:                  
+      
+         EXPORT STREAM out6 ar-mcash.                          
+         DELETE ar-mcash.
+         iPurgeCount6 = iPurgeCount6 + 1.
+                              
+    END.  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -609,25 +607,23 @@ PROCEDURE pPurgeOrphanRecords PRIVATE :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
-        
+            
     /* Delete ar-ledger records with no customer ,*/
     FOR EACH ar-ledger EXCLUSIVE-LOCK 
         WHERE ar-ledger.company EQ ipcCompany
-          AND ar-ledger.cust-no  EQ ""         
+          AND ar-ledger.cust-no  EQ ""           
           : 
-           FOR EACH ar-mcash NO-LOCK
+           FOR EACH ar-mcash EXCLUSIVE-LOCK
                 WHERE ar-mcash.company   EQ ipcCompany
                   AND STRING(ar-mcash.m-no) + " " + ar-mcash.payer EQ ar-ledger.ref-num
                   :
                                    
-                 EXPORT STREAM out6 ar-mcash.
-                 FIND CURRENT ar-mcash EXCLUSIVE-LOCK NO-ERROR.                 
+                 EXPORT STREAM out6 ar-mcash.                                   
                  DELETE ar-mcash.
                  iPurgeCount6 = iPurgeCount6 + 1.                                        
             END.   
                          
-            EXPORT STREAM out5 ar-ledger.
-            FIND CURRENT ar-ledger EXCLUSIVE-LOCK NO-ERROR.                
+            EXPORT STREAM out5 ar-ledger.                              
             DELETE ar-ledger.
 
             ASSIGN
@@ -862,9 +858,7 @@ PROCEDURE pRunProcess :
                         b-ar-cashl.c-no EQ ar-cashl.c-no AND 
                         ROWID(b-ar-cashl) NE ROWID(ar-cashl)
                         NO-ERROR.
-                    IF NOT AVAIL b-ar-cashl THEN DO:
-                        RUN pPurgeArLedger(cocode, "Memo#" + STRING(ar-cash.check-no,">>>>99999999") + "A/R").
-                                                 
+                    IF NOT AVAIL b-ar-cashl THEN DO:                                                  
                         EXPORT STREAM out3 ar-cash.
                         FIND CURRENT ar-cash EXCLUSIVE-LOCK NO-ERROR.
                         DELETE ar-cash.
@@ -895,10 +889,7 @@ PROCEDURE pRunProcess :
                 ASSIGN
                     iPurgeCount3 = iPurgeCount3 + 1.
             END.
-            
-            IF ipcExecute THEN                         
-            RUN pPurgeArLedger(cocode, "INV# " + STRING(bf-ar-inv.inv-no)). 
-                        
+                                                
             IF ipcExecute THEN 
             DO:
                 EXPORT STREAM out1 bf-ar-inv.
@@ -914,8 +905,11 @@ PROCEDURE pRunProcess :
         END.  
     END.
     
-    IF ipcExecute THEN
-    RUN pPurgeOrphanRecords(cocode).
+    IF ipcExecute THEN 
+    do:                         
+        RUN pPurgeArLedger(cocode, end_date).     
+        RUN pPurgeOrphanRecords(cocode).
+    END.    
         
     SESSION:SET-WAIT-STATE("").
     
