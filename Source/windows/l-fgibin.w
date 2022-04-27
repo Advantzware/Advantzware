@@ -39,7 +39,8 @@ def input parameter ip-job-no like fg-bin.job-no no-undo.
 def input parameter ip-job-no2 like fg-bin.job-no2 no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-rowid-val AS ROWID no-undo.
-{sys/inc/var.i}
+
+{sys/inc/var.i new shared}
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
@@ -78,14 +79,14 @@ fg-bin.qty
       AND fg-bin.company = ip-company ~
 AND fg-bin.loc = ip-loc ~
 AND fg-bin.i-no = ip-i-no ~
-AND trim(fg-bin.job-no) = trim(ip-job-no) ~
+AND fg-bin.job-no = ip-job-no ~
 AND fg-bin.job-no2 = ip-job-no2 NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH fg-bin WHERE ~{&KEY-PHRASE} ~
       AND fg-bin.company = ip-company ~
 AND fg-bin.loc = ip-loc ~
 AND fg-bin.i-no = ip-i-no ~
-AND trim(fg-bin.job-no) = trim(ip-job-no) ~
+AND fg-bin.job-no = ip-job-no ~
 AND fg-bin.job-no2 = ip-job-no2 NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 fg-bin
@@ -214,7 +215,7 @@ ASSIGN
      _Where[1]         = "ASI.fg-bin.company = ip-company
 AND ASI.fg-bin.loc = ip-loc
 AND ASI.fg-bin.i-no = ip-i-no
-AND trim(ASI.fg-bin.job-no) = trim(ip-job-no)
+AND ASI.fg-bin.job-no = ip-job-no
 AND ASI.fg-bin.job-no2 = ip-job-no2"
      _FldNameList[1]   > ASI.fg-bin.loc-bin
 "loc-bin" "Bin" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
@@ -362,7 +363,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                              " for Whs/FGItem/Job: " +
                              TRIM(ip-loc) + "/" +
                              TRIM(ip-i-no) + "/" +
-                             TRIM(ip-job-no) + "-" + STRING(ip-job-no2,"999").
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ip-job-no, ip-job-no2))).
 
   RUN enable_UI.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.

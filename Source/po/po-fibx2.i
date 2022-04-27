@@ -44,7 +44,7 @@ FOR EACH po-ordl
   if v-job ne "" then
   find last oe-ordl
        where oe-ordl.company eq po-ord.company
-         and trim(oe-ordl.job-no)  eq trim(v-job)
+         and oe-ordl.job-no  eq v-job
          and oe-ordl.job-no2 eq po-ordl.job-no2
        use-index job no-lock no-error.
 
@@ -144,7 +144,7 @@ FOR EACH po-ordl
   if avail item and item.mat-type eq "B" then do:
     find first job
         where job.company eq po-ord.company
-          and trim(job.job-no)  eq trim(po-ordl.job-no)
+          and job.job-no  eq po-ordl.job-no
           and job.job-no2 eq po-ordl.job-no2
         no-lock no-error.
         

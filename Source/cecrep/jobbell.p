@@ -255,7 +255,7 @@ do v-local-loop = 1 to v-local-copies:
         
         /*Process results from d-Soule.w prompt*/
         FIND FIRST ttSoule 
-                        WHERE TRIM(ttSoule.job-no) = TRIM(job-hdr.job-no)
+                        WHERE ttSoule.job-no = job-hdr.job-no
                         AND ttSoule.job-no2  = job-hdr.job-no2
                         AND ttSoule.frm      = w-ef.frm
                         AND ttSoule.i-no     = xeb.stock-no
@@ -1100,7 +1100,7 @@ do v-local-loop = 1 to v-local-copies:
                        ELSE IF avail xeb THEN xeb.ship-id
                        ELSE IF avail xoe-ord THEN xoe-ord.sold-id 
                        ELSE "".
-            FIND FIRST tt-prem WHERE TRIM(tt-prem.tt-job-no)  EQ TRIM(job-hdr.job-no)
+            FIND FIRST tt-prem WHERE tt-prem.tt-job-no    EQ job-hdr.job-no
                                   AND tt-prem.tt-job-no2  EQ job-hdr.job-no2 NO-LOCK NO-ERROR.
             IF NOT AVAIL tt-prem THEN do:
                FIND FIRST bf-eb WHERE bf-eb.company = est.company

@@ -276,7 +276,7 @@
 
       if zbal or v-qoh ne 0 then do:
         if tt-fg-bin.job-no ne "" then
-          v-job-no = trim(tt-fg-bin.job-no) + "-" + string(tt-fg-bin.job-no2,"99").
+          v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-fg-bin.job-no, tt-fg-bin.job-no2))).
         else
           v-job-no = "".
 

@@ -185,7 +185,7 @@ PROCEDURE checkset :
         WHERE b-fg-rctd.company   EQ cocode   
           AND b-fg-rctd.i-no      EQ b-itemfg.i-no
           AND b-fg-rctd.rita-code EQ "R"
-          AND ((trim(b-fg-rctd.job-no)  EQ trim(ip-job-no) AND
+          AND ((b-fg-rctd.job-no  EQ ip-job-no AND
                 b-fg-rctd.job-no2 EQ ip-job-no2) OR
                NOT tb_use-job)
           AND (IF lFGSetAssembly THEN b-fg-rctd.loc EQ ipcLoc ELSE TRUE)
@@ -279,31 +279,14 @@ PROCEDURE main-procedure :
     FOR EACH fg-bin FIELDS(qty)
         WHERE fg-bin.company EQ itemfg.company
           AND fg-bin.i-no    EQ itemfg.i-no
-          AND trim(fg-bin.job-no)  EQ trim(ip-job-no)
+          AND fg-bin.job-no  EQ ip-job-no
           AND fg-bin.job-no2 EQ ip-job-no2
         NO-LOCK:
       v-set-use = v-set-use + fg-bin.qty.
     END.
 
-    /* IF itemfg.alloc EQ YES THEN tb_use-job = YES. */
-
     RUN checkset.
 
-/*     IF CAN-FIND(FIRST tt-set) THEN DO:                                                              */
-/*       FRAME {&FRAME-NAME}:TITLE = "Set: " + TRIM(CAPS(v-set)) +                                     */
-/*                                   " / Components" + " " +                                           */
-/*                                   (IF ip-job-no NE "" THEN                                          */
-/*                                      "For Job#: " + TRIM(ip-job-no) + "-" + STRING(ip-job-no2,"99") */
-/*                                    ELSE "").                                                        */
-/*       RUN enable_UI.                                                                                */
-/*                                                                                                     */
-/*       IF itemfg.alloc EQ YES OR fgsetrec-log EQ NO THEN                                             */
-/*       DO WITH FRAME {&FRAME-NAME}:                                                                  */
-/*         tb_use-job:HIDDEN = YES.                                                                    */
-/*       END.                                                                                          */
-/*                                                                                                     */
-/*       WAIT-FOR GO OF FRAME {&FRAME-NAME}.                                                           */
-/*     END. */
   END.
 
 END PROCEDURE.

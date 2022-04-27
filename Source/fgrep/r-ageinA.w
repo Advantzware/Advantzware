@@ -159,9 +159,9 @@ DEF VAR tcus        LIKE fcus                   INIT "zzzzzzzz" NO-UNDO.
 DEF VAR fitm        LIKE itemfg.i-no NO-UNDO.
 DEF VAR titm        LIKE fitm                   INIT "zzzzzzzzzzzzzzz" NO-UNDO.
 DEF VAR fjob        LIKE fg-bin.job-no NO-UNDO.
-DEF VAR tjob        LIKE fjob                   INIT "zzzzzz" NO-UNDO.
-DEF VAR fjob2       LIKE fg-bin.job-no2         FORMAT "99" NO-UNDO.
-DEF VAR tjob2       LIKE fjob2                  INIT 99 NO-UNDO.
+DEF VAR tjob        LIKE fjob                   INIT "zzzzzzzzz" NO-UNDO.
+DEF VAR fjob2       LIKE fg-bin.job-no2         FORMAT "999" NO-UNDO.
+DEF VAR tjob2       LIKE fjob2                  INIT 999 NO-UNDO.
 DEF VAR v-q-or-v    AS   LOG                    FORMAT "Qty/Value" INIT YES NO-UNDO.
 DEF VAR v-sub-t     AS   LOG                    FORMAT "Yes/No"    INIT NO NO-UNDO.
 DEF VAR v-break     AS   LOG                    FORMAT "Yes/No"    INIT YES NO-UNDO.
@@ -343,15 +343,15 @@ DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 22 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_loc-bin AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning Bin" 
@@ -378,15 +378,15 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 22 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_loc-bin AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
      LABEL "Ending Bin" 
@@ -1685,12 +1685,12 @@ DEF INPUT PARAMETER begin_i-no AS CHARACTER FORMAT "X(15)":U
 
      NO-UNDO.
 
-DEF INPUT PARAMETER begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEF INPUT PARAMETER begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
 
      NO-UNDO.
 
-DEF INPUT PARAMETER begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEF INPUT PARAMETER begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
 
      NO-UNDO.
@@ -1720,12 +1720,12 @@ DEF INPUT PARAMETER end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzz
 
      NO-UNDO.
 
-DEF INPUT PARAMETER end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEF INPUT PARAMETER end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
 
      NO-UNDO.
 
-DEF INPUT PARAMETER end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEF INPUT PARAMETER end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
 
      NO-UNDO.
@@ -2379,9 +2379,9 @@ ASSIGN
  fitm      = begin_i-no
  titm      = end_i-no
  fjob      = FILL(" ", iJobLen - length(TRIM(begin_job-no))) +
-                trim(begin_job-no) + string(int(begin_job-no2),"99")
+                trim(begin_job-no) + string(int(begin_job-no2),"999")
  tjob      = FILL(" ", iJobLen - length(TRIM(end_job-no)))   +
-                trim(end_job-no)   + string(int(end_job-no2),"99") 
+                trim(end_job-no)   + string(int(end_job-no2),"999") 
  v-q-or-v  = rd_show EQ "Quantity"
  v-sub-t   = tb_val-cust
  v-break   = tb_break
@@ -3069,9 +3069,9 @@ PROCEDURE produce-report :
     floc-bin   = begin_loc-bin
     tloc-bin   = end_loc-bin
     fjob       = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
-  TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
+  TRIM(begin_job-no) + STRING(INT(begin_job-no2),"999")
     tjob       = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no))) +
-  TRIM(end_job-no)   + STRING(INT(end_job-no2),"99")
+  TRIM(end_job-no)   + STRING(INT(end_job-no2),"999")
     v-q-or-v   = rd_show EQ "Quantity"
     v-sub-t    = tb_val-cust
     v-break    = tb_break

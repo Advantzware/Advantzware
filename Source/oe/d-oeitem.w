@@ -909,7 +909,7 @@ DEFINE BUTTON Btn_OK
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE VARIABLE dTotalMargin AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0 
+DEFINE VARIABLE dTotalMargin AS DECIMAL FORMAT "->>,>>>,>>9.99":U INITIAL 0 
      LABEL "Tot Margin" 
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 
@@ -1557,7 +1557,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ordl.disc IN FRAME d-oeitem
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN dTotalMargin IN FRAME d-oeitem
-   NO-ENABLE                                                            */
+   NO-ENABLE EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.e-num IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN oe-ordl.ediPrice IN FRAME d-oeitem
@@ -7591,7 +7591,8 @@ PROCEDURE get-price :
     DEFINE VARIABLE lv-rowid     AS ROWID   NO-UNDO.
     DEFINE VARIABLE lv-price-ent LIKE price-ent NO-UNDO.
     DEFINE VARIABLE dTotalPrice  AS DECIMAL NO-UNDO.
-          
+    DEFINE VARIABLE iLevel       AS INTEGER NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
         IF NOT price-ent                           AND
             AVAILABLE oe-ordl                           THEN 
@@ -7623,11 +7624,13 @@ PROCEDURE get-price :
                 IF matrixExists THEN 
                 DO:  
                     matrixTag = "Item No:" + string(v-i-item) + " Customer No:" + string(oe-ordl.cust-no) + " Ship ID:" + oe-ordl.ship-id + " Quantity:" + string(v-i-qty). 
-
+                    
+                    RUN Price_GetPriceMatrixLevel(INPUT cocode, INPUT STRING(v-i-item), INPUT oe-ordl.cust-no, INPUT oe-ordl.ship-id, INPUT v-i-qty, OUTPUT iLevel).
+                             
                     RUN pAddTagInfoForGroup(
                         INPUT oe-ordl.rec_key,
                         INPUT "Price-Source",
-                        INPUT "Price Matrix " + matrixTag
+                        INPUT "Price Matrix " + matrixTag + " Price Level:" + STRING(iLevel)
                         ). 
                 END.
                 FIND oe-ordl WHERE ROWID(oe-ordl) EQ lv-rowid NO-ERROR.

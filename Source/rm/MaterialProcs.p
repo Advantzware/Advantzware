@@ -102,6 +102,52 @@ PROCEDURE Material_UpdateMaterialSystemType:
      END.       
 END PROCEDURE.
 
+PROCEDURE Material_UpdateJobMaterialAutoIssue:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMaterialType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplAutoIssue    AS LOGICAL NO-UNDO.
+        
+    RUN pUpdateJobMaterialAutoIssue (
+                           ipcCompany,
+                           ipcMaterialType, 
+                           iplAutoIssue
+                           ).            
+END PROCEDURE.
+
+PROCEDURE pUpdateJobMaterialAutoIssue PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMaterialType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplAutoIssue    AS LOGICAL NO-UNDO.
+        
+    DEFINE BUFFER bf-item FOR ITEM.
+    DEFINE BUFFER bf-job-mat FOR job-mat.
+    
+    FOR EACH job NO-LOCK
+        WHERE job.company EQ ipcCompany
+        AND job.opened EQ YES, 
+        EACH bf-job-mat EXCLUSIVE-LOCK 
+        WHERE bf-job-mat.company EQ ipcCompany
+        AND bf-job-mat.job EQ job.job
+        AND bf-job-mat.job-no EQ job.job-no
+        AND bf-job-mat.job-no2 EQ job.job-no2 ,     
+        FIRST bf-item NO-LOCK
+        WHERE bf-item.company EQ ipcCompany
+        AND bf-item.i-no EQ bf-job-mat.i-no
+        AND bf-item.mat-type EQ ipcMaterialType :
+
+            bf-job-mat.post = iplAutoIssue.             
+     END. 
+     RELEASE bf-job-mat.
+END PROCEDURE.
+
 
 /* ************************  Function Implementations ***************** */
 

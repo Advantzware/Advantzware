@@ -172,8 +172,8 @@ FOR EACH jobitems OF jobs NO-LOCK
                no-lock no-error.
 
   /* Add KIWI POKEY and ASI Job# */
-  v-plan = v-plan + trim(string(job.job-no + "-" + string(job.job-no2,"99"),"x(10)")) 
-                  + fill(" ",10 - length(trim(string(job.job-no + "-" + string(job.job-no2,"99"),"x(10)")))).
+  v-plan = v-plan + trim(string(job.job-no + "-" + string(job.job-no2,"999"),"x(13)")) 
+                  + fill(" ",13 - length(trim(string(job.job-no + "-" + string(job.job-no2,"999"),"x(13)")))).
   
   /* Add KIWI CUSTNM and ASI Cust# */
   v-plan = v-plan + trim(string(cust.cust-no,"x(10)"))

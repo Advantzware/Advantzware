@@ -17,8 +17,8 @@ FOR EACH company NO-LOCK,
                       AND job-mch.run-qty LT 0)):
 
   DISPLAY job.company       FORMAT "x(10)"      COLUMN-LABEL "Company"
-          TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")
-                            FORMAT "x(10)"      COLUMN-LABEL "Job#".  
+          TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
+                            FORMAT "x(13)"      COLUMN-LABEL "Job#".  
 END.
 
 MESSAGE "Program complete..."

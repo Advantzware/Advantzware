@@ -2057,7 +2057,7 @@ PROCEDURE run-report :
                 IF FIRST(tt-job.i-no) THEN
                 DO:
                     PUT SPACE(45) "Jobs            Resource   Start Date  Allocation    Alloc. Total    Required Qty  Required Qty Total Customer Name " SKIP
-                        SPACE(45) "---------       ---------- ----------  ------------- --------------- ------------- ------------------ ------------------------------" SKIP.
+                        SPACE(45) "-------------   ---------- ----------  ------------- --------------- ------------- ------------------ ------------------------------" SKIP.
 
                     IF rd-dest EQ 3 THEN
                         PUT STREAM excel UNFORMATTED
@@ -2075,10 +2075,8 @@ PROCEDURE run-report :
                             SKIP.
                 END.
 
-                PUT SPACE(45) tt-job.job-no FORMAT "X(6)"
-                    "-"
-                    tt-job.job-no2 FORMAT "99"
-                    SPACE(7) tt-job.resource FORMAT "X(10)" SPACE(1)
+                PUT SPACE(45) TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-job.job-no, tt-job.job-no2))) FORM "x(13)"
+                    SPACE(3) tt-job.resource FORMAT "X(10)" SPACE(1)
                     tt-job.print-date SPACE(1) tt-job.alloc-qty FORMAT "->>,>>>,>>9.99" SPACE(2)
                     v-alloc-total FORMAT "->>,>>>,>>9.99"  
                     SPACE(1) tt-job.required-qty FORMAT "->,>>>,>>9.99"

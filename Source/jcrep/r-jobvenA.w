@@ -104,42 +104,42 @@ DEFINE BUTTON btn-ok
 DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY .95 NO-UNDO.
+     SIZE 20.4 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Customer" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-jobven.csv" 
      LABEL "If Yes, File Name" 
@@ -838,9 +838,9 @@ def buffer b-jh for job-hdr.
 
 def var v-stat  as   char format "!"          init "O".
 def var v-fjob  like job.job-no.
-def var v-tjob  like v-fjob                   init "zzzzzz".
+def var v-tjob  like v-fjob                   init "zzzzzzzzz".
 def var v-fjob2 like job.job-no2.
-def var v-tjob2 like v-fjob2                  init 99.
+def var v-tjob2 like v-fjob2                  init 999.
 def var v-fcust like job-hdr.cust-no          init "".
 def var v-tcust like v-fcust                  init "zzzzzzzz".
 def var v-fdate as   date format "99/99/9999" init 01/01/0001.
@@ -863,23 +863,23 @@ DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header skip(1)
-            " P&P QTY"              to 105
-            "   VEND $"             to 125
-            "$ PER"                 to 131
-            "    JOB #"             to 9
-            "FG ITEM"               at 11
-            "QUANTITY"              to 34
-            "   PRICE"              to 45
-            "UOM"                   at 47
-            "VENDOR NAME"           at 51
-            "INVOICE"               at 67
-            " INV QTY"              to 87
-            " REC QTY"              to 96
-            "PRODUCED"              to 105
-            "    DIFF"              to 114
-            "W/O SETUP"             to 125
-            "SHEET"                 to 131
-            fill("-",131)           format "x(131)"
+            " P&P QTY"              to 109
+            "   VEND $"             to 129
+            "$ PER"                 to 135
+            "    JOB #"             TO 13
+            "FG ITEM"               at 15
+            "QUANTITY"              to 38
+            "   PRICE"              to 49
+            "UOM"                   AT 51
+            "VENDOR NAME"           at 55
+            "INVOICE"               AT 71
+            " INV QTY"              TO 91
+            " REC QTY"              TO 100
+            "PRODUCED"              to 109
+            "    DIFF"              to 118
+            "W/O SETUP"             to 129
+            "SHEET"                 to 135
+            fill("-",135)           format "x(135)"
          with frame r-top.
 
 assign
@@ -889,9 +889,9 @@ assign
   v-stat        = SUBSTR(rd_jstat,1,1)
 
   v-fjob        = FILL(" ", iJobLen - length(trim(begin_job-no))) +
-                  trim(begin_job-no) + string(int(begin_job-no2),"99")
+                  trim(begin_job-no) + string(int(begin_job-no2),"999")
   v-tjob        = FILL(" ", iJobLen - length(trim(end_job-no)))   +
-                  trim(end_job-no)   + string(int(end_job-no2),"99")  
+                  trim(end_job-no)   + string(int(end_job-no2),"999")  
 
   v-fcust       = begin_cust
   v-tcust       = END_cust
@@ -921,13 +921,13 @@ display "" with frame r-top.
         where job-hdr.company eq cocode
           and job-hdr.cust-no ge v-fcust
           and job-hdr.cust-no le v-tcust
-          and job-hdr.job-no  ge substr(v-fjob,1,6)
-          and job-hdr.job-no  le substr(v-tjob,1,6)
+          and job-hdr.job-no  ge substr(v-fjob,1,iJobLen)
+          and job-hdr.job-no  le substr(v-tjob,1,iJobLen)
           and FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) + string(job-hdr.job-no2,"99")
+              trim(job-hdr.job-no) + string(job-hdr.job-no2,"999")
                           ge v-fjob
           and FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) + string(job-hdr.job-no2,"99")
+              trim(job-hdr.job-no) + string(job-hdr.job-no2,"999")
                           le v-tjob
         use-index cust-idx no-lock,
 
@@ -963,7 +963,7 @@ display "" with frame r-top.
          job.start-date + 60 gt v-tdate then next.
 
       v-job = FILL(" ", iJobLen - length(trim(job.job-no))) +
-              trim(job.job-no) + "-" + string(job.job-no2,"99").
+              trim(job.job-no) + "-" + string(job.job-no2,"999").
 
       create report.
       assign
@@ -1015,15 +1015,15 @@ display "" with frame r-top.
             and oe-ordl.i-no    eq job-hdr.i-no
           no-lock no-error.
 
-      display report.key-03         to 9    format "x(9)"
-              job-hdr.i-no          at 11
-              job-hdr.qty           to 34   format ">>>>>>>9"
-              oe-ordl.price         to 45   format ">>>>>>9.99<<<<"
+      display report.key-03         TO 13    format "x(13)"
+              job-hdr.i-no          at 15
+              job-hdr.qty           to 38   format ">>>>>>>9"
+              oe-ordl.price         to 49   format ">>>>>>9.99<<<<"
                                     when avail oe-ordl
-              oe-ordl.pr-uom        at 47
+              oe-ordl.pr-uom        AT 51
                                     when avail oe-ordl
 
-          with frame det STREAM-IO width 132 no-box no-labels down.
+          with frame det STREAM-IO width 136 no-box no-labels down.
 
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED
@@ -1224,11 +1224,11 @@ display "" with frame r-top.
                                    job-mat.len, job-mat.wid, job-mat.dep,
                                    ap-invl.qty, output v-qty).
 
-          display vend.name             at 51   format "x(15)"
+          display vend.name             at 55   format "x(15)"
                                         when avail vend
                                          and first-of(xreport.key-02)
-                  ap-inv.inv-no         at 67
-                  v-qty                 to 87   format ">>>>>>>9"
+                  ap-inv.inv-no         AT 71
+                  v-qty                 TO 91   format ">>>>>>>9"
 
               with frame det.
 
@@ -1253,11 +1253,11 @@ display "" with frame r-top.
             display v-inv-qty @ v-qty with frame det.
           end.
 
-          display v-mat-qty                     to 96
-                  v-fg-qty                      to 105  format ">>>>>>>9"
-                  v-mat-qty - (v-fg-qty / v-on) to 114  format "->>>>>>9"
-                  v-cost                        to 125  format ">>>>>>9.99"
-                  v-cost / (v-fg-qty / v-on)    to 131  format ">9.99"
+          display v-mat-qty                     TO 100
+                  v-fg-qty                      to 109  format ">>>>>>>9"
+                  v-mat-qty - (v-fg-qty / v-on) to 118  format "->>>>>>9"
+                  v-cost                        to 129  format ">>>>>>9.99"
+                  v-cost / (v-fg-qty / v-on)    to 135  format ">9.99"
                                                 when v-fg-qty gt 0
                                                  and v-cost gt 0
               with frame det.

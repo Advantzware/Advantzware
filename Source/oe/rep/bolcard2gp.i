@@ -54,8 +54,6 @@ FOR EACH tt-boll,
                         w2.qty    = oe-ordl.qty.
                 ELSE IF i = 2 THEN 
                         ASSIGN w2.job-po = tt-boll.job-no
-                            /*                  w2.job-po = if oe-ordl.job-no eq "" then "" else                        */
-                            /*                              (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                             w2.dscr   = oe-ordl.i-name
                             w2.i-no   = oe-ordl.i-no.
                     ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
@@ -80,8 +78,6 @@ FOR EACH tt-boll,
                     w2.i-no = "".
                     IF i = 2 THEN 
                         ASSIGN w2.job-po = tt-boll.job-no
-                            /*            if oe-ordl.job-no eq "" then "" else                                          */
-                            /*                              (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                             w2.dscr   = oe-ordl.i-name
                             w2.i-no   = oe-ordl.i-no.
                     ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
@@ -105,8 +101,6 @@ FOR EACH tt-boll,
                     w2.i-no = "".
                     IF i = 2 THEN
                         ASSIGN w2.job-po = tt-boll.job-no
-                            /*            if oe-ordl.job-no eq "" then "" else                                          */
-                            /*                              (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                             w2.dscr   = oe-ordl.i-name
                             w2.i-no   = oe-ordl.i-no.
                     ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
@@ -259,8 +253,6 @@ FOR EACH tt-boll,
                     ASSIGN
                         v-part-dscr = oe-ordl.i-name
                         v-job-po    = tt-boll.job-no
-                        /*         if oe-ordl.job-no eq "" then "" else                                    */
-                        /*                     (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                         .
     
                 ELSE
@@ -297,8 +289,6 @@ FOR EACH tt-boll,
                     ASSIGN
                         v-part-dscr = oe-ordl.i-name
                         v-job-po    = tt-boll.job-no
-                        /*         if oe-ordl.job-no eq "" then "" else                                    */
-                        /*                     (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                         .
 
                 ELSE IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr1.
@@ -358,8 +348,6 @@ FOR EACH tt-boll,
                     ASSIGN
                         v-part-dscr = oe-ordl.i-name
                         v-job-po    = tt-boll.job-no
-                        /*         if oe-ordl.job-no eq "" then "" else                                    */
-                        /*                     (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                         .
 
                 ELSE

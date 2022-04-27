@@ -303,7 +303,7 @@ FOR EACH ttTransBin  WHERE ttTransBin.IS-SELECTED
         END.
       
         v-salesman = TRIM(v-salesman).
-        v-job-no = IF ttTransBin.job-no = "" THEN "" ELSE (ttTransBin.job-no + "-" + STRING(ttTransBin.job-no2,">>")).
+        v-job-no = IF ttTransBin.job-no = "" THEN "" ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ttTransBin.job-no, ttTransBin.job-no2))).
         IF v-salesman GT '' THEN
             IF substr(v-salesman,LENGTH(TRIM(v-salesman)),1) EQ "," THEN
                 substr(v-salesman,LENGTH(TRIM(v-salesman)),1) = "".

@@ -110,15 +110,15 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 15.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 15.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 4.4 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_mach-no AS CHARACTER FORMAT "X(6)":U 
      LABEL "Beginning Machine#" 
@@ -130,15 +130,15 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 15.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 15.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 4.6 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_mach-no AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzz" 
      LABEL "Ending Machine#" 
@@ -922,9 +922,9 @@ def var v-indus   as   char format "!"              init "B".
 def var v-fmch    like job-mch.m-code               init "".
 def var v-tmch    like v-fmch                       init "zzzzzz".
 def var v-fjob    like job.job-no.
-def var v-tjob    like v-fjob                       init "zzzzzz".
+def var v-tjob    like v-fjob                       init "zzzzzzzzz".
 def var v-fjob2   like job.job-no2.
-def var v-tjob2   like v-fjob2                      init 99.
+def var v-tjob2   like v-fjob2                      init 999.
 def var v-fdat    like job.start-date               init 01/01/0001
                                                     format "99/99/9999".
 def var v-tdat    like v-fdat                       init 12/31/9999.
@@ -983,9 +983,9 @@ END.
 
   assign
    v-fjob = FILL(" ", iJobLen - length(trim(v-fjob))) +
-            trim(v-fjob) + "-" + string(v-fjob2,"99")
+            trim(v-fjob) + "-" + string(v-fjob2,"999")
    v-tjob = FILL(" ", iJobLen - length(trim(v-tjob))) +
-            trim(v-tjob) + "-" + string(v-tjob2,"99").
+            trim(v-tjob) + "-" + string(v-tjob2,"999").
 
     /*for each job
         where job.stat lt "C"
@@ -1085,9 +1085,9 @@ END.
        v-qty  = dec(tt-report.key-07).
 
       if last-of(tt-report.key-05) THEN DO:
-        display trim(substr(tt-report.key-02,9,9))
+        display trim(substr(tt-report.key-02,9,13))
                                     column-label "JOB #"
-                                    format "x(9)"    
+                                    format "x(13)"    
                 job-mat.frm         column-label "FO!RM"
                                     format "99"
                 job-hdr.cust-no     column-label "CUSTOMER"
@@ -1112,11 +1112,11 @@ END.
                 job-mat.qty         column-label "QTY!LBS"
                                     format ">,>>9"
 
-          with frame det stream-io width 132 no-box down.
+          with frame det stream-io width 136 no-box down.
 
         IF tb_excel THEN
               PUT STREAM excel UNFORMATTED
-              '"' (substr(tt-report.key-02,9,9)) '",' 
+              '"' (substr(tt-report.key-02,9,13)) '",' 
                 '"' job-mat.frm '",'  
                 '"' job-hdr.cust-no '",'
                 '"' cust.NAME '",' 

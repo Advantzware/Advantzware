@@ -147,7 +147,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       tag.tagType FORMAT "x(8)":U
       tag.groupCode COLUMN-LABEL "Category" FORMAT "x(20)":U
-      tag.description FORMAT "X(80)":U
+      tag.description FORMAT "X(100)":U
       tag.Note[1] COLUMN-LABEL "Notes" FORMAT "X(80)":U
       tag.createUser COLUMN-LABEL "Create User" FORMAT "x(12)":U
       tag.createDT COLUMN-LABEL "Create Date/Time" FORMAT "99/99/9999 HH:MM:SS.SSS":U
@@ -234,7 +234,7 @@ ASSIGN
      _FldNameList[2]   > ASI.tag.groupCode
 "groupCode" "Category" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.tag.description
-"description" ? "X(80)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"description" ? "X(100)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.tag.Note[1]
 "Note[1]" "Notes" "X(80)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.tag.createUser

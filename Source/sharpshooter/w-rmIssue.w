@@ -276,7 +276,7 @@ DEFINE BROWSE br-table
       ttBrowseInventory.quantity WIDTH 25 COLUMN-LABEL "Qty On-hand" FORMAT "->,>>>,>>9.99<<<<"
       fGetConcatLocationID() @ ttBrowseInventory.warehouseID WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(12)"
       ttBrowseInventory.tag WIDTH 70 COLUMN-LABEL "Tag #" FORMAT "X(30)"
-      fGetConcatJobID() @ ttBrowseInventory.jobID WIDTH 25 COLUMN-LABEL "Job #" FORMAT "X(20)"
+      fGetConcatJobID() @ ttBrowseInventory.jobID WIDTH 30 COLUMN-LABEL "Job #" FORMAT "X(20)"
       ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(15)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1823,7 +1823,7 @@ FUNCTION fGetConcatJobID RETURNS CHARACTER
     IF ttBrowseInventory.jobID EQ "" THEN
         RETURN "".
     ELSE
-        RETURN ttBrowseInventory.jobID + "-" + STRING(ttBrowseInventory.jobID2, "99").
+        RETURN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ttBrowseInventory.jobID, ttBrowseInventory.jobID2)).
 
 END FUNCTION.
 

@@ -1796,7 +1796,7 @@ PROCEDURE valid-inv-i-no :
         DO:
             FIND FIRST job NO-LOCK
                 WHERE job.company EQ cocode
-                AND TRIM(job.job-no)  EQ TRIM(lv-job-no)
+                AND job.job-no    EQ lv-job-no
                 NO-ERROR.
             IF NOT AVAILABLE job THEN 
             DO:
@@ -1834,7 +1834,7 @@ PROCEDURE valid-inv-line :
         DO:
             FIND FIRST job
                 WHERE job.company EQ cocode
-                AND TRIM(job.job-no)  EQ TRIM(lv-job-no)
+                AND job.job-no  EQ lv-job-no
                 AND job.job-no2 EQ INT(inv-misc.inv-line:SCREEN-VALUE)
                 NO-LOCK NO-ERROR.
             IF NOT AVAILABLE job THEN 

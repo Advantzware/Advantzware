@@ -5,10 +5,10 @@
       and job.job-no     ge substr(v-fjob,1,6)
       and job.job-no     le substr(v-tjob,1,6)
       and FILL(" ", iJobLen - length(trim(job.job-no))) +
-          trim(job.job-no) + string(job.job-no2,"99")
+          trim(job.job-no) + string(job.job-no2,"999")
                          ge v-fjob
       and FILL(" ", iJobLen - length(trim(job.job-no))) +
-          trim(job.job-no) + string(job.job-no2,"99")
+          trim(job.job-no) + string(job.job-no2,"999")
                          le v-tjob
     use-index stat-idx no-lock,
 

@@ -42,7 +42,7 @@ ELSE IF v-job-meth EQ "Estimate#" THEN io-job-no = STRING(DYNAMIC-FUNCTION('sfFo
 
     IF v-job-meth EQ "Estimate#" THEN DO:
               FOR EACH job-hdr NO-LOCK WHERE job-hdr.company EQ cocode
-                  AND TRIM(job-hdr.job-no)  EQ TRIM(io-job-no)
+                  AND job-hdr.job-no  EQ io-job-no
                   USE-INDEX job-no 
                   BY job-hdr.job-no DESC BY job-hdr.job-no2 DESC:
 
@@ -54,15 +54,15 @@ ELSE IF v-job-meth EQ "Estimate#" THEN io-job-no = STRING(DYNAMIC-FUNCTION('sfFo
         IF io-job-no NE "" THEN
         DO WHILE CAN-FIND(FIRST job
                           WHERE job.company EQ cocode
-                            AND TRIM(job.job-no)  EQ TRIM(io-job-no)
+                            AND job.job-no  EQ io-job-no
                             AND job.job-no2 EQ io-job-no2)    OR
                  CAN-FIND(FIRST oe-ord
                           WHERE oe-ord.company EQ cocode
-                            AND TRIM(oe-ord.job-no)  EQ TRIM(io-job-no)
+                            AND oe-ord.job-no  EQ io-job-no
                             AND oe-ord.job-no2 EQ io-job-no2) OR
                  CAN-FIND(FIRST oe-ordl
                           WHERE oe-ordl.company EQ cocode
-                            AND TRIM(oe-ordl.job-no)  EQ TRIM(io-job-no)
+                            AND oe-ordl.job-no  EQ io-job-no
                             AND oe-ordl.job-no2 EQ io-job-no2):
           io-job-no2 = io-job-no2 + 1.
         END.

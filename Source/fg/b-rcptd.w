@@ -937,7 +937,7 @@ PROCEDURE get-matrix :
                 DO:
                     FIND FIRST job-hdr WHERE job-hdr.company = cocode                       
                         AND job-hdr.i-no  = fg-rctd.i-no:screen-value
-                        AND TRIM(job-hdr.job-no) = TRIM(fg-rctd.job-no:screen-value)
+                        AND job-hdr.job-no = fg-rctd.job-no:screen-value
                         AND job-hdr.job-no2 = integer(fg-rctd.job-no2:screen-value)
                         NO-LOCK NO-ERROR.
                     IF AVAILABLE job-hdr THEN 
@@ -1524,7 +1524,7 @@ PROCEDURE get-set-full-qty :
   lv-out-qty = 0.
   FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ g_company AND
         (b-fg-rctd.rita-code EQ "R" OR b-fg-rctd.rita-code EQ "E")
-        AND trim(b-fg-rctd.job-no) = trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+        AND b-fg-rctd.job-no = fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
         AND b-fg-rctd.job-no2 = INT(fg-rctd.job-no2:SCREEN-VALUE)
         AND b-fg-rctd.i-no = ipItemNO //fg-rctd.i-no:SCREEN-VALUE 
         AND (RECID(b-fg-rctd) <> recid(fg-rctd) 

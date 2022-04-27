@@ -151,8 +151,6 @@ for each report where report.term-id eq v-term-id,
         v-job-no = v-job-no + "-" + trim(string(job-hdr.frm)) + trim(string(job-hdr.blank-no)) .
     END.
 
-      /* v-job-no = FILL(" ", iJobLen - length(trim(oe-ordl.job-no))) +
-               trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")). */
     
     lv-cases = lv-cases-tot.
     IF AVAIL oe-ordl THEN FIND oe-ord OF oe-ordl NO-LOCK NO-ERROR.

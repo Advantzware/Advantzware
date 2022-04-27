@@ -1433,8 +1433,6 @@ PROCEDURE display-itemfg :
 
   IF AVAIL fg-rcpth THEN
   DO WITH FRAME {&FRAME-NAME}:
-    /*ASSIGN fi_job-no:SCREEN-VALUE = fg-rcpth.job-no
-           fi_job-no2:SCREEN-VALUE = STRING(fg-rcpth.job-no2,"99"). */
     FIND FIRST b-itemfg
         WHERE b-itemfg.company EQ cocode
           AND b-itemfg.i-no    EQ fg-rcpth.i-no

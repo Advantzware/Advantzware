@@ -7,16 +7,16 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
   for each job
       where job.company eq cocode
         AND job.opened  EQ YES
-        and job.job-no  ge substr(v-job-no[1],1,6)
-        and job.job-no  le substr(v-job-no[2],1,6)
+        and job.job-no  ge substr(v-job-no[1],1,iJobLen)
+        and job.job-no  le substr(v-job-no[2],1,iJobLen)
         
         and (FILL(" ", iJobLen - length(trim(job.job-no))) +
              trim(job.job-no)                       +
-             string(job.job-no2,"99"))                 ge v-job-no[1]
+             string(job.job-no2,"999"))                 ge v-job-no[1]
 
         and (FILL(" ", iJobLen - length(trim(job.job-no))) +
              trim(job.job-no)                       +
-             string(job.job-no2,"99"))                 le v-job-no[2]
+             string(job.job-no2,"999"))                 le v-job-no[2]
              
         and can-find(first job-hdr where job-hdr.company eq job.company
                                      and job-hdr.job     eq job.job
@@ -29,7 +29,7 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
     assign
      {1}report.term-id = v-term
      {1}report.key-01  = FILL(" ", iJobLen - length(trim(job.job-no))) +
-                         trim(job.job-no) + "-" + string(job.job-no2,"99")
+                         trim(job.job-no) + "-" + string(job.job-no2,"999")
      {1}report.rec-id  = recid(job).
 
     for each job-mat
@@ -53,7 +53,7 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
           assign
            {1}report.term-id = v-term
            {1}report.key-01  = FILL(" ", iJobLen - length(trim(job.job-no))) +
-                               trim(job.job-no) + "-" + string(job.job-no2,"99")
+                               trim(job.job-no) + "-" + string(job.job-no2,"999")
            {1}report.rec-id  = recid(job).
         end.
 
@@ -147,7 +147,7 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
           assign
            {1}report.term-id = v-term
            {1}report.key-01  = FILL(" ", iJobLen - length(trim(job.job-no))) +
-                               trim(job.job-no) + "-" + string(job.job-no2,"99")
+                               trim(job.job-no) + "-" + string(job.job-no2,"999")
            {1}report.key-02  = job-mat.rm-i-no
            {1}report.rec-id  = recid(job).
         end.
@@ -202,7 +202,7 @@ for each {1}report where {1}report.term-id eq v-term,
 
   assign
    v-job = FILL(" ", iJobLen - length(trim(job.job-no))) +
-           trim(job.job-no) + "-" + string(job.job-no2,"99")
+           trim(job.job-no) + "-" + string(job.job-no2,"999")
    v-itm = {1}report.key-02.
 
   {custom/statusMsg.i " 'Processing Job#  '  + v-job "}

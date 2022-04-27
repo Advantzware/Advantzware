@@ -140,8 +140,8 @@ DEFINE BROWSE Browser-Table
       rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U
       rm-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       rm-rctd.tag COLUMN-LABEL "Tag" FORMAT "x(8)":U
-      rm-rctd.job-no FORMAT "x(6)":U
-      rm-rctd.job-no2 FORMAT "99":U
+      rm-rctd.job-no FORMAT "x(9)":U
+      rm-rctd.job-no2 FORMAT "999":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 139 BY 18.1

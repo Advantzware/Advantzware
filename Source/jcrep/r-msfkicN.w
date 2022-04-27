@@ -1216,7 +1216,7 @@ def var v-printed as   log init no.
 
 def var v-mach    like job-mch.m-code.
 def var v-date    as   date format "99/99/99".
-def var v-job     as   char format "x(9)".
+def var v-job     as   char format "x(13)".
 def var v-sheet   as   char format "x(21)".
 def var v-qty     as   dec.
 def var v-pct     as   dec.

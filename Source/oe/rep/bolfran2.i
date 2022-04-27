@@ -61,80 +61,9 @@ FOR EACH tt-boll,
   for each w2 break by w2.cases:
     v-lines = v-lines + 1.
   end.
-/*  
-  do i = v-lines + 1 to 4:
-    assign
-     v-part-dscr = ""
-     v-job-po    = "".
-
-    if i eq 1 then
-      assign
-       v-part-dscr = oe-ordl.part-no
-       v-job-po    = tt-boll.po-no.
-
-    else
-    if i eq 2 then
-      assign
-       v-part-dscr = oe-ordl.i-name
-       v-job-po    = if oe-ordl.job-no eq "" then "" else
-                    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
-    
-    else
-    if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
-
-    else
-    if i eq 4 then v-part-dscr = oe-ordl.part-dscr2.
-    
-    if v-part-dscr ne "" or v-job-po ne "" or i le 2 then v-lines = v-lines + 1.
-  end.
-  
-  v-lines = v-lines + 1.
-  */
-
   i = 0.
   for each w2 break by w2.cases:
     i = i + 1.
-  /*
-    assign
-     v-part-dscr = ""
-     v-job-po    = "".
-
-    if i eq 1 then
-      assign
-       v-part-dscr = oe-ordl.part-no
-       v-job-po    = tt-boll.po-no.
-
-    else
-    if i eq 2 then
-      assign
-       v-part-dscr = oe-ordl.i-name
-       v-job-po    = if oe-ordl.job-no eq "" then "" else
-                    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
-
-    else if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
-
-    ELSE if i eq 4 then v-part-dscr = oe-ordl.part-dscr2.
-    
-    DISPLAY trim(string(oe-ordl.qty,"->>,>>>,>>>")) when i eq 1
-                                                    @ oe-ordl.i-no
-            oe-ordl.i-no                            when i eq 2
-            v-job-po
-            v-part-dscr
-            w2.cases
-            w2.cas-cnt
-            tt-boll.qty                             when last(w2.cases)
-            tt-boll.p-c                             when last(w2.cases)        
-        with frame bol-mid.
-    down  with frame bol-mid.
-    
-    v-printline = v-printline + 1.
-    IF v-printline >= 42 THEN DO:
-       v-printline = 0.
-       PAGE {1}.
-       {oe/rep/bolxpr22.i}
-    END.
-    v-tot-cases = v-tot-cases + w2.cases.
-    */
     delete w2.
   end.
 

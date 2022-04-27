@@ -102,25 +102,25 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-fibaud.csv" 
      LABEL "If Yes, File Name" 
@@ -188,11 +188,11 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes
 DEFINE FRAME FRAME-A
      begin_job-no AT ROW 4.33 COL 24 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 4.33 COL 37 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.33 COL 41 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 4.33 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 4.33 COL 79 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.33 COL 84 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      rd-dest AT ROW 12.43 COL 5 NO-LABEL
      lv-ornt AT ROW 12.67 COL 32 NO-LABEL
@@ -695,8 +695,8 @@ END PROCEDURE.
 PROCEDURE run-report :
 {sys/form/r-topw.f}
 
-DEF VAR v-job-no LIKE job.job-no EXTENT 2 INIT ["","zzzzzz"] NO-UNDO.
-DEF VAR v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [00,99] NO-UNDO.
+DEF VAR v-job-no LIKE job.job-no EXTENT 2 INIT ["","zzzzzzzzz"] NO-UNDO.
+DEF VAR v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [000,999] NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 
 DEF BUFFER j-audit FOR reftable.
@@ -708,9 +708,9 @@ ASSIGN
  {sys/inc/ctrtext.i str-tit2 112}
 
   v-job-no[1] = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
-                TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
+                TRIM(begin_job-no) + STRING(INT(begin_job-no2),"999")
   v-job-no[2] = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no)))   +
-                TRIM(end_job-no)   + STRING(INT(end_job-no2),"99").
+                TRIM(end_job-no)   + STRING(INT(end_job-no2),"999").
 
 {sys/inc/print1.i}
 
@@ -731,12 +731,12 @@ DISPLAY "" WITH FRAME r-top.
 
 FOR EACH job NO-LOCK
     WHERE job.company EQ cocode
-      AND job.job-no  GE SUBSTR(v-job-no[1],1,6)
-      AND job.job-no  LE SUBSTR(v-job-no[2],1,6)
+      AND job.job-no  GE SUBSTR(v-job-no[1],1,iJobLen)
+      AND job.job-no  LE SUBSTR(v-job-no[2],1,iJobLen)
       AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) +
-          TRIM(job.job-no) + STRING(INT(job.job-no2),"99") GE v-job-no[1] 
+          TRIM(job.job-no) + STRING(INT(job.job-no2),"999") GE v-job-no[1] 
       AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) +
-          TRIM(job.job-no) + STRING(INT(job.job-no2),"99") LE v-job-no[2]
+          TRIM(job.job-no) + STRING(INT(job.job-no2),"999") LE v-job-no[2]
       AND TRIM(job.est-no) NE ""
     USE-INDEX job-no,
 
@@ -789,8 +789,8 @@ FOR EACH job NO-LOCK
         AND p-audit.company  EQ "po-ordl"
       NO-ERROR.
 
-  DISPLAY TRIM(job-mat.job-no) + "-" + STRING(job-mat.job-no2,"99")
-                                FORMAT "x(9)"       COLUMN-LABEL "Job#"
+  DISPLAY TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-mat.job-no, job-mat.job-no2)))
+                                FORMAT "x(13)"       COLUMN-LABEL "Job#"
           job-mat.i-no                              COLUMN-LABEL "RM Item#"
           job-mat.frm                               COLUMN-LABEL "Form#"
           j-audit.loc           FORMAT "x(8)"       COLUMN-LABEL "User"
@@ -819,7 +819,7 @@ FOR EACH job NO-LOCK
 
    IF tb_excel THEN
       PUT STREAM excel UNFORMATTED
-          '"' TRIM(job-mat.job-no) + "-" + STRING(job-mat.job-no2,"99")           '",'
+          '"' TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-mat.job-no, job-mat.job-no2))) '",'
           '"' job-mat.i-no                                                        '",'
           '"' STRING(job-mat.frm)                                                 '",'
           '"' IF AVAIL j-audit THEN j-audit.loc

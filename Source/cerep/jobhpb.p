@@ -256,8 +256,8 @@ END. /* PROCEDURE PR-ink: */
 
 FOR EACH job NO-LOCK USE-INDEX job
              WHERE job.company                eq cocode
-          and TRIM(job.job-no)                ge TRIM(substr(fjob-no,1,9))
-          and TRIM(job.job-no)                le TRIM(substr(tjob-no,1,9))
+          and job.job-no                      ge substr(fjob-no,1,iJobLen)
+          and job.job-no                      le substr(tjob-no,1,iJobLen)
           and job.stat                        ne "H",
           
    FIRST est NO-LOCK USE-INDEX est-no2

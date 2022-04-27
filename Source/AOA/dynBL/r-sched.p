@@ -37,7 +37,7 @@ DEFINE TEMP-TABLE w-ord
     FIELD t-price LIKE oe-ordl.t-price FORMAT "->>,>>>,>>9"
     FIELD rel-qty LIKE oe-rel.qty
     FIELD rel-date AS CHARACTER FORMAT "x(10)"
-    FIELD job AS CHARACTER FORMAT "x(9)"
+    FIELD job AS CHARACTER FORMAT "x(13)"
     FIELD job-no LIKE oe-ordl.job-no
     FIELD job-no2 LIKE oe-ordl.job-no2
     FIELD rel-no LIKE oe-rel.rel-no
@@ -466,7 +466,7 @@ PROCEDURE pBusinessLogic:
                 w-ord.job-no         = oe-ordl.job-no
                 w-ord.job-no2        = oe-ordl.job-no2
                 w-ord.job            = IF w-ord.job-no EQ "" THEN "" ELSE
-                                      (TRIM(w-ord.job-no) + "-" + STRING(w-ord.job-no2,"99"))
+                                      TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)))
                 w-ord.po-num         = cPONum
                 w-ord.ord-qty        = oe-ordl.qty
                 w-ord.due-date       = oe-ordl.req-date
@@ -657,7 +657,7 @@ PROCEDURE pBusinessLogic:
             CREATE ttScheduledReleases.
             ASSIGN
                 ttScheduledReleases.jobNo           = IF w-ord.job-no EQ "" THEN ""
-                                                      ELSE w-ord.job-no + "-" + STRING(w-ord.job-no2,"99")
+                                                      ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)))
                 ttScheduledReleases.customerName    = w-ord.cust-name
                 ttScheduledReleases.shipTo          = w-ord.ship-id
                 ttScheduledReleases.poNo            = w-ord.po-num

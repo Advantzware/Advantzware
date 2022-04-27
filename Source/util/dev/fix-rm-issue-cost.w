@@ -505,8 +505,8 @@ PROCEDURE run-process :
 DEF BUFFER b-rh FOR rm-rcpth.
 DEF BUFFER b-rd FOR rm-rdtlh.
 
-DEF VAR v-job-no LIKE job.job-no EXTENT 2 INIT ["", "zzzzzz"] NO-UNDO.
-DEF VAR v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [00, 99] NO-UNDO.
+DEF VAR v-job-no LIKE job.job-no EXTENT 2 INIT ["", "zzzzzzzzz"] NO-UNDO.
+DEF VAR v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [000, 999] NO-UNDO.
 
 DEF VAR v-r-qty     AS   DEC                    NO-UNDO.
 DEF VAR v-i-qty     AS   DEC                    NO-UNDO.

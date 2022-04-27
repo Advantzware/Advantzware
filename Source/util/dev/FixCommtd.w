@@ -38,8 +38,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF VAR fjob-no AS CHAR FORMAT "x(8)" NO-UNDO.
-DEF VAR tjob-no AS CHAR FORMAT "x(8)" NO-UNDO.
+DEF VAR fjob-no AS CHAR FORMAT "x(12)" NO-UNDO.
+DEF VAR tjob-no AS CHAR FORMAT "x(12)" NO-UNDO.
 
 DEF VAR fjob-no2 AS INT NO-UNDO.
 DEF VAR tjob-no2 AS INT NO-UNDO.
@@ -504,7 +504,7 @@ SESSION:SET-WAIT-STATE ("general").
 
 FOR EACH job NO-LOCK
    WHERE job.company  EQ cocode
-      AND trim(job.job-no)  EQ trim(ip-job-no)
+      AND job.job-no  EQ ip-job-no
       AND job.job-no2 EQ ip-job-no2,
  EACH job-mat NO-LOCK
    WHERE job-mat.company EQ job.company

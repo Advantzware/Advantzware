@@ -1838,7 +1838,7 @@ PROCEDURE run-report :
         WITH STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP
         FRAME sch-head-vend.
 
-    FORM lv-job-no FORMAT "x(11)"
+    FORM lv-job-no FORMAT "x(13)"
         tt-sched.i-no 
         tt-sched.loc-bin
         tt-sched.i-name FORMAT "x(22)"
@@ -2011,7 +2011,7 @@ PROCEDURE run-report :
             {custom/statusMsg.i " 'Processing PO#  '  + string(tt-sched.po-no) "}
 
             lv-job-no = IF tt-sched.job-no EQ "" THEN ""
-            ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"999").
+            ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-sched.job-no, tt-sched.job-no2))).
 
             /* DISPLAY lv-job-no
                      tt-sched.i-no
@@ -2192,7 +2192,7 @@ PROCEDURE run-report :
                 AND tt-sched.rct-date LE v-end-rcv-date))
                 USE-INDEX i-no BREAK BY tt-sched.i-no:
                 lv-job-no = IF tt-sched.job-no EQ "" THEN ""
-                ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"99").
+                ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-sched.job-no, tt-sched.job-no2))).
 
                 /*  DISPLAY lv-job-no
                           tt-sched.i-no
@@ -2371,7 +2371,7 @@ PROCEDURE run-report :
                 AND tt-sched.rct-date LE v-end-rcv-date))
                 USE-INDEX vend BREAK BY tt-sched.vend-no:
                 lv-job-no = IF tt-sched.job-no EQ "" THEN ""
-                ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"99").
+                ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-sched.job-no, tt-sched.job-no2))).
 
                 IF FIRST-OF(tt-sched.vend-no) THEN 
                 DO:

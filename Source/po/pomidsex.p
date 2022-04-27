@@ -223,7 +223,7 @@ find first po-ctrl where po-ctrl.company eq cocode no-lock.
         if v-job ne "" then
           find last oe-ordl
               where oe-ordl.company eq cocode
-                and trim(oe-ordl.job-no)  eq trim(v-job)
+                and oe-ordl.job-no  eq v-job
                 and oe-ordl.job-no2 eq po-ordl.job-no2
               use-index job no-lock no-error.
 
@@ -246,7 +246,7 @@ find first po-ctrl where po-ctrl.company eq cocode no-lock.
 
         if (line-counter + v-print-lines) gt page-size then page.
 
-        v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job, po-ordl.job-no2))).
+        v-job = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job, po-ordl.job-no2)).
         if trim(v-job) begins "-" then v-job = "".
 
         v-po-tot = v-po-tot + po-ordl.t-cost.
@@ -262,7 +262,7 @@ find first po-ctrl where po-ctrl.company eq cocode no-lock.
              v-len = trunc(po-ordl.s-len,0) + v-len.
 
             FIND FIRST job WHERE job.company = cocode AND
-                                      TRIM(job.job-no) = TRIM(po-ordl.job-no) AND
+                                      job.job-no = po-ordl.job-no AND
                                       job.job-no2 = po-ordl.job-no2
                                  NO-LOCK NO-ERROR.
             IF AVAIL job THEN

@@ -22,6 +22,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
+{sys/inc/var.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -455,8 +456,8 @@ PROCEDURE pProcess PRIVATE :
             fiEndJob-2
             fiBeginItem
             fiEndItem
-            cJobStart = TRIM(fiBeginJob)
-            cJobEnd = TRIM(fiEndJob) 
+            cJobStart = fiBeginJob
+            cJobEnd = fiEndJob 
             .              
     END.
     IF cJobStart NE "" THEN DO:
@@ -489,7 +490,7 @@ FUNCTION fFormatJob RETURNS CHARACTER PRIVATE
                 DEFINE VARIABLE iLen AS INTEGER NO-UNDO.
                 
                 iLen = LENGTH(TRIM(ipcJob)).
-                IF iLen LT 9 THEN DO:
+                IF iLen LT iJobLen THEN DO:
                   cJob = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ipcJob)).
                   IF NOT CAN-FIND(FIRST job NO-LOCK WHERE job.company EQ g_company AND job.job-no EQ cJob) THEN 
                       cJob = ipcJob.

@@ -153,15 +153,15 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_clsdate AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "To Close Date" 
@@ -178,15 +178,15 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-cstshp.csv" 
      LABEL "If Yes, File Name" 
@@ -286,11 +286,11 @@ DEFINE VARIABLE tgl_SumTot AS LOGICAL INITIAL no
 DEFINE FRAME FRAME-A
      begin_job-no AT ROW 2.19 COL 20.8 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 2.19 COL 33 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 2.19 COL 35 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 2.29 COL 60.4 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 2.29 COL 72.6 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.29 COL 74.6 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_cust-no AT ROW 3.38 COL 20.8 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 4
@@ -938,16 +938,16 @@ PROCEDURE gather-data :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR v-job-no  LIKE job.job-no  EXTENT 2 INIT ["", "zzzzzz"] NO-UNDO.
-DEF VAR v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [00, 99]       NO-UNDO.
+DEF VAR v-job-no  LIKE job.job-no  EXTENT 2 INIT ["", "zzzzzzzzz"] NO-UNDO.
+DEF VAR v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [000, 999]       NO-UNDO.
 
 DEF VAR ll AS LOG NO-UNDO.
 
 ASSIGN
     v-job-no[1] = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
-                  TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
+                  TRIM(begin_job-no) + STRING(INT(begin_job-no2),"999")
     v-job-no[2] = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no)))   +
-                  TRIM(end_job-no)   + STRING(INT(end_job-no2),"99"). 
+                  TRIM(end_job-no)   + STRING(INT(end_job-no2),"999"). 
 
 
 EMPTY TEMP-TABLE tt-report.
@@ -955,12 +955,12 @@ EMPTY TEMP-TABLE tt-report.
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ cocode
           AND job-hdr.opened  EQ NO
-          AND job-hdr.job-no  GE SUBSTR(v-job-no[1],1,6)
-          AND job-hdr.job-no  LE SUBSTR(v-job-no[2],1,6)
+          AND job-hdr.job-no  GE SUBSTR(v-job-no[1],1,iJobLen)
+          AND job-hdr.job-no  LE SUBSTR(v-job-no[2],1,iJobLen)
           AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
-              TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"99") GE v-job-no[1]
+              TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"999") GE v-job-no[1]
           AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no)))   +
-              TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"99") LE v-job-no[2]
+              TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"999") LE v-job-no[2]
           AND job-hdr.cust-no GE begin_cust-no 
           AND job-hdr.cust-no LE end_cust-no USE-INDEX opened:
         FIND FIRST job NO-LOCK
@@ -974,7 +974,7 @@ EMPTY TEMP-TABLE tt-report.
         IF NOT AVAIL job THEN NEXT.
 
 
-        STATUS INPUT "  Processing Job#      "  + STRING(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2).
+        STATUS INPUT "  Processing Job#      "  + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
 
       ll = NOT tb_invoiced.
 
@@ -1007,7 +1007,7 @@ EMPTY TEMP-TABLE tt-report.
          tt-report.rec-id = RECID(job-hdr)
          tt-report.key-01 = FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
                             TRIM(job-hdr.job-no) +
-                            STRING(INT(job-hdr.job-no2),"99").
+                            STRING(INT(job-hdr.job-no2),"999").
       END.
     END.
 
@@ -1635,13 +1635,13 @@ FOR EACH tt-report,
 
     {jc/rep/job-clsh.i}
 
-    STATUS INPUT "  Processing............. Job # "  + 
-                  STRING(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2).
+    STATUS INPUT "  Processing............. Job # "  +
+                  TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
 
     IF LAST-OF(tt-report.key-01) AND CAN-FIND(FIRST work-item) THEN DO:
 
         IF NOT tgl_SumTot THEN
-            PUT "   JOB #  ITEM CODE       DESCRIPTION            "
+            PUT "   JOB #       ITEM CODE       DESCRIPTION            "
                 "        CUSTOMER NAME"
                 "                          QTY ORDERED   QTY PRODUCED" SKIP 
                 FILL("-", 132) FORMAT "x(132)" SKIP.
@@ -1660,8 +1660,7 @@ FOR EACH tt-report,
 
             IF NOT tgl_SumTot THEN
               DISPLAY 
-                job.job-no SPACE(0) "-" SPACE(0)
-                job.job-no2
+                TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) FORMAT "X(13)" WHEN TRIM(job.job-no) NE ""
                 work-item.i-no
                 itemfg.i-name WHEN AVAIL itemfg
                 work-item.cust-no

@@ -1149,7 +1149,7 @@ PROCEDURE pFGQuantityAdjust PRIVATE:
             WHERE bf-fg-bin.company EQ ipcCompany
               AND bf-fg-bin.i-no    EQ ipcItemID
               AND bf-fg-bin.onHold  EQ NO
-              AND trim(bf-fg-bin.job-no)  EQ trim(ipcJobNo)
+              AND bf-fg-bin.job-no  EQ ipcJobNo
               AND bf-fg-bin.job-no2 EQ ipiJobNo2
               AND bf-fg-bin.qty     GT 0
             USE-INDEX i-no
@@ -2167,7 +2167,7 @@ PROCEDURE pBuildFGBinForItem PRIVATE:
           AND bf-fg-bin.i-no    EQ bf-itemfg.i-no
           AND ((bf-fg-bin.loc     EQ ipcWarehouseID) OR lIsWarehouseEmpty)
           AND ((bf-fg-bin.loc-bin EQ ipcLocationID)  OR lIsLocationEmpty)
-          AND ((trim(bf-fg-bin.job-no)  EQ trim(ipcJobNo) AND bf-fg-bin.job-no2 EQ ipiJobNo2) OR lIsJobNoEmpty)
+          AND ((bf-fg-bin.job-no  EQ ipcJobNo AND bf-fg-bin.job-no2 EQ ipiJobNo2) OR lIsJobNoEmpty)
           AND (((bf-fg-bin.qty NE 0)  AND NOT iplZeroQtyBins) OR iplZeroQtyBins)
           AND (((bf-fg-bin.tag NE "") AND NOT iplEmptyTags)   OR iplEmptyTags):        
         CREATE ttBrowseInventory.
@@ -2433,15 +2433,35 @@ PROCEDURE Inventory_PostRawMaterials:
     DEFINE BUFFER bf-wiptag               FOR wiptag.
     DEFINE BUFFER bf-ttRawMaterialsToPost FOR ttRawMaterialsToPost.
     
-    DEFINE VARIABLE iNextRNo AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dAvgCost AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE lError   AS LOGICAL NO-UNDO.
-
+    DEFINE VARIABLE iNextRNo   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dAvgCost   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lError     AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cRtnChr    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lRecFound  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lAutoIssue AS LOGICAL NO-UNDO.
+    
     EMPTY TEMP-TABLE ttRawMaterialsToPost.
     EMPTY TEMP-TABLE ttRawMaterialsGLTransToPost.
     
     oplSuccess = TRUE.
     
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany, /* Company Code */ 
+        INPUT "AUTOISSU", /* sys-ctrl name */
+        INPUT "L",        /* Output return value */
+        INPUT NO,         /* Use ship-to */
+        INPUT NO,         /* ship-to vendor */
+        INPUT "",         /* ship-to vendor value */
+        INPUT "",         /* shi-id value */
+        OUTPUT cRtnChr, 
+        OUTPUT lRecFound
+        ).
+    IF lRecFound THEN
+        lAutoIssue = LOGICAL(cRtnChr).
+    
+    IF lAutoIssue EQ ? THEN
+        lAutoIssue = FALSE.
+        
     TRANSACTION-BLOCK:    
     DO TRANSACTION ON ERROR UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK:
         FOR EACH ttBrowseInventory 
@@ -2450,7 +2470,7 @@ PROCEDURE Inventory_PostRawMaterials:
                            WHERE ROWID(rm-rctd) EQ TO-ROWID(ttBrowseInventory.inventoryStockID)):
             RUN pCreateRawMaterialsToPost (
                 INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),
-                INPUT  TRUE, /* AutoIssue */
+                INPUT  lAutoIssue, /* AutoIssue */
                 OUTPUT lError,
                 OUTPUT opcMessage
                 ).
@@ -2463,11 +2483,15 @@ PROCEDURE Inventory_PostRawMaterials:
         RUN pCreateRawMaterialsGLTrans.
         
         FOR EACH ttRawMaterialsToPost
-            WHERE ttRawMaterialsToPost.processed EQ FALSE,
-            FIRST bf-rm-rctd EXCLUSIVE-LOCK
-            WHERE ROWID(bf-rm-rctd) EQ ttRawMaterialsToPost.rmRctdRowID
+            WHERE ttRawMaterialsToPost.processed EQ FALSE
             BREAK BY ttRawMaterialsToPost.sequenceID
                   BY ttRawMaterialsToPost.itemID:
+            /* Joining the below query to for each ttRawMaterialToPost would skip the issues created */                      
+            FIND FIRST bf-rm-rctd EXCLUSIVE-LOCK
+                 WHERE ROWID(bf-rm-rctd) EQ ttRawMaterialsToPost.rmRctdRowID 
+                 NO-ERROR.
+            IF NOT AVAILABLE bf-rm-rctd THEN
+                NEXT.
             
             RUN pPostRawMaterials(
                 INPUT  ttRawmaterialsToPost.rmRctdRowID,
@@ -2813,7 +2837,7 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
                 ASSIGN 
                     ttRawMaterialsGLTransToPost.accountNo = bf-costtype.inv-asset
                     ttRawMaterialsGLTransToPost.memo      = "RM Receipt"
-                    ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"99") ELSE "")
+                    ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"999") ELSE "")
                                                           + (IF bf-rm-rctd.po-no NE "" THEN " PO:" + STRING(bf-rm-rctd.po-no,"999999") + "-" + STRING(bf-rm-rctd.po-line,"999") ELSE "") + " " 
                                                           + " Cost $" + STRING(bf-rm-rctd.cost) + " / " + bf-rm-rctd.cost-uom
                     ttRawMaterialsGLTransToPost.debits    = dExtCost
@@ -2824,7 +2848,7 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
                 ASSIGN 
                     ttRawMaterialsGLTransToPost.accountNo = bf-costtype.ap-accrued
                     ttRawMaterialsGLTransToPost.memo      = "RM Receipt"
-                    ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"99") ELSE "")
+                    ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"999") ELSE "")
                                                           + (IF bf-rm-rctd.po-no NE "" THEN " PO:" + STRING(bf-rm-rctd.po-no,"999999") + "-" + STRING(bf-rm-rctd.po-line,"999") ELSE "") + " " 
                                                           + " Cost $" + STRING(bf-rm-rctd.cost) + " / " + bf-rm-rctd.cost-uom
                     ttRawMaterialsGLTransToPost.credits   = dExtCost.
@@ -2888,7 +2912,7 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
                                 ttRawMaterialsGLTransToPost.jobNo2    = bf-job-hdr.job-no2
                                 ttRawMaterialsGLTransToPost.accountNo = bf-prod.wip-mat
                                 ttRawMaterialsGLTransToPost.memo      = "RM Issue To Job"
-                                ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"99") ELSE "")
+                                ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"999") ELSE "")
                                                                       + (IF bf-rm-rctd.po-no NE "" THEN " PO:" + STRING(bf-rm-rctd.po-no,"999999") + "-" + STRING(bf-rm-rctd.po-line,"999") ELSE "") + " " 
                                                                       + " Cost $" + STRING(bf-rm-rctd.cost) + " / " + bf-rm-rctd.cost-uom
                                 .
@@ -2910,7 +2934,7 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
                                 ttRawMaterialsGLTransToPost.jobNo2    = bf-job-hdr.job-no2
                                 ttRawMaterialsGLTransToPost.accountNo = bf-costtype.inv-asset
                                 ttRawMaterialsGLTransToPost.memo      = "RM Issue To Job"
-                                ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"99") ELSE "")
+                                ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"999") ELSE "")
                                                                       + (IF bf-rm-rctd.po-no NE "" THEN " PO:" + STRING(bf-rm-rctd.po-no,"999999") + "-" + STRING(bf-rm-rctd.po-line,"999") ELSE "") + " " 
                                                                       + " Cost $" + STRING(bf-rm-rctd.cost) + " / " + bf-rm-rctd.cost-uom
                                 .
@@ -3855,7 +3879,7 @@ PROCEDURE Inventory_CheckPOUnderOver:
     FOR EACH fg-rctd NO-LOCK
         WHERE fg-rctd.company     EQ ipcCompany 
           AND(fg-rctd.rita-code   EQ "R" OR fg-rctd.rita-code EQ "E")
-          AND TRIM(fg-rctd.job-no)EQ ipcJobNo
+          AND fg-rctd.job-no      EQ ipcJobNo
           AND fg-rctd.job-no2     EQ ipiJobNo2
           AND fg-rctd.i-no        EQ ipcItem
           AND fg-rctd.po-no       EQ ipcPoNo
@@ -3871,7 +3895,7 @@ PROCEDURE Inventory_CheckPOUnderOver:
           AND po-ordl.po-no     EQ INTEGER(ipcPoNo)
           AND po-ordl.LINE      EQ ipiPoLine
           AND po-ordl.i-no      EQ ipcItem
-          AND trim(po-ordl.job-no) EQ ipcJobNo
+          AND po-ordl.job-no    EQ ipcJobNo
           AND po-ordl.job-no2   EQ ipiJobNo2
           AND po-ordl.item-type EQ NO
         NO-ERROR.
@@ -3951,7 +3975,7 @@ PROCEDURE Inventory_CheckJobUnderOver:
     FOR EACH fg-rctd NO-LOCK
         WHERE fg-rctd.company     EQ ipcCompany 
           AND(fg-rctd.rita-code   EQ "R" OR fg-rctd.rita-code EQ "E")
-          AND TRIM(fg-rctd.job-no)EQ ipcJobNo
+          AND fg-rctd.job-no      EQ ipcJobNo
           AND fg-rctd.job-no2     EQ ipiJobNo2
           AND fg-rctd.i-no        EQ ipcItem
           AND fg-rctd.po-no       EQ ipcPoNo
@@ -3963,7 +3987,7 @@ PROCEDURE Inventory_CheckJobUnderOver:
     FIND FIRST job-hdr NO-LOCK
          WHERE job-hdr.company EQ ipcCompany                       
            AND job-hdr.i-no    EQ ipcItem
-           AND trim(job-hdr.job-no) EQ ipcJobNo
+           AND job-hdr.job-no  EQ ipcJobNo
            AND job-hdr.job-no2 EQ ipiJobNo2
         NO-ERROR.
     IF AVAILABLE job-hdr THEN DO: 
@@ -4103,7 +4127,7 @@ PROCEDURE Inventory_GetReceivedQuantityPO:
     
    FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK 
        WHERE fg-rcpth.company   EQ ipcCompany
-         AND trim(fg-rcpth.job-no) EQ trim(ipcJobNo)
+         AND fg-rcpth.job-no    EQ ipcJobNo
          AND fg-rcpth.job-no2   EQ ipiJobNo2
          AND fg-rcpth.po-no     EQ ipcPoNo
          AND fg-rcpth.po-line   EQ ipiPoLine
@@ -4673,7 +4697,7 @@ PROCEDURE pPostRawMaterials PRIVATE:
                     ASSIGN
                         oplSuccess = FALSE
                         opcMessage = "Job Mat Record not found for "
-                                   + STRING(bf-job.job-no + "-" + STRING(bf-job.job-no2,"99") + "  " + bf-rm-rctd.i-no)
+                                   + STRING(bf-job.job-no + "-" + STRING(bf-job.job-no2,"999") + "  " + bf-rm-rctd.i-no)
                         .
 
                     UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
@@ -5027,16 +5051,31 @@ PROCEDURE pCreateRawMaterialsToPost PRIVATE:
                    AND bf-po-ordl.job-no2   EQ bf-rm-rctd.job-no2
                    AND bf-po-ordl.item-type EQ YES
                  USE-INDEX item-ordno NO-ERROR.
+            IF NOT AVAILABLE bf-po-ordl THEN
+                FIND FIRST bf-po-ordl NO-LOCK 
+                     WHERE bf-po-ordl.company   EQ bf-rm-rctd.company
+                       AND bf-po-ordl.i-no      EQ bf-rm-rctd.i-no
+                       AND bf-po-ordl.po-no     EQ INTEGER(bf-rm-rctd.po-no)
+                       AND bf-po-ordl.job-no    EQ TRIM(bf-rm-rctd.job-no)
+                       AND bf-po-ordl.job-no2   EQ bf-rm-rctd.job-no2
+                       AND bf-po-ordl.item-type EQ YES
+                     USE-INDEX item-ordno NO-ERROR.
         END.
         
         IF bf-item.mat-type NE "I" OR AVAILABLE bf-po-ordl THEN DO:
             IF bf-item.i-code EQ "E" AND NOT AVAILABLE bf-po-ordl THEN
-                LEAVE.
+                RETURN.
 
             IF bf-item.i-code EQ "R" AND NOT iplAutoIssue THEN
-                LEAVE.
+                RETURN.
         END.
-                
+        
+        /* Added additional logic with AutoIssue */
+        IF NOT iplAutoIssue THEN DO:
+            IF NOT (bf-item.i-code EQ "E" AND bf-rm-rctd.tag EQ "") THEN
+                RETURN.
+        END.
+        
         IF bf-rm-rctd.job-no NE "" AND bf-rm-rctd.s-num EQ ? THEN
             FIND FIRST bf-job NO-LOCK
                  WHERE bf-job.company EQ bf-rm-rctd.company
@@ -5088,8 +5127,10 @@ PROCEDURE pCreateRawMaterialsToPost PRIVATE:
 
             IF AVAILABLE bf-po-ord AND bf-po-ord.TYPE <> "S" THEN
                 bf-ttRawMaterialsToPost.poID = "".
+            
+            IF dTotalJobMatQty NE 0 THEN /* Verifying value is 0, so quantity is not updated with ? */
+                bf-ttRawMaterialsToPost.quantity = ttRawMaterialsToPost.quantity * ( bf-ttRawMaterialsToPost.quantity / dTotalJobMatQty).
                 
-            bf-ttRawMaterialsToPost.quantity = ttRawMaterialsToPost.quantity * ( bf-ttRawMaterialsToPost.quantity / dTotalJobMatQty).
             IF bf-rm-rctd.pur-uom EQ "EA" THEN DO:
                 IF (bf-ttRawMaterialsToPost.quantity - INTEGER(bf-ttRawMaterialsToPost.quantity)) > 0 THEN
                     bf-ttRawMaterialsToPost.quantity = INTEGER(bf-ttRawMaterialsToPost.quantity) + 1.
@@ -5658,7 +5699,7 @@ PROCEDURE pBuildFGInventoryStockForItem PRIVATE:
                     inventoryStock.costStandardVOH            = fg-rdtlh.std-var-cost
                     inventoryStock.costStandardFOH            = fg-rdtlh.std-fix-cost
 /*                     inventoryStock.sourceID                   = IF fg-rcpth.job-no NE "" THEN */
-/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(fg-rcpth.job-no)))) + STRING(fg-rcpth.job-no2,"99") */
+/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(fg-rcpth.job-no)))) + STRING(fg-rcpth.job-no2,"999") */
 /*                                                                 ELSE */
 /*                                                                     "" */
                     inventoryStock.sourceID                   = fg-rdtlh.rec_key
@@ -5803,7 +5844,7 @@ PROCEDURE pBuildRMInventoryStockForItem PRIVATE:
                     inventoryStock.basisWeightUOM             = gcUOMWeightBasis
                     inventoryStock.weightUOM                  = gcUOMWeight
 /*                     inventoryStock.sourceID                   = IF rm-rcpth.job-no NE "" THEN */
-/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(rm-rcpth.job-no)))) + STRING(rm-rcpth.job-no2,"99") */
+/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(rm-rcpth.job-no)))) + STRING(rm-rcpth.job-no2,"999") */
 /*                                                                 ELSE */
 /*                                                                     "" */
                     inventoryStock.sourceID                   = rm-rdtlh.rec_key
@@ -6524,7 +6565,7 @@ PROCEDURE CreatePrintInventory:
             ttPrintInventoryStock.jobNumber    = LEFT-TRIM(TRIM(inventoryStock.jobID))
             ttPrintInventoryStock.jobNumber    = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ttPrintInventoryStock.jobNumber)) 
             ttPrintInventoryStock.jobRunNumber = inventoryStock.jobID2
-            ttPrintInventoryStock.jobID        = ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"99")
+            ttPrintInventoryStock.jobID        = ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"999")
             ttPrintInventoryStock.jobIDTrimmed = LEFT-TRIM(ttPrintInventoryStock.jobID)
             ttPrintInventoryStock.jobIDFull    = ttPrintInventoryStock.jobID + "." + STRING(inventoryStock.formNo,"99") + "." + STRING(inventoryStock.blankNo,"99")
             ttPrintInventoryStock.jobIDFullTrimmed = LEFT-TRIM(ttPrintInventoryStock.jobIDFull) 
@@ -7046,7 +7087,7 @@ PROCEDURE CreateTransactionInitializedFromJob:
 
     FIND FIRST job-hdr NO-LOCK
          WHERE job-hdr.company  EQ ipcCompany
-           AND trim(job-hdr.job-no)   EQ trim(ipcJobno)
+           AND job-hdr.job-no   EQ ipcJobno
            AND job-hdr.job-no2  EQ ipiJobno2
     NO-ERROR.
     IF NOT AVAILABLE job-hdr THEN DO:
@@ -8382,7 +8423,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
     IF iplUseInventoryTables THEN DO:
         FOR EACH inventoryStock NO-LOCK
            WHERE inventoryStock.company   EQ ipcCompany
-             AND trim(inventoryStock.jobID) EQ trim(ipcJobno)
+             AND inventoryStock.jobID     EQ ipcJobno
              AND inventoryStock.jobID2    EQ ipiJobno2   
              AND (IF ipcMachine           EQ "" THEN TRUE 
                   ELSE inventoryStock.MachineID EQ ipcMachine)
@@ -8401,7 +8442,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
               AND bf-rm-rctd.rita-code EQ ipcTransactionType
               AND bf-rm-rctd.qty       GT 0
               AND bf-rm-rctd.tag       NE ''
-              AND trim(bf-rm-rctd.job-no) EQ trim(ipcJobNo)
+              AND bf-rm-rctd.job-no    EQ ipcJobNo
               AND bf-rm-rctd.job-no2   EQ ipiJobNo2
               AND bf-rm-rctd.s-num     EQ ipiFormNo
               AND bf-rm-rctd.b-num     EQ ipiBlankNo
@@ -8511,7 +8552,7 @@ PROCEDURE RebuildWIPBrowseTT:
     
     FOR EACH inventoryStock NO-LOCK
        WHERE inventoryStock.company   EQ ipcCompany
-         AND trim(inventoryStock.jobID) EQ trim(ipcJobno)
+         AND inventoryStock.jobID     EQ ipcJobno
          AND inventoryStock.jobID2    EQ ipiJobno2   
          AND (IF ipcMachine           EQ "" THEN TRUE 
               ELSE inventoryStock.MachineID EQ ipcMachine)
@@ -8782,8 +8823,8 @@ PROCEDURE pGetWIPID PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttInventoryStockPreLoadtag FOR ttInventoryStockPreLoadtag.
     DEFINE OUTPUT PARAMETER opcWIPID AS CHARACTER NO-UNDO.
 
-    opcWIPID = STRING(ipbf-ttInventoryStockPreLoadtag.machineID,"x(6)") + STRING(ipbf-ttInventoryStockPreLoadtag.jobID,"x(6)") 
-        + STRING(ipbf-ttInventoryStockPreLoadtag.jobID2,"99") + STRING(ipbf-ttInventoryStockPreLoadtag.formNo,"99")  
+    opcWIPID = STRING(ipbf-ttInventoryStockPreLoadtag.machineID,"x(6)") + STRING(ipbf-ttInventoryStockPreLoadtag.jobID,"x(9)") 
+        + STRING(ipbf-ttInventoryStockPreLoadtag.jobID2,"999") + STRING(ipbf-ttInventoryStockPreLoadtag.formNo,"99")  
         + STRING(ipbf-ttInventoryStockPreLoadtag.blankNo,"99").
 
     IF TRIM(opcWIPID) EQ "" THEN opcWIPID = "WIPITEM".

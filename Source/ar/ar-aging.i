@@ -56,7 +56,7 @@ DEFINE VARIABLE v-tr-dscr AS CHAR NO-UNDO.
 DEFINE VARIABLE v-check-date AS DATE NO-UNDO.
 DEFINE VARIABLE v-gltrans-desc AS CHAR FORMAT "X(60)" NO-UNDO.
 DEFINE VARIABLE cPoNo LIKE ar-inv.po-no NO-UNDO.
-DEFINE VARIABLE cJobStr AS CHAR FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE cJobStr AS CHAR FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE lv-text AS CHAR NO-UNDO.
 DEFINE VARIABLE v-Inv-note AS CHAR FORM "x(80)" EXTENT 8 NO-UNDO.
 DEFINE VARIABLE v-Collection-note AS CHAR FORM "x(80)" EXTENT 8 NO-UNDO.
@@ -334,7 +334,7 @@ DEF TEMP-TABLE tt-factored
                 IF ar-invl.po-no GT "" THEN ASSIGN 
                     cPoNo   = ar-invl.po-no.
                 IF ar-invl.job-no GT "" THEN
-                    cJobStr = ar-invl.job-no + "-" + STRING(ar-invl.job-no2, "99").
+                    cJobStr = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ar-invl.job-no, ar-invl.job-no2))).
             END.
 
             assign
@@ -500,8 +500,8 @@ DEF TEMP-TABLE tt-factored
                    END.
                END.
            END.
-           IF v-print-job AND cJobStr GT "" AND trim(cJobStr) NE "-00" THEN 
-               PUT " Job# " FORMAT "x(6)" cJobStr   .
+           IF v-print-job AND cJobStr GT "" AND trim(cJobStr) NE "-000" THEN 
+               PUT " Job# " FORMAT "x(13)" cJobStr   .
            IF v-print-cust-po OR v-print-job THEN 
                PUT SKIP.
        END.
