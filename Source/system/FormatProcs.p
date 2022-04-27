@@ -886,7 +886,7 @@ PROCEDURE pJobFormat PRIVATE:
 
     opcJobValue = FILL(" ", iJobLen - LENGTH(TRIM(ipcJobValue))) + TRIM(ipcJobValue).
 
-    opcJob2Value = TRIM(STRING(ipiJob2Value,"999")).
+    opcJob2Value = TRIM(STRING(ipiJob2Value,">99")).
     
 END PROCEDURE.
 
