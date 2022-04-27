@@ -39,6 +39,7 @@ DEFINE SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 DEFINE VARIABLE saveNoteCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ip-rec_key AS CHARACTER NO-UNDO.
 {custom/globdefs.i}
+{sys/inc/var.i new shared}
 
 DEF TEMP-TABLE tt-notes LIKE notes.
 
@@ -698,7 +699,8 @@ PROCEDURE valid-note_form_no PRIVATE :
       /* Check if ls-header is a job-no (not an est-no). */
       FIND FIRST b1-job NO-LOCK
            WHERE b1-job.company = g_company
-             AND b1-job.job-no  = STRING (ls-header1, 'x(6)') NO-ERROR.
+             AND b1-job.job-no  = FILL(" ", iJobLen - length(trim(ls-header1))) + trim(ls-header1)
+             NO-ERROR.
 
       /* If it is a job-no: */
       IF AVAIL b1-job THEN DO:

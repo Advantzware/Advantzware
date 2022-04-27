@@ -1387,7 +1387,7 @@ IF tb_excel THEN
                   WHEN "case-count" THEN cVarValue = string(v-case-count). 
                   WHEN "pallet-count" THEN cVarValue = string(v-pallet-count).
                   WHEN "skid-count" THEN cVarValue = string(v-skid-count).
-                  WHEN "job" THEN cVarValue = STRING(TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")).
+                  WHEN "job" THEN cVarValue = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
                   WHEN "act-rel-qty" THEN cVarValue = string(v-act-rel-qty).
                   WHEN "wip-qty" THEN cVarValue = string(v-wip-qty).
                   WHEN "pct" THEN cVarValue = string(v-pct).

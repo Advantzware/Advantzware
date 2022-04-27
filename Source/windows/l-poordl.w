@@ -29,7 +29,7 @@ def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 
 &scoped-define fld-name-1 po-ordl.po-no
 &scoped-define fld-name-2 po-ordl.i-no
-&scoped-define fld-name-3 trim(po-ordl.job-no)
+&scoped-define fld-name-3 po-ordl.job-no
 &scoped-define SORTBY-1 BY {&fld-name-1}
 &scoped-define SORTBY-2 BY {&fld-name-2}
 &scoped-define SORTBY-3 BY {&fld-name-3}

@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE     vlShipNotice    AS LOGICAL  NO-UNDO.
 DEFINE VARIABLE gvlAddStatus AS LOGICAL     NO-UNDO.
 DEFINE SHARED VAR   vrPhone         AS CHAR    NO-UNDO.
+DEFINE SHARED VAR   cEmailTo        AS CHAR    NO-UNDO.
 DEF BUFFER b-phone FOR phone.
 /* DEFINE VARIABLE     vrPhone         AS RECID    NO-UNDO. */
 define var vHeaderValue as cha no-undo.
@@ -68,9 +69,9 @@ define var vHeaderValue as cha no-undo.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table emailcod.emailcod ~
 emailcod.description CheckNotice() @ vlShipNotice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} and can-do(emailcod.emailTo,cEmailTo) NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} and can-do(emailcod.emailTo,cEmailTo) NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table emailcod
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table emailcod

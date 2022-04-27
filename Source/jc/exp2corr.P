@@ -240,53 +240,10 @@ PUT UNFORMATTED download-record1 SKIP.
 
 ORDLOOP:
 FOR EACH tt-job-hdr,
-    FIRST job-hdr WHERE ROWID(job-hdr) = tt-job-hdr.jobhdr-rowid
-    /*job-hdr no-lock
-    WHERE not can-find(first asi2corr where asi2corr.company = job-hdr.company
-            and asi2corr.job-no = job-hdr.job-no
-            and asi2corr.job-no2 = job-hdr.job-no2)*/  :
+    FIRST job-hdr WHERE ROWID(job-hdr) = tt-job-hdr.jobhdr-rowid:
     
-    /*  
-    /* IF NOT can-find(FIRST reftable */
-  /*                   WHERE reftable.reftable EQ "asi2corr.p" */
-  /*                     AND reftable.company  EQ job-hdr.company */
-  /*                     AND reftable.loc      EQ job-hdr.job-no */
-  /*                     AND reftable.code     EQ STRING(job-hdr.job-no2,"99") */
-  /*                     AND reftable.code2    EQ oe-ordm.charge */
-  /*    */
-  /*   THEN DO: */
-  /*       CREATE reftable. */
-  /*       ASSIGN reftable.reftable = "oe/ordlmisc.p" */
-  /*              reftable.company  = oe-ordm.company */
-  /*              reftable.loc      = STRING(oe-ordm.ord-no,"9999999999") */
-  /*              reftable.code     = STRING(oe-ordm.line,"9999999999") */
-  /*              reftable.code2    = oe-ordm.charge */
-  /*              reftable.val[1] = 1 */
-  /*              reftable.val[2]   = est-prep.eqty */
-  /*              reftable.val[3]   = est-prep.line */
-  /*              reftable.dscr     = est-prep.est-no. */   
-     */
-   
-    /*
-    FIND PRODUCTION-MASTER
-        WHERE PRODUCTION-MASTER.PRODUCTION-NUMBER = ORDERS.PRODUCTION-NUMBER
-            NO-LOCK NO-ERROR NO-WAIT.
-    IF NOT AVAILABLE PRODUCTION-MASTER THEN NEXT ORDLOOP.
-    
-    FIND CUSTOMER
-        WHERE CUSTOMER.CUSTOMER-NUMBER = ORDERS.CUSTOMER-NUMBER
-             NO-LOCK NO-ERROR NO-WAIT.
-    IF NOT AVAILABLE CUSTOMER THEN NEXT ORDLOOP.
-    */
-
-    /*DOWNLOAD-TYPE = "D".
-    WORK1 = ORDERS.ORDER-NUMBER + "          ".
-    DOWNLOAD-ORDER-ID = SUBSTRING(WORK1,1,10).
-    */
-
     ASSIGN
-        jobNumber                         = (IF LENGTH(TRIM(job-hdr.job-no)) < 6 THEN FILL(" ", 6 - length(job-hdr.job-no))
-           ELSE "") +   trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99") + " "
+        jobNumber = DYNAMIC-FUNCTION("sfFormat_FilledJobWithHyphen",job-hdr.job-no,job-hdr.job-no2)
         download-record2                  = ""
         SUBSTRING(DOWNLOAD-RECORD2,1,1)   = "D"
         SUBSTRING(download-record2,30,10) = jobNumber.
@@ -366,11 +323,9 @@ FOR EACH tt-job-hdr,
                                  ELSE "      "
 v-len = {sys/inc/k16.i ef.gsh-len} * 100                                 
 v-wid = {sys/inc/k16.i ef.gsh-wid} * 100
-            SUBSTRING(download-record1,30,10) = /*string(jobNumber,"x(10)")*/
-   (IF LENGTH(TRIM(job-hdr.job-no)) < 6 THEN FILL(" ", 6 - length(job-hdr.job-no))
-           ELSE "") + trim(job-hdr.job-no) + string(job-hdr.job-no2,"99") + string(ef.form-no,"99")
-SUBSTRING(download-record1,40,6) = STRING(v-wid) /*BLANK WIDTH. 16ths*/ 
-SUBSTRING(download-record1,46,6) = STRING(v-len)/* BLANK LENGTH*/
+            SUBSTRING(download-record1,30,10) = DYNAMIC-FUNCTION("sfFormat_FilledJobWithoutHyphen",job-hdr.job-no,job-hdr.job-no2) + string(ef.form-no,"99")
+            SUBSTRING(download-record1,40,6) = STRING(v-wid) /*BLANK WIDTH. 16ths*/ 
+            SUBSTRING(download-record1,46,6) = STRING(v-len)/* BLANK LENGTH*/
             SUBSTRING(download-record1,52,20) = cust.NAME
             SUBSTRING(download-record1,72,10) = job-hdr.cust-no
             SUBSTRING(download-record1,82,10) = job-hdr.po-no  /*cust-po*/

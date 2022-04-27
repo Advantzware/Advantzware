@@ -1057,6 +1057,7 @@ PROCEDURE display-items :
 
   DEF BUFFER b-oe-ordl-2 FOR oe-ordl.
   DEF BUFFER b-oe-rell-2 FOR oe-rell.
+  DEF BUFFER bf-oe-ord FOR oe-ord.
 
   assign qty-ordered = 0
          qty-rel = 0
@@ -1096,7 +1097,22 @@ PROCEDURE display-items :
   cGenTime = REPLACE(cGenTime, ":","") .
   cDockTime  = trim(cGenTime).
   
-  display qty-ordered qty-rel qty-ship qty-oh dtDockDate cDockTime with frame {&frame-name}.
+  IF AVAIL b-oe-rell-2 AND b-oe-rell-2.frt-pay NE "" THEN
+  freight_term = b-oe-rell-2.frt-pay  .
+  ELSE IF AVAIL b-oe-rell-2 THEN
+  do:
+     FIND FIRST bf-oe-ord NO-LOCK
+           WHERE bf-oe-ord.company EQ cocode
+             AND bf-oe-ord.ord-no EQ b-oe-rell-2.ord-no NO-ERROR.
+     IF AVAILABLE bf-oe-ord AND bf-oe-ord.frt-pay NE "" THEN
+     freight_term = bf-oe-ord.frt-pay.
+  END.
+  freight_term = IF freight_term EQ "P" THEN "Prepaid"
+                 ELSE IF freight_term EQ "B" THEN "Bill"
+                 ELSE IF freight_term EQ "T" THEN "3rd Party"
+                 ELSE "Collect" .
+  
+  display qty-ordered qty-rel qty-ship qty-oh dtDockDate cDockTime freight_term with frame {&frame-name}.
 
 END PROCEDURE.
 

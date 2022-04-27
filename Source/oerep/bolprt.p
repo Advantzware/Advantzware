@@ -1060,7 +1060,7 @@ PROCEDURE barcode-proc :
             "~"" removeChars(STRING(oe-bolh.tot-pallets)) "~","
             "~"" removeChars(STRING(oe-bolh.tot-wt)) "~","
             "~"" removeChars(STRING(oe-boll.ord-no)) "~","
-            "~"" removeChars(TRIM(oe-boll.job-no)) + "-" + removeChars(STRING(oe-boll.job-no2,"99")) "~",".
+            "~"" removeChars(TRIM(oe-boll.job-no)) + "-" + removeChars(STRING(oe-boll.job-no2,"999")) "~",".
 
         FIND FIRST oe-ord WHERE
              oe-ord.company EQ oe-boll.company AND

@@ -2560,7 +2560,7 @@ PROCEDURE pPrintDetail :
             NO-LOCK:
              
             IF rm-rcpth.job-no NE "" THEN
-                cJobNo =  rm-rcpth.job-no + "-" + STRING(rm-rcpth.job-no2,"99") .        
+                cJobNo = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', rm-rcpth.job-no, rm-rcpth.job-no2))) .        
             ELSE 
                 cJobNo = "".
                
@@ -2629,7 +2629,7 @@ PROCEDURE pPrintDetail :
             NO-LOCK:
                   
             IF fg-rcpth.job-no NE "" THEN
-                cJobNo =  fg-rcpth.job-no + "-" + STRING(fg-rcpth.job-no2,"999") .        
+                cJobNo = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rcpth.job-no, fg-rcpth.job-no2))).        
             ELSE 
                 cJobNo = "".
                 

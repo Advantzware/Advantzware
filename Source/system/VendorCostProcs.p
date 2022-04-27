@@ -1207,6 +1207,9 @@ PROCEDURE VendCost_CreateVendItemCostLevel:
     DEFINE INPUT PARAMETER iplUseForBestCost AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opriVendItemCostLevel AS ROWID NO-UNDO.
     
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO.
+    
     RUN pCreateVendItemCostLevel (ipiVendItemCostID,
         ipdQuantityBase,
         ipdCostPerUOM,
@@ -1215,6 +1218,8 @@ PROCEDURE VendCost_CreateVendItemCostLevel:
         ipiLeadTimeDays,
         iplUseForBestCost,
         OUTPUT opriVendItemCostLevel).
+    
+    RUN RecalculateFromAndTo (ipiVendItemCostID, OUTPUT lReturnError, OUTPUT cReturnMessage).
     
 END PROCEDURE.
 
@@ -2605,12 +2610,19 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
     
     RUN spGetSettingByName ("DefaultVendorCostStatusFGIApproval", OUTPUT cDefaultVendorCostStatusFGIApproval).
         
-    &SCOPED-DEFINE RequiredCriteria WHERE opbf-vendItemCost.company EQ ipcCompany ~
-                                AND opbf-vendItemCost.itemID EQ ipcItemID ~
-                                AND opbf-vendItemCost.itemType EQ ipcItemType ~
-                                AND opbf-vendItemCost.effectiveDate LE TODAY ~
-                                AND (opbf-vendItemCost.expirationDate GE TODAY OR opbf-vendItemCost.expirationDate EQ ? OR opbf-vendItemCost.expirationDate EQ 01/01/0001) ~
-                                AND ((opbf-vendItemCost.approved and cDefaultVendorCostStatusFGIApproval EQ "Yes" AND opbf-vendItemCost.itemType EQ "FG") OR cDefaultVendorCostStatusFGIApproval EQ "No" OR opbf-vendItemCost.itemType EQ "RM" )
+    &SCOPED-DEFINE RequiredCriteria ~
+    WHERE opbf-vendItemCost.company           EQ ipcCompany ~
+      AND opbf-vendItemCost.itemID            EQ ipcItemID ~
+      AND opbf-vendItemCost.itemType          EQ ipcItemType ~
+      AND opbf-vendItemCost.effectiveDate     LE TODAY ~
+      AND (opbf-vendItemCost.expirationDate   GE TODAY ~
+       OR opbf-vendItemCost.expirationDate    EQ ? ~
+       OR opbf-vendItemCost.expirationDate    EQ 01/01/0001) ~
+      AND ((opbf-vendItemCost.approved        EQ YES ~
+      AND cDefaultVendorCostStatusFGIApproval EQ "Yes" ~
+      AND opbf-vendItemCost.itemType          EQ "FG") ~
+       OR cDefaultVendorCostStatusFGIApproval EQ "No" ~
+       OR opbf-vendItemCost.itemType          EQ "RM")
 
     ASSIGN 
         lIsRM        = ipcItemType EQ gcItemTypeRM

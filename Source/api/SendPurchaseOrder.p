@@ -727,7 +727,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cJobDescriptionKiwiT        = STRING(po-ordl.po-no,"99999999")
                                               + "-" + STRING(po-ordl.LINE,"99") + "/" 
                                               + IF po-ordl.job-no EQ "" THEN "" ELSE 
-                                              TRIM(STRING(po-ordl.job-no, "X(6)")) + "-" + STRING(po-ordl.job-no2,"99") 
+                                              DYNAMIC-FUNCTION("sfFormat_TrimmedJobWithHyphen",po-ordl.job-no,po-ordl.job-no2) 
                                               + "-" + STRING(po-ordl.s-num,"99")
                 cGLAccountNumber            = po-ordl.actnum                                
                 cScoreSizeDecimal           = ""
@@ -1036,7 +1036,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                     ).
            
                 cJobConcatSmurfit = (IF SUBSTRING(cOperationID,1,1) NE "" THEN SUBSTRING(cOperationID,1,1) + "-" ELSE "") +
-                                     TRIM(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2,"99").
+                                     DYNAMIC-FUNCTION("sfFormat_TrimmedJobWithHyphen",po-ordl.job-no,po-ordl.job-no2).
             END.
             /* Fetch purchase order notes from notes table */    
             FOR EACH notes NO-LOCK
@@ -1049,10 +1049,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cPoNotesKiwi1 = TRIM(po-ordl.dscr[1]) + " " + TRIM(po-ordl.dscr[2]) + " " + cPoNotesKiwi
                 cPoLineNotes  = REPLACE(cPoLineNotes, CHR(10)," ")
                 cPoLineNotes  = REPLACE(cPoLineNotes, CHR(13)," ")
-                cPoNotesHRMS  = IF cPoNotesHRMS EQ "" THEN
-                                    cPoLineNotes
-                                ELSE
-                                    cPoNotesHRMS + " " + cPoLineNotes
+                cPoNotesHRMS  = cPoNotes + " " + cPoLineNotes
                 .      
             cPoLineNotes1 = cPoLineNotes.
             IF cPoLineNotes EQ "" THEN

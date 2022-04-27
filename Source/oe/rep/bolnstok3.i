@@ -110,9 +110,6 @@ ELSE DO:
     if i eq 2 then
       assign
        v-part-dscr = oe-ordl.i-name.
-       /*v-job-po    = if oe-ordl.job-no eq "" then "" else
-                    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))*/
-    
     else
     if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
 
@@ -151,9 +148,7 @@ ELSE DO:
     if i eq 2 then
       assign
        v-part-dscr = oe-ordl.i-name
-       v-job-po = string(tt-boll.ord-no)
-        /*v-job-po    = if oe-ordl.job-no eq "" then "" else
-                    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))*/.
+       v-job-po = string(tt-boll.ord-no).
 
     else if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
 
@@ -209,9 +204,7 @@ ELSE DO:
     if i eq 2 then
       assign
        v-part-dscr = oe-ordl.i-name
-       v-job-po = STRING(tt-boll.ord-no)
-       /*v-job-po    = if oe-ordl.job-no eq "" then "" else
-                    (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))*/.
+       v-job-po = STRING(tt-boll.ord-no).
 
     else
     if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
@@ -222,10 +215,6 @@ ELSE DO:
     else
     if i eq 5 then v-part-dscr = itemfg.part-dscr3.
     
-/*     IF i = 2 AND v-job-po = "" THEN                                            */
-/*       /*v-job-po = if tt-boll.job-no eq "" then "" else                        */
-/*                 (trim(tt-boll.job-no) + "-" + string(tt-boll.job-no2,"99"))*/. */
-
     if v-part-dscr ne "" or v-job-po ne "" or i le 2 then do:
       IF v-printline >= 39 THEN DO:
         v-printline = 0.

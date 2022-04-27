@@ -63,7 +63,7 @@
 
     /* Formats Job number */
     iopcJobID = DYNAMIC-FUNCTION (
-               "fAddSpacesToString" IN hdJobProcs , iopcJobID , 6 , TRUE
+               "fAddSpacesToString" IN hdJobProcs , iopcJobID , iJobLen , TRUE
                ). 
     
     IF ipiQuantityPerSubUnit EQ 0 THEN

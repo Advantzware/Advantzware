@@ -497,7 +497,7 @@ FOR EACH work-rep BREAK BY work-rep.sort-field
          FIND FIRST cust no-lock
               WHERE cust.company EQ cocode 
               AND cust.cust-no EQ work-rep.cust-no NO-ERROR .
-         cJobNo = string(work-rep.job-no) + "-" + STRING(work-rep.job-no2,"99") . 
+         cJobNo = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', work-rep.job-no, work-rep.job-no2))). 
          
          
         ASSIGN cDisplay = ""
@@ -533,7 +533,7 @@ FOR EACH work-rep BREAK BY work-rep.sort-field
                          WHEN "scr-qty"   THEN cVarValue = IF work-rep.qty-scrap-rec <> ? THEN STRING(work-rep.qty-scrap-rec,"->>>>>>>>9") ELSE "".
                          WHEN "scr-msf"  THEN cVarValue = IF work-rep.msf-scrap-rec <> ? THEN STRING(work-rep.msf-scrap-rec,"->>>>>.999") ELSE "".
                          WHEN "tot-scrap"   THEN cVarValue = IF work-rep.perc-total-scrap <> ? THEN STRING(work-rep.perc-total-scrap,"->>>>9.99") ELSE "" .
-                         WHEN "job-no"   THEN cVarValue = string(cJobNo,"x(10)").
+                         WHEN "job-no"   THEN cVarValue = string(cJobNo,"x(13)").
                          WHEN "job-dscr"   THEN cVarValue = string(work-rep.i-name,"x(30)").
                          WHEN "cust-no"   THEN cVarValue = string(work-rep.cust-no,"x(8)").
                          WHEN "cust-name"   THEN cVarValue = IF AVAIL cust THEN string(cust.NAME,"x(30)") ELSE "" .

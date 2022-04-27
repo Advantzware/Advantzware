@@ -1594,5 +1594,33 @@
     "hostSSHKey": "",
     "useLocationValidation": false,
     "autoIncrement": false
+  },
+  {
+    "rec_key": "202204196469809192029",
+    "apiID": "SendQuote",
+    "endPoint": "",
+    "isSSLEnabled": false,
+    "authType": "none",
+    "userName": "",
+    "password": "",
+    "requestData": "<PREVIEW><MODAL=NO><LEFT=4mm><\/PROGRESS>\n<FTahoma>$ReportHeader$$QuoteHeaderGroupHeader$$QuoteHeaders$$QuoteHeaderGroupFooter$$PrintBoxDesign||||IF[\"yes\",\"$BoxDesignHeaders$\",\"\"]|$$ReportFooter$",
+    "requestDataType": "TXT",
+    "requestVerb": "",
+    "clientID": "_default",
+    "inActive": true,
+    "createTime": "2022-04-19T17:58:18.998",
+    "createBy": "asi",
+    "requestHandler": "",
+    "responseHandler": "",
+    "company": "",
+    "apiOutboundID": 59,
+    "saveFile": true,
+    "saveFileFolder": "C:\\temp\\",
+    "description": "API to send quote information in quoprint 11 xPrint format",
+    "requestType": "SAVE",
+    "transactionCounter": 0,
+    "hostSSHKey": "",
+    "useLocationValidation": false,
+    "autoIncrement": false
   }
 ]

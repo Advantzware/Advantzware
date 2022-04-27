@@ -267,7 +267,7 @@ PROCEDURE pBusinessLogic:
                 WHERE ar-invl.x-no EQ ar-inv.x-no
                 :
                 IF ar-invl.po-no  GT "" THEN cPoNo   = ar-invl.po-no.
-                IF ar-invl.job-no GT "" THEN cJobStr = ar-invl.job-no + "-" + STRING(ar-invl.job-no2, "99").
+                IF ar-invl.job-no GT "" THEN cJobStr = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ar-invl.job-no, ar-invl.job-no2))).
             END. /* each ar-invl */    
             ASSIGN
                 dAg    = dAmt

@@ -3,7 +3,7 @@
 
      assign
       v-job-no = FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
-                 trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99")
+                 trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"999")
       v-value  = rm-rdtlh.cost * rm-rdtlh.qty.
 
      if v-job-no begins "-" then v-job-no = "".

@@ -207,10 +207,6 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-
-/*   FRAME {&FRAME-NAME}:TITLE = TRIM(FRAME {&FRAME-NAME}:TITLE) + " for Job#/Form: " + */
-/*                               TRIM(ip-job-no) + "-" + STRING(ip-job-no2,"99") +      */
-/*                               "/" + TRIM(STRING(ip-frm,">>>>")).                     */
   FIND FIRST b-itemfg WHERE ROWID(b-itemfg) = ip-rowid NO-LOCK NO-ERROR.
 
   ASSIGN

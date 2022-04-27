@@ -142,7 +142,7 @@ DEFINE BROWSE BROWSE-1
       w-ord.cust-no    LABEL "Cust #"
       w-ord.ord-no     LABEL "Order#"
       w-ord.job-no     LABEL "  Job#"
-      w-ord.job-no2    NO-LABEL FORMAT "99"
+      w-ord.job-no2    NO-LABEL FORMAT "999"
       w-ord.i-no       LABEL "Item #"
       w-ord.total-unit FORM ">,>>>,>>9" COLUMN-LABEL "# of Unit"
       w-ord.pcs        COLUMN-LABEL "Qty / Unit"

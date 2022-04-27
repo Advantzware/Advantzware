@@ -53,8 +53,6 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
       END.
       ELSE IF i = 2 THEN do: 
           ASSIGN w2.job-po = tt-boll.job-no .
-/*                  w2.job-po = if oe-ordl.job-no eq "" then "" else                        */
-/*                              (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
           IF AVAIL oe-ordl THEN 
               ASSIGN w2.dscr = oe-ordl.i-name
               w2.i-no = oe-ordl.i-no.
@@ -78,8 +76,6 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
        w2.i-no = "".
        IF i = 2 THEN do:
           ASSIGN w2.job-po = tt-boll.job-no .
-/*            if oe-ordl.job-no eq "" then "" else                                          */
-/*                              (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
           IF AVAIL oe-ordl THEN
               ASSIGN w2.dscr = oe-ordl.i-name
               w2.i-no = oe-ordl.i-no.
@@ -101,8 +97,6 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
        w2.i-no = "".
        IF i = 2 THEN do:
           ASSIGN w2.job-po = tt-boll.job-no .
-/*            if oe-ordl.job-no eq "" then "" else                                          */
-/*                              (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
           IF AVAIL oe-ordl THEN
               ASSIGN w2.dscr = oe-ordl.i-name
               w2.i-no = oe-ordl.i-no.

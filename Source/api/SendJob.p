@@ -62,11 +62,42 @@ DEFINE VARIABLE oAttribute AS system.Attribute NO-UNDO.
 DEFINE BUFFER bf-APIOutboundDetail FOR APIOutboundDetail.
 DEFINE BUFFER bf-job-mat           FOR job-mat.
 DEFINE BUFFER bf-itemfg            FOR itemfg.      
-      
+
+DEFINE VARIABLE dBoardLength    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dBoardWidth     AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dJobBoardIssued AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cBoard          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInk            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dInkQty         AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cPallet         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dPalletMRP      AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cMatType5       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dMatType5Qty    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMatType6       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dMatType6Qty    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVarnish        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAdders         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dNoCases        AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cCasesName      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFilmName       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dRequiredQty    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dTotalMRP       AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dMatLength      AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE iNumUp          AS INTEGER   NO-UNDO.      
+DEFINE VARIABLE kFrac           AS DECIMAL   NO-UNDO.
 /**********************  Preprocessor Definitions  ******************** */
 
 
+
+
+/* ************************  Function Prototypes ********************** */
+
 /* ***************************  Main Block  *************************** */
+{api/SendJob.i}
+
+/* **********************  Internal Procedures  *********************** */
+
+
 RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
 oAttribute = NEW system.Attribute().
 oAttribute:RequestDataType = gcRequestDataType.         
@@ -159,7 +190,9 @@ DO:
             lcJobHeaderData = oAttribute:ReplaceAttributes(lcJobHeaderData, BUFFER oe-ord:HANDLE).
             lcJobHeaderData = oAttribute:ReplaceAttributes(lcJobHeaderData, BUFFER bf-itemfg:HANDLE).
             lcJobHeaderData = oAttribute:ReplaceAttributes(lcJobHeaderData, BUFFER oe-ordl:HANDLE).
-                
+            
+            RUN pUpdateCustomerInfo(job-hdr.company, job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
+             
             lcConcatJobHeaderData = lcConcatJobHeaderData + lcJobHeaderData.
         END.
     END. 
@@ -222,7 +255,9 @@ DO:
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "CrossGrain", cCrossGrain).
 
             lcJobMatData = oAttribute:ReplaceAttributes(lcJobMatData, BUFFER job-mat:HANDLE).
-                
+
+            RUN pUpdateRMItemInfo (job-mat.company, job-mat.i-no, INPUT-OUTPUT lcJobMatData).
+                             
             lcConcatJobMatData  = lcConcatJobMatData  + "~n" + lcJobMatData.                                              
         END.
     END.
@@ -237,17 +272,91 @@ DO:
             WHERE job-mch.company EQ job.company
               AND job-mch.job-no  EQ job.job-no
               AND job-mch.job-no2 EQ job.job-no2:
-                     
-            ASSIGN
+            
+            RUN pUpdatePOInfo(
+                INPUT  job-mch.company,
+                INPUT  job-mch.job,
+                INPUT  job-mch.job-no,
+                INPUT  job-mch.job-no2,
+                INPUT  job-mch.i-no,
+                INPUT  job-mch.frm,
+                INPUT  job-mch.blank-no,
+                INPUT  "Machine",
+                INPUT-OUTPUT lcJobMachineData
+                ).
+                         
+            RUN pGetJobMaterialInfo (
+                INPUT  job-mch.company,
+                INPUT  job-mch.job,
+                INPUT  job-mch.job-no,
+                INPUT  job-mch.job-no2,
+                INPUT  job-mch.frm,
+                INPUT  job-mch.blank-no,
+                INPUT  job-mch.i-no,
+                OUTPUT dBoardLength,   
+                OUTPUT dBoardWidth,    
+                OUTPUT dJobBoardIssued,
+                OUTPUT cBoard,         
+                OUTPUT cInk,           
+                OUTPUT dInkQty,        
+                OUTPUT cPallet,        
+                OUTPUT dPalletMRP,        
+                OUTPUT cMatType5,      
+                OUTPUT dMatType5Qty,   
+                OUTPUT cMatType6,      
+                OUTPUT dMatType6Qty,   
+                OUTPUT cVarnish,       
+                OUTPUT cAdders,        
+                OUTPUT dNoCases,       
+                OUTPUT cCasesName,     
+                OUTPUT cFilmName,      
+                OUTPUT dRequiredQty,   
+                OUTPUT dTotalMRP,      
+                OUTPUT dMatLength,
+                OUTPUT iNumUp
+                ).
+            
+            ASSIGN              
                 lcJobMachineData = bf-APIOutboundDetail.data
                 cRunMinutes      = STRING(ROUND(job-mch.run-hr * 60, 0))
                 cMRMinutes       = STRING(ROUND(job-mch.mr-hr * 60, 0))
                 . 
-
+            
+            IF dTotalMRP EQ ? THEN
+                dTotalMRP = job-mch.run-qty.
+            
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "RunMinutes", cRunMinutes).
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "BoardLength", STRING(dBoardLength)).   
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "BoardWidth", STRING(dBoardWidth)).    
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "JobBoardIssued", STRING(dJobBoardIssued)).
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "Board", cBoard).         
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "InkColor", cInk).      
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "InkQuantity", STRING(dInkQty)).        
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "Pallet", cPallet).        
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "PalletMRP", STRING(dPalletMRP)).       
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "MatType5Item", cMatType5).      
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "MatType5Quantity", STRING(dMatType5Qty)).   
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "MatType6Item", cMatType6).     
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "MatType6Quantity", STRING(dMatType6Qty)).   
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "Varnish", cVarnish).       
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "Adders", cAdders).       
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "NumberOfCases", STRING(dNoCases)).      
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "CasesName", cCasesName).    
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "FilmName", cFilmName).     
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "RequiredQuantity", STRING(dRequiredQty)).   
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "TotalMRP", STRING(dTotalMRP)).      
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "NumUp", STRING(iNumUp)).
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "LinearFeet", STRING(dTotalMRP * (dMatLength / 12))).
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "TotalPieces", STRING(dTotalMRP * iNumUp)).
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "RunMinutes", cRunMinutes).
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "MakeReadyMinutes", cMRMinutes).
             lcJobMachineData = oAttribute:ReplaceAttributes(lcJobMachineData, BUFFER job-mch:HANDLE).
-                
+            
+            RUN pUpdateEstimateBlankInfo(job-mch.company, job.est-no, job-mch.frm, job-mch.blank-no, INPUT-OUTPUT lcJobMachineData).
+            RUN pUpdateEstimateFormInfo(job-mch.company, job.est-no, job-mch.frm, INPUT-OUTPUT lcJobMachineData, INPUT-OUTPUT dMatLength).
+
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineData, "MatLength", STRING(dMatLength)).
+            
             lcConcatJobMachineData = lcConcatJobMachineData +  "~n" + lcJobMachineData.         
         END. 
     END.
@@ -302,3 +411,4 @@ FINALLY:
         DELETE OBJECT oAttribute.
 
 END FINALLY.        
+

@@ -260,7 +260,7 @@ IF AVAIL itemfg THEN DO:
    END.
 
    v-ord-no-text = IF w-ord.ord-no NE 0 THEN STRING(w-ord.ord-no)
-                   ELSE TRIM(w-ord.job-no + "-" + STRING(w-ord.job-no2,"99")).
+                   ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))).
 
    IF tb_exp-po THEN
       DISPLAY  

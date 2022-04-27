@@ -1539,34 +1539,6 @@ display "" with frame r-top.
 
       {custom/statusMsg.i " 'Processing Job#  '  + tt-job-mch.job-no "}
 
-    /* IF FIRST-OF(tt-job-mch.m-code) THEN
-     DO:
-        v-total-mach-hrs = 0.
-        DISPLAY v-line FORMAT "X(80)" SKIP
-                "Machine: " + tt-job-mch.m-code FORMAT "X(17)"
-                SKIP(1)
-           WITH FRAME mach-head STREAM-IO width 180 no-labels no-box down.
-     END. */
-
-  /*   IF tb_excel THEN
-        EXPORT STREAM excel DELIMITER ","
-               tt-job-mch.m-code 
-               tt-job-mch.job-no + "-" + STRING(tt-job-mch.job-no2,"99")
-               tt-job-mch.cust-no
-               tt-job-mch.die
-               tt-job-mch.style
-               tt-job-mch.total-hrs
-               SKIP. */
-
-    /*DISPLAY SPACE(5)
-             tt-job-mch.job-no + "-" + STRING(tt-job-mch.job-no2,"99") FORMAT "X(9)" COLUMN-LABEL "Job #"
-             tt-job-mch.cust-no FORMAT "X(8)" COLUMN-LABEL "Cust #"
-             tt-job-mch.die FORMAT "X(15)" COLUMN-LABEL "Die#"
-             tt-job-mch.style FORMAT "X(6)" COLUMN-LABEL "Style"
-             tt-job-mch.total-hrs FORMAT "ZZZ,ZZ9.99" COLUMN-LABEL "Total Hours"
-        WITH FRAME mach-job STREAM-IO width 180 no-box down. */
-
-
      ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""

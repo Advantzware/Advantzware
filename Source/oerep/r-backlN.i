@@ -127,9 +127,6 @@
                             STRING(if v-sort eq "S" then cust.sman
                                    else "","xxx") +
                             cust.cust-no
-           /*tt-report.key-02  = if v-sumdet then job-hdr.i-no
-                            else (trim(job.job-no) + "-" +
-                                  string(job.job-no2,"99"))*/
            tt-report.key-02  = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
            tt-report.key-03  = job-hdr.i-no
            tt-report.key-04  = IF v-qty[2] GT v-qty[1] THEN "0" ELSE string(v-qty[1] - v-qty[2],"9999999999")

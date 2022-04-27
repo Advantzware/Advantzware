@@ -43,7 +43,7 @@ DEF VAR ll-casetag AS LOG NO-UNDO.
 
 &scoped-define fld-name-1 loadtag.tag-no
 &scoped-define fld-name-2 loadtag.i-no
-&scoped-define fld-name-3 trim(loadtag.job-no)
+&scoped-define fld-name-3 loadtag.job-no
 &scoped-define SORTBY-1 BY loadtag.tag-no
 &scoped-define SORTBY-2 BY loadtag.i-no
 &scoped-define SORTBY-3 BY loadtag.job-no
