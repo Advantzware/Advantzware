@@ -525,9 +525,9 @@ do v-local-loop = 1 to v-local-copies:
 
         j = 0.
         v-xg-flag = (xef.xgrain eq "S" AND xef.est-type GE 5) OR
-                     xef.xgrain eq "B".
+                     xef.xgrain eq "B".  
         IF CAN-FIND(FIRST ttScoreLine) THEN
-            RUN pGetScores(v-xg-flag, OUTPUT v-len-score). 
+            RUN pGetScores(v-xg-flag, OUTPUT v-len-score, OUTPUT v-score-type). 
         ELSE DO:
             v-len-score2 = "".
             IF v-len-score <> "" THEN DO:
@@ -552,10 +552,10 @@ do v-local-loop = 1 to v-local-copies:
                   IF v-len-score2[i] <> "" THEN v-score-type = v-score-type + v-len-score2[i] .
                END.
             END.
-        END.
+        END.    
         /* 6th Line 2nd Row of boxes */ 
         display "<=#5><R+4> Score:"
-                 v-len-score     WHEN xstyle.TYPE <> "F"  format "x(32)"
+                 v-len-score     WHEN xstyle.TYPE <> "F"  format "x(37)"
                 "<=#6><R-2> Ink 3:"
                 w-i.i-dscr
                 w-i.i-qty when w-i.i-qty ne 0
@@ -611,7 +611,7 @@ do v-local-loop = 1 to v-local-copies:
           
         ELSE v-qty-or-sup = "Qty Received: " + fill("_",24).
           
-        display "<=#5><R+5>" v-score-type FORM "x(32)" /*v-qty-or-sup*/
+        display "<=#5><R+5>" v-score-type FORM "x(46)" /*v-qty-or-sup*/
                      "<=#6><R-1> Color Desc:"
                      "<=#6><R-1><C+12> " xeb.i-coldscr when avail xeb
                      "<=#7><R+5> D/C Style:"                             
@@ -1098,18 +1098,23 @@ PROCEDURE pGetScores PRIVATE:
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER iplLength AS LOGICAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opcScores AS CHARACTER NO-UNDO.
-
+DEFINE OUTPUT PARAMETER opcScoresType AS CHARACTER NO-UNDO.
+        
 IF iplLength THEN DO: 
     FIND FIRST ttScoreLine NO-LOCK
         WHERE ttScoreLine.PanelType = "L" NO-ERROR.
     IF AVAILABLE ttScoreLine THEN 
-        opcScores = ttScoreLine.ScoreLine.
+        ASSIGN
+        opcScores = ttScoreLine.ScoreLine
+        opcScoresType = "Type :  " + ttScoreLine.PanelType.
 END.    
 ELSE DO:
+    opcScoresType = "Type :  ".
     FOR EACH ttScoreLine NO-LOCK
         WHERE ttScoreLine.PanelType = "W"
-        AND TRIM(ttScoreLine.ScoreLine) NE "":
+        AND TRIM(ttScoreLine.ScoreLine) NE "":   
         opcScores = opcScores + " " + ttScoreLine.ScoreLine.
+        opcScoresType = opcScoresType +  ttScoreLine.PanelType + "   " .
     END.
 END.            
 
