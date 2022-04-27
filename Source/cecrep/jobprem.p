@@ -611,7 +611,7 @@ do v-local-loop = 1 to v-local-copies:
           
         ELSE v-qty-or-sup = "Qty Received: " + fill("_",24).
           
-        display "<=#5><R+5>" v-score-type FORM "x(46)" /*v-qty-or-sup*/
+        display "<=#5><R+5>" v-score-type FORM "x(44)" /*v-qty-or-sup*/
                      "<=#6><R-1> Color Desc:"
                      "<=#6><R-1><C+12> " xeb.i-coldscr when avail xeb
                      "<=#7><R+5> D/C Style:"                             
