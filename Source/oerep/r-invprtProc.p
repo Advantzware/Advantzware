@@ -1304,6 +1304,7 @@ ELSE IF v-print-fmt EQ "1/2 Page" AND rd-dest = 6 THEN
                 IF tb_cust-copy THEN RUN value(v-program) ("Customer Copy").
                 IF tb_office-copy THEN RUN value(v-program) ("Office Copy").
                 IF tb_sman-copy  THEN RUN value(v-program) ("Salesman Copy").
+                IF NOT tb_cust-copy AND NOT tb_office-copy AND NOT tb_sman-copy THEN RUN value(v-program) ("").
             END.
             ELSE IF LOOKUP(v-print-fmt,"PremierX,Coburn,Axis") > 0 THEN 
                 DO: 
