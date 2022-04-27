@@ -1651,6 +1651,7 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
     DEFINE VARIABLE dMSFTotal         AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dSheetsTotal      AS INTEGER NO-UNDO.
     DEFINE VARIABLE cLevelsToPrint    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cHeadersTop       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cHeaders          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cLevels           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cWidths           AS CHARACTER NO-UNDO.
@@ -1666,7 +1667,8 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
         iStartLevelsAfter = iIndex
         cWidths           = cWidths + STRING(30) + ","
         cDecimals         = cDecimals + "0,"
-        cHeaders          = cHeaders + "Estimate Analysis Per Thousand Finished Products" + ","
+        cHeadersTop       = cHeadersTop + "Estimate Analysis Per Thousand Finished Products" + ","
+        cHeaders          = cHeaders + " " + ","
         iColumn[iIndex]   = 2
         .
     IF ipbf-ttCEFormatConfig.analysisColQuantityShow THEN 
@@ -1675,6 +1677,7 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
             iStartLevelsAfter = iIndex
             cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColQuantityWidth) + ","
             cDecimals         = cDecimals + "0,"
+            cHeadersTop       = cHeadersTop + " " + ","
             cHeaders          = cHeaders + ipbf-ttCEFormatConfig.analysisColQuantityLabel + ","
             iColumn[iIndex]   = ipbf-ttCEFormatConfig.analysisColQuantityCol
             .
@@ -1684,7 +1687,8 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
             iStartLevelsAfter = iIndex
             cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColFactCostWidth) + ","
             cDecimals         = cDecimals + "0,"
-            cHeaders          = cHeaders + ipbf-ttCEFormatConfig.analysisColFactCostLabel + ","
+            cHeadersTop       = cHeadersTop + SUBSTRING(ipbf-ttCEFormatConfig.analysisColFactCostLabel,1,4) + ","
+            cHeaders          = cHeaders + SUBSTRING(ipbf-ttCEFormatConfig.analysisColFactCostLabel,5,4) + ","
             iColumn[iIndex]   = ipbf-ttCEFormatConfig.analysisColFactCostCol
             . 
     IF ipbf-ttCEFormatConfig.analysisColFullCostShow THEN 
@@ -1693,7 +1697,8 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
             iStartLevelsAfter = iIndex
             cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColFullCostWidth) + ","
             cDecimals         = cDecimals + "0,"
-            cHeaders          = cHeaders + ipbf-ttCEFormatConfig.analysisColFullCostLabel + ","
+            cHeadersTop       = cHeadersTop + SUBSTRING(ipbf-ttCEFormatConfig.analysisColFullCostLabel,1,4) + ","
+            cHeaders          = cHeaders + SUBSTRING(ipbf-ttCEFormatConfig.analysisColFullCostLabel,5,4) + ","
             iColumn[iIndex]   = ipbf-ttCEFormatConfig.analysisColFullCostCol
             .    
     IF ipbf-ttCEFormatConfig.analysisColGrossMarginShow THEN 
@@ -1702,7 +1707,8 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
             iStartLevelsAfter = iIndex
             cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColGrossMarginWidth) + ","
             cDecimals         = cDecimals + "0,"
-            cHeaders          = cHeaders + ipbf-ttCEFormatConfig.analysisColGrossMarginLabel + ","
+            cHeadersTop       = cHeadersTop + SUBSTRING (ipbf-ttCEFormatConfig.analysisColGrossMarginLabel,1,5) + ","
+            cHeaders          = cHeaders + SUBSTRING (ipbf-ttCEFormatConfig.analysisColGrossMarginLabel,6,7) + ","
             iColumn[iIndex]   = ipbf-ttCEFormatConfig.analysisColGrossMarginCol
             .   
     IF ipbf-ttCEFormatConfig.analysisColNetMarginShow THEN 
@@ -1711,7 +1717,8 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
             iStartLevelsAfter = iIndex
             cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColNetMarginWidth) + ","
             cDecimals         = cDecimals + "0,"
-            cHeaders          = cHeaders + ipbf-ttCEFormatConfig.analysisColNetMarginLabel + ","
+            cHeadersTop       = cHeadersTop + SUBSTRING (ipbf-ttCEFormatConfig.analysisColNetMarginLabel,1,3) + ","
+            cHeaders          = cHeaders + SUBSTRING (ipbf-ttCEFormatConfig.analysisColNetMarginLabel,4,7) + ","
             iColumn[iIndex]   = ipbf-ttCEFormatConfig.analysisColNetMarginCol
             . 
     IF ipbf-ttCEFormatConfig.analysisColSellPriceShow THEN 
@@ -1720,7 +1727,8 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
             iStartLevelsAfter = iIndex
             cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColSellPriceWidth) + ","
             cDecimals         = cDecimals + "0,"
-            cHeaders          = cHeaders + ipbf-ttCEFormatConfig.analysisColSellPriceLabel + ","
+            cHeadersTop       = cHeadersTop + SUBSTRING (ipbf-ttCEFormatConfig.analysisColSellPriceLabel,1,4) + ","
+            cHeaders          = cHeaders + SUBSTRING (ipbf-ttCEFormatConfig.analysisColSellPriceLabel,5,5) + ","
             iColumn[iIndex]   = ipbf-ttCEFormatConfig.analysisColSellPriceCol
             .  
     IF ipbf-ttCEFormatConfig.analysisColPriceMSFShow THEN 
@@ -1729,7 +1737,8 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
             iStartLevelsAfter = iIndex
             cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColPriceMSFWidth) + ","
             cDecimals         = cDecimals + "0,"
-            cHeaders          = cHeaders + ipbf-ttCEFormatConfig.analysisColPriceMSFLabel + ","
+            cHeadersTop       = cHeadersTop + SUBSTRING (ipbf-ttCEFormatConfig.analysisColPriceMSFLabel,1,5) + ","
+            cHeaders          = cHeaders + SUBSTRING (ipbf-ttCEFormatConfig.analysisColPriceMSFLabel,6,4) + ","
             iColumn[iIndex]   = ipbf-ttCEFormatConfig.analysisColPriceMSFCol
             .   
     IF ipbf-ttCEFormatConfig.analysisColSheetsShow THEN 
@@ -1738,25 +1747,35 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
             iStartLevelsAfter = iIndex
             cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColSheetsWidth) + ","
             cDecimals         = cDecimals + "0,"
+            cHeadersTop       = cHeadersTop + " " + ","
             cHeaders          = cHeaders + ipbf-ttCEFormatConfig.analysisColSheetsLabel + ","
             iColumn[iIndex]   = ipbf-ttCEFormatConfig.analysisColSheetsCol
-            .                   
+            .  
+            
+    ASSIGN cHeadersTop = TRIM (cHeadersTop,",")
+           cHeaders    = TRIM (cHeaders,",").                            
     
     IF iplHeader THEN 
     DO:    
         DO iIndex = 1 TO EXTENT(iColumn):
-            IF iIndex LE NUM-ENTRIES(cHeaders) THEN 
+            IF iIndex LE NUM-ENTRIES(cHeadersTop) THEN 
             DO:
                 IF iIndex = 1 THEN 
                 DO:
-                    RUN pWriteToCoordinates(iopiRowCount, iColumn[iIndex], ENTRY(iIndex,cHeaders), YES, NO, NO).
+                    IF ENTRY(iIndex,cHeadersTop) NE " " THEN 
+                    RUN pWriteToCoordinates(iopiRowCount, iColumn[iIndex], ENTRY(iIndex,cHeadersTop), YES, NO, NO).
                     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
                     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount). 
                 END. 
                 ELSE       
-                RUN pWriteToCoordinates(iopiRowCount, iColumn[iIndex], ENTRY(iIndex,cHeaders), YES, YES, YES). 
+                    RUN pWriteToCoordinates(iopiRowCount, iColumn[iIndex], ENTRY(iIndex,cHeadersTop), YES, NO, YES). 
             END.    
         END.
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        DO iIndex = 1 TO EXTENT(iColumn):
+            IF iIndex LE NUM-ENTRIES(cHeaders) AND ENTRY(iIndex,cHeaders) NE " " THEN 
+                RUN pWriteToCoordinates(iopiRowCount, iColumn[iIndex], ENTRY(iIndex,cHeaders), YES, YES, YES).          
+        END.         
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     END.
     ELSE 
