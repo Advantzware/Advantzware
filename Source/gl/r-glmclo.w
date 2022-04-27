@@ -1066,6 +1066,7 @@ PROCEDURE close-month :
             ASSIGN 
                 bCompany.yend-per = NO.
         END.
+        RUN util/fxacctg2.p. /* ticket 109212*/
     END. /* TRANSACTION 5 */
 
     FIND NEXT period NO-LOCK WHERE 
