@@ -1612,10 +1612,11 @@ PROCEDURE pCreateScoreLine PRIVATE:
     DEFINE VARIABLE iNum         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE deFinalScore AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE deCumulScore AS DECIMAL   NO-UNDO.
-
+    DEFINE VARIABLE cScoreType   AS CHARACTER NO-UNDO.
 
     ASSIGN 
-        cNewText = ipcScoreTxt.
+        cNewText = ipcScoreTxt
+        cScoreType = "".
 
     DO iCnt = 1 TO LENGTH(ipcScoreTxt):
         ASSIGN 
@@ -1652,7 +1653,8 @@ PROCEDURE pCreateScoreLine PRIVATE:
                 DO:
 
                     ASSIGN 
-                        dTmpScore = ttPanel.dPanelSize.
+                        dTmpScore = ttPanel.dPanelSize
+                        cScoreType = ttPanel.cScoreType.
 
                      IF iplTotal THEN DO:
                         deCumulScore = deCumulScore + ttPanel.dPanelSizeDecimal.
@@ -1690,7 +1692,8 @@ PROCEDURE pCreateScoreLine PRIVATE:
         CREATE ttScoreLine.
         ASSIGN 
             ttScoreLine.PanelType = ipcPanelType
-            ttScoreLine.LineNum   = ipiLineNo.
+            ttScoreLine.LineNum   = ipiLineNo
+            ttScoreLine.ScoreType = cScoreType.
     END.  
   
     IF iplTotal THEN

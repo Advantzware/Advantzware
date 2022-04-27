@@ -1106,7 +1106,7 @@ IF iplLength THEN DO:
     IF AVAILABLE ttScoreLine THEN 
         ASSIGN
         opcScores = ttScoreLine.ScoreLine
-        opcScoresType = "Type :  " + ttScoreLine.PanelType.
+        opcScoresType = "Type :  " + ttScoreLine.ScoreType.
 END.    
 ELSE DO:
     opcScoresType = "Type :  ".
@@ -1114,7 +1114,7 @@ ELSE DO:
         WHERE ttScoreLine.PanelType = "W"
         AND TRIM(ttScoreLine.ScoreLine) NE "":   
         opcScores = opcScores + " " + ttScoreLine.ScoreLine.
-        opcScoresType = opcScoresType +  ttScoreLine.PanelType + "   " .
+        opcScoresType = opcScoresType +  ttScoreLine.ScoreType + "   " .
     END.
 END.            
 
