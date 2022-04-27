@@ -1879,6 +1879,8 @@ PROCEDURE pTagScan :
                 INPUT  INTEGER(cbJobNo2:SCREEN-VALUE),
                 INPUT  INTEGER(cbFormNo:SCREEN-VALUE),
                 INPUT  INTEGER(cbBlankNo:SCREEN-VALUE),
+                INPUT  0,     /* Quantity */
+                INPUT  FALSE, /* Override Quantity */
                 INPUT  lAutoPost,
                 OUTPUT lCreated,                    
                 OUTPUT cMessage,
