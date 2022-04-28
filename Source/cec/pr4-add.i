@@ -56,7 +56,11 @@ do i = 1 to 6 with frame adders down no-labels no-box:
                 OUTPUT v-setup,
                 OUTPUT a-cost).
                               
-            ASSIGN b-uom = "MSF".
+            RUN Conv_ValueFromUOMtoUOM (xitem.company, xitem.i-no, "RM",
+                v-cost, "EA", "MSF",
+                xitem.basis-w, xef.gsh-len, xef.gsh-wid, xef.gsh-dep, 0,
+                OUTPUT v-cost, OUTPUT lError, OUTPUT cMessage).
+            b-uom = "MSF". 
                 
         END.
         ELSE
@@ -149,8 +153,11 @@ do i = 1 to 6 with frame adders down no-labels no-box:
                 OUTPUT v-setup,
                 OUTPUT a-cost).
                             
-            ASSIGN b-uom = "MSF".
-                
+            RUN Conv_ValueFromUOMtoUOM (xitem.company, xitem.i-no, "RM",
+                v-cost, "EA", "MSF",
+                xitem.basis-w, xef.gsh-len, xef.gsh-wid, xef.gsh-dep, 0,
+                OUTPUT v-cost, OUTPUT lError, OUTPUT cMessage).
+            b-uom = "MSF".                
         END.
         ELSE
         DO:         

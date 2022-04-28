@@ -28,6 +28,8 @@ def var v-ssqft as dec NO-UNDO.
 def var v-setup like e-item-vend.setup NO-UNDO.
 def var v-alf as char format "x(7)" NO-UNDO.
 def VAR v-vend-no like e-item-vend.vend-no NO-UNDO.
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
 DEF BUFFER b-cost FOR reftable.
 DEF BUFFER b-qty FOR reftable.
