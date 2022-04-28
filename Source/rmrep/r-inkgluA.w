@@ -51,15 +51,15 @@ DEF VAR v-tpcat      LIKE v-fpcat                  INIT "zzzzz".
 DEF VAR v-fdate      AS DATE FORMAT "99/99/9999"   INIT 01/01/0001.
 DEF VAR v-tdate      LIKE v-fdate                  INIT today.
 DEF VAR v-fjob       LIKE job.job-no.
-DEF VAR v-tjob       LIKE v-fjob                   INIT "zzzzzz".
-DEF VAR v-fjob2      LIKE job.job-no2 FORMAT "99".
-DEF VAR v-tjob2      LIKE v-fjob2                  INIT 99.
+DEF VAR v-tjob       LIKE v-fjob                   INIT "zzzzzzzzz".
+DEF VAR v-fjob2      LIKE job.job-no2 FORMAT "999".
+DEF VAR v-tjob2      LIKE v-fjob2                  INIT 999.
 DEF VAR v-mtype      AS CHAR FORMAT "x(47)".
 DEF VAR v-export     AS LOG INIT NO FORMAT "Y/N".
 DEF VAR v-exp-name   AS CHAR FORMAT "x(40)"        INIT "rmtrans3.csv".
 DEF VAR v-fCat       LIKE itemfg.procat NO-UNDO.
 DEF VAR v-tCat       LIKE itemfg.procat NO-UNDO.
-DEF VAR v-job-no  AS CHAR FORMAT "x(9)".
+DEF VAR v-job-no  AS CHAR FORMAT "x(13)".
 DEF VAR v-rm-qty  AS DEC.
 DEF VAR v-qty     AS DEC FORMAT "->,>>>,>>>,>>9.9<<<<" EXTENT 3.
 DEF VAR v-m-code  LIKE mach.m-code FORMAT "x(6)".
@@ -85,7 +85,7 @@ def stream s-temp.
 
 DEF TEMP-TABLE tt-inks-glues
    FIELD trans-date LIKE rm-rcpth.trans-date 
-   FIELD job-no     AS CHAR FORMAT "x(9)"
+   FIELD job-no     AS CHAR FORMAT "x(13)"
    FIELD qty        AS DEC FORMAT "->,>>>,>>>,>>9.9<<<<"
    FIELD m-code     LIKE mach.m-code FORMAT "x(6)"
    FIELD board      LIKE item.i-no 
@@ -95,7 +95,7 @@ DEF TEMP-TABLE tt-inks-glues
 
 DEF TEMP-TABLE tt-wax-coats
    FIELD trans-date        LIKE rm-rcpth.trans-date 
-   FIELD job-no            AS CHAR FORMAT "x(9)"
+   FIELD job-no            AS CHAR FORMAT "x(13)"
    FIELD qty               AS DEC FORMAT "->,>>>,>>>,>>9"
    FIELD board             LIKE item.i-no 
    FIELD brd-qty           AS INT FORMAT "->,>>>,>>>,>>9"
@@ -123,26 +123,26 @@ FORM tt-wax-coats.trans-date LABEL "Issue Date"
     WITH FRAME item-x NO-BOX DOWN STREAM-IO WIDTH 180.
 
 FORM    
-     "------------"        AT 70
-     "---------------"     AT 92
-     "--------------"      AT 125
+     "------------"        AT 74
+     "---------------"     AT 97
+     "--------------"      AT 129
      SKIP
-     "SUB TOTAL"           AT 37
-     v-tot-board-weight    AT 72
-     v-tot-wax-coat-weight AT 97
-     v-tot-job-hdr-qty     AT 125
+     "SUB TOTAL"           AT 41
+     v-tot-board-weight    AT 76
+     v-tot-wax-coat-weight AT 101
+     v-tot-job-hdr-qty     AT 129
      SKIP(2)
     WITH FRAME item-b NO-BOX DOWN NO-LABEL NO-ATTR STREAM-IO WIDTH 180.
 
 FORM    
-     "------------"        AT 70
-     "---------------"     AT 92
-     "--------------"          AT 125
+     "------------"        AT 74
+     "---------------"     AT 97
+     "--------------"          AT 129
      SKIP
-     "GRAND TOTAL"         AT 37
-     v-grand-tot-board-weight    AT 72
-     v-grand-tot-wax-coat-weight AT 97  
-     v-grand-tot-job-hdr-qty     AT 125
+     "GRAND TOTAL"         AT 41
+     v-grand-tot-board-weight    AT 76
+     v-grand-tot-wax-coat-weight AT 101  
+     v-grand-tot-job-hdr-qty     AT 129
     WITH FRAME item-c NO-BOX DOWN NO-LABEL NO-ATTR STREAM-IO WIDTH 180.
 
 /* _UIB-CODE-BLOCK-END */
@@ -196,62 +196,62 @@ DEFINE BUTTON btn-ok
 DEFINE VARIABLE begin_cat AS CHARACTER FORMAT "X(5)":U 
      LABEL "Beginning FG Category" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_procat AS CHARACTER FORMAT "X(5)":U 
      LABEL "Beginning RM Category" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_rm-no AS CHARACTER FORMAT "X(10)":U 
      LABEL "Beginning Item#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_cat AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
      LABEL "Ending FG Category" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_procat AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
      LABEL "Ending RM Category" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_rm-no AS CHARACTER FORMAT "X(10)":U INITIAL "zzzzzzzzzz" 
      LABEL "Ending Item#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(256)" INITIAL "c:~\tmp~\r-inkglu.csv" 
      LABEL "If Yes, File Name" 
@@ -341,29 +341,29 @@ DEFINE VARIABLE TG_sort-cat AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_rm-no AT ROW 2.19 COL 26 COLON-ALIGNED HELP
+     begin_rm-no AT ROW 2.19 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Item Number"
-     end_rm-no AT ROW 2.19 COL 67 COLON-ALIGNED HELP
+     end_rm-no AT ROW 2.19 COL 68 COLON-ALIGNED HELP
           "Enter Ending Item number"
-     begin_procat AT ROW 3.14 COL 26 COLON-ALIGNED HELP
+     begin_procat AT ROW 3.14 COL 25 COLON-ALIGNED HELP
           "Enter Begining Category"
-     end_procat AT ROW 3.14 COL 67 COLON-ALIGNED HELP
+     end_procat AT ROW 3.14 COL 68 COLON-ALIGNED HELP
           "Enter Ending Category"
-     begin_cat AT ROW 4.1 COL 26 COLON-ALIGNED HELP
+     begin_cat AT ROW 4.1 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Category" WIDGET-ID 10
-     end_cat AT ROW 4.1 COL 67 COLON-ALIGNED HELP
+     end_cat AT ROW 4.1 COL 68 COLON-ALIGNED HELP
           "Enter Ending Category" WIDGET-ID 12
-     begin_date AT ROW 5.14 COL 26 COLON-ALIGNED HELP
+     begin_date AT ROW 5.14 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Date"
-     end_date AT ROW 5.14 COL 67 COLON-ALIGNED HELP
+     end_date AT ROW 5.14 COL 68 COLON-ALIGNED HELP
           "Enter ending Date"
-     begin_job-no AT ROW 6.1 COL 26 COLON-ALIGNED HELP
+     begin_job-no AT ROW 6.1 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 6.1 COL 38 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 6.1 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     end_job-no AT ROW 6.1 COL 67 COLON-ALIGNED HELP
+     end_job-no AT ROW 6.1 COL 68 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 6.1 COL 79 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 6.1 COL 83 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      select-mat AT ROW 8.48 COL 20.6 HELP
           "Enter description of this Material Type." NO-LABEL
@@ -1172,10 +1172,10 @@ ASSIGN
    v-tpcat    = end_procat
    v-fdate    = begin_date
    v-tdate    = end_date
-   v-fjob     = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-              TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
-   v-tjob     = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
-              TRIM(end_job-no)   + STRING(INT(end_job-no2),"99")
+   v-fjob     = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
+              TRIM(begin_job-no) + STRING(INT(begin_job-no2),"999")
+   v-tjob     = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no)))   +
+              TRIM(end_job-no)   + STRING(INT(end_job-no2),"999")
    v-export   = tb_excel
    v-exp-name = cFileName
    v-fCat     = begin_cat
@@ -1225,12 +1225,14 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                     USE-INDEX i-no no-lock,
    EACH rm-rdtlh WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
                    AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
-                   AND rm-rdtlh.job-no    GE substr(v-fjob,1,6)
-                   AND rm-rdtlh.job-no    LE substr(v-tjob,1,6)
-                   AND FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
-                       TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"99") GE v-fjob
-                   AND FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
-                       TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"99") LE v-tjob NO-LOCK,
+                   AND rm-rdtlh.job-no    GE substr(v-fjob,1,iJobLen)
+                   AND rm-rdtlh.job-no    LE substr(v-tjob,1,iJobLen)
+                   AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
+                       TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"999") GE v-fjob
+                   AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
+                       TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"999") LE v-tjob 
+                   
+                   NO-LOCK,
       FIRST item WHERE item.company EQ cocode
                    AND item.i-no    EQ rm-rcpth.i-no
                    AND item.procat  GE v-fpcat
@@ -1249,8 +1251,8 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
 
       IF FIRST-of(rm-rcpth.trans-date) THEN v-first[1] = yes.
 
-      v-job-no = FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
-                 TRIM(rm-rdtlh.job-no) + "-" + STRING(rm-rdtlh.job-no2,"99").
+      v-job-no = FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
+                 TRIM(rm-rdtlh.job-no) + "-" + STRING(rm-rdtlh.job-no2,"999").
 
       IF v-job-no begins "-" THEN v-job-no = "".
 
@@ -1605,23 +1607,23 @@ FORM tt-inks-glues.trans-date     LABEL "Issue Date"
      tt-inks-glues.procat   LABEL "FG Category"
 
      SKIP
-    WITH FRAME itemx NO-BOX DOWN STREAM-IO WIDTH 132.
+    WITH FRAME itemx NO-BOX DOWN STREAM-IO WIDTH 136.
 
 FORM    
-     "----------------"    AT 59
+     "----------------"    AT 63
      SKIP
-     "SUB TOTAL"           AT 37
-     v-tot-trans-qty       FORMAT "->,>>>,>>>,>>9.9<<<<" AT 59           
+     "SUB TOTAL"           AT 41
+     v-tot-trans-qty       FORMAT "->,>>>,>>>,>>9.9<<<<" AT 63           
      SKIP(2)
-    WITH FRAME itemb NO-BOX DOWN NO-LABEL NO-ATTR STREAM-IO WIDTH 132.
+    WITH FRAME itemb NO-BOX DOWN NO-LABEL NO-ATTR STREAM-IO WIDTH 136.
 
 FORM    
-     "----------------"    AT 59
+     "----------------"    AT 63
      SKIP
-     "GRAND TOTAL"         AT 37
-     v-grand-tot-trans-qty       FORMAT "->,>>>,>>>,>>9.9<<<<" AT 59           
+     "GRAND TOTAL"         AT 41
+     v-grand-tot-trans-qty       FORMAT "->,>>>,>>>,>>9.9<<<<" AT 63           
      SKIP(2)
-    WITH FRAME itemc NO-BOX DOWN NO-LABEL NO-ATTR STREAM-IO WIDTH 132.
+    WITH FRAME itemc NO-BOX DOWN NO-LABEL NO-ATTR STREAM-IO WIDTH 136.
 
 DEF VAR v-hdr       AS   CHAR INIT "Issue Date,Job#,Board,Sheets Issued,Ink/Glue,Qty Issued/Lbs,Machine,FG Category," NO-UNDO.
 
@@ -1635,10 +1637,10 @@ ASSIGN
    v-tpcat    = end_procat
    v-fdate    = begin_date
    v-tdate    = end_date
-   v-fjob     = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-              TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
-   v-tjob     = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
-              TRIM(end_job-no)   + STRING(INT(end_job-no2),"99")
+   v-fjob     = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
+              TRIM(begin_job-no) + STRING(INT(begin_job-no2),"999")
+   v-tjob     = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no)))   +
+              TRIM(end_job-no)   + STRING(INT(end_job-no2),"999")
    v-export   = tb_excel
    v-exp-name = cFileName
    v-fCat     = begin_cat
@@ -1697,12 +1699,12 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                     USE-INDEX i-no no-lock,
    EACH rm-rdtlh WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
                    AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
-                   AND rm-rdtlh.job-no    GE substr(v-fjob,1,6)
-                   AND rm-rdtlh.job-no    LE substr(v-tjob,1,6)
-                   AND FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
-                       TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"99") GE v-fjob
-                   AND FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
-                       TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"99") LE v-tjob NO-LOCK,
+                   AND rm-rdtlh.job-no    GE substr(v-fjob,1,iJobLen)
+                   AND rm-rdtlh.job-no    LE substr(v-tjob,1,iJobLen)
+                   AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
+                       TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"999") GE v-fjob
+                   AND FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
+                       TRIM(rm-rdtlh.job-no) + STRING(rm-rdtlh.job-no2,"999") LE v-tjob NO-LOCK,
       FIRST item WHERE item.company EQ cocode
                    AND item.i-no    EQ rm-rcpth.i-no
                    AND item.procat  GE v-fpcat
@@ -1721,8 +1723,8 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
 
       IF FIRST-of(rm-rcpth.trans-date) THEN v-first[1] = yes.
 
-      v-job-no = FILL(" ",6 - LENGTH(TRIM(rm-rdtlh.job-no))) +
-                 TRIM(rm-rdtlh.job-no) + "-" + STRING(rm-rdtlh.job-no2,"99").
+      v-job-no = FILL(" ", iJobLen - LENGTH(TRIM(rm-rdtlh.job-no))) +
+                 TRIM(rm-rdtlh.job-no) + "-" + STRING(rm-rdtlh.job-no2,"999").
 
       IF v-job-no begins "-" THEN v-job-no = "".
 
@@ -2047,16 +2049,16 @@ def var v-tpcat like v-fpcat                  init "zzzzz".
 def var v-fdate as   date format "99/99/9999" init 01/01/0001.
 def var v-tdate like v-fdate                  init today.
 def var v-fjob  like job.job-no.
-def var v-tjob  like v-fjob                   init "zzzzzz".
-def var v-fjob2 like job.job-no2 format "99".
-def var v-tjob2 like v-fjob2                  init 99.
+def var v-tjob  like v-fjob                   init "zzzzzzzzz".
+def var v-fjob2 like job.job-no2 format "999".
+def var v-tjob2 like v-fjob2                  init 999.
 def var v-mtype as   char format "x(47)".
 def var v-export as log init no format "Y/N".
 def var v-exp-name as char format "x(40)" initial "rmtrans3.csv".
 DEF VAR v-fCat LIKE itemfg.procat NO-UNDO.
 DEF VAR v-tCat LIKE itemfg.procat NO-UNDO.
 
-def var v-job-no as char format "x(9)".
+def var v-job-no as char format "x(13)".
 def var v-rm-qty as dec.
 def var v-qty as dec format "->,>>>,>>>,>>9.9<<<<" extent 3.
 def var v-m-code like mach.m-code format "x(6)".
@@ -2088,10 +2090,10 @@ assign
  v-tpcat    = end_procat
  v-fdate    = begin_date
  v-tdate    = end_date
- v-fjob     = fill(" ",6 - length(trim(begin_job-no))) +
-              trim(begin_job-no) + string(int(begin_job-no2),"99")
- v-tjob     = fill(" ",6 - length(trim(end_job-no)))   +
-              trim(end_job-no)   + string(int(end_job-no2),"99")
+ v-fjob     = FILL(" ", iJobLen - length(trim(begin_job-no))) +
+              trim(begin_job-no) + string(int(begin_job-no2),"999")
+ v-tjob     = FILL(" ", iJobLen - length(trim(end_job-no)))   +
+              trim(end_job-no)   + string(int(end_job-no2),"999")
  v-export   = tb_excel
  v-exp-name = cFileName.
 
@@ -2144,13 +2146,13 @@ display "" with frame r-top.
         each rm-rdtlh
         where rm-rdtlh.r-no      eq rm-rcpth.r-no
           and rm-rdtlh.rita-code eq rm-rcpth.rita-code
-          and rm-rdtlh.job-no    ge substr(v-fjob,1,6)
-          and rm-rdtlh.job-no    le substr(v-tjob,1,6)
-          and fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
-              trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
+          and rm-rdtlh.job-no    ge substr(v-fjob,1,iJobLen)
+          and rm-rdtlh.job-no    le substr(v-tjob,1,iJobLen)
+          and FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
+              trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                                  ge v-fjob
-          and fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
-              trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
+          and FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
+              trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                                  le v-tjob
         no-lock,
 
@@ -2175,8 +2177,8 @@ display "" with frame r-top.
 
       if first-of(rm-rcpth.trans-date) then v-first[1] = yes.
 
-      v-job-no = fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
-                 trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99").
+      v-job-no = FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
+                 trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"999").
 
       if v-job-no begins "-" then v-job-no = "".
 

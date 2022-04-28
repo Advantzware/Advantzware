@@ -20,12 +20,12 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
   
     for EACH job
         where job.company            eq cocode
-          and job.job-no             ge SUBSTR(v-job-no[1],1,9)
-          and job.job-no             le SUBSTR(v-job-no[2],1,9)
-          AND fill(" ",6 - length(trim(job.job-no))) +
-              trim(begin_job-no) + string(int(job.job-no2),"99") GE v-job-no[1]
-          AND fill(" ",6 - length(trim(job.job-no))) +
-              trim(begin_job-no) + string(int(job.job-no2),"99") LE v-job-no[2]
+          and job.job-no             ge SUBSTR(v-job-no[1],1,iJobLen)
+          and job.job-no             le SUBSTR(v-job-no[2],1,iJobLen)
+          AND FILL(" ", iJobLen - length(trim(job.job-no))) +
+              trim(begin_job-no) + string(int(job.job-no2),"999") GE v-job-no[1]
+          AND FILL(" ", iJobLen - length(trim(job.job-no))) +
+              trim(begin_job-no) + string(int(job.job-no2),"999") LE v-job-no[2]
           AND job.job-no2 GE int(begin_job-no2)
 	      AND job.job-no2 LE int(end_job-no2)    
           and (v-stat                eq "A"                     or
@@ -721,17 +721,6 @@ DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
       END.
         
       IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
-      /*PUT skip(1)
-          "Job Number: "
-          trim(job.job-no) + "-" + string(job.job-no2,"99") +
-          "     Closing Date: " +
-          (IF job.close-date EQ ? THEN "        " ELSE
-                         STRING(job.close-date,"99/99/99"))
-         FORMAT "X(36)" SKIP
-         "Customer:   "
-         v-cust.
-
-      page.*/ /* Ticket 26126 */
      end.
 
      if v-mch and last(job.job-no) then do:

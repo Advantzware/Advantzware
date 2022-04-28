@@ -205,8 +205,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           where oe-ord.company eq xoe-rell.company
             and oe-ord.ord-no  eq xoe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-pay-dscr = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-pay-dscr:
              when "P" THEN v-frt-terms = "Prepaid".
              when "C" THEN v-frt-terms = "Collect".
              when "B" THEN v-frt-terms = "Bill".
@@ -305,8 +305,6 @@ if v-zone-p then v-zone-hdr = "Route No.:".
            EMPTY TEMP-TABLE w-bin.
           
            i = 0.
-
-           /*v-reljob = (w-oe-rell.job-no + "-" + string(w-oe-rell.job-no2,"99"))   .*/
 
            for each fg-bin
                where fg-bin.company  eq cocode

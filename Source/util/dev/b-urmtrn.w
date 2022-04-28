@@ -66,7 +66,7 @@ DEF BUFFER rm-rdtlh-1 FOR rm-rdtlh.
           AND rm-rcpth.trans-date GE fi_date          ~
           AND rm-rcpth.i-no       BEGINS fi_rm-i-no   ~
           AND rm-rcpth.rita-code  BEGINS fi_rita-code ~
-          AND fill(" ",9 - length(TRIM(rm-rcpth.job-no))) + trim(rm-rcpth.job-no)  BEGINS fi_job-no    ~
+          AND FILL(" ", iJobLen - length(TRIM(rm-rcpth.job-no))) + trim(rm-rcpth.job-no)  BEGINS fi_job-no    ~
           AND (rm-rcpth.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                           ~
@@ -84,7 +84,7 @@ DEF BUFFER rm-rdtlh-1 FOR rm-rdtlh.
     IF lv-sort-by EQ "tag"        THEN rm-rdtlh.tag                                                   ELSE ~
     IF lv-sort-by EQ "qty"        THEN STRING(rm-rdtlh.qty,"9999999999")                              ELSE ~
     IF lv-sort-by EQ "cost"       THEN STRING(rm-rdtlh.cost,"9999999999.99999")                       ELSE ~
-    IF lv-sort-by EQ "job-no"     THEN STRING(rm-rcpth.job-no,"x(6)") + STRING(rm-rcpth.job-no2,"99") ELSE ~
+    IF lv-sort-by EQ "job-no"     THEN STRING(rm-rcpth.job-no,"x(9)") + STRING(rm-rcpth.job-no2,"999") ELSE ~
                                        STRING(YEAR(rm-rcpth.trans-date),"9999") + STRING(MONTH(rm-rcpth.trans-date),"99") + STRING(DAY(rm-rcpth.trans-date),"99") + STRING(rm-rcpth.r-no,"9999999999")
 
 &SCOPED-DEFINE sortby BY rm-rcpth.i-no BY rm-rcpth.job-no BY rm-rcpth.job-no2

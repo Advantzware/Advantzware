@@ -168,9 +168,9 @@ DEFINE VARIABLE tcus             LIKE fcus INIT "zzzzzzzz" NO-UNDO.
 DEFINE VARIABLE fitm             LIKE itemfg.i-no NO-UNDO.
 DEFINE VARIABLE titm             LIKE fitm INIT "zzzzzzzzzzzzzzz" NO-UNDO.
 DEFINE VARIABLE fjob             LIKE fg-bin.job-no NO-UNDO.
-DEFINE VARIABLE tjob             LIKE fjob INIT "zzzzzz" NO-UNDO.
-DEFINE VARIABLE fjob2            LIKE fg-bin.job-no2 FORMAT "99" NO-UNDO.
-DEFINE VARIABLE tjob2            LIKE fjob2 INIT 99 NO-UNDO.
+DEFINE VARIABLE tjob             LIKE fjob INIT "zzzzzzzzz" NO-UNDO.
+DEFINE VARIABLE fjob2            LIKE fg-bin.job-no2 FORMAT "999" NO-UNDO.
+DEFINE VARIABLE tjob2            LIKE fjob2 INIT 999 NO-UNDO.
 DEFINE VARIABLE v-q-or-v         AS LOG       FORMAT "Qty/Value" INIT YES NO-UNDO.
 DEFINE VARIABLE v-sub-t          AS LOG       FORMAT "Yes/No" INIT NO NO-UNDO.
 DEFINE VARIABLE v-break          AS LOG       FORMAT "Yes/No" INIT YES NO-UNDO.
@@ -394,7 +394,7 @@ DEFINE VARIABLE begin_i-no     AS CHARACTER FORMAT "X(15)":U
 DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
@@ -429,7 +429,7 @@ DEFINE VARIABLE end_i-no       AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzz
 DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
@@ -579,11 +579,11 @@ DEFINE FRAME FRAME-A
     "Enter Ending Item Number"
     begin_job-no AT ROW 6.95 COL 28 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    begin_job-no2 AT ROW 6.95 COL 40.6 COLON-ALIGNED HELP
+    begin_job-no2 AT ROW 6.95 COL 42.6 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
     end_job-no AT ROW 6.71 COL 68.2 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    end_job-no2 AT ROW 6.71 COL 79.8 COLON-ALIGNED HELP
+    end_job-no2 AT ROW 6.71 COL 81.8 COLON-ALIGNED HELP
     "Enter Ending Job Number"
     begin_whse AT ROW 7.91 COL 28 COLON-ALIGNED HELP
     "Enter Beginning Warehouse" WIDGET-ID 10
@@ -2648,10 +2648,10 @@ PROCEDURE print_report :
         tcus               = end_cust-no
         fitm               = begin_i-no
         titm               = end_i-no
-        fjob               = FILL(" ",9 - length(TRIM(begin_job-no))) +
-                trim(begin_job-no) + string(int(begin_job-no2),"99")
-        tjob               = FILL(" ",9 - length(TRIM(end_job-no)))   +
-                trim(end_job-no)   + string(int(end_job-no2),"99") 
+        fjob               = FILL(" ", iJobLen - length(TRIM(begin_job-no))) +
+                trim(begin_job-no) + string(int(begin_job-no2),"999")
+        tjob               = FILL(" ", iJobLen - length(TRIM(end_job-no)))   +
+                trim(end_job-no)   + string(int(end_job-no2),"999") 
         v-q-or-v           = YES /*rd_show EQ "Quantity"*/
         v-sub-t            = NO /*tb_val-cust*/
         v-break            = NO /*tb_break*/
@@ -2870,7 +2870,7 @@ PROCEDURE print_report :
                 DO:                 
                     CASE cTmpField:               
                         WHEN "v-job#" THEN 
-                            cVarValue = IF tt-file.job-no = "" THEN "" ELSE STRING(tt-file.job-no + "-" + string(tt-file.job-no2,"99")).
+                            cVarValue = IF tt-file.job-no = "" THEN "" ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-file.job-no, tt-file.job-no2))).
                         WHEN "v-order#" THEN 
                             cVarValue = STRING(tt-file.ord-no) .
                         WHEN "v-custpo#" THEN 

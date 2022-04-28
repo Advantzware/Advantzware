@@ -519,7 +519,7 @@ PROCEDURE pInventoryValue:
 
         IF iplIncludeZeroBalance OR iQOH NE 0 THEN DO:
             cJobNo = IF tt-fg-bin.job-no EQ "" THEN ""
-                     ELSE TRIM(tt-fg-bin.job-no) + "-" + string(tt-fg-bin.job-no2,"99").
+                     ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-fg-bin.job-no, tt-fg-bin.job-no2))).
         
             FIND FIRST job-hdr NO-LOCK
                  WHERE job-hdr.company EQ ipcCompany

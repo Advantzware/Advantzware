@@ -1066,36 +1066,46 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_mat-type V-table-Win
 ON VALUE-CHANGED OF fi_mat-type IN FRAME F-Main /* Mat'l Type */
 DO:
-  &Scoped-define mat-types-enable NO
+    &Scoped-define mat-types-enable NO
 
-  FIND FIRST materialType NO-LOCK
-       WHERE materialType.company EQ cocode 
-       AND materialType.materialType EQ fi_mat-type:SCREEN-VALUE NO-ERROR.
+    FIND FIRST materialType NO-LOCK
+        WHERE materialType.company EQ cocode 
+        AND materialType.materialType EQ fi_mat-type:SCREEN-VALUE NO-ERROR.
 
-  IF AVAIL materialType THEN DO:
-    mat_dscr:SCREEN-VALUE = materialType.materialDescription.
+    IF AVAIL materialType THEN DO:
+        mat_dscr:SCREEN-VALUE = materialType.materialDescription.
 
-    &Scoped-define mat-types-enable YES
-    DO WITH FRAME {&FRAME-NAME}:
-      {custom/mattypes.i}
+        FIND FIRST mat NO-LOCK WHERE 
+            mat.mat EQ fi_mat-type:SCREEN-VALUE
+            NO-ERROR.
+        IF NOT AVAIL mat THEN DO:
+            CREATE mat.
+            ASSIGN 
+                mat.company = "*"
+                mat.mat = materialType.materialType
+                mat.dscr = materialType.materialDescription.
+        END.
+
+        &Scoped-define mat-types-enable YES
+        DO WITH FRAME {&FRAME-NAME}:
+            {custom/mattypes.i}
+        END.
+        &UNDEFINE mat-types-enable
+
+        IF fi_mat-type:SCREEN-VALUE = "R" THEN do:
+            ASSIGN
+                item.reg-no:LABEL = "Paper Type" .
+            IF item.reg-no:SCREEN-VALUE = "" THEN ASSIGN
+                item.reg-no:SCREEN-VALUE = "Writing"
+                item.s-wid:SCREEN-VALUE = "17.00"
+                item.s-len:SCREEN-VALUE = "22.00" .
+        END.
+        ELSE IF INDEX("BAP1234",fi_mat-type:SCREEN-VALUE) GT 0 THEN do:
+            ASSIGN
+                item.reg-no:LABEL = "Reg.#" 
+                .
+        END.
     END.
-    &UNDEFINE mat-types-enable
-
-    IF fi_mat-type:SCREEN-VALUE = "R" THEN do:
-        ASSIGN
-            item.reg-no:LABEL = "Paper Type" .
-          IF item.reg-no:SCREEN-VALUE = "" THEN
-              ASSIGN
-              item.reg-no:SCREEN-VALUE = "Writing"
-              item.s-wid:SCREEN-VALUE = "17.00"
-              item.s-len:SCREEN-VALUE = "22.00" .
-    END.
-    ELSE IF INDEX("BAP1234",fi_mat-type:SCREEN-VALUE) GT 0 THEN do:
-        ASSIGN
-            item.reg-no:LABEL = "Reg.#" 
-            .
-    END.
-  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */

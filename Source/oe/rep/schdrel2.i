@@ -481,8 +481,7 @@
        w-ord.job-no        = oe-ordl.job-no
        w-ord.job-no2       = oe-ordl.job-no2
        w-ord.job           = if w-ord.job-no eq "" then "" else
-                               (trim(w-ord.job-no) + "-" +
-                                string(w-ord.job-no2,"99"))
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)))
        w-ord.po-num        = v-po-no
        w-ord.ord-qty       = oe-ordl.qty
        w-ord.shp-qty       = oe-ordl.ship-qty

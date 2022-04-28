@@ -91,7 +91,7 @@ END.
           AND oe-rell.i-no      BEGINS fi_i-no      ~
           AND (oe-rell.ord-no   EQ fi_ord-no OR fi_ord-no EQ 0) ~
           AND oe-rell.po-no     BEGINS fi_po-no     ~
-          AND fill(" ",9 - length(TRIM(oe-rell.job-no))) + trim(oe-rell.job-no) BEGINS fi_job-no    ~
+          AND FILL(" ", iJobLen - length(TRIM(oe-rell.job-no))) + trim(oe-rell.job-no) BEGINS fi_job-no    ~
           AND (oe-rell.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ ""), ~
        FIRST itemfg OF oe-rell NO-LOCK
 

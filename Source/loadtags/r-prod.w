@@ -29,6 +29,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEF VAR tmp-dir AS cha NO-UNDO.
 DEFINE STREAM excel.
 
+{sys/inc/var.i new shared}
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
@@ -38,8 +39,8 @@ DEFINE STREAM excel.
 {custom/getloc.i}
 
 /*{sys/inc/var.i new shared} */
-def new shared var cocode as cha no-undo.
-def new shared var locode as cha no-undo.
+/*def new shared var cocode as cha no-undo.*/
+/*def new shared var locode as cha no-undo.*/
 
 assign
  cocode = gcompany
@@ -74,7 +75,7 @@ DEFINE TEMP-TABLE ttbl_rowid NO-UNDO
 */  
 DEFINE VARIABLE machtotaltime AS DECIMAL NO-UNDO.
 DEFINE VARIABLE shiftpct AS DECIMAL NO-UNDO.
-DEFINE VARIABLE i AS INTEGER NO-UNDO.
+/*DEFINE VARIABLE i AS INTEGER NO-UNDO.*/
 DEFINE VARIABLE waste-qty AS DECIMAL NO-UNDO.
 DEFINE VARIABLE run-qty AS DECIMAL NO-UNDO.
 DEFINE VARIABLE selected-company AS CHARACTER FORMAT "X(3)" LABEL "Company" NO-UNDO.
@@ -776,9 +777,9 @@ PROCEDURE init-proc :
          begin_i-no  = ""
          END_i-no    = "zzzzzzzzzzzzzzz"
          begin_job-no    = ""
-         begin_job-no2   = "00"
+         begin_job-no2   = "000"
          end_job-no      = "zzzzzzzzz"
-         END_job-no2     = "99".
+         END_job-no2     = "999".
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -932,8 +933,8 @@ FOR EACH loadtag WHERE loadtag.company = g_company
                    AND loadtag.is-case-tag 
                    AND loadtag.i-no >= begin_i-no
                    AND loadtag.i-no <= END_i-no
-                   AND fill(" ",9 - length(TRIM(loadtag.job-no))) + trim(loadtag.job-no) + STRING(loadtag.job-no2,"999") >= begin_job_number
-                   AND fill(" ",9 - length(TRIM(loadtag.job-no))) + trim(loadtag.job-no) + STRING(loadtag.job-no2,"999") <= end_job_number
+                   AND FILL(" ", iJobLen - length(TRIM(loadtag.job-no))) + trim(loadtag.job-no) + STRING(loadtag.job-no2,"999") >= begin_job_number
+                   AND FILL(" ", iJobLen - length(TRIM(loadtag.job-no))) + trim(loadtag.job-no) + STRING(loadtag.job-no2,"999") <= end_job_number
                    AND ((loadtag.tag-date >= begin-date
                    AND loadtag.tag-date <= end-date) OR
                        loadtag.tag-date = ?)  NO-LOCK

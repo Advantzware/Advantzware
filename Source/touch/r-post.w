@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/var.i NEW SHARED}
 DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE tmp-dir   AS CHARACTER NO-UNDO.
@@ -49,8 +50,8 @@ DEFINE VARIABLE tmp-dir   AS CHARACTER NO-UNDO.
 {custom/getloc.i}
 
 /*{sys/inc/var.i new shared} */
-DEFINE NEW SHARED VARIABLE cocode AS CHARACTER NO-UNDO.
-DEFINE NEW SHARED VARIABLE locode AS CHARACTER NO-UNDO.
+/*DEFINE NEW SHARED VARIABLE cocode AS CHARACTER NO-UNDO.*/
+/*DEFINE NEW SHARED VARIABLE locode AS CHARACTER NO-UNDO.*/
 
 ASSIGN
     cocode = gcompany
@@ -84,7 +85,7 @@ DEFINE TEMP-TABLE ttbl_rowid NO-UNDO
     FIELD total_time    AS INTEGER.
 DEFINE VARIABLE machtotaltime    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE shiftpct         AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE i                AS INTEGER   NO-UNDO.
+/*DEFINE VARIABLE i                AS INTEGER   NO-UNDO.*/
 DEFINE VARIABLE waste-qty        AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE run-qty          AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE selected-company AS CHARACTER FORMAT "X(3)" LABEL "Company" NO-UNDO.
@@ -1402,8 +1403,8 @@ PROCEDURE do-post :
         WHERE machtran.company = g_company AND
         machtran.machine EQ b-mach.m-code AND
         machtran.posted EQ NO
-        AND fill(" ",9 - length(TRIM(machtran.job_number))) + trim(machtran.job_number) GE begin_job-no
-        AND fill(" ",9 - length(TRIM(machtran.job_number))) + trim(machtran.job_number) LE end_job-no
+        AND FILL(" ", iJobLen - length(TRIM(machtran.job_number))) + trim(machtran.job_number) GE begin_job-no
+        AND FILL(" ", iJobLen - length(TRIM(machtran.job_number))) + trim(machtran.job_number) LE end_job-no
         AND machtran.job_sub GE int(begin_job-no2)
         AND machtran.job_sub LE int(end_job-no2):
 

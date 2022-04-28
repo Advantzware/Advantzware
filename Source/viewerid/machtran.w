@@ -118,10 +118,12 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE FRAME F-Main
      machtran.job_number AT ROW 1.71 COL 15 COLON-ALIGNED
+          FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4
      machtran.job_sub AT ROW 1.71 COL 29.5 COLON-ALIGNED NO-LABEL
+          FORMAT "999"
           VIEW-AS FILL-IN 
           SIZE 5.5 BY 1
           BGCOLOR 15 FONT 4
@@ -199,6 +201,11 @@ END.
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
+/* SETTINGS FOR FILL-IN machtran.job_number IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN machtran.job_sub IN FRAME F-Main
+   EXP-FORMAT                                                           */
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME

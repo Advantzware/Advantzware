@@ -1484,9 +1484,9 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                     WHEN "" THEN
                         lc-return = "Only tags that are not on hold".
                     WHEN "H" THEN
-                        lc-return = "Only on Hold tags".
+                        lc-return = "H-Only on Hold tags".
                     WHEN "A" THEN
-                        lc-return = "Any tag status".     
+                        lc-return = "A-Any tag status".     
                 END CASE.
             END.
         

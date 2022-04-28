@@ -374,8 +374,8 @@ DEFINE BROWSE estOpBrowse
 DEFINE BROWSE jobBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS jobBrowse C-Win _STRUCTURED
   QUERY jobBrowse NO-LOCK DISPLAY
-      job-hdr.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U WIDTH 8.2
-      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U WIDTH 2.2
+      job-hdr.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U WIDTH 15
+      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 5.6
       job-hdr.qty FORMAT ">>,>>>,>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -613,9 +613,9 @@ AND job-hdr.opened EQ FALSE"
   AND ASI.job.job-no = ASI.job-hdr.job-no
   AND ASI.job.job-no2 = ASI.job-hdr.job-no2"
      _FldNameList[1]   > asi.job-hdr.job-no
-"job-hdr.job-no" "Job" ? "character" ? ? ? ? ? ? no ? no no "8.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.job-no" "Job" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.job-hdr.job-no2
-"job-hdr.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "2.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "5.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   = asi.job-hdr.qty
      _Query            is NOT OPENED
 */  /* BROWSE jobBrowse */

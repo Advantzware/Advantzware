@@ -114,30 +114,30 @@ DEFINE VARIABLE begin_due-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE begin_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_due-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending PO Due Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS INTEGER FORMAT "99":U INITIAL 99 
+DEFINE VARIABLE end_job-no2 AS INTEGER FORMAT "999":U INITIAL 999 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-matjob.csv" 
      LABEL "If Yes, File Name" 
@@ -227,11 +227,11 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 DEFINE FRAME FRAME-A
      begin_job-no AT ROW 2.43 COL 29 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 2.43 COL 42 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 2.43 COL 44 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 2.43 COL 72 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 2.43 COL 84 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.43 COL 86 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      tb_sort AT ROW 3.86 COL 31
      tb_show AT ROW 5.05 COL 31
@@ -925,14 +925,14 @@ def buffer b-ref1  for reftable.
 def buffer b-ref2  for reftable.
 
 def var v-job-no                like job.job-no extent 2
-                                init ["", "zzzzzz"]                     no-undo.
-def var v-job-no2               like job.job-no2 extent 2 format "99"
-                                init [00, 99]                           no-undo.
+                                init ["", "zzzzzzzzz"]                     no-undo.
+def var v-job-no2               like job.job-no2 extent 2 format "999"
+                                init [000, 999]                           no-undo.
 def var v-sort-by-size          as   log init no format "yes/no"        no-undo.
 def var v-mattype-list          as   char format "x(36)"                no-undo.
 def var v-mat-dscr              as   char format "x(21)" extent 21      no-undo.
 
-def var v-job                   as   char format "x(9)"                 no-undo.
+def var v-job                   as   char format "x(13)"                 no-undo.
 def var v-itm                   as   char format "x(10)"                no-undo.
 def var v-qty                   like item.q-onh extent 4                no-undo.
 def var v-uom                   like job-mat.qty-uom                    no-undo.
@@ -951,86 +951,86 @@ DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header
-     "Job No"                       to 9
-     "Item No"                      at 13
-     "UOM"                          at 24
-     "Required"                     to 41
-     "Ordered"                      to 56
-     "Received"                     to 71
-     "Vendor"                       at 73
-     "Width"                        to 89
-     "Length"                       to 98
-     "Scoring"                      at 100
-     "Date Due"                     at 134
+     "Job No"                       at 1
+     "Item No"                      at 17
+     "UOM"                          at 28
+     "Required"                     to 45
+     "Ordered"                      TO 60
+     "Received"                     to 75
+     "Vendor"                       at 77
+     "Width"                        to 93
+     "Length"                       to 102
+     "Scoring"                      at 104
+     "Date Due"                     at 138
      skip
-     "---------"                    to 9
-     "----------"                   at 13
-     "---"                          at 24
-     "--------------"               to 41
-     "--------------"               to 56
-     "--------------"               to 71
-     "--------"                     at 73
-     "--------"                     to 89
-     "--------"                     to 98
-     fill("-",33)                   at 100   format "x(33)"
-     "--------"                     at 134
+     "-------------"                AT 1
+     "----------"                   at 17
+     "---"                          at 28
+     "--------------"               to 45
+     "--------------"               TO 60
+     "--------------"               to 75
+     "--------"                     at 77
+     "--------"                     TO 93
+     "--------"                     to 102
+     fill("-",33)                   at 104   format "x(33)"
+     "--------"                     at 138
      skip
 
     with STREAM-IO width 200 no-labels no-box no-underline page-top frame top1.
 
 form header
-     "Job No"                       to 9
-     "Item No"                      at 13
-     "UOM"                          at 24
-     "Required"                     to 41
-     "Ordered"                      to 56
-     "Received"                     to 71
-     "Balance"                      to 86
-     "Vendor"                       at 88
-     "P/O No"                       to 102
-     "Name"                         at 104
-     "Date Due"                     at 125
+     "Job No"                       AT 1
+     "Item No"                      at 17
+     "UOM"                          at 28
+     "Required"                     to 45
+     "Ordered"                      to 60
+     "Received"                     to 75
+     "Balance"                      to 90
+     "Vendor"                       at 92
+     "P/O No"                       to 106
+     "Name"                         at 108
+     "Date Due"                     at 129
      skip
-     "---------"                    to 9
-     "----------"                   at 13
-     "---"                          at 24
-     "--------------"               to 41
-     "--------------"               to 56
-     "--------------"               to 71
-     "--------------"               to 86
-     "--------"                     at 88
-     "------"                       to 102
-     "--------------------"         at 104
-     "--------"                     at 125
+     "-------------"                AT 1
+     "----------"                   at 17
+     "---"                          at 28
+     "--------------"               to 45
+     "--------------"               to 60
+     "--------------"               to 75
+     "--------------"               to 90
+     "--------"                     at 92
+     "------"                       to 106
+     "--------------------"         at 108
+     "--------"                     at 129
      skip
 
     with STREAM-IO width 200 no-labels no-box no-underline page-top frame top2.
 
-form v-job                  to 9
-     v-itm                  at 13
-     v-uom                  at 24
-     v-qty[1]               to 41                           /* required */
-     v-qty[2]               to 56  FORMAT "->>>,>>>,>>9.99" /* ordered  */
-     v-qty[3]               to 71  FORMAT "->>>,>>>,>>9.99" /* recieved */
-     po-ord.vend-no         at 73
-     v-wid                  to 89
-     v-len                  to 98
-     len-score              at 100   format "x(33)"
-     po-ord.due-date        at 134  FORMAT "99/99/99"
+form v-job                  AT 1
+     v-itm                  at 17
+     v-uom                  at 28
+     v-qty[1]               to 45                           /* required */
+     v-qty[2]               to 60  FORMAT "->>>,>>>,>>9.99" /* ordered  */
+     v-qty[3]               to 75  FORMAT "->>>,>>>,>>9.99" /* recieved */
+     po-ord.vend-no         at 77
+     v-wid                  to 93
+     v-len                  to 102
+     len-score              at 104   format "x(33)"
+     po-ord.due-date        at 138  FORMAT "99/99/99"
 
     with down STREAM-IO width 200 no-labels no-box no-underline frame detail1.
 
-form v-job                  to 9
-     v-itm                  at 13
-     v-uom                  at 24
-     v-qty[1]               to 41                           /* required */
-     v-qty[2]               to 56  FORMAT "->>>,>>>,>>9.99" /* ordered  */
-     v-qty[3]               to 71  FORMAT "->>>,>>>,>>9.99" /* recieved */
-     v-qty[4]               to 86
-     po-ord.vend-no         at 88
-     po-ord.po-no           to 102
-     vend.name              at 104  format "x(20)"
-     po-ord.due-date        at 125  FORMAT "99/99/99"
+form v-job                  AT 1
+     v-itm                  at 17
+     v-uom                  at 28
+     v-qty[1]               to 45                           /* required */
+     v-qty[2]               to 60  FORMAT "->>>,>>>,>>9.99" /* ordered  */
+     v-qty[3]               to 75  FORMAT "->>>,>>>,>>9.99" /* recieved */
+     v-qty[4]               to 90
+     po-ord.vend-no         at 92
+     po-ord.po-no           to 106
+     vend.name              at 108  format "x(20)"
+     po-ord.due-date        at 129  FORMAT "99/99/99"
 
     with down STREAM-IO width 200 no-labels no-box no-underline frame detail2.
 
@@ -1044,13 +1044,13 @@ assign
  v-job-no2[2]   = end_job-no2
  v-sort-by-size = tb_sort
 
- v-job-no[1] = fill(" ",6 - length(trim(v-job-no[1]))) +
+ v-job-no[1] = FILL(" ", iJobLen - length(trim(v-job-no[1]))) +
                trim(v-job-no[1])                       +
-               string(v-job-no2[1],"99")
+               string(v-job-no2[1],"999")
 
- v-job-no[2] = fill(" ",6 - length(trim(v-job-no[2]))) +
+ v-job-no[2] = FILL(" ", iJobLen - length(trim(v-job-no[2]))) +
                trim(v-job-no[2])                       +
-               string(v-job-no2[2],"99")
+               string(v-job-no2[2],"999")
  v-mattype-list = "".
 
 do with frame {&frame-name}:          

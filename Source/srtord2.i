@@ -35,7 +35,7 @@ WHEN {1} THEN DO:
       lv-search = FILL(" ",8 - LENGTH(TRIM(lv-search))) + TRIM(lv-search).
     ELSE
     IF "{&FLD-NAME-{1}}" MATCHES "*.job-no" THEN
-      lv-search = FILL(" ",6 - LENGTH(TRIM(lv-search))) + TRIM(lv-search).
+      lv-search = FILL(" ", iJobLen - LENGTH(TRIM(lv-search))) + TRIM(lv-search).
 
   {&open-query-{&browse-name}}
 

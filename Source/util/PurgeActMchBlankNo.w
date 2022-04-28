@@ -91,12 +91,12 @@ DEFINE BUTTON btn-process
      LABEL "&Start Process" 
      SIZE 18 BY 1.14.
 
-DEFINE VARIABLE fi_BeginJob AS CHARACTER FORMAT "X(8)":U 
+DEFINE VARIABLE fi_BeginJob AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_EndJob AS CHARACTER FORMAT "X(8)":U INITIAL "ZZZZZZZZ" 
+DEFINE VARIABLE fi_EndJob AS CHARACTER FORMAT "X(9)":U INITIAL "ZZZZZZZZZ" 
      LABEL "Ending Job" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
@@ -380,8 +380,8 @@ END.
 
 FOR EACH bf-mch-act 
     WHERE bf-mch-act.company EQ cocode
-        AND TRIM(bf-mch-act.job-no) GE fi_BeginJob
-        AND TRIM(bf-mch-act.job-no) LE fi_EndJob
+        AND bf-mch-act.job-no GE fi_BeginJob
+        AND bf-mch-act.job-no LE fi_EndJob
         AND bf-mch-act.blank-no NE 0,
     EACH bf-mach 
         WHERE bf-mach.company EQ bf-mch-act.company

@@ -111,20 +111,20 @@ DEFINE VARIABLE fiExportFile AS CHARACTER FORMAT "X(256)":U INITIAL "c:~\tmp~\jo
 DEFINE VARIABLE fiFromJobNo AS CHARACTER FORMAT "X(256)":U 
      LABEL "From Job#" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiFromJobNo2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fiFromJobNo2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiToJobNo AS CHARACTER FORMAT "X(256)":U 
      LABEL "To Job#" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiToJobNo2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fiToJobNo2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -450,7 +450,7 @@ DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
                 IF dQty NE 0 THEN 
                     NEXT.
           
-                STATUS DEFAULT job.job-no + "-" + STRING(job.job-no2, "99").
+                STATUS DEFAULT STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)).
                 FOR EACH job-hdr NO-LOCK
                     WHERE job-hdr.company EQ cocode
                     AND job-hdr.job     EQ job.job

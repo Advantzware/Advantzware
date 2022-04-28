@@ -1242,7 +1242,7 @@ FOR EACH job-hdr NO-LOCK
     END.
 
     FIND FIRST tt-sample-ctn WHERE
-        TRIM(tt-sample-ctn.tt-job-no) EQ TRIM(job-hdr.job-no) AND
+        tt-sample-ctn.tt-job-no  EQ job-hdr.job-no AND
         tt-sample-ctn.tt-job-no2 EQ job-hdr.job-no2 AND
         tt-sample-ctn.tt-frm EQ eb.form-no
         NO-ERROR.

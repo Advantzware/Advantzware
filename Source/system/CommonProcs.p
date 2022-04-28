@@ -40,6 +40,7 @@ DEFINE VARIABLE lUserAMPM           AS LOGICAL   NO-UNDO.
 
 /* ************************  Function Prototypes ********************** */
 
+
 &IF DEFINED(EXCLUDE-fGetNK1Cecscrn) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetNK1Cecscrn Procedure 
@@ -109,6 +110,19 @@ FUNCTION sfCommon_GetDifferenceDays RETURNS INTEGER
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_GetJobLen) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_GetJobLen Procedure
+FUNCTION sfCommon_GetJobLen RETURNS INTEGER 
+  (INPUT cCompany AS CHAR) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfCommon_GetNumberOfDaysInMonth) = 0 &THEN
 
@@ -227,6 +241,20 @@ FUNCTION sfCommon_SetDateOptions RETURNS LOGICAL
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_TimeDisplay Procedure 
 FUNCTION sfCommon_TimeDisplay RETURNS CHARACTER
   (ipiTime AS INTEGER, iplClockTime AS LOGICAL, iplSeconds AS LOGICAL) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fCommon_TimeSpan) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCommon_TimeSpan Procedure
+FUNCTION sfCommon_TimeSpan RETURNS INTEGER 
+  (ipdtStartDate AS DATE,
+   ipiStartTime AS INTEGER,
+   ipdtEndDate AS DATE,
+   ipiEndTime AS INTEGER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1326,6 +1354,47 @@ END FUNCTION.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfCommon_GetJobLen) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_GetJobLen Procedure
+FUNCTION sfCommon_GetJobLen RETURNS INTEGER 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iJobLen AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cReturnValue AS CHAR NO-UNDO.
+    DEFINE VARIABLE lRecFound AS LOG NO-UNDO.
+    
+    /* Create an NK1 with blank company; ONLY accessible via editor or DataDigger */
+    
+    RUN sys/ref/nk1look.p (
+        INPUT "",           /* Company Code */ 
+        INPUT "JobNoLength", /* sys-ctrl name */
+        INPUT "I",              /* Output return value */
+        INPUT NO,               /* Use ship-to */
+        INPUT NO,               /* ship-to vendor */
+        INPUT "",               /* ship-to vendor value */
+        INPUT "",               /* ship-id value */
+        OUTPUT cReturnValue, 
+        OUTPUT lRecFound
+        ). 
+        
+    ASSIGN 
+        iJobLen = INTEGER(cReturnValue).
+        
+    RETURN iJobLen.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfCommon_GetNumberOfDaysInMonth) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_GetNumberOfDaysInMonth Procedure 
@@ -1633,6 +1702,24 @@ FUNCTION sfCommon_TimeDisplay RETURNS CHARACTER
 
     RETURN opcTimeDisplay.
 
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fCommon_TimeSpan) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCommon_TimeSpan Procedure
+FUNCTION sfCommon_TimeSpan RETURNS INTEGER 
+    (ipdtStartDate AS DATE, ipiStartTime AS INTEGER, ipdtEndDate AS DATE, ipiEndTime AS INTEGER):
+/*------------------------------------------------------------------------------
+  Purpose:  calculate time span between 2 dates & times in seconds
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN IF ipdtStartDate EQ ipdtEndDate THEN ipiEndTime - ipiStartTime
+           ELSE (86400 - ipiStartTime) + (ipdtEndDate - ipdtStartDate - 1) * 86400 + ipiEndTime.
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

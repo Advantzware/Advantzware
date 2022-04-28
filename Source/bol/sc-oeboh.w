@@ -499,7 +499,7 @@ DO:
       v-job-no2 = v-job-no2 + substring(trim(scan_itemfg:screen-value),x,1).
   end.
   
-  v-job-no =  fill(" ",6 - length(trim(string(v-job-no)))) +
+  v-job-no =  FILL(" ", iJobLen - length(trim(string(v-job-no)))) +
                         trim(string(v-job-no)).
 
   find first job-mat where job-mat.company eq gcompany 

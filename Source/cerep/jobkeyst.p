@@ -881,7 +881,7 @@ END.
           
           IF LAST-OF(eb.form-no) THEN DO:
             FIND FIRST tt-keyst
-                WHERE TRIM(tt-keyst.tt-job-no)  EQ TRIM(job-hdr.job-no)
+                WHERE tt-keyst.tt-job-no  EQ job-hdr.job-no
                   AND tt-keyst.tt-job-no2 EQ job-hdr.job-no2
                   AND tt-keyst.tt-frm     EQ int(tt-reftable.val[12])
                 NO-ERROR.
@@ -1195,7 +1195,7 @@ END.
                  END.
 
                  FIND FIRST tt-key2
-                     WHERE TRIM(tt-key2.tt-job-no)  EQ TRIM(job-hdr.job-no)
+                     WHERE tt-key2.tt-job-no  EQ job-hdr.job-no
                        AND tt-key2.tt-job-no2 EQ job-hdr.job-no2
                        AND tt-key2.tt-frm     EQ int(tt-reftable.val[12])
                        AND tt-key2.tt-i-no    EQ bf-eb.stock-no

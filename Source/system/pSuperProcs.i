@@ -63,7 +63,7 @@ PROCEDURE pSuperProcs:
                 CREATE ttSuperProc.
                 ASSIGN
                     ttSuperProc.procName     = ENTRY(idx,cSuperProcs)
-                    ttSuperProc.internalProc = "Erro Message"
+                    ttSuperProc.internalProc = "Error Message"
                     ttSuperProc.procType     = "ERROR"
                     ttSuperProc.procParams   = ERROR-STATUS:GET-MESSAGE(jdx)
                     .

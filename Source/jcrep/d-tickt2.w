@@ -156,25 +156,25 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE begin_job1 AS CHARACTER FORMAT "x(6)" 
+DEFINE VARIABLE begin_job1 AS CHARACTER FORMAT "x(9)" 
      LABEL "Beginning  Job#" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1.
+     SIZE 15 BY 1.
 
-DEFINE VARIABLE begin_job2 AS INTEGER FORMAT ">9" INITIAL 0 
+DEFINE VARIABLE begin_job2 AS INTEGER FORMAT ">>9" INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1.
+     SIZE 5.4 BY 1.
 
-DEFINE VARIABLE end_job1 AS CHARACTER FORMAT "x(6)" INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job1 AS CHARACTER FORMAT "x(9)" INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1.
+     SIZE 15 BY 1.
 
-DEFINE VARIABLE end_job2 AS INTEGER FORMAT ">9" INITIAL 99 
+DEFINE VARIABLE end_job2 AS INTEGER FORMAT ">>9" INITIAL 999 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1.
+     SIZE 5.4 BY 1.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -1161,7 +1161,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        TRIM(begin_job1) EQ TRIM(end_job1)  THEN DO:
       FIND FIRST job-hdr NO-LOCK
           WHERE job-hdr.company EQ cocode
-            AND job-hdr.job-no  EQ FILL(" ",6 - LENGTH(begin_job1)) +
+            AND job-hdr.job-no  EQ FILL(" ", iJobLen - LENGTH(begin_job1)) +
                                    TRIM(begin_job1)
             AND job-hdr.job-no2 EQ INT(begin_job2)
           NO-ERROR.
@@ -1580,14 +1580,14 @@ IF locode = "" THEN locode = "MAIN".
 {sys/form/r-top.i}
 
 ASSIGN
- fjob-no   = fill(" ",6 - length(trim(begin_job1))) + trim(begin_job1)
- tjob-no   = fill(" ",6 - length(trim(end_job1))) + trim(end_job1)
+ fjob-no   = FILL(" ", iJobLen - length(trim(begin_job1))) + trim(begin_job1)
+ tjob-no   = FILL(" ", iJobLen - length(trim(end_job1))) + trim(end_job1)
  fjob-no2  = begin_job2
  tjob-no2  = end_job2
- fjob-no   = fill(" ",6 - length(trim(fjob-no))) + trim(fjob-no) +
-             string(fjob-no2,"99")
- tjob-no   = fill(" ",6 - length(trim(tjob-no))) + trim(tjob-no) +
-             string(tjob-no2,"99")
+ fjob-no   = FILL(" ", iJobLen - length(trim(fjob-no))) + trim(fjob-no) +
+             string(fjob-no2,"999")
+ tjob-no   = FILL(" ", iJobLen - length(trim(tjob-no))) + trim(tjob-no) +
+             string(tjob-no2,"999")
  print-box = tb_box
  reprint   = tb_reprint
  spec-list = spec_codes

@@ -61,10 +61,11 @@ RUN spGetSessionParam (
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btExit RECT-15 btSimulatePurge RECT-16 ~
 fiBeginingCustomer fiEndingCustomer begin_rel-date end_rel-date ~
-btStartProcess fiBeginingItem fiEndingItem fiDirectory tbOpenFile 
-&Scoped-Define DISPLAYED-OBJECTS fiBeginingCustomer fiEndingCustomer ~
-begin_rel-date end_rel-date fiBeginingItem fiEndingItem fiDirectory ~
+btStartProcess fiBeginingItem fiEndingItem tbZeroOrderLine fiDirectory ~
 tbOpenFile 
+&Scoped-Define DISPLAYED-OBJECTS fiBeginingCustomer fiEndingCustomer ~
+begin_rel-date end_rel-date fiBeginingItem fiEndingItem tbZeroOrderLine ~
+fiDirectory tbOpenFile 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -132,13 +133,13 @@ DEFINE VARIABLE fiDirectory AS CHARACTER FORMAT "X(256)":U
      SIZE 64.8 BY 1
      FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiEndingCustomer AS CHARACTER FORMAT "X(10)":U INITIAL "zzzzzzzz"
+DEFINE VARIABLE fiEndingCustomer AS CHARACTER FORMAT "X(10)":U INITIAL "zzzzzzzz" 
      LABEL "Ending Customer" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1
      BGCOLOR 15 FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiEndingItem AS CHARACTER FORMAT "X(15)":U  INITIAL "zzzzzzzzzzzzzzz"
+DEFINE VARIABLE fiEndingItem AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz" 
      LABEL "Ending Item" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1
@@ -159,6 +160,12 @@ DEFINE VARIABLE tbOpenFile AS LOGICAL INITIAL no
      SIZE 14.4 BY .81
      FONT 22 NO-UNDO.
 
+DEFINE VARIABLE tbZeroOrderLine AS LOGICAL INITIAL no 
+     LABEL " Zero Order Lines Not in Price Matrix" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 49 BY .81
+     FONT 22 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -173,10 +180,11 @@ DEFINE FRAME DEFAULT-FRAME
      btStartProcess AT ROW 12.86 COL 49.6 WIDGET-ID 12
      fiBeginingItem AT ROW 6.48 COL 28.4 COLON-ALIGNED WIDGET-ID 6
      fiEndingItem AT ROW 6.48 COL 71.4 COLON-ALIGNED WIDGET-ID 8
-     fiDirectory AT ROW 10.1 COL 3 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-     tbOpenFile AT ROW 10.19 COL 70.4 WIDGET-ID 26
+     tbZeroOrderLine AT ROW 7.91 COL 30 WIDGET-ID 30
+     fiDirectory AT ROW 10.48 COL 3 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     tbOpenFile AT ROW 10.57 COL 70.4 WIDGET-ID 26
      "Records to view  will be stored in directory:" VIEW-AS TEXT
-          SIZE 50.6 BY .62 AT ROW 9.1 COL 11.4 WIDGET-ID 16
+          SIZE 50.6 BY .62 AT ROW 9.48 COL 11.4 WIDGET-ID 16
           FONT 22
      RECT-15 AT ROW 1 COL 1 WIDGET-ID 20
      RECT-16 AT ROW 2.95 COL 3 WIDGET-ID 22
@@ -258,7 +266,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Cleanse Price Matrix */
+ON END-ERROR OF C-Win /* Recalculate Open Order Price */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -271,7 +279,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Cleanse Price Matrix */
+ON WINDOW-CLOSE OF C-Win /* Recalculate Open Order Price */
 DO:
  /* IF VALID-HANDLE(hdOutputProcs) THEN 
       DELETE PROCEDURE hdOutputProcs.    */
@@ -459,11 +467,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fiBeginingCustomer fiEndingCustomer begin_rel-date end_rel-date 
-          fiBeginingItem fiEndingItem fiDirectory tbOpenFile 
+          fiBeginingItem fiEndingItem tbZeroOrderLine fiDirectory tbOpenFile 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE btExit RECT-15 btSimulatePurge RECT-16 fiBeginingCustomer 
          fiEndingCustomer begin_rel-date end_rel-date btStartProcess 
-         fiBeginingItem fiEndingItem fiDirectory tbOpenFile 
+         fiBeginingItem fiEndingItem tbZeroOrderLine fiDirectory tbOpenFile 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -511,7 +519,8 @@ PROCEDURE pRunProcess PRIVATE :
                                 INPUT date(begin_rel-date:SCREEN-VALUE), 
                                 INPUT date(end_rel-date:SCREEN-VALUE), 
                                 INPUT fiBeginingItem:SCREEN-VALUE, 
-                                INPUT fiEndingItem:SCREEN-VALUE, 
+                                INPUT fiEndingItem:SCREEN-VALUE,
+                                INPUT LOGICAL(tbZeroOrderLine:SCREEN-VALUE),
                                 INPUT iplExpire, 
                                 INPUT cLocation + "\" + cFileName ).                 
     END.    

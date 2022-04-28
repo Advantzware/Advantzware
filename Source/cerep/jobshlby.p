@@ -286,10 +286,10 @@ ASSIGN
 /* build tt-reftable */
 for each job-hdr NO-LOCK
         where job-hdr.company               eq cocode
-          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
 	      TRIM(job-hdr.job-no) +
 	      STRING(job-hdr.job-no2,"999")  GE fjob-no
-	  AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
 	      TRIM(job-hdr.job-no) +
 	      STRING(job-hdr.job-no2,"999")  LE tjob-no
 	  AND job-hdr.job-no2 GE fjob-no2
@@ -347,10 +347,10 @@ END.
 
 for each job-hdr NO-LOCK
         where job-hdr.company               eq cocode
-          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
 	      TRIM(job-hdr.job-no) +
 	      STRING(job-hdr.job-no2,"999")  GE fjob-no
-	  AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
 	      TRIM(job-hdr.job-no) +
 	      STRING(job-hdr.job-no2,"999")  LE tjob-no
 	  AND job-hdr.job-no2 GE fjob-no2
@@ -1055,7 +1055,7 @@ END. /* for each bf-jobhdr*/
                      BY bf-fg-bin.job-no BY bf-fg-bin.job-no2 :
                 IF bf-fg-bin.job-no = job-hdr.job-no AND
                    bf-fg-bin.job-no2 = job-hdr.job-no2 THEN .
-                ELSE v-prev-job = v-prev-job + trim(bf-fg-bin.job-no) + /*"-" + STRING(bf-fg-bin.job-no2,"99") + */ ",".
+                ELSE v-prev-job = v-prev-job + trim(bf-fg-bin.job-no) + ",".
             END.
 
             display " " trim(string(eb.form-no,">>9")) + "-" +

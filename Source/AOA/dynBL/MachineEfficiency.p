@@ -32,7 +32,7 @@ DEFINE TEMP-TABLE ttMachineEfficiency NO-UNDO
     FIELD scrQty   AS INTEGER   LABEL "SCRAP QTY" FORMAT "->>>>>>>>9"
     FIELD scrMsf   AS DECIMAL   LABEL "SCRAP MSF" FORMAT "->>>>>.999"
     FIELD totScrap AS DECIMAL   LABEL "% OF TOT SCRAP" FORMAT "->>>>9.99"
-    FIELD job      AS CHARACTER LABEL "Job#" FORMAT "x(6)"
+    FIELD job      AS CHARACTER LABEL "Job#" FORMAT "x(9)"
     FIELD job2     AS INTEGER   LABEL "Job2" FORMAT ">>9"
     .
         

@@ -148,12 +148,12 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
     LABEL "Beginning Date" 
     VIEW-AS FILL-IN 
-    SIZE 18 BY .95 NO-UNDO.
+    SIZE 20.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
-    SIZE 14 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
@@ -163,12 +163,12 @@ DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000"
 DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
     LABEL "Ending Date" 
     VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+    SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
-    SIZE 14 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
@@ -295,14 +295,14 @@ DEFINE FRAME FRAME-A
     rd_jstat AT ROW 2.91 COL 43 NO-LABELS
     begin_job-no AT ROW 4.33 COL 24 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    begin_job-no2 AT ROW 4.33 COL 37 COLON-ALIGNED HELP
+    begin_job-no2 AT ROW 4.33 COL 39 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    end_job-no AT ROW 4.33 COL 67 COLON-ALIGNED HELP
+    end_job-no AT ROW 4.33 COL 65 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    end_job-no2 AT ROW 4.33 COL 79 COLON-ALIGNED HELP
+    end_job-no2 AT ROW 4.33 COL 80 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    begin_date AT ROW 5.52 COL 24 COLON-ALIGNED
-    end_date AT ROW 5.52 COL 67 COLON-ALIGNED HELP
+    begin_date AT ROW 5.3 COL 24 COLON-ALIGNED
+    end_date AT ROW 5.3 COL 65 COLON-ALIGNED HELP
     "Enter Ending Due Date"
     tb_off AT ROW 7.67 COL 39
     tb_flex AT ROW 7.67 COL 58
@@ -1449,10 +1449,10 @@ CartonsProducedbyJob,FGReceived,CustomerOrderQty".
     IF v-pr-list NE "" THEN
         FOR EACH job
             WHERE job.company            EQ cocode            
-            AND fill(" ",9 - length(TRIM(job.job-no))) +
+            AND FILL(" ", iJobLen - length(TRIM(job.job-no))) +
             trim(job.job-no) +  string(job.job-no2,"999")
             GE v-fjob
-            AND fill(" ",9 - length(TRIM(job.job-no))) +
+            AND FILL(" ", iJobLen - length(TRIM(job.job-no))) +
             trim(job.job-no) +  string(job.job-no2,"999")
             LE v-tjob
             and job.job-no2 ge int(begin_job-no2)
@@ -1675,39 +1675,6 @@ CartonsProducedbyJob,FGReceived,CustomerOrderQty".
             DO:
                 v-blank     = v-blank / v-sheet .
                 v-blanks[1] = v-sheets[1] * v-blank - v-blanks[3].
-                /*       v-blanks[1] = v-sheets[3] - (v-blanks[3] / v-sheet) .  /* Mod 01     Task  10091314    */ */
-
-
-                /*   display trim(job.job-no) + "-" + string(job.job-no2,"99") format "x(9)"
-                                 column-label "Job#"
-                           job-hdr.cust-no
-                                 column-label "Customer"
-                           bjob-mch.m-code  
-                                 column-label "Machine"
-                           v-sheet         
-                                 column-label "# FG/!Job"
-                           v-blank
-                                 column-label "Avg # up!on the Job"
-                           v-sheets[1]
-                                 column-label "Issued!Sheets"
-                           v-sheets[2]
-                                 column-label "Sheets!Issued to!Press by!Sheeter"
-                           v-sheets[3]
-                                 column-label "Sheets!Issued to!Cutting by!Press"
-                           v-sheets[4]
-                                 column-label "Sheets Cut!by Cutting!Issued to!Finishing"
-                           v-blanks[1]
-                                 column-label "Plan!Waste for!Cartons"
-                           v-blanks[2]
-                                 column-label "Cartons!Produced!by Job"
-                           v-blanks[3]
-                                 column-label "FG!Received"
-                           v-blanks[4]
-                                 column-label "Customer!Order Qty"
-                           skip(1)
-             
-                       with frame scrap no-attr-space no-box down STREAM-IO width 132. */
-
 
                 ASSIGN 
                     cDisplay       = ""
@@ -1760,25 +1727,6 @@ CartonsProducedbyJob,FGReceived,CustomerOrderQty".
                     PUT STREAM s-temp UNFORMATTED  
                         cExcelDisplay SKIP.
                 END.
-
-                /*    if tb_excel then
-                    do:
-                      assign str_buffa = "".
-                      assign str_buffa = trim(job.job-no) + "-" + string(job.job-no2,"99") + v-comma   /* Mod 01     Task  10091314    */ 
-                                       + trim(job-hdr.cust-no)                             + v-comma
-                                       + trim(bjob-mch.m-code)                             + v-comma
-                                       + trim(string(v-sheet,'->9'))                        + v-comma 
-                                       + trim(string(v-blank,'->9.999'))                    + v-comma
-                                       + trim(string(v-sheets[1],'->>>>>>>9'))            + v-comma
-                                       + trim(string(v-sheets[2],'->>>>>>>9'))            + v-comma
-                                       + trim(string(v-sheets[3],'->>>>>>>9'))            + v-comma
-                                       + trim(string(v-sheets[4],'->>>>>>>9'))            + v-comma
-                                       + trim(string(v-blanks[1],'->>>>>>>9'))            + v-comma
-                                       + trim(string(v-blanks[2],'->>>>>>>9'))            + v-comma
-                                       + trim(string(v-blanks[3],'->>>>>>>9'))            + v-comma
-                                       + trim(string(v-blanks[4],'->>>>>>>9')).      
-                      PUT STREAM s-temp UNFORMATTED str_buffa SKIP.
-                    end. */
 
                 ASSIGN
                     v-sheet  = 0

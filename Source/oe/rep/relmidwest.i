@@ -132,7 +132,7 @@ DEF VAR iPallets AS INT NO-UNDO.
 DEF VAR iPalletsPartial AS INT NO-UNDO.
 DEFINE VARIABLE cSalRepName AS CHARACTER  NO-UNDO.
 
-format w-oe-rell.ord-no                 TO 6
+format w-oe-rell.ord-no                 TO 8
        w-bin.w-par                      AT 10   FORMAT "X(30)"
        v-bin                            AT 40   FORMAT "X(20)"
        cDate                            AT 61   FORMAT "X(10)"
@@ -224,8 +224,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           where oe-ord.company eq xoe-rell.company
             and oe-ord.ord-no  eq xoe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-terms = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-terms:
              when "P" THEN v-frt-terms = "Prepaid".
              when "C" THEN v-frt-terms = "Collect".
              when "B" THEN v-frt-terms = "Bill".

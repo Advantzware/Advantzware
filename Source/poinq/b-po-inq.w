@@ -309,7 +309,7 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
 
 DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1
+     SIZE 15 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
@@ -482,13 +482,13 @@ DEFINE FRAME F-Main
      Browser-Table AT ROW 4.57 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      tb_approved AT ROW 1.33 COL 138.4 WIDGET-ID 12
-     fi_po-no AT ROW 2.19 COL 2.6 NO-LABEL
-     fi_vend-no AT ROW 2.19 COL 13 COLON-ALIGNED NO-LABEL
-     fi_i-no AT ROW 2.19 COL 28.4 COLON-ALIGNED NO-LABEL
-     fi_vend-i-no AT ROW 2.19 COL 52.8 COLON-ALIGNED NO-LABEL
-     fi_due-date AT ROW 2.19 COL 77.2 COLON-ALIGNED NO-LABEL
-     fi_job-no AT ROW 2.19 COL 93 COLON-ALIGNED NO-LABEL
-     fi_job-no2 AT ROW 2.19 COL 105.6 COLON-ALIGNED NO-LABEL
+     fi_po-no AT ROW 2.19 COL 2 NO-LABEL
+     fi_vend-no AT ROW 2.19 COL 12.2 COLON-ALIGNED NO-LABEL
+     fi_i-no AT ROW 2.19 COL 27.4 COLON-ALIGNED NO-LABEL
+     fi_vend-i-no AT ROW 2.19 COL 51.6 COLON-ALIGNED NO-LABEL
+     fi_due-date AT ROW 2.19 COL 75.8 COLON-ALIGNED NO-LABEL
+     fi_job-no AT ROW 2.19 COL 91 COLON-ALIGNED NO-LABEL
+     fi_job-no2 AT ROW 2.19 COL 105.8 COLON-ALIGNED NO-LABEL
      tb_unpaid AT ROW 2.14 COL 114.2
      tb_paid AT ROW 1.24 COL 114.2
      btn_go AT ROW 3.38 COL 2.2
@@ -1100,7 +1100,7 @@ PROCEDURE add-po-best :
    DO:
       FIND FIRST job WHERE
            job.company EQ cocode AND
-           trim(job.job-no) EQ trim(op-job-no) AND
+           job.job-no EQ op-job-no AND
            job.job-no2 EQ op-job-no2
            NO-LOCK NO-ERROR.
 
@@ -2275,7 +2275,7 @@ PROCEDURE show-prev-next :
 DEF VAR li AS INT NO-UNDO.
 DEF VAR lv-po-no AS INT NO-UNDO.
 
-IF fi_job-no NE "" THEN fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
+IF fi_job-no NE "" THEN fi_job-no = FILL(" ", iJobLen - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
 
 FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
      AND sys-ctrl.name EQ "POBROWSE"
@@ -2891,7 +2891,7 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
                            + (IF INDEX(fi_vend-no,"*") GT 0 THEN " AND po-ordl.vend-no MATCHES " + QUOTER(fi_vend-no + "*") ELSE IF fi_vend-no NE "" THEN " AND po-ordl.vend-no BEGINS " + QUOTER(fi_vend-no) ELSE "")
                            + (IF INDEX(fi_i-no,"*") GT 0 THEN " AND po-ordl.i-no MATCHES " + QUOTER(fi_i-no + "*") ELSE IF fi_i-no NE "" THEN " AND po-ordl.i-no BEGINS " + QUOTER(fi_i-no) ELSE "")
                            + (IF INDEX(fi_vend-i-no,"*") GT 0 THEN " AND po-ordl.vend-i-no MATCHES " + QUOTER(fi_vend-i-no + "*") ELSE IF fi_vend-i-no NE "" THEN " AND po-ordl.vend-i-no BEGINS " + QUOTER(fi_vend-i-no) ELSE "")
-                           + (IF fi_job-no NE "" THEN ' AND fill(" ",9 - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) BEGINS ' + QUOTER(fi_job-no) ELSE "")
+                           + (IF fi_job-no NE "" THEN ' AND FILL(" ",' + STRING(iJobLen) + ' - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) BEGINS ' + QUOTER(fi_job-no) ELSE "")
                            + (IF fi_job-no NE "" AND fi_job-no2 NE 0 THEN " AND po-ordl.job-no2 EQ " + STRING(fi_job-no2) ELSE "")
                            . 
     END.     

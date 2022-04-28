@@ -157,12 +157,12 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Date" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY .95 NO-UNDO.
+     SIZE 20.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
@@ -172,17 +172,17 @@ DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000"
 DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Machine" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
@@ -192,7 +192,7 @@ DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999"
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Machine" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-mchcst.csv" 
      LABEL "Name" 
@@ -299,11 +299,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Machine"
      begin_job-no AT ROW 5.05 COL 24 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 5.05 COL 37 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 5.05 COL 39 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 5.05 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 5.05 COL 80 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 5.05 COL 82 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_date AT ROW 6 COL 24 COLON-ALIGNED
      end_date AT ROW 6 COL 67 COLON-ALIGNED HELP

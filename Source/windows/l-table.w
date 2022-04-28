@@ -32,6 +32,7 @@
 /* Local Variable Definitions ---                                       */
 
 def output param op-char-val as cha no-undo.
+{sys/inc/var.i}
 
 DEF TEMP-TABLE tt-table FIELD tbl-name AS cha FORM "x(20)".
 

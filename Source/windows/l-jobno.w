@@ -34,6 +34,8 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/VAR.i}
+
 def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
@@ -318,7 +320,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
 
@@ -381,7 +383,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
 
@@ -436,7 +438,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
 

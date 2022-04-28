@@ -1467,7 +1467,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-ext          AS DECIMAL   EXTENT 4.
     DEFINE VARIABLE v-date         AS DATE      NO-UNDO.
     DEFINE VARIABLE v-ord-qty      LIKE oe-ordl.qty.
-    DEFINE VARIABLE v-job          AS CHARACTER FORMAT "x(9)" NO-UNDO.
+    DEFINE VARIABLE v-job          AS CHARACTER FORMAT "x(13)" NO-UNDO.
     DEFINE VARIABLE li-inv-qty     LIKE oe-ordl.inv-qty NO-UNDO.
     DEFINE VARIABLE li-ship-qty    LIKE oe-ordl.ship-qty NO-UNDO.
     DEFINE VARIABLE cDisplay       AS CHARACTER NO-UNDO.

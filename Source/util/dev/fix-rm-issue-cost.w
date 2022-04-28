@@ -505,8 +505,8 @@ PROCEDURE run-process :
 DEF BUFFER b-rh FOR rm-rcpth.
 DEF BUFFER b-rd FOR rm-rdtlh.
 
-DEF VAR v-job-no LIKE job.job-no EXTENT 2 INIT ["", "zzzzzz"] NO-UNDO.
-DEF VAR v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [00, 99] NO-UNDO.
+DEF VAR v-job-no LIKE job.job-no EXTENT 2 INIT ["", "zzzzzzzzz"] NO-UNDO.
+DEF VAR v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [000, 999] NO-UNDO.
 
 DEF VAR v-r-qty     AS   DEC                    NO-UNDO.
 DEF VAR v-i-qty     AS   DEC                    NO-UNDO.
@@ -532,9 +532,9 @@ ASSIGN
 
 FOR EACH b-rh NO-LOCK
     WHERE b-rh.company    EQ cocode       
-      AND FILL(" ",9 - LENGTH(TRIM(b-rh.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(b-rh.job-no))) +
           TRIM(b-rh.job-no) + STRING(INT(b-rh.job-no2),"999") GE v-job-no[1]
-      AND FILL(" ",9 - LENGTH(TRIM(b-rh.job-no)))   +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(b-rh.job-no)))   +
           TRIM(b-rh.job-no) + STRING(INT(b-rh.job-no2),"999") LE v-job-no[2]
       AND b-rh.job-no2 GE int(begin_job-no2)
       AND b-rh.job-no2 LE int(end_job-no2)    

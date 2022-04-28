@@ -301,7 +301,7 @@ DEFINE VARIABLE ldt-to         AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/
     VIEW-AS FILL-IN 
     SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lines-per-page AS INTEGER   FORMAT ">>":U INITIAL 55 
+DEFINE VARIABLE lines-per-page AS INTEGER   FORMAT ">>":U INITIAL 99 
     LABEL "Lines Per Page" 
     VIEW-AS FILL-IN 
     SIZE 4 BY 1 NO-UNDO.
@@ -1993,7 +1993,7 @@ PROCEDURE post-rm :
 
         FIND FIRST job NO-LOCK
             WHERE job.company EQ rm-rctd.company
-            AND trim(job.job-no) EQ TRIM(rm-rctd.job-no)
+            AND job.job-no  EQ rm-rctd.job-no
             AND job.job-no2 EQ rm-rctd.job-no2
             NO-ERROR.
 
@@ -2335,8 +2335,8 @@ PROCEDURE post-rm :
     FOR EACH rm-rctd
         WHERE rm-rctd.company   EQ cocode
         AND rm-rctd.rita-code EQ "ADDER"
-        AND fill(" ",9 - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) GE v-from-job
-        AND fill(" ",9 - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) LE v-to-job
+        AND FILL(" ", iJobLen - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) GE v-from-job
+        AND FILL(" ", iJobLen - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) LE v-to-job
         AND rm-rctd.job-no2   GE begin_job-no2
         AND rm-rctd.job-no2   LE end_job-no2
         AND ((begin_userid    LE "" AND
@@ -2486,8 +2486,8 @@ PROCEDURE run-report :
         tt-rctd.po-no                      LABEL "P.O.#"
         tt-rctd.po-line                    LABEL "Line"
         po-ord.vend-no                     LABEL "VENDOR"
-        tt-rctd.job-no                     LABEL "Job #" SPACE(0) "-" SPACE(0)
-        tt-rctd.job-no2                    LABEL ""
+        tt-rctd.job-no FORMAT "x(9)"       LABEL "Job #" SPACE(0) "-" SPACE(0)
+        tt-rctd.job-no2 FORMAT ">>9"       LABEL ""
         tt-rctd.rita-code                  LABEL "T"
         tt-rctd.tag                        LABEL "TAG#" FORM "x(20)"
         tt-rctd.qty FORMAT "->>>>9.99<<"   LABEL "QUANTITY" 
@@ -2496,7 +2496,7 @@ PROCEDURE run-report :
         tt-rctd.cost FORMAT "->>>>9.99"    LABEL "COST"
         v-ext-cost                         LABEL "TOTAL COST"
 
-        WITH NO-BOX FRAME itemx  DOWN STREAM-IO WIDTH 138.
+        WITH NO-BOX FRAME itemx  DOWN STREAM-IO WIDTH 148.
 
     FORM tt-rctd.rct-date                   LABEL "DATE"
         tt-rctd.i-no                       LABEL "ITEM"
@@ -2504,8 +2504,8 @@ PROCEDURE run-report :
         tt-rctd.po-no                      LABEL "P.O.#"
         tt-rctd.po-line                    LABEL "Line"
         po-ord.vend-no                     LABEL "VENDOR"
-        tt-rctd.job-no                     LABEL "Job #" SPACE(0) "-" SPACE(0)
-        tt-rctd.job-no2                    LABEL ""
+        tt-rctd.job-no FORMAT "x(9)"       LABEL "Job #" SPACE(0) "-" SPACE(0)
+        tt-rctd.job-no2 FORMAT ">>9"       LABEL ""
         tt-rctd.rita-code                  LABEL "T"
         tt-rctd.tag                        LABEL "TAG#" FORM "x(20)"
         tt-rctd.vend-tag                   LABEL "VENDOR TAG#" FORM "x(20)"
@@ -2515,7 +2515,7 @@ PROCEDURE run-report :
         tt-rctd.cost FORMAT "->>>>9.99"    LABEL "COST"
         v-ext-cost                         LABEL "TOTAL COST"
 
-        WITH FRAME itemxvend NO-BOX DOWN STREAM-IO WIDTH 168.
+        WITH FRAME itemxvend NO-BOX DOWN STREAM-IO WIDTH 178.
 
     FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
         v-dscr        LABEL "DESCRIPTION"
@@ -2533,8 +2533,8 @@ PROCEDURE run-report :
 
     FOR EACH rm-rctd 
         WHERE rm-rctd.company   EQ cocode
-        AND fill(" ",9 - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) GE v-from-job
-        AND fill(" ",9 - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) LE v-to-job
+        AND FILL(" ", iJobLen - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) GE v-from-job
+        AND FILL(" ", iJobLen - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) LE v-to-job
         AND rm-rctd.job-no2   GE begin_job-no2
         AND rm-rctd.job-no2   LE end_job-no2
         AND rm-rctd.rct-date  GE ldt-from
@@ -2583,7 +2583,7 @@ PROCEDURE run-report :
                     WHERE po-ordl.company   EQ cocode
                     AND po-ordl.i-no      EQ tt-rctd.i-no
                     AND po-ordl.po-no     EQ int(v-po-no)
-                    AND trim(po-ordl.job-no) EQ trim(tt-rctd.job-no)
+                    AND po-ordl.job-no    EQ tt-rctd.job-no
                     AND po-ordl.job-no2   EQ tt-rctd.job-no2
                     AND po-ordl.item-type EQ YES
                     USE-INDEX item-ordno NO-LOCK NO-ERROR.
@@ -2600,7 +2600,7 @@ PROCEDURE run-report :
             IF tt-rctd.job-no NE "" AND tt-rctd.s-num EQ ? THEN
                 FIND FIRST job
                     WHERE job.company EQ cocode
-                    AND trim(job.job-no)  EQ trim(tt-rctd.job-no)
+                    AND job.job-no  EQ tt-rctd.job-no
                     AND job.job-no2 EQ tt-rctd.job-no2
                     NO-LOCK NO-ERROR.
 
@@ -2686,7 +2686,7 @@ PROCEDURE run-report :
         NO-LOCK,
         FIRST job
         WHERE job.company EQ cocode
-        AND trim(job.job-no)  EQ trim(tt-rctd.job-no)
+        AND job.job-no  EQ tt-rctd.job-no
         AND job.job-no2 EQ tt-rctd.job-no2
         NO-LOCK,
 
@@ -2774,7 +2774,7 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
             WHERE po-ordl.company   EQ cocode
             AND po-ordl.po-no     EQ po-ord.po-no
             AND po-ordl.i-no      EQ tt-rctd.i-no
-            AND trim(po-ordl.job-no) EQ trim(tt-rctd.job-no)
+            AND po-ordl.job-no    EQ tt-rctd.job-no
             AND po-ordl.job-no2   EQ tt-rctd.job-no2
             AND po-ordl.s-num     EQ tt-rctd.s-num
             AND po-ordl.b-num     EQ tt-rctd.b-num
@@ -2820,7 +2820,7 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
 
                 FOR EACH job-hdr
                     WHERE job-hdr.company EQ cocode
-                    AND trim(job-hdr.job-no)  EQ trim(tt-rctd.job-no)
+                    AND job-hdr.job-no  EQ tt-rctd.job-no
                     AND job-hdr.job-no2 EQ tt-rctd.job-no2
                     NO-LOCK,
                     FIRST job OF job-hdr NO-LOCK
@@ -2830,8 +2830,8 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                 END.
 
                 FOR EACH job-hdr
-                    WHERE job-hdr.company     EQ cocode
-                    AND trim(job-hdr.job-no)  EQ trim(tt-rctd.job-no)
+                    WHERE job-hdr.company   EQ cocode
+                    AND job-hdr.job-no      EQ tt-rctd.job-no
                     AND job-hdr.job-no2     EQ tt-rctd.job-no2
                     AND ((job-hdr.frm       EQ tt-rctd.s-num AND
                     (job-hdr.blank-no EQ tt-rctd.b-num OR tt-rctd.b-num EQ 0))

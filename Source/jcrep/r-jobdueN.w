@@ -147,7 +147,7 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
@@ -157,7 +157,7 @@ DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000"
 DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
@@ -167,7 +167,7 @@ DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999"
 DEFINE VARIABLE fi_end-cust AS CHARACTER FORMAT "X(256)":U 
      LABEL "Ending Customer" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY .95 NO-UNDO.
+     SIZE 20.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-bckmch.csv" 
      LABEL "Name" 
@@ -177,7 +177,7 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-bckmch.c
 DEFINE VARIABLE fi_st-cust AS CHARACTER FORMAT "X(256)":U 
      LABEL "Beginning Customer" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY .95 NO-UNDO.
+     SIZE 20.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -196,7 +196,7 @@ DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11"
 DEFINE VARIABLE thru_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Thru Date" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY .95 NO-UNDO.
+     SIZE 20.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -261,14 +261,14 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO
 DEFINE FRAME FRAME-A
      thru_date AT ROW 2.19 COL 26 COLON-ALIGNED
      fi_st-cust AT ROW 3.14 COL 26 COLON-ALIGNED WIDGET-ID 4
-     fi_end-cust AT ROW 3.14 COL 66 COLON-ALIGNED WIDGET-ID 6
+     fi_end-cust AT ROW 3.14 COL 67 COLON-ALIGNED WIDGET-ID 6
      begin_job-no AT ROW 4.1 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 4.1 COL 39 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.1 COL 41 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     end_job-no AT ROW 4.1 COL 66 COLON-ALIGNED HELP
+     end_job-no AT ROW 4.1 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 4.1 COL 79 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.1 COL 82 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      tb_fold AT ROW 6 COL 42 WIDGET-ID 10
      tb_corr AT ROW 6.95 COL 42 WIDGET-ID 12
@@ -1201,9 +1201,9 @@ DEF BUFFER b-est FOR est.
 
 def var v-fdate as   date format "99/99/9999" init TODAY NO-UNDO.
 def var v-fjob  like job.job-no NO-UNDO.
-def var v-tjob  like v-fjob                   init "zzzzzz" NO-UNDO.
+def var v-tjob  like v-fjob                   init "zzzzzzzzz" NO-UNDO.
 def var v-fjob2 like job.job-no2 NO-UNDO.
-def var v-tjob2 like v-fjob2                  init 99 NO-UNDO.
+def var v-tjob2 like v-fjob2                  init 999 NO-UNDO.
 def var v-indus as   char format "x" NO-UNDO.
 DEF VAR v-fcust AS   CHAR NO-UNDO.
 DEF VAR v-tcust AS   CHAR NO-UNDO.
@@ -1215,7 +1215,7 @@ def var v-on     like v-up NO-UNDO.
 def var v-hdr     as   char format "x(150)" extent 3 NO-UNDO.
 def var v-mach    like job-mch.m-code format "x(8)" NO-UNDO.
 def var v-date    as   date format "99/99/99" NO-UNDO.
-def var v-job     as   char format "x(9)" NO-UNDO.
+def var v-job     as   char format "x(13)" NO-UNDO.
 def var v-sheet   as   char format "x(19)" NO-UNDO.
 def var v-gl      as   char format "x(5)" NO-UNDO.
 def var v-qty     as   DEC NO-UNDO.
@@ -1344,7 +1344,7 @@ SESSION:SET-WAIT-STATE ("general").
       delete tt-report.
     end.
 
-    IF TRIM(SUBSTRING(v-fjob, 1, 9)) GT "" THEN DO:    
+    IF TRIM(SUBSTRING(v-fjob, 1, iJobLen)) GT "" THEN DO:    
 
       for each job
           where job.company eq cocode

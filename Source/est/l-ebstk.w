@@ -30,6 +30,7 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/var.i}
 def input parameter ip-company like eb.company no-undo.
 def input parameter ip-loc like eb.loc no-undo.
 def input parameter ip-est-type like eb.est-type no-undo.

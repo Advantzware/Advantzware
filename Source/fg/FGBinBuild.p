@@ -474,25 +474,10 @@ PROCEDURE pBuildBinsForItem PRIVATE:
             WHERE fg-rcpth.company    EQ itemfg.company
             AND fg-rcpth.i-no       EQ itemfg.i-no
             AND fg-rcpth.trans-date LE ipdtAsOf
-            /*
-            AND STRING(FILL(" ",6 - LENGTH(TRIM(fg-rcpth.job-no))) +
-                TRIM(fg-rcpth.job-no) + STRING(fg-rcpth.job-no2,"99"))
-             GE ""
-            AND STRING(FILL(" ",6 - LENGTH(TRIM(fg-rcpth.job-no))) +
-                TRIM(fg-rcpth.job-no) + STRING(fg-rcpth.job-no2,"99"))
-             LE "ZZZZZZZZZZZZ"
-            */
             USE-INDEX tran,
             EACH fg-rdtlh NO-LOCK
             WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
             AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-              /*
-              AND fg-rdtlh.loc       GE ""
-              AND fg-rdtlh.loc       LE "ZZZZZZZZZZZ"
-              AND fg-rdtlh.loc-bin   GE ""
-              AND fg-rdtlh.loc-bin   LE "ZZZZZZZZZZZ"
-              AND fg-rdtlh.cust-no   EQ ""
-              */
             BY fg-rcpth.trans-date
             BY fg-rdtlh.trans-time
             BY fg-rcpth.r-no

@@ -1203,9 +1203,9 @@ DISPLAY "" WITH FRAME r-top.
 
 FOR EACH job NO-LOCK
     WHERE job.company EQ cocode        
-      AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) +
           TRIM(job.job-no) + STRING(INT(job.job-no2),"999") GE v-job-no[1] 
-      AND FILL(" ",9 - LENGTH(TRIM(job.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) +
           TRIM(job.job-no) + STRING(INT(job.job-no2),"999") LE v-job-no[2]
       AND job.job-no2 GE int(begin_job-no2)
       AND job.job-no2 LE int(end_job-no2)    
@@ -1260,55 +1260,6 @@ FOR EACH job NO-LOCK
         AND p-audit.reftable EQ "FIBRE AUDIT"
         AND p-audit.company  EQ "po-ordl"
       NO-ERROR.
-
- /* DISPLAY TRIM(job-mat.job-no) + "-" + STRING(job-mat.job-no2,"99")
-                                FORMAT "x(9)"       COLUMN-LABEL "Job#"
-          job-mat.i-no                              COLUMN-LABEL "RM Item#"
-          job-mat.frm                               COLUMN-LABEL "Form#"
-          j-audit.loc           FORMAT "x(8)"       COLUMN-LABEL "User"
-                                WHEN AVAIL j-audit
-          DATE(j-audit.code)    FORMAT "99/99/99"   COLUMN-LABEL "Date"
-                                WHEN AVAIL j-audit
-          STRING(INT(j-audit.code2),"HH:MM:SS")
-                                FORMAT "x(8)"       COLUMN-LABEL "Time"
-                                WHEN AVAIL j-audit
-          TRIM(ef.est-no)       WHEN AVAIL ef
-                                FORMAT "x(8)"       COLUMN-LABEL "Est#"
-          e-audit.loc           WHEN AVAIL e-audit
-                                FORMAT "x(8)"       COLUMN-LABEL "User"
-          DATE(e-audit.code)    WHEN AVAIL e-audit
-                                FORMAT "99/99/99"   COLUMN-LABEL "Date"
-          STRING(INT(e-audit.code2),"HH:MM:SS")     WHEN AVAIL e-audit
-                                FORMAT "x(8)"       COLUMN-LABEL "Time"
-          po-ordl.po-no         WHEN AVAIL po-ordl  COLUMN-LABEL "PO#"
-          p-audit.loc           WHEN AVAIL p-audit
-                                FORMAT "x(8)"       COLUMN-LABEL "User"
-          DATE(p-audit.code)    WHEN AVAIL p-audit
-                                FORMAT "99/99/99"   COLUMN-LABEL "Date"
-          STRING(INT(p-audit.code2),"HH:MM:SS")     WHEN AVAIL p-audit
-                                FORMAT "x(8)"       COLUMN-LABEL "Time"
-      WITH NO-BOX DOWN STREAM-IO WIDTH 150.
-
-   IF rd-dest EQ 3 THEN
-      PUT STREAM excel UNFORMATTED
-          '"' TRIM(job-mat.job-no) + "-" + STRING(job-mat.job-no2,"99")           '",'
-          '"' job-mat.i-no                                                        '",'
-          '"' STRING(job-mat.frm)                                                 '",'
-          '"' IF AVAIL j-audit THEN j-audit.loc
-              ELSE ""                                                             '",'
-          '"' IF AVAIL j-audit THEN STRING(DATE(j-audit.code))
-              ELSE ""                                                             '",'
-          '"' IF AVAIL j-audit THEN STRING(INT(j-audit.code2),"HH:MM:SS")
-              ELSE ""                                                             '",'
-          '"' IF AVAIL ef THEN TRIM(ef.est-no) ELSE ""                            '",'
-          '"' IF AVAIL e-audit THEN e-audit.loc ELSE ""                           '",'
-          '"' IF AVAIL e-audit THEN STRING(DATE(e-audit.code)) ELSE ""            '",'
-          '"' IF AVAIL e-audit THEN STRING(INT(e-audit.code2),"HH:MM:SS") ELSE "" '",'
-          '"' IF AVAIL po-ordl THEN STRING(po-ordl.po-no) ELSE ""                 '",'
-          '"' IF AVAIL p-audit THEN p-audit.loc ELSE ""                           '",'
-          '"' IF AVAIL p-audit THEN STRING(DATE(p-audit.code)) ELSE ""            '",'
-          '"' IF AVAIL p-audit THEN STRING(INT(p-audit.code2),"HH:MM:SS") ELSE "" '",'
-          SKIP. */
 
   ASSIGN cDisplay = ""
                    cTmpField = ""

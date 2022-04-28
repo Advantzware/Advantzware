@@ -34,6 +34,7 @@ def input param ip-company like reftable.company no-undo.
 def input param ip-loc like reftable.loc no-undo.
 def input param ip-dscr like reftable.dscr no-undo.
 def output param op-char-val as cha no-undo.
+{sys/inc/var.i}
 
 DEFIN TEMP-TABLE tt-report LIKE report.
 

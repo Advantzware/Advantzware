@@ -71,8 +71,8 @@ FOR EACH oe-ord
     each oe-ordl
     where oe-ordl.company    eq oe-ord.company
     and oe-ordl.ord-no     eq oe-ord.ord-no
-    AND fill(" ",9 - length(TRIM(oe-ordl.job-no))) + trim(oe-ordl.job-no) GE icBegJobNo
-    AND fill(" ",9 - length(TRIM(oe-ordl.job-no))) + trim(oe-ordl.job-no)  LE icEndJobNo
+    AND FILL(" ", iJobLen - length(TRIM(oe-ordl.job-no))) + trim(oe-ordl.job-no) GE icBegJobNo
+    AND FILL(" ", iJobLen - length(TRIM(oe-ordl.job-no))) + trim(oe-ordl.job-no)  LE icEndJobNo
     AND oe-ordl.job-no2  GE INTEGER(iiBegJobNo2)
     AND oe-ordl.job-no2  LE integer(iiEndJobNo2)
     NO-LOCK BREAK BY oe-ord.ord-no :

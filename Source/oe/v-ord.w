@@ -574,7 +574,7 @@ DEFINE FRAME F-Main
      fiStatDesc AT ROW 9.33 COL 87 COLON-ALIGNED NO-TAB-STOP 
      fiShipName AT ROW 6.86 COL 23.8 COLON-ALIGNED NO-LABEL WIDGET-ID 28
      fiText1 AT ROW 12.91 COL 79 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     oe-ord.ord-no AT ROW 1.24 COL 10 COLON-ALIGNED
+     oe-ord.ord-no AT ROW 1.24 COL 10 COLON-ALIGNED FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      fiText2 AT ROW 13.95 COL 109 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
@@ -587,7 +587,7 @@ DEFINE FRAME F-Main
           LABEL "Job Number" FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 16.6 BY 1
-     oe-ord.job-no2 AT ROW 1.24 COL 95 COLON-ALIGNED NO-LABEL
+     oe-ord.job-no2 AT ROW 1.24 COL 95 COLON-ALIGNED NO-LABEL FORMAT ">>9"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
      oe-ord.priority AT ROW 1.24 COL 112 COLON-ALIGNED
@@ -953,16 +953,20 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_type IN FRAME F-Main
    NO-ENABLE 2 5                                                        */
+/* SETTINGS FOR FILL-IN oe-ord.ord-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-ord.job-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ord.job-no2 IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ord.last-date IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR TOGGLE-BOX oe-ord.managed IN FRAME F-Main
    2 5                                                                  */
 /* SETTINGS FOR FILL-IN oe-ord.ord-date IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN oe-ord.ord-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-ord.po-no IN FRAME F-Main
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN oe-ord.poReceivedDate IN FRAME F-Main
@@ -6672,7 +6676,7 @@ FOR EACH oe-ordl OF oe-ord NO-LOCK:
         FIND FIRST fg-rcpts USE-INDEX cust-no
             WHERE fg-rcpts.company EQ oe-ord.company
                 AND fg-rcpts.cust-no EQ oe-ord.cust-no
-                AND TRIM(fg-rcpts.job-no)  EQ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.job-no)))
+                AND fg-rcpts.job-no  EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.job-no))
                 AND fg-rcpts.job-no2 EQ oe-ordl.job-no2
                 AND fg-rcpts.i-no    EQ oe-ordl.i-no
             NO-LOCK NO-ERROR.
@@ -6680,7 +6684,7 @@ FOR EACH oe-ordl OF oe-ord NO-LOCK:
         IF NOT AVAIL fg-rcpts THEN
         FIND FIRST fg-rcpth USE-INDEX job
             WHERE fg-rcpth.company EQ oe-ord.company
-                AND TRIM(fg-rcpth.job-no)  EQ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.job-no)))
+                AND fg-rcpth.job-no  EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.job-no))
                 AND fg-rcpth.job-no2 EQ oe-ordl.job-no2
                 AND fg-rcpth.i-no    EQ oe-ordl.i-no
             NO-LOCK NO-ERROR.
@@ -6765,13 +6769,13 @@ DEF VAR op-values AS CHAR NO-UNDO.
 DEF VAR lValid AS LOG NO-UNDO.
 DEF VAR i AS INT.
 DEF VAR ip-parms AS CHAR.
-DEF VAR lcUserPrompt AS CHAR INIT "Enter the order number to use:".
+DEF VAR lcUserPrompt AS CHAR INIT "Enter the order number to add:".
 
 DEF VAR lcNewOrder AS CHAR.
 
 ip-parms = 
    "type=literal,name=fi4,row=4,col=18,enable=false,width=58,scrval=" + lcUserPrompt + ",FORMAT=X(58)"
-    + "|type=fill-in,name=tg2,row=5,col=18,enable=true,width=15"
+    + "|type=fill-in,name=tg2,row=5,col=18,enable=true,width=15,format=X(8)"
     + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true " 
     + "|type=win,name=fi3,enable=true,label=Question,FORMAT=X(30),height=11".
 prompt-loop:

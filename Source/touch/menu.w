@@ -48,7 +48,7 @@ DEFINE VARIABLE hJobChecklist AS HANDLE NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Change_Company RECT-1 
+&Scoped-Define ENABLED-OBJECTS Btn_Change_Company Btn_tag RECT-1 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -94,6 +94,10 @@ DEFINE BUTTON Btn_Change_Company
      IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Exit" 
      SIZE 8 BY 1.91 TOOLTIP "Exit".
+     
+DEFINE BUTTON Btn_tag      
+     LABEL "Bar Codes" 
+     SIZE 14 BY 1.91 TOOLTIP "Bar Codes".     
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -104,6 +108,7 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE FRAME F-Main
      Btn_Change_Company AT ROW 1.24 COL 116
+     Btn_tag AT ROW 1.24 COL 101.60
      btnLanguage-7 AT ROW 1.24 COL 56 WIDGET-ID 22
      btnLanguage-1 AT ROW 1.24 COL 2
      btnLanguage-2 AT ROW 1.24 COL 11
@@ -247,6 +252,17 @@ ON CHOOSE OF Btn_Change_Company IN FRAME F-Main /* Exit */
 DO:
   /* {methods/run_link.i "CONTAINER" "Change_Page" "(1)"} */
     {methods/run_link.i "CONTAINER" "Close_Touch_Screen"}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_tag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_tag s-object
+ON CHOOSE OF Btn_tag IN FRAME F-Main /* Exit */
+DO:      
+    {methods/run_link.i "CONTAINER" "open_sharp-shooter"}
 END.
 
 /* _UIB-CODE-BLOCK-END */

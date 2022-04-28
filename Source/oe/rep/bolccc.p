@@ -147,6 +147,7 @@ DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
 DEFINE VARIABLE iTotalQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iShipQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iIntValue AS INTEGER NO-UNDO.
+DEFINE VARIABLE cAddress AS CHARACTER NO-UNDO.
 
 ASSIGN tmpstore = FILL("-",80).
 
@@ -171,7 +172,9 @@ ASSIGN v-comp-add1 = company.addr[1]
        v-comp-add2 = company.city + ", " + company.st + "  " + company.zip
        v-comp-add3 = "Phone: 604.533.2545" 
        v-comp-add4 = "Fax  : 604.533.2633"
-       v-printline = 0.
+       v-printline = 0
+       cAddress    = company.NAME + " - " + v-comp-add1 + " - " + v-comp-add2
+       .
 
 FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
     FIRST oe-bolh WHERE RECID(oe-bolh)   EQ xxreport.rec-id,
@@ -427,7 +430,7 @@ v-printline = v-printline + 4.
 /*PUT "<R39><C30>" SKIP.*/
 RUN Notes_GetNotesArrayForObject (INPUT oe-bolh.rec_key, "ES", "", 130, NO,0, OUTPUT opcParsedText, OUTPUT opiArraySize).
 
-IF opiArraySize <= 4 THEN DO:
+IF opiArraySize <= 3 THEN DO:
     PUT "<FBook Antiqua><R39.5><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
     PUT "<R40><C1>" AT 1 SKIP.
     IF v-dock-note NE "" THEN PUT v-dock-note AT 1 SKIP.
@@ -439,8 +442,8 @@ IF opiArraySize <= 4 THEN DO:
         v-printline = v-printline + 1.    
     END.
     RUN pFooterLabel.
-END. /*IF opiArraySize <=4 THEN DO:*/
-ELSE IF opiArraySize > 4 AND opiArraySize <= 20 THEN DO:
+END. /*IF opiArraySize <=3 THEN DO:*/
+ELSE IF opiArraySize > 3 AND opiArraySize <= 20 THEN DO:
     PUT "<FBook Antiqua><R39.5><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
     PUT "<R40><C1>" AT 1 SKIP.
     IF v-dock-note NE "" THEN PUT v-dock-note AT 1 SKIP.
@@ -689,7 +692,7 @@ PUT "<R55><C48><FROM><R55><C80><LINE><||3>" SKIP
   PUT 
     "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
     "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
-      
+    PUT cAddress FORMAT "x(115)" SKIP.  
     PUT "<FGCOLOR=RED><BGCOLOR=RED><LINECOLOR=RED>"
       /*"<=9><C+10><FROM><R+4><C+20><RECT> " */
       "<R56><C5><#15><FROM><R+4><C+25><RECT>" 

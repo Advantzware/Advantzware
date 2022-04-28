@@ -119,8 +119,6 @@ ASSIGN  j = 1.
                                v-job-var   = if oe-boll.job-no eq "" then "" ELSE 
                                              TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
                                              
-                               /*v-jb-nts    = if oe-boll.job-no eq "" then "" else
-                                             (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99")).*/
             
          ELSE
          if i eq 2 THEN ASSIGN v-part-dscr = (IF AVAIL(oe-ordl) THEN oe-ordl.part-dscr1 ELSE "")
@@ -188,7 +186,6 @@ ASSIGN  j = 1.
                      job-hdr.company eq cocode
                     AND job-hdr.job-no EQ oe-ordl.job-no 
                     AND job-hdr.job-no2 EQ oe-ordl.job-no2
-                    /*AND (trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99")) EQ v-jb-nts*/
                     NO-LOCK NO-ERROR.
             
               IF AVAIL job-hdr THEN

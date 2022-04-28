@@ -291,7 +291,7 @@ ASSIGN
 
 FOR  EACH job-hdr NO-LOCK
     WHERE job-hdr.company        EQ cocode
-    AND TRIM(job-hdr.job-no)     EQ TRIM(ip-job-no)
+    AND job-hdr.job-no           EQ ip-job-no
     AND job-hdr.job-no2          EQ ip-job-no2
     AND (production OR
     job-hdr.ftick-prnt           EQ v-reprint OR

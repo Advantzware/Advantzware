@@ -17,8 +17,7 @@
     v-kiwi = v-kiwi + "     ".
   
     /* Add Kiwi co_pokey and ASI Job# */
-    v-kiwi = v-kiwi + string(trim(job.job-no) + "-" +
-                             string(job.job-no2,"99"),"x(10)").
+    v-kiwi = v-kiwi + Trim(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2),"x(13)")).
                                
     put v-kiwi format "x(318)" skip.
   end.
@@ -95,8 +94,7 @@
         v-kiwi = v-kiwi + "     ".
   
         /* Add Kiwi co_pokey and ASI Job# */
-        v-kiwi = v-kiwi + string(trim(job.job-no) + "-" +
-                                 string(job.job-no2,"99"),"x(10)").
+        v-kiwi = v-kiwi + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2),"x(13)")).
   
         /* Add Kiwi co_cust_alpha and ASI Cust Name */
         v-kiwi = v-kiwi + string(cust.name,"x(10)").
@@ -322,8 +320,7 @@
         v-kiwi = v-kiwi + "     ".
       
         /* Add Kiwi job_job_no and ASI Job# */
-        v-kiwi = v-kiwi + string(trim(job.job-no) + "-" +
-                                 string(job.job-no2,"99"),"x(10)").
+        v-kiwi = v-kiwi + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2),"x(13)")).
                                
         /* Add Kiwi job_spec_no and ASI Est# */
         v-kiwi = v-kiwi + string(trim(est.est-no),"x(10)").
@@ -500,8 +497,7 @@
         v-kiwi = v-kiwi + "     ".
       
         /* Add Kiwi job_job_no and ASI Job# */
-        v-kiwi = v-kiwi + string(trim(job.job-no) + "-" +
-                                 string(job.job-no2,"99"),"x(10)").
+        v-kiwi = v-kiwi + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2),"x(13)")).
                                
         /* Add Kiwi job_spec_no and ASI Est# */
         v-kiwi = v-kiwi + string(trim(est.est-no),"x(10)").
@@ -604,9 +600,9 @@
         v-kiwi = v-kiwi + " ".
         
         /* Add Kiwi job_job_desc and ASI Job & Part No's */
-        v-kiwi = v-kiwi + string("Job " + trim(job.job-no) + "-" +
-                                          string(job.job-no2,"99") +
-                                 " For " + trim(eb.part-no),"x(30)").
+        v-kiwi = v-kiwi + string("Job " + 
+                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
+                 + " For " + trim(eb.part-no),"x(35)").
         
         /* Add Kiwi job_prod_desc and ASI Part Descriptions */
         v-kiwi = v-kiwi + string(trim(eb.part-dscr1) + " " +
@@ -652,8 +648,7 @@
       v-kiwi = v-kiwi + "     ".
       
       /* Add Kiwi wip_job_no and ASI Job# */
-      v-kiwi = v-kiwi + string(trim(job.job-no) + "-" +
-                               string(job.job-no2,"99"),"x(10)").
+      v-kiwi = v-kiwi + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2),"x(13)")).
                                
       /* Add Kiwi wip_repeat_num */
       v-kiwi = v-kiwi + "1".

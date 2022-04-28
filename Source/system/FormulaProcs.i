@@ -30,6 +30,7 @@ DEFINE TEMP-TABLE ttScoreLine NO-UNDO
     FIELD LineNum        AS INTEGER
     FIELD ScoreLine      AS CHARACTER
     FIELD ScoreLineTotal AS CHARACTER
+    FIELD ScoreType      AS CHARACTER
     INDEX idx-Srch PanelType LineNum.
     
 

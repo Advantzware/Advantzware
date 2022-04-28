@@ -18,6 +18,9 @@ DEFINE INPUT PARAMETER ipdtCheckDate AS DATE NO-UNDO.
 DEFINE INPUT PARAMETER ipcBankID AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcVendorIDStart AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcVendorIDEnd AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipiCheckStart AS INTEGER NO-UNDO.
+DEFINE INPUT PARAMETER ipiCheckEnd AS INTEGER NO-UNDO.
+DEFINE INPUT PARAMETER iplPrintPosted AS LOGICAL NO-UNDO.
 DEFINE INPUT PARAMETER ipiCheckNumber AS INTEGER NO-UNDO.
 DEFINE INPUT PARAMETER iplSample AS LOGICAL NO-UNDO.
 DEFINE INPUT PARAMETER iplPreview AS LOGICAL NO-UNDO.
@@ -51,8 +54,12 @@ THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdOutputProcs).
 RUN pBuildCheckConfig(ipcCompany, ipcFile).
 FIND FIRST ttCheckConfig NO-LOCK NO-ERROR.
 IF AVAILABLE ttCheckConfig THEN 
-DO: 
+DO:      
+    IF iplPrintPosted THEN
+    RUN pBuildPostedCheckData(BUFFER ttCheckConfig, ipdtCheckDate, ipcBankID, ipcVendorIDStart, ipcVendorIDEnd, ipiCheckStart, ipiCheckEnd, ipiCheckNumber, iplSample).
+    ELSE
     RUN pBuildCheckData(BUFFER ttCheckConfig, ipdtCheckDate, ipcBankID, ipcVendorIDStart, ipcVendorIDEnd, ipiCheckNumber, iplSample).
+    
     IF CAN-FIND(FIRST ttCheck) THEN DO:
         RUN Output_InitializeXprint(ttCheckConfig.outputFile, iplPreview, YES, ttCheckConfig.defaultFont, ttCheckConfig.defaultFontSize,"") .
         RUN pPrintChecks(BUFFER ttCheckConfig).
@@ -60,7 +67,7 @@ DO:
         RUN Output_PrintXprintFile(ttCheckConfig.outputFile).
         IF ttCheckConfig.stubUseSupplementalReg THEN 
             RUN pPrintSupplementalRegister(BUFFER ttCheckConfig, iplPreview).
-        IF NOT iplSample THEN RUN pUpdateData(ipcBankID).
+        IF NOT iplSample AND NOT iplPrintPosted THEN RUN pUpdateData(ipcBankID).
     END.
     ELSE 
         MESSAGE "No Checks are found for printing.  Please build the check selection list first."
@@ -75,9 +82,11 @@ PROCEDURE pAddCheck PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: given ap-chk and vend buffer, create ttCheck and return writable buffer
      Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-ap-chk FOR ap-chk.
+    ------------------------------------------------------------------------------*/    
     DEFINE PARAMETER BUFFER ipbf-vend   FOR vend.
+    DEFINE INPUT PARAMETER ipdCheckAmount AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCheckMemo AS CHARACTER NO-UNDO.      
     DEFINE INPUT PARAMETER ipiCheckNumber AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipdtCheckDate AS DATE NO-UNDO.
     DEFINE INPUT PARAMETER ipcCompanyName AS CHARACTER NO-UNDO.
@@ -90,8 +99,8 @@ PROCEDURE pAddCheck PRIVATE:
     
     CREATE opbf-ttCheck.
     ASSIGN 
-        opbf-ttCheck.amount       = ipbf-ap-chk.check-amt
-        opbf-ttCheck.ap-chkRowid  = ROWID(ipbf-ap-chk)
+        opbf-ttCheck.amount       = ipdCheckAmount
+        opbf-ttCheck.ap-chkRowid  = iprwRowid
         opbf-ttCheck.checkNo      = ipiCheckNumber
         opbf-ttCheck.companyName  = ipcCompanyName
         opbf-ttCheck.companyLine1 = ipcCompanyLine1
@@ -104,8 +113,8 @@ PROCEDURE pAddCheck PRIVATE:
         opbf-ttCheck.remitToLine2 = IF lUseRemit THEN ipbf-vend.r-add2 ELSE ipbf-vend.add2
         opbf-ttCheck.remitToLine3 = IF lUseRemit THEN ipbf-vend.r-city + ", " + ipbf-vend.r-state + " " + ipbf-vend.r-zip ELSE ipbf-vend.city + ", " + ipbf-vend.state + " " + ipbf-vend.zip
         opbf-ttCheck.payDate      = ipdtCheckDate
-        opbf-ttCheck.memo         = ipbf-ap-chk.check-memo
-        opbf-ttCheck.vendorID     = ipbf-ap-chk.vend-no 
+        opbf-ttCheck.memo         = ipcCheckMemo
+        opbf-ttCheck.vendorID     = ipbf-vend.vend-no 
         .
 
 END PROCEDURE.
@@ -219,7 +228,7 @@ PROCEDURE pBuildCheckData PRIVATE:
                 dTotalDisc   = 0
                 iCheckNumber = iCheckNumber + 1
                 .  
-            RUN pAddCheck(BUFFER ap-chk, BUFFER vend, iCheckNumber, ipdtCheckDate, cCompanyName, cCompanyLine1, cCompanyLine2, cCompanyLine3, BUFFER bf-ttCheck).
+            RUN pAddCheck(BUFFER vend, ap-chk.check-amt, ROWID(ap-chk), ap-chk.check-memo, iCheckNumber, ipdtCheckDate, cCompanyName, cCompanyLine1, cCompanyLine2, cCompanyLine3, BUFFER bf-ttCheck).
              
             FOR EACH ap-sel NO-LOCK                                           
                 WHERE ap-sel.company EQ ap-chk.company                        
@@ -266,7 +275,7 @@ PROCEDURE pBuildCheckData PRIVATE:
                     DO: /*Void last check and make a new one*/
                         bf-ttCheck.isVoid = YES.
                         iCheckNumber = iCheckNumber + 1.
-                        RUN pAddCheck(BUFFER ap-chk, BUFFER vend, iCheckNumber, ipdtCheckDate, cCompanyName, cCompanyLine1, cCompanyLine2, cCompanyLine3, BUFFER bf-ttCheck).           
+                        RUN pAddCheck(BUFFER vend, ap-chk.check-amt, ROWID(ap-chk), ap-chk.check-memo, iCheckNumber, ipdtCheckDate, cCompanyName, cCompanyLine1, cCompanyLine2, cCompanyLine3, BUFFER bf-ttCheck).           
                         .
                     END. /*Not supplementatl - create voind*/
                 END. /*Invoice count eq max lines*/ 
@@ -357,6 +366,143 @@ PROCEDURE pBuildCheckDataSample PRIVATE:
             ttCheck.amountDisc                = ttCheck.amountDisc + ttCheckInvoice.invoiceAmtDisc
             .
     END.
+END PROCEDURE.
+
+PROCEDURE pBuildPostedCheckData PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given a company, builds the check data from the DB
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttCheckConfig FOR ttCheckConfig.
+    DEFINE INPUT PARAMETER ipdtCheckDate AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBankID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorIDStart AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorIDEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiCheckStart AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiCheckEnd AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiCheckNumber AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplSample AS LOGICAL NO-UNDO.
+
+    DEFINE BUFFER bf-ttCheck FOR ttCheck.
+    
+    DEFINE VARIABLE iCheckNumber  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cCompanyName  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompanyLine1 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompanyLine2 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompanyLine3 AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE dTotalDisc    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTotalNet     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTotalGross   AS DECIMAL   NO-UNDO.
+            
+    EMPTY TEMP-TABLE ttCheck.
+    EMPTY TEMP-TABLE ttCheckInvoice.
+    
+    IF iplSample THEN 
+    DO:
+        RUN pBuildCheckDataSample (BUFFER ipbf-ttCheckConfig, ipiCheckNumber).  /*Build Sample Check Data*/
+    END.
+    ELSE 
+    DO:            
+        FIND FIRST bank NO-LOCK 
+            WHERE bank.company EQ ipbf-ttCheckConfig.company
+            AND bank.bank-code EQ ipcBankID
+            NO-ERROR.           
+        FIND FIRST company NO-LOCK 
+            WHERE company.company EQ ipbf-ttCheckConfig.company
+            NO-ERROR.
+        IF AVAILABLE company THEN 
+            ASSIGN 
+                cCompanyName  = company.name
+                cCompanyLine1 = company.addr[1]
+                cCompanyLine2 = company.addr[2]
+                cCompanyLine3 = company.city + ", " + company.state + " " + company.zip
+                .
+        FOR EACH ap-pay NO-LOCK 
+            WHERE ap-pay.company EQ ipbf-ttCheckConfig.company
+            AND ap-pay.vend-no GE ipcVendorIDStart
+            AND ap-pay.vend-no LE ipcVendorIDEnd
+            AND ap-pay.check-no GE ipiCheckStart
+            AND ap-pay.check-no LE ipiCheckEnd
+            AND ap-pay.bank-code EQ ipcBankID
+            AND ap-pay.check-date EQ ipdtCheckDate 
+            AND ap-pay.man-check EQ NO
+            AND CAN-FIND(FIRST ap-payl
+            WHERE ap-payl.check-no   EQ ap-pay.check-no
+            AND ap-payl.vend-no   EQ ap-pay.vend-no
+            AND ap-payl.man-check EQ NO) ,
+            FIRST vend NO-LOCK
+            WHERE vend.company EQ ap-pay.company
+            AND vend.vend-no EQ ap-pay.vend-no
+            BREAK 
+
+            BY ap-pay.vend-no:
+                   
+            ASSIGN 
+                dTotalGross  = 0
+                dTotalNet    = 0
+                dTotalDisc   = 0                  
+                .  
+            RUN pAddCheck(BUFFER vend, ap-pay.check-amt, ROWID(ap-pay), "", ap-pay.check-no, ipdtCheckDate, cCompanyName, cCompanyLine1, cCompanyLine2, cCompanyLine3, BUFFER bf-ttCheck).
+             
+            FOR EACH ap-payl NO-LOCK                                           
+                WHERE ap-payl.check-no EQ ap-pay.check-no                        
+                AND ap-payl.vend-no EQ ap-pay.vend-no             
+                AND ap-payl.man-check EQ NO,
+                FIRST ap-inv NO-LOCK
+                WHERE ap-inv.company EQ ap-pay.company
+                AND ap-inv.vend-no EQ ap-payl.vend-no
+                AND ap-inv.inv-no  EQ ap-payl.inv-no
+                USE-INDEX inv-no                                  
+                BREAK BY ap-payl.inv-no:                              
+                FIND FIRST ap-invl NO-LOCK
+                    WHERE ap-invl.company EQ ap-inv.company
+                    AND ap-invl.i-no EQ ap-inv.i-no
+                    USE-INDEX i-no 
+                    NO-ERROR.
+                CREATE ttCheckInvoice.
+                ASSIGN 
+                    ttCheckInvoice.checkNo            = ap-pay.check-no
+                    ttCheckInvoice.ap-selRowid        = ROWID(ap-payl)
+                    ttCheckInvoice.ap-invRowid        = ROWID(ap-inv)
+                    ttCheckInvoice.ap-chkRowid        = ROWID(ap-chk)
+                    ttCheckInvoice.vendorID           = ap-payl.vend-no
+                    ttCheckInvoice.invoiceAmtDiscount = ap-payl.amt-disc
+                    ttCheckInvoice.invoiceAmtNet      = ap-payl.amt-paid
+                    ttCheckInvoice.invoiceAmtGross    = IF ap-inv.gross GT 0 THEN ap-inv.gross ELSE ap-inv.net
+                    ttCheckInvoice.invoiceNumber      = ap-inv.inv-no
+                    ttCheckInvoice.invoiceDate        = ap-inv.inv-date
+                    ttCheckInvoice.invoicePO          = IF AVAILABLE ap-invl THEN ap-invl.po-no ELSE ap-inv.po-no
+                    ttCheckInvoice.sequence           = bf-ttCheck.invoiceCount + 1                                                          
+                    bf-ttCheck.invoiceCount           = bf-ttCheck.invoiceCount + 1
+                    dTotalGross                       = dTotalGross + ttCheckInvoice.invoiceAmtGross
+                    dTotalNet                         = dTotalNet + ttCheckInvoice.invoiceAmtNet
+                    dTotalDisc                        = dTotalDisc + ttCheckInvoice.invoiceAmtDisc
+                    .                                         
+                IF bf-ttCheck.invoiceCount EQ ipbf-ttCheckConfig.stubInvoiceLines * ipbf-ttCheckConfig.stubInvoiceColumns
+                    AND NOT LAST(ap-payl.inv-no) THEN 
+                DO:
+                    IF ipbf-ttCheckConfig.stubUseSupplementalReg THEN 
+                    DO: 
+                        bf-ttCheck.useSupplemental = YES.
+                    END. /*supplemental*/
+                    ELSE 
+                    DO: /*Void last check and make a new one*/
+                        bf-ttCheck.isVoid = YES.                         
+                        RUN pAddCheck(BUFFER vend, ap-pay.check-amt, ROWID(ap-pay), "", ap-pay.check-no, ipdtCheckDate, cCompanyName, cCompanyLine1, cCompanyLine2, cCompanyLine3, BUFFER bf-ttCheck).           
+                        .
+                    END. /*Not supplementatl - create voind*/
+                END. /*Invoice count eq max lines*/ 
+               
+            END. /*each ap-sel*/
+            ASSIGN 
+                bf-ttCheck.amountDisc  = dTotalDisc
+                bf-ttCheck.amountGross = dTotalGross
+                bf-ttCheck.amount      = dTotalNet
+                .
+        END. /*each ap-Chk*/                                     
+    END.  /*Not iplSample*/
+         
 END PROCEDURE.
 
 PROCEDURE pConvertNumberToWords PRIVATE:

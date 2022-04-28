@@ -911,7 +911,7 @@ DO:
 ON VALUE-CHANGED OF avg_cost IN FRAME DEFAULT-FRAME
 DO:
         ASSIGN {&SELF-NAME}
-            ce-ctrl.avg-cscost = IF {&SELF-NAME} THEN 1 ELSE 0.
+            .
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -976,7 +976,8 @@ DO:
                 Btn_Close:LABEL    = "&Close".
             FIND CURRENT ce-ctrl EXCLUSIVE-LOCK.  
             ASSIGN {&LIST-1}
-                rd-sp-1 rd-sp-2 rd-sp-3.
+                rd-sp-1 rd-sp-2 rd-sp-3
+                ce-ctrl.avg-cscost = IF avg_cost THEN 1 ELSE 0.
 
             RUN reftable-values (NO).
         END.

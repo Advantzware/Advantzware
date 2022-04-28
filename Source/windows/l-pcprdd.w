@@ -35,10 +35,11 @@
 def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
-&scoped-define fld-name-1 TRIM(pc-prdd.job-no)
+&scoped-define fld-name-1 pc-prdd.job-no
 &scoped-define fld-name-2 pc-prdd.i-no
 &scoped-define SORTBY-1 BY pc-prdd.job-no
 &scoped-define SORTBY-2 BY pc-prdd.i-no

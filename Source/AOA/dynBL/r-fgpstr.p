@@ -24,7 +24,7 @@ DEFINE TEMP-TABLE ttFGPostHist NO-UNDO
     FIELD v-fg-qty    AS INTEGER   FORMAT "->>>,>>>,>>9"       LABEL "Total QTY"
     FIELD v-fg-cost   AS DECIMAL   FORMAT "->>>,>>>,>>9.99"    LABEL "Total Cost"
     FIELD v-fg-value  AS DECIMAL   FORMAT "->>>,>>>,>>9.99"    LABEL "Tot Sell Val"
-    FIELD jobNo       AS CHARACTER FORMAT "x(6)"               LABEL "Job"        
+    FIELD jobNo       AS CHARACTER FORMAT "x(9)"               LABEL "Job"        
     FIELD v-rfid#     AS CHARACTER FORMAT "x(10)"              LABEL "RFID"
     FIELD partNo      AS CHARACTER FORMAT "x(12)"              LABEL "Customer Part"
     FIELD dieNo       AS CHARACTER FORMAT "x(15)"              LABEL "Die"          

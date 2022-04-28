@@ -1245,14 +1245,14 @@ PROCEDURE run-report :
 {sys/form/r-top3w.f}
 
     def var v-date like pc-misc.misc-date extent 2 format "99/99/9999" initial today no-undo.
-    def var v-job-no like job.job-no extent 2 initial ["", "999999"] no-undo.
-    def var v-job-no2 like job.job-no2 extent 2 initial [0, 99] no-undo.
+    def var v-job-no like job.job-no extent 2 initial ["", "999999999"] no-undo.
+    def var v-job-no2 like job.job-no2 extent 2 initial [0, 999] no-undo.
     def var v-value as dec format "->>,>>>,>>9.99".
 
     form pc-misc.misc-date column-label "TRANS DATE"
      pc-misc.ml column-label "MATL/LABOR"
      pc-misc.job-no column-label "JOB #" space(0) "-" space(0)
-     pc-misc.job-no2 no-label format "99"
+     pc-misc.job-no2 no-label format "999"
      pc-misc.frm column-label "F /" space(0) "/" space(0)
      pc-misc.blank-no column-label "B"
      pc-misc.i-no column-label "ITEM #"

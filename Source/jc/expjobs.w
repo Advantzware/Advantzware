@@ -86,7 +86,7 @@ DEFINE BUTTON Btn_OK AUTO-GO
 DEFINE VARIABLE begin_job-no  AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
@@ -96,7 +96,7 @@ DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000"
 DEFINE VARIABLE end_job-no    AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2   AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
@@ -118,11 +118,11 @@ DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL NO
 DEFINE FRAME FRAME-A
     begin_job-no AT ROW 2.43 COL 23.8 COLON-ALIGNED HELP
     "Enter Beginning Job Number" WIDGET-ID 10
-    begin_job-no2 AT ROW 2.43 COL 37 COLON-ALIGNED HELP
+    begin_job-no2 AT ROW 2.43 COL 39 COLON-ALIGNED HELP
     "Enter Beginning Job Number" WIDGET-ID 12
     end_job-no AT ROW 2.52 COL 63.4 COLON-ALIGNED HELP
     "Enter Ending Job Number" WIDGET-ID 18
-    end_job-no2 AT ROW 2.52 COL 76.6 COLON-ALIGNED HELP
+    end_job-no2 AT ROW 2.52 COL 78.6 COLON-ALIGNED HELP
     "Enter Ending Job Number" WIDGET-ID 8
     Btn_OK AT ROW 5.76 COL 27 WIDGET-ID 16
     Btn_Cancel AT ROW 5.76 COL 52 WIDGET-ID 14
@@ -391,7 +391,7 @@ PROCEDURE do-download :
     SESSION:SET-WAIT-STATE("general").
 
     DEFINE VARIABLE v-job-no  LIKE job.job-no EXTENT 2 INIT ["", "zzzzzzzzz"] NO-UNDO.
-    DEFINE VARIABLE v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [00, 999] NO-UNDO.
+    DEFINE VARIABLE v-job-no2 LIKE job.job-no2 EXTENT 2 INIT [000, 999] NO-UNDO.
 
     ASSIGN
         v-job-no[1] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
@@ -399,9 +399,9 @@ PROCEDURE do-download :
 
     FOR EACH job-hdr WHERE
         job-hdr.company = g_company 
-        AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
         TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"999") GE v-job-no[1] 
-        AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
         TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"999") LE v-job-no[2] 
         AND job-hdr.job-no2 GE int(begin_job-no2)
         AND job-hdr.job-no2 LE int(end_job-no2) 

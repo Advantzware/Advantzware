@@ -463,7 +463,7 @@ PROCEDURE run-process :
 /******************************************************************************/
 
 def var v-job-no like job.job-no extent 2 initial [" ", " "] no-undo.
-def var v-job-no2 like job.job-no2 extent 2 initial [00, 99] no-undo.
+def var v-job-no2 like job.job-no2 extent 2 initial [000, 999] no-undo.
 def var v-status like job.stat initial "*" no-undo.
 def var stat-list as char initial "P,L,C,W,Z,*" no-undo.
 
@@ -488,14 +488,14 @@ assign
                 (if tb_closed   then "CZ"  else "").
 
 do x = 1 to 2:
-  v-job-no[x] = fill(" ", 6 - integer(length(trim(v-job-no[x])))) +
+  v-job-no[x] = fill(" ", iJobLen - integer(length(trim(v-job-no[x])))) +
                 trim(v-job-no[x]).
 end.
 
 for each job
     where job.company eq cocode
-      and fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) ge v-job-no[1]
-      and fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) le v-job-no[2]
+      and FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) ge v-job-no[1]
+      and FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) le v-job-no[2]
       and job.job-no2 ge v-job-no2[1]
       and job.job-no2 le v-job-no2[2]
       and index(v-status,job.stat) gt 0

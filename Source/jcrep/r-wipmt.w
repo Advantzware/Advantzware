@@ -1303,10 +1303,10 @@ FOR EACH wiptag NO-LOCK
     AND wiptag.rm-i-no LE end_rmItem 
     AND wiptag.fg-i-no GE begin_FGItem 
     AND wiptag.fg-i-no LE end_FGItem          
-    AND FILL(" ",9 - LENGTH(TRIM(wiptag.job-no))) +
+    AND FILL(" ", iJobLen - LENGTH(TRIM(wiptag.job-no))) +
              TRIM(wiptag.job-no) +
              STRING(wiptag.job-no2,"999")  GE fjob-no
-    AND FILL(" ",9 - LENGTH(TRIM(wiptag.job-no))) +
+    AND FILL(" ", iJobLen - LENGTH(TRIM(wiptag.job-no))) +
              TRIM(wiptag.job-no) +
              STRING(wiptag.job-no2,"999")  LE tjob-no
     AND job.job-no2 GE int(fjob-no2)
@@ -1368,7 +1368,7 @@ FOR EACH tt-wiptag NO-LOCK
     IF tgl-WIPBin THEN PUT UNFORMATTED v-wip-rm-bin FORMAT "x(9)".  
 
     IF tgl-job    THEN PUT UNFORMATTED v-job-no + " " + 
-                                       STRING(v-job-no2,"99") FORMAT "x(10)".
+                                       STRING(v-job-no2,"999") FORMAT "x(13)".
 
     IF tgl-RMItem THEN PUT UNFORMATTED v-rm-i-no FORMAT "x(16)".
 

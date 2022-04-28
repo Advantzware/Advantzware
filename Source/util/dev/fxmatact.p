@@ -16,7 +16,7 @@ FOR EACH mat-act,
 
     FIRST job
     WHERE job.company EQ mat-act.company
-      AND TRIM(job.job-no)  EQ TRIM(mat-act.job-no)
+      AND job.job-no  EQ mat-act.job-no
       AND job.job-no2 EQ mat-act.job-no2
     NO-LOCK,
 

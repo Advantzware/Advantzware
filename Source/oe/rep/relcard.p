@@ -124,7 +124,7 @@ format header
          
        skip(1)
          
-       "Order#"                         to 6
+       "Order#"                         to 8
        "Item / Descrip"                 at 10
        "Whs  / Bin"                     at 41
        "Units"                          to 59
@@ -140,7 +140,7 @@ format header
        
     with frame rel-top no-box no-labels STREAM-IO width 85 page-top.
         
-format oe-rell.ord-no                   to 6
+format oe-rell.ord-no                   to 8
        w-par                            at 10    format "x(30)"
        v-bin                            at 41   format "x(14)"
        w-cas                            to 59   format "->>>>"
@@ -192,8 +192,8 @@ find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
           where oe-ord.company eq oe-rell.company
             and oe-ord.ord-no  eq oe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-pay-dscr = IF oe-rell.frt-pay NE "" THEN oe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-pay-dscr:
              when "P" THEN v-frt-pay-dscr = "Prepaid".
              when "C" THEN v-frt-pay-dscr = "Collect".
              when "B" THEN v-frt-pay-dscr = "Bill".

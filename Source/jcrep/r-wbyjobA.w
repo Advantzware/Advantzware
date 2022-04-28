@@ -117,15 +117,15 @@ DEFINE VARIABLE begin_dept AS CHARACTER FORMAT "X(4)"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(6)" 
      LABEL "Beginning Machine" 
@@ -142,15 +142,15 @@ DEFINE VARIABLE end_dept AS CHARACTER FORMAT "X(4)" INITIAL "zzzz"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
      LABEL "Ending Machine" 
@@ -235,11 +235,11 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes
 DEFINE FRAME FRAME-A
      begin_job-no AT ROW 3.14 COL 23 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 3.14 COL 35 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 3.14 COL 37 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 3.14 COL 66 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 3.14 COL 78 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 3.14 COL 80 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_date AT ROW 4.1 COL 23 COLON-ALIGNED
      end_date AT ROW 4.1 COL 66 COLON-ALIGNED HELP
@@ -886,8 +886,8 @@ PROCEDURE run-report :
 
 {sys/form/r-topw.f}
 
-def var v-job as char format "x(6)" extent 2 init ["","zzzzzz"] no-undo.
-def var v-job2 as int format "99" extent 2 init [00,99] no-undo.
+def var v-job as char format "x(9)" extent 2 init ["","zzzzzzzzz"] no-undo.
+def var v-job2 as int format "999" extent 2 init [000,999] no-undo.
 def var v-date as date extent 2 format "99/99/9999" no-undo.
 def var v-mach like mch-act.m-code extent 2 init ["","zzzzzz"] no-undo.
 def var v-dept like mch-act.dept extent 2 init ["","zz"] no-undo.
@@ -950,10 +950,10 @@ assign
   v-mach[2]  = end_mach
   v-shts     = rd_qty BEGINS "Sheets"
 
-  v-job[1]   = fill(" ",6 - length(trim(begin_job-no))) +
-                trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-job[2]   = fill(" ",6 - length(trim(end_job-no)))   +
-                trim(end_job-no)   + string(int(end_job-no2),"99"). 
+  v-job[1]   = FILL(" ", iJobLen - length(trim(begin_job-no))) +
+                trim(begin_job-no) + string(int(begin_job-no2),"999")
+  v-job[2]   = FILL(" ", iJobLen - length(trim(end_job-no)))   +
+                trim(end_job-no)   + string(int(end_job-no2),"999"). 
 
  assign hdr-tit = "       " +
                  "MACH                                RUN    WASTE  MR STD " +
@@ -983,10 +983,10 @@ for each mch-act
       where mch-act.company                                 eq cocode
         and mch-act.op-date                                 ge v-date[1]
         and mch-act.op-date                                 le v-date[2]
-        and fill(" ",6 - length(trim(mch-act.job-no))) +
-            trim(mch-act.job-no) + string(mch-act.job-no2,"99") ge v-job[1]
-        and fill(" ",6 - length(trim(mch-act.job-no))) +
-            trim(mch-act.job-no) + string(mch-act.job-no2,"99") le v-job[2]
+        and FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
+            trim(mch-act.job-no) + string(mch-act.job-no2,"999") ge v-job[1]
+        and FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
+            trim(mch-act.job-no) + string(mch-act.job-no2,"999") le v-job[2]
         and mch-act.dept                                    ge v-dept[1]
         and mch-act.dept                                    le v-dept[2]
         and mch-act.m-code                                  ge v-mach[1]
@@ -1147,7 +1147,7 @@ for each mch-act
       break by work-job.job-no
             by work-job.job-no2:
 
-    put "Job Number: " job.job-no "-" job.job-no2
+    put "Job Number: " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
         "   Status: " job.stat skip(1).
 
     for each job-mch
@@ -1213,8 +1213,8 @@ for each mch-act
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED
             '"' IF FIRST-OF(work-job.job-no2) THEN
-                   job.job-no + "-" +
-                   STRING(job.job-no2) ELSE ""                  '",'
+                TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', 
+                job.job-no, job.job-no2))) ELSE ""              '",'
             '"' IF FIRST-OF(work-job.job-no2) THEN
                    job.stat ELSE ""                             '",'
             '"' STRING(job-mch.frm)                             '",'

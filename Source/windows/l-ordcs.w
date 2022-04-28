@@ -35,6 +35,7 @@ def input param ip-cur-val as char no-undo.
 def input param ip-type as int no-undo.
 def output param op-char-val as char no-undo.
 def output param op-rec-id as recid no-undo.     /* recid output */
+{sys/inc/var.i}
 
 /* Local Variable Definitions ---                                       */
 &scoped-define SORTBY-1 BY oe-rell.ord-no DESC

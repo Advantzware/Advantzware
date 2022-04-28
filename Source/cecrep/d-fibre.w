@@ -296,7 +296,7 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
 DO:
    ASSIGN {&displayed-objects}.
-   FIND FIRST tt-fibre WHERE trim(tt-fibre.tt-job-no) = trim(job-hdr.job-no)
+   FIND FIRST tt-fibre WHERE tt-fibre.tt-job-no  = job-hdr.job-no
                          AND tt-fibre.tt-job-no2 = job-hdr.job-no2
                          AND tt-fibre.tt-frm = v-form-no
                          AND tt-fibre.tt-blank = v-blank-no NO-LOCK NO-ERROR.

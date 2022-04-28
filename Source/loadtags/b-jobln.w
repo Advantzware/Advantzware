@@ -254,8 +254,8 @@ DEFINE QUERY ttbl-browse-2 FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      job-hdr.job-no COLUMN-LABEL "Job #" FORMAT "x(6)":U
-      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      job-hdr.job-no COLUMN-LABEL "Job #" FORMAT "x(9)":U
+      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
       job-hdr.i-no FORMAT "x(15)":U
       job-hdr.est-no FORMAT "x(5)":U
       job-hdr.ord-no FORMAT ">>>>>9":U
@@ -1303,7 +1303,7 @@ DO:
           rm-rdtl.tag = string(int(rm-rcpt.po-no),"999999") + string(v-tag-seq,"99")
           asi.rm-rctd.tag = rm-rdtl.tag
           asi.rm-rctd.barcode = "JO" + string(int(asi.rm-rctd.job-no),"999999") + 
-                            string(asi.rm-rctd.job-no2,"99") +
+                            string(asi.rm-rctd.job-no2,"999") +
                             string(v-tag-seq,"999") +
                             string(ttbl.count,"9999")
           .

@@ -226,10 +226,15 @@ PROCEDURE pBuildRMToProcess PRIVATE:
                 WHERE bf-estMaterial.company EQ bf-est.company
                 AND bf-estMaterial.estimateNo EQ bf-est.est-no:
                 
+                IF bf-estMaterial.quantityPer EQ "Lot" THEN 
+                    dSpecQty = bf-estMaterial.quantity.
+                ELSE 
+                    dSpecQty = bf-estMaterial.quantity * dMasterQty.
+                    
                 RUN pAddRMToProcess(
                     INPUT ipcCompany, 
                     INPUT bf-estMaterial.itemID,
-                    INPUT bf-estMaterial.quantity * dMasterQty,
+                    INPUT dSpecQty,
                     INPUT "I",
                     OUTPUT oplError,
                     OUTPUT opcMessage

@@ -13,7 +13,7 @@
 DEFINE TEMP-TABLE ttFinishGoods NO-UNDO
     FIELD i-no            AS CHARACTER FORMAT "x(15)"              LABEL "Item#"
     FIELD i-name          AS CHARACTER FORMAT "x(30)"              LABEL "Item Name"
-    FIELD part-no         AS CHARACTER FORMAT "x(15)"              LABEL "Customer Part #"
+    FIELD part-no         AS CHARACTER FORMAT "x(30)"              LABEL "Customer Part #"
     FIELD cust-no         AS CHARACTER FORMAT "x(8)"               LABEL "Customer"
     FIELD cust-name       AS CHARACTER FORMAT "x(30)"              LABEL "Customer Name #"
     FIELD est-no          AS CHARACTER FORMAT "x(8)"               LABEL "Estimate"

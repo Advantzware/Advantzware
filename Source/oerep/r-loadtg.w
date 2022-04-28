@@ -1306,7 +1306,7 @@ ON VALUE-CHANGED OF begin_ord-no IN FRAME FRAME-A /* From Order# */
             WHERE oe-ordl.company EQ cocode
             AND oe-ordl.ord-no EQ INT(begin_ord-no:SCREEN-VALUE)
             AND (oe-ordl.i-no EQ begin_i-no:SCREEN-VALUE OR begin_i-no:SCREEN-VALUE EQ "" )
-            AND (trim(oe-ordl.job-no) EQ trim(begin_job:SCREEN-VALUE) OR begin_job:SCREEN-VALUE EQ "" )
+            AND (oe-ordl.job-no EQ begin_job:SCREEN-VALUE OR begin_job:SCREEN-VALUE EQ "" )
             AND (oe-ordl.job-no2 EQ int(begin_job2:SCREEN-VALUE) OR int(begin_job:SCREEN-VALUE) EQ 0 )
             AND oe-ordl.opened EQ YES NO-ERROR .
         IF AVAILABLE oe-ordl 
@@ -1442,10 +1442,10 @@ ON LEAVE OF end_i-no IN FRAME FRAME-A /* To Item# */
             IF begin_job2 = 0 AND END_job2 = 0 THEN END_job2 = 999.
             FIND FIRST job-hdr NO-LOCK
                 WHERE job-hdr.company EQ cocode                 
-                AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) + 
+                AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) + 
                 TRIM(job-hdr.job-no) + STRING(job-hdr.job-no2,"999")  
                 GE (begin_job + STRING(begin_job2,"999"))
-                AND FILL(" ",9 - length(TRIM(job-hdr.job-no))) +
+                AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) +
                 TRIM(job-hdr.job-no) + STRING(job-hdr.job-no2,"999")  
                 LE (end_job + STRING(end_job2,"999"))
                 AND job-hdr.job-no2    EQ INT(begin_job2:SCREEN-VALUE) NO-ERROR.
@@ -1991,7 +1991,7 @@ ON VALUE-CHANGED OF end_ord-no IN FRAME FRAME-A /* To Order# */
             WHERE oe-ordl.company EQ cocode
             AND oe-ordl.ord-no EQ INT(end_ord-no:SCREEN-VALUE)
             AND (oe-ordl.i-no EQ end_i-no:SCREEN-VALUE OR end_i-no:SCREEN-VALUE EQ "" )
-            AND (trim(oe-ordl.job-no) EQ trim(end_job:SCREEN-VALUE) OR end_job:SCREEN-VALUE EQ "" )
+            AND (oe-ordl.job-no EQ end_job:SCREEN-VALUE OR end_job:SCREEN-VALUE EQ "" )
             AND (oe-ordl.job-no2 EQ int(end_job2:SCREEN-VALUE) OR int(end_job:SCREEN-VALUE) EQ 0 )
             AND oe-ordl.opened EQ YES NO-ERROR .
         IF AVAILABLE oe-ordl 
@@ -3034,7 +3034,7 @@ PROCEDURE calc-ext-cost :
     FIND FIRST po-ordl WHERE po-ordl.company = fg-rctd.company
         AND po-ordl.po-no = int(fg-rctd.po-no)
         AND po-ordl.i-no  = fg-rctd.i-no
-        AND trim(po-ordl.job-no) = trim(fg-rctd.job-no)
+        AND po-ordl.job-no = fg-rctd.job-no
         AND po-ordl.job-no2 = fg-rctd.job-no2
         AND po-ordl.item-type = NO
         NO-LOCK NO-ERROR.
@@ -3347,7 +3347,7 @@ PROCEDURE checkReturns :
             WHERE oe-ordl.company EQ cocode
             AND oe-ordl.ord-no  EQ loadtag.ord-no
             AND oe-ordl.i-no    EQ loadtag.i-no
-            AND trim(oe-ordl.job-no)  EQ trim(loadtag.job-no)
+            AND oe-ordl.job-no  EQ loadtag.job-no
             AND oe-ordl.job-no2 EQ loadtag.job-no2
             NO-LOCK NO-ERROR.
         IF AVAILABLE oe-ordl AND
@@ -3664,7 +3664,7 @@ PROCEDURE create-loadtag :
             loadtag.loc-bin = itemfg.def-loc-bin.
         FIND FIRST fg-bin WHERE fg-bin.company EQ itemfg.company
             AND fg-bin.i-no    EQ itemfg.i-no
-            AND trim(fg-bin.job-no)  EQ trim(w-ord.job-no)
+            AND fg-bin.job-no  EQ w-ord.job-no
             AND fg-bin.tag = loadtag.tag-no
             NO-LOCK NO-ERROR.
         IF AVAILABLE fg-bin THEN
@@ -3784,7 +3784,7 @@ PROCEDURE create-loadtag :
             IF TRIM(fg-rctd.job-no) NE "" THEN
                 FIND FIRST job
                     WHERE job.company EQ fg-rctd.company
-                    AND trim(job.job-no)  EQ trim(fg-rctd.job-no)
+                    AND job.job-no  EQ fg-rctd.job-no
                     AND job.job-no2 EQ fg-rctd.job-no2
                     USE-INDEX job NO-LOCK NO-ERROR.
 
@@ -4164,7 +4164,7 @@ PROCEDURE create-text-file :
                     FOR EACH job-hdr NO-LOCK
                         WHERE job-hdr.company EQ cocode
                         AND job-hdr.ord-no  EQ w-ord.ord-no 
-                        AND trim(job-hdr.job-no)  EQ trim(w-ord.job-no)
+                        AND job-hdr.job-no  EQ w-ord.job-no
                         AND job-hdr.job-no2 EQ w-ord.job-no2
                         BREAK BY job-hdr.job
                         BY job-hdr.job-no
@@ -4207,10 +4207,10 @@ PROCEDURE create-text-file :
                 v-job          = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)) .
             IF v-job BEGINS "-" THEN v-job = "".
             ASSIGN
-                lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,9)
+                lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,iJobLen)
                 lv-middlesex-job = IF lv-middlesex-job EQ "" THEN "" ELSE
                             "%MX" +
-                            FILL("0",9 - LENGTH(TRIM(lv-middlesex-job))) +
+                            FILL("0",iJobLen - LENGTH(TRIM(lv-middlesex-job))) +
                             TRIM(lv-middlesex-job)
                 lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,6)
                 lv-middlesex-po  = IF lv-middlesex-po EQ "" THEN "" ELSE
@@ -4353,7 +4353,7 @@ PROCEDURE create-w-ord :
             AND cust.cust-no = oe-ord.cust-no NO-LOCK NO-ERROR.
 
         FIND FIRST b-job NO-LOCK WHERE b-job.company = loadtag.company
-            AND trim(b-job.job-no)  = trim(loadtag.job-no)
+            AND b-job.job-no  = loadtag.job-no
             AND b-job.job-no2 = loadtag.job-no2  NO-ERROR.
         IF AVAILABLE b-job THEN
             FIND FIRST b-job-hdr WHERE b-job-hdr.company EQ b-job.company
@@ -4561,7 +4561,7 @@ PROCEDURE create-w-ord :
     ELSE IF loadtag.job-no <> "" THEN 
         DO:
             FIND FIRST job NO-LOCK WHERE job.company = loadtag.company
-                AND trim(job.job-no) = trim(loadtag.job-no)
+                AND job.job-no = loadtag.job-no
                 AND job.job-no2 = loadtag.job-no2  NO-ERROR.
             IF AVAILABLE job THEN
                 FIND FIRST job-hdr WHERE job-hdr.company EQ job.company
@@ -5025,7 +5025,7 @@ PROCEDURE dispJobInfo :
 
         FIND FIRST bf-job WHERE
             bf-job.company EQ cocode AND
-            trim(bf-job.job-no) EQ trim(ipcJobNo) AND
+            bf-job.job-no  EQ ipcJobNo AND
             bf-job.job-no2 EQ ipiJobNo2
             NO-LOCK NO-ERROR.
 
@@ -5488,7 +5488,7 @@ PROCEDURE from-ord :
         lv-job-no  = "".
     FIND FIRST ttbljob WHERE ttbljob.company = cocode
         AND ttbljob.ord-no = oe-ordl.ord-no
-        AND trim(ttbljob.job-no) = trim(oe-ordl.job-no)
+        AND ttbljob.job-no = oe-ordl.job-no
         AND ttbljob.job-no2 = oe-ordl.job-no2
         NO-LOCK NO-ERROR.
     IF NOT AVAILABLE ttbljob THEN
@@ -5498,7 +5498,7 @@ PROCEDURE from-ord :
     IF AVAILABLE ttbljob THEN
         FIND FIRST b-job-hdr WHERE b-job-hdr.company = cocode
             AND b-job-hdr.ord-no  = oe-ordl.ord-no
-            AND trim(b-job-hdr.job-no) = trim(ttbljob.job-no)
+            AND b-job-hdr.job-no = ttbljob.job-no
             AND b-job-hdr.job-no2 = ttbljob.job-no2
             AND b-job-hdr.i-no    = oe-ordl.i-no NO-LOCK NO-ERROR.
     ELSE
@@ -5515,7 +5515,7 @@ PROCEDURE from-ord :
     DO:
         IF AVAILABLE b-job-hdr THEN
             FIND FIRST ttbljob WHERE ttbljob.company = b-job-hdr.company
-                AND trim(ttbljob.job-no) = trim(b-job-hdr.job-no)
+                AND ttbljob.job-no  = b-job-hdr.job-no
                 AND ttbljob.job-no2 = b-job-hdr.job-no2
                 AND ttbljob.ord-no = oe-ordl.ord-no
                 NO-LOCK NO-ERROR.
@@ -6105,7 +6105,7 @@ PROCEDURE get-freight-cost :
         b-po-ordl-2.company   EQ fg-rctd.company AND
         b-po-ordl-2.po-no     EQ INT(fg-rctd.po-no) AND
         b-po-ordl-2.i-no      EQ fg-rctd.i-no AND
-        trim(b-po-ordl-2.job-no) EQ trim(fg-rctd.job-no) AND
+        b-po-ordl-2.job-no    EQ fg-rctd.job-no AND
         b-po-ordl-2.job-no2   EQ fg-rctd.job-no2 AND
         b-po-ordl-2.item-type EQ NO
         NO-LOCK NO-ERROR.
@@ -6350,7 +6350,7 @@ PROCEDURE get-jobord-info :
 /*
 FIND FIRST bf-job WHERE
      bf-job.company EQ cocode AND
-     trim(bf-job.job-no) EQ trim(lv-job-no) AND
+     bf-job.job-no  EQ lv-job-no AND
      bf-job.job-no2 EQ v-job2
      NO-LOCK NO-ERROR.
 
@@ -6403,7 +6403,7 @@ END.
 /*
 FIND FIRST bf-jobhdr WHERE
      bf-jobhdr.company EQ cocode AND
-     trim(bf-jobhdr.job-no)  EQ trim(lv-job-no) AND
+     bf-jobhdr.job-no  EQ lv-job-no AND
      bf-jobhdr.job-no2 EQ v-job2 AND
      bf-jobhdr.ord-no NE 0
      NO-LOCK NO-ERROR.
@@ -6411,7 +6411,7 @@ FIND FIRST bf-jobhdr WHERE
 IF NOT AVAIL bf-jobhdr THEN
    FIND FIRST bf-jobhdr WHERE
         bf-jobhdr.company EQ cocode AND
-        trim(bf-jobhdr.job-no)  EQ trim(lv-job-no) AND
+        bf-jobhdr.job-no  EQ lv-job-no AND
         bf-jobhdr.job-no2 EQ v-job2
         NO-LOCK NO-ERROR.
 
@@ -6937,7 +6937,7 @@ PROCEDURE get-set-full-qty :
     lv-out-qty = 0.
     FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ g_company AND
         (b-fg-rctd.rita-code EQ "R" OR b-fg-rctd.rita-code EQ "E")
-        AND trim(b-fg-rctd.job-no) = trim(ipc-job-no)
+        AND b-fg-rctd.job-no  = ipc-job-no
         AND b-fg-rctd.job-no2 = INT(ipi-job-no2)
         AND b-fg-rctd.i-no = ipc-i-no 
         NO-LOCK :
@@ -6970,7 +6970,7 @@ PROCEDURE get-set-full-qty :
                     AND po-ordl.po-no   = int(b-fg-rctd.po-no)
                     AND po-ordl.LINE   = int(b-fg-rctd.po-line)
                     AND po-ordl.i-no    = b-fg-rctd.i-no
-                    AND trim(po-ordl.job-no)  = trim(b-fg-rctd.job-no)
+                    AND po-ordl.job-no  = b-fg-rctd.job-no
                     AND po-ordl.job-no2 = b-fg-rctd.job-no2
                     AND po-ordl.item-type = NO
                     NO-LOCK NO-ERROR.
@@ -7139,7 +7139,7 @@ PROCEDURE leave-job-label :
                 begin_i-no:SCREEN-VALUE NE "" THEN
                 FIND FIRST job-hdr WHERE
                     job-hdr.company EQ cocode AND
-                    trim(job-hdr.job-no) EQ trim(v-job-no) AND
+                    job-hdr.job-no  EQ v-job-no AND
                     job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE) AND
                     job-hdr.i-no EQ begin_i-no:SCREEN-VALUE AND
                     job-hdr.ord-no NE 0
@@ -7148,7 +7148,7 @@ PROCEDURE leave-job-label :
             DO:
                 FIND FIRST job-hdr WHERE
                     job-hdr.company EQ cocode AND
-                    trim(job-hdr.job-no) EQ trim(v-job-no) AND
+                    job-hdr.job-no  EQ v-job-no AND
                     job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE) AND
                     job-hdr.ord-no NE 0
                     NO-LOCK NO-ERROR.
@@ -7156,7 +7156,7 @@ PROCEDURE leave-job-label :
                 IF NOT AVAILABLE job-hdr THEN
                     FIND FIRST job-hdr WHERE
                         job-hdr.company EQ cocode AND
-                        trim(job-hdr.job-no) EQ trim(v-job-no) AND
+                        job-hdr.job-no  EQ v-job-no AND
                         job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
                         NO-LOCK NO-ERROR.
             END.
@@ -7313,14 +7313,14 @@ PROCEDURE leave-job-label :
 
     IF INT(end_job2:SCREEN-VALUE) > 0 AND TRIM(v-job-no) > ""  THEN 
     DO:
-        FIND FIRST b-job-hdr-2 WHERE trim(b-job-hdr-2.job-no) EQ trim(v-job-no)
+        FIND FIRST b-job-hdr-2 WHERE b-job-hdr-2.job-no EQ v-job-no
             NO-LOCK NO-ERROR.
 
         FOR EACH b-job-hdr-2  WHERE
             b-job-hdr-2.company EQ cocode AND
-            fill(" ",9 - length(TRIM(b-job-hdr-2.job-no))) + trim(b-job-hdr-2.job-no) GE trim(v-job-no) AND
+            FILL(" ", iJobLen - length(TRIM(b-job-hdr-2.job-no))) + trim(b-job-hdr-2.job-no) GE v-job-no AND
             b-job-hdr-2.job-no2 GE INT(begin_job2:SCREEN-VALUE) AND
-            fill(" ",9 - length(TRIM(b-job-hdr-2.job-no))) + trim(b-job-hdr-2.job-no)  LE v-job-no-end AND                
+            FILL(" ", iJobLen - length(TRIM(b-job-hdr-2.job-no))) + trim(b-job-hdr-2.job-no)  LE v-job-no-end AND                
             b-job-hdr-2.job-no2 LE INT(end_job2:SCREEN-VALUE) AND
             b-job-hdr-2.i-no    GE begin_i-no:SCREEN-VALUE AND
             b-job-hdr-2.i-no    LE end_i-no:SCREEN-VALUE
@@ -8044,7 +8044,7 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE :
     DO:
         FIND FIRST bf-job NO-LOCK
             WHERE bf-job.company EQ ipcCompany
-            AND trim(bf-job.job-no)  EQ trim(ipcJobNo)
+            AND bf-job.job-no  EQ ipcJobNo
             AND bf-job.job-no2 EQ ipiJobNo2
             NO-ERROR.
         IF AVAILABLE bf-job THEN 
@@ -8193,7 +8193,7 @@ PROCEDURE pRunAPIOutboundTriggerForItem PRIVATE :
         DO:
             FIND FIRST bf-job NO-LOCK
                 WHERE bf-job.company EQ ipcCompany
-                AND trim(bf-job.job-no)  EQ trim(ipcJobNo)
+                AND bf-job.job-no  EQ ipcJobNo
                 AND bf-job.job-no2 EQ ipiJobNo2
                 NO-ERROR.
             IF AVAILABLE bf-job THEN
@@ -8544,8 +8544,8 @@ PROCEDURE temp-job :
 
     FOR EACH job
         WHERE job.company EQ cocode
-        AND trim(job.job-no)  EQ trim(SUBSTR(ip-job-no,1,9))
-        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,10,3))
+        AND job.job-no  EQ SUBSTR(ip-job-no,1,iJobLen)
+        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,(iJobLen + 1),3))
         AND (v-stat EQ "A" OR
         (v-stat EQ "C" AND job.opened EQ NO) OR
         (v-stat EQ "O" AND job.opened EQ YES))

@@ -37,7 +37,9 @@ CREATE WIDGET-POOL.
 def var char-hdl as cha no-undo.
 
 /* === vars for d-poordl.w ====*/
-{custom/globdefs.i}
+
+{methods/prgsecdt.i}
+
 {sys/inc/VAR.i "new shared"}
 ASSIGN cocode = g_company
        locode = g_loc.
@@ -317,6 +319,9 @@ PROCEDURE local-row-available :
       btn-update:LABEL = "Open/Reopen".
       DISABLE btn-update.
     END.
+    
+    IF NOT v-can-update THEN
+     btn-update:SENSITIVE IN FRAME {&FRAME-NAME} = NO. 
   END.
 
 END PROCEDURE.

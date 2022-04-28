@@ -2417,7 +2417,7 @@ PROCEDURE create-job :
 
            FIND LAST b-job NO-LOCK
                WHERE b-job.company EQ itemfg.company
-                 AND TRIM(b-job.job-no) EQ TRIM(v-bld-job)
+                 AND b-job.job-no EQ v-bld-job
                NO-ERROR.
           
            IF AVAIL b-job THEN DO:

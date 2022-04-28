@@ -169,10 +169,10 @@ do v-local-loop = 1 to v-local-copies:
           and (production OR
                job-hdr.ftick-prnt           eq reprint OR
                PROGRAM-NAME(2) MATCHES "*r-tickt2*")
-          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
 	  	TRIM(job-hdr.job-no) +
 	  	STRING(job-hdr.job-no2,"999")  GE fjob-no
-	  AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
 	  	TRIM(job-hdr.job-no) +
 	  	STRING(job-hdr.job-no2,"999")  LE tjob-no
 	  AND job-hdr.job-no2 GE fjob-no2
@@ -924,7 +924,7 @@ do v-local-loop = 1 to v-local-copies:
                        + " Printed: " + STRING(TODAY,"99/99/99") + " " + STRING(TIME,"HH:MM").
 
     IF s-prt-ship-split THEN
-       FIND FIRST tt-fibre WHERE TRIM(tt-fibre.tt-job-no) = TRIM(job-hdr.job-no)
+       FIND FIRST tt-fibre WHERE tt-fibre.tt-job-no = job-hdr.job-no
                      AND tt-fibre.tt-job-no2 = job-hdr.job-no2
                      AND tt-fibre.tt-frm = w-ef.frm
                      AND tt-fibre.tt-blank = b-eb.blank-no NO-LOCK NO-ERROR.
@@ -1128,7 +1128,7 @@ do v-local-loop = 1 to v-local-copies:
                    ELSE IF avail xeb THEN xeb.ship-id
                    ELSE IF avail xoe-ord THEN xoe-ord.sold-id 
                    ELSE "".
-        FIND FIRST tt-prem WHERE TRIM(tt-prem.tt-job-no)  EQ TRIM(job-hdr.job-no)
+        FIND FIRST tt-prem WHERE tt-prem.tt-job-no    EQ job-hdr.job-no
                               AND tt-prem.tt-job-no2  EQ job-hdr.job-no2 NO-LOCK NO-ERROR.
         IF NOT AVAIL tt-prem THEN do:
            FIND FIRST bf-eb WHERE bf-eb.company = est.company

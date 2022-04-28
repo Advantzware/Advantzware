@@ -8,10 +8,10 @@ DEF VAR ld-tot-rate AS DEC NO-UNDO.
         where mch-act.company eq cocode
           and mch-act.m-code  ge v-fmach
           and mch-act.m-code  le v-tmach          
-          and fill(" ",9 - length(trim(mch-act.job-no))) +
+          and FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
               trim(mch-act.job-no) + string(mch-act.job-no2,"999")
                               ge v-fjob
-          and fill(" ",9 - length(trim(mch-act.job-no))) +
+          and FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
               trim(mch-act.job-no) + string(mch-act.job-no2,"999")
                               le v-tjob
          AND mch-act.job-no2 GE int(begin_job-no2)

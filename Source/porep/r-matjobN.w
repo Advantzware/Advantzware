@@ -159,17 +159,17 @@ DEFINE BUTTON btn_SelectColumns
 DEFINE VARIABLE begin_due-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning PO Due Date" 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Job Due Date" 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "" 
@@ -179,17 +179,17 @@ DEFINE VARIABLE begin_job-no2 AS INTEGER FORMAT "999":U INITIAL 0
 DEFINE VARIABLE end_due-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending PO Due Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Job Due Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2 AS INTEGER FORMAT "999":U INITIAL 999 
      LABEL "" 
@@ -238,11 +238,11 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 90 BY 5.48.
+     SIZE 92 BY 5.48.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 90 BY 12.14.
+     SIZE 92 BY 12.14.
 
 DEFINE VARIABLE select-mat AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -297,21 +297,21 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_job-no AT ROW 2.43 COL 29 COLON-ALIGNED HELP
+     begin_job-no AT ROW 2.43 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      begin_job-no2 AT ROW 2.43 COL 42 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     end_job-no AT ROW 2.52 COL 71.4 COLON-ALIGNED HELP
+     end_job-no AT ROW 2.52 COL 71 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 2.52 COL 84 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.52 COL 85.9 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     begin_job-date AT ROW 3.57 COL 29 COLON-ALIGNED HELP
+     begin_job-date AT ROW 3.57 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Job Due Date" WIDGET-ID 30
-     end_job-date AT ROW 3.67 COL 71.4 COLON-ALIGNED HELP
+     end_job-date AT ROW 3.67 COL 71 COLON-ALIGNED HELP
           "Enter Ending Job Due Date" WIDGET-ID 32
-     begin_due-date AT ROW 4.71 COL 29 COLON-ALIGNED HELP
+     begin_due-date AT ROW 4.71 COL 27 COLON-ALIGNED HELP
           "Enter Beginning PO Due Date"
-     end_due-date AT ROW 4.71 COL 71.4 COLON-ALIGNED HELP
+     end_due-date AT ROW 4.71 COL 71 COLON-ALIGNED HELP
           "Enter Ending PO Due Date"
      tb_sort AT ROW 5.91 COL 31
      tb_include-job AT ROW 5.91 COL 67.4 WIDGET-ID 34
@@ -342,8 +342,8 @@ DEFINE FRAME FRAME-A
           SIZE 18 BY .62 AT ROW 15.48 COL 5
      "Select/Deselect Material Types" VIEW-AS TEXT
           SIZE 37 BY .71 AT ROW 7.67 COL 35.8
-     RECT-6 AT ROW 15.76 COL 4
-     RECT-7 AT ROW 1.71 COL 4
+     RECT-6 AT ROW 15.76 COL 3
+     RECT-7 AT ROW 1.71 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -1366,14 +1366,14 @@ PROCEDURE run-report :
     DEFINE BUFFER b-ref2 FOR reftable.
 
     DEFINE VARIABLE v-job-no       LIKE job.job-no EXTENT 2
-        INIT ["", "zzzzzz"] NO-UNDO.
-    DEFINE VARIABLE v-job-no2      LIKE job.job-no2 EXTENT 2 FORMAT "99"
-        INIT [00, 99] NO-UNDO.
+        INIT ["", "zzzzzzzzz"] NO-UNDO.
+    DEFINE VARIABLE v-job-no2      LIKE job.job-no2 EXTENT 2 FORMAT "999"
+        INIT [000, 999] NO-UNDO.
     DEFINE VARIABLE v-sort-by-size AS LOG       INIT NO FORMAT "yes/no" NO-UNDO.
     DEFINE VARIABLE v-mattype-list AS CHARACTER FORMAT "x(36)" NO-UNDO.
     DEFINE VARIABLE v-mat-dscr     AS CHARACTER FORMAT "x(21)" EXTENT 21 NO-UNDO.
 
-    DEFINE VARIABLE v-job          AS CHARACTER FORMAT "x(9)" NO-UNDO.
+    DEFINE VARIABLE v-job          AS CHARACTER FORMAT "x(13)" NO-UNDO.
     DEFINE VARIABLE v-itm          AS CHARACTER FORMAT "x(10)" NO-UNDO.
     DEFINE VARIABLE v-qty          LIKE ITEM.q-onh EXTENT 4 NO-UNDO.
     DEFINE VARIABLE v-uom          LIKE job-mat.qty-uom NO-UNDO.
@@ -1408,7 +1408,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 
     FORM HEADER
-        "Job No"                       TO 9
+        "Job No"                       AT 1
         "Item No"                      AT 13
         "UOM"                          AT 24
         "Required"                     TO 41
@@ -1420,7 +1420,7 @@ PROCEDURE run-report :
         "Scoring"                      AT 100
         "Date Due"                     AT 134
         SKIP
-        "---------"                    TO 9
+        "-------------"                AT 1
         "----------"                   AT 13
         "---"                          AT 24
         "--------------"               TO 41
@@ -1436,8 +1436,8 @@ PROCEDURE run-report :
         WITH STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP FRAME top1.
 
     FORM HEADER
-        "Job No"                       TO 9
-        "Item No"                      AT 13
+        "Job No"                       at 1
+        "Item No"                      AT 15
         "UOM"                          AT 24
         "Required"                     TO 41
         "Ordered"                      TO 56
@@ -1448,7 +1448,7 @@ PROCEDURE run-report :
         "Name"                         AT 104
         "Date Due"                     AT 125
         SKIP
-        "---------"                    TO 9
+        "-------------"                at 1
         "----------"                   AT 13
         "---"                          AT 24
         "--------------"               TO 41
@@ -1463,8 +1463,8 @@ PROCEDURE run-report :
 
         WITH STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP FRAME top2.
 
-    FORM v-job                  TO 9
-        v-itm                  AT 13
+    FORM v-job                 at 1
+        v-itm                  AT 15
         v-uom                  AT 24
         v-qty[1]               TO 41                           /* required */
         v-qty[2]               TO 56  FORMAT "->>>,>>>,>>9.99" /* ordered  */
@@ -1477,8 +1477,8 @@ PROCEDURE run-report :
 
         WITH DOWN STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE FRAME detail1.
 
-    FORM v-job                  TO 9
-        v-itm                  AT 13
+    FORM v-job                 at 1
+        v-itm                  AT 15
         v-uom                  AT 24
         v-qty[1]               TO 41                           /* required */
         v-qty[2]               TO 56  FORMAT "->>>,>>>,>>9.99" /* ordered  */

@@ -7,6 +7,10 @@ DEF VAR v-date AS DATE NO-UNDO.
 DEF VAR v-nxt-r-no AS INT NO-UNDO.
 DEF VAR iocPrompt AS CHAR NO-UNDO.
 DEF VAR vrRelh AS ROWID NO-UNDO.
+DEFINE VARIABLE cOEBackorderAutoRelease AS CHARACTER NO-UNDO.
+
+RUN spGetSettingByName ("OEBackorderAutoRelease", OUTPUT cOEBackorderAutoRelease).
+
 IF FIRST-OF({1}) THEN
   ASSIGN
    v-bol-qty  = 0
@@ -253,7 +257,7 @@ DO bo-try = 1 TO 2:
       FIND xoe-relh WHERE ROWID(xoe-relh) EQ vrRElh NO-LOCK NO-ERROR.
     END.
 
-    IF NOT AVAIL xoe-relh THEN DO:
+    IF NOT AVAIL xoe-relh AND cOEBackorderAutoRelease EQ "Yes" THEN DO:
       FIND LAST yoe-relh USE-INDEX r-no NO-LOCK NO-ERROR.
       /* 10051225 */
       RUN oe/getNextRelNo.p (INPUT "oe-relh", OUTPUT v-nxt-r-no).
@@ -383,11 +387,11 @@ DO bo-try = 1 TO 2:
      oe-rel.carrier   = oe-relh.carrier
      oe-rel.ship-no   = oe-relh.ship-no
      oe-rel.ship-id   = oe-relh.ship-id
-     oe-rel.ship-i[1] = xoe-relh.ship-i[1]
-     oe-rel.ship-i[2] = xoe-relh.ship-i[2]
-     oe-rel.ship-i[3] = xoe-relh.ship-i[3]
-     oe-rel.ship-i[4] = xoe-relh.ship-i[4] NO-ERROR.
-    
+     oe-rel.ship-i[1] = IF AVAILABLE xoe-relh THEN xoe-relh.ship-i[1] ELSE oe-bolh.ship-i[1]
+     oe-rel.ship-i[2] = IF AVAILABLE xoe-relh THEN xoe-relh.ship-i[2] ELSE oe-bolh.ship-i[2]
+     oe-rel.ship-i[3] = IF AVAILABLE xoe-relh THEN xoe-relh.ship-i[3] ELSE oe-bolh.ship-i[3]
+     oe-rel.ship-i[4] = IF AVAILABLE xoe-relh THEN xoe-relh.ship-i[4] ELSE oe-bolh.ship-i[4] NO-ERROR.
+         
     IF AVAILABLE xoe-relh THEN 
         RUN Notes_CopyShipNote (oe-rel.rec_key, xoe-relh.rec_key).
     
@@ -434,79 +438,81 @@ DO bo-try = 1 TO 2:
        oe-rel.zeroPrice = DECIMAL(v-new-zero-price).
 
     RELEASE b-reftable2.
-    
-    FIND FIRST xoe-rell EXCLUSIVE-LOCK 
-         WHERE xoe-rell.company EQ cocode
-         AND xoe-rell.ord-no EQ oe-rel.ord-no
-         AND xoe-rell.rel-no EQ oe-rel.rel-no
-         AND xoe-rell.i-no EQ oe-rel.i-no
-         AND xoe-rell.LINE EQ oe-rel.LINE 
-         AND xoe-rell.r-no EQ xoe-relh.r-no NO-ERROR.
-         
-    IF NOT AVAIL xoe-rell THEN
+    IF cOEBackorderAutoRelease EQ "Yes" then
     DO:
-      CREATE xoe-rell.
-        ASSIGN
-        xoe-rell.company  = cocode
-        xoe-rell.ord-no   = oe-rel.ord-no
-        xoe-rell.rel-no   = oe-rel.rel-no .        
-    END.
-    ASSIGN
-     xoe-rell.b-ord-no = oe-rel.b-ord-no
-     xoe-rell.loc      = oe-rel.loc
-     xoe-rell.loc-bin  = oe-rel.loc-bin
-     xoe-rell.qty      = oe-rel.qty
-     xoe-rell.qty-case = oe-rel.qty-case
-     xoe-rell.cases    = oe-rel.cases
-     xoe-rell.partial  = oe-rel.partial
-     xoe-rell.s-code   = oe-rell.s-code
-     xoe-rell.i-no     = oe-rel.i-no
-     xoe-rell.line     = oe-rel.line
-     xoe-rell.po-no    = oe-rel.po-no
-     xoe-rell.lot-no   = oe-rel.lot-no
-     xoe-rell.r-no     = xoe-relh.r-no
-     oe-rel.link-no    = xoe-rell.r-no
-     xoe-rell.link-no  = oe-rel.r-no
-     xoe-rell.job-no   = oe-rell.job-no
-     xoe-rell.job-no2  = oe-rell.job-no2.
-
-    IF NOT ll-same-s-code AND xoe-rell.b-ord-no EQ 0 THEN DO:
-      xoe-rell.s-code  = IF oe-boll.s-code EQ "I" THEN "S" ELSE "I".
-      IF xoe-rell.s-code EQ "S" THEN
-        xoe-rell.cust-no = xoe-relh.cust-no.
-    END.
-
-    IF xoe-rell.b-ord-no NE 0 THEN
-    DO:
-      ASSIGN
-       oe-ordl.t-rel-qty = oe-ordl.t-rel-qty - v-rel-qty
-       oe-rel.tag        = "".
-
-      REPEAT:
-         FIND b-itemfg WHERE
-              ROWID(b-itemfg) EQ ROWID(itemfg)
-              EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-         
-         IF AVAIL b-itemfg THEN
-         DO:
-            b-itemfg.q-back = b-itemfg.q-back + v-rel-qty.
-            FIND CURRENT b-itemfg NO-LOCK NO-ERROR.
-            LEAVE.
-         END.
+        FIND FIRST xoe-rell EXCLUSIVE-LOCK 
+             WHERE xoe-rell.company EQ cocode
+             AND xoe-rell.ord-no EQ oe-rel.ord-no
+             AND xoe-rell.rel-no EQ oe-rel.rel-no
+             AND xoe-rell.i-no EQ oe-rel.i-no
+             AND xoe-rell.LINE EQ oe-rel.LINE 
+             AND xoe-rell.r-no EQ xoe-relh.r-no NO-ERROR.
+             
+        IF NOT AVAIL xoe-rell THEN
+        DO:
+          CREATE xoe-rell.
+            ASSIGN
+            xoe-rell.company  = cocode
+            xoe-rell.ord-no   = oe-rel.ord-no
+            xoe-rell.rel-no   = oe-rel.rel-no .        
         END.
-    END.
+        ASSIGN
+         xoe-rell.b-ord-no = oe-rel.b-ord-no
+         xoe-rell.loc      = oe-rel.loc
+         xoe-rell.loc-bin  = oe-rel.loc-bin
+         xoe-rell.qty      = oe-rel.qty
+         xoe-rell.qty-case = oe-rel.qty-case
+         xoe-rell.cases    = oe-rel.cases
+         xoe-rell.partial  = oe-rel.partial
+         xoe-rell.s-code   = oe-rell.s-code
+         xoe-rell.i-no     = oe-rel.i-no
+         xoe-rell.line     = oe-rel.line
+         xoe-rell.po-no    = oe-rel.po-no
+         xoe-rell.lot-no   = oe-rel.lot-no
+         xoe-rell.r-no     = xoe-relh.r-no
+         oe-rel.link-no    = xoe-rell.r-no
+         xoe-rell.link-no  = oe-rel.r-no
+         xoe-rell.job-no   = oe-rell.job-no
+         xoe-rell.job-no2  = oe-rell.job-no2.
 
-    xoe-rell.tag = oe-rel.tag.
+        IF NOT ll-same-s-code AND xoe-rell.b-ord-no EQ 0 THEN DO:
+          xoe-rell.s-code  = IF oe-boll.s-code EQ "I" THEN "S" ELSE "I".
+          IF xoe-rell.s-code EQ "S" THEN
+            xoe-rell.cust-no = xoe-relh.cust-no.
+        END.
 
-    ASSIGN
-       xoe-rell.lot-no     = v-new-lot-code
-       xoe-rell.frt-pay    = v-new-frt-pay
-       xoe-rell.fob-code     = v-new-fob-code.
+        IF xoe-rell.b-ord-no NE 0 THEN
+        DO:
+          ASSIGN
+           oe-ordl.t-rel-qty = oe-ordl.t-rel-qty - v-rel-qty
+           oe-rel.tag        = "".
+
+          REPEAT:
+             FIND b-itemfg WHERE
+                  ROWID(b-itemfg) EQ ROWID(itemfg)
+                  EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
+             
+             IF AVAIL b-itemfg THEN
+             DO:
+                b-itemfg.q-back = b-itemfg.q-back + v-rel-qty.
+                FIND CURRENT b-itemfg NO-LOCK NO-ERROR.
+                LEAVE.
+             END.
+            END.
+        END.
+
+        xoe-rell.tag = oe-rel.tag.
+
+        ASSIGN
+           xoe-rell.lot-no     = v-new-lot-code
+           xoe-rell.frt-pay    = v-new-frt-pay
+           xoe-rell.fob-code     = v-new-fob-code.
 
 
-    ASSIGN
-       xoe-rell.sell-price = v-new-sell-price
-       xoe-rell.zeroPrice = DECIMAL(v-new-zero-price).
+        ASSIGN
+           xoe-rell.sell-price = v-new-sell-price
+           xoe-rell.zeroPrice = DECIMAL(v-new-zero-price).
+    END.   
   END.
 END.
 

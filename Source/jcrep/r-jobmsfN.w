@@ -162,12 +162,12 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Date" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY .95 NO-UNDO.
+     SIZE 20.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
@@ -177,17 +177,17 @@ DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000"
 DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(6)" 
      LABEL "Beginning Machine" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
@@ -197,7 +197,7 @@ DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999"
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
      LABEL "Ending Machine" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE exp-name AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-jobmsf.csv" 
      LABEL "Name" 
@@ -268,20 +268,20 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_mach AT ROW 2.91 COL 28 COLON-ALIGNED HELP
+     begin_mach AT ROW 2.91 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Machine"
-     end_mach AT ROW 2.91 COL 66 COLON-ALIGNED HELP
+     end_mach AT ROW 2.91 COL 67 COLON-ALIGNED HELP
           "Enter Ending Machine"
-     begin_job-no AT ROW 3.86 COL 28 COLON-ALIGNED HELP
+     begin_job-no AT ROW 3.86 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      begin_job-no2 AT ROW 3.86 COL 41 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     end_job-no AT ROW 3.86 COL 66 COLON-ALIGNED HELP
+     end_job-no AT ROW 3.86 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 3.86 COL 79 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 3.86 COL 82 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     begin_date AT ROW 4.81 COL 28 COLON-ALIGNED
-     end_date AT ROW 4.81 COL 66 COLON-ALIGNED HELP
+     begin_date AT ROW 4.81 COL 26 COLON-ALIGNED
+     end_date AT ROW 4.81 COL 67 COLON-ALIGNED HELP
           "Enter Ending Due Date"
      sl_avail AT ROW 7.81 COL 4 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 7.81 COL 41.2 HELP
@@ -1458,10 +1458,10 @@ IF td-show-parm THEN RUN show-param.
         AND mch-act.m-code  LE v-tmch
         AND mch-act.op-date GE v-fdat
         AND mch-act.op-date LE v-tdat         
-        AND FILL(" ",9 - LENGTH(TRIM(mch-act.job-no))) +
+        AND FILL(" ", iJobLen - LENGTH(TRIM(mch-act.job-no))) +
             TRIM(mch-act.job-no) + STRING(mch-act.job-no2,"999")
                             GE v-fjob
-        AND FILL(" ",9 - LENGTH(TRIM(mch-act.job-no))) +
+        AND FILL(" ", iJobLen - LENGTH(TRIM(mch-act.job-no))) +
             TRIM(mch-act.job-no) + STRING(mch-act.job-no2,"999")
                             LE v-tjob
         AND mch-act.job-no2 GE int(begin_job-no2)

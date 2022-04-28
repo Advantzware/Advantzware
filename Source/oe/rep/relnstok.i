@@ -126,7 +126,7 @@ DEFINE SHARED VARIABLE v-print-components AS LOGICAL          NO-UNDO.
 DEFINE SHARED VARIABLE s-print-part-no    AS LOGICAL          NO-UNDO.
 
 
-FORMAT w-oe-rell.ord-no          TO 6
+FORMAT w-oe-rell.ord-no          TO 8
 v-bin                            AT 10   FORMAT "x(34)"
 w-bin.w-par                      AT 44   FORMAT "x(25)"
 w-bin.w-unit-count               TO 76   FORMAT "->>>>>"
@@ -208,8 +208,8 @@ FOR EACH xoe-rell
   WHERE oe-ord.company EQ xoe-rell.company
   AND oe-ord.ord-no  EQ xoe-rell.ord-no
   NO-LOCK:
-  
-  CASE oe-ord.frt-pay:
+  v-frt-terms = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+  CASE v-frt-terms:
     WHEN "P" THEN v-frt-terms = "Prepaid".
     WHEN "C" THEN v-frt-terms = "Collect".
     WHEN "B" THEN v-frt-terms = "Bill".

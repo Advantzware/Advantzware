@@ -773,7 +773,7 @@ PROCEDURE fg-post:
                 AND loadtag.item-type EQ NO
                 AND loadtag.tag-no    EQ w-fg-rctd.tag
                 AND loadtag.i-no      EQ w-fg-rctd.i-no
-                AND trim(loadtag.job-no) EQ trim(w-fg-rctd.job-no)
+                AND loadtag.job-no    EQ w-fg-rctd.job-no
                 USE-INDEX tag EXCLUSIVE-LOCK NO-ERROR.
 
             IF AVAILABLE loadtag THEN 
@@ -849,7 +849,7 @@ PROCEDURE fg-post:
                 IF w-fg-rctd.job-no GT "" THEN 
                 DO:
                     FIND job-hdr WHERE job-hdr.company = cocode
-                        AND trim(job-hdr.job-no)  = trim(w-fg-rctd.job-no)
+                        AND job-hdr.job-no  = w-fg-rctd.job-no
                         AND job-hdr.job-no2 = w-fg-rctd.job-no2
                         AND job-hdr.i-no    = w-fg-rctd.i-no
                         NO-LOCK NO-ERROR.
@@ -946,7 +946,7 @@ PROCEDURE fg-post:
       lAnyJobCloses = NO.
       FOR EACH w-fg-rctd NO-LOCK
         WHERE w-fg-rctd.company EQ job.company
-          AND trim(w-fg-rctd.job-no) EQ trim(job.job-no)
+          AND w-fg-rctd.job-no  EQ job.job-no
           AND w-fg-rctd.job-no2 EQ job.job-no2
           BREAK BY w-fg-rctd.job-no 
                 BY w-fg-rctd.job-no2 
@@ -1098,7 +1098,7 @@ PROCEDURE get-ord-recs:
                 WHERE b-po-ordl.company   EQ b-fg-rctd.company
                 AND b-po-ordl.po-no     EQ INT(b-fg-rctd.po-no)
                 AND b-po-ordl.i-no      EQ b-fg-rctd.i-no
-                AND trim(b-po-ordl.job-no) EQ trim(b-fg-rctd.job-no)
+                AND b-po-ordl.job-no    EQ b-fg-rctd.job-no
                 AND b-po-ordl.job-no2   EQ b-fg-rctd.job-no2
                 AND b-po-ordl.item-type EQ NO
                 AND b-po-ordl.ord-no    NE 0
@@ -1404,7 +1404,7 @@ PROCEDURE process-releases:
 
 
             FIND FIRST job-hdr WHERE job-hdr.company = w-fg-rctd.company
-                AND trim(job-hdr.job-no) = trim(w-fg-rctd.job-no)
+                AND job-hdr.job-no = w-fg-rctd.job-no
                 AND job-hdr.job-no2 = w-fg-rctd.job-no2
                 NO-LOCK NO-ERROR.
             IF AVAIL job-hdr THEN
@@ -1821,7 +1821,7 @@ FUNCTION get-tot-rcv-qty RETURNS INTEGER
     FOR EACH fg-rcpth
         WHERE fg-rcpth.company    EQ oe-ordl.company
         AND fg-rcpth.i-no         EQ oe-ordl.i-no
-        AND trim(fg-rcpth.job-no) EQ trim(oe-ordl.job-no)
+        AND fg-rcpth.job-no      EQ oe-ordl.job-no
         AND fg-rcpth.rita-code    EQ "R"
         USE-INDEX tran NO-LOCK,
         EACH fg-rdtlh

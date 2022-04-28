@@ -45,11 +45,12 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 {custom/getloc.i}
 {sys/inc/var.i new shared}
+{util/ttPurge.i NEW}
 
 DEF VAR iCtr AS INT NO-UNDO.
 DEF VAR cOutDir AS CHAR NO-UNDO.
 DEF VAR lVerbose AS LOG NO-UNDO INITIAL FALSE.
-
+DEF VAR hPurgeProcs AS HANDLE NO-UNDO.
 ASSIGN
     cocode = gcompany
     locode = gloc.
@@ -314,6 +315,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
      application would exit. */
+    IF VALID-HANDLE(hPurgeProcs) THEN DELETE OBJECT hPurgeProcs. 
   IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
 END.
 
@@ -325,6 +327,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Purge Jobs */
 DO:
   /* This event will close the window and terminate the procedure.  */
+    IF VALID-HANDLE(hPurgeProcs) THEN DELETE OBJECT hPurgeProcs. 
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -337,6 +340,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME DEFAULT-FRAME /* Exit */
 DO:
+    IF VALID-HANDLE(hPurgeProcs) THEN DELETE OBJECT hPurgeProcs. 
     APPLY 'close' TO THIS-PROCEDURE. 
 END.
 
@@ -400,7 +404,7 @@ DO:
     
     DISABLE TRIGGERS FOR LOAD OF job.
     
-    cPurgeDirectory = DYNAMIC-FUNCTION ("fGetPurgeDir", "job").
+    cPurgeDirectory = DYNAMIC-FUNCTION("fGetPurgeDir" IN hPurgeProcs, "job").
       
     RUN FileSys_CreateDirectory(
         INPUT cPurgeDirectory + "\Csv\",
@@ -424,18 +428,18 @@ DO:
             USE-INDEX close-date:
                 
             IF fiEndJob:SCREEN-VALUE NE "" THEN  DO: 
-                IF (fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) LT fiStartJob:SCREEN-VALUE /* Job no outside of range specified */
-                    OR fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) GT fiEndJob:SCREEN-VALUE
+                IF (FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) LT fiStartJob:SCREEN-VALUE /* Job no outside of range specified */
+                    OR FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) GT fiEndJob:SCREEN-VALUE
                     OR job.job-no2 LT INTEGER(fiStartJob2:SCREEN-VALUE) /* Job2 no outside of range specified */
                     OR job.job-no2 GT INTEGER(fiEndJob2:SCREEN-VALUE))    
                 AND TRIM(job.job-no) NE "" THEN 
                     NEXT.
             END.
                 
-            STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
+            STATUS DEFAULT "Purging job #" + STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)) + "...".
             
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
-                RUN Purge_SimulateAndPurgeJobRecords(
+                RUN Purge_SimulateAndPurgeJobRecords IN hPurgeProcs (
                     BUFFER job,
                     INPUT  YES,      /* Purge Records? */
                     INPUT  lVerbose,  /* Create .csv for child tables? */
@@ -444,7 +448,7 @@ DO:
                     OUTPUT cMessage
                     ). 
             ELSE 
-                RUN Purge_SimulateAndPurgeJobRecords(
+                RUN Purge_SimulateAndPurgeJobRecords IN hPurgeProcs (
                     BUFFER job,
                     INPUT  NO,        /* Purge Records? */
                     INPUT  lVerbose,  /* Create .csv for child tables? */
@@ -462,18 +466,18 @@ DO:
             :
             
             IF fiEndJob:SCREEN-VALUE NE "" THEN DO: 
-                IF (fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) LT fiStartJob:SCREEN-VALUE /* Job no outside of range specified */
-                    OR fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) GT fiEndJob:SCREEN-VALUE
+                IF (FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) LT fiStartJob:SCREEN-VALUE /* Job no outside of range specified */
+                    OR FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) GT fiEndJob:SCREEN-VALUE
                     OR job.job-no2 LT INTEGER(fiStartJob2:SCREEN-VALUE) /* Job2 no outside of range specified */
                     OR job.job-no2 GT INTEGER(fiEndJob2:SCREEN-VALUE)) 
                 AND TRIM(job.job-no) NE "" THEN 
                     NEXT.
             END.
             
-            STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
+            STATUS DEFAULT "Purging job #" + STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)) + "...".
             
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
-                RUN Purge_SimulateAndPurgeJobRecords(
+                RUN Purge_SimulateAndPurgeJobRecords IN hPurgeProcs (
                     BUFFER job,
                     INPUT  YES,       /* Purge Recordss? */
                     INPUT  lVerbose,  /* Create .csv for child tables? */
@@ -482,7 +486,7 @@ DO:
                     OUTPUT cMessage
                     ). 
             ELSE 
-                RUN Purge_SimulateAndPurgeJobRecords(
+                RUN Purge_SimulateAndPurgeJobRecords IN hPurgeProcs (
                     BUFFER job,
                     INPUT  NO,         /* Purge Records? */
                     INPUT  lVerbose,   /* Create .csv for child tables?*/
@@ -650,6 +654,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
 
+    IF NOT VALID-HANDLE(hPurgeProcs) THEN 
+        RUN util/PurgeProcs.p PERSISTENT SET hPurgeProcs.
+
     /* check security */
     IF access-close THEN 
     DO:
@@ -724,7 +731,7 @@ PROCEDURE pSetup :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN 
-            cOutDir = DYNAMIC-FUNCTION ("fGetPurgeDir", "job") 
+            cOutDir = DYNAMIC-FUNCTION("fGetPurgeDir" IN hPurgeProcs, "job") 
             eHelp:SCREEN-VALUE = "- This process will purge all jobs and related records based on the parameters you choose below. " + CHR(10) + CHR(10) +
                                  "- Selecting the 'Closed and Open' option will take longer 'per job' than the 'Closed' option, as these records are found differently." + CHR(10) + CHR(10) +
                                  "- It is not necessary to select a job number range, but if you do, this will be combined with the date option; choose both accordingly." + CHR(10) + 
@@ -736,6 +743,9 @@ PROCEDURE pSetup :
                                  "- This program cannot be interrupted once you choose the Start Purge button." + CHR(10).
         APPLY "entry" TO fiDate.
     END.
+
+    IF NOT VALID-HANDLE(hPurgeProcs) THEN 
+        RUN util/PurgeProcs.p PERSISTENT SET hPurgeProcs.
 
 
 END PROCEDURE.

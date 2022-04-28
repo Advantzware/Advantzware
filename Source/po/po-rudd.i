@@ -55,7 +55,7 @@
         if v-job ne "" then
           find last oe-ordl
               where oe-ordl.company eq cocode
-                and trim(oe-ordl.job-no)  eq trim(v-job)
+                and oe-ordl.job-no  eq v-job
                 and oe-ordl.job-no2 eq po-ordl.job-no2
               use-index job no-lock no-error.
 
@@ -96,7 +96,7 @@
              v-len = trunc(po-ordl.s-len,0) + v-len.
 
             FIND FIRST job WHERE job.company = cocode AND
-                                      TRIM(job.job-no) = TRIM(po-ordl.job-no) AND
+                                      job.job-no = po-ordl.job-no AND
                                       job.job-no2 = po-ordl.job-no2
                                  NO-LOCK NO-ERROR.
             IF AVAIL job THEN

@@ -188,15 +188,15 @@ DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_ord-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Order Date" 
@@ -238,15 +238,15 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_ord-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Order Date" 
@@ -1462,9 +1462,9 @@ PROCEDURE build-tt :
                            STRING(MONTH(lv-due-date),"99")  +
                            STRING(DAY(lv-due-date),"99")    +
                            STRING(oe-ordl.part-no,"x(15)") + STRING(oe-ord.ord-no,"99999999999"))              
-   tt-report.key-04   = FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
+   tt-report.key-04   = FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
                         TRIM(oe-ordl.job-no) + "-" +
-                        STRING(oe-ordl.job-no2,"99")
+                        STRING(oe-ordl.job-no2,"999")
    tt-report.key-05   = STRING(oe-ord.ord-no,"99999999999")
    tt-report.key-06   = oe-ordl.i-no
    tt-report.key-07   = STRING(YEAR(ip-date),"9999") +
@@ -1906,8 +1906,8 @@ def var v-cust  like oe-ord.cust-no  extent 2 init ["","zzzzzzzz"].
 def var v-date  like ar-inv.inv-date format "99/99/9999"
                                      extent 2 init [today, 12/31/9999].
 
-def var v-job   like oe-ord.job-no   extent 2 init ["","zzzzzz"].
-def var v-job2  like oe-ord.job-no2  format "99" extent 2 init [0,99].
+def var v-job   like oe-ord.job-no   extent 2 init ["","zzzzzzzzz"].
+def var v-job2  like oe-ord.job-no2  format "999" extent 2 init [0,999].
 def var v-inc   as   log             format "Yes/No" init yes.
 def var v-ostat as   char format "!" init "A".
 def var v-jobq  as   log             format "Yes/No" init no.
@@ -1952,7 +1952,7 @@ FORMAT HEADER
        "Cust Part#     "
        "Routing             "
        "Board               "
-       "Job#      "
+       "Job#         "
        "Ship To "
        " Order Qty"
        "  Release Qty"
@@ -1963,7 +1963,7 @@ FORMAT HEADER
        "---------------"
        "--------------------"
        "--------------------"
-       "----------"
+       "-------------"
        "-------"
        "-----------"
        "-------------"
@@ -1986,10 +1986,10 @@ ASSIGN
  v-cust[2]  = end_cust-no
  v-date[1]  = begin_ord-date
  v-date[2]  = end_ord-date
- v-job[1]   = fill(" ",6 - length(trim(begin_job-no))) +
-              trim(begin_job-no) + string(int(begin_job-no2),"99")
- v-job[2]   = fill(" ",6 - length(trim(end_job-no)))   +
-              trim(end_job-no)   + string(int(end_job-no2),"99")
+ v-job[1]   = FILL(" ", iJobLen - length(trim(begin_job-no))) +
+              trim(begin_job-no) + string(int(begin_job-no2),"999")
+ v-job[2]   = FILL(" ", iJobLen - length(trim(end_job-no)))   +
+              trim(end_job-no)   + string(int(end_job-no2),"999")
 
  v-sort     = substr(rd_sort,1,2).
 

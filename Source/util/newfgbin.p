@@ -49,10 +49,10 @@ IF ip-date GE TODAY THEN
 FOR EACH fg-bin NO-LOCK
     WHERE fg-bin.company   EQ io-itemfg.company
       AND fg-bin.i-no      EQ io-itemfg.i-no
-      AND STRING(FILL(" ",9 - LENGTH(TRIM(fg-bin.job-no))) +
+      AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(fg-bin.job-no))) +
                  TRIM(fg-bin.job-no) + STRING(fg-bin.job-no2,"999"))
                            GE ip-fjob
-      AND STRING(FILL(" ",9 - LENGTH(TRIM(fg-bin.job-no))) +
+      AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(fg-bin.job-no))) +
                  TRIM(fg-bin.job-no) + STRING(fg-bin.job-no2,"999"))
                            LE ip-tjob
       AND fg-bin.loc       GE ip-floc
@@ -160,10 +160,10 @@ FOR EACH fg-rcpth NO-LOCK
     WHERE fg-rcpth.company    EQ io-itemfg.company
       AND fg-rcpth.i-no       EQ io-itemfg.i-no
       AND fg-rcpth.trans-date LE vdat
-      AND STRING(FILL(" ",9 - LENGTH(TRIM(fg-rcpth.job-no))) +
+      AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(fg-rcpth.job-no))) +
                  TRIM(fg-rcpth.job-no) + STRING(fg-rcpth.job-no2,"999"))
                               GE ip-fjob
-      AND STRING(FILL(" ",9 - LENGTH(TRIM(fg-rcpth.job-no))) +
+      AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(fg-rcpth.job-no))) +
                  TRIM(fg-rcpth.job-no) + STRING(fg-rcpth.job-no2,"999"))
                               LE ip-tjob
     USE-INDEX tran,

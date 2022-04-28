@@ -1340,7 +1340,7 @@ PROCEDURE run-report :
 
     DEFINE VARIABLE v-cust-vend     AS CHARACTER FORMAT "x(26)" INIT "--------- VENDOR ---------".
 
-    DEFINE VARIABLE v-job-no        AS CHARACTER FORMAT "x(9)".
+    DEFINE VARIABLE v-job-no        AS CHARACTER FORMAT "x(13)".
 
     DEFINE VARIABLE tot-cons-qty    LIKE po-ordl.cons-qty NO-UNDO.
     DEFINE VARIABLE tot-rec-qty     AS DECIMAL   NO-UNDO.
@@ -1505,7 +1505,7 @@ PROCEDURE run-report :
                 v-fg        = ""
                 v-cust-name = "".
 
-            IF TRIM(v-job-no) EQ "-00" THEN v-job-no = "".
+            IF TRIM(v-job-no) EQ "-000" THEN v-job-no = "".
 
             IF po-ordl.item-type THEN 
             DO:

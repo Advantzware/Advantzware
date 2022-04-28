@@ -112,11 +112,11 @@
             AND  tt-fg-bin.loc-bin  LE end_loc-bin 
             AND ((tt-fg-bin.cust-no EQ "" AND
                   tt-fg-bin.loc     NE "CUST") OR tb_cust-whse)
-            AND STRING(FILL(" ",6 - LENGTH(TRIM(tt-fg-bin.job-no))) +
-                       TRIM(tt-fg-bin.job-no) + STRING(tt-fg-bin.job-no2,"99"))
+            AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(tt-fg-bin.job-no))) +
+                       TRIM(tt-fg-bin.job-no) + STRING(tt-fg-bin.job-no2,"999"))
                                     GE fjob
-            AND STRING(FILL(" ",6 - LENGTH(TRIM(tt-fg-bin.job-no))) +
-                       TRIM(tt-fg-bin.job-no) + STRING(tt-fg-bin.job-no2,"99"))
+            AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(tt-fg-bin.job-no))) +
+                       TRIM(tt-fg-bin.job-no) + STRING(tt-fg-bin.job-no2,"999"))
                                     LE tjob
         USE-INDEX co-ino
 
