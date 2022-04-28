@@ -9584,7 +9584,11 @@ PROCEDURE pPostFinishedGoodsForFGRctd:
     DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.  
     
-    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+    DEFINE VARIABLE cFGSetAdjustReason AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound             AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-rctd     FOR fg-rctd.
+    DEFINE BUFFER bf-set-fg-rctd FOR fg-rctd.
     
     EMPTY TEMP-TABLE  w-fg-rctd.
     
@@ -9605,6 +9609,30 @@ PROCEDURE pPostFinishedGoodsForFGRctd:
         w-fg-rctd.row-id  = ROWID(bf-fg-rctd)
         w-fg-rctd.has-rec = YES
         .   
+    
+    /* If a negative receipt and a is set component then make the transaction type to adjustment */
+    IF w-fg-rctd.qty LT 0 AND w-fg-rctd.SetHeaderRno GT 0 THEN DO:
+        FIND FIRST bf-set-fg-rctd NO-LOCK 
+             WHERE bf-set-fg-rctd.r-no EQ bf-fg-rctd.SetHeaderRno
+             NO-ERROR. 
+        IF AVAILABLE bf-set-fg-rctd THEN DO:
+            RUN sys/ref/nk1look.p (w-fg-rctd.company, "FGSetAdjustReason", "C", NO, NO, "", "",OUTPUT cFGSetAdjustReason, OUTPUT lFound).
+                            
+            FIND CURRENT bf-fg-rctd EXCLUSIVE-LOCK NO-ERROR. 
+            IF AVAILABLE bf-fg-rctd THEN DO:
+                ASSIGN 
+                    w-fg-rctd.rita-code     = "A"
+                    bf-fg-rctd.rita-code    = "A"
+                    w-fg-rctd.reject-code   = cFGSetAdjustReason
+                    bf-fg-rctd.reject-code  = cFGSetAdjustReason
+                    w-fg-rctd.SetHeaderRno  = 0
+                    bf-fg-rctd.SetHeaderRno = 0
+                    .
+            END.
+            
+            FIND CURRENT bf-fg-rctd NO-LOCK NO-ERROR.
+        END.
+    END.
     
     RELEASE w-fg-rctd.
     
