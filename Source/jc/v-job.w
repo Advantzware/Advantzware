@@ -2885,8 +2885,9 @@ PROCEDURE validate-est :
             li        = 0.  
             
            /* Use last 5 digits of estimate# */
-           IF LENGTH(TRIM(v-bld-job)) GT 5 THEN 
-             v-bld-job = " " + SUBSTRING(TRIM(v-bld-job), 1).
+           IF LENGTH(TRIM(v-bld-job)) GT 5 AND iJobLen EQ 6 THEN 
+             v-bld-job = " " + SUBSTRING(TRIM(v-bld-job), 2).
+           ELSE v-bld-job = " " + SUBSTRING(TRIM(v-bld-job), 1).  
              
            IF AVAILABLE sys-ctrl THEN
              v-bld-job = SUBSTR(sys-ctrl.char-fld,1,1) + TRIM(v-bld-job).
