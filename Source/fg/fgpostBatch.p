@@ -414,7 +414,7 @@ PROCEDURE pCopyShipNote PRIVATE:
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-    RUN Notes_CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
 

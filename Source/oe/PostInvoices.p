@@ -26,6 +26,7 @@ DEFINE TEMP-TABLE ttInvoiceTaxDetail NO-UNDO LIKE ttTaxDetail
 
 DEFINE VARIABLE ghNotesProcs    AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdInvoiceProcs  AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
 
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
     
