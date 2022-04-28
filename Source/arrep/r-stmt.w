@@ -713,7 +713,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             v-cust-mode = IF NOT tb_HideDialog:CHECKED THEN "Customer"
                             ELSE "Customer1".
-                            RUN SendMail-1 (begin_cust-no, v-cust-mode, v-dir + "\stmt.pdf").
+                            RUN SendMail-1 (ttCustList.cust-no, v-cust-mode, v-dir + "\stmt.pdf").
                         END.
                 END. /* cust */
             END. /*end sys-ctrl-shipto not found*/
@@ -3634,7 +3634,7 @@ PROCEDURE run-protagonstmt :
         v-detail    = tb_detailed
         v-past-due  = tb_past-due.
 
-    IF ip-sys-ctrl-shipto THEN
+    IF ip-sys-ctrl-shipto OR ipl-email THEN
         ASSIGN
             v-lo-cust = ip-cust-no
             v-hi-cust = ip-cust-no.
