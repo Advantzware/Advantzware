@@ -49,8 +49,8 @@ IF tb_freeze-note THEN
           AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
               TRIM(job-hdr.job-no) +
               STRING(job-hdr.job-no2,"999")  LE tjob-no
-          AND job-hdr.job-no2 GE fjob-no2
-          AND job-hdr.job-no2 LE tjob-no2
+/*          AND job-hdr.job-no2 GE fjob-no2*/
+/*          AND job-hdr.job-no2 LE tjob-no2*/
               NO-LOCK,
         FIRST job
         WHERE job.company                   EQ cocode
@@ -63,6 +63,7 @@ IF tb_freeze-note THEN
               (tb_app-unprinted AND job.pr-printed = NO AND
                job.opened = YES AND job.cs-to-pr = YES))
         EXCLUSIVE-LOCK:
+        
         RUN jc\jobnotes.p(BUFFER job).
 
         ASSIGN job.freezeNote = YES 

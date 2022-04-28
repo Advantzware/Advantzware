@@ -61,6 +61,10 @@ for each item
   run rm/rm-reset.p (recid(item)).
   
   /*reset average cost */
+  ASSIGN
+    dCost = 0
+    dQty  = 0
+    .
   FOR EACH b-rm-bin FIELDS(qty cost) NO-LOCK
       WHERE b-rm-bin.company EQ item.company
       AND b-rm-bin.i-no    EQ item.i-no

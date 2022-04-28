@@ -36,7 +36,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{sys/inc/var.i}
+{sys/inc/var.i NEW SHARED}
 DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE tmp-dir   AS CHARACTER NO-UNDO.
