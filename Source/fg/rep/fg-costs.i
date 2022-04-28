@@ -336,7 +336,7 @@ PURPOSE:
 
           display itemfg.cust-no when v-first[2]
                   itemfg.i-no    when v-first[1]
-                  itemfg.part-no when v-first[1] format "x(15)"  
+                  itemfg.part-no when v-first[1] format "x(30)"  
                   itemfg.i-name  when v-first[1] format "x(25)"
                   tt-fg-bin.loc
                   tt-fg-bin.loc-bin

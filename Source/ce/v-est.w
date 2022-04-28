@@ -115,6 +115,7 @@ RUN methods/prgsecur.p
 DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -364,11 +365,12 @@ DEFINE FRAME fold
           SIZE 10 BY 1
           FONT 6
      procat_desc AT ROW 9.1 COL 31 COLON-ALIGNED NO-LABEL
-     eb.part-no AT ROW 3.86 COL 86 COLON-ALIGNED
+     eb.part-no AT ROW 2.67 COL 116 COLON-ALIGNED
+          LABEL "Cust Part#" FORMAT "x(30)"
           VIEW-AS FILL-IN 
-          SIZE 23 BY 1
+          SIZE 37 BY 1
           FONT 6
-     eb.stock-no AT ROW 3.86 COL 128.2 COLON-ALIGNED
+     eb.stock-no AT ROW 3.86 COL 101 COLON-ALIGNED
           LABEL "FG Item#"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
@@ -383,12 +385,6 @@ DEFINE FRAME fold
           VIEW-AS FILL-IN 
           SIZE 50 BY 1
           FONT 6
-     eb.die-no AT ROW 6.95 COL 86 COLON-ALIGNED HELP
-          ""
-          LABEL "Die #" FORMAT "x(20)"
-          VIEW-AS FILL-IN 
-          SIZE 33 BY 1
-          FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -396,6 +392,12 @@ DEFINE FRAME fold
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fold
+     eb.die-no AT ROW 6.95 COL 86 COLON-ALIGNED HELP
+          ""
+          LABEL "Die #" FORMAT "x(20)"
+          VIEW-AS FILL-IN 
+          SIZE 33 BY 1
+          FONT 6
      ef.cad-image AT ROW 6.95 COL 128.2 COLON-ALIGNED
           LABEL "Image" FORMAT "x(80)"
           VIEW-AS FILL-IN 
@@ -487,10 +489,6 @@ DEFINE FRAME fold
           LABEL "Blank Length"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     eb.t-sqin AT ROW 16 COL 126 COLON-ALIGNED
-          LABEL "Blank Sq. In." FORMAT ">>>9.9999"
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -498,6 +496,10 @@ DEFINE FRAME fold
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fold
+     eb.t-sqin AT ROW 16 COL 126 COLON-ALIGNED
+          LABEL "Blank Sq. In." FORMAT ">>>9.9999"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
      eb.bl-qty AT ROW 2.67 COL 86 COLON-ALIGNED
           LABEL "Qty" FORMAT ">>>,>>>,>>9"
           VIEW-AS FILL-IN 
@@ -507,11 +509,11 @@ DEFINE FRAME fold
           LABEL "Last Order#" FORMAT ">>>>>>>>"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     btn_fgitem AT ROW 3.81 COL 115 WIDGET-ID 16
+     btn_fgitem AT ROW 3.86 COL 88 WIDGET-ID 16
      btn_from AT ROW 1.19 COL 24.8 WIDGET-ID 16
      btn_style AT ROW 10.52 COL 11 WIDGET-ID 16
      btn_board AT ROW 11.71 COL 16 WIDGET-ID 16
-     btn_cust AT ROW 2.67 COL 12 WIDGET-ID 16     
+     btn_cust AT ROW 2.67 COL 12 WIDGET-ID 16
      btnPlateLookup AT ROW 7.95 COL 115.4 WIDGET-ID 20
      "of" VIEW-AS TEXT
           SIZE 3 BY .95 AT ROW 1.24 COL 72.6
@@ -653,6 +655,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.part-dscr2 IN FRAME fold
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN eb.part-no IN FRAME fold
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN eb.procat IN FRAME fold
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN procat_desc IN FRAME fold
@@ -1166,6 +1170,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btn_style
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_style V-table-Win
@@ -1681,22 +1686,6 @@ PROCEDURE auto-calc :
    disable eb.t-wid eb.t-len eb.t-sqin
            with frame {&frame-name}.
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckAutoLock V-table-Win 
-PROCEDURE pCheckAutoLock :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE OUTPUT PARAMETER oplAutoLock AS LOGICAL NO-UNDO.
-   
-   oplAutoLock = IF AVAIL eb THEN eb.lockLayout ELSE NO.
-   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2901,6 +2890,22 @@ PROCEDURE one-eb-on-ef :
 
   op-one-eb = AVAIL b-ac-eb.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckAutoLock V-table-Win 
+PROCEDURE pCheckAutoLock :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplAutoLock AS LOGICAL NO-UNDO.
+   
+   oplAutoLock = IF AVAIL eb THEN eb.lockLayout ELSE NO.
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -143,7 +143,7 @@ DEFINE BROWSE BROWSE-1
       oe-ordl.ord-no COLUMN-LABEL "Suppliers Order#" FORMAT ">>>>>9":U
             WIDTH 17.4
       oe-ordl.line COLUMN-LABEL "Line#" FORMAT "99":U WIDTH 7.8
-      oe-ordl.part-no COLUMN-LABEL "Customers Part #" FORMAT "x(15)":U
+      oe-ordl.part-no COLUMN-LABEL "Customers Part #" FORMAT "x(30)":U
             WIDTH 25.8
       oe-ordl.i-no COLUMN-LABEL "Suppliers FG Item" FORMAT "x(15)":U
             WIDTH 28.6
