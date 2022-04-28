@@ -884,7 +884,7 @@ PROCEDURE add-rel-for-qty :
             oe-rel.ship-i[3]    = bf-orig-oe-rel.ship-i[3]
             oe-rel.ship-i[4]    = bf-orig-oe-rel.ship-i[4].
 
-        RUN CopyShipNote (bf-orig-oe-rel.rec_key, oe-rel.rec_key).
+        RUN pCopyShipNote (bf-orig-oe-rel.rec_key, oe-rel.rec_key).
     
                        
         IF oe-rel.qty LT 0 THEN oe-rel.qty = 0.
@@ -1184,22 +1184,16 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote C-Win 
-PROCEDURE CopyShipNote PRIVATE :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote C-Win 
+PROCEDURE pCopyShipNote PRIVATE :
     /*------------------------------------------------------------------------------
      Purpose: Copies Ship Note from rec_key to rec_key
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
+  
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
 

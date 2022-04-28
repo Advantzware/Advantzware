@@ -940,8 +940,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote V-table-Win 
-PROCEDURE CopyShipNote PRIVATE :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote V-table-Win 
+PROCEDURE pCopyShipNote PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -949,13 +949,7 @@ PROCEDURE CopyShipNote PRIVATE :
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-    
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
 
@@ -1371,7 +1365,7 @@ PROCEDURE local-assign-record :
                oe-relh.ship-i[2] = shipto.notes[2]
                oe-relh.ship-i[3] = shipto.notes[3]
                oe-relh.ship-i[4] = shipto.notes[4].
-        RUN CopyShipNote (shipto.rec_key, oe-relh.rec_key).
+        RUN pCopyShipNote (shipto.rec_key, oe-relh.rec_key).
      END.
   END.
 

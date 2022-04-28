@@ -281,7 +281,7 @@ DO bo-try = 1 TO 2:
        xoe-relh.ship-i[3] = oe-bolh.ship-i[3]
        xoe-relh.ship-i[4] = oe-bolh.ship-i[4].
       
-      RUN CopyShipNote IN hNotesProcs (oe-bolh.rec_key, xoe-relh.rec_key).
+      RUN Notes_CopyShipNote (oe-bolh.rec_key, xoe-relh.rec_key).
       
       RUN oe/release#.p (cocode, OUTPUT xoe-relh.release#).
       scInstance:setValueAppend("RNoOERelh", STRING(xoe-relh.r-no)).
@@ -393,7 +393,7 @@ DO bo-try = 1 TO 2:
      oe-rel.ship-i[4] = IF AVAILABLE xoe-relh THEN xoe-relh.ship-i[4] ELSE oe-bolh.ship-i[4] NO-ERROR.
          
     IF AVAILABLE xoe-relh THEN 
-        RUN CopyShipNote IN hNotesProcs (oe-rel.rec_key, xoe-relh.rec_key).
+        RUN Notes_CopyShipNote (oe-rel.rec_key, xoe-relh.rec_key).
     
     IF oe-rel.cases EQ ? THEN oe-rel.cases = 0.
     IF oe-boll.s-code = "T" THEN DO:

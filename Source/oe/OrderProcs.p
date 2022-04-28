@@ -1127,7 +1127,7 @@ PROCEDURE pCreateRelease:
                                          bf-shipto.loc
             .
             
-        RUN CopyShipNote (
+        RUN pCopyShipNote (
             INPUT bf-shipto.rec_key, 
             INPUT bf-oe-rel.rec_key
             ).
@@ -1157,7 +1157,7 @@ PROCEDURE pCreateRelease:
         . 
 END PROCEDURE.
 
-PROCEDURE CopyShipNote PRIVATE:
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes: This procedure was copied from from oe/createRelease.i
@@ -1165,13 +1165,7 @@ PROCEDURE CopyShipNote PRIVATE:
     DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcRecKeyTo   AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
 
@@ -1848,24 +1842,6 @@ PROCEDURE pCreateActRelLine PRIVATE:
     END.
     FIND CURRENT itemfg NO-LOCK NO-ERROR.
     
-END PROCEDURE.
-
-PROCEDURE pCopyShipNote PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.  
-
 END PROCEDURE.
 
 PROCEDURE pCreateActRelHeader PRIVATE:

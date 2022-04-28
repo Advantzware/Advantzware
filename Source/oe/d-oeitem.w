@@ -4846,8 +4846,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem 
-PROCEDURE CopyShipNote PRIVATE :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote d-oeitem 
+PROCEDURE pCopyShipNote PRIVATE :
 /*------------------------------------------------------------------------------
      Purpose: Copies Ship Note from rec_key to rec_key
      Notes:
@@ -4855,13 +4855,7 @@ PROCEDURE CopyShipNote PRIVATE :
     DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
 
@@ -5295,7 +5289,7 @@ PROCEDURE create-release :
                         oe-rel.ship-i[4]    = shipto.notes[4]
                         oe-rel.spare-char-1 = shipto.loc.
                     /* gdm - 06220908 end */
-                    RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                    RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
                 END. /*v-relflg2*/
                 /* if add mode then use default carrier */
                 /*   if sel = 3 /* and NOT oe-rel.carrier ENTERED */ then do: */
@@ -5394,7 +5388,7 @@ PROCEDURE create-release :
                         oe-rel.ship-i[3]    = shipto.notes[3]
                         oe-rel.ship-i[4]    = shipto.notes[4]
                         oe-rel.spare-char-1 = shipto.loc.
-                    RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                    RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
                 END.
                 /* check that itemfg-loc exists */
                 IF oe-rel.spare-char-1 GT "" THEN
@@ -5482,7 +5476,7 @@ PROCEDURE create-release :
                     oe-rel.ship-i[3]    = shipto.notes[3]
                     oe-rel.ship-i[4]    = shipto.notes[4]
                     oe-rel.spare-char-1 = shipto.loc.
-                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
             END. /*v-relflg2*/
     
             /* if add mode then use default carrier */
@@ -10768,7 +10762,7 @@ PROCEDURE update-release :
                         oe-rel.ship-i[2]    = shipto.notes[2]
                         oe-rel.ship-i[3]    = shipto.notes[3]
                         oe-rel.ship-i[4]    = shipto.notes[4].
-                    RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                    RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
           
                 /* if add mode then use default carrier */
         

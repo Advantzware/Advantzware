@@ -341,9 +341,9 @@ DO:
                 DO TRANSACTION:
                     ASSIGN
                         job.est-no  = xest.est-no
-                        job.rec_key = IF job.rec_key = "" THEN xest.rec_key ELSE job.rec_key.  /* for notes */
+                        .                        
                 END.
-
+                RUN Notes_CopyNotes(xest.rec_key, job.rec_key, "","").  /*Copy all notes from Estimate to Job*/
                 FOR EACH job-hdr WHERE job-hdr.company EQ cocode
                     AND job-hdr.job     EQ job.job
                     AND job-hdr.job-no  EQ job.job-no
@@ -422,12 +422,11 @@ DO:
         ASSIGN
             job.est-no      = xest.est-no
             job.create-date = IF job.create-date EQ ? THEN TODAY ELSE job.create-date
-            job.rec_key     = IF job.rec_key = "" THEN xest.rec_key ELSE job.rec_key
             job.stat        = "R"
             job.create-time = IF job.create-time EQ 0 THEN TIME ELSE job.create-time
             . 
     END.  
-  
+    RUN Notes_CopyNotes(xest.rec_key, job.rec_key, "", "").
   
     FIND CURRENT job NO-LOCK.
 
