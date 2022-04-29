@@ -26,6 +26,12 @@ DEFINE TEMP-TABLE w-probeit LIKE probeit
     FIELD probe-date LIKE probe.probe-date
     .    
 
+{est/ttQuoteMaster.i}    
+{est/ttQuoteHeader.i}
+{est/ttQuoteItem.i}
+{est/ttQuoteQuantity.i}
+{est/ttQuoteMisc.i}
+        
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -36,6 +42,255 @@ DEFINE TEMP-TABLE w-probeit LIKE probeit
 
 
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pAddQuoteHeader PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-quotehd FOR quotehd.
+    
+    IF NOT AVAILABLE ipbf-quotehd THEN
+        RETURN.
+    
+    FIND FIRST ttQuoteHeader
+         WHERE ttQuoteHeader.riQuotehd EQ ROWID(ipbf-quotehd) 
+         NO-ERROR.
+    IF AVAILABLE ttQuoteHeader THEN
+        RETURN.
+           
+    CREATE ttQuoteHeader.
+    ASSIGN
+        ttQuoteHeader.riQuotehd  = ROWID(ipbf-quotehd)
+        ttQuoteHeader.company    = ipbf-quotehd.company
+        ttQuoteHeader.locationID = ipbf-quotehd.loc
+        ttQuoteHeader.quoteID    = ipbf-quotehd.q-no
+        ttQuoteHeader.estimateID = ipbf-quotehd.est-no
+        ttQuoteHeader.customerID = ipbf-quotehd.cust-no
+        ttQuoteHeader.quoteDate  = ipbf-quotehd.quo-date
+        ttQuoteHeader.expireDate = ipbf-quotehd.expireDate
+        ttQuoteHeader.salesMan   = ipbf-quotehd.sman
+        ttQuoteHeader.terms      = ipbf-quotehd.terms
+        ttQuoteHeader.carrier    = ipbf-quotehd.carrier
+        .
+END PROCEDURE.
+
+PROCEDURE pAddQuoteItem PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-quoteitm FOR quoteitm.
+    
+    IF NOT AVAILABLE ipbf-quoteitm THEN
+        RETURN.
+    
+    FIND FIRST ttQuoteItem
+         WHERE ttQuoteItem.riQuoteitm EQ ROWID(ipbf-quoteitm) 
+         NO-ERROR.
+    IF AVAILABLE ttQuoteItem THEN
+        RETURN.
+           
+    CREATE ttQuoteItem.
+    ASSIGN
+        ttQuoteItem.riQuoteitm = ROWID(ipbf-quoteitm)
+        ttQuoteItem.company    = ipbf-quoteitm.company
+        ttQuoteItem.locationID = ipbf-quoteitm.loc
+        ttQuoteItem.quoteID    = ipbf-quoteitm.q-no
+        ttQuoteItem.lineID     = ipbf-quoteitm.line
+        ttQuoteItem.partID     = ipbf-quoteitm.part-no
+        ttQuoteItem.itemID     = ipbf-quoteitm.i-no
+        ttQuoteItem.style      = ipbf-quoteitm.style
+        .
+END PROCEDURE.
+
+PROCEDURE pAddQuoteMisc PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-quotechg FOR quotechg.
+    
+    IF NOT AVAILABLE ipbf-quotechg THEN
+        RETURN.
+    
+    FIND FIRST ttQuoteMisc
+         WHERE ttQuoteMisc.riQuotechg EQ ROWID(ipbf-quotechg) 
+         NO-ERROR.
+    IF AVAILABLE ttQuoteMisc THEN
+        RETURN.
+           
+    CREATE ttQuoteMisc.
+    ASSIGN
+        ttQuoteMisc.riQuotechg = ROWID(ipbf-quotechg)
+        ttQuoteMisc.company    = ipbf-quotechg.company
+        ttQuoteMisc.locationID = ipbf-quotechg.loc
+        ttQuoteMisc.quoteID    = ipbf-quotechg.q-no
+        ttQuoteMisc.lineID     = ipbf-quotechg.line
+        ttQuoteMisc.quantity   = ipbf-quotechg.qty        
+        .
+END PROCEDURE.
+
+PROCEDURE pAddQuoteQuantity PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-quoteqty FOR quoteqty.
+    
+    IF NOT AVAILABLE ipbf-quoteqty THEN
+        RETURN.
+    
+    FIND FIRST ttQuoteQuantity
+         WHERE ttQuoteQuantity.riQuoteqty EQ ROWID(ipbf-quoteqty) 
+         NO-ERROR.
+    IF AVAILABLE ttQuoteQuantity THEN
+        RETURN.
+           
+    CREATE ttQuoteQuantity.
+    ASSIGN
+        ttQuoteQuantity.riQuoteqty = ROWID(ipbf-quoteqty)
+        ttQuoteQuantity.company    = ipbf-quoteqty.company
+        ttQuoteQuantity.locationID = ipbf-quoteqty.loc
+        ttQuoteQuantity.quoteID    = ipbf-quoteqty.q-no
+        ttQuoteQuantity.lineID     = ipbf-quoteqty.line
+        ttQuoteQuantity.quantity   = ipbf-quoteqty.qty
+        .
+
+END PROCEDURE.
+
+PROCEDURE pBuildQuote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttQuoteMaster FOR ttQuoteMaster.    
+    
+    DEFINE BUFFER bf-quotehd  FOR quotehd.
+    DEFINE BUFFER bf-quoteitm FOR quoteitm.
+    DEFINE BUFFER bf-quoteqty FOR quoteqty.
+    DEFINE BUFFER bf-quotechg FOR quotechg.
+    
+    IF NOT AVAILABLE ipbf-ttQuoteMaster THEN
+        RETURN.
+        
+    FOR EACH bf-quotehd NO-LOCK
+        WHERE bf-quotehd.company EQ ipbf-ttQuoteMaster.company
+          AND bf-quotehd.cust-no GE ipbf-ttQuoteMaster.beginCustomerID
+          AND bf-quotehd.cust-no LE ipbf-ttQuoteMaster.endCustomerID
+          AND bf-quotehd.loc     EQ ipbf-ttQuoteMaster.locationID
+          AND bf-quotehd.q-no    GE ipbf-ttQuoteMaster.beginQuoteID
+          AND bf-quotehd.q-no    LE ipbf-ttQuoteMaster.endQuoteID:
+        RUN pAddQuoteHeader ( BUFFER bf-quotehd).  
+        
+        FOR EACH bf-quoteitm OF bf-quotehd NO-LOCK:
+            RUN pAddQuoteItem (BUFFER bf-quoteitm).
+            
+            FOR EACH bf-quoteqty OF bf-quoteitm NO-LOCK:
+                RUN pAddQuoteQuantity (BUFFER bf-quoteqty).
+
+                FOR EACH bf-quotechg NO-LOCK
+                    WHERE bf-quotechg.company EQ bf-quoteqty.company
+                      AND bf-quotechg.loc     EQ bf-quoteqty.loc
+                      AND bf-quotechg.q-no    EQ bf-quoteqty.q-no
+                      AND bf-quotechg.line    EQ bf-quoteqty.line
+                      AND bf-quotechg.qty     EQ bf-quoteqty.qty:
+                    RUN pAddQuoteMisc (BUFFER bf-quotechg).
+                END.
+            END.
+        END.   
+    END.      
+END PROCEDURE.
+
+PROCEDURE pAddQuoteMaster PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocationID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBeginCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEndCustomerID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBeginQuoteID    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiEndQuoteID      AS INTEGER   NO-UNDO.
+    
+    CREATE ttQuoteMaster.
+    ASSIGN
+        ttQuoteMaster.company         = ipcCompany
+        ttQuoteMaster.locationID      = ipcLocationID
+        ttQuoteMaster.beginCustomerID = ipcBeginCustomerID
+        ttQuoteMaster.endCustomerID   = ipcEndCustomerID
+        ttQuoteMaster.beginQuoteID    = ipiBeginQuoteID
+        ttQuoteMaster.endQuoteID      = ipiEndQuoteID
+        .
+END PROCEDURE.
+
+PROCEDURE Quote_BuildQuote:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiQuoteID AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuoteMaster.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuoteHeader.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuoteItem.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuoteQuantity.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuoteMisc.
+ 
+    DEFINE BUFFER bf-quotehd FOR quotehd.
+    
+    FIND FIRST bf-quotehd NO-LOCK
+         WHERE bf-quotehd.company EQ ipcCompany
+           AND bf-quotehd.q-no    EQ ipiQuoteID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-quotehd THEN
+        RETURN.
+     
+    RUN Quote_BuildQuotes (
+        INPUT  bf-quotehd.company,
+        INPUT  bf-quotehd.loc,
+        INPUT  bf-quotehd.cust-no,
+        INPUT  bf-quotehd.cust-no,
+        INPUT  bf-quotehd.q-no,
+        INPUT  bf-quotehd.q-no,
+        INPUT-OUTPUT TABLE ttQuoteMaster,
+        INPUT-OUTPUT TABLE ttQuoteHeader,
+        INPUT-OUTPUT TABLE ttQuoteItem,
+        INPUT-OUTPUT TABLE ttQuoteQuantity,
+        INPUT-OUTPUT TABLE ttQuoteMisc
+        ).
+END PROCEDURE.
+
+PROCEDURE Quote_BuildQuotes:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcLocationID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcBeginCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcEndCustomerID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiBeginQuoteID    AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiEndQuoteID      AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuoteMaster.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuoteHeader.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuoteItem.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuoteQuantity.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttQuoteMisc.
+        
+    EMPTY TEMP-TABLE ttQuoteHeader.
+    EMPTY TEMP-TABLE ttQuoteItem.
+    EMPTY TEMP-TABLE ttQuoteMaster.
+    EMPTY TEMP-TABLE ttQuoteMisc.
+    EMPTY TEMP-TABLE ttQuoteQuantity.
+    
+    RUN pAddQuoteMaster(ipcCompany , ipcLocationID, ipcBeginCustomerID, ipcEndCustomerID, ipiBeginQuoteID, ipiEndQuoteID).
+    
+    FOR EACH ttQuoteMaster:
+        RUN pBuildQuote (BUFFER ttQuoteMaster).
+    END.
+END PROCEDURE.
 
 PROCEDURE Quote_CreateQuoteFromEst:
     /*------------------------------------------------------------------------------

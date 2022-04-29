@@ -102,25 +102,25 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-wipaud.csv" 
      LABEL "If Yes, File Name" 
@@ -208,11 +208,11 @@ DEFINE FRAME FRAME-A
      rd_jstat AT ROW 2.67 COL 43 NO-LABEL
      begin_job-no AT ROW 4.33 COL 24 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 4.33 COL 37 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.33 COL 39 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 4.33 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 4.33 COL 79 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.33 COL 81 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      tb_wip AT ROW 6 COL 62 RIGHT-ALIGNED
      rd-dest AT ROW 12.43 COL 5 NO-LABEL
@@ -845,8 +845,8 @@ PROCEDURE run-report :
 
 {sys/form/r-topw.f}
 
-def var v-job-no like job.job-no extent 2 init ["","zzzzzz"] no-undo.
-def var v-job-no2 like job.job-no2 extent 2 init [00,99] no-undo.
+def var v-job-no like job.job-no extent 2 init ["","zzzzzzzzz"] no-undo.
+def var v-job-no2 like job.job-no2 extent 2 init [000,999] no-undo.
 def var v-stat as char no-undo.
 def var v-only-opn as logical format "Y/N" no-undo.
 def var v-brd-job as int format ">>>>>>>>9-" no-undo.
@@ -880,19 +880,17 @@ FORM HEADER
 
 form work-aud.procat
      work-aud.tran-date
-     work-aud.job-no space(0) "-" space(0)
-     work-aud.job-no2 format "99"
+     work-aud.job-no FORMAT "x(13)"
      work-aud.frm space(0) "/" space(0)
      work-aud.blank-no
      work-aud.i-no
      work-aud.dscr
      work-aud.qty
-     with frame fr-mat down no-attr-space no-box no-labels STREAM-IO width 132.
+     with frame fr-mat down no-attr-space no-box no-labels STREAM-IO width 135.
 
 form work-aud.procat
      work-aud.tran-date
-     work-aud.job-no space(0) "-" space(0)
-     work-aud.job-no2 format "99"
+     work-aud.job-no FORMAT "x(13)" 
      work-aud.frm format ">9" space(0) "/" space(0)
      work-aud.blank-no
      "               "
@@ -903,18 +901,17 @@ form work-aud.procat
      work-aud.m-code
      work-aud.code
      work-aud.complete
-     with frame fr-mch down no-attr-space no-box no-labels STREAM-IO width 132.
+     with frame fr-mch down no-attr-space no-box no-labels STREAM-IO width 135.
 
 form work-aud.procat
      work-aud.tran-date
-     work-aud.job-no space(0) "-" space(0)
-     work-aud.job-no2 format "99"
+     work-aud.job-no FORMAT "x(13)" 
      work-aud.frm space(0) "/" space(0)
      work-aud.blank-no
      work-aud.i-no
      work-aud.dscr
      work-aud.qty
-     with frame fr-fg down no-attr-space no-box no-labels STREAM-IO width 132.
+     with frame fr-fg down no-attr-space no-box no-labels STREAM-IO width 135.
 
 assign
  str-tit2 = c-win:title
@@ -922,9 +919,9 @@ assign
 
   v-stat        = SUBSTR(rd_jstat,1,1)
   v-job-no[1]   = FILL(" ", iJobLen - length(trim(begin_job-no))) +
-                  trim(begin_job-no) + string(int(begin_job-no2),"99")
+                  trim(begin_job-no) + string(int(begin_job-no2),"999")
   v-job-no[2]   = FILL(" ", iJobLen - length(trim(end_job-no)))   +
-                  trim(end_job-no)   + string(int(end_job-no2),"99") 
+                  trim(end_job-no)   + string(int(end_job-no2),"999") 
   v-only-opn    = tb_wip
 
     /*
@@ -935,8 +932,8 @@ assign
   */
 
        hdr-tit = "TRANS  TRANS      JOB                                      " +
-             "                     QUANTITY     WASTE      MACH MACH   JOB     "
-      hdr-tit2 = "TYPE    DATE      NUMBER  F/ B ITEM NUMBER     DESCRIPTION " +
+             "                         QUANTITY     WASTE      MACH MACH   JOB     "
+      hdr-tit2 = "TYPE    DATE      NUMBER      F/ B ITEM NUMBER     DESCRIPTION " +
              "                       POSTED       QTY     HOURS CODE   CODE  C ".
       hdr-tit3 = fill("-", 131).
 
@@ -963,12 +960,12 @@ display "" with frame r-top.
 
     for each job
           where job.company eq cocode
-            and job.job-no  ge SUBSTR(v-job-no[1],1,6)
-            and job.job-no  le SUBSTR(v-job-no[2],1,6)
+            and job.job-no  ge SUBSTR(v-job-no[1],1,iJobLen)
+            and job.job-no  le SUBSTR(v-job-no[2],1,iJobLen)
             AND FILL(" ", iJobLen - length(trim(job.job-no))) +
-                trim(job.job-no) + string(int(job.job-no2),"99") GE v-job-no[1] 
+                trim(job.job-no) + string(int(job.job-no2),"999") GE v-job-no[1] 
             AND FILL(" ", iJobLen - length(trim(job.job-no))) +
-                trim(job.job-no) + string(int(job.job-no2),"99") LE v-job-no[2]
+                trim(job.job-no) + string(int(job.job-no2),"999") LE v-job-no[2]
             and (v-stat  eq "A"  or
                  (v-stat eq "O" and job.opened) or
                  (v-stat eq "C" and not job.opened))
@@ -1089,8 +1086,7 @@ display "" with frame r-top.
             if work-aud.procat = "HRS" or work-aud.procat = "MSC-H" then do:
                display work-aud.procat
                        work-aud.tran-date
-                       work-aud.job-no
-                       work-aud.job-no2
+                       TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', work-aud.job-no, work-aud.job-no2))) @ work-aud.job-no
                        work-aud.frm
                        work-aud.blank-no
                        work-aud.dscr
@@ -1108,7 +1104,7 @@ display "" with frame r-top.
                       '"' work-aud.procat                    '",'
                       '"' work-aud.tran-date                 '",'
                       '"' work-aud.job-no + "-" +
-                          STRING(work-aud.job-no2,"99")      '",'
+                          STRING(work-aud.job-no2,"999")      '",'
                       '"' work-aud.frm                       '",'
                       '"' work-aud.blank-no                  '",'
                       '"' ""                                 '",'
@@ -1132,8 +1128,7 @@ display "" with frame r-top.
             if work-aud.procat = "F.G." then do:
                display work-aud.procat
                        work-aud.tran-date
-                       work-aud.job-no
-                       work-aud.job-no2
+                       TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', work-aud.job-no, work-aud.job-no2))) @ work-aud.job-no
                        work-aud.frm
                        work-aud.blank-no
                        work-aud.i-no
@@ -1147,7 +1142,7 @@ display "" with frame r-top.
                       '"' work-aud.procat                   '",'
                       '"' work-aud.tran-date                '",'
                       '"' work-aud.job-no + "-" +
-                          STRING(work-aud.job-no2,"99")     '",'
+                          STRING(work-aud.job-no2,"999")     '",'
                       '"' work-aud.frm                      '",'
                       '"' work-aud.blank-no                 '",'
                       '"' work-aud.i-no                     '",'
@@ -1161,8 +1156,7 @@ display "" with frame r-top.
             else do:
                display work-aud.procat
                        work-aud.tran-date
-                       work-aud.job-no
-                       work-aud.job-no2
+                       TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', work-aud.job-no, work-aud.job-no2))) @ work-aud.job-no
                        work-aud.frm
                        work-aud.blank-no
                        work-aud.i-no
@@ -1176,7 +1170,7 @@ display "" with frame r-top.
                       '"' work-aud.procat                   '",'
                       '"' work-aud.tran-date                '",'
                       '"' work-aud.job-no + "-" +
-                          STRING(work-aud.job-no2,"99")     '",'
+                          STRING(work-aud.job-no2,"999")     '",'
                       '"' work-aud.frm                      '",'
                       '"' work-aud.blank-no                 '",'
                       '"' work-aud.i-no                     '",'
@@ -1200,8 +1194,7 @@ display "" with frame r-top.
             end.
             if last-of(work-aud.tran-date) then
             DO:
-               put skip(1) "JOB TOTALS - " at 20 job.job-no
-                   space(0) "-" space(0) job.job-no2 format "99"
+               put skip(1) "JOB TOTALS - " at 20  TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) FORMAT "x(13)"               
                    "         BOARD TOTALS: " at 56 v-brd-job skip
                    "       MACHINE TOTALS: " at 56 v-mch-job " " v-wst-job " "
                    v-hrs-job skip
@@ -1210,7 +1203,7 @@ display "" with frame r-top.
 
                IF tb_excel THEN
                   RUN excel-job-totals-proc(INPUT "JOB TOTALS - " + job.job-no +
-                                            "-" + STRING(job.job-no2,"99"),
+                                            "-" + STRING(job.job-no2,"999"),
                                             INPUT v-brd-job, INPUT v-mch-job,
                                             INPUT v-wst-job, INPUT v-hrs-job,
                                             INPUT v-fg-job, INPUT v-oth-job).

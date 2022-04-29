@@ -558,7 +558,7 @@ PROCEDURE pFillData :
 
         IF FIRST-OF(ttJob.iJobNo2) THEN
         DO:           
-            RUN Excel_SetCellValue IN ghExcelProcs ("B" + STRING(iRowCount), STRING(TRIM(ttJob.cJobNo) + "-" + STRING(ttJob.iJobNo2,"99"))).
+            RUN Excel_SetCellValue IN ghExcelProcs ("B" + STRING(iRowCount), STRING(TRIM(ttJob.cJobNo) + "-" + STRING(ttJob.iJobNo2,"999"))).
             RUN Excel_SetCellValue IN ghExcelProcs ("D" + STRING(iRowCount), (IF ttJob.dtCloseDate EQ ? THEN " " ELSE STRING(ttJob.dtCloseDate,"99/99/9999"))).
             
             iRowCount = iRowCount + 1. 

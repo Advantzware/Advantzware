@@ -1401,7 +1401,7 @@ PROCEDURE pCallAPIOutboundTrigger:
         INPUT  ipcTriggerID,                                                             /* Trigger ID (Mandatory) */
         INPUT  "job",                                                                    /* Comma separated list of table names for which data being sent (Mandatory) */
         INPUT  STRING(ROWID(ipbf-job)),                                                  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-        INPUT  ipbf-job.job-no + "-" + STRING(ipbf-job.job-no2,"99"),                    /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  DYNAMIC-FUNCTION("sfFormat_TrimmedJobWithHyphen",ipbf-job.job-no,ipbf-job.job-no2),   /* Primary ID for which API is called for (Mandatory) */
         INPUT  "Job Machine update/delete from JU1",                                     /* Event's description (Optional) */
         OUTPUT lSuccess,                                                                 /* Success/Failure flag */
         OUTPUT cMessage                                                                  /* Status message */

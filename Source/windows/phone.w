@@ -67,6 +67,13 @@ if s-rec_key ne ?   and
 /*                                          */
 
 DEFINE NEW SHARED VARIABLE vrPhone  AS CHAR NO-UNDO.
+DEFINE NEW SHARED VARIABLE cEmailTo  AS CHAR NO-UNDO.
+    IF ip-header MATCHES "*Cust*" THEN cEmailTo = "Customer".
+    IF ip-header MATCHES "*Vend*" THEN cEmailTo = "Vendor".
+    IF ip-header MATCHES "*Ship*" THEN cEmailTo = "ShipTo".
+    IF ip-header MATCHES "*Sold*" THEN cEmailTo = "SoldTo".
+    IF ip-header MATCHES "*Emp*"  THEN cEmailTo = "Employee".
+    IF ip-header MATCHES "*Sale*" THEN cEmailTo = "SalesRep".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

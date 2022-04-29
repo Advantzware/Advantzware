@@ -11,8 +11,8 @@ FOR EACH company NO-LOCK,
     USE-INDEX opened:
 
   DISPLAY job.company   LABEL "Company"
-          TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")
-                        LABEL "Job#"        FORMAT "x(12)"
+          TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
+                        LABEL "Job#"        FORMAT "x(13)"
       WITH FRAME f1 TITLE "Checking".
 
   li = 0.
@@ -26,8 +26,8 @@ FOR EACH company NO-LOCK,
 
     IF li EQ 1 THEN DO:
       DISPLAY job.company   LABEL "Company"
-              TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")
-                            LABEL "Job#"        FORMAT "x(12)"
+              TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
+                            LABEL "Job#"        FORMAT "x(13)"
           WITH FRAME f2 TITLE "Fixed" 20 DOWN COLUMN 40.
 
       job.start-date = job.close-date.

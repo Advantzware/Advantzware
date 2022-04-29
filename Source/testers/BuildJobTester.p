@@ -52,7 +52,7 @@ PROCEDURE pExport PRIVATE:
     
     ASSIGN 
         cTempFolder = "C:\temp\"
-        ipcName = (IF lNew THEN "New" ELSE "Old") + ipcName + TRIM(cJobID) + "-" + STRING(iJobID2,"99")
+        ipcName = (IF lNew THEN "New" ELSE "Old") + ipcName + TRIM(cJobID) + "-" + STRING(iJobID2,"999")
         //ipcName = ipcName + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
         .
     

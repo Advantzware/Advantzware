@@ -156,3 +156,7 @@
 173 "System" "Importer Parameters" 15.71 92 yes "" yes "202111028352008187350"
 174 "System" "Currency" 3.1 64 yes "" yes "202112110699808312464"
 176 "System" "Production Analysis Misc" 4.05 34 yes "" yes "202202147287208528706"
+177 "System" "DMI ID Range" 5.48 32 yes "DMI IDs" yes "202203114575809079480"
+178 "System" "Posted Type" 3.1 49 yes "" yes "202203114697309079492"
+179 "System" "DMI State Type" 3.1 52 yes "" yes "202203114709909079494"
+180 "System" "Rebuild RM Bins Misc" 4.05 36 yes "" yes "202204140413609187993"

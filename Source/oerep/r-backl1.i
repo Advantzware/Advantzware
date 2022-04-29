@@ -62,8 +62,7 @@
                               ELSE STRING(xoe-ord.sman[1],"x(8)")) +
                              string(oe-ordl.part-no,"x(20)") +
                              string(oe-ordl.i-no,   "x(20)")
-         tt-report.key-02  = trim(oe-ordl.job-no) + "-" +
-                             string(oe-ordl.job-no2,"99")
+         tt-report.key-02  = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
          tt-report.key-03  = oe-ordl.i-no
          tt-report.key-04  = string(xoe-ord.ord-no,"9999999999")
          tt-report.rec-id  = recid(oe-ordl).
@@ -128,7 +127,7 @@
                               ELSE STRING(cust.sman,"X(8)")) +
                              string(itemfg.part-no,"x(20)") +
                              string(job-hdr.i-no,  "x(20)")
-         tt-report.key-02  = (trim(job.job-no) + "-" + string(job.job-no2,"99"))
+         tt-report.key-02  = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
          tt-report.key-03  = job-hdr.i-no
          tt-report.key-04  = string(v-qty[1] - v-qty[2],"9999999999")
          tt-report.key-05  = job-hdr.cust-no

@@ -50,7 +50,7 @@ DEF VAR li-count AS INT NO-UNDO.
 &scoped-define SORTBY-3 BY po-ordl.job-no
 &scoped-define fld-name-1 string(po-ordl.LINE)
 &scoped-define fld-name-2 po-ordl.i-no
-&scoped-define fld-name-3 TRIM(po-ordl.job-no)
+&scoped-define fld-name-3 po-ordl.job-no
 &scoped-define IAMWHAT LOOKUP
 /*&SCOPED-DEFINE useMatches*/
 

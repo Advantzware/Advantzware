@@ -939,6 +939,78 @@ PROCEDURE Estimate_UpdateEfFormQty PRIVATE:
     RELEASE bf-eb.
 END PROCEDURE.
 
+PROCEDURE pGetAdders PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipchCompanyId  LIKE  estCostMaterial.company NO-UNDO.
+    DEFINE INPUT  PARAMETER ipchestimateNo LIKE  estCostMaterial.estimateNo NO-UNDO.
+    DEFINE INPUT  PARAMETER ipchformNo     LIKE  estCostMaterial.formNo NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcAdders      LIKE  ef.adder NO-UNDO.
+
+    DEFINE BUFFER bf-ef FOR ef.
+
+    FIND FIRST bf-ef NO-LOCK
+        WHERE bf-ef.company = ipchCompanyId
+        AND bf-ef.est-no    = ipchestimateNo
+        AND bf-ef.form-no   = ipchformNo NO-ERROR.
+
+    IF AVAILABLE bf-ef THEN 
+        ASSIGN opcAdders = bf-ef.adder.       
+
+END PROCEDURE.
+
+PROCEDURE Estmate_GetAddersList:
+    DEFINE INPUT  PARAMETER ipchCompanyId  LIKE  estCostMaterial.company    NO-UNDO.
+    DEFINE INPUT  PARAMETER ipchEstimateNo LIKE  estCostMaterial.estimateNo NO-UNDO.
+    DEFINE INPUT  PARAMETER ipchFormNo     LIKE  estCostMaterial.formNo     NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcAdders      AS CHARACTER                     NO-UNDO.
+    
+    DEFINE VARIABLE chAddersArray LIKE ef.adder NO-UNDO.
+    DEFINE VARIABLE iCount        AS INTEGER NO-UNDO.
+    
+    RUN pGetAdders(INPUT ipchCompanyId,
+        INPUT ipchEstimateNo,
+        INPUT ipchFormNo,
+        OUTPUT chAddersArray).
+    
+    DO iCount = 1 TO 6:
+        IF chAddersArray[iCount] <> "" THEN
+            ASSIGN                    
+                opcAdders = opcAdders + "," + chAddersArray[iCount].        
+    END.
+
+    ASSIGN 
+        opcAdders = TRIM(opcAdders,",").
+END.
+
+PROCEDURE Estmate_GetAddersArray:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipchCompanyId  LIKE  estCostMaterial.company.
+    DEFINE INPUT  PARAMETER ipchEstimateNo LIKE  estCostMaterial.estimateNo.
+    DEFINE INPUT  PARAMETER ipchFormNo     LIKE  estCostMaterial.formNo.
+    DEFINE OUTPUT PARAMETER opcAdders      AS CHARACTER EXTENT 6 NO-UNDO.
+       
+    DEFINE VARIABLE chAddersArray LIKE ef.adder NO-UNDO.
+    DEFINE VARIABLE iCount        AS INTEGER NO-UNDO.
+    
+    RUN pGetAdders(INPUT ipchCompanyId,
+        INPUT ipchEstimateNo,
+        INPUT ipchFormNo,
+        OUTPUT chAddersArray).
+    
+    DO iCount = 1 TO 6:
+        IF chAddersArray[iCount] <> "" THEN
+            ASSIGN                    
+                opcAdders[iCount] = chAddersArray[iCount].        
+    END.    
+
+END PROCEDURE.
+
 PROCEDURE pBuildQuantityList PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:  Given an est-qty buffer, multiplier and delimiter, return a delimeter

@@ -328,10 +328,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       else put "00000000".
     end.
 
-    PUT TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))) FORMAT "x(13)".
+    PUT TRIM(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2,"99") FORMAT "x(9)".
 
     /* FILLER */
-    put space(105).
+    put space(109).
     
     put skip.
     

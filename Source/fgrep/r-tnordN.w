@@ -1744,9 +1744,9 @@ def var tp-o        like fp-o               init "zzzzzzzzzzzzzzz" NO-UNDO.
 def var ford        like oe-ord.ord-no      format ">>>>>>" NO-UNDO.
 def var tord        like ford               init 999999 NO-UNDO.
 def var fjob        like oe-ordl.job-no NO-UNDO.
-def var tjob        like fjob               init "zzzzzz" NO-UNDO.
-def var fjob2       like oe-ordl.job-no2    format "99" NO-UNDO.
-def var tjob2       like fjob2              init 99 NO-UNDO.
+def var tjob        like fjob               init "zzzzzzzzz" NO-UNDO.
+def var fjob2       like oe-ordl.job-no2    format "999" NO-UNDO.
+def var tjob2       like fjob2              init 999 NO-UNDO.
 def var vdet        as   log   init yes    format "Detail/Summary" NO-UNDO.
 def var vinc        as   log   init yes    format "Yes/No" NO-UNDO.
 def var vinc1       as   log   init yes    format "Yes/No" NO-UNDO.
@@ -2325,9 +2325,9 @@ DEF VAR tp-o    LIKE fp-o INIT "zzzzzzzzzzzzzzz"   NO-UNDO.
 DEF VAR ford    LIKE oe-ord.ord-no FORMAT ">>>>>>" NO-UNDO.
 DEF VAR tord    LIKE ford INIT 999999              NO-UNDO.
 DEF VAR fjob    LIKE oe-ordl.job-no                NO-UNDO.
-DEF VAR tjob    LIKE fjob INIT "zzzzzz"            NO-UNDO.
-DEF VAR fjob2   LIKE oe-ordl.job-no2  FORMAT  "99" NO-UNDO.
-DEF VAR tjob2   LIKE fjob2 INIT 99                 NO-UNDO.
+DEF VAR tjob    LIKE fjob INIT "zzzzzzzzz"         NO-UNDO.
+DEF VAR fjob2   LIKE oe-ordl.job-no2  FORMAT "999" NO-UNDO.
+DEF VAR tjob2   LIKE fjob2 INIT 999                NO-UNDO.
 DEF VAR v-cus   LIKE itemfg.cust-no                NO-UNDO.
 DEF VAR v-itm   LIKE itemfg.i-no                   NO-UNDO.
 DEF VAR v-price LIKE oe-ordl.price                 NO-UNDO.
@@ -2351,7 +2351,7 @@ DEF VAR li-tqty   AS INT NO-UNDO.
 
 DEF VAR v-val     AS DEC NO-UNDO.
 
-DEF VAR v-job       AS CHAR FORMAT "x(9)"  NO-UNDO.
+DEF VAR v-job       AS CHAR FORMAT "x(13)"  NO-UNDO.
 DEF VAR v-shp       AS CHAR FORMAT "x(10)" NO-UNDO.
 /*DEF VAR excelheader AS CHAR                NO-UNDO.*/
 
@@ -2693,7 +2693,7 @@ FOR EACH ttCustList
              ASSIGN v-job = TRIM(fg-rcpth.job-no) + "-" + 
                             STRING(fg-rcpth.job-no2,"999")
                     v-job = TRIM(v-job)
-                    v-job = IF v-job = "-00" THEN " " ELSE v-job
+                    v-job = IF v-job = "-000" THEN " " ELSE v-job
                     v-shp = IF v-shpdays EQ 0 THEN " " ELSE STRING(v-shpdays,">>,>>>,>>9").
 
             /* gdm - 10260906 */
@@ -2764,7 +2764,7 @@ FOR EACH ttCustList
                       v-shpdays = (TODAY - bf-fg-rcpth.trans-date).
 
         ASSIGN v-job = TRIM(v-job)
-               v-job = IF v-job = "-00" THEN " " ELSE v-job
+               v-job = IF v-job = "-000" THEN " " ELSE v-job
                v-shp = IF v-shpdays EQ 0 THEN " " ELSE STRING(v-shpdays,">>,>>>,>>9").
 
          DISPLAY 

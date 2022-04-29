@@ -118,18 +118,21 @@ if ar-cashl.amt-paid ne 0 then do:
            t-credits = ar-cashl.amt-paid * -1
            t-balance = t-credits.
        
-        IF t-check-no = "Payment" AND t-credits LT 0 THEN
+     /*   IF /* t-check-no = "Payment" AND */ t-credits LT 0 THEN DO:
            ASSIGN
               t-credits = t-credits * -1
-              t-balance = t-credits.
+              t-balance = t-credits * -1.
+        END.              
+      */        
      END.
 
      CREATE tt-arinq.
      ASSIGN li-seq            = li-seq + 1
             tt-arinq.ref-num  = x-check-no
             tt-arinq.tr-dscr  = t-check-no             
-            tt-arinq.tr-camt  = t-credits
-            tt-arinq.balance  = t-balance
+            tt-arinq.tr-camt  = IF ar-cashl.amt-paid GT 0 THEN ar-cashl.amt-paid ELSE 0
+            tt-arinq.tr-damt  = IF ar-cashl.amt-paid LT 0 THEN ar-cashl.amt-paid * -1 ELSE 0
+            tt-arinq.balance  = t-balance 
             tt-arinq.tr-from  = "AR Cash"
             tt-arinq.applied  = NO
             tt-arinq.seq      = li-seq
@@ -159,7 +162,7 @@ if ar-cashl.amt-paid ne 0 then do:
 
      IF "{1}" = "1" THEN tt-arinq.ageapp = STRING(v-pay-stat1).
      ELSE tt-arinq.ageapp = v-pay-stat2.
-     t-balance = t-balance * -1.
+/*     t-balance = t-balance * -1.*/
   end.
   
   v-tot-due = v-tot-due + t-balance.

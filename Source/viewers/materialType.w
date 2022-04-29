@@ -428,6 +428,46 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
+PROCEDURE local-update-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lAutoPost AS LOGICAL NO-UNDO.  
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  assign
+   lAutoPost = materialType.autoIssue
+   .        
+  
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  IF lAutoPost NE materialType.autoIssue AND materialType.autoIssue THEN
+  DO:
+       MESSAGE "Update the Auto Issue flag for all open jobs?"
+                 VIEW-AS ALERT-BOX QUESTION 
+                 BUTTONS OK-CANCEL UPDATE lcheckflg as logical .
+       IF lcheckflg THEN
+       DO:
+           RUN spProgressBar ("Update the Auto Issue flag for all open jobs", 90, 100). 
+           RUN Material_UpdateJobMaterialAutoIssue (
+                           cCompany,
+                           materialType.materialType,
+                           YES
+                           ).   
+           RUN spProgressBar (?, ?, 100).                 
+       END.
+  END.
+
+ 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
 PROCEDURE local-destroy:
 /*------------------------------------------------------------------------------

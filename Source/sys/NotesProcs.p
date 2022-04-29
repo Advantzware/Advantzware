@@ -46,7 +46,7 @@ FUNCTION hasNotes RETURNS LOGICAL
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE ConvertToArray:
+PROCEDURE Notes_ConvertToArray:
     /*------------------------------------------------------------------------------
      Purpose: Converts a given blob of text into a 100 extent array based on 
                 the character count per line.
@@ -94,7 +94,7 @@ PROCEDURE ConvertToArray:
 
 END PROCEDURE.
 
-PROCEDURE CopyNoteOfType:
+PROCEDURE Notes_CopyNoteOfType:
     /*------------------------------------------------------------------------------
      Purpose: Propagates a single note from one rec_key to another
      Notes:
@@ -105,13 +105,13 @@ PROCEDURE CopyNoteOfType:
 
     DEFINE VARIABLE cNoteText AS CHARACTER NO-UNDO.
 
-    RUN GetNoteOfType (ipcRecKeyFrom, ipcType, OUTPUT cNoteText).
+    RUN Notes_GetNoteOfType (ipcRecKeyFrom, ipcType, OUTPUT cNoteText).
     IF cNoteText NE "" THEN 
-        RUN UpdateNoteOfType (ipcRecKeyTo, ipcType, cNoteText).
+        RUN Notes_UpdateNoteOfType (ipcRecKeyTo, ipcType, cNoteText).
 
 END PROCEDURE.
 
-PROCEDURE CopyNotes:
+PROCEDURE Notes_CopyNotes:
     /*------------------------------------------------------------------------------
      Purpose: Copies all notes from one source record (rec_key) to another 
      Notes:  Filter the scope of notes by type or code (commas separated or left blank for all)
@@ -121,33 +121,36 @@ PROCEDURE CopyNotes:
     DEFINE INPUT PARAMETER ipcTypes AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCodes AS CHARACTER NO-UNDO.
 
-    DEFINE BUFFER b-notes FOR notes.
+    DEFINE BUFFER bf-notes FOR notes.
 
     FOR EACH notes NO-LOCK 
         WHERE notes.rec_key EQ ipcRecKeyFrom
         AND (ipcTypes EQ "" OR LOOKUP(notes.note_type,ipcTypes) GT 0)
         AND (ipcCodes EQ "" OR LOOKUP(notes.note_code,ipcCodes) GT 0)
         :
-        CREATE b-notes.
-        BUFFER-COPY notes EXCEPT rec_key TO b-notes.
+        CREATE bf-notes.
+        BUFFER-COPY notes EXCEPT rec_key TO bf-notes.
         ASSIGN 
-            b-notes.rec_key = ipcRecKeyTo.
+            bf-notes.rec_key = ipcRecKeyTo
+            bf-notes.note_date = TODAY
+            bf-notes.note_time = TIME
+            .
     END.
 END PROCEDURE.
 
-PROCEDURE CopyShipNote:
+PROCEDURE Notes_CopyShipNote:
     /*------------------------------------------------------------------------------
-     Purpose: Wrapper of CopyNoteOfType for Ship Note Type
+     Purpose: Wrapper of Notes_CopyNoteOfType for Ship Note Type
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
  
-    RUN CopyNoteOfType (ipcRecKeyFrom, ipcRecKeyTo, gTypeShipNote).
+    RUN Notes_CopyNoteOfType (ipcRecKeyFrom, ipcRecKeyTo, gTypeShipNote).
 
 END PROCEDURE.
 
-PROCEDURE GetNoteOfType:
+PROCEDURE Notes_GetNoteOfType:
     /*------------------------------------------------------------------------------
      Purpose: Given a rec_key and type, will return the notes content of first note
      of given type
@@ -166,7 +169,7 @@ PROCEDURE GetNoteOfType:
     
 END PROCEDURE.
 
-PROCEDURE GetNotesArrayForObject:
+PROCEDURE Notes_GetNotesArrayForObject:
     /*------------------------------------------------------------------------------
      Purpose: Given a rec_key for an object, a set of type and codes, return an array of a max char length 
      Notes:  Types and Codes should be comma separated or left blank for all
@@ -196,11 +199,11 @@ PROCEDURE GetNotesArrayForObject:
     IF cFullText NE "" THEN 
     DO:
         cFullText = TRIM(cFullText,CHR(13)). 
-        RUN ConvertToArray(cFullText, ipiMaxCharCount, OUTPUT opcParsedText, OUTPUT opiArraySize).
+        RUN Notes_ConvertToArray(cFullText, ipiMaxCharCount, OUTPUT opcParsedText, OUTPUT opiArraySize).
     END. 
 END PROCEDURE.
 
-PROCEDURE GetNotesTempTableForObject:
+PROCEDURE Notes_GetNotesTempTableForObject:
     /*------------------------------------------------------------------------------
      Purpose: Given a rec_key for an object, a set of type and codes, return 
      ttNotesFormatted temp-table 
@@ -237,7 +240,7 @@ PROCEDURE GetNotesTempTableForObject:
                 ttNotesFormatted.noteText = cFullText
                 ttNotesFormatted.noteTextArray = ""
                 . 
-            RUN ConvertToArray(cFullText, ipiMaxCharCount, OUTPUT ttNotesFormatted.noteTextArray, OUTPUT ttNotesFormatted.noteTextArraySize).
+            RUN Notes_ConvertToArray(cFullText, ipiMaxCharCount, OUTPUT ttNotesFormatted.noteTextArray, OUTPUT ttNotesFormatted.noteTextArraySize).
         END. 
     END.
 
@@ -301,7 +304,7 @@ PROCEDURE pParseText PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE UpdateNoteOfType:
+PROCEDURE Notes_UpdateNoteOfType:
     /*------------------------------------------------------------------------------
      Purpose: Given a rec_key and type, this proce will update the first note of that type
         or add it if it doesn't exist.
@@ -329,15 +332,15 @@ PROCEDURE UpdateNoteOfType:
     
 END PROCEDURE.
 
-PROCEDURE UpdateShipNote:
+PROCEDURE Notes_UpdateShipNote:
     /*------------------------------------------------------------------------------
-     Purpose: Wrapper for UpdateNoteofType specifically for Ship Notes
+     Purpose: Wrapper for Notes_UpdateNoteOfType specifically for Ship Notes
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcNoteText AS CHARACTER NO-UNDO.
 
-    RUN UpdateNoteOfType (ipcObjectRecKey, gTypeShipNote, ipcNoteText).
+    RUN Notes_UpdateNoteOfType (ipcObjectRecKey, gTypeShipNote, ipcNoteText).
 
 END PROCEDURE.
 

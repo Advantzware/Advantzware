@@ -1309,7 +1309,7 @@ FOR EACH tt-vend-whse-trans
       "   "
       tt-vend-whse-trans.vend-ord-no
       " "
-      TRIM(tt-vend-whse-trans.vend-job-no) + STRING(INT(tt-vend-whse-trans.vend-job-no2),"99") 
+      TRIM(tt-vend-whse-trans.vend-job-no) + STRING(INT(tt-vend-whse-trans.vend-job-no2),"999") 
       "   "
       tt-vend-whse-trans.sell-price
       " "
@@ -1329,7 +1329,7 @@ FOR EACH tt-vend-whse-trans
          '"' tt-vend-whse-trans.vendor-plant-code  '",'
          '"' tt-vend-whse-trans.vendor-dept-code   '",'
          '"' tt-vend-whse-trans.vend-ord-no        '",'
-         '"' TRIM(tt-vend-whse-trans.vend-job-no) + STRING(INT(tt-vend-whse-trans.vend-job-no2),"99") '",'           
+         '"' TRIM(tt-vend-whse-trans.vend-job-no) + STRING(INT(tt-vend-whse-trans.vend-job-no2),"999") '",'           
          '"' tt-vend-whse-trans.sell-price         '",' 
          '"' tt-vend-whse-trans.plant-tot-oh-qty   '",'
          SKIP.

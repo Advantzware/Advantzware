@@ -70,7 +70,7 @@ ELSE IF ip-charge_code = "RUN" AND v-set-qty < ip-run-qty THEN DO:
    MESSAGE "All components haven't received." SKIP
            "Run cannot be completed on assembly machine due to insufficient component parts on machine"
             ip-machine_code
-           "for Job# " ip-job_number + "-" + ip-job_sub
+           "for Job# " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ip-job_number, ip-job_sub)))
        VIEW-AS ALERT-BOX WARNING.
 
 END.

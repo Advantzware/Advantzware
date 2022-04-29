@@ -163,7 +163,7 @@ DEFINE BROWSE BROWSE-1
       tt-job-hdr.est-no   FORMAT "x(11)":U WIDTH 14 COLUMN-FONT 0
       tt-job-hdr.ord-no   FORMAT ">>>>>>>>>":U COLUMN-FONT 0
       tt-job-hdr.cust-no  FORMAT "x(11)":U COLUMN-FONT 0
-      tt-job-hdr.part-no COLUMN-LABEL "Cust. Part #" FORMAT "x(15)":U COLUMN-FONT 0
+      tt-job-hdr.part-no COLUMN-LABEL "Cust. Part #" FORMAT "x(30)":U COLUMN-FONT 0
       tt-job-hdr.i-name  COLUMN-LABEL "Item Name" FORMAT "X(30)":U COLUMN-FONT 0
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

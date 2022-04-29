@@ -13,7 +13,7 @@ FOR EACH mch-act BREAK BY company BY job BY job-no BY job-no2:
 
     IF AVAIL job THEN DO:
       DISPLAY "Processing Job#: " +
-             TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")
+             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
              FORMAT "x(50)" WITH 1 DOWN.
       cocode = job.company.
       RUN jc/job-cls2.p (RECID(job)).

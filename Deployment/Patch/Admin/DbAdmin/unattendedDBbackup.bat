@@ -31,14 +31,14 @@ ECHO Beginning PROD database backup >> %logFile%
 
 CD \!topDir!\!DbDir!\!dbProdDir!
 ECHO   Backing up !prodDbName! to !prodDbName!.bak >> %logFile%
-CALL !DLC!\bin\probkup online !prodDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!prodDbName!.bak > NUL
+CALL !DLC!\bin\probkup online !prodDbName! !MapDir!\!backupDir!\!dbBackup!\!prodDbName!.bak > NUL
 IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!prodDbName!.bak (
     ECHO     !prodDbName! backup complete >> !logFile!
     )
 
 CD \!topDir!\!DbDir!\!dbAuditDir!
 ECHO   Backing up !audDbName! to !audDbName!.bak >> %logFile%
-CALL !DLC!\bin\probkup online !audDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!audDbName!.bak > NUL
+CALL !DLC!\bin\probkup online !audDbName! !MapDir!\!backupDir!\!dbBackup!\!audDbName!.bak > NUL
 IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!audDbName!.bak (
     ECHO     !audDbName! backup complete >> !logFile!
     )

@@ -127,8 +127,8 @@ DEFINE BROWSE MachTrans
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS MachTrans C-Win _STRUCTURED
   QUERY MachTrans NO-LOCK DISPLAY
       machtran.machine FORMAT "x(6)":U WIDTH 8 LABEL-BGCOLOR 14
-      machtran.job_number FORMAT "X(6)":U WIDTH 8 LABEL-BGCOLOR 14
-      machtran.job_sub FORMAT ">9":U
+      machtran.job_number FORMAT "x(9)":U WIDTH 15 LABEL-BGCOLOR 14
+      machtran.job_sub FORMAT "999":U WIDTH 5.4
       machtran.form_number FORMAT ">>9":U
       machtran.blank_number FORMAT ">9":U
       machtran.pass_sequence FORMAT ">>9":U
@@ -176,8 +176,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Job Checklist Unposted Machine Transactions"
-         COLUMN             = 3.2
-         ROW                = 15.33
+         COLUMN             = 131.4
+         ROW                = 4.24
          HEIGHT             = 14.76
          WIDTH              = 119
          MAX-HEIGHT         = 14.76
@@ -227,27 +227,28 @@ THEN C-Win:HIDDEN = no.
      _Where[1]         = "machtran.company EQ gcompany
 AND machtran.posted EQ NO"
      _FldNameList[1]   > ASI.machtran.machine
-"machtran.machine" ? ? "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"machine" ? ? "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.machtran.job_number
-"machtran.job_number" ? ? "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   = ASI.machtran.job_sub
+"job_number" ? ? "character" ? ? ? 14 ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.machtran.job_sub
+"job_sub" ? "999" "integer" ? ? ? ? ? ? no ? no no "5.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   = ASI.machtran.form_number
      _FldNameList[5]   = ASI.machtran.blank_number
      _FldNameList[6]   = ASI.machtran.pass_sequence
      _FldNameList[7]   > ASI.machtran.charge_code
-"machtran.charge_code" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"charge_code" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.machtran.start_date
-"machtran.start_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"start_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
 "Time_String(machtran.start_time,YES) @ start-time" "Log In" "x(8)" ? ? ? ? ? ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.machtran.end_date
-"machtran.end_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"end_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > "_<CALC>"
 "Time_String(machtran.end_time,YES) @ end-time" "Log Out" "x(8)" ? ? ? ? ? ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.machtran.shift
-"machtran.shift" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"shift" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.machtran.run_qty
-"machtran.run_qty" "Run Qty" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"run_qty" "Run Qty" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > "_<CALC>"
 "Time_String(machtran.total_time,NO) @ total-time" "Total" "x(5)" ? ? ? ? ? ? ? no ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
@@ -291,7 +292,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL MachTrans C-Win
 ON START-SEARCH OF MachTrans IN FRAME DEFAULT-FRAME
 DO:
-	{methods/template/sortindicator.i} 
+        {methods/template/sortindicator.i} 
     IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
         IF cColumnLabel EQ cSaveLabel THEN
@@ -299,7 +300,7 @@ DO:
         cSaveLabel = cColumnLabel.
         RUN pReopenBrowse.
     END.
-	{methods/template/sortindicatorend.i} 
+        {methods/template/sortindicatorend.i} 
     RETURN NO-APPLY.
 END.
 

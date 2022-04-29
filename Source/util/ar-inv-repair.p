@@ -217,7 +217,7 @@ PROCEDURE CREATE-ar-inv.
            ar-inv.net            = inv-head.t-inv-rev - inv-head.t-inv-tax
            ar-inv.freight        = inv-head.t-inv-freight.
            
-           RUN CopyShipNote (inv-head.rec_key, ar-inv.rec_key).
+           RUN pCopyShipNote (inv-head.rec_key, ar-inv.rec_key).
                              
            if inv-head.f-bill then
               ASSIGN ar-inv.t-sales = ar-inv.t-sales - inv-head.t-inv-freight .
@@ -392,7 +392,7 @@ PROCEDURE create-inv-head.
        inv-head.zip          = cust.zip
        inv-head.curr-code[1] = cust.curr-code.
       
-      RUN CopyShipNote (oe-bolh.rec_key, inv-head.rec_key).    
+      RUN pCopyShipNote (oe-bolh.rec_key, inv-head.rec_key).    
       
       FIND FIRST usergrps WHERE
            usergrps.usergrps = "IN"
@@ -708,7 +708,7 @@ end.
 
 END PROCEDURE.
 
-PROCEDURE CopyShipNote PRIVATE:
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -716,13 +716,7 @@ PROCEDURE CopyShipNote PRIVATE:
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
     

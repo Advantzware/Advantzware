@@ -1758,7 +1758,7 @@ PROCEDURE build-tt :
                            STRING(MONTH(lv-due-date),"99")  +
                            STRING(DAY(lv-due-date),"99")    +
                            STRING(oe-ordl.part-no,"x(15)") + STRING(oe-ord.ord-no,"99999999999"))              
-        tt-report.key-04   = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
+        tt-report.key-04   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))
         tt-report.key-05   = STRING(oe-ord.ord-no,"99999999999")
         tt-report.key-06   = oe-ordl.i-no
         tt-report.key-07   = STRING(YEAR(ip-date),"9999") +

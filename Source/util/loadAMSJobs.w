@@ -94,85 +94,85 @@ DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btExecute 
-    LABEL "Execute" 
-    SIZE 16 BY 1.43.
+     LABEL "Execute" 
+     SIZE 16 BY 1.43.
 
 DEFINE BUTTON btSimulate 
-    LABEL "Simulate" 
-    SIZE 16 BY 1.43.
+     LABEL "Simulate" 
+     SIZE 16 BY 1.43.
 
-DEFINE VARIABLE begin_date    AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
-    LABEL "Beginning Date" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY .95 NO-UNDO.
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "Beginning Date" 
+     VIEW-AS FILL-IN 
+     SIZE 20.4 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no  AS CHARACTER FORMAT "X(9)":U 
-    LABEL "Beginning Job#" 
-    VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
+     LABEL "Beginning Job#" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
-    LABEL "" 
-    VIEW-AS FILL-IN 
-    SIZE 5.4 BY 1 NO-UNDO.
+     LABEL "" 
+     VIEW-AS FILL-IN 
+     SIZE 5.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_date      AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
-    LABEL "Ending Date" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
+     LABEL "Ending Date" 
+     VIEW-AS FILL-IN 
+     SIZE 20.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no    AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
-    LABEL "Ending Job#" 
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
+     LABEL "Ending Job#" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2   AS CHARACTER FORMAT "-99":U INITIAL "99" 
-    LABEL "" 
-    VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
+     LABEL "" 
+     VIEW-AS FILL-IN 
+     SIZE 5.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_jstat     AS CHARACTER FORMAT "X(256)":U INITIAL "Job Status?" 
-    VIEW-AS FILL-IN 
-    SIZE 13 BY .95 NO-UNDO.
+DEFINE VARIABLE lbl_jstat AS CHARACTER FORMAT "X(256)":U INITIAL "Job Status?" 
+     VIEW-AS FILL-IN 
+     SIZE 13 BY .95 NO-UNDO.
 
-DEFINE VARIABLE rd_jstat      AS CHARACTER INITIAL "Open" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "All", "All",
-    "Open", "Open"
-    SIZE 18 BY .95 NO-UNDO.
+DEFINE VARIABLE rd_jstat AS CHARACTER INITIAL "Open" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "All", "All",
+"Open", "Open"
+     SIZE 18 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-7
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 83.6 BY 6.86.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 83.6 BY 6.86.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    lbl_jstat AT ROW 2.76 COL 28 COLON-ALIGNED NO-LABELS WIDGET-ID 30
-    rd_jstat AT ROW 2.76 COL 43 NO-LABELS WIDGET-ID 32
-    begin_job-no AT ROW 4.43 COL 24.6 COLON-ALIGNED HELP
-    "Enter Beginning Job Number" WIDGET-ID 20
-    begin_job-no2 AT ROW 4.43 COL 36.6 COLON-ALIGNED HELP
-    "Enter Beginning Job Number" WIDGET-ID 22
-    end_job-no AT ROW 4.43 COL 60.8 COLON-ALIGNED HELP
-    "Enter Ending Job Number" WIDGET-ID 26
-    end_job-no2 AT ROW 4.43 COL 72.8 COLON-ALIGNED HELP
-    "Enter Ending Job Number" WIDGET-ID 28
-    begin_date AT ROW 6.1 COL 24.6 COLON-ALIGNED WIDGET-ID 18
-    end_date AT ROW 6.1 COL 60.8 COLON-ALIGNED HELP
-    "Enter Ending Due Date" WIDGET-ID 24
-    btSimulate AT ROW 8.95 COL 26.6 WIDGET-ID 42
-    btExecute AT ROW 8.95 COL 48.2 WIDGET-ID 40
-    " Selection Parameters" VIEW-AS TEXT
-    SIZE 21.2 BY .71 AT ROW 1.14 COL 5 WIDGET-ID 38
-    RECT-7 AT ROW 1.52 COL 4 WIDGET-ID 36
+     lbl_jstat AT ROW 2.76 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 30
+     rd_jstat AT ROW 2.76 COL 43 NO-LABEL WIDGET-ID 32
+     begin_job-no AT ROW 4.43 COL 22.4 COLON-ALIGNED HELP
+          "Enter Beginning Job Number" WIDGET-ID 20
+     begin_job-no2 AT ROW 4.43 COL 37.4 COLON-ALIGNED HELP
+          "Enter Beginning Job Number" WIDGET-ID 22
+     end_job-no AT ROW 4.43 COL 60.2 COLON-ALIGNED HELP
+          "Enter Ending Job Number" WIDGET-ID 26
+     end_job-no2 AT ROW 4.43 COL 75.2 COLON-ALIGNED HELP
+          "Enter Ending Job Number" WIDGET-ID 28
+     begin_date AT ROW 6.1 COL 22.4 COLON-ALIGNED WIDGET-ID 18
+     end_date AT ROW 6.1 COL 60.2 COLON-ALIGNED HELP
+          "Enter Ending Due Date" WIDGET-ID 24
+     btSimulate AT ROW 8.95 COL 26.6 WIDGET-ID 42
+     btExecute AT ROW 8.95 COL 48.2 WIDGET-ID 40
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21.2 BY .71 AT ROW 1.14 COL 5 WIDGET-ID 38
+     RECT-7 AT ROW 1.52 COL 4 WIDGET-ID 36
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 90.2 BY 10.29
-    BGCOLOR 15 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 90.2 BY 10.29
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */

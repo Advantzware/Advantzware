@@ -86,7 +86,7 @@ DEF VAR lv-rowids AS CHAR NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR ll AS LOG NO-UNDO.
 DEF VAR ll-bin-tag AS LOG NO-UNDO.
-DEF VAR lv-job-no AS CHAR FORMAT "x(9)" NO-UNDO.
+DEF VAR lv-job-no AS CHAR FORMAT "x(13)" NO-UNDO.
 DEF VAR lv-selected-value AS cha NO-UNDO. /*all,one,notag*/
 DEF VAR v-s-code AS CHAR NO-UNDO.
 DEF BUFFER b-reftable FOR reftable.
@@ -221,9 +221,9 @@ ll-bin-tag = AVAIL oe-ordl             AND
 IF ll-bin-tag THEN DO:
   ASSIGN
    ll        = NO
-   lv-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99").
+   lv-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
-  IF lv-job-no EQ "-00" THEN lv-job-no = "".
+  IF lv-job-no EQ "-000" THEN lv-job-no = "".
 
   
   v-s-code  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE

@@ -439,7 +439,10 @@ PROCEDURE pRunSubject :
         ).
     IF iplRun THEN
     RUN pSaveDynParamValues (ipcType).
-    cTaskRecKey = IF AVAILABLE Task THEN Task.rec_key ELSE "NoTask".
+    ASSIGN
+        cTaskRecKey = IF AVAILABLE Task THEN Task.rec_key ELSE "NoTask"
+        cTaskRecKey = REPLACE(cTaskRecKey,":","_")
+        .
     RUN pRunQuery (iplRun, ipcType, ipcUserID, cTaskRecKey).
     SESSION:SET-WAIT-STATE("").
 

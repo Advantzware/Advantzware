@@ -148,7 +148,7 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _FREEFORM
   QUERY BROWSE-1 NO-LOCK DISPLAY
-     tt-cust-part.part-no COLUMN-LABEL "Cust Part #" FORMAT "x(15)":U
+     tt-cust-part.part-no COLUMN-LABEL "Cust Part #" FORMAT "x(30)":U
             WIDTH 23
       tt-cust-part.part-dscr1 COLUMN-LABEL "Item Description" FORMAT "x(30)":U WIDTH 33
       tt-cust-part.q-onh COLUMN-LABEL "Qty on Hand" 

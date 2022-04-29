@@ -157,7 +157,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 12
       quotehd.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U WIDTH 12
       cust.name COLUMN-LABEL "Cust Name" FORMAT "x(30)":U
-      quoteitm.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(20)":U
+      quoteitm.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(30)":U
             WIDTH 22
       quoteqty.qty FORMAT ">>>,>>>,>>9":U WIDTH 15
       quoteqty.rels COLUMN-LABEL "R" FORMAT ">>9":U WIDTH 4

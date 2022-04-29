@@ -755,7 +755,6 @@ do v-local-loop = 1 to v-local-copies:
                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
                 + ">" "<AT=,.6>" 
                     TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)))
-            /*"<AT=,8.8>" trim(job-hdr.job-no) "-" STRING(job-hdr.job-no2,"99") */
                 "<R44><C1><FROM><C105><LINE><|3>" skip
                 "<R44><C19><FROM><R48><C19><LINE><|3>"
                 "<R44><C20><B>BN Notes:</B><C30>" v-dept-note[1] SKIP

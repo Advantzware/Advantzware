@@ -436,7 +436,7 @@ DO:
                     NEXT.
             END.
                 
-            STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
+            STATUS DEFAULT "Purging job #" + STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)) + "...".
             
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
                 RUN Purge_SimulateAndPurgeJobRecords IN hPurgeProcs (
@@ -474,7 +474,7 @@ DO:
                     NEXT.
             END.
             
-            STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
+            STATUS DEFAULT "Purging job #" + STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)) + "...".
             
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
                 RUN Purge_SimulateAndPurgeJobRecords IN hPurgeProcs (

@@ -38,7 +38,7 @@
           WHERE tt-fg-bin.company   EQ cocode
             AND tt-fg-bin.i-no      EQ tt-report.key-06
             AND ((tt-fg-bin.job-no  EQ SUBSTR(tt-report.key-04,1,iJobLen) AND
-                  tt-fg-bin.job-no2 EQ INT(SUBSTR(tt-report.key-04,(iJobLen + 1),3))) OR
+                  tt-fg-bin.job-no2 EQ INT(SUBSTR(tt-report.key-04,(iJobLen + 2),3))) OR
                  SUBSTR(tt-report.key-04,1,iJobLen) EQ ""):
         tt-report.q-onh = tt-report.q-onh + tt-fg-bin.qty.
       END.
@@ -308,7 +308,7 @@
               and tt-fg-bin.i-no              eq tt-report.key-06
               and tt-fg-bin.qty               gt 0
               and ((tt-fg-bin.job-no          eq substr(tt-report.key-04,1,iJobLen) and
-                    tt-fg-bin.job-no2         eq int(substr(tt-report.key-04,(iJobLen + 1),3))) or
+                    tt-fg-bin.job-no2         eq int(substr(tt-report.key-04,(iJobLen + 2),3))) or
                    substr(tt-report.key-04,1,iJobLen) eq "")
             no-lock
             break by tt-fg-bin.job-no

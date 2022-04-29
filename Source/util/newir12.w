@@ -125,9 +125,9 @@ def var tcus        like fcus                   init "zzzzzzzz" NO-UNDO.
 def var fitm        like itemfg.i-no NO-UNDO.
 def var titm        like fitm                   init "zzzzzzzzzzzzzzz" NO-UNDO.
 def var fjob        like fg-bin.job-no NO-UNDO.
-def var tjob        like fjob                   init "zzzzzz" NO-UNDO.
-def var fjob2       like fg-bin.job-no2         format "99" NO-UNDO.
-def var tjob2       like fjob2                  init 99 NO-UNDO.
+def var tjob        like fjob                   init "zzzzzzzzz" NO-UNDO.
+def var fjob2       like fg-bin.job-no2         format "999" NO-UNDO.
+def var tjob2       like fjob2                  init 999 NO-UNDO.
 def var v-q-or-v    as   log                    format "Qty/Value" init YES NO-UNDO.
 def var v-sub-t     as   log                    format "Yes/No"    init NO NO-UNDO.
 def var v-break     as   log                    format "Yes/No"    init YES NO-UNDO.

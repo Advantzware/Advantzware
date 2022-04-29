@@ -857,9 +857,9 @@ PROCEDURE init-proc :
         begin_employee = ""
         END_employee   = "zzzzzzzz"
         begin_job-no   = ""
-        begin_job-no2  = "00"
-        end_job-no     = "999999"
-        END_job-no2    = "99".
+        begin_job-no2  = "000"
+        end_job-no     = "999999999"
+        END_job-no2    = "999".
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -104,11 +104,12 @@ IF lResult THEN ASSIGN lAsiUser = YES .
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-9 check-date bank-code ~
-start_check-no tb_ach begin_vend-no end_vend-no rd-dest run_format ~
-tbAutoClose btn-ok btn-cancel 
+start_check-no tb_ach td-reprint-posted begin_vend-no end_vend-no ~
+begin_check end_check rd-dest run_format td-show-parm tbAutoClose btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS check-date bank-code bank-name ~
-start_check-no tb_ach begin_vend-no end_vend-no rd-dest run_format ~
-tbAutoClose 
+start_check-no tb_ach td-reprint-posted begin_vend-no end_vend-no ~
+begin_check end_check rd-dest run_format td-show-parm tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -137,147 +138,167 @@ FUNCTION ACHRunOK RETURNS LOGICAL
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
-    LABEL "&Cancel" 
-    SIZE 16 BY 1.29.
+     LABEL "&Cancel" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
-    LABEL "&OK" 
-    SIZE 16 BY 1.29.
+     LABEL "&OK" 
+     SIZE 16 BY 1.29.
 
-DEFINE VARIABLE bank-code      AS CHARACTER FORMAT "X(8)" 
-    LABEL "Bank Code" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE bank-code AS CHARACTER FORMAT "X(8)" 
+     LABEL "Bank Code" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE bank-name      AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS FILL-IN 
-    SIZE 34 BY 1 NO-UNDO.
+DEFINE VARIABLE bank-name AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 34 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_vend-no  AS CHARACTER FORMAT "X(8)" 
-    LABEL "Beginning Vendor#" 
-    VIEW-AS FILL-IN 
-    SIZE 20 BY 1.
+DEFINE VARIABLE begin_check AS INTEGER FORMAT ">>>>>>>9" INITIAL 0 
+     LABEL "Beginning Check#" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE check-date     AS DATE      FORMAT "99/99/9999":U 
-    LABEL "Check Date" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY .95 NO-UNDO.
+DEFINE VARIABLE begin_vend-no AS CHARACTER FORMAT "X(8)" 
+     LABEL "Beginning Vendor#" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE end_vend-no    AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzzzzzzzzzzzz" 
-    LABEL "Ending Vendor#" 
-    VIEW-AS FILL-IN 
-    SIZE 20 BY 1.
+DEFINE VARIABLE check-date AS DATE FORMAT "99/99/9999":U 
+     LABEL "Check Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE lines-per-page AS INTEGER   FORMAT ">>":U INITIAL 99 
-    LABEL "Lines Per Page" 
-    VIEW-AS FILL-IN 
-    SIZE 4 BY 1 NO-UNDO.
+DEFINE VARIABLE end_check AS INTEGER FORMAT ">>>>>>>9" INITIAL 99999999 
+     LABEL "Ending Check#" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-font-name   AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=12 (10 cpi for 132 column Report)" 
-    VIEW-AS FILL-IN 
-    SIZE 57 BY 1 NO-UNDO.
+DEFINE VARIABLE end_vend-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzzzzzzzzzzzz" 
+     LABEL "Ending Vendor#" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-font-no     AS CHARACTER FORMAT "X(256)":U INITIAL "15" 
-    LABEL "Font" 
-    VIEW-AS FILL-IN 
-    SIZE 7 BY 1 NO-UNDO.
+DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
+     LABEL "Lines Per Page" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE run_format     AS CHARACTER FORMAT "X(30)":U 
-    LABEL "Format" 
-    VIEW-AS FILL-IN 
-    SIZE 25 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=12 (10 cpi for 132 column Report)" 
+     VIEW-AS FILL-IN 
+     SIZE 57 BY 1 NO-UNDO.
 
-DEFINE VARIABLE start_check-no AS INTEGER   FORMAT ">>>>>9" INITIAL 0 
-    LABEL "Starting Check#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "15" 
+     LABEL "Font" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-ornt        AS CHARACTER INITIAL "P" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Portrait", "P",
-    "Landscape", "L"
-    SIZE 30 BY .95 NO-UNDO.
+DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Format" 
+     VIEW-AS FILL-IN 
+     SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2 
-    VIEW-AS RADIO-SET VERTICAL
-    RADIO-BUTTONS 
-    "To Printer", 1,
-    "To Screen", 2,
-    "To Email", 5
-    SIZE 18.2 BY 4.95 NO-UNDO.
+DEFINE VARIABLE start_check-no AS INTEGER FORMAT ">>>>>9" INITIAL 0 
+     LABEL "Starting Check#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
+DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Portrait", "P",
+"Landscape", "L"
+     SIZE 30 BY .95 NO-UNDO.
+
+DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "To Printer", 1,
+"To Screen", 2,
+"To Email", 5
+     SIZE 18.2 BY 4.95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 91 BY 5.52.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 91 BY 5.52.
 
 DEFINE RECTANGLE RECT-7
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 91 BY 9.71.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 91 BY 9.71.
 
 DEFINE RECTANGLE RECT-9
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 47 BY 3.81.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 80 BY 4.
 
-DEFINE VARIABLE tbAutoClose  AS LOGICAL INITIAL NO 
-    LABEL "Auto Close" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 16 BY .81 NO-UNDO.
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_ach       AS LOGICAL INITIAL NO 
-    LABEL "Electronic-only Check Run" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 29 BY .95 NO-UNDO.
+DEFINE VARIABLE tb_ach AS LOGICAL INITIAL no 
+     LABEL "Electronic-only Check Run" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 29 BY .95 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
-    LABEL "Show Parameters?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 24 BY .81 NO-UNDO.
+DEFINE VARIABLE td-reprint-posted AS LOGICAL INITIAL no 
+     LABEL "Reprint Posted" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24 BY .81 NO-UNDO.
+
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
+     LABEL "Show Parameters?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    check-date AT ROW 2.67 COL 30.6 COLON-ALIGNED
-    bank-code AT ROW 3.62 COL 30.6 COLON-ALIGNED HELP
-    "Enter Beginning Customer Number"
-    bank-name AT ROW 3.62 COL 47.6 COLON-ALIGNED NO-LABELS
-    start_check-no AT ROW 4.57 COL 30.6 COLON-ALIGNED HELP
-    "Enter Check Number"
-    tb_ach AT ROW 4.67 COL 50.6 WIDGET-ID 2
-    begin_vend-no AT ROW 7.62 COL 44 COLON-ALIGNED HELP
-    "Enter Beginning Vendor  Number"
-    end_vend-no AT ROW 8.57 COL 44 COLON-ALIGNED HELP
-    "Enter Ending Vendor Number"
-    lines-per-page AT ROW 11.86 COL 86.8 COLON-ALIGNED
-    lv-font-no AT ROW 11.95 COL 32.6 COLON-ALIGNED
-    lv-ornt AT ROW 11.95 COL 43.2 NO-LABELS
-    rd-dest AT ROW 11.9 COL 4.8 NO-LABELS
-    lv-font-name AT ROW 13 COL 33.4 COLON-ALIGNED NO-LABELS
-    run_format AT ROW 15.86 COL 64.2 COLON-ALIGNED WIDGET-ID 12
-    td-show-parm AT ROW 15.91 COL 31
-    tbAutoClose AT ROW 17.33 COL 31 WIDGET-ID 64
-    btn-ok AT ROW 18.29 COL 30.8
-    btn-cancel AT ROW 18.29 COL 52.2
-    " Selection Parameters" VIEW-AS TEXT
-    SIZE 21.20 BY .71 AT ROW 1.14 COL 4
-    " REPRINT OPTIONS" VIEW-AS TEXT
-    SIZE 25 BY .62 AT ROW 6.29 COL 33.4
-    FONT 6
-    " Output Destination" VIEW-AS TEXT
-    SIZE 19.1 BY .62 AT ROW 11.35 COL 4
-    RECT-6 AT ROW 11.67 COL 3
-    RECT-7 AT ROW 1.52 COL 3
-    RECT-9 AT ROW 6.67 COL 23
+     check-date AT ROW 2.67 COL 30.6 COLON-ALIGNED
+     bank-code AT ROW 3.62 COL 30.6 COLON-ALIGNED HELP
+          "Enter Beginning Customer Number"
+     bank-name AT ROW 3.62 COL 47.6 COLON-ALIGNED NO-LABEL
+     start_check-no AT ROW 4.57 COL 30.6 COLON-ALIGNED HELP
+          "Enter Check Number"
+     tb_ach AT ROW 4.67 COL 50.6 WIDGET-ID 2
+     td-reprint-posted AT ROW 6.81 COL 60 WIDGET-ID 70
+     begin_vend-no AT ROW 7.86 COL 29.6 COLON-ALIGNED HELP
+          "Enter Beginning Vendor  Number"
+     end_vend-no AT ROW 7.86 COL 67.4 COLON-ALIGNED HELP
+          "Enter Ending Vendor Number"
+     begin_check AT ROW 9.14 COL 29.6 COLON-ALIGNED HELP
+          "Enter Beginning Vendor  Number" WIDGET-ID 66
+     end_check AT ROW 9.14 COL 67.4 COLON-ALIGNED HELP
+          "Enter Ending Check Number" WIDGET-ID 68
+     lines-per-page AT ROW 11.86 COL 86.8 COLON-ALIGNED
+     rd-dest AT ROW 11.91 COL 4.8 NO-LABEL
+     lv-font-no AT ROW 11.95 COL 32.6 COLON-ALIGNED
+     lv-ornt AT ROW 11.95 COL 43.2 NO-LABEL
+     lv-font-name AT ROW 13 COL 33.4 COLON-ALIGNED NO-LABEL
+     run_format AT ROW 15.86 COL 64.2 COLON-ALIGNED WIDGET-ID 12
+     td-show-parm AT ROW 15.91 COL 31
+     tbAutoClose AT ROW 17.33 COL 31 WIDGET-ID 64
+     btn-ok AT ROW 18.29 COL 30.8
+     btn-cancel AT ROW 18.29 COL 52.2
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21.2 BY .71 AT ROW 1.14 COL 4
+     " Output Destination" VIEW-AS TEXT
+          SIZE 19.2 BY .62 AT ROW 11.33 COL 4
+     " REPRINT OPTIONS" VIEW-AS TEXT
+          SIZE 25 BY .62 AT ROW 6.14 COL 33.4
+          FONT 6
+     RECT-6 AT ROW 11.67 COL 3
+     RECT-7 AT ROW 1.52 COL 3
+     RECT-9 AT ROW 6.48 COL 11
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 95.2 BY 19.43
-    BGCOLOR 15 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 95.2 BY 19.43
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -294,30 +315,30 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "Print A/P Checks"
-        HEIGHT             = 18.71
-        WIDTH              = 95.2
-        MAX-HEIGHT         = 33.29
-        MAX-WIDTH          = 204.8
-        VIRTUAL-HEIGHT     = 33.29
-        VIRTUAL-WIDTH      = 204.8
-        RESIZE             = YES
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Print A/P Checks"
+         HEIGHT             = 18.71
+         WIDTH              = 95.2
+         MAX-HEIGHT         = 33.29
+         MAX-WIDTH          = 204.8
+         VIRTUAL-HEIGHT     = 33.29
+         VIRTUAL-WIDTH      = 204.8
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -332,53 +353,68 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 ASSIGN 
-    bank-code:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       bank-code:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN bank-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-    begin_vend-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_check:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       begin_vend-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    btn-ok:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    check-date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    end_vend-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       check-date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_check:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_vend-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lines-per-page:HIDDEN IN FRAME FRAME-A = TRUE.
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-font-name:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-font-no:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-ornt:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 ASSIGN 
-    run_format:HIDDEN IN FRAME FRAME-A = TRUE.
+       run_format:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 ASSIGN 
-    start_check-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       start_check-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-    THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -392,7 +428,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Print A/P Checks */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -406,7 +442,7 @@ ON END-ERROR OF C-Win /* Print A/P Checks */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Print A/P Checks */
-    DO:
+DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -419,7 +455,7 @@ ON WINDOW-CLOSE OF C-Win /* Print A/P Checks */
 &Scoped-define SELF-NAME bank-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bank-code C-Win
 ON HELP OF bank-code IN FRAME FRAME-A /* Bank Code */
-    DO:
+DO:
         DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
 
@@ -437,7 +473,7 @@ ON HELP OF bank-code IN FRAME FRAME-A /* Bank Code */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bank-code C-Win
 ON LEAVE OF bank-code IN FRAME FRAME-A /* Bank Code */
-    DO:
+DO:
         {VALIDATE/bank.i bank-code bank-name}
         ASSIGN 
             giCheckNoStd = bank.last-chk + 1
@@ -461,10 +497,21 @@ ON LEAVE OF bank-code IN FRAME FRAME-A /* Bank Code */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_check
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_check C-Win
+ON LEAVE OF begin_check IN FRAME FRAME-A /* Beginning Check# */
+DO:
+        ASSIGN {&self-name}.          
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME begin_vend-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_vend-no C-Win
 ON LEAVE OF begin_vend-no IN FRAME FRAME-A /* Beginning Vendor# */
-    DO:
+DO:
         ASSIGN {&self-name}.
         ASSIGN 
             end_vend-no:SCREEN-VALUE = begin_vend-no:SCREEN-VALUE.
@@ -476,7 +523,7 @@ ON LEAVE OF begin_vend-no IN FRAME FRAME-A /* Beginning Vendor# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_vend-no C-Win
 ON VALUE-CHANGED OF begin_vend-no IN FRAME FRAME-A /* Beginning Vendor# */
-    DO:
+DO:
         ASSIGN 
             end_vend-no:SCREEN-VALUE = begin_vend-no:SCREEN-VALUE.
     END.
@@ -488,7 +535,7 @@ ON VALUE-CHANGED OF begin_vend-no IN FRAME FRAME-A /* Beginning Vendor# */
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-    DO:
+DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -499,7 +546,7 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
-    DO:
+DO:
         DEFINE VARIABLE cRemitFormat AS CHARACTER NO-UNDO.
         DEFINE VARIABLE lRemit       AS LOGICAL   NO-UNDO.
 
@@ -513,6 +560,24 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                 MESSAGE "Invalid bank, try help..."
                     VIEW-AS ALERT-BOX ERROR.
                 APPLY "entry" TO bank-code.
+                RETURN NO-APPLY.
+            END.
+            
+            IF vcDefaultForm EQ "Configurable" AND td-reprint-posted THEN
+            DO:      
+                RUN ap\CheckPrint.p (cocode, /*Company*/ 
+                        date(check-date:SCREEN-VALUE), /*Check Date*/ 
+                        bank-code:SCREEN-VALUE, /*Bank Code*/ 
+                        begin_vend-no:SCREEN-VALUE, end_vend-no:SCREEN-VALUE,  /*vendor range*/
+                        integer(begin_check:SCREEN-VALUE), INTEGER(end_check:SCREEN-VALUE), 
+                        YES, /* Print posted check*/
+                        stnum, /*starting check number*/ 
+                        NO, /*Run a sample set of data*/ 
+                        rd-dest NE 1,  /*Preview and don't process*/ 
+                        list-name + "cfg" /*output file*/).
+                
+                IF tbAutoClose:CHECKED THEN 
+                APPLY 'CLOSE' TO THIS-PROCEDURE.
                 RETURN NO-APPLY.
             END.
 
@@ -616,7 +681,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 &Scoped-define SELF-NAME check-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL check-date C-Win
 ON LEAVE OF check-date IN FRAME FRAME-A /* Check Date */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-date NO-ERROR.
@@ -630,8 +695,19 @@ ON LEAVE OF check-date IN FRAME FRAME-A /* Check Date */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL check-date C-Win
 ON VALUE-CHANGED OF check-date IN FRAME FRAME-A /* Check Date */
-    DO:
+DO:
         ll-warned = NO.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_check
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_check C-Win
+ON LEAVE OF end_check IN FRAME FRAME-A /* Ending Check# */
+DO:
+        ASSIGN {&self-name}.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -641,7 +717,7 @@ ON VALUE-CHANGED OF check-date IN FRAME FRAME-A /* Check Date */
 &Scoped-define SELF-NAME end_vend-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_vend-no C-Win
 ON LEAVE OF end_vend-no IN FRAME FRAME-A /* Ending Vendor# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -652,7 +728,7 @@ ON LEAVE OF end_vend-no IN FRAME FRAME-A /* Ending Vendor# */
 &Scoped-define SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -663,7 +739,7 @@ ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 &Scoped-define SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
-    DO:
+DO:
         DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
         RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
@@ -678,7 +754,7 @@ ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
-    DO:
+DO:
         ASSIGN lv-font-no.
     END.
 
@@ -689,7 +765,7 @@ ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
 &Scoped-define SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN lv-ornt.
     END.
 
@@ -699,7 +775,7 @@ ON LEAVE OF lv-ornt IN FRAME FRAME-A
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
-    DO:
+DO:
         {custom/chgfont.i}
     END.
 
@@ -710,7 +786,7 @@ ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
 &Scoped-define SELF-NAME run_format
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
 ON HELP OF run_format IN FRAME FRAME-A /* Format */
-    DO:
+DO:
         DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
     
         RUN windows/l-syschrL.w (gcompany,"CHKFMT",run_format:SCREEN-VALUE,OUTPUT char-val).
@@ -721,6 +797,7 @@ ON HELP OF run_format IN FRAME FRAME-A /* Format */
             ASSIGN 
                 vcDefaultForm = ENTRY(1,char-val) .
             RUN SetChkForm (vcDefaultForm,NO).
+            RUN SetRePostOptions(INPUT vcDefaultForm).
         END.
 
     END.
@@ -731,7 +808,7 @@ ON HELP OF run_format IN FRAME FRAME-A /* Format */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
 ON LEAVE OF run_format IN FRAME FRAME-A /* Format */
-    DO:
+DO:
         ASSIGN run_format.
 
         IF vcDefaultForm NE run_format THEN 
@@ -739,6 +816,7 @@ ON LEAVE OF run_format IN FRAME FRAME-A /* Format */
             ASSIGN 
                 vcDefaultForm = run_format .
             RUN SetChkForm (vcDefaultForm,NO).
+            RUN SetRePostOptions(vcDefaultForm).
         END.
     END.
 
@@ -749,7 +827,7 @@ ON LEAVE OF run_format IN FRAME FRAME-A /* Format */
 &Scoped-define SELF-NAME start_check-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_check-no C-Win
 ON LEAVE OF start_check-no IN FRAME FRAME-A /* Starting Check# */
-    DO:
+DO:
         IF tb_ach AND INT(START_check-no:SCREEN-VALUE) LT 800000  THEN 
         DO:
             MESSAGE "Electronic Check number must not be less than 800000"
@@ -767,7 +845,7 @@ ON LEAVE OF start_check-no IN FRAME FRAME-A /* Starting Check# */
 &Scoped-define SELF-NAME tb_ach
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_ach C-Win
 ON VALUE-CHANGED OF tb_ach IN FRAME FRAME-A /* Electronic-only Check Run */
-    DO:
+DO:
         ASSIGN {&SELF-NAME}.
         IF tb_ach AND NOT ACHRunOK() THEN 
         DO:
@@ -791,10 +869,35 @@ ON VALUE-CHANGED OF tb_ach IN FRAME FRAME-A /* Electronic-only Check Run */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME td-reprint-posted
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-reprint-posted C-Win
+ON VALUE-CHANGED OF td-reprint-posted IN FRAME FRAME-A /* Reprint Posted */
+DO:
+        ASSIGN {&self-name}.
+        IF td-reprint-posted THEN
+        DO:
+           ASSIGN
+            START_check-no:HIDDEN = YES
+            tb_ach:HIDDEN = YES
+            begin_check:HIDDEN = NO              
+            end_check:HIDDEN = NO.            
+        END.
+        ELSE 
+        ASSIGN
+            START_check-no:HIDDEN = NO
+            tb_ach:HIDDEN = NO
+            begin_check:HIDDEN = YES              
+            end_check:HIDDEN = YES.   
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -858,7 +961,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         check-date    = TODAY
         vcDefaultForm = sys-ctrl.char-fld .
 
-    RUN SetChkForm(INPUT sys-ctrl.char-fld,NO).
+    RUN SetChkForm(INPUT sys-ctrl.char-fld,NO).    
     RUN GetRemittanceForm(INPUT cocode,
         INPUT '',
         OUTPUT gcRemittanceDefault,
@@ -876,7 +979,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {methods/nowait.i}
 
     DO WITH FRAME {&FRAME-NAME}:
-        {custom/usrprint.i "AND lv-field-hdl:NAME EQ 'rd-dest'"}
+        {custom/usrprint.i "AND lv-field-hdl:NAME EQ 'rd-dest'"}         
+        RUN SetRePostOptions(INPUT vcDefaultForm).
         APPLY "entry" TO check-date.
 
     END.
@@ -903,18 +1007,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -922,24 +1026,25 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY check-date bank-code bank-name start_check-no tb_ach begin_vend-no 
-        end_vend-no rd-dest run_format tbAutoClose 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-6 RECT-7 RECT-9 check-date bank-code start_check-no tb_ach 
-        begin_vend-no end_vend-no rd-dest run_format tbAutoClose 
-        btn-ok btn-cancel 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-    VIEW C-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY check-date bank-code bank-name start_check-no tb_ach td-reprint-posted 
+          begin_vend-no end_vend-no begin_check end_check rd-dest run_format 
+          td-show-parm tbAutoClose 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  ENABLE RECT-6 RECT-7 RECT-9 check-date bank-code start_check-no tb_ach 
+         td-reprint-posted begin_vend-no end_vend-no begin_check end_check 
+         rd-dest run_format td-show-parm tbAutoClose btn-ok btn-cancel 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -947,7 +1052,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateReport C-Win 
 PROCEDURE GenerateReport :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -968,7 +1073,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetRemittanceForm C-Win 
 PROCEDURE GetRemittanceForm :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:    Gets the Remittance Form for ACH Runs  
       Parameters:  Input Vendor, output format, output logical
       Notes:       
@@ -1024,7 +1129,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-email C-Win 
 PROCEDURE output-to-email :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1072,7 +1177,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-file C-Win 
 PROCEDURE output-to-file :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1101,7 +1206,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-port C-Win 
 PROCEDURE output-to-port :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1118,7 +1223,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1138,7 +1243,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
 PROCEDURE output-to-screen :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1158,7 +1263,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-    DEFINE INPUT PARAMETER icVendNo AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER icVendNo AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ip-sys-ctrl-mode AS LOG NO-UNDO.
 
     DEFINE VARIABLE lFlag AS LOGICAL NO-UNDO INIT YES.
@@ -1279,6 +1384,8 @@ PROCEDURE run-report :
                 wdate, /*Check Date*/ 
                 bank-code, /*Bank Code*/ 
                 wvend-no, evend-no,  /*vendor range*/ 
+                0, 0, /* check range*/ 
+                NO, /* Print posted check*/
                 stnum, /*starting check number*/ 
                 NO, /*Run a sample set of data*/ 
                 rd-dest NE 1,  /*Preview and don't process*/ 
@@ -1359,7 +1466,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetChkForm C-Win 
 PROCEDURE SetChkForm :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1685,9 +1792,42 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetRePostOptions C-Win 
+PROCEDURE SetRePostOptions :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcFormName AS CHARACTER NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:
+        IF ipcFormName EQ "Configurable" THEN
+        DO:                            
+               ASSIGN
+                   begin_check:HIDDEN = YES              
+                   end_check:HIDDEN = YES
+                   td-reprint-posted:HIDDEN = NO
+                   td-reprint-posted:SCREEN-VALUE = "No".                    
+        END.
+        ELSE
+        DO:
+            ASSIGN
+                   begin_check:HIDDEN = YES              
+                   end_check:HIDDEN = YES
+                   td-reprint-posted:HIDDEN = YES
+                   td-reprint-posted:SCREEN-VALUE = "No"
+                   start_check-no:HIDDEN = NO
+                   tb_ach:HIDDEN = NO.
+        END.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME    
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetParamDefaults C-Win 
 PROCEDURE SetParamDefaults :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:   Fills the starting Bank Code, Check Date, amd check number for the parameter screen  
       Parameters:  iplMain - called from main or not
       Notes:       
@@ -1730,7 +1870,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1804,7 +1944,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-date C-Win 
 PROCEDURE valid-date :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       

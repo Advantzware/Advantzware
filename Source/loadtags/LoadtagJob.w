@@ -101,7 +101,7 @@ DEFINE VARIABLE v-fitem        AS CHARACTER FORMAT "x(15)" EXTENT 2 INIT ["","zz
 DEFINE VARIABLE v-po-no-source AS CHARACTER FORMAT "!" INIT "R".
 DEFINE VARIABLE v-stat         AS CHARACTER FORMAT "!" INIT "O".  
 DEFINE VARIABLE v-out          AS CHARACTER FORMAT "x(40)" NO-UNDO.
-DEFINE VARIABLE v-job          AS CHARACTER FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE v-job          AS CHARACTER FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE num-rec        AS INTEGER   INIT 0 NO-UNDO.
 DEFINE VARIABLE by-release     AS LOG       INIT NO NO-UNDO.
 DEFINE VARIABLE lv-rd_print    AS CHARACTER NO-UNDO.      /* 9812 CAH: */
@@ -467,9 +467,9 @@ DEFINE VARIABLE cb-formno        AS INTEGER   FORMAT "99":U INITIAL 0
     SIZE 9.8 BY 1
     FONT 37 NO-UNDO.
 
-DEFINE VARIABLE cb-jobno2        AS INTEGER   FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE cb-jobno2        AS INTEGER   FORMAT "999":U INITIAL 0 
     VIEW-AS COMBO-BOX INNER-LINES 5
-    LIST-ITEMS "00" 
+    LIST-ITEMS "000" 
     DROP-DOWN-LIST
     SIZE 9.8 BY 1
     FONT 37 NO-UNDO.
@@ -1060,7 +1060,7 @@ ON HELP OF ls-jobno IN FRAME F-Main
                     
             ASSIGN
                 cb-jobno2:SCREEN-VALUE  = IF NUM-ENTRIES(cFieldsValue,"|") GE 6 AND
-                                         INDEX(cb-jobno2:LIST-ITEMS, STRING(INTEGER(ENTRY(6,cFieldsValue,"|")),"99")) GT 0 THEN
+                                         INDEX(cb-jobno2:LIST-ITEMS, STRING(INTEGER(ENTRY(6,cFieldsValue,"|")),"999")) GT 0 THEN
                                           ENTRY(6,cFieldsValue,"|")
                                       ELSE
                                           ENTRY(1,cb-jobno2:LIST-ITEMS)
@@ -1126,14 +1126,14 @@ ON LEAVE OF ls-jobno IN FRAME F-Main
             ).
 
         cFormattedJobno = DYNAMIC-FUNCTION (
-            "fAddSpacesToString" IN hdJobProcs, ls-jobno:SCREEN-VALUE, 6, TRUE
+            "fAddSpacesToString" IN hdJobProcs, ls-jobno:SCREEN-VALUE, iJobLen, TRUE
             ).                                  
 
         IF lParse THEN
             ASSIGN
                 SELF:SCREEN-VALUE = cJobNo    
                 cFormattedJobno   = DYNAMIC-FUNCTION (
-                              "fAddSpacesToString" IN hdJobProcs, cJobNo, 6, TRUE
+                              "fAddSpacesToString" IN hdJobProcs, cJobNo, iJobLen, TRUE
                               ).
 
         IF cMessage NE "" THEN 
@@ -1146,7 +1146,7 @@ ON LEAVE OF ls-jobno IN FRAME F-Main
         RUN updateComboBoxes.
 
         IF lParse THEN
-            IF (cJobNo2 NE "" AND INDEX(cJobno2ListItems,STRING(INTEGER(cJobNo2),"99")) LE 0) OR
+            IF (cJobNo2 NE "" AND INDEX(cJobno2ListItems,STRING(INTEGER(cJobNo2),"999")) LE 0) OR
                 (cFormNo NE "" AND INDEX(cFormnoListItems,STRING(INTEGER(cFormNo),"99")) LE 0) OR
                 (cBlankNo NE "" AND INDEX(cBlanknoListitems,STRING(INTEGER(cBlankNo),"99")) LE 0) THEN 
             DO:
@@ -1157,11 +1157,11 @@ ON LEAVE OF ls-jobno IN FRAME F-Main
                     cFormattedJobNo         = ""
                     cValidateJobno          = ""
                     SELF:SCREEN-VALUE       = ""
-                    cb-jobno2:LIST-ITEMS    = "00"
+                    cb-jobno2:LIST-ITEMS    = "000"
                     cb-formno:LIST-ITEMS    = "00"
                     cb-blankno:LIST-ITEMS   = "00"
                     cb-FGItem:LIST-ITEMS    = ""
-                    cb-jobno2:SCREEN-VALUE  = "00"
+                    cb-jobno2:SCREEN-VALUE  = "000"
                     cb-formno:SCREEN-VALUE  = "00"
                     cb-blankno:SCREEN-VALUE = "00"
                     cb-FGItem:SCREEN-VALUE  = ""
@@ -1176,7 +1176,7 @@ ON LEAVE OF ls-jobno IN FRAME F-Main
                     cb-jobno2:SCREEN-VALUE  = IF cJobNo2 EQ "" THEN 
                                               ENTRY(1,cJobno2ListItems)
                                           ELSE
-                                              STRING(INTEGER(cJobNo2),"99")
+                                              STRING(INTEGER(cJobNo2),"999")
                     cb-formno:SCREEN-VALUE  = IF cFormNo EQ "" THEN
                                               ENTRY(1,cFormnoListItems)
                                           ELSE
@@ -1933,7 +1933,7 @@ PROCEDURE create-text-file :
 
         EACH-ORD:
         FOR EACH w-ord:
-            v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+            v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"999").
             IF v-job BEGINS "-" OR v-job = ? /* 9901 CAH */
                 THEN v-job = STRING(W-ORD.ORD-NO).   /* 9812 CAH in case blank */
             FIND FIRST itemfg WHERE itemfg.company = cocode
@@ -2121,13 +2121,13 @@ PROCEDURE create-text-file :
 
             ASSIGN
                 w-ord.gross-wt = w-ord.net-wt + w-ord.tare-wt
-                v-job          = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+                v-job          = w-ord.job-no + "-" + string(w-ord.job-no2,"999").
             IF v-job BEGINS "-" THEN v-job = "".
             ASSIGN
-                lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,6)
+                lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,iJobLen)
                 lv-middlesex-job = IF lv-middlesex-job EQ "" THEN "" ELSE
                             "%MX" +
-                            FILL("0",6 - LENGTH(TRIM(lv-middlesex-job))) +
+                            FILL("0",iJobLen - LENGTH(TRIM(lv-middlesex-job))) +
                             TRIM(lv-middlesex-job)
                 lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,6)
                 lv-middlesex-po  = IF lv-middlesex-po EQ "" THEN "" ELSE
@@ -2608,7 +2608,7 @@ PROCEDURE jobScan :
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             cb-jobno2:LIST-ITEMS   = cJobno2ListItems
-            cb-jobno2:SCREEN-VALUE = STRING(ipiJobno2,"99")
+            cb-jobno2:SCREEN-VALUE = STRING(ipiJobno2,"999")
             .
             
         APPLY "VALUE-CHANGED" TO cb-jobno2.
@@ -4085,9 +4085,9 @@ PROCEDURE updateComboBoxes :
     
     IF cJobno2ListItems EQ "" THEN
         ASSIGN 
-            cJobno2ListItems                              = "00"
+            cJobno2ListItems                              = "000"
             cb-jobno2:LIST-ITEMS IN FRAME {&FRAME-NAME}   = cJobno2ListItems 
-            cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "00".
+            cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "000".
     ELSE
         cb-jobno2:LIST-ITEMS IN FRAME {&FRAME-NAME} = cJobno2ListItems.
         

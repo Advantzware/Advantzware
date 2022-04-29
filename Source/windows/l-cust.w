@@ -99,11 +99,13 @@ cust.addr[1] cust.addr[2] cust.city cust.state cust.zip
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH cust WHERE ~{&KEY-PHRASE} ~
       AND cust.company = ip-company ~
+      AND cust.active <> "I" ~
       AND ((v-check-page AND ( lookup(cust.cust-no,custcount) <> 0 OR custcount = "")) OR NOT v-check-page) NO-LOCK, ~
       FIRST sman OF cust OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH cust WHERE ~{&KEY-PHRASE} ~
       AND cust.company = ip-company ~
+      AND cust.active <> "I" ~
       AND ((v-check-page AND ( lookup(cust.cust-no,custcount) <> 0 OR custcount = "")) OR NOT v-check-page) NO-LOCK, ~
       FIRST sman OF cust OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}.

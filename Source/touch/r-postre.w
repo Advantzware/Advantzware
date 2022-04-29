@@ -35,9 +35,9 @@ DEFINE VARIABLE tmp-dir   AS cha       NO-UNDO.
 {custom/getcmpny.i}
 {custom/getloc.i}
 
-/*{sys/inc/var.i new shared} */
-DEFINE NEW SHARED VARIABLE cocode AS cha NO-UNDO.
-DEFINE NEW SHARED VARIABLE locode AS cha NO-UNDO.
+{sys/inc/var.i} 
+/*DEFINE NEW SHARED VARIABLE cocode AS cha NO-UNDO.
+DEFINE NEW SHARED VARIABLE locode AS cha NO-UNDO.*/
 
 ASSIGN
     cocode = gcompany
@@ -72,7 +72,7 @@ DEFINE TEMP-TABLE ttbl_rowid NO-UNDO
     FIELD total_time    AS INTEGER.
 DEFINE VARIABLE machtotaltime    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE shiftpct         AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE i                AS INTEGER   NO-UNDO.
+/*DEFINE VARIABLE i                AS INTEGER   NO-UNDO.*/
 DEFINE VARIABLE waste-qty        AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE run-qty          AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE selected-company AS CHARACTER FORMAT "X(3)" LABEL "Company" NO-UNDO.
@@ -477,8 +477,8 @@ DO:
             END.
         END.
 
-        IF LENGTH(begin_job-no) < 6 THEN begin_job-no = FILL(" ", 6 - LENGTH(begin_job-no)) + TRIM(begin_job-no).
-        IF LENGTH(end_job-no) < 6 THEN end_job-no = FILL(" ", 6 - LENGTH(end_job-no)) + TRIM(end_job-no).
+        IF LENGTH(begin_job-no) < iJobLen THEN begin_job-no = FILL(" ", iJobLen - LENGTH(begin_job-no)) + TRIM(begin_job-no).
+        IF LENGTH(end_job-no) < iJobLen THEN end_job-no = FILL(" ", iJobLen - LENGTH(end_job-no)) + TRIM(end_job-no).
 
         lv-valid-to-post = NO.
         RUN run-report.
@@ -832,7 +832,7 @@ PROCEDURE gl-from-work :
                 period.pnum,
                 "A",
                 TODAY,
-                (IF work-gl.job-no NE "" THEN "Job:" + work-gl.job-no + "-" + STRING(work-gl.job-no2,"99") ELSE ""),
+                (IF work-gl.job-no NE "" THEN "Job:" + work-gl.job-no + "-" + STRING(work-gl.job-no2,"999") ELSE ""),
                 "FG"). 
             ASSIGN
                 debits  = 0
