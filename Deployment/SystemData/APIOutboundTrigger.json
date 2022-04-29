@@ -3287,5 +3287,18 @@
     "clientID": "_default",
     "apiOutboundTriggerID": 258,
     "apiOutboundID": 58
+  },
+  {
+    "company": "",
+    "rec_key": "202204207428709192092",
+    "apiID": "SendQuote",
+    "triggerID": "PrintQuote",
+    "description": "Print a quote",
+    "inActive": false,
+    "createTime": "2022-04-20T20:38:07.426",
+    "createBy": "asi",
+    "clientID": "_default",
+    "apiOutboundTriggerID": 259,
+    "apiOutboundID": 59
   }
 ]

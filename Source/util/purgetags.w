@@ -491,7 +491,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-DEF VAR v-job-no LIKE job.job-no EXTENT 2 INIT [" ", "zzzzzz"] NO-UNDO.
+DEF VAR v-job-no LIKE job.job-no EXTENT 2 INIT [" ", "zzzzzzzzz"] NO-UNDO.
 
 DEF BUFFER b-loadtag FOR loadtag.
 

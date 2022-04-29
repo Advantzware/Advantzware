@@ -140,11 +140,11 @@ ll-sort-asc = NO /*oeinq*/  .
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no oe-ord.stat ~
 oe-ord.ord-date oe-ordl.req-date oe-ordl.cust-no oe-ord.cust-name ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no oe-ordl.job-no ~
-oe-ordl.job-no2 oe-ord.spare-char-2 oe-ord.approved-date
+oe-ordl.job-no2 oe-ord.spare-char-2 oe-ord.approved-date 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
 oe-ord.stat oe-ord.ord-date oe-ordl.req-date oe-ordl.cust-no ~
 oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no ~
-oe-ordl.job-no oe-ordl.job-no2 oe-ord.spare-char-2 oe-ord.approved-date
+oe-ordl.job-no oe-ordl.job-no2 oe-ord.spare-char-2 oe-ord.approved-date 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table oe-ordl oe-ord
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table oe-ordl
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table oe-ord
@@ -221,7 +221,7 @@ DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(30)":U 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -268,26 +268,26 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      oe-ordl.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      oe-ordl.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       oe-ord.stat COLUMN-LABEL "Status" FORMAT "x":U LABEL-BGCOLOR 14
       oe-ord.ord-date COLUMN-LABEL "Order Date" FORMAT "99/99/9999":U
-            LABEL-BGCOLOR 14                
-      oe-ordl.req-date COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U    
+            LABEL-BGCOLOR 14
+      oe-ordl.req-date COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
       oe-ordl.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
       oe-ord.cust-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       oe-ordl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      oe-ordl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(15)":U
+      oe-ordl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
       oe-ordl.po-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
       oe-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U LABEL-BGCOLOR 14
       oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">>9":U LABEL-BGCOLOR 14
-      oe-ord.spare-char-2 COLUMN-LABEL "Hold Reason code"     
+      oe-ord.spare-char-2 COLUMN-LABEL "Hold Reason code" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
-      oe-ord.approved-date COLUMN-LABEL "Hold/Approved Date" FORMAT "99/99/9999":U
+      oe-ord.approved-date COLUMN-LABEL "Hold/Approved Date" FORMAT "99/99/99":U
             LABEL-BGCOLOR 14
   ENABLE
       oe-ordl.ord-no
@@ -331,9 +331,6 @@ DEFINE FRAME F-Main
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 116
           FGCOLOR 9 FONT 6
-    /* "Sorted By:" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 3.62 COL 39
-          FONT 6 */
      "Order#" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.24 COL 4
           FGCOLOR 9 FONT 6
@@ -352,8 +349,6 @@ DEFINE FRAME F-Main
      "Estimate#" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 96
           FGCOLOR 9 FONT 6
-    /* "Click on Yellow Field, Sorts From 1st to Last" VIEW-AS TEXT
-          SIZE 43 BY .95 AT ROW 3.62 COL 87 */
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -457,7 +452,7 @@ ASSIGN
      _FldNameList[7]   > ASI.oe-ordl.i-no
 "oe-ordl.i-no" "FG Item#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.oe-ordl.part-no
-"oe-ordl.part-no" "Cust Part#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.part-no" "Cust Part#" "x(30)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-ordl.po-no
 "oe-ordl.po-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.oe-ordl.est-no
@@ -466,9 +461,9 @@ ASSIGN
 "oe-ordl.job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.oe-ordl.job-no2
 "oe-ordl.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-_FldNameList[13]   > ASI.oe-ord.spare-char-2
+     _FldNameList[13]   > ASI.oe-ord.spare-char-2
 "oe-ord.spare-char-2" "Hold Reason code" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-_FldNameList[14]   > ASI.oe-ord.approved-date
+     _FldNameList[14]   > ASI.oe-ord.approved-date
 "oe-ord.approved-date" "Hold/Approved Date" ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -481,7 +476,7 @@ _FldNameList[14]   > ASI.oe-ord.approved-date
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -707,6 +702,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sort-by:HIDDEN  = TRUE.
 fi_sort-by:VISIBLE = FALSE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -809,6 +805,37 @@ PROCEDURE Enable-Navigation :
 ------------------------------------------------------------------------------*/
 
   {methods/run_link.i "NAVIGATION-SOURCE" "dispatch" "('enable':U) NO-ERROR"}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF VAR first-cust AS CHAR NO-UNDO.
+
+/*
+GET FIRST Browser-Table .
+ASSIGN first-cust = cust.cust-no .
+GET LAST Browser-Table .
+ASSIGN last-cust = cust.cust-no . */
+
+DO WITH FRAME {&FRAME-NAME}:
+
+    IF tb_appr:SCREEN-VALUE EQ "Yes" THEN
+        ASSIGN first-cust = "Yes".
+    ELSE
+        ASSIGN first-cust = "No". 
+
+    RUN oerep/crap-ord.w (first-cust).
+END.
+
 
 END PROCEDURE.
 
@@ -1302,37 +1329,6 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
-PROCEDURE export-xl :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF VAR first-cust AS CHAR NO-UNDO.
-
-/*
-GET FIRST Browser-Table .
-ASSIGN first-cust = cust.cust-no .
-GET LAST Browser-Table .
-ASSIGN last-cust = cust.cust-no . */
-
-DO WITH FRAME {&FRAME-NAME}:
-
-    IF tb_appr:SCREEN-VALUE EQ "Yes" THEN
-        ASSIGN first-cust = "Yes".
-    ELSE
-        ASSIGN first-cust = "No". 
-
-    RUN oerep/crap-ord.w (first-cust).
-END.
-
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

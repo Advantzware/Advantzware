@@ -1633,9 +1633,9 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-floc       LIKE rm-rcpth.loc NO-UNDO.
     DEFINE VARIABLE v-tloc       LIKE v-floc INITIAL "zzzzz" NO-UNDO.
     DEFINE VARIABLE v-fjob       LIKE job.job-no NO-UNDO.
-    DEFINE VARIABLE v-tjob       LIKE v-fjob INIT "zzzzzz" NO-UNDO.
-    DEFINE VARIABLE v-fjob2      LIKE job.job-no2 FORMAT "99" NO-UNDO.
-    DEFINE VARIABLE v-tjob2      LIKE v-fjob2 INIT 99 NO-UNDO.
+    DEFINE VARIABLE v-tjob       LIKE v-fjob INIT "zzzzzzzzz" NO-UNDO.
+    DEFINE VARIABLE v-fjob2      LIKE job.job-no2 FORMAT "999" NO-UNDO.
+    DEFINE VARIABLE v-tjob2      LIKE v-fjob2 INIT 999 NO-UNDO.
     DEFINE VARIABLE v-mtype      AS CHARACTER FORMAT "x(47)" NO-UNDO.
     DEFINE VARIABLE v-code       LIKE rm-rcpth.rita-code NO-UNDO.
 
@@ -1861,8 +1861,8 @@ PROCEDURE run-report :
 
     ASSIGN
         v-type    = CAPS(v-type)
-        v-fjob1   = substr(v-fjob,1,9)
-        v-tjob1   = substr(v-tjob,1,9)
+        v-fjob1   = substr(v-fjob,1,iJobLen)
+        v-tjob1   = substr(v-tjob,1,iJobLen)
         v-job1sub = int(end_job-no2).
 
     IF tb_sort OR tb_subtot THEN 

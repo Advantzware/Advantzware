@@ -811,8 +811,8 @@ PROCEDURE add-job :
      DO:
          FIND FIRST bf-job-hdr NO-LOCK
              WHERE bf-job-hdr.company EQ cocode
-             AND TRIM(bf-job-hdr.job-no) EQ TRIM(cJobNo)
-             AND bf-job-hdr.job-no2 EQ iJobNo2 NO-ERROR .
+             AND bf-job-hdr.job-no    EQ cJobNo
+             AND bf-job-hdr.job-no2   EQ iJobNo2 NO-ERROR .
 
          RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl). 
          IF AVAILABLE bf-job-hdr THEN
@@ -975,7 +975,7 @@ PROCEDURE get-due-date :
     IF ip-rowid EQ ? THEN
       FIND FIRST oe-ordl
           WHERE oe-ordl.company EQ cocode
-            AND TRIM(oe-ordl.job-no)  EQ TRIM(job.job-no:SCREEN-VALUE)
+            AND oe-ordl.job-no  EQ job.job-no:SCREEN-VALUE
             AND oe-ordl.job-no2 EQ INT(job.job-no2:SCREEN-VALUE)
             AND (NOT AVAILABLE job-hdr OR
                  (AVAILABLE job-hdr AND oe-ordl.i-no EQ job-hdr.i-no))
@@ -2885,8 +2885,9 @@ PROCEDURE validate-est :
             li        = 0.  
             
            /* Use last 5 digits of estimate# */
-           IF LENGTH(TRIM(v-bld-job)) GT 5 THEN 
-             v-bld-job = " " + SUBSTRING(TRIM(v-bld-job), 1).
+           IF LENGTH(TRIM(v-bld-job)) GT 5 AND iJobLen EQ 6 THEN 
+             v-bld-job = " " + SUBSTRING(TRIM(v-bld-job), 2).
+           ELSE v-bld-job = " " + SUBSTRING(TRIM(v-bld-job), 1).  
              
            IF AVAILABLE sys-ctrl THEN
              v-bld-job = SUBSTR(sys-ctrl.char-fld,1,1) + TRIM(v-bld-job).
@@ -2897,7 +2898,7 @@ PROCEDURE validate-est :
 
            IF CAN-FIND(FIRST xjob WHERE
               xjob.company EQ cocode AND
-              TRIM(xjob.job-no)  EQ TRIM(v-bld-job) AND
+              xjob.job-no  EQ v-bld-job AND
               ROWID(xjob)  NE ROWID(job) AND
               xjob.opened EQ YES) THEN
               DO:
@@ -2913,7 +2914,7 @@ PROCEDURE validate-est :
 
            FOR EACH xjob FIELDS(job-no2) NO-LOCK
                WHERE xjob.company EQ cocode
-                 AND TRIM(xjob.job-no)  EQ TRIM(v-bld-job)
+                 AND xjob.job-no  EQ v-bld-job
                  AND ROWID(xjob)  NE ROWID(job)
                USE-INDEX job-no
                BY xjob.job-no2 DESCENDING:

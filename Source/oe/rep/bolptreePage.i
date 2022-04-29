@@ -6,7 +6,7 @@
  DEFINE BUFFER bf-oe-boll FOR oe-boll .
  /*IF glShipNotesExpanded THEN do:                                                                                    */      
  /*    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.                                                             */
- /*    RUN GetNoteOfType IN hNotesProcs (oe-bolh.rec_key, "ES", OUTPUT ship_note).                                    */
+ /*    RUN Notes_GetNoteOfType IN hNotesProcs (oe-bolh.rec_key, "ES", OUTPUT ship_note).                                    */
  /*    DELETE OBJECT hNotesProcs.                                                                                     */
  /*END.                                                                                                               */
  /*ELSE DO:                                                                                                           */

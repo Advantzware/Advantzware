@@ -205,7 +205,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       eb.form-no COLUMN-LABEL "Form#" FORMAT ">>>>>>>>>>":U WIDTH 7
       eb.blank-no COLUMN-LABEL "Blank#" FORMAT ">>>>>>>>>>":U WIDTH 7
-      eb.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(15)":U
+      eb.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(30)":U
             WIDTH 20
       display-bl-qty () @ eb.bl-qty
       eb.bl-qty COLUMN-LABEL "Request Qty" FORMAT "->>>,>>>,>>>":U

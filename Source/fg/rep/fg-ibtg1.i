@@ -53,7 +53,7 @@ def var v-costm like fg-bin.std-mat-cost no-undo.
 def var v-ext as dec format  "->>>,>>9.99" no-undo.
 def var ftyp like itemfg.mat-type init " " no-undo.
 def var ttyp like itemfg.mat-type init ">" no-undo.
-def var v-job-no as char format "x(9)" no-undo.
+def var v-job-no as char format "x(13)" no-undo.
 def var v-first as log init no extent 2 no-undo.
 def var v-prnt as log init no extent 2 no-undo.
 def var v-qoh like fg-bin.qty no-undo.

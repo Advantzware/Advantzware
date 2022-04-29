@@ -251,7 +251,7 @@
             BREAK by tt-report2.key-05 :
 
         IF FIRST-OF(tt-report2.key-05) THEN
-            RUN pGetActMatCost(SUBSTRING(trim(tt-report2.key-05),1,9), INTEGER(SUBSTRING(tt-report2.key-05,10,3)) , OUTPUT dActMatCost) .
+            RUN pGetActMatCost(SUBSTRING(tt-report2.key-05,1,iJobLen), INTEGER(SUBSTRING(tt-report2.key-05,(iJobLen + 1),3)) , OUTPUT dActMatCost) .
         ELSE dActMatCost = 0 .
              
       tt-report2.key-06 = STRING(dActMatCost) .

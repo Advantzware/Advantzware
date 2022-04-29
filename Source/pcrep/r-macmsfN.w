@@ -1630,7 +1630,7 @@ IF rsQty = "A" THEN DO:
 
       lv-out =
           TRIM(STRING(mch-act.op-date,"99/99/99"))                      + "," +
-          TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")             + "," +
+          TRIM(job.job-no) + "-" + STRING(job.job-no2,"999")             + "," +
           TRIM(mch-act.m-code)                                          + "," +
           TRIM(string(eb.form-no))                                      + "," +
           TRIM(ef.board)                                               + "," +
@@ -1779,7 +1779,7 @@ ELSE DO:   /* rsQty = "E" */
      /*IF rd-dest EQ 3 THEN DO:
       lv-out =
           TRIM(STRING(job.close-date,"99/99/99"))                      + "," +
-          TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")             + "," +
+          TRIM(job.job-no) + "-" + STRING(job.job-no2,"999")             + "," +
           TRIM(job-mch.m-code)                                          + "," +
           TRIM(string(eb.form-no))                                     + "," +
           TRIM(ef.board)                                               + "," +

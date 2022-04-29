@@ -307,17 +307,17 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 39 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1
+     SIZE 15 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1
+     SIZE 5.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(30)":U 
      VIEW-AS FILL-IN 
      SIZE 30 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -365,13 +365,15 @@ DEFINE BROWSE r_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS r_table B-table-Win _STRUCTURED
   QUERY r_table NO-LOCK DISPLAY
       itemfg.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14
-      itemfg.part-no FORMAT "x(12)":U
+      itemfg.part-no FORMAT "x(30)":U WIDTH 36.4
       itemfg.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       itemfg.part-dscr1 COLUMN-LABEL "Description" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
       itemfg.part-dscr2 COLUMN-LABEL "Description 2" FORMAT "x(30)":U
-      fg-rcpth.job-no FORMAT "x(6)":U WIDTH 11.8
-      fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">9":U WIDTH 3.2
+      fg-rcpth.job-no FORMAT "x(9)":U WIDTH 11.8
+      fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 3.2
+      fg-rcpth.job-no FORMAT "x(9)":U WIDTH 15
+      fg-rcpth.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 5.4
       fg-rdtlh.tag COLUMN-LABEL "Tag" FORMAT "x(8)":U WIDTH 26.2
       fg-rdtlh.qty COLUMN-LABEL "Quantity" FORMAT "->>>>,>>9.9<<":U
             WIDTH 14.4 COLUMN-BGCOLOR 15
@@ -402,12 +404,12 @@ DEFINE FRAME F-Main
      fi_part-no AT ROW 2.19 COL 33 NO-LABEL WIDGET-ID 40
      fi_cust-no AT ROW 2.19 COL 63 NO-LABEL WIDGET-ID 16
      fi_i-name AT ROW 2.19 COL 83.8 NO-LABEL WIDGET-ID 20
-     fi_est-no AT ROW 2.19 COL 120.2 NO-LABEL WIDGET-ID 18
+     fi_est-no AT ROW 2.19 COL 120.4 NO-LABEL WIDGET-ID 18
      fi_style AT ROW 2.19 COL 137.6 NO-LABEL WIDGET-ID 32
      fi_procat AT ROW 2.19 COL 153 COLON-ALIGNED NO-LABEL WIDGET-ID 36
-     fi_date AT ROW 2.19 COL 176 COLON-ALIGNED NO-LABEL WIDGET-ID 44
-     fi_job-no AT ROW 2.19 COL 196 COLON-ALIGNED NO-LABEL WIDGET-ID 46
-     fi_job-no2 AT ROW 2.19 COL 209 COLON-ALIGNED NO-LABEL WIDGET-ID 48
+     fi_date AT ROW 2.19 COL 174.4 COLON-ALIGNED NO-LABEL WIDGET-ID 44
+     fi_job-no AT ROW 2.19 COL 192 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+     fi_job-no2 AT ROW 2.19 COL 207.6 COLON-ALIGNED NO-LABEL WIDGET-ID 48
      fi_po-no AT ROW 3.38 COL 8 COLON-ALIGNED NO-LABEL WIDGET-ID 52
      fi_rita-code AT ROW 3.38 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 54
      fi_tag# AT ROW 3.38 COL 64 COLON-ALIGNED NO-LABEL WIDGET-ID 56
@@ -417,45 +419,45 @@ DEFINE FRAME F-Main
      btn_next AT ROW 4.62 COL 34 WIDGET-ID 6
      btn_show AT ROW 4.62 COL 49.2 WIDGET-ID 10
      r_table AT ROW 6 COL 2
-     "Category" VIEW-AS TEXT
-          SIZE 18 BY .95 AT ROW 1.24 COL 156 WIDGET-ID 82
-          FGCOLOR 9 FONT 6
-     "Style" VIEW-AS TEXT
-          SIZE 18 BY .95 AT ROW 1.24 COL 138 WIDGET-ID 80
-          FGCOLOR 9 FONT 6
-     "PO #" VIEW-AS TEXT
-          SIZE 9 BY .95 AT ROW 3.38 COL 1 WIDGET-ID 88
-          FGCOLOR 9 FONT 6
-     "Tr Code" VIEW-AS TEXT
-          SIZE 15 BY .95 AT ROW 3.38 COL 32 WIDGET-ID 90
-          FGCOLOR 9 FONT 6
-     "Sorted By" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 4.81 COL 80 WIDGET-ID 68
-     "FG Item#" VIEW-AS TEXT
-          SIZE 18 BY .95 AT ROW 1.24 COL 6 WIDGET-ID 70
-          FGCOLOR 9 FONT 6
-     "Customer Part#" VIEW-AS TEXT
-          SIZE 27 BY .95 AT ROW 1.24 COL 34 WIDGET-ID 72
-          FGCOLOR 9 FONT 6
-     "Customer#" VIEW-AS TEXT
-          SIZE 18 BY .95 AT ROW 1.24 COL 64 WIDGET-ID 74
-          FGCOLOR 9 FONT 6
-     "Click on a Yellow Field to Sort From 1st to Last" VIEW-AS TEXT
-          SIZE 47 BY .62 AT ROW 4.81 COL 128 WIDGET-ID 94
-     "Tag#" VIEW-AS TEXT
-          SIZE 8 BY .95 AT ROW 3.38 COL 57 WIDGET-ID 92
-          FGCOLOR 9 FONT 6
-     "Estimate#" VIEW-AS TEXT
-          SIZE 18 BY .95 AT ROW 1.24 COL 119 WIDGET-ID 78
-          FGCOLOR 9 FONT 6
-     "Name" VIEW-AS TEXT
-          SIZE 18 BY .95 AT ROW 1.24 COL 92 WIDGET-ID 76
-          FGCOLOR 9 FONT 6
      "Job No" VIEW-AS TEXT
           SIZE 14 BY .95 AT ROW 1.24 COL 199 WIDGET-ID 86
           FGCOLOR 9 FONT 6
      "Date" VIEW-AS TEXT
-          SIZE 9 BY .95 AT ROW 1.24 COL 181 WIDGET-ID 84
+          SIZE 9 BY .95 AT ROW 1.24 COL 179.6 WIDGET-ID 84
+          FGCOLOR 9 FONT 6
+     "Job No" VIEW-AS TEXT
+          SIZE 14 BY .95 AT ROW 1.24 COL 196.8 WIDGET-ID 86
+          FGCOLOR 9 FONT 6
+     "Name" VIEW-AS TEXT
+          SIZE 18 BY .95 AT ROW 1.24 COL 92 WIDGET-ID 76
+          FGCOLOR 9 FONT 6
+     "Estimate#" VIEW-AS TEXT
+          SIZE 14 BY .95 AT ROW 1.24 COL 121.4 WIDGET-ID 78
+          FGCOLOR 9 FONT 6
+     "Tag#" VIEW-AS TEXT
+          SIZE 8 BY .95 AT ROW 3.38 COL 57 WIDGET-ID 92
+          FGCOLOR 9 FONT 6
+     "Click on a Yellow Field to Sort From 1st to Last" VIEW-AS TEXT
+          SIZE 47 BY .62 AT ROW 4.81 COL 128 WIDGET-ID 94
+     "Customer#" VIEW-AS TEXT
+          SIZE 18 BY .95 AT ROW 1.24 COL 64 WIDGET-ID 74
+          FGCOLOR 9 FONT 6
+     "Customer Part#" VIEW-AS TEXT
+          SIZE 27 BY .95 AT ROW 1.24 COL 34 WIDGET-ID 72
+          FGCOLOR 9 FONT 6
+     "FG Item#" VIEW-AS TEXT
+          SIZE 18 BY .95 AT ROW 1.24 COL 6 WIDGET-ID 70
+          FGCOLOR 9 FONT 6
+     "Sorted By" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 4.81 COL 80 WIDGET-ID 68
+     "Tr Code" VIEW-AS TEXT
+          SIZE 15 BY .95 AT ROW 3.38 COL 32 WIDGET-ID 90
+          FGCOLOR 9 FONT 6
+     "PO #" VIEW-AS TEXT
+          SIZE 8 BY .95 AT ROW 3.38 COL 1.8 WIDGET-ID 88
+          FGCOLOR 9 FONT 6
+     "Style" VIEW-AS TEXT
+          SIZE 18 BY .95 AT ROW 1.24 COL 138 WIDGET-ID 80
           FGCOLOR 9 FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -570,7 +572,8 @@ asi.itemfg.i-no eq ""###"""
   AND asi.fg-rdtlh.rita-code = asi.fg-rcpth.rita-code"
      _FldNameList[1]   > asi.itemfg.i-no
 "itemfg.i-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   = asi.itemfg.part-no
+     _FldNameList[2]   > asi.itemfg.part-no
+"itemfg.part-no" ? "x(30)" "character" ? ? ? ? ? ? no ? no no "36.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.itemfg.i-name
 "itemfg.i-name" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.itemfg.part-dscr1
@@ -578,9 +581,9 @@ asi.itemfg.i-no eq ""###"""
      _FldNameList[5]   > asi.itemfg.part-dscr2
 "itemfg.part-dscr2" "Description 2" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.fg-rcpth.job-no
-"fg-rcpth.job-no" ? ? "character" ? ? ? ? ? ? no ? no no "11.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rcpth.job-no" ? ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.fg-rcpth.job-no2
-"fg-rcpth.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "3.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rcpth.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "5.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.fg-rdtlh.tag
 "fg-rdtlh.tag" "Tag" ? "character" ? ? ? ? ? ? no ? no no "26.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.fg-rdtlh.qty
@@ -599,7 +602,7 @@ asi.itemfg.i-no eq ""###"""
 */  /* BROWSE r_table */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -763,9 +766,10 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME fi_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no  B-table-Win
-ON LEAVE OF fi_cust-no IN FRAME F-Main 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
+ON LEAVE OF fi_cust-no IN FRAME F-Main
 DO:
    ASSIGN {&self-name} = CAPS({&self-name}:SCREEN-VALUE).
 END.
@@ -773,7 +777,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME fi_cust-no
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
 DO:
@@ -1084,6 +1088,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sort-by:HIDDEN  = TRUE.
 fi_sort-by:VISIBLE = FALSE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

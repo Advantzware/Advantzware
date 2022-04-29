@@ -1944,7 +1944,7 @@ PROCEDURE run-report :
             RUN oe/ordlsqty.p (ROWID(oe-ordl), OUTPUT v-inv-qty, OUTPUT v-ship-qty).
             ASSIGN                  
                 v-job-no = TRIM(STRING(oe-ord.job-no) + "-" + STRING(oe-ord.job-no2))
-                v-job-no = IF v-job-no EQ "-0" OR v-job-no EQ "-00" THEN "" ELSE TRIM(v-job-no)
+                v-job-no = IF v-job-no EQ "-0" OR v-job-no EQ "-00" OR v-job-no EQ "-000" THEN "" ELSE TRIM(v-job-no)
                 cProCat  = itemfg.procat
                 .
             FIND FIRST eb NO-LOCK 

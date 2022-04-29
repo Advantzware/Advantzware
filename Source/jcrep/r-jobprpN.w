@@ -1383,9 +1383,9 @@ def buffer b-jh for job-hdr.
 
 def var v-stat  as   char format "!"          init "O".
 def var v-fjob  like job.job-no.
-def var v-tjob  like v-fjob                   init "zzzzzz".
+def var v-tjob  like v-fjob                   init "zzzzzzzzz".
 def var v-fjob2 like job.job-no2.
-def var v-tjob2 like v-fjob2                  init 99.
+def var v-tjob2 like v-fjob2                  init 999.
 def var v-fcust like job-hdr.cust-no          init "".
 def var v-tcust like v-fcust                  init "zzzzzzzz".
 def var v-fdate as   date format "99/99/9999" init 01/01/0001.
@@ -1524,17 +1524,6 @@ for EACH ASI.job-prep WHERE job-prep.company eq cocode
                          AND prep.code    EQ job-prep.CODE NO-LOCK NO-ERROR.
        cPrepDscr = IF AVAIL prep THEN prep.dscr ELSE job-prep.CODE.
 
-       /*display job-hdr.cust-no
-            cCustomerName
-            job-hdr.due-date
-            job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") FORM "x(10)"
-            job-prep.CODE FORM "x(15)"
-            cPrepDscr  
-            liQty
-            ldExtCost / liQty @ ldStdCost
-            ldExtCost FORM "->>,>>>,>>9.99"
-            with frame det STREAM-IO width 140 no-box no-labels down.*/
-
             ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -1588,10 +1577,10 @@ END.
 ELSE /* prep code */
     for EACH ASI.job-prep WHERE job-prep.company eq cocode                          
                         and FILL(" ", iJobLen - length(trim(job-PREP.job-no))) +
-                      trim(job-prep.job-no) + string(job-prep.job-no2,"99")
+                      trim(job-prep.job-no) + string(job-prep.job-no2,"999")
                                   ge v-fjob
                   and FILL(" ", iJobLen - length(trim(job-prep.job-no))) +
-                      trim(job-prep.job-no) + string(job-prep.job-no2,"99")
+                      trim(job-prep.job-no) + string(job-prep.job-no2,"999")
                                   le v-tjob
                          AND job-prep.job-no2 GE int(begin_job-no2)
                          AND job-prep.job-no2 LE int(end_job-no2)          
@@ -1635,17 +1624,6 @@ ELSE /* prep code */
                            AND prep.code    EQ job-prep.CODE NO-LOCK NO-ERROR.
          cPrepDscr = IF AVAIL prep THEN prep.dscr ELSE job-prep.CODE.
 
-      /* display 
-            job-prep.CODE FORM "x(15)"
-            cPrepDscr
-            job-hdr.cust-no
-            cCustomerName
-            job-hdr.due-date
-            job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") @ job-hdr.job-no FORM "x(10)"
-            liQty
-            ldExtCost / liQty @ ldStdCost
-            ldExtCost FORM "->>,>>>,>>9.99"
-            with frame detPrep STREAM-IO width 140 no-box no-labels down.*/
           ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""

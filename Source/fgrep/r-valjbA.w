@@ -1040,7 +1040,7 @@ def var v-frst-i-no as log.
 def var v-print as log.
 def var trans-date like fg-rcpts.trans-date.
 def var rec-date as log init no.
-def var v-job as char format "x(9)".
+def var v-job as char format "x(13)".
 def var v-rec-found as log.
 def var v-qty-job like v-qty-onh.
 def var v-ext-job like v-ext.
@@ -1196,9 +1196,9 @@ IF lselected THEN DO:
 
         if itemfg.sell-uom eq "L" then v-ext = oe-ordl.price.
 
-        v-job = oe-ordl.job-no + "-" + string(oe-ordl.job-no2,"99").
+        v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
-        if v-job = "-00" then v-job = "".
+        if v-job = "-000" then v-job = "".
 
         if v-qty-onh ne 0 or zbal then do:
 

@@ -225,7 +225,7 @@ DEFINE VARIABLE fi_item-decr AS CHARACTER FORMAT "X(20)"
      SIZE 32 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(20)" 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
      SIZE 21.8 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -293,7 +293,7 @@ DEFINE BROWSE Browser-Table
       quotehd.est-no COLUMN-LABEL "Estimate" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
       quotehd.expireDate FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      quoteitm.part-no COLUMN-LABEL "Cust Part" FORMAT "x(20)":U
+      quoteitm.part-no COLUMN-LABEL "Cust Part" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
       quoteitm.part-dscr1 FORMAT "x(30)":U LABEL-BGCOLOR 14
       quotehd.upd-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14

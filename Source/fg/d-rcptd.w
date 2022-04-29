@@ -2893,7 +2893,7 @@ PROCEDURE get-matrix-all :
         IF AVAIL po-ordl THEN
            RUN Inventory_CheckPOUnderOver IN hInventoryProcs(
                 INPUT cocode,
-                INPUT TRIM(fg-rctd.job-no:SCREEN-VALUE ),
+                INPUT fg-rctd.job-no:SCREEN-VALUE,
                 INPUT INTEGER(fg-rctd.job-no2:SCREEN-VALUE),
                 INPUT fg-rctd.i-no:SCREEN-VALUE,
                 INPUT fg-rctd.po-no:SCREEN-VALUE,
@@ -2909,7 +2909,7 @@ PROCEDURE get-matrix-all :
         ELSE IF fg-rctd.job-no:SCREEN-VALUE NE "" THEN
             RUN Inventory_CheckJobUnderOver IN hInventoryProcs(
                 INPUT cocode,
-                INPUT TRIM(fg-rctd.job-no:SCREEN-VALUE ),
+                INPUT fg-rctd.job-no:SCREEN-VALUE,
                 INPUT INTEGER(fg-rctd.job-no2:SCREEN-VALUE),
                 INPUT fg-rctd.i-no:SCREEN-VALUE,
                 INPUT fg-rctd.po-no:SCREEN-VALUE,
@@ -2990,7 +2990,7 @@ PROCEDURE get-set-full-qty :
         lv-out-qty = 0.
         FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ g_company AND
             (b-fg-rctd.rita-code EQ "R" OR b-fg-rctd.rita-code EQ "E")
-            AND trim(b-fg-rctd.job-no) = trim(fg-rctd.job-no:SCREEN-VALUE )
+            AND b-fg-rctd.job-no = fg-rctd.job-no:SCREEN-VALUE
             AND b-fg-rctd.job-no2 = INT(fg-rctd.job-no2:SCREEN-VALUE)
             AND b-fg-rctd.i-no = fg-rctd.i-no:SCREEN-VALUE 
             AND (RECID(b-fg-rctd) <> recid(fg-rctd) 

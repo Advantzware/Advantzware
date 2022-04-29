@@ -135,6 +135,40 @@ form oe-ordl.i-no                         format "x(15)"
 
 ASSIGN tmpstore = fill("-",130).
 
+DEFINE VARIABLE ls-full-img1 AS CHARACTER FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE cRtnChar     AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE cMessage     AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE lRecFound    AS LOGICAL                 NO-UNDO.
+DEFINE VARIABLE lValid       AS LOGICAL                 NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath",
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile(
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
+
+ASSIGN
+    ls-full-img1 = cRtnChar + ">"
+    .
+
+
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "BOLFMT" no-lock no-error.
 ASSIGN
@@ -399,7 +433,10 @@ for each xxreport where xxreport.term-id eq v-term-id,
     "__________________________________________________________________________________________________________________" 
     "<R57><C1>" "<B>  Signature of Receipt </B>" 
     "<R58><C1>" "Customer ________________________________________                       Carrier _______________________________________" AT 20 
-    "<R60><C1>" "Date ____________________________________________                       Date _________________________________________" AT 20    
+    "<R60><C1>" "Date ____________________________________________                       Date _________________________________________" AT 20 SKIP(1)   
+    "<C30>" "Certificate Registration Code: SCS-COC-004377-CH FSC"  SKIP
+    "<C34>" "Trademark License Number FSC-C113126"     SKIP
+    "<C40>" "FSC Recycled Credit" SKIP
     .
 
   v-printline = v-printline + 14.

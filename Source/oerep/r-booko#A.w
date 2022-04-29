@@ -959,15 +959,13 @@ DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORMAT HEADER
-  "Order#  Est#         Job#     Date       Cust#    Name" SKIP
-  FILL("-",105) FORMAT "x(105)"
+  "Order#  Est#         Job#         Date       Cust#    Name" SKIP
   WITH FRAME r-top .
 
 FORMAT  /* frame ord */
    oe-ord.ord-no
    oe-ord.est-no FORMAT "x(8)"
-   oe-ord.job-no SPACE(0) "-" SPACE(0)
-   oe-ord.job-no2 FORMAT "99"
+   oe-ord.job-no FORMAT "x(13)"
    SPACE(3) 
    oe-ord.ord-date
    SPACE(3) 
@@ -1079,8 +1077,7 @@ FOR EACH oe-ord
     DISPLAY 
         oe-ord.ord-no
         TRIM(oe-ord.est-no)   @ oe-ord.est-no
-        oe-ord.job-no
-        oe-ord.job-no2
+        TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ord.job-no, oe-ord.job-no2))) WHEN TRIM(oe-ord.job-no) NE ""  @ oe-ord.job-no  
         oe-ord.ord-date       FORMAT "99/99/9999"
         oe-ord.cust-no
         oe-ord.cust-name
@@ -1151,8 +1148,7 @@ FOR EACH oe-ord
                ASSIGN
                  ExtList.ord-no    = oe-ord.ord-no
                  ExtList.est-no    = TRIM(oe-ord.est-no)
-                 ExtList.job-no    = TRIM(oe-ord.job-no) + "-" 
-                                    + TRIM(STRING(oe-ord.job-no2, "99"))
+                 ExtList.job-no    = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ord.job-no, oe-ord.job-no2)))
                  ExtList.ord-date  = oe-ord.ord-date
                  ExtList.cust-no   = oe-ord.cust-no
                  ExtList.cust-name = oe-ord.cust-name
@@ -1185,8 +1181,7 @@ FOR EACH oe-ord
                ASSIGN
                  ExtList.ord-no    = oe-ord.ord-no
                  ExtList.est-no    = TRIM(oe-ord.est-no)
-                 ExtList.job-no    = TRIM(oe-ord.job-no) + "-" 
-                                    + TRIM(STRING(oe-ord.job-no2, "99"))
+                 ExtList.job-no    = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ord.job-no, oe-ord.job-no2)))
                  ExtList.ord-date  = oe-ord.ord-date
                  ExtList.cust-no   = oe-ord.cust-no
                  ExtList.cust-name = oe-ord.cust-name
@@ -1232,8 +1227,7 @@ FOR EACH oe-ord
             ASSIGN
               ExtList.ord-no    = oe-ord.ord-no
               ExtList.est-no    = TRIM(oe-ord.est-no)
-              ExtList.job-no    = TRIM(oe-ord.job-no) + "-" 
-                                  + TRIM(STRING(oe-ord.job-no2, "99"))
+              ExtList.job-no    = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ord.job-no, oe-ord.job-no2)))
               ExtList.ord-date  = oe-ord.ord-date
               ExtList.cust-no   = oe-ord.cust-no
               ExtList.cust-name = oe-ord.cust-name
@@ -1270,8 +1264,7 @@ FOR EACH oe-ord
         ASSIGN
           ExtList.ord-no    = oe-ord.ord-no
           ExtList.est-no    = TRIM(oe-ord.est-no)
-          ExtList.job-no    = TRIM(oe-ord.job-no) + "-" 
-                              + TRIM(STRING(oe-ord.job-no2, "99"))
+          ExtList.job-no    = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ord.job-no, oe-ord.job-no2)))
           ExtList.ord-date  = oe-ord.ord-date
           ExtList.cust-no   = oe-ord.cust-no
           ExtList.cust-name = oe-ord.cust-name.

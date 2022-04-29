@@ -373,7 +373,9 @@ for each mch-act where mch-act.company eq g_company and
         if avail est-op and est-op.n-out ne 0 then v-out = est-op.n-out.
       end.
 
-RUN msg ("Item: " + fg-rctd.i-no + " Job: " + fg-rctd.job-no + "-" + STRING(fg-rctd.job-no2,"99") + " Machine: " + mch-act.m-code + CHR(10)) .
+RUN msg ("Item: " + fg-rctd.i-no + " Job: " 
+        + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rctd.job-no, fg-rctd.job-no2)))
+	+ " Machine: " + mch-act.m-code + CHR(10)) .
 
 
       ASSIGN

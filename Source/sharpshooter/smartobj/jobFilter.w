@@ -36,6 +36,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/var.i}
+
 DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
@@ -510,7 +512,7 @@ DO:
         cJobNo = SELF:SCREEN-VALUE.
         
     cFormattedJobno = DYNAMIC-FUNCTION (
-                      "fAddSpacesToString" IN hdJobProcs, cJobNo, 9, TRUE
+                      "fAddSpacesToString" IN hdJobProcs, cJobNo, iJobLen, TRUE
                       ).
     
     RUN pUpdateJobDetails (

@@ -95,7 +95,7 @@ FOR EACH mch-act NO-LOCK
                 tt-srt.job            = mch-act.job
                 tt-srt.job-no         = mch-act.job-no
                 tt-srt.job-no2        = mch-act.job-no2
-                tt-srt.jobNo          = tt-srt.job-no + "-" + STRING(tt-srt.job-no2)
+                tt-srt.jobNo          = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-srt.job-no, tt-srt.job-no2)))
                 tt-srt.frm            = mch-act.frm
                 tt-srt.blank-no       = mch-act.blank-no
                 tt-srt.pass           = mch-act.pass
@@ -498,7 +498,7 @@ FOR EACH tt-srt USE-INDEX dept-idx
             '"' STRING(tt-srt.mr-end-time,"HH:MM") '",'
             '"' STRING(tt-srt.run-start-time,"HH:MM") '",'
             '"' STRING(tt-srt.run-end-time,"HH:MM") '",'
-            '"' tt-srt.job-no + "-" + string(tt-srt.job-no2,"99") '",'  
+            '"' tt-srt.job-no + "-" + string(tt-srt.job-no2,"999") '",'  
             '"' tt-srt.sqfeet-blank '",'
             '"' tt-srt.mr-act-hr '",'
             '"' tt-srt.run-act-hr '",'

@@ -91,7 +91,7 @@
                                   string(day(ar-inv.inv-date),"99")
              tt-report2.key-03  = string(ar-inv.inv-no,"9999999999")
              tt-report2.key-04  = ar-invl.i-no
-             tt-report2.key-05  = ar-invl.job-no + STRING(ar-invl.job-no2,"99")
+             tt-report2.key-05  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ar-invl.job-no, ar-invl.job-no2))
              tt-report2.key-09  = tt-report.key-09
              tt-report2.key-10  = "ar-invl".
           end.

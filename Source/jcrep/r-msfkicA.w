@@ -100,30 +100,30 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Machine" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Machine" 
@@ -206,11 +206,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Machine"
      begin_job-no AT ROW 5.05 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 5.05 COL 37 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 5.05 COL 39 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 5.05 COL 65 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 5.05 COL 77 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 5.05 COL 79 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      rd-dest AT ROW 12.67 COL 5 NO-LABEL
      lv-ornt AT ROW 12.91 COL 31 NO-LABEL
@@ -771,9 +771,9 @@ def var v-fdate   as   date format "99/99/9999" init today.
 def var v-fmach   like job-mch.m-code.
 def var v-tmach   like v-fmach                  init "zzzzzz".
 def var v-fjob    like job.job-no.
-def var v-tjob    like v-fjob                   init "zzzzzz".
+def var v-tjob    like v-fjob                   init "zzzzzzzzz".
 def var v-fjob2   like job.job-no2.
-def var v-tjob2   like v-fjob2                  init 99.
+def var v-tjob2   like v-fjob2                  init 999.
 
 def var v-up      like eb.num-up.
 def var v-on      like v-up.
@@ -782,7 +782,7 @@ def var v-printed as   log init no.
 
 def var v-mach    like job-mch.m-code.
 def var v-date    as   date format "99/99/99".
-def var v-job     as   char format "x(9)".
+def var v-job     as   char format "x(13)".
 def var v-sheet   as   char format "x(21)".
 def var v-qty     as   dec.
 def var v-pct     as   dec.
@@ -813,9 +813,9 @@ assign
   v-tmach   = END_mach
 
   v-fjob    = FILL(" ", iJobLen - length(trim(begin_job-no))) +
-               trim(begin_job-no) + string(int(begin_job-no2),"99")
+               trim(begin_job-no) + string(int(begin_job-no2),"999")
   v-tjob    = FILL(" ", iJobLen - length(trim(end_job-no)))   +
-               trim(end_job-no)   + string(int(end_job-no2),"99"). 
+               trim(end_job-no)   + string(int(end_job-no2),"999"). 
 
  {sys/inc/print1.i}
 
@@ -937,7 +937,7 @@ SESSION:SET-WAIT-STATE ("general").
 
       assign
        v-job    = FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
-                  trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99")
+                  trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"999")
        v-date   = date(int(substr(tt-report.key-02,5,2)),
                        int(substr(tt-report.key-02,7,2)),
                        int(substr(tt-report.key-02,1,4)))

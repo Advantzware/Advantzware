@@ -568,7 +568,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
        FIND FIRST job
             WHERE job.company EQ cocode
-              AND TRIM(job.job-no)  EQ TRIM(po-ordl.job-no)
+              AND job.job-no  EQ po-ordl.job-no
               AND job.job-no2 EQ po-ordl.job-no2
             NO-LOCK NO-ERROR.
         
@@ -671,7 +671,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     IF po-ordl.job-no NE "" THEN
     FIND FIRST job NO-LOCK
         WHERE job.company EQ cocode
-          AND TRIM(job.job-no)  EQ TRIM(po-ordl.job-no)
+          AND job.job-no  EQ po-ordl.job-no
           AND job.job-no2 EQ po-ordl.job-no2
         NO-ERROR.
 
@@ -698,17 +698,17 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       END.
 
       v-job-no = (IF v-job-no NE "" THEN v-job-no + "-" ELSE "") +
-                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))).
+                 TRIM(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2,"99").
 
       IF po-ordl.job-no EQ "" THEN v-job-no = "".
 
       IF v-job-no EQ "-" THEN v-job-no = "".
     END.
 
-    PUT v-job-no                                    FORMAT "x(15)".
+    PUT v-job-no                                    FORMAT "x(11)".
 
     /* 53 blank spaces */
-    PUT FILL(" ",49)                                FORMAT "x(49)"       SKIP.
+    PUT FILL(" ",53)                                FORMAT "x(53)"       SKIP.
   END. /* FOR EACH po-ordl record */
 
   po-ord.printed = YES.

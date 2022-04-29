@@ -38,9 +38,9 @@ DEF INPUT PARAM ip-job-no2 AS cha NO-UNDO.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-val as recid no-undo.
-{sys/inc/var.i}
-
 def var lv-type-dscr as cha no-undo.
+
+{sys/inc/var.i new shared}
 
 &scoped-define SORTBY-1 BY job-hdr.frm BY job-hdr.blank-no
 &scoped-define SORTBY-2 BY job-hdr.blank-no BY job-hdr.frm
@@ -87,12 +87,12 @@ job-hdr.i-no job-hdr.est-no job-hdr.ord-no job-hdr.cust-no
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH job-hdr WHERE ~{&KEY-PHRASE} ~
       AND job-hdr.company = ip-company and ~
-TRIM(job-hdr.job-no) = TRIM(ip-job-no) and ~
+job-hdr.job-no = ip-job-no and ~
 job-hdr.job-no2 = int(ip-job-no2) NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH job-hdr WHERE ~{&KEY-PHRASE} ~
       AND job-hdr.company = ip-company and ~
-TRIM(job-hdr.job-no) = TRIM(ip-job-no) and ~
+job-hdr.job-no = ip-job-no and ~
 job-hdr.job-no2 = int(ip-job-no2) NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 job-hdr
@@ -226,7 +226,7 @@ ASSIGN
      _TblList          = "ASI.job-hdr"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.job-hdr.company = ip-company and
-TRIM(job-hdr.job-no) = TRIM(ip-job-no) and
+job-hdr.job-no = ip-job-no and
 job-hdr.job-no2 = int(ip-job-no2)"
      _FldNameList[1]   > ASI.job-hdr.frm
 "frm" "Form#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
@@ -384,7 +384,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   
   FRAME dialog-frame:TITLE = TRIM(FRAME dialog-frame:TITLE) + " Job: " +
-                             TRIM(ip-job-no) + STRING(INT(ip-job-no2),"999").
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ip-job-no, ip-job-no2))).
 
   RUN enable_UI.
 
@@ -399,7 +399,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           
     FOR EACH b-job-hdr NO-LOCK
         WHERE b-job-hdr.company EQ ip-company
-          AND TRIM(b-job-hdr.job-no)  EQ TRIM(ip-job-no)
+          AND b-job-hdr.job-no  EQ ip-job-no
           AND b-job-hdr.job-no2 EQ INT(ip-job-no2)
           AND STRING(b-job-hdr.frm,"9999999999")      +
               STRING(b-job-hdr.blank-no,"9999999999") +

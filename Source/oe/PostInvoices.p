@@ -1141,7 +1141,7 @@ PROCEDURE pCloseOrders PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE pCopyNotesFromInvHeadToArInv PRIVATE:
+PROCEDURE pNotes_CopyNotesFromInvHeadToArInv PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Copies Notes from inv-head to ar-inv
      Notes:
@@ -1151,7 +1151,7 @@ PROCEDURE pCopyNotesFromInvHeadToArInv PRIVATE:
     
     DEFINE BUFFER bf-child-inv-head FOR inv-head.
     
-    RUN CopyNotes IN ghNotesProcs (ipbf-inv-head.rec_key, ipcARInvRecKey, "", "").
+    RUN Notes_CopyNotes IN ghNotesProcs (ipbf-inv-head.rec_key, ipcARInvRecKey, "", "").
     /*copy notes for Group By Date (multi-invoice)*/
     IF ipbf-inv-head.multi-invoice THEN 
     DO:
@@ -1162,7 +1162,7 @@ PROCEDURE pCopyNotesFromInvHeadToArInv PRIVATE:
             AND bf-child-inv-head.cust-no EQ ipbf-inv-head.cust-no
             AND NOT bf-child-inv-head.multi-invoice 
             NO-LOCK:
-            RUN CopyNotes IN ghNotesProcs (bf-child-inv-head.rec_key, ipcARInvRecKey, "", "").
+            RUN Notes_CopyNotes IN ghNotesProcs (bf-child-inv-head.rec_key, ipcARInvRecKey, "", "").
         END.
     END.
 
@@ -2614,7 +2614,7 @@ PROCEDURE pPostInvoices PRIVATE:
             ASSIGN 
                 iXNo = bf-ar-inv.x-no
                 . 
-            RUN pCopyNotesFromInvHeadToArInv(BUFFER bf-inv-head, bf-ar-inv.rec_key).
+            RUN pNotes_CopyNotesFromInvHeadToArInv(BUFFER bf-inv-head, bf-ar-inv.rec_key).
         END.      
                 
         RUN pCreateEDI(BUFFER bf-inv-head).

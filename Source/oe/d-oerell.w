@@ -146,18 +146,19 @@ DEFINE BUTTON Btn_OK
      SIZE 8 BY 1.91
      BGCOLOR 8 .
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(30)":U 
      LABEL "Cust Part#" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
+     SIZE 39.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-21
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL ROUNDED  
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 19 BY 2.38
-     BGCOLOR 15  .
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-38
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL  ROUNDED  
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 133.8 BY 10.71
      BGCOLOR 15 .
 
@@ -201,13 +202,11 @@ DEFINE FRAME Dialog-Frame
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
      oe-rell.job-no AT ROW 8.48 COL 29.8 COLON-ALIGNED
-          LABEL "Job Number"
-          FORMAT "x(9)"
+          LABEL "Job Number" FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 18.6 BY 1
           BGCOLOR 15 FONT 1
-     oe-rell.job-no2 AT ROW 8.48 COL 48.2 COLON-ALIGNED NO-LABEL
-          FORMAT "999"
+     oe-rell.job-no2 AT ROW 8.48 COL 48.2 COLON-ALIGNED NO-LABEL FORMAT "999"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
           BGCOLOR 15 FONT 1
@@ -246,13 +245,13 @@ DEFINE FRAME Dialog-Frame
           SIZE 5 BY 1
           BGCOLOR 15 FONT 1
      oe-rell.s-code AT ROW 7.19 COL 109 COLON-ALIGNED
-          LABEL "Type"
-          VIEW-AS COMBO-BOX INNER-LINES 4 
+          VIEW-AS COMBO-BOX INNER-LINES 4
           LIST-ITEM-PAIRS "B-Both","B",
                      "S-Ship","S",
                      "I-Invoice","I",
                      "T-Transfer","T"
           DROP-DOWN-LIST
+          SIZE 15.8 BY 1
           BGCOLOR 15 FONT 1
      oe-rell.link-no AT ROW 9.62 COL 85.4 COLON-ALIGNED
           LABEL "Rel. Seq. #" FORMAT ">>>>>>>9"
@@ -260,10 +259,9 @@ DEFINE FRAME Dialog-Frame
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
      fi_part-no AT ROW 8.48 COL 85.4 COLON-ALIGNED
-     BGCOLOR 15 FONT 1
-     Btn_OK AT ROW 12.23 COL 116
-     Btn_Done AT ROW 12.50 COL 117
-     Btn_Cancel AT ROW 12.23 COL 125
+     Btn_OK AT ROW 12.24 COL 116
+     Btn_Done AT ROW 12.52 COL 117
+     Btn_Cancel AT ROW 12.24 COL 125
      RECT-21 AT ROW 12 COL 115
      RECT-38 AT ROW 1 COL 1
      SPACE(0.99) SKIP(3.14)
@@ -312,9 +310,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-rell.i-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN oe-rell.job-no IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                           */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-rell.job-no2 IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                           */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-rell.link-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-rell.loc IN FRAME Dialog-Frame
@@ -330,8 +328,6 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-rell.qty-case IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-rell.rel-no IN FRAME Dialog-Frame
-   EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN oe-rell.s-code IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-rell.tag IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
@@ -823,7 +819,7 @@ END.
 
 &Scoped-define SELF-NAME oe-rell.s-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.s-code Dialog-Frame
-ON LEAVE OF oe-rell.s-code IN FRAME Dialog-Frame /* S/I */
+ON LEAVE OF oe-rell.s-code IN FRAME Dialog-Frame /* Type */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-s-code NO-ERROR.
@@ -1513,7 +1509,7 @@ PROCEDURE valid-job-no :
             AND bf-ordl.ord-no   EQ INTEGER(oe-rell.ord-no:SCREEN-VALUE )
             AND bf-ordl.i-no     EQ oe-rell.i-no:SCREEN-VALUE 
             AND (TRIM(bf-ordl.job-no) EQ "" OR
-                 (TRIM(bf-ordl.job-no) EQ TRIM(lv-job-no) AND
+                 (bf-ordl.job-no EQ lv-job-no AND
                   (bf-ordl.job-no2 EQ INTEGER(oe-rell.job-no2:SCREEN-VALUE ) OR
                    FOCUS:NAME EQ "job-no")))
           NO-LOCK NO-ERROR.

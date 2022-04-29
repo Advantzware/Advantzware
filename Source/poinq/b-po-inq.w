@@ -1100,7 +1100,7 @@ PROCEDURE add-po-best :
    DO:
       FIND FIRST job WHERE
            job.company EQ cocode AND
-           trim(job.job-no) EQ trim(op-job-no) AND
+           job.job-no EQ op-job-no AND
            job.job-no2 EQ op-job-no2
            NO-LOCK NO-ERROR.
 
@@ -2891,7 +2891,7 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
                            + (IF INDEX(fi_vend-no,"*") GT 0 THEN " AND po-ordl.vend-no MATCHES " + QUOTER(fi_vend-no + "*") ELSE IF fi_vend-no NE "" THEN " AND po-ordl.vend-no BEGINS " + QUOTER(fi_vend-no) ELSE "")
                            + (IF INDEX(fi_i-no,"*") GT 0 THEN " AND po-ordl.i-no MATCHES " + QUOTER(fi_i-no + "*") ELSE IF fi_i-no NE "" THEN " AND po-ordl.i-no BEGINS " + QUOTER(fi_i-no) ELSE "")
                            + (IF INDEX(fi_vend-i-no,"*") GT 0 THEN " AND po-ordl.vend-i-no MATCHES " + QUOTER(fi_vend-i-no + "*") ELSE IF fi_vend-i-no NE "" THEN " AND po-ordl.vend-i-no BEGINS " + QUOTER(fi_vend-i-no) ELSE "")
-                           + (IF fi_job-no NE "" THEN ' AND FILL(" ", iJobLen - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) BEGINS ' + QUOTER(fi_job-no) ELSE "")
+                           + (IF fi_job-no NE "" THEN ' AND FILL(" ",' + STRING(iJobLen) + ' - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) BEGINS ' + QUOTER(fi_job-no) ELSE "")
                            + (IF fi_job-no NE "" AND fi_job-no2 NE 0 THEN " AND po-ordl.job-no2 EQ " + STRING(fi_job-no2) ELSE "")
                            . 
     END.     

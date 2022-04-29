@@ -1951,7 +1951,7 @@ DO WITH FRAME {&FRAME-NAME}:
    
       IF NOT CAN-FIND(FIRST oe-ordl WHERE oe-ordl.company  = cocode
                                       AND oe-ordl.i-no     = vend-whse-trans.fg-item-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                                      AND trim(oe-ordl.job-no)   = trim(vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+                                      AND oe-ordl.job-no   = vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name}
                                       AND oe-ordl.ord-no   = INT(vend-whse-trans.vend-ord-no:SCREEN-VALUE IN BROWSE {&browse-name})
                                       AND oe-ordl.line     = INT(vend-whse-trans.item-line-no:SCREEN-VALUE IN BROWSE {&browse-name})) THEN DO:
          MESSAGE "Invalid Suppliers Job Number     " VIEW-AS ALERT-BOX ERROR.
@@ -1978,7 +1978,7 @@ DO WITH FRAME {&FRAME-NAME}:
    
       IF NOT CAN-FIND(FIRST oe-ordl WHERE oe-ordl.company  = cocode
                                       AND oe-ordl.i-no     = vend-whse-trans.fg-item-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                                      AND trim(oe-ordl.job-no)   = trim(vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+                                      AND oe-ordl.job-no   = vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name}
                                       AND oe-ordl.job-no2  = INT(vend-whse-trans.vend-job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
                                       AND oe-ordl.ord-no   = INT(vend-whse-trans.vend-ord-no:SCREEN-VALUE IN BROWSE {&browse-name})
                                       AND oe-ordl.line     = INT(vend-whse-trans.item-line-no:SCREEN-VALUE IN BROWSE {&browse-name})) THEN DO:
@@ -2006,7 +2006,7 @@ DO WITH FRAME {&FRAME-NAME}:
    
       IF NOT CAN-FIND(FIRST oe-ordl WHERE oe-ordl.company  = cocode
                                       AND oe-ordl.i-no     = vend-whse-trans.fg-item-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                                      AND trim(oe-ordl.job-no)   = trim(vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+                                      AND oe-ordl.job-no   = vend-whse-trans.vend-job-no:SCREEN-VALUE IN BROWSE {&browse-name}
                                       AND oe-ordl.job-no2  = INT(vend-whse-trans.vend-job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
                                       AND oe-ordl.ord-no   = INT(vend-whse-trans.vend-ord-no:SCREEN-VALUE IN BROWSE {&browse-name})
                                       AND oe-ordl.line     = INT(vend-whse-trans.item-line-no:SCREEN-VALUE IN BROWSE {&browse-name}) 
