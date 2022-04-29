@@ -1,7 +1,7 @@
 "acclrtrs" no no no no no no no no 0 0
 "account" yes yes yes yes yes yes yes yes 0 0
 "acctcost" yes yes yes yes yes yes yes yes 0 0
-"address" no no no no no no no no 0 0
+"address" no no no no yes yes yes yes 0 0
 "addrPhone" no no no no no no no no 0 0
 "ap-buy" yes no no no yes no no no 0 0
 "ap-chk" no no no no no no no no 0 0

@@ -1,0 +1,10 @@
+2050001$poNo|999999|INT|$A$poLine|99|INT|$$poNo|999999|INT|$A$poLine|99|INT|$$SPACE|X(13)|$BY$SPACE|X(3)|$$poLineDueDate|YYMMDD|DATE|$$HeaderoverPct|99|INT|$$HeaderunderPct|99|INT|$$itemWidthTrunc|999999|INT|$$itemWidth16ths|99|INT|$16$itemWidthTrunc|999|INT|$:$itemWidth16ths|99|INT|$$itemLengthTrunc|999999|INT|$$itemLength16ths|99|INT|$16$itemLengthTrunc|999|INT|$:$itemLength16ths|99|INT|$$style|9999|INT|$$styleDesc|X(14)|$$itemBasisWeight|9999|INT|$$quantityOrderedInEA|99999999|INT|$$jobIDFormNo|99|INT|$$SPACE|X(11)|$
+$flute|X(3)|$$costInMSF|9999.99|DEC|$$costSetup|999.99|DEC|$001.0000000000.0000$quantityInSF|9999999|INT|$$SPACE|X(46)|$XX$itemName|X(30)|$$SPACE|X(8)|$
+$itemID|X(128)|$
+$scoreSizeDecimalAlliFlutes|X(84)|$$SPACE|X(84)|$001.00$SPACE|X(2)|$$itemWidthTrunc|999|INT|$:$itemWidth16ths|99|INT|$$itemWidthTrunc|999|INT|$:$itemWidth16ths|99|INT|$$quantityInM|99999999|INT|$$quantityInSF|99999999|INT|$0000$itemWithAddersX4|X(24)|$$SPACE|X(1)|$
+$itemWithAddersX10|X(60)|$$operationID|X(6)|$
+$poNotesHRMS|X(64)|$$jobConcatHRMS|X(9)|$$SPACE|X(55)|$
+$SPACE|X(128)|$
+$SPACE|X(128)|$
+$SPACE|X(128)|$
+$SPACE|X(128)|$$Linefeed$
