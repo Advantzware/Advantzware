@@ -1,0 +1,5 @@
+$PageSeparator$$FirstComponent||||IF["yes","Components
+",""]|$<C10>$CustomerPart|X(30)|$$Metric||||IF["Yes","$LengthMetric|->>,>>>mm|INT|$ x $WidthMetric|->>,>>>mm|INT|$ x $DepthMetric|->>,>>>mm|INT|$","$Length|>>>>>9.99<<<|DEC|$ x $Width|>>>>>9.99<<<|DEC|$ x $Depth|>>>>>9.99<<<|DEC|$"]|$
+<C10>$PartDescription1|X(30)|$$StyleDescription$
+<C10>$PartDescription2|X(30)|$$Board$ $Adders$
+<C10>$CadNo|X(30)|$$ColorDescription$

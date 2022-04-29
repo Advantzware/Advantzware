@@ -251,3 +251,8 @@
 "" "202112225550008385921" "SendOrderAck" "RePrintOrderAck" "Reprint of Order Acknowledgement" yes 2021-12-22T15:25:00.058 "asi" "_default1" 256 57
 "" "202202185333608565734" "SendOrder" "PrintOrder" "Triggers when order is printed" no 2022-02-18T14:57:02.260 "asi" "_default" 257 58
 "" "202202185335508565735" "SendOrder" "ReprintOrder" "Triggers when an order is re-printed" no 2022-02-18T14:57:21.978 "asi" "_default" 258 58
+"" "202204207428709192092" "SendQuote" "PrintQuote" "Print a quote" no 2022-04-20T20:38:07.426 "asi" "_default" 259 59
+"" "202204270713409193457" "GetZohoDeskAccessToken" "GetAccessToken" "Trigger from to fetch access token" no 2022-04-27T13:05:54.025 "asi" "_default" 260 60
+"" "202204276121809193551" "UpdateZohoDeskAccount" "UpdateAccount" "Trigger to update zoho account" no 2022-04-29T12:22:09.483 "asi" "_default" 261 61
+"" "202204274860109193513" "CreateZohoDeskTicket" "CreateTicket" "Trigger to create a zoho desk ticket" no 2022-04-27T13:30:01.071 "asi" "_default" 262 62
+"" "202204275414409193530" "GetZohoDeskAccount" "GetAccount" "Fetches account details from zoho" no 2022-04-27T15:02:24.686 "asi" "_default" 263 63
