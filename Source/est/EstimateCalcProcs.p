@@ -75,6 +75,7 @@ DEFINE VARIABLE glUseBlankVendor                      AS LOGICAL   NO-UNDO.  /*C
 DEFINE VARIABLE glCalcSourceForMachineStd             AS LOGICAL   NO-UNDO.  /*CEOpStandards*/
 DEFINE VARIABLE glUseGrossWeight                      AS LOGICAL   NO-UNDO.  /*CEShipWeight*/
 DEFINE VARIABLE glCalcFoamCostFromBlank               AS LOGICAL   NO-UNDO.  /*FOAMCOST*/
+DEFINE VARIABLE gcCECostSourceLookup                  AS CHARACTER NO-UNDO.  /*CECostSource*/
 DEFINE VARIABLE giPromptForErrorLevel                 AS INTEGER   NO-UNDO.  /*CEShowErrorsAndWarnings*/
 DEFINE VARIABLE glAutoRecostBoard                     AS LOGICAL   NO-UNDO.  /*CEAutoRecostBoard*/
 
@@ -5165,12 +5166,12 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
     DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lUseBlank           AS LOGICAL   NO-UNDO.
 
+
     ASSIGN
         lCostFound = NO
         opdCost    = 0
-        opdSetup   = 0.
-
-           
+        opdSetup   = 0.    
+     
     IF glVendItemCost THEN 
     DO:
         ASSIGN 
@@ -5191,105 +5192,108 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
         ELSE 
         DO:                        
             RUN VendCost_GetBestCost(ipbf-ttEstCostMaterial.company, 
-                    ipbf-ttEstCostMaterial.itemID, 
-                    "RM", 
-                    cScope, 
-                    lIncludeBlankVendor, 
-                    ipbf-ttEstCostMaterial.estimateNo, 
-                    ipbf-ttEstCostMaterial.formNo, 
-                    ipbf-ttEstCostMaterial.blankNo,
-                    ipdQty, 
-                    ipcQtyUOM, 
-                    ipbf-ttEstCostMaterial.dimLength,  
-                    ipbf-ttEstCostMaterial.dimWidth, 
-                    ipbf-ttEstCostMaterial.dimDepth, 
-                    ipbf-ttEstCostMaterial.dimUOM, 
-                    ipbf-ttEstCostMaterial.basisWeight, 
-                    ipbf-ttEstCostMaterial.basisWeightUOM,
-                    OUTPUT opdCost, 
-                    OUTPUT opcCostUOM, 
-                    OUTPUT opdSetup, 
-                    OUTPUT opcVendorID, 
-                    OUTPUT opdCostDeviation, 
-                    OUTPUT dCostTotal,
-                    OUTPUT lError, 
-                    OUTPUT cMessage).
+                ipbf-ttEstCostMaterial.itemID, 
+                "RM", 
+                cScope, 
+                lIncludeBlankVendor, 
+                ipbf-ttEstCostMaterial.estimateNo, 
+                ipbf-ttEstCostMaterial.formNo, 
+                ipbf-ttEstCostMaterial.blankNo,
+                ipdQty, 
+                ipcQtyUOM, 
+                ipbf-ttEstCostMaterial.dimLength,  
+                ipbf-ttEstCostMaterial.dimWidth, 
+                ipbf-ttEstCostMaterial.dimDepth, 
+                ipbf-ttEstCostMaterial.dimUOM, 
+                ipbf-ttEstCostMaterial.basisWeight, 
+                ipbf-ttEstCostMaterial.basisWeightUOM,
+                OUTPUT opdCost, 
+                OUTPUT opcCostUOM, 
+                OUTPUT opdSetup, 
+                OUTPUT opcVendorID, 
+                OUTPUT opdCostDeviation, 
+                OUTPUT dCostTotal,
+                OUTPUT lError, 
+                OUTPUT cMessage).
         END.
-        RETURN.
-    
     END.
-    
-    FIND FIRST e-item NO-LOCK
-        WHERE e-item.company EQ ipbf-ttEstCostMaterial.company
-        AND e-item.i-no EQ ipbf-ttEstCostMaterial.itemID
-        NO-ERROR.
-    IF AVAILABLE e-item THEN
-    DO:
-        opcCostUom = e-item.std-uom.
-        RELEASE e-item-vend.
-        IF ipcVendNo NE "" THEN
-            FIND FIRST e-item-vend OF e-item NO-LOCK
-                WHERE e-item-vend.item-type EQ YES
-                AND e-item-vend.vend-no EQ ipcVendNo
-                NO-ERROR.
-        IF NOT AVAILABLE e-item-vend THEN
-            FOR EACH e-item-vend OF e-item NO-LOCK
-                WHERE e-item-vend.item-type EQ YES
-                AND e-item-vend.vend-no EQ ""
-                BY e-item-vend.vend-no:
-                LEAVE.
-            END.
-        IF NOT AVAILABLE e-item-vend THEN
-            FOR EACH e-item-vend OF e-item NO-LOCK
-                WHERE e-item-vend.item-type EQ YES
-                BY e-item-vend.vend-no:
-                LEAVE.
-            END.
-
-        IF AVAILABLE e-item-vend THEN
+    ELSE 
+    DO:         
+        FIND FIRST e-item NO-LOCK
+            WHERE e-item.company EQ ipbf-ttEstCostMaterial.company
+            AND e-item.i-no EQ ipbf-ttEstCostMaterial.itemID
+            NO-ERROR.
+        IF AVAILABLE e-item THEN
         DO:
-            IF e-item-vend.std-uom NE "" THEN
-                opcCostUom = e-item-vend.std-uom.
-
-            DO iIndex = 1 TO 10:
-                ASSIGN
-                    dRunQty[iIndex]  = e-item-vend.run-qty[iIndex]
-                    dRunCost[iIndex] = e-item-vend.run-cost[iIndex]
-                    dSetups[iIndex]  = e-item-vend.setups[iIndex].
-            END.
-            DO iIndex = 1 TO 10:
-                ASSIGN
-                    dRunQty[iIndex + 10]  = e-item-vend.runQtyXtra[iIndex]
-                    dRunCost[iIndex + 10] = e-item-vend.runCostXtra[iIndex]
-                    dSetups[iIndex + 10]  = e-item-vend.setupsXtra[iIndex].
-            END.
-            IF opcCostUOM NE ipcQtyUOM THEN
-                RUN pConvertQuantityFromUOMToUOM(e-item-vend.company, ipbf-ttEstCostMaterial.itemID, "RM", ipcQtyUOM,opcCostUOM,
-                    ipbf-ttEstCostMaterial.basisWeight, ipbf-ttEstCostMaterial.dimLength, ipbf-ttEstCostMaterial.dimWidth, ipbf-ttEstCostMaterial.dimDepth,
-                    ipdQty, OUTPUT dQtyInCUOM).
-            ELSE
-                dQtyInCUOM = ipdQty.
-            DO iIndex = 1 TO 20:
-                IF dRunQty[iIndex] NE 0   AND
-                    dRunQty[iIndex] GE dQtyInCUOM THEN
-                DO:
-                    ASSIGN
-                        lCostFound = YES
-                        opdCost    = dRunCost[iIndex]
-                        opdSetup   = dSetups[iIndex]
-                        .
+            opcCostUom = e-item.std-uom.
+            RELEASE e-item-vend.
+            IF ipcVendNo NE "" THEN
+                FIND FIRST e-item-vend OF e-item NO-LOCK
+                    WHERE e-item-vend.item-type EQ YES
+                    AND e-item-vend.vend-no EQ ipcVendNo
+                    NO-ERROR.
+            IF NOT AVAILABLE e-item-vend THEN
+                FOR EACH e-item-vend OF e-item NO-LOCK
+                    WHERE e-item-vend.item-type EQ YES
+                    AND e-item-vend.vend-no EQ ""
+                    BY e-item-vend.vend-no:
                     LEAVE.
+                END.
+            IF NOT AVAILABLE e-item-vend THEN
+                FOR EACH e-item-vend OF e-item NO-LOCK
+                    WHERE e-item-vend.item-type EQ YES
+                    BY e-item-vend.vend-no:
+                    LEAVE.
+                END.
+
+            IF AVAILABLE e-item-vend THEN
+            DO:
+                IF e-item-vend.std-uom NE "" THEN
+                    opcCostUom = e-item-vend.std-uom.
+
+                DO iIndex = 1 TO 10:
+                    ASSIGN
+                        dRunQty[iIndex]  = e-item-vend.run-qty[iIndex]
+                        dRunCost[iIndex] = e-item-vend.run-cost[iIndex]
+                        dSetups[iIndex]  = e-item-vend.setups[iIndex].
+                END.
+                DO iIndex = 1 TO 10:
+                    ASSIGN
+                        dRunQty[iIndex + 10]  = e-item-vend.runQtyXtra[iIndex]
+                        dRunCost[iIndex + 10] = e-item-vend.runCostXtra[iIndex]
+                        dSetups[iIndex + 10]  = e-item-vend.setupsXtra[iIndex].
+                END.
+                IF opcCostUOM NE ipcQtyUOM THEN
+                    RUN pConvertQuantityFromUOMToUOM(e-item-vend.company, ipbf-ttEstCostMaterial.itemID, "RM", ipcQtyUOM,opcCostUOM,
+                        ipbf-ttEstCostMaterial.basisWeight, ipbf-ttEstCostMaterial.dimLength, ipbf-ttEstCostMaterial.dimWidth, ipbf-ttEstCostMaterial.dimDepth,
+                        ipdQty, OUTPUT dQtyInCUOM).
+                ELSE
+                    dQtyInCUOM = ipdQty.
+                DO iIndex = 1 TO 20:
+                    IF dRunQty[iIndex] NE 0   AND
+                        dRunQty[iIndex] GE dQtyInCUOM THEN
+                    DO:
+                        ASSIGN
+                            lCostFound = YES
+                            opdCost    = dRunCost[iIndex]
+                            opdSetup   = dSetups[iIndex]
+                            .
+                        LEAVE.
+                    END.
                 END.
             END.
         END.
-    END.
-
-    IF ipbf-ttEstCostMaterial.isRealMaterial AND (opdCost EQ 0 OR lError) THEN
+    END.    
+    IF gcCECostSourceLookup NE "VendorCostOnly" AND ipbf-ttEstCostMaterial.isRealMaterial AND (opdCost EQ 0 OR lError) THEN
+    DO:
+        IF gcCECostSourceLookup EQ "VendorCostThenLast" THEN
+            ASSIGN opdCost = ipbf-ttEstCostMaterial.costPerUOMLast.
+        ELSE IF gcCECostSourceLookup EQ "VendorCostThenAverage" THEN
+                ASSIGN opdCost = ipbf-ttEstCostMaterial.costPerUOMAvg.                    
         ASSIGN 
-            opdCost    = IF ipbf-ttEstCostHeader.forRealItemsUseAvgCost THEN ipbf-ttEstCostMaterial.costPerUOMAvg ELSE ipbf-ttEstCostMaterial.costPerUOMLast
-            opcCostUOM = ipbf-ttEstCostMaterial.quantityUOM  /*REFACTOR? - What uom is avg and last cost in*/
-            .
-            
+            opcCostUOM = ipbf-ttEstCostMaterial.quantityUOM.  /*REFACTOR? - What uom is avg and last cost in*/            
+    END.        
+
 END PROCEDURE.
 
 PROCEDURE pGetMiscCostPerM PRIVATE:
@@ -5760,10 +5764,15 @@ PROCEDURE pSetGlobalSettings PRIVATE:
 	RUN sys/ref/nk1look.p (ipcCompany, "CEOpStandards", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
     glCalcSourceForMachineStd = lFound AND cReturn EQ "Machine if Not Locked".
     
+    RUN sys/ref/nk1look.p (ipcCompany,"CECostSource","C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    IF NOT lFound OR cReturn EQ "" THEN 
+        gcCECostSourceLookup = "VendorCostOnly".
+    ELSE 
+        gcCECostSourceLookup = cReturn.    
+    
     RUN sys/ref/nk1look.p (ipcCompany, "CEShowErrorsAndWarnings", "I" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
-    giPromptForErrorLevel = IF lFound THEN INTEGER (cReturn) ELSE 0.
+        giPromptForErrorLevel = IF lFound THEN INTEGER (cReturn) ELSE 0.
        
-
 END PROCEDURE.
 
 PROCEDURE pSetKeyFields PRIVATE:
