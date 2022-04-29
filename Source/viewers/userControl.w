@@ -372,6 +372,55 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win
+PROCEDURE local-update-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hdZohoProcs  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lError       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompanyName AS CHARACTER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+        
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF userControl.maxAllowedUsers NE INTEGER(userControl.maxAllowedUsers:SCREEN-VALUE) THEN DO:
+        RUN CRM/ZohoProcs.p PERSISTENT SET hdZohoProcs.
+        
+        RUN Zoho_UpdateDeskAccessToken IN hdZohoProcs (OUTPUT lError, OUTPUT cMessage).
+
+        IF NOT lError THEN DO:
+            cCompanyName = system.SessionConfig:Instance:GetValue("CompanyName").
+             
+            RUN Zoho_CreateDeskTicket IN hdZohoProcs (
+                INPUT  "User Count Changed for " + cCompanyName, 
+                INPUT  "User Count Changed for " + cCompanyName + " from " + STRING(userControl.maxAllowedUsers) + " to " + userControl.maxAllowedUsers:SCREEN-VALUE, 
+                OUTPUT lError, 
+                OUTPUT cMessage
+                ).       
+            
+            RUN Zoho_UpdateDeskAccountUserCount IN hdZohoProcs (INTEGER(userControl.maxAllowedUsers:SCREEN-VALUE), OUTPUT lError, OUTPUT cMessage).
+        END.
+
+        DELETE PROCEDURE hdZohoProcs. 
+    END.
+     
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
 /*------------------------------------------------------------------------------
