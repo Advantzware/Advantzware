@@ -494,6 +494,11 @@
              v-program      = "oe/rep/bolacpix.p"
              is-xprint-form = YES
              lines-per-page = 66.
+         WHEN "Ruffino" THEN
+          ASSIGN
+             v-program      = "oe/rep/bolruff.p"
+             is-xprint-form = YES
+             lines-per-page = 66.    
 
        OTHERWISE
           ASSIGN
