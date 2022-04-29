@@ -1724,7 +1724,7 @@ CASE ip-nk1-value:
             INPUT ip-nk1-value, 
             INPUT NO,           
             INPUT "Present List of Error and Warnings at end of Estimate Calculation",     /* Description */
-            INPUT "0=No Prompt,1=Critical Errors Only,2=Critical and Important Errors Only,3=All Warnings and Errors", /* Char Value */
+            INPUT "", /* Char Value */
             INPUT 0,                              /* Int value */
             INPUT NO,                             /* Logical value */ 
             INPUT 0                               /* Dec value*/
