@@ -1441,9 +1441,7 @@ PROCEDURE local-delete-record :
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"Record-source",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
   RUN set-attribute-list IN WIDGET-HANDLE(char-hdl) ("REC-DELETED=yes").
-
-  RUN pUpdateFGItemQty(BUFFER job).
-  
+      
   RUN pUpdateCommittedQty(recid(job)).
 
   RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
@@ -3149,40 +3147,6 @@ PROCEDURE check-tandem-button :
 
 
   RUN custom/frame-en.p (FRAME {&FRAME-NAME}:HANDLE, "{&ENABLED-FIELDS}", OUTPUT op-enabled).
-            
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateFGItemQty V-table-Win 
-PROCEDURE pUpdateFGItemQty :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE PARAMETER BUFFER ipbf-job FOR job.
-   DEFINE VARIABLE lRecalcOnHand AS LOGICAL INIT NO NO-UNDO.
-   DEFINE VARIABLE lRecalcOnOrder AS LOGICAL INIT YES NO-UNDO.
-   DEFINE VARIABLE lRecalcAllocated AS LOGICAL INIT NO NO-UNDO.
-   DEFINE VARIABLE lRecalcBackOrder AS LOGICAL INIT NO NO-UNDO.
-        
-   DEFINE BUFFER bf-job-hdr FOR job-hdr.
-    
-   FOR EACH bf-job-hdr NO-LOCK
-        WHERE bf-job-hdr.company EQ ipbf-job.company
-        AND bf-job-hdr.job EQ ipbf-job.job
-        AND bf-job-hdr.job-no EQ ipbf-job.job-no
-        AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
-        AND bf-job-hdr.ord-no EQ 0:
-             
-        RUN util/upditmfg.p (
-                   INPUT ROWID(bf-job-hdr),
-                   INPUT -1
-                   ).               
-   END.   
             
 END PROCEDURE.
 
