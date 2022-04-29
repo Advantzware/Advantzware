@@ -46,9 +46,9 @@ DEFINE VARIABLE gcDeptsForCoaters                     AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcIndustryFolding                     AS CHARACTER NO-UNDO INITIAL "Folding".
 DEFINE VARIABLE gcIndustryCorrugated                  AS CHARACTER NO-UNDO INITIAL "Corrugated".
 
-DEFINE VARIABLE gcErrorWarning                        AS CHARACTER NO-UNDO INITIAL "Warning".
-DEFINE VARIABLE gcErrorImportant                      AS CHARACTER NO-UNDO INITIAL "Important".
-DEFINE VARIABLE gcErrorCritical                       AS CHARACTER NO-UNDO INITIAL "Critical".
+DEFINE VARIABLE giErrorWarning                        AS INTEGER   NO-UNDO INITIAL 3.
+DEFINE VARIABLE giErrorImportant                      AS INTEGER   NO-UNDO INITIAL 2.
+DEFINE VARIABLE giErrorCritical                       AS INTEGER   NO-UNDO INITIAL 1.
 
 DEFINE VARIABLE gcDefaultWeightUOM                    AS CHARACTER NO-UNDO INITIAL "LB".
 DEFINE VARIABLE gcDefaultAreaUOM                      AS CHARACTER NO-UNDO INITIAL "SQIN".
@@ -75,6 +75,7 @@ DEFINE VARIABLE glUseBlankVendor                      AS LOGICAL   NO-UNDO.  /*C
 DEFINE VARIABLE glCalcSourceForMachineStd             AS LOGICAL   NO-UNDO.  /*CEOpStandards*/
 DEFINE VARIABLE glUseGrossWeight                      AS LOGICAL   NO-UNDO.  /*CEShipWeight*/
 DEFINE VARIABLE glCalcFoamCostFromBlank               AS LOGICAL   NO-UNDO.  /*FOAMCOST*/
+DEFINE VARIABLE giPromptForErrorLevel                 AS INTEGER   NO-UNDO.  /*CEShowErrorsAndWarnings*/
 DEFINE VARIABLE glAutoRecostBoard                     AS LOGICAL   NO-UNDO.  /*CEAutoRecostBoard*/
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -456,18 +457,20 @@ PROCEDURE pAddError PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcError AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcErrorType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiErrorLevel AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipiEstHeaderID AS INT64 NO-UNDO.
     DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantityMaster AS DECIMAL NO-UNDO.
 
     CREATE ttEstError.
     ASSIGN 
-        ttEstError.cError      = ipcError
-        ttEstError.cErrorType  = ipcErrorType
-        ttEstError.estHeaderID = ipiEstHeaderID
-        ttEstError.iFormNo     = ipiFormNo
-        ttEstError.iBlankNo    = ipiBlankNo
+        ttEstError.cError          = ipcError
+        ttEstError.iErrorLevel     = ipiErrorLevel
+        ttEstError.estHeaderID     = ipiEstHeaderID
+        ttEstError.iFormNo         = ipiFormNo
+        ttEstError.iBlankNo        = ipiBlankNo
+        ttEstError.dQuantityMaster = ipdQuantityMaster
         .
 END PROCEDURE.
 
@@ -1273,17 +1276,17 @@ PROCEDURE pAddGlue PRIVATE:
             NO-ERROR.
         IF NOT AVAILABLE bf-item THEN 
         DO:
-            RUN pAddError("Glue/Adhesive '" + ipbf-eb.adhesive + "' is not valid", gcErrorImportant, ipbf-ttEstCostBlank.estCostHeaderID, ipbf-ttEstCostBlank.formNo,ipbf-ttEstCostBlank.blankNo).
+            RUN pAddError("Glue/Adhesive '" + ipbf-eb.adhesive + "' is not valid", giErrorImportant, ipbf-ttEstCostBlank.estCostHeaderID, ipbf-ttEstCostBlank.formNo,ipbf-ttEstCostBlank.blankNo, ipbf-ttEstCostHeader.quantityMaster).
             RETURN.
         END.
         IF NOT fIsGlueMaterial(bf-item.mat-type) THEN  
         DO:
-            RUN pAddError("Glue/Adhesive '" + ipbf-eb.adhesive + "' is valid material but not a glue material type", gcErrorImportant, ipbf-ttEstCostBlank.estCostHeaderID, ipbf-ttEstCostBlank.formNo,ipbf-ttEstCostBlank.blankNo).
+            RUN pAddError("Glue/Adhesive '" + ipbf-eb.adhesive + "' is valid material but not a glue material type", giErrorImportant, ipbf-ttEstCostBlank.estCostHeaderID, ipbf-ttEstCostBlank.formNo,ipbf-ttEstCostBlank.blankNo, ipbf-ttEstCostHeader.quantityMaster).
             RETURN.
         END.
         IF bf-item.sqin-lb EQ 0 AND bf-item.linin-lb EQ 0 THEN 
         DO:
-            RUN pAddError("Glue/Adhesive '" + ipbf-eb.adhesive + "' is valid glue material but no coverage rate configured", gcErrorWarning, ipbf-ttEstCostBlank.estCostHeaderID, ipbf-ttEstCostBlank.formNo,ipbf-ttEstCostBlank.blankNo).
+            RUN pAddError("Glue/Adhesive '" + ipbf-eb.adhesive + "' is valid glue material but no coverage rate configured", giErrorWarning, ipbf-ttEstCostBlank.estCostHeaderID, ipbf-ttEstCostBlank.formNo,ipbf-ttEstCostBlank.blankNo, ipbf-ttEstCostHeader.quantityMaster).
             RETURN.
         END.
         
@@ -1388,6 +1391,7 @@ PROCEDURE pAddInk PRIVATE:
     DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdCoveragePercent AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER iplNoCharge AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantityMaster AS DECIMAL NO-UNDO.
         
     DEFINE BUFFER bf-item FOR item.
 
@@ -1399,19 +1403,19 @@ PROCEDURE pAddInk PRIVATE:
 
     IF NOT AVAILABLE bf-item THEN 
     DO:
-        RUN pAddError("Invalid Ink RM Code '" + ipcItemCode + "'", gcErrorImportant, ipbf-ttEstCostBlank.estCostHeaderID, ipbf-ttEstCostBlank.formNo, ipbf-ttEstCostBlank.blankNo).
+        RUN pAddError("Invalid Ink RM Code '" + ipcItemCode + "'", giErrorImportant, ipbf-ttEstCostBlank.estCostHeaderID, ipbf-ttEstCostBlank.formNo, ipbf-ttEstCostBlank.blankNo, ipdQuantityMaster).
         RETURN.
     END.
     ELSE 
     DO:
         IF NOT fIsInkMaterial(bf-item.mat-type) THEN  
         DO: 
-            RUN pAddError("Ink '" + ipcItemCode + "' is valid material but not an ink material type.", gcErrorImportant,ipbf-ttEstCostBlank.estCostHeaderID, ipbf-ttEstCostBlank.formNo, ipbf-ttEstCostBlank.blankNo).
+            RUN pAddError("Ink '" + ipcItemCode + "' is valid material but not an ink material type.", giErrorImportant,ipbf-ttEstCostBlank.estCostHeaderID, ipbf-ttEstCostBlank.formNo, ipbf-ttEstCostBlank.blankNo, ipdQuantityMaster).
             RETURN.
         END.
         IF bf-item.yield EQ 0 OR bf-item.yield EQ ? THEN 
         DO: 
-            RUN pAddError("Ink '" + ipcItemCode + "' has an invalid coverage rate.", gcErrorImportant,ipbf-ttEstCostBlank.estCostHeaderID, ipbf-ttEstCostBlank.formNo, ipbf-ttEstCostBlank.blankNo).
+            RUN pAddError("Ink '" + ipcItemCode + "' has an invalid coverage rate.", giErrorImportant,ipbf-ttEstCostBlank.estCostHeaderID, ipbf-ttEstCostBlank.formNo, ipbf-ttEstCostBlank.blankNo, ipdQuantityMaster).
             RETURN.
         END.
         FIND FIRST ttInk EXCLUSIVE-LOCK 
@@ -1483,14 +1487,14 @@ PROCEDURE pAddLeaf PRIVATE:
 
     IF NOT AVAILABLE bf-item THEN 
     DO:
-        RUN pAddError("Invalid Leaf/Film RM Code '" + ipcItemCode + "'", gcErrorImportant, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, ipiBlankNo).
+        RUN pAddError("Invalid Leaf/Film RM Code '" + ipcItemCode + "'", giErrorImportant, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, ipiBlankNo, ipbf-ttEstCostHeader.quantityMaster).
         RETURN.
     END.
     ELSE 
     DO:
         IF NOT fIsLeafMaterial(bf-item.mat-type) THEN 
         DO: 
-            RUN pAddError("Leaf/Film '" + ipcItemCode + "' is valid but not a leaf/film material type.", gcErrorImportant,ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, ipiBlankNo).
+            RUN pAddError("Leaf/Film '" + ipcItemCode + "' is valid but not a leaf/film material type.", giErrorImportant,ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, ipiBlankNo, ipbf-ttEstCostHeader.quantityMaster).
             RETURN.
         END.
         FIND FIRST ttLeaf EXCLUSIVE-LOCK 
@@ -1571,6 +1575,7 @@ PROCEDURE pAddPacking PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttEstCostBlank FOR ttEstCostBlank.
     DEFINE INPUT PARAMETER ipcItemCode AS CHARACTER NO-UNDO.
     DEFINE PARAMETER BUFFER opbf-ttPack FOR ttPack.
+    DEFINE INPUT PARAMETER ipdQuantityMaster AS DECIMAL NO-UNDO.
         
     DEFINE           BUFFER bf-item     FOR item.
 
@@ -1582,14 +1587,14 @@ PROCEDURE pAddPacking PRIVATE:
 
     IF NOT AVAILABLE bf-item THEN 
     DO:
-        RUN pAddError("Invalid Pack RM Code '" + ipcItemCode + "'", gcErrorImportant, ipbf-ttEstCostBlank.estCostHeaderID, ipbf-ttEstCostBlank.formNo, ipbf-ttEstCostBlank.blankNo).
+        RUN pAddError("Invalid Pack RM Code '" + ipcItemCode + "'", giErrorImportant, ipbf-ttEstCostBlank.estCostHeaderID, ipbf-ttEstCostBlank.formNo, ipbf-ttEstCostBlank.blankNo, ipdQuantityMaster).
         RETURN.
     END.
     ELSE 
     DO:
         IF NOT fIsPackingMaterial(bf-item.mat-type) THEN 
         DO: 
-            RUN pAddError("Packing '" + ipcItemCode + "' is valid but not a packing material type.", gcErrorImportant,ipbf-ttEstCostBlank.estCostHeaderID, ipbf-ttEstCostBlank.formNo, ipbf-ttEstCostBlank.blankNo).
+            RUN pAddError("Packing '" + ipcItemCode + "' is valid but not a packing material type.", giErrorImportant,ipbf-ttEstCostBlank.estCostHeaderID, ipbf-ttEstCostBlank.formNo, ipbf-ttEstCostBlank.blankNo, ipdQuantityMaster).
             RETURN.
         END.
         FIND FIRST opbf-ttPack EXCLUSIVE-LOCK 
@@ -2457,6 +2462,10 @@ PROCEDURE pCalcEstimate PRIVATE:
     
     IF iplPrompt THEN 
         RUN pPromptForCalculationChanges.
+        
+    IF iplPrompt AND giPromptForErrorLevel GT 0 
+    AND CAN-FIND(FIRST ttEstError WHERE ttEstError.iErrorLevel LE giPromptForErrorLevel) THEN 
+        RUN est/estCalcErrorList.w(INPUT TABLE ttEstError,giPromptForErrorLevel).     
     
     RUN pWriteDatasetIntoDB.
     
@@ -2599,7 +2608,7 @@ PROCEDURE pCalcHeader PRIVATE:
         RUN pBuildCostSummary(bf-ttEstCostHeader.estCostHeaderID).
         RUN pCopyHeaderCostsToSetItem(BUFFER bf-ttEstCostHeader).
         RUN pBuildProbe(BUFFER bf-ttEstCostHeader).
-    END. /*each bf-estCostHeader*/
+    END. /*each bf-ttEstCostHeader*/
 
 END PROCEDURE.
 
@@ -2779,7 +2788,7 @@ PROCEDURE pBuildPackingForEb PRIVATE:
         RETURN.   /*Ignore non-form 0 packing for unitized set*/
     
     /*Case*/
-    RUN pAddPacking(BUFFER ipbf-ttEstCostBlank, ipbf-eb.cas-no, BUFFER bf-ttPack).
+    RUN pAddPacking(BUFFER ipbf-ttEstCostBlank, ipbf-eb.cas-no, BUFFER bf-ttPack, ipbf-ttEstCostHeader.quantityMaster).
     IF AVAILABLE bf-ttPack THEN 
         ASSIGN 
             bf-ttPack.dDimLength          = IF ipbf-eb.cas-len NE 0 THEN ipbf-eb.cas-len ELSE bf-ttPack.dDimLength
@@ -2797,7 +2806,7 @@ PROCEDURE pBuildPackingForEb PRIVATE:
     RELEASE bf-ttPack.
      
     /*Pallet*/
-    RUN pAddPacking(BUFFER ipbf-ttEstCostBlank, ipbf-eb.tr-no, BUFFER bf-ttPack).
+    RUN pAddPacking(BUFFER ipbf-ttEstCostBlank, ipbf-eb.tr-no, BUFFER bf-ttPack, ipbf-ttEstCostHeader.quantityMaster).
     IF AVAILABLE bf-ttPack THEN 
         ASSIGN 
             bf-ttPack.dDimLength            = IF ipbf-eb.tr-len NE 0 THEN ipbf-eb.tr-len ELSE bf-ttPack.dDimLength
@@ -2818,7 +2827,7 @@ PROCEDURE pBuildPackingForEb PRIVATE:
         OUTPUT dLayerDepth, OUTPUT dDividerDepth).
      
     /*LayerPad*/
-    RUN pAddPacking(BUFFER ipbf-ttEstCostBlank, ipbf-eb.layer-pad, BUFFER bf-ttPack).
+    RUN pAddPacking(BUFFER ipbf-ttEstCostBlank, ipbf-eb.layer-pad, BUFFER bf-ttPack, ipbf-ttEstCostHeader.quantityMaster).
     IF AVAILABLE bf-ttPack THEN 
         ASSIGN 
             bf-ttPack.dDimLength        = IF ipbf-eb.lp-len NE 0 THEN ipbf-eb.lp-len ELSE bf-ttPack.dDimLength
@@ -2830,7 +2839,7 @@ PROCEDURE pBuildPackingForEb PRIVATE:
     RELEASE bf-ttPack.
     
     /*Divider*/
-    RUN pAddPacking(BUFFER ipbf-ttEstCostBlank, ipbf-eb.divider, BUFFER bf-ttPack).
+    RUN pAddPacking(BUFFER ipbf-ttEstCostBlank, ipbf-eb.divider, BUFFER bf-ttPack, ipbf-ttEstCostHeader.quantityMaster).
     IF AVAILABLE bf-ttPack THEN 
         ASSIGN 
             bf-ttPack.dDimLength        = IF ipbf-eb.div-len NE 0 THEN ipbf-eb.div-len ELSE bf-ttPack.dDimLength
@@ -2845,7 +2854,7 @@ PROCEDURE pBuildPackingForEb PRIVATE:
     IF cStrapID NE "" THEN 
     DO:
         /*Strapping*/
-        RUN pAddPacking(BUFFER ipbf-ttEstCostBlank, cStrapID, BUFFER bf-ttPack).
+        RUN pAddPacking(BUFFER ipbf-ttEstCostBlank, cStrapID, BUFFER bf-ttPack, ipbf-ttEstCostHeader.quantityMaster).
         IF AVAILABLE bf-ttPack THEN 
             ASSIGN 
                 bf-ttPack.dQtyMultiplier    = dStrapQty
@@ -2862,7 +2871,7 @@ PROCEDURE pBuildPackingForEb PRIVATE:
         AND estPacking.formNo EQ ipbf-eb.form-no
         AND estPacking.blankNo EQ ipbf-eb.blank-no:
         
-        RUN pAddPacking(BUFFER ipbf-ttEstCostBlank, estPacking.rmItemID, BUFFER bf-ttPack).
+        RUN pAddPacking(BUFFER ipbf-ttEstCostBlank, estPacking.rmItemID, BUFFER bf-ttPack, ipbf-ttEstCostHeader.quantityMaster).
         IF AVAILABLE bf-ttPack THEN 
             ASSIGN 
                 bf-ttPack.dDimLength          = IF estPacking.dimLength NE 0 THEN estPacking.dimLength ELSE bf-ttPack.dDimLength
@@ -2894,12 +2903,12 @@ PROCEDURE pBuildInksForEb PRIVATE:
     IF ipbf-ttEstCostHeader.industry EQ gcIndustryFolding THEN
     DO iIndex = 1 TO EXTENT(ipbf-eb.i-code2):
         IF ipbf-eb.i-code2[iIndex] GT "" THEN
-            RUN pAddInk(BUFFER ipbf-ttEstCostBlank, ipbf-eb.i-ps2[iIndex], ipbf-eb.i-code2[iIndex], ipbf-eb.i-dscr2[iIndex], ipbf-eb.i-%2[iIndex], ipbf-eb.inkNoCharge).
+            RUN pAddInk(BUFFER ipbf-ttEstCostBlank, ipbf-eb.i-ps2[iIndex], ipbf-eb.i-code2[iIndex], ipbf-eb.i-dscr2[iIndex], ipbf-eb.i-%2[iIndex], ipbf-eb.inkNoCharge, ipbf-ttEstCostHeader.quantityMaster).
     END.
     ELSE
     DO iIndex = 1 TO EXTENT(ipbf-eb.i-code):
         IF ipbf-eb.i-code[iIndex] GT "" THEN    
-            RUN pAddInk(BUFFER ipbf-ttEstCostBlank, ipbf-eb.i-ps[iIndex], ipbf-eb.i-code[iIndex], ipbf-eb.i-dscr[iIndex], ipbf-eb.i-%[iIndex], ipbf-eb.inkNoCharge).
+            RUN pAddInk(BUFFER ipbf-ttEstCostBlank, ipbf-eb.i-ps[iIndex], ipbf-eb.i-code[iIndex], ipbf-eb.i-dscr[iIndex], ipbf-eb.i-%[iIndex], ipbf-eb.inkNoCharge, ipbf-ttEstCostHeader.quantityMaster).
     END.
 
 END PROCEDURE.
@@ -3519,12 +3528,12 @@ PROCEDURE pProcessAdders PRIVATE:
                 NO-ERROR.
             IF NOT AVAILABLE bf-item THEN 
             DO:
-                RUN pAddError("Adder '" + cAdder + "' is not valid", gcErrorWarning, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0).
+                RUN pAddError("Adder '" + cAdder + "' is not valid", giErrorWarning, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0, ipbf-ttEstCostHeader.quantityMaster).
                 RETURN.
             END.
             IF NOT fIsAdderMaterial(bf-item.mat-type) THEN 
             DO:
-                RUN pAddError("Adder '" + cAdder + "' is valid material but not an adder material type.", gcErrorWarning, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0).
+                RUN pAddError("Adder '" + cAdder + "' is valid material but not an adder material type.", giErrorWarning, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0, ipbf-ttEstCostHeader.quantityMaster).
                 RETURN.
             END.      
             RUN pAddEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER ipbf-ttEstCostForm, cAdder, 0, BUFFER bf-ttEstCostMaterial).
@@ -3584,7 +3593,7 @@ PROCEDURE pProcessBoardBOM PRIVATE:
         NO-ERROR.
     IF NOT AVAILABLE bf-item THEN 
     DO:
-        RUN pAddError("BOM Component '" + ipbf-item-bom.i-no + "' is not valid", gcErrorWarning, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0).
+        RUN pAddError("BOM Component '" + ipbf-item-bom.i-no + "' is not valid", giErrorWarning, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0, ipbf-ttEstCostHeader.quantityMaster).
         RETURN.
     END.
     oplValidBom = YES.
@@ -3653,7 +3662,7 @@ PROCEDURE pProcessBoardBOMAdhesive PRIVATE:
         NO-ERROR.
     IF NOT AVAILABLE bf-item THEN 
     DO:
-        RUN pAddError("BOM Adhesive '" + ipcItemID + "' is not valid", gcErrorWarning, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0).
+        RUN pAddError("BOM Adhesive '" + ipcItemID + "' is not valid", giErrorWarning, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0, ipbf-ttEstCostHeader.quantityMaster).
         RETURN.
     END.
     
@@ -3700,7 +3709,7 @@ PROCEDURE pProcessBoardBOMLaminate PRIVATE:
         NO-ERROR.
     IF NOT AVAILABLE bf-item THEN 
     DO:
-        RUN pAddError("BOM Laminate '" + ipcItemID + "' is not valid", gcErrorWarning, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0).
+        RUN pAddError("BOM Laminate '" + ipcItemID + "' is not valid", giErrorWarning, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0, ipbf-ttEstCostHeader.quantityMaster).
         RETURN.
     END.
     
@@ -3738,7 +3747,7 @@ PROCEDURE pProcessEstMaterial PRIVATE:
     DEFINE BUFFER bf-estMaterial        FOR estMaterial.
     DEFINE BUFFER bf-ttEstCostMaterial    FOR ttEstCostMaterial.
     DEFINE BUFFER bf-ttEstCostBlank       FOR ttEstCostBlank.
-    DEFINE BUFFER bfUnitize-estCostForm FOR ttEstCostForm.
+    DEFINE BUFFER bfUnitize-ttEstCostForm FOR ttEstCostForm.
     
     DEFINE VARIABLE dSqFtPerEA AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iCases AS INTEGER NO-UNDO.
@@ -3749,9 +3758,9 @@ PROCEDURE pProcessEstMaterial PRIVATE:
     IF ipbf-ttEstCostHeader.isUnitizedSet  THEN 
     DO:
         /*Establish unitization form (Form 1)*/
-        FIND FIRST bfUnitize-estCostForm NO-LOCK 
-            WHERE bfUnitize-estCostForm.estCostHeaderID EQ ipbf-ttEstCostHeader.estCostHeaderID
-            AND bfUnitize-estCostForm.formNo EQ 1
+        FIND FIRST bfUnitize-ttEstCostForm NO-LOCK 
+            WHERE bfUnitize-ttEstCostForm.estCostHeaderID EQ ipbf-ttEstCostHeader.estCostHeaderID
+            AND bfUnitize-ttEstCostForm.formNo EQ 1
             NO-ERROR.
     END.
     
@@ -3826,14 +3835,14 @@ PROCEDURE pProcessEstMaterial PRIVATE:
             bf-ttEstCostMaterial.quantityRequiredSetupWaste = (bf-estMaterial.wastePercent / 100) * bf-ttEstCostMaterial.quantityRequiredNoWaste
             bf-ttEstCostMaterial.weightTotal = bf-estMaterial.weightPerEA * bf-ttEstCostMaterial.quantityRequiredNoWaste
             .
-        IF bf-ttEstCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-estCostForm THEN 
+        IF bf-ttEstCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-ttEstCostForm THEN 
         DO:
             /*Associate Form 0 materials to the unitize form (Form 1)*/
             ASSIGN 
-                bf-ttEstCostMaterial.estCostFormID  = bfUnitize-estCostForm.estCostFormID
+                bf-ttEstCostMaterial.estCostFormID  = bfUnitize-ttEstCostForm.estCostFormID
                 bf-ttEstCostMaterial.estCostBlankID = 0
                 .
-            RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bfUnitize-estCostForm).
+            RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bfUnitize-ttEstCostForm).
         END. 
         ELSE     
             RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bf-ttEstCostForm).
@@ -4437,12 +4446,12 @@ PROCEDURE pProcessBoard PRIVATE:
         NO-ERROR.
     IF NOT AVAILABLE bf-item THEN 
     DO:
-        RUN pAddError("Board '" + ipbf-ef.board + "' is not valid", gcErrorImportant, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0).
+        RUN pAddError("Board '" + ipbf-ef.board + "' is not valid", giErrorImportant, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0, ipbf-ttEstCostHeader.quantityMaster).
         RETURN.
     END.
     IF NOT fIsBoardMaterial(bf-item.mat-type) THEN  
     DO:
-        RUN pAddError("Board '" + ipbf-ef.board + "' is valid material but not a board material type.", gcErrorImportant, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0).
+        RUN pAddError("Board '" + ipbf-ef.board + "' is valid material but not a board material type.", giErrorImportant, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0, ipbf-ttEstCostHeader.quantityMaster).
         RETURN.
     END.   
     FOR EACH bf-item-bom NO-LOCK
@@ -4637,7 +4646,7 @@ PROCEDURE pBuildHeader PRIVATE:
         NO-ERROR.
     IF NOT AVAILABLE bf-est THEN 
     DO:
-        RUN pAddError("Estimate '" + ipbf-ttEstCostHeader.estimateNo + "' not valid", gcErrorCritical, ipbf-ttEstCostHeader.estCostHeaderID, 0,0).
+        RUN pAddError("Estimate '" + ipbf-ttEstCostHeader.estimateNo + "' not valid", giErrorCritical, ipbf-ttEstCostHeader.estCostHeaderID, 0,0, ipbf-ttEstCostHeader.quantityMaster).
         RETURN.
     END. 
     FIND FIRST bf-ce-ctrl NO-LOCK 
@@ -4650,7 +4659,7 @@ PROCEDURE pBuildHeader PRIVATE:
             NO-ERROR.
     IF NOT AVAILABLE bf-est THEN 
     DO:
-        RUN pAddError("Control File not found for company '" + ipbf-ttEstCostHeader.company + "'", gcErrorCritical, ipbf-ttEstCostHeader.estCostHeaderID, 0,0).
+        RUN pAddError("Control File not found for company '" + ipbf-ttEstCostHeader.company + "'", giErrorCritical, ipbf-ttEstCostHeader.estCostHeaderID, 0,0, ipbf-ttEstCostHeader.quantityMaster).
         RETURN.
     END.
     ASSIGN 
@@ -4667,13 +4676,13 @@ PROCEDURE pBuildHeader PRIVATE:
         
         ipbf-ttEstCostHeader.showCommissions             = bf-ce-ctrl.comm-add /*ctrl[5]*/
         ipbf-ttEstCostHeader.showLaborRates              = bf-ce-ctrl.sho-labor /*ctrl[7]*/
-        /*        ipbf-estCostHeader.addToFactCostFreight        = bf-ce-ctrl.shp-add /*ctrl[6]*/     */
-        /*        ipbf-estCostHeader.addToFactCostSpecial1       = bf-ce-ctrl.spec-add[1] /*ctrl[13]*/*/
-        /*        ipbf-estCostHeader.addToFactCostSpecial2       = bf-ce-ctrl.spec-add[2] /*ctrl[14]*/*/
-        /*        ipbf-estCostHeader.addToFactCostSpecial3       = bf-ce-ctrl.spec-add[3] /*ctrl[15]*/*/
-        /*        ipbf-estCostHeader.addToFactCostGSA            = bf-ce-ctrl.spec-add[6] /*ctrl[16]*/*/
-        /*        ipbf-estCostHeader.addToFactCostRoyalty        = bf-ce-ctrl.spec-add[8] /*ctrl[18]*/*/
-        /*        ipbf-estCostHeader.addToFactCostComm           = bf-ce-ctrl.spec-add[7] /*ctrl[17]*/*/
+        /*        ipbf-ttEstCostHeader.addToFactCostFreight        = bf-ce-ctrl.shp-add /*ctrl[6]*/     */
+        /*        ipbf-ttEstCostHeader.addToFactCostSpecial1       = bf-ce-ctrl.spec-add[1] /*ctrl[13]*/*/
+        /*        ipbf-ttEstCostHeader.addToFactCostSpecial2       = bf-ce-ctrl.spec-add[2] /*ctrl[14]*/*/
+        /*        ipbf-ttEstCostHeader.addToFactCostSpecial3       = bf-ce-ctrl.spec-add[3] /*ctrl[15]*/*/
+        /*        ipbf-ttEstCostHeader.addToFactCostGSA            = bf-ce-ctrl.spec-add[6] /*ctrl[16]*/*/
+        /*        ipbf-ttEstCostHeader.addToFactCostRoyalty        = bf-ce-ctrl.spec-add[8] /*ctrl[18]*/*/
+        /*        ipbf-ttEstCostHeader.addToFactCostComm           = bf-ce-ctrl.spec-add[7] /*ctrl[17]*/*/
         ipbf-ttEstCostHeader.foldPct                     = bf-ce-ctrl.fold-pct / 100 /*ctrl[19]*/ /*NOTE CHANGED to be /100 */            
         ipbf-ttEstCostHeader.handlingRateFGPerCWT        = bf-ce-ctrl.fg-rate   /*ld-fg-rate*/
         ipbf-ttEstCostHeader.handlingRateRMFarmPerCWT    = bf-ce-ctrl.rm-rate-farm 
@@ -4861,7 +4870,7 @@ PROCEDURE pProcessPacking PRIVATE:
     DEFINE           BUFFER bf-ttEstCostMaterial    FOR ttEstCostMaterial.
     DEFINE           BUFFER bf-ttEstCostForm      FOR ttEstCostForm.
     DEFINE           BUFFER bf-ttEstCostBlank       FOR ttEstCostBlank.
-    DEFINE           BUFFER bfUnitize-estCostform FOR ttEstCostForm.
+    DEFINE           BUFFER bfUnitize-ttEstCostform FOR ttEstCostForm.
     
     DEFINE VARIABLE iCaseCount      AS INTEGER NO-UNDO.
     DEFINE VARIABLE iCases          AS INTEGER NO-UNDO.
@@ -4880,9 +4889,9 @@ PROCEDURE pProcessPacking PRIVATE:
     IF ipbf-ttEstCostHeader.isUnitizedSet  THEN 
     DO:
         /*Establish unitization form (Form 1)*/
-        FIND FIRST bfUnitize-estCostForm NO-LOCK 
-            WHERE bfUnitize-estCostForm.estCostHeaderID EQ ipbf-ttEstCostHeader.estCostHeaderID
-            AND bfUnitize-estCostForm.formNo EQ 1
+        FIND FIRST bfUnitize-ttEstCostForm NO-LOCK 
+            WHERE bfUnitize-ttEstCostForm.estCostHeaderID EQ ipbf-ttEstCostHeader.estCostHeaderID
+            AND bfUnitize-ttEstCostForm.formNo EQ 1
             NO-ERROR.
     END.
 
@@ -4981,14 +4990,14 @@ PROCEDURE pProcessPacking PRIVATE:
                 bf-ttEstCostMaterial.weightTotal = ttPack.dWeightTare * bf-ttEstCostMaterial.quantityRequiredNoWaste.
             END.
         
-        IF bf-ttEstCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-estCostForm THEN 
+        IF bf-ttEstCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-ttEstCostForm THEN 
         DO:
             /*Associate Form 0 materials to the unitize form (Form 1)*/
             ASSIGN 
-                bf-ttEstCostMaterial.estCostFormID  = bfUnitize-estCostForm.estCostFormID
+                bf-ttEstCostMaterial.estCostFormID  = bfUnitize-ttEstCostForm.estCostFormID
                 bf-ttEstCostMaterial.estCostBlankID = 0
                 .
-            RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bfUnitize-estCostForm).
+            RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bfUnitize-ttEstCostForm).
         END. 
         ELSE     
             RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bf-ttEstCostForm).
@@ -5362,7 +5371,7 @@ PROCEDURE pProcessOperation PRIVATE:
             WHERE bf-mach.company EQ ipbf-ttEstCostHeader.company
             AND bf-mach.m-code EQ ipbf-ttEstCostOperation.operationID
             NO-ERROR.
-        //RUN pRecalcEstOperationFromStandardsSetupWaste(BUFFER ipbf-estCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER ipbf-estCostOperation, BUFFER bf-mach).
+        //RUN pRecalcEstOperationFromStandardsSetupWaste(BUFFER ipbf-ttEstCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER ipbf-ttEstCostOperation, BUFFER bf-mach).
        
     END.
     
@@ -5751,6 +5760,10 @@ PROCEDURE pSetGlobalSettings PRIVATE:
 	RUN sys/ref/nk1look.p (ipcCompany, "CEOpStandards", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
     glCalcSourceForMachineStd = lFound AND cReturn EQ "Machine if Not Locked".
     
+    RUN sys/ref/nk1look.p (ipcCompany, "CEShowErrorsAndWarnings", "I" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    giPromptForErrorLevel = IF lFound THEN INTEGER (cReturn) ELSE 0.
+       
+
 END PROCEDURE.
 
 PROCEDURE pSetKeyFields PRIVATE:
