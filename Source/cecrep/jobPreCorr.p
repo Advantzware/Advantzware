@@ -81,9 +81,6 @@ DEFINE VARIABLE lJobCardPrntScor-Log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
-Define Variable hNotesProc as Handle NO-UNDO.
-
-RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
 
 DEFINE BUFFER bf-itemfg         FOR itemfg .
 
@@ -691,12 +688,12 @@ DO v-local-loop = 1 TO v-local-copies:
            v-dept-note   = ""  .
         IF NOT v-dept-log THEN v-dept-codes = "". 
         
-        RUN GetNotesArrayForObject IN hNotesProc (INPUT job.rec_key, "", v-dept-codes, 80, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).    
+        RUN Notes_GetNotesArrayForObject (INPUT job.rec_key, "", v-dept-codes, 80, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).    
                        
         ASSIGN         
         v-spec-note   = ""  .
         
-        RUN GetNotesArrayForObject IN hNotesProc (INPUT bf-itemfg.rec_key, "", spec-list, 80, NO,0, OUTPUT v-spec-note, OUTPUT opiArraySize).
+        RUN Notes_GetNotesArrayForObject (INPUT bf-itemfg.rec_key, "", spec-list, 80, NO,0, OUTPUT v-spec-note, OUTPUT opiArraySize).
 
            
 
@@ -1053,9 +1050,6 @@ END.  /* end v-local-loop  */
  
 HIDE ALL NO-PAUSE.
 
-IF VALID-HANDLE(hNotesProc) THEN  
-  DELETE OBJECT hNotesProc.
-  
 PROCEDURE stackImage:
     DEFINE BUFFER pattern      FOR reftable.
     DEFINE BUFFER stackPattern FOR stackPattern.

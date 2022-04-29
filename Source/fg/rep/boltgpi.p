@@ -311,7 +311,7 @@ FOR EACH w-fg-rctd
       END.
       
       v-salesman = TRIM(v-salesman).
-      v-job-no = IF w-fg-rctd.job-no = "" THEN "" ELSE (w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2,">>")).
+      v-job-no = IF w-fg-rctd.job-no = "" THEN "" ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-fg-rctd.job-no, w-fg-rctd.job-no2))).
       IF v-salesman GT '' THEN
         IF substr(v-salesman,LENGTH(TRIM(v-salesman)),1) EQ "," THEN
           substr(v-salesman,LENGTH(TRIM(v-salesman)),1) = "".

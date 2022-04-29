@@ -1037,11 +1037,11 @@ PROCEDURE create-reg-txtfile :
         IF v-job BEGINS "-" THEN v-job = "".
 
         ASSIGN
-            lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,9)
+            lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,iJobLen)
             lv-middlesex-job = IF lv-middlesex-job EQ "" 
                              THEN "" 
                              ELSE "%MX" +
-                                   FILL("0",9 - LENGTH(TRIM(lv-middlesex-job))) 
+                                   FILL("0",iJobLen - LENGTH(TRIM(lv-middlesex-job))) 
                                  + TRIM(lv-middlesex-job)
             lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,9)
             lv-middlesex-po  = IF lv-middlesex-po EQ "" 
@@ -1380,11 +1380,11 @@ PROCEDURE create-regDetail-txtfile :
         IF v-job BEGINS "-" THEN v-job = "".
 
         ASSIGN
-            lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,9)
+            lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,iJobLen)
             lv-middlesex-job = IF lv-middlesex-job EQ "" 
                              THEN "" 
                              ELSE "%MX" +
-                                   FILL("0",9 - LENGTH(TRIM(lv-middlesex-job))) 
+                                   FILL("0",iJobLen - LENGTH(TRIM(lv-middlesex-job))) 
                                  + TRIM(lv-middlesex-job)
             lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,9)
             lv-middlesex-po  = IF lv-middlesex-po EQ "" 

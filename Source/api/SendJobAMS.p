@@ -173,6 +173,29 @@ DEFINE VARIABLE iLinkSeqNo                    AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iAssemblyBlankCount           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cAction                       AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE dBoardLength    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dBoardWidth     AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dJobBoardIssued AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cBoard          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInk            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dInkQty         AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cPallet         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dPalletMRP      AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cMatType5       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dMatType5Qty    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMatType6       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dMatType6Qty    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVarnish        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAdders         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dNoCases        AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cCasesName      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFilmName       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dRequiredQty    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dTotalMRP       AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dMatLength      AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE iNumUp          AS INTEGER   NO-UNDO.      
+DEFINE VARIABLE kFrac           AS DECIMAL   NO-UNDO.
+
 DEFINE VARIABLE oAttribute AS system.Attribute NO-UNDO.
                     
 DEFINE BUFFER bf-APIOutboundDetail        FOR APIOutboundDetail.
@@ -184,7 +207,7 @@ DEFINE BUFFER bf-oe-ord                   FOR oe-ord.
 
 /* ***************************  Main Block  *************************** */
 
-
+{api/SendJob.i}
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -718,6 +741,8 @@ PROCEDURE pCreateMaterials PRIVATE:
         oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "CrossGrain", cCrossGrain).
         oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "JobMaterialAction", cAction).
         lcJobMatData = oAttribute:ReplaceAttributes(lcJobMatData, BUFFER job-mat:HANDLE).
+
+        RUN pUpdateRMItemInfo (job-mat.company, job-mat.i-no, INPUT-OUTPUT lcJobMatData).
                         
         CREATE ttMaterial.
         ASSIGN
@@ -727,44 +752,6 @@ PROCEDURE pCreateMaterials PRIVATE:
             ttMaterial.requestData = lcJobMatData
             .                                              
     END.
-END PROCEDURE.
-
-PROCEDURE pUpdateCustInfo PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcCustomerID          AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData AS LONGCHAR  NO-UNDO.
-    
-    DEFINE BUFFER bf-cust FOR cust.
-    
-    FIND FIRST bf-cust NO-LOCK
-         WHERE bf-cust.company EQ ipcCompany
-           AND bf-cust.cust-no EQ ipcCustomerID
-         NO-ERROR.
-    
-    ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER bf-cust:HANDLE).
-END PROCEDURE.
-
-PROCEDURE pUpdateItemInfo PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT        PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcItemID        AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData AS LONGCHAR  NO-UNDO.
-
-    
-    DEFINE BUFFER bf-itemfg FOR itemfg.
-    
-    FIND FIRST bf-itemfg NO-LOCK
-         WHERE bf-itemfg.company EQ ipcCompany 
-           AND bf-itemfg.i-no    EQ ipcItemID
-         NO-ERROR.
-    ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER bf-itemfg:HANDLE).
 END PROCEDURE.
 
 PROCEDURE pIsACombottPart PRIVATE:
@@ -1155,8 +1142,8 @@ PROCEDURE pCreateParts PRIVATE:
             IF cAction EQ "" THEN
                 cAction = "Create".
                             
-            RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
-            RUN pUpdateCustInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
+            RUN pUpdateFGItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
+            RUN pUpdateCustomerInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
             RUN pGetOrderQuantity(BUFFER job-hdr, OUTPUT dOrderQty).
 
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobHeaderData, "Blank", cBlank).
@@ -1224,8 +1211,8 @@ PROCEDURE pCreateParts PRIVATE:
                     
         lcJobHeaderData = bf-job-hdr-APIOutboundDetail.data.
         
-        RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
-        RUN pUpdateCustInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
+        RUN pUpdateFGItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
+        RUN pUpdateCustomerInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
         RUN pGetOrderQuantity(BUFFER job-hdr, OUTPUT dOrderQty).
             
         oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobHeaderData, "KeyItem", cKeyItem). 
@@ -1294,8 +1281,8 @@ PROCEDURE pCreateParts PRIVATE:
             IF cAction EQ "" THEN
                 cAction = "Create".
                             
-            RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
-            RUN pUpdateCustInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
+            RUN pUpdateFGItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
+            RUN pUpdateCustomerInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
             RUN pGetOrderQuantity(BUFFER job-hdr, OUTPUT dOrderQty).
                 
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobHeaderData, "KeyItem", cKeyItem). 
@@ -1380,8 +1367,8 @@ PROCEDURE pCreateParts PRIVATE:
         IF cAction EQ "" THEN
             cAction = "Create".
                 
-        RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
-        RUN pUpdateCustInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
+        RUN pUpdateFGItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
+        RUN pUpdateCustomerInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
         RUN pGetOrderQuantity(BUFFER job-hdr, OUTPUT dOrderQty).
             
         oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobHeaderData, "KeyItem", cKeyItem). 
@@ -1563,7 +1550,53 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
         lStarted        = lStartedMR OR lStartedRun
         iQuantityWasted = iQuantityWastedMR + iQuantityWastedRun
         .
+
+   RUN pUpdatePOInfo(
+        INPUT  ipbf-job-mch.company,
+        INPUT  ipbf-job-mch.job,
+        INPUT  ipbf-job-mch.job-no,
+        INPUT  ipbf-job-mch.job-no2,
+        INPUT  ipbf-job-mch.i-no,
+        INPUT  ipbf-job-mch.frm,
+        INPUT  ipbf-job-mch.blank-no,
+        INPUT  "Machine",
+        INPUT-OUTPUT lcJobMachineData
+        ).
                  
+    RUN pGetJobMaterialInfo (
+        INPUT  ipbf-job-mch.company,
+        INPUT  ipbf-job-mch.job,
+        INPUT  ipbf-job-mch.job-no,
+        INPUT  ipbf-job-mch.job-no2,
+        INPUT  ipbf-job-mch.frm,
+        INPUT  ipbf-job-mch.blank-no,
+        INPUT  ipbf-job-mch.i-no,
+        OUTPUT dBoardLength,   
+        OUTPUT dBoardWidth,    
+        OUTPUT dJobBoardIssued,
+        OUTPUT cBoard,         
+        OUTPUT cInk,           
+        OUTPUT dInkQty,        
+        OUTPUT cPallet,        
+        OUTPUT dPalletMRP,        
+        OUTPUT cMatType5,      
+        OUTPUT dMatType5Qty,   
+        OUTPUT cMatType6,      
+        OUTPUT dMatType6Qty,   
+        OUTPUT cVarnish,       
+        OUTPUT cAdders,        
+        OUTPUT dNoCases,       
+        OUTPUT cCasesName,     
+        OUTPUT cFilmName,      
+        OUTPUT dRequiredQty,   
+        OUTPUT dTotalMRP,      
+        OUTPUT dMatLength,
+        OUTPUT iNumUp
+        ).
+    
+    IF dTotalMRP EQ ? THEN
+        dTotalMRP = ipbf-job-mch.run-qty.
+                             
     oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "StartedMR",STRING(lStartedMR)).
     oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "StartedRun",STRING(lStartedRun)).
     oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Started", STRING(lStarted)).
@@ -1578,8 +1611,35 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
     oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "HoursRun", STRING(dHoursRun)).
     oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "RunMinutes",cRunMinutes).
     oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MakeReadyMinutes",cMRMinutes).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "BoardLength", STRING(dBoardLength)).   
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "BoardWidth", STRING(dBoardWidth)).    
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "JobBoardIssued", STRING(dJobBoardIssued)).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Board", cBoard).         
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "InkColor", cInk).      
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "InkQuantity", STRING(dInkQty)).        
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Pallet", cPallet).        
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "PalletMRP", STRING(dPalletMRP)).       
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MatType5Item", cMatType5).      
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MatType5Quantity", STRING(dMatType5Qty)).   
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MatType6Item", cMatType6).     
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MatType6Quantity", STRING(dMatType6Qty)).   
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Varnish", cVarnish).       
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Adders", cAdders).       
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "NumberOfCases", STRING(dNoCases)).      
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "CasesName", cCasesName).    
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "FilmName", cFilmName).     
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "RequiredQuantity", STRING(dRequiredQty)).   
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "TotalMRP", STRING(dTotalMRP)).      
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "NumUp", STRING(iNumUp)).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "LinearFeet", STRING(dTotalMRP * (dMatLength / 12))).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "TotalPieces", STRING(dTotalMRP * iNumUp)).
 
     lcJobMachineDataByItem = oAttribute:ReplaceAttributes(lcJobMachineDataByItem, BUFFER ipbf-job-mch:HANDLE).
+
+    RUN pUpdateEstimateBlankInfo(ipbf-job-mch.company, job.est-no, ipbf-job-mch.frm, ipbf-job-mch.blank-no, INPUT-OUTPUT lcJobMachineDataByItem).
+    RUN pUpdateEstimateFormInfo(ipbf-job-mch.company, job.est-no, ipbf-job-mch.frm, INPUT-OUTPUT lcJobMachineDataByItem, INPUT-OUTPUT dMatLength).
+
+    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MatLength", STRING(dMatLength)).
                 
     FIND FIRST bf-mach NO-LOCK
          WHERE bf-mach.company EQ ipbf-job-mch.company

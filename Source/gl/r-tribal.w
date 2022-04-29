@@ -1372,7 +1372,7 @@ PROCEDURE run-report :
  
     SESSION:SET-WAIT-STATE("general").
  
-    cPeriodLabel = " Period " + string(MONTH(tran-date),"99") + " Total".
+    cPeriodLabel = " Period " + string(tran-period,"99") + " Total".
     cYtdLabel = "  " + string(YEAR(tran-date)) + " YTD Total".
     cAsofDateLabel = "As of Date: " + string(tran-date) .
 
@@ -1648,7 +1648,14 @@ PROCEDURE run-report :
         
         IF tb_include-summary-total THEN
         DO: 
+            HIDE FRAME r-top.
             PAGE.
+                ASSIGN
+                str-tit4 = "         Description                                     PTD                 YTD  "
+                str-tit5 = "--------------------------------------------- --------------- ------------------- ".
+                DISPLAY str-tit3 FORMAT "x(130)" SKIP(1)     
+                SKIP str-tit4 SKIP str-tit5 SKIP WITH FRAME r-top STREAM-IO.
+            
             PUT SKIP 
                 "===============" TO 61 "===================" TO 81 SKIP
                 "Total Assets:" AT 10 dAssetAmountPTD FORMAT "->>>,>>>,>>9.99" TO 61
@@ -1813,7 +1820,7 @@ PROCEDURE run-report-detail :
 
     SESSION:SET-WAIT-STATE("general").
  
-    cPeriodLabel = " Period " + string(MONTH(tran-date),"99") + " Total".
+    cPeriodLabel = " Period " + string(tran-period,"99") + " Total".
     cYtdLabel = "  " + string(YEAR(tran-date)) + " YTD Total".
     cAsofDateLabel = "As of Date: " + string(tran-date) .
     str-line = FILL(" ",45) + "  " + "---------------" + " " + FILL(" ",51) + "--------------" + " " + "--------------" + " " + "--------------" + FILL(" ",57) + "-----------------" .                                                 

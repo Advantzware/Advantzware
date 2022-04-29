@@ -112,7 +112,7 @@ DEF SHARED TEMP-TABLE tt-job-hdr LIKE job-hdr
     IF lv-sort-by EQ "cust-no"    THEN tt-job-hdr.cust-no                                                                                                  ELSE ~
     IF lv-sort-by EQ "i-no"       THEN tt-job-hdr.i-no                                                                                                     ELSE ~
     IF lv-sort-by EQ "est-no"     THEN tt-job-hdr.est-no                                                                                                   ELSE ~
-    IF lv-sort-by EQ "job-no"     THEN STRING(tt-job-hdr.job-no,"x(6)") + STRING(tt-job-hdr.job-no2,"99")                                                     ELSE ~
+    IF lv-sort-by EQ "job-no"     THEN STRING(tt-job-hdr.job-no,"x(9)") + STRING(tt-job-hdr.job-no2,"999")                                                     ELSE ~
     IF lv-sort-by EQ "close-date" THEN STRING(YEAR(job.close-date),"9999") + STRING(MONTH(job.close-date),"99") + STRING(DAY(job.close-date),"99")      ELSE ~
                                        STRING(YEAR(job.start-date),"9999") + STRING(MONTH(job.start-date),"99") + STRING(DAY(job.start-date),"99")
 
@@ -295,15 +295,15 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 25 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1
+     SIZE 15 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 7 BY 1
+     SIZE 6 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
@@ -344,13 +344,13 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      tt-job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(7)":U COLUMN-BGCOLOR 8
+      tt-job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U COLUMN-BGCOLOR 8
             LABEL-BGCOLOR 14
-      tt-job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
+      tt-job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">>9":U LABEL-BGCOLOR 14
       tt-job-hdr.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       tt-job-hdr.est-no COLUMN-LABEL "Estimate#" FORMAT "x(8)":U WIDTH 14
             LABEL-BGCOLOR 14
-      tt-job-hdr.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      tt-job-hdr.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       tt-job-hdr.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
       job.start-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
@@ -500,7 +500,7 @@ ASSIGN
      _TblOptList       = ","
      _Where[1]         = "ASI.tt-job-hdr.job = 0"
      _FldNameList[1]   > ASI.tt-job-hdr.job-no
-"tt-job-hdr.job-no" "Job#" "x(7)" "character" 8 ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tt-job-hdr.job-no" "Job#" "x(9)" "character" 8 ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.tt-job-hdr.job-no2
 "tt-job-hdr.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.tt-job-hdr.i-no
@@ -1297,7 +1297,7 @@ PROCEDURE reopen-query :
              fi_est-no:SCREEN-VALUE  = ""
              fi_i-no:SCREEN-VALUE    = ""
              fi_job-no:SCREEN-VALUE  = bf-tt-job-hdr.job-no
-             fi_job-no2:SCREEN-VALUE = STRING(bf-tt-job-hdr.job-no2, "99")
+             fi_job-no2:SCREEN-VALUE = STRING(bf-tt-job-hdr.job-no2, "999")
              fi_ord-no:SCREEN-VALUE  = ""
              fi_sort-by:SCREEN-VALUE = "".
     ASSIGN

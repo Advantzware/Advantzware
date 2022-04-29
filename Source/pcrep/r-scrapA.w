@@ -95,30 +95,30 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 18 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-scrap.csv" 
      LABEL "If Yes, File Name" 
@@ -229,11 +229,11 @@ DEFINE FRAME FRAME-A
      rd_jstat AT ROW 2.91 COL 43 NO-LABEL
      begin_job-no AT ROW 4.33 COL 24 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 4.33 COL 37 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.33 COL 39 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 4.33 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 4.33 COL 79 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.33 COL 81 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_date AT ROW 5.52 COL 24 COLON-ALIGNED
      end_date AT ROW 5.52 COL 67 COLON-ALIGNED HELP
@@ -890,9 +890,9 @@ PROCEDURE run-report :
 def buffer bjob-mch for job-mch.
 
 def var v-fjob  like mch-act.job-no NO-UNDO.
-def var v-tjob  like v-fjob  init "zzzzzz" NO-UNDO.
+def var v-tjob  like v-fjob  init "zzzzzzzzz" NO-UNDO.
 def var v-fjob2 like mch-act.job-no2 NO-UNDO.
-def var v-tjob2 like v-fjob2            init 99 NO-UNDO.
+def var v-tjob2 like v-fjob2            init 999 NO-UNDO.
 def var v-fdate like job.start-date     init 01/01/0001     format "99/99/9999" NO-UNDO.
 def var v-tdate like v-fdate            init 12/31/9999 NO-UNDO.
 def var v-stat  as   char format "!"    init "O" NO-UNDO.
@@ -932,9 +932,9 @@ assign
   v-stat        = SUBSTR(rd_jstat,1,1)
 
   v-fjob        = FILL(" ", iJobLen - length(trim(begin_job-no))) +
-                  trim(begin_job-no) + string(int(begin_job-no2),"99")
+                  trim(begin_job-no) + string(int(begin_job-no2),"999")
   v-tjob        = FILL(" ", iJobLen - length(trim(end_job-no)))   +
-                  trim(end_job-no)   + string(int(end_job-no2),"99")
+                  trim(end_job-no)   + string(int(end_job-no2),"999")
 
   v-fdate       = DATE(begin_date:SCREEN-VALUE)
   v-tdate       = date(END_date:SCREEN-VALUE)
@@ -973,13 +973,13 @@ display "" with frame r-top.
   if v-pr-list ne "" then
   for each job
       where job.company            eq cocode
-        and job.job-no             ge substr(v-fjob,1,6)
-        and job.job-no             le substr(v-tjob,1,6)
+        and job.job-no             ge substr(v-fjob,1,iJobLen)
+        and job.job-no             le substr(v-tjob,1,iJobLen)
         and FILL(" ", iJobLen - length(trim(job.job-no))) +
-            trim(job.job-no) +  string(job.job-no2,"99")
+            trim(job.job-no) +  string(job.job-no2,"999")
                                    ge v-fjob
         and FILL(" ", iJobLen - length(trim(job.job-no))) +
-            trim(job.job-no) +  string(job.job-no2,"99")
+            trim(job.job-no) +  string(job.job-no2,"999")
                                    le v-tjob
         and (v-stat                eq "A"                   or
              (v-stat               eq "O" and job.opened)   or
@@ -1192,7 +1192,7 @@ display "" with frame r-top.
 /*       v-blanks[1] = v-sheets[3] - (v-blanks[3] / v-sheet) .  /* Mod 01     Task  10091314    */ */
 
 
-      display trim(job.job-no) + "-" + string(job.job-no2,"99") format "x(9)"
+      display TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) format "x(13)"
                     column-label "Job#"
               job-hdr.cust-no
                     column-label "Customer"
@@ -1220,12 +1220,12 @@ display "" with frame r-top.
                     column-label "Customer!Order Qty"
               skip(1)
 
-          with frame scrap no-attr-space no-box down STREAM-IO width 132.
+          with frame scrap no-attr-space no-box down STREAM-IO width 138.
 
       if tb_excel then
       do:
         assign str_buffa = "".
-        assign str_buffa = trim(job.job-no) + "-" + string(job.job-no2,"99") + v-comma   /* Mod 01     Task  10091314    */ 
+        assign str_buffa = trim(job.job-no) + "-" + string(job.job-no2,"999") + v-comma   /* Mod 01     Task  10091314    */ 
                          + trim(job-hdr.cust-no)                             + v-comma
                          + trim(bjob-mch.m-code)                             + v-comma
                          + trim(string(v-sheet,'->9'))                        + v-comma 

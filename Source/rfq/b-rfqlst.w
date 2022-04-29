@@ -6,7 +6,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
 */
 &ANALYZE-RESUME
 /* Connected Databases 
-          rfq              PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
@@ -296,9 +296,9 @@ DEFINE VARIABLE vi_part-dscr1 AS CHARACTER FORMAT "X(30)":U
      SIZE 35 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE vi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE vi_part-no AS CHARACTER FORMAT "X(30)":U 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1
+     SIZE 28 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE vi_req-date AS DATE FORMAT "99/99/9999":U 
@@ -336,7 +336,7 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       rfq.rfq-no FORMAT "->,>>>,>>9":U LABEL-BGCOLOR 14
-      rfqitem.part-no FORMAT "x(15)":U LABEL-BGCOLOR 14
+      rfqitem.part-no FORMAT "x(30)":U WIDTH 35.4 LABEL-BGCOLOR 14
       rfq.cust-no FORMAT "X(8)":U LABEL-BGCOLOR 14
       rfq.req-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       rfqitem.style COLUMN-LABEL "Style" FORMAT "x(4)":U LABEL-BGCOLOR 14
@@ -380,7 +380,7 @@ DEFINE FRAME F-Main
      vi_rfq-no AT ROW 1.95 COL 3 NO-LABEL
      begin_cust-no AT ROW 1.95 COL 19 COLON-ALIGNED NO-LABEL
      vi_part-no AT ROW 1.95 COL 34 COLON-ALIGNED NO-LABEL
-     vi_part-dscr1 AT ROW 1.95 COL 56 COLON-ALIGNED NO-LABEL
+     vi_part-dscr1 AT ROW 1.95 COL 62 COLON-ALIGNED NO-LABEL
      vi_style AT ROW 1.95 COL 98 COLON-ALIGNED NO-LABEL
      vi_est-no AT ROW 1.95 COL 117 NO-LABEL
      vi_len AT ROW 1.95 COL 132 COLON-ALIGNED NO-LABEL
@@ -396,27 +396,24 @@ DEFINE FRAME F-Main
      "L x W x D" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 1.24 COL 134
           FGCOLOR 9 FONT 6
-     "Estimate" VIEW-AS TEXT
-          SIZE 11 BY .67 AT ROW 1.24 COL 118
-          FGCOLOR 9 FONT 6
-     "Customer Part#" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 1.24 COL 37
-          FGCOLOR 9 FONT 6
-     "RFQ#" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 5
-          FGCOLOR 9 FONT 6
-     "Style" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.24 COL 102
+     "Customer" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 22
           FGCOLOR 9 FONT 6
      "Part Description" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 1.24 COL 65
           FGCOLOR 9 FONT 6
-     "Customer" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 22
+     "Style" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.24 COL 102
           FGCOLOR 9 FONT 6
-    /* "Click Field Heading to Sort By:" VIEW-AS TEXT
-          SIZE 36 BY .62 AT ROW 5.05 COL 79
-          FONT 6 */
+     "RFQ#" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 5
+          FGCOLOR 9 FONT 6
+     "Customer Part#" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 1.24 COL 37
+          FGCOLOR 9 FONT 6
+     "Estimate" VIEW-AS TEXT
+          SIZE 11 BY .67 AT ROW 1.24 COL 118
+          FGCOLOR 9 FONT 6
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -509,41 +506,41 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "rfq.rfq,rfq.rfqitem OF rfq.rfq"
+     _TblList          = "asi.rfq,asi.rfqitem OF asi.rfq"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = ", FIRST OUTER"
      _Where[2]         = "rfq.rfqitem.seq < 999"
-     _FldNameList[1]   > rfq.rfq.rfq-no
+     _FldNameList[1]   > asi.rfq.rfq-no
 "rfq.rfq-no" ? ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > rfq.rfqitem.part-no
-"rfqitem.part-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > rfq.rfq.cust-no
+     _FldNameList[2]   > asi.rfqitem.part-no
+"rfqitem.part-no" ? "x(30)" "character" ? ? ? 14 ? ? yes ? no no "35.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > asi.rfq.cust-no
 "rfq.cust-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > rfq.rfq.req-date
+     _FldNameList[4]   > asi.rfq.req-date
 "rfq.req-date" ? ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > rfq.rfqitem.style
+     _FldNameList[5]   > asi.rfqitem.style
 "rfqitem.style" "Style" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > rfq.rfqitem.procat
+     _FldNameList[6]   > asi.rfqitem.procat
 "rfqitem.procat" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > rfq.rfqitem.qty[1]
+     _FldNameList[7]   > asi.rfqitem.qty[1]
 "rfqitem.qty[1]" "Qty" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > rfq.rfqitem.i-col
+     _FldNameList[8]   > asi.rfqitem.i-col
 "rfqitem.i-col" ? ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > rfq.rfqitem.i-coat
+     _FldNameList[9]   > asi.rfqitem.i-coat
 "rfqitem.i-coat" ? ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > "_<CALC>"
 "to-corrware-dim(ll-is-corr-style, rfqitem.len) @ rfqitem.len" ? ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > rfq.rfqitem.board
+     _FldNameList[11]   > asi.rfqitem.board
 "rfqitem.board" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > "_<CALC>"
 "to-corrware-dim(ll-is-corr-style, rfqitem.wid) @ rfqitem.wid" ? ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > rfq.rfqitem.cal
+     _FldNameList[13]   > asi.rfqitem.cal
 "rfqitem.cal" ? ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > "_<CALC>"
 "to-corrware-dim(ll-is-corr-style, rfqitem.dep) @ rfqitem.dep" ? ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > rfq.rfqitem.est-no
+     _FldNameList[15]   > asi.rfqitem.est-no
 "rfqitem.est-no" ? "x(8)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > rfq.rfqitem.part-dscr1
+     _FldNameList[16]   > asi.rfqitem.part-dscr1
 "rfqitem.part-dscr1" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -1037,6 +1034,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sort-by:HIDDEN  = TRUE.
 fi_sort-by:VISIBLE = FALSE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

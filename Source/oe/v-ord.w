@@ -2645,8 +2645,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote V-table-Win 
-PROCEDURE CopyShipNote PRIVATE :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote V-table-Win 
+PROCEDURE pCopyShipNote PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -2654,12 +2654,7 @@ PROCEDURE CopyShipNote PRIVATE :
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-DELETE OBJECT hNotesProcs.   
+RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
 
@@ -3033,7 +3028,7 @@ PROCEDURE create-release :
                                 oe-rel.ship-i[2] = shipto.notes[2]
                                 oe-rel.ship-i[3] = shipto.notes[3]
                                oe-rel.ship-i[4] = shipto.notes[4].
-            RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+            RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
          IF v-ship-from GT "" THEN
              oe-rel.spare-char-1 = v-ship-from.
 
@@ -3083,7 +3078,7 @@ PROCEDURE create-release :
                          oe-rel.ship-i[2] = shipto.notes[2]
                          oe-rel.ship-i[3] = shipto.notes[3]
                          oe-rel.ship-i[4] = shipto.notes[4].
-                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
                IF adm-new-record /* and NOT oe-rel.carrier ENTERED */ THEN DO:
                   FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -3125,7 +3120,7 @@ PROCEDURE create-release :
                        oe-rel.ship-i[2] = shipto.notes[2]
                        oe-rel.ship-i[3] = shipto.notes[3]
                        oe-rel.ship-i[4] = shipto.notes[4].
-                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
            IF adm-new-record THEN DO:                
                  FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -6877,7 +6872,7 @@ DEFINE BUFFER bf-oe-rel FOR oe-rel .
                   bf-oe-rel.ship-i[3] = shipto.notes[3]
                   bf-oe-rel.ship-i[4] = shipto.notes[4]
                   bf-oe-rel.spare-char-1 = shipto.loc.
-              RUN CopyShipNote (shipto.rec_key, bf-oe-rel.rec_key).
+              RUN pCopyShipNote (shipto.rec_key, bf-oe-rel.rec_key).
           END.
 
           FIND CURRENT bf-oe-rel NO-LOCK.

@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : JobProcs.p
     Purpose     : 
@@ -276,6 +275,7 @@ PROCEDURE pAllocationJobMaterial PRIVATE:
                bf-job-mat.job-no   = bf-job.job-no
                bf-job-mat.job-no2  = bf-job.job-no2
                bf-job-mat.rm-i-no  = ipcRmItem
+               bf-job-mat.i-no     = ipcRmItem
                bf-job-mat.frm      = ipiFormNo
                bf-job-mat.blank-no = ipiBlankNo
                bf-job-mat.qty-all  = ipdAllocation
@@ -305,10 +305,12 @@ PROCEDURE pAllocationJobMaterial PRIVATE:
          FIND FIRST bf-job-mat EXCLUSIVE-LOCK
               WHERE ROWID(bf-job-mat) EQ ioprwRowId NO-ERROR.
               
-         IF avail bf-job-mat THEN     
+         IF AVAILABLE bf-job-mat THEN     
          ASSIGN            
-              bf-job-mat.rm-i-no  = ipcRmItem        
-              bf-job-mat.qty-all  = ipdAllocation   .
+              bf-job-mat.rm-i-no = ipcRmItem
+              bf-job-mat.i-no    = ipcRmItem
+              bf-job-mat.qty-all = ipdAllocation
+              .
     END.
     RELEASE bf-job-mat.  
     

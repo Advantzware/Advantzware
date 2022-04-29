@@ -18,9 +18,6 @@
                  hField = BUFFER bw-ord:BUFFER-FIELD(cTmpField).
                  IF hField <> ? THEN DO:                 
                      cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
-                    /* IF ENTRY(i,cSelectedList) = "Job#" THEN
-                        cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(w-ord.job-no2,"99") ELSE "".                  
-                    */
 
                      IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldType) <> "C" THEN DO:
                         IF LENGTH(trim(cTmpField)) < int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))

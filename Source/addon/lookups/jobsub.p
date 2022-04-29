@@ -25,7 +25,7 @@
 &Scoped-define font 4
 &Scoped-define height-size 19
 &Scoped-define width-size 46
-&Scoped-define show-fields job-mch.job-no2 job-mch.job-no
+&Scoped-define show-fields job-mch.job-no2 FORMAT "999" job-mch.job-no FORMAT "X(9)"
 &Scoped-define show-fields-yellow job-mch.job-no2 LABEL-BGCOLOR 14 job-mch.job-no LABEL-BGCOLOR 14
 &Scoped-define frame-title Job Sub Number Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
@@ -44,11 +44,11 @@
 &Scoped-define auto-find-row 23.65
 
 &Global-define DATATYP1 INTEGER
-&Global-define FORMAT-1 >9
+&Global-define FORMAT-1 999
 &Scoped-define FLDNAME1 job-mch.job-no2
 &Scoped-define SORTBY-1 BY {&FLDNAME1}
 &Scoped-define DESCRIP1 Run #
-&Global-define FORMAT-2 x(6)
+&Global-define FORMAT-2 x(9)
 &Scoped-define FLDNAME2 job-mch.job-no
 &Scoped-define SORTBY-2 BY {&FLDNAME2} {&SORTBY-1}
 &Scoped-define DESCRIP2 Job Number

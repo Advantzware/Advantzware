@@ -168,8 +168,8 @@ format
             where oe-ordl.company EQ oe-ord.company
               and oe-ordl.ord-no  EQ oe-ord.ord-no
             no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-pay-dscr = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-pay-dscr:
              when "P" THEN v-frt-pay-dscr = "Prepaid".
              when "C" THEN v-frt-pay-dscr = "Collect".
              when "B" THEN v-frt-pay-dscr = "Bill".

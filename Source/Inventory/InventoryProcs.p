@@ -487,6 +487,95 @@ PROCEDURE Inventory_GetFGReceiptTransaction:
 
 END PROCEDURE.
 
+PROCEDURE Inventory_AdjustRMIssueTransactionQuantity:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriRMRctd       AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdIssueQuantity AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE dTotalIssuedQty AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dBinQuantity    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cCompany        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTag            AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-bin  FOR rm-bin.
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+
+    FIND FIRST bf-rm-rctd NO-LOCK
+         WHERE ROWID(bf-rm-rctd) EQ ipriRMRctd
+         NO-ERROR.
+    IF NOT AVAILABLE bf-rm-rctd THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Error updating the transaction"
+            .
+        
+        RETURN.
+    END.
+    
+    ASSIGN
+        cCompany = bf-rm-rctd.company
+        cTag     = bf-rm-rctd.tag
+        .
+        
+    FIND FIRST bf-rm-bin NO-LOCK
+         WHERE bf-rm-bin.company EQ bf-rm-rctd.company
+           AND bf-rm-bin.i-no    EQ bf-rm-rctd.i-no
+           AND bf-rm-bin.loc     EQ bf-rm-rctd.loc
+           AND bf-rm-bin.loc-bin EQ bf-rm-rctd.loc-bin
+           AND bf-rm-bin.tag     EQ bf-rm-rctd.tag
+         NO-ERROR.
+    IF NOT AVAILABLE bf-rm-bin THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid RM Bin"
+            .
+        
+        RETURN.        
+    END.
+                     
+    dBinQuantity = bf-rm-bin.qty.
+                 
+    FOR EACH bf-rm-rctd FIELDS(qty) NO-LOCK
+        WHERE bf-rm-rctd.company   EQ cCompany
+          AND bf-rm-rctd.rita-code EQ 'I'
+          AND bf-rm-rctd.qty       GT 0 
+          AND bf-rm-rctd.tag       EQ cTag
+          AND ROWID(bf-rm-rctd)    NE ipriRMRctd:
+        dTotalIssuedQty = dTotalIssuedQty + bf-rm-rctd.qty.
+    END.
+
+    IF ipdIssueQuantity GT dBinQuantity - dTotalIssuedQty THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Quantity to issue cannot be greater than " + STRING(dBinQuantity - dTotalIssuedQty)
+            .        
+        
+        RETURN.        
+    END.    
+    
+    FIND FIRST bf-rm-rctd EXCLUSIVE-LOCK
+         WHERE ROWID(bf-rm-rctd) EQ ipriRMRctd
+         NO-ERROR.
+    IF AVAILABLE bf-rm-rctd THEN DO:
+        ASSIGN
+            bf-rm-rctd.qty = ipdIssueQuantity
+            opcMessage     = "Quantity adjust to " + STRING(ipdIssueQuantity)
+            .
+    END.
+    ELSE DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Error updating the transaction"
+            .
+    END.
+
+END PROCEDURE.
+
 PROCEDURE pGetRMItemOnHandQuantity PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -900,7 +989,7 @@ PROCEDURE pBuildRMHistory PRIVATE:
         WHERE bf-rm-rcpth.company    EQ ipcCompany
           AND bf-rm-rcpth.i-no       EQ ipcItemID
           AND (bf-rm-rcpth.rita-code EQ ipcTransactionType OR ipcTransactionType EQ "" OR (ipcTransactionType EQ "R" AND bf-rm-rcpth.rita-code = "A"))
-          AND (trim(bf-rm-rcpth.job-no) EQ ipcJobNo OR ipcJobNo EQ "")
+          AND (bf-rm-rcpth.job-no    EQ ipcJobNo OR ipcJobNo EQ "")
           AND (bf-rm-rcpth.job-no2   EQ ipiJobNo2 OR ipiJobNo2 EQ 0 OR ipcJobNo EQ ""),
         EACH bf-rm-rdtlh NO-LOCK
         WHERE bf-rm-rdtlh.r-no      EQ bf-rm-rcpth.r-no
@@ -2344,15 +2433,35 @@ PROCEDURE Inventory_PostRawMaterials:
     DEFINE BUFFER bf-wiptag               FOR wiptag.
     DEFINE BUFFER bf-ttRawMaterialsToPost FOR ttRawMaterialsToPost.
     
-    DEFINE VARIABLE iNextRNo AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dAvgCost AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE lError   AS LOGICAL NO-UNDO.
-
+    DEFINE VARIABLE iNextRNo   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dAvgCost   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lError     AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cRtnChr    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lRecFound  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lAutoIssue AS LOGICAL NO-UNDO.
+    
     EMPTY TEMP-TABLE ttRawMaterialsToPost.
     EMPTY TEMP-TABLE ttRawMaterialsGLTransToPost.
     
     oplSuccess = TRUE.
     
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany, /* Company Code */ 
+        INPUT "AUTOISSU", /* sys-ctrl name */
+        INPUT "L",        /* Output return value */
+        INPUT NO,         /* Use ship-to */
+        INPUT NO,         /* ship-to vendor */
+        INPUT "",         /* ship-to vendor value */
+        INPUT "",         /* shi-id value */
+        OUTPUT cRtnChr, 
+        OUTPUT lRecFound
+        ).
+    IF lRecFound THEN
+        lAutoIssue = LOGICAL(cRtnChr).
+    
+    IF lAutoIssue EQ ? THEN
+        lAutoIssue = FALSE.
+        
     TRANSACTION-BLOCK:    
     DO TRANSACTION ON ERROR UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK:
         FOR EACH ttBrowseInventory 
@@ -2361,7 +2470,7 @@ PROCEDURE Inventory_PostRawMaterials:
                            WHERE ROWID(rm-rctd) EQ TO-ROWID(ttBrowseInventory.inventoryStockID)):
             RUN pCreateRawMaterialsToPost (
                 INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),
-                INPUT  TRUE, /* AutoIssue */
+                INPUT  lAutoIssue, /* AutoIssue */
                 OUTPUT lError,
                 OUTPUT opcMessage
                 ).
@@ -2374,11 +2483,15 @@ PROCEDURE Inventory_PostRawMaterials:
         RUN pCreateRawMaterialsGLTrans.
         
         FOR EACH ttRawMaterialsToPost
-            WHERE ttRawMaterialsToPost.processed EQ FALSE,
-            FIRST bf-rm-rctd EXCLUSIVE-LOCK
-            WHERE ROWID(bf-rm-rctd) EQ ttRawMaterialsToPost.rmRctdRowID
+            WHERE ttRawMaterialsToPost.processed EQ FALSE
             BREAK BY ttRawMaterialsToPost.sequenceID
                   BY ttRawMaterialsToPost.itemID:
+            /* Joining the below query to for each ttRawMaterialToPost would skip the issues created */                      
+            FIND FIRST bf-rm-rctd EXCLUSIVE-LOCK
+                 WHERE ROWID(bf-rm-rctd) EQ ttRawMaterialsToPost.rmRctdRowID 
+                 NO-ERROR.
+            IF NOT AVAILABLE bf-rm-rctd THEN
+                NEXT.
             
             RUN pPostRawMaterials(
                 INPUT  ttRawmaterialsToPost.rmRctdRowID,
@@ -2638,15 +2751,17 @@ PROCEDURE Inventory_CreateRMIssueFromTag:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTag      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcJobID    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiJobID2   AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiFormNo   AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiBlankNo  AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER iplPost     AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobID2      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdIssueQty    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplQtyOverride AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPost        AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     RUN pCreateRMIssueFromTag (
@@ -2656,6 +2771,8 @@ PROCEDURE Inventory_CreateRMIssueFromTag:
         INPUT  ipiJobID2,
         INPUT  ipiFormNo,
         INPUT  ipiBlankNo,
+        INPUT  ipdIssueQty,
+        INPUT  iplQtyOverride,
         OUTPUT oplSuccess,
         OUTPUT opcMessage,
         INPUT-OUTPUT TABLE ttBrowseInventory
@@ -2720,7 +2837,7 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
                 ASSIGN 
                     ttRawMaterialsGLTransToPost.accountNo = bf-costtype.inv-asset
                     ttRawMaterialsGLTransToPost.memo      = "RM Receipt"
-                    ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"99") ELSE "")
+                    ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"999") ELSE "")
                                                           + (IF bf-rm-rctd.po-no NE "" THEN " PO:" + STRING(bf-rm-rctd.po-no,"999999") + "-" + STRING(bf-rm-rctd.po-line,"999") ELSE "") + " " 
                                                           + " Cost $" + STRING(bf-rm-rctd.cost) + " / " + bf-rm-rctd.cost-uom
                     ttRawMaterialsGLTransToPost.debits    = dExtCost
@@ -2731,7 +2848,7 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
                 ASSIGN 
                     ttRawMaterialsGLTransToPost.accountNo = bf-costtype.ap-accrued
                     ttRawMaterialsGLTransToPost.memo      = "RM Receipt"
-                    ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"99") ELSE "")
+                    ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"999") ELSE "")
                                                           + (IF bf-rm-rctd.po-no NE "" THEN " PO:" + STRING(bf-rm-rctd.po-no,"999999") + "-" + STRING(bf-rm-rctd.po-line,"999") ELSE "") + " " 
                                                           + " Cost $" + STRING(bf-rm-rctd.cost) + " / " + bf-rm-rctd.cost-uom
                     ttRawMaterialsGLTransToPost.credits   = dExtCost.
@@ -2795,7 +2912,7 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
                                 ttRawMaterialsGLTransToPost.jobNo2    = bf-job-hdr.job-no2
                                 ttRawMaterialsGLTransToPost.accountNo = bf-prod.wip-mat
                                 ttRawMaterialsGLTransToPost.memo      = "RM Issue To Job"
-                                ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"99") ELSE "")
+                                ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"999") ELSE "")
                                                                       + (IF bf-rm-rctd.po-no NE "" THEN " PO:" + STRING(bf-rm-rctd.po-no,"999999") + "-" + STRING(bf-rm-rctd.po-line,"999") ELSE "") + " " 
                                                                       + " Cost $" + STRING(bf-rm-rctd.cost) + " / " + bf-rm-rctd.cost-uom
                                 .
@@ -2817,7 +2934,7 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
                                 ttRawMaterialsGLTransToPost.jobNo2    = bf-job-hdr.job-no2
                                 ttRawMaterialsGLTransToPost.accountNo = bf-costtype.inv-asset
                                 ttRawMaterialsGLTransToPost.memo      = "RM Issue To Job"
-                                ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"99") ELSE "")
+                                ttRawMaterialsGLTransToPost.dscr      = (IF bf-rm-rctd.job-no NE "" THEN "Job:" + bf-rm-rctd.job-no + "-" + STRING(bf-rm-rctd.job-no2,"999") ELSE "")
                                                                       + (IF bf-rm-rctd.po-no NE "" THEN " PO:" + STRING(bf-rm-rctd.po-no,"999999") + "-" + STRING(bf-rm-rctd.po-line,"999") ELSE "") + " " 
                                                                       + " Cost $" + STRING(bf-rm-rctd.cost) + " / " + bf-rm-rctd.cost-uom
                                 .
@@ -2866,14 +2983,16 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTag      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcJobID    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiJobID2   AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiFormNo   AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiBlankNo  AS INTEGER   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobID2      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdIssueQty    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplQtyOverride AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBrowseInventory.
     
     DEFINE BUFFER bf-loadtag FOR loadtag.
@@ -2895,6 +3014,7 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
     DEFINE VARIABLE dTotalIssuedQty AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dIssuedQty      AS DECIMAL NO-UNDO.
     DEFINE VARIABLE lSetJob         AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dBinQty         AS DECIMAL NO-UNDO.
     
     FIND FIRST bf-loadtag NO-LOCK 
          WHERE bf-loadtag.company   EQ ipcCompany
@@ -2943,7 +3063,7 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
          WHERE ROWID(bf-rm-bin) EQ riRMBin
          NO-ERROR.         
     IF AVAILABLE bf-rm-bin THEN
-        dIssuedQty = bf-rm-bin.qty.
+        dBinQty = bf-rm-bin.qty.
     ELSE DO:
         ASSIGN
             oplSuccess = FALSE
@@ -2951,7 +3071,12 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
             .
         RETURN.    
     END.
-        
+    
+    IF iplQtyOverride THEN
+        dIssuedQty = ipdIssueQty.
+    ELSE
+        dIssuedQty = dBinQty.
+                
     IF dIssuedQty EQ 0 THEN DO:
         ASSIGN
             oplSuccess = FALSE
@@ -2967,8 +3092,17 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
           AND bf-rm-rctd.tag       EQ ipcTag:
         dTotalIssuedQty = dTotalIssuedQty + bf-rm-rctd.qty.
     END.
-
-    dIssuedQty = dIssuedQty - dTotalIssuedQty.
+    
+    IF iplQtyOverride AND dIssuedQty GT (dBinQty - dTotalIssuedQty) THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Quantity to issue cannot be greater than " + STRING(dBinQty - dTotalIssuedQty)
+            .
+        RETURN.    
+    END.
+    
+    IF NOT iplQtyOverride THEN
+        dIssuedQty = dBinQty - dTotalIssuedQty.
       
     IF dIssuedQty LT 0 THEN
         dIssuedQty = 0.
@@ -4917,16 +5051,31 @@ PROCEDURE pCreateRawMaterialsToPost PRIVATE:
                    AND bf-po-ordl.job-no2   EQ bf-rm-rctd.job-no2
                    AND bf-po-ordl.item-type EQ YES
                  USE-INDEX item-ordno NO-ERROR.
+            IF NOT AVAILABLE bf-po-ordl THEN
+                FIND FIRST bf-po-ordl NO-LOCK 
+                     WHERE bf-po-ordl.company   EQ bf-rm-rctd.company
+                       AND bf-po-ordl.i-no      EQ bf-rm-rctd.i-no
+                       AND bf-po-ordl.po-no     EQ INTEGER(bf-rm-rctd.po-no)
+                       AND bf-po-ordl.job-no    EQ TRIM(bf-rm-rctd.job-no)
+                       AND bf-po-ordl.job-no2   EQ bf-rm-rctd.job-no2
+                       AND bf-po-ordl.item-type EQ YES
+                     USE-INDEX item-ordno NO-ERROR.
         END.
         
         IF bf-item.mat-type NE "I" OR AVAILABLE bf-po-ordl THEN DO:
             IF bf-item.i-code EQ "E" AND NOT AVAILABLE bf-po-ordl THEN
-                LEAVE.
+                RETURN.
 
             IF bf-item.i-code EQ "R" AND NOT iplAutoIssue THEN
-                LEAVE.
+                RETURN.
         END.
-                
+        
+        /* Added additional logic with AutoIssue */
+        IF NOT iplAutoIssue THEN DO:
+            IF NOT (bf-item.i-code EQ "E" AND bf-rm-rctd.tag EQ "") THEN
+                RETURN.
+        END.
+        
         IF bf-rm-rctd.job-no NE "" AND bf-rm-rctd.s-num EQ ? THEN
             FIND FIRST bf-job NO-LOCK
                  WHERE bf-job.company EQ bf-rm-rctd.company
@@ -4978,8 +5127,10 @@ PROCEDURE pCreateRawMaterialsToPost PRIVATE:
 
             IF AVAILABLE bf-po-ord AND bf-po-ord.TYPE <> "S" THEN
                 bf-ttRawMaterialsToPost.poID = "".
+            
+            IF dTotalJobMatQty NE 0 THEN /* Verifying value is 0, so quantity is not updated with ? */
+                bf-ttRawMaterialsToPost.quantity = ttRawMaterialsToPost.quantity * ( bf-ttRawMaterialsToPost.quantity / dTotalJobMatQty).
                 
-            bf-ttRawMaterialsToPost.quantity = ttRawMaterialsToPost.quantity * ( bf-ttRawMaterialsToPost.quantity / dTotalJobMatQty).
             IF bf-rm-rctd.pur-uom EQ "EA" THEN DO:
                 IF (bf-ttRawMaterialsToPost.quantity - INTEGER(bf-ttRawMaterialsToPost.quantity)) > 0 THEN
                     bf-ttRawMaterialsToPost.quantity = INTEGER(bf-ttRawMaterialsToPost.quantity) + 1.
@@ -5548,7 +5699,7 @@ PROCEDURE pBuildFGInventoryStockForItem PRIVATE:
                     inventoryStock.costStandardVOH            = fg-rdtlh.std-var-cost
                     inventoryStock.costStandardFOH            = fg-rdtlh.std-fix-cost
 /*                     inventoryStock.sourceID                   = IF fg-rcpth.job-no NE "" THEN */
-/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(fg-rcpth.job-no)))) + STRING(fg-rcpth.job-no2,"99") */
+/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(fg-rcpth.job-no)))) + STRING(fg-rcpth.job-no2,"999") */
 /*                                                                 ELSE */
 /*                                                                     "" */
                     inventoryStock.sourceID                   = fg-rdtlh.rec_key
@@ -5693,7 +5844,7 @@ PROCEDURE pBuildRMInventoryStockForItem PRIVATE:
                     inventoryStock.basisWeightUOM             = gcUOMWeightBasis
                     inventoryStock.weightUOM                  = gcUOMWeight
 /*                     inventoryStock.sourceID                   = IF rm-rcpth.job-no NE "" THEN */
-/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(rm-rcpth.job-no)))) + STRING(rm-rcpth.job-no2,"99") */
+/*                                                                     FILL(" ", iJobLen - LENGTH(LEFT-TRIM(TRIM(rm-rcpth.job-no)))) + STRING(rm-rcpth.job-no2,"999") */
 /*                                                                 ELSE */
 /*                                                                     "" */
                     inventoryStock.sourceID                   = rm-rdtlh.rec_key
@@ -6414,7 +6565,7 @@ PROCEDURE CreatePrintInventory:
             ttPrintInventoryStock.jobNumber    = LEFT-TRIM(TRIM(inventoryStock.jobID))
             ttPrintInventoryStock.jobNumber    = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ttPrintInventoryStock.jobNumber)) 
             ttPrintInventoryStock.jobRunNumber = inventoryStock.jobID2
-            ttPrintInventoryStock.jobID        = ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"99")
+            ttPrintInventoryStock.jobID        = ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"999")
             ttPrintInventoryStock.jobIDTrimmed = LEFT-TRIM(ttPrintInventoryStock.jobID)
             ttPrintInventoryStock.jobIDFull    = ttPrintInventoryStock.jobID + "." + STRING(inventoryStock.formNo,"99") + "." + STRING(inventoryStock.blankNo,"99")
             ttPrintInventoryStock.jobIDFullTrimmed = LEFT-TRIM(ttPrintInventoryStock.jobIDFull) 
@@ -8320,6 +8471,7 @@ PROCEDURE pBuildRMTransactions PRIVATE:
                 ttBrowseInventory.locationID          = bf-rm-rctd.loc-bin
                 ttBrowseInventory.quantityOriginal    = bf-rm-rctd.qty
                 ttBrowseInventory.quantity            = bf-rm-rctd.qty
+                ttBrowseInventory.quantityUOM         = bf-rm-rctd.pur-uom
                 ttBrowseInventory.inventoryStatus     = gcStatusStockScanned
                 ttBrowseInventory.rec_key             = bf-rm-rctd.rec_key
                 ttBrowseInventory.sourceType          = gcInventorySourceTypeRMRCTD
@@ -8671,8 +8823,8 @@ PROCEDURE pGetWIPID PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttInventoryStockPreLoadtag FOR ttInventoryStockPreLoadtag.
     DEFINE OUTPUT PARAMETER opcWIPID AS CHARACTER NO-UNDO.
 
-    opcWIPID = STRING(ipbf-ttInventoryStockPreLoadtag.machineID,"x(6)") + STRING(ipbf-ttInventoryStockPreLoadtag.jobID,"x(6)") 
-        + STRING(ipbf-ttInventoryStockPreLoadtag.jobID2,"99") + STRING(ipbf-ttInventoryStockPreLoadtag.formNo,"99")  
+    opcWIPID = STRING(ipbf-ttInventoryStockPreLoadtag.machineID,"x(6)") + STRING(ipbf-ttInventoryStockPreLoadtag.jobID,"x(9)") 
+        + STRING(ipbf-ttInventoryStockPreLoadtag.jobID2,"999") + STRING(ipbf-ttInventoryStockPreLoadtag.formNo,"99")  
         + STRING(ipbf-ttInventoryStockPreLoadtag.blankNo,"99").
 
     IF TRIM(opcWIPID) EQ "" THEN opcWIPID = "WIPITEM".
@@ -9308,7 +9460,10 @@ PROCEDURE pGetInventoryStockDetails:
                AND bf-item.i-no    EQ bf-loadtag.i-no
              NO-ERROR.
         IF AVAILABLE bf-item THEN
-            ttInventoryStockDetails.itemCode = bf-item.i-code.
+            ASSIGN
+                ttInventoryStockDetails.itemCode    = bf-item.i-code
+                ttInventoryStockDetails.quantityUOM = bf-item.cons-uom.
+                .
     END.    
     ELSE IF AVAILABLE inventoryStock THEN DO:
         CREATE ttInventoryStockDetails.
@@ -9429,7 +9584,11 @@ PROCEDURE pPostFinishedGoodsForFGRctd:
     DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.  
     
-    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+    DEFINE VARIABLE cFGSetAdjustReason AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound             AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-rctd     FOR fg-rctd.
+    DEFINE BUFFER bf-set-fg-rctd FOR fg-rctd.
     
     EMPTY TEMP-TABLE  w-fg-rctd.
     
@@ -9450,6 +9609,30 @@ PROCEDURE pPostFinishedGoodsForFGRctd:
         w-fg-rctd.row-id  = ROWID(bf-fg-rctd)
         w-fg-rctd.has-rec = YES
         .   
+    
+    /* If a negative receipt and a is set component then make the transaction type to adjustment */
+    IF w-fg-rctd.qty LT 0 AND w-fg-rctd.SetHeaderRno GT 0 THEN DO:
+        FIND FIRST bf-set-fg-rctd NO-LOCK 
+             WHERE bf-set-fg-rctd.r-no EQ bf-fg-rctd.SetHeaderRno
+             NO-ERROR. 
+        IF AVAILABLE bf-set-fg-rctd THEN DO:
+            RUN sys/ref/nk1look.p (w-fg-rctd.company, "FGSetAdjustReason", "C", NO, NO, "", "",OUTPUT cFGSetAdjustReason, OUTPUT lFound).
+                            
+            FIND CURRENT bf-fg-rctd EXCLUSIVE-LOCK NO-ERROR. 
+            IF AVAILABLE bf-fg-rctd THEN DO:
+                ASSIGN 
+                    w-fg-rctd.rita-code     = "A"
+                    bf-fg-rctd.rita-code    = "A"
+                    w-fg-rctd.reject-code   = cFGSetAdjustReason
+                    bf-fg-rctd.reject-code  = cFGSetAdjustReason
+                    w-fg-rctd.SetHeaderRno  = 0
+                    bf-fg-rctd.SetHeaderRno = 0
+                    .
+            END.
+            
+            FIND CURRENT bf-fg-rctd NO-LOCK NO-ERROR.
+        END.
+    END.
     
     RELEASE w-fg-rctd.
     

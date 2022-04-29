@@ -250,7 +250,7 @@ and inv-no le 611040:
         inv-head.t-inv-rev     = ar-inv.gross
         .
     
-    RUN CopyShipNote (ar-inv.rec_key, inv-head.rec_key).
+    RUN pCopyShipNote (ar-inv.rec_key, inv-head.rec_key).
         
     FOR EACH ar-invl WHERE ar-invl.x-no EQ ar-inv.x-no
         AND ar-invl.misc = false /* ar-invl.dscr[1] NE "M" */:
@@ -889,7 +889,7 @@ PROCEDURE calc-tons :
 
 END PROCEDURE.
 
-PROCEDURE CopyShipNote PRIVATE:
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -897,12 +897,6 @@ PROCEDURE CopyShipNote PRIVATE:
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.

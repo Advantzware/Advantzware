@@ -870,9 +870,9 @@ display "" with frame r-top.
       display v-date            column-label "!Due Date"
               oe-ord.ord-date FORMAT "99/99/99"  column-label "!Ord Date"
                                 when avail oe-ord
-              trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99")
+              TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)))
                                 column-label "!Job #"
-                                format "x(9)"
+                                format "x(13)"
               oe-ord.ord-no     column-label "Our   ! Ord #"
                                 when avail oe-ord
               tt-report.key-02     column-label "!Customer Name"
@@ -885,7 +885,7 @@ display "" with frame r-top.
               v-msf             column-label "!    MSF"
                                 format ">>>9.9"
 
-          with no-box STREAM-IO width 132 no-attr-space.
+          with no-box STREAM-IO width 138 no-attr-space.
 
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED
@@ -893,7 +893,7 @@ display "" with frame r-top.
              '"' (IF AVAIL oe-ord AND oe-ord.ord-date NE ? THEN
                      STRING(oe-ord.ord-date) ELSE "")            '",'
              '"' (trim(job-hdr.job-no) + "-"
-                  + string(job-hdr.job-no2,"99"))                '",'
+                  + string(job-hdr.job-no2,"999"))                '",'
              '"' (IF AVAIL oe-ord THEN STRING(oe-ord.ord-no)
                   ELSE "")                                       '",'
              '"' tt-report.key-02                                '",'
@@ -911,10 +911,10 @@ display "" with frame r-top.
     end. /* each tt-report */
 
     put skip(1)
-        "----------"    to 123
-        "-------"       to 131
-        v-tot-qty       to 123
-        v-tot-msf       to 131
+        "----------"    to 129
+        "-------"       to 137
+        v-tot-qty       to 129
+        v-tot-msf       to 137
         skip.
 
     IF tb_excel THEN DO:

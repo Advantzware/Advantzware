@@ -168,9 +168,9 @@ DEFINE VARIABLE tcus             LIKE fcus INIT "zzzzzzzz" NO-UNDO.
 DEFINE VARIABLE fitm             LIKE itemfg.i-no NO-UNDO.
 DEFINE VARIABLE titm             LIKE fitm INIT "zzzzzzzzzzzzzzz" NO-UNDO.
 DEFINE VARIABLE fjob             LIKE fg-bin.job-no NO-UNDO.
-DEFINE VARIABLE tjob             LIKE fjob INIT "zzzzzz" NO-UNDO.
-DEFINE VARIABLE fjob2            LIKE fg-bin.job-no2 FORMAT "99" NO-UNDO.
-DEFINE VARIABLE tjob2            LIKE fjob2 INIT 99 NO-UNDO.
+DEFINE VARIABLE tjob             LIKE fjob INIT "zzzzzzzzz" NO-UNDO.
+DEFINE VARIABLE fjob2            LIKE fg-bin.job-no2 FORMAT "999" NO-UNDO.
+DEFINE VARIABLE tjob2            LIKE fjob2 INIT 999 NO-UNDO.
 DEFINE VARIABLE v-q-or-v         AS LOG       FORMAT "Qty/Value" INIT YES NO-UNDO.
 DEFINE VARIABLE v-sub-t          AS LOG       FORMAT "Yes/No" INIT NO NO-UNDO.
 DEFINE VARIABLE v-break          AS LOG       FORMAT "Yes/No" INIT YES NO-UNDO.
@@ -2649,9 +2649,9 @@ PROCEDURE print_report :
         fitm               = begin_i-no
         titm               = end_i-no
         fjob               = FILL(" ", iJobLen - length(TRIM(begin_job-no))) +
-                trim(begin_job-no) + string(int(begin_job-no2),"99")
+                trim(begin_job-no) + string(int(begin_job-no2),"999")
         tjob               = FILL(" ", iJobLen - length(TRIM(end_job-no)))   +
-                trim(end_job-no)   + string(int(end_job-no2),"99") 
+                trim(end_job-no)   + string(int(end_job-no2),"999") 
         v-q-or-v           = YES /*rd_show EQ "Quantity"*/
         v-sub-t            = NO /*tb_val-cust*/
         v-break            = NO /*tb_break*/
@@ -2870,7 +2870,7 @@ PROCEDURE print_report :
                 DO:                 
                     CASE cTmpField:               
                         WHEN "v-job#" THEN 
-                            cVarValue = IF tt-file.job-no = "" THEN "" ELSE STRING(tt-file.job-no + "-" + string(tt-file.job-no2,"99")).
+                            cVarValue = IF tt-file.job-no = "" THEN "" ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-file.job-no, tt-file.job-no2))).
                         WHEN "v-order#" THEN 
                             cVarValue = STRING(tt-file.ord-no) .
                         WHEN "v-custpo#" THEN 

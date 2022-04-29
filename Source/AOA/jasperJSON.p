@@ -394,5 +394,4 @@ PROCEDURE pTaskFile:
         "~"" REPLACE(ipcSubjectName," ","") "~": [" SKIP
         .
 
-
 END PROCEDURE.

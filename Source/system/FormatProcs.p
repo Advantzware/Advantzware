@@ -59,6 +59,14 @@ FUNCTION fEscapeExceptionCharactersXML RETURNS CHARACTER
 FUNCTION fGetReplaceString RETURNS CHARACTER PRIVATE
 	( INPUT ipiCount AS INTEGER ) FORWARD.  
 
+FUNCTION sfFormat_FilledJobWithHyphen RETURNS CHARACTER 
+	(ipcJobNo AS CHARACTER,
+	 ipiJobNo2 AS INTEGER) FORWARD.
+
+FUNCTION sfFormat_FilledJobWithoutHyphen RETURNS CHARACTER 
+	(ipcJobNo AS CHARACTER,
+	 ipiJobNo2 AS INTEGER) FORWARD.
+
 FUNCTION sfFormat_JobFormat RETURNS CHARACTER
   ( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ) FORWARD.
   
@@ -67,8 +75,14 @@ FUNCTION sfFormat_SingleJob RETURNS CHARACTER
   
 FUNCTION sfFormat_JobFormatWithHyphen RETURNS CHARACTER
   ( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ) FORWARD.  
-  
 
+FUNCTION sfFormat_TrimmedJobWithHyphen RETURNS CHARACTER 
+	(ipcJobNo AS CHARACTER,
+	 ipiJobNo2 AS INTEGER) FORWARD.  
+
+FUNCTION sfFormat_TrimmedJobWithoutHyphen RETURNS CHARACTER 
+	(ipcJobNo AS CHARACTER,
+	 ipiJobNo2 AS INTEGER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
 
@@ -870,9 +884,9 @@ PROCEDURE pJobFormat PRIVATE:
     DEFINE OUTPUT PARAMETER opcJobValue  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcJob2Value AS CHARACTER NO-UNDO.
 
-    opcJobValue = FILL(" ", iJobLen - length(trim(ipcJobValue))) + trim(ipcJobValue).
+    opcJobValue = FILL(" ", iJobLen - LENGTH(TRIM(ipcJobValue))) + TRIM(ipcJobValue).
 
-    opcJob2Value = STRING(ipiJob2Value,"999").
+    opcJob2Value = TRIM(STRING(ipiJob2Value,">99")).
     
 END PROCEDURE.
 
@@ -989,6 +1003,44 @@ FUNCTION fGetReplaceString RETURNS CHARACTER PRIVATE
 END FUNCTION.
 
    
+FUNCTION sfFormat_FilledJobWithHyphen RETURNS CHARACTER 
+	( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cJobNo AS CHAR NO-UNDO.
+    DEFINE VARIABLE cJobNo2 AS CHAR NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHAR NO-UNDO.
+
+    ASSIGN 
+        cJobNo = FILL(" ", iJobLen - LENGTH(TRIM(ipcJobNo))) + TRIM(ipcJobNo)
+        cJobNo2 = TRIM(STRING(ipiJobNo2,">99"))
+        cReturn = cJobNo + "-" + cJobNo2.
+        
+    RETURN cReturn.
+    		
+END FUNCTION.
+
+FUNCTION sfFormat_FilledJobWithoutHyphen RETURNS CHARACTER 
+	( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cJobNo AS CHAR NO-UNDO.
+    DEFINE VARIABLE cJobNo2 AS CHAR NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHAR NO-UNDO.
+
+    ASSIGN 
+        cJobNo = FILL(" ", iJobLen - LENGTH(TRIM(ipcJobNo))) + TRIM(ipcJobNo)
+        cJobNo2 = TRIM(STRING(ipiJobNo2,">99"))
+        cReturn = cJobNo + cJobNo2.
+        
+    RETURN cReturn.
+		
+END FUNCTION.
+
 FUNCTION sfFormat_JobFormat RETURNS CHARACTER
   ( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ):
 /*------------------------------------------------------------------------------
@@ -1000,7 +1052,7 @@ FUNCTION sfFormat_JobFormat RETURNS CHARACTER
     
     RUN pJobFormat(INPUT ipcJobNo, INPUT ipiJobNo2, OUTPUT cBeginJob, OUTPUT cBeginJob2).
      
-     RETURN STRING(cBeginJob + cBeginJob2) .
+    RETURN STRING(cBeginJob + cBeginJob2) .
 
 END FUNCTION.
 
@@ -1031,6 +1083,42 @@ FUNCTION sfFormat_JobFormatWithHyphen RETURNS CHARACTER
     
     RUN pJobFormat(INPUT ipcJobNo, INPUT ipiJobNo2, OUTPUT cBeginJob, OUTPUT cBeginJob2).
      
-     RETURN STRING(cBeginJob + "-" + cBeginJob2) .
-
+    RETURN cBeginJob + "-" + cBeginJob2.
 END FUNCTION.
+
+FUNCTION sfFormat_TrimmedJobWithHyphen RETURNS CHARACTER 
+	( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cJobNo AS CHAR NO-UNDO.
+    DEFINE VARIABLE cJobNo2 AS CHAR NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHAR NO-UNDO.
+
+    ASSIGN 
+        cJobNo = TRIM(ipcJobNo)
+        cJobNo2 = TRIM(STRING(ipiJobNo2,">99"))
+        cReturn = cJobNo + "-" + cJobNo2.
+        
+    RETURN cReturn.
+END FUNCTION.
+
+FUNCTION sfFormat_TrimmedJobWithoutHyphen RETURNS CHARACTER 
+	( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cJobNo AS CHAR NO-UNDO.
+    DEFINE VARIABLE cJobNo2 AS CHAR NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHAR NO-UNDO.
+
+    ASSIGN 
+        cJobNo = TRIM(ipcJobNo)
+        cJobNo2 = TRIM(STRING(ipiJobNo2,">99"))
+        cReturn = cJobNo + cJobNo2.
+        
+    RETURN cReturn.
+END FUNCTION.
+

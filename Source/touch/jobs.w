@@ -818,7 +818,7 @@ PROCEDURE check-job-status :
                        NO-ERROR.
 
   IF AVAIL bf-machtran AND NOT v-gang-jobs THEN do:
-     MESSAGE "Job " + trim(bf-machtran.job_number) + "-" + TRIM(string(bf-machtran.job_sub,"99")) +
+     MESSAGE "Job " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', bf-machtran.job_number, bf-machtran.job_sub))) +
              " has data collection transaction started. You must end that job's operation before selecting a new job."
              VIEW-AS ALERT-BOX ERROR.
      RETURN error.
@@ -890,7 +890,7 @@ PROCEDURE Get_Jobs :
 
     IF ip-sort-by EQ "JOB" THEN
     &Scoped-define sortBy
-    &Scoped-define sortKey job.job-no + STRING(job.job-no2,"99")
+    &Scoped-define sortKey job.job-no + STRING(job.job-no2,"999")
     {addon/touch/Get_Jobs.i}
     ELSE
     &Scoped-define sortBy BY job.start-date
@@ -901,7 +901,7 @@ IF job-mch.start-date NE ? AND ~
   + STRING(MONTH(job-mch.start-date),"99") ~
   + STRING(DAY(job-mch.start-date),"99") ~
   + STRING(job-mch.start-time,"99999") ~
-    ELSE "9999999999999" + job.job-no + STRING(job.job-no2,"99")
+    ELSE "9999999999999" + job.job-no + STRING(job.job-no2,"999")
     {addon/touch/Get_Jobs.i}
 
     FOR EACH tt-job BY tt-job.sortKey:

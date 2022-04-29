@@ -1055,7 +1055,7 @@ END. /* for each bf-jobhdr*/
                      BY bf-fg-bin.job-no BY bf-fg-bin.job-no2 :
                 IF bf-fg-bin.job-no = job-hdr.job-no AND
                    bf-fg-bin.job-no2 = job-hdr.job-no2 THEN .
-                ELSE v-prev-job = v-prev-job + trim(bf-fg-bin.job-no) + /*"-" + STRING(bf-fg-bin.job-no2,"99") + */ ",".
+                ELSE v-prev-job = v-prev-job + trim(bf-fg-bin.job-no) + ",".
             END.
 
             display " " trim(string(eb.form-no,">>9")) + "-" +

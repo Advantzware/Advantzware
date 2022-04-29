@@ -866,7 +866,7 @@ def var v-stats as char init "A,R,W,L,P" NO-UNDO.
 def var v-tot-hrs as dec extent 2 format ">,>>9.99" NO-UNDO.
 def var v-cum-hrs as dec extent 2 format ">,>>9.99" NO-UNDO.
 def var v-saturday as date init 01/01/0001 NO-UNDO.
-def var v-hdr as char format "x(131)" extent 4 NO-UNDO.
+def var v-hdr as char format "x(136)" extent 4 NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR viLoop AS INT NO-UNDO.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
@@ -888,18 +888,18 @@ assign
  v-date    = begin_date
  v-left    = tb_show3
 
- v-hdr[1] = fill(" ",73) + if v-left then " TOTAL   WEEKLY    ACCUM" else
-                                          "STNDRD  STNDRD  ACTUAL  ACTUAL  REMAIN  REMAIN   TOTAL"
+ v-hdr[1] = fill(" ",73) + if v-left then "      TOTAL   WEEKLY    ACCUM" else
+                                          "     STNDRD  STNDRD  ACTUAL  ACTUAL  REMAIN  REMAIN   TOTAL"
  v-hdr[2] = "MACH" + fill(" ",40) + (if v-due-d then "DUE  " else "START") +
             fill(" ",14) +
-            "QUANTITY   " + if v-left then "HOURS    HOURS    HOURS" else
+            "     QUANTITY   " + if v-left then "HOURS    HOURS    HOURS" else
                             ("  RUN      MR     RUN      MR     RUN      MR   HOURS")
  v-hdr[3] = "CODE   " + (if v-name then "CUSTOMER NAME      "
                                    else "MACHINE DESCRIPTION") +
-            "  ITEM NUMBER     DATE     JOB#     REMAINING  " +
+            "  ITEM NUMBER     DATE     JOB#          REMAINING  " +
             if v-left then "REMAIN   REMAIN   REMAIN" else
                            " HOURS   HOURS   HOURS   HOURS   HOURS   HOURS  REMAIN"
- v-hdr[4] = fill("-",97) + if v-left then "" else fill("-",30)
+ v-hdr[4] = fill("-",102) + if v-left then "" else fill("-",30)
  v-tot-hrs = 0
  v-cum-hrs = 0.
 
@@ -1110,9 +1110,9 @@ display "" with frame r-top.
          if first-of(work-rep.start-date) then do:
            if v-left and not first(work-rep.start-date) then do:
 
-             put "-------"                    to 79
-                 "TOTAL"                      to 70
-                 v-tot-hrs[1] + v-tot-hrs[2]  to 79 format ">,>>9.99".
+             put "-------"                    to 84
+                 "TOTAL"                      to 75
+                 v-tot-hrs[1] + v-tot-hrs[2]  to 84 format ">,>>9.99".
 
               IF tb_excel THEN
               DO:
@@ -1180,7 +1180,7 @@ display "" with frame r-top.
                  work-rep.i-no
                  work-rep.start-date
                     when first-of(work-rep.start-date)
-                 trim(work-rep.job-no) + "-" + string(work-rep.job-no2,"99")
+                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', work-rep.job-no, work-rep.job-no2))) FORMAT "X(13)"
                  work-rep.qty-rem
                  work-rep.r-std-hrs     when not v-left
                  tot-hrs                when v-left
@@ -1191,7 +1191,7 @@ display "" with frame r-top.
                  job-run-hrs            when not v-left
                  job-mr-hrs             when not v-left
                  tot-hrs                when not v-left
-                 with frame det STREAM-IO width 132 no-box no-attr-space no-labels down.
+                 with frame det STREAM-IO width 136 no-box no-attr-space no-labels down.
 
          down with frame det.
 
@@ -1208,7 +1208,7 @@ display "" with frame r-top.
                        THEN STRING(work-rep.start-date)
                        ELSE "")                                '",'
                '"' trim(work-rep.job-no) + "-" +
-                   string(work-rep.job-no2,"99")               '",'
+                   string(work-rep.job-no2,"999")               '",'
                '"' work-rep.qty-rem                            '",'
                '"' (IF not v-left THEN
                        STRING(work-rep.r-std-hrs)
@@ -1236,13 +1236,13 @@ display "" with frame r-top.
          if last-of(work-rep.start-date) then do:
            if not v-left then
            DO:
-             put "-------"                    to 111
-                 "-------"                    to 119
-                 "-------"                    to 127
-                 "TOTAL"                      to 102
-                 v-tot-hrs[1]                 to 111
-                 v-tot-hrs[2]                 to 119
-                 v-tot-hrs[1] + v-tot-hrs[2]  to 127 format ">,>>9.99"
+             put "-------"                    to 116
+                 "-------"                    to 124
+                 "-------"                    to 132
+                 "TOTAL"                      to 108
+                 v-tot-hrs[1]                 to 116
+                 v-tot-hrs[2]                 to 124
+                 v-tot-hrs[1] + v-tot-hrs[2]  to 132 format ">,>>9.99"
                  skip(1).
 
              IF tb_excel THEN
@@ -1266,9 +1266,9 @@ display "" with frame r-top.
            else
            if last(work-rep.start-date) then
            DO:
-             put "-------"                    to 79
-                 "TOTAL"                      to 70
-                 v-tot-hrs[1] + v-tot-hrs[2]  to 79 format ">,>>9.99"
+             put "-------"                    to 84
+                 "TOTAL"                      to 75
+                 v-tot-hrs[1] + v-tot-hrs[2]  to 84 format ">,>>9.99"
                  space(1) v-cum-hrs[1]              format ">,>>9.99"
                  space(1) v-cum-hrs[2]              format ">,>>9.99"
                  skip(1).

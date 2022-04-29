@@ -1474,7 +1474,7 @@ PROCEDURE run-report :
                         END.
                     WHEN "po-ordl.job-no" THEN 
                         DO:
-                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99")).
+                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"999")).
                         END.
              
                     WHEN "dropshipment" THEN 

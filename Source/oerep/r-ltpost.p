@@ -432,11 +432,11 @@ PROCEDURE SEND-fgemail:
        IF FIRST-OF(tt-email.cust-no) THEN DO:
           v-fgemail-file = v-dir + trim(tt-email.cust-no) + ".txt".
           OUTPUT STREAM st-email TO VALUE(v-fgemail-file).
-          PUT STREAM st-email "JOB#       FG Item#              Qty    " SKIP
-                              "========== =============== ============ " SKIP.
+          PUT STREAM st-email "JOB#          FG Item#              Qty    " SKIP
+                              "============= =============== ============ " SKIP.
        END.
        PUT STREAM st-email UNFORMATTED
-                 tt-email.job-no + "-" + string(tt-email.job-no2,"99") FORM "x(10)"
+                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-email.job-no, tt-email.job-no2))) FORM "x(13)"
                  " " tt-email.i-no " " tt-email.qty FORM "->>>,>>>,>>9" 
                  SKIP.
        IF LAST-OF(tt-email.cust-no) THEN do:

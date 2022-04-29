@@ -14,6 +14,7 @@
 
 /* ***************************  Definitions  ************************** */
 {util\ttImport.i SHARED}
+{sys/inc/var.i NEW SHARED}
 
 DEFINE TEMP-TABLE ttImportPrep
     FIELD Company                 AS CHARACTER 
@@ -67,8 +68,8 @@ DEFINE TEMP-TABLE ttImportPrep
     FIELD disposal-date           AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "Disposal" HELP "Optional - Date"
     FIELD last-est-no             AS CHARACTER   FORMAT "x(5)" COLUMN-LABEL "Last Est." HELP "Optional - Size:5"
     FIELD last-order              AS INTEGER   FORMAT "->,>>>,>>9" COLUMN-LABEL "Last Order" HELP "Optional - integer"
-    FIELD last-job-no             AS CHARACTER   FORMAT "x(6)" COLUMN-LABEL "Job#" HELP "Optional - Size:6"
-    FIELD last-job-no2            AS INTEGER   FORMAT ">9" COLUMN-LABEL "Job2" HELP "Optional - Integer"
+    FIELD last-job-no             AS CHARACTER   FORMAT "x(9)" COLUMN-LABEL "Job#" HELP "Optional - SizeUpto:9"
+    FIELD last-job-no2            AS INTEGER   FORMAT ">>9" COLUMN-LABEL "Job2" HELP "Optional - Integer"
     FIELD productTaxClass         AS CHARACTER FORMAT "x(18)" COLUMN-LABEL "Prep Tax Class" HELP "Optional - Size:18"
     
     .
@@ -97,7 +98,9 @@ PROCEDURE pProcessRecord PRIVATE:
     
     DEFINE VARIABLE riNote AS ROWID NO-UNDO.
     DEFINE BUFFER bf-prep FOR prep.
-
+     
+    ASSIGN ipbf-ttImportPrep.last-job-no = SUBSTRING(ipbf-ttImportPrep.last-job-no,1,iJobLen) NO-ERROR.
+     
     FIND FIRST bf-prep EXCLUSIVE-LOCK 
         WHERE bf-prep.company EQ ipbf-ttImportPrep.Company
         AND bf-prep.CODE EQ ipbf-ttImportPrep.CODE
