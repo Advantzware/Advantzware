@@ -429,8 +429,10 @@ ELSE IF cAPIRequestMethod EQ "Internal" THEN DO:
     ELSE IF gcRequestVerb EQ "GET" THEN 
         oplcResponseData = oAPIHandler:Get(gcEndPoint).
     ELSE IF gcRequestVerb EQ "DELETE" THEN 
-        oplcResponseData = oAPIHandler:DELETE(gcEndPoint).
-    
+        oplcResponseData = oAPIHandler:Delete(gcEndPoint).
+    ELSE IF gcRequestVerb EQ "PATCH" THEN
+        oplcResponseData = oAPIHandler:Patch(gcEndPoint, iplcRequestData).
+        
     cResponseCode = oAPIHandler:GetResponseStatusCode().
                             
     IF VALID-OBJECT(oAPIHandler) THEN

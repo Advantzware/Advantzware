@@ -16,6 +16,7 @@ USING Progress.Json.ObjectModel.*.
 
 {CRM/ttCRMContacts.i}
 {CRM/ttCRMCustomers.i}
+{api/ttAPIOutboundEvent.i}
 
 DEFINE VARIABLE oModelParser   AS ObjectModelParser NO-UNDO.
 DEFINE VARIABLE oObject        AS JsonObject        NO-UNDO.
@@ -31,6 +32,328 @@ oModelParser = NEW ObjectModelParser().
 
 /* **********************  Internal Procedures  *********************** */
 
+
+PROCEDURE Zoho_CreateDeskTicket:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcSubject     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcDescription AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hdOutboundProcs  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lcRequestData    AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE cSubject         AS CHARACTER NO-UNDO.
+    
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+        INPUT  "",                                       /* Company Code (Mandatory) */
+        INPUT  "",                                       /* Location Code (Mandatory) */
+        INPUT  "CreateZohoDeskTicket",                   /* API ID (Mandatory) */
+        INPUT  "_default",                               /* ClientID */
+        INPUT  "CreateTicket",                           /* Trigger ID (Mandatory) */
+        INPUT  "Subject,Description",                    /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  ipcSubject + "," + ipcDescription,        /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  USERID("ASI"),                            /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  "Creating zoho desk ticket",              /* Event's description (Optional) */
+        OUTPUT lSuccess,                                 /* Success/Failure flag */
+        OUTPUT cMessage                                  /* Status message */
+        ) NO-ERROR.
+    
+    RUN Outbound_GetEvents IN hdOutboundProcs (OUTPUT TABLE ttAPIOutboundEvent).
+    
+    FIX-CODEPAGE(lcRequestData) = 'utf-8'.
+    
+    lcRequestData = "".
+    
+    FIND FIRST ttAPIOutboundEvent NO-LOCK NO-ERROR.
+    IF AVAILABLE ttAPIOutboundEvent THEN DO:
+        FIND FIRST apiOutboundEvent NO-LOCK
+             WHERE apiOutboundEvent.apiOutboundEventID EQ ttAPIOutboundEvent.APIOutboundEventID
+             NO-ERROR.
+        IF AVAILABLE apiOutboundEvent THEN
+            lcRequestData = apiOutboundEvent.responseData.
+    END.    
+
+    IF lcRequestData EQ "" THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Unable to fetch response from Zoho"
+            . 
+        
+        RETURN.
+    END.
+
+    ASSIGN
+        oObject  = CAST(oModelParser:Parse(INPUT lcRequestData),JsonObject)
+        cSubject = oObject:GetJsonText('subject')
+        NO-ERROR.
+    
+    IF cSubject EQ "" THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Error while creating zoho ticket"
+            . 
+        
+        RETURN.        
+    END.
+    
+    FINALLY:
+        IF VALID-HANDLE(hdOutboundProcs) THEN
+            DELETE OBJECT hdOutboundProcs.  
+    END FINALLY.
+END PROCEDURE.
+
+
+PROCEDURE pUpdateDeskAccount PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcAttribute AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcValue     AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hdOutboundProcs    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lSuccess           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lcRequestData      AS LONGCHAR  NO-UNDO.
+    
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+        INPUT  "",                                       /* Company Code (Mandatory) */
+        INPUT  "",                                       /* Location Code (Mandatory) */
+        INPUT  "UpdateZohoDeskAccount",                  /* API ID (Mandatory) */
+        INPUT  "_default",                               /* ClientID */
+        INPUT  "UpdateAccount",                          /* Trigger ID (Mandatory) */
+        INPUT  ipcAttribute,                             /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  ipcValue,                                 /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  USERID("ASI"),                            /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  "Updating account details",               /* Event's description (Optional) */
+        OUTPUT lSuccess,                                 /* Success/Failure flag */
+        OUTPUT cMessage                                  /* Status message */
+        ) NO-ERROR.
+    
+    RUN Outbound_GetEvents IN hdOutboundProcs (OUTPUT TABLE ttAPIOutboundEvent).
+    
+    FIX-CODEPAGE(lcRequestData) = 'utf-8'.
+    
+    lcRequestData = "".
+    
+    FIND FIRST ttAPIOutboundEvent NO-LOCK NO-ERROR.
+    IF AVAILABLE ttAPIOutboundEvent THEN DO:
+        FIND FIRST apiOutboundEvent NO-LOCK
+             WHERE apiOutboundEvent.apiOutboundEventID EQ ttAPIOutboundEvent.APIOutboundEventID
+             NO-ERROR.
+        IF AVAILABLE apiOutboundEvent THEN
+            lcRequestData = apiOutboundEvent.responseData.
+    END.    
+
+    IF lcRequestData EQ "" THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Unable to fetch response from Zoho"
+            . 
+        
+        RETURN.
+    END.
+
+    ASSIGN
+        oObject            = CAST(oModelParser:Parse(INPUT lcRequestData),JsonObject)
+        NO-ERROR.
+    
+    FINALLY:
+        IF VALID-HANDLE(hdOutboundProcs) THEN
+            DELETE OBJECT hdOutboundProcs.  
+    END FINALLY.
+END PROCEDURE.
+
+PROCEDURE Zoho_GetDeskAccount:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdtLicenseExpiryDate AS DATE      NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiUserCount          AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError              AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage            AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hdOutboundProcs    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lSuccess           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lcRequestData      AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE cLicenseExpiryDate AS CHARACTER NO-UNDO.
+    
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+        INPUT  "",                                       /* Company Code (Mandatory) */
+        INPUT  "",                                       /* Location Code (Mandatory) */
+        INPUT  "GetZohoDeskAccount",                     /* API ID (Mandatory) */
+        INPUT  "_default",                               /* ClientID */
+        INPUT  "GetAccount",                             /* Trigger ID (Mandatory) */
+        INPUT  "GetAccount",                             /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  "GetAccount",                             /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  USERID("ASI"),                            /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  "Fetching account details",               /* Event's description (Optional) */
+        OUTPUT lSuccess,                                 /* Success/Failure flag */
+        OUTPUT cMessage                                  /* Status message */
+        ) NO-ERROR.
+    
+    RUN Outbound_GetEvents IN hdOutboundProcs (OUTPUT TABLE ttAPIOutboundEvent).
+    
+    FIX-CODEPAGE(lcRequestData) = 'utf-8'.
+    
+    lcRequestData = "".
+    
+    FIND FIRST ttAPIOutboundEvent NO-LOCK NO-ERROR.
+    IF AVAILABLE ttAPIOutboundEvent THEN DO:
+        FIND FIRST apiOutboundEvent NO-LOCK
+             WHERE apiOutboundEvent.apiOutboundEventID EQ ttAPIOutboundEvent.APIOutboundEventID
+             NO-ERROR.
+        IF AVAILABLE apiOutboundEvent THEN
+            lcRequestData = apiOutboundEvent.responseData.
+    END.    
+
+    IF lcRequestData EQ "" THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Unable to fetch response from Zoho"
+            . 
+        
+        RETURN.
+    END.
+
+    ASSIGN
+        oObject            = CAST(oModelParser:Parse(INPUT lcRequestData),JsonObject)
+        cLicenseExpiryDate = oObject:GetJsonObject("cf"):GetJsonText("cf_license_time_out")
+        opiUserCount       = INTEGER(oObject:GetJsonObject("cf"):GetJsonText("cf_advantzware_user_count"))
+        NO-ERROR.
+    
+    IF cLicenseExpiryDate EQ "null" OR cLicenseExpiryDate EQ "" THEN
+        opdtLicenseExpiryDate = 01/01/2000.
+    ELSE
+        opdtLicenseExpiryDate = DATE(INTEGER(SUBSTRING(cLicenseExpiryDate, 6, 2)), INTEGER(SUBSTRING(cLicenseExpiryDate, 9, 2)), INTEGER(SUBSTRING(cLicenseExpiryDate, 1, 4))) NO-ERROR. 
+
+    FINALLY:
+        IF VALID-HANDLE(hdOutboundProcs) THEN
+            DELETE OBJECT hdOutboundProcs.  
+    END FINALLY.
+END PROCEDURE.
+
+PROCEDURE Zoho_UpdateDeskAccessToken:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplError       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hdOutboundProcs  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lcRequestData    AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE iIndex           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cAccessToken     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cZohoDeskAPIList AS CHARACTER NO-UNDO INITIAL "CreateZohoDeskTicket,GetZohoDeskAccount,UpdateZohoDeskAccount".
+    
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+        INPUT  "",                                       /* Company Code (Mandatory) */
+        INPUT  "",                                       /* Location Code (Mandatory) */
+        INPUT  "GetZohoDeskAccessToken",                 /* API ID (Mandatory) */
+        INPUT  "_default",                               /* ClientID */
+        INPUT  "GetAccessToken",                         /* Trigger ID (Mandatory) */
+        INPUT  "AccessToken",                            /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  "AccessToken",                            /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  USERID("ASI"),                            /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  "Fetching Access Token",                  /* Event's description (Optional) */
+        OUTPUT lSuccess,                                 /* Success/Failure flag */
+        OUTPUT cMessage                                  /* Status message */
+        ) NO-ERROR.
+    
+    RUN Outbound_GetEvents IN hdOutboundProcs (OUTPUT TABLE ttAPIOutboundEvent).
+    
+    FIX-CODEPAGE(lcRequestData) = 'utf-8'.
+    
+    lcRequestData = "".
+    
+    FIND FIRST ttAPIOutboundEvent NO-LOCK NO-ERROR.
+    IF AVAILABLE ttAPIOutboundEvent THEN DO:
+        FIND FIRST apiOutboundEvent NO-LOCK
+             WHERE apiOutboundEvent.apiOutboundEventID EQ ttAPIOutboundEvent.APIOutboundEventID
+             NO-ERROR.
+        IF AVAILABLE apiOutboundEvent THEN
+            lcRequestData = apiOutboundEvent.responseData.
+    END.    
+
+    IF lcRequestData EQ "" THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Unable to fetch response from Zoho"
+            . 
+        
+        RETURN.
+    END.
+
+    ASSIGN
+        oObject      = CAST(oModelParser:Parse(INPUT lcRequestData),JsonObject)
+        cAccessToken = oObject:GetJsonText('access_token')
+        NO-ERROR.
+
+    IF cAccessToken EQ "" THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Error while fetching refresh token"
+            . 
+        
+        RETURN.    
+    END.
+    
+    DO iIndex = 1 TO NUM-ENTRIES(cZohoDeskAPIList):
+        FOR EACH apiOutbound NO-LOCK
+            WHERE apiOutbound.company  EQ ""
+              AND apiOutbound.apiID    EQ ENTRY(iIndex, cZohoDeskAPIList)
+              AND apiOutbound.clientID EQ "_default":
+            FIND FIRST apiOutboundContent EXCLUSIVE-LOCK
+                 WHERE apiOutboundContent.apiOutboundID EQ apiOutbound.apiOutboundID
+                   AND apiOutboundContent.contentKey    EQ "Authorization"
+                 NO-ERROR.
+            IF AVAILABLE apiOutboundContent THEN
+                apiOutboundContent.contentValue = "Bearer " + cAccessToken.
+        END.
+    END.
+    
+    FINALLY:
+        IF VALID-HANDLE(hdOutboundProcs) THEN
+            DELETE OBJECT hdOutboundProcs.	
+    END FINALLY.
+END PROCEDURE.
+
+PROCEDURE Zoho_UpdateDeskAccountUserCount:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiUserCount AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cAttributeName AS CHARACTER NO-UNDO.
+    
+    RUN spGetSettingByName ("ZohoUserCountAttribute", OUTPUT cAttributeName).
+    
+    RUN pUpdateDeskAccount(cAttributeName, ipiUserCount, OUTPUT oplError, OUTPUT opcMessage).
+
+END PROCEDURE.
 
 PROCEDURE Zoho_UpdateRefreshToken:
 /*------------------------------------------------------------------------------
