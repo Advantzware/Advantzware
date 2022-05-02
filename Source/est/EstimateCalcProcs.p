@@ -5701,6 +5701,8 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     RUN sys/ref/nk1look.p (ipcCompany, "CEPREPPRICE", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN gcPrepMarkupOrMargin = cReturn.
     
+    RUN spGetSettingByName ("CEPrepMarkupOrMargin", OUTPUT gcPrepMarkupOrMargin).
+    
     RUN sys/ref/nk1look.p (ipcCompany, "CEMATL", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound AND cReturn EQ "YES" THEN  
     DO:
@@ -5712,6 +5714,7 @@ PROCEDURE pSetGlobalSettings PRIVATE:
         gcMarginMatrixLookup = "Square Feet".
     ELSE 
         gcMarginMatrixLookup = cReturn.
+    RUN spGetSettingByName ("CEMarkupMatrixLookup", OUTPUT gcMarginMatrixLookup).    
         
     RUN sys/ref/nk1look.p (ipcCompany,"CEOpRates","C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     glOpRatesSeparate = lFound AND cReturn EQ "MR/Run Separate".
