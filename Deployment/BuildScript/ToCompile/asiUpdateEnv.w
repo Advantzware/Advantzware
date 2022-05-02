@@ -201,7 +201,13 @@ DEF TEMP-TABLE ttPayableFix
     FIELD glhistRowid AS ROWID
     FIELD rec_key AS CHAR LABEL "RecKey" 
     .
-        
+
+DEFINE TEMP-TABLE ttAccount NO-UNDO
+    FIELD accountID   AS CHARACTER
+    FIELD accountName AS CHARACTER
+    INDEX accountName IS PRIMARY accountName
+    .
+             
 DEF BUFFER bnotes FOR notes.
 DEF BUFFER bf-usercomp FOR usercomp.
 DEF BUFFER bf-module FOR MODULE.
@@ -3031,6 +3037,8 @@ PROCEDURE ipDataFix :
         RUN ipFixBadAPPostings.
     IF iCurrentVersion LT 22010000 THEN 
         RUN ipDataFix220100.
+    IF iCurrentVersion LT 22010500 THEN 
+        RUN ipDataFix220105.
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3884,6 +3892,23 @@ PROCEDURE ipDataFix220100:
     RUN ipStatus ("  Data Fix 220100...").
 
 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix220105 C-Win
+PROCEDURE ipDataFix220105:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 220105...").
+    
+    RUN ipUpdateAdwantzwareAccountID.
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -7749,6 +7774,62 @@ PROCEDURE ipFixEstimateScores:
     
 END PROCEDURE.
     
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateAdwantzwareAccountID C-Win
+PROCEDURE ipUpdateAdwantzwareAccountID PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lcAccountData     AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE hdEncryptionProcs AS HANDLE   NO-UNDO.
+    
+    DEFINE BUFFER bf-company FOR company.
+    
+    RUN ipStatus ("Updating Advantzware Account ID").
+    
+    COPY-LOB FROM FILE VALUE(cUpdDataDir + "\CustomerAccountList") TO lcAccountData NO-ERROR.
+    
+    IF lcAccountData EQ "" THEN DO:
+        RUN ipStatus ("Error: CustomerAccountList file contains no data").
+        
+        RETURN.
+    END.
+    
+    RUN system/EncryptionProcs.p PERSISTENT SET hdEncryptionProcs.  
+    
+    /* File DataFiles/CustomerAccountList is encrypted and needs to be decrypted before reading into temp-table. File is encrypted with password "Advantzware" */
+    RUN DecryptString IN hdEncryptionProcs (lcAccountData, "Advantzware" /* Password to decrypt */, OUTPUT lcAccountData).
+    
+    TEMP-TABLE ttAccount:READ-JSON("LONGCHAR", lcAccountData) NO-ERROR.
+    
+    IF ERROR-STATUS:ERROR THEN DO:
+        RUN ipStatus ("Error: Failed parsing decrypted data. " + ERROR-STATUS:GET-MESSAGE(1)).
+        
+        RETURN.
+    END.
+    
+    FIND FIRST bf-company NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE bf-company THEN
+        RETURN.
+    
+    FIND FIRST ttAccount
+         WHERE ttAccount.accountName EQ bf-company.name
+         NO-ERROR.
+    IF AVAILABLE ttAccount THEN
+        RUN spSetSettingByName ("AdvantzwareAccountID", ttAccount.accountID).
+        
+    FINALLY:
+        IF VALID-HANDLE(hdEncryptionProcs) THEN
+            DELETE PROCEDURE hdEncryptionProcs.		
+    END FINALLY.        
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
