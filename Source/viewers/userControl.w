@@ -397,8 +397,8 @@ PROCEDURE local-update-record:
             cCompanyName = system.SessionConfig:Instance:GetValue("CompanyName").
              
             RUN Zoho_CreateDeskTicket IN hdZohoProcs (
-                INPUT  "User Count Changed for " + cCompanyName, 
-                INPUT  "User Count Changed for " + cCompanyName + " from " + STRING(userControl.maxAllowedUsers) + " to " + userControl.maxAllowedUsers:SCREEN-VALUE, 
+                INPUT  "Customer User Change Request - " + cCompanyName, 
+                INPUT  "Customer User Change Request for " + cCompanyName + " from " + STRING(userControl.maxAllowedUsers) + " to " + userControl.maxAllowedUsers:SCREEN-VALUE, 
                 OUTPUT lError, 
                 OUTPUT cMessage
                 ).       

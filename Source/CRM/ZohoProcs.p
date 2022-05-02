@@ -21,6 +21,7 @@ USING Progress.Json.ObjectModel.*.
 DEFINE VARIABLE oModelParser   AS ObjectModelParser NO-UNDO.
 DEFINE VARIABLE oObject        AS JsonObject        NO-UNDO.
 DEFINE VARIABLE cTempDir       AS CHARACTER         NO-UNDO.
+DEFINE VARIABLE oAccount       AS JsonObject        NO-UNDO.
 
 RUN FileSys_GetTempDirectory(
     OUTPUT cTempDir
@@ -175,15 +176,85 @@ PROCEDURE pUpdateDeskAccount PRIVATE:
     END FINALLY.
 END PROCEDURE.
 
+PROCEDURE Zoho_GetAccountLicenseExpiryDate:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdtLicenseExpiryDate AS DATE NO-UNDO.
+    
+    DEFINE VARIABLE lError             AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLicenseExpiryDate AS CHARACTER NO-UNDO.
+    
+    IF NOT VALID-OBJECT(oAccount) THEN DO:
+        RUN Zoho_GetDeskAccount (OUTPUT lError, OUTPUT cMessage).
+        IF lError THEN
+            RETURN.
+    END. 
+    
+    IF NOT VALID-OBJECT(oAccount) THEN
+        RETURN.
+        
+    cLicenseExpiryDate = oAccount:GetJsonObject("cf"):GetJsonText("cf_license_time_out") NO-ERROR.
+    
+    IF cLicenseExpiryDate EQ "null" OR cLicenseExpiryDate EQ "" THEN
+        opdtLicenseExpiryDate = ?.
+    ELSE
+        opdtLicenseExpiryDate = DATE(INTEGER(SUBSTRING(cLicenseExpiryDate, 6, 2)), INTEGER(SUBSTRING(cLicenseExpiryDate, 9, 2)), INTEGER(SUBSTRING(cLicenseExpiryDate, 1, 4))) NO-ERROR. 
+END PROCEDURE.
+
+PROCEDURE Zoho_GetAccountLicensedUserCount:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opiUserCount AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    IF NOT VALID-OBJECT(oAccount) THEN DO:
+        RUN Zoho_GetDeskAccount (OUTPUT lError, OUTPUT cMessage).
+        IF lError THEN
+            RETURN.
+    END. 
+    
+    IF NOT VALID-OBJECT(oAccount) THEN
+        RETURN.
+        
+    opiUserCount = INTEGER(oAccount:GetJsonObject("cf"):GetJsonText("cf_advantzware_user_count")) NO-ERROR.
+END PROCEDURE.
+
+PROCEDURE Zoho_GetAccountBillableUserCount:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opiUserCount AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    IF NOT VALID-OBJECT(oAccount) THEN DO:
+        RUN Zoho_GetDeskAccount (OUTPUT lError, OUTPUT cMessage).
+        IF lError THEN
+            RETURN.
+    END. 
+    
+    IF NOT VALID-OBJECT(oAccount) THEN
+        RETURN.
+        
+    opiUserCount = INTEGER(oAccount:GetJsonObject("cf"):GetJsonText("cf_billable_users")) NO-ERROR.
+END PROCEDURE.
+
 PROCEDURE Zoho_GetDeskAccount:
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opdtLicenseExpiryDate AS DATE      NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiUserCount          AS INTEGER   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplError              AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage            AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE hdOutboundProcs    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lSuccess           AS LOGICAL   NO-UNDO.
@@ -231,17 +302,8 @@ PROCEDURE Zoho_GetDeskAccount:
         RETURN.
     END.
 
-    ASSIGN
-        oObject            = CAST(oModelParser:Parse(INPUT lcRequestData),JsonObject)
-        cLicenseExpiryDate = oObject:GetJsonObject("cf"):GetJsonText("cf_license_time_out")
-        opiUserCount       = INTEGER(oObject:GetJsonObject("cf"):GetJsonText("cf_advantzware_user_count"))
-        NO-ERROR.
+    oAccount = CAST(oModelParser:Parse(INPUT lcRequestData),JsonObject) NO-ERROR.
     
-    IF cLicenseExpiryDate EQ "null" OR cLicenseExpiryDate EQ "" THEN
-        opdtLicenseExpiryDate = 01/01/2000.
-    ELSE
-        opdtLicenseExpiryDate = DATE(INTEGER(SUBSTRING(cLicenseExpiryDate, 6, 2)), INTEGER(SUBSTRING(cLicenseExpiryDate, 9, 2)), INTEGER(SUBSTRING(cLicenseExpiryDate, 1, 4))) NO-ERROR. 
-
     FINALLY:
         IF VALID-HANDLE(hdOutboundProcs) THEN
             DELETE OBJECT hdOutboundProcs.  
