@@ -119,10 +119,6 @@ DEFINE TEMP-TABLE ttCEFormatConfig NO-UNDO
     FIELD analysisColTotalShtMSFLabel AS CHARACTER INITIAL "TotalSht MSF"
     FIELD analysisColTotalShtMSFCol   AS DECIMAL INITIAL 96
     FIELD analysisColTotalShtMSFWidth AS INTEGER INITIAL 12
-  //  FIELD analysisColFreightShow      AS LOGICAL INITIAL NO
-  //  FIELD analysisColFreightLabel     AS CHARACTER INITIAL "R"
-  //  FIELD analysisColFreightCol       AS DECIMAL INITIAL 12
- //   FIELD analysisColFreightWidth     AS INTEGER INITIAL 2
     FIELD analysisColBoard$MShow      AS LOGICAL INITIAL NO
     FIELD analysisColBoard$MLabel     AS CHARACTER INITIAL "Board$/M"
     FIELD analysisColBoard$MCol       AS DECIMAL INITIAL 16
@@ -277,60 +273,56 @@ PROCEDURE pBuildConfigFromTemplate PRIVATE:
         opbf-ttCEFormatConfig.summColSellPriceWidth       = 6
         opbf-ttCEFormatConfig.analysisColQuantityShow     = YES
         opbf-ttCEFormatConfig.analysisColQuantityLabel    = "Quantity"
-        opbf-ttCEFormatConfig.analysisColQuantityCol      = 5
+        opbf-ttCEFormatConfig.analysisColQuantityCol      = 8
         opbf-ttCEFormatConfig.analysisColQuantityWidth    = 9
-        opbf-ttCEFormatConfig.analysisColFactCostShow     = YES
+        opbf-ttCEFormatConfig.analysisColFactCostShow     = NO 
         opbf-ttCEFormatConfig.analysisColFactCostLabel    = "FactCost"
-        opbf-ttCEFormatConfig.analysisColFactCostCol      = 15
-        opbf-ttCEFormatConfig.analysisColFactCostWidth    = 8
-        opbf-ttCEFormatConfig.analysisColFullCostShow     = YES
+        opbf-ttCEFormatConfig.analysisColFactCostCol      = 19
+        opbf-ttCEFormatConfig.analysisColFactCostWidth    = 4
+        opbf-ttCEFormatConfig.analysisColFullCostShow     = NO 
         opbf-ttCEFormatConfig.analysisColFullCostLabel    = "FullCost"
         opbf-ttCEFormatConfig.analysisColFullCostCol      = 25
-        opbf-ttCEFormatConfig.analysisColFullCostWidth    = 8
-        opbf-ttCEFormatConfig.analysisColGrossMarginShow  = YES
+        opbf-ttCEFormatConfig.analysisColFullCostWidth    = 4
+        opbf-ttCEFormatConfig.analysisColGrossMarginShow  = NO 
         opbf-ttCEFormatConfig.analysisColGrossMarginLabel = "GrossMargin%"
-        opbf-ttCEFormatConfig.analysisColGrossMarginCol   = 35
-        opbf-ttCEFormatConfig.analysisColGrossMarginWidth = 12
-        opbf-ttCEFormatConfig.analysisColNetMarginShow    = YES
+        opbf-ttCEFormatConfig.analysisColGrossMarginCol   = 31
+        opbf-ttCEFormatConfig.analysisColGrossMarginWidth = 7
+        opbf-ttCEFormatConfig.analysisColNetMarginShow    = NO 
         opbf-ttCEFormatConfig.analysisColNetMarginLabel   = "NetMargin%"
-        opbf-ttCEFormatConfig.analysisColNetMarginCol     = 45
-        opbf-ttCEFormatConfig.analysisColNetMarginWidth   = 10
+        opbf-ttCEFormatConfig.analysisColNetMarginCol     = 40
+        opbf-ttCEFormatConfig.analysisColNetMarginWidth   = 7
         opbf-ttCEFormatConfig.analysisColSellPriceShow    = YES
         opbf-ttCEFormatConfig.analysisColSellPriceLabel   = "SellPrice"
-        opbf-ttCEFormatConfig.analysisColSellPriceCol     = 55
-        opbf-ttCEFormatConfig.analysisColSellPriceWidth   = 9
+        opbf-ttCEFormatConfig.analysisColSellPriceCol     = 49
+        opbf-ttCEFormatConfig.analysisColSellPriceWidth   = 6
         opbf-ttCEFormatConfig.analysisColPriceMSFShow     = YES
         opbf-ttCEFormatConfig.analysisColPriceMSFLabel    = "Price/MSF"
-        opbf-ttCEFormatConfig.analysisColPriceMSFCol      = 65
-        opbf-ttCEFormatConfig.analysisColPriceMSFWidth    = 9
+        opbf-ttCEFormatConfig.analysisColPriceMSFCol      = 57
+        opbf-ttCEFormatConfig.analysisColPriceMSFWidth    = 6
         opbf-ttCEFormatConfig.analysisColSheetsShow       = YES
         opbf-ttCEFormatConfig.analysisColSheetsLabel      = "Sheets"
-        opbf-ttCEFormatConfig.analysisColSheetsCol        = 75
+        opbf-ttCEFormatConfig.analysisColSheetsCol        = 65
         opbf-ttCEFormatConfig.analysisColSheetsWidth      = 6
-        opbf-ttCEFormatConfig.analysisColTotalShtMSFShow  = NO
+        opbf-ttCEFormatConfig.analysisColTotalShtMSFShow  = YES 
         opbf-ttCEFormatConfig.analysisColTotalShtMSFLabel = "TotalSht MSF"
-        opbf-ttCEFormatConfig.analysisColTotalShtMSFCol   = 85
-        opbf-ttCEFormatConfig.analysisColTotalShtMSFWidth = 12
-    //    opbf-ttCEFormatConfig.analysisColFreightShow      = NO
-    //    opbf-ttCEFormatConfig.analysisColFreightLabel     = "R"
-    //    opbf-ttCEFormatConfig.analysisColFreightCol       = 12
-    //    opbf-ttCEFormatConfig.analysisColFreightWidth     = 2
-        opbf-ttCEFormatConfig.analysisColBoard$MShow      = NO
+        opbf-ttCEFormatConfig.analysisColTotalShtMSFCol   = 73
+        opbf-ttCEFormatConfig.analysisColTotalShtMSFWidth = 8
+        opbf-ttCEFormatConfig.analysisColBoard$MShow      = YES 
         opbf-ttCEFormatConfig.analysisColBoard$MLabel     = "Board$/M"
-        opbf-ttCEFormatConfig.analysisColBoard$MCol       = 15
-        opbf-ttCEFormatConfig.analysisColBoard$MWidth     = 6
-        opbf-ttCEFormatConfig.analysisColBoard%Show       = NO
+        opbf-ttCEFormatConfig.analysisColBoard$MCol       = 19
+        opbf-ttCEFormatConfig.analysisColBoard$MWidth     = 4
+        opbf-ttCEFormatConfig.analysisColBoard%Show       = YES 
         opbf-ttCEFormatConfig.analysisColBoard%Label      = "Board %"
         opbf-ttCEFormatConfig.analysisColBoard%Col        = 25
-        opbf-ttCEFormatConfig.analysisColBoard%Width      = 7 
-        opbf-ttCEFormatConfig.analysisColTotalContbShow   = NO
+        opbf-ttCEFormatConfig.analysisColBoard%Width      = 4 
+        opbf-ttCEFormatConfig.analysisColTotalContbShow   = YES 
         opbf-ttCEFormatConfig.analysisColTotalContbLabel  = "TotalContb"
-        opbf-ttCEFormatConfig.analysisColTotalContbCol    = 35
-        opbf-ttCEFormatConfig.analysisColTotalContbWidth  = 6
-        opbf-ttCEFormatConfig.analysisColContbHrShow      = NO
+        opbf-ttCEFormatConfig.analysisColTotalContbCol    = 31
+        opbf-ttCEFormatConfig.analysisColTotalContbWidth  = 7
+        opbf-ttCEFormatConfig.analysisColContbHrShow      = YES 
         opbf-ttCEFormatConfig.analysisColContbHrLabel     = "Contb/Hr"
-        opbf-ttCEFormatConfig.analysisColContbHrCol       = 45
-        opbf-ttCEFormatConfig.analysisColContbHrWidth     = 6 
+        opbf-ttCEFormatConfig.analysisColContbHrCol       = 40
+        opbf-ttCEFormatConfig.analysisColContbHrWidth     = 7 
         .
     
     CASE ipcFormatFont:
@@ -1698,21 +1690,16 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
     DEFINE VARIABLE dQtyInM           AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dMSFTotal         AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dSheetsTotal      AS INTEGER NO-UNDO.
-    DEFINE VARIABLE cLevelsToPrint    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cHeadersTop       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cHeaders          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cLevels           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cWidths           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDecimals         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iLevel            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iIndex            AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iStartLevelsAfter AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cHeaderItemSumm   AS CHARACTER NO-UNDO.
     
     iIndex = 0.
     ASSIGN 
         iIndex            = iIndex + 1
-        iStartLevelsAfter = iIndex
         cWidths           = cWidths + STRING(30) + ","
         cDecimals         = cDecimals + "0,"
         cHeadersTop       = cHeadersTop + "Estimate Analysis Per Thousand Finished Products" + ","
@@ -1722,7 +1709,6 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
     IF ipbf-ttCEFormatConfig.analysisColQuantityShow THEN 
         ASSIGN 
             iIndex            = iIndex + 1
-            iStartLevelsAfter = iIndex
             cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColQuantityWidth) + ","
             cDecimals         = cDecimals + "0,"
             cHeadersTop       = cHeadersTop + " " + ","
@@ -1732,7 +1718,6 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
     IF ipbf-ttCEFormatConfig.analysisColFactCostShow THEN 
         ASSIGN 
             iIndex            = iIndex + 1
-            iStartLevelsAfter = iIndex
             cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColFactCostWidth) + ","
             cDecimals         = cDecimals + "0,"
             cHeadersTop       = cHeadersTop + SUBSTRING(ipbf-ttCEFormatConfig.analysisColFactCostLabel,1,4) + ","
@@ -1742,7 +1727,6 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
     IF ipbf-ttCEFormatConfig.analysisColFullCostShow THEN 
         ASSIGN 
             iIndex            = iIndex + 1
-            iStartLevelsAfter = iIndex
             cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColFullCostWidth) + ","
             cDecimals         = cDecimals + "0,"
             cHeadersTop       = cHeadersTop + SUBSTRING(ipbf-ttCEFormatConfig.analysisColFullCostLabel,1,4) + ","
@@ -1752,7 +1736,6 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
     IF ipbf-ttCEFormatConfig.analysisColGrossMarginShow THEN 
         ASSIGN 
             iIndex            = iIndex + 1
-            iStartLevelsAfter = iIndex
             cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColGrossMarginWidth) + ","
             cDecimals         = cDecimals + "0,"
             cHeadersTop       = cHeadersTop + SUBSTRING (ipbf-ttCEFormatConfig.analysisColGrossMarginLabel,1,5) + ","
@@ -1762,17 +1745,51 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
     IF ipbf-ttCEFormatConfig.analysisColNetMarginShow THEN 
         ASSIGN 
             iIndex            = iIndex + 1
-            iStartLevelsAfter = iIndex
             cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColNetMarginWidth) + ","
             cDecimals         = cDecimals + "0,"
             cHeadersTop       = cHeadersTop + SUBSTRING (ipbf-ttCEFormatConfig.analysisColNetMarginLabel,1,3) + ","
             cHeaders          = cHeaders + SUBSTRING (ipbf-ttCEFormatConfig.analysisColNetMarginLabel,4,7) + ","
             iColumn[iIndex]   = ipbf-ttCEFormatConfig.analysisColNetMarginCol
             . 
+    IF ipbf-ttCEFormatConfig.analysisColBoard$MShow THEN   
+        ASSIGN 
+            iIndex            = iIndex + 1
+            cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColBoard$MWidth) + ","
+            cDecimals         = cDecimals + "0,"
+            cHeadersTop       = cHeadersTop + SUBSTRING (ipbf-ttCEFormatConfig.analysisColBoard$MLabel,1,5) + ","
+            cHeaders          = cHeaders + SUBSTRING (ipbf-ttCEFormatConfig.analysisColBoard$MLabel,6,3) + ","
+            iColumn[iIndex]   = ipbf-ttCEFormatConfig.analysisColBoard$MCol
+            . 
+    IF ipbf-ttCEFormatConfig.analysisColBoard%Show THEN   
+        ASSIGN 
+            iIndex            = iIndex + 1
+            cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColBoard%Width) + ","
+            cDecimals         = cDecimals + "0,"
+            cHeadersTop       = cHeadersTop + " " + ","
+            cHeaders          = cHeaders + ipbf-ttCEFormatConfig.analysisColBoard%Label + ","
+            iColumn[iIndex]   = ipbf-ttCEFormatConfig.analysisColBoard%Col
+            .  
+    IF ipbf-ttCEFormatConfig.analysisColTotalContbShow THEN   
+        ASSIGN 
+            iIndex            = iIndex + 1
+            cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColTotalContbWidth) + ","
+            cDecimals         = cDecimals + "0,"
+            cHeadersTop       = cHeadersTop + SUBSTRING (ipbf-ttCEFormatConfig.analysisColTotalContbLabel,1,5) + ","
+            cHeaders          = cHeaders + SUBSTRING (ipbf-ttCEFormatConfig.analysisColTotalContbLabel,6,5) + ","
+            iColumn[iIndex]   = ipbf-ttCEFormatConfig.analysisColTotalContbCol
+            .   
+    IF ipbf-ttCEFormatConfig.analysisColContbHrShow THEN   
+        ASSIGN 
+            iIndex            = iIndex + 1
+            cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColContbHrWidth) + ","
+            cDecimals         = cDecimals + "0,"
+            cHeadersTop       = cHeadersTop + SUBSTRING (ipbf-ttCEFormatConfig.analysisColContbHrLabel,1,6) + ","
+            cHeaders          = cHeaders + SUBSTRING (ipbf-ttCEFormatConfig.analysisColContbHrLabel,7,2) + ","
+            iColumn[iIndex]   = ipbf-ttCEFormatConfig.analysisColContbHrCol
+            .       
     IF ipbf-ttCEFormatConfig.analysisColSellPriceShow THEN 
         ASSIGN 
             iIndex            = iIndex + 1
-            iStartLevelsAfter = iIndex
             cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColSellPriceWidth) + ","
             cDecimals         = cDecimals + "0,"
             cHeadersTop       = cHeadersTop + SUBSTRING (ipbf-ttCEFormatConfig.analysisColSellPriceLabel,1,4) + ","
@@ -1782,7 +1799,6 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
     IF ipbf-ttCEFormatConfig.analysisColPriceMSFShow THEN 
         ASSIGN 
             iIndex            = iIndex + 1
-            iStartLevelsAfter = iIndex
             cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColPriceMSFWidth) + ","
             cDecimals         = cDecimals + "0,"
             cHeadersTop       = cHeadersTop + SUBSTRING (ipbf-ttCEFormatConfig.analysisColPriceMSFLabel,1,5) + ","
@@ -1792,13 +1808,21 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
     IF ipbf-ttCEFormatConfig.analysisColSheetsShow THEN 
         ASSIGN 
             iIndex            = iIndex + 1
-            iStartLevelsAfter = iIndex
             cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColSheetsWidth) + ","
             cDecimals         = cDecimals + "0,"
             cHeadersTop       = cHeadersTop + " " + ","
             cHeaders          = cHeaders + ipbf-ttCEFormatConfig.analysisColSheetsLabel + ","
             iColumn[iIndex]   = ipbf-ttCEFormatConfig.analysisColSheetsCol
-            .  
+            .     
+    IF ipbf-ttCEFormatConfig.analysisColTotalShtMSFShow THEN   
+        ASSIGN 
+            iIndex            = iIndex + 1
+            cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.analysisColTotalShtMSFWidth) + ","
+            cDecimals         = cDecimals + "0,"
+            cHeadersTop       = cHeadersTop + SUBSTRING (ipbf-ttCEFormatConfig.analysisColTotalShtMSFLabel,1,5) + ","
+            cHeaders          = cHeaders + SUBSTRING (ipbf-ttCEFormatConfig.analysisColTotalShtMSFLabel,6,7) + ","
+            iColumn[iIndex]   = ipbf-ttCEFormatConfig.analysisColTotalShtMSFCol
+            .                                
             
     ASSIGN cHeadersTop = TRIM (cHeadersTop,",")
            cHeaders    = TRIM (cHeaders,",").                            
@@ -1853,20 +1877,20 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
         RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[5], ipbf-estCostHeader.profitPctGross , 4, 2, NO, YES, NO, NO, YES).
         IF ipbf-ttCEFormatConfig.analysisColNetMarginShow THEN
         RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[6], ipbf-estCostHeader.profitPctNet , 4, 2, NO, YES, NO, NO, YES).
+        IF ipbf-ttCEFormatConfig.analysisColBoard$MShow THEN 
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ipbf-estCostHeader.costTotalBoard / dQtyInM , 9, 2, NO, YES, NO, NO, YES).
+        IF ipbf-ttCEFormatConfig.analysisColBoard%Show THEN 
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ipbf-estCostHeader.costTotalBoard / ipbf-estCostHeader.sellPrice * 100 , 9, 2, NO, YES, NO, NO, YES).
+        IF ipbf-ttCEFormatConfig.analysisColTotalContbShow THEN 
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], (ipbf-estCostHeader.sellPrice - (ipbf-estCostHeader.costTotalBoard / dQtyInM)) * dQtyInM , 9, 2, NO, YES, NO, NO, YES).  
+        IF ipbf-ttCEFormatConfig.analysisColContbHrShow THEN 
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], (ipbf-estCostHeader.sellPrice - (ipbf-estCostHeader.costTotalBoard / dQtyInM)) * dQtyInM , 9, 2, NO, YES, NO, NO, YES).
         IF ipbf-ttCEFormatConfig.analysisColSellPriceShow THEN
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7], ipbf-estCostHeader.sellPrice / dQtyInM , 9, 2, NO, YES, NO, NO, YES).
         IF ipbf-ttCEFormatConfig.analysisColPriceMSFShow THEN
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[8], ipbf-estCostHeader.sellPrice / dMSFTotal, 9, 2, NO, YES, NO, NO, YES).
         IF ipbf-ttCEFormatConfig.analysisColSheetsShow THEN
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[9], dSheetsTotal , 9, 0, NO, YES, NO, NO, YES).
-        IF ipbf-ttCEFormatConfig.analysisColBoard$MShow THEN 
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ipbf-estCostHeader.costTotalBoard / dQtyInM , 9, 2, NO, YES, NO, NO, YES).
-        IF ipbf-ttCEFormatConfig.analysisColBoard%Show THEN 
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ipbf-estCostHeader.costTotalBoard / ipbf-estCostHeader.sellPrice * 100 , 9, 2, NO, YES, NO, NO, YES).
-        IF ipbf-ttCEFormatConfig.analysisColTotalContbShow THEN 
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], (ipbf-estCostHeader.sellPrice - (estCostHeader.costTotalBoard / dQtyInM)) * dQtyInM , 9, 2, NO, YES, NO, NO, YES).  
-        IF ipbf-ttCEFormatConfig.analysisColContbHrShow THEN 
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], (ipbf-estCostHeader.sellPrice - (estCostHeader.costTotalBoard / dQtyInM)) * dQtyInM , 9, 2, NO, YES, NO, NO, YES).
         IF ipbf-ttCEFormatConfig.analysisColTotalShtMSFShow THEN 
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[10], dMSFTotal , 9, 2, NO, YES, NO, NO, YES).   
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
