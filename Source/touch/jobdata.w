@@ -121,7 +121,7 @@ DEFINE BUFFER bMachTran FOR machtran.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Hour Btn_Minute Btn_AMPM Btn_tag ~
+&Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Hour Btn_Minute Btn_AMPM ~
 Btn_Quantity Btn_Waste Btn_complete 
 &Scoped-Define DISPLAYED-OBJECTS time-hour time-minute run-qty waste-qty ~
 v-completed timerStatus 
@@ -200,10 +200,6 @@ DEFINE BUTTON Btn_Quantity
      LABEL "Quantity" 
      SIZE 16 BY 1.67 TOOLTIP "Quantity".
 
-DEFINE BUTTON Btn_tag 
-     LABEL "Tags" 
-     SIZE 12.8 BY 1.05 TOOLTIP "Bar Codes".
-
 DEFINE BUTTON Btn_Waste 
      LABEL "Waste" 
      SIZE 16 BY 1.67 TOOLTIP "Waste".
@@ -250,7 +246,6 @@ DEFINE FRAME F-Main
      Btn_AMPM AT ROW 1.71 COL 73
      time-hour AT ROW 1.95 COL 37 COLON-ALIGNED NO-LABEL
      time-minute AT ROW 1.95 COL 62 COLON-ALIGNED NO-LABEL
-     Btn_tag AT ROW 4.90 COL 110.8 WIDGET-ID 2
      Btn_Quantity AT ROW 4.1 COL 22
      run-qty AT ROW 4.33 COL 37 COLON-ALIGNED NO-LABEL
      Btn_Waste AT ROW 6.24 COL 22
@@ -487,17 +482,6 @@ DO:
   RUN Reset_Field_Colors.
   h_field = run-qty:HANDLE.
   RUN Set_Field_Colors.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_tag
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_tag s-object
-ON CHOOSE OF Btn_tag IN FRAME F-Main /* Tags */
-DO:
-    RUN sharpshooter/ssmenu.w .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -773,52 +757,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckIssuedMaterials s-object 
-PROCEDURE pCheckIssuedMaterials :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-{methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}  
-{methods/run_link.i "CONTAINER" "Get_Value" "('job_number',OUTPUT job_number)"}
-{methods/run_link.i "CONTAINER" "Get_Value" "('job_sub',OUTPUT job_sub)"}
-{methods/run_link.i "CONTAINER" "Get_Value" "('form_number',OUTPUT form_number)"}
-{methods/run_link.i "CONTAINER" "Get_Value" "('blank_number',OUTPUT blank_number)"}
-{methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}
-    
-IF CAN-FIND(FIRST mach
-                  WHERE mach.company EQ company_code
-                    AND mach.m-code  EQ machine_code
-                    AND (mach.dept[1] EQ "PR" OR mach.dept[2] EQ "PR" )) THEN     
-FOR EACH job-mat NO-LOCK
-    WHERE job-mat.company EQ company_code
-      AND job-mat.job-no EQ job_number 
-      AND job-mat.job-no2 EQ INTEGER(job_sub) 
-      AND job-mat.frm EQ INTEGER(form_number)
-      AND (job-mat.blank-no EQ INTEGER(blank_number) OR INTEGER(blank_number) EQ 0)
-      AND job-mat.all-flg EQ NO       
-      USE-INDEX seq-idx,
-      FIRST item
-      WHERE item.company    EQ job-mat.company
-        AND item.i-no       EQ job-mat.i-no
-        AND index("1234ABPR",item.mat-type) gt 0
-      NO-LOCK:
-     
-      RUN displayMessage(
-                        INPUT "72"
-                        ). 
-      LEAVE.                  
-END.   
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME    
-    
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE close-job s-object 
 PROCEDURE close-job :
@@ -1874,7 +1812,7 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN pCreateINIObjects ("HomeSmall,ResetTime,SetTime,AcceptEntry,Back").
+  RUN pCreateINIObjects ("HomeSmall,ResetTime,SetTime,AcceptEntry,Back,SharpShooterJobData").
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -1907,6 +1845,50 @@ PROCEDURE local-view :
     .
   {methods/run_link.i "CONTAINER" "Get_Value" "('machine_list',OUTPUT machine_list)"}
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckIssuedMaterials s-object 
+PROCEDURE pCheckIssuedMaterials :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+{methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}  
+{methods/run_link.i "CONTAINER" "Get_Value" "('job_number',OUTPUT job_number)"}
+{methods/run_link.i "CONTAINER" "Get_Value" "('job_sub',OUTPUT job_sub)"}
+{methods/run_link.i "CONTAINER" "Get_Value" "('form_number',OUTPUT form_number)"}
+{methods/run_link.i "CONTAINER" "Get_Value" "('blank_number',OUTPUT blank_number)"}
+{methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}
+    
+IF CAN-FIND(FIRST mach
+                  WHERE mach.company EQ company_code
+                    AND mach.m-code  EQ machine_code
+                    AND (mach.dept[1] EQ "PR" OR mach.dept[2] EQ "PR" )) THEN     
+FOR EACH job-mat NO-LOCK
+    WHERE job-mat.company EQ company_code
+      AND job-mat.job-no EQ job_number 
+      AND job-mat.job-no2 EQ INTEGER(job_sub) 
+      AND job-mat.frm EQ INTEGER(form_number)
+      AND (job-mat.blank-no EQ INTEGER(blank_number) OR INTEGER(blank_number) EQ 0)
+      AND job-mat.all-flg EQ NO       
+      USE-INDEX seq-idx,
+      FIRST item
+      WHERE item.company    EQ job-mat.company
+        AND item.i-no       EQ job-mat.i-no
+        AND index("1234ABPR",item.mat-type) gt 0
+      NO-LOCK:
+     
+      RUN displayMessage(
+                        INPUT "72"
+                        ). 
+      LEAVE.                  
+END.   
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2178,6 +2160,8 @@ PROCEDURE pClick :
         WHEN "Back" THEN DO:
             {methods/run_link.i "CONTAINER" "Change_Page" "(13)"}
         END.
+        WHEN "SharpShooterJobData" THEN
+        RUN sharpshooter/ssmenu.w.
     END CASE.
 
 END PROCEDURE.
