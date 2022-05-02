@@ -7793,7 +7793,7 @@ PROCEDURE ipUpdateAdwantzwareAccountID PRIVATE:
     
     RUN ipStatus ("Updating Advantzware Account ID").
     
-    COPY-LOB FROM FILE VALUE(cUpdDataDir + "\CustomerAccountList") TO lcAccountData NO-ERROR.
+    COPY-LOB FROM FILE cUpdDataDir + "\CustomerAccountList" TO lcAccountData NO-ERROR.
     
     IF lcAccountData EQ "" THEN DO:
         RUN ipStatus ("Error: CustomerAccountList file contains no data").
