@@ -313,6 +313,8 @@ IF AVAILABLE bf-company THEN
         IF TODAY - DATE(dtLastVerificationDate) GT iVerificationInterval THEN DO:
             RUN CRM/ZohoProcs.p PERSISTENT SET hdZohoProcs.
 
+            RUN spSetSettingByName ("AccountVerificationDate", STRING(NOW)).
+
             IF cAdvantzwareAccountID EQ ? OR cAdvantzwareAccountID EQ "" THEN DO:
                 RUN Zoho_UpdateDeskAccessToken IN hdZohoProcs (OUTPUT lError, OUTPUT cMessage).
 
@@ -341,8 +343,6 @@ IF AVAILABLE bf-company THEN
                                 ).                        
                     END.                    
                 END.
-                
-                RUN spSetSettingByName ("AccountVerificationDate", STRING(NOW)).
             END.
 
             DELETE PROCEDURE hdZohoProcs.
