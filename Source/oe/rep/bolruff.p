@@ -439,19 +439,27 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
   IF oe-bolh.tot-pallets NE 0 THEN v-tot-palls = oe-bolh.tot-pallets.
 
-  PUT "<R54><C50><#8><FROM><R+4><C+30><RECT> " 
+  PUT "<R51><C50><#8><FROM><R+4><C+30><RECT> " 
     "<=8><R+1> Total Cases       :" v-tot-cases 
     "<=8><R+3> Total Weight      :" v-tot-wt 
     "<FArial><R51><C1><P12><B>     Shipping Instructions: </B> <P9> " 
-    "<R53><C1>" oe-bolh.ship-i[1] AT 7 
-    "<R54><C1>" oe-bolh.ship-i[2] AT 7 
-    "<R55><C1>" oe-bolh.ship-i[3] AT 7 
-    "<R56><C1>" oe-bolh.ship-i[4] AT 7 
-    "<R58><C1>"
-    "__________________________________________________________________________________________________________________" 
-    "<R59><C1>" "<B>  Signature of Receipt </B>" 
-    "<R60><C1>" "Customer ________________________________________                       Carrier _______________________________________" AT 20 
-    "<R62><C1>" "Date ____________________________________________                       Date _________________________________________" AT 20    
+    "<R52><C1>" oe-bolh.ship-i[1] AT 7 
+    "<R53><C1>" oe-bolh.ship-i[2] AT 7 
+    "<R54><C1>" oe-bolh.ship-i[3] AT 7 
+    "<R55><C1>" oe-bolh.ship-i[4] AT 7 
+    "<R57><C1><#9><FROM><R+3.8><C81><RECT> "
+    "<=9><R+1><FROM><=9><R+1><C81><LINE>"
+    "<=9><R+1><C42><FROM><=9><R+3.8><C42><LINE>"
+    "<=9><B>  NOTE Liability Limitation for loss or damage in this shipment may be applicable. See 49 U.S.C.    14706(c)(1)(A) and (B)</B>"
+    "<=9><R+1.2><p5><C2>RECEIVED, subject to individually determined rates or contacts that have been agreed upon in writing between the carrier"
+    "<=9><R+1.7><C2>and shipper ,if applicable, otherwise to the rates, classifications and rules that have been established by the carrier and are"
+    "<=9><R+2.2><C2>available to the shipper, on request, and to all applicable state and federal regulations."
+    "<=9><R+1.2><C43>The carrier shall not make delivery of this shipment without payment of freight and all other lawful charges. (section 7)"
+    "<=9><R+2.7><C43><p9>_______________________________________ Shipper Signature"
+    
+    "<R61><C1>" "<B>  Signature of Receipt </B>" 
+    "<R62><C1>" "Customer ________________________________________                       Carrier _______________________________________" AT 20 
+    "<R64><C1>" "Date ____________________________________________                       Date _________________________________________" AT 20    
     .
 
   v-printline = v-printline + 14.
