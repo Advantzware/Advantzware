@@ -2771,7 +2771,7 @@ PROCEDURE get-job-no :
     ELSE
         lcRitaCode = "R".
     DO WITH FRAME {&frame-name}:
-        fg-rctd.job-no:SCREEN-VALUE  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no))
+        fg-rctd.job-no:SCREEN-VALUE  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE))
         .
         IF TRIM(fg-rctd.job-no:SCREEN-VALUE ) NE TRIM(lv-job-no)  OR
             DEC(fg-rctd.job-no2:SCREEN-VALUE ) NE DEC(lv-job-no2) THEN
