@@ -639,9 +639,11 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                     END.
                     NEXT.
                 END.
-
+                    
                 IF v-excel OR NOT rd-dest = 5 THEN
                     RUN run-report(b-cust.cust-no, TRUE).
+                     
+                IF NOT CAN-FIND (FIRST tt-inv) THEN NEXT.    
 
                 IF NOT v-excel THEN
                     RUN GenerateReport(b-cust.cust-no,b-cust.cust-no).
@@ -660,7 +662,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             END. /*each b-cust*/
 
         END. /*if sys-ctrl-shipto found*/
-        ELSE IF rd-dest = 5 AND tb_BatchMail:CHECKED THEN  /*if no sys-ctrl-shipto found*/
+        ELSE IF rd-dest = 5 THEN  /*if no sys-ctrl-shipto found*/
             DO:
                 FOR EACH ttCustList NO-LOCK  :
   
@@ -719,7 +721,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             END. /*end sys-ctrl-shipto not found*/
 
 
-        IF CAN-FIND(FIRST ttCustList WHERE
+        IF rd-dest NE 5 AND CAN-FIND(FIRST ttCustList WHERE
             ttCustList.cust-no NE "" AND ttCustList.log-fld = YES ) THEN
         DO: 
 
