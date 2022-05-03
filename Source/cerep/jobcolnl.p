@@ -66,7 +66,7 @@ DEFINE VARIABLE v-cust-name-extent AS CHARACTER EXTENT 10 NO-UNDO.
 DEFINE VARIABLE v-ship1-extent AS CHARACTER EXTENT 10 NO-UNDO.
 DEFINE VARIABLE v-ship2-extent AS CHARACTER EXTENT 10 NO-UNDO.
 DEFINE VARIABLE v-ship4-extent AS CHARACTER EXTENT 10 NO-UNDO.
-DEFINE VARIABLE cBarCode AS CHARACTER FORMAT "X(11)"  NO-UNDO.
+DEFINE VARIABLE cBarCode AS CHARACTER FORMAT "X(13)"  NO-UNDO.
 DEFINE VARIABLE v-unit-per-dec AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-unit-per-int LIKE eb.cas-cnt NO-UNDO.
 DEFINE VARIABLE v-job-qty-unit-per-int AS INTEGER FORMAT ">>>>>9" NO-UNDO.
@@ -258,9 +258,9 @@ cDraftImageFull = IF lDraft
 
 FORMAT HEADER
         cDraftImageFull FORMAT "x(200)" SKIP 
-       "<C1><R2>JOB NUMBER:<B>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)" "</B>" SPACE(1)
+       "<P9><C1><R2>JOB NUMBER:<B>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)" "</B>" SPACE(1)
        "CSR:" v-pricnt-id
-       "<B><P12>F A C T O R Y  T I C K E T</B><P10>" AT 54  "JOB START DATE:" AT 124 v-start-date SKIP
+       "<B><P12>F A C T O R Y  T I C K E T</B><P10>" AT 60  "JOB START DATE:" AT 127 v-start-date SKIP
        v-fill
     WITH NO-BOX FRAME head NO-LABELS STREAM-IO WIDTH 200.
 
@@ -557,7 +557,7 @@ FOR EACH job-hdr NO-LOCK
            END.
 
         cBarCode = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
-        PUT "<AT=-.5,6.3><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cBarCode FORMAT "X(11)" ">"
+        PUT "<AT=-.5,5.8><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cBarCode FORMAT "X(13)" ">"
             "<C1><R4><B>Customer Name:</B>" v-cust-name  "Code: " job-hdr.cust-no
             "   <B>    REL.DATE:    QTY DUE:     PO#:           Print Date:" SKIP                       
             "Shipto:</B>" v-shipto[1] SPACE(6) "Prev.Ord#:" v-per-ord v-ship-date[1] AT 70 v-due-qty[1] AT 80 v-po-no[1] FORMAT "x(15)" AT 93
