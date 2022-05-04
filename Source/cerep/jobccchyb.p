@@ -81,6 +81,7 @@ DEFINE            VARIABLE v-pricnt-id              AS CHARACTER NO-UNDO .
 
 DEFINE            VARIABLE ddivider                 AS DECIMAL   NO-UNDO .
 DEFINE            VARIABLE lv-rowid                 AS ROWID     NO-UNDO.
+DEFINE VARIABLE vPrintJobNo AS CHAR NO-UNDO.
 
 DEFINE BUFFER b-est     FOR est.
 DEFINE BUFFER b-oe-ordl FOR oe-ordl.
@@ -271,7 +272,7 @@ cDraftImageFull = IF lDraft
 FORMAT HEADER 
     cDraftImageFull FORMAT "x(250)" SKIP
     "<R1><C68><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cJobNo FORMAT "x(13)"  ">"
-    "<P12><C2><R2>JOB NUMBER:<B>" cJobNo FORMAT "x(13)" "</B>"      SPACE(1) /* v-reprun   */
+    "<P12><C2><R2>JOB NUMBER:<B>" vPrintJobNo FORMAT "x(13)" "</B>"      SPACE(1) /* v-reprun   */
     "CSR:" v-pricnt-id
     "<C40><R2><B><P12>F A C T O R Y   T I C K E T</B><P10>" AT 52  
     "START DATE:" AT 128 v-start-date SKIP
@@ -393,7 +394,8 @@ FOR EACH job-hdr NO-LOCK
         ASSIGN
             v-job-no  = job-hdr.job-no
             v-job-no2 = job-hdr.job-no2
-            cJobNo    = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
+            cJobNo    = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2)))
+            vPrintJobNo = TRIM(v-job-no) + "-" + TRIM(STRING(v-job-no2,">99")).
 
         IF AVAILABLE oe-ord THEN
             IF NOT oe-ctrl.p-fact AND (oe-ord.stat EQ "H" OR oe-ord.priceHold) THEN NEXT.

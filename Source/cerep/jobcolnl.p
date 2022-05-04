@@ -220,6 +220,7 @@ DEFINE VARIABLE v-lbs AS DECIMAL FORMAT ">>,>>>,>>9" NO-UNDO.
 DEFINE VARIABLE v-dept-title AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-dept-note-printed AS LOGICAL.
 DEFINE VARIABLE v-cust-lot# AS CHARACTER NO-UNDO.
+DEFINE VARIABLE vPrintJobNo AS CHAR NO-UNDO.
 
 DEFINE VARIABLE v-case-size-ext AS CHARACTER EXTENT 10 NO-UNDO.
 DEFINE VARIABLE v-case-qty-ext AS DECIMAL EXTENT 10 NO-UNDO.
@@ -258,7 +259,7 @@ cDraftImageFull = IF lDraft
 
 FORMAT HEADER
         cDraftImageFull FORMAT "x(200)" SKIP 
-       "<P9><C1><R2>JOB NUMBER:<B>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)" "</B>" SPACE(1)
+       "<P9><C1><R2>JOB NUMBER:<B>" vPrintJobNo FORMAT "x(13)" "</B>" SPACE(1)
        "CSR:" v-pricnt-id
        "<B><P12>F A C T O R Y  T I C K E T</B><P10>" AT 60  "JOB START DATE:" AT 127 v-start-date SKIP
        v-fill
@@ -440,15 +441,15 @@ FOR EACH job-hdr NO-LOCK
            v-job-no2 = job-hdr.job-no2
            /*v-due-date = if avail oe-ord then oe-ord.due-date else ?*/
            v-start-date = job-hdr.start-date
-           v-shipto = "" .
+           v-shipto = "" 
+           vPrintJobNo = TRIM(v-job-no) + "-" + TRIM(STRING(v-job-no2,">99")).
             
-
         IF AVAILABLE job AND job.stat EQ "H" THEN DO:
             ASSIGN cDraftImage = "images\on-hold.jpg"
                 FILE-INFO:FILE-NAME = cDraftImage.
             cDraftImageFull = "<C25><#1><R+80><C+50><IMAGE#1=" + FILE-INFO:FULL-PATHNAME + ">"  .
         END.
-
+    
         IF NOT FIRST(job-hdr.job-no) THEN PAGE.
         VIEW FRAME head.
        
@@ -556,7 +557,7 @@ FOR EACH job-hdr NO-LOCK
                v-job-qty = v-job-qty + xjob-hdr.qty.
            END.
 
-        cBarCode = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
+        cBarCode = vPrintJobNo.
         PUT "<AT=-.5,5.8><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cBarCode FORMAT "X(13)" ">"
             "<C1><R4><B>Customer Name:</B>" v-cust-name  "Code: " job-hdr.cust-no
             "   <B>    REL.DATE:    QTY DUE:     PO#:           Print Date:" SKIP                       
