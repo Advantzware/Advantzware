@@ -79,3 +79,12 @@ InvoiceApprovalOrderlineChange,Logical,InvoiceApprovalOrderlineChange,Character,
 InvoiceApprovalPriceGTCost,Logical,InvoiceApprovalPriceGTCost,Character,Item Price is greater than the cost of the item,Off|On|On Also During Post,Off,No,InvoiceApproval,No
 InvoiceApprovalTaxableCheck,Logical,InvoiceApprovalTaxableCheck,Character,Ship to is taxable and any line is not set as taxable,Off|On|On Also During Post,Off,No,InvoiceApproval,No
 InvoiceApprovalTaxCalc,Logical,InvoiceApprovalTaxCalc,Character,Unable to calculate tax,Off|On|On Also During Post,Off,No,InvoiceApproval,No
+CEPrepPrice,Character,CEPrepMarkupOrMargin,Character,% on Prep charges applied as markup  - cost x (1 + %) or margin  - cost / (1 - %),Markup|Margin,Margin,Yes,EstimateCalculation,No
+CEMarkupMatrixLookup,Character,CEMarginMatrixLookupValue,Character,Select the estimate calculation value that will be the basis lookup value for the margin percentage in the Margin Matrix,Square Feet|Board Cost|Factory Cost|Full Cost,Factory Cost,Yes,EstimateCalculation,No
+CEOpRates,Character,CEOpRates,Character,Allows for a separate hourly rate for M/R as compared to Run versus being able to select from different rates for the machine,Selected|MR/Run Separate,MR/Run Separate,Yes,EstimateCalculation,No 
+CEOpStandards,Character,CEOpStandards,Character,The MR / Setup Hours - if estimate then defined on the estimates PREP/ROUTE tab or if Machine if Not Locked - defined in the machine file,Estimate|Machine if Not Locked,Estimate,Yes,EstimateCalculation,No 
+CEWindow,Decimal,CEWindowOverlap,Decimal,Window Overlap to apply to each side,,1,Yes,EstimateCalculation,No
+CEPrompt,Logical,CEPrompt,Logical,Prompt for options when calculating estimate,Yes|No,No,Yes,EstimateCalculation,No
+CEVendorDefault,Character,CEVendorDefault,Character,Default vendor for estimate calculations,Blank Vendor|Best Vendor,Best Vendor,Yes,EstimateCalculation,No
+CEShipWeight,Character,CEShipWeight,Character,Select the freight/ship weight calculation for the estimate.  Gross includes all product weights and packing/tare weight.  Net weight will exclude any packing/tare weight,Gross|Net,Net,Yes,EstimateCalculation,No
+CEAutoRecostBoard,Logical,CEAutoRecostBoard,Logical,When set to yes: If there are multiple forms on an esitmate automatically combine any identical board for the purposes of using the combined quantity to determine the vendor cost.  If set to No:  The quantity of each individual form will be used to lookup the corresponding cost,Yes|No,Yes,Yes,EstimateCalculation,No

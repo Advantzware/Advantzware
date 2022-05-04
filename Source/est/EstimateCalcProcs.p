@@ -5703,22 +5703,19 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     
     RUN spGetSettingByName ("CEPrepMarkupOrMargin", OUTPUT gcPrepMarkupOrMargin).
     
+
     RUN sys/ref/nk1look.p (ipcCompany, "CEMATL", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound AND cReturn EQ "YES" THEN  
     DO:
         RUN sys/ref/nk1look.p (ipcCompany, "CEMATL", "D", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
         IF lFound THEN gdMaterialMarkup = DECIMAL(cReturn).
     END.
-    RUN sys/ref/nk1look.p (ipcCompany,"CEMarkupMatrixLookup","C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    IF NOT lFound OR cReturn EQ "" THEN 
-        gcMarginMatrixLookup = "Square Feet".
-    ELSE 
-        gcMarginMatrixLookup = cReturn.
-    RUN spGetSettingByName ("CEMarkupMatrixLookup", OUTPUT gcMarginMatrixLookup).    
-        
-    RUN sys/ref/nk1look.p (ipcCompany,"CEOpRates","C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    glOpRatesSeparate = lFound AND cReturn EQ "MR/Run Separate".
-    
+
+    RUN spGetSettingByName ("CEMarginMatrixLookupValue", OUTPUT gcMarginMatrixLookup).  
+  
+    RUN spGetSettingByName ("CEOpRates", OUTPUT cReturn).
+    glOpRatesSeparate = (IF cReturn EQ "MR/Run Separate" THEN YES ELSE NO).
+
     RUN sys/ref/nk1look.p (ipcCompany, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN glVendItemCost = cReturn EQ "Yes".
     
@@ -5733,26 +5730,23 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     RUN sys/ref/nk1look.p (ipcCompany, "CERound", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN glRoundPriceToDollar = cReturn EQ "Dollar".
     
-    RUN sys/ref/nk1look.p (ipcCompany, "CEWindow", "D", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    IF lFound THEN gdWindowDimOverlap = DECIMAL(cReturn).
+    RUN spGetSettingByName ("CEWindowOverlap", OUTPUT gdWindowDimOverlap).
+
+    RUN spGetSettingByName ("CEPrompt", OUTPUT glPromptForMaterialVendor).
     
-    RUN sys/ref/nk1look.p (ipcCompany, "CEPrompt", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    IF lFound THEN glPromptForMaterialVendor = cReturn EQ "YES".
-    
-    RUN sys/ref/nk1look.p (ipcCompany, "CEVendorDefault", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
-    glUseBlankVendor = lFound AND cReturn EQ "Blank Vendor".
-    
-    RUN sys/ref/nk1look.p (ipcCompany, "CEShipWeight", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
-    glUseGrossWeight = lFound AND cReturn EQ "Gross".
+    RUN spGetSettingByName ("CEVendorDefault", OUTPUT cReturn).
+    glUseBlankVendor = (IF cReturn EQ "Blank Vendor" THEN YES ELSE NO).
+
+    RUN spGetSettingByName ("CEShipWeight", OUTPUT cReturn).
+    glUseGrossWeight = (IF cReturn EQ "Gross" THEN YES ELSE NO).
         
     RUN sys/ref/nk1look.p (ipcCompany, "FOAMCOST", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
     glCalcFoamCostFromBlank = lFound AND cReturn EQ "Blank".
-
-    RUN sys/ref/nk1look.p (ipcCompany, "CEAutoRecostBoard", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    glAutoRecostBoard = lFound AND cReturn EQ "YES".    
-
-	RUN sys/ref/nk1look.p (ipcCompany, "CEOpStandards", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
-    glCalcSourceForMachineStd = lFound AND cReturn EQ "Machine if Not Locked".
+  
+    RUN spGetSettingByName ("CEAutoRecostBoard", OUTPUT glAutoRecostBoard).
+    
+    RUN spGetSettingByName ("CEOpStandards", OUTPUT cReturn).
+    glCalcSourceForMachineStd = (IF cReturn EQ "Machine if Not Locked" THEN YES ELSE NO ).
     
 END PROCEDURE.
 
