@@ -2058,7 +2058,8 @@ PROCEDURE valid-date :
             IF AVAIL bf-period THEN
             ASSIGN
                 begin_date:SCREEN-VALUE = STRING(bf-period.pst)
-                end_date:SCREEN-VALUE = STRING(bf-period.pend).
+                end_date:SCREEN-VALUE = STRING(bf-period.pend)
+                tran-period:SCREEN-VALUE = STRING(bf-period.pnum,"99").
 
             ll-warned = YES.
         END.
