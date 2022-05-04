@@ -639,9 +639,11 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                     END.
                     NEXT.
                 END.
-
+                    
                 IF v-excel OR NOT rd-dest = 5 THEN
                     RUN run-report(b-cust.cust-no, TRUE).
+                     
+                IF NOT CAN-FIND (FIRST tt-inv) THEN NEXT.    
 
                 IF NOT v-excel THEN
                     RUN GenerateReport(b-cust.cust-no,b-cust.cust-no).
@@ -660,7 +662,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             END. /*each b-cust*/
 
         END. /*if sys-ctrl-shipto found*/
-        ELSE IF rd-dest = 5 AND tb_BatchMail:CHECKED THEN  /*if no sys-ctrl-shipto found*/
+        ELSE IF rd-dest = 5 THEN  /*if no sys-ctrl-shipto found*/
             DO:
                 FOR EACH ttCustList NO-LOCK  :
   
@@ -713,13 +715,13 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             v-cust-mode = IF NOT tb_HideDialog:CHECKED THEN "Customer"
                             ELSE "Customer1".
-                            RUN SendMail-1 (begin_cust-no, v-cust-mode, v-dir + "\stmt.pdf").
+                            RUN SendMail-1 (ttCustList.cust-no, v-cust-mode, v-dir + "\stmt.pdf").
                         END.
                 END. /* cust */
             END. /*end sys-ctrl-shipto not found*/
 
 
-        IF CAN-FIND(FIRST ttCustList WHERE
+        IF rd-dest NE 5 AND CAN-FIND(FIRST ttCustList WHERE
             ttCustList.cust-no NE "" AND ttCustList.log-fld = YES ) THEN
         DO: 
 
@@ -3634,7 +3636,7 @@ PROCEDURE run-protagonstmt :
         v-detail    = tb_detailed
         v-past-due  = tb_past-due.
 
-    IF ip-sys-ctrl-shipto THEN
+    IF ip-sys-ctrl-shipto OR ipl-email THEN
         ASSIGN
             v-lo-cust = ip-cust-no
             v-hi-cust = ip-cust-no.
