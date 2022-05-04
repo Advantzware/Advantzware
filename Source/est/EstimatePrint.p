@@ -1696,6 +1696,7 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
     DEFINE VARIABLE cWidths           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDecimals         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iIndex            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dContbPerHR       AS DECIMAL NO-UNDO.
     
     iIndex = 0.
     ASSIGN 
@@ -1856,6 +1857,11 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
             dQtyInM      = ipbf-estCostHeader.quantityMaster / 1000
             dSheetsTotal = 0
             dMSFTotal    = 0
+            dContbPerHR  = (IF (ipbf-estCostHeader.hoursSetup + ipbf-estCostHeader.hoursRun) GT 0 THEN 
+                               (((ipbf-estCostHeader.sellPrice - (ipbf-estCostHeader.costTotalBoard / dQtyInM)) * dQtyInM) 
+                               / (ipbf-estCostHeader.hoursSetup + ipbf-estCostHeader.hoursRun))
+                            ELSE 
+                               ((ipbf-estCostHeader.sellPrice - (ipbf-estCostHeader.costTotalBoard / dQtyInM)) * dQtyInM))
             .
         FOR EACH estCostForm NO-LOCK 
             WHERE estCostForm.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
@@ -1884,7 +1890,7 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
         IF ipbf-ttCEFormatConfig.analysisColTotalContbShow THEN 
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], (ipbf-estCostHeader.sellPrice - (ipbf-estCostHeader.costTotalBoard / dQtyInM)) * dQtyInM , 9, 2, NO, YES, NO, NO, YES).  
         IF ipbf-ttCEFormatConfig.analysisColContbHrShow THEN 
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], (ipbf-estCostHeader.sellPrice - (ipbf-estCostHeader.costTotalBoard / dQtyInM)) * dQtyInM , 9, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], dContbPerHR , 9, 2, NO, YES, NO, NO, YES).
         IF ipbf-ttCEFormatConfig.analysisColSellPriceShow THEN
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7], ipbf-estCostHeader.sellPrice / dQtyInM , 9, 2, NO, YES, NO, NO, YES).
         IF ipbf-ttCEFormatConfig.analysisColPriceMSFShow THEN

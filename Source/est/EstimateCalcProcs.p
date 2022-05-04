@@ -3920,6 +3920,7 @@ PROCEDURE pProcessOperations PRIVATE:
     
     IF AVAILABLE bf-estCostOperation THEN 
     DO:
+        ASSIGN ipbf-estCostHeader.hoursSetup = ipbf-estCostHeader.hoursSetup + bf-estCostOperation.hoursSetup.
         /* Import Machine Standards */
         IF glCalcSourceForMachineStd AND NOT est-op.isLocked THEN
             RUN pImportMachineStandards (BUFFER ipbf-estCostHeader, BUFFER est-op, BUFFER bf-estCostOperation).
@@ -3968,7 +3969,9 @@ PROCEDURE pProcessOperations PRIVATE:
                 INPUT-OUTPUT dQtyInOutSetupWaste, INPUT-OUTPUT dQtyInOutRunWaste).
                 
         END.
-        RUN pCalcEstOperation(BUFFER ipbf-estCostHeader, BUFFER bf-estCostOperation, BUFFER ipbf-estCostForm).                    
+        RUN pCalcEstOperation(BUFFER ipbf-estCostHeader, BUFFER bf-estCostOperation, BUFFER ipbf-estCostForm). 
+        IF AVAILABLE bf-estCostOperation THEN 
+            ASSIGN ipbf-estCostHeader.hoursRun = ipbf-estCostHeader.hoursRun + bf-estCostOperation.hoursRun.                   
     END.
                     
 END. /*Each est-op*/
