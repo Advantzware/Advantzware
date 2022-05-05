@@ -272,7 +272,7 @@ cDraftImageFull = IF lDraft
 
 FORMAT HEADER 
     cDraftImageFull FORMAT "x(100)" SKIP
-    "<R1><C68><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cJobNo FORMAT "x(13)" ">"
+    "<R1><C69><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cJobNo FORMAT "x(13)" ">"
     /*        "<AT=-.5,6.3><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cJobNo FORMAT "x(9)" /*v-job-no space(0) "-" space(0) v-job-no2 format "99"*/ ">" */
     "<P12><C2><R2>JOB NUMBER:<B>" vPrintJobNo FORMAT "x(13)" "</B>"      SPACE(1) /* v-reprun   */
     "CSR:" v-pricnt-id
@@ -882,7 +882,7 @@ FOR  EACH job-hdr NO-LOCK
                                     AND itemfg.i-no    EQ job-hdr.i-no NO-ERROR.
 
         DISPLAY SPACE(1) TRIM(v-job-no) + "-" + TRIM(STRING(eb.form-no,">>9")) +
-            TRIM(STRING(eb.blank-no,">>9")) FORMAT "x(16)" 
+            TRIM(STRING(eb.blank-no,">>9")) FORMAT "x(11)" 
             SPACE(1) eb.stock-no @ job-hdr.i-no 
                     (IF AVAILABLE oe-ordl  THEN oe-ordl.part-no ELSE IF AVAILABLE itemfg THEN itemfg.part-no ELSE "") FORMAT "x(15)"   SPACE(1)
                     (IF eb.plate-no NE "" THEN eb.plate-no  ELSE IF AVAILABLE itemfg THEN itemfg.plate-no ELSE "" ) FORMAT "x(15)"

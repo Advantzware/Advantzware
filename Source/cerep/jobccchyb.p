@@ -271,7 +271,7 @@ cDraftImageFull = IF lDraft
 
 FORMAT HEADER 
     cDraftImageFull FORMAT "x(250)" SKIP
-    "<R1><C68><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cJobNo FORMAT "x(13)"  ">"
+    "<R1><C69><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cJobNo FORMAT "x(13)"  ">"
     "<P12><C2><R2>JOB NUMBER:<B>" vPrintJobNo FORMAT "x(13)" "</B>"      SPACE(1) /* v-reprun   */
     "CSR:" v-pricnt-id
     "<C40><R2><B><P12>F A C T O R Y   T I C K E T</B><P10>" AT 52  

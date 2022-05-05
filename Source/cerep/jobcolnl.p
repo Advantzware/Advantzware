@@ -922,7 +922,7 @@ FOR EACH job-hdr NO-LOCK
 
             
            DISPLAY  TRIM(v-job-no) + "-" + TRIM(STRING(eb.form-no,">>9")) + 
-                    trim(STRING(eb.blank-no,">>9")) FORMAT "x(16)" 
+                    trim(STRING(eb.blank-no,">>9")) FORMAT "x(11)" 
                     eb.stock-no @ job-hdr.i-no 
                     (IF AVAILABLE oe-ordl  THEN oe-ordl.part-no ELSE IF AVAILABLE itemfg THEN itemfg.part-no ELSE "") FORMAT "x(15)"   
                     (IF eb.plate-no NE "" THEN eb.plate-no  ELSE IF AVAILABLE itemfg THEN itemfg.plate-no ELSE "" ) FORMAT "x(15)"
