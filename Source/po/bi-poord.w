@@ -508,6 +508,7 @@ PROCEDURE delete_item :
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR lv-loc LIKE rm-rctd.loc NO-UNDO.
   DEF VAR ll-renumber AS LOG NO-UNDO.
+  DEF VAR lRecQty AS LOG NO-UNDO.
   DEF BUFFER b-po-ordl FOR po-ordl.
   DEFINE BUFFER bf-itemfg FOR itemfg .
 
@@ -561,9 +562,17 @@ PROCEDURE delete_item :
         VIEW-AS ALERT-BOX ERROR.
     RETURN.
   END.*/
-
+  lRecQty = NO.
+  FOR EACH b-po-ordl NO-LOCK
+    WHERE b-po-ordl.company EQ po-ord.company
+      AND b-po-ordl.po-no   EQ po-ord.po-no
+      :
+      IF b-po-ordl.t-rec-qty NE 0 OR b-po-ordl.t-inv-qty NE 0 THEN 
+      lRecQty = YES.
+      LEAVE.
+  END.
   {custom/askdel.i}
-  IF po-ord.printed = NO THEN DO:
+  IF po-ord.printed = NO AND NOT lRecQty THEN DO:
        MESSAGE "Renumber lines after delete?" VIEW-AS ALERT-BOX QUESTION
           BUTTON YES-NO UPDATE ll-renumber.
   END.
