@@ -474,6 +474,6 @@ GRANT SELECT ON PUB."exchangeRate" TO PUBLIC ;
 GRANT SELECT ON PUB."estCostCategorySystem" TO PUBLIC ;
 GRANT SELECT ON PUB."estCostGroupSystem" TO PUBLIC ;
 GRANT SELECT ON PUB."estCostGroupLevelSystem" TO PUBLIC ;
-GRANT ALL ON PUB.dmiTrans TO PUBLIC ;
-GRANT ALL ON PUB.job-mch TO PUBLIC ;
+GRANT ALL ON PUB.dmiTrans TO amsuser ;
+GRANT ALL ON PUB.job-mch TO amsuser;
 COMMIT;
