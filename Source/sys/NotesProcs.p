@@ -122,20 +122,30 @@ PROCEDURE Notes_CopyNotes:
     DEFINE INPUT PARAMETER ipcCodes AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bf-notes FOR notes.
-
+    DEFINE BUFFER bfDup-notes FOR notes.
+    
     FOR EACH notes NO-LOCK 
         WHERE notes.rec_key EQ ipcRecKeyFrom
         AND (ipcTypes EQ "" OR LOOKUP(notes.note_type,ipcTypes) GT 0)
-        AND (ipcCodes EQ "" OR LOOKUP(notes.note_code,ipcCodes) GT 0)
+        AND (ipcCodes EQ "" OR LOOKUP(notes.note_code,ipcCodes) GT 0)        
         :
-        CREATE bf-notes.
-        BUFFER-COPY notes EXCEPT rec_key TO bf-notes.
-        ASSIGN 
-            bf-notes.rec_key = ipcRecKeyTo
-            bf-notes.note_date = TODAY
-            bf-notes.note_time = TIME
-            .
+        /*Prevent duplication of notes*/
+        IF NOT CAN-FIND(FIRST bfDup-notes WHERE bfDup-notes.rec_key EQ ipcRecKeyTo
+            AND bfDup-notes.note_type EQ notes.note_type
+            AND bfDup-notes.note_code EQ notes.note_code
+            AND bfDup-notes.note_title EQ notes.note_title
+            AND bfDup-notes.note_text EQ notes.note_text) THEN DO:
+    
+            CREATE bf-notes.
+            BUFFER-COPY notes EXCEPT rec_key TO bf-notes.
+            ASSIGN 
+                bf-notes.rec_key = ipcRecKeyTo
+                bf-notes.note_date = TODAY
+                bf-notes.note_time = TIME
+                .
+        END. /*No duplicate*/
     END.
+    
 END PROCEDURE.
 
 PROCEDURE Notes_CopyShipNote:
