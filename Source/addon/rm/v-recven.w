@@ -841,11 +841,12 @@ DO:
                APPLY "entry" TO begin_po-no.
                RETURN.
              END.
-             /*Assign in case of both warning and non-prompt*/
-             scr-qty:SCREEN-VALUE     = STRING(v-qty).
+             
              IF cSSVendTagRtnValue EQ "No" THEN
              DO:
-             ASSIGN
+               /*Assign in case of both warning and non-prompt*/
+               ASSIGN             
+                 scr-qty:SCREEN-VALUE     = STRING(v-qty)
                  begin_po-no:SCREEN-VALUE = STRING(v-po-no) 
                  scr-po-line:SCREEN-VALUE = STRING(v-po-line)
                  .                              
