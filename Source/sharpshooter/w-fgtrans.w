@@ -51,6 +51,11 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i "new shared"}
 {sys/inc/varasgn.i}
 
+/* Required for LoadtagProcs.p */
+{oerep/r-loadtg.i NEW}
+DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
+       FIELD tag-no AS CHARACTER.
+       
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
@@ -62,6 +67,7 @@ DEFINE VARIABLE oItemFG          AS fg.ItemFG         NO-UNDO.
 DEFINE VARIABLE oKeyboard        AS system.Keyboard   NO-UNDO.
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdLoadtagProcs   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cTag             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
@@ -956,7 +962,13 @@ PROCEDURE local-destroy :
 
   IF VALID-OBJECT(oItemFG) THEN
       DELETE OBJECT oItemFG.
-                  
+    
+  IF VALID-HANDLE(hdInventoryProcs) THEN
+      DELETE PROCEDURE hdInventoryProcs.
+  
+  IF VALID-HANDLE(hdLoadtagProcs) THEN
+      DELETE PROCEDURE hdLoadtagProcs.
+                        
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
@@ -1080,6 +1092,8 @@ PROCEDURE pInit PRIVATE :
     cColHandList = TRIM(cColHandList, ",").
     
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.    
+    RUN oerep/LoadtagProcs.p PERSISTENT SET hdLoadtagProcs.
+    
     RUN spGetSessionParam ("Company", OUTPUT cCompany).    
     RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
         INPUT  cCompany,
@@ -1546,7 +1560,22 @@ PROCEDURE pTagScan PRIVATE :
 
     IF NOT oLoadTag:IsAvailable() THEN
         oLoadTag:SetContext (cCompany, TRUE /* ItemType */, ipcTag).
+    
+    RUN Loadtag_CreateLoadTagFromVendorTag IN hdLoadtagProcs (
+        INPUT  cCompany,
+        INPUT  ipcTag,
+        OUTPUT oplError,
+        OUTPUT opcMessage
+        ).
+    IF oplError THEN
+        RETURN.
+    
+    /* Re-read the loadtag table, as previous procedure would create a loadtag */    
+    oLoadTag:SetContext (cCompany, FALSE /* ItemType */, ipcTag).
 
+    IF NOT oLoadTag:IsAvailable() THEN
+        oLoadTag:SetContext (cCompany, TRUE /* ItemType */, ipcTag).
+        
     IF NOT oLoadTag:IsAvailable() THEN DO:
         ASSIGN
             oplError = TRUE
@@ -1766,9 +1795,7 @@ PROCEDURE pTagScanFG PRIVATE :
              NO-ERROR.
         IF AVAILABLE bf-fg-rctd THEN DO:
             FOR EACH bf-comp-fg-rctd NO-LOCK 
-                WHERE bf-comp-fg-rctd.company    EQ bf-fg-rctd.company
-                AND bf-comp-fg-rctd.SetHeaderRno EQ bf-fg-rctd.r-no
-                USE-INDEX fg-rctd:
+                WHERE bf-comp-fg-rctd.SetHeaderRno EQ bf-fg-rctd.r-no:
                 CREATE ttBrowseInventory.
                 ASSIGN
                     ttBrowseInventory.company          = bf-comp-fg-rctd.company
