@@ -784,6 +784,7 @@ PROCEDURE pAddEstFarm PRIVATE:
     DO:
         
         CREATE opbf-ttEstCostMaterial.
+        RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostMaterial.estCostMaterialID, INPUT-OUTPUT opbf-ttEstCostMaterial.rec_key, "estCostMaterial").
         ASSIGN 
             opbf-ttEstCostMaterial.estCostFormID      = ipbf-ttEstCostBlank.estCostFormID
             opbf-ttEstCostMaterial.estCostHeaderID    = ipbf-ttEstCostBlank.estCostHeaderID
