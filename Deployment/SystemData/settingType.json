@@ -654,7 +654,7 @@
     "validValueMin": "",
     "validValueMax": "",
     "isPassword": false,
-    "categoryTags": "",
+    "categoryTags": "SSFGReceiveTransfer",
     "settingName": "SSScanVendorTagPrompt",
     "securityLevel": 0,
     "hasContext": true
@@ -669,7 +669,7 @@
     "validValueMin": "",
     "validValueMax": "",
     "isPassword": false,
-    "categoryTags": "",
+    "categoryTags": "SSFGReceiveTransfer",
     "settingName": "SSScanVendorTagMask",
     "securityLevel": 0,
     "hasContext": true
