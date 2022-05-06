@@ -110,12 +110,22 @@ DEFINE VARIABLE cAdders                     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBoxDesignImage             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWidthScoreMetric           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWidthCumulativeScoreMetric AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyAdd1                AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyAdd2                AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyAdd3                AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyAdd4                AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyAdd5                AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEmail                      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cXCustomerName              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLogoColor                  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDisplayComp                AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bf-quotehd  FOR quotehd.
 DEFINE BUFFER bf-quoteitm FOR quoteitm.
 DEFINE BUFFER bf-quoteqty FOR quoteqty.
 DEFINE BUFFER bf-quotechg FOR quotechg.
 DEFINE BUFFER bf-eb       FOR eb.
+DEFINE BUFFER bf-cust     FOR cust.
 
 RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
@@ -168,6 +178,9 @@ ELSE DO:
     oAttribute:RequestDataType = gcRequestDataType.
 
     RUN sys/ref/nk1look.p (cCompany, "BusinessFormLogo", "C", NO, YES, "", "", OUTPUT cBuisnessFormLogo, OUTPUT lRecFound).
+    RUN sys/ref/nk1look.p (cCompany, "LOGOCOLR", "C", NO, YES, "", "", OUTPUT cLogoColor, OUTPUT lRecFound).
+    RUN sys/ref/nk1look.p (cCompany, "QUOPRINT", "L" , YES, YES, "" , "", OUTPUT cDisplayComp, OUTPUT lRecFound).
+    IF cLogoColor EQ "" THEN "BLACK".
     
     /* Code to send data from dynamic temp-table handle to static temp-table */
     hdTTHandle:WRITE-XML("MEMPTR", mptrTTQuote).
@@ -204,6 +217,22 @@ ELSE DO:
         lAvailQuoteMisc     = FALSE
         .
                     
+    IF LOGICAL(cDisplayComp) THEN
+    DO:
+        FIND FIRST bf-cust NO-LOCK
+             WHERE bf-cust.company = cCompany 
+               AND bf-cust.active = "X" NO-ERROR.
+        IF AVAIL bf-cust THEN
+            ASSIGN cCompanyAdd1  = bf-cust.addr[1]
+                   cCompanyAdd2  = bf-cust.addr[2]
+                   cCompanyAdd3  = bf-cust.city + ", " + bf-cust.state + "  " + bf-cust.zip
+                   cCompanyAdd4  = "Phone:  " + string(bf-cust.area-code,"(999)") + string(bf-cust.phone,"999-9999") 
+                   cCompanyAdd5  = "Fax     :  " + string(bf-cust.fax,"(999)999-9999") 
+                   cEmail        = "Email:  " + bf-cust.email 
+                   cXCustomerName = bf-cust.NAME
+                   .
+    END.
+    
     FOR EACH tt-quote
         BREAK BY tt-quote.cust-no:
         lLastCustomer = LAST-OF(tt-quote.cust-no).
@@ -591,6 +620,15 @@ ELSE DO:
     RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
     
     oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "BusinessFormLogo", cBuisnessFormLogo).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "LogoColor", cLogoColor).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyAdd1", cCompanyAdd1).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyAdd2", cCompanyAdd2).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyAdd3", cCompanyAdd3).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyAdd4", cCompanyAdd4).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyAdd5", cCompanyAdd5).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "Email", cEmail).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "XCustomerName", cXCustomerName).
+    
     
     ASSIGN   
         opcMessage       = ""
