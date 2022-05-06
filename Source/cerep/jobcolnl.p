@@ -259,7 +259,7 @@ cDraftImageFull = IF lDraft
 
 FORMAT HEADER
         cDraftImageFull FORMAT "x(200)" SKIP 
-       "<P9><C1><R2>JOB NUMBER:<B>" vPrintJobNo FORMAT "x(13)" "</B>" SPACE(1)
+       "<C1><R2>JOB NUMBER:<B>" vPrintJobNo FORMAT "x(13)" "</B>" SPACE(1)
        "CSR:" v-pricnt-id
        "<B><P12>F A C T O R Y  T I C K E T</B><P10>" AT 60  "JOB START DATE:" AT 127 v-start-date SKIP
        v-fill
@@ -558,7 +558,7 @@ FOR EACH job-hdr NO-LOCK
            END.
 
         cBarCode = vPrintJobNo.
-        PUT "<AT=-.5,5.8><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cBarCode FORMAT "X(13)" ">"
+        PUT "<AT=-.5,6.5><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cBarCode FORMAT "X(13)" ">"
             "<C1><R4><B>Customer Name:</B>" v-cust-name  "Code: " job-hdr.cust-no
             "   <B>    REL.DATE:    QTY DUE:     PO#:           Print Date:" SKIP                       
             "Shipto:</B>" v-shipto[1] SPACE(6) "Prev.Ord#:" v-per-ord v-ship-date[1] AT 70 v-due-qty[1] AT 80 v-po-no[1] FORMAT "x(15)" AT 93
@@ -926,7 +926,7 @@ FOR EACH job-hdr NO-LOCK
                     eb.stock-no @ job-hdr.i-no 
                     (IF AVAILABLE oe-ordl  THEN oe-ordl.part-no ELSE IF AVAILABLE itemfg THEN itemfg.part-no ELSE "") FORMAT "x(15)"   
                     (IF eb.plate-no NE "" THEN eb.plate-no  ELSE IF AVAILABLE itemfg THEN itemfg.plate-no ELSE "" ) FORMAT "x(15)"
-                    (IF AVAIL oe-ordl  THEN oe-ordl.po-no ELSE "") FORMAT "x(15)"
+                    (IF AVAIL oe-ordl  THEN oe-ordl.po-no ELSE "") FORMAT "x(13)"
                     v-cust-lot#  FORMAT "x(17)"
                     v-dsc[1] FORMAT "x(27)" SPACE(1)
                     eb.cad-no FORMAT "x(15)" /*v-stypart */
