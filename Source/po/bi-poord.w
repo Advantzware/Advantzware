@@ -566,16 +566,18 @@ PROCEDURE delete_item :
   FOR EACH b-po-ordl NO-LOCK
     WHERE b-po-ordl.company EQ po-ord.company
       AND b-po-ordl.po-no   EQ po-ord.po-no
-      :
+      :           
       IF b-po-ordl.t-rec-qty NE 0 OR b-po-ordl.t-inv-qty NE 0 THEN 
-      lRecQty = YES.
-      LEAVE.
+      do: 
+         lRecQty = YES.
+         LEAVE.
+      END.   
   END.
   {custom/askdel.i}
   IF po-ord.printed = NO AND NOT lRecQty THEN DO:
        MESSAGE "Renumber lines after delete?" VIEW-AS ALERT-BOX QUESTION
           BUTTON YES-NO UPDATE ll-renumber.
-  END.
+  END.    
   SESSION:SET-WAIT-STATE("general").
 
   FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
