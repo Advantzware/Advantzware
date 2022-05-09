@@ -932,7 +932,6 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
     DO:
         DEFINE VARIABLE hold-title AS CHARACTER NO-UNDO.
-  
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}.
@@ -975,7 +974,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             FOR EACH job-hdr 
                 WHERE job-hdr.company         EQ cocode
                 AND job-hdr.job-no            GE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
-                AND job-hdr.job-no            LE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job1:SCREEN-VALUE))
+                AND job-hdr.job-no            LE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
                 NO-LOCK :
                 /*  FIND FIRST cust WHERE cust.company EQ cocode 
                       AND cust.cust-no EQ job-hdr.cust-no NO-LOCK NO-ERROR.
@@ -1072,7 +1071,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             c-win:TITLE = hold-title.     
         END.
 
-        IF tb_corr THEN 
+        else IF tb_corr THEN 
         DO:
             /*lines-per-page = 0. ??? */
 
@@ -3531,6 +3530,8 @@ PROCEDURE run-report :
     FOR EACH wrk-ink:
         DELETE wrk-ink.
     END.
+
+message lv-format-f skip lv-format-c skip tb_fold skip tb_corr skip ip-Industry view-as alert-box.
     
     system.SharedConfig:Instance:SetValue("JobTicket_SpecList", spec-list).
     system.SharedConfig:Instance:SetValue("JobTicket_PrintBoxDesign", STRING(tb_box)).
@@ -3581,10 +3582,11 @@ PROCEDURE set-job-vars :
             tjob-no  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job1:SCREEN-VALUE))
             fjob-no2 = INT(begin_job2:SCREEN-VALUE)
             tjob-no2 = INT(end_job2:SCREEN-VALUE)
-            fjob-no  = fjob-no + STRING(fjob-no2,"999")
-            tjob-no  = tjob-no + STRING(tjob-no2,"999")
-            .                                                                           
+            fjob-no  = fjob-no + string(fjob-no2,"999")
+            tjob-no  = tjob-no + string(fjob-no2,"999")
+            .
     END.
+
 
 END PROCEDURE.
 
