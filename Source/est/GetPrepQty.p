@@ -23,6 +23,13 @@ DEFINE INPUT PARAMETER ipcMatType AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipiFormNo LIKE est-prep.s-num NO-UNDO.
 DEFINE OUTPUT PARAMETER opdQty LIKE est-prep.qty NO-UNDO.
 
+/* ************************  Function Prototypes ********************** */
+FUNCTION fIsComboType RETURNS LOGICAL PRIVATE 
+    (ipcEstType AS CHARACTER) FORWARD.
+    
+FUNCTION fGetEstimateType RETURNS CHARACTER PRIVATE
+    (ipiEstType AS INTEGER, ipcEstimateTypeID AS CHARACTER) FORWARD.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -149,12 +156,13 @@ DEFINE OUTPUT PARAMETER opiQtyP LIKE est-prep.qty NO-UNDO.
 DEFINE BUFFER bf-eb FOR eb.
 DEFINE VARIABLE iCount AS INTEGER     NO-UNDO.
 DEFINE VARIABLE inkCode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEstimateType AS CHARACTER NO-UNDO.
 
 IF AVAIL ipbf-est AND AVAIL ipbf-ef THEN DO:
     
+    cEstimateType = fGetEstimateType (INPUT ipbf-est.est-type, INPUT ipbf-est.estimateTypeID).
     /*If not a combo*/
-    IF ipbf-est.est-type NE 4 
-    AND ipbf-est.est-type NE 8 THEN
+    IF NOT fIsComboType(cEstimateType) THEN
         FOR EACH bf-eb 
             WHERE bf-eb.company EQ ipbf-ef.company
             AND bf-eb.est-no  EQ ipbf-ef.est-no
@@ -167,17 +175,17 @@ IF AVAIL ipbf-est AND AVAIL ipbf-ef THEN DO:
                 bf-eb.i-coat + bf-eb.i-col ELSE bf-eb.yld-qty). 
         END. /*each bf-eb*/
     ELSE /*If a combo just add form coating and form color fields*/
-        opiQtyP = opiQtyP + ipbf-ef.f-coat + ipbf-ef.f-col.
+        opiQtyP = ipbf-ef.f-coat + ipbf-ef.f-col.
     
     /*subtract out any aqueous ink types from the count*/
     FOR EACH bf-eb 
         WHERE bf-eb.company EQ ipbf-ef.company 
           AND bf-eb.est-no EQ ipbf-ef.est-no
-          AND bf-eb.form-no  eq ipbf-ef.form-no
+          AND bf-eb.form-no  EQ ipbf-ef.form-no
         NO-LOCK 
         BREAK BY bf-eb.form-no:
             IF bf-eb.est-type LE 4 THEN
-                DO iCount = 1 to 20:
+                DO iCount = 1 TO 20:
                     
                     IF CAN-FIND(FIRST item 
                                     WHERE item.company  EQ bf-eb.company
@@ -189,12 +197,15 @@ IF AVAIL ipbf-est AND AVAIL ipbf-ef THEN DO:
                     ASSIGN inkCode =  inkcode + "," + bf-eb.i-code2[iCount].  
                 END.
             ELSE
-                DO iCount = 1 to 10:
+                DO iCount = 1 TO 10:
                     IF CAN-FIND(FIRST item 
                                     WHERE item.company  EQ bf-eb.company
                                       AND item.i-no     EQ bf-eb.i-code[iCount]
-                                      AND item.ink-type EQ "A") THEN 
+                                      AND item.ink-type EQ "A") 
+                    AND LOOKUP (bf-eb.i-code[iCount], inkCode) EQ 0 THEN 
                         opiQtyP = opiQtyP - 1.
+                    IF bf-eb.i-code[iCount] NE "" THEN     
+                    ASSIGN inkCode =  inkcode + "," + bf-eb.i-code[iCount].                   
                 END.
     END. /*each bf-eb*/
     IF opiQtyP LT 0 THEN opiQtyP = 0.
@@ -224,6 +235,26 @@ IF AVAIL ipbf-ef THEN
     opdQtyR  = ipbf-ef.die-in. 
                    
 END PROCEDURE.
+
+FUNCTION fIsComboType RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Combo Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsComboType", ipcEstType).
+    
+END FUNCTION.
+
+FUNCTION fGetEstimateType RETURNS CHARACTER PRIVATE
+    (ipiEstType AS INTEGER, ipcEstimateTypeID AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given estimate qualifiers, return the Estimate Type Description
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN DYNAMIC-FUNCTION("fEstimate_GetEstimateType", ipiEstType, ipcEstimateTypeID).
+    
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
