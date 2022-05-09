@@ -66,7 +66,6 @@ DEFINE VARIABLE lv-show-next AS LOG NO-UNDO.
 DEFINE VARIABLE lv-last-show-ord-no AS INTEGER NO-UNDO.
 DEFINE VARIABLE lv-first-show-ord-no AS INTEGER NO-UNDO.
 DEFINE VARIABLE li-prod AS INTEGER NO-UNDO.
-DEFINE VARIABLE li-bal AS INTEGER NO-UNDO.
 DEFINE VARIABLE li-wip AS INTEGER NO-UNDO.
 DEFINE VARIABLE li-pct AS INTEGER NO-UNDO.
 DEFINE VARIABLE li-qoh AS INTEGER NO-UNDO.
@@ -278,12 +277,12 @@ oe-ordl.req-date oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ord.po-no ~
 getitempo() @ cItemPo oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 ~
 itemfg.cad-no oe-ordl.qty get-prod() @ li-prod oe-ordl.ship-qty ~
 get-inv-qty() @ iInvQty get-act-rel-qty() @ li-act-rel-qty ~
-get-pct(li-bal) @ li-pct oe-ordl.i-name oe-ordl.line oe-ordl.po-no-po ~
+get-pct(get-prod()) @ li-pct oe-ordl.i-name oe-ordl.line oe-ordl.po-no-po ~
 oe-ordl.e-num getTotalReturned() @ dTotQtyRet getReturnedInv() @ dTotRetInv ~
 oe-ordl.s-man[1] oe-ordl.cost pGetSellPrice() @ dSellPrice ~
 pGetExtendedPrice() @ dExtendedPrice pGetPriceUom() @ cPriceUom ~
 pGetCostUom() @ cCostUom oe-ord.entered-id itemfg.q-onh ~
-fnProdBalance(oe-ordl.qty,li-bal) @ dProdBalance ~
+fnProdBalance(oe-ordl.qty,get-prod()) @ dProdBalance ~
 get-xfer-qty () @ ld-xfer-qty get-act-bol-qty() @ li-act-bol-qty ~
 fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table  
@@ -673,7 +672,7 @@ DEFINE BROWSE Browser-Table
       get-inv-qty() @ iInvQty COLUMN-LABEL "Invoice Qty" FORMAT "->>,>>>,>>>":U
       get-act-rel-qty() @ li-act-rel-qty COLUMN-LABEL "Act. Rel.!Quantity" FORMAT "->>,>>>,>>>":U
             WIDTH 12.4
-      get-pct(li-bal) @ li-pct COLUMN-LABEL "O/U%" FORMAT "->>>>>%":U
+      get-pct(get-prod()) @ li-pct COLUMN-LABEL "O/U%" FORMAT "->>>>>%":U
       oe-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
       oe-ordl.line FORMAT ">>99":U
@@ -691,7 +690,7 @@ DEFINE BROWSE Browser-Table
       oe-ord.entered-id COLUMN-LABEL "Entered By" FORMAT "x(8)":U
       itemfg.q-onh COLUMN-LABEL "On Hand Qty" FORMAT "->>,>>>,>>>":U
             WIDTH 16
-      fnProdBalance(oe-ordl.qty,li-bal) @ dProdBalance COLUMN-LABEL "Prod. Balance" FORMAT "->>,>>>,>>9.9<<<":U
+      fnProdBalance(oe-ordl.qty,get-prod()) @ dProdBalance COLUMN-LABEL "Prod. Balance" FORMAT "->>,>>>,>>9.9<<<":U
       get-xfer-qty () @ ld-xfer-qty COLUMN-LABEL "Transfer!Qty" FORMAT "->>,>>>,>>>":U
       get-act-bol-qty() @ li-act-bol-qty COLUMN-LABEL "Act. BOL!Qty" FORMAT "->>,>>>,>>>":U
       fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
@@ -892,7 +891,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[21]   > "_<CALC>"
 "get-act-rel-qty() @ li-act-rel-qty" "Act. Rel.!Quantity" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"
-"get-pct(li-bal) @ li-pct" "O/U%" "->>>>>%" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-pct(get-prod()) @ li-pct" "O/U%" "->>>>>%" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > ASI.oe-ordl.i-name
 "oe-ordl.i-name" "Item Name" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > ASI.oe-ordl.line
@@ -922,7 +921,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[36]   > ASI.itemfg.q-onh
 "itemfg.q-onh" "On Hand Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "16" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[37]   > "_<CALC>"
-"fnProdBalance(oe-ordl.qty,li-bal) @ dProdBalance" "Prod. Balance" "->>,>>>,>>9.9<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fnProdBalance(oe-ordl.qty,get-prod()) @ dProdBalance" "Prod. Balance" "->>,>>>,>>9.9<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[38]   > "_<CALC>"
 "get-xfer-qty () @ ld-xfer-qty" "Transfer!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[39]   > "_<CALC>"
