@@ -42,6 +42,7 @@ DEFINE VARIABLE gcDeptsForGluers                      AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcDeptsForLeafers                     AS CHARACTER NO-UNDO INITIAL "WN,WS,FB,FS".
 DEFINE VARIABLE gcDeptsForSheeters                    AS CHARACTER NO-UNDO INITIAL "RC,RS,CR".
 DEFINE VARIABLE gcDeptsForCoaters                     AS CHARACTER NO-UNDO INITIAL "PR,CT".
+DEFINE VARIABLE gcDeptsForCorrugators                  AS CHARACTER NO-UNDO INITIAL "CR,LM".
 
 DEFINE VARIABLE gcIndustryFolding                     AS CHARACTER NO-UNDO INITIAL "Folding".
 DEFINE VARIABLE gcIndustryCorrugated                  AS CHARACTER NO-UNDO INITIAL "Corrugated".
@@ -1223,6 +1224,8 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
             opbf-ttEstCostOperation.isLeafer = YES.
         IF fIsDepartment(gcDeptsForSheeters, opbf-ttEstCostOperation.departmentID)  THEN 
             opbf-ttEstCostOperation.isNetSheetMaker = YES.
+        IF fIsDepartment(gcDeptsForCorrugators, opbf-ttEstCostOperation.departmentID)  THEN 
+            opbf-ttEstCostOperation.isCorrugator = YES.
         
         IF VALID-HANDLE(ghOperation) THEN
             RUN Operations_GetOutputType IN ghOperation( INPUT ipbf-est-op.company, 
@@ -3594,6 +3597,7 @@ PROCEDURE pProcessBoardBOM PRIVATE:
     
     DEFINE           BUFFER bf-ttEstCostMaterial      FOR ttEstCostMaterial.
     DEFINE           BUFFER bfBoard-ttEstCostMaterial FOR ttEstCostMaterial.
+    DEFINE           BUFFER bf-ttEstCostOperation      FOR ttEstCostOperation.
     DEFINE           BUFFER bf-item                 FOR ITEM.
     
     DEFINE VARIABLE dShrinkPct AS DECIMAL NO-UNDO.
@@ -3613,34 +3617,15 @@ PROCEDURE pProcessBoardBOM PRIVATE:
     DO:
         IF bf-item.mat-type = "P" THEN
         DO: 
-            IF ipbf-ttEstCostHeader.industry EQ gcIndustryFolding THEN 
+            IF NOT CAN-FIND (FIRST bf-ttEstCostOperation
+                WHERE bf-ttEstCostOperation.company     EQ ipbf-ttEstCostForm.company
+                AND bf-ttEstCostOperation.estimateNo    EQ ipbf-ttEstCostForm.estimateNo
+                AND bf-ttEstCostOperation.sequenceOfOperation LT 500
+                AND bf-ttEstCostOperation.isCorrugator) THEN 
             DO:
-                FIND FIRST est-op NO-LOCK 
-                    WHERE est-op.company EQ ipbf-ttEstCostForm.company
-                    AND est-op.est-no  EQ ipbf-ttEstCostForm.estimateNo
-                    AND est-op.line    GT 500
-                    AND est-op.dept    EQ "LM" 
-                    NO-ERROR.
-                IF NOT AVAILABLE est-op THEN 
-                DO:
-                    RUN pAddError("Machine with deptcode LM  is not present in routing" , giErrorImportant, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0, ipbf-ttEstCostHeader.quantityMaster).
-                    RETURN.
-                END.
-            END.     
-            ELSE
-            DO:
-                FIND FIRST est-op NO-LOCK 
-                    WHERE est-op.company EQ ipbf-ttEstCostForm.company
-                    AND est-op.est-no  EQ ipbf-ttEstCostForm.estimateNo
-                    AND est-op.line    GT 500
-                    AND est-op.dept    EQ "CR" 
-                    NO-ERROR.
-                IF NOT AVAILABLE est-op THEN 
-                DO:
-                    RUN pAddError("Machine with deptcode CR  is not present in routing" , giErrorImportant, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0, ipbf-ttEstCostHeader.quantityMaster).
-                    RETURN.
-                END.             
-            END.     
+                RUN pAddError("Required machine is missing in routing" , giErrorImportant, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0, ipbf-ttEstCostHeader.quantityMaster).
+                RETURN.
+            END.    
         END. /* IF bf-item.mat-type = "P" THEN */
     END. /* ELSE IF AVAILABLE bf-item THEN */   
     oplValidBom = YES.
