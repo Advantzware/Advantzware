@@ -2084,7 +2084,7 @@ PROCEDURE pCallAPIOutbound PRIVATE:
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    IF v-print-fmt EQ "quoprint 11" OR v-print-fmt EQ "quoprint 20" OR v-print-fmt EQ "quoprint 10" OR v-print-fmt EQ "quoprint 2" OR v-print-fmt EQ "quoprint 1" THEN DO:
+    IF v-print-fmt EQ "quoprint 11" OR v-print-fmt EQ "quoprint 20" OR v-print-fmt EQ "quoprint 10" OR v-print-fmt EQ "quoprint 2" OR v-print-fmt EQ "quoprint 1" OR v-print-fmt EQ "quoprint10-CAN" THEN DO:
         system.SharedConfig:Instance:SetValue("SendQuote_Print2ndItemDescription", STRING(tb_print-2nd-dscr:CHECKED)).
         system.SharedConfig:Instance:SetValue("SendQuote_PrintBoxDesign", STRING(tb_prt-box:CHECKED)).
         system.SharedConfig:Instance:SetValue("SendQuote_PrintSetComponents", STRING(tb_prt-comp:CHECKED)).

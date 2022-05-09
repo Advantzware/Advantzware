@@ -119,6 +119,8 @@ DEFINE VARIABLE cEmail                      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cXCustomerName              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLogoColor                  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDisplayComp                AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCanLabel                   AS CHARACTER INITIAL "é" NO-UNDO.
+DEFINE VARIABLE cCurrencyCode               AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bf-quotehd  FOR quotehd.
 DEFINE BUFFER bf-quoteitm FOR quoteitm.
@@ -293,6 +295,9 @@ ELSE DO:
                  WHERE cust.company EQ ttQuoteHeader.company
                    AND cust.cust-no EQ ttQuoteHeader.customerID
                  NO-ERROR.
+            IF AVAIL cust THEN cCurrencyCode = cust.curr-code .
+                          ELSE cCurrencyCode = "" .
+
 
             FOR EACH ttQuoteItem
                 WHERE ttQuoteItem.company    EQ ttQuoteHeader.company
@@ -628,6 +633,8 @@ ELSE DO:
     oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyAdd5", cCompanyAdd5).
     oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "Email", cEmail).
     oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "XCustomerName", cXCustomerName).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "CanLabel", cCanLabel).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrencyCode", cCurrencyCode).
     
     
     ASSIGN   
