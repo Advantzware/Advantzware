@@ -80,8 +80,10 @@ FOR EACH ap-inv NO-LOCK
 
        IF v-check-date LE as_of_date THEN DO:
 
-       IF ap-payl.amt-paid NE 0 THEN v-amt = v-amt - ap-payl.amt-paid.
-       IF ap-payl.amt-disc NE 0 THEN DO:
+       IF ap-payl.amt-paid NE 0 
+       AND ap-payl.amt-paid NE ? THEN v-amt = v-amt - ap-payl.amt-paid.
+       IF ap-payl.amt-disc NE 0 
+       AND ap-payl.amt-disc NE ? THEN DO:
           IF NOT ap-payl.memo THEN v-amt = v-amt - ap-payl.amt-disc.
           IF ap-payl.memo THEN v-amt = v-amt + ap-payl.amt-disc.
        END.
@@ -94,7 +96,8 @@ FOR EACH ap-inv NO-LOCK
 
   ASSIGN
    d     = as_of_date - v-date
-   v-amt = IF ap-inv.net + ap-inv.freight GT 0 THEN (v-amt + ap-inv.net + ap-inv.freight) ELSE v-amt
+   v-amt = v-amt + (IF ap-inv.net NE ? THEN ap-inv.net ELSE 0) + (IF ap-inv.freight NE ? THEN ap-inv.freight ELSE 0)
+/*   v-amt = IF ap-inv.net + ap-inv.freight GT 0 THEN (v-amt + ap-inv.net + ap-inv.freight) ELSE v-amt*/
    t1    = t1 + v-amt
    ni    = ni + 1.
 
