@@ -3531,8 +3531,6 @@ PROCEDURE run-report :
         DELETE wrk-ink.
     END.
 
-message lv-format-f skip lv-format-c skip tb_fold skip tb_corr skip ip-Industry view-as alert-box.
-    
     system.SharedConfig:Instance:SetValue("JobTicket_SpecList", spec-list).
     system.SharedConfig:Instance:SetValue("JobTicket_PrintBoxDesign", STRING(tb_box)).
     system.SharedConfig:Instance:SetValue("JobTicket_PrintFGItemImage", STRING(tb_fgimage)).
