@@ -3262,8 +3262,6 @@ PROCEDURE pGetFGTransactions PRIVATE:
     
     DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
     
-    EMPTY TEMP-TABLE ttBrowseInventory.
-    
     iTransactionCount = NUM-ENTRIES(ipcTransactionType).
     IF iTransactionCount EQ 0 THEN
         iTransactionCount = 1.
@@ -3273,7 +3271,7 @@ PROCEDURE pGetFGTransactions PRIVATE:
         
         FOR EACH bf-fg-rctd NO-LOCK
             WHERE bf-fg-rctd.company     EQ ipcCompany
-              AND (bf-fg-rctd.rita-code  EQ cTransactionType OR cTransactionType EQ "")
+              AND bf-fg-rctd.rita-code   EQ cTransactionType
               AND (bf-fg-rctd.created-by EQ ipcUser OR ipcUser EQ ""):
             CREATE ttBrowseInventory.
             ASSIGN
@@ -3314,8 +3312,6 @@ PROCEDURE pGetRMTransactions PRIVATE:
     
     DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
     
-    EMPTY TEMP-TABLE ttBrowseInventory.
-
     iTransactionCount = NUM-ENTRIES(ipcTransactionType).
     IF iTransactionCount EQ 0 THEN
         iTransactionCount = 1.
@@ -3323,9 +3319,9 @@ PROCEDURE pGetRMTransactions PRIVATE:
     DO iTransaction = 1 TO iTransactionCount:
         cTransactionType = ENTRY(iTransaction, ipcTransactionType).    
         FOR EACH bf-rm-rctd NO-LOCK
-            WHERE bf-rm-rctd.company    EQ ipcCompany
-              AND (bf-rm-rctd.rita-code EQ cTransactionType OR cTransactionType EQ "")
-              AND (bf-rm-rctd.user-id   EQ ipcUser OR ipcUser EQ ""):
+            WHERE bf-rm-rctd.company   EQ ipcCompany
+              AND bf-rm-rctd.rita-code EQ cTransactionType
+              AND (bf-rm-rctd.user-id  EQ ipcUser OR ipcUser EQ ""):
             CREATE ttBrowseInventory.
             ASSIGN
                 ttBrowseInventory.company          = bf-rm-rctd.company

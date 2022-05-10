@@ -2986,3 +2986,17 @@
 202 yes 3 "ap-pay.check-act" "check-act" "x(25)" "ap-pay" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202204182565909261893" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 202 yes 4 "ap-pay.check-date" "Date" "99/99/9999" "ap-pay" 0 "date" "ASI" 0 no no "" "" no "" "" "202204182565909261894" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 202 yes 2 "ap-pay.check-no" "Check No" "99999999" "ap-pay" 0 "integer" "ASI" 0 no no "" "" no "" "" "202204182565909261895" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+203 yes 9 "ttDailyProdReport.cCSRCode" "CSR Code" "x(8)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390896" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 10 "ttDailyProdReport.cCSRName" "CSR Name" "x(30)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390897" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 3 "ttDailyProdReport.cCustName" "Customer Name" "x(30)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390898" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 2 "ttDailyProdReport.cCustNo" "Customer#" "x(8)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390899" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 5 "ttDailyProdReport.cItemName" "Item Description" "x(30)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390900" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 4 "ttDailyProdReport.cItemNo" "Item#" "x(15)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390901" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 1 "ttDailyProdReport.cJob" "Job#" "x(13)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390902" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 6 "ttDailyProdReport.cMachine" "Machine" "x(6)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390903" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 8 "ttDailyProdReport.cStat" "Status" "x(10)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390904" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 14 "ttDailyProdReport.dOverUnderPercentage" "O/U%" "->>,>>>,>>9.99" "ttDailyProdReport" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202205042515109390905" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 7 "ttDailyProdReport.dtOpDate" "Operation Date" "99/99/9999" "ttDailyProdReport" 0 "date" "ASI" 0 no no "" "" no "" "" "202205042515109390906" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 12 "ttDailyProdReport.iJobQty" "Job Qty" "->>,>>>,>>>,>>9" "ttDailyProdReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "202205042515109390907" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 11 "ttDailyProdReport.iOrdQty" "Ord Qty" "->>,>>>,>>>,>>9" "ttDailyProdReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "202205042515109390908" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 13 "ttDailyProdReport.iProdQty" "Prod.Qty" "->>,>>>,>>>,>>9" "ttDailyProdReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "202205042515109390909" no no no "" no "" "" 0 0 "" no no "" "" no

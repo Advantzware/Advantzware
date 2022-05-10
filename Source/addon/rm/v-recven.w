@@ -140,6 +140,7 @@ RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
 DEFINE VARIABLE cReturnValue         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCheckClosedStatus  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSSVendTagRtnValue   AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (
     INPUT cocode,           /* Company Code */ 
@@ -152,6 +153,18 @@ RUN sys/ref/nk1look.p (
     OUTPUT cReturnValue, 
     OUTPUT lRecFound
     ). 
+    
+RUN sys/ref/nk1look.p (
+    INPUT cocode,           /* Company Code */ 
+    INPUT "SSVendTagOnly", /* sys-ctrl name */
+    INPUT "L",              /* Output return value */
+    INPUT NO,               /* Use ship-to */
+    INPUT NO,               /* ship-to vendor */
+    INPUT "",               /* ship-to vendor value */
+    INPUT "",               /* shi-id value */
+    OUTPUT cSSVendTagRtnValue, 
+    OUTPUT lRecFound
+    ).        
 
 glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.    
 
@@ -753,11 +766,12 @@ END.
 ON LEAVE OF scr-vend-tag IN FRAME F-Main /* Vendor Tag# */
 DO:
    DEFINE VARIABLE lEdDocFound AS LOGICAL NO-UNDO.
-   DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE lContinue AS LOGICAL INITIAL YES NO-UNDO.
    DEFINE VARIABLE t-scr-uom AS CHARACTER NO-UNDO.
    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
    DEFINE VARIABLE lError    AS LOGICAL NO-UNDO.
    DEFINE VARIABLE cAddInfo  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cCheckField AS CHARACTER NO-UNDO.
    
    DO WITH FRAME {&FRAME-NAME}:
 
@@ -785,6 +799,16 @@ DO:
                   VIEW-AS ALERT-BOX ERROR.
                RETURN NO-APPLY.
             END.
+            
+         DO i = 1 TO LENGTH(scr-vend-tag:SCREEN-VALUE):          
+             cCheckField =  DYNAMIC-FUNCTION('sfCommon_CheckIntDecValue', substring(scr-vend-tag:SCREEN-VALUE,i,1)) .
+             IF cCheckField EQ ?  THEN 
+             DO:
+                MESSAGE "User Field  - Vendor tag is invalid:" + scr-vend-tag:SCREEN-VALUE  + ", Please enter numerical number." 
+                    VIEW-AS ALERT-BOX ERROR .
+                RETURN NO-APPLY.
+             END. 
+         END.
                            
          RUN edDocSearch (OUTPUT lEdDocFound).
          IF lEdDocFound THEN DO:
@@ -817,48 +841,19 @@ DO:
                APPLY "entry" TO begin_po-no.
                RETURN.
              END.
-             /*Assign in case of both warning and non-prompt*/
-             ASSIGN
+             
+             IF cSSVendTagRtnValue EQ "No" THEN
+             DO:
+               /*Assign in case of both warning and non-prompt*/
+               ASSIGN             
+                 scr-qty:SCREEN-VALUE     = STRING(v-qty)
                  begin_po-no:SCREEN-VALUE = STRING(v-po-no) 
                  scr-po-line:SCREEN-VALUE = STRING(v-po-line)
-                 scr-qty:SCREEN-VALUE     = STRING(v-qty).
-         /*     
-             IF NOT ERROR-STATUS:ERROR THEN
-             DO:
-                IF NOT CAN-FIND(FIRST po-ord WHERE
-                   po-ord.company EQ cocode AND
-                   po-ord.po-no EQ v-po-no) THEN DO:
-                   RUN pCheckTagLength(cocode, "", scr-vend-tag, OUTPUT lContinue).
-                   IF NOT lContinue THEN DO:
-                      APPLY "entry" TO SELF.
-                      RETURN NO-APPLY.
-                   END.
-                   LEAVE.
-                END.
-                begin_po-no:SCREEN-VALUE = STRING(v-po-no).
-             END.
-             ELSE DO:
-                 RUN pCheckTagLength(cocode, "", scr-vend-tag, OUTPUT lContinue).
-                   IF NOT lContinue THEN DO:
-                      APPLY "entry" TO SELF.
-                      RETURN NO-APPLY.
-                   END.
-                LEAVE.
-             END.
-              */
-/*                 v-po-line = INT(SUBSTR(scr-vend-tag,7,3)) NO-ERROR.*/
-             
-/*                 IF NOT ERROR-STATUS:ERROR THEN
-                scr-po-line:SCREEN-VALUE = STRING(v-po-line). */
-             
-/*                 v-qty = INT(SUBSTR(scr-vend-tag,10,5)) NO-ERROR.*/
-             
-/*                 IF NOT ERROR-STATUS:ERROR THEN
-                scr-qty:SCREEN-VALUE = STRING(v-qty). */
-                     
-             RUN poSearch(OUTPUT lContinue, OUTPUT lError).       
-             IF NOT lError AND (SSPostFGVT-log OR SSPostFGVT-log EQ ?) THEN 
-             lContinue = NO.
+                 .                              
+                 RUN poSearch(OUTPUT lContinue, OUTPUT lError).       
+                 IF NOT lError AND (SSPostFGVT-log OR SSPostFGVT-log EQ ?) THEN 
+                 lContinue = NO.
+             END.    
              IF NOT lContinue THEN DO:
                  APPLY "entry" TO SELF.
                  RETURN NO-APPLY.

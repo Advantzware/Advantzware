@@ -66,7 +66,6 @@ DEFINE VARIABLE lv-show-next AS LOG NO-UNDO.
 DEFINE VARIABLE lv-last-show-ord-no AS INTEGER NO-UNDO.
 DEFINE VARIABLE lv-first-show-ord-no AS INTEGER NO-UNDO.
 DEFINE VARIABLE li-prod AS INTEGER NO-UNDO.
-DEFINE VARIABLE li-bal AS INTEGER NO-UNDO.
 DEFINE VARIABLE li-wip AS INTEGER NO-UNDO.
 DEFINE VARIABLE li-pct AS INTEGER NO-UNDO.
 DEFINE VARIABLE li-qoh AS INTEGER NO-UNDO.
@@ -275,24 +274,18 @@ DEFINE VARIABLE lIsBreakByUsed     AS LOGICAL   NO-UNDO.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no oe-ordl.cust-no ~
 oe-ordl.whsed oe-ordl.managed getstat() @ cStatus oe-ord.ord-date ~
 oe-ordl.req-date oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ord.po-no ~
-getitempo() @ cItemPo oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 itemfg.cad-no ~
-oe-ordl.qty li-bal @ li-prod oe-ordl.ship-qty ~
+getitempo() @ cItemPo oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 ~
+itemfg.cad-no oe-ordl.qty get-prod() @ li-prod oe-ordl.ship-qty ~
 get-inv-qty() @ iInvQty get-act-rel-qty() @ li-act-rel-qty ~
-get-pct(li-bal) @ li-pct oe-ordl.i-name oe-ordl.line oe-ordl.po-no-po ~
+get-pct(get-prod()) @ li-pct oe-ordl.i-name oe-ordl.line oe-ordl.po-no-po ~
 oe-ordl.e-num getTotalReturned() @ dTotQtyRet getReturnedInv() @ dTotRetInv ~
 oe-ordl.s-man[1] oe-ordl.cost pGetSellPrice() @ dSellPrice ~
 pGetExtendedPrice() @ dExtendedPrice pGetPriceUom() @ cPriceUom ~
 pGetCostUom() @ cCostUom oe-ord.entered-id itemfg.q-onh ~
-fnProdBalance(oe-ordl.qty,li-bal) @ dProdBalance get-bal(li-qoh) @ li-bal ~
+fnProdBalance(oe-ordl.qty,get-prod()) @ dProdBalance ~
 get-xfer-qty () @ ld-xfer-qty get-act-bol-qty() @ li-act-bol-qty ~
-fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
-oe-ordl.cust-no oe-ord.ord-date oe-ordl.req-date oe-ord.cust-name ~
-oe-ordl.i-no oe-ordl.part-no oe-ordl.est-no oe-ordl.job-no ~
-oe-ordl.job-no2 
-&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table oe-ordl oe-ord
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table oe-ordl
-&Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table oe-ord
+fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table  
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH oe-ordl ~
       WHERE oe-ordl.company EQ g_company ~
 AND oe-ordl.ord-no EQ 99999999 NO-LOCK, ~
@@ -400,7 +393,7 @@ FUNCTION get-pct RETURNS INTEGER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-prod B-table-Win 
 FUNCTION get-prod RETURNS INTEGER
-  (OUTPUT op-bal AS INTEGER)  FORWARD.
+  ()  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -414,6 +407,13 @@ FUNCTION get-wip RETURNS INTEGER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-xfer-qty B-table-Win 
 FUNCTION get-xfer-qty RETURNS DECIMAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getitempo B-table-Win 
+FUNCTION getitempo RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -506,13 +506,6 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pIsValidSearch B-table-Win 
 FUNCTION pIsValidSearch RETURNS LOGICAL PRIVATE
   (  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getitempo B-table-Win 
-FUNCTION getitempo RETURNS CHARACTER
-  ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -666,7 +659,7 @@ DEFINE BROWSE Browser-Table
       oe-ordl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(15)":U
             LABEL-BGCOLOR 14
       oe-ord.po-no COLUMN-LABEL "Order PO#" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      getitempo() @ cItemPo COLUMN-LABEL "Item PO#" FORMAT "x(15)":U WIDTH 30 LABEL-BGCOLOR 14
+      getitempo() @ cItemPo COLUMN-LABEL "Item PO#" WIDTH 30 LABEL-BGCOLOR 14
       oe-ordl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
       oe-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 12
@@ -674,12 +667,12 @@ DEFINE BROWSE Browser-Table
       oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">>9":U LABEL-BGCOLOR 14
       itemfg.cad-no COLUMN-LABEL "CAD#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.qty COLUMN-LABEL "Ordered Qty" FORMAT "->>,>>>,>>>":U
-      li-bal @ li-prod COLUMN-LABEL "Prod. Qty" FORMAT "->>,>>>,>>>":U
+      get-prod() @ li-prod COLUMN-LABEL "Prod. Qty" FORMAT "->>,>>>,>>>":U
       oe-ordl.ship-qty COLUMN-LABEL "Shipped Qty" FORMAT "->>,>>>,>>>":U
       get-inv-qty() @ iInvQty COLUMN-LABEL "Invoice Qty" FORMAT "->>,>>>,>>>":U
       get-act-rel-qty() @ li-act-rel-qty COLUMN-LABEL "Act. Rel.!Quantity" FORMAT "->>,>>>,>>>":U
             WIDTH 12.4
-      get-pct(li-bal) @ li-pct COLUMN-LABEL "O/U%" FORMAT "->>>>>%":U
+      get-pct(get-prod()) @ li-pct COLUMN-LABEL "O/U%" FORMAT "->>>>>%":U
       oe-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
       oe-ordl.line FORMAT ">>99":U
@@ -697,22 +690,10 @@ DEFINE BROWSE Browser-Table
       oe-ord.entered-id COLUMN-LABEL "Entered By" FORMAT "x(8)":U
       itemfg.q-onh COLUMN-LABEL "On Hand Qty" FORMAT "->>,>>>,>>>":U
             WIDTH 16
-      fnProdBalance(oe-ordl.qty,li-bal) @ dProdBalance COLUMN-LABEL "Prod. Balance" FORMAT "->>,>>>,>>9.9<<<":U
-      get-bal(li-qoh) @ li-bal COLUMN-LABEL "Job Qty on hand" FORMAT "->>,>>>,>>>":U
+      fnProdBalance(oe-ordl.qty,get-prod()) @ dProdBalance COLUMN-LABEL "Prod. Balance" FORMAT "->>,>>>,>>9.9<<<":U
       get-xfer-qty () @ ld-xfer-qty COLUMN-LABEL "Transfer!Qty" FORMAT "->>,>>>,>>>":U
       get-act-bol-qty() @ li-act-bol-qty COLUMN-LABEL "Act. BOL!Qty" FORMAT "->>,>>>,>>>":U
       fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
-  ENABLE
-      oe-ordl.ord-no
-      oe-ordl.cust-no
-      oe-ord.ord-date
-      oe-ordl.req-date
-      oe-ord.cust-name
-      oe-ordl.i-no
-      oe-ordl.part-no      
-      oe-ordl.est-no
-      oe-ordl.job-no
-      oe-ordl.job-no2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 181 BY 16.52
@@ -749,6 +730,18 @@ DEFINE FRAME F-Main
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 104
           FGCOLOR 9 FONT 22
+     "Open" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.24 COL 154.6 WIDGET-ID 34
+          FGCOLOR 9 FONT 22
+     "REP#" VIEW-AS TEXT
+          SIZE 6.6 BY .71 AT ROW 1.24 COL 144.2 WIDGET-ID 12
+          FGCOLOR 9 FONT 22
+     "Order/Item PO" VIEW-AS TEXT
+          SIZE 18 BY .71 AT ROW 1.24 COL 70
+          FGCOLOR 9 FONT 22
+     "Estimate#" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 1.24 COL 90
+          FGCOLOR 9 FONT 22
      "CAD#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 124
           FGCOLOR 9 FONT 22
@@ -763,18 +756,6 @@ DEFINE FRAME F-Main
           FGCOLOR 9 FONT 22
      "Cust Part#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 50
-          FGCOLOR 9 FONT 22
-     "Open" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.24 COL 154.6 WIDGET-ID 34
-          FGCOLOR 9 FONT 22
-     "REP#" VIEW-AS TEXT
-          SIZE 6.6 BY .71 AT ROW 1.24 COL 144.2 WIDGET-ID 12
-          FGCOLOR 9 FONT 22
-     "Order/Item PO" VIEW-AS TEXT
-          SIZE 18 BY .71 AT ROW 1.24 COL 70
-          FGCOLOR 9 FONT 22
-     "Estimate#" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 90
           FGCOLOR 9 FONT 22
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -868,9 +849,9 @@ AND oe-ordl.ord-no EQ 99999999"
      _Where[3]         = "itemfg.company EQ oe-ordl.company
 AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[1]   > ASI.oe-ordl.ord-no
-"oe-ordl.ord-no" ? ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.ord-no" ? ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.oe-ordl.cust-no
-"oe-ordl.cust-no" "Customer#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.cust-no" "Customer#" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-ordl.whsed
 "oe-ordl.whsed" "R&S" "X/" "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.oe-ordl.managed
@@ -878,31 +859,31 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[5]   > "_<CALC>"
 "getstat() @ cStatus" "Status" "X(16)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-ord.ord-date
-"oe-ord.ord-date" "Order Date" ? "date" ? ? ? 14 ? ? yes ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ord.ord-date" "Order Date" ? "date" ? ? ? 14 ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.oe-ordl.req-date
-"oe-ordl.req-date" "Due Date" ? "date" ? ? ? 14 ? ? yes ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.req-date" "Due Date" ? "date" ? ? ? 14 ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.oe-ord.cust-name
-"oe-ord.cust-name" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ord.cust-name" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-ordl.i-no
-"oe-ordl.i-no" "FG Item#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.i-no" "FG Item#" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.oe-ordl.part-no
-"oe-ordl.part-no" "Cust Part#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.part-no" "Cust Part#" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.oe-ord.po-no
 "oe-ord.po-no" "Order PO#" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > "_<CALC>"
-"getitempo() @ cItemPo" "Item PO#" ? "character" ? ? ? 14 ? ? yes ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"getitempo() @ cItemPo" "Item PO#" ? "character" ? ? ? 14 ? ? yes ? no no "30" yes no no "U" "" "" "FILL-IN" "," ? ? 5 no 0 no no
      _FldNameList[13]   > ASI.oe-ordl.est-no
-"oe-ordl.est-no" "Est#" "x(8)" "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.est-no" "Est#" "x(8)" "character" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.oe-ordl.job-no
-"oe-ordl.job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.job-no" "Job#" ? "character" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.oe-ordl.job-no2
-"oe-ordl.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.job-no2" "" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.itemfg.cad-no
 "itemfg.cad-no" "CAD#" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.oe-ordl.qty
 "oe-ordl.qty" "Ordered Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
-"li-bal @ li-prod" "Prod. Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-prod() @ li-prod" "Prod. Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.oe-ordl.ship-qty
 "oe-ordl.ship-qty" "Shipped Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > "_<CALC>"
@@ -910,7 +891,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[21]   > "_<CALC>"
 "get-act-rel-qty() @ li-act-rel-qty" "Act. Rel.!Quantity" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"
-"get-pct(li-bal) @ li-pct" "O/U%" "->>>>>%" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-pct(get-prod()) @ li-pct" "O/U%" "->>>>>%" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > ASI.oe-ordl.i-name
 "oe-ordl.i-name" "Item Name" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > ASI.oe-ordl.line
@@ -940,7 +921,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[36]   > ASI.itemfg.q-onh
 "itemfg.q-onh" "On Hand Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "16" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[37]   > "_<CALC>"
-"fnProdBalance(oe-ordl.qty,li-bal) @ dProdBalance" "Prod. Balance" "->>,>>>,>>9.9<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fnProdBalance(oe-ordl.qty,get-prod()) @ dProdBalance" "Prod. Balance" "->>,>>>,>>9.9<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[38]   > "_<CALC>"
 "get-xfer-qty () @ ld-xfer-qty" "Transfer!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[39]   > "_<CALC>"
@@ -983,9 +964,8 @@ END.
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
     &scoped-define exclude-row-display true 
-    {methods/template/brwrowdisplay.i}    
-    get-prod(li-bal).
-    li-pct:FGCOLOR IN BROWSE {&BROWSE-NAME} = IF get-pct(li-bal) LT 0 THEN 12 ELSE 0.
+    {methods/template/brwrowdisplay.i}   
+    get-prod().
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1061,6 +1041,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
 DO:
+    
   DEFINE VARIABLE v-stat AS CHARACTER NO-UNDO.
   DEFINE BUFFER b-cust FOR cust.
   DEFINE VARIABLE char-hdl AS cha NO-UNDO.
@@ -1300,7 +1281,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME fi_cust-no
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON LEAVE OF fi_cust-no IN FRAME F-Main
 DO:
@@ -1309,6 +1290,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
@@ -1839,20 +1821,6 @@ PROCEDURE local-initialize :
 
   RUN setCellColumns.
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-      oe-ordl.ord-no:READ-ONLY IN BROWSE {&browse-name} = YES
-      oe-ord.ord-date:READ-ONLY IN BROWSE {&browse-name} = YES
-      oe-ordl.req-date:READ-ONLY IN BROWSE {&browse-name} = YES
-      oe-ordl.cust-no:READ-ONLY IN BROWSE {&browse-name} = YES
-      oe-ord.cust-name:READ-ONLY IN BROWSE {&browse-name} = YES
-      oe-ordl.i-no:READ-ONLY IN BROWSE {&browse-name} = YES
-      oe-ordl.part-no:READ-ONLY IN BROWSE {&browse-name} = YES      
-      oe-ordl.est-no:READ-ONLY IN BROWSE {&browse-name} = YES
-      oe-ordl.job-no:READ-ONLY IN BROWSE {&browse-name} = YES
-      oe-ordl.job-no2:READ-ONLY IN BROWSE {&browse-name} = YES.
-    /*  FI_moveCol = "Sort"
-      .*/
       oe-ordl.cust-no:WIDTH IN BROWSE {&BROWSE-NAME} = 20 .       
       oe-ordl.job-no:WIDTH IN BROWSE {&BROWSE-NAME}  = 12 .
   {methods/winReSizeLocInit.i}
@@ -1923,6 +1891,7 @@ PROCEDURE local-open-query :
             cFirstRecKey = oe-ord.rec_key
                 .   
     END.
+
 
     IF AVAILABLE oe-ord THEN APPLY "value-changed" TO BROWSE {&browse-name}.
     ASSIGN
@@ -2345,6 +2314,57 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pQueryFirst B-table-Win 
+PROCEDURE pQueryFirst :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE li AS INT NO-UNDO.
+  DEFINE VARIABLE iOrderNo LIKE oe-ordl.ord-no NO-UNDO.
+  DEFINE VARIABLE cShowAllQuery AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cResponse     AS CHARACTER NO-UNDO.
+
+  {&for-eachblank}
+      AND oe-ordl.opened EQ YES
+      USE-INDEX opened NO-LOCK,
+      {&for-each2}
+      AND oe-ord.ord-date GE fiOrderDate       
+      BREAK BY oe-ordl.ord-no DESC:  
+    IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
+    iOrderNo = oe-ordl.ord-no.
+    IF li GE iOEBrowse THEN LEAVE.
+  END.
+                   
+  cShowAllQuery = "FOR EACH oe-ordl NO-LOCK"
+                    + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
+                    + "AND oe-ordl.ord-no GE " + QUOTER(iOrderNo)
+                    + pGetWhereCriteria("oe-ordl") 
+                    + ", FIRST oe-ord OF oe-ordl NO-LOCK"
+                    + " WHERE " + pGetWhereCriteria("oe-ord")
+                    + ",FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
+                    + " WHERE itemfg.company EQ oe-ordl.company"
+                    + "   AND itemfg.i-no    EQ oe-ordl.i-no"
+                    + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS " + QUOTER(fi_cad-no) ELSE "")
+                    + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no DESC BY oe-ordl.i-no"
+                    .               
+    RUN Browse_PrepareAndExecuteBrowseQuery(
+        INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
+        INPUT  cShowAllQuery,               /* BRowse Query */             
+        INPUT  NO,                          /* Show limit alert? */        
+        INPUT  0,                           /* Record limit */             
+        INPUT  0,                           /* Time Limit */               
+        INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
+        OUTPUT cResponse                                                  
+        ).
+    lShowAll = NO.         
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetDefaults B-table-Win 
 PROCEDURE pSetDefaults PRIVATE :
 /*------------------------------------------------------------------------------
@@ -2599,57 +2619,6 @@ PROCEDURE reposition-item :
         END.
      END.
   END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pQueryFirst B-table-Win 
-PROCEDURE pQueryFirst :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE li AS INT NO-UNDO.
-  DEFINE VARIABLE iOrderNo LIKE oe-ordl.ord-no NO-UNDO.
-  DEFINE VARIABLE cShowAllQuery AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cResponse     AS CHARACTER NO-UNDO.
-
-  {&for-eachblank}
-      AND oe-ordl.opened EQ YES
-      USE-INDEX opened NO-LOCK,
-      {&for-each2}
-      AND oe-ord.ord-date GE fiOrderDate       
-      BREAK BY oe-ordl.ord-no DESC:  
-    IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
-    iOrderNo = oe-ordl.ord-no.
-    IF li GE iOEBrowse THEN LEAVE.
-  END.
-                   
-  cShowAllQuery = "FOR EACH oe-ordl NO-LOCK"
-                    + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
-                    + "AND oe-ordl.ord-no GE " + QUOTER(iOrderNo)
-                    + pGetWhereCriteria("oe-ordl") 
-                    + ", FIRST oe-ord OF oe-ordl NO-LOCK"
-                    + " WHERE " + pGetWhereCriteria("oe-ord")
-                    + ",FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
-                    + " WHERE itemfg.company EQ oe-ordl.company"
-                    + "   AND itemfg.i-no    EQ oe-ordl.i-no"
-                    + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS " + QUOTER(fi_cad-no) ELSE "")
-                    + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no DESC BY oe-ordl.i-no"
-                    .               
-    RUN Browse_PrepareAndExecuteBrowseQuery(
-        INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
-        INPUT  cShowAllQuery,               /* BRowse Query */             
-        INPUT  NO,                          /* Show limit alert? */        
-        INPUT  0,                           /* Record limit */             
-        INPUT  0,                           /* Time Limit */               
-        INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
-        OUTPUT cResponse                                                  
-        ).
-    lShowAll = NO.         
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3077,7 +3046,7 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-prod B-table-Win 
 FUNCTION get-prod RETURNS INTEGER
-  (OUTPUT op-bal AS INTEGER) :
+  () :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
@@ -3148,7 +3117,7 @@ DO:
         END.
 END.
 
-op-bal = iTotalProdQty.
+/*op-bal = iTotalProdQty.*/
 RETURN iTotalProdQty.   /* Function return value. */
 
 
@@ -3223,6 +3192,26 @@ Regardless of Customer Bill to.
 
   RETURN vTransfer-Qty.   /* Function return value. */
 
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getitempo B-table-Win 
+FUNCTION getitempo RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    
+    IF AVAILABLE oe-ordl THEN 
+     lc-result = oe-ordl.po-no.
+       
+    RETURN lc-result.   /* Function return value. */
+    
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3700,23 +3689,3 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getitempo B-table-Win 
-FUNCTION getitempo RETURNS CHARACTER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
-    
-    IF AVAILABLE oe-ordl THEN 
-     lc-result = oe-ordl.po-no.
-       
-    RETURN lc-result.   /* Function return value. */
-    
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

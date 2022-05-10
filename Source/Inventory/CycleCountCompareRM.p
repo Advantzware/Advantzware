@@ -27,7 +27,7 @@ IF cocode = "" THEN cocode = "001".
 
 DEFINE TEMP-TABLE ttCycleCountCompare
     FIELD cCompany                   AS CHARACTER COLUMN-LABEL "Company" 
-    FIELD cFGItemID                  AS CHARACTER COLUMN-LABEL "FG Item ID"
+    FIELD cRMItemID                  AS CHARACTER COLUMN-LABEL "RM Item ID"
     FIELD cTag                       AS CHARACTER COLUMN-LABEL "Tag"
     FIELD cVendorTag                 AS CHARACTER COLUMN-LABEL "Vendor Tag"
     FIELD cSysLoc                    AS CHARACTER COLUMN-LABEL "System Warehouse"
@@ -67,13 +67,13 @@ DEFINE TEMP-TABLE ttCycleCountCompare
     FIELD cBNum                      AS CHARACTER COLUMN-LABEL "Blank#"
     FIELD cShtSize                   AS CHARACTER COLUMN-LABEL "Sheet Size"
     INDEX tag  cCompany cTag 
-    INDEX item cCompany cFGItemID
+    INDEX item cCompany cRMItemID
     INDEX i3   cCompany cSysLoc   cSysLocBin   
     .
     
 DEFINE TEMP-TABLE ttSnapShot
     FIELD cCompany                  AS CHARACTER COLUMN-LABEL "Company" 
-    FIELD cFGItemID                 AS CHARACTER COLUMN-LABEL "FG Item ID"
+    FIELD cRMItemID                 AS CHARACTER COLUMN-LABEL "RM Item ID"
     FIELD cTag                      AS CHARACTER COLUMN-LABEL "Tag"
     FIELD cSysLoc                   AS CHARACTER COLUMN-LABEL "System Warehouse"
     FIELD cSysLocBin                AS CHARACTER COLUMN-LABEL "System Bin"
@@ -92,7 +92,7 @@ DEFINE TEMP-TABLE ttSnapShot
     FIELD cSNum                     AS CHARACTER COLUMN-LABEL "Form#"
     FIELD cBNum                     AS CHARACTER COLUMN-LABEL "Blank#"    
     INDEX tag  cCompany cTag
-    INDEX ITEM cCompany cFGItemID   
+    INDEX ITEM cCompany cRMItemID   
     .
     
 DEFINE TEMP-TABLE ttProblems
@@ -283,8 +283,8 @@ PROCEDURE pBuildCompareTable PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItemStart AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcToCycleCode AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.   
@@ -314,8 +314,8 @@ PROCEDURE pBuildCompareTable PRIVATE:
         WHERE rm-rctd.company EQ ipcCompany
         AND rm-rctd.rita-code EQ "C"
         AND rm-rctd.tag NE ""
-        AND rm-rctd.i-no GE ipcFGItemStart
-        AND rm-rctd.i-no LE ipcFGItemEnd
+        AND rm-rctd.i-no GE ipcRMItemStart
+        AND rm-rctd.i-no LE ipcRMItemEnd
         AND (LOOKUP(rm-rctd.loc, ipcWhseList) GT 0
              OR CAN-FIND(FIRST ttSnapShot WHERE ttSnapshot.cTag EQ rm-rctd.tag)
             )       
@@ -342,7 +342,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
         /*Initial Create*/    
         FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
             WHERE ttCycleCountCompare.cCompany EQ rm-rctd.company
-            AND ttCycleCountCompare.cFGItemID EQ rm-rctd.i-no
+            AND ttCycleCountCompare.cRMItemID EQ rm-rctd.i-no
             AND ttCycleCountCompare.cTag EQ rm-rctd.tag
             NO-ERROR.
 
@@ -351,7 +351,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
             CREATE ttCycleCountCompare.
             ASSIGN 
                 ttCycleCountCompare.cCompany       = rm-rctd.company
-                ttCycleCountCompare.cFGItemID      = rm-rctd.i-no
+                ttCycleCountCompare.cRMItemID      = rm-rctd.i-no
                 ttCycleCountCompare.cTag           = rm-rctd.tag
                 ttCycleCountCompare.cScanLoc       = rm-rctd.loc
                 ttCycleCountCompare.cScanLocBin    = rm-rctd.loc-bin
@@ -372,21 +372,21 @@ PROCEDURE pBuildCompareTable PRIVATE:
   
     /* Records for reporting of snapshot only */
     FOR EACH ttSnapshot
-        WHERE ttSnapshot.cFGItemID GE ipcFgItemStart
-        AND ttSnapshot.cFgItemID   LE ipcFgItemEnd
+        WHERE ttSnapshot.cRMItemID GE ipcRMItemStart
+        AND ttSnapshot.cRMItemID   LE ipcRMItemEnd
         AND lookup(ttSnapshot.cSysLoc, ipcWhseList) GT 0   
         AND ttSnapshot.cSysLocBin  GE ipcBinStart
         AND ttSnapshot.cSysLocBin  LE ipcBinEnd         
          AND CAN-FIND(FIRST ITEM NO-LOCK
                          WHERE ITEM.company EQ ttSnapshot.cCompany
-                           AND ITEM.i-no EQ ttSnapshot.cFGItemID
+                           AND ITEM.i-no EQ ttSnapshot.cRMItemID
                            AND item.cc-code GE ipcFromCycleCode
                            AND item.cc-code LE ipcToCycleCode)
         :
             
         FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
             WHERE ttCycleCountCompare.cCompany EQ ttSnapshot.cCompany
-            AND ttCycleCountCompare.cFGItemID EQ ttSnapshot.cFGItemID
+            AND ttCycleCountCompare.cRMItemID EQ ttSnapshot.cRMItemID
             AND ttCycleCountCompare.cTag EQ ttSnapshot.cTag
             USE-INDEX tag 
             NO-ERROR.            
@@ -395,7 +395,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
             CREATE ttCycleCountCompare.
             ASSIGN 
                 ttCycleCountCompare.cCompany         = ttSnapshot.cCompany
-                ttCycleCountCompare.cFGItemID        = ttSnapshot.cFGItemID
+                ttCycleCountCompare.cRMItemID        = ttSnapshot.cRMItemID
                 ttCycleCountCompare.cTag             = ttSnapshot.cTag
                 ttCycleCountCompare.cSysLoc          = ttSnapshot.cSysLoc
                 ttCycleCountCompare.cSysLocBin       = ttSnapshot.cSysLocBin
@@ -434,8 +434,8 @@ PROCEDURE pBuildCompareTable PRIVATE:
     END.
     
     FOR EACH ttCycleCountCompare
-        WHERE ttCycleCountCompare.cFGItem GE ipcFGItemStart
-        AND ttCycleCountCompare.cFgItem LE ipcFGItemEnd        
+        WHERE ttCycleCountCompare.cRMItemID GE ipcRMItemStart
+        AND ttCycleCountCompare.cRMItemID LE ipcRMItemEnd        
         :  
         /*Assess other scans for this tag*/
         FOR EACH bf-rm-rctd NO-LOCK 
@@ -454,7 +454,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
         /*Assess Existing System Bins for Scanned Tag*/
         FIND FIRST ttSnapshot NO-LOCK /*Only one record per tag*/
             WHERE ttSnapshot.cCompany EQ ttCycleCountCompare.cCompany
-            AND ttSnapshot.cFGItemID EQ ttCycleCountCompare.cFGItemID
+            AND ttSnapshot.cRMItemID EQ ttCycleCountCompare.cRMItemID
             AND ttSnapshot.cSysLoc  EQ ttCycleCountCompare.cScanLoc 
             AND ttSnapshot.cSysLocBin EQ ttCycleCountCompare.cScanLocBin
             AND ttSnapshot.cTag EQ ttCycleCountCompare.cTag
@@ -493,7 +493,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
         
         FOR EACH ttSnapshot NO-LOCK /*Only one record per tag*/
             WHERE ttSnapshot.cCompany EQ ttCycleCountCompare.cCompany
-            AND ttSnapshot.cFGItemID EQ ttCycleCountCompare.cFGItemID
+            AND ttSnapshot.cRMItemID EQ ttCycleCountCompare.cRMItemID
             AND ttSnapshot.cTag EQ ttCycleCountCompare.cTag
             AND ttSnapshot.dSysQty GE 0
             :            
@@ -528,8 +528,8 @@ PROCEDURE pBuildCompareTable PRIVATE:
     DO: 
         FOR EACH rm-bin NO-LOCK
             WHERE rm-bin.company EQ ipcCompany
-            AND rm-bin.i-no GE ipcFGItemStart
-            AND rm-bin.i-no LE ipcFGItemEnd
+            AND rm-bin.i-no GE ipcRMItemStart
+            AND rm-bin.i-no LE ipcRMItemEnd
             AND LOOKUP(rm-bin.loc, ipcWhseList) GT 0   
             AND rm-bin.qty NE 0
             AND rm-bin.tag NE ""
@@ -539,7 +539,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
             :
             FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
                 WHERE ttCycleCountCompare.cCompany EQ rm-bin.company
-                AND ttCycleCountCompare.cFGItemID EQ rm-bin.i-no
+                AND ttCycleCountCompare.cRMItemID EQ rm-bin.i-no
                 AND ttCycleCountCompare.cTag EQ rm-bin.tag
                 USE-INDEX tag
                 NO-ERROR.
@@ -548,7 +548,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
                 CREATE ttCycleCountCompare.
                 ASSIGN 
                     ttCycleCountCompare.cCompany         = rm-bin.company
-                    ttCycleCountCompare.cFGItemID        = rm-bin.i-no
+                    ttCycleCountCompare.cRMItemID        = rm-bin.i-no
                     ttCycleCountCompare.cTag             = rm-bin.tag
                     ttCycleCountCompare.cSysLoc          = rm-bin.loc
                     ttCycleCountCompare.cSysLocBin       = rm-bin.loc-bin
@@ -582,8 +582,8 @@ PROCEDURE pBuildCompareTable PRIVATE:
         iStatusCnt2 = 0
         .
     FOR EACH ttCycleCountCompare
-        WHERE ttCycleCountCompare.cFGItem   GE ipcFGItemStart
-        AND ttCycleCountCompare.cFgItem     LE ipcFGItemEnd
+        WHERE ttCycleCountCompare.cRMItemID   GE ipcRMItemStart
+        AND ttCycleCountCompare.cRMItemID     LE ipcRMItemEnd
         AND IF ttCycleCountCompare.cScanLoc GT "" THEN 
         (ttCycleCountCompare.cScanLocBin  GE ipcBinStart
         AND ttCycleCountCompare.cScanLocBin  LE ipcBinEnd
@@ -615,7 +615,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
 
         FIND FIRST item NO-LOCK 
             WHERE item.company EQ ttCycleCountCompare.cCompany 
-            AND item.i-no EQ ttCycleCountCompare.cFgItemID
+            AND item.i-no EQ ttCycleCountCompare.cRMItemID
             NO-ERROR.
 
         IF NOT AVAILABLE ITEM THEN NEXT.
@@ -623,14 +623,14 @@ PROCEDURE pBuildCompareTable PRIVATE:
         /*Only one record per tag since duplicates were removed prior to snapshot */
         FIND FIRST rm-bin NO-LOCK 
             WHERE rm-bin.company EQ ttCycleCountCompare.cCompany 
-            AND rm-bin.i-no EQ ttCycleCountCompare.cFGItemID  
+            AND rm-bin.i-no EQ ttCycleCountCompare.cRMItemID  
             AND rm-bin.tag EQ ttCycleCountCompare.cTag  
             AND rm-bin.qty GT 0
             USE-INDEX tag NO-ERROR.
         IF NOT AVAILABLE rm-bin THEN 
             FIND FIRST rm-bin NO-LOCK 
                 WHERE rm-bin.company EQ ttCycleCountCompare.cCompany 
-                AND rm-bin.i-no EQ ttCycleCountCompare.cFGItemID  
+                AND rm-bin.i-no EQ ttCycleCountCompare.cRMItemID  
                 AND rm-bin.tag EQ ttCycleCountCompare.cTag  
                 USE-INDEX tag NO-ERROR.
         ASSIGN  dCost = 0
@@ -663,7 +663,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
         DO:
             FIND FIRST rm-bin NO-LOCK /*Only one record per tag*/
                 WHERE rm-bin.company EQ ttCycleCountCompare.cCompany 
-                AND rm-bin.i-no EQ ttCycleCountCompare.cFGItemID  
+                AND rm-bin.i-no EQ ttCycleCountCompare.cRMItemID  
                 AND rm-bin.tag EQ ttCycleCountCompare.cTag  
                 NO-ERROR.  
             IF AVAILABLE rm-bin THEN  
@@ -707,7 +707,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
          ELSE DO:
             FOR EACH rm-rcpth NO-LOCK 
                 WHERE rm-rcpth.company EQ ttCycleCountCompare.cCompany
-                  AND rm-rcpth.i-no     EQ ttCycleCountCompare.cFGItemID
+                  AND rm-rcpth.i-no     EQ ttCycleCountCompare.cRMItemID
                   AND rm-rcpth.rita-code EQ "R"                  
                   :
 
@@ -725,8 +725,8 @@ PROCEDURE pCheckBinDups:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRMItemStart AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRMItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcWhseList AS CHARACTER NO-UNDO.        
     DEFINE OUTPUT PARAMETER oplNoDups AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIsDups AS LOGICAL NO-UNDO.
@@ -738,8 +738,8 @@ PROCEDURE pCheckBinDups:
     FOR EACH rm-bin NO-LOCK
         WHERE rm-bin.qty GT 0
         AND rm-bin.company EQ ipcCompany
-        AND rm-bin.i-no GE ipcFGItemStart
-        AND rm-bin.i-no LE ipcFGItemEnd
+        AND rm-bin.i-no GE ipcRMItemStart
+        AND rm-bin.i-no LE ipcRMItemEnd
         AND lookup(rm-bin.loc, ipcWhseList) GT 0   
         AND rm-bin.tag GT "" 
         AND CAN-FIND (FIRST ITEM NO-LOCK 
@@ -837,8 +837,8 @@ PROCEDURE pCheckInvalidItems:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRMItemStart AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRMItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcWhseList AS CHARACTER NO-UNDO.  
     DEFINE OUTPUT PARAMETER oplNoCostMSF AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplInvalidItems AS LOGICAL NO-UNDO.
@@ -862,8 +862,8 @@ PROCEDURE pCheckInvalidItems:
     FOR EACH rm-bin NO-LOCK
         WHERE rm-bin.company EQ ipcCompany
           AND rm-bin.qty GT 0           
-          AND rm-bin.i-no GE ipcFgItemStart
-          AND rm-bin.i-no LE ipcFgItemEnd
+          AND rm-bin.i-no GE ipcRMItemStart
+          AND rm-bin.i-no LE ipcRMItemEnd
            AND LOOKUP(rm-bin.loc, ipcWhseList) GT 0
         :
         lNoMSF  = NO.
@@ -941,7 +941,7 @@ PROCEDURE pCreateTransferCounts:
         :   
         FIND FIRST rm-bin NO-LOCK 
             WHERE rm-bin.company EQ  ttCycleCountCompare.cCompany
-              AND rm-bin.i-no    EQ ttCycleCountCompare.cFGItemID   
+              AND rm-bin.i-no    EQ ttCycleCountCompare.cRMItemID   
               AND rm-bin.tag     EQ ttCycleCountCompare.cTag        
               AND rm-bin.loc     EQ  ttCycleCountCompare.cSysLoc    
               AND rm-bin.loc-bin EQ  ttCycleCountCompare.cSysLocBin    
@@ -950,7 +950,7 @@ PROCEDURE pCreateTransferCounts:
         IF NOT AVAIL rm-bin THEN 
         FIND FIRST rm-bin NO-LOCK 
             WHERE rm-bin.company EQ  ttCycleCountCompare.cCompany
-              AND rm-bin.i-no    EQ ttCycleCountCompare.cFGItemID   
+              AND rm-bin.i-no    EQ ttCycleCountCompare.cRMItemID   
               AND rm-bin.tag     EQ ttCycleCountCompare.cTag           
               AND rm-bin.qty     GT 0
               NO-ERROR.        
@@ -964,7 +964,7 @@ PROCEDURE pCreateTransferCounts:
         /* be part of the current physical                                           */
         FIND FIRST bf-rm-rctd EXCLUSIVE-LOCK
             WHERE bf-rm-rctd.company EQ  ttCycleCountCompare.cCompany
-            AND bf-rm-rctd.i-no    EQ ttCycleCountCompare.cFGItemID   
+            AND bf-rm-rctd.i-no    EQ ttCycleCountCompare.cRMItemID   
             AND bf-rm-rctd.tag     EQ ttCycleCountCompare.cTag        
             AND bf-rm-rctd.loc     EQ  ttCycleCountCompare.cScanLoc    
             AND bf-rm-rctd.loc-bin EQ  ttCycleCountCompare.cScanLocBin
@@ -1074,7 +1074,7 @@ PROCEDURE pCreateZeroCount:
         FIRST rm-bin NO-LOCK 
         WHERE /* rm-bin.r-no   EQ ttCycleCountCompare.iSequence    
         AND */ rm-bin.company EQ  ttCycleCountCompare.cCompany
-        AND rm-bin.i-no    EQ ttCycleCountCompare.cFGItemID   
+        AND rm-bin.i-no    EQ ttCycleCountCompare.cRMItemID   
         AND rm-bin.tag     EQ ttCycleCountCompare.cTag        
         AND rm-bin.loc     EQ ttCycleCountCompare.cSysLoc    
         AND rm-bin.loc-bin EQ ttCycleCountCompare.cSysLocBin    
@@ -1410,14 +1410,14 @@ PROCEDURE pGetLastTransDate PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRMItemID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTag AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcRita AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdtLastDate AS DATE NO-UNDO.
 
     FOR EACH fg-rcpth NO-LOCK 
         WHERE fg-rcpth.company EQ ipcCompany
-        AND fg-rcpth.i-no EQ ipcFGItemID
+        AND fg-rcpth.i-no EQ ipcRMItemID
         AND fg-rcpth.rita-code EQ ipcRita,
         EACH fg-rdtlh NO-LOCK 
         WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
@@ -1443,7 +1443,7 @@ PROCEDURE pImportSnapShot PRIVATE:
         CREATE ttSnapshot.
         ASSIGN 
             ttSnapShot.cCompany   = inventoryStockSnapshot.company
-            ttSnapShot.cFGItemID  = inventoryStockSnapshot.fgItemID
+            ttSnapShot.cRMItemID  = inventoryStockSnapshot.RMItemID
             ttSnapShot.cTag       = inventoryStockSnapshot.inventoryStockID
             ttSnapShot.cSysLoc    = inventoryStockSnapshot.warehouseID
             ttSnapShot.cSysLocBin = inventoryStockSnapshot.locationID
@@ -1465,8 +1465,8 @@ PROCEDURE postRM:
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
     DEFINE INPUT  PARAMETER ipiTransTime AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItemStart AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcToCycleCode AS CHARACTER NO-UNDO.    
     DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.    
@@ -1497,10 +1497,10 @@ PROCEDURE postRM:
         RUN pCreateZeroCount (ipdtTransDate).
     RUN pCreateTransferCounts (ipdtTransDate).
     
-    RUN pRemoveMatches (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseList, 
+    RUN pRemoveMatches (ipcCompany, ipcRMItemStart, ipcRMItemEnd, ipcWhseList, 
         ipcBinStart, ipcBinEnd).
         
-    RUN pPostCounts (ipcCompany, ipdtTransDate, ipiTransTime, ipcFGItemStart, ipcFGItemEnd,  ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
+    RUN pPostCounts (ipcCompany, ipdtTransDate, ipiTransTime, ipcRMItemStart, ipcRMItemEnd,  ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
         ipcBinStart, ipcBinEnd).
     MESSAGE "Posting Complete"
         VIEW-AS ALERT-BOX.
@@ -1514,8 +1514,8 @@ PROCEDURE pPostCounts:
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
     DEFINE INPUT  PARAMETER ipiTransTime AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItemStart AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcToCycleCode AS CHARACTER NO-UNDO.    
     DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.
@@ -1545,8 +1545,8 @@ PROCEDURE pPostCounts:
             WHERE rm-rctd.company   EQ cocode
             AND rm-rctd.rita-code EQ "C"   
             AND rm-rctd.tag NE ""
-            AND rm-rctd.i-no GE ipcFGItemStart
-            AND rm-rctd.i-no LE ipcFGItemEnd
+            AND rm-rctd.i-no GE ipcRMItemStart
+            AND rm-rctd.i-no LE ipcRMItemEnd
             AND LOOKUP(rm-rctd.loc, ipcWhseList) GT 0 
             AND rm-rctd.loc-bin GE ipcBinStart
             AND rm-rctd.loc-bin LE ipcBinEnd
@@ -1593,7 +1593,7 @@ PROCEDURE pPostCounts:
                 .
            FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
                WHERE ttCycleCountCompare.cCompany EQ rm-rctd.company
-                AND ttCycleCountCompare.cFGItemID EQ rm-rctd.i-no
+                AND ttCycleCountCompare.cRMItemID EQ rm-rctd.i-no
                 AND ttCycleCountCompare.cTag      EQ rm-rctd.tag
                 NO-ERROR.
             IF AVAIL ttCycleCountCompare AND rm-rctd.qty NE 0 AND rm-rctd.cost EQ 0 THEN 
@@ -1706,16 +1706,16 @@ PROCEDURE pRemoveMatches:
               created, so the count can be removed
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItemStart AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
         
     FOR EACH ttCycleCountCompare NO-LOCK 
         WHERE ttCycleCountCompare.lMatch = TRUE        
-        AND ttCycleCountCompare.cFGItem     GE ipcFGItemStart
-        AND ttCycleCountCompare.cFgItem     LE ipcFGItemEnd
+        AND ttCycleCountCompare.cRMItemID   GE ipcRMItemStart
+        AND ttCycleCountCompare.cRMItemID   LE ipcRMItemEnd
         AND IF ttCycleCountCompare.cScanLoc GT "" THEN 
         (
         LOOKUP(ttCycleCountCompare.cScanLoc, ipcWhseList) GT 0 
@@ -1731,7 +1731,7 @@ PROCEDURE pRemoveMatches:
         ,    
         EACH rm-rctd EXCLUSIVE-LOCK 
         WHERE rm-rctd.company  EQ ttCycleCountCompare.cCompany 
-        AND rm-rctd.i-no     EQ ttCycleCountCompare.cFGItemID  
+        AND rm-rctd.i-no     EQ ttCycleCountCompare.cRMItemID  
         AND rm-rctd.tag      EQ ttCycleCountCompare.cTag        
         AND rm-rctd.loc      EQ ttCycleCountCompare.cScanLoc    
         AND rm-rctd.loc-bin  EQ ttCycleCountCompare.cScanLocBin  
@@ -1816,8 +1816,8 @@ PROCEDURE reportComparison:
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdtTransDate AS DATE NO-UNDO.
     DEFINE INPUT  PARAMETER ipiTransTime AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItemStart AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFromCycleCode AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcToCycleCode AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcWhseList AS CHARACTER NO-UNDO.    
@@ -1838,7 +1838,7 @@ PROCEDURE reportComparison:
     RUN pImportSnapshot (INPUT ipiSnapshotID).
     
     STATUS DEFAULT "Build Compare Table". 
-    RUN pBuildCompareTable(ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
+    RUN pBuildCompareTable(ipcCompany, ipcRMItemStart, ipcRMItemEnd, ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
         ipcBinStart, ipcBinEnd, YES /* scans only */).
     gcOutputFile = ipcOutputFile.
     PROCESS EVENTS.
@@ -1853,7 +1853,7 @@ PROCEDURE reportComparison:
         QUESTION BUTTONS YES-NO UPDATE lChoosePost.
         
     IF lChoosePost THEN 
-        RUN postRM (ipcCompany, ipdtTransDate, ipiTransTime, ipcFGItemStart, ipcFGItemEnd, ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
+        RUN postRM (ipcCompany, ipdtTransDate, ipiTransTime, ipcRMItemStart, ipcRMItemEnd, ipcFromCycleCode, ipcToCycleCode, ipcWhseList, 
             ipcBinStart, ipcBinEnd, iplSkipUnscanned). 
         
 END PROCEDURE.

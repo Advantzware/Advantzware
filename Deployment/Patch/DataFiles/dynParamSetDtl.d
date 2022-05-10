@@ -500,3 +500,5 @@
 179 11 "DMIStateType" "DMI State Type" "" "" "" "All,All,DT,DT,Run,Run" "All" 1 31 20 1.71 yes "HORIZONTAL" "" "202203114716309079495"
 180 12 "DeleteZeroQty" "Delete Bins with Zero Qty" "" "" "" "" "no" 1 29 3 1.71 yes ? "" "202204140420309187994"
 180 12 "DeleteNegativeQty" "Delete Bins with Negative Qty" "" "" "" "" "no" 1 32 3 2.67 yes ? "" "202204140425009187995"
+181 2 "startMachineRunDate" "Start  Date" "" "" "" "" "01/01/1950" 1 16 15 1.95 yes "CALENDAR,DATEPICKLIST" "" "202205042104409390710"
+181 2 "endMachineRunDate" "To" "" "" "" "" "12/31/2049" 1 16 15 3.14 yes "CALENDAR,DATEPICKLIST" "" "202205042104409390711"
