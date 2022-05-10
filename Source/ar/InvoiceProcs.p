@@ -218,6 +218,8 @@ PROCEDURE pAssignCommonLineData PRIVATE:
            AND bf-oe-ord.ord-no EQ ipbf-ttInvLine.orderID
          NO-ERROR.
     IF AVAILABLE bf-oe-ord THEN DO:
+        ipbf-ttInv.isEDIOrder = bf-oe-ord.ediSubmitted EQ 1.
+        
         IF ipbf-ttInv.customerPONo EQ "" THEN 
             ipbf-ttInv.customerPONo = bf-oe-ord.po-no.
         
@@ -407,6 +409,8 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                                                        "EA"
                 ttInvLine.pricePerUOM            = bf-ar-invl.unit-pr * (1 - (bf-ar-invl.disc / 100))
                 ttInvLine.priceUOM               = bf-ar-invl.pr-uom
+                ttInvLine.ediPrice               = bf-ar-invl.ediPrice
+                ttInvLine.ediPriceUOM            = bf-ar-invl.ediPriceUOM
                 ttInvLine.customerPartID         = bf-ar-invl.part-no
                 ttInvLine.itemID                 = bf-ar-invl.inv-i-no
                 ttInvLine.itemName               = IF bf-ar-invl.misc THEN
@@ -644,6 +648,8 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                 ttInvLine.pricePerUOM            = bf-inv-line.price * (1 - (bf-inv-line.disc / 100))
                 ttInvLine.pricePerEach           = bf-inv-line.t-price / bf-inv-line.inv-qty
                 ttInvLine.priceUOM               = bf-inv-line.pr-uom
+                ttInvLine.ediPrice               = bf-inv-line.ediPrice
+                ttInvLine.ediPriceUOM            = bf-inv-line.ediPriceUOM
                 ttInvLine.customerPartID         = bf-inv-line.part-no
                 ttInvLine.itemID                 = bf-inv-line.i-no
                 ttInvLine.itemName               = bf-inv-line.i-name
