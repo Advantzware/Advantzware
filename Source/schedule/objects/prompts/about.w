@@ -60,10 +60,10 @@ DEFINE TEMP-TABLE resourceList NO-UNDO
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS aboutBox btnClearCheckoffs ~
 deleteStatusCheckoffs btnClearNotes deleteJobNotes btnReturnToPending ~
-btnFromPending btnFromPendingByDueDate btnUnlock beginDate btnLock endDate ~
-btnSave btnRestore btnExit 
+btnFromPending asOfDate btnFromPendingByDueDate btnUnlock beginDate btnLock ~
+endDate btnSave btnRestore btnExit 
 &Scoped-Define DISPLAYED-OBJECTS aboutBox deleteStatusCheckoffs ~
-deleteJobNotes beginDate endDate version 
+deleteJobNotes asOfDate beginDate endDate version 
 
 /* Custom List Definitions                                              */
 /* adminFunction,List-2,List-3,List-4,List-5,List-6                     */
@@ -145,6 +145,11 @@ DEFINE VARIABLE aboutBox AS CHARACTER
      SIZE 87 BY 15.24
      BGCOLOR 15 FONT 2 NO-UNDO.
 
+DEFINE VARIABLE asOfDate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/50 
+     LABEL "As of Date" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1 NO-UNDO.
+
 DEFINE VARIABLE beginDate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/50 
      LABEL "Beginning Date" 
      VIEW-AS FILL-IN 
@@ -193,6 +198,7 @@ DEFINE FRAME Dialog-Frame
           "Return To Pending" WIDGET-ID 6
      btnFromPending AT ROW 21.24 COL 3 HELP
           "Schedule From Pending" WIDGET-ID 8
+     asOfDate AT ROW 21.48 COL 71 COLON-ALIGNED
      btnFromPendingByDueDate AT ROW 22.43 COL 3 HELP
           "Schedule From Pending By Due Date" WIDGET-ID 10
      btnUnlock AT ROW 23.62 COL 3 HELP
@@ -208,20 +214,20 @@ DEFINE FRAME Dialog-Frame
      btnExit AT ROW 27.19 COL 83 HELP
           "Exit About" WIDGET-ID 34
      version AT ROW 1.24 COL 28 NO-LABEL
-     "Move ALL Pending Jobs to the Board" VIEW-AS TEXT
-          SIZE 37 BY 1 AT ROW 21.24 COL 9 WIDGET-ID 22
-     "Job Notes:" VIEW-AS TEXT
-          SIZE 11 BY 1 AT ROW 18.86 COL 16 WIDGET-ID 32
-     "Status Checkoffs:" VIEW-AS TEXT
-          SIZE 18 BY 1 AT ROW 17.67 COL 9 WIDGET-ID 30
-     "Restore Custom Configuration .DAT Files" VIEW-AS TEXT
-          SIZE 50 BY 1 AT ROW 27.19 COL 9 WIDGET-ID 28
-     "Create Backup's of Custom Configuration .DAT Files" VIEW-AS TEXT
-          SIZE 50 BY 1 AT ROW 26 COL 9 WIDGET-ID 26
-     "Move ALL Pending Jobs to the Board by Due Date" VIEW-AS TEXT
-          SIZE 50 BY 1 AT ROW 22.43 COL 9 WIDGET-ID 24
      "Return ALL Jobs to Pending" VIEW-AS TEXT
           SIZE 29 BY 1 AT ROW 20.05 COL 9 WIDGET-ID 20
+     "Move ALL Pending Jobs to the Board by Due Date" VIEW-AS TEXT
+          SIZE 50 BY 1 AT ROW 22.43 COL 9 WIDGET-ID 24
+     "Create Backup's of Custom Configuration .DAT Files" VIEW-AS TEXT
+          SIZE 50 BY 1 AT ROW 26 COL 9 WIDGET-ID 26
+     "Restore Custom Configuration .DAT Files" VIEW-AS TEXT
+          SIZE 50 BY 1 AT ROW 27.19 COL 9 WIDGET-ID 28
+     "Status Checkoffs:" VIEW-AS TEXT
+          SIZE 18 BY 1 AT ROW 17.67 COL 9 WIDGET-ID 30
+     "Job Notes:" VIEW-AS TEXT
+          SIZE 11 BY 1 AT ROW 18.86 COL 16 WIDGET-ID 32
+     "Move ALL Pending Jobs to the Board" VIEW-AS TEXT
+          SIZE 37 BY 1 AT ROW 21.24 COL 9 WIDGET-ID 22
      RECT-4 AT ROW 17.43 COL 2
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -286,6 +292,17 @@ ASSIGN
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* About (Support Contact Information) */
 DO:
   APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME asOfDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL asOfDate Dialog-Frame
+ON LEAVE OF asOfDate IN FRAME Dialog-Frame /* As of Date */
+DO:
+    ASSIGN {&SELF-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -452,6 +469,7 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+  asOfDate = TODAY.
   RUN enable_UI.
   version:SCREEN-VALUE = 'Scheduler Release ({&version} ' + ipBoard + ')'.
   aboutBox:READ-FILE('{&startDir}/about.txt').
@@ -495,11 +513,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY aboutBox deleteStatusCheckoffs deleteJobNotes beginDate endDate 
-          version 
+  DISPLAY aboutBox deleteStatusCheckoffs deleteJobNotes asOfDate beginDate 
+          endDate version 
       WITH FRAME Dialog-Frame.
   ENABLE aboutBox btnClearCheckoffs deleteStatusCheckoffs btnClearNotes 
-         deleteJobNotes btnReturnToPending btnFromPending 
+         deleteJobNotes btnReturnToPending btnFromPending asOfDate 
          btnFromPendingByDueDate btnUnlock beginDate btnLock endDate btnSave 
          btnRestore btnExit 
       WITH FRAME Dialog-Frame.
@@ -609,7 +627,7 @@ PROCEDURE pFromPending :
     IF NOT lContinue THEN RETURN.
     SESSION:SET-WAIT-STATE("General").
     IF VALID-HANDLE(ipContainerHandle) THEN
-    RUN pFromPending IN ipContainerHandle.
+    RUN pFromPending IN ipContainerHandle (asOfDate).
     SESSION:SET-WAIT-STATE("").
     MESSAGE "All Jobs Scheduled from Pending" VIEW-AS ALERT-BOX.
 
@@ -633,7 +651,7 @@ PROCEDURE pFromPendingByDueDate :
     IF NOT lContinue THEN RETURN.
     SESSION:SET-WAIT-STATE("General").
     IF VALID-HANDLE(ipContainerHandle) THEN
-    RUN pFromPendingByDueDate IN ipContainerHandle.
+    RUN pFromPendingByDueDate IN ipContainerHandle (asOfDate).
     SESSION:SET-WAIT-STATE("").
     MESSAGE "All Jobs Scheduled from Pending" VIEW-AS ALERT-BOX.
 
