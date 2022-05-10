@@ -2193,10 +2193,12 @@ PROCEDURE spGetSettingObject:
     IF NOT VALID-HANDLE (hdBrokerHandle) THEN DO:
         ASSIGN hdObject = SESSION:FIRST-PROCEDURE.
         DO WHILE hdObject <> ?:
-            ASSIGN hdBrokerHandle   = hdObject
-                   hdObject = hdObject:NEXT-SIBLING.
-            IF hdBrokerHandle:NAME EQ "adm/objects/broker.p" THEN
+            IF hdObject:NAME EQ "adm/objects/broker.p" THEN DO:
+                hdBrokerHandle = hdObject.
                 LEAVE.
+            END.
+            
+            hdObject = hdObject:NEXT-SIBLING.
         END.
     END.
 
