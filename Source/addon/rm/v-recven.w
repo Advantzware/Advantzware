@@ -800,22 +800,24 @@ DO:
                RETURN NO-APPLY.
             END.
             
-         DO i = 1 TO LENGTH(scr-vend-tag:SCREEN-VALUE):          
-             cCheckField =  DYNAMIC-FUNCTION('sfCommon_CheckIntDecValue', substring(scr-vend-tag:SCREEN-VALUE,i,1)) .
-             IF cCheckField EQ ?  THEN 
-             DO:
-                MESSAGE "User Field  - Vendor tag is invalid:" + scr-vend-tag:SCREEN-VALUE  + ", Please enter numerical number." 
-                    VIEW-AS ALERT-BOX ERROR .
-                RETURN NO-APPLY.
-             END. 
-         END.
+/*         DO i = 1 TO LENGTH(scr-vend-tag:SCREEN-VALUE):                                                                         */
+/*             cCheckField =  DYNAMIC-FUNCTION('sfCommon_CheckIntDecValue', substring(scr-vend-tag:SCREEN-VALUE,i,1)) .           */
+/*             IF cCheckField EQ ?  THEN                                                                                          */
+/*             DO:                                                                                                                */
+/*                MESSAGE "User Field  - Vendor tag is invalid:" + scr-vend-tag:SCREEN-VALUE  + ", Please enter numerical number."*/
+/*                    VIEW-AS ALERT-BOX ERROR .                                                                                   */
+/*                RETURN NO-APPLY.                                                                                                */
+/*             END.                                                                                                               */
+/*         END.                                                                                                                   */
                            
          RUN edDocSearch (OUTPUT lEdDocFound).
          IF lEdDocFound THEN DO:
              RUN poSearch(OUTPUT lContinue, lError).
          END. 
          ELSE DO: 
-             RUN addon/rm/vendorTagParse.p(INPUT scr-vend-tag,
+             IF  ASC(SUBSTRING(scr-vend-tag,1,1)) GT 47 
+             AND ASC(SUBSTRING(scr-vend-tag,1,1)) LT 58 THEN
+                RUN addon/rm/vendorTagParse.p(INPUT scr-vend-tag,
                                           OUTPUT v-po-no,
                                           OUTPUT v-po-line,
                                           OUTPUT v-qty,
