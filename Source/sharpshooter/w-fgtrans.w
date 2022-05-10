@@ -86,6 +86,7 @@ DEFINE VARIABLE glSSCloseJob          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glSSFGPost            AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE gcShowSettings        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glShowVirtualKeyboard AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE gcSSVendorTags        AS CHARACTER NO-UNDO INITIAL "No Vendor Tags".
 
 DEFINE VARIABLE gcCreateFGCompReceiptForSetHeader AS CHARACTER NO-UNDO.
 
@@ -1056,6 +1057,8 @@ PROCEDURE pInit PRIVATE :
     RUN spGetSettingByName ("SSFGPost", OUTPUT cSettingValue).            
     glSSFGPost = LOGICAL(cSettingValue) NO-ERROR.
     
+    RUN spGetSettingByName ("SSVendorTags", OUTPUT gcSSVendorTags).
+    
     btPost:HIDDEN = glSSFGPost.
     
     oKeyboard:SetWindow({&WINDOW-NAME}:HANDLE).
@@ -1561,12 +1564,14 @@ PROCEDURE pTagScan PRIVATE :
     IF NOT oLoadTag:IsAvailable() THEN
         oLoadTag:SetContext (cCompany, TRUE /* ItemType */, ipcTag).
     
-    RUN Loadtag_CreateLoadTagFromVendorTag IN hdLoadtagProcs (
-        INPUT  cCompany,
-        INPUT  ipcTag,
-        OUTPUT oplError,
-        OUTPUT opcMessage
-        ).
+    IF gcSSVendorTags EQ "Parse Vendor Tags" THEN
+        RUN Loadtag_CreateLoadTagFromVendorTag IN hdLoadtagProcs (
+            INPUT  cCompany,
+            INPUT  ipcTag,
+            OUTPUT oplError,
+            OUTPUT opcMessage
+            ).
+
     IF oplError THEN
         RETURN.
     
@@ -1846,6 +1851,7 @@ PROCEDURE pTagScanRM PRIVATE :
     DEFINE VARIABLE iSubUnits        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iSubUnitsPerUnit AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iPartial         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cTag             AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-rm-rctd       FOR rm-rctd.
     DEFINE BUFFER bf-item          FOR item.
@@ -1928,6 +1934,7 @@ PROCEDURE pTagScanRM PRIVATE :
     ELSE DO:
         ASSIGN
             cQuantityUOM     = bf-item.cons-uom
+            cTag             = oLoadTag:GetValue("Tag")        
             iPOID            = INTEGER(oLoadTag:GetValue("PO"))
             iPOLineID        = INTEGER(oLoadTag:GetValue("PoLine"))
             cJobID           = oLoadTag:GetValue("JobID")
@@ -1952,7 +1959,7 @@ PROCEDURE pTagScanRM PRIVATE :
                 
         RUN api\inbound\CreateInventoryReceipt.p (
             INPUT        cCompany, 
-            INPUT        ipcTag,
+            INPUT        cTag,
             INPUT        iQuantity,  /* Quantity */
             INPUT        cQuantityUOM,
             INPUT-OUTPUT iPOID,
@@ -1982,10 +1989,10 @@ PROCEDURE pTagScanRM PRIVATE :
             ttBrowseInventory.company          = cCompany
             ttBrowseInventory.primaryID        = cItemID
             ttBrowseInventory.itemType         = STRING(lItemType, "RM/FG")
-            ttBrowseInventory.tag              = ipcTag
+            ttBrowseInventory.tag              = cTag
             ttBrowseInventory.warehouse        = cWarehouse
             ttBrowseInventory.location         = cLocation
-            ttBrowseInventory.quantity         = iQuantity
+            ttBrowseInventory.quantity         = dNewQuantity
             ttBrowseInventory.inventoryStockID = STRING(riRMRctd)
             ttBrowseInventory.transactionType  = "Receipt"
             ttBrowseInventory.inventoryStatus  = "Created"

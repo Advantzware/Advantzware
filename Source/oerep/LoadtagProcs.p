@@ -1438,6 +1438,15 @@ PROCEDURE Loadtag_CreateLoadTagFromVendorTag:
         RETURN. 
     END.    
 
+    /* Adding code to block creating vendor tags for finished goods */
+    IF NOT bf-po-ordl.item-type THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "PO # Line is not a raw material item"
+            .
+        RETURN.
+    END.
+        
     IF bf-po-ordl.item-type THEN DO:
         FIND FIRST bf-item NO-LOCK
              WHERE bf-item.company EQ bf-po-ordl.company
@@ -1473,8 +1482,6 @@ PROCEDURE Loadtag_CreateLoadTagFromVendorTag:
          WHERE bf-loadtag.company      EQ bf-po-ordl.company
            AND bf-loadtag.i-no         EQ bf-po-ordl.i-no
            AND bf-loadtag.item-type    EQ bf-po-ordl.item-type
-           AND bf-loadtag.po-no        EQ bf-po-ordl.po-no
-           AND bf-loadtag.line         EQ bf-po-ordl.line
            AND bf-loadtag.is-case-tag  EQ NO
            AND bf-loadtag.misc-char[1] EQ ipcVendorTag
          NO-ERROR.
