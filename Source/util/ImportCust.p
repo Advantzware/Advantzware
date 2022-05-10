@@ -321,7 +321,7 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportCust.CustStatus NE "" THEN 
             RUN pIsValidFromList IN hdValidator ("Active", ipbf-ttImportCust.CustStatus, "Active,Inhouse,Service,Inactive", OUTPUT oplValid, OUTPUT cValidNote).
 
-        IF oplValid THEN 
+        IF oplValid AND ipbf-ttImportCust.CustSman NE ""  THEN 
             RUN pIsValidSalesRep IN hdValidator (ipbf-ttImportCust.CustSman, YES, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportCust.CustType NE "" THEN 
