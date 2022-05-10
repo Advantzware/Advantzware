@@ -70,6 +70,13 @@
     "rec_key": "202204216182209192233"
   },
   {
+    "dbFieldName": "curr-code",
+    "dbFieldExtent": 0,
+    "attributeName": "CurrencyCode",
+    "dbTableName": "cust",
+    "rec_key": "202205105770009196085"
+  },
+  {
     "dbFieldName": "cust-no",
     "dbFieldExtent": 0,
     "attributeName": "CustomerID",
