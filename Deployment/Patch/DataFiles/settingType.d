@@ -1,4 +1,6 @@
-"202204291401109351779" 714 "Attribute Name of the user count field in Zoho Desk" "Character" "" "cf_advantzware_user_count" "" "" no "ZohoDesk" "ZohoUserCountAttribute" 1000 no
+"202205022355509369615" 716 "Number of days to trigger the account verification" "Integer" "" "30" "" "" no "" "AccountVerificationInterval" 1000 no
+"202205022351809369613" 715 "Date of the last verification with Zoho" "DateTime" "" "" "" "" no "ZohoDesk" "AccountVerificationDate" 1000 no
+"202204291401109351779" 714 "Attribute Name of the user count field in Zoho Desk" "Character" "" "cf_billable_users" "" "" no "ZohoDesk" "ZohoUserCountAttribute" 1000 no
 "202204291396809351777" 713 "Advantzware Account ID" "Character" "" "" "" "" no "ZohoDesk" "AdvantzwareAccountID" 1000 no
 "202204248562509317253" 712 "Backorders not automatically released
 Yes - allow back orders to create a planned release and release it to an actual release
@@ -85,8 +87,8 @@ NK1=VertexAccessToken" "Logical" "YES,NO" "NO" "" "" no "Vertex" "Vertex" 0 no
 "202112138464208369219" 640 "Vertex API Access Token Date Time" "DateTime-TZ" "" "" "" "" no "Vertex" "VertexAccessTokenDateTime" 0 no
 "202112131902608366717" 639 "No Prompt,
 Warn if Length of Scan not equal to Length of Mask, 
-Block if Length of Scan not equal to Length of Mask" "Character" "No Prompt,Warn if Length of Scan not equal to Length of Mask,Block if Length of Scan not equal to Length of Mask" "No Prompt" "" "" no "" "SSScanVendorTagPrompt" 0 yes
-"202112131871608366715" 638 "Format mask for parsing the vendor tags received from POs" "Character" "PPPPPPLLLQQQQQXXXX,PPPPPPLLLQQQQQ,PPPPPPPPLLLQQQQQXXXX,PPPPPPLLLQQQQQXXX" "PPPPPPLLLQQQQQXXXX" "" "" no "" "SSScanVendorTagMask" 0 yes
+Block if Length of Scan not equal to Length of Mask" "Character" "No Prompt,Warn if Length of Scan not equal to Length of Mask,Block if Length of Scan not equal to Length of Mask" "No Prompt" "" "" no "SSFGReceiveTransfer" "SSScanVendorTagPrompt" 0 yes
+"202112131871608366715" 638 "Format mask for parsing the vendor tags received from POs" "Character" "PPPPPPLLLQQQQQXXXX,PPPPPPLLLQQQQQ,PPPPPPPPLLLQQQQQXXXX,PPPPPPLLLQQQQQXXX" "PPPPPPLLLQQQQQXXXX" "" "" no "SSFGReceiveTransfer" "SSScanVendorTagMask" 0 yes
 "202112100949208363439" 636 "Always enable TS Time Buttons?" "Logical" "YES,NO" "NO" "" "" no "TouchScreen" "TSTimeB" 0 no
 "202112100949208363431" 634 "Touch-Screen Time Source - Server or Workstation" "Character" "Sserver,Workstation,NO" "NO" "" "" no "TouchScreen" "TSTime" 0 no
 "202112100949208363426" 632 "Show Schedule Board Pending Jobs" "Logical" "YES,NO" "NO" "" "" no "TouchScreen" "TSShowPending" 0 no
