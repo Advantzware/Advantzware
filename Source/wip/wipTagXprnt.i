@@ -7,7 +7,7 @@
         PUT  "<C1><#2>".
         PUT  SKIP "<R23><C3>_____________________________________<B>Fold Here</B>_____________________________________" SKIP .
         PUT  SKIP "<R25><C35><P18><B>WIP Tag</B><P14>" SKIP .
-        PUT   "<#=100><C10><R28><FROM><C72><R+3><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" ttPrintInventoryStock.tag FORMAT "x(30)" ">"
+        PUT   "<#=100><C10><R28><FROM><C72><R+3><BARCODE,TYPE=128B,ANGLE=0,CHECKSUM=NONE,VALUE=" ttPrintInventoryStock.tag FORMAT "x(30)" ">"
             "<C30><R31>" ttPrintInventoryStock.tag FORMAT "x(30)" .
             
         PUT  SKIP(3) "<R32.5><C3><FROM><R32.5><C80><LINE>" SKIP .        
@@ -16,7 +16,7 @@
         PUT  "<R36><C10><P16> <b>Job #:  </b> " ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"999") FORMAT "x(13)".
         PUT  "<R38><C10><P16> <b>Form #:</b>" ttPrintInventoryStock.formNo FORMAT ">>9" .
          
-        PUT   "<#=100><C40><R36><FROM><C68><R+3><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"999") FORMAT "x(13)" ">"
+        PUT   "<#=100><C40><R36><FROM><C68><R+3><BARCODE,TYPE=128B,ANGLE=0,CHECKSUM=NONE,VALUE=" ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"999") FORMAT "x(13)" ">"
               "<C52><R39>" ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"999") FORMAT "x(13)" .
          
         PUT  "<R41><C3><FROM><R41><C70><LINE>" SKIP .          
@@ -27,7 +27,7 @@
          
          
         PUT   "<#=100><C72><R33.5><FROM><C122><R+3.5><BARCODE,TYPE=128B,ANGLE=270,CHECKSUM=NONE,VALUE=" ttPrintInventoryStock.tag FORMAT "x(30)" ">"
-               "<C78><R57.5><angle=90>" ttPrintInventoryStock.tag FORMAT "x(30)" .
+               "<C78><R57.5><angle=90>" ttPrintInventoryStock.tag FORMAT "x(30)" "</angle=90>" .
        
        
         
