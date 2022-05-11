@@ -1086,7 +1086,7 @@ PROCEDURE pAddEstMiscForPrep PRIVATE:
         NO-ERROR.
     IF NOT AVAILABLE bf-prep THEN 
     DO: 
-        RUN pAddError("Prep '" + ipbf-est-prep.code + "' not found", giErrorImportant, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, ipbf-est-prep.b-num, ipdQuantityMaster).
+        RUN pAddError("Prep '" + ipbf-est-prep.code + "' is not valid", giErrorImportant, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, ipbf-est-prep.b-num, ipdQuantityMaster).
         RETURN.    
     END.
         
@@ -3614,19 +3614,15 @@ PROCEDURE pProcessBoardBOM PRIVATE:
         RETURN.
     END.
     ELSE IF AVAILABLE bf-item THEN 
-    DO:
-        IF bf-item.mat-type = "P" THEN
-        DO: 
-            IF NOT CAN-FIND (FIRST bf-ttEstCostOperation
-                WHERE bf-ttEstCostOperation.company     EQ ipbf-ttEstCostForm.company
-                AND bf-ttEstCostOperation.estimateNo    EQ ipbf-ttEstCostForm.estimateNo
-                AND bf-ttEstCostOperation.sequenceOfOperation LT 500
-                AND bf-ttEstCostOperation.isCorrugator) THEN 
-            DO:
-                RUN pAddError("Required machine is missing in routing" , giErrorImportant, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0, ipbf-ttEstCostHeader.quantityMaster).
-                RETURN.
-            END.    
-        END. /* IF bf-item.mat-type = "P" THEN */
+    DO: 
+        IF NOT CAN-FIND (FIRST bf-ttEstCostOperation
+            WHERE bf-ttEstCostOperation.company     EQ ipbf-ttEstCostForm.company
+            AND bf-ttEstCostOperation.estimateNo    EQ ipbf-ttEstCostForm.estimateNo
+            AND bf-ttEstCostOperation.isCorrugator) THEN 
+        DO:
+            RUN pAddError("BOM Component '" + ipbf-item-bom.i-no + "' but there no corrugator/laminator in routing", giErrorImportant, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0, ipbf-ttEstCostHeader.quantityMaster).
+            RETURN.
+        END.    
     END. /* ELSE IF AVAILABLE bf-item THEN */   
     oplValidBom = YES.
 
