@@ -23,13 +23,6 @@ DEFINE INPUT PARAMETER ipcMatType AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipiFormNo LIKE est-prep.s-num NO-UNDO.
 DEFINE OUTPUT PARAMETER opdQty LIKE est-prep.qty NO-UNDO.
 
-/* ************************  Function Prototypes ********************** */
-FUNCTION fIsComboType RETURNS LOGICAL PRIVATE 
-    (ipcEstType AS CHARACTER) FORWARD.
-    
-FUNCTION fGetEstimateType RETURNS CHARACTER PRIVATE
-    (ipiEstType AS INTEGER, ipcEstimateTypeID AS CHARACTER) FORWARD.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -160,22 +153,7 @@ DEFINE VARIABLE cEstimateType AS CHARACTER NO-UNDO.
 
 IF AVAIL ipbf-est AND AVAIL ipbf-ef THEN DO:
     
-    cEstimateType = fGetEstimateType (INPUT ipbf-est.est-type, INPUT ipbf-est.estimateTypeID).
-    /*If not a combo*/
-    IF NOT fIsComboType(cEstimateType) THEN
-        FOR EACH bf-eb 
-            WHERE bf-eb.company EQ ipbf-ef.company
-            AND bf-eb.est-no  EQ ipbf-ef.est-no
-            AND bf-eb.form-no EQ ipbf-ef.form-no
-            NO-LOCK 
-            BREAK BY bf-eb.form-no:
-            /*sum up the coating and color counts for blanks*/
-            opiQtyP = opiQtyP + 
-                (IF ipbf-est.est-type NE 3 OR FIRST(bf-eb.form-no) THEN
-                bf-eb.i-coat + bf-eb.i-col ELSE bf-eb.yld-qty). 
-        END. /*each bf-eb*/
-    ELSE /*If a combo just add form coating and form color fields*/
-        opiQtyP = ipbf-ef.f-coat + ipbf-ef.f-col.
+    ASSIGN opiQtyP = ipbf-ef.f-coat + ipbf-ef.f-col.
     
     /*subtract out any aqueous ink types from the count*/
     FOR EACH bf-eb 
@@ -235,26 +213,6 @@ IF AVAIL ipbf-ef THEN
     opdQtyR  = ipbf-ef.die-in. 
                    
 END PROCEDURE.
-
-FUNCTION fIsComboType RETURNS LOGICAL PRIVATE
-    (ipcEstType AS CHARACTER):
-    /*------------------------------------------------------------------------------
-     Purpose:  Returns the constant value for Combo Estimate Type
-     Notes:
-    ------------------------------------------------------------------------------*/    
-    RETURN DYNAMIC-FUNCTION("fEstimate_IsComboType", ipcEstType).
-    
-END FUNCTION.
-
-FUNCTION fGetEstimateType RETURNS CHARACTER PRIVATE
-    (ipiEstType AS INTEGER, ipcEstimateTypeID AS CHARACTER):
-    /*------------------------------------------------------------------------------
-     Purpose:  Given estimate qualifiers, return the Estimate Type Description
-     Notes:
-    ------------------------------------------------------------------------------*/    
-    RETURN DYNAMIC-FUNCTION("fEstimate_GetEstimateType", ipiEstType, ipcEstimateTypeID).
-    
-END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
