@@ -2633,13 +2633,15 @@ PROCEDURE get-def-values :
             ------------------------------------------------------------------------------*/
 
     DO WITH FRAME {&FRAME-NAME}:
-        IF adm-new-record THEN
+        IF adm-new-record THEN do:
             ASSIGN
                 fg-rctd.loc:SCREEN-VALUE      = ""
                 fg-rctd.loc-bin:SCREEN-VALUE  = ""
-                fg-rctd.std-cost:SCREEN-VALUE = ""
-                fg-rctd.qty-case:SCREEN-VALUE = ""
+                fg-rctd.std-cost:SCREEN-VALUE = ""                  
                 fg-rctd.cost-uom:SCREEN-VALUE = "".
+            IF fg-rctd.tag:SCREEN-VALUE EQ "" THEN
+            fg-rctd.qty-case:SCREEN-VALUE = "".           
+        END.        
 
         RUN get-values.
     END.
@@ -3279,7 +3281,7 @@ DEFINE BUFFER bf-job-hdr FOR job-hdr .
                       RUN  pGetUnassembledItem(cocode , bf-job-hdr.i-no) .
 
                     RUN get-def-values.
-                    IF NOT lUpdateRecords THEN
+                    IF NOT lUpdateRecords AND fg-rctd.tag:screen-value EQ "" THEN
                         RUN pGetUnitCountFromJob(bf-job-hdr.ord-no ,fg-rctd.i-no:SCREEN-VALUE,bf-job-hdr.job-no,bf-job-hdr.job-no2) .
                       
                     LEAVE.
