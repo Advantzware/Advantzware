@@ -4,7 +4,7 @@
     "settingTypeID": 717,
     "description": " - No Vendor Tags\n - Parse Vendor Tags  (this would apply the Mask rules)",
     "dataType": "Character",
-    "validValues": "No Vendor Tags,Parse Vendor Tags",
+    "validValues": "No Vendor Tags,Parse Vendor Tags,Enter Vendor Tag Information",
     "defaultValue": "No Vendor Tags",
     "validValueMin": "",
     "validValueMax": "",

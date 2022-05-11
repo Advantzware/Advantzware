@@ -1387,12 +1387,6 @@ PROCEDURE Loadtag_CreateLoadTagFromVendorTag:
     DEFINE VARIABLE cAddInfo     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantityUOM AS CHARACTER NO-UNDO.
         
-    DEFINE BUFFER bf-po-ord  FOR po-ord.
-    DEFINE BUFFER bf-po-ordl FOR po-ordl.
-    DEFINE BUFFER bf-item    FOR item.
-    DEFINE BUFFER bf-itemfg  FOR itemfg.
-    DEFINE BUFFER bf-loadtag FOR loadtag.
-    
     RUN addon/rm/vendorTagParse.p(
         INPUT  ipcVendorTag,
         OUTPUT iPOID,
@@ -1404,84 +1398,36 @@ PROCEDURE Loadtag_CreateLoadTagFromVendorTag:
         ).
     IF oplError THEN
         RETURN.
+
+    RUN pCreateLoadTagFromVendorTag (ipcCompany, ipcVendorTag, iPOID, iPOLine, dQuantity, "", OUTPUT oplError, OUTPUT opcMessage).
+END PROCEDURE.
+
+PROCEDURE pCreateLoadTagFromVendorTag PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcVendorTag   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOID        AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOLine      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantity    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcQuantityUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     
-    IF dQuantity EQ 0 THEN DO:
+    DEFINE BUFFER bf-loadtag FOR loadtag.
+    
+    IF ipdQuantity EQ 0 THEN DO:
         ASSIGN
             oplError   = TRUE
             opcMessage = "Quantity cannot be 0"
             .
         RETURN.     
     END.
-    
-    FIND FIRST bf-po-ord NO-LOCK
-         WHERE bf-po-ord.company EQ ipcCompany
-           AND bf-po-ord.po-no   EQ iPOID
-         NO-ERROR.
-    IF NOT AVAILABLE bf-po-ord THEN DO:
-        ASSIGN
-            oplError   = TRUE
-            opcMessage = "Invalid PO # '" + STRING(iPOID) + "' scanned in vendor tag"
-            .
-        RETURN. 
-    END.    
-    
-    FIND FIRST bf-po-ordl NO-LOCK
-         WHERE bf-po-ordl.company EQ bf-po-ord.company
-           AND bf-po-ordl.po-no   EQ bf-po-ord.po-no
-           AND bf-po-ordl.line    EQ iPOLine
-         NO-ERROR.
-    IF NOT AVAILABLE bf-po-ordl THEN DO:
-        ASSIGN
-            oplError   = TRUE
-            opcMessage = "Invalid PO # Line '" + STRING(iPOID) + "-" + STRING(iPOLine) + "' scanned in vendor tag"
-            .
-        RETURN. 
-    END.    
-
-    /* Adding code to block creating vendor tags for finished goods */
-    IF NOT bf-po-ordl.item-type THEN DO:
-        ASSIGN
-            oplError   = TRUE
-            opcMessage = "PO # Line is not a raw material item"
-            .
-        RETURN.
-    END.
         
-    IF bf-po-ordl.item-type THEN DO:
-        FIND FIRST bf-item NO-LOCK
-             WHERE bf-item.company EQ bf-po-ordl.company
-               AND bf-item.i-no    EQ bf-po-ordl.i-no
-             NO-ERROR. 
-        IF NOT AVAILABLE bf-item THEN DO:
-            ASSIGN
-                oplError   = TRUE
-                opcMessage = "Invalid Item # '" + bf-po-ordl.i-no + "'"
-                .
-            RETURN.
-        END.
-        
-        cQuantityUOM = bf-item.cons-uom.
-    END.
-    ELSE DO:
-        FIND FIRST bf-itemfg NO-LOCK
-             WHERE bf-itemfg.company EQ bf-po-ordl.company
-               AND bf-itemfg.i-no    EQ bf-po-ordl.i-no
-             NO-ERROR.
-        IF NOT AVAILABLE bf-itemfg THEN DO:
-            ASSIGN
-                oplError   = TRUE
-                opcMessage = "Invalid Item # '" + bf-po-ordl.i-no + "'"
-                .
-            RETURN.
-        END.
-        
-        cQuantityUOM = bf-po-ordl.pr-qty-uom.
-    END.
-    
     FIND FIRST bf-loadtag NO-LOCK
-         WHERE bf-loadtag.company      EQ bf-po-ordl.company
-           AND bf-loadtag.i-no         EQ bf-po-ordl.i-no
-           AND bf-loadtag.item-type    EQ bf-po-ordl.item-type
+         WHERE bf-loadtag.company      EQ ipcCompany
            AND bf-loadtag.is-case-tag  EQ NO
            AND bf-loadtag.misc-char[1] EQ ipcVendorTag
          NO-ERROR.
@@ -1491,13 +1437,13 @@ PROCEDURE Loadtag_CreateLoadTagFromVendorTag:
     EMPTY TEMP-TABLE ttLoadTag.
     
     RUN pBuildLoadTagsFromPO (
-        INPUT  bf-po-ordl.company,
-        INPUT  bf-po-ordl.po-no,
-        INPUT  bf-po-ordl.line,
-        INPUT  dQuantity,
-        INPUT  dQuantity,
+        INPUT  ipcCompany,
+        INPUT  ipiPOID,
+        INPUT  ipiPOLine,
+        INPUT  ipdQuantity,
+        INPUT  ipdQuantity,
         INPUT  1,    
-        INPUT  cQuantityUOM,
+        INPUT  ipcQuantityUOM,
         INPUT  1,
         INPUT  ipcVendorTag,
         OUTPUT oplError,
@@ -1508,8 +1454,8 @@ PROCEDURE Loadtag_CreateLoadTagFromVendorTag:
         RETURN.
         
     RUN pCreateLoadTagFromTT (
-        INPUT  bf-po-ordl.company, 
-        INPUT  bf-po-ord.loc, 
+        INPUT  ipcCompany, 
+        INPUT  "", 
         INPUT  FALSE, 
         INPUT  TRUE, 
         INPUT-OUTPUT TABLE ttLoadTag
@@ -2893,6 +2839,49 @@ PROCEDURE BuildLoadTagsFromPO:
         ).
 END PROCEDURE.
 
+PROCEDURE Loadtag_BuildAndCreateLoadTagsFromPO:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/  
+    DEFINE INPUT  PARAMETER ipcCompany           AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOID              AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOLine            AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantity          AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantityInSubUnit AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdSubUnitsPerUnit   AS DECIMAL   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcQuantityUOM       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcVendorTag         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
+    
+    RUN pBuildLoadTagsFromPO (
+        INPUT  ipcCompany,
+        INPUT  ipiPOID,
+        INPUT  ipiPOLine,
+        INPUT  ipdQuantity,
+        INPUT  ipdQuantityInSubUnit,
+        INPUT  ipdSubUnitsPerUnit,
+        INPUT  ipcQuantityUOM,
+        INPUT  1,
+        INPUT  ipcVendorTag,
+        OUTPUT oplError,
+        OUTPUT opcMessage,
+        INPUT-OUTPUT TABLE ttLoadTag
+        ).
+
+    IF oplError THEN
+        RETURN.
+        
+    RUN pCreateLoadTagFromTT (
+        INPUT  ipcCompany, 
+        INPUT  "", 
+        INPUT  FALSE, 
+        INPUT  TRUE, 
+        INPUT-OUTPUT TABLE ttLoadTag
+        ).        
+END PROCEDURE.
+
 PROCEDURE pBuildLoadTagsFromPO :
 /*------------------------------------------------------------------------------
  Purpose:
@@ -2921,6 +2910,7 @@ PROCEDURE pBuildLoadTagsFromPO :
     DEFINE VARIABLE dBasisWeight            AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cQuantityUOM            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdInventoryReceiptProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cUOMList                AS CHARACTER NO-UNDO INITIAL ["EA,TON,MSF,MSH,LB,LF"].
         
     DEFINE BUFFER bf-po-ord    FOR po-ord.
     DEFINE BUFFER bf-po-ordl   FOR po-ordl.
@@ -3144,6 +3134,16 @@ PROCEDURE pBuildLoadTagsFromPO :
                 ASSIGN
                     oplError   = TRUE
                     opcMessage = "Invalid item # '" + bf-po-ordl.i-no + "'"
+                    .
+                UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+            END.
+            
+            RUN sys/ref/uom-rm.p (INPUT bf-item.mat-type, OUTPUT cUOMList).
+            
+            IF INDEX(cUOMList, ipcQuantityUOM) EQ 0 THEN DO:
+                ASSIGN
+                    oplError   = TRUE
+                    opcMessage = "Invalid UOM '" + ipcQuantityUOM + "'. Valid values '" + cUOMList + "'"
                     .
                 UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
             END.

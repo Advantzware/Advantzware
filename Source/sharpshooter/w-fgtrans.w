@@ -1544,7 +1544,13 @@ PROCEDURE pTagScan PRIVATE :
     DEFINE OUTPUT PARAMETER oplIsTransfer AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
-            
+    
+    DEFINE VARIABLE iPOID        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iPOLine      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dQuantity    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cQuantityUOM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValid       AS LOGICAL   NO-UNDO.
+                            
     ASSIGN
         lIsMoveReceipt = FALSE
         riFGRctdMove   = ?
@@ -1564,16 +1570,44 @@ PROCEDURE pTagScan PRIVATE :
     IF NOT oLoadTag:IsAvailable() THEN
         oLoadTag:SetContext (cCompany, TRUE /* ItemType */, ipcTag).
     
-    IF gcSSVendorTags EQ "Parse Vendor Tags" THEN
-        RUN Loadtag_CreateLoadTagFromVendorTag IN hdLoadtagProcs (
-            INPUT  cCompany,
-            INPUT  ipcTag,
-            OUTPUT oplError,
-            OUTPUT opcMessage
-            ).
-
-    IF oplError THEN
-        RETURN.
+    IF NOT oLoadTag:IsAvailable() THEN DO:
+        IF gcSSVendorTags EQ "Parse Vendor Tags" THEN DO:
+            RUN Loadtag_CreateLoadTagFromVendorTag IN hdLoadtagProcs (
+                INPUT  cCompany,
+                INPUT  ipcTag,
+                OUTPUT oplError,
+                OUTPUT opcMessage
+                ).
+            IF oplError THEN
+                RETURN.
+        END.
+        ELSE IF gcSSVendorTags EQ "Enter Vendor Tag Information" THEN DO:
+            RUN sharpshooter/d-poInfo.w (
+                OUTPUT iPOID,
+                OUTPUT iPOLine,
+                OUTPUT dQuantity,
+                OUTPUT cQuantityUOM,
+                OUTPUT lValid
+                ).    
+            IF NOT lValid THEN
+                RETURN.
+            
+            RUN Loadtag_BuildAndCreateLoadTagsFromPO IN hdLoadtagProcs (
+                INPUT  cCompany,
+                INPUT  iPOID,
+                INPUT  iPOLine,
+                INPUT  dQuantity,
+                INPUT  dQuantity,
+                INPUT  1,
+                INPUT  cQuantityUOM,
+                INPUT  ipcTag,
+                OUTPUT oplError,
+                OUTPUT opcMessage
+                ).
+            IF oplError THEN
+                RETURN.             
+        END.
+    END.
     
     /* Re-read the loadtag table, as previous procedure would create a loadtag */    
     oLoadTag:SetContext (cCompany, FALSE /* ItemType */, ipcTag).
