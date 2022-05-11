@@ -7227,7 +7227,11 @@ PROCEDURE final-steps2 :
                     RUN displayMessageQuestionLog (INPUT  "33",
                         OUTPUT lMsgResponse).
                 IF lMsgResponse THEN
+                DO:
+                    FRAME {&frame-name}:SENSITIVE = NO. 
                     RUN po/doPo.p(YES).
+                    FRAME {&frame-name}:SENSITIVE = YES.
+                END.
             END. 
         END.
   
