@@ -32,6 +32,14 @@ DEFINE INPUT  PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE ghBrowse2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE ghBrowse3 AS HANDLE NO-UNDO.
+DEFINE VARIABLE ghQuery AS HANDLE NO-UNDO.
+DEFINE VARIABLE ghtteb AS HANDLE NO-UNDO.
+DEFINE VARIABLE iCounter AS INTEGER NO-UNDO.
+DEFINE VARIABLE ghColumn AS HANDLE NO-UNDO.
+DEFINE VARIABLE ghColumn2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE giFormToCopy AS INTEGER NO-UNDO.
+DEFINE VARIABLE giBlankToCopy AS INTEGER NO-UNDO.
+
 DEFINE TEMP-TABLE tteb NO-UNDO 
                   LIKE eb
                   FIELD lSelectable AS LOGICAL.
@@ -60,8 +68,8 @@ DEFINE TEMP-TABLE tteb NO-UNDO
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 tteb
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 tteb
 &Scoped-define SELF-NAME BROWSE-2
-&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH tteb       WHERE tteb.est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION
-&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH tteb       WHERE tteb.est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION.
+&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH tteb       WHERE est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION
+&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH tteb       WHERE est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-BROWSE-2 tteb
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 tteb
 
@@ -72,8 +80,8 @@ DEFINE TEMP-TABLE tteb NO-UNDO
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-3 tteb
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-3 tteb
 &Scoped-define SELF-NAME BROWSE-3
-&Scoped-define QUERY-STRING-BROWSE-3 FOR EACH tteb       WHERE tteb.est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION
-&Scoped-define OPEN-QUERY-BROWSE-3 OPEN QUERY {&SELF-NAME} FOR EACH tteb       WHERE tteb.est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION.
+&Scoped-define QUERY-STRING-BROWSE-3 FOR EACH tteb       WHERE est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION
+&Scoped-define OPEN-QUERY-BROWSE-3 OPEN QUERY {&SELF-NAME} FOR EACH tteb       WHERE est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-BROWSE-3 tteb
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-3 tteb
 
@@ -248,6 +256,38 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define BROWSE-NAME BROWSE-2
+&Scoped-define SELF-NAME BROWSE-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 Dialog-Frame
+ON VALUE-CHANGED OF lSelectable IN BROWSE BROWSE-2
+DO:  
+    DEFINE BUFFER buf-tteb FOR tteb.
+
+    DO iCounter = 1 TO ghBrowse2:NUM-COLUMNS:
+        ghColumn = ghBrowse2:GET-BROWSE-COLUMN(iCounter).
+        IF ghColumn:NAME = "lSelectable" AND ghColumn:SCREEN-VALUE = "YES"  THEN 
+            ghColumn:READ-ONLY = TRUE.
+        ELSE IF ghColumn:NAME = "Form-No" THEN 
+            ASSIGN giFormToCopy = INTEGER (ghColumn:SCREEN-VALUE). 
+        ELSE IF ghColumn:NAME = "Blank-No" THEN 
+            ASSIGN giBlankToCopy = INTEGER (ghColumn:SCREEN-VALUE).   
+        ELSE NEXT.
+    END.
+    
+    FIND FIRST buf-tteb NO-LOCK
+        WHERE buf-tteb.form-no EQ giFormToCopy
+        AND buf-tteb.blank-no EQ giBlankToCopy NO-ERROR.
+        
+    IF AVAILABLE buf-tteb THEN 
+        OPEN QUERY Browse-3 
+        FOR EACH tteb WHERE ROWID(tteb) NE  ROWID (buf-tteb)
+        NO-LOCK INDEXED-REPOSITION.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Copy */
@@ -259,8 +299,6 @@ END.
 &ANALYZE-RESUME
 
 
-
-&Scoped-define BROWSE-NAME BROWSE-2
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
@@ -278,7 +316,8 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   ghBrowse2 = Browse-2:HANDLE. 
+   ghBrowse2 = BROWSE Browse-2:HANDLE. 
+   ghBrowse3 = BROWSE Browse-3:HANDLE. 
    FOR EACH eb NO-LOCK 
       WHERE eb.est-no = ipcEstimateNo:
           CREATE tteb.
