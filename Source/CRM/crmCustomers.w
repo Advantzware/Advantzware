@@ -81,8 +81,8 @@ DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tgShowAddOnly svSelect crmAccounts btnApply ~
-btnReset btnSave btnCancel 
+&Scoped-Define ENABLED-OBJECTS tgShowAddOnly svSelect crmAccounts btnReset ~
+btnSave btnCancel 
 &Scoped-Define DISPLAYED-OBJECTS tgShowAddOnly svSelect svStatus 
 
 /* Custom List Definitions                                              */
@@ -100,25 +100,20 @@ btnReset btnSave btnCancel
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnApply 
-     IMAGE-UP FILE "CRM/images/apply.jpg":U
-     LABEL "&Apply" 
-     SIZE 4.4 BY 1 TOOLTIP "Apply Selected Actions".
-
 DEFINE BUTTON btnCancel AUTO-GO 
-     IMAGE-UP FILE "CRM/images/cancel.jpg":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
      LABEL "&Cancel" 
-     SIZE 4.4 BY 1 TOOLTIP "Cancel".
+     SIZE 8 BY 1.91 TOOLTIP "Cancel".
 
 DEFINE BUTTON btnReset 
-     IMAGE-UP FILE "CRM/images/reset.jpg":U
+     IMAGE-UP FILE "Graphics/32x32/refresh.png":U
      LABEL "&Reset" 
-     SIZE 4.4 BY 1 TOOLTIP "Reset".
+     SIZE 8 BY 1.9 TOOLTIP "Reset".
 
 DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "CRM/images/save.jpg":U
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U
      LABEL "&Save" 
-     SIZE 4.4 BY 1 TOOLTIP "Save Selected Actions".
+     SIZE 8 BY 1.9 TOOLTIP "Save Selected Actions".
 
 DEFINE VARIABLE svStatus AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
@@ -175,20 +170,18 @@ DEFINE FRAME Dialog-Frame
      tgShowAddOnly AT ROW 1 COL 116 WIDGET-ID 84
      svSelect AT ROW 1 COL 165.4 WIDGET-ID 2
      crmAccounts AT ROW 1.95 COL 2 WIDGET-ID 200
-     btnApply AT ROW 7.19 COL 128 HELP
-          "Apply Selected Actions" WIDGET-ID 76
-     btnReset AT ROW 7.19 COL 133 HELP
+     btnReset AT ROW 7.19 COL 118 HELP
           "Reset" WIDGET-ID 16
-     btnSave AT ROW 7.19 COL 138 HELP
+     btnSave AT ROW 7.19 COL 130.8 HELP
           "Save Selected Actions" WIDGET-ID 18
-     btnCancel AT ROW 7.19 COL 143 HELP
+     btnCancel AT ROW 7.19 COL 143.6 HELP
           "Cancel" WIDGET-ID 4
      svStatus AT ROW 7.19 COL 2 NO-LABEL WIDGET-ID 78
      "CRM Accounts" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 1.24 COL 26 WIDGET-ID 80
      "Advantzware Customers" VIEW-AS TEXT
           SIZE 24 BY .62 AT ROW 1.24 COL 213.6 WIDGET-ID 82
-     SPACE(28.40) SKIP(6.56)
+     SPACE(28.39) SKIP(7.32)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "CRM (Customers)" WIDGET-ID 100.
@@ -263,18 +256,6 @@ WHERE ttCRMCustomers.action EQ cAction OR cAction EQ "".
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* CRM (Customers) */
 DO:
     APPLY "END-ERROR":U TO SELF.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnApply
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnApply Dialog-Frame
-ON CHOOSE OF btnApply IN FRAME Dialog-Frame /* Apply */
-DO:
-    RUN pApplyCRM.
-    BROWSE crmAccounts:REFRESH() NO-ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -412,7 +393,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY tgShowAddOnly svSelect svStatus 
       WITH FRAME Dialog-Frame.
-  ENABLE tgShowAddOnly svSelect crmAccounts btnApply btnReset btnSave btnCancel 
+  ENABLE tgShowAddOnly svSelect crmAccounts btnReset btnSave btnCancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -464,11 +445,10 @@ PROCEDURE pGetCRM :
             ASSIGN
                 iHeight = 20 + iRows * 17
                 FRAME {&FRAME-NAME}:HEIGHT-PIXELS = 80 + iHeight
-                btnApply:Y  = BROWSE crmAccounts:Y + iHeight + 5
-                btnReset:Y  = btnApply:Y
-                btnSave:Y   = btnApply:Y
-                btnCancel:Y = btnApply:Y
-                svStatus:Y  = btnApply:Y
+                btnReset:Y  = BROWSE crmAccounts:Y + iHeight + 5
+                btnSave:Y   = btnReset:Y
+                btnCancel:Y = btnReset:Y
+                svStatus:Y  = btnReset:Y
                 .
             BROWSE crmAccounts:HEIGHT-PIXELS = iHeight.
         END. /* irows gt 5 */
