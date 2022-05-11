@@ -368,6 +368,7 @@ PROCEDURE pSave:
     
     FOR EACH ttCRMCustomers:
         IF ttCRMCustomers.saveAction EQ "" THEN NEXT.
+        IF ttCRMCustomers.tickerSymbol EQ "" THEN NEXT.
         IF ttCRMCustomers.saveAction EQ "Update" THEN
         FIND cust EXCLUSIVE-LOCK WHERE ROWID(cust) EQ ttCRMCustomers.xxCustRowID.
         ELSE DO:
