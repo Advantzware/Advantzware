@@ -35,6 +35,7 @@ DEFINE VARIABLE ghBrowse3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE ghQuery AS HANDLE NO-UNDO.
 DEFINE VARIABLE ghtteb AS HANDLE NO-UNDO.
 DEFINE VARIABLE iCounter AS INTEGER NO-UNDO.
+DEFINE VARIABLE iCountBlank AS INTEGER NO-UNDO.
 DEFINE VARIABLE ghColumn AS HANDLE NO-UNDO.
 DEFINE VARIABLE ghColumn2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE giFormCopyFrom AS INTEGER NO-UNDO.
@@ -317,12 +318,30 @@ END.
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Copy */
-DO:
-    IF TOGGLE-DIE:SCREEN-VALUE = "YES" THEN 
-
-       
-    IF TOGGLE-CAD:SCREEN-VALUE = "YES" THEN
- 
+DO: 
+    FIND FIRST buf-eb NO-LOCK  
+        WHERE  buf-eb.est-no EQ ipcEstimateNo
+          AND  buf-eb.form-no EQ giFormCopyFrom
+          AND  buf-eb.blank-no EQ giBlankCopyFrom NO-ERROR.
+    IF AVAILABLE buf-eb THEN 
+    DO:       
+        REPEAT iCountBlank = 1 TO NUM-ENTRIES(gcFormCopyTo):
+            FIND FIRST buf2-eb EXCLUSIVE-LOCK 
+                WHERE  buf2-eb.est-no EQ ipcEstimateNo
+                AND  buf2-eb.form-no EQ INTEGER (ENTRY (iCountBlank, gcFormCopyTo))
+                AND  buf2-eb.blank-no EQ INTEGER (ENTRY (iCountBlank, gcBlankCopyTo)) NO-ERROR.
+            IF AVAILABLE buf2-eb THEN 
+            DO:
+                IF TOGGLE-DIE:SCREEN-VALUE = "YES" THEN
+                ASSIGN buf2-eb.die-no = buf-eb.die-no.
+                
+                IF TOGGLE-CAD:SCREEN-VALUE = "YES" THEN
+                ASSIGN buf2-eb.cad-no = buf-eb.cad-no.
+            END. 
+        END. 
+    END.          
+    RELEASE buf-eb.
+    RELEASE buf2-eb.
 END.
 
 /* _UIB-CODE-BLOCK-END */
