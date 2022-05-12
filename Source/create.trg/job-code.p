@@ -15,6 +15,6 @@ DO WHILE TRUE:
     IF CAN-FIND(FIRST {&TABLENAME}
                 WHERE {&TABLENAME}.dmiID EQ iNextValue) THEN
     NEXT.
-    job-code.dmiID = NEXT-VALUE(jobCodeDMISeq).
+    job-code.dmiID = iNextValue.
     LEAVE.
 END. // do while
