@@ -4,19 +4,13 @@
 &Scoped-define FRAME-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
-
   File: 
-
   Description: 
-
   Input Parameters:
       <none>
-
   Output Parameters:
       <none>
-
   Author: 
-
   Created:
   
   Mod: Ticket - 103137 (Format Change for Order No. and Job No).
@@ -1851,4 +1845,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
