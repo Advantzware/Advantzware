@@ -37,8 +37,15 @@ DEFINE VARIABLE ghtteb AS HANDLE NO-UNDO.
 DEFINE VARIABLE iCounter AS INTEGER NO-UNDO.
 DEFINE VARIABLE ghColumn AS HANDLE NO-UNDO.
 DEFINE VARIABLE ghColumn2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE giFormToCopy AS INTEGER NO-UNDO.
-DEFINE VARIABLE giBlankToCopy AS INTEGER NO-UNDO.
+DEFINE VARIABLE giFormCopyFrom AS INTEGER NO-UNDO.
+DEFINE VARIABLE giBlankCopyFrom AS INTEGER NO-UNDO.
+DEFINE VARIABLE gcFormCopyTo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcBlankCopyTo AS CHARACTER NO-UNDO.
+
+DEFINE BUFFER buf-eb FOR eb.
+DEFINE BUFFER buf2-eb FOR eb.
+DEFINE BUFFER buf-ef FOR ef.
+DEFINE BUFFER buf2-ef FOR ef.
 
 DEFINE TEMP-TABLE tteb NO-UNDO 
                   LIKE eb
@@ -68,8 +75,8 @@ DEFINE TEMP-TABLE tteb NO-UNDO
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 tteb
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 tteb
 &Scoped-define SELF-NAME BROWSE-2
-&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH tteb       WHERE est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION
-&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH tteb       WHERE est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION.
+&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH tteb       WHERE tteb.est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION
+&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH tteb       WHERE tteb.est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-BROWSE-2 tteb
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 tteb
 
@@ -80,8 +87,8 @@ DEFINE TEMP-TABLE tteb NO-UNDO
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-3 tteb
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-3 tteb
 &Scoped-define SELF-NAME BROWSE-3
-&Scoped-define QUERY-STRING-BROWSE-3 FOR EACH tteb       WHERE est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION
-&Scoped-define OPEN-QUERY-BROWSE-3 OPEN QUERY {&SELF-NAME} FOR EACH tteb       WHERE est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION.
+&Scoped-define QUERY-STRING-BROWSE-3 FOR EACH tteb       WHERE tteb.est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION
+&Scoped-define OPEN-QUERY-BROWSE-3 OPEN QUERY {&SELF-NAME} FOR EACH tteb       WHERE tteb.est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-BROWSE-3 tteb
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-3 tteb
 
@@ -92,9 +99,9 @@ DEFINE TEMP-TABLE tteb NO-UNDO
     ~{&OPEN-QUERY-BROWSE-3}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BROWSE-2 BROWSE-3 TOGGLE-1 TOGGLE-2 Btn_OK ~
-Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS TOGGLE-1 TOGGLE-2 
+&Scoped-Define ENABLED-OBJECTS BROWSE-2 BROWSE-3 TOGGLE-DIE TOGGLE-CAD ~
+Btn_OK Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS TOGGLE-DIE TOGGLE-CAD 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -119,13 +126,13 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE VARIABLE TOGGLE-1 AS LOGICAL INITIAL no 
-     LABEL "Copy Die#" 
+DEFINE VARIABLE TOGGLE-CAD AS LOGICAL INITIAL no 
+     LABEL "Copy CAD#" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.2 BY .81 NO-UNDO.
 
-DEFINE VARIABLE TOGGLE-2 AS LOGICAL INITIAL no 
-     LABEL "Copy CAD#" 
+DEFINE VARIABLE TOGGLE-DIE AS LOGICAL INITIAL no 
+     LABEL "Copy Die#" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.2 BY .81 NO-UNDO.
 
@@ -171,8 +178,8 @@ DEFINE BROWSE BROWSE-3
 DEFINE FRAME Dialog-Frame
      BROWSE-2 AT ROW 2.91 COL 4 WIDGET-ID 200
      BROWSE-3 AT ROW 2.91 COL 84 WIDGET-ID 300
-     TOGGLE-1 AT ROW 10.52 COL 116 WIDGET-ID 6
-     TOGGLE-2 AT ROW 11.71 COL 116 WIDGET-ID 8
+     TOGGLE-DIE AT ROW 10.52 COL 116 WIDGET-ID 6
+     TOGGLE-CAD AT ROW 11.71 COL 116 WIDGET-ID 8
      Btn_OK AT ROW 13.38 COL 56
      Btn_Cancel AT ROW 13.38 COL 85
      "Copy From Item" VIEW-AS TEXT
@@ -255,7 +262,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &Scoped-define BROWSE-NAME BROWSE-2
 &Scoped-define SELF-NAME BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 Dialog-Frame
@@ -268,15 +274,15 @@ DO:
         IF ghColumn:NAME = "lSelectable" AND ghColumn:SCREEN-VALUE = "YES"  THEN 
             ghColumn:READ-ONLY = TRUE.
         ELSE IF ghColumn:NAME = "Form-No" THEN 
-            ASSIGN giFormToCopy = INTEGER (ghColumn:SCREEN-VALUE). 
+            ASSIGN giFormCopyFrom = INTEGER (ghColumn:SCREEN-VALUE). 
         ELSE IF ghColumn:NAME = "Blank-No" THEN 
-            ASSIGN giBlankToCopy = INTEGER (ghColumn:SCREEN-VALUE).   
+            ASSIGN giBlankCopyFrom = INTEGER (ghColumn:SCREEN-VALUE).   
         ELSE NEXT.
     END.
     
     FIND FIRST buf-tteb NO-LOCK
-        WHERE buf-tteb.form-no EQ giFormToCopy
-        AND buf-tteb.blank-no EQ giBlankToCopy NO-ERROR.
+        WHERE buf-tteb.form-no EQ giFormCopyFrom
+        AND buf-tteb.blank-no EQ giBlankCopyFrom NO-ERROR.
         
     IF AVAILABLE buf-tteb THEN 
         OPEN QUERY Browse-3 
@@ -287,18 +293,43 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME Btn_OK
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
-ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Copy */
+&Scoped-define BROWSE-NAME BROWSE-3
+&Scoped-define SELF-NAME BROWSE-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-3 Dialog-Frame
+ON VALUE-CHANGED OF lSelectable IN BROWSE BROWSE-3
 DO:
-    FIND FIRST tteb WHERE lSelectable = YES NO-LOCK NO-ERROR.
+    DO iCounter = 1 TO ghBrowse3:NUM-COLUMNS:
+        ghColumn2 = ghBrowse3:GET-BROWSE-COLUMN(iCounter).
+        IF ghColumn2:NAME = "Form-No" THEN 
+            ASSIGN gcFormCopyTo = gcFormCopyTo + "," + ghColumn2:SCREEN-VALUE. 
+        IF ghColumn2:NAME = "Blank-No" THEN 
+            ASSIGN gcBlankCopyTo = gcBlankCopyTo + "," + ghColumn2:SCREEN-VALUE.   
+    END.
+    ASSIGN gcFormCopyTo = TRIM(gcFormCopyTo, ",")
+           gcBlankCopyTo =  TRIM(gcBlankCopyTo, ",").
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
+
+&Scoped-define SELF-NAME Btn_OK
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
+ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Copy */
+DO:
+    IF TOGGLE-DIE:SCREEN-VALUE = "YES" THEN 
+
+       
+    IF TOGGLE-CAD:SCREEN-VALUE = "YES" THEN
+ 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define BROWSE-NAME BROWSE-2
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
@@ -362,9 +393,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY TOGGLE-1 TOGGLE-2 
+  DISPLAY TOGGLE-DIE TOGGLE-CAD 
       WITH FRAME Dialog-Frame.
-  ENABLE BROWSE-2 BROWSE-3 TOGGLE-1 TOGGLE-2 Btn_OK Btn_Cancel 
+  ENABLE BROWSE-2 BROWSE-3 TOGGLE-DIE TOGGLE-CAD Btn_OK Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
