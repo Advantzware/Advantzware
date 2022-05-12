@@ -3497,7 +3497,7 @@ PROCEDURE pDisplayFG PRIVATE :
         ASSIGN
             fg-rctd.std-cost:SCREEN-VALUE = IF glAverageCost THEN STRING(ipbf-itemfg.avg-cost) ELSE STRING(ipbf-itemfg.last-cost)
             fg-rctd.cost-uom:SCREEN-VALUE = ipbf-itemfg.prod-uom  .
-        IF NOT lUpdateRecords THEN
+        IF NOT lUpdateRecords AND INTEGER(fg-rctd.qty-case:SCREEN-VALUE) EQ 0 THEN
             fg-rctd.qty-case:SCREEN-VALUE = STRING(ipbf-itemfg.case-count) .  
     END.
     
