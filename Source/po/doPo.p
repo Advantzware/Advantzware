@@ -264,7 +264,7 @@ DEF VAR cScope AS CHAR NO-UNDO.
 DEF VAR lIncludeBlankVendor AS LOG NO-UNDO INITIAL TRUE.
 DEF VAR cMessage AS CHAR NO-UNDO.
 {system/VendorCostProcs.i}
-   
+    
     
 IF INDEX(PROGRAM-NAME(2),"add-po-best") GT 0 THEN
     v-po-best = YES.
@@ -851,7 +851,7 @@ PROCEDURE buildJobMat :
         RUN wJobFromBJobMat (INPUT ROWID(bf-job)).
 
     END.
-   
+
 
 END PROCEDURE.
 
@@ -1159,12 +1159,18 @@ PROCEDURE vendorSelector:
         WHERE ROWID(bf-job-mat) = ipRiJobMat NO-ERROR.
     
     IF AVAILABLE bf-job-mat THEN 
-        FOR FIRST job NO-LOCK 
-            WHERE job.company = bf-job-mat.company
-              AND job.job   = bf-job-mat.job:
-                  ASSIGN 
+    DO:
+        IF w-job-mat.est-no NE "" THEN 
+            ASSIGN cEstimateNo = w-job-mat.est-no.
+        ELSE 
+            FOR FIRST job NO-LOCK 
+                WHERE job.company = bf-job-mat.company
+                AND job.job   = bf-job-mat.job:
+                ASSIGN 
                     cEstimateNo = job.est-no.
-        END.
+            END.
+    END.
+        
     IF AVAILABLE bf-job-mat AND cEstimateNo <> "" THEN
     FOR EACH bf-ef NO-LOCK
         WHERE bf-ef.company EQ bf-job-mat.company
@@ -1174,7 +1180,7 @@ PROCEDURE vendorSelector:
                 cAdderList[iCount] = bf-ef.adder[iCount].
         END.
     END.
-              
+                  
     IF AVAIL bf-job-mat THEN 
         RUN system/vendorcostSelector.w(
             INPUT  bf-job-mat.company, //ipcCompany ,
