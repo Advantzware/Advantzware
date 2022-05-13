@@ -128,6 +128,7 @@ DEFINE            VARIABLE lValid              AS LOGICAL   NO-UNDO.
 
 DEFINE            VARIABLE hdOutboundProcs     AS HANDLE    NO-UNDO.
 DEFINE            VARIABLE hdInventoryProcs    AS HANDLE    NO-UNDO.
+DEFINE            VARIABLE cMultiPdfName       AS CHARACTER NO-UNDO.
 
 /* Procedure to prepare and execute API calls */
 RUN api/OutboundProcs.p        PERSISTENT SET hdOutboundProcs.
@@ -280,6 +281,10 @@ DEFINE TEMP-TABLE ediOutFile NO-UNDO
     FIELD trailer AS CHARACTER
     FIELD bolNo   AS INTEGER
     INDEX ediOutFile IS PRIMARY custNo bolNo carrier trailer.
+    
+DEFINE TEMP-TABLE tt-list
+    FIELD rec-row AS ROWID
+    FIELD BolNo AS INTEGER.    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3042,6 +3047,7 @@ PROCEDURE build-work :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ic2ndKey  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRowid  AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE reportKey10 AS LOGICAL NO-UNDO. /* 05291402 */
   
@@ -3058,6 +3064,7 @@ PROCEDURE build-work :
         AND oe-bolh.bol-date  LE v-e-date
         AND oe-bolh.printed EQ v-printed
         AND oe-bolh.posted  EQ tb_posted
+        AND (ROWID(oe-bolh) EQ TO-ROWID(ipcRowid) OR ipcRowid EQ "")
         AND CAN-FIND (FIRST oe-boll
         WHERE oe-boll.company EQ oe-bolh.company
         AND oe-boll.b-no    EQ oe-bolh.b-no
@@ -3691,7 +3698,8 @@ PROCEDURE GenerateMail :
         RUN run-report-mail (INPUT ic1stKey,
             INPUT ic2ndKey,
             INPUT iiMode,
-            INPUT YES).
+            INPUT YES,
+            "").
 
         IF NOT vcBOLNums GT '' THEN RETURN.
 
@@ -3729,7 +3737,8 @@ PROCEDURE GenerateMail :
         RUN run-report-mail (INPUT ic1stKey,
             INPUT ic2ndKey,
             INPUT iiMode,
-            INPUT YES).
+            INPUT YES,
+            "").
 
         IF NOT vcBOLNums GT '' THEN RETURN.
 
@@ -3967,6 +3976,7 @@ PROCEDURE output-to-mail :
     DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
     DEFINE INPUT PARAMETER ip-ship-id AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSplitPDF AS LOGICAL NO-UNDO.
 
     ASSIGN
         v-s-bol             = begin_bol#
@@ -4020,74 +4030,123 @@ PROCEDURE output-to-mail :
         AND b1-oe-boll.ord-no  GE v-s-ord
         AND b1-oe-boll.ord-no  LE v-e-ord)
         USE-INDEX post:
-
+            
         ASSIGN  
+            cMultiPdfName = ''
             vcBOLNums   = '' 
             lv-pdf-file = init-dir + '\BOL'
             vcMailMode  = IF tb_MailBatchMode THEN 'Customer1'  /* Silent Mode */
                                         ELSE 'Customer'.  /* Dialog Box */
-        /* XPrint */
-        IF is-xprint-form THEN 
+        EMPTY TEMP-TABLE tt-list.  
+              
+        RUN build-temp-table(b1-cust.cust-no). 
+        
+        IF b1-cust.emailPreference EQ 0 THEN
         DO:
-
-            RUN run-report-mail (INPUT b1-cust.cust-no,
-                INPUT '',
-                INPUT 1,
-                INPUT v-printed).
-
-            IF v-print-fmt = "SouthPak-XL" OR v-print-fmt = "Prystup-Excel" OR v-print-fmt = "Mclean-Excel"  THEN 
-            DO:
-                ASSIGN 
-                    lv-pdf-file = init-dir + "\bol" + ".pdf".
-            /* RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").  */
-            END.
-
-            ELSE 
-            DO:    
-                lv-pdf-file = lv-pdf-file + vcBOLNums + '.pdf'.
-                IF list-name NE ? AND
-                    list-name NE ''
-                    THEN RUN printPDF (list-name,   "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-                ELSE RUN printPDF (lv-pdf-file, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").  
-
-            /*          IF tb_posted AND lCopyPdfFile THEN DO:                                                                                      */
-            /*              IF rd-dest EQ 5 THEN DO:                                                                                                */
-            /*                  IF v-s-bol EQ v-e-bol THEN                                                                                          */
-            /*                      OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Bol_" + string(v-s-bol) + ".pdf").                            */
-            /*                  ELSE OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Bol_" + string(v-s-bol) + "_To_" + STRING(v-e-bol) + ".pdf").*/
-            /*              END.                                                                                                                    */
-            /*          END.                                                                                                                        */
-            END.
-
-            IF vcMailMode = 'Customer1' THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', b1-oe-bolh.ship-id). /* Silent Mode */
-            ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer', b1-oe-bolh.ship-id).  /* Dialog Box */
-
+            MESSAGE "Would you like print combined(yes) or Sparate(No) pdf for customer:" + b1-cust.cust-no
+                      VIEW-AS ALERT-BOX QUESTION 
+                      BUTTONS YES-NO UPDATE lcheckflg as logical .
+            IF lcheckflg THEN  lSplitPDF = NO. 
+            ELSE lSplitPDF = YES.
         END.
-
-        /* Not XPrint */
-        ELSE 
-        DO:
-
-            RUN run-report-mail (INPUT b1-cust.cust-no,
-                INPUT '',
-                INPUT 1,
-                INPUT v-printed).
-
-            IF NOT v-print-bol AND (v-coc-fmt EQ "Unipak-XL" OR v-coc-fmt EQ "PrystupXLS" OR v-coc-fmt EQ "CCC" OR v-coc-fmt EQ "CCCWPP" OR v-coc-fmt EQ "CCC3" OR v-coc-fmt EQ "CCC2" OR v-coc-fmt EQ "CCC4" OR v-coc-fmt EQ "CCC5" OR v-coc-fmt EQ "CCCEss" AND v-coc-fmt <> "CCCRev") THEN
+        ELSE IF b1-cust.emailPreference EQ 1 THEN
+        lSplitPDF = NO.
+        ELSE   lSplitPDF = YES. 
+        
+        IF lSplitPDF THEN 
+        do:
+        
+           FOR EACH tt-list:
+             
+              vcBOLNums = ''.
+              lv-pdf-file = init-dir + '\BOL'.
+              
+               RUN run-report-mail (INPUT b1-cust.cust-no,
+                    INPUT '',
+                    INPUT 1,
+                    INPUT v-printed,
+                    string(tt-list.rec-row)).
+                    
+                lv-pdf-file = init-dir + '\BOL' + vcBOLNums + '.pdf'.
+                cMultiPdfName = cMultiPdfName + lv-pdf-file + ",".                   
+                    IF list-name NE ? AND
+                        list-name NE ''
+                THEN RUN printPDF (list-name,   "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
+                ELSE RUN printPDF (lv-pdf-file, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22"). 
+                                
+           END.
+           IF vcMailMode = 'Customer1' THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', b1-oe-bolh.ship-id). /* Silent Mode */
+            ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer', b1-oe-bolh.ship-id).  /* Dialog Box */
+        
+        END.
+        
+        ELSE do:
+         
+            /* XPrint */
+            IF is-xprint-form THEN 
             DO:
-                lv-pdf-file = init-dir + "\cofc.pdf".
 
-                CASE vcMailMode:
-                    WHEN 'Customer1':U  THEN RUN send-mail-uni-xl(b1-cust.cust-no,'Customer1').
-                    WHEN 'Customer':U   THEN RUN send-mail-uni-xl(b1-cust.cust-no,'Customer'). 
-                END CASE.
+                RUN run-report-mail (INPUT b1-cust.cust-no,
+                    INPUT '',
+                    INPUT 1,
+                    INPUT v-printed,
+                    "").
+
+                IF v-print-fmt = "SouthPak-XL" OR v-print-fmt = "Prystup-Excel" OR v-print-fmt = "Mclean-Excel"  THEN 
+                DO:
+                    ASSIGN 
+                        lv-pdf-file = init-dir + "\bol" + ".pdf".
+                /* RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").  */
+                END.
+
+                ELSE 
+                DO:    
+                    lv-pdf-file = lv-pdf-file + vcBOLNums + '.pdf'.
+                    IF list-name NE ? AND
+                        list-name NE ''
+                        THEN RUN printPDF (list-name,   "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
+                    ELSE RUN printPDF (lv-pdf-file, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").  
+
+                /*          IF tb_posted AND lCopyPdfFile THEN DO:                                                                                      */
+                /*              IF rd-dest EQ 5 THEN DO:                                                                                                */
+                /*                  IF v-s-bol EQ v-e-bol THEN                                                                                          */
+                /*                      OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Bol_" + string(v-s-bol) + ".pdf").                            */
+                /*                  ELSE OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Bol_" + string(v-s-bol) + "_To_" + STRING(v-e-bol) + ".pdf").*/
+                /*              END.                                                                                                                    */
+                /*          END.                                                                                                                        */
+                END.
+
+                IF vcMailMode = 'Customer1' THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', b1-oe-bolh.ship-id). /* Silent Mode */
+                ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer', b1-oe-bolh.ship-id).  /* Dialog Box */
+
             END.
-            ELSE
-                CASE vcMailMode:
 
-                    WHEN 'Customer1':U  THEN RUN SendMail-2 (b1-cust.cust-no, 'Customer1').
-                    WHEN 'Customer':U   THEN RUN SendMail-2 (b1-cust.cust-no, 'Customer').
-                END CASE.
+            /* Not XPrint */
+            ELSE 
+            DO:
+
+                RUN run-report-mail (INPUT b1-cust.cust-no,
+                    INPUT '',
+                    INPUT 1,
+                    INPUT v-printed,
+                    "").
+
+                IF NOT v-print-bol AND (v-coc-fmt EQ "Unipak-XL" OR v-coc-fmt EQ "PrystupXLS" OR v-coc-fmt EQ "CCC" OR v-coc-fmt EQ "CCCWPP" OR v-coc-fmt EQ "CCC3" OR v-coc-fmt EQ "CCC2" OR v-coc-fmt EQ "CCC4" OR v-coc-fmt EQ "CCC5" OR v-coc-fmt EQ "CCCEss" AND v-coc-fmt <> "CCCRev") THEN
+                DO:
+                    lv-pdf-file = init-dir + "\cofc.pdf".
+
+                    CASE vcMailMode:
+                        WHEN 'Customer1':U  THEN RUN send-mail-uni-xl(b1-cust.cust-no,'Customer1').
+                        WHEN 'Customer':U   THEN RUN send-mail-uni-xl(b1-cust.cust-no,'Customer'). 
+                    END CASE.
+                END.
+                ELSE
+                    CASE vcMailMode:
+
+                        WHEN 'Customer1':U  THEN RUN SendMail-2 (b1-cust.cust-no, 'Customer1').
+                        WHEN 'Customer':U   THEN RUN SendMail-2 (b1-cust.cust-no, 'Customer').
+                    END CASE.
+            END.
         END.
     END. /* each cust */
 
@@ -5017,7 +5076,7 @@ PROCEDURE run-packing-list :
 
     v-term-id = v-term.
 
-    RUN build-work ('').
+    RUN build-work ('', '').
     FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
     IF NOT AVAILABLE report THEN LEAVE.
 
@@ -5228,7 +5287,7 @@ PROCEDURE run-report :
     v-term-id = v-term.
     /* If iplPdfONly, report records already created */
     IF NOT iplPdfOnly THEN 
-        RUN build-work ('').
+        RUN build-work ('','').
     ELSE 
     DO:
         FOR EACH report EXCLUSIVE-LOCK 
@@ -5734,6 +5793,7 @@ PROCEDURE run-report-mail :
     DEFINE INPUT PARAMETER ic2ndKey AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iiMode   AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER iLprinted AS LOG NO-UNDO.
+    DEFINE INPUT PARAMETER cRowid    AS CHARACTER NO-UNDO.
 
     {sys/form/r-top.i}
 
@@ -5782,7 +5842,7 @@ PROCEDURE run-report-mail :
 
     v-term-id = v-term.
 
-    RUN build-work (ic2ndKey).
+    RUN build-work (ic2ndKey,cRowid).
     FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
     IF NOT AVAILABLE report THEN LEAVE.
 
@@ -5939,7 +5999,7 @@ PROCEDURE SendMail-1 :
         vcMailBody = "Please review attached Bill of Lading(s) for BOL #: " + vcBOLNums.
 
     IF icShipId <> "" THEN icRecType = icRecType + "|" + icShipId. /* cust# + shipto */     
-
+        IF cMultiPdfName ne "" then lv-pdf-file = cMultiPdfName . 
     RUN custom/xpmail2.p   (INPUT   icRecType,
         INPUT   cBolCocEmail,
         INPUT   lv-pdf-file,
@@ -6226,6 +6286,51 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-temp-table C-Win 
+PROCEDURE build-temp-table :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+     DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+     DEFINE BUFFER bf-cust FOR cust.
+     DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
+     DEFINE BUFFER bf-oe-boll FOR oe-boll.
+     
+     FOR EACH bf-cust NO-LOCK
+        WHERE bf-cust.company EQ cocode
+        AND bf-cust.cust-no EQ ipcCustomer,
+
+        EACH bf-oe-bolh NO-LOCK
+        WHERE bf-oe-bolh.company EQ cocode
+        AND bf-oe-bolh.bol-no  GE v-s-bol
+        AND bf-oe-bolh.bol-no  LE v-e-bol
+        AND bf-oe-bolh.cust-no EQ bf-cust.cust-no
+        AND bf-oe-bolh.bol-date  GE v-s-date
+        AND bf-oe-bolh.bol-date  LE v-e-date
+        AND bf-oe-bolh.printed EQ v-printed
+        AND bf-oe-bolh.posted  EQ tb_posted
+        AND CAN-FIND (FIRST bf-oe-boll
+        WHERE bf-oe-boll.company EQ bf-oe-bolh.company
+        AND bf-oe-boll.b-no    EQ bf-oe-bolh.b-no
+        AND bf-oe-boll.ord-no  GE v-s-ord
+        AND bf-oe-boll.ord-no  LE v-e-ord)
+        USE-INDEX post:
+        
+            CREATE tt-list.
+            tt-list.rec-row = ROWID(bf-oe-bolh).
+            tt-list.BolNo = bf-oe-bolh.bol-no.        
+        END.
+                
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME    
+    
 
 /* ************************  Function Implementations ***************** */
 

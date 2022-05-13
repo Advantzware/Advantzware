@@ -505,7 +505,18 @@ PROCEDURE BatchMail :
             
             IF FIRST-OF (b2-cust.cust-no) THEN 
             DO:
-
+                IF b2-cust.emailPreference EQ 0 THEN
+                DO:
+                    MESSAGE "Would you like print combined(yes) or Sparate(No) pdf for customer:" + b2-cust.cust-no
+                              VIEW-AS ALERT-BOX QUESTION 
+                              BUTTONS YES-NO UPDATE lcheckflg as logical .
+                    IF lcheckflg THEN  tb_splitPDF = NO. 
+                    ELSE tb_splitPDF = YES.
+                END.
+                ELSE IF b2-cust.emailPreference EQ 1 THEN
+                tb_splitPDF = NO.
+                ELSE   tb_splitPDF = YES.
+                
                 ASSIGN  
                     vlSkipRec   = YES
                     vcBegCustNo = b1-{&head}2.cust-no
