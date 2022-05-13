@@ -42,6 +42,7 @@ DEFINE VARIABLE giFormCopyFrom AS INTEGER NO-UNDO.
 DEFINE VARIABLE giBlankCopyFrom AS INTEGER NO-UNDO.
 DEFINE VARIABLE gcFormCopyTo AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcBlankCopyTo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCopyFromSelected AS LOGICAL NO-UNDO INITIAL NO.
 
 DEFINE BUFFER buf-eb FOR eb.
 DEFINE BUFFER buf2-eb FOR eb.
@@ -101,8 +102,9 @@ DEFINE TEMP-TABLE tteb NO-UNDO
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS BROWSE-2 BROWSE-3 TOGGLE-DIE TOGGLE-CAD ~
-Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS TOGGLE-DIE TOGGLE-CAD 
+TOGGLE-Oth-Attributes Btn_OK Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS TOGGLE-DIE TOGGLE-CAD ~
+TOGGLE-Oth-Attributes 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -130,12 +132,17 @@ DEFINE BUTTON Btn_OK AUTO-GO
 DEFINE VARIABLE TOGGLE-CAD AS LOGICAL INITIAL no 
      LABEL "Copy CAD#" 
      VIEW-AS TOGGLE-BOX
-     SIZE 13.2 BY .81 NO-UNDO.
+     SIZE 15 BY .81 NO-UNDO.
 
 DEFINE VARIABLE TOGGLE-DIE AS LOGICAL INITIAL no 
      LABEL "Copy Die#" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.2 BY .81 NO-UNDO.
+
+DEFINE VARIABLE TOGGLE-Oth-Attributes AS LOGICAL INITIAL no 
+     LABEL "Copy Other Attributes" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 26 BY .81 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -179,8 +186,9 @@ DEFINE BROWSE BROWSE-3
 DEFINE FRAME Dialog-Frame
      BROWSE-2 AT ROW 2.91 COL 4 WIDGET-ID 200
      BROWSE-3 AT ROW 2.91 COL 84 WIDGET-ID 300
-     TOGGLE-DIE AT ROW 10.52 COL 116 WIDGET-ID 6
-     TOGGLE-CAD AT ROW 11.71 COL 116 WIDGET-ID 8
+     TOGGLE-DIE AT ROW 10.29 COL 71 WIDGET-ID 6
+     TOGGLE-CAD AT ROW 11.24 COL 71 WIDGET-ID 8
+     TOGGLE-Oth-Attributes AT ROW 12.29 COL 71 WIDGET-ID 10
      Btn_OK AT ROW 13.38 COL 56
      Btn_Cancel AT ROW 13.38 COL 85
      "Copy From Item" VIEW-AS TEXT
@@ -269,7 +277,7 @@ END.
 ON VALUE-CHANGED OF lSelectable IN BROWSE BROWSE-2
 DO:  
     DEFINE BUFFER buf-tteb FOR tteb.
-
+    ASSIGN lCopyFromSelected = YES.
     DO iCounter = 1 TO ghBrowse2:NUM-COLUMNS:
         ghColumn = ghBrowse2:GET-BROWSE-COLUMN(iCounter).
         IF ghColumn:NAME = "lSelectable" AND ghColumn:SCREEN-VALUE = "YES"  THEN 
@@ -319,29 +327,91 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Copy */
 DO: 
+    IF lCopyFromSelected EQ NO THEN 
+    DO:
+        MESSAGE "Please select Form or Blank from CopyFromItem"
+        VIEW-AS ALERT-BOX WARNING. 
+        
+        RETURN NO-APPLY.      
+    END.
+    
+    IF NUM-ENTRIES(gcFormCopyTo) EQ 0 THEN 
+    DO:
+        MESSAGE "Please select Form or Blank from CopyToItem(s)"
+        VIEW-AS ALERT-BOX WARNING. 
+        
+        RETURN NO-APPLY.      
+    END. 
+    
+    IF  TOGGLE-DIE:SCREEN-VALUE EQ "NO" 
+    AND TOGGLE-CAD:SCREEN-VALUE EQ "NO" THEN 
+    DO: 
+        IF TOGGLE-Oth-Attributes:SCREEN-VALUE EQ "YES" THEN 
+        MESSAGE "Other Attributes alone should not be selected, please select CAD and DIE as well."
+        VIEW-AS ALERT-BOX WARNING.
+        ELSE 
+        MESSAGE "Please select at least one DIE or CAD to copy"
+        VIEW-AS ALERT-BOX WARNING.
+        
+        RETURN NO-APPLY.
+    END.        
+     
     FIND FIRST buf-eb NO-LOCK  
         WHERE  buf-eb.est-no EQ ipcEstimateNo
           AND  buf-eb.form-no EQ giFormCopyFrom
           AND  buf-eb.blank-no EQ giBlankCopyFrom NO-ERROR.
-    IF AVAILABLE buf-eb THEN 
+          
+    FIND FIRST buf-ef NO-LOCK
+        WHERE buf-ef.est-no EQ ipcEstimateNo
+          AND buf-ef.form-no EQ giFormCopyFrom NO-ERROR. 
+                 
+    IF AVAILABLE buf-ef AND AVAILABLE buf-eb THEN 
     DO:       
         REPEAT iCountBlank = 1 TO NUM-ENTRIES(gcFormCopyTo):
             FIND FIRST buf2-eb EXCLUSIVE-LOCK 
                 WHERE  buf2-eb.est-no EQ ipcEstimateNo
-                AND  buf2-eb.form-no EQ INTEGER (ENTRY (iCountBlank, gcFormCopyTo))
-                AND  buf2-eb.blank-no EQ INTEGER (ENTRY (iCountBlank, gcBlankCopyTo)) NO-ERROR.
-            IF AVAILABLE buf2-eb THEN 
-            DO:
-                IF TOGGLE-DIE:SCREEN-VALUE = "YES" THEN
-                ASSIGN buf2-eb.die-no = buf-eb.die-no.
+                  AND  buf2-eb.form-no EQ INTEGER (ENTRY (iCountBlank, gcFormCopyTo))
+                  AND  buf2-eb.blank-no EQ INTEGER (ENTRY (iCountBlank, gcBlankCopyTo)) NO-ERROR.
                 
-                IF TOGGLE-CAD:SCREEN-VALUE = "YES" THEN
-                ASSIGN buf2-eb.cad-no = buf-eb.cad-no.
+            FIND FIRST buf2-ef EXCLUSIVE-LOCK 
+                WHERE  buf2-ef.est-no EQ ipcEstimateNo
+                  AND  buf2-ef.form-no EQ INTEGER (ENTRY (iCountBlank, gcFormCopyTo)) NO-ERROR.
+                    
+            IF AVAILABLE buf2-ef AND AVAILABLE buf2-eb  THEN 
+            DO:
+                IF TOGGLE-DIE:SCREEN-VALUE EQ "YES" THEN
+                    ASSIGN buf2-eb.die-no = buf-eb.die-no.
+                
+                IF TOGGLE-CAD:SCREEN-VALUE EQ "YES" THEN
+                    ASSIGN buf2-eb.cad-no = buf-eb.cad-no.
+                
+                IF TOGGLE-Oth-Attributes:SCREEN-VALUE EQ "YES" THEN
+                    ASSIGN buf2-eb.spc-no    = buf-eb.spc-no
+                           buf2-eb.upc-no    = buf-eb.upc-no
+                           buf2-eb.style     = buf-eb.style
+                           buf2-eb.len       = buf-eb.len
+                           buf2-eb.wid       = buf-eb.wid
+                           buf2-eb.dep       = buf-eb.dep
+                           buf2-eb.adhesive  = buf-eb.adhesive
+                           buf2-eb.dust      = buf-eb.dust
+                           buf2-eb.fpanel    = buf-eb.fpanel
+                           buf2-eb.lock      = buf-eb.lock
+                           buf2-eb.gluelap   = buf-eb.gluelap
+                           buf2-eb.k-len     = buf-eb.k-len
+                           buf2-eb.k-wid     = buf-eb.k-wid
+                           buf2-eb.tuck      = buf-eb.tuck
+                           buf2-eb.lin-in    = buf-eb.lin-in
+                           buf2-eb.t-wid     = buf-eb.t-wid
+                           buf2-eb.t-len     = buf-eb.t-len
+                           buf2-eb.t-sqin    = buf-eb.t-sqin
+                           buf2-ef.cad-image = buf-ef.cad-image.                  
             END. 
         END. 
     END.          
     RELEASE buf-eb.
     RELEASE buf2-eb.
+    RELEASE buf-ef.
+    RELEASE buf2-ef.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -412,9 +482,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY TOGGLE-DIE TOGGLE-CAD 
+  DISPLAY TOGGLE-DIE TOGGLE-CAD TOGGLE-Oth-Attributes 
       WITH FRAME Dialog-Frame.
-  ENABLE BROWSE-2 BROWSE-3 TOGGLE-DIE TOGGLE-CAD Btn_OK Btn_Cancel 
+  ENABLE BROWSE-2 BROWSE-3 TOGGLE-DIE TOGGLE-CAD TOGGLE-Oth-Attributes Btn_OK 
+         Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
