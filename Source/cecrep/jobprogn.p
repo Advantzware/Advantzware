@@ -467,7 +467,7 @@ do v-local-loop = 1 to v-local-copies:
             DELETE tt-formtext.
         END.
         lv-dtext = "".          
-        FOR EACH notes WHERE notes.rec_key = job.rec_key and
+        FOR EACH notes NO-LOCK WHERE notes.rec_key = job.rec_key and
                     notes.note_code = "PR" and
                     LOOKUP(notes.note_code,v-exc-depts) EQ 0 AND
                     (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0),
@@ -477,7 +477,7 @@ do v-local-loop = 1 to v-local-copies:
                            "  " +*/ notes.note_text + CHR(10).          
         END.
         IF AVAILABLE xoe-ordl THEN DO:
-            FOR EACH notes WHERE notes.rec_key = xoe-ordl.rec_key and
+            FOR EACH notes NO-LOCK WHERE notes.rec_key = xoe-ordl.rec_key and
                     notes.note_code = "PR" and
                     LOOKUP(notes.note_code,v-exc-depts) EQ 0 AND
                     (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0),
@@ -798,9 +798,9 @@ do v-local-loop = 1 to v-local-copies:
                v-prev-extent = 0
                v-prev-ext-gap = 0.
 
-        FOR EACH notes WHERE notes.rec_key = job.rec_key and
+        FOR EACH notes NO-LOCK WHERE notes.rec_key = job.rec_key and
                     (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0)
-                 NO-LOCK BY notes.note_code:
+                 BY notes.note_code:
             FIND FIRST dept WHERE dept.code = notes.note_code NO-LOCK NO-ERROR.
             IF v-prev-note-rec <> ? AND
                v-prev-note-rec <> RECID(notes) THEN v-prev-extent = v-prev-extent + k - v-prev-ext-gap.
@@ -835,7 +835,7 @@ do v-local-loop = 1 to v-local-copies:
             DELETE tt-formtext.
         END.
         lv-text = "".          
-        FOR EACH notes WHERE notes.rec_key = job.rec_key and
+        FOR EACH notes NO-LOCK WHERE notes.rec_key = job.rec_key and
                      notes.note_code NE "PR" AND notes.note_code NE "BM" AND
                     (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0) AND
                     LOOKUP(notes.note_code,v-exc-depts) EQ 0,
@@ -845,7 +845,7 @@ do v-local-loop = 1 to v-local-copies:
                          /*notes.note_title +*/  "  " + notes.note_text + CHR(10).          
         END.
         IF AVAILABLE xoe-ordl THEN DO:
-            FOR EACH notes WHERE notes.rec_key = xoe-ordl.rec_key and
+            FOR EACH notes NO-LOCK WHERE notes.rec_key = xoe-ordl.rec_key and
                      notes.note_code NE "PR" AND notes.note_code NE "BM" AND
                     (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0) AND
                     LOOKUP(notes.note_code,v-exc-depts) EQ 0,
@@ -870,7 +870,7 @@ do v-local-loop = 1 to v-local-copies:
         END.
         
         IF s-sample-required = TRUE THEN DO:
-            FIND FIRST reftable WHERE reftable.reftable = "cecrep/d-hughes.w"
+            FIND FIRST reftable NO-LOCK WHERE reftable.reftable = "cecrep/d-hughes.w"
                                   AND reftable.company  = cocode
                                   AND reftable.loc      = TRIM(job-hdr.job-no)
                                   AND reftable.code     = STRING(job-hdr.job-no2,"9999999999")
