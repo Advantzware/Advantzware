@@ -2434,6 +2434,8 @@ PROCEDURE local-update-record :
 /*      oe-boll.weight:READ-ONLY IN BROWSE {&browse-name} = yes */
 
   /* RUN calc-all-freight. */
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
+  RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
 
 END PROCEDURE.
 
