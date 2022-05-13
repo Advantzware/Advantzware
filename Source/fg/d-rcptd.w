@@ -1195,7 +1195,7 @@ DO:
         END.
       
   
-        IF glFGPOTag# AND fg-rctd.tag EQ "" THEN 
+        IF glFGPOTag# AND fg-rctd.tag:SCREEN-VALUE EQ "" THEN 
         DO:
             RUN get-next-tag (INPUT fg-rctd.i-no, OUTPUT v-next-tag).
             RUN create-loadtag (INPUT-OUTPUT v-next-tag, INPUT ROWID(fg-rctd)).
@@ -2167,7 +2167,7 @@ PROCEDURE create-from-po :
                 fg-rctd.qty-case
                 fg-rctd.cases-unit                 
                     WITH FRAME {&FRAME-NAME}.
-            IF glFGPOTag# AND fg-rctd.tag EQ "" THEN 
+            IF glFGPOTag# AND fg-rctd.tag:SCREEN-VALUE EQ "" THEN 
             DO:
                 RUN get-next-tag (INPUT fg-rctd.i-no, OUTPUT v-next-tag).
                 RUN create-loadtag (INPUT-OUTPUT v-next-tag, INPUT ROWID(fg-rctd)).
