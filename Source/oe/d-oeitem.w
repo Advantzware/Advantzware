@@ -7185,6 +7185,9 @@ PROCEDURE final-steps2 :
         IF NOT v-qty-mod THEN               
             RUN oe/job-qty.p (INPUT  ROWID(oe-ordl), 
                 OUTPUT v-qty-mod).
+        
+        IF v-qty-mod = FALSE AND oe-ordl.po-no-po = 0 THEN
+            ASSIGN v-qty-mod = TRUE.
 
         IF  oe-ord.est-no EQ "" OR          /* Est no on order is blank, or */
             (v-qty-mod AND                  /* qty changed on an existing estimate-based line */
