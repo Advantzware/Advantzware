@@ -932,7 +932,6 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
     DO:
         DEFINE VARIABLE hold-title AS CHARACTER NO-UNDO.
-  
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}.
@@ -975,7 +974,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             FOR EACH job-hdr 
                 WHERE job-hdr.company         EQ cocode
                 AND job-hdr.job-no            GE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
-                AND job-hdr.job-no            LE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job1:SCREEN-VALUE))
+                AND job-hdr.job-no            LE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
                 NO-LOCK :
                 /*  FIND FIRST cust WHERE cust.company EQ cocode 
                       AND cust.cust-no EQ job-hdr.cust-no NO-LOCK NO-ERROR.
@@ -1072,7 +1071,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             c-win:TITLE = hold-title.     
         END.
 
-        IF tb_corr THEN 
+        else IF tb_corr THEN 
         DO:
             /*lines-per-page = 0. ??? */
 
@@ -3346,7 +3345,7 @@ PROCEDURE pRunFormatValueChanged :
             OR lv-format-f = "PackRite"  OR lv-format-f = "Knight***" OR lv-format-f = "Wingate"
             OR lv-format-f = "Dee"       OR lv-format-f = "Rosmar" OR lv-format-f = "Carded" OR lv-format-f = "McLean" OR lv-format-f = "Carded2" OR lv-format-f = "Coburn")) OR
             (tb_corr AND (lv-format-c = "Trilakes" OR lv-format-c = "Axis" OR lv-format-c = "Trilakes2" OR lv-format-c = "Hughes" OR lv-format-c = "colonialPL" OR lv-format-c = "JobCardc 20" OR lv-format-c = "AtlanticBox"
-            OR lv-format-c = "PkgAtlanta" OR lv-format-c = "HoneyCell" OR lv-format-c = "AmCarton" OR lv-format-c = "PreCorr" OR lv-format-c = "Valley20" OR lv-format-c = "PExpress")) THEN
+            OR lv-format-c = "PkgAtlanta" OR lv-format-c = "Onducorr" OR lv-format-c = "HoneyCell" OR lv-format-c = "AmCarton" OR lv-format-c = "PreCorr" OR lv-format-c = "Valley20" OR lv-format-c = "PExpress")) THEN
             ASSIGN 
                 tb_prt-mch:SENSITIVE     = YES
                 tb_prt-shipto:SENSITIVE  = YES
@@ -3413,7 +3412,7 @@ PROCEDURE pRunFormatValueChanged :
         IF NOT tb_prt-set-header:SENSITIVE THEN
             tb_prt-set-header:SCREEN-VALUE = "no".
                    
-        IF tb_corr EQ YES AND LOOKUP(lv-format-c,"jobcardc 20,PreCorr,AmCarton,PkgAtlanta,AtlanticBox,Valley20,Delta10,HoneyCell,PExpress") > 0 THEN
+        IF tb_corr EQ YES AND LOOKUP(lv-format-c,"jobcardc 20,PreCorr,AmCarton,PkgAtlanta,AtlanticBox,Valley20,Delta10,HoneyCell,PExpress,Onducorr") > 0 THEN
             ASSIGN tb_fgimage:SENSITIVE      = NO
                 tb_fgimage:SCREEN-VALUE   = "yes" 
                 tb_box:SENSITIVE          = NO
@@ -3531,7 +3530,7 @@ PROCEDURE run-report :
     FOR EACH wrk-ink:
         DELETE wrk-ink.
     END.
-    
+
     system.SharedConfig:Instance:SetValue("JobTicket_SpecList", spec-list).
     system.SharedConfig:Instance:SetValue("JobTicket_PrintBoxDesign", STRING(tb_box)).
     system.SharedConfig:Instance:SetValue("JobTicket_PrintFGItemImage", STRING(tb_fgimage)).
@@ -3581,10 +3580,11 @@ PROCEDURE set-job-vars :
             tjob-no  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job1:SCREEN-VALUE))
             fjob-no2 = INT(begin_job2:SCREEN-VALUE)
             tjob-no2 = INT(end_job2:SCREEN-VALUE)
-            fjob-no  = fjob-no + STRING(fjob-no2,"999")
-            tjob-no  = tjob-no + STRING(tjob-no2,"999")
-            .                                                                           
+            fjob-no  = fjob-no + string(fjob-no2,"999")
+            tjob-no  = tjob-no + string(fjob-no2,"999")
+            .
     END.
+
 
 END PROCEDURE.
 

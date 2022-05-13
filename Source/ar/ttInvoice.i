@@ -71,9 +71,10 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD fax                         AS CHARACTER FORMAT "X(12)"      LABEL "Fax"
     FIELD country                     AS CHARACTER FORMAT "X(12)"      LABEL "Country"
     FIELD termsDesc                   AS CHARACTER FORMAT "X(30)"      LABEL "Terms Description"
-    FIELD frtPay                      AS CHARACTER FORMAT "X(3)"      LABEL "Freight Pay Code"
+    FIELD frtPay                      AS CHARACTER FORMAT "X(3)"       LABEL "Freight Pay Code"
     FIELD countryName                 AS CHARACTER FORMAT "X(30)"      LABEL "Country Name"
     FIELD currency                    AS CHARACTER FORMAT "X(3)"       LABEL "Currency Code"
+    FIELD isEDIOrder                  AS LOGICAL   FORMAT "yes/no"     LABEL "EDI Order"
     .
 DEFINE TEMP-TABLE ttInvLine NO-UNDO     
     FIELD invoiceID                AS INTEGER   FORMAT ">>>>>>>9"   LABEL "Invoice ID"
@@ -89,6 +90,8 @@ DEFINE TEMP-TABLE ttInvLine NO-UNDO
     FIELD pricePerEach             AS DECIMAL   FORMAT "->>,>>9.99" LABEL "Price Per Each"
     FIELD priceUOM                 AS CHARACTER FORMAT "x(8)"       LABEL "Price UOM"
     FIELD priceTotal               AS DECIMAL   FORMAT "->>,>>9.99" LABEL "Price Total"
+    FIELD ediPrice                 AS DECIMAL   FORMAT "->>,>>9.99" LABEL "EDI Price"
+    FIELD ediPriceUOM              AS CHARACTER FORMAT "x(8)"       LABEL "EDI Price UOM"
     FIELD customerPartID           AS CHARACTER FORMAT "x(15)"      LABEL "Customer Part ID"
     FIELD itemID                   AS CHARACTER FORMAT "x(15)"      LABEL "Item ID"
     FIELD itemName                 AS CHARACTER FORMAT "x(30)"      LABEL "Item Name"
