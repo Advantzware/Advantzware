@@ -25,6 +25,13 @@ PROCEDURE pApplyCRM:
             cPhone = REPLACE(cPhone,")","")
             cPhone = REPLACE(cPhone,"x","")
             cPhone = REPLACE(cPhone,".","")
+            .
+
+        /* If country begins with country code, trim the country code */
+        IF LENGTH(cPhone) GT 10 THEN
+            cPhone = SUBSTRING(cPhone, LENGTH(cPhone) - 9, 10).
+                            
+        ASSIGN    
             cAreaCode = IF ttCRMCustomers.crmPhone EQ "null" THEN "" ELSE SUBSTR(cPhone,1,3)
             cPhoneNo  = IF ttCRMCustomers.crmPhone EQ "null" THEN "" ELSE SUBSTR(cPhone,4,7)
             .
@@ -104,6 +111,7 @@ PROCEDURE pBuildCustomersHubSpot PRIVATE:
                 NEXT.
             
             CREATE ttCRMCustomers.
+            ttCRMCustomers.crmID      = joCustomer:GetJsonText("id") NO-ERROR.
             ttCRMCustomers.crmCity    = joProperties:GetJsonText("city") NO-ERROR.
             ttCRMCustomers.crmState   = joProperties:GetJsonText("state") NO-ERROR.
             ttCRMCustomers.crmName    = joProperties:GetJsonText("name") NO-ERROR.
@@ -254,6 +262,13 @@ PROCEDURE pHubspotCRM PRIVATE:
                 cPhone    = REPLACE(cPhone,")","")
                 cPhone    = REPLACE(cPhone,"x","")
                 cPhone    = REPLACE(cPhone,".","")
+                .
+            
+            /* If country begins with country code, trim the country code */
+            IF LENGTH(cPhone) GT 10 THEN
+                cPhone = SUBSTRING(cPhone, LENGTH(cPhone) - 9, 10).
+                
+            ASSIGN
                 cAreaCode = IF ttCRMCustomers.crmPhone EQ "null" THEN "null" ELSE SUBSTR(cPhone,1,3)
                 cPhoneNo  = IF ttCRMCustomers.crmPhone EQ "null" THEN "null" ELSE SUBSTR(cPhone,4,7)  
                 .
@@ -298,8 +313,62 @@ PROCEDURE pHubspotCRM PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pSave:
+    DEFINE VARIABLE cCRMCustomerID AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCustomerID    AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE hdOutboundProcs  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUser            AS CHARACTER NO-UNDO.
+    
+    RUN spGetSessionParam ("UserID", OUTPUT cUser).
+    
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    RUN spGetSettingByName("CRMCustomerID", OUTPUT cCRMCustomerID).
+    
+    EMPTY TEMP-TABLE ttCustomer.
+    
+    IF cCRMCustomerID EQ "Prompt" THEN DO:
+        FOR EACH ttCRMCustomers
+            WHERE ttCRMCustomers.saveAction EQ "Add"
+            USE-INDEX crmID:
+            RUN CRM/d-addCust.w (
+                INPUT  ttCRMCustomers.tickerSymbol,
+                INPUT  ttCRMCustomers.crmName,
+                INPUT  ttCRMCustomers.crmStreet,
+                INPUT  ttCRMCustomers.crmStreet2,
+                OUTPUT cCustomerID,
+                OUTPUT lValid
+                ).
+            IF lValid AND cCustomerID NE ttCRMCustomers.tickerSymbol THEN DO:
+                FIND FIRST ttCustomer 
+                     WHERE ttCustomer.customerID EQ cCustomerID
+                     NO-ERROR.
+                /* Prevent from updating the customerid for multiple records */
+                IF NOT AVAILABLE ttCustomer THEN DO:
+                    CREATE ttCustomer.
+                    ASSIGN
+                        ttCustomer.company       = ipcCompany
+                        ttCustomer.customerID    = cCustomerID            
+                        ttCustomer.crmCustomerID = ttCRMCustomers.crmID
+                        .
+                    
+                    ttCRMCustomers.tickerSymbol = cCustomerID.
+                END.
+                ELSE
+                    ttCRMCustomers.saveAction = "".
+            END.
+            
+            IF NOT lValid THEN
+                ttCRMCustomers.saveAction = "".
+        END.
+    END.
+    
     FOR EACH ttCRMCustomers:
         IF ttCRMCustomers.saveAction EQ "" THEN NEXT.
+        IF ttCRMCustomers.tickerSymbol EQ "" THEN NEXT.
         IF ttCRMCustomers.saveAction EQ "Update" THEN
         FIND cust EXCLUSIVE-LOCK WHERE ROWID(cust) EQ ttCRMCustomers.xxCustRowID.
         ELSE DO:
@@ -318,6 +387,23 @@ PROCEDURE pSave:
             .
         RELEASE cust.
     END. /* each ttCRMCustomers */
+    
+    IF TEMP-TABLE ttCustomer:HAS-RECORDS THEN DO:
+        RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+            INPUT  ipcCompany,                             /* Company Code (Mandatory) */
+            INPUT  "",                                     /* Location Code (Mandatory) */
+            INPUT  "SendCustomers",                        /* API ID (Mandatory) */
+            INPUT  "",                                     /* Scope ID */
+            INPUT  "",                                     /* Scope Type */
+            INPUT  "CRMUpdate",                            /* Trigger ID (Mandatory) */
+            INPUT  "TTCustomerHandle",                     /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(TEMP-TABLE ttCustomer:HANDLE),   /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cUser,                                  /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  "Update CRM customers",                 /* Event's description (Optional) */
+            OUTPUT lSuccess,                               /* Success/Failure flag */
+            OUTPUT cMessage                                /* Status message */
+            ) NO-ERROR.
+    END.
 END PROCEDURE.
 
 PROCEDURE pXML:

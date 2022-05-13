@@ -2,6 +2,21 @@
 /*  cecrep/jobprogn.p  factory ticket  for Hughes landscape */
 /* -------------------------------------------------------------------------- */
 /* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
+
+FUNCTION fIsDuplicateNote RETURNS LOGICAL PRIVATE
+    (ipriNotes AS ROWID , ipcRecKey AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:  Wrapper for Notes procs
+ Notes:
+------------------------------------------------------------------------------*/    
+
+RETURN DYNAMIC-FUNCTION("fNotes_IsDuplicateNote", ipriNotes, ipcRecKey).
+
+
+        
+END FUNCTION.
+
+
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 def input parameter v-format as char.
@@ -452,7 +467,7 @@ do v-local-loop = 1 to v-local-copies:
             DELETE tt-formtext.
         END.
         lv-dtext = "".          
-        FOR EACH notes WHERE notes.rec_key = job.rec_key and
+        FOR EACH notes NO-LOCK WHERE notes.rec_key = job.rec_key and
                     notes.note_code = "PR" and
                     LOOKUP(notes.note_code,v-exc-depts) EQ 0 AND
                     (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0),
@@ -461,7 +476,18 @@ do v-local-loop = 1 to v-local-copies:
             lv-dtext = lv-dtext + /*"<B>" + caps(dept.dscr) + ":</B>" + CHR(10) + 
                            "  " +*/ notes.note_text + CHR(10).          
         END.
-                
+        IF AVAILABLE xoe-ordl THEN DO:
+            FOR EACH notes NO-LOCK WHERE notes.rec_key = xoe-ordl.rec_key and
+                    notes.note_code = "PR" and
+                    LOOKUP(notes.note_code,v-exc-depts) EQ 0 AND
+                    (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0),
+            FIRST dept WHERE dept.code = notes.note_code NO-LOCK 
+                       BY notes.note_code:  
+                IF NOT fIsDuplicateNote (ROWID(notes), job.rec_key) THEN
+                    lv-dtext = lv-dtext + /*"<B>" + caps(dept.dscr) + ":</B>" + CHR(10) + 
+                           "  " +*/ notes.note_text + CHR(10).          
+            END.
+        END.
         DO li = 1 TO 42:
           CREATE tt-formtext.
               ASSIGN tt-line-no = li
@@ -509,7 +535,6 @@ do v-local-loop = 1 to v-local-copies:
 
         v-form-sqft = round(if v-corr then (v-form-len * v-form-wid * .007)
                                        else (v-form-len * v-form-wid / 144),3).
-
         FIND FIRST b-itemfg WHERE b-itemfg.company = itemfg.company AND b-itemfg.i-no = xeb.stock-no
                 NO-LOCK NO-ERROR.
         find first xxprep where xxprep.company eq cocode
@@ -773,9 +798,9 @@ do v-local-loop = 1 to v-local-copies:
                v-prev-extent = 0
                v-prev-ext-gap = 0.
 
-        FOR EACH notes WHERE notes.rec_key = job.rec_key and
+        FOR EACH notes NO-LOCK WHERE notes.rec_key = job.rec_key and
                     (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0)
-                 NO-LOCK BY notes.note_code:
+                 BY notes.note_code:
             FIND FIRST dept WHERE dept.code = notes.note_code NO-LOCK NO-ERROR.
             IF v-prev-note-rec <> ? AND
                v-prev-note-rec <> RECID(notes) THEN v-prev-extent = v-prev-extent + k - v-prev-ext-gap.
@@ -810,7 +835,7 @@ do v-local-loop = 1 to v-local-copies:
             DELETE tt-formtext.
         END.
         lv-text = "".          
-        FOR EACH notes WHERE notes.rec_key = job.rec_key and
+        FOR EACH notes NO-LOCK WHERE notes.rec_key = job.rec_key and
                      notes.note_code NE "PR" AND notes.note_code NE "BM" AND
                     (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0) AND
                     LOOKUP(notes.note_code,v-exc-depts) EQ 0,
@@ -818,6 +843,18 @@ do v-local-loop = 1 to v-local-copies:
                        BY notes.note_code:  
             lv-text = lv-text + "<B>" + caps(dept.dscr) + ":</B>" + CHR(10) + 
                          /*notes.note_title +*/  "  " + notes.note_text + CHR(10).          
+        END.
+        IF AVAILABLE xoe-ordl THEN DO:
+            FOR EACH notes NO-LOCK WHERE notes.rec_key = xoe-ordl.rec_key and
+                     notes.note_code NE "PR" AND notes.note_code NE "BM" AND
+                    (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0) AND
+                    LOOKUP(notes.note_code,v-exc-depts) EQ 0,
+            FIRST dept WHERE dept.code = notes.note_code NO-LOCK 
+                       BY notes.note_code:  
+                IF NOT fIsDuplicateNote (ROWID(notes), job.rec_key) THEN
+                    lv-text = lv-text + "<B>" + caps(dept.dscr) + ":</B>" + CHR(10) + 
+                         /*notes.note_title +*/  "  " + notes.note_text + CHR(10).          
+            END.
         END.
         DO li = 1 TO 42:
           CREATE tt-formtext.
@@ -833,7 +870,7 @@ do v-local-loop = 1 to v-local-copies:
         END.
         
         IF s-sample-required = TRUE THEN DO:
-            FIND FIRST reftable WHERE reftable.reftable = "cecrep/d-hughes.w"
+            FIND FIRST reftable NO-LOCK WHERE reftable.reftable = "cecrep/d-hughes.w"
                                   AND reftable.company  = cocode
                                   AND reftable.loc      = TRIM(job-hdr.job-no)
                                   AND reftable.code     = STRING(job-hdr.job-no2,"9999999999")
@@ -962,6 +999,14 @@ do v-local-loop = 1 to v-local-copies:
                          AND (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0)
                          AND notes.note_code = "BN" NO-LOCK:
                   lv-text = lv-text + " " + TRIM(notes.note_text) + CHR(10).
+            END.
+            IF AVAILABLE xoe-ordl THEN DO:
+                FOR EACH notes WHERE notes.rec_key = xoe-ordl.rec_key
+                         AND (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0)
+                         AND notes.note_code = "BN" NO-LOCK:
+                  IF NOT fIsDuplicateNote (ROWID(notes), job.rec_key) THEN
+                    lv-text = lv-text + " " + TRIM(notes.note_text) + CHR(10).
+                END.
             END.
             DO li = 1 TO 2:
                CREATE tt-formtext.
@@ -1357,9 +1402,17 @@ do v-local-loop = 1 to v-local-copies:
                 DELETE tt-formtext.
              END.    
              lv-text = "".
+             
              FOR EACH notes NO-LOCK WHERE notes.rec_key = job.rec_key
                                       AND notes.note_code = "BM":
                  lv-text = lv-text + " " + TRIM(notes.note_text) + CHR(10).
+             END.
+             IF AVAILABLE xoe-ordl THEN DO:
+                FOR EACH notes NO-LOCK WHERE notes.rec_key = xoe-ordl.rec_key
+                                      AND notes.note_code = "BM":
+                    IF NOT fIsDuplicateNote (ROWID(notes), job.rec_key) THEN 
+                        lv-text = lv-text + " " + TRIM(notes.note_text) + CHR(10).
+                END.
              END.
              FOR EACH notes NO-LOCK WHERE notes.rec_key = itemfg.rec_key
                                       AND notes.note_code = "BM":
@@ -1544,3 +1597,7 @@ do v-local-loop = 1 to v-local-copies:
         hide all no-pause.
 
 /* end ---------------------------------- copr. 1997  advanced software, inc. */
+
+
+
+

@@ -3,6 +3,7 @@
 DEFINE TEMP-TABLE ttCRMCustomers NO-UNDO
     {aoa/tempTable/ttFields.i}
     FIELD tickerSymbol  AS CHARACTER LABEL "CRM Ticker"    FORMAT "x(8)"
+    FIELD crmID         AS CHARACTER LABEL "CRM Unique ID" FORMAT "X(50)"
     FIELD crmName       AS CHARACTER LABEL "CRM Name"      FORMAT "x(30)"
     FIELD crmPhone      AS CHARACTER LABEL "CRM Phone"     FORMAT "x(20)"
     FIELD crmStreet     AS CHARACTER LABEL "CRM Street"    FORMAT "x(30)"
@@ -30,5 +31,6 @@ DEFINE TEMP-TABLE ttCRMCustomers NO-UNDO
     FIELD origCode      AS CHARACTER LABEL "Orig Code"     FORMAT "x(10)"
     FIELD xxApplyAction AS LOGICAL   LABEL "=>"
     FIELD xxCustRowID   AS ROWID
-        INDEX ttCRMCustomers IS PRIMARY tickerSymbol
-        .
+    INDEX ttCRMCustomers IS PRIMARY tickerSymbol
+    INDEX crmID crmID         
+    .
