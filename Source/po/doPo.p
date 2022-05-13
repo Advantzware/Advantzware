@@ -261,7 +261,7 @@ DEFINE TEMP-TABLE tt-eiv NO-UNDO
     INDEX vend-no company i-no      vend-no.
 
 DEF VAR cScope AS CHAR NO-UNDO.
-DEF VAR lIncludeBlankVendor AS LOG NO-UNDO INITIAL TRUE.
+DEF VAR lIncludeBlankVendor AS LOG NO-UNDO INITIAL FALSE.
 DEF VAR cMessage AS CHAR NO-UNDO.
 {system/VendorCostProcs.i}
     
@@ -273,17 +273,7 @@ IF INDEX(PROGRAM-NAME(2),"w-purord") GT 0
     OR INDEX(PROGRAM-NAME(3),"w-purord") GT 0
     OR INDEX(PROGRAM-NAME(4),"w-purord") GT 0 THEN
     ASSIGN v-from-po-entry     = TRUE.
-    
-    
-IF INDEX(PROGRAM-NAME(2),"b-po-inq.w") GT 0
-    OR INDEX(PROGRAM-NAME(3),"b-po-inq.w") GT 0
-    OR INDEX(PROGRAM-NAME(4),"b-po-inq.w") GT 0
-    OR INDEX(PROGRAM-NAME(2),"ordfrest.p") GT 0
-    OR INDEX(PROGRAM-NAME(3),"ordfrest.p") GT 0
-    OR INDEX(PROGRAM-NAME(4),"ordfrest.p") GT 0
-     THEN
-     ASSIGN lIncludeBlankVendor = FALSE. //Blank Vendor is not a valid vendor for PO
-            
+                
 {fg/fullset.i NEW}
 
 {sys/ref/pocost.i}
@@ -1181,7 +1171,7 @@ PROCEDURE vendorSelector:
         END.
     END.
                   
-    IF AVAIL bf-job-mat THEN 
+    IF AVAIL bf-job-mat THEN
         RUN system/vendorcostSelector.w(
             INPUT  bf-job-mat.company, //ipcCompany ,
             INPUT  bf-job-mat.i-no ,
@@ -1303,7 +1293,7 @@ PROCEDURE calcCostSetup :
   
         ASSIGN
             bf-po-ordl.cost      = v-item-cost
-            bf-po-ordl.setup     = v-setup     
+            bf-po-ordl.setup     = v-setup-cost     
             bf-po-ordl.vend-i-no = v-vend-item.
         /* Uncomment below to implement vendor UOM per matrix */
         /* IF v-vendor-chosen-report EQ ? THEN */
