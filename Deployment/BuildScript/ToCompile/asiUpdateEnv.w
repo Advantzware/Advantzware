@@ -3915,7 +3915,6 @@ PROCEDURE ipDataFix999999 :
     RUN ipDeleteAudit.
     RUN ipRefTableConv.
     RUN util/dAOAFormatUpdate.p.
-    RUN ipDeleteAudit.
 
     
 END PROCEDURE.
@@ -5398,6 +5397,8 @@ PROCEDURE ipLoadEmailCodes :
             CREATE {&tablename}.
             BUFFER-COPY tt{&tablename} TO {&tablename}.
         END.
+        ELSE IF {&tablename}.emailTo EQ "" THEN ASSIGN 
+            {&tablename}.emailTo = tt{&tablename}.emailTo.        
     END.
     INPUT CLOSE.
         
