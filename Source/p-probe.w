@@ -79,7 +79,8 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Cancel Btn-Delete btn-item ~
-btn-view btn-print btn-quote btn-imp-price btn-copy btn-whatif 
+btn-view btn-print btn-quote btn-imp-price btn-copy btn-whatif ~
+btn-edit-quantities 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -101,12 +102,16 @@ DEFINE BUTTON Btn-Cancel
 
 DEFINE BUTTON btn-copy 
      LABEL "&Copy" 
-     SIZE 12 BY 1.29.
+     SIZE 10 BY 1.29.
 
 DEFINE BUTTON Btn-Delete 
      LABEL "&Delete" 
      SIZE 9 BY 1.29
      FONT 4.
+
+DEFINE BUTTON btn-edit-quantities 
+     LABEL "Edit Quantities" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-imp-price 
      LABEL "I&mport Price" 
@@ -114,7 +119,7 @@ DEFINE BUTTON btn-imp-price
 
 DEFINE BUTTON btn-item 
      LABEL "&Item" 
-     SIZE 12 BY 1.29.
+     SIZE 9 BY 1.29.
 
 DEFINE BUTTON btn-print 
      LABEL "&Hard Copy" 
@@ -131,7 +136,7 @@ DEFINE BUTTON Btn-Save
 
 DEFINE BUTTON btn-view 
      LABEL "&View" 
-     SIZE 13 BY 1.29.
+     SIZE 9 BY 1.29.
 
 DEFINE BUTTON btn-whatif 
      LABEL "Ca&lculate" 
@@ -139,7 +144,7 @@ DEFINE BUTTON btn-whatif
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 120 BY 1.76.
+     SIZE 123 BY 1.91.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -149,12 +154,13 @@ DEFINE FRAME Panel-Frame
      Btn-Cancel AT ROW 1.24 COL 11
      Btn-Delete AT ROW 1.24 COL 20
      btn-item AT ROW 1.24 COL 29
-     btn-view AT ROW 1.24 COL 41
-     btn-print AT ROW 1.24 COL 54
-     btn-quote AT ROW 1.24 COL 67
-     btn-imp-price AT ROW 1.24 COL 79
-     btn-copy AT ROW 1.24 COL 94
-     btn-whatif AT ROW 1.24 COL 106
+     btn-view AT ROW 1.24 COL 38.4
+     btn-print AT ROW 1.24 COL 47.4
+     btn-quote AT ROW 1.24 COL 60.6
+     btn-imp-price AT ROW 1.24 COL 72.6
+     btn-copy AT ROW 1.24 COL 87.6
+     btn-whatif AT ROW 1.24 COL 97.6
+     btn-edit-quantities AT ROW 1.24 COL 107.4 WIDGET-ID 2
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -189,7 +195,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW C-WIn ASSIGN
          HEIGHT             = 2.05
-         WIDTH              = 121.
+         WIDTH              = 123.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -313,6 +319,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btn-edit-quantities
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-edit-quantities C-WIn
+ON CHOOSE OF btn-edit-quantities IN FRAME Panel-Frame /* Edit Quantities */
+DO:
+    RUN est/getqty.w.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &Scoped-define SELF-NAME btn-imp-price
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-imp-price C-WIn
 ON CHOOSE OF btn-imp-price IN FRAME Panel-Frame /* Import Price */
@@ -383,7 +401,7 @@ END.
 
 &Scoped-define SELF-NAME btn-quote
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-quote C-WIn
-ON CHOOSE OF btn-quote IN FRAME Panel-Frame /* Quote */
+ON CHOOSE OF btn-quote IN FRAME Panel-Frame /* + Quote */
 DO:
   DO WITH FRAME Panel-Frame:
      def var source-str as cha no-undo.
