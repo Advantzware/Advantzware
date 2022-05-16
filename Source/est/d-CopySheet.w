@@ -459,8 +459,9 @@ DO:
                                 ASSIGN cBoxDesign = "B".
                             ELSE 
                                 ASSIGN cBoxDesign = "N".
-                        END. 
-                        RUN pBuildBox (cBoxDesign).            
+                        END.
+                        IF TOGGLE-RecalcBoxDesign:SCREEN-VALUE EQ "YES" THEN 
+                            RUN pBuildBox (cBoxDesign).            
                     END.                
                 END. 
             END. 
@@ -684,7 +685,7 @@ IF AVAILABLE  style THEN
                             box-design-line.wcum-score = w-box-design-line.wcum-score-c.
             END.
         END. /*if ipcBoxDesign ne "N"*/
- /*
+
         IF ipcBoxDesign NE "B" AND ipcBoxDesign NE "N" THEN 
         DO: 
             FIND FIRST ttBoxDesignHdr NO-ERROR.
@@ -704,19 +705,17 @@ IF AVAILABLE  style THEN
                 FOR EACH ttBoxDesignLine OF box-design-hdr,
                     FIRST box-design-line OF ttBoxDesignHdr:
         
-                    IF ipcBoxDesign EQ "S" THEN
-                        ASSIGN box-design-line.line-no   = ttBoxDesignLine.line-no
-                               box-design-line.line-text = ttBoxDesignLine.line-text.
-                    ELSE
+                    IF ipcBoxDesign NE "S" THEN
                         ASSIGN box-design-line.wscore     = ttBoxDesignLine.wscore
                                box-design-line.wcum-score = ttBoxDesignLine.wcum-score.
                 END.
             END. 
-        END. */
+        END. 
     END.
 
 END PROCEDURE.
 	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
