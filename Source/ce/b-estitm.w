@@ -3235,7 +3235,7 @@ DEF VAR prev-board LIKE ef.board NO-UNDO.
 
 DEF BUFFER bf FOR ef.
 DEF BUFFER bf-est FOR est.
-
+DEFINE BUFFER bf-eb FOR eb.
 
 FIND bf-est WHERE RECID(bf-est) = ip-recid.
 
@@ -3245,6 +3245,9 @@ IF bf-est.est-type NE 2 THEN
 DO:
     bf-est.est-type = 4.
     RUN pReSetEstQty(rowid(est-qty)). 
+    FOR EACH bf-eb OF bf-est:  
+      RUN set-yld-qty (ROWID(bf-eb)).
+    END.
 END.
            
 FIND LAST bf 
