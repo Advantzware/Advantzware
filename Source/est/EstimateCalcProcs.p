@@ -3968,7 +3968,9 @@ PROCEDURE pProcessOperations PRIVATE:
                 INPUT-OUTPUT dQtyInOutSetupWaste, INPUT-OUTPUT dQtyInOutRunWaste).
                 
         END.
-        RUN pCalcEstOperation(BUFFER ipbf-estCostHeader, BUFFER bf-estCostOperation, BUFFER ipbf-estCostForm).  
+        RUN pCalcEstOperation(BUFFER ipbf-estCostHeader, BUFFER bf-estCostOperation, BUFFER ipbf-estCostForm).
+        FIND CURRENT ipbf-estCostHeader EXCLUSIVE-LOCK.
+        IF AVAILABLE ipbf-estCostHeader THEN  
             ASSIGN ipbf-estCostHeader.hoursRun   = ipbf-estCostHeader.hoursRun + bf-estCostOperation.hoursRun
                    ipbf-estCostHeader.hoursSetup = ipbf-estCostHeader.hoursSetup + bf-estCostOperation.hoursSetup.                             
     END.
