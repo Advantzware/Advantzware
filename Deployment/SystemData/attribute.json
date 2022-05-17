@@ -1,5 +1,257 @@
 [
   {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "BOLDate",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137139809197501"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "TotalPallets",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137139809197502"
+  },
+  {
+    "dbFieldName": "addr",
+    "dbFieldExtent": 1,
+    "attributeName": "InvoiceAddress1",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137139809197503"
+  },
+  {
+    "dbFieldName": "addr",
+    "dbFieldExtent": 2,
+    "attributeName": "InvoiceAddress2",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137139809197504"
+  },
+  {
+    "dbFieldName": "bill-i",
+    "dbFieldExtent": 1,
+    "attributeName": "BillingInstruction1",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137139809197505"
+  },
+  {
+    "dbFieldName": "bill-i",
+    "dbFieldExtent": 2,
+    "attributeName": "BillingInstruction2",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137139809197506"
+  },
+  {
+    "dbFieldName": "bill-i",
+    "dbFieldExtent": 3,
+    "attributeName": "BillingInstruction3",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137139809197507"
+  },
+  {
+    "dbFieldName": "bill-i",
+    "dbFieldExtent": 4,
+    "attributeName": "BillingInstruction4",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137139809197508"
+  },
+  {
+    "dbFieldName": "city",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceCity",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137139809197510"
+  },
+  {
+    "dbFieldName": "cust-name",
+    "dbFieldExtent": 0,
+    "attributeName": "CustomerName",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205120485309196702"
+  },
+  {
+    "dbFieldName": "f-bill",
+    "dbFieldExtent": 0,
+    "attributeName": "BillFreight",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137140209197512"
+  },
+  {
+    "dbFieldName": "fob-code",
+    "dbFieldExtent": 0,
+    "attributeName": "FOB",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137140209197513"
+  },
+  {
+    "dbFieldName": "gross",
+    "dbFieldExtent": 0,
+    "attributeName": "TotalInvoicedRevenue",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205165678809197897"
+  },
+  {
+    "dbFieldName": "inv-date",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceDate",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137140209197514"
+  },
+  {
+    "dbFieldName": "inv-no",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceID",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137140209197515"
+  },
+  {
+    "dbFieldName": "sold-addr",
+    "dbFieldExtent": 1,
+    "attributeName": "InvoiceShipToAddress1",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137140209197519"
+  },
+  {
+    "dbFieldName": "sold-addr",
+    "dbFieldExtent": 2,
+    "attributeName": "InvoiceShipToAddress2",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137140209197520"
+  },
+  {
+    "dbFieldName": "sold-city",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceShipToCity",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137140209197521"
+  },
+  {
+    "dbFieldName": "sold-name",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceShipToName",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137140209197522"
+  },
+  {
+    "dbFieldName": "sold-state",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceShipToState",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137140209197523"
+  },
+  {
+    "dbFieldName": "sold-zip",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceShipToZip",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137140209197524"
+  },
+  {
+    "dbFieldName": "state",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceState",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137140209197525"
+  },
+  {
+    "dbFieldName": "terms-d",
+    "dbFieldExtent": 0,
+    "attributeName": "Terms",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137140209197527"
+  },
+  {
+    "dbFieldName": "zip",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceZip",
+    "dbTableName": "ar-inv",
+    "rec_key": "202205137140209197528"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLinePricePerUOM",
+    "dbTableName": "ar-invl",
+    "rec_key": "202205137148509197529"
+  },
+  {
+    "dbFieldName": "amt",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLineTotalPrice",
+    "dbTableName": "ar-invl",
+    "rec_key": "202205137148509197540"
+  },
+  {
+    "dbFieldName": "i-dscr",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLinePartDescription1",
+    "dbTableName": "ar-invl",
+    "rec_key": "202205137148509197534"
+  },
+  {
+    "dbFieldName": "i-name",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLineItemName",
+    "dbTableName": "ar-invl",
+    "rec_key": "202205137148509197530"
+  },
+  {
+    "dbFieldName": "i-no",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLineItemID",
+    "dbTableName": "ar-invl",
+    "rec_key": "202205137148509197531"
+  },
+  {
+    "dbFieldName": "inv-qty",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLineInvoicedQuantity",
+    "dbTableName": "ar-invl",
+    "rec_key": "202205137148509197532"
+  },
+  {
+    "dbFieldName": "ord-no",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLineOrderID",
+    "dbTableName": "ar-invl",
+    "rec_key": "202205137148509197533"
+  },
+  {
+    "dbFieldName": "part-dscr2",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLinePartDescription2",
+    "dbTableName": "ar-invl",
+    "rec_key": "202205137148509197535"
+  },
+  {
+    "dbFieldName": "part-no",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLinePartNo",
+    "dbTableName": "ar-invl",
+    "rec_key": "202205137148509197536"
+  },
+  {
+    "dbFieldName": "pr-uom",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLinePurchasedUOM",
+    "dbTableName": "ar-invl",
+    "rec_key": "202205137148509197537"
+  },
+  {
+    "dbFieldName": "qty",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLineOrderedQuantity",
+    "dbTableName": "ar-invl",
+    "rec_key": "202205137148509197538"
+  },
+  {
+    "dbFieldName": "ship-qty",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLineShipQuantity",
+    "dbTableName": "ar-invl",
+    "rec_key": "202205137148509197539"
+  },
+  {
     "dbFieldName": "description",
     "dbFieldExtent": 0,
     "attributeName": "BoxDesignDescription",
@@ -68,6 +320,20 @@
     "attributeName": "AreaCode",
     "dbTableName": "cust",
     "rec_key": "202204216182209192233"
+  },
+  {
+    "dbFieldName": "contact",
+    "dbFieldExtent": 0,
+    "attributeName": "CustomerContact",
+    "dbTableName": "cust",
+    "rec_key": "202205120685809196735"
+  },
+  {
+    "dbFieldName": "curr-code",
+    "dbFieldExtent": 0,
+    "attributeName": "CurrencyCode",
+    "dbTableName": "cust",
+    "rec_key": "202205105770009196085"
   },
   {
     "dbFieldName": "cust-no",
@@ -3302,6 +3568,307 @@
     "attributeName": "Speed",
     "dbTableName": "estCostOperation",
     "rec_key": "202111190040508130723"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "BOLDate",
+    "dbTableName": "inv-head",
+    "rec_key": "202205124509409196763"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "TotalPallets",
+    "dbTableName": "inv-head",
+    "rec_key": "202205124438209196761"
+  },
+  {
+    "dbFieldName": "addr",
+    "dbFieldExtent": 1,
+    "attributeName": "InvoiceAddress1",
+    "dbTableName": "inv-head",
+    "rec_key": "202205120488909196703"
+  },
+  {
+    "dbFieldName": "addr",
+    "dbFieldExtent": 2,
+    "attributeName": "InvoiceAddress2",
+    "dbTableName": "inv-head",
+    "rec_key": "202205120489409196704"
+  },
+  {
+    "dbFieldName": "bill-i",
+    "dbFieldExtent": 1,
+    "attributeName": "BillingInstruction1",
+    "dbTableName": "inv-head",
+    "rec_key": "202205127667409196907"
+  },
+  {
+    "dbFieldName": "bill-i",
+    "dbFieldExtent": 2,
+    "attributeName": "BillingInstruction2",
+    "dbTableName": "inv-head",
+    "rec_key": "202205127668009196908"
+  },
+  {
+    "dbFieldName": "bill-i",
+    "dbFieldExtent": 3,
+    "attributeName": "BillingInstruction3",
+    "dbTableName": "inv-head",
+    "rec_key": "202205127668709196909"
+  },
+  {
+    "dbFieldName": "bill-i",
+    "dbFieldExtent": 4,
+    "attributeName": "BillingInstruction4",
+    "dbTableName": "inv-head",
+    "rec_key": "202205127696909196910"
+  },
+  {
+    "dbFieldName": "bol-no",
+    "dbFieldExtent": 0,
+    "attributeName": "BOLID",
+    "dbTableName": "inv-head",
+    "rec_key": "202205124678509196780"
+  },
+  {
+    "dbFieldName": "city",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceCity",
+    "dbTableName": "inv-head",
+    "rec_key": "202205120499409196705"
+  },
+  {
+    "dbFieldName": "cust-name",
+    "dbFieldExtent": 0,
+    "attributeName": "CustomerName",
+    "dbTableName": "inv-head",
+    "rec_key": "202205120484109196701"
+  },
+  {
+    "dbFieldName": "f-bill",
+    "dbFieldExtent": 0,
+    "attributeName": "BillFreight",
+    "dbTableName": "inv-head",
+    "rec_key": "202205126465509196897"
+  },
+  {
+    "dbFieldName": "fob-code",
+    "dbFieldExtent": 0,
+    "attributeName": "FOB",
+    "dbTableName": "inv-head",
+    "rec_key": "202205124549309196768"
+  },
+  {
+    "dbFieldName": "inv-date",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceDate",
+    "dbTableName": "inv-head",
+    "rec_key": "202205120720609196737"
+  },
+  {
+    "dbFieldName": "inv-no",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceID",
+    "dbTableName": "inv-head",
+    "rec_key": "202205120657209196733"
+  },
+  {
+    "dbFieldName": "sman",
+    "dbFieldExtent": 1,
+    "attributeName": "SalesPerson1",
+    "dbTableName": "inv-head",
+    "rec_key": "202205124669409196776"
+  },
+  {
+    "dbFieldName": "sman",
+    "dbFieldExtent": 2,
+    "attributeName": "SalesPerson2",
+    "dbTableName": "inv-head",
+    "rec_key": "202205124670109196777"
+  },
+  {
+    "dbFieldName": "sman",
+    "dbFieldExtent": 3,
+    "attributeName": "SalesPerson3",
+    "dbTableName": "inv-head",
+    "rec_key": "202205124670709196778"
+  },
+  {
+    "dbFieldName": "sold-addr",
+    "dbFieldExtent": 1,
+    "attributeName": "InvoiceShipToAddress1",
+    "dbTableName": "inv-head",
+    "rec_key": "202205120533209196712"
+  },
+  {
+    "dbFieldName": "sold-addr",
+    "dbFieldExtent": 2,
+    "attributeName": "InvoiceShipToAddress2",
+    "dbTableName": "inv-head",
+    "rec_key": "202205120533909196713"
+  },
+  {
+    "dbFieldName": "sold-city",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceShipToCity",
+    "dbTableName": "inv-head",
+    "rec_key": "202205120535809196714"
+  },
+  {
+    "dbFieldName": "sold-name",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceShipToName",
+    "dbTableName": "inv-head",
+    "rec_key": "202205120530309196711"
+  },
+  {
+    "dbFieldName": "sold-state",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceShipToState",
+    "dbTableName": "inv-head",
+    "rec_key": "202205120536409196715"
+  },
+  {
+    "dbFieldName": "sold-zip",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceShipToZip",
+    "dbTableName": "inv-head",
+    "rec_key": "202205120537109196716"
+  },
+  {
+    "dbFieldName": "state",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceState",
+    "dbTableName": "inv-head",
+    "rec_key": "202205120500209196706"
+  },
+  {
+    "dbFieldName": "t-inv-rev",
+    "dbFieldExtent": 0,
+    "attributeName": "TotalInvoicedRevenue",
+    "dbTableName": "inv-head",
+    "rec_key": "202205126487309196901"
+  },
+  {
+    "dbFieldName": "terms-d",
+    "dbFieldExtent": 0,
+    "attributeName": "Terms",
+    "dbTableName": "inv-head",
+    "rec_key": "202205124567809196769"
+  },
+  {
+    "dbFieldName": "zip",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceZip",
+    "dbTableName": "inv-head",
+    "rec_key": "202205120501009196707"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLinePricePerUOM",
+    "dbTableName": "inv-line",
+    "rec_key": "202205126162609196827"
+  },
+  {
+    "dbFieldName": "i-name",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLineItemName",
+    "dbTableName": "inv-line",
+    "rec_key": "202205126118509196819"
+  },
+  {
+    "dbFieldName": "i-no",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLineItemID",
+    "dbTableName": "inv-line",
+    "rec_key": "202205126117609196818"
+  },
+  {
+    "dbFieldName": "inv-qty",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLineInvoicedQuantity",
+    "dbTableName": "inv-line",
+    "rec_key": "202205126071209196813"
+  },
+  {
+    "dbFieldName": "ord-no",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLineOrderID",
+    "dbTableName": "inv-line",
+    "rec_key": "202205126072709196814"
+  },
+  {
+    "dbFieldName": "part-dscr1",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLinePartDescription1",
+    "dbTableName": "inv-line",
+    "rec_key": "202205126240909196872"
+  },
+  {
+    "dbFieldName": "part-dscr2",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLinePartDescription2",
+    "dbTableName": "inv-line",
+    "rec_key": "202205126241709196873"
+  },
+  {
+    "dbFieldName": "part-no",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLinePartNo",
+    "dbTableName": "inv-line",
+    "rec_key": "202205126239309196871"
+  },
+  {
+    "dbFieldName": "pr-uom",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLinePurchasedUOM",
+    "dbTableName": "inv-line",
+    "rec_key": "202205126143309196824"
+  },
+  {
+    "dbFieldName": "qty",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLineOrderedQuantity",
+    "dbTableName": "inv-line",
+    "rec_key": "202205125971809196800"
+  },
+  {
+    "dbFieldName": "ship-qty",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLineShipQuantity",
+    "dbTableName": "inv-line",
+    "rec_key": "202205126056309196812"
+  },
+  {
+    "dbFieldName": "t-price",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceLineTotalPrice",
+    "dbTableName": "inv-line",
+    "rec_key": "202205126137209196823"
+  },
+  {
+    "dbFieldName": "amt",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceMiscAmount",
+    "dbTableName": "inv-misc",
+    "rec_key": "202205126350909196885"
+  },
+  {
+    "dbFieldName": "charge",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceMiscCharge",
+    "dbTableName": "inv-misc",
+    "rec_key": "202205126348609196883"
+  },
+  {
+    "dbFieldName": "dscr",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceMiscDescription",
+    "dbTableName": "inv-misc",
+    "rec_key": "202205126349909196884"
   },
   {
     "dbFieldName": "box-case",

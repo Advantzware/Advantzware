@@ -486,7 +486,7 @@ ELSE DO:
             lcPageHeader = oAttribute:ReplaceAttributes(lcPageHeader, BUFFER carrier:HANDLE).
             lcPageHeader = oAttribute:ReplaceAttributes(lcPageHeader, BUFFER est:HANDLE).
             
-            RUN pInsertPageHeaderFooter (INPUT-OUTPUT lcQuoteHeader, INPUT lcPageHeader, INPUT lcPageFooter).
+            RUN pInsertPageHeaderFooter (INPUT iNumLinesInPage, INPUT-OUTPUT lcQuoteHeader, INPUT lcPageHeader, INPUT lcPageFooter).
             
             lcConcatQuoteHeader = lcConcatQuoteHeader + lcQuoteHeader. 
             
@@ -701,46 +701,3 @@ PROCEDURE pGetRequestData:
         oplcRequestData = REPLACE(oplcRequestData, "$" + ipcDetailID + "Footer" + "$", lcFooter).
     END.    
 END PROCEDURE.
-
-PROCEDURE pInsertPageHeaderFooter:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT-OUTPUT  PARAMETER ioplcRequestData AS LONGCHAR NO-UNDO.
-    DEFINE INPUT         PARAMETER iplcHeader       AS LONGCHAR NO-UNDO.
-    DEFINE INPUT         PARAMETER iplcFooter       AS LONGCHAR NO-UNDO.
-    
-    DEFINE VARIABLE iLineCount     AS INTEGER  NO-UNDO.
-    DEFINE VARIABLE iIndex         AS INTEGER  NO-UNDO.
-    DEFINE VARIABLE lcData         AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE iLastIndex     AS INTEGER  NO-UNDO INITIAL 1.
-    DEFINE VARIABLE lcRequestData1 AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcRequestData2 AS LONGCHAR NO-UNDO.
-    
-    DO WHILE ioplcRequestData MATCHES "*" + "$PageSeparator$" + "*":
-        iIndex = INDEX (ioplcRequestData, "$PageSeparator$").
-        IF iIndex LE 0 THEN
-            LEAVE.
-            
-        lcData = SUBSTRING(ioplcRequestData, iLastIndex, iIndex - iLastIndex - 1).
-        
-        lcData = ENTRY(NUM-ENTRIES(lcData, CHR(12)), lcData, CHR(12)).
-        
-        iLineCount = NUM-ENTRIES (lcData, CHR(10)).
-
-        lcRequestData1 = SUBSTRING(ioplcRequestData, 1, iIndex - 1).
-        lcRequestData2 = SUBSTRING(ioplcRequestData, iIndex + LENGTH("$PageSeparator$")).
-        
-        IF iLineCount GE iNumLinesInPage THEN
-            ASSIGN
-                ioplcRequestData = lcRequestData1 + iplcFooter + iplcHeader + lcRequestData2
-                iLastIndex       = iIndex + LENGTH("$PageSeparator$")
-                .
-        ELSE
-            ioplcRequestData = lcRequestData1 + lcRequestData2.
-        
-        RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
-    END. 
-END PROCEDURE.
-        
