@@ -182,6 +182,20 @@
     "rec_key": "202205137148509197540"
   },
   {
+    "dbFieldName": "amt",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceMiscAmount",
+    "dbTableName": "ar-invl",
+    "rec_key": "202205184212009198568"
+  },
+  {
+    "dbFieldName": "dscr",
+    "dbFieldExtent": 1,
+    "attributeName": "InvoiceMiscDescription",
+    "dbTableName": "ar-invl",
+    "rec_key": "202205184219409198570"
+  },
+  {
     "dbFieldName": "i-dscr",
     "dbFieldExtent": 0,
     "attributeName": "InvoiceLinePartDescription1",
@@ -201,6 +215,13 @@
     "attributeName": "InvoiceLineItemID",
     "dbTableName": "ar-invl",
     "rec_key": "202205137148509197531"
+  },
+  {
+    "dbFieldName": "i-no",
+    "dbFieldExtent": 0,
+    "attributeName": "InvoiceMiscCharge",
+    "dbTableName": "ar-invl",
+    "rec_key": "202205184217609198569"
   },
   {
     "dbFieldName": "inv-qty",
