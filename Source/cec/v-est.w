@@ -3783,7 +3783,7 @@ PROCEDURE local-display-fields :
           phandle = WIDGET-HANDLE(ENTRY(iCount, cWidgethandles)).
           IF VALID-HANDLE(phandle) AND LOOKUP("DisablePOScores", pHandle:INTERNAL-ENTRIES) GT 0 THEN
           do: 
-              IF dTotalScoreAllowance NE 0 THEN
+              IF dTotalScoreAllowance NE 0 AND bf-style.formula[20] NE "" THEN
               RUN EnablePOScores IN pHandle NO-ERROR.
               ELSE
               RUN DisablePOScores IN pHandle NO-ERROR.
