@@ -772,6 +772,7 @@ DO:
    DEFINE VARIABLE lError    AS LOGICAL NO-UNDO.
    DEFINE VARIABLE cAddInfo  AS CHARACTER NO-UNDO.
    DEFINE VARIABLE cCheckField AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE lTagHasAlphas AS LOG NO-UNDO.
    
    DO WITH FRAME {&FRAME-NAME}:
 
@@ -800,23 +801,19 @@ DO:
                RETURN NO-APPLY.
             END.
             
-/*         DO i = 1 TO LENGTH(scr-vend-tag:SCREEN-VALUE):                                                                         */
-/*             cCheckField =  DYNAMIC-FUNCTION('sfCommon_CheckIntDecValue', substring(scr-vend-tag:SCREEN-VALUE,i,1)) .           */
-/*             IF cCheckField EQ ?  THEN                                                                                          */
-/*             DO:                                                                                                                */
-/*                MESSAGE "User Field  - Vendor tag is invalid:" + scr-vend-tag:SCREEN-VALUE  + ", Please enter numerical number."*/
-/*                    VIEW-AS ALERT-BOX ERROR .                                                                                   */
-/*                RETURN NO-APPLY.                                                                                                */
-/*             END.                                                                                                               */
-/*         END.                                                                                                                   */
-                           
+         DO i = 1 TO LENGTH(scr-vend-tag:SCREEN-VALUE):
+             cCheckField =  DYNAMIC-FUNCTION('sfCommon_CheckIntDecValue', substring(scr-vend-tag:SCREEN-VALUE,i,1)) .
+             IF cCheckField EQ ?  THEN ASSIGN 
+                lTagHasAlphas = TRUE.
+         END.
+
          RUN edDocSearch (OUTPUT lEdDocFound).
          IF lEdDocFound THEN DO:
              RUN poSearch(OUTPUT lContinue, lError).
          END. 
          ELSE DO: 
-             IF  ASC(SUBSTRING(scr-vend-tag,1,1)) GT 47 
-             AND ASC(SUBSTRING(scr-vend-tag,1,1)) LT 58 THEN
+             
+             IF NOT lTagHasAlphas THEN
                 RUN addon/rm/vendorTagParse.p(INPUT scr-vend-tag,
                                           OUTPUT v-po-no,
                                           OUTPUT v-po-line,
@@ -856,6 +853,7 @@ DO:
                  IF NOT lError AND (SSPostFGVT-log OR SSPostFGVT-log EQ ?) THEN 
                  lContinue = NO.
              END.    
+             IF lTagHasAlphas THEN RETURN.
              IF NOT lContinue THEN DO:
                  APPLY "entry" TO SELF.
                  RETURN NO-APPLY.
