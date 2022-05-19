@@ -974,7 +974,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             FOR EACH job-hdr 
                 WHERE job-hdr.company         EQ cocode
                 AND job-hdr.job-no            GE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
-                AND job-hdr.job-no            LE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1:SCREEN-VALUE))
+                AND job-hdr.job-no            LE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job1:SCREEN-VALUE))
                 NO-LOCK :
                 /*  FIND FIRST cust WHERE cust.company EQ cocode 
                       AND cust.cust-no EQ job-hdr.cust-no NO-LOCK NO-ERROR.
@@ -3581,7 +3581,7 @@ PROCEDURE set-job-vars :
             fjob-no2 = INT(begin_job2:SCREEN-VALUE)
             tjob-no2 = INT(end_job2:SCREEN-VALUE)
             fjob-no  = fjob-no + string(fjob-no2,"999")
-            tjob-no  = tjob-no + string(fjob-no2,"999")
+            tjob-no  = tjob-no + string(tjob-no2,"999")
             .
     END.
 
