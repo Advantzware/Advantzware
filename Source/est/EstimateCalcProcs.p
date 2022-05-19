@@ -246,72 +246,82 @@ PROCEDURE ChangeSellPrice:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriProbe AS ROWID NO-UNDO.
     
-    DEFINE BUFFER bf-EstCostDetail FOR EstCostDetail.
-    DEFINE BUFFER bf-EstCostForm FOR EstCostForm.
-
     DEFINE VARIABLE dQtyInM         AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dPriceDiffRatio AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dNewPrice       AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dProfitChange   AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dCommission     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iEstCostHeaderID AS INT64.
     
     FIND probe NO-LOCK 
         WHERE ROWID(probe) EQ ipriProbe
         NO-ERROR.
-
     IF AVAILABLE probe THEN
         FIND FIRST EstCostHeader NO-LOCK 
             WHERE EstCostHeader.estCostHeaderID EQ INT64(probe.spare-char-2)
             NO-ERROR.
     IF AVAILABLE EstCostHeader THEN 
     DO:
+        ASSIGN iEstCostHeaderID = EstCostHeader.estCostHeaderID.
+    END.    
+    /* Copy DB record to Temp-Table */
+    RUN pCopyDBToTempTables(iEstCostHeaderID).
+    
+    FIND FIRST ttEstCostHeader NO-LOCK 
+         WHERE ttEstCostHeader.estCostHeaderID EQ iEstCostHeaderID. 
+    IF AVAILABLE ttEstCostHeader THEN  
+    DO:    
         ASSIGN 
-            dQtyInM         = EstCostHeader.quantityMaster / 1000
-            dPriceDiffRatio = ROUND(probe.sell-price,2) / ROUND(EstCostHeader.sellPrice / dQtyInM, 2)
+            dQtyInM         = ttEstCostHeader.quantityMaster / 1000
+            dPriceDiffRatio = ROUND(probe.sell-price,2) / ROUND(ttEstCostHeader.sellPrice / dQtyInM, 2)
             .
         IF dPriceDiffRatio NE 1 THEN 
-        DO:
+        DO:            
             /*Remove all existing estCostDetails for commission and profit*/
-            RUN pPurgeCostDetailDB(EstCostHeader.estCostHeaderID, "commission").
-            RUN pPurgeCostDetailDB(EstCostHeader.estCostHeaderID, "pProfit").
+            RUN pPurgeCostDetail(ttEstCostHeader.estCostHeaderID, "commission").
+            RUN pPurgeCostDetail(ttEstCostHeader.estCostHeaderID, "pProfit").
             /*Reset the summary totals on the header, form, and items*/
-            RUN pResetCostTotalsDB(EstCostHeader.estCostHeaderID).          
-            FOR EACH bf-EstCostForm NO-LOCK
-                WHERE bf-EstCostForm.estCostHeaderID EQ EstCostHeader.estCostHeaderID,
-                FIRST EstCostBlank NO-LOCK 
-                WHERE EstCostBlank.estCostHeaderID EQ EstCostHeader.estCostHeaderID
-                  AND EstCostBlank.estCostFormID EQ bf-EstCostForm.estCostFormID,
-                FIRST EstCostItem NO-LOCK 
-                WHERE EstCostItem.estCostHeaderID EQ EstCostHeader.estCostHeaderID
-                  AND EstCostItem.estCostItemID EQ EstCostBlank.estCostItemID:
+            RUN pResetCostTotals(ttEstCostHeader.estCostHeaderID).          
+            FOR EACH ttEstCostForm NO-LOCK
+                WHERE ttEstCostForm.estCostHeaderID EQ ttEstCostHeader.estCostHeaderID,
+                FIRST ttEstCostBlank NO-LOCK 
+                WHERE ttEstCostBlank.estCostHeaderID EQ ttEstCostHeader.estCostHeaderID
+                  AND ttEstCostBlank.estCostFormID EQ ttEstCostForm.estCostFormID,
+                FIRST ttEstCostItem NO-LOCK 
+                WHERE ttEstCostItem.estCostHeaderID EQ ttEstCostHeader.estCostHeaderID
+                  AND ttEstCostItem.estCostItemID EQ ttEstCostBlank.estCostItemID:
                 
                 /*Calculate new Price for form and commisson*/
                 ASSIGN 
-                    dNewPrice   = ROUND(bf-EstCostForm.sellPrice * dPriceDiffRatio, 2)
-                    dCommission = dNewPrice * EstCostItem.commissionPct / 100
-                    .
+                    dNewPrice   = ROUND(ttEstCostForm.sellPrice * dPriceDiffRatio, 2)
+                    dCommission = dNewPrice * ttEstCostItem.commissionPct / 100
+                    .   
                 
                 /*Recalculate Totals for Form*/    
-                RUN pCalcCostTotalsDB(EstCostHeader.estCostHeaderID, bf-EstCostForm.estCostFormID, YES).  
+                RUN pCalcCostTotals(ttEstCostHeader.estCostHeaderID, ttEstCostForm.estCostFormID, YES). 
                 
                 /*Add New Commission Cost*/
-                RUN pAddCostDetailDB(bf-EstCostForm.estCostHeaderID, bf-EstCostForm.estCostFormID, "" , bf-EstCostForm.estCostFormID,
-                    gcSourceTypeNonFactory,"commission","Commission", dCommission, 0, bf-EstCostForm.company, bf-EstCostForm.estimateNo, BUFFER bf-EstCostDetail).
+                RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, "" , ttEstCostForm.estCostFormID,
+                    gcSourceTypeNonFactory,"commission","Commission", dCommission, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER ttEstCostDetail).
                 /*Recalculate Cost Totals to get a new TotalFullCost*/
-                RUN pCalcCostTotalsDB(EstCostHeader.estCostHeaderID, bf-EstCostForm.estCostFormID, NO).
+                RUN pCalcCostTotals(ttEstCostHeader.estCostHeaderID, ttEstCostForm.estCostFormID, NO).
                 
                 /*Add New Profit based on new Full Cost and New Price*/
-                RUN pAddCostDetailDB(bf-EstCostForm.estCostHeaderID, bf-EstCostForm.estCostFormID, "" , bf-EstCostForm.estCostFormID,
-                    gcSourceTypeNonFactory,"pProfit","Profit After Price Change", dNewPrice - bf-EstCostForm.costTotalFull, 0, bf-EstCostForm.company, bf-EstCostForm.estimateNo, BUFFER bf-EstCostDetail).
+                RUN pAddCostDetail(ttEstCostForm.estCostHeaderID, ttEstCostForm.estCostFormID, "" , ttEstCostForm.estCostFormID,
+                    gcSourceTypeNonFactory,"pProfit","Profit After Price Change", dNewPrice - ttEstCostForm.costTotalFull, 0, ttEstCostForm.company, ttEstCostForm.estimateNo, BUFFER ttEstCostDetail).
                 /*Recalculate Sell Price*/
-                RUN pCalcCostTotalsDB(EstCostHeader.estCostHeaderID, bf-EstCostForm.estCostFormID, NO).
+                RUN pCalcCostTotals(ttEstCostHeader.estCostHeaderID, ttEstCostForm.estCostFormID, NO).
             END. 
             
             /*Reset and calculate all cost summaries*/
-            RUN pPurgeCostSummaryDB(EstCostHeader.estCostHeaderID).
-            RUN pBuildCostSummaryDB(EstCostHeader.estCostHeaderID).
-            RUN pBuildProbeDB(BUFFER EstCostHeader).
+            RUN pPurgeCostSummary(ttEstCostHeader.estCostHeaderID).
+            RUN pBuildCostSummary(ttEstCostHeader.estCostHeaderID).
+            RUN pBuildProbe(BUFFER ttEstCostHeader).
+            
         END.
+        /* To update DB tables with updated Temp-Table */
+        RUN pWriteToDBTables(iEstCostHeaderID).        
+    
     END.
 
 END PROCEDURE.
@@ -354,42 +364,6 @@ PROCEDURE pAddCostDetail PRIVATE:
         
     RUN pSetKeyFields(INPUT-OUTPUT opbf-ttEstCostDetail.estCostDetailID, INPUT-OUTPUT opbf-ttEstCostDetail.rec_key, "estCostDetail").
 
-END PROCEDURE.
-
-PROCEDURE pAddCostDetailDB PRIVATE:
-   /*------------------------------------------------------------------------------
-     Purpose: Given an EstOperation buffer, create a unique cost detail record
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiEstHeaderID AS INT64 NO-UNDO.
-    DEFINE INPUT PARAMETER ipiEstFormID AS INT64 NO-UNDO.
-    DEFINE INPUT PARAMETER ipiEstBlankID AS INT64 NO-UNDO.
-    DEFINE INPUT PARAMETER ipiEstSourceID AS INT64 NO-UNDO.
-    DEFINE INPUT PARAMETER ipcSourceType AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstCostCategoryID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdCost AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipdProfitPercent AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
-    DEFINE PARAMETER BUFFER opbf-EstCostDetail FOR EstCostDetail.
-    
-    CREATE opbf-EstCostDetail.
-    ASSIGN 
-        opbf-EstCostDetail.estCostHeaderID   = ipiEstHeaderID
-        opbf-EstCostDetail.estCostFormID     = ipiEstFormID
-        opbf-EstCostDetail.estCostBlankID    = ipiEstBlankID
-        opbf-EstCostDetail.company           = ipcCompany
-        opbf-EstCostDetail.estimateNo        = ipcEstimateNo
-        opbf-EstCostDetail.sourceID          = ipiEstSourceID
-        opbf-EstCostDetail.sourceType        = ipcSourceType
-        opbf-EstCostDetail.estCostCategoryID = ipcEstCostCategoryID
-        opbf-EstCostDetail.estCostDetailDesc = ipcDescription
-        opbf-EstCostDetail.costTotal         = ipdCost
-        opbf-EstCostDetail.profitPercent     = ipdProfitPercent
-        opbf-EstCostDetail.profitPercentType = "Margin"
-        .
-       
 END PROCEDURE.
 
 PROCEDURE pAddCostDetailForOperation PRIVATE:
@@ -481,49 +455,11 @@ PROCEDURE pAddCostSummary PRIVATE:
     bf-ttEstCostSummary.costTotal = bf-ttEstCostSummary.costTotal + ipdCost.
     IF ipdQtyPerM GT 0 THEN 
         bf-ttEstCostSummary.costTotalPerMFinished  = bf-ttEstCostSummary.costTotalPerMFinished + ipdCost / ipdQtyPerM.
-        
+                
     RELEASE bf-ttEstCostSummary.
     
 END PROCEDURE.
 
-
-PROCEDURE pAddCostSummaryDB PRIVATE:
-/*------------------------------------------------------------------------------
-     Purpose: Given a scopeID, GroupID, Cost and Quantity, adds or increments a cost summary
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER  ipcScopeRecKey AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER  ipcGroupID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER  ipiEstCostHeaderID AS INT64 NO-UNDO.
-    DEFINE INPUT PARAMETER  ipdCost AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER  ipdQtyPerM AS DECIMAL NO-UNDO.
-    
-    DEFINE BUFFER bf-EstCostSummary FOR EstCostSummary.
-    
-    FIND FIRST bf-EstCostSummary EXCLUSIVE-LOCK
-        WHERE bf-EstCostSummary.scopeRecKey EQ ipcScopeRecKey
-        AND bf-EstCostSummary.estCostGroupID EQ ipcGroupID
-        NO-ERROR.
-    IF NOT AVAILABLE bf-EstCostSummary THEN 
-    DO:
-        CREATE bf-EstCostSummary.
-        ASSIGN 
-            bf-EstCostSummary.estCostGroupID  = ipcGroupID
-            bf-EstCostSummary.scopeRecKey     = ipcScopeRecKey
-            bf-EstCostSummary.estCostHeaderID = ipiEstCostHeaderID
-            .
-            
-        RUN pSetKeyFields(INPUT-OUTPUT bf-EstCostSummary.estCostSummaryID, INPUT-OUTPUT bf-EstCostSummary.rec_key, "estCostSummary").
-        
-    END.
-    bf-EstCostSummary.costTotal = bf-EstCostSummary.costTotal + ipdCost.
-    IF ipdQtyPerM GT 0 THEN 
-        bf-EstCostSummary.costTotalPerMFinished  = bf-EstCostSummary.costTotalPerMFinished + ipdCost / ipdQtyPerM.
-        
-    RELEASE bf-EstCostSummary.
-
-
-END PROCEDURE.
 
 PROCEDURE pAddError PRIVATE:
 
@@ -1953,61 +1889,6 @@ PROCEDURE pBuildCostDetailForMisc PRIVATE:
         
 END PROCEDURE.
 
-PROCEDURE pBuildCostSummaryDB PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose:  Processes all Cost Details for a given header and creates summary
-              records for each
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
-    
-    
-    RUN pGetEstCostCategoryTT(OUTPUT TABLE ttEstCostCategory).
-    
-    FOR EACH EstCostDetail NO-LOCK
-        WHERE EstCostDetail.estCostHeaderID EQ ipiEstCostHeaderID, 
-        FIRST EstCostHeader NO-LOCK 
-        WHERE EstCostHeader.estCostHeaderID EQ EstCostDetail.estCostHeaderID,
-        FIRST EstCostForm NO-LOCK
-        WHERE EstCostForm.estCostHeaderID EQ EstCostDetail.estCostHeaderID
-        AND EstCostForm.estCostFormID EQ EstCostDetail.estCostFormID, 
-        FIRST ttEstCostCategory NO-LOCK 
-        WHERE ttEstCostCategory.estCostCategoryID EQ EstCostDetail.estCostCategoryID
-        :
-        RUN pAddCostSummaryDB(EstCostHeader.rec_key, ttEstCostCategory.estCostGroupID, EstCostDetail.estCostHeaderID, EstCostDetail.costTotal, EstCostHeader.quantityMaster / 1000).
-        RUN pAddCostSummaryDB(EstCostForm.rec_key, ttEstCostCategory.estCostGroupID, EstCostDetail.estCostHeaderID, EstCostDetail.costTotal, EstCostForm.quantityFGOnForm / 1000).
-        
-        FIND FIRST EstCostBlank NO-LOCK 
-            WHERE EstCostBlank.estCostHeaderID EQ EstCostDetail.estCostHeaderID
-            AND EstCostBlank.estCostFormID EQ EstCostDetail.estCostFormID
-            AND EstCostBlank.estCostBlankID EQ EstCostDetail.estCostBlankID
-            NO-ERROR.
-        IF AVAILABLE EstCostBlank THEN 
-        DO:  /*Blank-specific cost*/
-            FIND FIRST EstCostItem NO-LOCK 
-                WHERE EstCostItem.estCostHeaderID EQ EstCostBlank.estCostHeaderID
-                AND EstCostItem.estCostItemID EQ EstCostBlank.estCostItemID
-                NO-ERROR.
-            IF AVAILABLE EstCostItem THEN 
-                RUN pAddCostSummaryDB(EstCostItem.rec_key, ttEstCostCategory.estCostGroupID, EstCostDetail.estCostHeaderID, EstCostDetail.costTotal, EstCostItem.quantityRequired / 1000).
-           
-        END.
-        ELSE /*Divide up the Form-level Costs into each item*/
-            FOR EACH EstCostBlank NO-LOCK
-                WHERE EstCostBlank.estCostHeaderID EQ EstCostDetail.estCostHeaderID
-                AND EstCostBlank.estCostFormID EQ EstCostDetail.estCostFormID, 
-                FIRST EstCostItem NO-LOCK  
-                WHERE EstCostItem.estCostHeaderID EQ EstCostBlank.estCostHeaderID
-                AND EstCostItem.estCostItemID EQ EstCostBlank.estCostItemID :
-                RUN pAddCostSummaryDB(EstCostItem.rec_key, ttEstCostCategory.estCostGroupID, EstCostDetail.estCostHeaderID, EstCostDetail.costTotal * EstCostBlank.pctOfForm, EstCostItem.quantityRequired / 1000).
-           
-            END.
-        
-    END.
-
-
-END PROCEDURE.
-
 PROCEDURE pBuildEstHandlingCharges PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -2299,8 +2180,7 @@ PROCEDURE pBuildProbe PRIVATE:
         bf-probe.boardCostPerM  = ipbf-ttEstCostHeader.costTotalBoard / dQtyInM
         .
     IF ipbf-ttEstCostHeader.sellPrice GT 0 THEN 
-        bf-probe.boardCostPct  = ipbf-ttEstCostHeader.costTotalBoard / ipbf-ttEstCostHeader.sellPrice * 100.
-                    
+        bf-probe.boardCostPct  = ipbf-ttEstCostHeader.costTotalBoard / ipbf-ttEstCostHeader.sellPrice * 100.                
     FOR EACH ttEstCostItem NO-LOCK
         WHERE ttEstCostItem.estCostHeaderID EQ ipbf-ttEstCostHeader.estCostHeaderID
         AND NOT ttEstCostItem.isSet:
@@ -2450,132 +2330,6 @@ PROCEDURE pBuildPriceRelatedCostDetails PRIVATE:
  
 END PROCEDURE.
 
-PROCEDURE pBuildProbeDB PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Given a estCostHeader, make or update a probe record for display in Print tab
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-EstCostHeader FOR EstCostHeader.
-    
-    DEFINE           BUFFER bf-probe           FOR probe.
-    DEFINE           BUFFER bf-probeit         FOR probeit.
-    DEFINE           BUFFER bf-estimate-probe  FOR probe.
-    
-    DEFINE VARIABLE iProbeLine     AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dQtyInM        AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dQtyInMForItem AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dPricePerM     AS DECIMAL NO-UNDO.
-       
-    DISABLE TRIGGERS FOR LOAD OF probe.
-    
-    IF ipbf-EstCostHeader.jobID NE "" THEN RETURN.
-    
-    dQtyInM    = ipbf-EstCostHeader.quantityMaster / 1000.
-    
-    FIND FIRST bf-probe EXCLUSIVE-LOCK 
-        WHERE bf-probe.company EQ ipbf-EstCostHeader.company
-        AND bf-probe.est-no EQ ipbf-EstCostHeader.estimateNo
-        AND bf-probe.spare-char-2 EQ STRING(ipbf-EstCostHeader.estCostHeaderID)
-        NO-ERROR.
-    
-    IF NOT AVAILABLE bf-probe THEN 
-    DO:        
-        FOR EACH bf-estimate-probe NO-LOCK 
-            WHERE bf-estimate-probe.company EQ ipbf-EstCostHeader.company
-            AND bf-estimate-probe.est-no EQ ipbf-EstCostHeader.estimateNo
-            AND bf-estimate-probe.probe-date <> ?
-            BY bf-estimate-probe.LINE DESCENDING:
-            iProbeLine = bf-estimate-probe.LINE.
-            LEAVE.
-        END.
-        iProbeLine = iProbeLine + 1.
-        CREATE bf-probe.
-        ASSIGN 
-            bf-probe.company      = ipbf-EstCostHeader.company
-            bf-probe.est-no       = ipbf-EstCostHeader.estimateNo
-            bf-probe.line         = iProbeLine
-            bf-probe.spare-char-2 = STRING(ipbf-EstCostHeader.estCostHeaderID)
-            bf-probe.est-qty      = ipbf-EstCostHeader.quantityMaster        
-            bf-probe.probe-date   = DATE(ipbf-EstCostHeader.calcDateTime)
-            bf-probe.probe-time   = INTEGER(MTIME(ipbf-EstCostHeader.calcDateTime) / 1000)
-            bf-probe.probe-user   = ipbf-EstCostHeader.calculatedBy
-            bf-probe.freight      = ipbf-EstCostHeader.releaseCount             /* Holds Number of Releases */
-            bf-probe.tot-lbs      = IF glUseGrossWeight THEN ipbf-EstCostHeader.weightTotal ELSE ipbf-EstCostHeader.weightNet
-            .
-            
-        FOR EACH EstCostForm NO-LOCK 
-            WHERE EstCostForm.estCostHeaderID EQ ipbf-EstCostHeader.estCostHeaderID
-            :
-            
-            ASSIGN 
-                bf-probe.gsh-qty    = bf-probe.gsh-qty + EstCostForm.grossQtyRequiredTotal
-                bf-probe.gshQtyInSF = bf-probe.gshQtyInSF + (EstCostForm.grossQtyRequiredTotalArea * 1000 )
-                .                  
-        END.    
-        FOR EACH EstCostBlank NO-LOCK 
-            WHERE EstCostBlank.estCostHeaderID EQ ipbf-EstCostHeader.estCostHeaderID
-            AND EstCostBlank.formNo NE 0
-            :
-            ASSIGN 
-                bf-probe.bsf = bf-probe.bsf + EstCostBlank.quantityPerSet * EstCostBlank.blankArea  / 144 //Refactor - assumes area is SQIN.
-                .
-        END.
-    END.
-    ASSIGN 
-        bf-probe.fact-cost      = ipbf-EstCostHeader.costTotalFactory / dQtyInM
-        bf-probe.full-cost      = ipbf-EstCostHeader.costTotalFull / dQtyInM
-        bf-probe.gross-profit   = ipbf-EstCostHeader.profitPctGross
-        bf-probe.net-profit     = ipbf-EstCostHeader.profitPctNet 
-        dPricePerM              = ipbf-EstCostHeader.sellPrice / dQtyInM
-        bf-probe.sell-price     = IF glRoundPriceToDollar THEN ROUND(dPricePerM, 0) ELSE ROUND(dPricePerM, 2)
-        bf-probe.spare-dec-1    = ipbf-EstCostHeader.costTotalMaterial / dQtyInM
-        bf-probe.boardCostTotal = ipbf-EstCostHeader.costTotalBoard
-        bf-probe.boardCostPerM  = ipbf-EstCostHeader.costTotalBoard / dQtyInM
-        .
-    IF ipbf-EstCostHeader.sellPrice GT 0 THEN 
-        bf-probe.boardCostPct  = ipbf-EstCostHeader.costTotalBoard / ipbf-EstCostHeader.sellPrice * 100.
-                    
-    FOR EACH EstCostItem NO-LOCK
-        WHERE EstCostItem.estCostHeaderID EQ ipbf-EstCostHeader.estCostHeaderID
-        AND NOT EstCostItem.isSet:
-            
-        ASSIGN 
-            dQtyInMForItem = EstCostItem.quantityRequired / 1000
-            .
-        FIND FIRST bf-probeit EXCLUSIVE-LOCK 
-            WHERE bf-probeit.company EQ ipbf-EstCostHeader.company
-            AND bf-probeit.est-no EQ ipbf-EstCostHeader.estimateNo
-            AND bf-probeit.part-no EQ EstCostItem.customerPart
-            AND bf-probeit.line EQ bf-probe.line
-            NO-ERROR.            
-        IF NOT AVAILABLE bf-probeit THEN 
-        DO:
-            CREATE bf-probeit.
-            ASSIGN 
-                bf-probeit.line    = bf-probe.line
-                bf-probeit.bl-qty  = EstCostItem.quantityRequired
-                bf-probeit.yld-qty = EstCostItem.quantityYielded
-                bf-probeit.company = EstCostItem.company
-                bf-probeit.cust-no = EstCostItem.customerID
-                bf-probeit.est-no  = EstCostItem.estimateNo
-                bf-probeit.part-no = EstCostItem.customerPart
-                .
-        END.
-        ASSIGN
-            dPricePerM            = EstCostItem.sellPrice / dQtyInMForItem
-            bf-probeit.fact-cost  = EstCostItem.costTotalFactory / dQtyInMForItem
-            bf-probeit.full-cost  = EstCostItem.costTotalFull / dQtyInMForItem
-            bf-probeit.sell-price = IF glRoundPriceToDollar THEN ROUND(dPricePerM, 0) ELSE ROUND(dPricePerM, 2)
-            bf-probeit.brd-cost   = EstCostItem.costTotalBoard / dQtyInMForItem
-            .
-        RELEASE bf-probeit.
-            
-    END.
-    RELEASE bf-probe.
-
-
-END PROCEDURE.
-
 PROCEDURE pCalcBoardCostFromBlank PRIVATE:
     /*------------------------------------------------------------------------------
       Purpose: Calculate material dimension from blank
@@ -2661,40 +2415,6 @@ PROCEDURE pBuildFreightForBoardCost PRIVATE:
     
     END.
     
-END PROCEDURE.
-
-PROCEDURE pCalcCostTotalsDB PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose:  Processes all Factory Cost Details and totals Forms and Items for 
-     use in % Total Calculations
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
-    DEFINE INPUT PARAMETER ipiEstCostFormID AS INT64 NO-UNDO.
-    DEFINE INPUT PARAMETER iplFullReset AS LOGICAL NO-UNDO.
-    
-    DEFINE BUFFER bf-EstCostDetail FOR EstCostDetail.
-        
-    RUN pGetEstCostCategoryTT(OUTPUT TABLE ttEstCostCategory).
-    
-    FOR EACH bf-EstCostDetail EXCLUSIVE-LOCK
-        WHERE bf-EstCostDetail.estCostHeaderID EQ ipiEstCostHeaderID
-        AND (iplFullReset OR NOT bf-EstCostDetail.hasBeenProcessed)
-        AND (ipiEstCostFormID EQ 0 OR bf-EstCostDetail.estCostFormID EQ ipiEstCostFormID), 
-        FIRST EstCostHeader NO-LOCK 
-        WHERE EstCostHeader.estCostHeaderID EQ bf-EstCostDetail.estCostHeaderID,
-        FIRST EstCostForm NO-LOCK
-        WHERE EstCostForm.estCostHeaderID EQ bf-EstCostDetail.estCostHeaderID
-        AND EstCostForm.estCostFormID EQ bf-EstCostDetail.estCostFormID, 
-        FIRST ttEstCostCategory NO-LOCK 
-        WHERE ttEstCostCategory.estCostCategoryID EQ bf-EstCostDetail.estCostCategoryID 
-        :
-        RUN pCalcTotalsForCostDetailDB(BUFFER bf-EstCostDetail, BUFFER ttEstCostCategory, BUFFER EstCostForm, BUFFER EstCostHeader).
-        bf-EstCostDetail.hasBeenProcessed = YES.
-    END.        
-    RELEASE bf-EstCostDetail.
-
-
 END PROCEDURE.
 
 PROCEDURE pCalcHeaderCosts PRIVATE:
@@ -3335,16 +3055,6 @@ PROCEDURE pCalcCostTotalsForm PRIVATE:
     
 END PROCEDURE.
 
-PROCEDURE pCalcCostTotalsFormDB PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Given a form and category buffer, increment the appropriate fields
-     on the form for cost totals.
-     Notes:
-    ------------------------------------------------------------------------------*/
-    {est\EstimateCostTotals.i &TableName=EstCostForm}
-    
-END PROCEDURE.
-
 PROCEDURE pCalcCostTotalsHeader PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given a header and category buffer, increment the appropriate fields
@@ -3355,16 +3065,6 @@ PROCEDURE pCalcCostTotalsHeader PRIVATE:
     
 END PROCEDURE.
 
-PROCEDURE pCalcCostTotalsHeaderDB PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Given a header and category buffer, increment the appropriate fields
-     on the form for cost totals.
-     Notes:
-    ------------------------------------------------------------------------------*/
-    {est\EstimateCostTotals.i &TableName=EstCostHeader}
-    
-END PROCEDURE.
-
 PROCEDURE pCalcCostTotalsItem PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given a item and category buffer, increment the appropriate fields
@@ -3372,56 +3072,6 @@ PROCEDURE pCalcCostTotalsItem PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     {est\EstimateCostTotals.i &TableName=ttEstCostItem}
-
-END PROCEDURE.
-
-PROCEDURE pCalcCostTotalsItemDB PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Given a item and category buffer, increment the appropriate fields
-     on the item for cost totals.
-     Notes:
-    ------------------------------------------------------------------------------*/
-    {est\EstimateCostTotals.i &TableName=EstCostItem}
-
-END PROCEDURE.
-
-PROCEDURE pCalcTotalsForCostDetailDB PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: given a cost Total
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-EstCostDetail     FOR EstCostDetail.
-    DEFINE PARAMETER BUFFER ipbf-ttEstCostCategory FOR ttEstCostCategory.
-    DEFINE PARAMETER BUFFER ipbf-EstCostForm       FOR EstCostForm.
-    DEFINE PARAMETER BUFFER ipbf-EstCostHeader     FOR EstCostHeader.
-    
-    RUN pCalcCostTotalsHeaderDB(BUFFER ipbf-EstCostHeader, BUFFER ipbf-ttEstCostCategory, ipbf-EstCostDetail.costTotal).
-    RUN pCalcCostTotalsFormDB(BUFFER ipbf-EstCostForm, BUFFER ipbf-ttEstCostCategory, ipbf-EstCostDetail.costTotal).
-        
-    FIND FIRST EstCostBlank NO-LOCK 
-        WHERE EstCostBlank.estCostHeaderID EQ ipbf-EstCostDetail.estCostHeaderID
-        AND EstCostBlank.estCostFormID EQ ipbf-EstCostDetail.estCostFormID
-        AND EstCostBlank.estCostBlankID EQ ipbf-EstCostDetail.estCostBlankID
-        NO-ERROR.
-    IF AVAILABLE EstCostBlank THEN 
-    DO:  /*Blank-specific cost*/
-        FIND FIRST EstCostItem NO-LOCK 
-            WHERE EstCostItem.estCostHeaderID EQ EstCostBlank.estCostHeaderID
-            AND EstCostItem.estCostItemID EQ EstCostBlank.estCostItemID
-            NO-ERROR.
-        IF AVAILABLE EstCostItem THEN 
-            RUN pCalcCostTotalsItemDB(BUFFER EstCostItem, BUFFER ipbf-ttEstCostCategory, ipbf-EstCostDetail.costTotal).
-    END.
-    ELSE /*Divide up the Form-level Costs into each item*/
-        FOR EACH EstCostBlank NO-LOCK
-            WHERE EstCostBlank.estCostHeaderID EQ ipbf-EstCostDetail.estCostHeaderID
-            AND EstCostBlank.estCostFormID EQ ipbf-EstCostDetail.estCostFormID, 
-            FIRST EstCostItem NO-LOCK  
-            WHERE EstCostItem.estCostHeaderID EQ EstCostBlank.estCostHeaderID
-            AND EstCostItem.estCostItemID EQ EstCostBlank.estCostItemID :
-            RUN pCalcCostTotalsItemDB(BUFFER EstCostItem, BUFFER ipbf-ttEstCostCategory, ipbf-EstCostDetail.costTotal * EstCostBlank.pctOfForm).
-        END.
-
 
 END PROCEDURE.
 
@@ -3605,6 +3255,260 @@ PROCEDURE pCopyHeaderCostsToSetItem PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pCopyDBToTempTables PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Write DB table records to Temp Table
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
+        
+    FOR FIRST EstCostHeader NO-LOCK
+        WHERE EstCostHeader.estCostHeaderID EQ ipiEstCostHeaderID:
+
+        CREATE ttEstCostHeader.
+        BUFFER-COPY EstCostHeader TO ttEstCostHeader.      
+    END.
+    
+    FOR EACH EstCostForm NO-LOCK
+        WHERE EstCostForm.estCostHeaderID EQ ipiEstCostHeaderID:
+
+        CREATE ttEstCostForm.
+        BUFFER-COPY EstCostForm TO ttEstCostForm. 
+             
+    END.                
+        
+    FOR EACH EstCostBlank NO-LOCK 
+        WHERE EstCostBlank.estCostHeaderID EQ ipiEstCostHeaderID:
+                      
+        CREATE ttEstCostBlank.
+        BUFFER-COPY EstCostBlank TO ttEstCostBlank.
+    END.    
+                      
+    FOR EACH EstCostItem NO-LOCK 
+        WHERE EstCostItem.estCostHeaderID EQ ipiEstCostHeaderID:
+                      
+        CREATE ttEstCostItem.
+        BUFFER-COPY EstCostItem TO ttEstCostItem.                  
+    END.
+            
+    FOR EACH EstCostDetail NO-LOCK 
+        WHERE EstCostDetail.estCostHeaderID EQ ipiEstCostHeaderID:
+
+        CREATE ttEstCostDetail.
+        BUFFER-COPY EstCostDetail TO ttEstCostDetail.
+    END. 
+             
+    FOR EACH EstCostOperation NO-LOCK 
+        WHERE EstCostOperation.estCostHeaderID EQ ipiEstCostHeaderID:
+             
+        CREATE ttEstCostOperation.
+        BUFFER-COPY EstCostOperation TO ttEstCostOperation.
+    END. 
+            
+    FOR EACH EstCostMaterial NO-LOCK 
+        WHERE EstCostMaterial.estCostHeaderID EQ ipiEstCostHeaderID:
+                      
+        CREATE ttEstCostMaterial.
+        BUFFER-COPY EstCostMaterial TO ttEstCostMaterial.
+    END.
+            
+    FOR EACH EstCostMisc NO-LOCK 
+        WHERE EstCostMisc.estCostHeaderID EQ ipiEstCostHeaderID:
+
+        CREATE ttEstCostMisc.
+        BUFFER-COPY EstCostMisc TO ttEstCostMisc.
+    END. 
+        
+    FOR EACH EstCostSummary NO-LOCK
+        WHERE EstCostSummary.estCostHeaderID EQ ipiEstCostHeaderID
+        USE-INDEX estHeader:
+            
+        CREATE ttEstCostSummary.
+        BUFFER-COPY EstCostSummary TO ttEstCostSummary.     
+    END.
+    
+END PROCEDURE.
+
+PROCEDURE pWriteToDBTables PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
+    
+    FOR EACH ttEstCostHeader NO-LOCK
+        WHERE ttEstCostHeader.estCostHeaderID EQ ipiEstCostHeaderID:
+            
+        FIND FIRST EstCostHeader EXCLUSIVE-LOCK  
+        WHERE EstCostHeader.estCostHeaderID EQ ttEstCostHeader.estCostHeaderID NO-ERROR.
+        IF AVAILABLE EstCostHeader THEN 
+        DO:
+        BUFFER-COPY ttEstCostHeader TO EstCostHeader.  
+        END. 
+        ELSE 
+        DO: 
+            CREATE EstCostHeader.
+            BUFFER-COPY ttEstCostHeader TO EstCostHeader.
+        END.         
+    END.
+    
+    FOR EACH ttEstCostForm NO-LOCK
+        WHERE ttEstCostForm.estCostHeaderID EQ ipiEstCostHeaderID:
+            
+        FIND FIRST EstCostForm EXCLUSIVE-LOCK 
+        WHERE EstCostForm.estCostHeaderID EQ ttEstCostForm.estCostHeaderID
+          AND EstCostForm.estCostFormID   EQ ttEstCostForm.estCostFormID  NO-ERROR.
+        
+        IF AVAILABLE EstCostForm THEN 
+        DO: 
+            BUFFER-COPY ttEstCostForm TO EstCostForm.
+        END. 
+        ELSE 
+        DO:
+            CREATE EstCostForm.
+            BUFFER-COPY ttEstCostForm TO EstCostForm.  
+        END.       
+    END.                
+        
+    FOR EACH ttEstCostBlank NO-LOCK 
+        WHERE ttEstCostBlank.estCostHeaderID EQ ipiEstCostHeaderID:
+            
+        FIND FIRST EstCostBlank EXCLUSIVE-LOCK 
+        WHERE EstCostBlank.estCostHeaderID EQ ttEstCostBlank.estCostHeaderID 
+          AND EstCostBlank.estCostFormID EQ ttEstCostBlank.estCostFormID
+          AND EstCostBlank.estCostBlankID EQ ttEstCostBlank.estCostBlankID NO-ERROR.
+        
+        IF AVAILABLE EstCostBlank THEN
+        DO:      
+           BUFFER-COPY ttEstCostBlank TO EstCostBlank.
+        END.
+        ELSE 
+        DO:
+            CREATE EstCostBlank.
+            BUFFER-COPY ttEstCostBlank TO EstCostBlank.
+        END.       
+    END.    
+                      
+    FOR EACH ttEstCostItem NO-LOCK 
+        WHERE ttEstCostItem.estCostHeaderID EQ ipiEstCostHeaderID :
+            
+        FIND FIRST EstCostItem EXCLUSIVE-LOCK 
+        WHERE EstCostItem.estCostHeaderID EQ ttEstCostItem.estCostHeaderID
+          AND EstCostItem.estCostItemID EQ ttEstCostItem.estCostItemID NO-ERROR.
+          
+        IF AVAILABLE EstCostItem THEN 
+        DO:
+            BUFFER-COPY ttEstCostItem TO EstCostItem.
+        END.
+        ELSE 
+        DO: 
+            CREATE EstCostItem.
+            BUFFER-COPY ttEstCostItem TO EstCostItem.
+        END.                             
+    END.
+            
+    FOR EACH ttEstCostDetail NO-LOCK 
+        WHERE ttEstCostDetail.estCostHeaderID EQ ipiEstCostHeaderID:
+        
+        FIND FIRST EstCostDetail EXCLUSIVE-LOCK 
+        WHERE EstCostDetail.estCostHeaderID EQ ttEstCostDetail.estCostHeaderID
+          AND EstCostDetail.estCostDetailID EQ ttEstCostDetail.estCostDetailID NO-ERROR.
+        IF AVAILABLE EstCostDetail THEN
+        DO:   
+            BUFFER-COPY ttEstCostDetail TO EstCostDetail.
+        END.    
+        ELSE 
+        DO:
+            CREATE EstCostDetail.
+            BUFFER-COPY ttEstCostDetail TO EstCostDetail. 
+        END.       
+    END. 
+             
+    FOR EACH ttEstCostOperation NO-LOCK 
+        WHERE ttEstCostOperation.estCostHeaderID EQ ipiEstCostHeaderID:
+            
+        FIND FIRST EstCostOperation EXCLUSIVE-LOCK 
+        WHERE EstCostOperation.estCostHeaderID EQ ttEstCostOperation.estCostHeaderID
+          AND EstCostOperation.estCostOperationID EQ ttEstCostOperation.estCostOperationID NO-ERROR.
+        
+        IF AVAILABLE EstCostOperation THEN 
+        DO: 
+            BUFFER-COPY ttEstCostOperation TO EstCostOperation.
+        END.    
+        ELSE 
+        DO:
+            CREATE EstCostOperation.
+            BUFFER-COPY ttEstCostOperation TO EstCostOperation.
+        END.       
+    END. 
+            
+    FOR EACH ttEstCostMaterial NO-LOCK 
+        WHERE ttEstCostMaterial.estCostHeaderID EQ ipiEstCostHeaderID:
+            
+        FIND FIRST EstCostMaterial EXCLUSIVE-LOCK 
+        WHERE EstCostMaterial.estCostHeaderID EQ ttEstCostMaterial.estCostHeaderID
+          AND EstCostMaterial.estCostMaterialID EQ ttEstCostMaterial.estCostMaterialID NO-ERROR.
+        
+        IF AVAILABLE EstCostMaterial THEN 
+        DO:          
+            BUFFER-COPY ttEstCostMaterial TO EstCostMaterial.
+        END.    
+        ELSE 
+        DO: 
+            CREATE EstCostMaterial.
+            BUFFER-COPY ttEstCostMaterial TO EstCostMaterial. 
+        END.     
+    END.
+            
+    FOR EACH ttEstCostMisc NO-LOCK 
+        WHERE ttEstCostMisc.estCostHeaderID EQ ipiEstCostHeaderID:
+            
+        FIND FIRST EstCostMisc EXCLUSIVE-LOCK 
+        WHERE EstCostMisc.estCostHeaderID EQ ttEstCostMisc.estCostHeaderID
+          AND EstCostMisc.estCostMiscID EQ ttEstCostMisc.estCostMiscID NO-ERROR. 
+        
+        IF AVAILABLE EstCostMisc THEN 
+        DO:    
+           BUFFER-COPY ttEstCostMisc TO EstCostMisc.
+        END. 
+        ELSE 
+        DO: 
+            CREATE EstCostMisc.
+            BUFFER-COPY ttEstCostMisc TO EstCostMisc.
+        END.       
+    END. 
+        
+    FOR EACH ttEstCostSummary NO-LOCK
+        WHERE ttEstCostSummary.estCostHeaderID EQ ipiEstCostHeaderID:
+            
+        FIND FIRST EstCostSummary EXCLUSIVE-LOCK 
+        WHERE EstCostSummary.estCostHeaderID EQ ttEstCostSummary.estCostHeaderID
+          AND EstCostSummary.estCostSummaryID EQ ttEstCostSummary.estCostSummaryID 
+          AND EstCostSummary.estCostGroupID EQ ttEstCostSummary.estCostGroupID
+          AND EstCostSummary.scopeRecKey EQ ttEstCostSummary.scopeRecKey NO-ERROR.   
+        
+        IF AVAILABLE EstCostSummary THEN 
+        DO: 
+            BUFFER-COPY ttEstCostSummary TO EstCostSummary.
+        END. 
+        ELSE 
+        DO: 
+            CREATE EstCostSummary.
+            BUFFER-COPY ttEstCostSummary TO EstCostSummary.   
+        END.         
+    END.
+    
+    EMPTY TEMP-TABLE ttEstCostForm.
+    EMPTY TEMP-TABLE ttEstCostDetail.
+    EMPTY TEMP-TABLE ttEstCostSummary.
+    EMPTY TEMP-TABLE ttEstCostOperation.
+    EMPTY TEMP-TABLE ttEstCostMisc.
+    EMPTY TEMP-TABLE ttEstCostMaterial.
+    EMPTY TEMP-TABLE ttEstCostBlank.
+    EMPTY TEMP-TABLE ttEstCostItem.
+    EMPTY TEMP-TABLE ttEstCostHeader.
+
+END PROCEDURE.
 
 PROCEDURE pGetEstCostCategoryTT PRIVATE:
     /*------------------------------------------------------------------------------
@@ -4512,8 +4416,7 @@ PROCEDURE pBuildCostSummary PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
-    
-    
+
     RUN pGetEstCostCategoryTT(OUTPUT TABLE ttEstCostCategory).
     
     FOR EACH ttEstCostDetail NO-LOCK
@@ -5875,27 +5778,6 @@ PROCEDURE pPurgeCostDetail PRIVATE:
     
 END PROCEDURE.
 
-PROCEDURE pPurgeCostDetailDB PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:  Purges all EstCostDetail data for a given headerID
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
-DEFINE INPUT PARAMETER ipcCategory AS CHARACTER NO-UNDO.
-
-DEFINE BUFFER bf-EstCostDetail FOR EstCostDetail.
-
-FOR EACH bf-EstCostDetail EXCLUSIVE-LOCK 
-    WHERE bf-EstCostDetail.estCostHeaderID EQ ipiEstCostHeaderID
-    AND (ipcCategory EQ "" OR bf-EstCostDetail.estCostCategoryID EQ ipcCategory)
-    USE-INDEX estHeader:
-    DELETE bf-EstCostDetail.
-END.
-
-RELEASE bf-EstCostDetail.
-
-END PROCEDURE.
-
 PROCEDURE pPurgeCostSummary PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Purges all ttEstCostSummary data for a given headerID
@@ -5904,7 +5786,6 @@ PROCEDURE pPurgeCostSummary PRIVATE:
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
 
     DEFINE BUFFER bf-ttEstCostSummary FOR ttEstCostSummary.
-    
     FOR EACH bf-ttEstCostSummary EXCLUSIVE-LOCK 
         WHERE bf-ttEstCostSummary.estCostHeaderID EQ ipiEstCostHeaderID
         USE-INDEX estHeader:
@@ -5912,25 +5793,6 @@ PROCEDURE pPurgeCostSummary PRIVATE:
     END.
     
     RELEASE bf-ttEstCostSummary.
-    
-END PROCEDURE.
-
-PROCEDURE pPurgeCostSummaryDB PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose:  Purges all ttEstCostSummary data for a given headerID
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
-
-    DEFINE BUFFER bf-EstCostSummary FOR EstCostSummary.
-    
-    FOR EACH bf-EstCostSummary EXCLUSIVE-LOCK 
-        WHERE bf-EstCostSummary.estCostHeaderID EQ ipiEstCostHeaderID
-        USE-INDEX estHeader:
-        DELETE bf-EstCostSummary.
-    END.
-    
-    RELEASE bf-EstCostSummary.
     
 END PROCEDURE.
 
@@ -6097,60 +5959,6 @@ PROCEDURE pResetCostTotalsItem PRIVATE:
      
 END PROCEDURE.
 
-PROCEDURE pResetCostTotalsDB PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Resets Cost Totals for a given estCostHeaderID
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64.
-    
-    DEFINE BUFFER bf-EstCostForm   FOR EstCostForm.
-    DEFINE BUFFER bf-EstCostItem   FOR EstCostItem.
-    DEFINE BUFFER bf-EstCostHeader FOR EstCostHeader.
-    
-    FOR EACH bf-EstCostForm NO-LOCK 
-        WHERE bf-EstCostForm.estCostHeaderID EQ ipiEstCostHeaderID:
-        RUN pResetCostTotalsFormDB(BUFFER bf-EstCostForm).
-    END.
-    FOR EACH bf-EstCostItem NO-LOCK 
-        WHERE bf-EstCostItem.estCostHeaderID EQ ipiEstCostHeaderID:
-        RUN pResetCostTotalsItemDB(BUFFER bf-EstCostItem).
-    END.
-    FOR EACH bf-EstCostHeader NO-LOCK 
-        WHERE bf-EstCostHeader.estCostHeaderID EQ ipiEstCostHeaderID:
-        RUN pResetCostTotalsHeaderDB(BUFFER bf-EstCostHeader).
-    END.
-    
-     
-END PROCEDURE.
-
-PROCEDURE pResetCostTotalsFormDB PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Resets Cost Totals for a given ttEstCostForm
-     Notes:
-    ------------------------------------------------------------------------------*/
-    {est\EstimateCostTotalReset.i &TableName=EstCostForm}
-     
-END PROCEDURE.
-
-PROCEDURE pResetCostTotalsHeaderDB PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Resets Cost Totals for a given ttEstCostForm
-     Notes:
-    ------------------------------------------------------------------------------*/
-    {est\EstimateCostTotalReset.i &TableName=EstCostHeader}
-     
-END PROCEDURE.
-
-PROCEDURE pResetCostTotalsItemDB PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Resets Cost Totals for a given ttEstCostForm
-     Notes:
-    ------------------------------------------------------------------------------*/
-    {est\EstimateCostTotalReset.i &TableName=EstCostItem}
-     
-END PROCEDURE.
-
 
 PROCEDURE pSetGlobalSettings PRIVATE:
     
@@ -6215,7 +6023,7 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     RUN sys/ref/nk1look.p (ipcCompany, "CEAutoRecostBoard", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     glAutoRecostBoard = lFound AND cReturn EQ "YES".    
 
-	RUN sys/ref/nk1look.p (ipcCompany, "CEOpStandards", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    RUN sys/ref/nk1look.p (ipcCompany, "CEOpStandards", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
     glCalcSourceForMachineStd = lFound AND cReturn EQ "Machine if Not Locked".
     
     RUN sys/ref/nk1look.p (ipcCompany,"CECostSource","C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
