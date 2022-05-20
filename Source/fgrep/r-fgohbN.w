@@ -2635,7 +2635,7 @@ PROCEDURE run-report :
             WHEN "partial" THEN 
                 cVarValue = "" . 
             WHEN "pallet" THEN 
-                cVarValue = STRING(dTotalPallet[3],"->>,>>>,>>9.99<<") . 
+                cVarValue = STRING(dTotalPallet[3],"->>,>>>,>>9") . 
         END CASE.
         cExcelVarValue = cVarValue.  
         cDisplay = cDisplay + cVarValue +
