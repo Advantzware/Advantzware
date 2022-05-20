@@ -568,6 +568,7 @@ FUNCTION convert-qty RETURNS DECIMAL
     FOR EACH rm-rcpth
         WHERE rm-rcpth.company   EQ po-ordl.company
           AND rm-rcpth.po-no     EQ STRING(po-ordl.po-no)
+          AND rm-rcpth.po-line   EQ po-ordl.LINE
           AND rm-rcpth.i-no      EQ po-ordl.i-no
           AND rm-rcpth.rita-code EQ "R" NO-LOCK,
         EACH rm-rdtlh
