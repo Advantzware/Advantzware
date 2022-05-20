@@ -251,7 +251,7 @@ PROCEDURE ChangeSellPrice:
     DEFINE VARIABLE dNewPrice       AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dProfitChange   AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dCommission     AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iEstCostHeaderID AS INT64.
+    DEFINE VARIABLE iEstCostHeaderID AS INT64  NO-UNDO.
     
     FIND probe NO-LOCK 
         WHERE ROWID(probe) EQ ipriProbe
@@ -317,11 +317,9 @@ PROCEDURE ChangeSellPrice:
             RUN pPurgeCostSummary(ttEstCostHeader.estCostHeaderID).
             RUN pBuildCostSummary(ttEstCostHeader.estCostHeaderID).
             RUN pBuildProbe(BUFFER ttEstCostHeader).
-            
-        END.
-        /* To update DB tables with updated Temp-Table */
-        RUN pWriteToDBTables(iEstCostHeaderID).        
-    
+            /* To update DB tables with updated Temp-Table */
+            RUN pWriteToDBTables(iEstCostHeaderID).
+        END.          
     END.
 
 END PROCEDURE.
@@ -3261,6 +3259,16 @@ PROCEDURE pCopyDBToTempTables PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttEstCostForm.
+    EMPTY TEMP-TABLE ttEstCostDetail.
+    EMPTY TEMP-TABLE ttEstCostSummary.
+    EMPTY TEMP-TABLE ttEstCostOperation.
+    EMPTY TEMP-TABLE ttEstCostMisc.
+    EMPTY TEMP-TABLE ttEstCostMaterial.
+    EMPTY TEMP-TABLE ttEstCostBlank.
+    EMPTY TEMP-TABLE ttEstCostItem.
+    EMPTY TEMP-TABLE ttEstCostHeader.
         
     FOR FIRST EstCostHeader NO-LOCK
         WHERE EstCostHeader.estCostHeaderID EQ ipiEstCostHeaderID:
@@ -3343,7 +3351,7 @@ DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
         WHERE EstCostHeader.estCostHeaderID EQ ttEstCostHeader.estCostHeaderID NO-ERROR.
         IF AVAILABLE EstCostHeader THEN 
         DO:
-        BUFFER-COPY ttEstCostHeader TO EstCostHeader.  
+            BUFFER-COPY ttEstCostHeader TO EstCostHeader.  
         END. 
         ELSE 
         DO: 
@@ -3406,7 +3414,11 @@ DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
             BUFFER-COPY ttEstCostItem TO EstCostItem.
         END.                             
     END.
-            
+     
+    /*Remove all existing estCostDetails for commission and profit*/
+    RUN pPurgeCostDetailDB(ipiEstCostHeaderID, "commission").
+    RUN pPurgeCostDetailDB(ipiEstCostHeaderID, "pProfit"). 
+           
     FOR EACH ttEstCostDetail NO-LOCK 
         WHERE ttEstCostDetail.estCostHeaderID EQ ipiEstCostHeaderID:
         
@@ -3477,7 +3489,8 @@ DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
             BUFFER-COPY ttEstCostMisc TO EstCostMisc.
         END.       
     END. 
-        
+    
+    RUN pPurgeCostSummaryDB(ipiEstCostHeaderID).    
     FOR EACH ttEstCostSummary NO-LOCK
         WHERE ttEstCostSummary.estCostHeaderID EQ ipiEstCostHeaderID:
             
@@ -3498,16 +3511,6 @@ DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
         END.         
     END.
     
-    EMPTY TEMP-TABLE ttEstCostForm.
-    EMPTY TEMP-TABLE ttEstCostDetail.
-    EMPTY TEMP-TABLE ttEstCostSummary.
-    EMPTY TEMP-TABLE ttEstCostOperation.
-    EMPTY TEMP-TABLE ttEstCostMisc.
-    EMPTY TEMP-TABLE ttEstCostMaterial.
-    EMPTY TEMP-TABLE ttEstCostBlank.
-    EMPTY TEMP-TABLE ttEstCostItem.
-    EMPTY TEMP-TABLE ttEstCostHeader.
-
 END PROCEDURE.
 
 PROCEDURE pGetEstCostCategoryTT PRIVATE:
@@ -5778,6 +5781,27 @@ PROCEDURE pPurgeCostDetail PRIVATE:
     
 END PROCEDURE.
 
+PROCEDURE pPurgeCostDetailDB PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Purges all EstCostDetail data for a given headerID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCategory AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-EstCostDetail FOR EstCostDetail.
+    
+    FOR EACH bf-EstCostDetail EXCLUSIVE-LOCK 
+        WHERE bf-EstCostDetail.estCostHeaderID EQ ipiEstCostHeaderID
+        AND (ipcCategory EQ "" OR bf-EstCostDetail.estCostCategoryID EQ ipcCategory)
+        USE-INDEX estHeader:
+        DELETE bf-EstCostDetail.
+    END.
+    
+    RELEASE bf-EstCostDetail.
+    
+END PROCEDURE.
+
 PROCEDURE pPurgeCostSummary PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Purges all ttEstCostSummary data for a given headerID
@@ -5793,6 +5817,23 @@ PROCEDURE pPurgeCostSummary PRIVATE:
     END.
     
     RELEASE bf-ttEstCostSummary.
+    
+END PROCEDURE.
+PROCEDURE pPurgeCostSummaryDB PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Purges all ttEstCostSummary data for a given headerID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
+
+    DEFINE BUFFER bf-EstCostSummary FOR EstCostSummary.
+    FOR EACH bf-EstCostSummary EXCLUSIVE-LOCK 
+        WHERE bf-EstCostSummary.estCostHeaderID EQ ipiEstCostHeaderID
+        USE-INDEX estHeader:
+        DELETE bf-EstCostSummary.
+    END.
+    
+    RELEASE bf-EstCostSummary.
     
 END PROCEDURE.
 
