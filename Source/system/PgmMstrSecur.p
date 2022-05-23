@@ -88,7 +88,8 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "windows/matprep.w" AND ipFunction EQ "") OR /*NZ5 (NZ4) Preparation Material Types*/
                 (ipProgName EQ "windows/message.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "windows/std-code.w" AND ipFunction EQ "") OR /*NZ7 (NZ6) Standards Matrix*/
-                (ipProgName EQ "windows/uom.w" AND ipFunction EQ "") OR /*NZ8 (NZ7) Units of Measure*/                   
+                (ipProgName EQ "windows/uom.w" AND ipFunction EQ "") OR /*NZ8 (NZ7) Units of Measure*/  
+                (ipProgName EQ "oe/v-ord.w" AND ipFunction EQ "") OR /*OU1 Ack. Date Mod - Check security for Admin*/ 
                 (ipProgName EQ "" AND ipFunction EQ "")
                 ) THEN ASSIGN opCanAccess = FALSE.
             /* Second group - programs/functions ONLY available to Administrators */
