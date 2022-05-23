@@ -393,6 +393,11 @@ PROCEDURE enable-carrier :
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE rd_chg-method.
     ENABLE tg_inactive .
+    IF adm-new-record AND adm-adding-record THEN 
+    DO:
+       tg_inactive = NO.
+       DISPLAY tg_inactive WITH FRAME {&FRAME-NAME}.           
+    END.
   END.
 
 END PROCEDURE.
