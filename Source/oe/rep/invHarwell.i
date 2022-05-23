@@ -1,75 +1,113 @@
 /* oe/rep/invHarwell.i */
 
-PUT "<FArial>".
-PUT "<C+25><#1>".
-PUT "<=1>" SKIP.
-PUT "<C1><#2>"
-    "<C2><P10><R2><#1><R+10><C+37><IMAGE#1=" ls-full-img1  SKIP
-    
-    "<FCourier New>"
-    space(7) "Facturé À,Bill To:" SPACE(30) "Expédié À,Ship To:" SKIP
-    SPACE(7) inv-head.cust-name v-shipto-name AT 56 skip
-    SPACE(7) cust.addr[1] FORMAT "x(42)"    v-shipto-addr[1] AT 56 FORMAT "x(42)" SKIP
-    SPACE(7) cust.addr[2] FORMAT "x(42)"  v-shipto-addr[2] AT 56 FORMAT "x(42)" SKIP
-    SPACE(7) v-addr3 FORMAT "x(42)"   v-sold-addr3 AT 56 FORMAT "x(42)"  SKIP 
-    SPACE(7) cAddr4 FORMAT "x(42)"   cShipAddr4 AT 56 FORMAT "x(42)" SKIP .
-v-printline = v-printline + 18.
-/*IF lv-display-comp THEN
-   PUT "<=2><C3><R+2><FGCOLOR=" trim(lv-comp-color) + ">"
-       "<=2><C2><R+3><P20><B>" lv-comp-name "<FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" . */
-
-PUT "</B><P10><R4><C50><#3><FROM><R10><C80><RECT><||3>" SKIP.
-PUT "<R6><C50><FROM><R6><C80><LINE><||3>" SKIP
-    "<R8><C50><FROM><R8><C80><LINE><||3>" SKIP
-    "<R4><C62><FROM><R6><C62><LINE><||3>" SKIP
-    "<R6><C65><FROM><R8><C65><LINE><||3>" SKIP
-    "<R8><C65><FROM><R10><C65><LINE><||3>" SKIP.
-        
-PUT "<FArial><P12><=#3><R-2><B><C50>Facturé/Invoice#: " inv-head.inv-no FORMAT ">>>>>>>9" "</B><P10><C74>Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
-    "<=#3> Client                      Contact"
-    "<=#3><R+2> Téléphone                        Fax" 
-    "<=#3><R+4> Bdc PO                           Date <FCourier New>"    
-    "<=3><R+1> " inv-head.cust-no  space(7) cust.contact
-    "<=3><R+3> " cust.area-code + cust.phone format "(999)999-9999" space(5) cust.fax
-    "<=3><R+5> " v-po-no space(3) v-inv-date .
-
-    
-PUT "<R21><C1><#4><FROM><R25><C80><RECT><||3>" SKIP
-    "<R23><C1><FROM><R23><C80><LINE><||3>" SKIP    
-    "<R21><C11><FROM><R25><C11><LINE><||3>" SKIP
-    "<R21><C22><FROM><R25><C22><LINE><||3>" SKIP
-    "<R21><C38><FROM><R25><C38><LINE><||3>" SKIP
-    "<R21><C55><FROM><R25><C55><LINE><||3>" SKIP
-    "<R21><C65><FROM><R25><C65><LINE><||3>" SKIP
-    "<R21><C72><FROM><R25><C72><LINE><||3>" SKIP
-    .
-v-printline = v-printline + 5.
-
-
 PUT 
-    "<FArial><=4>     Expédition              FAB                        Expéditeur                         Termes                      Représentant     Palettes          BL" SKIP
-    "<FArial><=4><R+1>     Ship Date               FOB                          Ship Via                             Terms                          S.Person       Pallets         BOL#" SKIP
-     "<FCourier New><=4><R+3> " v-date-ship FORM "99/99/9999" space(2)
-     v-fob FORM "x(12)" SPACE(1)
-     v-shipvia FORM "x(20)" SPACE(1)
-     xinv-head.terms-d FORM "x(15)" space(4) v-salesman FORM "x(8)"
-     v-tot-pallets FORM "->>>>,>>9" 
-     "<C72>"xinv-head.bol-no
+    "<FArial><C+25><#1><=1>" SKIP.
+
+/* Business Form Logo */
+PUT 
+    "<C1><#2>" 
+    "<C2><P10><R2><#1><R+10><C+37><IMAGE#1=" ls-full-img1  SKIP.
+
+/* Top Right Invoice Section - preprint*/
+PUT 
+    "<FArial><P12><=#3><R2><B><C55>"
+    "FACTURE / INVOICE" 
+    "<FArial><P7></B>" /*Shrink font, turn off bold */
+    "<R4><C55>Facture No"
+    "<R4.25><C65>:"
+    "<R4.5><C55>Invoice No"
+    "<R6><C55>Date de la Facture"
+    "<R6.25><C65>:"
+    "<R6.5><C55>Invoice Date"
+    "<R8.25><C55>Page"
+    "<R8.25><C65>:"
+    "<R10><C55>Bon de Livraison No"
+    "<R10.25><C65>:"
+    "<R10.5><C55>Delivery Receipt No"
+    .
+    
+    
+/* Top right Invoice Section - data */     
+PUT "<FCourier New><P10>"
+    "<R4.25><C67>" TRIM(STRING(inv-head.inv-no)) 
+    "<R6.25><C67>" v-inv-date 
+    "<R8.25><C67>" TRIM(STRING(PAGE-NUM - v-page-num,">>9"))
+    "<R10.25><C67>" TRIM(STRING(lv-bol-no)) 
+    .
+
+/* Address information */
+PUT 
+    "<FArial><P8>"
+    "<R13><C2>Vendu à"
+    "<R13><C41>Expédié à"
+    "<R13.8>"
+    "<R13.8><C2>Sold To"
+    "<R13.8><C41>Ship To"
+    "<FCourier New><P10>"
+    inv-head.cust-name AT 8 
+    v-shipto-name AT 56 SKIP 
+    cust.addr[1] FORMAT "x(42)" AT 8
+    v-shipto-addr[1] FORMAT "x(42)" AT 56 SKIP
+    cust.addr[2] FORMAT "x(42)" AT 8 
+    v-shipto-addr[2] FORMAT "x(42)" AT 56 SKIP
+    v-addr3 FORMAT "x(42)" AT 8 
+    v-sold-addr3 FORMAT "x(42)" AT 56 SKIP
+    cAddr4 FORMAT "x(42)" AT 8 
+    cShipAddr4 FORMAT "x(42)" AT 56 SKIP.
+
+PUT "</B><P10>".
+    
+/* First header block - box */
+PUT "<R21.5><C1><#4><FROM><R24.5><C80><RECT><||3>"  /* Rectangle */
+    "<R23><C1><FROM><R23><C80><LINE><||3>"          /* Horiz. Divider */
+    "<R21.5><C16><FROM><R24.5><C16><LINE><||3>"     /* Vert Line */
+    "<R21.5><C37><FROM><R24.5><C37><LINE><||3>"     /* Vert Line */
+    "<R21.5><C53><FROM><R24.5><C53><LINE><||3>"     /* Vert Line */
+    "<R21.5><C69><FROM><R24.5><C69><LINE><||3>"     /* Vert Line */
+    .
+/* First header block - labels and data */
+PUT 
+    "<FArial><P8>"
+    "<R22><C2>CONDITIONS / TERMS"
+    "<R22><C17>VENDEUR / SALESMAN"
+    "<R22><C38>EXPEDIE VIA / SHIP VIA"
+    "<R22><C54>CAMION NO/TRUCK NO"
+    "<R22><C70>F.A.B./F.O.B."
+    "<FCourier New><P10>"
+    "<R23.3><C2>" inv-head.terms-d    FORMAT "x(15)" 
+    "<R23.3><C17>" v-salesman       FORMAT "x(30)"
+    "<R23.3><C38>" v-shipvia        FORMAT "x(20)"
+    "<R23.3><C70>" v-fob            FORMAT "x(12)" 
     SKIP.
 
+/* Line list title box */
+PUT 
+    "<R25><C1><#5><FROM><R26.5><C80><RECT><||3>"      /* Rectangle */    
+    "<R25><C8><FROM><R26.5><C8><LINE><||3>"           /* Vert Line */ 
+    "<R25><C34><FROM><R26.5><C34><LINE><||3>"         /* Vert Line */
+    "<R25><C49><FROM><R26.5><C49><LINE><||3>"         /* Vert Line */
+    "<R25><C58><FROM><R26.5><C58><LINE><||3>"         /* Vert Line */
+    "<R25><C60><FROM><R26.5><C60><LINE><||3>"         /* Vert Line */
+    "<R25><C70><FROM><R26.5><C70><LINE><||3>"         /* Vert Line */
+    .   
+/* Line list labels */
+PUT 
+    "<FArial><P7>"
+    "<R25.1><C1.5>QTE COMM"
+    "<R25.1><C14>COMMANDE NO/DESCRIPTION"
+    "<R25.1><C36>NO COMMANDE CLIENT"
+    "<R25.1><C50>QTE EXPEDIE"
+    "<R25.1><C58.5>P"
+    "<R25.5><C62>PRIX/PRICE"
+    "<R25><C73>MONTANT"
+    "<R25.8><C1.7>QTY ORD"
+    "<R25.8><C15>ORDER NO/DESCRIPTION"
+    "<R25.8><C38>CUSTOMER PO#"
+    "<R25.8><C50>QTY SHIPPED"
+    "<R25.8><C58.59>C"
+    "<R25.8><C73.5>AMOUNT"
+    .
 
-PUT "<R26><C1><#5><FROM><R28><C80><RECT><||3>" SKIP    
-                "<R26><C8.5><FROM><R28><C8.5><LINE><||3>" SKIP
-                "<R26><C14.5><FROM><R28><C14.5><LINE><||3>" SKIP
-                "<R26><C22><FROM><R28><C22><LINE><||3>" SKIP
-                "<R26><C34.5><FROM><R28><C34.5><LINE><||3>" SKIP
-                "<R26><C56><FROM><R28><C56><LINE><||3>" SKIP
-                "<R26><C65><FROM><R28><C65><LINE><||3>" SKIP
-                "<R26><C69><FROM><R28><C69><LINE><||3>" SKIP
-                .   
-PUT "<FArial><=5>Commandé  Expédié  Commande   Item#/CustPart#                       Description                            Prix          UM            Montant" SKIP(1).
-PUT "<FArial><=5><R+1>  Ordered     Shipped    Order #                                                                                                      Price         UoM          Amount" SKIP(1).
-v-printline = v-printline + 4.
-           
-
-PUT "<FCourier New>".
+ASSIGN 
+v-printline = v-printline + 26.
+PUT "<FCourier New><P9>".
