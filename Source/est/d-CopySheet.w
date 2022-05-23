@@ -28,7 +28,7 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE INPUT  PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipRowIdeb AS ROWID NO-UNDO.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE ghBrowse2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE ghBrowse3 AS HANDLE NO-UNDO.
@@ -42,7 +42,8 @@ DEFINE VARIABLE giFormCopyFrom AS INTEGER NO-UNDO.
 DEFINE VARIABLE giBlankCopyFrom AS INTEGER NO-UNDO.
 DEFINE VARIABLE gcFormCopyTo AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcBlankCopyTo AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lCopyFromSelected AS LOGICAL NO-UNDO INITIAL NO.
+DEFINE VARIABLE gcEstimateNo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcRowIDttebCopyFrom AS ROWID NO-UNDO.
 
 DEFINE VARIABLE cestyle-log LIKE sys-ctrl.log-fld NO-UNDO.
 DEFINE VARIABLE cestyle-chr LIKE sys-ctrl.char-fld NO-UNDO.
@@ -99,8 +100,8 @@ RUN pGetCeStyle.
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 tteb
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 tteb
 &Scoped-define SELF-NAME BROWSE-2
-&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH tteb       WHERE tteb.est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION
-&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH tteb       WHERE tteb.est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION.
+&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH tteb       WHERE tteb.est-no EQ gcEstimateNo NO-LOCK INDEXED-REPOSITION
+&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH tteb       WHERE tteb.est-no EQ gcEstimateNo NO-LOCK INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-BROWSE-2 tteb
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 tteb
 
@@ -111,8 +112,8 @@ RUN pGetCeStyle.
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-3 tteb
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-3 tteb
 &Scoped-define SELF-NAME BROWSE-3
-&Scoped-define QUERY-STRING-BROWSE-3 FOR EACH tteb       WHERE tteb.est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION
-&Scoped-define OPEN-QUERY-BROWSE-3 OPEN QUERY {&SELF-NAME} FOR EACH tteb       WHERE tteb.est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION.
+&Scoped-define QUERY-STRING-BROWSE-3 FOR EACH tteb       WHERE ROWID (tteb) NE gcRowIDttebCopyFrom NO-LOCK INDEXED-REPOSITION
+&Scoped-define OPEN-QUERY-BROWSE-3 OPEN QUERY {&SELF-NAME} FOR EACH tteb       WHERE ROWID (tteb) NE gcRowIDttebCopyFrom NO-LOCK INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-BROWSE-3 tteb
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-3 tteb
 
@@ -263,10 +264,10 @@ ASSIGN
 /* Query rebuild information for BROWSE BROWSE-2
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH eb
-      WHERE est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION.
+      WHERE est-no EQ gcEstimateNo NO-LOCK INDEXED-REPOSITION.
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION"
-     _Where[1]         = "est-no EQ ipcEstimateNo"
+     _Where[1]         = "est-no EQ gcEstimateNo"
      _Query            is OPENED
 */  /* BROWSE BROWSE-2 */
 &ANALYZE-RESUME
@@ -275,10 +276,10 @@ OPEN QUERY {&SELF-NAME} FOR EACH eb
 /* Query rebuild information for BROWSE BROWSE-3
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH eb
-      WHERE est-no EQ ipcEstimateNo NO-LOCK INDEXED-REPOSITION.
+      WHERE est-no EQ gcEstimateNo NO-LOCK INDEXED-REPOSITION.
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION"
-     _Where[1]         = "est-no EQ ipcEstimateNo"
+     _Where[1]         = "est-no EQ gcEstimateNo"
      _Query            is OPENED
 */  /* BROWSE BROWSE-3 */
 &ANALYZE-RESUME
@@ -294,37 +295,6 @@ OPEN QUERY {&SELF-NAME} FOR EACH eb
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Estimate Item Copy */
 DO:
   APPLY "END-ERROR":U TO SELF.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define BROWSE-NAME BROWSE-2
-&Scoped-define SELF-NAME BROWSE-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 Dialog-Frame
-ON VALUE-CHANGED OF lSelectable IN BROWSE BROWSE-2
-DO:  
-    DEFINE BUFFER buf-tteb FOR tteb.
-    ASSIGN lCopyFromSelected = YES.
-    DO iCounter = 1 TO ghBrowse2:NUM-COLUMNS:
-        ghColumn = ghBrowse2:GET-BROWSE-COLUMN(iCounter).
-        IF ghColumn:NAME = "lSelectable" AND ghColumn:SCREEN-VALUE = "YES"  THEN 
-            ghColumn:READ-ONLY = TRUE.
-        ELSE IF ghColumn:NAME = "Form-No" THEN 
-            ASSIGN giFormCopyFrom = INTEGER (ghColumn:SCREEN-VALUE). 
-        ELSE IF ghColumn:NAME = "Blank-No" THEN 
-            ASSIGN giBlankCopyFrom = INTEGER (ghColumn:SCREEN-VALUE).   
-        ELSE NEXT.
-    END.
-    
-    FIND FIRST buf-tteb NO-LOCK
-        WHERE buf-tteb.form-no EQ giFormCopyFrom
-        AND buf-tteb.blank-no EQ giBlankCopyFrom NO-ERROR.
-        
-    IF AVAILABLE buf-tteb THEN 
-        OPEN QUERY Browse-3 
-        FOR EACH tteb WHERE ROWID(tteb) NE  ROWID (buf-tteb)
-        NO-LOCK INDEXED-REPOSITION.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -358,13 +328,6 @@ DO:
     DEFINE VARIABLE iBlankWidLenIndex AS INTEGER NO-UNDO.
     DEFINE VARIABLE lStyleSame        AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cBoxDesign        AS CHARACTER NO-UNDO.
-    IF lCopyFromSelected EQ NO THEN 
-    DO:
-        MESSAGE "Please select Form or Blank from CopyFromItem"
-        VIEW-AS ALERT-BOX WARNING. 
-        
-        RETURN NO-APPLY.      
-    END.
     
     IF NUM-ENTRIES(gcFormCopyTo) EQ 0 THEN 
     DO:
@@ -392,24 +355,24 @@ DO:
     IF lCopyBlankInfo THEN 
     DO: 
         FIND FIRST buf-eb NO-LOCK  
-            WHERE  buf-eb.est-no EQ ipcEstimateNo
+            WHERE  buf-eb.est-no EQ gcEstimateNo
             AND  buf-eb.form-no EQ giFormCopyFrom
             AND  buf-eb.blank-no EQ giBlankCopyFrom NO-ERROR.
           
         FIND FIRST buf-ef NO-LOCK
-            WHERE buf-ef.est-no EQ ipcEstimateNo
+            WHERE buf-ef.est-no EQ gcEstimateNo
             AND buf-ef.form-no EQ giFormCopyFrom NO-ERROR. 
                  
         IF AVAILABLE buf-ef AND AVAILABLE buf-eb THEN 
         DO:       
             REPEAT iCountBlank = 1 TO NUM-ENTRIES(gcFormCopyTo):
                 FIND FIRST buf2-eb EXCLUSIVE-LOCK 
-                    WHERE  buf2-eb.est-no EQ ipcEstimateNo
+                    WHERE  buf2-eb.est-no EQ gcEstimateNo
                     AND  buf2-eb.form-no EQ INTEGER (ENTRY (iCountBlank, gcFormCopyTo))
                     AND  buf2-eb.blank-no EQ INTEGER (ENTRY (iCountBlank, gcBlankCopyTo)) NO-ERROR.
                 
                 FIND FIRST buf2-ef EXCLUSIVE-LOCK 
-                    WHERE  buf2-ef.est-no EQ ipcEstimateNo
+                    WHERE  buf2-ef.est-no EQ gcEstimateNo
                     AND  buf2-ef.form-no EQ INTEGER (ENTRY (iCountBlank, gcFormCopyTo)) NO-ERROR.
                     
                 IF AVAILABLE buf2-ef AND AVAILABLE buf2-eb  THEN 
@@ -478,7 +441,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &Scoped-define SELF-NAME TOGGLE-Oth-Attributes
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL TOGGLE-Oth-Attributes Dialog-Frame
 ON VALUE-CHANGED OF TOGGLE-Oth-Attributes IN FRAME Dialog-Frame /* Copy Other Attributes */
@@ -513,13 +475,41 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+   DEFINE BUFFER buf-tteb FOR tteb.    
    ghBrowse2 = BROWSE Browse-2:HANDLE. 
-   ghBrowse3 = BROWSE Browse-3:HANDLE. 
-   FOR EACH eb NO-LOCK 
-      WHERE eb.est-no = ipcEstimateNo:
+   ghBrowse3 = BROWSE Browse-3:HANDLE.
+    
+   FIND FIRST eb NO-LOCK WHERE ROWID(eb) EQ iprowideb NO-ERROR.
+   IF AVAILABLE eb THEN 
+   ASSIGN gcEstimateNo = eb.est-no
+          giFormCopyFrom = eb.form-no
+          giBlankCopyFrom = eb.blank-no.
+    
+   FOR EACH buf-eb NO-LOCK 
+      WHERE buf-eb.est-no = gcEstimateNo:
           CREATE tteb.
-          BUFFER-COPY eb TO tteb. 
+          BUFFER-COPY buf-eb TO tteb. 
    END.
+   RELEASE buf-eb.
+   
+    FIND FIRST buf-tteb NO-LOCK 
+        WHERE  buf-tteb.est-no EQ gcEstimateNo 
+          AND  buf-tteb.form-no EQ giFormCopyFrom
+          AND buf-tteb.blank-no EQ giBlankCopyFrom NO-ERROR.
+    IF AVAILABLE buf-tteb THEN 
+    DO:
+        ASSIGN buf-tteb.lSelectable = YES
+               gcRowIDttebCopyFrom = ROWID(buf-tteb).
+    END.  
+    RELEASE buf-tteb. 
+     
+    DO iCounter = 1 TO ghBrowse2:NUM-COLUMNS:
+        ghColumn = ghBrowse2:GET-BROWSE-COLUMN(iCounter).
+        IF ghColumn:NAME = "lSelectable" THEN 
+            ghColumn:READ-ONLY = TRUE.
+        ELSE NEXT.
+    END.
+      
    RUN enable_UI.
    TOGGLE-RecalcBoxDesign:SENSITIVE = FALSE.
    WAIT-FOR GO OF FRAME {&FRAME-NAME}.

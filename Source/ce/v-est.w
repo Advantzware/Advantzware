@@ -1789,7 +1789,7 @@ PROCEDURE copy-blank :
 ------------------------------------------------------------------------------*/
   // RUN est/d-copyblank.w (INPUT ROWID(eb),
   //                        INPUT ROWID(ef)).
-  RUN est/d-CopySheet.w(INPUT eb.est-no).  
+  RUN est/d-CopySheet.w(INPUT ROWID(eb)).  
 
 END PROCEDURE.
 
