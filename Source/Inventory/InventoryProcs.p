@@ -576,6 +576,219 @@ PROCEDURE Inventory_AdjustRMIssueTransactionQuantity:
 
 END PROCEDURE.
 
+
+PROCEDURE Inventory_ConvertFGToRM:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFGItemID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItemID   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    
+    RUN pConvertFGToRM (
+        INPUT  ipcCompany,
+        INPUT  ipcFGItemID,
+        INPUT  ipcRMItemID,
+        OUTPUT oplError,
+        OUTPUT opcMessage
+        ).
+END PROCEDURE.
+
+PROCEDURE pConvertFGToRM PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFGItemID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItemID   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lError         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValidateFgBin AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dQuantity      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCost          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE riRMRctd       AS ROWID     NO-UNDO.
+    
+    DEFINE BUFFER bf-loadtag       FOR loadtag.
+    DEFINE BUFFER bf-itemfg        FOR itemfg.
+    DEFINE BUFFER bf-item          FOR item.
+    DEFINE BUFFER bf-flute         FOR flute.
+    DEFINE BUFFER bf-industry-item FOR item.
+    DEFINE BUFFER bf-fg-bin        FOR fg-bin.
+
+    MAIN-BLOCK:
+    DO ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:    
+        FIND FIRST bf-itemfg NO-LOCK
+             WHERE bf-itemfg.company EQ ipcCompany
+               AND bf-itemfg.i-no    EQ ipcFGItemID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-itemfg OR ipcFGItemID EQ "" THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "FG Item# '" + ipcFGItemID + "' is not valid"
+                .
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        END.
+    
+        IF ipcRMItemID EQ "" THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "RM Item#  cannot be blank"
+                .
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        END.
+    
+        FIND FIRST bf-item NO-LOCK
+             WHERE bf-item.company EQ ipcCompany
+               AND bf-item.i-no    EQ ipcRMItemID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-item THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "Invalid RM Item# '" + ipcRMItemID + "'"
+                .
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        END.
+        
+        IF bf-item.i-code NE "R" THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "RM Item# type has to be Real"
+                .
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        END.
+        
+        FIND CURRENT bf-item EXCLUSIVE-LOCK NO-ERROR.
+       
+        FOR EACH bf-fg-bin NO-LOCK
+           WHERE bf-fg-bin.company EQ bf-itemfg.company
+             AND bf-fg-bin.i-no    EQ bf-itemfg.i-no
+             AND bf-fg-bin.qty     GT 0
+             AND bf-fg-bin.cust-no EQ ''
+             AND bf-fg-bin.onHold  EQ FALSE:
+    
+            FIND FIRST bf-loadtag EXCLUSIVE-LOCK
+                 WHERE bf-loadtag.company   EQ bf-fg-bin.company
+                   AND bf-loadtag.item-type EQ NO
+                   AND bf-loadtag.tag-no    EQ bf-fg-bin.tag
+                 NO-ERROR. 
+            IF AVAILABLE(bf-loadtag) THEN
+                ASSIGN
+                    bf-loadtag.item-type = YES
+                    bf-loadtag.po-no     = 0
+                    bf-loadtag.line      = 0
+                    bf-loadtag.job-no    = ""
+                    bf-loadtag.job-no2   = 0
+                    bf-loadtag.form-no   = 0
+                    bf-loadtag.blank-no  = 0
+                    bf-loadtag.ord-no    = 0
+                    bf-loadtag.i-no      = CAPS(bf-item.i-no)
+                    bf-loadtag.i-name    = bf-item.i-name
+                    bf-loadtag.sts       = "Printed"
+                    bf-loadtag.tag-date  = TODAY
+                    bf-loadtag.tag-time  = TIME
+                    .
+
+            RUN Conv_QuantityFromUOMToUOM (
+                INPUT  bf-item.company,
+                INPUT  bf-item.i-no,
+                INPUT  "RM",
+                INPUT  bf-fg-bin.qty,
+                INPUT  "EA", 
+                INPUT  bf-item.cons-uom,
+                INPUT  0,
+                INPUT  (IF bf-item.s-len EQ 0 THEN 12 ELSE bf-item.s-len), 
+                INPUT  (IF bf-item.s-wid EQ 0 THEN bf-item.r-wid ELSE bf-item.s-wid), 
+                INPUT  bf-item.s-dep,
+                INPUT  0,
+                OUTPUT dQuantity,
+                OUTPUT oplError,
+                OUTPUT opcMessage
+                ).    
+
+            RUN Conv_ValueFromUOMtoUOM(
+                INPUT  bf-item.company, 
+                INPUT  bf-item.i-no, 
+                INPUT  "RM", 
+                INPUT  bf-fg-bin.std-tot-cost,
+                INPUT  bf-fg-bin.pur-uom,
+                INPUT  (IF AVAILABLE bf-item THEN bf-item.cons-uom ELSE "M"), 
+                INPUT  0,
+                INPUT  bf-item.s-len,
+                INPUT  bf-item.s-wid,
+                INPUT  bf-item.s-dep,
+                INPUT  0, 
+                OUTPUT dCost,
+                OUTPUT oplError, 
+                OUTPUT opcMessage
+                ).
+
+            RUN Inventory_AdjustFinishedGoodBinQty (
+                INPUT  ROWID(bf-fg-bin),
+                INPUT  - bf-fg-bin.qty,
+                INPUT  "Adjusting Quantity for conversion",
+                OUTPUT lSuccess,
+                OUTPUT opcMessage        
+                ).
+            oplError = NOT lSuccess.
+            IF oplError THEN
+                UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+            
+            EMPTY TEMP-TABLE ttBrowseInventory.
+            
+            RUN pCreateRMTransaction (
+                INPUT  bf-item.company, 
+                INPUT  TODAY, 
+                INPUT  bf-item.i-no, 
+                INPUT  bf-fg-bin.tag, 
+                INPUT  bf-fg-bin.loc, 
+                INPUT  bf-fg-bin.loc-bin, 
+                INPUT  gcTransactionTypeReceive, 
+                INPUT  dQuantity, 
+                INPUT  dCost, 
+                INPUT  "", 
+                INPUT  "",
+                OUTPUT riRMRctd, 
+                OUTPUT oplError, 
+                OUTPUT opcMessage
+                ).             
+            IF oplError THEN
+                UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+                
+            CREATE ttBrowseInventory.
+            ASSIGN
+                ttBrowseInventory.inventoryStatus = gcStatusStockScanned
+                ttBrowseInventory.inventoryStockID = STRING(riRMRctd)
+                .
+                
+            RUN Inventory_PostRawMaterials (    
+                INPUT  bf-item.company,
+                INPUT  TODAY,
+                OUTPUT lSuccess,
+                OUTPUT cMessage,
+                INPUT-OUTPUT TABLE ttBrowseInventory
+                ).
+            oplError = NOT lSuccess.
+            IF oplError THEN
+                UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+
+            bf-item.last-cost = dCost.                
+        END.
+
+        RUN fg/fg-reset.p (RECID(bf-itemfg)).
+    
+        RUN rm/rm-reset.p (RECID(bf-item)).
+    END.
+END PROCEDURE.
+
 PROCEDURE pGetRMItemOnHandQuantity PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
