@@ -1070,7 +1070,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-probe , 'TableIO':U , h_probe ).
        RUN add-link IN adm-broker-hdl ( h_vp-box , 'boxprt':U , h_probe ).
        RUN add-link IN adm-broker-hdl ( h_vp-spec , 'specprt':U , h_probe ).
-       RUN add-link IN adm-broker-hdl ( h_vp-editquantityc , 'editqant':U , h_probe ).
+       RUN add-link IN adm-broker-hdl ( h_vp-editquantityc , 'editquant':U , h_probe ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'initbtn':U , h_p-probe ).
 
        /* Links to SmartViewer h_vi-est-5. */

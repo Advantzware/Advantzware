@@ -27,8 +27,30 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+/*
+{cec/print4.i shared shared}
+{cec/print42.i shared}
 
+def shared buffer xest for est.
+
+def shared temp-table tt-qtty field qtty like qtty
+                              field rel like rels
+                              FIELD lRunship LIKE lRunShips.
+
+def TEMP-TABLE w-est NO-UNDO field w-est-no like est.est-no
+                   field w-row-id as   rowid.
+
+def var i as int no-undo.
+def var li-seq as int no-undo.
+DEF VAR ld-msf AS DEC NO-UNDO.
+def shared var cocode as cha no-undo.
+
+{custom/globdefs.i}
+cocode = g_company.
+{cec/msfcalc.i}
+*/
 /* Parameters Definitions ---                                           */
+//DEFINE INPUT PARAMETER iprowidEst AS ROWID NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
@@ -184,14 +206,136 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL edit-quantities V-table-Win
 ON CHOOSE OF edit-quantities IN FRAME F-Main /* Edit Quantities */
 DO:
+    DEF VAR lv-estqty-recid AS RECID NO-UNDO.
+    DEF VAR lv-hld-eqty LIKE est-qty.eqty NO-UNDO.
+    DEF VAR char-val AS CHAR NO-UNDO. 
+    DEF VAR char-val2 AS CHAR NO-UNDO.        
+    DEF VAR date-val AS CHAR NO-UNDO.
+    DEF VAR date-val2 AS CHAR NO-UNDO.
+    DEFINE BUFFER bff-eb FOR eb.
+    DEFINE BUFFER bff-ef FOR ef.
+    DEFINE BUFFER bf-est FOR est.
+    
     MESSAGE "hello"
     VIEW-AS ALERT-BOX.
     DEF VAR char-hdl AS cha NO-UNDO.
+    lv-estqty-recid = IF AVAIL est-qty THEN RECID(est-qty) ELSE ?.
+    MESSAGE "lv-estqty-recid " lv-estqty-recid
+    VIEW-AS ALERT-BOX.
+ /*   FIND FIRST est NO-LOCK WHERE ROWID(est) EQ iprowidEst NO-ERROR.
+    IF AVAILABLE est THEN 
+    MESSAGE est.est-no
+    VIEW-AS ALERT-BOX. */
+    
+    FIND FIRST eb NO-LOCK
+    WHERE eb.company EQ "001"
+      AND eb.est-no  EQ "12345683"
+      AND eb.form-no NE 0
+    NO-ERROR.
 
+    FIND FIRST est-qty NO-LOCK
+    WHERE est-qty.company EQ "001"
+      AND est-qty.est-no  EQ "12345683"
+    NO-ERROR.
+    MESSAGE "est-qty.eqty " est-qty.eqty skip
+            "RECID(eb) " RECID(eb) 
+    VIEW-AS ALERT-BOX.
+    
+    FIND FIRST bf-est NO-LOCK
+     WHERE bf-est.est-no EQ est-qty.est-no NO-ERROR.
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"editquant-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-    MESSAGE 12
+    RUN est/estqtyd.w (lv-estqty-recid, RECID(eb), STRING (est-qty.eqty), OUTPUT char-val, OUTPUT char-val2, OUTPUT date-val, OUTPUT date-val2).
+    MESSAGE char-val
     VIEW-AS ALERT-BOX.
+    IF char-val NE "?" OR char-val2 NE "?" THEN DO:
+        
+    END.  
+
+  IF char-val NE "?" THEN DO:
+     IF INT(ENTRY(1,char-val)) NE 0 THEN DO:
+         MESSAGE INT(ENTRY(1,char-val))
+         VIEW-AS ALERT-BOX.
+     END.
+    
+     IF INT(ENTRY(2,char-val)) NE 0 THEN DO:
+         MESSAGE INT(ENTRY(2,char-val))
+         VIEW-AS ALERT-BOX.
+     END.
+    
+     IF INT(ENTRY(3,char-val)) NE 0 THEN DO:
+
+     END.
+    
+     IF INT(ENTRY(4,char-val)) NE 0 THEN DO:
+
+     END.
+    
+     IF INT(ENTRY(5,char-val)) NE 0 THEN DO:
+
+     END.
+    
+     IF INT(ENTRY(6,char-val)) NE 0 THEN DO:
+
+     END.
+    
+     IF INT(ENTRY(7,char-val)) NE 0 THEN DO:
+
+     END.
+    
+     IF INT(ENTRY(8,char-val)) NE 0 THEN DO:
+
+     END.
+    
+     IF INT(ENTRY(9,char-val)) NE 0 THEN DO:
+
+     END.
+    
+     IF INT(ENTRY(10,char-val)) NE 0 THEN DO:
+
+     END.
+  END.
+
+  IF char-val2 NE "?" THEN DO:
+     IF INT(ENTRY(1,char-val2)) NE 0 THEN DO:
+     END.
+    
+     IF INT(ENTRY(2,char-val2)) NE 0 THEN DO:
+
+     END.
+    
+     IF INT(ENTRY(3,char-val2)) NE 0 THEN DO:
+
+     END.
+    
+     IF INT(ENTRY(4,char-val2)) NE 0 THEN DO:
+
+     END.
+    
+     IF INT(ENTRY(5,char-val2)) NE 0 THEN DO:
+
+     END.
+    
+     IF INT(ENTRY(6,char-val2)) NE 0 THEN DO:
+
+     END.
+    
+     IF INT(ENTRY(7,char-val2)) NE 0 THEN DO:
+
+     END.
+    
+     IF INT(ENTRY(8,char-val2)) NE 0 THEN DO:
+
+     END.
+                                        
+     IF INT(ENTRY(9,char-val2)) NE 0 THEN DO:
+
+     END.
+    
+     IF INT(ENTRY(10,char-val2)) NE 0 THEN DO:
+
+     END.
+  END.
        //RUN print-box IN WIDGET-HANDLE(char-hdl).
 
 END.
