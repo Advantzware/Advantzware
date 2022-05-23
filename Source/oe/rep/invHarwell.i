@@ -32,7 +32,7 @@ PUT "<FCourier New><P10>"
     "<R4.25><C67>" TRIM(STRING(inv-head.inv-no)) 
     "<R6.25><C67>" v-inv-date 
     "<R8.25><C67>" TRIM(STRING(PAGE-NUM - v-page-num,">>9"))
-    "<R10.25><C67>" TRIM(STRING(lv-bol-no)) 
+    "<R10.25><C67>" TRIM(STRING(inv-head.bol-no)) 
     .
 
 /* Address information */

@@ -113,6 +113,9 @@ DEF VAR v-tel AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-tot-cas AS DEC FORMAT "->>>9.9999" NO-UNDO.
 DEF VAR v-tot-pallets AS INT NO-UNDO.
 DEF VAR v-tot-qty AS INT NO-UNDO.
+DEF VAR v-tot-sqft      AS DEC     FORMAT "->>>>>>>9.99".
+DEF VAR v-tot-tax       AS DEC     NO-UNDO.
+DEF VAR v-tot-wght      AS DEC     FORMAT "->>>>>>>9.99".
 DEF VAR v-tx-rate LIKE stax.tax-rate NO-UNDO.
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
@@ -576,59 +579,105 @@ FOR EACH report NO-LOCK WHERE
                 v-t-price      = inv-line.t-price
                 v-subtot-lines = v-subtot-lines + inv-line.t-price.
 
-            IF inv-line.tax 
-            AND AVAIL stax THEN DO i = 1 TO 5:
-                IF stax.tax-code1[i] NE "" THEN DO:
-                    CREATE w-tax.
-                    ASSIGN
-                        w-dsc      = stax.tax-dscr1[i]
-                        w-tax      = ROUND((IF stax.company EQ "yes" THEN v-t-price ELSE inv-line.t-price) * stax.tax-rate1[i] / 100,2)
-                        v-t-price  = v-t-price + w-tax
-                        v-t-tax[i] = v-t-tax[i] + w-tax
-                        v-lines    = v-lines + 1.
-                END.
-            END.
-
-            IF v-t-price NE inv-line.t-price THEN DO:
-                CREATE w-tax.
-                ASSIGN
-                    w-dsc   = "******ITEM TOTAL:"
-                    w-tax   = v-t-price
-                    v-lines = v-lines + 1.
-            END.
-            
             ASSIGN 
                 v-price-head = inv-line.pr-uom.
 
-            PUT 
-                SPACE(1) v-inv-qty FORMAT "->>>>>9" SPACE(1)
-                v-ship-qty  FORMAT "->>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
-                v-i-no  FORMAT "x(15)" SPACE(1)
-                v-i-dscr  FORMAT "x(24)" SPACE(1)
-                v-price  FORMAT "->>,>>9.99<<" SPACE(1)
-                v-price-head SPACE(1)
-                inv-line.t-price  FORMAT "->>>,>>9.99"                     
+            /* Display first line of line block */
+            PUT UNFORMATTED SKIP 
+                v-inv-qty FORMAT "->>>>>9"          TO 9
+                TRIM(STRING(inv-line.ord-no))       AT 12
+                inv-line.po-no                      AT 35
+                v-ship-qty  FORMAT "->>>>>9"        TO 75
+                IF v-ship-qty LT v-inv-qty THEN "P" ELSE "C" FORMAT "x" AT 78
+                v-price  FORMAT "->,>>9.99<<"       TO 91
+                inv-line.t-price  FORMAT "->>>,>>9.99" TO 105                     
                 SKIP.
             ASSIGN 
                 v-printline = v-printline + 1.
 
-            DO v = 1 TO 3:
-                v-part-info = IF v EQ 1 THEN inv-line.part-dscr1 ELSE
-                              IF v EQ 2 THEN inv-line.part-dscr2 ELSE           
-                              TRIM(lv-inv-list).
+        /* Additional descriptive lines of line block */
+        IF inv-line.i-name NE "" THEN DO:
+            PUT UNFORMATTED 
+                inv-line.i-name FORMAT "x(22)"       AT 12
+                SKIP.
+            ASSIGN 
+                v-printline = v-printline + 1.
+        END.                
+        IF inv-line.i-dscr NE "" THEN DO:
+            PUT UNFORMATTED 
+                inv-line.i-dscr FORMAT "x(22)"       AT 12
+                SKIP.
+            ASSIGN 
+                v-printline = v-printline + 1.
+        END.
+        IF inv-line.part-dscr1 NE "" THEN DO:
+            PUT UNFORMATTED 
+                inv-line.part-dscr1 FORMAT "x(22)"   AT 12
+                SKIP.
+            ASSIGN 
+                v-printline = v-printline + 1.
+        END.
+        IF inv-line.part-dscr2 NE "" THEN DO:
+            PUT UNFORMATTED 
+                inv-line.part-dscr2 FORMAT "x(22)"   AT 12
+                SKIP.
+            ASSIGN 
+                v-printline = v-printline + 1.
+        END.
 
-                IF v-part-info NE "" 
-                OR (v = 1 AND inv-line.part-no <> "") THEN DO:
-                    IF v = 1 THEN 
-                        PUT SPACE(26) inv-line.part-no SPACE v-part-info SKIP.
-                    ELSE IF v = 2 THEN PUT SPACE(42) v-part-info SKIP.
-                    ELSE PUT SPACE(20) "Previous Invoice(s): " v-part-info SKIP.
+        IF inv-line.tax 
+        AND AVAIL stax THEN DO i = 1 TO 5:
+            IF stax.tax-code1[i] NE "" THEN DO:
+                CREATE w-tax.
+                ASSIGN
+                    w-dsc      = stax.tax-dscr1[i]
+                    w-tax      = ROUND((IF stax.company EQ "yes" THEN v-t-price ELSE inv-line.t-price) * stax.tax-rate1[i] / 100,2)
+                    v-t-price  = v-t-price + w-tax
+                    v-t-tax[i] = v-t-tax[i] + w-tax
+                    v-lines    = v-lines + 1.
+                PUT UNFORMATTED 
+                    w-dsc                       AT 30
+                    w-tax FORMAT "->>>>>>9.99"   TO 105
+                    SKIP.
+                ASSIGN 
                     v-printline = v-printline + 1.
-                END.
             END.
-            PUT SKIP(1).
+        END.
+
+        IF v-t-price NE inv-line.t-price THEN DO:
+            CREATE w-tax.
+            ASSIGN
+                w-dsc   = "******ITEM TOTAL:"
+                w-tax   = v-t-price
+                v-lines = v-lines + 1.
+            PUT UNFORMATTED 
+                w-dsc                           AT 30
+                v-t-price FORMAT "->>>>>>9.99"  TO 105 
+                SKIP(1).
+            ASSIGN 
+                v-printline = v-printline + 2.
+        END.
+      
+        PUT SKIP(1).
+        ASSIGN 
             v-printline = v-printline + 1.
+
+/*            DO v = 1 TO 3:                                                      */
+/*                v-part-info = IF v EQ 1 THEN inv-line.part-dscr1 ELSE           */
+/*                              IF v EQ 2 THEN inv-line.part-dscr2 ELSE           */
+/*                              TRIM(lv-inv-list).                                */
+/*                                                                                */
+/*                IF v-part-info NE ""                                            */
+/*                OR (v = 1 AND inv-line.part-no <> "") THEN DO:                  */
+/*                    IF v = 1 THEN                                               */
+/*                        PUT SPACE(26) inv-line.part-no SPACE v-part-info SKIP.  */
+/*                    ELSE IF v = 2 THEN PUT SPACE(42) v-part-info SKIP.          */
+/*                    ELSE PUT SPACE(20) "Previous Invoice(s): " v-part-info SKIP.*/
+/*                    v-printline = v-printline + 1.                              */
+/*                END.                                                            */
+/*            END.                                                                */
+/*            PUT SKIP(1).                                                        */
+/*            v-printline = v-printline + 1.                                      */
        
             IF v-print-dept 
             AND AVAIL oe-ordl THEN DO:
@@ -768,53 +817,63 @@ FOR EACH report NO-LOCK WHERE
             END.
         END.      
 
+        DO i = 1 TO 5:
+            ASSIGN 
+                v-bot-lab[i] = IF v-t-tax[i] NE 0 THEN ((IF AVAIL stax THEN STRING(CAPS(stax.tax-code1[i]),"x(5)") ELSE 
+                               FILL(" ",5) ) + FILL(" ",7) + ":" + STRING(v-t-tax[i],"->>>>>9.99")) ELSE 
+                               "".
+        END.
+        
+        ASSIGN 
+            v-inv-freight = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
+        
+        /* Bottom section */
+        /* First footer block - box */
+        PUT 
+            "<R58><C1><#4><FROM><R61.5><C80><RECT><||3>"  /* Rectangle */
+            "<R58><C29><FROM><R61.5><C29><LINE><||3>"     /* Vert Line */
+            "<R58><C41><FROM><R61.58><C41><LINE><||3>"    /* Vert Line */
+            "<R58><C53><FROM><R61.5><C53><LINE><||3>"     /* Vert Line */
+            .
+        /* First footer block - labels and data */
+        PUT 
+            "<FArial><P12>"
+            "<R58.5><C1.5>T.P.S. / G.S.T. R102293933RT"
+            "<R60><C1.5>T.V.Q. / P.S.T. 1001259578TV001"
+            "<FArial><P5>"
+            "<R58.2><C29.2>SUPERF. TOTALE Pt2"
+            "<R58.7><C29.2>TOTAL SQUARE FOOTAGE"
+            "<R58.2><C41.2>POIDS TOTAL"
+            "<R58.7><C41.2>TOTAL WEIGHT"
+            "<FArial><P8>"
+            "<R59><C55>PAYEZ CE MONTANT"
+            "<R60><C53.5>PLEASE PAY THIS AMOUNT"
+            "<FCourierNew><P10>"
+            "<R60><C29.2>" v-tot-sqft 
+            "<R60><C41.2>" v-tot-wght
+            "<R59.1><C71.2><B>" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORMAT "->>,>>9.99"
+            "</B><FArial><P8>"
+            "<R60.5><C71.2><FGCOLOR=RED>" lv-currency FORMAT "x(16)"
+            "<FGCOLOR=BLACK>" 
+            .
+        /* Bottom margin text */
+        PUT      
+            "<FArial><P6>"
+            "<R62><C1>TOUTE MATRICE EN ACIER ET MATRICE D'IMPRESSION NON-UTILIZEE DEPUIS PLUS DE"
+            "<R62.6><C1>DEUX (2) ANS SERA DETRUITE SANS PRE-AVIS"
+            "<R62><C42>ANY STEEL DIE OR PRINT PLATE NOT USED FOR MORE THAN TO (2) YEARS WILL BE"
+            "<R62.6><C42>DESTROYED WITHOUT PRIOR NOTICE"
+            .
+        
+        ASSIGN
+            v-printline = v-printline + 7
+            v-page-num  = PAGE-NUM.
+    
+        PAGE. 
+
         ASSIGN
             inv-head.printed = YES
             inv-head.stat    = "X".
     END. /* DO TRANSACTION avail inv-head */
-
-    DO i = 1 TO 5:
-        ASSIGN 
-            v-bot-lab[i] = IF v-t-tax[i] NE 0 THEN ((IF AVAIL stax THEN STRING(CAPS(stax.tax-code1[i]),"x(5)") ELSE 
-                           FILL(" ",5) ) + FILL(" ",7) + ":" + STRING(v-t-tax[i],"->>>>>9.99")) ELSE 
-                           "".
-    END.
-    
-    ASSIGN 
-        v-inv-freight = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
-    
-    IF v-bot-lab[4] <> "" THEN
-        PUT "<R61><C20> TPS # 873134266"
-            "<R62><C20> TVQ # 1021552352".
-    ELSE
-        PUT "<R59><C20> TPS # 873134266"
-            "<R60><C20> TVQ # 1021552352".
-
-    IF v-bot-lab[4] <> "" THEN
-        PUT "<R58><C60><#8><FROM><R+9><C+20><RECT> " 
-            "<=8> S.Total.    :" v-subtot-lines FORMAT "->>,>>9.99"
-            "<=8><R+1> Fret/Freight:" v-inv-freight
-            "<=8><R+2> " v-bot-lab[1] 
-            "<=8><R+3> " v-bot-lab[2]
-            "<=8><R+4> " v-bot-lab[3]
-            "<=8><R+5> " v-bot-lab[4]
-            "<=8><R+6> " v-bot-lab[5]
-            "<=8><R+7> Grand Total :" inv-head.t-inv-rev FORMAT "->>,>>9.99"
-            "<=8><R+8><C66><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" "<FGCOLOR=BLACK>".
-    ELSE
-        PUT "<R58><C60><#8><FROM><R+7><C+20><RECT> " 
-            "<=8> S.Total.    :" v-subtot-lines FORMAT "->>,>>9.99"
-            "<=8><R+1> Fret/Freight:" v-inv-freight
-            "<=8><R+2> " v-bot-lab[1] 
-            "<=8><R+3> " v-bot-lab[2]
-            "<=8><R+4> " v-bot-lab[3]
-            "<=8><R+5> Grand Total :" inv-head.t-inv-rev FORMAT "->>,>>9.99"
-            "<=8><R+6><C66><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" "<FGCOLOR=BLACK>".
-
-    ASSIGN
-        v-printline = v-printline + 7
-        v-page-num  = PAGE-NUM.
-    PAGE.
- 
 END. /* each xinv-head */
 
