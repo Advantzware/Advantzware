@@ -173,9 +173,9 @@ form
      oe-ordl.qty                    to 10  format ">>>>>>"
      v-part-dscr                    at 14 format "x(26)"
      tt-boll.po-no                  at 42 format "x(15)"
-     w2.cases                       to 71 format ">>9"
+     w2.cases                       to 71 format ">>,>>9"
      w2.cas-cnt                     to 82 format ">>,>>9"
-     v-case-tot                     to 95 format ">>>>>9"
+     v-case-tot                     to 95 format ">>>,>>9"
      tt-boll.p-c                    at 98
     with frame bol-mid1 down no-box no-labels stream-io width 110.
 
@@ -402,7 +402,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
  END.
 
   PUT "<R56><C53><#8><FROM><R+4><C+27><RECT> " 
-      "<=8><R+1> Unités/Units Total:" v-grand-total-cases format ">>,>>>,>>9"
+      "<=8><R+1> Unitï¿½s/Units Total:" v-grand-total-cases format ">>,>>>,>>9"
       "<=8><R+3> Poids/Weight Total:" v-tot-wt format ">>,>>>,>>9".
   
   PUT "<FArial><R55><C2><P12><B> Instructions de Livraison/Delivery Instructions: <P10> "
