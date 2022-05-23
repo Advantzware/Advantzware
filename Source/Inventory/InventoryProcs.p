@@ -615,6 +615,7 @@ PROCEDURE pConvertFGToRM PRIVATE:
     DEFINE VARIABLE dQuantity      AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCost          AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE riRMRctd       AS ROWID     NO-UNDO.
+    DEFINE VARIABLE cAdjustReason  AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-loadtag       FOR loadtag.
     DEFINE BUFFER bf-itemfg        FOR itemfg.
@@ -667,7 +668,9 @@ PROCEDURE pConvertFGToRM PRIVATE:
         END.
         
         FIND CURRENT bf-item EXCLUSIVE-LOCK NO-ERROR.
-       
+
+        RUN spGetSettingByName("FGtoRMAdjustReason", OUTPUT cAdjustReason).
+               
         FOR EACH bf-fg-bin NO-LOCK
            WHERE bf-fg-bin.company EQ bf-itemfg.company
              AND bf-fg-bin.i-no    EQ bf-itemfg.i-no
@@ -734,7 +737,7 @@ PROCEDURE pConvertFGToRM PRIVATE:
             RUN Inventory_AdjustFinishedGoodBinQty (
                 INPUT  ROWID(bf-fg-bin),
                 INPUT  - bf-fg-bin.qty,
-                INPUT  "Adjusting Quantity for conversion",
+                INPUT  cAdjustReason,
                 OUTPUT lSuccess,
                 OUTPUT opcMessage        
                 ).

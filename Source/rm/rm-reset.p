@@ -35,6 +35,14 @@ FOR EACH po-ordl NO-LOCK
   item.q-ono = item.q-ono + v-hld-qty.
 end.
 
+FOR EACH itemfg NO-LOCK
+    WHERE itemfg.company           EQ item.company
+      AND itemfg.receiveAsRMItemID EQ item.i-no:
+    RUN fg/calcqono.p (ROWID(itemfg), OUTPUT v-hld-qty).
+      
+    item.q-ono = item.q-ono + v-hld-qty.
+END.
+
 RUN rm/calcqcom.p (ROWID(item), OUTPUT item.q-comm).
 
 item.q-avail = item.q-onh + item.q-ono - item.q-comm.
