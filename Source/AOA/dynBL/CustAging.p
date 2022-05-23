@@ -35,11 +35,7 @@ DEFINE TEMP-TABLE ttCustAging NO-UNDO
 
 /* Local Variable Definitions ---                                       */
 
-/*DEFINE VARIABLE lOrderBalance     AS LOGICAL NO-UNDO.*/
-/*DEFINE VARIABLE lARBalance        AS LOGICAL NO-UNDO.*/
-/*DEFINE VARIABLE lPastGraceBalance AS LOGICAL NO-UNDO.*/
-/*DEFINE VARIABLE lCreditHold       AS LOGICAL NO-UNDO.*/
-/*DEFINE VARIABLE lCustomerNotAged  AS LOGICAL NO-UNDO.*/
+{sys/inc/var.i NEW SHARED}
 
 /* **********************  Internal Procedures  *********************** */
 
