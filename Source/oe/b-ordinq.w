@@ -730,6 +730,9 @@ DEFINE FRAME F-Main
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 104
           FGCOLOR 9 FONT 22
+     "Cust Part#" VIEW-AS TEXT
+          SIZE 13 BY .71 AT ROW 1.24 COL 50
+          FGCOLOR 9 FONT 22
      "Open" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.24 COL 154.6 WIDGET-ID 34
           FGCOLOR 9 FONT 22
@@ -753,9 +756,6 @@ DEFINE FRAME F-Main
           FGCOLOR 9 FONT 22
      "FG Item#/Name" VIEW-AS TEXT
           SIZE 19 BY .71 AT ROW 1.24 COL 30
-          FGCOLOR 9 FONT 22
-     "Cust Part#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 50
           FGCOLOR 9 FONT 22
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -821,7 +821,8 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-       Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 2.
+       Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 2
+       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 ASSIGN 
        oe-ordl.line:VISIBLE IN BROWSE Browser-Table = FALSE
