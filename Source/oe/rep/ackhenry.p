@@ -74,6 +74,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE dSetItemQty AS DECIMAL NO-UNDO .
 DEFINE BUFFER bf-shipto FOR shipto .
+DEFINE BUFFER bff-shipto FOR shipto .
 DEFINE BUFFER bf-oe-rel FOR oe-rel .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
@@ -244,7 +245,29 @@ find first company where company.company eq cocode no-lock no-error.
 
       END.
       
-      IF AVAIL bf-shipto THEN
+      FIND FIRST bf-oe-rel NO-LOCK
+            where bf-oe-rel.company EQ oe-ordl.company
+              AND bf-oe-rel.ord-no  EQ oe-ordl.ord-no
+              AND bf-oe-rel.i-no    EQ oe-ordl.i-no
+              AND bf-oe-rel.line    EQ oe-ordl.LINE NO-ERROR.
+      
+      RUN oe/custxship.p (bf-oe-rel.company,
+                        bf-oe-rel.cust-no,
+                        bf-oe-rel.ship-id,
+                        BUFFER bff-shipto).
+      
+      IF AVAIL bff-shipto THEN
+      DO:
+        ASSIGN
+            v-ship-name   = bff-shipto.ship-name
+            v-ship-add[1] = bff-shipto.ship-addr[1]
+            v-ship-add[2] = bff-shipto.ship-addr[2]
+            v-ship-add[3] = bff-shipto.ship-city + ", " +
+                            bff-shipto.ship-state + "  " + bff-shipto.ship-zip
+                            .
+          
+      END.
+      ELSE IF AVAIL bf-shipto THEN
       DO:
         ASSIGN
             v-ship-name   = bf-shipto.ship-name
