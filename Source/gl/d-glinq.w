@@ -427,7 +427,7 @@ PROCEDURE pCheckTransDate :
             NO-ERROR.
         IF NOT AVAILABLE period THEN
         DO:
-            MESSAGE "Please enter date with in period .." 
+            MESSAGE "Please enter date within period .." 
                 VIEW-AS ALERT-BOX INFORMATION .
             oplReturnError = TRUE .
         END.               
