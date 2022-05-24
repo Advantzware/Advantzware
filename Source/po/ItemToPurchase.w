@@ -68,7 +68,7 @@ DEFINE OUTPUT PARAMETER oploUpdatePO AS LOGICAL NO-UNDO.
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-brItemToPurchase ttJobMaterial
 &Scoped-define SELF-NAME brItemToPurchase
 &Scoped-define QUERY-STRING-brItemToPurchase FOR EACH ttJobMaterial ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-brItemToPurchase OPEN QUERY {&SELF-NAME} FOR EACH ttJobMaterial ~{&SORTBY-PHRASE}.
+&Scoped-define OPEN-QUERY-brItemToPurchase OPEN QUERY {&SELF-NAME} FOR EACH ttJobMaterial WHERE ttJobMaterial.isValid = (IF tbShowAll:CHECKED in frame {&frame-name} THEN ttJobMaterial.isValid else TRUE) {&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-brItemToPurchase ttJobMaterial
 &Scoped-define FIRST-TABLE-IN-QUERY-brItemToPurchase ttJobMaterial
 
@@ -78,9 +78,9 @@ DEFINE OUTPUT PARAMETER oploUpdatePO AS LOGICAL NO-UNDO.
     ~{&OPEN-QUERY-brItemToPurchase}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-13 rdPOChoice ~
+&Scoped-Define ENABLED-OBJECTS RECT-13 tbShowAll rdPOChoice ~
 brItemToPurchase btnChooseVendor btnOk 
-&Scoped-Define DISPLAYED-OBJECTS rdPOChoice 
+&Scoped-Define DISPLAYED-OBJECTS tbShowAll rdPOChoice 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -112,6 +112,12 @@ DEFINE VARIABLE rdPOChoice AS INTEGER INITIAL 1
      SIZE 39 BY 2
      BGCOLOR 23 FGCOLOR 24 FONT 22 NO-UNDO.
 
+DEFINE VARIABLE tbShowAll AS LOGICAL INITIAL NO 
+     LABEL "Show All" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15 BY .81
+     BGCOLOR 23  FGCOLOR 24 FONT 22 NO-UNDO.
+     
 DEFINE RECTANGLE RECT-13
      EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 170 BY 2.52
@@ -162,7 +168,7 @@ DEFINE BROWSE brItemToPurchase
       ttJobMaterial.IsValid         COLUMN-LABEL "Valid" 
              LABEL-BGCOLOR 14   FORMAT 'Yes/No'
       ttJobMaterial.InvalidReason COLUMN-LABEL "InvalidReason" 
-             LABEL-BGCOLOR 14    FORMAT "x(30)"
+             LABEL-BGCOLOR 14    FORMAT "x(60)"
              
       ENABLE ttJobMaterial.CreatePO ttJobMaterial.qty ttJobMaterial.POdate ttJobMaterial.PODueDate ttJobMaterial.DropShipment
 /* _UIB-CODE-BLOCK-END */
@@ -174,7 +180,7 @@ DEFINE BROWSE brItemToPurchase
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     
+     tbShowAll AT ROW 1.52 COL 150
      rdPOChoice AT ROW 1.52 COL 3.6 NO-LABEL
      brItemToPurchase AT ROW 4.1 COL 171 RIGHT-ALIGNED WIDGET-ID 200
      btnChooseVendor AT ROW 19.48 COL 3 WIDGET-ID 342
@@ -398,6 +404,16 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME tbShowAll
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbShowAll C-Win
+ON VALUE-CHANGED OF tbShowAll IN FRAME DEFAULT-FRAME
+DO:
+    {&OPEN-QUERY-brItemToPurchase}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME ttJobMaterial.DropShipment
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttJobMaterial.DropShipment C-Win
@@ -533,9 +549,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY rdPOChoice 
+  DISPLAY tbShowAll rdPOChoice 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-13 rdPOChoice brItemToPurchase btnChooseVendor btnOk 
+  ENABLE RECT-13 tbShowAll rdPOChoice brItemToPurchase btnChooseVendor btnOk 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
