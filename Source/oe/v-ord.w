@@ -190,6 +190,7 @@ DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAckDateAllowEdit AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lEDIOrderChanged         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE oSetting                  AS system.Setting NO-UNDO.
 
@@ -284,10 +285,20 @@ RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 /* The below variables are used in run_link.i */
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
-
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+
+RUN methods/prgsecur.p
+    (INPUT "AckDateEdit.",
+     INPUT "ALL", /* based on run, create, update, delete or all */
+     INPUT NO,    /* use the directory in addition to the program */
+     INPUT NO,    /* Show a message if not authorized */
+     INPUT NO,    /* Group overrides user security? */
+     OUTPUT lAckDateAllowEdit, /* Allowed? Yes/NO */
+     OUTPUT v-access-close, /* used in template/windows.i  */
+     OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -323,7 +334,7 @@ oe-ord.priceHoldReason oe-ord.sman[1] oe-ord.s-pct[1] oe-ord.s-comm[1] ~
 oe-ord.sman[2] oe-ord.s-pct[2] oe-ord.s-comm[2] oe-ord.sman[3] ~
 oe-ord.s-pct[3] oe-ord.s-comm[3] oe-ord.frt-pay oe-ord.carrier ~
 oe-ord.fob-code oe-ord.cc-type oe-ord.cc-expiration oe-ord.spare-char-1 ~
-oe-ord.cc-num oe-ord.cc-auth oe-ord.spare-char-2 
+oe-ord.cc-num oe-ord.cc-auth oe-ord.spare-char-2 oe-ord.ack-prnt-date
 &Scoped-define ENABLED-TABLES oe-ord
 &Scoped-define FIRST-ENABLED-TABLE oe-ord
 &Scoped-Define ENABLED-OBJECTS fiStatDesc btnCalendar-1 btnCalendar-2 ~
@@ -873,7 +884,7 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN oe-ord.ack-prnt-date IN FRAME F-Main
-   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+   EXP-LABEL EXP-FORMAT                                                */
 /* SETTINGS FOR FILL-IN oe-ord.approved-date IN FRAME F-Main
    NO-ENABLE EXP-LABEL EXP-HELP                                         */
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
@@ -5681,13 +5692,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */      
+    IF VALID-HANDLE(hdSalesManProcs) THEN
+        DELETE PROCEDURE hdSalesManProcs.    
+            
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields V-table-Win 
 PROCEDURE local-enable-fields :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT adm-new-record THEN ll-from-tandem = NO.
 
@@ -5745,8 +5776,13 @@ PROCEDURE local-enable-fields :
    IF NOT lCreditAccSec THEN
        DISABLE oe-ord.cc-type oe-ord.cc-expiration oe-ord.spare-char-1 oe-ord.cc-num oe-ord.cc-auth .
     DISABLE oe-ord.entered-id .
+        
+    IF adm-new-record OR NOT lAckDateAllowEdit THEN 
+    DISABLE oe-ord.ack-prnt-date.
+    ELSE ENABLE oe-ord.ack-prnt-date.
   END.
-
+  
+  
   ASSIGN
    ll-est-no-mod  = NO
    ll-valid-po-no = NO.
