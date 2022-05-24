@@ -84,6 +84,8 @@ DEFINE VARIABLE v-blank        AS INTEGER NO-UNDO.
 DEF VAR lv-text        AS CHARACTER                     NO-UNDO.
 DEF VAR li             AS INTEGER                       NO-UNDO.
 DEF VAR cShiptoAddress AS CHAR FORMAT "x(80)"  EXTENT 4 NO-UNDO.
+DEFINE VARIABLE lMultiShipId AS LOGICAL                 NO-UNDO.
+DEFINE VARIABLE cShipID      AS CHARACTER               NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -245,6 +247,25 @@ find first company where company.company eq cocode no-lock no-error.
 
       END.
       
+      
+      ASSIGN
+          lMultiShipId = NO
+          cShipID      = ""
+          .
+      
+      FOR EACH oe-rel
+            WHERE oe-rel.company EQ oe-ordl.company
+              AND oe-rel.ord-no  EQ oe-ordl.ord-no
+              AND oe-rel.i-no    EQ oe-ordl.i-no
+              AND oe-rel.line    EQ oe-ordl.LINE
+            NO-LOCK:
+            IF cShipID EQ "" THEN ASSIGN cShipID = oe-rel.ship-id.
+            IF cShipID NE oe-rel.ship-id THEN lMultiShipId = YES.
+            
+            IF lMultiShipId THEN 
+            LEAVE.
+      END.
+      
       FIND FIRST bf-oe-rel NO-LOCK
             where bf-oe-rel.company EQ oe-ordl.company
               AND bf-oe-rel.ord-no  EQ oe-ordl.ord-no
@@ -256,7 +277,7 @@ find first company where company.company eq cocode no-lock no-error.
                         bf-oe-rel.ship-id,
                         BUFFER bff-shipto).
       
-      IF AVAIL bff-shipto THEN
+      IF AVAIL bff-shipto AND NOT lMultiShipId THEN
       DO:
         ASSIGN
             v-ship-name   = bff-shipto.ship-name
@@ -265,6 +286,15 @@ find first company where company.company eq cocode no-lock no-error.
             v-ship-add[3] = bff-shipto.ship-city + ", " +
                             bff-shipto.ship-state + "  " + bff-shipto.ship-zip
                             .
+          
+      END.
+      ELSE IF AVAIL bff-shipto AND lMultiShipId THEN
+      DO:
+        ASSIGN
+            v-ship-name   = "MULTIPLE"
+            v-ship-add[1] = ""
+            v-ship-add[2] = ""
+            v-ship-add[3] = "".
           
       END.
       ELSE IF AVAIL bf-shipto THEN
