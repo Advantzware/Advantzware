@@ -158,13 +158,6 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetPalletCount C-Win 
-FUNCTION fGetPalletCount RETURNS INTEGER
-    ( BUFFER ipb-itemfg FOR itemfg )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -2785,22 +2778,3 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetPalletCount C-Win 
-FUNCTION fGetPalletCount RETURNS INTEGER
-    ( BUFFER ipb-itemfg FOR itemfg ) :
-    /*------------------------------------------------------------------------------
-      Purpose:  
-        Notes:  
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE opiCount AS INTEGER NO-UNDO.
-    DEFINE VARIABLE opdPallet AS DECIMAL NO-UNDO.
-    
-    opiCount = (integer(ipb-itemfg.case-count) * integer(ipb-itemfg.case-pall)) + integer(ipb-itemfg.quantityPartial).
-    IF opiCount EQ 0 OR opiCount EQ ? THEN opiCount = 1.
-    
-    RETURN opiCount.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
