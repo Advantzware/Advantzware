@@ -2177,6 +2177,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+PROCEDURE edit-quantity:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEF VAR lv-estqty-recid AS RECID NO-UNDO.
+DEF VAR lv-hld-eqty LIKE est-qty.eqty NO-UNDO.
+DEF VAR char-val AS CHAR NO-UNDO. 
+DEF VAR char-val2 AS CHAR NO-UNDO.        
+DEF VAR date-val AS CHAR NO-UNDO.
+DEF VAR date-val2 AS CHAR NO-UNDO.
+DEFINE BUFFER bff-eb FOR eb.
+DEFINE BUFFER bff-ef FOR ef.
+DEFINE BUFFER bf-est FOR est.
+
+
+FIND FIRST est-qty NO-LOCK 
+WHERE est-qty.company EQ eb.company  
+  AND est-qty.est-no EQ  eb.est-no NO-ERROR.
+   
+lv-estqty-recid = IF AVAIL est-qty THEN RECID(est-qty) ELSE ?.
+
+RUN est/estqtyd.w (lv-estqty-recid, RECID(eb), STRING (est-qty.eqty), OUTPUT char-val, OUTPUT char-val2, OUTPUT date-val, OUTPUT date-val2).
+
+END PROCEDURE.
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE est-summ B-table-Win 
 PROCEDURE est-summ :
 /*------------------------------------------------------------------------------
