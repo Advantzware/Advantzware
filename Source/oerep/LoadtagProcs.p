@@ -864,7 +864,7 @@ PROCEDURE pCreateLoadTagFG:
         CREATE bf-loadtag.
         ASSIGN
             bf-loadtag.company      = ipbf-ttLoadTag.company
-            bf-loadtag.tag-no       = IF ipbf-ttLoadTag.vendorTag NE "" THEN ipbf-ttLoadTag.vendorTag ELSE cNextLoadtag 
+            bf-loadtag.tag-no       = cNextLoadtag 
             bf-loadtag.item-type    = NO /*FGitem*/
             bf-loadtag.job-no       = ipbf-ttLoadTag.jobID
             bf-loadtag.job-no2      = ipbf-ttLoadTag.jobID2
@@ -1326,7 +1326,7 @@ PROCEDURE pCreateLoadTagRM:
         CREATE bf-loadtag.
         ASSIGN
             bf-loadtag.company      = ipbf-ttLoadTag.company
-            bf-loadtag.tag-no       = IF ipbf-ttLoadTag.vendorTag NE "" THEN ipbf-ttLoadTag.vendorTag ELSE cNextLoadtag 
+            bf-loadtag.tag-no       = cNextLoadtag 
             bf-loadtag.i-no         = CAPS(ipbf-ttLoadTag.itemID)
             bf-loadtag.i-name       = ipbf-ttLoadTag.itemName
             bf-loadtag.item-type    = TRUE /* RM Item*/
