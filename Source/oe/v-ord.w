@@ -4991,7 +4991,7 @@ PROCEDURE local-assign-record :
 
             IF cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id AND NOT adm-new-record THEN do:
                 IF FIRST(oe-ordl.i-no) THEN
-                   RUN displayMessageQuestion("76", OUTPUT lcheckflg).
+                   RUN displayMessageQuestion("77", OUTPUT lcheckflg).
                 IF lcheckflg EQ YES THEN
                     RUN pUpdateRelShipID .
             END.
