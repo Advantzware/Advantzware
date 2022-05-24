@@ -190,6 +190,7 @@ DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAckDateAllowEdit AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lEDIOrderChanged         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE oSetting                  AS system.Setting NO-UNDO.
 
@@ -284,12 +285,20 @@ RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 /* The below variables are used in run_link.i */
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
-
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
-DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
-RUN system/PgmMstrSecur.p PERSISTENT SET hPgmSecurity.
+
+RUN methods/prgsecur.p
+    (INPUT "AckDateEdit.",
+     INPUT "ALL", /* based on run, create, update, delete or all */
+     INPUT NO,    /* use the directory in addition to the program */
+     INPUT NO,    /* Show a message if not authorized */
+     INPUT NO,    /* Group overrides user security? */
+     OUTPUT lAckDateAllowEdit, /* Allowed? Yes/NO */
+     OUTPUT v-access-close, /* used in template/windows.i  */
+     OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -5689,9 +5698,7 @@ PROCEDURE local-destroy :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    /* Code placed here will execute PRIOR to standard behavior. */
-    IF VALID-HANDLE(hPgmSecurity) THEN
-        DELETE PROCEDURE hPgmSecurity.   
+    /* Code placed here will execute PRIOR to standard behavior. */      
     IF VALID-HANDLE(hdSalesManProcs) THEN
         DELETE PROCEDURE hdSalesManProcs.    
             
@@ -5769,9 +5776,8 @@ PROCEDURE local-enable-fields :
    IF NOT lCreditAccSec THEN
        DISABLE oe-ord.cc-type oe-ord.cc-expiration oe-ord.spare-char-1 oe-ord.cc-num oe-ord.cc-auth .
     DISABLE oe-ord.entered-id .
-    
-    RUN epCanAccess IN hPgmSecurity ("oe/v-ord.w", "", OUTPUT lResult).
-    IF adm-new-record OR NOT lResult THEN 
+        
+    IF adm-new-record OR NOT lAckDateAllowEdit THEN 
     DISABLE oe-ord.ack-prnt-date.
     ELSE ENABLE oe-ord.ack-prnt-date.
   END.
