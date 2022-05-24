@@ -5718,7 +5718,7 @@ PROCEDURE local-enable-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT adm-new-record THEN ll-from-tandem = NO.
 
