@@ -3884,7 +3884,7 @@ PROCEDURE pUpdateTTLoadTagOrderDetails:
             ASSIGN
                 bf-ttLoadTag.poID        = bf-oe-ordl.po-no-po
                 bf-ttLoadTag.lineID      = bf-oe-ordl.e-num
-                bf-ttLoadTag.poLineID    = bf-oe-ordl.e-num
+                bf-ttLoadTag.poLineID    = IF bf-oe-ordl.e-num EQ 0 THEN bf-ttLoadTag.poLineID ELSE bf-oe-ordl.e-num
                 .
         
         IF bf-ttLoadTag.dueDate EQ ? THEN
