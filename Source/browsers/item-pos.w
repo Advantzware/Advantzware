@@ -102,11 +102,11 @@ tt-item-po.iQtyOrdered tt-item-po.iQtyDue  tt-item-po.cShipId
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH tt-item-po WHERE ~
    (tt-item-po.iPoNo EQ integer(auto_find) OR auto_find EQ 0) and ~
-   ((tt-item-po.iQtyDue LT 0 and rd_select EQ "On Order") or rd_select EQ "All") NO-LOCK ~
+   ((tt-item-po.iQtyDue GE 0 and rd_select EQ "On Order") or rd_select EQ "All") NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH tt-item-po WHERE ~
    (tt-item-po.iPoNo EQ auto_find OR auto_find EQ 0) and ~
-   ((tt-item-po.iQtyDue LT 0 and rd_select EQ "On Order") or rd_select EQ "All") NO-LOCK ~
+   ((tt-item-po.iQtyDue GE 0 and rd_select EQ "On Order") or rd_select EQ "All") NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table tt-item-po
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table tt-item-po
@@ -316,7 +316,7 @@ ASSIGN
      _START_FREEFORM
   OPEN QUERY {&SELF-NAME} FOR EACH tt-item-po WHERE 
    (tt-item-po.iPoNo EQ integer(auto_find) OR auto_find EQ 0) and 
-   ((tt-item-po.iQtyDue LT 0 and rd_select EQ "On Order") or rd_select EQ "All") NO-LOCK
+   ((tt-item-po.iQtyDue GE 0 and rd_select EQ "On Order") or rd_select EQ "All") NO-LOCK
     ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
@@ -619,13 +619,13 @@ PROCEDURE build-table:
 ------------------------------------------------------------------------------*/
     FOR EACH po-ordl WHERE po-ordl.company = item.company  
         AND po-ordl.i-no = item.i-no 
-        AND lookup(po-ordl.stat, "o,p,u,a") > 0  
+        AND lookup(po-ordl.stat, "o,p,u,a,n") > 0  
         AND po-ordl.item-type  = YES 
         NO-LOCK, 
         FIRST po-ord WHERE po-ord.company eq po-ordl.company AND 
         po-ord.po-no eq po-ordl.po-no 
         AND lookup(po-ord.stat, "N,O,R,U,H") > 0 NO-LOCK:      
-        
+                   
         CREATE tt-item-po.
         ASSIGN 
             tt-item-po.iPoNo        = po-ordl.po-no
