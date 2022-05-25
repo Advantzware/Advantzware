@@ -276,7 +276,9 @@ DO:
         MESSAGE "Please select Form or Blank from CopyToItem(s)"
         VIEW-AS ALERT-BOX WARNING. 
         RETURN NO-APPLY.
-    END.   
+    END. 
+    ELSE 
+        lopError = NO.   
 END.
 
 /* _UIB-CODE-BLOCK-END */
