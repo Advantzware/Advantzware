@@ -1287,6 +1287,7 @@ PROCEDURE pCreateLoadTagRM:
     DEFINE VARIABLE hdPOProcs             AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hdJobProcs            AS HANDLE    NO-UNDO. 
     DEFINE VARIABLE dMaxQty               AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iTagNo                AS INTEGER   NO-UNDO INIT 1.
     
     DEFINE BUFFER bf-loadtag  FOR loadtag.
     DEFINE BUFFER bf-po-ordl  FOR po-ordl.
@@ -1317,11 +1318,15 @@ PROCEDURE pCreateLoadTagRM:
             UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.    
         END.
         
-        RUN loadtags\GetNextTag.p (
-            INPUT  ipbf-ttLoadTag.company, 
-            INPUT  ipbf-ttLoadTag.itemID,
-            OUTPUT cNextLoadtag
-            ).    
+        DO WHILE TRUE:
+            cNextLoadtag = STRING(ipbf-ttLoadTag.poID,'99999999') + STRING(ipbf-ttLoadTag.poLineID,'999') + STRING(iTagNo,'9999999').
+            IF NOT CAN-FIND(FIRST loadtag
+                            WHERE loadtag.company   EQ ipbf-ttLoadTag.company
+                              AND loadtag.item-type EQ YES
+                              AND loadtag.tag-no    EQ cNextLoadtag) THEN 
+                LEAVE.
+            iTagNo = iTagNo + 1.
+        END.
     
         CREATE bf-loadtag.
         ASSIGN
@@ -3150,7 +3155,7 @@ PROCEDURE pBuildLoadTagsFromPO :
                 dBasisWeight = 0
                 .
                 
-            RUN spCommon_GetJobMaterialDimensions(
+            RUN jc/GetJobMaterialDimensions.p (
                 INPUT bf-po-ordl.company,
                 INPUT bf-po-ordl.job-no,
                 INPUT bf-po-ordl.job-no2,

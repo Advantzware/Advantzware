@@ -963,7 +963,7 @@ PROCEDURE pRMRecordCreation PRIVATE :
             dBasisWeight = 0
             .
 
-        RUN spCommon_GetJobMaterialDimensions(
+        RUN jc/GetJobMaterialDimensions.p (
             INPUT po-ordl.company,
             INPUT po-ordl.job-no,
             INPUT po-ordl.job-no2,
@@ -1203,7 +1203,7 @@ PROCEDURE pUpdateRMCostAndUOM:
             INPUT-OUTPUT dSetup
             ) NO-ERROR.
             
-        RUN spCommon_GetJobMaterialDimensions(
+        RUN jc/GetJobMaterialDimensions.p (
             INPUT po-ordl.company,
             INPUT po-ordl.job-no,
             INPUT po-ordl.job-no2,
