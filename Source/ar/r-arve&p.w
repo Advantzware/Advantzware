@@ -587,10 +587,10 @@ DO:
             ELSE RUN undo-trnum.
         END.
 
-        ELSE RUN undo-trnum.
-        /*
-          ELSE MESSAGE "No Invoices available for posting..." VIEW-AS ALERT-BOX ERROR.
-        */
+        ELSE do:
+          RUN undo-trnum.         
+           MESSAGE "No invoices found to print - only approved and printed invoices can be posted." VIEW-AS ALERT-BOX ERROR.
+        END. 
         IF v-ftp-done THEN MESSAGE "File Export/FTP is completed." VIEW-AS ALERT-BOX INFORMATION.
 
         SESSION:SET-WAIT-STATE("").
