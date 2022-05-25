@@ -69,3 +69,5 @@ ZohoClientID,Logical,ZohoCRM,Logical,ZoHo CRM Active,"YES,NO",NO,No,ZoHoCRM
 ZohoClientID,Character,ZohoClientID,Character,ZoHo Client ID,1000.JZ0PMBMAND7RPQ1LZP1QQHPG0KWMLZ,1000.JZ0PMBMAND7RPQ1LZP1QQHPG0KWMLZ,No,ZoHoCRM
 ZohoClientSecret,Character,ZohoClientSecret,Character,ZoHo Client Secret,a54de56bc72f068a546b25c539f5f0b01858a4ac8b,a54de56bc72f068a546b25c539f5f0b01858a4ac8b,No,ZoHoCRM
 ZohoRefreshToken,Character,ZohoRefreshToken,Character,ZoHo Refresh Token,1000.9d3c98f80d53e7b27dcef14b80bb3e20.f08610cd5b76f5b3a4ade67f17a6c956,1000.9d3c98f80d53e7b27dcef14b80bb3e20.f08610cd5b76f5b3a4ade67f17a6c956,No,ZoHoCRM
+Notepad,Logical,Notepad,Logical,Notepad instead of Standard Screen Output? Active,"YES,NO",NO,Yes,Notepad
+Notepad,Character,NotepadValue,Character,Notepad instead of Standard Screen Output? Value,",Notepad",,Yes,Notepad
