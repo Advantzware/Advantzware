@@ -518,14 +518,14 @@ PROCEDURE AdvancedNotice :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  RUN RefreshData IN h_emailcod.
+  RUN RefreshData IN h_emailcod NO-ERROR.
 
   RUN GET-ATTRIBUTE('CURRENT-PAGE').
 
   IF INT(RETURN-VALUE) < 2 THEN DO:
     RUN local-hide   IN h_emailcod                        NO-ERROR.
     RETURN.
-  END.
+  END.    
     
   IF DYNAMIC-FUNCTION ('AdvancedNotice' IN h_phone-2) THEN DO:
 
@@ -533,7 +533,7 @@ PROCEDURE AdvancedNotice :
 /*       VIEW-AS ALERT-BOX INFO BUTTONS OK. */
     
 /*     IF VALID-HANDLE (h_phone-2)   THEN RUN EMailNotify        IN  h_phone-2 (YES). */
-    IF VALID-HANDLE (h_emailcod)  THEN RUN AutoCreateRBOLPrt  IN h_emailcod.    
+    IF VALID-HANDLE (h_emailcod)  THEN RUN AutoCreateRBOLPrt  IN h_emailcod NO-ERROR.    
 
     RUN set-position      IN h_phone-2  (  6.62 , 3.60 )  NO-ERROR.
     RUN set-position      IN h_p-navico (  5.00 , 3.60 )  NO-ERROR.
@@ -716,9 +716,9 @@ PROCEDURE state-changed :
   DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
   DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
 
-  RUN SetEmailNotify IN h_phone-2.
+  RUN SetEmailNotify IN h_phone-2 NO-ERROR.
 
-  RUN RefreshData IN h_emailcod.
+  RUN RefreshData IN h_emailcod NO-ERROR.
 
   RUN AdvancedNotice.
     
