@@ -256,8 +256,6 @@ find first company where company.company eq cocode no-lock no-error.
       FOR EACH oe-rel
             WHERE oe-rel.company EQ oe-ordl.company
               AND oe-rel.ord-no  EQ oe-ordl.ord-no
-              AND oe-rel.i-no    EQ oe-ordl.i-no
-              AND oe-rel.line    EQ oe-ordl.LINE
             NO-LOCK:
             IF cShipID EQ "" THEN ASSIGN cShipID = oe-rel.ship-id.
             IF cShipID NE oe-rel.ship-id THEN lMultiShipId = YES.
@@ -288,7 +286,7 @@ find first company where company.company eq cocode no-lock no-error.
                             .
           
       END.
-      ELSE IF AVAIL bff-shipto AND lMultiShipId THEN
+      ELSE IF lMultiShipId THEN
       DO:
         ASSIGN
             v-ship-name   = "MULTIPLE"
