@@ -612,7 +612,10 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
-                    END.
+                    END. /* IF NOT tb_OpenCSV THEN */
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                    END. /* ELSE DO: */
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
                 DO:
@@ -1991,6 +1994,8 @@ PROCEDURE run-report :
             bf-mch-act.company EQ cocode AND
             bf-mch-act.dept EQ tt-mch-srt.dept AND
             bf-mch-act.m-code EQ tt-mch-srt.m-code AND
+            bf-mch-act.op-date GE v-date[1] AND
+            bf-mch-act.op-date LE v-date[2] AND
             bf-mch-act.job EQ tt-mch-srt.job AND 
             bf-mch-act.job-no EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen) AND
             bf-mch-act.job-no2 EQ tt-mch-srt.job-no2 AND
@@ -2269,6 +2274,11 @@ PROCEDURE run-report :
             END.
 
             PUT UNFORMATTED "* " + (IF AVAILABLE mach THEN STRING(mach.m-dscr,"x(10)") ELSE "") + substring(cDisplay,13,350) SKIP(1).
+            IF tb_excel THEN 
+            DO:
+                PUT STREAM excel UNFORMATTED  
+                    cExcelDisplay SKIP.
+            END.
 
             ASSIGN 
                 mch-mr-std     = 0
@@ -2377,6 +2387,11 @@ PROCEDURE run-report :
             END.
 
             PUT UNFORMATTED "** " + (IF AVAILABLE dept THEN STRING(dept.dscr,"x(10)") ELSE "") + substring(cDisplay,14,350) SKIP.
+            IF tb_excel THEN 
+            DO:
+                PUT STREAM excel UNFORMATTED  
+                    cExcelDisplay SKIP.
+            END.
 
             ASSIGN 
                 dpt-mr-std     = 0
@@ -2394,12 +2409,7 @@ PROCEDURE run-report :
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
-    IF tb_excel THEN 
-    DO:
-        OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
-    END.
+    OUTPUT STREAM excel CLOSE.
 
     SESSION:SET-WAIT-STATE ("").
 
