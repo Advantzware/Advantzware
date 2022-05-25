@@ -95,7 +95,7 @@ ASSIGN
     cTextListToSelect  = "CUSTOMER,CUST NAME,ITEM #,TAG#,FULL TAG#,FG LOT#,CUST PART#,DESCRIPTION,JOB#,REC DATE," +
                            "WHSE,BIN,MSF OH,C-UOM,REL QTY,QTY ON HAND,LAST SALE,FG CAT," +
                            "VIEW PO,LINE PO#,REL PO#,FG PRICE,ORDER PRICE,UOM COST,TOTAL COST,MAT COST,LABOR COST,REP," +
-                           "SELL VAL(FG),SELL VAL(ORD),DAYS OLD,CUST OWN,SET HEADER,QTY PER SET,UNITS,UNIT COUNT,PARTIAL,# OF PALLETS"
+                           "SELL VAL(FG),SELL VAL(ORD),DAYS OLD,CUST OWN,SET HEADER,QTY PER SET,UNITS,UNIT COUNT,PARTIAL,# STD PALLETS"
     cFieldListToSelect = "itemfg.cust-no,cust-name,itemfg.i-no,tag#,tag,fg-lot-val,itemfg.part-no,itemfg.i-name,v-job-no,recdate," +
                                 "loc,bin,msf-on-hand,cost-uom,rel-qty,qty-on-hand,last-sale,itemfg.procat," +
                                 "view-po,line-po,rel-po,sell-price,ord-pr,uom-cost,v-tot-cost,mat-cost,lab-cost,sale-rep," + 
@@ -154,6 +154,13 @@ fi_file tb_OpenCSV tbAutoClose
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD GEtFieldValue C-Win 
 FUNCTION GEtFieldValue RETURNS CHARACTER
     ( hipField AS HANDLE )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetPalletCount C-Win 
+FUNCTION fGetPalletCount RETURNS INTEGER
+    ( BUFFER ipb-itemfg FOR itemfg )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2385,7 +2392,7 @@ PROCEDURE run-report :
                 .        
         cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-        IF LOOKUP(ttRptSelected.TextList, "QTY ON HAND,MSF OH,TOTAL COST,MSF Remain,MAT COST,LABOR COST,SELL VAL(FG),SELL VAL(ORD),# OF PALLETS") <> 0    THEN
+        IF LOOKUP(ttRptSelected.TextList, "QTY ON HAND,MSF OH,TOTAL COST,MSF Remain,MAT COST,LABOR COST,SELL VAL(FG),SELL VAL(ORD),# STD PALLETS") <> 0    THEN
             ASSIGN
                 str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
@@ -2628,7 +2635,7 @@ PROCEDURE run-report :
             WHEN "partial" THEN 
                 cVarValue = "" . 
             WHEN "pallet" THEN 
-                cVarValue = STRING(dTotalPallet[3],"->>,>>>,>>9") . 
+                cVarValue = STRING(dTotalPallet[3],"->>,>>>,>>9.99") . 
         END CASE.
         cExcelVarValue = cVarValue.  
         cDisplay = cDisplay + cVarValue +
@@ -2778,3 +2785,22 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetPalletCount C-Win 
+FUNCTION fGetPalletCount RETURNS INTEGER
+    ( BUFFER ipb-itemfg FOR itemfg ) :
+    /*------------------------------------------------------------------------------
+      Purpose:  
+        Notes:  
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE opiCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE opdPallet AS DECIMAL NO-UNDO.
+
+    opiCount = (integer(ipb-itemfg.case-count) * integer(ipb-itemfg.case-pall)) + integer(ipb-itemfg.quantityPartial).
+    IF opiCount EQ 0 OR opiCount EQ ? THEN opiCount = 1.
+
+    RETURN opiCount.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
