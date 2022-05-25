@@ -52,8 +52,8 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,POPriceHold,SearchLimits,SSIssueDefaultRM,PlateFile,APInvoiceLength,DeleteBinsAllowed,InvoiceApprovalOrderlineChange,QuotePriceMatrix,"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,CEVendorDefault"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,PriceMatrixPricingMethod,CaseLabel,InterCompanyBilling,"
-           + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST,CENewLayoutCalc,OEUseMatrixForNonstock,CEOpStandards,CEShipWeight,JobNoLength,CEShowErrorsAndWarnings"
-           + "CECostSource"
+           + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST,CENewLayoutCalc,OEUseMatrixForNonstock,CEOpStandards,CEShipWeight,JobNoLength,CEShowErrorsAndWarnings,"
+           + "CECostSource,CEStyleF"
            .
                       
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -1753,7 +1753,18 @@ CASE ip-nk1-value:
             INPUT 0,                              /* Int value */
             INPUT NO,                             /* Logical value */ 
             INPUT 0                               /* Dec value*/
-            ).                      
+            ).
+    WHEN "CEStyleF" THEN     
+    RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "When changing Style, Prompt to Update Box Design for Folding Estimates",     /* Description */
+            INPUT "", /* Char Value */
+            INPUT 0,                              /* Int value */
+            INPUT YES,                             /* Logical value */ 
+            INPUT 0                               /* Dec value*/
+            ).                                            
 END CASE.
 ELSE
 CASE ip-nk1-value:
