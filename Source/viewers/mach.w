@@ -1129,8 +1129,7 @@ END.
 ON ENTRY OF mach.max-wid IN FRAME F-Main /* Max Width */
 DO:
   {&methods/lValidateError.i YES}
-  IF mach.p-type:SCREEN-VALUE EQ "R"                OR
-       (mach.p-type:SCREEN-VALUE EQ "B" AND ll-label) THEN DO:
+  IF mach.min-wid:LABEL EQ lv-label[1] THEN DO:
     RUN est/d-sidsid.w (mach.m-code:SCREEN-VALUE, "Cylinder Diameters",
                         INPUT-OUTPUT TABLE tt-ss).
 
@@ -2043,25 +2042,16 @@ PROCEDURE p-type-display :
        lv-label[1] = mach.min-len:LABEL
        lv-label[2] = mach.min-wid:LABEL.
 
-    IF mach.p-type:SCREEN-VALUE EQ "R" THEN
+    IF mach.p-type:SCREEN-VALUE EQ "R"                OR
+       (mach.p-type:SCREEN-VALUE EQ "B" AND ll-label) THEN
       ASSIGN
-       mach.min-len:LABEL = "Roll Length"
-       mach.min-wid:LABEL = "Roll Width".
+       mach.min-len:LABEL = lv-label[2]
+       mach.min-wid:LABEL = lv-label[1].
     ELSE
     IF CAN-DO("A,P",mach.p-type:SCREEN-VALUE) THEN
       ASSIGN
        mach.min-len:LABEL = "Set Length"
        mach.min-wid:LABEL = "Set Width".
-    ELSE
-    IF CAN-DO("S",mach.p-type:SCREEN-VALUE) THEN
-      ASSIGN
-       mach.min-len:LABEL = "Sheet Width"
-       mach.min-wid:LABEL = "Sheet Length".
-    ELSE
-    IF (mach.p-type:SCREEN-VALUE EQ "B" AND ll-label) THEN
-      ASSIGN
-       mach.min-len:LABEL = lv-label[2]
-       mach.min-wid:LABEL = lv-label[1].
     ELSE
       ASSIGN
        mach.min-len:LABEL = lv-label[1]
