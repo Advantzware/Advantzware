@@ -67,9 +67,6 @@ FUNCTION sfFormat_FilledJobWithoutHyphen RETURNS CHARACTER
 	(ipcJobNo AS CHARACTER,
 	 ipiJobNo2 AS INTEGER) FORWARD.
 
-FUNCTION sfFormat_appendXLLine RETURNS CHARACTER
-  ( ipcAppend AS CHARACTER) FORWARD.
-
 FUNCTION sfFormat_JobFormat RETURNS CHARACTER
   ( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ) FORWARD.
   
@@ -1005,20 +1002,6 @@ FUNCTION fGetReplaceString RETURNS CHARACTER PRIVATE
     RETURN cReplaceChar.
 END FUNCTION.
 
-FUNCTION sfFormat_appendXLLine RETURNS CHARACTER 
-	( ipcAppend AS CHARACTER):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE cLine AS CHARACTER NO-UNDO.
-
-    ipcAppend = REPLACE(ipcAppend, '"', '').
-    ipcAppend = REPLACE(ipcAppend, ',', ' ').
-    cLine = ipcAppend .
-    RETURN cLine.   /* Function return value. */
-    		
-END FUNCTION.
    
 FUNCTION sfFormat_FilledJobWithHyphen RETURNS CHARACTER 
 	( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ):

@@ -762,9 +762,10 @@ FUNCTION FormatForCSV RETURNS CHARACTER
     DEFINE VARIABLE iZeroCode AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iNineCode AS INTEGER   NO-UNDO.
     DEFINE VARIABLE chChar    AS CHARACTER NO-UNDO.                    
-    
+             
     /* Add escape character (double quote) to exceptional characters */
     ipcValue = REPLACE(ipcValue,'"','""').
+    ipcValue = REPLACE(ipcValue,',',' ').
         
     ASSIGN 
         iZeroCode = ASC("0")
