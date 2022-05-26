@@ -201,6 +201,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dOeAutoFg AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE hdPOProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
+DEFINE VARIABLE cSendPurchaseOrder AS CHARACTER NO-UNDO.
 
 DEFINE NEW SHARED WORKFILE work-vend NO-UNDO
     FIELD cost AS DECIMAL FORMAT ">>,>>9.9999"
@@ -528,6 +529,24 @@ RUN processJobMat.
 
 IF gvlDebug THEN
     OUTPUT STREAM sDebug CLOSE.
+
+IF NOT AVAIL po-ord THEN    
+FIND FIRST po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrpoOrd NO-ERROR.    
+        
+IF AVAIL po-ord THEN
+DO:
+     RUN spGetSettingByName ("SendPurchaseOrder", OUTPUT cSendPurchaseOrder).
+     IF cSendPurchaseOrder EQ "Yes" then
+     do:
+         RUN custom/setUserPrint.p (po-ord.company,'po-ordl_.',
+                                   'begin_po-no,end_po-no,begin_vend-no,end_vend-no,tb_reprint,tb_reprint-closed',
+                                    STRING(po-ord.po-no) + ',' + STRING(po-ord.po-no) + ',' +
+                                    po-ord.vend-no + ',' + po-ord.vend-no + ',' + STRING(po-ord.printed) + ',' +
+                                    (IF po-ord.stat EQ "C" AND po-ord.printed THEN "YES" ELSE "NO")).
+                                    
+         RUN listobjs/po-ordl_.w. 
+     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
