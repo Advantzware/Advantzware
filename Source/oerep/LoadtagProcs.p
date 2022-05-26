@@ -3081,7 +3081,7 @@ PROCEDURE pBuildLoadTagsFromPO :
             
             RUN sys/ref/uom-rm.p (INPUT bf-item.mat-type, OUTPUT cUOMList).
             
-            IF INDEX(cUOMList, ipcQuantityUOM) EQ 0 THEN DO:
+            IF ipcQuantityUOM NE "" AND INDEX(cUOMList, ipcQuantityUOM) EQ 0 THEN DO:
                 ASSIGN
                     oplError   = TRUE
                     opcMessage = "Invalid UOM '" + ipcQuantityUOM + "'. Valid values '" + cUOMList + "'"
@@ -3154,7 +3154,10 @@ PROCEDURE pBuildLoadTagsFromPO :
                 dDepth       = bf-po-ordl.s-wid
                 dBasisWeight = 0
                 .
-                
+            
+            IF ipcQuantityUOM EQ "" THEN
+                ipcQuantityUOM = cQuantityUOM.
+                    
             RUN jc/GetJobMaterialDimensions.p (
                 INPUT bf-po-ordl.company,
                 INPUT bf-po-ordl.job-no,
