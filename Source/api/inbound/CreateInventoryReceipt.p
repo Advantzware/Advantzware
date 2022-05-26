@@ -570,8 +570,8 @@ ELSE DO:
         INPUT        ipcCompany,
         INPUT        ipcInventoryStockID,
         INPUT        ipdQuantity,
+        INPUT        item.cons-uom,
         INPUT        ipcQuantityUOM,
-        INPUT        item.pur-uom,
         INPUT-OUTPUT iopiPONo,
         INPUT        ipiPOLine,
         INPUT-OUTPUT iopcJobID,
@@ -1035,8 +1035,7 @@ PROCEDURE pRMRecordCreation PRIVATE :
         
         ASSIGN
             bf-rm-rctd.cost     = dCost
-            bf-rm-rctd.b-num    = (po-ordl.b-num)
-            bf-rm-rctd.pur-uom  = po-ordl.pr-qty-uom
+            bf-rm-rctd.b-num    = po-ordl.b-num
             bf-rm-rctd.cost-uom = po-ordl.pr-uom
             .
         

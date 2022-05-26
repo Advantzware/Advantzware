@@ -1354,7 +1354,7 @@ PROCEDURE pCreateLoadTagRM:
             .
 
         ASSIGN
-            bf-loadtag.qty          = ipbf-ttLoadTag.ordQuantity
+            bf-loadtag.qty          = ipbf-ttLoadTag.quantity
             bf-loadtag.qty-case     = ipbf-ttLoadTag.quantityInSubUnit
             bf-loadtag.case-bundle  = ipbf-ttLoadTag.subUnitsPerUnit
             bf-loadtag.pallet-count = ipbf-ttLoadTag.quantityInUnit
@@ -3126,7 +3126,7 @@ PROCEDURE pBuildLoadTagsFromPO :
                 bf-ttLoadTag.orderID             = bf-po-ordl.ord-no
                 bf-ttLoadTag.overPct             = bf-po-ord.over-pct
                 bf-ttLoadTag.ordQuantity         = bf-po-ordl.ord-qty
-                bf-ttLoadTag.quantity            = bf-po-ordl.ord-qty
+                bf-ttLoadTag.quantity            = ipdQuantity
                 bf-ttLoadTag.sheetLength         = IF bf-po-ordl.pr-qty-uom EQ "ROLL" THEN 12 ELSE bf-po-ordl.s-len
                 bf-ttLoadTag.sheetWidth          = bf-po-ordl.s-wid
                 bf-ttLoadTag.sheetDepth          = bf-po-ordl.s-dep
@@ -3217,6 +3217,7 @@ PROCEDURE pBuildLoadTagsFromPO :
             
             ASSIGN
                 bf-ttLoadTag.quantityInSubUnit = bf-ttLoadTag.poReceiptQuantity
+                bf-ttLoadTag.quantity          = bf-ttLoadTag.poReceiptQuantity
                 bf-ttLoadTag.subUnitsPerUnit   = 1 
                 bf-ttLoadTag.quantityInUnit    = bf-ttLoadTag.quantityInSubUnit
                 bf-ttLoadTag.partial           = 0

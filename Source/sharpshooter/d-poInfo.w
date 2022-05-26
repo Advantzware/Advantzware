@@ -39,12 +39,14 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE OUTPUT PARAMETER opiPOID        AS INTEGER   NO-UNDO.
-DEFINE OUTPUT PARAMETER opiPOLine      AS INTEGER   NO-UNDO.
-DEFINE OUTPUT PARAMETER opdQuantity    AS DECIMAL   NO-UNDO.
-DEFINE OUTPUT PARAMETER opcQuantityUOM AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER oplValid       AS LOGICAL   NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopiPOID        AS INTEGER   NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopiPOLine      AS INTEGER   NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopdQuantity    AS DECIMAL   NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopcQuantityUOM AS CHARACTER NO-UNDO.
+DEFINE OUTPUT       PARAMETER oplValid        AS LOGICAL   NO-UNDO.
 /* Local Variable Definitions ---                                       */
+
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -63,8 +65,8 @@ DEFINE OUTPUT PARAMETER oplValid       AS LOGICAL   NO-UNDO.
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btCancel fiPOID fiPOLine fiQuantity btOk ~
-fiUOM 
+&Scoped-Define ENABLED-OBJECTS btCancel fiPOID fiPOLine fiQuantity fiUOM ~
+btOk 
 &Scoped-Define DISPLAYED-OBJECTS fiPOID fiPOLine fiQuantity fiUOM ~
 statusMessage 
 
@@ -127,8 +129,8 @@ DEFINE FRAME D-Dialog
      fiPOID AT ROW 1.57 COL 26 COLON-ALIGNED WIDGET-ID 2
      fiPOLine AT ROW 3.38 COL 26 COLON-ALIGNED WIDGET-ID 4
      fiQuantity AT ROW 5.19 COL 26 COLON-ALIGNED WIDGET-ID 6
-     btOk AT ROW 6.71 COL 75 WIDGET-ID 10
      fiUOM AT ROW 7 COL 26 COLON-ALIGNED WIDGET-ID 8
+     btOk AT ROW 6.71 COL 75 WIDGET-ID 10
      statusMessage AT ROW 9.33 COL 2.2 NO-LABEL WIDGET-ID 28
      SPACE(0.79) SKIP(1.04)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -215,16 +217,39 @@ DO:
     ASSIGN fiPOID fiPOLine fiQuantity fiUOM.
     
     ASSIGN
-        opiPOID        = fiPOID
-        opiPOLine      = fiPOLine
-        opdQuantity    = fiQuantity
-        opcQuantityUOM = fiUOM
-        oplValid       = TRUE
+        iopiPOID        = fiPOID
+        iopiPOLine      = fiPOLine
+        iopdQuantity    = fiQuantity
+        iopcQuantityUOM = fiUOM
+        oplValid        = TRUE
         . 
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiPOID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPOID D-Dialog
+ON LEAVE OF fiPOID IN FRAME D-Dialog /* PO # */
+DO:
+    RUN pPopulateQuantityAndUOM.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiPOLine
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPOLine D-Dialog
+ON LEAVE OF fiPOLine IN FRAME D-Dialog /* Line # */
+DO:
+    RUN pPopulateQuantityAndUOM.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME
@@ -308,10 +333,95 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiPOID fiPOLine fiQuantity fiUOM statusMessage 
       WITH FRAME D-Dialog.
-  ENABLE btCancel fiPOID fiPOLine fiQuantity btOk fiUOM 
+  ENABLE btCancel fiPOID fiPOLine fiQuantity fiUOM btOk 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable D-Dialog 
+PROCEDURE local-enable :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit D-Dialog 
+PROCEDURE pInit PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    IF iopiPOID EQ ? THEN
+        iopiPOID = 0.
+
+    IF iopiPOLine EQ ? THEN
+        iopiPOLine = 0.
+
+    IF iopdQuantity EQ ? THEN
+        iopdQuantity = 0.
+
+    IF iopcQuantityUOM EQ ? THEN
+        iopcQuantityUOM = "".
+    
+    RUN spGetSessionParam("Company", OUTPUT cCompany).
+            
+    ASSIGN
+        fiPOID:SCREEN-VALUE     = STRING(iopiPOID)
+        fiPOLine:SCREEN-VALUE   = STRING(iopiPOLine)
+        fiQuantity:SCREEN-VALUE = STRING(iopdQuantity)
+        fiUOM:SCREEN-VALUE      = STRING(iopcQuantityUOM)
+        . 
+    
+    RUN pPopulateQuantityAndUOM.    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPopulateQuantityAndUOM D-Dialog 
+PROCEDURE pPopulateQuantityAndUOM PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+
+    ASSIGN fiPOID fiPOLine.
+    
+    IF fiPOID EQ 0 OR fiPOID EQ ? OR fiPOLine EQ ? THEN
+        RETURN.
+                
+    FIND FIRST bf-po-ordl NO-LOCK
+         WHERE bf-po-ordl.company EQ cCompany
+           AND bf-po-ordl.po-no   EQ fiPOID
+           AND bf-po-ordl.line    EQ fiPOLine
+         NO-ERROR.
+    IF AVAILABLE bf-po-ordl THEN
+        ASSIGN
+            fiQuantity:SCREEN-VALUE = STRING(bf-po-ordl.ord-qty)
+            fiUOM:SCREEN-VALUE      = bf-po-ordl.pr-qty-uom
+            .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

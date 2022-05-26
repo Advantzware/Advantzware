@@ -286,6 +286,7 @@ DEFINE BROWSE BROWSE-1
       fGetConcatLocationID() @ ttBrowseInventory.warehouseID WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(20)"
       ttBrowseInventory.tag WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
       ttBrowseInventory.quantity WIDTH 25 COLUMN-LABEL "Quantity" FORMAT "->,>>>,>>9.99<<<<"
+      ttBrowseInventory.quantityUOM WIDTH 10 COLUMN-LABEL "UOM" FORMAT "X(4)"
       fGetInventoryStatus() @ ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(30)"
       ttBrowseInventory.emptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
@@ -1265,6 +1266,7 @@ PROCEDURE pLocationScan PRIVATE :
             ttBrowseInventory.warehouse        = ipcWarehouse
             ttBrowseInventory.location         = ipcLocation
             ttBrowseInventory.quantity         = dQuantity
+            ttBrowseInventory.quantityUOM      = "EA"
             ttBrowseInventory.inventoryStockID = STRING(riRctd)
             ttBrowseInventory.transactionType  = "Transfer"
             ttBrowseInventory.inventoryStatus  = "Created"
@@ -1549,6 +1551,7 @@ PROCEDURE pTagScan PRIVATE :
     DEFINE VARIABLE iPOLine      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dQuantity    AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cQuantityUOM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAddInfo     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lValid       AS LOGICAL   NO-UNDO.
                             
     ASSIGN
@@ -1582,11 +1585,21 @@ PROCEDURE pTagScan PRIVATE :
                 RETURN.
         END.
         ELSE IF gcSSVendorTags EQ "Enter Vendor Tag Information" THEN DO:
-            RUN sharpshooter/d-poInfo.w (
+            RUN addon/rm/vendorTagParse.p(
+                INPUT  ipcTag,
                 OUTPUT iPOID,
                 OUTPUT iPOLine,
                 OUTPUT dQuantity,
-                OUTPUT cQuantityUOM,
+                OUTPUT cAddInfo,
+                OUTPUT opcMessage,
+                OUTPUT oplError
+                ).
+            
+            RUN sharpshooter/d-poInfo.w (
+                INPUT-OUTPUT iPOID,
+                INPUT-OUTPUT iPOLine,
+                INPUT-OUTPUT dQuantity,
+                INPUT-OUTPUT cQuantityUOM,
                 OUTPUT lValid
                 ).    
             IF NOT lValid THEN
@@ -1823,6 +1836,7 @@ PROCEDURE pTagScanFG PRIVATE :
             ttBrowseInventory.warehouse        = cWarehouse
             ttBrowseInventory.location         = cLocation
             ttBrowseInventory.quantity         = iQuantity
+            ttBrowseInventory.quantityUOM      = cQuantityUOM
             ttBrowseInventory.inventoryStockID = STRING(riFGRctd)
             ttBrowseInventory.transactionType  = "Receipt"
             ttBrowseInventory.inventoryStatus  = "Created"
@@ -1844,6 +1858,7 @@ PROCEDURE pTagScanFG PRIVATE :
                     ttBrowseInventory.warehouse        = bf-comp-fg-rctd.loc
                     ttBrowseInventory.location         = bf-comp-fg-rctd.loc-bin
                     ttBrowseInventory.quantity         = bf-comp-fg-rctd.qty
+                    ttBrowseInventory.quantityUOM      = bf-comp-fg-rctd.pur-uom
                     ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-comp-fg-rctd))
                     ttBrowseInventory.transactionType  = "Receipt"
                     ttBrowseInventory.inventoryStatus  = "Created"
@@ -1881,10 +1896,10 @@ PROCEDURE pTagScanRM PRIVATE :
     DEFINE VARIABLE iJobID2          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dNewQuantity     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iQuantity        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iSubUnits        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iSubUnitsPerUnit AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iPartial         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dQuantity        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSubUnits        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSubUnitsPerUnit AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dPartial         AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cTag             AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-rm-rctd       FOR rm-rctd.
@@ -1973,10 +1988,10 @@ PROCEDURE pTagScanRM PRIVATE :
             iPOLineID        = INTEGER(oLoadTag:GetValue("PoLine"))
             cJobID           = oLoadTag:GetValue("JobID")
             iJobID2          = INTEGER(oLoadTag:GetValue("JobID2"))
-            iSubUnits        = INTEGER(oLoadTag:GetValue("QuantityInSubUnit"))
-            iSubUnitsPerUnit = INTEGER(oLoadTag:GetValue("SubUnitsPerUnit"))
-            iPartial         = INTEGER(oLoadTag:GetValue("Partial"))
-            iQuantity        = iSubUnits * iSubUnitsPerUnit + iPartial
+            dSubUnits        = INTEGER(oLoadTag:GetValue("QuantityInSubUnit"))
+            dSubUnitsPerUnit = INTEGER(oLoadTag:GetValue("SubUnitsPerUnit"))
+            dPartial         = INTEGER(oLoadTag:GetValue("Partial"))
+            dQuantity        = DECIMAL(oLoadTag:GetValue("Quantity"))
             .
 
         EMPTY TEMP-TABLE work-gl.
@@ -1994,14 +2009,14 @@ PROCEDURE pTagScanRM PRIVATE :
         RUN api\inbound\CreateInventoryReceipt.p (
             INPUT        cCompany, 
             INPUT        cTag,
-            INPUT        iQuantity,  /* Quantity */
+            INPUT        dQuantity,  /* Quantity */
             INPUT        cQuantityUOM,
             INPUT-OUTPUT iPOID,
             INPUT        iPOLineID,
             INPUT-OUTPUT cJobID,                  
             INPUT        STRING(iJobID2),                 
-            INPUT        iSubUnits,  /* Sub Units */     
-            INPUT        iSubUnitsPerUnit,  /* Sub Units per Unit */
+            INPUT        dSubUnits,  /* Sub Units */     
+            INPUT        dSubUnitsPerUnit,  /* Sub Units per Unit */
             INPUT        cWarehouse,            
             INPUT        cLocation,
             INPUT        FALSE, 
@@ -2027,6 +2042,7 @@ PROCEDURE pTagScanRM PRIVATE :
             ttBrowseInventory.warehouse        = cWarehouse
             ttBrowseInventory.location         = cLocation
             ttBrowseInventory.quantity         = dNewQuantity
+            ttBrowseInventory.quantityUOM      = cQuantityUOM
             ttBrowseInventory.inventoryStockID = STRING(riRMRctd)
             ttBrowseInventory.transactionType  = "Receipt"
             ttBrowseInventory.inventoryStatus  = "Created"
