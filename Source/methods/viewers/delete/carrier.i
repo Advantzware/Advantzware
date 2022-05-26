@@ -16,27 +16,18 @@
              VIEW-AS ALERT-BOX INFO. 
              RETURN "ADM-ERROR":U.
          END.
-         FIND FIRST bf-cust NO-LOCK
-              WHERE bf-cust.company EQ carrier.company
-                AND bf-cust.carrier EQ carrier.carrier
-                AND bf-cust.loc EQ carrier.loc NO-ERROR.
-         IF AVAILABLE bf-cust THEN
-         DO:
-             MESSAGE "Carrier is on customers and cannot be deleted." 
-             VIEW-AS ALERT-BOX INFO. 
-             RETURN "ADM-ERROR":U.
-         END.
-         FIND FIRST bf-cust NO-LOCK
-              WHERE bf-cust.company EQ carrier.company
-                AND bf-cust.carrier EQ carrier.carrier
-                AND bf-cust.loc EQ carrier.loc NO-ERROR.
-         IF AVAILABLE bf-cust THEN
-         DO:
-             MESSAGE "Carrier is on customers and cannot be deleted." 
-             VIEW-AS ALERT-BOX INFO. 
-             RETURN "ADM-ERROR":U.
-         END.
 
+         FIND FIRST bf-cust NO-LOCK
+              WHERE bf-cust.company EQ carrier.company
+                AND bf-cust.carrier EQ carrier.carrier
+                AND bf-cust.loc EQ carrier.loc NO-ERROR.
+         IF AVAILABLE bf-cust THEN
+         DO:
+             MESSAGE "Carrier is on customers and cannot be deleted." 
+             VIEW-AS ALERT-BOX INFO. 
+             RETURN "ADM-ERROR":U.
+         END.
+         
          FIND FIRST bf-shipto NO-LOCK
               WHERE bf-shipto.company EQ carrier.company
                 AND bf-shipto.carrier EQ carrier.carrier
