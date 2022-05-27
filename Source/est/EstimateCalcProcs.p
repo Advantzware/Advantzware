@@ -261,7 +261,9 @@ PROCEDURE ChangeSellPrice:
             WHERE EstCostHeader.estCostHeaderID EQ INT64(probe.spare-char-2)
             NO-ERROR.
     IF AVAILABLE EstCostHeader THEN 
-    DO:
+    DO: 
+        RUN pSetGlobalSettings(EstCostHeader.company). 
+        RUN pBuildSystemData(EstCostHeader.company). 
         ASSIGN iEstCostHeaderID = EstCostHeader.estCostHeaderID.
     END.    
     /* Copy DB record to Temp-Table */
@@ -293,7 +295,7 @@ PROCEDURE ChangeSellPrice:
                 
                 /*Calculate new Price for form and commisson*/
                 ASSIGN 
-                    dNewPrice   = ROUND(ttEstCostForm.sellPrice * dPriceDiffRatio, 2)
+                    dNewPrice   = MAXIMUM (ROUND(ttEstCostForm.sellPrice * dPriceDiffRatio, 2),ROUND(ttEstCostForm.sellPrice * dPriceDiffRatio, 0))
                     dCommission = dNewPrice * ttEstCostItem.commissionPct / 100
                     .   
                 
@@ -3510,6 +3512,16 @@ DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
             BUFFER-COPY ttEstCostSummary TO EstCostSummary.   
         END.         
     END.
+    
+    EMPTY TEMP-TABLE ttEstCostForm.
+    EMPTY TEMP-TABLE ttEstCostDetail.
+    EMPTY TEMP-TABLE ttEstCostSummary.
+    EMPTY TEMP-TABLE ttEstCostOperation.
+    EMPTY TEMP-TABLE ttEstCostMisc.
+    EMPTY TEMP-TABLE ttEstCostMaterial.
+    EMPTY TEMP-TABLE ttEstCostBlank.
+    EMPTY TEMP-TABLE ttEstCostItem.
+    EMPTY TEMP-TABLE ttEstCostHeader.
     
 END PROCEDURE.
 
