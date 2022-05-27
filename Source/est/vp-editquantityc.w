@@ -27,30 +27,8 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-/*
-{cec/print4.i shared shared}
-{cec/print42.i shared}
 
-def shared buffer xest for est.
-
-def shared temp-table tt-qtty field qtty like qtty
-                              field rel like rels
-                              FIELD lRunship LIKE lRunShips.
-
-def TEMP-TABLE w-est NO-UNDO field w-est-no like est.est-no
-                   field w-row-id as   rowid.
-
-def var i as int no-undo.
-def var li-seq as int no-undo.
-DEF VAR ld-msf AS DEC NO-UNDO.
-def shared var cocode as cha no-undo.
-
-{custom/globdefs.i}
-cocode = g_company.
-{cec/msfcalc.i}
-*/
 /* Parameters Definitions ---                                           */
-//DEFINE INPUT PARAMETER iprowidEst AS ROWID NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
@@ -176,8 +154,7 @@ END.
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
-       FRAME F-Main:SCROLLABLE       = FALSE
-       FRAME F-Main:HIDDEN           = TRUE.
+       FRAME F-Main:SCROLLABLE       = FALSE.
 
 ASSIGN 
        edit-quantities:PRIVATE-DATA IN FRAME F-Main     = 
