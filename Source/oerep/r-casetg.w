@@ -1842,9 +1842,20 @@ PROCEDURE from-job :
                         OUTPUT w-ord.rel-date,
                         OUTPUT w-ord.rel-lot#).
                
+                    FIND FIRST oe-ordm NO-LOCK
+                       WHERE oe-ordm.company  EQ oe-ord.company
+                         AND oe-ordm.ord-no   EQ oe-ord.ord-no
+                       NO-ERROR.
+               
                     ASSIGN
-                        w-ord.po-no       = oe-ordl.po-no-po
-                        w-ord.customField = oe-ordl.customField.
+                        w-ord.po-no        = oe-ordl.po-no-po
+                        w-ord.customField  = oe-ordl.customField
+                        w-ord.ordHeaderPo  = oe-ord.po-no 
+                        w-ord.ordLinePo    = oe-ordl.po-no 
+                        w-ord.releasePo    = IF AVAILABLE oe-rel  THEN oe-rel.po-no ELSE ""
+                        w-ord.miscItemPo   = IF AVAILABLE oe-ordm THEN oe-ordm.po-no ELSE ""
+                        w-ord.relCustLot   = IF AVAILABLE oe-rel THEN oe-rel.lot-no  ELSE ""
+                        .
                 
 
                     FIND FIRST oe-relh NO-LOCK
@@ -2146,7 +2157,20 @@ PROCEDURE from-ord :
                     RUN get-rel-info (OUTPUT w-ord.cust-po-no,
                         OUTPUT w-ord.rel-date,
                         OUTPUT w-ord.rel-lot#). 
-
+                    
+                    FIND FIRST oe-ordm NO-LOCK
+                       WHERE oe-ordm.company  EQ oe-ord.company
+                         AND oe-ordm.ord-no   EQ oe-ord.ord-no
+                       NO-ERROR.
+                    
+                    ASSIGN
+                        w-ord.ordHeaderPo  = oe-ord.po-no 
+                        w-ord.ordLinePo    = oe-ordl.po-no 
+                        w-ord.releasePo    = IF AVAILABLE oe-rel  THEN oe-rel.po-no ELSE ""
+                        w-ord.miscItemPo   = IF AVAILABLE oe-ordm THEN oe-ordm.po-no ELSE ""
+                        w-ord.relCustLot   = IF AVAILABLE oe-rel THEN oe-rel.lot-no ELSE ""
+                        .                        
+                        
                     IF AVAILABLE itemfg THEN
                         ASSIGN
                             w-ord.upc-no     = itemfg.upc-no
@@ -2238,6 +2262,11 @@ PROCEDURE from-ord :
                         AND shipto.cust-no EQ oe-ord.cust-no
                         AND shipto.ship-id EQ oe-rel.ship-id
                         NO-LOCK NO-ERROR.
+                    
+                    FIND FIRST oe-ordm NO-LOCK
+                        WHERE oe-ordm.company  EQ oe-ord.company
+                          AND oe-ordm.ord-no   EQ oe-ord.ord-no
+                        NO-ERROR.
 
                     CREATE w-ord.
                     ASSIGN
@@ -2282,6 +2311,11 @@ PROCEDURE from-ord :
                                  cust.int-field[1] ELSE v-mult
                         w-ord.linenum      = oe-ordl.e-num
                         w-ord.customField  = oe-ordl.customField
+                        w-ord.ordHeaderPo  = oe-ord.po-no 
+                        w-ord.ordLinePo    = oe-ordl.po-no 
+                        w-ord.releasePo    = IF AVAILABLE oe-rel  THEN oe-rel.po-no ELSE ""
+                        w-ord.miscItemPo   = IF AVAILABLE oe-ordm THEN oe-ordm.po-no ELSE ""
+                        w-ord.relCustLot   = IF AVAILABLE oe-rel THEN oe-rel.lot-no  ELSE ""
                         num-rec            = num-rec + 1.
 
                     ASSIGN
@@ -3237,7 +3271,9 @@ PROCEDURE run-report :
                 "SHIPNAME,SHIPADD1,SHIPADD2,SHIPCITY,SHIPSTATE,SHIPZIP,SHIPCOUNTRY," +
                 "DUEDATE,RELDATE,UPCNO,LENGTH,WIDTH,DEPTH,FLUTE,TEST,VENDOR,GROSSWGT," +
                 "TAREWGT,NETWGT,SHEETWGT,UOM,MIDDLESEXJOBNUMBER,MIDDLESEXCUSTPONO," +
-                "TAG#,PARTIAL,CASECODE,COLOR,CODE,CASEWGT,FG LOT#,RELLOT#,DRAWING#,POLINE#,PONO,FORM,BLANK,CURRENTDATE,CURRENTTIME,CUSTOM1".
+                "TAG#,PARTIAL,CASECODE,COLOR,CODE,CASEWGT,FG LOT#,RELLOT#,DRAWING#,POLINE#,PONO,FORM,BLANK,CURRENTDATE,CURRENTTIME,CUSTOM1," +
+                "Order Header PO#,Order Line PO#,Release PO#,Misc Item PO#,Release Customer Lot#"
+                .
             PUT SKIP.
         END.
 
@@ -3407,6 +3443,11 @@ PROCEDURE run-report :
                         "~""  TODAY  "~","
                         "~""  STRING(TIME,'hh:mm am')  "~","
                         "~""  removeChars(w-ord.customField)  "~","
+                        "~""  removeChars(w-ord.ordHeaderPo)  "~","
+                        "~""  removeChars(w-ord.ordLinePo)  "~","
+                        "~""  removeChars(w-ord.releasePo)  "~","
+                        "~""  removeChars(w-ord.miscItemPo)  "~","
+                        "~""  removeChars(w-ord.relCustLot)  "~","
                         .
                     PUT SKIP.
                 END.
