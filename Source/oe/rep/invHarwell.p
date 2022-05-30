@@ -210,7 +210,8 @@ FOR EACH report NO-LOCK WHERE
 
     FIND FIRST currency NO-LOCK WHERE 
         currency.company = cust.company AND 
-        currency.c-code = cust.curr-code.
+        currency.c-code = cust.curr-code
+        NO-ERROR.
     IF AVAIL currency THEN
         lv-currency = currency.c-desc.
 
@@ -585,8 +586,8 @@ FOR EACH report NO-LOCK WHERE
             /* Display first line of line block */
             PUT UNFORMATTED SKIP 
                 v-inv-qty FORMAT "->>>>>9"          TO 9
-                TRIM(STRING(inv-line.ord-no))       AT 12
-                inv-line.po-no                      AT 35
+                TRIM(STRING(inv-line.i-no))         AT 12
+                inv-line.po-no                      AT 46
                 v-ship-qty  FORMAT "->>>>>9"        TO 75
                 IF v-ship-qty LT v-inv-qty THEN "P" ELSE "C" FORMAT "x" AT 78
                 v-price  FORMAT "->,>>9.99<<"       TO 91
@@ -644,7 +645,7 @@ FOR EACH report NO-LOCK WHERE
             END.
         END.
 
-        IF v-t-price NE inv-line.t-price THEN DO:
+        DO:
             CREATE w-tax.
             ASSIGN
                 w-dsc   = "******ITEM TOTAL:"
@@ -658,7 +659,7 @@ FOR EACH report NO-LOCK WHERE
                 v-printline = v-printline + 2.
         END.
       
-        PUT SKIP(1).
+        PUT SKIP.
         ASSIGN 
             v-printline = v-printline + 1.
 
@@ -733,16 +734,24 @@ FOR EACH report NO-LOCK WHERE
                     v-printline = 0.
                     {oe/rep/invHarwell.i}
                 END.
-                PUT "** Miscellaneous Items **" AT 23 SKIP(1).
-                ASSIGN 
-                    v-printline = v-printline + 2.
             END.
-            
-            PUT inv-misc.charge AT 10 inv-misc.dscr inv-misc.amt  SKIP.
+            ASSIGN 
+                v-t-price = inv-misc.amt.
+                
+            /* Display first line of line block */
+            PUT UNFORMATTED SKIP 
+                1 FORMAT "->>>>>9"                  TO 9
+                inv-misc.charge                     AT 12
+                TRIM(STRING(inv-misc.po-no,"x(15)"))AT 46
+                1  FORMAT "->>>>>9"                 TO 75
+                inv-misc.amt  FORMAT "->,>>9.99<<"  TO 91
+                inv-misc.amt  FORMAT "->,>>9.99"    TO 105                     
+                SKIP.
+            ASSIGN 
+                v-printline = v-printline + 1.
             
             ASSIGN
-                v-subtot-lines = v-subtot-lines + inv-misc.amt
-                v-printline    = v-printline + 1.
+                v-subtot-lines = v-subtot-lines + inv-misc.amt.
             
             IF inv-misc.tax 
             AND AVAIL stax THEN DO i = 1 TO 5:
@@ -750,20 +759,31 @@ FOR EACH report NO-LOCK WHERE
                     CREATE w-tax.
                     ASSIGN
                         w-dsc      = stax.tax-dscr1[i]
-                        w-tax      = IF stax.company EQ "yes" THEN v-t-price ELSE inv-misc.amt
-                        w-tax      = ROUND(w-tax * (1 + (stax.tax-rate1[i] / 100)),2) - w-tax
+                        w-tax      = ROUND((IF stax.company EQ "yes" THEN v-t-price ELSE ar-invl.amt) * stax.tax-rate1[i] / 100,2)
                         v-t-price  = v-t-price + w-tax
                         v-t-tax[i] = v-t-tax[i] + w-tax
                         v-lines    = v-lines + 1.
+                    PUT UNFORMATTED 
+                        w-dsc                       AT 30
+                        w-tax FORMAT "->>>>>>9.99"   TO 105
+                        SKIP.
+                    ASSIGN 
+                        v-printline = v-printline + 1.
                 END.
             END.
 
-            IF v-t-price NE inv-misc.amt THEN DO:
+            DO:
                 CREATE w-tax.
                 ASSIGN
                     w-dsc   = "******ITEM TOTAL:"
                     w-tax   = v-t-price
                     v-lines = v-lines + 1.
+                PUT UNFORMATTED 
+                    w-dsc                           AT 30
+                    v-t-price FORMAT "->>>>>>9.99"  TO 105 
+                    SKIP(1).
+                ASSIGN 
+                    v-printline = v-printline + 2.
             END.
             IF v-printline > 53 THEN DO:
                 PAGE.

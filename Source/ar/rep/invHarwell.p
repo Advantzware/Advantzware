@@ -208,8 +208,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         "  " + v-shipto-zip .
 
 
-    FIND FIRST currency WHERE currency.company = cust.company 
-        AND currency.c-code = cust.curr-code.
+    FIND FIRST currency NO-LOCK WHERE 
+        currency.company = cust.company AND 
+        currency.c-code = cust.curr-code 
+        NO-ERROR.
     IF AVAIL currency THEN
         lv-currency = currency.c-desc.
 
@@ -456,8 +458,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         /* Display first line of line block */
         PUT UNFORMATTED SKIP 
             v-inv-qty FORMAT "->>>>>9"          TO 9
-            TRIM(STRING(ar-invl.ord-no))        AT 12
-            ar-inv.po-no                        AT 35
+            TRIM(STRING(ar-invl.i-no))          AT 12
+            ar-invl.po-no                       AT 46
             v-ship-qty  FORMAT "->>>>>9"        TO 75
             IF v-ship-qty LT v-inv-qty THEN "P" ELSE "C" FORMAT "x" AT 78
             v-price     FORMAT "->,>>9.99<<"    TO 91
@@ -496,7 +498,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                 v-printline = v-printline + 1.
         END.
       
-        PUT SKIP(1).
+        PUT SKIP.
         ASSIGN 
             v-printline = v-printline + 1.
 
@@ -560,7 +562,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             END.
         END.
 
-        IF v-t-price NE ar-invl.amt THEN  DO:
+        DO:
             CREATE w-tax.
             ASSIGN
                 w-dsc   = "******ITEM TOTAL:"
