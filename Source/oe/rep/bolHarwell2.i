@@ -1,50 +1,118 @@
 /* oe/rep/bolHarwell2.i */  
 
+PUT 
+    "<FArial><C+25><#1><=1>" SKIP.
 
-PUT
-  "<FArial>"  
-    "<P10><R1><C70><B>Page #:</B>" string(PAGE-NUM,">9")  SKIP 
-  "<#1><P10><ADJUST=LPI><C50><B> "  SKIP
-  "<=1><R+1><C25></B>"            SKIP
-  "<=1><R+2><C25><B><C60>BON DE LIVRAISON/<R+1><C60>DELIVERY RECEIPT:" oe-bolh.bol-no   "</B>"
-  "<C3><R-4><#1><R+9><C+45><IMAGE#1=" ls-full-img1 SKIP
-  "<FCourier New>"
-  "   Expédié A/Ship To:" SPACE(21) "Vendu A/Sold To:"  SKIP
-  SPACE(5) v-comp-name v-ship-name AT 45 skip
-  SPACE(5) v-comp-addr[1] v-ship-addr[1] AT 45 SKIP
-  SPACE(5) v-comp-addr[2] v-ship-addr[2] AT 45 SKIP
-  SPACE(5) v-comp-addr3 v-ship-addr3 AT 45 SKIP 
-  "<R5><C47><#3>" SKIP
-  "<FArial><P14><=#3>" "<P10><ADJUST=LPI>" SKIP
-  
-  SKIP              
-  /*"<=#3><R+3>Page #:             " PAGE-NUM SKIP*/
-  "<=#3><R+4><C60>DATE   :                     " oe-bolh.bol-date        SKIP
-  "<=#3><R+5> " SKIP
-  /*SKIP*/
-  SKIP(1).
+/* Business Form Logo */
+PUT 
+    "<C1><#2>" 
+    "<R2><C2><P10><#1><R+10><C+37><IMAGE#1=" ls-full-img1  SKIP.
 
+/* Top Right BOL Section - preprint*/
+PUT 
+    "<FArial><P12><=#3><B>"
+    "<R2><C55>REÇU DE LIVRAISON"
+    "<R3><C55>DELIVERY RECEIPT" 
+    "<FArial></B>" /* turn off bold */
+    "<R5><C50><P7>REÇU DE LIVRAISON"
+    "<R5.25><C65><P12>:"
+    "<R5.5><C50><P7>DELIVERY RECEIPT NO"
+    "<R7><C50><P7>DATE D'EXPÉDITION"
+    "<R7.25><C65><P12>:"
+    "<R7.5><C50><P7>SHIPPING DATE"
+    "<R9.25><C50><P12>Page"
+    "<R9.25><C65>:"
+    .
+
+/* Top right BOL Section - data */     
+PUT "<FCourier New><P10>"
+    "<R5.25><C67>" TRIM(STRING(oe-bolh.bol-no)) 
+    "<R7.25><C67>" oe-bolh.bol-date 
+    "<R9.25><C67>" TRIM(STRING(PAGE-NUM,">>9"))
+    .
+
+/* Address Headers */
 PUT
-  "<P10><ADJUST=LPI>"
-  "<|{&incl2}><R17><C2><#4><FROM><R21><C83><RECT>" SKIP
-  "<R19><C2><FROM><R19><C83><LINE>" SKIP    
-  "<R17><C12><FROM><R21><C12><LINE>" SKIP
-  "<R17><C27><FROM><R21><C27><LINE>" SKIP 
-  "<R17><C46><FROM><R21><C46><LINE>" SKIP
-  "<R17><C68><FROM><R21><C68><LINE>" SKIP
-  "<FArial><=4><R+1><P10><ADJUST=LPI>        DATE                   F.A.B./F.O.B.                   CAMION / TRUCK #           EXPEDIE VIA/SHIPPED VIA          TERMES/TERMS" SKIP 
-  "<FCourier New><=4><R+3> " oe-bolh.bol-date SPACE(3) v-fob space(7) v-trailer SPACE(3) carrier.dscr v-frt-terms SKIP
+  "<FArial><P7><B>"
+  "<R11.7><C3>EXPÉDIÉ À"
+  "<R12.5><C3>SHIP TO" 
+  "<R11.7><C41>VENDU À"
+  "<R12.5><C41>SOLD TO"
+  "</B>"
+  .
   
-  "<|{&incl2}><R22><C2><#5><FROM><R24><C83><RECT>" SKIP    
-  "<R22><C11><FROM><R24><C11><LINE>" SKIP
-  "<R22><C33><FROM><R24><C33><LINE>" SKIP
-  "<R22><C53><FROM><R24><C53><LINE>" SKIP
-  "<R22><C61><FROM><R24><C61><LINE>" SKIP
-  "<R22><C70><FROM><R24><C70><LINE>" SKIP
-  "<R22><C81><FROM><R24><C81><LINE>" SKIP
-  "<FArial><=5><C3>QTE COMM<C12>No.COMMANDE/DESCRIPTION<C34>No.COMMANDE DU CLIENT<C54># UNITES<C62>QTE / UN.<C71>QTE LIVREE<C81.2>P/"
-  "<FArial><=5><R+1><C3>QTY ORD<C12>ORDER NO./DESCRIPTION<C34>CUSTOMER PO NUMBER<C54># UNITS<C62>QTY/UNIT<C71>QTY SHIPPED<C81.6>C"
-  "<FCourier New>"                                  
+/* Address Data */
+PUT 
+  "<FCourier New><P10>"
+  "<R12><C10>" v-ship-name
+  "<R12><C48>" v-comp-name 
+  "<R13><C10>" v-ship-addr[1] 
+  "<R13><C48>" v-comp-addr[1] 
+  "<R14><C10>" v-ship-addr[2] 
+  "<R14><C48>" v-comp-addr[2] 
+  "<R15><C10>" v-ship-addr3
+  "<R15><C48>" v-comp-addr3 
+  . 
+  
+/* First header rectangle */
+PUT
+  "<R17><C2><#4><FROM><R19.5><C84><RECT>" SKIP  /* First Rectangle */
+  "<R18><C2><FROM><R18><C84><LINE>" SKIP        /* First Horizontal Line */
+  "<R17><C27><FROM><R19.5><C27><LINE>" SKIP     /* First set of vertical lines (3) */
+  "<R17><C46><FROM><R19.5><C46><LINE>" SKIP 
+  "<R17><C68><FROM><R19.5><C68><LINE>" SKIP
   .
 
+/* Labels for first rectangle */
+PUT
+  "<FArial><P7><B>"
+  "<R17.2><C8>VENDEUR / SALESMAN"
+  "<R17.2><C31>EXPÉDIÉ VIA / SHIP VIA"
+  "<R17.2><C52>CAMION N° / TRUCK NO."
+  "<R17.2><C73>F.A.B./F.O.B."
+  . 
+
+/* Second header rectangle */
+PUT   
+  "<R20><C2><#4><FROM><R22><C84><RECT>" SKIP  /* Second Rectangle */
+  "<R20><C05><FROM><R22><C05><LINE>" SKIP     /* Second set of vertical lines (9) */
+  "<R20><C10.2><FROM><R22><C10.2><LINE>" SKIP 
+  "<R20><C38><FROM><R22><C38><LINE>" SKIP
+  "<R20><C53><FROM><R22><C53><LINE>" SKIP     /* Second set of vertical lines (9) */
+  "<R20><C58><FROM><R22><C58><LINE>" SKIP 
+  "<R20><C66><FROM><R22><C66><LINE>" SKIP
+  "<R20><C72><FROM><R22><C72><LINE>" SKIP     /* Second set of vertical lines (9) */
+  "<R20><C74><FROM><R22><C74><LINE>" SKIP 
+  "<R20><C81><FROM><R22><C81><LINE>" SKIP
+  .
+  
+/* Labels for second rectangle */
+PUT
+  "<FArial><P5><B>"
+  "<R20.5><C2.2>COL:IS"
+  "<R20.5><C5.2>QTÉ COMM."
+  "<R20.5><C54.2># UNITÉS"
+  "<R20.5><C60>QTÉ PAR UN."
+  "<R20.5><C67>QTÉ LIVRÉE"
+  "<R21.2><C2.2>PKGS"
+  "<R21.2><C5.2>QTY ORD'D"
+  "<R21.2><C54.2># UNITS"
+  "<R21.2><C60>QTY PER UNIT"
+  "<R21.2><C67>QTY SHIPPED"
+
+  "<FArial><P7><B>"
+  "<R20.3><C16.8>N° COMMANDE /DESCRIPTION"
+  "<R20.3><C39>N° COMMANDE DU CLIENT"
+  "<R20.3><C72.5>P"
+  "<R20.7><C72.9>/"
+  "<R20.3><C76>POIDS"
+  "<R21><C17.8>ORDER NO./DESCRIPTION"
+  "<R21><C39>CUSTOMER P.O. NUMBER"
+  "<R21><C73>C"
+  "<R21><C75.5>WEIGHT"
+  /* Stupid checkmark */
+  "<FWingdings><P14><R20.5><C81.5>ü"
+  "<FArial><P7><B>"
+  . 
+ 
 v-printline = v-printline + 24.

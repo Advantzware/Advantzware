@@ -130,7 +130,6 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
     IF w2.qty = 0 and w2.i-no = "" AND w2.dscr = "" AND w2.cas-cnt = 0 AND NOT last(w2.cases) THEN .
     ELSE DO:    
        ASSIGN v-case-tot =  v-case-tot +  (w2.cases * w2.cas-cnt).
-       
        DISPLAY SPACE(1)
             w2.i-no
             w2.ord-po-no

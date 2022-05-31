@@ -1,5 +1,4 @@
-/* bolprem.i - used by bolpremcx.p, bolprempx.p and bolpremx.p */
-/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
+/* bolharwell.i - used by bolHarwell.p */
 
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
@@ -152,6 +151,7 @@ END.
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
+
 form 
      w2.i-no                         format "x(15)" AT 2
      w2.ord-po-no                    format "x(16)"
@@ -169,14 +169,15 @@ form
      v-case-tot                           FORMAT "->>,>>>,>>z"
     with frame bol-mid2 down no-box no-labels stream-io width 110.
 
-form 
-     oe-ordl.qty                    to 10  format ">>>>>>"
-     v-part-dscr                    at 14 format "x(26)"
-     tt-boll.po-no                  at 42 format "x(15)"
-     w2.cases                       to 71 format ">>,>>9"
-     w2.cas-cnt                     to 82 format ">>,>>9"
-     v-case-tot                     to 95 format ">>>,>>9"
-     tt-boll.p-c                    at 98
+form v-tot-pkgs                     to 04
+     v-ord-qty                      to 10 format ">>>>>>"
+     v-part-dscr                    at 13 format "x(27)"
+     oe-boll.po-no                  at 42 format "x(14)"
+     w2.cases                       to 67.5 format ">>9"
+     w2.cas-cnt                     to 76.5 format ">>>>9"
+     v-bol-qty                      to 84 format ">>>>>9"
+     oe-boll.p-c                    at 85
+     v-bol-wt                       to 94.5 format ">>>>>9"
     with frame bol-mid1 down no-box no-labels stream-io width 110.
 
 ASSIGN tmpstore = fill("-",130).
@@ -402,7 +403,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
  END.
 
   PUT "<R56><C53><#8><FROM><R+4><C+27><RECT> " 
-      "<=8><R+1> Unitï¿½s/Units Total:" v-grand-total-cases format ">>,>>>,>>9"
+      "<=8><R+1> Unités/Units Total:" v-grand-total-cases format ">>,>>>,>>9"
       "<=8><R+3> Poids/Weight Total:" v-tot-wt format ">>,>>>,>>9".
   
   PUT "<FArial><R55><C2><P12><B> Instructions de Livraison/Delivery Instructions: <P10> "

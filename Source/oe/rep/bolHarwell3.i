@@ -142,15 +142,28 @@ FOR EACH tt-boll,
 /*            v-case-tot /* WHEN LAST(w2.cases) */*/
 /*         WITH FRAME bol-mid2.                   */
 /*         DOWN  WITH FRAME bol-mid2.             */
-
-      display {1} 
+PUT 
+  "<FCourier New><P10>".
+  
+      display  
+        v-tot-pkgs      WHEN i EQ 1
+        v-ord-qty       WHEN i EQ 1
+        v-part-dscr   
+        oe-boll.po-no   WHEN i EQ 1 AND AVAIL oe-boll
+        w2.cases        
+        w2.cas-cnt    
+        v-bol-qty     
+        oe-boll.p-c     WHEN i EQ 1 AND AVAIL oe-boll
+        v-bol-wt        WHEN i EQ 1
+/*        
               oe-ordl.qty  WHEN i EQ 1           
               v-part-dscr
-              tt-boll.po-no  WHEN i EQ 1         
+              oe-boll.po-no  WHEN i EQ 1 AND AVAIL oe-boll        
               w2.cases  WHEN i EQ 1
               w2.cas-cnt  WHEN i EQ 1
               v-case-tot   WHEN i EQ 1
               tt-boll.p-c   WHEN i EQ 1         
+*/
               WITH FRAME bol-mid1.
               DOWN WITH FRAME bol-mid1.
 
