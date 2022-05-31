@@ -3299,10 +3299,9 @@ PROCEDURE local-update-record :
                 END.
         END CASE.
     END.
-
-    RUN auto-add-tt.
     ASSIGN adm-adding-record = NO
            adm-new-record = NO.
+    RUN auto-add-tt.              
     
 END PROCEDURE.
 
