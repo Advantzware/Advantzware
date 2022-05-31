@@ -476,7 +476,7 @@ FOR EACH report NO-LOCK WHERE
                 v-part-line = ""
                 v-case-cnt  = "".
 
-            IF v-printline > 50 THEN DO:
+            IF v-printline > 54 THEN DO:
                 PAGE.
                 v-printline = 0.
                 {oe/rep/invHarwell.i}
@@ -638,7 +638,7 @@ FOR EACH report NO-LOCK WHERE
                     v-lines    = v-lines + 1.
                 PUT UNFORMATTED 
                     w-dsc                       AT 30
-                    w-tax FORMAT "->>>>>>9.99"   TO 105
+                    w-tax FORMAT "->>>,>>9.99"   TO 105
                     SKIP.
                 ASSIGN 
                     v-printline = v-printline + 1.
@@ -653,7 +653,7 @@ FOR EACH report NO-LOCK WHERE
                 v-lines = v-lines + 1.
             PUT UNFORMATTED 
                 w-dsc                           AT 30
-                v-t-price FORMAT "->>>>>>9.99"  TO 105 
+                v-t-price FORMAT "->>>,>>9.99"  TO 105 
                 SKIP(1).
             ASSIGN 
                 v-printline = v-printline + 2.
@@ -740,10 +740,11 @@ FOR EACH report NO-LOCK WHERE
                 
             /* Display first line of line block */
             PUT UNFORMATTED SKIP 
-                1 FORMAT "->>>>>9"                  TO 9
+/*                1 FORMAT "->>>>>9"                  TO 9*/
                 inv-misc.charge                     AT 12
-                TRIM(STRING(inv-misc.po-no,"x(15)"))AT 46
-                1  FORMAT "->>>>>9"                 TO 75
+                inv-misc.dscr                       AT 34
+/*                TRIM(STRING(inv-misc.po-no,"x(15)"))AT 46*/
+/*                1  FORMAT "->>>>>9"                 TO 75*/
                 inv-misc.amt  FORMAT "->,>>9.99<<"  TO 91
                 inv-misc.amt  FORMAT "->,>>9.99"    TO 105                     
                 SKIP.
@@ -759,13 +760,13 @@ FOR EACH report NO-LOCK WHERE
                     CREATE w-tax.
                     ASSIGN
                         w-dsc      = stax.tax-dscr1[i]
-                        w-tax      = ROUND((IF stax.company EQ "yes" THEN v-t-price ELSE ar-invl.amt) * stax.tax-rate1[i] / 100,2)
+                        w-tax      = ROUND((IF stax.company EQ "yes" THEN v-t-price ELSE inv-misc.amt) * stax.tax-rate1[i] / 100,2)
                         v-t-price  = v-t-price + w-tax
                         v-t-tax[i] = v-t-tax[i] + w-tax
                         v-lines    = v-lines + 1.
                     PUT UNFORMATTED 
                         w-dsc                       AT 30
-                        w-tax FORMAT "->>>>>>9.99"   TO 105
+                        w-tax FORMAT "->>,>>9.99"   TO 105
                         SKIP.
                     ASSIGN 
                         v-printline = v-printline + 1.
@@ -780,7 +781,7 @@ FOR EACH report NO-LOCK WHERE
                     v-lines = v-lines + 1.
                 PUT UNFORMATTED 
                     w-dsc                           AT 30
-                    v-t-price FORMAT "->>>>>>9.99"  TO 105 
+                    v-t-price FORMAT "->>,>>9.99"  TO 105 
                     SKIP(1).
                 ASSIGN 
                     v-printline = v-printline + 2.

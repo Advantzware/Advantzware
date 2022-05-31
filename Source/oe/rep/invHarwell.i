@@ -52,62 +52,63 @@ PUT
     v-shipto-addr[2] FORMAT "x(42)" AT 56 SKIP
     v-addr3 FORMAT "x(42)" AT 8 
     v-sold-addr3 FORMAT "x(42)" AT 56 SKIP
-    cAddr4 FORMAT "x(42)" AT 8 
-    cShipAddr4 FORMAT "x(42)" AT 56 SKIP.
+/*    cAddr4 FORMAT "x(42)" AT 8          */
+/*    cShipAddr4 FORMAT "x(42)" AT 56 SKIP*/
+    .
 
 PUT "</B><P10>".
     
 /* First header block - box */
-PUT "<R21.5><C1><#4><FROM><R24.5><C80><RECT><||3>"  /* Rectangle */
-    "<R23><C1><FROM><R23><C80><LINE><||3>"          /* Horiz. Divider */
-    "<R21.5><C16><FROM><R24.5><C16><LINE><||3>"     /* Vert Line */
-    "<R21.5><C37><FROM><R24.5><C37><LINE><||3>"     /* Vert Line */
-    "<R21.5><C53><FROM><R24.5><C53><LINE><||3>"     /* Vert Line */
-    "<R21.5><C69><FROM><R24.5><C69><LINE><||3>"     /* Vert Line */
+PUT "<R20.5><C1><#4><FROM><R23.5><C80><RECT><||3>"  /* Rectangle */
+    "<R22><C1><FROM><R22><C80><LINE><||3>"          /* Horiz. Divider */
+    "<R20.5><C16><FROM><R23.5><C16><LINE><||3>"     /* Vert Line */
+    "<R20.5><C37><FROM><R23.5><C37><LINE><||3>"     /* Vert Line */
+    "<R20.5><C53><FROM><R23.5><C53><LINE><||3>"     /* Vert Line */
+    "<R20.5><C69><FROM><R23.5><C69><LINE><||3>"     /* Vert Line */
     .
 /* First header block - labels and data */
 PUT 
     "<FArial><P8>"
-    "<R22><C2>CONDITIONS / TERMS"
-    "<R22><C17>VENDEUR / SALESMAN"
-    "<R22><C38>EXPEDIE VIA / SHIP VIA"
-    "<R22><C54>CAMION NO/TRUCK NO"
-    "<R22><C70>F.A.B./F.O.B."
+    "<R21><C2>CONDITIONS / TERMS"
+    "<R21><C17>VENDEUR / SALESMAN"
+    "<R21><C38>EXPEDIE VIA / SHIP VIA"
+    "<R21><C54>CAMION NO/TRUCK NO"
+    "<R21><C70>F.A.B./F.O.B."
     "<FCourier New><P10>"
-    "<R23.3><C2>" inv-head.terms-d    FORMAT "x(15)" 
-    "<R23.3><C17>" v-salesman       FORMAT "x(30)"
-    "<R23.3><C38>" v-shipvia        FORMAT "x(20)"
-    "<R23.3><C70>" v-fob            FORMAT "x(12)" 
+    "<R22.3><C2>" inv-head.terms-d    FORMAT "x(15)" 
+    "<R22.3><C17>" v-salesman       FORMAT "x(30)"
+    "<R22.3><C38>" v-shipvia        FORMAT "x(20)"
+    "<R22.3><C70>" v-fob            FORMAT "x(12)" 
     SKIP.
 
 /* Line list title box */
 PUT 
-    "<R25><C1><#5><FROM><R26.5><C80><RECT><||3>"      /* Rectangle */    
-    "<R25><C8><FROM><R26.5><C8><LINE><||3>"           /* Vert Line */ 
-    "<R25><C34><FROM><R26.5><C34><LINE><||3>"         /* Vert Line */
-    "<R25><C49><FROM><R26.5><C49><LINE><||3>"         /* Vert Line */
-    "<R25><C58><FROM><R26.5><C58><LINE><||3>"         /* Vert Line */
-    "<R25><C60><FROM><R26.5><C60><LINE><||3>"         /* Vert Line */
-    "<R25><C70><FROM><R26.5><C70><LINE><||3>"         /* Vert Line */
+    "<R24><C1><#5><FROM><R25.5><C80><RECT><||3>"      /* Rectangle */    
+    "<R24><C8><FROM><R25.5><C8><LINE><||3>"           /* Vert Line */ 
+    "<R24><C34><FROM><R25.5><C34><LINE><||3>"         /* Vert Line */
+    "<R24><C49><FROM><R25.5><C49><LINE><||3>"         /* Vert Line */
+    "<R24><C58><FROM><R25.5><C58><LINE><||3>"         /* Vert Line */
+    "<R24><C60><FROM><R25.5><C60><LINE><||3>"         /* Vert Line */
+    "<R24><C70><FROM><R25.5><C70><LINE><||3>"         /* Vert Line */
     .   
 /* Line list labels */
 PUT 
     "<FArial><P7>"
-    "<R25.1><C1.5>QTE COMM"
-    "<R25.1><C14>COMMANDE NO/DESCRIPTION"
-    "<R25.1><C36>NO COMMANDE CLIENT"
-    "<R25.1><C50>QTE EXPEDIEE"
-    "<R25.1><C58.5>P"
-    "<R25.5><C62>PRIX/PRICE"
-    "<R25><C73>MONTANT"
-    "<R25.8><C1.7>QTY ORD"
-    "<R25.8><C15>ORDER NO/DESCRIPTION"
-    "<R25.8><C38>CUSTOMER PO#"
-    "<R25.8><C50>QTY SHIPPED"
-    "<R25.8><C58.59>C"
-    "<R25.8><C73.5>AMOUNT"
+    "<R24.1><C1.5>QTE COMM"
+    "<R24.1><C14>COMMANDE NO/DESCRIPTION"
+    "<R24.1><C36>NO COMMANDE CLIENT"
+    "<R24.1><C50>QTE EXPEDIEE"
+    "<R24.1><C58.5>P"
+    "<R24.5><C62>PRIX/PRICE"
+    "<R24><C73>MONTANT"
+    "<R24.8><C1.7>QTY ORD"
+    "<R24.8><C15>ORDER NO/DESCRIPTION"
+    "<R24.8><C38>CUSTOMER PO#"
+    "<R24.8><C50>QTY SHIPPED"
+    "<R24.8><C58.59>C"
+    "<R24.8><C73.5>AMOUNT"
     .
 
 ASSIGN 
-v-printline = v-printline + 26.
+v-printline = v-printline + 25.
 PUT "<FCourier New><P9>".

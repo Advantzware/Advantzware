@@ -26,7 +26,7 @@ def var v-part-qty          as   dec.
 def var v-ord-no            like oe-boll.ord-no.
 def var v-po-no             like oe-bolh.po-no.
 def var v-phone-num         as   char format "x(13)" no-undo.
-
+DEF VAR v-carrier           AS CHAR FORMAT "x(20)" NO-UNDO.
 def var v-ship-name  like shipto.ship-name.
 def var v-ship-addr  like shipto.ship-addr.
 def var v-ship-city  like shipto.ship-city.
@@ -55,6 +55,7 @@ DEF VAR v-total-weight LIKE tt-boll.weight.
 DEFINE VARIABLE iReprint AS INTEGER     NO-UNDO.
 
 def TEMP-TABLE w2 no-undo
+    FIELD iBolLine         AS INT 
     field cases            as   int format ">9"
     field cas-cnt          as   int format ">>>>9"
     FIELD ord-po-no        AS CHAR
@@ -170,14 +171,14 @@ form
     with frame bol-mid2 down no-box no-labels stream-io width 110.
 
 form v-tot-pkgs                     to 04
-     v-ord-qty                      to 10 format ">>>>>>"
+     oe-ordl.qty                    to 10 format ">>>>>>"
      v-part-dscr                    at 13 format "x(27)"
-     oe-boll.po-no                  at 42 format "x(14)"
+     tt-boll.po-no                  at 47 format "x(14)"
      w2.cases                       to 67.5 format ">>9"
      w2.cas-cnt                     to 76.5 format ">>>>9"
-     v-bol-qty                      to 84 format ">>>>>9"
-     oe-boll.p-c                    at 85
-     v-bol-wt                       to 94.5 format ">>>>>9"
+     tt-boll.qty                    to 84 format ">>>>>9"
+     tt-boll.p-c                    at 87
+     tt-boll.weight                 to 94.5 format ">>>>>9"
     with frame bol-mid1 down no-box no-labels stream-io width 110.
 
 ASSIGN tmpstore = fill("-",130).
@@ -306,7 +307,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
       if not available carrier then
       find first carrier where carrier.company = oe-ord.company
         and carrier.carrier = oe-ord.carrier no-lock no-error.
-
+      IF AVAIL carrier THEN ASSIGN 
+        v-carrier = carrier.dscr.
       do i = 1 to 3:
         if oe-ord.sman[i] ne "" then
           v-salesman = trim(v-salesman) + " " + oe-ord.sman[i] + ",".
@@ -412,11 +414,11 @@ for each xxreport where xxreport.term-id eq v-term-id,
       "<R58.5><C3.5>" oe-bolh.ship-i[3] 
       "<R59.5><C3.5>" oe-bolh.ship-i[4] "</B><P9>".
   
-  PUT "<R64><C2>RECU EN BON ORDRE PAR"
-      "<R65><C2>RECEIVED IN GOOD ORDER BY _____________________________________________ DATE ___________________________"
-      "<R66><C2>____________________________________________________________________________________________________________________________"
-      "<R67><C2>TOUTE MATRICE EN ACIER ET MATRICE D'IMPRESSION NON-                 ANY STEEL DIE OR PRINT PLATE NOT USED FOR MORE THAN"  
-      "<R68><C2>UTILISEE DEPUIS PLUS DE DEUX(2) ANS DETRUITE SANS PRE-AVIS     TWO(2) YEARS WILL BE DESTROYED WITHOUT PRIOR NOTICE"
+  PUT "<R62><C2>RECU EN BON ORDRE PAR"
+      "<R63><C2>RECEIVED IN GOOD ORDER BY _____________________________________________ DATE ___________________________"
+      "<R64><C2>____________________________________________________________________________________________________________________________"
+      "<R65><C2>TOUTE MATRICE EN ACIER ET MATRICE D'IMPRESSION NON-                 ANY STEEL DIE OR PRINT PLATE NOT USED FOR MORE THAN"  
+      "<R66><C2>UTILISEE DEPUIS PLUS DE DEUX(2) ANS DETRUITE SANS PRE-AVIS     TWO(2) YEARS WILL BE DESTROYED WITHOUT PRIOR NOTICE"
       
       "<RESTORE=LPI>".
  

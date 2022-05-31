@@ -16,10 +16,10 @@ PUT
     "<FArial></B>" /* turn off bold */
     "<R5><C50><P7>REÇU DE LIVRAISON"
     "<R5.25><C65><P12>:"
-    "<R5.5><C50><P7>DELIVERY RECEIPT NO"
+    "<R5.75><C50><P7>DELIVERY RECEIPT NO"
     "<R7><C50><P7>DATE D'EXPÉDITION"
     "<R7.25><C65><P12>:"
-    "<R7.5><C50><P7>SHIPPING DATE"
+    "<R7.75><C50><P7>SHIPPING DATE"
     "<R9.25><C50><P12>Page"
     "<R9.25><C65>:"
     .
@@ -71,7 +71,15 @@ PUT
   "<R17.2><C52>CAMION N° / TRUCK NO."
   "<R17.2><C73>F.A.B./F.O.B."
   . 
-
+  
+/* Data for first rectangle */
+PUT 
+  "<FCourier New><P10>"
+  "<R18.2><C3>" v-salesman 
+  "<R18.2><C28>" v-carrier
+  "<R18.2><C47>" oe-bolh.truck#
+  "<R18.2><C70>" v-fob
+  .
 /* Second header rectangle */
 PUT   
   "<R20><C2><#4><FROM><R22><C84><RECT>" SKIP  /* Second Rectangle */

@@ -527,7 +527,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                         {SYS/INC/ROUNDUP.I v-tmp-lines}
                     
                         IF notes.note_text <> "" THEN DO i = 1 TO v-tmp-lines:
-                            IF v-printline > 50 THEN DO:
+                            IF v-printline > 54 THEN DO:
                                 PAGE.
                                 ASSIGN 
                                     v-printline = 0.
@@ -555,7 +555,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                     v-lines    = v-lines + 1.
                 PUT UNFORMATTED 
                     w-dsc                       AT 30
-                    w-tax FORMAT "->>>>>>9.99"   TO 105
+                    w-tax FORMAT "->>>,>>9.99"   TO 105
                     SKIP.
                 ASSIGN 
                     v-printline = v-printline + 1.
@@ -570,7 +570,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                 v-lines = v-lines + 1.
             PUT UNFORMATTED 
                 w-dsc                           AT 30
-                v-t-price FORMAT "->>>>>>9.99"  TO 105 
+                v-t-price FORMAT "->>>,>>9.99"  TO 105 
                 SKIP(1).
             ASSIGN 
                 v-printline = v-printline + 2.
@@ -711,7 +711,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         "<FCourierNew><P10>"
         "<R60><C29.2>" v-tot-sqft 
         "<R60><C41.2>" v-tot-wght
-        "<R59.1><C71.2><B>" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORMAT "->>,>>9.99"
+        "<R59.1><C71.2><B>" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORMAT "->>>,>>9.99"
         "</B><FArial><P8>"
         "<R60.5><C71.2><FGCOLOR=RED>" lv-currency FORMAT "x(16)"
         "<FGCOLOR=BLACK>" 
