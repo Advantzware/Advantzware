@@ -60,6 +60,9 @@ DEFINE VARIABLE cFieldType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "M Code,FG Item,Job #,Cust#,MR Std,MR Acl,MR Eff%,RUN Std,RUN Acl," +
@@ -499,7 +502,9 @@ ON END-ERROR OF C-Win /* Productivity By Machine */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Productivity By Machine */
     DO:
-        /* This event will close the window and terminate the procedure.  */
+        /* This event will close the window and terminate the procedure.  */ 
+        IF VALID-HANDLE(hdOutputProcs) THEN  
+            DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -589,7 +594,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                 fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
             RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
             fi_file:SCREEN-VALUE =  cFileName.
+            tb_excel = YES.
         END.
+        ELSE  tb_excel = NO.
 
         RUN GetSelectionList.
         RUN run-report. 
@@ -2275,9 +2282,10 @@ PROCEDURE run-report :
 
             PUT UNFORMATTED "* " + (IF AVAILABLE mach THEN STRING(mach.m-dscr,"x(10)") ELSE "") + substring(cDisplay,13,350) SKIP(1).
             IF tb_excel THEN 
-            DO:
+            DO:         
                 PUT STREAM excel UNFORMATTED  
-                    cExcelDisplay SKIP.
+                    (IF AVAILABLE mach THEN DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, STRING(mach.m-dscr,"x(14)"))  ELSE "") +  " - Totals" +
+                    SUBSTRING(cExcelDisplay,3,250) SKIP.
             END.
 
             ASSIGN 
@@ -2388,9 +2396,10 @@ PROCEDURE run-report :
 
             PUT UNFORMATTED "** " + (IF AVAILABLE dept THEN STRING(dept.dscr,"x(10)") ELSE "") + substring(cDisplay,14,350) SKIP.
             IF tb_excel THEN 
-            DO:
-                PUT STREAM excel UNFORMATTED  
-                    cExcelDisplay SKIP.
+            DO:  
+                PUT STREAM excel UNFORMATTED 
+                    (IF AVAILABLE dept THEN STRING(dept.dscr,"x(15)") ELSE "") +  " - Totals" +
+                    SUBSTRING(cExcelDisplay,3,250) SKIP(1).
             END.
 
             ASSIGN 
