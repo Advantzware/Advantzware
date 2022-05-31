@@ -3,13 +3,13 @@
 /* -------------------------------------------------------------------------- */
 
 if avail po-ord then do:
-   iCount4 = 1.
+   z = 1.
    find last po-ordl where
         po-ordl.company eq po-ord.company and
         po-ordl.po-no eq po-ord.po-no
         no-lock no-error.
         
-   if available po-ordl then iCount4 = po-ordl.line + 1.
+   if available po-ordl then z = po-ordl.line + 1.
    find vend where vend.company = po-ord.company
      and vend.vend-no = po-ord.vend-no no-lock no-error.
 
@@ -20,8 +20,8 @@ if avail po-ord then do:
       po-ordl.stat      = "O"
       po-ordl.ord-qty   = 1
       po-ordl.cons-qty  = 1
-      loNewFile         = true
-      po-ordl.line      = iCount4
+      nufile            = true
+      po-ordl.line      = z
       po-ordl.due-date  = po-ord.due-date
       po-ordl.over-pct  = po-ord.over-pct
       po-ordl.under-pct = po-ord.under-pct
@@ -32,7 +32,7 @@ if avail po-ord then do:
      po-ordl.disc = vend.disc-%
      po-ordl.tax  = vend.tax-gr ne "".
      
-    if loAPGL and index(chAPGL,"Vend") gt 0 then
+    if ap-gl#-log and index(ap-gl#-cha,"Vend") gt 0 then
       po-ordl.actnum = vend.actnum.
   end.
 
