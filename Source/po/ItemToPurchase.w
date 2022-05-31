@@ -79,7 +79,7 @@ DEFINE OUTPUT PARAMETER oploUpdatePO AS LOGICAL NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-13 tbShowAll rdPOChoice ~
-brItemToPurchase btnChooseVendor btnOk 
+brItemToPurchase btnChooseVendor btnOk
 &Scoped-Define DISPLAYED-OBJECTS tbShowAll rdPOChoice 
 
 /* Custom List Definitions                                              */
@@ -184,7 +184,7 @@ DEFINE FRAME DEFAULT-FRAME
      rdPOChoice AT ROW 1.52 COL 3.6 NO-LABEL
      brItemToPurchase AT ROW 4.1 COL 171 RIGHT-ALIGNED WIDGET-ID 200
      btnChooseVendor AT ROW 19.48 COL 3 WIDGET-ID 342
-     btnOk AT ROW 19.48 COL 155.8 WIDGET-ID 356
+     btnOk AT ROW 19.48 COL 155.8 WIDGET-ID 356      
      RECT-13 AT ROW 1.24 COL 2 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -396,8 +396,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOk C-Win
 ON CHOOSE OF btnOk IN FRAME DEFAULT-FRAME /* Create PO */
 DO:
-    ASSIGN oploUpdatePO = IF rdPOChoice:screen-VALUE = "1" THEN TRUE ELSE FALSE.
-        
+    ASSIGN oploUpdatePO = IF rdPOChoice:screen-VALUE = "1" THEN TRUE ELSE FALSE.        
     APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
 
@@ -448,6 +447,35 @@ DO:
                 ASSIGN ttJobMaterial.ShipToVendId = chValue.
             ELSE
                 ASSIGN ttJobMaterial.DropShipment = No.
+        END. /* NOT chShipChoice eq "C" */
+        {&OPEN-QUERY-brItemToPurchase}
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME ttJobMaterial.CreatePO
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttJobMaterial.CreatePO C-Win
+ON VALUE-CHANGED OF ttJobMaterial.CreatePO /* CreatePO */
+DO:  
+    DEFINE VARIABLE chValue      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE reShipTo     AS RECID     NO-UNDO.
+    DEFINE VARIABLE chShipChoice AS CHARACTER NO-UNDO.       
+    
+    ASSIGN ttJobMaterial.CreatePO = LOGICAL(ttJobMaterial.CreatePO:SCREEN-VALUE IN BROWSE brItemToPurchase). 
+    
+    IF ttJobMaterial.CreatePO:SCREEN-VALUE IN BROWSE brItemToPurchase = "Yes" THEN 
+    DO:        
+        IF ttJobMaterial.IsValid = FALSE THEN
+        DO:
+            MESSAGE "Please select a Valid record."
+                VIEW-AS ALERT-BOX.
+            
+            ASSIGN 
+                ttJobMaterial.CreatePO = NO.
+                
         END. /* NOT chShipChoice eq "C" */
         {&OPEN-QUERY-brItemToPurchase}
     END.
@@ -551,7 +579,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY tbShowAll rdPOChoice 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-13 tbShowAll rdPOChoice brItemToPurchase btnChooseVendor btnOk 
+  ENABLE RECT-13 tbShowAll rdPOChoice brItemToPurchase btnChooseVendor btnOk
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

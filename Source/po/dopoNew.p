@@ -1,29 +1,22 @@
 /*------------------------------------------------------------------------
     File        : po/dopo.p 
     Purpose     :
-                 Add PO from Order Entry Program - P/O Module                             
+                 Add PO from Order Entry Program - P/O Module                          m.    
                  Similar logic in dopo-best.p                                              
     Syntax      :
 
     Description :
 
-    Author(s)   : 04/18/2022
-    Created     :
+    Author(s)   : Varun 
+    Created     : 04/18/2022
   ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
 USING system.SharedConfig.
 
-DEFINE INPUT  PARAMETER iplPromptRM     AS LOGICAL     NO-UNDO.
-DEFINE INPUT  PARAMETER ipchCompany     AS CHARACTER   NO-UNDO.
-DEFINE INPUT  PARAMETER reORDRecId      AS RECID       NO-UNDO.
-DEFINE INPUT  PARAMETER locode          AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER reORDRowId      AS ROWID       NO-UNDO.
 
 /* ***************************  Definitions  ************************** */
-DEFINE VARIABLE loDebug AS LOG NO-UNDO.
-loDebug = NO.
-DEFINE STREAM sDebug.
-
 DEFINE VARIABLE debasis-w           LIKE ITEM.basis-w NO-UNDO.
 DEFINE VARIABLE deS-Len             LIKE ITEM.s-len NO-UNDO.
 DEFINE VARIABLE deS-wid             LIKE ITEM.s-wid NO-UNDO.
@@ -35,7 +28,6 @@ DEFINE VARIABLE chPartDescr1        AS CHARACTER NO-UNDO FORMAT "x(30)".
 DEFINE VARIABLE chPartDescr2        AS CHARACTER NO-UNDO FORMAT "x(30)".
 DEFINE VARIABLE loCountUpdate       AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE cocode              AS CHARACTER NO-UNDO.
-DEFINE VARIABLE loNewfile           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE loAccessClose       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE chAccessList        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE deqty               AS DECIMAL   NO-UNDO.
@@ -57,7 +49,7 @@ DEFINE VARIABLE chNewItemNo         LIKE ITEM.i-no INITIAL "" NO-UNDO.
 DEFINE VARIABLE chpoCost1           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE loHoldop1           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE loPoQty             AS LOGICAL   NO-UNDO INITIAL TRUE.
-DEFINE VARIABLE inExpLimit          AS INTEGER   NO-UNDO INITIAL 10.
+
 DEFINE VARIABLE deQtyComp           LIKE job-mat.qty NO-UNDO.
 DEFINE VARIABLE deQtyComp1          LIKE job-mat.qty NO-UNDO.
 DEFINE VARIABLE loNewAvail          AS LOGICAL   NO-UNDO INITIAL NO.
@@ -67,7 +59,7 @@ DEFINE VARIABLE chJobMatQtyUOM      LIKE job-mat.qty-uom NO-UNDO.
 DEFINE VARIABLE chDropCustNo        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE chShipChoice        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE deDimCharge         AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE reJobRecid          AS RECID     NO-UNDO.
+DEFINE VARIABLE reJobRowid          AS ROWID     NO-UNDO.
 DEFINE VARIABLE chCharge            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE inIndex             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE loPOBest            AS LOGICAL   NO-UNDO.
@@ -77,16 +69,13 @@ DEFINE VARIABLE roPoOrd             AS ROWID     NO-UNDO.
 DEFINE VARIABLE roOeOrdl            AS ROWID     NO-UNDO.
 DEFINE VARIABLE roOeOrd             AS ROWID     NO-UNDO.
 DEFINE VARIABLE roJob               AS ROWID     NO-UNDO.
-DEFINE VARIABLE roTT-eiv            AS ROWID     NO-UNDO.
-DEFINE VARIABLE roTT-ei             AS ROWID     NO-UNDO.
 DEFINE VARIABLE roItemFG            AS ROWID     NO-UNDO.
 DEFINE VARIABLE chFilIdSource       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE roWJobMat           AS ROWID     NO-UNDO.
 DEFINE VARIABLE loNextOuters        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE deOeAutoFg          AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE haPOProcs           AS HANDLE    NO-UNDO.
 DEFINE VARIABLE scInstance          AS CLASS     system.SharedConfig NO-UNDO.
-
+DEFINE VARIABLE loNewFile           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE loAPGL              AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE chAPGL              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE loOEAutoFg          AS LOGICAL   NO-UNDO.
@@ -103,6 +92,8 @@ DEFINE VARIABLE loUpdatePO          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE chMessage           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE loError             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hVendorCostProcs    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE chCompanyId         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hOutputProcs        AS HANDLE    NO-UNDO.
     
 DEFINE BUFFER b-item    FOR ITEM.
 DEFINE BUFFER b-oe-ordl FOR oe-ordl.
@@ -114,9 +105,9 @@ DEFINE BUFFER b-job-hdr FOR job-hdr.
 DEFINE BUFFER xest      FOR est.
 DEFINE BUFFER xeb       FOR eb.
 
-{sa/sa-sls01.i}
 {system/VendorCostProcs.i}
 {PO/itemToPurchase.i}
+
 DEFINE TEMP-TABLE tt-fg-set LIKE fg-set
     FIELD isaset       LIKE itemfg.isaset
     FIELD alloc        LIKE itemfg.alloc
@@ -143,34 +134,13 @@ DEFINE TEMP-TABLE ttEstError
     FIELD cErrorType  AS CHARACTER
     FIELD cError      AS CHARACTER.
 
-DEFINE TEMP-TABLE tt-ei NO-UNDO
-    FIELD company AS CHARACTER
-    FIELD i-no    AS CHARACTER
-    FIELD std-uom AS CHARACTER
-    INDEX i-no company i-no.
+DEFINE TEMP-TABLE tt-po-ord  LIKE po-ord
+FIELD Action AS CHARACTER
+INDEX idxMain Action Company po-no.
 
-DEFINE TEMP-TABLE tt-eiv NO-UNDO
-    FIELD company   AS CHARACTER
-    FIELD vend-no   AS CHARACTER
-    FIELD i-no      AS CHARACTER
-    FIELD vend-i-no AS CHARACTER
-    FIELD run-qty   AS DECIMAL   DECIMALS 3 EXTENT 20
-    FIELD run-cost  AS DECIMAL   DECIMALS 4 EXTENT 20
-    FIELD setups    AS DECIMAL   DECIMALS 2 EXTENT 20
-    FIELD roll-w    AS DECIMAL   DECIMALS 4 EXTENT 30
-    FIELD est-no    AS CHARACTER
-    FIELD form-no   AS INTEGER
-    FIELD blank-no  AS INTEGER
-    FIELD item-type AS LOGICAL
-    FIELD rec_key   AS CHARACTER
-    FIELD rec-id    AS RECID
-    FIELD std-uom   AS CHARACTER
-    INDEX i-no    company item-type i-no    vend-no
-    INDEX vend-no company i-no      vend-no.
-   
-ASSIGN 
-    cocode = ipchCompany.   
-    
+DEFINE TEMP-TABLE tt-po-ordl LIKE po-ordl.
+
+       
 IF INDEX(PROGRAM-NAME(2),"add-po-best") GT 0 THEN
     loPOBest = YES.
 
@@ -178,10 +148,6 @@ IF INDEX(PROGRAM-NAME(2),"w-purord") GT 0
     OR INDEX(PROGRAM-NAME(3),"w-purord") GT 0
     OR INDEX(PROGRAM-NAME(4),"w-purord") GT 0 THEN
     ASSIGN loFromPoEntry = TRUE.
-
-RUN pSetGlobalSettings.
- 
-FIND FIRST company NO-LOCK WHERE company.company EQ ipchCompany NO-ERROR.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -192,35 +158,20 @@ FIND FIRST company NO-LOCK WHERE company.company EQ ipchCompany NO-ERROR.
 
 FUNCTION fGetVendCostQty RETURNS DECIMAL 
     (ipdQty AS DECIMAL, ipcFromUom AS CHARACTER, ipcToUom AS CHARACTER  ) FORWARD.
+	
+FUNCTION fnRoundUp RETURNS INTEGER(INPUT deNumber AS DECIMAL) FORWARD.
 
 /* *********************** Procedure Settings ************************ */
 
-
-
 /* *************************  Create Window  ************************** */ 
-
 
 /* ***************************  Main Block  *************************** */
 
-IF loDebug THEN
-    OUTPUT STREAM sDebug TO c:\tmp\doPoDebug.txt.
-
-IF loDebug THEN
-    PUT STREAM sDebug UNFORMATTED "Start Program " SKIP.
-
-/*     oe-ordl buffer           */
-/*     sets inOrderNo            */
-/*     creates tt-fg-set        */
-/*     create tt-itemfg records */
-/* finds a oe-ordl or a job record matching fil_id */
-RUN pFindOrderFromRecid (INPUT reORDRecId, 
+RUN pFindOrderFromRowID(INPUT reORDRowId, 
     OUTPUT roOeOrdl, 
     OUTPUT roJob,
-    OUTPUT chFilIdSource).
-
-/*     creates tt-itemfg records */
-/*     create tt-fg-set          */
-/* create tt-itemfg based on a job */
+    OUTPUT chFilIdSource,
+    OUTPUT chCompanyId).
 
 IF chFilIdSource EQ "JOB" THEN
     RUN pItemFGFromJob (INPUT roJob, INPUT roOeOrdl, INPUT chFilIdSource).
@@ -229,6 +180,7 @@ FIND oe-ordl WHERE ROWID(oe-ordl) EQ roOeOrdl NO-LOCK NO-ERROR.
 FIND oe-ord WHERE ROWID(oe-ord) EQ roOeOrd NO-LOCK NO-ERROR.
 FIND job WHERE ROWID(job) EQ roJob NO-LOCK NO-ERROR.
 
+RUN pSetGlobalSettings(INPUT chCompanyId).
 /* Build ttItemTopurchase table */
 
 RUN pBuildItemToPurchase(INPUT chOEAutoFG,
@@ -238,20 +190,42 @@ RUN pBuildItemToPurchase(INPUT chOEAutoFG,
     INPUT loPOBest).
 
 RUN po/ItemToPurchase.w(INPUT-OUTPUT TABLE ttJobMaterial,
-    OUTPUT loUpdatePO) NO-ERROR.  
+                        OUTPUT loUpdatePO) NO-ERROR.  
+                        
+IF NOT CAN-FIND (FIRST ttJobMaterial WHERE ttJobMaterial.createpo EQ TRUE) THEN 
+DO:
+    RETURN.    
+END.
 
 IF ERROR-STATUS:ERROR THEN
+DO:    
+    IF ERROR-STATUS:GET-MESSAGE(1) NE "" THEN
     MESSAGE ERROR-STATUS:GET-MESSAGE(1)
         VIEW-AS ALERT-BOX.
-                          
+    RETURN.
+END.  
+                    
 RUN system/VendorCostProcs.p PERSISTENT SET hVendorCostProcs.
 
 /* For each ttJobMaterial, process it */
 RUN pProcessJobMat.
 
-IF loDebug THEN
-    OUTPUT STREAM sDebug CLOSE.
+RUN system/OutputProcs.p PERSISTENT SET hOutputProcs.
 
+RUN Output_TempTableToCSV IN hOutputProcs(INPUT TEMP-TABLE tt-po-ord:HANDLE,
+                          INPUT "C:\Tmp\tt-po-ord.csv",
+                          INPUT YES,
+                          INPUT YES,
+                          OUTPUT loError,
+                          OUTPUT chMessage) .
+
+RUN Output_TempTableToCSV IN hOutputProcs(INPUT TEMP-TABLE tt-po-ordl:HANDLE,
+                          INPUT "C:\Tmp\tt-po-ordl.csv",
+                          INPUT YES,
+                          INPUT YES,
+                          OUTPUT loError,
+                          OUTPUT chMessage) .
+                                                    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -265,7 +239,7 @@ PROCEDURE pAddHeaderTot PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER iprPoOrdl     AS ROWID       NO-UNDO.
 
-    DEFINE BUFFER bf-po-ordl FOR po-ordl.  
+    DEFINE BUFFER bf-po-ordl FOR tt-po-ordl.  
 
     FIND bf-po-ordl WHERE ROWID(bf-po-ordl) EQ iprPoOrdl EXCLUSIVE-LOCK NO-ERROR.    
     ASSIGN
@@ -285,17 +259,18 @@ PROCEDURE pAutoRm PRIVATE:
           job-mat
           ttJobMaterial (updated)
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipchCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iprPoOrdl    AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprJobMat    AS ROWID       NO-UNDO.
     DEFINE OUTPUT PARAMETER oprItem      AS ROWID       NO-UNDO.
 
-    DEFINE BUFFER bf-po-ordl FOR po-ordl.  
+    DEFINE BUFFER bf-po-ordl FOR tt-po-ordl.  
     DEFINE BUFFER b-item     FOR ITEM.
     DEFINE BUFFER xjob-mat   FOR job-mat.
 
     FIND bf-po-ordl WHERE ROWID(bf-po-ordl) EQ iprPoOrdl EXCLUSIVE-LOCK NO-ERROR.    
  
-    IF choeAutoPoNK1 EQ "AutoRM" AND loAutoPoSec THEN 
+    IF AVAILABLE bf-po-ordl AND choeAutoPoNK1 EQ "AutoRM" AND loAutoPoSec THEN 
     DO:
         FIND FIRST b-item
             WHERE b-item.company EQ ipchCompany
@@ -304,7 +279,7 @@ PROCEDURE pAutoRm PRIVATE:
             NO-LOCK NO-ERROR.
             
         IF AVAILABLE b-item THEN bf-po-ordl.i-no = chNewItemNo.
-        FIND FIRST xjob-mat WHERE RECID(xjob-mat) EQ RECID(job-mat) NO-ERROR.
+        FIND FIRST xjob-mat WHERE RowID(xjob-mat) EQ RowID(job-mat) NO-ERROR.
         IF AVAILABLE xjob-mat THEN ttJobMaterial.rm-i-no = chNewItemNo.
 
     END. /* choeAutoPoNK1 eq "AutoRM" ... */ 
@@ -319,15 +294,15 @@ PROCEDURE pBrdLenCheck PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER iprPoOrdl     AS ROWID       NO-UNDO.
 
-    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    DEFINE BUFFER bf-po-ordl FOR tt-po-ordl.
       
     FIND bf-po-ordl WHERE ROWID(bf-po-ordl) EQ iprPoOrdl NO-LOCK NO-ERROR.
 
     IF deS-Len               EQ 0                       AND
         bf-po-ordl.cons-uom    EQ "EA"                    AND
         (bf-po-ordl.item-type OR
-        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", ipchCompany, bf-po-ordl.i-no, bf-po-ordl.pr-qty-uom) OR
-        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", ipchCompany, bf-po-ordl.i-no, bf-po-ordl.pr-uom))   AND
+        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", bf-po-ordl.company, bf-po-ordl.i-no, bf-po-ordl.pr-qty-uom) OR
+        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", bf-po-ordl.company, bf-po-ordl.i-no, bf-po-ordl.pr-uom))   AND
         (bf-po-ordl.pr-qty-uom NE bf-po-ordl.cons-uom OR
         bf-po-ordl.pr-uom     NE bf-po-ordl.cons-uom)        THEN 
     DO:
@@ -341,130 +316,92 @@ PROCEDURE pCalculateVendorCost PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: po detail line - vendor cost       
      Notes: Copy from po/po-vendc.i
-    ------------------------------------------------------------------------------*/
-    
-    DEFINE VARIABLE iCount5 AS INTEGER NO-UNDO.
+    ------------------------------------------------------------------------------*/    
+       
+    DEFINE VARIABLE iCount5 AS INTEGER NO-UNDO.    
+        
+    deCost = po-ordl.cost.
 
-    DO WITH FRAME po-ordlf:
-        FIND FIRST tt-ei
-            WHERE tt-ei.company EQ ipchCompany
-            AND tt-ei.i-no    EQ po-ordl.i-no
-            NO-LOCK NO-ERROR.
+    IF po-ordl.pr-qty-uom NE po-ordl.pr-uom THEN
+        RUN Conv_QuantityFromUOMToUOM(po-ordl.company,
+            po-ordl.i-no,
+            po-ordl.item-type,
+            po-ordl.ord-qty,
+            po-ordl.pr-qty-uom,
+            po-ordl.pr-uom,                 
+            debasis-w,
+            deS-Len,
+            deS-wid, 
+            deS-dep,
+            0, 
+            OUTPUT deqty,
+            OUTPUT loError,
+            OUTPUT chMessage).
 
-        IF AVAILABLE tt-ei THEN
-            FIND FIRST tt-eiv WHERE
-                tt-eiv.company EQ tt-ei.company AND
-                tt-eiv.i-no    EQ tt-ei.i-no AND
-                tt-eiv.vend-no EQ po-ord.vend-no
-                NO-LOCK NO-ERROR.
+    deSetup = 0.
+        
+    IF loHoldop1 THEN 
+    DO:
+        IF po-ordl.pr-qty-uom NE po-ordl.pr-uom THEN
+            RUN Conv_QuantityFromUOMToUOM(po-ordl.company,
+                po-ordl.i-no,
+                po-ordl.Item-Type,
+                deCost,
+                po-ordl.pr-qty-uom,
+                po-ordl.pr-uom,
+                debasis-w,
+                deS-Len,
+                deS-wid,
+                deS-dep,
+                0, 
+                OUTPUT deCost,
+                OUTPUT loError,
+                OUTPUT chMessage).
 
-        IF AVAILABLE tt-eiv THEN 
-        DO:
-            deCost = po-ordl.cost.
+        deCost = deCost + deAdder[1].
 
-            IF tt-ei.std-uom EQ po-ordl.pr-qty-uom THEN
-                deqty = po-ordl.ord-qty.
-            ELSE
-                RUN Conv_QuantityFromUOMToUOM(ipchCompany,
-                    po-ordl.i-no,
-                    po-ordl.item-type,
-                    po-ordl.ord-qty,
-                    po-ordl.pr-qty-uom,
-                    tt-ei.std-uom, 
-                    debasis-w,
-                    deS-Len,
-                    deS-wid, 
-                    deS-dep,
-                    0, 
-                    OUTPUT deqty,
-                    OUTPUT loError,
-                    OUTPUT chMessage).
-
-            deSetup = 0.
-            DO iCount5 = 1 TO 20:
-                IF tt-eiv.run-qty[iCount5] LE deqty THEN NEXT.
-                ASSIGN
-                    deCost  = tt-eiv.run-cost[iCount5]
-                    deSetup = tt-eiv.setups[iCount5].
-                LEAVE.
-            END.
-
-            IF iCount5 LE 20 AND po-ordl.job-no NE "" THEN deCost = tt-eiv.run-cost[iCount5].
-
-            RUN est/dim-charge.p (tt-eiv.rec_key,
-                ( deS-wid),
-                ( deS-Len),
-                INPUT-OUTPUT deCost).
-    
-            IF frame-field EQ "ord-qty" OR frame-field EQ "pr-qty-uom" OR
-               frame-field BEGINS "job-no" OR "input" NE "{1}"           THEN 
-            DO:
-                IF tt-ei.std-uom EQ po-ordl.pr-uom THEN
-                    po-ordl.cost = deCost.
-                ELSE
-                    RUN Conv_QuantityFromUOMToUOM(ipchCompany,
-                        po-ordl.i-no,
-                        po-ordl.Item-Type,
-                        deCost,
-                        tt-ei.std-uom,
-                        po-ordl.pr-uom, 
-                        debasis-w,
-                        deS-Len,
-                        deS-wid, 
-                        deS-dep,
-                        0, 
-                        OUTPUT po-ordl.cost,
-                        OUTPUT loError,
-                        OUTPUT chMessage).
-
-                IF po-ordl.pr-uom EQ po-ordl.cons-uom THEN
-                    po-ordl.cons-cost = po-ordl.cost.
-                ELSE
-                    RUN Conv_QuantityFromUOMToUOM(ipchCompany,
-                        po-ordl.i-no,
-                        po-ordl.Item-Type,
-                        po-ordl.cost,
-                        po-ordl.pr-uom,
-                        po-ordl.cons-uom, 
-                        debasis-w,
-                        deS-Len,
-                        deS-wid,
-                        deS-dep,
-                        0, 
-                        OUTPUT po-ordl.cons-cost,
-                        OUTPUT loError,
-                        OUTPUT chMessage).
-
-                ASSIGN
-                    po-ordl.cost      = po-ordl.cost      + deAdder[1]
-                    po-ordl.cons-cost = po-ordl.cons-cost + deAdder[2].
-            END.
-            ELSE
-                IF loHoldop1 THEN 
-                DO:
-                    IF tt-ei.std-uom NE po-ordl.pr-uom THEN
-                        RUN Conv_QuantityFromUOMToUOM(ipchCompany,
-                            po-ordl.i-no,
-                            po-ordl.Item-Type,
-                            deCost,
-                            tt-ei.std-uom,
-                            po-ordl.pr-uom,
-                            debasis-w,
-                            deS-Len,
-                            deS-wid,
-                            deS-dep,
-                            0, 
-                            OUTPUT deCost,
-                            OUTPUT loError,
-                            OUTPUT chMessage).
-
-                    deCost = deCost + deAdder[1].
-
-                    IF po-ordl.cost GT deCost THEN po-ord.stat = "H".
-                END.
-        END.
+        IF po-ordl.cost GT deCost THEN po-ord.stat = "H".
     END.
+        
+    IF po-ordl.pr-qty-uom EQ po-ordl.pr-uom THEN
+        po-ordl.cost = deCost.
+    ELSE
+        RUN Conv_QuantityFromUOMToUOM(po-ordl.Company,
+            po-ordl.i-no,
+            po-ordl.Item-Type,
+            deCost,
+            po-ordl.pr-qty-uom,
+            po-ordl.pr-uom, 
+            debasis-w,
+            deS-Len,
+            deS-wid, 
+            deS-dep,
+            0, 
+            OUTPUT po-ordl.cost,
+            OUTPUT loError,
+            OUTPUT chMessage).
 
+    IF po-ordl.pr-qty-uom EQ po-ordl.cons-uom THEN
+        po-ordl.cons-cost = po-ordl.cost.
+    ELSE
+        RUN Conv_QuantityFromUOMToUOM(po-ordl.Company,
+            po-ordl.i-no,
+            po-ordl.Item-Type,
+            po-ordl.cost,
+            po-ordl.pr-qty-uom,
+            po-ordl.pr-uom, 
+            debasis-w,
+            deS-Len,
+            deS-wid,
+            deS-dep,
+            0, 
+            OUTPUT po-ordl.cons-cost,
+            OUTPUT loError,
+            OUTPUT chMessage).
+
+    ASSIGN
+        po-ordl.cost      = po-ordl.cost      + deAdder[1]
+        po-ordl.cons-cost = po-ordl.cons-cost + deAdder[2].
 END PROCEDURE.
 
 PROCEDURE pGetBestVendorWithCost PRIVATE:
@@ -521,39 +458,39 @@ PROCEDURE pPoordlUp PRIVATE:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER v-recid  AS   RECID     NO-UNDO.
+    DEFINE INPUT PARAMETER v-RowID  AS   RowID     NO-UNDO.
     DEFINE INPUT PARAMETER v-factor AS   INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER v-reopen AS   LOGICAL   NO-UNDO.
 
     DEFINE VARIABLE v-hld-qty AS DECIMAL NO-UNDO.
     
-    FIND po-ordl WHERE RECID(po-ordl) EQ v-recid NO-ERROR.
+    FIND tt-po-ordl WHERE RowID(tt-po-ordl) EQ v-RowID NO-ERROR.
 
-    IF AVAILABLE po-ordl THEN 
+    IF AVAILABLE tt-po-ordl THEN 
     DO:
         // below code copy from - {po/poordlup.i}
                 
-        IF po-ordl.item-type THEN 
+        IF tt-po-ordl.item-type THEN 
         DO:
             FIND FIRST item EXCLUSIVE
-                     WHERE item.company eq po-ordl.company
-                       AND item.i-no    eq po-ordl.i-no
+                     WHERE item.company eq tt-po-ordl.company
+                       AND item.i-no    eq tt-po-ordl.i-no
                        USE-INDEX i-no NO-ERROR NO-WAIT.
                 
             IF AVAILABLE item THEN 
             DO:
                 IF item.i-code EQ "R" THEN
                     IF item.r-wid NE 0 THEN 
-                        ASSIGN po-ordl.s-wid = item.r-wid.
+                        ASSIGN tt-po-ordl.s-wid = item.r-wid.
                     ELSE 
                     DO:
                         IF item.s-wid NE 0 THEN 
-                            ASSIGN po-ordl.s-wid = item.s-wid.
+                            ASSIGN tt-po-ordl.s-wid = item.s-wid.
                         IF item.s-len NE 0 THEN 
-                            ASSIGN po-ordl.s-len = item.s-len.
+                            ASSIGN tt-po-ordl.s-len = item.s-len.
                     END.
 
-                RUN po/rm-q-ono.p (BUFFER po-ordl, OUTPUT v-hld-qty).
+                RUN po/rm-q-ono.p (BUFFER tt-po-ordl, OUTPUT v-hld-qty).
 
                 ASSIGN 
                     item.q-ono = item.q-ono + (v-hld-qty * v-factor).
@@ -569,30 +506,30 @@ PROCEDURE pPoordlUp PRIVATE:
         ELSE 
         DO:
             FIND FIRST itemfg EXCLUSIVE
-                     WHERE itemfg.company EQ po-ordl.company
-                       AND itemfg.i-no    EQ po-ordl.i-no
+                     WHERE itemfg.company EQ tt-po-ordl.company
+                       AND itemfg.i-no    EQ tt-po-ordl.i-no
                     USE-INDEX i-no NO-ERROR.
                     
             IF AVAILABLE itemfg THEN 
             DO:
                 RUN fg/calcqono.p (ROWID(itemfg), OUTPUT itemfg.q-ono).
                     
-                IF NOT AVAILABLE po-ord THEN
-                    FIND FIRST po-ord 
-                        WHERE po-ord.company EQ {1}po-ordl.company
-                        AND po-ord.po-no EQ {1}po-ordl.po-no
+                IF NOT AVAILABLE tt-po-ord THEN
+                    FIND FIRST tt-po-ord 
+                        WHERE tt-po-ord.company EQ {1}tt-po-ordl.company
+                        AND tt-po-ord.po-no EQ {1}tt-po-ordl.po-no
                         NO-LOCK NO-ERROR.
                             
-                IF AVAIL(po-ord) THEN 
+                IF AVAIL(tt-po-ord) THEN 
                 DO:      
-                    RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT po-ord.loc).
+                    RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT tt-po-ord.loc).
                     FIND FIRST itemfg-loc 
                         WHERE itemfg-loc.company EQ itemfg.company
                         AND itemfg-loc.i-no    EQ itemfg.i-no
-                        AND itemfg-loc.loc     EQ po-ord.loc
+                        AND itemfg-loc.loc     EQ tt-po-ord.loc
                         EXCLUSIVE-LOCK NO-ERROR.
                     RUN fg/calcqool.p (ROWID(itemfg), 
-                        INPUT po-ord.loc, 
+                        INPUT tt-po-ord.loc, 
                         OUTPUT itemfg-loc.q-ono).
                     FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
                 END.                    
@@ -601,11 +538,14 @@ PROCEDURE pPoordlUp PRIVATE:
     END.
 END PROCEDURE.
     
+
 PROCEDURE pSetGlobalSettings PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipchCompany AS CHARACTER NO-UNDO.
+    
     DEFINE VARIABLE loFound  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE chReturn AS CHARACTER NO-UNDO.    
             
@@ -615,7 +555,7 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     
     RUN sys/ref/nk1look.p (ipchCompany, "POCOST", "L" , NO, NO, "","", OUTPUT chReturn, OUTPUT loFound).
     loHoldop1 = IF loFound AND chReturn = "Yes" THEN YES ELSE NO.
-    
+        
     /* OEAUTOPO */
     RUN sys/ref/nk1look.p (ipchCompany, "OEAUTOPO", "C" , NO, NO, "","", OUTPUT chReturn, OUTPUT loFound).
     choeAutoPoNK1 = IF loFound THEN chReturn ELSE "".
@@ -661,7 +601,7 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     chPOUom = IF loFound THEN chReturn ELSE "".
     
     RUN sys/ref/nk1look.p (ipchCompany, "POUOM", "I" , NO, NO, "","", OUTPUT chReturn, OUTPUT loFound).
-    inPOUom = IF loFound THEN  INTEGER(chReturn) ELSE 0. 
+    inPOUom = IF loFound THEN  INTEGER(chReturn) ELSE 0.
     
     /* APTAX */
     RUN sys/ref/nk1look.p (ipchCompany, "APTAX", "C" , NO, NO, "","", OUTPUT chReturn, OUTPUT loFound).
@@ -741,15 +681,14 @@ PROCEDURE pFullSet PRIVATE:
     IF AVAILABLE itemfg THEN 
     DO:
         FIND FIRST fg-set NO-LOCK 
-            WHERE fg-set.company EQ ipchCompany 
-            AND fg-set.set-no  EQ itemfg.i-no 
-            AND fg-set.part-no EQ itemfg.i-no NO-ERROR.
+            WHERE fg-set.company EQ itemfg.Company 
+            AND fg-set.set-no    EQ itemfg.i-no 
+            AND fg-set.part-no   EQ itemfg.i-no NO-ERROR.
 
         IF AVAILABLE fg-set THEN 
-        DO:
-            {sys/inc/part-qty.i v-part-qty-dec fg-set}
-        END.
-
+            ASSIGN 
+                v-part-qty-dec = IF fg-set.qtyPerSet LT 0 THEN (1 / (fg-set.qtyPerSet * -1)) ELSE fg-set.qtyPerSet.
+        
         CREATE tt-fg-set.
         ASSIGN
             tt-fg-set.part-no      = itemfg.i-no
@@ -765,14 +704,15 @@ PROCEDURE pFullSet PRIVATE:
         FOR EACH tt-fg-set WHERE 
             tt-fg-set.isaset AND tt-fg-set.alloc:
             FOR EACH fg-set NO-LOCK WHERE 
-                fg-set.company EQ ipchCompany AND 
+                fg-set.company EQ fg-set.Company AND 
                 fg-set.set-no  EQ tt-fg-set.part-no AND 
                 fg-set.set-no  NE fg-set.part-no,
                 FIRST itemfg NO-LOCK WHERE 
-                itemfg.company EQ ipchCompany AND 
+                itemfg.company EQ fg-set.Company AND 
                 itemfg.i-no    EQ fg-set.part-no:
-
-                {sys/inc/part-qty.i v-part-qty-dec fg-set}
+                    
+                ASSIGN 
+                    v-part-qty-dec = IF fg-set.qtyPerSet LT 0 THEN (1 / (fg-set.qtyPerSet * -1)) ELSE fg-set.qtyPerSet.
 
                 CREATE tt-fg-set2.
                 BUFFER-COPY fg-set TO tt-fg-set2
@@ -829,31 +769,25 @@ END PROCEDURE.
     
 PROCEDURE pCalcCost PRIVATE:
     /*------------------------------------------------------------------------------
-      Purpose:     Calculate of po-ordl.cost
+      Purpose:     Calculate of tt-po-ordl.cost
       Parameters:  <none>
-      Notes:       
-      Inputs:
-        po-ordl (modified)
-        tt-ei
-        globals: chpoCost1, debasis-w, deS-wid, deS-Len, deS-dep
+      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER iprtt-ei    AS ROWID       NO-UNDO.
+    DEFINE INPUT  PARAMETER ipchCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iprPoOrdl     AS ROWID       NO-UNDO.
 
-    DEFINE BUFFER bf-po-ordl FOR po-ordl.  
-    DEFINE BUFFER bf-tt-ei   FOR tt-ei.
-     
-    FIND bf-tt-ei WHERE ROWID(bf-tt-ei) EQ iprTT-ei NO-LOCK NO-ERROR.
+    DEFINE BUFFER bf-po-ordl FOR tt-po-ordl.
+    
     FIND bf-po-ordl WHERE ROWID(bf-po-ordl) EQ iprPoOrdl EXCLUSIVE-LOCK NO-ERROR.
 
-    IF bf-po-ordl.item-type AND chpoCost1 EQ "Vendor/MSH" AND AVAILABLE bf-tt-ei AND
-        bf-tt-ei.std-uom EQ "TON" AND debasis-w NE 0 AND deS-wid NE 0 THEN 
+    IF bf-po-ordl.item-type AND chpoCost1 EQ "Vendor/MSH" AND
+        bf-po-ordl.pr-uom EQ "TON" AND debasis-w NE 0 AND deS-wid NE 0 THEN 
     DO:
         RUN Conv_ValueFromUOMtoUOM (ipchCompany,
             bf-po-ordl.i-no,
             bf-po-ordl.item-type,
             bf-po-ordl.cost,
-            bf-tt-ei.std-uom,
+            bf-po-ordl.pr-uom,
             "MSH",
             debasis-w, 
             deS-Len, 
@@ -867,63 +801,32 @@ PROCEDURE pCalcCost PRIVATE:
     END. /* if bf-po-ordl.item-type ... */
     
     RELEASE bf-po-ordl.
-    RELEASE bf-tt-ei.
-
+    
 END PROCEDURE.
  
 PROCEDURE pCalcCostSetup PRIVATE:
     /*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
-      Notes:       
-        Inputs:
-          tt-ei
-          ttJobMaterial          
-          chVendItem
-          po-ordl (updates)
-    
+      Notes:
     ------------------------------------------------------------------------------*/
-  
-    DEFINE INPUT  PARAMETER iprTT-ei      AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprWJobMat    AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprPoOrdl     AS ROWID       NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcVendItem   AS CHARACTER   NO-UNDO.
 
-    DEFINE BUFFER bf-po-ordl       FOR po-ordl.  
-    DEFINE BUFFER bf-ttJobMaterial FOR ttJobMaterial.
-    DEFINE BUFFER bf-tt-ei         FOR tt-ei.  
+    DEFINE BUFFER bf-po-ordl       FOR tt-po-ordl.  
+    DEFINE BUFFER bf-ttJobMaterial FOR ttJobMaterial.  
   
-    FIND bf-ttJobMaterial WHERE ROWID(bf-ttJobMaterial) EQ iprWJobMat NO-LOCK NO-ERROR.
-    FIND bf-tt-ei WHERE ROWID(bf-tt-ei) EQ iprTT-ei NO-LOCK NO-ERROR.
-    FIND bf-po-ordl WHERE ROWID(bf-po-ordl) EQ iprPoOrdl EXCLUSIVE-LOCK NO-ERROR.
-
-    IF NOT AVAILABLE bf-tt-ei THEN
-        FIND FIRST bf-tt-ei
-            WHERE bf-tt-ei.company EQ ipchCompany
-            AND bf-tt-ei.i-no    EQ bf-ttJobMaterial.rm-i-no
-            NO-LOCK NO-ERROR.
-
-    IF NOT AVAILABLE tt-eiv THEN
-        FIND FIRST tt-eiv
-            WHERE tt-eiv.company   EQ bf-ttJobMaterial.company
-            AND tt-eiv.i-no      EQ bf-ttJobMaterial.i-no
-            AND tt-eiv.vend-no   EQ bf-ttJobMaterial.vendorID
-            NO-LOCK NO-ERROR.
-  
-    IF AVAILABLE bf-tt-ei  THEN 
-    DO:  
+    FIND bf-ttJobMaterial WHERE ROWID(bf-ttJobMaterial) EQ iprWJobMat NO-LOCK NO-ERROR.    
+    FIND bf-po-ordl WHERE ROWID(bf-po-ordl) EQ iprPoOrdl EXCLUSIVE-LOCK NO-ERROR.  
+      
         ASSIGN
-            bf-po-ordl.cost      = deItemCost
-            bf-po-ordl.setup     = deSetup     
-            bf-po-ordl.vend-i-no = chVendItem
-            bf-po-ordl.pr-uom    = bf-tt-ei.std-uom.
-    END. /* Avail bf-tt-ei */
-    ELSE
-        ASSIGN
-            bf-po-ordl.cost   = bf-ttJobMaterial.std-cost
-            bf-po-ordl.setup  = 0
-            bf-po-ordl.pr-uom = bf-ttJobMaterial.sc-uom.
+            bf-po-ordl.cost      = bf-ttJobMaterial.std-cost
+            bf-po-ordl.setup     = bf-ttJobMaterial.costPerUOM     
+            bf-po-ordl.vend-i-no = bf-ttJobMaterial.vendorId
+            bf-po-ordl.pr-uom    = bf-ttJobMaterial.sc-uom.
+            
     RELEASE bf-po-ordl.
+    RELEASE bf-ttJobMaterial.
 END PROCEDURE.
  
 PROCEDURE pCalcEstValues PRIVATE:
@@ -946,7 +849,7 @@ PROCEDURE pCalcEstValues PRIVATE:
     DEFINE INPUT  PARAMETER iprOeOrdl  AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprItem    AS ROWID       NO-UNDO.
 
-    DEFINE BUFFER bf-po-ordl        FOR po-ordl.  
+    DEFINE BUFFER bf-po-ordl        FOR tt-po-ordl.  
     DEFINE BUFFER bf-ttJobMaterial  FOR ttJobMaterial.
     DEFINE BUFFER bf-ordl           FOR oe-ordl.  
     DEFINE BUFFER bf-item           FOR ITEM.
@@ -954,7 +857,7 @@ PROCEDURE pCalcEstValues PRIVATE:
     DEFINE BUFFER bf-job-hdr        FOR job-hdr.
     DEFINE BUFFER bf2-ttJobMaterial FOR ttJobMaterial.
     
-    DEFINE VARIABLE deLineQty LIKE po-ordl.ord-qty NO-UNDO.
+    DEFINE VARIABLE deLineQty LIKE tt-po-ordl.ord-qty NO-UNDO.
     DEFINE VARIABLE dePartQty AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE chMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE loError   AS LOGICAL   NO-UNDO.
@@ -965,9 +868,9 @@ PROCEDURE pCalcEstValues PRIVATE:
     FIND bf-po-ordl WHERE ROWID(bf-po-ordl) EQ iprPoOrdl EXCLUSIVE-LOCK NO-ERROR.
     FIND bf-item WHERE ROWID(bf-item) EQ iprItem NO-LOCK NO-ERROR.
 
-    IF reJobRecid NE ? THEN
+    IF reJobRowid NE ? THEN
         FIND job-hdr 
-            WHERE RECID(job-hdr) EQ reJobRecid
+            WHERE RowID(job-hdr) EQ reJobRowid
             NO-LOCK.
     FIND FIRST est
         WHERE est.company EQ job.company
@@ -994,8 +897,7 @@ PROCEDURE pCalcEstValues PRIVATE:
                 dePartQty = 0.                  
 
             IF AVAILABLE est AND (est.est-type EQ 2 OR est.est-type EQ 6) THEN 
-            DO:
-     
+            DO:     
                 FOR EACH eb FIELDS(quantityPerSet)
                     WHERE eb.company EQ job.company
                     AND eb.est-no  EQ job.est-no
@@ -1004,8 +906,7 @@ PROCEDURE pCalcEstValues PRIVATE:
                     dePartQty = dePartQty +
                         (deLineQty * IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet)
                         ELSE eb.quantityPerSet).
-                END. /* Each eb */
-         
+                END. /* Each eb */         
             END.
             ELSE  IF AVAILABLE est AND (est.est-type EQ 4 OR est.est-type EQ 8) THEN 
                 DO:
@@ -1051,9 +952,8 @@ PROCEDURE pCalcEstValues PRIVATE:
                 deLineQty = dePartQty / bf-ttJobMaterial.n-up.
 
             IF bf-po-ordl.pr-qty-uom EQ "EA" THEN 
-            DO:
-            {sys/inc/roundup.i deLineQty}             
-            END.
+                deLineQty = fnRoundUp(deLineQty).
+            
         END. /* NOT loPoQty OR bf-ttJobMaterial.n-up EQ 0 OR ... */
 
         IF bf-po-ordl.pr-qty-uom NE "EA" THEN
@@ -1090,8 +990,8 @@ PROCEDURE pCalcExtCost PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER iprPoOrdl     AS ROWID       NO-UNDO.
 
-    DEFINE VARIABLE deOrderQty LIKE po-ordl.ord-qty.
-    DEFINE BUFFER bf-po-ordl FOR po-ordl.  
+    DEFINE VARIABLE deOrderQty LIKE tt-po-ordl.ord-qty.
+    DEFINE BUFFER bf-po-ordl FOR tt-po-ordl.  
 
     FIND bf-po-ordl WHERE ROWID(bf-po-ordl) EQ iprPoOrdl EXCLUSIVE-LOCK NO-ERROR.
     
@@ -1108,10 +1008,10 @@ PROCEDURE pCalcExtCost PRIVATE:
 
         IF bf-po-ordl.pr-qty-uom NE bf-po-ordl.pr-uom            AND
             (bf-po-ordl.item-type                           OR
-            NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", ipchCompany, bf-po-ordl.i-no, bf-po-ordl.pr-qty-uom) OR
-            NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", ipchCompany, bf-po-ordl.i-no, bf-po-ordl.pr-uom))   THEN
+            NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", bf-po-ordl.Company, bf-po-ordl.i-no, bf-po-ordl.pr-qty-uom) OR
+            NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", bf-po-ordl.Company, bf-po-ordl.i-no, bf-po-ordl.pr-uom))   THEN
 
-            RUN Conv_QuantityFromUOMToUOM(ipchCompany,
+            RUN Conv_QuantityFromUOMToUOM(bf-po-ordl.Company,
                 bf-po-ordl.i-no,
                 bf-po-ordl.item-type,
                 deOrderQty,
@@ -1140,19 +1040,14 @@ PROCEDURE pCalcLenWid PRIVATE:
     /*------------------------------------------------------------------------------
           Purpose:     Calculate len & width values 
           Parameters:  <none>
-          Notes:       
-            INputs:
-              po-ordl
-              b-item
-              po-ord
-              
-        ------------------------------------------------------------------------------*/
+          Notes:                    
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER iprPoOrd  AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprPoOrdl AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprItem   AS ROWID       NO-UNDO.
     
-    DEFINE BUFFER bf-po-ordl FOR po-ordl.
-    DEFINE BUFFER bf-po-ord  FOR po-ord.
+    DEFINE BUFFER bf-po-ordl FOR tt-po-ordl.
+    DEFINE BUFFER bf-po-ord  FOR tt-po-ord.
     DEFINE BUFFER b-item     FOR ITEM.
     
     DEFINE VARIABLE chVendItemNo AS CHARACTER NO-UNDO.
@@ -1168,7 +1063,7 @@ PROCEDURE pCalcLenWid PRIVATE:
 
     IF AVAILABLE b-item THEN 
     DO:        
-        RUN Vendor_GetVendorItemNumber IN hVendorCostProcs(INPUT ipchCompany, 
+        RUN Vendor_GetVendorItemNumber IN hVendorCostProcs(INPUT bf-po-ordl.Company, 
             INPUT bf-po-ordl.i-no,
             INPUT bf-po-ord.vend-no, 
             INPUT lNewVendorItemCost,
@@ -1197,9 +1092,9 @@ PROCEDURE pCalcLenWid PRIVATE:
   
     /* Cust-no from order or job */
     bf-po-ordl.cust-no = IF AVAILABLE bf-ord THEN bf-ord.cust-no
-    ELSE
-        IF AVAILABLE job-hdr THEN job-hdr.cust-no
-        ELSE "".
+                            ELSE IF AVAILABLE job-hdr THEN job-hdr.cust-no
+                         ELSE "".
+                         
     FIND CURRENT bf-po-ordl NO-LOCK NO-ERROR.
     RELEASE bf-po-ordl.
     RELEASE bf-po-ord.
@@ -1218,7 +1113,7 @@ PROCEDURE pCalcMSF PRIVATE:
           
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER iprPoOrdl     AS ROWID       NO-UNDO.
-    DEFINE BUFFER bf-po-ordl FOR po-ordl.  
+    DEFINE BUFFER bf-po-ordl FOR tt-po-ordl.  
 
     FIND bf-po-ordl WHERE ROWID(bf-po-ordl) EQ iprPoOrdl EXCLUSIVE-LOCK NO-ERROR.
 
@@ -1256,7 +1151,7 @@ PROCEDURE pCalcOrdQty PRIVATE:
     DEFINE INPUT  PARAMETER iprPoOrdl  AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprWJobMat AS ROWID       NO-UNDO.
 
-    DEFINE BUFFER bf-po-ordl       FOR po-ordl.  
+    DEFINE BUFFER bf-po-ordl       FOR tt-po-ordl.  
     DEFINE BUFFER bf-ttJobMaterial FOR ttJobMaterial.
   
     FIND bf-ttJobMaterial WHERE ROWID(bf-ttJobMaterial) EQ iprWJobMat NO-LOCK NO-ERROR.
@@ -1292,11 +1187,14 @@ PROCEDURE pCalcOrdQty PRIVATE:
             OUTPUT bf-po-ordl.ord-qty,
             OUTPUT loError,
             OUTPUT chMessage).
-
-        {sys/inc/roundup.i bf-po-ordl.ord-qty}
-        bf-po-ordl.pr-qty-uom = "EA".
+        
+        ASSIGN 
+            bf-po-ordl.ord-qty    = fnRoundUp(bf-po-ordl.ord-qty)
+            bf-po-ordl.pr-qty-uom = "EA".
+            
     END. /* bf-po-ordl.pr-qty-uom EQ "BF" */
     RELEASE bf-po-ordl.
+    RELEASE bf-ttJobMaterial.
 
 END PROCEDURE.
  
@@ -1311,8 +1209,8 @@ PROCEDURE pCheckZeroQty PRIVATE:
     DEFINE VARIABLE deHoldCost   AS DECIMAL FORMAT "->>>>>>>9.99<<".  //Varun - We can remove
     DEFINE VARIABLE dehdeLineQty AS DECIMAL FORMAT "->>>>>>>>9.99<<". //Varun - We can remove
     
-    DEFINE BUFFER bf-po-ordl       FOR po-ordl.  
-    DEFINE BUFFER bf-po-ord        FOR po-ord.  
+    DEFINE BUFFER bf-po-ordl       FOR tt-po-ordl.  
+    DEFINE BUFFER bf-po-ord        FOR tt-po-ord.  
     DEFINE BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.  
 
     FIND bf-po-ordl WHERE ROWID(bf-po-ordl) EQ iprPoOrdl EXCLUSIVE-LOCK NO-ERROR.
@@ -1330,11 +1228,11 @@ PROCEDURE pCheckZeroQty PRIVATE:
     DO:
         IF bf-po-ordl.pr-qty-uom EQ bf-po-ordl.cons-uom           OR
             (NOT bf-po-ordl.item-type                       AND
-            DYNAMIC-FUNCTION("Conv_IsEAUOM", ipchCompany, bf-po-ordl.i-no, bf-po-ordl.pr-qty-uom) AND
-            DYNAMIC-FUNCTION("Conv_IsEAUOM", ipchCompany, bf-po-ordl.i-no, bf-po-ordl.cons-uom))     THEN
+            DYNAMIC-FUNCTION("Conv_IsEAUOM", bf-po-ordl.Company, bf-po-ordl.i-no, bf-po-ordl.pr-qty-uom) AND
+            DYNAMIC-FUNCTION("Conv_IsEAUOM", bf-po-ordl.Company, bf-po-ordl.i-no, bf-po-ordl.cons-uom))     THEN
             bf-po-ordl.cons-qty = bf-po-ordl.ord-qty.
         ELSE
-            RUN Conv_QuantityFromUOMToUOM(ipchCompany,
+            RUN Conv_QuantityFromUOMToUOM(bf-po-ordl.Company,
                 bf-po-ordl.i-no,
                 bf-po-ordl.item-type,
                 bf-po-ordl.ord-qty,
@@ -1351,11 +1249,11 @@ PROCEDURE pCheckZeroQty PRIVATE:
       
         IF bf-po-ordl.pr-uom EQ bf-po-ordl.cons-uom           OR
             (NOT bf-po-ordl.item-type                     AND
-            DYNAMIC-FUNCTION("Conv_IsEAUOM", ipchCompany, bf-po-ordl.i-no, bf-po-ordl.pr-uom) AND
-            DYNAMIC-FUNCTION("Conv_IsEAUOM", ipchCompany, bf-po-ordl.i-no, bf-po-ordl.cons-uom))   THEN
+            DYNAMIC-FUNCTION("Conv_IsEAUOM", bf-po-ordl.Company, bf-po-ordl.i-no, bf-po-ordl.pr-uom) AND
+            DYNAMIC-FUNCTION("Conv_IsEAUOM", bf-po-ordl.Company, bf-po-ordl.i-no, bf-po-ordl.cons-uom))   THEN
             bf-po-ordl.cons-cost = bf-po-ordl.cost.
         ELSE
-            RUN Conv_ValueFromUOMtoUOM(ipchCompany,
+            RUN Conv_ValueFromUOMtoUOM(bf-po-ordl.Company,
                 bf-po-ordl.i-no,
                 bf-po-ordl.item-type,
                 bf-po-ordl.cost,
@@ -1376,14 +1274,14 @@ PROCEDURE pCheckZeroQty PRIVATE:
         /*************************************/
         IF NOT bf-po-ordl.item-type THEN
         DO:
-            FIND oe-ordl WHERE RECID(oe-ordl) EQ reORDRecId EXCLUSIVE-LOCK NO-ERROR.
+            FIND oe-ordl WHERE ROWID(oe-ordl) EQ reORDRowId EXCLUSIVE-LOCK NO-ERROR.
       
             IF AVAILABLE oe-ordl THEN
             DO:
                 IF bf-po-ordl.cons-uom EQ "M" THEN
                     oe-ordl.cost = bf-po-ordl.cons-cost.
                 ELSE
-                    RUN Conv_ValueFromUOMtoUOM(ipchCompany,
+                    RUN Conv_ValueFromUOMtoUOM(bf-po-ordl.Company,
                         bf-po-ordl.i-no,
                         bf-po-ordl.item-type,
                         bf-po-ordl.cons-cost,
@@ -1425,72 +1323,96 @@ PROCEDURE pCreatePoOrd PRIVATE:
         Requires company record
         Creates PO-ord
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipChCompany    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iprOeOrd       AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER iploDropShip   AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oprPoOrd       AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER oploNextOuters AS LOGICAL   NO-UNDO.
 
-    DEFINE VARIABLE iCount3 AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iCnt    AS INTEGER NO-UNDO.
-    DEFINE VARIABLE fil_id  AS RECID   NO-UNDO.
-    
+    DEFINE VARIABLE iCount3     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE fil_id      AS RowID   NO-UNDO.
+    DEFINE VARIABLE inExpLimit  AS INTEGER   NO-UNDO INITIAL 10.
+        
     DEFINE BUFFER bf-ord FOR oe-ord.
     
     FIND bf-ord WHERE ROWID(bf-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
     
-    oploNextOuters = NO.
+    /* Below logic copied from po/po-ord.a */
     
-    /* outers label is needed for po-ord.a 
-       if a 'next' was done in po/po-ord.a then
-       iCnt will become = 2 and routine will return */
-    outers:
-    REPEAT iCnt = 1 TO 2:
-        IF iCnt NE 1 THEN 
+    DO iCount3 = 1 TO inExpLimit:
+        FIND FIRST po-ctrl
+            WHERE po-ctrl.company EQ ipchCompany
+            EXCLUSIVE-LOCK NO-WAIT NO-ERROR.
+            
+        IF NOT AVAILABLE po-ctrl THEN 
         DO:
-            ASSIGN 
-                oploNextOuters = TRUE.
-            LEAVE.
+            IF iCount3 EQ 1 THEN MESSAGE
+                    " Please wait, the system is searching for the PO CONTROL RECORD.".
+            READKEY PAUSE 1.
         END.
-        /* Requires ipchCompany, sets fil_id to new po-ord */
-        {po/po-ord.a}
-        LEAVE.
-    END.
+        
+        IF NOT AVAILABLE po-ctrl AND iCount3 EQ inExpLimit THEN 
+        DO:
+            BELL.
+            MESSAGE " The system was unable to obtain the PO CONTROL RECORD.".
+            PAUSE 2 NO-MESSAGE.
+            loNewFile = NO.            
+        END.
+    END. /* x = 1 to inExpLimit */
+
+    RUN sys/ref/asiseq.p (ipchCompany,'po_seq',OUTPUT iCount3) NO-ERROR.
     
-    IF oploNextOuters THEN
-        RETURN.
+    CREATE tt-po-ord.
+    ASSIGN
+        tt-po-ord.action         = "Create"
+        tt-po-ord.company        = ipchCompany
+        tt-po-ord.po-no          = iCount3
+        tt-po-ord.po-date        = TODAY
+        tt-po-ord.buyer          = USERID("NOSWEAT")  /*global-uid*/
+        tt-po-ord.under-pct      = 10
+        tt-po-ord.over-pct       = 10        
+        tt-po-ord.due-date       = tt-po-ord.po-date + IF WEEKDAY(tt-po-ord.po-date) EQ 6 THEN 3 ELSE 1
+        tt-po-ord.last-ship-date = tt-po-ord.due-date
+        fil_id                = RowID (tt-po-ord).
+ 
+    IF TRIM(chPOStatus) = "Hold" THEN tt-po-ord.stat = "H".
+ 
+    RELEASE po-ctrl.
+    FIND FIRST po-ctrl WHERE po-ctrl.company EQ ipchCompany NO-LOCK NO-ERROR.    
+    
+    /* End of po/po-ord.a */
 
     ASSIGN
-        po-ord.po-date        = ttJobMaterial.PODate
-        po-ord.due-date       = ttJobMaterial.PODueDate
-        po-ord.last-ship-date = po-ord.due-date
-        po-ord.vend-no        = ttJobMaterial.vendorID.
+        tt-po-ord.po-date        = ttJobMaterial.PODate
+        tt-po-ord.due-date       = ttJobMaterial.PODueDate
+        tt-po-ord.last-ship-date = tt-po-ord.due-date
+        tt-po-ord.vend-no        = ttJobMaterial.vendorID.
   
     IF AVAILABLE bf-ord THEN
         ASSIGN
             chDropCustNo = bf-ord.cust-no
             chShipChoice = "C".
 
-    roPoOrd = ROWID(po-ord).
+    roPoOrd = ROWID(tt-po-ord).
   
     /* Prompt for drop ship shipto and assign po-ord ship fields */
     IF iploDropShip AND ttJobMaterial.ShipChoice = "C" THEN 
     DO: 
-        FIND shipto WHERE RECID(shipto) EQ ttJobMaterial.ShipToRecId NO-LOCK NO-ERROR.
+        FIND shipto WHERE RECID(shipto) EQ ttJobMaterial.ShipToRecID NO-LOCK NO-ERROR.
         IF AVAILABLE shipto THEN 
         DO:
             ASSIGN
-                po-ord.type         = "D"
-                po-ord.cust-no      = ttJobMaterial.DropCustNo
-                po-ord.ship-id      = shipto.ship-id
-                po-ord.ship-name    = shipto.ship-name
-                po-ord.ship-addr[1] = shipto.ship-addr[1]
-                po-ord.ship-addr[2] = shipto.ship-addr[2]
-                po-ord.ship-city    = shipto.ship-city
-                po-ord.ship-state   = shipto.ship-state
-                po-ord.ship-zip     = shipto.ship-zip.
+                tt-po-ord.type         = "D"
+                tt-po-ord.cust-no      = ttJobMaterial.DropCustNo
+                tt-po-ord.ship-id      = shipto.ship-id
+                tt-po-ord.ship-name    = shipto.ship-name
+                tt-po-ord.ship-addr[1] = shipto.ship-addr[1]
+                tt-po-ord.ship-addr[2] = shipto.ship-addr[2]
+                tt-po-ord.ship-city    = shipto.ship-city
+                tt-po-ord.ship-state   = shipto.ship-state
+                tt-po-ord.ship-zip     = shipto.ship-zip.
 
-            IF po-ord.frt-pay NE "P" THEN po-ord.carrier = shipto.carrier.
-            
+            IF tt-po-ord.frt-pay NE "P" THEN tt-po-ord.carrier = shipto.carrier.            
         END. /* if avail shipto */
     END.
     
@@ -1503,32 +1425,32 @@ PROCEDURE pCreatePoOrd PRIVATE:
         IF AVAILABLE vend THEN 
         DO:
             ASSIGN
-                po-ord.type         = "D"
-                po-ord.ship-id      = vend.vend-no
-                po-ord.cust-no      = ""
-                po-ord.ship-name    = vend.name
-                po-ord.ship-addr[1] = vend.add1
-                po-ord.ship-addr[2] = vend.add2
-                po-ord.ship-city    = vend.city
-                po-ord.ship-state   = vend.state
-                po-ord.ship-zip     = vend.zip
-                po-ord.carrier      = vend.carrier.                
+                tt-po-ord.type         = "D"
+                tt-po-ord.ship-id      = vend.vend-no
+                tt-po-ord.cust-no      = ""
+                tt-po-ord.ship-name    = vend.name
+                tt-po-ord.ship-addr[1] = vend.add1
+                tt-po-ord.ship-addr[2] = vend.add2
+                tt-po-ord.ship-city    = vend.city
+                tt-po-ord.ship-state   = vend.state
+                tt-po-ord.ship-zip     = vend.zip
+                tt-po-ord.carrier      = vend.carrier.                
         END. /* avail vend */
     END. 
     ELSE 
         IF AVAILABLE company THEN
             ASSIGN
-                po-ord.ship-id      = company.company
-                po-ord.ship-name    = company.NAME
-                po-ord.ship-addr[1] = company.addr[1]
-                po-ord.ship-addr[2] = company.addr[2]
-                po-ord.ship-city    = company.city
-                po-ord.ship-state   = company.state
-                po-ord.ship-zip     = company.zip.
+                tt-po-ord.ship-id      = company.company
+                tt-po-ord.ship-name    = company.NAME
+                tt-po-ord.ship-addr[1] = company.addr[1]
+                tt-po-ord.ship-addr[2] = company.addr[2]
+                tt-po-ord.ship-city    = company.city
+                tt-po-ord.ship-state   = company.state
+                tt-po-ord.ship-zip     = company.zip.
 
-    oprPoOrd = ROWID(po-ord).
-    FIND CURRENT po-ord NO-LOCK NO-ERROR.
-    RELEASE po-ord.
+    oprPoOrd = ROWID(tt-po-ord).
+    FIND CURRENT tt-po-ord NO-LOCK NO-ERROR.
+    RELEASE tt-po-ord.
     
 END PROCEDURE.
  
@@ -1536,17 +1458,9 @@ PROCEDURE pCreatePoOrdl PRIVATE:
     /*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
-      Notes:       
-      Requires:
-        item
-        bf-ordl
-        ttJobMaterial
-        ipchCompany
-        loPOBest
-        po-ord (for po-ordl.a)
-        vend (found in po-ordl.a)
-        
+      Notes:  
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipchCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iprPoOrd    AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprOeOrdl   AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprWJobMat  AS ROWID       NO-UNDO.
@@ -1554,39 +1468,40 @@ PROCEDURE pCreatePoOrdl PRIVATE:
     DEFINE OUTPUT PARAMETER oprItemfg   AS ROWID       NO-UNDO.
 
     DEFINE VARIABLE iCount4 AS INTEGER NO-UNDO.
+    
     DEFINE BUFFER bf-ordl          FOR oe-ordl.
     DEFINE BUFFER bf-ttJobMaterial FOR ttJobMaterial.
     DEFINE BUFFER bf-itemfg        FOR Itemfg.
 
     FIND ITEM WHERE ROWID(ITEM) EQ iprItem NO-LOCK NO-ERROR.
     FIND bf-ttJobMaterial WHERE ROWID(bf-ttJobMaterial) EQ iprWJobMat NO-LOCK NO-ERROR.
-    FIND po-ord WHERE ROWID(po-ord) EQ iprPoOrd NO-LOCK NO-ERROR.
+    FIND tt-po-ord WHERE ROWID(tt-po-ord) EQ iprPoOrd NO-LOCK NO-ERROR.
     FIND bf-ordl WHERE ROWID(bf-ordl) EQ iprOeOrdl NO-LOCK NO-ERROR.
 
     IF AVAILABLE item THEN
-        FIND b-item WHERE RECID(b-item) EQ RECID(item) NO-LOCK.
+        FIND b-item WHERE RowID(b-item) EQ RowID(item) NO-LOCK.
 
     loNewAvail = NO.
     /* If bf-itemfg found, then this is an FG item and don't join on frm */
-    /* 05281404 - added join to rm-i-no */
+    
     FIND FIRST bf-itemfg
         WHERE bf-itemfg.company EQ bf-ordl.company
-        AND bf-itemfg.i-no      EQ /* wfk - 05281404 - bf-ordl.i-no */ bf-ttJobMaterial.rm-i-no
+        AND bf-itemfg.i-no      EQ bf-ttJobMaterial.rm-i-no
         NO-LOCK NO-ERROR.
               
-    IF NOT AVAILABLE po-ordl AND choeAutoPoNK1 EQ "AutoRM" AND loAutoPoSec AND bf-ttJobMaterial.this-is-a-rm THEN 
+    IF NOT AVAILABLE tt-po-ordl AND choeAutoPoNK1 EQ "AutoRM" AND loAutoPoSec AND bf-ttJobMaterial.this-is-a-rm THEN 
     DO: 
-        FIND FIRST po-ordl EXCLUSIVE-LOCK 
-            WHERE po-ordl.company EQ ipchCompany
-            AND po-ordl.job-no  EQ bf-ttJobMaterial.job-no
-            AND po-ordl.job-no2 EQ bf-ttJobMaterial.job-no2
-            AND po-ordl.s-num   EQ bf-ttJobMaterial.frm
-            AND po-ordl.i-no    EQ
+        FIND FIRST tt-po-ordl EXCLUSIVE-LOCK 
+            WHERE tt-po-ordl.company EQ ipchCompany
+            AND tt-po-ordl.job-no  EQ bf-ttJobMaterial.job-no
+            AND tt-po-ordl.job-no2 EQ bf-ttJobMaterial.job-no2
+            AND tt-po-ordl.s-num   EQ bf-ttJobMaterial.frm
+            AND tt-po-ordl.i-no    EQ
             IF LENGTH(bf-ttJobMaterial.i-no) LE 10 THEN bf-ttJobMaterial.i-no
             ELSE substr(bf-ttJobMaterial.i-no,LENGTH(bf-ttJobMaterial.i-no) - 9,10)
             NO-ERROR.
         
-        IF AVAILABLE po-ordl THEN 
+        IF AVAILABLE tt-po-ordl THEN 
         DO:
             FIND FIRST b-item
                 WHERE b-item.company EQ ipchCompany
@@ -1619,261 +1534,81 @@ PROCEDURE pCreatePoOrdl PRIVATE:
                         AND b-item.i-no     EQ bf-ttJobMaterial.rm-i-no
                         NO-LOCK NO-ERROR.
             END. /* not avail b-item */
-        END. /* if avail po-ordl */
-    END. /* Not avail po-ordl and this is RM */
+        END. /* if avail tt-po-ordl */
+    END. /* Not avail tt-po-ordl and this is RM */
   
-    IF NOT AVAILABLE po-ordl THEN 
+    IF NOT AVAILABLE tt-po-ordl THEN 
     DO:
-    {po/po-ordl.a}
+        /* Below code copied from tt-po-ordl.a */
+                
+        IF AVAILABLE tt-po-ord THEN 
+        DO:
+            iCount4 = 1.
+            FIND LAST tt-po-ordl WHERE
+                tt-po-ordl.company EQ tt-po-ord.company AND
+                tt-po-ordl.po-no EQ tt-po-ord.po-no
+                NO-LOCK NO-ERROR.
+        
+            IF AVAILABLE tt-po-ordl THEN iCount4 = tt-po-ordl.line + 1.
+            
+            FIND vend WHERE vend.company = tt-po-ord.company
+                AND vend.vend-no = tt-po-ord.vend-no NO-LOCK NO-ERROR.
+
+            CREATE tt-po-ordl.
+            ASSIGN
+                tt-po-ordl.company   = tt-po-ord.company
+                tt-po-ordl.po-no     = tt-po-ord.po-no
+                tt-po-ordl.stat      = "O"
+                tt-po-ordl.ord-qty   = 1
+                tt-po-ordl.cons-qty  = 1
+                loNewFile         = TRUE
+                tt-po-ordl.line      = iCount4
+                tt-po-ordl.due-date  = tt-po-ord.due-date
+                tt-po-ordl.over-pct  = tt-po-ord.over-pct
+                tt-po-ordl.under-pct = tt-po-ord.under-pct
+                tt-po-ordl.vend-no   = tt-po-ord.vend-no.
+
+            IF AVAILABLE vend THEN 
+            DO:
+                ASSIGN
+                    tt-po-ordl.disc = vend.disc-%
+                    tt-po-ordl.tax  = vend.tax-gr NE "".
+     
+                IF loAPGL AND index(chAPGL,"Vend") GT 0 THEN
+                    tt-po-ordl.actnum = vend.actnum.
+            END.
+            
+            IF tt-po-ord.printed OR tt-po-ord.stat NE "N" THEN
+                ASSIGN tt-po-ordl.stat = "A".
+        END.
+
+        ELSE 
+        DO:
+            BELL. 
+            MESSAGE " PO record is not available. " . 
+            PAUSE.
+        END.
+        
+        /* End of tt-po-ordl.a */
         ASSIGN
-            po-ordl.tax       = po-ord.tax-gr NE "" AND
+            tt-po-ordl.tax       = tt-po-ord.tax-gr NE "" AND
                          (chAPTax EQ "Vendor" OR 
                           (chAPTax EQ "Item" AND
                            (AVAILABLE b-item AND b-item.tax-rcpt) OR
                            (AVAILABLE itemfg AND itemfg.taxable)))
-            po-ordl.item-type = bf-ttJobMaterial.this-is-a-rm.
-    END. /* Not avail po-ordl then add it */
+            tt-po-ordl.item-type = bf-ttJobMaterial.this-is-a-rm.
+    END. /* Not avail tt-po-ordl then add it */
 
     IF AVAILABLE bf-itemfg THEN
         oprItemfg = ROWID(bf-itemfg).
 
-    IF AVAILABLE po-ordl THEN
-        roPoOrdl = ROWID(po-ordl).
-    FIND CURRENT po-ordl NO-LOCK NO-ERROR.
-    RELEASE po-ordl.
+    IF AVAILABLE tt-po-ordl THEN
+        roPoOrdl = ROWID(tt-po-ordl).
+    FIND CURRENT tt-po-ordl NO-LOCK NO-ERROR.
+    RELEASE tt-po-ordl.
+    RELEASE bf-ttJobMaterial.
 
-END PROCEDURE.
- 
- 
-PROCEDURE pCreateTtEivItemfg PRIVATE:
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipchCompany AS CHARACTER   NO-UNDO.
-    DEFINE INPUT  PARAMETER iprWJobMat  AS ROWID       NO-UNDO.
-    
-    DEFINE BUFFER bf-ttJobMaterial FOR ttJobMaterial.
-
-    FIND bf-ttJobMaterial NO-LOCK WHERE ROWID(bf-ttJobMaterial) EQ iprWJobMat
-        NO-ERROR.
-
-    FIND FIRST itemfg NO-LOCK
-        WHERE itemfg.company EQ ipchCompany
-        AND itemfg.i-no    EQ bf-ttJobMaterial.rm-i-no
-        NO-ERROR.
-
-    IF AVAILABLE itemfg THEN
-        FOR EACH e-itemfg
-            WHERE e-itemfg.company EQ itemfg.company
-            AND e-itemfg.i-no    EQ itemfg.i-no
-            NO-LOCK:
-            CREATE tt-ei.
-            ASSIGN
-                tt-ei.company = e-itemfg.company
-                tt-ei.i-no    = e-itemfg.i-no
-                tt-ei.std-uom = e-itemfg.std-uom.
-
-
-            IF bf-ttJobMaterial.est-no NE "" THEN 
-            DO:
-                FOR EACH e-itemfg-vend NO-LOCK
-                    WHERE e-itemfg-vend.company  EQ itemfg.company
-                    AND e-itemfg-vend.est-no   EQ bf-ttJobMaterial.est-no
-                    AND e-itemfg-vend.form-no  EQ bf-ttJobMaterial.frm
-                    AND e-itemfg-vend.blank-no EQ bf-ttJobMaterial.blank-no
-                    BREAK BY e-itemfg-vend.eqty:
-                    IF LAST(e-itemfg-vend.eqty)            OR
-                        e-itemfg-vend.eqty GE bf-ttJobMaterial.qty THEN 
-                    DO:
-                        FIND CURRENT bf-ttJobMaterial EXCLUSIVE-LOCK.
-                        bf-ttJobMaterial.eqty = e-itemfg-vend.eqty.
-                        FIND CURRENT bf-ttJobMaterial NO-LOCK.
-                        LEAVE.
-                    END.
-                END.
-                FOR EACH e-itemfg-vend NO-LOCK
-                    WHERE e-itemfg-vend.company  EQ itemfg.company
-                    AND e-itemfg-vend.est-no   EQ bf-ttJobMaterial.est-no
-                    AND e-itemfg-vend.eqty     EQ bf-ttJobMaterial.eqty
-                    AND e-itemfg-vend.form-no  EQ bf-ttJobMaterial.frm
-                    AND e-itemfg-vend.blank-no EQ bf-ttJobMaterial.blank-no:
-                    IF NOT CAN-FIND(FIRST tt-eiv
-                        WHERE tt-eiv.company   EQ e-itemfg-vend.company
-                        AND tt-eiv.i-no      EQ bf-ttJobMaterial.i-no
-                        AND tt-eiv.vend-no   EQ e-itemfg-vend.vend-no) THEN 
-                    DO:
-                        CREATE tt-eiv.
-
-                        ASSIGN
-                            tt-eiv.rec-id    = RECID(e-itemfg-vend)
-                            tt-eiv.est-no    = ""
-                            tt-eiv.i-no      = bf-ttJobMaterial.i-no
-                            tt-eiv.form-no   = 0
-                            tt-eiv.blank-no  = 0
-                            tt-eiv.company   = e-itemfg-vend.company
-                            tt-eiv.vend-no   = e-itemfg-vend.vend-no
-                            tt-eiv.vend-i-no = e-itemfg-vend.vend-item
-                            tt-eiv.item-type = e-itemfg-vend.item-type
-                            tt-eiv.rec_key   = e-itemfg-vend.rec_key.
-
-                        DO inIndex = 1 TO 10:
-                            ASSIGN
-                                tt-eiv.run-qty[inIndex]  = e-itemfg-vend.run-qty[inIndex]
-                                tt-eiv.run-cost[inIndex] = e-itemfg-vend.run-cost[inIndex]
-                                tt-eiv.setups[inIndex]   = e-itemfg-vend.setups[inIndex]
-                                tt-eiv.roll-w[inIndex]   = e-itemfg-vend.roll-w[inIndex].
-                        END. /* do inIndex ... */
-
-                        DO inIndex = 11 TO 30:
-                            tt-eiv.roll-w[inIndex] = e-itemfg-vend.roll-w[inIndex].
-                        END. /* do inIndex ... */
-                    END. /* can-find(first tt-eiv ... */
-                END. /* for each itemfg-vend */
-            END. /* bf-ttJobMaterial.est-no NE "" */
-
-            IF NOT CAN-FIND(FIRST tt-eiv) THEN
-                FOR EACH e-itemfg-vend OF e-itemfg NO-LOCK:
-                    IF NOT CAN-FIND(FIRST tt-eiv
-                        WHERE tt-eiv.company   EQ e-itemfg-vend.company
-                        AND tt-eiv.i-no      EQ e-itemfg-vend.i-no
-                        AND tt-eiv.vend-no   EQ e-itemfg-vend.vend-no) THEN 
-                    DO:
-                        CREATE tt-eiv.
-                        ASSIGN
-                            tt-eiv.rec-id    = RECID(e-itemfg-vend)
-                            tt-eiv.est-no    = e-itemfg-vend.est-no
-                            tt-eiv.i-no      = e-itemfg-vend.i-no
-                            tt-eiv.form-no   = e-itemfg-vend.form-no
-                            tt-eiv.blank-no  = e-itemfg-vend.blank-no
-                            tt-eiv.company   = e-itemfg-vend.company
-                            tt-eiv.vend-no   = e-itemfg-vend.vend-no
-                            tt-eiv.vend-i-no = e-itemfg-vend.vend-item
-                            tt-eiv.item-type = e-itemfg-vend.item-type
-                            tt-eiv.rec_key   = e-itemfg-vend.rec_key.
-
-                        DO inIndex = 1 TO 10:
-                            ASSIGN
-                                tt-eiv.run-qty[inIndex]  = e-itemfg-vend.run-qty[inIndex]
-                                tt-eiv.run-cost[inIndex] = e-itemfg-vend.run-cost[inIndex]
-                                tt-eiv.setups[inIndex]   = e-itemfg-vend.setups[inIndex]
-                                tt-eiv.roll-w[inIndex]   = e-itemfg-vend.roll-w[inIndex].
-                        END.
-
-                        DO inIndex = 11 TO 30:
-                            tt-eiv.roll-w[inIndex] = e-itemfg-vend.roll-w[inIndex].
-                        END.
-                    END. /* not can-find .. */
-                END. /* each e-itemfg-vend */
-        END. /* each e-itemfg */
-
-END PROCEDURE.
- 
-PROCEDURE pCreateTtEivVend PRIVATE:
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-      input ttJobMaterial
-            loPOBest
-            ipchCompany
-            
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipchCompany AS CHARACTER   NO-UNDO.
-    DEFINE INPUT  PARAMETER iprJobMat   AS ROWID       NO-UNDO.
-    DEFINE INPUT  PARAMETER iplPoBest   AS LOGICAL     NO-UNDO.
-    DEFINE OUTPUT PARAMETER oprItem     AS ROWID       NO-UNDO.
-  
-    DEFINE BUFFER bf-ttJobMaterial FOR ttJobMaterial.
-    FIND bf-ttJobMaterial NO-LOCK WHERE ROWID(bf-ttJobMaterial) EQ iprJobMat
-        NO-ERROR.
-    IF loDebug THEN             
-        PUT STREAM sDebug UNFORMATTED "createTtEiv-from-item-vend " bf-ttJobMaterial.i-no  SKIP.
-  
-    RELEASE ITEM.
-
-    IF bf-ttJobMaterial.prep EQ NO THEN
-    DO:
-        IF iplPoBest EQ NO THEN
-            FIND FIRST ITEM NO-LOCK
-                WHERE item.company  EQ ipchCompany
-                AND item.i-no     EQ bf-ttJobMaterial.rm-i-no
-                AND index("1234BPR",item.mat-type) GT 0
-                NO-ERROR.
-        ELSE
-            FIND FIRST ITEM NO-LOCK
-                WHERE item.company  EQ ipchCompany
-                AND item.i-no     EQ bf-ttJobMaterial.rm-i-no
-                AND item.mat-type EQ "B"
-                NO-ERROR.
-    END. /* If bf-ttJobMaterial.prep EQ NO */
-    ELSE
-        FIND FIRST ITEM NO-LOCK
-            WHERE item.company  EQ ipchCompany
-            AND item.i-no     EQ bf-ttJobMaterial.rm-i-no
-            NO-ERROR.
-
-    IF AVAILABLE item THEN
-        FOR EACH e-item NO-LOCK OF item:
-            
-            CREATE tt-ei.
-            ASSIGN
-                tt-ei.company = e-item.company
-                tt-ei.i-no    = e-item.i-no
-                tt-ei.std-uom = e-item.std-uom.
-     
-            FOR EACH e-item-vend OF e-item NO-LOCK:
-                IF NOT CAN-FIND(FIRST tt-eiv
-                    WHERE tt-eiv.company   EQ e-item-vend.company
-                    AND tt-eiv.i-no      EQ e-item-vend.i-no
-                    AND tt-eiv.vend-no   EQ e-item-vend.vend-no) THEN 
-                DO:
-                    CREATE tt-eiv.
-                    ASSIGN
-                        tt-eiv.rec-id    = RECID(e-item-vend)
-                        tt-eiv.company   = e-item-vend.company
-                        tt-eiv.vend-no   = e-item-vend.vend-no
-                        tt-eiv.i-no      = e-item-vend.i-no
-                        tt-eiv.est-no    = e-item-vend.est-no
-                        tt-eiv.form-no   = e-item-vend.form-no
-                        tt-eiv.blank-no  = e-item-vend.blank-no
-                        tt-eiv.item-type = e-item-vend.item-type
-                        tt-eiv.vend-i-no = e-item-vend.vend-item
-                        tt-eiv.rec_key   = e-item-vend.rec_key.
-            
-                    DO inIndex = 1 TO 10:
-                        ASSIGN
-                            tt-eiv.run-qty[inIndex]  = e-item-vend.run-qty[inIndex]
-                            tt-eiv.run-cost[inIndex] = e-item-vend.run-cost[inIndex]
-                            tt-eiv.setups[inIndex]   = e-item-vend.setups[inIndex]
-                            tt-eiv.roll-w[inIndex]   = e-item-vend.roll-w[inIndex].
-                    END.
-            
-                    DO inIndex = 11 TO 30:
-                        tt-eiv.roll-w[inIndex] = e-item-vend.roll-w[inIndex].
-                    END.
-            
-
-            
-                    IF AVAILABLE e-item-vend THEN
-                    DO:
-
-             
-                        DO inIndex = 1 TO 10:
-                            ASSIGN
-                                tt-eiv.run-qty[inIndex + 10]  = e-item-vend.runQtyXtra[inIndex]
-                                tt-eiv.run-cost[inIndex + 10] = e-item-vend.runCostXtra[inIndex]
-                                tt-eiv.setups[inIndex + 10]   = e-item-vend.setupsXtra[inIndex].
-                        END. /* inIndex = 1 to 10 */
-                    END. /* if avail b-qty */
-                END. /* if tt-eiv doesn't already exist */
-            END. /* for each e-item-vend */
-        END. /* for each e-item */
-    IF AVAILABLE ITEM THEN
-        oprItem = ROWID(ITEM).
-
-END PROCEDURE. /* end pCreateTtEivVend */
+END PROCEDURE. 
  
 PROCEDURE pFindExistingPo PRIVATE:
     /*------------------------------------------------------------------------------
@@ -1883,13 +1618,14 @@ PROCEDURE pFindExistingPo PRIVATE:
         Inputs:
           b-orderpo
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipchCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiPoNo       AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER iploDropShip  AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER ipchVendorId  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdaPODate    AS DATE      NO-UNDO.
     DEFINE INPUT  PARAMETER ipdaPODueDate AS DATE NO-UNDO.
     DEFINE OUTPUT PARAMETER oplAvailPO    AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER oprPoOrd     AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAMETER oprPoOrd      AS ROWID NO-UNDO.
 
     DEFINE VARIABLE loMultiPOAvailable AS LOGICAL NO-UNDO.
     
@@ -1924,28 +1660,37 @@ PROCEDURE pFindExistingPo PRIVATE:
         oplAvailPo = YES.
     
     IF AVAILABLE po-ord THEN
-        oprPoOrd = ROWID(po-ord).
-
+    DO:
+        CREATE tt-po-ord.
+        
+        BUFFER-COPY po-ord TO tt-po-ord.
+        
+        ASSIGN tt-po-ord.action = "Update".
+        
+        oprPoOrd = ROWID(tt-po-ord).
+    END. 
 END PROCEDURE.
  
-PROCEDURE pFindOrderFromRecid PRIVATE:
+PROCEDURE pFindOrderFromRowID PRIVATE:
     /*------------------------------------------------------------------------------
  
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER iprFilId        AS RECID       NO-UNDO.
+    DEFINE INPUT  PARAMETER iprFilId        AS RowID       NO-UNDO.
     DEFINE OUTPUT PARAMETER oprOeOrdl       AS ROWID       NO-UNDO.
     DEFINE OUTPUT PARAMETER oprJob          AS ROWID       NO-UNDO.
     DEFINE OUTPUT PARAMETER opcFilIdSource  AS CHARACTER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opchCompanyId   AS CHARACTER NO-UNDO.
 
-    FIND bf-ordl WHERE RECID(bf-ordl) EQ iprFilId NO-LOCK NO-ERROR.
+    FIND bf-ordl WHERE RowID(bf-ordl) EQ iprFilId NO-LOCK NO-ERROR.
 
-    /* wfk - Build tt-itemfg based on job */
+    /* Build tt-itemfg based on job */
     IF AVAILABLE bf-ordl THEN 
     DO:
         /* bf-itemfg holds buffer for item of bf-ordl since itemfg is used for set components below */
         ASSIGN 
             opcFilIdSource = "oe-ordl"
-            inOrderNo      = bf-ordl.ord-no.
+            inOrderNo      = bf-ordl.ord-no
+            opchCompanyId  = bf-ordl.Company.
 
         FIND FIRST bf-ord NO-LOCK 
             WHERE bf-ord.company EQ bf-ordl.company
@@ -1960,8 +1705,8 @@ PROCEDURE pFindOrderFromRecid PRIVATE:
             
             IF TRIM(bf-ordl.job-no) NE "" THEN
                 FIND FIRST job NO-LOCK 
-                    WHERE job.company EQ ipchCompany
-                    AND job.job-no  EQ bf-ordl.job-no
+                    WHERE job.company EQ bf-ordl.company
+                     AND job.job-no  EQ bf-ordl.job-no
                     AND job.job-no2 EQ bf-ordl.job-no2
                     NO-ERROR.
             
@@ -1984,9 +1729,6 @@ PROCEDURE pFindOrderFromRecid PRIVATE:
                             FIRST itemfg NO-LOCK
                             WHERE itemfg.company EQ bf-ordl.company
                             AND itemfg.i-no    EQ tt-fg-set.part-no:
-                                
-                            IF loDebug THEN
-                                PUT STREAM sDebug UNFORMATTED "Create tt-itemfg for set part " tt-fg-set.part-no SKIP.
                             
                             CREATE tt-itemfg.
                             BUFFER-COPY itemfg EXCEPT rec_key TO tt-itemfg
@@ -2010,9 +1752,6 @@ PROCEDURE pFindOrderFromRecid PRIVATE:
                     END. /* If itemfg.isaset */       
                     ELSE 
                     DO:
-                        IF loDebug THEN
-                            PUT STREAM sDebug UNFORMATTED "Create tt-itemfg for FG " itemfg.i-no SKIP.
-
                         CREATE tt-itemfg.
                         BUFFER-COPY itemfg EXCEPT rec_key TO tt-itemfg
                             ASSIGN
@@ -2038,36 +1777,42 @@ PROCEDURE pFindOrderFromRecid PRIVATE:
     ELSE 
     DO:
         /* Oe-ordl not available */
-        FIND job WHERE RECID(job) EQ iprFilId NO-LOCK NO-ERROR.
-        opcFilIdSource = "JOB".
-        FOR EACH job-hdr NO-LOCK
-            WHERE job-hdr.company EQ job.company
-            AND job-hdr.job     EQ job.job
-            AND job-hdr.job-no  EQ job.job-no
-            AND job-hdr.job-no2 EQ job.job-no2
-            AND job-hdr.ord-no  NE 0:
-            FIND FIRST bf-ord NO-LOCK
-                WHERE bf-ord.company EQ ipchCompany
-                AND bf-ord.ord-no  EQ job-hdr.ord-no
-                AND bf-ord.opened  EQ YES
-                AND bf-ord.stat    NE "H"
-                NO-ERROR.
-            IF NOT AVAILABLE bf-ord THEN 
-            DO:
-                RELEASE job.
-                LEAVE.
-            END. /* not avail bf-ord */
+        FIND job WHERE RowID(job) EQ iprFilId NO-LOCK NO-ERROR.
+        
+        IF AVAILABLE job THEN 
+        DO: 
+            ASSIGN 
+                opcFilIdSource = "JOB"
+                opchCompanyId  = job.company.
+                
+            FOR EACH job-hdr NO-LOCK
+                WHERE job-hdr.company EQ job.company
+                AND job-hdr.job     EQ job.job
+                AND job-hdr.job-no  EQ job.job-no
+                AND job-hdr.job-no2 EQ job.job-no2
+                AND job-hdr.ord-no  NE 0:
+                FIND FIRST bf-ord NO-LOCK
+                    WHERE bf-ord.company EQ job-hdr.company
+                    AND bf-ord.ord-no  EQ job-hdr.ord-no
+                    AND bf-ord.opened  EQ YES
+                    AND bf-ord.stat    NE "H"
+                    NO-ERROR.
+                IF NOT AVAILABLE bf-ord THEN 
+                DO:
+                    RELEASE job.
+                    LEAVE.
+                END. /* not avail bf-ord */
+        
+                roOeOrd = ROWID(bf-ord).
     
-            roOeOrd = ROWID(bf-ord).
-
-            FIND FIRST bf-ordl NO-LOCK 
-                WHERE bf-ordl.company EQ job-hdr.company
-                AND bf-ordl.ord-no  EQ job-hdr.ord-no
-                AND bf-ordl.i-no    EQ job-hdr.i-no
-                NO-ERROR.
-            IF AVAILABLE bf-ordl THEN LEAVE.
-        END. /* each job-hdr */
-
+                FIND FIRST bf-ordl NO-LOCK 
+                    WHERE bf-ordl.company EQ job-hdr.company
+                    AND bf-ordl.ord-no  EQ job-hdr.ord-no
+                    AND bf-ordl.i-no    EQ job-hdr.i-no
+                    NO-ERROR.
+                IF AVAILABLE bf-ordl THEN LEAVE.
+            END. /* each job-hdr */
+        END. 
     END. /* bf-ordl not avail */
 
     IF AVAILABLE bf-ordl THEN 
@@ -2096,7 +1841,7 @@ PROCEDURE pGetItemfgGL PRIVATE :
     
     DEFINE INPUT  PARAMETER ip-comp      LIKE job-hdr.company.
     DEFINE INPUT  PARAMETER ip-i-no      LIKE itemfg.i-no.
-    DEFINE OUTPUT PARAMETER out-actnum   LIKE po-ordl.actnum.
+    DEFINE OUTPUT PARAMETER out-actnum   LIKE tt-po-ordl.actnum.
 
     DEFINE VARIABLE chCharge AS CHARACTER NO-UNDO.
      
@@ -2131,20 +1876,7 @@ PROCEDURE pInitJobVals PRIVATE:
       Purpose:     
       Parameters:  <none>
       Notes:       
-      inputs:
-        job
-        ttJobMaterial
-        assigns fil_id (global)
-        ipchCompany
-        assigns inOrderNo (global)
-        bf-ordl
-        finds po-ord
-        chVendNo
-        chJobNumber
-        assigns reJobRecid (used in assign po-ordl values)
-        assigns inOrderNo
-        releases po-ord, po-ordl
-        finds po-ordl
+      
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipchCompany AS CHARACTER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFilId    AS CHARACTER   NO-UNDO.
@@ -2161,7 +1893,7 @@ PROCEDURE pInitJobVals PRIVATE:
     FIND bf-oe-ordl WHERE ROWID(bf-oe-ordl) EQ iprOeOrdl NO-LOCK NO-ERROR.
     
     ASSIGN 
-        reJobRecid = ?.
+        reJobRowid = ?.
 
     IF AVAILABLE job THEN
         FOR EACH job-hdr NO-LOCK
@@ -2179,23 +1911,18 @@ PROCEDURE pInitJobVals PRIVATE:
           
                 ASSIGN 
                     inOrderNo  = job-hdr.ord-no
-                    reJobRecid = RECID(job-hdr).
+                    reJobRowid = RowID(job-hdr).
                 LEAVE.
             END.
         END. /* each job-hdr */
 
     /*once out of loop above, not pointing to correct job-hdr*/
-    IF reJobRecid NE ? THEN
+    IF reJobRowid NE ? THEN
         FIND job-hdr NO-LOCK
-            WHERE RECID(job-hdr) EQ reJobRecid.
-
-    ASSIGN        
-        loNewfile = YES.        
-        
+            WHERE RowID(job-hdr) EQ reJobRowid.
   
-    RELEASE po-ord.
-    RELEASE po-ordl.  
-
+    ASSIGN loNewFile = YES.
+    
     IF AVAILABLE job THEN 
         ASSIGN
             chJobNumber = job.job-no
@@ -2203,6 +1930,10 @@ PROCEDURE pInitJobVals PRIVATE:
 
     opcJob    = chJobNumber.
 
+    RELEASE tt-po-ord.
+    RELEASE tt-po-ordl.  
+    RELEASE bf-ttJobMaterial.
+    
 END PROCEDURE.
  
 PROCEDURE pInitRptRecs PRIVATE:
@@ -2210,28 +1941,13 @@ PROCEDURE pInitRptRecs PRIVATE:
       Purpose:     
       Parameters:  <none>
       Notes:       
-      inputs:
-        ipchCompany
-        writes to ttJobMaterial
-        updates ttJobMaterial.qty
-        GLOBALS:
-        outputs deJobMatQty
-        outputs chJobMatQtyUOM
-        outputs v-uom-comp
-        outputs deQtyComp
-        outputs deQtyComp1
-        outputs deS-Len
-        outputs deS-wid
-        outputs deS-dep
-        outputs debasis-w
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipchCompany AS CHARACTER   NO-UNDO.
     DEFINE INPUT  PARAMETER iprWJobMat  AS ROWID       NO-UNDO.
-    DEFINE OUTPUT PARAMETER oprTT-ei    AS ROWID       NO-UNDO.
     
     DEFINE BUFFER bf-ttJobMaterial FOR ttJobMaterial.
 
-    DEFINE VARIABLE v-uom-comp LIKE po-ordl.pr-qty-uom NO-UNDO.
+    DEFINE VARIABLE v-uom-comp LIKE tt-po-ordl.pr-qty-uom NO-UNDO.
 
     FIND bf-ttJobMaterial NO-LOCK WHERE ROWID(bf-ttJobMaterial) EQ iprWJobMat NO-ERROR.
 
@@ -2240,15 +1956,7 @@ PROCEDURE pInitRptRecs PRIVATE:
         deS-wid   = bf-ttJobMaterial.wid
         deS-dep   = bf-ttJobMaterial.dep
         debasis-w = bf-ttJobMaterial.basis-w.
-
-    FIND FIRST tt-ei
-        WHERE tt-ei.company EQ ipchCompany
-        AND tt-ei.i-no    EQ bf-ttJobMaterial.rm-i-no
-        NO-LOCK NO-ERROR.
-
-    IF AVAILABLE tt-ei THEN 
-    DO:
-        oprTT-ei = ROWID(tt-ei).
+    
         IF bf-ttJobMaterial.qty-uom EQ "BF" THEN 
         DO:
             RUN Conv_QuantityFromUOMToUOM(bf-ttJobMaterial.company,
@@ -2266,8 +1974,8 @@ PROCEDURE pInitRptRecs PRIVATE:
                 OUTPUT loError,
                 OUTPUT chMessage).
 
-            {sys/inc/roundup.i deJobMatQty}
-            chJobMatQtyUOM = "EA".
+            ASSIGN deJobMatQty    = fnRoundUp(deJobMatQty)
+                   chJobMatQtyUOM = "EA".
         END. /* bf-ttJobMaterial.qty-uom eq "Bf */
 
         ELSE
@@ -2276,8 +1984,7 @@ PROCEDURE pInitRptRecs PRIVATE:
                 deJobMatQty    = bf-ttJobMaterial.qty.
 
         v-uom-comp = IF bf-ttJobMaterial.this-is-a-rm THEN
-            IF CAN-DO("1,2,3,4",item.mat-type) THEN "BF" ELSE "MSF"
-            ELSE tt-ei.std-uom.
+            IF CAN-DO("1,2,3,4",item.mat-type) THEN "BF" ELSE "MSF" ELSE "EA".
 
         IF chJobMatQtyUOM EQ v-uom-comp                 OR
             (NOT bf-ttJobMaterial.this-is-a-rm             AND
@@ -2321,82 +2028,69 @@ PROCEDURE pInitRptRecs PRIVATE:
                 0, 
                 OUTPUT deQtyComp1,
                 OUTPUT loError,
-                OUTPUT chMessage).
-    END. /* Avail tt-ei */
+                OUTPUT chMessage).               
+     
+    RELEASE bf-ttJobMaterial.
 
 END PROCEDURE.
  
 PROCEDURE pPoOrdlAddVals PRIVATE:
     /*------------------------------------------------------------------------------
-      Purpose:      Assign more values to bf-po-ordl if a RM      
+      Purpose:      Assign more values to bf-tt-po-ordl if a RM      
     ------------------------------------------------------------------------------*/
 
-    DEFINE INPUT PARAMETER iprPoOrdl    AS ROWID       NO-UNDO.
-    DEFINE INPUT PARAMETER iprItem      AS ROWID       NO-UNDO.
-    DEFINE INPUT PARAMETER iprWJobMat   AS ROWID       NO-UNDO.
-    DEFINE INPUT PARAMETER iprOeOrdl    AS ROWID       NO-UNDO.
-    DEFINE INPUT PARAMETER iprTT-ei     AS ROWID       NO-UNDO.
+    DEFINE INPUT PARAMETER iprPoOrdl     AS ROWID       NO-UNDO.
+    DEFINE INPUT PARAMETER iprItem       AS ROWID       NO-UNDO.
+    DEFINE INPUT PARAMETER iprWJobMat    AS ROWID       NO-UNDO.
+    DEFINE INPUT PARAMETER iprOeOrdl     AS ROWID       NO-UNDO.
+    DEFINE OUTPUT PARAMETER oploNextOuters AS LOGICAL    NO-UNDO.
 
     DEFINE BUFFER bf-ttJobMaterial FOR ttJobMaterial.
     DEFINE BUFFER bf-po-ordl       FOR po-ordl.
     DEFINE BUFFER b-item           FOR ITEM .
     DEFINE BUFFER bf-ordl          FOR oe-ordl.
-    DEFINE BUFFER bf-tt-ei         FOR tt-ei.
+
 
     FIND bf-po-ordl       EXCLUSIVE-LOCK WHERE ROWID(bf-po-ordl)   EQ iprPoOrdl NO-ERROR.
     FIND b-item           NO-LOCK WHERE ROWID(b-item)       EQ iprItem NO-ERROR.
     FIND bf-ttJobMaterial NO-LOCK WHERE ROWID(bf-ttJobMaterial) EQ iprWJobMat NO-ERROR.
     FIND bf-ordl          NO-LOCK WHERE ROWID(bf-ordl)      EQ iprOeOrdl NO-ERROR.  
-    FIND bf-tt-ei         NO-LOCK WHERE ROWID(bf-tt-ei)     EQ iprTT-ei NO-ERROR.
 
-    DEFINE VARIABLE reItem AS RECID NO-UNDO.
     IF NOT AVAILABLE bf-po-ordl THEN 
     DO:
         RUN pAddError(INPUT "Error: PO line not available in poOrdlAddVals", INPUT "1", INPUT 0, INPUT 0, INPUT 0).
-        RETURN ERROR.
+        ASSIGN oploNextOuters = TRUE.
+        RETURN.
     END.
     IF NOT AVAILABLE b-item THEN 
     DO:
         RUN pAddError(INPUT "Error: item record not available in poOrdlAddVals", INPUT "1", INPUT 0, INPUT 0, INPUT 0).
-        RETURN ERROR.
+        ASSIGN oploNextOuters = TRUE.
+        RETURN.
     END.
 
     IF bf-po-ordl.item-type THEN 
     DO:
-        IF AVAILABLE bf-tt-ei THEN 
+        IF AVAILABLE bf-ordl AND bf-po-ordl.item-type THEN 
         DO:
-            IF (bf-tt-ei.std-uom EQ "MSF" OR bf-tt-ei.std-uom EQ "EA" OR
-                bf-tt-ei.std-uom EQ "M" OR bf-tt-ei.std-uom EQ "MSH"  OR
-                bf-tt-ei.std-uom EQ "BF") THEN
-                bf-po-ordl.cons-uom = "EA".
-            ELSE
-                bf-po-ordl.cons-uom = bf-tt-ei.std-uom.
-      
-            bf-po-ordl.pr-uom = bf-tt-ei.std-uom.
-
-            IF AVAILABLE bf-ordl AND bf-po-ordl.item-type THEN 
-            DO:
-                /* Adding code to create new RM from Estimated RM */
-                ASSIGN
-                    chNewItemNo = IF LENGTH(bf-ordl.i-no) LE 10 THEN bf-ordl.i-no
+            /* Adding code to create new RM from Estimated RM */
+            ASSIGN
+                chNewItemNo = IF LENGTH(bf-ordl.i-no) LE 10 THEN bf-ordl.i-no
                                   ELSE SUBSTRING(bf-ordl.i-no,(LENGTH(bf-ordl.i-no) - 9),10).
                        
-                IF choeAutoPoNK1 EQ "AutoRM" AND loAutoPoSec AND NOT loNewAvail THEN 
-                DO:         
-                    reItem = RECID(b-item).
-                    RUN rm/itemcopy.p.   /* not done */
-                END. /* format eq "AutoRM" ... */
-            END. /* avail bf-ordl ... */
-        END. /* AVail bf-tt-ei */
-
+            IF choeAutoPoNK1 EQ "AutoRM" AND loAutoPoSec AND NOT loNewAvail THEN 
+            DO: 
+                RUN rm/itemcopy.p.   /* not done */
+            END. /* format eq "AutoRM" ... */
+        END. /* avail bf-ordl ... */
+        
         IF inPOUom EQ 1 AND b-item.mat-type EQ "P" THEN bf-po-ordl.cons-uom = "TON".
     END. /* bf-po-ordl.item-type = yes */
 
     RELEASE bf-po-ordl.
     RELEASE b-item.
     RELEASE bf-ttJobMaterial.
-    RELEASE bf-ordl.
-    RELEASE bf-tt-ei.
+    RELEASE bf-ordl.   
 
 END PROCEDURE.
  
@@ -2404,40 +2098,40 @@ PROCEDURE pProcessAdders PRIVATE:
     /*------------------------------------------------------------------------------
       Purpose:     processAdders
     ------------------------------------------------------------------------------*/
-
+    DEFINE INPUT  PARAMETER ipchCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iprWJobMat    AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprPoOrdl     AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprPoOrd      AS ROWID       NO-UNDO.
 
-    DEFINE BUFFER bf-po-ordl       FOR po-ordl.  
-    DEFINE BUFFER bf-po-ord        FOR po-ord.
+    DEFINE BUFFER bf-po-ordl       FOR tt-po-ordl.  
+    DEFINE BUFFER bf-po-ord        FOR tt-po-ord.
     DEFINE BUFFER bf-ttJobMaterial FOR ttJobMaterial.
      
     FIND bf-ttJobMaterial NO-LOCK WHERE ROWID(bf-ttJobMaterial) EQ iprWJobMat NO-ERROR.
     FIND bf-po-ordl NO-LOCK WHERE ROWID(bf-po-ordl) EQ iprPoOrdl NO-ERROR.
     FIND bf-po-ord NO-LOCK WHERE ROWID(bf-po-ord) EQ iprPoOrd NO-ERROR.
 
-    FIND job-mat NO-LOCK WHERE RECID(job-mat) EQ bf-ttJobMaterial.w-recid NO-ERROR.
+    FIND job-mat NO-LOCK WHERE ROWID(job-mat) EQ bf-ttJobMaterial.w-RowID NO-ERROR.
 
-    IF AVAILABLE job-mat AND AVAILABLE b-item AND index("1234BPR",b-item.mat-type) GT 0 
-        AND b-item.i-code EQ "E" THEN                          
-        RUN po/po-adder_new.p (RECID(bf-po-ordl), RECID(job-mat),ipchCompany,
+    IF AVAILABLE job-mat AND AVAILABLE b-item AND index("1234BPR",b-item.mat-type) GT 0 AND b-item.i-code EQ "E" THEN                          
+        RUN po/po-adder_new.p (RowID(bf-po-ordl), RowID(job-mat),ipchCompany,
             chPartDescr1, chPartDescr2,debasis-w,deS-Len,deS-Wid,deS-dep,
             chGl-Desc,deTot-msf,deAdder,loPoQty).
 
     /* needed for po-vendc.i */
-    FIND po-ordl EXCLUSIVE-LOCK WHERE ROWID(po-ordl) EQ ROWID(bf-po-ordl) .
-    FIND po-ord EXCLUSIVE-LOCK WHERE ROWID(po-ord) EQ ROWID(bf-po-ord) .
+    FIND tt-po-ordl EXCLUSIVE-LOCK WHERE ROWID(tt-po-ordl) EQ ROWID(bf-po-ordl) .
+    FIND tt-po-ord EXCLUSIVE-LOCK WHERE ROWID(tt-po-ord) EQ ROWID(bf-po-ord) .
     /* updates decost, v-qty deSetup, po-ordl.cost, po-ordl.cons-cost, deAdder[] */
-    /* Needs po-ord, po-ordl, ipchCompany, tt-eiv, tt-ei */
     
-    IF (chpoCost1 BEGINS "Vendor" OR po-ordl.job-no EQ "") AND po-ordl.item-type AND loNewfile THEN
+    IF (chpoCost1 BEGINS "Vendor" OR tt-po-ordl.job-no EQ "") AND tt-po-ordl.item-type AND loNewFile THEN
         RUN pCalculateVendorCost.
                 
-    FIND CURRENT po-ordl NO-LOCK NO-ERROR.
-    FIND CURRENT po-ord NO-LOCK NO-ERROR.
-    RELEASE po-ordl.
-    RELEASE po-ord.
+    FIND CURRENT tt-po-ordl NO-LOCK NO-ERROR.
+    FIND CURRENT tt-po-ord NO-LOCK NO-ERROR.
+    
+    RELEASE tt-po-ordl.
+    RELEASE tt-po-ord.
+    RELEASE bf-ttJobMaterial.
 
 END PROCEDURE.
  
@@ -2464,51 +2158,21 @@ PROCEDURE pProcessExisting PRIVATE:
     FIND bf-ordl NO-LOCK WHERE ROWID(bf-ordl) EQ iprOeOrdl NO-ERROR.
     FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ iprPoOrd NO-ERROR.
 
-    IF iploUpdatePO THEN 
+    IF iploUpdatePO AND AVAILABLE po-ord THEN 
     DO:
-        IF chVendNo EQ "" THEN 
-        DO:
-            IF AVAILABLE tt-eiv THEN
-                FIND FIRST po-ord NO-LOCK
-                    WHERE po-ord.company EQ ipchCompany
-                    AND po-ord.po-date   EQ ipdaPODate
-                    AND po-ord.due-date  EQ ipdaPODueDate
-                    AND po-ord.vend-no   EQ tt-eiv.vend-no
-                    AND (po-ord.type     EQ "D" OR NOT iploDropShip)
-                    NO-ERROR.  
-            ELSE 
-            DO: /* not avail tt-eiv */
-              
-                FIND FIRST vend  WHERE vend.company EQ ipchCompany
-                    AND vend.vend-no EQ chVendNo
-                    NO-LOCK NO-ERROR.
-                IF AVAILABLE vend THEN 
-                DO:
-                    chVendNo = vend.vend-no.
-  
-                    IF AVAILABLE bf-ordl AND iplFirstOfFrm THEN
-                        FOR EACH b-oe-ordl
-                            WHERE b-oe-ordl.company EQ bf-ordl.company
-                            AND b-oe-ordl.ord-no  EQ bf-ordl.ord-no
-                            AND b-oe-ordl.job-no  EQ bf-ordl.job-no
-                            AND b-oe-ordl.job-no2 EQ bf-ordl.job-no2
-                            AND b-oe-ordl.i-no    EQ bf-ttJobMaterial.fg-i-no:
-                            ASSIGN
-                                b-oe-ordl.po-no-po = po-ord.po-no
-                                b-oe-ordl.vend-no  = chVendNo.
-                        END. /* each b-oe-ordl */
-                END. /* avail vend */
-            END. /* else do */
-  
-            FIND FIRST po-ord NO-LOCK
-                WHERE po-ord.company  EQ ipchCompany
-                AND po-ord.po-date  EQ ipdaPODate
-                AND po-ord.due-date EQ ipdaPODueDate
-                AND po-ord.vend-no  EQ chVendNo
-                AND (po-ord.type     EQ "D" OR NOT iploDropShip)
-                NO-ERROR.
-        END. /* chVendNo eq "" */
-    END.  /* Chose not to update the PO */          
+        IF AVAILABLE bf-ordl AND iplFirstOfFrm THEN
+            FOR EACH b-oe-ordl
+                WHERE b-oe-ordl.company EQ bf-ordl.company
+                AND b-oe-ordl.ord-no  EQ bf-ordl.ord-no
+                AND b-oe-ordl.job-no  EQ bf-ordl.job-no
+                AND b-oe-ordl.job-no2 EQ bf-ordl.job-no2
+                AND b-oe-ordl.i-no    EQ bf-ttJobMaterial.fg-i-no:
+                ASSIGN
+                    b-oe-ordl.po-no-po = po-ord.po-no
+                    b-oe-ordl.vend-no  = chVendNo.
+            END. /* each b-oe-ordl */
+    END.  /* Chose not to update the PO */ 
+    RELEASE bf-ttJobMaterial.         
 END PROCEDURE.
 
 PROCEDURE pBuildItemToPurchase PRIVATE:
@@ -2545,8 +2209,8 @@ PROCEDURE pBuildItemToPurchase PRIVATE:
         FIRST itemfg NO-LOCK WHERE ROWID(itemfg) EQ tt-itemfg.row-id:
         
         CREATE ttJobMaterial.
-        ASSIGN
-            ttJobMaterial.w-recid      = ?
+        ASSIGN             
+            ttJobMaterial.w-RowID      = ?
             ttJobMaterial.rm-i-no      = itemfg.i-no
             ttJobMaterial.i-no         = itemfg.i-no
             ttJobMaterial.fg-i-no      = itemfg.i-no
@@ -2676,8 +2340,7 @@ PROCEDURE pBuildItemToPurchase PRIVATE:
         CREATE ttJobMaterial.
         BUFFER-COPY job-mat TO ttJobMaterial
             ASSIGN
-            ttJobMaterial.w-rowid       = ROWID(job-mat)
-            ttJobMaterial.w-recid       = RECID(job-mat)
+            ttJobMaterial.w-RowID       = RowID(job-mat)
             ttJobMaterial.this-is-a-rm  = YES
             ttJobMaterial.dep           = IF item.s-dep NE 0 THEN item.s-dep ELSE job-mat.dep
             ttJobMaterial.basis-w       = item.basis-w
@@ -2763,8 +2426,7 @@ PROCEDURE pBuildItemToPurchase PRIVATE:
         BUFFER-COPY b-job-mat TO ttJobMaterial
         
         ASSIGN
-            ttJobMaterial.w-rowid      = ROWID(b-job-mat)
-            ttJobMaterial.w-recid      = RECID(b-job-mat)
+            ttJobMaterial.w-RowID      = RowID(b-job-mat)
             ttJobMaterial.this-is-a-rm = YES
             ttJobMaterial.dep          = IF item.s-dep NE 0 THEN item.s-dep ELSE b-job-mat.dep
             ttJobMaterial.basis-w      = item.basis-w
@@ -2847,9 +2509,8 @@ PROCEDURE pBuildItemToPurchase PRIVATE:
               
         CREATE ttJobMaterial.
         BUFFER-COPY job-prep TO ttJobMaterial
-            ASSIGN
-            ttJobMaterial.w-rowid       = ROWID(job-prep)
-            ttJobMaterial.w-recid       = RECID(job-prep)
+            ASSIGN            
+            ttJobMaterial.w-RowID       = RowID(job-prep)
             ttJobMaterial.this-is-a-rm  = YES
             ttJobMaterial.dep           = item.s-dep
             ttJobMaterial.basis-w       = item.basis-w
@@ -2906,12 +2567,11 @@ PROCEDURE pProcessJobMat PRIVATE:
    
     outers:
     FOR EACH ttJobMaterial    
-        WHERE ttJobMaterial.CreatePO = TRUE 
-        AND (IF iplPromptRM THEN TRUE ELSE ttJobMaterial.this-is-a-rm EQ FALSE)
+        WHERE ttJobMaterial.CreatePO = TRUE
         BREAK BY ttJobMaterial.this-is-a-rm
-        BY ttJobMaterial.frm
-        BY ttJobMaterial.blank-no
-        BY ttJobMaterial.i-no:
+              BY ttJobMaterial.frm
+              BY ttJobMaterial.blank-no
+              BY ttJobMaterial.i-no:
 
         ASSIGN 
             chVendNo      = ""
@@ -2919,54 +2579,35 @@ PROCEDURE pProcessJobMat PRIVATE:
             roItem        = ?
             roVend        = ?
             roPoOrd       = ?
-            roTT-eiv      = ?
-            roTT-ei       = ?
             roItemFG      = ?
-            chFilIdSource = ? 
-            roWJobMat     = ?.
+            chFilIdSource = ?.
 
         IF NOT ttJobMaterial.this-is-a-rm THEN 
         DO:
-            FIND itemfg NO-LOCK WHERE itemfg.company EQ ipchCompany
+            FIND itemfg NO-LOCK WHERE itemfg.company EQ ttJobMaterial.Company
                 AND itemfg.i-no EQ ttJobMaterial.i-no 
                 NO-ERROR.
             IF AVAILABLE itemfg THEN
                 roItemFG = ROWID(itemfg).
         END.
+        ELSE 
+        DO: 
+            FIND item NO-LOCK WHERE item.company EQ ttJobMaterial.Company
+                AND item.i-no EQ ttJobMaterial.i-no 
+                NO-ERROR.
+            IF AVAILABLE item THEN
+                roItem = ROWID(item).
+        END.
         
         FIND oe-ord NO-LOCK WHERE ROWID(oe-ord) EQ roOeOrd NO-ERROR.
-  
-        IF loDebug THEN
-            PUT STREAM sDebug UNFORMATTED "Process Item " + ttJobMaterial.i-no SKIP.
         
         loNextOuters = NO.
 
-        EMPTY TEMP-TABLE tt-ei.
-        EMPTY TEMP-TABLE tt-eiv.
-
-        roWJobMat = ROWID(ttJobMaterial).
-
         loFirstOfJobFrm = FIRST-OF(ttJobMaterial.frm).
-        loFirstJobFrm = FIRST(ttJobMaterial.frm).        
-
-        IF ttJobMaterial.this-is-a-rm THEN 
-        DO:  
-            /* Create tt-ei and tt-eiv for e-itemvend of an item */
-            IF lNewVendorItemCost THEN RUN pRevCreateTtEivVend (INPUT ipchCompany, INPUT ROWID(ttJobMaterial), INPUT loPOBest, OUTPUT roItem).
-            ELSE RUN pCreateTtEivVend (INPUT ipchCompany, INPUT ROWID(ttJobMaterial), INPUT loPOBest, OUTPUT roItem).
-        END.
-        ELSE 
-        DO:
-            FIND itemfg NO-LOCK WHERE itemfg.company = ipchCompany
-                AND itemfg.i-no = ttJobMaterial.rm-i-no NO-ERROR.
-            IF NOT AVAILABLE itemfg THEN RETURN.
-            /* Create tt-eiv for a ttJobMaterial and itemfg */
-            IF lNewVendorItemCost THEN RUN pRevCreateTtEiv (INPUT ROWID(itemfg), INPUT  ROWID(ttJobMaterial)).
-            ELSE RUN pCreateTtEivItemfg (INPUT  ipchCompany, INPUT  ROWID(ttJobMaterial)).
-        END.
+        loFirstJobFrm   = FIRST(ttJobMaterial.frm).
 
         /* Sets gvrB-orderpo, initialize global variables and create a b-orderpo */
-        RUN pInitJobVals (INPUT ipchCompany,     // Varun - This can also be merged need to look more
+        RUN pInitJobVals (INPUT ttJobMaterial.Company,     // Varun - This can also be merged need to look more
             INPUT "",
             INPUT roJob,
             INPUT ROWID(ttJobMaterial),
@@ -2974,39 +2615,32 @@ PROCEDURE pProcessJobMat PRIVATE:
             OUTPUT chJobNumber).
 
         /* Get deS-Len, deS-wid, deS-dep, deJobMatQty, deQtyComp, v-uom-comp */         
-        RUN pInitRptRecs (INPUT ipchCompany,
-            INPUT ROWID(ttJobMaterial),
-            OUTPUT roTT-ei).
+        RUN pInitRptRecs (INPUT ttJobMaterial.Company,
+                          INPUT ROWID(ttJobMaterial)).
 
         ASSIGN 
             chVendNo = ttJobMaterial.vendorID.
         
         /* prompt for updating PO for given vendor and date */
-        RUN pPromptUpdPoNum (INPUT ipchCompany, 
+        RUN pPromptUpdPoNum (INPUT ttJobMaterial.Company, 
             INPUT ttJobMaterial.po-no,
             INPUT ttJobMaterial.dropShipment,
             INPUT loUpdatePO, 
             OUTPUT roPoOrd,
-            OUTPUT roTT-eiv,
             OUTPUT loNextOuters). /* set choice */
 
         IF loNextOuters THEN
             NEXT outers.
 
-        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ roPoOrd NO-ERROR.
+        FIND tt-po-ord NO-LOCK WHERE ROWID(tt-po-ord) EQ roPoOrd NO-ERROR.
         FIND oe-ord NO-LOCK WHERE ROWID(oe-ord) EQ roOeOrd NO-ERROR.
 
         /* If they chose not to update existing then return */
-        IF NOT loUpdatePO AND AVAIL(po-ord) THEN 
-        DO:
-            IF loDebug THEN             
-                PUT STREAM sDebug UNFORMATTED "Return since choose not to update existing " ttJobMaterial.i-no  SKIP.
-            /* RETURN. WFK - taken out so that prompts for remaining RMs */
-            NEXT outers.
-        END.
+        IF NOT loUpdatePO AND AVAIL(tt-po-ord) THEN 
+            NEXT outers.       
     
         /* update oe-ordl.po-no-po and vend-no */
-        RUN pProcessExisting(INPUT ipchCompany,
+        RUN pProcessExisting(INPUT ttJobMaterial.Company,
             INPUT roOeOrdl,
             INPUT loFirstOfJobFrm,
             INPUT ROWID(ttJobMaterial),
@@ -3018,7 +2652,8 @@ PROCEDURE pProcessJobMat PRIVATE:
         
         /* Find existing PO for a due date and vendor. */
         IF loUpdatePO = TRUE THEN
-            RUN pFindExistingPo (INPUT ttJobMaterial.po-no, 
+            RUN pFindExistingPo (INPUT ttJobMaterial.Company,
+                INPUT ttJobMaterial.po-no, 
                 INPUT ttJobMaterial.DropShipment,
                 INPUT ttJobMaterial.vendorID,
                 INPUT ttJobMaterial.PODate,
@@ -3026,51 +2661,49 @@ PROCEDURE pProcessJobMat PRIVATE:
                 OUTPUT lPoExists, 
                 OUTPUT roPoOrd).
         
-        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ roPoOrd NO-ERROR.
+        FIND tt-po-ord NO-LOCK WHERE ROWID(tt-po-ord) EQ roPoOrd NO-ERROR.
         FIND oe-ord NO-LOCK WHERE ROWID(oe-ord) EQ roOeOrd NO-ERROR.
           
         IF NOT lPoExists THEN 
         DO:            
             IF loUpdatePO = FALSE THEN 
             DO:                
-                RUN pCreatePoOrd (INPUT roOeOrd, INPUT ttJobMaterial.DropShipment, OUTPUT roPoOrd, OUTPUT loNextOuters).
+                RUN pCreatePoOrd (INPUT ttJobMaterial.Company,
+                                  INPUT roOeOrd, 
+                                  INPUT ttJobMaterial.DropShipment, 
+                                  OUTPUT roPoOrd,
+                                  OUTPUT loNextOuters).
                 
                 IF loNextOuters THEN 
-                DO:                   
-                    IF loDebug THEN             
-                        PUT STREAM sDebug UNFORMATTED "Skip do to createPoOrd " ttJobMaterial.i-no  SKIP.
                     NEXT outers.
-                END.
-                
-                FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ roPoOrd NO-ERROR.
+                                
+                FIND tt-po-ord NO-LOCK WHERE ROWID(tt-po-ord) EQ roPoOrd NO-ERROR.
    
-            END. /* Not avail po-ord then add it */
+            END. /* Not avail tt-po-ord then add it */
         END.
 
-        /* Assign po values to oe-ordl and assign vend values to po-ord */
-        RUN pSetPoValues(INPUT loFirstOfJobFrm, 
+        /* Assign po values to oe-ordl and assign vend values to tt-po-ord */
+        RUN pSetPoValues(INPUT ttJobMaterial.Company,
+            INPUT loFirstOfJobFrm, 
             INPUT roPoOrd,   
             INPUT roOeOrdl,
             INPUT ROWID(ttJobMaterial)).
                   
-        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ roPoOrd NO-ERROR.
+        FIND tt-po-ord NO-LOCK WHERE ROWID(tt-po-ord) EQ roPoOrd NO-ERROR.
 
-        IF NOT AVAILABLE po-ord THEN 
+        IF NOT AVAILABLE tt-po-ord THEN 
         DO:
             RUN pAddError(INPUT "Error: No Po found (after assign po values)", INPUT "4", INPUT 0, INPUT 0, INPUT 0).
             NEXT.
         END.
 
         FIND b-item NO-LOCK WHERE ROWID(b-item) EQ roItem NO-ERROR.
-        FIND vend NO-LOCK WHERE ROWID(vend) EQ roVend NO-ERROR.
-
-        IF loDebug THEN             
-            PUT STREAM sDebug UNFORMATTED "Create PO Line " ttJobMaterial.i-no  SKIP.
-        
+        FIND vend NO-LOCK WHERE ROWID(vend) EQ roVend NO-ERROR.       
         FIND bf-ordl NO-LOCK WHERE ROWID(bf-ordl) EQ roOeOrdl NO-ERROR.
 
-        /* creates po-ordl */
-        RUN pCreatePoOrdl (INPUT roPoOrd,
+        /* creates tt-po-ordl */
+        RUN pCreatePoOrdl (INPUT ttJobMaterial.Company,
+            INPUT roPoOrd,
             INPUT roOeOrdl,
             INPUT ROWID(ttJobMaterial),
             INPUT roItem,
@@ -3078,22 +2711,22 @@ PROCEDURE pProcessJobMat PRIVATE:
 
         FIND itemfg NO-LOCK WHERE ROWID(itemfg) EQ roItemFG NO-ERROR.
 
-        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ roPoOrd NO-ERROR.
-        IF NOT AVAILABLE po-ord THEN 
+        FIND tt-po-ord NO-LOCK WHERE ROWID(tt-po-ord) EQ roPoOrd NO-ERROR.
+        IF NOT AVAILABLE tt-po-ord THEN 
         DO:
             RUN pAddError(INPUT "Error: No Po found (after create po-ordl)", INPUT "4", INPUT 0, INPUT 0, INPUT 0).            
-            NEXT.
+            NEXT outers.
         END.
 
-        FIND po-ordl NO-LOCK WHERE ROWID(po-ordl) EQ roPoOrdl NO-ERROR.
-        IF NOT AVAILABLE po-ordl THEN 
+        FIND tt-po-ordl NO-LOCK WHERE ROWID(tt-po-ordl) EQ roPoOrdl NO-ERROR.
+        IF NOT AVAILABLE tt-po-ordl THEN 
         DO:
             RUN pAddError(INPUT "PO Line not available, skipping it", INPUT "4", INPUT 0, INPUT 0, INPUT 0).            
             NEXT outers.
         END.
 
         /* set values from item and ttJobMaterial */
-        IF po-ordl.item-type THEN
+        IF tt-po-ordl.item-type THEN
             RUN pSetPoOrdRm (INPUT roPoOrd,
                 INPUT roPoOrdl,
                 INPUT roItem,
@@ -3102,90 +2735,85 @@ PROCEDURE pProcessJobMat PRIVATE:
                 INPUT roJob).
         ELSE
             /* Set values from itemfg */
-            RUN pSetPoOrdlFg (INPUT roPoOrd,
+            RUN pSetPoOrdlFg (INPUT ttJobMaterial.Company,
+                INPUT roPoOrd,
                 INPUT roPoOrdl,
                 INPUT roItemFG,
                 INPUT ROWID(ttJobMaterial),
                 INPUT roOeOrdl,
                 INPUT roJob).
-
-        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ roPoOrd NO-ERROR.
-        IF NOT AVAILABLE po-ord THEN 
+        
+        FIND tt-po-ord NO-LOCK WHERE ROWID(tt-po-ord) EQ roPoOrd NO-ERROR.
+        IF NOT AVAILABLE tt-po-ord THEN 
         DO:
-            RUN pAddError(INPUT "Error: No Po found (after assign po-ordl)", INPUT "4", INPUT 0, INPUT 0, INPUT 0).            
-            NEXT.
+            RUN pAddError(INPUT "Error: No Po found (after assign tt-po-ordl)", INPUT "4", INPUT 0, INPUT 0, INPUT 0).            
+            NEXT outers.
         END.
 
-        FIND po-ordl NO-LOCK WHERE ROWID(po-ordl) EQ roPoOrdl NO-ERROR.
+        FIND tt-po-ordl NO-LOCK WHERE ROWID(tt-po-ordl) EQ roPoOrdl NO-ERROR.
 
-        IF NOT AVAILABLE po-ordl THEN 
+        IF NOT AVAILABLE tt-po-ordl THEN 
         DO:
             RUN pAddError(INPUT 'Error: No Po Line available (main block)', INPUT "4", INPUT 0, INPUT 0, INPUT 0).
             
-            NEXT.
+            NEXT outers.
         END.
 
-
-        IF po-ordl.item-type THEN 
-        DO:  
-            IF NOT AVAILABLE tt-ei THEN
-                FIND FIRST tt-ei
-                    WHERE tt-ei.company EQ ipchCompany
-                    AND tt-ei.i-no    EQ ttJobMaterial.rm-i-no
-                    NO-LOCK NO-ERROR.
-
-            IF AVAILABLE tt-ei THEN
-                roTT-ei = ROWID(tt-ei).
-            ELSE 
-                roTT-ei = ?.
-
-            /* get chNewItemNo, v-new-len, v-new-wid, set po-ordl.cons-uom and pr-uom */
+        IF tt-po-ordl.item-type THEN 
+        DO: 
+            /* get chNewItemNo, v-new-len, v-new-wid, set tt-po-ordl.cons-uom and pr-uom */
             RUN pPoOrdlAddVals(INPUT roPoOrdl,
                 INPUT roItem,
                 INPUT ROWID(ttJobMaterial),
                 INPUT roOeOrdl,
-                INPUT roTT-ei).
+                OUTPUT loNextOuters).
+                
+            IF loNextOuters THEN 
+                NEXT outers.                
         END. /* run poOrdlAddVals */ 
         
-        /* Get len, wid, depth from item. Set po-ordl.cust-no */
-        RUN calcLenWid (INPUT roPoOrd,
+        /* Get len, wid, depth from item. Set tt-po-ordl.cust-no */
+        RUN pCalcLenWid (INPUT roPoOrd,
             INPUT roPoOrdl,
             INPUT roItem).
 
-        /* get po-ordl.ord-qty from job-hdr, ttJobMaterial or oe-ordl */
-        IF po-ordl.item-type THEN 
+        /* get tt-po-ordl.ord-qty from job-hdr, ttJobMaterial or oe-ordl */
+        IF tt-po-ordl.item-type THEN 
             RUN pCalcEstValues (INPUT roPoOrdl,
                 INPUT roJob,
                 INPUT ROWID(ttJobMaterial),
                 INPUT roOeOrdl,
                 INPUT roItem).
-        /* Set po-ordl.s-num and b-num. UOM Conversion on po-ordl.ord-qty */
+                
+        /* Set tt-po-ordl.s-num and b-num. UOM Conversion on tt-po-ordl.ord-qty */
         RUN pCalcOrdQty    (INPUT roPoOrdl, INPUT ROWID(ttJobMaterial)).
 
-        /* get po-ordl.cost from ttJobMaterial or deItemCost */
-        RUN pCalcCostSetup (INPUT roTT-ei, 
-            INPUT ROWID(ttJobMaterial),
-            INPUT roPoOrdl,
-            INPUT chVendItem).
+        /* get tt-po-ordl.cost from ttJobMaterial or deItemCost */
+        RUN pCalcCostSetup (INPUT ROWID(ttJobMaterial),
+            INPUT roPoOrdl).
 
-        /*  Calculate v-tot-msf. Set po-ordl.s-len and s-wid */
+        /*  Calculate v-tot-msf. Set tt-po-ordl.s-len and s-wid */
         RUN pCalcMSF       (INPUT roPoOrdl).
 
         /* runs po/po-adder.p and po/po-vendc.i */
-        RUN pProcessAdders (INPUT ROWID(ttJobMaterial), INPUT roPoOrdl, INPUT roPoOrd).
+        RUN pProcessAdders (INPUT ttJobMaterial.Company, 
+                            INPUT ROWID(ttJobMaterial), 
+                            INPUT roPoOrdl, 
+                            INPUT roPoOrd).
 
-        /* UOM conversion for po-ordl.cost */
-        RUN pCalcCost(INPUT roTT-ei, INPUT roPoOrdl).
+        /* UOM conversion for tt-po-ordl.cost */
+        RUN pCalcCost(INPUT ttJobMaterial.Company, 
+                      INPUT roPoOrdl).
 
         RELEASE b-item.
   
         /* Warns user of zero length or width in Job */
-        RUN pZeroLenWarning (INPUT roPoOrdl, OUTPUT roItem).
+        RUN pZeroLenWarning (INPUT ttJobMaterial.Company, INPUT roPoOrdl, OUTPUT roItem).
 
         FIND b-item WHERE ROWID(b-item) EQ roItem NO-LOCK NO-ERROR.
-        FIND po-ordl WHERE ROWID(po-ordl) EQ roPoOrdl NO-LOCK NO-ERROR.
+        FIND tt-po-ordl WHERE ROWID(tt-po-ordl) EQ roPoOrdl NO-LOCK NO-ERROR.
 
-        IF (AVAILABLE b-item AND index("1234BPR",b-item.mat-type) GT 0) OR NOT po-ordl.item-type THEN 
+        IF (AVAILABLE b-item AND index("1234BPR",b-item.mat-type) GT 0) OR NOT tt-po-ordl.item-type THEN 
         DO:    
             /* Validate than Length was entered */
             RUN pBrdLenCheck (INPUT roPoOrdl).
@@ -3193,10 +2821,10 @@ PROCEDURE pProcessJobMat PRIVATE:
             /* UOM conversions to handle zere line qty or cost. Calculate oe-ordl.cost  */
             RUN pCheckZeroQty (INPUT roPoOrdl).
 
-            /* Calculate po-ordl.t-cost and cons-cost */
+            /* Calculate tt-po-ordl.t-cost and cons-cost */
             RUN pCalcExtCost (INPUT roPoOrdl).
 
-            /* Find po-ordl and set v-old-i-no, v-tot-ord and po-ordl.dscr */
+            /* Find tt-po-ordl and set v-old-i-no, v-tot-ord and tt-po-ordl.dscr */
             RUN pAddHeaderTot (INPUT roPoOrdl).
 
             /* If chNewItemNo is a valid item, set ttJobMaterial.rm-i-no to it */
@@ -3206,31 +2834,31 @@ PROCEDURE pProcessJobMat PRIVATE:
 
         END. /* if avail b-item ... */
                 
-        FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ roPoOrd NO-ERROR.
-        IF NOT AVAILABLE po-ord THEN 
+        FIND tt-po-ord NO-LOCK WHERE ROWID(tt-po-ord) EQ roPoOrd NO-ERROR.
+        IF NOT AVAILABLE tt-po-ord THEN 
         DO:
             RUN pAddError(INPUT "Internal Error - PO not found.", INPUT "3", INPUT 0, INPUT 0, INPUT 0).            
-            NEXT.
+            NEXT outers.
         END.
         
         /* Check user po limit */
-        RUN pCheckUserLimit(BUFFER po-ord).
+        RUN pCheckUserLimit(BUFFER tt-po-ord).
         
         /* Calculate PO Header Totals */
-        RUN po/po-total.p (RECID(po-ord)).
+        RUN po/po-total.p (RowID(tt-po-ord)).
 
         /* CHECK for exceeding vendor's max PO Cost and worn for it (set lohold) */
         RUN pValidMaxCost (roPoOrd).
 
-        FIND po-ordl WHERE ROWID(po-ordl) EQ roPoOrdl NO-LOCK NO-ERROR.
-        IF NOT AVAILABLE po-ordl THEN 
+        FIND tt-po-ordl WHERE ROWID(tt-po-ordl) EQ roPoOrdl NO-LOCK NO-ERROR.
+        IF NOT AVAILABLE tt-po-ordl THEN 
         DO:
             RUN pAddError(INPUT "Error - Po Line not found (22)", INPUT "3", INPUT 0, INPUT 0, INPUT 0).            
-            NEXT.
+            NEXT outers.
         END.
 
         /* Update item inventory totals */
-        RUN pPoordlUp (RECID(po-ordl), 1, loCountUpdate).
+        RUN pPoordlUp (RowID(tt-po-ordl), 1, loCountUpdate).
 
     END. /* each ttJobMaterial */
 END PROCEDURE.
@@ -3244,10 +2872,9 @@ PROCEDURE pPromptUpdPoNum PRIVATE:
     DEFINE INPUT  PARAMETER iploDropShip    AS LOGICAL     NO-UNDO.
     DEFINE INPUT  PARAMETER iploUpdatePO    AS LOGICAL     NO-UNDO.
     DEFINE OUTPUT PARAMETER oprPoOrd        AS ROWID       NO-UNDO.
-    DEFINE OUTPUT PARAMETER oprTT-eiv       AS ROWID       NO-UNDO.
     DEFINE OUTPUT PARAMETER oploNextOuters  AS LOGICAL     NO-UNDO.
 
-    DEFINE VARIABLE fil_id AS RECID NO-UNDO.
+    DEFINE VARIABLE fil_id AS RowID NO-UNDO.
     
     oploNextOuters = FALSE.
     
@@ -3258,321 +2885,20 @@ PROCEDURE pPromptUpdPoNum PRIVATE:
         AND (po-ord.type     EQ "D" OR NOT iploDropShip)
         NO-ERROR.
 
-    IF AVAILABLE po-ord AND NOT po-ord.opened THEN 
-    DO: 
-        oploNextOuters = TRUE.
-    END. /* If PO was found but was not opened */
-    ELSE 
-    DO: 
-        IF AVAILABLE po-ord AND po-ord.opened AND loAutoPoSec AND iploUpdatePO THEN 
-        DO: 
-            FIND FIRST tt-eiv WHERE tt-eiv.vend-no EQ po-ord.vend-no NO-ERROR.
-        END.
-
+    IF AVAILABLE po-ord THEN
+    DO:
+        IF NOT po-ord.opened THEN 
+            ASSIGN oploNextOuters = TRUE.
         ELSE 
-            FIND FIRST tt-eiv WHERE tt-eiv.rec-id EQ fil_id NO-LOCK NO-ERROR.
-
-        IF AVAILABLE tt-eiv THEN
-            oprTT-eiv = ROWID(tt-eiv). 
-              
-        IF AVAILABLE po-ord THEN 
-        DO:
-            oprPoOrd = ROWID(po-ord).      
-        END.      
-    END. /* NOT If PO was found but was not opened */
-END PROCEDURE.
-
-PROCEDURE pRevCreateTtEiv PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Revisized CreateTtEiv procedure to use vendItemCost table
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER iprItemfg  AS ROWID       NO-UNDO.
-    DEFINE INPUT  PARAMETER iprWJobMat AS ROWID       NO-UNDO.
-    
-    DEFINE BUFFER bf-ttJobMaterial FOR ttJobMaterial.
-    
-    FIND bf-ttJobMaterial NO-LOCK WHERE ROWID(bf-ttJobMaterial) EQ iprWJobMat
-        NO-ERROR.
-    FIND itemfg WHERE ROWID(itemfg) EQ iprItemfg NO-LOCK NO-ERROR.
-    IF NOT AVAILABLE itemfg THEN
-        RETURN ERROR.
-
-    FIND FIRST vendItemCost NO-LOCK    
-        WHERE vendItemCost.company EQ itemfg.company
-        AND vendItemCost.ItemID    EQ itemfg.i-no
-        AND vendItemCost.ItemType  EQ "FG"
-        AND vendItemCost.effectiveDate LE TODAY
-        AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
-        NO-ERROR.        
-    IF AVAILABLE vendItemCost THEN 
-    DO:    
-        CREATE tt-ei.
-        ASSIGN 
-            tt-ei.company = itemfg.company
-            tt-ei.i-no    = itemfg.i-no
-            tt-ei.std-uom = vendItemCost.VendorUOM
-            .        
-    END.
-    IF bf-ttJobMaterial.est-no NE "" THEN 
-    DO:
-        inIndex = 0.      
-        FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ itemfg.company
-            AND vendItemCost.estimateNo EQ bf-ttJobMaterial.est-no
-            AND vendItemCost.formNo EQ bf-ttJobMaterial.frm
-            AND vendItemCost.blankNo EQ bf-ttJobMaterial.blank-no
-            AND vendItemCost.ItemID    EQ itemfg.i-no
-            AND vendItemCost.ItemType EQ "FG" 
-            AND vendItemCost.effectiveDate LE TODAY
-            AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?),
-          
-            EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
-            /* AND venditemcostlevel.quantityfrom <= fGetVendCostQty(bf-ttJobMaterial.qty, bf-ttJobMaterial.qty-uom, venditemcost.vendorUom)
-             AND venditemcostlevel.quantityto >= fGetVendCostQty(bf-ttJobMaterial.qty, bf-ttJobMaterial.qty-uom, venditemcost.vendorUom)             
-             */
-            BY vendItemCostLevel.vendItemCostLevelID:
-         
-            /*IF NOT CAN-FIND(FIRST tt-eiv
-                WHERE tt-eiv.company   EQ e-itemfg-vend.company
-                AND tt-eiv.i-no      EQ bf-ttJobMaterial.i-no
-                AND tt-eiv.vend-no   EQ e-itemfg-vend.vend-no) THEN 
-            */                   
-               
-            IF  venditemcostlevel.quantityfrom <= fGetVendCostQty(bf-ttJobMaterial.qty, bf-ttJobMaterial.qty-uom, venditemcost.vendorUom)
-                AND venditemcostlevel.quantityto >= fGetVendCostQty(bf-ttJobMaterial.qty, bf-ttJobMaterial.qty-uom, venditemcost.vendorUom)
-                THEN .
-            ELSE NEXT.                          
-             
-            inIndex = inIndex + 1.    
-            FIND FIRST tt-eiv WHERE tt-eiv.rec_key = vendItemCostLevel.rec_key NO-ERROR.
-            IF NOT AVAILABLE tt-eiv THEN 
-            DO:       
-                CREATE tt-eiv.
-                ASSIGN 
-                    tt-eiv.rec_key = vendItemCostLevel.rec_key.
-                tt-eiv.rec-id    = RECID(vendItemCostLevel).
-                tt-eiv.est-no    = "".
-                tt-eiv.i-no      = vendItemCost.itemID.
-                tt-eiv.form-no   = 0.
-                tt-eiv.blank-no  = 0.
-                tt-eiv.company   = vendItemCost.company.
-                tt-eiv.vend-no   = vendItemCost.vendorID.
-                tt-eiv.vend-i-no = vendItemCost.vendorItemID.
-                tt-eiv.item-type = IF vendItemCost.itemType = "RM" THEN YES ELSE NO.
-            END.                                
-            ASSIGN 
-                tt-eiv.roll-w[27] = venditemCost.dimWidthMinimum
-                tt-eiv.roll-w[28] = venditemCost.dimWidthMaximum
-                tt-eiv.roll-w[29] = venditemCost.dimlengthMinimum
-                tt-eiv.roll-w[30] = venditemCost.dimlengthMaximum.
-                   
-            IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20 */
-                inIndex GT 0 AND inIndex LE 20 THEN 
-                ASSIGN /*inIndex                  = vendItemCostLevel.vendItemCostLevelID*/
-                    tt-eiv.run-qty[inIndex]  = vendItemCostLevel.quantityBase  /* e-item-vend.run-qty[inIndex]*/
-                    tt-eiv.run-cost[inIndex] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[inIndex] */
-                    tt-eiv.setups[inIndex]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[inIndex] */
-                    .
-            IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 30*/
-                inIndex GT 0 AND inIndex LE 26 THEN           
-                ASSIGN tt-eiv.roll-w[inIndex] = vendItemCost.validWidth[inIndex] /* e-itemfg-vend.roll-w[inIndex] */   
-                    .
-                            
-        END. /* each vendcostitem */
-    END. /* if est-no <> "" */ 
-    inIndex = 0.
-    IF NOT CAN-FIND(FIRST tt-eiv) THEN
-        FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ itemfg.company
-            AND vendItemCost.estimateNo EQ ""
-            /*        AND vendItemCost.formNo EQ bf-ttJobMaterial.frm       */
-            /*        AND vendItemCost.blankNo EQ bf-ttJobMaterial.blank-no */
-            AND vendItemCost.ItemID    EQ itemfg.i-no
-            AND vendItemCost.ItemType EQ "FG"
-            AND vendItemCost.effectiveDate LE TODAY
-            AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?),
-                                                     
-            EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
-            BY vendItemCostLevel.vendItemCostLevelID:    
-    
-            inIndex = inIndex + 1.
-            IF NOT CAN-FIND(FIRST tt-eiv
-                WHERE tt-eiv.company   EQ vendItemCost.company
-                AND tt-eiv.i-no      EQ vendItemCost.ItemId
-                AND tt-eiv.vend-no   EQ vendItemCost.vendorID) THEN 
-            DO:
-                CREATE tt-eiv.
-                ASSIGN 
-                    tt-eiv.rec_key = vendItemCostLevel.rec_key.
-                tt-eiv.rec-id    = RECID(vendItemCostLevel).
-                tt-eiv.est-no    = "".
-                tt-eiv.i-no      = vendItemCost.itemID.
-                tt-eiv.form-no   = 0.
-                tt-eiv.blank-no  = 0.
-                tt-eiv.company   = vendItemCost.company.
-                tt-eiv.vend-no   = vendItemCost.vendorID.
-                tt-eiv.vend-i-no = vendItemCost.vendorItemID.
-                tt-eiv.item-type = IF vendItemCost.itemType = "RM" THEN YES ELSE NO.
-                                       
-                roTT-eiv = ROWID(tt-eiv).
-            END.
-            ASSIGN 
-                tt-eiv.roll-w[27] = venditemCost.dimWidthMinimum
-                tt-eiv.roll-w[28] = venditemCost.dimWidthMaximum
-                tt-eiv.roll-w[29] = venditemCost.dimlengthMinimum
-                tt-eiv.roll-w[30] = venditemCost.dimlengthMaximum                                
-                .   
-            IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20*/
-                inIndex GT 0 AND inIndex LE 20 THEN 
-                ASSIGN /*inIndex                  = vendItemCostLevel.vendItemCostLevelID*/
-                    tt-eiv.run-qty[inIndex]  = vendItemCostLevel.quantityTo  /* e-item-vend.run-qty[inIndex]*/
-                    tt-eiv.run-cost[inIndex] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[inIndex] */
-                    tt-eiv.setups[inIndex]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[inIndex] */
-                    .
-            IF /*vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 30 */
-                inIndex GT 0 AND inIndex LE 26 THEN           
-                ASSIGN tt-eiv.roll-w[inIndex] = vendItemCost.validWidth[inIndex] /* e-itemfg-vend.roll-w[inIndex] */   
-                    .                        
-                            
-        END.
-END PROCEDURE.
-
-PROCEDURE pRevCreateTtEivVend PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipchCompany AS CHARACTER   NO-UNDO.
-    DEFINE INPUT  PARAMETER iprJobMat   AS ROWID       NO-UNDO.
-    DEFINE INPUT  PARAMETER iplPoBest   AS LOGICAL     NO-UNDO.
-    DEFINE OUTPUT PARAMETER oprItem     AS ROWID       NO-UNDO.
- 
-    DEFINE VARIABLE dQtyInVendorUOM AS DECIMAL NO-UNDO.
-    
-    DEFINE BUFFER bf-ttJobMaterial FOR ttJobMaterial.
-    FIND bf-ttJobMaterial NO-LOCK WHERE ROWID(bf-ttJobMaterial) EQ iprJobMat
-        NO-ERROR.
-    IF loDebug THEN             
-        PUT STREAM sDebug UNFORMATTED "createTtEiv-from-item-vend " bf-ttJobMaterial.i-no  SKIP.
-  
-    RELEASE ITEM.
-
-    IF bf-ttJobMaterial.prep EQ NO THEN
-    DO:
-        IF iplPoBest EQ NO THEN
-            FIND FIRST ITEM NO-LOCK
-                WHERE item.company  EQ ipchCompany
-                AND item.i-no     EQ bf-ttJobMaterial.rm-i-no
-                AND index("1234BPR",item.mat-type) GT 0
-                NO-ERROR.
-        ELSE
-            FIND FIRST ITEM NO-LOCK
-                WHERE item.company  EQ ipchCompany
-                AND item.i-no     EQ bf-ttJobMaterial.rm-i-no
-                AND item.mat-type EQ "B"
-                NO-ERROR.
-    END. /* If bf-ttJobMaterial.prep EQ NO */
-    ELSE
-        FIND FIRST ITEM NO-LOCK
-            WHERE item.company  EQ ipchCompany
-            AND item.i-no     EQ bf-ttJobMaterial.rm-i-no
-            NO-ERROR.
-
-    IF NOT AVAILABLE item THEN RETURN.
-    
-    /*===    
-    cScope = "Effective and Not Expired" /* DYNAMIC-FUNCTION("GetValidScopes")*/ .
-    lIncludeBlankVendor = NO.
-    
-    RUN BuildVendItemCosts(ipchCompany, ITEM.i-no, "RM", cScope, lIncludeBlankVendor,
-        10000, "EA", 
-        deS-Len, deS-wid, 0, "IN",
-        item.basis-w, "LBS/MSF", 
-        OUTPUT TABLE ttVendItemCost,
-        OUTPUT lError, OUTPUT cMessage).
-        
-    FOR EACH ttVendItemCost NO-LOCK    BY ttVendItemCost.costTotal: 
-        DISPLAY ttVendItemCost.quantityTargetInVendorUOM ttVendItemCost.isValid ttVendItemCost.vendorID ttVendItemCost.costTotal ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM.                
-    END.    
-    
-   ===*/
-    
-    FIND FIRST vendItemCost NO-LOCK    
-        WHERE vendItemCost.company EQ item.company
-        AND vendItemCost.ItemID    EQ item.i-no
-        AND vendItemCost.ItemType EQ "RM"
-        AND vendItemCost.effectiveDate LE TODAY
-        AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
-        NO-ERROR.
-    IF AVAILABLE vendItemCost THEN 
-    DO:    
-        CREATE tt-ei.
-        ASSIGN 
-            tt-ei.company = item.company
-            tt-ei.i-no    = item.i-no
-            tt-ei.std-uom = vendItemCost.VendorUOM
-            .        
-    END.
-    inIndex = 0. 
- 
-    FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ ITEM.company
-        AND vendItemCost.ItemID    EQ item.i-no
-        AND vendItemCost.ItemType EQ "RM" 
-        AND bf-ttJobMaterial.wid GE venditemCost.dimWidthMinimum AND (bf-ttJobMaterial.wid LE venditemCost.dimWidthMaximum OR venditemCost.dimWidthMaximum EQ 0)
-        AND bf-ttJobMaterial.len GE venditemCost.dimlengthMinimum AND (bf-ttJobMaterial.len LE venditemCost.dimlengthMaximum OR venditemCost.dimlengthMaximum EQ 0)
-        AND vendItemCost.effectiveDate LE TODAY
-        AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?),
-                                                     
-        EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
-        BY vendItemCostLevel.vendItemCostLevelID:  
-        dQtyInVendorUOM = fGetVendCostQty(bf-ttJobMaterial.qty, bf-ttJobMaterial.qty-uom, venditemcost.vendorUom).
-        IF  dQtyInVendorUOM LT venditemcostlevel.quantityfrom
-            OR dQtyInVendorUOM GT venditemcostlevel.quantityto 
-            THEN NEXT.  
-                        
-        inIndex = inIndex + 1.         
-        FIND FIRST tt-eiv WHERE tt-eiv.rec_key = vendItemCostLevel.rec_key NO-ERROR.
-        IF NOT AVAILABLE tt-eiv THEN 
-        DO:                   
-            CREATE tt-eiv.
-            ASSIGN 
-                tt-eiv.rec_key = vendItemCostLevel.rec_key.
-            tt-eiv.rec-id    = RECID(vendItemCostLevel).
-            tt-eiv.est-no    = vendItemCost.estimateNo .
-            tt-eiv.i-no      = vendItemCost.itemID.
-            tt-eiv.form-no   = vendItemCost.formNo.
-            tt-eiv.blank-no  = vendItemCost.blankNo.
-            tt-eiv.company   = vendItemCost.company.
-            tt-eiv.vend-no   = vendItemCost.vendorID.
-            tt-eiv.vend-i-no = vendItemCost.vendorItemID.
-            tt-eiv.item-type = IF vendItemCost.itemType = "RM" THEN YES ELSE NO
-                .
-            ASSIGN     
-                tt-eiv.roll-w[27] = venditemCost.dimWidthMinimum
-                tt-eiv.roll-w[28] = venditemCost.dimWidthMaximum
-                tt-eiv.roll-w[29] = venditemCost.dimlengthMinimum
-                tt-eiv.roll-w[30] = venditemCost.dimlengthMaximum
-                .        
-        END.  
-        IF /* vendItemCostLevel.vendItemCostLevelID GT 0 AND vendItemCostLevel.vendItemCostLevelID LE 20 */
-            inIndex GT 0 AND inIndex LE 20 THEN 
-            ASSIGN /*inIndex                  = (vendItemCostLevel.vendItemCostLevelID*/
-                tt-eiv.run-qty[inIndex]  = vendItemCostLevel.quantityTo  /* e-item-vend.run-qty[inIndex]*/
-                tt-eiv.run-cost[inIndex] = vendItemCostLevel.costPerUOM  /* e-item-vend.run-cost[inIndex] */
-                tt-eiv.setups[inIndex]   = vendItemCostLevel.costSetup   /* e-itemfg-vend.setups[inIndex] */
-                .
-        IF inIndex GT 0 AND inIndex LE 26 THEN           
-            ASSIGN tt-eiv.roll-w[inIndex] = vendItemCost.validWidth[inIndex] /* e-itemfg-vend.roll-w[inIndex] */   
-                .
-    END.
-    
-    oprItem = ROWID(ITEM).
-
+            ASSIGN oprPoOrd = ROWID(po-ord).
+    END. /* If PO was found but was not opened */
 END PROCEDURE.
  
 PROCEDURE pSetPoOrdlFg PRIVATE:
     /*------------------------------------------------------------------------------
       Purpose:    
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipchCompany AS CHARACTER   NO-UNDO.
     DEFINE INPUT  PARAMETER iprPoOrd    AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprPoOrdl   AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprItemFg   AS ROWID       NO-UNDO.
@@ -3602,11 +2928,7 @@ PROCEDURE pSetPoOrdlFg PRIVATE:
     END.
 
     IF AVAILABLE bf-itemfg THEN 
-    DO:
-        FIND FIRST tt-ei NO-LOCK 
-            WHERE tt-ei.company EQ ipchCompany
-            AND tt-ei.i-no    EQ bf-itemfg.i-no
-            NO-ERROR.
+    DO:        
         IF AVAILABLE bf-job THEN
             FIND FIRST xest NO-LOCK
                 WHERE xest.company EQ bf-po-ordl.company
@@ -3635,17 +2957,10 @@ PROCEDURE pSetPoOrdlFg PRIVATE:
                 bf-po-ordl.s-num = xeb.form-no
                 bf-po-ordl.b-num = xeb.blank-no.
             
-        IF NOT AVAILABLE tt-ei THEN
-            FIND FIRST tt-ei
-                WHERE tt-ei.company EQ ipchCompany
-                AND tt-ei.i-no    EQ bf-ttJobMaterial.rm-i-no
-                NO-LOCK NO-ERROR.
-  
-        IF AVAILABLE tt-ei THEN
-            bf-po-ordl.pr-uom = tt-ei.std-uom.
+        //bf-po-ordl.pr-uom = tt-ei.std-uom. - Varun
            
         bf-po-ordl.ord-no = IF AVAILABLE bf-ordl THEN bf-ordl.ord-no ELSE 0.
-        FIND oe-ordl EXCLUSIVE-LOCK WHERE RECID(oe-ordl) EQ reORDRecId NO-ERROR.
+        FIND oe-ordl EXCLUSIVE-LOCK WHERE ROWID(oe-ordl) EQ reORDRowId NO-ERROR.
   
         IF AVAILABLE oe-ordl THEN
         DO:
@@ -3733,6 +3048,7 @@ PROCEDURE pSetPoOrdlFg PRIVATE:
 
     FIND CURRENT bf-po-ordl NO-LOCK NO-ERROR.
     RELEASE bf-po-ordl.
+    RELEASE bf-ttJobMaterial.
 
 END PROCEDURE.
  
@@ -3748,8 +3064,8 @@ PROCEDURE pSetPoOrdRm PRIVATE:
     DEFINE INPUT  PARAMETER iprJob      AS ROWID       NO-UNDO.
 
     DEFINE BUFFER bf-ttJobMaterial FOR ttJobMaterial.
-    DEFINE BUFFER bf-po-ordl       FOR po-ordl.
-    DEFINE BUFFER bf-po-ord        FOR po-ord.
+    DEFINE BUFFER bf-po-ordl       FOR tt-po-ordl.
+    DEFINE BUFFER bf-po-ord        FOR tt-po-ord.
     DEFINE BUFFER b-item           FOR ITEM .
     DEFINE BUFFER bf-ordl          FOR oe-ordl.
     DEFINE BUFFER bf-job           FOR job.
@@ -3780,9 +3096,9 @@ PROCEDURE pSetPoOrdRm PRIVATE:
 
 
     /* populate GL# from job-hdr.i-no + itemfg tables, then reftable AH 02-24-10*/
-    IF reJobRecid <> ? THEN 
+    IF reJobRowid <> ? THEN 
     DO:
-        FIND b-job-hdr NO-LOCK WHERE RECID(b-job-hdr) = reJobRecid NO-ERROR.
+        FIND b-job-hdr NO-LOCK WHERE RowID(b-job-hdr) = reJobRowid NO-ERROR.
 
         /* Get gl actnum for a itemfg */
         IF AVAILABLE b-job-hdr THEN 
@@ -3792,11 +3108,6 @@ PROCEDURE pSetPoOrdRm PRIVATE:
             ASSIGN bf-po-ordl.actnum = chActnum.
     END.
     RELEASE b-job-hdr.
-
-    FIND FIRST tt-ei
-        WHERE tt-ei.company EQ ipchCompany
-        AND tt-ei.i-no    EQ b-item.i-no
-        NO-LOCK NO-ERROR.
 
     ASSIGN
         bf-po-ordl.s-num      = bf-ttJobMaterial.frm
@@ -3819,6 +3130,7 @@ PROCEDURE pSetPoOrdRm PRIVATE:
     bf-po-ordl.ord-no = IF AVAILABLE bf-ordl THEN bf-ordl.ord-no ELSE 0.
     FIND CURRENT bf-po-ordl NO-LOCK.
     RELEASE bf-po-ordl.
+    RELEASE bf-ttJobMaterial.
 
 END PROCEDURE.
  
@@ -3826,20 +3138,21 @@ PROCEDURE pSetPoValues PRIVATE:
     /*------------------------------------------------------------------------------
       Purpose:     procedure Assign PO ord values from vend and sales order
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipchCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplFirstOfFrm AS LOGICAL     NO-UNDO.
     DEFINE INPUT  PARAMETER iprPoOrd      AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprOeOrdl     AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprWJobMat    AS ROWID       NO-UNDO.
 
     DEFINE BUFFER bf-ordl          FOR oe-ordl.
-    DEFINE BUFFER bf-po-ord        FOR po-ord.
+    DEFINE BUFFER bf-po-ord        FOR tt-po-ord.
     DEFINE BUFFER bf-ttJobMaterial FOR ttJobMaterial.
 
     FIND bf-po-ord EXCLUSIVE-LOCK WHERE ROWID(bf-po-ord) EQ iprPoOrd NO-ERROR.
     FIND bf-ordl EXCLUSIVE-LOCK WHERE ROWID(bf-ordl) EQ iprOeOrdl NO-ERROR.
     FIND bf-ttJobMaterial  NO-LOCK WHERE ROWID(bf-ttJobMaterial) EQ iprWJobMat NO-ERROR.
 
-    IF AVAILABLE bf-ordl AND iplFirstOfFrm THEN
+    IF AVAILABLE bf-ordl AND iplFirstOfFrm AND AVAILABLE bf-po-ord THEN 
         FOR EACH b-oe-ordl
             WHERE b-oe-ordl.company EQ bf-ordl.company
             AND b-oe-ordl.ord-no  EQ bf-ordl.ord-no
@@ -3855,11 +3168,13 @@ PROCEDURE pSetPoValues PRIVATE:
         END.
 
     FIND CURRENT bf-po-ord EXCLUSIVE-LOCK NO-ERROR.
+    
+    IF AVAILABLE bf-po-ord THEN 
     FIND FIRST vend
         WHERE vend.company EQ ipchCompany 
         AND vend.vend-no EQ bf-po-ord.vend-no 
         USE-INDEX vend NO-LOCK NO-ERROR.
-    IF AVAILABLE vend THEN 
+    IF AVAILABLE vend AND AVAILABLE bf-po-ord THEN 
     DO:
         ASSIGN
             bf-po-ord.last-ship-date = bf-po-ord.due-date
@@ -3881,14 +3196,14 @@ PROCEDURE pSetPoValues PRIVATE:
                 bf-po-ord.last-ship-date = bf-po-ord.due-date.
     END. /* If avail vend */
 
-    IF AVAILABLE bf-ordl        AND bf-po-ord.type EQ "D"    AND
+    IF AVAILABLE bf-ordl AND AVAILABLE bf-po-ord AND bf-po-ord.type EQ "D"    AND
         bf-po-ord.cust-no NE "" AND bf-po-ord.frt-pay NE "P" THEN
     DO:
         FIND FIRST oe-rel OF bf-ordl NO-LOCK NO-ERROR.
         IF AVAILABLE oe-rel THEN bf-po-ord.carrier = oe-rel.carrier.
     END.
 
-    IF AVAILABLE bf-ord THEN
+    IF AVAILABLE bf-ord AND AVAILABLE bf-po-ord THEN
         ASSIGN bf-po-ord.frt-pay  = bf-ord.frt-pay
             bf-po-ord.fob-code = bf-ord.fob-code.
             
@@ -3923,10 +3238,7 @@ PROCEDURE pItemFGFromJob PRIVATE:
     
     DEFINE BUFFER bf-itemfg FOR Itemfg.
     FIND job NO-LOCK WHERE ROWID(job) EQ iprJob NO-ERROR.
-    FIND bf-ordl NO-LOCK WHERE ROWID(bf-ordl) EQ iprOeOrdl NO-ERROR. 
-    
-    IF loDebug THEN
-        PUT STREAM sDebug UNFORMATTED "In pItemfgFromJob " SKIP.
+    FIND bf-ordl NO-LOCK WHERE ROWID(bf-ordl) EQ iprOeOrdl NO-ERROR.
   
     IF AVAILABLE job AND ipcFilIdSource = "JOB" THEN 
     DO:
@@ -3946,8 +3258,6 @@ PROCEDURE pItemFGFromJob PRIVATE:
                 eb.blank-no EQ job-hdr.blank-no AND
                 eb.form-no EQ job-hdr.frm
                 NO-ERROR.
-            IF loDebug THEN
-                PUT STREAM sDebug UNFORMATTED "Create tt-itemfg from job-hdr " itemfg.i-no " frm " job-hdr.frm " blank " job-hdr.blank-no SKIP.
   
             CREATE tt-itemfg.
             BUFFER-COPY itemfg EXCEPT rec_key pur-man TO tt-itemfg
@@ -3978,9 +3288,7 @@ PROCEDURE pItemFGFromJob PRIVATE:
                     WHERE itemfg.company EQ b-jc-calc.company
                     AND itemfg.i-no    EQ b-jc-calc.code2
                     AND itemfg.pur-man:
-                    IF loDebug THEN
-                        PUT STREAM sDebug UNFORMATTED "Create tt-itemfg from tt-fg-set (job) " itemfg.i-no 
-                            " frm " b-jc-calc.val[12] " blank " b-jc-calc.val[13] SKIP.
+                    
                     CREATE tt-itemfg.
                     BUFFER-COPY itemfg EXCEPT rec_key TO tt-itemfg
                         ASSIGN
@@ -4018,8 +3326,8 @@ PROCEDURE pValidMaxCost PRIVATE:
     DEFINE VARIABLE deTotalCost AS DECIMAL DECIMALS 4 NO-UNDO.
     DEFINE VARIABLE lohold      AS LOGICAL NO-UNDO.
     
-    DEFINE BUFFER bf-po-ord FOR po-ord.
-    DEFINE BUFFER b-po-ordl FOR po-ordl.
+    DEFINE BUFFER bf-po-ord FOR tt-po-ord.
+    DEFINE BUFFER b-po-ordl FOR tt-po-ordl.
 
     FIND bf-po-ord WHERE ROWID(bf-po-ord) EQ iprPoOrd EXCLUSIVE-LOCK NO-ERROR.
     IF NOT AVAILABLE bf-po-ord THEN 
@@ -4056,18 +3364,12 @@ PROCEDURE pZeroLenWarning PRIVATE:
       Purpose:     
       Parameters:  <none>
       Notes:       
-        INputs:
-          po-ordl
-          Global Vars:
-          deS-Len
-          deS-wid
-          ipchCompany
     ------------------------------------------------------------------------------*/
-
+    DEFINE INPUT  PARAMETER ipchCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iprPoOrdl     AS ROWID       NO-UNDO.
     DEFINE OUTPUT PARAMETER oprItem       AS ROWID       NO-UNDO.
 
-    DEFINE BUFFER bf-po-ordl FOR po-ordl.  
+    DEFINE BUFFER bf-po-ordl FOR tt-po-ordl.  
     DEFINE BUFFER b-item     FOR ITEM.
     
     FIND bf-po-ordl NO-LOCK WHERE ROWID(bf-po-ordl) EQ iprPoOrdl NO-ERROR.
@@ -4092,14 +3394,14 @@ PROCEDURE pZeroLenWarning PRIVATE:
     END. /* avail b-item ... */
 END PROCEDURE.
  
-PROCEDURE pCheckFGItemCustHold :
+PROCEDURE pCheckFGItemCustHold:
     /*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
 
-    DEFINE INPUT  PARAMETER ipcCompany              AS CHARACTER       NO-UNDO.
+    DEFINE INPUT  PARAMETER ipchCompany             AS CHARACTER       NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItem               AS CHARACTER       NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER oplFgItemCustHold AS LOGICAL         NO-UNDO.
 
@@ -4110,7 +3412,7 @@ PROCEDURE pCheckFGItemCustHold :
     DEFINE BUFFER bff-itemfg FOR itemfg.  
     
     FIND FIRST bff-itemfg NO-LOCK
-        WHERE bff-itemfg.company EQ ipcCompany
+        WHERE bff-itemfg.company EQ ipchCompany
         AND bff-itemfg.i-no    EQ ipcFGItem NO-ERROR.
         
     IF AVAILABLE bff-itemfg AND bff-itemfg.cust-no NE ""  THEN 
@@ -4130,7 +3432,7 @@ PROCEDURE pCheckUserLimit PRIVATE:
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-po-ord FOR po-ord.
+    DEFINE PARAMETER BUFFER ipbf-po-ord FOR tt-po-ord.
     
     DEFINE VARIABLE lHoldPoStatus  AS LOGICAL NO-UNDO.
     DEFINE VARIABLE dPurchaseLimit AS DECIMAL NO-UNDO.
@@ -4155,6 +3457,9 @@ PROCEDURE pCheckUserLimit PRIVATE:
         
 END PROCEDURE.
 
+
+
+/* ************************  Function Implementations ***************** */
 FUNCTION fGetVendCostQty RETURNS DECIMAL(ipdQty AS DECIMAL, ipcFromUom AS CHARACTER, ipcToUom AS CHARACTER  ):
     /*------------------------------------------------------------------------------
      Purpose:
@@ -4184,3 +3489,20 @@ FUNCTION fGetVendCostQty RETURNS DECIMAL(ipdQty AS DECIMAL, ipcFromUom AS CHARAC
     RETURN ReturnQty.
 
 END FUNCTION.
+
+FUNCTION fnRoundUp RETURNS INTEGER(INPUT deNumber AS DECIMAL):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE inResult AS INTEGER NO-UNDO.
+
+    IF (deNumber - integer(deNumber)) > 0 THEN 
+        ASSIGN inResult = INTEGER(deNumber) + 1.
+    ELSE 
+        ASSIGN inResult = INTEGER(deNumber).   
+
+    RETURN inResult.
+		
+END FUNCTION.
+

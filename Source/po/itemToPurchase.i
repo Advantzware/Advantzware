@@ -19,37 +19,10 @@
 
 
 /* ***************************  Main Block  *************************** */
-
-/*
-DEFINE TEMP-TABLE ttItemToPurchase NO-UNDO
-    FIELD Company     AS CHARACTER
-    FIELD CreatePO    AS LOGICAL       //- logical  - this should default to all YES but allow multi-select, select all, deselect all functions.
-    FIELD FormNo      AS INTEGER
-    FIELD BlankNo     AS INTEGER       //(for Finished goods)
-    FIELD ItemID      AS CHARACTER
-    FIELD ItemName    AS CHARACTER
-    FIELD ItemType    AS CHARACTER
-    FIELD CostPerUOM  AS DECIMAL 
-    FIELD CostUOM     AS CHARACTER
-    FIELD Quantity    AS DECIMAL 
-    FIELD QuantityUOM AS CHARACTER
-    FIELD CostPerUOM  AS DECIMAL 
-    FIELD CostUOM     AS CHARACTER
-    FIELD CostSetup   AS DECIMAL 
-    FIELD CostTotal   AS DECIMAL
-    FIELD VendorID    AS CHARACTER 
-    FIELD VendorName  AS CHARACTER
-    FIELD EstimateNo  AS CHARACTER
-    FIELD dimLength   AS DECIMAL 
-    FIELD dimWidth    AS DECIMAL
-    FIELD dimDepth    AS DECIMAL
-    FIELD basis-w     AS DECIMAL.
-    */
     
 DEFINE TEMP-TABLE ttJobMaterial NO-UNDO LIKE job-mat
     FIELD CreatePO      AS LOGICAL
     FIELD w-rowid       AS ROWID
-    FIELD w-recid       AS RECID
     FIELD this-is-a-rm  AS LOGICAL
     FIELD isaset        AS LOGICAL
     FIELD isacomponent  AS LOGICAL
@@ -77,7 +50,7 @@ DEFINE TEMP-TABLE ttJobMaterial NO-UNDO LIKE job-mat
     FIELD PODueDate     AS DATE
     FIELD DropCustNo    AS CHARACTER 
     FIELD ShipChoice    AS CHARACTER
-    FIELD ShipToRecId   AS RECID
+    FIELD shiptoRecId   AS RECID
     FIELD ShipToVendId  AS CHARACTER
     FIELD ShipId        AS CHARACTER 
     FIELD locode        AS CHARACTER.
