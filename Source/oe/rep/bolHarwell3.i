@@ -19,7 +19,8 @@ FOR EACH tt-boll,
 
    IF FIRST-OF(tt-boll.po-no) THEN
       ASSIGN v-tot-cases = 0
-             v-summ-case-tot = 0.
+             v-summ-case-tot = 0
+             v-tot-pkgs = 0.
    
    
 
@@ -70,7 +71,9 @@ FOR EACH tt-boll,
 
       v-lines = 0.
       FOR EACH w2 BREAK BY w2.cases:
-         v-lines = v-lines + 1.
+         ASSIGN 
+            v-lines = v-lines + 1
+            v-tot-pkgs = v-tot-pkgs + w2.cases.
       END. 
   
       DO i = v-lines + 1 TO 4:
@@ -133,51 +136,33 @@ FOR EACH tt-boll,
 
          v-case-tot = /* v-case-tot + */ (w2.cases * w2.cas-cnt).
 
-/*         DISPLAY SPACE(1)                       */
-/*            v-item-part-no                      */
-/*            v-ord-po-no                         */
-/*            v-part-dscr                         */
-/*            w2.cases                            */
-/*            w2.cas-cnt                          */
-/*            v-case-tot /* WHEN LAST(w2.cases) */*/
-/*         WITH FRAME bol-mid2.                   */
-/*         DOWN  WITH FRAME bol-mid2.             */
-PUT 
-  "<FCourier New><P10>".
+        PUT 
+            "<FCourier New><P10>".
   
-      display  
-        v-tot-pkgs      WHEN i EQ 1
-        v-ord-qty       WHEN i EQ 1
-        v-part-dscr   
-        oe-boll.po-no   WHEN i EQ 1 AND AVAIL oe-boll
-        w2.cases        
-        w2.cas-cnt    
-        v-bol-qty     
-        oe-boll.p-c     WHEN i EQ 1 AND AVAIL oe-boll
-        v-bol-wt        WHEN i EQ 1
-/*        
-              oe-ordl.qty  WHEN i EQ 1           
-              v-part-dscr
-              oe-boll.po-no  WHEN i EQ 1 AND AVAIL oe-boll        
-              w2.cases  WHEN i EQ 1
-              w2.cas-cnt  WHEN i EQ 1
-              v-case-tot   WHEN i EQ 1
-              tt-boll.p-c   WHEN i EQ 1         
-*/
-              WITH FRAME bol-mid1.
-              DOWN WITH FRAME bol-mid1.
+        display  
+            v-tot-pkgs      WHEN i EQ 1
+            v-ord-qty       WHEN i EQ 1
+            v-part-dscr   
+            tt-boll.po-no   WHEN i EQ 1 AND AVAIL oe-boll
+            w2.cases        
+            w2.cas-cnt    
+            v-bol-qty     
+            tt-boll.p-c     WHEN i EQ 1 AND AVAIL oe-boll
+            v-bol-wt        WHEN i EQ 1
+            WITH FRAME bol-mid1.
+            DOWN WITH FRAME bol-mid1.
 
          ASSIGN
          v-grand-total-cases  = v-grand-total-cases + w2.cases
          v-printline = v-printline + 1.
          
-      /*   IF NOT LAST(tt-boll.cases) THEN do:
-        IF v-printline >= 62 THEN DO: 
-           v-printline = 0.
-           j = j - 30.
-           PAGE {1}.
-           {oe/rep/bolHarwell2.i}
-        END.
+        IF NOT LAST(tt-boll.cases) THEN do:
+            IF v-printline >= 62 THEN DO: 
+               v-printline = 0.
+               j = j - 30.
+               PAGE {1}.
+               {oe/rep/bolHarwell2.i}
+            END.
         END.
         ELSE do:                           
              IF v-printline >= 45 THEN DO: 
@@ -185,11 +170,11 @@ PUT
               PAGE {1}.
               {oe/rep/bolHarwell2.i}
           END.
-        END. */
-         v-tot-cases = v-tot-cases + (w2.cases * w2.cas-cnt).
-         DELETE w2.    
+        END. 
+        v-tot-cases = v-tot-cases + (w2.cases * w2.cas-cnt).
+        DELETE w2.    
       END. /* each w2 */
-
+/*
       IF i < 4 THEN
          DO i = i + 1 TO 4:
             CLEAR FRAME bol-mid2 NO-PAUSE.
@@ -224,9 +209,9 @@ PUT
               DOWN {1} WITH FRAME bol-mid1. 
               v-printline = v-printline + 1.
                
-            END.
-         END.
-
+           END.
+       END.
+*/
       PUT {1} SKIP(1).
 
       ASSIGN
