@@ -11,7 +11,6 @@
 /*----------------------------------------------------------------------*/
 DEFINE VARIABLE gcSaveDatabaseList  AS CHARACTER  NO-UNDO.  
 DEFINE VARIABLE giDataserverNr      AS INTEGER    NO-UNDO.  /* [JAG 01-11-2019] */
-DEFINE VARIABLE glDirtyCache        AS LOGICAL    NO-UNDO.
 
 /* Buildnr, temp-tables and forward defs */
 { DataDigger.i }
@@ -733,8 +732,8 @@ FUNCTION setRegistry RETURNS CHARACTER
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW Procedure ASSIGN
-         HEIGHT             = 41
-         WIDTH              = 57.4.
+         HEIGHT             = 30.19
+         WIDTH              = 53.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -1487,7 +1486,7 @@ PROCEDURE flushRegistry :
 */
   {&timerStart}
 
-  IF glDirtyCache THEN 
+  IF CAN-FIND(FIRST ttConfig WHERE ttConfig.lUser = TRUE AND ttConfig.lDirty = TRUE) THEN
     RUN saveConfigFileSorted.
 
   {&timerStop}
@@ -2925,13 +2924,14 @@ PROCEDURE saveConfigFileSorted :
           BY bfConfig.cSection
           BY bfConfig.cSetting:
 
+    bfConfig.lDirty = FALSE.
+
     IF FIRST-OF(bfConfig.cSection) THEN PUT UNFORMATTED SUBSTITUTE("[&1]",bfConfig.cSection) SKIP.
     PUT UNFORMATTED SUBSTITUTE("&1=&2",bfConfig.cSetting, bfConfig.cValue) SKIP.
     IF LAST-OF(bfConfig.cSection) THEN PUT UNFORMATTED SKIP(1).
   END.
 
   OUTPUT CLOSE.
-  glDirtyCache = FALSE.
 
   {&timerStop}
 END PROCEDURE. /* saveConfigFileSorted */
@@ -5129,23 +5129,15 @@ FUNCTION setRegistry RETURNS CHARACTER
     ASSIGN
       bfConfig.cSection = pcSection
       bfConfig.cSetting = pcKey.
-
-    glDirtyCache = TRUE.
   END.
 
   IF pcValue = ? OR TRIM(pcValue) = '' THEN
-  DO:
     DELETE bfConfig.
-    glDirtyCache = TRUE.
-  END.
   ELSE
-  DO:
     ASSIGN
+      bfConfig.lDirty = bfConfig.lDirty OR (bfConfig.cValue <> pcValue)
       bfConfig.lUser  = TRUE
       bfConfig.cValue = pcValue.
-
-    IF bfConfig.cValue <> pcValue THEN glDirtyCache = TRUE.
-  END.
 
   RETURN "". /* Function return value. */
   {&timerStop}
@@ -5156,4 +5148,3 @@ END FUNCTION. /* setRegistry */
 &ANALYZE-RESUME
 
 &ENDIF
-
