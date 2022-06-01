@@ -1333,7 +1333,7 @@ END.
 ON CHOOSE OF btnTagsOverrn IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT STRING(oe-ord.ord-no),
+        INPUT cocode + STRING(oe-ord.ord-no),
         INPUT "",
         INPUT "Over Percentage"
         ).
@@ -1348,7 +1348,7 @@ END.
 ON CHOOSE OF btnTagsUnder IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT STRING(oe-ord.ord-no),
+        INPUT cocode + STRING(oe-ord.ord-no),
         INPUT "",
         INPUT "Under Percentage"
         ).
@@ -1798,11 +1798,11 @@ DO:
             ASSIGN
                 oe-ordl.over-pct = oe-ord.over-pct:INPUT-VALUE.  
            RUN ClearTagsForGroup(
-                INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
+                INPUT cocode + STRING(oe-ordl.ord-no + oe-ordl.LINE),
                 INPUT "Over Percentage"
                 ).
             RUN AddTagInfoForGroup(
-                INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
+                INPUT cocode + STRING(oe-ordl.ord-no + oe-ordl.LINE),
                 INPUT "oe-ordl",
                 INPUT "Order no. - " + string(oe-ord.ord-no) ,
                 INPUT "",
@@ -2158,11 +2158,11 @@ DO:
                 ASSIGN 
                     oe-ordl.under-pct = oe-ord.under-pct:INPUT-VALUE .  
                 RUN ClearTagsForGroup(
-                    INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
+                    INPUT cocode + STRING(oe-ordl.ord-no + oe-ordl.LINE),
                     INPUT "Under Percentage"
                     ).
                 RUN AddTagInfoForGroup(
-                    INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
+                    INPUT cocode + STRING(oe-ordl.ord-no + oe-ordl.LINE),
                     INPUT "oe-ordl",
                     INPUT "Order no. - " + string(oe-ord.ord-no) ,
                     INPUT "",
@@ -5657,7 +5657,7 @@ PROCEDURE local-display-fields :
            ELSE 
                btnTags:SENSITIVE = FALSE. 
          RUN Tag_IsTagRecordAvailableForGroup(
-             INPUT STRING(oe-ord.ord-no),
+             INPUT cocode + STRING(oe-ord.ord-no),
              INPUT "oe-ord",
              INPUT "Over Percentage",
              OUTPUT lAvailable
@@ -5668,7 +5668,7 @@ PROCEDURE local-display-fields :
            ELSE 
                btnTagsOverrn:SENSITIVE = FALSE.  
          RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT STRING(oe-ord.ord-no),
+            INPUT cocode + STRING(oe-ord.ord-no),
             INPUT "oe-ord",
             INPUT "Under Percentage",
             OUTPUT lAvailable
@@ -6414,18 +6414,18 @@ PROCEDURE pAddTag :
     DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:          
         RUN ClearTagsForGroup(
-            INPUT STRING(oe-ord.ord-no),
+            INPUT cocode + STRING(oe-ord.ord-no),
             INPUT ipcSource
             ).
         RUN AddTagInfoForGroup(
-            INPUT STRING(oe-ord.ord-no),
+            INPUT cocode + STRING(oe-ord.ord-no),
             INPUT "oe-ord",
             INPUT ipcDesc,
             INPUT "",
             INPUT ipcSource
             ). /*From TagProcs Super Proc*/ 
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT STRING(oe-ord.ord-no),
+            INPUT cocode + STRING(oe-ord.ord-no),
             INPUT "oe-ord",
             INPUT ipcSource,
             OUTPUT lAvailable
