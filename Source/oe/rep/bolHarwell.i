@@ -414,11 +414,11 @@ for each xxreport where xxreport.term-id eq v-term-id,
       "<R58.5><C3.5>" oe-bolh.ship-i[3] 
       "<R59.5><C3.5>" oe-bolh.ship-i[4] "</B><P9>".
   
-  PUT "<R62><C2>RECU EN BON ORDRE PAR"
-      "<R63><C2>RECEIVED IN GOOD ORDER BY _____________________________________________ DATE ___________________________"
-      "<R64><C2>____________________________________________________________________________________________________________________________"
-      "<R65><C2>TOUTE MATRICE EN ACIER ET MATRICE D'IMPRESSION NON-                 ANY STEEL DIE OR PRINT PLATE NOT USED FOR MORE THAN"  
-      "<R66><C2>UTILISEE DEPUIS PLUS DE DEUX(2) ANS DETRUITE SANS PRE-AVIS     TWO(2) YEARS WILL BE DESTROYED WITHOUT PRIOR NOTICE"
+  PUT "<R61><C2>RECU EN BON ORDRE PAR"
+      "<R62><C2>RECEIVED IN GOOD ORDER BY _____________________________________________ DATE ___________________________"
+      "<R63><C2>____________________________________________________________________________________________________________________________"
+      "<R64><C2>TOUTE MATRICE EN ACIER ET MATRICE D'IMPRESSION NON-                 ANY STEEL DIE OR PRINT PLATE NOT USED FOR MORE THAN"  
+      "<R65><C2>UTILISEE DEPUIS PLUS DE DEUX(2) ANS DETRUITE SANS PRE-AVIS     TWO(2) YEARS WILL BE DESTROYED WITHOUT PRIOR NOTICE"
       
       "<RESTORE=LPI>".
  
