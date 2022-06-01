@@ -127,7 +127,9 @@ FOR EACH oe-ordl NO-LOCK
        
     IF iplZeroOrderLine AND NOT lFound THEN
        dNewPrice = 0.
-        
+    ELSE IF NOT lFound THEN 
+    dNewPrice = dOldPrice.
+    
     dPriceChange = (dNewPrice / dOldPrice - 1 ) * 100.
     IF (dOldPrice NE dNewPrice OR NOT ipExecute) OR ( iplZeroOrderLine AND NOT lFound ) OR (NOT lFound AND lQuotePriceMatrix)         
         THEN 
@@ -166,14 +168,18 @@ FOR EACH oe-ordl NO-LOCK
     END.
     IF NOT lFound AND ipExecute THEN
     DO:
-        IF iplZeroOrderLine THEN do:
-            FIND CURRENT oe-ordl EXCLUSIVE-LOCK NO-ERROR.
+        FIND CURRENT oe-ordl EXCLUSIVE-LOCK NO-ERROR.
+        IF iplZeroOrderLine THEN do:           
             oe-ordl.price = 0.
-            oe-ordl.t-price = 0.
-            FIND CURRENT oe-ordl NO-LOCK NO-ERROR.
+            oe-ordl.t-price = 0.              
             IF AVAILABLE ttOrderLineChange THEN
             ttOrderLineChange.note = ttOrderLineChange.note + ", Price Set to zero" .
         END.
+        ELSE do:      
+            oe-ordl.price = dNewPrice.
+            oe-ordl.t-price = ttOrderLineChange.totalPriceNew.
+        END.
+        FIND CURRENT oe-ordl NO-LOCK NO-ERROR.
         
         IF lQuotePriceMatrix OR iplZeroOrderLine THEN do: 
             IF NOT oe-ord.priceHold THEN
