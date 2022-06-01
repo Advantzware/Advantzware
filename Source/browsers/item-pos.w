@@ -61,10 +61,9 @@ DEFINE TEMP-TABLE tt-item-po
        FIELD iQtyDue AS INTEGER
        FIELD cShipId AS CHARACTER COLUMN-LABEL "Ship To"
        FIELD cJobNo  AS CHARACTER
-       FIELD rec_key AS CHARACTER.        
-  
-       
-   /* _UIB-CODE-BLOCK-END */
+       FIELD rec_key AS CHARACTER.
+
+/* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
@@ -91,34 +90,24 @@ DEFINE QUERY external_tables FOR item.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES tt-item-po
 
-/* Define KEY-PHRASE in case it is used by any query. */
-&Scoped-define KEY-PHRASE TRUE
-
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table tt-item-po.iPoNo ~
-tt-item-po.cVendName ~
-tt-item-po.dtDueDate ~
-tt-item-po.iQtyOrdered tt-item-po.iQtyDue  tt-item-po.cShipId
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH tt-item-po WHERE ~
-   (tt-item-po.iPoNo EQ integer(auto_find) OR auto_find EQ 0) and ~
-   ((tt-item-po.iQtyDue GE 0 and rd_select EQ "On Order") or rd_select EQ "All") NO-LOCK ~
-    ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH tt-item-po WHERE ~
-   (tt-item-po.iPoNo EQ auto_find OR auto_find EQ 0) and ~
-   ((tt-item-po.iQtyDue GE 0 and rd_select EQ "On Order") or rd_select EQ "All") NO-LOCK ~
-    ~{&SORTBY-PHRASE}.
+&Scoped-define FIELDS-IN-QUERY-Browser-Table tt-item-po.iPoNo tt-item-po.cVendName tt-item-po.dtDueDate tt-item-po.iQtyOrdered tt-item-po.iQtyDue tt-item-po.cShipId   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table   
+&Scoped-define SELF-NAME Browser-Table
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH tt-item-po NO-LOCK WHERE (tt-item-po.iPoNo EQ INTEGER(auto_find) OR INTEGER(auto_find) EQ 0) AND ((tt-item-po.iQtyDue GE 0 AND rd_select EQ "On Order") OR rd_select EQ "All")     ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY {&SELF-NAME} FOR EACH tt-item-po NO-LOCK WHERE (tt-item-po.iPoNo EQ INTEGER(auto_find) OR INTEGER(auto_find) EQ 0) AND ((tt-item-po.iQtyDue GE 0 AND rd_select EQ "On Order") OR rd_select EQ "All")     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table tt-item-po
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table tt-item-po
 
 
 /* Definitions for FRAME F-Main                                         */
+&Scoped-define OPEN-BROWSERS-IN-QUERY-F-Main ~
+    ~{&OPEN-QUERY-Browser-Table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 rd_select  ~
-auto_find Btn_Clear_Find Btn_ok 
-&Scoped-Define DISPLAYED-OBJECTS lbl_select rd_select  ~
-fi_sortby auto_find 
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 rd_select auto_find ~
+Btn_ok Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS lbl_select rd_select auto_find fi_sortby 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -152,13 +141,13 @@ DEFINE BUTTON Btn_Clear_Find
      LABEL "&Clear Find" 
      SIZE 13 BY 1
      FONT 4.
-     
+
 DEFINE BUTTON Btn_ok 
      LABEL "&Go" 
      SIZE 13 BY 1
-     FONT 4.     
+     FONT 4.
 
-DEFINE VARIABLE auto_find AS INTEGER FORMAT ">>>>>>>>9":U 
+DEFINE VARIABLE auto_find AS INTEGER FORMAT ">>>>>>>>9":U INITIAL 0 
      LABEL "PO #" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
@@ -193,7 +182,7 @@ DEFINE QUERY Browser-Table FOR
 /* Browse definitions                                                   */
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _FREEFORM
-  QUERY Browser-Table NO-LOCK DISPLAY
+  QUERY Browser-Table DISPLAY
       tt-item-po.iPoNo FORMAT ">>>>>>>>9":U LABEL-BGCOLOR 14
       tt-item-po.cVendName COLUMN-LABEL "Vendor"
       tt-item-po.dtDueDate FORMAT "99/99/9999":U LABEL-BGCOLOR 14
@@ -212,16 +201,14 @@ DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      lbl_select AT ROW 19.29 COL 40.2 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     rd_select AT ROW 19.29 COL 55.2 NO-LABEL WIDGET-ID 4
      auto_find AT ROW 19.33 COL 11 COLON-ALIGNED HELP
           "Enter PO # "
-     rd_select AT ROW 19.29 COL 55.2 NO-LABEL WIDGET-ID 4
-     fi_sortby AT ROW 19.33 COL 72 COLON-ALIGNED
+     fi_sortby AT ROW 19.33 COL 85 COLON-ALIGNED
      Btn_ok AT ROW 19.33 COL 118 HELP
           "CLEAR AUTO FIND Value"
      Btn_Clear_Find AT ROW 19.33 COL 132 HELP
           "CLEAR AUTO FIND Value"
-     /*"PO:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 19.33 COL 2*/
      RECT-4 AT ROW 19.1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -266,7 +253,7 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/browser.i} 
-{custom/yellowColumns.i}    
+{custom/yellowColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -281,7 +268,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -308,20 +295,20 @@ ASSIGN
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
-      
+
+
 /* Setting information for Queries and Browse Widgets fields            */
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
      _START_FREEFORM
-  OPEN QUERY {&SELF-NAME} FOR EACH tt-item-po WHERE 
-   (tt-item-po.iPoNo EQ integer(auto_find) OR auto_find EQ 0) and 
-   ((tt-item-po.iQtyDue GE 0 and rd_select EQ "On Order") or rd_select EQ "All") NO-LOCK
+OPEN QUERY {&SELF-NAME} FOR EACH tt-item-po NO-LOCK
+WHERE (tt-item-po.iPoNo EQ INTEGER(auto_find) OR INTEGER(auto_find) EQ 0)
+AND ((tt-item-po.iQtyDue GE 0 AND rd_select EQ "On Order") OR rd_select EQ "All")
     ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE Browser-Table */
-
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
@@ -330,6 +317,9 @@ ASSIGN
      _Query            is NOT OPENED
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
+
+ 
+
 
 
 /* ************************  Control Triggers  ************************ */
@@ -381,20 +371,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME Btn_ok
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_ok B-table-Win
-ON CHOOSE OF Btn_ok IN FRAME F-Main /* Go */
-DO:
-   ASSIGN
-     auto_find
-     rd_select
-     .        
-    RUN local-open-query.
-     
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME Btn_Clear_Find
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Clear_Find B-table-Win
@@ -413,6 +389,21 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME Btn_ok
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_ok B-table-Win
+ON CHOOSE OF Btn_ok IN FRAME F-Main /* Go */
+DO:
+   ASSIGN
+     auto_find
+     rd_select
+     .        
+    RUN local-open-query.
+     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME rd_select
@@ -476,6 +467,42 @@ PROCEDURE adm-row-available :
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-table B-table-Win 
+PROCEDURE build-table :
+/*------------------------------------------------------------------------------
+  Purpose:                 /** BUILD JOB WORK FILE **/
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    FOR EACH po-ordl NO-LOCK
+        WHERE po-ordl.company   EQ item.company  
+          AND po-ordl.i-no      EQ item.i-no 
+          AND po-ordl.item-type EQ YES 
+          AND LOOKUP(po-ordl.stat, "A,C,N,O,P,U") GT 0,  
+        FIRST po-ord NO-LOCK
+        WHERE po-ord.company EQ po-ordl.company
+          AND po-ord.po-no   EQ po-ordl.po-no 
+          AND LOOKUP(po-ord.stat, "H,N,O,R,U") GT 0
+        :                   
+        CREATE tt-item-po.
+        ASSIGN 
+            tt-item-po.iPoNo        = po-ordl.po-no
+            tt-item-po.iPoLine      = po-ordl.LINE                     
+            tt-item-po.cItem        = po-ordl.i-no                     
+            tt-item-po.cVendName    = vend-name()                      
+            tt-item-po.dtDueDate    = po-ordl.due-date                 
+            tt-item-po.iQtyOrdered  = convert-qty(2, po-ordl.cons-qty) 
+            tt-item-po.iQtyDue      = convert-qty(1, po-ordl.cons-qty) 
+            tt-item-po.cShipId      = po-ord.ship-id
+            tt-item-po.cJobNo       = po-ordl.job-no
+            .            
+    END. /* each itemfg-loc */
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -579,8 +606,7 @@ PROCEDURE send-records :
 
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "item"}
-  {src/adm/template/snd-list.i "po-ordl"}
-  {src/adm/template/snd-list.i "po-ord"}
+  {src/adm/template/snd-list.i "tt-item-po"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -607,41 +633,6 @@ PROCEDURE state-changed :
   END CASE.
 END PROCEDURE.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-table B-table-Win 
-PROCEDURE build-table:
-/*------------------------------------------------------------------------------
-  Purpose:                 /** BUILD JOB WORK FILE **/
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    FOR EACH po-ordl WHERE po-ordl.company = item.company  
-        AND po-ordl.i-no = item.i-no 
-        AND lookup(po-ordl.stat, "o,p,u,a,n") > 0  
-        AND po-ordl.item-type  = YES 
-        NO-LOCK, 
-        FIRST po-ord WHERE po-ord.company eq po-ordl.company AND 
-        po-ord.po-no eq po-ordl.po-no 
-        AND lookup(po-ord.stat, "N,O,R,U,H") > 0 NO-LOCK:      
-                   
-        CREATE tt-item-po.
-        ASSIGN 
-            tt-item-po.iPoNo        = po-ordl.po-no
-            tt-item-po.iPoLine      = po-ordl.LINE                     
-            tt-item-po.cItem        = po-ordl.i-no                     
-            tt-item-po.cVendName    = vend-name()                      
-            tt-item-po.dtDueDate    = po-ordl.due-date                 
-            tt-item-po.iQtyOrdered  = convert-qty(2, po-ordl.cons-qty) 
-            tt-item-po.iQtyDue      = convert-qty(1, po-ordl.cons-qty) 
-            tt-item-po.cShipId      = po-ord.ship-id
-            tt-item-po.cJobNo       = po-ordl.job-no .
-            
-    END. /* each itemfg-loc */
-    
-
-END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
