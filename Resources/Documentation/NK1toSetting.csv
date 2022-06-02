@@ -79,3 +79,5 @@ InvoiceApprovalOrderlineChange,Logical,InvoiceApprovalOrderlineChange,Character,
 InvoiceApprovalPriceGTCost,Logical,InvoiceApprovalPriceGTCost,Character,Item Price is greater than the cost of the item,Off|On|On Also During Post,Off,No,InvoiceApproval,No
 InvoiceApprovalTaxableCheck,Logical,InvoiceApprovalTaxableCheck,Character,Ship to is taxable and any line is not set as taxable,Off|On|On Also During Post,Off,No,InvoiceApproval,No
 InvoiceApprovalTaxCalc,Logical,InvoiceApprovalTaxCalc,Character,Unable to calculate tax,Off|On|On Also During Post,Off,No,InvoiceApproval,No
+Notepad,Logical,Notepad,Logical,Notepad instead of Standard Screen Output? Active,YES|NO,NO,Yes,Notepad,No
+Notepad,Character,NotepadValue,Character,Notepad instead of Standard Screen Output? Value,|Notepad,,Yes,Notepad,No

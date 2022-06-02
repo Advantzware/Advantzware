@@ -504,9 +504,9 @@ DO v-local-loop = 1 TO v-local-copies:
              /* "<=CustomerName>" cust.NAME FORMAT "x(30)"*/
               "</B><FGColor=Black>"
               "<=OrderQuantity>"  IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE 0 
-              "<=OrderDate>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-date) ELSE "" 
+              "<=OrderDate>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-date) ELSE IF AVAILABLE job THEN STRING(job.create-date) ELSE  ""
               "<FGColor=Blue><B>"
-              "<=OrderDueDate>"   IF AVAILABLE xoe-ord THEN STRING(xoe-ord.due-code) + "  " + STRING(xoe-ord.due-date) ELSE "" FORMAT "x(15)"
+              "<=OrderDueDate>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.due-code) + "  " + STRING(xoe-ord.due-date) ELSE IF AVAILABLE job THEN STRING(job.due-date) ELSE "" FORMAT "x(15)"
               "</B><FGColor=Black>"
               "<B>"
               "<=Board>" v-form-dscr FORMAT "x(20)" 

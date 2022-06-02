@@ -510,6 +510,7 @@ PROCEDURE BuildLoadTagsFromPO :
         INPUT  ipiSubUnitsPerUnit,        
         INPUT  ipcQuantityUOM,
         INPUT  ipiCopies,
+        INPUT  "",   /* Vendor Tag */
         OUTPUT oplError,
         OUTPUT opcMessage,
         INPUT-OUTPUT TABLE ttLoadTag

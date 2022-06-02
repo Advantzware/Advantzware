@@ -3786,6 +3786,7 @@ PROCEDURE local-display-fields :
   DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
   DEFINE VARIABLE iCount  AS INTEGER     NO-UNDO.  
   DEFINE VARIABLE iDecimalValue AS INTEGER NO-UNDO.
+  DEFINE VARIABLE dTotalScoreAllowance AS DECIMAL NO-UNDO.
   
   DEF BUFFER b-ef FOR ef.
   DEF BUFFER b-eb FOR eb.
@@ -3801,19 +3802,32 @@ PROCEDURE local-display-fields :
   FIND FIRST bf-style NO-LOCK
        WHERE bf-style.company EQ eb.company
          AND bf-style.style   EQ eb.style
-       NO-ERROR.
-  IF AVAILABLE bf-style AND bf-style.type EQ "B" AND bf-style.formula[20] EQ "" THEN DO:
+       NO-ERROR.            
+       
+  IF AVAILABLE bf-style AND bf-style.type EQ "B" THEN DO:      
+     RUN pGetTotalScoreAllowance (
+        INPUT  bf-style.company,
+        INPUT  bf-style.style, 
+        INPUT  eb.flute,
+        INPUT  "POBlankWidth",
+        OUTPUT dTotalScoreAllowance
+        ).           
       DO iCount = 1 TO NUM-ENTRIES(cWidgethandles):
           phandle = WIDGET-HANDLE(ENTRY(iCount, cWidgethandles)).
-          IF VALID-HANDLE(phandle) AND LOOKUP("DisablePOScores", pHandle:INTERNAL-ENTRIES) GT 0 THEN 
+          IF VALID-HANDLE(phandle) AND LOOKUP("DisablePOScores", pHandle:INTERNAL-ENTRIES) GT 0 THEN
+          do: 
+              IF dTotalScoreAllowance NE 0 AND bf-style.formula[20] NE "" THEN
+              RUN EnablePOScores IN pHandle NO-ERROR.
+              ELSE
               RUN DisablePOScores IN pHandle NO-ERROR.
+          END.    
       END.
   END.
   ELSE DO:
       DO iCount = 1 TO NUM-ENTRIES(cWidgethandles):
           phandle = WIDGET-HANDLE(ENTRY(iCount, cWidgethandles)).
           IF VALID-HANDLE(phandle) AND LOOKUP("EnablePOScores", pHandle:INTERNAL-ENTRIES) GT 0 THEN 
-              RUN EnablePOScores IN pHandle NO-ERROR.
+              RUN DisablePOScores IN pHandle NO-ERROR.
       END.
   END.
   
@@ -5480,6 +5494,37 @@ IF lc-new-values = lc-previous-values THEN DO:
 END.
 ELSE
   opl-was-modified = YES.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTotalScoreAllowance V-table-Win 
+PROCEDURE pGetTotalScoreAllowance PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStyle               AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFlute               AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScoreSet            AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTotalScoreAllowance AS DECIMAL   NO-UNDO.
+    
+    RUN GetTotalScoreAllowanaceForStyle IN hdFormulaProcs (
+        INPUT  ipcCompany,
+        INPUT  ipcStyle, 
+        INPUT  ipcFlute,
+        INPUT  ipcScoreSet,
+        OUTPUT opdTotalScoreAllowance
+        ).
+
+    RUN ConvertDecimalTo16ths IN hdFormulaProcs (
+        INPUT-OUTPUT opdTotalScoreAllowance
+        ).
+       
+    opdTotalScoreAllowance = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632", ipcCompany, opdTotalScoreAllowance).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

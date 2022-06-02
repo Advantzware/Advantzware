@@ -284,7 +284,7 @@ pGetExtendedPrice() @ dExtendedPrice pGetPriceUom() @ cPriceUom ~
 pGetCostUom() @ cCostUom oe-ord.entered-id itemfg.q-onh ~
 fnProdBalance(oe-ordl.qty,get-prod()) @ dProdBalance ~
 get-xfer-qty () @ ld-xfer-qty get-act-bol-qty() @ li-act-bol-qty ~
-fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc 
+fget-qty-nothand(get-act-rel-qty() ,INT(itemfg.q-onh)) @ iHandQtyNoalloc 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table  
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH oe-ordl ~
       WHERE oe-ordl.company EQ g_company ~
@@ -693,7 +693,7 @@ DEFINE BROWSE Browser-Table
       fnProdBalance(oe-ordl.qty,get-prod()) @ dProdBalance COLUMN-LABEL "Prod. Balance" FORMAT "->>,>>>,>>9.9<<<":U
       get-xfer-qty () @ ld-xfer-qty COLUMN-LABEL "Transfer!Qty" FORMAT "->>,>>>,>>>":U
       get-act-bol-qty() @ li-act-bol-qty COLUMN-LABEL "Act. BOL!Qty" FORMAT "->>,>>>,>>>":U
-      fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
+      fget-qty-nothand(get-act-rel-qty() ,INT(itemfg.q-onh)) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 181 BY 16.52
@@ -730,6 +730,9 @@ DEFINE FRAME F-Main
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 104
           FGCOLOR 9 FONT 22
+     "Cust Part#" VIEW-AS TEXT
+          SIZE 13 BY .71 AT ROW 1.24 COL 50
+          FGCOLOR 9 FONT 22
      "Open" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.24 COL 154.6 WIDGET-ID 34
           FGCOLOR 9 FONT 22
@@ -753,9 +756,6 @@ DEFINE FRAME F-Main
           FGCOLOR 9 FONT 22
      "FG Item#/Name" VIEW-AS TEXT
           SIZE 19 BY .71 AT ROW 1.24 COL 30
-          FGCOLOR 9 FONT 22
-     "Cust Part#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 50
           FGCOLOR 9 FONT 22
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -821,7 +821,8 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-       Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 2.
+       Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 2
+       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 ASSIGN 
        oe-ordl.line:VISIBLE IN BROWSE Browser-Table = FALSE
@@ -927,7 +928,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[39]   > "_<CALC>"
 "get-act-bol-qty() @ li-act-bol-qty" "Act. BOL!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[40]   > "_<CALC>"
-"fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fget-qty-nothand(get-act-rel-qty() ,INT(itemfg.q-onh)) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

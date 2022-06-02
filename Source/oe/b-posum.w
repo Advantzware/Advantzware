@@ -7,7 +7,15 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
-  File:  browsers/emailcod2.w
+  File:  browsers/<table>.w
+
+  Description: from BROWSER.W - Basic SmartBrowser Object Template
+
+  Input Parameters:
+      <none>
+
+  Output Parameters:
+      <none>
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -23,28 +31,29 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
 {custom/globdefs.i}
-{sys/inc/var.i new shared}
-{sys/inc/varasgn.i}
+{sys/inc/VAR.i "new shared" }
+ASSIGN cocode = g_company
+       locode = g_loc.
 
-/* Variables */
-
-DEFINE VARIABLE vlShipNotice AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE gvlAddStatus AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE vHeaderValue AS CHARACTER NO-UNDO.
-
-DEFINE SHARED VARIABLE vrPhone  AS CHARACTER NO-UNDO.
-DEFINE SHARED VARIABLE cEmailTo AS CHARACTER NO-UNDO.
-
-DEFINE BUFFER b-phone FOR phone.
-
-&SCOPED-DEFINE winReSize
-
-{methods/defines/winReSize.i}
+DEF BUFFER b-ref1 FOR reftable.
+DEF BUFFER b-ref2 FOR reftable.
+    
+DEF NEW SHARED VAR factor# AS DECIMAL NO-UNDO.
+DEF NEW SHARED VAR v-default-gl-log AS LOG NO-UNDO.
+DEF NEW SHARED VAR v-default-gl-cha AS cha NO-UNDO.
+DEF NEW SHARED VAR v-po-qty AS LOG INITIAL TRUE NO-UNDO.
+DEF NEW SHARED VAR v-po-msf LIKE sys-ctrl.int-fld NO-UNDO.
+DEF TEMP-TABLE tt-po-ordl-renum 
+    FIELD po-line-num AS INT
+    FIELD save-rowid AS ROWID.
+DEF TEMP-TABLE tt-po-ordl LIKE po-ordl.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -63,31 +72,48 @@ DEFINE BUFFER b-phone FOR phone.
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES oe-ord
+&Scoped-define FIRST-EXTERNAL-TABLE oe-ord
+
+
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR oe-ord.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES emailcod
+&Scoped-define INTERNAL-TABLES po-ordl po-ord
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table emailcod.emailcod ~
-emailcod.description CheckNotice() @ vlShipNotice 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table po-ordl.po-no po-ordl.line po-ordl.job-no po-ordl.job-no2 po-ordl.ord-qty ~
+po-ordl.t-rec-qty po-ordl.t-inv-qty po-ordl.stat po-ordl.i-no po-ordl.i-name ~
+po-ordl.cost po-ordl.pr-uom po-ordl.t-cost po-ordl.cons-uom ~
+getOrdQty() @ po-ordl.ord-qty getCost() @ po-ordl.cost po-ordl.company 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} ~
-      AND CAN-DO(emailcod.emailTo,cEmailTo) NO-LOCK ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH po-ordl WHERE po-ordl.company eq oe-ord.company and ~
+po-ordl.ord-no eq oe-ord.ord-no ~
+      AND ~{&KEY-PHRASE} and po-ordl.line GT 0 AND ~
+ASI.po-ordl.line LT 99999999 NO-LOCK, ~
+FIRST po-ord WHERE po-ord.company EQ po-ordl.company AND ~
+po-ord.po-no EQ po-ordl.po-no NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} ~
-      AND CAN-DO(emailcod.emailTo,cEmailTo) NO-LOCK ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH po-ordl WHERE po-ordl.company eq oe-ord.company and ~
+po-ordl.ord-no eq oe-ord.ord-no ~
+      AND ~{&KEY-PHRASE} and po-ordl.line GT 0 AND ~
+ASI.po-ordl.line LT 99999999 NO-LOCK, ~
+FIRST po-ord WHERE po-ord.company EQ po-ordl.company AND ~
+po-ord.po-no EQ po-ordl.po-no NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table emailcod
-&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table emailcod
-
+&Scoped-define TABLES-IN-QUERY-Browser-Table po-ordl po-ord
+&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table po-ordl
+&Scoped-define SECOND-TABLE-IN-QUERY-Browser-Table po-ord
 
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 RECT-5 browse-order ~
-auto_find Btn_Clear_Find btnSelectAll btnClear 
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+Btn_Clear_Find 
 &Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
@@ -99,8 +125,15 @@ auto_find Btn_Clear_Find btnSelectAll btnClear
 
 /* ************************  Function Prototypes ********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD CheckNotice B-table-Win 
-FUNCTION CheckNotice RETURNS CHARACTER
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getCost B-table-Win 
+FUNCTION getCost RETURNS DECIMAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getOrdQty B-table-Win 
+FUNCTION getOrdQty RETURNS DECIMAL
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -111,14 +144,6 @@ FUNCTION CheckNotice RETURNS CHARACTER
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnClear 
-     LABEL "Clear All" 
-     SIZE 15 BY 1.14.
-
-DEFINE BUTTON btnSelectAll 
-     LABEL "Select All" 
-     SIZE 15 BY 1.14.
-
 DEFINE BUTTON Btn_Clear_Find 
      LABEL "&Clear Find" 
      SIZE 13 BY 1
@@ -127,44 +152,54 @@ DEFINE BUTTON Btn_Clear_Find
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
-     SIZE 31.2 BY 1 NO-UNDO.
+     SIZE 60 BY 1 NO-UNDO.    
 
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 35.4 BY 1 NO-UNDO.
+     SIZE 55 BY 1 NO-UNDO.  
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 57 BY 2.38.
-
-DEFINE RECTANGLE RECT-5
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 57 BY 1.71.
+     SIZE 145 BY 1.43.  
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
-      emailcod
-    FIELDS(emailcod.emailcod
-      emailcod.description) SCROLLING.
+      po-ordl,
+      po-ord FIELDS(po-ord.po-no
+      po-ord.vend-no)
+     SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      emailcod.emailcod COLUMN-LABEL "Code":C5 FORMAT "X(10)":U
-            LABEL-FGCOLOR 15 LABEL-BGCOLOR 3
-      emailcod.description FORMAT "X(30)":U WIDTH 29.8
-      CheckNotice() @ vlShipNotice COLUMN-LABEL "Send":C4 FORMAT "x(4)":C4
-            WIDTH 7 LABEL-FGCOLOR 15 LABEL-BGCOLOR 3
+      po-ordl.po-no COLUMN-LABEL "PO #" FORMAT ">>>>>>>9":U
+      po-ordl.line COLUMN-LABEL "Line #" FORMAT "99":U
+      po-ordl.job-no COLUMN-LABEL "Job #" FORMAT "x(9)":U
+      po-ordl.job-no2 COLUMN-LABEL "JobLn" FORMAT ">99":U
+      po-ordl.ord-qty FORMAT "->>>,>>>,>>9.9<<<<<":U
+      po-ordl.t-rec-qty COLUMN-LABEL "Qty Received" FORMAT "->>>,>>>,>>9.9<<<<<":U
+      po-ordl.t-inv-qty COLUMN-LABEL "Qty Invoiced" FORMAT "->>>,>>>,>>9.9<<<<<":U
+      po-ordl.stat COLUMN-LABEL "Status" FORMAT "x":U
+      po-ordl.i-no COLUMN-LABEL "Item Number" FORMAT "x(15)":U
+            WIDTH 25
+      po-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
+      po-ordl.cost FORMAT "->,>>>,>>9.99<<<<":U
+      po-ordl.pr-uom COLUMN-LABEL "Cost UOM" FORMAT "x(4)":U
+      po-ordl.t-cost COLUMN-LABEL "Invoice Cost" FORMAT "->,>>>,>>9.99<<<<":U
+      po-ordl.cons-uom COLUMN-LABEL "Invoice Cost UOM" FORMAT "x(4)":U
+      getOrdQty() @ po-ordl.ord-qty COLUMN-LABEL "Qty Qrdered" FORMAT "->>>,>>>,>>9.9<<<<<":U
+      getCost() @ po-ordl.cost COLUMN-LABEL "Cost" FORMAT "->,>>>,>>9.99<<<<":U
+      po-ord.vend-no COLUMN-LABEL "Vendor" FORMAT "x(10)":U
+      po-ordl.company FORMAT "x(3)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 57 BY 10.48
-         FGCOLOR 1 FONT 2
-         TITLE FGCOLOR 1 "E-Mail Notification System" TOOLTIP "Double-click to Send / Unsend.".
+    WITH NO-ASSIGN SEPARATORS SIZE 165 BY 13.33
+         FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -172,18 +207,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 11.71 COL 12.6 HELP
+     browse-order AT ROW 14.57 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 12.67 COL 10.8 COLON-ALIGNED HELP
+     auto_find AT ROW 14.57 COL 70 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 12.67 COL 44.2 HELP
+     Btn_Clear_Find AT ROW 14.57 COL 132 HELP
           "CLEAR AUTO FIND Value"
-     btnSelectAll AT ROW 14.29 COL 13
-     btnClear AT ROW 14.29 COL 29.6
      "By:" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 11.62 COL 9.2
-     RECT-4 AT ROW 11.52 COL 1
-     RECT-5 AT ROW 14.05 COL 1
+          SIZE 4 BY 1 AT ROW 14.57 COL 2
+     RECT-4 AT ROW 14.33 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -195,6 +227,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartNavBrowser
+   External Tables: ASI.po-ord
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: External-Tables
@@ -216,8 +249,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 15.43
-         WIDTH              = 59.6.
+         HEIGHT             = 19.52
+         WIDTH              = 145.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -248,8 +281,7 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-       Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
-                "2".
+       po-ordl.company:VISIBLE IN BROWSE Browser-Table = FALSE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -259,16 +291,46 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.emailcod"
+     _TblList          = "ASI.po-ordl WHERE ASI.po-ord <external> ...,ASI.po-ord WHERE ASI.po-ordl ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _TblOptList       = "USED"
-     _Where[1]         = "CAN-DO(emailcod.emailTo,cEmailTo)"
-     _FldNameList[1]   > ASI.emailcod.emailcod
-"emailcod" ? "X(10)" "character" ? ? ? 3 15 ? no ? no no ? yes no no "U" "" "C5" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.emailcod.description
-"description" ? ? "character" ? ? ? ? ? ? no ? no no "29.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > "_<CALC>"
-"CheckNotice() @ vlShipNotice" "Send" "x(4)" ? ? ? ? 3 15 ? no ? no no "7" yes no no "C4" "" "C4" "" "" "" "" 0 no 0 no no
+     _TblOptList       = "USED,FIRST"
+     _JoinCode[1]      = "po-ordl.company eq oe-ord.company and
+po-ordl.ord-no eq oe-ord.ord-no"
+     _Where[1]         = "~{&KEY-PHRASE} and ASI.po-ordl.line GT 0 AND
+ASI.po-ordl.line LT 99999999"
+_JoinCode[2]      = "po-ord.company EQ po-ordl.company AND
+po-ord.po-no EQ po-ordl.po-no"
+     _FldNameList[1]   > ASI.po-ordl.po-no
+"po-ordl.po-no" "PO #" ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.po-ordl.line
+"po-ordl.line" "Line #" ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.po-ordl.job-no
+"po-ordl.job-no" "Job #" "x(9)" "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.po-ordl.job-no2
+"po-ordl.job-no2" "JobLn" ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   = ASI.po-ordl.ord-qty
+     _FldNameList[6]   = ASI.po-ordl.t-rec-qty
+     _FldNameList[7]   = ASI.po-ordl.t-inv-qty
+     _FldNameList[8]   = ASI.po-ordl.stat
+     _FldNameList[9]   > ASI.po-ordl.i-no
+"po-ordl.i-no" "Item Number" ? "character" ? ? ? ? ? ? no ? no no "25" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   > ASI.po-ordl.i-name
+"po-ordl.i-name" "Item Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   = ASI.po-ordl.cost
+     _FldNameList[12]   > ASI.po-ordl.pr-uom
+"po-ordl.pr-uom" "Cost UOM" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[13]   > ASI.po-ordl.t-cost
+"po-ordl.t-cost" "Invoice Cost" "->>>,>>>,>>9.9<<<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[14]   > ASI.po-ordl.pr-uom
+"po-ordl.cons-uom" "Invoice Cost UOM" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[15]   > "_<CALC>"
+"getOrdQty() @ po-ordl.ord-qty" "Qty Ordered" "->>>,>>>,>>9.9<<<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[16]   > "_<CALC>"
+"getCost() @ po-ordl.cost" "Unit Cost" "->,>>>,>>9.99<<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[17]   > ASI.po-ordl.company
+"po-ordl.company" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   > ASI.po-ord.vend-no
+"po-ord.vend-no" "Vendor" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -280,46 +342,18 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
-
-
 
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define BROWSE-NAME Browser-Table
 &Scoped-define SELF-NAME Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON MOUSE-SELECT-DBLCLICK OF Browser-Table IN FRAME F-Main /* E-Mail Notification System */
+ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
-  
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF gvlAddStatus THEN DO:
-        MESSAGE 
-            "Please save the phone record first, and then make this change."
-            VIEW-AS ALERT-BOX INFO BUTTONS OK.
-        RETURN NO-APPLY.
-    END.
     
-    FIND FIRST emaildtl EXCLUSIVE WHERE 
-        emaildtl.table_rec_key = STRING(vrPhone) AND 
-        emaildtl.emailcod = emailcod.emailcod
-        NO-ERROR.
-    
-    IF NOT AVAIL emaildtl THEN DO:
-        CREATE emaildtl.
-        ASSIGN 
-            emaildtl.table_rec_key = STRING (vrPhone)
-            emaildtl.emailcod = emailcod.emailcod.
-    END.
-    ELSE DO:
-        DELETE emaildtl.
-    END.
-
-    BROWSE Browser-Table:REFRESH() NO-ERROR.
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"buttons-target",OUTPUT char-hdl).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) 
+       THEN RUN browser-dbclicked IN WIDGET-HANDLE(char-hdl).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -327,7 +361,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON ROW-ENTRY OF Browser-Table IN FRAME F-Main /* E-Mail Notification System */
+ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}
@@ -338,7 +372,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON ROW-LEAVE OF Browser-Table IN FRAME F-Main /* E-Mail Notification System */
+ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
 DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
@@ -350,36 +384,24 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main /* E-Mail Notification System */
+ON START-SEARCH OF Browser-Table IN FRAME F-Main
+DO:
+  RUN startSearch.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
 DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
-  /*{methods/template/local/setvalue.i} */
-  FIND FIRST phone NO-LOCK
-       WHERE phone.rec_key = vrPhone NO-ERROR.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnClear
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClear B-table-Win
-ON CHOOSE OF btnClear IN FRAME F-Main /* Clear All */
-DO:
-  RUN ClearAll.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnSelectAll
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSelectAll B-table-Win
-ON CHOOSE OF btnSelectAll IN FRAME F-Main /* Select All */
-DO:
-  RUN SendAll.
+  {methods/template/local/setvalue.i}
+      
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -392,13 +414,12 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-{methods/winReSize.i}
+{sys/inc/f3help.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
-
-run AutoCreateRBOLPrt.
+{methods/winReSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -419,6 +440,15 @@ PROCEDURE adm-row-available :
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
 
+  /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "oe-ord"}
+
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
+
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "oe-ord"}
+
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
@@ -428,78 +458,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE AutoCreateRBOLPrt B-table-Win 
-PROCEDURE AutoCreateRBOLPrt :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- 
-    IF vrPhone EQ "" THEN DO:
-        {&OPEN-QUERY-Browser-Table}
-    END.
-    IF TRUE THEN RETURN.  /* commented this procedure */
-
-
-  FOR EACH emailcod WHERE emailcod.emailcod begins 'r-bolprt' NO-LOCK:
-
-    IF NOT CAN-FIND (FIRST reftable NO-LOCK
-                     WHERE reftable.rec_key = STRING (vrPhone)
-                       AND reftable.CODE    = emailcod.emailcod)
-    THEN DO:
-      CREATE reftable.
-      ASSIGN reftable.rec_key   = STRING (vrPhone)
-             reftable.CODE      = emailcod.emailcod.
-
-      FIND FIRST b-phone WHERE
-           b-phone.rec_key = vrPhone
-           NO-LOCK NO-ERROR.
-
-      IF AVAIL b-phone THEN
-      DO:
-         IF NOT can-find(FIRST emaildtl WHERE
-            emaildtl.emailcod = emailcod.emailcod AND
-            emaildtl.table_rec_key = b-phone.rec_key) THEN
-            DO:
-               CREATE emaildtl.
-               ASSIGN emaildtl.emailcod = emailcod.emailcod
-                      emaildtl.table_rec_key = b-phone.rec_key.
-               RELEASE emaildtl.
-            END.
-
-         RELEASE b-phone.
-      END.
-
-
-    END.
-  END.
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ClearAll B-table-Win 
-PROCEDURE ClearAll :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  
-    FOR EACH emaildtl WHERE 
-        emaildtl.table_rec_key = STRING (vrPhone):
-            DELETE emaildtl.
-    END.
-
-    {&OPEN-QUERY-Browser-Table}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -519,60 +477,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-hide B-table-Win 
-PROCEDURE local-hide :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields B-table-Win 
+PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
+  IF AVAIL(po-ordl) AND  po-ordl.item-type = NO  THEN
+    FIND itemfg NO-LOCK WHERE itemfg.company EQ po-ordl.company
+      AND itemfg.i-no EQ po-ordl.i-no
+    NO-ERROR.
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'hide':U ) .
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  RUN po/po-sysct.p.  /* for vars factor#.... need for d-poordl.w  */
+                           
+  
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
-PROCEDURE local-open-query :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-  run get-link-handle in adm-broker-hdl(this-procedure,"container-source", output char-hdl).
-  run get-ip-header in widget-handle(char-hdl) (output vHeaderValue).
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE RefreshData B-table-Win 
-PROCEDURE RefreshData :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  {&OPEN-QUERY-Browser-Table}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
@@ -586,7 +516,8 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "emailcod"}
+  {src/adm/template/snd-list.i "po-ord"}
+  {src/adm/template/snd-list.i "po-ordl"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -596,49 +527,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SendAll B-table-Win 
-PROCEDURE SendAll :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-rec-key B-table-Win 
+PROCEDURE set-rec-key :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
   
-    FOR EACH emailcod WHERE emailcod.emailcod > '' NO-LOCK:
-        IF NOT CAN-FIND (FIRST emaildtl NO-LOCK WHERE 
-                            emaildtl.table_rec_key = STRING (vrPhone) AND 
-                            emaildtl.emailcod  = emailcod.emailcod)
-        THEN DO:
-            CREATE emaildtl.
-            ASSIGN 
-                emaildtl.emailcod = emailcod.emailcod
-                emaildtl.table_rec_key = STRING(vrPhone).
-            RELEASE emaildtl.
-        END.
-    END.
-  
-    {&OPEN-QUERY-Browser-Table}
+  DO WITH FRAME {&FRAME-NAME}:
+    APPLY "value-changed" TO BROWSE {&browse-name}.
+  END.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setAddStatus B-table-Win 
-PROCEDURE setAddStatus :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE INPUT  PARAMETER iplAddStatus AS LOGICAL     NO-UNDO.
-/* Indicates that the viewer for phone is in add mode, so don't accept */
-/* changes in the browse yet */
-gvlAddStatus = iplAddStatus.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
@@ -655,6 +560,7 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -662,19 +568,36 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION CheckNotice B-table-Win 
-FUNCTION CheckNotice RETURNS CHARACTER
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getCost B-table-Win 
+FUNCTION getCost RETURNS DECIMAL
   ( /* parameter-definitions */ ) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-    IF CAN-FIND (FIRST emaildtl NO-LOCK WHERE
-                    emaildtl.emailcod = emailcod.emailcod AND
-                    emaildtl.table_rec_key = vrPhone) THEN
-        RETURN 'Yes'.
-    ELSE 
-        RETURN 'No'.
+ IF AVAIL po-ordl AND po-ordl.spare-int-2 EQ 1 AND AVAIL(itemfg) THEN
+    RETURN po-ordl.cost * itemfg.case-count.
+  ELSE 
+    RETURN (IF AVAIL(po-ordl) THEN po-ordl.cost ELSE 0).   /* Function return value. */
+
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getOrdQty B-table-Win 
+FUNCTION getOrdQty RETURNS DECIMAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  IF AVAIL po-ordl AND po-ordl.spare-int-1 EQ 1 AND AVAIL(itemfg) THEN
+    RETURN po-ordl.ord-qty / itemfg.case-count.
+  ELSE 
+    RETURN (IF AVAIL(po-ordl) THEN po-ordl.ord-qty ELSE 0).   /* Function return value. */
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

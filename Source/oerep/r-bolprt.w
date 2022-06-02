@@ -4887,7 +4887,7 @@ PROCEDURE pRunFormatValueChanged :
         ELSE
             tb_print_ship:HIDDEN       = NO .
 
-        IF v-coc-fmt EQ "BOLCERT10" THEN 
+        IF v-coc-fmt EQ "BOLCERT10" OR v-coc-fmt EQ "Altex" THEN 
         DO:
             ASSIGN
                 tb_per-bol-line:HIDDEN       = NO
@@ -5408,6 +5408,8 @@ PROCEDURE run-report :
                                         RUN oe/rep/bolcardgp.p (v-print-fmt).
                                     ELSE IF v-program = "oe/rep/bolcrdbc.p" THEN
                                             RUN oe/rep/bolcrdbc.p (v-print-fmt).
+                                        ELSE IF v-program = "oe/rep/cocAltex.p" THEN
+                                                RUN oe/rep/cocAltex.p (?).
                                         ELSE RUN VALUE(v-program).
         END.
     END.
@@ -5837,6 +5839,8 @@ PROCEDURE run-report-mail :
                                         RUN oe/rep/bolcardgp.p (v-print-fmt).
                                     ELSE IF v-program = "oe/rep/bolcrdbc.p" THEN
                                             RUN oe/rep/bolcrdbc.p (v-print-fmt).
+                                        ELSE IF v-program = "oe/rep/cocAltex.p" THEN
+                                                RUN oe/rep/cocAltex.p (?).
                                         ELSE
                                             RUN value(v-program).
             END.
@@ -6113,6 +6117,10 @@ PROCEDURE SetBOLForm :
                 ASSIGN 
                     is-xprint-form = NO
                     v-program      = "oe/rep/cocpryst-xl.p". 
+            WHEN "Altex" THEN
+                ASSIGN 
+                    is-xprint-form = YES
+                    v-program      = "oe/rep/cocAltex.p". 
 
             OTHERWISE
             ASSIGN

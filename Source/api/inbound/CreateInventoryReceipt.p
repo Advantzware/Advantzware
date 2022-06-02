@@ -60,16 +60,13 @@ DEFINE VARIABLE hdInventoryReceipt AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lPromptForClose    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAutoIssue         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lRecFound          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAddSetup          AS LOGICAL   NO-UNDO.
 
 RUN api\inbound\InventoryReceiptProcs.p PERSISTENT SET hdInventoryReceipt.
 RUN Inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs.
    
 ASSIGN
     oplSuccess     = YES
-    ipcQuantityUOM = IF ipcQuantityUOM NE "EA" AND ipcQuantityUOM NE "M" THEN
-                         "EA" /* Each */
-                     ELSE
-                         ipcQuantityUOM 
     cocode         = ipcCompany
     .
 
@@ -189,6 +186,12 @@ ASSIGN
                                  ELSE
                                     0
     . 
+    
+    IF NOT lItemtype THEN
+        ipcQuantityUOM = IF ipcQuantityUOM NE "EA" AND ipcQuantityUOM NE "M" THEN
+                             "EA" /* Each */
+                         ELSE
+                             ipcQuantityUOM. 
     
 /* Validate PO Number */
 IF iopiPONo NE 0 THEN DO:
@@ -567,8 +570,8 @@ ELSE DO:
         INPUT        ipcCompany,
         INPUT        ipcInventoryStockID,
         INPUT        ipdQuantity,
+        INPUT        item.cons-uom,
         INPUT        ipcQuantityUOM,
-        INPUT        item.pur-uom,
         INPUT-OUTPUT iopiPONo,
         INPUT        ipiPOLine,
         INPUT-OUTPUT iopcJobID,
@@ -820,9 +823,15 @@ PROCEDURE pRMRecordCreation PRIVATE :
     DEFINE INPUT        PARAMETER ipcLocationID              AS CHARACTER NO-UNDO.
     DEFINE OUTPUT       PARAMETER opriRMRctd                 AS ROWID     NO-UNDO.
     
-    DEFINE VARIABLE dCost AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dQty  AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iFrm  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCost          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQty           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iFrm           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dLength        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dWidth         AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dDepth         AS DECIMAL   NO-UNDO. 
+    DEFINE VARIABLE dBasisWeight   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQuantity      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cQuantityUOM   AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
     DEFINE BUFFER bf-item    FOR item.
@@ -947,7 +956,53 @@ PROCEDURE pRMRecordCreation PRIVATE :
          NO-ERROR.
     
     IF AVAILABLE po-ordl THEN DO:
-        dCost = po-ordl.cost.
+        ASSIGN
+            cQuantityUOM = po-ordl.pr-qty-uom
+            dLength      = po-ordl.s-len
+            dWidth       = po-ordl.s-wid
+            dBasisWeight = 0
+            .
+
+        RUN jc/GetJobMaterialDimensions.p (
+            INPUT po-ordl.company,
+            INPUT po-ordl.job-no,
+            INPUT po-ordl.job-no2,
+            INPUT po-ordl.s-num,
+            INPUT po-ordl.i-no,
+            INPUT-OUTPUT dLength,
+            INPUT-OUTPUT dWidth,
+            INPUT-OUTPUT dDepth,
+            INPUT-OUTPUT dBasisWeight
+            ).            
+
+        IF bf-rm-rctd.pur-uom EQ cQuantityUOM THEN
+            dQuantity = bf-rm-rctd.qty.
+        ELSE
+            RUN custom/convquom.p (INPUT cocode,
+                INPUT  bf-rm-rctd.pur-uom,
+                INPUT  cQuantityUOM,
+                INPUT  dBasisWeight,
+                INPUT  dLength,
+                INPUT  dWidth,
+                INPUT  dDepth,
+                INPUT  bf-rm-rctd.qty,
+                OUTPUT dQuantity
+                ).
+
+        FIND FIRST po-ord NO-LOCK
+             WHERE po-ord.company EQ po-ordl.company 
+               AND po-ord.po-no   EQ po-ordl.po-no
+             NO-ERROR.
+
+        IF dQuantity LT po-ordl.ord-qty THEN
+            dCost = po-ordl.cost + (po-ordl.setup /((po-ordl.t-cost - po-ordl.setup) / po-ordl.cost)).
+        ELSE
+            ASSIGN
+                dCost     = po-ordl.cost
+                lAddSetup = AVAILABLE po-ord AND po-ord.type NE "S"
+                .
+
+        bf-rm-rctd.cost-uom = po-ordl.pr-uom.
         
         /* Gets cost */
         RUN rm/getpocst.p (
@@ -955,7 +1010,6 @@ PROCEDURE pRMRecordCreation PRIVATE :
             INPUT  po-ordl.pr-uom,
             INPUT-OUTPUT dCost
             ). 
-        
         IF ERROR-STATUS:ERROR THEN DO:
             ASSIGN
                 opcMessage = "Error while getting RM cost for Tag (" + ipcInventoryStockID + ") " + ERROR-STATUS:GET-MESSAGE(1)
@@ -981,8 +1035,7 @@ PROCEDURE pRMRecordCreation PRIVATE :
         
         ASSIGN
             bf-rm-rctd.cost     = dCost
-            bf-rm-rctd.b-num    = (po-ordl.b-num)
-            bf-rm-rctd.pur-uom  = po-ordl.pr-qty-uom
+            bf-rm-rctd.b-num    = po-ordl.b-num
             bf-rm-rctd.cost-uom = po-ordl.pr-uom
             .
         
@@ -1006,7 +1059,9 @@ PROCEDURE pGetQtyFrm PRIVATE:
    DEFINE OUTPUT PARAMETER opiFrm      AS INTEGER NO-UNDO.
    
    DEFINE VARIABLE dQty AS DECIMAL NO-UNDO.
-
+   
+   DEFINE BUFFER bf-job FOR job.
+   
    FIND FIRST po-ordl NO-LOCK
         WHERE po-ordl.company   EQ ipcCompany
           AND po-ordl.po-no     EQ iopiPONo
@@ -1015,18 +1070,18 @@ PROCEDURE pGetQtyFrm PRIVATE:
         NO-ERROR.
  
    IF po-ordl.job-no NE "" AND po-ordl.s-num EQ ? THEN
-        FIND FIRST job NO-LOCK
-             WHERE job.company EQ ipcCompany
-               AND job.job-no  EQ po-ordl.job-no
-               AND job.job-no2 EQ po-ordl.job-no2
+        FIND FIRST bf-job NO-LOCK
+             WHERE bf-job.company EQ ipcCompany
+               AND bf-job.job-no  EQ po-ordl.job-no
+               AND bf-job.job-no2 EQ po-ordl.job-no2
              NO-ERROR.
         
-    IF AVAILABLE job THEN DO:
+    IF AVAILABLE bf-job THEN DO:
         FOR EACH job-mat NO-LOCK
-            WHERE job-mat.company EQ job.company
-              AND job-mat.job     EQ job.job
-              AND job-mat.job-no  EQ job.job-no
-              AND job-mat.job-no2 EQ job.job-no2
+            WHERE job-mat.company EQ bf-job.company
+              AND job-mat.job     EQ bf-job.job
+              AND job-mat.job-no  EQ bf-job.job-no
+              AND job-mat.job-no2 EQ bf-job.job-no2
               AND job-mat.rm-i-no EQ po-ordl.i-no:
               
             ASSIGN
@@ -1078,7 +1133,6 @@ PROCEDURE pUpdateRMCostAndUOM:
     DEFINE VARIABLE lRMOverrunCost AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cRtnChr        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lAddSetup      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE dSetup         AS DECIMAL   NO-UNDO.
     
     IF NOT AVAILABLE ipbf-rm-rctd THEN
@@ -1130,15 +1184,7 @@ PROCEDURE pUpdateRMCostAndUOM:
                AND po-ordl.b-num     EQ ipbf-rm-rctd.b-num
              NO-ERROR.
   
-    IF AVAILABLE po-ordl THEN 
-    DO:
-        FIND FIRST po-ord NO-LOCK
-             WHERE po-ord.company EQ po-ordl.company
-               AND po-ord.po-no   EQ po-ordl.po-no
-             NO-ERROR.
-        IF AVAILABLE po-ord AND po-ord.type NE "S" THEN
-            lAddSetup = TRUE.
-                 
+    IF AVAILABLE po-ordl THEN DO:
         ASSIGN  
             dLength      = po-ordl.s-len
             dWidth       = po-ordl.s-wid
@@ -1156,43 +1202,17 @@ PROCEDURE pUpdateRMCostAndUOM:
             INPUT-OUTPUT dSetup
             ) NO-ERROR.
             
-        IF (dLength EQ 0 OR dWidth EQ 0 OR dBasisWeight EQ 0) THEN 
-        DO:
-            FIND FIRST job NO-LOCK 
-                 WHERE job.company EQ ipbf-rm-rctd.company
-                   AND job.job-no  EQ po-ordl.job-no
-                   AND job.job-no2 EQ po-ordl.job-no2
-                 NO-ERROR.
-
-            IF AVAILABLE job THEN 
-            DO :
-                FOR EACH job-mat NO-LOCK
-                    WHERE job-mat.company EQ ipbf-rm-rctd.company
-                      AND job-mat.job     EQ job.job
-                      AND job-mat.job-no  EQ job.job-no
-                      AND job-mat.job-no2 EQ job.job-no2
-                      AND job-mat.i-no    EQ po-ordl.i-no
-                    BY job-mat.frm DESCENDING:
-                  
-                    IF job-mat.frm EQ po-ordl.s-num THEN 
-                        LEAVE.
-                END.
-              
-                IF AVAILABLE job-mat THEN
-                    ASSIGN
-                        dLength      = IF dLength EQ 0 THEN job-mat.len ELSE dLength
-                        dWidth       = IF dWidth EQ 0 THEN job-mat.wid ELSE dWidth
-                        dBasisWeight = IF dBasisWeight EQ 0 THEN job-mat.basis-w ELSE dBasisWeight
-                        .
-            END.
-
-            IF dLength EQ 0 THEN dLength = item.s-len.
-
-            IF dWidth EQ 0 THEN
-                dWidth = IF item.r-wid NE 0 THEN item.r-wid ELSE item.s-wid.
-
-            IF dBasisWeight EQ 0 THEN dBasisWeight = item.basis-w.
-        END.
+        RUN jc/GetJobMaterialDimensions.p (
+            INPUT po-ordl.company,
+            INPUT po-ordl.job-no,
+            INPUT po-ordl.job-no2,
+            INPUT po-ordl.s-num,
+            INPUT po-ordl.i-no,
+            INPUT-OUTPUT dLength,
+            INPUT-OUTPUT dWidth,
+            INPUT-OUTPUT dDepth,
+            INPUT-OUTPUT dBasisWeight
+            ).            
     END.
     ELSE 
     DO:
@@ -1254,9 +1274,9 @@ PROCEDURE pUpdateRMCostAndUOM:
             dWidth,
             dDepth,
             DEC(ipbf-rm-rctd.qty),
-            OUTPUT dQuantity)
-            .
-              
+            OUTPUT dQuantity
+            ).
+
     IF ipbf-rm-rctd.cost-uom EQ "L" THEN
         dCost = po-ordl.cons-cost.
     ELSE IF cPOCostUOM EQ "L" THEN DO:
@@ -1273,7 +1293,7 @@ PROCEDURE pUpdateRMCostAndUOM:
             dLength, 
             dWidth, 
             dDepth,
-            DECIMAL(ipbf-rm-rctd.cost),
+            ipbf-rm-rctd.cost,
             OUTPUT dCost
             ).
 
