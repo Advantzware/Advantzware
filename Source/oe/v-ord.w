@@ -1318,7 +1318,7 @@ END.
 ON CHOOSE OF btnTags IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT oe-ord.rec_key,
+        INPUT cocode + STRING(oe-ord.ord-no),
         INPUT "",
         INPUT "Reason Code"
         ).
@@ -5646,7 +5646,7 @@ PROCEDURE local-display-fields :
             oe-ord.spare-char-2:SCREEN-VALUE = cStatDesc.
             
          RUN Tag_IsTagRecordAvailableForGroup(
-             INPUT oe-ord.rec_key,
+             INPUT cocode + STRING(oe-ord.ord-no),
              INPUT "oe-ord",
              INPUT "Reason Code",
              OUTPUT lAvailable
@@ -6981,7 +6981,7 @@ PROCEDURE pValidate :
         oe-ord.spare-char-2:SCREEN-VALUE IN FRAME {&frame-name} = cStatDesc.
 
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT oe-ord.rec_key,
+        INPUT cocode + STRING(oe-ord.ord-no),
         INPUT "oe-ord",
         INPUT "Reason Code",
         OUTPUT lAvailable
