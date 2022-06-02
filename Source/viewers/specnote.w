@@ -675,57 +675,56 @@ PROCEDURE valid-note_form_no PRIVATE :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR ls-header   AS CHAR NO-UNDO.
-  DEF VAR ls-header1  AS CHAR NO-UNDO.
-  DEF VAR char-hdl    AS CHAR NO-UNDO.
+    DEF VAR ls-header   AS CHAR NO-UNDO.
+    DEF VAR ls-header1  AS CHAR NO-UNDO.
+    DEF VAR char-hdl    AS CHAR NO-UNDO.
+    DEF VAR cNoteRecKey AS CHAR NO-UNDO.
+    DEF VAR cTestString AS CHAR NO-UNDO.
 
-  DEFINE BUFFER b1-job  FOR job.
+    DEFINE BUFFER b1-job  FOR job.
 
-  {methods/lValidateError.i YES}
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source", OUTPUT char-hdl).
-  RUN get-ip-header IN WIDGET-HANDLE(char-hdl) (OUTPUT ls-header).
+    {methods/lValidateError.i YES}
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source", OUTPUT char-hdl).
+    RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT cNoteRecKey).
+    RUN get-ip-header IN WIDGET-HANDLE(char-hdl) (OUTPUT ls-header).
 
-  IF LENGTH (ls-header) < 8 THEN
-    ASSIGN  ls-header1  = ls-header /* save original job-no / est-no */
-            ls-header   = fill(" ",8 - LENGTH(TRIM(ls-header))) +
-                                              TRIM(ls-header).
-  DO WITH FRAME {&FRAME-NAME}:
+    IF LENGTH (ls-header) < 8 THEN ASSIGN  
+        ls-header1  = ls-header /* save original job-no / est-no */
+        ls-header   = fill(" ",8 - LENGTH(TRIM(ls-header))) + TRIM(ls-header).
+  
+    DO WITH FRAME {&FRAME-NAME}:
+        IF INT(notes.note_form_no:SCREEN-VALUE) NE 0 
+        AND NOT CAN-FIND (FIRST ef WHERE ef.company EQ g_company
+                          AND ef.est-no  EQ ls-header
+                          AND ef.form-no EQ INT(notes.note_form_no:SCREEN-VALUE)) THEN DO:
 
-    IF INT(notes.note_form_no:SCREEN-VALUE) NE 0 AND
-       NOT CAN-FIND (FIRST ef WHERE ef.company EQ g_company
-                                AND ef.est-no  EQ ls-header
-                                AND ef.form-no EQ INT(notes.note_form_no:SCREEN-VALUE)) THEN DO:
-
-      /* Check if ls-header is a job-no (not an est-no). */
-      FIND FIRST b1-job NO-LOCK
-           WHERE b1-job.company = g_company
-             AND b1-job.job-no  = FILL(" ", iJobLen - length(trim(ls-header1))) + trim(ls-header1)
-             NO-ERROR.
-
-      /* If it is a job-no: */
-      IF AVAIL b1-job THEN DO:
-
-        /* Reformat the job's est-no to 8 chars. */
-        ASSIGN  ls-header1   = fill(" ",8 - LENGTH(TRIM(b1-job.est-no))) +
+        /* Check if ls-header is a job-no (not an est-no). */
+        FIND FIRST b1-job NO-LOCK
+            WHERE b1-job.company = g_company
+            AND b1-job.est-no EQ ls-header
+            NO-ERROR.
+        
+        /* If it is a job-no: */
+        IF AVAIL b1-job THEN DO:
+            /* Reformat the job's est-no to 8 chars. */
+            ASSIGN  ls-header1   = fill(" ",8 - LENGTH(TRIM(b1-job.est-no))) +
                                                    TRIM(b1-job.est-no).
-
-        /* See if we can find it this time. If so, we're good. */
-        IF CAN-FIND (FIRST ef WHERE ef.company EQ g_company
+            /* See if we can find it this time. If so, we're good. */
+            IF CAN-FIND (FIRST ef WHERE ef.company EQ g_company
                                 AND ef.est-no  EQ ls-header1
                                 AND ef.form-no EQ INT(notes.note_form_no:SCREEN-VALUE)) THEN DO:
-            RETURN.
+                RETURN.
+            END.
         END.
-      END.
 
-      MESSAGE 'Invalid Form.'
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-
-      APPLY "entry" TO notes.note_form_no.
-      RETURN ERROR.
+        MESSAGE 'Invalid Form.'
+            VIEW-AS ALERT-BOX INFO BUTTONS OK.
+        APPLY "entry" TO notes.note_form_no.
+        RETURN ERROR.
+        END.
     END.
-  END.
 
-  {methods/lValidateError.i NO}
+    {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

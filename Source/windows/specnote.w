@@ -539,6 +539,10 @@ PROCEDURE get-ip-header :
   FIND FIRST job-hdr WHERE job-hdr.rec_key EQ ip-rec_key NO-LOCK NO-ERROR.
   IF AVAIL job-hdr THEN op-header = job-hdr.est-no.
 
+  IF op-header EQ "" THEN
+  FIND FIRST job WHERE job.rec_key EQ ip-rec_key NO-LOCK NO-ERROR.
+  IF AVAIL job THEN op-header = job.est-no.
+
   IF op-header EQ "" THEN op-header = ip-header.
   
 END PROCEDURE.
