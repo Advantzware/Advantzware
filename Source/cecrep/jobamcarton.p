@@ -51,7 +51,7 @@ DEFINE            VARIABLE lv-part-no     AS cha       FORM "x(15)" NO-UNDO.
 DEFINE            VARIABLE v-loop-cnt     AS INTEGER   NO-UNDO.
 DEFINE            VARIABLE v-note-cnt     AS INTEGER   NO-UNDO.
 DEFINE            VARIABLE v-note-length  AS INTEGER   NO-UNDO.
-DEFINE            VARIABLE v-die-loc      AS cha       FORM "x(15)" NO-UNDO.
+DEFINE            VARIABLE v-die-loc      AS cha       FORM "x(20)" NO-UNDO.
 DEFINE            VARIABLE v-plate-loc    AS CHARACTER FORM "X(8)" NO-UNDO.
 DEFINE            VARIABLE cImagePath     AS CHARACTER FORMAT "x(100)" NO-UNDO.
 
@@ -525,7 +525,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=VendorPO>" STRING(v-po-no)  FORMAT "x(10)" 
               "<=VendorCode>" STRING(v-vend-no ) FORMAT "x(15)"
               "<B>"
-              "<=Die>" IF AVAILABLE xeb THEN xeb.die-no ELSE "" FORMAT "X(15)"
+              "<=Die>" IF AVAILABLE xeb THEN xeb.die-no ELSE "" FORMAT "X(20)"
               "</B>"
               "<=DieLocation>" v-die-loc FORMAT "x(10)"
               "<=Impressions>" TRIM(STRING(v-dc-qty))    FORMAT "x(7)"
