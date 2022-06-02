@@ -1813,14 +1813,14 @@ FIND FIRST currency NO-LOCK
              RUN GL_SpCreateGLHist(cocode,
                         gl-ctrl.balanceAccount,
                         "ACPAY",
-                        "Round adjustment",
+                        "Rounding adjustment",
                         tran-date,
                         dAmountBalance,
                         v-trnum,
                         tran-period,
                         "A",
                         tran-date,
-                        "Adjustment",
+                        "Balancing Account",
                         "AP").    
          END.           
     END.
