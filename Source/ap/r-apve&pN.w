@@ -1300,6 +1300,8 @@ PROCEDURE post-gl :
     DEFINE VARIABLE v-dep     AS DECIMAL.
     DEFINE VARIABLE v-bwt     AS DECIMAL.
     DEFINE VARIABLE ll-rcpth  AS LOG.
+    DEFINE VARIABLE lUnBalance AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dAmountBalance AS CHARACTER NO-UNDO.
 
     /** POST TO GENERAL LEDGER ACCOUNTS TRANSACTION FILE **/
     g2 = 0.
@@ -1797,6 +1799,32 @@ FIND FIRST currency NO-LOCK
         END. 
           
     END.
+    
+    RUN GL_CheckRunBalance(cocode,
+        v-trnum,
+        OUTPUT dAmountBalance,
+        OUTPUT lUnBalance).
+    IF lUnBalance THEN
+    DO:  
+         FIND FIRST gl-ctrl NO-LOCK
+              WHERE gl-ctrl.company EQ cocode NO-ERROR.
+         IF AVAIL gl-ctrl THEN
+         DO:          
+             RUN GL_SpCreateGLHist(cocode,
+                        gl-ctrl.balanceAccount,
+                        "ACPAY",
+                        "Round adjustment",
+                        tran-date,
+                        dAmountBalance,
+                        v-trnum,
+                        tran-period,
+                        "A",
+                        tran-date,
+                        "Adjustment",
+                        "AP").    
+         END.           
+    END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
