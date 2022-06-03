@@ -764,10 +764,9 @@ FUNCTION FormatForCSV RETURNS CHARACTER
     DEFINE VARIABLE chChar    AS CHARACTER NO-UNDO.                    
              
     /* Add escape character (double quote) to exceptional characters */
-    ipcValue = REPLACE(ipcValue,'"','""').
-    ipcValue = REPLACE(ipcValue,',',' ').
-        
-    ASSIGN 
+    ASSIGN
+        ipcValue  = REPLACE(ipcValue,'"','""')
+        ipcValue  = REPLACE(ipcValue,',',' ')
         iZeroCode = ASC("0")
         iNineCode = ASC("9")
         chChar    = SUBSTRING(ipcValue,1,1)
