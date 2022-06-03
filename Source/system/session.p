@@ -93,7 +93,10 @@ DEFINE TEMP-TABLE ttProgramHandle NO-UNDO
     FIELD childProgramName   AS CHARACTER
     INDEX programHandle IS PRIMARY programHandle childProgramHandle 
     .
-                
+
+DEFINE TEMP-TABLE ttAuditFld NO-UNDO 
+    LIKE AuditFld.
+                     
 {system/ttSessionParam.i}
 {system/ttPermissions.i}
 {system/ttSetting.i}
@@ -175,6 +178,19 @@ FUNCTION fMessageTitle RETURNS CHARACTER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pReplaceContext Procedure
 FUNCTION pReplaceContext RETURNS CHARACTER PRIVATE
   (ipcMessage AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-sfAuditField) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfAuditField Procedure
+FUNCTION sfAuditField RETURNS LOGICAL 
+  ( ipcTable AS CHARACTER, ipcField AS CHARACTER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -487,6 +503,12 @@ REPEAT:
     END.
 END. /* repeat */
 
+/* Creating ttAuditFld from AuditFld for improving performance in Auditing record updates */
+FOR EACH Audit.AuditFld NO-LOCK
+    WHERE Audit.AuditFld.Audit EQ YES:
+    CREATE ttAuditFld.
+    BUFFER-COPY Audit.AuditFld TO ttAuditFld.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3529,6 +3551,28 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfAuditField) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfAuditField Procedure
+FUNCTION sfAuditField RETURNS LOGICAL 
+  ( ipcTable AS CHARACTER, ipcField AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN CAN-FIND(FIRST ttAuditFld 
+	            WHERE ttAuditFld.AuditTable EQ ipcTable
+                     AND ttAuditFld.AuditField EQ ipcField).
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfDynLookupValue) = 0 &THEN
 
