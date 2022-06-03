@@ -123,7 +123,7 @@ DEFINE FRAME OPTIONS-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "ip-win-title"
+         TITLE              = ip-win-title
          HEIGHT             = 24
          WIDTH              = 149.8
          MAX-HEIGHT         = 320
