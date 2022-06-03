@@ -1648,7 +1648,7 @@ DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
 
     RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
 
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+    RUN Notes_CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
 
     DELETE OBJECT hNotesProcs.   
 
