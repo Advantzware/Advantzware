@@ -3561,10 +3561,9 @@ FUNCTION sfAuditField RETURNS LOGICAL
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-
-	RETURN CAN-FIND(FIRST ttAuditFld 
-	                WHERE ttAuditFld.AuditTable EQ ipcTable
-	                  AND ttAuditFld.AuditField EQ ipcField).
+    RETURN CAN-FIND(FIRST ttAuditFld 
+	            WHERE ttAuditFld.AuditTable EQ ipcTable
+                     AND ttAuditFld.AuditField EQ ipcField).
 
 END FUNCTION.
 	
