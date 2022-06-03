@@ -24,6 +24,7 @@ def var v-dim-fit like style.dim-fit.
 DEF SHARED VAR cocode AS cha NO-UNDO.
 
 {sys/inc/f16to32.i}
+{sys/inc/round.i}
 
 blok:
 do on error undo:

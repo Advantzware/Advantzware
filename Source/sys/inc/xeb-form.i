@@ -62,6 +62,8 @@ FOR EACH est-inst
   est-inst.line = {3}.
 END.
 
+DISABLE TRIGGERS FOR LOAD OF box-design-line.
+
 FOR EACH box-design-line
     WHERE box-design-line.design-no EQ 0
       AND box-design-line.company   EQ {1}company
@@ -73,6 +75,8 @@ FOR EACH box-design-line
    box-design-line.form-no  = {3}
    box-design-line.blank-no = {4}.
 END.
+
+DISABLE TRIGGERS FOR LOAD OF box-design-hdr.
 
 FOR EACH box-design-hdr
     WHERE box-design-hdr.design-no EQ 0
