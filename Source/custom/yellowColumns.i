@@ -484,12 +484,12 @@ PROCEDURE openQuery:
 
 &ELSEIF '{&yellowColumnsName}' EQ 'item-pos' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
-  IF sortColumn EQ 'Due Date' THEN STRING(YEAR(po-ordl.due-date),'9999') + ~
-  STRING(MONTH(po-ordl.due-date),'99') + ~
-  STRING(DAY(po-ordl.due-date),'99') ELSE ~
-  IF sortColumn EQ 'Vendor' THEN STRING(po-ordl.vend-no) ELSE ~
-  IF sortColumn EQ 'Ship To' THEN po-ord.ship-id ELSE ~
-  STRING(po-ordl.po-no,'>>>>>>>9') ~{&SORTED}
+  IF sortColumn EQ 'Due Date' THEN STRING(YEAR(tt-item-po.dtDueDate),'9999') + ~
+  STRING(MONTH(tt-item-po.dtDueDate),'99') + ~
+  STRING(DAY(tt-item-po.dtDueDate),'99') ELSE ~
+  IF sortColumn EQ 'Vendor' THEN STRING(tt-item-po.cVendName) ELSE ~
+  IF sortColumn EQ 'Ship To' THEN tt-item-po.cShipId ELSE ~
+  STRING(tt-item-po.iPoNo,'>>>>>>>9') ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'b-estitm' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
