@@ -252,7 +252,7 @@ DEFINE FRAME rd-fgexp
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
     SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
     BGCOLOR 15 
-    TITLE "Export Vendor to Excel" WIDGET-ID 100.
+    TITLE "Export Estimate Cost Categories to Excel" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
