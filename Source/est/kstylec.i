@@ -65,7 +65,7 @@ end.
 
 do i = 1 to EXTENT(num):
   num[i] = num[i] * li-16-32 /*16 or 32*/.
-  if round-log then do:
+  if lRound then do:
     {sys/inc/roundup.i num[i]}
   end.
   ELSE IF v-cecscrn-char NE "Decimal" THEN
