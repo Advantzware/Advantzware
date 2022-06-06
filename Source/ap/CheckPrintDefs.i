@@ -52,6 +52,8 @@ DEFINE TEMP-TABLE ttcheckconfig1
  FIELD checkPayDateCol AS DEC INIT 45
  FIELD checkRemitToNameRow AS DEC INIT 8 
  FIELD checkRemitToNameCol AS DEC INIT 8
+ FIELD checkRemitToAddNameRow AS DEC INIT 8 
+ FIELD checkRemitToAddNameCol AS DEC INIT 8
  FIELD checkRemitToAddressRow AS DEC INIT 10 
  FIELD checkRemitToAddressCol AS DEC INIT 8
  FIELD checkCompanyNameRow AS DEC INIT 2
@@ -150,6 +152,16 @@ DEFINE {1} TEMP-TABLE ttCheckConfig LIKE ttcheckconfig1
  FIELD checkRemitToNameItalic AS LOG 
  FIELD checkRemitToNameRightJustify AS LOG
  FIELD checkRemitToNameAllCaps AS LOG INIT YES
+
+ FIELD checkRemitToAddNameShow AS LOG INIT YES
+ FIELD checkRemitToAddNameFont AS CHAR 
+ FIELD checkRemitToAddNameFontSize AS INT 
+ FIELD checkRemitToAddNameSize AS INT INIT 70
+ FIELD checkRemitToAddNameBold AS LOG 
+ FIELD checkRemitToAddNameUnderline AS LOG
+ FIELD checkRemitToAddNameItalic AS LOG
+ FIELD checkRemitToAddNameRightJustify AS LOG
+ FIELD checkRemitToAddNameAllCaps AS LOG INIT YES
  
  FIELD checkRemitToAddressShow AS LOG INIT YES
  FIELD checkRemitToAddressFont AS CHAR 

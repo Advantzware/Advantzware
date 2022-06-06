@@ -971,6 +971,25 @@ PROCEDURE pWriteCheck PRIVATE:
         RUN pSetFont(ipbf-ttCheckConfig.checkFont, ipbf-ttCheckConfig.checkFontSize).
     END.
     
+    /*Print Check RemitToAddressName*/
+    IF ipbf-ttCheckConfig.checkRemitToAddNameShow THEN 
+    DO:
+        RUN pSetFont(ipbf-ttCheckConfig.checkRemitToAddNameFont, ipbf-ttCheckConfig.checkRemitToAddNameFontSize).   
+        RUN pWriteToCoordinatesString(                                /*string format*/
+            ipdRowStart + ipbf-ttCheckConfig.checkRemitToAddNameRow,     /*x*/ 
+            ipbf-ttCheckConfig.checkRemitToAddNameCol,                   /*y*/
+            ipbf-ttCheck.remitToName,                                        /*value to print*/
+            ipbf-ttCheckConfig.checkRemitToAddNameSize,                  /*string size*/ 
+            ipbf-ttCheckConfig.checkRemitToAddNameBold,                  /*bold*/ 
+            ipbf-ttCheckConfig.checkRemitToAddNameUnderline,             /*underline*/ 
+            ipbf-ttCheckConfig.checkRemitToAddNameItalic, 
+            ipbf-ttCheckConfig.checkRemitToAddNameRightJustify,          /*right justify*/
+            ipbf-ttCheckConfig.checkRemitToAddNameAllCaps).
+        /*Reset and Set Font*/
+        RUN pSetFont(ipbf-ttCheckConfig.defaultFont, ipbf-ttCheckConfig.defaultFontSize).
+        RUN pSetFont(ipbf-ttCheckConfig.checkFont, ipbf-ttCheckConfig.checkFontSize).
+    END.
+    
     /*Print RemitTo Address*/
     IF ipbf-ttCheckConfig.checkRemitToAddressShow THEN 
     DO:
