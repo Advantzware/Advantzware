@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : POProcs.p
     Purpose     : 
@@ -13,7 +12,10 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-
+DEFINE TEMP-TABLE tt-eiv NO-UNDO
+    FIELD run-qty  AS DECIMAL DECIMALS 3 EXTENT 20
+    FIELD run-cost AS DECIMAL DECIMALS 4 EXTENT 20
+    FIELD setups   AS DECIMAL DECIMALS 2 EXTENT 20.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -254,6 +256,73 @@ PROCEDURE pGetPOLineAdderData PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE PO_CalLineTotalandTax:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iproPoOrd AS ROWID NO-UNDO.
+
+    DEFINE VARIABLE deTaxAmount    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE deFrtTaxAmount AS DECIMAL NO-UNDO.   
+
+    FIND po-ord WHERE ROWID(po-ord) EQ iproPoOrd NO-ERROR.
+
+    IF AVAILABLE po-ord THEN 
+    DO:
+        ASSIGN
+            po-ord.tax    = 0
+            po-ord.t-cost = 0.
+
+        /* add freight whether tax gr is blank or not */
+        IF po-ord.fob-code EQ "ORIG" AND po-ord.frt-pay NE "P" THEN
+            ASSIGN
+                po-ord.t-cost = po-ord.t-freight.
+
+        IF po-ord.tax-gr NE "" THEN 
+        DO:    
+            IF po-ord.fob-code EQ "ORIG" AND po-ord.frt-pay NE "P" THEN
+            DO:
+                RUN Tax_Calculate(INPUT po-ord.company,
+                    INPUT po-ord.tax-gr,
+                    INPUT TRUE,
+                    INPUT po-ord.t-freight,
+                    INPUT "", 
+                    OUTPUT deFrtTaxAmount).
+    
+                ASSIGN
+                    po-ord.tax = deFrtTaxAmount.
+            END.   
+        END.
+
+        FOR EACH po-ordl NO-LOCK
+            WHERE po-ordl.company EQ po-ord.company
+            AND po-ordl.po-no   EQ po-ord.po-no:
+
+            po-ord.t-cost = po-ord.t-cost + po-ordl.t-cost.
+  
+            IF po-ordl.tax THEN
+            DO:
+                RUN Tax_Calculate(INPUT po-ord.company,
+                    INPUT po-ord.tax-gr,
+                    INPUT FALSE,
+                    INPUT po-ordl.t-cost,
+                    INPUT po-ordl.i-no, 
+                    OUTPUT deTaxAmount).
+                po-ord.tax = po-ord.tax + (deTaxAmount).
+            END.
+    
+            IF po-ordl.stat EQ "U" AND
+                po-ord.stat NE "H"  AND
+                po-ord.opened       THEN po-ord.stat = "U".
+        END.
+
+        ASSIGN
+            po-ord.tax    = ROUND(po-ord.tax,2)
+            po-ord.t-cost = ROUND(po-ord.t-cost,2) + po-ord.tax.
+    END.
+END PROCEDURE.
+
 PROCEDURE PO_GetAddersCostInCostUOM:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -408,6 +477,250 @@ PROCEDURE PO_GetLineScoresAndTypes:
     
 END PROCEDURE.
 
+PROCEDURE PO_ProcessAdder:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    DEFINE INPUT PARAMETER iproPoOrdl       AS ROWID        NO-UNDO.
+    DEFINE INPUT PARAMETER iproJobMat       AS ROWID        NO-UNDO.
+    DEFINE INPUT PARAMETER ipchCompanyID    AS CHARACTER    NO-UNDO.
+    DEFINE INPUT PARAMETER ipdeBasisW       LIKE item.basis-w NO-UNDO.
+    DEFINE INPUT PARAMETER ipdeS-Len        LIKE item.s-len   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdeS-Wid        LIKE item.s-wid   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdeS-Dep        LIKE item.s-dep   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdeAdder        AS DECIMAL        NO-UNDO EXTENT 2.
+
+    DEFINE VARIABLE deCost        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE deAddCost     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE deQtyComp     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE deSetup       LIKE e-item-vend.setup NO-UNDO.
+    DEFINE VARIABLE dAdder-setup  AS DECIMAL   NO-UNDO.
+
+    DEFINE VARIABLE dCostTotal         AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOM        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostSetup         AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cCostUOM           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError             AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdPOProcs          AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lNewVendorItemCost AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound             AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iCount             AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE loError            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE chMessage          AS CHARACTER NO-UNDO.
+    DEFINE BUFFER xjob-mat FOR job-mat.
+
+    /* RUN NK1LOOKUP.P instead of using sys/inc/.i */
+    RUN sys/ref/nk1look.p (ipchCompanyID, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN lNewVendorItemCost = IF cReturn EQ "Yes" THEN YES ELSE NO.
+
+    RUN po/POProcs.p PERSISTENT SET hdPOProcs.
+
+    FIND xjob-mat WHERE ROWID(xjob-mat) EQ iproJobMat NO-LOCK.
+
+    FIND po-ordl WHERE ROWID(po-ordl) EQ iproPoOrdl EXCLUSIVE-LOCK.
+    FIND FIRST po-ord WHERE
+        po-ord.company EQ po-ordl.company AND
+        po-ord.po-no EQ po-ordl.po-no
+        NO-LOCK.
+
+    ASSIGN
+        ipdeAdder[1] = po-ordl.cost
+        ipdeAdder[2] = po-ordl.cons-cost.
+
+    DO WITH FRAME po-ordlf:
+        FOR EACH job-mat NO-LOCK
+            WHERE job-mat.company  EQ xjob-mat.company
+            AND job-mat.job      EQ xjob-mat.job
+            AND job-mat.frm      EQ xjob-mat.frm
+            AND job-mat.job-no   EQ xjob-mat.job-no
+            AND job-mat.job-no2  EQ xjob-mat.job-no2
+            USE-INDEX seq-idx,
+
+            FIRST item NO-LOCK
+            WHERE item.company  EQ job-mat.company
+            AND item.i-no     EQ job-mat.i-no
+            AND item.mat-type EQ "A":
+                
+            ASSIGN 
+                deCost  = 0
+                deSetup = 0.
+                
+            IF lNewVendorItemCost THEN 
+            DO:     
+                RUN GetVendorCost(
+                    INPUT  po-ordl.company, 
+                    INPUT  item.i-no, 
+                    INPUT  "RM", 
+                    INPUT  po-ord.vend-no, 
+                    INPUT  po-ord.cust-no, 
+                    INPUT  "", 
+                    INPUT  0, 
+                    INPUT  0,
+                    INPUT  po-ordl.ord-qty, 
+                    INPUT  po-ordl.pr-qty-uom,
+                    INPUT  po-ordl.s-len,
+                    INPUT  po-ordl.s-wid, 
+                    INPUT  po-ordl.s-dep,
+                    INPUT  "IN", 
+                    INPUT  item.basis-w, 
+                    INPUT  "LB/EA", 
+                    INPUT  YES,
+                    OUTPUT dCostPerUOM, 
+                    OUTPUT dCostSetup, 
+                    OUTPUT cCostUOM,
+                    OUTPUT dCostTotal, 
+                    OUTPUT lError, 
+                    OUTPUT cMessage).  
+            
+                ASSIGN 
+                    deCost  = dCostPerUOM
+                    deSetup = dCostSetup.  
+            END.    
+            ELSE 
+            DO:
+                FIND FIRST e-item NO-LOCK
+                    WHERE e-item.company EQ po-ordl.company
+                    AND e-item.i-no    EQ po-ordl.i-no
+                    NO-ERROR.
+        
+                FIND FIRST e-item-vend NO-LOCK
+                    WHERE e-item-vend.company EQ item.company
+                    AND e-item-vend.i-no    EQ item.i-no
+                    AND e-item-vend.vend-no EQ po-ord.vend-no
+                    NO-ERROR.
+            END.   
+            IF AVAILABLE e-item AND AVAILABLE e-item-vend AND po-ord.vend-no NE "" THEN 
+            DO:
+                IF po-ordl.pr-qty-uom EQ e-item.std-uom THEN
+                    deQtyComp = po-ordl.ord-qty.
+                ELSE
+                    RUN Conv_QuantityFromUOMToUOM(ipchCompanyID,
+                        po-ordl.i-no,
+                        po-ordl.item-type,
+                        po-ordl.ord-qty,
+                        po-ordl.pr-qty-uom, 
+                        e-item.std-uom,
+                        ipdeBasisW, 
+                        ipdeS-Len, 
+                        ipdeS-Wid, 
+                        ipdeS-Dep,
+                        0, 
+                        OUTPUT deQtyComp,
+                        OUTPUT loError,
+                        OUTPUT chMessage).
+
+                deSetup = 0.
+
+                EMPTY TEMP-TABLE tt-eiv.
+                CREATE tt-eiv.
+                
+                DO iCount = 1 TO 10:
+                    ASSIGN
+                        tt-eiv.run-qty[iCount]  = e-item-vend.run-qty[iCount]
+                        tt-eiv.run-cost[iCount] = e-item-vend.run-cost[iCount]
+                        tt-eiv.setups[iCount]   = e-item-vend.setups[iCount].
+                END.
+      
+                IF AVAILABLE e-item-vend THEN
+                DO:      
+                    DO iCount = 1 TO 10:
+                        ASSIGN
+                            tt-eiv.run-qty[iCount + 10]  = e-item-vend.runQtyXtra[iCount]
+                            tt-eiv.run-cost[iCount + 10] = e-item-vend.runCostXtra[iCount]
+                            tt-eiv.setups[iCount + 10]   = e-item-vend.setupsXtra[iCount].
+                    END.
+                END.
+
+                DO iCount = 1 TO 20:
+                    IF deQtyComp LE tt-eiv.run-qty[iCount] THEN
+                        LEAVE.
+                END.
+    
+                ASSIGN
+                    deSetup      = tt-eiv.setups[iCount]
+                    deCost       = /*((*/ tt-eiv.run-cost[iCount] /** deQtyComp) + deSetup ) / deQtyComp*/
+                    dadder-setup = dadder-setup + deSetup .
+                /* This adds the Adder cost in */
+                IF e-item.std-uom NE po-ordl.pr-uom THEN
+                    RUN Conv_ValueFromUOMtoUOM(ipchCompanyID,
+                        po-ordl.i-no,
+                        po-ordl.item-type,
+                        deCost,
+                        e-item.std-uom, 
+                        po-ordl.pr-uom, 
+                        job-mat.basis-w,
+                        job-mat.len, 
+                        job-mat.wid, 
+                        item.s-dep,
+                        0, 
+                        OUTPUT deCost,
+                        OUTPUT loError,
+                        OUTPUT chMessage).
+            END.
+            FIND FIRST po-ordl-add NO-LOCK 
+                WHERE po-ordl-add.company    EQ po-ordl.company
+                AND po-ordl-add.po-no      EQ po-ordl.po-no  
+                AND po-ordl-add.line       EQ po-ordl.line   
+                AND po-ordl-add.adder-i-no EQ job-mat.i-no 
+                NO-ERROR. 
+            IF AVAILABLE po-ordl-add THEN 
+                RUN PO_UpdatePoAdders IN hdPOProcs(
+                    INPUT po-ordl.company,
+                    INPUT po-ordl.po-no,
+                    INPUT po-ordl.line,
+                    INPUT job-mat.i-no,
+                    INPUT deCost,
+                    INPUT deSetup,
+                    INPUT po-ordl.pr-uom
+                    ). 
+            ELSE
+                RUN PO_CreatePoAdders IN hdPOProcs(
+                    INPUT po-ordl.company,
+                    INPUT po-ordl.po-no,
+                    INPUT po-ordl.line,
+                    INPUT job-mat.i-no,
+                    INPUT deCost,
+                    INPUT deSetup,
+                    INPUT po-ordl.pr-uom).
+            ASSIGN 
+                deAddCost    = deAddCost + deCost
+                dadder-setup = dadder-setup + deSetup.
+        END.
+        ASSIGN
+            po-ordl.cost      = po-ordl.cost + deAddCost
+            po-ordl.cons-cost = po-ordl.cost
+            po-ordl.setup     = po-ordl.setup + dadder-setup .
+
+        IF po-ordl.pr-uom NE po-ordl.cons-uom THEN
+            RUN Conv_ValueFromUOMtoUOM(ipchCompanyID,
+                po-ordl.i-no,
+                po-ordl.item-type,
+                po-ordl.cost,
+                po-ordl.pr-uom, 
+                po-ordl.cons-uom,
+                ipdeBasisW, 
+                ipdeS-Len, 
+                ipdeS-Wid, 
+                ipdeS-Dep,
+                0, 
+                OUTPUT po-ordl.cons-cost,
+                OUTPUT loError,
+                OUTPUT chMessage).
+    END.
+
+    ASSIGN
+        ipdeAdder[1] = po-ordl.cost      - ipdeAdder[1]
+        ipdeAdder[2] = po-ordl.cons-cost - ipdeAdder[2].
+ 
+    IF VALID-HANDLE(hdPOProcs) THEN 
+        DELETE PROCEDURE hdPOProcs.
+        
+END PROCEDURE.
+
 PROCEDURE PO_RecalculateCostsPO:
 /*------------------------------------------------------------------------------
  Purpose: Public wrapper for pRecalculateCostPO
@@ -419,6 +732,8 @@ PROCEDURE PO_RecalculateCostsPO:
     
 
 END PROCEDURE.
+
+
 
 PROCEDURE PO_CalLineTotalCostAndConsQty:
 /*------------------------------------------------------------------------------

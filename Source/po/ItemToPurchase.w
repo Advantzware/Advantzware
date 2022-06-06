@@ -338,18 +338,16 @@ DO:
     DEFINE VARIABLE iCount             AS INTEGER   NO-UNDO.     
      
     IF AVAILABLE ttJobMaterial THEN
-    DO:
-        
+    DO:        
         FOR EACH bf-ef NO-LOCK
             WHERE bf-ef.company EQ ttJobMaterial.company
             AND bf-ef.est-no    EQ ttJobMaterial.est-no:
                 
             DO iCount = 1 TO 6:
-                IF bf-ef.adder[iCount] <> "" THEN 
+                IF bf-ef.adder[iCount] NE "" THEN 
                     cAdderList[iCount] = bf-ef.adder[iCount].
             END.
-        END.
-        
+        END.        
         
         RUN system/vendorcostSelector.w(
          INPUT  ttJobMaterial.company,    //ipcCompany ,
@@ -381,9 +379,17 @@ DO:
             ttJobMaterial.costUOM    = ttVendItemCost.vendorUOM            
             ttJobMaterial.costPerUOM = ttVendItemCost.costPerVendorUOM
             ttJobMaterial.costSetup  = ttVendItemCost.costSetup
-            ttJobMaterial.costTotal  = ttVendItemCost.costTotal.
-          
+            ttJobMaterial.costTotal  = ttVendItemCost.costTotal.          
     END.
+    
+    IF ttJobMaterial.IsValid EQ FALSE AND ttJobMaterial.vendorId NE "" THEN
+    DO:
+        ASSIGN ttJobMaterial.InvalidReason = TRIM(TRIM(REPLACE(ttJobMaterial.InvalidReason,"Vendor Should not be blank","")),"|").
+        
+        IF ttJobMaterial.InvalidReason EQ "" THEN 
+            ASSIGN ttJobMaterial.IsValid = TRUE.        
+    END.    
+    
     {&OPEN-QUERY-{&BROWSE-NAME}}      
     
 END.
@@ -424,7 +430,7 @@ DO:
     
     ASSIGN ttJobMaterial.DropShipment = LOGICAL(ttJobMaterial.DropShipment:SCREEN-VALUE IN BROWSE brItemToPurchase). 
     
-    IF ttJobMaterial.DropShipment:SCREEN-VALUE IN BROWSE brItemToPurchase = "Yes" THEN 
+    IF ttJobMaterial.DropShipment:SCREEN-VALUE IN BROWSE brItemToPurchase EQ "Yes" THEN 
     DO:        
         RUN ipaskDropShip(OUTPUT chShipChoice).
                  
@@ -434,7 +440,7 @@ DO:
         DO:
             RUN windows/l-shipt2.w (ttJobMaterial.company, ttJobMaterial.locode, ttJobMaterial.DropCustNo, ttJobMaterial.ShipId, OUTPUT chValue, OUTPUT reShipTo).
                     
-            IF reShipTo <> ? THEN 
+            IF reShipTo NE ? THEN 
                 ASSIGN ttJobMaterial.shiptoRecId = reShipTo.
             ELSE
                 ASSIGN ttJobMaterial.DropShipment = No.        
@@ -443,7 +449,7 @@ DO:
         DO:
             RUN windows/l-vendno.w (ttJobMaterial.company, "A", ttJobMaterial.DropCustNo, OUTPUT chValue).
                         
-            IF chValue <> "" THEN 
+            IF chValue NE "" THEN 
                 ASSIGN ttJobMaterial.ShipToVendId = chValue.
             ELSE
                 ASSIGN ttJobMaterial.DropShipment = No.
@@ -466,9 +472,9 @@ DO:
     
     ASSIGN ttJobMaterial.CreatePO = LOGICAL(ttJobMaterial.CreatePO:SCREEN-VALUE IN BROWSE brItemToPurchase). 
     
-    IF ttJobMaterial.CreatePO:SCREEN-VALUE IN BROWSE brItemToPurchase = "Yes" THEN 
+    IF ttJobMaterial.CreatePO:SCREEN-VALUE IN BROWSE brItemToPurchase EQ "Yes" THEN 
     DO:        
-        IF ttJobMaterial.IsValid = FALSE THEN
+        IF ttJobMaterial.IsValid EQ FALSE THEN
         DO:
             MESSAGE "Please select a Valid record."
                 VIEW-AS ALERT-BOX.
