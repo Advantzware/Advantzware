@@ -52,8 +52,8 @@ DEFINE TEMP-TABLE ttcheckconfig1
  FIELD checkPayDateCol AS DEC INIT 45
  FIELD checkRemitToNameRow AS DEC INIT 8 
  FIELD checkRemitToNameCol AS DEC INIT 8
- FIELD checkRemitToAddNameRow AS DEC INIT 8 
- FIELD checkRemitToAddNameCol AS DEC INIT 8
+ FIELD checkRemitToAddNameRow AS DEC INIT 14 
+ FIELD checkRemitToAddNameCol AS DEC INIT 14
  FIELD checkRemitToAddressRow AS DEC INIT 10 
  FIELD checkRemitToAddressCol AS DEC INIT 8
  FIELD checkCompanyNameRow AS DEC INIT 2
