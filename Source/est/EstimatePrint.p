@@ -542,12 +542,14 @@ PROCEDURE pLoadConfig PRIVATE:
     
 END PROCEDURE.
 
-PROCEDURE pPrintBoardInfoHeader PRIVATE:
+PROCEDURE pPrintBoxDetail PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
 DEFINE PARAMETER BUFFER ipbf-estCostBlank FOR estCostBlank.
+DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
 DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO.
 
@@ -555,53 +557,45 @@ DEFINE VARIABLE cFGItem AS CHARACTER FORMAT "X(100)" NO-UNDO.
 DEFINE VARIABLE cFGitemName AS CHARACTER FORMAT "X(30)" NO-UNDO.
 DEFINE VARIABLE cHdr AS CHARACTER FORMAT "X(100)" NO-UNDO.
 DEFINE VARIABLE cLineText AS CHARACTER FORMAT "X(65)" NO-UNDO.
-DEFINE VARIABLE iCountText AS INTEGER NO-UNDO.
 DEFINE VARIABLE iLengthFGItem AS INTEGER NO-UNDO.
 DEFINE VARIABLE cLscore LIKE box-design-hdr.lscore NO-UNDO.
 DEFINE VARIABLE cLcumscore LIKE box-design-hdr.lcum-score NO-UNDO.
 
 DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-   
-    FOR FIRST ef NO-LOCK 
-        WHERE ef.est-no EQ ipbf-estCostBlank.estimateNo
-          AND ef.form-no EQ ipbf-estCostBlank.formNo,
-        FIRST eb NO-LOCK 
-        WHERE eb.est-no EQ ef.est-no 
-          AND eb.form-no EQ ef.form-no
-          AND eb.blank-no EQ ipbf-estCostBlank.blankNo:
           
-        cFGItem = "Board:" + string(ef.board) + ",".    
-        FIND FIRST estCostMaterial NO-LOCK 
-            WHERE estCostMaterial.estimateNo EQ ef.est-no
-              AND estCostMaterial.itemID EQ ef.board NO-ERROR.
-        IF AVAILABLE estCostMaterial THEN 
-            cFGItem = cFGItem + estCostMaterial.itemName.
+        cFGItem = "Board:" + string(ipbf-ef.board) + ",".    
+        FIND FIRST ITEM NO-LOCK 
+            WHERE ITEM.company EQ ipbf-ef.company
+              AND ITEM.i-no EQ ipbf-ef.board NO-ERROR.
+        IF AVAILABLE ITEM THEN 
+            cFGItem = cFGItem + ITEM.i-Name.
             cFGItem = cFGItem + "   FG Item: ". 
             iLengthFGItem = LENGTH (cFGItem).
-            cFGItem       = cFGItem + string(eb.stock-no,"x(15)").    
+            cFGItem       = cFGItem + string(ipbf-eb.stock-no,"x(15)").    
         RUN pWriteToCoordinates(iopiRowCount, 6, cFGItem, NO, NO, NO). 
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
                 
         FIND FIRST itemfg NO-LOCK 
-            WHERE itemfg.company EQ ef.company AND
-            itemfg.i-no EQ eb.stock-no NO-ERROR.     
+            WHERE itemfg.company EQ ipbf-ef.company AND
+            itemfg.i-no EQ ipbf-eb.stock-no NO-ERROR.     
         cFGItemName = IF AVAILABLE itemFG THEN itemfg.i-name ELSE "".
-        RUN pWriteToCoordinates(iopiRowCount, iLengthFGItem - 10, cFGItemName, NO, NO, NO).
+        RUN pWriteToCoordinates(iopiRowCount, iLengthFGItem - 7, cFGItemName, NO, NO, NO).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             
         FIND FIRST box-design-hdr NO-LOCK
             WHERE box-design-hdr.design-no EQ 0
-              AND box-design-hdr.company   EQ eb.company 
-              AND box-design-hdr.est-no    EQ eb.est-no
-              AND box-design-hdr.form-no   EQ eb.form-no
-              AND box-design-hdr.blank-no  EQ eb.blank-no NO-ERROR.
+              AND box-design-hdr.company   EQ ipbf-eb.company 
+              AND box-design-hdr.est-no    EQ ipbf-eb.est-no
+              AND box-design-hdr.form-no   EQ ipbf-eb.form-no
+              AND box-design-hdr.blank-no  EQ ipbf-eb.blank-no NO-ERROR.
 
         FIND FIRST style NO-LOCK
-            WHERE style.company EQ eb.company
-              AND style.style   EQ  eb.style NO-ERROR.
+            WHERE style.company EQ ipbf-eb.company
+              AND style.style   EQ  ipbf-eb.style NO-ERROR.
         IF NOT  AVAILABLE box-design-hdr AND  AVAILABLE  style THEN 
             FIND FIRST box-design-hdr NO-LOCK                 
                 WHERE box-design-hdr.design-no EQ style.design-no NO-ERROR.
+                  
         ASSIGN 
             cHdr = "Design #: " + TRIM(STRING(IF AVAILABLE style AND box-design-hdr.design-no EQ 0 THEN              
                                           style.design-no ELSE box-design-hdr.design-no,">>>")) +
@@ -610,21 +604,24 @@ DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
                            
         RUN pWriteToCoordinates(iopiRowCount, 10, cHdr, NO, NO, NO).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        IF NOT box-design-hdr.lscore BEGINS "No Design" THEN 
-        DO:
-            ASSIGN 
-                cLscore    = box-design-hdr.lscore 
-                cLcumscore = box-design-hdr.lcum-score.               
-            RUN pWriteToCoordinates(iopiRowCount, 5, cLscore, NO, NO, NO).
-            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-            RUN pWriteToCoordinates(iopiRowCount, 5, cLcumscore, NO, NO, NO).
-            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        END. 
-        ELSE 
-        DO:
+        
+        IF box-design-hdr.lscore BEGINS "No Design" THEN 
+        DO: 
             RUN pWriteToCoordinates(iopiRowCount, 2, box-design-hdr.lscore, NO, NO, NO).
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).    
+        END. 
+        ELSE IF AVAILABLE style AND ipbf-eb.est-type GE 5 THEN 
+        DO:
+            cLscore    = TRIM (box-design-hdr.lscore, " ").
+            cLcumscore = TRIM (box-design-hdr.lcum-score, " ").
+            RUN Output_WriteToXprintFontChange("Courier New", 11).                 
+            RUN pWriteToCoordinates(iopiRowCount, 3, cLscore, NO, NO, NO).
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        END.        
+            RUN pWriteToCoordinates(iopiRowCount, 3, cLcumscore, NO, NO, NO).
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            RUN Output_WriteToXprintFontChange("Calibri", 11).   
+        END.  
+              
         IF box-design-hdr.box-image = "" THEN 
         DO:      
             FOR EACH box-design-line OF box-design-hdr
@@ -639,17 +636,14 @@ DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
         DO:
             FILE-INFO:FILE-NAME = box-design-hdr.box-image.
             RUN Output_WriteToXprintImage(10,2,25,65,FILE-INFO:FULL-PATHNAME).
-            ASSIGN 
-                iCountText = 0 .
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            IF AVAILABLE style AND ipbf-eb.est-type GE 5 THEN
             FOR EACH box-design-line OF box-design-hdr NO-LOCK:
-                iCountText = iCountText + 1 .
                 RUN pWriteToCoordinates(iopiRowCount, 70, TRIM(box-design-line.wscore), NO, NO, NO).
                 RUN pWriteToCoordinates(iopiRowCount, 75, TRIM(box-design-line.wcum-score), NO, NO, NO).
                 RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             END.
         END.                          
-    END.
 END PROCEDURE.
 
 PROCEDURE pPrintBoxDesign PRIVATE:
@@ -671,12 +665,19 @@ DEFINE BUFFER bf-primaryEstCostHeader FOR estCostHeader.
     FOR EACH estCostBlank NO-LOCK 
         WHERE estCostBlank.estCostHeaderID EQ bf-primaryEstCostHeader.estCostHeaderID,
         FIRST estCostItem NO-LOCK 
-        WHERE estCostItem.estCostItemID EQ estCostBlank.estCostItemID:
-        
+        WHERE estCostItem.estCostItemID EQ estCostBlank.estCostItemID,
+        FIRST ef NO-LOCK 
+        WHERE ef.est-no EQ estCostBlank.estimateNo
+          AND ef.form-no EQ estCostBlank.formNo,
+        FIRST eb NO-LOCK 
+        WHERE eb.est-no EQ ef.est-no 
+          AND eb.form-no EQ ef.form-no
+          AND eb.blank-no EQ estCostBlank.blankNo:    
+                   
         RUN pPrintBoxInfoHeader(BUFFER estCostItem, BUFFER bf-primaryEstCostHeader, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pPrintBoardInfoHeader(BUFFER estCostBlank, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintBoxDetail(BUFFER estCostBlank, BUFFER eb, BUFFER ef, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         iopiRowCount = 1.
         RUN AddPage(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount ).
     END.
@@ -705,7 +706,8 @@ PROCEDURE pPrintBoxInfoHeader PRIVATE:
               :
               IF LOOKUP(estCostOperation.operationID,cOperationIds) = 0 THEN
                   cOperationIds = cOperationIds + "," + estCostOperation.operationID.
-    END.          
+    END. 
+             
     ASSIGN cOperationIds = TRIM(cOperationIds, ",").
     DO iCount = NUM-ENTRIES(cOperationIds) TO 1 BY -1:
         cOperationIdsOrdered = cOperationIdsOrdered + "," + ENTRY (iCount, cOperationIds).
