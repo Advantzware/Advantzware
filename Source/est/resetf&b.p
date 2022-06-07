@@ -13,6 +13,8 @@ DEF VAR ll-waiting AS LOG NO-UNDO.
 DEF BUFFER b-eb FOR eb.
 DEF BUFFER xeb-form-ef FOR ef.
 
+DEF BUFFER bf-eb FOR eb.
+DEF BUFFER bf-ef FOR ef.
 
 FIND est WHERE ROWID(est) EQ ip-rowid EXCLUSIVE.
 
@@ -57,7 +59,7 @@ IF AVAIL est THEN DO:
   END.
 
   li-part-no = 0.
-  FOR EACH ef
+  FOR EACH ef NO-LOCK
       WHERE ef.company EQ est.company
         AND ef.est-no  EQ est.est-no
       BREAK BY ef.form-no:
@@ -66,7 +68,7 @@ IF AVAIL est THEN DO:
      lv-frm     = lv-frm + 1
      lv-blk     = 0.
 
-    FOR EACH eb
+    FOR EACH eb NO-LOCK
         WHERE eb.company  EQ ef.company
           AND eb.est-no   EQ ef.est-no
           AND eb.form-no  EQ ef.form-no
@@ -77,10 +79,14 @@ IF AVAIL est THEN DO:
       IF eb.form-no  NE lv-frm OR
          eb.blank-no NE lv-blk THEN DO:
         {sys/inc/xeb-form.i "eb." "eb.blank-no" "lv-frm" "lv-blk"}
-
+        
+        FIND FIRST bf-eb EXCLUSIVE-LOCK 
+             WHERE ROWID(bf-eb) EQ ROWID(eb)
+             NO-ERROR.
         ASSIGN
-         eb.form-no  = lv-frm
-         eb.blank-no = lv-blk.
+            bf-eb.form-no  = lv-frm
+            bf-eb.blank-no = lv-blk
+            .
       END.
 
       IF lv-part-no NE "" AND eb.stock-no EQ "" THEN
@@ -94,10 +100,15 @@ IF AVAIL est THEN DO:
     ELSE
     IF ef.form-no NE lv-frm THEN DO:
       {sys/inc/xeb-form.i "ef." "0" "lv-frm" "0"}
-
+        
+      FIND FIRST bf-ef EXCLUSIVE-LOCK 
+           WHERE ROWID(bf-ef) EQ ROWID(ef)
+           NO-ERROR.
+      
       ASSIGN
-       ef.form-no   = lv-frm
-       ef.blank-qty = lv-blk.
+          bf-ef.form-no   = lv-frm
+          bf-ef.blank-qty = lv-blk
+          .
     END.
   END.
 
