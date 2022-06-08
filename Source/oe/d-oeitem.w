@@ -4232,6 +4232,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             oe-ordl.SourceEstimateID:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.  
             IF oescreen-cha EQ "item-qty" AND ip-type EQ "ADD" AND oe-ord.est-no NE ""   THEN
                 APPLY "entry" TO oe-ordl.i-no IN FRAME {&FRAME-NAME}.
+            ELSE DO:
+                APPLY "entry" TO oe-ordl.est-no IN FRAME {&FRAME-NAME}.
+            END.
         END.
 
         IF fgsecurity-log THEN
