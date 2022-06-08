@@ -60,9 +60,11 @@ RUN spGetSessionParam (
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btSimulatePurge RECT-15 RECT-16 btExit ~
-begin_po end_po begin_po-date end_po-date fiQuantityToUse fiDirectory ~
+begin_po end_po beginUserId endUserId beginVendor endVendor ~
+begin_po-date end_po-date fiQuantityToUse fiDirectory ~
 tbOpenFile btStartProcess 
-&Scoped-Define DISPLAYED-OBJECTS begin_po end_po begin_po-date ~
+&Scoped-Define DISPLAYED-OBJECTS begin_po end_po beginUserId endUserId ~
+beginVendor endVendor begin_po-date ~
 end_po-date fiQuantityToUse fiDirectory tbOpenFile 
 
 /* Custom List Definitions                                              */
@@ -125,6 +127,16 @@ DEFINE VARIABLE begin_po-date AS DATE FORMAT "99/99/9999":U INITIAL TODAY
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
+DEFINE VARIABLE beginUserId AS CHARACTER FORMAT "X(10)":U  INITIAL ""
+     LABEL "Beginning User Id" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+
+DEFINE VARIABLE beginVendor AS CHARACTER FORMAT "X(8)":U  INITIAL ""
+     LABEL "Beginning Vendor" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+     
 DEFINE VARIABLE end_po AS INTEGER FORMAT ">>>>>>":U INITIAL 999999 
      LABEL "Ending PO#" 
      VIEW-AS FILL-IN 
@@ -132,6 +144,16 @@ DEFINE VARIABLE end_po AS INTEGER FORMAT ">>>>>>":U INITIAL 999999
 
 DEFINE VARIABLE end_po-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending PO Date" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+
+DEFINE VARIABLE endUserId AS CHARACTER FORMAT "X(10)":U  INITIAL "zzzzzzzzzz"
+     LABEL "Ending User Id" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+
+DEFINE VARIABLE endVendor AS CHARACTER FORMAT "X(8)":U  INITIAL "zzzzzzzz"
+     LABEL "Ending Vendor" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
@@ -161,14 +183,23 @@ DEFINE VARIABLE tbOpenFile AS LOGICAL INITIAL no
 DEFINE FRAME DEFAULT-FRAME
      btSimulatePurge AT ROW 13.14 COL 22.4 WIDGET-ID 10
      btExit AT ROW 1.14 COL 88.8 WIDGET-ID 24
-     begin_po AT ROW 3.91 COL 29 COLON-ALIGNED HELP
+     begin_po AT ROW 3.21 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Purchase Order Number" WIDGET-ID 38
-     end_po AT ROW 3.91 COL 71.4 COLON-ALIGNED HELP
+     end_po AT ROW 3.21 COL 71.4 COLON-ALIGNED HELP
           "Enter Ending Purchase Order Number" WIDGET-ID 40
-     begin_po-date AT ROW 5.71 COL 28.4 COLON-ALIGNED WIDGET-ID 28
-     end_po-date AT ROW 5.71 COL 71.4 COLON-ALIGNED HELP
+     beginUserId AT ROW 4.31 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning User Id" WIDGET-ID 42
+     endUserId AT ROW 4.31 COL 71.4 COLON-ALIGNED HELP
+          "Enter Ending User Id" WIDGET-ID 42
+     beginVendor AT ROW 5.41 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning Vendor" WIDGET-ID 42
+     endVendor AT ROW 5.41 COL 71.4 COLON-ALIGNED HELP
+          "Enter Ending Vendor" WIDGET-ID 42
+     begin_po-date AT ROW 6.51 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning Due Date" WIDGET-ID 28
+     end_po-date AT ROW 6.51 COL 71.4 COLON-ALIGNED HELP
           "Enter Ending Due Date" WIDGET-ID 14
-     fiQuantityToUse AT ROW 7.48 COL 28.4 COLON-ALIGNED WIDGET-ID 32
+     fiQuantityToUse AT ROW 7.61 COL 28 COLON-ALIGNED WIDGET-ID 32
      fiDirectory AT ROW 10.71 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 18
      tbOpenFile AT ROW 10.81 COL 71.4 WIDGET-ID 26
      btStartProcess AT ROW 13.14 COL 49.6 WIDGET-ID 12
@@ -202,7 +233,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Close Purchase Orders"
          HEIGHT             = 14.14
-         WIDTH              = 97.2
+         WIDTH              = 96.2
          MAX-HEIGHT         = 33.57
          MAX-WIDTH          = 273.2
          VIRTUAL-HEIGHT     = 33.57
@@ -410,10 +441,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_po end_po begin_po-date end_po-date fiQuantityToUse 
+  DISPLAY begin_po end_po beginUserId endUserId beginVendor endVendor
+          begin_po-date end_po-date fiQuantityToUse 
           fiDirectory tbOpenFile 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btSimulatePurge RECT-15 RECT-16 btExit begin_po end_po begin_po-date 
+  ENABLE btSimulatePurge RECT-15 RECT-16 btExit begin_po end_po beginUserId 
+         endUserId beginVendor endVendor begin_po-date 
          end_po-date fiQuantityToUse fiDirectory tbOpenFile btStartProcess 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
@@ -457,7 +490,11 @@ PROCEDURE pRunProcess PRIVATE :
         RUN util/ClosePurchaseOrderProc.p( 
             INPUT cocode,
             INPUT begin_po:SCREEN-VALUE, 
-            INPUT end_po:SCREEN-VALUE, 
+            INPUT end_po:SCREEN-VALUE,
+            INPUT beginUserId:SCREEN-VALUE, 
+            INPUT endUserId:SCREEN-VALUE,
+            INPUT beginVendor:SCREEN-VALUE, 
+            INPUT endVendor:SCREEN-VALUE, 
             INPUT DATE(begin_po-date:SCREEN-VALUE), 
             INPUT DATE(end_po-date:SCREEN-VALUE),            
             INPUT fiQuantityToUse:SCREEN-VALUE,
