@@ -428,27 +428,30 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
     
     FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
     FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
+    
+    IF ttInputEst.cEstType EQ "SetSubAssembly" OR ttInputEst.cEstType EQ "MiscEstimate" THEN
+      ASSIGN
+          eb.sourceEstimate  = ttInputEst.cSourceEst
+          eb.flute           = ttInputEst.cFlute
+          eb.test            = ttInputEst.cTest
+          eb.cad-no          = ttInputEst.cCadID
+          eb.spc-no          = ttInputEst.cProject
+          ef.cost-msh        = ttInputEst.dMSF
+          ef.fr-msh          = ttInputEst.dForceFrt
+          ef.fr-uom          = ttInputEst.cForceFrtUom
+          ef.adder[7]        = ttInputEst.cAddersDscr1
+          ef.adder[8]        = ttInputEst.cAddersDscr2
+          ef.adder[9]        = ttInputEst.cAddersDscr3
+          ef.nc              = YES
+          eb.fr-out-c        = IF ttInputEst.cForceFrtUom EQ "CWT" THEN ttInputEst.dForceFrt ELSE 0
+          eb.fr-out-m        = IF ttInputEst.cForceFrtUom EQ "M" THEN ttInputEst.dForceFrt ELSE 0            
+          .         
       
     IF ttInputEst.cEstType EQ "MiscEstimate" THEN DO:
         ASSIGN  
             est.estimateTypeID = "MISC" 
-            eb.pur-man         = YES 
-            eb.sourceEstimate  = ttInputEst.cSourceEst
-            eb.flute           = ttInputEst.cFlute
-            eb.test            = ttInputEst.cTest
-            eb.cad-no          = ttInputEst.cCadID
-            eb.spc-no          = ttInputEst.cProject
-            ef.cost-msh        = ttInputEst.dMSF
-            ef.fr-msh          = ttInputEst.dForceFrt
-            ef.fr-uom          = ttInputEst.cForceFrtUom
-            ef.adder[7]        = ttInputEst.cAddersDscr1
-            ef.adder[8]        = ttInputEst.cAddersDscr2
-            ef.adder[9]        = ttInputEst.cAddersDscr3
-            ef.nc              = YES
-            eb.fr-out-c        = IF ttInputEst.cForceFrtUom EQ "CWT" THEN ttInputEst.dForceFrt ELSE 0
-            eb.fr-out-m        = IF ttInputEst.cForceFrtUom EQ "M" THEN ttInputEst.dForceFrt ELSE 0            
-            .
-                  
+            eb.pur-man         = YES                       
+            .                   
       IF eb.sourceEstimate NE "" THEN
       DO:
            FIND FIRST xeb EXCLUSIVE-LOCK
@@ -473,15 +476,18 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
       RUN cec/mach-seq.p (eb.form-no, eb.eqty, NO).
     END.
     
-    IF ttInputEst.cEstType EQ "NewSetEstimate" THEN DO:
+    IF ttInputEst.cEstType EQ "NewSetEstimate" OR ttInputEst.cEstType EQ "SetSubAssembly" THEN DO:
+      IF ttInputEst.cEstType EQ "NewSetEstimate" THEN
       ASSIGN
          est.estimateTypeID = "WOOD" .
+      ELSE 
+         est.estimateTypeID = "SetSubAssembly" .
+         
       IF NOT CAN-FIND(FIRST itemfg
                   WHERE itemfg.company EQ eb.company
                     AND itemfg.i-no    EQ eb.stock-no) THEN DO:                   
         RUN fg/ce-addfg.p (eb.stock-no).
-      END.
-         
+      END.       
     END.     
     ELSE IF ttInputEst.cEstType EQ "MoldTandem" THEN
     DO: 

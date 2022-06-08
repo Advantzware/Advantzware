@@ -734,6 +734,12 @@ DO:
        RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
+   ELSE IF AVAIL est AND  est.estimateTypeID = "SetSubAssembly"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       EMPTY TEMP-TABLE tt-eb-set.
+       RUN est/dAddSetSubAssembly.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
    ELSE IF AVAIL est AND  est.estimateTypeID = "SingleMold"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .       
        RUN est/dAddMoldEst.w(INPUT "Edit" ,"C", INPUT ROWID(eb)) .
@@ -5527,6 +5533,12 @@ PROCEDURE local-add-record :
       RUN est/dAddSetEst.w("",riRowidEbNew) .
       RUN pCreateSetEstimate.
   END.
+  ELSE IF ls-add-what = "SetWithSubAssembly" THEN DO:
+      EMPTY TEMP-TABLE ttInputEst .
+      EMPTY TEMP-TABLE tt-eb-set.
+      RUN est/dAddSetSubAssembly.w("",riRowidEbNew) .
+      RUN pCreateSetEstimate.
+  END.
   ELSE IF ls-add-what = "NewSetEstMold" THEN DO:
       EMPTY TEMP-TABLE ttInputEst .
       EMPTY TEMP-TABLE tt-eb-set.
@@ -8888,6 +8900,12 @@ PROCEDURE pUpdateRecord :
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
        RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
+   ELSE IF AVAIL est AND  est.estimateTypeID = "SetSubAssembly"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       EMPTY TEMP-TABLE tt-eb-set.
+       RUN est/dAddSetSubAssembly.w(INPUT "Edit" ,INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
    ELSE IF AVAIL est AND  est.estimateTypeID = "SingleMold"  THEN do:
