@@ -547,7 +547,6 @@ PROCEDURE pPrintBoxDetail PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-DEFINE PARAMETER BUFFER ipbf-estCostBlank FOR estCostBlank.
 DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
 DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
 DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
@@ -581,7 +580,7 @@ DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
         cFGItemName = IF AVAILABLE itemFG THEN itemfg.i-name ELSE "".
         RUN pWriteToCoordinates(iopiRowCount, iLengthFGItem - 7, cFGItemName, NO, NO, NO).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-            
+           
         FIND FIRST box-design-hdr NO-LOCK
             WHERE box-design-hdr.design-no EQ 0
               AND box-design-hdr.company   EQ ipbf-eb.company 
@@ -672,12 +671,14 @@ DEFINE BUFFER bf-primaryEstCostHeader FOR estCostHeader.
         FIRST eb NO-LOCK 
         WHERE eb.est-no EQ ef.est-no 
           AND eb.form-no EQ ef.form-no
-          AND eb.blank-no EQ estCostBlank.blankNo:    
+          AND eb.blank-no EQ estCostBlank.blankNo
+              BY estCostItem.formNo
+              BY estCostItem.blankNo:   
                    
         RUN pPrintBoxInfoHeader(BUFFER estCostItem, BUFFER bf-primaryEstCostHeader, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pPrintBoxDetail(BUFFER estCostBlank, BUFFER eb, BUFFER ef, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintBoxDetail(BUFFER eb, BUFFER ef, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         iopiRowCount = 1.
         RUN AddPage(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount ).
     END.
@@ -1422,18 +1423,18 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
         ASSIGN opdConvertTo16th = estCostBlank.blankWidth.
         RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
         IF ttCEFormatConfig.showDimensionsIn16ths THEN 
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], opdConvertTo16th, 4, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
         ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostBlank.blankWidth, 4, 5, NO, YES, NO, NO, YES).
         ASSIGN opdConvertTo16th = estCostBlank.blankLength.
         RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
         IF ttCEFormatConfig.showDimensionsIn16ths THEN
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], opdConvertTo16th, 4, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
         ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostBlank.blankLength, 4, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostBlank.dimUOM , NO, NO, NO).
         ASSIGN opdConvertTo16th = estCostBlank.blankArea.
         RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
         IF ttCEFormatConfig.showDimensionsIn16ths THEN
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], opdConvertTo16th, 4, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
         ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostBlank.blankArea, 4, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostBlank.areaUOM , NO, NO, NO).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], estCostBlank.numOut, 4, 0, NO, YES, NO, NO, YES).
@@ -1447,18 +1448,18 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
         ASSIGN opdConvertTo16th = estCostForm.dieWidth.
         RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
         IF ttCEFormatConfig.showDimensionsIn16ths THEN
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], opdConvertTo16th, 4, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
         ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostForm.dieWidth, 4, 5, NO, YES, NO, NO, YES).
         ASSIGN opdConvertTo16th = estCostForm.dieLength.
         RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
         IF ttCEFormatConfig.showDimensionsIn16ths THEN 
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], opdConvertTo16th,4, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ROUND (opdConvertTo16th,2),4, 2, NO, YES, NO, NO, YES).
         ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostForm.dieLength,4, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostForm.dimUOM , NO, NO, NO).
         ASSIGN opdConvertTo16th = estCostForm.dieArea.
         RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
         IF ttCEFormatConfig.showDimensionsIn16ths THEN
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], opdConvertTo16th, 4, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
         ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.dieArea, 4, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.areaUOM , NO, NO, NO).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightDieSheet, 5, 4, NO, YES, NO, NO, YES).
@@ -1470,18 +1471,18 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     ASSIGN opdConvertTo16th = estCostForm.netWidth.
     RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
     IF ttCEFormatConfig.showDimensionsIn16ths THEN
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], opdConvertTo16th, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
     ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostForm.netWidth, 4, 5, NO, YES, NO, NO, YES).
     ASSIGN opdConvertTo16th = estCostForm.netLength.
     RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
     IF ttCEFormatConfig.showDimensionsIn16ths THEN
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], opdConvertTo16th,4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ROUND (opdConvertTo16th,2),4, 2, NO, YES, NO, NO, YES).
     ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostForm.netLength,4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostForm.dimUOM , NO, NO, NO).
     ASSIGN opdConvertTo16th = estCostForm.netArea.
     RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
     IF ttCEFormatConfig.showDimensionsIn16ths THEN
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], opdConvertTo16th, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
     ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.netArea, 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.areaUOM , NO, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], estCostForm.numOutNet, 4, 0, NO, YES, NO, NO, YES).
@@ -1492,18 +1493,18 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     ASSIGN opdConvertTo16th = estCostForm.grossWidth.
     RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
     IF ttCEFormatConfig.showDimensionsIn16ths THEN
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], opdConvertTo16th, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
     ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostForm.grossWidth, 4, 5, NO, YES, NO, NO, YES).
     ASSIGN opdConvertTo16th = estCostForm.grossLength.
     RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
     IF ttCEFormatConfig.showDimensionsIn16ths THEN
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], opdConvertTo16th, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
     ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostForm.grossLength, 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostForm.dimUOM , NO, NO, NO).
     ASSIGN opdConvertTo16th = estCostForm.grossArea.
     RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
     IF ttCEFormatConfig.showDimensionsIn16ths THEN
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], opdConvertTo16th, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
     ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.grossArea, 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.areaUOM , NO, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightGrossSheet, 5, 4, NO, YES, NO, NO, YES).
@@ -1518,7 +1519,11 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Totals->", YES, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[2],  "Sheets:", YES, NO, YES).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] + 1, estCostForm.grossQtyRequiredTotal, 9, 0, YES, YES, YES, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.grossQtyRequiredTotalArea, 4, 5, NO, YES, YES, NO, YES).
+    ASSIGN opdConvertTo16th = estCostForm.grossQtyRequiredTotalArea.
+    RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
+    IF ttCEFormatConfig.showDimensionsIn16ths THEN
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, YES, NO, YES).
+    ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.grossQtyRequiredTotalArea, 4, 5, NO, YES, YES, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.grossQtyRequiredTotalAreaUOM , YES, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.grossQtyRequiredTotalWeight, 7, 4, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.grossQtyRequiredTotalWeightUOM, NO, NO, NO).
