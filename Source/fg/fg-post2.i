@@ -20,7 +20,7 @@
            fg-rcpts.i-name     = b-itemfg.i-name
            fg-rcpts.trans-date = fg-rctd.rct-date
            fg-rcpts.linker     = "fg-rctd: " + STRING(fg-rctd.r-no,"9999999999")
-           fg-rcpts.rita-code  = "set".
+           fg-rcpts.rita-code  = {3}.
 
           RELEASE fg-rcpts.
         END.

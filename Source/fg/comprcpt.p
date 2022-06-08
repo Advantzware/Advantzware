@@ -16,6 +16,8 @@ DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
 
+DEFINE TEMP-TABLE tt-bin 
+    FIELD tt-bin-row AS ROWID .
 
 DO TRANSACTION:
   {sys/inc/autopost.i}
@@ -74,7 +76,11 @@ IF AVAIL itemfg                     AND
                             AND fg-rcpts.linker  EQ "fg-rctd: " + STRING(fg-rctd.r-no,"9999999999"))
        NO-LOCK:
   
-
+       IF tt-fg-set.noReceipt THEN DO:
+           RUN processComponent ("").
+           NEXT.
+       END. 
+       
        IF fg-rctd.job-no NE "" THEN
        DO:
           FIND FIRST job WHERE
@@ -331,3 +337,4 @@ END.
 
 IF AVAIL fg-rctd THEN RUN fg/comprct1.p (ROWID(fg-rctd)).
 
+{fg/comprcpt.i}
