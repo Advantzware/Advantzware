@@ -729,7 +729,7 @@ PROCEDURE genOrderLinesLocal:
           /* Add tags to order line */
           IF matrixExists THEN DO:
               RUN AddTagInfoForGroup(
-                  INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.line),
+                  INPUT oe-ordl.company + STRING(oe-ordl.ord-no) + STRING(oe-ordl.line),
                   INPUT "oe-ordl",
                   INPUT "Price Matrix - Item No:" + oe-ordl.i-no + " Customer No:" + oe-ordl.cust-no + " Ship ID:" + oe-ordl.ship-id + " Quantity:" + STRING(oe-ordl.qty),
                   INPUT "",
@@ -739,7 +739,7 @@ PROCEDURE genOrderLinesLocal:
           /* If price matrix does not exist and price is different from imported price then price source is item fg */
           ELSE IF oe-ordl.price NE oe-ordl.ediPrice AND oe-ordl.price NE 0 THEN DO:
               RUN AddTagInfoForGroup(
-                  INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.line),
+                  INPUT oe-ordl.company + STRING(oe-ordl.ord-no) + STRING(oe-ordl.line),
                   INPUT "oe-ordl",
                   INPUT "Item FG - Sell price Item-No:" + oe-ordl.i-no,
                   INPUT "",
@@ -754,7 +754,7 @@ PROCEDURE genOrderLinesLocal:
                   oe-ordl.pr-uom = oe-ordl.ediPriceUOM
                   .
               RUN AddTagInfoForGroup(
-                  INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.line),
+                  INPUT oe-ordl.company + STRING(oe-ordl.ord-no) + STRING(oe-ordl.line),
                   INPUT "oe-ordl",
                   INPUT "cXML imported price - Orde PO#:" + oe-ordl.po-no,
                   INPUT "",
