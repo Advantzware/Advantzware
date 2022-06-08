@@ -16,7 +16,8 @@
 {system/VendorCostProcs.i}
 {po/ttVendCostReport.i}
 {oe/ttPriceHold.i}
-{util/ttInactiveQuotes.i} 
+{util/ttInactiveQuotes.i}
+{est/ttEstimateQuantity.i} 
 
 /*Constants*/
 DEFINE VARIABLE gcItemTypeFG       AS CHARACTER NO-UNDO INITIAL "FG".
@@ -282,6 +283,63 @@ PROCEDURE BuildVendItemCostsWithAdders:
         OUTPUT  oplError,
         OUTPUT  opcMessage).
     
+END PROCEDURE.
+
+PROCEDURE GetNextPriceBreak:
+    /*------------------------------------------------------------------------------
+     Purpose: Given company, item and item properties, it calculate the next price
+              break for quantity
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstimateQuantity.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdformlength  AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdformwidth  AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdformdepth  AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdNextQuantity AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cVendCostUOM AS CHARACTER NO-UNDO.
+    FIND FIRST item NO-LOCK 
+          WHERE ITEM.company EQ ipcCompany
+            AND item.i-no EQ ipcItemID NO-ERROR.
+    
+    FOR EACH vendItemCost NO-LOCK
+        WHERE vendItemCost.company  EQ ipcCompany
+        AND vendItemCost.itemType EQ ipcItemType
+        AND vendItemCost.itemID EQ ipcItemID
+        AND vendItemCost.vendorID EQ ""
+        AND (ipcItemType EQ "FG" AND (vendItemCost.estimateNo   EQ ipcEstNo
+        AND vendItemCost.formNo  EQ ipiFormNo
+        AND vendItemCost.blankNo EQ ipiBlankNo)
+        OR (ipcItemType EQ "RM" AND vendItemCost.estimateNo EQ ""))
+        BREAK BY vendItemCost.vendorID:
+        IF FIRST(vendItemCost.vendorID) THEN 
+        DO:    
+            iIndex = 0.
+            FOR EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
+                BY vendItemCostLevel.quantityBase:
+                cVendCostUOM = IF vendItemCost.vendorUOM <> "" THEN vendItemCost.vendorUOM ELSE "EA".
+                iIndex = iIndex + 1.
+                IF iIndex LE 20 AND ttEstimateQuantity.EstQuantity[iIndex] GT 0 THEN 
+                DO:
+                    RUN sys/ref/convquom.p(cVendCostUOM, "EA", item.basis-w,
+                        ipdformlength, ipdformwidth, ipdformdepth,
+                        vendItemCostLevel.quantityBase, OUTPUT opdNextQuantity).
+                    opdNextQuantity = IF opdNextQuantity - INTEGER (opdNextQuantity) GT 0 THEN (INTEGER (opdNextQuantity) + 1)
+                                      ELSE INTEGER (opdNextQuantity).         
+                    IF opdNextQuantity GT ttEstimateQuantity.EstQuantity[iIndex] THEN  
+                        ASSIGN ttEstimateQuantity.EstNextQuantity[iIndex] = opdNextQuantity. 
+                END.                  
+            END.
+        END. 
+    END.
+
 END PROCEDURE.
 
 PROCEDURE pBuildVendItemCosts PRIVATE:

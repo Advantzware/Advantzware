@@ -96,6 +96,33 @@ ASSIGN
     
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE Estimate_GetMSF:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ip-eb-recid  AS RECID.
+DEFINE INPUT PARAMETER iplCorrware AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER ipdNextQuantity AS DECIMAL NO-UNDO.
+DEFINE OUTPUT PARAMETER ipdNextMSF AS DECIMAL NO-UNDO.
+
+DEFINE BUFFER buf-eb FOR eb.
+
+FIND buf-eb NO-LOCK
+    WHERE RECID(buf-eb) EQ ip-eb-recid NO-ERROR.
+    
+IF AVAILABLE buf-eb THEN 
+    ASSIGN ipdNextMSF = (IF iplCorrware THEN (ipdNextQuantity * buf-eb.t-len * buf-eb.t-wid * .007)
+                        ELSE (ipdNextQuantity * buf-eb.t-len * buf-eb.t-wid / 144)) *
+                             (IF buf-eb.est-type EQ 2 THEN
+                             (IF buf-eb.cust-% LT 0 THEN (-1 / buf-eb.cust-%) ELSE buf-eb.cust-%)
+                             ELSE
+                             IF buf-eb.est-type EQ 6 THEN
+                             (IF buf-eb.quantityPerSet LT 0 THEN -1 / (buf-eb.quantityPerSet) ELSE buf-eb.quantityPerSet)
+                             ELSE 1) / 1000.   
+
+END PROCEDURE.
+
 PROCEDURE Estimate_GetSystemDataForEstimate:
 /*------------------------------------------------------------------------------
      Purpose: Returns the system data in Temp-tables

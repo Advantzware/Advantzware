@@ -31,8 +31,9 @@ DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstimateQuantity.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE ld-msf AS DECIMAL NO-UNDO.
-DEFINE VARIABLE hdEstEditQuantity AS HANDLE.
+DEFINE VARIABLE hdEstimateProcs AS HANDLE.
 
+RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -912,8 +913,8 @@ END.
 &Scoped-define SELF-NAME lv-qty1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty1 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty1 IN FRAME Dialog-Frame
-DO:
-  RUN get-msf.
+DO:  
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-1:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -925,7 +926,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty10 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty10 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-10:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -937,7 +938,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty11 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty11 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-11:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -949,7 +950,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty12 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty12 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-12:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -961,7 +962,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty13 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty13 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-13:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -973,7 +974,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty14 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty14 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-14:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -985,7 +986,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty15 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty15 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-15:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -997,7 +998,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty16 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty16 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-16:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -1009,7 +1010,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty17 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty17 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-17:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -1021,7 +1022,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty18 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty18 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-18:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -1033,7 +1034,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty19 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty19 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-19:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -1045,7 +1046,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty2 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty2 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-2:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -1057,7 +1058,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty20 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty20 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-20:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -1069,7 +1070,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty3 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty3 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-3:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -1081,7 +1082,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty4 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty4 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-4:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -1093,7 +1094,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty5 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty5 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-5:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -1105,7 +1106,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty6 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty6 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-6:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -1117,7 +1118,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty7 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty7 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-7:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -1129,7 +1130,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty8 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty8 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-8:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -1141,7 +1142,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-qty9 Dialog-Frame
 ON VALUE-CHANGED OF lv-qty9 IN FRAME Dialog-Frame
 DO:
-  RUN get-msf.
+  RUN Estimate_GetMSF IN hdEstimateProcs(ip-eb-recid, iplCorrware, DEC(FOCUS:SCREEN-VALUE), OUTPUT ld-msf).
   lv-msf-9:SCREEN-VALUE = STRING(ld-msf).
 END.
 
@@ -1351,32 +1352,6 @@ PROCEDURE enable_UI :
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-msf Dialog-Frame 
-PROCEDURE get-msf :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-     ld-msf = DEC(FOCUS:SCREEN-VALUE)
-     ld-msf = (IF iplCorrware THEN (ld-msf * eb.t-len * eb.t-wid * .007)
-                     ELSE (ld-msf * eb.t-len * eb.t-wid / 144)) *
-          (IF eb.est-type EQ 2 THEN
-             (IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%)
-           ELSE
-           IF eb.est-type EQ 6 THEN
-             (IF eb.quantityPerSet LT 0 THEN -1 / (eb.quantityPerSet) ELSE eb.quantityPerSet)
-           ELSE 1) / 1000.
-  END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
