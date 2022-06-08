@@ -2458,6 +2458,25 @@ PROCEDURE pCalcHeaderCosts PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pCalcEstimateSubAssembly PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Internal master procedure for calculating an estimate/job
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostHeader FOR ttEstCostHeader.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostBlank FOR ttEstCostBlank.
+    DEFINE INPUT PARAMETER ipcEstimateNoSubAssembly AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
+            
+    RUN pBuildHeadersToProcess(ipbf-ttEstCostHeader.company, ipcEstimateNoSubAssembly, "", 0, ipbf-ttEstCostBlank.quantityRequired, OUTPUT iEstCostHeaderID).
+    
+    RUN pCalcHeader(iEstCostHeaderID).
+            
+    RUN pWriteDatasetIntoDB.
+    
+END PROCEDURE.
+
 PROCEDURE pCalcEstimate PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Internal master procedure for calculating an estimate/job
@@ -2559,16 +2578,21 @@ PROCEDURE pCalcHeader PRIVATE:
                 OF ef:
                 
                 RUN pAddEstBlank(BUFFER eb, BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostForm, BUFFER bf-ttEstCostBlank).
-                ASSIGN 
-                    iNumOutBlanksOnForm = iNumOutBlanksOnForm + bf-ttEstCostBlank.numOut
-                    dQtyOnForm          = dQtyOnForm + 
-                                        (IF bf-ttEstCostBlank.priceBasedOnYield THEN bf-ttEstCostBlank.quantityYielded ELSE bf-ttEstCostBlank.quantityRequired)
-                    dQtyOnFormRequired  = dQtyOnFormRequired + bf-ttEstCostBlank.quantityRequired
-                    dQtyOnFormYielded   = dQtyOnFormYielded + bf-ttEstCostBlank.quantityYielded
-                    .
-                RUN pBuildInksForEb(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostBlank, BUFFER eb).
-                RUN pAddGlue(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostBlank, BUFFER eb).
-                RUN pBuildPackingForEb(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostBlank, BUFFER eb).
+                IF FALSE /* eb.sourceEstimate NE ""*/ THEN DO:
+                    RUN pCalcEstimateSubAssembly(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostBlank, eb.sourceEstimate).
+                END.
+                ELSE DO:
+                    ASSIGN 
+                        iNumOutBlanksOnForm = iNumOutBlanksOnForm + bf-ttEstCostBlank.numOut
+                        dQtyOnForm          = dQtyOnForm + 
+                                            (IF bf-ttEstCostBlank.priceBasedOnYield THEN bf-ttEstCostBlank.quantityYielded ELSE bf-ttEstCostBlank.quantityRequired)
+                        dQtyOnFormRequired  = dQtyOnFormRequired + bf-ttEstCostBlank.quantityRequired
+                        dQtyOnFormYielded   = dQtyOnFormYielded + bf-ttEstCostBlank.quantityYielded
+                        .
+                    RUN pBuildInksForEb(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostBlank, BUFFER eb).
+                    RUN pAddGlue(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostBlank, BUFFER eb).
+                    RUN pBuildPackingForEb(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostBlank, BUFFER eb).
+                END.                
                 
             END. /*Each eb of ef*/
             
@@ -3003,8 +3027,10 @@ PROCEDURE pBuildItems PRIVATE:
                 RUN pAddEstForm(BUFFER ipbf-ttEstCostHeader, 0, BUFFER bf-ttEstCostForm).
                 RUN pAddEstBlank(BUFFER eb, BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostForm, BUFFER bf-ttEstCostBlank).
                 
-                IF AVAILABLE bf-ttEstCostForm THEN 
+                IF AVAILABLE bf-ttEstCostForm THEN DO:
                     bf-ttEstCostForm.quantityFGOnForm = ipbf-ttEstCostHeader.quantityMaster.
+                    RUN pProcessOperations(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostForm).
+                END.
                 IF eb.pur-man THEN /*Refactor - this should be .unitized*/
                 DO:
                     FIND CURRENT ipbf-ttEstCostHeader EXCLUSIVE-LOCK.
@@ -4142,16 +4168,16 @@ PROCEDURE pProcessEstMaterial PRIVATE:
             bf-ttEstCostMaterial.quantityRequiredSetupWaste = (bf-estMaterial.wastePercent / 100) * bf-ttEstCostMaterial.quantityRequiredNoWaste
             bf-ttEstCostMaterial.weightTotal = bf-estMaterial.weightPerEA * bf-ttEstCostMaterial.quantityRequiredNoWaste
             .
-        IF bf-ttEstCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-ttEstCostForm THEN 
-        DO:
-            /*Associate Form 0 materials to the unitize form (Form 1)*/
-            ASSIGN 
-                bf-ttEstCostMaterial.estCostFormID  = bfUnitize-ttEstCostForm.estCostFormID
-                bf-ttEstCostMaterial.estCostBlankID = 0
-                .
-            RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bfUnitize-ttEstCostForm).
-        END. 
-        ELSE     
+/*        IF bf-ttEstCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-ttEstCostForm THEN                                         */
+/*        DO:                                                                                                                */
+/*            /*Associate Form 0 materials to the unitize form (Form 1)*/                                                    */
+/*            ASSIGN                                                                                                         */
+/*                bf-ttEstCostMaterial.estCostFormID  = bfUnitize-ttEstCostForm.estCostFormID                                */
+/*                bf-ttEstCostMaterial.estCostBlankID = 0                                                                    */
+/*                .                                                                                                          */
+/*            RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bfUnitize-ttEstCostForm).*/
+/*        END.                                                                                                               */
+/*        ELSE                                                                                                               */
             RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bf-ttEstCostForm).
         
     END.
@@ -5298,16 +5324,16 @@ PROCEDURE pProcessPacking PRIVATE:
                 bf-ttEstCostMaterial.weightTotal = ttPack.dWeightTare * bf-ttEstCostMaterial.quantityRequiredNoWaste.
             END.
         
-        IF bf-ttEstCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-ttEstCostForm THEN 
-        DO:
-            /*Associate Form 0 materials to the unitize form (Form 1)*/
-            ASSIGN 
-                bf-ttEstCostMaterial.estCostFormID  = bfUnitize-ttEstCostForm.estCostFormID
-                bf-ttEstCostMaterial.estCostBlankID = 0
-                .
-            RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bfUnitize-ttEstCostForm).
-        END. 
-        ELSE     
+/*        IF bf-ttEstCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-ttEstCostForm THEN                                         */
+/*        DO:                                                                                                                */
+/*            /*Associate Form 0 materials to the unitize form (Form 1)*/                                                    */
+/*            ASSIGN                                                                                                         */
+/*                bf-ttEstCostMaterial.estCostFormID  = bfUnitize-ttEstCostForm.estCostFormID                                */
+/*                bf-ttEstCostMaterial.estCostBlankID = 0                                                                    */
+/*                .                                                                                                          */
+/*            RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bfUnitize-ttEstCostForm).*/
+/*        END.                                                                                                               */
+/*        ELSE                                                                                                               */
             RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bf-ttEstCostForm).
         
     END.
