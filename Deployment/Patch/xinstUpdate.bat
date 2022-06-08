@@ -92,10 +92,10 @@ XCOPY /S /Y .\Desktop\*.* ..\Desktop > NUL
 XCOPY /S /Y .\Documentation\*.* ..\Documentation > NUL
 XCOPY /S /Y .\Install\*.* ..\Install > NUL
 XCOPY /S /Y .\Assemblies\*.* ..\Assemblies > NUL
-XCOPY /Y .\Structure\advantzware.df ..\Databases\Structure > NUL
-XCOPY /Y .\Structure\audit.df ..\Databases\Structure > NUL
+COPY /Y .\Structure\advantzware.df ..\Databases\Structure > NUL
+COPY /Y .\Structure\audit.df ..\Databases\Structure > NUL
 IF NOT EXIST ..\Admin\EnvAdmin\updateHist.txt (
-    XCOPY /Y .\UpdateHist.txt ..\Admin\EnvAdmin\UpdateHist.txt > NUL
+    COPY /Y .\UpdateHist.txt ..\Admin\EnvAdmin\UpdateHist.txt > NUL
 )
 
 :: Switch progress.cfg with .dev version

@@ -41,7 +41,7 @@ DEF INPUT PARAMETER ipiCurrDbVer AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiPatchDbVer AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiCurrAudVer AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiPatchAudVer AS INT NO-UNDO.
-DEF INPUT PARAMETER ipiLevel AS INT NO-UNDO.
+DEF INPUT PARAMETER ipiUserLevel AS INT NO-UNDO.
 DEF INPUT PARAMETER iplBackupASI AS LOG NO-UNDO.
 DEF INPUT PARAMETER iplBackupAudit AS LOG NO-UNDO.
 DEF INPUT PARAMETER ipcLogFile AS CHAR NO-UNDO.
@@ -421,7 +421,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
    ON END-KEY UNDO MAIN-BLOCK, LEAVE:
     RUN enable_UI.
 
-    IF ipiLevel LT 5 THEN DO:
+    IF ipiUserLevel LT 5 THEN DO:
         MESSAGE
             "You do not have sufficient permissions to run this" SKIP
             "procedure.  Please contact your System Administrator."
@@ -1045,7 +1045,7 @@ PROCEDURE ipUpgradeDBs :
         RUN ipStatus ("  Upgrading database " + ipcAsiDbName).
         
         ASSIGN 
-            cDelta = "asi" + STRING(ipiCurrDbVer,"99999999") + "-" + STRING(ipiPatchDbVer,"99999999") 
+            cDelta = "asi" + STRING(ipiCurrDbVer,"99999999") + "-" + STRING(ipiPatchDbVer,"99999999") + ".df"
             cFullDelta = cMapDir + "\Updates\Structure\DFFiles\" + cDelta
             cStopString = cDlcDir + "\bin\dbman" + 
                          " -host " + cHostName + 
@@ -1088,6 +1088,7 @@ PROCEDURE ipUpgradeDBs :
             iWaitCount = 0.
         OS-COMMAND SILENT VALUE(cStopString).
         /* May have to wait for DB to shut down */
+       
         WaitBlock:
         DO WHILE SEARCH(cLockFile) NE ?:
             IF iWaitCount MOD 3 EQ 0 THEN 
@@ -1129,7 +1130,7 @@ PROCEDURE ipUpgradeDBs :
                 lSuccess = FALSE.
             RETURN.
         END.
-    
+        
         /* Remove the log file */
         OS-DELETE VALUE(REPLACE(ipcAsiDbLongName,".db",".lg")).
         
@@ -1143,8 +1144,8 @@ PROCEDURE ipUpgradeDBs :
         IF CONNECTED("updDB1") THEN DO:
             RUN ipStatus ("    Creating DICTDB alias").
             CREATE ALIAS DICTDB FOR DATABASE VALUE("updDB1").
-            IF iDBCtr EQ 1 THEN
-                CREATE ALIAS asi FOR DATABASE updDB1.
+            CREATE ALIAS asi FOR DATABASE updDB1.
+            
             RUN asiAuditTest.r (OUTPUT lAuditLicensed, OUTPUT lHasAllFiles).
             DELETE ALIAS asi.
         END.
@@ -1155,7 +1156,7 @@ PROCEDURE ipUpgradeDBs :
             
         /* Disconnect it */
         RUN ipStatus ("    Disconnecting").
-        DISCONNECT VALUE("updDB" + STRING(iDbCtr)).
+        DISCONNECT VALUE("updDB1").
         
         /* Re-Serve it */
         RUN ipStatus ("    Serving " + ipcAsiDbName).
@@ -1197,7 +1198,7 @@ PROCEDURE ipUpgradeDBs :
         RUN ipStatus ("  Upgrading database " + ipcAudDbName).
         
         ASSIGN 
-            cDelta = "aud" + STRING(ipiCurrAudVer,"99999999") + "-" + STRING(ipiPatchAudVer,"99999999") 
+            cDelta = "aud" + STRING(ipiCurrAudVer,"99999999") + "-" + STRING(ipiPatchAudVer,"99999999") + ".df"
             cFullDelta = cMapDir + "\Updates\Structure\DFFiles\" + cDelta
             cStopString = cDlcDir + "\bin\dbman" + 
                          " -host " + cHostName + 
@@ -1348,6 +1349,8 @@ PROCEDURE ipUpgradeDBs :
                                       SUBSTRING(STRING(ipiPatchDbVer),3,2) + "." +
                                       SUBSTRING(STRING(ipiPatchDbVer),5,2).
 
+    RUN ipWriteIniFile.
+    
     ASSIGN
         iopiStatus = 19
         lSuccess = TRUE.

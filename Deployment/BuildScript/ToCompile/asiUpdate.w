@@ -624,6 +624,8 @@ OR CHOOSE OF bUpdate
                         ASSIGN 
                             cOutFile = cOutDir + "-SUCCESS.txt".
                         RUN ipSendVerification.
+                        ASSIGN  
+                            iStatus = 100.
                         RUN ipStatus("Upgrade Complete.").
                         MESSAGE 
                             "Congratulations! Your Advantzware update completed successfully."
@@ -780,6 +782,8 @@ DO:
                     slDbList:ADD-LAST(ENTRY(iCtr,cDbList)).
                 END.                
             END.
+            IF NUM-ENTRIES(cDbVerList) EQ 1 THEN 
+                APPLY 'value-cahnged' TO slDbList.
         END.
         WHEN "slDbList" THEN DO:
             ASSIGN 
@@ -1423,9 +1427,11 @@ PROCEDURE ipProcess :
                    " -N tcp -ld ASI".
     RUN ipStatus("    " + cConnect).
     CONNECT VALUE(cConnect) NO-ERROR.
+    PAUSE 3 NO-MESSAGE.
+    MESSAGE CONNECTED("asi") VIEW-AS ALERT-BOX.
     IF NOT CONNECTED ("asi") THEN 
     DO:
-        RUN ipStatus("  DB connection failed.  Cancelling.").
+        RUN ipStatus("  ASI DB connection failed.  Cancelling.").
         DO iCtr = 1 TO ERROR-STATUS:NUM-MESSAGES:
             RUN ipStatus ("    " + ERROR-STATUS:GET-MESSAGE(iCtr)).
         END.
@@ -1433,25 +1439,25 @@ PROCEDURE ipProcess :
             "Unable to connect to the asi database.  Cannot continue." SKIP 
             "Please contact Advantzware Support for assistance."
             VIEW-AS ALERT-BOX ERROR.
+        ASSIGN 
+            lSuccess = FALSE.
         RETURN.
     END.
     ASSIGN 
         iStatus = 24.
         
-    IF cAudDb NE "" THEN 
-    DO:
-        RUN ipStatus("  Connecting Audit DB with statement...").
-        ASSIGN
-            cConnect = "-db " + cAudDbName + 
-                       " -H " + chostName +
-                       " -S " + STRING(iAudDbPort,"9999") +
-                       " -N tcp -ld Audit".
-        RUN ipStatus("    " + cConnect).
-        CONNECT VALUE(cConnect) NO-ERROR.
-    END.
+    RUN ipStatus("  Connecting Audit DB with statement...").
+    ASSIGN
+        cConnect = "-db " + cAudDbName + 
+                   " -H " + chostName +
+                   " -S " + STRING(iAudDbPort,"9999") +
+                   " -N tcp -ld Audit".
+    RUN ipStatus("    " + cConnect).
+    CONNECT VALUE(cConnect) NO-ERROR.
+    PAUSE 3 NO-MESSAGE.
     IF NOT CONNECTED ("audit") THEN 
     DO:
-        RUN ipStatus("  DB connection failed.  Cancelling.").
+        RUN ipStatus("  Audit DB connection failed.  Cancelling.").
         DO iCtr = 1 TO ERROR-STATUS:NUM-MESSAGES:
             RUN ipStatus ("    " + ERROR-STATUS:GET-MESSAGE(iCtr)).
         END.
@@ -1459,6 +1465,8 @@ PROCEDURE ipProcess :
             "Unable to connect to the audit database.  Cannot continue." SKIP 
             "Please contact Advantzware Support for assistance."
             VIEW-AS ALERT-BOX ERROR.
+        ASSIGN 
+            lSuccess = FALSE.
         RETURN.
     END.
 
