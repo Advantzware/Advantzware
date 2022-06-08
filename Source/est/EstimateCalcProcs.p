@@ -5697,12 +5697,8 @@ PROCEDURE pSetGlobalSettings PRIVATE:
 
     RUN sys/ref/nk1look.p (ipcCompany, "CEPREP", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN gcPrepRoundTo = cReturn.
-
-    RUN sys/ref/nk1look.p (ipcCompany, "CEPREPPRICE", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    IF lFound THEN gcPrepMarkupOrMargin = cReturn.
     
     RUN spGetSettingByName ("CEPrepMarkupOrMargin", OUTPUT gcPrepMarkupOrMargin).
-    
 
     RUN sys/ref/nk1look.p (ipcCompany, "CEMATL", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound AND cReturn EQ "YES" THEN  
