@@ -21,6 +21,7 @@ DEFINE INPUT PARAMETER ipriEB AS RECID NO-UNDO.
 DEFINE VARIABLE glCorrware AS LOGICAL NO-UNDO INITIAL NO.
 DEFINE VARIABLE glopError AS LOGICAL NO-UNDO.
 DEFINE VARIABLE glCERunAvailable AS LOGICAL NO-UNDO.
+DEFINE VARIABLE glComboType AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdVendorCostProcs AS HANDLE NO-UNDO.
 
 DEFINE BUFFER buf-eb FOR eb.
@@ -30,6 +31,10 @@ DEFINE BUFFER buf-est FOR est.
 RUN system/VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
 /* ********************  Preprocessor Definitions  ******************** */
 
+/* ********************  FunctionPrototypes  ************************** */
+
+FUNCTION fIsComboType RETURNS LOGICAL PRIVATE 
+    (ipcEstType AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
 RUN pCheckCriteria.
@@ -43,13 +48,12 @@ PROCEDURE pCheckCriteria PRIVATE:
    FIND FIRST buf-eb NO-LOCK 
     WHERE RECID(buf-eb) EQ ipriEB NO-ERROR.
    
-   RUN pSetGlobalSettings(buf-eb.company).
-   
+   RUN pSetGlobalSettings(buf-eb.company, buf-eb.est-no).
    IF glCERunAvailable THEN  
    DO: 
-       IF AVAILABLE buf-eb AND 
-           (buf-eb.est-type EQ 1 OR buf-eb.est-type EQ 2 OR 
-           buf-eb.est-type EQ 5 OR buf-eb.est-type EQ 6) THEN  
+       /* not applicable for combo type estimates */
+       IF AVAILABLE buf-eb
+       AND NOT glComboType THEN  
            RUN pBuildTempTable(BUFFER buf-eb).
        ELSE 
            MESSAGE "Edit-Quantity is not applicable for combo estimates"
@@ -135,11 +139,11 @@ PROCEDURE pBuildTempTable PRIVATE:
                    
         IF ipbf-eb.pur-man THEN 
         DO:
-        RUN GetNextPriceBreak IN hdVendorCostProcs (INPUT-OUTPUT TABLE ttEstimateQuantity BY-REFERENCE, ipbf-eb.company, "FG", ipbf-eb.stock-no, ipbf-eb.est-no, ipbf-eb.form-no, ipbf-eb.blank-no, ef.gsh-len, ef.gsh-wid, ef.gsh-dep, OUTPUT opdCostNextPriceBreak).                                .
+        RUN GetNextPriceBreak IN hdVendorCostProcs (INPUT-OUTPUT TABLE ttEstimateQuantity BY-REFERENCE, ipbf-eb.company, "FG", ipbf-eb.stock-no, ipbf-eb.est-no, ipbf-eb.form-no, ipbf-eb.blank-no, ef.gsh-len, ef.gsh-wid, ef.gsh-dep, ROWID(ef), ipbf-eb.num-up, OUTPUT opdCostNextPriceBreak).                                .
         END.
         ELSE 
         DO:
-        RUN GetNextPriceBreak IN hdVendorCostProcs (INPUT-OUTPUT TABLE ttEstimateQuantity BY-REFERENCE,  ipbf-eb.company, "RM", ef.board, ipbf-eb.est-no, ipbf-eb.form-no, ipbf-eb.blank-no, ef.gsh-len, ef.gsh-wid, ef.gsh-dep, OUTPUT opdCostNextPriceBreak).
+        RUN GetNextPriceBreak IN hdVendorCostProcs (INPUT-OUTPUT TABLE ttEstimateQuantity BY-REFERENCE,  ipbf-eb.company, "RM", ef.board, ipbf-eb.est-no, ipbf-eb.form-no, ipbf-eb.blank-no, ef.gsh-len, ef.gsh-wid, ef.gsh-dep, ROWID(ef), ipbf-eb.num-up, OUTPUT opdCostNextPriceBreak).
         END.
 
         RUN pCallUIToUpdate(BUFFER est-qty, BUFFER est).
@@ -179,7 +183,7 @@ PROCEDURE pProcessUpdatedQuantity PRIVATE:
            ipbf-est.est-qty[4] = INTEGER (ttEstimateQuantity.EstQuantity [4]).
             
     FIND CURRENT ipbf-est NO-LOCK NO-ERROR.
-    
+
     ASSIGN iEQtyBeforeEdit = ipbf-est-qty.eqty.
     FIND CURRENT ipbf-est-qty NO-ERROR.
     ipbf-est-qty.eqty = INTEGER (ttEstimateQuantity.EstQuantity [1]).
@@ -207,6 +211,21 @@ PROCEDURE pProcessUpdatedQuantity PRIVATE:
                 
         buf-ef.eqty = INTEGER (ttEstimateQuantity.EstQuantity [1]).
     END.
+    
+    FOR EACH est-op
+         WHERE est-op.company EQ ipbf-est.company
+           AND est-op.est-no  EQ ipbf-est.est-no
+           AND est-op.qty     EQ iEQtyBeforeEdit:
+       est-op.qty = ipbf-est-qty.eqty.
+     END.
+    
+     FOR EACH est-op
+         WHERE est-op.company EQ ipbf-est.company
+           AND est-op.est-no  EQ ipbf-est.est-no
+           AND est-op.qty     EQ ipbf-est-qty.eqty
+           AND est-op.line    GE 500:
+       DELETE est-op.
+     END.
 
 END PROCEDURE.
 
@@ -216,13 +235,25 @@ PROCEDURE pSetGlobalSettings PRIVATE:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cEstType AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER buf-est FOR est.
+    
+    FIND FIRST buf-est NO-LOCK 
+         WHERE buf-est.company EQ ipcCompany
+           AND buf-est.est-no  EQ ipcEstimateNo NO-ERROR.
+    IF AVAILABLE buf-est THEN   
+    ASSIGN cEstType    = DYNAMIC-FUNCTION("fEstimate_GetEstimateType", buf-est.est-type, buf-est.estimateTypeID)
+           glComboType = fIsComboType(cEstType).
+     
     
     FIND FIRST sys-ctrl NO-LOCK 
-            WHERE sys-ctrl.company EQ buf-eb.company
-             AND  sys-ctrl.name    EQ "MSFCALC" NO-ERROR.
+         WHERE sys-ctrl.company EQ ipcCompany
+           AND sys-ctrl.name    EQ "MSFCALC" NO-ERROR.
              
     glCorrware = (NOT AVAILABLE sys-ctrl) OR sys-ctrl.char-fld EQ "Corrware".
        
@@ -230,3 +261,13 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     glCERunAvailable = lFound AND (INTEGER (cReturn) EQ 1 OR INTEGER (cReturn) EQ 2).    
        
 END PROCEDURE.
+
+FUNCTION fIsComboType RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Combo Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsComboType", ipcEstType).
+    
+END FUNCTION.

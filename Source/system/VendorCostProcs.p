@@ -301,10 +301,15 @@ PROCEDURE GetNextPriceBreak:
     DEFINE INPUT PARAMETER ipdformlength  AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdformwidth  AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdformdepth  AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER iprowidEF     AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipinumup      AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdNextQuantity AS DECIMAL NO-UNDO.
     
     DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
     DEFINE VARIABLE cVendCostUOM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iN-out AS INTEGER NO-UNDO.
+    
+    RUN est/ef-#out.p (iprowidEF, OUTPUT iN-out).
     FIND FIRST item NO-LOCK 
           WHERE ITEM.company EQ ipcCompany
             AND item.i-no EQ ipcItemID NO-ERROR.
@@ -327,10 +332,11 @@ PROCEDURE GetNextPriceBreak:
                 cVendCostUOM = IF vendItemCost.vendorUOM <> "" THEN vendItemCost.vendorUOM ELSE "EA".
                 iIndex = iIndex + 1.
                 IF iIndex LE 20 AND ttEstimateQuantity.EstQuantity[iIndex] GT 0 THEN 
-                DO:
+                DO: 
                     RUN sys/ref/convquom.p(cVendCostUOM, "EA", item.basis-w,
                         ipdformlength, ipdformwidth, ipdformdepth,
                         vendItemCostLevel.quantityBase, OUTPUT opdNextQuantity).
+                    opdNextQuantity = opdNextQuantity * ipinumup * iN-out.                     
                     opdNextQuantity = IF opdNextQuantity - INTEGER (opdNextQuantity) GT 0 THEN (INTEGER (opdNextQuantity) + 1)
                                       ELSE INTEGER (opdNextQuantity).         
                     IF opdNextQuantity GT ttEstimateQuantity.EstQuantity[iIndex] THEN  
