@@ -89,7 +89,7 @@ DEF VAR v-check-date AS DATE NO-UNDO.
 DEF VAR v-gltrans-desc AS CHAR FORMAT "X(60)" NO-UNDO.
 DEF VAR cPoNo LIKE ar-inv.po-no NO-UNDO.
 DEFINE VARIABLE cBolNo AS CHARACTER NO-UNDO.
-DEF VAR cJobStr AS CHAR FORMAT "x(9)" NO-UNDO.
+DEF VAR cJobStr AS CHAR FORMAT "x(13)" NO-UNDO.
 DEF VAR iLinePerPage AS INTEGER NO-UNDO .
 DEFINE VARIABLE dAmountDue AS DECIMAL NO-UNDO .
 DEFINE VARIABLE cTermsCode AS CHARACTER NO-UNDO.
@@ -615,7 +615,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "per-3"     THEN cVarValue = STRING(v-dec[4],"->>>,>>>,>>9.99") .
                      WHEN "per-4"     THEN cVarValue = STRING(v-dec[5],"->>>,>>>,>>9.99") .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
-                     WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(9)")  .
+                     WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(13)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                      WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  . 
                      WHEN "tot-due"  THEN cVarValue = STRING(dAmountDue,"->,>>>,>>>.99")  .
@@ -782,7 +782,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
                          WHEN "per-4"     THEN cVarValue = /*STRING(v-dec[5],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
-                         WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
+                         WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(13)")  .
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                          WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                          WHEN "arclass"   THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
@@ -851,7 +851,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
                          WHEN "per-4"     THEN cVarValue = /*STRING(v-dec[5],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
-                         WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
+                         WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(13)")  .
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                          WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                          WHEN "arclass"  THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
@@ -950,7 +950,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
                          WHEN "per-4"     THEN cVarValue = /*STRING(v-dec[5],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
-                         WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
+                         WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(13)")  .
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                          WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                          WHEN "tot-due"  THEN cVarValue = /*STRING(dAmountDue,"->,>>>,>>>.99")*/ ""  .
@@ -1173,7 +1173,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "per-3"     THEN cVarValue = STRING(unapp[4],"->>>,>>>,>>9.99") .
                      WHEN "per-4"     THEN cVarValue = STRING(unapp[5],"->>>,>>>,>>9.99") .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
-                     WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
+                     WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(13)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                      WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                      WHEN "arclass"   THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
@@ -1290,7 +1290,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "per-3"     THEN cVarValue = /*STRING(unapp[4],"->>>>>>>>9.99")*/ "" .
                      WHEN "per-4"     THEN cVarValue = /*STRING(unapp[5],"->>>>>>>>9.99")*/ "" .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
-                     WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
+                     WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(13)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                      WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                      WHEN "arclass"   THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
@@ -2016,7 +2016,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "current"   THEN cVarValue = STRING(vCURRENT,"->>>,>>>,>>9.99").
                      WHEN "adtp"      THEN cVarValue = "".
                      WHEN "td"        THEN cVarValue = "".
-                     WHEN "per-1"     THEN cVarValue = STRING(per-day1,"->>,>>>,>>>9.99") .
+                     WHEN "per-1"     THEN cVarValue = STRING(per-day1,"->>>,>>>,>>9.99") .
                      WHEN "per-2"     THEN cVarValue = STRING(per-day2,"->>>,>>>,>>9.99") .
                      WHEN "per-3"     THEN cVarValue = STRING(per-day3,"->>>,>>>,>>9.99")  .
                      WHEN "per-4"     THEN cVarValue = STRING(per-day4,"->>>,>>>,>>9.99")  .

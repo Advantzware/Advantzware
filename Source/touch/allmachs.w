@@ -259,42 +259,43 @@ PROCEDURE Get_Active_Machines :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
-    {methods/run_link.i "CONTAINER" "Get_Value" "('employee_code',OUTPUT employee_code)"}
+    {methods/run_link.i "CONTAINER" "Get_Value" "('company_code', OUTPUT company_code)"}
+    {methods/run_link.i "CONTAINER" "Get_Value" "('employee_code', OUTPUT employee_code)"}
     itemlist = ''.
-    FOR EACH emplogin NO-LOCK WHERE emplogin.company = company_code
-                              AND emplogin.machine GT ''
-                              AND emplogin.END_date = ?
-                              AND emplogin.end_time = 0
-                              AND emplogin.total_time = 0:
-        /*IF INDEX(itemlist,emplogin.machine) NE 0 THEN*/
-        IF LOOKUP(emplogin.machine,itemlist,"@") > 0 THEN
-            NEXT.
-        FOR EACH mach NO-LOCK WHERE 
-            mach.company  EQ company_code AND 
-            mach.m-code   EQ emplogin.machine AND 
-            mach.obsolete EQ NO: 
-            ASSIGN 
-                itemlist = IF itemlist = '' THEN CAPS(mach.m-code) + ' (' + LC(mach.m-dscr) + ')'
-                   ELSE itemlist + '@' + CAPS(mach.m-code) + ' (' + LC(mach.m-dscr) + ')'.
+    FOR EACH emplogin NO-LOCK
+        WHERE emplogin.company    EQ company_code
+          AND emplogin.machine    GT ''
+          AND emplogin.end_date   EQ ?
+          AND emplogin.end_time   EQ 0
+          AND emplogin.total_time EQ 0
+        BREAK BY emplogin.machine
+        :
+        IF FIRST-OF(emplogin.machine) THEN
+        FOR EACH mach NO-LOCK
+            WHERE mach.company  EQ emplogin.company
+              AND mach.m-code   EQ emplogin.machine
+              AND mach.obsolete EQ NO
+            :
+            itemlist = itemlist + CAPS(mach.m-code) + ' (' + LC(mach.m-dscr) + ')' + '@'.
         END.
     END.
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-      SL:DELIMITER = '@'
-      item = 1
-      SL:LIST-ITEMS = itemlist
-      SL:SCREEN-VALUE = SL:ENTRY(item)
-      h_field = keystroke:HANDLE
-      field_value = ''
-      h_field = keystroke:HANDLE
-      h_field:SCREEN-VALUE = ''.
-  END.
-  IF itemlist = '' THEN
-  DO:
-    MESSAGE 'NO MACHINES AVAILABLE' VIEW-AS ALERT-BOX.
-    {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
-  END.
+    itemlist = TRIM(itemlist,'@').
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            SL:DELIMITER         = '@'
+            item                 = 1
+            SL:LIST-ITEMS        = itemlist
+            SL:SCREEN-VALUE      = SL:ENTRY(item)
+            h_field              = keystroke:HANDLE
+            field_value          = ''
+            h_field              = keystroke:HANDLE
+            h_field:SCREEN-VALUE = ''
+            .
+    END.
+    IF itemlist EQ '' THEN DO:
+        MESSAGE 'NO MACHINES AVAILABLE' VIEW-AS ALERT-BOX.
+        {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
+    END.
 
 END PROCEDURE.
 

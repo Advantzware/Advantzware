@@ -21,6 +21,7 @@
 
 {est/ttEstCost.i}
 {est/ttEstSysConfig.i}
+{est\RecostBoardEst.i}
 {est/RecostBoardEst.i}
 {est/ttEstimateCalc.i}
    

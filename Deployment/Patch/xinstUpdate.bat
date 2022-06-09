@@ -39,6 +39,7 @@ IF NOT %errorlevel%==0 (
 taskkill /im node.exe /F > NUL
 
 :: Move to Admin/EnvAdmin dir
+!MapDir!
 CD ..\Admin\Envadmin
 
 :: Remove deprecated files from Admin/EnvAdmin
@@ -64,6 +65,7 @@ CD ..
 
 :: Build some directories that may or may not already exist
 CD ..\..
+MKDIR Assemblies > NUL
 MKDIR Documentation > NUL
 CD Documentation
 MKDIR DBDict > NUL
@@ -77,8 +79,6 @@ MKDIR Backups > NUL
 CD Backups
 MKDIR PatchFiles
 MKDIR Databases
-CD ..
-MKDIR Assemblies
 CD ..
 CD Updates
 

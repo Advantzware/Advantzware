@@ -1323,7 +1323,7 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
   DEF BUFFER ycust FOR cust.
   DEF BUFFER yshipto FOR shipto.
-  Define Variable hNotesProcs as Handle NO-UNDO.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
    IF shipto.spare-char-1:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" AND AVAIL cust THEN do:
    ASSIGN shipto.spare-char-1:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cust.sman .
@@ -1347,8 +1347,7 @@ PROCEDURE local-assign-record :
   IF glShipNotesExpanded EQ YES THEN DO:
         ASSIGN ship_note = ship_note:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
         
-        RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-        RUN ConvertToArray IN hNotesProcs (INPUT ship_note, 
+        RUN Notes_ConvertToArray (INPUT ship_note, 
               INPUT 60,
               OUTPUT opcParsedText,
               OUTPUT opiFilledArraySize).         
@@ -1359,9 +1358,8 @@ PROCEDURE local-assign-record :
                shipto.notes[3] =  opcParsedText[3]
                shipto.notes[4] =  opcParsedText[4]
                .               
-            RUN UpdateShipNote IN hNotesProcs (shipto.rec_key,
-                                                     ship_note).
-            DELETE OBJECT hNotesProcs.
+            RUN Notes_UpdateShipNote (shipto.rec_key,ship_note).
+                        
         DISABLE ship_note WITH FRAME {&FRAME-NAME}.
   END. /* IF glShipNotesExpanded EQ YES THEN DO: */
 
@@ -1539,7 +1537,6 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  Define Variable hNotesProcs as Handle NO-UNDO.
   IF AVAILABLE shipto THEN DO:
     RUN pSetShipToExpanded(shipto.company).
   END.
@@ -1568,10 +1565,8 @@ PROCEDURE local-display-fields :
   IF glShipNotesExpanded THEN DO:
       DISABLE ship_note WITH FRAME {&FRAME-NAME}.
       IF AVAILABLE shipto THEN DO:
-          RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
-          RUN GetNoteOfType IN hNotesProcs (shipto.rec_key, "ES", OUTPUT ship_note).
+          RUN Notes_GetNoteOfType (shipto.rec_key, "ES", OUTPUT ship_note).
           ASSIGN oldShiptoNote = ship_note.
-          DELETE OBJECT hNotesProcs.
       END. /*IF AVAILABLE oe-rel THEN DO:*/
       DISPLAY ship_note WITH FRAME {&FRAME-NAME}.    
   END.  /*IF glShipNotesExpanded THEN DO:*/

@@ -93,7 +93,8 @@ END.
            AND b-oe-rel.po-no    EQ oe-rel.po-no    ~
            AND b-oe-rel.r-no     NE oe-rel.r-no     ~
            AND b-oe-rel.rel-date EQ oe-rel.rel-date ~
-           AND b-oe-rel.cust-no  EQ oe-rel.cust-no
+           AND b-oe-rel.cust-no  EQ oe-rel.cust-no  ~
+           and (b-oe-rel.frt-pay EQ oe-rel.frt-pay or oe-rel.frt-pay EQ "")            
            
 &SCOPED-DEFINE for-each2 ~
     EACH b2-oe-rell NO-LOCK ~

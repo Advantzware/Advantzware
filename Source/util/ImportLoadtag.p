@@ -10,6 +10,7 @@
 
 /* ***************************  Definitions  ************************** */
 {util\ttImport.i SHARED}
+{sys/inc/var.i NEW SHARED}
 /*Refactor - required for old external procedures*/ 
 
 DEFINE TEMP-TABLE ttImportLoadtag    
@@ -28,8 +29,8 @@ DEFINE TEMP-TABLE ttImportLoadtag
     FIELD po-no        AS INTEGER     FORMAT ">>>>>9" LABEL "PO#" HELP "Optional Integer - Size:6"
     FIELD line         AS INTEGER     FORMAT "99" LABEL "PO Line" HELP "Optional Integer - Size:2"
     FIELD vend-tag     AS CHARACTER   FORMAT "x(20)" LABEL "Vendor Tag#" HELP "Optional - Size:20"
-    FIELD job-no       AS CHARACTER   FORMAT "x(6)" LABEL "Job #" HELP "Optional - Size:6"
-    FIELD job-no2      AS INTEGER     FORMAT ">9" LABEL "Run #" HELP "Optional - Size:2"
+    FIELD job-no       AS CHARACTER   FORMAT "x(9)" LABEL "Job #" HELP "Optional - SizeUpto:9"
+    FIELD job-no2      AS INTEGER     FORMAT ">>9" LABEL "Run #" HELP "Optional - Size:3"
     FIELD shift        AS CHARACTER   FORMAT "x" LABEL "Shift" HELP "Optional - Size:1"
     FIELD crew         AS CHARACTER   FORMAT "x(5)" LABEL "Crew#" HELP "Optional - Size:5"
     FIELD ord-no       AS INTEGER     FORMAT ">>>>>9" LABEL "Order#" HELP "Optional Integer - Size:6"
@@ -154,6 +155,8 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
     DEFINE BUFFER bf-loadtag FOR loadtag.
      
+    ASSIGN ipbf-ttImportLoadtag.job-no = SUBSTRING(ipbf-ttImportLoadtag.job-no,1,iJobLen) NO-ERROR.
+    
     IF AVAILABLE ipbf-ttImportLoadtag THEN DO: 
         FIND FIRST bf-loadtag EXCLUSIVE-LOCK
             WHERE bf-loadtag.company EQ ipbf-ttImportLoadtag.company

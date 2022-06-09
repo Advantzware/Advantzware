@@ -6,9 +6,9 @@ DEFINE TEMP-TABLE ttJobItem NO-UNDO
     FIELD cCustomerName              AS CHARACTER LABEL "Customer Name"          FORMAT "x(30)"
     FIELD cItemID                    AS CHARACTER LABEL "Item ID"                FORMAT "x(15)"
     FIELD cItemDescription           AS CHARACTER LABEL "Item Description"       FORMAT "x(20)"
-    FIELD cJob                       AS CHARACTER LABEL "Job"                    FORMAT "x(9)"
-    FIELD xxcJobID                   AS CHARACTER LABEL "Job"                    FORMAT "x(6)"
-    FIELD xxiJobID2                  AS INTEGER   LABEL "Job Rev"                FORMAT "99"
+    FIELD cJob                       AS CHARACTER LABEL "Job"                    FORMAT "x(13)"
+    FIELD xxcJobID                   AS CHARACTER LABEL "Job"                    FORMAT "x(9)"
+    FIELD xxiJobID2                  AS INTEGER   LABEL "Job Rev"                FORMAT "999"
     FIELD cProductCategory           AS CHARACTER LABEL "Product"                FORMAT "x(7)"
     FIELD cProductDescription        AS CHARACTER LABEL "Product Description"    FORMAT "x(20)"
     FIELD dtOrderDate                AS DATE      LABEL "Order Date"             FORMAT "99/99/9999"
@@ -323,7 +323,7 @@ PROCEDURE pAddJobItem PRIVATE:
         opbf-ttJobItem.dPriceTotalProduced     = IF lLot AND opbf-ttJobItem.dQuantityProduced GT 0 THEN dPricePerEA ELSE dPricePerEA * opbf-ttJobItem.dQuantityProduced
         opbf-ttJobItem.dPriceTotalShipped      = IF lLot AND opbf-ttJobItem.dQuantityShipped GT 0 THEN dPricePerEA ELSE dPricePerEA * opbf-ttJobItem.dQuantityShipped
         opbf-ttJobItem.dPriceTotalBalanceToRun = IF lLot AND opbf-ttJobItem.dQuantityBalanceToRun GT 0 THEN dPricePerEA ELSE dPricePerEA * opbf-ttJobItem.dQuantityBalanceToRun
-        opbf-ttJobItem.cJob                    = ipcJobID + (IF ipiJobID2 NE ? THEN "-" + STRING(ipiJobID2,"99") ELSE "")
+        opbf-ttJobItem.cJob                    = ipcJobID + (IF ipiJobID2 NE ? THEN "-" + STRING(ipiJobID2,"999") ELSE "")
         opbf-ttJobItem.dtOrderDate             = ipdtOrderDate
         opbf-ttJobItem.dtDueDate               = ipdtDueDate
         opbf-ttJobItem.dtAsOfDate              = dtAsOfDate

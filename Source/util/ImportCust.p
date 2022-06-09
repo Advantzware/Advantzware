@@ -102,7 +102,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD matrixPrecision AS INTEGER FORMAT "9"   COLUMN-LABEL "Matrix Precision" HELP "Optional - default 0"
     FIELD matrixRounding  AS CHARACTER FORMAT "X" COLUMN-LABEL "Matrix Rounding"  HELP "Optional - N/U/D (Default 'U' if 'write blank and zero' flag is selected)"
     FIELD industryID      AS CHArACTER FORMAT "x(16)" COLUMN-LABEL "Industry"  HELP "Industry name"
-    FIELD tagStatus      AS CHArACTER FORMAT "x(40)" COLUMN-LABEL "Tag Status"  HELP "Optional- Only tags that are not on hold, Only on Hold tags, Any tag status"
+    FIELD tagStatus      AS CHArACTER FORMAT "x(1)" COLUMN-LABEL "Tag Status"  HELP "Optional- H-Only on Hold tags/A-Any tag status/Leave Blank-Only tags that are not on hold"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -283,6 +283,13 @@ PROCEDURE pValidate PRIVATE:
                 opcNote  = "Invalid Rounding method"
                 .
     END.
+    IF oplValid THEN DO:
+        IF LOOKUP(ipbf-ttImportCust.tagStatus,",A,H") EQ 0 THEN
+            ASSIGN
+                oplValid = NO
+                opcNote  = "Invalid Tag Status"
+                .
+    END.
     IF oplValid THEN 
     DO:
         FIND FIRST cust NO-LOCK 
@@ -421,11 +428,6 @@ PROCEDURE pValidate PRIVATE:
     ELSE IF ipbf-ttImportCust.CustStatus EQ "Service" THEN 
         ipbf-ttImportCust.CustStatus = "E".
         
-   IF ipbf-ttImportCust.tagStatus EQ "Only tags that are not on hold" THEN 
-        ipbf-ttImportCust.tagStatus = "".
-    ELSE IF ipbf-ttImportCust.tagStatus EQ "Only on Hold tags" THEN 
-        ipbf-ttImportCust.tagStatus = "H".
-    ELSE ipbf-ttImportCust.tagStatus = "A". 
     
     DELETE OBJECT hdValidator.   
 END PROCEDURE.

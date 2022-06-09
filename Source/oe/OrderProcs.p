@@ -1127,7 +1127,7 @@ PROCEDURE pCreateRelease:
                                          bf-shipto.loc
             .
             
-        RUN CopyShipNote (
+        RUN pCopyShipNote (
             INPUT bf-shipto.rec_key, 
             INPUT bf-oe-rel.rec_key
             ).
@@ -1157,7 +1157,7 @@ PROCEDURE pCreateRelease:
         . 
 END PROCEDURE.
 
-PROCEDURE CopyShipNote PRIVATE:
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes: This procedure was copied from from oe/createRelease.i
@@ -1165,13 +1165,7 @@ PROCEDURE CopyShipNote PRIVATE:
     DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcRecKeyTo   AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
 
@@ -1848,24 +1842,6 @@ PROCEDURE pCreateActRelLine PRIVATE:
     END.
     FIND CURRENT itemfg NO-LOCK NO-ERROR.
     
-END PROCEDURE.
-
-PROCEDURE pCopyShipNote PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.  
-
 END PROCEDURE.
 
 PROCEDURE pCreateActRelHeader PRIVATE:
@@ -4569,7 +4545,7 @@ PROCEDURE pProcessImportedOrderLine:
         /* Add tags to order line */
         IF matrixExists THEN DO:
             RUN AddTagInfoForGroup(
-                INPUT STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
+                INPUT bf-oe-ordl.company + STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
                 INPUT "oe-ordl",
                 INPUT "Price Matrix - Item No:" + bf-oe-ordl.i-no + " Customer No:" + bf-oe-ordl.cust-no + " Ship ID:" + bf-oe-ordl.ship-id + " Quantity:" + STRING(bf-oe-ordl.qty),
                 INPUT "",
@@ -4579,7 +4555,7 @@ PROCEDURE pProcessImportedOrderLine:
         /* If price matrix does not exist and price is different from imported price then price source is item fg */
         ELSE IF bf-oe-ordl.price NE bf-oe-ordl.ediPrice AND bf-oe-ordl.price NE 0 THEN DO:
             RUN AddTagInfoForGroup(
-                INPUT STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
+                INPUT bf-oe-ordl.company + STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
                 INPUT "oe-ordl",
                 INPUT "Item FG - Sell price Item-No:" + bf-oe-ordl.i-no,
                 INPUT "",
@@ -4594,7 +4570,7 @@ PROCEDURE pProcessImportedOrderLine:
                 bf-oe-ordl.pr-uom = bf-oe-ordl.ediPriceUOM
                 .
             RUN AddTagInfoForGroup(
-                INPUT STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
+                INPUT bf-oe-ordl.company + STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
                 INPUT "oe-ordl",
                 INPUT "cXML imported price - Orde PO#:" + bf-oe-ordl.po-no,
                 INPUT "",
@@ -4604,7 +4580,7 @@ PROCEDURE pProcessImportedOrderLine:
     END.
     ELSE DO:
         RUN AddTagInfoForGroup(
-            INPUT STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
+            INPUT bf-oe-ordl.company + STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
             INPUT "oe-ordl",
             INPUT "cXML imported price - Order PO#:" + bf-oe-ordl.po-no,
             INPUT "",

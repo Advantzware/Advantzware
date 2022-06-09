@@ -766,9 +766,9 @@ PROCEDURE run-report :
 def var fcus        like cust.cust-no.
 def var tcus        like fcus               initial "zzzzzzzz".
 def var fjob        like ar-invl.job-no.
-def var tjob        like fjob               initial "zzzzzz".
-def var fjob2       like ar-invl.job-no2    format "99".
-def var tjob2       like fjob2              initial 99.
+def var tjob        like fjob               initial "zzzzzzzzz".
+def var fjob2       like ar-invl.job-no2    format "999".
+def var tjob2       like fjob2              initial 999.
 def var fpo         like po-ord.po-no.
 def var tpo         like po-ord.po-no       initial 999999.
 

@@ -24,9 +24,6 @@ IF fgemails <> "NONE" THEN DO:
                    IF AVAIL cust    THEN cust.under-pct    ELSE 0.
 
       IF fgemails = "RECEIPTS" THEN DO:
-        /* PUT STREAM st-email 
-             fg-rctd.job-no + "-" + string(fg-rctd.job-no2,"99") FORM "x(10)"
-             " " fg-rctd.i-no " " fg-rctd.t-qty FORM "->>>,>>>,>>9" SKIP. */
           CREATE tt-email.
           ASSIGN tt-email.job-no = fg-rctd.job-no
                  tt-email.job-no2 = fg-rctd.job-no2
@@ -60,12 +57,6 @@ IF fgemails <> "NONE" THEN DO:
                  tt-email.cust-no = IF AVAIL oe-ord THEN oe-ord.cust-no
                                     ELSE IF AVAIL job-hdr THEN job-hdr.cust-no
                                     ELSE itemfg.cust-no.
-          /*
-             PUT STREAM st-email UNFORMATTED
-                 fg-rctd.job-no + "-" + string(fg-rctd.job-no2,"99") FORM "x(10)"
-                 " " fg-rctd.i-no " " fg-rctd.t-qty FORM "->>>,>>>,>>9" SKIP.
-          */       
-/*MESSAGE fg-rctd.t-qty v-qty-received job-hdr.qty v-underrun job-hdr.qty * v-underrun VIEW-AS ALERT-BOX.*/
           END.
              
       END.

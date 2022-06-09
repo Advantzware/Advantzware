@@ -966,7 +966,7 @@ def var v-type  as   char format "x(5)"       init "RITAC" NO-UNDO.
 def var v-code  like rm-rcpth.rita-code NO-UNDO.
 
 def var v-value as dec format "->,>>>,>>>,>>9.99" NO-UNDO.
-def var v-job-no as char format "x(9)" NO-UNDO.
+def var v-job-no as char format "x(13)" NO-UNDO.
 def var v-qty like rm-rdtlh.qty extent 3 NO-UNDO.
 def var v-val like v-value extent 3 NO-UNDO.
 def var v-first as log extent 3 NO-UNDO.
@@ -1011,7 +1011,7 @@ form rm-rcpth.i-no label "ITEM"
      v-value label "VALUE"
      skip
 
-    with frame itemx no-box down STREAM-IO width 132.
+    with frame itemx no-box down STREAM-IO width 136.
 
 assign
    str-tit2 = c-win:title
@@ -1092,7 +1092,7 @@ for each rm-rcpth where rm-rcpth.company    eq cocode
 
          assign
           v-job-no = FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
-                     trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99")
+                     trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"999")
           v-value  = rm-rdtlh.cost * rm-rdtlh.qty
           v-bwt    = item.basis-w
           v-wid    = if item.r-wid eq 0 then item.s-wid else item.r-wid

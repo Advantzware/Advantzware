@@ -1171,7 +1171,7 @@ PROCEDURE new-bin :
         FIND FIRST fg-bin 
             WHERE fg-bin.company EQ cocode
             AND fg-bin.i-no    EQ fg-rctd.i-no:SCREEN-VALUE 
-            AND trim(fg-bin.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE) 
+            AND fg-bin.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
             AND fg-bin.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE )
             AND fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE 
             AND fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE 
@@ -1310,7 +1310,7 @@ PROCEDURE valid-job-loc-bin-tag :
             WHERE fg-bin.company  EQ cocode
             AND fg-bin.active   EQ TRUE
             AND fg-bin.i-no     EQ fg-rctd.i-no:SCREEN-VALUE 
-            AND trim(fg-bin.job-no)   EQ trim(fg-rctd.job-no:SCREEN-VALUE) 
+            AND fg-bin.job-no   EQ fg-rctd.job-no:SCREEN-VALUE
             AND (fg-bin.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE ) OR
             li-field#      LT 2)
             AND (fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE           OR

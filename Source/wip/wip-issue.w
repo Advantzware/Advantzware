@@ -44,6 +44,8 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+{sys/inc/var.i}
+
 DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
 
@@ -763,14 +765,14 @@ DO:
         ).
     
     cFormattedJobno = DYNAMIC-FUNCTION (
-                      "fAddSpacesToString" IN hdJobProcs, ls-jobno:SCREEN-VALUE, 9, TRUE
+                      "fAddSpacesToString" IN hdJobProcs, ls-jobno:SCREEN-VALUE, iJobLen, TRUE
                       ).                                  
 
     IF lParse THEN
         ASSIGN
             SELF:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo))
             cFormattedJobno = DYNAMIC-FUNCTION (
-                              "fAddSpacesToString" IN hdJobProcs, cJobNo, 9, TRUE
+                              "fAddSpacesToString" IN hdJobProcs, cJobNo, iJobLen, TRUE
                               ).
 
     IF cMessage NE "" THEN DO:

@@ -269,7 +269,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
   FIND FIRST tt-key2
-      WHERE TRIM(tt-key2.tt-job-no)  EQ TRIM(ip-job-no)
+      WHERE tt-key2.tt-job-no  EQ ip-job-no
         AND tt-key2.tt-job-no2 EQ ip-job-no2
         AND tt-key2.tt-frm     EQ ip-frm
         AND tt-key2.tt-blank   EQ ip-blank

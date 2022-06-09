@@ -99,15 +99,15 @@ DEFINE VARIABLE begin_inv-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_procat AS CHARACTER FORMAT "X(5)":U 
      LABEL "Beginning Category" 
@@ -124,15 +124,15 @@ DEFINE VARIABLE end_inv-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_procat AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
      LABEL "Ending Category" 
@@ -252,11 +252,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Due Date"
      begin_job-no AT ROW 8.24 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 8.24 COL 39 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 8.24 COL 41 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 8.24 COL 69 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 8.24 COL 81 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 8.24 COL 83 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      rd-dest AT ROW 11.71 COL 4 NO-LABEL
      lv-ornt AT ROW 11.71 COL 31 NO-LABEL
@@ -933,9 +933,9 @@ def buffer b-jh for job-hdr.
 def var v-fdate as   date format "99/99/9999" init 01/01/0001 NO-UNDO.
 def var v-tdate like v-fdate                  init 12/31/9999 NO-UNDO.
 def var v-fjob  like job.job-no NO-UNDO.
-def var v-tjob  like v-fjob                   init "zzzzzz" NO-UNDO.
+def var v-tjob  like v-fjob                   init "zzzzzzzzz" NO-UNDO.
 def var v-fjob2 like job.job-no2 NO-UNDO.
-def var v-tjob2 like v-fjob2                  init 99 NO-UNDO.
+def var v-tjob2 like v-fjob2                  init 999 NO-UNDO.
 def var v-stat  as   char format "!"          init "O" NO-UNDO.
 
 def var v-up     like eb.num-up NO-UNDO.
@@ -965,9 +965,9 @@ assign
   v-tdate   = END_inv-date
 
   v-fjob    = FILL(" ", iJobLen - length(trim(begin_job-no))) +
-              trim(begin_job-no) + string(int(begin_job-no2),"99")
+              trim(begin_job-no) + string(int(begin_job-no2),"999")
   v-tjob    = FILL(" ", iJobLen - length(trim(end_job-no)))   +
-              trim(end_job-no)   + string(int(end_job-no2),"99").
+              trim(end_job-no)   + string(int(end_job-no2),"999").
 
 
 {sys/inc/print1.i}
@@ -1021,13 +1021,13 @@ display with frame r-top.
 
         each ar-invl
         where ar-invl.x-no    eq ar-inv.x-no
-          and ar-invl.job-no  ge substr(v-fjob,1,6)
-          and ar-invl.job-no  le substr(v-tjob,1,6)
+          and ar-invl.job-no  ge substr(v-fjob,1,iJobLen)
+          and ar-invl.job-no  le substr(v-tjob,1,iJobLen)
           and FILL(" ", iJobLen - length(trim(ar-invl.job-no))) +
-              trim(ar-invl.job-no) + string(ar-invl.job-no2,"99")
+              trim(ar-invl.job-no) + string(ar-invl.job-no2,"999")
                           ge v-fjob
           and FILL(" ", iJobLen - length(trim(ar-invl.job-no))) +
-              trim(ar-invl.job-no) + string(ar-invl.job-no2,"99")
+              trim(ar-invl.job-no) + string(ar-invl.job-no2,"999")
                           le v-tjob
           and ar-invl.inv-qty ne 0
         no-lock,
@@ -1061,7 +1061,7 @@ display with frame r-top.
          END.
 
       v-job = FILL(" ", iJobLen - length(trim(job.job-no))) +
-              trim(job.job-no) + "-" + string(job.job-no2,"99").
+              trim(job.job-no) + "-" + string(job.job-no2,"999").
 
       find first tt-report
           where tt-report.term-id EQ ""
@@ -1237,7 +1237,7 @@ display with frame r-top.
        v-waste = ROUND((v-diff[2] / v-rm-qty[1] * 100),2)  .
        IF v-waste = ? THEN ASSIGN v-waste = 0.
 
-      display tt-report.key-01    column-label "    JOB #"      format "x(9)"
+      display tt-report.key-01    column-label "    JOB #"      format "x(13)"
                                   when v-frst
               cust.name           column-label "CUSTOMER"       format "x(25)"
                                   when avail cust and v-frst

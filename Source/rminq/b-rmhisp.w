@@ -66,7 +66,7 @@ DEF BUFFER rm-rdtlh-1 FOR rm-rdtlh.
           AND (rm-rcpth.i-no      EQ fi_rm-i-no OR fi_rm-i-no EQ "") ~
           AND rm-rcpth.rita-code  BEGINS fi_rita-code ~
           AND (rm-rcpth.po-no     EQ TRIM(STRING(fi_po-no,">>>>>>>>")) OR fi_po-no EQ 0) ~
-          AND (trim(rm-rcpth.job-no) EQ trim(fi_job-no) OR fi_job-no EQ "")   ~
+          AND (rm-rcpth.job-no    EQ fi_job-no  OR fi_job-no EQ "")   ~
           AND (rm-rcpth.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                           ~

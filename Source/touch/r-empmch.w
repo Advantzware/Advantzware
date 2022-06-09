@@ -1005,7 +1005,7 @@ PROCEDURE run-report :
 
         DISPLAY machemp.employee
             machtran.machine
-            machtran.job_number + "-" + STRING(machtran.job_sub,"99") FORM "x(10)"  @ machtran.job_number LABEL "Job#"
+            TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', machtran.job_number, machtran.job_sub))) FORM "x(13)"  @ machtran.job_number LABEL "Job#"
             /* machtran.form_number
             machtran.blank_number
             machtran.pass_sequence*/
@@ -1028,7 +1028,7 @@ PROCEDURE run-report :
             PUT STREAM excel UNFORMATTED
                 '"' machemp.employee                       '",'
                 '"' machtran.machine                       '",'
-                '"' machtran.job_number + "-" + STRING(machtran.job_sub,"99") '",'
+                '"' machtran.job_number + "-" + STRING(machtran.job_sub,"999") '",'
                 '"' machtran.start_date                    '",'
                 '"' TRIM(STRING(machemp.start_time,'HH:MM am'))  '",'
                 '"' machtran.end_date '",'
@@ -1307,7 +1307,7 @@ PROCEDURE run-report-date :
 
         DISPLAY machemp.employee
             machtran.machine
-            machtran.job_number + "-" + string(machtran.job_sub,"99") FORM "x(10)"  @ machtran.job_number LABEL "Job#"
+            TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', machtran.job_number, machtran.job_sub))) FORM "x(13)"  @ machtran.job_number LABEL "Job#"
             /* machtran.form_number
             machtran.blank_number
             machtran.pass_sequence*/
@@ -1331,7 +1331,7 @@ PROCEDURE run-report-date :
             PUT STREAM excel UNFORMATTED
                 '"' machemp.employee                       '",'
                 '"' machtran.machine                       '",'
-                '"' machtran.job_number + "-" + string(machtran.job_sub,"99") '",'
+                '"' machtran.job_number + "-" + string(machtran.job_sub,"999") '",'
                 '"' machtran.start_date                    '",'
                 '"' TRIM(STRING(machtran.start_time,'HH:MM am'))  '",'
                 '"' machtran.end_date '",'
@@ -1345,9 +1345,9 @@ PROCEDURE run-report-date :
                 SKIP.
 
         /*  IF last-of(machtran.job_sub) THEN li-job-cnt = li-job-cnt + 1. */
-        IF INDEX(lv-job-list, TRIM(machtran.job_number) + string(machtran.job_sub,"99")) <= 0 THEN 
+        IF INDEX(lv-job-list, TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', machtran.job_number, machtran.job_sub)))) <= 0 THEN 
             ASSIGN li-job-cnt  = li-job-cnt + 1
-                lv-job-list = lv-job-list + trim(machtran.job_number) + string(machtran.job_sub,"99")
+                lv-job-list = lv-job-list + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', machtran.job_number, machtran.job_sub)))
                                 + ",".
 
         IF LAST-OF(machtran.machine) THEN 
@@ -1593,7 +1593,7 @@ FOR EACH machemp NO-LOCK WHERE machemp.employee >= begin_emp-no
 
       DISPLAY machemp.employee
               machtran.machine
-              machtran.job_number + "-" + string(machtran.job_sub,"99") FORM "x(10)"  @ machtran.job_number LABEL "Job#"
+              TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', machtran.job_number, machtran.job_sub))) FORM "x(13)"  @ machtran.job_number LABEL "Job#"
               /* machtran.form_number
               machtran.blank_number
               machtran.pass_sequence*/

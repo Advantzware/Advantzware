@@ -44,7 +44,7 @@ DEF TEMP-TABLE tt-ldtag LIKE loadtag
 def var lv-type-dscr as cha no-undo.
 &scoped-define fld-name-1 tt-ldtag.tag-no
 &scoped-define fld-name-2 tt-ldtag.i-no
-&scoped-define fld-name-3 trim(tt-ldtag.job-no)
+&scoped-define fld-name-3 tt-ldtag.job-no
 &scoped-define SORTBY-1 BY {&fld-name-1}
 &scoped-define SORTBY-2 BY {&fld-name-2}
 &scoped-define SORTBY-3 BY {&fld-name-3}

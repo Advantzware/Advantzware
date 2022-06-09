@@ -15,9 +15,9 @@ IF company.company = '004' THEN
             SPACE(12) "REMIT TO: Premier Packaging Canada, LLC" SKIP
             SPACE(12) "          Dept 400175" SKIP
             SPACE(12) "          PO Box 4375 STN A" SKIP 
-            SPACE(12) "          Tronto ON M5W OJ3" SKIP 
-            space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
-            SPACE(12) ar-inv.cust-name v-shipto-name AT 64 skip
+            SPACE(12) "          Toronto ON M5W OJ3" SKIP 
+            SPACE(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
+            SPACE(12) ar-inv.cust-name v-shipto-name AT 64 SKIP
             SPACE(12) ar-inv.addr[1]   v-shipto-addr[1] AT 64 SKIP
             SPACE(12) ar-inv.addr[2]  v-shipto-addr[2] AT 64 SKIP
             SPACE(12) v-addr3   v-sold-addr3 AT 64  SKIP
@@ -27,11 +27,11 @@ ELSE IF company.company = '005' THEN
             "<P10><=2><R+6>"
             "<FCourier New>"
             SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" SKIP(1)
-            SPACE(12) "REMIT TO: MCI PACKAGING" SKIP
+            SPACE(12) "REMIT TO: MCI PACKAGING LLC" SKIP
             SPACE(12) "          PO BOX 39505" SKIP
             SPACE(12) "          Louisville, KY 40233" SKIP (1)
-            space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
-            SPACE(12) ar-inv.cust-name v-shipto-name AT 64 skip
+            SPACE(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
+            SPACE(12) ar-inv.cust-name v-shipto-name AT 64 SKIP
             SPACE(12) ar-inv.addr[1]   v-shipto-addr[1] AT 64 SKIP
             SPACE(12) ar-inv.addr[2]  v-shipto-addr[2] AT 64 SKIP
             SPACE(12) v-addr3   v-sold-addr3 AT 64  SKIP
@@ -42,8 +42,8 @@ ELSE IF company.company EQ '006' THEN
             "<FCourier New>" SKIP(1)
             SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" 
             SKIP(3)
-            space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
-            SPACE(12) ar-inv.cust-name v-shipto-name AT 64 skip
+            SPACE(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
+            SPACE(12) ar-inv.cust-name v-shipto-name AT 64 SKIP
             SPACE(12) ar-inv.addr[1]   v-shipto-addr[1] AT 64 SKIP
             SPACE(12) ar-inv.addr[2]  v-shipto-addr[2] AT 64 SKIP
             SKIP
@@ -60,8 +60,8 @@ ELSE
             SPACE(12) "REMIT TO: PREMIER PACKAGING" SKIP
             SPACE(12) "          3254 RELIABLE PARKWAY" SKIP
             SPACE(12) "          CHICAGO, IL  60686" SKIP (1)
-            space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
-            SPACE(12) ar-inv.cust-name v-shipto-name AT 64 skip
+            SPACE(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
+            SPACE(12) ar-inv.cust-name v-shipto-name AT 64 SKIP
             SPACE(12) ar-inv.addr[1]   v-shipto-addr[1] AT 64 SKIP
             SPACE(12) ar-inv.addr[2]  v-shipto-addr[2] AT 64 SKIP
             SPACE(12) v-addr3   v-sold-addr3 AT 64  SKIP
@@ -96,10 +96,10 @@ FIND FIRST sman WHERE sman.company = ar-inv.company
 v-salesname = IF AVAIL sman THEN sman.sname ELSE "".
 
 PUT "<FArial><=4>  SHIP DATE             FOB                      SHIP VIA                            TERMS                      SALESMAN NAME                   BOL#" SKIP
-     "<FCourier New><=4><R+2><B> " v-date-ship FORM "99/99/9999" space(2)
+     "<FCourier New><=4><R+2><B> " v-date-ship FORM "99/99/9999" SPACE(2)
      v-fob FORM "x(12)" SPACE(1)
      v-shipvia FORM "x(20)" SPACE(1)
-     ar-inv.terms-d FORM "x(15)" space(1)
+     ar-inv.terms-d FORM "x(15)" SPACE(1)
     /* v-salesman FORM "x(8)" */
      v-salesname FORM "x(23)"
      lv-bol-no FORM ">>>>>>>" "</B>"

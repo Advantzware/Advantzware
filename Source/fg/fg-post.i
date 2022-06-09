@@ -60,7 +60,7 @@
       EACH fg-rcpth
       WHERE fg-rcpth.company EQ cocode
         AND fg-rcpth.i-no    EQ fg-bin.i-no
-        AND trim(fg-rcpth.job-no)  EQ trim(fg-bin.job-no)
+        AND fg-rcpth.job-no  EQ fg-bin.job-no
         AND fg-rcpth.job-no2 EQ fg-bin.job-no2
       USE-INDEX i-no NO-LOCK,
 
@@ -92,7 +92,7 @@
     FOR EACH fg-bin
       WHERE fg-bin.company EQ cocode
         AND fg-bin.i-no    EQ {1}.i-no
-        AND trim(fg-bin.job-no)  EQ trim({1}.job-no)
+        AND fg-bin.job-no  EQ {1}.job-no
         AND fg-bin.job-no2 EQ {1}.job-no2
         AND fg-bin.tag     EQ ""
         AND fg-bin.qty     GE {2}.t-qty
@@ -101,7 +101,7 @@
       EACH fg-rcpth
       WHERE fg-rcpth.company EQ cocode
         AND fg-rcpth.i-no    EQ fg-bin.i-no
-        AND trim(fg-rcpth.job-no)  EQ trim(fg-bin.job-no)
+        AND fg-rcpth.job-no  EQ fg-bin.job-no
         AND fg-rcpth.job-no2 EQ fg-bin.job-no2
       USE-INDEX i-no NO-LOCK,
 
@@ -178,7 +178,7 @@
           IF {1}.job-no ne "" THEN
           FIND FIRST job NO-LOCK
               WHERE job.company EQ cocode
-                AND trim(job.job-no)  EQ trim({1}.job-no)
+                AND job.job-no  EQ {1}.job-no
                 AND job.job-no2 EQ {1}.job-no2
                 AND CAN-FIND(FIRST job-hdr
                              WHERE job-hdr.company EQ job.company
@@ -476,7 +476,7 @@
 
           run fg/comp-upd.p (recid(itemfg), v-reduce-qty * -1, "q-ono",v-est-no).
 
-          IF {2}.pur-uom NE itemfg.prod-uom              AND
+          IF {2}.ext-cost GT 0 AND {2}.pur-uom NE itemfg.prod-uom              AND
              (NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",itemfg.company, itemfg.i-no, {2}.pur-uom) OR
               NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",itemfg.company, itemfg.i-no, itemfg.prod-uom))  THEN
           run sys/ref/convcuom.p({2}.pur-uom, itemfg.prod-uom, 0, 0, 0, 0,
@@ -514,23 +514,29 @@
                     
           END.
           ELSE DO:
-              ASSIGN
-                  itemfg.std-mat-cost = {2}.ext-cost / {2}.t-qty.
-              IF itemfg.prod-uom EQ "M" THEN ASSIGN
-                  itemfg.std-mat-cost =  itemfg.std-mat-cost * 1000.
-              ASSIGN 
-                  itemfg.std-tot-cost = itemfg.std-mat-cost.
+              IF {2}.ext-cost GT 0 then
+              DO:
+                  ASSIGN
+                      itemfg.std-mat-cost = {2}.ext-cost / {2}.t-qty.
+                  IF itemfg.prod-uom EQ "M" THEN ASSIGN
+                      itemfg.std-mat-cost =  itemfg.std-mat-cost * 1000.
+                  ASSIGN 
+                      itemfg.std-tot-cost = itemfg.std-mat-cost.
+              END.    
           END.
-          ASSIGN 
-             itemfg.total-std-cost = itemfg.std-tot-cost.
-           IF itemfg.std-tot-cost GT 0 THEN                          
-             itemfg.last-cost    = itemfg.std-tot-cost.
-             itemfg.avg-cost =  (((itemfg.q-onh - {2}.t-qty) * itemfg.avg-cost) + (itemfg.std-tot-cost * {2}.t-qty))  / itemfg.q-onh.
-         FIND FIRST fg-ctrl NO-LOCK  
-             WHERE fg-ctrl.company EQ itemfg.company
-             NO-ERROR.
-         IF AVAIL fg-ctrl AND fg-ctrl.inv-meth = "A" THEN
-             itemfg.total-std-cost = itemfg.avg-cost.                     
+          IF {2}.ext-cost GT 0 then
+          DO:
+              ASSIGN 
+                 itemfg.total-std-cost = itemfg.std-tot-cost.
+              IF itemfg.std-tot-cost GT 0 THEN                          
+                 itemfg.last-cost    = itemfg.std-tot-cost.
+                 itemfg.avg-cost =  (((itemfg.q-onh - {2}.t-qty) * itemfg.avg-cost) + (itemfg.std-tot-cost * {2}.t-qty))  / itemfg.q-onh.
+              FIND FIRST fg-ctrl NO-LOCK  
+                  WHERE fg-ctrl.company EQ itemfg.company
+                  NO-ERROR.
+              IF AVAIL fg-ctrl AND fg-ctrl.inv-meth = "A" THEN
+                 itemfg.total-std-cost = itemfg.avg-cost. 
+          END.   
   end.  /* rita-code = "r" */
   else if {1}.rita-code eq "S" then DO:      /** SHIPPMENTS **/
   
@@ -668,13 +674,13 @@
   END.
 
   find first job-hdr where job-hdr.company eq cocode
-                          and trim(job-hdr.job-no)  eq trim({1}.job-no)
+                          and job-hdr.job-no  eq {1}.job-no
                           and job-hdr.job-no2 eq {1}.job-no2
                           and job-hdr.i-no    eq {1}.i-no
                 no-lock no-error.
   find first fg-bin where fg-bin.company eq cocode
                       and fg-bin.i-no    eq {1}.i-no
-                      and trim(fg-bin.job-no)  eq trim({1}.job-no)
+                      and fg-bin.job-no  eq {1}.job-no
                       and fg-bin.job-no2 eq {1}.job-no2
                       and fg-bin.loc     eq {2}.loc
                       and fg-bin.loc-bin eq {2}.loc-bin
@@ -740,7 +746,7 @@
   IF {1}.rita-code EQ "T" THEN DO:
     FIND FIRST b-fg-bin
         WHERE b-fg-bin.company EQ {1}.company
-          AND trim(b-fg-bin.job-no)  EQ trim({1}.job-no)
+          AND b-fg-bin.job-no  EQ {1}.job-no
           AND b-fg-bin.job-no2 EQ {1}.job-no2
           AND b-fg-bin.i-no    EQ {1}.i-no
           AND b-fg-bin.loc     EQ {2}.loc2
@@ -792,7 +798,7 @@
       AND fg-rdtlh.cases EQ {2}.cases
       AND fg-rdtlh.tag EQ {2}.tag
       AND fg-rdtlh.qty EQ {2}.qty
-      AND trim(fg-rdtlh.job-no) EQ trim({2}.job-no)
+      AND fg-rdtlh.job-no EQ {2}.job-no
       AND fg-rdtlh.job-no2 EQ {2}.job-no2
       AND fg-rdtlh.partial EQ {2}.partial
     NO-LOCK NO-ERROR.

@@ -41,6 +41,7 @@ IF NOT ll THEN
                     AND rm-rctd.rita-code  EQ "R"
                     AND rm-rctd.i-no       EQ io-po-ordl.i-no
                     AND INT(rm-rctd.po-no) EQ io-po-ordl.po-no
+                    AND rm-rctd.po-line    EQ io-po-ordl.line
                   USE-INDEX rita-code) NO-ERROR.
   ELSE
     ll = CAN-FIND(FIRST fg-rctd
@@ -48,6 +49,7 @@ IF NOT ll THEN
                     AND fg-rctd.rita-code  EQ "R"
                     AND fg-rctd.i-no       EQ io-po-ordl.i-no
                     AND INT(fg-rctd.po-no) EQ io-po-ordl.po-no
+                    AND fg-rctd.po-line    EQ io-po-ordl.line
                   USE-INDEX rita-code) NO-ERROR.
 
 IF ll THEN DO:

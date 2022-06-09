@@ -1486,11 +1486,11 @@ PROCEDURE pAddTagInfoForGroup PRIVATE:
                   
     IF AVAIL bf-oe-ordl THEN do:              
         RUN ClearTagsForGroup(
-            INPUT STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.LINE),
+            INPUT cocode + STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.LINE),
             INPUT ipcGroup
             ).
         RUN AddTagInfoForGroup(
-            INPUT STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.LINE),
+            INPUT cocode + STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT ipcMessage,
             INPUT "",

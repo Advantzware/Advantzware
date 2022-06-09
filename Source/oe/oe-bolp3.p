@@ -140,11 +140,9 @@ DEFINE TEMP-TABLE ttblUPS NO-UNDO
     FIELD cod          AS LOGICAL
     INDEX ttblUPS IS PRIMARY UNIQUE company ord-no sold-to.
 
-DEFINE VARIABLE hNotesProcs  AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdCustomerProcs  AS HANDLE  NO-UNDO.
 DEFINE VARIABLE hdInvoiceProcs  AS HANDLE  NO-UNDO.
-RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
 RUN oe/OrderProcs.p    PERSISTENT SET hdOrderProcs.
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 RUN ar/InvoiceProcs.p PERSISTENT SET hdInvoiceProcs.
@@ -232,7 +230,6 @@ RUN ipCreateInterCompanyBilling.
 
 RUN ipUpsFile.
 RUN ipEndLog.
-DELETE OBJECT hNotesProcs.
 IF VALID-HANDLE(hdOrderProcs) THEN 
     DELETE PROCEDURE hdOrderProcs.
 IF VALID-HANDLE(hdCustomerProcs) THEN 
@@ -414,7 +411,7 @@ PROCEDURE ipCreateInvHead:
         inv-head.zip          = bf-cust.zip
         inv-head.curr-code[1] = bf-cust.curr-code .
 
-    RUN CopyShipNote IN hNotesProcs (bf-oe-bolh.rec_key, inv-head.rec_key).
+    RUN Notes_CopyShipNote (bf-oe-bolh.rec_key, inv-head.rec_key).
     
     IF invStatus-log THEN
         inv-head.stat = "W".
@@ -896,7 +893,7 @@ PROCEDURE ipPostSingleBOL:
             oe-relh.ship-i[2] = oe-bolh.ship-i[2]
             oe-relh.ship-i[3] = oe-bolh.ship-i[3]
             oe-relh.ship-i[4] = oe-bolh.ship-i[4].
-        RUN CopyShipNote IN hNotesProcs (oe-bolh.rec_key, oe-relh.rec_key).
+        RUN Notes_CopyShipNote (oe-bolh.rec_key, oe-relh.rec_key).
 
         IF oe-rell.link-no EQ 0 THEN 
         DO:
@@ -937,7 +934,7 @@ PROCEDURE ipPostSingleBOL:
                 oe-rel.ship-i[4] = oe-relh.ship-i[4]
                 oe-rel.po-no     = bf-ttPreInvLine.po-no.
    
-            RUN CopyShipNote IN hNotesProcs (oe-relh.rec_key, oe-rel.rec_key).
+            RUN Notes_CopyShipNote (oe-relh.rec_key, oe-rel.rec_key).
         END. /* avail oe-rel */
    
         /** Use ship-no to find customer shipto because ship-no is the

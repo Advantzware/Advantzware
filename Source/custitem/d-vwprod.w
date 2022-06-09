@@ -81,7 +81,7 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE VARIABLE FI-cust-part-no AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE FI-cust-part-no AS CHARACTER FORMAT "X(30)":U 
      LABEL "Customers Part No" 
       VIEW-AS TEXT 
      SIZE 17 BY .62 NO-UNDO.
@@ -207,10 +207,6 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-
-/*   FRAME {&FRAME-NAME}:TITLE = TRIM(FRAME {&FRAME-NAME}:TITLE) + " for Job#/Form: " + */
-/*                               TRIM(ip-job-no) + "-" + STRING(ip-job-no2,"99") +      */
-/*                               "/" + TRIM(STRING(ip-frm,">>>>")).                     */
   FIND FIRST b-itemfg WHERE ROWID(b-itemfg) = ip-rowid NO-LOCK NO-ERROR.
 
   ASSIGN

@@ -369,7 +369,7 @@ find first company where company.company eq cocode no-lock no-error.
         v-part = if oe-ordl.i-no ne oe-ordl.part-no then oe-ordl.part-no
                  else oe-ordl.part-no.
         put /*v-line FORM ">>>9" SPACE(3)*/
-                v-part /*oe-ordl.i-no*/ AT 2  oe-ordl.po-no SPACE(1)
+                v-part /*oe-ordl.i-no*/ AT 2  FORMAT "x(15)" oe-ordl.po-no SPACE(1)
                 oe-ordl.i-name FORM "x(19)" SPACE(1)
                 oe-ordl.qty FORM "->,>>>,>>>,>>9" 
                 oe-ordl.price  FORM "$>>>,>>9.99<<<<" SPACE(1)

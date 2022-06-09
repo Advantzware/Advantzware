@@ -41,8 +41,7 @@ FOR EACH company,
 
     DISPLAY "Processing Company/Job#: " +
             TRIM(job.company) + "/"     +
-            TRIM(job.job-no) + "-"      +
-            STRING(job.job-no2,"99") FORMAT "x(50)"
+            TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) FORMAT "x(50)"
         WITH FRAME f1 1 DOWN.
                 
     ll = TRIM(job.est-no) NE "" AND

@@ -170,8 +170,8 @@ DEFINE BROWSE Browser-Table
             WIDTH 12
       wiptag.wip-rm-bin COLUMN-LABEL "WIP Bin" FORMAT "x(8)":U
             WIDTH 12
-      wiptag.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U WIDTH 10
-      wiptag.job-no2 COLUMN-LABEL "#" FORMAT ">9":U WIDTH 3.4
+      wiptag.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U WIDTH 15
+      wiptag.job-no2 COLUMN-LABEL "#" FORMAT ">>9":U WIDTH 5.4
       wiptag-mch.produced-qty COLUMN-LABEL "Tag Qty Produced" FORMAT "->>>,>>>,>>9.9<<<<<":U
             WIDTH 26
       dept.seq FORMAT ">9":U
@@ -307,9 +307,9 @@ asi.mach.m-code = asi.wiptag-mch.m-code"
      _FldNameList[5]   > asi.wiptag.wip-rm-bin
 "wiptag.wip-rm-bin" "WIP Bin" ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.wiptag.job-no
-"wiptag.job-no" "Job" ? "character" ? ? ? ? ? ? no "" no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"wiptag.job-no" "Job" ? "character" ? ? ? ? ? ? no "" no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.wiptag.job-no2
-"wiptag.job-no2" "#" ? "integer" ? ? ? ? ? ? no ? no no "3.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"wiptag.job-no2" "#" ? "integer" ? ? ? ? ? ? no ? no no "5.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.wiptag-mch.produced-qty
 "wiptag-mch.produced-qty" "Tag Qty Produced" ? "decimal" ? ? ? ? ? ? no ? no no "26" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.dept.seq

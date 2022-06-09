@@ -47,7 +47,7 @@ DEFINE TEMP-TABLE ttBillofLading NO-UNDO
     FIELD tag           AS CHARACTER FORMAT "x(20)" LABEL "Tag"
     FIELD loc           AS CHARACTER FORMAT "x(8)" LABEL "Whse"
     FIELD loc-bin       AS CHARACTER FORMAT "x(8)" LABEL "Bin"
-    FIELD job-no        AS CHARACTER FORMAT "x(6)" LABEL "Job NO"
+    FIELD job-no        AS CHARACTER FORMAT "x(9)" LABEL "Job NO"
     FIELD job-no2       AS INTEGER   FORMAT ">>9" LABEL "Job no2"
     FIELD cases         AS INTEGER   FORMAT "->>>,>>9" LABEL "Units"
     FIELD qty-case      AS INTEGER   FORMAT "->>>,>>9" LABEL "Qty/Unit"    

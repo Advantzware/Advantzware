@@ -374,7 +374,7 @@ v-printline = 0.
             assign v-num-add = 0.
 
             find first job where job.company eq cocode 
-                             and trim(job.job-no) eq trim(po-ordl.job-no) 
+                             and job.job-no eq po-ordl.job-no 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
             if avail job then
@@ -520,7 +520,7 @@ v-printline = 0.
         DO:
             find first job where job.company eq cocode 
                              AND job.job-no NE ""
-                             and trim(job.job-no) eq trim(po-ordl.job-no) 
+                             and job.job-no eq po-ordl.job-no 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
 

@@ -346,7 +346,8 @@ DO:
   def var phandle as widget-handle no-undo.
   def var char-hdl as cha no-undo.   
 
-
+  IF AVAIL ar-cash AND ar-cash.posted EQ YES THEN RETURN.
+  
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
   phandle = WIDGET-HANDLE(char-hdl).
     
@@ -900,7 +901,7 @@ PROCEDURE local-create-record :
          ar-cashl.c-no = ar-cash.c-no
          ar-cashl.LINE = li-next-line + 1
          ar-cashl.cust-no = ar-cash.cust-no
-         ar-cashl.check-no = STRING(ar-cash.check-no,"9999999999")
+         ar-cashl.check-no = STRING(ar-cash.check-no,"999999999999")
          ar-cashl.dscr = lv-dscr
          ar-cashl.memo = YES.
 
@@ -1014,7 +1015,13 @@ PROCEDURE local-open-query :
      RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
      ll-is-a-return = AVAIL reftable OR ar-cashl.dscr MATCHES "*oe return*".
   END.
- IF AVAIL ar-cash AND ar-cash.memo AND AVAIL ar-cashl and ar-cashl.amt-disc gt 0 THEN do: 
+ IF AVAIL ar-cash AND ar-cash.posted EQ YES THEN
+ DO:         
+      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"disableadd-target",OUTPUT char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+         RUN set-buttons IN WIDGET-HANDLE(char-hdl)("disable-all").
+ END.
+ ELSE IF AVAIL ar-cash AND ar-cash.memo AND AVAIL ar-cashl and ar-cashl.amt-disc gt 0 THEN do: 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"disableadd-target",OUTPUT char-hdl).
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
          RUN add-return-proc IN WIDGET-HANDLE(char-hdl)(YES).

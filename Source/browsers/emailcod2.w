@@ -32,15 +32,20 @@ CREATE WIDGET-POOL.
 {sys/inc/varasgn.i}
 
 /* Variables */
-DEFINE VARIABLE     vlShipNotice    AS LOGICAL  NO-UNDO.
-DEFINE VARIABLE gvlAddStatus AS LOGICAL     NO-UNDO.
-DEFINE SHARED VAR   vrPhone         AS CHAR    NO-UNDO.
-DEF BUFFER b-phone FOR phone.
-/* DEFINE VARIABLE     vrPhone         AS RECID    NO-UNDO. */
-define var vHeaderValue as cha no-undo.
+
+DEFINE VARIABLE vlShipNotice AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE gvlAddStatus AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE vHeaderValue AS CHARACTER NO-UNDO.
+
+DEFINE SHARED VARIABLE vrPhone  AS CHARACTER NO-UNDO.
+DEFINE SHARED VARIABLE cEmailTo AS CHARACTER NO-UNDO.
+
+DEFINE BUFFER b-phone FOR phone.
+
 &SCOPED-DEFINE winReSize
 
 {methods/defines/winReSize.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -68,9 +73,11 @@ define var vHeaderValue as cha no-undo.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table emailcod.emailcod ~
 emailcod.description CheckNotice() @ vlShipNotice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} ~
+      AND CAN-DO(emailcod.emailTo,cEmailTo) NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} ~
+      AND CAN-DO(emailcod.emailTo,cEmailTo) NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table emailcod
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table emailcod
@@ -149,13 +156,15 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       emailcod.emailcod COLUMN-LABEL "Code":C5 FORMAT "X(10)":U
+            LABEL-FGCOLOR 15 LABEL-BGCOLOR 3
       emailcod.description FORMAT "X(30)":U WIDTH 29.8
       CheckNotice() @ vlShipNotice COLUMN-LABEL "Send":C4 FORMAT "x(4)":C4
+            WIDTH 7 LABEL-FGCOLOR 15 LABEL-BGCOLOR 3
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 57 BY 10.48
-         FONT 2
-         TITLE "E-Mail Notification System" TOOLTIP "Double-click to Send / Unsend.".
+         FGCOLOR 1 FONT 2
+         TITLE FGCOLOR 1 "E-Mail Notification System" TOOLTIP "Double-click to Send / Unsend.".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -253,12 +262,13 @@ ASSIGN
      _TblList          = "ASI.emailcod"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
+     _Where[1]         = "CAN-DO(emailcod.emailTo,cEmailTo)"
      _FldNameList[1]   > ASI.emailcod.emailcod
-"emailcod.emailcod" ? "X(10)" "character" 3 15 ? 3 15 ? no ? no no ? yes no no "U" "" "C5" "" "" "" "" 0 no 0 no no
+"emailcod" ? "X(10)" "character" ? ? ? 3 15 ? no ? no no ? yes no no "U" "" "C5" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.emailcod.description
-"emailcod.description" ? ? "character" ? ? ? ? ? ? no ? no no "29.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"description" ? ? "character" ? ? ? ? ? ? no ? no no "29.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"
-"CheckNotice() @ vlShipNotice" "Send" "x(4)" ? 3 15 ? 3 15 ? no ? no no "7" yes no no "C4" "" "C4" "" "" "" "" 0 no 0 no no
+"CheckNotice() @ vlShipNotice" "Send" "x(4)" ? ? ? ? 3 15 ? no ? no no "7" yes no no "C4" "" "C4" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

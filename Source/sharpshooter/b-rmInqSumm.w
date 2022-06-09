@@ -44,6 +44,7 @@ DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 &SCOPED-DEFINE exclude-brwCustom
 {Inventory/ttBrowseInventory.i}
 {methods/defines/sortByDefs.i}
+{sys/inc/var.i}
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
@@ -526,9 +527,9 @@ FUNCTION fGetConcatJob RETURNS CHARACTER
        
     IF AVAILABLE ttBrowseInventory AND ttBrowseInventory.jobID NE "" THEN DO:
         cConcatJob = ttBrowseInventory.jobID 
-                   + FILL(" ", 6 - LENGTH(ttBrowseInventory.jobID)) 
+                   + FILL(" ", iJobLen - LENGTH(ttBrowseInventory.jobID)) 
                    + "-"
-                   + STRING(ttBrowseInventory.jobID2,"99").
+                   + STRING(ttBrowseInventory.jobID2,"999").
     END.
     
     RETURN cConcatJob.

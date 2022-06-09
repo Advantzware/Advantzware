@@ -91,25 +91,25 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_end-cust AS CHARACTER FORMAT "X(256)":U 
      LABEL "Ending Customer" 
@@ -258,11 +258,11 @@ DEFINE FRAME FRAME-A
      fi_end-cust AT ROW 3.14 COL 66 COLON-ALIGNED WIDGET-ID 6
      begin_job-no AT ROW 4.1 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 4.1 COL 38 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.1 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 4.1 COL 66 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 4.1 COL 78 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.1 COL 80 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      tb_fold AT ROW 5.52 COL 42 WIDGET-ID 10
      tb_corr AT ROW 6.48 COL 42 WIDGET-ID 12
@@ -977,9 +977,9 @@ DEF BUFFER b-est FOR est.
 
 def var v-fdate as   date format "99/99/9999" init TODAY NO-UNDO.
 def var v-fjob  like job.job-no NO-UNDO.
-def var v-tjob  like v-fjob                   init "zzzzzz" NO-UNDO.
+def var v-tjob  like v-fjob                   init "zzzzzzzzz" NO-UNDO.
 def var v-fjob2 like job.job-no2 NO-UNDO.
-def var v-tjob2 like v-fjob2                  init 99 NO-UNDO.
+def var v-tjob2 like v-fjob2                  init 999 NO-UNDO.
 def var v-indus as   char format "x" NO-UNDO.
 DEF VAR v-fcust AS   CHAR NO-UNDO.
 DEF VAR v-tcust AS   CHAR NO-UNDO.
@@ -991,7 +991,7 @@ def var v-on     like v-up NO-UNDO.
 def var v-hdr     as   char format "x(150)" extent 3 NO-UNDO.
 def var v-mach    like job-mch.m-code format "x(8)" NO-UNDO.
 def var v-date    as   date format "99/99/99" NO-UNDO.
-def var v-job     as   char format "x(9)" NO-UNDO.
+def var v-job     as   char format "x(13)" NO-UNDO.
 def var v-sheet   as   char format "x(19)" NO-UNDO.
 def var v-gl      as   char format "x(5)" NO-UNDO.
 def var v-qty     as   DEC NO-UNDO.
@@ -1035,13 +1035,13 @@ assign
   v-tcust   = fi_end-cust
 
   v-fjob    = FILL(" ", iJobLen - length(trim(begin_job-no))) +
-               trim(begin_job-no) + string(int(begin_job-no2),"99")
+               trim(begin_job-no) + string(int(begin_job-no2),"999")
   v-tjob    = FILL(" ", iJobLen - length(trim(end_job-no)))   +
-               trim(end_job-no)   + string(int(end_job-no2),"99") 
+               trim(end_job-no)   + string(int(end_job-no2),"999") 
 
   v-hdr[1]  =  fill(" ",150) 
-  v-hdr[2]  = "CUSTOMER  JOB#        F  B DIE#            " 
-  v-hdr[3]  = "--------- ----------- -- - --------------- " .
+  v-hdr[2]  = "CUSTOMER  JOB#          F  B DIE#            " 
+  v-hdr[3]  = "--------- ------------- -- - --------------- " .
   IF tb_plate THEN ASSIGN
       v-hdr[2]  = v-hdr[2] + "PLATE#          " 
       v-hdr[3]  = v-hdr[3] + "--------------- ".
@@ -1133,7 +1133,7 @@ SESSION:SET-WAIT-STATE ("general").
       delete tt-report.
     end.
 
-    IF TRIM(SUBSTRING(v-fjob, 1, 6)) GT "" THEN DO:    
+    IF TRIM(SUBSTRING(v-fjob, 1, iJobLen)) GT "" THEN DO:    
 
       for each job
           where job.company eq cocode
@@ -1294,7 +1294,7 @@ SESSION:SET-WAIT-STATE ("general").
 
       assign
        v-job   = FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
-                 trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99")
+                 trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"999")
        v-date  = date(int(substr(tt-report.key-01,5,2)),
                       int(substr(tt-report.key-01,7,2)),
                       int(substr(tt-report.key-01,1,4)))

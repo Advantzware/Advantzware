@@ -1593,10 +1593,6 @@ PROCEDURE set-job-vars :
             tjob-no  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job1)) 
             fjob-no2 = INT(begin_job2:SCREEN-VALUE)
             tjob-no2 = INT(end_job2:SCREEN-VALUE)
-            /*      fjob-no   = FILL(" ", iJobLen - LENGTH(TRIM(fjob-no))) + TRIM(fjob-no) + */
-            /*                  STRING(fjob-no2,"99")                                 */
-            /*      tjob-no   = FILL(" ", iJobLen - LENGTH(TRIM(tjob-no))) + TRIM(tjob-no) + */
-            /*                  STRING(tjob-no2,"99")                                 */
             fform    = int (begin_form:screen-value)
             tform    = int (end_form:screen-value)
             fblnk    = int (begin_blank:screen-value)

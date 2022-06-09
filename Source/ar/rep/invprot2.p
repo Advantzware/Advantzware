@@ -619,40 +619,8 @@ FOR each report
         
          IF v-ord-no = 0 AND v-ship-qty = 0 THEN v-ship-qty = v-inv-qty.
          
-/*          IF AVAIL oe-ordl AND NOT oe-ordl.is-a-component THEN DO: */
-/*              PUT                                                  */
-/*                "<C2>" v-po-no            FORMAT "x(15)"           */
-/*                "<C13>" lv-line           FORMAT ">>9"             */
-/*                "<C17>" ar-invl.part-no   FORMAT "x(30)"           */
-/*                "<C51>" v-inv-qty         FORMAT "->>>>>9"         */
-/*                "<C58>" v-price           FORMAT "->>,>>9.99"      */
-/*                "<C67>" ar-invl.amt       FORMAT "->>>,>>9.99"     */
-/*                "<C79>" lv-taxable        FORMAT "X"               */
-/*                SKIP                                               */
-/*                "<C2>"  trim(string(v-ord-no), ">>>>>>>")          */
-/*                "<C17>" v-i-dscr FORMAT "x(30)"                    */
-/*                "<C51>" v-ship-qty        FORMAT "->>>>>9"         */
-/*                "<C63>" v-price-head                               */
-/*                SKIP                                               */
-/*                "<C2>" trim(string(lv-bolno,">>>>>>>9"))           */
-/*                "<C17>" ar-invl.part-dscr1 FORMAT "x(30)"          */
-/*                "<C51>" ar-invl.qty FORMAT "->>>>>9"               */
-/*                SKIP                                               */
-/*                "<C17>" ar-invl.part-dscr2 FORMAT "x(30)"          */
-/*                SKIP.                                              */
-/*                                                                   */
-/*              ASSIGN v-printline = v-printline + 4.                */
-/*          END.                                                     */
      END. /* each ar-invl */
     
-/*      RUN printNotes ("IN",4). */
-     
-/*      IF v-printline GE 66 THEN do: */
-/*        PAGE.                       */
-/*        {ar/rep/invprot2.i}         */
-/*         v-printline = 29.          */
-/*      END.                          */
-
      ASSIGN v-notes = "" v-notes-line = 0.
 
      NOTES:

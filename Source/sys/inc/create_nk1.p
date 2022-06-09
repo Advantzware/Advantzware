@@ -52,8 +52,10 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,POPriceHold,SearchLimits,SSIssueDefaultRM,PlateFile,APInvoiceLength,DeleteBinsAllowed,InvoiceApprovalOrderlineChange,QuotePriceMatrix,"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,CEVendorDefault"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,PriceMatrixPricingMethod,CaseLabel,InterCompanyBilling,"
-           + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST,CENewLayoutCalc,OEUseMatrixForNonstock,CEOpStandards,CEShipWeight,JobNoLength"
+           + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST,CENewLayoutCalc,OEUseMatrixForNonstock,CEOpStandards,CEShipWeight,JobNoLength,CEShowErrorsAndWarnings"
+           + "CECostSource"
            .
+                      
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
     WHEN "FGItemUOM" THEN
@@ -1630,6 +1632,18 @@ CASE ip-nk1-value:
             INPUT NO,                                   /* Logical value */ 
             INPUT 0                                     /* Dec value*/
             ).
+    WHEN "CEAutoRecostBoard" THEN
+    RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Auto recost the board across all forms on estimate", /* Description */
+            INPUT "",                                   /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).
+          
     WHEN "BOLHideBillableFreight" THEN     
         RUN sys/inc/addnk1.p (
             INPUT cocode, 
@@ -1717,7 +1731,29 @@ CASE ip-nk1-value:
             INPUT 6,                              /* Int value */
             INPUT NO,                             /* Logical value */ 
             INPUT 0                               /* Dec value*/
-            ).                        
+            ).
+    WHEN "CECostSource" THEN     
+    RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Calculation Source for vendor cost", /* Description */
+            INPUT "VendorCostOnly",                     /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).            
+    WHEN "CEShowErrorsAndWarnings" THEN     
+    RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Present List of Error and Warnings at end of Estimate Calculation",     /* Description */
+            INPUT "", /* Char Value */
+            INPUT 0,                              /* Int value */
+            INPUT NO,                             /* Logical value */ 
+            INPUT 0                               /* Dec value*/
+            ).                      
 END CASE.
 ELSE
 CASE ip-nk1-value:

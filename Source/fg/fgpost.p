@@ -513,7 +513,7 @@ PROCEDURE send-fgemail:
 
        PUT STREAM st-email UNFORMATTED
            tt-email.qty FORM "->>>,>>>,>>9" " " 
-           tt-email.job-no + "-" + string(tt-email.job-no2,"99") FORM "x(10)"
+           TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-email.job-no, tt-email.job-no2))) FORM "x(13)"
            " " tt-email.i-no FORM "X(15)"
            " " (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.part-no ELSE IF AVAIL bf-itemfg THEN bf-itemfg.part-no ELSE "") FORM "x(15)"
            " " (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.po-no ELSE IF AVAIL bf-job-hdr THEN bf-job-hdr.po-no ELSE "") FORM "x(15)" 

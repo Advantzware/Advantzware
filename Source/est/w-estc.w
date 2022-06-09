@@ -1504,6 +1504,10 @@ ELSE
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN reopen-eb IN WIDGET-HANDLE(char-hdl) .
   END.
+  
+  IF li-page[1] = 3 THEN
+  RUN dispatch IN h_v-est ( INPUT 'display-fields':U ) .
+  
   IF li-page[1] = 5 THEN
   RUN dispatch IN h_v-est3 ( INPUT 'row-changed':U ) .
  

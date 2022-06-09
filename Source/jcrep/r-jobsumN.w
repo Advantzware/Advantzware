@@ -1571,8 +1571,10 @@ ASSIGN
                     IF tb_corr THEN "B" ELSE "F"
                   ELSE
                     IF tb_corr THEN "C" ELSE ""
-  v-job-no[1]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
-  v-job-no[2]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
+  v-job-no[1]   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job-no)) 
+  v-job-no[2]   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job-no)) 
+  v-job-no[1]   = v-job-no[1] + STRING(begin_job-no2,"999") 
+  v-job-no[2]   = v-job-no[2] + STRING(end_job-no2,"999") 
 
   v-date[1]     = begin_date
   v-date[2]     = END_date

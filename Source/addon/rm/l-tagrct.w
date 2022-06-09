@@ -28,9 +28,8 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-
-/* Local Variable Definitions ---                                       */
 {sys/inc/var.i}
+/* Local Variable Definitions ---                                       */
 def input parameter ip-company like itemfg.company no-undo.
 DEF INPUT PARAM ip-item-type AS LOG NO-UNDO.
 def input parameter ip-cur-val as cha no-undo.

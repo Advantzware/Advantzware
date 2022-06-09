@@ -385,7 +385,7 @@ DO:
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
                 AND ((v-check-page AND ( (lookup(job-hdr.cust-no,custcount) <> 0 AND job-hdr.cust-no <> "") OR custcount = "")) OR NOT v-check-page)
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
 
@@ -449,7 +449,7 @@ DO:
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
                 AND ((v-check-page AND ( (lookup(job-hdr.cust-no,custcount) <> 0 AND job-hdr.cust-no <> "") OR custcount = "")) OR NOT v-check-page)
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
 
@@ -506,7 +506,7 @@ DO:
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
                 AND ((v-check-page AND ( (lookup(job-hdr.cust-no,custcount) <> 0 AND job-hdr.cust-no <> "") OR custcount = "")) OR NOT v-check-page)
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
 

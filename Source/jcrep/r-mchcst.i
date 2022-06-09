@@ -7,13 +7,13 @@ DEF VAR ld-tot-rate AS DEC NO-UNDO.
         where mch-act.company eq cocode
           and mch-act.m-code  ge v-fmach
           and mch-act.m-code  le v-tmach
-          and mch-act.job-no  ge substr(v-fjob,1,6)
-          and mch-act.job-no  le substr(v-tjob,1,6)
+          and mch-act.job-no  ge substr(v-fjob,1,iJobLen)
+          and mch-act.job-no  le substr(v-tjob,1,iJobLen)
           and FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
-              trim(mch-act.job-no) + string(mch-act.job-no2,"99")
+              trim(mch-act.job-no) + string(mch-act.job-no2,"999")
                               ge v-fjob
           and FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
-              trim(mch-act.job-no) + string(mch-act.job-no2,"99")
+              trim(mch-act.job-no) + string(mch-act.job-no2,"999")
                               le v-tjob
         use-index operation no-lock,
 
@@ -286,7 +286,7 @@ DEF VAR ld-tot-rate AS DEC NO-UNDO.
 
         assign
          v-job = FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
-                 trim(mch-act.job-no) + "-" + string(mch-act.job-no2,"99")
+                 trim(mch-act.job-no) + "-" + string(mch-act.job-no2,"999")
 
          v-mr-act[1]  = v-mr-act-dl[1]  + v-mr-act-fo[1]  + v-mr-act-vo[1]
          v-run-act[1] = v-run-act-dl[1] + v-run-act-fo[1] + v-run-act-vo[1]
@@ -317,7 +317,7 @@ DEF VAR ld-tot-rate AS DEC NO-UNDO.
                 v-mat-est[1]        column-label "EST BRD"
                 v-mat-act[1]        column-label "ACT BRD"
                 v-mat-var           column-label "%VAR MAT"
-          with frame det STREAM-IO width 132 no-box down.
+          with frame det STREAM-IO width 138 no-box down.
 
 IF tb_excel THEN 
    EXPORT STREAM excel DELIMITER ","
@@ -436,7 +436,7 @@ IF tb_excel THEN
                   v-mat-act[2]        @ v-mat-act[1]
                   v-mat-var
 
-              with frame det STREAM-IO width 132 no-box down.
+              with frame det STREAM-IO width 138 no-box down.
           if show-direct-labor then
           do with frame det:
             down.
@@ -541,7 +541,7 @@ IF tb_excel THEN
                 v-mat-act[3]        @ v-mat-act[1]
                 v-mat-var
 
-            with frame det STREAM-IO width 132 no-box down.
+            with frame det STREAM-IO width 138 no-box down.
 
           if show-direct-labor then
           do with frame det:

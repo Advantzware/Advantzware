@@ -41,6 +41,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/var.i}
 {Inventory/ttBrowseInventory.i}
 {methods/defines/sortByDefs.i}
 
@@ -613,9 +614,9 @@ FUNCTION fGetConcatJob RETURNS CHARACTER
        
     IF AVAILABLE ttBrowseInventory AND ttBrowseInventory.jobID NE "" THEN DO:
         cConcatJob = ttBrowseInventory.jobID 
-                   + FILL(" ", 6 - LENGTH(ttBrowseInventory.jobID)) 
+                   + FILL(" ", iJobLen - LENGTH(ttBrowseInventory.jobID)) 
                    + "-"
-                   + STRING(ttBrowseInventory.jobID2,"99").
+                   + STRING(ttBrowseInventory.jobID2,"999").
     END.
     
     RETURN cConcatJob.

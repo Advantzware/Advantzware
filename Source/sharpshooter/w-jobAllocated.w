@@ -1117,7 +1117,7 @@ PROCEDURE pGetPrevoiusJob :
    
    FIND FIRST bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
-        AND TRIM(bf-job.job-no) EQ TRIM(ipcJobNo) 
+        AND bf-job.job-no  EQ ipcJobNo 
         AND bf-job.job-no2 EQ (ipiJobNo2 - 1) NO-ERROR.
         
    IF NOT AVAIL bf-job THEN

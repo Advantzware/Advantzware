@@ -95,15 +95,15 @@ DEFINE VARIABLE begin_cat AS CHARACTER FORMAT "X(5)"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE clsd_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "As Of" 
@@ -115,15 +115,15 @@ DEFINE VARIABLE end_cat AS CHARACTER FORMAT "X(5)" INITIAL "zzzzz"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-wipbct.csv" 
      LABEL "If Yes, File Name" 
@@ -240,11 +240,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Category"
      begin_job-no AT ROW 9.57 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 9.57 COL 40 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 9.57 COL 44 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 9.57 COL 65 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 9.57 COL 77 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 9.57 COL 81 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      rd-dest AT ROW 13.62 COL 5 NO-LABEL
      lv-ornt AT ROW 13.86 COL 30 NO-LABEL
@@ -877,9 +877,9 @@ def var v-d-lab   as   log format "Direct/Total"    init NO NO-UNDO.
 def var v-fcat    like itemfg.procat NO-UNDO.
 def var v-tcat    like v-fcat                       init "zzzzzz" NO-UNDO.
 def var v-fjob    like job.job-no NO-UNDO.
-def var v-tjob    like v-fjob                       init "zzzzzz" NO-UNDO.
+def var v-tjob    like v-fjob                       init "zzzzzzzzz" NO-UNDO.
 def var v-fjob2   like job.job-no2 NO-UNDO.
-def var v-tjob2   like v-fjob2                      init 99 NO-UNDO.
+def var v-tjob2   like v-fjob2                      init 999 NO-UNDO.
 
 def var v-pct     as   DEC NO-UNDO.
 def var v-qty     as   DEC NO-UNDO.
@@ -914,15 +914,15 @@ assign
   v-fcat    = begin_cat
   v-tcat    = END_cat
   v-fjob    = FILL(" ", iJobLen - length(trim(begin_job-no))) +
-               trim(begin_job-no) + string(int(begin_job-no2),"99")
+               trim(begin_job-no) + string(int(begin_job-no2),"999")
   v-tjob    = FILL(" ", iJobLen - length(trim(end_job-no)))   +
-               trim(end_job-no)   + string(int(end_job-no2),"99")
+               trim(end_job-no)   + string(int(end_job-no2),"999")
   str-tit3 = "FOR JOBS AS OF " + string(v-date)          + "  " +
                 "Category:" + trim(v-fcat) + " - " + trim(v-tcat)   + "  " +
                 "Job #:"    + trim(v-fjob) + " - " + trim(v-tjob)   + "  " +
                 "Using "    + trim(string(v-d-lab,"Direct/Total"))  +
                 " Labor Rate"
-     x = (132 - length(str-tit3)) / 2
+     x = (138 - length(str-tit3)) / 2
      str-tit3 = fill(" ",x) + str-tit3.
 
 
@@ -1231,14 +1231,14 @@ for each tt-report,
             tt-report.key-04    column-label "CUSTOMER PART #"
                                 format "x(15)"
             tt-report.key-05    column-label "    JOB #"
-                                format "x(9)"
+                                format "x(13)"
             v-t-lab[1]          COLUMN-LABEL "ACT LABOR" 
             v-t-mat[1]          column-label "ACT MAT'L"
             v-t-msf[1]          column-label "MSF"
             v-rec-qty[1]        COLUMN-LABEL "RCPT QTY"
             v-order-qty[1]      COLUMN-LABEL "ORDER QTY"
 
-        with frame det STREAM-IO width 132 no-box down.
+        with frame det STREAM-IO width 138 no-box down.
 
     IF tb_excel THEN
       PUT STREAM excel UNFORMATTED
@@ -1287,7 +1287,7 @@ for each tt-report,
               v-t-msf[2]          @ v-t-msf[1]
               v-rec-qty[2]        @ v-rec-qty[1]
               v-order-qty[2]      @ v-order-qty[1]
-          with frame det STREAM-IO width 132 no-box down.
+          with frame det STREAM-IO width 138 no-box down.
 
       if v-detl then put skip(1).    
 

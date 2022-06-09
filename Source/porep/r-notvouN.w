@@ -1740,6 +1740,7 @@ PROCEDURE run-report :
                 WHERE rm-rcpth.company    EQ cocode
                 AND rm-rcpth.i-no       EQ po-ordl.i-no
                 AND rm-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND rm-rcpth.po-line    EQ po-ordl.LINE
                 AND rm-rcpth.job-no     EQ po-ordl.job-no
                 AND rm-rcpth.job-no2    EQ po-ordl.job-no2
                 AND rm-rcpth.trans-date GE frdat
@@ -1773,6 +1774,7 @@ PROCEDURE run-report :
                 WHERE fg-rcpth.company    EQ cocode
                 AND fg-rcpth.i-no       EQ po-ordl.i-no
                 AND fg-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND fg-rcpth.po-line    EQ po-ordl.LINE
                 AND fg-rcpth.rita-code  EQ "R"
                 AND fg-rcpth.trans-date GE frdat
                 AND fg-rcpth.trans-date LE trdat
@@ -2056,6 +2058,7 @@ PROCEDURE run-report-2 :
             rm-rcpth.company    EQ cocode
             AND rm-rcpth.i-no       EQ po-ordl.i-no
             AND rm-rcpth.po-no      EQ string(po-ordl.po-no)
+            AND rm-rcpth.po-line    EQ po-ordl.LINE
             AND rm-rcpth.job-no     EQ po-ordl.job-no
             AND rm-rcpth.job-no2    EQ po-ordl.job-no2
             AND rm-rcpth.trans-date GE frdat
@@ -2067,6 +2070,7 @@ PROCEDURE run-report-2 :
                 fg-rcpth.company    EQ cocode
                 AND fg-rcpth.i-no       EQ po-ordl.i-no
                 AND fg-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND fg-rcpth.po-line    EQ po-ordl.LINE
                 AND fg-rcpth.rita-code  EQ "R"
                 AND fg-rcpth.trans-date GE frdat
                 AND fg-rcpth.trans-date LE trdat) THEN
@@ -2092,6 +2096,7 @@ PROCEDURE run-report-2 :
                 WHERE rm-rcpth.company    EQ cocode
                 AND rm-rcpth.i-no       EQ po-ordl.i-no
                 AND rm-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND rm-rcpth.po-line    EQ po-ordl.LINE
                 AND rm-rcpth.job-no     EQ po-ordl.job-no
                 AND rm-rcpth.job-no2    EQ po-ordl.job-no2
                 AND rm-rcpth.trans-date GE frdat
@@ -2116,6 +2121,7 @@ PROCEDURE run-report-2 :
                 WHERE rm-rcpth.company    EQ cocode
                 AND rm-rcpth.i-no       EQ po-ordl.i-no
                 AND rm-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND rm-rcpth.po-line    EQ po-ordl.LINE
                 AND rm-rcpth.job-no     EQ po-ordl.job-no
                 AND rm-rcpth.job-no2    EQ po-ordl.job-no2
                 AND rm-rcpth.trans-date GE frdat
@@ -2137,10 +2143,11 @@ PROCEDURE run-report-2 :
                    tt-neg-po-line.i-no EQ po-ordl.i-no and
                    tt-neg-po-line.item-type EQ po-ordl.item-type AND
                    tt-neg-po-line.qty EQ rm-rdtlh.qty) THEN
-                   DO:*/
+                   DO:*/      
                 CREATE tt-neg-po-line.
                 ASSIGN 
                     tt-neg-po-line.po-no     = po-ordl.po-no
+                    tt-neg-po-line.po-line   = po-ordl.LINE
                     tt-neg-po-line.i-no      = po-ordl.i-no
                     tt-neg-po-line.item-type = po-ordl.item-type
                     tt-neg-po-line.qty       = rm-rdtlh.qty
@@ -2163,6 +2170,7 @@ PROCEDURE run-report-2 :
                 WHERE fg-rcpth.company    EQ cocode
                 AND fg-rcpth.i-no       EQ po-ordl.i-no
                 AND fg-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND fg-rcpth.po-line    EQ po-ordl.LINE
                 AND fg-rcpth.rita-code  EQ "R"
                 AND fg-rcpth.trans-date GE frdat
                 AND fg-rcpth.trans-date LE trdat
@@ -2179,6 +2187,7 @@ PROCEDURE run-report-2 :
                 WHERE fg-rcpth.company    EQ cocode
                 AND fg-rcpth.i-no       EQ po-ordl.i-no
                 AND fg-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND fg-rcpth.po-line    EQ po-ordl.LINE
                 AND fg-rcpth.rita-code  EQ "R"
                 AND fg-rcpth.trans-date GE frdat
                 AND fg-rcpth.trans-date LE trdat
@@ -2197,6 +2206,7 @@ PROCEDURE run-report-2 :
                 CREATE tt-neg-po-line.
                 ASSIGN 
                     tt-neg-po-line.po-no     = po-ordl.po-no
+                    tt-neg-po-line.po-line   = po-ordl.LINE
                     tt-neg-po-line.i-no      = po-ordl.i-no
                     tt-neg-po-line.item-type = po-ordl.item-type
                     tt-neg-po-line.qty       = fg-rdtlh.qty
@@ -2244,6 +2254,7 @@ PROCEDURE run-report-2 :
                 DO:
                     FOR EACH tt-neg-po-line WHERE
                         tt-neg-po-line.po-no = po-ordl.po-no AND
+                        tt-neg-po-line.po-line = po-ordl.LINE AND
                         tt-neg-po-line.i-no = po-ordl.i-no AND
                         tt-neg-po-line.item-type = po-ordl.item-type
                         /*                     NO-ERROR.               */
@@ -2273,8 +2284,8 @@ PROCEDURE run-report-2 :
                         LEAVE.
                     END.
 
-                    IF ll-neg-inv-found = NO THEN
-                    DO:
+                    IF ll-neg-inv-found = YES THEN
+                    DO:           
                         CREATE temp-po-rec.
                         ASSIGN
                             temp-po-rec.vend-no    = v-vend-no
@@ -2301,10 +2312,11 @@ PROCEDURE run-report-2 :
         DO:
             FIND FIRST tt-neg-po-line WHERE
                 tt-neg-po-line.po-no = po-ordl.po-no AND
+                tt-neg-po-line.po-line = po-ordl.LINE AND
                 tt-neg-po-line.i-no = po-ordl.i-no AND
                 tt-neg-po-line.item-type = po-ordl.item-type
                 NO-ERROR.
-
+                          
             IF AVAILABLE tt-neg-po-line THEN
             DO:
                 ll-neg-inv-found = NO.
@@ -2328,9 +2340,9 @@ PROCEDURE run-report-2 :
                 ll-neg-inv-found = YES.
                 LEAVE.
             END.
-
-            IF ll-neg-inv-found = NO THEN
-            DO:
+            
+            IF ll-neg-inv-found = YES THEN
+            DO:                 
                 CREATE temp-po-rec.
                 ASSIGN
                     temp-po-rec.vend-no    = v-vend-no
@@ -2385,8 +2397,8 @@ DO:
     LEAVE.
 END.
 
-IF ll-neg-inv-found = NO THEN
-DO:
+IF ll-neg-inv-found = YES THEN
+DO:                
     CREATE temp-po-rec.
     ASSIGN
         temp-po-rec.vend-no    = v-vend-no
@@ -2560,7 +2572,7 @@ PROCEDURE pPrintDetail :
             NO-LOCK:
              
             IF rm-rcpth.job-no NE "" THEN
-                cJobNo =  rm-rcpth.job-no + "-" + STRING(rm-rcpth.job-no2,"99") .        
+                cJobNo = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', rm-rcpth.job-no, rm-rcpth.job-no2))) .        
             ELSE 
                 cJobNo = "".
                
@@ -2629,7 +2641,7 @@ PROCEDURE pPrintDetail :
             NO-LOCK:
                   
             IF fg-rcpth.job-no NE "" THEN
-                cJobNo =  fg-rcpth.job-no + "-" + STRING(fg-rcpth.job-no2,"999") .        
+                cJobNo = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rcpth.job-no, fg-rcpth.job-no2))).        
             ELSE 
                 cJobNo = "".
                 

@@ -511,7 +511,7 @@ def var purge-history# as logical format "Yes/No"  init yes  no-undo.
 def var v-b-date as date                                     no-undo.                        
 def var v-e-date as date                                     no-undo.                        
 def var v-job-no like job.job-no extent 2 initial [" ", " "] no-undo.
-def var v-job-no2 like job.job-no2 extent 2 initial [00, 99] no-undo.
+def var v-job-no2 like job.job-no2 extent 2 initial [000, 999] no-undo.
 
 session:set-wait-state("General").
 
