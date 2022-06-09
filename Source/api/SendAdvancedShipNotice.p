@@ -89,6 +89,8 @@
     DEFINE VARIABLE iSECount AS INTEGER NO-UNDO.
     DEFINE VARIABLE iHLCount AS INTEGER NO-UNDO INITIAL 2.
     
+    DEFINE VARIABLE oAttribute AS system.Attribute NO-UNDO.
+        
     DEFINE BUFFER bf-carrier FOR carrier.
     DEFINE BUFFER bf-itemfg  FOR itemfg.
     DEFINE BUFFER bf-cust    FOR cust.
@@ -131,6 +133,9 @@
                 .
             RETURN.
         END.
+
+        oAttribute = NEW system.Attribute().
+        oAttribute:RequestDataType = gcRequestDataType.
             
         RUN GetCXMLIdentities (
             INPUT  oe-bolh.company,
@@ -312,7 +317,16 @@
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemID", oe-boll.i-no).
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemName", cItemName).
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "HLCount", iHLCount).
+
+            FIND FIRST oe-ordl NO-LOCK
+                 WHERE oe-ordl.company EQ oe-boll.company
+                   AND oe-ordl.ord-no  EQ oe-boll.ord-no
+                   AND oe-ordl.i-no    EQ oe-boll.i-no
+                   AND oe-ordl.line    EQ oe-boll.line
+                 NO-ERROR.                            
             
+            lcItemData = oAttribute:ReplaceAttributes(lcItemData, BUFFER oe-ordl:HANDLE).
+                        
             lcItemConcatData = lcItemConcatData + lcItemData.
         END.    
         

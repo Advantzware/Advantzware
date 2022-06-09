@@ -4662,6 +4662,13 @@
     "rec_key": "202111190040508130749"
   },
   {
+    "dbFieldName": "part-no",
+    "dbFieldExtent": 0,
+    "attributeName": "BuyerPart",
+    "dbTableName": "oe-ordl",
+    "rec_key": "202206095535509515278"
+  },
+  {
     "dbFieldName": "po-no",
     "dbFieldExtent": 0,
     "attributeName": "POID",
