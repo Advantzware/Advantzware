@@ -318,8 +318,8 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  
-  IF close_date GT TODAY THEN
+        
+  IF close_date GT TODAY AND ll-close THEN
   DO:
        MESSAGE "Close Date #" STRING(close_date) " is a future date,  Continue?" 
                 VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
