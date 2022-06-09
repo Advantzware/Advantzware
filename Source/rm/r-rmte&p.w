@@ -103,7 +103,7 @@ DEFINE TEMP-TABLE tt-rctd NO-UNDO LIKE rm-rctd
 
 DEFINE TEMP-TABLE tt-mat NO-UNDO 
     FIELD frm LIKE job-mat.frm
-    FIELD qty LIKE job-mat.qty
+    FIELD qty AS DECIMAL FORMAT ">>>>>>>>9.99<<" 
     INDEX frm frm.
 
 DEFINE TEMP-TABLE tt-email NO-UNDO
@@ -2490,7 +2490,7 @@ PROCEDURE run-report :
         tt-rctd.job-no2 FORMAT ">>9"       LABEL ""
         tt-rctd.rita-code                  LABEL "T"
         tt-rctd.tag                        LABEL "TAG#" FORM "x(20)"
-        tt-rctd.qty FORMAT "->>>>9.99<<"   LABEL "QUANTITY" 
+        tt-rctd.qty FORMAT "->>>>>>>>9.99<<" LABEL "QUANTITY" 
         tt-rctd.loc-bin                    LABEL "BIN"
         tt-rctd.pur-uom                    LABEL "UOM"    
         tt-rctd.cost FORMAT "->>>>9.99"    LABEL "COST"
@@ -2509,7 +2509,7 @@ PROCEDURE run-report :
         tt-rctd.rita-code                  LABEL "T"
         tt-rctd.tag                        LABEL "TAG#" FORM "x(20)"
         tt-rctd.vend-tag                   LABEL "VENDOR TAG#" FORM "x(20)"
-        tt-rctd.qty FORMAT "->>>>9.99<<"   LABEL "QUANTITY" 
+        tt-rctd.qty FORMAT "->>>>>>>>9.99<<" LABEL "QUANTITY" 
         tt-rctd.loc-bin                    LABEL "BIN"
         tt-rctd.pur-uom                    LABEL "UOM"    
         tt-rctd.cost FORMAT "->>>>9.99"    LABEL "COST"
@@ -3042,16 +3042,16 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
         DO:
 
             PUT "---------"                           AT 90
-                "---------"                           AT 113 SKIP.
+                "---------"                           AT 117 SKIP.
 
             IF t-receipt THEN 
                 PUT "Total for Receipts and Adjustments:" TO 59
                     v-tot-qty                             TO 98
-                    v-tot-cost                            TO 121 SKIP.
+                    v-tot-cost                            TO 125 SKIP.
             IF t-issue   THEN 
                 PUT "Total for Issues:                  " TO 59
                     v-tot-qtyI                            TO 98
-                    v-tot-costI                           TO 121 SKIP.
+                    v-tot-costI                           TO 125 SKIP.
 
             PUT "Total Number of Lines to Post:     " TO 59
                 v-itmcnt                              TO 98  SKIP(1). 
@@ -3073,15 +3073,15 @@ END. /* each tt-rctd */
 IF v-pr-tots THEN 
 DO:
     PUT "-----------"                               AT 90
-        "----------"                                AT 113 SKIP.
+        "----------"                                AT 117 SKIP.
     IF t-receipt THEN 
         PUT "Grand Total for Receipts and Adjustments:" TO 59
             v-grd-qty                                   TO 98
-            v-grd-cost                                  TO 121 SKIP.
+            v-grd-cost                                  TO 125 SKIP.
     IF t-issue   THEN
         PUT "Grand Total for Issues:                  " TO 59
             v-grd-qtyI                                  TO 98
-            v-grd-costI                                 TO 121 SKIP.
+            v-grd-costI                                 TO 125 SKIP.
     PUT "Grand Total Number of Lines to Post:     " TO 59          
         v-gitmcnt                                  TO 98 SKIP(2).
 END.
