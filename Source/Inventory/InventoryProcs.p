@@ -4434,11 +4434,13 @@ PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
     DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdtPostingDate AS DATE      NO-UNDO.
     
-    DEFINE VARIABLE lRMPostGL     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cRMPostGL     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iTrNum        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lRMPostGL      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cRMPostGL      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iTrNum         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lUnBalance     AS LOGICAL  NO-UNDO.
+    DEFINE VARIABLE dAmountBalance AS DECIMAL  NO-UNDO.
     
     DEFINE BUFFER bf-gl-ctrl FOR gl-ctrl.
     DEFINE BUFFER bf-period  FOR period.
@@ -4493,8 +4495,27 @@ PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
                                        ttRawMaterialsGLTransToPost.dscr,
                                        "RM").   
                 END.
+            END.
+            
+            RUN GL_CheckRunBalance(ipcCompany,
+                                 bf-gl-ctrl.trnum,
+                                 OUTPUT dAmountBalance,
+                                 OUTPUT lUnBalance).
+            IF lUnBalance THEN
+            DO:                     
+              RUN GL_SpCreateGLHist(ipcCompany,
+                        bf-gl-ctrl.balanceAccount,
+                        "RMPOST",
+                        ttRawMaterialsGLTransToPost.memo,
+                        ipdtPostingDate,
+                        dAmountBalance,
+                        bf-gl-ctrl.trnum,
+                        IF AVAILABLE bf-period THEN bf-period.pnum ELSE 1,
+                        "A",
+                        ipdtPostingDate,
+                        "Balancing Account",
+                        "RM").    
             END.      
-                  
             LEAVE.
         END.
     END.
