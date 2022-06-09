@@ -1,15 +1,19 @@
 PROCEDURE processComponent:    
     /* Using b-itemfg of the component, fg-rctd of the set */
-    DEFINE INPUT  PARAMETER ipcRitaCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRitaCode     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplIsAdjustment AS LOGICAL   NO-UNDO.
     
     DEFINE VARIABLE v-set-qty      AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE v-cost         AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE ldQty          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iQtyFactor     AS INTEGER   NO-UNDO.
     
     DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
     DEFINE BUFFER b-w-fg-rctd FOR fg-rctd.
                 
     EMPTY TEMP-TABLE tt-bin.
+    
+    iQtyFactor = IF iplIsAdjustment THEN -1 ELSE 1.
             
     v-set-qty = fg-rctd.t-qty * tt-fg-set.part-qty-dec.
 
@@ -70,7 +74,7 @@ PROCEDURE processComponent:
             NO-LOCK
             BY fg-bin.qty:
     
-            {fg/fg-post2.i b- fg-bin.qty ipcRitaCode}
+            {fg/fg-post2.i b- fg-bin.qty ipcRitaCode iQtyFactor}
         END.
 
         IF v-set-qty GT 0 THEN 
@@ -83,7 +87,7 @@ PROCEDURE processComponent:
         /*            not be a requirement, therefore, we may create the fg-post2.i records via    */
         /*            bf-fg-rctd instead of fg-bin.                                                */
        
-                {fg/fg-post2a.i b- ipcRitaCode}
+                {fg/fg-post2a.i b- ipcRitaCode iQtyFactor}
             END.
         END.
     END. /* if t-qty lt 0 */        
@@ -113,7 +117,7 @@ PROCEDURE processComponent:
                     IF NOT ldQty GT 0 THEN
                         NEXT.
 
-                    {fg/fg-post2.i b- ldQty ipcRitaCode}
+                    {fg/fg-post2.i b- ldQty ipcRitaCode iQtyFactor}
                 END. 
             END.
             IF v-set-qty GT 0 OR (v-set-qty LT 0 AND fg-rctd.t-qty LT 0) THEN 
@@ -130,7 +134,7 @@ PROCEDURE processComponent:
                     IF NOT ldQty GT 0 THEN
                         NEXT.
                         
-                    {fg/fg-post2.i b- ldQty ipcRitaCode}
+                    {fg/fg-post2.i b- ldQty ipcRitaCode iQtyFactor}
                 END. 
             END.
 
@@ -153,7 +157,7 @@ PROCEDURE processComponent:
                     RUN bin-qty-used (INPUT ROWID(fg-bin), OUTPUT ldQty).
                     IF NOT ldQty GT 0 THEN
                         NEXT.
-                    {fg/fg-post2.i b- ldQty ipcRitaCode}
+                    {fg/fg-post2.i b- ldQty ipcRitaCode iQtyFactor}
                 END.  
             END.
     
@@ -170,7 +174,7 @@ PROCEDURE processComponent:
 
                     IF NOT ldQty GT 0 THEN
                         NEXT.
-                    {fg/fg-post2.i b- ldQty ipcRitaCode}
+                    {fg/fg-post2.i b- ldQty ipcRitaCode iQtyFactor}
                 END.
 
         END. /* if fgsetassembly */
@@ -188,7 +192,7 @@ PROCEDURE processComponent:
 
                 IF NOT ldQty GT 0 THEN
                     NEXT.
-                {fg/fg-post2.i b- ldQty ipcRitaCode}
+                {fg/fg-post2.i b- ldQty ipcRitaCode iQtyFactor}
             END.  
 
         IF v-set-qty GT 0 THEN
@@ -202,7 +206,7 @@ PROCEDURE processComponent:
 
                 IF NOT ldQty GT 0 THEN
                     NEXT.
-                {fg/fg-post2.i b- ldQty ipcRitaCode}
+                {fg/fg-post2.i b- ldQty ipcRitaCode iQtyFactor}
 
             END.
             
@@ -215,7 +219,7 @@ PROCEDURE processComponent:
                 
                 IF NOT ldQty GT 0 THEN
                     NEXT.
-                {fg/fg-post2.i b- ldQty ipcRitaCode}
+                {fg/fg-post2.i b- ldQty ipcRitaCode iQtyFactor}
     
             END.
 

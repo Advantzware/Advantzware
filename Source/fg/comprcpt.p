@@ -75,9 +75,10 @@ IF AVAIL itemfg                     AND
                             AND fg-rcpts.i-no    EQ b-itemfg.i-no
                             AND fg-rcpts.linker  EQ "fg-rctd: " + STRING(fg-rctd.r-no,"9999999999"))
        NO-LOCK:
-  
-       IF tt-fg-set.noReceipt THEN DO:
-           RUN processComponent ("").
+       
+       /* If Assembled with part receipts and if the component has no receipt enabled or if a purchased item, create adjustments from bin */
+       IF itemfg.alloc EQ ? AND (tt-fg-set.noReceipt OR b-itemfg.pur-man) THEN DO:
+           RUN processComponent ("", TRUE /* Is an adjustment */).
            NEXT.
        END. 
        

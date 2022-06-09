@@ -151,7 +151,7 @@ DO:
                         WHERE tt-fg-set.part-no EQ b-itemfg.i-no NO-ERROR.
                         
                     IF AVAILABLE tt-fg-set THEN 
-                        RUN processComponent ("set").
+                        RUN processComponent ("set", FALSE /* Is an adjustment */).
                     
                     /* Look for Purchased component recs created with positive qty */
                     /* These are not needed for purchased componenents, only need the - */
@@ -252,7 +252,7 @@ DO:
                     
                 IF FIRST(b-itemfg.company) THEN fg-rctd.ext-cost = 0.
                 
-                RUN processComponent ("set").
+                RUN processComponent ("set", FALSE /* Is an adjustment */).
                 
                 DELETE tt-fg-set.
             END. /* Each tt-fg-set */
