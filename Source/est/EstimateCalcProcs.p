@@ -5032,7 +5032,7 @@ PROCEDURE pProcessInk PRIVATE:
         ipbf-ttInk.dQtyRequiredPerBlank               = ipbf-ttInk.dCoveragePercent * ipbf-ttEstCostBlank.blankAreaNetWindow / ipbf-ttInk.dCoverageRate
         dQtyRequiredPerForm                           = ipbf-ttEstCostBlank.numOut * ipbf-ttInk.dQtyRequiredPerBlank
         bf-ttEstCostMaterial.quantityRequiredNoWaste    = ipbf-ttEstCostOperation.quantityInNoWaste * dQtyRequiredPerForm
-        bf-ttEstCostMaterial.quantityRequiredRunWaste   = ipbf-ttEstCostOperation.quantityInRunWaste * dQtyRequiredPerForm
+        bf-ttEstCostMaterial.quantityRequiredRunWaste   = ipbf-ttEstCostOperation.quantityInRunWaste * dQtyRequiredPerForm + (ipbf-ttEstCostOperation.quantityInkLbsWastedPerColor * (ipbf-ttInk.iCountInks + ipbf-ttInk.iCountCoatings))
         bf-ttEstCostMaterial.quantityRequiredSetupWaste = ipbf-ttEstCostOperation.quantityInSetupWaste * dQtyRequiredPerForm + ipbf-ttEstCostOperation.quantityInkLbsWastedPerSetup
         dQtyRequiredMinDiff                           = ipbf-ttInk.dMinLbsPerJob - (bf-ttEstCostMaterial.quantityRequiredNoWaste + bf-ttEstCostMaterial.quantityRequiredRunWaste + bf-ttEstCostMaterial.quantityRequiredSetupWaste)
         bf-ttEstCostMaterial.quantityUOM                = ipbf-ttInk.cQtyUOM
