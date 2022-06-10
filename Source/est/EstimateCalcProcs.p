@@ -42,7 +42,6 @@ DEFINE VARIABLE gcDeptsForGluers                      AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcDeptsForLeafers                     AS CHARACTER NO-UNDO INITIAL "WN,WS,FB,FS".
 DEFINE VARIABLE gcDeptsForSheeters                    AS CHARACTER NO-UNDO INITIAL "RC,RS,CR".
 DEFINE VARIABLE gcDeptsForCoaters                     AS CHARACTER NO-UNDO INITIAL "PR,CT".
-DEFINE VARIABLE gcDeptsForCorrugators                  AS CHARACTER NO-UNDO INITIAL "CR,LM".
 
 DEFINE VARIABLE gcIndustryFolding                     AS CHARACTER NO-UNDO INITIAL "Folding".
 DEFINE VARIABLE gcIndustryCorrugated                  AS CHARACTER NO-UNDO INITIAL "Corrugated".
@@ -1085,7 +1084,6 @@ PROCEDURE pAddEstMiscForPrep PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-est-prep      FOR est-prep.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm FOR ttEstCostForm.
-    DEFINE INPUT  PARAMETER ipdQuantityMaster AS DECIMAL NO-UNDO.
     
     DEFINE           BUFFER bf-ttEstCostMisc   FOR ttEstCostMisc.
     DEFINE           BUFFER bf-prep          FOR prep.
@@ -1095,11 +1093,6 @@ PROCEDURE pAddEstMiscForPrep PRIVATE:
         WHERE bf-prep.company EQ ipbf-est-prep.company
         AND bf-prep.code EQ ipbf-est-prep.code
         NO-ERROR.
-    IF NOT AVAILABLE bf-prep THEN 
-    DO: 
-        RUN pAddError("Prep '" + ipbf-est-prep.code + "' is not valid", giErrorImportant, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, ipbf-est-prep.b-num, ipdQuantityMaster).
-        RETURN.    
-    END.
         
     ASSIGN 
         bf-ttEstCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/
@@ -1156,7 +1149,6 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-est-op           FOR est-op.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm    FOR ttEstCostForm.
     DEFINE PARAMETER BUFFER opbf-ttEstCostOperation FOR ttEstCostOperation.
-    DEFINE INPUT PARAMETER ipdQuantityMaster AS DECIMAL NO-UNDO.
 
     DEFINE           BUFFER bf-mach               FOR mach.
     DEFINE           BUFFER bf-est-op             FOR est-op.
@@ -1167,13 +1159,8 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
         WHERE bf-mach.company EQ ipbf-est-op.company
         AND bf-mach.m-code EQ ipbf-est-op.m-code
         NO-ERROR.
-    IF NOT AVAILABLE bf-mach THEN 
+    IF AVAILABLE bf-mach THEN 
     DO:
-        RUN pAddError("Machine '" + ipbf-est-op.m-code + "' is not valid", giErrorImportant, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, ipbf-est-op.b-num, ipdQuantityMaster).
-        RETURN.
-    END.    
-    ELSE 
-    DO:     
         RUN pAddEstOperation(BUFFER ipbf-ttEstCostForm, BUFFER opbf-ttEstCostOperation).
         ASSIGN 
             opbf-ttEstCostOperation.blankNo                      = ipbf-est-op.b-num
@@ -1235,8 +1222,6 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
             opbf-ttEstCostOperation.isLeafer = YES.
         IF fIsDepartment(gcDeptsForSheeters, opbf-ttEstCostOperation.departmentID)  THEN 
             opbf-ttEstCostOperation.isNetSheetMaker = YES.
-        IF fIsDepartment(gcDeptsForCorrugators, opbf-ttEstCostOperation.departmentID)  THEN 
-            opbf-ttEstCostOperation.isCorrugator = YES.
         
         IF VALID-HANDLE(ghOperation) THEN
             RUN Operations_GetOutputType IN ghOperation( INPUT ipbf-est-op.company, 
@@ -1761,7 +1746,7 @@ PROCEDURE pBuildCostDetailForMaterial PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttEstCostMaterial FOR ttEstCostMaterial.
-        
+
     IF fIsBoardMaterial(ipbf-ttEstCostMaterial.materialType) THEN  
     DO:
         RUN pAddCostDetailForMaterial(BUFFER ipbf-ttEstCostMaterial, "boardNoWaste","Board Cost - No Waste",
@@ -2618,7 +2603,7 @@ PROCEDURE pCalcHeader PRIVATE:
             END.
             RUN pProcessSpecialMaterials(BUFFER ef, BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostForm).  
             
-            RUN pProcessMiscPrep(BUFFER ef, BUFFER bf-ttEstCostForm, bf-ttEstCostHeader.quantityMaster).
+            RUN pProcessMiscPrep(BUFFER ef, BUFFER bf-ttEstCostForm).
             RUN pProcessMiscNonPrep(BUFFER ef, BUFFER bf-ttEstCostForm).
                       
         END.  /*Each ef of est*/  
@@ -3902,7 +3887,6 @@ PROCEDURE pProcessBoardBOM PRIVATE:
     
     DEFINE           BUFFER bf-ttEstCostMaterial      FOR ttEstCostMaterial.
     DEFINE           BUFFER bfBoard-ttEstCostMaterial FOR ttEstCostMaterial.
-    DEFINE           BUFFER bf-ttEstCostOperation      FOR ttEstCostOperation.
     DEFINE           BUFFER bf-item                 FOR ITEM.
     
     DEFINE VARIABLE dShrinkPct AS DECIMAL NO-UNDO.
@@ -3918,17 +3902,6 @@ PROCEDURE pProcessBoardBOM PRIVATE:
         RUN pAddError("BOM Component '" + ipbf-item-bom.i-no + "' is not valid", giErrorWarning, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0, ipbf-ttEstCostHeader.quantityMaster).
         RETURN.
     END.
-    ELSE IF AVAILABLE bf-item THEN 
-    DO: 
-        IF NOT CAN-FIND (FIRST bf-ttEstCostOperation
-            WHERE bf-ttEstCostOperation.company     EQ ipbf-ttEstCostForm.company
-            AND bf-ttEstCostOperation.estimateNo    EQ ipbf-ttEstCostForm.estimateNo
-            AND bf-ttEstCostOperation.isCorrugator) THEN 
-        DO:
-            RUN pAddError("BOM Component '" + ipbf-item-bom.i-no + "' but there no corrugator/laminator in routing", giErrorImportant, ipbf-ttEstCostForm.estCostHeaderID, ipbf-ttEstCostForm.formNo, 0, ipbf-ttEstCostHeader.quantityMaster).
-            RETURN.
-        END.    
-    END. /* ELSE IF AVAILABLE bf-item THEN */   
     oplValidBom = YES.
 
     RUN pAddEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER ipbf-ttEstCostForm, ipbf-item-bom.i-no, 0, BUFFER bf-ttEstCostMaterial).
@@ -4249,14 +4222,13 @@ PROCEDURE pProcessMiscPrep PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ef            FOR ef.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm FOR ttEstCostForm.
-    DEFINE INPUT  PARAMETER ipdQuantityMaster AS DECIMAL NO-UNDO.
     
     FOR EACH est-prep NO-LOCK 
         WHERE est-prep.company EQ ipbf-ef.company
         AND est-prep.est-no EQ ipbf-ef.est-no
         AND est-prep.s-num EQ ipbf-ef.form-no
         AND est-prep.code NE "":
-        RUN pAddEstMiscForPrep(BUFFER est-prep, BUFFER ipbf-ttEstCostForm, ipdQuantityMaster).
+        RUN pAddEstMiscForPrep(BUFFER est-prep, BUFFER ipbf-ttEstCostForm).
     END.    
 
 END PROCEDURE.
@@ -4329,7 +4301,7 @@ PROCEDURE pProcessOperations PRIVATE:
         AND est-op.qty EQ dQtyTarget
         GROUP BY est-op.line DESCENDING:
 
-    RUN pAddEstOperationFromEstOp(BUFFER est-op, BUFFER ipbf-ttEstCostForm, BUFFER bf-ttEstCostOperation,ipbf-ttEstCostHeader.quantityMaster).                    
+    RUN pAddEstOperationFromEstOp(BUFFER est-op, BUFFER ipbf-ttEstCostForm, BUFFER bf-ttEstCostOperation).                    
     IF AVAILABLE bf-ttEstCostOperation THEN 
 
     DO:
@@ -4791,7 +4763,6 @@ PROCEDURE pProcessBoard PRIVATE:
         WHERE bf-item-bom.company EQ bf-item.company
         AND bf-item-bom.parent-i EQ bf-item.i-no
         AND bf-item-bom.i-no NE ""
-        AND bf-item-bom.i-no NE "0"
         AND bf-item-bom.line# LT 9:    
         RUN pProcessBoardBOM(BUFFER ipbf-ttEstCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER bf-item-bom, OUTPUT lValidBom).
         IF NOT lFoundBom AND lValidBom THEN 

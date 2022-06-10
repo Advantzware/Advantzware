@@ -1242,9 +1242,15 @@ PROCEDURE pGetEstDetail :
 
             FIND FIRST style NO-LOCK WHERE style.company = cocode
                 AND style.style EQ style-cod:SCREEN-VALUE NO-ERROR .
-        
+            IF NOT AVAILABLE style THEN 
+                FIND FIRST style NO-LOCK 
+                WHERE style.company EQ cocode
+                NO-ERROR.
             IF AVAILABLE style THEN
-                ASSIGN style-dscr:SCREEN-VALUE = style.dscr . 
+                ASSIGN 
+                    style-cod:SCREEN-VALUE = style.style
+                    style-dscr:SCREEN-VALUE = style.dscr 
+                    . 
             
             FIND FIRST fgcat NO-LOCK WHERE fgcat.company = cocode
                 AND fgcat.procat EQ fg-cat:SCREEN-VALUE NO-ERROR .

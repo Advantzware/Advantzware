@@ -436,7 +436,11 @@ DO:
         TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) VIEW-AS ALERT-BOX BUTTONS YES-NO UPDATE lUseNewCalc.
 
     IF lUseNewCalc THEN 
-        RUN jc\BuildJob.p(ROWID(job), IF AVAILABLE oe-ordl THEN oe-ordl.ord-no ELSE 0, OUTPUT lBuildError, OUTPUT cBuildErrorMessage).
+    DO:
+        RUN jc\BuildJob.p(ROWID(job), IF AVAILABLE oe-ordl THEN oe-ordl.ord-no ELSE 0, 0, OUTPUT lBuildError, OUTPUT cBuildErrorMessage).
+        IF NOT lBuildError THEN 
+            RUN jc\BuildSubAssemblyJobs.p(ROWID(job), OUTPUT lBuildError, OUTPUT cBuildErrorMessage).
+    END.
     ELSE 
     DO: 
         FOR EACH job-hdr

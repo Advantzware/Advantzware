@@ -530,14 +530,14 @@ PROCEDURE pPrintConsolidated PRIVATE:
         Purpose: Processes the output for a given form
         Notes:
        ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcEstFormRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstHeaderRecKey AS CHARACTER NO-UNDO.
     DEFINE PARAMETER BUFFER ipbf-ttCEFormatConfig FOR ttCEFormatConfig.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO. 
     
     
     FIND FIRST estCostHeader NO-LOCK 
-        WHERE estCostHeader.rec_key EQ ipcEstFormRecKey
+        WHERE estCostHeader.rec_key EQ ipcEstHeaderRecKey
         NO-ERROR.
     IF NOT AVAILABLE estCostHeader THEN RETURN.
     RUN pPrintPageHeader(BUFFER estCostHeader, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).

@@ -2312,18 +2312,18 @@ PROCEDURE valid-s-num :
       Notes:       
     ------------------------------------------------------------------------------*/
   
-    DO WITH FRAME {&frame-name}:
-        IF NOT CAN-FIND(FIRST ef
-            WHERE ef.company EQ est.company
-            AND ef.est-no  EQ est.est-no
-            AND ef.form-no EQ int(est-op.s-num:screen-value ))
-            THEN 
-        DO:
-            MESSAGE "Must enter a valid Form#" VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO est-op.s-num .
-            RETURN ERROR.
-        END.
-    END.
+/*    DO WITH FRAME {&frame-name}:                                       */
+/*        IF NOT CAN-FIND(FIRST ef                                       */
+/*            WHERE ef.company EQ est.company                            */
+/*            AND ef.est-no  EQ est.est-no                               */
+/*            AND ef.form-no EQ int(est-op.s-num:screen-value ))         */
+/*            THEN                                                       */
+/*        DO:                                                            */
+/*            MESSAGE "Must enter a valid Form#" VIEW-AS ALERT-BOX ERROR.*/
+/*            APPLY "entry" TO est-op.s-num .                            */
+/*            RETURN ERROR.                                              */
+/*        END.                                                           */
+/*    END.                                                               */
   
 END PROCEDURE.
 
