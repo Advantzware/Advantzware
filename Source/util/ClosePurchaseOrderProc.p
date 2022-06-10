@@ -1,10 +1,10 @@
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipiBeginPo AS INTEGER NO-UNDO.
 DEFINE INPUT PARAMETER ipiEndPo AS INTEGER NO-UNDO.
-DEFINE INPUT PARAMETER ipcBeginUserId AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcStartUserId AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcEndUserId AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcBeginVendor AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcEndVendor AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcStartVendNo AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcEndVendNo AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcBeginDate AS DATE NO-UNDO.
 DEFINE INPUT PARAMETER ipcEndDate AS DATE NO-UNDO.
 DEFINE INPUT PARAMETER ipcQtyUsed AS CHARACTER NO-UNDO.
@@ -44,10 +44,10 @@ FOR EACH bf-po-ord NO-LOCK
     WHERE bf-po-ord.company EQ ipcCompany
     AND bf-po-ord.po-no   GE ipiBeginPo
     AND bf-po-ord.po-no   LE ipiEndPo
-    AND bf-po-ord.buyer   GE ipcBeginUserId
+    AND bf-po-ord.buyer   GE ipcStartUserId
     AND bf-po-ord.buyer   LE ipcEndUserId
-    AND bf-po-ord.vend-no GE ipcBeginVendor
-    AND bf-po-ord.vend-no LE ipcEndVendor
+    AND bf-po-ord.vend-no GE ipcStartVendNo
+    AND bf-po-ord.vend-no LE ipcEndVendNo
     AND bf-po-ord.po-date GE ipcBeginDate
     AND bf-po-ord.po-date LE ipcEndDate
     AND bf-po-ord.stat    NE "C" 

@@ -60,11 +60,11 @@ RUN spGetSessionParam (
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btSimulatePurge RECT-15 RECT-16 btExit ~
-begin_po end_po beginUserId endUserId beginVendor endVendor ~
+begin_po end_po startUserId endUserId startVendNo endVendNo ~
 begin_po-date end_po-date fiQuantityToUse fiDirectory ~
 tbOpenFile btStartProcess 
-&Scoped-Define DISPLAYED-OBJECTS begin_po end_po beginUserId endUserId ~
-beginVendor endVendor begin_po-date ~
+&Scoped-Define DISPLAYED-OBJECTS begin_po end_po startUserId endUserId ~
+startVendNo endVendNo begin_po-date ~
 end_po-date fiQuantityToUse fiDirectory tbOpenFile 
 
 /* Custom List Definitions                                              */
@@ -127,12 +127,12 @@ DEFINE VARIABLE begin_po-date AS DATE FORMAT "99/99/9999":U INITIAL TODAY
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE beginUserId AS CHARACTER FORMAT "X(10)":U  INITIAL ""
+DEFINE VARIABLE startUserId AS CHARACTER FORMAT "X(10)":U  INITIAL ""
      LABEL "Beginning User Id" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE beginVendor AS CHARACTER FORMAT "X(8)":U  INITIAL ""
+DEFINE VARIABLE startVendNo AS CHARACTER FORMAT "X(8)":U  INITIAL ""
      LABEL "Beginning Vendor" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
@@ -152,7 +152,7 @@ DEFINE VARIABLE endUserId AS CHARACTER FORMAT "X(10)":U  INITIAL "zzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE endVendor AS CHARACTER FORMAT "X(8)":U  INITIAL "zzzzzzzz"
+DEFINE VARIABLE endVendNo AS CHARACTER FORMAT "X(8)":U  INITIAL "zzzzzzzz"
      LABEL "Ending Vendor" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
@@ -187,13 +187,13 @@ DEFINE FRAME DEFAULT-FRAME
           "Enter Beginning Purchase Order Number" WIDGET-ID 38
      end_po AT ROW 3.21 COL 71.4 COLON-ALIGNED HELP
           "Enter Ending Purchase Order Number" WIDGET-ID 40
-     beginUserId AT ROW 4.31 COL 28 COLON-ALIGNED HELP
+     startUserId AT ROW 4.31 COL 28 COLON-ALIGNED HELP
           "Enter Beginning User Id" WIDGET-ID 42
      endUserId AT ROW 4.31 COL 71.4 COLON-ALIGNED HELP
           "Enter Ending User Id" WIDGET-ID 42
-     beginVendor AT ROW 5.41 COL 28 COLON-ALIGNED HELP
+     startVendNo AT ROW 5.41 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Vendor" WIDGET-ID 42
-     endVendor AT ROW 5.41 COL 71.4 COLON-ALIGNED HELP
+     endVendNo AT ROW 5.41 COL 71.4 COLON-ALIGNED HELP
           "Enter Ending Vendor" WIDGET-ID 42
      begin_po-date AT ROW 6.51 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Due Date" WIDGET-ID 28
@@ -441,12 +441,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_po end_po beginUserId endUserId beginVendor endVendor
+  DISPLAY begin_po end_po startUserId endUserId startVendNo endVendNo
           begin_po-date end_po-date fiQuantityToUse 
           fiDirectory tbOpenFile 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btSimulatePurge RECT-15 RECT-16 btExit begin_po end_po beginUserId 
-         endUserId beginVendor endVendor begin_po-date 
+  ENABLE btSimulatePurge RECT-15 RECT-16 btExit begin_po end_po startUserId 
+         endUserId startVendNo endVendNo begin_po-date 
          end_po-date fiQuantityToUse fiDirectory tbOpenFile btStartProcess 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
@@ -491,10 +491,10 @@ PROCEDURE pRunProcess PRIVATE :
             INPUT cocode,
             INPUT begin_po:SCREEN-VALUE, 
             INPUT end_po:SCREEN-VALUE,
-            INPUT beginUserId:SCREEN-VALUE, 
+            INPUT startUserId:SCREEN-VALUE, 
             INPUT endUserId:SCREEN-VALUE,
-            INPUT beginVendor:SCREEN-VALUE, 
-            INPUT endVendor:SCREEN-VALUE, 
+            INPUT startVendNo:SCREEN-VALUE, 
+            INPUT endVendNo:SCREEN-VALUE, 
             INPUT DATE(begin_po-date:SCREEN-VALUE), 
             INPUT DATE(end_po-date:SCREEN-VALUE),            
             INPUT fiQuantityToUse:SCREEN-VALUE,
