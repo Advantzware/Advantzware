@@ -23,7 +23,7 @@
       IF cust.addr[2] <> "" OR shipto.ship-addr[2] <> ""  THEN
                   PUT SPACE(5) cust.addr[2] shipto.ship-addr[2] AT 45 SKIP.
       IF shipto.spare-char-3 NE "" THEN           
-                  PUT shipto.spare-char-3 AT 45 SKIP
+                  PUT shipto.spare-char-3 AT 45 FORM "x(30)" SKIP
                   SPACE(5) cust.city + " " + cust.state + " " + cust.zip FORM "x(30)"
                            shipto.ship-city + " " + shipto.ship-state + " " + shipto.ship-zip AT 45 FORM "x(30)" SKIP.
       ELSE PUT SPACE(5) cust.city + " " + cust.state + " " + cust.zip FORM "x(30)"
