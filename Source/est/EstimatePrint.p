@@ -343,22 +343,22 @@ PROCEDURE pBuildSections PRIVATE:
                 ttSection.rec_keyParent = bf-estCostHeader.rec_key
                 .
         END.
-        IF opbf-ttCEFormatConfig.printNotes THEN 
-        DO:
-            iSectionCount = iSectionCount + 1.
-            CREATE ttSection.
-            ASSIGN   
-                ttSection.cType         = "Notes"
-                ttSection.iSequence     = iSectionCount
-                ttSection.rec_keyParent = bf-estCostHeader.rec_key
-                .
-        END.
         IF opbf-ttCEFormatConfig.printBoxDesigns THEN 
         DO:
             iSectionCount = iSectionCount + 1.
             CREATE ttSection.
             ASSIGN   
                 ttSection.cType         = "BoxDesign"
+                ttSection.iSequence     = iSectionCount
+                ttSection.rec_keyParent = bf-estCostHeader.rec_key
+                .
+        END.
+        IF opbf-ttCEFormatConfig.printNotes THEN 
+        DO:
+            iSectionCount = iSectionCount + 1.
+            CREATE ttSection.
+            ASSIGN   
+                ttSection.cType         = "Notes"
                 ttSection.iSequence     = iSectionCount
                 ttSection.rec_keyParent = bf-estCostHeader.rec_key
                 .
@@ -634,14 +634,18 @@ DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
         ELSE 
         DO:
             FILE-INFO:FILE-NAME = box-design-hdr.box-image.
-            RUN Output_WriteToXprintImage(10,2,25,65,FILE-INFO:FULL-PATHNAME).
+            RUN Output_WriteToXprintImage(iopiRowCount,2,25,65,FILE-INFO:FULL-PATHNAME).
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-            IF AVAILABLE style AND ipbf-eb.est-type GE 5 THEN
             FOR EACH box-design-line OF box-design-hdr NO-LOCK:
-                RUN pWriteToCoordinates(iopiRowCount, 70, TRIM(box-design-line.wscore), NO, NO, NO).
-                RUN pWriteToCoordinates(iopiRowCount, 75, TRIM(box-design-line.wcum-score), NO, NO, NO).
+                IF AVAILABLE style AND ipbf-eb.est-type GE 5 THEN
+                DO:
+                    RUN pWriteToCoordinates(iopiRowCount, 70, TRIM(box-design-line.wscore), NO, NO, NO).
+                    RUN pWriteToCoordinates(iopiRowCount, 75, TRIM(box-design-line.wcum-score), NO, NO, NO).
+                END. 
                 RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             END.
+            IF iopiRowCount LT 20 AND iopiRowCount GT 8 THEN 
+                ASSIGN iopiRowCount = iopiRowCount + 20.
         END.                          
 END PROCEDURE.
 
@@ -679,8 +683,8 @@ DEFINE BUFFER bf-primaryEstCostHeader FOR estCostHeader.
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pPrintBoxDetail(BUFFER eb, BUFFER ef, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        iopiRowCount = 1.
-        RUN AddPage(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount ).
+        IF iopiRowCount GT 40 THEN     
+            RUN AddPage(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount ).
     END.
         
  
@@ -713,7 +717,7 @@ PROCEDURE pPrintBoxInfoHeader PRIVATE:
     DO iCount = NUM-ENTRIES(cOperationIds) TO 1 BY -1:
         cOperationIdsOrdered = cOperationIdsOrdered + "," + ENTRY (iCount, cOperationIds).
     END.  
-    ASSIGN cOperationIdsOrdered = TRIM(cOperationIdsOrdered, ",").  
+    ASSIGN cOperationIdsOrdered = TRIM(cOperationIdsOrdered, ","). 
     RUN pWriteToCoordinates(iopiRowCount, iStartColumn, "Estimate#: " + ipbf-estCostHeader.estimateno, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount). 
 
@@ -1967,7 +1971,13 @@ PROCEDURE pProcessSections PRIVATE:
             WHEN "BoxDesign" THEN 
             RUN pPrintBoxDesign(ttSection.rec_keyParent, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).         
         END CASE.
-        RUN AddPage(INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount ).
+        IF ttSection.cType EQ "BoxDesign" THEN 
+        DO: 
+            IF iRowCount GT 40 THEN  
+            RUN AddPage(INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount ). 
+        END.    
+        ELSE 
+            RUN AddPage(INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount ).        
     END.
     
 
