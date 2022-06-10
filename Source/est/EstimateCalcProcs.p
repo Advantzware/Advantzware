@@ -22,7 +22,6 @@
 {est/ttEstCost.i}
 {est/ttEstSysConfig.i}
 {est\RecostBoardEst.i}
-{est/RecostBoardEst.i}
 {est/ttEstimateCalc.i}
    
 DEFINE VARIABLE giID                                  AS INT64 NO-UNDO.
@@ -2444,7 +2443,6 @@ PROCEDURE pCalcHeaderCosts PRIVATE:
     
     RUN pBuildFactoryCostDetails(ipiEstCostHeaderID).
     RUN pBuildNonFactoryCostDetails(ipiEstCostHeaderID).
-    RUN pBuildFreightCostDetails(ipiEstCostHeaderID).
 
     RUN pBuildPriceRelatedCostDetails(ipiEstCostHeaderID).
     RUN pBuildCostSummary(ipiEstCostHeaderID).
@@ -2607,12 +2605,6 @@ PROCEDURE pCalcHeader PRIVATE:
             bf-ttEstCostHeader.quantityMaster = dQtyMaster.
             FIND CURRENT bf-ttEstCostHeader NO-LOCK.
         END.                            
-        RUN pProcessPacking(BUFFER bf-ttEstCostHeader).
-        RUN pProcessEstMaterial(BUFFER bf-ttEstCostHeader).
-        RUN pCalcWeightsAndSizes(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pBuildFreightForBoardCost(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pBuildEstHandlingCharges(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pCalcHeaderCosts(bf-ttEstCostHeader.estCostHeaderID).
        
         IF glAutoRecostBoard = TRUE THEN
         DO:
