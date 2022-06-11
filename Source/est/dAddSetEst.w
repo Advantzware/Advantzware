@@ -26,6 +26,7 @@ CREATE WIDGET-POOL.
 
 
 DEFINE INPUT PARAMETER ipType AS CHARACTER NO-UNDO.  /* poup in edit or add mode */
+DEFINE INPUT PARAMETER ipcEstType AS CHARACTER NO-UNDO.  /* estimate type Wood or SetWithSubAssembly  */
 DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
 
 /* Local Variable Definitions ---                                       */
@@ -452,7 +453,7 @@ DO:
         RUN valid-ship-id(OUTPUT lError) NO-ERROR.
         IF lError THEN RETURN NO-APPLY . 
     
-        RUN est/dAddEditComp.w (?,ROWID(eb),"Add",cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
+        RUN est/dAddEditComp.w (?,ROWID(eb),"Add", ipcEstType,cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
             item-name:SCREEN-VALUE IN FRAME {&frame-name},
             cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
             fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
@@ -481,7 +482,7 @@ DO:
         DO:   
             BUFFER-COPY ttInputEst  TO bff-ttInputEst .
             lv-rowid = IF AVAILABLE eb THEN ROWID(eb) ELSE ?.
-            RUN est/dAddEditComp.w (RECID(ttInputEst),lv-rowid,"Copy",cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
+            RUN est/dAddEditComp.w (RECID(ttInputEst),lv-rowid,"Copy",ipcEstType,cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 item-name:SCREEN-VALUE IN FRAME {&frame-name},
                 cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
@@ -529,7 +530,7 @@ DO:
         IF AVAILABLE ttInputEst THEN 
         DO:
             rwRowidEb = IF AVAILABLE eb THEN ROWID(eb) ELSE ?.
-            RUN est/dAddEditComp.w (RECID(ttInputEst),rwRowidEb,"Update",cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
+            RUN est/dAddEditComp.w (RECID(ttInputEst),rwRowidEb,"Update",ipcEstType,cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 item-name:SCREEN-VALUE IN FRAME {&frame-name},
                 cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
@@ -1670,7 +1671,7 @@ PROCEDURE pDisplayValue :
                 
                 CREATE ttInputEst.
                 ASSIGN
-                    ttInputEst.cEstType         = "NewSetEstimate"
+                    ttInputEst.cEstType         = IF ipcEstType EQ "Wood" THEN "NewSetEstimate" ELSE "SetSubAssembly"
                     ttInputEst.cSetType         = "Set"
                     ttInputEst.cCompany         = cocode 
                     ttInputEst.iFormNo          = bf-eb.form-no
@@ -1688,7 +1689,8 @@ PROCEDURE pDisplayValue :
                     ttInputEst.dQtyPerSet       = bf-eb.quantityPerSet
                     ttInputEst.lPurchased       = bf-eb.pur-man 
                     ttInputEst.riParentEst      = ROWID(bf-eb)
-                    ttInputEst.iEstNo           = INTEGER(bf-eb.est-no) .                
+                    ttInputEst.iEstNo           = INTEGER(bf-eb.est-no) 
+                    ttInputEst.cSourceEst       = bf-eb.sourceEstimate.                
             END.
             RUN repo-query (lv-rowid).          
         
