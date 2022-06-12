@@ -51,7 +51,7 @@ DEF INPUT-OUTPUT PARAMETER iopiStatus AS INT NO-UNDO.
 /* Local Variable Definitions ---                                       */
 &SCOPED-DEFINE SV SCREEN-VALUE IN FRAME DEFAULT-FRAME
 
-{iniFileVars.i}
+{updateFileVars.i}
 
 DEF STREAM s1.
 DEF STREAM outStream.
@@ -459,8 +459,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         
     RUN ipProcessRequest.
     
-    RETURN.
-
 END.
 
 RETURN.
@@ -885,6 +883,7 @@ PROCEDURE ipProcessRequest :
     
     RUN ipStatus ("Database Schema Update Complete").
     RUN ipWriteIniFile.
+    PAUSE 2 NO-MESSAGE.
 
     ASSIGN
         fiFromVer:{&SV} = fiToVer:{&SV}
@@ -1340,15 +1339,13 @@ PROCEDURE ipUpgradeDBs :
         END.
     END. 
 
-    IF cPrefix EQ "asi" THEN ASSIGN 
+    ASSIGN 
         ENTRY(iAsiEntry,wDbVerList) =  SUBSTRING(STRING(ipiPatchDbVer),1,2) + "." +
                                       SUBSTRING(STRING(ipiPatchDbVer),3,2) + "." +
-                                      SUBSTRING(STRING(ipiPatchDbVer),5,2).
-    ELSE IF cPrefix EQ "aud" THEN ASSIGN 
+                                      SUBSTRING(STRING(ipiPatchDbVer),5,2)
         ENTRY(iAudEntry,wAudVerList) =  SUBSTRING(STRING(ipiPatchDbVer),1,2) + "." +
                                       SUBSTRING(STRING(ipiPatchDbVer),3,2) + "." +
                                       SUBSTRING(STRING(ipiPatchDbVer),5,2).
-
     RUN ipWriteIniFile.
     
     ASSIGN

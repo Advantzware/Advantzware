@@ -260,6 +260,14 @@ FUNCTION get64BitValue RETURNS DECIMAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD mTime C-Win
+FUNCTION mTime RETURNS LOGICAL 
+  (INPUT iNumSecs AS INTEGER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -782,8 +790,11 @@ DO:
                     slDbList:ADD-LAST(ENTRY(iCtr,cDbList)).
                 END.                
             END.
-            IF NUM-ENTRIES(cDbVerList) EQ 1 THEN 
-                APPLY 'value-cahnged' TO slDbList.
+            IF NUM-ENTRIES(slDbList:LIST-ITEMS) EQ 1 THEN DO:
+                ASSIGN 
+                    slDbList:{&SV} = ENTRY(1,slDbList:LIST-ITEMS).
+                APPLY 'value-changed' TO slDbList.
+            END.
         END.
         WHEN "slDbList" THEN DO:
             ASSIGN 
@@ -1010,21 +1021,22 @@ PROCEDURE ipCheckDiskSpace :
         RETURN.
     END. 
     
-    RUN ipStatus("  Calculating estimated DB Backup size").
-    RUN ipGetDbBakSize (cAsiDbName, cAsiDbLongName, OUTPUT iAsiBakSize).                       
-    RUN ipGetDbBakSize (cAudDbName, cAudDbLongName, OUTPUT iAudBakSize).
-    RUN ipStatus("  Estimated DB Backup size is " + STRING(iAsiBakSize + iAudBakSize,">>>,>>9.9<" ) + " MB").
-    
-    IF iDiskFreeSpace - iAsiBakSize - iAudBakSize - 2000 LT 0 THEN DO:
-        MESSAGE 
-            "There is a problem with disk space on this server.  " +
-            "Please provide a minimum of " + TRIM(STRING((2000 + iAsiBakSize + iAudBakSize) / 1024,">>>,>>9.9<")) + 
-            " GB of free space before continuing."
-            VIEW-AS ALERT-BOX ERROR.
-        ASSIGN  
-            oplOKToProceed = FALSE.
-    END.
-    ELSE ASSIGN
+/*    RUN ipStatus("  Calculating estimated DB Backup size").                                                        */
+/*    RUN ipGetDbBakSize (cAsiDbName, cAsiDbLongName, OUTPUT iAsiBakSize).                                           */
+/*    RUN ipGetDbBakSize (cAudDbName, cAudDbLongName, OUTPUT iAudBakSize).                                           */
+/*    RUN ipStatus("  Estimated DB Backup size is " + STRING(iAsiBakSize + iAudBakSize,">>>,>>9.9<" ) + " MB").      */
+/*                                                                                                                   */
+/*    IF iDiskFreeSpace - iAsiBakSize - iAudBakSize - 2000 LT 0 THEN DO:                                             */
+/*        MESSAGE                                                                                                    */
+/*            "There is a problem with disk space on this server.  " +                                               */
+/*            "Please provide a minimum of " + TRIM(STRING((2000 + iAsiBakSize + iAudBakSize) / 1024,">>>,>>9.9<")) +*/
+/*            " GB of free space before continuing."                                                                 */
+/*            VIEW-AS ALERT-BOX ERROR.                                                                               */
+/*        ASSIGN                                                                                                     */
+/*            oplOKToProceed = FALSE.                                                                                */
+/*    END.                                                                                                           */
+/*    ELSE                                                                                                           */
+    ASSIGN
         oplOKToProceed = TRUE.
                            
 END PROCEDURE.
@@ -1332,7 +1344,6 @@ PROCEDURE ipProcess :
         
         ASSIGN
             iEnv = LOOKUP (slEnvList:{&SV},slEnvList:list-items)
-            c-Win:VISIBLE = FALSE 
             lSuccess = FALSE 
             c-Win:VISIBLE = FALSE. 
         
@@ -1343,8 +1354,15 @@ PROCEDURE ipProcess :
             cFileToRun = "N:\Repository\PatchTemplate\Deployment\Admin\EnvAdmin\asiUpdateDB.w".
  
         /* Give the OS time to close the log file so next pgm can re-open it */
-        PAUSE 2 NO-MESSAGE.
+        ETIME(YES).
+        DO WHILE ETIME LE 2000:
+            ASSIGN 
+                iCtr = iCtr.
+        END.
         
+        ASSIGN
+            c-Win:VISIBLE = FALSE.
+
         RUN VALUE(cFileToRun) (
             cAsiDbName,
             cAsiDbLongName,
@@ -1366,12 +1384,12 @@ PROCEDURE ipProcess :
             INPUT-OUTPUT iStatus
             ).
 
-        /* Give the OS time to close the log file so this pgm can re-open it */
-        PAUSE 2 NO-MESSAGE.
-
         ASSIGN
             c-Win:VISIBLE = TRUE
             iStatus = 20.
+        
+        mTime(2).
+                    
         RUN ipStatus("Return from asiUpdateDB.w").
 
         IF lSuccess THEN 
@@ -1401,6 +1419,7 @@ PROCEDURE ipProcess :
                 "The system upgrade was NOT successful.  Please" SKIP  
                 "contact Advantzware technical support for assistance."
                 VIEW-AS ALERT-BOX ERROR.
+            RETURN.   
         END.
     END.
   
@@ -1426,9 +1445,9 @@ PROCEDURE ipProcess :
                    " -S " + STRING(iAsiDbPort,"9999") +
                    " -N tcp -ld ASI".
     RUN ipStatus("    " + cConnect).
+
     CONNECT VALUE(cConnect) NO-ERROR.
-    PAUSE 3 NO-MESSAGE.
-    MESSAGE CONNECTED("asi") VIEW-AS ALERT-BOX.
+
     IF NOT CONNECTED ("asi") THEN 
     DO:
         RUN ipStatus("  ASI DB connection failed.  Cancelling.").
@@ -1454,7 +1473,7 @@ PROCEDURE ipProcess :
                    " -N tcp -ld Audit".
     RUN ipStatus("    " + cConnect).
     CONNECT VALUE(cConnect) NO-ERROR.
-    PAUSE 3 NO-MESSAGE.
+    MTIME(3).
     IF NOT CONNECTED ("audit") THEN 
     DO:
         RUN ipStatus("  Audit DB connection failed.  Cancelling.").
@@ -1480,12 +1499,12 @@ PROCEDURE ipProcess :
     
     ASSIGN iStatus = 25.
     RUN ipStatus("Initiating asiUpdateENV.w").
-    ASSIGN
-        c-Win:VISIBLE = FALSE. 
 
     /* Give the OS time to close the log file so next pgm can re-open it */
-    PAUSE 2 NO-MESSAGE.
+    MTIME(2).
 
+    ASSIGN
+        c-Win:VISIBLE = FALSE. 
     RUN VALUE(cFileToRun) (
         cAsiDbName,
         iAsiDbPort,
@@ -1505,13 +1524,12 @@ PROCEDURE ipProcess :
         OUTPUT lSuccess,
         INPUT-OUTPUT iStatus).
         
-    /* Give the OS time to close the log file so this pgm can re-open it */
-    PAUSE 2 NO-MESSAGE.
-
     ASSIGN
-        iStatus = 95
-        c-Win:VISIBLE = TRUE.
-         
+        THIS-PROCEDURE:CURRENT-WINDOW = c-Win
+        c-Win:VISIBLE = TRUE
+        iStatus = 95.
+    mTime(2).
+             
     RUN ipStatus("Return from asiUpdateENV.w").
     
 END PROCEDURE.
@@ -1617,6 +1635,7 @@ PROCEDURE ipStatus :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcStatus AS CHARACTER NO-UNDO.
+    DEF VAR cLogLine AS CHAR NO-UNDO.
                 
     ASSIGN
         cLogFile = cEnvAdmin + "\UpdateLog.txt".
@@ -1844,4 +1863,27 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION mTime C-Win
+FUNCTION mTime RETURNS LOGICAL 
+  ( INPUT iNumSecs AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+    
+    ETIME(TRUE).
+    DO WHILE ETIME LE iNumSecs * 1000:
+        ASSIGN 
+            iCtr = iCtr.
+    END.
+    
+    RETURN lresult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

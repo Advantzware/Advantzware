@@ -92,8 +92,8 @@ XCOPY /S /Y .\Desktop\*.* ..\Desktop > NUL
 XCOPY /S /Y .\Documentation\*.* ..\Documentation > NUL
 XCOPY /S /Y .\Install\*.* ..\Install > NUL
 XCOPY /S /Y .\Assemblies\*.* ..\Assemblies > NUL
-COPY /Y .\Structure\advantzware.df ..\Databases\Structure > NUL
-COPY /Y .\Structure\audit.df ..\Databases\Structure > NUL
+COPY /Y .\Structure\DFFiles\advantzware.df ..\Databases\Structure\DFFiles > NUL
+COPY /Y .\Structure\DFFiles\audit.df ..\Databases\Structure\DFFiles > NUL
 IF NOT EXIST ..\Admin\EnvAdmin\updateHist.txt (
     COPY /Y .\UpdateHist.txt ..\Admin\EnvAdmin\UpdateHist.txt > NUL
 )
@@ -138,6 +138,12 @@ IF EXIST "ASI Update" (
 )
 :QUIT
 CD ..\Admin\EnvAdmin
+IF EXIST "KeepFiles.txt" (
+    GOTO :EXIT
+    )
 EmptyFolder.bat
+
+:EXIT
 EXIT
+
 

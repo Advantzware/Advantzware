@@ -76,7 +76,7 @@ ASSIGN
 /* Local Variable Definitions ---                                       */
 &SCOPED-DEFINE SV SCREEN-VALUE IN FRAME DEFAULT-FRAME
 
-{iniFileVars.i}
+{updateFileVars.i}
 
 DEF STREAM s1.
 DEF STREAM s2.
@@ -611,8 +611,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
     
     RUN ip_ProcessAll.
 
-    RETURN.
-    
 END.
 RETURN.
 
@@ -4051,10 +4049,10 @@ PROCEDURE ipExpandFiles :
     RUN ipStatus ("      Overrides complete").
     OS-COMMAND SILENT VALUE("XCOPY /S /Y " + cUpdProgramDir + "\Resources\*.* " +  cTgtEnv + "\Resources > NUL").
     iopiStatus = 43.
-    RUN ipStatus ("      Programs complete").
+    RUN ipStatus ("      Resources complete").
     OS-COMMAND SILENT VALUE("XCOPY /S /Y " + cUpdProgramDir + "\Programs\*.* " +  cTgtEnv + "\Programs > NUL").
     iopiStatus = 47.
-    RUN ipStatus ("      Resources complete").
+    RUN ipStatus ("      Programs complete").
     /* This copies the new .PL files to the updated environment */
     OS-COMMAND SILENT VALUE("XCOPY /S /Y " + cUpdProgramDir + "\*.pl " +  cTgtEnv + " > NUL").
     iopiStatus = 48.
@@ -7241,7 +7239,7 @@ PROCEDURE ipStatus :
     DEF INPUT PARAMETER ipcStatus AS CHAR NO-UNDO.
 
     /* Give the asiUpdate program time to close the log file */
-    PAUSE 1 BEFORE-HIDE NO-MESSAGE.
+    PAUSE 1 NO-MESSAGE.
                    
     IF INDEX(ipcStatus,"duplicate") EQ 0 THEN DO:
         ASSIGN
@@ -7269,6 +7267,11 @@ PROCEDURE ipStatus :
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).        
     
     PROCESS EVENTS.
+
+    /* Give the log file time to close */
+    IF INDEX(ipcStatus,"Patch Application Complete") EQ 0 THEN
+        PAUSE 2 NO-MESSAGE.
+        
 
 END PROCEDURE.
 
