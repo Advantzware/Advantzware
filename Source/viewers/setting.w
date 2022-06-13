@@ -69,7 +69,7 @@ DEFINE VARIABLE cMode            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalledProgram   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lProgramEdit     AS LOGICAL   NO-UNDO.
 
-DEFINE VARIABLE lIsUserSuperAdmin AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lIsUserAdmin AS LOGICAL NO-UNDO.
 
 DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
 
@@ -217,7 +217,6 @@ DEFINE VARIABLE fiSettingName AS CHARACTER FORMAT "X(256)":U
      SIZE 3 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiSettingUser AS CHARACTER FORMAT "X(256)":U 
-     LABEL "User" 
      VIEW-AS FILL-IN 
      SIZE 21.2 BY 1 NO-UNDO.
 
@@ -272,13 +271,13 @@ DEFINE FRAME F-Main
      fiSettingValue AT ROW 7.62 COL 15.8 COLON-ALIGNED WIDGET-ID 8
      cbSettingValue AT ROW 7.62 COL 16 COLON-ALIGNED WIDGET-ID 12
      tbInactive AT ROW 8.76 COL 18 WIDGET-ID 16
-     fiSettingUser AT ROW 9.71 COL 15.8 COLON-ALIGNED WIDGET-ID 28
-     tbCurrentUser AT ROW 9.71 COL 40.2 WIDGET-ID 68
-     fiProgramID AT ROW 10.91 COL 15.8 COLON-ALIGNED WIDGET-ID 30
-     tbCurrentProgram AT ROW 11 COL 40.2 WIDGET-ID 70
-     slCategoryTags AT ROW 12.67 COL 4 NO-LABEL WIDGET-ID 62
+     fiSettingUser AT ROW 9.95 COL 15.8 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+     tbCurrentUser AT ROW 9.95 COL 40.2 WIDGET-ID 68
+     fiProgramID AT ROW 11.29 COL 15.8 COLON-ALIGNED WIDGET-ID 30
      btnCancel-2 AT ROW 13.19 COL 52.2 HELP
           "Cancel" WIDGET-ID 48
+     tbCurrentProgram AT ROW 11.38 COL 40.2 WIDGET-ID 70
+     slCategoryTags AT ROW 12.67 COL 4 NO-LABEL WIDGET-ID 62
      fiSettingName AT ROW 12.91 COL 65 COLON-ALIGNED WIDGET-ID 2
      edSettingDesc AT ROW 14.57 COL 2 NO-LABEL WIDGET-ID 32
      btnCopy-2 AT ROW 13.19 COL 28.2 HELP
@@ -289,6 +288,10 @@ DEFINE FRAME F-Main
           "Reset" WIDGET-ID 54
      btnUpdate-2 AT ROW 13.19 COL 12.2 HELP
           "Update/Save" WIDGET-ID 56
+     "User Group:" VIEW-AS TEXT
+          SIZE 13.6 BY .62 AT ROW 10.33 COL 4 WIDGET-ID 74
+     "User/" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 9.67 COL 10.4 WIDGET-ID 72
      RECT-3 AT ROW 7.43 COL 1 WIDGET-ID 4
      RECT-4 AT ROW 2.19 COL 1 WIDGET-ID 26
      transPanel-3 AT ROW 13 COL 11.2 WIDGET-ID 58
@@ -743,9 +746,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE AllowProgramIDEditable V-table-Win
-PROCEDURE AllowProgramIDEditable:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE AllowProgramIDEditable V-table-Win 
+PROCEDURE AllowProgramIDEditable :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -754,11 +756,9 @@ PROCEDURE AllowProgramIDEditable:
         lProgramEdit = TRUE.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -849,15 +849,18 @@ PROCEDURE pCRUD :
                     IF lError THEN
                         RETURN NO-APPLY.
                     
-                    IF lIsUserSuperAdmin THEN    
-                        ENABLE tbCurrentUser.
+                    IF lIsUserAdmin THEN    
+                        ENABLE tbCurrentUser fiSettingUser.
                         
-                    IF lProgramEdit AND lIsUserSuperAdmin THEN
+                    IF lProgramEdit AND lIsUserAdmin THEN
                         ENABLE tbCurrentProgram.
                         
                     DISABLE btnReset-2.
                 END. /* add */
                 ELSE IF iphMode:LABEL EQ "Update" THEN DO:                
+                    IF lIsUserAdmin THEN    
+                        ENABLE fiSettingUser.
+
                     APPLY "ENTRY":U TO edSettingDesc.
                 END.
                 ELSE IF iphMode:LABEL EQ "Copy" THEN DO:
@@ -866,10 +869,10 @@ PROCEDURE pCRUD :
                     IF lError THEN
                         RETURN NO-APPLY.
                     
-                    IF lIsUserSuperAdmin THEN    
-                        ENABLE tbCurrentUser.
+                    IF lIsUserAdmin THEN    
+                        ENABLE tbCurrentUser fiSettingUser.
                         
-                    IF lProgramEdit AND lIsUserSuperAdmin THEN
+                    IF lProgramEdit AND lIsUserAdmin THEN
                         ENABLE tbCurrentProgram.
                     
                     DISABLE btnReset-2.
@@ -932,7 +935,7 @@ PROCEDURE pCRUD :
                             RETURN NO-APPLY.
                 END.
 
-                DISABLE fiSettingName fiSettingValue cbSettingValue tbInactive
+                DISABLE fiSettingName fiSettingValue cbSettingValue tbInactive fiSettingUser
                      cbScopeTable fiScopeField1 fiScopeField2 fiScopeField3.
                 
                 edSettingDesc:READ-ONLY = TRUE.
@@ -999,8 +1002,8 @@ PROCEDURE pInit :
         oSetting = NEW system.Setting().     
     
     ASSIGN
-        cCalledProgram    = oSetting:CurrentProgramHotkey
-        lIsUserSuperAdmin = DYNAMIC-FUNCTION("sfIsUserSuperAdmin")
+        cCalledProgram = oSetting:CurrentProgramHotkey
+        lIsUserAdmin   = DYNAMIC-FUNCTION("sfIsUserAdmin")
         .
     
     RUN pUpdateFields.

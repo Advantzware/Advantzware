@@ -64,8 +64,9 @@ DEFINE VARIABLE sessionInstance     AS system.SessionConfig NO-UNDO.
 DEFINE VARIABLE oSetting            AS system.Setting       NO-UNDO.
 DEFINE VARIABLE hdBrokerHandle      AS HANDLE               NO-UNDO.
  
-DEFINE VARIABLE cProgramName  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCategoryTags AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cProgramName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCategoryTags         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCurrentUserGroupList AS CHARACTER NO-UNDO.
 
 DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
     FIELD superProcedure AS CHARACTER 
@@ -224,6 +225,19 @@ FUNCTION sfGetBeginSearch RETURNS CHARACTER
 
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetCurrentUserGroupList) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetCurrentUserGroupList Procedure
+FUNCTION sfGetCurrentUserGroupList RETURNS CHARACTER 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfGetRecKeyPrefix) = 0 &THEN
 
@@ -509,6 +523,13 @@ FOR EACH Audit.AuditFld NO-LOCK
     CREATE ttAuditFld.
     BUFFER-COPY Audit.AuditFld TO ttAuditFld.
 END.
+
+FOR EACH usergrps NO-LOCK:
+    IF CAN-DO(usergrps.users, cUserID) THEN
+        cCurrentUserGroupList = cCurrentUserGroupList + "," + usergrps.usergrps. 
+END.
+
+cCurrentUserGroupList = TRIM(cCurrentUserGroupList, ",").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3622,6 +3643,26 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetCurrentUserGroupList) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfGetCurrentUserGroupList Procedure
+FUNCTION sfGetCurrentUserGroupList RETURNS CHARACTER 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	RETURN cCurrentUserGroupList.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfGetRecKeyPrefix) = 0 &THEN
 

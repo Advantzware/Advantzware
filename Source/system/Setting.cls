@@ -26,7 +26,8 @@ CLASS system.Setting:
     DEFINE VARIABLE cSearchFieldListSettingType  AS CHARACTER NO-UNDO INITIAL "settingName,settingTypeDesc,defaultValue".
     DEFINE VARIABLE cSearchFieldListSetting      AS CHARACTER NO-UNDO INITIAL "scopeTable,scopeField1,scopeField2,scopeField3,settingUser,inactive".
     DEFINE VARIABLE cCategoryTags                AS CHARACTER NO-UNDO.
-                       
+    DEFINE VARIABLE cCurrentUserGroupList        AS CHARACTER NO-UNDO.
+    
     {system/ttSetting.i}
  
 	DEFINE PUBLIC PROPERTY CurrentProgram AS CHARACTER NO-UNDO 
@@ -214,6 +215,17 @@ CLASS system.Setting:
 	 Notes:
 	------------------------------------------------------------------------------*/
 
+	METHOD PRIVATE LOGICAL pHasUserGroupAccess( ipcUserGroup AS CHARACTER ):
+		
+		RETURN LOOKUP(ipcUserGroup, cCurrentUserGroupList) GT 0.
+		
+	END METHOD.
+
+	/*------------------------------------------------------------------------------
+	 Purpose:
+	 Notes:
+	------------------------------------------------------------------------------*/
+
 	METHOD PUBLIC VOID pSetContext( ipcProgramName AS CHARACTER, ipcCategoryTags AS CHARACTER ):
 		
         RUN spGetSessionParam (INPUT "Company", OUTPUT cCompany).
@@ -223,6 +235,8 @@ CLASS system.Setting:
         pSetUserSecurityLevel().
         
         cCategoryTags = ipcCategoryTags.
+        
+        cCurrentUserGroupList = DYNAMIC-FUNCTION("sfGetCurrentUserGroupList").
     END METHOD.
 
 	/*------------------------------------------------------------------------------
@@ -263,6 +277,29 @@ CLASS system.Setting:
              NO-ERROR.
         IF AVAILABLE bf-users THEN
             iUserSecurityLevel = bf-users.securityLevel.            
+	END METHOD.
+
+	/*------------------------------------------------------------------------------
+	 Purpose:
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PRIVATE VOID pUpdateUser( BUFFER iopttSetting FOR ttSetting ):
+		DEFINE BUFFER bf-usergrps FOR usergrps.
+		
+		IF iopttSetting.settingUser EQ "" THEN
+		    RETURN.
+		
+		FIND FIRST bf-usergrps NO-LOCK
+		     WHERE bf-usergrps.usergrps EQ iopttSetting.settingUser
+		     NO-ERROR.
+		IF NOT AVAILABLE bf-usergrps THEN
+		    RETURN.
+        
+        iopttSetting.isUserGroup = TRUE.
+         
+        IF CAN-DO(bf-usergrps.users, cUser) THEN
+            iopttSetting.isUserGroupMember = TRUE. 
 	END METHOD.
 
     /*------------------------------------------------------------------------------
@@ -306,6 +343,7 @@ CLASS system.Setting:
         iopttSetting.priorityID = pGetPriorityID(iopttSetting.scopeTable).
         
         pConcatRecordData(BUFFER iopttSetting).
+        pUpdateUser(BUFFER iopttSetting).
     END METHOD.
 
 	/*------------------------------------------------------------------------------
@@ -481,12 +519,47 @@ CLASS system.Setting:
               AND ttSetting.scopeField3  EQ ipcScopeField3
               AND ttSetting.inactive     EQ FALSE
               AND (ttSetting.programID   EQ CurrentProgramHotkey OR ttSetting.programID EQ "")
-              AND (ttSetting.settingUser EQ cUser OR ttSetting.settingUser EQ "") 
+              AND ttSetting.settingUser  EQ cUser 
             BY ttSetting.recordSource
             BY ttSetting.programID DESCENDING
-            BY ttSetting.settingUser DESCENDING:
+            BY ttSetting.settingUser DESCENDING
+            BY ttSetting.isUserGroup:
             LEAVE.
         END.
+        
+        IF NOT AVAILABLE ttSetting THEN 
+            FOR EACH ttSetting NO-LOCK
+                WHERE ttSetting.settingName  EQ ipcSettingName
+                  AND ttSetting.scopeTable   EQ ipcScopeTable
+                  AND ttSetting.scopeField1  EQ ipcScopeField1
+                  AND ttSetting.scopeField2  EQ ipcScopeField2
+                  AND ttSetting.scopeField3  EQ ipcScopeField3
+                  AND ttSetting.inactive     EQ FALSE
+                  AND (ttSetting.programID   EQ CurrentProgramHotkey OR ttSetting.programID EQ "")
+                  AND (ttSetting.isUserGroup AND pHasUserGroupAccess(ttSetting.settingUser)) 
+                BY ttSetting.recordSource
+                BY ttSetting.programID DESCENDING
+                BY ttSetting.settingUser DESCENDING
+                BY ttSetting.isUserGroup:
+                LEAVE.
+            END.
+        
+        IF NOT AVAILABLE ttSetting THEN 
+            FOR EACH ttSetting NO-LOCK
+                WHERE ttSetting.settingName  EQ ipcSettingName
+                  AND ttSetting.scopeTable   EQ ipcScopeTable
+                  AND ttSetting.scopeField1  EQ ipcScopeField1
+                  AND ttSetting.scopeField2  EQ ipcScopeField2
+                  AND ttSetting.scopeField3  EQ ipcScopeField3
+                  AND ttSetting.inactive     EQ FALSE
+                  AND (ttSetting.programID   EQ CurrentProgramHotkey OR ttSetting.programID EQ "")
+                  AND ttSetting.settingUser  EQ "" 
+                BY ttSetting.recordSource
+                BY ttSetting.programID DESCENDING
+                BY ttSetting.settingUser DESCENDING
+                BY ttSetting.isUserGroup:
+                LEAVE.
+            END.
 
         IF AVAILABLE ttSetting THEN DO:
             FIND FIRST bf-setting NO-LOCK
@@ -519,11 +592,36 @@ CLASS system.Setting:
                   AND bf-setting.scopeID      EQ bf-scope.scopeID
                   AND bf-setting.inactive     EQ FALSE
                   AND (bf-setting.programID   EQ CurrentProgramHotkey OR bf-setting.programID EQ "")
-                  AND (bf-setting.settingUser EQ cUser OR bf-setting.settingUser EQ "")
+                  AND bf-setting.settingUser EQ cUser
                 BY bf-setting.programID DESCENDING
                 BY bf-setting.settingUser DESCENDING:
                 LEAVE. 
             END.
+
+            IF NOT AVAILABLE bf-setting THEN
+                FOR EACH bf-setting NO-LOCK
+                    WHERE bf-setting.settingName  EQ ipcSettingName
+                      AND bf-setting.scopeID      EQ bf-scope.scopeID
+                      AND bf-setting.inactive     EQ FALSE
+                      AND (bf-setting.programID   EQ CurrentProgramHotkey OR bf-setting.programID EQ "")
+                      AND bf-setting.settingUser  NE ""
+                    BY bf-setting.programID DESCENDING
+                    BY bf-setting.settingUser DESCENDING:
+                    IF pHasUserGroupAccess(bf-setting.settingUser) THEN
+                        LEAVE.
+                END.
+
+            IF NOT AVAILABLE bf-setting THEN
+                FOR EACH bf-setting NO-LOCK
+                    WHERE bf-setting.settingName  EQ ipcSettingName
+                      AND bf-setting.scopeID      EQ bf-scope.scopeID
+                      AND bf-setting.inactive     EQ FALSE
+                      AND (bf-setting.programID   EQ CurrentProgramHotkey OR bf-setting.programID EQ "")
+                      AND bf-setting.settingUser  EQ ""
+                    BY bf-setting.programID DESCENDING
+                    BY bf-setting.settingUser DESCENDING:
+                    LEAVE. 
+                END.
         END.
         
         IF AVAILABLE bf-setting THEN DO:
@@ -828,6 +926,7 @@ CLASS system.Setting:
                 ttSetting.priorityID = pGetPriorityID(ttSetting.scopeTable).
                 
                 pConcatRecordData(BUFFER ttSetting).
+                pUpdateUser(BUFFER ttSetting).
                 
                 hdSettingQuery:GET-NEXT().                
             END.
@@ -1336,6 +1435,8 @@ CLASS system.Setting:
         DEFINE BUFFER bf-cust        FOR cust.
         DEFINE BUFFER bf-shipto      FOR shipto.
         DEFINE BUFFER bf-vend        FOR vend.
+        DEFINE BUFFER bf-users       FOR users.
+        DEFINE BUFFER bf-usergrps    FOR usergrps.
         
         FIND FIRST bf-settingType NO-LOCK
              WHERE bf-settingType.settingTypeID EQ ipiSettingTypeID
@@ -1343,6 +1444,9 @@ CLASS system.Setting:
         IF NOT AVAILABLE bf-settingType THEN
             RETURN "SettingType ID is not valid".
         
+        IF ipcScopeTable EQ ? OR ipcScopeTable EQ "" THEN
+            RETURN "Scope cannot be empty".
+            
         IF NOT bf-settingType.hasContext AND 
            (ipcScopeTable NE "System" AND ipcScopeTable NE "Company") THEN
             RETURN "This setting cannot have a '" + ipcScopeTable + "' scope".
@@ -1446,6 +1550,19 @@ CLASS system.Setting:
             IF AVAILABLE bf-setting AND bf-setting.settingID NE ipiSettingID THEN
                 RETURN "Setting already exists. Please enter a different scope/user/program or override existing setting".
         END.
+		
+		IF ipcSettingUser NE "" THEN DO:
+            FIND FIRST bf-users NO-LOCK
+                 WHERE bf-users.user_id EQ ipcSettingUser
+                 NO-ERROR.
+            IF NOT AVAILABLE bf-users THEN DO:
+                FIND FIRST bf-usergrps NO-LOCK
+                     WHERE bf-usergrps.usergrps EQ ipcSettingUser
+                     NO-ERROR.
+                IF NOT AVAILABLE bf-usergrps THEN
+                    RETURN "Invalid User/User Group '" + ipcSettingUser + "'".
+            END.		        
+		END.
 		
         RETURN "".
 	END METHOD.
