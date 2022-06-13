@@ -2842,74 +2842,82 @@ PROCEDURE valid-16th&32th :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-DO WITH FRAME {&FRAME-NAME}:
-    IF sys-ctrl.char-fld = "16th's" THEN DO:
+DO WITH FRAME {&FRAME-NAME}:  
+    IF sys-ctrl.char-fld = "16th's" AND item.s-wid:HIDDEN EQ NO THEN DO:
         IF DECIMAL(item.s-wid:screen-value) - trunc(DECIMAL(item.s-wid:screen-value),0) >= v-16-or-32 
             THEN DO:
             MESSAGE "Please enter 16ths decimal from .01 to .15."
                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO item.s-wid.    
             RETURN ERROR.
         END.
     END.
-    IF sys-ctrl.char-fld = "32nd's" THEN DO:
+    IF sys-ctrl.char-fld = "32nd's" AND item.s-wid:HIDDEN EQ NO THEN DO:
         IF DECIMAL(item.s-wid:screen-value) - trunc(DECIMAL(item.s-wid:screen-value),0) > v-16-or-32 
             THEN DO:
             MESSAGE "Please enter decimal from .01 to .32."
                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO item.s-wid.    
             RETURN ERROR.
         END.
 
     END.
 
-    IF sys-ctrl.char-fld = "16th's" THEN DO:
+    IF sys-ctrl.char-fld = "16th's" AND item.s-len:HIDDEN EQ NO THEN DO:
         IF DECIMAL(item.s-len:screen-value) - trunc(DECIMAL(item.s-len:screen-value),0) >= v-16-or-32 
             THEN DO:
             MESSAGE "Please enter 16ths decimal from .01 to .15."
                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO item.s-len.    
             RETURN ERROR.
         END.
     END.
-    IF sys-ctrl.char-fld = "32nd's" THEN DO:
+    IF sys-ctrl.char-fld = "32nd's" AND item.s-len:HIDDEN EQ NO THEN DO:
         IF DECIMAL(item.s-len:screen-value) - trunc(DECIMAL(item.s-len:screen-value),0) > v-16-or-32 
             THEN DO:
             MESSAGE "Please enter decimal from .01 to .32."
                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO item.s-len.    
             RETURN ERROR.
         END.
     END.
 
 
-    IF sys-ctrl.char-fld = "16th's" THEN DO:
+    IF sys-ctrl.char-fld = "16th's" AND item.r-wid:HIDDEN EQ NO THEN DO:
         IF DECIMAL(item.r-wid:screen-value) - trunc(DECIMAL(item.r-wid:screen-value),0) >= v-16-or-32 
             THEN DO:
             MESSAGE "Please enter 16ths decimal from .01 to .15."
                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO item.r-wid.    
             RETURN ERROR.
         END.
     END.
-    IF sys-ctrl.char-fld = "32nd's" THEN DO:
+    IF sys-ctrl.char-fld = "32nd's" AND item.r-wid:HIDDEN EQ NO THEN DO:
         IF DECIMAL(item.r-wid:screen-value) - trunc(DECIMAL(item.r-wid:screen-value),0) > v-16-or-32 
             THEN DO:
             MESSAGE "Please enter decimal from .01 to .32."
                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO item.r-wid.     
             RETURN ERROR.
         END.            
     END.
 
 
-    IF sys-ctrl.char-fld = "16th's" THEN DO:
+    IF sys-ctrl.char-fld = "16th's" AND item.s-dep:HIDDEN EQ NO THEN DO:
         IF DECIMAL(item.s-dep:screen-value) - trunc(DECIMAL(item.s-dep:screen-value),0) >= v-16-or-32 
             THEN DO:
             MESSAGE "Please enter 16ths decimal from .01 to .15."
                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO item.s-dep.     
             RETURN ERROR.
         END.
     END.
-    IF sys-ctrl.char-fld = "32nd's" THEN DO:
+    IF sys-ctrl.char-fld = "32nd's" AND item.s-dep:HIDDEN EQ NO THEN DO:
         IF DECIMAL(item.s-dep:screen-value) - trunc(DECIMAL(item.s-dep:screen-value),0) > v-16-or-32 
             THEN DO:
             MESSAGE "Please enter decimal from .01 to .32."
                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO item.s-dep.    
             RETURN ERROR.
         END.
     END.
