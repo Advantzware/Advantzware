@@ -94,8 +94,8 @@ DEFINE QUERY external_tables FOR item.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table tt-item-po.iPoNo tt-item-po.cVendName tt-item-po.dtDueDate tt-item-po.iQtyOrdered tt-item-po.iQtyDue tt-item-po.cShipId   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table   
 &Scoped-define SELF-NAME Browser-Table
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH tt-item-po NO-LOCK WHERE (tt-item-po.iPoNo EQ INTEGER(auto_find) OR INTEGER(auto_find) EQ 0) AND ((tt-item-po.iQtyDue GE 0 AND rd_select EQ "On Order") OR rd_select EQ "All")     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY {&SELF-NAME} FOR EACH tt-item-po NO-LOCK WHERE (tt-item-po.iPoNo EQ INTEGER(auto_find) OR INTEGER(auto_find) EQ 0) AND ((tt-item-po.iQtyDue GE 0 AND rd_select EQ "On Order") OR rd_select EQ "All")     ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH tt-item-po NO-LOCK WHERE (tt-item-po.iPoNo EQ INTEGER(auto_find) OR INTEGER(auto_find) EQ 0) AND ((tt-item-po.iQtyDue GT 0 AND rd_select EQ "On Order") OR rd_select EQ "All")     ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY {&SELF-NAME} FOR EACH tt-item-po NO-LOCK WHERE (tt-item-po.iPoNo EQ INTEGER(auto_find) OR INTEGER(auto_find) EQ 0) AND ((tt-item-po.iQtyDue GT 0 AND rd_select EQ "On Order") OR rd_select EQ "All")     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table tt-item-po
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table tt-item-po
 
@@ -304,7 +304,7 @@ ASSIGN
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH tt-item-po NO-LOCK
 WHERE (tt-item-po.iPoNo EQ INTEGER(auto_find) OR INTEGER(auto_find) EQ 0)
-AND ((tt-item-po.iQtyDue GE 0 AND rd_select EQ "On Order") OR rd_select EQ "All")
+AND ((tt-item-po.iQtyDue GT 0 AND rd_select EQ "On Order") OR rd_select EQ "All")
     ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
