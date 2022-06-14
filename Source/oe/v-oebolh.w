@@ -2659,7 +2659,7 @@ PROCEDURE valid-loc :
          AND loc.loc = oe-bolh.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-ERROR.
     IF NOT AVAIL loc THEN DO:
         MESSAGE 
-                "Invalid location . Presss F1 for a list of valid location." 
+                "Invalid location . Press F1 for a list of valid location." 
                 VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO oe-bolh.loc.
             oplReturnError = YES.
@@ -2692,7 +2692,7 @@ PROCEDURE valid-carrier :
             NO-LOCK NO-ERROR.
         IF NOT AVAIL carrier THEN DO:
             MESSAGE 
-                "Invalid Carrier. Presss F1 for a list of valid carriers." 
+                "Invalid Carrier. Press F1 for a list of valid carriers." 
                 VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO oe-bolh.carrier.
             RETURN ERROR.
@@ -2700,7 +2700,7 @@ PROCEDURE valid-carrier :
         ELSE DO:
             MESSAGE 
                 "The carrier you entered is valid, but is not available" SKIP 
-                "for this shipto. Presss F1 for a list of valid carriers." 
+                "for this shipto. Press F1 for a list of valid carriers." 
                 VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO oe-bolh.carrier.
             RETURN ERROR.
