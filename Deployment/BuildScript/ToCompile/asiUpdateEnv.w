@@ -7269,9 +7269,13 @@ PROCEDURE ipStatus :
     PROCESS EVENTS.
 
     /* Give the log file time to close */
-    IF INDEX(ipcStatus,"Patch Application Complete") EQ 0 THEN
-        PAUSE 2 NO-MESSAGE.
-        
+    IF INDEX(ipcStatus,"Patch Application Complete") EQ 0 THEN DO:
+        ETIME(YES).
+        DO WHILE ETIME LE 2000:
+            ASSIGN 
+                iCtr = iCtr.
+        END.
+    END.        
 
 END PROCEDURE.
 

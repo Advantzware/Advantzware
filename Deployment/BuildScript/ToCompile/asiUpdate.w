@@ -1501,7 +1501,7 @@ PROCEDURE ipProcess :
     RUN ipStatus("Initiating asiUpdateENV.w").
 
     /* Give the OS time to close the log file so next pgm can re-open it */
-    MTIME(2).
+    mTime(2).
 
     ASSIGN
         c-Win:VISIBLE = FALSE. 
@@ -1524,6 +1524,9 @@ PROCEDURE ipProcess :
         OUTPUT lSuccess,
         INPUT-OUTPUT iStatus).
         
+    /* Give the OS time to close the log file so this pgm can re-open it */
+    mTime(2).
+
     ASSIGN
         THIS-PROCEDURE:CURRENT-WINDOW = c-Win
         c-Win:VISIBLE = TRUE
