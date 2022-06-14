@@ -437,7 +437,7 @@ ON VALUE-CHANGED OF cbTitle IN FRAME dialog-Frame
     DO:
         ASSIGN cbTitle.
         FIND FIRST rejct-cd WHERE rejct-cd.CODE = cbTitle NO-LOCK NO-ERROR.
-        IF AVAIL(rejct-cd) AND notes.note_text:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN
+        IF AVAIL(rejct-cd) THEN
             notes.note_text:SCREEN-VALUE IN FRAME {&FRAME-NAME} = rejct-cd.dscr.
 
     END.
