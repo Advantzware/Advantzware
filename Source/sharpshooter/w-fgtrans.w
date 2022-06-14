@@ -1640,7 +1640,7 @@ PROCEDURE pTagScan PRIVATE :
     lItemType = LOGICAL(oLoadtag:GetValue("ItemType")).
     
     IF lItemType THEN DO:
-        RUN pTagScanRM (ipcTag, OUTPUT oplIsTransfer, OUTPUT oplError, OUTPUT opcMessage).
+        RUN pTagScanRM (oLoadtag:GetValue("Tag"), OUTPUT oplIsTransfer, OUTPUT oplError, OUTPUT opcMessage).
         
         IF oplError THEN DO:
             RUN pStatusMessage(opcMessage, 3).
@@ -1649,7 +1649,7 @@ PROCEDURE pTagScan PRIVATE :
         END.
     END.
     ELSE IF NOT lItemType THEN DO:
-        RUN pTagScanFG (ipcTag, OUTPUT oplIsTransfer, OUTPUT oplError, OUTPUT opcMessage).
+        RUN pTagScanFG (oLoadtag:GetValue("Tag"), OUTPUT oplIsTransfer, OUTPUT oplError, OUTPUT opcMessage).
 
         IF oplError THEN DO:
             RUN pStatusMessage(opcMessage, 3).
