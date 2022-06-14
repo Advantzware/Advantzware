@@ -1114,6 +1114,7 @@ DO:
       fi_part-no
       fi_ord-no
       fi_po-no1
+      fiItemPo
       fi_est-no
       fi_job-no
       fi_job-no2
